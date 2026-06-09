@@ -15,11 +15,11 @@
         padding: 70px 15px 20px 15px !important; 
     }
 
-    /* --- Nút mở Menu & Avatar --- */
+    /* --- Nút mở Menu --- */
     .sidebar-toggle {
-        position: absolute !important; /* Bám sát theo thanh menu, không phải màn hình */
+        position: fixed !important; /* Ghim trực tiếp vào màn hình điện thoại */
         top: 15px !important;
-        left: 100% !important; /* Luôn bám ở mép ngoài cùng bên phải của menu (280px) */
+        left: 0px !important; /* Ép sát viền trái khi menu đóng */
         right: auto !important;
         width: 45px !important;
         height: 45px !important;
@@ -29,24 +29,17 @@
         transition: all 0.3s ease !important;
     }
 
-    /* Mũi tên khi menu đang ĐÓNG (Nút tự động hiển thị ở viền trái màn hình) */
+    /* Mũi tên khi menu đang ĐÓNG (Nút hiển thị ở viền trái màn hình) */
     .dashboard.collapsed .sidebar-toggle {
         transform: rotate(180deg) !important; /* Mũi tên chỉ ra ngoài (▶) */
         border-radius: 0 12px 12px 0 !important;
     }
 
-    /* Mũi tên khi menu đang MỞ (Nút hiển thị ở viền phải menu) */
+    /* Mũi tên khi menu đang MỞ (Nút trượt ra ngoài cùng menu) */
     .dashboard:not(.collapsed) .sidebar-toggle {
         transform: rotate(0deg) !important; /* Mũi tên chỉ vào trong (◀) */
         border-radius: 50% !important;
-        left: calc(100% - 22px) !important; /* Thụt vào hình tròn cho đẹp */
-    }
-
-    /* Khi mở menu, nút bấm sẽ trượt ra và đổi chiều mũi tên */
-    .dashboard:not(.collapsed) .sidebar-toggle {
-        left: 280px; 
-        border-radius: 50%;
-        transform: rotate(0deg); /* Khi mở: mũi tên chỉ sang trái (◀) */
+        left: 280px !important; /* Nút trượt ra đúng bằng chiều rộng menu */
     }
 
     .profile-trigger-btn {
@@ -66,13 +59,15 @@
         height: 100vh !important;
         z-index: 10000 !important;
         box-shadow: 5px 0 25px rgba(0,0,0,0.5) !important;
-        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        background: rgba(255, 255, 255, 0.9) !important;
-        backdrop-filter: blur(25px) !important;
-        -webkit-backdrop-filter: blur(25px) !important;
+        transition: left 0.3s ease !important;
+        
+        /* CỰC KỲ QUAN TRỌNG: Tắt kính mờ để không giam cầm nút bấm */
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background: #fdfdfd !important; /* Thay bằng màu nền trắng đặc để không bị xuyên thấu */
     }
 
-    /* Khi đóng, menu thụt sang trái 280px */
+    /* Khi đóng, menu thụt sang trái giấu đi (-280px) */
     .dashboard.collapsed .sidebar {
         left: -280px !important; 
     }
