@@ -19,8 +19,7 @@
     .sidebar-toggle {
         position: fixed;
         top: 15px;
-        left: 0px; /* Neo ở góc trái màn hình */
-        right: auto;
+        left: 0px; /* Neo ở sát viền trái khi đóng */
         width: 45px;
         height: 45px;
         border-radius: 0 12px 12px 0;
@@ -28,13 +27,14 @@
         box-shadow: 4px 0 15px rgba(0,0,0,0.2);
         z-index: 10001; /* Nổi lên trên cùng */
         transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s;
+        transform: rotate(180deg); /* Khi đóng: mũi tên chỉ sang phải (▶) */
     }
 
-    /* Khi mở menu, nút bấm sẽ trượt theo ra ngoài */
+    /* Khi mở menu, nút bấm sẽ trượt ra và đổi chiều mũi tên */
     .dashboard:not(.collapsed) .sidebar-toggle {
         left: 280px; 
         border-radius: 50%;
-        transform: rotate(180deg); /* Đảo chiều mũi tên */
+        transform: rotate(0deg); /* Khi mở: mũi tên chỉ sang trái (◀) */
     }
 
     .profile-trigger-btn {
@@ -49,21 +49,20 @@
     .sidebar {
         position: fixed;
         top: 0;
-        left: 0;
+        left: 0; /* Trạng thái mở */
         width: 280px !important;
         height: 100vh;
         z-index: 10000;
         box-shadow: 5px 0 25px rgba(0,0,0,0.5);
-        transform: translateX(0); /* Trạng thái mở */
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Thay transform bằng left */
         background: rgba(255, 255, 255, 0.9);
         backdrop-filter: blur(25px);
         -webkit-backdrop-filter: blur(25px);
     }
 
-    /* Ẩn sidebar hoàn toàn sang trái khi có class collapsed */
+    /* Ẩn sidebar bằng cách kéo left âm (Nút bấm fixed bên trong sẽ KHÔNG bị kéo theo) */
     .dashboard.collapsed .sidebar {
-        transform: translateX(-100%);
+        left: -280px; 
     }
 
     /* Ghi đè CSS desktop: Giữ nguyên hiển thị chữ trên menu di động thay vì chỉ hiện icon */
