@@ -1,0 +1,25 @@
+/* Vùng nhập bài làm */
+.submit-box textarea { 
+    background: rgba(255, 255, 255, 0.85); 
+    border: 1px solid rgba(255, 255, 255, 0.9); 
+    min-height: 120px;
+}
+
+/* Trạng thái huy hiệu mềm mại */
+.status-done { 
+    color: #059669; 
+    font-weight: 800; 
+    background: rgba(16, 185, 129, 0.15); 
+    padding: 6px 14px; 
+    border-radius: 20px;
+    font-size: 0.9em;
+}
+
+.status-pending { 
+    color: #d97706; 
+    font-weight: 800; 
+    background: rgba(245, 158, 11, 0.15); 
+    padding: 6px 14px; 
+    border-radius: 20px;
+    font-size: 0.9em;
+}

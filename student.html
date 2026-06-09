@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Trang Học Sinh</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/student.css">
+    <link rel="stylesheet" href="css/mobile.css">
+</head>
+
+<body>
+    <div class="dashboard">
+        <div class="sidebar">
+            <div class="sidebar-toggle" onclick="toggleSidebar()">
+                <span class="toggle-icon">◀</span>
+            </div>
+
+            <div class="sidebar-top">
+                <h3 id="studentName">Học sinh</h3><br>
+                <button class="nav-item active" onclick="switchTab('tab-todo', this)">📝 <span class="nav-text">Bài tập
+                        cần làm</span></button>
+                <button class="nav-item" onclick="switchTab('tab-grades', this)">📈 <span class="nav-text">Kết quả học
+                        tập</span></button>
+                <button class="nav-item" onclick="switchTab('tab-materials', this)">📚 <span class="nav-text">Tài liệu
+                        học tập</span></button>
+                <button class="nav-item" onclick="switchTab('tab-roadmap', this)">🗺️ <span class="nav-text">Lộ
+                        trình & Lịch</span></button>
+                <button class="nav-item" id="btnSettingsNav" onclick="switchTab('tab-settings', this)">⚙️ <span
+                        class="nav-text">Cài đặt</span></button>
+                <button class="nav-item" onclick="switchTab('tab-game', this)">🎮 <span class="nav-text">Trò
+                        chơi</span></button>
+            </div>
+            <div class="sidebar-bottom">
+                <button class="btn-logout" onclick="logout()">🚪 <span class="nav-text">Đăng xuất</span></button>
+            </div>
+        </div>
+
+        <div class="content">
+            <button class="profile-trigger-btn" onclick="openStudentInfoModal()" title="Hồ sơ cá nhân">
+                <img id="avatarImage" src=""
+                    style="display: none; width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+
+                <span id="avatarPlaceholder" style="font-size: 1.5em;">👤</span>
+            </button>
+            <div id="tab-todo" class="tab-content active">
+                <h2>Bài tập cần làm</h2>
+                <input type="text" class="search-bar" placeholder="🔍 Tìm kiếm bài tập..."
+                    onkeyup="filterItems('assignmentsList', this.value)">
+                <div id="assignmentsList"></div>
+            </div>
+
+            <div id="tab-grades" class="tab-content">
+                <h2>Kết quả học tập</h2>
+                <input type="text" class="search-bar" placeholder="🔍 Tìm kiếm bài đã nộp, điểm số..."
+                    onkeyup="filterItems('gradesList', this.value)">
+                <div id="gradesList"></div>
+            </div>
+
+            <div id="tab-materials" class="tab-content">
+                <h2>Tài liệu học tập</h2>
+                <input type="text" class="search-bar" placeholder="🔍 Tìm kiếm tài liệu, bài giảng..."
+                    onkeyup="filterItems('studentMaterialsList', this.value)">
+                <div id="studentMaterialsList"></div>
+            </div>
+
+            <div id="tab-roadmap" class="tab-content">
+                <h2>Lộ trình & Thời khóa biểu</h2>
+
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button id="btnSubRoadmap" onclick="toggleRoadmapView('roadmap')"
+                        style="flex: 1; padding: 12px; border-radius: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-weight: bold; border: none; cursor: pointer; transition: 0.3s;">🗺️
+                        Lộ trình cá nhân</button>
+                    <button id="btnSubSchedule" onclick="toggleRoadmapView('schedule')"
+                        style="flex: 1; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.5); color: #667eea; font-weight: bold; border: 2px solid #667eea; cursor: pointer; transition: 0.3s;">📅
+                        Thời khóa biểu</button>
+                </div>
+
+                <div id="view-roadmap">
+                    <div class="card">
+                        <div style="overflow-x: auto;">
+                            <table style="width:100%; border-collapse: collapse; text-align: left;">
+                                <thead>
+                                    <tr
+                                        style="background:rgba(255,255,255,0.7); border-bottom: 2px solid rgba(0,0,0,0.05);">
+                                        <th style="padding:15px;">Bài học</th>
+                                        <th style="padding:15px; text-align: center;">Số điểm</th>
+                                        <th style="padding:15px; text-align: center;">Tình trạng</th>
+                                        <th style="padding:15px; text-align: center;">Cộng tiền</th>
+                                        <th style="padding:15px;">Hạn nộp</th>
+                                        <th style="padding:15px;">Điều kiện cụ thể</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="studentRoadmapBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-schedule" style="display: none;">
+                    <div class="card">
+                        <h3 style="margin-bottom: 15px; color: #2c3e50;">Thời khóa biểu lớp học</h3>
+                        <div style="overflow-x: auto;">
+                            <table style="width:100%; border-collapse: collapse; text-align: left;">
+                                <thead>
+                                    <tr
+                                        style="background:rgba(255,255,255,0.7); border-bottom: 2px solid rgba(0,0,0,0.05);">
+                                        <th style="padding:15px;">Thứ / Ngày</th>
+                                        <th style="padding:15px;">Thời gian</th>
+                                        <th style="padding:15px;">Môn / Nội dung</th>
+                                        <th style="padding:15px;">Ghi chú</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="studentScheduleBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-game" class="tab-content">
+                <h2>Khu vực giải trí & Trò chơi học tập</h2>
+
+                <div id="gameLockedView" style="display: none;">
+                    <div class="glass-alert danger"
+                        style="padding: 25px; text-align: center; border-left: 6px solid #e11d48; background: rgba(225, 29, 72, 0.08); border-radius: 16px;">
+                        <h3 style="color: #e11d48; margin-bottom: 12px; font-size: 1.4em; font-weight: 800;">🔒 Mục trò
+                            chơi đã bị Giáo viên tạm khóa</h3>
+                        <p id="gameLockedMessageText"
+                            style="font-size: 1.1em; font-weight: bold; color: #b91c1c; white-space: pre-wrap; background: rgba(255,255,255,0.7); padding: 15px; border-radius: 12px; margin-top: 15px; border: 1px solid rgba(225, 29, 72, 0.15); line-height: 1.6;">
+                            Nội dung tin nhắn nhắc nhở từ giáo viên sẽ hiển thị tại đây...</p>
+                    </div>
+                </div>
+
+                <div id="gameActiveView" style="display: block;">
+                    <div class="card">
+                        <h3 style="color: #059669; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                            🎉 Chào mừng các em đến với Khu vui chơi!</h3>
+                        <p style="color: #333; line-height: 1.6; font-size: 1em;">Nơi tham gia các hoạt động, sự kiện
+                            trò chơi tích điểm và đổi tiền thưởng Lộ trình một cách chủ động.</p>
+                    </div>
+
+                    <div class="card"
+                        style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);">
+                        <div>
+                            <h3 style="color: #d35400; margin-bottom: 8px;">🎡 Vòng quay nhân phẩm</h3>
+                            <p style="color: #666; font-size: 0.9em; margin: 0;">Thử vận may mỗi ngày để nhận Coin và
+                                Quà bí ẩn!</p>
+                        </div>
+                        <button onclick="openLuckyWheel()"
+                            style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white; padding: 12px 25px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(246, 211, 101, 0.4);">Chơi
+                            ngay ➡️</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-settings" class="tab-content">
+                <h2>Cài đặt tài khoản</h2>
+                <div id="updateBannerArea" class="update-banner">
+                    <div>
+                        <h4 style="margin: 0; font-size: 1.2em;">🚀 Có phiên bản hệ thống mới!</h4>
+                        <p style="margin: 5px 0 0 0; font-size: 0.95em;">Nhấn nút bên cạnh để tải lại toàn bộ tài nguyên
+                            web mới nhất.</p>
+                    </div>
+                    <button class="btn-do-update" onclick="applySystemUpdate()">Cập nhật ngay</button>
+                </div>
+                <div class="card form-container">
+                    <label><strong>🎨 Giao diện hiển thị:</strong></label>
+                    <select id="themeSelector" onchange="changeTheme(this.value)"
+                        style="margin-bottom: 20px; font-weight: bold; color: #667eea;">
+                        <option value="default">✨ Mặc định (Tím mộng mơ)</option>
+                        <option value="blue">🌊 Xanh biển (Tươi mát)</option>
+                        <option value="green">🌿 Xanh lá (Yên bình)</option>
+                        <option value="pink">🌸 Hồng (Ngọt ngào)</option>
+                    </select>
+                    <label><strong>Tên hiển thị của bạn:</strong></label>
+                    <input type="text" id="settingName" placeholder="Nhập tên hiển thị mới...">
+
+                    <label><strong>Mật khẩu mới (để trống nếu không muốn đổi):</strong></label>
+                    <input type="password" id="settingPass" placeholder="Nhập mật khẩu mới...">
+
+                    <button onclick="updateProfile()"
+                        style="margin-top: 15px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: #fff;">Gửi
+                        yêu cầu thay đổi</button>
+
+                    <div id="requestNotifications" style="margin-top: 25px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="studentInfoModal" class="modal-overlay">
+        <div class="modal-content form-container" style="max-width: 400px; text-align: center;">
+            <button class="close-btn" onclick="closeStudentInfoModal()">✖</button>
+
+            <div class="avatar-upload-container"
+                style="position: relative; display: inline-block; margin-bottom: 20px; cursor: pointer;"
+                onclick="document.getElementById('avatarInput').click()" title="Click để đổi ảnh đại diện">
+                <img id="modalAvatarPreview" src=""
+                    style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid rgba(102, 126, 234, 0.3);">
+                <span
+                    style="position: absolute; bottom: 0; right: 0; background: #667eea; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; font-size: 0.8em; border: 2px solid white;">✏️</span>
+            </div>
+
+            <input type="file" id="avatarInput" accept="image/png, image/jpeg, image/gif" style="display: none;"
+                onchange="previewAvatar(this)">
+            <button id="saveAvatarBtn" onclick="saveNewAvatar()"
+                style="display: none; width: auto; font-size: 0.8em; padding: 5px 15px; background: linear-gradient(135deg, #16a085 0%, #2ecc71 100%); margin: -10px auto 15px auto;">Lưu
+                ảnh mới ✅</button>
+
+            <h3 id="infoModalName" style="color: #764ba2; margin-bottom: 5px; font-size: 1.5em;">Tên học sinh</h3>
+            <p style="color: #667eea; font-weight: bold; margin-bottom: 20px;" id="infoModalClass">Lớp: ...</p>
+
+            <div
+                style="text-align: left; background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; margin-bottom: 15px;">
+                <strong style="color: #2c3e50;">🌟 Sở thích:</strong>
+                <p id="infoModalHobbies" style="margin-top: 5px; color: #444;">Chưa cập nhật</p>
+            </div>
+
+            <div style="text-align: left; background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px;">
+                <strong style="color: #2c3e50;">💬 Chân ngôn:</strong>
+                <p id="infoModalMotto" style="margin-top: 5px; font-style: italic; color: #444;">Chưa cập nhật</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="luckyWheelModal" class="modal-overlay" style="background: rgba(0,0,0,0.6);">
+        <div class="modal-content"
+            style="max-width: 480px; text-align: center; position: relative; background: rgba(30, 30, 50, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 30px 60px rgba(0,0,0,0.5); border-radius: 24px; padding: 35px 20px 45px 20px;">
+
+            <button class="close-btn" onclick="closeLuckyWheel()"
+                style="z-index: 10; background: rgba(255,255,255,0.1); border-radius: 50%; color: #fff; top: 15px; right: 15px; border: 1px solid rgba(255,255,255,0.2);">✖</button>
+
+            <h3
+                style="color: #fff; margin-bottom: 35px; font-size: 1.8em; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); font-weight: 900;">
+                🎡 Vòng Quay Nhân Phẩm</h3>
+
+            <div style="position: relative; width: 320px; height: 320px; margin: 0 auto 40px auto;">
+                <div
+                    style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); z-index: 10; width: 0; height: 0; border-left: 18px solid transparent; border-right: 18px solid transparent; border-top: 35px solid #ff0844; filter: drop-shadow(0 6px 4px rgba(0,0,0,0.5));">
+                </div>
+                <div
+                    style="position: absolute; top: -18px; left: 50%; transform: translateX(-50%); z-index: 11; width: 36px; height: 12px; background: #ff0844; border-radius: 50px; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                </div>
+
+                <div id="wheelContainer" style="width: 100%; height: 100%; border-radius: 50%; border: 8px solid #f8f9fa; box-shadow: 0 15px 35px rgba(0,0,0,0.5), inset 0 0 25px rgba(0,0,0,0.6); position: relative; overflow: hidden; transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99); background: conic-gradient(
+                #ff4757 0deg 51.4deg, #2ed573 51.4deg 102.8deg, #1e90ff 102.8deg 154.2deg, #ffa502 154.2deg 205.7deg, #3742fa 205.7deg 257.1deg, #ff69b4 257.1deg 308.5deg, #2f3542 308.5deg 360deg
+            );">
+                    <style>
+                        .wheel-text {
+                            position: absolute;
+                            top: 50%;
+                            left: 50%;
+                            width: 50%;
+                            height: 40px;
+                            margin-top: -20px;
+                            transform-origin: 0 50%;
+                            font-weight: 900;
+                            font-size: 0.95em;
+                            color: #fff;
+                            text-shadow: 1px 2px 5px rgba(0, 0, 0, 0.9), 0 0 10px rgba(255, 255, 255, 0.2);
+                            display: flex;
+                            align-items: center;
+                            justify-content: flex-end;
+                            padding-right: 25px;
+                            box-sizing: border-box;
+                            letter-spacing: 0.5px;
+                        }
+                    </style>
+                    <div class="wheel-text" style="transform: rotate(-64.3deg);">Mất lượt 1</div>
+                    <div class="wheel-text" style="transform: rotate(-12.9deg);">100 Coin</div>
+                    <div class="wheel-text" style="transform: rotate(38.5deg);">Mất lượt 2</div>
+                    <div class="wheel-text" style="transform: rotate(89.9deg);">150 Coin</div>
+                    <div class="wheel-text" style="transform: rotate(141.3deg);">Mất lượt 3</div>
+                    <div class="wheel-text" style="transform: rotate(192.7deg);">500 Coin</div>
+                    <div class="wheel-text" style="transform: rotate(244.1deg);">🎁 Bí ẩn</div>
+                </div>
+
+                <div
+                    style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 45px; height: 45px; background: radial-gradient(circle, #fff 0%, #bdc3c7 100%); border-radius: 50%; border: 6px solid #2f3542; box-shadow: 0 5px 15px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.8); z-index: 10;">
+                </div>
+            </div>
+
+            <button id="spinBtn" onclick="spinWheel()"
+                style="background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%); color: white; padding: 15px 45px; font-size: 1.3em; border-radius: 50px; border: 2px solid rgba(255,255,255,0.3); font-weight: 900; cursor: pointer; box-shadow: 0 10px 25px rgba(255, 8, 68, 0.5); text-transform: uppercase; transition: all 0.2s ease;">Quay
+                Ngay!</button>
+
+            <div
+                style="min-height: 70px; margin-top: 25px; display: flex; align-items: center; justify-content: center;">
+                <p id="spinResultText"
+                    style="font-weight: 900; color: #fff; font-size: 1.3em; text-shadow: 0 2px 5px rgba(0,0,0,0.5); transition: all 0.3s ease; transform: scale(0.8); opacity: 0; margin: 0; line-height: 1.4;">
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div id="coinWidget"
+        style="position: fixed; bottom: 20px; left: 20px; background: rgba(30, 30, 50, 0.85); backdrop-filter: blur(10px); border: 2px solid #ffd700; padding: 8px 18px; border-radius: 50px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; gap: 10px; cursor: grab; user-select: none; transition: transform 0.1s;">
+        <span style="font-size: 1.6em; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); pointer-events: none;">🪙</span>
+        <div style="display: flex; flex-direction: column; pointer-events: none;">
+            <span
+                style="color: #ffd700; font-size: 0.7em; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: -3px;">Số
+                dư Coin</span>
+            <span id="studentCoinBalance"
+                style="color: #fff; font-size: 1.3em; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.5); transition: all 0.3s ease;">0</span>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script src="js/student.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/security.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Trang Giáo Viên</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/teacher.css">
+    <link rel="stylesheet" href="css/mobile.css">
+</head>
+
+<body>
+    <div class="dashboard">
+        <div class="sidebar">
+            <div class="sidebar-toggle" onclick="toggleSidebar()">
+                <span class="toggle-icon">◀</span>
+            </div>
+
+            <div class="sidebar-top">
+                <h3>Bảng điều khiển</h3><br>
+                <button class="nav-item active" onclick="switchTab('tab-create', this)">➕ <span class="nav-text">Giao
+                        bài tập mới</span></button>
+                <button class="nav-item" onclick="switchTab('tab-assigned', this)">📋 <span class="nav-text">Bài tập đã
+                        giao</span></button>
+                <button class="nav-item" onclick="switchTab('tab-list', this)">📥 <span class="nav-text">Danh sách bài
+                        đã nộp</span></button>
+                <button class="nav-item" onclick="switchTab('tab-materials', this)">📚 <span class="nav-text">Tài liệu
+                        học tập</span></button>
+                <button class="nav-item" onclick="switchTab('tab-manage-students', this)">👥 <span class="nav-text">Quản
+                        lý học sinh</span></button>
+                <button class="nav-item" onclick="switchTab('tab-roadmap', this)">🗺️ <span class="nav-text">Lộ
+                        trình & Lịch</span></button>
+                <button class="nav-item" onclick="switchTab('tab-game-manage', this)">🎮 <span class="nav-text">Quản lý
+                        trò chơi</span></button>
+                <button class="nav-item" id="btnSettingsNav" onclick="switchTab('tab-settings', this)">⚙️ <span
+                        class="nav-text">Cài đặt</span></button>
+            </div>
+            <div class="sidebar-bottom">
+                <button class="btn-logout" onclick="logout()">🚪 <span class="nav-text">Đăng xuất</span></button>
+            </div>
+        </div>
+
+        <div class="content">
+            <div id="tab-create" class="tab-content active">
+                <h2>Giao bài tập mới</h2>
+                <div class="card form-container">
+                    <label for="assessmentType"><strong>Loại hình kiểm tra:</strong></label>
+                    <select id="assessmentType" onchange="toggleAssessmentFields()">
+                        <option value="tu_luan">Chỉ Tự luận (Có nhập chữ/Up file/Video)</option>
+                        <option value="trac_nghiem">Chỉ Trắc nghiệm (Chọn ABCD)</option>
+                        <option value="ket_hop">Kết hợp cả 2</option>
+                    </select>
+
+                    <div id="scoreDistributionFields"
+                        style="display: none; background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; margin-top: 15px; border: 1px dashed #764ba2;">
+                        <label style="color: #764ba2; font-weight: 800; display: block; margin-bottom: 8px;">⚖️ Phân
+                            chia thang điểm 10:</label>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Điểm Trắc nghiệm tối đa:</label>
+                                <input type="number" id="mcWeight" value="4" min="1" max="9" step="0.5"
+                                    oninput="document.getElementById('essayWeight').value = 10 - this.value"
+                                    style="font-weight: bold; color: #d35400; margin-bottom: 0;">
+                            </div>
+                            <div class="form-group">
+                                <label>Điểm Tự luận tối đa:</label>
+                                <input type="number" id="essayWeight" value="6" readonly
+                                    style="background: rgba(0,0,0,0.05); font-weight: bold; margin-bottom: 0;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <label for="title"><strong>Tiêu đề bài tập:</strong></label>
+                    <input type="text" id="title" placeholder="Nhập tiêu đề bài tập...">
+
+                    <div class="form-row">
+                        <div class="form-group"><label for="startDate"><strong>Hạn bắt đầu:</strong></label><input
+                                type="datetime-local" id="startDate"></div>
+                        <div class="form-group"><label for="endDate"><strong>Hạn nộp bài:</strong></label><input
+                                type="datetime-local" id="endDate"></div>
+                    </div>
+                    <label for="targetStudent"><strong>Giao cho học sinh:</strong></label>
+                    <select id="targetStudent">
+                        <option value="all">Tất cả học sinh</option>
+                    </select>
+
+                    <div id="tracNghiemFields"
+                        style="display: none; background: rgba(255,255,255,0.4); padding: 15px; border-radius: 12px; margin-top: 15px; border: 1px solid rgba(255,255,255,0.8);">
+                        <h3 style="margin-bottom: 10px; color: #764ba2; font-size: 1.1em;">Phần Trắc Nghiệm</h3>
+                        <div
+                            style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px dashed #667eea; box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);">
+                            <label style="color: #2c3e50; font-weight: 800; display: block; margin-bottom: 8px;">⚡ Nhập
+                                nhanh từ văn bản (Copy/Paste):</label>
+                            <textarea id="quickImportText" rows="5"
+                                placeholder="Dán nội dung câu hỏi vào đây...&#10;Ví dụ:&#10;Câu 1: Khi làm việc trong phòng thí nghiệm...&#10;A. Tự ý pha chế&#10;B. Tuân thủ nội quy..."></textarea>
+                            <button type="button" onclick="importQuestions()"
+                                style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 10px; margin-top: 10px; font-size: 0.95em;">🔍
+                                Tự động bóc tách câu hỏi</button>
+                        </div>
+                        <div id="questionsContainer"></div>
+                        <button type="button" onclick="addQuestion()"
+                            style="background: rgba(102, 126, 234, 0.1); color: #667eea; border: 2px dashed #667eea; box-shadow: none; margin-top: 10px; width: 100%;">+
+                            Thêm câu hỏi trắc nghiệm</button>
+                    </div>
+
+                    <div id="tuLuanFields" style="margin-top: 15px;">
+                        <label for="desc"><strong>Yêu cầu bài tập (Tự luận):</strong></label>
+                        <textarea id="desc" placeholder="Nội dung chi tiết yêu cầu tự luận..." rows="4"></textarea>
+                        <label for="videoLink"><strong>Đính kèm Video (Link YouTube - Nếu có):</strong></label>
+                        <input type="text" id="videoLink" placeholder="Dán link YouTube vào đây...">
+                        <label for="fileInput" class="file-label"><strong>Đính kèm tài liệu:</strong></label>
+                        <input type="file" id="fileInput" accept=".docx, .pdf, image/*" multiple>
+
+                        <label style="display: flex; align-items: center; gap: 8px; margin-top: 15px; cursor: pointer;">
+                            <input type="checkbox" id="hideEssayText"
+                                style="width: 20px; height: 20px; flex-shrink: 0; margin: 0; cursor: pointer; transition: none;">
+                            <strong style="color: #764ba2;">📁 Chỉ cho phép nộp bằng Tệp (Ẩn ô viết chữ tự luận phía học
+                                sinh)</strong>
+                        </label>
+                    </div>
+
+                    <button onclick="createAssignment()" style="margin-top: 20px;">Phát hành bài tập</button>
+                </div>
+            </div>
+
+            <div id="tab-assigned" class="tab-content">
+                <h2>Danh sách bài tập đã giao</h2>
+                <input type="text" class="search-bar" placeholder="🔍 Tìm kiếm theo tên bài tập, loại hình..."
+                    onkeyup="filterItems('assignedListContainer', this.value)">
+                <div id="assignedListContainer"></div>
+            </div>
+
+            <div id="tab-list" class="tab-content">
+                <h2>Danh sách bài đã nộp</h2>
+                <input type="text" class="search-bar" placeholder="🔍 Tìm kiếm theo tên học sinh, tên bài tập..."
+                    onkeyup="filterItems('submissionsList', this.value)">
+                <div id="submissionsList"></div>
+            </div>
+
+            <div id="tab-materials" class="tab-content">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
+                    <h2 style="margin: 0;">Quản lý Tài liệu học tập</h2>
+                    <button onclick="openMaterialModal()"
+                        style="width: auto; padding: 12px 25px; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">➕
+                        Thêm tài liệu mới</button>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 15px; color: #2c3e50;">Danh sách tài liệu đã đăng tải</h3>
+                    <input type="text" class="search-bar" placeholder="🔍 Tìm kiếm tài liệu..."
+                        onkeyup="filterItems('teacherMaterialsContainer', this.value)">
+                    <div id="teacherMaterialsContainer"></div>
+                </div>
+            </div>
+
+            <div id="tab-manage-students" class="tab-content">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
+                    <h2 style="margin: 0;">Quản lý tài khoản học sinh</h2>
+                    <button onclick="openStudentModal()"
+                        style="width: auto; padding: 12px 25px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">➕
+                        Thêm học sinh mới</button>
+                </div>
+
+                <div class="glass-alert" id="requestsCard" style="display: none; margin-bottom: 25px;">
+                    <h3 style="margin-bottom: 15px; color: #d35400;">🔔 Yêu cầu đổi thông tin</h3>
+                    <div id="requestsListContainer"></div>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 15px; color: #2c3e50;">Danh sách tài khoản</h3>
+                    <input type="text" class="search-bar" placeholder="🔍 Tìm kiếm họ tên, tài khoản, lớp học..."
+                        onkeyup="filterItems('studentsListContainer', this.value)">
+                    <div id="studentsListContainer"></div>
+                </div>
+            </div>
+
+            <div id="tab-roadmap" class="tab-content">
+                <h2>Lộ trình & Thời khóa biểu</h2>
+
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button id="btnSubRoadmap" onclick="toggleRoadmapView('roadmap')"
+                        style="flex: 1; padding: 12px; border-radius: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-weight: bold; border: none; cursor: pointer; transition: 0.3s;">🗺️
+                        Lộ trình học tập</button>
+                    <button id="btnSubSchedule" onclick="toggleRoadmapView('schedule')"
+                        style="flex: 1; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.5); color: #667eea; font-weight: bold; border: 2px solid #667eea; cursor: pointer; transition: 0.3s;">📅
+                        Thời khóa biểu</button>
+                </div>
+
+                <div id="view-roadmap">
+                    <div class="card">
+                        <div style="overflow-x: auto;">
+                            <table style="width:100%; border-collapse: collapse; text-align: left;">
+                                <thead>
+                                    <tr
+                                        style="background:rgba(255,255,255,0.7); border-bottom: 2px solid rgba(0,0,0,0.05);">
+                                        <th style="padding:15px; min-width: 15px;">Bài học</th>
+
+                                        <th style="padding:15px; white-space: nowrap;">
+                                            Số điểm
+                                            <select id="roadmapStudentSelect" onchange="renderTeacherRoadmap()"
+                                                style="width: auto; padding: 4px 8px; margin: 0 0 0 5px; display: inline-block; font-size: 0.85em; border-radius: 6px; border: 1px solid rgba(0,0,0,0.15);">
+                                                <option value="">Chọn HS</option>
+                                            </select>
+                                        </th>
+
+                                        <th style="padding:15px; text-align: center; white-space: nowrap;">Tình trạng
+                                        </th>
+
+                                        <th style="padding:15px;">Cộng tiền</th>
+                                        <th style="padding:15px;">Hạn nộp</th>
+                                        <th style="padding:15px;">Điều kiện cụ thể</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="teacherRoadmapBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-schedule" style="display: none;">
+                    <div class="card">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 15px;">
+                            <h3 style="margin: 0; color: #2c3e50;">Thời khóa biểu lớp học</h3>
+                            <button onclick="openScheduleModal()"
+                                style="width: auto; padding: 10px 20px; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); margin: 0;">➕
+                                Thêm lịch học</button>
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table style="width:100%; border-collapse: collapse; text-align: left;">
+                                <thead>
+                                    <tr
+                                        style="background:rgba(255,255,255,0.7); border-bottom: 2px solid rgba(0,0,0,0.05);">
+                                        <th style="padding:15px;">Thứ / Ngày</th>
+                                        <th style="padding:15px;">Thời gian</th>
+                                        <th style="padding:15px;">Môn / Nội dung</th>
+                                        <th style="padding:15px;">Ghi chú</th>
+                                        <th style="padding:15px; text-align:center;">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="teacherScheduleBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-game-manage" class="tab-content">
+                <h2>Quản lý trò chơi (Giáo viên)</h2>
+                <div class="card">
+                    <h3 style="color: #764ba2; margin-bottom: 12px;">Kho lưu trữ & Thiết lập Sự kiện</h3>
+                    <p style="color: #666; font-style: italic;">Lưu ý: Nút bật/tắt mục trò chơi chung nằm trong thẻ "Cài
+                        đặt".</p>
+                </div>
+
+                <div class="card accordion-card" style="margin-top: 20px;">
+                    <div class="accordion-header" onclick="toggleAccordion('wheelManageView', this)">
+                        <div class="accordion-title">
+                            <h3 style="color: #d35400; margin: 0; display: flex; align-items: center; gap: 8px;">🎡 Quản
+                                lý Vòng quay may mắn</h3>
+                        </div>
+                        <div class="accordion-meta"><span class="toggle-icon">▼</span></div>
+                    </div>
+
+                    <div id="wheelManageView" class="accordion-content">
+
+                        <div
+                            style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; border: 1px dashed #d35400; margin-bottom: 20px;">
+                            <h4 style="color: #d35400; margin-top: 0; margin-bottom: 10px;">⚙️ Tùy chỉnh tỉ lệ nhận
+                                thưởng</h4>
+                            <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;"><i>Tổng của tất cả các ô phải
+                                    <strong>đúng bằng 100%</strong>.</i></p>
+
+                            <div
+                                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; align-items: end;">
+                                <div>
+                                    <label style="font-size: 0.8em; font-weight: bold; color: #555;">May mắn (%)</label>
+                                    <input type="number" id="probMiss" value="50" min="0" max="100"
+                                        style="margin:0; background: white; text-align: center; font-weight: bold; padding: 8px;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.8em; font-weight: bold; color: #1e90ff;">100 Coin
+                                        (%)</label>
+                                    <input type="number" id="prob100" value="20" min="0" max="100"
+                                        style="margin:0; background: white; text-align: center; font-weight: bold; padding: 8px;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.8em; font-weight: bold; color: #2ed573;">150 Coin
+                                        (%)</label>
+                                    <input type="number" id="prob150" value="25" min="0" max="100"
+                                        style="margin:0; background: white; text-align: center; font-weight: bold; padding: 8px;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.8em; font-weight: bold; color: #ffa502;">500 Coin
+                                        (%)</label>
+                                    <input type="number" id="prob500" value="4" min="0" max="100"
+                                        style="margin:0; background: white; text-align: center; font-weight: bold; padding: 8px;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.8em; font-weight: bold; color: #ff4757;">Bí ẩn
+                                        (%)</label>
+                                    <input type="number" id="probGift" value="1" min="0" max="100"
+                                        style="margin:0; background: white; text-align: center; font-weight: bold; padding: 8px;">
+                                </div>
+                            </div>
+
+                            <p id="probErrorMsg"
+                                style="color: #e11d48; font-weight: bold; font-size: 0.9em; margin-top: 10px; display: none;">
+                            </p>
+
+                            <button onclick="saveWheelProbabilities()"
+                                style="margin-top: 15px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white; border: none; font-weight: bold; width: 100%; padding: 10px;">💾
+                                Lưu cấu hình tỉ lệ</button>
+                        </div>
+
+                        <div
+                            style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05);">
+                            <h4 style="color: #059669; margin-top: 0; margin-bottom: 15px;">📊 Lịch sử quay thưởng</h4>
+
+                            <div
+                                style="overflow-x: auto; max-height: 350px; overflow-y: auto; border-radius: 8px; border: 1px solid rgba(0,0,0,0.05);">
+                                <table style="width:100%; border-collapse: collapse; text-align: left;">
+                                    <thead style="position: sticky; top: 0; z-index: 1;">
+                                        <tr style="background:#f8f9fa; border-bottom: 2px solid rgba(0,0,0,0.05);">
+                                            <th style="padding:12px; font-size: 0.9em;">Học sinh</th>
+                                            <th style="padding:12px; text-align: center; font-size: 0.9em;">Thời gian
+                                            </th>
+                                            <th style="padding:12px; font-size: 0.9em;">Kết quả</th>
+                                            <th style="padding:12px; text-align: center; font-size: 0.9em;">Xóa</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="spinHistoryBody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-settings" class="tab-content">
+                <h2>Cài đặt tài khoản & Hệ thống</h2>
+
+                <div id="updateBannerArea" class="update-banner" style="display: none;">
+                    <div>
+                        <h4 style="margin: 0; font-size: 1.2em;">🚀 Có phiên bản hệ thống mới!</h4>
+                        <p style="margin: 5px 0 0 0; font-size: 0.95em;">Nhấn nút bên cạnh để tải lại toàn bộ tài nguyên
+                            web mới nhất.</p>
+                    </div>
+                    <button class="btn-do-update" onclick="applySystemUpdate()">Cập nhật ngay</button>
+                </div>
+
+                <div class="card form-container">
+                    <label><strong>🎨 Giao diện hiển thị:</strong></label>
+                    <select id="themeSelector" onchange="changeTheme(this.value)"
+                        style="margin-bottom: 20px; font-weight: bold; color: #667eea;">
+                        <option value="default">✨ Mặc định (Tím mộng mơ)</option>
+                        <option value="blue">🌊 Xanh biển (Tươi mát)</option>
+                        <option value="green">🌿 Xanh lá (Yên bình)</option>
+                        <option value="pink">🌸 Hồng (Ngọt ngào)</option>
+                    </select>
+
+                    <label><strong>Tên hiển thị của bạn:</strong></label>
+                    <input type="text" id="settingName" placeholder="Nhập tên hiển thị mới...">
+
+                    <label><strong>Mật khẩu mới (để trống nếu không muốn đổi):</strong></label>
+                    <input type="password" id="settingPass" placeholder="Nhập mật khẩu mới...">
+
+                    <button onclick="updateProfile()"
+                        style="margin-top: 15px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: #fff;">💾
+                        Lưu thay đổi tài khoản</button>
+
+                    <hr style="border: 0; border-top: 1px dashed rgba(0,0,0,0.1); margin: 20px 0;">
+
+                    <label style="color: #764ba2; font-weight: bold; display: block; margin-bottom: 10px;">⚙️ CẤU HÌNH
+                        TRÒ CHƠI CHO HỌC SINH:</label>
+                    <label
+                        style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 15px; background: rgba(255,255,255,0.4); padding: 12px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.05);">
+                        <input type="checkbox" id="gameToggle" onchange="toggleGameStatus(this.checked)"
+                            style="width: 22px; height: 22px; margin: 0; cursor: pointer;">
+                        <strong style="color: #2c3e50; font-size: 0.95em;">Cho phép học sinh truy cập mục Trò chơi (Bật
+                            = Mở khóa)</strong>
+                    </label>
+
+                    <div id="gameLockMessageArea"
+                        style="display: none; background: rgba(225, 29, 72, 0.05); padding: 15px; border-radius: 12px; border: 1px dashed #e11d48; margin-bottom: 20px;">
+                        <label><strong style="color: #b91c1c; font-size: 0.9em;">💬 Nhập tin nhắn thông báo lý do khóa
+                                mục trò chơi:</strong></label>
+                        <input type="text" id="gameLockMessage"
+                            placeholder="Ví dụ: Đã hết giờ chơi giải trí, các em tập trung làm bài tập nhé!..."
+                            style="background: white; border: 1px solid rgba(0,0,0,0.12); margin-top: 8px; margin-bottom: 10px;">
+                        <button type="button" onclick="saveGameLockMessage()"
+                            style="width: auto; padding: 10px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Xác
+                            nhận khóa & Gửi tin nhắn</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="materialModal" class="modal-overlay">
+                <div class="modal-content form-container">
+                    <button class="close-btn" onclick="closeMaterialModal()">✖</button>
+                    <h3
+                        style="color: #2c3e50; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
+                        Đăng tải bài học mới</h3>
+
+                    <label for="materialTitle"><strong>Tiêu đề tài liệu:</strong></label>
+                    <input type="text" id="materialTitle"
+                        placeholder="Nhập tiêu đề (VD: Bài giảng lý thuyết chương 1)...">
+
+                    <label for="materialVideoLink"><strong>Link Video bài giảng (YouTube - Nếu có):</strong></label>
+                    <input type="text" id="materialVideoLink" placeholder="Dán link bài giảng YouTube vào đây...">
+
+                    <label for="materialLinkInput"><strong>Link File tài liệu (Google Drive, OneDrive - Nếu
+                            có):</strong></label>
+                    <input type="text" id="materialLinkInput" placeholder="Dán link chia sẻ tài liệu vào đây...">
+
+                    <button onclick="createMaterial()"
+                        style="margin-top: 20px; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">Đăng
+                        tải bài học</button>
+                </div>
+            </div>
+
+            <div id="editMaterialModal" class="modal-overlay">
+                <div class="modal-content form-container">
+                    <button class="close-btn" onclick="closeEditMaterialModal()">✖</button>
+                    <h3
+                        style="color: #f6d365; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
+                        ✏️ Đổi tên tài liệu
+                    </h3>
+                    <input type="hidden" id="editMaterialKey">
+
+                    <label><strong>Tiêu đề tài liệu mới:</strong></label>
+                    <input type="text" id="editMaterialTitle" placeholder="Nhập tên tài liệu mới...">
+
+                    <button onclick="saveMaterialEdit()"
+                        style="margin-top: 20px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: #fff;">
+                        💾 Lưu thay đổi
+                    </button>
+                </div>
+            </div>
+
+            <div id="scheduleModal" class="modal-overlay">
+                <div class="modal-content form-container">
+                    <button class="close-btn" onclick="closeScheduleModal()">✖</button>
+                    <h3
+                        style="color: #11998e; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
+                        Quản lý Lịch học</h3>
+                    <input type="hidden" id="editScheduleKey">
+
+                    <label><strong>Thứ / Ngày:</strong></label>
+                    <input type="text" id="scheduleDay" placeholder="VD: Thứ 2, Thứ 3, hoặc 20/11...">
+
+                    <label><strong>Thời gian học:</strong></label>
+                    <input type="text" id="scheduleTime" placeholder="VD: 19:00 - 21:00...">
+
+                    <label><strong>Môn học / Nội dung:</strong></label>
+                    <input type="text" id="scheduleSubject" placeholder="VD: Toán Đại Số - Chương 1...">
+
+                    <label><strong>Ghi chú thêm:</strong></label>
+                    <input type="text" id="scheduleNote" placeholder="VD: Nhớ mang theo máy tính bỏ túi...">
+
+                    <button onclick="saveSchedule()"
+                        style="margin-top: 20px; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">Lưu
+                        Lịch
+                        Học</button>
+                </div>
+            </div>
+
+            <div id="studentModal" class="modal-overlay">
+                <div class="modal-content form-container">
+                    <button class="close-btn" onclick="closeStudentModal()">✖</button>
+                    <h3
+                        style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
+                        Thêm tài khoản học sinh</h3>
+
+                    <div class="form-row">
+                        <div class="form-group"><label><strong>Tên đăng nhập:</strong></label><input type="text"
+                                id="newStudentUsername" placeholder="VD: hs2"></div>
+                        <div class="form-group"><label><strong>Mật khẩu:</strong></label><input type="text"
+                                id="newStudentPassword" placeholder="VD: 123"></div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group"><label><strong>Họ và tên:</strong></label><input type="text"
+                                id="newStudentName" placeholder="VD: Nguyễn Văn A"></div>
+                        <div class="form-group"><label><strong>Lớp:</strong></label><input type="text"
+                                id="newStudentClass" placeholder="VD: 10A1"></div>
+                    </div>
+
+                    <label><strong>Sở thích:</strong></label>
+                    <input type="text" id="newStudentHobbies" placeholder="VD: Đọc sách, Nghe nhạc...">
+
+                    <label><strong>Chân ngôn (Câu nói yêu thích):</strong></label>
+                    <input type="text" id="newStudentMotto" placeholder="VD: Không có áp lực không có kim cương">
+
+                    <button onclick="createStudent()"
+                        style="margin-top: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">Tạo tài
+                        khoản</button>
+                </div>
+            </div>
+
+            <div id="editStudentModal" class="modal-overlay">
+                <div class="modal-content form-container">
+                    <button class="close-btn" onclick="closeEditStudentModal()">✖</button>
+                    <h3
+                        style="color: #f6d365; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
+                        ✏️ Cập nhật thông tin học sinh</h3>
+                    <input type="hidden" id="editStudentKey">
+
+                    <div class="form-row">
+                        <div class="form-group"><label><strong>Họ và tên:</strong></label><input type="text"
+                                id="editStudentName"></div>
+                        <div class="form-group"><label><strong>Lớp:</strong></label><input type="text"
+                                id="editStudentClass">
+                        </div>
+                    </div>
+                    <label><strong>Mật khẩu (để trống nếu không đổi):</strong></label>
+                    <input type="text" id="editStudentPassword" placeholder="Nhập mật khẩu mới...">
+
+                    <label><strong>Sở thích:</strong></label>
+                    <input type="text" id="editStudentHobbies">
+
+                    <label><strong>Chân ngôn:</strong></label>
+                    <input type="text" id="editStudentMotto">
+
+                    <button onclick="saveStudentEdit()"
+                        style="margin-top: 20px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: #fff;">Lưu
+                        thay đổi</button>
+                </div>
+            </div>
+
+            <div id="editAssignmentModal" class="modal-overlay">
+                <div class="modal-content form-container"
+                    style="max-width: 700px; padding: 25px; max-height: 90vh; display: flex; flex-direction: column;">
+                    <button class="close-btn" onclick="closeEditAssignmentModal()"
+                        style="top: 15px; right: 15px; z-index: 10;">✖</button>
+                    <h3
+                        style="color: #764ba2; margin-bottom: 20px; border-bottom: 2px solid rgba(118, 75, 162, 0.2); padding-bottom: 10px; font-size: 1.5em;">
+                        ✏️ Chỉnh sửa bài tập
+                    </h3>
+
+                    <div style="overflow-y: auto; padding-right: 10px; flex-grow: 1;">
+
+                        <div
+                            style="background: rgba(102, 126, 234, 0.05); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(102, 126, 234, 0.2);">
+                            <h4 style="color: #667eea; margin-bottom: 15px;">📝 Thông tin chung</h4>
+                            <label for="editTitle"><strong>Tiêu đề bài tập:</strong></label>
+                            <input type="text" id="editTitle" placeholder="Nhập tiêu đề bài tập..."
+                                style="background: white;">
+
+                            <div class="form-row" style="margin-bottom: 0;">
+                                <div class="form-group">
+                                    <label for="editStartDate"><strong>Hạn bắt đầu:</strong></label>
+                                    <input type="datetime-local" id="editStartDate" style="background: white;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="editEndDate"><strong>Hạn nộp bài:</strong></label>
+                                    <input type="datetime-local" id="editEndDate" style="background: white;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="editScoreWeightFields"
+                            style="display: none; background: rgba(246, 211, 101, 0.1); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px dashed #f6d365;">
+                            <h4 style="color: #d35400; margin-bottom: 15px;">⚖️ Phân chia thang điểm 10</h4>
+                            <div class="form-row" style="margin-bottom: 0;">
+                                <div class="form-group">
+                                    <label>Điểm Trắc nghiệm tối đa:</label>
+                                    <input type="number" id="editMcWeight" min="1" max="9" step="0.5"
+                                        oninput="document.getElementById('editEssayWeight').value = 10 - this.value"
+                                        style="font-weight: bold; color: #d35400; background: white;">
+                                </div>
+                                <div class="form-group">
+                                    <label>Điểm Tự luận tối đa:</label>
+                                    <input type="number" id="editEssayWeight" readonly
+                                        style="background: rgba(0,0,0,0.05); font-weight: bold; margin-bottom: 0;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="editTuLuanSection"
+                            style="display: none; background: rgba(56, 239, 125, 0.05); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(56, 239, 125, 0.2);">
+                            <h4 style="color: #11998e; margin-bottom: 15px;">✍️ Phần Tự luận</h4>
+                            <label for="editDesc"><strong>Yêu cầu bài tập:</strong></label>
+                            <textarea id="editDesc" placeholder="Nội dung chi tiết yêu cầu..." rows="3"
+                                style="background: white;"></textarea>
+
+                            <label for="editVideoLink"><strong>Đính kèm Video (Link YouTube):</strong></label>
+                            <input type="text" id="editVideoLink" placeholder="Dán link YouTube vào đây..."
+                                style="background: white;">
+
+                            <label
+                                style="display: flex; align-items: center; gap: 8px; margin-top: 15px; cursor: pointer; background: rgba(255,255,255,0.7); padding: 10px; border-radius: 8px;">
+                                <input type="checkbox" id="editHideEssayText"
+                                    style="width: 20px; height: 20px; flex-shrink: 0; margin: 0; cursor: pointer;">
+                                <strong style="color: #764ba2; font-size: 0.9em;">📁 Chỉ cho phép nộp bằng Tệp (Ẩn ô
+                                    viết
+                                    chữ
+                                    phía học sinh)</strong>
+                            </label>
+                        </div>
+
+                        <div id="editTracNghiemSection"
+                            style="display: none; background: rgba(255, 8, 68, 0.05); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(255, 8, 68, 0.2);">
+                            <h4 style="color: #e11d48; margin-bottom: 15px;">📚 Phần Trắc nghiệm</h4>
+                            <div id="editQuestionsContainer">
+                            </div>
+                            <button type="button" onclick="addEditQuestionBlock()"
+                                style="background: rgba(225, 29, 72, 0.1); color: #e11d48; border: 2px dashed #e11d48; box-shadow: none; margin-top: 10px; width: 100%; padding: 12px; font-weight: bold;">+
+                                Thêm câu hỏi trắc nghiệm</button>
+                        </div>
+
+                    </div> <button onclick="saveAssignmentEdit()"
+                        style="margin-top: 15px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: #fff; flex-shrink: 0; font-size: 1.1em; padding: 15px;">
+                        💾 Lưu toàn bộ thay đổi
+                    </button>
+                </div>
+            </div>
+
+            <div id="assignmentStatusModal" class="modal-overlay">
+                <div class="modal-content form-container">
+                    <button class="close-btn" onclick="closeAssignmentStatusModal()">✖</button>
+                    <h3
+                        style="color: #11998e; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
+                        📊 Trạng thái làm bài
+                    </h3>
+                    <div id="assignmentStatusContainer" style="max-height: 400px; overflow-y: auto;">
+                    </div>
+                </div>
+            </div>
+
+            <script src="js/common.js"></script>
+            <script src="js/teacher.js"></script>
+            <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+            <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+            <script src="js/firebase-config.js"></script>
+            <script src="js/security.js"></script>
+</body>
+
+</html>

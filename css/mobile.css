@@ -1,0 +1,172 @@
+/* ==============================================================
+   MOBILE RESPONSIVE (DÀNH CHO ĐIỆN THOẠI & TABLET NHỎ)
+   Áp dụng khi màn hình nhỏ hơn 768px
+   ============================================================== */
+@media screen and (max-width: 768px) {
+    /* --- Bố cục tổng thể --- */
+    .dashboard {
+        flex-direction: column;
+        overflow-x: hidden;
+    }
+
+    .content {
+        width: 100% !important;
+        /* Thêm không gian phía trên để không bị che bởi nút bấm Menu/Avatar */
+        padding: 70px 15px 20px 15px !important; 
+    }
+
+    /* --- Nút mở Menu & Avatar --- */
+    .sidebar-toggle {
+        position: fixed;
+        top: 15px;
+        left: 0px; /* Neo ở góc trái màn hình */
+        right: auto;
+        width: 45px;
+        height: 45px;
+        border-radius: 0 12px 12px 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        box-shadow: 4px 0 15px rgba(0,0,0,0.2);
+        z-index: 10001; /* Nổi lên trên cùng */
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s;
+    }
+
+    /* Khi mở menu, nút bấm sẽ trượt theo ra ngoài */
+    .dashboard:not(.collapsed) .sidebar-toggle {
+        left: 280px; 
+        border-radius: 50%;
+        transform: rotate(180deg); /* Đảo chiều mũi tên */
+    }
+
+    .profile-trigger-btn {
+        top: 12px;
+        right: 15px;
+        width: 45px;
+        height: 45px;
+        z-index: 9900;
+    }
+
+    /* --- Sidebar (Menu Trượt Dạng Ngăn Kéo) --- */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 280px !important;
+        height: 100vh;
+        z-index: 10000;
+        box-shadow: 5px 0 25px rgba(0,0,0,0.5);
+        transform: translateX(0); /* Trạng thái mở */
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+    }
+
+    /* Ẩn sidebar hoàn toàn sang trái khi có class collapsed */
+    .dashboard.collapsed .sidebar {
+        transform: translateX(-100%);
+    }
+
+    /* Ghi đè CSS desktop: Giữ nguyên hiển thị chữ trên menu di động thay vì chỉ hiện icon */
+    .dashboard.collapsed .nav-text {
+        display: inline-block;
+    }
+    .dashboard.collapsed .nav-item {
+        text-align: left;
+        padding: 14px 18px;
+        font-size: 1.05em;
+    }
+    .dashboard.collapsed .sidebar-top h3 {
+        font-size: 1.5em;
+        border-bottom: 2px solid rgba(255,255,255,0.6);
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+    }
+    .dashboard.collapsed .sidebar-top h3::before {
+        display: none;
+    }
+
+    /* --- Khung nội dung (Cards & Tiêu đề) --- */
+    .card {
+        padding: 20px 15px;
+    }
+    .content h2 {
+        font-size: 1.5em;
+        margin-bottom: 15px;
+    }
+
+    /* --- Form & Input --- */
+    .form-row {
+        flex-direction: column; /* Đẩy các input rớt xuống thành hàng dọc */
+        gap: 0;
+    }
+    .form-group {
+        width: 100%;
+    }
+    input, textarea, select {
+        padding: 12px 15px;
+        font-size: 16px; /* Rất quan trọng: Ngăn iPhone tự động Zoom màn hình khi bấm vào ô nhập liệu */
+    }
+
+    /* --- Modal Popup (Cửa sổ nổi) --- */
+    .modal-content {
+        width: 95%;
+        padding: 25px 15px;
+        margin: 10px;
+        max-height: 90vh;
+    }
+    .close-btn {
+        top: 10px;
+        right: 15px;
+        font-size: 1.5em;
+    }
+
+    /* --- Nút bấm thao tác và Accordion (Bài tập) --- */
+    .btn-approve, .btn-reject {
+        width: 100%; /* Tràn viền nút bấm cho dễ bấm trên điện thoại */
+        margin-bottom: 8px;
+    }
+    .accordion-header {
+        padding: 10px 12px;
+    }
+    .accordion-title h4 {
+        font-size: 1.1em;
+    }
+    .accordion-meta {
+        font-size: 0.8em;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    /* --- Vòng quay may mắn --- */
+    #luckyWheelModal .modal-content {
+        padding: 25px 15px;
+    }
+    #wheelContainer {
+        width: 260px !important;
+        height: 260px !important;
+    }
+    .wheel-text {
+        font-size: 0.85em !important;
+        padding-right: 15px !important;
+    }
+
+    /* --- Widget Đồng Coin --- */
+    #coinWidget {
+        bottom: 15px;
+        left: 15px;
+        padding: 5px 12px;
+    }
+    #coinWidget span:first-child {
+        font-size: 1.3em !important;
+    }
+    #studentCoinBalance {
+        font-size: 1.1em !important;
+    }
+    
+    /* --- Khung Đăng nhập --- */
+    .login-container {
+        margin: 40px 15px;
+        padding: 30px 20px;
+    }
+}

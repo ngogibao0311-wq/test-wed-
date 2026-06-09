@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Đăng nhập Hệ thống</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/common.css">
+</head>
+
+<body>
+    <div class="login-container">
+        <h2>Đăng nhập</h2>
+        <form id="loginForm">
+            <input type="text" id="username" placeholder="Tên đăng nhập" required>
+
+            <input type="password" id="password" placeholder="Mật khẩu" required>
+
+            <button type="submit">Đăng nhập</button>
+        </form>
+        <p id="errorMsg" class="error"></p>
+    </div>
+    <script src="js/common.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/security.js"></script>
+</body>
+
+</html>

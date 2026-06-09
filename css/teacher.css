@@ -1,0 +1,37 @@
+/* Style khu vực chấm điểm */
+.grading-box { 
+    margin-top: 15px; 
+    padding-top: 15px; 
+}
+
+.grading-box input { 
+    width: 120px; 
+    margin-right: 15px; 
+    text-align: center;
+    font-weight: bold;
+    color: #667eea;
+}
+
+.grading-box button { 
+    width: auto; 
+    padding: 12px 25px; 
+    background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); 
+    color: #1e3c72; 
+    box-shadow: 0 4px 15px rgba(161, 196, 253, 0.4);
+    border-radius: 12px;
+}
+
+.grading-box button:hover { 
+    background: linear-gradient(135deg, #8fd3f4 0%, #84fab0 100%); 
+    color: #1e3c72; 
+}
+
+/* Style Bảng quản lý học sinh */
+table th {
+    color: #2c3e50;
+    background: rgba(255, 255, 255, 0.6) !important;
+    border-radius: 8px 8px 0 0;
+}
+table td {
+    color: #444;
+}
