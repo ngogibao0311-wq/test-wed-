@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Trang Học Sinh</title>
-    <link rel="stylesheet" href="css/common.css">
-    <link rel="stylesheet" href="css/student.css">
-    <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="css/common.css?v=1.2">
+    <link rel="stylesheet" href="css/student.css?v=1.2">
+    <link rel="stylesheet" href="css/mobile.css?v=1.2">
 </head>
 
 <body>
@@ -31,6 +31,8 @@
                         class="nav-text">Cài đặt</span></button>
                 <button class="nav-item" onclick="switchTab('tab-game', this)">🎮 <span class="nav-text">Trò
                         chơi</span></button>
+                <button class="nav-item" onclick="switchTab('tab-store', this)">🛒 <span class="nav-text">Cửa
+                        hàng</span></button>
             </div>
             <div class="sidebar-bottom">
                 <button class="btn-logout" onclick="logout()">🚪 <span class="nav-text">Đăng xuất</span></button>
@@ -189,6 +191,33 @@
                     <div id="requestNotifications" style="margin-top: 25px;"></div>
                 </div>
             </div>
+            <div id="tab-store" class="tab-content">
+                <h2>Cửa hàng Vật phẩm</h2>
+                <div id="storeLockedView" style="display: none;">
+                    <div class="glass-alert danger"
+                        style="padding: 25px; text-align: center; border-left: 6px solid #e11d48; background: rgba(225, 29, 72, 0.08); border-radius: 16px;">
+                        <h3 style="color: #e11d48; margin-bottom: 12px;">🔒 Cửa hàng đã bị đóng</h3>
+                        <p style="font-size: 1.1em; font-weight: bold; color: #b91c1c;">Giáo viên đang tạm khóa cửa
+                            hàng, vui lòng quay lại sau!</p>
+                    </div>
+                </div>
+
+                <div id="storeActiveView" style="display: block;">
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                        <button onclick="filterStore('all')" class="btn-approve"
+                            style="background: #667eea; color: white;">Tất cả</button>
+                        <button onclick="filterStore('theme')" class="btn-approve"
+                            style="background: rgba(255,255,255,0.5); color: #667eea;">🎨 Giao diện</button>
+                        <button onclick="filterStore('effect')" class="btn-approve"
+                            style="background: rgba(255,255,255,0.5); color: #667eea;">✨ Hiệu ứng</button>
+                        <button onclick="filterStore('pet')" class="btn-approve"
+                            style="background: rgba(255,255,255,0.5); color: #667eea;">🐾 Thú cưng</button>
+                    </div>
+                    <div id="storeItemsContainer"
+                        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -309,12 +338,22 @@
         </div>
     </div>
 
-    <script src="js/common.js"></script>
-    <script src="js/student.js"></script>
+    <div id="global-effect-container"
+        style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9998; overflow: hidden;">
+    </div>
+
+    <div id="virtual-pet-container"
+        style="position: fixed; bottom: 80px; right: 20px; z-index: 9999; display: none; cursor: grab; user-select: none; transition: transform 0.2s;">
+        <img id="virtual-pet-img" src=""
+            style="width: 80px; height: auto; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));">
+    </div>
+
+    <script src="js/common.js?v=1.2"></script>
+    <script src="js/student.js?v=1.2"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
-    <script src="js/firebase-config.js"></script>
-    <script src="js/security.js"></script>
+    <script src="js/firebase-config.js?v=1.2"></script>
+    
 </body>
 
 </html>

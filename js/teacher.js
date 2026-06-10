@@ -83,6 +83,16 @@ window.onload = async function () {
             await loadStudentsList();
         }
     });
+
+    db.ref('store_settings').on('value', (snapshot) => {
+        const settings = snapshot.val() || { isOpen: true };
+        const toggleInput = document.getElementById('storeToggle');
+        if (toggleInput) toggleInput.checked = !!settings.isOpen;
+    });
+
+    db.ref('store_items').on('value', async () => {
+        if (typeof loadTeacherStoreItems === 'function') await loadTeacherStoreItems();
+    });
 };
 
 function getEmbedHTML(url) {
@@ -408,13 +418,27 @@ function initFileListener() {
 async function populateStudentDropdown() { const users = await getDB('users'); const select = document.getElementById('targetStudent'); if (!select) return; select.innerHTML = '<option value="all">Tất cả học sinh</option>'; users.forEach(u => { if (u.role === 'student') { const opt = document.createElement('option'); opt.value = u.username; opt.innerText = u.name; select.appendChild(opt); } }); }
 
 async function loadSubmissions() {
-    const submissions = await getDB('submissions');
+    const rawSubmissions = await getDB('submissions');
     const assignments = await getDB('assignments');
     const list = document.getElementById('submissionsList');
     if (!list) return;
     list.innerHTML = '';
 
-    if (submissions.length === 0) { list.innerHTML = '<p style="color: #666; font-style: italic;">Chưa có bài nộp nào.</p>'; return; }
+    if (rawSubmissions.length === 0) { list.innerHTML = '<p style="color: #666; font-style: italic;">Chưa có bài nộp nào.</p>'; return; }
+
+    const uniqueSubmissions = {};
+    rawSubmissions.forEach(sub => {
+        const key = `${sub.assignmentId}_${sub.studentUsername}`;
+        if (!uniqueSubmissions[key]) {
+            uniqueSubmissions[key] = sub; // Lần đầu tiên thấy -> Lưu lại
+        } else {
+            // Nếu phát hiện trùng lặp, ƯU TIÊN bài học sinh tự nộp (không bị gắn cờ isAutoSubmitted)
+            if (!sub.isAutoSubmitted) {
+                uniqueSubmissions[key] = sub;
+            }
+        }
+    });
+    const submissions = Object.values(uniqueSubmissions);
 
     [...submissions].reverse().forEach(sub => {
         const assign = assignments.find(a => a.id === sub.assignmentId);
@@ -651,10 +675,10 @@ window.requestRedo = async function (subKey) {
     if (confirm("Cấp quyền cho học sinh làm lại bài? Hệ thống sẽ thu hồi điểm/vé cũ (nếu có) và giữ nguyên đáp án để học sinh sửa.")) {
         // Đặt grade = null để thu hồi vé ngay lập tức
         // Bật cờ hasRedone = true để đánh dấu bài này sẽ bị trừ 1 vé khi chấm lại
-        await updateDB('submissions', subKey, { 
-            isRedoing: true, 
-            grade: null, 
-            hasRedone: true 
+        await updateDB('submissions', subKey, {
+            isRedoing: true,
+            grade: null,
+            hasRedone: true
         });
         alert("Đã cấp quyền làm lại bài và thu hồi kết quả cũ!");
     }
@@ -1570,3 +1594,295 @@ window.saveWheelProbabilities = async function () {
     });
     alert('✅ Đã áp dụng tỉ lệ Vòng quay mới cho toàn bộ học sinh!');
 };
+
+// Quản lý trạng thái mở/đóng cửa hàng
+window.toggleStoreStatus = async function (isOpen) {
+    await db.ref('store_settings').update({ isOpen: isOpen });
+};
+
+window.addStoreItem = async function () {
+    const name = document.getElementById('newItemName').value.trim();
+    const type = document.getElementById('newItemType').value;
+    const price = parseInt(document.getElementById('newItemPrice').value);
+    const image = document.getElementById('newItemImage').value.trim();
+    const startDate = document.getElementById('newItemStartDate').value;
+    const endDate = document.getElementById('newItemEndDate').value;
+    const value = document.getElementById('newItemValue').value.trim();
+
+    if (!name || !startDate || !endDate || !value) return alert("Vui lòng điền đầy đủ thông tin bắt buộc!");
+
+    await pushDB('store_items', {
+        id: Date.now().toString(),
+        name, type, price, image, value,
+        startDate: startDate.replace("T", " "),
+        endDate: endDate.replace("T", " ")
+    });
+
+    document.getElementById('newItemName').value = '';
+    document.getElementById('newItemValue').value = '';
+    alert("Thêm vật phẩm vào cửa hàng thành công!");
+};
+
+// Biến toàn cục để lưu tạm danh sách cửa hàng, giúp lấy dữ liệu nhanh khi chọn dropdown
+let currentStoreItems = [];
+
+// 1. Hàm load danh sách hàng hóa (Cập nhật để đổ dữ liệu vào thẻ <select>)
+window.loadTeacherStoreItems = async function () {
+    const items = await getDB('store_items');
+    currentStoreItems = items; // Lưu lại
+
+    const container = document.getElementById('teacherStoreItemsList');
+    const selectBox = document.getElementById('editStoreItemId');
+
+    // Đổ danh sách vào Dropdown chọn Tên hàng hóa
+    if (selectBox) {
+        const currentSelected = selectBox.value; // Giữ nguyên lựa chọn hiện tại nếu có
+        selectBox.innerHTML = '<option value="">-- Chọn hàng hóa cần sửa --</option>';
+        items.forEach(item => {
+            const opt = document.createElement('option');
+            opt.value = item._fbKey;
+            opt.innerText = item.name;
+            selectBox.appendChild(opt);
+        });
+        if (currentSelected) selectBox.value = currentSelected;
+    }
+
+    // Hiển thị danh sách bên dưới
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (items.length === 0) {
+        container.innerHTML = '<p style="color:#666; font-style:italic;">Chưa có vật phẩm nào.</p>';
+        return;
+    }
+
+    items.forEach(item => {
+        const div = document.createElement('div');
+        div.style.cssText = 'background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center;';
+        div.innerHTML = `
+            <div>
+                <strong style="color: #764ba2;">${item.name}</strong> - <span style="color: #d35400; font-weight: bold;">${item.price} Coin</span><br>
+                <span style="font-size: 0.85em; color: #666;">Bán từ: ${item.startDate} đến ${item.endDate}</span><br>
+                <span style="font-size: 0.85em; background: #eee; padding: 2px 6px; border-radius: 4px;">Phân loại: ${item.type}</span>
+            </div>
+            <button onclick="deleteStoreItem('${item._fbKey}')" class="btn-reject" style="padding: 5px 15px;">Xóa</button>
+        `;
+        container.appendChild(div);
+    });
+};
+
+// 2. Hàm tự động điền Giá và Ngày tháng cũ khi Giáo viên chọn Tên hàng hóa
+window.loadStoreItemDetails = function () {
+    const selectedKey = document.getElementById('editStoreItemId').value;
+
+    // Nếu chọn quay về mặc định thì xóa trắng ô
+    if (!selectedKey) {
+        document.getElementById('editStoreItemPrice').value = '';
+        document.getElementById('editStoreItemStart').value = '';
+        document.getElementById('editStoreItemEnd').value = '';
+        return;
+    }
+
+    // Tìm item đang được chọn và điền vào Input
+    const item = currentStoreItems.find(i => i._fbKey === selectedKey);
+    if (item) {
+        document.getElementById('editStoreItemPrice').value = item.price;
+        // Chuyển đổi định dạng ngày " " thành "T" để hiển thị đúng trong ô datetime-local
+        document.getElementById('editStoreItemStart').value = item.startDate ? item.startDate.replace(" ", "T") : '';
+        document.getElementById('editStoreItemEnd').value = item.endDate ? item.endDate.replace(" ", "T") : '';
+    }
+};
+
+// 3. Hàm lưu dữ liệu chỉnh sửa lên Firebase
+window.updateStoreItem = async function () {
+    const selectedKey = document.getElementById('editStoreItemId').value;
+    if (!selectedKey) return alert("Vui lòng chọn một hàng hóa để chỉnh sửa!");
+
+    const price = parseInt(document.getElementById('editStoreItemPrice').value);
+    const startDate = document.getElementById('editStoreItemStart').value;
+    const endDate = document.getElementById('editStoreItemEnd').value;
+
+    if (isNaN(price) || !startDate || !endDate) {
+        return alert("Vui lòng điền đầy đủ Giá trị và Thời gian!");
+    }
+
+    // Cập nhật dữ liệu
+    await updateDB('store_items', selectedKey, {
+        price: price,
+        startDate: startDate.replace("T", " "), // Định dạng lại cho đẹp khi lưu
+        endDate: endDate.replace("T", " ")
+    });
+
+    alert("Cập nhật thông tin hàng hóa thành công!");
+};
+
+window.deleteStoreItem = async function (fbKey) {
+    if (confirm("Chắc chắn muốn xóa vật phẩm này khỏi cửa hàng?")) {
+        await removeDB('store_items', fbKey);
+    }
+};
+
+let myInventory = [];
+let storeItemsGlobal = [];
+let currentFilter = 'all';
+
+window.checkStoreStatus = function (settings) {
+    const isOpen = settings ? settings.isOpen : true;
+    document.getElementById('storeActiveView').style.display = isOpen ? 'block' : 'none';
+    document.getElementById('storeLockedView').style.display = isOpen ? 'none' : 'block';
+};
+
+window.filterStore = function (type) {
+    currentFilter = type;
+    loadStoreItems();
+};
+
+window.loadStoreItems = async function () {
+    const items = await getDB('store_items');
+    storeItemsGlobal = items;
+    const container = document.getElementById('storeItemsContainer');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const now = new Date();
+
+    items.forEach(item => {
+        // Kiểm tra thời hạn mở bán
+        const start = new Date(item.startDate.replace(" ", "T"));
+        const end = new Date(item.endDate.replace(" ", "T"));
+
+        if (now < start || now > end) return; // Chỉ hiển thị hàng đang mở bán
+        if (currentFilter !== 'all' && item.type !== currentFilter) return;
+
+        const isOwned = myInventory.find(i => i.id === item.id);
+        const isEquipped = isOwned && isOwned.isEquipped;
+
+        let btnHtml = '';
+        if (isOwned) {
+            if (isEquipped) {
+                btnHtml = `<button onclick="equipItem('${item.id}', false)" style="width:100%; padding: 8px; background: #95a5a6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Hủy trang bị</button>`;
+            } else {
+                btnHtml = `<button onclick="equipItem('${item.id}', true)" style="width:100%; padding: 8px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Sử dụng</button>`;
+            }
+        } else {
+            btnHtml = `<button onclick="buyStoreItem('${item.id}', ${item.price})" style="width:100%; padding: 8px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Mua: ${item.price} 🪙</button>`;
+        }
+
+        const div = document.createElement('div');
+        div.style.cssText = 'background: rgba(255,255,255,0.6); border-radius: 12px; padding: 15px; text-align: center; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 4px 10px rgba(0,0,0,0.05);';
+
+        let typeIcon = item.type === 'theme' ? '🎨' : (item.type === 'effect' ? '✨' : '🐾');
+
+        div.innerHTML = `
+            ${item.image ? `<img src="${item.image}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 12px; margin-bottom: 10px;">` : `<div style="font-size: 3em; margin-bottom: 10px;">📦</div>`}
+            <h4 style="margin: 0 0 5px 0; color: #2c3e50;">${item.name}</h4>
+            <p style="font-size: 0.85em; color: #666; margin-bottom: 15px;">${typeIcon} ${item.type === 'theme' ? 'Giao diện' : (item.type === 'effect' ? 'Hiệu ứng' : 'Thú cưng')}</p>
+            ${btnHtml}
+        `;
+        container.appendChild(div);
+    });
+};
+
+window.buyStoreItem = async function (itemId, price) {
+    const coinRef = db.ref('student_coins/' + currentUser.username);
+    const snap = await coinRef.once('value');
+    const currentCoins = snap.val() || 0;
+
+    if (currentCoins < price) {
+        return alert("Bạn không đủ Coin để mua vật phẩm này!");
+    }
+
+    if (confirm(`Xác nhận mua vật phẩm này với giá ${price} Coin?`)) {
+        // Trừ tiền
+        await coinRef.set(currentCoins - price);
+        // Lưu vào kho
+        await pushDB(`student_inventory/${currentUser.username}`, {
+            id: itemId,
+            purchaseTime: new Date().getTime(),
+            isEquipped: false
+        });
+        alert("Mua thành công! Vật phẩm đã được thêm vào kho của bạn.");
+    }
+};
+
+window.equipItem = async function (itemId, equipState) {
+    const itemInfo = storeItemsGlobal.find(i => i.id === itemId);
+    if (!itemInfo) return;
+
+    // Lấy toàn bộ kho đồ của User
+    const invSnap = await db.ref(`student_inventory/${currentUser.username}`).once('value');
+    const inventory = invSnap.val();
+
+    if (inventory) {
+        let updates = {};
+        for (let key in inventory) {
+            let invItem = inventory[key];
+
+            // Logic: Chỉ được trang bị 1 item cho 1 loại (1 thú cưng, 1 hiệu ứng, 1 theme cùng lúc)
+            if (equipState) {
+                const checkTypeItem = storeItemsGlobal.find(i => i.id === invItem.id);
+                if (checkTypeItem && checkTypeItem.type === itemInfo.type) {
+                    updates[`${key}/isEquipped`] = false; // Gỡ các item cùng loại
+                }
+            }
+
+            if (invItem.id === itemId) {
+                updates[`${key}/isEquipped`] = equipState;
+            }
+        }
+        await db.ref(`student_inventory/${currentUser.username}`).update(updates);
+    }
+};
+
+window.applyEquippedItems = function () {
+    // Reset hiệu ứng và thú cưng
+    document.getElementById('global-effect-container').innerHTML = '';
+    const petContainer = document.getElementById('virtual-pet-container');
+    petContainer.style.display = 'none';
+
+    myInventory.forEach(invItem => {
+        if (invItem.isEquipped) {
+            const itemDef = storeItemsGlobal.find(i => i.id === invItem.id);
+            if (itemDef) {
+                if (itemDef.type === 'theme') {
+                    document.body.style.background = itemDef.value; // Ví dụ: giá trị là mã màu hoặc link ảnh url(...)
+                } else if (itemDef.type === 'pet') {
+                    petContainer.style.display = 'block';
+                    document.getElementById('virtual-pet-img').src = itemDef.value; // Link ảnh gif thú cưng
+                } else if (itemDef.type === 'effect') {
+                    renderGlobalEffect(itemDef.value);
+                }
+            }
+        }
+    });
+};
+
+window.renderGlobalEffect = function (effectType) {
+    const container = document.getElementById('global-effect-container');
+    if (effectType === 'snow') {
+        for (let i = 0; i < 30; i++) {
+            let flake = document.createElement('div');
+            flake.style.cssText = `position: absolute; width: 8px; height: 8px; background: white; border-radius: 50%; opacity: ${Math.random()}; top: -10px; left: ${Math.random() * 100}vw; animation: fall ${Math.random() * 3 + 2}s linear infinite;`;
+            container.appendChild(flake);
+        }
+    } else if (effectType === 'sparkle') {
+        for (let i = 0; i < 20; i++) {
+            let spark = document.createElement('div');
+            spark.style.cssText = `position: absolute; width: 4px; height: 4px; background: #ffd700; border-radius: 50%; box-shadow: 0 0 10px #ffd700; top: ${Math.random() * 100}vh; left: ${Math.random() * 100}vw; animation: blink ${Math.random() * 2 + 1}s infinite alternate;`;
+            container.appendChild(spark);
+        }
+    }
+};
+
+// Cấu hình CSS Animations cho Hiệu ứng bằng JS
+const styleSheet = document.createElement("style");
+styleSheet.innerText = `
+@keyframes fall {
+    to { transform: translateY(100vh); }
+}
+@keyframes blink {
+    0% { opacity: 0; transform: scale(0.5); }
+    100% { opacity: 1; transform: scale(1.5); }
+}
+`;
+document.head.appendChild(styleSheet);

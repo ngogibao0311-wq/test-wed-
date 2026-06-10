@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Trang Giáo Viên</title>
-    <link rel="stylesheet" href="css/common.css">
-    <link rel="stylesheet" href="css/teacher.css">
-    <link rel="stylesheet" href="css/mobile.css">
+    <link rel="stylesheet" href="css/common.css?v=1.2">
+    <link rel="stylesheet" href="css/teacher.css?v=1.2">
+    <link rel="stylesheet" href="css/mobile.css?v=1.2">
 </head>
 
 <body>
@@ -254,8 +254,8 @@
                 <h2>Quản lý trò chơi (Giáo viên)</h2>
                 <div class="card">
                     <h3 style="color: #764ba2; margin-bottom: 12px;">Kho lưu trữ & Thiết lập Sự kiện</h3>
-                    <p style="color: #666; font-style: italic;">Lưu ý: Nút bật/tắt mục trò chơi chung nằm trong thẻ "Cài
-                        đặt".</p>
+                    <p style="color: #666; font-style: italic;">Quản lý trạng thái đóng/mở khu vực trò chơi chung, cấu
+                        hình vòng quay và cửa hàng đổi thưởng.</p>
                 </div>
 
                 <div class="card accordion-card" style="margin-top: 20px;">
@@ -268,6 +268,26 @@
                     </div>
 
                     <div id="wheelManageView" class="accordion-content">
+
+                        <label
+                            style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 15px; background: rgba(255,255,255,0.4); padding: 12px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.05);">
+                            <input type="checkbox" id="gameToggle" onchange="toggleGameStatus(this.checked)"
+                                style="width: 22px; height: 22px; margin: 0; cursor: pointer;">
+                            <strong style="color: #2c3e50; font-size: 0.95em;">Cho phép học sinh truy cập mục Trò chơi
+                                (Bật = Mở khóa)</strong>
+                        </label>
+
+                        <div id="gameLockMessageArea"
+                            style="display: none; background: rgba(225, 29, 72, 0.05); padding: 15px; border-radius: 12px; border: 1px dashed #e11d48; margin-bottom: 20px;">
+                            <label><strong style="color: #b91c1c; font-size: 0.9em;">💬 Nhập tin nhắn thông báo lý do
+                                    khóa mục trò chơi:</strong></label>
+                            <input type="text" id="gameLockMessage"
+                                placeholder="Ví dụ: Đã hết giờ chơi giải trí, các em tập trung làm bài tập nhé!..."
+                                style="background: white; border: 1px solid rgba(0,0,0,0.12); margin-top: 8px; margin-bottom: 10px;">
+                            <button type="button" onclick="saveGameLockMessage()"
+                                style="width: auto; padding: 10px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Xác
+                                nhận khóa & Gửi tin nhắn</button>
+                        </div>
 
                         <div
                             style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; border: 1px dashed #d35400; margin-bottom: 20px;">
@@ -342,6 +362,66 @@
 
                     </div>
                 </div>
+
+                <div class="card accordion-card" style="margin-top: 20px;">
+                    <div class="accordion-header" onclick="toggleAccordion('storeManageView', this)">
+                        <div class="accordion-title">
+                            <h3 style="color: #10b981; margin: 0; display: flex; align-items: center; gap: 8px;">🛒 Quản
+                                lý
+                                Cửa hàng</h3>
+                        </div>
+                        <div class="accordion-meta"><span class="toggle-icon">▼</span></div>
+                    </div>
+
+                    <div id="storeManageView" class="accordion-content">
+                        <label
+                            style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 15px; background: rgba(255,255,255,0.4); padding: 12px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.05);">
+                            <input type="checkbox" id="storeToggle" onchange="toggleStoreStatus(this.checked)"
+                                style="width: 22px; height: 22px; margin: 0; cursor: pointer;">
+                            <strong style="color: #2c3e50; font-size: 0.95em;">Mở cửa hàng cho học sinh truy
+                                cập</strong>
+                        </label>
+
+                        <div
+                            style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; border: 1px dashed #f59e0b; margin-bottom: 20px;">
+                            <h4 style="color: #d97706; margin-top: 0; margin-bottom: 15px;">✏️ Chỉnh sửa hàng hóa</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Tên hàng hóa:</label>
+                                    <select id="editStoreItemId" onchange="loadStoreItemDetails()"
+                                        style="font-weight: bold; color: #764ba2;">
+                                        <option value="">-- Chọn hàng hóa cần sửa --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Giá (Coin):</label>
+                                    <input type="number" id="editStoreItemPrice" min="0" placeholder="Nhập giá mới...">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Ngày mở bán:</label>
+                                    <input type="datetime-local" id="editStoreItemStart">
+                                </div>
+                                <div class="form-group">
+                                    <label>Ngày kết thúc:</label>
+                                    <input type="datetime-local" id="editStoreItemEnd">
+                                </div>
+                            </div>
+
+                            <button onclick="updateStoreItem()"
+                                style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white; width: 100%; margin-top: 10px;">Lưu
+                                thay đổi</button>
+                        </div>
+
+
+                        <div
+                            style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05);">
+                            <h4 style="color: #2c3e50; margin-top: 0; margin-bottom: 15px;">📦 Danh sách Hàng hóa</h4>
+                            <div id="teacherStoreItemsList"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div id="tab-settings" class="tab-content">
@@ -350,7 +430,8 @@
                 <div id="updateBannerArea" class="update-banner" style="display: none;">
                     <div>
                         <h4 style="margin: 0; font-size: 1.2em;">🚀 Có phiên bản hệ thống mới!</h4>
-                        <p style="margin: 5px 0 0 0; font-size: 0.95em;">Nhấn nút bên cạnh để tải lại toàn bộ tài nguyên
+                        <p style="margin: 5px 0 0 0; font-size: 0.95em;">Nhấn nút bên cạnh để tải lại toàn bộ tài
+                            nguyên
                             web mới nhất.</p>
                     </div>
                     <button class="btn-do-update" onclick="applySystemUpdate()">Cập nhật ngay</button>
@@ -375,30 +456,6 @@
                     <button onclick="updateProfile()"
                         style="margin-top: 15px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: #fff;">💾
                         Lưu thay đổi tài khoản</button>
-
-                    <hr style="border: 0; border-top: 1px dashed rgba(0,0,0,0.1); margin: 20px 0;">
-
-                    <label style="color: #764ba2; font-weight: bold; display: block; margin-bottom: 10px;">⚙️ CẤU HÌNH
-                        TRÒ CHƠI CHO HỌC SINH:</label>
-                    <label
-                        style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 15px; background: rgba(255,255,255,0.4); padding: 12px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.05);">
-                        <input type="checkbox" id="gameToggle" onchange="toggleGameStatus(this.checked)"
-                            style="width: 22px; height: 22px; margin: 0; cursor: pointer;">
-                        <strong style="color: #2c3e50; font-size: 0.95em;">Cho phép học sinh truy cập mục Trò chơi (Bật
-                            = Mở khóa)</strong>
-                    </label>
-
-                    <div id="gameLockMessageArea"
-                        style="display: none; background: rgba(225, 29, 72, 0.05); padding: 15px; border-radius: 12px; border: 1px dashed #e11d48; margin-bottom: 20px;">
-                        <label><strong style="color: #b91c1c; font-size: 0.9em;">💬 Nhập tin nhắn thông báo lý do khóa
-                                mục trò chơi:</strong></label>
-                        <input type="text" id="gameLockMessage"
-                            placeholder="Ví dụ: Đã hết giờ chơi giải trí, các em tập trung làm bài tập nhé!..."
-                            style="background: white; border: 1px solid rgba(0,0,0,0.12); margin-top: 8px; margin-bottom: 10px;">
-                        <button type="button" onclick="saveGameLockMessage()"
-                            style="width: auto; padding: 10px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Xác
-                            nhận khóa & Gửi tin nhắn</button>
-                    </div>
                 </div>
             </div>
 
@@ -500,7 +557,8 @@
                     <input type="text" id="newStudentMotto" placeholder="VD: Không có áp lực không có kim cương">
 
                     <button onclick="createStudent()"
-                        style="margin-top: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">Tạo tài
+                        style="margin-top: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">Tạo
+                        tài
                         khoản</button>
                 </div>
             </div>
@@ -635,12 +693,12 @@
                 </div>
             </div>
 
-            <script src="js/common.js"></script>
-            <script src="js/teacher.js"></script>
+            <script src="js/common.js?v=1.2"></script>
+            <script src="js/teacher.js?v=1.2"></script>
             <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
             <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
-            <script src="js/firebase-config.js"></script>
-            <script src="js/security.js"></script>
+            <script src="js/firebase-config.js?v=1.2"></script>
+
 </body>
 
 </html>
