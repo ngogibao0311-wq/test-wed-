@@ -85,9 +85,20 @@ window.onload = async function () {
     });
 
     db.ref('store_settings').on('value', (snapshot) => {
-        const settings = snapshot.val() || { isOpen: true };
-        const toggleInput = document.getElementById('storeToggle');
-        if (toggleInput) toggleInput.checked = !!settings.isOpen;
+        const settings = snapshot.val();
+        if (settings) {
+            StoreConfig.items.forEach(item => {
+                if (settings[item.id]) {
+                    if (settings[item.id].price !== undefined) item.price = settings[item.id].price;
+                    if (settings[item.id].startDate !== undefined) item.startDate = settings[item.id].startDate;
+                    if (settings[item.id].endDate !== undefined) item.endDate = settings[item.id].endDate;
+                    item.isLocked = !!settings[item.id].isLocked; // ĐỒNG BỘ TRẠNG THÁI KHÓA
+                }
+            });
+            if (typeof initTeacherStoreManagement === 'function') {
+                initTeacherStoreManagement();
+            }
+        }
     });
 
     db.ref('store_items').on('value', async () => {
@@ -1695,26 +1706,68 @@ window.loadStoreItemDetails = function () {
 
 // 3. Hàm lưu dữ liệu chỉnh sửa lên Firebase
 window.updateStoreItem = async function () {
-    const selectedKey = document.getElementById('editStoreItemId').value;
-    if (!selectedKey) return alert("Vui lòng chọn một hàng hóa để chỉnh sửa!");
+    const selectEl = document.getElementById('editStoreItemId');
+    const priceInput = document.getElementById('editStoreItemPrice');
+    const startInput = document.getElementById('editStoreItemStart');
+    const endInput = document.getElementById('editStoreItemEnd');
 
-    const price = parseInt(document.getElementById('editStoreItemPrice').value);
-    const startDate = document.getElementById('editStoreItemStart').value;
-    const endDate = document.getElementById('editStoreItemEnd').value;
-
-    if (isNaN(price) || !startDate || !endDate) {
-        return alert("Vui lòng điền đầy đủ Giá trị và Thời gian!");
+    if (!selectEl || !selectEl.value) {
+        alert('⚠️ Vui lòng chọn một mặt hàng cụ thể cần chỉnh sửa từ danh sách.');
+        return;
     }
 
-    // Cập nhật dữ liệu
-    await updateDB('store_items', selectedKey, {
-        price: price,
-        startDate: startDate.replace("T", " "), // Định dạng lại cho đẹp khi lưu
-        endDate: endDate.replace("T", " ")
-    });
+    const itemId = selectEl.value;
+    const newPrice = parseInt(priceInput.value);
 
-    alert("Cập nhật thông tin hàng hóa thành công!");
+    if (isNaN(newPrice) || newPrice < 0) {
+        alert('❌ Giá bán (Coin) phải là một con số hợp lệ và lớn hơn hoặc bằng 0.');
+        return;
+    }
+
+    const itemIndex = StoreConfig.items.findIndex(i => i.id === itemId);
+    if (itemIndex !== -1) {
+        // 1. Cập nhật mảng cục bộ để thay đổi hiển thị tạm thời
+        StoreConfig.items[itemIndex].price = newPrice;
+        StoreConfig.items[itemIndex].startDate = startInput.value;
+        StoreConfig.items[itemIndex].endDate = endInput.value;
+
+        try {
+            // 2. KÍCH HOẠT ĐỒNG BỘ: Đẩy cấu hình mới này lên Firebase Realtime Database
+            await db.ref('store_settings/' + itemId).update({
+                price: newPrice,
+                startDate: startInput.value,
+                endDate: endInput.value
+            });
+
+            alert(`✅ Đã lưu và đồng bộ thành công thiết lập cho vật phẩm [ ${StoreConfig.items[itemIndex].name} ] sang hệ thống học sinh!`);
+
+            // Xóa thông tin trống biểu mẫu sau khi lưu thành công
+            selectEl.value = '';
+            loadStoreItemDetails();
+            initTeacherStoreManagement();
+        } catch (error) {
+            console.error("Lỗi đồng bộ Firebase:", error);
+            alert("❌ Đã xảy ra lỗi khi kết nối dữ liệu Firebase. Vui lòng kiểm tra lại mạng!");
+        }
+    }
 };
+
+// Bộ lắng nghe tự động cập nhật bảng quản lý của giáo viên khi database có thay đổi
+db.ref('store_settings').on('value', (snapshot) => {
+    const settings = snapshot.val();
+    if (settings) {
+        StoreConfig.items.forEach(item => {
+            if (settings[item.id]) {
+                if (settings[item.id].price !== undefined) item.price = settings[item.id].price;
+                if (settings[item.id].startDate !== undefined) item.startDate = settings[item.id].startDate;
+                if (settings[item.id].endDate !== undefined) item.endDate = settings[item.id].endDate;
+            }
+        });
+        if (typeof initTeacherStoreManagement === 'function') {
+            initTeacherStoreManagement();
+        }
+    }
+});
 
 window.deleteStoreItem = async function (fbKey) {
     if (confirm("Chắc chắn muốn xóa vật phẩm này khỏi cửa hàng?")) {
@@ -1886,3 +1939,184 @@ styleSheet.innerText = `
 }
 `;
 document.head.appendChild(styleSheet);
+
+// ====== LOGIC KẾT NỐI QUẢN LÝ CỬA HÀNG (GIÁO VIÊN) ======
+
+// Hàm hiển thị danh sách hàng hóa và đổ dữ liệu vào thẻ Select điều khiển
+function initTeacherStoreManagement() {
+    const selectEl = document.getElementById('editStoreItemId');
+    const listContainer = document.getElementById('teacherStoreItemsList');
+    if (!selectEl || !listContainer) return;
+
+    selectEl.innerHTML = '<option value="">-- Chọn hàng hóa cần sửa --</option>';
+    let listHtml = '<div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap:15px; margin-top:10px;">';
+
+    StoreConfig.items.forEach((item, index) => {
+        const option = document.createElement('option');
+        option.value = item.id;
+        option.textContent = `[${item.tag}] ${item.name}`;
+        selectEl.appendChild(option);
+
+        let priceDisplay = item.isNonCoin ? (item.price > 0 ? `🪙 ${item.price} Coin (Sự kiện)` : 'Vật phẩm Sự kiện') : `🪙 ${item.price} Coin`;
+        
+        let hiddenClass = index >= 4 ? 'hidden-store-item-row' : '';
+        let hiddenStyle = index >= 4 ? 'display: none;' : '';
+
+        // Xử lý UI nút khóa vật phẩm
+        let isItemLocked = !!item.isLocked;
+        let lockBtnText = isItemLocked ? '🔓 Mở khóa' : '🔒 Khóa';
+        let lockBtnStyle = isItemLocked ? 'background:#10b981; color:white;' : 'background:#e11d48; color:white;';
+
+        listHtml += `
+            <div class="card ${hiddenClass}" style="margin:0; padding:15px; border: 1px solid rgba(0,0,0,0.08); position:relative; ${hiddenStyle} ${isItemLocked ? 'background: rgba(225, 29, 72, 0.04);' : ''}">
+                <span style="position:absolute; top:8px; right:8px; font-size:0.8em; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-weight:bold;">${item.type}</span>
+                <h4 style="margin:0 0 8px 0; color:#764ba2;">${item.name} ${isItemLocked ? '<span style="color:#e11d48; font-size:0.85em;">(Khóa)</span>' : ''}</h4>
+                <p style="margin:5px 0; font-size:0.9em;"><b>Giá bán:</b> ${priceDisplay}</p>
+                <div style="display: flex; gap: 5px; margin-top: 8px;">
+                    <button onclick="quickSelectStoreItem('${item.id}')" style="padding:6px 8px; font-size:0.85em; flex:1; background:rgba(102, 126, 234, 0.1); color:#667eea; box-shadow:none; border:1px solid #667eea;">Sửa ✏️</button>
+                    <button onclick="toggleLockStoreItem('${item.id}', ${isItemLocked})" style="padding:6px 8px; font-size:0.85em; flex:1; border:none; ${lockBtnStyle}">${lockBtnText}</button>
+                </div>
+            </div>
+        `;
+    });
+
+    listHtml += '</div>';
+
+    if (StoreConfig.items.length > 4) {
+        listHtml += `
+            <div style="text-align: center; margin-top: 15px;">
+                <button id="toggleStoreItemsBtn" onclick="toggleStoreItemsList()" style="background: transparent; border: 1px dashed #10b981; color: #10b981; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-size: 0.95em; font-weight: bold; transition: all 0.2s;">
+                    👇 Xem thêm ${StoreConfig.items.length - 4} hàng hóa khác
+                </button>
+            </div>
+        `;
+    }
+    listContainer.innerHTML = listHtml;
+}
+
+// Hàm xử lý khi giáo viên bấm nút Xem thêm / Thu gọn danh sách hàng hóa
+window.toggleStoreItemsList = function () {
+    const hiddenItems = document.querySelectorAll('.hidden-store-item-row');
+    const btn = document.getElementById('toggleStoreItemsBtn');
+    if (hiddenItems.length === 0) return;
+
+    // Kiểm tra xem thẻ đầu tiên đang ẩn hay hiện
+    const isCurrentlyHidden = hiddenItems[0].style.display === 'none';
+
+    hiddenItems.forEach(item => {
+        item.style.display = isCurrentlyHidden ? 'block' : 'none';
+    });
+
+    // Thay đổi nội dung và màu sắc nút bấm cho trực quan
+    if (isCurrentlyHidden) {
+        btn.innerHTML = '👆 Thu gọn danh sách';
+        btn.style.borderColor = '#e11d48';
+        btn.style.color = '#e11d48';
+    } else {
+        btn.innerHTML = `👇 Xem thêm ${hiddenItems.length} hàng hóa khác`;
+        btn.style.borderColor = '#10b981';
+        btn.style.color = '#10b981';
+    }
+};
+
+// Hàm bổ trợ giúp giáo viên click nhanh nút "Chọn chỉnh sửa" ở danh sách dưới
+function quickSelectStoreItem(itemId) {
+    const selectEl = document.getElementById('editStoreItemId');
+    if (selectEl) {
+        selectEl.value = itemId;
+        loadStoreItemDetails(); // Kích hoạt sự kiện đổi dữ liệu form
+    }
+}
+
+// Hàm load thông tin chi tiết vật phẩm lên form khi giáo viên chọn từ Select
+function loadStoreItemDetails() {
+    const selectEl = document.getElementById('editStoreItemId');
+    const priceInput = document.getElementById('editStoreItemPrice');
+    const startInput = document.getElementById('editStoreItemStart');
+    const endInput = document.getElementById('editStoreItemEnd');
+
+    if (!selectEl || !priceInput) return;
+
+    const itemId = selectEl.value;
+    if (!itemId) {
+        priceInput.value = ''; startInput.value = ''; endInput.value = '';
+        return;
+    }
+
+    const item = StoreConfig.items.find(i => i.id === itemId);
+    if (item) {
+        priceInput.value = item.price;
+        priceInput.disabled = false; // LUÔN CHO PHÉP NHẬP GIÁ COIN ĐỂ CHUYỂN THÀNH MUA GIỚI HẠN
+        startInput.value = item.startDate || '';
+        endInput.value = item.endDate || '';
+    }
+}
+
+// BỔ SUNG: Hàm xử lý Khóa / Mở khóa vật phẩm từ phía Giáo viên
+window.toggleLockStoreItem = async function (itemId, isCurrentlyLocked) {
+    const actionText = isCurrentlyLocked ? "MỞ KHÓA" : "KHÓA TẠM THỜI";
+    if (!confirm(`Bạn có chắc chắn muốn ${actionText} vật phẩm này không? Học sinh sẽ không thể sử dụng hay mua món đồ này.`)) return;
+    
+    try {
+        await db.ref('store_settings/' + itemId).update({
+            isLocked: !isCurrentlyLocked
+        });
+        alert(`✅ Đã thực hiện ${actionText.toLowerCase()} vật phẩm thành công!`);
+    } catch (error) {
+        console.error(error);
+        alert("❌ Đã xảy ra lỗi khi cập nhật trạng thái khóa.");
+    }
+};
+
+// Hàm cập nhật cấu hình hàng hóa khi giáo viên ấn nút "Lưu thay đổi"
+function updateStoreItem() {
+    const selectEl = document.getElementById('editStoreItemId');
+    const priceInput = document.getElementById('editStoreItemPrice');
+    const startInput = document.getElementById('editStoreItemStart');
+    const endInput = document.getElementById('editStoreItemEnd');
+
+    if (!selectEl || !selectEl.value) {
+        alert('⚠️ Vui lòng chọn một mặt hàng cụ thể cần chỉnh sửa từ danh sách.');
+        return;
+    }
+
+    const itemId = selectEl.value;
+    const newPrice = parseInt(priceInput.value);
+
+    if (isNaN(newPrice) || newPrice < 0) {
+        alert('❌ Giá bán (Coin) phải là một con số hợp lệ và lớn hơn hoặc bằng 0.');
+        return;
+    }
+
+    // Tìm và cập nhật trực tiếp vào mảng StoreConfig cục bộ
+    const itemIndex = StoreConfig.items.findIndex(i => i.id === itemId);
+    if (itemIndex !== -1) {
+        StoreConfig.items[itemIndex].price = newPrice;
+        StoreConfig.items[itemIndex].startDate = startInput.value;
+        StoreConfig.items[itemIndex].endDate = endInput.value;
+
+        alert(`✅ Đã cập nhật thành công thiết lập cho vật phẩm [ ${StoreConfig.items[itemIndex].name} ]`);
+
+        // Đồng bộ làm mới lại bảng điều khiển giáo viên
+        initTeacherStoreManagement();
+
+        // Xóa thông tin trống biểu mẫu sau khi lưu thành công
+        selectEl.value = '';
+        loadStoreItemDetails();
+
+        // TODO: Lưu cấu hình đồng bộ này lên Firebase Database để học sinh nhận được giá mới ngay lập tức
+        // firebase.database().ref('store_settings/' + itemId).update({ price: newPrice, startDate: startInput.value, endDate: endInput.value });
+    }
+}
+
+// Khởi chạy đồng bộ khi giáo viên vào tab quản lý trò chơi / cửa hàng
+// Bạn có thể lồng hàm này vào hàm switchTab() có sẵn của bạn khi chuyển qua tab 'tab-game-manage'
+document.addEventListener('DOMContentLoaded', () => {
+    initTeacherStoreManagement();
+});
+
+// ===== SỬA LỖI XUNG ĐỘT GIAO DIỆN CỬA HÀNG (GIÁO VIÊN) =====
+// Ghi đè hàm cũ: Ngăn Firebase xóa giao diện khi database trống, ép dùng dữ liệu từ StoreManager
+window.loadTeacherStoreItems = function () {
+    initTeacherStoreManagement();
+};

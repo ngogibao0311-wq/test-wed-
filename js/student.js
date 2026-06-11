@@ -88,24 +88,37 @@ window.onload = async function () {
             }, 300);
         }
     });
-    
-    // === LẮNG NGHE HỆ THỐNG CỬA HÀNG ===
+
+    // === LẮNG NGHE HỆ THỐNG CỬA HÀNG (REAL-TIME PHÍA HỌC SINH) ===
     db.ref('store_settings').on('value', (snapshot) => {
         const settings = snapshot.val();
-        // Mặc định là mở (true) nếu chưa có cấu hình trên Firebase
-        const isOpen = (settings !== null && settings.isOpen !== undefined) ? settings.isOpen : true;
-        
         const activeView = document.getElementById('storeActiveView');
         const lockedView = document.getElementById('storeLockedView');
-        
+
+        const isOpen = (settings !== null && settings.isOpen !== undefined) ? settings.isOpen : true;
         if (activeView) activeView.style.display = isOpen ? 'block' : 'none';
         if (lockedView) lockedView.style.display = isOpen ? 'none' : 'block';
+
+        if (settings) {
+            StoreConfig.items.forEach(item => {
+                if (settings[item.id]) {
+                    if (settings[item.id].price !== undefined) item.price = settings[item.id].price;
+                    if (settings[item.id].startDate !== undefined) item.startDate = settings[item.id].startDate;
+                    if (settings[item.id].endDate !== undefined) item.endDate = settings[item.id].endDate;
+                    item.isLocked = !!settings[item.id].isLocked; // ĐỒNG BỘ TRẠNG THÁI KHÓA VỀ HỌC SINH
+                }
+            });
+        }
+
+        if (typeof window.filterStore === 'function') {
+            window.filterStore(window.currentStoreFilterType || 'all');
+        }
     });
-    
+
     db.ref('store_items').on('value', async () => {
         if (typeof loadStoreItems === 'function') await loadStoreItems();
     });
-    
+
     db.ref('student_inventory/' + currentUser.username).on('value', (snapshot) => {
         myInventory = snapshot.val() ? Object.values(snapshot.val()) : [];
         if (typeof loadStoreItems === 'function') loadStoreItems();
@@ -1283,3 +1296,306 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('mousemove', handleDragMove);
     document.addEventListener('mouseup', handleDragEnd);
 });
+
+// ========================================================
+// HỆ THỐNG CỬA HÀNG & TÚI ĐỒ (HỌC SINH) - ĐÃ CHUẨN HÓA
+// ========================================================
+
+let studentOwnedItems = [];
+let studentEquippedItems = { theme: 'default', effect: '', pet: '' };
+let trialItemsList = [];
+window.currentStoreFilterType = 'all';
+
+function formatStoreCountdown(ms) {
+    if (ms <= 0) return "00:00:00";
+    let d = Math.floor(ms / (1000 * 60 * 60 * 24));
+    let h = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
+    let m = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+    let s = Math.floor((ms % (1000 * 60)) / 1000).toString().padStart(2, '0');
+    if (d > 0) return `${d} ngày ${h}:${m}:${s}`;
+    return `${h}:${m}:${s}`;
+}
+
+// 1. Hàm lọc và hiển thị vật phẩm ra màn hình (Có kiểm tra Ngày Mở Bán)
+window.filterStore = function (type) {
+    window.currentStoreFilterType = type;
+    const container = document.getElementById('storeItemsContainer');
+    if (!container) return;
+
+    // Đổi màu nút tab hiện tại
+    const buttons = document.querySelectorAll('#tab-store .btn-approve');
+    buttons.forEach(btn => {
+        if (btn.getAttribute('onclick').includes(`'${type}'`)) {
+            btn.style.background = '#667eea'; btn.style.color = 'white';
+        } else {
+            btn.style.background = 'rgba(255,255,255,0.5)'; btn.style.color = '#667eea';
+        }
+    });
+
+    const items = StoreManager.getItemsByType(type);
+    let htmlContent = '';
+    const now = new Date().getTime();
+
+    // Dọn dẹp bộ đếm ngược cũ nếu có để tránh bị giật lag khi chuyển Tab
+    if (window.storeCountdownInterval) clearInterval(window.storeCountdownInterval);
+    let upcomingItems = [];
+
+    items.forEach(item => {
+        let isUpcoming = false;
+
+        // KIỂM TRA THỜI HẠN MỞ BÁN
+        if (item.startDate && item.endDate) {
+            const startT = new Date(item.startDate).getTime();
+            const endT = new Date(item.endDate).getTime();
+
+            if (now > endT) return; // Đã quá hạn -> Bỏ qua hẳn không hiện
+
+            if (now < startT) {
+                isUpcoming = true; // Chưa tới giờ -> Cắm cờ để hiện đồng hồ đếm ngược
+                upcomingItems.push({ id: item.id, startT: startT });
+            }
+        }
+
+        const isOwned = studentOwnedItems.includes(item.id);
+        const isEquipped = studentEquippedItems[item.type] === item.id;
+        const isTrial = trialItemsList.includes(item.id);
+
+        // Truyền tham số isUpcoming vào trong (Tham số thứ 5)
+        htmlContent += StoreManager.renderStoreItem(item, isOwned, isEquipped, isTrial, isUpcoming);
+    });
+
+    container.innerHTML = htmlContent || '<p style="text-align:center; color:#666; grid-column: 1/-1;">Chưa có vật phẩm nào trong danh mục này.</p>';
+
+    // --- KÍCH HOẠT ĐỒNG HỒ ĐẾM NGƯỢC ---
+    if (upcomingItems.length > 0) {
+        // Cập nhật text ngay lập tức ở Giây thứ 0
+        const initialNow = new Date().getTime();
+        upcomingItems.forEach(upc => {
+            const btn = document.getElementById(`countdown-btn-${upc.id}`);
+            if (btn) btn.innerText = `⏳ Mở sau: ${formatStoreCountdown(upc.startT - initialNow)}`;
+        });
+
+        // Thiết lập chạy ngầm đếm lùi mỗi 1 giây
+        window.storeCountdownInterval = setInterval(() => {
+            const currentTime = new Date().getTime();
+            let allStarted = true;
+
+            upcomingItems.forEach(upc => {
+                const btn = document.getElementById(`countdown-btn-${upc.id}`);
+                if (btn) {
+                    const diff = upc.startT - currentTime;
+                    if (diff <= 0) {
+                        btn.innerText = "🔄 Đang mở bán...";
+                        // Tự động tải lại cửa hàng khi có 1 món đồ đếm ngược về 0 để mở khóa nút Mua
+                        if (allStarted) {
+                            window.filterStore(window.currentStoreFilterType);
+                        }
+                    } else {
+                        allStarted = false;
+                        btn.innerText = `⏳ Mở sau: ${formatStoreCountdown(diff)}`;
+                    }
+                }
+            });
+
+            // Nếu tất cả vật phẩm đã qua mốc đếm ngược thì dừng vòng lặp Interval
+            if (allStarted) clearInterval(window.storeCountdownInterval);
+        }, 1000);
+    }
+};
+
+// 2. Render Cửa hàng & Kiểm tra thời hạn dùng thử 
+window.loadStoreItems = async function () {
+    studentOwnedItems = ['theme_default'];
+    studentEquippedItems = { theme: 'default', effect: '', pet: '' };
+    trialItemsList = [];
+
+    const now = Date.now();
+    let hasExpiredTrials = false;
+    let updates = {};
+
+    if (typeof myInventory !== 'undefined' && Array.isArray(myInventory)) {
+        myInventory.forEach(item => {
+            if (item.isTrial && item.trialExpiry && now > item.trialExpiry) {
+                hasExpiredTrials = true;
+                updates[`student_inventory/${currentUser.username}/${item.id}`] = null;
+
+                if (item.isEquipped) {
+                    const itemDef = StoreConfig.items.find(i => i.id === item.id);
+                    if (itemDef) {
+                        if (itemDef.type === 'theme') ThemeManager.applyTheme('default');
+                        if (itemDef.type === 'effect') EffectManager.clearEffects();
+                        if (itemDef.type === 'pet') {
+                            const petContainer = document.getElementById('virtual-pet-container');
+                            if (petContainer) petContainer.style.display = 'none';
+                        }
+                    }
+                }
+            } else {
+                if (!studentOwnedItems.includes(item.id)) studentOwnedItems.push(item.id);
+                if (item.isTrial) trialItemsList.push(item.id);
+                if (item.isEquipped) {
+                    const itemDef = StoreConfig.items.find(i => i.id === item.id);
+                    if (itemDef) studentEquippedItems[itemDef.type] = item.id;
+                }
+            }
+        });
+    }
+
+    if (hasExpiredTrials) {
+        await db.ref().update(updates);
+        alert("⏰ Một số vật phẩm dùng thử của bạn đã hết thời gian 24 giờ và bị thu hồi!");
+    }
+
+    window.filterStore(window.currentStoreFilterType);
+};
+
+// 3. Logic kích hoạt dùng thử 1 Ngày (Nửa giá)
+window.trialItem = async function (itemId) {
+    const item = StoreManager.getItemById(itemId);
+    if (!item) return;
+    if (item.isLocked) return alert("🔒 Vật phẩm này hiện đang bị Giáo viên khóa, không thể dùng thử!");
+    if (item.isNonCoin && (!item.price || item.price <= 0)) return alert("🚫 Vật phẩm sự kiện không hỗ trợ thử nghiệm!");
+
+    const trialPrice = item.price / 2;
+    const coinRef = db.ref('student_coins/' + currentUser.username);
+    const snap = await coinRef.once('value');
+    let currentCoins = snap.val() || 0;
+
+    if (currentCoins < trialPrice) return alert(`❌ Không đủ Coin! Phí dùng thử yêu cầu ${trialPrice} Coin.`);
+
+    if (confirm(`Bạn sẽ dùng ${trialPrice} Coin để trải nghiệm [ ${item.name} ] trong 24 giờ?\nĐồng ý kích hoạt?`)) {
+        await coinRef.set(currentCoins - trialPrice);
+
+        const trialExpiry = Date.now() + (24 * 60 * 60 * 1000);
+        await db.ref(`student_inventory/${currentUser.username}/${item.id}`).set({
+            id: item.id,
+            purchaseTime: Date.now(),
+            isEquipped: true,
+            isTrial: true,
+            trialExpiry: trialExpiry
+        });
+
+        // Tự động tháo các đồ cùng loại đang mặc
+        const invSnap = await db.ref(`student_inventory/${currentUser.username}`).once('value');
+        const inventory = invSnap.val();
+        if (inventory) {
+            let updates = {};
+            for (let key in inventory) {
+                if (key !== item.id) {
+                    let invItem = inventory[key];
+                    const checkTypeItem = StoreConfig.items.find(i => i.id === invItem.id);
+                    if (checkTypeItem && checkTypeItem.type === item.type) {
+                        updates[`${key}/isEquipped`] = false;
+                    }
+                }
+            }
+            if (Object.keys(updates).length > 0) await db.ref(`student_inventory/${currentUser.username}`).update(updates);
+        }
+        alert(`⏳ Bắt đầu dùng thử [ ${item.name} ]! (Thời hạn: 24 giờ)`);
+    }
+};
+
+// 4. Logic Mua đứt (Tính hoàn tiền nếu đang dùng thử)
+window.buyItem = async function (itemId, isUpgradingFromTrial = false) {
+    const item = StoreManager.getItemById(itemId);
+    if (!item) return;
+    if (item.isLocked) return alert("🔒 Vật phẩm này hiện đang bị Giáo viên khóa, không thể mua!");
+    if (item.isNonCoin && (!item.price || item.price <= 0)) return alert(`🎁 Đây là vật phẩm sự kiện, không thể mua bằng Coin!`);
+
+    const coinRef = db.ref('student_coins/' + currentUser.username);
+    const snap = await coinRef.once('value');
+    let currentCoins = snap.val() || 0;
+
+    let finalPrice = item.price;
+    let confirmMsg = `Xác nhận dùng ${finalPrice} Coin để mua vĩnh viễn [ ${item.name} ]?`;
+
+    if (isUpgradingFromTrial) {
+        const trialPrice = item.price / 2;
+        const refund = trialPrice * 0.3;
+        finalPrice = item.price - refund;
+        confirmMsg = `Bạn đang dùng thử vật phẩm này. Nâng cấp vĩnh viễn ngay bây giờ sẽ được hoàn lại 30% phí dùng thử.\n\n💰 Giá cần thanh toán: ${finalPrice} Coin.\nXác nhận mua?`;
+    }
+
+    if (currentCoins < finalPrice) return alert(`❌ Số dư Coin không đủ! Bạn cần ${finalPrice} Coin.`);
+
+    if (confirm(confirmMsg)) {
+        await coinRef.set(currentCoins - finalPrice);
+        await db.ref(`student_inventory/${currentUser.username}/${item.id}`).update({
+            id: item.id,
+            purchaseTime: Date.now(),
+            isTrial: null,
+            trialExpiry: null,
+            isEquipped: true
+        });
+        alert(`🎉 Chúc mừng! Bạn đã sở hữu vĩnh viễn [ ${item.name} ].`);
+    }
+};
+
+// 5. Kết nối logic SỬ DỤNG vật phẩm
+StoreManager.applyItem = async function (itemId) {
+    const item = StoreManager.getItemById(itemId);
+    if (!item) return;
+
+    // Lưu trạng thái lên Firebase (Hàm on('value') sẽ tự động gọi applyEquippedItems bên dưới để tạo hiệu ứng)
+    const invSnap = await db.ref(`student_inventory/${currentUser.username}`).once('value');
+    const inventory = invSnap.val();
+    if (inventory) {
+        let updates = {};
+        for (let key in inventory) {
+            let invItem = inventory[key];
+            const checkTypeItem = StoreConfig.items.find(i => i.id === invItem.id);
+            if (checkTypeItem && checkTypeItem.type === item.type) {
+                updates[`${key}/isEquipped`] = (invItem.id === itemId);
+            }
+        }
+        await db.ref(`student_inventory/${currentUser.username}`).update(updates);
+    }
+};
+
+// 5.5 Kết nối logic THÁO vật phẩm (Gỡ trang bị)
+StoreManager.unapplyItem = async function (itemId) {
+    const item = StoreManager.getItemById(itemId);
+    if (!item) return;
+
+    // 1. Tắt giao diện lập tức (Trả về mặc định)
+    if (item.type === 'theme') ThemeManager.applyTheme('default');
+    if (item.type === 'effect') EffectManager.clearEffects();
+    if (item.type === 'pet') {
+        const petContainer = document.getElementById('virtual-pet-container');
+        if (petContainer) petContainer.style.display = 'none';
+    }
+
+    // 2. Lưu trạng thái "Đã tháo" lên Firebase
+    const invSnap = await db.ref(`student_inventory/${currentUser.username}`).once('value');
+    const inventory = invSnap.val();
+    if (inventory) {
+        let updates = {};
+        for (let key in inventory) {
+            if (inventory[key].id === itemId) {
+                updates[`${key}/isEquipped`] = false;
+            }
+        }
+        await db.ref(`student_inventory/${currentUser.username}`).update(updates);
+    }
+};
+
+// 6. Cập nhật giao diện UI & Hiệu ứng (Mỗi khi tải trang hoặc kho đồ thay đổi)
+window.applyEquippedItems = function () {
+    // Reset hiệu ứng và thú cưng về trống trước khi mặc đồ mới
+    document.getElementById('global-effect-container').innerHTML = '';
+    const petContainer = document.getElementById('virtual-pet-container');
+    if (petContainer) petContainer.style.display = 'none';
+
+    if (typeof myInventory !== 'undefined' && Array.isArray(myInventory)) {
+        myInventory.forEach(invItem => {
+            if (invItem.isEquipped) {
+                const itemDef = StoreConfig.items.find(i => i.id === invItem.id);
+                if (itemDef) {
+                    if (itemDef.type === 'theme') ThemeManager.applyTheme(itemDef.id);
+                    else if (itemDef.type === 'effect') EffectManager.applyEffect(itemDef.id);
+                    else if (itemDef.type === 'pet') PetManager.spawnPet(itemDef);
+                }
+            }
+        });
+    }
+};

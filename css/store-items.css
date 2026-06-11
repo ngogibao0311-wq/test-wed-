@@ -1,0 +1,337 @@
+/* css/store-items.css - Giao diện Glassmorphism 3D */
+
+.store-item-card {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 24px;
+    padding: 25px 20px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05), inset 0 2px 5px rgba(255, 255, 255, 0.8);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    z-index: 1;
+}
+
+.store-item-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(102, 126, 234, 0.15), inset 0 2px 5px rgba(255, 255, 255, 1);
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+/* Hiệu ứng ánh sáng nền phía sau Icon */
+.card-glow {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, rgba(102, 126, 234, 0.15) 0%, rgba(255,255,255,0) 70%);
+    z-index: -1;
+    border-radius: 50%;
+}
+
+.item-icon-wrapper {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.item-icon {
+    font-size: 3.5em;
+    filter: drop-shadow(0 8px 10px rgba(0,0,0,0.15));
+    transition: transform 0.3s ease;
+}
+
+.store-item-card:hover .item-icon {
+    transform: scale(1.15) rotate(5deg);
+}
+
+.item-info {
+    margin-bottom: 20px;
+}
+
+.item-name {
+    color: #2c3e50;
+    margin: 0 0 5px 0;
+    font-size: 1.25em;
+    font-weight: 800;
+}
+
+.item-type-label {
+    font-size: 0.8em;
+    color: #7f8fa6;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+}
+
+.item-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.item-actions button {
+    padding: 12px 15px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.item-actions button:active {
+    transform: scale(0.95);
+}
+
+/* Styling cho từng loại nút bấm */
+.btn-buy {
+    background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(246, 211, 101, 0.4);
+}
+.btn-buy:hover { box-shadow: 0 6px 20px rgba(246, 211, 101, 0.6); }
+
+.btn-buy.upgrade {
+    background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
+    box-shadow: 0 4px 15px rgba(0, 176, 155, 0.3);
+}
+
+.btn-equip {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+.btn-equip:hover { box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6); }
+
+.btn-equip.active {
+    background: #e2e8f0;
+    color: #64748b;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+.btn-equip.active:active { transform: none; }
+
+.btn-preview {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+}
+.btn-preview:hover { background: rgba(102, 126, 234, 0.2); }
+
+.btn-preview.active {
+    background: rgba(211, 84, 0, 0.08);
+    color: #d35400;
+    border-color: rgba(211, 84, 0, 0.3);
+    cursor: default;
+}
+.btn-preview.active:active { transform: none; }
+
+.btn-preview.disabled {
+    background: rgba(0,0,0,0.03);
+    color: #a4b0be;
+    border: 1px dashed rgba(0,0,0,0.1);
+    cursor: not-allowed;
+}
+
+/* Tag Mặc định */
+.item-tag {
+    position: absolute;
+    top: 15px;
+    right: -30px;
+    background: #667eea;
+    color: white;
+    font-size: 0.75em;
+    padding: 5px 35px;
+    transform: rotate(45deg);
+    font-weight: 800;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* Tag UI Độc Quyền: Tứ kị sĩ */
+.tag-tu-ki-si {
+    background: linear-gradient(90deg, #870000, #190a05);
+    color: #ffd700;
+    border-bottom: 2px solid #ffd700;
+    box-shadow: 0 4px 15px rgba(135, 0, 0, 0.5);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'Courier New', Courier, monospace;
+}
+/* =========================================================
+   GIAO DIỆN CỔ TÍCH - VƯƠNG QUỐC THẦN THOẠI
+   Chỉ kích hoạt khi body có class .theme-fairy-tale
+========================================================= */
+
+/* 1. Thay đổi Phông chữ và Nền tổng thể */
+.theme-fairy-tale {
+    font-family: 'Georgia', 'Times New Roman', serif; /* Phông có chân cổ điển */
+    color: #e0e0e0;
+    background-image: radial-gradient(circle at 50% 0%, #2a2a4a 0%, #0f0f1a 80%);
+}
+
+/* 2. Style riêng cho Tag "Cổ tích" trong cửa hàng */
+.tag-co-tich {
+    background: linear-gradient(90deg, #d4af37, #f39c12);
+    color: #1a1a2e;
+    border-bottom: 2px dashed #fff;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+    font-family: 'Georgia', serif;
+    font-style: italic;
+    letter-spacing: 1px;
+}
+
+/* 3. Thay đổi hình dáng Card, Ô chứa (Sách gấp / Cuộn giấy) */
+.theme-fairy-tale .card,
+.theme-fairy-tale .store-item-card,
+.theme-fairy-tale .submit-box {
+    background: rgba(26, 26, 46, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid #d4af37; /* Viền vàng kim */
+    border-radius: 30px 5px 30px 5px; /* Bo góc vát chéo bất đối xứng */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(212, 175, 55, 0.05);
+    transition: all 0.4s ease;
+}
+
+.theme-fairy-tale .store-item-card:hover {
+    border-color: #f1c40f;
+    box-shadow: 0 15px 40px rgba(212, 175, 55, 0.2), inset 0 0 20px rgba(255, 215, 0, 0.15);
+}
+
+/* 4. Sidebar / Thanh điều hướng */
+.theme-fairy-tale .sidebar,
+.theme-fairy-tale .nav-bar {
+    background: linear-gradient(180deg, rgba(15, 15, 26, 0.95), rgba(26, 26, 46, 0.95));
+    border-right: 2px solid #d4af37;
+    border-radius: 0 25px 25px 0;
+    box-shadow: 5px 0 20px rgba(0, 0, 0, 0.5);
+}
+
+/* 5. Định hình lại Modal / Popup */
+.theme-fairy-tale .modal-content,
+.theme-fairy-tale #viewQuestionsModal > div {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) !important;
+    border: 2px solid #d4af37 !important;
+    border-radius: 40px 10px 40px 10px !important;
+    box-shadow: 0 0 60px rgba(212, 175, 55, 0.2) !important;
+}
+
+/* 6. Text, Tiêu đề mang âm hưởng Cinematic */
+.theme-fairy-tale h1, 
+.theme-fairy-tale h2, 
+.theme-fairy-tale h3, 
+.theme-fairy-tale h4,
+.theme-fairy-tale .item-name {
+    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+    color: #d4af37 !important;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
+    letter-spacing: 0.5px;
+}
+
+/* 7. Định dạng lại Nút bấm (Buttons) */
+.theme-fairy-tale button,
+.theme-fairy-tale .btn-approve {
+    background: linear-gradient(45deg, #d4af37, #f1c40f) !important;
+    color: #0f0f1a !important;
+    border: 1px solid #fff !important;
+    border-radius: 8px !important;
+    font-family: 'Georgia', serif;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3) !important;
+    text-transform: uppercase;
+}
+
+.theme-fairy-tale button:hover {
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6) !important;
+    transform: translateY(-2px);
+}
+
+/* Nút Preview / Nút phụ trong theme Cổ tích */
+.theme-fairy-tale .btn-preview {
+    background: rgba(212, 175, 55, 0.1) !important;
+    color: #d4af37 !important;
+    border: 1px solid rgba(212, 175, 55, 0.4) !important;
+}
+.theme-fairy-tale .btn-preview:hover {
+    background: rgba(212, 175, 55, 0.2) !important;
+}
+/* =========================================================
+   HIỆU ỨNG: BỤI PHÉP THUẬT (CỔ TÍCH)
+========================================================= */
+
+/* Đảm bảo container chứa hiệu ứng phủ kín màn hình và không cản trở thao tác click */
+#global-effect-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Rất quan trọng: Xuyên click */
+    z-index: 9998; /* Nằm dưới Modal nhưng trên giao diện chính */
+    overflow: hidden;
+}
+
+/* Định hình hạt bụi sáng to và rõ hơn */
+.fairy-dust {
+    position: absolute;
+    background: #ffffff; /* Lõi trắng sáng gắt để chống lại nền tối */
+    border-radius: 50%;
+    
+    /* Box-shadow 4 LỚP: Trắng -> Vàng -> Cam -> Cam đỏ. 
+       Lớp cam đỏ ngoài cùng giúp tách biệt hạt bụi khỏi các nền web sáng màu */
+    box-shadow: 
+        0 0 4px #ffffff, 
+        0 0 10px #ffeb3b, 
+        0 0 20px #f39c12, 
+        0 0 35px #d35400;
+        
+    opacity: 0;
+    animation-name: floatMagicDust;
+    animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    animation-iteration-count: infinite;
+}
+
+/* Keyframes: Chớp sáng mạnh lúc đầu và bay lượn rõ rệt */
+@keyframes floatMagicDust {
+    0% {
+        transform: translateY(0) scale(0.5);
+        opacity: 0;
+    }
+    15% {
+        /* Hiện hình rất nhanh và lóe sáng */
+        opacity: 1;
+        transform: translateY(-20px) translateX(15px) scale(1.5);
+        box-shadow: 
+            0 0 6px #ffffff, 
+            0 0 15px #ffeb3b, 
+            0 0 30px #f39c12, 
+            0 0 50px #d35400;
+    }
+    50% {
+        opacity: 0.85;
+        transform: translateY(-60px) translateX(-15px) scale(1);
+    }
+    85% {
+        opacity: 0.7;
+        transform: translateY(-100px) translateX(20px) scale(0.8);
+    }
+    100% {
+        transform: translateY(-130px) translateX(-10px) scale(0);
+        opacity: 0;
+    }
+}
