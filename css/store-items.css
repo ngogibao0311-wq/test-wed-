@@ -335,3 +335,125 @@
         opacity: 0;
     }
 }
+/* =========================================================
+   GIAO DIỆN CỔ TÍCH 2 - KHU RỪNG PHÉP THUẬT (SỰ KIỆN)
+   Chỉ kích hoạt khi body có class .theme-magic-forest
+========================================================= */
+
+/* 1. Thay đổi Phông chữ và Nền tổng thể */
+.theme-magic-forest {
+    font-family: 'Cormorant Garamond', 'Bookman Old Style', serif;
+    color: #d1f2eb;
+    background-image: radial-gradient(circle at top right, #0b2e21 0%, #04120c 100%);
+}
+
+/* 2. Thay đổi hình dáng Card, Ô chứa (Dáng chiếc lá bất đối xứng) */
+.theme-magic-forest .card,
+.theme-magic-forest .store-item-card,
+.theme-magic-forest .submit-box {
+    background: rgba(11, 46, 33, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid #2ecc71; /* Viền xanh ngọc */
+    border-radius: 40px 5px 40px 5px; /* Ép góc tạo hình chiếc lá */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(46, 204, 113, 0.1);
+    transition: all 0.4s ease;
+}
+
+.theme-magic-forest .store-item-card:hover {
+    border-color: #58d68d;
+    box-shadow: 0 15px 40px rgba(46, 204, 113, 0.25), inset 0 0 20px rgba(88, 214, 141, 0.15);
+}
+
+/* 3. Sidebar / Thanh điều hướng */
+.theme-magic-forest .sidebar,
+.theme-magic-forest .nav-bar {
+    background: linear-gradient(180deg, rgba(4, 18, 12, 0.95), rgba(11, 46, 33, 0.95));
+    border-right: 2px solid #2ecc71;
+    border-radius: 0 30px 0 30px; /* Vát góc nhẹ nhàng hơn */
+    box-shadow: 5px 0 20px rgba(0, 0, 0, 0.6);
+}
+
+/* 4. Định hình lại Modal / Popup */
+.theme-magic-forest .modal-content,
+.theme-magic-forest #viewQuestionsModal > div {
+    background: linear-gradient(135deg, #0b2e21 0%, #04120c 100%) !important;
+    border: 2px solid #2ecc71 !important;
+    border-radius: 50px 10px 50px 10px !important;
+    box-shadow: 0 0 60px rgba(46, 204, 113, 0.2) !important;
+}
+
+/* 5. Text, Tiêu đề (Màu xanh phát sáng) */
+.theme-magic-forest h1, 
+.theme-magic-forest h2, 
+.theme-magic-forest h3, 
+.theme-magic-forest h4,
+.theme-magic-forest .item-name {
+    font-family: 'Cormorant Garamond', serif;
+    color: #58d68d !important;
+    text-shadow: 0 0 10px rgba(46, 204, 113, 0.3);
+    letter-spacing: 1px;
+}
+
+/* 6. Định dạng lại Nút bấm (Buttons) */
+.theme-magic-forest button,
+.theme-magic-forest .btn-approve {
+    background: linear-gradient(45deg, #1abc9c, #2ecc71) !important;
+    color: #04120c !important;
+    border: 1px solid #d1f2eb !important;
+    border-radius: 15px 4px 15px 4px !important; /* Đồng bộ dáng lá */
+    font-family: 'Bookman Old Style', serif;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3) !important;
+}
+
+.theme-magic-forest button:hover {
+    box-shadow: 0 6px 20px rgba(46, 204, 113, 0.6) !important;
+    transform: translateY(-2px);
+}
+/* =========================================================
+   HIỆU ỨNG CỔ TÍCH 2: ĐOM ĐÓM RỪNG TIÊN (SỰ KIỆN)
+========================================================= */
+.fairy-firefly {
+    position: absolute;
+    bottom: -20px; /* Bắt đầu từ dưới đáy màn hình */
+    background: #abff00; /* Màu lục dạ quang */
+    border-radius: 50%;
+    
+    /* Hiệu ứng phát sáng nhiều lớp */
+    box-shadow: 
+        0 0 5px #abff00, 
+        0 0 10px #7cfc00, 
+        0 0 20px #32cd32;
+        
+    opacity: 0;
+    animation-name: fireflyFloat;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    pointer-events: none; /* Xuyên click */
+    z-index: 9998;
+}
+
+/* Chuyển động bay lượn hình sin từ dưới lên */
+@keyframes fireflyFloat {
+    0% {
+        transform: translateY(0) translateX(0) scale(0);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+        transform: translateY(-10vh) translateX(25px) scale(1.2);
+    }
+    50% {
+        opacity: 0.8;
+        transform: translateY(-50vh) translateX(-20px) scale(0.8);
+    }
+    90% {
+        opacity: 1;
+        transform: translateY(-90vh) translateX(15px) scale(1.1);
+    }
+    100% {
+        transform: translateY(-110vh) translateX(-10px) scale(0);
+        opacity: 0;
+    }
+}

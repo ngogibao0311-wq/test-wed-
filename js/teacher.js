@@ -2120,3 +2120,266 @@ document.addEventListener('DOMContentLoaded', () => {
 window.loadTeacherStoreItems = function () {
     initTeacherStoreManagement();
 };
+
+// Hàm điều khiển ẩn/hiện khu vực nhập thông báo
+window.toggleNotificationArea = function(isOpen) {
+    const inputArea = document.getElementById('notificationInputArea');
+    if (inputArea) {
+        inputArea.style.display = isOpen ? 'block' : 'none';
+    }
+};
+
+// Gửi thông báo mới
+window.sendGlobalNotification = async function(customMsg = null) {
+    const msgInput = document.getElementById('globalNotificationMessage');
+    const message = customMsg || (msgInput ? msgInput.value.trim() : '');
+    
+    if (!message) return alert("Vui lòng nhập nội dung thông báo!");
+
+    const payload = {
+        id: Date.now().toString(),
+        message: message,
+        timestamp: Date.now(),
+        timeString: new Date().toLocaleString('vi-VN'),
+        receivers: {} // Khởi tạo danh sách người đã ấn "Đã nhận" (Rỗng)
+    };
+
+    await pushDB('global_notifications', payload);
+    
+    if(msgInput && !customMsg) {
+        msgInput.value = ''; // Xóa nội dung cũ
+        
+        // Tự động tắt nút gạt và ẩn khung nhập sau khi gửi xong
+        const toggleBtn = document.getElementById('notificationToggle');
+        if (toggleBtn) toggleBtn.checked = false;
+        toggleNotificationArea(false);
+    }
+    
+    alert("✅ Đã phát thông báo đến toàn bộ học sinh!");
+};
+
+
+// Mở lịch sử và thống kê người xem
+window.openNotificationHistory = async function() {
+    document.getElementById('notificationHistoryModal').classList.add('active');
+    const listContainer = document.getElementById('notificationHistoryList');
+    listContainer.innerHTML = '<p style="text-align: center; color: #666;">Đang tải dữ liệu...</p>';
+
+    const notifications = await getDB('global_notifications');
+    const users = await getDB('users');
+    const students = users.filter(u => u.role === 'student');
+    const totalStudents = students.length;
+
+    if (notifications.length === 0) {
+        listContainer.innerHTML = '<p style="color: #666; font-style: italic; text-align: center;">Chưa có thông báo nào được gửi.</p>';
+        return;
+    }
+
+    let html = '';
+    // Xếp thông báo mới nhất lên đầu
+    [...notifications].reverse().forEach(noti => {
+        const receiversObj = noti.receivers || {};
+        const receivedCount = Object.keys(receiversObj).length;
+
+        // Trích xuất danh sách học sinh đã xem / chưa xem
+        let viewedStudentsHTML = '';
+        students.forEach(st => {
+            const hasViewed = receiversObj[st.username];
+            const color = hasViewed ? '#059669' : '#e11d48';
+            const icon = hasViewed ? '✅' : '⏳';
+            viewedStudentsHTML += `<span style="display:inline-block; margin: 3px 8px 3px 0; font-size:0.85em; color:${color}; font-weight:bold; background: rgba(0,0,0,0.04); padding: 4px 8px; border-radius: 6px;">${icon} ${st.name}</span>`;
+        });
+
+        html += `
+        <div class="glass-alert" style="margin-bottom: 20px; border-left-color: #f6d365;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                <span style="font-size: 0.85em; color: #666;">🕒 Gửi lúc: ${noti.timeString || 'Không rõ'}</span>
+                <span style="font-size: 0.85em; font-weight: bold; color: #764ba2; background: rgba(118, 75, 162, 0.1); padding: 4px 10px; border-radius: 12px;">Đã xem: ${receivedCount} / ${totalStudents}</span>
+            </div>
+            <p style="margin: 0 0 10px 0; font-weight: bold; color: #2c3e50; white-space: pre-wrap; font-size: 1.05em;">${noti.message}</p>
+            
+            <div style="background: rgba(255,255,255,0.8); padding: 10px; border-radius: 8px; margin-bottom: 12px; max-height: 100px; overflow-y: auto; border: 1px inset rgba(0,0,0,0.05);">
+                ${viewedStudentsHTML}
+            </div>
+            
+            <div style="display: flex; gap: 10px;">
+                <button onclick="sendGlobalNotification('${noti.message.replace(/'/g, "\\'")}')" style="flex: 1; padding: 8px; font-size: 0.9em; background: rgba(102, 126, 234, 0.1); color: #667eea; border: 2px dashed #667eea; box-shadow: none; border-radius: 8px; font-weight: bold;">🔄 Gửi lại tin này</button>
+                <button onclick="deleteNotification('${noti._fbKey}')" style="width: auto; padding: 8px 15px; font-size: 0.9em; background: rgba(225, 29, 72, 0.1); color: #e11d48; border: none; border-radius: 8px; font-weight: bold;">🗑 Xóa</button>
+            </div>
+        </div>`;
+    });
+    listContainer.innerHTML = html;
+};
+
+window.closeNotificationHistory = function() {
+    document.getElementById('notificationHistoryModal').classList.remove('active');
+};
+
+window.deleteNotification = async function(fbKey) {
+    if(confirm('Chắc chắn xóa thông báo này khỏi lịch sử?')) {
+        await removeDB('global_notifications', fbKey);
+        openNotificationHistory(); // Render lại danh sách
+    }
+};
+
+// ================= HỆ THỐNG KHẢO SÁT =================
+let surveyQCount = 0;
+
+window.toggleSurveyArea = function(isOpen) {
+    const inputArea = document.getElementById('surveyInputArea');
+    if (inputArea) inputArea.style.display = isOpen ? 'block' : 'none';
+};
+
+window.addSurveyQuestion = function(type) {
+    surveyQCount++;
+    const container = document.getElementById('surveyQuestionsBuilder');
+    const div = document.createElement('div');
+    div.className = 'survey-q-block';
+    div.dataset.type = type;
+    div.style.cssText = 'background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; position: relative; border: 1px solid rgba(0,0,0,0.05);';
+
+    let contentHTML = `
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <strong style="color:#e83e8c;">Câu ${surveyQCount} (${type === 'mc' ? 'Chọn đáp án' : 'Nhập văn bản'}):</strong>
+            <button onclick="this.closest('.survey-q-block').remove()" style="width:auto; padding:2px 8px; font-size:0.8em; background:#e11d48; color:white; border:none; border-radius:4px;">Xóa</button>
+        </div>
+        <input type="text" class="sq-text" placeholder="Nhập nội dung câu hỏi khảo sát..." style="margin-bottom: ${type === 'mc' ? '10px' : '0'}; background: rgba(0,0,0,0.02);">
+    `;
+
+    if (type === 'mc') {
+        contentHTML += `
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <input type="text" class="sq-opt" placeholder="Lựa chọn 1..." style="margin:0;">
+                <input type="text" class="sq-opt" placeholder="Lựa chọn 2..." style="margin:0;">
+                <input type="text" class="sq-opt" placeholder="Lựa chọn 3 (Không bắt buộc)..." style="margin:0;">
+                <input type="text" class="sq-opt" placeholder="Lựa chọn 4 (Không bắt buộc)..." style="margin:0;">
+            </div>
+        `;
+    }
+    div.innerHTML = contentHTML;
+    container.appendChild(div);
+};
+
+window.sendGlobalSurvey = async function() {
+    const title = document.getElementById('surveyTitle').value.trim();
+    if (!title) return alert("Vui lòng nhập Tiêu đề khảo sát!");
+
+    const qBlocks = document.querySelectorAll('.survey-q-block');
+    if (qBlocks.length === 0) return alert("Vui lòng thêm ít nhất 1 câu hỏi khảo sát!");
+
+    let questions = [];
+    let isValid = true;
+
+    qBlocks.forEach((block, index) => {
+        const qType = block.dataset.type;
+        const qText = block.querySelector('.sq-text').value.trim();
+        if (!qText) isValid = false;
+
+        let qData = { id: `q_${index}`, type: qType, text: qText };
+
+        if (qType === 'mc') {
+            let opts = [];
+            block.querySelectorAll('.sq-opt').forEach(optInput => {
+                if(optInput.value.trim()) opts.push(optInput.value.trim());
+            });
+            if (opts.length < 2) isValid = false; // Trắc nghiệm phải có ít nhất 2 lựa chọn
+            qData.options = opts;
+        }
+        questions.push(qData);
+    });
+
+    if (!isValid) return alert("Vui lòng điền đầy đủ nội dung câu hỏi và ít nhất 2 lựa chọn cho câu trắc nghiệm!");
+
+    const payload = {
+        id: Date.now().toString(),
+        title: title,
+        questions: questions,
+        timestamp: Date.now(),
+        timeString: new Date().toLocaleString('vi-VN'),
+        answers: {} // Lưu câu trả lời của HS
+    };
+
+    await pushDB('global_surveys', payload);
+    
+    // Dọn dẹp form
+    document.getElementById('surveyTitle').value = '';
+    document.getElementById('surveyQuestionsBuilder').innerHTML = '';
+    surveyQCount = 0;
+    document.getElementById('surveyToggle').checked = false;
+    toggleSurveyArea(false);
+
+    alert("🚀 Đã phát hành Khảo sát đến toàn bộ học sinh!");
+};
+
+window.openSurveyHistory = async function() {
+    document.getElementById('surveyHistoryModal').classList.add('active');
+    const container = document.getElementById('surveyHistoryList');
+    container.innerHTML = '<p style="text-align: center;">Đang tải...</p>';
+
+    const surveys = await getDB('global_surveys');
+    if (surveys.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #666;">Chưa có khảo sát nào.</p>';
+        return;
+    }
+
+    let html = '';
+    [...surveys].reverse().forEach(sv => {
+        const answerCount = sv.answers ? Object.keys(sv.answers).length : 0;
+        html += `
+        <div class="glass-alert" style="margin-bottom: 15px; border-left-color: #e83e8c;">
+            <h4 style="color: #e83e8c; margin: 0 0 5px 0;">${sv.title}</h4>
+            <p style="font-size: 0.85em; color: #666; margin-bottom: 10px;">🕒 Gửi: ${sv.timeString}</p>
+            <p style="font-weight: bold; color: #059669; margin-bottom: 15px;">Đã có ${answerCount} học sinh trả lời</p>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="viewSurveyResults('${sv._fbKey}')" style="flex: 1; padding: 8px; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; border-radius: 8px; border: none; font-weight: bold;">👁️ Xem câu trả lời</button>
+                <button onclick="deleteSurvey('${sv._fbKey}')" style="width: auto; padding: 8px 15px; background: rgba(225, 29, 72, 0.1); color: #e11d48; border: none; border-radius: 8px; font-weight: bold;">🗑 Xóa</button>
+            </div>
+        </div>`;
+    });
+    container.innerHTML = html;
+};
+
+window.closeSurveyHistory = function() { document.getElementById('surveyHistoryModal').classList.remove('active'); };
+
+window.viewSurveyResults = async function(fbKey) {
+    const surveys = await getDB('global_surveys');
+    const sv = surveys.find(s => s._fbKey === fbKey);
+    if (!sv) return;
+
+    document.getElementById('surveyResultTitle').innerText = `📊 Kết quả: ${sv.title}`;
+    const container = document.getElementById('surveyResultsContent');
+    container.innerHTML = '';
+
+    if (!sv.answers || Object.keys(sv.answers).length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #666; font-style: italic;">Chưa có học sinh nào nộp câu trả lời.</p>';
+    } else {
+        Object.values(sv.answers).forEach(ans => {
+            let answersHTML = '';
+            sv.questions.forEach(q => {
+                const studentAns = ans.responses[q.id] || '(Bỏ trống)';
+                answersHTML += `
+                <div style="margin-bottom: 10px; background: rgba(0,0,0,0.03); padding: 10px; border-radius: 8px;">
+                    <p style="margin: 0 0 5px 0; font-size: 0.9em; font-weight: bold; color: #444;">Hỏi: ${q.text}</p>
+                    <p style="margin: 0; color: #059669; font-weight: bold;">Đáp: ${studentAns}</p>
+                </div>`;
+            });
+
+            const div = document.createElement('div');
+            div.style.cssText = 'background: rgba(255,255,255,0.6); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid rgba(0,0,0,0.05);';
+            div.innerHTML = `
+                <h4 style="color: #764ba2; margin: 0 0 10px 0; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 5px;">👤 HS: ${ans.studentName} <span style="font-size:0.8em; color:#666;">(${ans.timestamp})</span></h4>
+                ${answersHTML}
+            `;
+            container.appendChild(div);
+        });
+    }
+    document.getElementById('surveyResultsModal').classList.add('active');
+};
+
+window.closeSurveyResults = function() { document.getElementById('surveyResultsModal').classList.remove('active'); };
+window.deleteSurvey = async function(fbKey) {
+    if(confirm('Chắc chắn xóa Khảo sát này khỏi hệ thống?')) {
+        await removeDB('global_surveys', fbKey);
+        openSurveyHistory(); // Render lại danh sách
+    }
+};

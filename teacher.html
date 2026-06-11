@@ -5,11 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Trang Giáo Viên</title>
-    <link rel="stylesheet" href="css/common.css?v=1.5">
-    <link rel="stylesheet" href="css/teacher.css?v=1.5">
-    <link rel="stylesheet" href="css/mobile.css?v=1.5">
-    <link rel="stylesheet" href="css/store-items.css?v=1.5">
-    <link rel="stylesheet" href="css/effects-pets.css?v=1.5">
+    <link rel="stylesheet" href="css/common.css?v=1.6">
+    <link rel="stylesheet" href="css/teacher.css?v=1.6">
+    <link rel="stylesheet" href="css/mobile.css?v=1.6">
+    <link rel="stylesheet" href="css/store-items.css?v=1.6">
+    <link rel="stylesheet" href="css/effects-pets.css?v=1.6">
 </head>
 
 <body>
@@ -432,8 +432,7 @@
                 <div id="updateBannerArea" class="update-banner" style="display: none;">
                     <div>
                         <h4 style="margin: 0; font-size: 1.2em;">🚀 Có phiên bản hệ thống mới!</h4>
-                        <p style="margin: 5px 0 0 0; font-size: 0.95em;">Nhấn nút bên cạnh để tải lại toàn bộ tài
-                            nguyên
+                        <p style="margin: 5px 0 0 0; font-size: 0.95em;">Nhấn nút bên cạnh để tải lại toàn bộ tài nguyên
                             web mới nhất.</p>
                     </div>
                     <button class="btn-do-update" onclick="applySystemUpdate()">Cập nhật ngay</button>
@@ -458,6 +457,81 @@
                     <button onclick="updateProfile()"
                         style="margin-top: 15px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: #fff;">💾
                         Lưu thay đổi tài khoản</button>
+                </div>
+
+                <div class="card form-container" style="margin-top: 20px; position: relative;">
+                    <div style="position: absolute; top: 15px; right: 15px;">
+                        <button onclick="openNotificationHistory()"
+                            style="width: 40px; height: 40px; border-radius: 50%; padding: 0; background: rgba(255,255,255,0.5); color: #667eea; border: 2px solid #667eea; font-weight: bold; font-size: 1.2em; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.2s;"
+                            title="Lịch sử thông báo" onmouseover="this.style.transform='scale(1.1)'"
+                            onmouseout="this.style.transform='scale(1)'">❓</button>
+                    </div>
+                    <h3
+                        style="color: #764ba2; margin-bottom: 15px; border-bottom: 2px solid rgba(118, 75, 162, 0.2); padding-bottom: 10px;">
+                        📢 Thông báo & Khảo sát toàn trường</h3>
+
+                    <label
+                        style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 15px; background: rgba(255,255,255,0.4); padding: 12px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.05);">
+                        <input type="checkbox" id="notificationToggle" onchange="toggleNotificationArea(this.checked)"
+                            style="width: 22px; height: 22px; margin: 0; cursor: pointer;">
+                        <strong style="color: #2c3e50; font-size: 0.95em;">Bật tính năng gửi Thông báo mới</strong>
+                    </label>
+
+                    <div id="notificationInputArea" style="display: none; animation: fadeInUp 0.4s ease;">
+                        <label><strong>Nội dung thông báo:</strong></label>
+                        <textarea id="globalNotificationMessage"
+                            placeholder="Nhập tin nhắn thông báo gửi đến toàn bộ học sinh... (Ví dụ: Nhắc nhở lịch học, thông báo nghỉ lễ)"
+                            rows="3" style="background: rgba(255,255,255,0.7);"></textarea>
+
+                        <button onclick="sendGlobalNotification()"
+                            style="margin-top: 10px; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">🚀
+                            Gửi
+                            thông báo ngay</button>
+                    </div>
+                </div>
+
+                <div class="card form-container"
+                    style="margin-top: 20px; position: relative; background: linear-gradient(135deg, rgba(255, 154, 158, 0.2) 0%, rgba(254, 207, 239, 0.2) 100%);">
+                    <div style="position: absolute; top: 15px; right: 15px;">
+                        <button onclick="openSurveyHistory()"
+                            style="width: 40px; height: 40px; border-radius: 50%; padding: 0; background: rgba(255,255,255,0.8); color: #e83e8c; border: 2px solid #e83e8c; font-weight: bold; font-size: 1.2em; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.2s;"
+                            title="Lịch sử Khảo sát" onmouseover="this.style.transform='scale(1.1)'"
+                            onmouseout="this.style.transform='scale(1)'">❓</button>
+                    </div>
+                    <h3
+                        style="color: #e83e8c; margin-bottom: 15px; border-bottom: 2px solid rgba(232, 62, 140, 0.2); padding-bottom: 10px;">
+                        📝 Tạo Khảo sát / Lấy ý kiến</h3>
+
+                    <label
+                        style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 15px; background: rgba(255,255,255,0.6); padding: 12px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.05);">
+                        <input type="checkbox" id="surveyToggle" onchange="toggleSurveyArea(this.checked)"
+                            style="width: 22px; height: 22px; margin: 0; cursor: pointer;">
+                        <strong style="color: #2c3e50; font-size: 0.95em;">Bật tính năng tạo Khảo sát mới</strong>
+                    </label>
+
+                    <div id="surveyInputArea" style="display: none; animation: fadeInUp 0.4s ease;">
+                        <label><strong>Tiêu đề Khảo sát:</strong></label>
+                        <input type="text" id="surveyTitle" placeholder="Ví dụ: Khảo sát chất lượng buổi học hôm nay..."
+                            style="background: white;">
+
+                        <div id="surveyQuestionsBuilder"
+                            style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; border: 1px dashed #e83e8c; margin-bottom: 15px;">
+                        </div>
+
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                            <button onclick="addSurveyQuestion('mc')"
+                                style="background: rgba(102, 126, 234, 0.1); color: #667eea; border: 2px dashed #667eea; box-shadow: none;">+
+                                Thêm câu Trắc nghiệm</button>
+                            <button onclick="addSurveyQuestion('text')"
+                                style="background: rgba(56, 239, 125, 0.1); color: #059669; border: 2px dashed #059669; box-shadow: none;">+
+                                Thêm câu Trả lời chữ</button>
+                        </div>
+
+                        <button onclick="sendGlobalSurvey()"
+                            style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); color: #d32f2f;">🚀
+                            Phát
+                            hành Khảo sát</button>
+                    </div>
                 </div>
             </div>
 
@@ -695,17 +769,49 @@
                 </div>
             </div>
 
-            <script src="js/common.js?v=1.5"></script>
-            <script src="js/theme-items.js?v=1.5"></script>
-            <script src="js/effect-items.js?v=1.5"></script>
-            <script src="js/pet-items.js?v=1.5"></script>
-            <script src="js/store-manager.js?v=1.5"></script>
+            <div id="notificationHistoryModal" class="modal-overlay">
+                <div class="modal-content form-container" style="max-width: 650px;">
+                    <button class="close-btn" onclick="closeNotificationHistory()">✖</button>
+                    <h3
+                        style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
+                        🕒 Lịch sử Thông báo</h3>
+                    <div id="notificationHistoryList" style="max-height: 60vh; overflow-y: auto; padding-right: 10px;">
+                    </div>
+                </div>
+            </div>
+
+            <div id="surveyHistoryModal" class="modal-overlay">
+                <div class="modal-content form-container" style="max-width: 650px;">
+                    <button class="close-btn" onclick="closeSurveyHistory()">✖</button>
+                    <h3
+                        style="color: #e83e8c; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
+                        🕒 Lịch sử Khảo sát</h3>
+                    <div id="surveyHistoryList" style="max-height: 60vh; overflow-y: auto; padding-right: 10px;"></div>
+                </div>
+            </div>
+
+            <div id="surveyResultsModal" class="modal-overlay" style="z-index: 100000;">
+                <div class="modal-content form-container" style="max-width: 700px;">
+                    <button class="close-btn" onclick="closeSurveyResults()">✖</button>
+                    <h3 id="surveyResultTitle"
+                        style="color: #11998e; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
+                        📊 Kết quả Khảo sát</h3>
+                    <div id="surveyResultsContent" style="max-height: 65vh; overflow-y: auto; padding-right: 10px;">
+                    </div>
+                </div>
+            </div>
+
+            <script src="js/common.js?v=1.6"></script>
+            <script src="js/theme-items.js?v=1.6"></script>
+            <script src="js/effect-items.js?v=1.6"></script>
+            <script src="js/pet-items.js?v=1.6"></script>
+            <script src="js/store-manager.js?v=1.6"></script>
 
             <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
             <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
             <script src="js/firebase-config.js?v=1.4"></script>
 
-            <script src="js/teacher.js?v=1.5"></script>
+            <script src="js/teacher.js?v=1.6"></script>
 </body>
 
 </html>

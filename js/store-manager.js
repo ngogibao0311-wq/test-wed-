@@ -45,7 +45,26 @@ const StoreConfig = {
             isNonCoin: false,
             tag: 'Cổ tích',
             value: '🧚‍♂️'
-        }
+        },
+        {
+            id: 'theme_cotich_forest',
+            name: 'Khu Rừng Phép Thuật',
+            type: 'theme',
+            price: 0,             // Giá 0 đồng
+            isNonCoin: true,      // Nhận từ sự kiện, kích hoạt khóa preview
+            tag: 'Cổ tích',
+            value: 'theme-magic-forest', // Class CSS kích hoạt giao diện
+            customIcon: '🌲'
+        },
+        {
+            id: 'effect_cotich_firefly',
+            name: 'Đom Đóm Rừng Tiên',
+            type: 'effect',
+            price: 0,             // Không bán bằng coin
+            isNonCoin: true,      // Nhận từ sự kiện
+            tag: 'Cổ tích',
+            value: '🎇'           // Icon hiển thị trong cửa hàng
+        },
     ]
 };
 

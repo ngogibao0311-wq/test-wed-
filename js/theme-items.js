@@ -10,6 +10,12 @@ class ThemeManager {
             secondary: '#1a1a2e',   // Xanh đêm huyền bí
             background: '#0f0f1a',  // Màu nền tổng thể tối
             className: 'theme-fairy-tale' // Class này sẽ bọc toàn trang
+        },
+        'theme_cotich_forest': { 
+            primary: '#2ecc71',     // Xanh ngọc lục bảo
+            secondary: '#1abc9c',   // Xanh bạc hà
+            background: '#04120c',  // Xanh đen rừng sâu
+            className: 'theme-magic-forest' // Gắn class vừa viết ở file CSS
         }
     };
 
@@ -22,7 +28,7 @@ class ThemeManager {
         root.style.setProperty('--bg-color', theme.background);
         
         // 1. Xóa tất cả các class theme đặc biệt cũ khỏi body
-        document.body.classList.remove('theme-fairy-tale');
+        document.body.classList.remove('theme-fairy-tale', 'theme-magic-forest');
 
         // 2. Tiêm class mới vào body nếu theme đó có yêu cầu thay đổi hình dáng
         if (theme.className) {

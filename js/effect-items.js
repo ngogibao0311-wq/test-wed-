@@ -20,6 +20,9 @@ class EffectManager {
             case 'effect_cotich': // Thêm case kích hoạt hiệu ứng Bụi Phép Thuật
                 this.createFairyDust();
                 break;
+            case 'effect_cotich_firefly':
+                this.createFireflyEffect();
+                break;
         }
         localStorage.setItem('active_effect', effectId);
     }
@@ -64,5 +67,32 @@ class EffectManager {
             }, duration * 1000);
 
         }, 200); // Đẩy tốc độ sinh hạt lên (0.2s/hạt) để hiệu ứng nhìn rõ ràng hơn
+    }
+
+    static createFireflyEffect() {
+        this.currentInterval = setInterval(() => {
+            const firefly = document.createElement('div');
+            firefly.classList.add('fairy-firefly');
+
+            // Kích thước ngẫu nhiên từ 3px đến 7px để tạo chiều sâu (con to con nhỏ)
+            let size = Math.random() * 4 + 3;
+            firefly.style.width = `${size}px`;
+            firefly.style.height = `${size}px`;
+
+            // Vị trí xuất phát ngẫu nhiên theo chiều ngang màn hình
+            firefly.style.left = Math.random() * 100 + 'vw';
+
+            // Thời gian bay ngẫu nhiên từ chậm đến vừa (8s - 14s)
+            let duration = Math.random() * 6 + 8;
+            firefly.style.animationDuration = duration + 's';
+
+            this.container.appendChild(firefly);
+
+            // Dọn dẹp thẻ div sau khi bay ra khỏi màn hình
+            setTimeout(() => {
+                firefly.remove();
+            }, duration * 1000);
+
+        }, 350); // Tốc độ sinh đom đóm (0.35s/con)
     }
 }
