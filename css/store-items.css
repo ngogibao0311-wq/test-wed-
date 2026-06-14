@@ -457,3 +457,634 @@
         opacity: 0;
     }
 }
+/* Tag Đời Sống */
+.tag-doi-song {
+    background: linear-gradient(90deg, #2ecc71, #27ae60);
+    color: #fff;
+    border-bottom: 2px dashed #a8e6cf;
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+    letter-spacing: 1px;
+}
+/* =========================================================================
+   HIỆU ỨNG TOÀN WEB: LÁ RƠI PURE CSS (KHÔNG DÙNG EMOJI)
+   ========================================================================= */
+
+/* Định dạng hình dáng chung của chiếc lá */
+.effect-leaf-css {
+    position: fixed;
+    top: -50px;
+    width: 22px;
+    height: 22px;
+    z-index: 9998;
+    pointer-events: none; /* Xuyên click */
+    opacity: 0;
+    
+    /* Đổ bóng nhẹ để lá nhìn nổi khối 3D */
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.1), 0 2px 6px rgba(0,0,0,0.15);
+    
+    animation-name: cssLeafFallAndSway;
+    animation-timing-function: ease-in-out;
+    animation-fill-mode: forwards;
+    overflow: hidden; /* Đảm bảo gân lá không tràn ra ngoài */
+}
+
+/* Vẽ gân lá chính chạy chéo qua tâm */
+.effect-leaf-css::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1px;
+    height: 150%;
+    background: rgba(255, 255, 255, 0.5); /* Gân lá màu trắng đục */
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+/* --- CÁC MÀU SẮC & CHIỀU CONG CỦA LÁ --- */
+
+/* Lá mùa xuân xanh mướt */
+.leaf-green {
+    background: linear-gradient(135deg, #a8e063, #56ab2f);
+    border-radius: 0 50% 0 50%;
+}
+
+/* Lá phong đỏ cam */
+.leaf-autumn {
+    background: linear-gradient(135deg, #ff9966, #ff5e62);
+    border-radius: 50% 0 50% 0; /* Đảo góc để tạo chiều cong khác */
+}
+
+/* Lá thu vàng ươm */
+.leaf-yellow {
+    background: linear-gradient(135deg, #fceabb, #f8b500);
+    border-radius: 0 50% 0 50%;
+}
+
+/* Lá khô màu cam đất */
+.leaf-orange {
+    background: linear-gradient(135deg, #f46b45, #eea849);
+    border-radius: 50% 0 50% 0;
+}
+
+/* --- KEYFRAMES: LÁ RƠI XOAY TRÒN & LẮC LƯ --- */
+@keyframes cssLeafFallAndSway {
+    0% {
+        /* Lấy biến --leaf-scale từ JS để giữ đúng kích thước ngẫu nhiên */
+        transform: translateY(0) translateX(0) rotate(0deg) scale(var(--leaf-scale, 1));
+        opacity: 0;
+    }
+    10% { 
+        opacity: 0.9; 
+    }
+    25% { 
+        transform: translateY(25vh) translateX(-45px) rotate(80deg) scale(var(--leaf-scale, 1)); 
+    }
+    50% { 
+        transform: translateY(50vh) translateX(45px) rotate(160deg) scale(var(--leaf-scale, 1)); 
+    }
+    75% { 
+        transform: translateY(75vh) translateX(-35px) rotate(240deg) scale(var(--leaf-scale, 1)); 
+    }
+    90% { 
+        opacity: 0.9; 
+    }
+    100% {
+        transform: translateY(110vh) translateX(25px) rotate(320deg) scale(var(--leaf-scale, 1));
+        opacity: 0; 
+    }
+}
+/* =========================================================
+   GIAO DIỆN: NHỊP SỐNG XANH (LIFESTYLE)
+   Kích hoạt khi body có class .theme-lifestyle
+========================================================= */
+
+/* 1. Import Phông chữ từ Google Fonts (Phông tròn trịa, dễ đọc) */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap');
+
+.theme-lifestyle {
+    font-family: 'Nunito', sans-serif;
+    background-color: #fdfaf5;
+    color: #4a3c31;
+}
+
+/* 2. Thay đổi Sidebar (Thanh slide bar bên trái) */
+.theme-lifestyle .sidebar {
+    background: #ffffff;
+    border-right: 1px solid #e8e0d5;
+    border-radius: 0 40px 40px 0;
+    margin: 15px 0;
+    height: calc(100% - 30px);
+    box-shadow: 10px 0 30px rgba(136, 171, 117, 0.1);
+}
+
+.theme-lifestyle .nav-item.active {
+    background: #88ab75 !important;
+    border-radius: 20px;
+    margin: 5px 15px;
+    color: white !important;
+}
+
+/* 3. Thay đổi hình dạng Ô (Cards) và Vật phẩm cửa hàng */
+.theme-lifestyle .card, 
+.theme-lifestyle .store-item-card,
+.theme-lifestyle .submit-box {
+    background: #ffffff;
+    border: 2px solid #e8e0d5;
+    /* Hình dáng bất đối xứng kiểu chiếc lá / đá cuội */
+    border-radius: 45px 15px 45px 15px !important;
+    box-shadow: 0 10px 20px rgba(74, 60, 49, 0.05);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.theme-lifestyle .store-item-card:hover {
+    border-color: #88ab75;
+    transform: translateY(-5px) rotate(1deg);
+    box-shadow: 0 15px 30px rgba(136, 171, 117, 0.15);
+}
+
+/* 4. Thay đổi Pop-up (Modals) */
+.theme-lifestyle .modal-content {
+    background: #fdfaf5 !important;
+    border: none !important;
+    border-radius: 50px !important;
+    padding: 30px !important;
+    box-shadow: 0 30px 60px rgba(74, 60, 49, 0.2) !important;
+}
+
+.theme-lifestyle .modal-header {
+    border-bottom: 2px dashed #88ab75;
+    color: #88ab75;
+}
+
+/* 5. Nút bấm phong cách "Pill" (Viên thuốc) */
+.theme-lifestyle button:not(.btn-preview) {
+    background: #88ab75 !important;
+    border-radius: 30px !important;
+    color: white !important;
+    font-weight: 800 !important;
+    text-transform: none !important;
+    letter-spacing: 0px !important;
+    border: none !important;
+}
+
+.theme-lifestyle .btn-preview {
+    background: #f1ede4 !important;
+    color: #4a3c31 !important;
+    border-radius: 30px !important;
+    border: 1px solid #e8e0d5 !important;
+}
+
+/* 6. Tiêu đề và Văn bản */
+.theme-lifestyle h1, .theme-lifestyle h2, .theme-lifestyle h3, 
+.theme-lifestyle .item-name {
+    color: #4a3c31 !important;
+    font-weight: 800;
+}
+
+/* 7. Input và các ô nhập liệu */
+.theme-lifestyle input, .theme-lifestyle textarea {
+    background: #f8f5f0 !important;
+    border: 2px solid #e8e0d5 !important;
+    border-radius: 20px !important;
+    padding: 12px 20px !important;
+}
+
+.theme-lifestyle input:focus {
+    border-color: #88ab75 !important;
+    background: #ffffff !important;
+}
+
+/* Custom riêng cho tag Đời sống trong theme này */
+.theme-lifestyle .tag-doi-song {
+    background: #4a3c31;
+    color: #fdfaf5;
+}
+/* Tag Ban Đêm */
+.tag-ban-dem {
+    background: linear-gradient(90deg, #0f2027, #203a43, #2c5364);
+    color: #f1c40f;
+    border-bottom: 2px dashed #87ceeb;
+    box-shadow: 0 4px 15px rgba(32, 58, 67, 0.5);
+    letter-spacing: 1px;
+}
+/* =========================================================================
+   HIỆU ỨNG TOÀN WEB: BẦU TRỜI ĐÊM TINH TÚ (BẢN TỐI ƯU ÁNH SÁNG)
+   ========================================================================= */
+
+/* 1. Lớp màn đêm làm tối toàn bộ web một chút */
+.night-sky-overlay {
+    position: absolute; /* Phủ kín container */
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(10, 15, 30, 0.45); /* Màu xanh đen trong suốt 45% */
+    z-index: 0; /* Nằm dưới các vì sao */
+    animation: fadeInNightOverlay 2s ease-in-out forwards;
+}
+
+@keyframes fadeInNightOverlay {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* 2. Cấu trúc các vì sao rõ nét hơn */
+.effect-night-star {
+    position: absolute;
+    background: #ffffff; 
+    border-radius: 50%;
+    pointer-events: none; 
+    opacity: 0;
+    z-index: 1; /* Nằm trên lớp màn đêm */
+    
+    /* Quầng sáng tĩnh được làm đậm và rõ hơn */
+    box-shadow: 
+        0 0 8px #ffffff,
+        0 0 15px #00e5ff,  
+        0 0 25px #aa00ff;  
+        
+    animation-name: nightStarTwinkleGlobal;
+    animation-timing-function: ease-in-out;
+    animation-fill-mode: forwards;
+}
+
+/* Chu kỳ chớp lóe (Bloom) mạnh mẽ hơn */
+@keyframes nightStarTwinkleGlobal {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    40% {
+        transform: scale(1.5); /* Tỷ lệ phóng đại to hơn (1.5 thay vì 1.3) */
+        opacity: 1;
+        /* Quầng sáng khi chớp gắt hơn rất nhiều để đục thủng lớp nền tối */
+        box-shadow: 
+            0 0 15px #ffffff,
+            0 0 30px #00e5ff,
+            0 0 50px #e040fb;
+    }
+    70% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(0);
+        opacity: 0;
+    }
+}
+/* =========================================================
+   GIAO DIỆN BAN ĐÊM - DẢI NGÂN HÀ (SỰ KIỆN ĐỘC QUYỀN)
+   Kích hoạt khi body có class .theme-night-sky
+========================================================= */
+
+/* 1. Thay đổi Phông chữ hiện đại và Nền tổng thể không gian */
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap');
+
+.theme-night-sky {
+    font-family: 'Quicksand', sans-serif;
+    color: #e0f7fa;
+    background-color: #0a0f1e;
+    background-image: radial-gradient(circle at top left, #1a1025 0%, #0a0f1e 50%, #050810 100%);
+}
+
+/* 2. Thay đổi hình dáng Card, Ô chứa (Dáng khối 3D kính mờ, bo góc chéo) */
+.theme-night-sky .card,
+.theme-night-sky .store-item-card,
+.theme-night-sky .submit-box {
+    background: rgba(15, 20, 35, 0.65);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(129, 212, 250, 0.25);
+    /* Bo góc vát chéo cực mạnh tạo dáng tương lai */
+    border-radius: 20px 40px 20px 40px !important; 
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), inset 0 0 15px rgba(170, 0, 255, 0.15);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.theme-night-sky .store-item-card:hover {
+    border-color: #81d4fa;
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(129, 212, 250, 0.25), inset 0 0 25px rgba(170, 0, 255, 0.25);
+}
+
+/* 3. Sidebar / Thanh slide bar điều hướng */
+.theme-night-sky .sidebar,
+.theme-night-sky .nav-bar {
+    background: linear-gradient(180deg, rgba(5, 8, 16, 0.9), rgba(15, 20, 35, 0.95));
+    border-right: 1px solid rgba(170, 0, 255, 0.3);
+    border-radius: 0 35px 35px 0; /* Vuốt cong nhẹ một bên */
+    box-shadow: 5px 0 25px rgba(0, 0, 0, 0.8);
+}
+
+.theme-night-sky .nav-item.active {
+    background: rgba(129, 212, 250, 0.15) !important;
+    border-left: 4px solid #81d4fa !important;
+    border-radius: 0 15px 15px 0;
+    color: #81d4fa !important;
+}
+
+/* 4. Định hình lại Modal / Pop-up (Gọn gàng, viền sáng dạ quang) */
+.theme-night-sky .modal-content,
+.theme-night-sky #viewQuestionsModal > div {
+    background: linear-gradient(135deg, #101423 0%, #050810 100%) !important;
+    border: 1px solid #81d4fa !important;
+    border-radius: 30px !important;
+    box-shadow: 0 0 60px rgba(129, 212, 250, 0.15), inset 0 0 20px rgba(170, 0, 255, 0.15) !important;
+}
+
+/* 5. Text, Tiêu đề (Màu Cyan phát sáng) */
+.theme-night-sky h1, 
+.theme-night-sky h2, 
+.theme-night-sky h3, 
+.theme-night-sky h4,
+.theme-night-sky .item-name {
+    color: #81d4fa !important;
+    text-shadow: 0 0 12px rgba(129, 212, 250, 0.4);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* 6. Định dạng lại Nút bấm (Buttons: Neon Gradient) */
+.theme-night-sky button:not(.btn-preview),
+.theme-night-sky .btn-approve {
+    background: linear-gradient(45deg, #3f51b5, #aa00ff) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 25px !important; /* Dáng nút con nhộng tròn */
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(170, 0, 255, 0.35) !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.theme-night-sky button:not(.btn-preview):hover {
+    box-shadow: 0 6px 20px rgba(170, 0, 255, 0.6) !important;
+    transform: translateY(-2px);
+}
+
+/* Nút Preview (Viền trong suốt phong cách viễn tưởng) */
+.theme-night-sky .btn-preview {
+    background: rgba(129, 212, 250, 0.08) !important;
+    color: #81d4fa !important;
+    border: 1px solid rgba(129, 212, 250, 0.4) !important;
+    border-radius: 25px !important;
+}
+.theme-night-sky .btn-preview:hover {
+    background: rgba(129, 212, 250, 0.2) !important;
+}
+
+/* 7. Input và Textarea */
+.theme-night-sky input, 
+.theme-night-sky textarea {
+    background: rgba(5, 8, 16, 0.5) !important;
+    border: 1px solid rgba(170, 0, 255, 0.3) !important;
+    border-radius: 15px !important;
+    color: #e0f7fa !important;
+}
+.theme-night-sky input:focus, 
+.theme-night-sky textarea:focus {
+    border-color: #81d4fa !important;
+    box-shadow: 0 0 10px rgba(129, 212, 250, 0.2) !important;
+}
+/* Tag Ban Ngày (Màu xanh da trời - vàng nắng) */
+.tag-ban-ngay {
+    background: linear-gradient(90deg, #36D1DC, #5B86E5);
+    color: #fff;
+    border-bottom: 2px dashed #FFD700;
+    box-shadow: 0 4px 15px rgba(54, 209, 220, 0.5);
+    letter-spacing: 1px;
+}
+/* =========================================================================
+   HIỆU ỨNG TOÀN WEB: NẮNG ẤM BAN MAI (SỰ KIỆN BAN NGÀY)
+   ========================================================================= */
+
+/* 1. Lớp tia nắng ấm áp chiếu từ góc trên bên trái xuống */
+.daylight-sky-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    /* Dải gradient vàng nhạt trong suốt rọi chéo màn hình */
+    background: linear-gradient(135deg, rgba(255, 235, 160, 0.25) 0%, rgba(255, 255, 255, 0) 55%);
+    z-index: 0;
+    pointer-events: none;
+    animation: pulseSunbeam 6s ease-in-out infinite alternate;
+}
+
+@keyframes pulseSunbeam {
+    0% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+/* 2. Hạt bụi nắng / Bồ công anh bay lơ lửng */
+.effect-daylight-mote {
+    position: absolute;
+    background: #ffffff;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 1;
+    
+    /* Vầng hào quang ánh kim bao quanh hạt bụi */
+    box-shadow: 
+        0 0 5px #ffffff,
+        0 0 10px #FFD700,
+        0 0 20px #FFA500;
+        
+    animation-name: floatDaylightMoteGlobal;
+    animation-timing-function: ease-in-out;
+    animation-fill-mode: forwards;
+}
+
+/* Chu kỳ hạt nắng bay lơ lửng chéo lên trên */
+@keyframes floatDaylightMoteGlobal {
+    0% {
+        transform: translateY(0) translateX(0) scale(0.5);
+        opacity: 0;
+    }
+    15% {
+        opacity: 0.8;
+        transform: scale(1.2);
+    }
+    80% {
+        opacity: 0.6;
+    }
+    100% {
+        /* Bay cao lên và xéo sang phải một chút */
+        transform: translateY(-90vh) translateX(60px) scale(0.5);
+        opacity: 0;
+    }
+}
+/* =========================================================================
+   HIỆU ỨNG TOÀN WEB: BẦU TRỜI MÙA HẠ (KHÔNG TÁI CHẾ)
+   ========================================================================= */
+
+/* 1. TIA SÁNG CỦA CHÚA (God Rays) - Tia sáng xoay chầm chậm bao phủ trang */
+.effect-god-rays {
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    /* Tạo các mảng sáng tối đan xen phát ra từ tâm giữa mép trên */
+    background: repeating-conic-gradient(
+        from 0deg at 50% 0%,
+        transparent 0deg 10deg,
+        rgba(255, 235, 160, 0.15) 10deg 20deg
+    );
+    z-index: 0;
+    pointer-events: none;
+    animation: sweepGodRays 25s ease-in-out infinite alternate;
+}
+
+@keyframes sweepGodRays {
+    0% { transform: rotate(-5deg); }
+    100% { transform: rotate(5deg); }
+}
+
+/* 2. MÂY TRÔI (Bay ngang màn hình theo đường thẳng) */
+.effect-daylight-cloud {
+    position: fixed;
+    left: -150px; /* Xuất phát ngoài rìa trái */
+    color: #fff;
+    filter: drop-shadow(0 10px 15px rgba(0,0,0,0.05));
+    z-index: 1;
+    pointer-events: none;
+    animation-name: floatCloudAcross;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+}
+
+@keyframes floatCloudAcross {
+    from { transform: translateX(0); }
+    to { transform: translateX(110vw); } /* Trôi tít sang bên phải */
+}
+
+/* 3. CHIM BAY (Bay ngang + Lượn lên lượn xuống nhịp nhàng) */
+.effect-daylight-bird {
+    position: fixed;
+    left: -100px; /* Xoải cánh từ ngoài rìa trái */
+    z-index: 2;
+    pointer-events: none;
+    filter: drop-shadow(0 5px 8px rgba(0,0,0,0.15));
+    /* Animation được gán trực tiếp bằng JS để kết hợp 2 loại chuyển động */
+}
+
+@keyframes flyBirdAcross {
+    from { transform: translateX(0); }
+    to { transform: translateX(110vw); }
+}
+
+@keyframes birdBobbing {
+    0% { margin-top: 0; }
+    100% { margin-top: -30px; } /* Lượn lên lượn xuống */
+}
+/* =========================================================
+   GIAO DIỆN BAN NGÀY - NGÀY MỚI RỰC RỠ (ĐỘC QUYỀN MỚI 100%)
+   Kích hoạt khi body có class .theme-daylight-sky
+========================================================= */
+
+/* 1. Phông chữ Fredoka (Tròn xoe, thân thiện, vui tươi) và Nền bầu trời */
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap');
+
+.theme-daylight-sky {
+    font-family: 'Fredoka', sans-serif;
+    color: #023e8a; /* Xanh dương đậm cho chữ dễ đọc */
+    /* Nền Gradient mượt từ Xanh dương nhạt -> Xanh lơ -> Trắng kem */
+    background: linear-gradient(135deg, #e0fbfc 0%, #caf0f8 50%, #fff1e6 100%);
+    background-attachment: fixed;
+}
+
+/* 2. Định hình Card & Ô chứa (Dáng Đám Mây / Bong bóng viền trắng dày) */
+.theme-daylight-sky .card,
+.theme-daylight-sky .store-item-card,
+.theme-daylight-sky .submit-box {
+    background: rgba(255, 255, 255, 0.85);
+    border: 4px solid #ffffff; /* Viền trắng cực dày tạo viền mây */
+    border-radius: 40px 15px 40px 15px !important; /* Bo lệch tạo dáng đám mây trôi */
+    box-shadow: 0 12px 25px rgba(0, 180, 216, 0.15), inset 0 0 15px rgba(255, 255, 255, 1);
+    backdrop-filter: blur(8px);
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); /* Chuyển động có độ đàn hồi */
+}
+
+.theme-daylight-sky .store-item-card:hover {
+    border-color: #ffd166; /* Chạm vào chuyển viền vàng nắng */
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 15px 35px rgba(255, 170, 0, 0.25);
+}
+
+/* 3. Sidebar / Thanh Điều Hướng (Dáng đám mây lơ lửng) */
+.theme-daylight-sky .sidebar,
+.theme-daylight-sky .nav-bar {
+    background: rgba(255, 255, 255, 0.95);
+    border-right: none;
+    /* Vuốt cong cực tròn để ôm trọn thanh menu */
+    border-radius: 0 45px 45px 0; 
+    box-shadow: 8px 0 25px rgba(0, 180, 216, 0.15);
+}
+
+.theme-daylight-sky .nav-item.active {
+    /* Nút đang chọn mang màu bầu trời */
+    background: linear-gradient(90deg, #00b4d8, #48cae4) !important;
+    border-radius: 25px;
+    color: #ffffff !important;
+    box-shadow: 0 4px 10px rgba(0, 180, 216, 0.4);
+}
+
+/* 4. Định hình Modals / Pop-ups (Sunburst - Nắng Ban Mai) */
+.theme-daylight-sky .modal-content,
+.theme-daylight-sky #viewQuestionsModal > div {
+    background: #ffffff !important;
+    border: 5px solid #ffca3a !important; /* Viền pop-up vàng rực rỡ */
+    border-radius: 50px 20px 50px 20px !important;
+    box-shadow: 0 0 50px rgba(255, 170, 0, 0.25) !important;
+}
+
+/* 5. Tiêu đề và Văn bản nổi bật */
+.theme-daylight-sky h1, 
+.theme-daylight-sky h2, 
+.theme-daylight-sky h3, 
+.theme-daylight-sky h4,
+.theme-daylight-sky .item-name {
+    color: #0077b6 !important;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* 6. Nút Bấm (Bouncy Buttons - Màu cam vàng) */
+.theme-daylight-sky button:not(.btn-preview),
+.theme-daylight-sky .btn-approve {
+    background: linear-gradient(135deg, #ffaa00, #ffea00) !important;
+    color: #d00000 !important; /* Chữ đỏ gạch nhạt nổi bật trên nền vàng */
+    border: 3px solid #ffffff !important;
+    border-radius: 30px !important; /* Tròn xoe hoàn toàn */
+    font-weight: 700;
+    box-shadow: 0 6px 15px rgba(255, 170, 0, 0.3) !important;
+    text-transform: capitalize;
+    /* Hiệu ứng nhún (bouncy) khi trỏ chuột */
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important; 
+}
+
+.theme-daylight-sky button:not(.btn-preview):hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(255, 170, 0, 0.5) !important;
+}
+
+/* 7. Khung nhập liệu (Input & Textarea) */
+.theme-daylight-sky input, 
+.theme-daylight-sky textarea {
+    background: #f0f8ff !important;
+    border: 2px solid #90e0ef !important;
+    border-radius: 20px !important;
+    color: #023e8a !important;
+    font-family: 'Fredoka', sans-serif;
+}
+
+.theme-daylight-sky input:focus, 
+.theme-daylight-sky textarea:focus {
+    border-color: #ffaa00 !important;
+    background: #ffffff !important;
+    box-shadow: 0 0 15px rgba(255, 170, 0, 0.2) !important;
+    outline: none;
+}

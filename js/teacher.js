@@ -86,6 +86,13 @@ window.onload = async function () {
 
     db.ref('store_settings').on('value', (snapshot) => {
         const settings = snapshot.val();
+
+        // ---> THÊM 4 DÒNG NÀY ĐỂ ĐỒNG BỘ NÚT TICK TỪ FIREBASE <---
+        const storeToggleInput = document.getElementById('storeToggle');
+        if (storeToggleInput && settings !== null && settings.isOpen !== undefined) {
+            storeToggleInput.checked = settings.isOpen;
+        }
+
         if (settings) {
             StoreConfig.items.forEach(item => {
                 if (settings[item.id]) {
@@ -1958,7 +1965,7 @@ function initTeacherStoreManagement() {
         selectEl.appendChild(option);
 
         let priceDisplay = item.isNonCoin ? (item.price > 0 ? `🪙 ${item.price} Coin (Sự kiện)` : 'Vật phẩm Sự kiện') : `🪙 ${item.price} Coin`;
-        
+
         let hiddenClass = index >= 4 ? 'hidden-store-item-row' : '';
         let hiddenStyle = index >= 4 ? 'display: none;' : '';
 
@@ -2056,7 +2063,7 @@ function loadStoreItemDetails() {
 window.toggleLockStoreItem = async function (itemId, isCurrentlyLocked) {
     const actionText = isCurrentlyLocked ? "MỞ KHÓA" : "KHÓA TẠM THỜI";
     if (!confirm(`Bạn có chắc chắn muốn ${actionText} vật phẩm này không? Học sinh sẽ không thể sử dụng hay mua món đồ này.`)) return;
-    
+
     try {
         await db.ref('store_settings/' + itemId).update({
             isLocked: !isCurrentlyLocked
@@ -2122,7 +2129,7 @@ window.loadTeacherStoreItems = function () {
 };
 
 // Hàm điều khiển ẩn/hiện khu vực nhập thông báo
-window.toggleNotificationArea = function(isOpen) {
+window.toggleNotificationArea = function (isOpen) {
     const inputArea = document.getElementById('notificationInputArea');
     if (inputArea) {
         inputArea.style.display = isOpen ? 'block' : 'none';
@@ -2130,10 +2137,10 @@ window.toggleNotificationArea = function(isOpen) {
 };
 
 // Gửi thông báo mới
-window.sendGlobalNotification = async function(customMsg = null) {
+window.sendGlobalNotification = async function (customMsg = null) {
     const msgInput = document.getElementById('globalNotificationMessage');
     const message = customMsg || (msgInput ? msgInput.value.trim() : '');
-    
+
     if (!message) return alert("Vui lòng nhập nội dung thông báo!");
 
     const payload = {
@@ -2145,22 +2152,22 @@ window.sendGlobalNotification = async function(customMsg = null) {
     };
 
     await pushDB('global_notifications', payload);
-    
-    if(msgInput && !customMsg) {
+
+    if (msgInput && !customMsg) {
         msgInput.value = ''; // Xóa nội dung cũ
-        
+
         // Tự động tắt nút gạt và ẩn khung nhập sau khi gửi xong
         const toggleBtn = document.getElementById('notificationToggle');
         if (toggleBtn) toggleBtn.checked = false;
         toggleNotificationArea(false);
     }
-    
+
     alert("✅ Đã phát thông báo đến toàn bộ học sinh!");
 };
 
 
 // Mở lịch sử và thống kê người xem
-window.openNotificationHistory = async function() {
+window.openNotificationHistory = async function () {
     document.getElementById('notificationHistoryModal').classList.add('active');
     const listContainer = document.getElementById('notificationHistoryList');
     listContainer.innerHTML = '<p style="text-align: center; color: #666;">Đang tải dữ liệu...</p>';
@@ -2211,12 +2218,12 @@ window.openNotificationHistory = async function() {
     listContainer.innerHTML = html;
 };
 
-window.closeNotificationHistory = function() {
+window.closeNotificationHistory = function () {
     document.getElementById('notificationHistoryModal').classList.remove('active');
 };
 
-window.deleteNotification = async function(fbKey) {
-    if(confirm('Chắc chắn xóa thông báo này khỏi lịch sử?')) {
+window.deleteNotification = async function (fbKey) {
+    if (confirm('Chắc chắn xóa thông báo này khỏi lịch sử?')) {
         await removeDB('global_notifications', fbKey);
         openNotificationHistory(); // Render lại danh sách
     }
@@ -2225,12 +2232,12 @@ window.deleteNotification = async function(fbKey) {
 // ================= HỆ THỐNG KHẢO SÁT =================
 let surveyQCount = 0;
 
-window.toggleSurveyArea = function(isOpen) {
+window.toggleSurveyArea = function (isOpen) {
     const inputArea = document.getElementById('surveyInputArea');
     if (inputArea) inputArea.style.display = isOpen ? 'block' : 'none';
 };
 
-window.addSurveyQuestion = function(type) {
+window.addSurveyQuestion = function (type) {
     surveyQCount++;
     const container = document.getElementById('surveyQuestionsBuilder');
     const div = document.createElement('div');
@@ -2241,7 +2248,7 @@ window.addSurveyQuestion = function(type) {
     let contentHTML = `
         <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
             <strong style="color:#e83e8c;">Câu ${surveyQCount} (${type === 'mc' ? 'Chọn đáp án' : 'Nhập văn bản'}):</strong>
-            <button onclick="this.closest('.survey-q-block').remove()" style="width:auto; padding:2px 8px; font-size:0.8em; background:#e11d48; color:white; border:none; border-radius:4px;">Xóa</button>
+            <button onclick="removeSurveyQuestion(this)" style="width:auto; padding:2px 8px; font-size:0.8em; background:#e11d48; color:white; border:none; border-radius:4px;">Xóa</button>
         </div>
         <input type="text" class="sq-text" placeholder="Nhập nội dung câu hỏi khảo sát..." style="margin-bottom: ${type === 'mc' ? '10px' : '0'}; background: rgba(0,0,0,0.02);">
     `;
@@ -2260,7 +2267,27 @@ window.addSurveyQuestion = function(type) {
     container.appendChild(div);
 };
 
-window.sendGlobalSurvey = async function() {
+window.removeSurveyQuestion = function (btnElement) {
+    // Xóa khối câu hỏi hiện tại trên giao diện
+    btnElement.closest('.survey-q-block').remove();
+    
+    // Tìm tất cả các câu hỏi còn lại trên màn hình
+    const remaining = document.querySelectorAll('.survey-q-block');
+    
+    // Cập nhật lại biến đếm tổng
+    surveyQCount = remaining.length;
+    
+    // Chạy vòng lặp để đổi lại tên "Câu 1, Câu 2..." cho đúng thứ tự
+    remaining.forEach((block, index) => {
+        const label = block.querySelector('strong');
+        if (label) {
+            const typeText = block.dataset.type === 'mc' ? 'Chọn đáp án' : 'Nhập văn bản';
+            label.innerText = `Câu ${index + 1} (${typeText}):`;
+        }
+    });
+};
+
+window.sendGlobalSurvey = async function () {
     const title = document.getElementById('surveyTitle').value.trim();
     if (!title) return alert("Vui lòng nhập Tiêu đề khảo sát!");
 
@@ -2280,7 +2307,7 @@ window.sendGlobalSurvey = async function() {
         if (qType === 'mc') {
             let opts = [];
             block.querySelectorAll('.sq-opt').forEach(optInput => {
-                if(optInput.value.trim()) opts.push(optInput.value.trim());
+                if (optInput.value.trim()) opts.push(optInput.value.trim());
             });
             if (opts.length < 2) isValid = false; // Trắc nghiệm phải có ít nhất 2 lựa chọn
             qData.options = opts;
@@ -2300,7 +2327,7 @@ window.sendGlobalSurvey = async function() {
     };
 
     await pushDB('global_surveys', payload);
-    
+
     // Dọn dẹp form
     document.getElementById('surveyTitle').value = '';
     document.getElementById('surveyQuestionsBuilder').innerHTML = '';
@@ -2311,7 +2338,7 @@ window.sendGlobalSurvey = async function() {
     alert("🚀 Đã phát hành Khảo sát đến toàn bộ học sinh!");
 };
 
-window.openSurveyHistory = async function() {
+window.openSurveyHistory = async function () {
     document.getElementById('surveyHistoryModal').classList.add('active');
     const container = document.getElementById('surveyHistoryList');
     container.innerHTML = '<p style="text-align: center;">Đang tải...</p>';
@@ -2339,9 +2366,9 @@ window.openSurveyHistory = async function() {
     container.innerHTML = html;
 };
 
-window.closeSurveyHistory = function() { document.getElementById('surveyHistoryModal').classList.remove('active'); };
+window.closeSurveyHistory = function () { document.getElementById('surveyHistoryModal').classList.remove('active'); };
 
-window.viewSurveyResults = async function(fbKey) {
+window.viewSurveyResults = async function (fbKey) {
     const surveys = await getDB('global_surveys');
     const sv = surveys.find(s => s._fbKey === fbKey);
     if (!sv) return;
@@ -2376,10 +2403,159 @@ window.viewSurveyResults = async function(fbKey) {
     document.getElementById('surveyResultsModal').classList.add('active');
 };
 
-window.closeSurveyResults = function() { document.getElementById('surveyResultsModal').classList.remove('active'); };
-window.deleteSurvey = async function(fbKey) {
-    if(confirm('Chắc chắn xóa Khảo sát này khỏi hệ thống?')) {
+window.closeSurveyResults = function () { document.getElementById('surveyResultsModal').classList.remove('active'); };
+window.deleteSurvey = async function (fbKey) {
+    if (confirm('Chắc chắn xóa Khảo sát này khỏi hệ thống?')) {
         await removeDB('global_surveys', fbKey);
         openSurveyHistory(); // Render lại danh sách
+    }
+};
+
+// ================= HỆ THỐNG GỬI QUÀ & THƯ (GIÁO VIÊN) =================
+
+// Hàm tự động tải danh sách Học sinh và Vật phẩm vào mục Gửi quà
+async function initGiftDropdowns() {
+    const users = await getDB('users');
+    const stuSelect = document.getElementById('giftTargetStudent');
+    if (stuSelect) {
+        stuSelect.innerHTML = '<option value="all">Tất cả học sinh</option>';
+        users.filter(u => u.role === 'student').forEach(u => {
+            stuSelect.innerHTML += `<option value="${u.username}">${u.name} (${u.username})</option>`;
+        });
+
+        // BỔ SUNG: Lắng nghe sự kiện đổi học sinh để lọc tự động vật phẩm
+        stuSelect.addEventListener('change', updateGiftItemDropdown);
+    }
+
+    // Gọi lần đầu để khởi tạo danh sách vật phẩm gốc
+    await updateGiftItemDropdown();
+}
+
+// BỔ SUNG: Hàm kiểm tra kho đồ và làm mờ vật phẩm đã sở hữu
+window.updateGiftItemDropdown = async function () {
+    const target = document.getElementById('giftTargetStudent').value;
+    const itemSelect = document.getElementById('giftValueItem');
+
+    if (!itemSelect || typeof StoreConfig === 'undefined') return;
+
+    let ownedItems = [];
+
+    // Lấy dữ liệu kho đồ trên Firebase nếu chọn 1 học sinh cụ thể
+    if (target !== 'all') {
+        try {
+            const invSnap = await db.ref(`student_inventory/${target}`).once('value');
+            const inventory = invSnap.val();
+            if (inventory) {
+                // Trích xuất ID các vật phẩm học sinh đang có
+                ownedItems = Object.values(inventory).map(item => item.id);
+            }
+        } catch (error) {
+            console.error("Lỗi lấy kho đồ học sinh:", error);
+        }
+    }
+
+    // Reset lại ô chọn
+    itemSelect.innerHTML = '';
+    let hasAvailableItem = false;
+
+    // Đổ danh sách cửa hàng ra, kèm theo điều kiện kiểm tra
+    StoreConfig.items.forEach(item => {
+        const isOwned = ownedItems.includes(item.id);
+
+        // Nếu đã sở hữu -> Khóa (disabled) và đổi màu xám mờ
+        const disabledAttr = isOwned ? 'disabled style="color: #aaa; background: #eee; font-style: italic;"' : '';
+        const suffix = isOwned ? ' (HS đã có)' : '';
+
+        itemSelect.innerHTML += `<option value="${item.id}" ${disabledAttr}>[${item.tag}] ${item.name}${suffix}</option>`;
+
+        if (!isOwned) hasAvailableItem = true;
+    });
+
+    // Nếu học sinh đã có toàn bộ vật phẩm trong Shop
+    if (!hasAvailableItem && StoreConfig.items.length > 0 && target !== 'all') {
+        itemSelect.innerHTML = `<option value="" disabled selected>-- HS đã sở hữu tất cả vật phẩm --</option>` + itemSelect.innerHTML;
+    }
+};
+
+// Bổ sung gọi hàm vào sự kiện load
+document.addEventListener('DOMContentLoaded', () => {
+    initGiftDropdowns();
+});
+
+window.toggleGiftInput = function () {
+    const type = document.getElementById('giftType').value;
+    const area = document.getElementById('giftValueInputArea');
+    const numInput = document.getElementById('giftValueNumber');
+    const itemInput = document.getElementById('giftValueItem');
+
+    if (type === 'none') {
+        area.style.display = 'none';
+    } else {
+        area.style.display = 'block';
+        // Thêm 'ticket' vào điều kiện này
+        if (type === 'coin' || type === 'money' || type === 'ticket') { 
+            numInput.style.display = 'block';
+            itemInput.style.display = 'none';
+        } else if (type === 'item') {
+            numInput.style.display = 'none';
+            itemInput.style.display = 'block';
+        }
+    }
+};
+
+window.sendGiftMessage = async function () {
+    const target = document.getElementById('giftTargetStudent').value;
+    const msg = document.getElementById('giftMessage').value.trim();
+    const type = document.getElementById('giftType').value;
+    let value = '';
+
+    if (type === 'coin' || type === 'money' || type === 'ticket') {
+        value = parseInt(document.getElementById('giftValueNumber').value);
+        if (isNaN(value) || value <= 0) return alert("Vui lòng nhập số lượng hợp lệ (> 0)!");
+    } else if (type === 'item') {
+        value = document.getElementById('giftValueItem').value;
+        // Bổ sung chặn gửi nếu bị rỗng (do học sinh đã sở hữu hết và menu bị disabled)
+        if (!value) return alert("❌ Không thể gửi! Học sinh này đã sở hữu tất cả các vật phẩm hiện có.");
+    }
+
+    if (type === 'none' && !msg) return alert("Bạn phải nhập lời nhắn nếu không đính kèm quà tặng!");
+
+    // Thiết lập thư hết hạn sau 5 ngày
+    const expiryTimestamp = Date.now() + (5 * 24 * 60 * 60 * 1000);
+
+    const payload = {
+        message: msg,
+        giftType: type,
+        giftValue: value,
+        timestamp: Date.now(),
+        timeString: new Date().toLocaleString('vi-VN'),
+        expiry: expiryTimestamp
+    };
+
+    const users = await getDB('users');
+    const students = users.filter(u => u.role === 'student');
+
+    if (target === 'all') {
+        for (let st of students) {
+            await pushDB(`inbox_messages/${st.username}`, payload);
+        }
+    } else {
+        await pushDB(`inbox_messages/${target}`, payload);
+    }
+
+    alert("💌 Đã gửi thư và quà thành công!");
+    document.getElementById('giftMessage').value = '';
+    document.getElementById('giftValueNumber').value = '';
+
+    const toggleBtn = document.getElementById('giftToggle');
+    if (toggleBtn) toggleBtn.checked = false;
+    toggleGiftArea(false);
+};
+
+// Hàm điều khiển ẩn/hiện khu vực nhập quà tặng độc lập
+window.toggleGiftArea = function (isOpen) {
+    const inputArea = document.getElementById('giftInputArea');
+    if (inputArea) {
+        inputArea.style.display = isOpen ? 'block' : 'none';
     }
 };

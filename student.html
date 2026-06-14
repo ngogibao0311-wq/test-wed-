@@ -5,11 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Trang Học Sinh</title>
-    <link rel="stylesheet" href="css/common.css?v=1.6">
-    <link rel="stylesheet" href="css/student.css?v=1.6">
-    <link rel="stylesheet" href="css/mobile.css?v=1.6">
-    <link rel="stylesheet" href="css/store-items.css?v=1.6">
-    <link rel="stylesheet" href="css/effects-pets.css?v=1.6">
+    <link rel="stylesheet" href="css/common.css?v=1.7">
+    <link rel="stylesheet" href="css/student.css?v=1.7">
+    <link rel="stylesheet" href="css/mobile.css?v=1.7">
+    <link rel="stylesheet" href="css/store-items.css?v=1.7">
+    <link rel="stylesheet" href="css/effects-pets.css?v=1.7">
 </head>
 
 <body>
@@ -42,6 +42,12 @@
         </div>
 
         <div class="content">
+            <button class="inbox-trigger-btn" onclick="openStudentInbox()" title="Hộp thư đến"
+                style="position: absolute; top: 20px; right: 85px; width: 45px; height: 45px; border-radius: 50%; background: rgba(255,255,255,0.7); border: 2px solid rgba(255,255,255,0.9); font-size: 1.5em; cursor: pointer; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; justify-content: center; align-items: center;">
+                💌
+                <span id="inboxBadge"
+                    style="display: none; position: absolute; top: -5px; right: -5px; background: #e11d48; color: white; font-size: 0.65em; font-weight: bold; padding: 3px 6px; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">0</span>
+            </button>
             <button class="profile-trigger-btn" onclick="openStudentInfoModal()" title="Hồ sơ cá nhân">
                 <img id="avatarImage" src=""
                     style="display: none; width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
@@ -145,7 +151,8 @@
                 <div id="gameLockedView" style="display: none;">
                     <div class="glass-alert danger"
                         style="padding: 25px; text-align: center; border-left: 6px solid #e11d48; background: rgba(225, 29, 72, 0.08); border-radius: 16px;">
-                        <h3 style="color: #e11d48; margin-bottom: 12px; font-size: 1.4em; font-weight: 800;">🔒 Mục trò
+                        <h3 style="color: #e11d48; margin-bottom: 12px; font-size: 1.4em; font-weight: 800;">🔒 Mục
+                            trò
                             chơi đã bị Giáo viên tạm khóa</h3>
                         <p id="gameLockedMessageText"
                             style="font-size: 1.1em; font-weight: bold; color: #b91c1c; white-space: pre-wrap; background: rgba(255,255,255,0.7); padding: 15px; border-radius: 12px; margin-top: 15px; border: 1px solid rgba(225, 29, 72, 0.15); line-height: 1.6;">
@@ -157,7 +164,8 @@
                     <div class="card">
                         <h3 style="color: #059669; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
                             🎉 Chào mừng các em đến với Khu vui chơi!</h3>
-                        <p style="color: #333; line-height: 1.6; font-size: 1em;">Nơi tham gia các hoạt động, sự kiện
+                        <p style="color: #333; line-height: 1.6; font-size: 1em;">Nơi tham gia các hoạt động, sự
+                            kiện
                             trò chơi tích điểm và đổi tiền thưởng Lộ trình một cách chủ động.</p>
                     </div>
 
@@ -165,7 +173,8 @@
                         style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);">
                         <div>
                             <h3 style="color: #d35400; margin-bottom: 8px;">🎡 Vòng quay nhân phẩm</h3>
-                            <p style="color: #666; font-size: 0.9em; margin: 0;">Thử vận may mỗi ngày để nhận Coin và
+                            <p style="color: #666; font-size: 0.9em; margin: 0;">Thử vận may mỗi ngày để nhận Coin
+                                và
                                 Quà bí ẩn!</p>
                         </div>
                         <button onclick="openLuckyWheel()"
@@ -180,12 +189,27 @@
                 <div id="updateBannerArea" class="update-banner">
                     <div>
                         <h4 style="margin: 0; font-size: 1.2em;">🚀 Có phiên bản hệ thống mới!</h4>
-                        <p style="margin: 5px 0 0 0; font-size: 0.95em;">Nhấn nút bên cạnh để tải lại toàn bộ tài nguyên
+                        <p style="margin: 5px 0 0 0; font-size: 0.95em;">Nhấn nút bên cạnh để tải lại toàn bộ tài
+                            nguyên
                             web mới nhất.</p>
                     </div>
                     <button class="btn-do-update" onclick="applySystemUpdate()">Cập nhật ngay</button>
                 </div>
                 <div class="card form-container">
+                    <div
+                        style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; border: 1px solid rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <strong style="color: #2c3e50;">🐾 Tương tác thú cưng</strong>
+                            <button onclick="PetInteractionManager.showInfo()"
+                                style="background: rgba(102, 126, 234, 0.15); color: #667eea; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 12px;">?</button>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="togglePetInteractions"
+                                onchange="PetInteractionManager.toggle(this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
                     <label><strong>🎨 Giao diện hiển thị:</strong></label>
                     <select id="themeSelector" onchange="changeTheme(this.value)"
                         style="margin-bottom: 20px; font-weight: bold; color: #667eea;">
@@ -329,9 +353,19 @@
                 </div>
             </div>
 
-            <button id="spinBtn" onclick="spinWheel()"
-                style="background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%); color: white; padding: 15px 45px; font-size: 1.3em; border-radius: 50px; border: 2px solid rgba(255,255,255,0.3); font-weight: 900; cursor: pointer; box-shadow: 0 10px 25px rgba(255, 8, 68, 0.5); text-transform: uppercase; transition: all 0.2s ease;">Quay
-                Ngay!</button>
+            <div style="display: flex; gap: 15px; justify-content: center; align-items: center; flex-wrap: wrap;">
+                <button id="spinBtn" onclick="spinWheel()"
+                    style="background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%); color: white; padding: 15px 40px; font-size: 1.2em; border-radius: 50px; border: 2px solid rgba(255,255,255,0.3); font-weight: 900; cursor: pointer; box-shadow: 0 10px 25px rgba(255, 8, 68, 0.5); text-transform: uppercase; transition: all 0.2s ease;">
+                    Quay Ngay!
+                </button>
+
+                <button id="quickSpinBtn" onclick="spinMultipleWheel()"
+                    style="display: none; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.4); border-bottom: 4px solid rgba(255, 255, 255, 0.2); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.3); color: #ffd700; padding: 15px 30px; font-size: 1.2em; border-radius: 50px; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: transform 0.1s ease, filter 0.3s; text-shadow: 0 2px 4px rgba(0,0,0,0.6);"
+                    onmousedown="this.style.transform='translateY(4px)'; this.style.borderBottom='1px solid rgba(255, 255, 255, 0.4)';"
+                    onmouseup="this.style.transform='translateY(0)'; this.style.borderBottom='4px solid rgba(255, 255, 255, 0.2)';">
+                    ⚡ Quay Nhanh
+                </button>
+            </div>
 
             <div
                 style="min-height: 70px; margin-top: 25px; display: flex; align-items: center; justify-content: center;">
@@ -455,17 +489,48 @@
         </div>
     </div>
 
-    <script src="js/common.js?v=1.6"></script>
-    <script src="js/theme-items.js?v=1.6"></script>
-    <script src="js/effect-items.js?v=1.6"></script>
-    <script src="js/pet-items.js?v=1.6"></script>
-    <script src="js/store-manager.js?v=1.6"></script>
+    <div id="studentInboxModal" class="modal-overlay" style="z-index: 999998;">
+        <div class="modal-content form-container"
+            style="max-width: 500px; background: rgba(255, 255, 255, 0.95); border-top: 6px solid #3b82f6;">
+            <button class="close-btn" onclick="closeStudentInbox()">✖</button>
+            <h3
+                style="color: #3b82f6; margin-bottom: 15px; font-size: 1.5em; border-bottom: 1px solid rgba(59, 130, 246, 0.2); padding-bottom: 10px;">
+                📬 Hộp thư đến
+            </h3>
+            <p style="font-size: 0.85em; color: #666; font-style: italic; margin-top: -10px; margin-bottom: 15px;">* Thư
+                sẽ tự động bị xóa sau 5 ngày nếu không nhận.</p>
+            <div id="studentInboxBody"
+                style="max-height: 60vh; overflow-y: auto; padding-right: 10px; margin-bottom: 10px;">
+            </div>
+        </div>
+    </div>
+
+    <div id="petInteractionInfoModal" class="modal-overlay" style="z-index: 999999;">
+        <div class="modal-content form-container"
+            style="max-width: 400px; text-align: center; border-top: 6px solid #667eea;">
+            <button class="close-btn"
+                onclick="document.getElementById('petInteractionInfoModal').classList.remove('active')">✖</button>
+            <h3 style="color: #667eea; margin-bottom: 15px; font-size: 1.4em;">🐾 Thú cưng tương tác</h3>
+            <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">Dưới đây là danh sách các thú cưng có hoạt
+                ảnh ẩn khi bạn chạm hoặc nhấn đúp vào chúng.</p>
+
+            <div id="interactivePetList" style="max-height: 50vh; overflow-y: auto;">
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js?v=1.7"></script>
+    <script src="js/theme-items.js?v=1.7"></script>
+    <script src="js/effect-items.js?v=1.7"></script>
+    <script src="js/pet-items.js?v=1.7"></script>
+    <script src="js/pet-interactions.js?v=1.7"></script>
+    <script src="js/store-manager.js?v=1.7"></script>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
-    <script src="js/firebase-config.js?v=1.6"></script>
+    <script src="js/firebase-config.js?v=1.7"></script>
 
-    <script src="js/student.js?v=1.6"></script>
+    <script src="js/student.js?v=1.7"></script>
 </body>
 
 </html>

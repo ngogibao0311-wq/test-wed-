@@ -12,243 +12,185 @@
 
     .content {
         width: 100% !important;
-        /* Thêm không gian phía trên để không bị che bởi nút bấm Menu/Avatar */
-        padding: 70px 15px 20px 15px !important;
+        /* Thêm không gian phía trên để không bị che bởi nút bấm Menu/Avatar/Hộp thư */
+        padding: 85px 15px 20px 15px !important;
     }
 
-    /* --- Nút mở Menu --- */
+    /* ==========================================
+       NÚT MENU MỞ RỘNG (GÓC TRÁI)
+       ========================================== */
     .sidebar-toggle {
-        /* Bố cục cơ bản & Ghim vào màn hình */
         position: fixed !important;
-        top: 10px !important;
-        /* Dịch xuống một chút */
-        left: 10px !important;
-        /* Tạo khoảng cách với viền màn hình */
+        top: 15px !important;
+        left: 15px !important;
         right: auto !important;
-
-        /* Hình dạng & Kích thước */
         width: 45px !important;
-        /* Nút hình tròn nhỏ gọn */
         height: 45px !important;
         border-radius: 50% !important;
-        /* Biến thành hình tròn */
         border: none !important;
-        /* Xóa viền xấu xí */
-
-        /* Màu sắc & Hiệu ứng */
         background: linear-gradient(135deg, #7F7FD5 0%, #86A8E7 50%, #91EAE4 100%) !important;
-        /* Gradient màu xanh tím san hô hiện đại */
         box-shadow: 0 4px 10px rgba(127, 127, 213, 0.4) !important;
-        /* Đổ bóng sâu hơn cho nổi bật */
-
-        /* Căn chỉnh nội dung bên trong */
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
         flex-direction: column !important;
-        /* Chữ dưới icon */
-
-        /* Hiệu ứng chuyển động */
-        transition: all 0.3s ease-in-out !important;
         z-index: 10001 !important;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
         padding: 0 !important;
-        /* Khoảng đệm bên trong */
     }
 
-    /* Nút hơi thu nhỏ khi bấm vào để tạo cảm giác bấm thật */
     .sidebar-toggle:active {
         transform: scale(0.9) !important;
     }
 
-    /* Tinh chỉnh Chữ "MENU" bên trong (nếu có) */
-    .sidebar-toggle:before {
+    /* Icon 3 gạch khi Menu đóng */
+    .dashboard.collapsed .sidebar-toggle:before {
         content: "☰" !important;
-        /* Sử dụng icon 3 gạch thay cho chữ "Menu" */
+        font-size: 1.5em !important;
+        color: #ffffff !important;
+        font-weight: bold !important;
+        line-height: 1 !important;
+    }
+
+    /* Ẩn mũi tên xoay lộn xộn cũ */
+    .sidebar-toggle span {
+        display: none !important;
+    }
+
+    /* Trạng thái khi Menu đang MỞ */
+    .dashboard:not(.collapsed) .sidebar-toggle {
+        left: calc(260px + 15px) !important; /* Trượt ra mép ngoài menu */
+        background: #e11d48 !important; /* Đổi màu đỏ báo hiệu Đóng */
+        box-shadow: 0 4px 10px rgba(225, 29, 72, 0.4) !important;
+    }
+
+    /* Icon dấu X khi Menu mở */
+    .dashboard:not(.collapsed) .sidebar-toggle:before {
+        content: "✕" !important;
         font-size: 1.4em !important;
         color: #ffffff !important;
         font-weight: bold !important;
         line-height: 1 !important;
-        margin-bottom: 2px !important;
     }
 
-    /* Tinh chỉnh Icon mũi tên (nếu có) */
-    .sidebar-toggle span {
-        font-size: 0.7em !important;
-        color: rgba(255, 255, 255, 0.7) !important;
-        margin-top: -3px !important;
-    }
-
-    /* === Trạng thái khi Menu đang ĐÓNG (mặc định) === */
-    .dashboard.collapsed .sidebar-toggle {
-        left: 10px !important;
-        /* Giữ ở vị trí góc màn hình */
-    }
-
-    .dashboard.collapsed .sidebar-toggle span {
-        transform: rotate(180deg) !important;
-        /* Mũi tên chỉ ra ngoài (▶) */
-    }
-
-    /* === Trạng thái khi Menu đang MỞ (đang mở rèm) === */
-    .dashboard:not(.collapsed) .sidebar-toggle {
-        left: calc(280px + 10px) !important;
-        /* Trượt theo menu và giữ khoảng cách */
-    }
-
-    .dashboard:not(.collapsed) .sidebar-toggle:before {
-        content: "✕" !important;
-        /* Khi mở, thay 3 gạch bằng dấu X để đóng */
-    }
-
-    .dashboard:not(.collapsed) .sidebar-toggle span {
-        transform: rotate(0deg) !important;
-        /* Mũi tên chỉ vào trong (◀) */
-    }
-
-    /* Mũi tên khi menu đang ĐÓNG (Nút hiển thị ở viền trái màn hình) */
-    .dashboard.collapsed .sidebar-toggle {
-        transform: rotate(180deg) !important;
-        /* Mũi tên chỉ ra ngoài (▶) */
-        border-radius: 0 12px 12px 0 !important;
-    }
-
-    /* Mũi tên khi menu đang MỞ (Nút trượt ra ngoài cùng menu) */
-    .dashboard:not(.collapsed) .sidebar-toggle {
-        transform: rotate(0deg) !important;
-        /* Mũi tên chỉ vào trong (◀) */
-        border-radius: 50% !important;
-        left: 280px !important;
-        /* Nút trượt ra đúng bằng chiều rộng menu */
-    }
-
-    .profile-trigger-btn {
-        top: 12px;
-        right: 15px;
-        width: 45px;
-        height: 45px;
-        z-index: 9900;
-    }
-
-    /* --- Sidebar (Menu Trượt Dạng Ngăn Kéo) --- */
+    /* ==========================================
+       SIDEBAR MENU TRƯỢT
+       ========================================== */
     .sidebar {
         position: fixed !important;
         top: 0 !important;
         left: 0 !important;
-        /* Trạng thái mở */
-        width: 280px !important;
+        width: 260px !important; /* Thu gọn lại một chút cho vừa điện thoại */
         height: 100vh !important;
         z-index: 10000 !important;
-        box-shadow: 5px 0 25px rgba(0, 0, 0, 0.5) !important;
-        transition: left 0.3s ease !important;
-
-        /* CỰC KỲ QUAN TRỌNG: Tắt kính mờ để không giam cầm nút bấm */
+        box-shadow: 5px 0 25px rgba(0, 0, 0, 0.2) !important;
+        transition: left 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
         backdrop-filter: none !important;
         -webkit-backdrop-filter: none !important;
-        background: #fdfdfd !important;
-        /* Thay bằng màu nền trắng đặc để không bị xuyên thấu */
+        background: #fdfdfd !important; /* Chống xuyên thấu UI phía dưới */
     }
 
-    /* Khi đóng, menu thụt sang trái giấu đi (-280px) */
     .dashboard.collapsed .sidebar {
-        left: -280px !important;
+        left: -270px !important;
     }
 
-    /* Ghi đè CSS desktop: Giữ nguyên hiển thị chữ trên menu di động thay vì chỉ hiện icon */
+    /* Giữ nguyên chữ trên menu di động, không ẩn đi */
     .dashboard.collapsed .nav-text {
-        display: inline-block;
+        display: inline-block !important;
     }
 
     .dashboard.collapsed .nav-item {
-        text-align: left;
-        padding: 14px 18px;
-        font-size: 1.05em;
+        text-align: left !important;
+        padding: 14px 18px !important;
+        font-size: 1.05em !important;
     }
 
     .dashboard.collapsed .sidebar-top h3 {
-        font-size: 1.5em;
-        border-bottom: 2px solid rgba(255, 255, 255, 0.6);
-        margin-bottom: 15px;
-        padding-bottom: 15px;
+        font-size: 1.5em !important;
+        border-bottom: 2px solid rgba(0, 0, 0, 0.1) !important;
+        margin-bottom: 15px !important;
+        padding-bottom: 15px !important;
+        color: #764ba2 !important;
     }
 
-    .dashboard.collapsed .sidebar-top h3::before {
-        display: none;
+    /* ==========================================
+       CÁC NÚT Ở GÓC TRÊN BÊN PHẢI
+       ========================================== */
+    .profile-trigger-btn {
+        top: 15px !important;
+        right: 15px !important;
+        width: 45px !important;
+        height: 45px !important;
+    }
+
+    .inbox-trigger-btn {
+        top: 15px !important;
+        right: 70px !important; /* Đẩy cách nút Avatar 1 khoảng vừa đủ */
+        width: 45px !important;
+        height: 45px !important;
     }
 
     /* --- Khung nội dung (Cards & Tiêu đề) --- */
     .card {
-        padding: 20px 15px;
+        padding: 20px 15px !important;
     }
 
     .content h2 {
-        font-size: 1.5em;
-        margin-bottom: 15px;
+        font-size: 1.4em !important;
+        margin-bottom: 15px !important;
+    }
+
+    /* --- Giao diện lưới của Cửa hàng (Ép hiển thị 2 cột trên điện thoại) --- */
+    #storeItemsContainer,
+    #teacherStoreItemsList > div {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important;
+        gap: 12px !important;
     }
 
     /* --- Form & Input --- */
     .form-row {
-        flex-direction: column;
-        /* Đẩy các input rớt xuống thành hàng dọc */
-        gap: 0;
+        flex-direction: column !important;
+        gap: 10px !important; /* Khoảng cách giữa các ô input dọc */
     }
 
     .form-group {
-        width: 100%;
+        width: 100% !important;
     }
 
-    input,
-    textarea,
-    select {
-        padding: 12px 15px;
-        font-size: 16px;
-        /* Rất quan trọng: Ngăn iPhone tự động Zoom màn hình khi bấm vào ô nhập liệu */
+    /* Font 16px CHỐNG ZOOM trên iOS/iPhone */
+    input, textarea, select {
+        padding: 12px 15px !important;
+        font-size: 16px !important; 
     }
 
     /* --- Modal Popup (Cửa sổ nổi) --- */
     .modal-content {
-        width: 95%;
-        padding: 25px 15px;
-        margin: 10px;
-        max-height: 90vh;
+        width: 92% !important;
+        padding: 20px 15px !important;
+        margin: auto !important;
+        max-height: 85vh !important;
     }
 
     .close-btn {
-        top: 10px;
-        right: 15px;
-        font-size: 1.5em;
+        top: 10px !important;
+        right: 15px !important;
+        font-size: 1.5em !important;
     }
 
-    /* --- Nút bấm thao tác và Accordion (Bài tập) --- */
-    .btn-approve,
-    .btn-reject {
-        width: 100%;
-        /* Tràn viền nút bấm cho dễ bấm trên điện thoại */
-        margin-bottom: 8px;
-    }
-
-    .accordion-header {
-        padding: 10px 12px;
-    }
-
-    .accordion-title h4 {
-        font-size: 1.1em;
-    }
-
-    .accordion-meta {
-        font-size: 0.8em;
-        gap: 8px;
-        flex-wrap: wrap;
-        justify-content: flex-end;
+    /* --- Nút bấm thao tác (Tràn viền cho dễ bấm) --- */
+    .btn-approve, .btn-reject {
+        width: 100% !important;
+        margin-bottom: 8px !important;
     }
 
     /* --- Vòng quay may mắn --- */
     #luckyWheelModal .modal-content {
-        padding: 25px 15px;
+        padding: 25px 15px 35px 15px !important;
     }
 
     #wheelContainer {
-        width: 260px !important;
-        height: 260px !important;
+        width: 270px !important;
+        height: 270px !important;
     }
 
     .wheel-text {
@@ -256,15 +198,21 @@
         padding-right: 15px !important;
     }
 
+    /* --- Bảng (Table Lộ trình & Lịch học) --- */
+    table th, table td {
+        padding: 10px !important;
+        font-size: 0.9em !important;
+    }
+
     /* --- Widget Đồng Coin --- */
     #coinWidget {
-        bottom: 15px;
-        left: 15px;
-        padding: 5px 12px;
+        bottom: 20px !important;
+        left: 20px !important;
+        padding: 6px 15px !important;
     }
 
     #coinWidget span:first-child {
-        font-size: 1.3em !important;
+        font-size: 1.4em !important;
     }
 
     #studentCoinBalance {
@@ -273,7 +221,8 @@
 
     /* --- Khung Đăng nhập --- */
     .login-container {
-        margin: 40px 15px;
-        padding: 30px 20px;
+        margin: 40px 15px !important;
+        padding: 30px 20px !important;
+        width: auto !important;
     }
 }

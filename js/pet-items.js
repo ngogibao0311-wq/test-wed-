@@ -29,7 +29,7 @@ class PetManager {
         }
         if (petData.petEffect) {
             petElement.classList.add(petData.petEffect);
-            petElement.style.filter = ''; 
+            petElement.style.filter = '';
         }
 
         this.container.appendChild(petElement);
@@ -54,6 +54,11 @@ class PetManager {
 
         this.makePetDraggable();
         localStorage.setItem('active_pet', petData.id);
+
+        if (typeof PetInteractionManager !== 'undefined') {
+            const petImg = document.getElementById('virtual-pet-img');
+            if (petImg) PetInteractionManager.attachEvents(petImg, petData);
+        }
     }
 
     static makePetDraggable() {
