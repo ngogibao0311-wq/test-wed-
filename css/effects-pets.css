@@ -667,3 +667,309 @@ input:checked + .slider:before {
     color: white;
     box-shadow: 0 4px 15px rgba(246, 211, 101, 0.4);
 }
+/* =========================================================================
+   HIỆU ỨNG THẦN THÚ CỔ TÍCH 3 (BẢN ĐẠI TÔNG SƯ - ĐA TẦNG 3D & TINH LINH)
+   ========================================================================= */
+
+/* 1. TRẬN PHÁP PHA LÊ MỘNG MƠ (Vòng tròn 3D lót dưới chân) */
+#virtual-pet-container:has(.fairy-tale-magic-3)::before {
+    content: '';
+    position: absolute;
+    bottom: -35px;
+    left: 50%;
+    width: 140px;
+    height: 140px;
+    margin-left: -70px; /* Căn giữa */
+    background: radial-gradient(circle, rgba(162, 155, 254, 0.25) 0%, transparent 65%);
+    border: 3px solid rgba(108, 92, 231, 0.6);
+    outline: 2px dashed rgba(0, 206, 201, 0.7);
+    outline-offset: -12px;
+    border-radius: 50%;
+    
+    /* Ép góc 3D để vòng tròn nằm bẹt xuống mặt phẳng */
+    transform: rotateX(72deg);
+    box-shadow: 0 0 25px rgba(108, 92, 231, 0.8), inset 0 0 20px rgba(0, 206, 201, 0.6);
+    animation: crystalMagicCircle 6s linear infinite;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* 2. CƠN LỐC BỤI TIÊN (Hệ thống hạt sáng bay lượn phức tạp) */
+#virtual-pet-container:has(.fairy-tale-magic-3)::after {
+    content: '';
+    position: absolute;
+    top: 25%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #fff;
+    
+    /* Ma trận 6 đốm tinh linh đa sắc phân bố ngẫu nhiên */
+    box-shadow: 
+        -50px -20px 10px 2px #a29bfe,   /* Tím nhạt */
+        60px 10px 14px 3px #00cec9,    /* Xanh ngọc */
+        -30px -50px 12px 2px #fd79a8,  /* Hồng phấn */
+        45px -40px 15px 3px #ffeaa7,   /* Vàng chanh */
+        -60px 30px 10px 2px #74b9ff,   /* Xanh dương */
+        25px 50px 12px 2px #e84393;    /* Hồng đậm */
+    filter: blur(0.8px) drop-shadow(0 0 6px #ffffff);
+    animation: fairyDustTornado 4s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* 3. BẢN THÂN VẬT PHẨM (Đổ bóng có độ sâu) */
+#virtual-pet-img.fairy-tale-magic-3 {
+    filter: drop-shadow(0 0 15px rgba(162, 155, 254, 0.7)) drop-shadow(0 8px 15px rgba(0, 0, 0, 0.4));
+    transition: filter 0.3s ease;
+}
+
+/* 4. KHI PET ĐỨNG YÊN (Nhịp thở bồng bềnh + Hào quang rực rỡ) */
+.pet-idle #virtual-pet-img.fairy-tale-magic-3 {
+    animation: fairyPetLevitate 4.5s ease-in-out infinite;
+}
+
+/* --- KEYFRAMES ĐIỆN ẢNH CHO CỔ TÍCH 3 --- */
+
+@keyframes crystalMagicCircle {
+    0% { 
+        transform: rotateX(72deg) rotateZ(0deg); 
+        border-color: rgba(108, 92, 231, 0.4); 
+        outline-color: rgba(0, 206, 201, 0.5);
+    }
+    50% { 
+        /* Đổi màu chói lóa giữa chu kỳ sang tone Hồng - Xanh */
+        border-color: rgba(253, 121, 168, 1); 
+        outline-color: rgba(162, 155, 254, 1);
+        box-shadow: 
+            0 0 40px rgba(253, 121, 168, 0.9), 
+            inset 0 0 35px rgba(0, 206, 201, 0.9),
+            0 0 20px rgba(162, 155, 254, 0.7);
+    }
+    100% { 
+        transform: rotateX(72deg) rotateZ(360deg); 
+        border-color: rgba(108, 92, 231, 0.4); 
+        outline-color: rgba(0, 206, 201, 0.5);
+    }
+}
+
+@keyframes fairyDustTornado {
+    0% {
+        transform: translateY(0) scale(0.9) rotate(0deg);
+    }
+    100% {
+        /* Bụi tiên xoáy rộng ra và bay lên cao */
+        transform: translateY(-40px) scale(1.4) rotate(25deg);
+        box-shadow: 
+            -65px -35px 15px 4px #a29bfe,
+            75px 0px 18px 5px #00cec9,
+            -40px -70px 16px 3px #fd79a8,
+            60px -55px 20px 5px #ffeaa7,
+            -80px 15px 15px 3px #74b9ff,
+            35px 70px 18px 4px #e84393;
+    }
+}
+
+@keyframes fairyPetLevitate {
+    0%, 100% { 
+        transform: scale(1) translateY(0); 
+        filter: drop-shadow(0 0 15px rgba(162, 155, 254, 0.6)) drop-shadow(0 5px 10px rgba(0,0,0,0.3)); 
+    }
+    50% { 
+        /* Bay bổng lên cao hơn các pet khác để tạo cảm giác thần tiên */
+        transform: scale(1.04) translateY(-12px); 
+        /* Quầng sáng đa lớp: Xanh ngọc bọc trong, Hồng tím tản ra ngoài */
+        filter: 
+            drop-shadow(0 0 35px rgba(0, 206, 201, 0.9)) 
+            drop-shadow(0 0 25px rgba(253, 121, 168, 0.8)) 
+            drop-shadow(0 15px 25px rgba(0,0,0,0.5)); 
+    }
+}
+/* =========================================================
+   HỆ THỐNG TINH TÚ PURE CSS (CHO MÈO ĐÊM ĐẦY SAO ĐI NGỦ)
+========================================================= */
+
+/* Khung bọc cụm sao phía trên đầu mèo */
+.cat-sleep-stars-wrap {
+    position: absolute;
+    top: -25px;
+    right: -20px;
+    width: 60px;
+    height: 60px;
+    pointer-events: none;
+    z-index: 10001;
+}
+
+/* Định dạng chung cho ngôi sao Pure CSS 4 cánh */
+.css-star {
+    position: absolute;
+    /* Thuật toán tạo hình ngôi sao lấp lánh 4 cánh nhọn đỉnh */
+    clip-path: polygon(50% 0%, 63% 37%, 100% 50%, 63% 63%, 50% 100%, 37% 63%, 0% 50%, 37% 37%);
+    opacity: 0;
+    transform: scale(0);
+}
+
+/* Ngôi sao chính: To nhất, màu Vàng Kim pha Trắng tinh khôi */
+.star-primary {
+    width: 16px;
+    height: 16px;
+    top: 15px;
+    left: 20px;
+    background: linear-gradient(135deg, #ffffff 30%, #f1c40f 100%);
+    filter: drop-shadow(0 0 8px rgba(241, 196, 15, 0.9));
+    animation: cinematicStarFloat 2.5s infinite ease-in-out;
+}
+
+/* Ngôi sao thứ hai: Vừa, màu Xanh Thiên Thanh lãng mạn, lệch góc và trễ nhịp */
+.star-secondary {
+    width: 11px;
+    height: 11px;
+    top: 0px;
+    left: 40px;
+    background: linear-gradient(135deg, #ffffff 20%, #00cec9 100%);
+    filter: drop-shadow(0 0 6px rgba(0, 206, 201, 0.8));
+    animation: cinematicStarFloat 2.5s infinite ease-in-out;
+    animation-delay: 0.6s; /* Xuất hiện sau ngôi sao 1 */
+}
+
+/* Ngôi sao thứ ba: Nhỏ xinh, màu Tím Huyền Bí pha Hồng Tinh Tú */
+.star-tertiary {
+    width: 8px;
+    height: 8px;
+    top: 30px;
+    left: 5px;
+    background: linear-gradient(135deg, #ffffff 10%, #e84393 100%);
+    filter: drop-shadow(0 0 5px rgba(232, 67, 147, 0.7));
+    animation: cinematicStarFloat 2.5s infinite ease-in-out;
+    animation-delay: 1.2s; /* Xuất hiện sau cùng tạo vòng lặp liên tục */
+}
+
+/* Keyframe di chuyển: Phát sáng -> To dần -> Bay lên uốn lượn -> Nhạt nhòa và ẩn đi */
+@keyframes cinematicStarFloat {
+    0% {
+        transform: translateY(15px) translateX(0) scale(0) rotate(0deg);
+        opacity: 0;
+    }
+    30% {
+        opacity: 1;
+        transform: translateY(0px) translateX(5px) scale(1.2) rotate(45deg);
+    }
+    70% {
+        opacity: 0.8;
+        transform: translateY(-20px) translateX(-5px) scale(0.9) rotate(90deg);
+    }
+    100% {
+        transform: translateY(-35px) translateX(2px) scale(0.4) rotate(135deg);
+        opacity: 0;
+        filter: drop-shadow(0 0 2px #fff);
+    }
+}
+/* =========================================================
+   HỆ THỐNG CẢNH MỘNG MỊ PURE CSS (MÈO ĐÊM ĐẦY SAO)
+========================================================= */
+
+/* Cập nhật lại khung bọc cho to hơn để chứa cả hệ sinh thái */
+.cat-sleep-stars-wrap {
+    position: absolute;
+    top: -45px; 
+    right: -30px;
+    width: 120px;
+    height: 90px;
+    pointer-events: none;
+    z-index: 10001;
+}
+
+/* --- 1. HỆ THỐNG ĐÁM MÂY ĐÊM PURE CSS --- */
+.css-night-cloud {
+    position: absolute;
+    top: 10px;
+    left: -40px;
+    width: 45px;
+    height: 14px;
+    /* Hiệu ứng gradient tạo khối 3D cho đám mây */
+    background: linear-gradient(180deg, #576574, #222f3e);
+    border-radius: 20px;
+    filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5)) drop-shadow(0 0 10px rgba(130, 204, 221, 0.3));
+    animation: dreamCloudFloat 4s ease-in-out infinite alternate;
+    opacity: 0;
+    animation-fill-mode: forwards;
+}
+/* Dùng pseudo-element nặn ra các cục bông tròn của đám mây */
+.css-night-cloud::before {
+    content: ''; position: absolute;
+    top: -8px; left: 8px;
+    width: 18px; height: 18px;
+    background: #576574;
+    border-radius: 50%;
+}
+.css-night-cloud::after {
+    content: ''; position: absolute;
+    top: -12px; left: 20px;
+    width: 22px; height: 22px;
+    background: #576574;
+    border-radius: 50%;
+}
+
+/* --- 2. CÀNH CÂY MỘNG MỊ VÀ LÁ PHÁT SÁNG --- */
+.css-dream-branch {
+    position: absolute;
+    top: 45px; 
+    right: -25px;
+    width: 35px; 
+    height: 3px;
+    background: linear-gradient(90deg, #1e272e, #485460);
+    border-radius: 3px;
+    transform: rotate(15deg);
+    opacity: 0;
+    animation: dreamFadeIn 1s ease-out 0.3s forwards;
+}
+.css-leaf {
+    position: absolute;
+    width: 8px; height: 4px;
+    background: #10ac84; /* Lá xanh ngọc lục bảo */
+    border-radius: 8px 0; /* Bo chéo góc tạo hình chiếc lá */
+    filter: drop-shadow(0 0 4px rgba(16, 172, 132, 0.8));
+}
+.leaf-1 { top: -4px; left: 5px; transform: rotate(-40deg); }
+.leaf-2 { top: 2px; left: 18px; transform: rotate(35deg); }
+
+/* --- 3. CHIM ĐÊM VỖ CÁNH BAY LƯỢN --- */
+.css-dream-bird {
+    position: absolute;
+    top: 35px; 
+    right: -10px;
+    width: 8px; 
+    height: 8px;
+    /* Dùng viền cắt góc tạo thành sải cánh hình chữ V */
+    border-top: 2px solid #c8d6e5;
+    border-left: 2px solid #c8d6e5;
+    border-radius: 2px 0 0 0;
+    filter: drop-shadow(0 0 5px rgba(255,255,255,0.9));
+    opacity: 0;
+    animation: birdFlyAway 6s linear infinite;
+}
+
+/* --- CÁC KEYFRAMES ĐIỆN ẢNH CHO CẢNH MỘNG MỊ --- */
+@keyframes dreamFadeIn {
+    from { opacity: 0; transform: rotate(15deg) translateX(15px); }
+    to { opacity: 1; transform: rotate(15deg) translateX(0); }
+}
+
+@keyframes dreamCloudFloat {
+    0% { transform: translateY(0) translateX(0); opacity: 0; }
+    20% { opacity: 0.9; }
+    100% { transform: translateY(-5px) translateX(10px); opacity: 0.9; }
+}
+
+@keyframes birdFlyAway {
+    0% { transform: translate(0, 0) rotate(45deg) scaleX(1); opacity: 0; }
+    10% { opacity: 1; }
+    /* Hiệu ứng vỗ cánh: Dùng scaleX(0.4) ép dẹp bề ngang chữ V để giả lập động tác gập cánh */
+    20% { transform: translate(-10px, -8px) rotate(45deg) scaleX(0.4); } 
+    30% { transform: translate(-20px, -12px) rotate(45deg) scaleX(1); }
+    40% { transform: translate(-30px, -18px) rotate(45deg) scaleX(0.4); }
+    50% { transform: translate(-40px, -20px) rotate(45deg) scaleX(1); opacity: 0.8; }
+    60% { transform: translate(-50px, -25px) rotate(45deg) scaleX(0.4); opacity: 0; }
+    100% { opacity: 0; }
+}

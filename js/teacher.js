@@ -1,6 +1,9 @@
 const currentUser = JSON.parse(localStorage.getItem('currentUser'));
 if (!currentUser || currentUser.role !== 'teacher') window.location.href = 'index.html';
 
+let cacheAssignmentsSt = "";
+let cacheSubmissionsSt = "";
+
 let attachedFileData = null;
 let attachedMaterialFileData = null;
 
@@ -10,27 +13,79 @@ window.teacherGradeDTs = {}; // Dùng cho Chấm bài (nhiều học sinh)
 
 window.handleTeacherFileAccumulate = function (input, subId) {
     if (!window.teacherGradeDTs[subId]) window.teacherGradeDTs[subId] = new DataTransfer();
+    const existingFiles = Array.from(window.teacherGradeDTs[subId].files).map(f => f.name + '_' + f.size);
+    const MAX_SIZE_BYTES = 5 * 1024 * 1024; // Giới hạn 5MB
 
-    const existingNames = Array.from(window.teacherGradeDTs[subId].files).map(f => f.name);
-
+    let hasOversize = false;
     for (let i = 0; i < input.files.length; i++) {
-        if (!existingNames.includes(input.files[i].name)) {
+        // Chặn file quá nặng ngay từ lúc chọn
+        if (input.files[i].size > MAX_SIZE_BYTES) {
+            alert(`⚠️ File "${input.files[i].name}" quá lớn (${(input.files[i].size / (1024 * 1024)).toFixed(2)}MB). Hệ thống chỉ cho phép tối đa 5MB/file và đã tự động loại bỏ file này!`);
+            hasOversize = true;
+            continue;
+        }
+        const fileKey = input.files[i].name + '_' + input.files[i].size;
+        if (!existingFiles.includes(fileKey)) {
             window.teacherGradeDTs[subId].items.add(input.files[i]);
         }
     }
     input.files = window.teacherGradeDTs[subId].files;
+
+    if (hasOversize && window.teacherGradeDTs[subId].files.length === 0) {
+        input.value = '';
+    }
 };
 
 window.onload = async function () {
+    let realUsers = await getDB('users');
+    let realUser = realUsers.find(u => u.username === currentUser.username);
+    if (!realUser || realUser.role !== 'teacher') {
+        alert("⛔ Phát hiện can thiệp dữ liệu! Buộc đăng xuất.");
+        localStorage.removeItem('currentUser');
+        window.location.href = 'index.html';
+        return;
+    }
     if (document.getElementById('settingName')) document.getElementById('settingName').value = currentUser.name;
     initFileListener();
     initMaterialFileListener();
 
-    db.ref('profile_requests').on('value', async () => { await loadProfileRequests(); });
-    db.ref('submissions').on('value', async () => { await loadSubmissions(); if (document.getElementById('teacherRoadmapBody')) renderTeacherRoadmap(); });
-    db.ref('assignments').on('value', async () => { await loadAssignedList(); if (document.getElementById('teacherRoadmapBody')) renderTeacherRoadmap(); });
-    db.ref('materials').on('value', async () => { await loadMaterialsListTeacher(); });
-    db.ref('users').on('value', async () => { await loadStudentsList(); await populateStudentDropdown(); await populateRoadmapStudentDropdown(); });
+    // === TỐI ƯU HÓA HIỆU SUẤT (BỘ ĐỆM CACHE) ===
+    let cacheProfile = "", cacheSubmissions = "", cacheAssignments = "", cacheMaterials = "", cacheUsers = "";
+
+    db.ref('profile_requests').on('value', async (snapshot) => {
+        const hash = JSON.stringify(snapshot.val());
+        if (hash !== cacheProfile) { cacheProfile = hash; await loadProfileRequests(); }
+    });
+    db.ref('assignments').on('value', async (snapshot) => {
+        const hash = JSON.stringify(snapshot.val());
+        if (hash !== cacheAssignmentsSt) { 
+            cacheAssignmentsSt = hash; 
+            window.cachedAssignments = snapshot.val() ? Object.values(snapshot.val()) : []; 
+            // Sửa tại đây: Gọi đúng hàm loadAssignedList() thay vì loadAssignments()
+            await loadAssignedList(); 
+            if (document.getElementById('studentRoadmapBody')) renderStudentRoadmap(); 
+        }
+    });
+
+    db.ref('submissions').on('value', async (snapshot) => {
+        const hash = JSON.stringify(snapshot.val());
+        if (hash !== cacheSubmissionsSt) { 
+            cacheSubmissionsSt = hash; 
+            window.cachedSubmissions = snapshot.val() ? Object.values(snapshot.val()) : []; 
+            // Sửa tại đây: Gọi đúng hàm loadSubmissions() thay vì loadAssignments()
+            await loadSubmissions(); 
+            if (document.getElementById('studentRoadmapBody')) renderStudentRoadmap(); 
+        }
+    });
+    db.ref('materials').on('value', async (snapshot) => {
+        const hash = JSON.stringify(snapshot.val());
+        if (hash !== cacheMaterials) { cacheMaterials = hash; await loadMaterialsListTeacher(); }
+    });
+    db.ref('users').on('value', async (snapshot) => {
+        const hash = JSON.stringify(snapshot.val());
+        if (hash !== cacheUsers) { cacheUsers = hash; await loadStudentsList(); await populateStudentDropdown(); await populateRoadmapStudentDropdown(); }
+    });
+    // ============================================
 
     // Lắng nghe cấu hình điểm đạt tối thiểu từ Firebase
     db.ref('roadmap_settings/passingGrade').on('value', (snapshot) => {
@@ -48,6 +103,10 @@ window.onload = async function () {
     // DÁN ĐOẠN THỜI GIAN THỰC ĐỒNG BỘ NÀY VÀO ĐÂY
     db.ref('game_settings').on('value', (snapshot) => {
         const settings = snapshot.val() || { isOpen: true, lockMessage: '' };
+        
+        // Khai báo biến toàn cục để hệ thống chẩn đoán nhận diện được
+        window.isGameEnabled = settings.isOpen; 
+
         const toggleInput = document.getElementById('gameToggle');
         const msgArea = document.getElementById('gameLockMessageArea');
         const msgInput = document.getElementById('gameLockMessage');
@@ -108,9 +167,16 @@ window.onload = async function () {
         }
     });
 
-    db.ref('store_items').on('value', async () => {
-        if (typeof loadTeacherStoreItems === 'function') await loadTeacherStoreItems();
-    });
+    // (Bổ sung) Lắng nghe giáo viên nhập điểm để tự ẩn/hiện phần câu hỏi
+    const mcInput = document.getElementById('mcWeight');
+    const essayInput = document.getElementById('essayWeight');
+    if (mcInput) mcInput.addEventListener('input', window.updateExamFields);
+    if (essayInput) essayInput.addEventListener('input', window.updateExamFields);
+
+    const editMcInput = document.getElementById('editMcWeight');
+    const editEssayInput = document.getElementById('editEssayWeight');
+    if (editMcInput) editMcInput.addEventListener('input', window.updateEditExamFields);
+    if (editEssayInput) editEssayInput.addEventListener('input', window.updateEditExamFields);
 };
 
 function getEmbedHTML(url) {
@@ -123,23 +189,74 @@ function getEmbedHTML(url) {
 
     if (videoId) {
         let embedUrl = `https://www.youtube.com/embed/${videoId}`;
-        return `<div class="video-wrapper"><iframe width="100%" height="315" src="${embedUrl}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>`;
+        // Thêm loading="lazy" vào thẻ iframe
+        return `<div class="video-wrapper"><iframe width="100%" height="315" src="${embedUrl}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe></div>`;
     }
-    return `<div class="video-wrapper"><iframe width="100%" height="315" src="${url}" frameborder="0" allowfullscreen></iframe></div>`;
+    // Thêm loading="lazy" vào thẻ iframe dự phòng
+    return `<div class="video-wrapper"><iframe width="100%" height="315" src="${url}" frameborder="0" allowfullscreen loading="lazy"></iframe></div>`;
 }
+
+// Hàm tự động ẩn/hiện giao diện tạo câu hỏi khi nhập điểm Thi
+window.updateExamFields = function () {
+    const type = document.getElementById('assessmentType').value;
+    if (type !== 'thi') return;
+
+    const mcWeight = parseFloat(document.getElementById('mcWeight').value) || 0;
+    const essayWeight = parseFloat(document.getElementById('essayWeight').value) || 0;
+
+    const tuLuan = document.getElementById('tuLuanFields');
+    const tracNghiem = document.getElementById('tracNghiemFields');
+
+    if (mcWeight > 0 && essayWeight === 0) {
+        if (tracNghiem) tracNghiem.style.display = 'block';
+        if (tuLuan) tuLuan.style.display = 'none';
+    } else if (essayWeight > 0 && mcWeight === 0) {
+        if (tracNghiem) tracNghiem.style.display = 'none';
+        if (tuLuan) tuLuan.style.display = 'block';
+    } else {
+        if (tracNghiem) tracNghiem.style.display = 'block';
+        if (tuLuan) tuLuan.style.display = 'block';
+    }
+};
+
+window.updateEditExamFields = function () {
+    const mcWeight = parseFloat(document.getElementById('editMcWeight').value) || 0;
+    const essayWeight = parseFloat(document.getElementById('editEssayWeight').value) || 0;
+
+    const tuLuan = document.getElementById('editTuLuanSection');
+    const tracNghiem = document.getElementById('editTracNghiemSection');
+
+    if (mcWeight > 0 && essayWeight === 0) {
+        if (tracNghiem) tracNghiem.style.display = 'block';
+        if (tuLuan) tuLuan.style.display = 'none';
+    } else if (essayWeight > 0 && mcWeight === 0) {
+        if (tracNghiem) tracNghiem.style.display = 'none';
+        if (tuLuan) tuLuan.style.display = 'block';
+    } else {
+        if (tracNghiem) tracNghiem.style.display = 'block';
+        if (tuLuan) tuLuan.style.display = 'block';
+    }
+};
 
 window.toggleAssessmentFields = function () {
     const type = document.getElementById('assessmentType').value;
     const tuLuan = document.getElementById('tuLuanFields');
     const tracNghiem = document.getElementById('tracNghiemFields');
-    const scoreDist = document.getElementById('scoreDistributionFields'); // Thêm dòng này
+    const scoreDist = document.getElementById('scoreDistributionFields');
+    const videoGroup = document.getElementById('videoLinkGroup'); // Gọi div chứa video
 
     if (type === 'tu_luan') {
         tuLuan.style.display = 'block'; tracNghiem.style.display = 'none'; scoreDist.style.display = 'none';
+        if (videoGroup) videoGroup.style.display = 'block';
     } else if (type === 'trac_nghiem') {
         tuLuan.style.display = 'none'; tracNghiem.style.display = 'block'; scoreDist.style.display = 'none';
-    } else {
-        tuLuan.style.display = 'block'; tracNghiem.style.display = 'block'; scoreDist.style.display = 'block'; // Hiện chia điểm
+    } else if (type === 'ket_hop') {
+        tuLuan.style.display = 'block'; tracNghiem.style.display = 'block'; scoreDist.style.display = 'block';
+        if (videoGroup) videoGroup.style.display = 'block';
+    } else if (type === 'thi') {
+        scoreDist.style.display = 'block';
+        if (videoGroup) videoGroup.style.display = 'none'; // Ẩn hoàn toàn mục video
+        window.updateExamFields(); // Kích hoạt ẩn/hiện động dựa trên số điểm
     }
 };
 
@@ -192,28 +309,43 @@ async function createAssignment() {
     const type = document.getElementById('assessmentType').value;
     let desc = '', videoLink = '', attachedFile = null, questions = [];
     let mcWeight = null, essayWeight = null;
-    let hideEssayText = false; // Thêm biến cờ trạng thái này
+    let hideEssayText = false;
 
-    if (type === 'tu_luan' || type === 'ket_hop') {
+    // BƯỚC 1: XỬ LÝ ĐIỂM SỐ TRƯỚC (Gỡ bỏ bắt buộc bằng 10 cho hệ thi)
+    if (type === 'ket_hop' || type === 'thi') {
+        mcWeight = parseFloat(document.getElementById('mcWeight').value) || 0;
+        essayWeight = parseFloat(document.getElementById('essayWeight').value) || 0;
+
+        if (type === 'ket_hop' && (mcWeight + essayWeight !== 10)) {
+            return alert("Tổng điểm Trắc nghiệm và Tự luận trong loại hình Kết hợp phải đúng bằng 10!");
+        }
+        if (type === 'thi' && mcWeight === 0 && essayWeight === 0) {
+            return alert("Vui lòng nhập điểm tối đa cho phần Trắc nghiệm hoặc Tự luận!");
+        }
+    }
+
+    // BƯỚC 2: XỬ LÝ DỮ LIỆU TỰ LUẬN
+    const hasEssay = type === 'tu_luan' || type === 'ket_hop' || (type === 'thi' && essayWeight > 0);
+    if (hasEssay) {
         desc = document.getElementById('desc').value;
-        videoLink = document.getElementById('videoLink').value.trim();
+        videoLink = (type === 'thi') ? '' : document.getElementById('videoLink').value.trim();
         hideEssayText = document.getElementById('hideEssayText').checked;
 
-        // Đọc toàn bộ file đính kèm ngay tại lúc bấm nút Phát hành
         const fInput = document.getElementById('fileInput');
         if (fInput && fInput.files.length > 0) {
             attachedFile = await readMultipleFiles(fInput.files);
-            // Thêm dòng này để chặn giao bài
             if (attachedFile.length === 0) return;
         } else {
             attachedFile = null;
         }
     }
-    if (type === 'trac_nghiem' || type === 'ket_hop') {
-        // Thay đoạn lấy dữ liệu cũ thành:
+
+    // BƯỚC 3: XỬ LÝ DỮ LIỆU TRẮC NGHIỆM
+    const hasMC = type === 'trac_nghiem' || type === 'ket_hop' || (type === 'thi' && mcWeight > 0);
+    if (hasMC) {
         document.querySelectorAll('.question-block').forEach((block) => {
             const correctRadio = block.querySelector('.q-correct-radio:checked');
-            const oldCorrectSelect = block.querySelector('.q-correct'); // Giữ lại dự phòng
+            const oldCorrectSelect = block.querySelector('.q-correct');
             const correctVal = correctRadio ? correctRadio.value : (oldCorrectSelect ? oldCorrectSelect.value : '');
 
             questions.push({
@@ -230,12 +362,17 @@ async function createAssignment() {
             if (!q.qText || !q.A || !q.B || !q.C || !q.D || !q.correct) return alert("Vui lòng điền đầy đủ và chọn đáp án trắc nghiệm!");
         }
     }
+
     if (!title || !startDate || !endDate) return alert("Vui lòng điền đủ Tiêu đề và Thời hạn!");
 
     if (type === 'ket_hop') {
         mcWeight = parseFloat(document.getElementById('mcWeight').value);
         essayWeight = parseFloat(document.getElementById('essayWeight').value);
-        if (mcWeight + essayWeight !== 10) return alert("Tổng điểm Trắc nghiệm và Tự luận phải đúng bằng 10!");
+        if (mcWeight + essayWeight !== 10) return alert("Tổng điểm Trắc nghiệm và Tự luận trong loại hình Kết hợp phải đúng bằng 10!");
+    } else if (type === 'thi') {
+        // Hệ thi sẽ bỏ qua bắt buộc tổng bằng 10, chỉ lưu lại giá trị điểm
+        mcWeight = parseFloat(document.getElementById('mcWeight').value) || 0;
+        essayWeight = parseFloat(document.getElementById('essayWeight').value) || 0;
     }
 
     await pushDB('assignments', {
@@ -257,32 +394,92 @@ async function createAssignment() {
 
 async function loadAssignedList() {
     const assignments = await getDB('assignments');
+    const submissions = await getDB('submissions'); // Lấy thêm submissions để phục vụ điều kiện Đang chấm/Làm lại
     const container = document.getElementById('assignedListContainer');
+    
     if (!container) return;
     container.innerHTML = '';
-    if (assignments.length === 0) { container.innerHTML = '<p style="color: #666; font-style: italic;">Chưa có bài tập nào.</p>'; return; }
+    
+    if (assignments.length === 0) { 
+        container.innerHTML = '<p style="color: #666; font-style: italic;">Chưa có bài tập nào.</p>'; 
+        return; 
+    }
 
-    [...assignments].reverse().forEach(assign => {
-        let typeText = assign.assessmentType === 'trac_nghiem' ? 'Trắc nghiệm' : (assign.assessmentType === 'ket_hop' ? `Kết hợp (TN: ${assign.mcWeight || 5}đ - TL: ${assign.essayWeight || 5}đ)` : 'Tự luận');
-        if (assign.hideEssayText && assign.assessmentType !== 'trac_nghiem') {
+    // --- BẮT ĐẦU LOGIC SẮP XẾP ---
+    const nowSort = new Date();
+    assignments.sort((a, b) => {
+        const getSortVals = (assign) => {
+            const end = assign.endDate ? new Date(assign.endDate.replace(" ", "T")) : new Date("2100-01-01");
+            const relatedSubs = submissions.filter(s => s.assignmentId === assign.id);
+            
+            let rank = 2; // Nhóm 2: Các bài đã ổn định, xong xuôi
+            let isActive = nowSort <= end;
+            
+            // Nhóm 1: Ưu tiên cao
+            if (isActive) rank = 1; // Mới giao, Đang diễn ra
+            
+            let isRedoing = relatedSubs.some(s => s.isRedoing);
+            let needsGrading = relatedSubs.some(s => !s.isRedoing && !s.isAutoSubmitted && !s.isLateFail && (s.grade === null || s.grade === undefined || s.grade === ''));
+            
+            if (isRedoing || needsGrading) rank = 1; // Có HS đang làm lại hoặc chờ chấm bài
+            
+            // Xử lý lấy số "Bài N" (Nếu không có số, mặc định là 0 để đẩy lên trước các Bài N)
+            let lessonNum = 0; 
+            const match = (assign.title || '').match(/bài\s*(\d+)/i);
+            if (match) lessonNum = parseInt(match[1]);
+            
+            return { rank, lessonNum };
+        };
+        
+        const valsA = getSortVals(a);
+        const valsB = getSortVals(b);
+        
+        // 1. So sánh Nhóm ưu tiên (Rank 1 đứng trên Rank 2)
+        if (valsA.rank !== valsB.rank) return valsA.rank - valsB.rank;
+        // 2. So sánh thứ tự số Bài (0 đứng trước 1, 2, 3...)
+        if (valsA.lessonNum !== valsB.lessonNum) return valsA.lessonNum - valsB.lessonNum;
+        // 3. Dựa theo Tên chữ cái
+        return (a.title || '').localeCompare(b.title || '', 'vi-VN');
+    });
+    // --- KẾT THÚC LOGIC SẮP XẾP ---
+
+    // Chú ý: Đổi từ vòng lặp có [...assignments].reverse().forEach thành .forEach trực tiếp 
+    // do thuật toán sort ở trên đã xử lý thứ tự hoàn chỉnh rồi
+    assignments.forEach(assign => {
+        let typeText = '';
+        if (assign.assessmentType === 'trac_nghiem') typeText = 'Trắc nghiệm';
+        else if (assign.assessmentType === 'ket_hop') typeText = `Kết hợp (TN: ${assign.mcWeight || 5}đ - TL: ${assign.essayWeight || 5}đ)`;
+        else if (assign.assessmentType === 'thi') {
+            const mc = assign.mcWeight || 0;
+            const tl = assign.essayWeight || 0;
+            if (mc > 0 && tl > 0) typeText = `Thi (TN: ${mc}đ - TL: ${tl}đ)`;
+            else if (mc > 0) typeText = `Thi Trắc nghiệm (${mc}đ)`;
+            else if (tl > 0) typeText = `Thi Tự luận (${tl}đ)`;
+            else typeText = 'Thi';
+        } else typeText = 'Tự luận';
+
+        if (assign.hideEssayText && assign.assessmentType !== 'trac_nghiem' && !(assign.assessmentType === 'thi' && (assign.essayWeight || 0) === 0)) {
             typeText += ' 📁 [Chỉ nhận Tệp]';
         }
         let fileHTML = '';
         if (assign.file) {
-            // Hỗ trợ cả bài tập cũ (1 file) và mới (nhiều file)
             let files = Array.isArray(assign.file) ? assign.file : [assign.file];
             files.forEach(f => {
                 fileHTML += `<p style="margin-top:10px;"><strong>📎 File đính kèm:</strong> <a href="${f.base64}" download="${f.name}" class="file-download-link">${f.name}</a></p>`;
             });
         }
         let videoHTML = assign.videoLink ? getEmbedHTML(assign.videoLink) : '';
+
         let quizHTML = '';
-        if ((assign.assessmentType === 'trac_nghiem' || assign.assessmentType === 'ket_hop') && assign.questions) {
+        const hasMC = assign.assessmentType === 'trac_nghiem' || assign.assessmentType === 'ket_hop' || (assign.assessmentType === 'thi' && (assign.mcWeight || 0) > 0);
+        if (hasMC && assign.questions) {
             quizHTML = `<div style="background: rgba(255,255,255,0.5); padding: 10px; border-radius: 8px; margin-top: 10px;"><strong>Trắc nghiệm:</strong><ul style="margin-left: 20px;">`;
             assign.questions.forEach((q, idx) => { quizHTML += `<li>Câu ${idx + 1}: ${q.qText} <strong>(${q.correct})</strong></li>`; });
             quizHTML += '</ul></div>';
         }
-        let tuLuanHTML = (assign.assessmentType === 'tu_luan' || assign.assessmentType === 'ket_hop' || !assign.assessmentType) ? `<p style="background: rgba(255,255,255,0.5); padding:15px; border-radius:12px; border-left:4px solid #667eea;"><strong>Yêu cầu Tự luận:</strong><br>${(assign.desc || '').replace(/\n/g, '<br>')}</p>` : '';
+
+        const hasEssay = assign.assessmentType === 'tu_luan' || assign.assessmentType === 'ket_hop' || !assign.assessmentType || (assign.assessmentType === 'thi' && (assign.essayWeight || 0) > 0);
+        let tuLuanHTML = hasEssay ? `<p style="background: rgba(255,255,255,0.5); padding:15px; border-radius:12px; border-left:4px solid #667eea;"><strong>Yêu cầu Tự luận:</strong><br>${(assign.desc || '').replace(/\n/g, '<br>')}</p>` : '';
 
         const uniqueId = `teacher-assign-${assign.id}`;
         const div = document.createElement('div'); div.className = 'card accordion-card';
@@ -300,6 +497,10 @@ async function loadAssignedList() {
             </div>`;
         container.appendChild(div);
     });
+
+    if (window.MathJax) {
+        MathJax.typesetPromise([container]).catch((err) => console.log('MathJax error:', err));
+    }
 }
 
 // LOGIC XỬ LÝ ĐĂNG TẢI TÀI LIỆU
@@ -458,7 +659,45 @@ async function loadSubmissions() {
     });
     const submissions = Object.values(uniqueSubmissions);
 
-    [...submissions].reverse().forEach(sub => {
+    // --- BẮT ĐẦU LOGIC SẮP XẾP BÀI NỘP ---
+    submissions.sort((a, b) => {
+        const assignA = assignments.find(x => x.id === a.assignmentId) || {};
+        const assignB = assignments.find(x => x.id === b.assignmentId) || {};
+
+        const getSortVals = (sub, assign) => {
+            let rank = 2; // Nhóm 2: Bài đã chấm điểm xong, hoàn tất
+            
+            const hasGrade = sub.grade !== null && sub.grade !== undefined && sub.grade !== '';
+            
+            // Nhóm 1: Ưu tiên lên đầu (Chưa chấm, Đang làm lại, Đang chấm lại)
+            if (sub.isRedoing || sub.isRegrading || !hasGrade) {
+                rank = 1; 
+            }
+            
+            // Xử lý lấy số "Bài N" (Nếu không có số, mặc định là 0 để đẩy lên trước)
+            let lessonNum = 0; 
+            const match = (assign.title || '').match(/bài\s*(\d+)/i);
+            if (match) lessonNum = parseInt(match[1]);
+            
+            return { rank, lessonNum, title: assign.title || '' };
+        };
+        
+        const valsA = getSortVals(a, assignA);
+        const valsB = getSortVals(b, assignB);
+        
+        // 1. So sánh Rank (Rank 1 đứng trên Rank 2)
+        if (valsA.rank !== valsB.rank) return valsA.rank - valsB.rank;
+        // 2. So sánh thứ tự số Bài (0 đứng trước 1, 2, 3...)
+        if (valsA.lessonNum !== valsB.lessonNum) return valsA.lessonNum - valsB.lessonNum;
+        // 3. So sánh tên bài tập nếu trùng số
+        if (valsA.title !== valsB.title) return valsA.title.localeCompare(valsB.title, 'vi-VN');
+        // 4. Nếu cùng một bài, ưu tiên bài nộp mới nhất lên trên
+        return (b.id || '').localeCompare(a.id || '');
+    });
+    // --- KẾT THÚC LOGIC SẮP XẾP ---
+
+    // Đã thay thế logic đảo ngược cũ bằng forEach trực tiếp trên mảng đã sort
+    submissions.forEach(sub => {
         const assign = assignments.find(a => a.id === sub.assignmentId);
         if (!assign) return;
 
@@ -519,13 +758,18 @@ async function loadSubmissions() {
             actionHTML += pardonHTML; // Thêm nút tha lỗi
         }
 
+        let violationHTML = '';
+        if (sub.isCheatFail) {
+            violationHTML = `<div style="background: rgba(225, 29, 72, 0.1); border-left: 4px solid #e11d48; padding: 10px; margin-top: 10px; margin-bottom: 10px; border-radius: 8px;"><strong style="color: #e11d48;">🚨 HỌC SINH VI PHẠM QUY CHẾ THI:</strong><br><span style="color:#b91c1c; font-size:0.9em;">Hệ thống phát hiện học sinh này đã tự ý thoát khỏi chế độ Toàn màn hình trong lúc thi.</span></div>`;
+        }
+
         const uniqueId = `teacher-sub-${sub.id}`;
         const div = document.createElement('div'); div.className = 'card accordion-card';
         div.innerHTML = `<div class="accordion-header" onclick="toggleAccordion('${uniqueId}', this)">
                 <div class="accordion-title"><h4>${assign.title}</h4><span>HS: <strong>${sub.studentName}</strong></span></div>
                 <div class="accordion-meta"><span>${gradeStatus}</span><span class="toggle-icon">▼</span></div>
             </div>
-            <div id="${uniqueId}" class="accordion-content"><span style="color: #888; font-size: 0.85em; display: block; margin-bottom: 10px;">🕒 Lần nộp cuối: ${sub.submitTime || 'Chưa rõ'}</span>${videoHTML}
+            <div id="${uniqueId}" class="accordion-content">${violationHTML}<span style="color: #888; font-size: 0.85em; display: block; margin-bottom: 10px;">🕒 Lần nộp cuối: ${sub.submitTime || 'Chưa rõ'}</span>${videoHTML}
                 <div style="background: rgba(255,255,255,0.4); padding: 15px; border-radius: 12px; margin-bottom: 15px;">
                     <p style="margin: 0; font-weight: bold;">Bài nộp:</p>
                     <p style="white-space: pre-wrap; word-break: break-word; margin-top:5px;">${sub.answer || '<i>(Trống)</i>'}</p>
@@ -548,6 +792,10 @@ async function loadSubmissions() {
             </div>`;
         list.appendChild(div);
     });
+
+    if (window.MathJax) {
+        MathJax.typesetPromise([document.getElementById('submissionsList')]).catch((err) => console.log('MathJax error:', err));
+    }
 }
 
 async function gradeSubmission(subId) {
@@ -564,6 +812,10 @@ async function gradeSubmission(subId) {
             if (fileDataArray) updateObj.teacherFile = fileDataArray;
             await updateDB('submissions', sub._fbKey, updateObj);
             alert("Đã chấm điểm và lưu nhận xét thành công!");
+            
+            // THÊM 2 DÒNG NÀY
+            await loadSubmissions();
+            if (typeof renderTeacherRoadmap === 'function') renderTeacherRoadmap();
         }
     };
 
@@ -578,9 +830,10 @@ async function gradeSubmission(subId) {
 }
 
 window.requestRegrade = async function (subKey) {
-    if (confirm("Bạn có chắc chắn muốn tiến hành chấm lại bài này? Kết quả và điểm số hiện tại của học sinh sẽ bị thu hồi tạm thời.")) {
+    if (confirm("Bạn có chắc chắn muốn tiến hành chấm lại bài này?...")) {
         await updateDB('submissions', subKey, { grade: null, isRegrading: true });
         alert("Đã kích hoạt trạng thái chấm lại! Hệ thống đã ẩn kết quả phía giao diện học sinh.");
+        await loadSubmissions(); // THÊM DÒNG NÀY
     }
 }
 
@@ -621,7 +874,7 @@ async function loadStudentsList() {
 
             <td style="padding:12px; text-align: center; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
                 <button style="padding:5px 12px; font-size: 0.85em; border: none; border-radius: 6px; cursor: pointer; ${lockBtnStyle}" onclick="toggleLockStudent('${st._fbKey}', ${!!st.isLocked})">${lockBtnText}</button>
-                <button class="btn-approve" style="padding:5px 12px; font-size: 0.85em; background: #3b82f6; color: white;" onclick="openEditStudentModal('${st._fbKey}')">Sửa</button>
+                <button class="btn-approve" style="padding:5px 12px; font-size:0.85em; background: #3b82f6; color: white;" onclick="openEditStudentModal('${st._fbKey}')">Sửa</button>
                 <button class="btn-reject" style="padding:5px 12px; font-size: 0.85em;" onclick="deleteStudent('${st.username}')">Xóa</button>
             </td>
         </tr>`;
@@ -659,7 +912,7 @@ async function deleteStudent(username) { if (!confirm(`Xóa tài khoản "${user
 async function loadProfileRequests() {
     const requests = await getDB('profile_requests'); const pendingReqs = requests.filter(r => r.status === 'pending'); const card = document.getElementById('requestsCard'); const container = document.getElementById('requestsListContainer');
     if (pendingReqs.length === 0) { card.style.display = 'none'; return; } card.style.display = 'block'; let html = '';
-    pendingReqs.forEach(req => { let passInfo = req.newPass ? `<span style="color: #ff0844; font-weight:bold;">Mật khẩu mới: ${req.newPass}</span>` : 'Không đổi'; html += `<div style="background: rgba(255,255,255,0.5); padding: 15px; margin-bottom: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.8);"><p><strong>Học sinh:</strong> ${req.currentName} (<i>${req.username}</i>)</p><p><strong>Đổi tên thành:</strong> <span style="color: #667eea; font-weight:800;">${req.newName}</span></p><p><strong>Mật khẩu:</strong> ${passInfo}</p><div style="margin-top: 15px; display: flex; gap: 10px;"><button onclick="handleRequest('${req._fbKey}', true, '${req.username}', '${req.newName}', '${req.newPass}')" class="btn-approve">✅ Cho phép</button><button onclick="handleRequest('${req._fbKey}', false, '', '', '')" class="btn-reject">❌ Từ chối</button></div></div>`; });
+    pendingReqs.forEach(req => { let passInfo = req.newPass ? `<span style="color: #ff0844; font-weight:bold;">Mật khẩu mới: ${req.newPass}</span>` : 'Không đổi'; html += `<div style="background: rgba(255,255,255,0.5); padding: 15px; margin-bottom: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.8);"><p><strong>Học sinh:</strong> ${req.currentName} (<i>${req.username}</i>)</p><p><strong>Đổi tên thành:</strong> <span style="color: #667eea; font-weight:800;">${req.newName}</span></p><p><strong>Mật khẩu:</strong> ${passInfo}</p><div style="margin-top: 15px; display: flex; gap: 10px;"><button onclick="handleRequest('${req._fbKey}', true, '${req.username}', '${(req.newName || '').replace(/'/g, "\\'")}', '${(req.newPass || '').replace(/'/g, "\\'")}')" class="btn-approve">✅ Cho phép</button><button onclick="handleRequest('${req._fbKey}', false, '', '', '')" class="btn-reject">❌ Từ chối</button></div></div>`; });
     container.innerHTML = html;
 }
 async function handleRequest(reqKey, isApprove, username, newName, newPass) {
@@ -689,35 +942,38 @@ function switchTab(tabId, btnElement) {
         contentArea.scrollTo({ top: 0, behavior: 'smooth' });
     }
 }
+
 window.requestRedo = async function (subKey) {
-    if (confirm("Cấp quyền cho học sinh làm lại bài? Hệ thống sẽ thu hồi điểm/vé cũ (nếu có) và giữ nguyên đáp án để học sinh sửa.")) {
-        // Đặt grade = null để thu hồi vé ngay lập tức
-        // Bật cờ hasRedone = true để đánh dấu bài này sẽ bị trừ 1 vé khi chấm lại
+    if (confirm("Cấp quyền cho học sinh làm lại bài?...")) {
         await updateDB('submissions', subKey, {
             isRedoing: true,
             grade: null,
             hasRedone: true
         });
         alert("Đã cấp quyền làm lại bài và thu hồi kết quả cũ!");
+        await loadSubmissions(); // THÊM DÒNG NÀY
     }
 }
 
-// ================= HÀM THA LỖI NỘP TRỄ =================
+// ================= HÀM THA LỖI NỘP TRỄ / VI PHẠM =================
 window.pardonSubmission = async function (subKey) {
-    if (confirm("Bạn có chắc chắn muốn tha lỗi nộp trễ cho bài này?\n\nHệ thống sẽ gỡ bỏ án phạt, bài làm sẽ được tính điểm và cộng tiền Lộ trình như bình thường.")) {
-        // Ghi đè 2 cờ phạt thành false
+    if (confirm("Bạn có chắc chắn muốn tha lỗi cho bài này?...")) {
         await updateDB('submissions', subKey, {
             isLateFail: false,
-            isAutoSubmitted: false
+            isAutoSubmitted: false,
+            isCheatFail: false
         });
         alert("✨ Đã tha lỗi thành công! Lộ trình của học sinh đã được cập nhật lại theo điểm số thực tế.");
+        await loadSubmissions(); // THÊM DÒNG NÀY
+        if (typeof renderTeacherRoadmap === 'function') renderTeacherRoadmap(); // THÊM DÒNG NÀY
     }
 };
 
 window.forceSubmitRedo = async function (subKey) {
-    if (confirm("Bạn muốn khóa bài ngay lập tức? Học sinh sẽ mất quyền làm tiếp và bài sẽ được thu ngay.")) {
+    if (confirm("Bạn muốn khóa bài ngay lập tức?...")) {
         await updateDB('submissions', subKey, { isRedoing: false });
         alert("Đã khóa bài làm lại!");
+        await loadSubmissions(); // THÊM DÒNG NÀY
     }
 }
 
@@ -906,14 +1162,14 @@ async function renderTeacherRoadmap() {
                     studentScore = (sub.grade !== null && sub.grade !== undefined && sub.grade !== '') ? parseFloat(sub.grade) : '0';
                     pardonBtnHTML = `<br><button onclick="pardonRoadmap('${sub._fbKey}', 'unpardon')" style="margin-top:6px; padding:3px 8px; font-size:0.8em; background:#6b7280; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold; width:100%;">Hủy Tha</button>`;
                 }
-                // TRƯỜNG HỢP 2: BỊ HỆ THỐNG TỰ THU HOẶC GHIM CỜ NỘP TRỄ
-                else if (sub.isAutoSubmitted || sub.isLateFail) {
-                    statusText = 'Loại';
+                // TRƯỜNG HỢP 2: BỊ HỆ THỐNG TỰ THU, NỘP TRỄ HOẶC VI PHẠM
+                else if (sub.isAutoSubmitted || sub.isLateFail || sub.isCheatFail) {
+                    statusText = sub.isCheatFail ? 'Loại (Vi phạm)' : 'Loại';
                     statusClass = 'status-pending';
                     cellBgStyle = 'background: rgba(225, 29, 72, 0.2) !important; color: #b91c1c; font-weight: bold; border-radius: 8px;';
                     studentScore = (sub.grade !== null && sub.grade !== undefined && sub.grade !== '') ? parseFloat(sub.grade) : '0';
-                    moneyInputHTML = `<strong style="color: #e11d48; font-size: 1.1em;">0 đ</strong> <span style="font-size:0.75em; color:#666; display:block;">(Nộp trễ)</span>`;
-                    pardonBtnHTML = `<br><button onclick="pardonRoadmap('${sub._fbKey}', 'late')" style="margin-top:6px; padding:3px 8px; font-size:0.8em; background:#10b981; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold; width:100%;">✨ Tha trễ</button>`;
+                    moneyInputHTML = `<strong style="color: #e11d48; font-size: 1.1em;">0 đ</strong> <span style="font-size:0.75em; color:#666; display:block;">(Bị loại)</span>`;
+                    pardonBtnHTML = `<br><button onclick="pardonRoadmap('${sub._fbKey}', 'late')" style="margin-top:6px; padding:3px 8px; font-size:0.8em; background:#10b981; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold; width:100%;">✨ Tha lỗi</button>`;
                 }
                 else if (sub.isRegrading) {
                     statusText = 'Chấm lại';
@@ -986,9 +1242,9 @@ window.updateAssignmentRoadmap = async function (fbKey, field, value) {
 // ================= HÀM THA LỖI TRÊN GIAO DIỆN LỘ TRÌNH =================
 window.pardonRoadmap = async function (subKey, mode) {
     if (mode === 'late') {
-        if (confirm("Xác nhận tha lỗi nộp trễ cho học sinh?\n\nHệ thống sẽ gỡ bỏ án phạt quá hạn, bài làm sẽ quay về tính trạng thái theo điểm số thực tế.")) {
-            await updateDB('submissions', subKey, { isLateFail: false, isAutoSubmitted: false });
-            alert("✨ Đã tha lỗi nộp trễ thành công!");
+        if (confirm("Xác nhận tha lỗi nộp trễ / vi phạm cho học sinh?\n\nHệ thống sẽ gỡ bỏ án phạt, bài làm sẽ quay về tính trạng thái theo điểm số thực tế.")) {
+            await updateDB('submissions', subKey, { isLateFail: false, isAutoSubmitted: false, isCheatFail: false });
+            alert("✨ Đã tha lỗi thành công!");
         }
     }
     else if (mode === 'score') {
@@ -1033,7 +1289,8 @@ window.openEditAssignmentModal = async function (fbKey) {
         if (weightSec) weightSec.style.display = 'none';
 
         // 2. Xử lý phần Tự Luận
-        if (assign.assessmentType === 'tu_luan' || assign.assessmentType === 'ket_hop' || !assign.assessmentType) {
+        const hasEssay = assign.assessmentType === 'tu_luan' || assign.assessmentType === 'ket_hop' || !assign.assessmentType || (assign.assessmentType === 'thi' && assign.essayWeight > 0);
+        if (hasEssay) {
             if (tuLuanSec) tuLuanSec.style.display = 'block';
             if (document.getElementById('editDesc')) document.getElementById('editDesc').value = assign.desc || '';
             if (document.getElementById('editVideoLink')) document.getElementById('editVideoLink').value = assign.videoLink || '';
@@ -1042,15 +1299,16 @@ window.openEditAssignmentModal = async function (fbKey) {
             }
         }
 
-        // 3. Xử lý phần Điểm số (Bài kết hợp)
-        if (assign.assessmentType === 'ket_hop') {
+        // 3. Xử lý phần Điểm số
+        if (assign.assessmentType === 'ket_hop' || assign.assessmentType === 'thi') {
             if (weightSec) weightSec.style.display = 'block';
-            if (document.getElementById('editMcWeight')) document.getElementById('editMcWeight').value = assign.mcWeight || 4;
-            if (document.getElementById('editEssayWeight')) document.getElementById('editEssayWeight').value = assign.essayWeight || 6;
+            if (document.getElementById('editMcWeight')) document.getElementById('editMcWeight').value = assign.mcWeight || '';
+            if (document.getElementById('editEssayWeight')) document.getElementById('editEssayWeight').value = assign.essayWeight || '';
         }
 
-        // 4. Xử lý phần Trắc Nghiệm (Load câu hỏi cũ)
-        if (assign.assessmentType === 'trac_nghiem' || assign.assessmentType === 'ket_hop') {
+        // 4. Xử lý phần Trắc Nghiệm
+        const hasMC = assign.assessmentType === 'trac_nghiem' || assign.assessmentType === 'ket_hop' || (assign.assessmentType === 'thi' && assign.mcWeight > 0);
+        if (hasMC) {
             if (tracNghiemSec) tracNghiemSec.style.display = 'block';
             const qContainer = document.getElementById('editQuestionsContainer');
             if (qContainer) {
@@ -1062,6 +1320,8 @@ window.openEditAssignmentModal = async function (fbKey) {
                 }
             }
         }
+
+        if (assign.assessmentType === 'thi') window.updateEditExamFields();
 
         document.getElementById('editAssignmentModal').classList.add('active');
     } catch (err) {
@@ -1163,21 +1423,35 @@ window.saveAssignmentEdit = async function () {
     }
 
     // Thu thập dữ liệu Điểm số
-    if (assign.assessmentType === 'ket_hop') {
-        const mcWeight = parseFloat(document.getElementById('editMcWeight').value);
-        const essayWeight = parseFloat(document.getElementById('editEssayWeight').value);
+    if (assign.assessmentType === 'ket_hop' || assign.assessmentType === 'thi') {
+        const mcWeight = parseFloat(document.getElementById('editMcWeight').value) || 0;
+        const essayWeight = parseFloat(document.getElementById('editEssayWeight').value) || 0;
 
-        if (isNaN(mcWeight) || isNaN(essayWeight) || (mcWeight + essayWeight !== 10)) {
+        if (assign.assessmentType === 'ket_hop' && (mcWeight + essayWeight !== 10)) {
             return alert("Tổng điểm tối đa của Trắc nghiệm và Tự luận phải bằng 10!");
+        }
+        if (assign.assessmentType === 'thi' && mcWeight === 0 && essayWeight === 0) {
+            return alert("Vui lòng nhập điểm cho ít nhất Trắc nghiệm hoặc Tự luận!");
         }
         updateObj.mcWeight = mcWeight;
         updateObj.essayWeight = essayWeight;
     }
 
+    // Thu thập dữ liệu Tự Luận
+    const hasEssay = assign.assessmentType === 'tu_luan' || assign.assessmentType === 'ket_hop' || (assign.assessmentType === 'thi' && updateObj.essayWeight > 0);
+    if (hasEssay) {
+        updateObj.desc = document.getElementById('editDesc').value;
+        updateObj.videoLink = document.getElementById('editVideoLink').value.trim();
+        updateObj.hideEssayText = document.getElementById('editHideEssayText') ? document.getElementById('editHideEssayText').checked : false;
+    } else if (assign.assessmentType === 'thi') {
+        updateObj.desc = '';
+        updateObj.hideEssayText = false;
+    }
+
     // Thu thập dữ liệu Trắc Nghiệm
-    if (assign.assessmentType === 'trac_nghiem' || assign.assessmentType === 'ket_hop') {
+    const hasMC = assign.assessmentType === 'trac_nghiem' || assign.assessmentType === 'ket_hop' || (assign.assessmentType === 'thi' && updateObj.mcWeight > 0);
+    if (hasMC) {
         const editedQuestions = [];
-        // Thay đổi phần lấy dữ liệu trong hàm lưu (saveAssignmentEdit):
         document.querySelectorAll('.edit-question-block').forEach((block) => {
             const correctRadio = block.querySelector('.eq-correct-radio:checked');
             const oldCorrectSelect = block.querySelector('.eq-correct');
@@ -1200,6 +1474,8 @@ window.saveAssignmentEdit = async function () {
             }
         }
         updateObj.questions = editedQuestions;
+    } else if (assign.assessmentType === 'thi') {
+        updateObj.questions = [];
     }
 
     // Đẩy lên Firebase
@@ -1458,31 +1734,46 @@ window.saveMaterialEdit = async function () {
     alert("Đã đổi tên tài liệu thành công!");
 };
 
-// Hàm hỗ trợ đọc nhiều file sang Base64
+// PHIÊN BẢN MỚI: TẢI FILE LÊN FIREBASE STORAGE THAY VÌ LƯU BASE64
 async function readMultipleFiles(files) {
-    const MAX_SIZE_MB = 5; // Giới hạn 5MB mỗi file
+    // 1. Kiểm tra xem file index.html đã thêm thư viện Firebase Storage chưa
+    if (typeof firebase === 'undefined' || !firebase.storage) {
+        alert("⚠️ HỆ THỐNG: Bạn cần thêm thư viện Firebase Storage vào file HTML (index.html, student.html, teacher.html) để tải file lên!");
+        return [];
+    }
+
+    const MAX_SIZE_MB = 5; 
     const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
+    const results = [];
 
-    const promises = Array.from(files).map(file => {
-        return new Promise((resolve) => {
-            // Kiểm tra dung lượng file trước khi đọc
-            if (file.size > MAX_SIZE_BYTES) {
-                alert(`⚠️ File "${file.name}" quá lớn (${(file.size / (1024 * 1024)).toFixed(2)}MB).\nCơ sở dữ liệu chỉ cho phép tối đa ${MAX_SIZE_MB}MB/file. Vui lòng nén file lại!`);
-                resolve(null); // Trả về null để bỏ qua file này
-                return;
-            }
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
 
-            const reader = new FileReader();
-            reader.onload = (e) => resolve({ name: file.name, type: file.type, base64: e.target.result });
-            reader.readAsDataURL(file);
-        });
-    });
+        // 2. Chặn file quá nặng
+        if (file.size > MAX_SIZE_BYTES) {
+            alert(`⚠️ File "${file.name}" quá lớn (${(file.size / (1024 * 1024)).toFixed(2)}MB).\nHệ thống chỉ cho phép tối đa ${MAX_SIZE_MB}MB/file. Vui lòng nén file lại!`);
+            continue; 
+        }
 
-    // Đợi tất cả file đọc xong
-    const results = await Promise.all(promises);
+        try {
+            // 3. Upload thẳng lên Firebase Storage (Thư mục uploads/)
+            const storageRef = firebase.storage().ref(`uploads/${Date.now()}_${file.name}`);
+            const snapshot = await storageRef.put(file);
+            
+            // 4. Lấy link tải xuống trực tiếp
+            const downloadURL = await snapshot.ref.getDownloadURL();
 
-    // Lọc bỏ những file bị lỗi (dung lượng quá lớn trả về null ở trên)
-    return results.filter(item => item !== null);
+            // MẸO (TRICK): Vẫn gán URL vào thuộc tính tên là "base64"
+            // Việc này giúp toàn bộ giao diện HTML cũ của bạn vẫn tự động nhận diện và tải file bình thường!
+            results.push({ name: file.name, type: file.type, base64: downloadURL });
+            
+        } catch (error) {
+            console.error("Lỗi upload file:", error);
+            alert(`❌ Lỗi mạng khi tải file "${file.name}" lên máy chủ.`);
+        }
+    }
+
+    return results;
 }
 
 // DÁN VÀO DÒNG CUỐI CÙNG CỦA FILE TEACHER.JS
@@ -1639,76 +1930,6 @@ window.addStoreItem = async function () {
     document.getElementById('newItemName').value = '';
     document.getElementById('newItemValue').value = '';
     alert("Thêm vật phẩm vào cửa hàng thành công!");
-};
-
-// Biến toàn cục để lưu tạm danh sách cửa hàng, giúp lấy dữ liệu nhanh khi chọn dropdown
-let currentStoreItems = [];
-
-// 1. Hàm load danh sách hàng hóa (Cập nhật để đổ dữ liệu vào thẻ <select>)
-window.loadTeacherStoreItems = async function () {
-    const items = await getDB('store_items');
-    currentStoreItems = items; // Lưu lại
-
-    const container = document.getElementById('teacherStoreItemsList');
-    const selectBox = document.getElementById('editStoreItemId');
-
-    // Đổ danh sách vào Dropdown chọn Tên hàng hóa
-    if (selectBox) {
-        const currentSelected = selectBox.value; // Giữ nguyên lựa chọn hiện tại nếu có
-        selectBox.innerHTML = '<option value="">-- Chọn hàng hóa cần sửa --</option>';
-        items.forEach(item => {
-            const opt = document.createElement('option');
-            opt.value = item._fbKey;
-            opt.innerText = item.name;
-            selectBox.appendChild(opt);
-        });
-        if (currentSelected) selectBox.value = currentSelected;
-    }
-
-    // Hiển thị danh sách bên dưới
-    if (!container) return;
-    container.innerHTML = '';
-
-    if (items.length === 0) {
-        container.innerHTML = '<p style="color:#666; font-style:italic;">Chưa có vật phẩm nào.</p>';
-        return;
-    }
-
-    items.forEach(item => {
-        const div = document.createElement('div');
-        div.style.cssText = 'background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center;';
-        div.innerHTML = `
-            <div>
-                <strong style="color: #764ba2;">${item.name}</strong> - <span style="color: #d35400; font-weight: bold;">${item.price} Coin</span><br>
-                <span style="font-size: 0.85em; color: #666;">Bán từ: ${item.startDate} đến ${item.endDate}</span><br>
-                <span style="font-size: 0.85em; background: #eee; padding: 2px 6px; border-radius: 4px;">Phân loại: ${item.type}</span>
-            </div>
-            <button onclick="deleteStoreItem('${item._fbKey}')" class="btn-reject" style="padding: 5px 15px;">Xóa</button>
-        `;
-        container.appendChild(div);
-    });
-};
-
-// 2. Hàm tự động điền Giá và Ngày tháng cũ khi Giáo viên chọn Tên hàng hóa
-window.loadStoreItemDetails = function () {
-    const selectedKey = document.getElementById('editStoreItemId').value;
-
-    // Nếu chọn quay về mặc định thì xóa trắng ô
-    if (!selectedKey) {
-        document.getElementById('editStoreItemPrice').value = '';
-        document.getElementById('editStoreItemStart').value = '';
-        document.getElementById('editStoreItemEnd').value = '';
-        return;
-    }
-
-    // Tìm item đang được chọn và điền vào Input
-    const item = currentStoreItems.find(i => i._fbKey === selectedKey);
-    if (item) {
-        document.getElementById('editStoreItemPrice').value = item.price;
-        // Chuyển đổi định dạng ngày " " thành "T" để hiển thị đúng trong ô datetime-local
-        document.getElementById('editStoreItemStart').value = item.startDate ? item.startDate.replace(" ", "T") : '';
-        document.getElementById('editStoreItemEnd').value = item.endDate ? item.endDate.replace(" ", "T") : '';
-    }
 };
 
 // 3. Hàm lưu dữ liệu chỉnh sửa lên Firebase
@@ -2075,58 +2296,11 @@ window.toggleLockStoreItem = async function (itemId, isCurrentlyLocked) {
     }
 };
 
-// Hàm cập nhật cấu hình hàng hóa khi giáo viên ấn nút "Lưu thay đổi"
-function updateStoreItem() {
-    const selectEl = document.getElementById('editStoreItemId');
-    const priceInput = document.getElementById('editStoreItemPrice');
-    const startInput = document.getElementById('editStoreItemStart');
-    const endInput = document.getElementById('editStoreItemEnd');
-
-    if (!selectEl || !selectEl.value) {
-        alert('⚠️ Vui lòng chọn một mặt hàng cụ thể cần chỉnh sửa từ danh sách.');
-        return;
-    }
-
-    const itemId = selectEl.value;
-    const newPrice = parseInt(priceInput.value);
-
-    if (isNaN(newPrice) || newPrice < 0) {
-        alert('❌ Giá bán (Coin) phải là một con số hợp lệ và lớn hơn hoặc bằng 0.');
-        return;
-    }
-
-    // Tìm và cập nhật trực tiếp vào mảng StoreConfig cục bộ
-    const itemIndex = StoreConfig.items.findIndex(i => i.id === itemId);
-    if (itemIndex !== -1) {
-        StoreConfig.items[itemIndex].price = newPrice;
-        StoreConfig.items[itemIndex].startDate = startInput.value;
-        StoreConfig.items[itemIndex].endDate = endInput.value;
-
-        alert(`✅ Đã cập nhật thành công thiết lập cho vật phẩm [ ${StoreConfig.items[itemIndex].name} ]`);
-
-        // Đồng bộ làm mới lại bảng điều khiển giáo viên
-        initTeacherStoreManagement();
-
-        // Xóa thông tin trống biểu mẫu sau khi lưu thành công
-        selectEl.value = '';
-        loadStoreItemDetails();
-
-        // TODO: Lưu cấu hình đồng bộ này lên Firebase Database để học sinh nhận được giá mới ngay lập tức
-        // firebase.database().ref('store_settings/' + itemId).update({ price: newPrice, startDate: startInput.value, endDate: endInput.value });
-    }
-}
-
 // Khởi chạy đồng bộ khi giáo viên vào tab quản lý trò chơi / cửa hàng
 // Bạn có thể lồng hàm này vào hàm switchTab() có sẵn của bạn khi chuyển qua tab 'tab-game-manage'
 document.addEventListener('DOMContentLoaded', () => {
     initTeacherStoreManagement();
 });
-
-// ===== SỬA LỖI XUNG ĐỘT GIAO DIỆN CỬA HÀNG (GIÁO VIÊN) =====
-// Ghi đè hàm cũ: Ngăn Firebase xóa giao diện khi database trống, ép dùng dữ liệu từ StoreManager
-window.loadTeacherStoreItems = function () {
-    initTeacherStoreManagement();
-};
 
 // Hàm điều khiển ẩn/hiện khu vực nhập thông báo
 window.toggleNotificationArea = function (isOpen) {
@@ -2210,7 +2384,7 @@ window.openNotificationHistory = async function () {
             </div>
             
             <div style="display: flex; gap: 10px;">
-                <button onclick="sendGlobalNotification('${noti.message.replace(/'/g, "\\'")}')" style="flex: 1; padding: 8px; font-size: 0.9em; background: rgba(102, 126, 234, 0.1); color: #667eea; border: 2px dashed #667eea; box-shadow: none; border-radius: 8px; font-weight: bold;">🔄 Gửi lại tin này</button>
+                <button onclick="sendGlobalNotification('${noti.message.replace(/'/g, "\\'").replace(/\n/g, "\\n").replace(/\r/g, "")}')" style="flex: 1; padding: 8px; font-size: 0.9em; background: rgba(102, 126, 234, 0.1); color: #667eea; border: 2px dashed #667eea; box-shadow: none; border-radius: 8px; font-weight: bold;">🔄 Gửi lại tin này</button>
                 <button onclick="deleteNotification('${noti._fbKey}')" style="width: auto; padding: 8px 15px; font-size: 0.9em; background: rgba(225, 29, 72, 0.1); color: #e11d48; border: none; border-radius: 8px; font-weight: bold;">🗑 Xóa</button>
             </div>
         </div>`;
@@ -2270,13 +2444,13 @@ window.addSurveyQuestion = function (type) {
 window.removeSurveyQuestion = function (btnElement) {
     // Xóa khối câu hỏi hiện tại trên giao diện
     btnElement.closest('.survey-q-block').remove();
-    
+
     // Tìm tất cả các câu hỏi còn lại trên màn hình
     const remaining = document.querySelectorAll('.survey-q-block');
-    
+
     // Cập nhật lại biến đếm tổng
     surveyQCount = remaining.length;
-    
+
     // Chạy vòng lặp để đổi lại tên "Câu 1, Câu 2..." cho đúng thứ tự
     remaining.forEach((block, index) => {
         const label = block.querySelector('strong');
@@ -2493,7 +2667,7 @@ window.toggleGiftInput = function () {
     } else {
         area.style.display = 'block';
         // Thêm 'ticket' vào điều kiện này
-        if (type === 'coin' || type === 'money' || type === 'ticket') { 
+        if (type === 'coin' || type === 'money' || type === 'ticket') {
             numInput.style.display = 'block';
             itemInput.style.display = 'none';
         } else if (type === 'item') {

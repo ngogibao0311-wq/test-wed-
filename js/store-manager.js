@@ -155,6 +155,35 @@ const StoreConfig = {
             value: 'theme-daylight-sky', // Class CSS kích hoạt giao diện
             customIcon: '🌅'
         },
+        {
+            id: 'pet_cotich_3',
+            name: 'Thần Thú Cổ Tích',
+            type: 'pet',
+            price: 300,
+            isNonCoin: false,
+            tag: 'Cổ tích',
+            value: 'assets/pet/cổ tích/cổ tích 3.png',
+            isIcon: false,
+            petEffect: 'fairy-tale-magic-3' // Đã thêm dòng này để gọi hiệu ứng CSS
+        },
+        {
+            id: 'effect_cotich_tinhlinh',
+            name: 'Mưa Tinh Linh',
+            type: 'effect',
+            price: 300,
+            isNonCoin: false,
+            tag: 'Cổ tích',
+            value: '🧚' 
+        },
+        {
+            id: 'theme_cotich_phale',
+            name: 'Cung Điện Pha Lê',
+            type: 'theme',
+            price: 250,         
+            tag: 'Cổ tích',
+            value: 'theme-crystal-palace', // Tên class CSS kích hoạt giao diện
+            customIcon: '🔮'
+        },
     ]
 };
 
@@ -174,6 +203,12 @@ class StoreManager {
 
         switch (item.type) {
             case 'theme':
+                // FIX KẸT GIAO DIỆN: Xóa toàn bộ class giao diện cũ trong StoreConfig khỏi thẻ <body> trước khi đổi
+                StoreConfig.items.forEach(i => {
+                    if (i.type === 'theme' && i.value) {
+                        document.body.classList.remove(i.value);
+                    }
+                });
                 ThemeManager.applyTheme(item.id);
                 break;
             case 'effect':

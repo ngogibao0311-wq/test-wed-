@@ -5,11 +5,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Trang Giáo Viên</title>
-    <link rel="stylesheet" href="css/common.css?v=1.7">
-    <link rel="stylesheet" href="css/teacher.css?v=1.7">
-    <link rel="stylesheet" href="css/mobile.css?v=1.7">
-    <link rel="stylesheet" href="css/store-items.css?v=1.7">
-    <link rel="stylesheet" href="css/effects-pets.css?v=1.7">
+    <link rel="stylesheet" href="css/common.css?v=1.9">
+    <link rel="stylesheet" href="css/teacher.css?v=1.9">
+    <link rel="stylesheet" href="css/mobile.css?v=1.9">
+    <link rel="stylesheet" href="css/store-items.css?v=1.9">
+    <link rel="stylesheet" href="css/effects-pets.css?v=1.9">
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']], // Cú pháp toán học trên cùng 1 dòng
+                displayMath: [['$$', '$$'], ['\\[', '\\]']] // Cú pháp toán học đứng 1 dòng riêng
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 
 <body>
@@ -52,6 +61,7 @@
                         <option value="tu_luan">Chỉ Tự luận (Có nhập chữ/Up file/Video)</option>
                         <option value="trac_nghiem">Chỉ Trắc nghiệm (Chọn ABCD)</option>
                         <option value="ket_hop">Kết hợp cả 2</option>
+                        <option value="thi">Thi</option>
                     </select>
 
                     <div id="scoreDistributionFields"
@@ -109,8 +119,10 @@
                     <div id="tuLuanFields" style="margin-top: 15px;">
                         <label for="desc"><strong>Yêu cầu bài tập (Tự luận):</strong></label>
                         <textarea id="desc" placeholder="Nội dung chi tiết yêu cầu tự luận..." rows="4"></textarea>
-                        <label for="videoLink"><strong>Đính kèm Video (Link YouTube - Nếu có):</strong></label>
-                        <input type="text" id="videoLink" placeholder="Dán link YouTube vào đây...">
+                        <div id="videoLinkGroup">
+                            <label for="videoLink"><strong>Đính kèm Video (Link YouTube - Nếu có):</strong></label>
+                            <input type="text" id="videoLink" placeholder="Dán link YouTube vào đây...">
+                        </div>
                         <label for="fileInput" class="file-label"><strong>Đính kèm tài liệu:</strong></label>
                         <input type="file" id="fileInput" accept=".docx, .pdf, image/*" multiple>
 
@@ -457,6 +469,27 @@
                     <button onclick="updateProfile()"
                         style="margin-top: 15px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: #fff;">💾
                         Lưu thay đổi tài khoản</button>
+                </div>
+
+                <div class="glass-alert"
+                    style="margin-top: 30px; border-left-color: #3b82f6; background: rgba(59, 130, 246, 0.05);">
+                    <h3
+                        style="color: #2c3e50; margin-bottom: 10px; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 5px;">
+                        🔍 Trình Quét Lỗi Hệ Thống</h3>
+                    <p style="font-size: 0.9em; color: #555; margin-bottom: 15px;">Công cụ này sẽ rà soát toàn bộ tệp
+                        tin, hình ảnh, biến môi trường và luồng dữ liệu hiện tại để phát hiện các nguy cơ tiềm ẩn gây
+                        sập web hoặc lỗi chức năng.</p>
+                    <button onclick="runSystemDiagnostics()"
+                        style="width: 100%; padding: 12px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);">🚀
+                        Bắt đầu quét hệ thống</button>
+
+                    <div id="diagnosticResults"
+                        style="display: none; margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.8); border-radius: 8px; max-height: 300px; overflow-y: auto; border: 1px solid rgba(0,0,0,0.1);">
+                        <p style="text-align: center; color: #666;" id="diagnosticStatus">Đang chờ quét...</p>
+                        <ul id="diagnosticList"
+                            style="list-style-type: none; padding: 0; margin: 0; font-size: 0.9em; line-height: 1.6;">
+                        </ul>
+                    </div>
                 </div>
 
                 <div class="card form-container" style="margin-top: 20px; position: relative;">
@@ -850,17 +883,19 @@
                 </div>
             </div>
 
-            <script src="js/common.js?v=1.7"></script>
-            <script src="js/theme-items.js?v=1.7"></script>
-            <script src="js/effect-items.js?v=1.7"></script>
-            <script src="js/pet-items.js?v=1.7"></script>
-            <script src="js/store-manager.js?v=1.7"></script>
+            <script src="js/common.js?v=1.9"></script>
+            <script src="js/theme-items.js?v=1.9"></script>
+            <script src="js/effect-items.js?v=1.9"></script>
+            <script src="js/pet-items.js?v=1.9"></script>
+            <script src="js/store-manager.js?v=1.9"></script>
 
             <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
             <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
-            <script src="js/firebase-config.js?v=1.4"></script>
+            <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-storage-compat.js"></script>
+            <script src="js/firebase-config.js?v=1.9"></script>
 
-            <script src="js/teacher.js?v=1.7"></script>
+            <script src="js/teacher.js?v=1.9"></script>
+            <script src="js/security.js"></script>
 </body>
 
 </html>

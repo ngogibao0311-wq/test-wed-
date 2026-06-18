@@ -35,6 +35,12 @@ class ThemeManager {
             background: '#e0fbfc',  // Nền trời sáng sủa
             className: 'theme-daylight-sky' 
         },
+        'theme_cotich_phale': { 
+            primary: '#a29bfe',     // Tím pha lê mộng mơ
+            secondary: '#00cec9',   // Xanh ngọc bích
+            background: '#1a1829',  // Nền tím than đậm
+            className: 'theme-crystal-palace' 
+        },
     };
 
     static applyTheme(themeId) {

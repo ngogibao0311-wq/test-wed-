@@ -221,3 +221,138 @@ window.filterItems = function(containerId, keyword) {
         }
     }
 };
+
+// =====================================================================
+// HỆ THỐNG QUÉT LỖI VÀ CHẨN ĐOÁN WEBSITE (DIAGNOSTICS SCANNER)
+// =====================================================================
+
+window.runSystemDiagnostics = async function() {
+    const resultBox = document.getElementById('diagnosticResults');
+    const statusText = document.getElementById('diagnosticStatus');
+    const list = document.getElementById('diagnosticList');
+    
+    if (!resultBox || !statusText || !list) return alert("Lỗi: Không tìm thấy khung hiển thị kết quả HTML!");
+
+    // Khởi tạo giao diện
+    resultBox.style.display = 'block';
+    list.innerHTML = '';
+    statusText.innerHTML = '<span style="color: #d35400; font-weight: bold;">⏳ Đang tiến hành rà soát hệ thống... Vui lòng đợi!</span>';
+    
+    let errors = [];
+    let warnings = [];
+    let passes = 0;
+
+    // Hàm tiện ích in log ra giao diện
+    const addLog = (msg, type) => {
+        let color = type === 'error' ? '#e11d48' : (type === 'warn' ? '#f59e0b' : '#059669');
+        let icon = type === 'error' ? '❌' : (type === 'warn' ? '⚠️' : '✅');
+        let li = document.createElement('li');
+        li.style.cssText = `color: ${color}; border-bottom: 1px dashed rgba(0,0,0,0.05); padding: 5px 0;`;
+        li.innerHTML = `<strong>${icon}</strong> ${msg}`;
+        list.appendChild(li);
+    };
+
+    // Tạo độ trễ ảo để quét từng phần (tránh đơ trình duyệt)
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+    try {
+        await sleep(500); // ----------------------------------------------------
+        // 1. KIỂM TRA BỘ NHỚ LƯU TRỮ VÀ PHIÊN ĐĂNG NHẬP
+        const user = JSON.parse(localStorage.getItem('currentUser'));
+        if (!user) {
+            errors.push("Mất dữ liệu phiên đăng nhập (currentUser null).");
+        } else {
+            passes++;
+            if (!user.username || !user.role) errors.push("Dữ liệu người dùng bị hỏng (Thiếu username/role).");
+        }
+
+        await sleep(500); // ----------------------------------------------------
+        // 2. KIỂM TRA ĐƯỜNG TRUYỀN FIREBASE REALTIME DATABASE
+        if (typeof db === 'undefined') {
+            errors.push("Không tìm thấy kết nối Firebase Database.");
+        } else {
+            try {
+                // Ping nhẹ lên node users (Giới hạn 1 để không kéo data nặng)
+                await db.ref('users').limitToFirst(1).once('value');
+                passes++;
+            } catch (e) {
+                errors.push("Mất kết nối mạng hoặc sai cấu hình Firebase config.js.");
+            }
+        }
+
+        await sleep(500); // ----------------------------------------------------
+        // 3. QUÉT TOÀN BỘ HÌNH ẢNH TRÊN DOM (Phát hiện link chết, lỗi Base64)
+        const images = document.querySelectorAll('img');
+        let brokenImages = 0;
+        images.forEach(img => {
+            if (!img.complete || img.naturalWidth === 0) {
+                brokenImages++;
+                let shortSrc = img.src.length > 50 ? img.src.substring(0, 50) + '...' : img.src;
+                warnings.push(`Phát hiện ảnh lỗi hoặc không thể tải: ${shortSrc}`);
+            }
+        });
+        if (brokenImages === 0) passes++;
+
+        await sleep(500); // ----------------------------------------------------
+        // 4. KIỂM TRA CẤU TRÚC CỬA HÀNG (StoreConfig)
+        if (typeof StoreConfig !== 'undefined' && StoreConfig.items) {
+            passes++;
+            StoreConfig.items.forEach(item => {
+                if (!item.id || !item.type || !item.name) {
+                    errors.push(`Vật phẩm cửa hàng bị lỗi cấu trúc: Mất định danh ID hoặc Tên.`);
+                }
+                if (item.isNonCoin && item.price === undefined) {
+                    warnings.push(`Vật phẩm [${item.name}] là hàng phi lợi nhuận nhưng chưa set giá = 0, có thể gây lỗi undefined.`);
+                }
+            });
+        } else {
+            warnings.push("Hệ thống cửa hàng chưa được tải (StoreConfig undefined).");
+        }
+
+        await sleep(500); // ----------------------------------------------------
+        // 5. KIỂM TRA XUNG ĐỘT QUẢN LÝ TỆP (DataTransfer)
+        if (user && user.role === 'student' && typeof window.studentSubmitDTs === 'undefined') {
+            errors.push("Biến quản lý file cộng dồn của học sinh (studentSubmitDTs) bị hỏng hoặc chưa khởi tạo.");
+        } else if (user && user.role === 'teacher' && typeof window.teacherGradeDTs === 'undefined') {
+            errors.push("Biến quản lý file chấm bài của giáo viên (teacherGradeDTs) bị hỏng.");
+        } else {
+            passes++;
+        }
+
+        await sleep(500); // ----------------------------------------------------
+// 6. KIỂM TRA CÁC BIẾN TOÀN CỤC HOẠT ĐỘNG (ĐỒNG BỘ TRÒ CHƠI)
+        if (typeof window.wheelProbs === 'undefined') {
+            warnings.push("Cấu hình tỉ lệ vòng quay đang trống, game sẽ dùng mặc định cứng.");
+        }
+        
+        // Tiến hành kiểm tra động: Nếu chưa có biến, thử đợi Firebase phản hồi trong 1 giây trước khi báo lỗi
+        if (typeof window.isGameEnabled === 'undefined') {
+            let retryCount = 0;
+            while (retryCount < 5 && typeof window.isGameEnabled === 'undefined') {
+                await sleep(200); // Đợi thêm 200ms mỗi lần để Firebase kịp kéo data
+                retryCount++;
+            }
+        }
+
+        // Sau khi đã đợi mà vẫn không có dữ liệu thì mới xác nhận là mất đồng bộ dữ liệu hoặc lỗi kết nối
+        if (typeof window.isGameEnabled === 'undefined') {
+            warnings.push("Hệ thống chưa nhận được trạng thái Trò chơi (isGameEnabled undefined). Vui lòng kiểm tra lại cấu hình node 'game_settings' trên Firebase.");
+        } else {
+            passes++;
+        }
+        // === KẾT LUẬN VÀ IN BÁO CÁO ===
+        statusText.innerHTML = `<span style="color: #2c3e50; font-weight: bold;">Hoàn tất quét hệ thống!</span>`;
+        
+        if (errors.length === 0 && warnings.length === 0) {
+            addLog(`Hệ thống đang hoạt động hoàn hảo. (Vượt qua ${passes}/5 bài test lõi)`, 'success');
+        } else {
+            addLog(`Vượt qua ${passes} bài kiểm tra an toàn.`, 'success');
+            warnings.forEach(w => addLog(w, 'warn'));
+            errors.forEach(e => addLog(e, 'error'));
+        }
+
+    } catch (criticalError) {
+        statusText.innerHTML = `<span style="color: #e11d48; font-weight: bold;">Lỗi nghiêm trọng khi đang quét hệ thống!</span>`;
+        addLog(`Crashed: ${criticalError.message}`, 'error');
+    }
+};

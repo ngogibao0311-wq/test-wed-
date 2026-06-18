@@ -1088,3 +1088,180 @@
     box-shadow: 0 0 15px rgba(255, 170, 0, 0.2) !important;
     outline: none;
 }
+/* =========================================================================
+   HIỆU ỨNG TOÀN WEB: MƯA TINH LINH (KẾT HỢP VỚI CỔ TÍCH 3)
+   ========================================================================= */
+
+/* Định dạng hạt tinh linh rơi */
+.effect-cotich-tinhlinh {
+    position: absolute;
+    top: -50px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    /* Lõi trắng, tỏa ra ánh sáng xanh ngọc và tím hồng */
+    background: radial-gradient(circle, #ffffff 0%, #a29bfe 60%, transparent 100%);
+    box-shadow: 0 0 10px #00cec9, 0 0 15px #fd79a8;
+    opacity: 0.8;
+    animation-name: fairyDustFallAndSway;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    animation-fill-mode: forwards;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* Keyframe tạo quỹ đạo rơi dập dềnh và lấp lánh */
+@keyframes fairyDustFallAndSway {
+    0% { 
+        transform: translateY(0) translateX(0) scale(0.5) rotate(0deg); 
+        opacity: 0; 
+    }
+    15% { 
+        opacity: 1; 
+        transform: translateY(15vh) translateX(20px) scale(1.2) rotate(45deg); 
+        box-shadow: 0 0 15px #00cec9, 0 0 25px #fd79a8;
+    }
+    50% { 
+        transform: translateY(50vh) translateX(-20px) scale(0.9) rotate(180deg); 
+        opacity: 0.8; 
+    }
+    85% {
+        opacity: 0.9;
+        transform: translateY(85vh) translateX(15px) scale(1) rotate(270deg);
+        box-shadow: 0 0 10px #00cec9, 0 0 15px #fd79a8;
+    }
+    100% { 
+        transform: translateY(100vh) translateX(-10px) scale(0.5) rotate(360deg); 
+        opacity: 0; 
+    }
+}
+/* =========================================================
+   GIAO DIỆN CỔ TÍCH 3 - CUNG ĐIỆN PHA LÊ (SỰ KIỆN)
+   Kích hoạt khi body có class .theme-crystal-palace
+========================================================= */
+
+/* 1. Import Phông chữ Thần thoại (Cinzel) và Nền bầu trời pha lê */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Montserrat:wght@400;600&display=swap');
+
+.theme-crystal-palace {
+    /* Tiêu đề dùng Cinzel, chữ thường dùng Montserrat dễ đọc */
+    font-family: 'Montserrat', sans-serif;
+    color: #e2dff1; 
+    /* Nền Gradient mượt từ tím than -> đen -> xanh ngọc siêu tối */
+    background: linear-gradient(135deg, #1a1829 0%, #0d0c14 60%, #081e26 100%);
+    background-attachment: fixed;
+}
+
+/* 2. Định hình Card & Ô chứa (Dáng khối pha lê / Glassmorphism đa tầng) */
+.theme-crystal-palace .card,
+.theme-crystal-palace .store-item-card,
+.theme-crystal-palace .submit-box {
+    background: rgba(30, 27, 46, 0.45); /* Cực kỳ trong suốt */
+    border: 1px solid rgba(162, 155, 254, 0.4); /* Viền tím mờ */
+    border-top: 2px solid rgba(0, 206, 201, 0.6); /* Viền trên xanh ngọc nổi bật */
+    border-radius: 10px 40px 10px 40px !important; /* Cắt góc chéo tạo khối tinh thể */
+    box-shadow: 
+        0 15px 35px rgba(0, 0, 0, 0.5), 
+        inset 0 0 25px rgba(162, 155, 254, 0.1);
+    backdrop-filter: blur(15px);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.theme-crystal-palace .store-item-card:hover {
+    border-color: #00cec9;
+    background: rgba(45, 40, 70, 0.6);
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 
+        0 20px 40px rgba(0, 206, 201, 0.25), 
+        inset 0 0 30px rgba(162, 155, 254, 0.3);
+}
+
+/* 3. Sidebar / Thanh Điều Hướng (Huyền bí) */
+.theme-crystal-palace .sidebar,
+.theme-crystal-palace .nav-bar {
+    background: linear-gradient(180deg, rgba(13, 12, 20, 0.95), rgba(26, 24, 41, 0.95));
+    border-right: 2px solid rgba(162, 155, 254, 0.3);
+    border-radius: 0 50px 0 0; /* Vuốt nhọn vút lên ở góc trên cùng */
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.8);
+}
+
+.theme-crystal-palace .nav-item.active {
+    background: linear-gradient(90deg, rgba(162, 155, 254, 0.2), transparent) !important;
+    border-left: 4px solid #a29bfe !important;
+    border-radius: 0 20px 20px 0;
+    color: #00cec9 !important;
+    text-shadow: 0 0 8px rgba(0, 206, 201, 0.5);
+}
+
+/* 4. Định hình Modals / Pop-ups (Gương thần) */
+.theme-crystal-palace .modal-content,
+.theme-crystal-palace #viewQuestionsModal > div {
+    background: linear-gradient(135deg, rgba(20, 18, 30, 0.95) 0%, rgba(10, 9, 15, 0.98) 100%) !important;
+    border: 2px solid #a29bfe !important; 
+    border-radius: 30px 5px 30px 5px !important; /* Dáng gương thần bất đối xứng */
+    box-shadow: 
+        0 0 50px rgba(162, 155, 254, 0.2), 
+        inset 0 0 20px rgba(0, 206, 201, 0.2) !important;
+    backdrop-filter: blur(20px);
+}
+
+/* 5. Tiêu đề và Văn bản nổi bật */
+.theme-crystal-palace h1, 
+.theme-crystal-palace h2, 
+.theme-crystal-palace h3, 
+.theme-crystal-palace h4,
+.theme-crystal-palace .item-name {
+    font-family: 'Cinzel', serif; /* Font chữ đậm chất thần thoại cổ đại */
+    color: #a29bfe !important;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-shadow: 0 0 15px rgba(162, 155, 254, 0.4);
+}
+
+/* 6. Nút Bấm (Ngọc Lưu Ly) */
+.theme-crystal-palace button:not(.btn-preview),
+.theme-crystal-palace .btn-approve {
+    background: linear-gradient(135deg, #6c5ce7, #00cec9) !important;
+    color: #ffffff !important; 
+    border: none !important;
+    border-radius: 12px 4px 12px 4px !important; /* Khối ngọc lởm chởm */
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    letter-spacing: 1px;
+    box-shadow: 0 6px 20px rgba(0, 206, 201, 0.4) !important;
+    text-transform: uppercase;
+    transition: all 0.3s ease !important; 
+}
+
+.theme-crystal-palace button:not(.btn-preview):hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(162, 155, 254, 0.6) !important;
+}
+
+/* Nút phụ (Viền phát sáng mỏng manh) */
+.theme-crystal-palace .btn-preview {
+    background: rgba(162, 155, 254, 0.05) !important;
+    color: #a29bfe !important;
+    border: 1px solid rgba(162, 155, 254, 0.5) !important;
+    border-radius: 12px 4px 12px 4px !important;
+}
+.theme-crystal-palace .btn-preview:hover {
+    background: rgba(162, 155, 254, 0.15) !important;
+}
+
+/* 7. Khung nhập liệu (Input & Textarea) */
+.theme-crystal-palace input, 
+.theme-crystal-palace textarea {
+    background: rgba(10, 9, 15, 0.6) !important;
+    border: 1px solid rgba(162, 155, 254, 0.3) !important;
+    border-radius: 10px !important;
+    color: #e2dff1 !important;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.theme-crystal-palace input:focus, 
+.theme-crystal-palace textarea:focus {
+    border-color: #00cec9 !important;
+    box-shadow: 0 0 15px rgba(0, 206, 201, 0.3) !important;
+    outline: none;
+}

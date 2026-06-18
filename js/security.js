@@ -4,6 +4,18 @@
 
 // Hàm xử lý khi phát hiện vi phạm: Xóa trắng và ép văng khỏi web
 function kickUser() {
+    // NGOẠI LỆ: Cho phép Giáo viên mở F12 để kiểm tra và chẩn đoán hệ thống
+    try {
+        const userStr = localStorage.getItem('currentUser');
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            if (user && user.role === 'teacher') return; // Hủy lệnh kick nếu là Giáo viên
+        }
+    } catch (e) {
+        // Bỏ qua lỗi parse
+    }
+
+    // Các tài khoản khác sẽ bị phạt
     document.head.innerHTML = ""; 
     document.body.innerHTML = ""; 
     window.location.replace("about:blank"); 
@@ -28,19 +40,6 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// 3. Phát hiện F12 mở theo dạng neo (Docked) làm thay đổi kích thước khung web
-function detectDevToolsSize() {
-    const threshold = 160; // Chênh lệch kích thước tối thiểu khi F12 mở
-    const widthDiff = window.outerWidth - window.innerWidth > threshold;
-    const heightDiff = window.outerHeight - window.innerHeight > threshold;
-    
-    if (widthDiff || heightDiff) {
-        kickUser();
-    }
-}
-window.addEventListener('resize', detectDevToolsSize);
-setInterval(detectDevToolsSize, 500);
-
 // 4. Phát hiện Console (Dành cho ai mở F12 dạng cửa sổ rời - Undocked)
 // Đẩy một hình ảnh ảo vào Console, nếu Console đang mở nó sẽ cố đọc hình ảnh này và sập bẫy.
 const devtoolsDetector = new Image();
@@ -49,7 +48,42 @@ Object.defineProperty(devtoolsDetector, 'id', {
         kickUser();
     }
 });
+//setInterval(() => {
+//    console.log('%c', devtoolsDetector);
+//    console.clear(); // Xóa log ngay lập tức để không bị lộ
+//}, 500);
+
+// =========================================================================
+// 3. BẪY DEVTOOLS NÂNG CAO (CHẶN MENU TRÌNH DUYỆT & MỞ SẴN)
+// =========================================================================
+
 setInterval(() => {
-    console.log('%c', devtoolsDetector);
-    console.clear(); // Xóa log ngay lập tức để không bị lộ
-}, 500);
+    // 1. Ngoại lệ: Nếu là Giáo viên thì bỏ qua, không kích hoạt bẫy
+    try {
+        const userStr = localStorage.getItem('currentUser');
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            if (user && user.role === 'teacher') return;
+        }
+    } catch (e) {}
+
+    // 2. Bẫy đo kích thước màn hình
+    // Nếu DevTools gắn ở mép màn hình, kích thước hiển thị (inner) sẽ nhỏ hơn nhiều so với cửa sổ (outer)
+    const widthDiff = window.outerWidth - window.innerWidth > 160;
+    const heightDiff = window.outerHeight - window.innerHeight > 160;
+    
+    if (widthDiff || heightDiff) {
+        kickUser();
+    }
+
+    // 3. Bẫy thời gian ngưng đọng (Lệnh Debugger thần thánh)
+    // Nếu DevTools đang mở, lệnh 'debugger' sẽ làm trình duyệt khựng lại vài mili-giây
+    const startTime = Date.now();
+    
+    // Hàm eval để ẩn giấu chữ debugger tránh bị một số extension chặn
+    eval('debugger'); 
+    
+    if (Date.now() - startTime > 100) {
+        kickUser();
+    }
+}, 1000); // Quét liên tục mỗi 1 giây
