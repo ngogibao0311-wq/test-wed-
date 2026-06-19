@@ -51,7 +51,6 @@ class PetManager {
             }
         };
         this.container.appendChild(closeBtn);
-
         this.makePetDraggable();
         localStorage.setItem('active_pet', petData.id);
 

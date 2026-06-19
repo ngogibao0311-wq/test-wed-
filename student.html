@@ -5,11 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Trang Học Sinh</title>
-    <link rel="stylesheet" href="css/common.css?v=1.9">
-    <link rel="stylesheet" href="css/student.css?v=1.9">
-    <link rel="stylesheet" href="css/mobile.css?v=1.9">
-    <link rel="stylesheet" href="css/store-items.css?v=1.9">
-    <link rel="stylesheet" href="css/effects-pets.css?v=1.9">
+    <link rel="stylesheet" href="css/common.css?v=2.0">
+    <link rel="stylesheet" href="css/student.css?v=2.0">
+    <link rel="stylesheet" href="css/mobile.css?v=2.0">
+    <link rel="stylesheet" href="css/store-items.css?v=2.0">
+    <link rel="stylesheet" href="css/effects-pets.css?v=2.0">
+    <link rel="stylesheet" href="css/royal-ball.css?v=2.0">
     <script>
         MathJax = {
             tex: {
@@ -189,6 +190,24 @@
                         <button onclick="openLuckyWheel()"
                             style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white; padding: 12px 25px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(246, 211, 101, 0.4);">Chơi
                             ngay ➡️</button>
+                    </div>
+                    <div class="card royal-event-card"
+                        style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; margin-top: 20px;">
+                        <div>
+                            <h3
+                                style="color: #c0392b; margin-bottom: 8px; display: flex; align-items: center; gap: 10px;">
+                                🏰 Dạ Hội Hoàng Gia
+                                <button onclick="showRoyalBallRewards()"
+                                    style="background: rgba(192, 57, 43, 0.15); color: #c0392b; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 14px; transition: 0.2s;"
+                                    title="Xem phần thưởng" onmouseover="this.style.background='rgba(192, 57, 43, 0.3)'"
+                                    onmouseout="this.style.background='rgba(192, 57, 43, 0.15)'">?</button>
+                            </h3>
+                            <p style="color: #444; font-size: 0.9em; margin: 0;">Sự kiện giới hạn! Khiêu vũ để nhận đồ
+                                Truyền thuyết hoặc lượng lớn Coin. (Chỉ mở 29/07 - 01/05)</p>
+                        </div>
+                        <button onclick="RoyalBallEvent.openModal()"
+                            style="background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%); color: white; padding: 12px 25px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 8, 68, 0.4);">Tham
+                            gia ngay ➡️</button>
                     </div>
                 </div>
             </div>
@@ -574,20 +593,74 @@
         </div>
     </div>
 
-    <script src="js/common.js?v=1.9"></script>
-    <script src="js/theme-items.js?v=1.9"></script>
-    <script src="js/effect-items.js?v=1.9"></script>
-    <script src="js/pet-items.js?v=1.9"></script>
-    <script src="js/pet-interactions.js?v=1.9"></script>
-    <script src="js/store-manager.js?v=1.9"></script>
+    <div id="royalBallModal" class="modal-overlay" style="z-index: 999999;">
+        <div class="modal-content" style="max-width: 600px; padding: 0;">
+            <div class="castle-overlay"></div>
+            <button class="close-btn" onclick="RoyalBallEvent.closeModal()"
+                style="z-index: 10; color: white; background: rgba(0,0,0,0.5); border-radius: 50%;">✖</button>
+
+            <div class="royal-content-wrapper">
+                <h3
+                    style="color: #ffd700; font-size: 2em; text-transform: uppercase; text-shadow: 0 2px 10px rgba(0,0,0,1); margin-bottom: 10px;">
+                    Dạ Hội Hoàng Gia</h3>
+                <p style="color: #fff; font-style: italic; margin-bottom: 20px; text-shadow: 0 1px 3px black;">"Âm nhạc
+                    bắt đầu, định mệnh hội ngộ..."</p>
+
+                <div id="royalDanceFloor" class="dance-floor">
+                    <div class="dancer dancer-male">🤴</div>
+                    <div class="dancer dancer-female">👸</div>
+                </div>
+                <div class="spotlight"></div>
+
+                <button id="btnStartDance" onclick="RoyalBallEvent.startDance()"
+                    style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: #c0392b; padding: 12px 40px; font-size: 1.2em; border: none; border-radius: 50px; font-weight: 900; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.5); text-transform: uppercase;">🎵
+                    Bắt đầu Khiêu vũ</button>
+
+                <h4 id="royalDanceStatus"
+                    style="display: none; color: #38ef7d; text-shadow: 0 2px 4px black; font-size: 1.2em;"></h4>
+
+                <div id="royalBallResult"
+                    style="display: none; background: rgba(0,0,0,0.6); padding: 20px; border-radius: 12px; margin: 20px; border: 1px dashed #ffd700;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="royalRewardsModal" class="modal-overlay" style="z-index: 999999;">
+        <div class="modal-content form-container"
+            style="max-width: 450px; text-align: center; border-top: 6px solid #c0392b; background: rgba(255, 255, 255, 0.95);">
+            <button class="close-btn"
+                onclick="document.getElementById('royalRewardsModal').classList.remove('active')">✖</button>
+            <h3
+                style="color: #c0392b; margin-bottom: 15px; font-size: 1.5em; border-bottom: 1px solid rgba(192, 57, 43, 0.2); padding-bottom: 10px;">
+                🎁 Phần Thưởng Dạ Hội
+            </h3>
+            <p style="font-size: 0.95em; color: #666; margin-bottom: 15px; line-height: 1.5;">Tham gia khiêu vũ để có cơ
+                hội nhận lượng lớn Coin hoặc các vật phẩm mang nhãn <strong>Truyền Thuyết</strong> cực hiếm dưới đây:
+            </p>
+
+            <div id="royalRewardsList"
+                style="max-height: 50vh; overflow-y: auto; text-align: left; padding-right: 5px;">
+            </div>
+        </div>
+    </div>
+
+    <script src="js/royal-ball.js?v=2.0"></script>
+
+    <script src="js/common.js?v=2.0"></script>
+    <script src="js/theme-items.js?v=2.0"></script>
+    <script src="js/effect-items.js?v=2.0"></script>
+    <script src="js/pet-items.js?v=2.0"></script>
+    <script src="js/pet-interactions.js?v=2.0"></script>
+    <script src="js/store-manager.js?v=2.0"></script>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-storage-compat.js"></script>
-    <script src="js/firebase-config.js?v=1.9"></script>
+    <script src="js/firebase-config.js?v=2.0"></script>
 
-    <script src="js/student.js?v=1.9"></script>
-    <script src="js/security.js"></script>
+    <script src="js/student.js?v=2.0"></script>
+    
 </body>
 
 </html>

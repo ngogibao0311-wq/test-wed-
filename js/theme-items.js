@@ -41,6 +41,12 @@ class ThemeManager {
             background: '#1a1829',  // Nền tím than đậm
             className: 'theme-crystal-palace' 
         },
+        'theme_truyenthuyet_vutru': { 
+            primary: '#bd00ff',     // Tím Neon
+            secondary: '#00f5ff',   // Xanh Cyan (Plasma)
+            background: '#050508',  // Đen vũ trụ sâu thẳm
+            className: 'theme-cosmic-godhood' // <--- Class chốt để kích hoạt CSS vũ trụ
+        },
     };
 
     static applyTheme(themeId) {
@@ -50,9 +56,15 @@ class ThemeManager {
         root.style.setProperty('--primary-color', theme.primary);
         root.style.setProperty('--secondary-color', theme.secondary);
         root.style.setProperty('--bg-color', theme.background);
+
+        Array.from(document.body.classList).forEach(className => {
+            if (className.startsWith('theme-') || className.startsWith('theme_')) {
+                document.body.classList.remove(className);
+            }
+        });
         
         // 1. Xóa tất cả các class theme đặc biệt cũ khỏi body
-        document.body.classList.remove('theme-fairy-tale', 'theme-magic-forest', 'theme-lifestyle', 'theme-night-sky', 'theme-daylight-sky');
+        document.body.classList.remove('theme-fairy-tale', 'theme-magic-forest', 'theme-lifestyle', 'theme-night-sky', 'theme-daylight-sky', 'theme_truyenthuyet_vutru');
 
         // 2. Tiêm class mới vào body nếu theme đó có yêu cầu thay đổi hình dáng
         if (theme.className) {

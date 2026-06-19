@@ -973,3 +973,116 @@ input:checked + .slider:before {
     60% { transform: translate(-50px, -25px) rotate(45deg) scaleX(0.4); opacity: 0; }
     100% { opacity: 0; }
 }
+/* =========================================================================
+   HIỆU ỨNG KỲ LÂN TINH TÚ (LÀM MỚI 100% - CHUẨN TRUYỀN THUYẾT)
+   ========================================================================= */
+
+/* 1. LỖ HỔNG VŨ TRỤ (WORMHOLE PORTAL) - Đứng dọc phía sau lưng Pet */
+#virtual-pet-container:has(.galaxy-legend-magic)::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 220px;
+    height: 220px;
+    margin-top: -110px;
+    margin-left: -110px;
+    border-radius: 50%;
+    
+    /* Tạo vòng xoáy không gian bằng conic-gradient */
+    background: conic-gradient(
+        from 0deg,
+        transparent 0%,
+        rgba(138, 43, 226, 0.4) 15%,
+        rgba(0, 210, 211, 0.8) 30%,
+        transparent 50%,
+        rgba(255, 107, 107, 0.4) 65%,
+        rgba(95, 39, 205, 0.8) 80%,
+        transparent 100%
+    );
+    
+    /* Dùng mask đục lỗ ở giữa tạo hình Hố đen (Blackhole) */
+    -webkit-mask-image: radial-gradient(circle, transparent 45%, black 60%);
+    mask-image: radial-gradient(circle, transparent 45%, black 60%);
+    
+    filter: drop-shadow(0 0 15px rgba(138, 43, 226, 0.8));
+    animation: wormholeSpin 5s linear infinite;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* 2. VÀNH ĐAI HÀNH TINH (PLANETARY RING) - Nghiêng 3D quét quanh Pet */
+#virtual-pet-container:has(.galaxy-legend-magic)::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 260px;
+    height: 260px;
+    margin-top: -130px;
+    margin-left: -130px;
+    border-radius: 50%;
+    
+    /* Chỉ hiển thị viền trên/dưới để tạo dải quỹ đạo */
+    border: 2px solid transparent;
+    border-top: 4px solid #00d2d1;
+    border-bottom: 4px solid #ff9f43;
+    
+    /* Bóp dẹp và nghiêng chéo ôm lấy thú cưng */
+    transform: rotateX(75deg) rotateY(15deg) rotateZ(0deg);
+    filter: drop-shadow(0 0 10px #00d2d1) drop-shadow(0 0 15px #ff9f43);
+    animation: orbitalRingSpin 4s linear infinite;
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* 3. BẢN THÂN VẬT PHẨM (Đổ bóng quang phổ vũ trụ) */
+#virtual-pet-img.galaxy-legend-magic {
+    filter: drop-shadow(-10px 0 20px rgba(0, 210, 211, 0.5)) 
+            drop-shadow(10px 0 20px rgba(138, 43, 226, 0.5));
+    transition: filter 0.3s ease;
+}
+
+/* 4. CHUYỂN ĐỘNG KHÔNG TRỌNG LỰC (ZERO-GRAVITY) */
+.pet-idle #virtual-pet-img.galaxy-legend-magic {
+    /* Lơ lửng, trôi dạt và nghiêng ngả tứ phía */
+    animation: zeroGravityFloat 6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+/* --- CÁC KEYFRAMES ĐỘC QUYỀN --- */
+
+@keyframes wormholeSpin {
+    0% { transform: rotate(0deg) scale(0.9); }
+    50% { 
+        transform: rotate(180deg) scale(1.15); 
+        filter: drop-shadow(0 0 35px rgba(0, 210, 211, 0.9)) hue-rotate(45deg); 
+    }
+    100% { transform: rotate(360deg) scale(0.9); }
+}
+
+@keyframes orbitalRingSpin {
+    0% { 
+        transform: rotateX(75deg) rotateY(15deg) rotateZ(0deg); 
+        border-top-color: #00d2d1; border-bottom-color: #ff9f43;
+    }
+    50% { 
+        transform: rotateX(75deg) rotateY(15deg) rotateZ(180deg); 
+        /* Đổi màu vành đai khi xoay */
+        border-top-color: #8a2be2; border-bottom-color: #ff6b6b;
+    }
+    100% { 
+        transform: rotateX(75deg) rotateY(15deg) rotateZ(360deg); 
+        border-top-color: #00d2d1; border-bottom-color: #ff9f43;
+    }
+}
+
+@keyframes zeroGravityFloat {
+    0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+    25% { transform: translate(-10px, -15px) rotate(5deg) scale(1.03); }
+    50% { 
+        transform: translate(5px, -28px) rotate(-2deg) scale(1.06); 
+        /* Tỏa sáng rực rỡ nhất khi trôi lên đỉnh */
+        filter: drop-shadow(-20px 10px 30px rgba(0, 210, 211, 0.9)) drop-shadow(20px -10px 30px rgba(138, 43, 226, 0.9)); 
+    }
+    75% { transform: translate(12px, -10px) rotate(-5deg) scale(1.02); }
+}

@@ -1734,43 +1734,28 @@ window.saveMaterialEdit = async function () {
     alert("Đã đổi tên tài liệu thành công!");
 };
 
-// PHIÊN BẢN MỚI: TẢI FILE LÊN FIREBASE STORAGE THAY VÌ LƯU BASE64
 async function readMultipleFiles(files) {
-    // 1. Kiểm tra xem file index.html đã thêm thư viện Firebase Storage chưa
-    if (typeof firebase === 'undefined' || !firebase.storage) {
-        alert("⚠️ HỆ THỐNG: Bạn cần thêm thư viện Firebase Storage vào file HTML (index.html, student.html, teacher.html) để tải file lên!");
-        return [];
-    }
-
-    const MAX_SIZE_MB = 5; 
+    const MAX_SIZE_MB = 5; // Tăng giới hạn lên 5MB
     const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
     const results = [];
 
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
 
-        // 2. Chặn file quá nặng
+        // Chặn file quá lớn
         if (file.size > MAX_SIZE_BYTES) {
-            alert(`⚠️ File "${file.name}" quá lớn (${(file.size / (1024 * 1024)).toFixed(2)}MB).\nHệ thống chỉ cho phép tối đa ${MAX_SIZE_MB}MB/file. Vui lòng nén file lại!`);
+            alert(`⚠️ File "${file.name}" quá lớn. Hệ thống chỉ cho phép tối đa ${MAX_SIZE_MB}MB/file!`);
             continue; 
         }
 
-        try {
-            // 3. Upload thẳng lên Firebase Storage (Thư mục uploads/)
-            const storageRef = firebase.storage().ref(`uploads/${Date.now()}_${file.name}`);
-            const snapshot = await storageRef.put(file);
-            
-            // 4. Lấy link tải xuống trực tiếp
-            const downloadURL = await snapshot.ref.getDownloadURL();
+        // Băm file thành chuỗi Base64
+        const base64String = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.readAsDataURL(file);
+        });
 
-            // MẸO (TRICK): Vẫn gán URL vào thuộc tính tên là "base64"
-            // Việc này giúp toàn bộ giao diện HTML cũ của bạn vẫn tự động nhận diện và tải file bình thường!
-            results.push({ name: file.name, type: file.type, base64: downloadURL });
-            
-        } catch (error) {
-            console.error("Lỗi upload file:", error);
-            alert(`❌ Lỗi mạng khi tải file "${file.name}" lên máy chủ.`);
-        }
+        results.push({ name: file.name, type: file.type, base64: base64String });
     }
 
     return results;

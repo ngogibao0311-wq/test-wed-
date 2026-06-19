@@ -5,11 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Trang Giáo Viên</title>
-    <link rel="stylesheet" href="css/common.css?v=1.9">
-    <link rel="stylesheet" href="css/teacher.css?v=1.9">
-    <link rel="stylesheet" href="css/mobile.css?v=1.9">
-    <link rel="stylesheet" href="css/store-items.css?v=1.9">
-    <link rel="stylesheet" href="css/effects-pets.css?v=1.9">
+    <link rel="stylesheet" href="css/common.css?v=2.0">
+    <link rel="stylesheet" href="css/teacher.css?v=2.0">
+    <link rel="stylesheet" href="css/mobile.css?v=2.0">
+    <link rel="stylesheet" href="css/store-items.css?v=2.0">
+    <link rel="stylesheet" href="css/effects-pets.css?v=2.0">
     <script>
         MathJax = {
             tex: {
@@ -434,6 +434,105 @@
                             <h4 style="color: #2c3e50; margin-top: 0; margin-bottom: 15px;">📦 Danh sách Hàng hóa</h4>
                             <div id="teacherStoreItemsList"></div>
                         </div>
+                    </div>
+                </div>
+
+                <div class="card accordion-card" style="margin-top: 20px;">
+                    <div class="accordion-header" onclick="toggleAccordion('royalBallManageView', this)">
+                        <div class="accordion-title">
+                            <h3 style="color: #c0392b; margin: 0; display: flex; align-items: center; gap: 8px;">🏰 Quản
+                                lý Dạ Hội Hoàng Gia</h3>
+                        </div>
+                        <div class="accordion-meta"><span class="toggle-icon">▼</span></div>
+                    </div>
+
+                    <div id="royalBallManageView" class="accordion-content">
+                        <div
+                            style="background: rgba(0, 0, 0, 0.03); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid rgba(0,0,0,0.08);">
+                            <label
+                                style="font-weight: bold; display: block; margin-bottom: 8px; color: #333; font-size: 0.95em;">🚫
+                                Quyền đóng/mở sự kiện khẩn cấp:</label>
+                            <button id="btnToggleRoyalStatus" onclick="RoyalBallEvent.toggleStatusByTeacher()"
+                                data-status="open"
+                                style="color: white; font-weight: bold; padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 1em; width: 100%; transition: all 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                                🟢 Sự Kiện Đang: MỞ CHO HỌC SINH (Bấm để KHÓA)
+                            </button>
+                            <p
+                                style="font-size: 0.85em; color: #e11d48; margin-top: 6px; margin-bottom: 0; font-style: italic;">
+                                *Lưu ý: Khi trạng thái hiển thị KHÓA, học sinh bấm tham gia sẽ bị chặn ngay lập tức, bất
+                                kể có đang trong thời gian từ 29/07 đến 01/05 hay không.
+                            </p>
+                        </div>
+                        <div
+                            style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; border: 1px dashed #c0392b; margin-bottom: 20px;">
+                            <h4 style="color: #c0392b; margin-top: 0; margin-bottom: 10px;">⚙️ Tùy chỉnh tỉ lệ rớt đồ Sự
+                                Kiện</h4>
+                            <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;"><i>Học sinh tham gia sẽ nhận
+                                    Vật phẩm (Tag: Truyền thuyết) hoặc Coin ngẫu nhiên. Tổng phải <strong>đúng
+                                        100%</strong>.</i></p>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; align-items: end;">
+                                <div>
+                                    <label style="font-size: 0.9em; font-weight: bold; color: #e11d48;">Ra VP Truyền
+                                        thuyết (%)</label>
+                                    <input type="number" id="probRoyalItem" value="5" min="0" max="100"
+                                        style="margin:0; background: white; text-align: center; font-weight: bold; padding: 10px;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.9em; font-weight: bold; color: #059669;">Ra Coin ngẫu
+                                        nhiên (%)</label>
+                                    <input type="number" id="probRoyalCoin" value="95" min="0" max="100"
+                                        style="margin:0; background: white; text-align: center; font-weight: bold; padding: 10px;">
+                                </div>
+                            </div>
+
+                            <p id="royalErrorMsg"
+                                style="color: #e11d48; font-weight: bold; font-size: 0.9em; margin-top: 10px; display: none;">
+                            </p>
+
+                            <button onclick="RoyalBallEvent.saveSettings()"
+                                style="margin-top: 15px; background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%); color: white; border: none; font-weight: bold; width: 100%; padding: 10px; border-radius: 8px;">💾
+                                Lưu cấu hình Dạ hội</button>
+                        </div>
+
+                        <div
+                            style="background: rgba(255, 255, 255, 0.6); padding: 15px; border-radius: 12px; border: 1px solid #fda085; margin-bottom: 15px;">
+                            <h4 style="color: #c0392b; margin-top: 0; margin-bottom: 8px;">📅 Thiết lập Lịch Sự Kiện
+                            </h4>
+                            <p style="font-size: 0.85em; color: #555; margin-bottom: 12px;">
+                                <i>Mặc định hệ thống chạy theo lịch cố định hằng năm (29/07 - 01/05). Tích chọn bên dưới
+                                    để tổ chức sớm hoặc kéo dài tùy ý.</i>
+                            </p>
+
+                            <label
+                                style="display: flex; align-items: center; gap: 8px; font-weight: bold; cursor: pointer; color: #2c3e50; margin-bottom: 12px; font-size: 0.95em;">
+                                <input type="checkbox" id="useCustomDates" style="width: auto; margin: 0;"> Kích hoạt
+                                thời gian tùy chỉnh (Tổ chức sớm / Kéo dài)
+                            </label>
+
+                            <div id="royalCustomDatesArea"
+                                style="display: none; background: rgba(0,0,0,0.02); padding: 12px; border-radius: 8px; border: 1px dashed #ccc;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                    <div>
+                                        <label
+                                            style="font-size: 0.85em; font-weight: bold; color: #444; display: block; margin-bottom: 4px;">Ngày
+                                            bắt đầu mở:</label>
+                                        <input type="date" id="royalStartDate"
+                                            style="margin: 0; background: white; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                    </div>
+                                    <div>
+                                        <label
+                                            style="font-size: 0.85em; font-weight: bold; color: #444; display: block; margin-bottom: 4px;">Ngày
+                                            kết thúc khóa:</label>
+                                        <input type="date" id="royalEndDate"
+                                            style="margin: 0; background: white; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p style="font-size:0.85em; color:#888; font-style:italic;">*Lịch sử nhận thưởng từ Dạ hội sẽ
+                            được gộp chung vào bảng Lịch sử quay thưởng phía trên để dễ theo dõi.</p>
                     </div>
                 </div>
             </div>
@@ -883,18 +982,19 @@
                 </div>
             </div>
 
-            <script src="js/common.js?v=1.9"></script>
-            <script src="js/theme-items.js?v=1.9"></script>
-            <script src="js/effect-items.js?v=1.9"></script>
-            <script src="js/pet-items.js?v=1.9"></script>
-            <script src="js/store-manager.js?v=1.9"></script>
+            <script src="js/common.js?v=2.0"></script>
+            <script src="js/theme-items.js?v=2.0"></script>
+            <script src="js/effect-items.js?v=2.0"></script>
+            <script src="js/pet-items.js?v=2.0"></script>
+            <script src="js/royal-ball.js?v=2.0"></script>
+            <script src="js/store-manager.js?v=2.0"></script>
 
             <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
             <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
             <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-storage-compat.js"></script>
-            <script src="js/firebase-config.js?v=1.9"></script>
+            <script src="js/firebase-config.js?v=2.0"></script>
 
-            <script src="js/teacher.js?v=1.9"></script>
+            <script src="js/teacher.js?v=2.0"></script>
             <script src="js/security.js"></script>
 </body>
 

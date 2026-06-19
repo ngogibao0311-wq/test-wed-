@@ -34,6 +34,10 @@ class PetInteractionManager {
         }
     ];
 
+    static isSupported(petId) { 
+        return petId === 'pet_shiba' || this.interactivePets.some(p => p.id === petId); 
+    }
+
     static init() {
         const toggle = document.getElementById('togglePetInteractions');
         if (toggle) toggle.checked = this.isEnabled;
@@ -52,9 +56,9 @@ class PetInteractionManager {
                 const modal = document.getElementById('petInteractionInfoModal');
                 if (modal && modal.classList.contains('active')) this.showInfo();
 
-                // Kiểm tra xem cún hiện tại có được phép hiển thị thanh đói không
+                // FIX LỖI: Thêm chốt chặn isSupported để tránh pet thường hiển thị thanh đói
                 const activePetId = localStorage.getItem('active_pet');
-                if (activePetId && this.unlockedInteractions.includes(activePetId)) {
+                if (activePetId && this.isSupported(activePetId) && this.unlockedInteractions.includes(activePetId)) {
                     this.initHungerSystem(user.username);
                 }
             });
@@ -65,13 +69,11 @@ class PetInteractionManager {
         const container = document.getElementById('virtual-pet-container');
         if (!container) return;
 
-        // Nếu chưa có thanh đói -> Tạo mới
         if (!document.getElementById('pet-hunger-bar')) {
             const barContainer = document.createElement('div');
             barContainer.id = 'pet-hunger-bar';
-            // Căn chỉnh lại cho to, rõ ràng và cao hơn đầu cún
             barContainer.style.cssText = 'position: absolute; top: -35px; left: 50%; transform: translateX(-50%); width: 70px; height: 12px; background: rgba(0,0,0,0.7); border-radius: 10px; cursor: pointer; border: 2px solid #fff; z-index: 999999; box-shadow: 0 4px 8px rgba(0,0,0,0.4); padding: 1px; display: flex; align-items: center;';
-            barContainer.title = "Độ đói của Cún (Nhấn vào để mua đồ ăn)";
+            barContainer.title = "Độ đói của thú cưng (Nhấn vào để mua đồ ăn)";
             barContainer.onclick = () => this.openFoodShop();
 
             if (!this.isEnabled) {
@@ -86,7 +88,6 @@ class PetInteractionManager {
             container.appendChild(barContainer);
         }
 
-        // Tải dữ liệu Firebase
         db.ref(`student_pet_status/${username}`).once('value', (snap) => {
             const data = snap.val();
             const now = this.getNow();
@@ -155,17 +156,13 @@ class PetInteractionManager {
                 if (this.isSleeping) {
                     this.sleepTime++;
 
-                    // --- BẮT ĐẦU ĐOẠN MỚI THÊM CHO MÈO ---
-                    // Lấy ID pet hiện tại để xét thời gian ngủ
                     const activePetId = localStorage.getItem('active_pet');
-                    const maxSleepTime = (activePetId === 'pet_doisong_bandem') ? 15 : 5; // Mèo ngủ 15s (gấp 3), pet khác ngủ 5s
+                    const maxSleepTime = (activePetId === 'pet_doisong_bandem') ? 15 : 5; 
 
                     if (this.sleepTime >= maxSleepTime) {
                         this.setSleepState(false);
                         this.roam();
                     }
-                    // --- KẾT THÚC ĐOẠN MỚI THÊM ---
-
                 } else {
                     if (this.idleTime >= 10) {
                         this.setSleepState(true);
@@ -192,11 +189,9 @@ class PetInteractionManager {
             container.style.right = 'auto';
         }
 
-        // Kiểm tra xem có phải là Mèo Đêm Đầy Sao không
         const activePetId = localStorage.getItem('active_pet');
         const isCat = activePetId === 'pet_doisong_bandem';
 
-        // Mèo nhảy quãng đường xa hơn một chút
         const rangeX = isCat ? 100 : 60;
         const rangeY = isCat ? 60 : 40;
 
@@ -213,7 +208,6 @@ class PetInteractionManager {
 
         petImg.style.transform = (moveX < 0) ? 'scaleX(-1)' : 'scaleX(1)';
 
-        // Tốc độ di chuyển: Mèo chạy mất 0.4s (nhanh gấp đôi), pet thường 0.8s
         const speed = isCat ? '0.4s' : '0.8s';
         container.style.transition = `left ${speed} ease-in-out, top ${speed} ease-in-out`;
         container.style.left = `${newX}px`;
@@ -236,23 +230,18 @@ class PetInteractionManager {
             if (petImg) petImg.classList.add('pet-sleeping');
 
             if (activePetId === 'pet_doisong_bandem') {
-                // --- HIỆU ỨNG CẢNH MỘNG MỊ PURE CSS CHO MÈO ĐÊM ĐẦY SAO ---
                 if (!document.getElementById('pet-sleep-stars-container')) {
                     const starsContainer = document.createElement('div');
                     starsContainer.id = 'pet-sleep-stars-container';
                     starsContainer.className = 'cat-sleep-stars-wrap';
 
-                    // Thêm Mây, Cành Cây, Chim và 3 Ngôi Sao vào cảnh mộng mị
                     starsContainer.innerHTML = `
                         <div class="css-night-cloud"></div>
-                        
                         <div class="css-dream-branch">
                             <div class="css-leaf leaf-1"></div>
                             <div class="css-leaf leaf-2"></div>
                         </div>
-
                         <div class="css-dream-bird"></div>
-
                         <div class="css-star star-primary"></div>
                         <div class="css-star star-secondary"></div>
                         <div class="css-star star-tertiary"></div>
@@ -260,7 +249,6 @@ class PetInteractionManager {
                     container.appendChild(starsContainer);
                 }
             } else {
-                // Hiệu ứng Zzz mặc định cho các pet khác
                 if (!document.getElementById('pet-zzz')) {
                     const zzz = document.createElement('div');
                     zzz.id = 'pet-zzz';
@@ -273,7 +261,6 @@ class PetInteractionManager {
             this.idleTime = 0;
             if (petImg) petImg.classList.remove('pet-sleeping');
 
-            // Dọn dẹp cả hai loại hiệu ứng khi thức dậy
             const zzz = document.getElementById('pet-zzz');
             if (zzz) zzz.remove();
 
@@ -320,7 +307,7 @@ class PetInteractionManager {
         const user = JSON.parse(localStorage.getItem('currentUser'));
         if (!user) return;
 
-        if (this.hunger >= 100) return alert("Cún đang no căng bụng rồi! Không ăn thêm được đâu.");
+        if (this.hunger >= 100) return alert("Thú cưng đang no căng bụng rồi! Không ăn thêm được đâu.");
 
         const coinRef = db.ref(`student_coins/${user.username}`);
         const snap = await coinRef.once('value');
@@ -328,13 +315,13 @@ class PetInteractionManager {
 
         if (currentCoins < price) return alert(`❌ Không đủ Coin! Bạn còn thiếu ${price - currentCoins} 🪙.`);
 
-        if (confirm(`Thanh toán ${price} Coin để mua món này cho cún?`)) {
+        if (confirm(`Thanh toán ${price} Coin để mua món này?`)) {
             await coinRef.set(currentCoins - price);
             this.hunger = Math.min(100, this.hunger + hungerGain);
             this.saveHungerToDB();
             this.updateHungerUI();
             this.resetIdle();
-            alert(`Ăn ngon quá! Cún đã hồi phục năng lượng.`);
+            alert(`Ăn ngon quá! Đã hồi phục năng lượng.`);
 
             if (this.hunger > 50) {
                 const container = document.getElementById('virtual-pet-container');
@@ -350,35 +337,28 @@ class PetInteractionManager {
         const hungerBar = document.getElementById('pet-hunger-bar');
 
         if (!state) {
-            // 1. Dừng vòng lặp tụt đói và hoạt động
             if (this.loopInterval) {
                 clearInterval(this.loopInterval);
                 this.loopInterval = null;
             }
 
-            // 2. Ẩn thanh đói ngay lập tức
             if (hungerBar) {
                 hungerBar.style.display = 'none';
             }
 
-            // 3. Xóa đồ ăn đang rớt trên màn hình (nếu có)
             const foodItem = document.querySelector('.pet-food-item');
             if (foodItem) foodItem.remove();
 
-            // 4. Đánh thức pet dậy nếu đang ngủ dở
             this.setSleepState(false);
 
         } else {
-            // Đã xóa lệnh startPetLoop() gọi bừa bãi ở đây
-            
-            // Hiện lại thanh đói và khởi động nếu pet đang dùng có hỗ trợ VÀ ĐÃ ĐƯỢC MUA
             const activePetId = localStorage.getItem('active_pet');
-            if (activePetId && this.unlockedInteractions.includes(activePetId)) {
-                this.startPetLoop(); // <--- CHỈ KHỞI ĐỘNG KHI VƯỢT QUA BÀI KIỂM TRA NÀY
+            // FIX LỖI: Chặn chặt bằng isSupported để các pet khác không ăn ké tính năng
+            if (activePetId && this.isSupported(activePetId) && this.unlockedInteractions.includes(activePetId)) {
+                this.startPetLoop(); 
                 if (hungerBar) {
-                    hungerBar.style.display = 'flex'; // Hiển thị lại thanh đói
+                    hungerBar.style.display = 'flex'; 
                 } else {
-                    // Nếu chưa được tạo bao giờ thì khởi tạo lại
                     const user = JSON.parse(localStorage.getItem('currentUser'));
                     if (user) this.initHungerSystem(user.username);
                 }
@@ -422,7 +402,6 @@ class PetInteractionManager {
         const activePet = document.getElementById('virtual-pet-img');
         const container = document.getElementById('virtual-pet-container');
 
-        // BỔ SUNG QUAN TRỌNG: Gọi lại thanh đói sau khi cún được tạo lại vào DOM
         const user = JSON.parse(localStorage.getItem('currentUser'));
         if (user) {
             setTimeout(() => {
@@ -430,28 +409,29 @@ class PetInteractionManager {
                 if (this.isSupported(petData.id) && this.unlockedInteractions.includes(petData.id)) {
                     this.initHungerSystem(user.username);
                 } else {
-                    // SỬA LỖI Ở ĐÂY: Nếu đổi sang pet thường, PHẢI tắt vòng lặp chạy nhảy/ngủ ngầm đi
                     if (this.loopInterval) {
                         clearInterval(this.loopInterval);
                         this.loopInterval = null;
                     }
-                    // Tắt luôn thanh độ đói và xóa trạng thái ngủ
                     const hungerBar = document.getElementById('pet-hunger-bar');
                     if (hungerBar) hungerBar.style.display = 'none';
                     this.setSleepState(false);
                 }
-            }, 500); // Đợi 0.5s để đảm bảo hàm spawnPet của bạn đã dọn dẹp xong
+            }, 500); 
         }
 
         let clickTimer = null;
         let lastTap = 0;
 
+        // FIX LỖI: Chặn event kéo chuột/ chạm màn hình gọi nhầm trạng thái của pet không được hỗ trợ
         container.addEventListener('mousedown', () => {
+            if (!this.isSupported(petData.id)) return;
             this.isPetDragging = true;
             container.style.transition = 'none';
             this.setSleepState(false);
         });
         document.addEventListener('mouseup', () => {
+            if (!this.isSupported(petData.id)) return;
             if (this.isPetDragging) {
                 this.isPetDragging = false;
                 this.resetIdle();
@@ -459,11 +439,13 @@ class PetInteractionManager {
         });
 
         container.addEventListener('touchstart', () => {
+            if (!this.isSupported(petData.id)) return;
             this.isPetDragging = true;
             container.style.transition = 'none';
             this.setSleepState(false);
         }, { passive: true });
         document.addEventListener('touchend', () => {
+            if (!this.isSupported(petData.id)) return;
             if (this.isPetDragging) {
                 this.isPetDragging = false;
                 this.resetIdle();
@@ -496,8 +478,6 @@ class PetInteractionManager {
             lastTap = new Date().getTime();
         });
     }
-
-    static isSupported(petId) { return petId === 'pet_shiba' || this.interactivePets.some(p => p.id === petId); }
 
     static petTheAnimal(petElement) {
         if (this.isBusy) return;
@@ -599,15 +579,14 @@ document.addEventListener('DOMContentLoaded', () => { PetInteractionManager.init
 // TỐI ƯU HIỆU SUẤT: Tạm dừng vòng lặp thú cưng khi người dùng chuyển sang Tab khác hoặc thu nhỏ web
 document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
-        // Nếu web bị ẩn -> Xóa vòng lặp để giải phóng RAM
         if (PetInteractionManager.loopInterval) {
             clearInterval(PetInteractionManager.loopInterval);
         }
     } else {
-        // Nếu quay lại web -> PHẢI KIỂM TRA ĐÃ MUA TƯƠNG TÁC CHƯA MỚI ĐƯỢC CHẠY LẠI
         if (PetInteractionManager.isEnabled) {
             const activePetId = localStorage.getItem('active_pet');
-            if (activePetId && PetInteractionManager.unlockedInteractions.includes(activePetId)) {
+            // FIX LỖI: Khi người dùng mở lại Tab, hệ thống phải kiểm tra xem pet này có được hỗ trợ vòng lặp không
+            if (activePetId && PetInteractionManager.isSupported(activePetId) && PetInteractionManager.unlockedInteractions.includes(activePetId)) {
                 PetInteractionManager.startPetLoop();
             }
         }

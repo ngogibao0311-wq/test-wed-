@@ -1,0 +1,234 @@
+/* css/royal-ball.css */
+
+/* =========================================
+   1. NÚT SỰ KIỆN BÊN NGOÀI SẢNH
+========================================= */
+.royal-event-card {
+    background: linear-gradient(135deg, #2c3e50 0%, #1a0033 100%);
+    border: 2px solid #ffd700;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.royal-event-card::before {
+    content: '👑 MỞ CỬA';
+    position: absolute;
+    top: 15px;
+    right: -35px;
+    background: linear-gradient(90deg, #ff0844, #ffb199);
+    color: white;
+    font-size: 0.75em;
+    font-weight: 900;
+    padding: 5px 40px;
+    transform: rotate(45deg);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    letter-spacing: 1px;
+}
+
+/* =========================================
+   2. KHUNG MODAL CHÍNH ĐIỆN LÂU ĐÀI (Chống đè Theme)
+========================================= */
+#royalBallModal .modal-content {
+    background: transparent !important; /* Ép trong suốt để theme khác không đè màu lên ảnh */
+    position: relative;
+    border: 3px solid #ffd700;
+    border-radius: 15px;
+    box-shadow: 0 0 50px rgba(255, 215, 0, 0.4), inset 0 0 40px rgba(0,0,0,0.8);
+    overflow: hidden;
+}
+
+/* Lớp phủ tối dần vào trung tâm và ÉP BACKGROUND ẢNH CỐ ĐỊNH Ở ĐÂY */
+.castle-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: #1a0033 !important;
+    background-image: 
+        radial-gradient(circle at center, rgba(30, 0, 50, 0.4) 0%, rgba(10, 0, 20, 0.95) 100%),
+        url('https://images.unsplash.com/photo-1574359411659-15573a27fd0c?q=80&w=800&auto=format&fit=crop') !important;
+    background-position: center !important;
+    background-size: cover !important;
+    background-repeat: no-repeat !important;
+    z-index: 1;
+    border-radius: inherit;
+}
+
+/* Hiệu ứng BỤI PHÉP THUẬT LƠ LỬNG */
+.castle-overlay::before, .castle-overlay::after {
+    content: '';
+    position: absolute;
+    width: 3px; height: 3px;
+    border-radius: 50%;
+    background: transparent;
+    z-index: 2;
+}
+
+.castle-overlay::before {
+    box-shadow: 20px 50px #fff, 100px 120px #ffd700, 250px 80px #fff, 350px 200px #ffd700, 450px 40px #fff, 80px 250px #ffd700, 500px 280px #fff, 150px 300px #ffd700;
+    animation: floatDust 10s linear infinite;
+}
+
+.castle-overlay::after {
+    box-shadow: 50px 20px #ffd700, 200px 150px #fff, 300px 50px #ffd700, 400px 220px #fff, 120px 280px #ffd700, 380px 300px #fff, 480px 100px #ffd700, 220px 10px #fff;
+    animation: floatDust 15s linear infinite reverse;
+}
+
+@keyframes floatDust {
+    0% { transform: translateY(0) scale(1); opacity: 0; }
+    50% { opacity: 1; transform: translateY(-30px) scale(1.5); }
+    100% { transform: translateY(-60px) scale(1); opacity: 0; }
+}
+
+.royal-content-wrapper {
+    position: relative;
+    z-index: 5;
+    text-align: center;
+    padding: 30px 10px;
+}
+
+.royal-content-wrapper h3:first-child {
+    animation: pulseNeonText 2s infinite alternate;
+}
+
+@keyframes pulseNeonText {
+    0% { text-shadow: 0 0 5px #ffd700, 0 0 10px #ff8c00, 2px 2px 0px #000; }
+    100% { text-shadow: 0 0 15px #fff, 0 0 25px #ffd700, 0 0 35px #ff8c00, 2px 2px 0px #000; }
+}
+
+/* =========================================
+   3. SÀN KHIÊU VŨ 3D VÀ NHÂN VẬT
+========================================= */
+.dance-floor {
+    width: 100%;
+    height: 220px;
+    position: relative;
+    margin: 30px 0;
+}
+
+.dance-floor::before {
+    content: '';
+    position: absolute;
+    bottom: -10px; left: 10%; right: 10%;
+    height: 100px;
+    transform: perspective(300px) rotateX(60deg);
+    background: radial-gradient(ellipse at center, rgba(255, 215, 0, 0.4) 0%, rgba(255,255,255,0.1) 40%, transparent 80%);
+    border: 2px solid rgba(255, 215, 0, 0.5);
+    border-radius: 50%;
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.5);
+    z-index: 1;
+}
+
+.dancer {
+    position: absolute;
+    bottom: 25px;
+    width: 80px;
+    height: 80px;
+    font-size: 65px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    filter: drop-shadow(0 20px 10px rgba(0,0,0,0.8));
+    z-index: 5;
+}
+
+.dancer-male { left: 25%; }
+.dancer-female { right: 25%; }
+
+/* THAY ĐỔI LỚN NHẤT: Kịch bản khiêu vũ kéo dài đúng 10 giây (Không lặp lại) */
+.dancing .dancer-male { animation: choreographMale 10s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+.dancing .dancer-female { animation: choreographFemale 10s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+
+@keyframes choreographMale {
+    0% { transform: translateX(0) scale(1) rotate(0deg); }
+    15% { transform: translateX(90px) scale(1.1) rotate(10deg); } /* Bước 1: Lại gần */
+    30% { transform: translateX(110px) scale(1) rotate(0deg); } /* Bước 2: Nắm tay */
+    45% { transform: translateX(110px) translateY(-15px) scale(1.05) rotate(15deg); } /* Bước 3: Nâng lên trên không */
+    60% { transform: translateX(80px) translateY(0) scale(1) rotate(-5deg); } /* Bước 4: Bước lùi nhịp nhàng */
+    75% { transform: translateX(120px) scale(1.15) rotate(10deg); } /* Bước 5: Kéo lại gần sát nhau */
+    90% { transform: translateX(0) scale(1) rotate(0deg); } /* Bước 6: Tách ra từ từ */
+    100% { transform: translateX(0) scale(1) rotate(15deg); } /* Bước 7: Cúi chào kết thúc */
+}
+
+@keyframes choreographFemale {
+    0% { transform: translateX(0) scale(1) rotate(0deg); }
+    15% { transform: translateX(-90px) scale(1.1) rotate(-10deg); } 
+    30% { transform: translateX(-110px) scale(1) rotate(0deg); }   
+    45% { transform: translateX(-110px) translateY(-15px) scale(1.05) rotate(-15deg); } 
+    60% { transform: translateX(-80px) translateY(0) scale(1) rotate(5deg); } 
+    75% { transform: translateX(-120px) scale(1.15) rotate(360deg); } /* Nữ xoay váy vòng tròn trên không */
+    90% { transform: translateX(0) scale(1) rotate(0deg); } 
+    100% { transform: translateX(0) scale(1) rotate(-15deg); } /* Nhún váy chào */
+}
+
+/* =========================================
+   4. HỆ THỐNG ĐÈN SPOTLIGHT ĐA SẮC MÀU
+========================================= */
+.spotlight {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 6;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+}
+
+.spotlight::before, .spotlight::after {
+    content: '';
+    position: absolute;
+    top: -50px;
+    width: 200px; height: 400px;
+    clip-path: polygon(40% 0, 60% 0, 100% 100%, 0% 100%);
+    mix-blend-mode: screen;
+}
+
+.spotlight::before {
+    left: 10%;
+    background: linear-gradient(to bottom, rgba(255, 215, 0, 0.7) 0%, transparent 100%);
+    transform-origin: top center;
+    animation: swingLightGold 3s infinite alternate ease-in-out;
+}
+
+.spotlight::after {
+    right: 10%;
+    background: linear-gradient(to bottom, rgba(0, 255, 255, 0.5) 0%, transparent 100%);
+    transform-origin: top center;
+    animation: swingLightCyan 4s infinite alternate ease-in-out;
+}
+
+.dancing + .spotlight { opacity: 1; }
+
+@keyframes swingLightGold { 0% { transform: rotate(-25deg); } 100% { transform: rotate(15deg); } }
+@keyframes swingLightCyan { 0% { transform: rotate(25deg); } 100% { transform: rotate(-15deg); } }
+
+/* =========================================
+   5. NÚT BẤM BẮT ĐẦU 
+========================================= */
+#btnStartDance {
+    position: relative;
+    overflow: hidden;
+    animation: pulseBtn 1.5s infinite;
+    border: 2px solid #fff !important;
+}
+
+#btnStartDance::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 50%; height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.9), transparent);
+    transform: skewX(-25deg);
+    animation: shineSweep 2.5s infinite;
+}
+
+@keyframes pulseBtn {
+    0% { transform: scale(1); box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+    50% { transform: scale(1.05); box-shadow: 0 10px 30px rgba(255,215,0,0.8); }
+    100% { transform: scale(1); box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+}
+
+@keyframes shineSweep {
+    0% { left: -100%; }
+    20% { left: 200%; }
+    100% { left: 200%; }
+}
