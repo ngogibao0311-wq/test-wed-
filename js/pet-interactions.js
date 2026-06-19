@@ -423,34 +423,77 @@ class PetInteractionManager {
         let clickTimer = null;
         let lastTap = 0;
 
-        // FIX LỖI: Chặn event kéo chuột/ chạm màn hình gọi nhầm trạng thái của pet không được hỗ trợ
-        container.addEventListener('mousedown', () => {
+        // ==========================================
+        // FIX: BỔ SUNG LOGIC KÉO THẢ PET HOÀN CHỈNH
+        // ==========================================
+        let petOffsetX = 0;
+        let petOffsetY = 0;
+
+        const startPetDrag = (e) => {
             if (!this.isSupported(petData.id)) return;
             this.isPetDragging = true;
             container.style.transition = 'none';
             this.setSleepState(false);
+
+            const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+            const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+            const rect = container.getBoundingClientRect();
+            
+            petOffsetX = clientX - rect.left;
+            petOffsetY = clientY - rect.top;
+        };
+
+        const onPetDrag = (e) => {
+            if (!this.isPetDragging) return;
+            e.preventDefault(); // Ngăn trình duyệt cuộn trang khi vuốt Pet trên Mobile
+            
+            const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+            const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+            
+            let newX = clientX - petOffsetX;
+            let newY = clientY - petOffsetY;
+
+            // Giới hạn không cho pet lọt ra ngoài mép màn hình
+            const maxX = window.innerWidth - container.offsetWidth;
+            const maxY = window.innerHeight - container.offsetHeight;
+            newX = Math.max(0, Math.min(maxX, newX));
+            newY = Math.max(0, Math.min(maxY, newY));
+
+            container.style.left = `${newX}px`;
+            container.style.top = `${newY}px`;
+            container.style.bottom = 'auto';
+            container.style.right = 'auto';
+        };
+
+        const endPetDrag = () => {
+            if (!this.isSupported(petData.id)) return;
+            if (this.isPetDragging) {
+                this.isPetDragging = false;
+                this.resetIdle();
+            }
+        };
+
+        // Gắn sự kiện cho Chuột (Máy tính)
+        container.addEventListener('mousedown', (e) => {
+            startPetDrag(e);
+            document.addEventListener('mousemove', onPetDrag);
         });
         document.addEventListener('mouseup', () => {
-            if (!this.isSupported(petData.id)) return;
-            if (this.isPetDragging) {
-                this.isPetDragging = false;
-                this.resetIdle();
-            }
+            endPetDrag();
+            document.removeEventListener('mousemove', onPetDrag);
         });
 
-        container.addEventListener('touchstart', () => {
-            if (!this.isSupported(petData.id)) return;
-            this.isPetDragging = true;
-            container.style.transition = 'none';
-            this.setSleepState(false);
-        }, { passive: true });
+        // Gắn sự kiện cho Cảm ứng (Điện thoại)
+        container.addEventListener('touchstart', (e) => {
+            startPetDrag(e);
+            document.addEventListener('touchmove', onPetDrag, { passive: false });
+        }, { passive: false }); // Bắt buộc false để e.preventDefault() hoạt động
+
         document.addEventListener('touchend', () => {
-            if (!this.isSupported(petData.id)) return;
-            if (this.isPetDragging) {
-                this.isPetDragging = false;
-                this.resetIdle();
-            }
+            endPetDrag();
+            document.removeEventListener('touchmove', onPetDrag);
         });
+        // ==========================================
 
         const handleInteraction = (type) => {
             if (!this.isEnabled || !this.isSupported(petData.id)) return;
