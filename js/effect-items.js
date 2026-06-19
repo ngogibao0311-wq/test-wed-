@@ -53,6 +53,9 @@ class EffectManager {
             case 'effect_truyenthuyet_vutru': 
                 this.createGalaxyLegendEffect();
                 break;
+            case 'effect_vutru_saothuy':
+                this.createMercuryRainEffect();
+                break;
         }
         localStorage.setItem('active_effect', effectId);
     }
@@ -310,5 +313,33 @@ class EffectManager {
                 </div>
             </div>
         `;
+    }
+
+    static createMercuryRainEffect() {
+        this.currentInterval = setInterval(() => {
+            const crystal = document.createElement('div');
+            crystal.classList.add('effect-mercury-crystal');
+
+            // Xuất phát ngẫu nhiên ở mép trên màn hình
+            crystal.style.left = Math.random() * 120 + 'vw'; 
+
+            // Kích thước ngẫu nhiên để tạo cảm giác vệt dài vệt ngắn
+            let width = Math.random() * 2 + 2; 
+            let height = Math.random() * 15 + 15; 
+            crystal.style.width = `${width}px`;
+            crystal.style.height = `${height}px`;
+
+            // Tốc độ rơi từ 3s đến 6s
+            let duration = Math.random() * 3 + 3;
+            crystal.style.animationDuration = duration + 's';
+
+            this.container.appendChild(crystal);
+
+            // Dọn dẹp sau khi hạt rơi xong
+            setTimeout(() => {
+                crystal.remove();
+            }, duration * 1000);
+
+        }, 150); // Mỗi 0.15s sinh ra 1 vệt tinh thể
     }
 }

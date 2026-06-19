@@ -225,4 +225,15 @@
         padding: 30px 20px !important;
         width: auto !important;
     }
+
+    /* ==========================================
+       FIX LỖI KHÔNG DI CHUYỂN ĐƯỢC PET TRÊN MOBILE
+       ========================================== */
+    /* Lưu ý: Bạn cần thay thế #petWidget hoặc .pet-container bằng đúng ID/Class của con Pet trong HTML của bạn */
+    #petWidget, .pet-container, .pet, #pet {
+        touch-action: none !important; /* Ngăn trình duyệt cuộn trang hoặc zoom khi người dùng chạm vuốt vào Pet */
+        user-select: none !important; /* Tránh tình trạng bôi đen text vô tình khi kéo thả */
+        -webkit-user-select: none !important; /* Dành cho Safari/iOS */
+        -webkit-touch-callout: none !important; /* Ngăn hiện menu popup (như Copy/Save) khi nhấn giữ trên iOS */
+    }
 }

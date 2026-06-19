@@ -47,6 +47,12 @@ class ThemeManager {
             background: '#050508',  // Đen vũ trụ sâu thẳm
             className: 'theme-cosmic-godhood' // <--- Class chốt để kích hoạt CSS vũ trụ
         },
+        'theme_vutru_saothuy': { 
+            primary: '#45f3ff',     // Xanh Cyan (Plasma lỏng)
+            secondary: '#c5c6c7',   // Bạc hợp kim
+            background: '#0b0c10',  // Đen không gian thẳm
+            className: 'theme-mercury-station' 
+        },
     };
 
     static applyTheme(themeId) {
@@ -62,9 +68,9 @@ class ThemeManager {
                 document.body.classList.remove(className);
             }
         });
-        
+
         // 1. Xóa tất cả các class theme đặc biệt cũ khỏi body
-        document.body.classList.remove('theme-fairy-tale', 'theme-magic-forest', 'theme-lifestyle', 'theme-night-sky', 'theme-daylight-sky', 'theme_truyenthuyet_vutru');
+        document.body.classList.remove('theme-fairy-tale', 'theme-magic-forest', 'theme-lifestyle', 'theme-night-sky', 'theme-daylight-sky', 'theme_truyenthuyet_vutru', 'theme-mercury-station');
 
         // 2. Tiêm class mới vào body nếu theme đó có yêu cầu thay đổi hình dáng
         if (theme.className) {
