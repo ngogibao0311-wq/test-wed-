@@ -3817,7 +3817,8 @@ window.handleRequestCashSubmit = async function () {
 // ================= HỆ THỐNG THEO DÕI VIDEO YOUTUBE =================
 let ytPlayers = {};
 let watchTimers = {};
-let watchDurations = {};
+let watchDurations = {}; // Lưu mốc thời gian XA NHẤT học sinh đã xem tới
+let lastSavedTime = {};  // Biến phụ để chống spam lưu lên Firebase liên tục
 
 // Hàm thay thế getEmbedHTML dành riêng cho việc có theo dõi thời gian
 function getTrackedVideoHTML(url, assignId) {
@@ -3829,64 +3830,84 @@ function getTrackedVideoHTML(url, assignId) {
     else if (url.includes('embed/')) { videoId = url.split('embed/')[1].split('?')[0]; }
 
     if (videoId) {
-        // Thêm enablejsapi=1 để cho phép JS điều khiển iframe
         let embedUrl = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&rel=0`;
         return `
         <div class="video-wrapper" style="margin-top: 15px; border: 2px solid #667eea; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.8);">
             <iframe id="yt-player-${assignId}" width="100%" height="315" src="${embedUrl}" frameborder="0" allowfullscreen></iframe>
             <div style="text-align: center; margin-top: 10px; font-weight: bold; color: #059669; font-size: 1.1em;">
-                ⏱️ Thời gian đã xem: <span id="watch-time-display-${assignId}">0</span> giây
+                ⏱️ Mốc thời gian đã xem tới: <span id="watch-time-display-${assignId}">0</span> giây
             </div>
         </div>`;
     }
     return '';
 }
 
-// Hàm khởi tạo Player sau khi HTML đã được in ra màn hình
-window.initYouTubeTrackers = function (assignments) {
-    if (typeof YT === 'undefined' || !YT.Player) return; // Chờ API load xong
+window.initYouTubeTrackers = function(assignments) {
+    if (typeof YT === 'undefined' || !YT.Player) return; 
 
     assignments.forEach(assign => {
         const iframeId = `yt-player-${assign.id}`;
         const iframeEl = document.getElementById(iframeId);
-
+        
         if (iframeEl && !ytPlayers[assign.id]) {
-            // Lấy dữ liệu cũ từ Firebase nếu học sinh đã từng xem trước đó
+            // Lấy dữ liệu cũ TỪ TRƯỚC, lấy xong mới khởi tạo video
             db.ref(`video_tracking/${assign.id}/${currentUser.username}`).once('value', (snap) => {
                 watchDurations[assign.id] = snap.val() || 0;
                 const display = document.getElementById(`watch-time-display-${assign.id}`);
-                if (display) display.innerText = watchDurations[assign.id];
-            });
+                if(display) display.innerText = watchDurations[assign.id];
 
-            // Gắn API vào iframe
-            ytPlayers[assign.id] = new YT.Player(iframeId, {
-                events: {
-                    'onStateChange': (event) => onPlayerStateChange(event, assign.id)
-                }
+                // Bắt đầu khởi tạo Player
+                ytPlayers[assign.id] = new YT.Player(iframeId, {
+                    events: {
+                        'onReady': (event) => {
+                            // LỚP BẢO VỆ 1: Khi load video, ép tua tới đúng điểm đang xem dở
+                            if (watchDurations[assign.id] > 0) {
+                                event.target.seekTo(watchDurations[assign.id], true);
+                            }
+                        },
+                        'onStateChange': (event) => onPlayerStateChange(event, assign.id)
+                    }
+                });
             });
         }
     });
 };
 
-// Logic đếm giây khi video Đang chạy (PLAYING)
 function onPlayerStateChange(event, assignId) {
+    const player = event.target;
+    
     if (event.data == YT.PlayerState.PLAYING) {
-        // Đếm mỗi 1 giây
         watchTimers[assignId] = setInterval(() => {
-            watchDurations[assignId] = (watchDurations[assignId] || 0) + 1;
-            const display = document.getElementById(`watch-time-display-${assignId}`);
-            if (display) display.innerText = watchDurations[assignId];
-
-            // Lưu lên Firebase mỗi 5 giây để tránh nghẽn mạng
-            if (watchDurations[assignId] % 5 === 0) {
-                db.ref(`video_tracking/${assignId}/${currentUser.username}`).set(watchDurations[assignId]);
+            // Lấy mốc thời gian thực tế của video (chứ không +1 mù quáng nữa)
+            let currentTime = Math.floor(player.getCurrentTime());
+            
+            // LỚP BẢO VỆ 2: CHỐNG XEM LẠI ĐOẠN ĐẦU ĐỂ CÀY GIỜ
+            // Chỉ công nhận nếu đoạn video này học sinh chưa từng xem
+            if (currentTime > watchDurations[assignId]) {
+                
+                // LỚP BẢO VỆ 3: CHỐNG TUA NHANH
+                // Nếu thời gian nhảy vọt lớn hơn 5 giây (Do kéo thanh tiến trình)
+                if (currentTime - watchDurations[assignId] > 5) {
+                    // Ép giật lùi về vị trí cũ
+                    player.seekTo(watchDurations[assignId], true);
+                } else {
+                    // Học sinh xem bình thường (nhảy từng giây một) -> Cập nhật hiển thị
+                    watchDurations[assignId] = currentTime;
+                    const display = document.getElementById(`watch-time-display-${assignId}`);
+                    if(display) display.innerText = watchDurations[assignId];
+                    
+                    // Lưu lên Firebase mỗi 5 giây
+                    if (watchDurations[assignId] % 5 === 0 && lastSavedTime[assignId] !== watchDurations[assignId]) {
+                        db.ref(`video_tracking/${assignId}/${currentUser.username}`).set(watchDurations[assignId]);
+                        lastSavedTime[assignId] = watchDurations[assignId];
+                    }
+                }
             }
         }, 1000);
     } else {
-        // Dừng đếm khi Pause/Buffering/Ended
         clearInterval(watchTimers[assignId]);
         if (watchDurations[assignId]) {
-            db.ref(`video_tracking/${assignId}/${currentUser.username}`).set(watchDurations[assignId]); // Lưu chốt lần cuối
+            db.ref(`video_tracking/${assignId}/${currentUser.username}`).set(watchDurations[assignId]);
         }
     }
 }
