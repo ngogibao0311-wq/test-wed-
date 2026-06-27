@@ -237,3 +237,37 @@
         -webkit-touch-callout: none !important; /* Ngăn hiện menu popup (như Copy/Save) khi nhấn giữ trên iOS */
     }
 }
+/* ==============================================================
+   TỐI ƯU HÓA THANH LỌC HỌC SINH (NÚT NẰM NGANG) TRÊN MOBILE
+   ============================================================== */
+#assignedStudentFilterContainer,
+#submittedStudentFilterContainer,
+#materialsStudentFilterContainer,
+#scheduleStudentFilterContainer {
+    padding-bottom: 10px !important; /* Không gian dư để không vướng ngón tay */
+    -webkit-overflow-scrolling: touch !important; /* Vuốt mượt mà trên iOS/Safari */
+    scrollbar-width: none !important; /* Ẩn thanh cuộn trên Firefox */
+    gap: 8px !important;
+}
+
+/* Ẩn thanh cuộn trên Chrome/Safari/Edge/Android */
+#assignedStudentFilterContainer::-webkit-scrollbar,
+#submittedStudentFilterContainer::-webkit-scrollbar,
+#materialsStudentFilterContainer::-webkit-scrollbar,
+#scheduleStudentFilterContainer::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* Phóng to nút lọc để dễ bấm bằng ngón tay hơn */
+.btn-student-filter {
+    padding: 8px 16px !important;
+    font-size: 0.95em !important;
+    white-space: nowrap !important; /* Chống rớt dòng chữ tên học sinh */
+}
+
+/* Tối ưu hóa bảng Lộ trình và Thời khóa biểu không bị tràn viền card */
+.card > div[style*="overflow-x: auto;"] {
+    -webkit-overflow-scrolling: touch !important;
+    margin: 0 -15px !important; /* Tràn ra viền card một chút để có không gian vuốt */
+    padding: 0 15px !important;
+}

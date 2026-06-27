@@ -1,9 +1,32 @@
 const loginForm = document.getElementById('loginForm');
+
+// Khai báo biến toàn cục để quản lý bộ đếm ngược
+let lockoutInterval = null;
+
 if (loginForm) {
     loginForm.addEventListener('submit', async function (e) {
         e.preventDefault();
-        const userVal = document.getElementById('username').value;
-        const passVal = document.getElementById('password').value;
+        const userVal = document.getElementById('username').value.trim();
+        const passVal = document.getElementById('password').value.trim();
+        const errorMsg = document.getElementById('errorMsg');
+
+        // 0. FIX LỖI KẸT ĐỒNG HỒ UI: Dừng đồng hồ của người trước (nếu có)
+        if (lockoutInterval) {
+            clearInterval(lockoutInterval);
+            lockoutInterval = null;
+        }
+
+        errorMsg.innerHTML = 'Đang xác thực...';
+        errorMsg.style.color = 'blue';
+
+        const now = Date.now();
+
+        // 1. KIỂM TRA ÁN PHẠT TRÊN THIẾT BỊ NÀY (Bảo vệ chống phá hoại)
+        const deviceLockout = localStorage.getItem('deviceLockoutUntil');
+        if (deviceLockout && now < parseInt(deviceLockout)) {
+            startLockoutCountdown(parseInt(deviceLockout), errorMsg);
+            return; 
+        }
 
         // Tải danh sách user từ server
         let users = await getDB('users');
@@ -12,27 +35,80 @@ if (loginForm) {
         if (users.length === 0) {
             await pushDB('users', { username: 'gv1', password: '123', role: 'teacher', name: 'Giáo viên A' });
             await pushDB('users', { username: 'hs1', password: '123', role: 'student', name: 'Học sinh B' });
-            users = await getDB('users'); // Tải lại
+            users = await getDB('users'); 
         }
 
-        const user = users.find(u => u.username === userVal && u.password === passVal);
+        const user = users.find(u => u.username === userVal);
 
-        if (user) {
-            // ========================================================
-            // THÊM LOGIC CHẶN ĐĂNG NHẬP KHI TÀI KHOẢN BỊ KHÓA
-            // ========================================================
-            if (user.isLocked) {
-                document.getElementById('errorMsg').innerHTML = '🔒 LỖI: Tài khoản đã bị khóa tạm thời.<br>Vui lòng liên hệ Giáo viên để giải quyết!';
-                return; // Dừng tiến trình đăng nhập ngay lập tức
+        if (!user) {
+            errorMsg.innerHTML = '❌ Tên đăng nhập không tồn tại!';
+            errorMsg.style.color = 'red';
+            return;
+        }
+
+        // 2. KIỂM TRA KHÓA THỦ CÔNG (Giáo viên khóa học sinh từ hệ thống)
+        if (user.isLocked) {
+            errorMsg.innerHTML = '🔒 LỖI: Tài khoản đã bị khóa.<br>Vui lòng liên hệ Giáo viên để giải quyết!';
+            errorMsg.style.color = 'red';
+            return;
+        }
+
+        // 3. KIỂM TRA MẬT KHẨU & GHI ÁN PHẠT VÀO THIẾT BỊ NẾU SAI
+        if (user.password !== passVal) {
+            // Tăng biến đếm số lần sai của thiết bị này
+            let currentFails = parseInt(localStorage.getItem('deviceFails') || '0') + 1;
+            
+            if (currentFails >= 5) {
+                // Phạt khóa thiết bị 15 phút
+                const lockTime = now + (15 * 60 * 1000);
+                localStorage.setItem('deviceLockoutUntil', lockTime);
+                localStorage.setItem('deviceFails', '0'); // Reset bộ đếm
+                startLockoutCountdown(lockTime, errorMsg);
+            } else {
+                localStorage.setItem('deviceFails', currentFails);
+                errorMsg.innerHTML = `❌ Sai mật khẩu! Thiết bị này còn <b>${5 - currentFails}</b> lần thử.`;
+                errorMsg.style.color = 'red';
             }
+            return;
+        }
 
-            // Nếu không bị khóa thì mới cho lưu phiên và vào trong
-            localStorage.setItem('currentUser', JSON.stringify(user));
-            window.location.href = user.role === 'teacher' ? 'teacher.html' : 'student.html';
+        // 4. ĐĂNG NHẬP THÀNH CÔNG -> GỠ BỎ LỊCH SỬ SAI CỦA THIẾT BỊ NÀY
+        localStorage.removeItem('deviceFails');
+        localStorage.removeItem('deviceLockoutUntil');
+
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        if (user.role === 'teacher') {
+            window.location.href = 'teacher.html';
         } else {
-            document.getElementById('errorMsg').innerText = 'Sai tài khoản hoặc mật khẩu!';
+            window.location.href = 'student.html';
         }
     });
+}
+
+// ==========================================
+// HÀM HỖ TRỢ: CHẠY ĐỒNG HỒ ĐẾM NGƯỢC
+// ==========================================
+function startLockoutCountdown(lockoutUntil, errorElement) {
+    if (lockoutInterval) clearInterval(lockoutInterval);
+
+    function update() {
+        const remain = lockoutUntil - Date.now();
+        if (remain <= 0) {
+            clearInterval(lockoutInterval);
+            errorElement.innerHTML = '✅ Hết thời gian phạt! Bạn có thể thử đăng nhập lại.';
+            errorElement.style.color = 'green';
+            localStorage.removeItem('deviceLockoutUntil'); // Xóa án phạt khi hết giờ
+            return;
+        }
+
+        const minutes = Math.floor(remain / 60000);
+        const seconds = Math.floor((remain % 60000) / 1000);
+        errorElement.innerHTML = `⏳ Thiết bị này đã nhập sai quá nhiều lần.<br>Khóa đăng nhập: <b style="color:red;">${minutes} phút ${seconds} giây</b>`;
+        errorElement.style.color = '#e67e22';
+    }
+
+    update(); // Chạy ngay lập tức để không bị delay 1 giây
+    lockoutInterval = setInterval(update, 1000);
 }
 
 function logout() {

@@ -31,6 +31,12 @@ class PetInteractionManager {
             name: '🌌 Mèo Đêm Đầy Sao',
             desc: 'Nhấn 1 lần: Vuốt ve. Nhấn đúp: Cho ăn cá. Tốc độ di chuyển lẹ làng và ngủ nướng gấp 3 lần!',
             price: 350
+        },
+        {
+            id: 'pet_doisong_banngay',
+            name: '🐶 Cún Vui Vẻ',
+            desc: 'Nhấn 1 lần: Vuốt ve. Nhấn đúp: Cho ăn xương.',
+            price: 300
         }
     ];
 
@@ -596,15 +602,52 @@ class PetInteractionManager {
                 setTimeout(() => {
                     if (food.parentNode) food.remove();
                     petElement.style.transform = `${flipStyle} translateY(0) scale(1)`;
-                    setTimeout(() => {
-                        container.style.transition = 'none';
-                        this.isBusy = false;
-                    }, 200);
+                    
+                    // KIỂM TRA NẾU LÀ CÚN VUI VẺ -> KÍCH HOẠT CHUỖI SỰ KIỆN ĐẶC BIỆT
+                    if (petData.id === 'pet_doisong_banngay') {
+                        this.playHappyDogSequence(petElement, container);
+                    } else {
+                        // Pet bình thường kết thúc ăn
+                        setTimeout(() => {
+                            container.style.transition = 'none';
+                            this.isBusy = false;
+                        }, 200);
+                    }
                 }, 250);
             }, 500);
         };
 
         setTimeout(() => { if (document.body.contains(food) && !isDragging) runToBoneAndEat(); }, 1500);
+    }
+
+    // HÀM XỬ LÝ SỰ KIỆN: CÚN VUI VẺ CHƠI BÓNG
+    static playHappyDogSequence(petElement, container) {
+        // 1. Tỏa hào quang rực rỡ
+        petElement.classList.add('happy-dog-aura');
+        this.spawnParticles(container, '🌟');
+
+        // 2. Đợi 2 giây sau khi ăn xong
+        setTimeout(() => {
+            // 3. Quả bóng bay đến
+            const ball = document.createElement('div');
+            ball.innerText = '🎾';
+            ball.className = 'happy-dog-ball';
+            container.appendChild(ball);
+
+            // 4. Pet nhảy nhót mừng rỡ
+            petElement.classList.add('happy-dog-playing');
+            this.spawnParticles(container, '🎵');
+
+            // 5. Kết thúc chơi đùa sau 5 giây
+            setTimeout(() => {
+                if (ball.parentNode) ball.remove(); // Xóa bóng
+                petElement.classList.remove('happy-dog-aura'); // Tắt hào quang
+                petElement.classList.remove('happy-dog-playing'); // Ngừng nhảy
+                container.style.transition = 'none';
+                this.isBusy = false; // Giải phóng trạng thái bận để tương tác tiếp
+            }, 5000);
+
+        }, 2000);
     }
 
     static spawnParticles(container, emoji) {

@@ -1874,3 +1874,443 @@
     color: #2ed573 !important;
     text-shadow: 0 0 8px rgba(46, 213, 115, 0.5) !important;
 }
+/* =========================================================================
+   GIAO DIỆN MỚI: DỊ ĐIỂM KHÔNG GIAN (THEME COSMIC ANOMALY) - MỚI 100%
+   ========================================================================= */
+
+/* 1. ĐỔI PHÔNG CHỮ & MÀU SẮC CHỦ ĐẠO TOÀN TRANG WEB */
+body.theme-cosmic-anomaly {
+    font-family: 'Segoe UI', Roboto, 'Orbitron', -apple-system, sans-serif !important;
+    background-color: #030712 !important;
+    background-image: 
+        radial-gradient(at 10% 20%, rgba(236, 72, 153, 0.15) 0px, transparent 50%),
+        radial-gradient(at 90% 80%, rgba(6, 118, 234, 0.15) 0px, transparent 50%) !important;
+    background-attachment: fixed !important;
+    color: #f1f5f9 !important;
+}
+
+/* Ký tự đặc biệt hoặc chữ quan trọng */
+.theme-cosmic-anomaly h1, 
+.theme-cosmic-anomaly h2, 
+.theme-cosmic-anomaly h3, 
+.theme-cosmic-anomaly h4 {
+    color: #00f2fe !important;
+    text-shadow: 0 0 10px rgba(0, 242, 254, 0.5) !important;
+    font-weight: 700;
+}
+
+/* 2. THAY ĐỔI HÌNH DẠNG VÀ DIỆN MẠO CỦA CÁC POPUP & BẢNG ĐIỀU KHIỂN */
+.theme-cosmic-anomaly .store-item-card,
+.theme-cosmic-anomaly div[id*="modal"],
+.theme-cosmic-anomaly div[class*="popup"],
+.theme-cosmic-anomaly div[class*="card"] {
+    background: rgba(15, 23, 42, 0.65) !important; /* Nền tối hố đen */
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    /* Thiết kế bo viền bất đối xứng góc vũ trụ */
+    border-radius: 30px 10px 30px 10px !important;
+    border: 1px solid rgba(6, 182, 212, 0.3) !important;
+    box-shadow: 
+        0 15px 35px rgba(0, 0, 0, 0.6),
+        0 0 20px rgba(236, 72, 153, 0.15),
+        inset 0 1px 2px rgba(255, 255, 255, 0.1) !important;
+    transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
+
+/* Hiệu ứng di chuột kích hoạt tia gamma */
+.theme-cosmic-anomaly .store-item-card:hover {
+    border-color: #ec4899 !important;
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.7),
+        0 0 30px rgba(236, 72, 153, 0.4),
+        0 0 60px rgba(6, 182, 212, 0.2) !important;
+    transform: translateY(-5px) scale(1.01) !important;
+}
+
+/* 3. THAY ĐỔI TOÀN BỘ Ô NHẬP LIỆU VÀ FORM (Inputs & Fields) */
+.theme-cosmic-anomaly input,
+.theme-cosmic-anomaly textarea,
+.theme-cosmic-anomaly select {
+    background: rgba(3, 7, 18, 0.8) !important;
+    border: 1px solid rgba(241, 245, 249, 0.2) !important;
+    border-radius: 12px !important;
+    color: #38bdf8 !important; /* Chữ màu neon cyan */
+    padding: 10px 15px !important;
+    text-shadow: 0 0 5px rgba(56, 189, 248, 0.3) !important;
+}
+
+.theme-cosmic-anomaly input:focus,
+.theme-cosmic-anomaly textarea:focus,
+.theme-cosmic-anomaly select:focus {
+    border-color: #ec4899 !important;
+    outline: none !important;
+    box-shadow: 0 0 12px rgba(236, 72, 153, 0.5) !important;
+    background: rgba(3, 7, 18, 0.95) !important;
+}
+
+/* Chữ gợi ý mờ bên trong ô */
+.theme-cosmic-anomaly ::placeholder {
+    color: #64748b !important;
+}
+
+/* 4. TÙY BIẾN THANH CUỘN (Slide bar / Scrollbar) ĐỘC QUYỀN */
+.theme-cosmic-anomaly ::-webkit-scrollbar {
+    width: 10px !important;
+    height: 10px !important;
+}
+
+/* Phần nền chạy của thanh cuộn */
+.theme-cosmic-anomaly ::-webkit-scrollbar-track {
+    background: #030712 !important;
+    border-left: 1px solid rgba(6, 182, 212, 0.1) !important;
+}
+
+/* Cục kéo trượt - Mô phỏng vệt năng lượng vũ trụ tụ lại */
+.theme-cosmic-anomaly ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #06b6d4 0%, #ec4899 100%) !important;
+    border-radius: 5px !important;
+    border: 2px solid #030712 !important;
+}
+
+.theme-cosmic-anomaly ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #22d3ee 0%, #f472b6 100%) !important;
+}
+
+/* 5. CÁC NÚT BẤM (Buttons) TRONG GIAO DIỆN VŨ TRỤ */
+.theme-cosmic-anomaly button,
+.theme-cosmic-anomaly .btn {
+    background: linear-gradient(135deg, #06b6d4 0%, #4f46e5 100%) !important;
+    border: none !important;
+    border-radius: 14px !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.5px !important;
+    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3) !important;
+    transition: all 0.3s ease !important;
+}
+
+.theme-cosmic-anomaly button:hover,
+.theme-cosmic-anomaly .btn:hover {
+    background: linear-gradient(135deg, #ec4899 0%, #d946ef 100%) !important; /* Đổi sang phổ hồng tím khi hover */
+    box-shadow: 0 6px 20px rgba(236, 72, 153, 0.5) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Định dạng nhãn tag "Vũ trụ" riêng biệt trong cửa hàng */
+.theme-cosmic-anomaly .item-tag {
+    background: linear-gradient(90deg, #ec4899, #06b6d4) !important;
+    color: #fff !important;
+    border-radius: 8px !important;
+    font-weight: 800 !important;
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.5) !important;
+}
+/* =========================================================================
+   HIỆU ỨNG TOÀN WEB: BỤI TINH VÂN & SAO BĂNG (COSMIC DUST)
+   ========================================================================= */
+
+/* Hạt bụi lượng tử bay từ dưới lên */
+.effect-cosmic-dust-particle {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: floatUpCosmic linear forwards;
+    z-index: 999;
+    opacity: 0;
+}
+
+@keyframes floatUpCosmic {
+    0% { 
+        transform: translateY(0) scale(0.5); 
+        opacity: 0; 
+    }
+    15% { 
+        opacity: 0.8; /* Tỏa sáng khi vừa trồi lên */
+    }
+    85% { 
+        opacity: 0.8; 
+    }
+    100% { 
+        transform: translateY(-120vh) scale(1.5); /* Bay vút qua mép trên màn hình */
+        opacity: 0; 
+    }
+}
+
+/* Vệt sao băng xẹt chéo qua màn hình */
+.effect-shooting-star-cosmic {
+    position: absolute;
+    width: 150px;
+    height: 3px;
+    /* Dải gradient: Đuôi tàng hình -> Thân xanh lục/cyan -> Đầu trắng chói */
+    background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.8), #ffffff);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: shootingStarZoom 1.5s ease-in forwards;
+    z-index: 998;
+    filter: drop-shadow(0 0 15px #00f2fe);
+}
+
+@keyframes shootingStarZoom {
+    0% { 
+        transform: translateX(0) translateY(0) rotate(20deg) scale(0); 
+        opacity: 0; 
+    }
+    10% { 
+        opacity: 1; 
+        transform: translateX(5vw) translateY(5vh) rotate(20deg) scale(1);
+    }
+    100% { 
+        /* Bay chéo xẹt ngang qua khung hình */
+        transform: translateX(120vw) translateY(60vh) rotate(20deg) scale(0.5); 
+        opacity: 0; 
+    }
+}
+/* =========================================================================
+   HIỆU ỨNG TOÀN WEB: CHẤN ĐỘNG KHÔNG GIAN (VỆ THẦN NGÂN HÀ)
+   Phong cách: Không rơi rụng - Dựa trên sự biến đổi không gian (Scale & Fade)
+   ========================================================================= */
+
+/* 1. Lớp Cực Quang Nền (Aurora Background) */
+.effect-guardian-aurora-bg {
+    position: absolute;
+    top: -50%; 
+    left: -50%;
+    width: 200%; 
+    height: 200%;
+    /* 2 luồng khí Xanh Ngọc và Tím đan xen */
+    background: 
+        radial-gradient(ellipse at 30% 40%, rgba(138, 43, 226, 0.08), transparent 50%),
+        radial-gradient(ellipse at 70% 60%, rgba(0, 210, 211, 0.08), transparent 50%);
+    filter: blur(50px);
+    animation: auroraGuardianSway 15s ease-in-out infinite alternate;
+    z-index: 9990;
+    pointer-events: none;
+}
+
+@keyframes auroraGuardianSway {
+    0% { transform: rotate(-5deg) scale(1); }
+    100% { transform: rotate(5deg) scale(1.1); }
+}
+
+/* 2. Sóng Hấp Dẫn Lượng Tử (Quantum Ripples) */
+.effect-guardian-ripple {
+    position: absolute;
+    width: 10px; 
+    height: 10px;
+    border-radius: 50%;
+    /* Viền ngoài xanh, bóng trong tím tạo chiều sâu */
+    border: 2px solid rgba(0, 210, 211, 0.6);
+    box-shadow: 0 0 25px rgba(138, 43, 226, 0.8), inset 0 0 15px rgba(0, 210, 211, 0.4);
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 1;
+    animation: rippleGuardianExpand 4s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+    z-index: 9991;
+    pointer-events: none;
+}
+
+/* Vòng tròn lan rộng ra to gấp 60 lần rồi tan biến */
+@keyframes rippleGuardianExpand {
+    0% { 
+        transform: translate(-50%, -50%) scale(0); 
+        opacity: 1; 
+        border-width: 4px; 
+    }
+    100% { 
+        transform: translate(-50%, -50%) scale(60); 
+        opacity: 0; 
+        border-width: 0px; 
+    }
+}
+
+/* 3. Vết Nứt Thời Không (Spatial Rifts) */
+.effect-guardian-rift {
+    position: absolute;
+    width: 0px; 
+    height: 2px;
+    background: #ffffff;
+    border-radius: 50%;
+    /* Tỏa hào quang rực rỡ để trông như ánh sáng từ chiều không gian khác hắt sang */
+    box-shadow: 0 0 10px #fff, 0 0 30px #00d2d1, 0 0 60px #8a2be2;
+    transform-origin: center center;
+    animation: riftGuardianTear 2.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    z-index: 9992;
+    pointer-events: none;
+}
+
+/* Hiệu ứng xé rách: Nứt dọc dài ra -> Bùng chói -> Khép lại */
+@keyframes riftGuardianTear {
+    0% { 
+        width: 0px; 
+        opacity: 0; 
+        filter: brightness(1); 
+    }
+    15% { 
+        width: 180px; 
+        height: 2px;
+        opacity: 1; 
+        filter: brightness(2); /* Lóe sáng chói mắt */
+    }
+    30% { 
+        width: 150px; 
+        height: 8px; /* Tách rộng ra ở giữa */
+        opacity: 1; 
+    }
+    100% { 
+        width: 0px; 
+        height: 0px; 
+        opacity: 0; 
+        filter: brightness(0.5); 
+    }
+}
+/* =========================================================================
+   GIAO DIỆN TRUYỀN THUYẾT: VỆ THẦN NGÂN HÀ (THEME GALAXY GUARDIAN)
+   Phong cách thiết kế: Trạm chỉ huy cơ giới vũ trụ kết hợp Tinh vân thần thoại
+   Thay đổi toàn diện: Phông chữ, Sidebar, Ô lưới, Popup, Thanh cuộn
+   ========================================================================= */
+
+/* --- A. THAY ĐỔI PHÔNG CHỮ & MÀU NỀN CHỦ ĐẠO TOÀN WEB --- */
+body.theme-vethan-nganha {
+    font-family: 'Segoe UI WPC', 'Segoe UI', 'SF Pro Display', system-ui, sans-serif !important;
+    background-color: #04060f !important;
+    color: #e2e8f0 !important;
+    letter-spacing: 0.3px;
+    /* Hiệu ứng hạt bụi không gian ẩn nhẹ dưới nền trang web */
+    background-image: 
+        radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px),
+        radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px);
+    background-size: 550px 550px, 350px 350px;
+    background-position: 0 0, 40px 60px;
+}
+
+/* Tùy biến thanh cuộn (Scrollbar) phong cách lõi năng lượng Quantum */
+body.theme-vethan-nganha::-webkit-scrollbar {
+    width: 8px;
+}
+body.theme-vethan-nganha::-webkit-scrollbar-track {
+    background: #04060f;
+}
+body.theme-vethan-nganha::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #00f2fe, #9b5de5);
+    border-radius: 4px;
+}
+
+/* --- B. TÁI CẤU TRÚC THANH ĐIỀU HƯỚNG (SIDEBAR / SLIDER BAR) --- */
+.theme-vethan-nganha .sidebar {
+    background: rgba(5, 8, 22, 0.85) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-right: 1px solid rgba(0, 242, 254, 0.2) !important;
+    box-shadow: 0 0 30px rgba(0, 242, 254, 0.05);
+}
+
+/* Các nút menu chưa kích hoạt */
+.theme-vethan-nganha .nav-item {
+    color: #94a3b8 !important;
+    border-radius: 12px !important;
+    margin: 8px 12px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border: 1px solid transparent;
+}
+.theme-vethan-nganha .nav-item:hover {
+    background: rgba(0, 242, 254, 0.08) !important;
+    color: #00f2fe !important;
+    border-color: rgba(0, 242, 254, 0.2);
+    transform: translateX(5px);
+}
+
+/* Nút menu đang được chọn (Active Active State) - Hologram Phát Sáng */
+.theme-vethan-nganha .nav-item.active {
+    background: linear-gradient(135deg, rgba(0, 242, 254, 0.15) 0%, rgba(138, 43, 226, 0.15) 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid #00f2fe !important;
+    box-shadow: 
+        0 0 15px rgba(0, 242, 254, 0.3),
+        inset 0 0 10px rgba(0, 242, 254, 0.2) !important;
+    font-weight: bold;
+}
+
+/* --- C. THAY ĐỔI CÁC Ô VẬT PHẨM VÀ Ô LƯỚI TÚI ĐỒ (CARDS & SLOTS) --- */
+/* Ô vật phẩm ngoài cửa hàng */
+.theme-vethan-nganha .store-item-card, 
+.theme-vethan-nganha .card.submit-box {
+    background: rgba(11, 17, 39, 0.7) !important;
+    border: 1px solid rgba(138, 43, 226, 0.25) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(10px);
+}
+.theme-vethan-nganha .store-item-card:hover {
+    border-color: #00f2fe !important;
+    box-shadow: 0 12px 40px rgba(0, 242, 254, 0.15), inset 0 0 15px rgba(0, 242, 254, 0.1) !important;
+    transform: translateY(-6px) scale(1.01);
+}
+
+/* Các ô vuông trong lưới túi đồ (Grid Inventory Slots) */
+.theme-vethan-nganha .bag-inventory-slot {
+    background: rgba(15, 23, 54, 0.6) !important;
+    border: 1px dashed rgba(0, 242, 254, 0.4) !important;
+    border-radius: 12px !important;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5) !important;
+}
+/* Hiệu ứng khi rê chuột vào ô đồ trong túi */
+.theme-vethan-nganha .bag-inventory-slot:hover {
+    background: rgba(138, 43, 226, 0.15) !important;
+    border: 1px solid #9b5de5 !important;
+    box-shadow: 0 0 12px rgba(138, 43, 226, 0.4) !important;
+}
+
+/* --- D. THAY ĐỔI DIỆN MẠO BẢNG POPUP / MODAL THANH TOÁN THÔNG TIN --- */
+.theme-vethan-nganha .modal-content,
+.theme-vethan-nganha #checkoutModal .form-container,
+.theme-vethan-nganha #discountInfoModal > div {
+    background: rgba(6, 11, 28, 0.95) !important;
+    border: 2px solid #00f2fe !important; /* Viền neon trắng xanh gắt */
+    border-radius: 24px !important;
+    box-shadow: 
+        0 0 40px rgba(138, 43, 226, 0.4), /* Hào quang tím bao phủ ngoài */
+        inset 0 0 20px rgba(0, 242, 254, 0.15) !important;
+    color: #f1f5f9 !important;
+    backdrop-filter: blur(25px);
+}
+
+/* Custom lại tiêu đề h3 h4 trong popup */
+.theme-vethan-nganha .modal-content h3,
+.theme-vethan-nganha .modal-content h4 {
+    color: #00f2fe !important;
+    text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+    font-weight: 800;
+}
+
+/* Hộp lựa chọn tinh chỉnh thả xuống (Select Dropdown) bên trong Popup */
+.theme-vethan-nganha select {
+    background: #0f172a !important;
+    border: 1px solid rgba(155, 93, 229, 0.5) !important;
+    color: #ffffff !important;
+    border-radius: 8px !important;
+    padding: 10px !important;
+}
+
+/* --- E. CÁC THÀNH PHẦN BỔ TRỢ ĐẶC SẮC (WIDGET COIN & BUTTON) --- */
+/* Widget xu vàng cơ lơ lửng góc màn hình biến đổi thành lõi năng lượng */
+.theme-vethan-nganha #coinWidget {
+    background: linear-gradient(135deg, rgba(5,8,22,0.9) 0%, rgba(15,23,42,0.8) 100%) !important;
+    border: 1px solid #00f2fe !important;
+    box-shadow: 0 0 20px rgba(0, 242, 254, 0.25) !important;
+    color: #00f2fe !important;
+}
+
+/* Nút bấm mua hàng/xác nhận (Holographic Button) */
+.theme-vethan-nganha .btn-approve, 
+.theme-vethan-nganha #btnConfirmCheckout {
+    background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 12px !important;
+    font-weight: bold !important;
+    box-shadow: 0 4px 15px rgba(0, 198, 255, 0.3) !important;
+    transition: all 0.2s ease !important;
+}
+.theme-vethan-nganha .btn-approve:hover, 
+.theme-vethan-nganha #btnConfirmCheckout:hover {
+    box-shadow: 0 0 20px #00f2fe !important;
+    letter-spacing: 0.5px;
+}

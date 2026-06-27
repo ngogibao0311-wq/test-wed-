@@ -53,6 +53,18 @@ class ThemeManager {
             background: '#0b0c10',  // Đen không gian thẳm
             className: 'theme-mercury-station' 
         },
+        'theme_cosmic_anomaly': { 
+            primary: '#ec4899',       // Hồng Neon Tinh Vân (Deep Space Pink)
+            secondary: '#06b6d4',     // Xanh Plasma Lỏng (Quantum Cyan)
+            background: '#030712',    // Đen Hố Đen (Vantablack Void)
+            className: 'theme-cosmic-anomaly' 
+        },
+        'theme_truyenthuyet_nganha': { 
+            primary: '#00f2fe',       // Quang phổ Xanh Tinh Tú (Cyan Neon)
+            secondary: '#9b5de5',     // Hào quang Tím Tinh Vân (Deep Nebula Violet)
+            background: '#04060f',    // Đen Thẳm Không Gian (Abyssal Void)
+            className: 'theme-vethan-nganha' 
+        },
     };
 
     static applyTheme(themeId) {
@@ -70,7 +82,7 @@ class ThemeManager {
         });
 
         // 1. Xóa tất cả các class theme đặc biệt cũ khỏi body
-        document.body.classList.remove('theme-fairy-tale', 'theme-magic-forest', 'theme-lifestyle', 'theme-night-sky', 'theme-daylight-sky', 'theme_truyenthuyet_vutru', 'theme-mercury-station');
+        document.body.classList.remove('theme-fairy-tale', 'theme-magic-forest', 'theme-lifestyle', 'theme-night-sky', 'theme-daylight-sky', 'theme_truyenthuyet_vutru', 'theme-mercury-station', 'theme-cosmic-anomaly', 'theme-vethan-nganha');
 
         // 2. Tiêm class mới vào body nếu theme đó có yêu cầu thay đổi hình dáng
         if (theme.className) {

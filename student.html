@@ -5,12 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Trang Học Sinh</title>
-    <link rel="stylesheet" href="css/common.css?v=2.0">
-    <link rel="stylesheet" href="css/student.css?v=2.0">
-    <link rel="stylesheet" href="css/mobile.css?v=2.0">
-    <link rel="stylesheet" href="css/store-items.css?v=2.0">
-    <link rel="stylesheet" href="css/effects-pets.css?v=2.0">
-    <link rel="stylesheet" href="css/royal-ball.css?v=2.0">
+    <link rel="stylesheet" href="css/common.css?v=2.2">
+    <link rel="stylesheet" href="css/student.css?v=2.2">
+    <link rel="stylesheet" href="css/mobile.css?v=2.2">
+    <link rel="stylesheet" href="css/store-items.css?v=2.2">
+    <link rel="stylesheet" href="css/effects-pets.css?v=2.2">
+    <link rel="stylesheet" href="css/royal-ball.css?v=2.2">
+    <link rel="stylesheet" href="css/daily-login.css?v=2.2">
     <script>
         MathJax = {
             tex: {
@@ -57,6 +58,11 @@
                 💌
                 <span id="inboxBadge"
                     style="display: none; position: absolute; top: -5px; right: -5px; background: #e11d48; color: white; font-size: 0.65em; font-weight: bold; padding: 3px 6px; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">0</span>
+            </button>
+
+            <button class="bag-trigger-btn" onclick="openStudentBag()" title="Túi đồ của tôi"
+                style="position: absolute; top: 20px; right: 140px; width: 45px; height: 45px; border-radius: 50%; background: rgba(255,255,255,0.7); border: 2px solid rgba(255,255,255,0.9); font-size: 1.5em; cursor: pointer; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; justify-content: center; align-items: center; transition: 0.2s;">
+                🎒
             </button>
             <button class="profile-trigger-btn" onclick="openStudentInfoModal()" title="Hồ sơ cá nhân">
                 <img id="avatarImage" src=""
@@ -532,6 +538,34 @@
                     Thực hiện Quy đổi</button>
             </div>
 
+            <div id="cashWithdrawalSection"
+                style="margin-top: 25px; border-top: 2px dashed #cbd5e1; padding-top: 20px; text-align: left; font-family: system-ui, -apple-system, sans-serif; clear: both; display: block;">
+                <h3
+                    style="color: #059669; font-size: 1.15em; margin: 0 0 8px 0; display: flex; align-items: center; gap: 6px;">
+                    💸 Yêu cầu lấy tiền mặt
+                </h3>
+                <p style="margin: 0 0 15px 0; color: #475569; font-size: 0.95em;">
+                    Tổng tiền tích lũy lộ trình hiện có: <strong id="displayRouteMoney"
+                        style="color: #dc2626; font-size: 1.1em;">0</strong> VNĐ
+                </p>
+
+                <div
+                    style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; width: 100%; box-sizing: border-box;">
+                    <input type="number" id="inputWithdrawAmount" placeholder="Nhập số tiền mặt bạn muốn lấy..."
+                        style="width: 100%; padding: 12px 15px; border: 2px solid #cbd5e1; border-radius: 8px; font-size: 1em; outline: none; box-sizing: border-box; background-color: #f8fafc;">
+                    <button onclick="handleRequestCashSubmit()"
+                        style="width: 100%; background: #059669; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1.05em; text-align: center; box-shadow: 0 2px 4px rgba(5, 150, 105, 0.2);">
+                        Gửi Yêu Cầu Cho Giáo Viên
+                    </button>
+                </div>
+
+                <h4 style="font-size: 0.95em; color: #1e293b; margin: 15px 0 8px 0; font-weight: 600;">📋 Lịch sử yêu
+                    cầu nhận tiền:</h4>
+                <div id="cashRequestHistoryContainer"
+                    style="max-height: 180px; overflow-y: auto; border: 1px solid #f1f5f9; border-radius: 6px; padding: 8px; background: #fafafa; box-sizing: border-box;">
+                </div>
+            </div>
+
             <p style="margin: 0; font-size: 0.85em; color: #666; font-style: italic; line-height: 1.5;">* Tỉ lệ quy đổi
                 luôn là 1:1. Số tiền hoặc Coin sẽ được tự động cập nhật ngay sau khi thực hiện giao dịch thành công.</p>
         </div>
@@ -549,6 +583,34 @@
                 sẽ tự động bị xóa sau 5 ngày nếu không nhận.</p>
             <div id="studentInboxBody"
                 style="max-height: 60vh; overflow-y: auto; padding-right: 10px; margin-bottom: 10px;">
+            </div>
+        </div>
+    </div>
+
+    <div id="studentBagModal" class="modal-overlay" style="z-index: 999998;">
+        <div class="modal-content form-container"
+            style="max-width: 450px; background: rgba(255, 255, 255, 0.98); border-top: 6px solid #8e44ad; position: relative; border-radius: 12px; box-shadow: 0 15px 30px rgba(0,0,0,0.2);">
+            <button class="close-btn" onclick="closeStudentBag()">✖</button>
+            <h3
+                style="color: #8e44ad; margin-bottom: 12px; font-size: 1.4em; border-bottom: 1px solid rgba(142, 68, 173, 0.2); padding-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                🎒 Túi đồ của tôi
+            </h3>
+            <p
+                style="font-size: 0.8em; color: #666; font-style: italic; margin-top: -8px; margin-bottom: 15px; line-height: 1.3;">
+                💡 *Mỗi ô xếp tối đa 50 vật phẩm cùng loại. <b>Nhấn và giữ im</b> vào ô vật phẩm để xem thông tin chi
+                tiết hoặc bán thẻ giảm giá lấy Coin.*
+            </p>
+
+            <div id="studentBagBody" style="max-height: 55vh; overflow-y: auto; padding: 4px; margin-bottom: 5px;">
+            </div>
+
+            <div id="bagItemPopup"
+                style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border: 3px solid #8e44ad; border-radius: 14px; padding: 20px; box-shadow: 0 12px 35px rgba(0,0,0,0.35); z-index: 999999; width: 280px; text-align: center; animation: scaleIn 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);">
+                <div id="bagItemPopupContent"></div>
+                <button onclick="closeBagItemPopup()"
+                    style="margin-top: 15px; background: #cbd5e1; border: none; padding: 8px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; color: #334155; font-size: 0.9em; width: 100%; transition: 0.2s;">
+                    Đóng cửa sổ
+                </button>
             </div>
         </div>
     </div>
@@ -645,21 +707,23 @@
         </div>
     </div>
 
-    <script src="js/royal-ball.js?v=2.0"></script>
+    <script src="js/daily-login.js?v=2.2"></script>
+    <script src="js/royal-ball.js?v=2.2"></script>
 
-    <script src="js/common.js?v=2.0"></script>
-    <script src="js/theme-items.js?v=2.0"></script>
-    <script src="js/effect-items.js?v=2.0"></script>
-    <script src="js/pet-items.js?v=2.0"></script>
-    <script src="js/pet-interactions.js?v=2.0"></script>
-    <script src="js/store-manager.js?v=2.0"></script>
+    <script src="js/common.js?v=2.2"></script>
+    <script src="js/theme-items.js?v=2.2"></script>
+    <script src="js/effect-items.js?v=2.2"></script>
+    <script src="js/pet-items.js?v=2.2"></script>
+    <script src="js/pet-interactions.js?v=2.2"></script>
+    <script src="js/store-manager.js?v=2.2"></script>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-storage-compat.js"></script>
-    <script src="js/firebase-config.js?v=2.0"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script src="js/firebase-config.js?v=2.2"></script>
 
-    <script src="js/student.js?v=2.0"></script>
+    <script src="js/student.js?v=2.2"></script>
 
 </body>
 

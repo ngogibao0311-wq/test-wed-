@@ -7,6 +7,11 @@ let cacheSubmissionsSt = "";
 let attachedFileData = null;
 let attachedMaterialFileData = null;
 
+let activeAssignedStudentFilter = 'all';
+let activeSubmissionStudentFilter = 'all';
+let activeMaterialStudentFilter = 'all';
+let activeScheduleStudentFilter = 'all';
+
 // Biến lưu trữ file cộng dồn
 const dtTeacherAssign = new DataTransfer(); // Dùng cho Giao bài
 window.teacherGradeDTs = {}; // Dùng cho Chấm bài (nhiều học sinh)
@@ -58,23 +63,23 @@ window.onload = async function () {
     });
     db.ref('assignments').on('value', async (snapshot) => {
         const hash = JSON.stringify(snapshot.val());
-        if (hash !== cacheAssignmentsSt) { 
-            cacheAssignmentsSt = hash; 
-            window.cachedAssignments = snapshot.val() ? Object.values(snapshot.val()) : []; 
+        if (hash !== cacheAssignmentsSt) {
+            cacheAssignmentsSt = hash;
+            window.cachedAssignments = snapshot.val() ? Object.values(snapshot.val()) : [];
             // Sửa tại đây: Gọi đúng hàm loadAssignedList() thay vì loadAssignments()
-            await loadAssignedList(); 
-            if (document.getElementById('studentRoadmapBody')) renderStudentRoadmap(); 
+            await loadAssignedList();
+            if (document.getElementById('studentRoadmapBody')) renderStudentRoadmap();
         }
     });
 
     db.ref('submissions').on('value', async (snapshot) => {
         const hash = JSON.stringify(snapshot.val());
-        if (hash !== cacheSubmissionsSt) { 
-            cacheSubmissionsSt = hash; 
-            window.cachedSubmissions = snapshot.val() ? Object.values(snapshot.val()) : []; 
+        if (hash !== cacheSubmissionsSt) {
+            cacheSubmissionsSt = hash;
+            window.cachedSubmissions = snapshot.val() ? Object.values(snapshot.val()) : [];
             // Sửa tại đây: Gọi đúng hàm loadSubmissions() thay vì loadAssignments()
-            await loadSubmissions(); 
-            if (document.getElementById('studentRoadmapBody')) renderStudentRoadmap(); 
+            await loadSubmissions();
+            if (document.getElementById('studentRoadmapBody')) renderStudentRoadmap();
         }
     });
     db.ref('materials').on('value', async (snapshot) => {
@@ -103,9 +108,9 @@ window.onload = async function () {
     // DÁN ĐOẠN THỜI GIAN THỰC ĐỒNG BỘ NÀY VÀO ĐÂY
     db.ref('game_settings').on('value', (snapshot) => {
         const settings = snapshot.val() || { isOpen: true, lockMessage: '' };
-        
+
         // Khai báo biến toàn cục để hệ thống chẩn đoán nhận diện được
-        window.isGameEnabled = settings.isOpen; 
+        window.isGameEnabled = settings.isOpen;
 
         const toggleInput = document.getElementById('gameToggle');
         const msgArea = document.getElementById('gameLockMessageArea');
@@ -177,6 +182,39 @@ window.onload = async function () {
     const editEssayInput = document.getElementById('editEssayWeight');
     if (editMcInput) editMcInput.addEventListener('input', window.updateEditExamFields);
     if (editEssayInput) editEssayInput.addEventListener('input', window.updateEditExamFields);
+
+    // Đồng bộ nút Bật/Tắt Bảng quy đổi từ Giáo viên
+    db.ref('system_settings/conversionTableEnabled').on('value', (snapshot) => {
+        const isEnabled = snapshot.val() !== false;
+
+        // 1. Lưu trạng thái vào biến toàn cục để sử dụng cho popup nổi
+        window.isConversionEnabled = isEnabled;
+
+        // [BỔ SUNG] Đồng bộ hiển thị trạng thái của nút gạt sau khi tải lại trang
+        const toggleBtn = document.getElementById('toggleConversionTable');
+        if (toggleBtn) toggleBtn.checked = isEnabled;
+
+        // 2. Ẩn/Hiện khu vực Rút tiền ở tab Lộ trình
+        const conversionSection = document.getElementById('conversionTableSection');
+        if (conversionSection) {
+            conversionSection.style.display = isEnabled ? 'block' : 'none';
+        }
+
+        // 3. Tự động đóng Popup quy đổi Coin nếu giáo viên vừa tắt
+        const coinModal = document.getElementById('coinConversionModal');
+        if (!isEnabled && coinModal && coinModal.classList.contains('active')) {
+            closeCoinConversionModal();
+        }
+    });
+
+    // =================================================================
+    // ĐỒNG BỘ YÊU CẦU RÚT TIỀN CỦA HỌC SINH VỀ GIÁO VIÊN THỜI GIAN THỰC
+    // =================================================================
+    db.ref('cash_requests').on('value', async () => {
+        if (typeof loadTeacherCashRequests === 'function' && document.getElementById('teacherCashRequestsListContainer')) {
+            await loadTeacherCashRequests();
+        }
+    });
 };
 
 function getEmbedHTML(url) {
@@ -305,7 +343,7 @@ async function createAssignment() {
     const title = document.getElementById('title').value;
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value;
-    const targetStudent = document.getElementById('targetStudent').value;
+    const targetStudent = window.getMultiSelectValues('targetStudent');
     const type = document.getElementById('assessmentType').value;
     let desc = '', videoLink = '', attachedFile = null, questions = [];
     let mcWeight = null, essayWeight = null;
@@ -395,14 +433,19 @@ async function createAssignment() {
 async function loadAssignedList() {
     const assignments = await getDB('assignments');
     const submissions = await getDB('submissions'); // Lấy thêm submissions để phục vụ điều kiện Đang chấm/Làm lại
+
+    // BỔ SUNG: Lấy danh sách user để kiểm tra xem có học sinh nào chưa nộp không
+    const users = await getDB('users');
+    const students = users.filter(u => u.role === 'student');
+
     const container = document.getElementById('assignedListContainer');
-    
+
     if (!container) return;
     container.innerHTML = '';
-    
-    if (assignments.length === 0) { 
-        container.innerHTML = '<p style="color: #666; font-style: italic;">Chưa có bài tập nào.</p>'; 
-        return; 
+
+    if (assignments.length === 0) {
+        container.innerHTML = '<p style="color: #666; font-style: italic;">Chưa có bài tập nào.</p>';
+        return;
     }
 
     // --- BẮT ĐẦU LOGIC SẮP XẾP ---
@@ -411,29 +454,29 @@ async function loadAssignedList() {
         const getSortVals = (assign) => {
             const end = assign.endDate ? new Date(assign.endDate.replace(" ", "T")) : new Date("2100-01-01");
             const relatedSubs = submissions.filter(s => s.assignmentId === assign.id);
-            
+
             let rank = 2; // Nhóm 2: Các bài đã ổn định, xong xuôi
             let isActive = nowSort <= end;
-            
+
             // Nhóm 1: Ưu tiên cao
             if (isActive) rank = 1; // Mới giao, Đang diễn ra
-            
+
             let isRedoing = relatedSubs.some(s => s.isRedoing);
             let needsGrading = relatedSubs.some(s => !s.isRedoing && !s.isAutoSubmitted && !s.isLateFail && (s.grade === null || s.grade === undefined || s.grade === ''));
-            
+
             if (isRedoing || needsGrading) rank = 1; // Có HS đang làm lại hoặc chờ chấm bài
-            
+
             // Xử lý lấy số "Bài N" (Nếu không có số, mặc định là 0 để đẩy lên trước các Bài N)
-            let lessonNum = 0; 
+            let lessonNum = 0;
             const match = (assign.title || '').match(/bài\s*(\d+)/i);
             if (match) lessonNum = parseInt(match[1]);
-            
+
             return { rank, lessonNum };
         };
-        
+
         const valsA = getSortVals(a);
         const valsB = getSortVals(b);
-        
+
         // 1. So sánh Nhóm ưu tiên (Rank 1 đứng trên Rank 2)
         if (valsA.rank !== valsB.rank) return valsA.rank - valsB.rank;
         // 2. So sánh thứ tự số Bài (0 đứng trước 1, 2, 3...)
@@ -443,8 +486,6 @@ async function loadAssignedList() {
     });
     // --- KẾT THÚC LOGIC SẮP XẾP ---
 
-    // Chú ý: Đổi từ vòng lặp có [...assignments].reverse().forEach thành .forEach trực tiếp 
-    // do thuật toán sort ở trên đã xử lý thứ tự hoàn chỉnh rồi
     assignments.forEach(assign => {
         let typeText = '';
         if (assign.assessmentType === 'trac_nghiem') typeText = 'Trắc nghiệm';
@@ -461,6 +502,30 @@ async function loadAssignedList() {
         if (assign.hideEssayText && assign.assessmentType !== 'trac_nghiem' && !(assign.assessmentType === 'thi' && (assign.essayWeight || 0) === 0)) {
             typeText += ' 📁 [Chỉ nhận Tệp]';
         }
+
+        // --- LOGIC MỚI: TẠO NHÃN CHƯA NỘP / CHƯA ĐẾN GIỜ ---
+        const now = new Date();
+        const startTime = assign.startDate ? new Date(assign.startDate.replace(" ", "T")) : new Date(0);
+        let statusBadge = '';
+
+        if (now < startTime) {
+            statusBadge = `<span style="background: rgba(245, 158, 11, 0.15); color: #d97706; padding: 4px 10px; border-radius: 20px; font-size: 0.75em; margin-left: 10px; vertical-align: middle; white-space: nowrap; font-weight: bold; border: 1px solid rgba(245, 158, 11, 0.3);">⏳ Chưa đến giờ</span>`;
+        } else {
+            // Lọc ra các học sinh được giao bài này
+            const targetStudents = students.filter(u => {
+                const arr = Array.isArray(assign.targetStudent) ? assign.targetStudent : [assign.targetStudent || 'all'];
+                return arr.includes('all') || arr.includes(u.username);
+            });
+
+            // Kiểm tra xem có học sinh nào trong danh sách mục tiêu CHƯA có bài nộp không
+            const hasMissing = targetStudents.some(st => !submissions.some(s => s.assignmentId === assign.id && s.studentUsername === st.username));
+
+            if (hasMissing) {
+                statusBadge = `<span style="background: rgba(225, 29, 72, 0.15); color: #e11d48; padding: 4px 10px; border-radius: 20px; font-size: 0.75em; margin-left: 10px; vertical-align: middle; white-space: nowrap; font-weight: bold; border: 1px solid rgba(225, 29, 72, 0.3);">⚠️ Chưa nộp</span>`;
+            }
+        }
+        // ---------------------------------------------------
+
         let fileHTML = '';
         if (assign.file) {
             let files = Array.isArray(assign.file) ? assign.file : [assign.file];
@@ -482,8 +547,18 @@ async function loadAssignedList() {
         let tuLuanHTML = hasEssay ? `<p style="background: rgba(255,255,255,0.5); padding:15px; border-radius:12px; border-left:4px solid #667eea;"><strong>Yêu cầu Tự luận:</strong><br>${(assign.desc || '').replace(/\n/g, '<br>')}</p>` : '';
 
         const uniqueId = `teacher-assign-${assign.id}`;
-        const div = document.createElement('div'); div.className = 'card accordion-card';
-        div.innerHTML = `<div class="accordion-header" onclick="toggleAccordion('${uniqueId}', this)"><div class="accordion-title"><h4>${assign.title}</h4><span>Loại: ${typeText}</span></div><div class="accordion-meta"><span>Hạn: <strong>${assign.endDate}</strong></span><span class="toggle-icon">▼</span></div></div>
+        const div = document.createElement('div');
+        div.className = 'card accordion-card';
+        div.setAttribute('data-target', Array.isArray(assign.targetStudent) ? assign.targetStudent.join(',') : (assign.targetStudent || 'all'));
+
+        // Cập nhật lại HTML phần tiêu đề: Đưa Title và statusBadge vào một Flex box
+        div.innerHTML = `<div class="accordion-header" onclick="toggleAccordion('${uniqueId}', this)">
+            <div class="accordion-title">
+                <h4 style="display: flex; align-items: center; gap: 5px; margin: 0;">${assign.title} ${statusBadge}</h4>
+                <span style="display: block; margin-top: 5px;">Loại: ${typeText}</span>
+            </div>
+            <div class="accordion-meta"><span>Hạn: <strong>${assign.endDate}</strong></span><span class="toggle-icon">▼</span></div>
+        </div>
             <div id="${uniqueId}" class="accordion-content">
                 <div style="text-align: right; margin-bottom: 15px; display: flex; gap: 10px; justify-content: flex-end;">
                     <button class="btn-approve" style="padding: 6px 15px; font-size: 0.9em; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;" onclick="openAssignmentStatusModal('${assign.id}')">📊 Trạng thái</button>
@@ -521,6 +596,7 @@ async function createMaterial() {
     const title = document.getElementById('materialTitle').value.trim();
     const videoLink = document.getElementById('materialVideoLink').value.trim();
     const docLink = document.getElementById('materialLinkInput').value.trim();
+    const targetStudent = window.getMultiSelectValues('materialTargetStudent'); // MỚI THÊM
 
     if (!title) return alert("Vui lòng nhập tiêu đề tài liệu!");
     if (!videoLink && !docLink) return alert("Vui lòng đính kèm ít nhất video bài giảng hoặc link tài liệu!");
@@ -528,17 +604,16 @@ async function createMaterial() {
     const now = new Date();
     await pushDB('materials', {
         id: Date.now().toString(), title, videoLink, docLink,
+        targetStudent, // MỚI THÊM: Đẩy dữ liệu đích danh lên Firebase
         uploadTime: now.toLocaleTimeString('vi-VN') + ' ' + now.toLocaleDateString('vi-VN')
     });
 
-    // Reset lại form trống
     document.getElementById('materialTitle').value = '';
     document.getElementById('materialVideoLink').value = '';
     document.getElementById('materialLinkInput').value = '';
+    if (document.getElementById('materialTargetStudent')) document.getElementById('materialTargetStudent').value = 'all'; // Reset ô chọn
 
-    // Tự động đóng Popup
     closeMaterialModal();
-
     alert("Đăng tải tài liệu học tập thành công!");
 }
 
@@ -563,6 +638,8 @@ async function loadMaterialsListTeacher() {
 
         const uniqueId = `teacher-mat-${mat.id}`;
         const div = document.createElement('div'); div.className = 'card accordion-card';
+        div.className = 'card accordion-card';
+        div.setAttribute('data-target', Array.isArray(mat.targetStudent) ? mat.targetStudent.join(',') : (mat.targetStudent || 'all'));
         div.innerHTML = `
             <div class="accordion-header" onclick="toggleAccordion('${uniqueId}', this)">
                 <div class="accordion-title"><h4>${mat.title}</h4><span>🕒 Đăng lúc: ${mat.uploadTime || 'Chưa rõ'}</span></div>
@@ -570,7 +647,7 @@ async function loadMaterialsListTeacher() {
             </div>
             <div id="${uniqueId}" class="accordion-content">
                 <div style="text-align: right; margin-bottom:15px; display: flex; gap: 10px; justify-content: flex-end;">
-    <button class="btn-approve" style="padding: 6px 15px; font-size: 0.9em; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white;" onclick="openEditMaterialModal('${mat._fbKey}')">✏️ Đổi tên</button>
+    <button class="btn-approve" style="padding: 6px 15px; font-size: 0.9em; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white;" onclick="openEditMaterialModal('${mat._fbKey}')">✏️ Sửa</button>
     <button class="btn-reject" style="padding: 6px 15px; font-size: 0.9em;" onclick="deleteMaterial('${mat._fbKey}')">🗑 Xóa tài liệu</button>
 </div>
                 ${videoHTML}${fileHTML}
@@ -634,11 +711,36 @@ function initFileListener() {
     });
 }
 
-async function populateStudentDropdown() { const users = await getDB('users'); const select = document.getElementById('targetStudent'); if (!select) return; select.innerHTML = '<option value="all">Tất cả học sinh</option>'; users.forEach(u => { if (u.role === 'student') { const opt = document.createElement('option'); opt.value = u.username; opt.innerText = u.name; select.appendChild(opt); } }); }
+async function populateStudentDropdown() {
+    const users = await getDB('users');
+    const select = document.getElementById('targetStudent');
+    const matSelect = document.getElementById('materialTargetStudent');
+    const editMatSelect = document.getElementById('editMaterialTargetStudent');
+    const schSelect = document.getElementById('scheduleTargetStudent'); // THÊM DÒNG NÀY
+
+    if (select) select.innerHTML = '<option value="all">Tất cả học sinh</option>';
+    if (matSelect) matSelect.innerHTML = '<option value="all">Tất cả học sinh</option>';
+    if (editMatSelect) editMatSelect.innerHTML = '<option value="all">Tất cả học sinh</option>';
+    if (schSelect) schSelect.innerHTML = '<option value="all">Tất cả học sinh</option>'; // THÊM DÒNG NÀY
+
+    users.forEach(u => {
+        if (u.role === 'student') {
+            const opt = document.createElement('option');
+            opt.value = u.username;
+            opt.innerText = u.name;
+            if (select) select.appendChild(opt.cloneNode(true));
+            if (matSelect) matSelect.appendChild(opt.cloneNode(true));
+            if (editMatSelect) editMatSelect.appendChild(opt.cloneNode(true));
+            if (schSelect) schSelect.appendChild(opt.cloneNode(true)); // THÊM DÒNG NÀY
+        }
+    });
+}
 
 async function loadSubmissions() {
     const rawSubmissions = await getDB('submissions');
     const assignments = await getDB('assignments');
+    const trackingSnap = await db.ref('video_tracking').once('value');
+    const trackingData = trackingSnap.val() || {};
     const list = document.getElementById('submissionsList');
     if (!list) return;
     list.innerHTML = '';
@@ -666,25 +768,25 @@ async function loadSubmissions() {
 
         const getSortVals = (sub, assign) => {
             let rank = 2; // Nhóm 2: Bài đã chấm điểm xong, hoàn tất
-            
+
             const hasGrade = sub.grade !== null && sub.grade !== undefined && sub.grade !== '';
-            
+
             // Nhóm 1: Ưu tiên lên đầu (Chưa chấm, Đang làm lại, Đang chấm lại)
             if (sub.isRedoing || sub.isRegrading || !hasGrade) {
-                rank = 1; 
+                rank = 1;
             }
-            
+
             // Xử lý lấy số "Bài N" (Nếu không có số, mặc định là 0 để đẩy lên trước)
-            let lessonNum = 0; 
+            let lessonNum = 0;
             const match = (assign.title || '').match(/bài\s*(\d+)/i);
             if (match) lessonNum = parseInt(match[1]);
-            
+
             return { rank, lessonNum, title: assign.title || '' };
         };
-        
+
         const valsA = getSortVals(a, assignA);
         const valsB = getSortVals(b, assignB);
-        
+
         // 1. So sánh Rank (Rank 1 đứng trên Rank 2)
         if (valsA.rank !== valsB.rank) return valsA.rank - valsB.rank;
         // 2. So sánh thứ tự số Bài (0 đứng trước 1, 2, 3...)
@@ -719,6 +821,21 @@ async function loadSubmissions() {
         const hasGrade = (sub.grade !== null && sub.grade !== undefined && sub.grade !== '');
 
         let videoHTML = assign.videoLink ? getEmbedHTML(assign.videoLink) : '';
+        let watchDuration = 0;
+        if (trackingData[assign.id] && trackingData[assign.id][sub.studentUsername]) {
+            watchDuration = trackingData[assign.id][sub.studentUsername];
+        }
+
+        let minutes = Math.floor(watchDuration / 60);
+        let seconds = watchDuration % 60;
+        let timeStr = `${minutes} phút ${seconds} giây`;
+
+        let watchStatusHTML = assign.videoLink ? `
+            <div style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981; padding: 10px; margin-bottom: 15px; border-radius: 8px;">
+                <strong style="color: #059669;">⏱️ Thời lượng HS đã xem Video:</strong> 
+                <span style="font-weight: bold; color: #2c3e50;">${timeStr}</span>
+                ${watchDuration === 0 ? '<span style="color: #e11d48; font-size: 0.85em; margin-left: 5px;">(Học sinh chưa xem hoặc lướt qua)</span>' : ''}
+            </div>` : '';
 
         // XỬ LÝ TRẠNG THÁI "ĐANG LÀM LẠI" VÀ CÁC NÚT THAO TÁC
         let gradeStatus = '';
@@ -764,15 +881,22 @@ async function loadSubmissions() {
         }
 
         const uniqueId = `teacher-sub-${sub.id}`;
-        const div = document.createElement('div'); div.className = 'card accordion-card';
+        const div = document.createElement('div');
+        div.className = 'card accordion-card';
+        div.setAttribute('data-student', sub.studentUsername); // <--- THÊM ĐÚNG 1 DÒNG NÀY ĐỂ DÁN NHÃN
+
         div.innerHTML = `<div class="accordion-header" onclick="toggleAccordion('${uniqueId}', this)">
                 <div class="accordion-title"><h4>${assign.title}</h4><span>HS: <strong>${sub.studentName}</strong></span></div>
                 <div class="accordion-meta"><span>${gradeStatus}</span><span class="toggle-icon">▼</span></div>
             </div>
-            <div id="${uniqueId}" class="accordion-content">${violationHTML}<span style="color: #888; font-size: 0.85em; display: block; margin-bottom: 10px;">🕒 Lần nộp cuối: ${sub.submitTime || 'Chưa rõ'}</span>${videoHTML}
+            <div id="${uniqueId}" class="accordion-content">${violationHTML}<span style="color: #888; font-size: 0.85em; display: block; margin-bottom: 10px;">🕒 Lần nộp cuối: ${sub.submitTime || 'Chưa rõ'}</span>
+    ${watchStatusHTML}
+    ${videoHTML}
                 <div style="background: rgba(255,255,255,0.4); padding: 15px; border-radius: 12px; margin-bottom: 15px;">
                     <p style="margin: 0; font-weight: bold;">Bài nộp:</p>
-                    <p style="white-space: pre-wrap; word-break: break-word; margin-top:5px;">${sub.answer || '<i>(Trống)</i>'}</p>
+                    <p style="white-space: pre-wrap; word-break: break-word; margin-top:5px;">
+    ${sub.answer ? sub.answer.replace(/</g, "&lt;").replace(/>/g, "&gt;") : '<i>(Trống)</i>'}
+</p>
                     ${studentFileHTML}
                 </div>
                 <div style="background: rgba(255,255,255,0.6); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.9);">
@@ -812,7 +936,7 @@ async function gradeSubmission(subId) {
             if (fileDataArray) updateObj.teacherFile = fileDataArray;
             await updateDB('submissions', sub._fbKey, updateObj);
             alert("Đã chấm điểm và lưu nhận xét thành công!");
-            
+
             // THÊM 2 DÒNG NÀY
             await loadSubmissions();
             if (typeof renderTeacherRoadmap === 'function') renderTeacherRoadmap();
@@ -843,6 +967,7 @@ async function loadStudentsList() {
     if (!container) return;
 
     const students = users.filter(u => u.role === 'student');
+    renderStudentFilterButtons(students);
     if (students.length === 0) {
         container.innerHTML = '<p style="color: #666; font-style: italic;">Chưa có học sinh nào.</p>';
         return;
@@ -1034,7 +1159,14 @@ window.importQuestions = function () {
         questionCount++;
         questionIdGen++;
         let qId = questionIdGen;
-        let cleanText = q.text.replace(/^(Câu|Bài)\s*\d+[\.\:\-]*\s*/i, '').replace(/^\d+[\.\:\)]\s*/, '').trim();
+
+        // --- ĐOẠN FIX LỖI Ở ĐÂY: Thêm .replace(/"/g, '&quot;') để chống cắt chữ ---
+        let cleanText = q.text.replace(/^(Câu|Bài)\s*\d+[\.\:\-]*\s*/i, '').replace(/^\d+[\.\:\)]\s*/, '').trim().replace(/"/g, '&quot;');
+        let optA = q.options.A.replace(/"/g, '&quot;');
+        let optB = q.options.B.replace(/"/g, '&quot;');
+        let optC = q.options.C.replace(/"/g, '&quot;');
+        let optD = q.options.D.replace(/"/g, '&quot;');
+        // -------------------------------------------------------------------------
 
         // Kiểm tra xem đáp án nào đang được chọn để gắn thẻ 'checked'
         let chkA = q.correct === 'A' ? 'checked' : '';
@@ -1043,6 +1175,8 @@ window.importQuestions = function () {
         let chkD = q.correct === 'D' ? 'checked' : '';
 
         const div = document.createElement('div'); div.className = 'question-block'; div.style.cssText = 'background: rgba(255,255,255,0.6); padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid rgba(0,0,0,0.1); animation: fadeInUp 0.5s ease;';
+
+        // Nhét biến optA, optB, optC, optD mới vào value
         div.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;"><strong style="color: #764ba2;">Câu ${questionCount}:</strong><button type="button" style="background: transparent; color: #ff0844; border: none; padding: 0; font-weight: bold; width: auto; box-shadow: none;" onclick="removeQuestion(this)">Xóa</button></div>
             <input type="text" class="q-text" value="${cleanText}" style="margin-bottom: 10px;">
@@ -1050,21 +1184,21 @@ window.importQuestions = function () {
             <div style="display:flex; gap:10px; margin-bottom: 10px;">
                 <div style="flex:1; display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.8); padding-left:12px; border-radius:12px; border:1px solid rgba(0,0,0,0.1);">
                     <input type="radio" name="correct_${qId}" value="A" class="q-correct-radio" style="width:18px; height:18px; margin:0; cursor:pointer;" title="Chọn A là đáp án đúng" ${chkA}>
-                    <input type="text" class="q-optA" value="${q.options.A}" style="margin:0; border:none; box-shadow:none; background:transparent; width:100%; padding-left:5px; outline:none;">
+                    <input type="text" class="q-optA" value="${optA}" style="margin:0; border:none; box-shadow:none; background:transparent; width:100%; padding-left:5px; outline:none;">
                 </div>
                 <div style="flex:1; display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.8); padding-left:12px; border-radius:12px; border:1px solid rgba(0,0,0,0.1);">
                     <input type="radio" name="correct_${qId}" value="B" class="q-correct-radio" style="width:18px; height:18px; margin:0; cursor:pointer;" title="Chọn B là đáp án đúng" ${chkB}>
-                    <input type="text" class="q-optB" value="${q.options.B}" style="margin:0; border:none; box-shadow:none; background:transparent; width:100%; padding-left:5px; outline:none;">
+                    <input type="text" class="q-optB" value="${optB}" style="margin:0; border:none; box-shadow:none; background:transparent; width:100%; padding-left:5px; outline:none;">
                 </div>
             </div>
             <div style="display:flex; gap:10px; margin-bottom: 10px;">
                 <div style="flex:1; display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.8); padding-left:12px; border-radius:12px; border:1px solid rgba(0,0,0,0.1);">
                     <input type="radio" name="correct_${qId}" value="C" class="q-correct-radio" style="width:18px; height:18px; margin:0; cursor:pointer;" title="Chọn C là đáp án đúng" ${chkC}>
-                    <input type="text" class="q-optC" value="${q.options.C}" style="margin:0; border:none; box-shadow:none; background:transparent; width:100%; padding-left:5px; outline:none;">
+                    <input type="text" class="q-optC" value="${optC}" style="margin:0; border:none; box-shadow:none; background:transparent; width:100%; padding-left:5px; outline:none;">
                 </div>
                 <div style="flex:1; display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.8); padding-left:12px; border-radius:12px; border:1px solid rgba(0,0,0,0.1);">
                     <input type="radio" name="correct_${qId}" value="D" class="q-correct-radio" style="width:18px; height:18px; margin:0; cursor:pointer;" title="Chọn D là đáp án đúng" ${chkD}>
-                    <input type="text" class="q-optD" value="${q.options.D}" style="margin:0; border:none; box-shadow:none; background:transparent; width:100%; padding-left:5px; outline:none;">
+                    <input type="text" class="q-optD" value="${optD}" style="margin:0; border:none; box-shadow:none; background:transparent; width:100%; padding-left:5px; outline:none;">
                 </div>
             </div>`;
         container.appendChild(div);
@@ -1135,6 +1269,14 @@ async function renderTeacherRoadmap() {
     }
 
     sortedAssignments.forEach(assign => {
+        // ---> BẮT ĐẦU THÊM ĐOẠN LỌC NÀY <---
+        // Kiểm tra: Nếu giáo viên đã chọn 1 học sinh cụ thể, 
+        // thì bỏ qua (không in ra bảng) những bài tập giao riêng cho học sinh khác.
+        if (selectedStudent && selectedStudent !== "") {
+            if (assign.targetStudent && assign.targetStudent !== 'all' && assign.targetStudent !== selectedStudent) {
+                return; // Lệnh return này giúp bỏ qua bài tập, chuyển sang bài tiếp theo
+            }
+        }
         // THÊM DÒNG NÀY: Lấy điều kiện điểm chuẩn của RIÊNG bài tập này (Mặc định là 7 nếu chưa cài)
         const passingGrade = assign.passingGrade || 7;
 
@@ -1278,6 +1420,22 @@ window.openEditAssignmentModal = async function (fbKey) {
         document.getElementById('editStartDate').value = assign.startDate ? assign.startDate.replace(" ", "T") : '';
         document.getElementById('editEndDate').value = assign.endDate ? assign.endDate.replace(" ", "T") : '';
 
+        const users = await getDB('users');
+        const editTargetSelect = document.getElementById('editTargetStudent');
+        if (editTargetSelect) {
+            editTargetSelect.innerHTML = '<option value="all">Tất cả học sinh</option>';
+            users.forEach(u => {
+                if (u.role === 'student') {
+                    const opt = document.createElement('option');
+                    opt.value = u.username;
+                    opt.innerText = `${u.name} (${u.username})`;
+                    editTargetSelect.appendChild(opt);
+                }
+            });
+            // Gán lại giá trị học sinh đang được giao bài (mặc định là 'all')
+            window.setMultiSelectValues('editTargetStudent', assign.targetStudent);
+        }
+
         // Lấy các Section
         const tuLuanSec = document.getElementById('editTuLuanSection');
         const tracNghiemSec = document.getElementById('editTracNghiemSection');
@@ -1339,11 +1497,11 @@ window.addEditQuestionBlock = function (qData = null) {
     div.className = 'edit-question-block';
     div.style.cssText = 'background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid rgba(0,0,0,0.1); box-shadow: 0 4px 6px rgba(0,0,0,0.02);';
 
-    let qText = qData ? qData.qText : '';
-    let optA = qData ? qData.A : '';
-    let optB = qData ? qData.B : '';
-    let optC = qData ? qData.C : '';
-    let optD = qData ? qData.D : '';
+    let qText = qData ? qData.qText.replace(/"/g, '&quot;') : '';
+    let optA = qData ? qData.A.replace(/"/g, '&quot;') : '';
+    let optB = qData ? qData.B.replace(/"/g, '&quot;') : '';
+    let optC = qData ? qData.C.replace(/"/g, '&quot;') : '';
+    let optD = qData ? qData.D.replace(/"/g, '&quot;') : '';
     let correct = qData ? qData.correct : '';
     let qId = Date.now() + Math.random();
 
@@ -1403,6 +1561,8 @@ window.saveAssignmentEdit = async function () {
     const startDate = document.getElementById('editStartDate').value;
     const endDate = document.getElementById('editEndDate').value;
 
+    const targetStudent = window.getMultiSelectValues('editTargetStudent');
+
     if (!title || !startDate || !endDate) return alert("Vui lòng điền đầy đủ Tiêu đề và Thời hạn nộp!");
 
     const assignments = await getDB('assignments');
@@ -1412,7 +1572,8 @@ window.saveAssignmentEdit = async function () {
     const updateObj = {
         title: title,
         startDate: startDate.replace("T", " "),
-        endDate: endDate.replace("T", " ")
+        endDate: endDate.replace("T", " "),
+        targetStudent: targetStudent // [MỚI THÊM] Lưu đối tượng học sinh mới lên Firebase
     };
 
     // Thu thập dữ liệu Tự Luận
@@ -1634,12 +1795,23 @@ window.toggleRoadmapView = function (view) {
     }
 };
 
-window.openScheduleModal = function (fbKey = '', day = '', time = '', subject = '', note = '') {
+window.openScheduleModal = function (fbKey = '', day = '', time = '', subject = '', note = '', targetStudent = 'all') {
     document.getElementById('editScheduleKey').value = fbKey;
     document.getElementById('scheduleDay').value = day;
     document.getElementById('scheduleTime').value = time;
     document.getElementById('scheduleSubject').value = subject;
     document.getElementById('scheduleNote').value = note;
+
+    // Mới: Dùng mảng để đổ dữ liệu vào modal
+    if (document.getElementById('scheduleTargetStudent')) {
+        window.setMultiSelectValues('scheduleTargetStudent', targetStudent);
+    }
+
+    // Gán giá trị đích danh
+    if (document.getElementById('scheduleTargetStudent')) {
+        document.getElementById('scheduleTargetStudent').value = targetStudent;
+    }
+
     document.getElementById('scheduleModal').classList.add('active');
 };
 
@@ -1653,10 +1825,11 @@ window.saveSchedule = async function () {
     const time = document.getElementById('scheduleTime').value.trim();
     const subject = document.getElementById('scheduleSubject').value.trim();
     const note = document.getElementById('scheduleNote').value.trim();
+    const targetStudent = document.getElementById('scheduleTargetStudent') ? window.getMultiSelectValues('scheduleTargetStudent') : ['all']; // Đọc thông tin học sinh
 
     if (!day || !time || !subject) return alert('Vui lòng nhập đầy đủ: Thứ, Thời gian và Nội dung!');
 
-    const payload = { day, time, subject, note };
+    const payload = { day, time, subject, note, targetStudent }; // Đẩy kèm thông tin đích danh lên Database
 
     if (fbKey) {
         await updateDB('schedule', fbKey, payload);
@@ -1690,13 +1863,19 @@ window.loadScheduleTeacher = async function () {
     schedules.forEach(s => {
         const tr = document.createElement('tr');
         tr.style.borderBottom = '1px solid rgba(0,0,0,0.05)';
+        tr.setAttribute('data-target', Array.isArray(s.targetStudent) ? s.targetStudent.join(',') : (s.targetStudent || 'all'));
+
+        // Nhãn để giáo viên dễ nhìn xem lịch này là lịch chung hay lịch riêng
+        let targetLabel = (s.targetStudent && s.targetStudent !== 'all') ? `<br><span style="font-size: 0.8em; color: #059669; font-weight: normal;">(Giao riêng HS)</span>` : '';
+
+        // Sửa nút bấm gọi thêm biến s.targetStudent
         tr.innerHTML = `
-            <td style="padding:12px; font-weight:bold; color:#764ba2;">${s.day}</td>
+            <td style="padding:12px; font-weight:bold; color:#764ba2;">${s.day} ${targetLabel}</td>
             <td style="padding:12px; color:#d35400; font-weight:bold;">${s.time}</td>
             <td style="padding:12px; color:#2c3e50;">${s.subject}</td>
             <td style="padding:12px; color:#555;">${s.note || ''}</td>
             <td style="padding:12px; text-align:center;">
-                <button class="btn-approve" style="padding:5px 12px; font-size:0.85em; background: #3b82f6; color: white;" onclick="openScheduleModal('${s._fbKey}', '${s.day}', '${s.time}', '${s.subject}', '${s.note}')">Sửa</button>
+                <button class="btn-approve" style="padding:5px 12px; font-size:0.85em; background: #3b82f6; color: white;" onclick="openScheduleModal('${s._fbKey}', '${s.day}', '${s.time}', '${s.subject}', '${s.note}', '${s.targetStudent || 'all'}')">Sửa</button>
                 <button class="btn-reject" style="padding:5px 12px; font-size:0.85em;" onclick="deleteSchedule('${s._fbKey}')">Xóa</button>
             </td>
         `;
@@ -1710,9 +1889,15 @@ window.openEditMaterialModal = async function (fbKey) {
     const mat = materials.find(m => m._fbKey === fbKey);
     if (!mat) return alert("Không tìm thấy thông tin tài liệu!");
 
-    // Gán dữ liệu cũ vào form
+    // Đổ toàn bộ dữ liệu cũ của tài liệu vào form sửa
     document.getElementById('editMaterialKey').value = fbKey;
     document.getElementById('editMaterialTitle').value = mat.title || '';
+    document.getElementById('editMaterialVideoLink').value = mat.videoLink || '';
+    document.getElementById('editMaterialLinkInput').value = mat.docLink || '';
+
+    if (document.getElementById('editMaterialTargetStudent')) {
+        window.setMultiSelectValues('editMaterialTargetStudent', mat.targetStudent);
+    }
 
     document.getElementById('editMaterialModal').classList.add('active');
 };
@@ -1725,13 +1910,28 @@ window.saveMaterialEdit = async function () {
     const fbKey = document.getElementById('editMaterialKey').value;
     const newTitle = document.getElementById('editMaterialTitle').value.trim();
 
+    // Lấy thêm các thông tin mới từ popup
+    const newVideoLink = document.getElementById('editMaterialVideoLink') ? document.getElementById('editMaterialVideoLink').value.trim() : '';
+    const newDocLink = document.getElementById('editMaterialLinkInput') ? document.getElementById('editMaterialLinkInput').value.trim() : '';
+    const newTargetStudent = document.getElementById('editMaterialTargetStudent') ? window.getMultiSelectValues('editMaterialTargetStudent') : ['all'];
+
     if (!newTitle) return alert("Vui lòng nhập tên tài liệu mới!");
 
-    // Cập nhật lên Firebase
-    await updateDB('materials', fbKey, { title: newTitle });
+    // Cập nhật TOÀN BỘ thông tin lên Firebase thay vì chỉ mỗi title
+    await updateDB('materials', fbKey, {
+        title: newTitle,
+        videoLink: newVideoLink,
+        docLink: newDocLink,
+        targetStudent: newTargetStudent
+    });
 
     closeEditMaterialModal();
-    alert("Đã đổi tên tài liệu thành công!");
+    alert("Đã cập nhật thông tin tài liệu thành công!");
+
+    // Yêu cầu tải lại danh sách tài liệu
+    if (typeof loadMaterialsListTeacher === 'function') {
+        loadMaterialsListTeacher();
+    }
 };
 
 async function readMultipleFiles(files) {
@@ -1745,7 +1945,7 @@ async function readMultipleFiles(files) {
         // Chặn file quá lớn
         if (file.size > MAX_SIZE_BYTES) {
             alert(`⚠️ File "${file.name}" quá lớn. Hệ thống chỉ cho phép tối đa ${MAX_SIZE_MB}MB/file!`);
-            continue; 
+            continue;
         }
 
         // Băm file thành chuỗi Base64
@@ -2594,43 +2794,42 @@ async function initGiftDropdowns() {
 window.updateGiftItemDropdown = async function () {
     const target = document.getElementById('giftTargetStudent').value;
     const itemSelect = document.getElementById('giftValueItem');
+    const targetSelect = document.getElementById('giftDiscountTargetItem');
 
     if (!itemSelect || typeof StoreConfig === 'undefined') return;
 
     let ownedItems = [];
-
-    // Lấy dữ liệu kho đồ trên Firebase nếu chọn 1 học sinh cụ thể
     if (target !== 'all') {
         try {
             const invSnap = await db.ref(`student_inventory/${target}`).once('value');
             const inventory = invSnap.val();
-            if (inventory) {
-                // Trích xuất ID các vật phẩm học sinh đang có
-                ownedItems = Object.values(inventory).map(item => item.id);
-            }
-        } catch (error) {
-            console.error("Lỗi lấy kho đồ học sinh:", error);
-        }
+            if (inventory) ownedItems = Object.values(inventory).map(item => item.id);
+        } catch (error) { console.error("Lỗi lấy kho đồ học sinh:", error); }
     }
 
-    // Reset lại ô chọn
     itemSelect.innerHTML = '';
     let hasAvailableItem = false;
+    let targetOptionsHTML = '<option value="all">Tất cả vật phẩm (Mua bằng Coin)</option>';
 
-    // Đổ danh sách cửa hàng ra, kèm theo điều kiện kiểm tra
     StoreConfig.items.forEach(item => {
         const isOwned = ownedItems.includes(item.id);
-
-        // Nếu đã sở hữu -> Khóa (disabled) và đổi màu xám mờ
         const disabledAttr = isOwned ? 'disabled style="color: #aaa; background: #eee; font-style: italic;"' : '';
         const suffix = isOwned ? ' (HS đã có)' : '';
 
+        // Đổ dữ liệu cho nút "Tặng Vật phẩm"
         itemSelect.innerHTML += `<option value="${item.id}" ${disabledAttr}>[${item.tag}] ${item.name}${suffix}</option>`;
+
+        // CHỈ LỌC CÁC VẬT PHẨM BÁN BẰNG COIN VÀO DANH SÁCH THẺ GIẢM GIÁ
+        const isEventItem = item.isNonCoin || (!item.price || item.price <= 0);
+        if (!isEventItem) {
+            targetOptionsHTML += `<option value="${item.id}">[${item.tag}] ${item.name}</option>`;
+        }
 
         if (!isOwned) hasAvailableItem = true;
     });
 
-    // Nếu học sinh đã có toàn bộ vật phẩm trong Shop
+    if (targetSelect) targetSelect.innerHTML = targetOptionsHTML;
+
     if (!hasAvailableItem && StoreConfig.items.length > 0 && target !== 'all') {
         itemSelect.innerHTML = `<option value="" disabled selected>-- HS đã sở hữu tất cả vật phẩm --</option>` + itemSelect.innerHTML;
     }
@@ -2646,15 +2845,26 @@ window.toggleGiftInput = function () {
     const area = document.getElementById('giftValueInputArea');
     const numInput = document.getElementById('giftValueNumber');
     const itemInput = document.getElementById('giftValueItem');
+    const expiryArea = document.getElementById('giftExpiryInputArea');
+    const targetArea = document.getElementById('giftDiscountTargetArea'); // Lấy thẻ ẩn/hiện mục chọn áp dụng
+
+    if (expiryArea) expiryArea.style.display = 'none';
+    if (targetArea) targetArea.style.display = 'none'; // Ẩn mặc định
 
     if (type === 'none') {
         area.style.display = 'none';
     } else {
         area.style.display = 'block';
-        // Thêm 'ticket' vào điều kiện này
-        if (type === 'coin' || type === 'money' || type === 'ticket') {
+        if (type === 'coin' || type === 'money' || type === 'ticket' || type === 'discount') {
             numInput.style.display = 'block';
             itemInput.style.display = 'none';
+            if (type === 'discount') {
+                numInput.placeholder = "Nhập % giảm giá (10 - 100)...";
+                if (expiryArea) expiryArea.style.display = 'block';
+                if (targetArea) targetArea.style.display = 'block'; // Hiển thị ô chọn vật phẩm áp dụng khi chọn Thẻ giảm giá
+            } else {
+                numInput.placeholder = "Nhập số lượng...";
+            }
         } else if (type === 'item') {
             numInput.style.display = 'none';
             itemInput.style.display = 'block';
@@ -2663,25 +2873,40 @@ window.toggleGiftInput = function () {
 };
 
 window.sendGiftMessage = async function () {
-    const target = document.getElementById('giftTargetStudent').value;
+    const targets = window.getMultiSelectValues('giftTargetStudent');
     const msg = document.getElementById('giftMessage').value.trim();
     const type = document.getElementById('giftType').value;
     let value = '';
+    let discountExpiry = null;
+    let discountTargetItems = ['all']; // ĐỔI THÀNH MẢNG (ARRAY)
 
-    if (type === 'coin' || type === 'money' || type === 'ticket') {
+    if (type === 'coin' || type === 'money' || type === 'ticket' || type === 'discount') {
         value = parseInt(document.getElementById('giftValueNumber').value);
         if (isNaN(value) || value <= 0) return alert("Vui lòng nhập số lượng hợp lệ (> 0)!");
+
+        if (type === 'discount') {
+            if (value < 10 || value > 100) return alert("Vui lòng nhập phần trăm giảm giá từ 10 đến 100!");
+            const expiryStr = document.getElementById('giftExpiryDate').value;
+            if (expiryStr) discountExpiry = new Date(expiryStr).getTime();
+
+            // XỬ LÝ LẤY NHIỀU VẬT PHẨM TỪ Ô SELECT MULTIPLE
+            const targetSelect = document.getElementById('giftDiscountTargetItem');
+            if (targetSelect && targetSelect.selectedOptions.length > 0) {
+                discountTargetItems = Array.from(targetSelect.selectedOptions).map(opt => opt.value);
+                // Nếu giáo viên có lỡ chọn cả 'all' và các món khác, ưu tiên 'all'
+                if (discountTargetItems.includes('all')) {
+                    discountTargetItems = ['all'];
+                }
+            }
+        }
     } else if (type === 'item') {
         value = document.getElementById('giftValueItem').value;
-        // Bổ sung chặn gửi nếu bị rỗng (do học sinh đã sở hữu hết và menu bị disabled)
         if (!value) return alert("❌ Không thể gửi! Học sinh này đã sở hữu tất cả các vật phẩm hiện có.");
     }
 
     if (type === 'none' && !msg) return alert("Bạn phải nhập lời nhắn nếu không đính kèm quà tặng!");
 
-    // Thiết lập thư hết hạn sau 5 ngày
     const expiryTimestamp = Date.now() + (5 * 24 * 60 * 60 * 1000);
-
     const payload = {
         message: msg,
         giftType: type,
@@ -2691,20 +2916,24 @@ window.sendGiftMessage = async function () {
         expiry: expiryTimestamp
     };
 
+    if (discountExpiry) payload.discountExpiry = discountExpiry;
+    if (type === 'discount') payload.discountTargetItem = discountTargetItems; // Đẩy mảng lên Firebase
+
     const users = await getDB('users');
     const students = users.filter(u => u.role === 'student');
 
-    if (target === 'all') {
-        for (let st of students) {
-            await pushDB(`inbox_messages/${st.username}`, payload);
-        }
+    if (targets.includes('all')) {
+        for (let st of students) { await pushDB(`inbox_messages/${st.username}`, payload); }
     } else {
-        await pushDB(`inbox_messages/${target}`, payload);
+        for (let username of targets) {
+            await pushDB(`inbox_messages/${username}`, payload);
+        }
     }
 
     alert("💌 Đã gửi thư và quà thành công!");
     document.getElementById('giftMessage').value = '';
     document.getElementById('giftValueNumber').value = '';
+    if (document.getElementById('giftExpiryDate')) document.getElementById('giftExpiryDate').value = '';
 
     const toggleBtn = document.getElementById('giftToggle');
     if (toggleBtn) toggleBtn.checked = false;
@@ -2718,3 +2947,542 @@ window.toggleGiftArea = function (isOpen) {
         inputArea.style.display = isOpen ? 'block' : 'none';
     }
 };
+
+// Hàm bật tắt Bảng quy đổi
+window.toggleConversionSettings = async function (isChecked) {
+    await db.ref('system_settings').update({ conversionTableEnabled: isChecked });
+    alert("Đã " + (isChecked ? "MỞ" : "ĐÓNG") + " chức năng Bảng quy đổi tiền của học sinh!");
+};
+
+// Hàm hiển thị danh sách yêu cầu rút tiền
+async function loadCashRequestsForTeacher() {
+    const requests = await getDB('cash_requests');
+    let html = '';
+
+    requests.reverse().forEach(req => {
+        let actionButtons = '';
+        let statusDisplay = '';
+
+        if (req.status === 'pending') {
+            statusDisplay = '<span style="color: #f39c12;">Đang chờ duyệt</span>';
+            actionButtons = `
+                <button onclick="updateRequestStatus('${req._fbKey}', 'transferring')" style="background: #2980b9; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">Chấp nhận</button>
+                <button onclick="updateRequestStatus('${req._fbKey}', 'rejected')" style="background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; margin-left: 5px;">Từ chối</button>
+            `;
+        } else if (req.status === 'transferring') {
+            statusDisplay = '<span style="color: #2980b9;">Đang chuyển tiền</span>';
+            actionButtons = `
+                <button onclick="updateRequestStatus('${req._fbKey}', 'completed')" style="background: #27ae60; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">Đã chuyển</button>
+            `;
+        } else if (req.status === 'completed') {
+            statusDisplay = '<span style="color: #27ae60;">Đã hoàn tất</span>';
+        } else if (req.status === 'rejected') {
+            statusDisplay = '<span style="color: #c0392b;">Đã từ chối</span>';
+        }
+
+        html += `
+            <div style="background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong>Học sinh:</strong> ${req.studentName} <br>
+                    <strong>Số tiền:</strong> <span style="color: #e67e22; font-weight: bold;">${req.amount.toLocaleString()} VNĐ</span> <br>
+                    <strong>Trạng thái:</strong> ${statusDisplay}
+                </div>
+                <div>
+                    ${actionButtons}
+                </div>
+            </div>
+        `;
+    });
+
+    const listElement = document.getElementById('teacherCashRequestsList');
+    if (listElement) {
+        listElement.innerHTML = html || '<p>Chưa có yêu cầu nào.</p>';
+    }
+}
+
+// Hàm cập nhật trạng thái yêu cầu
+async function updateRequestStatus(requestId, newStatus) {
+    let confirmMsg = "";
+    if (newStatus === 'transferring') confirmMsg = "Chấp nhận yêu cầu và báo học sinh đang chuyển tiền?";
+    if (newStatus === 'completed') confirmMsg = "Xác nhận đã chuyển tiền thành công?";
+    if (newStatus === 'rejected') confirmMsg = "Từ chối yêu cầu này (Tiền sẽ cần được hoàn lại nếu đã trừ trước đó)?";
+
+    if (confirm(confirmMsg)) {
+        await updateDB('cash_requests', requestId, { status: newStatus });
+
+        // Nếu bạn trừ tiền khi gửi yêu cầu mà giáo viên 'Từ chối', nhớ cộng lại tiền cho học sinh tại đây.
+
+        loadCashRequestsForTeacher(); // Render lại danh sách
+    }
+}
+
+// Đã ẩn gọi hàm cũ để tránh lỗi xung đột thẻ HTML
+// loadCashRequestsForTeacher();
+
+window.openCoinConversionModal = function () {
+    // THÊM ĐOẠN CHẶN NÀY
+    if (window.isConversionEnabled === false) {
+        alert("🔒 Chức năng Bảng quy đổi hiện đang bị Giáo viên tạm khóa!");
+        return;
+    }
+
+    if (window.currentActiveExamId) {
+        window.showExamLockWarning("⚠️ Bảng quy đổi Coin tạm khóa khi thi!");
+        return;
+    }
+    document.getElementById('convertAmount').value = '';
+    document.getElementById('convertResult').value = '';
+    setConvertDir('M2C'); // Reset về mặc định
+    document.getElementById('coinConversionModal').classList.add('active');
+};
+
+// =========================================================================
+// CHỨC NĂNG KIỂM DUYỆT RÚT TIỀN MẶT - PHÍA GIÁO VIÊN (CÁCH 2)
+// =========================================================================
+
+// Hàm tải toàn bộ yêu cầu tiền mặt lên bảng điều khiển của giáo viên
+window.loadTeacherCashRequests = async function () {
+    const container = document.getElementById('teacherCashRequestsListContainer');
+    if (!container) return;
+
+    try {
+        let requests = await getDB('cash_requests');
+        const now = Date.now();
+        const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000; // 2 ngày tính bằng mili-giây
+
+        // Quét và tự động xóa các yêu cầu đã xử lý quá 2 ngày
+        const validRequests = [];
+        for (let req of requests) {
+            if (req.status === 'completed' || req.status === 'rejected') {
+                const checkTime = req.resolvedAt || req.timestamp; // Lấy thời gian xử lý (hoặc thời gian tạo nếu là dữ liệu cũ)
+                if (now - checkTime > TWO_DAYS_MS) {
+                    // Xóa vĩnh viễn khỏi Firebase
+                    await removeDB('cash_requests', req._fbKey);
+                    continue; // Bỏ qua, không hiển thị ra màn hình
+                }
+            }
+            validRequests.push(req);
+        }
+        requests = validRequests;
+
+        if (requests.length === 0) {
+            container.innerHTML = '<p style="color: #64748b; font-size: 0.95em; text-align: center; padding: 20px; margin: 0;">Hiện tại chưa có yêu cầu nhận tiền mặt nào.</p>';
+            return;
+        }
+
+        let html = '';
+        // Hiện yêu cầu mới nhất lên trước
+        requests.reverse().forEach(req => {
+            let statusLabel = '';
+            let actionsHtml = '';
+
+            if (req.status === 'pending') {
+                statusLabel = '<span style="color: #d97706; background: #fef3c7; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 0.85em;">⏳ Chờ duyệt</span>';
+                actionsHtml = `
+                    <button onclick="handleTeacherProcessCash('${req._fbKey}', 'approve')" 
+                            style="background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85em;">
+                        Chấp nhận
+                    </button>
+                    <button onclick="handleTeacherProcessCash('${req._fbKey}', 'reject')" 
+                            style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85em; margin-left: 5px;">
+                        Từ chối
+                    </button>
+                `;
+            } else if (req.status === 'transferring') {
+                statusLabel = '<span style="color: #2563eb; background: #e0f2fe; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 0.85em;">🔄 Đang chuyển</span>';
+                actionsHtml = `
+                    <button onclick="handleTeacherProcessCash('${req._fbKey}', 'complete')" 
+                            style="background: #3b82f6; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85em;">
+                        Đã chuyển
+                    </button>
+                `;
+            } else if (req.status === 'completed') {
+                statusLabel = '<span style="color: #16a34a; background: #dcfce7; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 0.85em;">✅ Đã hoàn tất</span>';
+            } else if (req.status === 'rejected') {
+                statusLabel = '<span style="color: #dc2626; background: #fee2e2; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 0.85em;">❌ Đã từ chối</span>';
+            }
+
+            html += `
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; display: flex; justify-content: space-between; align-items: center; gap: 15px; box-sizing: border-box;">
+                    <div>
+                        <div style="font-weight: bold; color: #1e293b; font-size: 0.95em;">👤 Học sinh: ${req.studentName}</div>
+                        <div style="margin-top: 4px; color: #475569; font-size: 0.9em;">
+                            Số tiền yêu cầu: <strong style="color: #ea580c;">${req.amount.toLocaleString('vi-VN')} VNĐ</strong>
+                        </div>
+                        <div style="margin-top: 6px; display: flex; align-items: center; gap: 6px;">
+                            <span style="font-size: 0.8em; color: #94a3b8;">Trạng thái:</span> ${statusLabel}
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; box-sizing: border-box;">
+                        ${actionsHtml}
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    } catch (error) {
+        console.error("Lỗi hiển thị yêu cầu phía giáo viên:", error);
+        container.innerHTML = '<p style="color: #ef4444; font-size: 0.9em; text-align: center;">Không thể tải dữ liệu kiểm duyệt từ Firebase!</p>';
+    }
+};
+
+// Hàm xử lý kiểm duyệt (Đã fix lỗi tính sai tiền cho Giáo Viên)
+window.handleTeacherProcessCash = async function (reqFbKey, action) {
+    try {
+        const reqSnapshot = await db.ref(`cash_requests/${reqFbKey}`).once('value');
+        const reqData = reqSnapshot.val();
+        if (!reqData) {
+            alert("⚠️ Yêu cầu kiểm duyệt không tồn tại trên hệ thống!");
+            return;
+        }
+
+        // --- THAO TÁC 1: CHẤP NHẬN ---
+        if (action === 'approve') {
+            if (!confirm(`Bạn có đồng ý duyệt yêu cầu lấy tiền mặt trị giá ${reqData.amount.toLocaleString('vi-VN')} VNĐ của học sinh "${reqData.studentName}" không? Hệ thống sẽ kiểm tra tài khoản học sinh ngay bây giờ.`)) return;
+
+            // 1. Tìm Username chính xác của học sinh
+            const usersSnapshot = await db.ref('users').once('value');
+            const usersData = usersSnapshot.val();
+            let studentUsername = null;
+
+            if (usersData) {
+                for (let key in usersData) {
+                    if (usersData[key].name === reqData.studentName && usersData[key].role === 'student') {
+                        studentUsername = usersData[key].username;
+                        break;
+                    }
+                }
+            }
+
+            if (!studentUsername) {
+                alert("❌ Thất bại: Không tìm thấy tài khoản thông tin của học sinh này trên Firebase.");
+                return;
+            }
+
+            // 2. TÍNH LẠI CHÍNH XÁC TỔNG TIỀN LỘ TRÌNH CỦA HỌC SINH ĐÓ
+            let baseMoney = 0;
+            const assignments = await getDB('assignments');
+            const submissions = await getDB('submissions');
+            const stdAssignments = assignments.filter(a => a.targetStudent === 'all' || a.targetStudent === studentUsername);
+
+            stdAssignments.forEach(assign => {
+                const passingGrade = assign.passingGrade || 7;
+                const sub = submissions.find(s => s.assignmentId === assign.id && s.studentUsername === studentUsername);
+                let currentItemMoney = assign.roadmapMoney ? parseInt(assign.roadmapMoney) : 0;
+
+                if (sub) {
+                    if (sub.forcePass) baseMoney += currentItemMoney;
+                    else if (!sub.isAutoSubmitted && !sub.isLateFail && !sub.isRegrading && sub.grade !== null && sub.grade !== '') {
+                        if (parseFloat(sub.grade) >= passingGrade) baseMoney += currentItemMoney;
+                    }
+                }
+            });
+
+            // Lấy độ lệch tiền (offset)
+            const offsetSnap = await db.ref('student_money_offset/' + studentUsername).once('value');
+            let moneyOffset = offsetSnap.val() || 0;
+
+            let currentRouteMoney = baseMoney + moneyOffset;
+            if (currentRouteMoney < 0) currentRouteMoney = 0;
+
+            // 3. KIỂM TRA ĐIỀU KIỆN TRỪ TIỀN
+            if (currentRouteMoney < reqData.amount) {
+                alert(`❌ KHÔNG THỂ DUYỆT! Số dư lộ trình của học sinh hiện tại chỉ còn ${currentRouteMoney.toLocaleString('vi-VN')} VNĐ, không đủ để rút ${reqData.amount.toLocaleString('vi-VN')} VNĐ. Hãy bấm Từ Chối yêu cầu này.`);
+                return;
+            }
+
+            // TRỪ TIỀN HỌC SINH BẰNG CÁCH CHỈNH OFFSET (Cách hệ thống bạn đang hoạt động)
+            await db.ref(`student_money_offset/${studentUsername}`).set(moneyOffset - reqData.amount);
+
+            // Chuyển trạng thái sang 'Đang chuyển'
+            await db.ref(`cash_requests/${reqFbKey}`).update({ status: 'transferring' });
+            alert("✅ Duyệt thành công! Tài khoản học sinh đã được trừ tiền hợp lệ.");
+        }
+
+        // --- THAO TÁC 2: TỪ CHỐI ---
+        else if (action === 'reject') {
+            if (!confirm(`Bạn có chắc muốn TỪ CHỐI yêu cầu rút ${reqData.amount.toLocaleString('vi-VN')} VNĐ của học sinh "${reqData.studentName}"?`)) return;
+
+            await db.ref(`cash_requests/${reqFbKey}`).update({ status: 'rejected', resolvedAt: Date.now() });
+            alert("❌ Đã hủy và từ chối yêu cầu.");
+        }
+
+        // --- THAO TÁC 3: XÁC NHẬN ĐÃ CHUYỂN TIỀN XONG ---
+        else if (action === 'complete') {
+            if (!confirm(`Xác nhận bạn ĐÃ thực hiện chuyển/giao tiền mặt thành công cho học sinh "${reqData.studentName}"?`)) return;
+
+            await db.ref(`cash_requests/${reqFbKey}`).update({ status: 'completed', resolvedAt: Date.now() });
+            alert("🎉 Quy trình hoàn tất!");
+        }
+
+        // Cập nhật lại giao diện danh sách
+        loadTeacherCashRequests();
+
+    } catch (error) {
+        console.error("Lỗi khi xử lý phê duyệt tiền mặt:", error);
+        alert("❌ Lỗi thao tác Firebase. Vui lòng kiểm tra lại đường truyền kết nối.");
+    }
+};
+
+// ================= HÀM TẠO NÚT LỌC HỌC SINH TỰ ĐỘNG =================
+function renderStudentFilterButtons(studentsArray) {
+    const assignedContainer = document.getElementById('assignedStudentFilterContainer');
+    const submittedContainer = document.getElementById('submittedStudentFilterContainer');
+    const materialsContainer = document.getElementById('materialsStudentFilterContainer');
+    const scheduleContainer = document.getElementById('scheduleStudentFilterContainer'); // THÊM DÒNG NÀY
+
+    let htmlAssigned = `<button class="btn-student-filter active" data-id="all" onclick="setStudentFilter('all', this, 'assigned')">Tất cả</button>`;
+    let htmlSubmitted = `<button class="btn-student-filter active" data-id="all" onclick="setStudentFilter('all', this, 'submitted')">Tất cả</button>`;
+    let htmlMaterials = `<button class="btn-student-filter active" data-id="all" onclick="setStudentFilter('all', this, 'materials')">Tất cả</button>`;
+    let htmlSchedule = `<button class="btn-student-filter active" data-id="all" onclick="setStudentFilter('all', this, 'schedule')">Tất cả</button>`; // THÊM DÒNG NÀY
+
+    studentsArray.forEach(student => {
+        let btnA = `<button class="btn-student-filter" data-id="${student.username}" onclick="setStudentFilter('${student.username}', this, 'assigned')">${student.name}</button>`;
+        let btnS = `<button class="btn-student-filter" data-id="${student.username}" onclick="setStudentFilter('${student.username}', this, 'submitted')">${student.name}</button>`;
+        let btnM = `<button class="btn-student-filter" data-id="${student.username}" onclick="setStudentFilter('${student.username}', this, 'materials')">${student.name}</button>`;
+        let btnSch = `<button class="btn-student-filter" data-id="${student.username}" onclick="setStudentFilter('${student.username}', this, 'schedule')">${student.name}</button>`; // THÊM DÒNG NÀY
+
+        htmlAssigned += btnA;
+        htmlSubmitted += btnS;
+        htmlMaterials += btnM;
+        htmlSchedule += btnSch; // THÊM DÒNG NÀY
+    });
+
+    if (assignedContainer) assignedContainer.innerHTML = htmlAssigned;
+    if (submittedContainer) submittedContainer.innerHTML = htmlSubmitted;
+    if (materialsContainer) materialsContainer.innerHTML = htmlMaterials;
+    if (scheduleContainer) scheduleContainer.innerHTML = htmlSchedule; // THÊM DÒNG NÀY
+}
+
+// ================= HÀM LỌC BÀI TẬP VÀ BÀI NỘP THEO HỌC SINH =================
+window.setStudentFilter = function (studentId, btnElement, type) {
+    const container = btnElement.parentElement;
+    container.querySelectorAll('.btn-student-filter').forEach(btn => btn.classList.remove('active'));
+    btnElement.classList.add('active');
+
+    if (type === 'assigned') {
+        activeAssignedStudentFilter = studentId;
+        applyAssignedFilters();
+    } else if (type === 'submitted') {
+        activeSubmissionStudentFilter = studentId;
+        applySubmissionFilters();
+    } else if (type === 'materials') {
+        activeMaterialStudentFilter = studentId;
+        applyMaterialFilters();
+    } else if (type === 'schedule') { // BỔ SUNG LỌC CHO LỊCH HỌC
+        activeScheduleStudentFilter = studentId;
+        applyScheduleFilters();
+    }
+};
+
+window.applyScheduleFilters = function () {
+    let items = document.querySelectorAll('#teacherScheduleBody > tr');
+
+    items.forEach(item => {
+        let targetStudent = item.getAttribute('data-target') || 'all'; // Bạn bị thiếu dòng lấy dữ liệu này
+        let targetArr = targetStudent.split(',');
+
+        // Đã sửa activeAssignedStudentFilter thành activeScheduleStudentFilter
+        let matchFilter = (activeScheduleStudentFilter === 'all') ||
+            targetArr.includes('all') ||
+            targetArr.includes(activeScheduleStudentFilter);
+
+        item.style.display = matchFilter ? '' : 'none';
+    });
+};
+
+// HÀM LỌC TÀI LIỆU HỌC TẬP ĐỘNG
+window.applyMaterialFilters = function () {
+    let searchInput = document.getElementById('searchMaterials');
+    let searchText = searchInput ? searchInput.value.toLowerCase() : '';
+    let items = document.querySelectorAll('#teacherMaterialsContainer > .card');
+
+    items.forEach(item => {
+        let targetStudent = item.getAttribute('data-target') || 'all';
+        let targetArr = targetStudent.split(','); // Cắt chuỗi thành mảng
+        let text = item.innerText.toLowerCase();
+
+        // Thay vì dùng dấu ===, ta dùng includes() để tìm trong mảng
+        let matchFilter = (activeMaterialStudentFilter === 'all') ||
+            targetArr.includes('all') ||
+            targetArr.includes(activeMaterialStudentFilter);
+
+        let matchSearch = text.includes(searchText);
+
+        item.style.display = (matchFilter && matchSearch) ? '' : 'none';
+    });
+};
+
+window.applyAssignedFilters = function () {
+    let searchInput = document.getElementById('searchAssigned');
+    let searchText = searchInput ? searchInput.value.toLowerCase() : '';
+    // Quét tất cả các thẻ div đóng vai trò là card bài tập
+    let items = document.querySelectorAll('#assignedListContainer > .card');
+
+    items.forEach(item => {
+        let targetStudent = item.getAttribute('data-target') || 'all';
+        let targetArr = targetStudent.split(','); // Cắt chuỗi thành mảng
+        let text = item.innerText.toLowerCase();
+
+        let matchFilter = (activeAssignedStudentFilter === 'all') ||
+            targetArr.includes('all') ||
+            targetArr.includes(activeAssignedStudentFilter);
+
+        let matchSearch = text.includes(searchText);
+
+        item.style.display = (matchFilter && matchSearch) ? '' : 'none';
+    });
+};
+
+window.applySubmissionFilters = function () {
+    let searchInput = document.getElementById('searchSubmissions');
+    let searchText = searchInput ? searchInput.value.toLowerCase() : '';
+    // Quét tất cả các thẻ div đóng vai trò là card bài nộp
+    let items = document.querySelectorAll('#submissionsList > .card');
+
+    items.forEach(item => {
+        let studentId = item.getAttribute('data-student') || '';
+        let text = item.innerText.toLowerCase();
+
+        // Ở danh sách bài nộp, nút của ai thì chỉ hiện bài của người đó
+        let matchFilter = (activeSubmissionStudentFilter === 'all') ||
+            (studentId === activeSubmissionStudentFilter);
+
+        let matchSearch = text.includes(searchText);
+
+        item.style.display = (matchFilter && matchSearch) ? '' : 'none';
+    });
+};
+
+window.getMultiSelectValues = function (selectId) {
+    const select = document.getElementById(selectId);
+    if (!select || select.selectedOptions.length === 0) return ['all'];
+    const values = Array.from(select.selectedOptions).map(opt => opt.value);
+    // Ưu tiên "all" nếu giáo viên lỡ chọn chung "all" cùng các học sinh khác
+    if (values.includes('all')) return ['all'];
+    return values;
+};
+
+window.setMultiSelectValues = function (selectId, valuesArray) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    const arr = Array.isArray(valuesArray) ? valuesArray : [valuesArray || 'all'];
+    Array.from(select.options).forEach(opt => {
+        opt.selected = arr.includes(opt.value);
+    });
+};
+
+let currentCustomSelectId = '';
+
+    function openCustomStudentSelect(selectId) {
+        currentCustomSelectId = selectId;
+        const selectEl = document.getElementById(selectId);
+        const listContainer = document.getElementById('customStudentList');
+        document.getElementById('customStudentSearch').value = '';
+        
+        let html = '';
+        let hasCheckedOthers = false;
+
+        // Kiểm tra xem có học sinh cụ thể nào đang được chọn không
+        Array.from(selectEl.options).forEach(opt => {
+            if(opt.value !== 'all' && opt.selected) hasCheckedOthers = true;
+        });
+
+        Array.from(selectEl.options).forEach(opt => {
+            const isAllOption = opt.value === 'all';
+            
+            // Logic chọn thông minh: Đã chọn cụ thể thì tắt "Tất cả"
+            let isChecked = opt.selected;
+            if (isAllOption && hasCheckedOthers) isChecked = false;
+            if (isAllOption && !hasCheckedOthers && selectEl.selectedOptions.length === 0) isChecked = true;
+
+            // Tạo Avatar (lấy chữ cái đầu của tên hoặc icon)
+            let avatarHtml = '';
+            if (isAllOption) {
+                avatarHtml = `<div class="student-avatar" style="background:#dbeafe; color:#2563eb;">👥</div>`;
+            } else {
+                const firstLetter = opt.text.charAt(0).toUpperCase();
+                avatarHtml = `<div class="student-avatar" style="background:#f3f4f6; color:#4b5563;">${firstLetter}</div>`;
+            }
+
+            html += `
+                <label class="student-item">
+                    <input type="checkbox" class="student-cb" value="${opt.value}" ${isChecked ? 'checked' : ''} onchange="handleStudentCbChange(this)">
+                    ${avatarHtml}
+                    <span style="font-weight: 500; font-size: 15px; color: #1f2937;">${opt.text}</span>
+                </label>
+            `;
+        });
+
+        listContainer.innerHTML = html;
+        document.getElementById('customStudentModal').style.display = 'flex';
+    }
+
+    function handleStudentCbChange(checkbox) {
+        const isAll = checkbox.value === 'all';
+        const checkboxes = document.querySelectorAll('.student-cb');
+        
+        if (isAll && checkbox.checked) {
+            // Nếu click chọn "Tất cả học sinh", gỡ bỏ chọn tất cả các cá nhân
+            checkboxes.forEach(cb => { if (cb.value !== 'all') cb.checked = false; });
+        } else if (!isAll && checkbox.checked) {
+            // Nếu click chọn 1 người, gỡ dấu check ở mục "Tất cả"
+            const allCb = Array.from(checkboxes).find(cb => cb.value === 'all');
+            if (allCb) allCb.checked = false;
+        }
+    }
+
+    function filterCustomStudentList() {
+        const text = document.getElementById('customStudentSearch').value.toLowerCase();
+        const items = document.querySelectorAll('.student-item');
+        items.forEach(item => {
+            const label = item.querySelector('span').innerText.toLowerCase();
+            item.style.display = label.includes(text) ? 'flex' : 'none';
+        });
+    }
+
+    function closeCustomStudentSelect() {
+        document.getElementById('customStudentModal').style.display = 'none';
+    }
+
+    function confirmCustomStudentSelect() {
+        const selectEl = document.getElementById(currentCustomSelectId);
+        const checkboxes = document.querySelectorAll('.student-cb');
+        const displaySpan = document.getElementById(currentCustomSelectId + '_displayText');
+        
+        let selectedCount = 0;
+        let isAllSelected = false;
+
+        // Lưu dữ liệu vào <select> ẩn để hệ thống backend (Firebase) đọc
+        Array.from(selectEl.options).forEach(opt => {
+            const cb = Array.from(checkboxes).find(c => c.value === opt.value);
+            if (cb) {
+                opt.selected = cb.checked;
+                if (cb.checked) {
+                    if (opt.value === 'all') isAllSelected = true;
+                    else selectedCount++;
+                }
+            }
+        });
+
+        // Nếu quên không chọn ai, mặc định chuyển về "Tất cả học sinh"
+        if (selectedCount === 0 && !isAllSelected) {
+            let allOpt = Array.from(selectEl.options).find(o => o.value === 'all');
+            if(allOpt) allOpt.selected = true;
+            isAllSelected = true;
+        }
+
+        // Đổi chữ bên ngoài (Ví dụ: Đã chọn 3 học sinh)
+        if (displaySpan) {
+            if (isAllSelected) {
+                displaySpan.innerHTML = 'Tất cả học sinh';
+            } else {
+                displaySpan.innerHTML = `<span style="color:#2563eb; font-weight:600;">Đã chọn ${selectedCount} học sinh</span>`;
+            }
+        }
+
+        closeCustomStudentSelect();
+    }
+// Khởi chạy tải danh sách khi giáo viên mở trang
+loadTeacherCashRequests();

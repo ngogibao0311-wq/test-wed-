@@ -6,14 +6,13 @@ class EffectManager {
     static shootingStarInterval = null;
 
     static clearEffects() {
-        // Dừng các bộ đếm sinh hạt
+        // Dừng CẢ 2 bộ đếm sinh hạt và sao băng
         if (this.currentInterval) clearInterval(this.currentInterval);
+        if (this.shootingStarInterval) clearInterval(this.shootingStarInterval); // <-- Phải thêm dòng này
         
         if (this.container) {
-            // Thay vì xóa ngay (innerHTML = ''), đợi các hoạt ảnh cuối cùng kết thúc
             const children = Array.from(this.container.children);
             children.forEach(child => {
-                // Tắt animation và ép mờ đi trong 0.3s
                 child.style.animation = 'none';
                 child.style.transition = 'opacity 0.3s';
                 child.style.opacity = '0';
@@ -55,6 +54,12 @@ class EffectManager {
                 break;
             case 'effect_vutru_saothuy':
                 this.createMercuryRainEffect();
+                break;
+            case 'effect_cosmic_dust':
+                this.createCosmicDustEffect();
+                break;
+            case 'effect_truyenthuyet_nganha':
+                this.createGalaxyGuardianEffect();
                 break;
         }
         localStorage.setItem('active_effect', effectId);
@@ -341,5 +346,103 @@ class EffectManager {
             }, duration * 1000);
 
         }, 150); // Mỗi 0.15s sinh ra 1 vệt tinh thể
+    }
+    
+    static createCosmicDustEffect() {
+        // 1. Sinh hạt Bụi Tinh Vân (Sáng hơn, to hơn, bay nhanh hơn)
+        this.currentInterval = setInterval(() => {
+            const dust = document.createElement('div');
+            dust.classList.add('effect-cosmic-dust-particle');
+
+            // Xuất phát ngẫu nhiên ở trục ngang, bắt đầu từ sát mép dưới màn hình
+            dust.style.left = Math.random() * 100 + 'vw';
+            dust.style.bottom = '-5vh'; 
+
+            // Tăng kích thước (từ 3px đến 8px)
+            const size = Math.random() * 5 + 3;
+            dust.style.width = `${size}px`;
+            dust.style.height = `${size}px`;
+
+            const colors = ['#ec4899', '#06b6d4', '#8b5cf6', '#ffffff'];
+            const chosenColor = colors[Math.floor(Math.random() * colors.length)];
+            dust.style.background = chosenColor;
+            // Tăng quầng sáng (Glow) lên gấp 3 lần
+            dust.style.boxShadow = `0 0 ${size * 3}px ${chosenColor}`;
+
+            // Tốc độ bay ngẫu nhiên (5s đến 9s)
+            const duration = Math.random() * 4 + 5;
+            dust.style.animationDuration = `${duration}s`;
+
+            this.container.appendChild(dust);
+
+            setTimeout(() => {
+                if (dust.parentNode) dust.remove();
+            }, duration * 1000);
+        }, 100); // Tăng tốc độ đẻ hạt (0.1s tạo 1 hạt)
+
+        // 2. Vệt Sao Băng
+        this.shootingStarInterval = setInterval(() => {
+            const star = document.createElement('div');
+            star.classList.add('effect-shooting-star-cosmic');
+            
+            star.style.top = Math.random() * 35 + 'vh'; 
+            star.style.left = '-20vw'; // Xuất phát lùi sâu ra ngoài màn hình
+            
+            // Tốc độ sao băng xẹt (1s - 2s)
+            const starDuration = Math.random() * 1 + 1;
+            star.style.animationDuration = `${starDuration}s`;
+
+            this.container.appendChild(star);
+            
+            setTimeout(() => {
+                if (star.parentNode) star.remove();
+            }, starDuration * 1000);
+        }, 3000); // Cứ 3 giây xẹt 1 lần
+    }
+
+    static createGalaxyGuardianEffect() {
+        if (!this.container) return;
+
+        // 1. Tạo lớp Cực quang vũ trụ làm nền (Chỉ sinh 1 lần)
+        const aurora = document.createElement('div');
+        aurora.classList.add('effect-guardian-aurora-bg');
+        this.container.appendChild(aurora);
+
+        // 2. Tạo Sóng Hấp Dẫn (Vòng tròn lan rộng)
+        this.currentInterval = setInterval(() => {
+            const ripple = document.createElement('div');
+            ripple.classList.add('effect-guardian-ripple');
+            
+            // Xuất hiện ngẫu nhiên trên màn hình
+            ripple.style.left = Math.random() * 100 + 'vw';
+            ripple.style.top = Math.random() * 100 + 'vh';
+            
+            this.container.appendChild(ripple);
+            
+            setTimeout(() => {
+                if (ripple.parentNode) ripple.remove();
+            }, 4000); // Sống trong 4s để lan rộng hết cỡ
+        }, 1500); // Cứ 1.5s tạo 1 gợn sóng
+
+        // 3. Tận dụng interval thứ 2 để tạo Vết nứt thời không (Spatial Rifts)
+        // Mình dùng biến this.shootingStarInterval có sẵn của hệ thống bạn để dễ clear
+        this.shootingStarInterval = setInterval(() => {
+            const rift = document.createElement('div');
+            rift.classList.add('effect-guardian-rift');
+            
+            // Vết nứt tập trung ở giữa màn hình hơn một chút
+            rift.style.left = (Math.random() * 80 + 10) + 'vw';
+            rift.style.top = (Math.random() * 80 + 10) + 'vh';
+            
+            // Xoay vết nứt theo các góc chéo ngẫu nhiên
+            let angle = Math.random() * 180;
+            rift.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
+            
+            this.container.appendChild(rift);
+            
+            setTimeout(() => {
+                if (rift.parentNode) rift.remove();
+            }, 2500); // Xé rách và khép lại trong 2.5s
+        }, 3500); // Lâu lâu (3.5s) mới bị rách không gian 1 lần
     }
 }

@@ -173,13 +173,13 @@ const StoreConfig = {
             price: 300,
             isNonCoin: false,
             tag: 'Cổ tích',
-            value: '🧚' 
+            value: '🧚'
         },
         {
             id: 'theme_cotich_phale',
             name: 'Cung Điện Pha Lê',
             type: 'theme',
-            price: 250,         
+            price: 250,
             tag: 'Cổ tích',
             value: 'theme-crystal-palace', // Tên class CSS kích hoạt giao diện
             customIcon: '🔮'
@@ -233,7 +233,7 @@ const StoreConfig = {
             price: 300,
             isNonCoin: false,
             tag: 'Sao thủy', // Sửa ở đây
-            value: '☄️' 
+            value: '☄️'
         },
         {
             id: 'theme_vutru_saothuy',
@@ -244,7 +244,67 @@ const StoreConfig = {
             tag: 'Sao thủy',
             value: 'theme-mercury-station', // Class CSS kích hoạt
             customIcon: '🛸'
-        }
+        },
+        {
+            id: 'pet_vutru_meotinhvan',
+            name: 'Mèo Tinh Vân',
+            type: 'pet',
+            price: 400,
+            isNonCoin: false,
+            tag: 'Vũ trụ',
+            value: 'assets/pet/vũ trụ.png',
+            isIcon: false,
+            petEffect: 'nebula-cat-magic' // Class kích hoạt hiệu ứng hoàn toàn mới
+        },
+        {
+            id: 'theme_cosmic_anomaly',
+            name: 'Dị Điểm Không Gian',
+            type: 'theme',
+            price: 350,
+            tag: 'Vũ trụ',
+            value: 'theme-cosmic-anomaly', // Tên Class CSS đại diện cho toàn bộ giao diện
+            customIcon: '🌌'
+        },
+        {
+            id: 'effect_cosmic_dust',
+            name: 'Bụi Tinh Vân',
+            type: 'effect',
+            price: 300,
+            isNonCoin: false, // Bán bằng coin bình thường
+            tag: 'Vũ trụ',
+            customIcon: '☄️' // Icon sao băng
+        },
+        {
+            id: 'pet_truyenthuyet_2',
+            name: 'Vệ Thần Ngân Hà',
+            type: 'pet',
+            price: 0,             // Không bán bằng Coin (nhận từ sự kiện)
+            isNonCoin: true,      // Đánh dấu là vật phẩm sự kiện
+            tag: 'Truyền thuyết', // Gắn tag Truyền thuyết
+            value: 'assets/pet/truyền thuyết/truyền thuyết 2.png',
+            isIcon: false,
+            petEffect: 'galaxy-guardian-magic' // Tên class hiệu ứng hoàn toàn mới
+        },
+        {
+            id: 'effect_truyenthuyet_nganha',
+            name: 'Tinh Vân Vệ Thần',
+            type: 'effect',
+            price: 0,             // Không bán bằng Coin
+            isNonCoin: true,      // Kích hoạt cơ chế nhận từ sự kiện
+            tag: 'Truyền thuyết', // Gắn tag Truyền thuyết
+            value: 'effect_truyenthuyet_nganha',
+            customIcon: '🌠'      // Icon hiển thị trong cửa hàng
+        },
+        {
+            id: 'theme_truyenthuyet_nganha',
+            name: 'Giao Diện Vệ Thần Ngân Hà',
+            type: 'theme',
+            price: 0,             // Sự kiện, không bán bằng coin
+            isNonCoin: true,      // Cờ vật phẩm sự kiện
+            tag: 'Truyền thuyết', // Gắn tag Truyền thuyết bảo chứng
+            value: 'theme-vethan-nganha', // Tên Class CSS độc quyền sẽ bọc toàn bộ Web
+            customIcon: '🌌'      // Biểu tượng thiên hà tinh vân
+        },
     ]
 };
 
