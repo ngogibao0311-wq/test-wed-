@@ -369,11 +369,6 @@ async function createAssignment() {
         videoLink = (type === 'thi') ? '' : document.getElementById('videoLink').value.trim();
         hideEssayText = document.getElementById('hideEssayText').checked;
 
-        let reqTimeEl = document.getElementById('requiredWatchTime');
-        if (reqTimeEl && reqTimeEl.value) {
-            requiredWatchTime = parseInt(reqTimeEl.value) || 0;
-        }
-
         const fInput = document.getElementById('fileInput');
         if (fInput && fInput.files.length > 0) {
             attachedFile = await readMultipleFiles(fInput.files);
@@ -422,7 +417,6 @@ async function createAssignment() {
         id: Date.now().toString(), title, desc,
         startDate: startDate.replace("T", " "), endDate: endDate.replace("T", " "),
         targetStudent, file: attachedFile, videoLink: videoLink,
-        requiredWatchTime: requiredWatchTime,
         assessmentType: type, questions: questions,
         mcWeight: mcWeight, essayWeight: essayWeight,
         hideEssayText: hideEssayText // Đẩy lên Firebase dữ liệu cấu hình mới
@@ -434,7 +428,6 @@ async function createAssignment() {
     document.getElementById('questionsContainer').innerHTML = ''; questionCount = 0;
     if (document.getElementById('hideEssayText')) document.getElementById('hideEssayText').checked = false; // Reset checkbox
     dtTeacherAssign.items.clear(); attachedFileData = null; alert("Giao bài tập thành công!");
-    document.getElementById('requiredWatchTime').value = '';
 }
 
 async function loadAssignedList() {
@@ -541,11 +534,6 @@ async function loadAssignedList() {
             });
         }
         let videoHTML = assign.videoLink ? getEmbedHTML(assign.videoLink) : '';
-
-        // ---> THÊM ĐOẠN NÀY VÀO ĐÂY ĐỂ IN NHÃN GV KIỂM TRA <---
-        if (assign.requiredWatchTime && assign.requiredWatchTime > 0) {
-            videoHTML += `<div style="background: rgba(245, 158, 11, 0.1); border-left: 4px solid #d97706; padding: 10px; margin-top: 10px; border-radius: 8px;"><strong style="color: #d97706;">⏳ Yêu cầu xem tối thiểu để mở khóa làm bài:</strong> ${assign.requiredWatchTime} giây</div>`;
-        }
 
         let quizHTML = '';
         const hasMC = assign.assessmentType === 'trac_nghiem' || assign.assessmentType === 'ket_hop' || (assign.assessmentType === 'thi' && (assign.mcWeight || 0) > 0);
@@ -1464,12 +1452,6 @@ window.openEditAssignmentModal = async function (fbKey) {
             if (tuLuanSec) tuLuanSec.style.display = 'block';
             if (document.getElementById('editDesc')) document.getElementById('editDesc').value = assign.desc || '';
             if (document.getElementById('editVideoLink')) document.getElementById('editVideoLink').value = assign.videoLink || '';
-            if (document.getElementById('editRequiredWatchTime')) {
-                document.getElementById('editRequiredWatchTime').value = assign.requiredWatchTime || '';
-            }
-            if (document.getElementById('editRequiredWatchTime')) {
-                document.getElementById('editRequiredWatchTime').value = assign.requiredWatchTime || '';
-            }
             if (document.getElementById('editHideEssayText')) {
                 document.getElementById('editHideEssayText').checked = !!assign.hideEssayText;
             }
@@ -1598,8 +1580,6 @@ window.saveAssignmentEdit = async function () {
     if (assign.assessmentType === 'tu_luan' || assign.assessmentType === 'ket_hop' || !assign.assessmentType) {
         updateObj.desc = document.getElementById('editDesc').value;
         updateObj.videoLink = document.getElementById('editVideoLink').value.trim();
-        let editReqTimeEl = document.getElementById('editRequiredWatchTime');
-        updateObj.requiredWatchTime = (editReqTimeEl && editReqTimeEl.value) ? parseInt(editReqTimeEl.value) : 0;
         updateObj.hideEssayText = document.getElementById('editHideEssayText') ? document.getElementById('editHideEssayText').checked : false;
     }
 
@@ -1623,16 +1603,12 @@ window.saveAssignmentEdit = async function () {
     if (hasEssay) {
         updateObj.desc = document.getElementById('editDesc').value;
         updateObj.videoLink = document.getElementById('editVideoLink').value.trim();
-        let editReqTimeEl = document.getElementById('editRequiredWatchTime');
-        updateObj.requiredWatchTime = (editReqTimeEl && editReqTimeEl.value) ? parseInt(editReqTimeEl.value) : 0;
-        // -------------------------------------------------------
-
         updateObj.hideEssayText = document.getElementById('editHideEssayText') ? document.getElementById('editHideEssayText').checked : false;
     } else if (assign.assessmentType === 'thi') {
         updateObj.desc = '';
         updateObj.hideEssayText = false;
-        updateObj.requiredWatchTime = 0; // Đặt về 0 nếu đổi sang bài chỉ có trắc nghiệm
     }
+
     // Thu thập dữ liệu Trắc Nghiệm
     const hasMC = assign.assessmentType === 'trac_nghiem' || assign.assessmentType === 'ket_hop' || (assign.assessmentType === 'thi' && updateObj.mcWeight > 0);
     if (hasMC) {
@@ -3399,114 +3375,114 @@ window.setMultiSelectValues = function (selectId, valuesArray) {
 
 let currentCustomSelectId = '';
 
-function openCustomStudentSelect(selectId) {
-    currentCustomSelectId = selectId;
-    const selectEl = document.getElementById(selectId);
-    const listContainer = document.getElementById('customStudentList');
-    document.getElementById('customStudentSearch').value = '';
+    function openCustomStudentSelect(selectId) {
+        currentCustomSelectId = selectId;
+        const selectEl = document.getElementById(selectId);
+        const listContainer = document.getElementById('customStudentList');
+        document.getElementById('customStudentSearch').value = '';
+        
+        let html = '';
+        let hasCheckedOthers = false;
 
-    let html = '';
-    let hasCheckedOthers = false;
+        // Kiểm tra xem có học sinh cụ thể nào đang được chọn không
+        Array.from(selectEl.options).forEach(opt => {
+            if(opt.value !== 'all' && opt.selected) hasCheckedOthers = true;
+        });
 
-    // Kiểm tra xem có học sinh cụ thể nào đang được chọn không
-    Array.from(selectEl.options).forEach(opt => {
-        if (opt.value !== 'all' && opt.selected) hasCheckedOthers = true;
-    });
+        Array.from(selectEl.options).forEach(opt => {
+            const isAllOption = opt.value === 'all';
+            
+            // Logic chọn thông minh: Đã chọn cụ thể thì tắt "Tất cả"
+            let isChecked = opt.selected;
+            if (isAllOption && hasCheckedOthers) isChecked = false;
+            if (isAllOption && !hasCheckedOthers && selectEl.selectedOptions.length === 0) isChecked = true;
 
-    Array.from(selectEl.options).forEach(opt => {
-        const isAllOption = opt.value === 'all';
+            // Tạo Avatar (lấy chữ cái đầu của tên hoặc icon)
+            let avatarHtml = '';
+            if (isAllOption) {
+                avatarHtml = `<div class="student-avatar" style="background:#dbeafe; color:#2563eb;">👥</div>`;
+            } else {
+                const firstLetter = opt.text.charAt(0).toUpperCase();
+                avatarHtml = `<div class="student-avatar" style="background:#f3f4f6; color:#4b5563;">${firstLetter}</div>`;
+            }
 
-        // Logic chọn thông minh: Đã chọn cụ thể thì tắt "Tất cả"
-        let isChecked = opt.selected;
-        if (isAllOption && hasCheckedOthers) isChecked = false;
-        if (isAllOption && !hasCheckedOthers && selectEl.selectedOptions.length === 0) isChecked = true;
-
-        // Tạo Avatar (lấy chữ cái đầu của tên hoặc icon)
-        let avatarHtml = '';
-        if (isAllOption) {
-            avatarHtml = `<div class="student-avatar" style="background:#dbeafe; color:#2563eb;">👥</div>`;
-        } else {
-            const firstLetter = opt.text.charAt(0).toUpperCase();
-            avatarHtml = `<div class="student-avatar" style="background:#f3f4f6; color:#4b5563;">${firstLetter}</div>`;
-        }
-
-        html += `
+            html += `
                 <label class="student-item">
                     <input type="checkbox" class="student-cb" value="${opt.value}" ${isChecked ? 'checked' : ''} onchange="handleStudentCbChange(this)">
                     ${avatarHtml}
                     <span style="font-weight: 500; font-size: 15px; color: #1f2937;">${opt.text}</span>
                 </label>
             `;
-    });
+        });
 
-    listContainer.innerHTML = html;
-    document.getElementById('customStudentModal').style.display = 'flex';
-}
-
-function handleStudentCbChange(checkbox) {
-    const isAll = checkbox.value === 'all';
-    const checkboxes = document.querySelectorAll('.student-cb');
-
-    if (isAll && checkbox.checked) {
-        // Nếu click chọn "Tất cả học sinh", gỡ bỏ chọn tất cả các cá nhân
-        checkboxes.forEach(cb => { if (cb.value !== 'all') cb.checked = false; });
-    } else if (!isAll && checkbox.checked) {
-        // Nếu click chọn 1 người, gỡ dấu check ở mục "Tất cả"
-        const allCb = Array.from(checkboxes).find(cb => cb.value === 'all');
-        if (allCb) allCb.checked = false;
+        listContainer.innerHTML = html;
+        document.getElementById('customStudentModal').style.display = 'flex';
     }
-}
 
-function filterCustomStudentList() {
-    const text = document.getElementById('customStudentSearch').value.toLowerCase();
-    const items = document.querySelectorAll('.student-item');
-    items.forEach(item => {
-        const label = item.querySelector('span').innerText.toLowerCase();
-        item.style.display = label.includes(text) ? 'flex' : 'none';
-    });
-}
+    function handleStudentCbChange(checkbox) {
+        const isAll = checkbox.value === 'all';
+        const checkboxes = document.querySelectorAll('.student-cb');
+        
+        if (isAll && checkbox.checked) {
+            // Nếu click chọn "Tất cả học sinh", gỡ bỏ chọn tất cả các cá nhân
+            checkboxes.forEach(cb => { if (cb.value !== 'all') cb.checked = false; });
+        } else if (!isAll && checkbox.checked) {
+            // Nếu click chọn 1 người, gỡ dấu check ở mục "Tất cả"
+            const allCb = Array.from(checkboxes).find(cb => cb.value === 'all');
+            if (allCb) allCb.checked = false;
+        }
+    }
 
-function closeCustomStudentSelect() {
-    document.getElementById('customStudentModal').style.display = 'none';
-}
+    function filterCustomStudentList() {
+        const text = document.getElementById('customStudentSearch').value.toLowerCase();
+        const items = document.querySelectorAll('.student-item');
+        items.forEach(item => {
+            const label = item.querySelector('span').innerText.toLowerCase();
+            item.style.display = label.includes(text) ? 'flex' : 'none';
+        });
+    }
 
-function confirmCustomStudentSelect() {
-    const selectEl = document.getElementById(currentCustomSelectId);
-    const checkboxes = document.querySelectorAll('.student-cb');
-    const displaySpan = document.getElementById(currentCustomSelectId + '_displayText');
+    function closeCustomStudentSelect() {
+        document.getElementById('customStudentModal').style.display = 'none';
+    }
 
-    let selectedCount = 0;
-    let isAllSelected = false;
+    function confirmCustomStudentSelect() {
+        const selectEl = document.getElementById(currentCustomSelectId);
+        const checkboxes = document.querySelectorAll('.student-cb');
+        const displaySpan = document.getElementById(currentCustomSelectId + '_displayText');
+        
+        let selectedCount = 0;
+        let isAllSelected = false;
 
-    // Lưu dữ liệu vào <select> ẩn để hệ thống backend (Firebase) đọc
-    Array.from(selectEl.options).forEach(opt => {
-        const cb = Array.from(checkboxes).find(c => c.value === opt.value);
-        if (cb) {
-            opt.selected = cb.checked;
-            if (cb.checked) {
-                if (opt.value === 'all') isAllSelected = true;
-                else selectedCount++;
+        // Lưu dữ liệu vào <select> ẩn để hệ thống backend (Firebase) đọc
+        Array.from(selectEl.options).forEach(opt => {
+            const cb = Array.from(checkboxes).find(c => c.value === opt.value);
+            if (cb) {
+                opt.selected = cb.checked;
+                if (cb.checked) {
+                    if (opt.value === 'all') isAllSelected = true;
+                    else selectedCount++;
+                }
+            }
+        });
+
+        // Nếu quên không chọn ai, mặc định chuyển về "Tất cả học sinh"
+        if (selectedCount === 0 && !isAllSelected) {
+            let allOpt = Array.from(selectEl.options).find(o => o.value === 'all');
+            if(allOpt) allOpt.selected = true;
+            isAllSelected = true;
+        }
+
+        // Đổi chữ bên ngoài (Ví dụ: Đã chọn 3 học sinh)
+        if (displaySpan) {
+            if (isAllSelected) {
+                displaySpan.innerHTML = 'Tất cả học sinh';
+            } else {
+                displaySpan.innerHTML = `<span style="color:#2563eb; font-weight:600;">Đã chọn ${selectedCount} học sinh</span>`;
             }
         }
-    });
 
-    // Nếu quên không chọn ai, mặc định chuyển về "Tất cả học sinh"
-    if (selectedCount === 0 && !isAllSelected) {
-        let allOpt = Array.from(selectEl.options).find(o => o.value === 'all');
-        if (allOpt) allOpt.selected = true;
-        isAllSelected = true;
+        closeCustomStudentSelect();
     }
-
-    // Đổi chữ bên ngoài (Ví dụ: Đã chọn 3 học sinh)
-    if (displaySpan) {
-        if (isAllSelected) {
-            displaySpan.innerHTML = 'Tất cả học sinh';
-        } else {
-            displaySpan.innerHTML = `<span style="color:#2563eb; font-weight:600;">Đã chọn ${selectedCount} học sinh</span>`;
-        }
-    }
-
-    closeCustomStudentSelect();
-}
 // Khởi chạy tải danh sách khi giáo viên mở trang
 loadTeacherCashRequests();
