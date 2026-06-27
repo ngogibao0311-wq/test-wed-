@@ -453,7 +453,7 @@ async function loadAssignments() {
         // [THÊM MỚI] Xử lý mảng đối tượng học sinh
         const targetArr = Array.isArray(assign.targetStudent) ? assign.targetStudent : [assign.targetStudent || 'all'];
         if (!targetArr.includes('all') && !targetArr.includes(currentUser.username)) return;
-        
+
         const mySub = submissions.find(s => s.assignmentId === assign.id && s.studentUsername === currentUser.username);
 
         const now = new Date();
@@ -816,13 +816,30 @@ async function loadAssignments() {
                 const div = document.createElement('div'); div.className = 'card submit-box accordion-card';
                 div.style.position = 'relative'; // Bắt buộc để lớp phủ kính định vị chính xác
 
+                // 1. Xác định thời lượng yêu cầu
+                let reqTime = assign.requiredWatchTime || 0;
+
+                // 2. Tạo thông báo khóa (chỉ hiện nếu có yêu cầu thời lượng)
+                let lockMsgHTML = (reqTime > 0 && assign.videoLink) ? `
+    <div id="video-lock-msg-${assign.id}" style="background: rgba(245, 158, 11, 0.15); border-left: 4px solid #d97706; padding: 15px; margin-top: 15px; border-radius: 8px; margin-bottom: 15px;">
+        <h4 style="color: #d97706; margin: 0 0 5px 0;">🔒 Phần làm bài đang bị khóa</h4>
+        <p style="margin: 0; color: #b45309;">Giáo viên yêu cầu bạn phải xem đoạn video bài giảng ít nhất <strong>${reqTime} giây</strong> thì mới có thể bắt đầu làm bài. Vui lòng xem video ở trên.</p>
+    </div>` : '';
+
+                // 3. Gói các thành phần làm bài vào "working-area"
+                // Nếu có yêu cầu thời lượng, đặt display: none; nếu không thì hiển thị bình thường
+                let workingAreaStyle = (reqTime > 0 && assign.videoLink) ? 'display: none;' : 'display: block;';
+
                 let assignmentContentRaw = `
                     ${videoHTML}
-                    ${quizHTML}
-                    ${descHTML}
-                    ${teacherFileHTML}
-                    ${tuLuanInputHTML}
-                    ${submitBtnHTML}
+                    ${lockMsgHTML}
+                    <div id="working-area-${assign.id}" style="${workingAreaStyle}">
+                        ${quizHTML}
+                        ${descHTML}
+                        ${teacherFileHTML}
+                        ${tuLuanInputHTML}
+                        ${submitBtnHTML}
+                    </div>
                 `;
 
                 if (assign.assessmentType === 'thi') {
@@ -3815,57 +3832,37 @@ window.handleRequestCashSubmit = async function () {
 };
 
 // ================= HỆ THỐNG THEO DÕI VIDEO YOUTUBE =================
-let ytPlayers = {};
-let watchTimers = {};
-let watchDurations = {}; // Lưu mốc thời gian XA NHẤT học sinh đã xem tới
-let lastSavedTime = {};  // Biến phụ để chống spam lưu lên Firebase liên tục
-
-// Hàm thay thế getEmbedHTML dành riêng cho việc có theo dõi thời gian
-function getTrackedVideoHTML(url, assignId) {
-    if (!url) return '';
-    let videoId = '';
-    if (url.includes('watch?v=')) { videoId = url.split('v=')[1].split('&')[0]; }
-    else if (url.includes('youtu.be/')) { videoId = url.split('youtu.be/')[1].split('?')[0]; }
-    else if (url.includes('youtube.com/shorts/')) { videoId = url.split('shorts/')[1].split('?')[0]; }
-    else if (url.includes('embed/')) { videoId = url.split('embed/')[1].split('?')[0]; }
-
-    if (videoId) {
-        let embedUrl = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&rel=0`;
-        return `
-        <div class="video-wrapper" style="margin-top: 15px; border: 2px solid #667eea; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.8);">
-            <iframe id="yt-player-${assignId}" width="100%" height="315" src="${embedUrl}" frameborder="0" allowfullscreen></iframe>
-            <div style="text-align: center; margin-top: 10px; font-weight: bold; color: #059669; font-size: 1.1em;">
-                ⏱️ Mốc thời gian đã xem tới: <span id="watch-time-display-${assignId}">0</span> giây
-            </div>
-        </div>`;
-    }
-    return '';
-}
-
-window.initYouTubeTrackers = function(assignments) {
-    if (typeof YT === 'undefined' || !YT.Player) return; 
+window.initYouTubeTrackers = function (assignments) {
+    if (typeof YT === 'undefined' || !YT.Player) return;
 
     assignments.forEach(assign => {
         const iframeId = `yt-player-${assign.id}`;
         const iframeEl = document.getElementById(iframeId);
-        
+
         if (iframeEl && !ytPlayers[assign.id]) {
-            // Lấy dữ liệu cũ TỪ TRƯỚC, lấy xong mới khởi tạo video
             db.ref(`video_tracking/${assign.id}/${currentUser.username}`).once('value', (snap) => {
                 watchDurations[assign.id] = snap.val() || 0;
                 const display = document.getElementById(`watch-time-display-${assign.id}`);
-                if(display) display.innerText = watchDurations[assign.id];
+                if (display) display.innerText = watchDurations[assign.id];
+
+                // BƯỚC MỞ KHÓA 1: KIỂM TRA MỞ KHÓA NGAY LÚC TẢI TRANG (Nếu HS đã xem đủ từ trước)
+                let reqTime = assign.requiredWatchTime || 0;
+                if (reqTime > 0 && watchDurations[assign.id] >= reqTime) {
+                    let workArea = document.getElementById(`working-area-${assign.id}`);
+                    let lockMsg = document.getElementById(`video-lock-msg-${assign.id}`);
+                    if (workArea) workArea.style.display = 'block';
+                    if (lockMsg) lockMsg.style.display = 'none';
+                }
 
                 // Bắt đầu khởi tạo Player
                 ytPlayers[assign.id] = new YT.Player(iframeId, {
                     events: {
                         'onReady': (event) => {
-                            // LỚP BẢO VỆ 1: Khi load video, ép tua tới đúng điểm đang xem dở
                             if (watchDurations[assign.id] > 0) {
                                 event.target.seekTo(watchDurations[assign.id], true);
                             }
                         },
-                        'onStateChange': (event) => onPlayerStateChange(event, assign.id)
+                        'onStateChange': (event) => onPlayerStateChange(event, assign.id, reqTime)
                     }
                 });
             });
@@ -3873,44 +3870,45 @@ window.initYouTubeTrackers = function(assignments) {
     });
 };
 
-function onPlayerStateChange(event, assignId) {
-    // 1. Lấy đúng instance của player từ mảng đã lưu trữ thay vì dùng event.target
-    const player = ytPlayers[assignId]; 
-    
+function onPlayerStateChange(event, assignId, reqTime = 0) {
+    const player = ytPlayers[assignId];
+
     if (event.data == YT.PlayerState.PLAYING) {
-        // 2. Dọn dẹp bộ đếm cũ nếu có để tránh tình trạng đếm chồng chéo (nhân đôi tốc độ) khi HS bấm Play/Pause liên tục
         if (watchTimers[assignId]) clearInterval(watchTimers[assignId]);
 
         watchTimers[assignId] = setInterval(() => {
-            // 3. CHỐT CHẶN AN TOÀN: Chỉ gọi getCurrentTime khi API của YouTube đã thực sự sẵn sàng
             if (player && typeof player.getCurrentTime === 'function') {
                 let currentTime = Math.floor(player.getCurrentTime());
-                
-                // Lớp bảo vệ 2: Chống cày giờ
-                if (currentTime > watchDurations[assignId]) {
-                    
-                    // Lớp bảo vệ 3: Chống tua nhanh
-                    if (currentTime - watchDurations[assignId] > 5) {
-                        player.seekTo(watchDurations[assignId], true);
+
+                if (currentTime > (watchDurations[assignId] || 0)) {
+                    if (currentTime - (watchDurations[assignId] || 0) > 5) {
+                        player.seekTo(watchDurations[assignId] || 0, true);
                     } else {
-                        // Cập nhật thời gian hợp lệ
                         watchDurations[assignId] = currentTime;
                         const display = document.getElementById(`watch-time-display-${assignId}`);
-                        if(display) display.innerText = watchDurations[assignId];
-                        
-                        // Lưu dữ liệu lên Firebase
+                        if (display) display.innerText = watchDurations[assignId];
+
                         if (watchDurations[assignId] % 5 === 0 && lastSavedTime[assignId] !== watchDurations[assignId]) {
                             db.ref(`video_tracking/${assignId}/${currentUser.username}`).set(watchDurations[assignId]);
                             lastSavedTime[assignId] = watchDurations[assignId];
+                        }
+
+                        // BƯỚC MỞ KHÓA 2: KIỂM TRA MỞ KHÓA KHI HS ĐANG XEM (Đạt mốc phát là mở luôn không cần F5)
+                        if (reqTime > 0 && watchDurations[assignId] >= reqTime) {
+                            let workArea = document.getElementById(`working-area-${assignId}`);
+                            let lockMsg = document.getElementById(`video-lock-msg-${assignId}`);
+                            if (workArea && workArea.style.display === 'none') {
+                                workArea.style.display = 'block';
+                                if (lockMsg) lockMsg.style.display = 'none';
+                                alert("🎉 Tuyệt vời! Bạn đã xem đủ thời lượng video yêu cầu. Phần làm bài đã được mở khóa!");
+                            }
                         }
                     }
                 }
             }
         }, 1000);
     } else {
-        // Khi Pause hoặc Hết video -> Dừng đếm và lưu chốt lần cuối
         if (watchTimers[assignId]) clearInterval(watchTimers[assignId]);
-        
         if (watchDurations[assignId]) {
             db.ref(`video_tracking/${assignId}/${currentUser.username}`).set(watchDurations[assignId]);
         }

@@ -131,6 +131,12 @@
                         <div id="videoLinkGroup">
                             <label for="videoLink"><strong>Đính kèm Video (Link YouTube - Nếu có):</strong></label>
                             <input type="text" id="videoLink" placeholder="Dán link YouTube vào đây...">
+
+                            <label for="requiredWatchTime"
+                                style="margin-top: 10px; display: block; color: #d35400;"><strong>⏳ Thời lượng xem tối
+                                    thiểu (giây) để được làm bài:</strong></label>
+                            <input type="number" id="requiredWatchTime"
+                                placeholder="Ví dụ: 60 (Để trống nếu không bắt buộc)" min="0" style="margin-top: 5px;">
                         </div>
                         <label for="fileInput" class="file-label"><strong>Đính kèm tài liệu:</strong></label>
                         <input type="file" id="fileInput" accept=".docx, .pdf, image/*" multiple>
@@ -1050,6 +1056,11 @@
                             <input type="text" id="editVideoLink" placeholder="Dán link YouTube vào đây..."
                                 style="background: white;">
 
+                            <label for="editRequiredWatchTime"
+                                style="margin-top: 10px; display: block; color: #11998e;"><strong>⏳ Thời lượng xem tối
+                                    thiểu (giây):</strong></label>
+                            <input type="number" id="editRequiredWatchTime" placeholder="Để trống nếu không bắt buộc..."
+                                min="0" style="margin-top: 5px; background: white;">
                             <label
                                 style="display: flex; align-items: center; gap: 8px; margin-top: 15px; cursor: pointer; background: rgba(255,255,255,0.7); padding: 10px; border-radius: 8px;">
                                 <input type="checkbox" id="editHideEssayText"
