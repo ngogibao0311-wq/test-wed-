@@ -3874,38 +3874,43 @@ window.initYouTubeTrackers = function(assignments) {
 };
 
 function onPlayerStateChange(event, assignId) {
-    const player = event.target;
+    // 1. Lấy đúng instance của player từ mảng đã lưu trữ thay vì dùng event.target
+    const player = ytPlayers[assignId]; 
     
     if (event.data == YT.PlayerState.PLAYING) {
+        // 2. Dọn dẹp bộ đếm cũ nếu có để tránh tình trạng đếm chồng chéo (nhân đôi tốc độ) khi HS bấm Play/Pause liên tục
+        if (watchTimers[assignId]) clearInterval(watchTimers[assignId]);
+
         watchTimers[assignId] = setInterval(() => {
-            // Lấy mốc thời gian thực tế của video (chứ không +1 mù quáng nữa)
-            let currentTime = Math.floor(player.getCurrentTime());
-            
-            // LỚP BẢO VỆ 2: CHỐNG XEM LẠI ĐOẠN ĐẦU ĐỂ CÀY GIỜ
-            // Chỉ công nhận nếu đoạn video này học sinh chưa từng xem
-            if (currentTime > watchDurations[assignId]) {
+            // 3. CHỐT CHẶN AN TOÀN: Chỉ gọi getCurrentTime khi API của YouTube đã thực sự sẵn sàng
+            if (player && typeof player.getCurrentTime === 'function') {
+                let currentTime = Math.floor(player.getCurrentTime());
                 
-                // LỚP BẢO VỆ 3: CHỐNG TUA NHANH
-                // Nếu thời gian nhảy vọt lớn hơn 5 giây (Do kéo thanh tiến trình)
-                if (currentTime - watchDurations[assignId] > 5) {
-                    // Ép giật lùi về vị trí cũ
-                    player.seekTo(watchDurations[assignId], true);
-                } else {
-                    // Học sinh xem bình thường (nhảy từng giây một) -> Cập nhật hiển thị
-                    watchDurations[assignId] = currentTime;
-                    const display = document.getElementById(`watch-time-display-${assignId}`);
-                    if(display) display.innerText = watchDurations[assignId];
+                // Lớp bảo vệ 2: Chống cày giờ
+                if (currentTime > watchDurations[assignId]) {
                     
-                    // Lưu lên Firebase mỗi 5 giây
-                    if (watchDurations[assignId] % 5 === 0 && lastSavedTime[assignId] !== watchDurations[assignId]) {
-                        db.ref(`video_tracking/${assignId}/${currentUser.username}`).set(watchDurations[assignId]);
-                        lastSavedTime[assignId] = watchDurations[assignId];
+                    // Lớp bảo vệ 3: Chống tua nhanh
+                    if (currentTime - watchDurations[assignId] > 5) {
+                        player.seekTo(watchDurations[assignId], true);
+                    } else {
+                        // Cập nhật thời gian hợp lệ
+                        watchDurations[assignId] = currentTime;
+                        const display = document.getElementById(`watch-time-display-${assignId}`);
+                        if(display) display.innerText = watchDurations[assignId];
+                        
+                        // Lưu dữ liệu lên Firebase
+                        if (watchDurations[assignId] % 5 === 0 && lastSavedTime[assignId] !== watchDurations[assignId]) {
+                            db.ref(`video_tracking/${assignId}/${currentUser.username}`).set(watchDurations[assignId]);
+                            lastSavedTime[assignId] = watchDurations[assignId];
+                        }
                     }
                 }
             }
         }, 1000);
     } else {
-        clearInterval(watchTimers[assignId]);
+        // Khi Pause hoặc Hết video -> Dừng đếm và lưu chốt lần cuối
+        if (watchTimers[assignId]) clearInterval(watchTimers[assignId]);
+        
         if (watchDurations[assignId]) {
             db.ref(`video_tracking/${assignId}/${currentUser.username}`).set(watchDurations[assignId]);
         }
