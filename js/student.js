@@ -62,6 +62,8 @@ window.onload = async function () {
             cacheUsersSt = hash;
             await syncUserData();
             if (document.getElementById('settingName')) document.getElementById('settingName').value = currentUser.name;
+            // Cập nhật lại cột bảng lộ trình ngay lập tức
+            if (document.getElementById('studentRoadmapBody')) renderStudentRoadmap();
         }
     });
     db.ref('assignments').on('value', async (snapshot) => {
@@ -397,6 +399,8 @@ function formatCountdown(ms) {
 }
 
 async function loadAssignments() {
+    const trackingSnap = await db.ref('video_tracking').once('value');
+    const trackingData = trackingSnap.val() || {};
     const assignments = (window.cachedAssignments && window.cachedAssignments.length > 0) ? window.cachedAssignments : await getDB('assignments');
     const submissions = (window.cachedSubmissions && window.cachedSubmissions.length > 0) ? window.cachedSubmissions : await getDB('submissions');
     const list = document.getElementById('assignmentsList');
@@ -453,7 +457,7 @@ async function loadAssignments() {
         // [THÊM MỚI] Xử lý mảng đối tượng học sinh
         const targetArr = Array.isArray(assign.targetStudent) ? assign.targetStudent : [assign.targetStudent || 'all'];
         if (!targetArr.includes('all') && !targetArr.includes(currentUser.username)) return;
-        
+
         const mySub = submissions.find(s => s.assignmentId === assign.id && s.studentUsername === currentUser.username);
 
         const now = new Date();
@@ -816,13 +820,42 @@ async function loadAssignments() {
                 const div = document.createElement('div'); div.className = 'card submit-box accordion-card';
                 div.style.position = 'relative'; // Bắt buộc để lớp phủ kính định vị chính xác
 
+                // BẮT ĐẦU KIỂM TRA ĐIỀU KIỆN XEM VIDEO
+                let watchedSeconds = 0;
+                if (trackingData[assign.id] && trackingData[assign.id][currentUser.username]) {
+                    watchedSeconds = trackingData[assign.id][currentUser.username];
+                }
+                let watchedMinutes = Math.floor(watchedSeconds / 60);
+
+                let conditionHTML = '';
+                let isLockedByVideo = false;
+
+                // Nếu giáo viên có đặt điều kiện > 0
+                if (assign.watchCondition && assign.watchCondition > 0 && assign.videoDuration) {
+                    if (watchedMinutes < assign.watchCondition) {
+                        isLockedByVideo = true;
+                        conditionHTML = `<div class="glass-alert danger" style="margin-bottom: 15px; border-left-color: #e11d48; background: rgba(225, 29, 72, 0.1);">
+                    <h4 style="color: #e11d48; margin-bottom: 5px;">🔒 Bạn chưa đủ điều kiện mở khóa bài tập!</h4>
+                    <p style="margin: 0; font-size: 0.95em;">Giáo viên yêu cầu xem tối thiểu <strong style="color:#b91c1c;">${assign.watchCondition}/${assign.videoDuration} phút</strong> video bài giảng để hiện câu hỏi.<br>Hiện tại bạn đã xem: <strong>${watchedMinutes} phút</strong>.</p>
+                </div>`;
+                    } else {
+                        conditionHTML = `<div class="glass-alert success" style="margin-bottom: 15px; border-left-color: #10b981; background: rgba(16, 185, 129, 0.1);">
+                    <p style="margin: 0; color: #059669; font-weight: bold;">✅ Đã xem đủ thời lượng yêu cầu (${watchedMinutes}/${assign.videoDuration} phút). Chúc bạn làm bài tốt!</p>
+                </div>`;
+                    }
+                }
+                // KẾT THÚC KIỂM TRA
+
                 let assignmentContentRaw = `
                     ${videoHTML}
+                    ${conditionHTML}
+                    ${isLockedByVideo ? `<div style="text-align: center; padding: 20px; background: rgba(0,0,0,0.03); border-radius: 8px; margin-top: 15px;"><p style="color: #666; font-style: italic; margin: 0;">(Phần câu hỏi và khu vực nộp bài đang bị ẩn do chưa đạt điều kiện xem video)</p></div>` : `
                     ${quizHTML}
                     ${descHTML}
                     ${teacherFileHTML}
                     ${tuLuanInputHTML}
                     ${submitBtnHTML}
+                    `}
                 `;
 
                 if (assign.assessmentType === 'thi') {
@@ -2613,6 +2646,26 @@ async function renderStudentRoadmap() {
     const assignments = await getDB('assignments');
     const submissions = await getDB('submissions');
 
+    // KIỂM TRA TRẠNG THÁI THAM GIA LỘ TRÌNH CỦA HỌC SINH
+    const isParticipating = currentUser.isParticipatingRoadmap !== false;
+
+    // ẨN/HIỆN TIÊU ĐỀ CỘT TRONG THEAD CỦA HỌC SINH
+    const table = body.parentElement;
+    if (table) {
+        const ths = table.querySelectorAll('thead th');
+        ths.forEach(th => {
+            if (th.innerText.includes('Cộng tiền') || th.innerText.includes('Điều kiện cụ thể')) {
+                th.style.display = isParticipating ? '' : 'none';
+            }
+        });
+    }
+
+    // ẨN/HIỆN BẢNG TỔNG TIỀN TÍCH LŨY TRÊN CÙNG
+    const totalMoneyCard = document.getElementById('totalRoadmapMoney')?.closest('.card');
+    if (totalMoneyCard) {
+        totalMoneyCard.style.display = isParticipating ? 'flex' : 'none';
+    }
+
     // Lọc bài học được giao cho "Tất cả" hoặc giao riêng cho chính học sinh này
     const myAssignments = assignments.filter(assign => assign.targetStudent === 'all' || assign.targetStudent === currentUser.username);
     // Sắp xếp bài tập thông minh theo số đếm trong Tiêu đề (VD: Bài 1 -> Bài 2 -> Bài 10)
@@ -2684,15 +2737,19 @@ async function renderStudentRoadmap() {
 
         const conditionVal = assign.roadmapCondition || '-';
 
+        // CHUẨN BỊ NỘI DUNG 2 CỘT ẨN/HIỆN
+        let moneyCellHtml = isParticipating ? `<td style="padding:12px; text-align: center; ${cellBgStyle}"><strong>${moneyVal}</strong></td>` : '';
+        let condCellHtml = isParticipating ? `<td style="padding:12px; color:#2c3e50; font-weight: 600;">${conditionVal}</td>` : '';
+
         const tr = document.createElement('tr');
         tr.style.borderBottom = '1px solid rgba(0,0,0,0.05)';
         tr.innerHTML = `
             <td style="padding:12px;"><strong>${assign.title}</strong></td>
             <td style="padding:12px; text-align: center;"><strong>${studentScore}</strong></td>
             <td style="padding:12px; text-align: center;"><span class="${statusClass}">${statusText}</span></td>
-            <td style="padding:12px; text-align: center; ${cellBgStyle}"><strong>${moneyVal}</strong></td>
+            ${moneyCellHtml}
             <td style="padding:12px; font-size:0.85em; color:#555; white-space: nowrap;">${assign.endDate}</td>
-            <td style="padding:12px; color:#2c3e50; font-weight: 600;">${conditionVal}</td>
+            ${condCellHtml}
         `;
         body.appendChild(tr);
     });
@@ -3842,19 +3899,19 @@ function getTrackedVideoHTML(url, assignId) {
     return '';
 }
 
-window.initYouTubeTrackers = function(assignments) {
-    if (typeof YT === 'undefined' || !YT.Player) return; 
+window.initYouTubeTrackers = function (assignments) {
+    if (typeof YT === 'undefined' || !YT.Player) return;
 
     assignments.forEach(assign => {
         const iframeId = `yt-player-${assign.id}`;
         const iframeEl = document.getElementById(iframeId);
-        
+
         if (iframeEl && !ytPlayers[assign.id]) {
             // Lấy dữ liệu cũ TỪ TRƯỚC, lấy xong mới khởi tạo video
             db.ref(`video_tracking/${assign.id}/${currentUser.username}`).once('value', (snap) => {
                 watchDurations[assign.id] = snap.val() || 0;
                 const display = document.getElementById(`watch-time-display-${assign.id}`);
-                if(display) display.innerText = watchDurations[assign.id];
+                if (display) display.innerText = watchDurations[assign.id];
 
                 // Bắt đầu khởi tạo Player
                 ytPlayers[assign.id] = new YT.Player(iframeId, {
@@ -3875,8 +3932,8 @@ window.initYouTubeTrackers = function(assignments) {
 
 function onPlayerStateChange(event, assignId) {
     // 1. Lấy đúng instance của player từ mảng đã lưu trữ thay vì dùng event.target
-    const player = ytPlayers[assignId]; 
-    
+    const player = ytPlayers[assignId];
+
     if (event.data == YT.PlayerState.PLAYING) {
         // 2. Dọn dẹp bộ đếm cũ nếu có để tránh tình trạng đếm chồng chéo (nhân đôi tốc độ) khi HS bấm Play/Pause liên tục
         if (watchTimers[assignId]) clearInterval(watchTimers[assignId]);
@@ -3885,10 +3942,10 @@ function onPlayerStateChange(event, assignId) {
             // 3. CHỐT CHẶN AN TOÀN: Chỉ gọi getCurrentTime khi API của YouTube đã thực sự sẵn sàng
             if (player && typeof player.getCurrentTime === 'function') {
                 let currentTime = Math.floor(player.getCurrentTime());
-                
+
                 // Lớp bảo vệ 2: Chống cày giờ
                 if (currentTime > watchDurations[assignId]) {
-                    
+
                     // Lớp bảo vệ 3: Chống tua nhanh
                     if (currentTime - watchDurations[assignId] > 5) {
                         player.seekTo(watchDurations[assignId], true);
@@ -3896,8 +3953,8 @@ function onPlayerStateChange(event, assignId) {
                         // Cập nhật thời gian hợp lệ
                         watchDurations[assignId] = currentTime;
                         const display = document.getElementById(`watch-time-display-${assignId}`);
-                        if(display) display.innerText = watchDurations[assignId];
-                        
+                        if (display) display.innerText = watchDurations[assignId];
+
                         // Lưu dữ liệu lên Firebase
                         if (watchDurations[assignId] % 5 === 0 && lastSavedTime[assignId] !== watchDurations[assignId]) {
                             db.ref(`video_tracking/${assignId}/${currentUser.username}`).set(watchDurations[assignId]);
@@ -3910,9 +3967,71 @@ function onPlayerStateChange(event, assignId) {
     } else {
         // Khi Pause hoặc Hết video -> Dừng đếm và lưu chốt lần cuối
         if (watchTimers[assignId]) clearInterval(watchTimers[assignId]);
-        
+
         if (watchDurations[assignId]) {
             db.ref(`video_tracking/${assignId}/${currentUser.username}`).set(watchDurations[assignId]);
         }
     }
 }
+
+window.downloadStudentRoadmapPDF = async function () {
+    const assignments = await getDB('assignments');
+    const submissions = await getDB('submissions');
+
+    const htmlContent = `
+        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+            <h2 style="text-align: center; color: #2c3e50; text-transform: uppercase;">BẢNG ĐIỂM HỌC TẬP</h2>
+            <p style="font-size: 16px;"><strong>Họ và tên học sinh:</strong> ${currentUser.name}</p>
+            <p style="font-size: 16px;"><strong>Ngày xuất:</strong> ${new Date().toLocaleDateString('vi-VN')}</p>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                <thead>
+                    <tr style="background-color: #f1f5f9;">
+                        <th style="border: 1px solid #cbd5e1; padding: 12px; text-align: left;">Tên bài học</th>
+                        <th style="border: 1px solid #cbd5e1; padding: 12px; text-align: center; width: 100px;">Điểm số</th>
+                        <th style="border: 1px solid #cbd5e1; padding: 12px; text-align: center; width: 150px;">Hạn nộp</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    // Lọc bài tập của học sinh
+    const myAssignments = assignments.filter(assign => assign.targetStudent === 'all' || assign.targetStudent === currentUser.username);
+    const sortedAssignments = [...myAssignments].sort((a, b) => (a.title || '').localeCompare(b.title || '', 'vi-VN', { numeric: true, sensitivity: 'base' }));
+
+    let rowsHTML = "";
+    sortedAssignments.forEach(assign => {
+        const subs = submissions.filter(s => s.assignmentId === assign._fbKey && s.studentId === currentUser.username);
+        let studentScore = "Chưa làm";
+
+        if (subs.length > 0) {
+            const bestSub = subs.sort((a, b) => (b.score || 0) - (a.score || 0))[0];
+            studentScore = bestSub.score !== undefined ? bestSub.score : "Chưa chấm";
+        }
+
+        rowsHTML += `
+            <tr>
+                <td style="border: 1px solid #cbd5e1; padding: 12px;">${assign.title}</td>
+                <td style="border: 1px solid #cbd5e1; padding: 12px; text-align: center; font-weight: bold; color: #e11d48;">${studentScore}</td>
+                <td style="border: 1px solid #cbd5e1; padding: 12px; text-align: center; color: #64748b;">${assign.endDate || '---'}</td>
+            </tr>
+        `;
+    });
+
+    const finalHTML = htmlContent + rowsHTML + `
+                </tbody>
+            </table>
+        </div>
+    `;
+
+    const opt = {
+        margin: 10,
+        filename: `BangDiem_${currentUser.name}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = finalHTML;
+    html2pdf().set(opt).from(tempDiv).save();
+};

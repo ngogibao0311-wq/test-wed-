@@ -1,3 +1,63 @@
+// --- TỰ ĐỘNG KHỞI TẠO VÀ LẤY THỜI LƯỢNG YOUTUBE ---
+if (!document.getElementById('yt-iframe-script')) {
+    const ytScript = document.createElement('script');
+    ytScript.id = 'yt-iframe-script';
+    ytScript.src = "https://www.youtube.com/iframe_api";
+    document.head.appendChild(ytScript);
+}
+
+window.getVideoDurationFromYT = function (url, displayElementId) {
+    if (!url) { document.getElementById(displayElementId).innerText = '--'; return; }
+
+    let videoId = '';
+    if (url.includes('watch?v=')) videoId = url.split('v=')[1].split('&')[0];
+    else if (url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1].split('?')[0];
+    else if (url.includes('embed/')) videoId = url.split('embed/')[1].split('?')[0];
+
+    if (!videoId) { document.getElementById(displayElementId).innerText = '--'; return; }
+
+    document.getElementById(displayElementId).innerText = '...';
+
+    let tempDiv = document.createElement('div');
+    tempDiv.id = 'yt-temp-' + Date.now();
+    tempDiv.style.display = 'none';
+    document.body.appendChild(tempDiv);
+
+    new YT.Player(tempDiv.id, {
+        height: '10', width: '10', videoId: videoId,
+        events: {
+            'onReady': function (event) {
+                let durationMin = Math.ceil(event.target.getDuration() / 60);
+                document.getElementById(displayElementId).innerText = durationMin;
+                event.target.destroy();
+                document.getElementById(tempDiv.id)?.remove();
+            },
+            'onError': function () {
+                document.getElementById(displayElementId).innerText = '--';
+                document.getElementById(tempDiv.id)?.remove();
+            }
+        }
+    });
+};
+
+// Tạo bộ lắng nghe sự kiện nhập link video khi tải trang
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        const videoInput = document.getElementById('videoLink');
+        if (videoInput) {
+            videoInput.addEventListener('input', function () {
+                getVideoDurationFromYT(this.value, 'videoTotalDurationDisplay');
+            });
+        }
+        const editVideoInput = document.getElementById('editVideoLink');
+        if (editVideoInput) {
+            editVideoInput.addEventListener('input', function () {
+                getVideoDurationFromYT(this.value, 'editVideoTotalDurationDisplay');
+            });
+        }
+    }, 1000);
+});
+
 const currentUser = JSON.parse(localStorage.getItem('currentUser'));
 if (!currentUser || currentUser.role !== 'teacher') window.location.href = 'index.html';
 
@@ -88,7 +148,14 @@ window.onload = async function () {
     });
     db.ref('users').on('value', async (snapshot) => {
         const hash = JSON.stringify(snapshot.val());
-        if (hash !== cacheUsers) { cacheUsers = hash; await loadStudentsList(); await populateStudentDropdown(); await populateRoadmapStudentDropdown(); }
+        if (hash !== cacheUsers) {
+            cacheUsers = hash;
+            await loadStudentsList();
+            await populateStudentDropdown();
+            await populateRoadmapStudentDropdown();
+            // Cập nhật lại cột bảng lộ trình ngay lập tức
+            if (document.getElementById('teacherRoadmapBody')) renderTeacherRoadmap();
+        }
     });
     // ============================================
 
@@ -413,13 +480,19 @@ async function createAssignment() {
         essayWeight = parseFloat(document.getElementById('essayWeight').value) || 0;
     }
 
+    const watchCondition = parseInt(document.getElementById('watchConditionInput').value) || 0;
+    const videoDurationText = document.getElementById('videoTotalDurationDisplay').innerText;
+    const videoDuration = isNaN(parseInt(videoDurationText)) ? 0 : parseInt(videoDurationText);
+
     await pushDB('assignments', {
         id: Date.now().toString(), title, desc,
         startDate: startDate.replace("T", " "), endDate: endDate.replace("T", " "),
         targetStudent, file: attachedFile, videoLink: videoLink,
         assessmentType: type, questions: questions,
         mcWeight: mcWeight, essayWeight: essayWeight,
-        hideEssayText: hideEssayText // Đẩy lên Firebase dữ liệu cấu hình mới
+        hideEssayText: hideEssayText, // Đẩy lên Firebase dữ liệu cấu hình mới
+        watchCondition: watchCondition,  // <--- THÊM DÒNG NÀY
+        videoDuration: videoDuration
     });
 
     document.getElementById('title').value = ''; document.getElementById('desc').value = '';
@@ -428,6 +501,8 @@ async function createAssignment() {
     document.getElementById('questionsContainer').innerHTML = ''; questionCount = 0;
     if (document.getElementById('hideEssayText')) document.getElementById('hideEssayText').checked = false; // Reset checkbox
     dtTeacherAssign.items.clear(); attachedFileData = null; alert("Giao bài tập thành công!");
+    if(document.getElementById('watchConditionInput')) document.getElementById('watchConditionInput').value = '';
+    if(document.getElementById('videoTotalDurationDisplay')) document.getElementById('videoTotalDurationDisplay').innerText = '--';
 }
 
 async function loadAssignedList() {
@@ -985,11 +1060,23 @@ async function loadStudentsList() {
         let lockBtnStyle = st.isLocked ? 'background: #10b981; color: white;' : 'background: #f59e0b; color: white;';
         let statusText = st.isLocked ? '<br><span style="color: #e11d48; font-size: 0.85em; font-weight: bold;">(Đang bị khóa)</span>' : '';
 
+        // Đọc trạng thái tham gia lộ trình (Mặc định là true nếu chưa có dữ liệu)
+        let participateChecked = st.isParticipatingRoadmap !== false ? 'checked' : '';
+
         // LẤY SỐ COIN TƯƠNG ỨNG VỚI USERNAME (Mặc định là 0 nếu chưa có)
         let studentCoins = coinData[st.username] || 0;
 
         html += `<tr style="border-bottom: 1px solid rgba(0,0,0,0.05); ${st.isLocked ? 'background: rgba(225, 29, 72, 0.05);' : ''}">
-            <td style="padding:12px;"><strong>${st.name}</strong> <br><span style="font-size: 0.85em; color: #666;">Lớp: ${st.classInfo || '---'}</span>${statusText}</td>
+            <td style="padding:12px;">
+                <strong>${st.name}</strong> <br>
+                <span style="font-size: 0.85em; color: #666;">Lớp: ${st.classInfo || '---'}</span>${statusText}
+                <div style="margin-top: 8px;">
+                    <label style="cursor: pointer; font-size: 0.85em; color: #059669; font-weight: bold; display: flex; align-items: center; gap: 5px;">
+                        <input type="checkbox" ${participateChecked} onchange="toggleParticipateRoadmap('${st._fbKey}', this.checked)" style="margin: 0; width: 16px; height: 16px;">
+                        Tham gia lộ trình
+                    </label>
+                </div>
+            </td>
             <td style="padding:12px;">${st.username}</td>
             <td style="padding:12px;">${st.password}</td>
             
@@ -1258,7 +1345,27 @@ async function renderTeacherRoadmap() {
 
     const assignments = await getDB('assignments');
     const submissions = await getDB('submissions');
+    const users = await getDB('users');
     const selectedStudent = document.getElementById('roadmapStudentSelect').value;
+
+    let isParticipating = true;
+    if (selectedStudent && selectedStudent !== "") {
+        const st = users.find(u => u.username === selectedStudent);
+        if (st && st.isParticipatingRoadmap === false) {
+            isParticipating = false;
+        }
+    }
+
+    // ẨN/HIỆN TIÊU ĐỀ CỘT TRONG THEAD CỦA GIÁO VIÊN
+    const table = body.parentElement;
+    if (table) {
+        const ths = table.querySelectorAll('thead th');
+        ths.forEach(th => {
+            if (th.innerText.includes('Cộng tiền') || th.innerText.includes('Điều kiện cụ thể')) {
+                th.style.display = isParticipating ? '' : 'none';
+            }
+        });
+    }
 
     // Sắp xếp bài tập thông minh theo số đếm trong Tiêu đề (VD: Bài 1 -> Bài 2 -> Bài 10)
     const sortedAssignments = [...assignments].sort((a, b) => (a.title || '').localeCompare(b.title || '', 'vi-VN', { numeric: true, sensitivity: 'base' }));
@@ -1349,6 +1456,13 @@ async function renderTeacherRoadmap() {
         </select><br>
     `;
 
+        let moneyCellHtml = isParticipating ? `<td style="padding:12px; text-align: center; ${cellBgStyle}">${moneyInputHTML}</td>` : '';
+        let conditionCellHtml = isParticipating ? `<td style="padding:12px;">
+            <input type="text" value="${conditionVal}" placeholder="Nhập điều kiện..." 
+                onblur="updateAssignmentRoadmap('${assign._fbKey}', 'roadmapCondition', this.value)"
+                style="margin:0; padding:6px 10px; font-size:0.9em; min-width:140px;">
+        </td>` : '';
+
         const tr = document.createElement('tr');
         tr.style.borderBottom = '1px solid rgba(0,0,0,0.05)';
         tr.innerHTML = `
@@ -1359,15 +1473,9 @@ async function renderTeacherRoadmap() {
             <span class="${statusClass}">${statusText}</span>
             ${pardonBtnHTML}
         </td>
-        <td style="padding:12px; text-align: center; ${cellBgStyle}">
-            ${moneyInputHTML}
-        </td>
+        ${moneyCellHtml}
         <td style="padding:12px; font-size:0.85em; color:#555; white-space: nowrap;">${assign.endDate}</td>
-        <td style="padding:12px;">
-            <input type="text" value="${conditionVal}" placeholder="Nhập điều kiện..." 
-                onblur="updateAssignmentRoadmap('${assign._fbKey}', 'roadmapCondition', this.value)"
-                style="margin:0; padding:6px 10px; font-size:0.9em; min-width:140px;">
-        </td>
+        ${conditionCellHtml}
     `;
         body.appendChild(tr);
     });
@@ -3375,114 +3483,193 @@ window.setMultiSelectValues = function (selectId, valuesArray) {
 
 let currentCustomSelectId = '';
 
-    function openCustomStudentSelect(selectId) {
-        currentCustomSelectId = selectId;
-        const selectEl = document.getElementById(selectId);
-        const listContainer = document.getElementById('customStudentList');
-        document.getElementById('customStudentSearch').value = '';
-        
-        let html = '';
-        let hasCheckedOthers = false;
+function openCustomStudentSelect(selectId) {
+    currentCustomSelectId = selectId;
+    const selectEl = document.getElementById(selectId);
+    const listContainer = document.getElementById('customStudentList');
+    document.getElementById('customStudentSearch').value = '';
 
-        // Kiểm tra xem có học sinh cụ thể nào đang được chọn không
-        Array.from(selectEl.options).forEach(opt => {
-            if(opt.value !== 'all' && opt.selected) hasCheckedOthers = true;
-        });
+    let html = '';
+    let hasCheckedOthers = false;
 
-        Array.from(selectEl.options).forEach(opt => {
-            const isAllOption = opt.value === 'all';
-            
-            // Logic chọn thông minh: Đã chọn cụ thể thì tắt "Tất cả"
-            let isChecked = opt.selected;
-            if (isAllOption && hasCheckedOthers) isChecked = false;
-            if (isAllOption && !hasCheckedOthers && selectEl.selectedOptions.length === 0) isChecked = true;
+    // Kiểm tra xem có học sinh cụ thể nào đang được chọn không
+    Array.from(selectEl.options).forEach(opt => {
+        if (opt.value !== 'all' && opt.selected) hasCheckedOthers = true;
+    });
 
-            // Tạo Avatar (lấy chữ cái đầu của tên hoặc icon)
-            let avatarHtml = '';
-            if (isAllOption) {
-                avatarHtml = `<div class="student-avatar" style="background:#dbeafe; color:#2563eb;">👥</div>`;
-            } else {
-                const firstLetter = opt.text.charAt(0).toUpperCase();
-                avatarHtml = `<div class="student-avatar" style="background:#f3f4f6; color:#4b5563;">${firstLetter}</div>`;
-            }
+    Array.from(selectEl.options).forEach(opt => {
+        const isAllOption = opt.value === 'all';
 
-            html += `
+        // Logic chọn thông minh: Đã chọn cụ thể thì tắt "Tất cả"
+        let isChecked = opt.selected;
+        if (isAllOption && hasCheckedOthers) isChecked = false;
+        if (isAllOption && !hasCheckedOthers && selectEl.selectedOptions.length === 0) isChecked = true;
+
+        // Tạo Avatar (lấy chữ cái đầu của tên hoặc icon)
+        let avatarHtml = '';
+        if (isAllOption) {
+            avatarHtml = `<div class="student-avatar" style="background:#dbeafe; color:#2563eb;">👥</div>`;
+        } else {
+            const firstLetter = opt.text.charAt(0).toUpperCase();
+            avatarHtml = `<div class="student-avatar" style="background:#f3f4f6; color:#4b5563;">${firstLetter}</div>`;
+        }
+
+        html += `
                 <label class="student-item">
                     <input type="checkbox" class="student-cb" value="${opt.value}" ${isChecked ? 'checked' : ''} onchange="handleStudentCbChange(this)">
                     ${avatarHtml}
                     <span style="font-weight: 500; font-size: 15px; color: #1f2937;">${opt.text}</span>
                 </label>
             `;
-        });
+    });
 
-        listContainer.innerHTML = html;
-        document.getElementById('customStudentModal').style.display = 'flex';
+    listContainer.innerHTML = html;
+    document.getElementById('customStudentModal').style.display = 'flex';
+}
+
+function handleStudentCbChange(checkbox) {
+    const isAll = checkbox.value === 'all';
+    const checkboxes = document.querySelectorAll('.student-cb');
+
+    if (isAll && checkbox.checked) {
+        // Nếu click chọn "Tất cả học sinh", gỡ bỏ chọn tất cả các cá nhân
+        checkboxes.forEach(cb => { if (cb.value !== 'all') cb.checked = false; });
+    } else if (!isAll && checkbox.checked) {
+        // Nếu click chọn 1 người, gỡ dấu check ở mục "Tất cả"
+        const allCb = Array.from(checkboxes).find(cb => cb.value === 'all');
+        if (allCb) allCb.checked = false;
     }
+}
 
-    function handleStudentCbChange(checkbox) {
-        const isAll = checkbox.value === 'all';
-        const checkboxes = document.querySelectorAll('.student-cb');
-        
-        if (isAll && checkbox.checked) {
-            // Nếu click chọn "Tất cả học sinh", gỡ bỏ chọn tất cả các cá nhân
-            checkboxes.forEach(cb => { if (cb.value !== 'all') cb.checked = false; });
-        } else if (!isAll && checkbox.checked) {
-            // Nếu click chọn 1 người, gỡ dấu check ở mục "Tất cả"
-            const allCb = Array.from(checkboxes).find(cb => cb.value === 'all');
-            if (allCb) allCb.checked = false;
-        }
-    }
+function filterCustomStudentList() {
+    const text = document.getElementById('customStudentSearch').value.toLowerCase();
+    const items = document.querySelectorAll('.student-item');
+    items.forEach(item => {
+        const label = item.querySelector('span').innerText.toLowerCase();
+        item.style.display = label.includes(text) ? 'flex' : 'none';
+    });
+}
 
-    function filterCustomStudentList() {
-        const text = document.getElementById('customStudentSearch').value.toLowerCase();
-        const items = document.querySelectorAll('.student-item');
-        items.forEach(item => {
-            const label = item.querySelector('span').innerText.toLowerCase();
-            item.style.display = label.includes(text) ? 'flex' : 'none';
-        });
-    }
+function closeCustomStudentSelect() {
+    document.getElementById('customStudentModal').style.display = 'none';
+}
 
-    function closeCustomStudentSelect() {
-        document.getElementById('customStudentModal').style.display = 'none';
-    }
+function confirmCustomStudentSelect() {
+    const selectEl = document.getElementById(currentCustomSelectId);
+    const checkboxes = document.querySelectorAll('.student-cb');
+    const displaySpan = document.getElementById(currentCustomSelectId + '_displayText');
 
-    function confirmCustomStudentSelect() {
-        const selectEl = document.getElementById(currentCustomSelectId);
-        const checkboxes = document.querySelectorAll('.student-cb');
-        const displaySpan = document.getElementById(currentCustomSelectId + '_displayText');
-        
-        let selectedCount = 0;
-        let isAllSelected = false;
+    let selectedCount = 0;
+    let isAllSelected = false;
 
-        // Lưu dữ liệu vào <select> ẩn để hệ thống backend (Firebase) đọc
-        Array.from(selectEl.options).forEach(opt => {
-            const cb = Array.from(checkboxes).find(c => c.value === opt.value);
-            if (cb) {
-                opt.selected = cb.checked;
-                if (cb.checked) {
-                    if (opt.value === 'all') isAllSelected = true;
-                    else selectedCount++;
-                }
-            }
-        });
-
-        // Nếu quên không chọn ai, mặc định chuyển về "Tất cả học sinh"
-        if (selectedCount === 0 && !isAllSelected) {
-            let allOpt = Array.from(selectEl.options).find(o => o.value === 'all');
-            if(allOpt) allOpt.selected = true;
-            isAllSelected = true;
-        }
-
-        // Đổi chữ bên ngoài (Ví dụ: Đã chọn 3 học sinh)
-        if (displaySpan) {
-            if (isAllSelected) {
-                displaySpan.innerHTML = 'Tất cả học sinh';
-            } else {
-                displaySpan.innerHTML = `<span style="color:#2563eb; font-weight:600;">Đã chọn ${selectedCount} học sinh</span>`;
+    // Lưu dữ liệu vào <select> ẩn để hệ thống backend (Firebase) đọc
+    Array.from(selectEl.options).forEach(opt => {
+        const cb = Array.from(checkboxes).find(c => c.value === opt.value);
+        if (cb) {
+            opt.selected = cb.checked;
+            if (cb.checked) {
+                if (opt.value === 'all') isAllSelected = true;
+                else selectedCount++;
             }
         }
+    });
 
-        closeCustomStudentSelect();
+    // Nếu quên không chọn ai, mặc định chuyển về "Tất cả học sinh"
+    if (selectedCount === 0 && !isAllSelected) {
+        let allOpt = Array.from(selectEl.options).find(o => o.value === 'all');
+        if (allOpt) allOpt.selected = true;
+        isAllSelected = true;
     }
+
+    // Đổi chữ bên ngoài (Ví dụ: Đã chọn 3 học sinh)
+    if (displaySpan) {
+        if (isAllSelected) {
+            displaySpan.innerHTML = 'Tất cả học sinh';
+        } else {
+            displaySpan.innerHTML = `<span style="color:#2563eb; font-weight:600;">Đã chọn ${selectedCount} học sinh</span>`;
+        }
+    }
+
+    closeCustomStudentSelect();
+}
+
+window.toggleParticipateRoadmap = async function (userKey, isParticipating) {
+    await updateDB('users', userKey, { isParticipatingRoadmap: isParticipating });
+};
+
+window.downloadRoadmapPDF = async function () {
+    const selectedStudent = document.getElementById('roadmapStudentSelect').value;
+
+    // Điều kiện: Phải chọn học sinh mới được tải
+    if (!selectedStudent || selectedStudent === "") {
+        alert("⚠️ Vui lòng chọn một học sinh trong danh sách (ở mục Số điểm) trước khi tải bảng điểm!");
+        return;
+    }
+
+    const assignments = await getDB('assignments');
+    const submissions = await getDB('submissions');
+    const users = await getDB('users');
+
+    const st = users.find(u => u.username === selectedStudent);
+    const stName = st ? st.name : selectedStudent;
+
+    // Chỉ định cấu trúc bảng sẽ xuất ra PDF
+    let htmlContent = `
+        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+            <h2 style="text-align: center; color: #2c3e50; text-transform: uppercase;">BẢNG ĐIỂM HỌC TẬP</h2>
+            <p style="font-size: 16px;"><strong>Họ và tên học sinh:</strong> ${stName}</p>
+            <p style="font-size: 16px;"><strong>Ngày xuất:</strong> ${new Date().toLocaleDateString('vi-VN')}</p>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                <thead>
+                    <tr style="background-color: #f1f5f9;">
+                        <th style="border: 1px solid #cbd5e1; padding: 12px; text-align: left;">Tên bài học</th>
+                        <th style="border: 1px solid #cbd5e1; padding: 12px; text-align: center; width: 100px;">Điểm số</th>
+                        <th style="border: 1px solid #cbd5e1; padding: 12px; text-align: center; width: 150px;">Hạn nộp</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    const sortedAssignments = [...assignments].sort((a, b) => (a.title || '').localeCompare(b.title || '', 'vi-VN', { numeric: true, sensitivity: 'base' }));
+
+    sortedAssignments.forEach(assign => {
+        if (assign.targetStudent !== 'all' && assign.targetStudent !== selectedStudent) return;
+
+        const subs = submissions.filter(s => s.assignmentId === assign._fbKey && s.studentId === selectedStudent);
+        let studentScore = "Chưa làm";
+
+        if (subs.length > 0) {
+            const bestSub = subs.sort((a, b) => (b.score || 0) - (a.score || 0))[0];
+            studentScore = bestSub.score !== undefined ? bestSub.score : "Chưa chấm";
+        }
+
+        htmlContent += `
+            <tr>
+                <td style="border: 1px solid #cbd5e1; padding: 12px;">${assign.title}</td>
+                <td style="border: 1px solid #cbd5e1; padding: 12px; text-align: center; font-weight: bold; color: #e11d48;">${studentScore}</td>
+                <td style="border: 1px solid #cbd5e1; padding: 12px; text-align: center; color: #64748b;">${assign.endDate || '---'}</td>
+            </tr>
+        `;
+    });
+
+    htmlContent += `
+                </tbody>
+            </table>
+        </div>
+    `;
+
+    // Cấu hình tải xuống PDF
+    const opt = {
+        margin: 10,
+        filename: `BangDiem_${stName}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlContent;
+    html2pdf().set(opt).from(tempDiv).save();
+};
 // Khởi chạy tải danh sách khi giáo viên mở trang
 loadTeacherCashRequests();

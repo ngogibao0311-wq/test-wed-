@@ -5,12 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Trang Giáo Viên</title>
-    <link rel="stylesheet" href="css/common.css?v=2.2">
-    <link rel="stylesheet" href="css/teacher.css?v=2.2">
-    <link rel="stylesheet" href="css/mobile.css?v=2.2">
-    <link rel="stylesheet" href="css/store-items.css?v=2.2">
-    <link rel="stylesheet" href="css/effects-pets.css?v=2.2">
-    <link rel="stylesheet" href="css/daily-login.css?v=2.2">
+    <link rel="stylesheet" href="css/common.css?v=2.3">
+    <link rel="stylesheet" href="css/teacher.css?v=2.3">
+    <link rel="stylesheet" href="css/mobile.css?v=2.3">
+    <link rel="stylesheet" href="css/store-items.css?v=2.3">
+    <link rel="stylesheet" href="css/effects-pets.css?v=2.3">
+    <link rel="stylesheet" href="css/daily-login.css?v=2.3">
     <script>
         MathJax = {
             tex: {
@@ -20,6 +20,7 @@
         };
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 
 <body>
@@ -93,15 +94,36 @@
                         <div class="form-group"><label for="endDate"><strong>Hạn nộp bài:</strong></label><input
                                 type="datetime-local" id="endDate"></div>
                     </div>
-                    <label><strong>Giao cho học sinh:</strong></label>
-                    <div class="custom-student-select">
-                        <div class="css-select-trigger" onclick="openCustomStudentSelect('targetStudent')">
-                            <span id="targetStudent_displayText">Tất cả học sinh</span>
-                            <span style="color: #9ca3af; font-size: 12px;">▼</span>
+                    <div style="display: flex; gap: 15px; align-items: flex-end; margin-bottom: 15px;">
+                        <div style="flex: 1;">
+                            <label style="margin-bottom: 5px; display: block;"><strong>Giao cho học
+                                    sinh:</strong></label>
+                            <div class="custom-student-select" style="margin-bottom: 0;">
+                                <div class="css-select-trigger" onclick="openCustomStudentSelect('targetStudent')">
+                                    <span id="targetStudent_displayText">Tất cả học sinh</span>
+                                    <span style="color: #9ca3af; font-size: 12px;">▼</span>
+                                </div>
+                                <select id="targetStudent" multiple style="display: none;">
+                                    <option value="all" selected>Tất cả học sinh</option>
+                                </select>
+                            </div>
                         </div>
-                        <select id="targetStudent" multiple style="display: none;">
-                            <option value="all" selected>Tất cả học sinh</option>
-                        </select>
+
+                        <div style="flex: 1;" id="videoConditionContainer">
+                            <label style="margin-bottom: 5px; display: block;"><strong>Điều kiện xem
+                                    Video:</strong></label>
+                            <div
+                                style="display: flex; align-items: center; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 0 10px; height: 42px;">
+                                <input type="number" id="watchConditionInput" placeholder="VD: 80"
+                                    style="border: none; box-shadow: none; padding: 0; margin: 0; width: 60px; text-align: center; font-weight: bold; font-size: 1.1em; color: #1e3c72;"
+                                    min="0">
+                                <span style="margin: 0 5px; color: #666; font-weight: bold; font-size: 1.2em;">/</span>
+                                <span id="videoTotalDurationDisplay"
+                                    style="color: #e11d48; font-weight: bold; font-size: 1.1em; width: 40px; text-align: center;">--</span>
+                                <span
+                                    style="margin-left: 5px; color: #666; font-size: 0.9em; font-weight: bold;">phút</span>
+                            </div>
+                        </div>
                     </div>
                     <p style="margin: 5px 0 15px 0; font-size: 0.85em; color: #d35400;">💡 <strong>Mẹo:</strong> Giữ
                         phím <strong>Ctrl</strong> (hoặc kéo thả trên điện thoại) để chọn nhiều học sinh cùng lúc.</p>
@@ -231,6 +253,12 @@
 
                 <div id="view-roadmap">
                     <div class="card">
+                        <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
+                            <button onclick="downloadRoadmapPDF()"
+                                style="background: #e11d48; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9em; display: flex; align-items: center; gap: 5px;">
+                                📄 Tải xuống PDF
+                            </button>
+                        </div>
                         <div style="overflow-x: auto;">
                             <table style="width:100%; border-collapse: collapse; text-align: left;">
                                 <thead>
@@ -1006,15 +1034,39 @@
                                     <input type="datetime-local" id="editEndDate" style="background: white;">
                                 </div>
                             </div>
-                            <label style="margin-top: 15px; display: block;"><strong>Giao cho học sinh:</strong></label>
-                            <div class="custom-student-select">
-                                <div class="css-select-trigger" onclick="openCustomStudentSelect('editTargetStudent')">
-                                    <span id="editTargetStudent_displayText">Tất cả học sinh</span>
-                                    <span style="color: #9ca3af; font-size: 12px;">▼</span>
+                            <div
+                                style="display: flex; gap: 15px; align-items: flex-end; margin-bottom: 15px; flex-wrap: wrap;">
+                                <div style="flex: 1; min-width: 200px;">
+                                    <label style="margin-bottom: 5px; display: block;"><strong>Giao cho học
+                                            sinh:</strong></label>
+                                    <div class="custom-student-select" style="margin-bottom: 0;">
+                                        <div class="css-select-trigger"
+                                            onclick="openCustomStudentSelect('editTargetStudent')">
+                                            <span id="editTargetStudent_displayText">Tất cả học sinh</span>
+                                            <span style="color: #9ca3af; font-size: 12px;">▼</span>
+                                        </div>
+                                        <select id="editTargetStudent" multiple style="display: none;">
+                                            <option value="all" selected>Tất cả học sinh</option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <select id="editTargetStudent" multiple style="display: none;">
-                                    <option value="all" selected>Tất cả học sinh</option>
-                                </select>
+
+                                <div style="flex: 1; min-width: 200px;" id="editVideoConditionContainer">
+                                    <label style="margin-bottom: 5px; display: block;"><strong>Điều kiện xem
+                                            Video:</strong></label>
+                                    <div
+                                        style="display: flex; align-items: center; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 0 10px; height: 42px;">
+                                        <input type="number" id="editWatchConditionInput" placeholder="Nhập số phút"
+                                            style="border: none; box-shadow: none; padding: 0; margin: 0; width: 80px; text-align: center; font-weight: bold; font-size: 1.1em; color: #1e3c72;"
+                                            min="0">
+                                        <span
+                                            style="margin: 0 8px; color: #666; font-weight: bold; font-size: 1.2em;">/</span>
+                                        <span id="editVideoTotalDurationDisplay"
+                                            style="color: #e11d48; font-weight: bold; font-size: 1.1em; width: 50px; text-align: center;">--</span>
+                                        <span
+                                            style="margin-left: 5px; color: #666; font-size: 0.9em; font-weight: bold;">phút</span>
+                                    </div>
+                                </div>
                             </div>
                             <p style="margin: 5px 0 15px 0; font-size: 0.85em; color: #d35400;">💡 Giữ
                                 <strong>Ctrl</strong> để chọn nhiều.
@@ -1143,20 +1195,20 @@
                 </div>
             </div>
 
-            <script src="js/daily-login.js?v=2.2"></script>
-            <script src="js/common.js?v=2.2"></script>
-            <script src="js/theme-items.js?v=2.2"></script>
-            <script src="js/effect-items.js?v=2.2"></script>
-            <script src="js/pet-items.js?v=2.2"></script>
-            <script src="js/royal-ball.js?v=2.2"></script>
-            <script src="js/store-manager.js?v=2.2"></script>
+            <script src="js/daily-login.js?v=2.3"></script>
+            <script src="js/common.js?v=2.3"></script>
+            <script src="js/theme-items.js?v=2.3"></script>
+            <script src="js/effect-items.js?v=2.3"></script>
+            <script src="js/pet-items.js?v=2.3"></script>
+            <script src="js/royal-ball.js?v=2.3"></script>
+            <script src="js/store-manager.js?v=2.3"></script>
 
             <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
             <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
             <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-storage-compat.js"></script>
-            <script src="js/firebase-config.js?v=2.2"></script>
+            <script src="js/firebase-config.js?v=2.3"></script>
 
-            <script src="js/teacher.js?v=2.2"></script>
+            <script src="js/teacher.js?v=2.3"></script>
             <script src="js/security.js"></script>
 </body>
 

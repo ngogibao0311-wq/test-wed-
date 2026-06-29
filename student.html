@@ -5,13 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Trang Học Sinh</title>
-    <link rel="stylesheet" href="css/common.css?v=2.2">
-    <link rel="stylesheet" href="css/student.css?v=2.2">
-    <link rel="stylesheet" href="css/mobile.css?v=2.2">
-    <link rel="stylesheet" href="css/store-items.css?v=2.2">
-    <link rel="stylesheet" href="css/effects-pets.css?v=2.2">
-    <link rel="stylesheet" href="css/royal-ball.css?v=2.2">
-    <link rel="stylesheet" href="css/daily-login.css?v=2.2">
+    <link rel="stylesheet" href="css/common.css?v=2.3">
+    <link rel="stylesheet" href="css/student.css?v=2.3">
+    <link rel="stylesheet" href="css/mobile.css?v=2.3">
+    <link rel="stylesheet" href="css/store-items.css?v=2.3">
+    <link rel="stylesheet" href="css/effects-pets.css?v=2.3">
+    <link rel="stylesheet" href="css/royal-ball.css?v=2.3">
+    <link rel="stylesheet" href="css/daily-login.css?v=2.3">
     <script>
         MathJax = {
             tex: {
@@ -21,6 +21,7 @@
         };
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 
 <body>
@@ -119,6 +120,12 @@
 
                 <div id="view-roadmap">
                     <div class="card">
+                        <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
+                            <button onclick="downloadStudentRoadmapPDF()"
+                                style="background: #e11d48; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9em; display: flex; align-items: center; gap: 5px;">
+                                📄 Tải xuống PDF
+                            </button>
+                        </div>
                         <div style="overflow-x: auto;">
                             <table style="width:100%; border-collapse: collapse; text-align: left;">
                                 <thead>
@@ -707,23 +714,23 @@
         </div>
     </div>
 
-    <script src="js/daily-login.js?v=2.2"></script>
-    <script src="js/royal-ball.js?v=2.2"></script>
+    <script src="js/daily-login.js?v=2.3"></script>
+    <script src="js/royal-ball.js?v=2.3"></script>
 
-    <script src="js/common.js?v=2.2"></script>
-    <script src="js/theme-items.js?v=2.2"></script>
-    <script src="js/effect-items.js?v=2.2"></script>
-    <script src="js/pet-items.js?v=2.2"></script>
-    <script src="js/pet-interactions.js?v=2.2"></script>
-    <script src="js/store-manager.js?v=2.2"></script>
+    <script src="js/common.js?v=2.3"></script>
+    <script src="js/theme-items.js?v=2.3"></script>
+    <script src="js/effect-items.js?v=2.3"></script>
+    <script src="js/pet-items.js?v=2.3"></script>
+    <script src="js/pet-interactions.js?v=2.3"></script>
+    <script src="js/store-manager.js?v=2.3"></script>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-storage-compat.js"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
-    <script src="js/firebase-config.js?v=2.2"></script>
+    <script src="js/firebase-config.js?v=2.3"></script>
 
-    <script src="js/student.js?v=2.2"></script>
+    <script src="js/student.js?v=2.3"></script>
 
 </body>
 

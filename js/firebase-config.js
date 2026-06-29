@@ -28,29 +28,63 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 // ==============================================================
-// CÁC HÀM HỖ TRỢ CHUYỂN ĐỔI ONLINE (Không cần sửa phần này)
+// CÁC HÀM HỖ TRỢ CHUYỂN ĐỔI ONLINE (Đã cập nhật an toàn hơn)
 // ==============================================================
 
-// Lấy dữ liệu
+// 1. Lấy dữ liệu (Tối ưu chống sập web khi dữ liệu bị sai cấu trúc)
 async function getDB(path) {
-    const snapshot = await db.ref(path).once('value');
-    const data = snapshot.val();
-    if (!data) return [];
-    // Chuyển object của Firebase thành Array dễ dùng
-    return Object.keys(data).map(key => ({ _fbKey: key, ...data[key] }));
+    try {
+        const snapshot = await db.ref(path).once('value');
+        const data = snapshot.val();
+        
+        // Trả về mảng rỗng nếu không có dữ liệu
+        if (data === null || data === undefined) return [];
+        
+        // Xử lý an toàn: Chuyển object/array của Firebase thành Array
+        return Object.keys(data).map(key => {
+            const item = data[key];
+            // Nếu là Object thì rải (spread) bình thường
+            if (typeof item === 'object' && item !== null) {
+                return { _fbKey: key, ...item };
+            }
+            // Nếu vô tình chứa giá trị nguyên thủy (chữ, số) thì gom vào biến value tránh lỗi
+            return { _fbKey: key, value: item };
+        });
+    } catch (error) {
+        console.error(`❌ [Lỗi GetDB] tại '${path}':`, error);
+        return []; // Trả về mảng rỗng để các vòng lặp for/forEach ở nơi khác không bị văng lỗi
+    }
 }
 
-// Thêm dữ liệu mới
+// 2. Thêm dữ liệu mới (Nâng cấp: Trả về ID vừa tạo để tái sử dụng nếu cần)
 async function pushDB(path, obj) {
-    await db.ref(path).push(obj);
+    try {
+        const ref = await db.ref(path).push(obj);
+        return ref.key; // Trả về mã _fbKey vừa sinh ra (Code cũ không có, thêm vào không ảnh hưởng gì)
+    } catch (error) {
+        console.error(`❌ [Lỗi PushDB] tại '${path}':`, error);
+        throw error;
+    }
 }
 
-// Cập nhật dữ liệu
+// 3. Cập nhật dữ liệu (Nâng cấp: Bắt lỗi mạng)
 async function updateDB(path, fbKey, obj) {
-    await db.ref(`${path}/${fbKey}`).update(obj);
+    try {
+        await db.ref(`${path}/${fbKey}`).update(obj);
+        return true;
+    } catch (error) {
+        console.error(`❌ [Lỗi UpdateDB] tại '${path}/${fbKey}':`, error);
+        throw error; // Quăng lỗi ra ngoài nếu cần dùng .catch() ở nơi gọi
+    }
 }
 
-// Xóa dữ liệu
+// 4. Xóa dữ liệu (Nâng cấp: Bắt lỗi phân quyền/mạng)
 async function removeDB(path, fbKey) {
-    await db.ref(`${path}/${fbKey}`).remove();
+    try {
+        await db.ref(`${path}/${fbKey}`).remove();
+        return true;
+    } catch (error) {
+        console.error(`❌ [Lỗi RemoveDB] tại '${path}/${fbKey}':`, error);
+        throw error;
+    }
 }
