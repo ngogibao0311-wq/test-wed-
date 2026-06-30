@@ -3889,7 +3889,10 @@ function getTrackedVideoHTML(url, assignId) {
     else if (url.includes('embed/')) { videoId = url.split('embed/')[1].split('?')[0]; }
 
     if (videoId) {
-        let embedUrl = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&rel=0`;
+        // Tự động nhận diện nguồn đang chạy web để khai báo với YouTube
+        let hostUrl = window.location.protocol === 'file:' ? 'https://localhost' : window.location.origin;
+        let embedUrl = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&rel=0&origin=${hostUrl}`;
+        
         return `
         <div class="video-wrapper" style="margin-top: 15px; border: 2px solid #667eea; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.8);">
             <iframe id="yt-player-${assignId}" width="100%" height="315" src="${embedUrl}" frameborder="0" allowfullscreen></iframe>
@@ -3902,9 +3905,8 @@ function getTrackedVideoHTML(url, assignId) {
 }
 
 window.initYouTubeTrackers = function (assignments, retryCount = 0) {
-    // Nếu mạng chậm, YouTube chưa tải xong thì tự động thử lại (tối đa 5 lần)
     if (typeof YT === 'undefined' || typeof YT.Player === 'undefined') {
-        if (retryCount < 5) {
+        if (retryCount < 10) { // Tăng thời gian chờ YouTube lên 10 lần
             setTimeout(() => window.initYouTubeTrackers(assignments, retryCount + 1), 1000);
         }
         return;
@@ -3915,74 +3917,67 @@ window.initYouTubeTrackers = function (assignments, retryCount = 0) {
         const iframeEl = document.getElementById(iframeId);
 
         if (iframeEl && !ytPlayers[assign.id]) {
-            // Lấy dữ liệu cũ TỪ TRƯỚC, lấy xong mới khởi tạo video
-            db.ref(`video_tracking/${assign.id}/${currentUser.username}`).once('value', (snap) => {
-                // Đảm bảo dữ liệu tải về là dạng số
-                watchDurations[assign.id] = parseInt(snap.val()) || 0;
-                
-                const display = document.getElementById(`watch-time-display-${assign.id}`);
-                if (display) display.innerText = formatSecondsToDHMS(watchDurations[assign.id]);
+            // KHỞI TẠO PLAYER NGAY LẬP TỨC
+            ytPlayers[assign.id] = new YT.Player(iframeId, {
+                events: {
+                    'onReady': (event) => {
+                        // KHI PLAYER ĐÃ SẴN SÀNG MỚI ĐI LẤY DỮ LIỆU BỀN VỮNG TỪ FIREBASE
+                        db.ref(`video_tracking/${assign.id}/${currentUser.username}`).once('value', (snap) => {
+                            watchDurations[assign.id] = parseInt(snap.val()) || 0;
+                            
+                            const display = document.getElementById(`watch-time-display-${assign.id}`);
+                            if (display) display.innerText = formatSecondsToDHMS(watchDurations[assign.id]);
 
-                // Bắt đầu khởi tạo Player
-                ytPlayers[assign.id] = new YT.Player(iframeId, {
-                    events: {
-                        'onReady': (event) => {
-                            // Khi load video, ép tua tới đúng điểm đang xem dở
+                            // Ép tua tới điểm xem dở
                             if (watchDurations[assign.id] > 0) {
                                 event.target.seekTo(watchDurations[assign.id], true);
                             }
-                        },
-                        'onStateChange': (event) => onPlayerStateChange(event, assign.id)
-                    }
-                });
+                        });
+                    },
+                    'onStateChange': (event) => window.onPlayerStateChange(event, assign.id)
+                }
             });
         }
     });
 };
 
-function onPlayerStateChange(event, assignId) {
-    // 1. Lấy đúng instance của player từ mảng đã lưu trữ thay vì dùng event.target
-    const player = ytPlayers[assignId];
+window.onPlayerStateChange = function(event, assignId) {
+    const player = event.target; // Lấy trực tiếp video đang phát
 
-    if (event.data == YT.PlayerState.PLAYING) {
-        // 2. Dọn dẹp bộ đếm cũ nếu có để tránh tình trạng đếm chồng chéo (nhân đôi tốc độ) khi HS bấm Play/Pause liên tục
+    if (event.data === YT.PlayerState.PLAYING) {
         if (watchTimers[assignId]) clearInterval(watchTimers[assignId]);
 
         watchTimers[assignId] = setInterval(() => {
-            // 3. CHỐT CHẶN AN TOÀN: Chỉ gọi getCurrentTime khi API của YouTube đã thực sự sẵn sàng
             if (player && typeof player.getCurrentTime === 'function') {
                 let currentTime = Math.floor(player.getCurrentTime());
+                let lastTime = watchDurations[assignId] || 0;
 
-                // Lớp bảo vệ 2: Chống cày giờ
-                if (currentTime > watchDurations[assignId]) {
-
-                    // Lớp bảo vệ 3: Chống tua nhanh
-                    if (currentTime - watchDurations[assignId] > 5) {
-                        player.seekTo(watchDurations[assignId], true);
+                if (currentTime > lastTime) {
+                    if (currentTime - lastTime > 5) {
+                        // Bị tua nhanh -> Giật ngược về mốc cũ
+                        player.seekTo(lastTime, true);
                     } else {
-                        // Cập nhật thời gian hợp lệ
+                        // Hợp lệ -> Đẩy đồng hồ lên
                         watchDurations[assignId] = currentTime;
                         const display = document.getElementById(`watch-time-display-${assignId}`);
-                        if (display) display.innerText = formatSecondsToDHMS(watchDurations[assignId]);
+                        if (display) display.innerText = formatSecondsToDHMS(currentTime);
 
-                        // Lưu dữ liệu lên Firebase
-                        if (watchDurations[assignId] % 5 === 0 && lastSavedTime[assignId] !== watchDurations[assignId]) {
-                            db.ref(`video_tracking/${assignId}/${currentUser.username}`).set(watchDurations[assignId]);
-                            lastSavedTime[assignId] = watchDurations[assignId];
+                        // Lưu Firebase mỗi 5 giây để giảm tải
+                        if (currentTime % 5 === 0 && lastSavedTime[assignId] !== currentTime) {
+                            db.ref(`video_tracking/${assignId}/${currentUser.username}`).set(currentTime);
+                            lastSavedTime[assignId] = currentTime;
                         }
                     }
                 }
             }
         }, 1000);
     } else {
-        // Khi Pause hoặc Hết video -> Dừng đếm và lưu chốt lần cuối
         if (watchTimers[assignId]) clearInterval(watchTimers[assignId]);
-
         if (watchDurations[assignId]) {
             db.ref(`video_tracking/${assignId}/${currentUser.username}`).set(watchDurations[assignId]);
         }
     }
-}
+};
 
 window.downloadStudentRoadmapPDF = async function () {
     const assignments = await getDB('assignments');
@@ -4045,47 +4040,3 @@ window.downloadStudentRoadmapPDF = async function () {
     tempDiv.innerHTML = finalHTML;
     html2pdf().set(opt).from(tempDiv).save();
 };
-
-// ==========================================
-// HỆ THỐNG YOUTUBE TRACKER
-// ==========================================
-function initYouTubeTrackers(assignments, retryCount = 0) {
-    // Nếu mạng chậm, YouTube chưa tải xong thì tự động thử lại (tối đa 5 lần)
-    if (typeof YT === 'undefined' || typeof YT.Player === 'undefined') {
-        if (retryCount < 5) {
-            setTimeout(() => initYouTubeTrackers(assignments, retryCount + 1), 1000);
-        }
-        return;
-    }
-
-    assignments.forEach(assign => {
-        const iframeId = `yt-player-${assign.id}`;
-        const iframeEl = document.getElementById(iframeId);
-
-        if (iframeEl && !ytPlayers[assign.id]) {
-            // Lấy dữ liệu cũ từ Firebase
-            db.ref(`video_tracking/${assign.id}/${currentUser.username}`).once('value', (snap) => {
-                watchDurations[assign.id] = parseInt(snap.val()) || 0;
-                
-                const display = document.getElementById(`watch-time-display-${assign.id}`);
-                if (display) display.innerText = formatSecondsToDHMS(watchDurations[assign.id]);
-
-                // Bắt đầu khởi tạo Player
-                ytPlayers[assign.id] = new YT.Player(iframeId, {
-                    events: {
-                        'onReady': (event) => {
-                            // Khi load video, ép tua tới đúng điểm đang xem dở
-                            if (watchDurations[assign.id] > 0) {
-                                event.target.seekTo(watchDurations[assign.id], true);
-                            }
-                        },
-                        'onStateChange': (event) => onPlayerStateChange(event, assign.id)
-                    }
-                });
-            });
-        }
-    });
-}
-
-// Khai báo global để tránh lỗi is not a function
-window.initYouTubeTrackers = initYouTubeTrackers;
