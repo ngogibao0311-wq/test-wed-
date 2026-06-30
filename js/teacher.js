@@ -27,7 +27,7 @@ window.getVideoDurationFromYT = function (url, displayElementId) {
         height: '10', width: '10', videoId: videoId,
         events: {
             'onReady': function (event) {
-                let durationMin = Math.ceil(event.target.getDuration() / 60);
+                let durationMin = Math.floor(event.target.getDuration() / 60);
                 document.getElementById(displayElementId).innerText = durationMin;
                 event.target.destroy();
                 document.getElementById(tempDiv.id)?.remove();
@@ -1528,6 +1528,13 @@ window.openEditAssignmentModal = async function (fbKey) {
         document.getElementById('editStartDate').value = assign.startDate ? assign.startDate.replace(" ", "T") : '';
         document.getElementById('editEndDate').value = assign.endDate ? assign.endDate.replace(" ", "T") : '';
 
+        if (document.getElementById('editWatchConditionInput')) {
+            document.getElementById('editWatchConditionInput').value = assign.watchCondition || '';
+        }
+        if (document.getElementById('editVideoTotalDurationDisplay')) {
+            document.getElementById('editVideoTotalDurationDisplay').innerText = assign.videoDuration || '--';
+        }
+
         const users = await getDB('users');
         const editTargetSelect = document.getElementById('editTargetStudent');
         if (editTargetSelect) {
@@ -1683,6 +1690,13 @@ window.saveAssignmentEdit = async function () {
         endDate: endDate.replace("T", " "),
         targetStudent: targetStudent // [MỚI THÊM] Lưu đối tượng học sinh mới lên Firebase
     };
+
+    const watchCondition = parseInt(document.getElementById('editWatchConditionInput').value) || 0;
+    const videoDurationText = document.getElementById('editVideoTotalDurationDisplay').innerText;
+    const videoDuration = isNaN(parseInt(videoDurationText)) ? 0 : parseInt(videoDurationText);
+    
+    updateObj.watchCondition = watchCondition;
+    updateObj.videoDuration = videoDuration;
 
     // Thu thập dữ liệu Tự Luận
     if (assign.assessmentType === 'tu_luan' || assign.assessmentType === 'ket_hop' || !assign.assessmentType) {
