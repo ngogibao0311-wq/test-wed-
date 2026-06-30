@@ -847,6 +847,38 @@ async function loadAssignments() {
                     ? `<button type="button" style="width: 100%; margin-top: 15px; padding: 14px; border-radius: 12px; border: none; background: #95a5a6; color: white; font-weight: bold; cursor: not-allowed;" onclick="alert('🔒 Tài khoản của bạn đang bị khóa tạm thời. Bạn không thể nộp bài!')">🔒 Tài khoản bị khóa (Không thể thao tác)</button>`
                     : `<button id="btn-submit-${assign.id}" class="btn-approve" style="width: 100%; color: #111; margin-top: 15px;" onclick="this.disabled=true; this.style.opacity='0.6'; this.innerText='⏳ Đang xử lý, vui lòng đợi...'; submitAssignment('${assign.id}').finally(() => { this.disabled=false; this.style.opacity='1'; this.innerText='Nộp bài tập ngay'; })">Nộp bài tập ngay</button>`;
 
+                    let videoConditionSec = parseInt(assign.videoCondition) || 0;
+                let lockedUI = '';
+                let questionsStyle = '';
+
+                // Chỉ khóa nếu có điều kiện, có video và học sinh chưa nộp bài (hoặc đang làm lại)
+                if (videoConditionSec > 0 && assign.videoLink && (!mySub || isRedoing)) {
+                    questionsStyle = 'display: none;';
+                    lockedUI = `
+                        <div id="video-lock-${assign.id}" style="background: rgba(243, 156, 18, 0.1); border-left: 4px solid #f39c12; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                            <h4 style="color: #d35400; margin: 0 0 5px 0;">🔒 BÀI TẬP ĐANG BỊ KHÓA!</h4>
+                            <p style="margin: 0; color: #444;">Giáo viên yêu cầu bạn phải xem video bài giảng bên trên tối thiểu <strong>${videoConditionSec} giây</strong> để mở khóa câu hỏi.</p>
+                            <p style="margin: 5px 0 0 0; font-weight: bold; color: #059669;">▶️ Thời gian đã xem: <span id="lock-progress-${assign.id}">0</span> / ${videoConditionSec} giây</p>
+                        </div>
+                    `;
+                }
+
+                const uniqueId = `student-todo-${assign.id}`;
+                const div = document.createElement('div'); div.className = 'card submit-box accordion-card';
+                div.style.position = 'relative'; // Bắt buộc để lớp phủ kính định vị chính xác
+
+                let assignmentContentRaw = `
+                    ${videoHTML}
+                    ${lockedUI}
+                    <div id="assignment-questions-${assign.id}" style="${questionsStyle}">
+                        ${quizHTML}
+                        ${descHTML}
+                        ${teacherFileHTML}
+                        ${tuLuanInputHTML}
+                        ${submitBtnHTML}
+                    </div>
+                `;
+
                 const uniqueId = `student-todo-${assign.id}`;
                 const div = document.createElement('div'); div.className = 'card submit-box accordion-card';
                 div.style.position = 'relative'; // Bắt buộc để lớp phủ kính định vị chính xác
@@ -3906,7 +3938,7 @@ function getTrackedVideoHTML(url, assignId) {
 
 window.initYouTubeTrackers = function (assignments, retryCount = 0) {
     if (typeof YT === 'undefined' || typeof YT.Player === 'undefined') {
-        if (retryCount < 10) { // Tăng thời gian chờ YouTube lên 10 lần
+        if (retryCount < 10) {
             setTimeout(() => window.initYouTubeTrackers(assignments, retryCount + 1), 1000);
         }
         return;
@@ -3917,18 +3949,29 @@ window.initYouTubeTrackers = function (assignments, retryCount = 0) {
         const iframeEl = document.getElementById(iframeId);
 
         if (iframeEl && !ytPlayers[assign.id]) {
-            // KHỞI TẠO PLAYER NGAY LẬP TỨC
             ytPlayers[assign.id] = new YT.Player(iframeId, {
                 events: {
                     'onReady': (event) => {
-                        // KHI PLAYER ĐÃ SẴN SÀNG MỚI ĐI LẤY DỮ LIỆU BỀN VỮNG TỪ FIREBASE
                         db.ref(`video_tracking/${assign.id}/${currentUser.username}`).once('value', (snap) => {
                             watchDurations[assign.id] = parseInt(snap.val()) || 0;
                             
                             const display = document.getElementById(`watch-time-display-${assign.id}`);
                             if (display) display.innerText = formatSecondsToDHMS(watchDurations[assign.id]);
 
-                            // Ép tua tới điểm xem dở
+                            // BỔ SUNG: Kiểm tra mở khóa ngay khi Load nếu học sinh đã xem đủ số giây từ trước
+                            let cond = parseInt(assign.videoCondition) || 0;
+                            if (cond > 0) {
+                                let lockProg = document.getElementById(`lock-progress-${assign.id}`);
+                                if(lockProg) lockProg.innerText = watchDurations[assign.id];
+
+                                if (watchDurations[assign.id] >= cond) {
+                                    let lockDiv = document.getElementById(`video-lock-${assign.id}`);
+                                    let questDiv = document.getElementById(`assignment-questions-${assign.id}`);
+                                    if (lockDiv) lockDiv.style.display = 'none';
+                                    if (questDiv) questDiv.style.display = 'block';
+                                }
+                            }
+
                             if (watchDurations[assign.id] > 0) {
                                 event.target.seekTo(watchDurations[assign.id], true);
                             }
@@ -3942,7 +3985,7 @@ window.initYouTubeTrackers = function (assignments, retryCount = 0) {
 };
 
 window.onPlayerStateChange = function(event, assignId) {
-    const player = event.target; // Lấy trực tiếp video đang phát
+    const player = event.target;
 
     if (event.data === YT.PlayerState.PLAYING) {
         if (watchTimers[assignId]) clearInterval(watchTimers[assignId]);
@@ -3954,15 +3997,33 @@ window.onPlayerStateChange = function(event, assignId) {
 
                 if (currentTime > lastTime) {
                     if (currentTime - lastTime > 5) {
-                        // Bị tua nhanh -> Giật ngược về mốc cũ
                         player.seekTo(lastTime, true);
                     } else {
-                        // Hợp lệ -> Đẩy đồng hồ lên
                         watchDurations[assignId] = currentTime;
                         const display = document.getElementById(`watch-time-display-${assignId}`);
                         if (display) display.innerText = formatSecondsToDHMS(currentTime);
 
-                        // Lưu Firebase mỗi 5 giây để giảm tải
+                        // BỔ SUNG: Xử lý mở khóa Realtime khi đang xem
+                        const assign = window.cachedAssignments ? window.cachedAssignments.find(a => a.id === assignId) : null;
+                        let cond = assign ? (parseInt(assign.videoCondition) || 0) : 0;
+
+                        if (cond > 0) {
+                            let lockProg = document.getElementById(`lock-progress-${assignId}`);
+                            if(lockProg && currentTime <= cond) lockProg.innerText = currentTime;
+
+                            if (currentTime >= cond) {
+                                let lockDiv = document.getElementById(`video-lock-${assignId}`);
+                                let questDiv = document.getElementById(`assignment-questions-${assignId}`);
+                                if (lockDiv && lockDiv.style.display !== 'none') {
+                                    lockDiv.style.display = 'none';
+                                    if (questDiv) {
+                                        questDiv.style.display = 'block';
+                                        questDiv.style.animation = 'fadeInUp 0.5s ease'; // Hiệu ứng trượt lên mượt mà
+                                    }
+                                }
+                            }
+                        }
+
                         if (currentTime % 5 === 0 && lastSavedTime[assignId] !== currentTime) {
                             db.ref(`video_tracking/${assignId}/${currentUser.username}`).set(currentTime);
                             lastSavedTime[assignId] = currentTime;

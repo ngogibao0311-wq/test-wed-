@@ -420,14 +420,18 @@ async function createAssignment() {
         essayWeight = parseFloat(document.getElementById('essayWeight').value) || 0;
     }
 
+    const videoCondition = parseInt(document.getElementById('videoCondition').value) || 0;
+
     await pushDB('assignments', {
         id: Date.now().toString(), title, desc,
         startDate: startDate.replace("T", " "), endDate: endDate.replace("T", " "),
         targetStudent, file: attachedFile, videoLink: videoLink,
         assessmentType: type, questions: questions,
         mcWeight: mcWeight, essayWeight: essayWeight,
-        hideEssayText: hideEssayText // Đẩy lên Firebase dữ liệu cấu hình mới
+        hideEssayText: hideEssayText,
+        videoCondition: videoCondition // Đẩy điều kiện thời gian video lên Firebase
     });
+    document.getElementById('videoCondition').value = ''; // Xóa dữ liệu ô nhập sau khi tạo
 
     document.getElementById('title').value = ''; document.getElementById('desc').value = '';
     document.getElementById('startDate').value = ''; document.getElementById('endDate').value = '';
@@ -1494,6 +1498,9 @@ window.openEditAssignmentModal = async function (fbKey) {
         if (tuLuanSec) tuLuanSec.style.display = 'none';
         if (tracNghiemSec) tracNghiemSec.style.display = 'none';
         if (weightSec) weightSec.style.display = 'none';
+        if (document.getElementById('editVideoCondition')) {
+            document.getElementById('editVideoCondition').value = assign.videoCondition || '';
+        }
 
         // 2. Xử lý phần Tự Luận
         const hasEssay = assign.assessmentType === 'tu_luan' || assign.assessmentType === 'ket_hop' || !assign.assessmentType || (assign.assessmentType === 'thi' && assign.essayWeight > 0);
@@ -1622,6 +1629,7 @@ window.saveAssignmentEdit = async function () {
         title: title,
         startDate: startDate.replace("T", " "),
         endDate: endDate.replace("T", " "),
+        targetStudent: targetStudent,
         targetStudent: targetStudent // [MỚI THÊM] Lưu đối tượng học sinh mới lên Firebase
     };
 
