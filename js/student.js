@@ -426,6 +426,20 @@ async function loadAssignments() {
     if (list) list.innerHTML = '';
     if (grades) grades.innerHTML = '';
 
+    // Dọn dẹp trình phát Video cũ để không bị kẹt khi tải lại bài
+    if (typeof ytPlayers !== 'undefined') {
+        for (let key in ytPlayers) {
+            if (ytPlayers[key] && typeof ytPlayers[key].destroy === 'function') {
+                try { ytPlayers[key].destroy(); } catch(e){}
+            }
+        }
+        ytPlayers = {};
+    }
+    if (typeof watchTimers !== 'undefined') {
+        for (let key in watchTimers) { clearInterval(watchTimers[key]); }
+        watchTimers = {};
+    }
+
     assignmentTimers.forEach(t => clearInterval(t));
     assignmentTimers = [];
     let hasAutoSubmitted = false;
@@ -3887,8 +3901,14 @@ function getTrackedVideoHTML(url, assignId) {
     return '';
 }
 
-window.initYouTubeTrackers = function (assignments) {
-    if (typeof YT === 'undefined' || !YT.Player) return;
+window.initYouTubeTrackers = function (assignments, retryCount = 0) {
+    // Nếu mạng chậm, YouTube chưa tải xong thì tự động thử lại (tối đa 5 lần)
+    if (typeof YT === 'undefined' || typeof YT.Player === 'undefined') {
+        if (retryCount < 5) {
+            setTimeout(() => window.initYouTubeTrackers(assignments, retryCount + 1), 1000);
+        }
+        return;
+    }
 
     assignments.forEach(assign => {
         const iframeId = `yt-player-${assign.id}`;
@@ -3897,7 +3917,9 @@ window.initYouTubeTrackers = function (assignments) {
         if (iframeEl && !ytPlayers[assign.id]) {
             // Lấy dữ liệu cũ TỪ TRƯỚC, lấy xong mới khởi tạo video
             db.ref(`video_tracking/${assign.id}/${currentUser.username}`).once('value', (snap) => {
-                watchDurations[assign.id] = snap.val() || 0;
+                // Đảm bảo dữ liệu tải về là dạng số
+                watchDurations[assign.id] = parseInt(snap.val()) || 0;
+                
                 const display = document.getElementById(`watch-time-display-${assign.id}`);
                 if (display) display.innerText = formatSecondsToDHMS(watchDurations[assign.id]);
 
@@ -3905,7 +3927,7 @@ window.initYouTubeTrackers = function (assignments) {
                 ytPlayers[assign.id] = new YT.Player(iframeId, {
                     events: {
                         'onReady': (event) => {
-                            // LỚP BẢO VỆ 1: Khi load video, ép tua tới đúng điểm đang xem dở
+                            // Khi load video, ép tua tới đúng điểm đang xem dở
                             if (watchDurations[assign.id] > 0) {
                                 event.target.seekTo(watchDurations[assign.id], true);
                             }
