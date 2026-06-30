@@ -4045,3 +4045,47 @@ window.downloadStudentRoadmapPDF = async function () {
     tempDiv.innerHTML = finalHTML;
     html2pdf().set(opt).from(tempDiv).save();
 };
+
+// ==========================================
+// HỆ THỐNG YOUTUBE TRACKER
+// ==========================================
+function initYouTubeTrackers(assignments, retryCount = 0) {
+    // Nếu mạng chậm, YouTube chưa tải xong thì tự động thử lại (tối đa 5 lần)
+    if (typeof YT === 'undefined' || typeof YT.Player === 'undefined') {
+        if (retryCount < 5) {
+            setTimeout(() => initYouTubeTrackers(assignments, retryCount + 1), 1000);
+        }
+        return;
+    }
+
+    assignments.forEach(assign => {
+        const iframeId = `yt-player-${assign.id}`;
+        const iframeEl = document.getElementById(iframeId);
+
+        if (iframeEl && !ytPlayers[assign.id]) {
+            // Lấy dữ liệu cũ từ Firebase
+            db.ref(`video_tracking/${assign.id}/${currentUser.username}`).once('value', (snap) => {
+                watchDurations[assign.id] = parseInt(snap.val()) || 0;
+                
+                const display = document.getElementById(`watch-time-display-${assign.id}`);
+                if (display) display.innerText = formatSecondsToDHMS(watchDurations[assign.id]);
+
+                // Bắt đầu khởi tạo Player
+                ytPlayers[assign.id] = new YT.Player(iframeId, {
+                    events: {
+                        'onReady': (event) => {
+                            // Khi load video, ép tua tới đúng điểm đang xem dở
+                            if (watchDurations[assign.id] > 0) {
+                                event.target.seekTo(watchDurations[assign.id], true);
+                            }
+                        },
+                        'onStateChange': (event) => onPlayerStateChange(event, assign.id)
+                    }
+                });
+            });
+        }
+    });
+}
+
+// Khai báo global để tránh lỗi is not a function
+window.initYouTubeTrackers = initYouTubeTrackers;
