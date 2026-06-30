@@ -1,3 +1,15 @@
+window.parseSafeDate = function(dateString) {
+    if (!dateString) return new Date(0);
+    if (dateString.includes('-')) return new Date(dateString.replace(" ", "T"));
+    if (dateString.includes('/')) {
+        let parts = dateString.split(' ');
+        let dateParts = parts[0].split('/'); // DD/MM/YYYY
+        let timeString = parts[1] || "00:00:00";
+        return new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}T${timeString}`);
+    }
+    return new Date(dateString);
+};
+
 const currentUser = JSON.parse(localStorage.getItem('currentUser'));
 if (!currentUser || currentUser.role !== 'student') window.location.href = 'index.html';
 
@@ -391,11 +403,17 @@ function getEmbedHTML(url) {
 
 let assignmentTimers = [];
 function formatCountdown(ms) {
-    if (ms <= 0) return "00:00:00";
-    let h = Math.floor(ms / (1000 * 60 * 60)).toString().padStart(2, '0');
-    let m = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
-    let s = Math.floor((ms % (1000 * 60)) / 1000).toString().padStart(2, '0');
-    return `${h}:${m}:${s}`;
+    if (ms <= 0) return "00 giây";
+    let d = Math.floor(ms / (1000 * 60 * 60 * 24));
+    let h = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    let m = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+    let s = Math.floor((ms % (1000 * 60)) / 1000);
+    
+    let timeStr = "";
+    if (d > 0) timeStr += `${d} ngày `;
+    if (h > 0 || d > 0) timeStr += `${h} tiếng `;
+    timeStr += `${m} phút ${s} giây`;
+    return timeStr.trim();
 }
 
 async function loadAssignments() {
@@ -418,7 +436,7 @@ async function loadAssignments() {
     assignments.sort((a, b) => {
         const getSortVals = (assign) => {
             const mySub = submissions.find(s => s.assignmentId === assign.id && s.studentUsername === currentUser.username);
-            const end = assign.endDate ? new Date(assign.endDate.replace(" ", "T")) : new Date("2100-01-01");
+            const end = assign.endDate ? window.parseSafeDate(assign.endDate) : new Date("2100-01-01");
 
             let rank = 2; // Nhóm 2: Bài đã chốt (Đã chấm / Xong)
             let isActive = nowSort <= end;
@@ -461,8 +479,8 @@ async function loadAssignments() {
         const mySub = submissions.find(s => s.assignmentId === assign.id && s.studentUsername === currentUser.username);
 
         const now = new Date();
-        const startTime = assign.startDate ? new Date(assign.startDate.replace(" ", "T")) : new Date(0);
-        const endTime = assign.endDate ? new Date(assign.endDate.replace(" ", "T")) : new Date("2100-01-01");
+        const startTime = assign.startDate ? window.parseSafeDate(assign.startDate) : new Date(0);
+        const endTime = assign.endDate ? window.parseSafeDate(assign.endDate) : new Date("2100-01-01");
         const isRedoing = mySub && mySub.isRedoing;
 
         // --- LOGIC 5 PHÚT ÂN HẠN HIỂN THỊ (GRACE PERIOD) ---
@@ -1047,8 +1065,8 @@ async function submitAssignment(assignId, isAuto = false, isCheat = false) {
     const isRedoing = mySub && mySub.isRedoing;
 
     const now = new Date();
-    const startTime = assign.startDate ? new Date(assign.startDate.replace(" ", "T")) : new Date(0);
-    const endTime = assign.endDate ? new Date(assign.endDate.replace(" ", "T")) : new Date("2100-01-01");
+    const startTime = assign.startDate ? window.parseSafeDate(assign.startDate) : new Date(0);
+const endTime = assign.endDate ? window.parseSafeDate(assign.endDate) : new Date("2100-01-01");
 
     if (now < startTime) return alert("⚠️ Lỗi: Chưa đến thời gian làm bài!");
 
@@ -2073,13 +2091,17 @@ let trialItemsList = [];
 window.currentStoreFilterType = 'all';
 
 function formatStoreCountdown(ms) {
-    if (ms <= 0) return "00:00:00";
+    if (ms <= 0) return "00 giây";
     let d = Math.floor(ms / (1000 * 60 * 60 * 24));
-    let h = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
-    let m = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
-    let s = Math.floor((ms % (1000 * 60)) / 1000).toString().padStart(2, '0');
-    if (d > 0) return `${d} ngày ${h}:${m}:${s}`;
-    return `${h}:${m}:${s}`;
+    let h = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    let m = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+    let s = Math.floor((ms % (1000 * 60)) / 1000);
+    
+    let timeStr = "";
+    if (d > 0) timeStr += `${d} ngày `;
+    if (h > 0 || d > 0) timeStr += `${h} tiếng `;
+    timeStr += `${m} phút ${s} giây`;
+    return timeStr.trim();
 }
 
 // 1. Hàm lọc và hiển thị vật phẩm ra màn hình (Có kiểm tra Ngày Mở Bán)
@@ -3950,48 +3972,52 @@ window.initYouTubeTrackers = function (assignments) {
 };
 
 function onPlayerStateChange(event, assignId) {
-    // 1. Lấy đúng instance của player từ mảng đã lưu trữ thay vì dùng event.target
     const player = ytPlayers[assignId];
 
     if (event.data == YT.PlayerState.PLAYING) {
-        // 2. Dọn dẹp bộ đếm cũ nếu có để tránh tình trạng đếm chồng chéo (nhân đôi tốc độ) khi HS bấm Play/Pause liên tục
         if (watchTimers[assignId]) clearInterval(watchTimers[assignId]);
 
         watchTimers[assignId] = setInterval(() => {
-            // 3. CHỐT CHẶN AN TOÀN: Chỉ gọi getCurrentTime khi API của YouTube đã thực sự sẵn sàng
             if (player && typeof player.getCurrentTime === 'function') {
                 let currentTime = Math.floor(player.getCurrentTime());
 
-                // Lớp bảo vệ 2: Chống cày giờ
                 if (currentTime > watchDurations[assignId]) {
-
-                    // Lớp bảo vệ 3: Chống tua nhanh
+                    // Chống tua nhanh
                     if (currentTime - watchDurations[assignId] > 5) {
                         player.seekTo(watchDurations[assignId], true);
                     } else {
-                        // Cập nhật thời gian hợp lệ
                         watchDurations[assignId] = currentTime;
                         const display = document.getElementById(`watch-time-display-${assignId}`);
                         if (display) display.innerText = watchDurations[assignId];
 
-                        // Lưu dữ liệu lên Firebase
-                        if (watchDurations[assignId] % 5 === 0 && lastSavedTime[assignId] !== watchDurations[assignId]) {
+                        // FIX LỖI: Lưu Firebase dựa trên khoảng cách thời gian thực (5 giây / lần)
+                        let now = Date.now();
+                        if (!lastSavedTime[assignId] || now - lastSavedTime[assignId] >= 5000) {
                             db.ref(`video_tracking/${assignId}/${currentUser.username}`).set(watchDurations[assignId]);
-                            lastSavedTime[assignId] = watchDurations[assignId];
+                            lastSavedTime[assignId] = now;
                         }
                     }
                 }
             }
         }, 1000);
     } else {
-        // Khi Pause hoặc Hết video -> Dừng đếm và lưu chốt lần cuối
         if (watchTimers[assignId]) clearInterval(watchTimers[assignId]);
-
+        // Lưu chốt ngay khi bấm Dừng/Hết video
         if (watchDurations[assignId]) {
             db.ref(`video_tracking/${assignId}/${currentUser.username}`).set(watchDurations[assignId]);
+            lastSavedTime[assignId] = Date.now();
         }
     }
 }
+
+// FIX LỖI: Lưu chốt lần cuối nếu học sinh đột ngột đóng Tab hoặc bấm F5
+window.addEventListener('beforeunload', () => {
+    Object.keys(watchDurations).forEach(assignId => {
+        if (watchDurations[assignId] > 0) {
+            db.ref(`video_tracking/${assignId}/${currentUser.username}`).set(watchDurations[assignId]);
+        }
+    });
+});
 
 window.downloadStudentRoadmapPDF = async function () {
     const assignments = await getDB('assignments');

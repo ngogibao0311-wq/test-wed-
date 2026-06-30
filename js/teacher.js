@@ -1,3 +1,15 @@
+window.parseSafeDate = function (dateString) {
+    if (!dateString) return new Date(0);
+    if (dateString.includes('-')) return new Date(dateString.replace(" ", "T"));
+    if (dateString.includes('/')) {
+        let parts = dateString.split(' ');
+        let dateParts = parts[0].split('/'); // DD/MM/YYYY
+        let timeString = parts[1] || "00:00:00";
+        return new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}T${timeString}`);
+    }
+    return new Date(dateString);
+};
+
 // --- TỰ ĐỘNG KHỞI TẠO VÀ LẤY THỜI LƯỢNG YOUTUBE ---
 if (!document.getElementById('yt-iframe-script')) {
     const ytScript = document.createElement('script');
@@ -501,8 +513,8 @@ async function createAssignment() {
     document.getElementById('questionsContainer').innerHTML = ''; questionCount = 0;
     if (document.getElementById('hideEssayText')) document.getElementById('hideEssayText').checked = false; // Reset checkbox
     dtTeacherAssign.items.clear(); attachedFileData = null; alert("Giao bài tập thành công!");
-    if(document.getElementById('watchConditionInput')) document.getElementById('watchConditionInput').value = '';
-    if(document.getElementById('videoTotalDurationDisplay')) document.getElementById('videoTotalDurationDisplay').innerText = '--';
+    if (document.getElementById('watchConditionInput')) document.getElementById('watchConditionInput').value = '';
+    if (document.getElementById('videoTotalDurationDisplay')) document.getElementById('videoTotalDurationDisplay').innerText = '--';
 }
 
 async function loadAssignedList() {
@@ -580,7 +592,8 @@ async function loadAssignedList() {
 
         // --- LOGIC MỚI: TẠO NHÃN CHƯA NỘP / CHƯA ĐẾN GIỜ ---
         const now = new Date();
-        const startTime = assign.startDate ? new Date(assign.startDate.replace(" ", "T")) : new Date(0);
+        const end = assign.endDate ? window.parseSafeDate(assign.endDate) : new Date("2100-01-01");
+        const startTime = assign.startDate ? window.parseSafeDate(assign.startDate) : new Date(0);
         let statusBadge = '';
 
         if (now < startTime) {
@@ -1694,7 +1707,7 @@ window.saveAssignmentEdit = async function () {
     const watchCondition = parseInt(document.getElementById('editWatchConditionInput').value) || 0;
     const videoDurationText = document.getElementById('editVideoTotalDurationDisplay').innerText;
     const videoDuration = isNaN(parseInt(videoDurationText)) ? 0 : parseInt(videoDurationText);
-    
+
     updateObj.watchCondition = watchCondition;
     updateObj.videoDuration = videoDuration;
 
@@ -1801,8 +1814,8 @@ window.openAssignmentStatusModal = async function (assignId) {
 
     // Lấy mốc thời gian
     const now = new Date();
-    const startTime = assign.startDate ? new Date(assign.startDate.replace(" ", "T")) : new Date(0);
-    const endTime = assign.endDate ? new Date(assign.endDate.replace(" ", "T")) : new Date("2100-01-01");
+    const startTime = assign.startDate ? window.parseSafeDate(assign.startDate) : new Date(0);
+    const endTime = assign.endDate ? window.parseSafeDate(assign.endDate) : new Date("2100-01-01");
 
     // Tạo bảng hiển thị
     let html = '<table style="width:100%; border-collapse: collapse; text-align: left;">';
