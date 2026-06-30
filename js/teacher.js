@@ -420,7 +420,14 @@ async function createAssignment() {
         essayWeight = parseFloat(document.getElementById('essayWeight').value) || 0;
     }
 
-    const videoCondition = parseInt(document.getElementById('videoCondition').value) || 0;
+    let watchCondition = 0;
+    if (document.getElementById('videoLink').value.trim()) {
+        const d = parseInt(document.getElementById('condDay').value) || 0;
+        const h = parseInt(document.getElementById('condHour').value) || 0;
+        const m = parseInt(document.getElementById('condMin').value) || 0;
+        const s = parseInt(document.getElementById('condSec').value) || 0;
+        watchCondition = d * 86400 + h * 3600 + m * 60 + s;
+    }
 
     await pushDB('assignments', {
         id: Date.now().toString(), title, desc,
@@ -429,9 +436,8 @@ async function createAssignment() {
         assessmentType: type, questions: questions,
         mcWeight: mcWeight, essayWeight: essayWeight,
         hideEssayText: hideEssayText,
-        videoCondition: videoCondition // Đẩy điều kiện thời gian video lên Firebase
+        watchCondition: watchCondition // Đẩy lên Firebase dữ liệu cấu hình mới
     });
-    document.getElementById('videoCondition').value = ''; // Xóa dữ liệu ô nhập sau khi tạo
 
     document.getElementById('title').value = ''; document.getElementById('desc').value = '';
     document.getElementById('startDate').value = ''; document.getElementById('endDate').value = '';
@@ -1498,9 +1504,6 @@ window.openEditAssignmentModal = async function (fbKey) {
         if (tuLuanSec) tuLuanSec.style.display = 'none';
         if (tracNghiemSec) tracNghiemSec.style.display = 'none';
         if (weightSec) weightSec.style.display = 'none';
-        if (document.getElementById('editVideoCondition')) {
-            document.getElementById('editVideoCondition').value = assign.videoCondition || '';
-        }
 
         // 2. Xử lý phần Tự Luận
         const hasEssay = assign.assessmentType === 'tu_luan' || assign.assessmentType === 'ket_hop' || !assign.assessmentType || (assign.assessmentType === 'thi' && assign.essayWeight > 0);
@@ -1625,12 +1628,21 @@ window.saveAssignmentEdit = async function () {
     const assign = assignments.find(a => a._fbKey === currentEditingAssignmentKey);
     if (!assign) return;
 
+    let watchCondition = 0;
+    if (document.getElementById('editVideoLink').value.trim()) {
+        const d = parseInt(document.getElementById('editCondDay').value) || 0;
+        const h = parseInt(document.getElementById('editCondHour').value) || 0;
+        const m = parseInt(document.getElementById('editCondMin').value) || 0;
+        const s = parseInt(document.getElementById('editCondSec').value) || 0;
+        watchCondition = d * 86400 + h * 3600 + m * 60 + s;
+    }
+
     const updateObj = {
         title: title,
         startDate: startDate.replace("T", " "),
         endDate: endDate.replace("T", " "),
         targetStudent: targetStudent,
-        targetStudent: targetStudent // [MỚI THÊM] Lưu đối tượng học sinh mới lên Firebase
+        watchCondition: watchCondition
     };
 
     // Thu thập dữ liệu Tự Luận
@@ -3620,5 +3632,95 @@ window.downloadRoadmapPDF = async function () {
     tempDiv.innerHTML = htmlContent;
     html2pdf().set(opt).from(tempDiv).save();
 };
+
+let currentVideoDuration = 0; // Biến lưu tổng số giây của video hiện tại
+
+// Lắng nghe khi giáo viên dán link video
+document.getElementById('videoLink').addEventListener('input', async function () {
+    const url = this.value.trim();
+    const display = document.getElementById('videoTotalTimeDisplay');
+    const inputs = ['condDay', 'condHour', 'condMin', 'condSec'].map(id => document.getElementById(id));
+
+    if (!url) {
+        display.innerText = "(Chưa có video)";
+        inputs.forEach(inp => { input.value = ''; input.disabled = true; });
+        currentVideoDuration = 0;
+        return;
+    }
+
+    display.innerText = "⏳ Đang tính toán độ dài...";
+
+    // Giả lập/Tích hợp API lấy thời lượng video (Bạn thay bằng Google API fetch thật tại đây)
+    // Ví dụ giả lập video dài 80 phút 20 giây (4820 giây)
+    currentVideoDuration = 4820;
+
+    let d = Math.floor(currentVideoDuration / (24 * 3600));
+    let h = Math.floor((currentVideoDuration % (24 * 3600)) / 3600);
+    let m = Math.floor((currentVideoDuration % 3600) / 60);
+    let s = currentVideoDuration % 60;
+
+    display.innerText = `(Dài: ${d > 0 ? d + ' ngày ' : ''}${h > 0 ? h + ' giờ ' : ''}${m} phút ${s} giây)`;
+
+    // Mở khóa hoặc vô hiệu hóa các ô nhập liệu theo độ dài thực tế
+    inputs[0].disabled = (d === 0);
+    inputs[1].disabled = (d === 0 && h === 0);
+    inputs[2].disabled = (d === 0 && h === 0 && m === 0);
+    inputs[3].disabled = false; // Giây luôn được phép nhập
+});
+
+window.validateConditionInput = function () {
+    // Ràng buộc giá trị giáo viên nhập không vượt quá video gốc
+    const d = parseInt(document.getElementById('condDay').value) || 0;
+    const h = parseInt(document.getElementById('condHour').value) || 0;
+    const m = parseInt(document.getElementById('condMin').value) || 0;
+    const s = parseInt(document.getElementById('condSec').value) || 0;
+
+    const totalInputSec = d * 86400 + h * 3600 + m * 60 + s;
+
+    if (totalInputSec > currentVideoDuration) {
+        alert("⚠️ Điều kiện thời gian không được vượt quá tổng độ dài video!");
+        document.getElementById('condSec').value = 0; // Reset
+    }
+};
+
+// Tính toán độ dài video khi dán link ở POPUP SỬA BÀI
+document.getElementById('editVideoLink').addEventListener('input', async function () {
+    const url = this.value.trim();
+    const display = document.getElementById('editVideoTotalTimeDisplay');
+    const inputs = ['editCondDay', 'editCondHour', 'editCondMin', 'editCondSec'].map(id => document.getElementById(id));
+
+    if (!url) {
+        display.innerText = "(Chưa có video)";
+        inputs.forEach(inp => { inp.value = ''; inp.disabled = true; });
+        return;
+    }
+    display.innerText = "⏳ Đang lấy độ dài...";
+    // Giả lập tương tự tạo mới
+    let d = Math.floor(currentVideoDuration / (24 * 3600));
+    let h = Math.floor((currentVideoDuration % (24 * 3600)) / 3600);
+    let m = Math.floor((currentVideoDuration % 3600) / 60);
+    let s = currentVideoDuration % 60;
+
+    display.innerText = `(Dài: ${d > 0 ? d + ' ngày ' : ''}${h > 0 ? h + ' giờ ' : ''}${m} phút ${s} giây)`;
+
+    inputs[0].disabled = (d === 0);
+    inputs[1].disabled = (d === 0 && h === 0);
+    inputs[2].disabled = (d === 0 && h === 0 && m === 0);
+    inputs[3].disabled = false; 
+});
+
+window.validateEditConditionInput = function () {
+    const d = parseInt(document.getElementById('editCondDay').value) || 0;
+    const h = parseInt(document.getElementById('editCondHour').value) || 0;
+    const m = parseInt(document.getElementById('editCondMin').value) || 0;
+    const s = parseInt(document.getElementById('editCondSec').value) || 0;
+    const totalInputSec = d * 86400 + h * 3600 + m * 60 + s;
+
+    if (totalInputSec > currentVideoDuration) {
+        alert("⚠️ Điều kiện thời gian không được vượt quá tổng độ dài video!");
+        document.getElementById('editCondSec').value = 0; 
+    }
+};
+
 // Khởi chạy tải danh sách khi giáo viên mở trang
 loadTeacherCashRequests();

@@ -94,7 +94,7 @@
                         <div class="form-group"><label for="endDate"><strong>Hạn nộp bài:</strong></label><input
                                 type="datetime-local" id="endDate"></div>
                     </div>
-                    <div class="form-row" style="margin-bottom: 15px; align-items: flex-start;">
+                    <div class="form-row" style="align-items: flex-start;">
                         <div class="form-group" style="flex: 1;">
                             <label><strong>Giao cho học sinh:</strong></label>
                             <div class="custom-student-select">
@@ -106,16 +106,31 @@
                                     <option value="all" selected>Tất cả học sinh</option>
                                 </select>
                             </div>
-                            <p style="margin: 5px 0 0 0; font-size: 0.8em; color: #d35400;">💡 <strong>Mẹo:</strong> Giữ
-                                <strong>Ctrl</strong> để chọn nhiều.
-                            </p>
+                            <p style="margin: 5px 0 15px 0; font-size: 0.85em; color: #d35400;">💡 <strong>Mẹo:</strong>
+                                Giữ phím <strong>Ctrl</strong> để chọn nhiều.</p>
                         </div>
+
                         <div class="form-group" style="flex: 1;">
-                            <label><strong>Điều kiện xem Video (Giây):</strong></label>
-                            <input type="number" id="videoCondition" placeholder="Nhập số giây (VD: 120)..." min="0"
-                                style="margin-bottom: 5px;">
-                            <p style="margin: 0; font-size: 0.8em; color: #666;">Yêu cầu HS xem video đạt mốc giây này
-                                mới hiện câu hỏi (0 = Không yêu cầu).</p>
+                            <label><strong>Điều kiện Video:</strong> <span id="videoTotalTimeDisplay"
+                                    style="color: #059669; font-size: 0.9em; font-weight: normal;">(Chưa có
+                                    video)</span></label>
+                            <div
+                                style="display: flex; gap: 5px; align-items: center; background: rgba(255,255,255,0.5); padding: 5px; border-radius: 8px; border: 1px dashed #10b981;">
+                                <input type="number" id="condDay" min="0" placeholder="Ngày"
+                                    style="width: 60px; margin: 0; padding: 5px;" disabled
+                                    oninput="validateConditionInput()"> <span style="font-size: 0.8em;">N</span>
+                                <input type="number" id="condHour" min="0" placeholder="Giờ"
+                                    style="width: 60px; margin: 0; padding: 5px;" disabled
+                                    oninput="validateConditionInput()"> <span style="font-size: 0.8em;">G</span>
+                                <input type="number" id="condMin" min="0" placeholder="Phút"
+                                    style="width: 60px; margin: 0; padding: 5px;" disabled
+                                    oninput="validateConditionInput()"> <span style="font-size: 0.8em;">P</span>
+                                <input type="number" id="condSec" min="0" placeholder="Giây"
+                                    style="width: 60px; margin: 0; padding: 5px;" disabled
+                                    oninput="validateConditionInput()"> <span style="font-size: 0.8em;">s</span>
+                            </div>
+                            <p style="margin: 5px 0 0 0; font-size: 0.8em; color: #666;">Yêu cầu HS xem đạt mốc thời
+                                gian này mới được làm bài.</p>
                         </div>
                     </div>
 
@@ -872,18 +887,45 @@
                             có):</strong></label>
                     <input type="text" id="editMaterialLinkInput" placeholder="Dán link chia sẻ tài liệu mới...">
 
-                    <label><strong>Giao cho học sinh:</strong></label>
-                    <div class="custom-student-select">
-                        <div class="css-select-trigger" onclick="openCustomStudentSelect('editMaterialTargetStudent')">
-                            <span id="editMaterialTargetStudent_displayText">Tất cả học sinh</span>
-                            <span style="color: #9ca3af; font-size: 12px;">▼</span>
+                    <div class="form-row" style="align-items: flex-start;">
+                        <div class="form-group" style="flex: 1;">
+                            <label><strong>Giao cho học sinh:</strong></label>
+                            <div class="custom-student-select">
+                                <div class="css-select-trigger" onclick="openCustomStudentSelect('targetStudent')">
+                                    <span id="targetStudent_displayText">Tất cả học sinh</span>
+                                    <span style="color: #9ca3af; font-size: 12px;">▼</span>
+                                </div>
+                                <select id="targetStudent" multiple style="display: none;">
+                                    <option value="all" selected>Tất cả học sinh</option>
+                                </select>
+                            </div>
+                            <p style="margin: 5px 0 15px 0; font-size: 0.85em; color: #d35400;">💡 <strong>Mẹo:</strong>
+                                Giữ phím <strong>Ctrl</strong> để chọn nhiều.</p>
                         </div>
-                        <select id="editMaterialTargetStudent" multiple style="display: none;">
-                            <option value="all" selected>Tất cả học sinh</option>
-                        </select>
+
+                        <div class="form-group" style="flex: 1;">
+                            <label><strong>Điều kiện Video:</strong> <span id="videoTotalTimeDisplay"
+                                    style="color: #059669; font-size: 0.9em; font-weight: normal;">(Chưa có
+                                    video)</span></label>
+                            <div
+                                style="display: flex; gap: 5px; align-items: center; background: rgba(255,255,255,0.5); padding: 5px; border-radius: 8px; border: 1px dashed #10b981;">
+                                <input type="number" id="condDay" min="0" placeholder="Ngày"
+                                    style="width: 60px; margin: 0; padding: 5px;" disabled
+                                    oninput="validateConditionInput()"> <span style="font-size: 0.8em;">N</span>
+                                <input type="number" id="condHour" min="0" placeholder="Giờ"
+                                    style="width: 60px; margin: 0; padding: 5px;" disabled
+                                    oninput="validateConditionInput()"> <span style="font-size: 0.8em;">G</span>
+                                <input type="number" id="condMin" min="0" placeholder="Phút"
+                                    style="width: 60px; margin: 0; padding: 5px;" disabled
+                                    oninput="validateConditionInput()"> <span style="font-size: 0.8em;">P</span>
+                                <input type="number" id="condSec" min="0" placeholder="Giây"
+                                    style="width: 60px; margin: 0; padding: 5px;" disabled
+                                    oninput="validateConditionInput()"> <span style="font-size: 0.8em;">s</span>
+                            </div>
+                            <p style="margin: 5px 0 0 0; font-size: 0.8em; color: #666;">Yêu cầu HS xem đạt mốc thời
+                                gian này mới được làm bài.</p>
+                        </div>
                     </div>
-                    <p style="margin: 0 0 15px 0; font-size: 0.85em; color: #d35400;">💡 Giữ <strong>Ctrl</strong> để
-                        chọn nhiều.</p>
 
                     <button onclick="saveMaterialEdit()"
                         style="margin-top: 20px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: #fff;">
@@ -1025,9 +1067,9 @@
                                     <input type="datetime-local" id="editEndDate" style="background: white;">
                                 </div>
                             </div>
-                            <div class="form-row" style="margin-top: 15px; margin-bottom: 0; align-items: flex-start;">
+                            <div class="form-row" style="align-items: flex-start;">
                                 <div class="form-group" style="flex: 1;">
-                                    <label style="display: block;"><strong>Giao cho học sinh:</strong></label>
+                                    <label><strong>Giao cho học sinh:</strong></label>
                                     <div class="custom-student-select">
                                         <div class="css-select-trigger"
                                             onclick="openCustomStudentSelect('editTargetStudent')">
@@ -1038,156 +1080,180 @@
                                             <option value="all" selected>Tất cả học sinh</option>
                                         </select>
                                     </div>
-                                    <p style="margin: 5px 0 0 0; font-size: 0.8em; color: #d35400;">💡 Giữ
-                                        <strong>Ctrl</strong> để chọn nhiều.</p>
+                                    <p style="margin: 5px 0 15px 0; font-size: 0.85em; color: #d35400;">💡
+                                        <strong>Mẹo:</strong>
+                                        Giữ phím <strong>Ctrl</strong> để chọn nhiều.
+                                    </p>
                                 </div>
+
                                 <div class="form-group" style="flex: 1;">
-                                    <label style="display: block;"><strong>Điều kiện xem Video (Giây):</strong></label>
-                                    <input type="number" id="editVideoCondition" placeholder="Nhập số giây..." min="0"
-                                        style="margin-bottom: 5px; background: white;">
-                                    <p style="margin: 0; font-size: 0.8em; color: #666;">Số giây tối thiểu (0 = Không
-                                        yêu cầu).</p>
+                                    <label><strong>Điều kiện Video:</strong> <span id="editVideoTotalTimeDisplay"
+                                            style="color: #059669; font-size: 0.9em; font-weight: normal;">(Chưa có
+                                            video)</span></label>
+                                    <div
+                                        style="display: flex; gap: 5px; align-items: center; background: rgba(255,255,255,0.5); padding: 5px; border-radius: 8px; border: 1px dashed #10b981;">
+                                        <input type="number" id="editCondDay" min="0" placeholder="Ngày"
+                                            style="width: 60px; margin: 0; padding: 5px;" disabled
+                                            oninput="validateEditConditionInput()"> <span
+                                            style="font-size: 0.8em;">N</span>
+                                        <input type="number" id="editCondHour" min="0" placeholder="Giờ"
+                                            style="width: 60px; margin: 0; padding: 5px;" disabled
+                                            oninput="validateEditConditionInput()"> <span
+                                            style="font-size: 0.8em;">G</span>
+                                        <input type="number" id="editCondMin" min="0" placeholder="Phút"
+                                            style="width: 60px; margin: 0; padding: 5px;" disabled
+                                            oninput="validateEditConditionInput()"> <span
+                                            style="font-size: 0.8em;">P</span>
+                                        <input type="number" id="editCondSec" min="0" placeholder="Giây"
+                                            style="width: 60px; margin: 0; padding: 5px;" disabled
+                                            oninput="validateEditConditionInput()"> <span
+                                            style="font-size: 0.8em;">s</span>
+                                    </div>
+                                    <p style="margin: 5px 0 0 0; font-size: 0.8em; color: #666;">Yêu cầu HS xem đạt mốc
+                                        thời
+                                        gian này mới được làm bài.</p>
                                 </div>
+                            </div>
+
+                            <div id="editScoreWeightFields"
+                                style="display: none; background: rgba(246, 211, 101, 0.1); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px dashed #f6d365;">
+                                <h4 style="color: #d35400; margin-bottom: 15px;">⚖️ Phân chia thang điểm 10</h4>
+                                <div class="form-row" style="margin-bottom: 0;">
+                                    <div class="form-group">
+                                        <label>Điểm Trắc nghiệm tối đa:</label>
+                                        <input type="number" id="editMcWeight" min="1" max="9" step="0.5"
+                                            oninput="document.getElementById('editEssayWeight').value = 10 - this.value"
+                                            style="font-weight: bold; color: #d35400; background: white;">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Điểm Tự luận tối đa:</label>
+                                        <input type="number" id="editEssayWeight" readonly
+                                            style="background: rgba(0,0,0,0.05); font-weight: bold; margin-bottom: 0;">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="editTuLuanSection"
+                                style="display: none; background: rgba(56, 239, 125, 0.05); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(56, 239, 125, 0.2);">
+                                <h4 style="color: #11998e; margin-bottom: 15px;">✍️ Phần Tự luận</h4>
+                                <label for="editDesc"><strong>Yêu cầu bài tập:</strong></label>
+                                <textarea id="editDesc" placeholder="Nội dung chi tiết yêu cầu..." rows="3"
+                                    style="background: white;"></textarea>
+
+                                <label for="editVideoLink"><strong>Đính kèm Video (Link YouTube):</strong></label>
+                                <input type="text" id="editVideoLink" placeholder="Dán link YouTube vào đây..."
+                                    style="background: white;">
+
+                                <label
+                                    style="display: flex; align-items: center; gap: 8px; margin-top: 15px; cursor: pointer; background: rgba(255,255,255,0.7); padding: 10px; border-radius: 8px;">
+                                    <input type="checkbox" id="editHideEssayText"
+                                        style="width: 20px; height: 20px; flex-shrink: 0; margin: 0; cursor: pointer;">
+                                    <strong style="color: #764ba2; font-size: 0.9em;">📁 Chỉ cho phép nộp bằng Tệp (Ẩn ô
+                                        viết
+                                        chữ
+                                        phía học sinh)</strong>
+                                </label>
+                            </div>
+
+                            <div id="editTracNghiemSection"
+                                style="display: none; background: rgba(255, 8, 68, 0.05); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(255, 8, 68, 0.2);">
+                                <h4 style="color: #e11d48; margin-bottom: 15px;">📚 Phần Trắc nghiệm</h4>
+                                <div id="editQuestionsContainer">
+                                </div>
+                                <button type="button" onclick="addEditQuestionBlock()"
+                                    style="background: rgba(225, 29, 72, 0.1); color: #e11d48; border: 2px dashed #e11d48; box-shadow: none; margin-top: 10px; width: 100%; padding: 12px; font-weight: bold;">+
+                                    Thêm câu hỏi trắc nghiệm</button>
+                            </div>
+
+                        </div> <button onclick="saveAssignmentEdit()"
+                            style="margin-top: 15px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: #fff; flex-shrink: 0; font-size: 1.1em; padding: 15px;">
+                            💾 Lưu toàn bộ thay đổi
+                        </button>
+                    </div>
+                </div>
+
+                <div id="assignmentStatusModal" class="modal-overlay">
+                    <div class="modal-content form-container">
+                        <button class="close-btn" onclick="closeAssignmentStatusModal()">✖</button>
+                        <h3
+                            style="color: #11998e; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
+                            📊 Trạng thái làm bài
+                        </h3>
+                        <div id="assignmentStatusContainer" style="max-height: 400px; overflow-y: auto;">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="notificationHistoryModal" class="modal-overlay">
+                    <div class="modal-content form-container" style="max-width: 650px;">
+                        <button class="close-btn" onclick="closeNotificationHistory()">✖</button>
+                        <h3
+                            style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
+                            🕒 Lịch sử Thông báo</h3>
+                        <div id="notificationHistoryList"
+                            style="max-height: 60vh; overflow-y: auto; padding-right: 10px;">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="surveyHistoryModal" class="modal-overlay">
+                    <div class="modal-content form-container" style="max-width: 650px;">
+                        <button class="close-btn" onclick="closeSurveyHistory()">✖</button>
+                        <h3
+                            style="color: #e83e8c; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
+                            🕒 Lịch sử Khảo sát</h3>
+                        <div id="surveyHistoryList" style="max-height: 60vh; overflow-y: auto; padding-right: 10px;">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="surveyResultsModal" class="modal-overlay" style="z-index: 100000;">
+                    <div class="modal-content form-container" style="max-width: 700px;">
+                        <button class="close-btn" onclick="closeSurveyResults()">✖</button>
+                        <h3 id="surveyResultTitle"
+                            style="color: #11998e; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
+                            📊 Kết quả Khảo sát</h3>
+                        <div id="surveyResultsContent" style="max-height: 65vh; overflow-y: auto; padding-right: 10px;">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="student-modal-overlay" id="customStudentModal">
+                    <div class="student-modal-box">
+                        <div class="student-modal-header">
+                            <div class="student-search-box">
+                                <span style="color: #9ca3af;">🔍</span>
+                                <input type="text" id="customStudentSearch" placeholder="Tìm kiếm học sinh..."
+                                    onkeyup="filterCustomStudentList()">
                             </div>
                         </div>
 
-                        <div id="editScoreWeightFields"
-                            style="display: none; background: rgba(246, 211, 101, 0.1); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px dashed #f6d365;">
-                            <h4 style="color: #d35400; margin-bottom: 15px;">⚖️ Phân chia thang điểm 10</h4>
-                            <div class="form-row" style="margin-bottom: 0;">
-                                <div class="form-group">
-                                    <label>Điểm Trắc nghiệm tối đa:</label>
-                                    <input type="number" id="editMcWeight" min="1" max="9" step="0.5"
-                                        oninput="document.getElementById('editEssayWeight').value = 10 - this.value"
-                                        style="font-weight: bold; color: #d35400; background: white;">
-                                </div>
-                                <div class="form-group">
-                                    <label>Điểm Tự luận tối đa:</label>
-                                    <input type="number" id="editEssayWeight" readonly
-                                        style="background: rgba(0,0,0,0.05); font-weight: bold; margin-bottom: 0;">
-                                </div>
-                            </div>
+                        <div class="student-modal-list" id="customStudentList">
                         </div>
 
-                        <div id="editTuLuanSection"
-                            style="display: none; background: rgba(56, 239, 125, 0.05); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(56, 239, 125, 0.2);">
-                            <h4 style="color: #11998e; margin-bottom: 15px;">✍️ Phần Tự luận</h4>
-                            <label for="editDesc"><strong>Yêu cầu bài tập:</strong></label>
-                            <textarea id="editDesc" placeholder="Nội dung chi tiết yêu cầu..." rows="3"
-                                style="background: white;"></textarea>
-
-                            <label for="editVideoLink"><strong>Đính kèm Video (Link YouTube):</strong></label>
-                            <input type="text" id="editVideoLink" placeholder="Dán link YouTube vào đây..."
-                                style="background: white;">
-
-                            <label
-                                style="display: flex; align-items: center; gap: 8px; margin-top: 15px; cursor: pointer; background: rgba(255,255,255,0.7); padding: 10px; border-radius: 8px;">
-                                <input type="checkbox" id="editHideEssayText"
-                                    style="width: 20px; height: 20px; flex-shrink: 0; margin: 0; cursor: pointer;">
-                                <strong style="color: #764ba2; font-size: 0.9em;">📁 Chỉ cho phép nộp bằng Tệp (Ẩn ô
-                                    viết
-                                    chữ
-                                    phía học sinh)</strong>
-                            </label>
-                        </div>
-
-                        <div id="editTracNghiemSection"
-                            style="display: none; background: rgba(255, 8, 68, 0.05); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(255, 8, 68, 0.2);">
-                            <h4 style="color: #e11d48; margin-bottom: 15px;">📚 Phần Trắc nghiệm</h4>
-                            <div id="editQuestionsContainer">
-                            </div>
-                            <button type="button" onclick="addEditQuestionBlock()"
-                                style="background: rgba(225, 29, 72, 0.1); color: #e11d48; border: 2px dashed #e11d48; box-shadow: none; margin-top: 10px; width: 100%; padding: 12px; font-weight: bold;">+
-                                Thêm câu hỏi trắc nghiệm</button>
-                        </div>
-
-                    </div> <button onclick="saveAssignmentEdit()"
-                        style="margin-top: 15px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: #fff; flex-shrink: 0; font-size: 1.1em; padding: 15px;">
-                        💾 Lưu toàn bộ thay đổi
-                    </button>
-                </div>
-            </div>
-
-            <div id="assignmentStatusModal" class="modal-overlay">
-                <div class="modal-content form-container">
-                    <button class="close-btn" onclick="closeAssignmentStatusModal()">✖</button>
-                    <h3
-                        style="color: #11998e; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
-                        📊 Trạng thái làm bài
-                    </h3>
-                    <div id="assignmentStatusContainer" style="max-height: 400px; overflow-y: auto;">
-                    </div>
-                </div>
-            </div>
-
-            <div id="notificationHistoryModal" class="modal-overlay">
-                <div class="modal-content form-container" style="max-width: 650px;">
-                    <button class="close-btn" onclick="closeNotificationHistory()">✖</button>
-                    <h3
-                        style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
-                        🕒 Lịch sử Thông báo</h3>
-                    <div id="notificationHistoryList" style="max-height: 60vh; overflow-y: auto; padding-right: 10px;">
-                    </div>
-                </div>
-            </div>
-
-            <div id="surveyHistoryModal" class="modal-overlay">
-                <div class="modal-content form-container" style="max-width: 650px;">
-                    <button class="close-btn" onclick="closeSurveyHistory()">✖</button>
-                    <h3
-                        style="color: #e83e8c; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
-                        🕒 Lịch sử Khảo sát</h3>
-                    <div id="surveyHistoryList" style="max-height: 60vh; overflow-y: auto; padding-right: 10px;"></div>
-                </div>
-            </div>
-
-            <div id="surveyResultsModal" class="modal-overlay" style="z-index: 100000;">
-                <div class="modal-content form-container" style="max-width: 700px;">
-                    <button class="close-btn" onclick="closeSurveyResults()">✖</button>
-                    <h3 id="surveyResultTitle"
-                        style="color: #11998e; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
-                        📊 Kết quả Khảo sát</h3>
-                    <div id="surveyResultsContent" style="max-height: 65vh; overflow-y: auto; padding-right: 10px;">
-                    </div>
-                </div>
-            </div>
-
-            <div class="student-modal-overlay" id="customStudentModal">
-                <div class="student-modal-box">
-                    <div class="student-modal-header">
-                        <div class="student-search-box">
-                            <span style="color: #9ca3af;">🔍</span>
-                            <input type="text" id="customStudentSearch" placeholder="Tìm kiếm học sinh..."
-                                onkeyup="filterCustomStudentList()">
+                        <div class="student-modal-footer">
+                            <button type="button" class="btn-cancel" onclick="closeCustomStudentSelect()">Đóng</button>
+                            <button type="button" class="btn-confirm" onclick="confirmCustomStudentSelect()">Xác
+                                nhận</button>
                         </div>
                     </div>
-
-                    <div class="student-modal-list" id="customStudentList">
-                    </div>
-
-                    <div class="student-modal-footer">
-                        <button type="button" class="btn-cancel" onclick="closeCustomStudentSelect()">Đóng</button>
-                        <button type="button" class="btn-confirm" onclick="confirmCustomStudentSelect()">Xác
-                            nhận</button>
-                    </div>
                 </div>
-            </div>
 
-            <script src="js/daily-login.js?v=2.3"></script>
-            <script src="js/common.js?v=2.3"></script>
-            <script src="js/theme-items.js?v=2.3"></script>
-            <script src="js/effect-items.js?v=2.3"></script>
-            <script src="js/pet-items.js?v=2.3"></script>
-            <script src="js/royal-ball.js?v=2.3"></script>
-            <script src="js/store-manager.js?v=2.3"></script>
+                <script src="js/daily-login.js?v=2.3"></script>
+                <script src="js/common.js?v=2.3"></script>
+                <script src="js/theme-items.js?v=2.3"></script>
+                <script src="js/effect-items.js?v=2.3"></script>
+                <script src="js/pet-items.js?v=2.3"></script>
+                <script src="js/royal-ball.js?v=2.3"></script>
+                <script src="js/store-manager.js?v=2.3"></script>
 
-            <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-            <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
-            <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-storage-compat.js"></script>
-            <script src="js/firebase-config.js?v=2.3"></script>
+                <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+                <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+                <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-storage-compat.js"></script>
+                <script src="js/firebase-config.js?v=2.3"></script>
 
-            <script src="js/teacher.js?v=2.3"></script>
-            <script src="js/security.js"></script>
+                <script src="js/teacher.js?v=2.3"></script>
+                <script src="js/security.js"></script>
 </body>
 
 </html>
