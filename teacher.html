@@ -94,36 +94,15 @@
                         <div class="form-group"><label for="endDate"><strong>Hạn nộp bài:</strong></label><input
                                 type="datetime-local" id="endDate"></div>
                     </div>
-                    <div style="display: flex; gap: 15px; align-items: flex-end; margin-bottom: 15px;">
-                        <div style="flex: 1;">
-                            <label style="margin-bottom: 5px; display: block;"><strong>Giao cho học
-                                    sinh:</strong></label>
-                            <div class="custom-student-select" style="margin-bottom: 0;">
-                                <div class="css-select-trigger" onclick="openCustomStudentSelect('targetStudent')">
-                                    <span id="targetStudent_displayText">Tất cả học sinh</span>
-                                    <span style="color: #9ca3af; font-size: 12px;">▼</span>
-                                </div>
-                                <select id="targetStudent" multiple style="display: none;">
-                                    <option value="all" selected>Tất cả học sinh</option>
-                                </select>
-                            </div>
+                    <label><strong>Giao cho học sinh:</strong></label>
+                    <div class="custom-student-select">
+                        <div class="css-select-trigger" onclick="openCustomStudentSelect('targetStudent')">
+                            <span id="targetStudent_displayText">Tất cả học sinh</span>
+                            <span style="color: #9ca3af; font-size: 12px;">▼</span>
                         </div>
-
-                        <div style="flex: 1;" id="videoConditionContainer">
-                            <label style="margin-bottom: 5px; display: block;"><strong>Điều kiện xem
-                                    Video:</strong></label>
-                            <div
-                                style="display: flex; align-items: center; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 0 10px; height: 42px;">
-                                <input type="number" id="watchConditionInput" placeholder="VD: 80"
-                                    style="border: none; box-shadow: none; padding: 0; margin: 0; width: 60px; text-align: center; font-weight: bold; font-size: 1.1em; color: #1e3c72;"
-                                    min="0">
-                                <span style="margin: 0 5px; color: #666; font-weight: bold; font-size: 1.2em;">/</span>
-                                <span id="videoTotalDurationDisplay"
-                                    style="color: #e11d48; font-weight: bold; font-size: 1.1em; width: 40px; text-align: center;">--</span>
-                                <span
-                                    style="margin-left: 5px; color: #666; font-size: 0.9em; font-weight: bold;">phút</span>
-                            </div>
-                        </div>
+                        <select id="targetStudent" multiple style="display: none;">
+                            <option value="all" selected>Tất cả học sinh</option>
+                        </select>
                     </div>
                     <p style="margin: 5px 0 15px 0; font-size: 0.85em; color: #d35400;">💡 <strong>Mẹo:</strong> Giữ
                         phím <strong>Ctrl</strong> (hoặc kéo thả trên điện thoại) để chọn nhiều học sinh cùng lúc.</p>
@@ -1034,39 +1013,15 @@
                                     <input type="datetime-local" id="editEndDate" style="background: white;">
                                 </div>
                             </div>
-                            <div
-                                style="display: flex; gap: 15px; align-items: flex-end; margin-bottom: 15px; flex-wrap: wrap;">
-                                <div style="flex: 1; min-width: 200px;">
-                                    <label style="margin-bottom: 5px; display: block;"><strong>Giao cho học
-                                            sinh:</strong></label>
-                                    <div class="custom-student-select" style="margin-bottom: 0;">
-                                        <div class="css-select-trigger"
-                                            onclick="openCustomStudentSelect('editTargetStudent')">
-                                            <span id="editTargetStudent_displayText">Tất cả học sinh</span>
-                                            <span style="color: #9ca3af; font-size: 12px;">▼</span>
-                                        </div>
-                                        <select id="editTargetStudent" multiple style="display: none;">
-                                            <option value="all" selected>Tất cả học sinh</option>
-                                        </select>
-                                    </div>
+                            <label style="margin-top: 15px; display: block;"><strong>Giao cho học sinh:</strong></label>
+                            <div class="custom-student-select">
+                                <div class="css-select-trigger" onclick="openCustomStudentSelect('editTargetStudent')">
+                                    <span id="editTargetStudent_displayText">Tất cả học sinh</span>
+                                    <span style="color: #9ca3af; font-size: 12px;">▼</span>
                                 </div>
-
-                                <div style="flex: 1; min-width: 200px;" id="editVideoConditionContainer">
-                                    <label style="margin-bottom: 5px; display: block;"><strong>Điều kiện xem
-                                            Video:</strong></label>
-                                    <div
-                                        style="display: flex; align-items: center; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 0 10px; height: 42px;">
-                                        <input type="number" id="editWatchConditionInput" placeholder="Nhập số phút"
-                                            style="border: none; box-shadow: none; padding: 0; margin: 0; width: 80px; text-align: center; font-weight: bold; font-size: 1.1em; color: #1e3c72;"
-                                            min="0">
-                                        <span
-                                            style="margin: 0 8px; color: #666; font-weight: bold; font-size: 1.2em;">/</span>
-                                        <span id="editVideoTotalDurationDisplay"
-                                            style="color: #e11d48; font-weight: bold; font-size: 1.1em; width: 50px; text-align: center;">--</span>
-                                        <span
-                                            style="margin-left: 5px; color: #666; font-size: 0.9em; font-weight: bold;">phút</span>
-                                    </div>
-                                </div>
+                                <select id="editTargetStudent" multiple style="display: none;">
+                                    <option value="all" selected>Tất cả học sinh</option>
+                                </select>
                             </div>
                             <p style="margin: 5px 0 15px 0; font-size: 0.85em; color: #d35400;">💡 Giữ
                                 <strong>Ctrl</strong> để chọn nhiều.

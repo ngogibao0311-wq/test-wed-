@@ -1,15 +1,3 @@
-window.parseSafeDate = function(dateString) {
-    if (!dateString) return new Date(0);
-    if (dateString.includes('-')) return new Date(dateString.replace(" ", "T"));
-    if (dateString.includes('/')) {
-        let parts = dateString.split(' ');
-        let dateParts = parts[0].split('/'); // DD/MM/YYYY
-        let timeString = parts[1] || "00:00:00";
-        return new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}T${timeString}`);
-    }
-    return new Date(dateString);
-};
-
 const currentUser = JSON.parse(localStorage.getItem('currentUser'));
 if (!currentUser || currentUser.role !== 'student') window.location.href = 'index.html';
 
@@ -403,22 +391,33 @@ function getEmbedHTML(url) {
 
 let assignmentTimers = [];
 function formatCountdown(ms) {
-    if (ms <= 0) return "00 giây";
+    if (ms <= 0) return "00:00:00";
     let d = Math.floor(ms / (1000 * 60 * 60 * 24));
-    let h = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    let m = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
-    let s = Math.floor((ms % (1000 * 60)) / 1000);
-    
-    let timeStr = "";
-    if (d > 0) timeStr += `${d} ngày `;
-    if (h > 0 || d > 0) timeStr += `${h} tiếng `;
-    timeStr += `${m} phút ${s} giây`;
-    return timeStr.trim();
+    let h = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
+    let m = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+    let s = Math.floor((ms % (1000 * 60)) / 1000).toString().padStart(2, '0');
+
+    if (d > 0) return `${d} ngày ${h}:${m}:${s}`;
+    return `${h}:${m}:${s}`;
+}
+
+function formatSecondsToDHMS(totalSeconds) {
+    if (totalSeconds <= 0) return "0 giây";
+    let d = Math.floor(totalSeconds / (24 * 3600));
+    let h = Math.floor((totalSeconds % (24 * 3600)) / 3600);
+    let m = Math.floor((totalSeconds % 3600) / 60);
+    let s = totalSeconds % 60;
+
+    let parts = [];
+    if (d > 0) parts.push(`${d} ngày`);
+    if (h > 0) parts.push(`${h} giờ`);
+    if (m > 0) parts.push(`${m} phút`);
+    if (s > 0 || parts.length === 0) parts.push(`${s} giây`);
+
+    return parts.join(' ');
 }
 
 async function loadAssignments() {
-    const trackingSnap = await db.ref('video_tracking').once('value');
-    const trackingData = trackingSnap.val() || {};
     const assignments = (window.cachedAssignments && window.cachedAssignments.length > 0) ? window.cachedAssignments : await getDB('assignments');
     const submissions = (window.cachedSubmissions && window.cachedSubmissions.length > 0) ? window.cachedSubmissions : await getDB('submissions');
     const list = document.getElementById('assignmentsList');
@@ -436,7 +435,7 @@ async function loadAssignments() {
     assignments.sort((a, b) => {
         const getSortVals = (assign) => {
             const mySub = submissions.find(s => s.assignmentId === assign.id && s.studentUsername === currentUser.username);
-            const end = assign.endDate ? window.parseSafeDate(assign.endDate) : new Date("2100-01-01");
+            const end = assign.endDate ? new Date(assign.endDate.replace(" ", "T")) : new Date("2100-01-01");
 
             let rank = 2; // Nhóm 2: Bài đã chốt (Đã chấm / Xong)
             let isActive = nowSort <= end;
@@ -479,8 +478,8 @@ async function loadAssignments() {
         const mySub = submissions.find(s => s.assignmentId === assign.id && s.studentUsername === currentUser.username);
 
         const now = new Date();
-        const startTime = assign.startDate ? window.parseSafeDate(assign.startDate) : new Date(0);
-        const endTime = assign.endDate ? window.parseSafeDate(assign.endDate) : new Date("2100-01-01");
+        const startTime = assign.startDate ? new Date(assign.startDate.replace(" ", "T")) : new Date(0);
+        const endTime = assign.endDate ? new Date(assign.endDate.replace(" ", "T")) : new Date("2100-01-01");
         const isRedoing = mySub && mySub.isRedoing;
 
         // --- LOGIC 5 PHÚT ÂN HẠN HIỂN THỊ (GRACE PERIOD) ---
@@ -838,61 +837,13 @@ async function loadAssignments() {
                 const div = document.createElement('div'); div.className = 'card submit-box accordion-card';
                 div.style.position = 'relative'; // Bắt buộc để lớp phủ kính định vị chính xác
 
-                // BẮT ĐẦU KIỂM TRA ĐIỀU KIỆN XEM VIDEO
-                let watchedSeconds = 0;
-                if (trackingData[assign.id] && trackingData[assign.id][currentUser.username]) {
-                    watchedSeconds = trackingData[assign.id][currentUser.username];
-                }
-                let watchedMinutes = Math.floor(watchedSeconds / 60);
-
-                let conditionAlertHTML = '';
-                let isLockedByVideo = false;
-
-                // Nếu giáo viên có đặt điều kiện > 0
-                if (assign.watchCondition && assign.watchCondition > 0 && assign.videoDuration) {
-                    if (watchedMinutes < assign.watchCondition) {
-                        isLockedByVideo = true;
-                        conditionAlertHTML = `
-                    <div style="background: rgba(225, 29, 72, 0.04); border: 1px solid rgba(225, 29, 72, 0.15); border-left: 5px solid #e11d48; padding: 20px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(225, 29, 72, 0.05);">
-                        <h4 style="color: #e11d48; margin: 0 0 10px 0; display: flex; align-items: center; gap: 8px; font-size: 1.1em;">
-                            🔒 Cần hoàn thành video để mở khóa!
-                        </h4>
-                        <p style="margin: 0; font-size: 0.95em; line-height: 1.6; color: #334155;">
-                            Giáo viên yêu cầu xem tối thiểu <strong style="color:#b91c1c; background: rgba(225, 29, 72, 0.1); padding: 3px 8px; border-radius: 6px;">${assign.watchCondition} / ${assign.videoDuration} phút</strong> video bài giảng.<br>
-                            Hiện tại bạn mới xem: <strong>${watchedMinutes} phút</strong>. Hãy tiếp tục xem nhé!
-                        </p>
-                    </div>
-                `;
-                    } else {
-                        conditionAlertHTML = `
-                    <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.15); border-left: 5px solid #10b981; padding: 15px 20px; border-radius: 12px; margin-bottom: 25px; color: #065f46; font-weight: 500; font-size: 0.95em; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.05);">
-                        ✅ Đã xem đủ thời lượng yêu cầu (${watchedMinutes}/${assign.videoDuration} phút). Phần bài tập đã mở khóa!
-                    </div>
-                `;
-                    }
-                }
-                // KẾT THÚC KIỂM TRA
-
                 let assignmentContentRaw = `
-                    ${videoHTML} 
-                    ${conditionAlertHTML} 
-                    
-                    ${isLockedByVideo ? `
-                        <!-- Khung báo khóa làm đẹp lại -->
-                        <div style="text-align: center; padding: 40px 20px; background: repeating-linear-gradient(45deg, rgba(0,0,0,0.01), rgba(0,0,0,0.01) 10px, rgba(255,255,255,0.6) 10px, rgba(255,255,255,0.6) 20px); border: 2px dashed #cbd5e1; border-radius: 16px; margin-top: 10px;">
-                            <span style="font-size: 3em; opacity: 0.4; display: block; margin-bottom: 15px;">🙈</span>
-                            <h4 style="color: #64748b; margin: 0 0 8px 0; font-size: 1.1em;">Khu vực làm bài đang bị ẩn</h4>
-                            <p style="color: #94a3b8; font-style: italic; margin: 0; font-size: 0.9em; line-height: 1.5; max-width: 85%; margin: 0 auto;">
-                                (Hãy hoàn thành điều kiện xem video ở trên để hiển thị câu hỏi và nút nộp bài)
-                            </p>
-                        </div>
-                    ` : `
-                        ${quizHTML || ''}
-                        ${descHTML || ''}
-                        ${teacherFileHTML || ''}
-                        ${tuLuanInputHTML || ''}
-                        ${submitBtnHTML || ''}
-                    `}
+                    ${videoHTML}
+                    ${quizHTML}
+                    ${descHTML}
+                    ${teacherFileHTML}
+                    ${tuLuanInputHTML}
+                    ${submitBtnHTML}
                 `;
 
                 if (assign.assessmentType === 'thi') {
@@ -1065,8 +1016,8 @@ async function submitAssignment(assignId, isAuto = false, isCheat = false) {
     const isRedoing = mySub && mySub.isRedoing;
 
     const now = new Date();
-    const startTime = assign.startDate ? window.parseSafeDate(assign.startDate) : new Date(0);
-const endTime = assign.endDate ? window.parseSafeDate(assign.endDate) : new Date("2100-01-01");
+    const startTime = assign.startDate ? new Date(assign.startDate.replace(" ", "T")) : new Date(0);
+    const endTime = assign.endDate ? new Date(assign.endDate.replace(" ", "T")) : new Date("2100-01-01");
 
     if (now < startTime) return alert("⚠️ Lỗi: Chưa đến thời gian làm bài!");
 
@@ -2091,17 +2042,13 @@ let trialItemsList = [];
 window.currentStoreFilterType = 'all';
 
 function formatStoreCountdown(ms) {
-    if (ms <= 0) return "00 giây";
+    if (ms <= 0) return "00:00:00";
     let d = Math.floor(ms / (1000 * 60 * 60 * 24));
-    let h = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    let m = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
-    let s = Math.floor((ms % (1000 * 60)) / 1000);
-    
-    let timeStr = "";
-    if (d > 0) timeStr += `${d} ngày `;
-    if (h > 0 || d > 0) timeStr += `${h} tiếng `;
-    timeStr += `${m} phút ${s} giây`;
-    return timeStr.trim();
+    let h = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
+    let m = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+    let s = Math.floor((ms % (1000 * 60)) / 1000).toString().padStart(2, '0');
+    if (d > 0) return `${d} ngày ${h}:${m}:${s}`;
+    return `${h}:${m}:${s}`;
 }
 
 // 1. Hàm lọc và hiển thị vật phẩm ra màn hình (Có kiểm tra Ngày Mở Bán)
@@ -3930,10 +3877,10 @@ function getTrackedVideoHTML(url, assignId) {
     if (videoId) {
         let embedUrl = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&rel=0`;
         return `
-        <div class="video-wrapper" style="margin-top: 10px; margin-bottom: 20px; border: 1px solid rgba(102, 126, 234, 0.3); padding: 15px; border-radius: 16px; background: rgba(255,255,255,0.95); box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
-            <iframe id="yt-player-${assignId}" width="100%" height="315" src="${embedUrl}" frameborder="0" allowfullscreen style="border-radius: 8px;"></iframe>
-            <div style="text-align: center; margin-top: 15px; font-weight: bold; color: #059669; font-size: 1.05em; background: rgba(16, 185, 129, 0.08); padding: 10px; border-radius: 8px; border: 1px dashed rgba(16, 185, 129, 0.3);">
-                ⏱️ Mốc thời gian đã xem tới: <span id="watch-time-display-${assignId}" style="font-size: 1.1em;">0</span> giây
+        <div class="video-wrapper" style="margin-top: 15px; border: 2px solid #667eea; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.8);">
+            <iframe id="yt-player-${assignId}" width="100%" height="315" src="${embedUrl}" frameborder="0" allowfullscreen></iframe>
+            <div style="text-align: center; margin-top: 10px; font-weight: bold; color: #059669; font-size: 1.1em;">
+                ⏱️ Mốc thời gian đã xem tới: <span id="watch-time-display-${assignId}">0 giây</span>
             </div>
         </div>`;
     }
@@ -3952,7 +3899,7 @@ window.initYouTubeTrackers = function (assignments) {
             db.ref(`video_tracking/${assign.id}/${currentUser.username}`).once('value', (snap) => {
                 watchDurations[assign.id] = snap.val() || 0;
                 const display = document.getElementById(`watch-time-display-${assign.id}`);
-                if (display) display.innerText = watchDurations[assign.id];
+                if (display) display.innerText = formatSecondsToDHMS(watchDurations[assign.id]);
 
                 // Bắt đầu khởi tạo Player
                 ytPlayers[assign.id] = new YT.Player(iframeId, {
@@ -3972,52 +3919,48 @@ window.initYouTubeTrackers = function (assignments) {
 };
 
 function onPlayerStateChange(event, assignId) {
+    // 1. Lấy đúng instance của player từ mảng đã lưu trữ thay vì dùng event.target
     const player = ytPlayers[assignId];
 
     if (event.data == YT.PlayerState.PLAYING) {
+        // 2. Dọn dẹp bộ đếm cũ nếu có để tránh tình trạng đếm chồng chéo (nhân đôi tốc độ) khi HS bấm Play/Pause liên tục
         if (watchTimers[assignId]) clearInterval(watchTimers[assignId]);
 
         watchTimers[assignId] = setInterval(() => {
+            // 3. CHỐT CHẶN AN TOÀN: Chỉ gọi getCurrentTime khi API của YouTube đã thực sự sẵn sàng
             if (player && typeof player.getCurrentTime === 'function') {
                 let currentTime = Math.floor(player.getCurrentTime());
 
+                // Lớp bảo vệ 2: Chống cày giờ
                 if (currentTime > watchDurations[assignId]) {
-                    // Chống tua nhanh
+
+                    // Lớp bảo vệ 3: Chống tua nhanh
                     if (currentTime - watchDurations[assignId] > 5) {
                         player.seekTo(watchDurations[assignId], true);
                     } else {
+                        // Cập nhật thời gian hợp lệ
                         watchDurations[assignId] = currentTime;
                         const display = document.getElementById(`watch-time-display-${assignId}`);
-                        if (display) display.innerText = watchDurations[assignId];
+                        if (display) display.innerText = formatSecondsToDHMS(watchDurations[assignId]);
 
-                        // FIX LỖI: Lưu Firebase dựa trên khoảng cách thời gian thực (5 giây / lần)
-                        let now = Date.now();
-                        if (!lastSavedTime[assignId] || now - lastSavedTime[assignId] >= 5000) {
+                        // Lưu dữ liệu lên Firebase
+                        if (watchDurations[assignId] % 5 === 0 && lastSavedTime[assignId] !== watchDurations[assignId]) {
                             db.ref(`video_tracking/${assignId}/${currentUser.username}`).set(watchDurations[assignId]);
-                            lastSavedTime[assignId] = now;
+                            lastSavedTime[assignId] = watchDurations[assignId];
                         }
                     }
                 }
             }
         }, 1000);
     } else {
+        // Khi Pause hoặc Hết video -> Dừng đếm và lưu chốt lần cuối
         if (watchTimers[assignId]) clearInterval(watchTimers[assignId]);
-        // Lưu chốt ngay khi bấm Dừng/Hết video
+
         if (watchDurations[assignId]) {
             db.ref(`video_tracking/${assignId}/${currentUser.username}`).set(watchDurations[assignId]);
-            lastSavedTime[assignId] = Date.now();
         }
     }
 }
-
-// FIX LỖI: Lưu chốt lần cuối nếu học sinh đột ngột đóng Tab hoặc bấm F5
-window.addEventListener('beforeunload', () => {
-    Object.keys(watchDurations).forEach(assignId => {
-        if (watchDurations[assignId] > 0) {
-            db.ref(`video_tracking/${assignId}/${currentUser.username}`).set(watchDurations[assignId]);
-        }
-    });
-});
 
 window.downloadStudentRoadmapPDF = async function () {
     const assignments = await getDB('assignments');

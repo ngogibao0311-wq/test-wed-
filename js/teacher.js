@@ -1,75 +1,3 @@
-window.parseSafeDate = function (dateString) {
-    if (!dateString) return new Date(0);
-    if (dateString.includes('-')) return new Date(dateString.replace(" ", "T"));
-    if (dateString.includes('/')) {
-        let parts = dateString.split(' ');
-        let dateParts = parts[0].split('/'); // DD/MM/YYYY
-        let timeString = parts[1] || "00:00:00";
-        return new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}T${timeString}`);
-    }
-    return new Date(dateString);
-};
-
-// --- TỰ ĐỘNG KHỞI TẠO VÀ LẤY THỜI LƯỢNG YOUTUBE ---
-if (!document.getElementById('yt-iframe-script')) {
-    const ytScript = document.createElement('script');
-    ytScript.id = 'yt-iframe-script';
-    ytScript.src = "https://www.youtube.com/iframe_api";
-    document.head.appendChild(ytScript);
-}
-
-window.getVideoDurationFromYT = function (url, displayElementId) {
-    if (!url) { document.getElementById(displayElementId).innerText = '--'; return; }
-
-    let videoId = '';
-    if (url.includes('watch?v=')) videoId = url.split('v=')[1].split('&')[0];
-    else if (url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1].split('?')[0];
-    else if (url.includes('embed/')) videoId = url.split('embed/')[1].split('?')[0];
-
-    if (!videoId) { document.getElementById(displayElementId).innerText = '--'; return; }
-
-    document.getElementById(displayElementId).innerText = '...';
-
-    let tempDiv = document.createElement('div');
-    tempDiv.id = 'yt-temp-' + Date.now();
-    tempDiv.style.display = 'none';
-    document.body.appendChild(tempDiv);
-
-    new YT.Player(tempDiv.id, {
-        height: '10', width: '10', videoId: videoId,
-        events: {
-            'onReady': function (event) {
-                let durationMin = Math.floor(event.target.getDuration() / 60);
-                document.getElementById(displayElementId).innerText = durationMin;
-                event.target.destroy();
-                document.getElementById(tempDiv.id)?.remove();
-            },
-            'onError': function () {
-                document.getElementById(displayElementId).innerText = '--';
-                document.getElementById(tempDiv.id)?.remove();
-            }
-        }
-    });
-};
-
-// Tạo bộ lắng nghe sự kiện nhập link video khi tải trang
-document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-        const videoInput = document.getElementById('videoLink');
-        if (videoInput) {
-            videoInput.addEventListener('input', function () {
-                getVideoDurationFromYT(this.value, 'videoTotalDurationDisplay');
-            });
-        }
-        const editVideoInput = document.getElementById('editVideoLink');
-        if (editVideoInput) {
-            editVideoInput.addEventListener('input', function () {
-                getVideoDurationFromYT(this.value, 'editVideoTotalDurationDisplay');
-            });
-        }
-    }, 1000);
-});
-
 const currentUser = JSON.parse(localStorage.getItem('currentUser'));
 if (!currentUser || currentUser.role !== 'teacher') window.location.href = 'index.html';
 
@@ -492,19 +420,13 @@ async function createAssignment() {
         essayWeight = parseFloat(document.getElementById('essayWeight').value) || 0;
     }
 
-    const watchCondition = parseInt(document.getElementById('watchConditionInput').value) || 0;
-    const videoDurationText = document.getElementById('videoTotalDurationDisplay').innerText;
-    const videoDuration = isNaN(parseInt(videoDurationText)) ? 0 : parseInt(videoDurationText);
-
     await pushDB('assignments', {
         id: Date.now().toString(), title, desc,
         startDate: startDate.replace("T", " "), endDate: endDate.replace("T", " "),
         targetStudent, file: attachedFile, videoLink: videoLink,
         assessmentType: type, questions: questions,
         mcWeight: mcWeight, essayWeight: essayWeight,
-        hideEssayText: hideEssayText, // Đẩy lên Firebase dữ liệu cấu hình mới
-        watchCondition: watchCondition,  // <--- THÊM DÒNG NÀY
-        videoDuration: videoDuration
+        hideEssayText: hideEssayText // Đẩy lên Firebase dữ liệu cấu hình mới
     });
 
     document.getElementById('title').value = ''; document.getElementById('desc').value = '';
@@ -513,8 +435,6 @@ async function createAssignment() {
     document.getElementById('questionsContainer').innerHTML = ''; questionCount = 0;
     if (document.getElementById('hideEssayText')) document.getElementById('hideEssayText').checked = false; // Reset checkbox
     dtTeacherAssign.items.clear(); attachedFileData = null; alert("Giao bài tập thành công!");
-    if (document.getElementById('watchConditionInput')) document.getElementById('watchConditionInput').value = '';
-    if (document.getElementById('videoTotalDurationDisplay')) document.getElementById('videoTotalDurationDisplay').innerText = '--';
 }
 
 async function loadAssignedList() {
@@ -592,8 +512,7 @@ async function loadAssignedList() {
 
         // --- LOGIC MỚI: TẠO NHÃN CHƯA NỘP / CHƯA ĐẾN GIỜ ---
         const now = new Date();
-        const end = assign.endDate ? window.parseSafeDate(assign.endDate) : new Date("2100-01-01");
-        const startTime = assign.startDate ? window.parseSafeDate(assign.startDate) : new Date(0);
+        const startTime = assign.startDate ? new Date(assign.startDate.replace(" ", "T")) : new Date(0);
         let statusBadge = '';
 
         if (now < startTime) {
@@ -914,9 +833,18 @@ async function loadSubmissions() {
             watchDuration = trackingData[assign.id][sub.studentUsername];
         }
 
-        let minutes = Math.floor(watchDuration / 60);
-        let seconds = watchDuration % 60;
-        let timeStr = `${minutes} phút ${seconds} giây`;
+        let d = Math.floor(watchDuration / (24 * 3600));
+        let h = Math.floor((watchDuration % (24 * 3600)) / 3600);
+        let m = Math.floor((watchDuration % 3600) / 60);
+        let s = watchDuration % 60;
+
+        let timeParts = [];
+        if (d > 0) timeParts.push(`${d} ngày`);
+        if (h > 0) timeParts.push(`${h} giờ`);
+        if (m > 0) timeParts.push(`${m} phút`);
+        if (s > 0 || timeParts.length === 0) timeParts.push(`${s} giây`);
+
+        let timeStr = timeParts.join(' ');
 
         let watchStatusHTML = assign.videoLink ? `
             <div style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981; padding: 10px; margin-bottom: 15px; border-radius: 8px;">
@@ -1541,13 +1469,6 @@ window.openEditAssignmentModal = async function (fbKey) {
         document.getElementById('editStartDate').value = assign.startDate ? assign.startDate.replace(" ", "T") : '';
         document.getElementById('editEndDate').value = assign.endDate ? assign.endDate.replace(" ", "T") : '';
 
-        if (document.getElementById('editWatchConditionInput')) {
-            document.getElementById('editWatchConditionInput').value = assign.watchCondition || '';
-        }
-        if (document.getElementById('editVideoTotalDurationDisplay')) {
-            document.getElementById('editVideoTotalDurationDisplay').innerText = assign.videoDuration || '--';
-        }
-
         const users = await getDB('users');
         const editTargetSelect = document.getElementById('editTargetStudent');
         if (editTargetSelect) {
@@ -1704,13 +1625,6 @@ window.saveAssignmentEdit = async function () {
         targetStudent: targetStudent // [MỚI THÊM] Lưu đối tượng học sinh mới lên Firebase
     };
 
-    const watchCondition = parseInt(document.getElementById('editWatchConditionInput').value) || 0;
-    const videoDurationText = document.getElementById('editVideoTotalDurationDisplay').innerText;
-    const videoDuration = isNaN(parseInt(videoDurationText)) ? 0 : parseInt(videoDurationText);
-
-    updateObj.watchCondition = watchCondition;
-    updateObj.videoDuration = videoDuration;
-
     // Thu thập dữ liệu Tự Luận
     if (assign.assessmentType === 'tu_luan' || assign.assessmentType === 'ket_hop' || !assign.assessmentType) {
         updateObj.desc = document.getElementById('editDesc').value;
@@ -1814,8 +1728,8 @@ window.openAssignmentStatusModal = async function (assignId) {
 
     // Lấy mốc thời gian
     const now = new Date();
-    const startTime = assign.startDate ? window.parseSafeDate(assign.startDate) : new Date(0);
-    const endTime = assign.endDate ? window.parseSafeDate(assign.endDate) : new Date("2100-01-01");
+    const startTime = assign.startDate ? new Date(assign.startDate.replace(" ", "T")) : new Date(0);
+    const endTime = assign.endDate ? new Date(assign.endDate.replace(" ", "T")) : new Date("2100-01-01");
 
     // Tạo bảng hiển thị
     let html = '<table style="width:100%; border-collapse: collapse; text-align: left;">';
