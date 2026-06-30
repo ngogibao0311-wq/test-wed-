@@ -433,7 +433,7 @@ async function loadAssignments() {
     if (typeof ytPlayers !== 'undefined') {
         for (let key in ytPlayers) {
             if (ytPlayers[key] && typeof ytPlayers[key].destroy === 'function') {
-                try { ytPlayers[key].destroy(); } catch(e){}
+                try { ytPlayers[key].destroy(); } catch (e) { }
             }
         }
         ytPlayers = {};
@@ -868,7 +868,7 @@ async function loadAssignments() {
                         isConditionMet = false;
                         let requiredStr = formatSecondsToDHMS(assign.watchCondition);
                         let currentStr = formatSecondsToDHMS(currentWatchDuration);
-                        
+
                         conditionNoticeHTML = `
                             <div class="glass-alert danger" style="padding: 15px; margin-bottom: 15px; border-left: 5px solid #e11d48; background: rgba(225, 29, 72, 0.1);">
                                 <h4 style="color: #e11d48; margin-bottom: 5px;">⚠️ Yêu cầu xem Video</h4>
@@ -881,18 +881,22 @@ async function loadAssignments() {
 
                 let assignmentContentRaw = `
                     ${videoHTML}
-                    ${conditionNoticeHTML}
+                    <div id="condition-notice-${assign.id}">
+                        ${conditionNoticeHTML}
+                    </div>
                 `;
 
                 // Chỉ render phần làm bài nếu ĐẠT điều kiện
                 if (isConditionMet) {
                     assignmentContentRaw += `
-                        ${quizHTML}
-                        ${descHTML}
-                        ${teacherFileHTML}
-                        ${tuLuanInputHTML}
-                        ${submitBtnHTML}
-                    `;
+                        <div id="assignment-task-content-${assign.id}" style="display: ${isConditionMet ? 'block' : 'none'}; transition: opacity 0.5s;">
+                            ${quizHTML}
+                            ${descHTML}
+                            ${teacherFileHTML}
+                            ${tuLuanInputHTML}
+                            ${submitBtnHTML}
+                        </div>
+                     `;
                 }
                 // === KẾT THÚC LOGIC ĐIỀU KIỆN ===
 
@@ -3928,7 +3932,7 @@ function getTrackedVideoHTML(url, assignId) {
         // Tự động nhận diện nguồn đang chạy web để khai báo với YouTube
         let hostUrl = window.location.protocol === 'file:' ? 'https://localhost' : window.location.origin;
         let embedUrl = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&rel=0&origin=${hostUrl}`;
-        
+
         return `
         <div class="video-wrapper" style="margin-top: 15px; border: 2px solid #667eea; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.8);">
             <iframe id="yt-player-${assignId}" width="100%" height="315" src="${embedUrl}" frameborder="0" allowfullscreen></iframe>
@@ -3960,7 +3964,7 @@ window.initYouTubeTrackers = function (assignments, retryCount = 0) {
                         // KHI PLAYER ĐÃ SẴN SÀNG MỚI ĐI LẤY DỮ LIỆU BỀN VỮNG TỪ FIREBASE
                         db.ref(`video_tracking/${assign.id}/${currentUser.username}`).once('value', (snap) => {
                             watchDurations[assign.id] = parseInt(snap.val()) || 0;
-                            
+
                             const display = document.getElementById(`watch-time-display-${assign.id}`);
                             if (display) display.innerText = formatSecondsToDHMS(watchDurations[assign.id]);
 
@@ -3977,7 +3981,7 @@ window.initYouTubeTrackers = function (assignments, retryCount = 0) {
     });
 };
 
-window.onPlayerStateChange = function(event, assignId) {
+window.onPlayerStateChange = function (event, assignId) {
     const player = event.target; // Lấy trực tiếp video đang phát
 
     if (event.data === YT.PlayerState.PLAYING) {
@@ -4008,8 +4012,20 @@ window.onPlayerStateChange = function(event, assignId) {
                                 const currentAssign = window.cachedAssignments.find(a => a.id === assignId);
                                 if (currentAssign && currentAssign.watchCondition && currentTime >= currentAssign.watchCondition) {
                                     if (!window[`unlocked_${assignId}`]) {
-                                        window[`unlocked_${assignId}`] = true; // Cắm cờ để không bị reload liên tục
-                                        loadAssignments(); // Gọi lại hàm load để hiện nút làm bài ngay lập tức
+                                        window[`unlocked_${assignId}`] = true; // Cắm cờ để không reload nhiều lần
+                                        
+                                        // MỞ KHÓA UI MƯỢT MÀ KHÔNG CẦN TẢI LẠI TRANG
+                                        const noticeBox = document.getElementById(`condition-notice-${assignId}`);
+                                        const contentBox = document.getElementById(`assignment-task-content-${assignId}`);
+
+                                        if (noticeBox) noticeBox.style.display = 'none'; // Ẩn cảnh báo
+                                        if (contentBox) {
+                                            contentBox.style.display = 'block'; // Hiện form làm bài
+                                            // Tự động cuộn mượt xuống phần làm bài cho học sinh
+                                            setTimeout(() => {
+                                                contentBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                            }, 100);
+                                        }
                                     }
                                 }
                             }

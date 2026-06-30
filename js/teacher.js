@@ -1539,6 +1539,32 @@ window.openEditAssignmentModal = async function (fbKey) {
         }
 
         if (assign.assessmentType === 'thi') window.updateEditExamFields();
+        // Đổ dữ liệu thời gian vào form sửa và cho phép Edit
+        const editDay = document.getElementById('editCondDay');
+        const editHour = document.getElementById('editCondHour');
+        const editMin = document.getElementById('editCondMin');
+        const editSec = document.getElementById('editCondSec');
+
+        if (editDay && editHour && editMin && editSec) {
+            // assign.watchCondition đã được quy ra giây ở hàm tạo
+            let watchDuration = assign.watchCondition || 0;
+
+            let d = Math.floor(watchDuration / 86400);
+            let h = Math.floor((watchDuration % 86400) / 3600);
+            let m = Math.floor((watchDuration % 3600) / 60);
+            let s = watchDuration % 60;
+
+            editDay.value = d;
+            editHour.value = h;
+            editMin.value = m;
+            editSec.value = s;
+
+            // Gỡ bỏ tính trạng khóa để giáo viên sửa lại
+            editDay.disabled = false;
+            editHour.disabled = false;
+            editMin.disabled = false;
+            editSec.disabled = false;
+        }
 
         document.getElementById('editAssignmentModal').classList.add('active');
     } catch (err) {
@@ -3633,92 +3659,153 @@ window.downloadRoadmapPDF = async function () {
     html2pdf().set(opt).from(tempDiv).save();
 };
 
-let currentVideoDuration = 0; // Biến lưu tổng số giây của video hiện tại
+window.currentVideoDuration = 0; // Biến lưu tổng số giây của video hiện tại để validate
 
-// Lắng nghe khi giáo viên dán link video
-document.getElementById('videoLink').addEventListener('input', async function () {
-    const url = this.value.trim();
-    const display = document.getElementById('videoTotalTimeDisplay');
-    const inputs = ['condDay', 'condHour', 'condMin', 'condSec'].map(id => document.getElementById(id));
+// 1. Hàm tự động tải API Youtube và bóc tách thời lượng chuẩn xác (ĐÃ FIX LỖI)
+function getYoutubeDurationCorrectly(url, callback) {
+    let videoId = '';
+    if (url.includes('watch?v=')) videoId = url.split('v=')[1].split('&')[0];
+    else if (url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1].split('?')[0];
+    else if (url.includes('shorts/')) videoId = url.split('shorts/')[1].split('?')[0];
+    else if (url.includes('embed/')) videoId = url.split('embed/')[1].split('?')[0];
+
+    if (!videoId) return callback(0);
+
+    let tempDiv = document.createElement('div');
+    tempDiv.id = 'yt-temp-' + Date.now();
+    
+    // FIX LỖI Ở ĐÂY: Không dùng display none. Đẩy Iframe ra ngoài vùng nhìn thấy của màn hình.
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.left = '-9999px';
+    tempDiv.style.top = '-9999px';
+    tempDiv.style.width = '10px';
+    tempDiv.style.height = '10px';
+    document.body.appendChild(tempDiv);
+
+    const loadPlayer = () => {
+        let player = new YT.Player(tempDiv.id, {
+            height: '10', // Kích thước phải lớn hơn 0 để trình duyệt chịu render
+            width: '10',
+            videoId: videoId,
+            playerVars: {
+                'autoplay': 0,
+                'controls': 0
+            },
+            events: {
+                'onReady': function (event) {
+                    let totalSeconds = Math.floor(event.target.getDuration());
+                    callback(totalSeconds);
+                    // Tăng delay lên 1000ms để Youtube xử lý xong postMessage trước khi đóng
+                    setTimeout(() => {
+                        try { player.destroy(); } catch(e){}
+                        if (document.body.contains(tempDiv)) document.body.removeChild(tempDiv);
+                    }, 1000);
+                },
+                'onError': function (event) {
+                    callback(0);
+                    setTimeout(() => {
+                        try { player.destroy(); } catch(e){}
+                        if (document.body.contains(tempDiv)) document.body.removeChild(tempDiv);
+                    }, 1000);
+                }
+            }
+        });
+    };
+
+    if (typeof YT !== 'undefined' && YT.Player) {
+        loadPlayer();
+    } else {
+        let tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        document.head.appendChild(tag);
+        window.onYouTubeIframeAPIReady = loadPlayer;
+    }
+}
+
+// 2. Hàm xử lý chung để tái sử dụng cho cả Giao bài và Sửa bài
+function handleVideoLinkInput(e, displayId, prefix) {
+    const url = e.target.value.trim();
+    const display = document.getElementById(displayId);
+    const inputs = [
+        document.getElementById(prefix + 'Day'),
+        document.getElementById(prefix + 'Hour'),
+        document.getElementById(prefix + 'Min'),
+        document.getElementById(prefix + 'Sec')
+    ];
 
     if (!url) {
-        display.innerText = "(Chưa có video)";
-        inputs.forEach(inp => { input.value = ''; input.disabled = true; });
-        currentVideoDuration = 0;
+        if(display) display.innerText = "(Chưa có video)";
+        inputs.forEach(inp => { if (inp) { inp.value = ''; inp.disabled = true; } });
+        window.currentVideoDuration = 0;
         return;
     }
 
-    display.innerText = "⏳ Đang tính toán độ dài...";
+    if(display) display.innerText = '⏳ Đang phân tích thời lượng...';
+    
+    getYoutubeDurationCorrectly(url, function (durationInSeconds) {
+        if (durationInSeconds === 0) {
+            if(display) display.innerText = '(Không đọc được thời lượng, vui lòng kiểm tra lại link)';
+            inputs.forEach(inp => { if (inp) { inp.value = ''; inp.disabled = true; } });
+            return;
+        }
 
-    // Giả lập/Tích hợp API lấy thời lượng video (Bạn thay bằng Google API fetch thật tại đây)
-    // Ví dụ giả lập video dài 80 phút 20 giây (4820 giây)
-    currentVideoDuration = 4820;
+        window.currentVideoDuration = durationInSeconds; // Lưu để validate không nhập quá số lượng
 
-    let d = Math.floor(currentVideoDuration / (24 * 3600));
-    let h = Math.floor((currentVideoDuration % (24 * 3600)) / 3600);
-    let m = Math.floor((currentVideoDuration % 3600) / 60);
-    let s = currentVideoDuration % 60;
+        let d = Math.floor(durationInSeconds / 86400);
+        let h = Math.floor((durationInSeconds % 86400) / 3600);
+        let m = Math.floor((durationInSeconds % 3600) / 60);
+        let s = durationInSeconds % 60;
 
-    display.innerText = `(Dài: ${d > 0 ? d + ' ngày ' : ''}${h > 0 ? h + ' giờ ' : ''}${m} phút ${s} giây)`;
+        if (inputs[0]) { inputs[0].value = d; inputs[0].disabled = false; }
+        if (inputs[1]) { inputs[1].value = h; inputs[1].disabled = false; }
+        if (inputs[2]) { inputs[2].value = m; inputs[2].disabled = false; }
+        if (inputs[3]) { inputs[3].value = s; inputs[3].disabled = false; }
 
-    // Mở khóa hoặc vô hiệu hóa các ô nhập liệu theo độ dài thực tế
-    inputs[0].disabled = (d === 0);
-    inputs[1].disabled = (d === 0 && h === 0);
-    inputs[2].disabled = (d === 0 && h === 0 && m === 0);
-    inputs[3].disabled = false; // Giây luôn được phép nhập
-});
+        if(display) display.innerText = `(Độ dài gốc: ${d > 0 ? d + ' ngày ' : ''}${h}g ${m}p ${s}s)`;
+    });
+}
 
+// 3. Gắn sự kiện cho Form Giao Bài
+const videoLinkInput = document.getElementById('videoLink');
+if (videoLinkInput) {
+    videoLinkInput.addEventListener('input', function(e) {
+        handleVideoLinkInput(e, 'videoTotalTimeDisplay', 'cond');
+    });
+}
+
+// 4. Gắn sự kiện cho Form Sửa Bài
+const editVideoLinkInput = document.getElementById('editVideoLink');
+if (editVideoLinkInput) {
+    editVideoLinkInput.addEventListener('input', function(e) {
+        handleVideoLinkInput(e, 'editVideoTotalTimeDisplay', 'editCond');
+    });
+}
+
+// 5. Ràng buộc không cho nhập điều kiện quá tổng độ dài video (Giao bài)
 window.validateConditionInput = function () {
-    // Ràng buộc giá trị giáo viên nhập không vượt quá video gốc
     const d = parseInt(document.getElementById('condDay').value) || 0;
     const h = parseInt(document.getElementById('condHour').value) || 0;
     const m = parseInt(document.getElementById('condMin').value) || 0;
     const s = parseInt(document.getElementById('condSec').value) || 0;
 
     const totalInputSec = d * 86400 + h * 3600 + m * 60 + s;
-
-    if (totalInputSec > currentVideoDuration) {
+    if (totalInputSec > window.currentVideoDuration && window.currentVideoDuration > 0) {
         alert("⚠️ Điều kiện thời gian không được vượt quá tổng độ dài video!");
-        document.getElementById('condSec').value = 0; // Reset
+        document.getElementById('condSec').value = 0; 
     }
 };
 
-// Tính toán độ dài video khi dán link ở POPUP SỬA BÀI
-document.getElementById('editVideoLink').addEventListener('input', async function () {
-    const url = this.value.trim();
-    const display = document.getElementById('editVideoTotalTimeDisplay');
-    const inputs = ['editCondDay', 'editCondHour', 'editCondMin', 'editCondSec'].map(id => document.getElementById(id));
-
-    if (!url) {
-        display.innerText = "(Chưa có video)";
-        inputs.forEach(inp => { inp.value = ''; inp.disabled = true; });
-        return;
-    }
-    display.innerText = "⏳ Đang lấy độ dài...";
-    // Giả lập tương tự tạo mới
-    let d = Math.floor(currentVideoDuration / (24 * 3600));
-    let h = Math.floor((currentVideoDuration % (24 * 3600)) / 3600);
-    let m = Math.floor((currentVideoDuration % 3600) / 60);
-    let s = currentVideoDuration % 60;
-
-    display.innerText = `(Dài: ${d > 0 ? d + ' ngày ' : ''}${h > 0 ? h + ' giờ ' : ''}${m} phút ${s} giây)`;
-
-    inputs[0].disabled = (d === 0);
-    inputs[1].disabled = (d === 0 && h === 0);
-    inputs[2].disabled = (d === 0 && h === 0 && m === 0);
-    inputs[3].disabled = false; 
-});
-
+// 6. Ràng buộc không cho nhập điều kiện quá tổng độ dài video (Sửa bài)
 window.validateEditConditionInput = function () {
     const d = parseInt(document.getElementById('editCondDay').value) || 0;
     const h = parseInt(document.getElementById('editCondHour').value) || 0;
     const m = parseInt(document.getElementById('editCondMin').value) || 0;
     const s = parseInt(document.getElementById('editCondSec').value) || 0;
-    const totalInputSec = d * 86400 + h * 3600 + m * 60 + s;
 
-    if (totalInputSec > currentVideoDuration) {
+    const totalInputSec = d * 86400 + h * 3600 + m * 60 + s;
+    if (totalInputSec > window.currentVideoDuration && window.currentVideoDuration > 0) {
         alert("⚠️ Điều kiện thời gian không được vượt quá tổng độ dài video!");
-        document.getElementById('editCondSec').value = 0; 
+        document.getElementById('editCondSec').value = 0;
     }
 };
 
