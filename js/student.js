@@ -827,34 +827,53 @@ async function loadAssignments() {
                 }
                 let watchedMinutes = Math.floor(watchedSeconds / 60);
 
-                let conditionHTML = '';
+                let conditionAlertHTML = '';
                 let isLockedByVideo = false;
 
                 // Nếu giáo viên có đặt điều kiện > 0
                 if (assign.watchCondition && assign.watchCondition > 0 && assign.videoDuration) {
                     if (watchedMinutes < assign.watchCondition) {
                         isLockedByVideo = true;
-                        conditionHTML = `<div class="glass-alert danger" style="margin-bottom: 15px; border-left-color: #e11d48; background: rgba(225, 29, 72, 0.1);">
-                    <h4 style="color: #e11d48; margin-bottom: 5px;">🔒 Bạn chưa đủ điều kiện mở khóa bài tập!</h4>
-                    <p style="margin: 0; font-size: 0.95em;">Giáo viên yêu cầu xem tối thiểu <strong style="color:#b91c1c;">${assign.watchCondition}/${assign.videoDuration} phút</strong> video bài giảng để hiện câu hỏi.<br>Hiện tại bạn đã xem: <strong>${watchedMinutes} phút</strong>.</p>
-                </div>`;
+                        conditionAlertHTML = `
+                    <div style="background: rgba(225, 29, 72, 0.04); border: 1px solid rgba(225, 29, 72, 0.15); border-left: 5px solid #e11d48; padding: 20px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(225, 29, 72, 0.05);">
+                        <h4 style="color: #e11d48; margin: 0 0 10px 0; display: flex; align-items: center; gap: 8px; font-size: 1.1em;">
+                            🔒 Cần hoàn thành video để mở khóa!
+                        </h4>
+                        <p style="margin: 0; font-size: 0.95em; line-height: 1.6; color: #334155;">
+                            Giáo viên yêu cầu xem tối thiểu <strong style="color:#b91c1c; background: rgba(225, 29, 72, 0.1); padding: 3px 8px; border-radius: 6px;">${assign.watchCondition} / ${assign.videoDuration} phút</strong> video bài giảng.<br>
+                            Hiện tại bạn mới xem: <strong>${watchedMinutes} phút</strong>. Hãy tiếp tục xem nhé!
+                        </p>
+                    </div>
+                `;
                     } else {
-                        conditionHTML = `<div class="glass-alert success" style="margin-bottom: 15px; border-left-color: #10b981; background: rgba(16, 185, 129, 0.1);">
-                    <p style="margin: 0; color: #059669; font-weight: bold;">✅ Đã xem đủ thời lượng yêu cầu (${watchedMinutes}/${assign.videoDuration} phút). Chúc bạn làm bài tốt!</p>
-                </div>`;
+                        conditionAlertHTML = `
+                    <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.15); border-left: 5px solid #10b981; padding: 15px 20px; border-radius: 12px; margin-bottom: 25px; color: #065f46; font-weight: 500; font-size: 0.95em; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.05);">
+                        ✅ Đã xem đủ thời lượng yêu cầu (${watchedMinutes}/${assign.videoDuration} phút). Phần bài tập đã mở khóa!
+                    </div>
+                `;
                     }
                 }
                 // KẾT THÚC KIỂM TRA
 
                 let assignmentContentRaw = `
-                    ${videoHTML}
-                    ${conditionHTML}
-                    ${isLockedByVideo ? `<div style="text-align: center; padding: 20px; background: rgba(0,0,0,0.03); border-radius: 8px; margin-top: 15px;"><p style="color: #666; font-style: italic; margin: 0;">(Phần câu hỏi và khu vực nộp bài đang bị ẩn do chưa đạt điều kiện xem video)</p></div>` : `
-                    ${quizHTML}
-                    ${descHTML}
-                    ${teacherFileHTML}
-                    ${tuLuanInputHTML}
-                    ${submitBtnHTML}
+                    ${videoHTML} 
+                    ${conditionAlertHTML} 
+                    
+                    ${isLockedByVideo ? `
+                        <!-- Khung báo khóa làm đẹp lại -->
+                        <div style="text-align: center; padding: 40px 20px; background: repeating-linear-gradient(45deg, rgba(0,0,0,0.01), rgba(0,0,0,0.01) 10px, rgba(255,255,255,0.6) 10px, rgba(255,255,255,0.6) 20px); border: 2px dashed #cbd5e1; border-radius: 16px; margin-top: 10px;">
+                            <span style="font-size: 3em; opacity: 0.4; display: block; margin-bottom: 15px;">🙈</span>
+                            <h4 style="color: #64748b; margin: 0 0 8px 0; font-size: 1.1em;">Khu vực làm bài đang bị ẩn</h4>
+                            <p style="color: #94a3b8; font-style: italic; margin: 0; font-size: 0.9em; line-height: 1.5; max-width: 85%; margin: 0 auto;">
+                                (Hãy hoàn thành điều kiện xem video ở trên để hiển thị câu hỏi và nút nộp bài)
+                            </p>
+                        </div>
+                    ` : `
+                        ${quizHTML || ''}
+                        ${descHTML || ''}
+                        ${teacherFileHTML || ''}
+                        ${tuLuanInputHTML || ''}
+                        ${submitBtnHTML || ''}
                     `}
                 `;
 
@@ -3889,10 +3908,10 @@ function getTrackedVideoHTML(url, assignId) {
     if (videoId) {
         let embedUrl = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&rel=0`;
         return `
-        <div class="video-wrapper" style="margin-top: 15px; border: 2px solid #667eea; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.8);">
-            <iframe id="yt-player-${assignId}" width="100%" height="315" src="${embedUrl}" frameborder="0" allowfullscreen></iframe>
-            <div style="text-align: center; margin-top: 10px; font-weight: bold; color: #059669; font-size: 1.1em;">
-                ⏱️ Mốc thời gian đã xem tới: <span id="watch-time-display-${assignId}">0</span> giây
+        <div class="video-wrapper" style="margin-top: 10px; margin-bottom: 20px; border: 1px solid rgba(102, 126, 234, 0.3); padding: 15px; border-radius: 16px; background: rgba(255,255,255,0.95); box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+            <iframe id="yt-player-${assignId}" width="100%" height="315" src="${embedUrl}" frameborder="0" allowfullscreen style="border-radius: 8px;"></iframe>
+            <div style="text-align: center; margin-top: 15px; font-weight: bold; color: #059669; font-size: 1.05em; background: rgba(16, 185, 129, 0.08); padding: 10px; border-radius: 8px; border: 1px dashed rgba(16, 185, 129, 0.3);">
+                ⏱️ Mốc thời gian đã xem tới: <span id="watch-time-display-${assignId}" style="font-size: 1.1em;">0</span> giây
             </div>
         </div>`;
     }
