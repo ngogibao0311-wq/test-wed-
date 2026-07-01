@@ -3600,7 +3600,6 @@ window.downloadRoadmapPDF = async function () {
     const st = users.find(u => u.username === selectedStudent);
     const stName = st ? st.name : selectedStudent;
 
-    // Chỉ định cấu trúc bảng sẽ xuất ra PDF
     let htmlContent = `
         <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
             <h2 style="text-align: center; color: #2c3e50; text-transform: uppercase;">BẢNG ĐIỂM HỌC TẬP</h2>
@@ -3620,14 +3619,24 @@ window.downloadRoadmapPDF = async function () {
     const sortedAssignments = [...assignments].sort((a, b) => (a.title || '').localeCompare(b.title || '', 'vi-VN', { numeric: true, sensitivity: 'base' }));
 
     sortedAssignments.forEach(assign => {
+        // Lọc các bài tập đúng với học sinh đã chọn
         if (assign.targetStudent !== 'all' && assign.targetStudent !== selectedStudent) return;
 
-        const subs = submissions.filter(s => s.assignmentId === assign._fbKey && s.studentId === selectedStudent);
+        // SỬA LỖI Ở ĐÂY: Dùng studentUsername để khớp với dữ liệu bài nộp
+        const subs = submissions.filter(s => s.assignmentId === assign.id && s.studentUsername === selectedStudent);
         let studentScore = "Chưa làm";
 
         if (subs.length > 0) {
-            const bestSub = subs.sort((a, b) => (b.score || 0) - (a.score || 0))[0];
-            studentScore = bestSub.score !== undefined ? bestSub.score : "Chưa chấm";
+            // SỬA LỖI Ở ĐÂY: Dùng thuộc tính grade thay vì score
+            const bestSub = subs.sort((a, b) => (parseFloat(b.grade) || 0) - (parseFloat(a.grade) || 0))[0];
+            
+            if (bestSub.isRegrading) {
+                studentScore = "Đang chấm lại";
+            } else if (bestSub.grade !== null && bestSub.grade !== undefined && bestSub.grade !== '') {
+                studentScore = bestSub.grade;
+            } else {
+                studentScore = "Chưa chấm";
+            }
         }
 
         htmlContent += `
@@ -3645,7 +3654,6 @@ window.downloadRoadmapPDF = async function () {
         </div>
     `;
 
-    // Cấu hình tải xuống PDF
     const opt = {
         margin: 10,
         filename: `BangDiem_${stName}.pdf`,

@@ -580,6 +580,7 @@ async function loadAssignments() {
 
             const div = document.createElement('div'); div.className = 'card accordion-card';
             div.style.position = 'relative'; // Bắt buộc để lớp phủ kính (glassmorphism) định vị chính xác
+            div.style.marginBottom = '20px';
 
             div.innerHTML = `${glassLockHTML}<div class="accordion-header" onclick="${clickHandler}"><div class="accordion-title"><h4>${assign.title}</h4><span>${statusText}</span></div><div class="accordion-meta"><span>Điểm: <strong style="${(mySub.grade !== null && mySub.grade !== undefined && mySub.grade !== '' && !mySub.isRegrading) ? 'color:#059669;' : 'color:#d35400;'}">${gradeDisplay}</strong></span><span class="toggle-icon">▼</span></div></div>
                 <div id="${uniqueId}" class="accordion-content"><div class="assignment-meta"><p>🕒 <strong>Bạn đã nộp lúc:</strong> ${mySub.submitTime || 'Không rõ'}</p></div>${violationHTML}${videoHTML}<div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; margin-top: 15px;"><strong>Nội dung bài làm của bạn:</strong><br><p style="margin-top: 5px; color: ${mySub.isAutoSubmitted ? '#e74c3c' : '#444'}; white-space: pre-wrap;">${mySub.answer ? mySub.answer.replace(/</g, "&lt;").replace(/>/g, "&gt;") : '<i>(Không có)</i>'}</p>${myFileHTML}</div>${teacherFileHTML}${gradedFileHTML}${teacherCommentHTML}${viewQuestionsBtnHTML}</div>`;
@@ -853,6 +854,7 @@ async function loadAssignments() {
                 const uniqueId = `student-todo-${assign.id}`;
                 const div = document.createElement('div'); div.className = 'card submit-box accordion-card';
                 div.style.position = 'relative'; // Bắt buộc để lớp phủ kính định vị chính xác
+                div.style.marginBottom = '20px';
 
                 // === BẮT ĐẦU LOGIC ĐIỀU KIỆN XEM VIDEO ===
                 let currentWatchDuration = 0;
@@ -886,18 +888,16 @@ async function loadAssignments() {
                     </div>
                 `;
 
-                // Chỉ render phần làm bài nếu ĐẠT điều kiện
-                if (isConditionMet) {
-                    assignmentContentRaw += `
-                        <div id="assignment-task-content-${assign.id}" style="display: ${isConditionMet ? 'block' : 'none'}; transition: opacity 0.5s;">
-                            ${quizHTML}
-                            ${descHTML}
-                            ${teacherFileHTML}
-                            ${tuLuanInputHTML}
-                            ${submitBtnHTML}
-                        </div>
-                     `;
-                }
+                // Luôn render sẵn phần làm bài (ẩn đi nếu chưa đạt điều kiện)
+                assignmentContentRaw += `
+                    <div id="assignment-task-content-${assign.id}" style="display: ${isConditionMet ? 'block' : 'none'}; transition: opacity 0.5s; margin-top: 20px;">
+                        ${quizHTML}
+                        ${descHTML}
+                        ${teacherFileHTML}
+                        ${tuLuanInputHTML}
+                        ${submitBtnHTML}
+                    </div>
+                 `;
                 // === KẾT THÚC LOGIC ĐIỀU KIỆN ===
 
                 if (assign.assessmentType === 'thi') {
@@ -4013,7 +4013,7 @@ window.onPlayerStateChange = function (event, assignId) {
                                 if (currentAssign && currentAssign.watchCondition && currentTime >= currentAssign.watchCondition) {
                                     if (!window[`unlocked_${assignId}`]) {
                                         window[`unlocked_${assignId}`] = true; // Cắm cờ để không reload nhiều lần
-                                        
+
                                         // MỞ KHÓA UI MƯỢT MÀ KHÔNG CẦN TẢI LẠI TRANG
                                         const noticeBox = document.getElementById(`condition-notice-${assignId}`);
                                         const contentBox = document.getElementById(`assignment-task-content-${assignId}`);
@@ -4068,12 +4068,21 @@ window.downloadStudentRoadmapPDF = async function () {
 
     let rowsHTML = "";
     sortedAssignments.forEach(assign => {
-        const subs = submissions.filter(s => s.assignmentId === assign._fbKey && s.studentId === currentUser.username);
+        // Đã sửa lại đúng tên biến: assign.id và s.studentUsername
+        const subs = submissions.filter(s => s.assignmentId === assign.id && s.studentUsername === currentUser.username);
         let studentScore = "Chưa làm";
 
         if (subs.length > 0) {
-            const bestSub = subs.sort((a, b) => (b.score || 0) - (a.score || 0))[0];
-            studentScore = bestSub.score !== undefined ? bestSub.score : "Chưa chấm";
+            // Sắp xếp lấy bài có điểm cao nhất (dùng thuộc tính grade)
+            const bestSub = subs.sort((a, b) => (parseFloat(b.grade) || 0) - (parseFloat(a.grade) || 0))[0];
+
+            if (bestSub.isRegrading) {
+                studentScore = "Đang chấm lại";
+            } else if (bestSub.grade !== null && bestSub.grade !== undefined && bestSub.grade !== '') {
+                studentScore = parseFloat(bestSub.grade); // Hiển thị điểm thật
+            } else {
+                studentScore = "Chưa chấm";
+            }
         }
 
         rowsHTML += `
