@@ -832,44 +832,52 @@
             </div>
 
             <div id="materialModal" class="modal-overlay">
-                <div class="modal-content form-container">
+                <div class="modal-content form-container"
+                    style="max-height: 90vh; display: flex; flex-direction: column; position: relative;">
                     <button class="close-btn" onclick="closeMaterialModal()">✖</button>
                     <h3
                         style="color: #2c3e50; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
-                        Đăng tải bài học mới</h3>
+                        Đăng tải bài học mới
+                    </h3>
 
-                    <label for="materialTitle"><strong>Tiêu đề tài liệu:</strong></label>
-                    <input type="text" id="materialTitle"
-                        placeholder="Nhập tiêu đề (VD: Bài giảng lý thuyết chương 1)...">
+                    <!-- Vùng nội dung cuộn bên trong pop-up -->
+                    <div style="overflow-y: auto; padding-right: 10px; flex-grow: 1; margin-bottom: 10px;">
+                        <label for="materialTitle"><strong>Tiêu đề tài liệu:</strong></label>
+                        <input type="text" id="materialTitle"
+                            placeholder="Nhập tiêu đề (VD: Bài giảng lý thuyết chương 1)...">
 
-                    <label for="materialVideoLink"><strong>Link Video bài giảng (YouTube - Nếu có):</strong></label>
-                    <input type="text" id="materialVideoLink" placeholder="Dán link bài giảng YouTube vào đây...">
+                        <label for="materialVideoLink"><strong>Link Video bài giảng (YouTube - Nếu có):</strong></label>
+                        <input type="text" id="materialVideoLink" placeholder="Dán link bài giảng YouTube vào đây...">
 
-                    <label for="materialLinkInput"><strong>Link File tài liệu (Google Drive, OneDrive - Nếu
-                            có):</strong></label>
-                    <input type="text" id="materialLinkInput" placeholder="Dán link chia sẻ tài liệu vào đây...">
+                        <label for="materialLinkInput"><strong>Link File tài liệu (Google Drive, OneDrive - Nếu
+                                có):</strong></label>
+                        <input type="text" id="materialLinkInput" placeholder="Dán link chia sẻ tài liệu vào đây...">
 
-                    <label><strong>Giao cho học sinh:</strong></label>
-                    <div class="custom-student-select">
-                        <div class="css-select-trigger" onclick="openCustomStudentSelect('materialTargetStudent')">
-                            <span id="materialTargetStudent_displayText">Tất cả học sinh</span>
-                            <span style="color: #9ca3af; font-size: 12px;">▼</span>
+                        <label><strong>Giao cho học sinh:</strong></label>
+                        <div class="custom-student-select">
+                            <div class="css-select-trigger" onclick="openCustomStudentSelect('materialTargetStudent')">
+                                <span id="materialTargetStudent_displayText">Tất cả học sinh</span>
+                                <span style="color: #9ca3af; font-size: 12px;">▼</span>
+                            </div>
+                            <select id="materialTargetStudent" multiple style="display: none;">
+                                <option value="all" selected>Tất cả học sinh</option>
+                            </select>
                         </div>
-                        <select id="materialTargetStudent" multiple style="display: none;">
-                            <option value="all" selected>Tất cả học sinh</option>
-                        </select>
+                        <p style="margin: 0 0 15px 0; font-size: 0.85em; color: #d35400;">💡 Giữ <strong>Ctrl</strong>
+                            để chọn nhiều.</p>
                     </div>
-                    <p style="margin: 0 0 15px 0; font-size: 0.85em; color: #d35400;">💡 Giữ <strong>Ctrl</strong> để
-                        chọn nhiều.</p>
 
+                    <!-- NÚT ĐĂNG TẢI CỐ ĐỊNH (STICKY FOOTER) -->
                     <button onclick="createMaterial()"
-                        style="margin-top: 20px; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">Đăng
-                        tải bài học</button>
+                        style="position: sticky; bottom: -25px; margin-top: 5px; flex-shrink: 0; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); z-index: 100; box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.15);">
+                        Đăng tải bài học
+                    </button>
                 </div>
             </div>
 
             <div id="editMaterialModal" class="modal-overlay">
-                <div class="modal-content form-container">
+                <div class="modal-content form-container"
+                    style="max-height: 90vh; display: flex; flex-direction: column; position: relative;">
                     <button class="close-btn" onclick="closeEditMaterialModal()">✖</button>
                     <h3
                         style="color: #f6d365; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
@@ -877,137 +885,161 @@
                     </h3>
                     <input type="hidden" id="editMaterialKey">
 
-                    <label for="editMaterialTitle"><strong>Tiêu đề tài liệu:</strong></label>
-                    <input type="text" id="editMaterialTitle" placeholder="Nhập tên tài liệu mới...">
+                    <!-- Vùng nội dung cuộn bên trong pop-up -->
+                    <div style="overflow-y: auto; padding-right: 10px; flex-grow: 1; margin-bottom: 10px;">
+                        <label for="editMaterialTitle"><strong>Tiêu đề tài liệu:</strong></label>
+                        <input type="text" id="editMaterialTitle" placeholder="Nhập tên tài liệu mới...">
 
-                    <label for="editMaterialVideoLink"><strong>Link Video bài giảng (YouTube - Nếu có):</strong></label>
-                    <input type="text" id="editMaterialVideoLink" placeholder="Dán link bài giảng YouTube mới...">
+                        <label for="editMaterialVideoLink"><strong>Link Video bài giảng (YouTube - Nếu
+                                có):</strong></label>
+                        <input type="text" id="editMaterialVideoLink" placeholder="Dán link bài giảng YouTube mới...">
 
-                    <label for="editMaterialLinkInput"><strong>Link File tài liệu (Google Drive, OneDrive - Nếu
-                            có):</strong></label>
-                    <input type="text" id="editMaterialLinkInput" placeholder="Dán link chia sẻ tài liệu mới...">
+                        <label for="editMaterialLinkInput"><strong>Link File tài liệu (Google Drive, OneDrive - Nếu
+                                có):</strong></label>
+                        <input type="text" id="editMaterialLinkInput" placeholder="Dán link chia sẻ tài liệu mới...">
 
-                    <label><strong>Giao cho học sinh:</strong></label>
-                    <div class="custom-student-select">
-                        <div class="css-select-trigger" onclick="openCustomStudentSelect('editMaterialTargetStudent')">
-                            <span id="editMaterialTargetStudent_displayText">Tất cả học sinh</span>
-                            <span style="color: #9ca3af; font-size: 12px;">▼</span>
+                        <label><strong>Giao cho học sinh:</strong></label>
+                        <div class="custom-student-select">
+                            <div class="css-select-trigger"
+                                onclick="openCustomStudentSelect('editMaterialTargetStudent')">
+                                <span id="editMaterialTargetStudent_displayText">Tất cả học sinh</span>
+                                <span style="color: #9ca3af; font-size: 12px;">▼</span>
+                            </div>
+                            <select id="editMaterialTargetStudent" multiple style="display: none;">
+                                <option value="all" selected>Tất cả học sinh</option>
+                            </select>
                         </div>
-                        <select id="editMaterialTargetStudent" multiple style="display: none;">
-                            <option value="all" selected>Tất cả học sinh</option>
-                        </select>
+                        <p style="margin: 0 0 15px 0; font-size: 0.85em; color: #d35400;">💡 Giữ <strong>Ctrl</strong>
+                            để chọn nhiều.</p>
                     </div>
-                    <p style="margin: 0 0 15px 0; font-size: 0.85em; color: #d35400;">💡 Giữ <strong>Ctrl</strong> để
-                        chọn nhiều.</p>
 
+                    <!-- NÚT LƯU THAY ĐỔI CỐ ĐỊNH (STICKY FOOTER) -->
                     <button onclick="saveMaterialEdit()"
-                        style="margin-top: 20px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: #fff;">
+                        style="position: sticky; bottom: -25px; margin-top: 5px; flex-shrink: 0; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: #fff; z-index: 100; box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.15);">
                         💾 Lưu thay đổi
                     </button>
                 </div>
             </div>
 
             <div id="scheduleModal" class="modal-overlay">
-                <div class="modal-content form-container">
+                <div class="modal-content form-container"
+                    style="max-height: 90vh; display: flex; flex-direction: column; position: relative;">
                     <button class="close-btn" onclick="closeScheduleModal()">✖</button>
                     <h3
                         style="color: #11998e; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
-                        Quản lý Lịch học</h3>
+                        Quản lý Lịch học
+                    </h3>
                     <input type="hidden" id="editScheduleKey">
 
-                    <label><strong>Thứ / Ngày:</strong></label>
-                    <input type="text" id="scheduleDay" placeholder="VD: Thứ 2, Thứ 3, hoặc 20/11...">
+                    <!-- Vùng nội dung cuộn bên trong pop-up -->
+                    <div style="overflow-y: auto; padding-right: 10px; flex-grow: 1; margin-bottom: 10px;">
+                        <label><strong>Thứ / Ngày:</strong></label>
+                        <input type="text" id="scheduleDay" placeholder="VD: Thứ 2, Thứ 3, hoặc 20/11...">
 
-                    <label><strong>Thời gian học:</strong></label>
-                    <input type="text" id="scheduleTime" placeholder="VD: 19:00 - 21:00...">
+                        <label><strong>Thời gian học:</strong></label>
+                        <input type="text" id="scheduleTime" placeholder="VD: 19:00 - 21:00...">
 
-                    <label><strong>Môn học / Nội dung:</strong></label>
-                    <input type="text" id="scheduleSubject" placeholder="VD: Toán Đại Số - Chương 1...">
+                        <label><strong>Môn học / Nội dung:</strong></label>
+                        <input type="text" id="scheduleSubject" placeholder="VD: Toán Đại Số - Chương 1...">
 
-                    <label><strong>Ghi chú thêm:</strong></label>
-                    <input type="text" id="scheduleNote" placeholder="VD: Nhớ mang theo máy tính bỏ túi...">
+                        <label><strong>Ghi chú thêm:</strong></label>
+                        <input type="text" id="scheduleNote" placeholder="VD: Nhớ mang theo máy tính bỏ túi...">
 
-                    <label style="margin-top: 15px; display: block;"><strong>Áp dụng cho học sinh:</strong></label>
-                    <div class="custom-student-select">
-                        <div class="css-select-trigger" onclick="openCustomStudentSelect('scheduleTargetStudent')">
-                            <span id="scheduleTargetStudent_displayText">Tất cả học sinh</span>
-                            <span style="color: #9ca3af; font-size: 12px;">▼</span>
+                        <label style="margin-top: 15px; display: block;"><strong>Áp dụng cho học sinh:</strong></label>
+                        <div class="custom-student-select">
+                            <div class="css-select-trigger" onclick="openCustomStudentSelect('scheduleTargetStudent')">
+                                <span id="scheduleTargetStudent_displayText">Tất cả học sinh</span>
+                                <span style="color: #9ca3af; font-size: 12px;">▼</span>
+                            </div>
+                            <select id="scheduleTargetStudent" multiple style="display: none;">
+                                <option value="all" selected>Tất cả học sinh</option>
+                            </select>
                         </div>
-                        <select id="scheduleTargetStudent" multiple style="display: none;">
-                            <option value="all" selected>Tất cả học sinh</option>
-                        </select>
+                        <p style="margin: 0 0 15px 0; font-size: 0.85em; color: #d35400;">💡 Giữ <strong>Ctrl</strong>
+                            để chọn nhiều.</p>
                     </div>
-                    <p style="margin: 0 0 15px 0; font-size: 0.85em; color: #d35400;">💡 Giữ <strong>Ctrl</strong> để
-                        chọn nhiều.</p>
 
+                    <!-- NÚT LƯU LỊCH CỐ ĐỊNH (STICKY FOOTER) -->
                     <button onclick="saveSchedule()"
-                        style="margin-top: 20px; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">Lưu
-                        Lịch
-                        Học</button>
+                        style="position: sticky; bottom: -25px; margin-top: 5px; flex-shrink: 0; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); z-index: 100; box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.15);">
+                        Lưu Lịch Học
+                    </button>
                 </div>
             </div>
 
             <div id="studentModal" class="modal-overlay">
-                <div class="modal-content form-container">
+                <div class="modal-content form-container"
+                    style="max-height: 90vh; display: flex; flex-direction: column; position: relative;">
                     <button class="close-btn" onclick="closeStudentModal()">✖</button>
                     <h3
                         style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
-                        Thêm tài khoản học sinh</h3>
+                        Thêm tài khoản học sinh
+                    </h3>
 
-                    <div class="form-row">
-                        <div class="form-group"><label><strong>Tên đăng nhập:</strong></label><input type="text"
-                                id="newStudentUsername" placeholder="VD: hs2"></div>
-                        <div class="form-group"><label><strong>Mật khẩu:</strong></label><input type="text"
-                                id="newStudentPassword" placeholder="VD: 123"></div>
+                    <!-- Vùng nội dung cuộn bên trong pop-up -->
+                    <div style="overflow-y: auto; padding-right: 10px; flex-grow: 1; margin-bottom: 10px;">
+                        <div class="form-row">
+                            <div class="form-group"><label><strong>Tên đăng nhập:</strong></label><input type="text"
+                                    id="newStudentUsername" placeholder="VD: hs2"></div>
+                            <div class="form-group"><label><strong>Mật khẩu:</strong></label><input type="text"
+                                    id="newStudentPassword" placeholder="VD: 123"></div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group"><label><strong>Họ và tên:</strong></label><input type="text"
+                                    id="newStudentName" placeholder="VD: Nguyễn Văn A"></div>
+                            <div class="form-group"><label><strong>Lớp:</strong></label><input type="text"
+                                    id="newStudentClass" placeholder="VD: 10A1"></div>
+                        </div>
+
+                        <label><strong>Sở thích:</strong></label>
+                        <input type="text" id="newStudentHobbies" placeholder="VD: Đọc sách, Nghe nhạc...">
+
+                        <label><strong>Chân ngôn (Câu nói yêu thích):</strong></label>
+                        <input type="text" id="newStudentMotto" placeholder="VD: Không có áp lực không có kim cương">
                     </div>
 
-                    <div class="form-row">
-                        <div class="form-group"><label><strong>Họ và tên:</strong></label><input type="text"
-                                id="newStudentName" placeholder="VD: Nguyễn Văn A"></div>
-                        <div class="form-group"><label><strong>Lớp:</strong></label><input type="text"
-                                id="newStudentClass" placeholder="VD: 10A1"></div>
-                    </div>
-
-                    <label><strong>Sở thích:</strong></label>
-                    <input type="text" id="newStudentHobbies" placeholder="VD: Đọc sách, Nghe nhạc...">
-
-                    <label><strong>Chân ngôn (Câu nói yêu thích):</strong></label>
-                    <input type="text" id="newStudentMotto" placeholder="VD: Không có áp lực không có kim cương">
-
+                    <!-- NÚT TẠO TÀI KHOẢN CỐ ĐỊNH (STICKY FOOTER) -->
                     <button onclick="createStudent()"
-                        style="margin-top: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">Tạo
-                        tài
-                        khoản</button>
+                        style="position: sticky; bottom: -25px; margin-top: 5px; flex-shrink: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); z-index: 100; box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.15);">
+                        Tạo tài khoản
+                    </button>
                 </div>
             </div>
 
             <div id="editStudentModal" class="modal-overlay">
-                <div class="modal-content form-container">
+                <div class="modal-content form-container"
+                    style="max-height: 90vh; display: flex; flex-direction: column; position: relative;">
                     <button class="close-btn" onclick="closeEditStudentModal()">✖</button>
                     <h3
                         style="color: #f6d365; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
-                        ✏️ Cập nhật thông tin học sinh</h3>
+                        ✏️ Cập nhật thông tin học sinh
+                    </h3>
                     <input type="hidden" id="editStudentKey">
 
-                    <div class="form-row">
-                        <div class="form-group"><label><strong>Họ và tên:</strong></label><input type="text"
-                                id="editStudentName"></div>
-                        <div class="form-group"><label><strong>Lớp:</strong></label><input type="text"
-                                id="editStudentClass">
+                    <!-- Vùng nội dung cuộn bên trong pop-up -->
+                    <div style="overflow-y: auto; padding-right: 10px; flex-grow: 1; margin-bottom: 10px;">
+                        <div class="form-row">
+                            <div class="form-group"><label><strong>Họ và tên:</strong></label><input type="text"
+                                    id="editStudentName"></div>
+                            <div class="form-group"><label><strong>Lớp:</strong></label><input type="text"
+                                    id="editStudentClass"></div>
                         </div>
+                        <label><strong>Mật khẩu (để trống nếu không đổi):</strong></label>
+                        <input type="text" id="editStudentPassword" placeholder="Nhập mật khẩu mới...">
+
+                        <label><strong>Sở thích:</strong></label>
+                        <input type="text" id="editStudentHobbies">
+
+                        <label><strong>Chân ngôn:</strong></label>
+                        <input type="text" id="editStudentMotto">
                     </div>
-                    <label><strong>Mật khẩu (để trống nếu không đổi):</strong></label>
-                    <input type="text" id="editStudentPassword" placeholder="Nhập mật khẩu mới...">
 
-                    <label><strong>Sở thích:</strong></label>
-                    <input type="text" id="editStudentHobbies">
-
-                    <label><strong>Chân ngôn:</strong></label>
-                    <input type="text" id="editStudentMotto">
-
+                    <!-- NÚT LƯU THAY ĐỔI CỐ ĐỊNH (STICKY FOOTER) -->
                     <button onclick="saveStudentEdit()"
-                        style="margin-top: 20px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: #fff;">Lưu
-                        thay đổi</button>
+                        style="position: sticky; bottom: -25px; margin-top: 5px; flex-shrink: 0; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: #fff; z-index: 100; box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.15);">
+                        Lưu thay đổi
+                    </button>
                 </div>
             </div>
 

@@ -1,0 +1,97 @@
+/* leaderboard.css */
+
+/* Nút mở Bảng Xếp Hạng */
+.leaderboard-trigger-btn {
+    position: absolute;
+    top: 20px;
+    right: 195px; /* Đặt cạnh nút Túi đồ (140px) */
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.7);
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    font-size: 1.5em;
+    cursor: pointer;
+    z-index: 100;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.leaderboard-trigger-btn:hover {
+    transform: scale(1.1);
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 6px 15px rgba(241, 196, 15, 0.4);
+    border-color: #f1c40f;
+}
+
+/* Các dòng trong Bảng xếp hạng */
+.rank-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    background: white;
+    border-radius: 10px;
+    border: 1px solid rgba(0,0,0,0.05);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    transition: transform 0.2s;
+}
+
+.rank-row:hover {
+    transform: translateX(5px);
+}
+
+.rank-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+}
+
+.rank-number {
+    font-size: 1.5em;
+    font-weight: 900;
+    width: 40px;
+    text-align: center;
+    color: #94a3b8;
+}
+
+.rank-name {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.rank-stats {
+    text-align: right;
+    font-size: 0.9em;
+    color: #64748b;
+}
+
+.rank-score {
+    font-size: 1.4em;
+    font-weight: 900;
+    color: #059669;
+    display: block;
+}
+
+/* Huy hiệu Top 3 */
+.rank-1 { background: linear-gradient(to right, rgba(255, 215, 0, 0.15), white); border-left: 5px solid #ffd700; }
+.rank-1 .rank-number { color: #d4af37; font-size: 1.8em; text-shadow: 0 2px 4px rgba(212, 175, 55, 0.4); }
+
+.rank-2 { background: linear-gradient(to right, rgba(192, 192, 192, 0.15), white); border-left: 5px solid #c0c0c0; }
+.rank-2 .rank-number { color: #a0a0a0; font-size: 1.7em; }
+
+.rank-3 { background: linear-gradient(to right, rgba(205, 127, 50, 0.15), white); border-left: 5px solid #cd7f32; }
+.rank-3 .rank-number { color: #b87333; font-size: 1.6em; }
+
+/* Modal Rương Kho Báu */
+.treasure-chest-box {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border: 3px solid #f1c40f;
+    box-shadow: 0 0 40px rgba(241, 196, 15, 0.4);
+}

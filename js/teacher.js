@@ -16,6 +16,14 @@ let activeScheduleStudentFilter = 'all';
 const dtTeacherAssign = new DataTransfer(); // Dùng cho Giao bài
 window.teacherGradeDTs = {}; // Dùng cho Chấm bài (nhiều học sinh)
 
+function debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
 window.handleTeacherFileAccumulate = function (input, subId) {
     if (!window.teacherGradeDTs[subId]) window.teacherGradeDTs[subId] = new DataTransfer();
     const existingFiles = Array.from(window.teacherGradeDTs[subId].files).map(f => f.name + '_' + f.size);
@@ -54,52 +62,61 @@ window.onload = async function () {
     initFileListener();
     initMaterialFileListener();
 
-    // === TỐI ƯU HÓA HIỆU SUẤT (BỘ ĐỆM CACHE) ===
-    let cacheProfile = "", cacheSubmissions = "", cacheAssignments = "", cacheMaterials = "", cacheUsers = "";
+    // ==========================================
+    // PHẦN 1: TẢI DỮ LIỆU NẶNG LẦN ĐẦU (Tải 1 lần để có giao diện ngay)
+    // ==========================================
+    await Promise.all([
+        loadProfileRequests(),
+        loadAssignedList(),
+        loadSubmissions(),
+        loadMaterialsListTeacher(),
+        loadStudentsList(),
+        typeof loadScheduleTeacher === 'function' ? loadScheduleTeacher() : Promise.resolve(),
+        typeof loadSpinHistory === 'function' ? loadSpinHistory() : Promise.resolve(),
+        typeof loadTeacherCashRequests === 'function' ? loadTeacherCashRequests() : Promise.resolve()
+    ]);
+    await populateStudentDropdown();
+    await populateRoadmapStudentDropdown();
+    if (document.getElementById('teacherRoadmapBody')) renderTeacherRoadmap();
+    if (document.getElementById('studentRoadmapBody')) renderStudentRoadmap();
 
-    db.ref('profile_requests').on('value', async (snapshot) => {
-        const hash = JSON.stringify(snapshot.val());
-        if (hash !== cacheProfile) { cacheProfile = hash; await loadProfileRequests(); }
-    });
-    db.ref('assignments').on('value', async (snapshot) => {
-        const hash = JSON.stringify(snapshot.val());
-        if (hash !== cacheAssignmentsSt) {
-            cacheAssignmentsSt = hash;
-            window.cachedAssignments = snapshot.val() ? Object.values(snapshot.val()) : [];
-            // Sửa tại đây: Gọi đúng hàm loadAssignedList() thay vì loadAssignments()
-            await loadAssignedList();
-            if (document.getElementById('studentRoadmapBody')) renderStudentRoadmap();
-        }
-    });
+    // ==========================================
+    // PHẦN 2: LẮNG NGHE DỮ LIỆU NẶNG BẰNG DEBOUNCE
+    // Gom các thay đổi liên tục trong 1.5 giây thành 1 lần render duy nhất
+    // Bỏ hoàn toàn JSON.stringify cache vì nó ngốn quá nhiều CPU
+    // ==========================================
+    const renderSubmissions = debounce(async () => {
+        window.cachedSubmissions = await getDB('submissions');
+        await loadSubmissions();
+        if (document.getElementById('studentRoadmapBody')) renderStudentRoadmap();
+    }, 1500);
 
-    db.ref('submissions').on('value', async (snapshot) => {
-        const hash = JSON.stringify(snapshot.val());
-        if (hash !== cacheSubmissionsSt) {
-            cacheSubmissionsSt = hash;
-            window.cachedSubmissions = snapshot.val() ? Object.values(snapshot.val()) : [];
-            // Sửa tại đây: Gọi đúng hàm loadSubmissions() thay vì loadAssignments()
-            await loadSubmissions();
-            if (document.getElementById('studentRoadmapBody')) renderStudentRoadmap();
-        }
-    });
-    db.ref('materials').on('value', async (snapshot) => {
-        const hash = JSON.stringify(snapshot.val());
-        if (hash !== cacheMaterials) { cacheMaterials = hash; await loadMaterialsListTeacher(); }
-    });
-    db.ref('users').on('value', async (snapshot) => {
-        const hash = JSON.stringify(snapshot.val());
-        if (hash !== cacheUsers) {
-            cacheUsers = hash;
-            await loadStudentsList();
-            await populateStudentDropdown();
-            await populateRoadmapStudentDropdown();
-            // Cập nhật lại cột bảng lộ trình ngay lập tức
-            if (document.getElementById('teacherRoadmapBody')) renderTeacherRoadmap();
-        }
-    });
-    // ============================================
+    const renderAssignments = debounce(async () => {
+        window.cachedAssignments = await getDB('assignments');
+        await loadAssignedList();
+        if (document.getElementById('studentRoadmapBody')) renderStudentRoadmap();
+    }, 1500);
 
-    // Lắng nghe cấu hình điểm đạt tối thiểu từ Firebase
+    const renderUsers = debounce(async () => {
+        await loadStudentsList();
+        await populateStudentDropdown();
+        await populateRoadmapStudentDropdown();
+        if (document.getElementById('teacherRoadmapBody')) renderTeacherRoadmap();
+    }, 1500);
+
+    db.ref('submissions').on('value', renderSubmissions);
+    db.ref('assignments').on('value', renderAssignments);
+    db.ref('users').on('value', renderUsers);
+    db.ref('profile_requests').on('value', debounce(loadProfileRequests, 1500));
+    db.ref('materials').on('value', debounce(loadMaterialsListTeacher, 1500));
+    db.ref('schedule').on('value', debounce(loadScheduleTeacher, 1500));
+    db.ref('spin_history').on('value', debounce(loadSpinHistory, 1500));
+    db.ref('student_coins').on('value', debounce(loadStudentsList, 1500));
+    db.ref('cash_requests').on('value', debounce(loadTeacherCashRequests, 1500));
+
+    // ==========================================
+    // PHẦN 3: LẮNG NGHE SETTINGS (Dữ liệu nhỏ, giữ nguyên real-time)
+    // ==========================================
     db.ref('roadmap_settings/passingGrade').on('value', (snapshot) => {
         const val = snapshot.val() || 7;
         if (document.getElementById('passingGradeSetting')) document.getElementById('passingGradeSetting').value = val;
@@ -107,16 +124,8 @@ window.onload = async function () {
         if (document.getElementById('teacherRoadmapBody')) renderTeacherRoadmap();
     });
 
-    // BỔ SUNG: Lắng nghe cấu hình Lịch học
-    db.ref('schedule').on('value', async () => {
-        if (typeof loadScheduleTeacher === 'function') await loadScheduleTeacher();
-    });
-
-    // DÁN ĐOẠN THỜI GIAN THỰC ĐỒNG BỘ NÀY VÀO ĐÂY
     db.ref('game_settings').on('value', (snapshot) => {
         const settings = snapshot.val() || { isOpen: true, lockMessage: '' };
-
-        // Khai báo biến toàn cục để hệ thống chẩn đoán nhận diện được
         window.isGameEnabled = settings.isOpen;
 
         const toggleInput = document.getElementById('gameToggle');
@@ -128,18 +137,11 @@ window.onload = async function () {
         if (msgArea) msgArea.style.display = settings.isOpen ? 'none' : 'block';
     });
 
-    window.wheelProbs = { miss: 50, c100: 20, c150: 25, c500: 4, gift: 1 }; // Mặc định
-    db.ref('game_settings/wheel_probabilities').on('value', (snapshot) => {
-        if (snapshot.exists()) {
-            window.wheelProbs = snapshot.val();
-        }
-    });
-
-    db.ref('spin_history').on('value', async () => {
-        if (typeof loadSpinHistory === 'function') await loadSpinHistory();
-    });
+    // Sửa lỗi: Cộp chung 2 listener vòng quay bị trùng lặp ở code cũ
+    window.wheelProbs = { miss: 50, c100: 20, c150: 25, c500: 4, gift: 1 };
     db.ref('game_settings/wheel_probabilities').on('value', (snapshot) => {
         const probs = snapshot.val() || { miss: 50, c100: 20, c150: 25, c500: 4, gift: 1 };
+        window.wheelProbs = probs;
         if (document.getElementById('probMiss')) {
             document.getElementById('probMiss').value = probs.miss;
             document.getElementById('prob100').value = probs.c100;
@@ -148,17 +150,9 @@ window.onload = async function () {
             document.getElementById('probGift').value = probs.gift;
         }
     });
-    // Lắng nghe sự thay đổi biến động Coin để cập nhật bảng quản lý tự động
-    db.ref('student_coins').on('value', async () => {
-        if (document.getElementById('studentsListContainer')) {
-            await loadStudentsList();
-        }
-    });
 
     db.ref('store_settings').on('value', (snapshot) => {
         const settings = snapshot.val();
-
-        // ---> THÊM 4 DÒNG NÀY ĐỂ ĐỒNG BỘ NÚT TICK TỪ FIREBASE <---
         const storeToggleInput = document.getElementById('storeToggle');
         if (storeToggleInput && settings !== null && settings.isOpen !== undefined) {
             storeToggleInput.checked = settings.isOpen;
@@ -170,16 +164,29 @@ window.onload = async function () {
                     if (settings[item.id].price !== undefined) item.price = settings[item.id].price;
                     if (settings[item.id].startDate !== undefined) item.startDate = settings[item.id].startDate;
                     if (settings[item.id].endDate !== undefined) item.endDate = settings[item.id].endDate;
-                    item.isLocked = !!settings[item.id].isLocked; // ĐỒNG BỘ TRẠNG THÁI KHÓA
+                    item.isLocked = !!settings[item.id].isLocked;
                 }
             });
-            if (typeof initTeacherStoreManagement === 'function') {
-                initTeacherStoreManagement();
-            }
+            if (typeof initTeacherStoreManagement === 'function') initTeacherStoreManagement();
         }
     });
 
-    // (Bổ sung) Lắng nghe giáo viên nhập điểm để tự ẩn/hiện phần câu hỏi
+    db.ref('system_settings/conversionTableEnabled').on('value', (snapshot) => {
+        const isEnabled = snapshot.val() !== false;
+        window.isConversionEnabled = isEnabled;
+        const toggleBtn = document.getElementById('toggleConversionTable');
+        if (toggleBtn) toggleBtn.checked = isEnabled;
+
+        const conversionSection = document.getElementById('conversionTableSection');
+        if (conversionSection) conversionSection.style.display = isEnabled ? 'block' : 'none';
+
+        const coinModal = document.getElementById('coinConversionModal');
+        if (!isEnabled && coinModal && coinModal.classList.contains('active')) {
+            closeCoinConversionModal();
+        }
+    });
+
+    // Lắng nghe giáo viên nhập điểm (Giữ nguyên)
     const mcInput = document.getElementById('mcWeight');
     const essayInput = document.getElementById('essayWeight');
     if (mcInput) mcInput.addEventListener('input', window.updateExamFields);
@@ -189,39 +196,6 @@ window.onload = async function () {
     const editEssayInput = document.getElementById('editEssayWeight');
     if (editMcInput) editMcInput.addEventListener('input', window.updateEditExamFields);
     if (editEssayInput) editEssayInput.addEventListener('input', window.updateEditExamFields);
-
-    // Đồng bộ nút Bật/Tắt Bảng quy đổi từ Giáo viên
-    db.ref('system_settings/conversionTableEnabled').on('value', (snapshot) => {
-        const isEnabled = snapshot.val() !== false;
-
-        // 1. Lưu trạng thái vào biến toàn cục để sử dụng cho popup nổi
-        window.isConversionEnabled = isEnabled;
-
-        // [BỔ SUNG] Đồng bộ hiển thị trạng thái của nút gạt sau khi tải lại trang
-        const toggleBtn = document.getElementById('toggleConversionTable');
-        if (toggleBtn) toggleBtn.checked = isEnabled;
-
-        // 2. Ẩn/Hiện khu vực Rút tiền ở tab Lộ trình
-        const conversionSection = document.getElementById('conversionTableSection');
-        if (conversionSection) {
-            conversionSection.style.display = isEnabled ? 'block' : 'none';
-        }
-
-        // 3. Tự động đóng Popup quy đổi Coin nếu giáo viên vừa tắt
-        const coinModal = document.getElementById('coinConversionModal');
-        if (!isEnabled && coinModal && coinModal.classList.contains('active')) {
-            closeCoinConversionModal();
-        }
-    });
-
-    // =================================================================
-    // ĐỒNG BỘ YÊU CẦU RÚT TIỀN CỦA HỌC SINH VỀ GIÁO VIÊN THỜI GIAN THỰC
-    // =================================================================
-    db.ref('cash_requests').on('value', async () => {
-        if (typeof loadTeacherCashRequests === 'function' && document.getElementById('teacherCashRequestsListContainer')) {
-            await loadTeacherCashRequests();
-        }
-    });
 };
 
 function getEmbedHTML(url) {
@@ -520,7 +494,7 @@ async function loadAssignedList() {
             typeText += ' 📁 [Chỉ nhận Tệp]';
         }
 
-        // --- LOGIC MỚI: TẠO NHÃN CHƯA NỘP / CHƯA ĐẾN GIỜ ---
+        // --- LOGIC MỚI ĐÃ SỬA: TẠO NHÃN TRẠNG THÁI NỘP BÀI ---
         const now = new Date();
         const startTime = assign.startDate ? new Date(assign.startDate.replace(" ", "T")) : new Date(0);
         let statusBadge = '';
@@ -534,11 +508,23 @@ async function loadAssignedList() {
                 return arr.includes('all') || arr.includes(u.username);
             });
 
-            // Kiểm tra xem có học sinh nào trong danh sách mục tiêu CHƯA có bài nộp không
-            const hasMissing = targetStudents.some(st => !submissions.some(s => s.assignmentId === assign.id && s.studentUsername === st.username));
+            const totalAssigned = targetStudents.length;
 
-            if (hasMissing) {
-                statusBadge = `<span style="background: rgba(225, 29, 72, 0.15); color: #e11d48; padding: 4px 10px; border-radius: 20px; font-size: 0.75em; margin-left: 10px; vertical-align: middle; white-space: nowrap; font-weight: bold; border: 1px solid rgba(225, 29, 72, 0.3);">⚠️ Chưa nộp</span>`;
+            // Đếm số lượng học sinh ĐÃ nộp bài cho bài tập này
+            let submittedCount = 0;
+            targetStudents.forEach(st => {
+                 if (submissions.some(s => s.assignmentId === assign.id && s.studentUsername === st.username)) {
+                     submittedCount++;
+                 }
+            });
+
+            // Quyết định màu sắc và nội dung hiển thị dựa trên tỉ lệ nộp
+            if (submittedCount === 0) {
+                 statusBadge = `<span style="background: rgba(225, 29, 72, 0.15); color: #e11d48; padding: 4px 10px; border-radius: 20px; font-size: 0.75em; margin-left: 10px; vertical-align: middle; white-space: nowrap; font-weight: bold; border: 1px solid rgba(225, 29, 72, 0.3);">🔴 Chưa ai nộp (0/${totalAssigned})</span>`;
+            } else if (submittedCount < totalAssigned) {
+                 statusBadge = `<span style="background: rgba(245, 158, 11, 0.15); color: #d97706; padding: 4px 10px; border-radius: 20px; font-size: 0.75em; margin-left: 10px; vertical-align: middle; white-space: nowrap; font-weight: bold; border: 1px solid rgba(245, 158, 11, 0.3);">🟡 Đang làm (${submittedCount}/${totalAssigned})</span>`;
+            } else {
+                 statusBadge = `<span style="background: rgba(16, 185, 129, 0.15); color: #059669; padding: 4px 10px; border-radius: 20px; font-size: 0.75em; margin-left: 10px; vertical-align: middle; white-space: nowrap; font-weight: bold; border: 1px solid rgba(16, 185, 129, 0.3);">🟢 Đã nộp đủ (${submittedCount}/${totalAssigned})</span>`;
             }
         }
         // ---------------------------------------------------

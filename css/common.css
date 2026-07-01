@@ -7,12 +7,25 @@
     font-family: 'Nunito', 'Segoe UI', sans-serif; 
 }
 
-body { 
-    /* Dải màu nền bình yên, thư giãn */
-    background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Nunito', 'Segoe UI', sans-serif;
+    color: #444;
+    line-height: 1.6;
+    
+    /* Cấu hình nền động */
+    background: linear-gradient(135deg, #e0c3fc, #8ec5fc, #a1c4fd, #c2e9fb);
+    background-size: 400% 400%; /* Kích thước nền lớn gấp 4 lần màn hình để tạo không gian di chuyển */
+    animation: gradientShift 15s ease infinite; /* Hiệu ứng kéo dài 15 giây, lặp lại vô hạn */
     background-attachment: fixed;
-    color: #444; 
-    line-height: 1.6; 
+}
+
+/* Định nghĩa chuyển động cho gradient */
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 /* --- Khung Đăng Nhập --- */
