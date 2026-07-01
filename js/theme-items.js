@@ -71,6 +71,13 @@ class ThemeManager {
             background: '#0a0a0d',    // Đen Vực Thẳm
             className: 'theme-lotm-mysteries' 
         },
+        // THÊM CẤU HÌNH GIAO DIỆN TRUYỀN THUYẾT
+        'theme_truyenthuyet_celestial': { 
+            primary: '#ffd700',       // Màu Vàng Thần Thánh (Divine Gold)
+            secondary: '#e5e4e2',     // Màu Bạch Kim (Platinum)
+            background: '#050508',    // Màu Đen Vô Cực (Deep Void)
+            className: 'theme-legendary-celestial' // Class này sẽ bọc toàn trang
+        },
     };
 
     static applyTheme(themeId) {
@@ -88,7 +95,7 @@ class ThemeManager {
         });
 
         // 1. Xóa tất cả các class theme đặc biệt cũ khỏi body
-        document.body.classList.remove('theme-fairy-tale', 'theme-magic-forest', 'theme-lifestyle', 'theme-night-sky', 'theme-daylight-sky', 'theme_truyenthuyet_vutru', 'theme-mercury-station', 'theme-cosmic-anomaly', 'theme-vethan-nganha', 'theme-lotm-mysteries');
+        document.body.classList.remove('theme-fairy-tale', 'theme-magic-forest', 'theme-lifestyle', 'theme-night-sky', 'theme-daylight-sky', 'theme_truyenthuyet_vutru', 'theme-mercury-station', 'theme-cosmic-anomaly', 'theme-vethan-nganha', 'theme-lotm-mysteries', 'theme_truyenthuyet_celestial');
 
         // 2. Tiêm class mới vào body nếu theme đó có yêu cầu thay đổi hình dáng
         if (theme.className) {

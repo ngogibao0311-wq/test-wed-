@@ -568,6 +568,13 @@ async function loadAssignedList() {
         div.className = 'card accordion-card';
         div.setAttribute('data-target', Array.isArray(assign.targetStudent) ? assign.targetStudent.join(',') : (assign.targetStudent || 'all'));
 
+        if (typeof activeAssignedStudentFilter !== 'undefined' && activeAssignedStudentFilter !== 'all') {
+            const targets = Array.isArray(assign.targetStudent) ? assign.targetStudent : [assign.targetStudent || 'all'];
+            if (!targets.includes('all') && !targets.includes(activeAssignedStudentFilter)) {
+                div.style.display = 'none';
+            }
+        }
+
         // Cập nhật lại HTML phần tiêu đề: Đưa Title và statusBadge vào một Flex box
         div.innerHTML = `<div class="accordion-header" onclick="toggleAccordion('${uniqueId}', this)">
             <div class="accordion-title">
@@ -657,6 +664,14 @@ async function loadMaterialsListTeacher() {
         const div = document.createElement('div'); div.className = 'card accordion-card';
         div.className = 'card accordion-card';
         div.setAttribute('data-target', Array.isArray(mat.targetStudent) ? mat.targetStudent.join(',') : (mat.targetStudent || 'all'));
+
+        if (typeof activeMaterialStudentFilter !== 'undefined' && activeMaterialStudentFilter !== 'all') {
+            const targets = Array.isArray(mat.targetStudent) ? mat.targetStudent : [mat.targetStudent || 'all'];
+            if (!targets.includes('all') && !targets.includes(activeMaterialStudentFilter)) {
+                div.style.display = 'none';
+            }
+        }
+
         div.innerHTML = `
             <div class="accordion-header" onclick="toggleAccordion('${uniqueId}', this)">
                 <div class="accordion-title"><h4>${mat.title}</h4><span>🕒 Đăng lúc: ${mat.uploadTime || 'Chưa rõ'}</span></div>
@@ -910,6 +925,12 @@ async function loadSubmissions() {
         const div = document.createElement('div');
         div.className = 'card accordion-card';
         div.setAttribute('data-student', sub.studentUsername); // <--- THÊM ĐÚNG 1 DÒNG NÀY ĐỂ DÁN NHÃN
+
+        if (typeof activeSubmissionStudentFilter !== 'undefined' && activeSubmissionStudentFilter !== 'all') {
+            if (sub.studentUsername !== activeSubmissionStudentFilter) {
+                div.style.display = 'none'; // Ẩn các học sinh khác đi để giữ đúng bộ lọc hiện tại
+            }
+        }
 
         div.innerHTML = `<div class="accordion-header" onclick="toggleAccordion('${uniqueId}', this)">
                 <div class="accordion-title"><h4>${assign.title}</h4><span>HS: <strong>${sub.studentName}</strong></span></div>
@@ -1744,47 +1765,57 @@ window.saveAssignmentEdit = async function () {
     loadAssignedList();
 };
 
-// ================= HÀM ĐÓNG / MỞ POPUP TRẠNG THÁI LÀM BÀI =================
+// ================= HÀM ĐÓNG / MỞ VÀ PHÂN TÍCH TRẠNG THÁI CHI TIẾT BÀI LÀM =================
 window.openAssignmentStatusModal = async function (assignId) {
     const modal = document.getElementById('assignmentStatusModal');
     const container = document.getElementById('assignmentStatusContainer');
 
-    // Hiển thị loading trong lúc fetch dữ liệu
-    container.innerHTML = '<p style="text-align: center; color: #666;">⏳ Đang tải dữ liệu trạng thái...</p>';
+    // Hiển thị trạng thái chờ tải dữ liệu thời gian thực
+    container.innerHTML = '<p style="text-align: center; color: #475569; font-weight: 500;">⏳ Đang đồng bộ trạng thái hệ thống...</p>';
     modal.classList.add('active');
 
-    // Tải dữ liệu từ database
-    const assignments = await getDB('assignments');
+    // Tải dữ liệu từ database (Ưu tiên bộ nhớ đệm Cache để tăng tốc độ phản hồi)
+    const assignments = (window.cachedAssignments && window.cachedAssignments.length > 0) ? window.cachedAssignments : await getDB('assignments');
     const users = await getDB('users');
-    const submissions = await getDB('submissions');
+    const submissions = (window.cachedSubmissions && window.cachedSubmissions.length > 0) ? window.cachedSubmissions : await getDB('submissions');
 
-    // Tìm bài tập hiện tại
+    // Kiểm tra tính hợp lệ của bài tập
     const assign = assignments.find(a => a.id === assignId);
     if (!assign) {
-        container.innerHTML = '<p style="color: red;">Không tìm thấy thông tin bài tập.</p>';
+        container.innerHTML = '<p style="color: #ef4444; text-align: center; padding: 10px; font-weight: 600;">❌ Không tìm thấy dữ liệu bài tập cấu hình.</p>';
         return;
     }
 
-    // Lọc ra danh sách học sinh được giao bài này
-    const targetArr = Array.isArray(assign.targetStudent) ? assign.targetStudent : [assign.targetStudent || 'all'];
+    // XỬ LÝ ĐA DẠNG ĐỐI TƯỢNG ĐƯỢC GIAO: 1 học sinh, chuỗi nhiều học sinh, hoặc mảng học sinh
+    let targetArr = [];
+    if (Array.isArray(assign.targetStudent)) {
+        targetArr = assign.targetStudent;
+    } else if (typeof assign.targetStudent === 'string') {
+        // Phân tách bằng dấu phẩy nếu giao cho nhiều học sinh viết liền
+        targetArr = assign.targetStudent.split(',').map(s => s.trim()).filter(Boolean);
+    }
+    if (targetArr.length === 0) targetArr = ['all'];
+
+    // Lọc danh sách học sinh thuộc diện được giao bài
     const students = users.filter(u => u.role === 'student' && (targetArr.includes('all') || targetArr.includes(u.username)));
 
     if (students.length === 0) {
-        container.innerHTML = '<p>Không có học sinh nào được giao bài tập này.</p>';
+        container.innerHTML = '<p style="text-align: center; color: #64748b; padding: 20px;">Danh sách học sinh được phân phối đang trống.</p>';
         return;
     }
 
-    // Lấy mốc thời gian
+    // Lấy các mốc thời gian hệ thống
     const now = new Date();
     const startTime = assign.startDate ? new Date(assign.startDate.replace(" ", "T")) : new Date(0);
     const endTime = assign.endDate ? new Date(assign.endDate.replace(" ", "T")) : new Date("2100-01-01");
 
-    // Tạo bảng hiển thị
-    let html = '<table style="width:100%; border-collapse: collapse; text-align: left;">';
-    html += '<tr style="background:rgba(255,255,255,0.7); border-bottom: 2px solid rgba(0,0,0,0.05);"><th style="padding:12px;">Học sinh</th><th style="padding:12px; text-align:center;">Trạng thái</th></tr>';
+    // Xây dựng giao diện bảng dữ liệu chống tràn viền (Có thanh cuộn ghim tiêu đề)
+    let html = '<div style="max-height: 65vh; overflow-y: auto; border-radius: 8px; border: 1px solid #e2e8f0;">';
+    html += '<table style="width:100%; border-collapse: collapse; text-align: left; font-size: 0.95em; background: #fff;">';
+    html += '<tr style="background:#f8fafc; border-bottom: 2px solid #e2e8f0; position: sticky; top: 0; z-index: 10;"><th style="padding:12px 16px; color:#475569; font-weight:600;">Học sinh</th><th style="padding:12px 16px; text-align:center; color:#475569; font-weight:600;">Trạng thái tiến độ</th></tr>';
 
     students.forEach(st => {
-        // Kiểm tra xem học sinh này đã nộp bài chưa
+        // Tìm lịch sử bản ghi bài làm tương ứng
         const sub = submissions.find(s => s.assignmentId === assignId && s.studentUsername === st.username);
 
         let statusText = '';
@@ -1792,37 +1823,71 @@ window.openAssignmentStatusModal = async function (assignId) {
         let statusColor = '';
 
         if (sub) {
-            statusText = '✅ Đã nộp';
-            statusBg = 'rgba(16, 185, 129, 0.15)'; // Nền Xanh lá
-            statusColor = '#059669';
+            // === KIỂM TRA CÁC ĐIỀU KIỆN LOGIC CỦA BÀI NỘP ===
+            if (sub.isCheatFail) {
+                statusText = '🚨 Vi phạm quy chế thi';
+                statusBg = '#fef2f2';
+                statusColor = '#ef4444';
+            } else if (sub.isRedoing) {
+                statusText = '🔁 Đang làm lại'; // Trạng thái học sinh đang phải làm lại bài
+                statusBg = '#f3e8ff';
+                statusColor = '#9333ea';
+            } else if (sub.isAutoSubmitted) {
+                statusText = '⏳ Bị thu tự động';
+                statusBg = '#fff7ed';
+                statusColor = '#ea580c';
+            } else if (sub.isLateFail) {
+                statusText = '⚠️ Nộp trễ quá hạn';
+                statusBg = '#fff1f2';
+                statusColor = '#f43f5e';
+            } else if (sub.grade !== null && sub.grade !== undefined && sub.grade !== '') {
+                // Phân định trạng thái chấm điểm và chấm lại
+                if (sub.isRegrading) {
+                    statusText = `🔄 Đang chấm lại (${sub.grade}đ)`;
+                    statusBg = '#f0fdf4';
+                    statusColor = '#16a34a';
+                } else {
+                    statusText = `✅ Đã chấm điểm: ${sub.grade}đ`;
+                    statusBg = '#f0fdf4';
+                    statusColor = '#15803d';
+                }
+            } else {
+                statusText = '📥 Đã nộp bài (Chờ chấm)';
+                statusBg = '#f0fdfa';
+                statusColor = '#0d9488';
+            }
         } else {
+            // === KIỂM TRA TIẾN TRÌNH KHI CHƯA PHÁT SINH BÀI NỘP CHÍNH THỨC ===
             if (now < startTime) {
-                statusText = '⏳ Chưa thi';
-                statusBg = 'rgba(245, 158, 11, 0.15)'; // Nền Cam
-                statusColor = '#d97706';
+                statusText = '📅 Chưa tới giờ làm';
+                statusBg = '#f1f5f9';
+                statusColor = '#64748b';
             } else if (now >= startTime && now <= endTime) {
-                statusText = '✍️ Đang thi';
-                statusBg = 'rgba(59, 130, 246, 0.15)'; // Nền Xanh dương
+                statusText = '✍️ Đang làm (Xem video/Trắc nghiệm)'; // Trạng thái đang thực hiện bài lần đầu
+                statusBg = '#eff6ff';
                 statusColor = '#2563eb';
             } else {
-                // Thêm trường hợp hết hạn nhưng hệ thống chưa kịp tự thu bài
-                statusText = '⚠️ Quá hạn (Chưa nộp)';
-                statusBg = 'rgba(225, 29, 72, 0.15)'; // Nền Đỏ
+                statusText = '❌ Quá hạn (Chưa nộp)';
+                statusBg = '#fff1f2';
                 statusColor = '#e11d48';
             }
         }
 
-        html += `<tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
-            <td style="padding:12px; color: #2c3e50;"><strong>${st.name}</strong> <br><span style="font-size: 0.85em; color: #888;">${st.username}</span></td>
-            <td style="padding:12px; text-align:center;">
-                <span style="color: ${statusColor}; background: ${statusBg}; padding: 6px 12px; border-radius: 20px; font-size: 0.85em; font-weight: 800;">
+        // Tạo dòng dữ liệu với hiệu ứng Hover
+        html += `<tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+            <td style="padding:14px 16px;">
+                <span style="font-weight: 600; color: #1e293b; display: block;">${st.name}</span>
+                <span style="font-size: 0.8em; color: #64748b;">@${st.username}</span>
+            </td>
+            <td style="padding:14px 16px; text-align:center;">
+                <span style="color: ${statusColor}; background: ${statusBg}; padding: 6px 14px; border-radius: 50px; font-size: 0.85em; font-weight: 600; display: inline-block; border: 1px solid ${statusColor}25; white-space: nowrap;">
                     ${statusText}
                 </span>
             </td>
         </tr>`;
     });
 
-    html += '</table>';
+    html += '</table></div>';
     container.innerHTML = html;
 };
 

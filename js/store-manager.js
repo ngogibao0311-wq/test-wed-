@@ -347,6 +347,37 @@ const StoreConfig = {
             tag: 'Đang phát triển',
             value: '🎵'
         },
+        {
+            id: 'pet_truyenthuyet_nyx',
+            name: 'Nyx - Nữ Thần Màn Đêm',
+            type: 'pet',
+            price: 2000,
+            isNonCoin: false,
+            tag: 'Truyền thuyết',
+            value: 'assets/pet/truyền thuyết/truyền thuyết 3.png',
+            isIcon: false,
+            petEffect: 'nyx-night-goddess-magic'
+        },
+        {
+            id: 'effect_truyenthuyet_nyx_domain',
+            name: 'Kỷ Nguyên Đêm Trường Cửu',
+            type: 'effect',
+            price: 1500,
+            isNonCoin: false,
+            tag: 'Truyền thuyết',
+            value: 'effect_truyenthuyet_nyx_domain',
+            customIcon: '🌌'
+        },
+        {
+            id: 'theme_truyenthuyet_celestial',
+            name: 'Thánh Vực Tối Thượng',
+            type: 'theme',
+            price: 1500,
+            isNonCoin: false,
+            tag: 'Truyền thuyết',
+            value: 'theme-legendary-celestial', // Tên Class CSS sẽ kích hoạt
+            customIcon: '👁️‍🗨️'
+        },
     ]
 };
 

@@ -64,6 +64,9 @@ class EffectManager {
             case 'effect_lotm_amon':
                 this.createAmonTimeEffect();
                 break;
+            case 'effect_truyenthuyet_nyx_domain':
+                this.createNyxDomainEffect();
+                break;
         }
         localStorage.setItem('active_effect', effectId);
     }
@@ -386,10 +389,11 @@ class EffectManager {
         // 2. Vệt Sao Băng
         this.shootingStarInterval = setInterval(() => {
             const star = document.createElement('div');
-            star.classList.add('effect-shooting-star-cosmic');
+            star.classList.add('nyx-domain-shooting-star');
 
-            star.style.top = Math.random() * 35 + 'vh';
-            star.style.left = '-20vw'; // Xuất phát lùi sâu ra ngoài màn hình
+            // CẬP NHẬT: Random mạnh cả tọa độ ngang và dọc để sao rơi rải rác khắp nơi
+            star.style.top = (Math.random() * 50 - 10) + 'vh';  // Rơi từ khoảng -10vh đến 40vh
+            star.style.left = (Math.random() * 50 - 20) + 'vw'; // Xuất phát lùi sâu ra ngoài màn hình
 
             // Tốc độ sao băng xẹt (1s - 2s)
             const starDuration = Math.random() * 1 + 1;
@@ -456,13 +460,13 @@ class EffectManager {
         this.currentInterval = setInterval(() => {
             const monocle = document.createElement('div');
             monocle.classList.add('effect-amon-monocle');
-            
+
             monocle.style.left = Math.random() * 100 + 'vw';
-            
+
             // Tốc độ rơi lơ lửng (5s - 8s)
             let duration = Math.random() * 3 + 5;
             monocle.style.animationDuration = duration + 's';
-            
+
             // Kích thước ngẫu nhiên để tạo chiều sâu 3D (từ 15px đến 30px)
             let size = Math.random() * 15 + 15;
             monocle.style.width = size + 'px';
@@ -479,7 +483,7 @@ class EffectManager {
         this.shootingStarInterval = setInterval(() => {
             const raven = document.createElement('div');
             raven.classList.add('effect-amon-raven');
-            
+
             raven.style.top = Math.random() * 80 + 'vh';
             let flyDuration = Math.random() * 2 + 3;
             raven.style.animationDuration = flyDuration + 's';
@@ -490,5 +494,83 @@ class EffectManager {
                 if (raven.parentNode) raven.remove();
             }, flyDuration * 1000);
         }, 2000); // 2s bay 1 con
+    }
+
+    static createNyxDomainEffect() {
+        if (!this.container) return;
+
+        // 1. Tạo lớp phủ không gian sương tối huyền ảo chuyển động chậm
+        const domainBg = document.createElement('div');
+        domainBg.classList.add('nyx-domain-ambient');
+        this.container.appendChild(domainBg);
+
+        const hasNyxPet = document.querySelector('.nyx-night-goddess-magic') !== null;
+
+        // 2. Bộ đếm sinh các hạt bụi tinh tú lơ lửng màu tím/trắng
+        this.currentInterval = setInterval(() => {
+            const particle = document.createElement('div');
+            particle.classList.add('nyx-domain-dust');
+            
+            particle.style.left = Math.random() * 100 + 'vw';
+            particle.style.top = Math.random() * 100 + 'vh';
+            
+            let size = Math.random() * 3 + 2; 
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            
+            const isPurple = Math.random() > 0.5;
+            particle.style.background = isPurple ? '#c77dff' : '#ffffff';
+            particle.style.boxShadow = isPurple ? '0 0 8px #8a2be2' : '0 0 8px #ffffff';
+
+            let duration = Math.random() * 4 + 4;
+            particle.style.animationDuration = duration + 's';
+
+            this.container.appendChild(particle);
+
+            setTimeout(() => {
+                if (particle.parentNode) particle.remove();
+            }, duration * 1000);
+        }, hasNyxPet ? 120 : 250);
+
+        // 3. Bộ đếm tạo dải sao băng xẹt chéo màn hình cực đẹp mắt (NÂNG CẤP CỘNG HƯỞNG)
+        this.shootingStarInterval = setInterval(() => {
+            // KIỂM TRA TRẠNG THÁI MÀN ĐÊM BUÔNG XUỐNG
+            const isDarkWorld = document.querySelector('.nyx-dark-world') !== null;
+            
+            // Nếu đang trong màn đêm, số lượng sao băng rơi đồng thời TĂNG LÊN 3 CÁI!
+            const spawnCount = isDarkWorld ? 3 : 1;
+
+            for (let k = 0; k < spawnCount; k++) {
+                const star = document.createElement('div');
+                star.classList.add('nyx-domain-shooting-star');
+                
+                // Tọa độ rơi ngẫu nhiên rải rác khắp bầu trời
+                star.style.top = (Math.random() * 50 - 10) + 'vh';
+                star.style.left = (Math.random() * 50 - 20) + 'vw';
+
+                if (hasNyxPet) {
+                    star.classList.add('nyx-enhanced-star');
+                }
+                
+                // NẾU LÀ MÀN ĐÊM: Gắn thêm class siêu phát sáng độc quyền
+                if (isDarkWorld) {
+                    star.classList.add('nyx-dark-world-star');
+                }
+
+                let starDuration = Math.random() * 1.5 + 1;
+                star.style.animationDuration = `${starDuration}s`;
+                
+                // Tránh việc 3 ngôi sao xuất hiện trùng lặp hoàn toàn cùng 1 mili giây
+                if (isDarkWorld) {
+                    star.style.animationDelay = `${Math.random() * 0.4}s`;
+                }
+
+                this.container.appendChild(star);
+
+                setTimeout(() => {
+                    if (star.parentNode) star.remove();
+                }, (starDuration + 0.5) * 1000);
+            }
+        }, hasNyxPet ? 2000 : 4500);
     }
 }

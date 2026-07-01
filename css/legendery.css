@@ -1,0 +1,415 @@
+/* =========================================
+   1. HIỆU ỨNG CHỜ ĐỘC QUYỀN (IDLE STATE): NYX - NỮ THẦN MÀN ĐÊM
+========================================= */
+
+/* Bản thân Nyx: Đậm màu sương mù, lơ lửng */
+.nyx-night-goddess-magic {
+    filter: drop-shadow(0 0 15px rgba(138, 43, 226, 0.9)) 
+            drop-shadow(0 0 30px rgba(0, 0, 0, 1)) !important;
+    animation: nyx-float 4s ease-in-out infinite;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 2; /* Đảm bảo hình ảnh nằm trên hố đen */
+}
+
+.nyx-night-goddess-magic:hover {
+    filter: drop-shadow(0 0 25px rgba(255, 255, 255, 0.9)) 
+            drop-shadow(0 0 50px rgba(138, 43, 226, 1)) !important;
+    transform: scale(1.08);
+}
+
+/* THÊM CHI TIẾT 1: Vòng xoáy Ngân Hà (Hố đen) đằng sau lưng */
+#virtual-pet-container:has(.nyx-night-goddess-magic)::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 150px;
+    height: 150px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    /* Tạo dải màu xoáy tròn như một hố đen vũ trụ */
+    background: conic-gradient(from 0deg, transparent 0%, rgba(138, 43, 226, 0.15) 20%, rgba(75, 0, 130, 0.7) 60%, rgba(15, 23, 42, 1) 90%, transparent 100%);
+    box-shadow: 0 0 30px rgba(138, 43, 226, 0.4), inset 0 0 20px rgba(0, 0, 0, 0.9);
+    animation: nyx-galaxy-spin 7s linear infinite;
+    z-index: -1; /* Nằm dưới lưng Nyx */
+    pointer-events: none;
+}
+
+/* THÊM CHI TIẾT 2: Vành đai tinh tú (Bụi sao) bay quanh người */
+#virtual-pet-container:has(.nyx-night-goddess-magic)::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    /* Dùng box-shadow tạo ra 8 ngôi sao nhỏ li ti vệ tinh */
+    box-shadow: 
+        60px -40px 2px 1px #fff, 
+        -70px 50px 2px 0px #e0aaff, 
+        45px 65px 1px 1px #fff, 
+        -55px -55px 3px 1px #c77dff,
+        80px 10px 1px 0px #fff,
+        -80px -20px 2px 1px #e0aaff,
+        20px -75px 1px 0px #fff,
+        -10px 80px 2px 1px #c77dff;
+    animation: nyx-stardust-orbit 10s linear infinite;
+    z-index: 3; /* Xoay đè lên trên Nyx */
+    pointer-events: none;
+}
+
+/* --- KEYFRAMES CHO TRẠNG THÁI CHỜ --- */
+@keyframes nyx-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); } /* Nảy lên nảy xuống nhẹ nhàng */
+}
+
+@keyframes nyx-galaxy-spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+    50% { transform: translate(-50%, -50%) rotate(180deg) scale(1.1); } /* Xoáy và phình to nhẹ */
+    100% { transform: translate(-50%, -50%) rotate(360deg) scale(1); }
+}
+
+@keyframes nyx-stardust-orbit {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); } /* Quay vòng quanh như hệ mặt trời */
+}
+
+/* 2. Hiệu ứng bùng nổ khi click */
+.nyx-power-release {
+    animation: nyx-burst 0.8s ease-out forwards;
+}
+
+@keyframes nyx-burst {
+    0% { transform: scale(1.08); filter: drop-shadow(0 0 20px #8a2be2); }
+    50% { transform: scale(1.25); filter: drop-shadow(0 0 100px #fff) drop-shadow(0 0 200px #8a2be2); }
+    100% { transform: scale(1); filter: drop-shadow(0 0 15px #8a2be2); }
+}
+
+/* 3. Màn đêm buông xuống (Làm tối toàn bộ trang web) */
+.nyx-dark-world {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: radial-gradient(circle at center, rgba(15, 23, 42, 0.6) 0%, rgba(0, 0, 0, 0.95) 100%);
+    z-index: 998; /* Dưới thú cưng, trên UI */
+    pointer-events: none;
+    opacity: 0;
+    animation: nyx-fade-in-out 5.5s forwards;
+}
+
+/* 4. Khung thoại Thần Thoại */
+.nyx-dialogue-box {
+    position: absolute;
+    top: -70px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #11001c, #3a0ca3);
+    color: #e0aaff;
+    padding: 12px 20px;
+    border: 1px solid #7209b7;
+    border-radius: 8px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 15px;
+    font-weight: bold;
+    white-space: nowrap;
+    box-shadow: 0 0 20px rgba(114, 9, 183, 0.8), inset 0 0 10px rgba(0,0,0,0.5);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1000;
+    animation: nyx-fade-in-out 5.5s forwards;
+}
+
+.nyx-dialogue-box::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 10px 10px 0;
+    border-style: solid;
+    border-color: #3a0ca3 transparent transparent transparent;
+}
+
+@keyframes nyx-fade-in-out {
+    0% { opacity: 0; }
+    15% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { opacity: 0; }
+}
+/* 5. Mặt trăng huyền bí */
+.nyx-moon {
+    position: absolute;
+    top: 15%;
+    right: 20%;
+    font-size: 130px; /* Phóng to mặt trăng từ 100px lên 130px cho uy nghiêm */
+    /* Chồng nhiều lớp bóng đổ cực mạnh giúp vầng trăng sáng rực rỡ lấn át hoàn toàn bóng tối */
+    filter: drop-shadow(0 0 25px #ffffff) 
+            drop-shadow(0 0 60px #fdfbd3) 
+            drop-shadow(0 0 130px #fff782)
+            drop-shadow(0 0 200px rgba(255, 247, 130, 0.6));
+    opacity: 0;
+    animation: nyx-moon-rise 0.8s ease-out forwards 0.3s;
+}
+
+@keyframes nyx-moon-rise {
+    0% { opacity: 0; transform: translateY(30px) scale(0.8); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* 6. Các vì sao lấp lánh */
+.nyx-star {
+    position: absolute;
+    background-color: white;
+    border-radius: 50%;
+    box-shadow: 0 0 5px white, 0 0 10px #e0aaff;
+    opacity: 0;
+    animation: nyx-twinkle linear infinite;
+}
+
+@keyframes nyx-twinkle {
+    0% { opacity: 0; transform: scale(0.5); }
+    50% { opacity: 1; transform: scale(1.2); }
+    100% { opacity: 0; transform: scale(0.5); }
+}
+/* =========================================
+   HIỆU ỨNG DẢI PHÉP THUẬT LÊ THEO SAU KHI KÉO (THÊM MỚI)
+========================================= */
+.nyx-trail-particle {
+    position: fixed;
+    width: 6px;
+    height: 6px;
+    background: radial-gradient(circle, #fff, #e0aaff, #7209b7);
+    border-radius: 50%;
+    pointer-events: none;
+    box-shadow: 0 0 8px #c77dff, 0 0 15px #8a2be2;
+    z-index: 999;
+    /* Tăng thời gian từ 0.8s lên 2s */
+    animation: nyx-trail-fade 2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes nyx-trail-fade {
+    0% { transform: scale(1.5) translateY(0); opacity: 1; }
+    /* Tăng translateY lên 50px để vệt sao rơi dài hơn trước khi biến mất */
+    100% { transform: scale(0.1) translateY(50px); opacity: 0; } 
+}
+/* =========================================
+   HIỆU ỨNG TOÀN WEB: KỶ NGUYÊN ĐÊM TRƯỜNG CỬU (EFFECT NYX DOMAIN)
+========================================= */
+
+/* Lớp nền sương mù bóng đêm bao phủ nhẹ nhàng toàn trang */
+.nyx-domain-ambient {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: radial-gradient(circle at 50% 50%, rgba(20, 8, 38, 0.25) 0%, rgba(8, 4, 15, 0.45) 100%);
+    z-index: 1; /* Nằm dưới UI hệ thống và thú cưng */
+    pointer-events: none;
+    animation: nyx-ambient-pulse 6s ease-in-out infinite alternate;
+}
+
+@keyframes nyx-ambient-pulse {
+    0% { opacity: 0.75; }
+    100% { opacity: 1; }
+}
+
+/* Các hạt bụi tinh tú trôi lơ lửng chậm rãi từ dưới lên */
+.nyx-domain-dust {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0;
+    animation: nyx-dust-float linear forwards;
+}
+
+@keyframes nyx-dust-float {
+    0% { transform: translateY(20px) scale(0.4); opacity: 0; }
+    20% { opacity: 0.8; }
+    80% { opacity: 0.8; }
+    100% { transform: translateY(-50px) scale(1); opacity: 0; }
+}
+
+/* Đường vệt sao băng xẹt chéo góc - Trạng thái bình thường */
+.nyx-domain-shooting-star {
+    position: fixed;
+    width: 120px; /* Tăng độ dài sao băng */
+    height: 2px;
+    /* ĐẢO NGƯỢC GRADIENT: Đuôi trong suốt ở trái (0%), đầu sáng trắng ở phải (100%) */
+    background: linear-gradient(90deg, transparent 0%, rgba(224,170,255,0.6) 60%, rgba(255,255,255,1) 100%);
+    /* QUAY XUỐNG DƯỚI: Đổi từ -35deg thành dương 35deg */
+    transform: rotate(35deg);
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0;
+    filter: drop-shadow(0 0 6px #c77dff);
+    animation: nyx-star-dash linear forwards;
+}
+
+/* CỘNG HƯỞNG NYX: Tăng cường độ rực rỡ */
+.nyx-domain-shooting-star.nyx-enhanced-star {
+    width: 200px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent 0%, #8a2be2 40%, #e0aaff 80%, #ffffff 100%);
+    filter: drop-shadow(0 0 12px #8a2be2) drop-shadow(0 0 25px #c77dff);
+}
+
+@keyframes nyx-star-dash {
+    /* Rơi chéo từ trên góc trái xuống góc phải dưới */
+    0% { transform: translateX(0) translateY(0) rotate(35deg); opacity: 0; }
+    15% { opacity: 1; }
+    85% { opacity: 1; }
+    100% { transform: translateX(110vw) translateY(75vh) rotate(35deg); opacity: 0; }
+}
+.nyx-domain-shooting-star.nyx-dark-world-star {
+    height: 4px; /* Tăng độ dày vệt sáng */
+    width: 320px; /* Kéo dài vệt xẹt qua màn hình */
+    background: linear-gradient(90deg, transparent 0%, #8a2be2 20%, #c77dff 60%, #ffffff 100%);
+    filter: drop-shadow(0 0 15px #ffffff) 
+            drop-shadow(0 0 35px #c77dff) 
+            drop-shadow(0 0 80px #8a2be2);
+}
+
+/* DẢI PHÉP THUẬT KHI KÉO TRONG MÀN ĐÊM: Kích thước to phát sáng ngọc trai */
+.nyx-trail-particle.nyx-trail-enhanced {
+    width: 11px; /* Tăng gần gấp đôi kích thước cũ (6px) */
+    height: 11px;
+    background: radial-gradient(circle, #ffffff 0%, #f0e6ff 40%, #8a2be2 100%);
+    box-shadow: 0 0 15px #ffffff, 
+                0 0 30px #c77dff, 
+                0 0 60px #8a2be2;
+}
+/* =========================================
+   GIAO DIỆN TRUYỀN THUYẾT: THÁNH VỰC TỐI THƯỢNG (CELESTIAL SANCTUARY)
+   Giá: 1500 Coin
+========================================= */
+
+/* --- 1. Phông chữ & Màu nền tổng thể --- */
+/* (Tải phông chữ Serif từ Google Fonts nếu web chưa có) */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+
+.theme-legendary-celestial {
+    font-family: 'Playfair Display', 'Times New Roman', serif !important;
+    background: radial-gradient(circle at 50% 0%, #1a1525 0%, #050508 80%) !important;
+    color: #e5e4e2 !important;
+}
+
+/* --- 2. Tùy chỉnh Thanh Cuộn (Slide bar/Scrollbar) --- */
+.theme-legendary-celestial ::-webkit-scrollbar {
+    width: 14px;
+}
+.theme-legendary-celestial ::-webkit-scrollbar-track {
+    background: #0a0a10;
+    border-left: 1px solid rgba(255, 215, 0, 0.2);
+}
+.theme-legendary-celestial ::-webkit-scrollbar-thumb {
+    /* Thanh cuộn đúc bằng vàng */
+    background: linear-gradient(180deg, #8b6508, #ffd700, #8b6508);
+    border: 2px solid #0a0a10;
+    border-radius: 0; /* Xóa bo tròn */
+}
+.theme-legendary-celestial ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #ffd700, #fff, #ffd700);
+    box-shadow: 0 0 15px #ffd700;
+}
+
+/* --- 3. Tùy chỉnh các Ô (Cells / Item Cards) --- */
+/* Ép các ô vật phẩm biến thành hình cắt góc kim cương */
+.theme-legendary-celestial .store-item, 
+.theme-legendary-celestial .inventory-item,
+.theme-legendary-celestial .cell,
+.theme-legendary-celestial .card {
+    background: rgba(20, 18, 28, 0.6) !important;
+    border: 1px solid rgba(255, 215, 0, 0.3) !important;
+    /* Lệnh cắt xéo 2 góc đối diện (trên-trái và dưới-phải) */
+    clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+    border-radius: 0 !important; 
+    transition: all 0.4s ease;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+}
+
+.theme-legendary-celestial .store-item:hover,
+.theme-legendary-celestial .inventory-item:hover {
+    background: rgba(30, 25, 45, 0.8) !important;
+    border-color: #ffd700 !important;
+    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
+    transform: translateY(-5px) scale(1.02);
+}
+
+/* --- 4. Tùy chỉnh Popup (Modal / Hộp thoại) --- */
+.theme-legendary-celestial .modal-content,
+.theme-legendary-celestial .popup,
+.theme-legendary-celestial .dialog-box {
+    background: linear-gradient(135deg, #110e17 0%, #0a0810 100%) !important;
+    border: 2px solid #ffd700 !important;
+    box-shadow: 0 0 50px rgba(255, 215, 0, 0.15), inset 0 0 20px rgba(255, 215, 0, 0.05) !important;
+    /* Cắt góc mảng lớn cho Popup */
+    clip-path: polygon(30px 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%, 0 30px);
+    border-radius: 0 !important;
+    position: relative;
+}
+
+/* Hoa văn viền đứt đoạn bên trong Popup */
+.theme-legendary-celestial .modal-content::before,
+.theme-legendary-celestial .popup::before {
+    content: '';
+    position: absolute;
+    top: 6px; left: 6px; right: 6px; bottom: 6px;
+    border: 1px dashed rgba(255, 215, 0, 0.4);
+    pointer-events: none;
+    clip-path: polygon(25px 0, 100% 0, 100% calc(100% - 25px), calc(100% - 25px) 100%, 0 100%, 0 25px);
+}
+
+/* --- 5. Tùy chỉnh Nút bấm (Buttons) --- */
+.theme-legendary-celestial button,
+.theme-legendary-celestial .btn {
+    background: linear-gradient(45deg, #8b6508, #ffd700, #8b6508) !important;
+    background-size: 200% 200%;
+    color: #000 !important;
+    font-family: 'Times New Roman', serif;
+    font-weight: 900 !important;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    border: none !important;
+    border-radius: 0 !important;
+    /* Nút bấm cũng bị vát góc cho đồng bộ */
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    transition: all 0.3s ease;
+}
+
+.theme-legendary-celestial button:hover,
+.theme-legendary-celestial .btn:hover {
+    background-position: 100% 0;
+    box-shadow: 0 0 15px #ffd700;
+    transform: scale(1.05);
+}
+
+/* --- 6. Tiêu đề (Headers) --- */
+.theme-legendary-celestial h1, 
+.theme-legendary-celestial h2, 
+.theme-legendary-celestial h3 {
+    color: #ffd700 !important;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: 0 2px 10px rgba(255, 215, 0, 0.4);
+    border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+    padding-bottom: 15px;
+    position: relative;
+    text-align: center;
+}
+
+/* Biểu tượng "✦" tỏa sáng ở giữa nét đứt tiêu đề */
+.theme-legendary-celestial h2::after,
+.theme-legendary-celestial h1::after {
+    content: '✦';
+    position: absolute;
+    bottom: -11px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #ffd700;
+    font-size: 18px;
+    background: #050508;
+    padding: 0 15px;
+    text-shadow: 0 0 8px #ffd700;
+}
