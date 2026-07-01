@@ -370,6 +370,34 @@ window.onload = async function () {
             await renderCashRequestHistory();
         }
     });
+
+    db.ref('limited_events').on('value', (snapshot) => {
+        const events = snapshot.val();
+        if (!events) return;
+
+        const now = Date.now();
+        let activeEvent = null;
+
+        for (let key in events) {
+            const ev = events[key];
+            const startTime = new Date(ev.startDate).getTime();
+            const endTime = new Date(ev.endDate).getTime();
+
+            // Kiểm tra xem thời điểm hiện tại có nằm trong lịch mở của sự kiện không
+            if (now >= startTime && now <= endTime && ev.isOpen) {
+                activeEvent = ev;
+                activeEvent.id = key;
+                break; // Tìm thấy 1 sự kiện đang mở thì bứt vòng lặp để hiển thị
+            }
+        }
+
+        if (activeEvent) {
+            showEventBanner(activeEvent);
+        } else {
+            const banner = document.getElementById('dynamicEventBanner');
+            if (banner) banner.style.display = 'none';
+        }
+    });
 };
 
 function getEmbedHTML(url) {
@@ -382,11 +410,11 @@ function getEmbedHTML(url) {
 
     if (videoId) {
         let embedUrl = `https://www.youtube.com/embed/${videoId}`;
-        // Thêm loading="lazy" vào thẻ iframe
-        return `<div class="video-wrapper"><iframe width="100%" height="315" src="${embedUrl}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe></div>`;
+        // Thêm margin-bottom: 20px
+        return `<div class="video-wrapper" style="margin-bottom: 20px;"><iframe width="100%" height="315" src="${embedUrl}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe></div>`;
     }
-    // Thêm loading="lazy" vào thẻ iframe dự phòng
-    return `<div class="video-wrapper"><iframe width="100%" height="315" src="${url}" frameborder="0" allowfullscreen loading="lazy"></iframe></div>`;
+    // Thêm margin-bottom: 20px
+    return `<div class="video-wrapper" style="margin-bottom: 20px;"><iframe width="100%" height="315" src="${url}" frameborder="0" allowfullscreen loading="lazy"></iframe></div>`;
 }
 
 let assignmentTimers = [];
@@ -583,7 +611,22 @@ async function loadAssignments() {
             div.style.marginBottom = '20px';
 
             div.innerHTML = `${glassLockHTML}<div class="accordion-header" onclick="${clickHandler}"><div class="accordion-title"><h4>${assign.title}</h4><span>${statusText}</span></div><div class="accordion-meta"><span>Điểm: <strong style="${(mySub.grade !== null && mySub.grade !== undefined && mySub.grade !== '' && !mySub.isRegrading) ? 'color:#059669;' : 'color:#d35400;'}">${gradeDisplay}</strong></span><span class="toggle-icon">▼</span></div></div>
-                <div id="${uniqueId}" class="accordion-content"><div class="assignment-meta"><p>🕒 <strong>Bạn đã nộp lúc:</strong> ${mySub.submitTime || 'Không rõ'}</p></div>${violationHTML}${videoHTML}<div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; margin-top: 15px;"><strong>Nội dung bài làm của bạn:</strong><br><p style="margin-top: 5px; color: ${mySub.isAutoSubmitted ? '#e74c3c' : '#444'}; white-space: pre-wrap;">${mySub.answer ? mySub.answer.replace(/</g, "&lt;").replace(/>/g, "&gt;") : '<i>(Không có)</i>'}</p>${myFileHTML}</div>${teacherFileHTML}${gradedFileHTML}${teacherCommentHTML}${viewQuestionsBtnHTML}</div>`;
+                <div id="${uniqueId}" class="accordion-content">
+                    <div class="assignment-meta"><p>🕒 <strong>Bạn đã nộp lúc:</strong> ${mySub.submitTime || 'Không rõ'}</p></div>
+                    ${violationHTML}
+                    ${videoHTML}
+                    <div style="background: rgba(255,255,255,0.6); padding: 15px; border-radius: 12px; margin-top: 20px; margin-bottom: 15px; border: 1px solid rgba(0,0,0,0.05);">
+                        <p style="margin: 0 0 10px 0; font-weight: bold; color: #2c3e50; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 8px;">📝 Nội dung bài làm của bạn:</p>
+                        <div style="background: rgba(0,0,0,0.02); padding: 15px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.03);">
+                            <p style="margin: 0; color: ${mySub.isAutoSubmitted ? '#e74c3c' : '#444'}; white-space: pre-wrap; line-height: 1.6;">${mySub.answer ? mySub.answer.replace(/</g, "&lt;").replace(/>/g, "&gt;") : '<i>(Không có)</i>'}</p>
+                        </div>
+                        ${myFileHTML}
+                    </div>
+                    ${teacherFileHTML}
+                    ${gradedFileHTML}
+                    ${teacherCommentHTML}
+                    ${viewQuestionsBtnHTML}
+                </div>`;
             grades.appendChild(div);
         }
         // NẾU CHƯA NỘP HOẶC ĐANG LÀM LẠI HOẶC ĐANG TRONG 5 PHÚT TRỄ
@@ -1243,8 +1286,9 @@ async function loadMaterialsListStudent() {
     [...materials].reverse().forEach(mat => {
         // ---> BẮT ĐẦU THÊM ĐOẠN LỌC NÀY <---
         // Kiểm tra: Nếu tài liệu có gắn tên học sinh, không phải 'all' và không trùng với username của người đang đăng nhập -> Ẩn đi
-        if (mat.targetStudent && mat.targetStudent !== 'all' && mat.targetStudent !== currentUser.username) {
-            return; // Lệnh return giúp bỏ qua vòng lặp, không in tài liệu này ra màn hình
+        const targetArr = Array.isArray(mat.targetStudent) ? mat.targetStudent : [mat.targetStudent || 'all'];
+        if (!targetArr.includes('all') && !targetArr.includes(currentUser.username)) {
+            return; // Bỏ qua nếu học sinh không có tên trong danh sách
         }
         // ---> KẾT THÚC ĐOẠN LỌC <---
 
@@ -1563,7 +1607,10 @@ window.loadScheduleStudent = async function () {
     tbody.innerHTML = '';
 
     // LỌC CHẶT CHẼ: Chỉ lấy những lịch học dành cho Tất cả hoặc dành riêng cho mình
-    const mySchedules = schedules.filter(s => !s.targetStudent || s.targetStudent === 'all' || s.targetStudent === currentUser.username);
+    const mySchedules = schedules.filter(s => {
+        const targetArr = Array.isArray(s.targetStudent) ? s.targetStudent : [s.targetStudent || 'all'];
+        return targetArr.includes('all') || targetArr.includes(currentUser.username);
+    });
 
     if (mySchedules.length === 0) {
         tbody.innerHTML = `<tr><td colspan="4" style="padding:15px; text-align:center; color:#666; font-style:italic;">Chưa có lịch học nào được sắp xếp.</td></tr>`;
@@ -2709,7 +2756,10 @@ async function renderStudentRoadmap() {
     }
 
     // Lọc bài học được giao cho "Tất cả" hoặc giao riêng cho chính học sinh này
-    const myAssignments = assignments.filter(assign => assign.targetStudent === 'all' || assign.targetStudent === currentUser.username);
+    const myAssignments = assignments.filter(assign => {
+        const targetArr = Array.isArray(assign.targetStudent) ? assign.targetStudent : [assign.targetStudent || 'all'];
+        return targetArr.includes('all') || targetArr.includes(currentUser.username);
+    });
     // Sắp xếp bài tập thông minh theo số đếm trong Tiêu đề (VD: Bài 1 -> Bài 2 -> Bài 10)
     const sortedAssignments = [...myAssignments].sort((a, b) => (a.title || '').localeCompare(b.title || '', 'vi-VN', { numeric: true, sensitivity: 'base' }));
 
@@ -2883,7 +2933,10 @@ window.executeConversion = async function () {
     let baseRoadmapMoney = 0;
     const assignments = await getDB('assignments');
     const submissions = await getDB('submissions');
-    const myAssignments = assignments.filter(assign => assign.targetStudent === 'all' || assign.targetStudent === currentUser.username);
+    const myAssignments = assignments.filter(assign => {
+        const targetArr = Array.isArray(assign.targetStudent) ? assign.targetStudent : [assign.targetStudent || 'all'];
+        return targetArr.includes('all') || targetArr.includes(currentUser.username);
+    });
 
     myAssignments.forEach(assign => {
         const passingGrade = assign.passingGrade || 7;
@@ -3835,7 +3888,10 @@ window.calculateCurrentRouteMoney = async function () {
     let baseMoney = 0;
     const assignments = await getDB('assignments');
     const submissions = await getDB('submissions');
-    const myAssignments = assignments.filter(assign => assign.targetStudent === 'all' || assign.targetStudent === currentUser.username);
+    const myAssignments = assignments.filter(assign => {
+        const targetArr = Array.isArray(assign.targetStudent) ? assign.targetStudent : [assign.targetStudent || 'all'];
+        return targetArr.includes('all') || targetArr.includes(currentUser.username);
+    });
 
     myAssignments.forEach(assign => {
         const passingGrade = assign.passingGrade || 7;
@@ -3934,7 +3990,7 @@ function getTrackedVideoHTML(url, assignId) {
         let embedUrl = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&rel=0&origin=${hostUrl}`;
 
         return `
-        <div class="video-wrapper" style="margin-top: 15px; border: 2px solid #667eea; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.8);">
+        <div class="video-wrapper" style="margin-top: 15px; margin-bottom: 20px; border: 2px solid #667eea; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.8);">
             <iframe id="yt-player-${assignId}" width="100%" height="315" src="${embedUrl}" frameborder="0" allowfullscreen></iframe>
             <div style="text-align: center; margin-top: 10px; font-weight: bold; color: #059669; font-size: 1.1em;">
                 ⏱️ Mốc thời gian đã xem tới: <span id="watch-time-display-${assignId}">0 giây</span>
@@ -4063,7 +4119,10 @@ window.downloadStudentRoadmapPDF = async function () {
     `;
 
     // Lọc bài tập của học sinh
-    const myAssignments = assignments.filter(assign => assign.targetStudent === 'all' || assign.targetStudent === currentUser.username);
+    const myAssignments = assignments.filter(assign => {
+        const targetArr = Array.isArray(assign.targetStudent) ? assign.targetStudent : [assign.targetStudent || 'all'];
+        return targetArr.includes('all') || targetArr.includes(currentUser.username);
+    });
     const sortedAssignments = [...myAssignments].sort((a, b) => (a.title || '').localeCompare(b.title || '', 'vi-VN', { numeric: true, sensitivity: 'base' }));
 
     let rowsHTML = "";
@@ -4111,4 +4170,71 @@ window.downloadStudentRoadmapPDF = async function () {
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = finalHTML;
     html2pdf().set(opt).from(tempDiv).save();
+};
+
+function showEventBanner(ev) {
+    // sessionStorage giúp ghi nhớ: nếu học sinh tắt banner, nó sẽ không hiện lại 
+    // cho đến khi họ tắt trình duyệt và đăng nhập lại (phiên mới)
+    if (sessionStorage.getItem(`closed_banner_${ev.id}`)) return;
+
+    const banner = document.getElementById('dynamicEventBanner');
+    document.getElementById('eventBannerTitle').innerText = ev.name;
+    document.getElementById('eventBannerDesc').innerText = ev.desc;
+
+    // Lưu lại class hoặc ID của HTML element chứa trò chơi đó (VD: 'royal-event-card')
+    banner.setAttribute('data-target-class', ev.targetClass); 
+    banner.setAttribute('data-event-id', ev.id);
+    banner.style.display = 'block';
+}
+
+// Học sinh bấm X để tắt banner
+window.closeEventBanner = function(e) {
+    e.stopPropagation(); // Tránh kích hoạt sự kiện click của thẻ div bên dưới
+    const banner = document.getElementById('dynamicEventBanner');
+    banner.style.display = 'none';
+    
+    // Đánh dấu đã đóng trong phiên làm việc này
+    const evId = banner.getAttribute('data-event-id');
+    sessionStorage.setItem(`closed_banner_${evId}`, 'true'); 
+};
+
+// Khi học sinh nhấn vào Banner
+window.goToEventGame = function() {
+    // 1. Nếu đang thi thì chặn không cho chuyển tab
+    if (window.currentActiveExamId) {
+        window.showExamLockWarning("⚠️ Bạn đang làm bài thi, không thể tham gia trò chơi lúc này!");
+        return;
+    }
+
+    // 2. Chuyển sang tab Trò Chơi
+    const gameTabBtn = document.querySelector('.nav-item[onclick*="tab-game"]');
+    if (gameTabBtn) switchTab('tab-game', gameTabBtn);
+
+    // 3. Tắt banner
+    const banner = document.getElementById('dynamicEventBanner');
+    banner.style.display = 'none';
+
+    // 4. Tìm đến vùng chứa sự kiện để tạo hiệu ứng mũi tên trỏ vào
+    const targetClass = banner.getAttribute('data-target-class');
+    if (targetClass) {
+        // Đợi DOM chuyển tab xong (100ms) rồi mới cuộn và nháy sáng
+        setTimeout(() => {
+            const targetElement = document.querySelector(`.${targetClass}`) || document.getElementById(targetClass);
+            if (targetElement) {
+                // Xóa highlight cũ đi (nếu có)
+                document.querySelectorAll('.highlight-event').forEach(el => el.classList.remove('highlight-event'));
+
+                // Thêm class tạo viền sáng và mũi tên
+                targetElement.classList.add('highlight-event');
+
+                // Tự động cuộn màn hình tới chỗ trò chơi đó
+                targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                // Tự động tắt hiệu ứng mũi tên sau 7 giây
+                setTimeout(() => {
+                    targetElement.classList.remove('highlight-event');
+                }, 7000);
+            }
+        }, 100);
+    }
 };

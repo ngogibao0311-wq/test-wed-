@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="css/effects-pets.css?v=2.3">
     <link rel="stylesheet" href="css/royal-ball.css?v=2.3">
     <link rel="stylesheet" href="css/daily-login.css?v=2.3">
+    <link rel="stylesheet" href="css/lord-of-mysteries.css?v=2.3">
     <script>
         MathJax = {
             tex: {
@@ -216,7 +217,7 @@
                                     onmouseout="this.style.background='rgba(192, 57, 43, 0.15)'">?</button>
                             </h3>
                             <p style="color: #444; font-size: 0.9em; margin: 0;">Sự kiện giới hạn! Khiêu vũ để nhận đồ
-                                Truyền thuyết hoặc lượng lớn Coin. (Chỉ mở 29/07 - 01/05)</p>
+                                Truyền thuyết hoặc lượng lớn Coin. (Chỉ mở 29/07 - 01/08)</p>
                         </div>
                         <button onclick="RoyalBallEvent.openModal()"
                             style="background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%); color: white; padding: 12px 25px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 8, 68, 0.4);">Tham
@@ -313,6 +314,8 @@
                             style="background: rgba(255,255,255,0.5); color: #667eea;">✨ Hiệu ứng</button>
                         <button onclick="filterStore('pet')" class="btn-approve"
                             style="background: rgba(255,255,255,0.5); color: #667eea;">🐾 Thú cưng</button>
+                        <button onclick="filterStore('music')" class="btn-approve"
+                            style="background: rgba(255,255,255,0.5); color: #667eea;">🎵 Nhạc nền</button>
                     </div>
                     <div id="storeItemsContainer"
                         style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
@@ -320,6 +323,7 @@
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
     <div id="studentInfoModal" class="modal-overlay">
@@ -714,6 +718,24 @@
         </div>
     </div>
 
+    <!-- Banner Quảng bá Sự kiện Động -->
+    <div id="dynamicEventBanner"
+        style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 999999; background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%); color: white; padding: 15px 45px 15px 20px; border-radius: 12px; box-shadow: 0 10px 25px rgba(255, 8, 68, 0.5); cursor: pointer; animation: slideDown 0.5s ease; max-width: 90vw;">
+        <div onclick="goToEventGame()" style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 2.5em; animation: pulse 1s infinite;">🎉</span>
+            <div>
+                <h4 id="eventBannerTitle"
+                    style="margin: 0; font-size: 1.2em; text-transform: uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                    Tên Sự Kiện</h4>
+                <p id="eventBannerDesc" style="margin: 5px 0 0 0; font-size: 0.9em; opacity: 0.95;">Mô tả ngắn...</p>
+            </div>
+        </div>
+        <button onclick="closeEventBanner(event)"
+            style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); background: rgba(0,0,0,0.2); border: none; color: white; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; transition: 0.2s;"
+            onmouseover="this.style.background='rgba(0,0,0,0.4)'"
+            onmouseout="this.style.background='rgba(0,0,0,0.2)'">✖</button>
+    </div>
+
     <script src="js/daily-login.js?v=2.3"></script>
     <script src="js/royal-ball.js?v=2.3"></script>
 
@@ -722,6 +744,7 @@
     <script src="js/effect-items.js?v=2.3"></script>
     <script src="js/pet-items.js?v=2.3"></script>
     <script src="js/pet-interactions.js?v=2.3"></script>
+    <script src="js/music-manager.js"></script>
     <script src="js/store-manager.js?v=2.3"></script>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>

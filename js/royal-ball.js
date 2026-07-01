@@ -19,9 +19,10 @@ const RoyalBallEvent = {
         const month = now.getMonth();
         const date = now.getDate();
 
-        if (month > 6 || month < 4) return true;
-        if (month === 6 && date >= 29) return true;
-        if (month === 4 && date === 1) return true;
+        // Mở từ 29/07 đến hết tháng 7
+        if (month === 6 && date >= 29) return true; 
+        // Mở vào ngày 01/08
+        if (month === 7 && date === 1) return true; 
 
         return false;
     },
@@ -49,7 +50,7 @@ const RoyalBallEvent = {
                 if (settings.useCustomDates) {
                     return alert(`⚠️ Sự kiện đang trong chế độ Lịch Tùy Chỉnh nhưng hiện tại không nằm trong thời gian cho phép.\n(Mở từ: ${settings.startDate} đến ${settings.endDate})`);
                 } else {
-                    return alert("⚠️ Sự kiện Dạ Hội Hoàng Gia chỉ mở cửa từ ngày 29/07 đến 01/05 hằng năm. Hẹn gặp lại bạn sau nhé!");
+                    return alert("⚠️ Sự kiện Dạ Hội Hoàng Gia chỉ mở cửa từ ngày 29/07 đến 01/08 hằng năm. Hẹn gặp lại bạn sau nhé!");
                 }
             }
 

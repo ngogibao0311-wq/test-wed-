@@ -305,6 +305,48 @@ const StoreConfig = {
             value: 'theme-vethan-nganha', // Tên Class CSS độc quyền sẽ bọc toàn bộ Web
             customIcon: '🌌'      // Biểu tượng thiên hà tinh vân
         },
+        {
+            id: 'pet_lotm_amon',
+            name: 'Thiên Sứ Thời Gian Amon',
+            type: 'pet',
+            price: 0,             // Không bán bằng Coin
+            isNonCoin: true,      // Kích hoạt cơ chế nhận từ sự kiện
+            tag: 'Lord of the Mysteries',
+            value: 'assets/pet/quỷ bí chi chủ/Amon.png', // Đường dẫn như bạn yêu cầu
+            isIcon: false,
+            petEffect: 'amon-time-magic' // Class CSS để kích hoạt hiệu ứng riêng
+        },
+        {
+            id: 'effect_lotm_amon',
+            name: 'Nghịch Lý Ký Sinh',
+            type: 'effect',
+            price: 0,             // Không bán bằng Coin
+            isNonCoin: true,      // Nhận từ sự kiện
+            tag: 'Lord of the Mysteries', // Cùng tag với Pet Amon
+            value: 'effect_lotm_amon',
+            customIcon: '🧐'      // Icon kính một tròng đặc trưng của Amon trong cửa hàng
+        },
+        {
+            id: 'theme_lotm_mysteries',
+            name: 'Thần Điện Sương Mù Xám',
+            type: 'theme',
+            price: 0,               // Không bán bằng Coin
+            isNonCoin: true,        // Nhận từ sự kiện đặc biệt
+            tag: 'Lord of the Mysteries',
+            value: 'theme-lotm-mysteries', // Lớp class CSS sẽ bao bọc toàn bộ trang web khi kích hoạt
+            customIcon: '🏛️'        // Icon hiển thị đại diện trong cửa hàng
+        },
+        // Thêm vào cuối mảng StoreConfig.items
+        {
+            id: 'music_chill_1',
+            name: 'Lofi Chill (Sắp ra mắt)',
+            type: 'music',
+            price: 0,
+            isNonCoin: true, // Không cho mua bằng coin lúc này
+            isLocked: true,  // Khóa cứng từ phía hệ thống
+            tag: 'Đang phát triển',
+            value: '🎵'
+        },
     ]
 };
 
@@ -338,11 +380,14 @@ class StoreManager {
             case 'pet':
                 PetManager.spawnPet(item);
                 break;
+            case 'music': // BỔ SUNG DÒNG NÀY
+                MusicManager.applyMusic(item.id);
+                break;
         }
     }
 
     static renderStoreItem(item, isOwned = false, isEquipped = false, isTrial = false, isUpcoming = false) {
-        let tagClass = item.tag === 'Truyền thuyết' ? 'tag-truyen-thuyet' : (item.tag === 'Sao thủy' ? 'tag-sao-thuy' : (item.tag === 'Tứ kị sĩ' ? 'tag-tu-ki-si' : (item.tag === 'Cổ tích' ? 'tag-co-tich' : (item.tag === 'Đời sống' ? 'tag-doi-song' : (item.tag === 'Ban đêm' ? 'tag-ban-dem' : (item.tag === 'Ban ngày' ? 'tag-ban-ngay' : 'tag-normal'))))));
+        let tagClass = item.tag === 'Lord of the Mysteries' ? 'tag-lotm' : (item.tag === 'Truyền thuyết' ? 'tag-truyen-thuyet' : (item.tag === 'Sao thủy' ? 'tag-sao-thuy' : (item.tag === 'Cổ tích' ? 'tag-co-tich' : (item.tag === 'Đời sống' ? 'tag-doi-song' : (item.tag === 'Ban đêm' ? 'tag-ban-dem' : (item.tag === 'Ban ngày' ? 'tag-ban-ngay' : 'tag-normal'))))));
         let actionButton = '';
         let trialButton = '';
 
@@ -391,7 +436,7 @@ class StoreManager {
             }
         }
 
-        let typeName = item.type === 'theme' ? 'Giao diện' : (item.type === 'effect' ? 'Hiệu ứng' : 'Thú cưng ảo');
+        let typeName = item.type === 'theme' ? 'Giao diện' : (item.type === 'effect' ? 'Hiệu ứng' : (item.type === 'music' ? 'Nhạc nền' : 'Thú cưng ảo'));
 
         let iconHTML = '';
         if (item.isIcon === false && item.value) {
@@ -409,7 +454,7 @@ class StoreManager {
         return `
         <div class="store-item-card" data-type="${item.type}" style="${item.isLocked ? 'opacity: 0.75; filter: grayscale(0.4); border: 1px solid rgba(225,29,72,0.3);' : ''}">
             <div class="card-glow"></div>
-            <div class="item-tag ${tagClass}">${item.tag}</div>
+            <div class="item-tag ${tagClass}"><span>${item.tag}</span></div>
             <div class="item-icon-wrapper">
                 ${iconHTML}
             </div>
@@ -430,6 +475,7 @@ class StoreManager {
             case 'theme': return '🎨';
             case 'effect': return '✨';
             case 'pet': return '🐾';
+            case 'music': return '🎵'; // BỔ SUNG DÒNG NÀY
             default: return '📦';
         }
     }

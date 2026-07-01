@@ -23,3 +23,44 @@
     border-radius: 20px;
     font-size: 0.9em;
 }
+/* Animation cho Banner */
+@keyframes slideDown {
+    from { top: -100px; opacity: 0; }
+    to { top: 20px; opacity: 1; }
+}
+
+/* Hiệu ứng nổi bật sự kiện khi chuyển tab */
+.highlight-event {
+    animation: glowBorder 1.5s infinite alternate;
+    position: relative;
+    border-radius: 12px;
+}
+
+/* Icon chỉ trỏ vào sự kiện */
+.highlight-event::before {
+    content: '👇 MỚI MỞ!';
+    position: absolute;
+    top: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ff0844;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.9em;
+    font-weight: 900;
+    box-shadow: 0 4px 10px rgba(255, 8, 68, 0.4);
+    animation: pointerBounce 0.8s infinite alternate;
+    z-index: 10;
+    white-space: nowrap;
+}
+
+@keyframes glowBorder {
+    from { box-shadow: 0 0 10px #ff0844, inset 0 0 10px #ff0844; border-color: #ff0844; }
+    to { box-shadow: 0 0 25px #ffb199, inset 0 0 20px #ffb199; border-color: #ffb199; }
+}
+
+@keyframes pointerBounce {
+    from { top: -35px; }
+    to { top: -45px; }
+}

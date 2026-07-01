@@ -234,11 +234,11 @@ function getEmbedHTML(url) {
 
     if (videoId) {
         let embedUrl = `https://www.youtube.com/embed/${videoId}`;
-        // Thêm loading="lazy" vào thẻ iframe
-        return `<div class="video-wrapper"><iframe width="100%" height="315" src="${embedUrl}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe></div>`;
+        // Thêm margin-bottom: 20px
+        return `<div class="video-wrapper" style="margin-bottom: 20px;"><iframe width="100%" height="315" src="${embedUrl}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe></div>`;
     }
-    // Thêm loading="lazy" vào thẻ iframe dự phòng
-    return `<div class="video-wrapper"><iframe width="100%" height="315" src="${url}" frameborder="0" allowfullscreen loading="lazy"></iframe></div>`;
+    // Thêm margin-bottom: 20px
+    return `<div class="video-wrapper" style="margin-bottom: 20px;"><iframe width="100%" height="315" src="${url}" frameborder="0" allowfullscreen loading="lazy"></iframe></div>`;
 }
 
 // Hàm tự động ẩn/hiện giao diện tạo câu hỏi khi nhập điểm Thi
@@ -555,13 +555,13 @@ async function loadAssignedList() {
         let quizHTML = '';
         const hasMC = assign.assessmentType === 'trac_nghiem' || assign.assessmentType === 'ket_hop' || (assign.assessmentType === 'thi' && (assign.mcWeight || 0) > 0);
         if (hasMC && assign.questions) {
-            quizHTML = `<div style="background: rgba(255,255,255,0.5); padding: 10px; border-radius: 8px; margin-top: 10px;"><strong>Trắc nghiệm:</strong><ul style="margin-left: 20px;">`;
+            quizHTML = `<div style="background: rgba(255,255,255,0.5); padding: 10px; border-radius: 8px; margin-top: 10px; margin-bottom: 15px;"><strong>Trắc nghiệm:</strong><ul style="margin-left: 20px;">`;
             assign.questions.forEach((q, idx) => { quizHTML += `<li>Câu ${idx + 1}: ${q.qText} <strong>(${q.correct})</strong></li>`; });
             quizHTML += '</ul></div>';
         }
 
         const hasEssay = assign.assessmentType === 'tu_luan' || assign.assessmentType === 'ket_hop' || !assign.assessmentType || (assign.assessmentType === 'thi' && (assign.essayWeight || 0) > 0);
-        let tuLuanHTML = hasEssay ? `<p style="background: rgba(255,255,255,0.5); padding:15px; border-radius:12px; border-left:4px solid #667eea;"><strong>Yêu cầu Tự luận:</strong><br>${(assign.desc || '').replace(/\n/g, '<br>')}</p>` : '';
+        let tuLuanHTML = hasEssay ? `<p style="background: rgba(255,255,255,0.5); padding:15px; border-radius:12px; border-left:4px solid #667eea; margin-top: 15px;"><strong>Yêu cầu Tự luận:</strong><br>${(assign.desc || '').replace(/\n/g, '<br>')}</p>` : '';
 
         const uniqueId = `teacher-assign-${assign.id}`;
         const div = document.createElement('div');
@@ -918,11 +918,11 @@ async function loadSubmissions() {
             <div id="${uniqueId}" class="accordion-content">${violationHTML}<span style="color: #888; font-size: 0.85em; display: block; margin-bottom: 10px;">🕒 Lần nộp cuối: ${sub.submitTime || 'Chưa rõ'}</span>
     ${watchStatusHTML}
     ${videoHTML}
-                <div style="background: rgba(255,255,255,0.4); padding: 15px; border-radius: 12px; margin-bottom: 15px;">
-                    <p style="margin: 0; font-weight: bold;">Bài nộp:</p>
-                    <p style="white-space: pre-wrap; word-break: break-word; margin-top:5px;">
-    ${sub.answer ? sub.answer.replace(/</g, "&lt;").replace(/>/g, "&gt;") : '<i>(Trống)</i>'}
-</p>
+                <div style="background: rgba(255,255,255,0.6); padding: 15px; border-radius: 12px; margin-top: 20px; margin-bottom: 15px; border: 1px solid rgba(0,0,0,0.05);">
+                    <p style="margin: 0 0 10px 0; font-weight: bold; color: #2c3e50; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 8px;">📝 Bài nộp của học sinh:</p>
+                    <div style="background: rgba(0,0,0,0.02); padding: 15px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.03);">
+                        <p style="white-space: pre-wrap; word-break: break-word; margin: 0; color: #444; line-height: 1.6;">${sub.answer ? sub.answer.replace(/</g, "&lt;").replace(/>/g, "&gt;") : '<i>(Trống)</i>'}</p>
+                    </div>
                     ${studentFileHTML}
                 </div>
                 <div style="background: rgba(255,255,255,0.6); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.9);">
@@ -1331,8 +1331,9 @@ async function renderTeacherRoadmap() {
         // Kiểm tra: Nếu giáo viên đã chọn 1 học sinh cụ thể, 
         // thì bỏ qua (không in ra bảng) những bài tập giao riêng cho học sinh khác.
         if (selectedStudent && selectedStudent !== "") {
-            if (assign.targetStudent && assign.targetStudent !== 'all' && assign.targetStudent !== selectedStudent) {
-                return; // Lệnh return này giúp bỏ qua bài tập, chuyển sang bài tiếp theo
+            const targetArr = Array.isArray(assign.targetStudent) ? assign.targetStudent : [assign.targetStudent || 'all'];
+            if (!targetArr.includes('all') && !targetArr.includes(selectedStudent)) {
+                return;
             }
         }
         // THÊM DÒNG NÀY: Lấy điều kiện điểm chuẩn của RIÊNG bài tập này (Mặc định là 7 nếu chưa cài)
@@ -1765,7 +1766,8 @@ window.openAssignmentStatusModal = async function (assignId) {
     }
 
     // Lọc ra danh sách học sinh được giao bài này
-    const students = users.filter(u => u.role === 'student' && (assign.targetStudent === 'all' || assign.targetStudent === u.username));
+    const targetArr = Array.isArray(assign.targetStudent) ? assign.targetStudent : [assign.targetStudent || 'all'];
+    const students = users.filter(u => u.role === 'student' && (targetArr.includes('all') || targetArr.includes(u.username)));
 
     if (students.length === 0) {
         container.innerHTML = '<p>Không có học sinh nào được giao bài tập này.</p>';
@@ -3259,7 +3261,10 @@ window.handleTeacherProcessCash = async function (reqFbKey, action) {
             let baseMoney = 0;
             const assignments = await getDB('assignments');
             const submissions = await getDB('submissions');
-            const stdAssignments = assignments.filter(a => a.targetStudent === 'all' || a.targetStudent === studentUsername);
+            const stdAssignments = assignments.filter(a => {
+                const targetArr = Array.isArray(a.targetStudent) ? a.targetStudent : [a.targetStudent || 'all'];
+                return targetArr.includes('all') || targetArr.includes(studentUsername);
+            });
 
             stdAssignments.forEach(assign => {
                 const passingGrade = assign.passingGrade || 7;
@@ -3620,7 +3625,8 @@ window.downloadRoadmapPDF = async function () {
 
     sortedAssignments.forEach(assign => {
         // Lọc các bài tập đúng với học sinh đã chọn
-        if (assign.targetStudent !== 'all' && assign.targetStudent !== selectedStudent) return;
+        const targetArr = Array.isArray(assign.targetStudent) ? assign.targetStudent : [assign.targetStudent || 'all'];
+        if (!targetArr.includes('all') && !targetArr.includes(selectedStudent)) return;
 
         // SỬA LỖI Ở ĐÂY: Dùng studentUsername để khớp với dữ liệu bài nộp
         const subs = submissions.filter(s => s.assignmentId === assign.id && s.studentUsername === selectedStudent);
@@ -3629,7 +3635,7 @@ window.downloadRoadmapPDF = async function () {
         if (subs.length > 0) {
             // SỬA LỖI Ở ĐÂY: Dùng thuộc tính grade thay vì score
             const bestSub = subs.sort((a, b) => (parseFloat(b.grade) || 0) - (parseFloat(a.grade) || 0))[0];
-            
+
             if (bestSub.isRegrading) {
                 studentScore = "Đang chấm lại";
             } else if (bestSub.grade !== null && bestSub.grade !== undefined && bestSub.grade !== '') {
@@ -3681,7 +3687,7 @@ function getYoutubeDurationCorrectly(url, callback) {
 
     let tempDiv = document.createElement('div');
     tempDiv.id = 'yt-temp-' + Date.now();
-    
+
     // FIX LỖI Ở ĐÂY: Không dùng display none. Đẩy Iframe ra ngoài vùng nhìn thấy của màn hình.
     tempDiv.style.position = 'absolute';
     tempDiv.style.left = '-9999px';
@@ -3705,14 +3711,14 @@ function getYoutubeDurationCorrectly(url, callback) {
                     callback(totalSeconds);
                     // Tăng delay lên 1000ms để Youtube xử lý xong postMessage trước khi đóng
                     setTimeout(() => {
-                        try { player.destroy(); } catch(e){}
+                        try { player.destroy(); } catch (e) { }
                         if (document.body.contains(tempDiv)) document.body.removeChild(tempDiv);
                     }, 1000);
                 },
                 'onError': function (event) {
                     callback(0);
                     setTimeout(() => {
-                        try { player.destroy(); } catch(e){}
+                        try { player.destroy(); } catch (e) { }
                         if (document.body.contains(tempDiv)) document.body.removeChild(tempDiv);
                     }, 1000);
                 }
@@ -3742,17 +3748,17 @@ function handleVideoLinkInput(e, displayId, prefix) {
     ];
 
     if (!url) {
-        if(display) display.innerText = "(Chưa có video)";
+        if (display) display.innerText = "(Chưa có video)";
         inputs.forEach(inp => { if (inp) { inp.value = ''; inp.disabled = true; } });
         window.currentVideoDuration = 0;
         return;
     }
 
-    if(display) display.innerText = '⏳ Đang phân tích thời lượng...';
-    
+    if (display) display.innerText = '⏳ Đang phân tích thời lượng...';
+
     getYoutubeDurationCorrectly(url, function (durationInSeconds) {
         if (durationInSeconds === 0) {
-            if(display) display.innerText = '(Không đọc được thời lượng, vui lòng kiểm tra lại link)';
+            if (display) display.innerText = '(Không đọc được thời lượng, vui lòng kiểm tra lại link)';
             inputs.forEach(inp => { if (inp) { inp.value = ''; inp.disabled = true; } });
             return;
         }
@@ -3769,14 +3775,14 @@ function handleVideoLinkInput(e, displayId, prefix) {
         if (inputs[2]) { inputs[2].value = m; inputs[2].disabled = false; }
         if (inputs[3]) { inputs[3].value = s; inputs[3].disabled = false; }
 
-        if(display) display.innerText = `(Độ dài gốc: ${d > 0 ? d + ' ngày ' : ''}${h}g ${m}p ${s}s)`;
+        if (display) display.innerText = `(Độ dài gốc: ${d > 0 ? d + ' ngày ' : ''}${h}g ${m}p ${s}s)`;
     });
 }
 
 // 3. Gắn sự kiện cho Form Giao Bài
 const videoLinkInput = document.getElementById('videoLink');
 if (videoLinkInput) {
-    videoLinkInput.addEventListener('input', function(e) {
+    videoLinkInput.addEventListener('input', function (e) {
         handleVideoLinkInput(e, 'videoTotalTimeDisplay', 'cond');
     });
 }
@@ -3784,7 +3790,7 @@ if (videoLinkInput) {
 // 4. Gắn sự kiện cho Form Sửa Bài
 const editVideoLinkInput = document.getElementById('editVideoLink');
 if (editVideoLinkInput) {
-    editVideoLinkInput.addEventListener('input', function(e) {
+    editVideoLinkInput.addEventListener('input', function (e) {
         handleVideoLinkInput(e, 'editVideoTotalTimeDisplay', 'editCond');
     });
 }
@@ -3799,7 +3805,7 @@ window.validateConditionInput = function () {
     const totalInputSec = d * 86400 + h * 3600 + m * 60 + s;
     if (totalInputSec > window.currentVideoDuration && window.currentVideoDuration > 0) {
         alert("⚠️ Điều kiện thời gian không được vượt quá tổng độ dài video!");
-        document.getElementById('condSec').value = 0; 
+        document.getElementById('condSec').value = 0;
     }
 };
 

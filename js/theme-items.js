@@ -65,6 +65,12 @@ class ThemeManager {
             background: '#04060f',    // Đen Thẳm Không Gian (Abyssal Void)
             className: 'theme-vethan-nganha' 
         },
+        'theme_lotm_mysteries': { 
+            primary: '#8c1c1c',       // Đỏ máu Hồng Nguyệt (Crimson Moon)
+            secondary: '#a3a3a3',     // Xám Sương Mù
+            background: '#0a0a0d',    // Đen Vực Thẳm
+            className: 'theme-lotm-mysteries' 
+        },
     };
 
     static applyTheme(themeId) {
@@ -82,7 +88,7 @@ class ThemeManager {
         });
 
         // 1. Xóa tất cả các class theme đặc biệt cũ khỏi body
-        document.body.classList.remove('theme-fairy-tale', 'theme-magic-forest', 'theme-lifestyle', 'theme-night-sky', 'theme-daylight-sky', 'theme_truyenthuyet_vutru', 'theme-mercury-station', 'theme-cosmic-anomaly', 'theme-vethan-nganha');
+        document.body.classList.remove('theme-fairy-tale', 'theme-magic-forest', 'theme-lifestyle', 'theme-night-sky', 'theme-daylight-sky', 'theme_truyenthuyet_vutru', 'theme-mercury-station', 'theme-cosmic-anomaly', 'theme-vethan-nganha', 'theme-lotm-mysteries');
 
         // 2. Tiêm class mới vào body nếu theme đó có yêu cầu thay đổi hình dáng
         if (theme.className) {

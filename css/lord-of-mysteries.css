@@ -1,0 +1,446 @@
+/* =========================================
+   STYLE CHO VẬT PHẨM: LORD OF THE MYSTERIES
+   ========================================= */
+
+/* 1. Style cho nhãn (Tag) hiển thị trong cửa hàng */
+.tag-lotm {
+    background: linear-gradient(135deg, #2c2c2c 0%, #d4af37 50%, #2c2c2c 100%);
+    color: #ffffff;
+    border-bottom: 2px dashed #f1c40f;
+    box-shadow: 0 4px 15px rgba(184, 134, 11, 0.6);
+    font-weight: 900;
+    text-transform: uppercase;
+
+    /* Vị trí và kích thước */
+    width: 180px !important;
+    padding: 5px 0 !important;
+    position: absolute !important;
+    top: 15px !important;
+    right: -50px !important;
+
+    /* Cấu hình chạy chữ */
+    overflow: hidden !important;
+    display: flex !important;
+    /* Đổi từ center thành flex-start để chữ có điểm neo bắt đầu chạy nối đuôi */
+    justify-content: flex-start !important; 
+}
+
+/* Thẻ span chứa chữ chính */
+.tag-lotm span {
+    display: inline-block;
+    white-space: nowrap;
+    font-size: 1em !important;
+    padding-right: 30px; /* Khoảng cách (gap) giữa cụm chữ trước và cụm chữ sau */
+    position: relative;
+    
+    /* Thời gian chạy 1 vòng lặp (Bạn có thể tăng/giảm 6s để chỉnh tốc độ) */
+    animation: seamlessMarquee 6s linear infinite;
+}
+
+/* Bản sao chữ nối đuôi ngay lập tức (Pure CSS) */
+.tag-lotm span::after {
+    content: "LORD OF THE MYSTERIES";
+    position: absolute;
+    left: 100%; /* Canh vị trí nối tiếp ngay sau padding-right của chữ gốc */
+    top: 0;
+    white-space: nowrap;
+}
+
+/* Hoạt ảnh lặp vô tận */
+@keyframes seamlessMarquee {
+    0% { transform: translateX(0); }
+    /* Khi gốc dịch chuyển đúng bằng 100% chiều dài của nó, bản sao ::after sẽ vào đúng vị trí tọa độ 0 ban đầu */
+    100% { transform: translateX(-100%); } 
+}
+
+/* 2. Hiệu ứng cho Thú cưng Amon khi hiển thị trên màn hình */
+.amon-time-magic {
+    /* Hiệu ứng bay lơ lửng và phát sáng hào quang */
+    animation: amonFloat 3.5s ease-in-out infinite, amonGlow 2s alternate infinite;
+    transform-origin: center center;
+    position: relative;
+    z-index: 100;
+}
+
+/* Hoạt ảnh lơ lửng */
+@keyframes amonFloat {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-12px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+/* Hoạt ảnh phát sáng (Tạo bóng đổ màu vàng kim mô phỏng ma thuật thời gian) */
+@keyframes amonGlow {
+    from {
+        filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.4)) drop-shadow(0 0 5px rgba(255, 215, 0, 0.4));
+    }
+
+    to {
+        filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 18px rgba(255, 215, 0, 0.85));
+    }
+}
+/* =========================================================================
+   HIỆU ỨNG THIÊN SỨ THỜI GIAN AMON (BẢN ĐỘC QUYỀN - TIME GLITCH & CLOCKWORK)
+   ========================================================================= */
+
+/* 1. MẶT ĐỒNG HỒ CỔ ĐẠI (Astrolabe Clock Dial) - Lót dưới chân */
+#virtual-pet-container:has(.amon-time-magic)::before {
+    content: '';
+    position: absolute;
+    bottom: -75px; /* ĐÃ HẠ THẤP XUỐNG Ở ĐÂY */
+    left: 50%;
+    width: 170px;
+    height: 170px;
+    margin-left: -85px;
+    
+    /* VẼ CHI TIẾT ĐỒNG HỒ BẰNG CODE CSS */
+    background: 
+        /* Kim giây ánh sáng quét vòng tròn */
+        conic-gradient(from 0deg, transparent 0%, rgba(255, 215, 0, 0.8) 2%, transparent 8%),
+        /* Kim phút mờ ảo */
+        conic-gradient(from 120deg, transparent 0%, rgba(200, 200, 200, 0.3) 1%, transparent 3%),
+        /* Vạch chia giờ/phút (12 vạch lớn, nhiều vạch nhỏ) */
+        repeating-conic-gradient(from 0deg, rgba(255, 215, 0, 0.5) 0deg, rgba(255, 215, 0, 0.5) 1deg, transparent 1deg, transparent 30deg),
+        repeating-conic-gradient(from 0deg, rgba(255, 255, 255, 0.2) 0deg, rgba(255, 255, 255, 0.2) 0.5deg, transparent 0.5deg, transparent 6deg),
+        /* Nền không gian đen tối hút sâu */
+        radial-gradient(circle, rgba(15, 15, 15, 0.95) 20%, rgba(30, 30, 30, 0.8) 60%, transparent 70%);
+    
+    border-radius: 50%;
+    border: 1px solid rgba(255, 215, 0, 0.6);
+    outline: 2px dashed rgba(100, 100, 100, 0.4);
+    outline-offset: -10px;
+    
+    /* Ép góc 3D để tạo thành bệ đỡ mặt đất */
+    transform: rotateX(75deg);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.9), inset 0 0 25px rgba(255, 215, 0, 0.3);
+    
+    /* Hiệu ứng xoay kim đồng hồ vô tận */
+    animation: amonClockworkSpin 60s steps(60) infinite; /* Giật theo từng giây (steps) */
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* 2. CƠN LỐC QUẠ ĐEN & CÁT THỜI GIAN (Shadow Feathers & Gold Sand) */
+#virtual-pet-container:has(.amon-time-magic)::after {
+    content: '';
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    width: 4px;
+    height: 4px;
+    background: transparent;
+    
+    /* Nặn ra tổ hợp bóng đen (quạ) và vàng kim (thời gian) */
+    box-shadow: 
+        /* Nhóm cát vàng kim */
+        -40px -30px 4px 1px rgba(255, 215, 0, 0.9),
+        50px 20px 6px 1px rgba(255, 215, 0, 0.8),
+        -60px 40px 3px 0px rgba(255, 255, 255, 0.9),
+        /* Nhóm bóng đen (lông quạ lơ lửng) */
+        30px -50px 8px 3px rgba(0, 0, 0, 0.8),
+        -20px 55px 10px 4px rgba(20, 20, 20, 0.9),
+        60px -30px 5px 2px rgba(10, 10, 10, 0.7);
+        
+    animation: amonChaosSwarm 5s cubic-bezier(0.25, 0.1, 0.25, 1) infinite alternate;
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* 3. BẢN THÂN VẬT PHẨM (Filter Tối Tăm xen lẫn Hoàng Kim) */
+#virtual-pet-img.amon-time-magic {
+    /* Đổ bóng tối đen ngòm (Ăn trộm/Ký sinh) và Vàng rực rỡ */
+    filter: drop-shadow(0 15px 20px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 15px rgba(255, 215, 0, 0.5));
+    transition: filter 0.1s linear; /* Transition rất ngắn để giật glitch tốt hơn */
+}
+
+/* 4. KHI PET ĐỨNG YÊN (Chuyển động Tích Tắc & Giật Lag Không Gian) */
+.pet-idle #virtual-pet-img.amon-time-magic {
+    /* Thay vì ease-in-out mượt mà, ta dùng chuỗi keyframe giật cục */
+    animation: amonTimeGlitchIdle 4s infinite;
+}
+
+/* =========================================================================
+   KEYFRAMES ĐỘC QUYỀN (CHỈ DÀNH CHO AMON)
+   ========================================================================= */
+
+/* Kim đồng hồ giật từng giây (Clockwork steps) */
+@keyframes amonClockworkSpin {
+    0% { transform: rotateX(75deg) rotateZ(0deg); }
+    100% { transform: rotateX(75deg) rotateZ(360deg); }
+}
+
+/* Quạ đen và cát vàng lốc xoáy lộn xộn */
+@keyframes amonChaosSwarm {
+    0% {
+        transform: translateY(0) scale(1) rotate(0deg);
+    }
+    100% {
+        transform: translateY(-20px) scale(1.5) rotate(45deg);
+        box-shadow: 
+            /* Cát vàng bùng nổ xa hơn */
+            -70px -50px 5px 2px rgba(255, 215, 0, 1),
+            80px 10px 8px 2px rgba(255, 215, 0, 0.9),
+            -30px -80px 4px 1px rgba(255, 255, 255, 1),
+            /* Bóng đen lan rộng nuốt chửng ánh sáng */
+            50px -70px 12px 5px rgba(0, 0, 0, 0.9),
+            -50px 70px 15px 6px rgba(10, 10, 10, 0.9),
+            90px -10px 10px 4px rgba(0, 0, 0, 0.8);
+    }
+}
+
+/* HIỆU ỨNG TÍCH TẮC & NGHỊCH LÝ THỜI GIAN (GLITCH) */
+@keyframes amonTimeGlitchIdle {
+    0% { transform: translateY(0); filter: drop-shadow(0 15px 20px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 15px rgba(255, 215, 0, 0.5)); }
+    
+    /* Chuyển động Tích-Tắc (Giật nấc thay vì trượt mượt) */
+    10% { transform: translateY(-5px); }
+    20% { transform: translateY(-5px); }
+    30% { transform: translateY(-10px); }
+    40% { transform: translateY(-10px); }
+    
+    /* Đạt đỉnh: Hào quang vàng kim bùng phát rực rỡ */
+    50% { 
+        transform: translateY(-15px); 
+        filter: drop-shadow(0 25px 30px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 40px rgba(255, 215, 0, 1));
+    }
+    
+    /* 52% - 55%: LỖI THỜI GIAN (GLITCH) -> Tách bóng Đỏ/Xanh (Chromatic Aberration) */
+    52% { 
+        transform: translateY(-15px) translateX(-4px) skewX(5deg); 
+        filter: drop-shadow(-5px 0 0 rgba(255, 0, 0, 0.7)) drop-shadow(5px 0 0 rgba(0, 255, 255, 0.7)); 
+    }
+    54% { 
+        transform: translateY(-15px) translateX(4px) skewX(-5deg); 
+        filter: drop-shadow(5px 0 0 rgba(255, 0, 0, 0.7)) drop-shadow(-5px 0 0 rgba(0, 255, 255, 0.7)); 
+    }
+    55% { 
+        transform: translateY(-15px) translateX(0) skewX(0); 
+        filter: drop-shadow(0 25px 30px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 40px rgba(255, 215, 0, 1));
+    }
+
+    /* Rơi xuống cũng theo nhịp Tích-Tắc */
+    60% { transform: translateY(-10px); }
+    70% { transform: translateY(-10px); }
+    80% { transform: translateY(-5px); }
+    90% { transform: translateY(-5px); }
+    100% { transform: translateY(0); }
+}
+/* =========================================================================
+   HIỆU ỨNG TOÀN WEB: NGHỊCH LÝ KÝ SINH (KÍNH MỘT TRÒNG & QUẠ ĐEN)
+   ========================================================================= */
+
+/* 1. Kính Một Tròng (Pure CSS Monocle) */
+.effect-amon-monocle {
+    position: absolute;
+    top: -50px;
+    
+    /* Viền vàng kim của kính */
+    border: 2px solid #ffd700;
+    border-radius: 50%;
+    
+    /* Hiệu ứng tráng gương (mặt kính sáng bóng chéo góc) */
+    background: linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.1) 40%, transparent 60%);
+    
+    /* Hào quang vàng phát ra từ kính */
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.8), inset 0 0 5px rgba(255, 215, 0, 0.5);
+    
+    animation: amonMonocleFall linear forwards;
+    z-index: 9990;
+    pointer-events: none;
+}
+
+/* Sợi dây xích nhỏ vắt vẻo bên phải mặt kính */
+.effect-amon-monocle::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -4px;
+    width: 80%;
+    height: 120%;
+    
+    /* Vẽ dây xích bằng viền đứt nét cong */
+    border-right: 1px dotted rgba(255, 215, 0, 0.9);
+    border-bottom: 1px dotted rgba(255, 215, 0, 0.9);
+    border-radius: 50%;
+    
+    transform: rotate(15deg);
+    pointer-events: none;
+}
+
+/* Điểm lóa sáng (Flare) ở góc trên bên trái của kính */
+.effect-amon-monocle::before {
+    content: '';
+    position: absolute;
+    top: 10%;
+    left: 15%;
+    width: 20%;
+    height: 20%;
+    background: #ffffff;
+    border-radius: 50%;
+    filter: blur(1px);
+    box-shadow: 0 0 5px #ffffff;
+}
+
+@keyframes amonMonocleFall {
+    0% { transform: translateY(0) rotate(0deg) scale(0.5); opacity: 0; }
+    10% { opacity: 0.8; }
+    80% { opacity: 0.8; }
+    100% { transform: translateY(110vh) rotate(360deg) scale(1.2); opacity: 0; }
+}
+
+/* 2. Đàn Quạ Bóng Tối (Vẽ bằng Pure CSS - Giữ nguyên) */
+.effect-amon-raven {
+    position: absolute;
+    left: -100px;
+    width: 25px;
+    height: 15px;
+    background: transparent;
+    border-top: 4px solid #111;
+    border-left: 4px solid #111;
+    border-radius: 30% 0 0 0;
+    filter: drop-shadow(0 0 6px #000) drop-shadow(0 5px 10px rgba(0,0,0,0.7));
+    animation: amonRavenFly linear forwards;
+    z-index: 9991;
+    pointer-events: none;
+}
+
+@keyframes amonRavenFly {
+    0% { transform: translateX(0) translateY(0) scaleX(1) rotate(15deg); opacity: 0; }
+    10% { opacity: 1; }
+    20% { transform: translateX(25vw) translateY(-20px) scaleX(0.4) rotate(15deg); } 
+    30% { transform: translateX(40vw) translateY(0) scaleX(1) rotate(15deg); }
+    50% { transform: translateX(60vw) translateY(-15px) scaleX(0.4) rotate(15deg); }
+    70% { transform: translateX(80vw) translateY(0) scaleX(1) rotate(15deg); }
+    90% { opacity: 1; }
+    100% { transform: translateX(120vw) translateY(-30px) scaleX(0.4) rotate(15deg); opacity: 0; }
+}
+/* =========================================================================
+   GIAO DIỆN TOÀN WEB: THẦN ĐIỆN SƯƠNG MÙ XÁM (SEFIRAH CASTLE) V2 - FIXED
+   - Phong cách: Victorian, Tarot, Gray Fog, Crimson Moon
+   ========================================================================= */
+
+/* Import Phông chữ: Cinzel cho Tiêu đề (Bí ẩn, Tarot), Lora cho văn bản (Dễ đọc) */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Lora:wght@400;600&display=swap');
+
+/* 1. MÀU NỀN & PHÔNG CHỮ TOÀN WEB (CẢI THIỆN ĐỘ NÉT) */
+.theme-lotm-mysteries {
+    font-family: 'Lora', serif !important; /* Phông chữ có chân nhưng tròn trịa, cực dễ đọc */
+    background-color: #08080a !important;
+    background-image: 
+        radial-gradient(circle at 50% 0%, rgba(140, 28, 28, 0.1) 0%, transparent 50%),
+        linear-gradient(0deg, #111116 0%, #08080a 100%) !important;
+    color: #e4d5b7 !important; /* Đổi sang màu giấy da cổ, sáng và rõ ràng hơn nhiều */
+}
+
+/* Lớp sương mù mờ ảo dưới nền */
+.theme-lotm-mysteries::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" opacity="0.03"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noise)"/></svg>');
+    animation: lotmFogDrift 100s linear infinite;
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* 2. THANH BÊN (SIDEBAR) & NAV-BAR */
+.theme-lotm-mysteries .sidebar,
+.theme-lotm-mysteries .nav-bar,
+.theme-lotm-mysteries header {
+    background: #0f0f12 !important;
+    border-right: 1px solid #3a2e22 !important;
+    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.9) !important;
+}
+
+/* 3. KHUNG CỬA HÀNG & POPUP (HIỆU ỨNG KHUNG TRANH KÉP VICTORIAN) */
+.theme-lotm-mysteries .store-item-card,
+.theme-lotm-mysteries .card,
+.theme-lotm-mysteries .popup-content,
+.theme-lotm-mysteries .modal-content {
+    background: linear-gradient(to bottom, #16161b, #0d0d10) !important;
+    border-radius: 2px !important;
+    
+    /* Dùng viền thật kết hợp Box-shadow để tạo ra Khung Tranh Kép (Double Border) */
+    border: 1px solid #7a6345 !important; /* Viền trong màu đồng */
+    box-shadow: 
+        0 0 0 3px #08080a, /* Khoảng đệm đen */
+        0 0 0 4px #4a3a29, /* Viền ngoài cùng màu đồng xỉn */
+        0 10px 25px rgba(0,0,0,0.9) !important; /* Bóng đổ không gian */
+        
+    /* LƯU Ý QUAN TRỌNG: KHÔNG ĐƯA transition: all VÀO ĐÂY ĐỂ TRÁNH LỖI VỊ TRÍ POPUP */
+}
+
+/* Đưa chuột vào ô sản phẩm: Sáng viền Đỏ Hồng Nguyệt */
+.theme-lotm-mysteries .store-item-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease; /* Chỉ animate tọa độ nhẹ nhàng */
+}
+.theme-lotm-mysteries .store-item-card:hover {
+    transform: translateY(-4px);
+    border-color: #a32222 !important;
+    box-shadow: 
+        0 0 0 3px #08080a, 
+        0 0 0 4px #661212, 
+        0 0 20px rgba(163, 34, 34, 0.4),
+        0 15px 30px rgba(0,0,0,0.9) !important;
+}
+
+/* 4. CÁC TIÊU ĐỀ (HEADINGS) - PHÔNG CHỮ TAROT */
+.theme-lotm-mysteries h1, 
+.theme-lotm-mysteries h2, 
+.theme-lotm-mysteries h3, 
+.theme-lotm-mysteries h4,
+.theme-lotm-mysteries .item-name {
+    font-family: 'Cinzel', serif !important; /* Phông chữ thần bí, uy quyền */
+    color: #d4af37 !important; /* Vàng kim Sefirah */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8) !important; /* Giảm bóng đổ để chữ sắc nét hơn */
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* 5. NÚT BẤM (BUTTONS) - RÕ RÀNG, SANG TRỌNG */
+.theme-lotm-mysteries button,
+.theme-lotm-mysteries .btn {
+    font-family: 'Lora', serif !important;
+    background: linear-gradient(180deg, #1f1f26, #111115) !important;
+    color: #d4af37 !important;
+    border: 1px solid #5a4b3c !important;
+    border-radius: 2px !important;
+    font-weight: 600;
+    transition: background 0.3s ease, border-color 0.3s ease !important;
+}
+
+.theme-lotm-mysteries button:hover {
+    color: #ffffff !important;
+    background: #8c1c1c !important; /* Đỏ Hồng Nguyệt */
+    border-color: #ff3333 !important;
+    box-shadow: 0 0 10px rgba(140, 28, 28, 0.5) !important;
+}
+
+/* 6. THANH CUỘN (SCROLLBAR) */
+.theme-lotm-mysteries ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+.theme-lotm-mysteries ::-webkit-scrollbar-track {
+    background: #08080a;
+}
+.theme-lotm-mysteries ::-webkit-scrollbar-thumb {
+    background: #2a2a30; 
+    border: 1px solid #4a3a29;
+}
+.theme-lotm-mysteries ::-webkit-scrollbar-thumb:hover {
+    background: #8c1c1c;
+}
+
+@keyframes lotmFogDrift {
+    0% { background-position: 0 0; }
+    100% { background-position: 400px 400px; }
+}
