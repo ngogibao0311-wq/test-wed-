@@ -5,16 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Trang Học Sinh</title>
-    <link rel="stylesheet" href="css/common.css?v=2.3">
-    <link rel="stylesheet" href="css/student.css?v=2.3">
-    <link rel="stylesheet" href="css/mobile.css?v=2.3">
-    <link rel="stylesheet" href="css/store-items.css?v=2.3">
-    <link rel="stylesheet" href="css/effects-pets.css?v=2.3">
-    <link rel="stylesheet" href="css/royal-ball.css?v=2.3">
-    <link rel="stylesheet" href="css/daily-login.css?v=2.3">
-    <link rel="stylesheet" href="css/lord-of-mysteries.css?v=2.3">
-    <link rel="stylesheet" href="css/legendery.css?v=2.3">
-    <link rel="stylesheet" href="css/leaderboard.css?v=2.3">
+    <link rel="stylesheet" href="css/common.css?v=3.0">
+    <link rel="stylesheet" href="css/student.css?v=3.0">
+    <link rel="stylesheet" href="css/mobile.css?v=3.0">
+    <link rel="stylesheet" href="css/store-items.css?v=3.0">
+    <link rel="stylesheet" href="css/effects-pets.css?v=3.0">
+    <link rel="stylesheet" href="css/royal-ball.css?v=3.0">
+    <link rel="stylesheet" href="css/daily-login.css?v=3.0">
+    <link rel="stylesheet" href="css/lord-of-mysteries.css?v=3.0">
+    <link rel="stylesheet" href="css/legendery.css?v=3.0">
+    <link rel="stylesheet" href="css/leaderboard.css?v=3.0">
     <script>
         MathJax = {
             tex: {
@@ -474,15 +474,33 @@
         <div class="modal-content" style="max-width: 450px; text-align: center; border-top: 6px solid #f59e0b;">
             <h3 style="color: #d35400; margin-bottom: 15px; font-size: 1.6em; text-transform: uppercase;">🔔 Thông Báo
                 Mới</h3>
-            <div
-                style="background: rgba(255,255,255,0.7); padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: left; border: 1px solid rgba(0,0,0,0.05); box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);">
+
+            <!-- Đã thêm ID, max-height và overflow-y để tạo thanh cuộn nếu nội dung dài -->
+            <div id="studentNotificationScrollBox"
+                style="background: rgba(255,255,255,0.7); padding: 20px; border-radius: 12px; margin-bottom: 15px; text-align: left; border: 1px solid rgba(0,0,0,0.05); box-shadow: inset 0 2px 5px rgba(0,0,0,0.02); max-height: 250px; overflow-y: auto;">
                 <p id="studentNotificationMessage"
                     style="font-size: 1.1em; color: #2c3e50; line-height: 1.6; white-space: pre-wrap; margin: 0; font-weight: 700;">
                 </p>
             </div>
-            <button id="btnAcknowledgeNotification"
-                style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); font-size: 1.1em; padding: 12px; font-weight: 800; border-radius: 12px; box-shadow: 0 4px 15px rgba(17, 153, 142, 0.3);">✅
-                Đã nhận và đọc hiểu</button>
+
+            <!-- Khu vực checkbox xác nhận -->
+            <div style="margin-bottom: 15px; text-align: left;">
+                <label id="labelUnderstandCheckbox"
+                    style="display: flex; align-items: center; gap: 8px; cursor: not-allowed; color: #999; font-weight: bold; font-size: 0.95em;">
+                    <input type="checkbox" id="checkUnderstand" disabled
+                        style="width: 18px; height: 18px; cursor: inherit;">
+                    Tôi đã đọc và hiểu toàn bộ nội dung thông báo
+                </label>
+                <p id="scrollReminderText"
+                    style="color: #e11d48; font-size: 0.8em; margin: 5px 0 0 0; font-style: italic;">* Vui lòng lướt
+                    xuống cuối thông báo để có thể xác nhận.</p>
+            </div>
+
+            <!-- Nút bấm mặc định bị vô hiệu hóa -->
+            <button id="btnAcknowledgeNotification" disabled
+                style="background: #9ca3af; font-size: 1.1em; padding: 12px; font-weight: 800; border-radius: 12px; width: 100%; border: none; color: white; cursor: not-allowed; transition: 0.3s;">
+                ✅ Đã nhận và đọc hiểu (Khóa)
+            </button>
         </div>
     </div>
 
@@ -738,25 +756,25 @@
             onmouseout="this.style.background='rgba(0,0,0,0.2)'">✖</button>
     </div>
 
-    <script src="js/daily-login.js?v=2.3"></script>
-    <script src="js/royal-ball.js?v=2.3"></script>
+    <script src="js/daily-login.js?v=3.0"></script>
+    <script src="js/royal-ball.js?v=3.0"></script>
 
-    <script src="js/common.js?v=2.3"></script>
-    <script src="js/theme-items.js?v=2.3"></script>
-    <script src="js/effect-items.js?v=2.3"></script>
-    <script src="js/pet-items.js?v=2.3"></script>
-    <script src="js/pet-interactions.js?v=2.3"></script>
+    <script src="js/common.js?v=3.0"></script>
+    <script src="js/theme-items.js?v=3.0"></script>
+    <script src="js/effect-items.js?v=3.0"></script>
+    <script src="js/pet-items.js?v=3.0"></script>
+    <script src="js/pet-interactions.js?v=3.0"></script>
     <script src="js/music-manager.js"></script>
-    <script src="js/store-manager.js?v=2.3"></script>
-    <script src="js/leaderboard.js?v=2.3"></script>
+    <script src="js/store-manager.js?v=3.0"></script>
+    <script src="js/leaderboard.js?v=3.0"></script>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-storage-compat.js"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
-    <script src="js/firebase-config.js?v=2.3"></script>
+    <script src="js/firebase-config.js?v=3.0"></script>
 
-    <script src="js/student.js?v=2.3"></script>
+    <script src="js/student.js?v=3.0"></script>
 
 </body>
 

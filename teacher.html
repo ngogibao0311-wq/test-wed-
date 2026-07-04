@@ -5,12 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Trang Giáo Viên</title>
-    <link rel="stylesheet" href="css/common.css?v=2.3">
-    <link rel="stylesheet" href="css/teacher.css?v=2.3">
-    <link rel="stylesheet" href="css/mobile.css?v=2.3">
-    <link rel="stylesheet" href="css/store-items.css?v=2.3">
-    <link rel="stylesheet" href="css/effects-pets.css?v=2.3">
-    <link rel="stylesheet" href="css/daily-login.css?v=2.3">
+    <link rel="stylesheet" href="css/common.css?v=3.0">
+    <link rel="stylesheet" href="css/teacher.css?v=3.0">
+    <link rel="stylesheet" href="css/mobile.css?v=3.0">
+    <link rel="stylesheet" href="css/store-items.css?v=3.0">
+    <link rel="stylesheet" href="css/effects-pets.css?v=3.0">
+    <link rel="stylesheet" href="css/daily-login.css?v=3.0">
     <script>
         MathJax = {
             tex: {
@@ -419,6 +419,62 @@
                                 Lưu cấu hình tỉ lệ</button>
                         </div>
 
+                        <div class="card accordion-card" style="margin-top: 20px;">
+                            <div class="accordion-header" onclick="toggleAccordion('ticketManageView', this)">
+                                <div class="accordion-title">
+                                    <h3
+                                        style="color: #059669; margin: 0; display: flex; align-items: center; gap: 8px;">
+                                        🎫 Quản lý vé quay may mắn</h3>
+                                </div>
+                                <div class="accordion-meta"><span class="toggle-icon">▼</span></div>
+                            </div>
+
+                            <div id="ticketManageView" class="accordion-content">
+                                <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">Chọn học sinh để kiểm tra
+                                    số dư vé hiện tại và thực hiện cộng/trừ vé thủ công.</p>
+
+                                <div style="display: flex; flex-direction: column; gap: 15px;">
+                                    <div>
+                                        <label
+                                            style="font-weight: bold; font-size: 0.9em; display: block; margin-bottom: 5px;">👤
+                                            Chọn học sinh:</label>
+                                        <select id="ticketStudentSelect" onchange="onTicketStudentChange()"
+                                            style="width: 100%; padding: 10px; border-radius: 8px; border: 2px dashed #ccc; font-size: 0.95em; cursor: pointer; outline: none; transition: 0.3s;"
+                                            onfocus="this.style.borderColor='#3b82f6'"
+                                            onblur="this.style.borderColor='#ccc'">
+                                            <option value="">-- Đang tải danh sách học sinh... --</option>
+                                        </select>
+                                    </div>
+
+                                    <div
+                                        style="background: rgba(16, 185, 129, 0.1); padding: 15px; border-radius: 8px; border: 1px dashed #10b981; text-align: center;">
+                                        <span style="font-size: 1em; color: #059669; font-weight: bold;">Số vé học sinh
+                                            đang có: </span><br>
+                                        <span id="currentTicketDisplay"
+                                            style="font-size: 2em; color: #10b981; font-weight: 900; line-height: 1.2;">0</span>
+                                        <span style="font-size: 1.2em; color: #10b981;">🎫</span>
+                                    </div>
+
+                                    <div>
+                                        <label
+                                            style="font-weight: bold; font-size: 0.9em; display: block; margin-bottom: 5px;">⚙️
+                                            Số lượng vé cần điều chỉnh:</label>
+                                        <input type="number" id="ticketModifyAmount" placeholder="Nhập số vé..." min="1"
+                                            style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 0.95em; margin-bottom: 10px;">
+                                    </div>
+
+                                    <div style="display: flex; gap: 10px;">
+                                        <button onclick="modifyStudentTickets('add')"
+                                            style="flex: 1; padding: 10px; font-weight: bold; font-size: 0.95em; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3); transition: 0.2s;">➕
+                                            Cộng Thêm Vé</button>
+                                        <button onclick="modifyStudentTickets('sub')"
+                                            style="flex: 1; padding: 10px; font-weight: bold; font-size: 0.95em; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3); transition: 0.2s;">➖
+                                            Trừ Bớt Vé</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div
                             style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05);">
                             <h4 style="color: #059669; margin-top: 0; margin-bottom: 15px;">📊 Lịch sử quay thưởng</h4>
@@ -600,6 +656,96 @@
 
                         <p style="font-size:0.85em; color:#888; font-style:italic;">*Lịch sử nhận thưởng từ Dạ hội sẽ
                             được gộp chung vào bảng Lịch sử quay thưởng phía trên để dễ theo dõi.</p>
+                    </div>
+                </div>
+
+                <div class="card accordion-card" style="margin-top: 20px;">
+                    <div class="accordion-header" onclick="toggleAccordion('leaderboardManageView', this)">
+                        <div class="accordion-title">
+                            <h3 style="color: #f39c12; margin: 0; display: flex; align-items: center; gap: 8px;">🏆 Quản
+                                lý Bảng Xếp Hạng Thi Đua</h3>
+                        </div>
+                        <div class="accordion-meta"><span class="toggle-icon">▼</span></div>
+                    </div>
+
+                    <div id="leaderboardManageView" class="accordion-content">
+                        <!-- 1. Tắt/Mở Bảng Xếp Hạng -->
+                        <label
+                            style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 15px; background: rgba(255,255,255,0.4); padding: 12px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.05);">
+                            <input type="checkbox" id="lbToggle" onchange="toggleLeaderboardStatus(this.checked)"
+                                style="width: 22px; height: 22px; margin: 0; cursor: pointer;">
+                            <strong style="color: #2c3e50; font-size: 0.95em;">Mở Bảng Xếp Hạng cho học sinh</strong>
+                        </label>
+
+                        <!-- 2. Đặt lịch mở mùa giải -->
+                        <div
+                            style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; border: 1px dashed #3b82f6; margin-bottom: 20px;">
+                            <h4 style="color: #3b82f6; margin-top: 0; margin-bottom: 10px;">📅 Đặt lịch mùa giải</h4>
+                            <p style="font-size: 0.9em; color: #666; margin-bottom: 10px;">Hệ thống sẽ tự động cấu hình
+                                mùa giải cho tháng tiếp theo nếu bạn đang ở giữa tháng hiện tại.</p>
+                            <p>Mùa giải đang xét: <strong id="currentSeasonDisplay" style="color: #e11d48;">Chưa cấu
+                                    hình</strong></p>
+
+                            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                                <button onclick="setNextMonthSeason()"
+                                    style="flex: 2; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer;">📅
+                                    Tự động đặt lịch</button>
+                                <button onclick="deleteCurrentSeason()"
+                                    style="flex: 1; background: linear-gradient(135deg, #e11d48 0%, #ff4d4d 100%); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer;">🗑️
+                                    Xóa lịch</button>
+                            </div>
+                        </div>
+
+                        <!-- 3. Điều chỉnh phần thưởng & Rương -->
+                        <div
+                            style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; border: 1px dashed #f39c12; margin-bottom: 20px;">
+                            <h4 style="color: #f39c12; margin-top: 0; margin-bottom: 10px;">🎁 Điều chỉnh phần thưởng &
+                                Tỉ lệ Rương</h4>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                                <div>
+                                    <label style="font-size: 0.9em; font-weight: bold;">Thưởng Hạng 3 (Coin):</label>
+                                    <input type="number" id="lbRewardRank3" min="0"
+                                        style="width: 100%; padding: 8px; margin-top: 5px;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.9em; font-weight: bold;">Thưởng Hạng 4+ (Coin):</label>
+                                    <input type="number" id="lbRewardRank4" min="0"
+                                        style="width: 100%; padding: 8px; margin-top: 5px;">
+                                </div>
+                            </div>
+
+                            <hr style="border: 0; border-top: 1px dashed #ccc; margin: 15px 0;">
+                            <h5 style="color: #c0392b; margin: 0 0 10px 0;">📦 Tỉ lệ Rương Hạng 1 (Khi chọn mở Vật phẩm)
+                            </h5>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                                <div>
+                                    <label style="font-size: 0.8em; font-weight: bold; color: #888;">Trùng lặp
+                                        (%)</label>
+                                    <input type="number" id="lbChestDup" min="0" max="100"
+                                        style="padding: 8px; width: 100%; text-align: center;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.8em; font-weight: bold; color: #2980b9;">VP Thường
+                                        (%)</label>
+                                    <input type="number" id="lbChestNorm" min="0" max="100"
+                                        style="padding: 8px; width: 100%; text-align: center;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.8em; font-weight: bold; color: #e11d48;">VP Truyền Thuyết
+                                        (%)</label>
+                                    <input type="number" id="lbChestLeg" min="0" max="100"
+                                        style="padding: 8px; width: 100%; text-align: center;">
+                                </div>
+                            </div>
+                            <p id="lbErrorMsg"
+                                style="color: #e11d48; font-weight: bold; font-size: 0.85em; display: none; margin-top: 5px;">
+                            </p>
+
+                            <button onclick="saveLeaderboardSettings()"
+                                style="margin-top: 15px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white; border: none; font-weight: bold; width: 100%; padding: 10px; border-radius: 8px;">💾
+                                Lưu cấu hình Phần thưởng</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1246,21 +1392,21 @@
         </div>
     </div>
 
-    <script src="js/daily-login.js?v=2.3"></script>
-    <script src="js/common.js?v=2.3"></script>
-    <script src="js/theme-items.js?v=2.3"></script>
-    <script src="js/effect-items.js?v=2.3"></script>
-    <script src="js/pet-items.js?v=2.3"></script>
-    <script src="js/royal-ball.js?v=2.3"></script>
-    <script src="js/music-manager.js?v=2.3"></script>
-    <script src="js/store-manager.js?v=2.3"></script>
+    <script src="js/daily-login.js?v=3.0"></script>
+    <script src="js/common.js?v=3.0"></script>
+    <script src="js/theme-items.js?v=3.0"></script>
+    <script src="js/effect-items.js?v=3.0"></script>
+    <script src="js/pet-items.js?v=3.0"></script>
+    <script src="js/royal-ball.js?v=3.0"></script>
+    <script src="js/music-manager.js?v=3.0"></script>
+    <script src="js/store-manager.js?v=3.0"></script>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-storage-compat.js"></script>
-    <script src="js/firebase-config.js?v=2.3"></script>
+    <script src="js/firebase-config.js?v=3.0"></script>
 
-    <script src="js/teacher.js?v=2.3"></script>
+    <script src="js/teacher.js?v=3.0"></script>
     <script src="js/security.js"></script>
 </body>
 

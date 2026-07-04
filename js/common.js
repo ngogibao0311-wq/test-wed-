@@ -432,3 +432,22 @@ window.runSystemDiagnostics = async function() {
         addLog(`Crashed: ${criticalError.message}`, 'error');
     }
 };
+
+// Lắng nghe sự kiện click trên toàn bộ tài liệu
+document.addEventListener('click', function(event) {
+    // Kiểm tra xem vị trí ngón tay chạm vào có phải là lớp phủ mờ (overlay) không
+    if (event.target.classList.contains('modal-overlay') || event.target.classList.contains('student-modal-overlay')) {
+        
+        // Tìm nút "X" (close-btn) hoặc nút "Hủy" (btn-cancel) bên trong popup đó
+        const closeBtn = event.target.querySelector('.close-btn') || event.target.querySelector('.btn-cancel');
+        
+        if (closeBtn) {
+            // Tự động kích hoạt nút đóng để chạy các hàm dọn dẹp dữ liệu nếu có
+            closeBtn.click();
+        } else {
+            // Phương án dự phòng: Nếu popup không có nút X, tự ép đóng bằng cách xóa class active
+            event.target.classList.remove('active');
+            event.target.style.display = 'none';
+        }
+    }
+});

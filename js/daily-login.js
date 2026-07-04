@@ -545,8 +545,27 @@ class DailyLoginManager {
                 return;
             }
 
-            const expiryTimestamp = Date.now() + (5 * 24 * 60 * 60 * 1000);
+            const expiryTimestamp = Date.now() + (7 * 24 * 60 * 60 * 1000);
             const message = `Chào mừng em trở lại hệ thống!\\nĐây là phần quà đăng nhập ngày ${dayId} của tuần này. Nhớ duy trì điểm danh mỗi ngày nhé!`;
+
+            // ĐOẠN CODE MỚI BỔ SUNG KIỂM TRA STORECONFIG
+            let discountTargets = ['all'];
+            
+            if (type === 'discount') {
+                // Kiểm tra xem StoreConfig đã tồn tại, có mảng items và đã load dữ liệu chưa
+                if (typeof StoreConfig !== 'undefined' && Array.isArray(StoreConfig.items) && StoreConfig.items.length > 0) {
+                    const validItems = StoreConfig.items.filter(item => typeof item.price === 'number' && item.price <= 500);
+                    if (validItems.length > 0) {
+                        discountTargets = validItems.map(item => item.id);
+                    }
+                } else {
+                    // Chặn ngang quá trình nhận quà nếu Cửa hàng chưa load xong để bảo vệ logic lọc
+                    alert("⏳ Hệ thống dữ liệu vật phẩm đang được đồng bộ. Vui lòng đợi khoảng 2-3 giây rồi bấm Nhận Quà lại nhé!");
+                    btn.innerHTML = 'Nhận Quà';
+                    btn.disabled = false;
+                    return; // Dừng hoàn toàn hàm claimReward
+                }
+            }
 
             const payload = {
                 message: message,
@@ -556,7 +575,8 @@ class DailyLoginManager {
                 timeString: new Date().toLocaleString('vi-VN'),
                 expiry: expiryTimestamp,
                 discountExpiry: expiryTimestamp,
-                discountTargetItem: ['all']
+                discountTargetItem: discountTargets, // Áp dụng danh sách vật phẩm vừa lọc
+                source: 'daily_login' // Đánh dấu nguồn gốc để dễ quản lý sau này
             };
 
             await db.ref(`inbox_messages/${username}`).push(payload);

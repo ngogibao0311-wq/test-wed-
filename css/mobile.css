@@ -269,6 +269,11 @@
         padding: 20px 15px !important;
         margin: auto !important;
         max-height: 85vh !important;
+
+        /* THÊM 2 DÒNG NÀY ĐỂ KÍCH HOẠT THANH CUỘN */
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        /* Giúp vuốt mượt mà trên iPhone/iPad */
     }
 
     .close-btn {
