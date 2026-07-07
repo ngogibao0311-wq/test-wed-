@@ -88,3 +88,51 @@ async function removeDB(path, fbKey) {
         throw error;
     }
 }
+
+// firebase-config.js
+
+// Hàm lấy dữ liệu phân trang (Load More)
+async function getPaginatedDB(path, limit, lastKey = null) {
+    try {
+        let query = db.ref(path).orderByKey();
+
+        if (lastKey) {
+            // Lấy dư 1 phần tử (limit + 1) để trừ hao phần tử mốc bị trùng lặp
+            query = query.endAt(lastKey).limitToLast(limit + 1);
+        } else {
+            // Tải lần đầu tiên
+            query = query.limitToLast(limit);
+        }
+
+        const snapshot = await query.once('value');
+        const data = snapshot.val();
+
+        if (!data) return { items: [], nextKey: null };
+
+        // Chuyển Object thành Array
+        let items = Object.keys(data).map(key => {
+            const item = data[key];
+            if (typeof item === 'object' && item !== null) {
+                return { _fbKey: key, ...item };
+            }
+            return { _fbKey: key, value: item };
+        });
+
+        // Firebase trả về theo thứ tự key tăng dần (cũ -> mới).
+        // Nếu không phải lần tải đầu, ta loại bỏ phần tử cuối cùng (vì nó chính là lastKey của đợt trước)
+        if (lastKey && items.length > 0) {
+            items.pop(); 
+        }
+
+        let nextKey = null;
+        if (items.length >= limit) {
+            // Key nhỏ nhất (phần tử đầu tiên) sẽ làm mốc cho lần tải tiếp theo
+            nextKey = items[0]._fbKey; 
+        }
+
+        return { items, nextKey };
+    } catch (error) {
+        console.error(`❌ [Lỗi getPaginatedDB] tại '${path}':`, error);
+        return { items: [], nextKey: null };
+    }
+}

@@ -21,6 +21,8 @@
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 </head>
 
 <body>
@@ -155,7 +157,7 @@
 
                     <div id="tuLuanFields" style="margin-top: 15px;">
                         <label for="desc"><strong>Yêu cầu bài tập (Tự luận):</strong></label>
-                        <textarea id="desc" placeholder="Nội dung chi tiết yêu cầu tự luận..." rows="4"></textarea>
+                        <div id="desc" style="height: 150px; background: white;"></div>
                         <div id="videoLinkGroup">
                             <label for="videoLink"><strong>Đính kèm Video (Link YouTube - Nếu có):</strong></label>
                             <input type="text" id="videoLink" placeholder="Dán link YouTube vào đây...">
@@ -1288,8 +1290,7 @@
                                 style="display: none; background: rgba(56, 239, 125, 0.05); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(56, 239, 125, 0.2);">
                                 <h4 style="color: #11998e; margin-bottom: 15px;">✍️ Phần Tự luận</h4>
                                 <label for="editDesc"><strong>Yêu cầu bài tập:</strong></label>
-                                <textarea id="editDesc" placeholder="Nội dung chi tiết yêu cầu..." rows="3"
-                                    style="background: white;"></textarea>
+                                <div id="editDesc" style="height: 150px; background: white;"></div>
 
                                 <label for="editVideoLink"><strong>Đính kèm Video (Link YouTube):</strong></label>
                                 <input type="text" id="editVideoLink" placeholder="Dán link YouTube vào đây..."
@@ -1401,10 +1402,10 @@
     <script src="js/music-manager.js?v=3.0"></script>
     <script src="js/store-manager.js?v=3.0"></script>
 
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-storage-compat.js"></script>
-    <script src="js/firebase-config.js?v=3.0"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="js/firebase-config.js"></script>
 
     <script src="js/teacher.js?v=3.0"></script>
     <script src="js/security.js"></script>

@@ -799,9 +799,9 @@ async function loadAssignments() {
                     ${videoHTML}
                     <div style="background: rgba(255,255,255,0.6); padding: 15px; border-radius: 12px; margin-top: 20px; margin-bottom: 15px; border: 1px solid rgba(0,0,0,0.05);">
                         <p style="margin: 0 0 10px 0; font-weight: bold; color: #2c3e50; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 8px;">📝 Nội dung bài làm của bạn:</p>
-                        <div style="background: rgba(0,0,0,0.02); padding: 15px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.03);">
-                            <p style="margin: 0; color: ${mySub.isAutoSubmitted ? '#e74c3c' : '#444'}; white-space: pre-wrap; line-height: 1.6;">${mySub.answer ? mySub.answer.replace(/</g, "&lt;").replace(/>/g, "&gt;") : '<i>(Không có)</i>'}</p>
-                        </div>
+<div style="background: rgba(0,0,0,0.02); padding: 15px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.03);">
+    <div class="ql-editor" style="margin: 0; color: ${mySub.isAutoSubmitted ? '#e74c3c' : '#444'}; line-height: 1.6; padding: 0;">${mySub.answer ? mySub.answer.replace(/\n/g, '<br>') : '<i>(Không có)</i>'}</div>
+</div>
                         ${myFileHTML}
                     </div>
                     ${teacherFileHTML}
@@ -1089,7 +1089,7 @@ async function loadAssignments() {
                     }
                     let essayTextAreaHTML = assign.hideEssayText
                         ? `<div class="glass-alert success" style="padding: 12px; margin-bottom: 12px; border-left-color: #38ef7d; background: rgba(56, 239, 125, 0.1);"><p style="margin:0; font-size:0.95em; font-weight:bold;">📁 Giáo viên yêu cầu nộp bài bằng tệp đính kèm (Không cần nhập nội dung văn bản).</p></div>`
-                        : `<textarea id="answer-${assign.id}" placeholder="Nhập câu trả lời..." rows="4" oninput="saveDraft('${assign.id}', 'essay', null, this.value)">${savedEssay ? savedEssay.replace(/</g, "&lt;").replace(/>/g, "&gt;") : ''}</textarea>`;
+                        : `<div id="answer-${assign.id}" class="quill-student-editor" style="height: 200px; background: white;">${savedEssay ? savedEssay : ''}</div>`;
 
                     tuLuanInputHTML = `<hr style="border: 0; border-top: 1px dashed rgba(0,0,0,0.1); margin: 20px 0;">
                                        <h3 style="color: #2c3e50; margin-bottom: 10px;">Phần làm bài tự luận</h3>
@@ -1217,6 +1217,30 @@ async function loadAssignments() {
             }
         }
     });
+
+    // Khởi tạo Quill cho tất cả các ô tự luận vừa render
+    document.querySelectorAll('.quill-student-editor').forEach(el => {
+        if (!el.classList.contains('ql-container')) {
+            let quill = new Quill(el, {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'color': [] }, { 'background': [] }], // 🎨 Thêm bảng chọn màu cho học sinh
+                        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                        ['link', 'image', 'formula'],
+                        ['clean']
+                    ]
+                }
+            });
+
+            // Tự động lưu nháp khi học sinh gõ chữ hoặc đổi màu chữ
+            quill.on('text-change', function () {
+                saveDraft(el.id.replace('answer-', ''), 'essay', null, quill.root.innerHTML);
+            });
+        }
+    });
+
     if (hasAutoSubmitted) {
         const syncAlert = document.createElement('div');
         syncAlert.className = 'glass-alert danger';
@@ -1390,7 +1414,11 @@ async function submitAssignment(assignId, isAuto = false, isCheat = false) {
     // --- BẮT ĐẦU ĐOẠN ĐÃ FIX LỖI ---
     // 1. Thêm assign.assessmentType === 'thi' vào điều kiện để chịu đọc file khi thi
     if (assign.assessmentType === 'tu_luan' || assign.assessmentType === 'ket_hop' || assign.assessmentType === 'thi' || !assign.assessmentType) {
-        const answerEl = document.getElementById(`answer-${assignId}`); if (answerEl) answer = answerEl.value;
+        const answerEl = document.getElementById(`answer-${assignId}`);
+        if (answerEl) {
+            const qlEditor = answerEl.querySelector('.ql-editor');
+            answer = qlEditor ? qlEditor.innerHTML : answerEl.innerHTML;
+        }
 
         // 2. Thu thập toàn diện file từ cả bộ đệm (DataTransfer) và thẻ Input thực tế
         let pendingFiles = [];
@@ -1967,8 +1995,8 @@ window.calculateTotalTickets = async function () {
         // Bù đắp số vé bị mất này thẳng vào Bonus Tickets để giữ nguyên tổng số vé
         let lostTickets = historicalGradeTickets - currentGradeTickets;
         bonusTickets += lostTickets;
-        await bonusRef.set(bonusTickets); 
-        
+        await bonusRef.set(bonusTickets);
+
         // Reset lại mốc lịch sử xuống bằng hiện tại để không bị cộng bù lần 2
         await db.ref('historical_grade_tickets/' + currentUser.username).set(currentGradeTickets);
     }
@@ -1995,14 +2023,14 @@ function getTicketStartOfWeek() {
     const day = now.getDay();
     const diff = now.getDate() - day + (day === 0 ? -6 : 1);
     const startOfWeek = new Date(now.setDate(diff));
-    startOfWeek.setHours(0,0,0,0);
+    startOfWeek.setHours(0, 0, 0, 0);
     return startOfWeek.getTime();
 }
 
 // Render nút mua vé trên giao diện
-window.renderBuyTicketButton = async function() {
+window.renderBuyTicketButton = async function () {
     const container = document.getElementById('buyTicketContainer');
-    if(!container) return;
+    if (!container) return;
 
     const startOfWeek = getTicketStartOfWeek();
     const snap = await db.ref(`ticket_purchases/${currentUser.username}`).once('value');
@@ -2058,7 +2086,7 @@ window.renderBuyTicketButton = async function() {
 };
 
 // Logic xử lý trừ tiền và cộng vé
-window.buyLuckyTicket = async function() {
+window.buyLuckyTicket = async function () {
     const startOfWeek = getTicketStartOfWeek();
     const purchaseRef = db.ref(`ticket_purchases/${currentUser.username}`);
     const snap = await purchaseRef.once('value');
@@ -2085,7 +2113,7 @@ window.buyLuckyTicket = async function() {
     try {
         // Trừ 4 coin
         await coinRef.set(currentCoins - 4);
-        
+
         // Cập nhật số lượt mua trong tuần
         purchaseData.count += 1;
         await purchaseRef.set(purchaseData);
@@ -2095,7 +2123,7 @@ window.buyLuckyTicket = async function() {
         const bonusSnap = await bonusRef.once('value');
         await bonusRef.set((parseInt(bonusSnap.val()) || 0) + 1);
 
-        if(typeof window.showToast === 'function') {
+        if (typeof window.showToast === 'function') {
             window.showToast("🎉 Mua vé thành công! Đã trừ 4 Coin.", "success");
         } else {
             alert("🎉 Mua vé thành công! Đã trừ 4 Coin.");
@@ -2112,7 +2140,7 @@ window.buyLuckyTicket = async function() {
         if (quickSpinBtn) {
             quickSpinBtn.style.display = ticketData.remaining > 1 ? 'block' : 'none';
         }
-    } catch(e) {
+    } catch (e) {
         console.error(e);
         alert("❌ Giao dịch thất bại do lỗi mạng, vui lòng thử lại!");
     }
@@ -2130,7 +2158,7 @@ window.openLuckyWheel = async function () {
     const titleWheel = document.querySelector('#luckyWheelModal h3');
     if (titleWheel) {
         titleWheel.innerHTML = `🎡 Vòng Quay Nhân Phẩm<br><span style="font-size: 0.5em; color: #ffd700; text-transform: none;">🎫 Vé hiện có: ${ticketData.remaining}</span>`;
-        
+
         // --- CHÈN KHU VỰC MUA VÉ ---
         let buyBtnContainer = document.getElementById('buyTicketContainer');
         if (!buyBtnContainer) {
@@ -4747,3 +4775,19 @@ window.openHoiHoaChest = async function (chestKey) {
     alert(`🎉 Chúc mừng! Mở rương thành công.\nBạn nhận được: ${rewardText}`);
     renderStudentBag(); // Làm mới lại túi đồ ngay lập tức
 };
+
+// === CHẶN ĐÓNG POPUP THÔNG BÁO KHI CLICK RA NGOÀI ===
+document.addEventListener('DOMContentLoaded', () => {
+    const studentNotificationModal = document.getElementById('studentNotificationModal');
+
+    if (studentNotificationModal) {
+        studentNotificationModal.addEventListener('click', function (event) {
+            // Kiểm tra nếu người dùng click đúng vào vùng nền mờ
+            if (event.target === studentNotificationModal) {
+                // Chỉ chặn sự kiện đóng, không hiển thị bất kỳ thông báo nào
+                event.stopPropagation();
+                event.preventDefault();
+            }
+        });
+    }
+});

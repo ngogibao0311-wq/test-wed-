@@ -7,6 +7,10 @@ if (loginForm) {
     loginForm.addEventListener('submit', async function (e) {
         e.preventDefault();
         const userVal = document.getElementById('username').value.trim();
+        if (userVal.includes(' ')) {
+            errorMsg.innerHTML = '❌ Tên đăng nhập không được chứa khoảng trắng!';
+            return;
+        }
         const passVal = document.getElementById('password').value.trim();
         const errorMsg = document.getElementById('errorMsg');
 
@@ -25,62 +29,66 @@ if (loginForm) {
         const deviceLockout = localStorage.getItem('deviceLockoutUntil');
         if (deviceLockout && now < parseInt(deviceLockout)) {
             startLockoutCountdown(parseInt(deviceLockout), errorMsg);
-            return; 
-        }
-
-        // Tải danh sách user từ server
-        let users = await getDB('users');
-
-        // Nếu DB chưa có ai (mới tạo), tự động cấp 2 tài khoản mẫu
-        if (users.length === 0) {
-            await pushDB('users', { username: 'gv1', password: '123', role: 'teacher', name: 'Giáo viên A' });
-            await pushDB('users', { username: 'hs1', password: '123', role: 'student', name: 'Học sinh B' });
-            users = await getDB('users'); 
-        }
-
-        const user = users.find(u => u.username === userVal);
-
-        if (!user) {
-            errorMsg.innerHTML = '❌ Tên đăng nhập không tồn tại!';
-            errorMsg.style.color = 'red';
             return;
         }
 
-        // 2. KIỂM TRA KHÓA THỦ CÔNG (Giáo viên khóa học sinh từ hệ thống)
-        if (user.isLocked) {
-            errorMsg.innerHTML = '🔒 LỖI: Tài khoản đã bị khóa.<br>Vui lòng liên hệ Giáo viên để giải quyết!';
-            errorMsg.style.color = 'red';
-            return;
-        }
+        // --- BẮT ĐẦU ĐOẠN CODE MỚI DÙNG FIREBASE AUTH ---
 
-        // 3. KIỂM TRA MẬT KHẨU & GHI ÁN PHẠT VÀO THIẾT BỊ NẾU SAI
-        if (user.password !== passVal) {
-            // Tăng biến đếm số lần sai của thiết bị này
+        // Tạo email ảo từ Tên đăng nhập do người dùng nhập (VD: gv1 -> gv1@hethong.edu.vn)
+        const fakeEmail = userVal + "@hethong.edu.vn";
+
+        try {
+            // Xác thực bằng hệ thống bảo mật của Firebase Auth (Thay vì tải toàn bộ DB về)
+            const userCredential = await firebase.auth().signInWithEmailAndPassword(fakeEmail, passVal);
+            const uid = userCredential.user.uid;
+
+            // Tải thông tin chi tiết từ Realtime Database dựa trên UID được bảo mật
+            const snapshot = await db.ref('users/' + uid).once('value');
+            const user = snapshot.val();
+
+            if (!user) {
+                errorMsg.innerHTML = '❌ Tài khoản không tồn tại dữ liệu trên máy chủ!';
+                errorMsg.style.color = 'red';
+                return;
+            }
+
+            // 2. KIỂM TRA KHÓA THỦ CÔNG (Giáo viên khóa học sinh từ hệ thống)
+            if (user.isLocked) {
+                errorMsg.innerHTML = '🔒 LỖI: Tài khoản đã bị khóa.<br>Vui lòng liên hệ Giáo viên để giải quyết!';
+                errorMsg.style.color = 'red';
+                await firebase.auth().signOut(); // Ép đăng xuất lập tức trên Firebase
+                return;
+            }
+
+            // 3. ĐĂNG NHẬP THÀNH CÔNG -> GỠ BỎ LỊCH SỬ SAI CỦA THIẾT BỊ NÀY
+            localStorage.removeItem('deviceFails');
+            localStorage.removeItem('deviceLockoutUntil');
+
+            // Gắn thêm _fbKey chính là uid để hệ thống đồng bộ
+            user._fbKey = uid;
+            localStorage.setItem('currentUser', JSON.stringify(user));
+
+            if (user.role === 'teacher') {
+                window.location.href = 'teacher.html';
+            } else {
+                window.location.href = 'student.html';
+            }
+
+        } catch (error) {
+            // 4. XỬ LÝ KHI SAI MẬT KHẨU / TÀI KHOẢN & GHI ÁN PHẠT
             let currentFails = parseInt(localStorage.getItem('deviceFails') || '0') + 1;
-            
+
             if (currentFails >= 5) {
                 // Phạt khóa thiết bị 15 phút
-                const lockTime = now + (15 * 60 * 1000);
+                const lockTime = Date.now() + (15 * 60 * 1000);
                 localStorage.setItem('deviceLockoutUntil', lockTime);
                 localStorage.setItem('deviceFails', '0'); // Reset bộ đếm
                 startLockoutCountdown(lockTime, errorMsg);
             } else {
                 localStorage.setItem('deviceFails', currentFails);
-                errorMsg.innerHTML = `❌ Sai mật khẩu! Thiết bị này còn <b>${5 - currentFails}</b> lần thử.`;
+                errorMsg.innerHTML = `❌ Sai Tên đăng nhập hoặc Mật khẩu! Thiết bị này còn <b>${5 - currentFails}</b> lần thử.`;
                 errorMsg.style.color = 'red';
             }
-            return;
-        }
-
-        // 4. ĐĂNG NHẬP THÀNH CÔNG -> GỠ BỎ LỊCH SỬ SAI CỦA THIẾT BỊ NÀY
-        localStorage.removeItem('deviceFails');
-        localStorage.removeItem('deviceLockoutUntil');
-
-        localStorage.setItem('currentUser', JSON.stringify(user));
-        if (user.role === 'teacher') {
-            window.location.href = 'teacher.html';
-        } else {
-            window.location.href = 'student.html';
         }
     });
 }
@@ -111,10 +119,18 @@ function startLockoutCountdown(lockoutUntil, errorElement) {
     lockoutInterval = setInterval(update, 1000);
 }
 
-function logout() {
-    localStorage.removeItem('currentUser');
-    window.location.href = 'index.html';
-}
+window.logout = function () {
+    if (confirm("Bạn có chắc chắn muốn đăng xuất?")) {
+        // --- BẮT ĐẦU: Dọn dẹp Firebase Realtime trước khi thoát ---
+        if (typeof cleanupFirebaseListeners === 'function') {
+            cleanupFirebaseListeners();
+        }
+        // --- KẾT THÚC ---
+
+        localStorage.removeItem('currentUser');
+        window.location.href = 'index.html';
+    }
+};
 
 // ==============================================================
 // HÀM XỬ LÝ ĐÓNG / MỞ CARD (ACCORDION)
@@ -262,12 +278,12 @@ window.addEventListener('DOMContentLoaded', () => {
 // ==============================================================
 // HÀM TÌM KIẾM DỮ LIỆU ĐA NĂNG (DÙNG CHUNG)
 // ==============================================================
-window.filterItems = function(containerId, keyword) {
+window.filterItems = function (containerId, keyword) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
+
     const term = keyword.toLowerCase().trim();
-    
+
     // Kiểm tra xem container đang chứa Table (Bảng) hay Div (Card)
     if (container.tagName === 'TBODY' || container.querySelector('table')) {
         // Xử lý tìm kiếm trong Bảng (Ví dụ: Danh sách học sinh)
@@ -277,7 +293,7 @@ window.filterItems = function(containerId, keyword) {
             rows.forEach((row, index) => {
                 // Bỏ qua hàng tiêu đề (th) nếu có
                 if (row.querySelector('th')) return;
-                
+
                 const text = row.innerText.toLowerCase();
                 row.style.display = text.includes(term) ? '' : 'none';
             });
@@ -287,10 +303,10 @@ window.filterItems = function(containerId, keyword) {
         const items = container.children;
         for (let i = 0; i < items.length; i++) {
             const item = items[i];
-            
+
             // Bỏ qua các thẻ thông báo trống (Chưa có bài nộp...)
             if (item.tagName === 'P' && item.innerText.includes('Chưa có')) continue;
-            
+
             // Tìm kiếm dựa trên toàn bộ text hiển thị trong Card đó
             const text = item.innerText.toLowerCase();
             item.style.display = text.includes(term) ? '' : 'none';
@@ -302,18 +318,18 @@ window.filterItems = function(containerId, keyword) {
 // HỆ THỐNG QUÉT LỖI VÀ CHẨN ĐOÁN WEBSITE (DIAGNOSTICS SCANNER)
 // =====================================================================
 
-window.runSystemDiagnostics = async function() {
+window.runSystemDiagnostics = async function () {
     const resultBox = document.getElementById('diagnosticResults');
     const statusText = document.getElementById('diagnosticStatus');
     const list = document.getElementById('diagnosticList');
-    
+
     if (!resultBox || !statusText || !list) return alert("Lỗi: Không tìm thấy khung hiển thị kết quả HTML!");
 
     // Khởi tạo giao diện
     resultBox.style.display = 'block';
     list.innerHTML = '';
     statusText.innerHTML = '<span style="color: #d35400; font-weight: bold;">⏳ Đang tiến hành rà soát hệ thống... Vui lòng đợi!</span>';
-    
+
     let errors = [];
     let warnings = [];
     let passes = 0;
@@ -396,11 +412,11 @@ window.runSystemDiagnostics = async function() {
         }
 
         await sleep(500); // ----------------------------------------------------
-// 6. KIỂM TRA CÁC BIẾN TOÀN CỤC HOẠT ĐỘNG (ĐỒNG BỘ TRÒ CHƠI)
+        // 6. KIỂM TRA CÁC BIẾN TOÀN CỤC HOẠT ĐỘNG (ĐỒNG BỘ TRÒ CHƠI)
         if (typeof window.wheelProbs === 'undefined') {
             warnings.push("Cấu hình tỉ lệ vòng quay đang trống, game sẽ dùng mặc định cứng.");
         }
-        
+
         // Tiến hành kiểm tra động: Nếu chưa có biến, thử đợi Firebase phản hồi trong 1 giây trước khi báo lỗi
         if (typeof window.isGameEnabled === 'undefined') {
             let retryCount = 0;
@@ -418,7 +434,7 @@ window.runSystemDiagnostics = async function() {
         }
         // === KẾT LUẬN VÀ IN BÁO CÁO ===
         statusText.innerHTML = `<span style="color: #2c3e50; font-weight: bold;">Hoàn tất quét hệ thống!</span>`;
-        
+
         if (errors.length === 0 && warnings.length === 0) {
             addLog(`Hệ thống đang hoạt động hoàn hảo. (Vượt qua ${passes}/5 bài test lõi)`, 'success');
         } else {
@@ -434,13 +450,13 @@ window.runSystemDiagnostics = async function() {
 };
 
 // Lắng nghe sự kiện click trên toàn bộ tài liệu
-document.addEventListener('click', function(event) {
+document.addEventListener('click', function (event) {
     // Kiểm tra xem vị trí ngón tay chạm vào có phải là lớp phủ mờ (overlay) không
     if (event.target.classList.contains('modal-overlay') || event.target.classList.contains('student-modal-overlay')) {
-        
+
         // Tìm nút "X" (close-btn) hoặc nút "Hủy" (btn-cancel) bên trong popup đó
         const closeBtn = event.target.querySelector('.close-btn') || event.target.querySelector('.btn-cancel');
-        
+
         if (closeBtn) {
             // Tự động kích hoạt nút đóng để chạy các hàm dọn dẹp dữ liệu nếu có
             closeBtn.click();

@@ -1,6 +1,8 @@
 const currentUser = JSON.parse(localStorage.getItem('currentUser'));
 if (!currentUser || currentUser.role !== 'teacher') window.location.href = 'index.html';
 
+const secondaryApp = firebase.initializeApp(firebaseConfig, "SecondaryApp")
+
 let cacheAssignmentsSt = "";
 let cacheSubmissionsSt = "";
 
@@ -11,6 +13,14 @@ let activeAssignedStudentFilter = 'all';
 let activeSubmissionStudentFilter = 'all';
 let activeMaterialStudentFilter = 'all';
 let activeScheduleStudentFilter = 'all';
+
+const PAGE_LIMIT = 20;
+
+let currentAssignKey = null;
+let isAssignEnd = false;
+
+let currentSubKey = null;
+let isSubEnd = false;
 
 // Biến lưu trữ file cộng dồn
 const dtTeacherAssign = new DataTransfer(); // Dùng cho Giao bài
@@ -50,6 +60,25 @@ window.handleTeacherFileAccumulate = function (input, subId) {
 };
 
 window.onload = async function () {
+    const quillToolbarOptions = [
+        ['bold', 'italic', 'underline', 'strike'],        // Định dạng chữ cơ bản
+        [{ 'color': [] }, { 'background': [] }],          // 🎨 ĐÂY CHÍNH LÀ NÚT CHỌN MÀU CHỮ VÀ MÀU NỀN
+        [{ 'list': 'ordered' }, { 'list': 'bullet' }],     // Danh sách số và dấu chấm
+        ['link', 'image', 'formula'],                     // Chèn link, ảnh, công thức toán
+        ['clean']                                         // Nút xóa nhanh định dạng
+    ];
+
+    // Khởi tạo cho ô tạo bài tập mới
+    window.quillDesc = new Quill('#desc', {
+        theme: 'snow',
+        modules: { toolbar: quillToolbarOptions }
+    });
+
+    // Khởi tạo cho ô sửa bài tập
+    window.quillEditDesc = new Quill('#editDesc', {
+        theme: 'snow',
+        modules: { toolbar: quillToolbarOptions }
+    });
     let realUsers = await getDB('users');
     let realUser = realUsers.find(u => u.username === currentUser.username);
     if (!realUser || realUser.role !== 'teacher') {
@@ -105,8 +134,43 @@ window.onload = async function () {
         if (document.getElementById('teacherRoadmapBody')) renderTeacherRoadmap();
     }, 1500);
 
-    db.ref('submissions').on('value', renderSubmissions);
-    db.ref('assignments').on('value', renderAssignments);
+    // --- ĐOẠN CODE MỚI ĐÃ ĐƯỢC TỐI ƯU REALTIME CHỐNG XUNG ĐỘT ---
+
+    // 1. Chỉ lắng nghe khi có một bài nộp nào đó bị chỉnh sửa (ví dụ: HS nộp lại hoặc GV vừa chấm điểm)
+    db.ref('submissions').on('child_changed', async (snapshot) => {
+        const updatedSub = { _fbKey: snapshot.key, ...snapshot.val() };
+
+        // Cập nhật ngầm phần tử này vào bộ nhớ đệm (Cache) mà không cần tải lại cả bảng
+        if (window.cachedSubmissions) {
+            const idx = window.cachedSubmissions.findIndex(s => s._fbKey === updatedSub._fbKey || s.id === updatedSub.id);
+            if (idx !== -1) {
+                window.cachedSubmissions[idx] = updatedSub;
+            }
+        }
+
+        // Chỉ cập nhật giao diện nhỏ của Lộ trình học tập (Roadmap) nếu đang mở
+        if (document.getElementById('studentRoadmapBody')) renderStudentRoadmap();
+        if (document.getElementById('teacherRoadmapBody')) renderTeacherRoadmap();
+    });
+
+    // 2. Chỉ lắng nghe khi bài tập có sự thay đổi cấu hình
+    db.ref('assignments').on('child_changed', async (snapshot) => {
+        const updatedAssign = { _fbKey: snapshot.key, ...snapshot.val() };
+        if (window.cachedAssignments) {
+            const idx = window.cachedAssignments.findIndex(a => a._fbKey === updatedAssign._fbKey || a.id === updatedAssign.id);
+            if (idx !== -1) window.cachedAssignments[idx] = updatedAssign;
+        }
+        if (document.getElementById('studentRoadmapBody')) renderStudentRoadmap();
+    });
+
+    // 3. Khi có bài nộp hoàn toàn MỚI, ta không tải lại toàn bộ mà chỉ cần thông báo hoặc tải lại trang đầu
+    db.ref('submissions').limitToLast(1).on('child_added', (snapshot) => {
+        // Chỉ xử lý nếu đây là bài nộp mới phát sinh sau khi trang đã tải xong
+        if (window.cachedSubmissions && !window.cachedSubmissions.some(s => s._fbKey === snapshot.key)) {
+            // Gọi load lại trang đầu tiên để cập nhật bài mới lên trên cùng
+            loadSubmissions(false);
+        }
+    });
     db.ref('users').on('value', renderUsers);
     db.ref('profile_requests').on('value', debounce(loadProfileRequests, 1500));
     db.ref('materials').on('value', debounce(loadMaterialsListTeacher, 1500));
@@ -369,7 +433,7 @@ async function createAssignment() {
     // BƯỚC 2: XỬ LÝ DỮ LIỆU TỰ LUẬN
     const hasEssay = type === 'tu_luan' || type === 'ket_hop' || (type === 'thi' && essayWeight > 0);
     if (hasEssay) {
-        desc = document.getElementById('desc').value;
+        desc = window.quillDesc.root.innerHTML;
         videoLink = (type === 'thi') ? '' : document.getElementById('videoLink').value.trim();
         hideEssayText = document.getElementById('hideEssayText').checked;
 
@@ -575,6 +639,7 @@ async function loadAssignedList() {
         const uniqueId = `teacher-assign-${assign.id}`;
         const div = document.createElement('div');
         div.className = 'card accordion-card';
+        div.id = 'assignment-card-' + assign._fbKey;
         div.setAttribute('data-target', Array.isArray(assign.targetStudent) ? assign.targetStudent.join(',') : (assign.targetStudent || 'all'));
 
         if (typeof activeAssignedStudentFilter !== 'undefined' && activeAssignedStudentFilter !== 'all') {
@@ -703,39 +768,28 @@ window.deleteMaterial = async function (fbKey) {
     alert("Đã xóa tài liệu thành công!");
 }
 
-async function deleteAssignment(fbKey) {
-    if (!confirm("Bạn có chắc chắn muốn xóa bài tập này? (Toàn bộ bài nộp của học sinh cho bài tập này cũng sẽ bị xóa vĩnh viễn)")) return;
+window.deleteAssignment = async function (assignId) {
+    if (!confirm("Bạn có chắc chắn muốn xóa bài tập này?")) return;
 
-    // 1. Lấy danh sách bài tập để tìm ID gốc của bài tập sắp xóa
-    const assignments = await getDB('assignments');
-    const assignToDelete = assignments.find(a => a._fbKey === fbKey);
+    try {
+        // 1. Xóa trên Firebase
+        await db.ref('assignments/' + assignId).remove();
 
-    if (!assignToDelete) return; // Nếu không tìm thấy thì thoát
+        // 2. Thông báo thành công
+        alert("Xóa thành công!");
 
-    const assignId = assignToDelete.id; // Lấy custom ID của bài tập
-
-    // 2. Xóa bài tập khỏi database
-    await removeDB('assignments', fbKey);
-
-    // 3. Tìm và xóa toàn bộ các bài nộp (submissions) liên quan đến bài tập này
-    const submissions = await getDB('submissions');
-    const relatedSubmissions = submissions.filter(sub => sub.assignmentId === assignId);
-
-    // Chạy vòng lặp xóa từng bài nộp liên quan
-    for (let sub of relatedSubmissions) {
-        await removeDB('submissions', sub._fbKey);
-    }
-
-    // (Tùy chọn) Xóa luôn cờ lưu trạng thái thu bài tự động dưới LocalStorage để dọn dẹp bộ nhớ máy
-    const users = await getDB('users');
-    users.forEach(u => {
-        if (u.role === 'student') {
-            localStorage.removeItem(`auto_sub_${assignId}_${u.username}`);
+        // 3. 🔥 CẬP NHẬT GIAO DIỆN NGAY LẬP TỨC
+        const element = document.getElementById('assignment-card-' + assignId);
+        if (element) {
+            element.remove(); // Xóa thẻ HTML khỏi trang mà không cần F5
         }
-    });
 
-    alert("Đã xóa bài tập và dọn dẹp các bài nộp liên quan thành công!");
-}
+    } catch (error) {
+        console.error("Lỗi khi xóa:", error);
+        alert("Có lỗi xảy ra: " + error.message);
+    }
+};
+
 function initFileListener() {
     const fInput = document.getElementById('fileInput');
     if (!fInput) return;
@@ -777,69 +831,67 @@ async function populateStudentDropdown() {
     });
 }
 
-async function loadSubmissions() {
-    const rawSubmissions = await getDB('submissions');
-    const assignments = await getDB('assignments');
-    const trackingSnap = await db.ref('video_tracking').once('value');
-    const trackingData = trackingSnap.val() || {};
+async function loadSubmissions(isLoadMore = false) {
     const list = document.getElementById('submissionsList');
     if (!list) return;
-    list.innerHTML = '';
 
-    if (rawSubmissions.length === 0) { list.innerHTML = '<p style="color: #666; font-style: italic;">Chưa có bài nộp nào.</p>'; return; }
+    if (!isLoadMore) {
+        // Reset trạng thái nếu là tải mới hoàn toàn
+        currentSubKey = null;
+        isSubEnd = false;
+        list.innerHTML = '';
+    }
+
+    if (isSubEnd) return;
+
+    // Hiển thị trạng thái đang tải
+    const loadingId = 'sub-loading-indicator';
+    if (isLoadMore) {
+        const btn = document.getElementById('btnLoadMoreSubs');
+        if (btn) btn.innerText = '⏳ Đang tải...';
+    } else {
+        list.innerHTML = `<p id="${loadingId}" style="text-align:center; color:#666; padding: 20px;">⏳ Đang tải dữ liệu bài nộp...</p>`;
+    }
+
+    // GỌI HÀM PHÂN TRANG (Lấy từ DB thay vì kéo toàn bộ)
+    const { items: rawSubmissions, nextKey } = await getPaginatedDB('submissions', PAGE_LIMIT, currentSubKey);
+
+    // Cập nhật mốc key cho lần tải sau
+    currentSubKey = nextKey;
+    if (!nextKey || rawSubmissions.length < PAGE_LIMIT) {
+        isSubEnd = true;
+    }
+
+    // Xóa chữ "Đang tải" của lần tải đầu
+    const loadingEl = document.getElementById(loadingId);
+    if (loadingEl) loadingEl.remove();
+
+    if (rawSubmissions.length === 0 && !isLoadMore) {
+        list.innerHTML = '<p style="color: #666; font-style: italic;">Chưa có bài nộp nào.</p>';
+        return;
+    }
+
+    const assignments = window.cachedAssignments || await getDB('assignments');
+    window.cachedAssignments = assignments;
+
+    const trackingSnap = await db.ref('video_tracking').once('value');
+    const trackingData = trackingSnap.val() || {};
 
     const uniqueSubmissions = {};
     rawSubmissions.forEach(sub => {
         const key = `${sub.assignmentId}_${sub.studentUsername}`;
         if (!uniqueSubmissions[key]) {
-            uniqueSubmissions[key] = sub; // Lần đầu tiên thấy -> Lưu lại
+            uniqueSubmissions[key] = sub;
         } else {
-            // Nếu phát hiện trùng lặp, ƯU TIÊN bài học sinh tự nộp (không bị gắn cờ isAutoSubmitted)
             if (!sub.isAutoSubmitted) {
                 uniqueSubmissions[key] = sub;
             }
         }
     });
-    const submissions = Object.values(uniqueSubmissions);
 
-    // --- BẮT ĐẦU LOGIC SẮP XẾP BÀI NỘP ---
-    submissions.sort((a, b) => {
-        const assignA = assignments.find(x => x.id === a.assignmentId) || {};
-        const assignB = assignments.find(x => x.id === b.assignmentId) || {};
+    // Đảo ngược mảng để bài mới nhất lên trên
+    let submissions = Object.values(uniqueSubmissions).reverse();
 
-        const getSortVals = (sub, assign) => {
-            let rank = 2; // Nhóm 2: Bài đã chấm điểm xong, hoàn tất
-
-            const hasGrade = sub.grade !== null && sub.grade !== undefined && sub.grade !== '';
-
-            // Nhóm 1: Ưu tiên lên đầu (Chưa chấm, Đang làm lại, Đang chấm lại)
-            if (sub.isRedoing || sub.isRegrading || !hasGrade) {
-                rank = 1;
-            }
-
-            // Xử lý lấy số "Bài N" (Nếu không có số, mặc định là 0 để đẩy lên trước)
-            let lessonNum = 0;
-            const match = (assign.title || '').match(/bài\s*(\d+)/i);
-            if (match) lessonNum = parseInt(match[1]);
-
-            return { rank, lessonNum, title: assign.title || '' };
-        };
-
-        const valsA = getSortVals(a, assignA);
-        const valsB = getSortVals(b, assignB);
-
-        // 1. So sánh Rank (Rank 1 đứng trên Rank 2)
-        if (valsA.rank !== valsB.rank) return valsA.rank - valsB.rank;
-        // 2. So sánh thứ tự số Bài (0 đứng trước 1, 2, 3...)
-        if (valsA.lessonNum !== valsB.lessonNum) return valsA.lessonNum - valsB.lessonNum;
-        // 3. So sánh tên bài tập nếu trùng số
-        if (valsA.title !== valsB.title) return valsA.title.localeCompare(valsB.title, 'vi-VN');
-        // 4. Nếu cùng một bài, ưu tiên bài nộp mới nhất lên trên
-        return (b.id || '').localeCompare(a.id || '');
-    });
-    // --- KẾT THÚC LOGIC SẮP XẾP ---
-
-    // Đã thay thế logic đảo ngược cũ bằng forEach trực tiếp trên mảng đã sort
     submissions.forEach(sub => {
         const assign = assignments.find(a => a.id === sub.assignmentId);
         if (!assign) return;
@@ -887,11 +939,9 @@ async function loadSubmissions() {
                 ${watchDuration === 0 ? '<span style="color: #e11d48; font-size: 0.85em; margin-left: 5px;">(Học sinh chưa xem hoặc lướt qua)</span>' : ''}
             </div>` : '';
 
-        // XỬ LÝ TRẠNG THÁI "ĐANG LÀM LẠI" VÀ CÁC NÚT THAO TÁC
         let gradeStatus = '';
         let actionHTML = '';
 
-        // Nút tha lỗi (Chỉ xuất hiện nếu bài đang bị đánh dấu nộp trễ/hệ thống tự thu)
         let pardonHTML = '';
         if (sub.isLateFail || sub.isAutoSubmitted) {
             pardonHTML = `<button class="btn-approve" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; margin-left: 5px; border: 2px solid #059669;" onclick="pardonSubmission('${sub._fbKey}')">✨ Tha lỗi (Tính bình thường)</button>`;
@@ -899,17 +949,15 @@ async function loadSubmissions() {
 
         if (sub.isRedoing) {
             gradeStatus = `<span class="status-pending" style="background: rgba(59, 130, 246, 0.15); color: #2563eb;">Đang làm lại</span>`;
-
             const now = new Date();
             const endTime = assign.endDate ? new Date(assign.endDate.replace(" ", "T")) : new Date("2100-01-01");
 
-            // Nếu học sinh đang làm lại mà bài đã quá hạn gốc -> Hiện nút Thu bài ngay
             if (now > endTime) {
                 actionHTML = `<button class="btn-reject" style="width: 100%; padding: 10px;" onclick="forceSubmitRedo('${sub._fbKey}')">🔒 Khóa bài (Thu bài ngay)</button>`;
             } else {
                 actionHTML = `<span style="color:#666; font-size:0.9em; font-style:italic;">⏳ Đang đợi học sinh nộp lại...</span>`;
             }
-            actionHTML += pardonHTML; // Thêm nút tha lỗi kể cả khi đang làm lại
+            actionHTML += pardonHTML;
         } else {
             let regradeStatusText = sub.isRegrading ? " (Đang chấm lại)" : "";
             gradeStatus = hasGrade ? `<span class="status-done">Đã chấm: ${sub.grade} điểm${regradeStatusText}</span>` : `<span class="status-pending">Chưa chấm${regradeStatusText}</span>`;
@@ -918,11 +966,10 @@ async function loadSubmissions() {
                           <button class="btn-approve" onclick="gradeSubmission('${sub.id}')">Lưu điểm</button>
                           <button class="btn-reject" onclick="requestRedo('${sub._fbKey}')">Cho làm lại</button>`;
 
-            // Cơ chế chấm lại: Nếu đã chấm điểm và không nằm trong tiến trình chuẩn bị chấm lại
             if (hasGrade && !sub.isRegrading) {
                 actionHTML += `<button class="btn-reject" style="background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%); color: white; margin-left: 5px;" onclick="requestRegrade('${sub._fbKey}')">Chấm lại</button>`;
             }
-            actionHTML += pardonHTML; // Thêm nút tha lỗi
+            actionHTML += pardonHTML;
         }
 
         let violationHTML = '';
@@ -935,11 +982,11 @@ async function loadSubmissions() {
         const uniqueId = `teacher-sub-${sub.id}`;
         const div = document.createElement('div');
         div.className = 'card accordion-card';
-        div.setAttribute('data-student', sub.studentUsername); // <--- THÊM ĐÚNG 1 DÒNG NÀY ĐỂ DÁN NHÃN
+        div.setAttribute('data-student', sub.studentUsername);
 
         if (typeof activeSubmissionStudentFilter !== 'undefined' && activeSubmissionStudentFilter !== 'all') {
             if (sub.studentUsername !== activeSubmissionStudentFilter) {
-                div.style.display = 'none'; // Ẩn các học sinh khác đi để giữ đúng bộ lọc hiện tại
+                div.style.display = 'none';
             }
         }
 
@@ -952,9 +999,9 @@ async function loadSubmissions() {
     ${videoHTML}
                 <div style="background: rgba(255,255,255,0.6); padding: 15px; border-radius: 12px; margin-top: 20px; margin-bottom: 15px; border: 1px solid rgba(0,0,0,0.05);">
                     <p style="margin: 0 0 10px 0; font-weight: bold; color: #2c3e50; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 8px;">📝 Bài nộp của học sinh:</p>
-                    <div style="background: rgba(0,0,0,0.02); padding: 15px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.03);">
-                        <p style="white-space: pre-wrap; word-break: break-word; margin: 0; color: #444; line-height: 1.6;">${sub.answer ? sub.answer.replace(/</g, "&lt;").replace(/>/g, "&gt;") : '<i>(Trống)</i>'}</p>
-                    </div>
+<div style="background: rgba(0,0,0,0.02); padding: 15px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.03);">
+    <div class="ql-editor" style="word-break: break-word; margin: 0; color: #444; line-height: 1.6; padding: 0;">${sub.answer ? sub.answer.replace(/\n/g, '<br>') : '<i>(Trống)</i>'}</div>
+</div>
                     ${studentFileHTML}
                 </div>
                 <div style="background: rgba(255,255,255,0.6); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.9);">
@@ -974,6 +1021,24 @@ async function loadSubmissions() {
             </div>`;
         list.appendChild(div);
     });
+
+    // Xử lý nút "Tải thêm"
+    let loadMoreBtn = document.getElementById('btnLoadMoreSubs');
+    if (!isSubEnd) {
+        if (!loadMoreBtn) {
+            loadMoreBtn = document.createElement('button');
+            loadMoreBtn.id = 'btnLoadMoreSubs';
+            loadMoreBtn.innerText = '👇 Tải thêm các bài nộp cũ hơn';
+            loadMoreBtn.style.cssText = 'width: 100%; padding: 12px; margin-top: 15px; background: transparent; border: 2px dashed #667eea; color: #667eea; border-radius: 8px; cursor: pointer; font-weight: bold;';
+            loadMoreBtn.onclick = () => loadSubmissions(true);
+            list.parentElement.appendChild(loadMoreBtn);
+        } else {
+            loadMoreBtn.innerText = '👇 Tải thêm các bài nộp cũ hơn';
+            loadMoreBtn.style.display = 'block';
+        }
+    } else if (loadMoreBtn) {
+        loadMoreBtn.style.display = 'none';
+    }
 
     if (window.MathJax) {
         MathJax.typesetPromise([document.getElementById('submissionsList')]).catch((err) => console.log('MathJax error:', err));
@@ -1100,7 +1165,7 @@ async function createStudent() {
     if (!usernameRegex.test(username)) {
         return alert('❌ Tên đăng nhập không hợp lệ! Không được chứa khoảng trắng, dấu Tiếng Việt hoặc ký tự đặc biệt (chỉ chấp nhận a-z, 0-9 và _).');
     }
-    if (username.length < 4) return alert('⚠️ Tên đăng nhập phải có ít nhất 4 ký tự!');
+    if (username.length < 2) return alert('⚠️ Tên đăng nhập phải có ít nhất 2 ký tự!');
 
     // 2. Kiểm tra Mật khẩu an toàn
     if (password.length < 6) return alert('🔒 Mật khẩu quá ngắn! Cần ít nhất 6 ký tự để đảm bảo an toàn.');
@@ -1110,21 +1175,50 @@ async function createStudent() {
     if (nameHasNumbers) return alert('⚠️ Họ tên học sinh không được chứa chữ số!');
     // ==========================================
 
-    const users = await getDB('users');
-    if (users.find(u => u.username === username)) return alert('❌ Tên đăng nhập này đã tồn tại trên hệ thống! Vui lòng chọn tên khác.');
+    const fakeEmail = username + "@hethong.edu.vn"; // Tạo email giả cho Auth
 
-    await pushDB('users', { username, password, name, role: 'student', isLocked: false, classInfo, hobbies, motto });
+    try {
+        // 1. Tạo tài khoản trên hệ thống Auth bằng App phụ (Secondary App)
+        const userCredential = await secondaryApp.auth().createUserWithEmailAndPassword(fakeEmail, password);
+        const newUid = userCredential.user.uid;
 
-    // Dọn dẹp Form sau khi thành công
-    document.getElementById('newStudentUsername').value = '';
-    document.getElementById('newStudentPassword').value = '';
-    document.getElementById('newStudentName').value = '';
-    document.getElementById('newStudentClass').value = '';
-    document.getElementById('newStudentHobbies').value = '';
-    document.getElementById('newStudentMotto').value = '';
+        // 2. Lưu thông tin vào Database với khóa chính (key) là UID vừa sinh ra
+        await db.ref('users/' + newUid).set({
+            username,
+            password, // Auth đã quản lý pass, bạn có thể xóa dòng này nếu muốn bảo mật tuyệt đối
+            name,
+            role: 'student',
+            isLocked: false,
+            classInfo,
+            hobbies,
+            motto
+        });
 
-    closeStudentModal();
-    alert('✅ Đã tạo tài khoản học sinh thành công!');
+        // 3. Đăng xuất app phụ ngay lập tức để không ảnh hưởng app chính
+        await secondaryApp.auth().signOut();
+
+        // Dọn dẹp Form sau khi thành công
+        document.getElementById('newStudentUsername').value = '';
+        document.getElementById('newStudentPassword').value = '';
+        document.getElementById('newStudentName').value = '';
+        document.getElementById('newStudentClass').value = '';
+        document.getElementById('newStudentHobbies').value = '';
+        document.getElementById('newStudentMotto').value = '';
+
+        closeStudentModal();
+        alert('✅ Đã tạo tài khoản học sinh thành công!');
+
+        // Tùy chọn: Tải lại danh sách học sinh ngay lập tức
+        if (typeof loadStudentsList === 'function') loadStudentsList();
+
+    } catch (error) {
+        // Bắt lỗi trùng lặp từ Auth thay vì phải tải toàn bộ bảng Users về để check
+        if (error.code === 'auth/email-already-in-use') {
+            alert('❌ Tên đăng nhập này đã tồn tại trên hệ thống! Vui lòng chọn tên khác.');
+        } else {
+            alert('❌ Lỗi tạo tài khoản: ' + error.message);
+        }
+    }
 }
 
 async function deleteStudent(username) { if (!confirm(`Xóa tài khoản "${username}"?`)) return; const users = await getDB('users'); const st = users.find(u => u.username === username); if (st) await removeDB('users', st._fbKey); }
@@ -1135,13 +1229,83 @@ async function loadProfileRequests() {
     container.innerHTML = html;
 }
 async function handleRequest(reqKey, isApprove, username, newName, newPass) {
-    if (isApprove) { const users = await getDB('users'); const userRecord = users.find(u => u.username === username); if (userRecord) { const updateData = { name: newName }; if (newPass) updateData.password = newPass; await updateDB('users', userRecord._fbKey, updateData); } await updateDB('profile_requests', reqKey, { status: 'approved' }); }
-    else { await updateDB('profile_requests', reqKey, { status: 'rejected' }); }
+    if (isApprove) {
+        const users = await getDB('users');
+        const userRecord = users.find(u => u.username === username);
+
+        if (userRecord) {
+            // NẾU HỌC SINH CÓ YÊU CẦU ĐỔI MẬT KHẨU
+            if (newPass) {
+                try {
+                    const fakeEmail = username + "@hethong.edu.vn";
+                    const oldPass = userRecord.password; // Mật khẩu cũ vẫn đang nằm trong DB
+
+                    // Dùng app phụ đăng nhập ngầm vào tài khoản học sinh
+                    const userCredential = await secondaryApp.auth().signInWithEmailAndPassword(fakeEmail, oldPass);
+                    // Đổi sang mật khẩu mới
+                    await userCredential.user.updatePassword(newPass);
+                    // Đăng xuất app phụ ngay lập tức
+                    await secondaryApp.auth().signOut();
+                } catch (error) {
+                    console.error("Lỗi đổi pass Auth phụ:", error);
+                    return alert("❌ Lỗi hệ thống Auth khi duyệt mật khẩu học sinh: " + error.message);
+                }
+            }
+
+            // Ghi nhận Database
+            const updateData = { name: newName };
+            if (newPass) updateData.password = newPass;
+            await updateDB('users', userRecord._fbKey, updateData);
+        }
+        await updateDB('profile_requests', reqKey, { status: 'approved' });
+        alert("✅ Đã phê duyệt yêu cầu và đổi mật khẩu thành công!");
+    } else {
+        await updateDB('profile_requests', reqKey, { status: 'rejected' });
+        alert("❌ Đã từ chối yêu cầu!");
+    }
+
+    // Tự động load lại danh sách sau khi duyệt
+    if (typeof loadProfileRequests === 'function') loadProfileRequests();
 }
 async function updateProfile() {
-    const newName = document.getElementById('settingName').value.trim(); const newPass = document.getElementById('settingPass').value.trim(); if (!newName) return alert("Tên hiển thị không được để trống!");
-    const users = await getDB('users'); const userRecord = users.find(u => u.username === currentUser.username);
-    if (userRecord) { const updateData = { name: newName }; if (newPass) updateData.password = newPass; await updateDB('users', userRecord._fbKey, updateData); currentUser.name = newName; if (newPass) currentUser.password = newPass; localStorage.setItem('currentUser', JSON.stringify(currentUser)); alert("Cập nhật thông tin thành công!"); document.getElementById('settingPass').value = ''; }
+    const newName = document.getElementById('settingName').value.trim();
+    const newPass = document.getElementById('settingPass').value.trim();
+    if (!newName) return alert("Tên hiển thị không được để trống!");
+
+    const users = await getDB('users');
+    const userRecord = users.find(u => u.username === currentUser.username);
+
+    if (userRecord) {
+        // 1. NẾU CÓ ĐỔI MẬT KHẨU -> CẬP NHẬT TRÊN FIREBASE AUTH TRƯỚC
+        if (newPass) {
+            try {
+                const userAuth = firebase.auth().currentUser;
+                if (userAuth) {
+                    await userAuth.updatePassword(newPass);
+                } else {
+                    return alert("❌ Lỗi: Không tìm thấy phiên xác thực để đổi mật khẩu!");
+                }
+            } catch (error) {
+                // Firebase có quy định nếu đăng nhập quá lâu sẽ không cho đổi pass trực tiếp
+                if (error.code === 'auth/requires-recent-login') {
+                    return alert("⚠️ Bảo mật Firebase yêu cầu: Bạn cần đăng xuất và đăng nhập lại trước khi đổi mật khẩu!");
+                }
+                return alert("❌ Lỗi cập nhật Auth: " + error.message);
+            }
+        }
+
+        // 2. KHI AUTH THÀNH CÔNG, LƯU VÀO DATABASE
+        const updateData = { name: newName };
+        if (newPass) updateData.password = newPass;
+        await updateDB('users', userRecord._fbKey, updateData);
+
+        currentUser.name = newName;
+        if (newPass) currentUser.password = newPass;
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+        alert("✅ Cập nhật thông tin thành công!");
+        document.getElementById('settingPass').value = '';
+    }
 }
 function switchTab(tabId, btnElement) {
     // 1. Reset trạng thái active của các tab
@@ -1566,7 +1730,7 @@ window.openEditAssignmentModal = async function (fbKey) {
         const hasEssay = assign.assessmentType === 'tu_luan' || assign.assessmentType === 'ket_hop' || !assign.assessmentType || (assign.assessmentType === 'thi' && assign.essayWeight > 0);
         if (hasEssay) {
             if (tuLuanSec) tuLuanSec.style.display = 'block';
-            if (document.getElementById('editDesc')) document.getElementById('editDesc').value = assign.desc || '';
+            if (window.quillEditDesc) window.quillEditDesc.root.innerHTML = assign.desc || '';
             if (document.getElementById('editVideoLink')) document.getElementById('editVideoLink').value = assign.videoLink || '';
             if (document.getElementById('editHideEssayText')) {
                 document.getElementById('editHideEssayText').checked = !!assign.hideEssayText;
@@ -1730,7 +1894,7 @@ window.saveAssignmentEdit = async function () {
 
     // Thu thập dữ liệu Tự Luận
     if (assign.assessmentType === 'tu_luan' || assign.assessmentType === 'ket_hop' || !assign.assessmentType) {
-        updateObj.desc = document.getElementById('editDesc').value;
+        updateObj.desc = window.quillEditDesc.root.innerHTML;
         updateObj.videoLink = document.getElementById('editVideoLink').value.trim();
         updateObj.hideEssayText = document.getElementById('editHideEssayText') ? document.getElementById('editHideEssayText').checked : false;
     }
@@ -1753,7 +1917,7 @@ window.saveAssignmentEdit = async function () {
     // Thu thập dữ liệu Tự Luận
     const hasEssay = assign.assessmentType === 'tu_luan' || assign.assessmentType === 'ket_hop' || (assign.assessmentType === 'thi' && updateObj.essayWeight > 0);
     if (hasEssay) {
-        updateObj.desc = document.getElementById('editDesc').value;
+        updateObj.desc = window.quillEditDesc.root.innerHTML;
         updateObj.videoLink = document.getElementById('editVideoLink').value.trim();
         updateObj.hideEssayText = document.getElementById('editHideEssayText') ? document.getElementById('editHideEssayText').checked : false;
     } else if (assign.assessmentType === 'thi') {
@@ -1957,11 +2121,36 @@ window.saveStudentEdit = async function () {
     if (!name) return alert('Họ tên không được để trống!');
 
     const updateObj = { name, classInfo, hobbies, motto };
-    if (password) updateObj.password = password; // Chỉ cập nhật mật khẩu nếu có nhập
+
+    // NẾU GIÁO VIÊN CÓ NHẬP MẬT KHẨU MỚI
+    if (password) {
+        try {
+            const users = await getDB('users');
+            const st = users.find(u => u._fbKey === fbKey);
+
+            if (st) {
+                const fakeEmail = st.username + "@hethong.edu.vn";
+                const oldPass = st.password;
+
+                // Đăng nhập ngầm và đổi pass
+                const userCredential = await secondaryApp.auth().signInWithEmailAndPassword(fakeEmail, oldPass);
+                await userCredential.user.updatePassword(password);
+                await secondaryApp.auth().signOut();
+
+                updateObj.password = password;
+            }
+        } catch (error) {
+            console.error("Lỗi Auth phụ khi sửa HS:", error);
+            return alert("❌ Lỗi khi đổi mật khẩu trên hệ thống Auth: " + error.message);
+        }
+    }
 
     await updateDB('users', fbKey, updateObj);
     closeEditStudentModal();
-    alert('Cập nhật thông tin học sinh thành công!');
+    alert('✅ Cập nhật thông tin học sinh thành công!');
+
+    // Load lại danh sách học sinh
+    if (typeof loadStudentsList === 'function') loadStudentsList();
 };
 
 // ================= HỆ THỐNG XỬ LÝ LỊCH HỌC (THỜI KHÓA BIỂU) =================
@@ -4125,6 +4314,48 @@ window.deleteCurrentSeason = async function () {
             targetYear: null
         });
         alert(`🗑️ Đã xóa lịch mùa giải thành công!`);
+    }
+};
+
+window.changeTeacherPassword = async function () {
+    const newPassword = document.getElementById('newPasswordInput').value.trim();
+    const confirmPassword = document.getElementById('confirmPasswordInput').value.trim();
+
+    if (!newPassword || newPassword.length < 6) {
+        return alert("⚠️ Mật khẩu mới phải có ít nhất 6 ký tự!");
+    }
+    if (newPassword !== confirmPassword) {
+        return alert("❌ Mật khẩu xác nhận không khớp!");
+    }
+
+    try {
+        const user = firebase.auth().currentUser;
+        if (user) {
+            // 1. Cập nhật trên Firebase Authentication
+            await user.updatePassword(newPassword);
+
+            // 2. Cập nhật vào Realtime Database để đồng bộ với dữ liệu cũ của bạn
+            await db.ref('users/' + currentUser._fbKey).update({
+                password: newPassword
+            });
+
+            // 3. Cập nhật lại localStorage để tránh bị lỗi khi tải lại trang
+            currentUser.password = newPassword;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+            alert("✅ Đổi mật khẩu thành công! Hãy nhớ mật khẩu mới của bạn.");
+            // Reset ô nhập
+            document.getElementById('newPasswordInput').value = '';
+            document.getElementById('confirmPasswordInput').value = '';
+        } else {
+            alert("❌ Không tìm thấy thông tin đăng nhập. Vui lòng đăng nhập lại!");
+        }
+    } catch (error) {
+        if (error.code === 'auth/requires-recent-login') {
+            alert("⚠️ Bảo mật Firebase: Bạn cần đăng xuất và đăng nhập lại để xác thực quyền đổi mật khẩu!");
+        } else {
+            alert("❌ Lỗi: " + error.message);
+        }
     }
 };
 
