@@ -70,11 +70,29 @@ window.handleStudentFileAccumulate = function (input, assignId) {
 // ==============================================================
 
 window.onload = async function () {
+    // === FIX LỖI BẢO MẬT: Chờ và xác thực qua Firebase Auth ===
+    const authUser = await new Promise((resolve) => {
+        const unsubscribe = firebase.auth().onAuthStateChanged(user => {
+            unsubscribe();
+            resolve(user);
+        });
+    });
+
+    if (!authUser) {
+        alert("⛔ Lỗi: Không tìm thấy phiên đăng nhập hợp lệ!");
+        localStorage.removeItem('currentUser');
+        window.location.href = 'index.html';
+        return;
+    }
+
     // Kéo dữ liệu user thực tế từ DB để đối chiếu
     let realUsers = await getDB('users');
     let realUser = realUsers.find(u => u.username === currentUser.username);
-    if (!realUser || realUser.role !== 'student') {
+    
+    // Xác thực nghiêm ngặt: UID Firebase Auth phải khớp với khóa (_fbKey)
+    if (!realUser || realUser.role !== 'student' || realUser._fbKey !== authUser.uid) {
         alert("⛔ Phát hiện can thiệp dữ liệu! Buộc đăng xuất.");
+        firebase.auth().signOut();
         localStorage.removeItem('currentUser');
         window.location.href = 'index.html';
         return;
@@ -2087,6 +2105,13 @@ window.renderBuyTicketButton = async function () {
 
 // Logic xử lý trừ tiền và cộng vé
 window.buyLuckyTicket = async function () {
+    // === CHỐT CHẶN BẢO MẬT: KIỂM TRA MẠNG ===
+    if (window.isOffline || !navigator.onLine) {
+        alert("❌ Mất kết nối mạng! Vui lòng kiểm tra lại đường truyền internet trước khi thực hiện giao dịch.");
+        return;
+    }
+    // =========================================
+
     const startOfWeek = getTicketStartOfWeek();
     const purchaseRef = db.ref(`ticket_purchases/${currentUser.username}`);
     const snap = await purchaseRef.once('value');
@@ -2111,17 +2136,23 @@ window.buyLuckyTicket = async function () {
     if (!confirm("Bạn có chắc chắn muốn dùng 4 Coin để mua 1 Vé quay may mắn không?")) return;
 
     try {
-        // Trừ 4 coin
-        await coinRef.set(currentCoins - 4);
-
-        // Cập nhật số lượt mua trong tuần
+        const updates = {};
+        
+        // 1. Trừ 4 Coin
+        updates[`student_coins/${currentUser.username}`] = currentCoins - 4;
+        
+        // 2. Cập nhật lượt mua vé trong tuần
         purchaseData.count += 1;
-        await purchaseRef.set(purchaseData);
-
-        // Cộng 1 vé thẳng vào kho quà tặng (Bonus)
+        updates[`ticket_purchases/${currentUser.username}`] = purchaseData;
+        
+        // 3. Tải dữ liệu vé hiện tại và cộng 1 vé thẳng vào kho quà tặng
         const bonusRef = db.ref(`student_bonus_tickets/${currentUser.username}`);
         const bonusSnap = await bonusRef.once('value');
-        await bonusRef.set((parseInt(bonusSnap.val()) || 0) + 1);
+        const currentBonus = parseInt(bonusSnap.val()) || 0;
+        updates[`student_bonus_tickets/${currentUser.username}`] = currentBonus + 1;
+
+        // Thực thi nguyên tử
+        await db.ref().update(updates);
 
         if (typeof window.showToast === 'function') {
             window.showToast("🎉 Mua vé thành công! Đã trừ 4 Coin.", "success");
@@ -2129,7 +2160,6 @@ window.buyLuckyTicket = async function () {
             alert("🎉 Mua vé thành công! Đã trừ 4 Coin.");
         }
 
-        // Cập nhật lại giao diện ngay lập tức
         await renderBuyTicketButton();
         const ticketData = await window.calculateTotalTickets();
         const titleWheel = document.querySelector('#luckyWheelModal h3');
@@ -2142,7 +2172,7 @@ window.buyLuckyTicket = async function () {
         }
     } catch (e) {
         console.error(e);
-        alert("❌ Giao dịch thất bại do lỗi mạng, vui lòng thử lại!");
+        alert("❌ Giao dịch thất bại do lỗi mạng, hệ thống đã hoàn tác toàn bộ thao tác!");
     }
 };
 
@@ -2941,6 +2971,13 @@ window.updateCheckoutPrice = function (basePrice) {
 
 // HÀM XỬ LÝ THANH TOÁN CUỐI CÙNG LÊN FIREBASE
 window.processPayment = async function (itemId, basePrice, currentCoins) {
+    // === CHỐT CHẶN BẢO MẬT: KIỂM TRA MẠNG ===
+    if (window.isOffline || !navigator.onLine) {
+        alert("❌ Mất kết nối mạng! Vui lòng kiểm tra lại đường truyền internet trước khi thực hiện giao dịch.");
+        return;
+    }
+    // =========================================
+
     const btn = document.getElementById('btnConfirmCheckout');
     btn.disabled = true;
     btn.innerText = 'Đang xử lý giao dịch...';
@@ -2974,29 +3011,36 @@ window.processPayment = async function (itemId, basePrice, currentCoins) {
         return;
     }
 
+    // TẠO OBJECT GIAO DỊCH NGUYÊN TỬ
+    const updates = {};
+
+    // 1. Lệnh trừ tiền
+    updates[`student_coins/${currentUser.username}`] = currentCoins - finalPrice;
+
+    // 2. Lệnh đánh dấu thẻ giảm giá đã sử dụng (nếu có)
+    if (discountKey) {
+        updates[`student_discounts/${currentUser.username}/${discountKey}/isUsed`] = true;
+        updates[`student_discounts/${currentUser.username}/${discountKey}/usedAt`] = Date.now();
+    }
+
+    // 3. Lệnh cấp phát vật phẩm vào túi đồ
+    updates[`student_inventory/${currentUser.username}/${itemId}`] = {
+        id: itemId,
+        purchaseTime: Date.now(),
+        isTrial: null,
+        trialExpiry: null,
+        isEquipped: true
+    };
+
+    // THỰC THI GIAO DỊCH LÊN MÁY CHỦ
     try {
-        await db.ref('student_coins/' + currentUser.username).set(currentCoins - finalPrice);
-
-        if (discountKey) {
-            await db.ref(`student_discounts/${currentUser.username}/${discountKey}`).update({
-                isUsed: true,
-                usedAt: Date.now()
-            });
-        }
-
-        await db.ref(`student_inventory/${currentUser.username}/${itemId}`).update({
-            id: itemId,
-            purchaseTime: Date.now(),
-            isTrial: null,
-            trialExpiry: null,
-            isEquipped: true
-        });
+        // Đẩy tất cả dữ liệu lên cùng 1 lúc. Nếu rớt mạng, toàn bộ thao tác bị hủy.
+        await db.ref().update(updates);
 
         document.getElementById('checkoutModal').remove();
         alert(`🎉 Mua thành công! Bạn đã thanh toán ${finalPrice} 🪙.`);
-
     } catch (e) {
-        alert("❌ Đã xảy ra lỗi khi thanh toán. Vui lòng kiểm tra lại mạng!");
+        alert("❌ Đã xảy ra lỗi khi thanh toán hoặc đường truyền gián đoạn. Giao dịch đã được hoàn tác an toàn!");
         btn.disabled = false;
         btn.innerText = '💳 Xác nhận mua';
     }
@@ -3414,23 +3458,38 @@ window.executeConversion = async function () {
     let currentMoney = baseRoadmapMoney + currentOffset;
     if (currentMoney < 0) currentMoney = 0;
 
-    // 4. Kiểm tra giới hạn và Xử lý cộng/trừ DB
+    // 4. Kiểm tra giới hạn và Xử lý cộng/trừ DB bằng Multi-path Update
+    const updates = {};
+    let successMessage = "";
+
     if (window.currentConvertDir === 'M2C') {
         // Đổi TIỀN LỘ TRÌNH lấy COIN
         if (amount > currentMoney) return alert(`❌ Không đủ tiền lộ trình! Bạn chỉ có tối đa ${currentMoney.toLocaleString('vi-VN')} đ để đổi.`);
-
-        await db.ref('student_coins/' + currentUser.username).set(currentCoins + amount);
-        await db.ref('student_money_offset/' + currentUser.username).set(currentOffset - amount);
-        alert(`✅ Quy đổi thành công!\nBạn đã dùng ${amount.toLocaleString('vi-VN')} đ để nhận lại ${amount.toLocaleString('vi-VN')} Coin 🪙.`);
+        
+        updates[`student_coins/${currentUser.username}`] = currentCoins + amount;
+        updates[`student_money_offset/${currentUser.username}`] = currentOffset - amount;
+        successMessage = `✅ Quy đổi thành công!\nBạn đã dùng ${amount.toLocaleString('vi-VN')} đ để nhận lại ${amount.toLocaleString('vi-VN')} Coin 🪙.`;
 
     } else {
         // Đổi COIN lấy TIỀN LỘ TRÌNH
         if (amount > currentCoins) return alert(`❌ Không đủ Coin! Bạn chỉ có ${currentCoins.toLocaleString('vi-VN')} Coin.`);
         if (amount > 500) return alert(`❌ Vượt quá giới hạn! Mỗi lần chỉ được đổi tối đa 500 Coin sang Tiền lộ trình.`);
 
-        await db.ref('student_coins/' + currentUser.username).set(currentCoins - amount);
-        await db.ref('student_money_offset/' + currentUser.username).set(currentOffset + amount);
-        alert(`✅ Quy đổi thành công!\nBạn đã dùng ${amount.toLocaleString('vi-VN')} Coin 🪙 để nhận lại ${amount.toLocaleString('vi-VN')} đ.`);
+        updates[`student_coins/${currentUser.username}`] = currentCoins - amount;
+        updates[`student_money_offset/${currentUser.username}`] = currentOffset + amount;
+        successMessage = `✅ Quy đổi thành công!\nBạn đã dùng ${amount.toLocaleString('vi-VN')} Coin 🪙 để nhận lại ${amount.toLocaleString('vi-VN')} đ.`;
+    }
+
+    // Thực thi lên DB
+    try {
+        await db.ref().update(updates);
+        alert(successMessage);
+        
+        // Cập nhật và đóng giao diện
+        closeCoinConversionModal();
+        renderStudentRoadmap();
+    } catch (e) {
+        alert("❌ Lỗi kết nối mạng, giao dịch quy đổi đã bị hủy bỏ an toàn!");
     }
 
     // 5. Cập nhật và đóng giao diện
@@ -3605,36 +3664,58 @@ window.renderStudentInbox = function () {
     container.innerHTML = html;
 };
 
-window.claimGift = async function (msgKey, giftType, giftValue) {
+window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
     try {
+        // 1. TẢI DỮ LIỆU GỐC TỪ FIREBASE ĐỂ XÁC MINH (Source of Truth)
+        const msgSnap = await db.ref(`inbox_messages/${currentUser.username}/${msgKey}`).once('value');
+        const msgData = msgSnap.val();
+
+        // 2. KIỂM TRA BẢO MẬT: Bức thư có thực sự tồn tại không?
+        if (!msgData) {
+            alert("❌ Thư này không tồn tại hoặc đã bị thu hồi!");
+            return;
+        }
+
+        // 3. GHI ĐÈ THAM SỐ TỪ CLIENT BẰNG DỮ LIỆU CHUẨN TỪ DATABASE
+        const giftType = msgData.giftType;
+        const giftValue = msgData.giftValue;
+
+        if (!giftType || giftType === 'none') {
+            alert("❌ Bức thư này không chứa quà tặng hợp lệ!");
+            return;
+        }
+
+        // 4. TIẾN HÀNH TRAO QUÀ DỰA TRÊN DỮ LIỆU AN TOÀN
         if (giftType === 'coin') {
             const coinRef = db.ref('student_coins/' + currentUser.username);
             const snap = await coinRef.once('value');
             await coinRef.set((snap.val() || 0) + parseInt(giftValue));
             alert(`🎉 Bạn đã nhận được ${parseInt(giftValue).toLocaleString('vi-VN')} Coin!`);
+
         } else if (giftType === 'money') {
             const offsetRef = db.ref('student_money_offset/' + currentUser.username);
             const snap = await offsetRef.once('value');
             await offsetRef.set((snap.val() || 0) + parseInt(giftValue));
             alert(`🎉 Bạn đã nhận được ${parseInt(giftValue).toLocaleString('vi-VN')} đ vào Tiền Lộ trình!`);
             if (typeof renderStudentRoadmap === 'function') renderStudentRoadmap();
+
         } else if (giftType === 'ticket') {
             const ticketRef = db.ref('student_bonus_tickets/' + currentUser.username);
             const snap = await ticketRef.once('value');
             await ticketRef.set((snap.val() || 0) + parseInt(giftValue));
             alert(`🎉 Bạn đã nhận được ${parseInt(giftValue)} Vé quay may mắn!`);
+
         } else if (giftType === 'item') {
             await db.ref(`student_inventory/${currentUser.username}/${giftValue}`).update({
                 id: giftValue, purchaseTime: Date.now(), isTrial: null, trialExpiry: null, isEquipped: false
             });
             alert(`🎉 Vật phẩm đã được thêm vào Túi đồ của bạn!`);
+
         } else if (giftType === 'discount') {
-            const msgSnap = await db.ref(`inbox_messages/${currentUser.username}/${msgKey}`).once('value');
-            const msgData = msgSnap.val();
-            const expiry = (msgData && msgData.discountExpiry) ? msgData.discountExpiry : null;
+            const expiry = (msgData.discountExpiry) ? msgData.discountExpiry : null;
 
             // Xử lý đọc dạng mảng
-            let targetArr = (msgData && msgData.discountTargetItem) ? msgData.discountTargetItem : ['all'];
+            let targetArr = msgData.discountTargetItem ? msgData.discountTargetItem : ['all'];
             if (!Array.isArray(targetArr)) targetArr = [targetArr];
 
             if (expiry && Date.now() > expiry) {
@@ -3652,7 +3733,11 @@ window.claimGift = async function (msgKey, giftType, giftValue) {
             });
             alert(`🎉 Bạn đã nhận được Thẻ giảm giá ${giftValue}%!`);
         }
+
+        // 5. XÓA THƯ SAU KHI NHẬN QUÀ THÀNH CÔNG VÀ LÀM MỚI GIAO DIỆN
         await db.ref(`inbox_messages/${currentUser.username}/${msgKey}`).remove();
+        if (typeof renderStudentInbox === 'function') renderStudentInbox();
+
     } catch (error) {
         console.error(error);
         alert("❌ Có lỗi xảy ra khi nhận quà. Vui lòng thử lại mạng!");

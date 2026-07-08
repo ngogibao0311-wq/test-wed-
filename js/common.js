@@ -467,3 +467,41 @@ document.addEventListener('click', function (event) {
         }
     }
 });
+
+// === HỆ THỐNG AUTO-SAVE DỮ LIỆU NHÁP ===
+
+/**
+ * Hàm thiết lập tự động lưu nháp cho một ô nhập liệu (input/textarea)
+ * @param {HTMLElement} inputElement - Thẻ input hoặc textarea cần lưu nháp
+ * @param {string} storageKey - Khóa lưu trữ duy nhất trong localStorage (VD: 'draft_teacher_assign')
+ */
+window.setupAutoSave = function(inputElement, storageKey) {
+    if (!inputElement) return;
+
+    // 1. Phục hồi dữ liệu nếu có bản nháp từ trước
+    const savedDraft = localStorage.getItem(storageKey);
+    if (savedDraft) {
+        inputElement.value = savedDraft;
+        // Kích hoạt sự kiện input để các thư viện UI (nếu có) tự cập nhật chiều cao, style...
+        inputElement.dispatchEvent(new Event('input')); 
+    }
+
+    // 2. Hàm delay (debounce) tích hợp sẵn để chống lưu liên tục gây giật lag
+    let timeout;
+    const saveToLocal = function() {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            localStorage.setItem(storageKey, inputElement.value);
+        }, 1000); // Đợi người dùng ngừng gõ 1 giây mới tiến hành lưu
+    };
+
+    // 3. Lắng nghe sự kiện gõ phím
+    inputElement.addEventListener('input', saveToLocal);
+};
+
+/**
+ * Hàm xóa bản nháp (gọi hàm này SAU KHI người dùng đã nộp bài/lưu bài thành công)
+ */
+window.clearAutoSave = function(storageKey) {
+    localStorage.removeItem(storageKey);
+};

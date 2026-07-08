@@ -5,15 +5,7 @@
 // Hàm xử lý khi phát hiện vi phạm: Xóa trắng và ép văng khỏi web
 function kickUser() {
     // NGOẠI LỆ: Cho phép Giáo viên mở F12 để kiểm tra và chẩn đoán hệ thống
-    try {
-        const userStr = localStorage.getItem('currentUser');
-        if (userStr) {
-            const user = JSON.parse(userStr);
-            if (user && user.role === 'teacher') return; // Hủy lệnh kick nếu là Giáo viên
-        }
-    } catch (e) {
-        // Bỏ qua lỗi parse
-    }
+    if (window.isVerifiedTeacher === true) return;
 
     // Các tài khoản khác sẽ bị phạt
     document.head.innerHTML = ""; 
@@ -58,14 +50,8 @@ Object.defineProperty(devtoolsDetector, 'id', {
 // =========================================================================
 
 setInterval(() => {
-    // 1. Ngoại lệ: Nếu là Giáo viên thì bỏ qua, không kích hoạt bẫy
-    try {
-        const userStr = localStorage.getItem('currentUser');
-        if (userStr) {
-            const user = JSON.parse(userStr);
-            if (user && user.role === 'teacher') return;
-        }
-    } catch (e) {}
+    // 1. Ngoại lệ: Chỉ tha khi Firebase đã cấp cờ xác thực
+    if (window.isVerifiedTeacher === true) return;
 
     // 2. Bẫy đo kích thước màn hình
     // Nếu DevTools gắn ở mép màn hình, kích thước hiển thị (inner) sẽ nhỏ hơn nhiều so với cửa sổ (outer)

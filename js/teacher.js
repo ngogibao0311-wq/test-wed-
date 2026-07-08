@@ -1,5 +1,5 @@
-const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-if (!currentUser || currentUser.role !== 'teacher') window.location.href = 'index.html';
+const currentUser = JSON.parse(localStorage.getItem('currentUser')) || {};
+// Đã xóa lệnh chuyển hướng. Việc chặn quyền sẽ do Firebase đảm nhận ở bên dưới.
 
 const secondaryApp = firebase.initializeApp(firebaseConfig, "SecondaryApp")
 
@@ -79,14 +79,52 @@ window.onload = async function () {
         theme: 'snow',
         modules: { toolbar: quillToolbarOptions }
     });
-    let realUsers = await getDB('users');
-    let realUser = realUsers.find(u => u.username === currentUser.username);
-    if (!realUser || realUser.role !== 'teacher') {
-        alert("⛔ Phát hiện can thiệp dữ liệu! Buộc đăng xuất.");
+
+    // --- THÊM CHỨC NĂNG AUTO-SAVE CHO GIÁO VIÊN SOẠN BÀI ---
+    const titleInput = document.getElementById('title');
+    if (titleInput) window.setupAutoSave(titleInput, 'draft_teacher_title');
+
+    // Phục hồi và lưu nháp cho khung soạn thảo Quill (Phần Nội dung/Mô tả)
+    const savedDesc = localStorage.getItem('draft_teacher_desc');
+    if (savedDesc) window.quillDesc.root.innerHTML = savedDesc;
+
+    window.quillDesc.on('text-change', function () {
+        let timeoutDesc;
+        clearTimeout(timeoutDesc);
+        timeoutDesc = setTimeout(() => {
+            localStorage.setItem('draft_teacher_desc', window.quillDesc.root.innerHTML);
+        }, 1000);
+    });
+    // ------------------------------------------------------
+
+    // === FIX LỖI BẢO MẬT: Chờ và xác thực qua Firebase Auth ===
+    const authUser = await new Promise((resolve) => {
+        const unsubscribe = firebase.auth().onAuthStateChanged(user => {
+            unsubscribe();
+            resolve(user);
+        });
+    });
+
+    if (!authUser) {
+        alert("⛔ Lỗi: Không tìm thấy phiên đăng nhập hợp lệ!");
         localStorage.removeItem('currentUser');
         window.location.href = 'index.html';
         return;
     }
+
+    let realUsers = await getDB('users');
+    let realUser = realUsers.find(u => u.username === currentUser.username);
+    
+    // Xác thực nghiêm ngặt: UID Firebase Auth phải khớp với khóa (_fbKey)
+    if (!realUser || realUser.role !== 'teacher' || realUser._fbKey !== authUser.uid) {
+        alert("⛔ Phát hiện can thiệp dữ liệu phân quyền! Buộc đăng xuất.");
+        firebase.auth().signOut();
+        localStorage.removeItem('currentUser');
+        window.location.href = 'index.html';
+        return;
+    }
+    // BẬT CỜ XÁC THỰC AN TOÀN SAU KHI FIREBASE ĐÃ KIỂM TRA THÀNH CÔNG
+    window.isVerifiedTeacher = true;
     if (document.getElementById('settingName')) document.getElementById('settingName').value = currentUser.name;
     initFileListener();
     initMaterialFileListener();
@@ -505,7 +543,13 @@ async function createAssignment() {
     document.getElementById('videoLink').value = ''; document.getElementById('fileInput').value = '';
     document.getElementById('questionsContainer').innerHTML = ''; questionCount = 0;
     if (document.getElementById('hideEssayText')) document.getElementById('hideEssayText').checked = false; // Reset checkbox
-    dtTeacherAssign.items.clear(); attachedFileData = null; alert("Giao bài tập thành công!");
+    dtTeacherAssign.items.clear(); attachedFileData = null; 
+    
+    // Xóa bản nháp đi để lần sau mở form lên là form trống
+    localStorage.removeItem('draft_teacher_title');
+    localStorage.removeItem('draft_teacher_desc');
+    
+    alert("Giao bài tập thành công!");
 }
 
 async function loadAssignedList() {
@@ -634,7 +678,16 @@ async function loadAssignedList() {
         }
 
         const hasEssay = assign.assessmentType === 'tu_luan' || assign.assessmentType === 'ket_hop' || !assign.assessmentType || (assign.assessmentType === 'thi' && (assign.essayWeight || 0) > 0);
-        let tuLuanHTML = hasEssay ? `<p style="background: rgba(255,255,255,0.5); padding:15px; border-radius:12px; border-left:4px solid #667eea; margin-top: 15px;"><strong>Yêu cầu Tự luận:</strong><br>${(assign.desc || '').replace(/\n/g, '<br>')}</p>` : '';
+        
+        let tuLuanHTML = hasEssay ? `
+        <div style="background: rgba(255, 255, 255, 0.8); border-radius: 10px; margin-top: 15px; border: 1px solid rgba(0, 0, 0, 0.08); box-shadow: 0 2px 4px rgba(0,0,0,0.02); overflow: hidden;">
+            <div style="background: rgba(102, 126, 234, 0.1); padding: 8px 15px; border-bottom: 1px solid rgba(0, 0, 0, 0.05); font-weight: 600; color: #4338ca; font-size: 0.9em; display: flex; align-items: center; gap: 8px;">
+                📝 Yêu cầu Tự luận / Hướng dẫn
+            </div>
+            <div class="ql-editor" style="padding: 12px 15px; color: #374151; font-size: 0.95em; line-height: 1.6; max-height: 150px; overflow-y: auto; word-break: break-word; background: rgba(0,0,0,0.01);">
+                ${(assign.desc || '').replace(/\n/g, '<br>')}
+            </div>
+        </div>` : '';
 
         const uniqueId = `teacher-assign-${assign.id}`;
         const div = document.createElement('div');
@@ -1221,7 +1274,60 @@ async function createStudent() {
     }
 }
 
-async function deleteStudent(username) { if (!confirm(`Xóa tài khoản "${username}"?`)) return; const users = await getDB('users'); const st = users.find(u => u.username === username); if (st) await removeDB('users', st._fbKey); }
+window.deleteStudent = async function (username) {
+    if (!confirm(`Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản "${username}" cùng toàn bộ dữ liệu liên quan?`)) return;
+
+    const users = await getDB('users');
+    const st = users.find(u => u.username === username);
+
+    if (!st) {
+        alert("⚠️ Không tìm thấy thông tin học sinh này trong hệ thống!");
+        return;
+    }
+
+    try {
+        // 1. XÓA TÀI KHOẢN TRÊN FIREBASE AUTHENTICATION
+        const fakeEmail = st.username + "@hethong.edu.vn";
+        const userPass = st.password; 
+
+        try {
+            // Đăng nhập ngầm bằng App phụ
+            const userCredential = await secondaryApp.auth().signInWithEmailAndPassword(fakeEmail, userPass);
+            // Tiến hành xóa user khỏi Auth
+            await userCredential.user.delete();
+        } catch (authError) {
+            console.warn("Lỗi xóa Auth:", authError);
+            // Xử lý khi mật khẩu DB không khớp với Auth (HS đã tự đổi pass) hoặc Firebase chặn login liên tục
+            const forceDelete = confirm("⚠️ Hệ thống không thể xóa tài khoản đăng nhập (có thể do học sinh đã đổi mật khẩu). Bạn có muốn ÉP XÓA toàn bộ dữ liệu của học sinh này trên cơ sở dữ liệu không?");
+            if (!forceDelete) return; // Dừng lại nếu giáo viên hủy
+        }
+
+        // 2. XÓA DỮ LIỆU GỐC TRÊN REALTIME DATABASE (Dùng lệnh db.ref trực tiếp cho chắc chắn)
+        await db.ref('users/' + st._fbKey).remove();
+
+        // 3. DỌN DẸP DỮ LIỆU PHỤ (Coins, Inventory, Tickets...)
+        const cleanupPaths = [
+            'student_coins/' + st.username,
+            'student_inventory/' + st.username,
+            'student_bonus_tickets/' + st.username,
+            'student_money_offset/' + st.username,
+            'spin_counts/' + st.username // Thêm dọn dẹp lượt quay nếu có
+        ];
+
+        // Chạy xóa song song tất cả rác dữ liệu để tăng tốc độ
+        await Promise.all(cleanupPaths.map(path => db.ref(path).remove().catch(e => console.log(`Bỏ qua dọn dẹp ${path}:`, e))));
+
+        alert("✅ Đã xóa triệt để tài khoản học sinh trên toàn hệ thống Firebase!");
+
+        // 4. TẢI LẠI GIAO DIỆN
+        if (typeof loadStudentsList === 'function') loadStudentsList();
+
+    } catch (error) {
+        console.error("Lỗi hệ thống khi xóa:", error);
+        alert("❌ Đã xảy ra lỗi hệ thống khi xóa dữ liệu: " + error.message);
+    }
+};
+
 async function loadProfileRequests() {
     const requests = await getDB('profile_requests'); const pendingReqs = requests.filter(r => r.status === 'pending'); const card = document.getElementById('requestsCard'); const container = document.getElementById('requestsListContainer');
     if (pendingReqs.length === 0) { card.style.display = 'none'; return; } card.style.display = 'block'; let html = '';
