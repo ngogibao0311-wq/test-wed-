@@ -441,24 +441,48 @@ window.updateEditExamFields = function () {
 };
 
 window.toggleAssessmentFields = function () {
-    const type = document.getElementById('assessmentType').value;
-    const tuLuan = document.getElementById('tuLuanFields');
-    const tracNghiem = document.getElementById('tracNghiemFields');
-    const scoreDist = document.getElementById('scoreDistributionFields');
-    const videoGroup = document.getElementById('videoLinkGroup'); // Gọi div chứa video
+    const type =
+        document.getElementById('assessmentType').value;
+
+    const tuLuan =
+        document.getElementById('tuLuanFields');
+
+    const tracNghiem =
+        document.getElementById('tracNghiemFields');
+
+    const scoreDist =
+        document.getElementById('scoreDistributionFields');
+
+    const videoGroup =
+        document.getElementById('videoLinkGroup');
 
     if (type === 'tu_luan') {
-        tuLuan.style.display = 'block'; tracNghiem.style.display = 'none'; scoreDist.style.display = 'none';
+        if (tuLuan) tuLuan.style.display = 'block';
+        if (tracNghiem) tracNghiem.style.display = 'none';
+        if (scoreDist) scoreDist.style.display = 'none';
         if (videoGroup) videoGroup.style.display = 'block';
+
     } else if (type === 'trac_nghiem') {
-        tuLuan.style.display = 'none'; tracNghiem.style.display = 'block'; scoreDist.style.display = 'none';
+        if (tuLuan) tuLuan.style.display = 'none';
+        if (tracNghiem) tracNghiem.style.display = 'block';
+        if (scoreDist) scoreDist.style.display = 'none';
+
+        // Trắc nghiệm thường không dùng video
+        if (videoGroup) videoGroup.style.display = 'none';
+
     } else if (type === 'ket_hop') {
-        tuLuan.style.display = 'block'; tracNghiem.style.display = 'block'; scoreDist.style.display = 'block';
+        if (tuLuan) tuLuan.style.display = 'block';
+        if (tracNghiem) tracNghiem.style.display = 'block';
+        if (scoreDist) scoreDist.style.display = 'block';
         if (videoGroup) videoGroup.style.display = 'block';
+
     } else if (type === 'thi') {
-        scoreDist.style.display = 'block';
-        if (videoGroup) videoGroup.style.display = 'none'; // Ẩn hoàn toàn mục video
-        window.updateExamFields(); // Kích hoạt ẩn/hiện động dựa trên số điểm
+        if (scoreDist) scoreDist.style.display = 'block';
+
+        // Bài thi được phép gắn video trước khi bắt đầu
+        if (videoGroup) videoGroup.style.display = 'block';
+
+        window.updateExamFields();
     }
 };
 
@@ -527,7 +551,9 @@ async function createAssignment() {
     }
 
     // Kiểm tra định dạng link YouTube (Nếu có nhập)
-    const rawVideoLink = (type === 'thi') ? '' : document.getElementById('videoLink').value.trim();
+    const rawVideoLink =
+        document.getElementById('videoLink').value.trim();
+    videoLink = rawVideoLink;
     if (rawVideoLink) {
         const ytRegex = /^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/;
         if (!ytRegex.test(rawVideoLink)) {
@@ -552,7 +578,6 @@ async function createAssignment() {
     const hasEssay = type === 'tu_luan' || type === 'ket_hop' || (type === 'thi' && essayWeight > 0);
     if (hasEssay) {
         desc = window.quillDesc.root.innerHTML;
-        videoLink = (type === 'thi') ? '' : document.getElementById('videoLink').value.trim();
         hideEssayText = document.getElementById('hideEssayText').checked;
 
         const fInput = document.getElementById('fileInput');
@@ -588,7 +613,7 @@ async function createAssignment() {
     }
 
     let watchCondition = 0;
-    if (document.getElementById('videoLink').value.trim()) {
+    if (rawVideoLink) {
         const d = parseInt(document.getElementById('condDay').value) || 0;
         const h = parseInt(document.getElementById('condHour').value) || 0;
         const m = parseInt(document.getElementById('condMin').value) || 0;
@@ -1456,7 +1481,7 @@ window.deleteStudent = async function (uid) {
         const secondaryAuth = secondaryApp.auth();
 
         // Dọn phiên đăng nhập cũ của app phụ
-        await secondaryAuth.signOut().catch(() => {});
+        await secondaryAuth.signOut().catch(() => { });
 
         // XÓA AUTH TRƯỚC
         const credential =
@@ -1464,7 +1489,7 @@ window.deleteStudent = async function (uid) {
 
         // Kiểm tra tránh xóa nhầm tài khoản
         if (credential.user.uid !== uid) {
-            await secondaryAuth.signOut().catch(() => {});
+            await secondaryAuth.signOut().catch(() => { });
             throw new Error("UID tài khoản Auth không khớp với Database.");
         }
 
@@ -1511,7 +1536,7 @@ window.deleteStudent = async function (uid) {
         }
 
         // Chỉ đăng xuất, tuyệt đối không xóa SecondaryApp
-        await secondaryApp.auth().signOut().catch(() => {});
+        await secondaryApp.auth().signOut().catch(() => { });
 
     } finally {
         // Mở lại sau khi thao tác đã kết thúc
@@ -2019,20 +2044,38 @@ window.openEditAssignmentModal = async function (fbKey) {
         const tuLuanSec = document.getElementById('editTuLuanSection');
         const tracNghiemSec = document.getElementById('editTracNghiemSection');
         const weightSec = document.getElementById('editScoreWeightFields');
+        const editVideoGroup =
+            document.getElementById('editVideoLinkGroup');
+
+        const editVideoInput =
+            document.getElementById('editVideoLink');
 
         // Reset ẩn đi trước
         if (tuLuanSec) tuLuanSec.style.display = 'none';
         if (tracNghiemSec) tracNghiemSec.style.display = 'none';
         if (weightSec) weightSec.style.display = 'none';
+        // Hiện video cho Tự luận, Kết hợp và Thi.
+        // Chỉ ẩn đối với Trắc nghiệm thường.
+        if (editVideoGroup) {
+            editVideoGroup.style.display =
+                assign.assessmentType === 'trac_nghiem'
+                    ? 'none'
+                    : 'block';
+        }
+
+        if (editVideoInput) {
+            editVideoInput.value =
+                assign.videoLink || '';
+        }
 
         // 2. Xử lý phần Tự Luận
         const hasEssay = assign.assessmentType === 'tu_luan' || assign.assessmentType === 'ket_hop' || !assign.assessmentType || (assign.assessmentType === 'thi' && assign.essayWeight > 0);
         if (hasEssay) {
             if (tuLuanSec) tuLuanSec.style.display = 'block';
             if (window.quillEditDesc) window.quillEditDesc.root.innerHTML = assign.desc || '';
-            if (document.getElementById('editVideoLink')) document.getElementById('editVideoLink').value = assign.videoLink || '';
             if (document.getElementById('editHideEssayText')) {
-                document.getElementById('editHideEssayText').checked = !!assign.hideEssayText;
+                document.getElementById('editHideEssayText').checked =
+                    !!assign.hideEssayText;
             }
         }
 
@@ -2174,13 +2217,55 @@ window.saveAssignmentEdit = async function () {
     const assign = assignments.find(a => a._fbKey === currentEditingAssignmentKey);
     if (!assign) return;
 
+    const editVideoInput =
+        document.getElementById('editVideoLink');
+
+    const editVideoLink =
+        assign.assessmentType === 'trac_nghiem'
+            ? ''
+            : (editVideoInput?.value || '').trim();
+
+    // Kiểm tra link YouTube nếu giáo viên có nhập
+    if (editVideoLink) {
+        const ytRegex =
+            /^(https?:\/\/)?((www|m)\.)?(youtube\.com|youtu\.be)\/.+$/i;
+
+        if (!ytRegex.test(editVideoLink)) {
+            return alert(
+                "🔗 Link video không hợp lệ. " +
+                "Vui lòng sử dụng link YouTube."
+            );
+        }
+    }
+
     let watchCondition = 0;
-    if (document.getElementById('editVideoLink').value.trim()) {
-        const d = parseInt(document.getElementById('editCondDay').value) || 0;
-        const h = parseInt(document.getElementById('editCondHour').value) || 0;
-        const m = parseInt(document.getElementById('editCondMin').value) || 0;
-        const s = parseInt(document.getElementById('editCondSec').value) || 0;
-        watchCondition = d * 86400 + h * 3600 + m * 60 + s;
+
+    if (editVideoLink) {
+        const d =
+            parseInt(
+                document.getElementById('editCondDay').value
+            ) || 0;
+
+        const h =
+            parseInt(
+                document.getElementById('editCondHour').value
+            ) || 0;
+
+        const m =
+            parseInt(
+                document.getElementById('editCondMin').value
+            ) || 0;
+
+        const s =
+            parseInt(
+                document.getElementById('editCondSec').value
+            ) || 0;
+
+        watchCondition =
+            d * 86400 +
+            h * 3600 +
+            m * 60 +
+            s;
     }
 
     const updateObj = {
@@ -2188,13 +2273,14 @@ window.saveAssignmentEdit = async function () {
         startDate: startDate.replace("T", " "),
         endDate: endDate.replace("T", " "),
         targetStudent: targetStudent,
+
+        videoLink: editVideoLink,
         watchCondition: watchCondition
     };
 
     // Thu thập dữ liệu Tự Luận
     if (assign.assessmentType === 'tu_luan' || assign.assessmentType === 'ket_hop' || !assign.assessmentType) {
         updateObj.desc = window.quillEditDesc.root.innerHTML;
-        updateObj.videoLink = document.getElementById('editVideoLink').value.trim();
         updateObj.hideEssayText = document.getElementById('editHideEssayText') ? document.getElementById('editHideEssayText').checked : false;
     }
 
@@ -2217,7 +2303,6 @@ window.saveAssignmentEdit = async function () {
     const hasEssay = assign.assessmentType === 'tu_luan' || assign.assessmentType === 'ket_hop' || (assign.assessmentType === 'thi' && updateObj.essayWeight > 0);
     if (hasEssay) {
         updateObj.desc = window.quillEditDesc.root.innerHTML;
-        updateObj.videoLink = document.getElementById('editVideoLink').value.trim();
         updateObj.hideEssayText = document.getElementById('editHideEssayText') ? document.getElementById('editHideEssayText').checked : false;
     } else if (assign.assessmentType === 'thi') {
         updateObj.desc = '';
