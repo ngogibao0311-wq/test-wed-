@@ -12,9 +12,8 @@
 
     .content {
         width: 100% !important;
-        min-width: 0 !important;
-        padding:
-            calc(80px + env(safe-area-inset-top)) 12px calc(80px + env(safe-area-inset-bottom)) 12px !important;
+        /* Thêm không gian phía trên để không bị che bởi nút bấm Menu/Avatar/Hộp thư */
+        padding: 85px 15px 20px 15px !important;
     }
 
     /* ==========================================
@@ -22,11 +21,11 @@
        ========================================== */
     .sidebar-toggle {
         position: fixed !important;
-        top: calc(12px + env(safe-area-inset-top)) !important;
-        left: calc(12px + env(safe-area-inset-left)) !important;
+        top: 15px !important;
+        left: 15px !important;
         right: auto !important;
-        width: 44px !important;
-        height: 44px !important;
+        width: 45px !important;
+        height: 45px !important;
         border-radius: 50% !important;
         border: none !important;
         background: linear-gradient(135deg, #7F7FD5 0%, #86A8E7 50%, #91EAE4 100%) !important;
@@ -35,7 +34,7 @@
         justify-content: center !important;
         align-items: center !important;
         flex-direction: column !important;
-        z-index: 9989 !important;
+        z-index: 10001 !important;
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
         padding: 0 !important;
     }
@@ -60,7 +59,7 @@
 
     /* Trạng thái khi Menu đang MỞ */
     .dashboard:not(.collapsed) .sidebar-toggle {
-        left: calc(min(280px, 82vw) + 8px) !important;
+        left: calc(260px + 15px) !important;
         /* Trượt ra mép ngoài menu */
         background: #e11d48 !important;
         /* Đổi màu đỏ báo hiệu Đóng */
@@ -76,25 +75,6 @@
         line-height: 1 !important;
     }
 
-    button,
-    .nav-item,
-    .btn-student-filter {
-        min-height: 44px;
-        touch-action: manipulation;
-    }
-
-    button {
-        -webkit-tap-highlight-color: transparent;
-    }
-
-    button:hover {
-        transform: none;
-    }
-
-    button:active {
-        transform: scale(0.98);
-    }
-
     /* ==========================================
        SIDEBAR MENU TRƯỢT
        ========================================== */
@@ -102,14 +82,10 @@
         position: fixed !important;
         top: 0 !important;
         left: 0 !important;
-        width: min(280px, 82vw) !important;
-        height: 100dvh !important;
-        max-height: 100dvh !important;
-        padding-top: env(safe-area-inset-top) !important;
-        padding-bottom: env(safe-area-inset-bottom) !important;
-        overflow-y: auto !important;
-        overscroll-behavior: contain !important;
-        z-index: 9988 !important;
+        width: 260px !important;
+        /* Thu gọn lại một chút cho vừa điện thoại */
+        height: 100vh !important;
+        z-index: 10000 !important;
         box-shadow: 5px 0 25px rgba(0, 0, 0, 0.2) !important;
         transition: left 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
         backdrop-filter: none !important;
@@ -145,31 +121,29 @@
        CÁC NÚT Ở GÓC TRÊN BÊN PHẢI (Thu nhỏ và dàn lại khoảng cách)
        ========================================== */
     .profile-trigger-btn {
-        position: fixed !important;
-        top: calc(12px + env(safe-area-inset-top)) !important;
-        right: calc(12px + env(safe-area-inset-right)) !important;
-        width: 42px !important;
-        height: 42px !important;
-        z-index: 9987 !important;
+        top: 15px !important;
+        right: 15px !important;
+        width: 40px !important;
+        height: 40px !important;
         font-size: 1.2em !important;
     }
 
     .bag-trigger-btn {
-        position: fixed !important;
-        top: calc(12px + env(safe-area-inset-top)) !important;
-        right: calc(62px + env(safe-area-inset-right)) !important;
-        width: 42px !important;
-        height: 42px !important;
-        z-index: 9987 !important;
+        top: 15px !important;
+        right: 65px !important;
+        /* Đẩy sang trái để nhường chỗ cho Avatar */
+        width: 40px !important;
+        height: 40px !important;
+        font-size: 1.2em !important;
     }
 
     .inbox-trigger-btn {
-        position: fixed !important;
-        top: calc(12px + env(safe-area-inset-top)) !important;
-        right: calc(112px + env(safe-area-inset-right)) !important;
-        width: 42px !important;
-        height: 42px !important;
-        z-index: 9987 !important;
+        top: 15px !important;
+        right: 115px !important;
+        /* Đẩy sang trái để nhường chỗ cho Túi đồ */
+        width: 40px !important;
+        height: 40px !important;
+        font-size: 1.2em !important;
     }
 
     /* Thu nhỏ chấm đỏ thông báo trên điện thoại */
@@ -255,22 +229,19 @@
 
     /* --- Khung nội dung (Cards & Tiêu đề) --- */
     .card {
-        padding: 16px 14px !important;
-        margin-bottom: 16px !important;
-        border-radius: 16px !important;
+        padding: 20px 15px !important;
     }
 
     .content h2 {
-        font-size: clamp(1.3rem, 6vw, 1.65rem) !important;
-        line-height: 1.25 !important;
-        margin-bottom: 16px !important;
+        font-size: 1.4em !important;
+        margin-bottom: 15px !important;
     }
 
     /* --- Giao diện lưới của Cửa hàng (Ép hiển thị 2 cột trên điện thoại) --- */
     #storeItemsContainer,
     #teacherStoreItemsList>div {
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-        gap: 10px !important;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important;
+        gap: 12px !important;
     }
 
     /* --- Form & Input --- */
@@ -293,50 +264,22 @@
     }
 
     /* --- Modal Popup (Cửa sổ nổi) --- */
-    .modal-overlay {
-        align-items: flex-end !important;
-        padding: 0 !important;
-    }
-
     .modal-content {
-        width: 100% !important;
-        max-width: none !important;
-        max-height: 88dvh !important;
-        margin: 0 !important;
-        padding:
-            28px 16px calc(18px + env(safe-area-inset-bottom)) 16px !important;
+        width: 92% !important;
+        padding: 20px 15px !important;
+        margin: auto !important;
+        max-height: 85vh !important;
 
-        border-radius: 22px 22px 0 0 !important;
+        /* THÊM 2 DÒNG NÀY ĐỂ KÍCH HOẠT THANH CUỘN */
         overflow-y: auto !important;
-        overscroll-behavior: contain !important;
         -webkit-overflow-scrolling: touch !important;
-
-        animation: mobileModalUp 0.25s ease-out !important;
-    }
-
-    @keyframes mobileModalUp {
-        from {
-            transform: translateY(100%);
-            opacity: 0;
-        }
-
-        to {
-            transform: translateY(0);
-            opacity: 1;
-        }
+        /* Giúp vuốt mượt mà trên iPhone/iPad */
     }
 
     .close-btn {
-        top: 8px !important;
-        right: 10px !important;
-        width: 44px !important;
-        height: 44px !important;
-        padding: 0 !important;
-        font-size: 1.35em !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        z-index: 5 !important;
+        top: 10px !important;
+        right: 15px !important;
+        font-size: 1.5em !important;
     }
 
     /* --- Nút bấm thao tác (Tràn viền cho dễ bấm) --- */
@@ -362,30 +305,17 @@
     }
 
     /* --- Bảng (Table Lộ trình & Lịch học) --- */
-    table {
-        min-width: 650px;
-    }
-
     table th,
     table td {
-        padding: 10px 8px !important;
-        font-size: 0.85rem !important;
-        white-space: nowrap;
-    }
-
-    table th {
-        position: sticky;
-        top: 0;
-        z-index: 2;
+        padding: 10px !important;
+        font-size: 0.9em !important;
     }
 
     /* --- Widget Đồng Coin --- */
     #coinWidget {
-        bottom: calc(12px + env(safe-area-inset-bottom)) !important;
-        left: calc(12px + env(safe-area-inset-left)) !important;
-        max-width: calc(100vw - 24px) !important;
-        padding: 6px 12px !important;
-        z-index: 9980 !important;
+        bottom: 20px !important;
+        left: 20px !important;
+        padding: 6px 15px !important;
     }
 
     #coinWidget span:first-child {
@@ -394,22 +324,6 @@
 
     #studentCoinBalance {
         font-size: 1.1em !important;
-    }
-
-    #virtual-pet-container {
-        right: calc(12px + env(safe-area-inset-right)) !important;
-        bottom: calc(72px + env(safe-area-inset-bottom)) !important;
-        max-width: 80px !important;
-        touch-action: none !important;
-        user-select: none !important;
-        -webkit-user-select: none !important;
-        -webkit-touch-callout: none !important;
-        z-index: 9980 !important;
-    }
-
-    #virtual-pet-img {
-        max-width: 70px !important;
-        height: auto !important;
     }
 
     /* --- Khung Đăng nhập --- */
@@ -476,29 +390,4 @@
     margin: 0 -15px !important;
     /* Tràn ra viền card một chút để có không gian vuốt */
     padding: 0 15px !important;
-}
-
-@media screen and (max-width: 768px) and (hover: none) {
-    .card:hover,
-    button:hover,
-    .nav-item:hover {
-        transform: none !important;
-    }
-}
-
-@media screen and (max-width: 360px) {
-    .content {
-        padding-left: 8px !important;
-        padding-right: 8px !important;
-    }
-
-    .card {
-        padding-left: 12px !important;
-        padding-right: 12px !important;
-    }
-
-    #wheelContainer {
-        width: 240px !important;
-        height: 240px !important;
-    }
 }
