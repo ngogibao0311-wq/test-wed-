@@ -2788,7 +2788,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function handleDragMove(e) {
         if (!isDraggingCoin) return;
-        e.preventDefault(); // Ngăn trình duyệt cuộn trang khi đang kéo widget
+
+        // --- BỔ SUNG KHỐI LỆNH NÀY ---
+        // Nếu phát hiện người dùng chạm từ 2 ngón tay trở lên (để zoom), thì lập tức dừng lệnh kéo thả
+        if (e.type === 'touchmove' && e.touches.length > 1) {
+            return; 
+        }
+        // -----------------------------
+
+        e.preventDefault(); // Ngăn trình duyệt cuộn trang khi đang kéo widget bằng 1 ngón
 
         let currentX, currentY;
         if (e.type === 'touchmove') {
