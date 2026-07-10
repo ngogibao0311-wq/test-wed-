@@ -317,7 +317,7 @@ select { appearance: none; cursor: pointer; }
     position: fixed; /* QUAN TRỌNG: Phải là fixed */
     top: 0; left: 0; width: 100%; height: 100%; 
     background: rgba(0, 0, 0, 0.5); /* Nền mờ tối hơn để nổi bật */
-    z-index: 9999; /* Số cao nhất để nổi lên trên cùng */
+    z-index: 9990; /* Số cao nhất để nổi lên trên cùng */
     justify-content: center; 
     align-items: center;
     backdrop-filter: blur(5px);

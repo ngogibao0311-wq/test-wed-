@@ -64,3 +64,93 @@
     from { top: -35px; }
     to { top: -45px; }
 }
+/* =========================================================
+   PHÂN CẤP Z-INDEX TRANG HỌC SINH
+   ========================================================= */
+
+:root {
+    --z-effect: 9000;
+    --z-hud: 9980;
+    --z-banner: 9985;
+    --z-modal-normal: 9990;
+    --z-teacher-notification: 9999;
+    --z-exam-warning: 99999;
+}
+
+/* Hiệu ứng nền: sao băng, lá rơi... */
+#global-effect-container {
+    z-index: var(--z-effect) !important;
+}
+
+/* Coin, thú cưng và các thành phần nổi nhỏ */
+#coinWidget,
+#virtual-pet-container {
+    z-index: var(--z-hud) !important;
+}
+
+/* Banner quảng bá sự kiện */
+#dynamicEventBanner {
+    z-index: var(--z-banner) !important;
+}
+
+/* Các modal thông thường */
+#studentInfoModal,
+#studentSurveyModal,
+#coinConversionModal,
+#studentInboxModal,
+#studentBagModal,
+#petInteractionInfoModal,
+#royalBallModal,
+#royalRewardsModal {
+    z-index: var(--z-modal-normal) !important;
+}
+
+/* Thông báo quan trọng do giáo viên gửi */
+#studentNotificationModal {
+    z-index: var(--z-teacher-notification) !important;
+}
+
+/* Cảnh báo thi luôn nằm cao nhất */
+#examWarningModal {
+    z-index: var(--z-exam-warning) !important;
+}
+
+/* Popup chi tiết vật phẩm chỉ cần cao hơn nội dung túi đồ */
+#bagItemPopup {
+    z-index: 20 !important;
+}
+
+/* Khóa cuộn trang khi có modal */
+body:has(.modal-overlay.active) {
+    overflow: hidden;
+}
+
+/* =========================================================
+   CHỐNG CHỒNG NHIỀU BACKDROP
+   ========================================================= */
+
+/*
+Khi cảnh báo thi mở:
+- Ẩn tất cả modal còn lại.
+- Modal bên dưới vẫn giữ trạng thái active.
+- Khi đóng cảnh báo thi, modal cũ tự hiện trở lại.
+*/
+body:has(#examWarningModal.active)
+.modal-overlay.active:not(#examWarningModal) {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/*
+Khi thông báo giáo viên mở nhưng không có cảnh báo thi:
+- Chỉ hiển thị thông báo giáo viên.
+- Không để backdrop của Dạ hội, túi đồ hoặc quy đổi Coin chồng lên.
+*/
+body:not(:has(#examWarningModal.active))
+:has(#studentNotificationModal.active)
+.modal-overlay.active:not(#studentNotificationModal) {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}

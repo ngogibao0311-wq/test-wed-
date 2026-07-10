@@ -79,9 +79,16 @@ table td {
 
 /* Popup/Modal - Cập nhật giống hệt ảnh image_8d26fa.jpg */
 .student-modal-overlay {
-    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.4); /* Nền tối mờ vừa phải */
-    display: none; align-items: center; justify-content: center; z-index: 999999;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9990;
 }
 
 .student-modal-box {
