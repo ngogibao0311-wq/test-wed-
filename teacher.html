@@ -1393,8 +1393,20 @@
         </div>
     </div>
 
-    <script src="js/daily-login.js?v=3.0"></script>
+    <!-- 1. Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <!-- 2. Khởi tạo Firebase -->
+    <script src="js/firebase-config.js?v=3.0"></script>
+
+    <!-- 3. Mã nền tảng -->
     <script src="js/common.js?v=3.0"></script>
+    <script src="js/security.js?v=3.0"></script>
+
+    <!-- 4. Các module tính năng -->
+    <script src="js/daily-login.js?v=3.0"></script>
     <script src="js/theme-items.js?v=3.0"></script>
     <script src="js/effect-items.js?v=3.0"></script>
     <script src="js/pet-items.js?v=3.0"></script>
@@ -1402,13 +1414,8 @@
     <script src="js/music-manager.js?v=3.0"></script>
     <script src="js/store-manager.js?v=3.0"></script>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script src="js/firebase-config.js"></script>
-
+    <!-- 5. Logic chính của trang giáo viên luôn đặt cuối -->
     <script src="js/teacher.js?v=3.0"></script>
-    <script src="js/security.js"></script>
 </body>
 
 </html>

@@ -1,7 +1,54 @@
 const loginForm = document.getElementById('loginForm');
-
-// Khai báo biến toàn cục để quản lý bộ đếm ngược
 let lockoutInterval = null;
+
+// ==========================================
+// HỆ THỐNG BẢO MẬT: DẤU VÂN TAY THIẾT BỊ
+// ==========================================
+// Hàm này tạo ra một ID cố định dựa trên phần cứng và trình duyệt của thiết bị
+function getDeviceID() {
+    const deviceInfo = navigator.userAgent + screen.width + screen.height + navigator.language;
+    let hash = 0;
+    for (let i = 0; i < deviceInfo.length; i++) {
+        hash = ((hash << 5) - hash) + deviceInfo.charCodeAt(i);
+        hash |= 0;
+    }
+    return 'dev_' + Math.abs(hash);
+}
+
+const DEVICE_ID = getDeviceID();
+
+// Vẫn giữ LocalStorage/Cookie làm lớp phòng thủ đầu tiên cho nhẹ Server
+function getLockoutData(key) {
+    let val = localStorage.getItem(key);
+    if (!val) {
+        const match = document.cookie.match(new RegExp('(^| )' + key + '=([^;]+)'));
+        if (match) val = match[2];
+    }
+    return val;
+}
+
+function setLockoutData(key, value, expireSeconds) {
+    localStorage.setItem(key, value);
+    if (expireSeconds > 0) {
+        document.cookie = `${key}=${value}; max-age=${expireSeconds}; path=/`;
+    } else {
+        document.cookie = `${key}=; max-age=0; path=/`;
+    }
+}
+
+async function clearAllLockouts() {
+    localStorage.removeItem('_sys_df');
+    localStorage.removeItem('_sys_dl');
+    document.cookie = '_sys_df=; max-age=0; path=/';
+    document.cookie = '_sys_dl=; max-age=0; path=/';
+
+    // Xóa án phạt trên Server Firebase
+    if (typeof db !== 'undefined') {
+        try {
+            await db.ref('device_locks/' + DEVICE_ID).remove();
+        } catch (e) { }
+    }
+}
 
 if (loginForm) {
     loginForm.addEventListener('submit', async function (e) {
@@ -14,35 +61,42 @@ if (loginForm) {
         const passVal = document.getElementById('password').value.trim();
         const errorMsg = document.getElementById('errorMsg');
 
-        // 0. FIX LỖI KẸT ĐỒNG HỒ UI: Dừng đồng hồ của người trước (nếu có)
         if (lockoutInterval) {
             clearInterval(lockoutInterval);
             lockoutInterval = null;
         }
 
-        errorMsg.innerHTML = 'Đang xác thực...';
+        errorMsg.innerHTML = '⏳ Đang kiểm tra an ninh thiết bị...';
         errorMsg.style.color = 'blue';
 
         const now = Date.now();
+        let serverLockoutTime = 0;
 
-        // 1. KIỂM TRA ÁN PHẠT TRÊN THIẾT BỊ NÀY (Bảo vệ chống phá hoại)
-        const deviceLockout = localStorage.getItem('deviceLockoutUntil');
-        if (deviceLockout && now < parseInt(deviceLockout)) {
-            startLockoutCountdown(parseInt(deviceLockout), errorMsg);
+        // 1. KIỂM TRA ÁN PHẠT TRÊN SERVER FIREBASE (Chống xóa Cache tuyệt đối)
+        try {
+            const snap = await db.ref('device_locks/' + DEVICE_ID).once('value');
+            if (snap.exists()) {
+                serverLockoutTime = parseInt(snap.val());
+            }
+        } catch (err) {
+            console.log("Không thể kết nối Server kiểm tra an ninh.");
+        }
+
+        const localLockout = parseInt(getLockoutData('_sys_dl') || '0');
+        const finalLockoutTime = Math.max(serverLockoutTime, localLockout);
+
+        if (finalLockoutTime > now) {
+            startLockoutCountdown(finalLockoutTime, errorMsg);
             return;
         }
 
-        // --- BẮT ĐẦU ĐOẠN CODE MỚI DÙNG FIREBASE AUTH ---
-
-        // Tạo email ảo từ Tên đăng nhập do người dùng nhập (VD: gv1 -> gv1@hethong.edu.vn)
+        errorMsg.innerHTML = 'Đang xác thực...';
         const fakeEmail = userVal + "@hethong.edu.vn";
 
         try {
-            // Xác thực bằng hệ thống bảo mật của Firebase Auth (Thay vì tải toàn bộ DB về)
             const userCredential = await firebase.auth().signInWithEmailAndPassword(fakeEmail, passVal);
             const uid = userCredential.user.uid;
 
-            // Tải thông tin chi tiết từ Realtime Database dựa trên UID được bảo mật
             const snapshot = await db.ref('users/' + uid).once('value');
             const user = snapshot.val();
 
@@ -52,19 +106,16 @@ if (loginForm) {
                 return;
             }
 
-            // 2. KIỂM TRA KHÓA THỦ CÔNG (Giáo viên khóa học sinh từ hệ thống)
             if (user.isLocked) {
                 errorMsg.innerHTML = '🔒 LỖI: Tài khoản đã bị khóa.<br>Vui lòng liên hệ Giáo viên để giải quyết!';
                 errorMsg.style.color = 'red';
-                await firebase.auth().signOut(); // Ép đăng xuất lập tức trên Firebase
+                await firebase.auth().signOut();
                 return;
             }
 
-            // 3. ĐĂNG NHẬP THÀNH CÔNG -> GỠ BỎ LỊCH SỬ SAI CỦA THIẾT BỊ NÀY
-            localStorage.removeItem('deviceFails');
-            localStorage.removeItem('deviceLockoutUntil');
+            // Đăng nhập thành công -> Gỡ bỏ hoàn toàn mọi án phạt
+            await clearAllLockouts();
 
-            // Gắn thêm _fbKey chính là uid để hệ thống đồng bộ
             user._fbKey = uid;
             localStorage.setItem('currentUser', JSON.stringify(user));
 
@@ -75,17 +126,29 @@ if (loginForm) {
             }
 
         } catch (error) {
-            // 4. XỬ LÝ KHI SAI MẬT KHẨU / TÀI KHOẢN & GHI ÁN PHẠT
-            let currentFails = parseInt(localStorage.getItem('deviceFails') || '0') + 1;
+            let currentFails = parseInt(getLockoutData('_sys_df') || '0') + 1;
+            let forceLock = false;
 
-            if (currentFails >= 5) {
-                // Phạt khóa thiết bị 15 phút
-                const lockTime = Date.now() + (15 * 60 * 1000);
-                localStorage.setItem('deviceLockoutUntil', lockTime);
-                localStorage.setItem('deviceFails', '0'); // Reset bộ đếm
+            // Bắt lỗi brute-force native từ Firebase
+            if (error.code === 'auth/too-many-requests') {
+                forceLock = true;
+            }
+
+            if (currentFails >= 5 || forceLock) {
+                const lockTime = Date.now() + (15 * 60 * 1000); // Phạt 15 phút
+
+                // Lưu cục bộ
+                setLockoutData('_sys_dl', lockTime, 15 * 60);
+                setLockoutData('_sys_df', '0', 0);
+
+                // LƯU LÊN SERVER FIREBASE (Khóa cứng thiết bị)
+                try {
+                    await db.ref('device_locks/' + DEVICE_ID).set(lockTime);
+                } catch (e) { }
+
                 startLockoutCountdown(lockTime, errorMsg);
             } else {
-                localStorage.setItem('deviceFails', currentFails);
+                setLockoutData('_sys_df', currentFails, 24 * 60 * 60);
                 errorMsg.innerHTML = `❌ Sai Tên đăng nhập hoặc Mật khẩu! Thiết bị này còn <b>${5 - currentFails}</b> lần thử.`;
                 errorMsg.style.color = 'red';
             }
@@ -94,7 +157,7 @@ if (loginForm) {
 }
 
 // ==========================================
-// HÀM HỖ TRỢ: CHẠY ĐỒNG HỒ ĐẾM NGƯỢC
+// HÀM HỖ TRỢ: CHẠY ĐỒNG HỒ ĐẾM NGƯỢC (ĐÃ SỬA LỖI TRÙNG LẶP)
 // ==========================================
 function startLockoutCountdown(lockoutUntil, errorElement) {
     if (lockoutInterval) clearInterval(lockoutInterval);
@@ -103,21 +166,72 @@ function startLockoutCountdown(lockoutUntil, errorElement) {
         const remain = lockoutUntil - Date.now();
         if (remain <= 0) {
             clearInterval(lockoutInterval);
-            errorElement.innerHTML = '✅ Hết thời gian phạt! Bạn có thể thử đăng nhập lại.';
+            lockoutInterval = null;
+
+            errorElement.innerHTML =
+                '✅ Hết thời gian phạt! Bạn có thể thử đăng nhập lại.';
             errorElement.style.color = 'green';
-            localStorage.removeItem('deviceLockoutUntil'); // Xóa án phạt khi hết giờ
+
+            clearAllLockouts().catch(console.error);
             return;
         }
 
         const minutes = Math.floor(remain / 60000);
         const seconds = Math.floor((remain % 60000) / 1000);
-        errorElement.innerHTML = `⏳ Thiết bị này đã nhập sai quá nhiều lần.<br>Khóa đăng nhập: <b style="color:red;">${minutes} phút ${seconds} giây</b>`;
+        errorElement.innerHTML = `⏳ Cảnh báo An ninh: Thiết bị nhập sai quá nhiều lần.<br>Khóa đăng nhập từ Server trong: <b style="color:red;">${minutes} phút ${seconds} giây</b>`;
         errorElement.style.color = '#e67e22';
     }
 
-    update(); // Chạy ngay lập tức để không bị delay 1 giây
+    // Chạy ngay lập tức hàm update() để không bị delay 1 giây ban đầu
+    update();
     lockoutInterval = setInterval(update, 1000);
 }
+
+// ==============================================================
+// QUẢN LÝ FIREBASE REALTIME LISTENERS - CHỐNG MEMORY LEAK
+// ==============================================================
+
+window.firebaseListenerRegistry = window.firebaseListenerRegistry || [];
+
+window.listenFirebase = function (queryOrRef, eventType, callback, cancelCallbackOrContext, context) {
+    if (!queryOrRef || typeof queryOrRef.on !== 'function') {
+        console.warn('⚠️ listenFirebase nhận ref/query không hợp lệ:', queryOrRef);
+        return callback;
+    }
+
+    queryOrRef.on(eventType, callback, cancelCallbackOrContext, context);
+
+    window.firebaseListenerRegistry.push({
+        ref: queryOrRef,
+        eventType,
+        callback,
+        context
+    });
+
+    return callback;
+};
+
+window.cleanupFirebaseListeners = function () {
+    const list = window.firebaseListenerRegistry || [];
+
+    list.forEach(item => {
+        try {
+            item.ref.off(item.eventType, item.callback, item.context);
+        } catch (err) {
+            console.warn('⚠️ Không thể gỡ Firebase listener:', err);
+        }
+    });
+
+    window.firebaseListenerRegistry = [];
+    console.log('✅ Đã gỡ toàn bộ Firebase listeners:', list.length);
+};
+
+// Khi rời trang / F5 / đóng tab cũng tự gỡ listener
+window.addEventListener('beforeunload', function () {
+    if (typeof window.cleanupFirebaseListeners === 'function') {
+        window.cleanupFirebaseListeners();
+    }
+});
 
 window.logout = function () {
     if (confirm("Bạn có chắc chắn muốn đăng xuất?")) {
@@ -475,7 +589,7 @@ document.addEventListener('click', function (event) {
  * @param {HTMLElement} inputElement - Thẻ input hoặc textarea cần lưu nháp
  * @param {string} storageKey - Khóa lưu trữ duy nhất trong localStorage (VD: 'draft_teacher_assign')
  */
-window.setupAutoSave = function(inputElement, storageKey) {
+window.setupAutoSave = function (inputElement, storageKey) {
     if (!inputElement) return;
 
     // 1. Phục hồi dữ liệu nếu có bản nháp từ trước
@@ -483,12 +597,12 @@ window.setupAutoSave = function(inputElement, storageKey) {
     if (savedDraft) {
         inputElement.value = savedDraft;
         // Kích hoạt sự kiện input để các thư viện UI (nếu có) tự cập nhật chiều cao, style...
-        inputElement.dispatchEvent(new Event('input')); 
+        inputElement.dispatchEvent(new Event('input'));
     }
 
     // 2. Hàm delay (debounce) tích hợp sẵn để chống lưu liên tục gây giật lag
     let timeout;
-    const saveToLocal = function() {
+    const saveToLocal = function () {
         clearTimeout(timeout);
         timeout = setTimeout(() => {
             localStorage.setItem(storageKey, inputElement.value);
@@ -502,6 +616,6 @@ window.setupAutoSave = function(inputElement, storageKey) {
 /**
  * Hàm xóa bản nháp (gọi hàm này SAU KHI người dùng đã nộp bài/lưu bài thành công)
  */
-window.clearAutoSave = function(storageKey) {
+window.clearAutoSave = function (storageKey) {
     localStorage.removeItem(storageKey);
 };

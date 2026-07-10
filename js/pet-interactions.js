@@ -40,8 +40,8 @@ class PetInteractionManager {
         }
     ];
 
-    static isSupported(petId) { 
-        return petId === 'pet_shiba' || this.interactivePets.some(p => p.id === petId); 
+    static isSupported(petId) {
+        return this.interactivePets.some(pet => pet.id === petId);
     }
 
     static init() {
@@ -163,7 +163,7 @@ class PetInteractionManager {
                     this.sleepTime++;
 
                     const activePetId = localStorage.getItem('active_pet');
-                    const maxSleepTime = (activePetId === 'pet_doisong_bandem') ? 15 : 5; 
+                    const maxSleepTime = (activePetId === 'pet_doisong_bandem') ? 15 : 5;
 
                     if (this.sleepTime >= maxSleepTime) {
                         this.setSleepState(false);
@@ -361,9 +361,9 @@ class PetInteractionManager {
             const activePetId = localStorage.getItem('active_pet');
             // FIX LỖI: Chặn chặt bằng isSupported để các pet khác không ăn ké tính năng
             if (activePetId && this.isSupported(activePetId) && this.unlockedInteractions.includes(activePetId)) {
-                this.startPetLoop(); 
+                this.startPetLoop();
                 if (hungerBar) {
-                    hungerBar.style.display = 'flex'; 
+                    hungerBar.style.display = 'flex';
                 } else {
                     const user = JSON.parse(localStorage.getItem('currentUser'));
                     if (user) this.initHungerSystem(user.username);
@@ -423,7 +423,7 @@ class PetInteractionManager {
                     if (hungerBar) hungerBar.style.display = 'none';
                     this.setSleepState(false);
                 }
-            }, 500); 
+            }, 500);
         }
 
         let clickTimer = null;
@@ -444,7 +444,7 @@ class PetInteractionManager {
             const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
             const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
             const rect = container.getBoundingClientRect();
-            
+
             petOffsetX = clientX - rect.left;
             petOffsetY = clientY - rect.top;
         };
@@ -452,10 +452,10 @@ class PetInteractionManager {
         const onPetDrag = (e) => {
             if (!this.isPetDragging) return;
             e.preventDefault(); // Ngăn trình duyệt cuộn trang khi vuốt Pet trên Mobile
-            
+
             const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
             const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
-            
+
             let newX = clientX - petOffsetX;
             let newY = clientY - petOffsetY;
 
@@ -602,7 +602,7 @@ class PetInteractionManager {
                 setTimeout(() => {
                     if (food.parentNode) food.remove();
                     petElement.style.transform = `${flipStyle} translateY(0) scale(1)`;
-                    
+
                     // KIỂM TRA NẾU LÀ CÚN VUI VẺ -> KÍCH HOẠT CHUỖI SỰ KIỆN ĐẶC BIỆT
                     if (petData.id === 'pet_doisong_banngay') {
                         this.playHappyDogSequence(petElement, container);

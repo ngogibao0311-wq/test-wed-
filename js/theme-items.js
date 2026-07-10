@@ -4,18 +4,17 @@ class ThemeManager {
     static themes = {
         'default': { primary: '#667eea', secondary: '#764ba2', background: '#f4f7f6', className: '' },
         'theme_ocean': { primary: '#4facfe', secondary: '#00f2fe', background: '#e0f7fa', className: '' },
-        // Thêm cấu hình theme Cổ tích
         'theme_cotich': { 
             primary: '#d4af37',     // Vàng hoàng gia
             secondary: '#1a1a2e',   // Xanh đêm huyền bí
             background: '#0f0f1a',  // Màu nền tổng thể tối
-            className: 'theme-fairy-tale' // Class này sẽ bọc toàn trang
+            className: 'theme-fairy-tale' 
         },
         'theme_cotich_forest': { 
             primary: '#2ecc71',     // Xanh ngọc lục bảo
             secondary: '#1abc9c',   // Xanh bạc hà
             background: '#04120c',  // Xanh đen rừng sâu
-            className: 'theme-magic-forest' // Gắn class vừa viết ở file CSS
+            className: 'theme-magic-forest' 
         },
         'theme_doisong': { 
             primary: '#88ab75',     // Xanh lá dịu
@@ -45,7 +44,7 @@ class ThemeManager {
             primary: '#bd00ff',     // Tím Neon
             secondary: '#00f5ff',   // Xanh Cyan (Plasma)
             background: '#050508',  // Đen vũ trụ sâu thẳm
-            className: 'theme-cosmic-godhood' // <--- Class chốt để kích hoạt CSS vũ trụ
+            className: 'theme-cosmic-godhood' 
         },
         'theme_vutru_saothuy': { 
             primary: '#45f3ff',     // Xanh Cyan (Plasma lỏng)
@@ -71,12 +70,11 @@ class ThemeManager {
             background: '#0a0a0d',    // Đen Vực Thẳm
             className: 'theme-lotm-mysteries' 
         },
-        // THÊM CẤU HÌNH GIAO DIỆN TRUYỀN THUYẾT
         'theme_truyenthuyet_celestial': { 
             primary: '#ffd700',       // Màu Vàng Thần Thánh (Divine Gold)
             secondary: '#e5e4e2',     // Màu Bạch Kim (Platinum)
             background: '#050508',    // Màu Đen Vô Cực (Deep Void)
-            className: 'theme-legendary-celestial' // Class này sẽ bọc toàn trang
+            className: 'theme-legendary-celestial' 
         },
     };
 
@@ -84,24 +82,24 @@ class ThemeManager {
         const theme = this.themes[themeId] || this.themes['default'];
         const root = document.documentElement;
         
+        // Áp dụng biến màu sắc CSS
         root.style.setProperty('--primary-color', theme.primary);
         root.style.setProperty('--secondary-color', theme.secondary);
         root.style.setProperty('--bg-color', theme.background);
 
+        // 1. Xóa động TẤT CẢ các class theme cũ một cách tối ưu
         Array.from(document.body.classList).forEach(className => {
             if (className.startsWith('theme-') || className.startsWith('theme_')) {
                 document.body.classList.remove(className);
             }
         });
 
-        // 1. Xóa tất cả các class theme đặc biệt cũ khỏi body
-        document.body.classList.remove('theme-fairy-tale', 'theme-magic-forest', 'theme-lifestyle', 'theme-night-sky', 'theme-daylight-sky', 'theme_truyenthuyet_vutru', 'theme-mercury-station', 'theme-cosmic-anomaly', 'theme-vethan-nganha', 'theme-lotm-mysteries', 'theme_truyenthuyet_celestial');
-
         // 2. Tiêm class mới vào body nếu theme đó có yêu cầu thay đổi hình dáng
         if (theme.className) {
             document.body.classList.add(theme.className);
         }
         
+        // Lưu lựa chọn vào bộ nhớ trình duyệt
         localStorage.setItem('active_theme', themeId);
     }
 }

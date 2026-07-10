@@ -5,19 +5,39 @@ class EffectManager {
     static currentInterval = null;
     static shootingStarInterval = null;
 
+    static stopIntervals() {
+        if (this.currentInterval !== null) {
+            clearInterval(this.currentInterval);
+            this.currentInterval = null;
+        }
+
+        if (this.shootingStarInterval !== null) {
+            clearInterval(this.shootingStarInterval);
+            this.shootingStarInterval = null;
+        }
+    }
+
     static clearEffects() {
-        // Dừng CẢ 2 bộ đếm sinh hạt và sao băng
-        if (this.currentInterval) clearInterval(this.currentInterval);
-        if (this.shootingStarInterval) clearInterval(this.shootingStarInterval); // <-- Phải thêm dòng này
+        this.stopIntervals();
 
         if (this.container) {
             const children = Array.from(this.container.children);
+
             children.forEach(child => {
-                child.style.animation = 'none';
-                child.style.transition = 'opacity 0.3s';
-                child.style.opacity = '0';
-                setTimeout(() => {
+                if (child.dataset.isClearing) {
                     if (child.parentNode) child.remove();
+                    return;
+                }
+
+                child.dataset.isClearing = 'true';
+                child.style.animation = 'none';
+                child.style.transition = 'opacity 0.3s ease-out';
+                child.style.opacity = '0';
+
+                setTimeout(() => {
+                    if (child && child.parentNode) {
+                        child.remove();
+                    }
                 }, 300);
             });
         }
@@ -72,6 +92,7 @@ class EffectManager {
     }
 
     static createSnowEffect() {
+        this.stopIntervals();
         this.currentInterval = setInterval(() => {
             const snowflake = document.createElement('div');
             snowflake.classList.add('effect-snowflake');
@@ -89,6 +110,7 @@ class EffectManager {
     }
 
     static createFairyDust() {
+        this.stopIntervals();
         this.currentInterval = setInterval(() => {
             const particle = document.createElement('div');
             particle.classList.add('fairy-dust');
@@ -114,7 +136,8 @@ class EffectManager {
     }
 
     static createFireflyEffect() {
-        this.currentInterval = setInterval(() => {
+        this.stopIntervals();
+        this.currentInterval = setInterval(() => {          
             const firefly = document.createElement('div');
             firefly.classList.add('fairy-firefly');
 
@@ -141,6 +164,7 @@ class EffectManager {
     }
 
     static createFallingLeavesEffect() {
+        this.stopIntervals();
         // Mảng chứa các class đại diện cho các màu lá khác nhau
         const leafClasses = ['leaf-green', 'leaf-autumn', 'leaf-yellow', 'leaf-orange'];
 
@@ -174,6 +198,7 @@ class EffectManager {
     }
 
     static createNightSkyEffect() {
+        this.stopIntervals();
         // 1. Tạo lớp màn đêm phủ tối toàn trang web
         const darkOverlay = document.createElement('div');
         darkOverlay.classList.add('night-sky-overlay');
@@ -204,6 +229,7 @@ class EffectManager {
     }
 
     static createSummerSkyEffect() {
+        this.stopIntervals();
         // 1. Tạo vầng tia sáng quét từ trên xuống (God Rays)
         const godRays = document.createElement('div');
         godRays.classList.add('effect-god-rays');
@@ -257,7 +283,8 @@ class EffectManager {
     }
 
     static createFairyRainEffect() {
-        this.currentInterval = setInterval(() => {
+        this.stopIntervals();
+        this.currentInterval = setInterval(() => {           
             const particle = document.createElement('div');
             // Gọi đúng class CSS đã có trong file store-items.css
             particle.classList.add('effect-cotich-tinhlinh');
@@ -285,6 +312,7 @@ class EffectManager {
     }
 
     static createGalaxyLegendEffect() {
+        this.stopIntervals();
         if (!this.container) return;
 
         // Tạo bộ khung cấu trúc vật thể tinh hệ - 100% hình ảnh điều khiển bởi CSS bên dưới
@@ -327,6 +355,7 @@ class EffectManager {
     }
 
     static createMercuryRainEffect() {
+        this.stopIntervals();
         this.currentInterval = setInterval(() => {
             const crystal = document.createElement('div');
             crystal.classList.add('effect-mercury-crystal');
@@ -355,6 +384,7 @@ class EffectManager {
     }
 
     static createCosmicDustEffect() {
+        this.stopIntervals();
         // 1. Sinh hạt Bụi Tinh Vân (Sáng hơn, to hơn, bay nhanh hơn)
         this.currentInterval = setInterval(() => {
             const dust = document.createElement('div');
@@ -408,6 +438,7 @@ class EffectManager {
     }
 
     static createGalaxyGuardianEffect() {
+        this.stopIntervals();
         if (!this.container) return;
 
         // 1. Tạo lớp Cực quang vũ trụ làm nền (Chỉ sinh 1 lần)
@@ -454,6 +485,7 @@ class EffectManager {
     }
 
     static createAmonTimeEffect() {
+        this.stopIntervals();
         if (!this.container) return;
 
         // 1. Cơn mưa Kính Một Tròng (Vẽ bằng Pure CSS) rơi xuống
@@ -497,6 +529,7 @@ class EffectManager {
     }
 
     static createNyxDomainEffect() {
+        this.stopIntervals();
         if (!this.container) return;
 
         // 1. Tạo lớp phủ không gian sương tối huyền ảo chuyển động chậm
@@ -510,14 +543,14 @@ class EffectManager {
         this.currentInterval = setInterval(() => {
             const particle = document.createElement('div');
             particle.classList.add('nyx-domain-dust');
-            
+
             particle.style.left = Math.random() * 100 + 'vw';
             particle.style.top = Math.random() * 100 + 'vh';
-            
-            let size = Math.random() * 3 + 2; 
+
+            let size = Math.random() * 3 + 2;
             particle.style.width = `${size}px`;
             particle.style.height = `${size}px`;
-            
+
             const isPurple = Math.random() > 0.5;
             particle.style.background = isPurple ? '#c77dff' : '#ffffff';
             particle.style.boxShadow = isPurple ? '0 0 8px #8a2be2' : '0 0 8px #ffffff';
@@ -536,14 +569,14 @@ class EffectManager {
         this.shootingStarInterval = setInterval(() => {
             // KIỂM TRA TRẠNG THÁI MÀN ĐÊM BUÔNG XUỐNG
             const isDarkWorld = document.querySelector('.nyx-dark-world') !== null;
-            
+
             // Nếu đang trong màn đêm, số lượng sao băng rơi đồng thời TĂNG LÊN 3 CÁI!
             const spawnCount = isDarkWorld ? 3 : 1;
 
             for (let k = 0; k < spawnCount; k++) {
                 const star = document.createElement('div');
                 star.classList.add('nyx-domain-shooting-star');
-                
+
                 // Tọa độ rơi ngẫu nhiên rải rác khắp bầu trời
                 star.style.top = (Math.random() * 50 - 10) + 'vh';
                 star.style.left = (Math.random() * 50 - 20) + 'vw';
@@ -551,7 +584,7 @@ class EffectManager {
                 if (hasNyxPet) {
                     star.classList.add('nyx-enhanced-star');
                 }
-                
+
                 // NẾU LÀ MÀN ĐÊM: Gắn thêm class siêu phát sáng độc quyền
                 if (isDarkWorld) {
                     star.classList.add('nyx-dark-world-star');
@@ -559,7 +592,7 @@ class EffectManager {
 
                 let starDuration = Math.random() * 1.5 + 1;
                 star.style.animationDuration = `${starDuration}s`;
-                
+
                 // Tránh việc 3 ngôi sao xuất hiện trùng lặp hoàn toàn cùng 1 mili giây
                 if (isDarkWorld) {
                     star.style.animationDelay = `${Math.random() * 0.4}s`;

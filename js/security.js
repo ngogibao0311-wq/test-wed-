@@ -1,5 +1,5 @@
 // =========================================================================
-// HỆ THỐNG BẢO MẬT GIAO DIỆN CHỐNG F12 VÀ CHUỘT PHẢI (BẢN V3)
+// HỆ THỐNG BẢO MẬT GIAO DIỆN CHỐNG F12 VÀ CHUỘT PHẢI (BẢN V3 - ĐÃ SỬA LỖI)
 // =========================================================================
 
 // Hàm xử lý khi phát hiện vi phạm: Xóa trắng và ép văng khỏi web
@@ -32,8 +32,7 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// 4. Phát hiện Console (Dành cho ai mở F12 dạng cửa sổ rời - Undocked)
-// Đẩy một hình ảnh ảo vào Console, nếu Console đang mở nó sẽ cố đọc hình ảnh này và sập bẫy.
+// 3. Phát hiện Console (Dành cho ai mở F12 dạng cửa sổ rời - Undocked)
 const devtoolsDetector = new Image();
 Object.defineProperty(devtoolsDetector, 'id', {
     get: function () {
@@ -46,23 +45,16 @@ Object.defineProperty(devtoolsDetector, 'id', {
 //}, 500);
 
 // =========================================================================
-// 3. BẪY DEVTOOLS NÂNG CAO (CHẶN MENU TRÌNH DUYỆT & MỞ SẴN)
+// 4. BẪY DEVTOOLS NÂNG CAO (BẪY NGƯNG ĐỌNG THỜI GIAN)
 // =========================================================================
 
 setInterval(() => {
     // 1. Ngoại lệ: Chỉ tha khi Firebase đã cấp cờ xác thực
     if (window.isVerifiedTeacher === true) return;
 
-    // 2. Bẫy đo kích thước màn hình
-    // Nếu DevTools gắn ở mép màn hình, kích thước hiển thị (inner) sẽ nhỏ hơn nhiều so với cửa sổ (outer)
-    const widthDiff = window.outerWidth - window.innerWidth > 160;
-    const heightDiff = window.outerHeight - window.innerHeight > 160;
-    
-    if (widthDiff || heightDiff) {
-        kickUser();
-    }
+    // (ĐÃ XÓA) Bẫy đo kích thước màn hình để tránh False Positive với Zoom, Split-screen, Sidebar.
 
-    // 3. Bẫy thời gian ngưng đọng (Lệnh Debugger thần thánh)
+    // 2. Bẫy thời gian ngưng đọng (Lệnh Debugger thần thánh)
     // Nếu DevTools đang mở, lệnh 'debugger' sẽ làm trình duyệt khựng lại vài mili-giây
     const startTime = Date.now();
     

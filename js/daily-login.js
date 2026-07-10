@@ -545,9 +545,6 @@ class DailyLoginManager {
                 return;
             }
 
-            const expiryTimestamp = Date.now() + (7 * 24 * 60 * 60 * 1000);
-            const message = `Chào mừng em trở lại hệ thống!\\nĐây là phần quà đăng nhập ngày ${dayId} của tuần này. Nhớ duy trì điểm danh mỗi ngày nhé!`;
-
             // ĐOẠN CODE MỚI BỔ SUNG KIỂM TRA STORECONFIG
             let discountTargets = ['all'];
             
@@ -567,16 +564,30 @@ class DailyLoginManager {
                 }
             }
 
+            // 1. Lấy độ lệch thời gian (mili-giây) giữa máy khách hiện tại và máy chủ Firebase
+            const offsetSnap = await db.ref(".info/serverTimeOffset").once("value");
+            const offset = offsetSnap.val() || 0;
+            
+            // 2. Tính toán thời gian thực của máy chủ (an toàn tuyệt đối trước việc đổi giờ thiết bị)
+            const trueServerTimeMs = Date.now() + offset;
+            const trueServerDate = new Date(trueServerTimeMs);
+            
+            // 3. Tính hạn sử dụng 7 ngày dựa trên thời gian thực
+            const expiryTimestamp = trueServerTimeMs + (7 * 24 * 60 * 60 * 1000);
+            const message = `Chào mừng em trở lại hệ thống!\\nĐây là phần quà đăng nhập ngày ${dayId} của tuần này. Nhớ duy trì điểm danh mỗi ngày nhé!`;
+
             const payload = {
                 message: message,
                 giftType: type,
                 giftValue: value,
-                timestamp: Date.now(),
-                timeString: new Date().toLocaleString('vi-VN'),
+                // Dùng hằng số của Firebase để tự động ghi mốc thời gian chuẩn xác nhất lúc nhận request
+                timestamp: firebase.database.ServerValue.TIMESTAMP, 
+                // Định dạng ngày giờ dựa trên thời gian server đã đồng bộ ở trên
+                timeString: trueServerDate.toLocaleString('vi-VN'), 
                 expiry: expiryTimestamp,
                 discountExpiry: expiryTimestamp,
-                discountTargetItem: discountTargets, // Áp dụng danh sách vật phẩm vừa lọc
-                source: 'daily_login' // Đánh dấu nguồn gốc để dễ quản lý sau này
+                discountTargetItem: discountTargets,
+                source: 'daily_login' 
             };
 
             await db.ref(`inbox_messages/${username}`).push(payload);
