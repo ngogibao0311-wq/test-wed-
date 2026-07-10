@@ -4,20 +4,33 @@
    ============================================================== */
 @media screen and (max-width: 768px) {
 
-    /* --- Bố cục tổng thể --- */
+    /* ==========================================
+       1. BỐ CỤC TỔNG THỂ & KHUNG NỘI DUNG
+       ========================================== */
     .dashboard {
-        flex-direction: column;
-        overflow-x: hidden;
+        flex-direction: column !important;
+        overflow-x: hidden !important;
     }
 
     .content {
         width: 100% !important;
         /* Thêm không gian phía trên để không bị che bởi nút bấm Menu/Avatar/Hộp thư */
         padding: 85px 15px 20px 15px !important;
+        box-sizing: border-box !important;
+    }
+
+    .card {
+        padding: 20px 15px !important;
+        border-radius: 12px !important; /* Trau chuốt thêm độ bo góc cho mềm mại */
+    }
+
+    .content h2 {
+        font-size: 1.4em !important;
+        margin-bottom: 15px !important;
     }
 
     /* ==========================================
-       NÚT MENU MỞ RỘNG (GÓC TRÁI)
+       2. NÚT MENU MỞ RỘNG (GÓC TRÁI)
        ========================================== */
     .sidebar-toggle {
         position: fixed !important;
@@ -33,7 +46,6 @@
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
-        flex-direction: column !important;
         z-index: 10001 !important;
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
         padding: 0 !important;
@@ -43,8 +55,12 @@
         transform: scale(0.9) !important;
     }
 
+    .sidebar-toggle span {
+        display: none !important; /* Ẩn mũi tên lộn xộn cũ */
+    }
+
     /* Icon 3 gạch khi Menu đóng */
-    .dashboard.collapsed .sidebar-toggle:before {
+    .dashboard.collapsed .sidebar-toggle::before {
         content: "☰" !important;
         font-size: 1.5em !important;
         color: #ffffff !important;
@@ -52,22 +68,15 @@
         line-height: 1 !important;
     }
 
-    /* Ẩn mũi tên xoay lộn xộn cũ */
-    .sidebar-toggle span {
-        display: none !important;
-    }
-
     /* Trạng thái khi Menu đang MỞ */
     .dashboard:not(.collapsed) .sidebar-toggle {
-        left: calc(260px + 15px) !important;
-        /* Trượt ra mép ngoài menu */
-        background: #e11d48 !important;
-        /* Đổi màu đỏ báo hiệu Đóng */
+        left: 275px !important; /* calc(260px + 15px) */
+        background: #e11d48 !important; /* Màu đỏ báo hiệu Đóng */
         box-shadow: 0 4px 10px rgba(225, 29, 72, 0.4) !important;
     }
 
     /* Icon dấu X khi Menu mở */
-    .dashboard:not(.collapsed) .sidebar-toggle:before {
+    .dashboard:not(.collapsed) .sidebar-toggle::before {
         content: "✕" !important;
         font-size: 1.4em !important;
         color: #ffffff !important;
@@ -76,29 +85,26 @@
     }
 
     /* ==========================================
-       SIDEBAR MENU TRƯỢT
+       3. SIDEBAR MENU TRƯỢT
        ========================================== */
     .sidebar {
         position: fixed !important;
         top: 0 !important;
         left: 0 !important;
         width: 260px !important;
-        /* Thu gọn lại một chút cho vừa điện thoại */
         height: 100vh !important;
         z-index: 10000 !important;
-        box-shadow: 5px 0 25px rgba(0, 0, 0, 0.2) !important;
+        box-shadow: 5px 0 25px rgba(0, 0, 0, 0.15) !important; /* Làm mềm shadow lại 1 chút */
         transition: left 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+        background: #fdfdfd !important;
         backdrop-filter: none !important;
         -webkit-backdrop-filter: none !important;
-        background: #fdfdfd !important;
-        /* Chống xuyên thấu UI phía dưới */
     }
 
     .dashboard.collapsed .sidebar {
         left: -270px !important;
     }
 
-    /* Giữ nguyên chữ trên menu di động, không ẩn đi */
     .dashboard.collapsed .nav-text {
         display: inline-block !important;
     }
@@ -111,169 +117,48 @@
 
     .dashboard.collapsed .sidebar-top h3 {
         font-size: 1.5em !important;
-        border-bottom: 2px solid rgba(0, 0, 0, 0.1) !important;
+        border-bottom: 2px solid rgba(0, 0, 0, 0.05) !important;
         margin-bottom: 15px !important;
         padding-bottom: 15px !important;
         color: #764ba2 !important;
     }
 
     /* ==========================================
-       CÁC NÚT Ở GÓC TRÊN BÊN PHẢI (Thu nhỏ và dàn lại khoảng cách)
+       4. CÁC NÚT TƯƠNG TÁC GÓC TRÊN PHẢI
        ========================================== */
-    .profile-trigger-btn {
-        top: 15px !important;
-        right: 15px !important;
-        width: 40px !important;
-        height: 40px !important;
-        font-size: 1.2em !important;
-    }
-
-    .bag-trigger-btn {
-        top: 15px !important;
-        right: 65px !important;
-        /* Đẩy sang trái để nhường chỗ cho Avatar */
-        width: 40px !important;
-        height: 40px !important;
-        font-size: 1.2em !important;
-    }
-
+    .profile-trigger-btn,
+    .bag-trigger-btn,
     .inbox-trigger-btn {
+        position: fixed !important;
         top: 15px !important;
-        right: 115px !important;
-        /* Đẩy sang trái để nhường chỗ cho Túi đồ */
         width: 40px !important;
         height: 40px !important;
         font-size: 1.2em !important;
+        z-index: 9999 !important;
     }
 
-    /* Thu nhỏ chấm đỏ thông báo trên điện thoại */
+    .profile-trigger-btn { right: 15px !important; }
+    .bag-trigger-btn     { right: 65px !important; }
+    .inbox-trigger-btn   { right: 115px !important; }
+
     #inboxBadge {
         font-size: 0.6em !important;
-        padding: 2px 4px !important;
+        padding: 2px 5px !important; /* Tinh chỉnh lại padding cho tròn trịa */
         top: -2px !important;
         right: -2px !important;
     }
 
     /* ==========================================
-       MODAL CHỨC NĂNG MỚI (TÚI ĐỒ, ĐIỂM DANH, DẠ HỘI, KHẢO SÁT)
+       5. MODALS & POPUPS
        ========================================== */
-
-    /* 1. Popup khi nhấn giữ vật phẩm trong Túi đồ */
-    #bagItemPopup {
-        width: 90% !important;
-        max-width: 320px !important;
-        padding: 15px !important;
-    }
-
-    /* 2. Giao diện Điểm danh 7 ngày (Daily Login) */
-    .dl-modal-content {
-        width: 95% !important;
-        padding: 25px 15px 15px 15px !important;
-        margin: auto !important;
-        max-height: 90vh !important;
-        overflow-y: auto !important;
-    }
-
-    .dl-cards-container {
-        grid-template-columns: repeat(2, 1fr) !important;
-        /* Ép hiển thị 2 cột trên mobile */
-        gap: 10px !important;
-    }
-
-    /* Căn giữa ngày thứ 7 (Chủ nhật) nếu rớt dòng lẻ */
-    .dl-day-card:last-child {
-        grid-column: 1 / -1 !important;
-    }
-
-    /* 3. Sự kiện Dạ Hội Hoàng Gia (Royal Ball) */
-    .royal-content-wrapper {
-        padding: 20px 15px !important;
-    }
-
-    #royalDanceFloor {
-        width: 100% !important;
-        height: 180px !important;
-        /* Thu nhỏ sàn nhảy để không tràn khung */
-    }
-
-    .dancer {
-        font-size: 3em !important;
-        /* Thu nhỏ nhân vật khiêu vũ */
-    }
-
-    #btnStartDance {
-        padding: 12px 20px !important;
-        font-size: 1em !important;
-        width: 100% !important;
-    }
-
-    /* 4. Khảo sát & Thông báo chung */
-    #studentSurveyModal .modal-content,
-    #studentNotificationModal .modal-content {
-        padding: 20px 15px !important;
-    }
-
-    .survey-answer-block {
-        padding: 12px !important;
-    }
-
-    /* 5. Giao diện Yêu cầu Rút tiền mặt (chung bảng Quy đổi) */
-    #cashWithdrawalSection {
-        padding-top: 15px !important;
-        margin-top: 15px !important;
-    }
-
-    #inputWithdrawAmount {
-        padding: 10px !important;
-    }
-
-    /* --- Khung nội dung (Cards & Tiêu đề) --- */
-    .card {
-        padding: 20px 15px !important;
-    }
-
-    .content h2 {
-        font-size: 1.4em !important;
-        margin-bottom: 15px !important;
-    }
-
-    /* --- Giao diện lưới của Cửa hàng (Ép hiển thị 2 cột trên điện thoại) --- */
-    #storeItemsContainer,
-    #teacherStoreItemsList>div {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important;
-        gap: 12px !important;
-    }
-
-    /* --- Form & Input --- */
-    .form-row {
-        flex-direction: column !important;
-        gap: 10px !important;
-        /* Khoảng cách giữa các ô input dọc */
-    }
-
-    .form-group {
-        width: 100% !important;
-    }
-
-    /* Font 16px CHỐNG ZOOM trên iOS/iPhone */
-    input,
-    textarea,
-    select {
-        padding: 12px 15px !important;
-        font-size: 16px !important;
-    }
-
-    /* --- Modal Popup (Cửa sổ nổi) --- */
     .modal-content {
         width: 92% !important;
         padding: 20px 15px !important;
         margin: auto !important;
         max-height: 85vh !important;
-
-        /* THÊM 2 DÒNG NÀY ĐỂ KÍCH HOẠT THANH CUỘN */
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch !important;
-        /* Giúp vuốt mượt mà trên iPhone/iPad */
+        border-radius: 16px !important; /* Trau chuốt góc bo của popup */
     }
 
     .close-btn {
@@ -282,112 +167,256 @@
         font-size: 1.5em !important;
     }
 
-    /* --- Nút bấm thao tác (Tràn viền cho dễ bấm) --- */
-    .btn-approve,
-    .btn-reject {
+    /* Túi đồ popup */
+    #bagItemPopup {
+        width: 90% !important;
+        max-width: 320px !important;
+        padding: 15px !important;
+    }
+
+    /* Điểm danh */
+    .dl-modal-content {
+        width: 95% !important;
+        padding: 25px 15px 15px 15px !important;
+        max-height: 90vh !important;
+    }
+    .dl-cards-container {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+    }
+    .dl-day-card:last-child {
+        grid-column: 1 / -1 !important;
+    }
+
+    /* Dạ hội hoàng gia */
+    .royal-content-wrapper { padding: 20px 15px !important; }
+    #royalDanceFloor {
+        width: 100% !important;
+        height: 180px !important;
+    }
+    .dancer { font-size: 3em !important; }
+    #btnStartDance {
+        padding: 12px 20px !important;
+        font-size: 1em !important;
+        width: 100% !important;
+    }
+
+    /* Khảo sát & Thông báo */
+    #studentSurveyModal .modal-content,
+    #studentNotificationModal .modal-content {
+        padding: 20px 15px !important;
+    }
+    .survey-answer-block { padding: 12px !important; }
+
+    /* Rút tiền */
+    #cashWithdrawalSection {
+        padding-top: 15px !important;
+        margin-top: 15px !important;
+    }
+    #inputWithdrawAmount { padding: 10px !important; }
+
+    /* Vòng quay may mắn */
+    #luckyWheelModal .modal-content { padding: 25px 15px 35px 15px !important; }
+    #wheelContainer { width: 270px !important; height: 270px !important; }
+    .wheel-text { font-size: 0.85em !important; padding-right: 15px !important; }
+
+    /* ==========================================
+       6. CỬA HÀNG & LƯỚI SẢN PHẨM
+       ========================================== */
+    #storeItemsContainer,
+    #teacherStoreItemsList > div {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important;
+        gap: 12px !important;
+    }
+
+    /* ==========================================
+       7. FORMS, INPUTS & BUTTONS
+       ========================================== */
+    .form-row {
+        flex-direction: column !important;
+        gap: 12px !important; /* Tăng gap một chút cho ngón tay dễ chạm */
+    }
+
+    .form-group { width: 100% !important; }
+
+    /* Font 16px chống zoom & chuẩn hóa box-sizing */
+    input, textarea, select {
+        padding: 12px 15px !important;
+        font-size: 16px !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+    }
+
+    .btn-approve, .btn-reject {
         width: 100% !important;
         margin-bottom: 8px !important;
+        padding: 12px !important; /* Đảm bảo chuẩn tap-target */
     }
 
-    /* --- Vòng quay may mắn --- */
-    #luckyWheelModal .modal-content {
-        padding: 25px 15px 35px 15px !important;
-    }
-
-    #wheelContainer {
-        width: 270px !important;
-        height: 270px !important;
-    }
-
-    .wheel-text {
-        font-size: 0.85em !important;
-        padding-right: 15px !important;
-    }
-
-    /* --- Bảng (Table Lộ trình & Lịch học) --- */
-    table th,
-    table td {
-        padding: 10px !important;
-        font-size: 0.9em !important;
-    }
-
-    /* --- Widget Đồng Coin --- */
-    #coinWidget {
-        bottom: 20px !important;
-        left: 20px !important;
-        padding: 6px 15px !important;
-    }
-
-    #coinWidget span:first-child {
-        font-size: 1.4em !important;
-    }
-
-    #studentCoinBalance {
-        font-size: 1.1em !important;
-    }
-
-    /* --- Khung Đăng nhập --- */
+    /* Đăng nhập */
     .login-container {
         margin: 40px 15px !important;
         padding: 30px 20px !important;
         width: auto !important;
+        box-sizing: border-box !important;
     }
 
     /* ==========================================
-       FIX LỖI KHÔNG DI CHUYỂN ĐƯỢC PET TRÊN MOBILE
+       8. BẢNG (TABLE) & WIDGETS
        ========================================== */
-    /* Lưu ý: Bạn cần thay thế #petWidget hoặc .pet-container bằng đúng ID/Class của con Pet trong HTML của bạn */
-    #petWidget,
-    .pet-container,
-    .pet,
-    #pet {
-        touch-action: none !important;
-        /* Ngăn trình duyệt cuộn trang hoặc zoom khi người dùng chạm vuốt vào Pet */
-        user-select: none !important;
-        /* Tránh tình trạng bôi đen text vô tình khi kéo thả */
-        -webkit-user-select: none !important;
-        /* Dành cho Safari/iOS */
-        -webkit-touch-callout: none !important;
-        /* Ngăn hiện menu popup (như Copy/Save) khi nhấn giữ trên iOS */
+    table th, table td {
+        padding: 10px !important;
+        font-size: 0.9em !important;
     }
-}
 
-/* ==============================================================
-   TỐI ƯU HÓA THANH LỌC HỌC SINH (NÚT NẰM NGANG) TRÊN MOBILE
-   ============================================================== */
-#assignedStudentFilterContainer,
-#submittedStudentFilterContainer,
-#materialsStudentFilterContainer,
-#scheduleStudentFilterContainer {
-    padding-bottom: 10px !important;
-    /* Không gian dư để không vướng ngón tay */
-    -webkit-overflow-scrolling: touch !important;
-    /* Vuốt mượt mà trên iOS/Safari */
-    scrollbar-width: none !important;
-    /* Ẩn thanh cuộn trên Firefox */
-    gap: 8px !important;
-}
+    #coinWidget {
+        touch-action: pinch-zoom !important;   /* THAY ĐỔI: Cho phép phóng to/thu nhỏ bằng 2 ngón tay, nhưng vẫn chặn cuộn trang bằng 1 ngón để kéo thả mượt mà */
+        user-select: none !important;         
+        -webkit-user-select: none !important;  
+        -webkit-touch-callout: none !important; 
+        
+        z-index: 99999 !important;            
+        position: fixed !important;           
+    }
+    #coinWidget span:first-child { font-size: 1.4em !important; }
+    #studentCoinBalance { font-size: 1.1em !important; }
 
-/* Ẩn thanh cuộn trên Chrome/Safari/Edge/Android */
-#assignedStudentFilterContainer::-webkit-scrollbar,
-#submittedStudentFilterContainer::-webkit-scrollbar,
-#materialsStudentFilterContainer::-webkit-scrollbar,
-#scheduleStudentFilterContainer::-webkit-scrollbar {
-    display: none !important;
-}
+    /* Fix lỗi thú cưng */
+    #petWidget, .pet-container, .pet, #pet {
+        touch-action: none !important;
+        user-select: none !important;
+        -webkit-user-select: none !important;
+        -webkit-touch-callout: none !important;
+    }
 
-/* Phóng to nút lọc để dễ bấm bằng ngón tay hơn */
-.btn-student-filter {
-    padding: 8px 16px !important;
-    font-size: 0.95em !important;
-    white-space: nowrap !important;
-    /* Chống rớt dòng chữ tên học sinh */
-}
+    /* ==========================================
+       9. TỐI ƯU HÓA THANH LỌC HỌC SINH & CUỘN NGANG
+       ========================================== */
+    #assignedStudentFilterContainer,
+    #submittedStudentFilterContainer,
+    #materialsStudentFilterContainer,
+    #scheduleStudentFilterContainer {
+        padding-bottom: 12px !important;
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: none !important;
+        gap: 10px !important;
+        scroll-behavior: smooth !important;
+    }
 
-/* Tối ưu hóa bảng Lộ trình và Thời khóa biểu không bị tràn viền card */
-.card>div[style*="overflow-x: auto;"] {
-    -webkit-overflow-scrolling: touch !important;
-    margin: 0 -15px !important;
-    /* Tràn ra viền card một chút để có không gian vuốt */
-    padding: 0 15px !important;
+    #assignedStudentFilterContainer::-webkit-scrollbar,
+    #submittedStudentFilterContainer::-webkit-scrollbar,
+    #materialsStudentFilterContainer::-webkit-scrollbar,
+    #scheduleStudentFilterContainer::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    .btn-student-filter {
+        padding: 10px 18px !important; /* To hơn một chút để ngón tay dễ bấm */
+        font-size: 0.95em !important;
+        white-space: nowrap !important;
+        flex-shrink: 0 !important; /* Không bị bóp méo khi quá nhiều filter */
+    }
+
+    /* Tràn viền để có không gian vuốt ngang tự nhiên hơn */
+    .card > div[style*="overflow-x: auto;"] {
+        -webkit-overflow-scrolling: touch !important;
+        margin: 0 -15px !important; 
+        padding: 0 15px !important;
+    }
+
+    /* ==========================================
+       FIX LỖI NÚT TICK (CHECKBOX) VÀ CHỮ ĐI KÈM
+       (Áp dụng cho nút "Chỉ cho phép nộp bằng Tệp"...)
+       ========================================== */
+    
+    /* Căn chỉnh lại khung chứa nút tick và chữ */
+    .checkbox-container, /* Thay tên class này bằng class thực tế của bạn nếu cần */
+    label:has(input[type="checkbox"]),
+    .form-group:has(input[type="checkbox"]) {
+        display: flex !important;
+        align-items: flex-start !important; /* Căn mép trên phòng trường hợp chữ quá dài phải xuống dòng */
+        gap: 10px !important; /* Tạo khoảng thở giữa nút tick và chữ */
+        margin-bottom: 12px !important;
+        cursor: pointer !important;
+        flex-wrap: nowrap !important; /* Chống việc nút tick và chữ bị tách ra 2 dòng khác nhau */
+    }
+
+    /* Đảm bảo nút tick to, rõ và KHÔNG BỊ BẸP trên điện thoại */
+    input[type="checkbox"] {
+        flex-shrink: 0 !important; /* QUAN TRỌNG: Ngăn trình duyệt ép nhỏ nút tick */
+        width: 22px !important; /* Kích thước chuẩn để ngón tay dễ chạm */
+        height: 22px !important;
+        margin: 0 !important; /* Bỏ khoảng lề mặc định gây xô lệch */
+        margin-top: 2px !important; /* Đẩy nhẹ nút tick xuống để cân bằng với dòng chữ đầu tiên */
+        /* accent-color: #764ba2 !important; (Mở comment dòng này nếu muốn nút tick có màu tím hoài niệm thay vì màu xanh mặc định) */
+    }
+
+    /* Định dạng phần chữ kế bên nút tick */
+    input[type="checkbox"] + span,
+    input[type="checkbox"] ~ span,
+    .checkbox-label {
+        font-size: 15px !important;
+        line-height: 1.4 !important;
+        word-break: break-word !important; /* Nếu chữ dài, chỉ phần chữ tự xuống dòng, nút tick vẫn giữ nguyên */
+    }
+    
+    /* 
+       ĐẢM BẢO Ô VIẾT TỰ LUẬN BỊ ẨN KHI GỌI LỆNH TRÊN MOBILE
+       Nếu bạn dùng class .hidden hoặc inline style display: none, 
+       cần thêm !important để chắc chắn không bị các class mobile khác đè lên 
+    */
+    .student-essay-box.hidden,
+    #studentEssayBox.hidden {
+        display: none !important;
+    }
+
+    /* ==========================================
+       FIX LỖI PHẦN TRẮC NGHIỆM BÊN HỌC SINH
+       ========================================== */
+    
+    /* 1. Tối ưu lại phần chữ của Câu hỏi */
+    .question-title, 
+    .question-text, 
+    .quiz-question {
+        font-size: 1.1em !important;
+        font-weight: bold !important;
+        margin-bottom: 15px !important;
+        line-height: 1.4 !important;
+        word-break: break-word !important; /* Chống tràn chữ khi câu hỏi dài */
+    }
+
+    /* 2. Căn chỉnh lại toàn bộ khối chứa 1 đáp án (A, B, C, D) */
+    .answer-option, /* Đổi tên class này theo HTML thực tế của bạn */
+    .quiz-container label:has(input[type="radio"]),
+    .question-block label {
+        display: flex !important;
+        align-items: flex-start !important; /* Nút chọn luôn nằm ở dòng đầu tiên nếu chữ dài */
+        gap: 12px !important; /* Khoảng cách từ nút chọn đến chữ */
+        margin-bottom: 12px !important; 
+        padding: 8px 5px !important; /* Tăng diện tích chạm để học sinh dễ bấm bằng ngón tay */
+        cursor: pointer !important;
+        -webkit-tap-highlight-color: rgba(0,0,0,0.05) !important; /* Tạo hiệu ứng chớp nền nhẹ khi bấm trên iOS */
+    }
+
+    /* 3. Khắc phục triệt để lỗi ép móp/biến dạng nút tròn (Radio Button) */
+    input[type="radio"] {
+        flex-shrink: 0 !important; /* CHÌA KHÓA: Không bao giờ thu nhỏ nút tròn */
+        width: 22px !important;
+        height: 22px !important;
+        margin: 0 !important;
+        margin-top: 2px !important; /* Cân bằng với tâm của dòng chữ đầu tiên */
+    }
+
+    /* 4. Định dạng phần chữ của đáp án */
+    input[type="radio"] + span,
+    input[type="radio"] ~ span,
+    .answer-text {
+        font-size: 16px !important; /* Font 16px để chống zoom tự động trên iPhone */
+        line-height: 1.5 !important;
+        word-break: break-word !important; /* Nội dung tự xuống dòng, không đẩy nút tròn đi chỗ khác */
+        flex: 1 !important; /* Chiếm trọn không gian còn lại của dòng */
+    }
 }
