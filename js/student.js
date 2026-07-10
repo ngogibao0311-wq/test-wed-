@@ -5091,58 +5091,135 @@ window.onPlayerStateChange = function (event, assignId) {
                             currentTime
                         );
 
-                        // Lưu Firebase mỗi 5 giây để giảm tải
-                        if (currentTime % 5 === 0 && lastSavedTime[assignId] !== currentTime) {
-                            db.ref(`video_tracking/${assignId}/${currentUser.username}`).set(currentTime);
-                            lastSavedTime[assignId] = currentTime;
+                        // =====================================================
+                        // LƯU TIẾN ĐỘ ĐỊNH KỲ
+                        // =====================================================
+                        const savedTime = Number(lastSavedTime[assignId]) || 0;
 
-                            // Tự động mở khóa bài làm nếu thời gian xem vừa đạt mốc yêu cầu
-                            if (window.cachedAssignments) {
-                                const currentAssign = window.cachedAssignments.find(a => a.id === assignId);
-                                if (currentAssign && currentAssign.watchCondition && currentTime >= currentAssign.watchCondition) {
-                                    if (!window[`unlocked_${assignId}`]) {
-                                        window[`unlocked_${assignId}`] = true; // Cắm cờ để không reload nhiều lần
+                        // Không dùng currentTime % 5 vì bộ đếm có thể nhảy qua đúng mốc.
+                        if (currentTime - savedTime >= 5) {
+                            db.ref(
+                                `video_tracking/${assignId}/${currentUser.username}`
+                            ).transaction(oldValue => {
+                                const oldSeconds = Number(oldValue) || 0;
 
-                                        // MỞ KHÓA UI MƯỢT MÀ KHÔNG CẦN TẢI LẠI TRANG
-                                        const noticeBox =
-                                            document.getElementById(`condition-notice-${assignId}`);
+                                // Chỉ cho phép tiến độ tăng, không bị tab cũ ghi tụt xuống.
+                                return Math.max(oldSeconds, currentTime);
+                            }).then(result => {
+                                if (result.committed) {
+                                    lastSavedTime[assignId] =
+                                        Number(result.snapshot.val()) || currentTime;
+                                }
+                            }).catch(error => {
+                                console.error(
+                                    "Không thể lưu tiến độ xem video:",
+                                    error
+                                );
+                            });
+                        }
 
-                                        const contentBox =
-                                            document.getElementById(`assignment-task-content-${assignId}`);
+                        // =====================================================
+                        // KIỂM TRA MỞ KHÓA Ở MỖI GIÂY XEM HỢP LỆ
+                        // =====================================================
+                        const currentAssign = Array.isArray(window.cachedAssignments)
+                            ? window.cachedAssignments.find(
+                                item => String(item.id) === String(assignId)
+                            )
+                            : null;
 
-                                        if (noticeBox) {
-                                            noticeBox.style.display = 'none';
+                        if (
+                            currentAssign &&
+                            Number(currentAssign.watchCondition) > 0 &&
+                            currentTime >= Number(currentAssign.watchCondition)
+                        ) {
+                            // Chặn chạy mở khóa nhiều lần cùng lúc.
+                            if (
+                                !window[`unlocked_${assignId}`] &&
+                                !window[`unlocking_${assignId}`]
+                            ) {
+                                window[`unlocking_${assignId}`] = true;
+
+                                const progressRef = db.ref(
+                                    `video_tracking/${assignId}/${currentUser.username}`
+                                );
+
+                                // Lưu mốc đạt yêu cầu trước rồi mở giao diện.
+                                progressRef.transaction(oldValue => {
+                                    const oldSeconds = Number(oldValue) || 0;
+                                    return Math.max(oldSeconds, currentTime);
+                                }).then(result => {
+                                    if (!result.committed) {
+                                        throw new Error("Không thể ghi tiến độ video");
+                                    }
+
+                                    const savedSeconds =
+                                        Number(result.snapshot.val()) || currentTime;
+
+                                    lastSavedTime[assignId] = Math.max(
+                                        Number(lastSavedTime[assignId]) || 0,
+                                        savedSeconds
+                                    );
+
+                                    window[`unlocked_${assignId}`] = true;
+
+                                    // Ẩn bảng cảnh báo yêu cầu xem video.
+                                    const noticeBox = document.getElementById(
+                                        `condition-notice-${assignId}`
+                                    );
+
+                                    if (noticeBox) {
+                                        noticeBox.style.display = "none";
+                                    }
+
+                                    if (currentAssign.assessmentType === "thi") {
+                                        // Bài thi: mở nút bắt đầu thi.
+                                        const examWrapper = document.getElementById(
+                                            `exam-wrapper-${assignId}`
+                                        );
+
+                                        if (examWrapper) {
+                                            examWrapper.style.display = "block";
+
+                                            setTimeout(() => {
+                                                examWrapper.scrollIntoView({
+                                                    behavior: "smooth",
+                                                    block: "center"
+                                                });
+                                            }, 100);
                                         }
+                                    } else {
+                                        // Bài thường: mở phần làm bài ngay.
+                                        const contentBox = document.getElementById(
+                                            `assignment-task-content-${assignId}`
+                                        );
 
-                                        if (currentAssign.assessmentType === 'thi') {
-                                            // Bài thi: chỉ mở nút Bắt đầu thi.
-                                            // Chưa hiện câu hỏi và chưa bật chống gian lận.
-                                            const examWrapper =
-                                                document.getElementById(`exam-wrapper-${assignId}`);
-
-                                            if (examWrapper) {
-                                                examWrapper.style.display = 'block';
-
-                                                setTimeout(() => {
-                                                    examWrapper.scrollIntoView({
-                                                        behavior: 'smooth',
-                                                        block: 'center'
-                                                    });
-                                                }, 100);
-                                            }
-                                        } else if (contentBox) {
-                                            // Bài thường: mở phần làm bài như trước
-                                            contentBox.style.display = 'block';
+                                        if (contentBox) {
+                                            contentBox.style.display = "block";
+                                            contentBox.style.opacity = "1";
 
                                             setTimeout(() => {
                                                 contentBox.scrollIntoView({
-                                                    behavior: 'smooth',
-                                                    block: 'start'
+                                                    behavior: "smooth",
+                                                    block: "start"
                                                 });
                                             }, 100);
                                         }
                                     }
-                                }
+
+                                    if (typeof window.showToast === "function") {
+                                        window.showToast(
+                                            "Đã đạt đủ thời lượng xem. Phần làm bài đã được mở khóa!",
+                                            "success"
+                                        );
+                                    }
+                                }).catch(error => {
+                                    console.error(
+                                        "Không thể mở khóa bài sau khi xem video:",
+                                        error
+                                    );
+                                }).finally(() => {
+                                    delete window[`unlocking_${assignId}`];
+                                });
                             }
                         }
                     }
