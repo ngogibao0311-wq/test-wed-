@@ -1283,7 +1283,12 @@ async function loadAssignments() {
                             <div class="glass-alert danger" style="padding: 15px; margin-bottom: 15px; border-left: 5px solid #e11d48; background: rgba(225, 29, 72, 0.1);">
                                 <h4 style="color: #e11d48; margin-bottom: 5px;">⚠️ Yêu cầu xem Video</h4>
                                 <p style="margin: 0;">Giáo viên yêu cầu xem video đạt mốc tối thiểu <strong>${requiredStr}</strong> mới được mở khóa phần làm bài.</p>
-                                <p style="margin: 5px 0 0 0; color: #d35400;">⏱️ Hiện tại bạn đã xem: <strong>${currentStr}</strong></p>
+                                <p style="margin: 5px 0 0 0; color: #d35400;">
+    ⏱️ Hiện tại bạn đã xem:
+    <strong id="condition-watch-display-${assign.id}">
+        ${currentStr}
+    </strong>
+</p>
                             </div>
                         `;
                     }
@@ -5002,6 +5007,31 @@ function getTrackedVideoHTML(url, assignId) {
     return '';
 }
 
+function updateVideoWatchDisplays(assignId, seconds) {
+    const formattedTime =
+        formatSecondsToDHMS(Number(seconds) || 0);
+
+    // Dòng nằm dưới video
+    const videoDisplay =
+        document.getElementById(
+            `watch-time-display-${assignId}`
+        );
+
+    // Dòng nằm trong bảng cảnh báo điều kiện
+    const conditionDisplay =
+        document.getElementById(
+            `condition-watch-display-${assignId}`
+        );
+
+    if (videoDisplay) {
+        videoDisplay.innerText = formattedTime;
+    }
+
+    if (conditionDisplay) {
+        conditionDisplay.innerText = formattedTime;
+    }
+}
+
 window.initYouTubeTrackers = function (assignments, retryCount = 0) {
     if (typeof YT === 'undefined' || typeof YT.Player === 'undefined') {
         if (retryCount < 10) { // Tăng thời gian chờ YouTube lên 10 lần
@@ -5021,15 +5051,13 @@ window.initYouTubeTrackers = function (assignments, retryCount = 0) {
                     'onReady': (event) => {
                         // KHI PLAYER ĐÃ SẴN SÀNG MỚI ĐI LẤY DỮ LIỆU BỀN VỮNG TỪ FIREBASE
                         db.ref(`video_tracking/${assign.id}/${currentUser.username}`).once('value', (snap) => {
-                            watchDurations[assign.id] = parseInt(snap.val()) || 0;
+                            watchDurations[assign.id] =
+                                parseInt(snap.val()) || 0;
 
-                            const display = document.getElementById(`watch-time-display-${assign.id}`);
-                            if (display) display.innerText = formatSecondsToDHMS(watchDurations[assign.id]);
-
-                            // Ép tua tới điểm xem dở
-                            if (watchDurations[assign.id] > 0) {
-                                event.target.seekTo(watchDurations[assign.id], true);
-                            }
+                            updateVideoWatchDisplays(
+                                assign.id,
+                                watchDurations[assign.id]
+                            );
                         });
                     },
                     'onStateChange': (event) => window.onPlayerStateChange(event, assign.id)
@@ -5057,8 +5085,11 @@ window.onPlayerStateChange = function (event, assignId) {
                     } else {
                         // Hợp lệ -> Đẩy đồng hồ lên
                         watchDurations[assignId] = currentTime;
-                        const display = document.getElementById(`watch-time-display-${assignId}`);
-                        if (display) display.innerText = formatSecondsToDHMS(currentTime);
+
+                        updateVideoWatchDisplays(
+                            assignId,
+                            currentTime
+                        );
 
                         // Lưu Firebase mỗi 5 giây để giảm tải
                         if (currentTime % 5 === 0 && lastSavedTime[assignId] !== currentTime) {
