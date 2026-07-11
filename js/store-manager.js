@@ -309,32 +309,38 @@ const StoreConfig = {
             id: 'pet_lotm_amon',
             name: 'Thiên Sứ Thời Gian Amon',
             type: 'pet',
-            price: 0,             // Không bán bằng Coin
-            isNonCoin: true,      // Kích hoạt cơ chế nhận từ sự kiện
+            price: 0,
+            isNonCoin: true,
             tag: 'Lord of the Mysteries',
-            value: 'assets/pet/quỷ bí chi chủ/Amon.png', // Đường dẫn như bạn yêu cầu
+            value: 'assets/pet/quỷ bí chi chủ/Amon.png',
             isIcon: false,
-            petEffect: 'amon-time-magic' // Class CSS để kích hoạt hiệu ứng riêng
+            petEffect: 'amon-time-magic',
+            eventTier: 'event-mythic',
+            effectScale: 'grand'
         },
         {
             id: 'effect_lotm_amon',
             name: 'Nghịch Lý Ký Sinh',
             type: 'effect',
-            price: 0,             // Không bán bằng Coin
-            isNonCoin: true,      // Nhận từ sự kiện
-            tag: 'Lord of the Mysteries', // Cùng tag với Pet Amon
+            price: 0,
+            isNonCoin: true,
+            tag: 'Lord of the Mysteries',
             value: 'effect_lotm_amon',
-            customIcon: '🧐'      // Icon kính một tròng đặc trưng của Amon trong cửa hàng
+            customIcon: '⊘',
+            eventTier: 'event-mythic',
+            effectScale: 'grand'
         },
         {
             id: 'theme_lotm_mysteries',
             name: 'Thần Điện Sương Mù Xám',
             type: 'theme',
-            price: 0,               // Không bán bằng Coin
-            isNonCoin: true,        // Nhận từ sự kiện đặc biệt
+            price: 0,
+            isNonCoin: true,
             tag: 'Lord of the Mysteries',
-            value: 'theme-lotm-mysteries', // Lớp class CSS sẽ bao bọc toàn bộ trang web khi kích hoạt
-            customIcon: '🏛️'        // Icon hiển thị đại diện trong cửa hàng
+            value: 'theme-lotm-mysteries',
+            customIcon: '♜',
+            eventTier: 'event-mythic',
+            effectScale: 'grand'
         },
         // Thêm vào cuối mảng StoreConfig.items
         {
@@ -377,6 +383,36 @@ const StoreConfig = {
             tag: 'Truyền thuyết',
             value: 'theme-legendary-celestial', // Tên Class CSS sẽ kích hoạt
             customIcon: '👁️‍🗨️'
+        },
+        {
+            id: 'pet_cotich_5',
+            name: 'Kỳ Lân Biển Mộng Mơ',
+            type: 'pet',
+            price: 700,
+            isNonCoin: false,
+            tag: 'Cổ tích',
+            value: 'assets/pet/cổ tích/cổ tích 5.png',
+            isIcon: false,
+            petEffect: 'fairy-narwhal-bubble-magic'
+        },
+        {
+            id: 'theme_cotich_hai_nguyet',
+            name: 'Vịnh Ngọc Trai Mộng',
+            type: 'theme',
+            price: 450,
+            isNonCoin: false,
+            tag: 'Cổ tích',
+            value: 'theme-fairy-sea-dream',
+            customIcon: '🐚'
+        },
+        {
+            id: 'effect_cotich_bot_ngoc_mong',
+            name: 'Bọt Ngọc Mộng',
+            type: 'effect',
+            price: 300,
+            isNonCoin: false,
+            tag: 'Cổ tích',
+            customIcon: '🫧'
         },
     ]
 };

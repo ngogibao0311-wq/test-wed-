@@ -87,6 +87,9 @@ class EffectManager {
             case 'effect_truyenthuyet_nyx_domain':
                 this.createNyxDomainEffect();
                 break;
+            case 'effect_cotich_bot_ngoc_mong':
+                this.createPearlDreamEffect();
+                break;
         }
         localStorage.setItem('active_effect', effectId);
     }
@@ -137,7 +140,7 @@ class EffectManager {
 
     static createFireflyEffect() {
         this.stopIntervals();
-        this.currentInterval = setInterval(() => {          
+        this.currentInterval = setInterval(() => {
             const firefly = document.createElement('div');
             firefly.classList.add('fairy-firefly');
 
@@ -284,7 +287,7 @@ class EffectManager {
 
     static createFairyRainEffect() {
         this.stopIntervals();
-        this.currentInterval = setInterval(() => {           
+        this.currentInterval = setInterval(() => {
             const particle = document.createElement('div');
             // Gọi đúng class CSS đã có trong file store-items.css
             particle.classList.add('effect-cotich-tinhlinh');
@@ -488,44 +491,198 @@ class EffectManager {
         this.stopIntervals();
         if (!this.container) return;
 
-        // 1. Cơn mưa Kính Một Tròng (Vẽ bằng Pure CSS) rơi xuống
+        // NGHỊCH LÝ KÝ SINH — Miền đánh cắp danh tính.
+        // Không dùng lại kính một tròng hoặc đàn quạ cũ.
+        const domain = document.createElement('div');
+        domain.className = 'amon-paradox-domain';
+
+        const hasAmon = Boolean(document.querySelector('.amon-time-magic'));
+        const hasSefirah = document.body.classList.contains('theme-lotm-mysteries');
+
+        if (hasAmon || hasSefirah) {
+            domain.classList.add('amon-paradox-resonance');
+        }
+
+        domain.innerHTML = `
+        <div class="amon-paradox-void"></div>
+        <div class="amon-paradox-horizon"></div>
+
+        <div class="amon-paradox-cathedral">
+            <div class="amon-paradox-spire spire-left"></div>
+            <div class="amon-paradox-spire spire-right"></div>
+
+            <div class="amon-paradox-iris">
+                <span class="iris-ring iris-ring-a"></span>
+                <span class="iris-ring iris-ring-b"></span>
+                <span class="iris-ring iris-ring-c"></span>
+                <span class="iris-pupil"></span>
+            </div>
+
+            <div class="amon-paradox-stairway"></div>
+        </div>
+
+        <div class="amon-paradox-counterfeit counterfeit-one"></div>
+        <div class="amon-paradox-counterfeit counterfeit-two"></div>
+        <div class="amon-paradox-counterfeit counterfeit-three"></div>
+
+        <div class="amon-paradox-vignette"></div>
+    `;
+
+        // 12 con dấu danh tính bị chiếm đoạt.
+        const sealOrbit = document.createElement('div');
+        sealOrbit.className = 'amon-identity-seal-orbit';
+
+        const sealGlyphs = [
+            'Ⅰ', 'Ⅱ', 'Ⅲ', 'Ⅳ', 'Ⅴ', 'Ⅵ',
+            'Ⅶ', 'Ⅷ', 'Ⅸ', 'Ⅹ', 'Ⅺ', 'Ⅻ'
+        ];
+
+        sealGlyphs.forEach((glyph, index) => {
+            const seal = document.createElement('span');
+
+            seal.className = 'amon-identity-seal';
+            seal.textContent = glyph;
+
+            seal.style.setProperty('--seal-angle', `${index * 30}deg`);
+            seal.style.setProperty('--seal-angle-inverse', `${index * -30}deg`);
+            seal.style.setProperty('--seal-delay', `${-index * 0.23}s`);
+
+            sealOrbit.appendChild(seal);
+        });
+
+        domain.appendChild(sealOrbit);
+
+        // Sáu hành lang thời gian phân nhánh.
+        for (let i = 0; i < 6; i++) {
+            const corridor = document.createElement('div');
+
+            corridor.className = 'amon-paradox-corridor';
+            corridor.style.setProperty('--corridor-index', i);
+            corridor.style.setProperty('--corridor-angle', `${i * 60}deg`);
+            corridor.style.setProperty('--corridor-delay', `${-i * 0.7}s`);
+
+            domain.appendChild(corridor);
+        }
+
+        // 42 giây bị đánh cắp nằm rải rác trên toàn màn hình.
+        for (let i = 0; i < 42; i++) {
+            const second = document.createElement('span');
+
+            second.className = 'amon-borrowed-second';
+
+            const randomSymbol = Math.random();
+
+            second.textContent =
+                randomSymbol > 0.66
+                    ? '⌁'
+                    : randomSymbol > 0.33
+                        ? '∴'
+                        : '⊘';
+
+            second.style.left = `${Math.random() * 96 + 2}%`;
+            second.style.top = `${Math.random() * 92 + 4}%`;
+
+            second.style.setProperty(
+                '--second-size',
+                `${Math.random() * 14 + 8}px`
+            );
+
+            second.style.setProperty(
+                '--second-delay',
+                `${Math.random() * -8}s`
+            );
+
+            second.style.setProperty(
+                '--second-duration',
+                `${Math.random() * 6 + 7}s`
+            );
+
+            domain.appendChild(second);
+        }
+
+        this.container.appendChild(domain);
+
+        // Các xúc tu ký sinh bò ra từ những vị trí ngẫu nhiên.
         this.currentInterval = setInterval(() => {
-            const monocle = document.createElement('div');
-            monocle.classList.add('effect-amon-monocle');
+            if (!domain.isConnected) return;
 
-            monocle.style.left = Math.random() * 100 + 'vw';
+            const batchSize = hasAmon ? 3 : 2;
 
-            // Tốc độ rơi lơ lửng (5s - 8s)
-            let duration = Math.random() * 3 + 5;
-            monocle.style.animationDuration = duration + 's';
+            for (let i = 0; i < batchSize; i++) {
+                const tendril = document.createElement('span');
 
-            // Kích thước ngẫu nhiên để tạo chiều sâu 3D (từ 15px đến 30px)
-            let size = Math.random() * 15 + 15;
-            monocle.style.width = size + 'px';
-            monocle.style.height = size + 'px';
+                tendril.className = 'amon-paradox-tendril';
 
-            this.container.appendChild(monocle);
+                tendril.style.left = `${Math.random() * 90 + 5}%`;
+                tendril.style.top = `${Math.random() * 86 + 7}%`;
 
-            setTimeout(() => {
-                if (monocle.parentNode) monocle.remove();
-            }, duration * 1000);
-        }, 500); // 0.5s rơi 1 cái
+                tendril.style.setProperty(
+                    '--tendril-angle',
+                    `${Math.random() * 360}deg`
+                );
 
-        // 2. Bóng quạ đen bay ngang màn hình (Đã là Pure CSS)
+                tendril.style.setProperty(
+                    '--tendril-length',
+                    `${Math.random() * 150 + 100}px`
+                );
+
+                const tendrilBend = Math.random() * 70 - 35;
+
+                tendril.style.setProperty(
+                    '--tendril-bend',
+                    `${tendrilBend}deg`
+                );
+
+                tendril.style.setProperty(
+                    '--tendril-bend-inverse',
+                    `${-tendrilBend}deg`
+                );
+
+                tendril.style.animationDuration =
+                    `${Math.random() * 1.6 + 2.4}s`;
+
+                domain.appendChild(tendril);
+
+                setTimeout(() => {
+                    tendril.remove();
+                }, 4300);
+            }
+        }, hasAmon ? 360 : 520);
+
+        // Chu kỳ ghi đè danh tính.
         this.shootingStarInterval = setInterval(() => {
-            const raven = document.createElement('div');
-            raven.classList.add('effect-amon-raven');
+            if (
+                !domain.isConnected ||
+                domain.querySelector('.amon-identity-overwrite')
+            ) {
+                return;
+            }
 
-            raven.style.top = Math.random() * 80 + 'vh';
-            let flyDuration = Math.random() * 2 + 3;
-            raven.style.animationDuration = flyDuration + 's';
+            const overwrite = document.createElement('div');
 
-            this.container.appendChild(raven);
+            overwrite.className = 'amon-identity-overwrite';
+
+            overwrite.innerHTML = `
+            <span class="overwrite-crown">
+                ERROR: SELF ≠ SELF
+            </span>
+
+            <span class="overwrite-sigil"></span>
+
+            <span class="overwrite-name">
+                IDENTITY BORROWED
+            </span>
+        `;
+
+            overwrite.style.left = `${Math.random() * 46 + 27}%`;
+            overwrite.style.top = `${Math.random() * 34 + 33}%`;
+
+            domain.appendChild(overwrite);
 
             setTimeout(() => {
-                if (raven.parentNode) raven.remove();
-            }, flyDuration * 1000);
-        }, 2000); // 2s bay 1 con
+                overwrite.remove();
+            }, 3600);
+        }, hasSefirah ? 4600 : 6100);
     }
 
     static createNyxDomainEffect() {
@@ -605,5 +762,93 @@ class EffectManager {
                 }, (starDuration + 0.5) * 1000);
             }
         }, hasNyxPet ? 2000 : 4500);
+    }
+
+    static createPearlDreamEffect() {
+        this.stopIntervals();
+
+        if (!this.container) return;
+
+        let tick = 0;
+
+        this.currentInterval = setInterval(() => {
+            tick++;
+
+            // Cứ 5 phần tử thì có 1 hạt sáng
+            const isSparkle = tick % 5 === 0;
+            const particle = document.createElement('span');
+
+            particle.classList.add(
+                isSparkle
+                    ? 'effect-pearl-dream-sparkle'
+                    : 'effect-pearl-dream-bubble'
+            );
+
+            // Không sinh quá sát hai mép màn hình
+            particle.style.left =
+                `${Math.random() * 92 + 4}vw`;
+
+            // Bong bóng lắc nhẹ sang trái hoặc phải
+            particle.style.setProperty(
+                '--pearl-drift',
+                `${Math.random() * 70 - 35}px`
+            );
+
+            // Tăng độ rõ lên khoảng 0.68–0.9
+            particle.style.setProperty(
+                '--pearl-opacity',
+                `${Math.random() * 0.22 + 0.68}`
+            );
+
+            let duration;
+
+            if (isSparkle) {
+                // Hạt sáng: 5–8 px
+                const size = Math.random() * 3 + 5;
+
+                particle.style.setProperty(
+                    '--pearl-size',
+                    `${size}px`
+                );
+
+                duration = Math.random() * 2 + 4;
+            } else {
+                // Bong bóng: 11–20 px
+                const size = Math.random() * 9 + 11;
+
+                particle.style.setProperty(
+                    '--pearl-size',
+                    `${size}px`
+                );
+
+                duration = Math.random() * 3 + 7;
+            }
+
+            particle.style.animationDuration =
+                `${duration}s`;
+
+            const hasDreamSet =
+                document.body.classList.contains(
+                    'theme-fairy-sea-dream'
+                ) ||
+                document.querySelector(
+                    '.fairy-narwhal-bubble-magic'
+                );
+
+            if (hasDreamSet) {
+                particle.classList.add(
+                    'pearl-dream-combo'
+                );
+            }
+
+            this.container.appendChild(particle);
+
+            setTimeout(() => {
+                if (particle.parentNode) {
+                    particle.remove();
+                }
+            }, duration * 1000 + 500);
+
+        }, 650);
     }
 }

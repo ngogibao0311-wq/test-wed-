@@ -1,415 +1,1328 @@
-/* =========================================
-   1. HIỆU ỨNG CHỜ ĐỘC QUYỀN (IDLE STATE): NYX - NỮ THẦN MÀN ĐÊM
-========================================= */
+/* =========================================================
+   NYX REWORK — NHẬT THỰC VĨNH DẠ
+   ========================================================= */
 
-/* Bản thân Nyx: Đậm màu sương mù, lơ lửng */
+:root {
+    --nyx-void: #05030b;
+    --nyx-deep: #120521;
+    --nyx-purple: #6d28d9;
+    --nyx-violet: #a855f7;
+    --nyx-lilac: #e9d5ff;
+    --nyx-gold: #f8d477;
+    --nyx-effect-z: var(--z-effect, 9000);
+}
+
+/* Nyx đứng chờ */
 .nyx-night-goddess-magic {
-    filter: drop-shadow(0 0 15px rgba(138, 43, 226, 0.9)) 
-            drop-shadow(0 0 30px rgba(0, 0, 0, 1)) !important;
-    animation: nyx-float 4s ease-in-out infinite;
-    cursor: pointer;
-    transition: all 0.3s ease;
     position: relative;
-    z-index: 2; /* Đảm bảo hình ảnh nằm trên hố đen */
+    z-index: 3;
+    width: 145px !important;
+    max-width: none;
+    cursor: grab;
+    user-select: none;
+    transform-origin: 50% 65%;
+    will-change: transform, filter;
+
+    animation:
+        nyxSovereignFloat 4.8s ease-in-out infinite,
+        nyxSovereignGlow 2.7s ease-in-out infinite alternate;
+}
+
+.nyx-night-goddess-magic:active {
+    cursor: grabbing;
 }
 
 .nyx-night-goddess-magic:hover {
-    filter: drop-shadow(0 0 25px rgba(255, 255, 255, 0.9)) 
-            drop-shadow(0 0 50px rgba(138, 43, 226, 1)) !important;
-    transform: scale(1.08);
+    filter:
+        drop-shadow(0 10px 15px rgba(0, 0, 0, 0.75))
+        drop-shadow(0 0 18px rgba(168, 85, 247, 0.9))
+        drop-shadow(0 0 34px rgba(233, 213, 255, 0.38))
+        !important;
 }
 
-/* THÊM CHI TIẾT 1: Vòng xoáy Ngân Hà (Hố đen) đằng sau lưng */
+/* Đĩa nhật thực sau lưng */
 #virtual-pet-container:has(.nyx-night-goddess-magic)::before {
     content: '';
     position: absolute;
-    top: 50%;
     left: 50%;
-    width: 150px;
-    height: 150px;
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-    /* Tạo dải màu xoáy tròn như một hố đen vũ trụ */
-    background: conic-gradient(from 0deg, transparent 0%, rgba(138, 43, 226, 0.15) 20%, rgba(75, 0, 130, 0.7) 60%, rgba(15, 23, 42, 1) 90%, transparent 100%);
-    box-shadow: 0 0 30px rgba(138, 43, 226, 0.4), inset 0 0 20px rgba(0, 0, 0, 0.9);
-    animation: nyx-galaxy-spin 7s linear infinite;
-    z-index: -1; /* Nằm dưới lưng Nyx */
+    top: 52%;
+    width: 154px;
+    height: 154px;
+    z-index: 1;
     pointer-events: none;
+    border-radius: 50%;
+
+    transform:
+        translate(-50%, -50%);
+
+    background:
+        radial-gradient(
+            circle,
+            #05020a 0 47%,
+            transparent 49%
+        ),
+        conic-gradient(
+            from 35deg,
+            rgba(109, 40, 217, 0.08),
+            rgba(168, 85, 247, 0.88),
+            rgba(248, 212, 119, 0.64),
+            rgba(109, 40, 217, 0.14),
+            rgba(233, 213, 255, 0.82),
+            rgba(109, 40, 217, 0.08)
+        );
+
+    box-shadow:
+        0 0 18px rgba(168, 85, 247, 0.65),
+        0 0 44px rgba(109, 40, 217, 0.36),
+        inset 0 0 20px rgba(0, 0, 0, 0.94);
+
+    animation:
+        nyxEclipseBreathe
+        4.2s
+        ease-in-out
+        infinite;
 }
 
-/* THÊM CHI TIẾT 2: Vành đai tinh tú (Bụi sao) bay quanh người */
+/* Vương miện sao xoay quanh Nyx */
 #virtual-pet-container:has(.nyx-night-goddess-magic)::after {
     content: '';
     position: absolute;
-    top: 50%;
     left: 50%;
-    width: 3px;
-    height: 3px;
-    border-radius: 50%;
-    /* Dùng box-shadow tạo ra 8 ngôi sao nhỏ li ti vệ tinh */
-    box-shadow: 
-        60px -40px 2px 1px #fff, 
-        -70px 50px 2px 0px #e0aaff, 
-        45px 65px 1px 1px #fff, 
-        -55px -55px 3px 1px #c77dff,
-        80px 10px 1px 0px #fff,
-        -80px -20px 2px 1px #e0aaff,
-        20px -75px 1px 0px #fff,
-        -10px 80px 2px 1px #c77dff;
-    animation: nyx-stardust-orbit 10s linear infinite;
-    z-index: 3; /* Xoay đè lên trên Nyx */
+    top: 52%;
+    width: 5px;
+    height: 5px;
+    z-index: 4;
     pointer-events: none;
+    border-radius: 50%;
+    background: white;
+
+    box-shadow:
+        71px 0 0 -1px #fff,
+        50px 50px 0 -1px #e9d5ff,
+        0 72px 0 0 #f8d477,
+        -51px 50px 0 -1px #fff,
+        -72px 0 0 0 #c084fc,
+        -50px -50px 0 -1px #fff,
+        0 -72px 0 -1px #e9d5ff,
+        50px -50px 0 0 #f8d477;
+
+    filter:
+        drop-shadow(
+            0 0 7px rgba(233, 213, 255, 0.9)
+        );
+
+    transform:
+        translate(-50%, -50%);
+
+    animation:
+        nyxCrownOrbit
+        11s
+        linear
+        infinite;
 }
 
-/* --- KEYFRAMES CHO TRẠNG THÁI CHỜ --- */
-@keyframes nyx-float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-15px); } /* Nảy lên nảy xuống nhẹ nhàng */
-}
-
-@keyframes nyx-galaxy-spin {
-    0% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
-    50% { transform: translate(-50%, -50%) rotate(180deg) scale(1.1); } /* Xoáy và phình to nhẹ */
-    100% { transform: translate(-50%, -50%) rotate(360deg) scale(1); }
-}
-
-@keyframes nyx-stardust-orbit {
-    0% { transform: translate(-50%, -50%) rotate(0deg); }
-    100% { transform: translate(-50%, -50%) rotate(360deg); } /* Quay vòng quanh như hệ mặt trời */
-}
-
-/* 2. Hiệu ứng bùng nổ khi click */
 .nyx-power-release {
-    animation: nyx-burst 0.8s ease-out forwards;
+    animation:
+        nyxSovereignRelease
+        0.95s
+        cubic-bezier(.2, .82, .2, 1)
+        !important;
 }
 
-@keyframes nyx-burst {
-    0% { transform: scale(1.08); filter: drop-shadow(0 0 20px #8a2be2); }
-    50% { transform: scale(1.25); filter: drop-shadow(0 0 100px #fff) drop-shadow(0 0 200px #8a2be2); }
-    100% { transform: scale(1); filter: drop-shadow(0 0 15px #8a2be2); }
-}
-
-/* 3. Màn đêm buông xuống (Làm tối toàn bộ trang web) */
+/* Nền kỹ năng */
 .nyx-dark-world {
     position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100vh;
-    background: radial-gradient(circle at center, rgba(15, 23, 42, 0.6) 0%, rgba(0, 0, 0, 0.95) 100%);
-    z-index: 998; /* Dưới thú cưng, trên UI */
+    inset: 0;
+    z-index: var(--nyx-effect-z);
     pointer-events: none;
+    overflow: hidden;
     opacity: 0;
-    animation: nyx-fade-in-out 5.5s forwards;
+    isolation: isolate;
+
+    background:
+        radial-gradient(
+            circle at 50% 45%,
+            rgba(91, 33, 182, 0.24) 0 12%,
+            transparent 34%
+        ),
+        radial-gradient(
+            circle at 50% 50%,
+            rgba(18, 5, 33, 0.72) 0 42%,
+            rgba(2, 1, 6, 0.97) 100%
+        );
+
+    animation:
+        nyxWorldArrive
+        6.4s
+        ease-in-out
+        forwards;
 }
 
-/* 4. Khung thoại Thần Thoại */
-.nyx-dialogue-box {
-    position: absolute;
-    top: -70px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: linear-gradient(135deg, #11001c, #3a0ca3);
-    color: #e0aaff;
-    padding: 12px 20px;
-    border: 1px solid #7209b7;
-    border-radius: 8px;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 15px;
-    font-weight: bold;
-    white-space: nowrap;
-    box-shadow: 0 0 20px rgba(114, 9, 183, 0.8), inset 0 0 10px rgba(0,0,0,0.5);
-    opacity: 0;
-    pointer-events: none;
-    z-index: 1000;
-    animation: nyx-fade-in-out 5.5s forwards;
-}
-
-.nyx-dialogue-box::after {
+.nyx-dark-world::before {
     content: '';
     position: absolute;
-    bottom: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    border-width: 10px 10px 0;
-    border-style: solid;
-    border-color: #3a0ca3 transparent transparent transparent;
+    inset: -35%;
+
+    background:
+        conic-gradient(
+            from 0deg,
+            transparent 0 12%,
+            rgba(126, 34, 206, 0.13) 18%,
+            transparent 27% 44%,
+            rgba(192, 132, 252, 0.1) 52%,
+            transparent 61% 78%,
+            rgba(248, 212, 119, 0.08) 86%,
+            transparent 94%
+        );
+
+    filter: blur(34px);
+
+    animation:
+        nyxAuroraTurn
+        15s
+        linear
+        infinite;
 }
 
-@keyframes nyx-fade-in-out {
-    0% { opacity: 0; }
-    15% { opacity: 1; }
-    90% { opacity: 1; }
-    100% { opacity: 0; }
-}
-/* 5. Mặt trăng huyền bí */
-.nyx-moon {
+.nyx-dark-world::after {
+    content: '';
     position: absolute;
-    top: 15%;
-    right: 20%;
-    font-size: 130px; /* Phóng to mặt trăng từ 100px lên 130px cho uy nghiêm */
-    /* Chồng nhiều lớp bóng đổ cực mạnh giúp vầng trăng sáng rực rỡ lấn át hoàn toàn bóng tối */
-    filter: drop-shadow(0 0 25px #ffffff) 
-            drop-shadow(0 0 60px #fdfbd3) 
-            drop-shadow(0 0 130px #fff782)
-            drop-shadow(0 0 200px rgba(255, 247, 130, 0.6));
+    left: -10%;
+    right: -10%;
+    bottom: -16%;
+    height: 52%;
+
+    background:
+        radial-gradient(
+            ellipse at 50% 100%,
+            rgba(109, 40, 217, 0.32),
+            transparent 62%
+        ),
+        repeating-radial-gradient(
+            ellipse at 50% 100%,
+            transparent 0 22px,
+            rgba(233, 213, 255, 0.035) 24px 26px
+        );
+
+    filter: blur(10px);
+
+    animation:
+        nyxVoidTide
+        5.5s
+        ease-in-out
+        infinite alternate;
+}
+
+/* Nhật thực trung tâm */
+.nyx-eclipse {
+    position: absolute;
+    left: 50%;
+    top: 40%;
+    width: min(34vw, 330px);
+    aspect-ratio: 1;
+    z-index: 2;
+    border-radius: 50%;
     opacity: 0;
-    animation: nyx-moon-rise 0.8s ease-out forwards 0.3s;
+
+    transform:
+        translate(-50%, -50%) scale(0.35);
+
+    background:
+        radial-gradient(
+            circle,
+            #020105 0 57%,
+            transparent 58%
+        ),
+        conic-gradient(
+            from 20deg,
+            #6d28d9,
+            #e9d5ff,
+            #f8d477,
+            #7e22ce,
+            #ffffff,
+            #6d28d9
+        );
+
+    box-shadow:
+        0 0 24px rgba(255, 255, 255, 0.82),
+        0 0 70px rgba(168, 85, 247, 0.9),
+        0 0 150px rgba(109, 40, 217, 0.56);
+
+    animation:
+        nyxEclipseDescend
+        6.4s
+        ease-in-out
+        forwards;
 }
 
-@keyframes nyx-moon-rise {
-    0% { opacity: 0; transform: translateY(30px) scale(0.8); }
-    100% { opacity: 1; transform: translateY(0) scale(1); }
+/* Ma pháp trận */
+.nyx-eclipse-sigil {
+    position: absolute;
+    left: 50%;
+    top: 40%;
+    width: min(50vw, 470px);
+    aspect-ratio: 1;
+    z-index: 1;
+    border-radius: 50%;
+    opacity: 0;
+
+    transform:
+        translate(-50%, -50%)
+        scale(0.3)
+        rotate(0deg);
+
+    border:
+        1px solid rgba(233, 213, 255, 0.33);
+
+    background:
+        repeating-conic-gradient(
+            from 0deg,
+            transparent 0 13deg,
+            rgba(248, 212, 119, 0.58) 14deg 15deg,
+            transparent 16deg 29deg
+        );
+
+    -webkit-mask:
+        radial-gradient(
+            circle,
+            transparent 0 55%,
+            #000 56% 60%,
+            transparent 61%
+        );
+
+    mask:
+        radial-gradient(
+            circle,
+            transparent 0 55%,
+            #000 56% 60%,
+            transparent 61%
+        );
+
+    filter:
+        drop-shadow(
+            0 0 12px rgba(168, 85, 247, 0.8)
+        );
+
+    animation:
+        nyxSigilAwaken
+        6.4s
+        ease-in-out
+        forwards;
 }
 
-/* 6. Các vì sao lấp lánh */
 .nyx-star {
     position: absolute;
-    background-color: white;
+    z-index: 3;
     border-radius: 50%;
-    box-shadow: 0 0 5px white, 0 0 10px #e0aaff;
+    background: white;
     opacity: 0;
-    animation: nyx-twinkle linear infinite;
+
+    box-shadow:
+        0 0 5px white,
+        0 0 11px rgba(192, 132, 252, 0.92);
+
+    animation:
+        nyxStarBreathe
+        ease-in-out
+        infinite;
 }
 
-@keyframes nyx-twinkle {
-    0% { opacity: 0; transform: scale(0.5); }
-    50% { opacity: 1; transform: scale(1.2); }
-    100% { opacity: 0; transform: scale(0.5); }
+.nyx-judgement-meteor {
+    position: absolute;
+    z-index: 3;
+    width: var(--meteor-length, 190px);
+    height: 2px;
+    border-radius: 999px;
+    opacity: 0;
+    transform: rotate(34deg);
+    transform-origin: right center;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(192, 132, 252, 0.72) 55%,
+            white 100%
+        );
+
+    filter:
+        drop-shadow(0 0 8px white)
+        drop-shadow(0 0 18px #a855f7);
+
+    animation:
+        nyxJudgementMeteor
+        var(--meteor-speed, 1.7s)
+        ease-in
+        forwards;
+
+    animation-delay:
+        var(--meteor-delay, 0s);
 }
-/* =========================================
-   HIỆU ỨNG DẢI PHÉP THUẬT LÊ THEO SAU KHI KÉO (THÊM MỚI)
-========================================= */
+
+/* Lời thoại */
+.nyx-dialogue-box {
+    position: absolute;
+    left: 50%;
+    top: -88px;
+    z-index: 8;
+    min-width: 270px;
+    padding: 11px 18px;
+    pointer-events: none;
+    opacity: 0;
+
+    transform:
+        translateX(-50%)
+        translateY(10px)
+        scale(0.92);
+
+    color: #f5efff;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(6, 3, 13, 0.96),
+            rgba(56, 17, 91, 0.93)
+        );
+
+    border:
+        1px solid rgba(248, 212, 119, 0.72);
+
+    border-radius:
+        16px 16px 16px 4px;
+
+    box-shadow:
+        0 12px 34px rgba(0, 0, 0, 0.46),
+        0 0 22px rgba(168, 85, 247, 0.36);
+
+    font-family:
+        Georgia, 'Times New Roman', serif;
+
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+    white-space: nowrap;
+
+    animation:
+        nyxDialogueAppear
+        6.4s
+        ease-in-out
+        forwards;
+}
+
+/* Vệt kéo */
 .nyx-trail-particle {
     position: fixed;
-    width: 6px;
-    height: 6px;
-    background: radial-gradient(circle, #fff, #e0aaff, #7209b7);
-    border-radius: 50%;
+    z-index: calc(var(--nyx-effect-z) + 2);
+    width: var(--nyx-particle-size, 6px);
+    height: var(--nyx-particle-size, 6px);
     pointer-events: none;
-    box-shadow: 0 0 8px #c77dff, 0 0 15px #8a2be2;
-    z-index: 999;
-    /* Tăng thời gian từ 0.8s lên 2s */
-    animation: nyx-trail-fade 2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            white 0 18%,
+            #e9d5ff 28%,
+            #a855f7 62%,
+            transparent 72%
+        );
+
+    box-shadow:
+        0 0 8px rgba(255, 255, 255, 0.9),
+        0 0 17px rgba(168, 85, 247, 0.82);
+
+    animation:
+        nyxTrailVanish
+        1.35s
+        cubic-bezier(.18, .8, .25, 1)
+        forwards;
 }
 
-@keyframes nyx-trail-fade {
-    0% { transform: scale(1.5) translateY(0); opacity: 1; }
-    /* Tăng translateY lên 50px để vệt sao rơi dài hơn trước khi biến mất */
-    100% { transform: scale(0.1) translateY(50px); opacity: 0; } 
-}
-/* =========================================
-   HIỆU ỨNG TOÀN WEB: KỶ NGUYÊN ĐÊM TRƯỜNG CỬU (EFFECT NYX DOMAIN)
-========================================= */
+.nyx-trail-particle::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 20px;
+    height: 1px;
 
-/* Lớp nền sương mù bóng đêm bao phủ nhẹ nhàng toàn trang */
+    transform:
+        translate(-100%, -50%)
+        rotate(var(--nyx-trail-angle, -22deg));
+
+    transform-origin: right center;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(233, 213, 255, 0.72)
+        );
+}
+
+.nyx-trail-particle.nyx-trail-enhanced {
+    box-shadow:
+        0 0 12px white,
+        0 0 26px #c084fc,
+        0 0 48px rgba(109, 40, 217, 0.92);
+}
+/* =========================================================
+   KỶ NGUYÊN ĐÊM TRƯỜNG CỬU
+   ========================================================= */
+
 .nyx-domain-ambient {
     position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100vh;
-    background: radial-gradient(circle at 50% 50%, rgba(20, 8, 38, 0.25) 0%, rgba(8, 4, 15, 0.45) 100%);
-    z-index: 1; /* Nằm dưới UI hệ thống và thú cưng */
+    inset: 0;
+    z-index: 1;
     pointer-events: none;
-    animation: nyx-ambient-pulse 6s ease-in-out infinite alternate;
+    overflow: hidden;
+    isolation: isolate;
+
+    background:
+        radial-gradient(
+            circle at 78% 15%,
+            rgba(192, 132, 252, 0.13),
+            transparent 24%
+        ),
+        radial-gradient(
+            circle at 18% 72%,
+            rgba(109, 40, 217, 0.16),
+            transparent 30%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(6, 3, 15, 0.24),
+            rgba(16, 4, 30, 0.38)
+        );
+
+    animation:
+        nyxDomainPulse
+        7s
+        ease-in-out
+        infinite alternate;
 }
 
-@keyframes nyx-ambient-pulse {
-    0% { opacity: 0.75; }
-    100% { opacity: 1; }
+/* Cực quang */
+.nyx-domain-ambient::before {
+    content: '';
+    position: absolute;
+    left: -20%;
+    top: -30%;
+    width: 140%;
+    height: 72%;
+
+    background:
+        repeating-linear-gradient(
+            112deg,
+            transparent 0 8%,
+            rgba(126, 34, 206, 0.08) 11%,
+            rgba(233, 213, 255, 0.11) 13%,
+            transparent 17% 26%
+        );
+
+    filter: blur(24px);
+    transform: rotate(-5deg);
+
+    animation:
+        nyxDomainAurora
+        12s
+        ease-in-out
+        infinite alternate;
 }
 
-/* Các hạt bụi tinh tú trôi lơ lửng chậm rãi từ dưới lên */
+/* Nền sao trôi */
+.nyx-domain-ambient::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+
+    background-image:
+        radial-gradient(
+            circle at 12% 18%,
+            white 0 1px,
+            transparent 1.6px
+        ),
+        radial-gradient(
+            circle at 74% 22%,
+            #e9d5ff 0 1px,
+            transparent 1.6px
+        ),
+        radial-gradient(
+            circle at 37% 66%,
+            white 0 1px,
+            transparent 1.5px
+        ),
+        radial-gradient(
+            circle at 88% 78%,
+            #c084fc 0 1px,
+            transparent 1.6px
+        );
+
+    background-size:
+        220px 190px,
+        260px 230px,
+        300px 270px,
+        340px 310px;
+
+    opacity: 0.55;
+
+    animation:
+        nyxDomainStarDrift
+        18s
+        linear
+        infinite;
+}
+
 .nyx-domain-dust {
     position: fixed;
-    border-radius: 50%;
-    pointer-events: none;
     z-index: 2;
+    width: var(--dust-size, 4px);
+    height: var(--dust-size, 4px);
+    pointer-events: none;
+    border-radius: 50%;
     opacity: 0;
-    animation: nyx-dust-float linear forwards;
+
+    background:
+        radial-gradient(
+            circle,
+            white,
+            #c084fc 55%,
+            transparent 70%
+        );
+
+    box-shadow:
+        0 0 8px rgba(192, 132, 252, 0.8);
+
+    animation:
+        nyxDomainDustRise
+        var(--dust-duration, 5s)
+        linear
+        forwards;
 }
 
-@keyframes nyx-dust-float {
-    0% { transform: translateY(20px) scale(0.4); opacity: 0; }
-    20% { opacity: 0.8; }
-    80% { opacity: 0.8; }
-    100% { transform: translateY(-50px) scale(1); opacity: 0; }
-}
-
-/* Đường vệt sao băng xẹt chéo góc - Trạng thái bình thường */
 .nyx-domain-shooting-star {
     position: fixed;
-    width: 120px; /* Tăng độ dài sao băng */
+    z-index: 3;
+    width: 170px;
     height: 2px;
-    /* ĐẢO NGƯỢC GRADIENT: Đuôi trong suốt ở trái (0%), đầu sáng trắng ở phải (100%) */
-    background: linear-gradient(90deg, transparent 0%, rgba(224,170,255,0.6) 60%, rgba(255,255,255,1) 100%);
-    /* QUAY XUỐNG DƯỚI: Đổi từ -35deg thành dương 35deg */
-    transform: rotate(35deg);
     pointer-events: none;
-    z-index: 2;
+    border-radius: 999px;
     opacity: 0;
-    filter: drop-shadow(0 0 6px #c77dff);
-    animation: nyx-star-dash linear forwards;
+    transform: rotate(34deg);
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(192, 132, 252, 0.65) 64%,
+            white 100%
+        );
+
+    filter:
+        drop-shadow(0 0 7px white)
+        drop-shadow(
+            0 0 14px rgba(168, 85, 247, 0.9)
+        );
+
+    animation:
+        nyxDomainMeteor
+        linear
+        forwards;
 }
 
-/* CỘNG HƯỞNG NYX: Tăng cường độ rực rỡ */
-.nyx-domain-shooting-star.nyx-enhanced-star {
-    width: 200px;
+/* Nyx và Kỷ Nguyên cùng trang bị */
+.nyx-domain-shooting-star.nyx-enhanced-star,
+body:has(.nyx-night-goddess-magic)
+.nyx-domain-shooting-star {
+    width: 235px;
     height: 3px;
-    background: linear-gradient(90deg, transparent 0%, #8a2be2 40%, #e0aaff 80%, #ffffff 100%);
-    filter: drop-shadow(0 0 12px #8a2be2) drop-shadow(0 0 25px #c77dff);
+
+    filter:
+        drop-shadow(0 0 9px white)
+        drop-shadow(0 0 22px #c084fc)
+        drop-shadow(
+            0 0 38px rgba(109, 40, 217, 0.72)
+        );
 }
 
-@keyframes nyx-star-dash {
-    /* Rơi chéo từ trên góc trái xuống góc phải dưới */
-    0% { transform: translateX(0) translateY(0) rotate(35deg); opacity: 0; }
-    15% { opacity: 1; }
-    85% { opacity: 1; }
-    100% { transform: translateX(110vw) translateY(75vh) rotate(35deg); opacity: 0; }
+body:has(.nyx-night-goddess-magic)
+.nyx-domain-ambient {
+    background:
+        radial-gradient(
+            circle at 50% 40%,
+            rgba(168, 85, 247, 0.2),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 78% 15%,
+            rgba(248, 212, 119, 0.11),
+            transparent 24%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(6, 3, 15, 0.3),
+            rgba(16, 4, 30, 0.48)
+        );
+
+    box-shadow:
+        inset 0 0 140px rgba(0, 0, 0, 0.58);
 }
-.nyx-domain-shooting-star.nyx-dark-world-star {
-    height: 4px; /* Tăng độ dày vệt sáng */
-    width: 320px; /* Kéo dài vệt xẹt qua màn hình */
-    background: linear-gradient(90deg, transparent 0%, #8a2be2 20%, #c77dff 60%, #ffffff 100%);
-    filter: drop-shadow(0 0 15px #ffffff) 
-            drop-shadow(0 0 35px #c77dff) 
-            drop-shadow(0 0 80px #8a2be2);
+/* =========================================================
+   THÁNH VỰC TỐI THƯỢNG
+   ========================================================= */
+
+body.theme-legendary-celestial {
+    --celestial-bg: #07050d;
+    --celestial-panel: rgba(17, 12, 28, 0.86);
+    --celestial-panel-2: rgba(27, 17, 43, 0.78);
+    --celestial-gold: #f8d477;
+    --celestial-gold-soft:
+        rgba(248, 212, 119, 0.38);
+    --celestial-text: #f5f1ff;
+
+    min-height: 100vh;
+    color: var(--celestial-text) !important;
+
+    font-family:
+        Georgia, 'Times New Roman', serif !important;
+
+    background-color:
+        var(--celestial-bg) !important;
+
+    background-image:
+        radial-gradient(
+            circle at 50% -12%,
+            rgba(248, 212, 119, 0.17),
+            transparent 28%
+        ),
+        radial-gradient(
+            circle at 12% 20%,
+            rgba(126, 34, 206, 0.21),
+            transparent 34%
+        ),
+        radial-gradient(
+            circle at 88% 68%,
+            rgba(109, 40, 217, 0.18),
+            transparent 32%
+        ),
+        linear-gradient(
+            145deg,
+            #090610 0%,
+            #11091c 48%,
+            #050308 100%
+        ) !important;
+
+    background-attachment: fixed !important;
 }
 
-/* DẢI PHÉP THUẬT KHI KÉO TRONG MÀN ĐÊM: Kích thước to phát sáng ngọc trai */
-.nyx-trail-particle.nyx-trail-enhanced {
-    width: 11px; /* Tăng gần gấp đôi kích thước cũ (6px) */
-    height: 11px;
-    background: radial-gradient(circle, #ffffff 0%, #f0e6ff 40%, #8a2be2 100%);
-    box-shadow: 0 0 15px #ffffff, 
-                0 0 30px #c77dff, 
-                0 0 60px #8a2be2;
-}
-/* =========================================
-   GIAO DIỆN TRUYỀN THUYẾT: THÁNH VỰC TỐI THƯỢNG (CELESTIAL SANCTUARY)
-   Giá: 1500 Coin
-========================================= */
-
-/* --- 1. Phông chữ & Màu nền tổng thể --- */
-/* (Tải phông chữ Serif từ Google Fonts nếu web chưa có) */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
-
-.theme-legendary-celestial {
-    font-family: 'Playfair Display', 'Times New Roman', serif !important;
-    background: radial-gradient(circle at 50% 0%, #1a1525 0%, #050508 80%) !important;
-    color: #e5e4e2 !important;
-}
-
-/* --- 2. Tùy chỉnh Thanh Cuộn (Slide bar/Scrollbar) --- */
+/* Thanh cuộn */
 .theme-legendary-celestial ::-webkit-scrollbar {
-    width: 14px;
-}
-.theme-legendary-celestial ::-webkit-scrollbar-track {
-    background: #0a0a10;
-    border-left: 1px solid rgba(255, 215, 0, 0.2);
-}
-.theme-legendary-celestial ::-webkit-scrollbar-thumb {
-    /* Thanh cuộn đúc bằng vàng */
-    background: linear-gradient(180deg, #8b6508, #ffd700, #8b6508);
-    border: 2px solid #0a0a10;
-    border-radius: 0; /* Xóa bo tròn */
-}
-.theme-legendary-celestial ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #ffd700, #fff, #ffd700);
-    box-shadow: 0 0 15px #ffd700;
+    width: 11px;
 }
 
-/* --- 3. Tùy chỉnh các Ô (Cells / Item Cards) --- */
-/* Ép các ô vật phẩm biến thành hình cắt góc kim cương */
-.theme-legendary-celestial .store-item, 
+.theme-legendary-celestial ::-webkit-scrollbar-track {
+    background: #07050d;
+}
+
+.theme-legendary-celestial ::-webkit-scrollbar-thumb {
+    border: 2px solid #07050d;
+    border-radius: 999px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #5b21b6,
+            #f8d477 48%,
+            #7e22ce
+        );
+}
+
+/* Các ô và thẻ */
+.theme-legendary-celestial .store-item-card,
 .theme-legendary-celestial .inventory-item,
+.theme-legendary-celestial .dashboard-card,
+.theme-legendary-celestial .panel,
 .theme-legendary-celestial .cell,
 .theme-legendary-celestial .card {
-    background: rgba(20, 18, 28, 0.6) !important;
-    border: 1px solid rgba(255, 215, 0, 0.3) !important;
-    /* Lệnh cắt xéo 2 góc đối diện (trên-trái và dưới-phải) */
-    clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
-    border-radius: 0 !important; 
-    transition: all 0.4s ease;
-    box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+    position: relative;
+    color: var(--celestial-text) !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            var(--celestial-panel-2),
+            var(--celestial-panel)
+        ) !important;
+
+    border:
+        1px solid var(--celestial-gold-soft)
+        !important;
+
+    border-radius:
+        18px 5px 18px 5px !important;
+
+    box-shadow:
+        0 14px 34px rgba(0, 0, 0, 0.32),
+        inset 0 0 24px rgba(168, 85, 247, 0.06)
+        !important;
+
+    backdrop-filter: blur(11px);
+
+    transition:
+        transform 0.28s ease,
+        border-color 0.28s ease,
+        box-shadow 0.28s ease;
 }
 
-.theme-legendary-celestial .store-item:hover,
-.theme-legendary-celestial .inventory-item:hover {
-    background: rgba(30, 25, 45, 0.8) !important;
-    border-color: #ffd700 !important;
-    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
-    transform: translateY(-5px) scale(1.02);
+.theme-legendary-celestial .store-item-card:hover,
+.theme-legendary-celestial .inventory-item:hover,
+.theme-legendary-celestial .dashboard-card:hover {
+    transform: translateY(-4px);
+
+    border-color:
+        rgba(248, 212, 119, 0.76)
+        !important;
+
+    box-shadow:
+        0 18px 42px rgba(0, 0, 0, 0.42),
+        0 0 22px rgba(168, 85, 247, 0.2)
+        !important;
 }
 
-/* --- 4. Tùy chỉnh Popup (Modal / Hộp thoại) --- */
+/* Popup */
 .theme-legendary-celestial .modal-content,
 .theme-legendary-celestial .popup,
 .theme-legendary-celestial .dialog-box {
-    background: linear-gradient(135deg, #110e17 0%, #0a0810 100%) !important;
-    border: 2px solid #ffd700 !important;
-    box-shadow: 0 0 50px rgba(255, 215, 0, 0.15), inset 0 0 20px rgba(255, 215, 0, 0.05) !important;
-    /* Cắt góc mảng lớn cho Popup */
-    clip-path: polygon(30px 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%, 0 30px);
-    border-radius: 0 !important;
     position: relative;
+    color: var(--celestial-text) !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(15, 10, 25, 0.98),
+            rgba(30, 17, 47, 0.97)
+        ) !important;
+
+    border:
+        1px solid rgba(248, 212, 119, 0.76)
+        !important;
+
+    border-radius:
+        20px 6px 20px 6px !important;
+
+    box-shadow:
+        0 28px 80px rgba(0, 0, 0, 0.58),
+        0 0 34px rgba(126, 34, 206, 0.24)
+        !important;
 }
 
-/* Hoa văn viền đứt đoạn bên trong Popup */
-.theme-legendary-celestial .modal-content::before,
-.theme-legendary-celestial .popup::before {
-    content: '';
-    position: absolute;
-    top: 6px; left: 6px; right: 6px; bottom: 6px;
-    border: 1px dashed rgba(255, 215, 0, 0.4);
-    pointer-events: none;
-    clip-path: polygon(25px 0, 100% 0, 100% calc(100% - 25px), calc(100% - 25px) 100%, 0 100%, 0 25px);
+/* Nút chính */
+.theme-legendary-celestial .btn,
+.theme-legendary-celestial .btn-buy,
+.theme-legendary-celestial .btn-equip,
+.theme-legendary-celestial .btn-preview {
+    color: #160d22 !important;
+    font-weight: 800 !important;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.28)
+        !important;
+
+    border-radius:
+        12px 4px 12px 4px !important;
+
+    background:
+        linear-gradient(
+            110deg,
+            #8b5e16,
+            #f8d477 42%,
+            #fff2b9 58%,
+            #a86f14
+        ) !important;
+
+    background-size:
+        220% 100% !important;
+
+    box-shadow:
+        0 7px 17px rgba(0, 0, 0, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.48)
+        !important;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background-position 0.35s ease
+        !important;
 }
 
-/* --- 5. Tùy chỉnh Nút bấm (Buttons) --- */
-.theme-legendary-celestial button,
-.theme-legendary-celestial .btn {
-    background: linear-gradient(45deg, #8b6508, #ffd700, #8b6508) !important;
-    background-size: 200% 200%;
-    color: #000 !important;
-    font-family: 'Times New Roman', serif;
-    font-weight: 900 !important;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    border: none !important;
-    border-radius: 0 !important;
-    /* Nút bấm cũng bị vát góc cho đồng bộ */
-    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-    transition: all 0.3s ease;
+.theme-legendary-celestial .btn:hover,
+.theme-legendary-celestial .btn-buy:hover,
+.theme-legendary-celestial .btn-equip:hover,
+.theme-legendary-celestial .btn-preview:hover {
+    transform: translateY(-2px);
+
+    background-position:
+        100% 0 !important;
+
+    box-shadow:
+        0 10px 24px rgba(0, 0, 0, 0.32),
+        0 0 18px rgba(248, 212, 119, 0.42)
+        !important;
 }
 
-.theme-legendary-celestial button:hover,
-.theme-legendary-celestial .btn:hover {
-    background-position: 100% 0;
-    box-shadow: 0 0 15px #ffd700;
-    transform: scale(1.05);
-}
-
-/* --- 6. Tiêu đề (Headers) --- */
-.theme-legendary-celestial h1, 
-.theme-legendary-celestial h2, 
+/* Tiêu đề */
+.theme-legendary-celestial h1,
+.theme-legendary-celestial h2,
 .theme-legendary-celestial h3 {
-    color: #ffd700 !important;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    text-shadow: 0 2px 10px rgba(255, 215, 0, 0.4);
-    border-bottom: 1px solid rgba(255, 215, 0, 0.2);
-    padding-bottom: 15px;
-    position: relative;
-    text-align: center;
+    color:
+        var(--celestial-gold) !important;
+
+    font-family:
+        Georgia, 'Times New Roman', serif !important;
+
+    letter-spacing: 1.4px;
+    text-shadow:
+        0 2px 12px rgba(248, 212, 119, 0.26),
+        0 0 18px rgba(168, 85, 247, 0.18);
 }
 
-/* Biểu tượng "✦" tỏa sáng ở giữa nét đứt tiêu đề */
-.theme-legendary-celestial h2::after,
-.theme-legendary-celestial h1::after {
+.theme-legendary-celestial h1::after,
+.theme-legendary-celestial h2::after {
     content: '✦';
-    position: absolute;
-    bottom: -11px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: #ffd700;
-    font-size: 18px;
-    background: #050508;
-    padding: 0 15px;
-    text-shadow: 0 0 8px #ffd700;
+    display: inline-block;
+    margin-left: 10px;
+    color: #e9d5ff;
+    font-size: 0.72em;
+
+    animation:
+        celestialTitleStar
+        2.3s
+        ease-in-out
+        infinite alternate;
+}
+
+/* Ô nhập liệu */
+.theme-legendary-celestial input,
+.theme-legendary-celestial textarea,
+.theme-legendary-celestial select {
+    color: var(--celestial-text) !important;
+
+    background:
+        rgba(7, 5, 13, 0.72) !important;
+
+    border:
+        1px solid rgba(248, 212, 119, 0.28)
+        !important;
+}
+@keyframes nyxSovereignFloat {
+    0%,
+    100% {
+        transform:
+            translateY(0) rotate(-1deg);
+    }
+
+    48% {
+        transform:
+            translateY(-11px) rotate(1.1deg);
+    }
+
+    72% {
+        transform:
+            translateY(-5px) rotate(0.2deg);
+    }
+}
+
+@keyframes nyxSovereignGlow {
+    from {
+        filter:
+            drop-shadow(
+                0 8px 11px rgba(0, 0, 0, 0.7)
+            )
+            drop-shadow(
+                0 0 10px rgba(109, 40, 217, 0.6)
+            );
+    }
+
+    to {
+        filter:
+            drop-shadow(
+                0 10px 15px rgba(0, 0, 0, 0.8)
+            )
+            drop-shadow(
+                0 0 19px rgba(168, 85, 247, 0.9)
+            )
+            drop-shadow(
+                0 0 31px rgba(248, 212, 119, 0.16)
+            );
+    }
+}
+
+@keyframes nyxEclipseBreathe {
+    0%,
+    100% {
+        transform:
+            translate(-50%, -50%) scale(0.94);
+
+        opacity: 0.72;
+    }
+
+    50% {
+        transform:
+            translate(-50%, -50%) scale(1.05);
+
+        opacity: 1;
+    }
+}
+
+@keyframes nyxCrownOrbit {
+    to {
+        transform:
+            translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+@keyframes nyxSovereignRelease {
+    0% {
+        transform:
+            scale(1) rotate(0deg);
+    }
+
+    28% {
+        transform:
+            scale(0.88) rotate(-4deg);
+    }
+
+    58% {
+        transform:
+            scale(1.22) rotate(3deg);
+
+        filter:
+            drop-shadow(0 0 26px white)
+            drop-shadow(0 0 62px #a855f7);
+    }
+
+    100% {
+        transform:
+            scale(1) rotate(0deg);
+    }
+}
+
+@keyframes nyxWorldArrive {
+    0% {
+        opacity: 0;
+    }
+
+    14%,
+    82% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes nyxAuroraTurn {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes nyxVoidTide {
+    from {
+        transform:
+            translateY(0) scaleX(0.95);
+
+        opacity: 0.55;
+    }
+
+    to {
+        transform:
+            translateY(-7%) scaleX(1.08);
+
+        opacity: 0.88;
+    }
+}
+
+@keyframes nyxEclipseDescend {
+    0% {
+        transform:
+            translate(-50%, -58%) scale(0.28);
+
+        opacity: 0;
+    }
+
+    16% {
+        transform:
+            translate(-50%, -50%) scale(1.04);
+
+        opacity: 1;
+    }
+
+    30%,
+    78% {
+        transform:
+            translate(-50%, -50%) scale(1);
+
+        opacity: 1;
+    }
+
+    100% {
+        transform:
+            translate(-50%, -42%) scale(1.12);
+
+        opacity: 0;
+    }
+}
+
+@keyframes nyxSigilAwaken {
+    0% {
+        transform:
+            translate(-50%, -50%)
+            scale(0.3)
+            rotate(0deg);
+
+        opacity: 0;
+    }
+
+    18%,
+    78% {
+        opacity: 0.78;
+    }
+
+    100% {
+        transform:
+            translate(-50%, -50%)
+            scale(1.26)
+            rotate(210deg);
+
+        opacity: 0;
+    }
+}
+
+@keyframes nyxStarBreathe {
+    0%,
+    100% {
+        opacity: 0.18;
+        transform: scale(0.55);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.35);
+    }
+}
+
+@keyframes nyxJudgementMeteor {
+    0% {
+        opacity: 0;
+
+        transform:
+            translate(-18vw, -15vh)
+            rotate(34deg);
+    }
+
+    12% {
+        opacity: 1;
+    }
+
+    82% {
+        opacity: 0.95;
+    }
+
+    100% {
+        opacity: 0;
+
+        transform:
+            translate(118vw, 82vh)
+            rotate(34deg);
+    }
+}
+
+@keyframes nyxDialogueAppear {
+    0% {
+        opacity: 0;
+
+        transform:
+            translateX(-50%)
+            translateY(10px)
+            scale(0.92);
+    }
+
+    14%,
+    76% {
+        opacity: 1;
+
+        transform:
+            translateX(-50%)
+            translateY(0)
+            scale(1);
+    }
+
+    100% {
+        opacity: 0;
+
+        transform:
+            translateX(-50%)
+            translateY(-9px)
+            scale(0.96);
+    }
+}
+
+@keyframes nyxTrailVanish {
+    0% {
+        opacity: 1;
+
+        transform:
+            translate(-50%, -50%)
+            scale(1.2);
+    }
+
+    100% {
+        opacity: 0;
+
+        transform:
+            translate(
+                calc(
+                    -50% +
+                    var(--nyx-trail-drift, -28px)
+                ),
+                calc(
+                    -50% +
+                    var(--nyx-trail-fall, 42px)
+                )
+            )
+            scale(0.12);
+    }
+}
+
+@keyframes nyxDomainPulse {
+    from {
+        opacity: 0.72;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes nyxDomainAurora {
+    from {
+        transform:
+            translateX(-5%)
+            rotate(-5deg)
+            scaleY(0.92);
+
+        opacity: 0.45;
+    }
+
+    to {
+        transform:
+            translateX(8%)
+            rotate(2deg)
+            scaleY(1.08);
+
+        opacity: 0.78;
+    }
+}
+
+@keyframes nyxDomainStarDrift {
+    to {
+        background-position:
+            110px 95px,
+            -130px 115px,
+            150px -135px,
+            -170px -155px;
+    }
+}
+
+@keyframes nyxDomainDustRise {
+    0% {
+        transform:
+            translateY(24px) scale(0.3);
+
+        opacity: 0;
+    }
+
+    18% {
+        opacity: 0.86;
+    }
+
+    76% {
+        opacity: 0.66;
+    }
+
+    100% {
+        transform:
+            translateY(-78px)
+            translateX(
+                var(--dust-drift, 20px)
+            )
+            scale(1.12);
+
+        opacity: 0;
+    }
+}
+
+@keyframes nyxDomainMeteor {
+    0% {
+        opacity: 0;
+
+        transform:
+            translate(-20vw, -18vh)
+            rotate(34deg);
+    }
+
+    14% {
+        opacity: 1;
+    }
+
+    86% {
+        opacity: 0.9;
+    }
+
+    100% {
+        opacity: 0;
+
+        transform:
+            translate(115vw, 76vh)
+            rotate(34deg);
+    }
+}
+
+@keyframes celestialTitleStar {
+    from {
+        opacity: 0.45;
+
+        transform:
+            scale(0.82) rotate(0deg);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            scale(1.14) rotate(35deg);
+    }
+}
+/* SỬA LỖI CHỮ TIẾNG VIỆT TRONG LỜI THOẠI NYX */
+.nyx-dialogue-box {
+    font-family: Arial, "Segoe UI", Tahoma, sans-serif !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+
+    letter-spacing: 0 !important;
+    word-spacing: 0 !important;
+    font-kerning: normal !important;
+    font-variant-ligatures: none !important;
+
+    line-height: 1.45 !important;
+    white-space: nowrap !important;
+
+    width: max-content !important;
+    min-width: max-content !important;
+    max-width: 90vw !important;
+
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
 }

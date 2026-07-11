@@ -964,18 +964,12 @@ async function loadAssignments() {
                     // Khóa toàn bộ cảnh báo thi trong lúc đang tự động lưu bài
                     window.isFinalizingExamSubmission = true;
 
-                    // Thoát trạng thái thi ngay, không chờ Firebase
-                    if (window.currentActiveExamId === assign.id) {
-                        window.currentActiveExamId = null;
-
-                        if (document.fullscreenElement) {
-                            document.exitFullscreen().catch(console.error);
-                        }
-
-                        document.querySelectorAll('.nav-item, .btn-logout').forEach(btn => {
-                            btn.style.opacity = '1';
-                            btn.style.pointerEvents = 'auto';
-                        });
+                    // Hết giờ: thoát thi và khôi phục pet/effect
+                    if (
+                        window.currentActiveExamId === assign.id ||
+                        window.isExamVisualItemsSuspended === true
+                    ) {
+                        window.finishStudentExamMode(assign.id);
                     }
 
                     // === BẮT ĐẦU FIX LOGIC: THU BÀI ĐANG LÀM DỞ TỪ BẢN NHÁP (HỖ TRỢ LẤY CẢ FILE ĐÍNH KÈM) ===
@@ -1761,18 +1755,12 @@ async function submitAssignment(assignId, isAuto = false, isCheat = false) {
         }
 
 
-        // --- ĐOẠN NÀY ĐỂ THOÁT TOÀN MÀN HÌNH VÀ MỞ KHÓA GIAO DIỆN SAU KHI NỘP ---
-        if (window.currentActiveExamId === assignId) {
-            window.currentActiveExamId = null;
-            if (document.fullscreenElement) {
-                document.exitFullscreen().catch(err => console.log(err));
-            }
-
-            // Mở khóa toàn bộ menu bên trái (Sidebar) và nút đăng xuất
-            document.querySelectorAll('.nav-item, .btn-logout').forEach(btn => {
-                btn.style.opacity = '1';
-                btn.style.pointerEvents = 'auto'; // Trả lại khả năng click
-            });
+        // Thoát chế độ thi và khôi phục pet/hiệu ứng
+        if (
+            window.currentActiveExamId === assignId ||
+            window.isExamVisualItemsSuspended === true
+        ) {
+            await window.finishStudentExamMode(assignId);
         }
         // -----------------------------------------------------------
         // -----------------------------------------------------------
@@ -2792,7 +2780,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- BỔ SUNG KHỐI LỆNH NÀY ---
         // Nếu phát hiện người dùng chạm từ 2 ngón tay trở lên (để zoom), thì lập tức dừng lệnh kéo thả
         if (e.type === 'touchmove' && e.touches.length > 1) {
-            return; 
+            return;
         }
         // -----------------------------
 
@@ -3388,25 +3376,145 @@ StoreManager.unapplyItem = async function (itemId) {
     }
 };
 
-// 6. Cập nhật giao diện UI & Hiệu ứng (Mỗi khi tải trang hoặc kho đồ thay đổi)
-window.applyEquippedItems = function () {
-    // Reset hiệu ứng và thú cưng về trống trước khi mặc đồ mới
-    document.getElementById('global-effect-container').innerHTML = '';
-    const petContainer = document.getElementById('virtual-pet-container');
-    if (petContainer) petContainer.style.display = 'none';
+// 6. Cập nhật giao diện UI & Hiệu ứng
+// Khi đang thi nghiêm ngặt: chỉ tạm tắt PET và EFFECT.
+// Theme vẫn được giữ nguyên.
+window.isExamVisualItemsSuspended = false;
 
-    if (typeof myInventory !== 'undefined' && Array.isArray(myInventory)) {
-        myInventory.forEach(invItem => {
-            if (invItem.isEquipped) {
-                const itemDef = StoreConfig.items.find(i => i.id === invItem.id);
-                if (itemDef) {
-                    if (itemDef.type === 'theme') ThemeManager.applyTheme(itemDef.id);
-                    else if (itemDef.type === 'effect') EffectManager.applyEffect(itemDef.id);
-                    else if (itemDef.type === 'pet') PetManager.spawnPet(itemDef);
-                }
-            }
-        });
+// Tạm tắt pet và hiệu ứng khi bắt đầu thi
+window.suspendExamVisualItems = function () {
+    window.isExamVisualItemsSuspended = true;
+
+    // Dừng toàn bộ hiệu ứng và các interval tạo hiệu ứng
+    if (
+        typeof EffectManager !== 'undefined' &&
+        typeof EffectManager.clearEffects === 'function'
+    ) {
+        EffectManager.clearEffects();
     }
+
+    const effectContainer =
+        document.getElementById('global-effect-container');
+
+    if (effectContainer) {
+        effectContainer.style.display = 'none';
+        effectContainer.innerHTML = '';
+    }
+
+    // Hủy các sự kiện tương tác pet
+    if (
+        typeof PetManager !== 'undefined' &&
+        PetManager.interactionAbortController
+    ) {
+        PetManager.interactionAbortController.abort();
+        PetManager.interactionAbortController = null;
+    }
+
+    // Dừng vòng lặp tương tác của pet
+    if (
+        typeof PetInteractionManager !== 'undefined' &&
+        PetInteractionManager.loopInterval
+    ) {
+        clearInterval(PetInteractionManager.loopInterval);
+        PetInteractionManager.loopInterval = null;
+
+        if (
+            typeof PetInteractionManager.setSleepState === 'function'
+        ) {
+            PetInteractionManager.setSleepState(false);
+        }
+    }
+
+    const petContainer =
+        document.getElementById('virtual-pet-container');
+
+    if (petContainer) {
+        petContainer.style.display = 'none';
+        petContainer.innerHTML = '';
+    }
+};
+
+// Khôi phục pet và hiệu ứng sau khi kết thúc thi
+window.restoreExamVisualItems = function () {
+    // Không được bật lại khi bài thi vẫn đang hoạt động
+    if (window.currentActiveExamId) return;
+
+    window.isExamVisualItemsSuspended = false;
+
+    const effectContainer =
+        document.getElementById('global-effect-container');
+
+    if (effectContainer) {
+        effectContainer.style.display = '';
+    }
+
+    // Đọc lại vật phẩm đang trang bị từ myInventory
+    if (typeof window.applyEquippedItems === 'function') {
+        window.applyEquippedItems();
+    }
+};
+
+// Áp dụng các vật phẩm đang trang bị
+window.applyEquippedItems = function () {
+    const effectContainer =
+        document.getElementById('global-effect-container');
+
+    const petContainer =
+        document.getElementById('virtual-pet-container');
+
+    const mustSuspendVisualItems =
+        window.isExamVisualItemsSuspended === true ||
+        Boolean(window.currentActiveExamId);
+
+    // Xóa hiệu ứng cũ trước khi áp dụng lại
+    if (
+        typeof EffectManager !== 'undefined' &&
+        typeof EffectManager.clearEffects === 'function'
+    ) {
+        EffectManager.clearEffects();
+    }
+
+    if (effectContainer) {
+        effectContainer.innerHTML = '';
+        effectContainer.style.display =
+            mustSuspendVisualItems ? 'none' : '';
+    }
+
+    if (petContainer) {
+        petContainer.style.display = 'none';
+    }
+
+    if (
+        typeof myInventory === 'undefined' ||
+        !Array.isArray(myInventory)
+    ) {
+        return;
+    }
+
+    myInventory.forEach(invItem => {
+        if (!invItem.isEquipped) return;
+
+        const itemDef = StoreConfig.items.find(
+            item => item.id === invItem.id
+        );
+
+        if (!itemDef) return;
+
+        // Theme vẫn được sử dụng khi thi
+        if (itemDef.type === 'theme') {
+            ThemeManager.applyTheme(itemDef.id);
+            return;
+        }
+
+        // Đang thi thì không được bật lại pet/effect
+        if (mustSuspendVisualItems) return;
+
+        if (itemDef.type === 'effect') {
+            EffectManager.applyEffect(itemDef.id);
+        } else if (itemDef.type === 'pet') {
+            PetManager.spawnPet(itemDef);
+        }
+    });
 };
 
 window.renderStudentSurvey = function (surveyData) {
@@ -4068,6 +4176,59 @@ window.deleteMessage = async function (msgKey) {
 window.currentActiveExamId = null;
 window.pendingExamId = null;
 
+// Kết thúc thống nhất mọi trường hợp:
+// nộp bài, hết giờ, vi phạm, thoát toàn màn hình...
+window.finishStudentExamMode = async function (
+    assignId,
+    options = {}
+) {
+    const {
+        exitFullscreen = true
+    } = options;
+
+    // Không kết thúc nhầm bài thi khác
+    if (
+        assignId &&
+        window.currentActiveExamId &&
+        window.currentActiveExamId !== assignId
+    ) {
+        return;
+    }
+
+    // Phải reset trước khi thoát fullscreen
+    // để fullscreenchange không bắt vi phạm lần nữa
+    window.currentActiveExamId = null;
+
+    // Mở lại menu và nút đăng xuất
+    document
+        .querySelectorAll('.nav-item, .btn-logout')
+        .forEach(btn => {
+            btn.style.opacity = '1';
+            btn.style.pointerEvents = 'auto';
+        });
+
+    if (
+        exitFullscreen &&
+        document.fullscreenElement
+    ) {
+        try {
+            await document.exitFullscreen();
+        } catch (error) {
+            console.warn(
+                'Không thể thoát toàn màn hình:',
+                error
+            );
+        }
+    }
+
+    // Bật lại pet và hiệu ứng
+    if (
+        typeof window.restoreExamVisualItems === 'function'
+    ) {
+        window.restoreExamVisualItems();
+    }
+};
+
 window.showExamWarning = function (assignId) {
     window.pendingExamId = assignId;
     const modal = document.getElementById('examWarningModal');
@@ -4143,11 +4304,11 @@ window.startExamFullscreen = async function () {
         else if (elem.webkitRequestFullscreen) await elem.webkitRequestFullscreen(); // Safari
         else if (elem.msRequestFullscreen) await elem.msRequestFullscreen(); // Edge cũ
 
-        // Chờ 1 chút để màn hình mở rộng ra rồi mới hiển thị bài thi
         setTimeout(() => {
-            window.currentActiveExamId = assignId;
-
+            // Chỉ xác nhận bắt đầu thi sau khi fullscreen thành công
             if (!document.fullscreenElement) {
+                window.currentActiveExamId = null;
+
                 alert(
                     "⚠️ Chế độ toàn màn hình đã bị thoát. " +
                     "Bài thi chưa được bắt đầu."
@@ -4155,6 +4316,15 @@ window.startExamFullscreen = async function () {
 
                 closeExamWarning();
                 return;
+            }
+
+            window.currentActiveExamId = assignId;
+
+            // Tạm tắt pet và hiệu ứng
+            if (
+                typeof window.suspendExamVisualItems === 'function'
+            ) {
+                window.suspendExamVisualItems();
             }
 
             // Ẩn toàn bộ khu vực video trước bài thi
@@ -4312,13 +4482,21 @@ document.addEventListener('fullscreenchange', () => {
     if (
         window.isSelectingFile ||
         window.isFinalizingExamSubmission
-    ) return;
+    ) {
+        return;
+    }
 
-    if (!document.fullscreenElement && window.currentActiveExamId) {
-        const assignId = window.currentActiveExamId;
+    if (
+        !document.fullscreenElement &&
+        window.currentActiveExamId
+    ) {
+        const assignId =
+            window.currentActiveExamId;
 
-        // Xóa trạng thái trước để tránh sự kiện gọi lặp
-        window.currentActiveExamId = null;
+        // Fullscreen đã thoát sẵn nên không gọi exitFullscreen lần nữa
+        window.finishStudentExamMode(assignId, {
+            exitFullscreen: false
+        });
 
         alert(
             "⚠️ VI PHẠM BẢO MẬT: Bạn đã tự ý thoát chế độ toàn màn hình! " +
@@ -4352,13 +4530,18 @@ document.addEventListener('visibilitychange', () => {
     if (
         window.isSelectingFile ||
         window.isFinalizingExamSubmission
-    ) return;
+    ) {
+        return;
+    }
 
-    if (document.hidden && window.currentActiveExamId) {
-        const assignId = window.currentActiveExamId;
+    if (
+        document.hidden &&
+        window.currentActiveExamId
+    ) {
+        const assignId =
+            window.currentActiveExamId;
 
-        // Reset trước để tránh gọi lặp
-        window.currentActiveExamId = null;
+        window.finishStudentExamMode(assignId);
 
         alert(
             "⚠️ VI PHẠM BẢO MẬT: Bạn đã chuyển sang tab/cửa sổ khác! " +
@@ -4378,28 +4561,57 @@ window.addEventListener('blur', () => {
     if (
         window.isSelectingFile ||
         window.isFinalizingExamSubmission
-    ) return;
+    ) {
+        return;
+    }
 
-    // Ngoại lệ quan trọng: Không bắt lỗi nếu học sinh click vào Iframe (Video YouTube bài giảng)
-    if (document.activeElement && document.activeElement.tagName === 'IFRAME') return;
+    // Không bắt lỗi khi chọn iframe hợp lệ
+    if (
+        document.activeElement &&
+        document.activeElement.tagName === 'IFRAME'
+    ) {
+        return;
+    }
 
     if (window.currentActiveExamId) {
-        alert("⚠️ VI PHẠM BẢO MẬT: Bạn đã mở ứng dụng khác hoặc bấm phím hệ thống (Windows/Alt+Tab)! Hệ thống tự động thu bài.");
-        submitAssignment(window.currentActiveExamId, true, true);
-        window.currentActiveExamId = null; // Reset cờ
+        const assignId =
+            window.currentActiveExamId;
+
+        window.finishStudentExamMode(assignId);
+
+        alert(
+            "⚠️ VI PHẠM BẢO MẬT: Bạn đã mở ứng dụng khác " +
+            "hoặc bấm phím hệ thống (Windows/Alt+Tab)! " +
+            "Hệ thống tự động thu bài."
+        );
+
+        submitAssignment(assignId, true, true);
     }
 });
 
 // 2. Chặn gian lận bằng chế độ Hình-Trong-Hình (PiP)
-document.addEventListener('enterpictureinpicture', (e) => {
-    if (window.currentActiveExamId) {
-        // Tắt PiP ngay lập tức
-        document.exitPictureInPicture().catch(console.error);
-        alert("⚠️ VI PHẠM BẢO MẬT: Không được phép sử dụng Hình-trong-Hình (PiP) khi đang thi!");
-        submitAssignment(window.currentActiveExamId, true, true);
-        window.currentActiveExamId = null;
+document.addEventListener(
+    'enterpictureinpicture',
+    () => {
+        if (window.currentActiveExamId) {
+            const assignId =
+                window.currentActiveExamId;
+
+            document
+                .exitPictureInPicture()
+                .catch(console.error);
+
+            window.finishStudentExamMode(assignId);
+
+            alert(
+                "⚠️ VI PHẠM BẢO MẬT: Không được phép sử dụng " +
+                "Hình-trong-Hình (PiP) khi đang thi!"
+            );
+
+            submitAssignment(assignId, true, true);
+        }
     }
-});
+);
 
 // --- BỘ TẠO THÔNG BÁO NỔI KHÔNG LÀM MẤT FULLSCREEN ---
 window.showExamLockWarning = function (msg) {

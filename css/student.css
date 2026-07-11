@@ -154,3 +154,1834 @@ body:not(:has(#examWarningModal.active))
     opacity: 0 !important;
     pointer-events: none !important;
 }
+/* =========================================================
+   PET CỔ TÍCH 5 — KỲ LÂN BIỂN MỘNG MƠ
+   Hiệu ứng hoàn toàn mới: Thủy Quang Mộng Ảo
+   ========================================================= */
+
+.fairy-narwhal-bubble-magic {
+    position: relative;
+    z-index: 3;
+    width: 145px !important;
+    max-width: none;
+    transform-origin: 50% 62%;
+    user-select: none;
+    cursor: grab;
+    will-change: transform, filter;
+
+    animation:
+        fairyNarwhalFloat 3.6s ease-in-out infinite,
+        fairyNarwhalGlow 2.4s ease-in-out infinite alternate;
+}
+
+.fairy-narwhal-bubble-magic:active {
+    cursor: grabbing;
+}
+
+/* Hào quang nước nằm sau thú cưng */
+.fairy-narwhal-water-aura {
+    position: absolute;
+    left: 50%;
+    top: 52%;
+    width: 155px;
+    height: 118px;
+    z-index: 0;
+    pointer-events: none;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+
+    background:
+        radial-gradient(
+            circle at 38% 36%,
+            rgba(255, 255, 255, 0.7) 0 5%,
+            transparent 15%
+        ),
+        radial-gradient(
+            ellipse at center,
+            rgba(125, 211, 252, 0.28),
+            rgba(103, 232, 249, 0.12) 48%,
+            transparent 72%
+        );
+
+    border: 1px solid rgba(186, 230, 253, 0.55);
+
+    box-shadow:
+        0 0 18px rgba(125, 211, 252, 0.42),
+        inset 0 0 24px rgba(255, 255, 255, 0.36);
+
+    animation:
+        fairyNarwhalAura 2.8s ease-in-out infinite;
+}
+
+/* Bong bóng xung quanh thú cưng */
+.fairy-narwhal-orbit-bubble {
+    position: absolute;
+    z-index: 2;
+    width: var(--orbit-size);
+    height: var(--orbit-size);
+    pointer-events: none;
+    border-radius: 50%;
+
+    border: 1px solid rgba(255, 255, 255, 0.9);
+
+    background:
+        radial-gradient(
+            circle at 32% 28%,
+            #fff 0 14%,
+            rgba(186, 230, 253, 0.75) 22%,
+            rgba(103, 232, 249, 0.12) 67%,
+            transparent 72%
+        );
+
+    box-shadow:
+        0 0 7px rgba(125, 211, 252, 0.72);
+
+    animation:
+        fairyNarwhalOrbitBubble 2.7s ease-in-out infinite;
+
+    animation-delay: var(--orbit-delay);
+}
+
+/* Bong bóng sinh ra khi kéo */
+.fairy-narwhal-trail-bubble {
+    position: fixed;
+    z-index: 9975;
+    width: var(--bubble-size);
+    height: var(--bubble-size);
+    pointer-events: none;
+    border-radius: 50%;
+
+    border: 1px solid rgba(255, 255, 255, 0.92);
+
+    background:
+        radial-gradient(
+            circle at 30% 24%,
+            #fff 0 12%,
+            rgba(165, 243, 252, 0.62) 22%,
+            rgba(96, 165, 250, 0.14) 68%,
+            transparent 72%
+        );
+
+    box-shadow:
+        0 0 8px rgba(103, 232, 249, 0.75);
+
+    animation:
+        fairyNarwhalTrail 1.3s ease-out forwards;
+}
+
+/* Chuyển động khi nhấn */
+.fairy-narwhal-wish-cast {
+    animation:
+        fairyNarwhalWishCast
+        0.95s
+        cubic-bezier(.2, .8, .2, 1)
+        !important;
+}
+
+/* Tâm sóng nước */
+.fairy-narwhal-wish-wave {
+    position: fixed;
+    z-index: 9974;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+}
+
+.fairy-narwhal-wish-wave::before,
+.fairy-narwhal-wish-wave::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+
+    border:
+        3px solid rgba(103, 232, 249, 0.78);
+
+    box-shadow:
+        0 0 20px rgba(56, 189, 248, 0.68),
+        inset 0 0 18px rgba(255, 255, 255, 0.5);
+
+    transform:
+        translate(-50%, -50%) scale(0.25);
+
+    animation:
+        fairyNarwhalWaveRing 1.65s ease-out forwards;
+}
+
+.fairy-narwhal-wish-wave::after {
+    width: 82px;
+    height: 82px;
+    border-width: 2px;
+    animation-delay: 0.18s;
+}
+
+.fairy-narwhal-wish-bubble,
+.fairy-narwhal-wish-sparkle {
+    position: absolute;
+    left: 0;
+    top: 0;
+    pointer-events: none;
+}
+
+/* Bong bóng bung ra khi click */
+.fairy-narwhal-wish-bubble {
+    width: var(--wish-size);
+    height: var(--wish-size);
+
+    margin-left:
+        calc(var(--wish-size) / -2);
+
+    margin-top:
+        calc(var(--wish-size) / -2);
+
+    border-radius: 50%;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.96);
+
+    background:
+        radial-gradient(
+            circle at 30% 25%,
+            #fff 0 12%,
+            rgba(186, 230, 253, 0.76) 22%,
+            rgba(129, 140, 248, 0.1) 70%,
+            transparent 74%
+        );
+
+    box-shadow:
+        0 0 10px rgba(103, 232, 249, 0.72);
+
+    animation:
+        fairyNarwhalWishBurst
+        1.55s
+        cubic-bezier(.18, .72, .25, 1)
+        forwards;
+}
+
+/* Hạt sáng khi click */
+.fairy-narwhal-wish-sparkle {
+    color: #e0f2fe;
+    font-size: 15px;
+    line-height: 1;
+
+    text-shadow:
+        0 0 5px #fff,
+        0 0 12px rgba(103, 232, 249, 0.95),
+        0 0 20px rgba(129, 140, 248, 0.68);
+
+    animation:
+        fairyNarwhalSparkleBurst
+        1.35s
+        ease-out
+        forwards;
+}
+
+/* Khung thoại */
+.fairy-narwhal-dialogue {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 12px);
+    z-index: 5;
+    min-width: 210px;
+    padding: 9px 14px;
+    pointer-events: none;
+
+    transform:
+        translateX(-50%);
+
+    border:
+        1px solid rgba(186, 230, 253, 0.88);
+
+    border-radius:
+        18px 18px 18px 5px;
+
+    color: #075985;
+    background: rgba(240, 249, 255, 0.94);
+
+    box-shadow:
+        0 9px 26px rgba(14, 116, 144, 0.2);
+
+    font-size: 13px;
+    font-weight: 800;
+    text-align: center;
+    white-space: nowrap;
+
+    animation:
+        fairyNarwhalDialogue 2.1s ease forwards;
+}
+
+@keyframes fairyNarwhalFloat {
+    0%,
+    100% {
+        transform:
+            translateY(0) rotate(-1.5deg);
+    }
+
+    45% {
+        transform:
+            translateY(-9px) rotate(1.4deg);
+    }
+
+    70% {
+        transform:
+            translateY(-4px) rotate(0deg);
+    }
+}
+
+@keyframes fairyNarwhalGlow {
+    from {
+        filter:
+            drop-shadow(
+                0 7px 10px rgba(14, 116, 144, 0.3)
+            )
+            drop-shadow(
+                0 0 5px rgba(103, 232, 249, 0.34)
+            );
+    }
+
+    to {
+        filter:
+            drop-shadow(
+                0 10px 14px rgba(14, 116, 144, 0.35)
+            )
+            drop-shadow(
+                0 0 14px rgba(165, 243, 252, 0.8)
+            );
+    }
+}
+
+@keyframes fairyNarwhalAura {
+    0%,
+    100% {
+        transform:
+            translate(-50%, -50%) scale(0.94);
+
+        opacity: 0.62;
+    }
+
+    50% {
+        transform:
+            translate(-50%, -50%) scale(1.08);
+
+        opacity: 1;
+    }
+}
+
+@keyframes fairyNarwhalOrbitBubble {
+    0%,
+    100% {
+        transform:
+            translate(-50%, -50%) scale(0.7);
+
+        opacity: 0.28;
+    }
+
+    45% {
+        transform:
+            translate(-50%, calc(-50% - 10px))
+            scale(1.08);
+
+        opacity: 0.95;
+    }
+
+    70% {
+        transform:
+            translate(-50%, calc(-50% - 4px))
+            scale(0.88);
+
+        opacity: 0.62;
+    }
+}
+
+@keyframes fairyNarwhalTrail {
+    0% {
+        transform:
+            translate(-50%, -20%) scale(0.35);
+
+        opacity: 0.95;
+    }
+
+    55% {
+        opacity: 0.72;
+    }
+
+    100% {
+        transform:
+            translate(
+                calc(-50% + var(--bubble-drift)),
+                -76px
+            )
+            scale(1.25);
+
+        opacity: 0;
+    }
+}
+
+@keyframes fairyNarwhalWishCast {
+    0% {
+        transform:
+            scale(1) rotate(0deg);
+    }
+
+    32% {
+        transform:
+            scale(0.88) rotate(-5deg);
+    }
+
+    58% {
+        transform:
+            scale(1.18) rotate(4deg);
+
+        filter:
+            drop-shadow(
+                0 0 22px rgba(103, 232, 249, 1)
+            );
+    }
+
+    100% {
+        transform:
+            scale(1) rotate(0deg);
+    }
+}
+
+@keyframes fairyNarwhalWaveRing {
+    0% {
+        transform:
+            translate(-50%, -50%) scale(0.25);
+
+        opacity: 0.95;
+    }
+
+    70% {
+        opacity: 0.58;
+    }
+
+    100% {
+        transform:
+            translate(-50%, -50%) scale(4.2);
+
+        opacity: 0;
+    }
+}
+
+@keyframes fairyNarwhalWishBurst {
+    0% {
+        transform:
+            rotate(var(--wish-angle))
+            translateX(12px)
+            scale(0.25);
+
+        opacity: 0;
+    }
+
+    18% {
+        opacity: 1;
+    }
+
+    100% {
+        transform:
+            rotate(var(--wish-angle))
+            translateX(var(--wish-distance))
+            scale(1.18);
+
+        opacity: 0;
+    }
+}
+
+@keyframes fairyNarwhalSparkleBurst {
+    0% {
+        transform:
+            rotate(var(--wish-angle))
+            translateX(20px)
+            scale(0.2);
+
+        opacity: 0;
+    }
+
+    25% {
+        opacity: 1;
+    }
+
+    100% {
+        transform:
+            rotate(var(--wish-angle))
+            translateX(var(--wish-distance))
+            scale(1.35);
+
+        opacity: 0;
+    }
+}
+
+@keyframes fairyNarwhalDialogue {
+    0% {
+        transform:
+            translate(-50%, 8px) scale(0.85);
+
+        opacity: 0;
+    }
+
+    16%,
+    72% {
+        transform:
+            translate(-50%, 0) scale(1);
+
+        opacity: 1;
+    }
+
+    100% {
+        transform:
+            translate(-50%, -10px) scale(0.96);
+
+        opacity: 0;
+    }
+}
+/* =========================================================
+   GIAO DIỆN CỔ TÍCH — VỊNH NGỌC TRAI MỘNG
+   Phối hợp với pet Kỳ Lân Biển Mộng Mơ
+   Class kích hoạt: theme-fairy-sea-dream
+   ========================================================= */
+
+/* ---------- Màu sắc và phông chữ tổng thể ---------- */
+
+body.theme-fairy-sea-dream {
+    --fairy-sea-cyan: #42cfe5;
+    --fairy-sea-blue: #60a5fa;
+    --fairy-sea-violet: #a78bfa;
+    --fairy-sea-pink: #f0abfc;
+    --fairy-sea-coral: #fb7185;
+    --fairy-sea-pearl: #fffafe;
+    --fairy-sea-foam: #e8fbff;
+    --fairy-sea-deep: #164e63;
+    --fairy-sea-ink: #16415a;
+    --fairy-sea-border: rgba(103, 232, 249, 0.72);
+
+    min-height: 100vh;
+
+    color: var(--fairy-sea-ink);
+
+    font-family:
+        "Trebuchet MS",
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    background:
+        radial-gradient(
+            circle at 8% 12%,
+            rgba(255, 255, 255, 0.95) 0 2%,
+            transparent 10%
+        ),
+        radial-gradient(
+            circle at 88% 14%,
+            rgba(240, 171, 252, 0.27),
+            transparent 25%
+        ),
+        radial-gradient(
+            circle at 18% 82%,
+            rgba(66, 207, 229, 0.3),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 83% 76%,
+            rgba(167, 139, 250, 0.25),
+            transparent 32%
+        ),
+        linear-gradient(
+            145deg,
+            #dffcff 0%,
+            #fef7ff 38%,
+            #eee7ff 67%,
+            #d9f8ff 100%
+        ) !important;
+
+    background-attachment: fixed !important;
+}
+
+/* Tiêu đề kiểu truyện cổ tích dưới biển */
+
+body.theme-fairy-sea-dream
+:is(
+    h1,
+    h2,
+    h3,
+    .page-title,
+    .section-title,
+    .modal-title,
+    .student-name,
+    .item-name
+) {
+    color: #175875;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif !important;
+
+    letter-spacing: 0.035em;
+
+    text-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.95),
+        0 0 12px rgba(103, 232, 249, 0.32);
+}
+
+/* ---------- Thanh trên cùng ---------- */
+
+body.theme-fairy-sea-dream
+:is(
+    header,
+    .header,
+    .topbar,
+    .top-bar,
+    .student-header,
+    .main-header
+) {
+    background:
+        linear-gradient(
+            110deg,
+            rgba(255, 255, 255, 0.93),
+            rgba(224, 242, 254, 0.9) 45%,
+            rgba(243, 232, 255, 0.93)
+        ) !important;
+
+    border-bottom:
+        2px solid rgba(103, 232, 249, 0.65) !important;
+
+    box-shadow:
+        0 10px 30px rgba(14, 116, 144, 0.13),
+        inset 0 -3px 0 rgba(255, 255, 255, 0.65) !important;
+
+    backdrop-filter: blur(15px);
+}
+
+/* ---------- Sidebar hình dòng nước ---------- */
+
+body.theme-fairy-sea-dream
+:is(
+    .sidebar,
+    .student-sidebar,
+    #sidebar,
+    .side-menu
+) {
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    color: #164e63 !important;
+
+    background:
+        radial-gradient(
+            circle at 30% 8%,
+            rgba(255, 255, 255, 0.92),
+            transparent 18%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(207, 250, 254, 0.97),
+            rgba(224, 231, 255, 0.96) 53%,
+            rgba(250, 232, 255, 0.96)
+        ) !important;
+
+    border-right:
+        2px solid rgba(103, 232, 249, 0.7) !important;
+
+    border-radius:
+        0 42px 42px 0 /
+        0 28px 28px 0 !important;
+
+    box-shadow:
+        14px 0 34px rgba(14, 116, 144, 0.14),
+        inset -8px 0 20px rgba(255, 255, 255, 0.54) !important;
+}
+
+body.theme-fairy-sea-dream
+:is(
+    .sidebar,
+    .student-sidebar,
+    #sidebar,
+    .side-menu
+)::after {
+    content: "";
+
+    position: absolute;
+    right: -18px;
+    bottom: -28px;
+
+    width: 130px;
+    height: 130px;
+
+    pointer-events: none;
+
+    border:
+        2px solid rgba(255, 255, 255, 0.75);
+
+    border-radius:
+        44% 56% 63% 37% /
+        54% 42% 58% 46%;
+
+    background:
+        radial-gradient(
+            circle at 34% 28%,
+            rgba(255, 255, 255, 0.94),
+            rgba(103, 232, 249, 0.22) 30%,
+            rgba(167, 139, 250, 0.16) 67%,
+            transparent 70%
+        );
+
+    box-shadow:
+        0 0 26px rgba(103, 232, 249, 0.42);
+
+    animation:
+        fairySeaSidebarPearl 6s ease-in-out infinite;
+}
+
+/* Các mục trong sidebar */
+
+body.theme-fairy-sea-dream
+:is(
+    .nav-item,
+    .menu-item,
+    .sidebar-item,
+    .sidebar a,
+    .student-sidebar a
+) {
+    color: #155e75 !important;
+
+    border:
+        1px solid transparent !important;
+
+    border-radius:
+        22px 10px 22px 10px !important;
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease !important;
+}
+
+body.theme-fairy-sea-dream
+:is(
+    .nav-item,
+    .menu-item,
+    .sidebar-item,
+    .sidebar a,
+    .student-sidebar a
+):hover {
+    transform:
+        translateX(5px);
+
+    color: #5b21b6 !important;
+
+    background:
+        linear-gradient(
+            105deg,
+            rgba(255, 255, 255, 0.88),
+            rgba(207, 250, 254, 0.83),
+            rgba(243, 232, 255, 0.83)
+        ) !important;
+
+    border-color:
+        rgba(103, 232, 249, 0.7) !important;
+
+    box-shadow:
+        0 7px 18px rgba(14, 116, 144, 0.14) !important;
+}
+
+body.theme-fairy-sea-dream
+:is(
+    .nav-item.active,
+    .menu-item.active,
+    .sidebar-item.active,
+    .sidebar a.active
+) {
+    color: #ffffff !important;
+
+    background:
+        linear-gradient(
+            120deg,
+            #22c7dc,
+            #60a5fa 50%,
+            #a78bfa
+        ) !important;
+
+    border-color:
+        rgba(255, 255, 255, 0.86) !important;
+
+    box-shadow:
+        0 8px 24px rgba(96, 165, 250, 0.32),
+        inset 0 1px 0 rgba(255, 255, 255, 0.58) !important;
+}
+
+/* ---------- Các ô nội dung và thẻ ---------- */
+
+body.theme-fairy-sea-dream
+:is(
+    .card,
+    .panel,
+    .content-card,
+    .student-card,
+    .assignment-card,
+    .lesson-card,
+    .info-card,
+    .dashboard-card,
+    .submit-box,
+    .store-item-card
+) {
+    position: relative;
+
+    color: #16415a !important;
+
+    background:
+        radial-gradient(
+            circle at 10% 12%,
+            rgba(255, 255, 255, 0.98),
+            transparent 26%
+        ),
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.93),
+            rgba(224, 242, 254, 0.9) 58%,
+            rgba(250, 232, 255, 0.88)
+        ) !important;
+
+    border:
+        1px solid rgba(103, 232, 249, 0.67) !important;
+
+    border-radius:
+        32px 15px 34px 17px /
+        25px 32px 19px 35px !important;
+
+    box-shadow:
+        0 15px 35px rgba(14, 116, 144, 0.13),
+        inset 0 1px 0 rgba(255, 255, 255, 0.96),
+        inset 0 -5px 14px rgba(167, 139, 250, 0.08) !important;
+
+    backdrop-filter: blur(13px);
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease !important;
+}
+
+body.theme-fairy-sea-dream
+:is(
+    .card,
+    .panel,
+    .content-card,
+    .student-card,
+    .assignment-card,
+    .lesson-card,
+    .dashboard-card,
+    .store-item-card
+):hover {
+    transform:
+        translateY(-4px);
+
+    box-shadow:
+        0 20px 40px rgba(14, 116, 144, 0.18),
+        0 0 20px rgba(103, 232, 249, 0.2),
+        inset 0 1px 0 #ffffff !important;
+}
+
+/* ---------- Popup hình vỏ sò ---------- */
+
+body.theme-fairy-sea-dream
+.modal-overlay {
+    background:
+        rgba(14, 57, 78, 0.31) !important;
+
+    backdrop-filter:
+        blur(9px) saturate(1.15);
+}
+
+body.theme-fairy-sea-dream
+:is(
+    .modal-content,
+    .popup-content,
+    .dialog-content,
+    .modal-box,
+    .student-modal-content
+) {
+    position: relative;
+
+    overflow: hidden;
+
+    color: #16415a !important;
+
+    background:
+        radial-gradient(
+            ellipse at 50% -8%,
+            rgba(255, 255, 255, 1) 0 15%,
+            transparent 37%
+        ),
+        repeating-radial-gradient(
+            ellipse at 50% 0,
+            rgba(103, 232, 249, 0.1) 0 8px,
+            rgba(255, 255, 255, 0.08) 9px 17px
+        ),
+        linear-gradient(
+            150deg,
+            rgba(255, 255, 255, 0.98),
+            rgba(224, 242, 254, 0.97) 52%,
+            rgba(243, 232, 255, 0.96)
+        ) !important;
+
+    border:
+        2px solid rgba(165, 243, 252, 0.82) !important;
+
+    border-radius:
+        52px 52px 26px 26px /
+        42px 42px 32px 32px !important;
+
+    box-shadow:
+        0 26px 80px rgba(14, 116, 144, 0.25),
+        0 0 28px rgba(167, 139, 250, 0.2),
+        inset 0 2px 0 rgba(255, 255, 255, 1),
+        inset 0 -12px 32px rgba(103, 232, 249, 0.12) !important;
+}
+
+body.theme-fairy-sea-dream
+:is(
+    .modal-content,
+    .popup-content,
+    .dialog-content,
+    .modal-box,
+    .student-modal-content
+)::before {
+    content: "✦";
+
+    position: absolute;
+    top: 8px;
+    left: 50%;
+
+    z-index: 0;
+
+    width: 46px;
+    height: 46px;
+
+    display: grid;
+    place-items: center;
+
+    transform:
+        translateX(-50%);
+
+    pointer-events: none;
+
+    color: #ffffff;
+
+    font-size: 18px;
+
+    border:
+        2px solid rgba(255, 255, 255, 0.95);
+
+    border-radius:
+        50%;
+
+    background:
+        radial-gradient(
+            circle at 32% 25%,
+            #ffffff,
+            #cffafe 28%,
+            #a5b4fc 68%,
+            #c084fc
+        );
+
+    box-shadow:
+        0 0 18px rgba(103, 232, 249, 0.8),
+        0 0 28px rgba(192, 132, 252, 0.4);
+
+    animation:
+        fairySeaPopupPearl 3s ease-in-out infinite;
+}
+
+/* ---------- Ô nhập liệu ---------- */
+
+body.theme-fairy-sea-dream
+:is(
+    input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
+    textarea,
+    select,
+    .input-box,
+    .search-box
+) {
+    color: #16415a !important;
+
+    caret-color:
+        #7c3aed;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.96),
+            rgba(236, 254, 255, 0.92)
+        ) !important;
+
+    border:
+        1.5px solid rgba(103, 232, 249, 0.72) !important;
+
+    border-radius:
+        22px 22px 10px 22px !important;
+
+    box-shadow:
+        inset 0 2px 8px rgba(14, 116, 144, 0.08),
+        0 5px 14px rgba(14, 116, 144, 0.08) !important;
+
+    outline: none !important;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease !important;
+}
+
+body.theme-fairy-sea-dream
+:is(
+    input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
+    textarea,
+    select
+):focus {
+    transform:
+        translateY(-1px);
+
+    border-color:
+        #a78bfa !important;
+
+    box-shadow:
+        0 0 0 4px rgba(167, 139, 250, 0.14),
+        0 0 20px rgba(103, 232, 249, 0.23),
+        inset 0 2px 7px rgba(14, 116, 144, 0.07) !important;
+}
+
+body.theme-fairy-sea-dream
+:is(input, textarea)::placeholder {
+    color:
+        rgba(22, 78, 99, 0.53) !important;
+}
+
+/* ---------- Nút bấm dạng ngọc nước ---------- */
+
+body.theme-fairy-sea-dream
+:is(
+    button:not(.close):not(.modal-close),
+    .btn,
+    .button,
+    .btn-buy,
+    .btn-equip,
+    .btn-preview
+) {
+    color: #ffffff !important;
+
+    font-family:
+        "Trebuchet MS",
+        "Segoe UI",
+        sans-serif !important;
+
+    font-weight: 800;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.88) !important;
+
+    border-radius:
+        24px 10px 24px 10px !important;
+
+    background:
+        linear-gradient(
+            125deg,
+            #22c7dc,
+            #60a5fa 48%,
+            #a78bfa 78%,
+            #e879f9
+        ) !important;
+
+    box-shadow:
+        0 8px 19px rgba(96, 165, 250, 0.3),
+        inset 0 2px 0 rgba(255, 255, 255, 0.45),
+        inset 0 -3px 7px rgba(91, 33, 182, 0.17) !important;
+
+    transition:
+        transform 0.18s ease,
+        filter 0.18s ease,
+        box-shadow 0.18s ease !important;
+}
+
+body.theme-fairy-sea-dream
+:is(
+    button:not(.close):not(.modal-close),
+    .btn,
+    .button,
+    .btn-buy,
+    .btn-equip,
+    .btn-preview
+):not(:disabled):hover {
+    transform:
+        translateY(-3px) scale(1.015);
+
+    filter:
+        brightness(1.07);
+
+    box-shadow:
+        0 12px 26px rgba(96, 165, 250, 0.36),
+        0 0 17px rgba(103, 232, 249, 0.42),
+        inset 0 2px 0 rgba(255, 255, 255, 0.53) !important;
+}
+
+body.theme-fairy-sea-dream
+:is(
+    button,
+    .btn,
+    .button
+):disabled {
+    opacity: 0.58;
+    filter: grayscale(0.25);
+}
+
+/* Nút đóng popup */
+
+body.theme-fairy-sea-dream
+:is(
+    .close,
+    .modal-close,
+    .close-button,
+    .btn-close
+) {
+    color: #0e7490 !important;
+
+    border:
+        1px solid rgba(103, 232, 249, 0.65) !important;
+
+    border-radius:
+        50% !important;
+
+    background:
+        rgba(255, 255, 255, 0.82) !important;
+
+    box-shadow:
+        0 5px 14px rgba(14, 116, 144, 0.16) !important;
+}
+
+/* ---------- Thanh trượt range ---------- */
+
+body.theme-fairy-sea-dream
+input[type="range"] {
+    height: 12px;
+
+    appearance: none;
+    -webkit-appearance: none;
+
+    border:
+        1px solid rgba(103, 232, 249, 0.72);
+
+    border-radius:
+        999px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #67e8f9,
+            #60a5fa 42%,
+            #a78bfa 72%,
+            #f0abfc
+        ) !important;
+
+    box-shadow:
+        inset 0 2px 4px rgba(14, 116, 144, 0.18),
+        0 3px 10px rgba(96, 165, 250, 0.16);
+
+    cursor: pointer;
+}
+
+body.theme-fairy-sea-dream
+input[type="range"]::-webkit-slider-thumb {
+    width: 25px;
+    height: 25px;
+
+    appearance: none;
+    -webkit-appearance: none;
+
+    border:
+        2px solid #ffffff;
+
+    border-radius:
+        50%;
+
+    background:
+        radial-gradient(
+            circle at 32% 27%,
+            #ffffff 0 15%,
+            #cffafe 28%,
+            #a5b4fc 68%,
+            #c084fc 100%
+        );
+
+    box-shadow:
+        0 0 0 3px rgba(103, 232, 249, 0.2),
+        0 0 15px rgba(96, 165, 250, 0.62);
+
+    cursor: grab;
+}
+
+body.theme-fairy-sea-dream
+input[type="range"]::-moz-range-thumb {
+    width: 23px;
+    height: 23px;
+
+    border:
+        2px solid #ffffff;
+
+    border-radius:
+        50%;
+
+    background:
+        radial-gradient(
+            circle at 32% 27%,
+            #ffffff,
+            #cffafe 28%,
+            #a5b4fc 68%,
+            #c084fc
+        );
+
+    box-shadow:
+        0 0 15px rgba(96, 165, 250, 0.62);
+
+    cursor: grab;
+}
+
+/* ---------- Thanh cuộn ---------- */
+
+body.theme-fairy-sea-dream::-webkit-scrollbar,
+body.theme-fairy-sea-dream *::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+body.theme-fairy-sea-dream::-webkit-scrollbar-track,
+body.theme-fairy-sea-dream *::-webkit-scrollbar-track {
+    border-radius: 999px;
+
+    background:
+        rgba(224, 242, 254, 0.72);
+}
+
+body.theme-fairy-sea-dream::-webkit-scrollbar-thumb,
+body.theme-fairy-sea-dream *::-webkit-scrollbar-thumb {
+    border:
+        2px solid rgba(255, 255, 255, 0.86);
+
+    border-radius:
+        999px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #67e8f9,
+            #60a5fa,
+            #a78bfa,
+            #f0abfc
+        );
+}
+
+body.theme-fairy-sea-dream {
+    scrollbar-color:
+        #7dd3fc #e0f2fe;
+
+    scrollbar-width:
+        thin;
+}
+
+/* ---------- Bảng ---------- */
+
+body.theme-fairy-sea-dream
+table {
+    overflow: hidden;
+
+    border:
+        1px solid rgba(103, 232, 249, 0.65) !important;
+
+    border-radius:
+        24px 12px 24px 12px !important;
+
+    background:
+        rgba(255, 255, 255, 0.75) !important;
+
+    box-shadow:
+        0 10px 26px rgba(14, 116, 144, 0.1);
+}
+
+body.theme-fairy-sea-dream
+:is(th, .table-header) {
+    color: #ffffff !important;
+
+    background:
+        linear-gradient(
+            110deg,
+            #22c7dc,
+            #60a5fa,
+            #a78bfa
+        ) !important;
+}
+
+body.theme-fairy-sea-dream
+tbody tr:nth-child(even) {
+    background:
+        rgba(207, 250, 254, 0.36) !important;
+}
+
+body.theme-fairy-sea-dream
+tbody tr:hover {
+    background:
+        rgba(233, 213, 255, 0.42) !important;
+}
+
+/* ---------- Coin Widget ---------- */
+
+body.theme-fairy-sea-dream
+#coinWidget {
+    color: #164e63 !important;
+
+    border:
+        1px solid rgba(103, 232, 249, 0.75) !important;
+
+    border-radius:
+        26px 13px 26px 13px !important;
+
+    background:
+        linear-gradient(
+            130deg,
+            rgba(255, 255, 255, 0.94),
+            rgba(207, 250, 254, 0.92),
+            rgba(243, 232, 255, 0.91)
+        ) !important;
+
+    box-shadow:
+        0 10px 28px rgba(14, 116, 144, 0.17),
+        0 0 16px rgba(103, 232, 249, 0.21) !important;
+}
+
+/* ---------- Thẻ vật phẩm cửa hàng ---------- */
+
+body.theme-fairy-sea-dream
+.store-item-card {
+    overflow: hidden;
+}
+
+body.theme-fairy-sea-dream
+.store-item-card::after {
+    content: "";
+
+    position: absolute;
+    right: -20px;
+    bottom: -27px;
+
+    width: 83px;
+    height: 83px;
+
+    pointer-events: none;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.88);
+
+    border-radius:
+        50%;
+
+    background:
+        radial-gradient(
+            circle at 30% 25%,
+            rgba(255, 255, 255, 0.95),
+            rgba(165, 243, 252, 0.35) 30%,
+            rgba(167, 139, 250, 0.14) 68%,
+            transparent 72%
+        );
+
+    box-shadow:
+        0 0 17px rgba(103, 232, 249, 0.52);
+}
+
+body.theme-fairy-sea-dream
+.item-tag.tag-co-tich {
+    color: #ffffff !important;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.82) !important;
+
+    background:
+        linear-gradient(
+            110deg,
+            #22c7dc,
+            #818cf8,
+            #d946ef
+        ) !important;
+
+    box-shadow:
+        0 5px 14px rgba(129, 140, 248, 0.28) !important;
+}
+
+/* ---------- Đồng bộ với Kỳ Lân Biển Mộng Mơ ---------- */
+
+body.theme-fairy-sea-dream
+.fairy-narwhal-bubble-magic {
+    filter:
+        drop-shadow(
+            0 10px 13px rgba(14, 116, 144, 0.34)
+        )
+        drop-shadow(
+            0 0 14px rgba(103, 232, 249, 0.9)
+        )
+        drop-shadow(
+            0 0 23px rgba(192, 132, 252, 0.48)
+        );
+
+    animation:
+        fairyNarwhalFloat 3.6s ease-in-out infinite,
+        fairyNarwhalGlow 2.4s ease-in-out infinite alternate,
+        fairySeaNarwhalPulse 4s ease-in-out infinite;
+}
+
+body.theme-fairy-sea-dream
+.fairy-narwhal-water-aura {
+    background:
+        radial-gradient(
+            circle at 36% 30%,
+            rgba(255, 255, 255, 0.96) 0 5%,
+            transparent 14%
+        ),
+        radial-gradient(
+            ellipse at center,
+            rgba(103, 232, 249, 0.44),
+            rgba(129, 140, 248, 0.21) 49%,
+            rgba(240, 171, 252, 0.12) 65%,
+            transparent 74%
+        ) !important;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.82) !important;
+
+    box-shadow:
+        0 0 25px rgba(103, 232, 249, 0.65),
+        0 0 39px rgba(167, 139, 250, 0.24),
+        inset 0 0 27px rgba(255, 255, 255, 0.48) !important;
+}
+
+body.theme-fairy-sea-dream
+.fairy-narwhal-dialogue {
+    color: #155e75 !important;
+
+    border:
+        1px solid rgba(165, 243, 252, 0.92) !important;
+
+    border-radius:
+        24px 24px 24px 8px !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.97),
+            rgba(224, 242, 254, 0.96),
+            rgba(243, 232, 255, 0.94)
+        ) !important;
+
+    box-shadow:
+        0 10px 28px rgba(14, 116, 144, 0.2),
+        0 0 15px rgba(103, 232, 249, 0.28) !important;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif !important;
+}
+
+/* ---------- Animation riêng của giao diện ---------- */
+
+@keyframes fairySeaSidebarPearl {
+    0%,
+    100% {
+        transform:
+            translate(0, 0) rotate(-5deg) scale(0.95);
+
+        opacity: 0.65;
+    }
+
+    50% {
+        transform:
+            translate(-8px, -12px) rotate(7deg) scale(1.08);
+
+        opacity: 1;
+    }
+}
+
+@keyframes fairySeaPopupPearl {
+    0%,
+    100% {
+        transform:
+            translateX(-50%) translateY(0) scale(0.92);
+
+        filter:
+            brightness(1);
+    }
+
+    50% {
+        transform:
+            translateX(-50%) translateY(-3px) scale(1.07);
+
+        filter:
+            brightness(1.15);
+    }
+}
+
+@keyframes fairySeaNarwhalPulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.92;
+    }
+}
+
+/* ---------- Màn hình nhỏ ---------- */
+
+@media (max-width: 768px) {
+    body.theme-fairy-sea-dream
+    :is(
+        .sidebar,
+        .student-sidebar,
+        #sidebar,
+        .side-menu
+    ) {
+        border-radius:
+            0 26px 26px 0 /
+            0 20px 20px 0 !important;
+    }
+
+    body.theme-fairy-sea-dream
+    :is(
+        .modal-content,
+        .popup-content,
+        .dialog-content,
+        .modal-box,
+        .student-modal-content
+    ) {
+        border-radius:
+            34px 34px 20px 20px /
+            29px 29px 23px 23px !important;
+    }
+
+    body.theme-fairy-sea-dream
+    :is(
+        .card,
+        .panel,
+        .content-card,
+        .student-card,
+        .assignment-card,
+        .lesson-card,
+        .store-item-card
+    ) {
+        border-radius:
+            25px 13px 26px 14px /
+            21px 25px 17px 27px !important;
+    }
+}
+
+/* Người dùng hạn chế chuyển động */
+
+@media (prefers-reduced-motion: reduce) {
+    body.theme-fairy-sea-dream *,
+    body.theme-fairy-sea-dream *::before,
+    body.theme-fairy-sea-dream *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+    }
+}
+/* =========================================================
+   FIX SIDEBAR BỊ NẰM Ở ĐẦU TRANG KHI MỞ
+   ========================================================= */
+
+@media (max-width: 768px) {
+    body.theme-fairy-sea-dream
+    :is(
+        .sidebar,
+        .student-sidebar,
+        #sidebar,
+        .side-menu
+    ) {
+        position: fixed !important;
+
+        top: 0 !important;
+        left: 0;
+        bottom: 0 !important;
+
+        height: 100vh !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+
+        margin: 0 !important;
+
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+
+        z-index: 9998 !important;
+    }
+}
+/* Ẩn thanh cuộn sidebar nhưng vẫn cuộn được */
+body.theme-fairy-sea-dream
+:is(
+    .sidebar,
+    .student-sidebar,
+    #sidebar,
+    .side-menu
+) {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+body.theme-fairy-sea-dream
+:is(
+    .sidebar,
+    .student-sidebar,
+    #sidebar,
+    .side-menu
+)::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+/* =========================================================
+   HIỆU ỨNG CỔ TÍCH — BỌT NGỌC MỘNG
+   ID: effect_cotich_bot_ngoc_mong
+   Nhẹ, ít phần tử, không cản thao tác
+   ========================================================= */
+
+.effect-pearl-dream-bubble,
+.effect-pearl-dream-sparkle {
+    position: fixed;
+    left: 0;
+    bottom: -22px;
+
+    display: block;
+
+    pointer-events: none;
+    user-select: none;
+
+    will-change: transform, opacity;
+}
+
+/* Bong bóng ngọc trai nhỏ */
+
+.effect-pearl-dream-bubble {
+    width: var(--pearl-size);
+    height: var(--pearl-size);
+
+    z-index: 2;
+
+    border:
+        1.5px solid rgba(56, 189, 248, 0.9);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 28% 24%,
+            rgba(255, 255, 255, 1) 0 10%,
+            rgba(255, 255, 255, 0.82) 11% 17%,
+            rgba(165, 243, 252, 0.5) 27%,
+            rgba(96, 165, 250, 0.22) 58%,
+            rgba(167, 139, 250, 0.14) 72%,
+            transparent 75%
+        );
+
+    box-shadow:
+        inset -2px -2px 5px rgba(96, 165, 250, 0.22),
+        inset 2px 2px 4px rgba(255, 255, 255, 0.82),
+        0 0 6px rgba(56, 189, 248, 0.7),
+        0 0 11px rgba(167, 139, 250, 0.25);
+
+    filter:
+        saturate(1.25);
+
+    animation-name:
+        pearlDreamBubbleRise;
+
+    animation-timing-function:
+        linear;
+
+    animation-fill-mode:
+        forwards;
+}
+
+/* Hạt sáng thỉnh thoảng xuất hiện */
+
+.effect-pearl-dream-sparkle {
+    width: var(--pearl-size);
+    height: var(--pearl-size);
+
+    z-index: 2;
+
+    border-radius: 50%;
+
+    background:
+        #ffffff;
+
+    box-shadow:
+        0 0 4px rgba(255, 255, 255, 1),
+        0 0 9px rgba(34, 211, 238, 0.95),
+        0 0 15px rgba(129, 140, 248, 0.68);
+
+    clip-path:
+        polygon(
+            50% 0%,
+            61% 39%,
+            100% 50%,
+            61% 61%,
+            50% 100%,
+            39% 61%,
+            0% 50%,
+            39% 39%
+        );
+
+    animation-name:
+        pearlDreamSparkleRise;
+
+    animation-timing-function:
+        ease-out;
+
+    animation-fill-mode:
+        forwards;
+}
+
+/* Đồng bộ nhẹ khi dùng chung pet hoặc theme mới */
+
+.effect-pearl-dream-bubble.pearl-dream-combo {
+    border-color:
+        rgba(224, 242, 254, 0.92);
+
+    box-shadow:
+        0 0 6px rgba(103, 232, 249, 0.38),
+        0 0 10px rgba(167, 139, 250, 0.13);
+}
+
+.effect-pearl-dream-sparkle.pearl-dream-combo {
+    box-shadow:
+        0 0 4px rgba(255, 255, 255, 0.95),
+        0 0 9px rgba(103, 232, 249, 0.62),
+        0 0 13px rgba(192, 132, 252, 0.32);
+}
+
+/* Bong bóng bay từ dưới lên trên */
+
+@keyframes pearlDreamBubbleRise {
+    0% {
+        transform:
+            translate3d(0, 12px, 0)
+            scale(0.65);
+
+        opacity: 0;
+    }
+
+    8% {
+        opacity:
+            var(--pearl-opacity);
+    }
+
+    35% {
+        transform:
+            translate3d(
+                calc(var(--pearl-drift) * 0.35),
+                -36vh,
+                0
+            )
+            scale(0.88);
+
+        opacity:
+            var(--pearl-opacity);
+    }
+
+    68% {
+        transform:
+            translate3d(
+                calc(var(--pearl-drift) * -0.25),
+                -72vh,
+                0
+            )
+            scale(1);
+
+        opacity:
+            var(--pearl-opacity);
+    }
+
+    90% {
+        opacity:
+            calc(var(--pearl-opacity) * 0.72);
+    }
+
+    100% {
+        transform:
+            translate3d(
+                var(--pearl-drift),
+                -112vh,
+                0
+            )
+            scale(1.12);
+
+        opacity: 0;
+    }
+}
+
+/* Hạt sáng chỉ bay qua khoảng 70% màn hình */
+
+@keyframes pearlDreamSparkleRise {
+    0% {
+        transform:
+            translate3d(0, 0, 0)
+            rotate(0deg)
+            scale(0.4);
+
+        opacity: 0;
+    }
+
+    12% {
+        opacity:
+            var(--pearl-opacity);
+    }
+
+    55% {
+        transform:
+            translate3d(
+                calc(var(--pearl-drift) * 0.5),
+                -45vh,
+                0
+            )
+            rotate(55deg)
+            scale(1);
+
+        opacity:
+            var(--pearl-opacity);
+    }
+
+    100% {
+        transform:
+            translate3d(
+                var(--pearl-drift),
+                -82vh,
+                0
+            )
+            rotate(110deg)
+            scale(0.65);
+
+        opacity: 0;
+    }
+}
+
+/* Hạn chế chuyển động theo cài đặt hệ thống */
+
+@media (prefers-reduced-motion: reduce) {
+    .effect-pearl-dream-bubble,
+    .effect-pearl-dream-sparkle {
+        display: none !important;
+    }
+}
