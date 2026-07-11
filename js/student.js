@@ -315,12 +315,33 @@ window.onload = async function () {
                     if (settings[item.id].startDate !== undefined) item.startDate = settings[item.id].startDate;
                     if (settings[item.id].endDate !== undefined) item.endDate = settings[item.id].endDate;
                     item.isLocked = !!settings[item.id].isLocked; // ĐỒNG BỘ TRẠNG THÁI KHÓA VỀ HỌC SINH
+                    if (settings[item.id].musicUrl !== undefined) {
+                        item.musicUrl =
+                            settings[item.id].musicUrl;
+                    }
+
+                    if (settings[item.id].volume !== undefined) {
+                        item.volume =
+                            settings[item.id].volume;
+                    }
+
+                    if (settings[item.id].loop !== undefined) {
+                        item.loop =
+                            settings[item.id].loop;
+                    }
                 }
             });
         }
 
         if (typeof window.filterStore === 'function') {
             window.filterStore(window.currentStoreFilterType || 'all');
+        }
+
+        if (
+            typeof window.applyEquippedItems ===
+            'function'
+        ) {
+            window.applyEquippedItems();
         }
     });
 
@@ -569,9 +590,32 @@ window.onload = async function () {
         let updates = {};
 
         myInventory.forEach(item => {
-            if (item.isTrial && item.trialExpiry && now > item.trialExpiry) {
+            if (
+                item.isTrial &&
+                item.trialExpiry &&
+                now > item.trialExpiry
+            ) {
                 hasExpired = true;
-                updates[`student_inventory/${currentUser.username}/${item.id}`] = null; // Xóa khỏi kho đồ
+
+                // Nếu nhạc dùng thử đang được trang bị thì dừng ngay
+                if (item.isEquipped) {
+                    const itemDef = StoreConfig.items.find(
+                        storeItem => storeItem.id === item.id
+                    );
+
+                    if (
+                        itemDef &&
+                        itemDef.type === 'music' &&
+                        typeof MusicManager !== 'undefined'
+                    ) {
+                        MusicManager.stopMusic();
+                    }
+                }
+
+                // Xóa vật phẩm hết hạn khỏi kho
+                updates[
+                    `student_inventory/${currentUser.username}/${item.id}`
+                ] = null;
             }
         });
 
@@ -688,10 +732,10 @@ function getEmbedHTML(url) {
     if (videoId) {
         let embedUrl = `https://www.youtube.com/embed/${videoId}`;
         // Thêm margin-bottom: 20px
-        return `<div class="video-wrapper" style="margin-bottom: 20px;"><iframe width="100%" height="315" src="${embedUrl}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe></div>`;
+        return `<div class="video-wrapper" style="margin-bottom: 20px;"><iframe width="100%" height="315" src="${embedUrl}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" loading="lazy"></iframe></div>`;
     }
     // Thêm margin-bottom: 20px
-    return `<div class="video-wrapper" style="margin-bottom: 20px;"><iframe width="100%" height="315" src="${url}" frameborder="0" allowfullscreen loading="lazy"></iframe></div>`;
+    return `<div class="video-wrapper" style="margin-bottom: 20px;"><iframe width="100%" height="315" src="${url}" frameborder="0" allow="fullscreen" loading="lazy"></iframe></div>`;
 }
 
 let assignmentTimers = [];
@@ -2845,7 +2889,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // ========================================================
 
 let studentOwnedItems = [];
-let studentEquippedItems = { theme: 'default', effect: '', pet: '' };
+let studentEquippedItems = { theme: 'default', effect: '', pet: '', music: '' };
 let trialItemsList = [];
 window.currentStoreFilterType = 'all';
 
@@ -2949,7 +2993,7 @@ window.filterStore = function (type) {
 // 2. Render Cửa hàng & Kiểm tra thời hạn dùng thử 
 window.loadStoreItems = async function () {
     studentOwnedItems = ['theme_default'];
-    studentEquippedItems = { theme: 'default', effect: '', pet: '' };
+    studentEquippedItems = { theme: 'default', effect: '', pet: '', music: '' };
     trialItemsList = [];
 
     const now = Date.now();
@@ -2963,13 +3007,35 @@ window.loadStoreItems = async function () {
                 updates[`student_inventory/${currentUser.username}/${item.id}`] = null;
 
                 if (item.isEquipped) {
-                    const itemDef = StoreConfig.items.find(i => i.id === item.id);
+                    const itemDef = StoreConfig.items.find(
+                        i => i.id === item.id
+                    );
+
                     if (itemDef) {
-                        if (itemDef.type === 'theme') ThemeManager.applyTheme('default');
-                        if (itemDef.type === 'effect') EffectManager.clearEffects();
+                        if (itemDef.type === 'theme') {
+                            ThemeManager.applyTheme('default');
+                        }
+
+                        if (itemDef.type === 'effect') {
+                            EffectManager.clearEffects();
+                        }
+
                         if (itemDef.type === 'pet') {
-                            const petContainer = document.getElementById('virtual-pet-container');
-                            if (petContainer) petContainer.style.display = 'none';
+                            const petContainer =
+                                document.getElementById(
+                                    'virtual-pet-container'
+                                );
+
+                            if (petContainer) {
+                                petContainer.style.display = 'none';
+                            }
+                        }
+
+                        if (
+                            itemDef.type === 'music' &&
+                            typeof MusicManager !== 'undefined'
+                        ) {
+                            MusicManager.stopMusic();
                         }
                     }
                 }
@@ -3280,6 +3346,15 @@ window.processPayment = async function (itemId, basePrice, currentCoins) {
 
         itemAdded = true;
 
+        // Chỉ cho phép một vật phẩm cùng loại
+        // được trang bị tại một thời điểm
+        if (
+            typeof StoreManager.applyItem ===
+            'function'
+        ) {
+            await StoreManager.applyItem(itemId);
+        }
+
         const modal = document.getElementById('checkoutModal');
         if (modal) modal.remove();
 
@@ -3360,6 +3435,13 @@ StoreManager.unapplyItem = async function (itemId) {
             PetInteractionManager.loopInterval = null;
             PetInteractionManager.setSleepState(false);
         }
+    }
+
+    if (
+        item.type === 'music' &&
+        typeof MusicManager !== 'undefined'
+    ) {
+        MusicManager.stopMusic();
     }
 
     // 2. Lưu trạng thái "Đã tháo" lên Firebase
@@ -3491,6 +3573,8 @@ window.applyEquippedItems = function () {
         return;
     }
 
+    let equippedMusic = null;
+
     myInventory.forEach(invItem => {
         if (!invItem.isEquipped) return;
 
@@ -3506,6 +3590,12 @@ window.applyEquippedItems = function () {
             return;
         }
 
+        if (itemDef.type === 'music') {
+            equippedMusic = itemDef;
+            return;
+        }
+
+
         // Đang thi thì không được bật lại pet/effect
         if (mustSuspendVisualItems) return;
 
@@ -3515,6 +3605,16 @@ window.applyEquippedItems = function () {
             PetManager.spawnPet(itemDef);
         }
     });
+
+    if (typeof MusicManager !== 'undefined') {
+        if (equippedMusic) {
+            MusicManager.applyMusic(
+                equippedMusic
+            );
+        } else {
+            MusicManager.stopMusic();
+        }
+    }
 };
 
 window.renderStudentSurvey = function (surveyData) {
@@ -5218,7 +5318,7 @@ function getTrackedVideoHTML(url, assignId) {
 
         return `
         <div class="video-wrapper" style="margin-top: 15px; margin-bottom: 20px; border: 2px solid #667eea; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.8);">
-            <iframe id="yt-player-${assignId}" width="100%" height="315" src="${embedUrl}" frameborder="0" allowfullscreen></iframe>
+            <iframe id="yt-player-${assignId}" width="100%" height="315" src="${embedUrl}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; picture-in-picture; fullscreen"></iframe>
             <div style="text-align: center; margin-top: 10px; font-weight: bold; color: #059669; font-size: 1.1em;">
                 ⏱️ Mốc thời gian đã xem tới: <span id="watch-time-display-${assignId}">0 giây</span>
             </div>
@@ -5289,6 +5389,13 @@ window.initYouTubeTrackers = function (assignments, retryCount = 0) {
 
 window.onPlayerStateChange = function (event, assignId) {
     const player = event.target; // Lấy trực tiếp video đang phát
+
+    if (typeof MusicManager !== 'undefined') {
+        MusicManager.handleYouTubeVideoState(
+            `assignment-video:${assignId}`,
+            event.data
+        );
+    }
 
     if (event.data === YT.PlayerState.PLAYING) {
         if (watchTimers[assignId]) clearInterval(watchTimers[assignId]);

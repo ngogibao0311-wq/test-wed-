@@ -344,14 +344,16 @@ const StoreConfig = {
         },
         // Thêm vào cuối mảng StoreConfig.items
         {
-            id: 'music_chill_1',
-            name: 'Lofi Chill (Sắp ra mắt)',
+            id: 'music_lofi_01',
+            name: 'That gril',
             type: 'music',
-            price: 0,
-            isNonCoin: true, // Không cho mua bằng coin lúc này
-            isLocked: true,  // Khóa cứng từ phía hệ thống
-            tag: 'Đang phát triển',
-            value: '🎵'
+            price: 250,
+            isNonCoin: false,
+            tag: 'Thư giãn',
+            customIcon: '🎧',
+            musicUrl: 'https://drive.google.com/file/d/1zt8dky6NVVCXR0IgJ31BYM523bUKA21b/view?usp=sharing',
+            volume: 0.35,
+            loop: true
         },
         {
             id: 'pet_truyenthuyet_nyx',
