@@ -5313,8 +5313,16 @@ function getTrackedVideoHTML(url, assignId) {
 
     if (videoId) {
         // Tự động nhận diện nguồn đang chạy web để khai báo với YouTube
-        let hostUrl = window.location.protocol === 'file:' ? 'https://localhost' : window.location.origin;
-        let embedUrl = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&rel=0&origin=${hostUrl}`;
+        const originParam =
+            window.location.origin !== 'null'
+                ? `&origin=${encodeURIComponent(
+                    window.location.origin
+                )}`
+                : '';
+
+        let embedUrl =
+            `https://www.youtube.com/embed/${videoId}` +
+            `?enablejsapi=1&rel=0${originParam}`;
 
         return `
         <div class="video-wrapper" style="margin-top: 15px; margin-bottom: 20px; border: 2px solid #667eea; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.8);">

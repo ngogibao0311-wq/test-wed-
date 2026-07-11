@@ -358,7 +358,10 @@
                     playlist: this.loop
                         ? videoId
                         : undefined,
-                    origin: window.location.origin
+
+                    ...(window.location.origin !== 'null'
+                        ? { origin: window.location.origin }
+                        : {})
                 },
 
                 events: {
@@ -532,35 +535,48 @@
                 return;
             }
 
+            const userActivated =
+                this.userInteracted === true ||
+                (
+                    navigator.userActivation &&
+                    navigator.userActivation.hasBeenActive === true
+                );
+
+            // Chưa tương tác thì chưa gọi play() để tránh NotAllowedError
+            if (!userActivated) {
+                this.retryAfterUserClick();
+                return;
+            }
+
             try {
                 if (this.audioElement) {
                     await this.audioElement.play();
                 } else if (
                     this.youtubePlayer &&
-                    typeof this.youtubePlayer.playVideo ===
-                    'function'
+                    typeof this.youtubePlayer.playVideo === 'function'
                 ) {
                     this.youtubePlayer.playVideo();
                 } else if (
                     this.spotifyController &&
-                    typeof this.spotifyController.resume ===
-                    'function'
+                    typeof this.spotifyController.resume === 'function'
                 ) {
                     this.spotifyController.resume();
                 } else if (
                     this.spotifyController &&
-                    typeof this.spotifyController.play ===
-                    'function'
+                    typeof this.spotifyController.play === 'function'
                 ) {
                     this.spotifyController.play();
                 }
             } catch (error) {
-                console.warn(
-                    'Trình duyệt chặn autoplay:',
+                if (error && error.name === 'NotAllowedError') {
+                    this.retryAfterUserClick();
+                    return;
+                }
+
+                console.error(
+                    '[MusicManager] Lỗi phát nhạc:',
                     error
                 );
-
-                this.retryAfterUserClick();
             }
         }
 
@@ -591,14 +607,28 @@
 
             this.retryInstalled = true;
 
+            const eventNames = [
+                'pointerdown',
+                'click',
+                'keydown',
+                'touchstart'
+            ];
+
+            const cleanup = () => {
+                eventNames.forEach(eventName => {
+                    document.removeEventListener(
+                        eventName,
+                        retry,
+                        true
+                    );
+                });
+            };
+
             const retry = () => {
-                document.removeEventListener(
-                    'pointerdown',
-                    retry,
-                    true
-                );
+                cleanup();
 
                 this.retryInstalled = false;
+                this.userInteracted = true;
 
                 if (
                     this.shouldPlay &&
@@ -608,11 +638,13 @@
                 }
             };
 
-            document.addEventListener(
-                'pointerdown',
-                retry,
-                true
-            );
+            eventNames.forEach(eventName => {
+                document.addEventListener(
+                    eventName,
+                    retry,
+                    true
+                );
+            });
         }
 
         static stopMusic() {
@@ -806,6 +838,7 @@
     MusicManager.spotifyApi = null;
 
     MusicManager.retryInstalled = false;
+    MusicManager.userInteracted = false;
     MusicManager.videoEventsInstalled = false;
     MusicManager.videoSequence = 0;
 

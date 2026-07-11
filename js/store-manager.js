@@ -351,7 +351,7 @@ const StoreConfig = {
             isNonCoin: false,
             tag: 'Thư giãn',
             customIcon: '🎧',
-            musicUrl: 'https://drive.google.com/file/d/1zt8dky6NVVCXR0IgJ31BYM523bUKA21b/view?usp=sharing',
+            musicUrl: 'https://youtu.be/TWX6Eq8v46M?si=xOz5ZQcJmbKI1Paa',
             volume: 0.35,
             loop: true
         },
