@@ -509,97 +509,733 @@ class DailyLoginManager {
         document.body.insertAdjacentHTML('beforeend', modalHtml);
     }
 
-    static async claimReward(username, dayId, type, value, dateString, isTestMode) {
+    static async claimReward(
+        username,
+        clickedDayId,
+        _clientType,
+        _clientValue,
+        _clientDateString,
+        _clientTestMode
+    ) {
         const btn = document.querySelector('.dl-btn-claim');
-        btn.innerHTML = 'Đang xử lý...';
+
+        if (!btn || btn.disabled) return;
+
+        const originalButtonText = btn.innerHTML;
         btn.disabled = true;
+        btn.innerHTML = '⏳ Đang xác minh...';
 
-        try {
-            if (isTestMode) {
-                setTimeout(() => {
-                    document.getElementById('dl-student-modal').remove();
-                    alert(`🛠️ [THỬ NGHIỆM] Điểm danh thành công! (Thư sẽ được gửi vào Hộp thư nhưng đây là quà ảo)`);
-                }, 400);
-                return;
-            }
+        const TIME_ZONE = 'Asia/Ho_Chi_Minh';
+        const CLAIM_PREFIX = 'claimed_day_';
 
-            const currentWeekId = this.getWeekId();
+        let loginRef = null;
+        let claimCommitted = false;
+        let rewardGranted = false;
 
-            const loginRef = db.ref(`student_daily_login/${username}`);
-            const transactionResult = await loginRef.transaction((currentData) => {
-                if (!currentData || currentData.weekId !== currentWeekId) {
-                    return { weekId: currentWeekId, lastClaimDate: dateString, [`claimed_day_${dayId}`]: true };
+        let serverDateString = '';
+        let serverWeekId = '';
+        let serverDayId = 0;
+
+        /**
+         * Chuyển timestamp thành thông tin ngày tại Việt Nam.
+         */
+        const getVietnamDateInfo = timestamp => {
+            const parts = new Intl.DateTimeFormat('en-US', {
+                timeZone: TIME_ZONE,
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                weekday: 'short'
+            }).formatToParts(new Date(timestamp));
+
+            const values = {};
+
+            parts.forEach(part => {
+                if (part.type !== 'literal') {
+                    values[part.type] = part.value;
                 }
-                if (currentData[`claimed_day_${dayId}`]) {
-                    return undefined;
-                }
-                currentData.lastClaimDate = dateString;
-                currentData[`claimed_day_${dayId}`] = true;
-                return currentData;
             });
 
-            if (!transactionResult.committed) {
-                alert("❌ Thao tác quá nhanh hoặc bạn đã nhận quà ngày này rồi!");
-                const modal = document.getElementById('dl-student-modal');
-                if (modal) modal.remove();
+            const weekdayMap = {
+                Mon: 1,
+                Tue: 2,
+                Wed: 3,
+                Thu: 4,
+                Fri: 5,
+                Sat: 6,
+                Sun: 7
+            };
+
+            const dayId = weekdayMap[values.weekday];
+
+            if (!dayId) {
+                throw new Error('INVALID_SERVER_WEEKDAY');
+            }
+
+            const dateString =
+                `${values.year}-${values.month}-${values.day}`;
+
+            /*
+             * Dùng UTC để tính ngày thứ Hai.
+             * dateString đã được lấy theo múi giờ Việt Nam.
+             */
+            const currentDate = new Date(`${dateString}T00:00:00Z`);
+            currentDate.setUTCDate(
+                currentDate.getUTCDate() - (dayId - 1)
+            );
+
+            const mondayYear = currentDate.getUTCFullYear();
+            const mondayMonth = String(
+                currentDate.getUTCMonth() + 1
+            ).padStart(2, '0');
+            const mondayDate = String(
+                currentDate.getUTCDate()
+            ).padStart(2, '0');
+
+            return {
+                dayId,
+                dateString,
+                weekId: `${mondayYear}-${mondayMonth}-${mondayDate}`
+            };
+        };
+
+        /**
+         * Chuẩn hóa số lượng phần thưởng.
+         */
+        const normalizePositiveInteger = (
+            value,
+            min = 1,
+            max = 9999999
+        ) => {
+            const number = Number(value);
+
+            if (
+                !Number.isInteger(number) ||
+                number < min ||
+                number > max
+            ) {
+                throw new Error('INVALID_REWARD_VALUE');
+            }
+
+            return number;
+        };
+
+        /**
+         * Gỡ trạng thái điểm danh nếu trao quà thất bại.
+         */
+        const rollbackDailyLogin = async () => {
+            if (!loginRef || !claimCommitted || rewardGranted) {
                 return;
             }
 
-            // ĐOẠN CODE MỚI BỔ SUNG KIỂM TRA STORECONFIG
-            let discountTargets = ['all'];
-            
-            if (type === 'discount') {
-                // Kiểm tra xem StoreConfig đã tồn tại, có mảng items và đã load dữ liệu chưa
-                if (typeof StoreConfig !== 'undefined' && Array.isArray(StoreConfig.items) && StoreConfig.items.length > 0) {
-                    const validItems = StoreConfig.items.filter(item => typeof item.price === 'number' && item.price <= 500);
-                    if (validItems.length > 0) {
-                        discountTargets = validItems.map(item => item.id);
+            try {
+                await loginRef.transaction(currentData => {
+                    if (
+                        !currentData ||
+                        currentData.weekId !== serverWeekId
+                    ) {
+                        return currentData;
                     }
-                } else {
-                    // Chặn ngang quá trình nhận quà nếu Cửa hàng chưa load xong để bảo vệ logic lọc
-                    alert("⏳ Hệ thống dữ liệu vật phẩm đang được đồng bộ. Vui lòng đợi khoảng 2-3 giây rồi bấm Nhận Quà lại nhé!");
-                    btn.innerHTML = 'Nhận Quà';
-                    btn.disabled = false;
-                    return; // Dừng hoàn toàn hàm claimReward
+
+                    const claimKey =
+                        `${CLAIM_PREFIX}${serverDayId}`;
+
+                    if (currentData[claimKey] !== true) {
+                        return currentData;
+                    }
+
+                    delete currentData[claimKey];
+
+                    if (
+                        currentData.lastClaimDate === serverDateString
+                    ) {
+                        currentData.lastClaimDate = '';
+                    }
+
+                    if (
+                        currentData.rewardMeta &&
+                        currentData.rewardMeta[`day_${serverDayId}`]
+                    ) {
+                        delete currentData.rewardMeta[
+                            `day_${serverDayId}`
+                        ];
+                    }
+
+                    return currentData;
+                });
+
+                console.warn(
+                    '↩️ Đã rollback trạng thái điểm danh vì trao quà lỗi.'
+                );
+            } catch (rollbackError) {
+                console.error(
+                    '❌ Không thể rollback điểm danh:',
+                    rollbackError
+                );
+            }
+        };
+
+        try {
+            /* =====================================================
+               1. KIỂM TRA PHIÊN ĐĂNG NHẬP
+               ===================================================== */
+
+            const authUser = firebase.auth().currentUser;
+
+            if (!authUser) {
+                throw new Error('AUTH_REQUIRED');
+            }
+
+            const localUser = JSON.parse(
+                localStorage.getItem('currentUser') || 'null'
+            );
+
+            if (
+                !localUser ||
+                localUser.role !== 'student' ||
+                localUser.username !== username
+            ) {
+                throw new Error('LOCAL_USER_MISMATCH');
+            }
+
+            /*
+             * Đối chiếu trực tiếp user theo Firebase UID.
+             * Cấu trúc users của bạn đang dùng UID làm key.
+             */
+            const userSnapshot = await db
+                .ref(`users/${authUser.uid}`)
+                .once('value');
+
+            const databaseUser = userSnapshot.val();
+
+            if (
+                !databaseUser ||
+                databaseUser.role !== 'student' ||
+                databaseUser.username !== username
+            ) {
+                throw new Error('DATABASE_USER_MISMATCH');
+            }
+
+            /* =====================================================
+               2. LẤY THỜI GIAN FIREBASE
+               ===================================================== */
+
+            btn.innerHTML = '⏳ Đang kiểm tra thời gian...';
+
+            const offsetSnapshot = await db
+                .ref('.info/serverTimeOffset')
+                .once('value');
+
+            const serverOffset =
+                Number(offsetSnapshot.val()) || 0;
+
+            const serverTimestamp =
+                Date.now() + serverOffset;
+
+            const serverInfo =
+                getVietnamDateInfo(serverTimestamp);
+
+            serverDateString = serverInfo.dateString;
+            serverWeekId = serverInfo.weekId;
+            serverDayId = serverInfo.dayId;
+
+            if (Number(clickedDayId) !== serverDayId) {
+                throw new Error('STALE_DAILY_LOGIN_POPUP');
+            }
+
+            /* =====================================================
+               3. ĐỌC CẤU HÌNH THẬT TỪ FIREBASE
+               ===================================================== */
+
+            btn.innerHTML = '⏳ Đang kiểm tra phần thưởng...';
+
+            const configSnapshot = await db
+                .ref(
+                    `game_settings/daily_login_weeks/${serverWeekId}`
+                )
+                .once('value');
+
+            const config = configSnapshot.val();
+
+            if (!config) {
+                throw new Error('DAILY_LOGIN_CONFIG_NOT_FOUND');
+            }
+
+            /*
+             * Không sử dụng isTestMode truyền từ HTML,
+             * vì người dùng có thể sửa nó bằng Console.
+             */
+            if (config.isTestMode === true) {
+                document
+                    .getElementById('dl-student-modal')
+                    ?.remove();
+
+                alert(
+                    '🛠️ Chế độ thử nghiệm: hệ thống không ghi nhận và không trao quà thật.'
+                );
+
+                return;
+            }
+
+            const reward =
+                config[`day_${serverDayId}`];
+
+            if (
+                !reward ||
+                !reward.type ||
+                reward.value === undefined ||
+                reward.value === null
+            ) {
+                throw new Error('TODAY_REWARD_NOT_CONFIGURED');
+            }
+
+            const allowedRewardTypes = [
+                'coin',
+                'ticket',
+                'discount',
+                'item',
+                'money'
+            ];
+
+            if (!allowedRewardTypes.includes(reward.type)) {
+                throw new Error('INVALID_REWARD_TYPE');
+            }
+
+            /*
+             * Chuẩn bị dữ liệu trước khi đánh dấu đã nhận.
+             * Như vậy lỗi StoreConfig sẽ không làm mất lượt.
+             */
+            let preparedRewardValue = reward.value;
+            let discountTargets = [];
+
+            if (reward.type === 'coin') {
+                preparedRewardValue =
+                    normalizePositiveInteger(
+                        reward.value,
+                        1,
+                        9999999
+                    );
+            }
+
+            if (reward.type === 'ticket') {
+                preparedRewardValue =
+                    normalizePositiveInteger(
+                        reward.value,
+                        1,
+                        999
+                    );
+            }
+
+            if (reward.type === 'money') {
+                preparedRewardValue =
+                    normalizePositiveInteger(
+                        reward.value,
+                        1,
+                        9999999
+                    );
+            }
+
+            if (reward.type === 'discount') {
+                preparedRewardValue =
+                    normalizePositiveInteger(
+                        reward.value,
+                        1,
+                        100
+                    );
+
+                if (
+                    typeof StoreConfig === 'undefined' ||
+                    !Array.isArray(StoreConfig.items) ||
+                    StoreConfig.items.length === 0
+                ) {
+                    throw new Error('STORE_CONFIG_NOT_READY');
+                }
+
+                discountTargets = StoreConfig.items
+                    .filter(item =>
+                        typeof item.price === 'number' &&
+                        item.price <= 500
+                    )
+                    .map(item => item.id);
+
+                if (discountTargets.length === 0) {
+                    throw new Error(
+                        'NO_VALID_DISCOUNT_TARGETS'
+                    );
                 }
             }
 
-            // 1. Lấy độ lệch thời gian (mili-giây) giữa máy khách hiện tại và máy chủ Firebase
-            const offsetSnap = await db.ref(".info/serverTimeOffset").once("value");
-            const offset = offsetSnap.val() || 0;
-            
-            // 2. Tính toán thời gian thực của máy chủ (an toàn tuyệt đối trước việc đổi giờ thiết bị)
-            const trueServerTimeMs = Date.now() + offset;
-            const trueServerDate = new Date(trueServerTimeMs);
-            
-            // 3. Tính hạn sử dụng 7 ngày dựa trên thời gian thực
-            const expiryTimestamp = trueServerTimeMs + (7 * 24 * 60 * 60 * 1000);
-            const message = `Chào mừng em trở lại hệ thống!\\nĐây là phần quà đăng nhập ngày ${dayId} của tuần này. Nhớ duy trì điểm danh mỗi ngày nhé!`;
+            if (reward.type === 'item') {
+                preparedRewardValue =
+                    String(reward.value || '').trim();
 
-            const payload = {
-                message: message,
-                giftType: type,
-                giftValue: value,
-                // Dùng hằng số của Firebase để tự động ghi mốc thời gian chuẩn xác nhất lúc nhận request
-                timestamp: firebase.database.ServerValue.TIMESTAMP, 
-                // Định dạng ngày giờ dựa trên thời gian server đã đồng bộ ở trên
-                timeString: trueServerDate.toLocaleString('vi-VN'), 
-                expiry: expiryTimestamp,
-                discountExpiry: expiryTimestamp,
-                discountTargetItem: discountTargets,
-                source: 'daily_login' 
+                if (!preparedRewardValue) {
+                    throw new Error('INVALID_ITEM_ID');
+                }
+
+                if (
+                    typeof StoreConfig === 'undefined' ||
+                    !Array.isArray(StoreConfig.items)
+                ) {
+                    throw new Error('STORE_CONFIG_NOT_READY');
+                }
+
+                const itemExists = StoreConfig.items.some(
+                    item => item.id === preparedRewardValue
+                );
+
+                if (!itemExists) {
+                    throw new Error('STORE_ITEM_NOT_FOUND');
+                }
+            }
+
+            /* =====================================================
+               4. ĐÁNH DẤU ĐIỂM DANH BẰNG TRANSACTION
+               ===================================================== */
+
+            btn.innerHTML = '⏳ Đang ghi nhận điểm danh...';
+
+            loginRef = db.ref(
+                `student_daily_login/${username}`
+            );
+
+            const claimKey =
+                `${CLAIM_PREFIX}${serverDayId}`;
+
+            const claimResult =
+                await loginRef.transaction(currentData => {
+                    let updatedData =
+                        currentData &&
+                            typeof currentData === 'object'
+                            ? { ...currentData }
+                            : {};
+
+                    /*
+                     * Sang tuần mới thì reset lịch sử tuần cũ.
+                     */
+                    if (
+                        updatedData.weekId !== serverWeekId
+                    ) {
+                        updatedData = {
+                            weekId: serverWeekId
+                        };
+                    }
+
+                    /*
+                     * Đã nhận rồi thì abort transaction.
+                     */
+                    if (updatedData[claimKey] === true) {
+                        return;
+                    }
+
+                    updatedData.weekId = serverWeekId;
+                    updatedData.lastClaimDate =
+                        serverDateString;
+                    updatedData[claimKey] = true;
+
+                    updatedData.rewardMeta = {
+                        ...(updatedData.rewardMeta || {}),
+                        [`day_${serverDayId}`]: {
+                            type: reward.type,
+                            value: preparedRewardValue,
+                            status: 'processing',
+                            claimDate: serverDateString,
+                            startedAt:
+                                firebase.database.ServerValue
+                                    .TIMESTAMP
+                        }
+                    };
+
+                    return updatedData;
+                });
+
+            if (!claimResult.committed) {
+                throw new Error('REWARD_ALREADY_CLAIMED');
+            }
+
+            claimCommitted = true;
+
+            /* =====================================================
+               5. TRAO QUÀ TRỰC TIẾP
+               ===================================================== */
+
+            btn.innerHTML = '🎁 Đang trao phần thưởng...';
+
+            switch (reward.type) {
+                case 'coin': {
+                    const coinRef = db.ref(
+                        `student_coins/${username}`
+                    );
+
+                    const result =
+                        await coinRef.transaction(currentValue => {
+                            return (
+                                (Number(currentValue) || 0) +
+                                preparedRewardValue
+                            );
+                        });
+
+                    if (!result.committed) {
+                        throw new Error(
+                            'COIN_TRANSACTION_FAILED'
+                        );
+                    }
+
+                    break;
+                }
+
+                case 'ticket': {
+                    const ticketRef = db.ref(
+                        `student_bonus_tickets/${username}`
+                    );
+
+                    const result =
+                        await ticketRef.transaction(
+                            currentValue => {
+                                const newValue =
+                                    (Number(currentValue) || 0) +
+                                    preparedRewardValue;
+
+                                /*
+                                 * Rules của bạn giới hạn tối đa 999 vé.
+                                 */
+                                if (newValue > 999) {
+                                    return;
+                                }
+
+                                return newValue;
+                            }
+                        );
+
+                    if (!result.committed) {
+                        throw new Error(
+                            'TICKET_LIMIT_OR_TRANSACTION_FAILED'
+                        );
+                    }
+
+                    break;
+                }
+
+                case 'money': {
+                    const moneyRef = db.ref(
+                        `student_money_offset/${username}`
+                    );
+
+                    const result =
+                        await moneyRef.transaction(
+                            currentValue => {
+                                const newValue =
+                                    (Number(currentValue) || 0) +
+                                    preparedRewardValue;
+
+                                if (newValue > 9999999) {
+                                    return;
+                                }
+
+                                return newValue;
+                            }
+                        );
+
+                    if (!result.committed) {
+                        throw new Error(
+                            'MONEY_LIMIT_OR_TRANSACTION_FAILED'
+                        );
+                    }
+
+                    break;
+                }
+
+                case 'item': {
+                    await db
+                        .ref(
+                            `student_inventory/${username}/${preparedRewardValue}`
+                        )
+                        .update({
+                            id: preparedRewardValue,
+                            purchaseTime:
+                                firebase.database.ServerValue
+                                    .TIMESTAMP,
+                            source: 'daily_login',
+                            isTrial: null,
+                            trialExpiry: null,
+                            isEquipped: false
+                        });
+
+                    break;
+                }
+
+                case 'discount': {
+                    const expiryTimestamp =
+                        serverTimestamp +
+                        7 * 24 * 60 * 60 * 1000;
+
+                    await db
+                        .ref(`student_discounts/${username}`)
+                        .push({
+                            percent: preparedRewardValue,
+                            dateAcquired:
+                                firebase.database.ServerValue
+                                    .TIMESTAMP,
+                            isUsed: false,
+                            expiry: expiryTimestamp,
+                            targetItem: discountTargets,
+                            source: 'daily_login',
+                            weekId: serverWeekId,
+                            dayId: serverDayId
+                        });
+
+                    break;
+                }
+
+                default:
+                    throw new Error('UNSUPPORTED_REWARD_TYPE');
+            }
+
+            rewardGranted = true;
+
+            /* =====================================================
+               6. CẬP NHẬT TRẠNG THÁI HOÀN THÀNH
+               ===================================================== */
+
+            try {
+                await loginRef.update({
+                    [`rewardMeta/day_${serverDayId}/status`]:
+                        'completed',
+
+                    [`rewardMeta/day_${serverDayId}/completedAt`]:
+                        firebase.database.ServerValue.TIMESTAMP
+                });
+            } catch (metaError) {
+                /*
+                 * Phần thưởng đã trao thành công rồi.
+                 * Lỗi metadata không được rollback quà.
+                 */
+                console.warn(
+                    '⚠️ Quà đã trao nhưng không cập nhật được metadata:',
+                    metaError
+                );
+            }
+
+            document
+                .getElementById('dl-student-modal')
+                ?.remove();
+
+            let rewardText = '';
+
+            switch (reward.type) {
+                case 'coin':
+                    rewardText =
+                        `${preparedRewardValue.toLocaleString(
+                            'vi-VN'
+                        )} Coin`;
+                    break;
+
+                case 'ticket':
+                    rewardText =
+                        `${preparedRewardValue} vé quay`;
+                    break;
+
+                case 'money':
+                    rewardText =
+                        `${preparedRewardValue.toLocaleString(
+                            'vi-VN'
+                        )} đồng`;
+                    break;
+
+                case 'discount':
+                    rewardText =
+                        `phiếu giảm giá ${preparedRewardValue}%`;
+                    break;
+
+                case 'item': {
+                    const item = StoreConfig.items.find(
+                        storeItem =>
+                            storeItem.id === preparedRewardValue
+                    );
+
+                    rewardText = item
+                        ? item.name
+                        : 'một vật phẩm';
+                    break;
+                }
+            }
+
+            alert(
+                `🎉 Điểm danh thành công!\nBạn đã nhận được ${rewardText}.`
+            );
+        } catch (error) {
+            console.error('❌ Daily Login Error:', {
+                code: error.code,
+                message: error.message,
+                error
+            });
+
+            await rollbackDailyLogin();
+
+            const errorCode =
+                error.code || error.message || 'UNKNOWN_ERROR';
+
+            const errorMessages = {
+                AUTH_REQUIRED:
+                    'Phiên đăng nhập Firebase đã hết hạn. Vui lòng đăng nhập lại.',
+
+                LOCAL_USER_MISMATCH:
+                    'Thông tin tài khoản trên thiết bị không hợp lệ.',
+
+                DATABASE_USER_MISMATCH:
+                    'UID Firebase không khớp với tài khoản học sinh.',
+
+                STALE_DAILY_LOGIN_POPUP:
+                    'Thông báo điểm danh đã cũ hoặc ngày đã thay đổi. Hãy tải lại trang.',
+
+                DAILY_LOGIN_CONFIG_NOT_FOUND:
+                    'Tuần này chưa được giáo viên thiết lập quà điểm danh.',
+
+                TODAY_REWARD_NOT_CONFIGURED:
+                    'Hôm nay chưa được cấu hình phần thưởng.',
+
+                INVALID_REWARD_TYPE:
+                    'Loại phần thưởng không hợp lệ.',
+
+                INVALID_REWARD_VALUE:
+                    'Giá trị phần thưởng không hợp lệ.',
+
+                STORE_CONFIG_NOT_READY:
+                    'Dữ liệu cửa hàng chưa tải xong. Hãy đợi vài giây rồi thử lại.',
+
+                STORE_ITEM_NOT_FOUND:
+                    'Vật phẩm được cấu hình không tồn tại trong cửa hàng.',
+
+                NO_VALID_DISCOUNT_TARGETS:
+                    'Không có vật phẩm phù hợp để áp dụng phiếu giảm giá.',
+
+                REWARD_ALREADY_CLAIMED:
+                    'Bạn đã nhận phần thưởng hôm nay rồi.',
+
+                TICKET_LIMIT_OR_TRANSACTION_FAILED:
+                    'Không thể cộng vé vì số vé sẽ vượt giới hạn 999.',
+
+                MONEY_LIMIT_OR_TRANSACTION_FAILED:
+                    'Không thể cộng tiền vì vượt giới hạn hệ thống.',
+
+                PERMISSION_DENIED:
+                    'Firebase Rules không cho phép thực hiện thao tác này.'
             };
 
-            await db.ref(`inbox_messages/${username}`).push(payload);
+            const displayMessage =
+                errorMessages[errorCode] ||
+                errorMessages[error.message] ||
+                `Có lỗi xảy ra: ${errorCode}`;
 
-            document.getElementById('dl-student-modal').remove();
-            alert(`🎉 Điểm danh thành công! Phần thưởng đã được đóng gói và gửi vào Hộp thư đến 📬 của bạn.`);
+            alert(`❌ ${displayMessage}`);
 
-        } catch (error) {
-            console.error(error);
-            alert("❌ Có lỗi xảy ra khi nhận quà. Vui lòng thử lại!");
-            btn.innerHTML = 'Nhận Quà';
-            btn.disabled = false;
+            if (
+                btn &&
+                document.body.contains(btn)
+            ) {
+                btn.disabled = false;
+                btn.innerHTML = originalButtonText;
+            }
         }
     }
 

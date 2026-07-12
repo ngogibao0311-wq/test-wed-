@@ -3560,48 +3560,311 @@ async function initGiftDropdowns() {
     await updateGiftItemDropdown();
 }
 
-// BỔ SUNG: Hàm kiểm tra kho đồ và làm mờ vật phẩm đã sở hữu
-window.updateGiftItemDropdown = async function () {
-    const target = document.getElementById('giftTargetStudent').value;
-    const itemSelect = document.getElementById('giftValueItem');
-    const targetSelect = document.getElementById('giftDiscountTargetItem');
+// Kiểm tra vật phẩm học sinh đang sở hữu và vật phẩm đang chờ trong hộp thư
+window.getStudentItemGiftStatus = async function (username) {
+    const ownedItems = new Set();
+    const pendingItems = new Set();
 
-    if (!itemSelect || typeof StoreConfig === 'undefined') return;
-
-    let ownedItems = [];
-    if (target !== 'all') {
-        try {
-            const invSnap = await db.ref(`student_inventory/${target}`).once('value');
-            const inventory = invSnap.val();
-            if (inventory) ownedItems = Object.values(inventory).map(item => item.id);
-        } catch (error) { console.error("Lỗi lấy kho đồ học sinh:", error); }
+    if (!username || username === 'all') {
+        return { ownedItems, pendingItems };
     }
 
-    itemSelect.innerHTML = '';
-    let hasAvailableItem = false;
-    let targetOptionsHTML = '<option value="all">Tất cả vật phẩm (Mua bằng Coin)</option>';
+    try {
+        const [inventorySnap, inboxSnap] = await Promise.all([
+            db.ref(`student_inventory/${username}`).once('value'),
+            db.ref(`inbox_messages/${username}`).once('value')
+        ]);
 
-    StoreConfig.items.forEach(item => {
-        const isOwned = ownedItems.includes(item.id);
-        const disabledAttr = isOwned ? 'disabled style="color: #aaa; background: #eee; font-style: italic;"' : '';
-        const suffix = isOwned ? ' (HS đã có)' : '';
+        // Vật phẩm đã nằm trong kho
+        inventorySnap.forEach(child => {
+            const itemData = child.val() || {};
 
-        // Đổ dữ liệu cho nút "Tặng Vật phẩm"
-        itemSelect.innerHTML += `<option value="${item.id}" ${disabledAttr}>[${item.tag}] ${item.name}${suffix}</option>`;
+            // Lấy cả key và trường id để tương thích dữ liệu cũ
+            if (child.key) {
+                ownedItems.add(String(child.key));
+            }
 
-        // CHỈ LỌC CÁC VẬT PHẨM BÁN BẰNG COIN VÀO DANH SÁCH THẺ GIẢM GIÁ
-        const isEventItem = item.isNonCoin || (!item.price || item.price <= 0);
-        if (!isEventItem) {
-            targetOptionsHTML += `<option value="${item.id}">[${item.tag}] ${item.name}</option>`;
+            if (itemData.id) {
+                ownedItems.add(String(itemData.id));
+            }
+        });
+
+        // Vật phẩm đã được gửi nhưng học sinh chưa mở thư
+        const now = Date.now();
+
+        inboxSnap.forEach(child => {
+            const message = child.val() || {};
+
+            if (
+                message.giftType === 'item' &&
+                message.giftValue &&
+                (!message.expiry || message.expiry >= now)
+            ) {
+                pendingItems.add(String(message.giftValue));
+            }
+        });
+    } catch (error) {
+        console.error(
+            `Không kiểm tra được vật phẩm của ${username}:`,
+            error
+        );
+    }
+
+    return { ownedItems, pendingItems };
+};
+
+window.updateGiftItemDropdown = async function () {
+    const studentSelect =
+        document.getElementById('giftTargetStudent');
+
+    const itemSelect =
+        document.getElementById('giftValueItem');
+
+    const discountTargetSelect =
+        document.getElementById('giftDiscountTargetItem');
+
+    if (
+        !studentSelect ||
+        !itemSelect ||
+        typeof StoreConfig === 'undefined' ||
+        !Array.isArray(StoreConfig.items)
+    ) {
+        return;
+    }
+
+    /*
+     * Không dùng studentSelect.value vì đây là select multiple
+     * được điều khiển bằng popup tùy chỉnh.
+     */
+    let selectedTargets = [];
+
+    if (typeof window.getMultiSelectValues === 'function') {
+        selectedTargets =
+            window.getMultiSelectValues('giftTargetStudent');
+    } else {
+        selectedTargets = Array.from(
+            studentSelect.selectedOptions
+        ).map(option => option.value);
+    }
+
+    selectedTargets = selectedTargets.filter(Boolean);
+
+    const singleStudent =
+        selectedTargets.length === 1 &&
+            selectedTargets[0] !== 'all'
+            ? selectedTargets[0]
+            : null;
+
+    const previousItemValue = itemSelect.value;
+
+    let ownedItems = new Set();
+    let pendingItems = new Set();
+
+    if (singleStudent) {
+        itemSelect.disabled = true;
+        itemSelect.innerHTML =
+            '<option value="">⏳ Đang kiểm tra kho đồ...</option>';
+
+        const status =
+            await window.getStudentItemGiftStatus(singleStudent);
+
+        ownedItems = status.ownedItems;
+        pendingItems = status.pendingItems;
+    }
+
+    /*
+     * Sắp xếp:
+     * 1. Vật phẩm học sinh chưa có
+     * 2. Vật phẩm đang chờ nhận
+     * 3. Vật phẩm đã sở hữu
+     */
+    const sortedItems = [...StoreConfig.items].sort((a, b) => {
+        const getRank = item => {
+            const itemId = String(item.id);
+
+            if (ownedItems.has(itemId)) return 2;
+            if (pendingItems.has(itemId)) return 1;
+
+            return 0;
+        };
+
+        const rankDifference = getRank(a) - getRank(b);
+
+        if (rankDifference !== 0) {
+            return rankDifference;
         }
 
-        if (!isOwned) hasAvailableItem = true;
+        return String(a.name || '').localeCompare(
+            String(b.name || ''),
+            'vi-VN'
+        );
     });
 
-    if (targetSelect) targetSelect.innerHTML = targetOptionsHTML;
+    itemSelect.innerHTML = '';
 
-    if (!hasAvailableItem && StoreConfig.items.length > 0 && target !== 'all') {
-        itemSelect.innerHTML = `<option value="" disabled selected>-- HS đã sở hữu tất cả vật phẩm --</option>` + itemSelect.innerHTML;
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.selected = true;
+
+    placeholder.textContent = singleStudent
+        ? '-- Chọn vật phẩm học sinh chưa có --'
+        : '-- Chọn vật phẩm --';
+
+    itemSelect.appendChild(placeholder);
+
+    let availableCount = 0;
+    let ownedCount = 0;
+    let pendingCount = 0;
+
+    sortedItems.forEach(item => {
+        const itemId = String(item.id);
+        const option = document.createElement('option');
+
+        option.value = itemId;
+
+        const itemTag = item.tag
+            ? `[${item.tag}] `
+            : '';
+
+        if (singleStudent && ownedItems.has(itemId)) {
+            option.disabled = true;
+            option.textContent =
+                `🚫 ${itemTag}${item.name} — ĐÃ SỞ HỮU`;
+
+            option.style.color = '#dc2626';
+            option.style.background = '#fee2e2';
+
+            ownedCount++;
+        } else if (
+            singleStudent &&
+            pendingItems.has(itemId)
+        ) {
+            option.disabled = true;
+            option.textContent =
+                `📬 ${itemTag}${item.name} — ĐANG CHỜ NHẬN TRONG THƯ`;
+
+            option.style.color = '#d97706';
+            option.style.background = '#fef3c7';
+
+            pendingCount++;
+        } else {
+            option.textContent =
+                `✅ ${itemTag}${item.name} — CHƯA CÓ`;
+
+            option.style.color = '#059669';
+            availableCount++;
+        }
+
+        itemSelect.appendChild(option);
+    });
+
+    itemSelect.disabled = false;
+
+    /*
+     * Giữ lại món đang chọn nếu món đó vẫn hợp lệ.
+     */
+    if (previousItemValue) {
+        const oldOption = Array.from(itemSelect.options)
+            .find(option =>
+                option.value === previousItemValue &&
+                !option.disabled
+            );
+
+        if (oldOption) {
+            itemSelect.value = previousItemValue;
+        }
+    }
+
+    /*
+     * Hiển thị thông tin ngay dưới ô chọn vật phẩm.
+     */
+    let hint =
+        document.getElementById('giftItemOwnershipHint');
+
+    if (!hint) {
+        hint = document.createElement('div');
+        hint.id = 'giftItemOwnershipHint';
+
+        hint.style.cssText = `
+            margin-top: 8px;
+            padding: 9px 12px;
+            border-radius: 8px;
+            font-size: 0.85em;
+            line-height: 1.5;
+        `;
+
+        itemSelect.insertAdjacentElement('afterend', hint);
+    }
+
+    if (singleStudent) {
+        hint.style.display = 'block';
+        hint.style.background = '#f8fafc';
+        hint.style.border = '1px solid #cbd5e1';
+
+        hint.innerHTML = `
+            <strong>Kho đồ của ${singleStudent}:</strong><br>
+            <span style="color:#059669;">
+                ✅ ${availableCount} món chưa có
+            </span>
+            &nbsp;•&nbsp;
+            <span style="color:#dc2626;">
+                🚫 ${ownedCount} món đã sở hữu
+            </span>
+            &nbsp;•&nbsp;
+            <span style="color:#d97706;">
+                📬 ${pendingCount} món đang chờ nhận
+            </span>
+        `;
+
+        if (availableCount === 0) {
+            placeholder.textContent =
+                '-- Học sinh đã có hoặc đang chờ nhận tất cả vật phẩm --';
+        }
+    } else {
+        hint.style.display = 'block';
+        hint.style.background = '#eff6ff';
+        hint.style.border = '1px solid #bfdbfe';
+
+        hint.innerHTML = `
+            ℹ️ Chọn đúng <strong>một học sinh</strong>
+            để xem món nào học sinh đã sở hữu.
+            Khi gửi cho nhiều học sinh, hệ thống sẽ kiểm tra lại từng người.
+        `;
+    }
+
+    /*
+     * Tạo lại danh sách vật phẩm áp dụng thẻ giảm giá.
+     */
+    if (discountTargetSelect) {
+        const oldDiscountTargets = new Set(
+            Array.from(
+                discountTargetSelect.selectedOptions || []
+            ).map(option => option.value)
+        );
+
+        discountTargetSelect.innerHTML =
+            '<option value="all">Tất cả vật phẩm mua bằng Coin</option>';
+
+        StoreConfig.items.forEach(item => {
+            const isEventItem =
+                item.isNonCoin ||
+                typeof item.price !== 'number' ||
+                item.price <= 0;
+
+            if (isEventItem) return;
+
+            const option = document.createElement('option');
+
+            option.value = item.id;
+            option.textContent =
+                `${item.tag ? `[${item.tag}] ` : ''}${item.name}`;
+
+            if (oldDiscountTargets.has(String(item.id))) {
+                option.selected = true;
+            }
+
+            discountTargetSelect.appendChild(option);
+        });
     }
 };
 
@@ -3643,71 +3906,308 @@ window.toggleGiftInput = function () {
 };
 
 window.sendGiftMessage = async function () {
-    const targets = window.getMultiSelectValues('giftTargetStudent');
-    const msg = document.getElementById('giftMessage').value.trim();
-    const type = document.getElementById('giftType').value;
-    let value = '';
-    let discountExpiry = null;
-    let discountTargetItems = ['all']; // ĐỔI THÀNH MẢNG (ARRAY)
+    const sendButton =
+        document.querySelector(
+            '[onclick="sendGiftMessage()"]'
+        );
 
-    if (type === 'coin' || type === 'money' || type === 'ticket' || type === 'discount') {
-        value = parseInt(document.getElementById('giftValueNumber').value);
-        if (isNaN(value) || value <= 0) return alert("Vui lòng nhập số lượng hợp lệ (> 0)!");
+    const originalButtonText =
+        sendButton?.innerHTML || '';
 
-        if (type === 'discount') {
-            if (value < 10 || value > 100) return alert("Vui lòng nhập phần trăm giảm giá từ 10 đến 100!");
-            const expiryStr = document.getElementById('giftExpiryDate').value;
-            if (expiryStr) discountExpiry = new Date(expiryStr).getTime();
+    try {
+        if (sendButton) {
+            sendButton.disabled = true;
+            sendButton.innerHTML = '⏳ Đang kiểm tra...';
+        }
 
-            // XỬ LÝ LẤY NHIỀU VẬT PHẨM TỪ Ô SELECT MULTIPLE
-            const targetSelect = document.getElementById('giftDiscountTargetItem');
-            if (targetSelect && targetSelect.selectedOptions.length > 0) {
-                discountTargetItems = Array.from(targetSelect.selectedOptions).map(opt => opt.value);
-                // Nếu giáo viên có lỡ chọn cả 'all' và các món khác, ưu tiên 'all'
-                if (discountTargetItems.includes('all')) {
-                    discountTargetItems = ['all'];
+        let targets =
+            window.getMultiSelectValues('giftTargetStudent');
+
+        const message =
+            document.getElementById('giftMessage')
+                .value
+                .trim();
+
+        const type =
+            document.getElementById('giftType').value;
+
+        let value = '';
+        let discountExpiry = null;
+        let discountTargetItems = ['all'];
+
+        const users = await getDB('users');
+        const students =
+            users.filter(user => user.role === 'student');
+
+        /*
+         * Xác định danh sách username thật sự được gửi.
+         */
+        let recipients = [];
+
+        if (targets.includes('all')) {
+            recipients =
+                students.map(student => student.username);
+        } else {
+            recipients = [
+                ...new Set(targets.filter(Boolean))
+            ];
+        }
+
+        if (recipients.length === 0) {
+            alert('⚠️ Chưa chọn học sinh nhận quà!');
+            return;
+        }
+
+        if (
+            type === 'coin' ||
+            type === 'money' ||
+            type === 'ticket' ||
+            type === 'discount'
+        ) {
+            value = parseInt(
+                document.getElementById('giftValueNumber').value,
+                10
+            );
+
+            if (!Number.isFinite(value) || value <= 0) {
+                alert(
+                    'Vui lòng nhập số lượng hợp lệ lớn hơn 0!'
+                );
+                return;
+            }
+
+            if (type === 'discount') {
+                if (value < 10 || value > 100) {
+                    alert(
+                        'Phần trăm giảm giá phải từ 10 đến 100!'
+                    );
+                    return;
+                }
+
+                const expiryString =
+                    document.getElementById(
+                        'giftExpiryDate'
+                    )?.value;
+
+                if (expiryString) {
+                    discountExpiry =
+                        new Date(expiryString).getTime();
+                }
+
+                const discountSelect =
+                    document.getElementById(
+                        'giftDiscountTargetItem'
+                    );
+
+                if (
+                    discountSelect &&
+                    discountSelect.selectedOptions.length > 0
+                ) {
+                    discountTargetItems = Array.from(
+                        discountSelect.selectedOptions
+                    ).map(option => option.value);
+
+                    if (
+                        discountTargetItems.includes('all')
+                    ) {
+                        discountTargetItems = ['all'];
+                    }
                 }
             }
+        } else if (type === 'item') {
+            value =
+                document.getElementById(
+                    'giftValueItem'
+                ).value;
+
+            if (!value) {
+                alert('⚠️ Vui lòng chọn một vật phẩm hợp lệ!');
+                return;
+            }
+
+            const selectedItem =
+                StoreConfig.items.find(
+                    item => String(item.id) === String(value)
+                );
+
+            if (!selectedItem) {
+                alert(
+                    '❌ Vật phẩm không tồn tại trong cửa hàng!'
+                );
+                return;
+            }
+
+            if (sendButton) {
+                sendButton.innerHTML =
+                    '⏳ Đang kiểm tra kho đồ...';
+            }
+
+            const eligibleRecipients = [];
+            const skippedRecipients = [];
+
+            /*
+             * Kiểm tra lại ngay trước khi gửi để chống:
+             * - Tặng món học sinh đã có
+             * - Tặng món đang nằm trong thư chưa mở
+             */
+            for (const username of recipients) {
+                const status =
+                    await window.getStudentItemGiftStatus(
+                        username
+                    );
+
+                const itemId = String(value);
+
+                if (status.ownedItems.has(itemId)) {
+                    skippedRecipients.push({
+                        username,
+                        reason: 'đã sở hữu'
+                    });
+
+                    continue;
+                }
+
+                if (status.pendingItems.has(itemId)) {
+                    skippedRecipients.push({
+                        username,
+                        reason:
+                            'đã có món này trong hộp thư chưa mở'
+                    });
+
+                    continue;
+                }
+
+                eligibleRecipients.push(username);
+            }
+
+            if (eligibleRecipients.length === 0) {
+                const detail = skippedRecipients
+                    .map(item =>
+                        `• ${item.username}: ${item.reason}`
+                    )
+                    .join('\n');
+
+                alert(
+                    `❌ Không gửi được "${selectedItem.name}".\n\n` +
+                    `Tất cả học sinh được chọn đã có món này ` +
+                    `hoặc đang chờ nhận:\n${detail}`
+                );
+
+                await window.updateGiftItemDropdown();
+                return;
+            }
+
+            if (skippedRecipients.length > 0) {
+                const detail = skippedRecipients
+                    .map(item =>
+                        `• ${item.username}: ${item.reason}`
+                    )
+                    .join('\n');
+
+                const continueSending = confirm(
+                    `⚠️ Có ${skippedRecipients.length} học sinh ` +
+                    `sẽ bị bỏ qua để tránh tặng trùng:\n\n` +
+                    `${detail}\n\n` +
+                    `Tiếp tục gửi cho ` +
+                    `${eligibleRecipients.length} học sinh còn lại?`
+                );
+
+                if (!continueSending) {
+                    return;
+                }
+            }
+
+            recipients = eligibleRecipients;
         }
-    } else if (type === 'item') {
-        value = document.getElementById('giftValueItem').value;
-        if (!value) return alert("❌ Không thể gửi! Học sinh này đã sở hữu tất cả các vật phẩm hiện có.");
-    }
 
-    if (type === 'none' && !msg) return alert("Bạn phải nhập lời nhắn nếu không đính kèm quà tặng!");
+        if (type === 'none' && !message) {
+            alert(
+                'Bạn phải nhập lời nhắn nếu không đính kèm quà!'
+            );
+            return;
+        }
 
-    const expiryTimestamp = Date.now() + (5 * 24 * 60 * 60 * 1000);
-    const payload = {
-        message: msg,
-        giftType: type,
-        giftValue: value,
-        timestamp: Date.now(),
-        timeString: new Date().toLocaleString('vi-VN'),
-        expiry: expiryTimestamp
-    };
+        if (sendButton) {
+            sendButton.innerHTML = '⏳ Đang gửi...';
+        }
 
-    if (discountExpiry) payload.discountExpiry = discountExpiry;
-    if (type === 'discount') payload.discountTargetItem = discountTargetItems; // Đẩy mảng lên Firebase
+        const now = Date.now();
 
-    const users = await getDB('users');
-    const students = users.filter(u => u.role === 'student');
+        const payload = {
+            message,
+            giftType: type,
+            giftValue: value,
+            timestamp:
+                firebase.database.ServerValue.TIMESTAMP,
+            timeString:
+                new Date(now).toLocaleString('vi-VN'),
+            expiry:
+                now + 5 * 24 * 60 * 60 * 1000,
+            source: 'teacher_gift'
+        };
 
-    if (targets.includes('all')) {
-        for (let st of students) { await pushDB(`inbox_messages/${st.username}`, payload); }
-    } else {
-        for (let username of targets) {
-            await pushDB(`inbox_messages/${username}`, payload);
+        if (discountExpiry) {
+            payload.discountExpiry = discountExpiry;
+        }
+
+        if (type === 'discount') {
+            payload.discountTargetItem =
+                discountTargetItems;
+        }
+
+        for (const username of recipients) {
+            await pushDB(
+                `inbox_messages/${username}`,
+                payload
+            );
+        }
+
+        alert(
+            `💌 Đã gửi thư thành công cho ` +
+            `${recipients.length} học sinh!`
+        );
+
+        document.getElementById('giftMessage').value = '';
+        document.getElementById('giftValueNumber').value = '';
+
+        const itemSelect =
+            document.getElementById('giftValueItem');
+
+        if (itemSelect) {
+            itemSelect.value = '';
+        }
+
+        const expiryInput =
+            document.getElementById('giftExpiryDate');
+
+        if (expiryInput) {
+            expiryInput.value = '';
+        }
+
+        await window.updateGiftItemDropdown();
+
+        const toggleButton =
+            document.getElementById('giftToggle');
+
+        if (toggleButton) {
+            toggleButton.checked = false;
+        }
+
+        toggleGiftArea(false);
+    } catch (error) {
+        console.error('Lỗi gửi quà và lời nhắn:', error);
+
+        alert(
+            `❌ Không gửi được quà: ` +
+            `${error.message || error.code || 'Lỗi không xác định'}`
+        );
+    } finally {
+        if (sendButton) {
+            sendButton.disabled = false;
+            sendButton.innerHTML =
+                originalButtonText || 'Gửi Quà & Lời Nhắn';
         }
     }
-
-    alert("💌 Đã gửi thư và quà thành công!");
-    document.getElementById('giftMessage').value = '';
-    document.getElementById('giftValueNumber').value = '';
-    if (document.getElementById('giftExpiryDate')) document.getElementById('giftExpiryDate').value = '';
-
-    const toggleBtn = document.getElementById('giftToggle');
-    if (toggleBtn) toggleBtn.checked = false;
-    toggleGiftArea(false);
 };
 
 // Hàm điều khiển ẩn/hiện khu vực nhập quà tặng độc lập
@@ -4253,6 +4753,19 @@ function confirmCustomStudentSelect() {
         } else {
             displaySpan.innerHTML = `<span style="color:#2563eb; font-weight:600;">Đã chọn ${selectedCount} học sinh</span>`;
         }
+    }
+
+    // Báo cho các chức năng khác biết danh sách học sinh đã thay đổi
+    selectEl.dispatchEvent(
+        new Event('change', { bubbles: true })
+    );
+
+    // Cập nhật ngay danh sách vật phẩm khi đang chọn người nhận quà
+    if (
+        currentCustomSelectId === 'giftTargetStudent' &&
+        typeof window.updateGiftItemDropdown === 'function'
+    ) {
+        window.updateGiftItemDropdown();
     }
 
     closeCustomStudentSelect();

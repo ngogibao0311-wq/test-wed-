@@ -669,33 +669,7 @@ window.onload = async function () {
         }
     });
 
-    listenFirebase(db.ref('limited_events'), 'value', (snapshot) => {
-        const events = snapshot.val();
-        if (!events) return;
-
-        const now = Date.now();
-        let activeEvent = null;
-
-        for (let key in events) {
-            const ev = events[key];
-            const startTime = new Date(ev.startDate).getTime();
-            const endTime = new Date(ev.endDate).getTime();
-
-            // Kiểm tra xem thời điểm hiện tại có nằm trong lịch mở của sự kiện không
-            if (now >= startTime && now <= endTime && ev.isOpen) {
-                activeEvent = ev;
-                activeEvent.id = key;
-                break; // Tìm thấy 1 sự kiện đang mở thì bứt vòng lặp để hiển thị
-            }
-        }
-
-        if (activeEvent) {
-            showEventBanner(activeEvent);
-        } else {
-            const banner = document.getElementById('dynamicEventBanner');
-            if (banner) banner.style.display = 'none';
-        }
-    });
+    await LimitedEventAnnouncementManager.init();
 
     // Quét và cập nhật lại điều kiện cho các thẻ giảm giá CŨ của học sinh
     db.ref('student_discounts/' + currentUser.username).once('value', (snap) => {
@@ -4732,64 +4706,405 @@ window.showExamLockWarning = function (msg) {
 
 // ================= HỆ THỐNG XEM TRƯỚC PHẦN THƯỞNG DẠ HỘI =================
 window.showRoyalBallRewards = function () {
-    const listContainer = document.getElementById('royalRewardsList');
-    if (!listContainer) return;
+    const modal =
+        document.getElementById('royalRewardsModal');
 
-    let html = '';
-
-    // 1. Giao diện phần thưởng Coin (Mặc định)
-    html += `
-    <div style="background: rgba(246, 211, 101, 0.2); border: 1px dashed #f39c12; padding: 12px; border-radius: 12px; margin-bottom: 15px; display: flex; align-items: center; gap: 15px;">
-        <div style="font-size: 2.5em; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">💰</div>
-        <div>
-            <strong style="color: #d35400; font-size: 1.1em;">Phần thưởng Coin</strong>
-            <p style="margin: 5px 0 0 0; color: #555; font-size: 0.9em; line-height: 1.4;">Nhận ngẫu nhiên lượng lớn <strong>Coin</strong> nếu bạn không rơi ra vật phẩm.</p>
-        </div>
-    </div>`;
-
-    // 2. Tự động quét và lọc các vật phẩm Truyền Thuyết từ StoreConfig
-    if (typeof StoreConfig !== 'undefined' && StoreConfig.items) {
-        // Lọc tất cả vật phẩm có chứa tag "Truyền thuyết" (Không phân biệt hoa/thường)
-        const legendaryItems = StoreConfig.items.filter(i => i.tag && i.tag.toLowerCase().includes('truyền thuyết'));
-
-        if (legendaryItems.length > 0) {
-            html += `<h4 style="color: #c0392b; margin: 20px 0 10px 0; display: flex; align-items: center; gap: 8px;">🔥 Tủ đồ Truyền Thuyết:</h4>`;
-
-            legendaryItems.forEach(item => {
-                let typeIcon = '📦';
-                let typeName = 'Vật phẩm';
-
-                if (item.type === 'theme') { typeIcon = '🎨'; typeName = 'Giao diện'; }
-                else if (item.type === 'effect') { typeIcon = '✨'; typeName = 'Hiệu ứng'; }
-                else if (item.type === 'pet') { typeIcon = '🐾'; typeName = 'Thú cưng'; }
-
-                // FIX LỖI: Kiểm tra xem vật phẩm dùng ảnh hay icon để hiển thị chính xác
-                let displayVisual = '';
-                if (item.isIcon === false && item.value) {
-                    displayVisual = `<img src="${item.value}" style="width: 50px; height: 50px; object-fit: contain;">`;
-                } else {
-                    displayVisual = item.customIcon || item.icon || typeIcon;
-                }
-
-                html += `
-                <div style="background: rgba(192, 57, 43, 0.05); border: 1px solid rgba(192, 57, 43, 0.15); padding: 12px; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 15px; transition: 0.3s;" onmouseover="this.style.background='rgba(192, 57, 43, 0.1)'" onmouseout="this.style.background='rgba(192, 57, 43, 0.05)'">
-                    <div style="font-size: 2.2em; background: rgba(255,255,255,0.8); width: 60px; height: 60px; border-radius: 12px; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">${displayVisual}</div>
-                    <div>
-                        <strong style="color: #c0392b; font-size: 1.1em; display: block; margin-bottom: 4px;">${item.name}</strong>
-                        <p style="margin: 0 0 6px 0; color: #666; font-size: 0.85em;">Loại: <span style="font-weight: bold; color: #444;">${typeName}</span></p>
-                        <span style="display: inline-block; background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%); color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.75em; font-weight: 800; letter-spacing: 0.5px; box-shadow: 0 2px 5px rgba(255,8,68,0.3); text-transform: uppercase;">Truyền Thuyết</span>
-                    </div>
-                </div>`;
-            });
-        } else {
-            html += `<div style="background: rgba(0,0,0,0.05); padding: 15px; border-radius: 12px; text-align: center;">
-                <p style="color: #666; font-style: italic; margin: 0;">Hiện tại chưa có vật phẩm Truyền Thuyết nào được mở bán trên hệ thống.</p>
-            </div>`;
-        }
+    if (!modal) {
+        console.error(
+            'Không tìm thấy popup royalRewardsModal'
+        );
+        return;
     }
 
-    listContainer.innerHTML = html;
-    document.getElementById('royalRewardsModal').classList.add('active');
+    const modalContent =
+        modal.querySelector('.modal-content');
+
+    if (!modalContent) {
+        console.error(
+            'Không tìm thấy .modal-content trong royalRewardsModal'
+        );
+        return;
+    }
+
+    const escapeHTML = value => {
+        return String(value ?? '').replace(
+            /[&<>"']/g,
+            character => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            })[character]
+        );
+    };
+
+    const getSafeImageURL = value => {
+        let url = String(value || '')
+            .trim()
+            .replace(/\\/g, '/');
+
+        if (!url) return '';
+
+        // Chặn URL nguy hiểm
+        if (
+            /^javascript:/i.test(url) ||
+            /^vbscript:/i.test(url)
+        ) {
+            return '';
+        }
+
+        // Ảnh base64
+        if (/^data:image\//i.test(url)) {
+            return url;
+        }
+
+        // Link mạng hoặc blob
+        if (/^(https?:\/\/|blob:)/i.test(url)) {
+            return url;
+        }
+
+        /*
+         * Cho phép đường dẫn ảnh nội bộ:
+         * assets/...
+         * ./assets/...
+         * ../assets/...
+         * /assets/...
+         */
+        if (
+            url.startsWith('assets/') ||
+            url.startsWith('./') ||
+            url.startsWith('../') ||
+            url.startsWith('/')
+        ) {
+            return encodeURI(url);
+        }
+
+        return '';
+    };
+
+    const storeItems =
+        typeof StoreConfig !== 'undefined' &&
+            Array.isArray(StoreConfig.items)
+            ? StoreConfig.items
+            : [];
+
+    const legendaryItems = storeItems.filter(item =>
+        item &&
+        item.tag &&
+        String(item.tag)
+            .toLowerCase()
+            .includes('truyền thuyết')
+    );
+
+    const ownedItemIds = new Set();
+
+    if (
+        typeof myInventory !== 'undefined' &&
+        Array.isArray(myInventory)
+    ) {
+        myInventory.forEach(item => {
+            if (item?.id) {
+                ownedItemIds.add(String(item.id));
+            }
+        });
+    }
+
+    const settings =
+        typeof RoyalBallEvent !== 'undefined' &&
+            RoyalBallEvent.currentSettings
+            ? RoyalBallEvent.currentSettings
+            : {
+                probItem: 5,
+                probCoin: 95
+            };
+
+    const itemProbability =
+        Number(settings.probItem) || 5;
+
+    const coinProbability =
+        Number(settings.probCoin) || 95;
+
+    const itemCards = legendaryItems.map(item => {
+        const itemId = String(item.id || '');
+        const isOwned = ownedItemIds.has(itemId);
+
+        let typeIcon = '🎁';
+        let typeName = 'Vật phẩm';
+
+        if (item.type === 'theme') {
+            typeIcon = '🎨';
+            typeName = 'Giao diện';
+        } else if (item.type === 'effect') {
+            typeIcon = '✨';
+            typeName = 'Hiệu ứng';
+        } else if (item.type === 'pet') {
+            typeIcon = '🐾';
+            typeName = 'Thú cưng';
+        } else if (item.type === 'music') {
+            typeIcon = '🎵';
+            typeName = 'Nhạc nền';
+        } else if (item.type === 'avatar') {
+            typeIcon = '👑';
+            typeName = 'Ảnh đại diện';
+        }
+
+        const rawImageSource =
+            item.asset ||
+            item.image ||
+            item.imageUrl ||
+            item.thumbnail ||
+            item.value ||
+            '';
+
+        const shouldUseImage =
+            item.isIcon === false ||
+            item.type === 'pet';
+
+        const imageURL =
+            shouldUseImage
+                ? getSafeImageURL(rawImageSource)
+                : '';
+
+        const visual = imageURL
+            ? `
+                <img
+    src="${imageURL}"
+    alt="${escapeHTML(item.name)}"
+    class="royal-preview-pet-image"
+    loading="lazy"
+    draggable="false"
+    onerror="
+        console.warn(
+            'Không tải được ảnh vật phẩm:',
+            this.src
+        );
+
+        this.style.display='none';
+
+        if (this.nextElementSibling) {
+            this.nextElementSibling.style.display='grid';
+        }
+    "
+>
+
+                <span
+                    class="royal-preview-fallback"
+                    style="display:none;"
+                >
+                    ${typeIcon}
+                </span>
+            `
+            : `
+                <span class="royal-preview-icon">
+                    ${escapeHTML(
+                item.customIcon ||
+                item.icon ||
+                typeIcon
+            )
+            }
+                </span>
+            `;
+
+        return `
+            <article
+                class="
+                    royal-preview-item-card
+                    ${isOwned
+                ? 'royal-preview-owned'
+                : ''
+            }
+                "
+            >
+                <div class="royal-preview-item-shine"></div>
+
+                <div class="royal-preview-visual">
+                    ${visual}
+                </div>
+
+                <div class="royal-preview-item-info">
+                    <div class="royal-preview-item-top">
+                        <span class="royal-preview-type">
+                            ${typeIcon}
+                            ${escapeHTML(typeName)}
+                        </span>
+
+                        ${isOwned
+                ? `
+                                    <span
+                                        class="royal-preview-owned-badge"
+                                    >
+                                        ✓ Đã sở hữu
+                                    </span>
+                                `
+                : `
+                                    <span
+                                        class="royal-preview-new-badge"
+                                    >
+                                        Có thể nhận
+                                    </span>
+                                `
+            }
+                    </div>
+
+                    <h4>
+                        ${escapeHTML(item.name)}
+                    </h4>
+
+                    <div class="royal-preview-legendary-tag">
+                        <span>✦</span>
+                        Truyền Thuyết
+                        <span>✦</span>
+                    </div>
+                </div>
+            </article>
+        `;
+    }).join('');
+
+    modalContent.classList.add(
+        'royal-rewards-premium'
+    );
+
+    modalContent.innerHTML = `
+        <button
+            type="button"
+            class="royal-preview-close"
+            aria-label="Đóng"
+            onclick="
+                document
+                    .getElementById('royalRewardsModal')
+                    .classList.remove('active')
+            "
+        >
+            ×
+        </button>
+
+        <div class="royal-preview-background">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+
+        <header class="royal-preview-header">
+            <div class="royal-preview-crown">
+                ♛
+            </div>
+
+            <div class="royal-preview-kicker">
+                Kho báu Hoàng gia
+            </div>
+
+            <h2>
+                🎁 Phần Thưởng Dạ Hội
+            </h2>
+
+            <p>
+                Tham gia khiêu vũ để có cơ hội nhận
+                lượng lớn Coin hoặc các vật phẩm mang
+                nhãn <strong>Truyền Thuyết</strong>
+                cực hiếm dưới đây.
+            </p>
+        </header>
+
+        <section class="royal-preview-probability">
+            <div class="royal-preview-prob-card coin">
+                <span class="royal-preview-prob-icon">
+                    🪙
+                </span>
+
+                <div>
+                    <small>Cơ hội nhận Coin</small>
+                    <strong>
+                        ${coinProbability}%
+                    </strong>
+
+                    <p>
+                        Nhận ngẫu nhiên từ
+                        <b>100–1.000 Coin</b>
+                    </p>
+                </div>
+            </div>
+
+            <div class="royal-preview-prob-card item">
+                <span class="royal-preview-prob-icon">
+                    💎
+                </span>
+
+                <div>
+                    <small>Cơ hội vật phẩm</small>
+                    <strong>
+                        ${itemProbability}%
+                    </strong>
+
+                    <p>
+                        Vật phẩm Truyền Thuyết cực hiếm
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <div class="royal-preview-notice">
+            <span>♕</span>
+
+            <p>
+                Mỗi học sinh được tham gia
+                <strong>1 lần mỗi ngày</strong>.
+                Vật phẩm bị trùng sẽ được đổi thành
+                <strong>500 Coin</strong>.
+            </p>
+        </div>
+
+        <div class="royal-preview-section-title">
+            <span></span>
+
+            <h3>
+                Tủ đồ Truyền Thuyết
+            </h3>
+
+            <span></span>
+        </div>
+
+        <section
+            id="royalRewardsList"
+            class="royal-preview-list"
+        >
+            ${itemCards ||
+        `
+                    <div class="royal-preview-empty">
+                        <div>🔒</div>
+
+                        <strong>
+                            Kho báu đang được cập nhật
+                        </strong>
+
+                        <p>
+                            Hiện chưa có vật phẩm
+                            Truyền Thuyết nào trong hệ thống.
+                        </p>
+                    </div>
+                `
+        }
+        </section>
+
+        <footer class="royal-preview-footer">
+            <button
+                type="button"
+                onclick="
+                    document
+                        .getElementById('royalRewardsModal')
+                        .classList.remove('active')
+                "
+            >
+                <span>♛</span>
+                Đã xem phần thưởng
+            </button>
+        </footer>
+    `;
+
+    modal.classList.add('active');
 };
 
 // HÀM HIỂN THỊ THÔNG TIN CHI TIẾT THẺ GIẢM GIÁ ĐANG CHỌN
@@ -5643,71 +5958,627 @@ window.downloadStudentRoadmapPDF = async function () {
     html2pdf().set(opt).from(tempDiv).save();
 };
 
-function showEventBanner(ev) {
-    // sessionStorage giúp ghi nhớ: nếu học sinh tắt banner, nó sẽ không hiện lại 
-    // cho đến khi họ tắt trình duyệt và đăng nhập lại (phiên mới)
-    if (sessionStorage.getItem(`closed_banner_${ev.id}`)) return;
+const LimitedEventAnnouncementManager = {
+    events: {},
+    serverOffset: 0,
+    timer: null,
+    initialized: false,
 
-    const banner = document.getElementById('dynamicEventBanner');
-    document.getElementById('eventBannerTitle').innerText = ev.name;
-    document.getElementById('eventBannerDesc').innerText = ev.desc;
+    /*
+     * Chỉ ghi nhớ trong lần mở trang hiện tại.
+     * Tải lại trang hoặc đăng nhập lại sẽ tự xóa.
+     */
+    dismissedInstances: new Set(),
 
-    // Lưu lại class hoặc ID của HTML element chứa trò chơi đó (VD: 'royal-event-card')
-    banner.setAttribute('data-target-class', ev.targetClass);
-    banner.setAttribute('data-event-id', ev.id);
-    banner.style.display = 'block';
-}
+    /*
+     * Chuyển ngày giờ thành timestamp.
+     * Ngày không có giờ sẽ được hiểu theo giờ Việt Nam.
+     */
+    parseDateTime: function (
+        value,
+        isEnd = false
+    ) {
+        if (
+            typeof value === 'number' &&
+            Number.isFinite(value)
+        ) {
+            return value;
+        }
 
-// Học sinh bấm X để tắt banner
-window.closeEventBanner = function (e) {
-    e.stopPropagation(); // Tránh kích hoạt sự kiện click của thẻ div bên dưới
-    const banner = document.getElementById('dynamicEventBanner');
-    banner.style.display = 'none';
+        let text = String(value || '')
+            .trim()
+            .replace(/\//g, '-')
+            .replace(' ', 'T');
 
-    // Đánh dấu đã đóng trong phiên làm việc này
-    const evId = banner.getAttribute('data-event-id');
-    sessionStorage.setItem(`closed_banner_${evId}`, 'true');
+        if (!text) return NaN;
+
+        /*
+         * Dạng YYYY-MM-DD:
+         * đầu ngày hoặc cuối ngày Việt Nam.
+         */
+        if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+            text += isEnd
+                ? 'T23:59:59.999+07:00'
+                : 'T00:00:00.000+07:00';
+        } else if (
+            /*
+             * Dạng datetime-local chưa có múi giờ.
+             */
+            /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,3})?)?$/
+                .test(text) &&
+            !/(Z|[+-]\d{2}:\d{2})$/i.test(text)
+        ) {
+            text += '+07:00';
+        }
+
+        const timestamp = Date.parse(text);
+
+        return Number.isFinite(timestamp)
+            ? timestamp
+            : NaN;
+    },
+
+    getVietnamYear: function (timestamp) {
+        return Number(
+            new Intl.DateTimeFormat('en', {
+                timeZone: 'Asia/Ho_Chi_Minh',
+                year: 'numeric'
+            }).format(new Date(timestamp))
+        );
+    },
+
+    /*
+     * Sự kiện lặp hằng năm.
+     * Ví dụ Dạ Hội: 07-29 đến 08-01.
+     */
+    buildAnnualWindow: function (
+        eventData,
+        now
+    ) {
+        const startMonthDay = String(
+            eventData.startMonthDay || ''
+        ).trim();
+
+        const endMonthDay = String(
+            eventData.endMonthDay || ''
+        ).trim();
+
+        if (
+            !/^\d{2}-\d{2}$/.test(
+                startMonthDay
+            ) ||
+            !/^\d{2}-\d{2}$/.test(
+                endMonthDay
+            )
+        ) {
+            return null;
+        }
+
+        const currentYear =
+            this.getVietnamYear(now);
+
+        const candidates = [];
+
+        /*
+         * Kiểm tra năm trước, năm hiện tại
+         * và năm sau để hỗ trợ sự kiện qua năm mới.
+         */
+        for (
+            const startYear of [
+                currentYear - 1,
+                currentYear,
+                currentYear + 1
+            ]
+        ) {
+            const crossesYear =
+                endMonthDay < startMonthDay;
+
+            const endYear = crossesYear
+                ? startYear + 1
+                : startYear;
+
+            const start = this.parseDateTime(
+                `${startYear}-${startMonthDay}`,
+                false
+            );
+
+            const end = this.parseDateTime(
+                `${endYear}-${endMonthDay}`,
+                true
+            );
+
+            if (
+                Number.isFinite(start) &&
+                Number.isFinite(end)
+            ) {
+                candidates.push({
+                    start,
+                    end
+                });
+            }
+        }
+
+        return (
+            candidates.find(windowData =>
+                now >= windowData.start &&
+                now <= windowData.end
+            ) || null
+        );
+    },
+
+    getEventWindow: function (
+        eventData,
+        now
+    ) {
+        const scheduleType = String(
+            eventData.scheduleType || 'limited'
+        ).toLowerCase();
+
+        /*
+         * Sự kiện mở vô thời hạn:
+         * tuyệt đối không hiện thông báo khai mạc.
+         */
+        if (
+            eventData.isUnlimited === true ||
+            scheduleType === 'unlimited'
+        ) {
+            return null;
+        }
+
+        /*
+         * Sự kiện lặp hằng năm.
+         */
+        if (scheduleType === 'annual') {
+            return this.buildAnnualWindow(
+                eventData,
+                now
+            );
+        }
+
+        /*
+         * Sự kiện giới hạn một lần.
+         */
+        const start = this.parseDateTime(
+            eventData.startAt ??
+            eventData.startDate,
+            false
+        );
+
+        const end = this.parseDateTime(
+            eventData.endAt ??
+            eventData.endDate,
+            true
+        );
+
+        if (
+            !Number.isFinite(start) ||
+            !Number.isFinite(end) ||
+            end < start ||
+            now < start ||
+            now > end
+        ) {
+            return null;
+        }
+
+        return {
+            start,
+            end
+        };
+    },
+
+    evaluate: function () {
+        const banner =
+            document.getElementById(
+                'dynamicEventBanner'
+            );
+
+        if (!banner) return;
+
+        /*
+         * Không bật banner trong khi thi.
+         */
+        if (window.currentActiveExamId) {
+            banner.style.display = 'none';
+            return;
+        }
+
+        const now =
+            Date.now() + this.serverOffset;
+
+        const activeEvents = Object.entries(
+            this.events || {}
+        )
+            .map(([id, rawEvent]) => {
+                const eventData =
+                    rawEvent || {};
+
+                /*
+                 * Giáo viên khóa hoặc tắt thông báo.
+                 */
+                if (
+                    eventData.isOpen !== true ||
+                    eventData
+                        .announcementEnabled ===
+                    false
+                ) {
+                    return null;
+                }
+
+                const eventWindow =
+                    this.getEventWindow(
+                        eventData,
+                        now
+                    );
+
+                if (!eventWindow) {
+                    return null;
+                }
+
+                /*
+                 * Mỗi đợt mở có mã riêng.
+                 * Sự kiện mở lại năm sau sẽ được
+                 * thông báo lại.
+                 */
+                const instanceKey =
+                    `${id}_${eventWindow.start}`;
+
+                return {
+                    ...eventData,
+                    id,
+
+                    _startMs:
+                        eventWindow.start,
+
+                    _endMs:
+                        eventWindow.end,
+
+                    _instanceKey:
+                        instanceKey
+                };
+            })
+            .filter(Boolean)
+            .sort((a, b) => {
+                /*
+                 * Số priority lớn hơn hiện trước.
+                 */
+                const priorityDifference =
+                    (Number(b.priority) || 0) -
+                    (Number(a.priority) || 0);
+
+                return (
+                    priorityDifference ||
+                    a._startMs - b._startMs
+                );
+            });
+
+        /*
+         * Tìm sự kiện chưa bị đóng trong phiên này.
+         */
+        const nextEvent =
+            activeEvents.find(eventData =>
+                !this.dismissedInstances.has(
+                    eventData._instanceKey
+                )
+            );
+
+        if (!nextEvent) {
+            banner.style.display = 'none';
+
+            banner.removeAttribute(
+                'data-event-id'
+            );
+
+            banner.removeAttribute(
+                'data-event-instance'
+            );
+
+            return;
+        }
+
+        showEventBanner(nextEvent);
+    },
+
+    init: async function () {
+        if (this.initialized) return;
+
+        this.initialized = true;
+
+        /*
+         * Dùng giờ Firebase thay vì giờ máy học sinh.
+         */
+        try {
+            const offsetSnapshot = await db
+                .ref('.info/serverTimeOffset')
+                .once('value');
+
+            this.serverOffset =
+                Number(offsetSnapshot.val()) ||
+                0;
+        } catch (error) {
+            console.warn(
+                'Không lấy được thời gian ' +
+                'máy chủ cho sự kiện:',
+                error
+            );
+
+            this.serverOffset = 0;
+        }
+
+        /*
+         * Firebase thay đổi thì kiểm tra ngay.
+         */
+        listenFirebase(
+            db.ref('limited_events'),
+            'value',
+            snapshot => {
+                this.events =
+                    snapshot.val() || {};
+
+                this.evaluate();
+            }
+        );
+
+        /*
+         * Trang đang mở vẫn tự phát hiện
+         * đúng thời điểm sự kiện bắt đầu.
+         */
+        this.timer = setInterval(
+            () => this.evaluate(),
+            30000
+        );
+
+        /*
+         * Quay lại tab hoặc cửa sổ thì kiểm tra ngay.
+         */
+        window.addEventListener(
+            'focus',
+            () => this.evaluate()
+        );
+
+        document.addEventListener(
+            'visibilitychange',
+            () => {
+                if (!document.hidden) {
+                    this.evaluate();
+                }
+            }
+        );
+    }
 };
 
-// Khi học sinh nhấn vào Banner
-window.goToEventGame = function () {
-    // 1. Nếu đang thi thì chặn không cho chuyển tab
-    if (window.currentActiveExamId) {
-        window.showExamLockWarning("⚠️ Bạn đang làm bài thi, không thể tham gia trò chơi lúc này!");
+function showEventBanner(ev) {
+    const banner =
+        document.getElementById(
+            'dynamicEventBanner'
+        );
+
+    const title =
+        document.getElementById(
+            'eventBannerTitle'
+        );
+
+    const description =
+        document.getElementById(
+            'eventBannerDesc'
+        );
+
+    if (
+        !banner ||
+        !title ||
+        !description ||
+        !ev
+    ) {
         return;
     }
 
-    // 2. Chuyển sang tab Trò Chơi
-    const gameTabBtn = document.querySelector('.nav-item[onclick*="tab-game"]');
-    if (gameTabBtn) switchTab('tab-game', gameTabBtn);
+    const instanceKey =
+        ev._instanceKey || ev.id;
 
-    // 3. Tắt banner
-    const banner = document.getElementById('dynamicEventBanner');
+    if (
+        instanceKey &&
+        LimitedEventAnnouncementManager
+            .dismissedInstances
+            .has(instanceKey)
+    ) {
+        return;
+    }
+
+    title.textContent =
+        ev.name ||
+        'Sự kiện giới hạn đã mở';
+
+    description.textContent =
+        ev.desc ||
+        (
+            'Một sự kiện giới hạn thời gian ' +
+            'vừa chính thức mở cửa.'
+        );
+
+    banner.dataset.targetClass =
+        ev.targetClass || '';
+
+    banner.dataset.targetSelector =
+        ev.targetSelector || '';
+
+    banner.dataset.eventId =
+        ev.id || '';
+
+    banner.dataset.eventInstance =
+        instanceKey || '';
+
+    banner.style.display = 'block';
+}
+
+/*
+ * Học sinh bấm X.
+ * Sau đó tự chuyển sang thông báo sự kiện tiếp theo,
+ * nếu đang có nhiều sự kiện cùng hoạt động.
+ */
+window.closeEventBanner = function (event) {
+    if (
+        event &&
+        typeof event.stopPropagation ===
+        'function'
+    ) {
+        event.stopPropagation();
+    }
+
+    const banner =
+        document.getElementById(
+            'dynamicEventBanner'
+        );
+
+    if (!banner) return;
+
+    const instanceKey =
+        banner.dataset.eventInstance ||
+        banner.dataset.eventId;
+
+    if (instanceKey) {
+        LimitedEventAnnouncementManager
+            .dismissedInstances
+            .add(instanceKey);
+    }
+
     banner.style.display = 'none';
 
-    // 4. Tìm đến vùng chứa sự kiện để tạo hiệu ứng mũi tên trỏ vào
-    const targetClass = banner.getAttribute('data-target-class');
-    if (targetClass) {
-        // Đợi DOM chuyển tab xong (100ms) rồi mới cuộn và nháy sáng
-        setTimeout(() => {
-            const targetElement = document.querySelector(`.${targetClass}`) || document.getElementById(targetClass);
-            if (targetElement) {
-                // Xóa highlight cũ đi (nếu có)
-                document.querySelectorAll('.highlight-event').forEach(el => el.classList.remove('highlight-event'));
+    setTimeout(() => {
+        LimitedEventAnnouncementManager
+            .evaluate();
+    }, 100);
+};
 
-                // Thêm class tạo viền sáng và mũi tên
-                targetElement.classList.add('highlight-event');
+/*
+ * Học sinh bấm vào banner.
+ */
+window.goToEventGame = function () {
+    if (window.currentActiveExamId) {
+        window.showExamLockWarning(
+            '⚠️ Bạn đang làm bài thi, ' +
+            'không thể tham gia trò chơi lúc này!'
+        );
 
-                // Tự động cuộn màn hình tới chỗ trò chơi đó
-                targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-                // Tự động tắt hiệu ứng mũi tên sau 7 giây
-                setTimeout(() => {
-                    targetElement.classList.remove('highlight-event');
-                }, 7000);
-            }
-        }, 100);
+        return;
     }
+
+    const banner =
+        document.getElementById(
+            'dynamicEventBanner'
+        );
+
+    if (!banner) return;
+
+    /*
+     * Đánh dấu đã xem để timer 30 giây
+     * không làm banner hiện lại.
+     */
+    const instanceKey =
+        banner.dataset.eventInstance ||
+        banner.dataset.eventId;
+
+    if (instanceKey) {
+        LimitedEventAnnouncementManager
+            .dismissedInstances
+            .add(instanceKey);
+    }
+
+    const gameTabButton =
+        document.querySelector(
+            '.nav-item[onclick*="tab-game"]'
+        );
+
+    if (gameTabButton) {
+        switchTab(
+            'tab-game',
+            gameTabButton
+        );
+    }
+
+    banner.style.display = 'none';
+
+    const targetSelector =
+        banner.dataset.targetSelector;
+
+    const targetClass =
+        banner.dataset.targetClass;
+
+    setTimeout(() => {
+        let targetElement = null;
+
+        /*
+         * Cách mới: nhận selector đầy đủ.
+         * Ví dụ #royalEventCard.
+         */
+        if (targetSelector) {
+            try {
+                targetElement =
+                    document.querySelector(
+                        targetSelector
+                    );
+            } catch (error) {
+                console.warn(
+                    'targetSelector không hợp lệ:',
+                    targetSelector
+                );
+            }
+        }
+
+        /*
+         * Tương thích dữ liệu cũ dùng targetClass.
+         */
+        if (
+            !targetElement &&
+            targetClass
+        ) {
+            targetElement =
+                document.querySelector(
+                    `.${targetClass}`
+                ) ||
+                document.getElementById(
+                    targetClass
+                );
+        }
+
+        if (targetElement) {
+            document
+                .querySelectorAll(
+                    '.event-target-focus'
+                )
+                .forEach(element => {
+                    element.classList.remove(
+                        'event-target-focus'
+                    );
+                });
+
+            targetElement.classList.add(
+                'event-target-focus'
+            );
+
+            /*
+             * Cuộn tới sự kiện sau khi tab Trò chơi
+             * đã tính toán xong kích thước.
+             */
+            targetElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+                inline: 'nearest'
+            });
+
+            setTimeout(() => {
+                targetElement.classList.remove(
+                    'event-target-focus'
+                );
+            }, 7000);
+        }
+
+        /*
+         * Hiện sự kiện tiếp theo nếu có.
+         */
+        setTimeout(() => {
+            LimitedEventAnnouncementManager
+                .evaluate();
+        }, 700);
+    }, 350);
 };
 
 window.openHoiHoaChest = async function (chestKey) {

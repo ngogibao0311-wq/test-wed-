@@ -210,7 +210,8 @@
                             style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white; padding: 12px 25px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(246, 211, 101, 0.4);">Chơi
                             ngay ➡️</button>
                     </div>
-                    <div class="card royal-event-card"
+                    <div id="royalEventCard" class="card royal-event-card" data-event-state="loading"
+                        data-ribbon-text="ĐANG KIỂM TRA"
                         style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; margin-top: 20px;">
                         <div>
                             <h3
@@ -221,10 +222,12 @@
                                     title="Xem phần thưởng" onmouseover="this.style.background='rgba(192, 57, 43, 0.3)'"
                                     onmouseout="this.style.background='rgba(192, 57, 43, 0.15)'">?</button>
                             </h3>
-                            <p style="color: #444; font-size: 0.9em; margin: 0;">Sự kiện giới hạn! Khiêu vũ để nhận đồ
-                                Truyền thuyết hoặc lượng lớn Coin. (Chỉ mở 29/07 - 01/08)</p>
+                            <p id="royalEventDesc" style="color: #ddd; font-size: 0.9em; margin: 0;">
+                                Đang kiểm tra trạng thái Dạ Hội Hoàng Gia...
+                            </p>Sự kiện giới hạn! Khiêu vũ để nhận đồ
+                            Truyền thuyết hoặc lượng lớn Coin. (Chỉ mở 29/07 - 01/08)</p>
                         </div>
-                        <button onclick="RoyalBallEvent.openModal()"
+                        <button id="btnRoyalJoin" onclick="RoyalBallEvent.openModal()"
                             style="background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%); color: white; padding: 12px 25px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 8, 68, 0.4);">Tham
                             gia ngay ➡️</button>
                     </div>
@@ -332,7 +335,7 @@
     </div>
 
     <div id="studentInfoModal" class="modal-overlay">
-        <div class="modal-content form-container" style="max-width: 400px; text-align: center;">
+        <div class="modal-content form-container"
             <button class="close-btn" onclick="closeStudentInfoModal()">✖</button>
 
             <div class="avatar-upload-container"
@@ -791,7 +794,7 @@
 
     <!-- 3. Mã nền tảng -->
     <script src="js/common.js?v=3.0"></script>
-    
+
 
     <!-- 4. Các module tính năng -->
     <script src="js/daily-login.js?v=3.0"></script>

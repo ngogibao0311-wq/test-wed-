@@ -1,234 +1,4614 @@
-/* css/royal-ball.css */
+/* =========================================================
+   DẠ HỘI HOÀNG GIA – PREMIUM UI
+========================================================= */
 
-/* =========================================
-   1. NÚT SỰ KIỆN BÊN NGOÀI SẢNH
-========================================= */
+:root {
+    --royal-gold: #f8d878;
+    --royal-gold-strong: #ffd65c;
+    --royal-cream: #fff7d6;
+    --royal-purple: #9d5cff;
+    --royal-violet: #35104a;
+    --royal-dark: #08030e;
+    --royal-wine: #68133d;
+}
+
+/* ================= THẺ SỰ KIỆN BÊN NGOÀI ================= */
+
 .royal-event-card {
-    background: linear-gradient(135deg, #2c3e50 0%, #1a0033 100%);
-    border: 2px solid #ffd700;
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
     position: relative;
+    isolation: isolate;
     overflow: hidden;
+    min-height: 180px;
+    border: 1px solid rgba(255, 221, 126, 0.8) !important;
+    border-radius: 24px !important;
+
+    background:
+        radial-gradient(
+            circle at 15% 15%,
+            rgba(255, 224, 133, 0.24),
+            transparent 32%
+        ),
+        radial-gradient(
+            circle at 90% 90%,
+            rgba(157, 92, 255, 0.28),
+            transparent 42%
+        ),
+        linear-gradient(
+            135deg,
+            #251137 0%,
+            #10061f 48%,
+            #421541 100%
+        ) !important;
+
+    box-shadow:
+        0 20px 55px rgba(20, 3, 38, 0.55),
+        0 0 35px rgba(255, 216, 94, 0.16),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+
+    transition:
+        transform 0.35s ease,
+        box-shadow 0.35s ease;
+}
+
+.royal-event-card:hover {
+    transform: translateY(-7px) scale(1.012);
+
+    box-shadow:
+        0 30px 75px rgba(20, 3, 38, 0.75),
+        0 0 45px rgba(255, 216, 94, 0.3),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
 .royal-event-card::before {
-    content: '👑 MỞ CỬA';
+    content: attr(data-ribbon-text);
     position: absolute;
-    top: 15px;
-    right: -35px;
-    background: linear-gradient(90deg, #ff0844, #ffb199);
-    color: white;
-    font-size: 0.75em;
-    font-weight: 900;
-    padding: 5px 40px;
-    transform: rotate(45deg);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-    letter-spacing: 1px;
+    z-index: 5;
+    top: 18px;
+    right: -52px;
+    width: 200px;
+    padding: 8px 0;
+    transform: rotate(42deg);
+
+    color: #301a00;
+    background:
+        linear-gradient(
+            90deg,
+            #9a661a,
+            #ffe7a1 45%,
+            #e7b83f 72%,
+            #8d5a12
+        );
+
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.48);
+
+    font-size: 0.68rem;
+    font-weight: 950;
+    letter-spacing: 0.12em;
+    text-align: center;
 }
 
-/* =========================================
-   2. KHUNG MODAL CHÍNH ĐIỆN LÂU ĐÀI (Chống đè Theme)
-========================================= */
-#royalBallModal .modal-content {
-    background: transparent !important; /* Ép trong suốt để theme khác không đè màu lên ảnh */
+.royal-event-card::after {
+    content: "♛";
+    position: absolute;
+    left: -15px;
+    bottom: -38px;
+    z-index: -1;
+
+    color: rgba(255, 218, 112, 0.12);
+    font: 900 150px/1 Georgia, serif;
+
+    transform: rotate(-13deg);
+}
+
+/* ================= LỚP PHỦ MODAL ================= */
+
+#royalBallModal {
+    background:
+        radial-gradient(
+            circle at 50% 28%,
+            rgba(123, 51, 207, 0.24),
+            transparent 42%
+        ),
+        rgba(3, 1, 8, 0.87) !important;
+
+    backdrop-filter: blur(12px) saturate(1.2);
+}
+
+#royalBallModal.active .modal-content {
+    animation:
+        royalModalEntrance 0.65s
+        cubic-bezier(0.2, 0.85, 0.25, 1.12)
+        both;
+}
+
+#royalBallModal .modal-content,
+#royalBallModal .royal-premium-shell {
     position: relative;
-    border: 3px solid #ffd700;
-    border-radius: 15px;
-    box-shadow: 0 0 50px rgba(255, 215, 0, 0.4), inset 0 0 40px rgba(0,0,0,0.8);
-    overflow: hidden;
+    isolation: isolate;
+
+    box-sizing: border-box;
+    width: min(94vw, 790px) !important;
+    max-height: 92vh;
+
+    padding: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+
+    border: 1px solid rgba(255, 226, 143, 0.8) !important;
+    border-radius: 30px !important;
+
+    background:
+        radial-gradient(
+            circle at 50% 7%,
+            rgba(255, 220, 116, 0.17),
+            transparent 30%
+        ),
+        linear-gradient(
+            145deg,
+            #251036 0%,
+            #0a0312 54%,
+            #351239 100%
+        ) !important;
+
+    box-shadow:
+        0 0 0 6px rgba(255, 221, 126, 0.05),
+        0 0 0 11px rgba(94, 42, 112, 0.18),
+        0 35px 120px rgba(0, 0, 0, 0.8),
+        0 0 70px rgba(225, 178, 74, 0.2),
+        inset 0 0 65px rgba(0, 0, 0, 0.72) !important;
+
+    scrollbar-width: thin;
+    scrollbar-color:
+        rgba(248, 216, 120, 0.65)
+        rgba(255, 255, 255, 0.04);
 }
 
-/* Lớp phủ tối dần vào trung tâm và ÉP BACKGROUND ẢNH CỐ ĐỊNH Ở ĐÂY */
+/* Rèm nhung hai bên */
+
+#royalBallModal .modal-content::before,
+#royalBallModal .modal-content::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    z-index: 3;
+
+    width: clamp(48px, 11vw, 104px);
+    pointer-events: none;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(0, 0, 0, 0.45),
+            transparent 22%,
+            rgba(255, 255, 255, 0.08) 39%,
+            transparent 50%
+        ),
+        repeating-linear-gradient(
+            90deg,
+            #3c0a29 0 14px,
+            #68133d 14px 29px,
+            #3f0b2c 29px 43px
+        );
+
+    opacity: 0.84;
+}
+
+#royalBallModal .modal-content::before {
+    left: 0;
+
+    clip-path:
+        polygon(
+            0 0,
+            100% 0,
+            76% 25%,
+            93% 54%,
+            60% 100%,
+            0 100%
+        );
+}
+
+#royalBallModal .modal-content::after {
+    right: 0;
+    transform: scaleX(-1);
+
+    clip-path:
+        polygon(
+            0 0,
+            100% 0,
+            76% 25%,
+            93% 54%,
+            60% 100%,
+            0 100%
+        );
+}
+
+/* ================= NỀN ĐẠI SẢNH ================= */
+
 .castle-overlay {
     position: absolute;
     inset: 0;
-    background-color: #1a0033 !important;
-    background-image: 
-        radial-gradient(circle at center, rgba(30, 0, 50, 0.4) 0%, rgba(10, 0, 20, 0.95) 100%),
-        url('https://images.unsplash.com/photo-1574359411659-15573a27fd0c?q=80&w=800&auto=format&fit=crop') !important;
-    background-position: center !important;
-    background-size: cover !important;
-    background-repeat: no-repeat !important;
-    z-index: 1;
-    border-radius: inherit;
-}
+    z-index: 0;
 
-/* Hiệu ứng BỤI PHÉP THUẬT LƠ LỬNG */
-.castle-overlay::before, .castle-overlay::after {
-    content: '';
-    position: absolute;
-    width: 3px; height: 3px;
-    border-radius: 50%;
-    background: transparent;
-    z-index: 2;
+    overflow: hidden;
+    border-radius: inherit;
+
+    background:
+        linear-gradient(
+            180deg,
+            transparent 0 52%,
+            rgba(0, 0, 0, 0.54) 100%
+        ),
+        radial-gradient(
+            ellipse at 50% 24%,
+            rgba(255, 226, 147, 0.2),
+            transparent 28%
+        ),
+        radial-gradient(
+            circle at 50% 45%,
+            rgba(119, 58, 170, 0.28),
+            transparent 50%
+        ),
+        linear-gradient(
+            150deg,
+            #2b143f,
+            #090311 60%,
+            #260e2e
+        ) !important;
 }
 
 .castle-overlay::before {
-    box-shadow: 20px 50px #fff, 100px 120px #ffd700, 250px 80px #fff, 350px 200px #ffd700, 450px 40px #fff, 80px 250px #ffd700, 500px 280px #fff, 150px 300px #ffd700;
-    animation: floatDust 10s linear infinite;
+    content: "";
+    position: absolute;
+    left: 6%;
+    right: 6%;
+    bottom: 0;
+
+    height: 60%;
+    opacity: 0.32;
+
+    background:
+        repeating-linear-gradient(
+            90deg,
+            transparent 0 55px,
+            rgba(0, 0, 0, 0.75) 55px 68px
+        ),
+        linear-gradient(
+            180deg,
+            transparent 0 70%,
+            rgba(0, 0, 0, 0.85) 70%
+        );
+
+    clip-path:
+        polygon(
+            0 100%,
+            0 35%,
+            8% 20%,
+            15% 35%,
+            15% 12%,
+            22% 2%,
+            29% 12%,
+            29% 42%,
+            42% 42%,
+            42% 18%,
+            50% 4%,
+            58% 18%,
+            58% 42%,
+            71% 42%,
+            71% 12%,
+            78% 2%,
+            85% 12%,
+            85% 35%,
+            92% 20%,
+            100% 35%,
+            100% 100%
+        );
 }
 
 .castle-overlay::after {
-    box-shadow: 50px 20px #ffd700, 200px 150px #fff, 300px 50px #ffd700, 400px 220px #fff, 120px 280px #ffd700, 380px 300px #fff, 480px 100px #ffd700, 220px 10px #fff;
-    animation: floatDust 15s linear infinite reverse;
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background-image:
+        radial-gradient(
+            circle,
+            rgba(255, 255, 255, 0.9) 0 1px,
+            transparent 1.7px
+        ),
+        radial-gradient(
+            circle,
+            rgba(255, 218, 112, 0.9) 0 1.2px,
+            transparent 1.9px
+        );
+
+    background-size:
+        82px 82px,
+        117px 117px;
+
+    background-position:
+        8px 15px,
+        42px 6px;
+
+    animation: royalStarDrift 16s linear infinite;
 }
 
-@keyframes floatDust {
-    0% { transform: translateY(0) scale(1); opacity: 0; }
-    50% { opacity: 1; transform: translateY(-30px) scale(1.5); }
-    100% { transform: translateY(-60px) scale(1); opacity: 0; }
+/* ================= BỤI PHÉP VÀ VƯƠNG MIỆN ================= */
+
+.royal-atmosphere,
+.royal-particle-field,
+.royal-light-halo {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
 }
+
+.royal-atmosphere {
+    z-index: 2;
+    overflow: hidden;
+}
+
+.royal-light-halo {
+    left: 18%;
+    right: 18%;
+    top: -32%;
+    bottom: auto;
+
+    height: 66%;
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(255, 223, 130, 0.24),
+            transparent 68%
+        );
+
+    filter: blur(8px);
+    animation: royalHaloBreath 4s ease-in-out infinite alternate;
+}
+
+.royal-orbit-crown {
+    position: absolute;
+    top: 18px;
+    left: 50%;
+    z-index: 8;
+
+    width: 68px;
+    height: 68px;
+
+    display: grid;
+    place-items: center;
+
+    transform: translateX(-50%);
+
+    color: var(--royal-gold-strong);
+    font-size: 36px;
+
+    border:
+        1px solid
+        rgba(255, 226, 143, 0.5);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255, 230, 151, 0.22),
+            rgba(76, 27, 93, 0.25) 58%,
+            transparent 72%
+        );
+
+    box-shadow:
+        0 0 30px rgba(255, 216, 94, 0.4),
+        inset 0 0 18px rgba(255, 255, 255, 0.1);
+
+    animation:
+        royalCrownFloat 3.6s ease-in-out infinite;
+}
+
+.royal-orbit-crown::before {
+    content: "";
+    position: absolute;
+    inset: -12px;
+
+    border:
+        1px dashed
+        rgba(255, 223, 133, 0.36);
+
+    border-radius: 50%;
+
+    animation: royalOrbitSpin 12s linear infinite;
+}
+
+.royal-particle {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+
+    width: var(--size);
+    height: var(--size);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            #fff 0 18%,
+            var(--color) 26% 50%,
+            transparent 72%
+        );
+
+    filter: drop-shadow(0 0 6px var(--color));
+    opacity: 0;
+
+    animation:
+        royalParticleFloat
+        var(--duration)
+        ease-in-out
+        var(--delay)
+        infinite;
+}
+
+/* ================= NỘI DUNG ================= */
 
 .royal-content-wrapper {
     position: relative;
-    z-index: 5;
-    text-align: center;
-    padding: 30px 10px;
-}
+    z-index: 7;
 
-.royal-content-wrapper h3:first-child {
-    animation: pulseNeonText 2s infinite alternate;
-}
-
-@keyframes pulseNeonText {
-    0% { text-shadow: 0 0 5px #ffd700, 0 0 10px #ff8c00, 2px 2px 0px #000; }
-    100% { text-shadow: 0 0 15px #fff, 0 0 25px #ffd700, 0 0 35px #ff8c00, 2px 2px 0px #000; }
-}
-
-/* =========================================
-   3. SÀN KHIÊU VŨ 3D VÀ NHÂN VẬT
-========================================= */
-.dance-floor {
+    box-sizing: border-box;
     width: 100%;
-    height: 220px;
-    position: relative;
-    margin: 30px 0;
+    min-height: 620px;
+
+    padding:
+        104px
+        clamp(62px, 12vw, 116px)
+        34px !important;
+
+    text-align: center;
 }
 
-.dance-floor::before {
-    content: '';
+.royal-event-kicker {
+    display: inline-flex;
+    align-items: center;
+
+    margin-bottom: 9px;
+    padding: 7px 14px;
+
+    color: #3a2100;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.48);
+
+    border-radius: 999px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fff0b7,
+            #dca82f 58%,
+            #fff1bd
+        );
+
+    box-shadow:
+        0 8px 28px
+        rgba(213, 155, 36, 0.24);
+
+    font-size: 0.67rem;
+    font-weight: 950;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.royal-main-title,
+.royal-content-wrapper > h3:first-of-type {
+    margin: 4px 0 !important;
+
+    color: var(--royal-cream) !important;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif !important;
+
+    font-size:
+        clamp(1.65rem, 5vw, 2.75rem)
+        !important;
+
+    font-weight: 900 !important;
+    line-height: 1.08;
+
+    text-shadow:
+        0 2px 0 #6e4410,
+        0 0 12px rgba(255, 221, 116, 0.8),
+        0 0 30px rgba(151, 70, 255, 0.42)
+        !important;
+
+    animation:
+        royalTitleGlow 2.6s
+        ease-in-out infinite alternate;
+}
+
+.royal-subtitle {
+    max-width: 560px;
+    margin: 12px auto 10px;
+
+    color: rgba(255, 247, 222, 0.82);
+    font-size: 0.92rem;
+    line-height: 1.55;
+}
+
+.royal-event-schedule {
+    display: inline-block;
+    margin: 6px auto 10px;
+    padding: 8px 13px;
+
+    color: #ffeaa7;
+    border:
+        1px solid
+        rgba(255, 222, 128, 0.3);
+
+    border-radius: 999px;
+
+    background:
+        rgba(18, 5, 30, 0.65);
+
+    font-size: 0.78rem;
+}
+
+/* ================= SÀN KHIÊU VŨ ================= */
+
+.dance-floor,
+.royal-dance-stage {
+    position: relative;
+    width: 100%;
+    height: 245px;
+    margin: 18px 0 12px;
+
+    perspective: 700px;
+}
+
+.dance-floor::before,
+.royal-dance-stage::before {
+    content: "";
     position: absolute;
-    bottom: -10px; left: 10%; right: 10%;
-    height: 100px;
-    transform: perspective(300px) rotateX(60deg);
-    background: radial-gradient(ellipse at center, rgba(255, 215, 0, 0.4) 0%, rgba(255,255,255,0.1) 40%, transparent 80%);
-    border: 2px solid rgba(255, 215, 0, 0.5);
-    border-radius: 50%;
-    box-shadow: 0 0 40px rgba(255, 215, 0, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.5);
+    left: 6%;
+    right: 6%;
+    bottom: 12px;
     z-index: 1;
+
+    height: 135px;
+
+    border:
+        2px solid
+        rgba(255, 221, 117, 0.52);
+
+    border-radius: 50%;
+
+    background:
+        repeating-conic-gradient(
+            from 45deg,
+            rgba(255, 231, 153, 0.2) 0 10deg,
+            rgba(126, 62, 170, 0.18) 10deg 20deg
+        ),
+        radial-gradient(
+            ellipse,
+            rgba(255, 218, 106, 0.36),
+            rgba(112, 49, 151, 0.2) 46%,
+            transparent 72%
+        );
+
+    transform:
+        perspective(380px)
+        rotateX(61deg);
+
+    box-shadow:
+        0 0 45px rgba(255, 215, 84, 0.5),
+        inset 0 0 35px rgba(255, 255, 255, 0.18);
+
+    animation:
+        royalFloorPulse 2.5s
+        ease-in-out infinite alternate;
+}
+
+.royal-floor-monogram {
+    position: absolute;
+    left: 50%;
+    bottom: 50px;
+    z-index: 2;
+
+    transform: translateX(-50%);
+
+    color: rgba(255, 235, 166, 0.2);
+    font: 900 84px/1 Georgia, serif;
+
+    text-shadow:
+        0 0 25px
+        rgba(255, 214, 83, 0.28);
 }
 
 .dancer {
     position: absolute;
-    bottom: 25px;
+    bottom: 48px;
+    z-index: 6;
+
     width: 80px;
     height: 80px;
-    font-size: 65px;
+
     display: flex;
-    justify-content: center;
     align-items: center;
-    filter: drop-shadow(0 20px 10px rgba(0,0,0,0.8));
-    z-index: 5;
+    justify-content: center;
+
+    font-size: 65px;
+
+    filter:
+        drop-shadow(
+            0 18px 12px
+            rgba(0, 0, 0, 0.85)
+        );
 }
 
-.dancer-male { left: 25%; }
-.dancer-female { right: 25%; }
-
-/* THAY ĐỔI LỚN NHẤT: Kịch bản khiêu vũ kéo dài đúng 10 giây (Không lặp lại) */
-.dancing .dancer-male { animation: choreographMale 10s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
-.dancing .dancer-female { animation: choreographFemale 10s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
-
-@keyframes choreographMale {
-    0% { transform: translateX(0) scale(1) rotate(0deg); }
-    15% { transform: translateX(90px) scale(1.1) rotate(10deg); } /* Bước 1: Lại gần */
-    30% { transform: translateX(110px) scale(1) rotate(0deg); } /* Bước 2: Nắm tay */
-    45% { transform: translateX(110px) translateY(-15px) scale(1.05) rotate(15deg); } /* Bước 3: Nâng lên trên không */
-    60% { transform: translateX(80px) translateY(0) scale(1) rotate(-5deg); } /* Bước 4: Bước lùi nhịp nhàng */
-    75% { transform: translateX(120px) scale(1.15) rotate(10deg); } /* Bước 5: Kéo lại gần sát nhau */
-    90% { transform: translateX(0) scale(1) rotate(0deg); } /* Bước 6: Tách ra từ từ */
-    100% { transform: translateX(0) scale(1) rotate(15deg); } /* Bước 7: Cúi chào kết thúc */
+.dancer-male {
+    left: 20%;
 }
 
-@keyframes choreographFemale {
-    0% { transform: translateX(0) scale(1) rotate(0deg); }
-    15% { transform: translateX(-90px) scale(1.1) rotate(-10deg); } 
-    30% { transform: translateX(-110px) scale(1) rotate(0deg); }   
-    45% { transform: translateX(-110px) translateY(-15px) scale(1.05) rotate(-15deg); } 
-    60% { transform: translateX(-80px) translateY(0) scale(1) rotate(5deg); } 
-    75% { transform: translateX(-120px) scale(1.15) rotate(360deg); } /* Nữ xoay váy vòng tròn trên không */
-    90% { transform: translateX(0) scale(1) rotate(0deg); } 
-    100% { transform: translateX(0) scale(1) rotate(-15deg); } /* Nhún váy chào */
+.dancer-female {
+    right: 20%;
 }
 
-/* =========================================
-   4. HỆ THỐNG ĐÈN SPOTLIGHT ĐA SẮC MÀU
-========================================= */
+.dancing .dancer-male {
+    animation:
+        royalWaltzMale 10s
+        cubic-bezier(0.4, 0, 0.2, 1)
+        forwards;
+}
+
+.dancing .dancer-female {
+    animation:
+        royalWaltzFemale 10s
+        cubic-bezier(0.4, 0, 0.2, 1)
+        forwards;
+}
+
+/* ================= ĐÈN SÂN KHẤU ================= */
+
 .spotlight {
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
+    inset: 0;
     z-index: 6;
+
     pointer-events: none;
     opacity: 0;
-    transition: opacity 1.5s ease-in-out;
+
+    transition: opacity 0.8s ease;
 }
 
-.spotlight::before, .spotlight::after {
-    content: '';
+#royalBallModal.royal-is-dancing .spotlight {
+    opacity: 1;
+}
+
+.spotlight::before,
+.spotlight::after {
+    content: "";
     position: absolute;
-    top: -50px;
-    width: 200px; height: 400px;
-    clip-path: polygon(40% 0, 60% 0, 100% 100%, 0% 100%);
+    top: -70px;
+
+    width: 230px;
+    height: 470px;
+
+    clip-path:
+        polygon(
+            43% 0,
+            57% 0,
+            100% 100%,
+            0 100%
+        );
+
     mix-blend-mode: screen;
 }
 
 .spotlight::before {
-    left: 10%;
-    background: linear-gradient(to bottom, rgba(255, 215, 0, 0.7) 0%, transparent 100%);
+    left: 8%;
+
+    background:
+        linear-gradient(
+            to bottom,
+            rgba(255, 218, 84, 0.72),
+            transparent 82%
+        );
+
     transform-origin: top center;
-    animation: swingLightGold 3s infinite alternate ease-in-out;
+    animation:
+        royalSwingGold 3s
+        ease-in-out infinite alternate;
 }
 
 .spotlight::after {
-    right: 10%;
-    background: linear-gradient(to bottom, rgba(0, 255, 255, 0.5) 0%, transparent 100%);
+    right: 8%;
+
+    background:
+        linear-gradient(
+            to bottom,
+            rgba(163, 86, 255, 0.62),
+            transparent 82%
+        );
+
     transform-origin: top center;
-    animation: swingLightCyan 4s infinite alternate ease-in-out;
+    animation:
+        royalSwingPurple 3.7s
+        ease-in-out infinite alternate;
 }
 
-.dancing + .spotlight { opacity: 1; }
+/* ================= TIẾN TRÌNH ================= */
 
-@keyframes swingLightGold { 0% { transform: rotate(-25deg); } 100% { transform: rotate(15deg); } }
-@keyframes swingLightCyan { 0% { transform: rotate(25deg); } 100% { transform: rotate(-15deg); } }
+.royal-progress-panel {
+    width: min(100%, 510px);
+    margin: 5px auto 14px;
+    padding: 12px 15px;
 
-/* =========================================
-   5. NÚT BẤM BẮT ĐẦU 
-========================================= */
-#btnStartDance {
-    position: relative;
+    box-sizing: border-box;
+
+    border:
+        1px solid
+        rgba(255, 225, 135, 0.26);
+
+    border-radius: 16px;
+
+    background:
+        rgba(12, 3, 22, 0.74);
+
+    box-shadow:
+        inset 0 0 22px rgba(255, 255, 255, 0.03);
+}
+
+.royal-progress-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+
+    margin-bottom: 8px;
+
+    color: rgba(255, 247, 222, 0.82);
+    font-size: 0.75rem;
+}
+
+.royal-progress-meta strong {
+    flex-shrink: 0;
+    color: var(--royal-gold);
+}
+
+.royal-progress-track {
+    height: 8px;
     overflow: hidden;
-    animation: pulseBtn 1.5s infinite;
-    border: 2px solid #fff !important;
+
+    border-radius: 999px;
+
+    background:
+        rgba(255, 255, 255, 0.08);
+
+    box-shadow:
+        inset 0 1px 3px
+        rgba(0, 0, 0, 0.75);
+}
+
+.royal-progress-bar {
+    position: relative;
+    width: 0;
+    height: 100%;
+
+    border-radius: inherit;
+
+    background:
+        linear-gradient(
+            90deg,
+            #a66d17,
+            #ffe99e 42%,
+            #ae68ff 75%,
+            #79ddff
+        );
+
+    box-shadow:
+        0 0 14px
+        rgba(255, 219, 104, 0.65);
+
+    transition: width 0.55s ease;
+}
+
+.royal-progress-bar::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.85),
+            transparent
+        );
+
+    transform: translateX(-100%);
+    animation:
+        royalProgressShine 1.2s linear infinite;
+}
+
+.royal-dance-status {
+    margin: 8px auto 12px !important;
+    color: #fff3bd !important;
+    font-weight: 700;
+    text-shadow:
+        0 0 12px
+        rgba(255, 216, 94, 0.55);
+}
+
+/* ================= NÚT BẮT ĐẦU ================= */
+
+#btnStartDance,
+.royal-start-button {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+
+    min-width: 230px;
+    padding: 13px 24px !important;
+
+    color: #321900 !important;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.7)
+        !important;
+
+    border-radius: 999px !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fff0ad,
+            #d99b20 52%,
+            #fff0ad
+        ) !important;
+
+    box-shadow:
+        0 12px 35px
+        rgba(213, 151, 30, 0.34),
+        inset 0 1px 0
+        rgba(255, 255, 255, 0.75)
+        !important;
+
+    font-weight: 950 !important;
+    letter-spacing: 0.02em;
+
+    cursor: pointer;
+
+    animation:
+        royalButtonPulse 1.8s
+        ease-in-out infinite;
 }
 
 #btnStartDance::after {
-    content: '';
+    content: "";
     position: absolute;
-    top: 0; left: -100%;
-    width: 50%; height: 100%;
-    background: linear-gradient(to right, transparent, rgba(255,255,255,0.9), transparent);
+    top: 0;
+    left: -80%;
+
+    width: 45%;
+    height: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.88),
+            transparent
+        );
+
+    transform: skewX(-24deg);
+    animation:
+        royalButtonShine 2.6s infinite;
+}
+
+.royal-button-crown {
+    font-size: 1.2rem;
+}
+
+/* ================= KHUNG PHẦN THƯỞNG ================= */
+
+.royal-result-box {
+    position: relative;
+    z-index: 10;
+    margin: 16px auto 5px;
+}
+
+.royal-loading-card,
+.royal-reward-card {
+    position: relative;
+    overflow: hidden;
+
+    margin: 0 auto;
+    padding: 24px 18px;
+
+    border:
+        1px solid
+        rgba(255, 223, 130, 0.5);
+
+    border-radius: 22px;
+
+    background:
+        radial-gradient(
+            circle at 50% 0,
+            rgba(255, 219, 106, 0.2),
+            transparent 45%
+        ),
+        rgba(17, 5, 28, 0.92);
+
+    box-shadow:
+        0 20px 55px
+        rgba(0, 0, 0, 0.48),
+        inset 0 0 28px
+        rgba(255, 255, 255, 0.035);
+
+    color: var(--royal-cream);
+
+    animation:
+        royalRewardReveal 0.65s
+        cubic-bezier(0.2, 0.85, 0.25, 1.15)
+        both;
+}
+
+.royal-loading-gem {
+    width: 42px;
+    height: 42px;
+
+    margin: 0 auto 14px;
+
+    border:
+        4px solid
+        rgba(255, 221, 124, 0.25);
+
+    border-top-color:
+        var(--royal-gold-strong);
+
+    border-radius: 12px;
+
+    transform: rotate(45deg);
+
+    animation:
+        royalGemSpin 1s linear infinite;
+}
+
+.royal-reward-seal {
+    width: 76px;
+    height: 76px;
+
+    display: grid;
+    place-items: center;
+
+    margin: 0 auto 12px;
+
+    border:
+        1px solid
+        rgba(255, 237, 176, 0.7);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            #fff4bf,
+            #d59a27 62%,
+            #6e3b08
+        );
+
+    box-shadow:
+        0 0 30px
+        rgba(255, 213, 71, 0.48);
+
+    font-size: 34px;
+
+    animation:
+        royalSealBounce 1.6s
+        ease-in-out infinite alternate;
+}
+
+.royal-reward-label {
+    color: var(--royal-gold);
+    font-size: 0.73rem;
+    font-weight: 900;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.royal-reward-title {
+    margin: 10px 0 !important;
+
+    color: var(--royal-cream) !important;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size:
+        clamp(1.2rem, 4vw, 1.8rem);
+
+    text-shadow:
+        0 0 18px
+        rgba(255, 216, 94, 0.48);
+}
+
+.royal-reward-note {
+    margin: 8px auto 16px;
+
+    color:
+        rgba(255, 247, 222, 0.76);
+
+    font-size: 0.84rem;
+}
+
+.royal-claim-button {
+    padding: 11px 19px;
+
+    color: #321900;
+
+    border: 0;
+    border-radius: 999px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fff0ad,
+            #d99b20,
+            #fff0ad
+        );
+
+    box-shadow:
+        0 10px 28px
+        rgba(213, 151, 30, 0.32);
+
+    font-weight: 950;
+    cursor: pointer;
+}
+
+.royal-burst-particle {
+    position: absolute;
+    left: 50%;
+    top: 48%;
+    z-index: 20;
+
+    width: var(--bsize);
+    height: var(--bsize);
+
+    border-radius: 50%;
+    background: var(--bcolor);
+
+    box-shadow:
+        0 0 8px var(--bcolor);
+
+    pointer-events: none;
+
+    animation:
+        royalBurst 1.35s
+        ease-out
+        var(--bdelay)
+        forwards;
+}
+
+/* ================= HOẠT ẢNH ================= */
+
+@keyframes royalModalEntrance {
+    from {
+        opacity: 0;
+        transform:
+            translateY(35px)
+            scale(0.92);
+    }
+
+    to {
+        opacity: 1;
+        transform:
+            translateY(0)
+            scale(1);
+    }
+}
+
+@keyframes royalStarDrift {
+    to {
+        background-position:
+            90px 97px,
+            -80px 124px;
+    }
+}
+
+@keyframes royalHaloBreath {
+    from {
+        opacity: 0.55;
+        transform: scale(0.92);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1.08);
+    }
+}
+
+@keyframes royalCrownFloat {
+    0%,
+    100% {
+        transform:
+            translateX(-50%)
+            translateY(0);
+    }
+
+    50% {
+        transform:
+            translateX(-50%)
+            translateY(-7px);
+    }
+}
+
+@keyframes royalOrbitSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes royalParticleFloat {
+    0% {
+        opacity: 0;
+        transform:
+            translateY(25px)
+            scale(0.5);
+    }
+
+    45% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+            translateY(-55px)
+            scale(1.4);
+    }
+}
+
+@keyframes royalTitleGlow {
+    from {
+        filter: brightness(0.92);
+    }
+
+    to {
+        filter: brightness(1.18);
+    }
+}
+
+@keyframes royalFloorPulse {
+    from {
+        filter: brightness(0.85);
+    }
+
+    to {
+        filter: brightness(1.15);
+    }
+}
+
+@keyframes royalWaltzMale {
+    0% {
+        transform: translateX(0) rotate(0);
+    }
+
+    15% {
+        transform:
+            translateX(85px)
+            rotate(8deg);
+    }
+
+    30% {
+        transform:
+            translateX(105px)
+            scale(1.08);
+    }
+
+    48% {
+        transform:
+            translateX(90px)
+            translateY(-16px)
+            rotate(14deg);
+    }
+
+    64% {
+        transform:
+            translateX(60px)
+            rotate(-7deg);
+    }
+
+    78% {
+        transform:
+            translateX(110px)
+            scale(1.13);
+    }
+
+    92% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: rotate(15deg);
+    }
+}
+
+@keyframes royalWaltzFemale {
+    0% {
+        transform: translateX(0) rotate(0);
+    }
+
+    15% {
+        transform:
+            translateX(-85px)
+            rotate(-8deg);
+    }
+
+    30% {
+        transform:
+            translateX(-105px)
+            scale(1.08);
+    }
+
+    48% {
+        transform:
+            translateX(-90px)
+            translateY(-16px)
+            rotate(-14deg);
+    }
+
+    64% {
+        transform:
+            translateX(-60px)
+            rotate(7deg);
+    }
+
+    78% {
+        transform:
+            translateX(-110px)
+            rotate(360deg)
+            scale(1.13);
+    }
+
+    92% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: rotate(-15deg);
+    }
+}
+
+@keyframes royalSwingGold {
+    from {
+        transform: rotate(-26deg);
+    }
+
+    to {
+        transform: rotate(16deg);
+    }
+}
+
+@keyframes royalSwingPurple {
+    from {
+        transform: rotate(25deg);
+    }
+
+    to {
+        transform: rotate(-15deg);
+    }
+}
+
+@keyframes royalProgressShine {
+    to {
+        transform: translateX(100%);
+    }
+}
+
+@keyframes royalButtonPulse {
+    50% {
+        transform: scale(1.045);
+
+        box-shadow:
+            0 16px 42px
+            rgba(255, 215, 77, 0.5);
+    }
+}
+
+@keyframes royalButtonShine {
+    0%,
+    55% {
+        left: -80%;
+    }
+
+    75%,
+    100% {
+        left: 140%;
+    }
+}
+
+@keyframes royalRewardReveal {
+    from {
+        opacity: 0;
+        transform:
+            scale(0.78)
+            translateY(25px);
+    }
+
+    to {
+        opacity: 1;
+        transform:
+            scale(1)
+            translateY(0);
+    }
+}
+
+@keyframes royalSealBounce {
+    to {
+        transform:
+            translateY(-6px)
+            rotate(4deg);
+    }
+}
+
+@keyframes royalGemSpin {
+    to {
+        transform:
+            rotate(405deg);
+    }
+}
+
+@keyframes royalBurst {
+    from {
+        opacity: 1;
+        transform:
+            translate(-50%, -50%)
+            rotate(var(--bang))
+            translateX(0);
+    }
+
+    to {
+        opacity: 0;
+        transform:
+            translate(-50%, -50%)
+            rotate(var(--bang))
+            translateX(var(--bdistance))
+            scale(0);
+    }
+}
+
+/* ================= ĐIỆN THOẠI ================= */
+
+@media (max-width: 680px) {
+    #royalBallModal .modal-content,
+    #royalBallModal .royal-premium-shell {
+        width: 96vw !important;
+        border-radius: 22px !important;
+    }
+
+    #royalBallModal .modal-content::before,
+    #royalBallModal .modal-content::after {
+        width: 49px;
+        opacity: 0.58;
+    }
+
+    .royal-content-wrapper {
+        min-height: 580px;
+
+        padding:
+            92px 44px 28px
+            !important;
+    }
+
+    .dance-floor,
+    .royal-dance-stage {
+        height: 220px;
+    }
+
+    .dancer {
+        width: 68px;
+        height: 68px;
+        font-size: 56px;
+    }
+
+    .dancer-male {
+        left: 12%;
+    }
+
+    .dancer-female {
+        right: 12%;
+    }
+
+    .royal-progress-meta {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 3px;
+    }
+}
+
+@media (max-width: 430px) {
+    .royal-content-wrapper {
+        padding:
+            90px 29px 25px
+            !important;
+    }
+
+    .royal-subtitle {
+        font-size: 0.82rem;
+    }
+
+    #btnStartDance,
+    .royal-start-button {
+        min-width: 205px;
+        padding: 12px 17px !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #royalBallModal *,
+    .royal-event-card {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+    }
+}
+/* =========================================================
+   PHẦN THƯỞNG DẠ HỘI HOÀNG GIA
+========================================================= */
+
+#royalBallResult.royal-reward-result {
+    position: relative;
+    z-index: 20;
+
+    width: min(100%, 560px);
+    margin: 18px auto 4px;
+
+    box-sizing: border-box;
+    text-align: center;
+}
+
+/* ================= ĐANG MỞ RƯƠNG ================= */
+
+.royal-reward-loading {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+
+    padding: 28px 20px 25px;
+
+    border:
+        1px solid
+        rgba(255, 223, 133, 0.55);
+
+    border-radius: 24px;
+
+    background:
+        radial-gradient(
+            circle at 50% 15%,
+            rgba(255, 218, 97, 0.21),
+            transparent 38%
+        ),
+        linear-gradient(
+            145deg,
+            rgba(55, 17, 71, 0.96),
+            rgba(10, 3, 19, 0.98)
+        );
+
+    box-shadow:
+        0 22px 60px rgba(0, 0, 0, 0.55),
+        inset 0 0 30px
+        rgba(255, 255, 255, 0.04);
+
+    animation:
+        royalLoadingAppear
+        0.4s ease both;
+}
+
+.royal-loading-rays {
+    position: absolute;
+    left: 50%;
+    top: 42%;
+
+    z-index: -1;
+
+    width: 320px;
+    height: 320px;
+
+    transform:
+        translate(-50%, -50%);
+
+    background:
+        repeating-conic-gradient(
+            from 0deg,
+            rgba(255, 225, 134, 0.19)
+                0deg 7deg,
+            transparent
+                7deg 18deg
+        );
+
+    border-radius: 50%;
+
+    animation:
+        royalLoadingRaySpin
+        10s linear infinite;
+}
+
+.royal-loading-crown {
+    color: #ffe89c;
+    font-size: 30px;
+
+    text-shadow:
+        0 0 12px #ffd056,
+        0 0 26px rgba(255, 208, 86, 0.6);
+
+    animation:
+        royalLoadingCrownFloat
+        1.7s ease-in-out infinite;
+}
+
+/* Rương khi đang tải */
+
+.royal-loading-chest {
+    position: relative;
+    width: 112px;
+    height: 92px;
+
+    margin: 14px auto 17px;
+
+    filter:
+        drop-shadow(
+            0 17px 14px
+            rgba(0, 0, 0, 0.55)
+        );
+
+    animation:
+        royalLoadingChestShake
+        0.75s ease-in-out infinite alternate;
+}
+
+.royal-loading-chest-lid {
+    position: absolute;
+    left: 6px;
+    top: 0;
+    z-index: 3;
+
+    width: 100px;
+    height: 37px;
+
+    box-sizing: border-box;
+
+    border:
+        3px solid #f6cf62;
+
+    border-radius:
+        52px 52px 8px 8px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #8f4221,
+            #4a190e
+        );
+
+    box-shadow:
+        inset 0 8px 9px
+        rgba(255, 255, 255, 0.08);
+}
+
+.royal-loading-chest-body {
+    position: absolute;
+    left: 4px;
+    bottom: 0;
+
+    width: 104px;
+    height: 62px;
+
+    display: grid;
+    place-items: center;
+
+    box-sizing: border-box;
+
+    border:
+        3px solid #f6cf62;
+
+    border-radius: 8px 8px 16px 16px;
+
+    background:
+        repeating-linear-gradient(
+            90deg,
+            #51200f 0 24px,
+            #743117 24px 49px
+        );
+
+    color: #432100;
+    font: 900 17px Georgia, serif;
+}
+
+.royal-loading-chest-body span {
+    width: 30px;
+    height: 30px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            145deg,
+            #fff0a7,
+            #c88818
+        );
+
+    box-shadow:
+        0 0 13px
+        rgba(255, 210, 72, 0.55);
+}
+
+.royal-loading-title {
+    color: #fff0bb;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 1.2rem;
+    font-weight: 900;
+
+    text-shadow:
+        0 0 15px
+        rgba(255, 211, 87, 0.45);
+}
+
+.royal-loading-subtitle {
+    margin-top: 7px;
+
+    color:
+        rgba(255, 247, 222, 0.68);
+
+    font-size: 0.82rem;
+}
+
+.royal-loading-dots {
+    display: flex;
+    justify-content: center;
+    gap: 7px;
+
+    margin-top: 15px;
+}
+
+.royal-loading-dots span {
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+    background: #ffd75e;
+
+    box-shadow:
+        0 0 10px
+        rgba(255, 215, 94, 0.7);
+
+    animation:
+        royalLoadingDot
+        0.9s ease-in-out infinite alternate;
+}
+
+.royal-loading-dots span:nth-child(2) {
+    animation-delay: 0.18s;
+}
+
+.royal-loading-dots span:nth-child(3) {
+    animation-delay: 0.36s;
+}
+
+/* ================= THẺ KẾT QUẢ ================= */
+
+.royal-reward-card {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+
+    padding:
+        21px 22px 23px;
+
+    border:
+        1px solid
+        rgba(255, 228, 151, 0.72);
+
+    border-radius: 28px;
+
+    background:
+        radial-gradient(
+            circle at 50% 17%,
+            rgba(255, 221, 117, 0.22),
+            transparent 33%
+        ),
+        linear-gradient(
+            145deg,
+            rgba(67, 23, 83, 0.98),
+            rgba(10, 3, 18, 0.99) 62%,
+            rgba(43, 13, 49, 0.98)
+        );
+
+    box-shadow:
+        0 25px 75px rgba(0, 0, 0, 0.68),
+        0 0 38px
+        rgba(255, 213, 83, 0.18),
+        inset 0 0 40px
+        rgba(255, 255, 255, 0.035);
+
+    animation:
+        royalRewardCardReveal
+        0.72s
+        cubic-bezier(0.18, 0.82, 0.22, 1.16)
+        both;
+}
+
+.royal-reward-card::before {
+    content: "";
+
+    position: absolute;
+    inset: 7px;
+    z-index: -1;
+
+    border:
+        1px solid
+        rgba(255, 228, 151, 0.14);
+
+    border-radius: 21px;
+}
+
+.royal-reward-light {
+    position: absolute;
+    left: 50%;
+    top: -150px;
+    z-index: -1;
+
+    width: 370px;
+    height: 370px;
+
+    transform:
+        translateX(-50%);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255, 228, 139, 0.32),
+            transparent 67%
+        );
+
+    animation:
+        royalRewardLightPulse
+        2.3s ease-in-out infinite alternate;
+}
+
+.royal-reward-top-decoration {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+
+    color: #ffe58c;
+}
+
+.royal-reward-top-decoration span {
+    width: 65px;
+    height: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            #dba438
+        );
+}
+
+.royal-reward-top-decoration span:last-child {
+    background:
+        linear-gradient(
+            90deg,
+            #dba438,
+            transparent
+        );
+}
+
+.royal-reward-top-decoration strong {
+    font-size: 24px;
+
+    text-shadow:
+        0 0 15px
+        rgba(255, 211, 73, 0.65);
+}
+
+/* ================= RƯƠNG ĐÃ MỞ ================= */
+
+.royal-open-chest {
+    position: relative;
+    width: 146px;
+    height: 135px;
+
+    margin: 2px auto 7px;
+}
+
+.royal-open-chest-glow {
+    position: absolute;
+    left: 50%;
+    top: 56%;
+
+    width: 190px;
+    height: 145px;
+
+    transform:
+        translate(-50%, -50%);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(255, 226, 118, 0.45),
+            transparent 70%
+        );
+
+    filter: blur(7px);
+
+    animation:
+        royalChestGlowPulse
+        1.5s ease-in-out infinite alternate;
+}
+
+.royal-open-chest-lid {
+    position: absolute;
+    left: 13px;
+    top: 33px;
+    z-index: 4;
+
+    width: 120px;
+    height: 42px;
+
+    box-sizing: border-box;
+
+    border:
+        4px solid #f5d36b;
+
+    border-radius:
+        65px 65px 8px 8px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #9e4b25,
+            #4b180d
+        );
+
+    transform-origin:
+        center bottom;
+
+    animation:
+        royalChestLidOpen
+        0.75s
+        0.15s
+        cubic-bezier(0.2, 0.8, 0.25, 1.15)
+        both;
+}
+
+.royal-open-chest-lid span {
+    position: absolute;
+    left: 9px;
+    right: 9px;
+    bottom: 6px;
+
+    height: 4px;
+
+    border-radius: 99px;
+    background: #e9ba49;
+}
+
+.royal-open-chest-body {
+    position: absolute;
+    left: 10px;
+    bottom: 3px;
+    z-index: 3;
+
+    width: 126px;
+    height: 76px;
+
+    display: grid;
+    place-items: center;
+
+    box-sizing: border-box;
+
+    border:
+        4px solid #f5d36b;
+
+    border-radius:
+        8px 8px 20px 20px;
+
+    background:
+        repeating-linear-gradient(
+            90deg,
+            #551f0e 0 28px,
+            #7a3318 28px 57px
+        );
+
+    box-shadow:
+        inset 0 12px 16px
+        rgba(255, 255, 255, 0.07);
+}
+
+.royal-chest-lock {
+    width: 35px;
+    height: 35px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 50%;
+
+    color: #4e2a00;
+
+    background:
+        linear-gradient(
+            145deg,
+            #fff2ae,
+            #c78618
+        );
+
+    box-shadow:
+        0 0 15px
+        rgba(255, 210, 72, 0.55);
+}
+
+.royal-reward-icon {
+    position: absolute;
+    left: 50%;
+    top: 27px;
+    z-index: 8;
+
+    width: 62px;
+    height: 62px;
+
+    display: grid;
+    place-items: center;
+
+    transform:
+        translateX(-50%);
+
+    border:
+        1px solid
+        rgba(255, 244, 199, 0.65);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            #fff8d7,
+            #f0b93e 60%,
+            #7a4310
+        );
+
+    box-shadow:
+        0 0 22px
+        rgba(255, 214, 79, 0.78),
+        0 0 52px
+        rgba(255, 220, 99, 0.38);
+
+    font-size: 30px;
+
+    animation:
+        royalRewardIconRise
+        1s
+        0.35s
+        cubic-bezier(0.18, 0.85, 0.25, 1.25)
+        both;
+}
+
+/* Màu riêng cho vật phẩm */
+
+.royal-reward-item .royal-reward-icon {
+    background:
+        radial-gradient(
+            circle,
+            #fff,
+            #cf96ff 48%,
+            #59247b
+        );
+
+    box-shadow:
+        0 0 24px rgba(213, 146, 255, 0.85),
+        0 0 58px rgba(149, 69, 211, 0.5);
+}
+
+.royal-reward-item .royal-reward-value {
+    color: #e3b7ff;
+    border-color: rgba(202, 139, 255, 0.42);
+    background: rgba(127, 47, 173, 0.18);
+}
+
+/* Màu riêng cho quà bị trùng */
+
+.royal-reward-duplicate .royal-reward-icon,
+.royal-reward-compensation .royal-reward-icon {
+    background:
+        radial-gradient(
+            circle,
+            #fff,
+            #92e3ff 48%,
+            #21697b
+        );
+
+    box-shadow:
+        0 0 24px rgba(127, 222, 255, 0.85),
+        0 0 58px rgba(49, 176, 214, 0.45);
+}
+
+/* ================= NỘI DUNG PHẦN THƯỞNG ================= */
+
+.royal-reward-label {
+    margin-top: 2px;
+
+    color: #e8ba4e;
+
+    font-size: 0.7rem;
+    font-weight: 950;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+.royal-reward-name {
+    margin: 8px 0 10px !important;
+
+    color: #fff4c4 !important;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size:
+        clamp(1.32rem, 4.8vw, 1.95rem);
+
+    line-height: 1.18;
+
+    text-shadow:
+        0 2px 0 rgba(98, 53, 6, 0.85),
+        0 0 19px rgba(255, 215, 86, 0.46);
+}
+
+.royal-reward-value {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 155px;
+    padding: 9px 17px;
+
+    color: #ffd762;
+
+    border:
+        1px solid
+        rgba(255, 215, 98, 0.42);
+
+    border-radius: 999px;
+
+    background:
+        rgba(177, 113, 24, 0.16);
+
+    box-shadow:
+        inset 0 0 14px
+        rgba(255, 255, 255, 0.035);
+
+    font-size: 1rem;
+    font-weight: 950;
+    letter-spacing: 0.045em;
+
+    animation:
+        royalRewardValuePulse
+        1.4s ease-in-out infinite alternate;
+}
+
+.royal-reward-description {
+    max-width: 410px;
+    margin: 13px auto 14px;
+
+    color:
+        rgba(255, 248, 224, 0.72);
+
+    font-size: 0.84rem;
+    line-height: 1.55;
+}
+
+.royal-reward-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    margin: 11px auto 16px;
+}
+
+.royal-reward-divider span {
+    width: 90px;
+    height: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 220, 116, 0.6)
+        );
+}
+
+.royal-reward-divider span:last-child {
+    background:
+        linear-gradient(
+            90deg,
+            rgba(255, 220, 116, 0.6),
+            transparent
+        );
+}
+
+.royal-reward-divider b {
+    color: #ffe498;
+
+    text-shadow:
+        0 0 10px
+        rgba(255, 218, 101, 0.75);
+}
+
+/* ================= NÚT NHẬN ================= */
+
+.royal-reward-claim {
+    position: relative;
+    overflow: hidden;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+
+    min-width: 250px;
+    padding: 12px 21px;
+
+    color: #392000;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.74);
+
+    border-radius: 999px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fff2b7,
+            #d89a1e 52%,
+            #fff1b2
+        );
+
+    box-shadow:
+        0 12px 32px
+        rgba(209, 144, 26, 0.36),
+        inset 0 1px 0
+        rgba(255, 255, 255, 0.75);
+
+    font-weight: 950;
+    cursor: pointer;
+
+    transition:
+        transform 0.22s ease,
+        box-shadow 0.22s ease;
+}
+
+.royal-reward-claim:hover {
+    transform:
+        translateY(-3px)
+        scale(1.025);
+
+    box-shadow:
+        0 17px 42px
+        rgba(255, 193, 52, 0.52);
+}
+
+.royal-reward-claim:active {
+    transform:
+        translateY(0)
+        scale(0.98);
+}
+
+.royal-reward-claim::after {
+    content: "";
+
+    position: absolute;
+    top: 0;
+    left: -70%;
+
+    width: 40%;
+    height: 100%;
+
     transform: skewX(-25deg);
-    animation: shineSweep 2.5s infinite;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.9),
+            transparent
+        );
+
+    animation:
+        royalRewardButtonShine
+        2.8s infinite;
 }
 
-@keyframes pulseBtn {
-    0% { transform: scale(1); box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-    50% { transform: scale(1.05); box-shadow: 0 10px 30px rgba(255,215,0,0.8); }
-    100% { transform: scale(1); box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+.royal-reward-confirmed {
+    margin-top: 11px;
+
+    color:
+        rgba(205, 255, 222, 0.72);
+
+    font-size: 0.72rem;
+    font-weight: 700;
 }
 
-@keyframes shineSweep {
-    0% { left: -100%; }
-    20% { left: 200%; }
-    100% { left: 200%; }
+/* ================= PHÁO SÁNG ================= */
+
+.royal-reward-celebration {
+    position: absolute;
+    inset: 0;
+    z-index: 30;
+
+    overflow: visible;
+    pointer-events: none;
+}
+
+.royal-reward-celebration i {
+    position: absolute;
+    left: 50%;
+    top: 43%;
+
+    width: var(--reward-size);
+    height: var(--reward-size);
+
+    border-radius: 50%;
+
+    background: #ffe073;
+
+    box-shadow:
+        0 0 8px #ffe073;
+
+    opacity: 0;
+
+    animation:
+        royalRewardParticleBurst
+        1.35s
+        var(--reward-delay)
+        ease-out
+        forwards;
+}
+
+.royal-reward-celebration i:nth-child(3n) {
+    background: #cb8cff;
+    box-shadow: 0 0 8px #cb8cff;
+}
+
+.royal-reward-celebration i:nth-child(3n + 1) {
+    background: #8be9ff;
+    box-shadow: 0 0 8px #8be9ff;
+}
+
+/* ================= HOẠT ẢNH ================= */
+
+@keyframes royalLoadingAppear {
+    from {
+        opacity: 0;
+        transform:
+            translateY(15px)
+            scale(0.94);
+    }
+
+    to {
+        opacity: 1;
+        transform:
+            translateY(0)
+            scale(1);
+    }
+}
+
+@keyframes royalLoadingRaySpin {
+    to {
+        transform:
+            translate(-50%, -50%)
+            rotate(360deg);
+    }
+}
+
+@keyframes royalLoadingCrownFloat {
+    50% {
+        transform: translateY(-6px);
+    }
+}
+
+@keyframes royalLoadingChestShake {
+    from {
+        transform:
+            translateY(0)
+            rotate(-1deg);
+    }
+
+    to {
+        transform:
+            translateY(-4px)
+            rotate(1deg);
+    }
+}
+
+@keyframes royalLoadingDot {
+    from {
+        opacity: 0.28;
+        transform: translateY(1px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(-4px);
+    }
+}
+
+@keyframes royalRewardCardReveal {
+    from {
+        opacity: 0;
+        transform:
+            translateY(28px)
+            scale(0.78);
+        filter: blur(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform:
+            translateY(0)
+            scale(1);
+        filter: blur(0);
+    }
+}
+
+@keyframes royalRewardLightPulse {
+    to {
+        opacity: 0.65;
+        transform:
+            translateX(-50%)
+            scale(1.12);
+    }
+}
+
+@keyframes royalChestGlowPulse {
+    to {
+        opacity: 0.65;
+        transform:
+            translate(-50%, -50%)
+            scale(1.12);
+    }
+}
+
+@keyframes royalChestLidOpen {
+    from {
+        transform: rotateX(0deg);
+    }
+
+    to {
+        transform:
+            translateY(-17px)
+            rotateX(68deg);
+    }
+}
+
+@keyframes royalRewardIconRise {
+    from {
+        opacity: 0;
+        transform:
+            translateX(-50%)
+            translateY(48px)
+            scale(0.35)
+            rotate(-12deg);
+    }
+
+    to {
+        opacity: 1;
+        transform:
+            translateX(-50%)
+            translateY(0)
+            scale(1)
+            rotate(0);
+    }
+}
+
+@keyframes royalRewardValuePulse {
+    to {
+        transform: scale(1.045);
+        filter: brightness(1.15);
+    }
+}
+
+@keyframes royalRewardButtonShine {
+    0%,
+    56% {
+        left: -70%;
+    }
+
+    78%,
+    100% {
+        left: 135%;
+    }
+}
+
+@keyframes royalRewardParticleBurst {
+    0% {
+        opacity: 1;
+
+        transform:
+            translate(-50%, -50%)
+            rotate(var(--reward-angle))
+            translateY(0)
+            scale(0);
+    }
+
+    40% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+
+        transform:
+            translate(-50%, -50%)
+            rotate(var(--reward-angle))
+            translateY(
+                calc(
+                    var(--reward-distance) * -1
+                )
+            )
+            scale(1);
+    }
+}
+
+/* ================= ĐIỆN THOẠI ================= */
+
+@media (max-width: 520px) {
+    #royalBallResult.royal-reward-result {
+        width: 100%;
+    }
+
+    .royal-reward-card {
+        padding:
+            19px 14px 21px;
+
+        border-radius: 22px;
+    }
+
+    .royal-open-chest {
+        transform: scale(0.9);
+        margin-top: -3px;
+        margin-bottom: -2px;
+    }
+
+    .royal-reward-claim {
+        width: 100%;
+        min-width: 0;
+
+        box-sizing: border-box;
+
+        font-size: 0.82rem;
+    }
+
+    .royal-reward-description {
+        font-size: 0.78rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .royal-reward-result *,
+    .royal-reward-loading * {
+        animation-duration:
+            0.01ms !important;
+
+        animation-iteration-count:
+            1 !important;
+    }
+}
+/* =========================================================
+   POPUP XEM TRƯỚC PHẦN THƯỞNG DẠ HỘI
+========================================================= */
+
+#royalRewardsModal {
+    background:
+        radial-gradient(
+            circle at 50% 20%,
+            rgba(125, 62, 177, 0.28),
+            transparent 42%
+        ),
+        rgba(5, 1, 11, 0.88) !important;
+
+    backdrop-filter:
+        blur(12px)
+        saturate(1.2);
+}
+
+#royalRewardsModal .royal-rewards-premium {
+    position: relative;
+    isolation: isolate;
+
+    width: min(92vw, 790px) !important;
+    max-height: 90vh;
+
+    box-sizing: border-box;
+    padding: 0 !important;
+
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+
+    border:
+        1px solid
+        rgba(255, 225, 137, 0.75)
+        !important;
+
+    border-radius: 28px !important;
+
+    background:
+        radial-gradient(
+            circle at 50% 0,
+            rgba(255, 224, 123, 0.17),
+            transparent 30%
+        ),
+        linear-gradient(
+            145deg,
+            #311344,
+            #0c0415 56%,
+            #351339
+        ) !important;
+
+    box-shadow:
+        0 30px 100px
+        rgba(0, 0, 0, 0.75),
+
+        0 0 55px
+        rgba(255, 209, 82, 0.17),
+
+        inset 0 0 45px
+        rgba(0, 0, 0, 0.55)
+        !important;
+
+    scrollbar-width: thin;
+    scrollbar-color:
+        rgba(255, 219, 106, 0.65)
+        rgba(255, 255, 255, 0.05);
+
+    animation:
+        royalPreviewOpen
+        0.55s
+        cubic-bezier(0.18, 0.85, 0.25, 1.12)
+        both;
+}
+
+/* ================= NỀN SAO ================= */
+
+.royal-preview-background {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.royal-preview-background::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    background-image:
+        radial-gradient(
+            circle,
+            rgba(255, 255, 255, 0.8)
+            0 1px,
+            transparent 1.8px
+        ),
+        radial-gradient(
+            circle,
+            rgba(255, 218, 105, 0.86)
+            0 1px,
+            transparent 1.8px
+        );
+
+    background-size:
+        80px 80px,
+        117px 117px;
+
+    background-position:
+        15px 10px,
+        55px 40px;
+
+    opacity: 0.45;
+
+    animation:
+        royalPreviewStars
+        17s linear infinite;
+}
+
+.royal-preview-background span {
+    position: absolute;
+
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+
+    background: #ffe48c;
+
+    box-shadow:
+        0 0 12px #ffe48c;
+
+    animation:
+        royalPreviewParticle
+        5s ease-in-out infinite;
+}
+
+.royal-preview-background span:nth-child(1) {
+    left: 8%;
+    top: 18%;
+}
+
+.royal-preview-background span:nth-child(2) {
+    left: 87%;
+    top: 12%;
+    animation-delay: -1s;
+}
+
+.royal-preview-background span:nth-child(3) {
+    left: 22%;
+    top: 56%;
+    animation-delay: -2.5s;
+}
+
+.royal-preview-background span:nth-child(4) {
+    left: 78%;
+    top: 62%;
+    animation-delay: -3.2s;
+}
+
+.royal-preview-background span:nth-child(5) {
+    left: 48%;
+    top: 37%;
+    animation-delay: -1.8s;
+}
+
+.royal-preview-background span:nth-child(6) {
+    left: 92%;
+    top: 82%;
+    animation-delay: -4s;
+}
+
+/* ================= NÚT ĐÓNG ================= */
+
+.royal-preview-close {
+    position: sticky;
+    top: 14px;
+    left: calc(100% - 54px);
+    z-index: 30;
+
+    width: 38px;
+    height: 38px;
+
+    display: grid;
+    place-items: center;
+
+    margin:
+        14px 14px -52px auto;
+
+    padding: 0;
+
+    color: #fff1bd;
+
+    border:
+        1px solid
+        rgba(255, 228, 147, 0.38);
+
+    border-radius: 50%;
+
+    background:
+        rgba(14, 4, 24, 0.72);
+
+    backdrop-filter: blur(8px);
+
+    font-size: 26px;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease;
+}
+
+.royal-preview-close:hover {
+    transform:
+        rotate(90deg)
+        scale(1.08);
+
+    background:
+        rgba(119, 35, 82, 0.86);
+}
+
+/* ================= TIÊU ĐỀ ================= */
+
+.royal-preview-header {
+    position: relative;
+
+    padding:
+        34px 55px 22px;
+
+    text-align: center;
+}
+
+.royal-preview-crown {
+    width: 72px;
+    height: 72px;
+
+    display: grid;
+    place-items: center;
+
+    margin: 0 auto 10px;
+
+    color: #ffdf76;
+
+    border:
+        1px solid
+        rgba(255, 225, 137, 0.45);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255, 228, 137, 0.25),
+            rgba(115, 50, 139, 0.18) 58%,
+            transparent 70%
+        );
+
+    box-shadow:
+        0 0 34px
+        rgba(255, 212, 77, 0.34);
+
+    font-size: 40px;
+
+    animation:
+        royalPreviewCrownFloat
+        3s ease-in-out infinite;
+}
+
+.royal-preview-kicker {
+    display: inline-block;
+
+    margin-bottom: 8px;
+    padding: 6px 14px;
+
+    color: #432600;
+
+    border-radius: 999px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fff0aa,
+            #dba22a,
+            #ffeaa1
+        );
+
+    font-size: 0.66rem;
+    font-weight: 950;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+}
+
+.royal-preview-header h2 {
+    margin: 7px 0 10px;
+
+    color: #fff3bd;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size:
+        clamp(1.65rem, 5vw, 2.5rem);
+
+    line-height: 1.12;
+
+    text-shadow:
+        0 2px 0 #674008,
+        0 0 18px
+        rgba(255, 216, 91, 0.62);
+}
+
+.royal-preview-header p {
+    max-width: 610px;
+    margin: 0 auto;
+
+    color:
+        rgba(255, 247, 222, 0.78);
+
+    font-size: 0.92rem;
+    line-height: 1.62;
+}
+
+.royal-preview-header p strong {
+    color: #e4afff;
+}
+
+/* ================= TỈ LỆ PHẦN THƯỞNG ================= */
+
+.royal-preview-probability {
+    display: grid;
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 14px;
+
+    padding: 0 34px 18px;
+}
+
+.royal-preview-prob-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    padding: 16px;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.1);
+
+    border-radius: 18px;
+
+    background:
+        rgba(12, 4, 21, 0.62);
+
+    box-shadow:
+        inset 0 0 20px
+        rgba(255, 255, 255, 0.025);
+
+    transition:
+        transform 0.25s ease,
+        border-color 0.25s ease;
+}
+
+.royal-preview-prob-card:hover {
+    transform: translateY(-4px);
+}
+
+.royal-preview-prob-card.coin {
+    border-color:
+        rgba(255, 215, 90, 0.35);
+}
+
+.royal-preview-prob-card.item {
+    border-color:
+        rgba(201, 127, 255, 0.35);
+}
+
+.royal-preview-prob-icon {
+    width: 58px;
+    height: 58px;
+
+    flex-shrink: 0;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 16px;
+
+    background:
+        rgba(255, 255, 255, 0.07);
+
+    font-size: 31px;
+}
+
+.royal-preview-prob-card small {
+    display: block;
+
+    color:
+        rgba(255, 247, 222, 0.58);
+
+    font-size: 0.7rem;
+}
+
+.royal-preview-prob-card strong {
+    display: block;
+
+    margin: 2px 0;
+
+    color: #ffe17d;
+    font-size: 1.5rem;
+}
+
+.royal-preview-prob-card.item strong {
+    color: #dda6ff;
+}
+
+.royal-preview-prob-card p {
+    margin: 0;
+
+    color:
+        rgba(255, 247, 222, 0.74);
+
+    font-size: 0.76rem;
+}
+
+/* ================= THÔNG BÁO ================= */
+
+.royal-preview-notice {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    margin: 0 34px 21px;
+    padding: 13px 15px;
+
+    border:
+        1px solid
+        rgba(116, 211, 255, 0.25);
+
+    border-radius: 15px;
+
+    background:
+        rgba(48, 120, 154, 0.11);
+}
+
+.royal-preview-notice > span {
+    color: #93e4ff;
+    font-size: 27px;
+}
+
+.royal-preview-notice p {
+    margin: 0;
+
+    color:
+        rgba(222, 246, 255, 0.79);
+
+    font-size: 0.78rem;
+    line-height: 1.5;
+}
+
+/* ================= TIÊU ĐỀ DANH SÁCH ================= */
+
+.royal-preview-section-title {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+
+    padding: 0 34px 15px;
+}
+
+.royal-preview-section-title span {
+    flex: 1;
+    height: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 220, 113, 0.5)
+        );
+}
+
+.royal-preview-section-title span:last-child {
+    background:
+        linear-gradient(
+            90deg,
+            rgba(255, 220, 113, 0.5),
+            transparent
+        );
+}
+
+.royal-preview-section-title h3 {
+    margin: 0;
+
+    color: #ffe493;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 1.05rem;
+    white-space: nowrap;
+}
+
+/* ================= DANH SÁCH VẬT PHẨM ================= */
+
+.royal-preview-list {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 13px;
+
+    padding: 0 34px 24px;
+}
+
+.royal-preview-item-card {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+
+    min-height: 104px;
+
+    display: flex;
+    align-items: center;
+    gap: 13px;
+
+    padding: 13px;
+
+    box-sizing: border-box;
+
+    border:
+        1px solid
+        rgba(201, 126, 255, 0.25);
+
+    border-radius: 18px;
+
+    background:
+        radial-gradient(
+            circle at 12% 50%,
+            rgba(198, 124, 255, 0.14),
+            transparent 36%
+        ),
+        rgba(14, 5, 24, 0.73);
+
+    transition:
+        transform 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.royal-preview-item-card:hover {
+    transform:
+        translateY(-5px)
+        scale(1.012);
+
+    border-color:
+        rgba(228, 174, 255, 0.62);
+
+    box-shadow:
+        0 14px 34px
+        rgba(0, 0, 0, 0.38),
+        0 0 24px
+        rgba(186, 100, 242, 0.12);
+}
+
+.royal-preview-item-shine {
+    position: absolute;
+    top: -55%;
+    left: -45%;
+    z-index: -1;
+
+    width: 55%;
+    height: 210%;
+
+    transform: rotate(24deg);
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.1),
+            transparent
+        );
+
+    transition: left 0.7s ease;
+}
+
+.royal-preview-item-card:hover
+.royal-preview-item-shine {
+    left: 125%;
+}
+
+.royal-preview-visual {
+    width: 68px;
+    height: 68px;
+
+    flex-shrink: 0;
+
+    display: grid;
+    place-items: center;
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        rgba(233, 194, 255, 0.4);
+
+    border-radius: 16px;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255, 255, 255, 0.13),
+            rgba(137, 64, 173, 0.16)
+        );
+
+    box-shadow:
+        0 8px 22px
+        rgba(0, 0, 0, 0.28);
+}
+
+.royal-preview-visual img {
+    width: 58px;
+    height: 58px;
+
+    object-fit: contain;
+}
+
+.royal-preview-icon,
+.royal-preview-fallback {
+    width: 100%;
+    height: 100%;
+
+    place-items: center;
+
+    font-size: 35px;
+}
+
+.royal-preview-icon {
+    display: grid;
+}
+
+.royal-preview-item-info {
+    min-width: 0;
+    flex: 1;
+}
+
+.royal-preview-item-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 7px;
+
+    margin-bottom: 5px;
+}
+
+.royal-preview-type {
+    color:
+        rgba(255, 247, 222, 0.55);
+
+    font-size: 0.65rem;
+}
+
+.royal-preview-owned-badge,
+.royal-preview-new-badge {
+    flex-shrink: 0;
+
+    padding: 3px 7px;
+
+    border-radius: 999px;
+
+    font-size: 0.56rem;
+    font-weight: 900;
+}
+
+.royal-preview-owned-badge {
+    color: #b9f6d0;
+
+    border:
+        1px solid
+        rgba(98, 226, 145, 0.27);
+
+    background:
+        rgba(52, 181, 99, 0.12);
+}
+
+.royal-preview-new-badge {
+    color: #ffe79d;
+
+    border:
+        1px solid
+        rgba(255, 218, 101, 0.26);
+
+    background:
+        rgba(216, 157, 31, 0.12);
+}
+
+.royal-preview-item-info h4 {
+    overflow: hidden;
+
+    margin: 0 0 7px;
+
+    color: #fff0bd;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 0.96rem;
+    line-height: 1.25;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.royal-preview-legendary-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+
+    padding: 4px 8px;
+
+    color: #f0c4ff;
+
+    border:
+        1px solid
+        rgba(210, 145, 255, 0.28);
+
+    border-radius: 999px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(137, 57, 180, 0.25),
+            rgba(232, 120, 181, 0.16)
+        );
+
+    font-size: 0.59rem;
+    font-weight: 950;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+.royal-preview-owned {
+    opacity: 0.72;
+}
+
+.royal-preview-owned::after {
+    content: "ĐÃ CÓ";
+
+    position: absolute;
+    right: -30px;
+    bottom: 8px;
+
+    width: 115px;
+
+    transform: rotate(-35deg);
+
+    color: rgba(168, 255, 199, 0.48);
+
+    font-size: 0.58rem;
+    font-weight: 950;
+    text-align: center;
+}
+
+/* ================= KHÔNG CÓ VẬT PHẨM ================= */
+
+.royal-preview-empty {
+    grid-column: 1 / -1;
+
+    padding: 30px 18px;
+
+    border:
+        1px dashed
+        rgba(255, 224, 131, 0.28);
+
+    border-radius: 18px;
+
+    background:
+        rgba(255, 255, 255, 0.025);
+
+    text-align: center;
+}
+
+.royal-preview-empty > div {
+    margin-bottom: 9px;
+    font-size: 38px;
+}
+
+.royal-preview-empty strong {
+    display: block;
+
+    color: #ffe69a;
+}
+
+.royal-preview-empty p {
+    margin: 7px 0 0;
+
+    color:
+        rgba(255, 247, 222, 0.57);
+
+    font-size: 0.78rem;
+}
+
+/* ================= CHÂN POPUP ================= */
+
+.royal-preview-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 15;
+
+    padding: 14px 34px 18px;
+
+    border-top:
+        1px solid
+        rgba(255, 255, 255, 0.06);
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(12, 4, 20, 0.72),
+            rgba(12, 4, 20, 0.98) 40%
+        );
+
+    backdrop-filter: blur(10px);
+}
+
+.royal-preview-footer button {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+
+    padding: 12px 18px;
+
+    color: #402500;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.72);
+
+    border-radius: 999px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fff0a9,
+            #d99a1f,
+            #ffed9e
+        );
+
+    box-shadow:
+        0 10px 30px
+        rgba(217, 154, 31, 0.3);
+
+    font-weight: 950;
+    cursor: pointer;
+
+    transition:
+        transform 0.22s ease,
+        box-shadow 0.22s ease;
+}
+
+.royal-preview-footer button:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 15px 38px
+        rgba(255, 196, 52, 0.45);
+}
+
+/* ================= HOẠT ẢNH ================= */
+
+@keyframes royalPreviewOpen {
+    from {
+        opacity: 0;
+
+        transform:
+            translateY(28px)
+            scale(0.92);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translateY(0)
+            scale(1);
+    }
+}
+
+@keyframes royalPreviewStars {
+    to {
+        background-position:
+            95px 90px,
+            -85px 135px;
+    }
+}
+
+@keyframes royalPreviewParticle {
+    0%,
+    100% {
+        opacity: 0.25;
+        transform: translateY(15px);
+    }
+
+    50% {
+        opacity: 1;
+
+        transform:
+            translateY(-18px)
+            scale(1.4);
+    }
+}
+
+@keyframes royalPreviewCrownFloat {
+    50% {
+        transform: translateY(-7px);
+    }
+}
+
+/* ================= ĐIỆN THOẠI ================= */
+
+@media (max-width: 650px) {
+    #royalRewardsModal .royal-rewards-premium {
+        width: 96vw !important;
+        border-radius: 22px !important;
+    }
+
+    .royal-preview-header {
+        padding:
+            30px 22px 19px;
+    }
+
+    .royal-preview-probability,
+    .royal-preview-list {
+        grid-template-columns: 1fr;
+
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .royal-preview-notice {
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+
+    .royal-preview-section-title {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .royal-preview-footer {
+        padding:
+            13px 20px 16px;
+    }
+}
+
+@media (max-width: 400px) {
+    .royal-preview-prob-card {
+        padding: 12px;
+    }
+
+    .royal-preview-prob-icon {
+        width: 50px;
+        height: 50px;
+
+        font-size: 27px;
+    }
+
+    .royal-preview-item-card {
+        padding: 11px;
+    }
+
+    .royal-preview-visual {
+        width: 59px;
+        height: 59px;
+    }
+
+    .royal-preview-visual img {
+        width: 51px;
+        height: 51px;
+    }
+}
+/* =========================================================
+   FIX DANH SÁCH PHẦN THƯỞNG DẠ HỘI
+========================================================= */
+
+/*
+ * Chuyển về một cột để tên vật phẩm không bị ép.
+ */
+#royalRewardsModal .royal-preview-list {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+}
+
+/*
+ * Thẻ vật phẩm rộng, cân đối hơn.
+ */
+#royalRewardsModal .royal-preview-item-card {
+    display: grid !important;
+
+    grid-template-columns:
+        86px minmax(0, 1fr);
+
+    align-items: center;
+
+    min-height: 118px;
+    width: 100%;
+
+    padding: 15px !important;
+
+    box-sizing: border-box;
+}
+
+/*
+ * Khung hình ảnh lớn hơn.
+ */
+#royalRewardsModal .royal-preview-visual {
+    width: 82px !important;
+    height: 82px !important;
+
+    box-sizing: border-box;
+    overflow: hidden;
+
+    border-radius: 18px !important;
+}
+
+/*
+ * Hiển thị toàn bộ ảnh pet.
+ */
+#royalRewardsModal
+.royal-preview-visual
+.royal-preview-pet-image,
+#royalRewardsModal
+.royal-preview-visual
+img {
+    display: block;
+
+    width: 74px !important;
+    height: 74px !important;
+
+    max-width: 100%;
+    max-height: 100%;
+
+    object-fit: contain !important;
+    object-position: center;
+
+    filter:
+        drop-shadow(
+            0 7px 8px
+            rgba(0, 0, 0, 0.38)
+        );
+}
+
+/*
+ * Nội dung được phép co giãn đúng.
+ */
+#royalRewardsModal .royal-preview-item-info {
+    min-width: 0 !important;
+    width: 100%;
+}
+
+/*
+ * Loại vật phẩm và trạng thái có thể xuống dòng.
+ */
+#royalRewardsModal .royal-preview-item-top {
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-start !important;
+
+    flex-wrap: wrap;
+
+    gap: 6px 10px !important;
+    margin-bottom: 7px;
+}
+
+/*
+ * Không để nhãn "Có thể nhận" lòi ra ngoài.
+ */
+#royalRewardsModal .royal-preview-owned-badge,
+#royalRewardsModal .royal-preview-new-badge {
+    position: static !important;
+
+    max-width: 100%;
+    flex-shrink: 0;
+
+    box-sizing: border-box;
+
+    padding: 4px 9px !important;
+
+    overflow: hidden;
+
+    font-size: 0.63rem !important;
+    line-height: 1.2;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/*
+ * Hiển thị đầy đủ tên vật phẩm.
+ */
+#royalRewardsModal .royal-preview-item-info h4 {
+    display: block !important;
+
+    margin:
+        0 0 9px !important;
+
+    overflow: visible !important;
+
+    color: #fff0bd !important;
+
+    font-size:
+        clamp(
+            1rem,
+            2.5vw,
+            1.18rem
+        ) !important;
+
+    line-height: 1.35 !important;
+
+    text-overflow: clip !important;
+    white-space: normal !important;
+
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
+
+/*
+ * Nhãn Truyền Thuyết không tràn thẻ.
+ */
+#royalRewardsModal
+.royal-preview-legendary-tag {
+    max-width: 100%;
+
+    box-sizing: border-box;
+
+    flex-wrap: wrap;
+    justify-content: center;
+
+    padding: 5px 10px !important;
+
+    font-size: 0.62rem !important;
+    line-height: 1.25;
+}
+
+/*
+ * Điện thoại.
+ */
+@media (max-width: 520px) {
+    #royalRewardsModal
+    .royal-preview-item-card {
+        grid-template-columns:
+            72px minmax(0, 1fr);
+
+        min-height: 105px;
+
+        padding: 12px !important;
+    }
+
+    #royalRewardsModal
+    .royal-preview-visual {
+        width: 68px !important;
+        height: 68px !important;
+    }
+
+    #royalRewardsModal
+    .royal-preview-visual
+    .royal-preview-pet-image,
+    #royalRewardsModal
+    .royal-preview-visual
+    img {
+        width: 62px !important;
+        height: 62px !important;
+    }
+
+    #royalRewardsModal
+    .royal-preview-item-info h4 {
+        font-size: 0.98rem !important;
+    }
+}
+#royalRewardsModal
+.royal-preview-section-title h3 {
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+    white-space: nowrap !important;
+
+    letter-spacing:
+        normal !important;
+
+    font-kerning: normal;
+}
+/* =========================================================
+   TRẠNG THÁI ĐỘNG DẠ HỘI HOÀNG GIA
+========================================================= */
+
+.royal-event-card::before {
+    content: attr(data-ribbon-text) !important;
+
+    color: #351c00 !important;
+    text-align: center;
+
+    transition:
+        background 0.3s ease,
+        color 0.3s ease;
+}
+
+/* Đang kiểm tra Firebase */
+
+.royal-event-card[data-event-state="loading"]::before {
+    background:
+        linear-gradient(
+            90deg,
+            #64748b,
+            #cbd5e1,
+            #64748b
+        ) !important;
+
+    color: #172033 !important;
+}
+
+/* Đang mở */
+
+.royal-event-card[data-event-state="open"]::before {
+    background:
+        linear-gradient(
+            90deg,
+            #b7791f,
+            #fff0a8 45%,
+            #e7b83f 75%,
+            #9a6119
+        ) !important;
+
+    color: #3f2600 !important;
+
+    box-shadow:
+        0 4px 18px
+        rgba(255, 215, 0, 0.5) !important;
+}
+
+/* Giáo viên khóa */
+
+.royal-event-card[data-event-state="locked"]::before {
+    background:
+        linear-gradient(
+            90deg,
+            #7f1d1d,
+            #ef4444,
+            #991b1b
+        ) !important;
+
+    color: white !important;
+}
+
+/* Chưa đến lịch */
+
+.royal-event-card[data-event-state="upcoming"]::before {
+    background:
+        linear-gradient(
+            90deg,
+            #1e3a8a,
+            #60a5fa,
+            #1d4ed8
+        ) !important;
+
+    color: white !important;
+}
+
+/* Đã kết thúc */
+
+.royal-event-card[data-event-state="ended"]::before {
+    background:
+        linear-gradient(
+            90deg,
+            #374151,
+            #9ca3af,
+            #374151
+        ) !important;
+
+    color: white !important;
+}
+
+/* Làm tối thẻ khi không thể tham gia */
+
+.royal-event-card[data-event-state="locked"],
+.royal-event-card[data-event-state="upcoming"],
+.royal-event-card[data-event-state="ended"] {
+    filter: saturate(0.72);
+}
+
+#btnRoyalJoin {
+    min-width: 190px;
+
+    transition:
+        transform 0.25s ease,
+        filter 0.25s ease,
+        opacity 0.25s ease;
+}
+
+#btnRoyalJoin:not(:disabled):hover {
+    transform: translateY(-3px);
+    filter: brightness(1.08);
+}
+
+#btnRoyalJoin:disabled {
+    opacity: 0.66;
+
+    background:
+        linear-gradient(
+            135deg,
+            #475569,
+            #94a3b8
+        ) !important;
+
+    color: #f8fafc !important;
+
+    box-shadow: none !important;
+
+    cursor: not-allowed !important;
+    transform: none !important;
+}
+/* =========================================================
+   FINAL FIX – POPUP PHẦN THƯỞNG DẠ HỘI
+   - Ẩn thanh cuộn xấu
+   - Mở rộng popup
+   - Sửa chữ tiếng Việt
+   - Không cắt tên vật phẩm
+========================================================= */
+
+/* ---------------- KHUNG POPUP ---------------- */
+
+#royalRewardsModal {
+    padding: 20px !important;
+
+    box-sizing: border-box;
+
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+#royalRewardsModal .modal-content.royal-rewards-premium,
+#royalRewardsModal .royal-rewards-premium {
+    width: min(94vw, 760px) !important;
+    max-width: 760px !important;
+
+    height: auto !important;
+    max-height: 90vh !important;
+
+    margin: auto !important;
+    padding: 0 !important;
+
+    box-sizing: border-box;
+
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+
+    overscroll-behavior: contain;
+
+    border-radius: 28px !important;
+
+    /*
+     * Font chính rõ ràng, không làm hỏng
+     * các dấu tiếng Việt.
+     */
+    font-family:
+        "Trebuchet MS",
+        Arial,
+        sans-serif !important;
+
+    text-rendering: optimizeLegibility;
+    font-kerning: normal;
+
+    /*
+     * Firefox: ẩn thanh cuộn nhưng
+     * chuột và cảm ứng vẫn cuộn được.
+     */
+    scrollbar-width: none !important;
+
+    /*
+     * Trình duyệt cũ của Microsoft.
+     */
+    -ms-overflow-style: none !important;
+}
+
+/*
+ * Chrome, Edge, Safari:
+ * Ẩn hoàn toàn scrollbar bên phải.
+ */
+#royalRewardsModal
+.royal-rewards-premium::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;
+}
+
+#royalRewardsModal
+.royal-rewards-premium::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+#royalRewardsModal
+.royal-rewards-premium::-webkit-scrollbar-thumb {
+    background: transparent !important;
+}
+
+/* ---------------- NÚT ĐÓNG ---------------- */
+
+#royalRewardsModal .royal-preview-close {
+    position: sticky !important;
+
+    top: 14px !important;
+    left: auto !important;
+    right: 14px !important;
+    z-index: 100 !important;
+
+    display: grid !important;
+    place-items: center;
+
+    width: 40px !important;
+    height: 40px !important;
+
+    margin:
+        14px
+        14px
+        -54px
+        auto !important;
+
+    padding: 0 !important;
+
+    border:
+        1px solid
+        rgba(255, 229, 145, 0.55)
+        !important;
+
+    border-radius: 50% !important;
+
+    background:
+        rgba(15, 4, 25, 0.88)
+        !important;
+
+    box-shadow:
+        0 5px 18px
+        rgba(0, 0, 0, 0.5);
+
+    color: #fff0b2 !important;
+
+    font-family: Arial, sans-serif !important;
+    font-size: 25px !important;
+    line-height: 1 !important;
+}
+
+/* ---------------- TIÊU ĐỀ ---------------- */
+
+#royalRewardsModal .royal-preview-header {
+    padding:
+        38px
+        52px
+        24px
+        !important;
+
+    box-sizing: border-box;
+}
+
+#royalRewardsModal .royal-preview-header h2 {
+    width: 100%;
+    max-width: 640px;
+
+    margin:
+        10px
+        auto
+        12px
+        !important;
+
+    color: #fff0b2 !important;
+
+    /*
+     * Cambria hiển thị dấu tiếng Việt
+     * ổn định hơn Georgia trên Windows.
+     */
+    font-family:
+        Cambria,
+        "Times New Roman",
+        serif !important;
+
+    font-size:
+        clamp(
+            1.85rem,
+            5vw,
+            2.65rem
+        ) !important;
+
+    font-weight: 800 !important;
+    line-height: 1.18 !important;
+
+    letter-spacing: 0 !important;
+    word-spacing: normal !important;
+
+    white-space: normal !important;
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
+
+    font-variant-ligatures: none;
+
+    text-align: center !important;
+}
+
+#royalRewardsModal .royal-preview-header p {
+    max-width: 620px;
+
+    margin:
+        0
+        auto
+        !important;
+
+    color:
+        rgba(255, 248, 225, 0.82)
+        !important;
+
+    font-family:
+        "Trebuchet MS",
+        Arial,
+        sans-serif !important;
+
+    font-size: 0.94rem !important;
+    line-height: 1.65 !important;
+
+    letter-spacing: 0 !important;
+    word-spacing: normal !important;
+
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    hyphens: none !important;
+
+    text-align: center !important;
+}
+
+/* Nhãn Kho báu Hoàng gia */
+
+#royalRewardsModal .royal-preview-kicker {
+    letter-spacing: 0.12em !important;
+    word-spacing: normal !important;
+    white-space: nowrap !important;
+}
+
+/* ---------------- HAI Ô TỈ LỆ ---------------- */
+
+#royalRewardsModal .royal-preview-probability {
+    display: grid !important;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr))
+        !important;
+
+    gap: 16px !important;
+
+    padding:
+        0
+        38px
+        20px
+        !important;
+}
+
+#royalRewardsModal .royal-preview-prob-card {
+    min-width: 0;
+
+    padding: 17px !important;
+
+    box-sizing: border-box;
+}
+
+#royalRewardsModal .royal-preview-prob-card > div {
+    min-width: 0;
+    flex: 1;
+}
+
+#royalRewardsModal .royal-preview-prob-card small,
+#royalRewardsModal .royal-preview-prob-card strong,
+#royalRewardsModal .royal-preview-prob-card p {
+    letter-spacing: 0 !important;
+    word-spacing: normal !important;
+
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    hyphens: none !important;
+}
+
+/* ---------------- KHUNG THÔNG BÁO ---------------- */
+
+#royalRewardsModal .royal-preview-notice {
+    margin:
+        0
+        38px
+        24px
+        !important;
+}
+
+#royalRewardsModal .royal-preview-notice p {
+    letter-spacing: 0 !important;
+    word-spacing: normal !important;
+
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+}
+
+/* ---------------- TIÊU ĐỀ TỦ ĐỒ ---------------- */
+
+#royalRewardsModal
+.royal-preview-section-title {
+    padding:
+        0
+        38px
+        17px
+        !important;
+}
+
+#royalRewardsModal
+.royal-preview-section-title h3 {
+    margin: 0 !important;
+
+    color: #ffe493 !important;
+
+    font-family:
+        Cambria,
+        "Times New Roman",
+        serif !important;
+
+    font-size: 1.2rem !important;
+    font-weight: 800 !important;
+    line-height: 1.3 !important;
+
+    letter-spacing: 0 !important;
+    word-spacing: normal !important;
+
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
+
+    font-variant-ligatures: none;
+}
+
+/* ---------------- DANH SÁCH VẬT PHẨM ---------------- */
+
+#royalRewardsModal .royal-preview-list {
+    display: grid !important;
+
+    /*
+     * Popup rộng sẽ hiện 2 cột.
+     * Khi thiếu chỗ sẽ tự xuống 1 cột.
+     */
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(290px, 1fr)
+        )
+        !important;
+
+    gap: 15px !important;
+
+    padding:
+        0
+        38px
+        26px
+        !important;
+
+    box-sizing: border-box;
+}
+
+/* Thẻ vật phẩm */
+
+#royalRewardsModal
+.royal-preview-item-card {
+    width: 100%;
+    min-width: 0;
+    min-height: 125px;
+
+    display: grid !important;
+
+    grid-template-columns:
+        86px
+        minmax(0, 1fr)
+        !important;
+
+    align-items: center;
+
+    gap: 15px !important;
+
+    padding: 15px !important;
+
+    box-sizing: border-box;
+    overflow: hidden !important;
+}
+
+/* Hình ảnh vật phẩm */
+
+#royalRewardsModal
+.royal-preview-visual {
+    width: 84px !important;
+    height: 84px !important;
+
+    box-sizing: border-box;
+}
+
+#royalRewardsModal
+.royal-preview-visual img,
+#royalRewardsModal
+.royal-preview-pet-image {
+    display: block !important;
+
+    width: 76px !important;
+    height: 76px !important;
+
+    max-width: 100%;
+    max-height: 100%;
+
+    object-fit: contain !important;
+    object-position: center;
+
+    margin: auto;
+}
+
+/* Nội dung bên phải */
+
+#royalRewardsModal
+.royal-preview-item-info {
+    min-width: 0 !important;
+    width: 100%;
+
+    overflow: hidden;
+}
+
+#royalRewardsModal
+.royal-preview-item-top {
+    width: 100%;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content:
+        space-between !important;
+
+    flex-wrap: wrap !important;
+
+    gap:
+        6px
+        9px
+        !important;
+
+    margin-bottom: 7px !important;
+}
+
+/* Tên vật phẩm */
+
+#royalRewardsModal
+.royal-preview-item-info h4 {
+    width: 100%;
+
+    display: -webkit-box !important;
+
+    margin:
+        0
+        0
+        9px
+        !important;
+
+    overflow: hidden !important;
+
+    color: #fff0bd !important;
+
+    font-family:
+        Cambria,
+        "Times New Roman",
+        serif !important;
+
+    font-size: 1.08rem !important;
+    font-weight: 800 !important;
+    line-height: 1.35 !important;
+
+    letter-spacing: 0 !important;
+    word-spacing: normal !important;
+
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    hyphens: none !important;
+
+    /*
+     * Tối đa hai dòng, không còn
+     * dấu ... giữa tên như trước.
+     */
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+
+    text-overflow: clip !important;
+    font-variant-ligatures: none;
+}
+
+/* Nhãn loại và trạng thái */
+
+#royalRewardsModal
+.royal-preview-type {
+    min-width: 0;
+
+    color:
+        rgba(255, 247, 222, 0.7)
+        !important;
+
+    font-size: 0.7rem !important;
+
+    letter-spacing: 0 !important;
+    word-spacing: normal !important;
+
+    white-space: normal !important;
+}
+
+#royalRewardsModal
+.royal-preview-owned-badge,
+#royalRewardsModal
+.royal-preview-new-badge {
+    position: static !important;
+
+    max-width: 100%;
+
+    padding:
+        4px
+        9px
+        !important;
+
+    box-sizing: border-box;
+
+    font-size: 0.61rem !important;
+    line-height: 1.25 !important;
+
+    letter-spacing: 0 !important;
+
+    white-space: nowrap !important;
+}
+
+/* Nhãn Truyền Thuyết */
+
+#royalRewardsModal
+.royal-preview-legendary-tag {
+    max-width: 100%;
+
+    padding:
+        5px
+        10px
+        !important;
+
+    box-sizing: border-box;
+
+    font-family:
+        "Trebuchet MS",
+        Arial,
+        sans-serif !important;
+
+    font-size: 0.62rem !important;
+    line-height: 1.25 !important;
+
+    letter-spacing: 0.04em !important;
+    word-spacing: normal !important;
+
+    white-space: normal !important;
+    word-break: keep-all !important;
+}
+
+/* ---------------- NÚT DƯỚI POPUP ---------------- */
+
+#royalRewardsModal .royal-preview-footer {
+    position: sticky !important;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+
+    width: 100%;
+
+    padding:
+        14px
+        38px
+        18px
+        !important;
+
+    box-sizing: border-box;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(12, 4, 20, 0.68),
+            rgba(12, 4, 20, 0.98) 35%
+        ) !important;
+
+    backdrop-filter: blur(12px);
+}
+
+#royalRewardsModal
+.royal-preview-footer button {
+    min-height: 54px;
+
+    font-family:
+        "Trebuchet MS",
+        Arial,
+        sans-serif !important;
+
+    font-size: 1rem !important;
+
+    letter-spacing: 0 !important;
+    word-spacing: normal !important;
+}
+
+/* ---------------- MÀN HÌNH NHỎ ---------------- */
+
+@media (max-width: 700px) {
+    #royalRewardsModal {
+        padding: 8px !important;
+    }
+
+    #royalRewardsModal
+    .modal-content.royal-rewards-premium,
+    #royalRewardsModal
+    .royal-rewards-premium {
+        width: 96vw !important;
+        max-width: 96vw !important;
+
+        max-height: 94vh !important;
+
+        border-radius: 22px !important;
+    }
+
+    #royalRewardsModal
+    .royal-preview-header {
+        padding:
+            34px
+            24px
+            20px
+            !important;
+    }
+
+    #royalRewardsModal
+    .royal-preview-header h2 {
+        font-size: 1.75rem !important;
+    }
+
+    #royalRewardsModal
+    .royal-preview-probability {
+        grid-template-columns:
+            1fr
+            !important;
+
+        padding:
+            0
+            20px
+            18px
+            !important;
+    }
+
+    #royalRewardsModal
+    .royal-preview-notice {
+        margin:
+            0
+            20px
+            21px
+            !important;
+    }
+
+    #royalRewardsModal
+    .royal-preview-section-title {
+        padding:
+            0
+            20px
+            15px
+            !important;
+    }
+
+    #royalRewardsModal
+    .royal-preview-list {
+        grid-template-columns:
+            1fr
+            !important;
+
+        padding:
+            0
+            20px
+            22px
+            !important;
+    }
+
+    #royalRewardsModal
+    .royal-preview-footer {
+        padding:
+            13px
+            20px
+            16px
+            !important;
+    }
+}
+
+@media (max-width: 420px) {
+    #royalRewardsModal
+    .royal-preview-item-card {
+        grid-template-columns:
+            72px
+            minmax(0, 1fr)
+            !important;
+
+        gap: 11px !important;
+
+        padding: 12px !important;
+    }
+
+    #royalRewardsModal
+    .royal-preview-visual {
+        width: 68px !important;
+        height: 68px !important;
+    }
+
+    #royalRewardsModal
+    .royal-preview-visual img,
+    #royalRewardsModal
+    .royal-preview-pet-image {
+        width: 62px !important;
+        height: 62px !important;
+    }
+
+    #royalRewardsModal
+    .royal-preview-section-title h3 {
+        font-size: 1rem !important;
+    }
+}/* =========================================================
+   ẨN THANH CUỘN TOÀN BỘ POPUP DẠ HỘI
+========================================================= */
+
+/* Popup tham gia Dạ Hội */
+#royalBallModal .modal-content,
+#royalBallModal .royal-premium-shell {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+
+    /* Firefox */
+    scrollbar-width: none !important;
+
+    /* Edge/IE cũ */
+    -ms-overflow-style: none !important;
+}
+
+/* Chrome, Edge, Safari */
+#royalBallModal .modal-content::-webkit-scrollbar,
+#royalBallModal .royal-premium-shell::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+/* Popup xem Phần Thưởng Dạ Hội */
+#royalRewardsModal .modal-content,
+#royalRewardsModal .royal-rewards-premium {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+#royalRewardsModal .modal-content::-webkit-scrollbar,
+#royalRewardsModal .royal-rewards-premium::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
 }
