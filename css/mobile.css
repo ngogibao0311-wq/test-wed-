@@ -283,14 +283,17 @@
         width: 100% !important;
     }
 
-    input, textarea, select {
+    input,
+    textarea,
+    select {
         padding: 12px 15px !important;
         font-size: 16px !important;
         box-sizing: border-box !important;
         width: 100% !important;
     }
 
-    .btn-approve, .btn-reject {
+    .btn-approve,
+    .btn-reject {
         width: 100% !important;
         margin-bottom: 8px !important;
         padding: 12px !important;
@@ -306,18 +309,31 @@
     /* ==========================================
        8. BẢNG (TABLE) & WIDGETS
        ========================================== */
-    table th, table td {
+    table th,
+    table td {
         padding: 10px !important;
         font-size: 0.9em !important;
     }
 
-    /* FIX HỘP COIN NỔI */
+    /* ==========================================
+       FIX HỘP COIN NỔI (CHO PHÉP KÉO GIÃN KÍCH THƯỚC)
+       ========================================== */
     #coinWidget {
-        touch-action: auto !important; 
-        transform: scale(0.85) !important;
-        transform-origin: top right !important;
-        z-index: 99999 !important;            
-        position: fixed !important;  
+        touch-action: none !important;
+        /* Giữ nguyên để không bị lỗi cuộn trang khi di chuyển */
+
+        /* 3 dòng quan trọng để bật tính năng kéo giãn chiều rộng/dài */
+        resize: both !important;
+        overflow: hidden !important;
+
+        /* Đặt kích thước tối thiểu và tối đa để không bị vỡ giao diện */
+        min-width: 120px !important;
+        min-height: 50px !important;
+        max-width: 90vw !important;
+        /* Không cho kéo to quá màn hình */
+
+        z-index: 99999 !important;
+        position: fixed !important;
         padding: 8px 12px !important;
     }
 
@@ -330,7 +346,10 @@
     }
 
     /* Fix lỗi thú cưng */
-    #petWidget, .pet-container, .pet, #pet {
+    #petWidget,
+    .pet-container,
+    .pet,
+    #pet {
         touch-action: none !important;
         user-select: none !important;
         -webkit-user-select: none !important;
@@ -412,7 +431,9 @@
     /* ==========================================
        FIX LỖI PHẦN TRẮC NGHIỆM BÊN HỌC SINH
        ========================================== */
-    .question-title, .question-text, .quiz-question {
+    .question-title,
+    .question-text,
+    .quiz-question {
         font-size: 1.1em !important;
         font-weight: bold !important;
         margin-bottom: 15px !important;
@@ -452,19 +473,22 @@
     /* ==========================================
        10. TỐI ƯU HỆ THỐNG HỘI HỌA (PAINTING MODULE)
        ========================================== */
-    .hh-canvas-wrapper, #canvasContainer {
+    .hh-canvas-wrapper,
+    #canvasContainer {
         width: 100% !important;
         overflow-x: auto !important;
         -webkit-overflow-scrolling: touch !important;
     }
 
-    #hh-canvas, .painting-canvas {
+    #hh-canvas,
+    .painting-canvas {
         max-width: 100% !important;
         height: auto !important;
         touch-action: none !important;
     }
 
-    .hh-toolbar, .painting-tools {
+    .hh-toolbar,
+    .painting-tools {
         display: flex !important;
         flex-wrap: wrap !important;
         gap: 8px !important;
@@ -482,11 +506,13 @@
     /* ==========================================
        11. TỐI ƯU BẢNG XẾP HẠNG (LEADERBOARD)
        ========================================== */
-    .leaderboard-wrapper, .lb-container {
+    .leaderboard-wrapper,
+    .lb-container {
         padding: 10px 5px !important;
     }
 
-    .lb-row, .lb-item {
+    .lb-row,
+    .lb-item {
         display: flex !important;
         flex-direction: row !important;
         align-items: center !important;
@@ -500,7 +526,8 @@
         min-width: 40px !important;
     }
 
-    .lb-info h4, .lb-name {
+    .lb-info h4,
+    .lb-name {
         font-size: 1em !important;
         white-space: nowrap !important;
         overflow: hidden !important;
@@ -530,14 +557,18 @@
     /* ==========================================
        13. VẬT PHẨM MỚI (THEME, EFFECT, PET) & INVENTORY
        ========================================== */
-    .theme-card, .effect-card, .pet-card, .item-card {
+    .theme-card,
+    .effect-card,
+    .pet-card,
+    .item-card {
         padding: 10px !important;
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
     }
 
-    .item-icon, .item-preview {
+    .item-icon,
+    .item-preview {
         width: 100% !important;
         height: auto !important;
         aspect-ratio: 1 / 1 !important;
@@ -550,7 +581,8 @@
         text-align: center !important;
     }
 
-    .btn-buy, .btn-equip {
+    .btn-buy,
+    .btn-equip {
         width: 100% !important;
         padding: 8px !important;
         font-size: 0.9em !important;
@@ -559,7 +591,10 @@
     /* ==========================================
        FIX ẢNH PET TRONG CỬA HÀNG QUÁ TO
        ========================================== */
-    .pet-card img, .store-item img, .pet-image, #storeItemsContainer img {
+    .pet-card img,
+    .store-item img,
+    .pet-image,
+    #storeItemsContainer img {
         max-width: 65px !important;
         max-height: 65px !important;
         object-fit: contain !important;
@@ -570,14 +605,25 @@
     /* ==========================================
        14. QUY TẮC AN TOÀN CHUNG (CHỐNG TRÀN VIỀN)
        ========================================== */
-    .content img, .content video, .content iframe, .modal-content img {
+    .content img,
+    .content video,
+    .content iframe,
+    .modal-content img {
         max-width: 100% !important;
         height: auto !important;
         border-radius: 8px !important;
     }
 
-    .word-wrap-fix, p, div, span, h1, h2, h3 {
+    .word-wrap-fix,
+    p,
+    div,
+    span,
+    h1,
+    h2,
+    h3 {
         word-wrap: break-word !important;
         overflow-wrap: break-word !important;
     }
-} /* KẾT THÚC KHỐI @MEDIA MOBILE. KHÔNG VIẾT CODE Ở DƯỚI DẤU NÀY! */
+}
+
+/* KẾT THÚC KHỐI @MEDIA MOBILE. KHÔNG VIẾT CODE Ở DƯỚI DẤU NÀY! */
