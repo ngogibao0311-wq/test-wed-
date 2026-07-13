@@ -719,10 +719,41 @@ window.onload = async function () {
 
         Object.keys(discounts).forEach(key => {
             const discount = discounts[key];
-            // Nếu thẻ chưa dùng và đang áp dụng 'all' -> Ép về danh sách giới hạn
-            if (!discount.isUsed && discount.targetItem && discount.targetItem[0] === 'all') {
-                updates[`student_discounts/${currentUser.username}/${key}/targetItem`] = validItems;
-                updates[`student_discounts/${currentUser.username}/${key}/source`] = 'daily_login';
+
+            const targetItems =
+                Array.isArray(discount.targetItem)
+                    ? discount.targetItem
+                    : [];
+
+            /*
+             * Không sửa các thẻ phần thưởng Hội Họa.
+             */
+            const isHoiHoaDiscount =
+                key.startsWith('hh_discount_') ||
+                key.startsWith('hh_chest_discount_') ||
+                discount.source === 'hoihoa_chest' ||
+                discount.source === 'hoihoa_season';
+
+            /*
+             * Chỉ chuyển đổi các thẻ đăng nhập cũ.
+             */
+            const isLegacyDailyLogin =
+                !discount.source ||
+                discount.source === 'daily_login';
+
+            if (
+                !discount.isUsed &&
+                !isHoiHoaDiscount &&
+                isLegacyDailyLogin &&
+                targetItems.includes('all')
+            ) {
+                updates[
+                    `student_discounts/${currentUser.username}/${key}/targetItem`
+                ] = validItems;
+
+                updates[
+                    `student_discounts/${currentUser.username}/${key}/source`
+                ] = 'daily_login';
             }
         });
 
@@ -2072,18 +2103,158 @@ window.switchTab = function (tabId, btnElement) {
 
 window.openStudentInfoModal = function () {
     if (window.currentActiveExamId) {
-        window.showExamLockWarning("⚠️ Hồ sơ cá nhân tạm khóa khi thi!");
+        window.showExamLockWarning(
+            "⚠️ Hồ sơ cá nhân tạm khóa khi thi!"
+        );
         return;
     }
-    const currentAvatar = currentUser.avatar || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
-    document.getElementById('modalAvatarPreview').src = currentAvatar;
-    document.getElementById('saveAvatarBtn').style.display = 'none';
 
-    document.getElementById('infoModalName').innerText = currentUser.name || 'Chưa cập nhật';
-    document.getElementById('infoModalClass').innerText = 'Lớp: ' + (currentUser.classInfo || 'Chưa cập nhật');
-    document.getElementById('infoModalHobbies').innerText = currentUser.hobbies || 'Chưa cập nhật';
-    document.getElementById('infoModalMotto').innerText = currentUser.motto || 'Chưa cập nhật';
-    document.getElementById('studentInfoModal').classList.add('active');
+    const modal = document.getElementById(
+        "studentInfoModal"
+    );
+
+    const avatarPreview = document.getElementById(
+        "modalAvatarPreview"
+    );
+
+    const saveAvatarBtn = document.getElementById(
+        "saveAvatarBtn"
+    );
+
+    const nameElement = document.getElementById(
+        "infoModalName"
+    );
+
+    const classElement = document.getElementById(
+        "infoModalClass"
+    );
+
+    const hobbiesElement = document.getElementById(
+        "infoModalHobbies"
+    );
+
+    const mottoElement = document.getElementById(
+        "infoModalMotto"
+    );
+
+    if (
+        !modal ||
+        !avatarPreview ||
+        !saveAvatarBtn
+    ) {
+        console.error(
+            "Không tìm thấy giao diện hồ sơ học sinh."
+        );
+        return;
+    }
+
+    /*
+     * Avatar mặc định có biểu tượng người dùng.
+     * Không dùng ảnh PNG trong suốt 1x1 nữa.
+     */
+    const defaultAvatarSVG = `
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="200"
+            height="200"
+            viewBox="0 0 200 200"
+        >
+            <defs>
+                <linearGradient
+                    id="avatarBackground"
+                    x1="0"
+                    y1="0"
+                    x2="1"
+                    y2="1"
+                >
+                    <stop
+                        offset="0%"
+                        stop-color="#eef2ff"
+                    />
+
+                    <stop
+                        offset="100%"
+                        stop-color="#ede9fe"
+                    />
+                </linearGradient>
+            </defs>
+
+            <rect
+                width="200"
+                height="200"
+                rx="100"
+                fill="url(#avatarBackground)"
+            />
+
+            <circle
+                cx="100"
+                cy="73"
+                r="34"
+                fill="#818cf8"
+            />
+
+            <path
+                d="M42 172c5-38 27-57 58-57s53 19 58 57"
+                fill="#818cf8"
+            />
+        </svg>
+    `;
+
+    const defaultAvatar =
+        "data:image/svg+xml;charset=UTF-8," +
+        encodeURIComponent(defaultAvatarSVG);
+
+    const savedAvatar =
+        typeof currentUser.avatar === "string"
+            ? currentUser.avatar.trim()
+            : "";
+
+    const hasValidAvatar =
+        savedAvatar.startsWith("data:image/") ||
+        savedAvatar.startsWith("https://") ||
+        savedAvatar.startsWith("http://") ||
+        savedAvatar.startsWith("blob:");
+
+    avatarPreview.src =
+        hasValidAvatar
+            ? savedAvatar
+            : defaultAvatar;
+
+    avatarPreview.onerror = function () {
+        this.onerror = null;
+        this.src = defaultAvatar;
+    };
+
+    saveAvatarBtn.style.display = "none";
+
+    if (nameElement) {
+        nameElement.textContent =
+            currentUser.name ||
+            "Chưa cập nhật";
+    }
+
+    if (classElement) {
+        classElement.textContent =
+            "Lớp: " +
+            (
+                currentUser.classInfo ||
+                "Chưa cập nhật"
+            );
+    }
+
+    if (hobbiesElement) {
+        hobbiesElement.textContent =
+            currentUser.hobbies ||
+            "Chưa cập nhật";
+    }
+
+    if (mottoElement) {
+        mottoElement.textContent =
+            currentUser.motto ||
+            "Chưa cập nhật";
+    }
+
+    modal.classList.add("active");
 };
 
 window.closeStudentInfoModal = function () {
@@ -5009,7 +5180,7 @@ window.showExamWarning = function (
     if (
         cancelButton &&
         cancelButton.dataset.originalDisplay ===
-            undefined
+        undefined
     ) {
         cancelButton.dataset.originalDisplay =
             cancelButton.style.display || '';
@@ -7502,7 +7673,7 @@ window.openHoiHoaChest = async function (chestKey) {
                 }
 
                 if (
-                    current.id !== 'chest_hoihoa' &&
+                    current.id !== 'chest_hoihoa' ||
                     current.type !== 'chest'
                 ) {
                     return;
@@ -7541,7 +7712,7 @@ window.openHoiHoaChest = async function (chestKey) {
         if (randomValue < 0.01) {
             const storeItems =
                 typeof StoreConfig !== 'undefined' &&
-                Array.isArray(StoreConfig.items)
+                    Array.isArray(StoreConfig.items)
                     ? StoreConfig.items
                     : [];
 
@@ -7579,10 +7750,10 @@ window.openHoiHoaChest = async function (chestKey) {
             } else {
                 const randomItem =
                     artItems[
-                        Math.floor(
-                            Math.random() *
-                            artItems.length
-                        )
+                    Math.floor(
+                        Math.random() *
+                        artItems.length
+                    )
                     ];
 
                 const inventorySnap = await db
@@ -7755,9 +7926,8 @@ window.openHoiHoaChest = async function (chestKey) {
             );
         } else {
             alert(
-                `Không mở được rương: ${
-                    error.message ||
-                    'lỗi không xác định'
+                `Không mở được rương: ${error.message ||
+                'lỗi không xác định'
                 }`
             );
         }

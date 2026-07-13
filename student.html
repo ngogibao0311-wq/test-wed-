@@ -13,9 +13,9 @@
     <link rel="stylesheet" href="css/effects-pets.css?v=3.0">
     <link rel="stylesheet" href="css/royal-ball.css?v=3.0">
     <link rel="stylesheet" href="css/daily-login.css?v=3.0">
-    <link rel="stylesheet" href="css/lord-of-mysteries.css?v=3.0">
+    <link rel="stylesheet" href="css/lord-of-mysteries.css?v=3.3">
     <link rel="stylesheet" href="css/legendery.css?v=3.0">
-    <link rel="stylesheet" href="css/leaderboard.css?v=3.0">
+    <link rel="stylesheet" href="css/leaderboard.css?v=3.3">
     <link rel="stylesheet" href="css/painting.css?v=3.0">
     <script>
         MathJax = {
@@ -61,18 +61,18 @@
         </div>
 
         <div class="content">
-            <button class="inbox-trigger-btn" onclick="openStudentInbox()" title="Hộp thư đến"
+            <button class="inbox-trigger-btn ui-theme-immune" onclick="openStudentInbox()" title="Hộp thư đến"
                 style="position: absolute; top: 20px; right: 85px; width: 45px; height: 45px; border-radius: 50%; background: rgba(255,255,255,0.7); border: 2px solid rgba(255,255,255,0.9); font-size: 1.5em; cursor: pointer; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; justify-content: center; align-items: center;">
                 💌
                 <span id="inboxBadge"
                     style="display: none; position: absolute; top: -5px; right: -5px; background: #e11d48; color: white; font-size: 0.65em; font-weight: bold; padding: 3px 6px; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">0</span>
             </button>
 
-            <button class="bag-trigger-btn" onclick="openStudentBag()" title="Túi đồ của tôi"
+            <button class="bag-trigger-btn ui-theme-immune" onclick="openStudentBag()" title="Túi đồ của tôi"
                 style="position: absolute; top: 20px; right: 140px; width: 45px; height: 45px; border-radius: 50%; background: rgba(255,255,255,0.7); border: 2px solid rgba(255,255,255,0.9); font-size: 1.5em; cursor: pointer; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; justify-content: center; align-items: center; transition: 0.2s;">
                 🎒
             </button>
-            <button class="profile-trigger-btn" onclick="openStudentInfoModal()" title="Hồ sơ cá nhân">
+            <button class="profile-trigger-btn ui-theme-immune" onclick="openStudentInfoModal()" title="Hồ sơ cá nhân">
                 <img id="avatarImage" src=""
                     style="display: none; width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
 
@@ -211,7 +211,7 @@
                             style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white; padding: 12px 25px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(246, 211, 101, 0.4);">Chơi
                             ngay ➡️</button>
                     </div>
-                    <div id="royalEventCard" class="card royal-event-card" data-event-state="loading"
+                    <div id="royalEventCard" class="card royal-event-card ui-theme-immune" data-event-state="loading"
                         data-ribbon-text="ĐANG KIỂM TRA"
                         style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; margin-top: 20px;">
                         <div>
@@ -335,8 +335,8 @@
     </div>
     </div>
 
-    <div id="studentInfoModal" class="modal-overlay">
-        <div class="modal-content form-container"
+    <div id="studentInfoModal" class="modal-overlay ui-theme-immune">
+        <div class="modal-content form-container">
             <button class="close-btn" onclick="closeStudentInfoModal()">✖</button>
 
             <div class="avatar-upload-container"
@@ -370,7 +370,7 @@
         </div>
     </div>
 
-    <div id="luckyWheelModal" class="modal-overlay" style="background: rgba(0,0,0,0.6);">
+    <div id="luckyWheelModal" class="modal-overlay ui-theme-immune" style="background: rgba(0,0,0,0.6);">
         <div class="modal-content"
             style="max-width: 480px; text-align: center; position: relative; background: rgba(30, 30, 50, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 30px 60px rgba(0,0,0,0.5); border-radius: 24px; padding: 35px 20px 45px 20px;">
 
@@ -609,7 +609,7 @@
         </div>
     </div>
 
-    <div id="studentInboxModal" class="modal-overlay" style="z-index: 999998;">
+    <div id="studentInboxModal" class="modal-overlay ui-theme-immune" style="z-index: 999998;">
         <div class="modal-content form-container"
             style="max-width: 500px; background: rgba(255, 255, 255, 0.95); border-top: 6px solid #3b82f6;">
             <button class="close-btn" onclick="closeStudentInbox()">✖</button>
@@ -625,7 +625,7 @@
         </div>
     </div>
 
-    <div id="studentBagModal" class="modal-overlay" style="z-index: 999998;">
+    <div id="studentBagModal" class="modal-overlay ui-theme-immune" style="z-index: 999998;">
         <div class="modal-content form-container"
             style="max-width: 450px; background: rgba(255, 255, 255, 0.98); border-top: 6px solid #8e44ad; position: relative; border-radius: 12px; box-shadow: 0 15px 30px rgba(0,0,0,0.2);">
             <button class="close-btn" onclick="closeStudentBag()">✖</button>
@@ -715,7 +715,7 @@
         </div>
     </div>
 
-    <div id="royalBallModal" class="modal-overlay" style="z-index: 999999;">
+    <div id="royalBallModal" class="modal-overlay ui-theme-immune" style="z-index: 999999;">
         <div class="modal-content" style="max-width: 600px; padding: 0;">
             <div class="castle-overlay"></div>
             <button class="close-btn" onclick="RoyalBallEvent.closeModal()"
@@ -748,7 +748,7 @@
         </div>
     </div>
 
-    <div id="royalRewardsModal" class="modal-overlay" style="z-index: 999999;">
+    <div id="royalRewardsModal" class="modal-overlay ui-theme-immune" style="z-index: 999999;">
         <div class="modal-content form-container"
             style="max-width: 450px; text-align: center; border-top: 6px solid #c0392b; background: rgba(255, 255, 255, 0.95);">
             <button class="close-btn"
@@ -806,7 +806,7 @@
     <script src="js/pet-interactions.js?v=3.0"></script>
     <script src="js/music-manager.js?v=3.0"></script>
     <script src="js/store-manager.js?v=3.0"></script>
-    <script src="js/leaderboard.js?v=3.0"></script>
+    <script src="js/leaderboard.js?v=3.3"></script>
     <script src="js/painting.js?v=3.0"></script>
 
     <!-- YouTube API không phụ thuộc Firebase -->

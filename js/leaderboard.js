@@ -1,416 +1,2186 @@
-// leaderboard.js
+// leaderboard.js — giao diện Bảng Xếp Hạng Thi Đua phiên bản mới
 
+const LB_ICONS = {
+    trophy: `
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M8 4h8v3.5c0 3.1-1.6 5.5-4 5.5s-4-2.4-4-5.5V4Z" fill="currentColor"/>
+            <path d="M8 6H5.5v1.1c0 2.2 1.3 3.8 3.4 4.2M16 6h2.5v1.1c0 2.2-1.3 3.8-3.4 4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M12 13v3m-3 4h6m-5-4h4l1 4H9l1-4Z" fill="currentColor"/>
+        </svg>`,
+
+    refresh: `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M20 11a8 8 0 1 0-2.34 5.66" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M20 5v6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>`,
+
+    close: `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>`,
+
+    info: `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+            <path d="M12 10.8V17M12 7.2h.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>`
+};
+
+
+// ======================================================
 // 1. KHỞI TẠO GIAO DIỆN BẢNG XẾP HẠNG
+// ======================================================
+
 function initLeaderboardSystem() {
-    // Chèn nút vào giao diện
-    const bagBtn = document.querySelector('.bag-trigger-btn');
-    if (bagBtn) {
-        const lbBtn = document.createElement('button');
-        lbBtn.className = 'leaderboard-trigger-btn';
-        lbBtn.title = 'Bảng xếp hạng thi đua';
-        lbBtn.innerHTML = '🏆';
-        lbBtn.onclick = openLeaderboardModal;
+    // Không chèn lại giao diện nếu script bị tải nhiều lần.
+    if (document.getElementById("leaderboardModal")) {
+        return;
+    }
+
+    // Tạo nút mở bảng xếp hạng cạnh nút Túi đồ.
+    const bagBtn = document.querySelector(".bag-trigger-btn");
+
+    if (bagBtn && !document.querySelector(".leaderboard-trigger-btn")) {
+        const lbBtn = document.createElement("button");
+
+        lbBtn.type = "button";
+        lbBtn.className = "leaderboard-trigger-btn ui-theme-immune";
+        lbBtn.title = "Mở bảng xếp hạng thi đua";
+        lbBtn.setAttribute("aria-label", "Mở bảng xếp hạng thi đua");
+
+        lbBtn.innerHTML = `
+            <span class="lb-trigger-icon">
+                ${LB_ICONS.trophy}
+            </span>
+        `;
+
+        lbBtn.addEventListener("click", openLeaderboardModal);
+
         bagBtn.parentNode.insertBefore(lbBtn, bagBtn);
     }
 
-    // Chèn Modal HTML
     const modalHTML = `
-    <div id="leaderboardModal" class="modal-overlay" style="z-index: 999998;">
-        <div class="modal-content form-container" style="max-width: 600px; background: rgba(255, 255, 255, 0.98); border-top: 6px solid #f1c40f; border-radius: 12px; box-shadow: 0 15px 30px rgba(0,0,0,0.2);">
-            <button class="close-btn" onclick="closeLeaderboardModal()">✖</button>
-            <h3 style="color: #f39c12; margin-bottom: 5px; font-size: 1.6em; text-align: center; text-transform: uppercase; font-weight: 900;">
-                🏆 Bảng Xếp Hạng Thi Đua
-            </h3>
-            
-            <div style="text-align: center; margin-bottom: 15px; border-bottom: 1px solid rgba(241, 196, 15, 0.2); padding-bottom: 10px; display: flex; justify-content: center; align-items: center; gap: 8px;">
-                <span id="lbMonthDisplay" style="color: #64748b; font-weight: bold; font-size: 1.05em;"></span>
-                <button onclick="openRulesModal()" title="Xem Quy chế thi đua" style="background: #3b82f6; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-weight: bold; cursor: pointer; font-size: 0.9em; box-shadow: 0 2px 5px rgba(59,130,246,0.4); display: flex; justify-content: center; align-items: center; transition: 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">?</button>
-            </div>
-            
-            <div id="leaderboardBody" style="max-height: 55vh; overflow-y: auto; padding: 5px; margin-bottom: 5px;">
-                <div style="text-align:center; padding: 30px; color: #888;">⏳ Đang đồng bộ và tính toán dữ liệu...</div>
-            </div>
+        <!-- BẢNG XẾP HẠNG -->
+        <div
+            id="leaderboardModal"
+            class="modal-overlay"
+            style="z-index:999998;"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="leaderboardTitle"
+        >
+            <section class="modal-content form-container lb-panel">
+
+                <header class="lb-header">
+                    <div class="lb-header-inner">
+
+                        <div class="lb-title-wrap">
+                            <div class="lb-title-emblem">
+                                ${LB_ICONS.trophy}
+                            </div>
+
+                            <div>
+                                <p class="lb-eyebrow">
+                                    Vinh danh thành tích
+                                </p>
+
+                                <h3
+                                    id="leaderboardTitle"
+                                    class="lb-title"
+                                >
+                                    Bảng Xếp Hạng Thi Đua
+                                </h3>
+
+                                <p class="lb-subtitle">
+                                    Cùng tiến bộ, chinh phục từng cột mốc.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="lb-header-actions">
+
+                            <button
+                                id="lbRefreshBtn"
+                                class="lb-icon-btn"
+                                type="button"
+                                title="Làm mới dữ liệu"
+                                aria-label="Làm mới dữ liệu"
+                            >
+                                ${LB_ICONS.refresh}
+                            </button>
+
+                            <button
+                                id="lbRulesBtn"
+                                class="lb-rules-btn"
+                                type="button"
+                                title="Xem quy chế thi đua"
+                            >
+                                ${LB_ICONS.info}
+                                <span>Quy chế</span>
+                            </button>
+
+                            <button
+                                id="lbCloseBtn"
+                                class="lb-icon-btn"
+                                type="button"
+                                title="Đóng"
+                                aria-label="Đóng bảng xếp hạng"
+                            >
+                                ${LB_ICONS.close}
+                            </button>
+
+                        </div>
+                    </div>
+
+                    <div class="lb-season-line">
+
+                        <span
+                            id="lbMonthDisplay"
+                            class="lb-season-chip"
+                        >
+                            Đang tải mùa thi đua…
+                        </span>
+
+                        <span class="lb-live-chip">
+                            <i class="lb-live-dot"></i>
+                            Đang diễn ra
+                        </span>
+
+                    </div>
+                </header>
+
+                <main
+                    id="leaderboardBody"
+                    class="lb-content"
+                    aria-live="polite"
+                >
+                    ${getLeaderboardLoadingHTML()}
+                </main>
+
+            </section>
         </div>
-    </div>
 
-    <div id="rulesModal" class="modal-overlay" style="z-index: 999999; background: rgba(0,0,0,0.5);">
-        <div class="modal-content form-container" style="max-width: 500px; text-align: left; border-top: 6px solid #3b82f6; border-radius: 12px; padding: 25px;">
-            <button class="close-btn" onclick="closeRulesModal()">✖</button>
-            <h3 style="color: #3b82f6; margin-top: 0; margin-bottom: 15px; font-size: 1.4em; text-align: center; text-transform: uppercase;">📜 Quy Chế Thi Đua</h3>
-            
-            <div style="max-height: 60vh; overflow-y: auto; font-size: 0.95em; color: #444; line-height: 1.6; padding-right: 10px;">
-                <h4 style="color: #2c3e50; margin-bottom: 5px; border-bottom: 1px dashed #ccc; padding-bottom: 5px;">1. Tính Điểm Xếp Hạng</h4>
-                <ul style="margin-top: 5px; padding-left: 20px;">
-                    <li><strong>Điểm xếp hạng</strong> = ĐTB bài hợp lệ + Điểm thưởng video (Tối đa +1.0đ).</li>
-                    <li>Chỉ tính bài tập đã chấm điểm. Điều kiện để lọt vào BXH là có <strong>ít nhất 1 bài hợp lệ</strong>.</li>
-                    <li>Thứ tự ưu tiên xếp hạng: <strong>Điểm xếp hạng cao hơn</strong> > <strong>Số bài điểm 10 nhiều hơn</strong> > <strong>Số lần vi phạm ít hơn</strong>.</li>
-                </ul>
 
-                <h4 style="color: #e11d48; margin-bottom: 5px; margin-top: 20px; border-bottom: 1px dashed #ccc; padding-bottom: 5px;">2. Các Hình Thức Vi Phạm</h4>
-                <ul style="margin-top: 5px; padding-left: 20px;">
-                    <li><strong>Nộp trễ hạn / Thu tự động:</strong> Bài làm sẽ không được tính vào ĐTB và bị ghi nhận 1 lần vi phạm.</li>
-                    <li><strong>Gian lận thi cử:</strong> Thoát toàn màn hình, mở tab khác. Bị thu bài, không tính vào ĐTB, ghi nhận 1 lần vi phạm.</li>
-                    <li><strong>Vi phạm nộp tự luận:</strong> Thiếu file đính kèm hoặc văn bản. Bị 0đ phần tự luận và ghi nhận 1 lần vi phạm.</li>
-                    <li><strong>Không hoàn thành video:</strong> Chưa xem đủ thời gian, không được mở khóa bài tập (không được tính ĐTB).</li>
-                </ul>
+        <!-- QUY CHẾ THI ĐUA -->
+        <div
+            id="rulesModal"
+            class="modal-overlay ui-theme-immune"
+            style="z-index:999999;"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="rulesTitle"
+        >
+            <section class="modal-content form-container lb-rules-panel">
 
-                <h4 style="color: #f39c12; margin-bottom: 5px; margin-top: 20px; border-bottom: 1px dashed #ccc; padding-bottom: 5px;">3. Cơ Chế Phần Thưởng (Cuối Tháng)</h4>
-                <ul style="margin-top: 5px; padding-left: 20px; list-style-type: none;">
-                    <li style="margin-bottom: 8px;">🥇 <strong>Hạng 1:</strong> 1 Rương Kho Báu.</li>
-                    <li style="margin-bottom: 8px;">🥈 <strong>Hạng 2:</strong> 1 Thẻ giảm giá ngẫu nhiên.</li>
-                    <li style="margin-bottom: 8px;">🥉 <strong>Hạng 3:</strong> Nhận ngay 100 Coin.</li>
-                    <li>🎖️ <strong>Hạng 4 trở đi:</strong> Nhận 50 Coin khích lệ.</li>
-                </ul>
-            </div>
-            
-            <button onclick="closeRulesModal()" style="width: 100%; padding: 12px; margin-top: 20px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: bold; color: #334155; cursor: pointer; transition: 0.2s;">Đã hiểu</button>
-        </div>
-    </div>
-    <!-- ... Giữ nguyên HTML của treasureChestModal ... -->
-    <div id="treasureChestModal" class="modal-overlay" style="z-index: 999999;">
-        <div class="modal-content treasure-chest-box" style="max-width: 480px; text-align: center; border-radius: 16px;">
-            <button class="close-btn" onclick="document.getElementById('treasureChestModal').classList.remove('active')" style="color: white; background: rgba(255,255,255,0.1);">✖</button>
-            <div style="font-size: 4em; filter: drop-shadow(0 0 20px rgba(241, 196, 15, 0.8)); margin-bottom: 10px;">🎁</div>
-            <h3 style="color: #f1c40f; font-size: 1.8em; text-transform: uppercase; margin-bottom: 10px;">Rương Kho Báu</h3>
-            <p style="color: #cbd5e1; margin-bottom: 25px; font-size: 0.95em;">Hệ thống phát hiện bạn đang sở hữu Rương Hạng 1. Hãy chọn 1 phần thưởng:</p>
-            
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-                <button onclick="claimChestReward('coin')" style="padding: 15px; border-radius: 12px; border: 2px dashed #f1c40f; background: rgba(241, 196, 15, 0.1); color: #f1c40f; font-size: 1.1em; font-weight: bold; cursor: pointer; transition: 0.2s;">
-                    💰 Lựa chọn 1: Nhận Ngẫu Nhiên Coin<br>
-                    <span style="font-size: 0.8em; color: #94a3b8; font-weight: normal;">(Tỉ lệ nhận 200 - 1000 Coin)</span>
+                <button
+                    id="rulesCloseBtn"
+                    class="lb-icon-btn"
+                    type="button"
+                    title="Đóng"
+                    aria-label="Đóng quy chế"
+                >
+                    ${LB_ICONS.close}
                 </button>
-                <button onclick="claimChestReward('item')" style="padding: 15px; border-radius: 12px; border: 2px dashed #38ef7d; background: rgba(56, 239, 125, 0.1); color: #38ef7d; font-size: 1.1em; font-weight: bold; cursor: pointer; transition: 0.2s;">
-                    📦 Lựa chọn 2: Vật Phẩm Ngẫu Nhiên<br>
-                    <span style="font-size: 0.8em; color: #94a3b8; font-weight: normal;">(Có 1% cơ hội ra vật phẩm Truyền Thuyết)</span>
-                </button>
-            </div>
+
+                <header class="lb-rules-head">
+                    <h3 id="rulesTitle">
+                        Quy chế thi đua
+                    </h3>
+
+                    <p>
+                        Điểm số minh bạch, phần thưởng rõ ràng.
+                    </p>
+                </header>
+
+                <div class="lb-rules-scroll">
+
+                    <article class="lb-rule-card">
+                        <h4 class="lb-rule-title">
+                            <span class="lb-rule-number">1</span>
+                            Cách tính điểm xếp hạng
+                        </h4>
+
+                        <ul>
+                            <li>
+                                <strong>Điểm xếp hạng</strong>
+                                = Điểm trung bình bài hợp lệ
+                                + Điểm thưởng video,
+                                tối đa <strong>+1,0 điểm</strong>.
+                            </li>
+
+                            <li>
+                                Chỉ học sinh có ít nhất
+                                <strong>1 bài đã chấm và hợp lệ</strong>
+                                mới xuất hiện trên bảng xếp hạng.
+                            </li>
+
+                            <li>
+                                Thứ tự ưu tiên:
+                                điểm xếp hạng cao hơn →
+                                nhiều điểm 10 hơn →
+                                ít vi phạm hơn.
+                            </li>
+                        </ul>
+                    </article>
+
+                    <article class="lb-rule-card">
+                        <h4 class="lb-rule-title">
+                            <span class="lb-rule-number">2</span>
+                            Các hình thức vi phạm
+                        </h4>
+
+                        <ul>
+                            <li>
+                                <strong>Nộp trễ hoặc bị thu tự động:</strong>
+                                bài không được tính vào điểm trung bình
+                                và ghi nhận 1 lần vi phạm.
+                            </li>
+
+                            <li>
+                                <strong>Gian lận thi cử:</strong>
+                                thoát toàn màn hình hoặc mở tab khác;
+                                bài bị thu, không tính điểm trung bình.
+                            </li>
+
+                            <li>
+                                <strong>Thiếu phần tự luận:</strong>
+                                không có tệp hoặc nội dung theo yêu cầu;
+                                phần tự luận nhận 0 điểm
+                                và ghi nhận vi phạm.
+                            </li>
+
+                            <li>
+                                <strong>Chưa hoàn thành video:</strong>
+                                không được mở khóa bài tập tương ứng.
+                            </li>
+                        </ul>
+                    </article>
+
+                    <article class="lb-rule-card">
+                        <h4 class="lb-rule-title">
+                            <span class="lb-rule-number">3</span>
+                            Phần thưởng cuối tháng
+                        </h4>
+
+                        <div class="lb-reward-grid">
+
+                            <div class="lb-reward-item">
+                                <span>🥇</span>
+                                <span>
+                                    <strong>Hạng 1</strong><br>
+                                    1 Rương Kho Báu
+                                </span>
+                            </div>
+
+                            <div class="lb-reward-item">
+                                <span>🥈</span>
+                                <span>
+                                    <strong>Hạng 2</strong><br>
+                                    Thẻ giảm giá ngẫu nhiên
+                                </span>
+                            </div>
+
+                            <div class="lb-reward-item">
+                                <span>🥉</span>
+                                <span>
+                                    <strong>Hạng 3</strong><br>
+                                    100 Coin
+                                </span>
+                            </div>
+
+                            <div class="lb-reward-item">
+                                <span>🎖️</span>
+                                <span>
+                                    <strong>Hạng 4+</strong><br>
+                                    50 Coin khích lệ
+                                </span>
+                            </div>
+
+                        </div>
+                    </article>
+
+                </div>
+
+                <footer class="lb-rules-footer">
+                    <button
+                        id="rulesConfirmBtn"
+                        class="lb-primary-btn"
+                        type="button"
+                    >
+                        Đã hiểu quy chế
+                    </button>
+                </footer>
+
+            </section>
         </div>
-    </div>
+
+
+        <!-- RƯƠNG KHO BÁU -->
+        <div
+            id="treasureChestModal ui-theme-immune"
+            class="modal-overlay"
+            style="z-index:999999;"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="chestTitle"
+        >
+            <section class="modal-content treasure-chest-box lb-chest-panel">
+
+                <button
+                    id="chestCloseBtn"
+                    class="lb-icon-btn"
+                    type="button"
+                    title="Đóng"
+                    aria-label="Đóng rương kho báu"
+                >
+                    ${LB_ICONS.close}
+                </button>
+
+                <div class="lb-chest-art">
+                    🎁
+                </div>
+
+                <h3
+                    id="chestTitle"
+                    class="lb-chest-title"
+                >
+                    Rương Kho Báu
+                </h3>
+
+                <p class="lb-chest-copy">
+                    Bạn đang sở hữu Rương Hạng 1.
+                    Hãy chọn một trong hai loại phần thưởng bên dưới.
+                </p>
+
+                <div class="lb-reward-options">
+
+                    <button
+                        class="lb-reward-option"
+                        type="button"
+                        data-chest-choice="coin"
+                    >
+                        <span class="lb-reward-option-icon">
+                            💰
+                        </span>
+
+                        <strong>
+                            Coin ngẫu nhiên
+                        </strong>
+
+                        <small>
+                            Cơ hội nhận từ 200 đến 1.000 Coin.
+                        </small>
+                    </button>
+
+                    <button
+                        class="lb-reward-option is-item"
+                        type="button"
+                        data-chest-choice="item"
+                    >
+                        <span class="lb-reward-option-icon">
+                            📦
+                        </span>
+
+                        <strong>
+                            Vật phẩm ngẫu nhiên
+                        </strong>
+
+                        <small>
+                            Có cơ hội nhận vật phẩm Truyền Thuyết.
+                        </small>
+                    </button>
+
+                </div>
+
+            </section>
+        </div>
     `;
-    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    document.body.insertAdjacentHTML("beforeend", modalHTML);
+
+    bindLeaderboardEvents();
 }
 
-// CÁC HÀM ĐÓNG MỞ MODAL QUY CHẾ
-window.openRulesModal = function() {
-    document.getElementById('rulesModal').classList.add('active');
-};
 
-window.closeRulesModal = function() {
-    document.getElementById('rulesModal').classList.remove('active');
-};
+// ======================================================
+// 2. GẮN SỰ KIỆN CHO GIAO DIỆN
+// ======================================================
 
-// 2. MỞ BẢNG XẾP HẠNG VÀ TÍNH TOÁN
-window.openLeaderboardModal = async function() {
-    // Chặn mở bảng xếp hạng nếu học sinh đang trong bài thi nghiêm ngặt
-    if (window.currentActiveExamId) {
-        window.showExamLockWarning("⚠️ Bảng xếp hạng tạm khóa khi đang làm bài thi!");
-        return;
-    }
+function bindLeaderboardEvents() {
+    const leaderboardModal =
+        document.getElementById("leaderboardModal");
 
-    // Lấy trạng thái cài đặt từ Giáo viên
-    const lbSettingsSnap = await db.ref('leaderboard_settings').once('value');
-    const lbSettings = lbSettingsSnap.val() || { isOpen: false };
+    const rulesModal =
+        document.getElementById("rulesModal");
 
-    const now = new Date();
-    const currentMonth = now.getMonth() + 1;
-    const currentYear = now.getFullYear();
+    const chestModal =
+        document.getElementById("treasureChestModal");
 
-    let isSeasonActive = lbSettings.isOpen;
 
-    // LOGIC TỰ ĐỘNG MỞ LẠI KHI ĐẾN LỊCH HẸN:
-    // Nếu giáo viên đang TẮT bảng xếp hạng nhưng có thiết lập lịch hẹn tương lai
-    if (!isSeasonActive && lbSettings.targetMonth && lbSettings.targetYear) {
-        // Kiểm tra xem thời gian thực tế đã đạt hoặc vượt qua mốc tháng/năm hẹn chưa
-        if (currentYear > lbSettings.targetYear || (currentYear === lbSettings.targetYear && currentMonth >= lbSettings.targetMonth)) {
-            isSeasonActive = true;
-            // Kích hoạt đồng bộ ngầm trạng thái mở lên cơ sở dữ liệu để hệ thống hoạt động bình thường
-            await db.ref('leaderboard_settings').update({ isOpen: true });
-        }
-    }
+    document
+        .getElementById("lbCloseBtn")
+        ?.addEventListener(
+            "click",
+            closeLeaderboardModal
+        );
 
-    // Nếu sau khi kiểm tra lịch hẹn mà bảng xếp hạng vẫn đóng (chưa đến thời gian)
-    if (!isSeasonActive) {
-        if (lbSettings.targetMonth && lbSettings.targetYear) {
-            // Trường hợp có lịch hẹn tương lai
-            alert(`🔒 Bảng xếp hạng thi đua hiện đang đóng để bảo trì. Mùa giải mới sẽ chính thức bắt đầu vào Tháng ${lbSettings.targetMonth}/${lbSettings.targetYear}!`);
-        } else {
-            // Trường hợp giáo viên tắt và xóa lịch (Mặc định hiển thị thông báo chưa bắt đầu)
-            alert(`🔒 Bảng xếp hạng đang bị khóa do chưa bắt đầu mùa giải!`);
-        }
-        return;
-    }
 
-    // Nếu hợp lệ thì hiển thị modal bảng xếp hạng
-    const lbModal = document.getElementById('leaderboardModal');
-    if (lbModal) {
-        lbModal.classList.add('active');
-        if (typeof calculateAndRenderLeaderboard === 'function') {
-            await calculateAndRenderLeaderboard();
-        }
-    }
-};
+    document
+        .getElementById("lbRefreshBtn")
+        ?.addEventListener(
+            "click",
+            calculateAndRenderLeaderboard
+        );
 
-window.closeLeaderboardModal = function() {
-    document.getElementById('leaderboardModal').classList.remove('active');
-};
 
-async function calculateAndRenderLeaderboard() {
-    const body = document.getElementById('leaderboardBody');
-    const monthDisplay = document.getElementById('lbMonthDisplay');
-    
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
-    monthDisplay.innerText = `Thống kê Tháng ${currentMonth + 1}/${currentYear}`;
+    document
+        .getElementById("lbRulesBtn")
+        ?.addEventListener(
+            "click",
+            openRulesModal
+        );
 
-    try {
-        // Tích hợp việc gọi thêm dữ liệu video_tracking từ Firebase
-        const [users, assignments, submissions, trackingSnap] = await Promise.all([
-            getDB('users'),
-            getDB('assignments'),
-            getDB('submissions'),
-            db.ref('video_tracking').once('value')
-        ]);
 
-        const trackingData = trackingSnap.val() || {};
-        const students = users.filter(u => u.role === 'student');
-        let rankedData = [];
+    document
+        .getElementById("rulesCloseBtn")
+        ?.addEventListener(
+            "click",
+            closeRulesModal
+        );
 
-        // Lọc trước danh sách bài tập thuộc tháng hiện tại để tối ưu vòng lặp
-        const monthAssignments = assignments.filter(assign => {
-            if (!assign.endDate) return false;
-            const assignDate = new Date(assign.endDate.replace(" ", "T"));
-            return assignDate.getMonth() === currentMonth && assignDate.getFullYear() === currentYear;
+
+    document
+        .getElementById("rulesConfirmBtn")
+        ?.addEventListener(
+            "click",
+            closeRulesModal
+        );
+
+
+    document
+        .getElementById("chestCloseBtn")
+        ?.addEventListener(
+            "click",
+            closeTreasureChestModal
+        );
+
+
+    document
+        .querySelectorAll("[data-chest-choice]")
+        .forEach((button) => {
+            button.addEventListener("click", () => {
+                claimChestReward(
+                    button.dataset.chestChoice
+                );
+            });
         });
 
-        students.forEach(student => {
+
+    // Nhấn vào nền tối để đóng modal.
+    [
+        leaderboardModal,
+        rulesModal,
+        chestModal
+    ].forEach((modal) => {
+        modal?.addEventListener("click", (event) => {
+            if (event.target !== modal) {
+                return;
+            }
+
+            if (modal.id === "leaderboardModal") {
+                closeLeaderboardModal();
+            }
+
+            if (modal.id === "rulesModal") {
+                closeRulesModal();
+            }
+
+            if (modal.id === "treasureChestModal") {
+                closeTreasureChestModal();
+            }
+        });
+    });
+
+
+    // Nhấn phím Esc để đóng modal.
+    document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape") {
+            return;
+        }
+
+        if (rulesModal?.classList.contains("active")) {
+            closeRulesModal();
+            return;
+        }
+
+        if (chestModal?.classList.contains("active")) {
+            closeTreasureChestModal();
+            return;
+        }
+
+        if (leaderboardModal?.classList.contains("active")) {
+            closeLeaderboardModal();
+        }
+    });
+}
+
+
+// ======================================================
+// 3. TRẠNG THÁI ĐANG TẢI, RỖNG VÀ LỖI
+// ======================================================
+
+function getLeaderboardLoadingHTML() {
+    return `
+        <div class="lb-state">
+            <div>
+                <div
+                    class="lb-loader"
+                    aria-hidden="true"
+                ></div>
+
+                <h4>
+                    Đang cập nhật thành tích
+                </h4>
+
+                <p>
+                    Hệ thống đang đồng bộ bài tập,
+                    điểm số và thời gian xem video.
+                </p>
+            </div>
+        </div>
+    `;
+}
+
+
+function getLeaderboardStateHTML(
+    type,
+    title,
+    message
+) {
+    const icon =
+        type === "error"
+            ? "⚠️"
+            : "🏁";
+
+    return `
+        <div class="lb-state">
+            <div>
+                <div class="lb-state-icon">
+                    ${icon}
+                </div>
+
+                <h4>
+                    ${escapeHTML(title)}
+                </h4>
+
+                <p>
+                    ${escapeHTML(message)}
+                </p>
+            </div>
+        </div>
+    `;
+}
+
+
+// ======================================================
+// 4. CÁC HÀM HỖ TRỢ
+// ======================================================
+
+function escapeHTML(value) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+function getCurrentUsername() {
+    if (
+        typeof currentUser !== "undefined" &&
+        currentUser
+    ) {
+        return currentUser.username;
+    }
+
+    return null;
+}
+
+
+function isSafeAvatarURL(value) {
+    return /^(data:image\/(png|jpe?g|gif|webp|svg\+xml);|https?:\/\/|blob:)/i
+        .test(String(value || ""));
+}
+
+
+function renderAvatar(
+    avatar,
+    name,
+    extraClass = ""
+) {
+    const safeName =
+        escapeHTML(name || "Học sinh");
+
+    const rawAvatar =
+        String(avatar || "").trim();
+
+
+    if (isSafeAvatarURL(rawAvatar)) {
+        return `
+            <span class="lb-avatar ${extraClass}">
+                <img
+                    src="${escapeHTML(rawAvatar)}"
+                    alt="Ảnh đại diện của ${safeName}"
+                    loading="lazy"
+                >
+            </span>
+        `;
+    }
+
+
+    // Cho phép dùng emoji làm avatar.
+    const emoji =
+        rawAvatar && rawAvatar.length <= 12
+            ? escapeHTML(rawAvatar)
+            : "👤";
+
+
+    return `
+        <span
+            class="lb-avatar ${extraClass}"
+            aria-label="Ảnh đại diện của ${safeName}"
+        >
+            ${emoji}
+        </span>
+    `;
+}
+
+
+function formatScore(value) {
+    const number =
+        Number(value) || 0;
+
+    return number.toLocaleString(
+        "vi-VN",
+        {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        }
+    );
+}
+
+
+function getProgressPercent(score) {
+    // Điểm tối đa:
+    // 10 điểm trung bình + 1 điểm video.
+
+    return Math.max(
+        0,
+        Math.min(
+            100,
+            (Number(score) / 11) * 100
+        )
+    );
+}
+
+
+// ======================================================
+// 5. ĐÓNG VÀ MỞ MODAL
+// ======================================================
+
+window.openRulesModal = function () {
+    const modal =
+        document.getElementById("rulesModal");
+
+    modal?.classList.add("active");
+
+    document.body.classList.add(
+        "leaderboard-open"
+    );
+
+    document
+        .getElementById("rulesCloseBtn")
+        ?.focus();
+};
+
+
+window.closeRulesModal = function () {
+    document
+        .getElementById("rulesModal")
+        ?.classList.remove("active");
+
+
+    const leaderboardIsOpen =
+        document
+            .getElementById("leaderboardModal")
+            ?.classList.contains("active");
+
+
+    const chestIsOpen =
+        document
+            .getElementById("treasureChestModal")
+            ?.classList.contains("active");
+
+
+    if (
+        !leaderboardIsOpen &&
+        !chestIsOpen
+    ) {
+        document.body.classList.remove(
+            "leaderboard-open"
+        );
+    }
+};
+
+
+window.closeLeaderboardModal = function () {
+    document
+        .getElementById("leaderboardModal")
+        ?.classList.remove("active");
+
+    document.body.classList.remove(
+        "leaderboard-open"
+    );
+};
+
+
+function closeTreasureChestModal() {
+    document
+        .getElementById("treasureChestModal")
+        ?.classList.remove("active");
+
+
+    const leaderboardIsOpen =
+        document
+            .getElementById("leaderboardModal")
+            ?.classList.contains("active");
+
+
+    if (!leaderboardIsOpen) {
+        document.body.classList.remove(
+            "leaderboard-open"
+        );
+    }
+}
+
+
+// ======================================================
+// 6. MỞ BẢNG XẾP HẠNG
+// ======================================================
+
+window.openLeaderboardModal = async function () {
+    // Không cho mở bảng xếp hạng
+    // khi học sinh đang làm bài thi nghiêm ngặt.
+    if (window.currentActiveExamId) {
+        if (
+            typeof window.showExamLockWarning ===
+            "function"
+        ) {
+            window.showExamLockWarning(
+                "⚠️ Bảng xếp hạng tạm khóa khi đang làm bài thi!"
+            );
+        } else {
+            alert(
+                "⚠️ Bảng xếp hạng tạm khóa khi đang làm bài thi!"
+            );
+        }
+
+        return;
+    }
+
+
+    try {
+        const lbSettingsSnap =
+            await db
+                .ref("leaderboard_settings")
+                .once("value");
+
+
+        const lbSettings =
+            lbSettingsSnap.val() || {
+                isOpen: false
+            };
+
+
+        const now =
+            new Date();
+
+
+        const currentMonth =
+            now.getMonth() + 1;
+
+
+        const currentYear =
+            now.getFullYear();
+
+
+        let isSeasonActive =
+            lbSettings.isOpen;
+
+
+        // Tự động mở bảng xếp hạng
+        // khi đến tháng đã được giáo viên hẹn.
+        if (
+            !isSeasonActive &&
+            lbSettings.targetMonth &&
+            lbSettings.targetYear
+        ) {
+            const reachedTarget =
+                currentYear >
+                lbSettings.targetYear ||
+                (
+                    currentYear ===
+                    lbSettings.targetYear &&
+                    currentMonth >=
+                    lbSettings.targetMonth
+                );
+
+
+            if (reachedTarget) {
+                isSeasonActive = true;
+
+                await db
+                    .ref("leaderboard_settings")
+                    .update({
+                        isOpen: true
+                    });
+            }
+        }
+
+
+        if (!isSeasonActive) {
+            if (
+                lbSettings.targetMonth &&
+                lbSettings.targetYear
+            ) {
+                alert(
+                    `🔒 Bảng xếp hạng đang đóng để bảo trì. ` +
+                    `Mùa giải mới bắt đầu vào Tháng ` +
+                    `${lbSettings.targetMonth}/${lbSettings.targetYear}.`
+                );
+            } else {
+                alert(
+                    "🔒 Bảng xếp hạng đang bị khóa do chưa bắt đầu mùa giải!"
+                );
+            }
+
+            return;
+        }
+
+
+        const lbModal =
+            document.getElementById(
+                "leaderboardModal"
+            );
+
+
+        if (!lbModal) {
+            return;
+        }
+
+
+        lbModal.classList.add("active");
+
+        document.body.classList.add(
+            "leaderboard-open"
+        );
+
+
+        document
+            .getElementById("lbCloseBtn")
+            ?.focus();
+
+
+        await calculateAndRenderLeaderboard();
+
+    } catch (error) {
+        console.error(error);
+
+        alert(
+            "❌ Không thể mở bảng xếp hạng. " +
+            "Vui lòng kiểm tra kết nối và thử lại!"
+        );
+    }
+};
+
+
+// ======================================================
+// 7. TÍNH TOÁN DỮ LIỆU BẢNG XẾP HẠNG
+// ======================================================
+
+async function calculateAndRenderLeaderboard() {
+    const body =
+        document.getElementById(
+            "leaderboardBody"
+        );
+
+
+    const monthDisplay =
+        document.getElementById(
+            "lbMonthDisplay"
+        );
+
+
+    if (!body || !monthDisplay) {
+        return;
+    }
+
+
+    body.innerHTML =
+        getLeaderboardLoadingHTML();
+
+
+    const now =
+        new Date();
+
+
+    const currentMonth =
+        now.getMonth();
+
+
+    const currentYear =
+        now.getFullYear();
+
+
+    monthDisplay.textContent =
+        `Mùa thi đua · Tháng ` +
+        `${currentMonth + 1}/${currentYear}`;
+
+
+    try {
+        const [
+            users,
+            assignments,
+            submissions,
+            trackingSnap
+        ] = await Promise.all([
+            getDB("users"),
+            getDB("assignments"),
+            getDB("submissions"),
+            db.ref("video_tracking").once("value")
+        ]);
+
+
+        const trackingData =
+            trackingSnap.val() || {};
+
+
+        const students =
+            (users || []).filter(
+                (user) =>
+                    user.role === "student"
+            );
+
+
+        const rankedData = [];
+
+
+        // Chỉ lấy bài tập thuộc tháng hiện tại.
+        const monthAssignments =
+            (assignments || []).filter(
+                (assignment) => {
+                    if (!assignment.endDate) {
+                        return false;
+                    }
+
+
+                    const assignmentDate =
+                        new Date(
+                            assignment.endDate.replace(
+                                " ",
+                                "T"
+                            )
+                        );
+
+
+                    return (
+                        !Number.isNaN(
+                            assignmentDate.getTime()
+                        ) &&
+                        assignmentDate.getMonth() ===
+                        currentMonth &&
+                        assignmentDate.getFullYear() ===
+                        currentYear
+                    );
+                }
+            );
+
+
+        students.forEach((student) => {
             let totalScore = 0;
             let validCount = 0;
             let count10s = 0;
             let violationCount = 0;
             let totalVideoBonus = 0;
 
-            // 1. TÍNH ĐIỂM THƯỞNG TỪ THỜI GIAN XEM VIDEO TRONG THÁNG
-            monthAssignments.forEach(assign => {
-                if (assign.watchCondition && assign.watchCondition > 0) {
-                    let watchedTime = 0;
-                    if (trackingData[assign.id] && trackingData[assign.id][student.username]) {
-                        watchedTime = trackingData[assign.id][student.username];
-                    }
-                    
-                    let ratio = watchedTime / assign.watchCondition;
-                    if (ratio > 1) ratio = 1; // Giới hạn tỉ lệ ở mức 1
-                    
-                    let bonus = ratio * 0.5; // Tối đa 0.5 điểm/video
-                    totalVideoBonus += bonus;
-                }
-            });
 
-            // Tổng điểm thưởng video không vượt quá 1.0 điểm
-            if (totalVideoBonus > 1.0) totalVideoBonus = 1.0;
+            // ------------------------------------------
+            // TÍNH ĐIỂM THƯỞNG XEM VIDEO
+            // ------------------------------------------
 
-            // 2. LỌC BÀI NỘP VÀ TÍNH ĐIỂM TRUNG BÌNH (ĐTB)
-            const studentSubs = submissions.filter(s => s.studentUsername === student.username);
+            monthAssignments.forEach(
+                (assignment) => {
+                    if (
+                        assignment.watchCondition &&
+                        assignment.watchCondition > 0
+                    ) {
+                        const watchedTime =
+                            trackingData[
+                            assignment.id
+                            ]?.[
+                            student.username
+                            ] || 0;
 
-            studentSubs.forEach(sub => {
-                const assign = monthAssignments.find(a => a.id === sub.assignmentId);
-                if (!assign) return;
 
-                // Chỉ tính các bài đã có điểm và không đang chấm lại
-                if (sub.grade === null || sub.grade === undefined || sub.grade === '' || sub.isRegrading) return;
+                        const ratio =
+                            Math.min(
+                                1,
+                                watchedTime /
+                                assignment.watchCondition
+                            );
 
-                const isLate = sub.isLateFail || sub.isAutoSubmitted;
-                const isCheat = sub.isCheatFail;
-                const isMissingEssay = sub.isEssayMissing;
 
-                // Xử lý vi phạm và Tha lỗi (forcePass)
-                if (sub.forcePass) {
-                    // Giáo viên đã tha lỗi -> Bài tập trở nên hợp lệ toàn phần, không tính vi phạm
-                } else {
-                    // Ghi nhận tổng số lần vi phạm (Sẽ dùng làm tiêu chí xếp hạng 3)
-                    if (isLate || isCheat || isMissingEssay) {
-                        violationCount++;
-                    }
-                    // Bài nộp trễ hoặc gian lận không được tính vào ĐTB
-                    if (isLate || isCheat) {
-                        return; 
+                        totalVideoBonus +=
+                            ratio * 0.5;
                     }
                 }
+            );
 
-                // Cộng điểm (Trên hệ thang 10.0)
-                let score = parseFloat(sub.grade) || 0;
-                totalScore += score;
-                validCount++;
 
-                if (score === 10) count10s++;
-            });
+            // Tổng điểm video tối đa 1 điểm.
+            totalVideoBonus =
+                Math.min(
+                    totalVideoBonus,
+                    1
+                );
 
-            // Tính ĐTB làm tròn 2 chữ số
-            const dtb = validCount > 0 ? (totalScore / validCount) : 0;
-            const roundedDTB = Math.round(dtb * 100) / 100;
-            
-            // Tính điểm xếp hạng tổng
-            const finalScore = roundedDTB + totalVideoBonus;
 
-            // Chỉ những học sinh có ít nhất 1 bài tập hợp lệ mới được đưa vào
+            // ------------------------------------------
+            // LẤY BÀI NỘP CỦA HỌC SINH
+            // ------------------------------------------
+
+            const studentSubmissions =
+                (submissions || []).filter(
+                    (submission) =>
+                        submission.studentUsername ===
+                        student.username
+                );
+
+
+            studentSubmissions.forEach(
+                (submission) => {
+                    const assignment =
+                        monthAssignments.find(
+                            (item) =>
+                                item.id ===
+                                submission.assignmentId
+                        );
+
+
+                    if (!assignment) {
+                        return;
+                    }
+
+
+                    // Bỏ qua bài chưa chấm
+                    // hoặc đang được chấm lại.
+                    if (
+                        submission.grade === null ||
+                        submission.grade === undefined ||
+                        submission.grade === "" ||
+                        submission.isRegrading
+                    ) {
+                        return;
+                    }
+
+
+                    const isLate =
+                        submission.isLateFail ||
+                        submission.isAutoSubmitted;
+
+
+                    const isCheat =
+                        submission.isCheatFail;
+
+
+                    const isMissingEssay =
+                        submission.isEssayMissing;
+
+
+                    // Nếu giáo viên không tha lỗi.
+                    if (!submission.forcePass) {
+                        if (
+                            isLate ||
+                            isCheat ||
+                            isMissingEssay
+                        ) {
+                            violationCount++;
+                        }
+
+
+                        // Nộp trễ hoặc gian lận
+                        // không được tính vào ĐTB.
+                        if (
+                            isLate ||
+                            isCheat
+                        ) {
+                            return;
+                        }
+                    }
+
+
+                    const score =
+                        parseFloat(
+                            submission.grade
+                        ) || 0;
+
+
+                    totalScore += score;
+
+                    validCount++;
+
+
+                    if (score === 10) {
+                        count10s++;
+                    }
+                }
+            );
+
+
+            const average =
+                validCount > 0
+                    ? totalScore / validCount
+                    : 0;
+
+
+            const roundedAverage =
+                Math.round(
+                    average * 100
+                ) / 100;
+
+
+            const finalScore =
+                roundedAverage +
+                totalVideoBonus;
+
+
+            // Chỉ đưa học sinh có bài hợp lệ vào BXH.
             if (validCount > 0) {
                 rankedData.push({
-                    name: student.name,
-                    username: student.username,
-                    avatar: student.avatar || '👤',
-                    finalScore: Math.round(finalScore * 100) / 100, // Điểm xếp hạng
-                    dtb: roundedDTB, // Lưu lại để hiển thị UI
-                    videoBonus: Math.round(totalVideoBonus * 100) / 100, // Lưu lại để hiển thị UI
-                    tens: count10s,
-                    violations: violationCount
+                    name:
+                        student.name ||
+                        student.username ||
+                        "Học sinh",
+
+                    username:
+                        student.username,
+
+                    avatar:
+                        student.avatar || "👤",
+
+                    finalScore:
+                        Math.round(
+                            finalScore * 100
+                        ) / 100,
+
+                    dtb:
+                        roundedAverage,
+
+                    videoBonus:
+                        Math.round(
+                            totalVideoBonus * 100
+                        ) / 100,
+
+                    tens:
+                        count10s,
+
+                    violations:
+                        violationCount,
+
+                    validCount:
+                        validCount
                 });
             }
         });
 
-        // 3. THUẬT TOÁN SẮP XẾP: 
-        // Ưu tiên 1: Điểm xếp hạng giảm dần
-        // Ưu tiên 2: Số điểm 10 giảm dần
-        // Ưu tiên 3: Số vi phạm tăng dần
+
+        // ------------------------------------------
+        // SẮP XẾP THỨ HẠNG
+        // ------------------------------------------
+
         rankedData.sort((a, b) => {
-            if (b.finalScore !== a.finalScore) return b.finalScore - a.finalScore;
-            if (b.tens !== a.tens) return b.tens - a.tens;
-            return a.violations - b.violations;
+            // Ưu tiên 1:
+            // Điểm xếp hạng cao hơn.
+            if (
+                b.finalScore !==
+                a.finalScore
+            ) {
+                return (
+                    b.finalScore -
+                    a.finalScore
+                );
+            }
+
+
+            // Ưu tiên 2:
+            // Nhiều điểm 10 hơn.
+            if (
+                b.tens !==
+                a.tens
+            ) {
+                return (
+                    b.tens -
+                    a.tens
+                );
+            }
+
+
+            // Ưu tiên 3:
+            // Ít vi phạm hơn.
+            return (
+                a.violations -
+                b.violations
+            );
         });
 
-        // 4. RENDER GIAO DIỆN
+
         if (rankedData.length === 0) {
-            body.innerHTML = '<div style="text-align:center; padding: 30px; color: #64748b; font-style: italic;">Chưa có dữ liệu xếp hạng hợp lệ trong tháng này.</div>';
+            body.innerHTML =
+                getLeaderboardStateHTML(
+                    "empty",
+                    "Chưa có dữ liệu xếp hạng",
+                    "Tháng này chưa có bài tập hợp lệ đã được chấm điểm."
+                );
+
             return;
         }
 
-        let html = '';
-        rankedData.forEach((st, index) => {
-            let rankClass = index === 0 ? 'rank-1' : (index === 1 ? 'rank-2' : (index === 2 ? 'rank-3' : ''));
-            let rankIcon = index === 0 ? '🥇' : (index === 1 ? '🥈' : (index === 2 ? '🥉' : `#${index + 1}`));
-            
-            let avatarHtml = st.avatar.startsWith('data:image') 
-                ? `<img src="${st.avatar}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #e2e8f0;">`
-                : `<div style="font-size: 1.8em;">👤</div>`;
 
-            html += `
-            <div class="rank-row ${rankClass}">
-                <div class="rank-info">
-                    <div class="rank-number">${rankIcon}</div>
-                    ${avatarHtml}
-                    <div class="rank-name">${st.name} ${st.username === currentUser.username ? '<span style="color:#059669; font-size:0.8em;">(Bạn)</span>' : ''}</div>
-                </div>
-                <div class="rank-stats" style="text-align: right; display: flex; flex-direction: column; gap: 4px;">
-                    <span class="rank-score" style="font-size: 1.2em; font-weight: 900;">${st.finalScore} <span style="font-size: 0.55em; color: #64748b; font-weight: normal;">(ĐTB: ${st.dtb} + Video: ${st.videoBonus})</span></span>
-                    <span style="font-size: 0.85em; color: #475569;">Điểm 10: <strong>${st.tens}</strong> | Vi phạm: <strong style="color: ${st.violations > 0 ? '#e11d48' : '#059669'}">${st.violations}</strong></span>
-                </div>
-            </div>`;
-        });
+        body.innerHTML =
+            renderLeaderboard(
+                rankedData
+            );
 
-        body.innerHTML = html;
+    } catch (error) {
+        body.innerHTML =
+            getLeaderboardStateHTML(
+                "error",
+                "Không thể tải bảng xếp hạng",
+                "Đã xảy ra lỗi kết nối dữ liệu. Hãy nhấn nút làm mới để thử lại."
+            );
 
-    } catch (e) {
-        body.innerHTML = '<div style="text-align:center; padding: 30px; color: #e11d48;">❌ Lỗi kết nối dữ liệu. Vui lòng thử lại sau!</div>';
-        console.error(e);
+
+        console.error(error);
     }
 }
 
-// 3. TÍCH HỢP MỞ RƯƠNG KHO BÁU TỪ TÚI ĐỒ (Hoặc gọi toàn cục)
-window.openTreasureChest = function() {
-    document.getElementById('treasureChestModal').classList.add('active');
-};
 
-// 4. THUẬT TOÁN NHẬN THƯỞNG RƯƠNG KHO BÁU
-window.claimChestReward = async function(choiceType) {
-    const btnNodes = document.querySelectorAll('#treasureChestModal button:not(.close-btn)');
-    btnNodes.forEach(btn => { btn.disabled = true; btn.style.opacity = '0.5'; });
+// ======================================================
+// 8. HIỂN THỊ TOÀN BỘ BẢNG XẾP HẠNG
+// ======================================================
 
-    try {
-        // Lấy cấu hình rương từ Firebase
-        const lbSettingsSnap = await db.ref('leaderboard_settings').once('value');
-        const lbSettings = lbSettingsSnap.val() || { chestDup: 95, chestNorm: 4, chestLeg: 1 };
-        
-        // Tính toán lại mốc thập phân (Ví dụ 95% -> 0.95)
-        const dupThreshold = lbSettings.chestDup / 100;
-        const normThreshold = dupThreshold + (lbSettings.chestNorm / 100);
+function renderLeaderboard(rankedData) {
+    const participantCount =
+        rankedData.length;
 
-        if (choiceType === 'coin') {
-            // ... (Logic nhận coin giữ nguyên) ...
-            const rand = Math.random();
-            let amount = 0;
-            if (rand < 0.70) { amount = Math.floor(Math.random() * 301) + 200; }
-            else if (rand < 0.90) { amount = Math.floor(Math.random() * 201) + 500; }
-            else { amount = Math.floor(Math.random() * 301) + 700; }
 
-            const coinRef = db.ref('student_coins/' + currentUser.username);
-            const snap = await coinRef.once('value');
-            await coinRef.set((snap.val() || 0) + amount);
-            alert(`🎉 CHÚC MỪNG! Bạn đã mở Rương và nhận được ${amount} Coin!`);
+    const bestScore =
+        rankedData[0]?.finalScore || 0;
 
-        } else if (choiceType === 'item') {
-            const rand = Math.random();
-            const invSnap = await db.ref(`student_inventory/${currentUser.username}`).once('value');
-            const exactInventory = invSnap.val() ? Object.values(invSnap.val()).map(i => i.id) : [];
 
-            // ÁP DỤNG TỈ LỆ TỪ GIÁO VIÊN VÀO ĐÂY
-            if (rand < dupThreshold) {
-                // Rớt vào mốc Trùng lặp
-                const coinRef = db.ref('student_coins/' + currentUser.username);
-                const snap = await coinRef.once('value');
-                await coinRef.set((snap.val() || 0) + 200);
-                alert("♻️ Bạn mở ra vật phẩm trùng lặp. Hệ thống đã tự động quy đổi thành +200 Coin!");
+    const totalTens =
+        rankedData.reduce(
+            (sum, student) =>
+                sum + student.tens,
+            0
+        );
 
-            } else {
-                const validItems = StoreConfig.items.filter(i => i.type !== 'music');
-                const legendaryTags = ['Truyền thuyết', 'Tứ Kỵ Sĩ'];
-                let selectedItem = null;
 
-                if (rand < normThreshold) {
-                    // Rớt vào mốc Vật phẩm Thường
-                    const normalItems = validItems.filter(i => !legendaryTags.includes(i.tag) && (i.price <= 700) && !exactInventory.includes(i.id));
-                    if (normalItems.length > 0) {
-                        selectedItem = normalItems[Math.floor(Math.random() * normalItems.length)];
-                    } else {
-                        const coinRef = db.ref('student_coins/' + currentUser.username);
-                        const snap = await coinRef.once('value');
-                        await coinRef.set((snap.val() || 0) + 400);
-                        alert("📦 Bạn đã sở hữu toàn bộ vật phẩm thường. Hệ thống đền bù +400 Coin!");
-                        document.getElementById('treasureChestModal').classList.remove('active');
-                        return;
-                    }
-                } else {
-                    // Rớt vào mốc Truyền Thuyết
-                    const rareItems = validItems.filter(i => (legendaryTags.includes(i.tag) || i.price > 700) && !exactInventory.includes(i.id));
-                    if (rareItems.length > 0) {
-                        selectedItem = rareItems[Math.floor(Math.random() * rareItems.length)];
-                    } else {
-                        const coinRef = db.ref('student_coins/' + currentUser.username);
-                        const snap = await coinRef.once('value');
-                        await coinRef.set((snap.val() || 0) + 1000);
-                        alert("👑 Bạn đã sưu tập đủ mọi vật phẩm Hiếm. Hệ thống đền bù +1000 Coin!");
-                        document.getElementById('treasureChestModal').classList.remove('active');
-                        return;
-                    }
+    const currentUsername =
+        getCurrentUsername();
+
+
+    const currentIndex =
+        rankedData.findIndex(
+            (student) =>
+                student.username ===
+                currentUsername
+        );
+
+
+    const currentStudent =
+        currentIndex >= 0
+            ? rankedData[currentIndex]
+            : null;
+
+
+    const topThree =
+        rankedData.slice(0, 3);
+
+
+    const remaining =
+        rankedData.slice(3);
+
+
+    return `
+        <section
+            class="lb-summary-grid"
+            aria-label="Thống kê tổng quan"
+        >
+            ${renderSummaryCard(
+        "👥",
+        "Học sinh xếp hạng",
+        participantCount
+    )}
+
+            ${renderSummaryCard(
+        "⚡",
+        "Điểm dẫn đầu",
+        formatScore(bestScore)
+    )}
+
+            ${renderSummaryCard(
+        "⭐",
+        "Tổng điểm 10",
+        totalTens
+    )}
+        </section>
+
+
+        ${currentStudent
+            ? renderCurrentUserCard(
+                currentStudent,
+                currentIndex + 1
+            )
+            : ""
+        }
+
+
+        <section aria-labelledby="podiumHeading">
+
+            <div class="lb-section-heading">
+                <h4
+                    id="podiumHeading"
+                    class="lb-section-title"
+                >
+                    Bục vinh danh
+                </h4>
+
+                <span class="lb-section-note">
+                    Top 3 tháng này
+                </span>
+            </div>
+
+            <div class="lb-podium">
+                ${renderPodium(
+            topThree,
+            currentUsername
+        )}
+            </div>
+
+        </section>
+
+
+        ${remaining.length > 0
+            ? `
+                    <section aria-labelledby="rankListHeading">
+
+                        <div class="lb-section-heading">
+                            <h4
+                                id="rankListHeading"
+                                class="lb-section-title"
+                            >
+                                Bảng thứ hạng
+                            </h4>
+
+                            <span class="lb-section-note">
+                                ${remaining.length}
+                                học sinh tiếp theo
+                            </span>
+                        </div>
+
+                        <div class="lb-rank-list">
+                            ${remaining
+                .map(
+                    (
+                        student,
+                        index
+                    ) =>
+                        renderRankRow(
+                            student,
+                            index + 4,
+                            currentUsername
+                        )
+                )
+                .join("")}
+                        </div>
+
+                    </section>
+                `
+            : ""
+        }
+    `;
+}
+
+
+// ======================================================
+// 9. THẺ THỐNG KÊ
+// ======================================================
+
+function renderSummaryCard(
+    icon,
+    label,
+    value
+) {
+    return `
+        <article class="lb-summary-card">
+
+            <span class="lb-summary-icon">
+                ${icon}
+            </span>
+
+            <span>
+                <span class="lb-summary-label">
+                    ${escapeHTML(label)}
+                </span>
+
+                <strong class="lb-summary-value">
+                    ${escapeHTML(value)}
+                </strong>
+            </span>
+
+        </article>
+    `;
+}
+
+
+// ======================================================
+// 10. THẺ VỊ TRÍ CỦA NGƯỜI DÙNG
+// ======================================================
+
+function renderCurrentUserCard(
+    student,
+    rank
+) {
+    return `
+        <section
+            class="lb-my-rank"
+            aria-label="Vị trí của bạn"
+        >
+
+            <div class="lb-my-rank-main">
+
+                <span class="lb-my-rank-badge">
+                    #${rank}
+                </span>
+
+                <div>
+                    <p class="lb-my-rank-kicker">
+                        Vị trí của bạn
+                    </p>
+
+                    <p class="lb-my-rank-name">
+                        ${escapeHTML(student.name)}
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="lb-my-rank-score">
+                <strong>
+                    ${formatScore(
+        student.finalScore
+    )}
+                </strong>
+
+                <span>
+                    điểm xếp hạng
+                </span>
+            </div>
+
+        </section>
+    `;
+}
+
+
+// ======================================================
+// 11. BỤC VINH DANH TOP 3
+// ======================================================
+
+function renderPodium(
+    topThree,
+    currentUsername
+) {
+    // Hiển thị:
+    // Hạng 2 - Hạng 1 - Hạng 3.
+    const displayOrder = [
+        topThree[1],
+        topThree[0],
+        topThree[2]
+    ].filter(Boolean);
+
+
+    return displayOrder
+        .map((student) => {
+            const actualRank =
+                topThree.indexOf(student) + 1;
+
+
+            const rankClass =
+                actualRank === 1
+                    ? "is-first"
+                    : actualRank === 2
+                        ? "is-second"
+                        : "is-third";
+
+
+            const medal =
+                actualRank === 1
+                    ? "🥇"
+                    : actualRank === 2
+                        ? "🥈"
+                        : "🥉";
+
+
+            const isCurrent =
+                student.username ===
+                currentUsername;
+
+
+            return `
+                <article
+                    class="lb-podium-card ${rankClass}"
+                >
+
+                    <span class="lb-podium-rank">
+                        <span>
+                            ${medal}
+                        </span>
+                    </span>
+
+                    <div class="lb-podium-crown">
+                        ${actualRank === 1
+                    ? "♛"
+                    : "&nbsp;"
+                }
+                    </div>
+
+                    ${renderAvatar(
+                    student.avatar,
+                    student.name
+                )}
+
+                    <p
+                        class="lb-podium-name"
+                        title="${escapeHTML(
+                    student.name
+                )}"
+                    >
+                        ${escapeHTML(student.name)}
+
+                        ${isCurrent
+                    ? `
+                                    <span class="lb-you-tag">
+                                        Bạn
+                                    </span>
+                                `
+                    : ""
+                }
+                    </p>
+
+                    <div class="lb-podium-score">
+                        ${formatScore(
+                    student.finalScore
+                )}
+
+                        <small>
+                            điểm
+                        </small>
+                    </div>
+
+                    <div class="lb-podium-meta">
+
+                        <span class="lb-stat-pill">
+                            ⭐ ${student.tens}
+                            điểm 10
+                        </span>
+
+                        <span
+                            class="
+                                lb-stat-pill
+                                ${student.violations > 0
+                    ? "is-danger"
+                    : "is-good"
+                }
+                            "
+                        >
+                            ${student.violations > 0
+                    ? "⚠"
+                    : "✓"
                 }
 
-                await db.ref(`student_inventory/${currentUser.username}/${selectedItem.id}`).update({
-                    id: selectedItem.id, purchaseTime: Date.now(), isTrial: null, trialExpiry: null, isEquipped: false
-                });
-                alert(`🎊 KỲ TÍCH! Bạn đã nhận được [${selectedItem.tag}] ${selectedItem.name}!`);
-            }
-        }
-        document.getElementById('treasureChestModal').classList.remove('active');
+                            ${student.violations}
+                            vi phạm
+                        </span>
 
-    } catch (e) {
-        console.error(e);
-        alert("❌ Có lỗi xảy ra khi nhận thưởng. Vui lòng thử lại!");
+                    </div>
+
+                </article>
+            `;
+        })
+        .join("");
+}
+
+
+// ======================================================
+// 12. DÒNG XẾP HẠNG TỪ HẠNG 4 TRỞ ĐI
+// ======================================================
+
+function renderRankRow(
+    student,
+    rank,
+    currentUsername
+) {
+    const isCurrent =
+        student.username ===
+        currentUsername;
+
+
+    const progress =
+        getProgressPercent(
+            student.finalScore
+        );
+
+
+    return `
+        <article
+            class="
+                rank-row
+                ${isCurrent
+            ? "is-current-user"
+            : ""
+        }
+            "
+        >
+
+            <div class="rank-info">
+
+                <span class="rank-number">
+                    #${rank}
+                </span>
+
+                ${renderAvatar(
+            student.avatar,
+            student.name
+        )}
+
+                <div class="rank-person">
+
+                    <p
+                        class="rank-name"
+                        title="${escapeHTML(
+            student.name
+        )}"
+                    >
+                        ${escapeHTML(student.name)}
+
+                        ${isCurrent
+            ? `
+                                    <span class="lb-you-tag">
+                                        Bạn
+                                    </span>
+                                `
+            : ""
+        }
+                    </p>
+
+                    <div class="rank-mini-stats">
+
+                        <span class="lb-stat-pill">
+                            ⭐ ${student.tens}
+                            điểm 10
+                        </span>
+
+                        <span
+                            class="
+                                lb-stat-pill
+                                ${student.violations > 0
+            ? "is-danger"
+            : "is-good"
+        }
+                            "
+                        >
+                            ${student.violations > 0
+            ? "⚠"
+            : "✓"
+        }
+
+                            ${student.violations}
+                            vi phạm
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="rank-score-wrap">
+
+                <strong class="rank-score">
+                    ${formatScore(
+            student.finalScore
+        )}
+                </strong>
+
+                <span class="rank-score-label">
+                    ĐTB
+                    ${formatScore(student.dtb)}
+                    · Video
+                    +${formatScore(
+            student.videoBonus
+        )}
+                </span>
+
+                <div
+                    class="lb-progress"
+                    aria-hidden="true"
+                >
+                    <span
+                        style="
+                            width:
+                            ${progress.toFixed(1)}%
+                        "
+                    ></span>
+                </div>
+
+            </div>
+
+        </article>
+    `;
+}
+
+
+// ======================================================
+// 13. MỞ RƯƠNG KHO BÁU
+// ======================================================
+
+window.openTreasureChest = function () {
+    document
+        .getElementById("treasureChestModal")
+        ?.classList.add("active");
+
+
+    document.body.classList.add(
+        "leaderboard-open"
+    );
+
+
+    document
+        .getElementById("chestCloseBtn")
+        ?.focus();
+};
+
+
+// ======================================================
+// 14. THUẬT TOÁN NHẬN THƯỞNG RƯƠNG
+// ======================================================
+
+window.claimChestReward = async function (
+    choiceType
+) {
+    const btnNodes =
+        document.querySelectorAll(
+            "#treasureChestModal [data-chest-choice]"
+        );
+
+
+    btnNodes.forEach((button) => {
+        button.disabled = true;
+        button.style.opacity = "0.5";
+    });
+
+
+    try {
+        const lbSettingsSnap =
+            await db
+                .ref("leaderboard_settings")
+                .once("value");
+
+
+        const lbSettings =
+            lbSettingsSnap.val() || {
+                chestDup: 95,
+                chestNorm: 4,
+                chestLeg: 1
+            };
+
+
+        const dupThreshold =
+            lbSettings.chestDup / 100;
+
+
+        const normThreshold =
+            dupThreshold +
+            lbSettings.chestNorm / 100;
+
+
+        // ------------------------------------------
+        // NHẬN COIN
+        // ------------------------------------------
+
+        if (choiceType === "coin") {
+            const rand =
+                Math.random();
+
+
+            let amount = 0;
+
+
+            if (rand < 0.70) {
+                amount =
+                    Math.floor(
+                        Math.random() * 301
+                    ) + 200;
+            } else if (rand < 0.90) {
+                amount =
+                    Math.floor(
+                        Math.random() * 201
+                    ) + 500;
+            } else {
+                amount =
+                    Math.floor(
+                        Math.random() * 301
+                    ) + 700;
+            }
+
+
+            const coinRef =
+                db.ref(
+                    "student_coins/" +
+                    currentUser.username
+                );
+
+
+            const snap =
+                await coinRef.once("value");
+
+
+            await coinRef.set(
+                (snap.val() || 0) +
+                amount
+            );
+
+
+            alert(
+                `🎉 CHÚC MỪNG! ` +
+                `Bạn đã mở Rương và nhận được ` +
+                `${amount} Coin!`
+            );
+        }
+
+
+        // ------------------------------------------
+        // NHẬN VẬT PHẨM
+        // ------------------------------------------
+
+        else if (choiceType === "item") {
+            const rand = Math.random();
+
+            const invSnap = await db
+                .ref(`student_inventory/${currentUser.username}`)
+                .once("value");
+
+            const inventoryData = invSnap.val() || {};
+
+            const exactInventory = Object
+                .values(inventoryData)
+                .map(item => item.id);
+
+
+            // Chuẩn hóa tag để không bị lỗi do chữ hoa, chữ thường hoặc dấu.
+            const normalizeTag = value => {
+                return String(value || "")
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .replace(/đ/g, "d")
+                    .replace(/Đ/g, "D")
+                    .trim()
+                    .toLowerCase();
+            };
+
+
+            // Kiểm tra vật phẩm có tag Hội họa hay không.
+            const isPaintingItem = item => {
+                return normalizeTag(item.tag) === "hoi hoa";
+            };
+
+
+            const legendaryTags = [
+                "truyen thuyet",
+                "tu ky si"
+            ];
+
+
+            const isRareItem = item => {
+                return (
+                    legendaryTags.includes(
+                        normalizeTag(item.tag)
+                    ) ||
+                    Number(item.price) > 700
+                );
+            };
+
+
+            // Loại bỏ vật phẩm âm nhạc.
+            const validItems = StoreConfig.items.filter(
+                item => item.type !== "music"
+            );
+
+
+            // Chỉ lấy vật phẩm học sinh chưa sở hữu.
+            // Vì vậy vật phẩm Hội họa không thể được nhận trùng.
+            const unownedItems = validItems.filter(
+                item => !exactInventory.includes(item.id)
+            );
+
+
+            /*
+             * Chỉ vật phẩm KHÔNG thuộc tag Hội họa
+             * mới được phép kích hoạt trường hợp trùng lặp.
+             */
+            const ownedDuplicateCandidates = validItems.filter(
+                item =>
+                    exactInventory.includes(item.id) &&
+                    !isPaintingItem(item)
+            );
+
+
+            let selectedItem = null;
+
+
+            // ==================================================
+            // TRƯỜNG HỢP VẬT PHẨM TRÙNG
+            // ==================================================
+
+            if (
+                rand < dupThreshold &&
+                ownedDuplicateCandidates.length > 0
+            ) {
+                const duplicateItem =
+                    ownedDuplicateCandidates[
+                    Math.floor(
+                        Math.random() *
+                        ownedDuplicateCandidates.length
+                    )
+                    ];
+
+
+                const coinRef = db.ref(
+                    "student_coins/" +
+                    currentUser.username
+                );
+
+
+                const coinSnap = await coinRef.once("value");
+
+
+                await coinRef.set(
+                    (coinSnap.val() || 0) + 200
+                );
+
+
+                alert(
+                    `♻️ Vật phẩm [${duplicateItem.tag}] ` +
+                    `${duplicateItem.name} đã bị trùng. ` +
+                    `Hệ thống quy đổi thành +200 Coin!`
+                );
+
+
+                closeTreasureChestModal();
+
+                return;
+            }
+
+
+            // Nếu chỉ có vật phẩm Hội họa bị trùng,
+            // hệ thống sẽ không đổi thành Coin mà tiếp tục chọn
+            // một vật phẩm chưa sở hữu.
+
+
+            // ==================================================
+            // KHÔNG CÒN VẬT PHẨM CHƯA SỞ HỮU
+            // ==================================================
+
+            if (unownedItems.length === 0) {
+                const coinRef = db.ref(
+                    "student_coins/" +
+                    currentUser.username
+                );
+
+
+                const coinSnap = await coinRef.once("value");
+
+
+                await coinRef.set(
+                    (coinSnap.val() || 0) + 500
+                );
+
+
+                alert(
+                    "🏆 Bạn đã sở hữu toàn bộ vật phẩm. " +
+                    "Hệ thống tặng bù +500 Coin!"
+                );
+
+
+                closeTreasureChestModal();
+
+                return;
+            }
+
+
+            // ==================================================
+            // NHẬN VẬT PHẨM THƯỜNG
+            // ==================================================
+
+            if (rand < normThreshold) {
+                const normalItems = unownedItems.filter(
+                    item => !isRareItem(item)
+                );
+
+
+                if (normalItems.length > 0) {
+                    selectedItem =
+                        normalItems[
+                        Math.floor(
+                            Math.random() *
+                            normalItems.length
+                        )
+                        ];
+                } else {
+                    // Nếu hết vật phẩm thường,
+                    // lấy một vật phẩm chưa sở hữu bất kỳ.
+                    selectedItem =
+                        unownedItems[
+                        Math.floor(
+                            Math.random() *
+                            unownedItems.length
+                        )
+                        ];
+                }
+            }
+
+
+            // ==================================================
+            // NHẬN VẬT PHẨM HIẾM / TRUYỀN THUYẾT
+            // ==================================================
+
+            else {
+                const rareItems = unownedItems.filter(
+                    item => isRareItem(item)
+                );
+
+
+                if (rareItems.length > 0) {
+                    selectedItem =
+                        rareItems[
+                        Math.floor(
+                            Math.random() *
+                            rareItems.length
+                        )
+                        ];
+                } else {
+                    // Nếu hết vật phẩm hiếm,
+                    // chọn một vật phẩm chưa sở hữu khác.
+                    selectedItem =
+                        unownedItems[
+                        Math.floor(
+                            Math.random() *
+                            unownedItems.length
+                        )
+                        ];
+                }
+            }
+
+
+            if (!selectedItem) {
+                throw new Error(
+                    "Không tìm thấy vật phẩm phù hợp để trao thưởng."
+                );
+            }
+
+
+            // Kiểm tra thêm lần cuối để tránh trùng vật phẩm Hội họa.
+            if (
+                isPaintingItem(selectedItem) &&
+                exactInventory.includes(selectedItem.id)
+            ) {
+                throw new Error(
+                    "Phát hiện vật phẩm Hội họa bị trùng."
+                );
+            }
+
+
+            // Lưu vật phẩm vào túi đồ.
+            await db
+                .ref(
+                    `student_inventory/` +
+                    `${currentUser.username}/` +
+                    `${selectedItem.id}`
+                )
+                .update({
+                    id: selectedItem.id,
+                    purchaseTime: Date.now(),
+                    isTrial: null,
+                    trialExpiry: null,
+                    isEquipped: false
+                });
+
+
+            const paintingNotice =
+                isPaintingItem(selectedItem)
+                    ? "\n🎨 Vật phẩm Hội họa được bảo vệ không trùng."
+                    : "";
+
+
+            alert(
+                `🎊 KỲ TÍCH! Bạn đã nhận được ` +
+                `[${selectedItem.tag}] ${selectedItem.name}!` +
+                paintingNotice
+            );
+        }
+
+
+        closeTreasureChestModal();
+
+    } catch (error) {
+        console.error(error);
+
+        alert(
+            "❌ Có lỗi xảy ra khi nhận thưởng. " +
+            "Vui lòng thử lại!"
+        );
+
     } finally {
-        btnNodes.forEach(btn => { btn.disabled = false; btn.style.opacity = '1'; });
+        btnNodes.forEach((button) => {
+            button.disabled = false;
+            button.style.opacity = "1";
+        });
     }
 };
 
-// Đính kèm hàm khởi tạo vào sự kiện tải xong trang
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initLeaderboardSystem);
+
+// ======================================================
+// 15. TỰ ĐỘNG KHỞI TẠO KHI TRANG TẢI XONG
+// ======================================================
+
+if (document.readyState === "loading") {
+    document.addEventListener(
+        "DOMContentLoaded",
+        initLeaderboardSystem
+    );
 } else {
     initLeaderboardSystem();
 }

@@ -84,7 +84,88 @@ class ThemeManager {
         },
     };
 
+    // Những popup phải giữ giao diện riêng,
+    // không nhận CSS từ vật phẩm giao diện.
+    static themeImmunePopupSelectors = Object.freeze([
+        // 4 popup hệ thống
+        '#studentInfoModal',
+        '#studentInboxModal',
+        '#studentBagModal',
+        '#leaderboardModal',
+
+        // Popup trò chơi và sự kiện
+        '#rulesModal',
+        '#treasureChestModal',
+        '#luckyWheelModal',
+        '#royalBallModal',
+        '#royalRewardsModal',
+
+        // Đăng nhập 7 ngày
+        '#dl-student-modal',
+        '#dl-teacher-modal',
+
+        // Hội họa và popup phụ
+        '#hoihoaStudentModal',
+        '#artworkPreviewModal',
+        '#hhConfirmModal',
+        '#hhEventInfoModal',
+
+        // Cho phép tự đánh dấu popup mới
+        '[data-theme-immune="true"]'
+    ]);
+
+    static markThemeImmunePopups(root = document) {
+        const selector = this.themeImmunePopupSelectors.join(',');
+        const targets = [];
+
+        if (root instanceof Element && root.matches(selector)) {
+            targets.push(root);
+        }
+
+        if (root.querySelectorAll) {
+            targets.push(...root.querySelectorAll(selector));
+        }
+
+        targets.forEach(popup => {
+            popup.classList.add('ui-theme-immune');
+        });
+    }
+
+    static initThemePopupIsolation() {
+        if (this._themePopupObserver) return;
+
+        const start = () => {
+            // Bảo vệ những popup đã tồn tại
+            this.markThemeImmunePopups(document);
+
+            // Bảo vệ popup được JavaScript tạo sau
+            this._themePopupObserver = new MutationObserver(mutations => {
+                mutations.forEach(mutation => {
+                    mutation.addedNodes.forEach(node => {
+                        if (node.nodeType === Node.ELEMENT_NODE) {
+                            this.markThemeImmunePopups(node);
+                        }
+                    });
+                });
+            });
+
+            this._themePopupObserver.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        };
+
+        if (document.body) {
+            start();
+        } else {
+            document.addEventListener('DOMContentLoaded', start, {
+                once: true
+            });
+        }
+    }
+
     static applyTheme(themeId) {
+        this.initThemePopupIsolation();
         const theme = this.themes[themeId] || this.themes['default'];
         const root = document.documentElement;
 
@@ -109,3 +190,6 @@ class ThemeManager {
         localStorage.setItem('active_theme', themeId);
     }
 }
+
+// Bắt cả popup có sẵn và popup được tạo động.
+ThemeManager.initThemePopupIsolation();

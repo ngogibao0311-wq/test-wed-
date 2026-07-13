@@ -1652,7 +1652,60 @@
             });
 
             this.draftInterval = setInterval(() => this.saveDraft(false), DEFAULTS.autosaveMs);
-            this.setZoom(1);
+            const isMobile =
+                window.matchMedia(
+                    '(max-width: 760px)'
+                ).matches;
+
+            const isPortraitScreen =
+                window.innerHeight >
+                window.innerWidth;
+
+            const canvasRatio =
+                config.canvasWidth /
+                config.canvasHeight;
+
+            let initialZoom = 1;
+
+            if (isMobile) {
+                /*
+                 * Tranh ngang trên điện thoại dọc cần
+                 * phóng lớn hơn để không quá nhỏ.
+                 */
+                if (
+                    canvasRatio >= 1.2 &&
+                    isPortraitScreen
+                ) {
+                    initialZoom = 1.8;
+                } else if (
+                    canvasRatio >= 1.2
+                ) {
+                    initialZoom = 1.4;
+                } else {
+                    initialZoom = 1.45;
+                }
+            }
+
+            this.setZoom(initialZoom);
+
+            /*
+             * Sau khi tăng kích thước, đưa vùng nhìn
+             * vào giữa canvas nhưng vẫn cuộn được tới mép.
+             */
+            requestAnimationFrame(() => {
+                if (!this.canvasScroll) return;
+
+                this.canvasScroll.scrollLeft =
+                    Math.max(
+                        0,
+                        (
+                            this.canvasScroll.scrollWidth -
+                            this.canvasScroll.clientWidth
+                        ) / 2
+                    );
+
+                this.canvasScroll.scrollTop = 0;
+            });
             this.updateToolUI();
         },
 
@@ -3977,21 +4030,30 @@
                 }
                 const updates = {};
                 if (reward.badge) {
+                    const [
+                        badgeId,
+                        badgeIcon,
+                        badgeName
+                    ] = reward.badge;
+
                     updates[
-                        `student_inventory/${student.studentUsername}/chest_hh_${seasonId}`
+                        `student_inventory/${student.studentUsername}/${badgeId}`
                     ] = {
-                        id: 'chest_hoihoa',
-                        type: 'chest',
-                        name: 'Rương Kho Báu Hội Họa',
-                        icon: '🎁',
+                        id: badgeId,
+                        type: 'badge',
+                        name: badgeName,
+                        icon: badgeIcon,
+
                         isEquipped: false,
                         purchaseTime: Date.now(),
 
+                        source: 'hoihoa_season',
+                        seasonId,
+                        rank,
+
                         description:
-                            'Rương dành cho Quán quân. ' +
-                            '1% nhận vật phẩm Hội Họa, ' +
-                            '8% nhận thẻ giảm giá 10–35%, ' +
-                            '91% nhận 100–700 Coin.'
+                            `Huy hiệu ${reward.label} ` +
+                            `mùa giải Hội Họa.`
                     };
                 }
                 if (reward.chest) {

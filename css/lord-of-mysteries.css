@@ -1689,12 +1689,12 @@ body.theme-lotm-mysteries::after {
         alternate;
 }
 
-.theme-lotm-mysteries .sidebar,
-.theme-lotm-mysteries .nav-bar,
-.theme-lotm-mysteries nav,
-.theme-lotm-mysteries header,
-.theme-lotm-mysteries .topbar,
-.theme-lotm-mysteries .top-bar {
+body.theme-lotm-mysteries .dashboard .sidebar,
+body.theme-lotm-mysteries .dashboard .nav-bar,
+.theme-lotm-mysteries .dashboard nav,
+.theme-lotm-mysteries .dashboard header,
+.theme-lotm-mysteries .dashboard .topbar,
+.theme-lotm-mysteries .dashboard .top-bar {
     background:
         linear-gradient(
             180deg,
@@ -1712,7 +1712,7 @@ body.theme-lotm-mysteries::after {
         saturate(.72);
 }
 
-.theme-lotm-mysteries .sidebar {
+.theme-lotm-mysteries .dashboard .sidebar {
     border-right:
         1px solid rgba(201, 169, 110, 0.42) !important;
     background-image:
@@ -1728,9 +1728,9 @@ body.theme-lotm-mysteries::after {
         ) !important;
 }
 
-.theme-lotm-mysteries .sidebar::before,
-.theme-lotm-mysteries header::before,
-.theme-lotm-mysteries .nav-bar::before {
+.theme-lotm-mysteries .dashboard .sidebar::before,
+.theme-lotm-mysteries .dashboard header::before,
+.theme-lotm-mysteries .dashboard .nav-bar::before {
     content: '';
     position: absolute;
     inset: 7px;
@@ -1761,22 +1761,22 @@ body.theme-lotm-mysteries::after {
     opacity: 0.8;
 }
 
-.theme-lotm-mysteries .main-content,
-.theme-lotm-mysteries main,
-.theme-lotm-mysteries .content,
-.theme-lotm-mysteries .dashboard,
-.theme-lotm-mysteries .page-content {
+body.theme-lotm-mysteries .dashboard .main-content,
+body.theme-lotm-mysteries .dashboard main,
+body.theme-lotm-mysteries .dashboard .content,
+body.theme-lotm-mysteries .dashboard,
+body.theme-lotm-mysteries .dashboard .page-content {
     background: transparent !important;
 }
 
-.theme-lotm-mysteries .store-item-card,
-.theme-lotm-mysteries .card,
-.theme-lotm-mysteries .panel,
-.theme-lotm-mysteries .popup-content,
-.theme-lotm-mysteries .modal-content,
-.theme-lotm-mysteries .dialog-content,
-.theme-lotm-mysteries .widget,
-.theme-lotm-mysteries .section-card {
+.theme-lotm-mysteries .dashboard .store-item-card:not(.ui-theme-immune):not(.ui-theme-immune *),
+.theme-lotm-mysteries .dashboard .card:not(.ui-theme-immune):not(.ui-theme-immune *),
+.theme-lotm-mysteries .dashboard .panel:not(.ui-theme-immune):not(.ui-theme-immune *),
+.theme-lotm-mysteries .dashboard .popup-content:not(.ui-theme-immune):not(.ui-theme-immune *),
+.theme-lotm-mysteries .dashboard .modal-content:not(.ui-theme-immune):not(.ui-theme-immune *),
+.theme-lotm-mysteries .dashboard .dialog-content:not(.ui-theme-immune):not(.ui-theme-immune *),
+.theme-lotm-mysteries .dashboard .widget:not(.ui-theme-immune):not(.ui-theme-immune *),
+.theme-lotm-mysteries .dashboard .section-card:not(.ui-theme-immune):not(.ui-theme-immune *) {
     position: relative;
     color: #e8e1d2 !important;
     background:
@@ -1803,11 +1803,11 @@ body.theme-lotm-mysteries::after {
         saturate(.72);
 }
 
-.theme-lotm-mysteries .store-item-card::before,
-.theme-lotm-mysteries .card::before,
-.theme-lotm-mysteries .panel::before,
-.theme-lotm-mysteries .popup-content::before,
-.theme-lotm-mysteries .modal-content::before {
+.theme-lotm-mysteries .dashboard .store-item-card::before,
+.theme-lotm-mysteries .dashboard .card::before,
+.theme-lotm-mysteries .dashboard .panel::before,
+.theme-lotm-mysteries .dashboard .popup-content::before,
+.theme-lotm-mysteries .dashboard .modal-content::before {
     content: '';
     position: absolute;
     inset: 8px;
@@ -1838,7 +1838,7 @@ body.theme-lotm-mysteries::after {
     opacity: 0.74;
 }
 
-.theme-lotm-mysteries .store-item-card {
+.theme-lotm-mysteries .dashboard .store-item-card {
     transform-style: preserve-3d;
     transition:
         transform .3s ease,
@@ -1847,7 +1847,7 @@ body.theme-lotm-mysteries::after {
         filter .3s ease !important;
 }
 
-.theme-lotm-mysteries .store-item-card:hover {
+.theme-lotm-mysteries .dashboard .store-item-card:hover {
     transform:
         translateY(-7px)
         scale(1.012);
@@ -1862,14 +1862,14 @@ body.theme-lotm-mysteries::after {
         inset 0 0 38px rgba(125, 23, 36, 0.08) !important;
 }
 
-.theme-lotm-mysteries h1,
-.theme-lotm-mysteries h2,
-.theme-lotm-mysteries h3,
-.theme-lotm-mysteries h4,
-.theme-lotm-mysteries h5,
-.theme-lotm-mysteries .item-name,
-.theme-lotm-mysteries .title,
-.theme-lotm-mysteries .heading {
+.theme-lotm-mysteries .dashboard h1:not(.ui-theme-immune):not(.ui-theme-immune *),
+.theme-lotm-mysteries .dashboard h2:not(.ui-theme-immune):not(.ui-theme-immune *),
+.theme-lotm-mysteries .dashboard h3:not(.ui-theme-immune):not(.ui-theme-immune *),
+.theme-lotm-mysteries .dashboard h4:not(.ui-theme-immune):not(.ui-theme-immune *),
+.theme-lotm-mysteries .dashboard h5:not(.ui-theme-immune):not(.ui-theme-immune *),
+.theme-lotm-mysteries .dashboard .item-name:not(.ui-theme-immune):not(.ui-theme-immune *),
+.theme-lotm-mysteries .dashboard .title:not(.ui-theme-immune):not(.ui-theme-immune *),
+.theme-lotm-mysteries .dashboard .heading:not(.ui-theme-immune):not(.ui-theme-immune *) {
     color:
         var(--lotm-gold-bright) !important;
     font-family:
@@ -1883,37 +1883,37 @@ body.theme-lotm-mysteries::after {
         0 0 10px rgba(201, 169, 110, 0.22) !important;
 }
 
-.theme-lotm-mysteries h1,
-.theme-lotm-mysteries h2 {
+.theme-lotm-mysteries .dashboard h1:not(.ui-theme-immune):not(.ui-theme-immune *),
+.theme-lotm-mysteries .dashboard h2:not(.ui-theme-immune):not(.ui-theme-immune *) {
     letter-spacing: 1.8px;
 }
 
-.theme-lotm-mysteries p,
-.theme-lotm-mysteries span,
-.theme-lotm-mysteries label,
-.theme-lotm-mysteries li,
-.theme-lotm-mysteries td,
-.theme-lotm-mysteries th {
+.theme-lotm-mysteries .dashboard p:not(.ui-theme-immune):not(.ui-theme-immune *),
+.theme-lotm-mysteries .dashboard span:not(.ui-theme-immune):not(.ui-theme-immune *),
+.theme-lotm-mysteries .dashboard label:not(.ui-theme-immune):not(.ui-theme-immune *),
+.theme-lotm-mysteries .dashboard li:not(.ui-theme-immune):not(.ui-theme-immune *),
+.theme-lotm-mysteries .dashboard td:not(.ui-theme-immune):not(.ui-theme-immune *),
+.theme-lotm-mysteries .dashboard th:not(.ui-theme-immune):not(.ui-theme-immune *) {
     border-color:
         rgba(201, 169, 110, 0.2);
 }
 
-.theme-lotm-mysteries a {
+.theme-lotm-mysteries .dashboard a {
     color: #d8c08f;
     text-decoration-color:
         rgba(201, 169, 110, 0.5);
 }
 
-.theme-lotm-mysteries a:hover {
+.theme-lotm-mysteries .dashboard a:hover {
     color: #fff1c9;
     text-shadow:
         0 0 9px rgba(245, 217, 154, 0.45);
 }
 
-.theme-lotm-mysteries button,
-.theme-lotm-mysteries .btn,
-.theme-lotm-mysteries input[type='button'],
-.theme-lotm-mysteries input[type='submit'] {
+.theme-lotm-mysteries .dashboard button:not(.ui-theme-immune):not(.ui-theme-immune *),
+.theme-lotm-mysteries .dashboard .btn:not(.ui-theme-immune):not(.ui-theme-immune *),
+.theme-lotm-mysteries .dashboard input[type="button"]:not(.ui-theme-immune):not(.ui-theme-immune *),
+.theme-lotm-mysteries .dashboard input[type="submit"]:not(.ui-theme-immune):not(.ui-theme-immune *) {
     position: relative;
     overflow: hidden;
     color: #ecd8a9 !important;
@@ -1943,8 +1943,8 @@ body.theme-lotm-mysteries::after {
         transform .25s ease !important;
 }
 
-.theme-lotm-mysteries button::before,
-.theme-lotm-mysteries .btn::before {
+.theme-lotm-mysteries .dashboard button::before,
+.theme-lotm-mysteries .dashboard .btn::before {
     content: '';
     position: absolute;
     inset: 0;
@@ -1962,8 +1962,8 @@ body.theme-lotm-mysteries::after {
         transform .55s ease;
 }
 
-.theme-lotm-mysteries button:hover,
-.theme-lotm-mysteries .btn:hover {
+.theme-lotm-mysteries .dashboard button:hover,
+.theme-lotm-mysteries .dashboard .btn:hover {
     color: #fff7df !important;
     border-color:
         rgba(245, 217, 154, 0.9) !important;
@@ -1980,16 +1980,16 @@ body.theme-lotm-mysteries::after {
     transform: translateY(-1px);
 }
 
-.theme-lotm-mysteries button:hover::before,
-.theme-lotm-mysteries .btn:hover::before {
+.theme-lotm-mysteries .dashboard button:hover::before,
+.theme-lotm-mysteries .dashboard .btn:hover::before {
     transform:
         translateX(120%)
         skewX(-22deg);
 }
 
-.theme-lotm-mysteries input,
-.theme-lotm-mysteries textarea,
-.theme-lotm-mysteries select {
+.theme-lotm-mysteries .dashboard input:not(.ui-theme-immune):not(.ui-theme-immune *),
+.theme-lotm-mysteries .dashboard textarea:not(.ui-theme-immune):not(.ui-theme-immune *),
+.theme-lotm-mysteries .dashboard select:not(.ui-theme-immune):not(.ui-theme-immune *) {
     color: #eee5d5 !important;
     caret-color:
         var(--lotm-gold-bright);
@@ -2002,9 +2002,9 @@ body.theme-lotm-mysteries::after {
         inset 0 0 18px rgba(0, 0, 0, 0.45) !important;
 }
 
-.theme-lotm-mysteries input:focus,
-.theme-lotm-mysteries textarea:focus,
-.theme-lotm-mysteries select:focus {
+.theme-lotm-mysteries .dashboard input:focus,
+.theme-lotm-mysteries .dashboard textarea:focus,
+.theme-lotm-mysteries .dashboard select:focus {
     outline: none !important;
     border-color:
         rgba(245, 217, 154, 0.75) !important;
@@ -2013,7 +2013,7 @@ body.theme-lotm-mysteries::after {
         inset 0 0 18px rgba(0, 0, 0, 0.45) !important;
 }
 
-.theme-lotm-mysteries table {
+.theme-lotm-mysteries .dashboard table:not(.ui-theme-immune):not(.ui-theme-immune *) {
     color: #e7dfcf !important;
     background:
         rgba(8, 10, 15, 0.75) !important;
@@ -2021,30 +2021,30 @@ body.theme-lotm-mysteries::after {
         rgba(201, 169, 110, 0.28) !important;
 }
 
-.theme-lotm-mysteries th {
+.theme-lotm-mysteries .dashboard th:not(.ui-theme-immune):not(.ui-theme-immune *) {
     color:
         var(--lotm-gold-bright) !important;
     background:
         rgba(30, 29, 29, 0.92) !important;
 }
 
-.theme-lotm-mysteries tr:nth-child(even) {
+.theme-lotm-mysteries .dashboard tr:nth-child(even):not(.ui-theme-immune):not(.ui-theme-immune *) {
     background:
         rgba(201, 169, 110, 0.025) !important;
 }
 
-.theme-lotm-mysteries .progress,
-.theme-lotm-mysteries .progress-bar-bg,
-.theme-lotm-mysteries .xp-bar {
+.theme-lotm-mysteries .dashboard .progress,
+.theme-lotm-mysteries .dashboard .progress-bar-bg,
+.theme-lotm-mysteries .dashboard .xp-bar {
     background:
         rgba(3, 4, 7, 0.8) !important;
     border:
         1px solid rgba(201, 169, 110, 0.25) !important;
 }
 
-.theme-lotm-mysteries .progress-bar,
-.theme-lotm-mysteries .progress-fill,
-.theme-lotm-mysteries .xp-fill {
+.theme-lotm-mysteries .dashboard .progress-bar,
+.theme-lotm-mysteries .dashboard .progress-fill,
+.theme-lotm-mysteries .dashboard .xp-fill {
     background:
         linear-gradient(
             90deg,
@@ -2056,24 +2056,24 @@ body.theme-lotm-mysteries::after {
         0 0 14px rgba(201, 169, 110, 0.3) !important;
 }
 
-.theme-lotm-mysteries ::selection {
+.theme-lotm-mysteries .dashboard ::selection {
     color: #fff7df;
     background:
         rgba(125, 23, 36, 0.72);
 }
 
-.theme-lotm-mysteries ::-webkit-scrollbar {
+.theme-lotm-mysteries .dashboard ::-webkit-scrollbar {
     width: 10px;
     height: 10px;
 }
 
-.theme-lotm-mysteries ::-webkit-scrollbar-track {
+.theme-lotm-mysteries .dashboard ::-webkit-scrollbar-track {
     background: #05070b;
     border-left:
         1px solid rgba(201, 169, 110, 0.12);
 }
 
-.theme-lotm-mysteries ::-webkit-scrollbar-thumb {
+.theme-lotm-mysteries .dashboard ::-webkit-scrollbar-thumb {
     background:
         linear-gradient(
             180deg,
@@ -2086,7 +2086,7 @@ body.theme-lotm-mysteries::after {
         inset 0 0 8px rgba(245, 217, 154, 0.14);
 }
 
-.theme-lotm-mysteries
+.theme-lotm-mysteries .dashboard
 ::-webkit-scrollbar-thumb:hover {
     background:
         linear-gradient(
@@ -3056,7 +3056,8 @@ body.theme-lotm-mysteries::after {
         letter-spacing: 3px;
     }
 
-    body.theme-lotm-mysteries::after {
+    
+    .theme-lotm-mysteries .dashboard::after {
         opacity: .58;
         background-size:
             auto,
@@ -3071,8 +3072,8 @@ body.theme-lotm-mysteries::after {
 @media (prefers-reduced-motion: reduce) {
     .amon-chronicle-court *,
     .amon-paradox-domain *,
-    body.theme-lotm-mysteries::before,
-    body.theme-lotm-mysteries::after {
+    .theme-lotm-mysteries .dashboard::before,
+    .theme-lotm-mysteries .dashboard::after {
         animation-duration: 18s !important;
         animation-iteration-count: infinite !important;
     }
@@ -3082,3 +3083,181 @@ body.theme-lotm-mysteries::after {
         animation-duration: 2.8s !important;
     }
 }
+/* =========================================================
+   CÁCH LY 4 POPUP KHỎI THẦN ĐIỆN SƯƠNG MÙ XÁM
+   ========================================================= */
+
+body.theme-lotm-mysteries :is(
+    #studentInfoModal,
+    #studentInboxModal,
+    #studentBagModal,
+    #leaderboardModal
+) {
+    font-family: "Segoe UI", Tahoma, Arial, sans-serif !important;
+    color-scheme: light;
+}
+
+/* Không cho theme tạo khung trang trí giả trong popup */
+body.theme-lotm-mysteries :is(
+    #studentInfoModal,
+    #studentInboxModal,
+    #studentBagModal,
+    #leaderboardModal
+) .modal-content::before,
+body.theme-lotm-mysteries :is(
+    #studentInfoModal,
+    #studentInboxModal,
+    #studentBagModal,
+    #leaderboardModal
+) .modal-content::after {
+    content: none !important;
+    display: none !important;
+}
+
+/* === FIX HIỂN THỊ 4 NÚT HỆ THỐNG — LOTM ===
+   Chỉ sửa nút mở popup, không tác động hiệu ứng giao diện.
+*/
+body.theme-lotm-mysteries .content > :is(
+    .profile-trigger-btn,
+    .inbox-trigger-btn,
+    .bag-trigger-btn,
+    .leaderboard-trigger-btn
+) {
+    position: absolute !important;
+    top: 20px !important;
+
+    width: 48px !important;
+    min-width: 48px !important;
+    max-width: 48px !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    max-height: 48px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+
+    border: 1px solid rgba(255, 255, 255, 0.82) !important;
+    border-radius: 16px !important;
+
+    background:
+        radial-gradient(
+            circle at 30% 20%,
+            rgba(255, 255, 255, 0.97),
+            rgba(255, 255, 255, 0.72) 48%,
+            rgba(255, 255, 255, 0.50)
+        ) !important;
+
+    color: #5b3b12 !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22) !important;
+
+    font-family: "Segoe UI Emoji", "Segoe UI", Arial, sans-serif !important;
+    font-size: 24px !important;
+    line-height: 1 !important;
+
+    transform: none !important;
+    filter: none !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+
+    cursor: pointer !important;
+    z-index: 2147482000 !important;
+}
+
+body.theme-lotm-mysteries .content > .profile-trigger-btn {
+    right: 30px !important;
+}
+
+body.theme-lotm-mysteries .content > .inbox-trigger-btn {
+    right: 85px !important;
+}
+
+body.theme-lotm-mysteries .content > .bag-trigger-btn {
+    right: 140px !important;
+}
+
+body.theme-lotm-mysteries .content > .leaderboard-trigger-btn {
+    right: 195px !important;
+    color: #75510a !important;
+}
+
+body.theme-lotm-mysteries .content > :is(
+    .profile-trigger-btn,
+    .inbox-trigger-btn,
+    .bag-trigger-btn,
+    .leaderboard-trigger-btn
+)::before,
+body.theme-lotm-mysteries .content > :is(
+    .profile-trigger-btn,
+    .inbox-trigger-btn,
+    .bag-trigger-btn,
+    .leaderboard-trigger-btn
+)::after {
+    content: none !important;
+    display: none !important;
+}
+
+body.theme-lotm-mysteries .content > .leaderboard-trigger-btn .lb-trigger-icon,
+body.theme-lotm-mysteries .content > .leaderboard-trigger-btn svg {
+    width: 26px !important;
+    height: 26px !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+body.theme-lotm-mysteries .content > :is(
+    .profile-trigger-btn,
+    .inbox-trigger-btn,
+    .bag-trigger-btn,
+    .leaderboard-trigger-btn
+):hover {
+    transform: translateY(-2px) !important;
+    filter: brightness(1.05) !important;
+}
+
+@media (max-width: 720px) {
+    body.theme-lotm-mysteries .content > :is(
+        .profile-trigger-btn,
+        .inbox-trigger-btn,
+        .bag-trigger-btn,
+        .leaderboard-trigger-btn
+    ) {
+        position: fixed !important;
+        top: 15px !important;
+        width: 40px !important;
+        min-width: 40px !important;
+        max-width: 40px !important;
+        height: 40px !important;
+        min-height: 40px !important;
+        max-height: 40px !important;
+        border-radius: 13px !important;
+        font-size: 20px !important;
+        z-index: 2147482000 !important;
+    }
+
+    body.theme-lotm-mysteries .content > .profile-trigger-btn {
+        right: 15px !important;
+    }
+
+    body.theme-lotm-mysteries .content > .inbox-trigger-btn {
+        right: 65px !important;
+    }
+
+    body.theme-lotm-mysteries .content > .bag-trigger-btn {
+        right: 115px !important;
+    }
+
+    body.theme-lotm-mysteries .content > .leaderboard-trigger-btn {
+        right: 165px !important;
+    }
+}
+/* === END FIX HIỂN THỊ 4 NÚT HỆ THỐNG — LOTM === */
