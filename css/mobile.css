@@ -624,6 +624,16 @@
         word-wrap: break-word !important;
         overflow-wrap: break-word !important;
     }
+
+    /* ==========================================
+       FIX LỖI KHÔNG DI CHUYỂN ĐƯỢC THÚ CƯNG
+       ========================================== */
+    #virtual-pet-container {
+        touch-action: none !important; /* Ngăn trình duyệt cuộn trang khi chạm vào Pet */
+        user-select: none !important;
+        -webkit-user-select: none !important;
+        -webkit-touch-callout: none !important;
+    }
 }
 
 /* KẾT THÚC KHỐI @MEDIA MOBILE. KHÔNG VIẾT CODE Ở DƯỚI DẤU NÀY! */

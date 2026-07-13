@@ -31,7 +31,7 @@ body.leaderboard-open {
 
 /* ---------- Nút mở bảng xếp hạng ---------- */
 .leaderboard-trigger-btn {
-    position: absolute;
+    position: fixed;
     top: 20px;
     right: 195px;
     width: 48px;

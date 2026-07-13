@@ -8007,3 +8007,55 @@ window.handleExamInterruption = async function (reason) {
         }
     }, 300);
 };
+/* =======================================================
+   BỔ TRỢ TÍNH NĂNG KÉO THẢ THÚ CƯNG TRÊN MÀN HÌNH CẢM ỨNG
+   ======================================================= */
+document.addEventListener('DOMContentLoaded', () => {
+    const petContainer = document.getElementById('virtual-pet-container');
+    if (!petContainer) return;
+
+    let isDraggingPet = false;
+    let startX, startY, initialLeft, initialTop;
+
+    // Khi ngón tay bắt đầu chạm vào Pet
+    petContainer.addEventListener('touchstart', (e) => {
+        isDraggingPet = true;
+        const touch = e.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+        
+        // Lấy tọa độ hiện tại của Pet trên màn hình
+        const rect = petContainer.getBoundingClientRect();
+        initialLeft = rect.left;
+        initialTop = rect.top;
+        
+        // Chuyển đổi định vị sang left/top và tắt hiệu ứng chuyển động để kéo mượt hơn
+        petContainer.style.bottom = 'auto'; 
+        petContainer.style.right = 'auto';
+        petContainer.style.transition = 'none'; 
+    }, { passive: false });
+
+    // Khi ngón tay di chuyển
+    document.addEventListener('touchmove', (e) => {
+        if (!isDraggingPet) return;
+        
+        e.preventDefault(); // QUAN TRỌNG: Khóa chết màn hình, không cho cuộn trang khi đang kéo Pet
+        
+        const touch = e.touches[0];
+        const dx = touch.clientX - startX;
+        const dy = touch.clientY - startY;
+        
+        // Cập nhật vị trí mới cho Pet
+        petContainer.style.left = `${initialLeft + dx}px`;
+        petContainer.style.top = `${initialTop + dy}px`;
+    }, { passive: false });
+
+    // Khi ngón tay nhấc lên
+    document.addEventListener('touchend', () => {
+        if (isDraggingPet) {
+            isDraggingPet = false;
+            // Bật lại hiệu ứng nếu có
+            petContainer.style.transition = 'transform 0.2s'; 
+        }
+    });
+});
