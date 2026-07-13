@@ -2728,48 +2728,6 @@
 #hoihoaStudentModal .hh-workspace:-webkit-full-screen .hh-canvas-commandbar {
     flex: 0 0 auto;
 }
-
-@media (max-width: 700px) {
-
-    #hoihoaStudentModal .hh-workspace:fullscreen,
-    #hoihoaStudentModal .hh-workspace:-webkit-full-screen {
-        grid-template-columns: 1fr;
-
-        grid-template-rows:
-            auto minmax(0, 1fr);
-
-        gap: 7px;
-        padding: 7px;
-    }
-
-    #hoihoaStudentModal .hh-workspace:fullscreen .hh-tool-dock,
-    #hoihoaStudentModal .hh-workspace:-webkit-full-screen .hh-tool-dock {
-        width: auto;
-        height: auto;
-        max-height: 72px;
-
-        flex-direction: row;
-
-        overflow-x: auto;
-        overflow-y: hidden;
-    }
-
-    #hoihoaStudentModal .hh-workspace:fullscreen .hh-workspace-main,
-    #hoihoaStudentModal .hh-workspace:-webkit-full-screen .hh-workspace-main {
-        height: auto;
-        min-height: 0;
-    }
-
-    #hoihoaStudentModal .hh-zoom-controls {
-        grid-template-columns:
-            32px 64px 32px 32px;
-    }
-
-    #hoihoaStudentModal .hh-zoom-value {
-        width: 64px;
-        min-width: 64px;
-    }
-}
 /* =====================================================
    MOBILE FIX CUỐI CÙNG — STUDIO HỘI HỌA
    Dán cuối file CSS
@@ -3384,5 +3342,320 @@
     .hh-workspace:-webkit-full-screen
     .hh-canvas-scroll {
         min-height: 0 !important;
+    }
+}
+/* =====================================================
+   CANVAS MOBILE — KHÔNG BỊ CẮT, KHÔNG QUÁ NHỎ
+   ===================================================== */
+
+@media screen and (max-width: 760px) {
+
+    #hoihoaStudentModal
+    .hh-canvas-scroll {
+        /*
+         * Không căn giữa bằng flex vì canvas lớn hơn
+         * màn hình sẽ bị mất mép trái.
+         */
+        justify-content: flex-start !important;
+        align-items: flex-start !important;
+
+        min-height:
+            clamp(
+                390px,
+                58dvh,
+                650px
+            ) !important;
+
+        padding: 8px !important;
+
+        overflow: auto !important;
+        overscroll-behavior: contain;
+
+        scroll-padding: 8px;
+    }
+
+    #hoihoaStudentModal
+    .hh-canvas-stage {
+        flex: 0 0 auto !important;
+
+        /*
+         * Canvas không thu nhỏ dưới mức này.
+         * Người dùng vuốt vùng xám để xem các phần khác.
+         */
+        min-width: 520px !important;
+
+        margin-top: 0;
+        margin-bottom: 0;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    #hoihoaStudentModal
+    .hh-workspace-main {
+        min-height: 540px;
+        overflow: hidden;
+    }
+}
+
+@media screen and (max-width: 380px) {
+    #hoihoaStudentModal
+    .hh-canvas-stage {
+        min-width: 480px !important;
+    }
+
+    #hoihoaStudentModal
+    .hh-canvas-scroll {
+        min-height: 370px !important;
+    }
+}
+/* =====================================================
+   FULLSCREEN MOBILE — ƯU TIÊN DIỆN TÍCH BẢNG VẼ
+   ===================================================== */
+
+@media screen and (max-width: 760px) {
+
+    #hoihoaStudentModal
+    .hh-workspace:fullscreen,
+    #hoihoaStudentModal
+    .hh-workspace:-webkit-full-screen {
+        width: 100vw !important;
+        height: 100dvh !important;
+
+        box-sizing: border-box;
+
+        display: grid !important;
+
+        grid-template-columns:
+            minmax(0, 1fr) !important;
+
+        grid-template-rows:
+            56px
+            minmax(0, 1fr)
+            !important;
+
+        gap: 5px !important;
+
+        padding:
+            calc(
+                4px +
+                env(safe-area-inset-top)
+            )
+            4px
+            calc(
+                4px +
+                env(safe-area-inset-bottom)
+            )
+            4px
+            !important;
+
+        overflow: hidden !important;
+
+        background: #eef2f7;
+    }
+
+    /* Thanh bút luôn hiện phía trên */
+
+    #hoihoaStudentModal
+    .hh-workspace:fullscreen
+    .hh-tool-dock,
+    #hoihoaStudentModal
+    .hh-workspace:-webkit-full-screen
+    .hh-tool-dock {
+        position: relative !important;
+        top: auto !important;
+
+        width: 100% !important;
+        height: 56px !important;
+        max-height: 56px !important;
+
+        box-sizing: border-box;
+
+        flex-direction: row !important;
+
+        padding: 4px !important;
+
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+
+        border-radius: 10px;
+
+        scrollbar-width: none;
+    }
+
+    #hoihoaStudentModal
+    .hh-workspace:fullscreen
+    .hh-tool-dock::-webkit-scrollbar,
+    #hoihoaStudentModal
+    .hh-workspace:-webkit-full-screen
+    .hh-tool-dock::-webkit-scrollbar {
+        display: none;
+    }
+
+    #hoihoaStudentModal
+    .hh-workspace:fullscreen
+    .hh-tool-button,
+    #hoihoaStudentModal
+    .hh-workspace:-webkit-full-screen
+    .hh-tool-button {
+        flex: 0 0 52px;
+
+        width: 52px;
+        min-width: 52px;
+        min-height: 46px;
+
+        padding: 3px;
+    }
+
+    /* Khu vực bảng vẽ chiếm toàn bộ phần còn lại */
+
+    #hoihoaStudentModal
+    .hh-workspace:fullscreen
+    .hh-workspace-main,
+    #hoihoaStudentModal
+    .hh-workspace:-webkit-full-screen
+    .hh-workspace-main {
+        width: 100% !important;
+        height: 100% !important;
+
+        min-width: 0 !important;
+        min-height: 0 !important;
+
+        display: flex !important;
+        flex-direction: column !important;
+
+        overflow: hidden !important;
+
+        border-radius: 10px;
+    }
+
+    /* Thanh màu thu gọn thành một hàng */
+
+    #hoihoaStudentModal
+    .hh-workspace:fullscreen
+    .canvas-toolbar.hh-top-toolbar,
+    #hoihoaStudentModal
+    .hh-workspace:-webkit-full-screen
+    .canvas-toolbar.hh-top-toolbar {
+        flex: 0 0 52px;
+
+        max-height: 52px !important;
+
+        padding: 4px !important;
+
+        flex-wrap: nowrap !important;
+
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+
+        scrollbar-width: none;
+    }
+
+    #hoihoaStudentModal
+    .hh-workspace:fullscreen
+    .canvas-toolbar::-webkit-scrollbar,
+    #hoihoaStudentModal
+    .hh-workspace:-webkit-full-screen
+    .canvas-toolbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Thanh hoàn tác, zoom */
+
+    #hoihoaStudentModal
+    .hh-workspace:fullscreen
+    .hh-canvas-commandbar,
+    #hoihoaStudentModal
+    .hh-workspace:-webkit-full-screen
+    .hh-canvas-commandbar {
+        flex: 0 0 43px;
+
+        min-height: 43px;
+
+        padding: 4px !important;
+
+        flex-wrap: nowrap !important;
+
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+    }
+
+    /*
+     * Canvas nhận toàn bộ chiều cao còn lại.
+     */
+
+    #hoihoaStudentModal
+    .hh-workspace:fullscreen
+    .hh-canvas-scroll,
+    #hoihoaStudentModal
+    .hh-workspace:-webkit-full-screen
+    .hh-canvas-scroll {
+        flex: 1 1 auto !important;
+
+        width: 100% !important;
+
+        min-width: 0 !important;
+        min-height: 0 !important;
+
+        padding: 5px !important;
+
+        justify-content: flex-start !important;
+        align-items: flex-start !important;
+
+        overflow: auto !important;
+    }
+
+    #hoihoaStudentModal
+    .hh-workspace:fullscreen
+    .hh-canvas-stage,
+    #hoihoaStudentModal
+    .hh-workspace:-webkit-full-screen
+    .hh-canvas-stage {
+        min-width: 560px !important;
+
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Thu gọn phần lưu bài */
+
+    #hoihoaStudentModal
+    .hh-workspace:fullscreen
+    .hh-workspace-footer,
+    #hoihoaStudentModal
+    .hh-workspace:-webkit-full-screen
+    .hh-workspace-footer {
+        flex: 0 0 auto;
+
+        min-height: 42px;
+
+        padding: 4px 6px !important;
+
+        flex-direction: row;
+        align-items: center;
+
+        gap: 5px;
+    }
+
+    #hoihoaStudentModal
+    .hh-workspace:fullscreen
+    .hh-draft-info,
+    #hoihoaStudentModal
+    .hh-workspace:-webkit-full-screen
+    .hh-draft-info {
+        display: none;
+    }
+
+    /*
+     * Ẩn dòng giải thích trong fullscreen
+     * để dành chiều cao cho canvas.
+     */
+
+    #hoihoaStudentModal
+    .hh-workspace:fullscreen
+    .hh-integrity-note,
+    #hoihoaStudentModal
+    .hh-workspace:-webkit-full-screen
+    .hh-integrity-note {
+        display: none !important;
     }
 }
