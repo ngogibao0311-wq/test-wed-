@@ -1,151 +1,2772 @@
-/* ================= GIAO DIỆN HỘI HỌA ================= */
-.hoihoa-container {
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    margin-top: 20px;
-    border: 1px solid rgba(0,0,0,0.05);
+/* ============================================================================
+   STUDIO HỘI HỌA PRO v2 — CSS ĐƯỢC GIỚI HẠN PHẠM VI
+   Không thay đổi button/card/modal/table của các chức năng khác.
+   ========================================================================== */
+
+:root {
+    --hh-primary: #6d28d9;
+    --hh-primary-2: #8b5cf6;
+    --hh-accent: #ec4899;
+    --hh-ink: #172033;
+    --hh-muted: #64748b;
+    --hh-line: #e2e8f0;
+    --hh-soft: #f8fafc;
+    --hh-success: #059669;
+    --hh-warning: #d97706;
+    --hh-danger: #dc2626;
+    --hh-radius: 18px;
+    --hh-shadow: 0 24px 70px rgba(30, 20, 70, .22);
 }
 
-.hoihoa-header {
+/* ------------------------------ Nút dùng riêng ----------------------------- */
+#hh-student-entry-card .hh-btn,
+#hoihoaStudentModal .hh-btn,
+#hh-teacher-container-wrapper .hh-btn,
+#hhConfirmModal .hh-btn {
+    appearance: none;
+    border: 0;
+    border-radius: 12px;
+    min-height: 42px;
+    padding: 10px 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform .18s ease, box-shadow .18s ease, background .18s ease, opacity .18s ease;
+}
+
+#hh-student-entry-card .hh-btn:hover,
+#hoihoaStudentModal .hh-btn:hover,
+#hh-teacher-container-wrapper .hh-btn:hover,
+#hhConfirmModal .hh-btn:hover {
+    transform: translateY(-1px);
+}
+
+#hh-student-entry-card .hh-btn:disabled,
+#hoihoaStudentModal .hh-btn:disabled,
+#hh-teacher-container-wrapper .hh-btn:disabled,
+#hhConfirmModal .hh-btn:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+    transform: none;
+}
+
+#hh-student-entry-card .hh-btn-primary,
+#hoihoaStudentModal .hh-btn-primary,
+#hh-teacher-container-wrapper .hh-btn-primary,
+#hhConfirmModal .hh-btn-primary {
+    color: #fff;
+    background: linear-gradient(135deg, var(--hh-primary), var(--hh-primary-2));
+    box-shadow: 0 10px 24px rgba(109, 40, 217, .28);
+}
+
+#hoihoaStudentModal .hh-btn-ghost,
+#hh-teacher-container-wrapper .hh-btn-ghost,
+#hhConfirmModal .hh-btn-ghost {
+    color: #475569;
+    background: #fff;
+    border: 1px solid var(--hh-line);
+}
+
+#hh-teacher-container-wrapper .hh-btn-success {
+    color: #fff;
+    background: #059669;
+}
+
+#hh-teacher-container-wrapper .hh-btn-warning {
+    color: #fff;
+    background: #d97706;
+}
+
+#hhConfirmModal .hh-btn-danger {
+    color: #fff;
+    background: var(--hh-danger);
+}
+
+#hh-teacher-container-wrapper .hh-full-width {
+    width: 100%;
+}
+
+#hh-teacher-container-wrapper .hh-hidden {
+    display: none !important;
+}
+
+#hoihoaStudentModal .hh-icon-btn,
+#artworkPreviewModal .hh-icon-btn {
+    width: 38px;
+    height: 38px;
+    border: 1px solid rgba(148, 163, 184, .35);
+    border-radius: 11px;
+    background: rgba(255, 255, 255, .92);
+    color: #334155;
+    cursor: pointer;
+    display: inline-grid;
+    place-items: center;
+    font-size: 18px;
+    transition: .18s ease;
+}
+
+#hoihoaStudentModal .hh-icon-btn:hover,
+#artworkPreviewModal .hh-icon-btn:hover {
+    background: #fff;
+    transform: translateY(-1px);
+}
+
+#hoihoaStudentModal .hh-icon-text-btn,
+#hh-teacher-container-wrapper .hh-icon-text-btn {
+    border: 1px solid var(--hh-line);
+    background: #fff;
+    color: #475569;
+    border-radius: 10px;
+    padding: 8px 11px;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 750;
+    cursor: pointer;
+    transition: .18s ease;
+}
+
+#hoihoaStudentModal .hh-icon-text-btn:hover,
+#hoihoaStudentModal .hh-icon-text-btn.active,
+#hh-teacher-container-wrapper .hh-icon-text-btn:hover {
+    color: var(--hh-primary);
+    border-color: #c4b5fd;
+    background: #f5f3ff;
+}
+
+#hoihoaStudentModal .hh-icon-text-btn:disabled {
+    opacity: .42;
+    cursor: not-allowed;
+}
+
+/* ------------------------------ Card mở studio ----------------------------- */
+#hh-student-entry-card.hh-entry-card {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    margin-top: 22px;
+    padding: 24px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 20px;
+    border: 1px solid rgba(139, 92, 246, .28);
+    border-radius: 22px;
+    background:
+        radial-gradient(circle at 10% 0%, rgba(236, 72, 153, .26), transparent 34%),
+        radial-gradient(circle at 90% 100%, rgba(59, 130, 246, .23), transparent 38%),
+        linear-gradient(135deg, #fdf4ff 0%, #eef2ff 48%, #eff6ff 100%);
+    box-shadow: 0 16px 42px rgba(87, 61, 148, .13);
+}
+
+#hh-student-entry-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    opacity: .34;
+    background-image: linear-gradient(rgba(109, 40, 217, .08) 1px, transparent 1px), linear-gradient(90deg, rgba(109, 40, 217, .08) 1px, transparent 1px);
+    background-size: 28px 28px;
+    mask-image: linear-gradient(to right, #000, transparent 78%);
+}
+
+#hh-student-entry-card .hh-entry-art {
+    width: 86px;
+    height: 86px;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    color: #fff;
+    font-size: 29px;
+    background: linear-gradient(145deg, #581c87, #7c3aed 58%, #db2777);
+    box-shadow: inset 0 1px rgba(255, 255, 255, .3), 0 14px 30px rgba(109, 40, 217, .28);
+    transform: rotate(-3deg);
+}
+
+#hh-student-entry-card .hh-entry-art span:first-child,
+#hh-student-entry-card .hh-entry-art span:last-child {
+    font-size: 12px;
+    opacity: .8;
+}
+
+#hh-student-entry-card .hh-entry-copy h3 {
+    margin: 3px 0 6px;
+    color: #2e1065;
+    font-size: clamp(21px, 2vw, 28px);
+}
+
+#hh-student-entry-card .hh-entry-copy p {
+    margin: 0;
+    max-width: 680px;
+    color: #475569;
+    line-height: 1.6;
+}
+
+#hh-student-entry-card .hh-entry-button {
+    white-space: nowrap;
+    padding-inline: 22px;
+}
+
+.hh-eyebrow {
+    display: inline-block;
+    color: var(--hh-primary);
+    font-size: 11px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+}
+
+/* ------------------------------- Modal studio ------------------------------ */
+#hoihoaStudentModal.hh-student-overlay {
+    z-index: 999998;
+    padding: 20px;
+    background: rgba(15, 23, 42, .76);
+    backdrop-filter: blur(10px);
+}
+
+#hoihoaStudentModal .hoihoa-container.hh-studio-modal {
+    position: relative;
+    width: min(1500px, 98vw);
+    height: min(94vh, 1060px);
+    max-width: none;
+    margin: 0 auto;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, .55);
+    border-radius: 24px;
+    background: #f7f8fc;
+    box-shadow: var(--hh-shadow);
+}
+
+#hoihoaStudentModal .hh-modal-close {
+    position: absolute !important;
+    z-index: 100 !important;
+
+    top: 14px !important;
+    right: 22px !important;
+
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    display: grid !important;
+    place-items: center !important;
+
+    border-radius: 14px !important;
+    background: #ffffff !important;
+    color: #1e293b !important;
+
+    box-shadow:
+        0 8px 20px rgba(15, 23, 42, 0.18) !important;
+}
+
+#hoihoaStudentModal .hoihoa-header.hh-studio-header {
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 20px 100px 16px 24px;
+    border: 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    background:
+        radial-gradient(circle at 0 0, rgba(196, 181, 253, .55), transparent 34%),
+        linear-gradient(135deg, #ffffff, #f5f3ff 48%, #eff6ff);
+    border-bottom: 1px solid #e9e5f5;
+}
+
+#hoihoaStudentModal .hh-round-heading h2 {
+    margin: 5px 0 4px;
+    color: var(--hh-ink);
+    font-size: clamp(21px, 2.4vw, 32px);
+}
+
+#hoihoaStudentModal .hh-round-heading p {
+    margin: 0;
+    color: #be185d;
+    font-weight: 750;
+}
+
+#hoihoaStudentModal .hh-round-meta {
+    min-width: 240px;
+    padding-right: 0;
+    margin-right: 0;
+    text-align: right;
+}
+
+#hoihoaStudentModal .hh-round-meta p {
+    margin: 7px 0 0;
+    color: var(--hh-muted);
+    font-size: 13px;
+}
+
+#hoihoaStudentModal .hh-round-meta .hh-countdown {
+    color: #c2410c;
+    font-weight: 850;
+    font-variant-numeric: tabular-nums;
+}
+
+#hoihoaStudentModal .hh-status-pill,
+#hh-teacher-container-wrapper .hh-status-pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 30px;
+    padding: 6px 11px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 850;
+    color: #475569;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+}
+
+#hoihoaStudentModal .hh-status-pill[data-status="active"],
+#hh-teacher-container-wrapper .hh-status-pill[data-status="active"] {
+    color: #047857;
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+}
+
+#hoihoaStudentModal .hh-status-pill[data-status="voting"],
+#hh-teacher-container-wrapper .hh-status-pill[data-status="voting"] {
+    color: #be185d;
+    background: #fdf2f8;
+    border-color: #fbcfe8;
+}
+
+#hoihoaStudentModal .hh-status-pill[data-status="closed"],
+#hh-teacher-container-wrapper .hh-status-pill[data-status="closed"] {
+    color: #5b21b6;
+    background: #f5f3ff;
+    border-color: #ddd6fe;
+}
+
+#hoihoaStudentModal .hh-status-pill[data-status="scheduled"],
+#hh-teacher-container-wrapper .hh-status-pill[data-status="scheduled"] {
+    color: #1d4ed8;
+    background: #eff6ff;
+    border-color: #bfdbfe;
+}
+
+#hoihoaStudentModal .hh-status-pill[data-status="awaiting_voting"],
+#hh-teacher-container-wrapper .hh-status-pill[data-status="awaiting_voting"] {
+    color: #b45309;
+    background: #fffbeb;
+    border-color: #fde68a;
+}
+
+#hoihoaStudentModal .hh-studio-mode-button.active>span {
+    background:
+        rgba(255, 255, 255, 0.18);
+}
+
+#hoihoaStudentModal .hh-studio-mode-button.active small {
+    color:
+        rgba(255, 255, 255, 0.78);
+}
+
+#hoihoaStudentModal .hh-round-tabs[hidden] {
+    display: none !important;
+}
+
+#hoihoaStudentModal .hh-status-pill[data-status="practice"] {
+    color: #0369a1;
+    background: #f0f9ff;
+    border-color: #bae6fd;
+}
+
+#hoihoaStudentModal .hh-round-tabs {
+    flex: 0 0 auto;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 10px 18px;
+    background: #fff;
+    border-bottom: 1px solid var(--hh-line);
+    scrollbar-width: thin;
+}
+
+#hoihoaStudentModal .hh-round-tab {
+    flex: 0 0 auto;
+    border: 1px solid var(--hh-line);
+    border-radius: 999px;
+    padding: 8px 13px;
+    background: #fff;
+    color: #64748b;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: .18s ease;
+}
+
+#hoihoaStudentModal .hh-round-tab span {
+    margin-right: 6px;
+    color: #a78bfa;
+}
+
+#hoihoaStudentModal .hh-round-tab:hover {
+    border-color: #c4b5fd;
+    color: var(--hh-primary);
+}
+
+#hoihoaStudentModal .hh-round-tab.active {
+    color: #fff;
+    border-color: transparent;
+    background: linear-gradient(135deg, var(--hh-primary), var(--hh-primary-2));
+    box-shadow: 0 8px 20px rgba(109, 40, 217, .22);
+}
+
+#hoihoaStudentModal .hh-student-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    padding: 16px;
+}
+
+/* ------------------------------- Workspace -------------------------------- */
+#hoihoaStudentModal .hh-workspace {
+    min-height: 100%;
+    display: grid;
+    grid-template-columns: 76px minmax(0, 1fr);
+    gap: 12px;
+}
+
+#hoihoaStudentModal .hh-tool-dock {
+    align-self: start;
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px;
+    border: 1px solid var(--hh-line);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, .96);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, .06);
+}
+
+#hoihoaStudentModal .hh-tool-button {
+    min-height: 55px;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    background: transparent;
+    color: #64748b;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    cursor: pointer;
+    transition: .17s ease;
+}
+
+#hoihoaStudentModal .hh-tool-button span {
+    font-size: 20px;
+    line-height: 1;
+}
+
+#hoihoaStudentModal .hh-tool-button small {
+    font-size: 9px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+#hoihoaStudentModal .hh-tool-button:hover {
+    color: var(--hh-primary);
+    background: #faf5ff;
+}
+
+#hoihoaStudentModal .hh-tool-button.active {
+    color: var(--hh-primary);
+    background: #f3e8ff;
+    border-color: #d8b4fe;
+    box-shadow: inset 3px 0 var(--hh-primary);
+}
+
+#hoihoaStudentModal .hh-tool-separator {
+    height: 1px;
+    margin: 3px 5px;
+    background: var(--hh-line);
+}
+
+#hoihoaStudentModal .hh-workspace-main {
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--hh-line);
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 8px 28px rgba(15, 23, 42, .06);
+}
+
+#hoihoaStudentModal .canvas-toolbar.hh-top-toolbar {
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 10px 12px;
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+    flex-wrap: wrap;
+    border: 0;
+    border-bottom: 1px solid var(--hh-line);
+    border-radius: 0;
+    background: #fff;
+}
+
+#hoihoaStudentModal .hh-control-group {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 6px 9px;
+    border: 1px solid #edf0f5;
+    border-radius: 11px;
+    background: #fafbfe;
+}
+
+#hoihoaStudentModal .hh-control-group label {
+    color: #475569;
+    font-size: 11px;
+    font-weight: 850;
+}
+
+#hoihoaStudentModal .hh-slider-group {
+    min-width: 180px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 3px;
+}
+
+#hoihoaStudentModal .hh-slider-group label {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    border-bottom: 2px dashed #cbd5e1;
-    padding-bottom: 15px;
-    margin-bottom: 20px;
+    gap: 12px;
 }
 
-/* Thanh công cụ vẽ */
-.canvas-toolbar {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 15px;
-    background: #f8fafc;
-    padding: 10px 15px;
-    border-radius: 12px;
-    align-items: center;
-    flex-wrap: wrap; /* Đã có flex-wrap để chống tràn mobile */
-    border: 1px solid #e2e8f0;
+#hoihoaStudentModal .hh-slider-group output {
+    color: var(--hh-primary);
+    font-variant-numeric: tabular-nums;
 }
 
-.canvas-toolbar button {
-    background: white;
-    border: 1px solid #cbd5e1;
-    padding: 8px 15px;
+#hoihoaStudentModal input[type="range"] {
+    accent-color: var(--hh-primary);
+    height: 18px;
+}
+
+#hoihoaStudentModal select {
+    border: 1px solid var(--hh-line);
     border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    color: #475569;
-    transition: 0.2s;
-}
-
-.canvas-toolbar button:hover, .canvas-toolbar button.active {
-    background: #e0e7ff;
-    color: #2563eb;
-    border-color: #3b82f6;
-}
-
-/* Bảng vẽ */
-.canvas-wrapper {
-    position: relative;
-    width: 100%;
-    /* Fix lỗi giao diện 3: Thay đổi height cứng bằng vh để responsive */
-    height: 60vh; 
-    min-height: 400px;
+    padding: 6px;
     background: #fff;
-    border: 2px solid #cbd5e1;
-    border-radius: 12px;
-    overflow: hidden;
-    cursor: crosshair;
-    box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+    color: #334155;
+    font: inherit;
+    font-size: 12px;
 }
 
-#hoihoaCanvas {
+#hoihoaStudentModal .hh-color-group {
+    flex: 1 1 340px;
+}
+
+#hoihoaStudentModal .hh-color-input-wrap {
+    position: relative;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 auto;
+    cursor: pointer;
+}
+
+#hoihoaStudentModal .hh-color-input-wrap input {
     position: absolute;
-    top: 0;
-    left: 0;
+    opacity: 0;
+    inset: 0;
     width: 100%;
     height: 100%;
+    cursor: pointer;
 }
 
-/* Lưới trưng bày tác phẩm (Gallery) */
-.hoihoa-gallery {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
+#hoihoaStudentModal #hh-color-chip {
+    display: block;
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    background: var(--hh-current-color);
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 1px #cbd5e1, 0 3px 8px rgba(15, 23, 42, .16);
 }
 
-.artwork-card {
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 15px;
-    text-align: center;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    transition: transform 0.3s;
+#hoihoaStudentModal .hh-palette {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
 }
 
-.artwork-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+#hoihoaStudentModal .hh-swatch {
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border-radius: 7px;
+    border: 2px solid #fff;
+    outline: 1px solid #dbe1e9;
+    background: var(--swatch);
+    cursor: pointer;
+    transition: transform .15s ease;
 }
 
-.artwork-img {
+#hoihoaStudentModal .hh-swatch:hover {
+    transform: scale(1.16);
+    z-index: 1;
+}
+
+#hoihoaStudentModal .hh-canvas-commandbar {
+    flex: 0 0 auto;
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    background: #f8fafc;
+    border-bottom: 1px solid var(--hh-line);
+}
+
+#hoihoaStudentModal .hh-canvas-commandbar>div {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#hoihoaStudentModal .hh-zoom-controls .hh-icon-btn {
+    width: 32px;
+    height: 32px;
+}
+
+#hoihoaStudentModal .hh-zoom-value {
+    min-width: 58px;
+    border: 0;
+    background: transparent;
+    color: #475569;
+    font-weight: 850;
+    cursor: pointer;
+}
+
+#hoihoaStudentModal .hh-canvas-scroll {
+    flex: 1 1 auto;
+    min-height: 350px;
+    overflow: auto;
+    padding: 24px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    background:
+        linear-gradient(45deg, #e8ebf1 25%, transparent 25%),
+        linear-gradient(-45deg, #e8ebf1 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #e8ebf1 75%),
+        linear-gradient(-45deg, transparent 75%, #e8ebf1 75%), #f3f5f9;
+    background-size: 22px 22px;
+    background-position: 0 0, 0 11px, 11px -11px, -11px 0;
+    overscroll-behavior: contain;
+}
+
+#hoihoaStudentModal .hh-canvas-stage {
+    position: relative;
+    flex: 0 0 auto;
     width: 100%;
-    height: 180px;
+    max-width: none;
+    min-width: 280px;
+    overflow: hidden;
+    background: var(--hh-canvas-bg, #fff);
+    border-radius: 5px;
+    box-shadow: 0 0 0 1px rgba(15, 23, 42, .15), 0 18px 50px rgba(15, 23, 42, .2);
+    transition: width .15s ease;
+    touch-action: none;
+}
+
+#hoihoaStudentModal #hoihoaCanvas,
+#hoihoaStudentModal #hoihoaPreviewCanvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+#hoihoaStudentModal #hoihoaCanvas {
+    z-index: 1;
+}
+
+#hoihoaStudentModal #hoihoaPreviewCanvas {
+    z-index: 3;
+    touch-action: none;
+}
+
+#hoihoaStudentModal .hh-grid-overlay {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    background-image: linear-gradient(rgba(59, 130, 246, .18) 1px, transparent 1px), linear-gradient(90deg, rgba(59, 130, 246, .18) 1px, transparent 1px);
+    background-size: 5% 5%;
+    transition: opacity .15s ease;
+}
+
+#hoihoaStudentModal .hh-grid-overlay.active {
+    opacity: 1;
+}
+
+#hoihoaStudentModal .hh-workspace-footer {
+    flex: 0 0 auto;
+    padding: 11px 13px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-top: 1px solid var(--hh-line);
+    background: #fff;
+}
+
+#hoihoaStudentModal .hh-draft-info {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #64748b;
+    font-size: 12px;
+}
+
+#hoihoaStudentModal .hh-save-dot {
+    width: 8px;
+    height: 8px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, .12);
+}
+
+#hoihoaStudentModal .hh-save-dot.dirty {
+    background: #f59e0b;
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, .13);
+}
+
+#hoihoaStudentModal .hh-canvas-spec {
+    padding-left: 8px;
+    border-left: 1px solid var(--hh-line);
+    font-variant-numeric: tabular-nums;
+}
+
+#hoihoaStudentModal .hh-submit-actions {
+    display: flex;
+    gap: 8px;
+}
+
+#hoihoaStudentModal .hh-integrity-note {
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 7px 13px 10px;
+    color: #9f1239;
+    background: #fff;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* ------------------------ Submitted / loading / empty ---------------------- */
+#hoihoaStudentModal .hh-submitted-state {
+    min-height: 430px;
+    padding: 34px;
+    display: grid;
+    grid-template-columns: auto 1fr minmax(220px, 420px);
+    align-items: center;
+    gap: 28px;
+    border: 1px solid #bbf7d0;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #f0fdf4, #fff 58%, #ecfdf5);
+}
+
+#hoihoaStudentModal .hh-success-orb {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    background: linear-gradient(145deg, #059669, #34d399);
+    font-size: 34px;
+    box-shadow: 0 14px 30px rgba(5, 150, 105, .25);
+}
+
+#hoihoaStudentModal .hh-submitted-state h3 {
+    margin: 6px 0;
+    color: #064e3b;
+    font-size: 24px;
+}
+
+#hoihoaStudentModal .hh-submitted-state p {
+    margin: 5px 0;
+    color: #475569;
+    line-height: 1.6;
+}
+
+#hoihoaStudentModal .hh-submitted-preview {
+    width: 100%;
+    max-height: 330px;
+    object-fit: contain;
+    cursor: zoom-in;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid #d1fae5;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, .12);
+}
+
+#hoihoaStudentModal .hh-muted {
+    font-size: 12px;
+    color: #94a3b8 !important;
+}
+
+#hoihoaStudentModal .hh-loading,
+#hh-teacher-container-wrapper .hh-loading {
+    min-height: 180px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 12px;
+    color: #64748b;
+}
+
+#hoihoaStudentModal .hh-loading span,
+#hh-teacher-container-wrapper .hh-loading span {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #ddd6fe;
+    border-top-color: var(--hh-primary);
+    border-radius: 50%;
+    animation: hh-spin .8s linear infinite;
+}
+
+#hoihoaStudentModal .hh-loading p,
+#hh-teacher-container-wrapper .hh-loading p {
+    margin: 0;
+}
+
+@keyframes hh-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+#hoihoaStudentModal .hh-empty-state,
+#hh-teacher-container-wrapper .hh-empty-state {
+    min-height: 260px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    text-align: center;
+    padding: 28px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 18px;
+    background: #fff;
+}
+
+#hoihoaStudentModal .hh-empty-state>span,
+#hh-teacher-container-wrapper .hh-empty-state>span {
+    font-size: 45px;
+}
+
+#hoihoaStudentModal .hh-empty-state h3,
+#hh-teacher-container-wrapper .hh-empty-state h3 {
+    margin: 10px 0 4px;
+    color: #334155;
+}
+
+#hoihoaStudentModal .hh-empty-state p,
+#hh-teacher-container-wrapper .hh-empty-state p {
+    margin: 0;
+    color: #64748b;
+}
+
+/* --------------------------- Gallery / bình chọn --------------------------- */
+#hoihoaStudentModal .hh-gallery-header {
+    margin-bottom: 16px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    border-radius: 18px;
+    color: #fff;
+    background:
+        radial-gradient(circle at 100% 0, rgba(255, 255, 255, .19), transparent 32%),
+        linear-gradient(135deg, #581c87, #7c3aed 58%, #db2777);
+    box-shadow: 0 14px 34px rgba(91, 33, 182, .2);
+}
+
+#hoihoaStudentModal .hh-gallery-header .hh-eyebrow {
+    color: #e9d5ff;
+}
+
+#hoihoaStudentModal .hh-gallery-header h3 {
+    margin: 5px 0;
+    font-size: 22px;
+}
+
+#hoihoaStudentModal .hh-gallery-header p {
+    margin: 0;
+    color: rgba(255, 255, 255, .82);
+}
+
+#hoihoaStudentModal .hh-vote-meter {
+    min-width: 112px;
+    padding: 12px;
+    text-align: center;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, .14);
+    border: 1px solid rgba(255, 255, 255, .24);
+    backdrop-filter: blur(8px);
+}
+
+#hoihoaStudentModal .hh-vote-meter strong {
+    font-size: 30px;
+}
+
+#hoihoaStudentModal .hh-vote-meter span {
+    font-weight: 800;
+    opacity: .8;
+}
+
+#hoihoaStudentModal .hh-vote-meter small {
+    display: block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    opacity: .78;
+}
+
+#hoihoaStudentModal .hoihoa-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+    margin: 0;
+}
+
+#hoihoaStudentModal .artwork-card {
+    overflow: hidden;
+    padding: 0;
+    text-align: left;
+    border: 1px solid var(--hh-line);
+    border-radius: 17px;
+    background: #fff;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .06);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+#hoihoaStudentModal .artwork-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 17px 36px rgba(15, 23, 42, .13);
+}
+
+#hoihoaStudentModal .hh-artwork-image-button {
+    position: relative;
+    width: 100%;
+    height: 230px;
+    padding: 0;
+    border: 0;
+    background: #eef1f6;
+    cursor: zoom-in;
+    overflow: hidden;
+}
+
+#hoihoaStudentModal .artwork-img {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    object-fit: cover;
+    border: 0;
+    border-radius: 0;
+    transition: transform .28s ease;
+}
+
+#hoihoaStudentModal .hh-artwork-image-button:hover .artwork-img {
+    transform: scale(1.03);
+}
+
+#hoihoaStudentModal .hh-artwork-image-button>span {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    padding: 6px 9px;
+    color: #fff;
+    background: rgba(15, 23, 42, .7);
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 800;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: .18s ease;
+}
+
+#hoihoaStudentModal .hh-artwork-image-button:hover>span {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#hoihoaStudentModal .hh-artwork-body {
+    padding: 14px;
+}
+
+#hoihoaStudentModal .hh-artwork-body h4 {
+    margin: 0 0 3px;
+    color: #334155;
+}
+
+#hoihoaStudentModal .hh-artwork-body p {
+    margin: 0 0 10px;
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+#hoihoaStudentModal .vote-btn {
+    width: 100%;
+    min-height: 40px;
+    margin: 0;
+    border: 0;
+    border-radius: 11px;
+    color: #fff;
+    background: linear-gradient(135deg, #db2777, #f43f5e);
+    font: inherit;
+    font-weight: 850;
+    cursor: pointer;
+    box-shadow: 0 8px 18px rgba(219, 39, 119, .22);
+}
+
+#hoihoaStudentModal .vote-btn.voted {
+    background: #059669;
+    box-shadow: none;
+}
+
+#hoihoaStudentModal .hh-own-artwork {
+    min-height: 40px;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+    color: #92400e;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    font-weight: 850;
+}
+
+/* ------------------------------ Bảng kết quả ------------------------------- */
+#hoihoaStudentModal .hh-result-hero {
+    margin-bottom: 16px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: #fff;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #b45309, #f59e0b 58%, #f97316);
+    box-shadow: 0 14px 34px rgba(217, 119, 6, .18);
+}
+
+#hoihoaStudentModal .hh-result-hero-blue {
+    background: linear-gradient(135deg, #1e3a8a, #4f46e5 55%, #7c3aed);
+    box-shadow: 0 14px 34px rgba(79, 70, 229, .18);
+}
+
+#hoihoaStudentModal .hh-result-hero>span {
+    font-size: 42px;
+}
+
+#hoihoaStudentModal .hh-result-hero .hh-eyebrow {
+    color: rgba(255, 255, 255, .74);
+}
+
+#hoihoaStudentModal .hh-result-hero h3 {
+    margin: 4px 0;
+    font-size: 23px;
+}
+
+#hoihoaStudentModal .hh-result-hero p {
+    margin: 0;
+    color: rgba(255, 255, 255, .82);
+}
+
+#hoihoaStudentModal .hh-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--hh-line);
+    border-radius: 16px;
+    background: #fff;
+}
+
+#hoihoaStudentModal .leaderboard-table {
+    width: 100%;
+    min-width: 720px;
+    margin: 0;
+    border-collapse: collapse;
+}
+
+#hoihoaStudentModal .leaderboard-table th,
+#hoihoaStudentModal .leaderboard-table td {
+    padding: 12px 14px;
+    text-align: center;
+    border-bottom: 1px solid #eef2f7;
+}
+
+#hoihoaStudentModal .leaderboard-table th {
+    color: #64748b;
+    background: #f8fafc;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+}
+
+#hoihoaStudentModal .leaderboard-table tr:last-child td {
+    border-bottom: 0;
+}
+
+#hoihoaStudentModal .rank-1 {
+    color: #d97706;
+    font-size: 18px;
+    font-weight: 950;
+}
+
+#hoihoaStudentModal .rank-2 {
+    color: #64748b;
+    font-size: 17px;
+    font-weight: 900;
+}
+
+#hoihoaStudentModal .rank-3 {
+    color: #b45309;
+    font-size: 17px;
+    font-weight: 900;
+}
+
+#hoihoaStudentModal .hh-result-thumb {
+    width: 76px;
+    height: 50px;
     object-fit: cover;
     border-radius: 8px;
-    margin-bottom: 10px;
-    border: 1px solid #f1f5f9;
-    cursor: pointer;
+    cursor: zoom-in;
+    box-shadow: 0 3px 9px rgba(15, 23, 42, .13);
 }
 
-.vote-btn {
-    background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);
-    color: white;
-    border: none;
-    padding: 8px 20px;
-    border-radius: 50px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(255, 8, 68, 0.3);
-    width: 100%;
-    margin-top: 10px;
-}
-.vote-btn.voted {
-    background: #10b981;
-    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+#hoihoaStudentModal .hh-final-score {
+    color: #be185d;
+    font-weight: 950;
+    font-size: 16px;
 }
 
-/* Bảng xếp hạng */
-.leaderboard-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
+/* ------------------------------ Preview modal ------------------------------ */
+#artworkPreviewModal.hh-preview-overlay {
+    z-index: 9999999;
+    padding: 20px;
+    background: rgba(2, 6, 23, .9);
+    backdrop-filter: blur(10px);
 }
-.leaderboard-table th, .leaderboard-table td {
-    padding: 12px;
-    border-bottom: 1px solid #e2e8f0;
-    text-align: center;
-}
-.leaderboard-table th { background: #f8fafc; color: #475569; }
-.rank-1 { color: #f59e0b; font-weight: 900; font-size: 1.2em; }
-.rank-2 { color: #94a3b8; font-weight: bold; font-size: 1.1em; }
-.rank-3 { color: #d97706; font-weight: bold; font-size: 1.1em; }
 
-/* Modal Phóng to tranh */
-#artworkPreviewModal .modal-content {
-    background: transparent;
-    box-shadow: none;
-    border: none;
-    max-width: 90vw;
+#artworkPreviewModal .hh-preview-shell {
+    position: relative;
+    width: min(96vw, 1500px);
+    height: 92vh;
+    display: grid;
+    place-items: center;
 }
-#artworkPreviewImg {
+
+#artworkPreviewModal .hh-preview-close {
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    right: 0;
+}
+
+#artworkPreviewModal #artworkPreviewImg {
     max-width: 100%;
-    max-height: 85vh;
+    max-height: 100%;
     border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    background: #fff;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, .55);
+    object-fit: contain;
+}
+
+/* ------------------------------- Confirm ----------------------------------- */
+#hhConfirmModal.hh-confirm-overlay {
+    z-index: 10000000;
+    padding: 20px;
+    background: rgba(15, 23, 42, .68);
+    backdrop-filter: blur(6px);
+}
+
+#hhConfirmModal .hh-dialog {
+    width: min(440px, 94vw);
+    padding: 24px;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: var(--hh-shadow);
+}
+
+#hhConfirmModal .hh-dialog h3 {
+    margin: 0 0 8px;
+    color: #1e293b;
+}
+
+#hhConfirmModal .hh-dialog p {
+    margin: 0;
+    color: #64748b;
+    line-height: 1.65;
+    white-space: pre-line;
+}
+
+#hhConfirmModal .hh-dialog-actions {
+    margin-top: 22px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 9px;
+}
+
+/* ---------------------------- Teacher dashboard ---------------------------- */
+#hh-teacher-container-wrapper.hoihoa-teacher-section {
+    margin-top: 28px;
+    overflow: hidden;
+    border: 1px solid #ddd6fe;
+    border-radius: 19px;
+    background: #fff;
+    box-shadow: 0 10px 30px rgba(76, 29, 149, .08);
+}
+
+#hh-teacher-container-wrapper .hh-teacher-heading {
+    width: 100%;
+    padding: 17px 20px;
+    border: 0;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 13px;
+    text-align: left;
+    cursor: pointer;
+    color: #2e1065;
+    background: linear-gradient(135deg, #faf5ff, #eef2ff);
+}
+
+#hh-teacher-container-wrapper .hh-teacher-heading-icon {
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    color: #fff;
+    background: linear-gradient(145deg, #6d28d9, #db2777);
+    font-size: 22px;
+    box-shadow: 0 8px 18px rgba(109, 40, 217, .22);
+}
+
+#hh-teacher-container-wrapper .hh-teacher-heading strong {
+    display: block;
+    font-size: 18px;
+}
+
+#hh-teacher-container-wrapper .hh-teacher-heading small {
+    display: block;
+    margin-top: 3px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+#hh-teacher-container-wrapper .hh-teacher-heading #hh-toggle-icon {
+    font-size: 24px;
+    transition: transform .2s ease;
+}
+
+#hh-teacher-container-wrapper .hh-teacher-heading[aria-expanded="true"] #hh-toggle-icon {
+    transform: rotate(180deg);
+}
+
+#hh-teacher-container-wrapper .hh-teacher-content {
+    display: none;
+    padding: 18px;
+    border-top: 1px solid #ede9fe;
+}
+
+#hh-teacher-container-wrapper .hh-teacher-content.open {
+    display: block;
+}
+
+#hh-teacher-container-wrapper .hh-teacher-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+    gap: 16px;
+}
+
+#hh-teacher-container-wrapper .hh-admin-card {
+    padding: 18px;
+    border: 1px solid var(--hh-line);
+    border-radius: 16px;
+    background: #fff;
+}
+
+#hh-teacher-container-wrapper .hh-round-form-card {
+    background: linear-gradient(145deg, #fff, #fafaff);
+}
+
+#hh-teacher-container-wrapper .hh-guide-card {
+    color: #fff;
+    background: linear-gradient(145deg, #312e81, #6d28d9 66%, #9333ea);
+    border: 0;
+}
+
+#hh-teacher-container-wrapper .hh-guide-card .hh-eyebrow {
+    color: #ddd6fe;
+}
+
+#hh-teacher-container-wrapper .hh-guide-card h3 {
+    margin: 5px 0 12px;
+}
+
+#hh-teacher-container-wrapper .hh-guide-card ol {
+    margin: 0;
+    padding-left: 20px;
+    line-height: 1.9;
+}
+
+#hh-teacher-container-wrapper .hh-guide-card p {
+    margin: 14px 0 0;
+    padding: 11px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, .1);
+    color: #ede9fe;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+#hh-teacher-container-wrapper .hh-admin-card-title,
+#hh-teacher-container-wrapper .hh-round-list-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+#hh-teacher-container-wrapper .hh-admin-card-title h3,
+#hh-teacher-container-wrapper .hh-round-list-heading h3 {
+    margin: 4px 0 0;
+    color: #334155;
+}
+
+#hh-teacher-container-wrapper .hh-form-grid {
+    margin: 16px 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+#hh-teacher-container-wrapper .hh-span-2 {
+    grid-column: span 2;
+}
+
+#hh-teacher-container-wrapper .hh-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+#hh-teacher-container-wrapper .hh-field>span {
+    color: #475569;
+    font-size: 12px;
+    font-weight: 850;
+}
+
+#hh-teacher-container-wrapper .hh-field input,
+#hh-teacher-container-wrapper .hh-field select,
+#hh-teacher-container-wrapper .hh-field textarea,
+#hh-teacher-container-wrapper .hh-grading-toolbar input,
+#hh-teacher-container-wrapper .hh-grading-toolbar select,
+#hh-teacher-container-wrapper .hh-grading-card input,
+#hh-teacher-container-wrapper .hh-grading-card textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #dce2ea;
+    border-radius: 10px;
+    padding: 10px 11px;
+    color: #1e293b;
+    background: #fff;
+    font: inherit;
+    outline: none;
+    transition: border-color .16s ease, box-shadow .16s ease;
+}
+
+#hh-teacher-container-wrapper .hh-field input:focus,
+#hh-teacher-container-wrapper .hh-field select:focus,
+#hh-teacher-container-wrapper .hh-field textarea:focus,
+#hh-teacher-container-wrapper .hh-grading-card input:focus,
+#hh-teacher-container-wrapper .hh-grading-card textarea:focus {
+    border-color: #a78bfa;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, .12);
+}
+
+#hh-teacher-container-wrapper .hh-check-field {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    color: #475569;
+    background: #f8fafc;
+    font-weight: 750;
+}
+
+#hh-teacher-container-wrapper .hh-check-field input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--hh-primary);
+}
+
+#hh-teacher-container-wrapper .hh-round-list-heading {
+    margin: 24px 0 12px;
+}
+
+#hh-teacher-container-wrapper .hh-round-admin-card {
+    margin-bottom: 12px;
+    padding: 16px;
+    border: 1px solid var(--hh-line);
+    border-left: 5px solid #8b5cf6;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 5px 16px rgba(15, 23, 42, .04);
+}
+
+#hh-teacher-container-wrapper .hh-round-admin-card.archived {
+    opacity: .68;
+    border-left-color: #94a3b8;
+    background: #f8fafc;
+}
+
+#hh-teacher-container-wrapper .hh-round-card-main {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+#hh-teacher-container-wrapper .hh-round-card-title {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+#hh-teacher-container-wrapper .hh-status-dot {
+    width: 10px;
+    height: 10px;
+    margin-top: 6px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: #94a3b8;
+}
+
+#hh-teacher-container-wrapper .hh-status-dot[data-status="active"] {
+    background: #10b981;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, .12);
+}
+
+#hh-teacher-container-wrapper .hh-status-dot[data-status="voting"] {
+    background: #ec4899;
+    box-shadow: 0 0 0 4px rgba(236, 72, 153, .12);
+}
+
+#hh-teacher-container-wrapper .hh-status-dot[data-status="closed"] {
+    background: #8b5cf6;
+}
+
+#hh-teacher-container-wrapper .hh-status-dot[data-status="scheduled"] {
+    background: #3b82f6;
+}
+
+#hh-teacher-container-wrapper .hh-status-dot[data-status="awaiting_voting"] {
+    background: #f59e0b;
+}
+
+#hh-teacher-container-wrapper .hh-round-card-title h4 {
+    margin: 0;
+    color: #2e1065;
+    font-size: 17px;
+}
+
+#hh-teacher-container-wrapper .hh-round-card-title p {
+    margin: 4px 0 0;
+    color: #64748b;
+}
+
+#hh-teacher-container-wrapper .hh-round-card-meta {
+    margin: 13px 0;
+    display: flex;
+    gap: 13px;
+    flex-wrap: wrap;
+    color: #64748b;
+    font-size: 12px;
+}
+
+#hh-teacher-container-wrapper .hh-round-card-meta span {
+    padding: 6px 9px;
+    border-radius: 8px;
+    background: #f8fafc;
+}
+
+#hh-teacher-container-wrapper .hh-round-card-actions {
+    padding-top: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border-top: 1px solid #edf1f5;
+}
+
+#hh-teacher-container-wrapper .hh-round-card-actions>div {
+    display: flex;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+
+#hh-teacher-container-wrapper .hh-complete-label {
+    padding: 8px 11px;
+    color: #047857;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    border-radius: 10px;
+    font-weight: 850;
+}
+
+#hh-teacher-container-wrapper .hh-grading-area {
+    display: none;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px dashed #cbd5e1;
+}
+
+#hh-teacher-container-wrapper .hh-grading-area.open {
+    display: block;
+}
+
+#hh-teacher-container-wrapper .hh-grading-toolbar {
+    margin-bottom: 12px;
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) 190px auto;
+    gap: 8px;
+}
+
+#hh-teacher-container-wrapper .hh-grading-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+    gap: 12px;
+}
+
+#hh-teacher-container-wrapper .hh-grading-card {
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 145px minmax(0, 1fr);
+    border: 1px solid var(--hh-line);
+    border-radius: 13px;
+    background: #fff;
+}
+
+#hh-teacher-container-wrapper .hh-grading-image {
+    position: relative;
+    min-height: 245px;
+    padding: 0;
+    border: 0;
+    background: #eef2f7;
+    cursor: zoom-in;
+    overflow: hidden;
+}
+
+#hh-teacher-container-wrapper .hh-grading-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#hh-teacher-container-wrapper .hh-grading-image span {
+    position: absolute;
+    inset: auto 8px 8px;
+    padding: 5px;
+    border-radius: 7px;
+    color: #fff;
+    background: rgba(15, 23, 42, .72);
+    font-size: 10px;
+    font-weight: 800;
+}
+
+#hh-teacher-container-wrapper .hh-image-missing {
+    display: grid;
+    place-items: center;
+    color: #94a3b8;
+}
+
+#hh-teacher-container-wrapper .hh-grading-body {
+    min-width: 0;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+#hh-teacher-container-wrapper .hh-grading-student {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+#hh-teacher-container-wrapper .hh-grading-student strong {
+    display: block;
+    color: #334155;
+}
+
+#hh-teacher-container-wrapper .hh-grading-student small {
+    display: block;
+    margin-top: 2px;
+    color: #94a3b8;
+}
+
+#hh-teacher-container-wrapper .hh-grading-student>span {
+    color: #be185d;
+    font-weight: 850;
+}
+
+#hh-teacher-container-wrapper .hh-grading-body label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+#hh-teacher-container-wrapper .hh-grading-body label>span {
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+/* -------------------------------- Toast ------------------------------------ */
+.hh-toast-container {
+    position: fixed;
+    z-index: 10000020;
+    right: 18px;
+    bottom: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+}
+
+.hh-toast {
+    max-width: min(390px, calc(100vw - 36px));
+    padding: 12px 15px;
+    border-radius: 12px;
+    color: #fff;
+    background: #334155;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, .25);
+    font-weight: 750;
+    transform: translateX(120%);
+    transition: transform .22s ease;
+}
+
+.hh-toast.show {
+    transform: translateX(0);
+}
+
+.hh-toast-success {
+    background: #047857;
+}
+
+.hh-toast-error {
+    background: #be123c;
+}
+
+.hh-toast-warning {
+    background: #b45309;
+}
+
+/* ------------------------------- Responsive -------------------------------- */
+@media (max-width: 1000px) {
+    #hh-student-entry-card.hh-entry-card {
+        grid-template-columns: auto 1fr;
+    }
+
+    #hh-student-entry-card .hh-entry-button {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+
+    #hoihoaStudentModal .hh-workspace {
+        grid-template-columns: 1fr;
+    }
+
+    #hoihoaStudentModal .hh-tool-dock {
+        position: static;
+        flex-direction: row;
+        overflow-x: auto;
+    }
+
+    #hoihoaStudentModal .hh-tool-button {
+        min-width: 64px;
+    }
+
+    #hoihoaStudentModal .hh-tool-separator {
+        width: 1px;
+        height: 38px;
+        margin: 8px 3px;
+    }
+
+    #hh-teacher-container-wrapper .hh-teacher-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 760px) {
+    #hoihoaStudentModal .hh-modal-close {
+        top: 10px !important;
+        right: 10px !important;
+
+        width: 42px !important;
+        height: 42px !important;
+    }
+
+    #hoihoaStudentModal .hoihoa-header.hh-studio-header {
+        padding: 62px 15px 13px 15px;
+    }
+
+    #hoihoaStudentModal.hh-student-overlay {
+        padding: 0;
+    }
+
+    #hoihoaStudentModal .hoihoa-container.hh-studio-modal {
+        width: 100vw;
+        height: 100dvh;
+        max-height: none;
+        border-radius: 0;
+    }
+
+    #hoihoaStudentModal .hoihoa-header.hh-studio-header {
+        padding: 15px 54px 13px 15px;
+        flex-direction: column;
+        gap: 9px;
+    }
+
+    #hoihoaStudentModal .hh-round-meta {
+        min-width: 0;
+        padding: 0;
+        text-align: left;
+    }
+
+    #hoihoaStudentModal .hh-round-meta p {
+        display: inline-block;
+        margin-right: 8px;
+    }
+
+    #hoihoaStudentModal .hh-student-content {
+        padding: 9px;
+    }
+
+    #hoihoaStudentModal .canvas-toolbar.hh-top-toolbar {
+        max-height: 190px;
+        overflow-y: auto;
+    }
+
+    #hoihoaStudentModal .hh-control-group {
+        flex: 1 1 145px;
+    }
+
+    #hoihoaStudentModal .hh-color-group {
+        flex-basis: 100%;
+    }
+
+    #hoihoaStudentModal .hh-slider-group {
+        min-width: 145px;
+    }
+
+    #hoihoaStudentModal .hh-canvas-commandbar {
+        align-items: flex-start;
+    }
+
+    #hoihoaStudentModal .hh-canvas-commandbar>div {
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    #hoihoaStudentModal .hh-canvas-scroll {
+        min-height: 300px;
+        padding: 14px;
+    }
+
+    #hoihoaStudentModal .hh-workspace-footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    #hoihoaStudentModal .hh-submit-actions {
+        width: 100%;
+    }
+
+    #hoihoaStudentModal .hh-submit-actions .hh-btn {
+        flex: 1;
+    }
+
+    #hoihoaStudentModal .hh-submitted-state {
+        grid-template-columns: 1fr;
+        padding: 22px;
+        text-align: center;
+    }
+
+    #hoihoaStudentModal .hh-success-orb {
+        margin: auto;
+    }
+
+    #hoihoaStudentModal .hh-gallery-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #hoihoaStudentModal .hh-vote-meter {
+        align-self: flex-end;
+    }
+
+    #hh-teacher-container-wrapper .hh-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #hh-teacher-container-wrapper .hh-span-2 {
+        grid-column: span 1;
+    }
+
+    #hh-teacher-container-wrapper .hh-round-card-main,
+    #hh-teacher-container-wrapper .hh-round-card-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    #hh-teacher-container-wrapper .hh-grading-toolbar {
+        grid-template-columns: 1fr;
+    }
+
+    #hh-teacher-container-wrapper .hh-grading-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 520px) {
+    #hh-student-entry-card.hh-entry-card {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    #hh-student-entry-card .hh-entry-art {
+        margin: auto;
+    }
+
+    #hoihoaStudentModal .hh-tool-dock {
+        padding: 6px;
+    }
+
+    #hoihoaStudentModal .hh-tool-button {
+        min-width: 58px;
+    }
+
+    #hoihoaStudentModal .hh-tool-button small {
+        display: none;
+    }
+
+    #hoihoaStudentModal .hoihoa-gallery {
+        grid-template-columns: 1fr;
+    }
+
+    #hh-teacher-container-wrapper .hh-grading-card {
+        grid-template-columns: 1fr;
+    }
+
+    #hh-teacher-container-wrapper .hh-grading-image {
+        min-height: 210px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    #hoihoaStudentModal *,
+    #hh-teacher-container-wrapper *,
+    #hh-student-entry-card *,
+    #artworkPreviewModal * {
+        scroll-behavior: auto !important;
+        transition-duration: .001ms !important;
+        animation-duration: .001ms !important;
+    }
+}
+
+#hh-teacher-container-wrapper .hh-grading-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+#hh-teacher-container-wrapper .hh-btn-danger {
+    color: #ffffff;
+    background: #dc2626;
+    box-shadow: 0 7px 18px rgba(220, 38, 38, 0.2);
+}
+
+#hh-teacher-container-wrapper .hh-btn-danger:hover {
+    background: #b91c1c;
+}
+
+#hh-teacher-container-wrapper .hh-submission-count {
+    color: #4c1d95;
+    white-space: nowrap;
+}
+
+#hh-teacher-container-wrapper .hh-delete-round-btn {
+    color: #be123c;
+    border-color: #fecdd3;
+    background: #fff1f2;
+}
+
+#hh-teacher-container-wrapper .hh-delete-round-btn:hover {
+    color: #ffffff;
+    border-color: #be123c;
+    background: #be123c;
+}
+
+#hh-student-entry-card .hh-entry-title-row {
+    margin: 3px 0 6px;
+
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+#hh-student-entry-card .hh-entry-title-row h3 {
+    margin: 0;
+}
+
+#hh-student-entry-card .hh-entry-info-button {
+    width: 27px;
+    height: 27px;
+    min-width: 27px;
+
+    padding: 0;
+
+    display: inline-grid;
+    place-items: center;
+
+    border: 1px solid #c4b5fd;
+    border-radius: 50%;
+
+    color: #6d28d9;
+    background: rgba(255, 255, 255, 0.9);
+
+    font: inherit;
+    font-size: 14px;
+    font-weight: 900;
+    line-height: 1;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 5px 14px rgba(109, 40, 217, 0.18);
+
+    transition:
+        transform 0.18s ease,
+        color 0.18s ease,
+        background 0.18s ease;
+}
+
+#hh-student-entry-card .hh-entry-info-button:hover {
+    color: #ffffff;
+    background: #7c3aed;
+    transform: scale(1.1);
+}
+
+#hh-student-entry-card .hh-entry-info-button:focus-visible {
+    outline: 3px solid rgba(124, 58, 237, 0.25);
+    outline-offset: 2px;
+}
+
+@media (max-width: 520px) {
+    #hh-student-entry-card .hh-entry-title-row {
+        justify-content: center;
+    }
+}
+
+/* ===== Nút ? cạnh Studio Hội Họa ===== */
+
+#hoihoaStudentModal .hh-studio-label-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#hoihoaStudentModal .hh-event-info-button {
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    padding: 0;
+
+    display: inline-grid;
+    place-items: center;
+
+    border: 1px solid #c4b5fd;
+    border-radius: 50%;
+
+    color: #6d28d9;
+    background: #ffffff;
+
+    font: inherit;
+    font-size: 14px;
+    font-weight: 900;
+    line-height: 1;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 4px 12px rgba(109, 40, 217, 0.16);
+
+    transition:
+        transform 0.18s ease,
+        color 0.18s ease,
+        background 0.18s ease;
+}
+
+#hoihoaStudentModal .hh-event-info-button:hover {
+    color: #ffffff;
+    background: #7c3aed;
+    transform: scale(1.08);
+}
+
+/* ===== Modal quy tắc và phần thưởng ===== */
+
+#hhEventInfoModal.hh-event-info-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000040;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(15, 23, 42, 0.78);
+    backdrop-filter: blur(9px);
+}
+
+#hhEventInfoModal.hh-event-info-overlay.active {
+    display: flex;
+}
+
+#hhEventInfoModal .hh-event-info-dialog {
+    position: relative;
+
+    width: min(960px, 96vw);
+    max-height: min(90vh, 900px);
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 24px;
+
+    background: #f8fafc;
+
+    box-shadow:
+        0 30px 100px rgba(0, 0, 0, 0.45);
+}
+
+#hhEventInfoModal .hh-event-info-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 5;
+
+    width: 42px;
+    height: 42px;
+
+    display: grid;
+    place-items: center;
+
+    padding: 0;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+
+    color: #334155;
+    background: #ffffff;
+
+    font-size: 18px;
+    cursor: pointer;
+
+    box-shadow:
+        0 8px 20px rgba(15, 23, 42, 0.14);
+}
+
+#hhEventInfoModal .hh-event-info-header {
+    flex: 0 0 auto;
+
+    padding: 25px 76px 21px 25px;
+
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    background:
+        radial-gradient(circle at 0 0,
+            rgba(196, 181, 253, 0.65),
+            transparent 36%),
+        linear-gradient(135deg,
+            #ffffff,
+            #f5f3ff,
+            #eff6ff);
+
+    border-bottom: 1px solid #e9e5f5;
+}
+
+#hhEventInfoModal .hh-event-info-icon {
+    width: 58px;
+    height: 58px;
+
+    flex: 0 0 auto;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 18px;
+
+    color: #ffffff;
+    background:
+        linear-gradient(135deg, #7c3aed, #ec4899);
+
+    font-size: 29px;
+
+    box-shadow:
+        0 12px 26px rgba(124, 58, 237, 0.25);
+}
+
+#hhEventInfoModal .hh-event-info-header h2 {
+    margin: 5px 0 5px;
+    color: #1e293b;
+    font-size: clamp(22px, 3vw, 30px);
+}
+
+#hhEventInfoModal .hh-event-info-header p {
+    margin: 0;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+#hhEventInfoModal .hh-event-info-content {
+    flex: 1 1 auto;
+    min-height: 0;
+
+    overflow-y: auto;
+
+    padding: 20px;
+
+    display: grid;
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+#hhEventInfoModal .hh-event-info-section {
+    min-width: 0;
+}
+
+#hhEventInfoModal .hh-event-info-section h3 {
+    margin: 0 0 12px;
+    color: #4c1d95;
+    font-size: 18px;
+}
+
+#hhEventInfoModal .hh-rule-list,
+#hhEventInfoModal .hh-reward-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#hhEventInfoModal .hh-rule-item,
+#hhEventInfoModal .hh-reward-item {
+    padding: 13px 14px;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+
+    background: #ffffff;
+}
+
+#hhEventInfoModal .hh-rule-item strong,
+#hhEventInfoModal .hh-reward-item strong {
+    color: #334155;
+}
+
+#hhEventInfoModal .hh-rule-item p,
+#hhEventInfoModal .hh-reward-item p,
+#hhEventInfoModal .hh-chest-details p {
+    margin: 5px 0 0;
+    color: #64748b;
+    line-height: 1.55;
+    font-size: 13px;
+}
+
+#hhEventInfoModal .hh-reward-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+}
+
+#hhEventInfoModal .hh-reward-rank {
+    width: 38px;
+    height: 38px;
+
+    flex: 0 0 auto;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 12px;
+    background: #f1f5f9;
+
+    font-size: 21px;
+}
+
+#hhEventInfoModal .rank-one {
+    border-color: #fde68a;
+    background: #fffbeb;
+}
+
+#hhEventInfoModal .rank-two {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+}
+
+#hhEventInfoModal .rank-three {
+    border-color: #fed7aa;
+    background: #fff7ed;
+}
+
+#hhEventInfoModal .hh-chest-details {
+    padding: 14px;
+
+    border: 1px dashed #f59e0b;
+    border-radius: 14px;
+
+    background:
+        linear-gradient(135deg, #fff7ed, #fffbeb);
+}
+
+#hhEventInfoModal .hh-chest-details>strong {
+    color: #b45309;
+}
+
+#hhEventInfoModal .hh-event-info-footer {
+    flex: 0 0 auto;
+
+    padding: 13px 20px;
+
+    display: flex;
+    justify-content: flex-end;
+
+    border-top: 1px solid #e2e8f0;
+    background: #ffffff;
+}
+
+#hhEventInfoModal .hh-event-info-understood {
+    min-height: 43px;
+    padding: 10px 24px;
+
+    border: 0;
+    border-radius: 12px;
+
+    color: #ffffff;
+    background:
+        linear-gradient(135deg, #7c3aed, #ec4899);
+
+    font: inherit;
+    font-weight: 850;
+    cursor: pointer;
+
+    box-shadow:
+        0 9px 22px rgba(124, 58, 237, 0.24);
+}
+
+@media (max-width: 760px) {
+    #hhEventInfoModal.hh-event-info-overlay {
+        padding: 0;
+    }
+
+    #hhEventInfoModal .hh-event-info-dialog {
+        width: 100vw;
+        max-height: 100dvh;
+        height: 100dvh;
+        border-radius: 0;
+    }
+
+    #hhEventInfoModal .hh-event-info-header {
+        padding: 18px 62px 16px 15px;
+    }
+
+    #hhEventInfoModal .hh-event-info-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 24px;
+    }
+
+    #hhEventInfoModal .hh-event-info-content {
+        grid-template-columns: 1fr;
+        padding: 14px;
+    }
+
+    #hhEventInfoModal .hh-event-info-footer {
+        padding: 11px 14px;
+    }
+
+    #hhEventInfoModal .hh-event-info-understood {
+        width: 100%;
+    }
+}
+
+/* ===== Menu Thi / Luyện tập tại thẻ Studio ===== */
+
+#hh-student-entry-card .hh-entry-actions {
+    min-width: 260px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+}
+
+#hh-student-entry-card .hh-entry-mode-menu {
+    display: grid;
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+    gap: 8px;
+
+    max-height: 0;
+    margin-bottom: -8px;
+
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+
+    transform:
+        translateY(18px) scale(0.97);
+
+    transform-origin: bottom center;
+
+    transition:
+        max-height 0.3s ease,
+        margin-bottom 0.3s ease,
+        opacity 0.22s ease,
+        transform 0.3s ease;
+}
+
+#hh-student-entry-card .hh-entry-mode-menu.open {
+    max-height: 100px;
+    margin-bottom: 0;
+
+    opacity: 1;
+    pointer-events: auto;
+
+    transform:
+        translateY(0) scale(1);
+}
+
+#hh-student-entry-card .hh-entry-mode-choice {
+    min-height: 64px;
+    padding: 9px 11px;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 9px;
+
+    border: 1px solid #ddd6fe;
+    border-radius: 14px;
+
+    color: #475569;
+    background: rgba(255, 255, 255, 0.94);
+
+    font: inherit;
+    text-align: left;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 7px 18px rgba(76,
+            29,
+            149,
+            0.09);
+
+    transition:
+        transform 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
+        background 0.18s ease;
+}
+
+#hh-student-entry-card .hh-entry-mode-choice:hover {
+    transform: translateY(-2px);
+}
+
+#hh-student-entry-card .hh-entry-contest-choice:hover {
+    color: #92400e;
+    border-color: #fcd34d;
+    background: #fffbeb;
+}
+
+#hh-student-entry-card .hh-entry-practice-choice:hover {
+    color: #6d28d9;
+    border-color: #c4b5fd;
+    background: #faf5ff;
+}
+
+#hh-student-entry-card .hh-entry-choice-icon {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 auto;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 10px;
+    background: #f5f3ff;
+
+    font-size: 18px;
+}
+
+#hh-student-entry-card .hh-entry-mode-choice>span:last-child {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+#hh-student-entry-card .hh-entry-mode-choice strong {
+    font-size: 13px;
+}
+
+#hh-student-entry-card .hh-entry-mode-choice small {
+    color: #94a3b8;
+    font-size: 10px;
+    font-weight: 650;
+    white-space: nowrap;
+}
+
+#hh-student-entry-card .hh-entry-button {
+    width: 100%;
+}
+
+#hh-student-entry-card .hh-entry-open-arrow {
+    display: inline-block;
+
+    transition:
+        transform 0.28s ease;
+}
+
+#hh-student-entry-card .hh-entry-button.menu-open .hh-entry-open-arrow {
+    transform: rotate(180deg);
+}
+
+#hoihoaStudentModal .hh-practice-upload-btn {
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+    background: #f0f9ff;
+}
+
+#hoihoaStudentModal .hh-practice-upload-btn:hover {
+    color: #075985;
+    border-color: #7dd3fc;
+    background: #e0f2fe;
+}
+
+@media (max-width: 620px) {
+    #hoihoaStudentModal .hh-submit-actions {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    #hoihoaStudentModal .hh-submit-actions .hh-btn {
+        flex: 1 1 180px;
+    }
+}
+
+/* =====================================================
+   THANH CÔNG CỤ CUỘN DỌC ĐỘC LẬP
+   ===================================================== */
+
+@media (min-width: 1001px) {
+    #hoihoaStudentModal .hh-workspace {
+        min-height: 0;
+        align-items: stretch;
+    }
+
+    #hoihoaStudentModal .hh-tool-dock {
+        position: sticky;
+        top: 0;
+
+        align-self: start;
+
+        /*
+         * Khi danh sách công cụ dài hơn chiều cao
+         * khả dụng, chỉ thanh này cuộn.
+         */
+        max-height:
+            calc(94vh - 260px);
+
+        overflow-y: auto;
+        overflow-x: hidden;
+
+        overscroll-behavior: contain;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+
+        padding-right: 6px;
+    }
+
+    #hoihoaStudentModal .hh-tool-dock::-webkit-scrollbar {
+        display: none;
+        width: 0;
+        height: 0;
+    }
+}
+
+/* =====================================================
+   CĂN CHỈNH CỤM ZOOM
+   ===================================================== */
+
+#hoihoaStudentModal .hh-zoom-controls {
+    margin-left: auto;
+
+    display: grid !important;
+
+    grid-template-columns:
+        34px 72px 34px 34px;
+
+    align-items: center;
+    justify-content: end;
+
+    gap: 6px !important;
+
+    flex: 0 0 auto;
+}
+
+#hoihoaStudentModal .hh-zoom-controls .hh-icon-btn {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+
+    padding: 0;
+
+    display: grid;
+    place-items: center;
+}
+
+#hoihoaStudentModal .hh-zoom-value {
+    width: 72px;
+    min-width: 72px;
+    height: 34px;
+
+    padding: 0 8px;
+
+    display: inline-grid;
+    place-items: center;
+
+    border: 1px solid var(--hh-line);
+    border-radius: 10px;
+
+    color: #334155;
+    background: #ffffff;
+
+    font-size: 14px;
+    font-weight: 850;
+    line-height: 1;
+
+    box-shadow:
+        0 4px 12px rgba(15,
+            23,
+            42,
+            0.08);
+}
+
+@media (min-width: 1001px) {
+    #hoihoaStudentModal .hh-canvas-commandbar {
+        display: grid;
+
+        grid-template-columns:
+            minmax(0, 1fr) auto minmax(0, 1fr);
+
+        align-items: center;
+        gap: 12px;
+    }
+
+    #hoihoaStudentModal .hh-canvas-commandbar>div:first-child {
+        justify-self: start;
+    }
+
+    #hoihoaStudentModal .hh-canvas-commandbar>div:nth-child(2) {
+        justify-self: center;
+    }
+
+    #hoihoaStudentModal .hh-canvas-commandbar .hh-zoom-controls {
+        justify-self: end;
+        margin-left: 0;
+    }
+}
+
+/* =====================================================
+   FULLSCREEN TOÀN BỘ WORKSPACE
+   Gồm thanh bút và khu vực vẽ
+   ===================================================== */
+
+#hoihoaStudentModal .hh-workspace:fullscreen {
+    width: 100vw;
+    height: 100vh;
+    min-height: 0;
+
+    box-sizing: border-box;
+
+    display: grid;
+
+    grid-template-columns:
+        88px minmax(0, 1fr);
+
+    align-items: stretch;
+    gap: 12px;
+
+    padding: 12px;
+
+    overflow: hidden;
+
+    background: #eef2f7;
+}
+
+/* Hỗ trợ một số trình duyệt WebKit */
+#hoihoaStudentModal .hh-workspace:-webkit-full-screen {
+    width: 100vw;
+    height: 100vh;
+    min-height: 0;
+
+    box-sizing: border-box;
+
+    display: grid;
+
+    grid-template-columns:
+        88px minmax(0, 1fr);
+
+    gap: 12px;
+    padding: 12px;
+
+    overflow: hidden;
+
+    background: #eef2f7;
+}
+
+#hoihoaStudentModal .hh-workspace:fullscreen .hh-tool-dock,
+#hoihoaStudentModal .hh-workspace:-webkit-full-screen .hh-tool-dock {
+    position: relative;
+    top: auto;
+
+    width: 88px;
+    height: calc(100vh - 24px);
+    max-height: none;
+
+    align-self: stretch;
+
+    flex-direction: column;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    padding: 8px 6px;
+
+    border-radius: 15px;
+
+    background:
+        rgba(255, 255, 255, 0.98);
+}
+
+#hoihoaStudentModal .hh-workspace:fullscreen .hh-workspace-main,
+#hoihoaStudentModal .hh-workspace:-webkit-full-screen .hh-workspace-main {
+    width: auto;
+    height: calc(100vh - 24px);
+
+    min-width: 0;
+    min-height: 0;
+
+    border-radius: 16px;
+
+    background: #ffffff;
+}
+
+#hoihoaStudentModal .hh-workspace:fullscreen .hh-canvas-scroll,
+#hoihoaStudentModal .hh-workspace:-webkit-full-screen .hh-canvas-scroll {
+    min-width: 0;
+    min-height: 0;
+}
+
+#hoihoaStudentModal .hh-workspace:fullscreen .hh-canvas-commandbar,
+#hoihoaStudentModal .hh-workspace:-webkit-full-screen .hh-canvas-commandbar {
+    flex: 0 0 auto;
+}
+
+@media (max-width: 700px) {
+
+    #hoihoaStudentModal .hh-workspace:fullscreen,
+    #hoihoaStudentModal .hh-workspace:-webkit-full-screen {
+        grid-template-columns: 1fr;
+
+        grid-template-rows:
+            auto minmax(0, 1fr);
+
+        gap: 7px;
+        padding: 7px;
+    }
+
+    #hoihoaStudentModal .hh-workspace:fullscreen .hh-tool-dock,
+    #hoihoaStudentModal .hh-workspace:-webkit-full-screen .hh-tool-dock {
+        width: auto;
+        height: auto;
+        max-height: 72px;
+
+        flex-direction: row;
+
+        overflow-x: auto;
+        overflow-y: hidden;
+    }
+
+    #hoihoaStudentModal .hh-workspace:fullscreen .hh-workspace-main,
+    #hoihoaStudentModal .hh-workspace:-webkit-full-screen .hh-workspace-main {
+        height: auto;
+        min-height: 0;
+    }
+
+    #hoihoaStudentModal .hh-zoom-controls {
+        grid-template-columns:
+            32px 64px 32px 32px;
+    }
+
+    #hoihoaStudentModal .hh-zoom-value {
+        width: 64px;
+        min-width: 64px;
+    }
 }
