@@ -3132,3 +3132,409 @@ body:not(:has(#examWarningModal.active)):has(
         will-change: transform;
     }
 }
+/* =====================================================
+   GIAO DIỆN PHẦN TRẮC NGHIỆM
+   ===================================================== */
+
+.student-quiz-section {
+    margin-bottom: 15px;
+    padding: 16px;
+
+    color: #1e293b;
+
+    border: 1px solid rgba(226, 232, 240, 0.95);
+    border-radius: 16px;
+
+    background: rgba(255, 255, 255, 0.94);
+
+    box-sizing: border-box;
+}
+
+.student-quiz-title {
+    margin: 0 0 14px;
+
+    color: #c2410c;
+    font-size: 1.08rem;
+    line-height: 1.4;
+}
+
+.student-quiz-question {
+    margin-bottom: 15px;
+    padding: 14px;
+
+    color: #1e293b;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+
+    background: #ffffff;
+
+    box-sizing: border-box;
+}
+
+.student-quiz-question:last-child {
+    margin-bottom: 0;
+}
+
+.student-quiz-question-text {
+    margin: 0 0 11px;
+
+    color: #172033 !important;
+    font-size: 1rem;
+    line-height: 1.55;
+    font-weight: 800;
+
+    text-shadow: none !important;
+    overflow-wrap: anywhere;
+}
+
+.student-quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.student-quiz-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+
+    min-height: 44px;
+    padding: 11px 13px;
+
+    color: #334155 !important;
+    font-family:
+        "Segoe UI",
+        Arial,
+        sans-serif !important;
+    font-size: 0.98rem;
+    line-height: 1.5;
+
+    cursor: pointer;
+
+    border: 1px solid #dbe3ed;
+    border-radius: 11px;
+
+    background: #f8fafc;
+
+    box-sizing: border-box;
+}
+
+.student-quiz-option input[type="radio"] {
+    flex: 0 0 auto;
+
+    width: 19px !important;
+    height: 19px !important;
+    margin: 2px 0 0 !important;
+
+    accent-color: #d97706;
+}
+
+.student-quiz-option span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.student-quiz-option:has(
+    input[type="radio"]:checked
+) {
+    color: #78350f !important;
+    font-weight: 750;
+
+    border-color: #d97706;
+
+    background: #fffbeb;
+
+    box-shadow:
+        0 0 0 3px rgba(217, 119, 6, 0.12);
+}
+/* =====================================================
+   VƯƠNG QUỐC THẦN THOẠI — TRẮC NGHIỆM DỄ ĐỌC
+   ===================================================== */
+
+body.theme-fairy-tale
+.student-quiz-section {
+    color: #f8fafc !important;
+
+    border:
+        1px solid rgba(212, 175, 55, 0.85);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(15, 15, 26, 0.97),
+            rgba(26, 26, 46, 0.96)
+        ) !important;
+
+    box-shadow:
+        0 10px 28px rgba(0, 0, 0, 0.38);
+}
+
+body.theme-fairy-tale
+.student-quiz-title {
+    color: #facc15 !important;
+
+    font-family:
+        "Segoe UI",
+        Arial,
+        sans-serif !important;
+
+    font-weight: 850;
+    text-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.75)
+        !important;
+}
+
+body.theme-fairy-tale
+.student-quiz-question {
+    color: #f8fafc !important;
+
+    border:
+        1px solid rgba(212, 175, 55, 0.4);
+
+    background:
+        rgba(255, 255, 255, 0.07)
+        !important;
+}
+
+body.theme-fairy-tale
+.student-quiz-question-text {
+    color: #fff7d6 !important;
+
+    font-family:
+        "Segoe UI",
+        Arial,
+        sans-serif !important;
+
+    font-weight: 800;
+    text-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.8)
+        !important;
+}
+
+body.theme-fairy-tale
+.student-quiz-option {
+    color: #182033 !important;
+
+    border-color:
+        rgba(212, 175, 55, 0.4);
+
+    background:
+        rgba(255, 255, 255, 0.94)
+        !important;
+
+    text-shadow: none !important;
+}
+
+body.theme-fairy-tale
+.student-quiz-option:active {
+    background: #fff7d6 !important;
+}
+
+body.theme-fairy-tale
+.student-quiz-option:has(
+    input[type="radio"]:checked
+) {
+    color: #422006 !important;
+
+    border-color: #facc15;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fef3c7,
+            #fde68a
+        ) !important;
+
+    box-shadow:
+        0 0 0 3px rgba(250, 204, 21, 0.18),
+        0 6px 16px rgba(0, 0, 0, 0.17);
+}
+@media (max-width: 768px), (pointer: coarse) {
+    #global-effect-container {
+        position: fixed !important;
+        inset: 0 !important;
+
+        width: 100vw !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+
+        overflow: hidden !important;
+        pointer-events: none !important;
+
+        transform: translateZ(0);
+        contain: layout paint;
+    }
+
+    .student-quiz-section {
+        padding: 12px;
+        border-radius: 14px;
+    }
+
+    .student-quiz-question {
+        padding: 12px;
+    }
+
+    .student-quiz-question-text {
+        font-size: 0.98rem;
+        line-height: 1.55;
+    }
+
+    .student-quiz-option {
+        min-height: 48px;
+        padding: 12px;
+
+        font-size: 0.96rem;
+    }
+
+    body.theme-fairy-tale {
+        background-attachment:
+            scroll !important;
+    }
+}
+/* =====================================================
+   VƯƠNG QUỐC THẦN THOẠI — FIX PHẦN TỰ LUẬN
+   ===================================================== */
+
+/* Khung thanh công cụ Quill */
+body.theme-fairy-tale .ql-toolbar.ql-snow {
+    border: 1px solid #d4af37 !important;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.45) !important;
+    border-radius: 12px 12px 0 0 !important;
+
+    background: #fffaf0 !important;
+
+    color: #1e293b !important;
+}
+
+/* Khung nhập nội dung */
+body.theme-fairy-tale .quill-student-editor,
+body.theme-fairy-tale .ql-container.ql-snow {
+    min-height: 200px !important;
+
+    color: #172033 !important;
+
+    border: 1px solid #d4af37 !important;
+    border-top: none !important;
+    border-radius: 0 0 12px 12px !important;
+
+    background: #ffffff !important;
+
+    font-family:
+        "Segoe UI",
+        Arial,
+        sans-serif !important;
+
+    text-shadow: none !important;
+}
+
+/* Chữ học sinh nhập */
+body.theme-fairy-tale .ql-editor {
+    min-height: 198px !important;
+    padding: 14px 16px !important;
+
+    color: #172033 !important;
+    caret-color: #111827 !important;
+
+    background: #ffffff !important;
+
+    font-family:
+        "Segoe UI",
+        Arial,
+        sans-serif !important;
+
+    font-size: 16px !important;
+    line-height: 1.65 !important;
+
+    text-shadow: none !important;
+}
+
+/* Tất cả đoạn chữ bên trong editor */
+body.theme-fairy-tale .ql-editor p,
+body.theme-fairy-tale .ql-editor div,
+body.theme-fairy-tale .ql-editor span,
+body.theme-fairy-tale .ql-editor li {
+    color: inherit;
+    text-shadow: none !important;
+}
+
+/* Chữ gợi ý khi editor trống */
+body.theme-fairy-tale
+.ql-editor.ql-blank::before {
+    color: #64748b !important;
+    font-style: italic !important;
+    opacity: 1 !important;
+}
+
+/* Màu icon trên thanh công cụ */
+body.theme-fairy-tale
+.ql-toolbar.ql-snow .ql-stroke {
+    stroke: #334155 !important;
+}
+
+body.theme-fairy-tale
+.ql-toolbar.ql-snow .ql-fill {
+    fill: #334155 !important;
+}
+
+body.theme-fairy-tale
+.ql-toolbar.ql-snow .ql-picker {
+    color: #334155 !important;
+}
+
+/* Nút đang chọn */
+body.theme-fairy-tale
+.ql-toolbar.ql-snow button:hover .ql-stroke,
+body.theme-fairy-tale
+.ql-toolbar.ql-snow button.ql-active .ql-stroke {
+    stroke: #b45309 !important;
+}
+
+body.theme-fairy-tale
+.ql-toolbar.ql-snow button:hover .ql-fill,
+body.theme-fairy-tale
+.ql-toolbar.ql-snow button.ql-active .ql-fill {
+    fill: #b45309 !important;
+}
+
+/* Menu chọn màu, font và định dạng */
+body.theme-fairy-tale .ql-picker-options {
+    color: #1e293b !important;
+
+    border-color: #d4af37 !important;
+
+    background: #ffffff !important;
+
+    text-shadow: none !important;
+}
+
+/* Tiêu đề phần tự luận */
+body.theme-fairy-tale
+.submit-box h3 {
+    color: #facc15 !important;
+
+    text-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.85)
+        !important;
+}
+
+/* Nhãn đính kèm file */
+body.theme-fairy-tale
+.submit-box > label {
+    color: #fff7d6 !important;
+}
+
+/* Điện thoại */
+@media (max-width: 768px), (pointer: coarse) {
+    body.theme-fairy-tale .ql-editor {
+        min-height: 220px !important;
+        padding: 13px !important;
+
+        font-size: 16px !important;
+        line-height: 1.6 !important;
+    }
+
+    body.theme-fairy-tale .ql-toolbar.ql-snow {
+        padding: 7px 5px !important;
+    }
+}

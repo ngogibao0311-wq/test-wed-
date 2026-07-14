@@ -4,6 +4,100 @@ const IS_MOBILE_EFFECT = window.matchMedia(
 ).matches;
 
 class EffectManager {
+    static getViewport() {
+        const visualViewport = window.visualViewport;
+
+        const width =
+            visualViewport?.width ||
+            document.documentElement.clientWidth ||
+            window.innerWidth;
+
+        const height =
+            visualViewport?.height ||
+            document.documentElement.clientHeight ||
+            window.innerHeight;
+
+        return {
+            width: Math.max(1, width),
+            height: Math.max(1, height),
+            offsetLeft: visualViewport?.offsetLeft || 0,
+            offsetTop: visualViewport?.offsetTop || 0
+        };
+    }
+
+    static setTopSpawnPosition(element, padding = 12) {
+        const viewport = this.getViewport();
+
+        const usableWidth = Math.max(
+            1,
+            viewport.width - padding * 2
+        );
+
+        const x =
+            viewport.offsetLeft +
+            padding +
+            Math.random() * usableWidth;
+
+        element.style.left = `${Math.round(x)}px`;
+        element.style.top =
+            `${Math.round(viewport.offsetTop - 60)}px`;
+    }
+
+    static setRandomScreenPosition(element, padding = 12) {
+        const viewport = this.getViewport();
+
+        const usableWidth = Math.max(
+            1,
+            viewport.width - padding * 2
+        );
+
+        const usableHeight = Math.max(
+            1,
+            viewport.height - padding * 2
+        );
+
+        element.style.left =
+            `${Math.round(
+                viewport.offsetLeft +
+                padding +
+                Math.random() * usableWidth
+            )}px`;
+
+        element.style.top =
+            `${Math.round(
+                viewport.offsetTop +
+                padding +
+                Math.random() * usableHeight
+            )}px`;
+    }
+
+    static setShootingStarPosition(element) {
+        const viewport = this.getViewport();
+
+        /*
+         * Sao bắt đầu từ vùng trên và giữa màn hình.
+         * Không để lệch quá xa ra ngoài như -20vw.
+         */
+        const minX = viewport.offsetLeft - 20;
+        const maxX =
+            viewport.offsetLeft +
+            viewport.width * 0.78;
+
+        const minY = viewport.offsetTop - 50;
+        const maxY =
+            viewport.offsetTop +
+            viewport.height * 0.38;
+
+        element.style.left =
+            `${Math.round(
+                minX + Math.random() * (maxX - minX)
+            )}px`;
+
+        element.style.top =
+            `${Math.round(
+                minY + Math.random() * (maxY - minY)
+            )}px`;
+    }
     static get container() {
         return document.getElementById('global-effect-container');
     }
@@ -128,8 +222,7 @@ class EffectManager {
             particle.style.width = `${size}px`;
             particle.style.height = `${size}px`;
 
-            particle.style.left = Math.random() * 100 + 'vw';
-            particle.style.top = Math.random() * 100 + 'vh';
+            this.setRandomScreenPosition(particle, 10);
 
             let duration = Math.random() * 4 + 4;
             particle.style.animationDuration = duration + 's';
@@ -298,7 +391,14 @@ class EffectManager {
             particle.classList.add('effect-cotich-tinhlinh');
 
             // Random vị trí xuất phát theo chiều ngang
-            particle.style.left = Math.random() * 100 + 'vw';
+            this.setTopSpawnPosition(particle, 12);
+
+            const viewport = this.getViewport();
+
+            particle.style.setProperty(
+                '--fairy-fall-distance',
+                `${Math.round(viewport.height + 120)}px`
+            );
 
             // Random kích thước hạt (từ 4px đến 8px) để tạo chiều sâu 3D
             let size = Math.random() * 4 + 4;
@@ -369,7 +469,7 @@ class EffectManager {
             crystal.classList.add('effect-mercury-crystal');
 
             // Xuất phát ngẫu nhiên ở mép trên màn hình
-            crystal.style.left = Math.random() * 120 + 'vw';
+            this.setTopSpawnPosition(crystal, 10);
 
             // Kích thước ngẫu nhiên để tạo cảm giác vệt dài vệt ngắn
             let width = Math.random() * 2 + 2;
@@ -380,6 +480,22 @@ class EffectManager {
             // Tốc độ rơi từ 3s đến 6s
             let duration = Math.random() * 3 + 3;
             crystal.style.animationDuration = duration + 's';
+            const viewport = this.getViewport();
+
+            const driftDistance = Math.min(
+                110,
+                viewport.width * 0.22
+            );
+
+            crystal.style.setProperty(
+                '--mercury-fall-distance',
+                `${Math.round(viewport.height + 130)}px`
+            );
+
+            crystal.style.setProperty(
+                '--mercury-drift-distance',
+                `${Math.round(-driftDistance)}px`
+            );
 
             this.container.appendChild(crystal);
 
@@ -430,8 +546,7 @@ class EffectManager {
             star.classList.add('nyx-domain-shooting-star');
 
             // CẬP NHẬT: Random mạnh cả tọa độ ngang và dọc để sao rơi rải rác khắp nơi
-            star.style.top = (Math.random() * 50 - 10) + 'vh';  // Rơi từ khoảng -10vh đến 40vh
-            star.style.left = (Math.random() * 50 - 20) + 'vw'; // Xuất phát lùi sâu ra ngoài màn hình
+            this.setShootingStarPosition(star); // Xuất phát lùi sâu ra ngoài màn hình
 
             // Tốc độ sao băng xẹt (1s - 2s)
             const starDuration = Math.random() * 1 + 1;
@@ -706,8 +821,7 @@ class EffectManager {
             const particle = document.createElement('div');
             particle.classList.add('nyx-domain-dust');
 
-            particle.style.left = Math.random() * 100 + 'vw';
-            particle.style.top = Math.random() * 100 + 'vh';
+            this.setRandomScreenPosition(particle, 10);
 
             let size = Math.random() * 3 + 2;
             particle.style.width = `${size}px`;
@@ -740,8 +854,7 @@ class EffectManager {
                 star.classList.add('nyx-domain-shooting-star');
 
                 // Tọa độ rơi ngẫu nhiên rải rác khắp bầu trời
-                star.style.top = (Math.random() * 50 - 10) + 'vh';
-                star.style.left = (Math.random() * 50 - 20) + 'vw';
+                this.setShootingStarPosition(star);
 
                 if (hasNyxPet) {
                     star.classList.add('nyx-enhanced-star');

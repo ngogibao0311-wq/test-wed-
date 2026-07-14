@@ -1252,32 +1252,140 @@ async function loadAssignments() {
                 }
 
                 let quizHTML = '';
-                if ((assign.assessmentType === 'trac_nghiem' || assign.assessmentType === 'ket_hop' || assign.assessmentType === 'thi') && assign.questions) {
-                    let noticeHTML = assign.assessmentType === 'ket_hop' ? `<div class="glass-alert" style="padding: 10px; margin-bottom: 15px; border-left-color: #764ba2;"><strong>⚖️ Thang điểm bài này:</strong> Trắc nghiệm (${assign.mcWeight || 5}đ) - Tự luận (${assign.essayWeight || 5}đ)</div>` : '';
-                    quizHTML = noticeHTML + '<div style="background: rgba(255,255,255,0.6); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.9);"><h4 style="color: #d35400; margin-bottom: 10px;">Phần Trắc Nghiệm</h4>';
 
-                    let draftKey = `draft_${currentUser.username}_${assign.id}`;
+                if (
+                    (
+                        assign.assessmentType === 'trac_nghiem' ||
+                        assign.assessmentType === 'ket_hop' ||
+                        assign.assessmentType === 'thi'
+                    ) &&
+                    Array.isArray(assign.questions)
+                ) {
+                    const noticeHTML =
+                        assign.assessmentType === 'ket_hop'
+                            ? `<div class="glass-alert" style="padding: 10px; margin-bottom: 15px; border-left-color: #764ba2;">
+                <strong>⚖️ Thang điểm bài này:</strong>
+                Trắc nghiệm (${assign.mcWeight || 5}đ) -
+                Tự luận (${assign.essayWeight || 5}đ)
+            </div>`
+                            : '';
+
+                    // Phải lấy bản nháp trước khi dùng savedMc
+                    const draftKey =
+                        `draft_${currentUser.username}_${assign.id}`;
+
                     let draft;
+
                     try {
-                        draft = JSON.parse(localStorage.getItem(draftKey));
-                        if (typeof draft !== 'object' || draft === null) draft = { mcAnswers: {}, essay: '' };
+                        draft = JSON.parse(
+                            localStorage.getItem(draftKey)
+                        );
+
+                        if (
+                            typeof draft !== 'object' ||
+                            draft === null
+                        ) {
+                            draft = {
+                                mcAnswers: {},
+                                essay: ''
+                            };
+                        }
                     } catch (e) {
-                        draft = { mcAnswers: {}, essay: '' };
+                        draft = {
+                            mcAnswers: {},
+                            essay: ''
+                        };
                     }
-                    let savedMc = (mySub && mySub.mcAnswers) ? mySub.mcAnswers : draft.mcAnswers;
+
+                    // Khai báo trước vòng lặp câu hỏi
+                    const savedMc =
+                        mySub && mySub.mcAnswers
+                            ? mySub.mcAnswers
+                            : (draft.mcAnswers || {});
+
+                    quizHTML =
+                        noticeHTML +
+                        `<div class="student-quiz-section">
+            <h4 class="student-quiz-title">
+                Phần Trắc Nghiệm
+            </h4>`;
 
                     assign.questions.forEach((q, idx) => {
-                        let chkA = savedMc[idx] === 'A' ? 'checked' : '';
-                        let chkB = savedMc[idx] === 'B' ? 'checked' : '';
-                        let chkC = savedMc[idx] === 'C' ? 'checked' : '';
-                        let chkD = savedMc[idx] === 'D' ? 'checked' : '';
+                        const chkA =
+                            savedMc[idx] === 'A'
+                                ? 'checked'
+                                : '';
 
-                        quizHTML += `<div style="margin-bottom: 15px; background: rgba(255,255,255,0.5); padding: 12px; border-radius: 8px;"><p style="font-weight: bold; color: #2c3e50; margin-bottom: 8px;">Câu ${idx + 1}: ${q.qText}</p><div style="display:flex; flex-direction:column; gap:8px;">
-                                    <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;"><input type="radio" name="q-${assign.id}-${idx}" value="A" style="width:auto; margin:0;" ${chkA} onchange="saveDraft('${assign.id}', 'mc', ${idx}, 'A')"> <span>A. ${q.A}</span></label>
-                                    <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;"><input type="radio" name="q-${assign.id}-${idx}" value="B" style="width:auto; margin:0;" ${chkB} onchange="saveDraft('${assign.id}', 'mc', ${idx}, 'B')"> <span>B. ${q.B}</span></label>
-                                    <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;"><input type="radio" name="q-${assign.id}-${idx}" value="C" style="width:auto; margin:0;" ${chkC} onchange="saveDraft('${assign.id}', 'mc', ${idx}, 'C')"> <span>C. ${q.C}</span></label>
-                                    <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;"><input type="radio" name="q-${assign.id}-${idx}" value="D" style="width:auto; margin:0;" ${chkD} onchange="saveDraft('${assign.id}', 'mc', ${idx}, 'D')"> <span>D. ${q.D}</span></label></div></div>`;
+                        const chkB =
+                            savedMc[idx] === 'B'
+                                ? 'checked'
+                                : '';
+
+                        const chkC =
+                            savedMc[idx] === 'C'
+                                ? 'checked'
+                                : '';
+
+                        const chkD =
+                            savedMc[idx] === 'D'
+                                ? 'checked'
+                                : '';
+
+                        quizHTML += `
+            <div class="student-quiz-question">
+                <p class="student-quiz-question-text">
+                    Câu ${idx + 1}: ${q.qText}
+                </p>
+
+                <div class="student-quiz-options">
+                    <label class="student-quiz-option">
+                        <input
+                            type="radio"
+                            name="q-${assign.id}-${idx}"
+                            value="A"
+                            ${chkA}
+                            onchange="saveDraft('${assign.id}', 'mc', ${idx}, 'A')"
+                        >
+                        <span>A. ${q.A}</span>
+                    </label>
+
+                    <label class="student-quiz-option">
+                        <input
+                            type="radio"
+                            name="q-${assign.id}-${idx}"
+                            value="B"
+                            ${chkB}
+                            onchange="saveDraft('${assign.id}', 'mc', ${idx}, 'B')"
+                        >
+                        <span>B. ${q.B}</span>
+                    </label>
+
+                    <label class="student-quiz-option">
+                        <input
+                            type="radio"
+                            name="q-${assign.id}-${idx}"
+                            value="C"
+                            ${chkC}
+                            onchange="saveDraft('${assign.id}', 'mc', ${idx}, 'C')"
+                        >
+                        <span>C. ${q.C}</span>
+                    </label>
+
+                    <label class="student-quiz-option">
+                        <input
+                            type="radio"
+                            name="q-${assign.id}-${idx}"
+                            value="D"
+                            ${chkD}
+                            onchange="saveDraft('${assign.id}', 'mc', ${idx}, 'D')"
+                        >
+                        <span>D. ${q.D}</span>
+                    </label>
+                </div>
+            </div>
+        `;
                     });
+
                     quizHTML += '</div>';
                 }
 
@@ -1334,7 +1442,15 @@ async function loadAssignments() {
                     }
                     let essayTextAreaHTML = assign.hideEssayText
                         ? `<div class="glass-alert success" style="padding: 12px; margin-bottom: 12px; border-left-color: #38ef7d; background: rgba(56, 239, 125, 0.1);"><p style="margin:0; font-size:0.95em; font-weight:bold;">📁 Giáo viên yêu cầu nộp bài bằng tệp đính kèm (Không cần nhập nội dung văn bản).</p></div>`
-                        : `<div id="answer-${assign.id}" class="quill-student-editor" style="height: 200px; background: white;">${savedEssay ? savedEssay : ''}</div>`;
+                        : `<div
+        id="answer-${assign.id}"
+        class="quill-student-editor"
+        style="
+            min-height: 200px;
+            background: #ffffff;
+            color: #172033;
+        "
+    >${savedEssay ? savedEssay : ''}</div>`;
 
                     tuLuanInputHTML = `<hr style="border: 0; border-top: 1px dashed rgba(0,0,0,0.1); margin: 20px 0;">
                                        <h3 style="color: #2c3e50; margin-bottom: 10px;">Phần làm bài tự luận</h3>

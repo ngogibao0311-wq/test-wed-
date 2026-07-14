@@ -28,6 +28,14 @@ class PetManager {
             petElement.style.height = 'auto';
             petElement.style.filter = 'drop-shadow(0 5px 15px rgba(0,0,0,0.3))';
         }
+        // Chống trình duyệt tự kéo ảnh hoặc mở menu khi giữ lâu
+        petElement.setAttribute('draggable', 'false');
+
+        petElement.style.touchAction = 'none';
+        petElement.style.userSelect = 'none';
+        petElement.style.webkitUserSelect = 'none';
+        petElement.style.webkitUserDrag = 'none';
+        petElement.style.webkitTouchCallout = 'none';
         if (petData.petEffect) {
             petElement.classList.add(petData.petEffect);
             petElement.style.filter = '';
@@ -141,6 +149,8 @@ class PetManager {
         this.container.classList.add('pet-idle');
 
         let closeBtn = document.createElement('div');
+
+        closeBtn.className = 'virtual-pet-close-btn';
         closeBtn.innerHTML = '✖';
         closeBtn.style.cssText = 'position: absolute; top: -5px; right: -15px; width: 22px; height: 22px; background: rgba(225, 29, 72, 0.2); color: #e11d48; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 11px; cursor: pointer; opacity: 0; transition: opacity 0.3s; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.1);';
 
@@ -180,11 +190,6 @@ class PetManager {
 
         this.interactionAbortController = new AbortController();
         const { signal } = this.interactionAbortController;
-
-        // Cần gỡ bỏ event mousedown cũ để không bị nhân bản sự kiện khi spawn thú mới
-        const newContainer = this.container.cloneNode(true);
-        this.container.parentNode.replaceChild(newContainer, this.container);
-        this.container = newContainer;
 
         this.container.addEventListener('mousedown', (e) => {
             if (e.button !== 0) return;
@@ -371,6 +376,201 @@ class PetManager {
             isDragging = false;
             this.container.classList.add('pet-idle');
         }, { signal });
+
+        // =====================================================
+        // KÉO PET TRÊN ĐIỆN THOẠI
+        // =====================================================
+
+        let activeTouchId = null;
+
+        this.container.addEventListener(
+            'touchstart',
+            (e) => {
+                // Không kéo khi người dùng chạm nút đóng
+                if (
+                    e.target.closest &&
+                    e.target.closest('.virtual-pet-close-btn')
+                ) {
+                    return;
+                }
+
+                // Chỉ kéo bằng một ngón tay
+                if (e.touches.length !== 1) return;
+
+                const touch = e.touches[0];
+                const rect =
+                    this.container.getBoundingClientRect();
+
+                activeTouchId = touch.identifier;
+                isDragging = true;
+                didDrag = false;
+
+                startX = touch.clientX;
+                startY = touch.clientY;
+
+                /*
+                 * Dùng boundingClientRect thay vì offsetLeft.
+                 * Cách này chính xác hơn khi container dùng
+                 * position: fixed, right hoặc bottom.
+                 */
+                initialX = rect.left;
+                initialY = rect.top;
+
+                this.container.style.left =
+                    `${Math.round(rect.left)}px`;
+
+                this.container.style.top =
+                    `${Math.round(rect.top)}px`;
+
+                this.container.style.right = 'auto';
+                this.container.style.bottom = 'auto';
+
+                this.container.classList.remove('pet-idle');
+            },
+            {
+                passive: true,
+                signal
+            }
+        );
+
+        document.addEventListener(
+            'touchmove',
+            (e) => {
+                if (!isDragging || activeTouchId === null) {
+                    return;
+                }
+
+                // Có nhiều ngón tay thì hủy kéo
+                if (e.touches.length !== 1) {
+                    isDragging = false;
+                    activeTouchId = null;
+
+                    this.container.classList.add('pet-idle');
+                    return;
+                }
+
+                const touch = Array.from(e.touches).find(
+                    item => item.identifier === activeTouchId
+                );
+
+                if (!touch) return;
+
+                const dx = touch.clientX - startX;
+                const dy = touch.clientY - startY;
+
+                /*
+                 * Chạm nhẹ dưới 8px vẫn được coi là nhấn pet,
+                 * chưa coi là thao tác kéo.
+                 */
+                if (
+                    !didDrag &&
+                    Math.abs(dx) < 8 &&
+                    Math.abs(dy) < 8
+                ) {
+                    return;
+                }
+
+                didDrag = true;
+
+                // Chỉ khóa cuộn khi người dùng thực sự kéo
+                e.preventDefault();
+
+                const viewport = window.visualViewport;
+
+                const viewportWidth =
+                    viewport?.width ||
+                    document.documentElement.clientWidth ||
+                    window.innerWidth;
+
+                const viewportHeight =
+                    viewport?.height ||
+                    document.documentElement.clientHeight ||
+                    window.innerHeight;
+
+                const viewportLeft =
+                    viewport?.offsetLeft || 0;
+
+                const viewportTop =
+                    viewport?.offsetTop || 0;
+
+                const petRect =
+                    this.container.getBoundingClientRect();
+
+                const maxLeft = Math.max(
+                    viewportLeft,
+                    viewportLeft +
+                    viewportWidth -
+                    petRect.width
+                );
+
+                const maxTop = Math.max(
+                    viewportTop,
+                    viewportTop +
+                    viewportHeight -
+                    petRect.height
+                );
+
+                const newLeft = Math.min(
+                    Math.max(
+                        initialX + dx,
+                        viewportLeft
+                    ),
+                    maxLeft
+                );
+
+                const newTop = Math.min(
+                    Math.max(
+                        initialY + dy,
+                        viewportTop
+                    ),
+                    maxTop
+                );
+
+                this.container.style.left =
+                    `${Math.round(newLeft)}px`;
+
+                this.container.style.top =
+                    `${Math.round(newTop)}px`;
+
+                this.container.style.right = 'auto';
+                this.container.style.bottom = 'auto';
+            },
+            {
+                passive: false,
+                signal
+            }
+        );
+
+        const finishTouchDragging = (cancelled = false) => {
+            if (!isDragging && activeTouchId === null) {
+                return;
+            }
+
+            isDragging = false;
+            activeTouchId = null;
+
+            this.container.classList.add('pet-idle');
+
+            /*
+             * touchcancel không tạo click theo sau,
+             * nên có thể reset didDrag ngay.
+             */
+            if (cancelled) {
+                didDrag = false;
+            }
+        };
+
+        document.addEventListener(
+            'touchend',
+            () => finishTouchDragging(false),
+            { signal }
+        );
+
+        document.addEventListener(
+            'touchcancel',
+            () => finishTouchDragging(true),
+            { signal }
+        );
 
         // Lắng nghe sự kiện click trên toàn trang
         document.addEventListener('click', (e) => {

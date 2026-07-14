@@ -32,7 +32,7 @@
     transform: translateX(-50%);
     width: 120px;
     height: 120px;
-    background: radial-gradient(circle, rgba(102, 126, 234, 0.15) 0%, rgba(255,255,255,0) 70%);
+    background: radial-gradient(circle, rgba(102, 126, 234, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
     z-index: -1;
     border-radius: 50%;
 }
@@ -47,7 +47,7 @@
 
 .item-icon {
     font-size: 3.5em;
-    filter: drop-shadow(0 8px 10px rgba(0,0,0,0.15));
+    filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.15));
     transition: transform 0.3s ease;
 }
 
@@ -104,7 +104,10 @@
     color: white;
     box-shadow: 0 4px 15px rgba(246, 211, 101, 0.4);
 }
-.btn-buy:hover { box-shadow: 0 6px 20px rgba(246, 211, 101, 0.6); }
+
+.btn-buy:hover {
+    box-shadow: 0 6px 20px rgba(246, 211, 101, 0.6);
+}
 
 .btn-buy.upgrade {
     background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
@@ -116,7 +119,10 @@
     color: white;
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
 }
-.btn-equip:hover { box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6); }
+
+.btn-equip:hover {
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
 
 .btn-equip.active {
     background: #e2e8f0;
@@ -124,14 +130,20 @@
     box-shadow: none;
     cursor: not-allowed;
 }
-.btn-equip.active:active { transform: none; }
+
+.btn-equip.active:active {
+    transform: none;
+}
 
 .btn-preview {
     background: rgba(102, 126, 234, 0.1);
     color: #667eea;
     border: 1px solid rgba(102, 126, 234, 0.2);
 }
-.btn-preview:hover { background: rgba(102, 126, 234, 0.2); }
+
+.btn-preview:hover {
+    background: rgba(102, 126, 234, 0.2);
+}
 
 .btn-preview.active {
     background: rgba(211, 84, 0, 0.08);
@@ -139,12 +151,15 @@
     border-color: rgba(211, 84, 0, 0.3);
     cursor: default;
 }
-.btn-preview.active:active { transform: none; }
+
+.btn-preview.active:active {
+    transform: none;
+}
 
 .btn-preview.disabled {
-    background: rgba(0,0,0,0.03);
+    background: rgba(0, 0, 0, 0.03);
     color: #a4b0be;
-    border: 1px dashed rgba(0,0,0,0.1);
+    border: 1px dashed rgba(0, 0, 0, 0.1);
     cursor: not-allowed;
 }
 
@@ -159,7 +174,7 @@
     padding: 5px 35px;
     transform: rotate(45deg);
     font-weight: 800;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 /* =========================================================
@@ -169,7 +184,8 @@
 
 /* 1. Thay đổi Phông chữ và Nền tổng thể */
 .theme-fairy-tale {
-    font-family: 'Georgia', 'Times New Roman', serif; /* Phông có chân cổ điển */
+    font-family: 'Georgia', 'Times New Roman', serif;
+    /* Phông có chân cổ điển */
     color: #e0e0e0;
     background-image: radial-gradient(circle at 50% 0%, #2a2a4a 0%, #0f0f1a 80%);
 }
@@ -192,8 +208,10 @@
     background: rgba(26, 26, 46, 0.7);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid #d4af37; /* Viền vàng kim */
-    border-radius: 30px 5px 30px 5px; /* Bo góc vát chéo bất đối xứng */
+    border: 1px solid #d4af37;
+    /* Viền vàng kim */
+    border-radius: 30px 5px 30px 5px;
+    /* Bo góc vát chéo bất đối xứng */
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(212, 175, 55, 0.05);
     transition: all 0.4s ease;
 }
@@ -214,7 +232,7 @@
 
 /* 5. Định hình lại Modal / Popup */
 .theme-fairy-tale .modal-content,
-.theme-fairy-tale #viewQuestionsModal > div {
+.theme-fairy-tale #viewQuestionsModal>div {
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) !important;
     border: 2px solid #d4af37 !important;
     border-radius: 40px 10px 40px 10px !important;
@@ -222,9 +240,9 @@
 }
 
 /* 6. Text, Tiêu đề mang âm hưởng Cinematic */
-.theme-fairy-tale h1, 
-.theme-fairy-tale h2, 
-.theme-fairy-tale h3, 
+.theme-fairy-tale h1,
+.theme-fairy-tale h2,
+.theme-fairy-tale h3,
 .theme-fairy-tale h4,
 .theme-fairy-tale .item-name {
     font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
@@ -257,9 +275,11 @@
     color: #d4af37 !important;
     border: 1px solid rgba(212, 175, 55, 0.4) !important;
 }
+
 .theme-fairy-tale .btn-preview:hover {
     background: rgba(212, 175, 55, 0.2) !important;
 }
+
 /* =========================================================
    HIỆU ỨNG: BỤI PHÉP THUẬT (CỔ TÍCH)
 ========================================================= */
@@ -271,25 +291,28 @@
     left: 0;
     width: 100%;
     height: 100%;
-    pointer-events: none; /* Rất quan trọng: Xuyên click */
-    z-index: 9998; /* Nằm dưới Modal nhưng trên giao diện chính */
+    pointer-events: none;
+    /* Rất quan trọng: Xuyên click */
+    z-index: 9998;
+    /* Nằm dưới Modal nhưng trên giao diện chính */
     overflow: hidden;
 }
 
 /* Định hình hạt bụi sáng to và rõ hơn */
 .fairy-dust {
     position: absolute;
-    background: #ffffff; /* Lõi trắng sáng gắt để chống lại nền tối */
+    background: #ffffff;
+    /* Lõi trắng sáng gắt để chống lại nền tối */
     border-radius: 50%;
-    
+
     /* Box-shadow 4 LỚP: Trắng -> Vàng -> Cam -> Cam đỏ. 
        Lớp cam đỏ ngoài cùng giúp tách biệt hạt bụi khỏi các nền web sáng màu */
-    box-shadow: 
-        0 0 4px #ffffff, 
-        0 0 10px #ffeb3b, 
-        0 0 20px #f39c12, 
+    box-shadow:
+        0 0 4px #ffffff,
+        0 0 10px #ffeb3b,
+        0 0 20px #f39c12,
         0 0 35px #d35400;
-        
+
     opacity: 0;
     animation-name: floatMagicDust;
     animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -302,29 +325,34 @@
         transform: translateY(0) scale(0.5);
         opacity: 0;
     }
+
     15% {
         /* Hiện hình rất nhanh và lóe sáng */
         opacity: 1;
         transform: translateY(-20px) translateX(15px) scale(1.5);
-        box-shadow: 
-            0 0 6px #ffffff, 
-            0 0 15px #ffeb3b, 
-            0 0 30px #f39c12, 
+        box-shadow:
+            0 0 6px #ffffff,
+            0 0 15px #ffeb3b,
+            0 0 30px #f39c12,
             0 0 50px #d35400;
     }
+
     50% {
         opacity: 0.85;
         transform: translateY(-60px) translateX(-15px) scale(1);
     }
+
     85% {
         opacity: 0.7;
         transform: translateY(-100px) translateX(20px) scale(0.8);
     }
+
     100% {
         transform: translateY(-130px) translateX(-10px) scale(0);
         opacity: 0;
     }
 }
+
 /* =========================================================
    GIAO DIỆN CỔ TÍCH 2 - KHU RỪNG PHÉP THUẬT (SỰ KIỆN)
    Chỉ kích hoạt khi body có class .theme-magic-forest
@@ -344,8 +372,10 @@
     background: rgba(11, 46, 33, 0.7);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid #2ecc71; /* Viền xanh ngọc */
-    border-radius: 40px 5px 40px 5px; /* Ép góc tạo hình chiếc lá */
+    border: 1px solid #2ecc71;
+    /* Viền xanh ngọc */
+    border-radius: 40px 5px 40px 5px;
+    /* Ép góc tạo hình chiếc lá */
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(46, 204, 113, 0.1);
     transition: all 0.4s ease;
 }
@@ -360,13 +390,14 @@
 .theme-magic-forest .nav-bar {
     background: linear-gradient(180deg, rgba(4, 18, 12, 0.95), rgba(11, 46, 33, 0.95));
     border-right: 2px solid #2ecc71;
-    border-radius: 0 30px 0 30px; /* Vát góc nhẹ nhàng hơn */
+    border-radius: 0 30px 0 30px;
+    /* Vát góc nhẹ nhàng hơn */
     box-shadow: 5px 0 20px rgba(0, 0, 0, 0.6);
 }
 
 /* 4. Định hình lại Modal / Popup */
 .theme-magic-forest .modal-content,
-.theme-magic-forest #viewQuestionsModal > div {
+.theme-magic-forest #viewQuestionsModal>div {
     background: linear-gradient(135deg, #0b2e21 0%, #04120c 100%) !important;
     border: 2px solid #2ecc71 !important;
     border-radius: 50px 10px 50px 10px !important;
@@ -374,9 +405,9 @@
 }
 
 /* 5. Text, Tiêu đề (Màu xanh phát sáng) */
-.theme-magic-forest h1, 
-.theme-magic-forest h2, 
-.theme-magic-forest h3, 
+.theme-magic-forest h1,
+.theme-magic-forest h2,
+.theme-magic-forest h3,
 .theme-magic-forest h4,
 .theme-magic-forest .item-name {
     font-family: 'Cormorant Garamond', serif;
@@ -391,7 +422,8 @@
     background: linear-gradient(45deg, #1abc9c, #2ecc71) !important;
     color: #04120c !important;
     border: 1px solid #d1f2eb !important;
-    border-radius: 15px 4px 15px 4px !important; /* Đồng bộ dáng lá */
+    border-radius: 15px 4px 15px 4px !important;
+    /* Đồng bộ dáng lá */
     font-family: 'Bookman Old Style', serif;
     font-weight: bold;
     box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3) !important;
@@ -401,26 +433,30 @@
     box-shadow: 0 6px 20px rgba(46, 204, 113, 0.6) !important;
     transform: translateY(-2px);
 }
+
 /* =========================================================
    HIỆU ỨNG CỔ TÍCH 2: ĐOM ĐÓM RỪNG TIÊN (SỰ KIỆN)
 ========================================================= */
 .fairy-firefly {
     position: absolute;
-    bottom: -20px; /* Bắt đầu từ dưới đáy màn hình */
-    background: #abff00; /* Màu lục dạ quang */
+    bottom: -20px;
+    /* Bắt đầu từ dưới đáy màn hình */
+    background: #abff00;
+    /* Màu lục dạ quang */
     border-radius: 50%;
-    
+
     /* Hiệu ứng phát sáng nhiều lớp */
-    box-shadow: 
-        0 0 5px #abff00, 
-        0 0 10px #7cfc00, 
+    box-shadow:
+        0 0 5px #abff00,
+        0 0 10px #7cfc00,
         0 0 20px #32cd32;
-        
+
     opacity: 0;
     animation-name: fireflyFloat;
     animation-timing-function: ease-in-out;
     animation-iteration-count: infinite;
-    pointer-events: none; /* Xuyên click */
+    pointer-events: none;
+    /* Xuyên click */
     z-index: 9998;
 }
 
@@ -430,23 +466,28 @@
         transform: translateY(0) translateX(0) scale(0);
         opacity: 0;
     }
+
     10% {
         opacity: 1;
         transform: translateY(-10vh) translateX(25px) scale(1.2);
     }
+
     50% {
         opacity: 0.8;
         transform: translateY(-50vh) translateX(-20px) scale(0.8);
     }
+
     90% {
         opacity: 1;
         transform: translateY(-90vh) translateX(15px) scale(1.1);
     }
+
     100% {
         transform: translateY(-110vh) translateX(-10px) scale(0);
         opacity: 0;
     }
 }
+
 /* Tag Đời Sống */
 .tag-doi-song {
     background: linear-gradient(90deg, #2ecc71, #27ae60);
@@ -455,6 +496,7 @@
     box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
     letter-spacing: 1px;
 }
+
 /* =========================================================================
    HIỆU ỨNG TOÀN WEB: LÁ RƠI PURE CSS (KHÔNG DÙNG EMOJI)
    ========================================================================= */
@@ -466,16 +508,18 @@
     width: 22px;
     height: 22px;
     z-index: 9998;
-    pointer-events: none; /* Xuyên click */
+    pointer-events: none;
+    /* Xuyên click */
     opacity: 0;
-    
+
     /* Đổ bóng nhẹ để lá nhìn nổi khối 3D */
-    box-shadow: inset 0 0 5px rgba(0,0,0,0.1), 0 2px 6px rgba(0,0,0,0.15);
-    
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1), 0 2px 6px rgba(0, 0, 0, 0.15);
+
     animation-name: cssLeafFallAndSway;
     animation-timing-function: ease-in-out;
     animation-fill-mode: forwards;
-    overflow: hidden; /* Đảm bảo gân lá không tràn ra ngoài */
+    overflow: hidden;
+    /* Đảm bảo gân lá không tràn ra ngoài */
 }
 
 /* Vẽ gân lá chính chạy chéo qua tâm */
@@ -486,7 +530,8 @@
     left: 50%;
     width: 1px;
     height: 150%;
-    background: rgba(255, 255, 255, 0.5); /* Gân lá màu trắng đục */
+    background: rgba(255, 255, 255, 0.5);
+    /* Gân lá màu trắng đục */
     transform: translate(-50%, -50%) rotate(45deg);
 }
 
@@ -501,7 +546,8 @@
 /* Lá phong đỏ cam */
 .leaf-autumn {
     background: linear-gradient(135deg, #ff9966, #ff5e62);
-    border-radius: 50% 0 50% 0; /* Đảo góc để tạo chiều cong khác */
+    border-radius: 50% 0 50% 0;
+    /* Đảo góc để tạo chiều cong khác */
 }
 
 /* Lá thu vàng ươm */
@@ -523,26 +569,33 @@
         transform: translateY(0) translateX(0) rotate(0deg) scale(var(--leaf-scale, 1));
         opacity: 0;
     }
-    10% { 
-        opacity: 0.9; 
+
+    10% {
+        opacity: 0.9;
     }
-    25% { 
-        transform: translateY(25vh) translateX(-45px) rotate(80deg) scale(var(--leaf-scale, 1)); 
+
+    25% {
+        transform: translateY(25vh) translateX(-45px) rotate(80deg) scale(var(--leaf-scale, 1));
     }
-    50% { 
-        transform: translateY(50vh) translateX(45px) rotate(160deg) scale(var(--leaf-scale, 1)); 
+
+    50% {
+        transform: translateY(50vh) translateX(45px) rotate(160deg) scale(var(--leaf-scale, 1));
     }
-    75% { 
-        transform: translateY(75vh) translateX(-35px) rotate(240deg) scale(var(--leaf-scale, 1)); 
+
+    75% {
+        transform: translateY(75vh) translateX(-35px) rotate(240deg) scale(var(--leaf-scale, 1));
     }
-    90% { 
-        opacity: 0.9; 
+
+    90% {
+        opacity: 0.9;
     }
+
     100% {
         transform: translateY(110vh) translateX(25px) rotate(320deg) scale(var(--leaf-scale, 1));
-        opacity: 0; 
+        opacity: 0;
     }
 }
+
 /* =========================================================
    GIAO DIỆN: NHỊP SỐNG XANH (LIFESTYLE)
    Kích hoạt khi body có class .theme-lifestyle
@@ -575,7 +628,7 @@
 }
 
 /* 3. Thay đổi hình dạng Ô (Cards) và Vật phẩm cửa hàng */
-.theme-lifestyle .card, 
+.theme-lifestyle .card,
 .theme-lifestyle .store-item-card,
 .theme-lifestyle .submit-box {
     background: #ffffff;
@@ -625,14 +678,17 @@
 }
 
 /* 6. Tiêu đề và Văn bản */
-.theme-lifestyle h1, .theme-lifestyle h2, .theme-lifestyle h3, 
+.theme-lifestyle h1,
+.theme-lifestyle h2,
+.theme-lifestyle h3,
 .theme-lifestyle .item-name {
     color: #4a3c31 !important;
     font-weight: 800;
 }
 
 /* 7. Input và các ô nhập liệu */
-.theme-lifestyle input, .theme-lifestyle textarea {
+.theme-lifestyle input,
+.theme-lifestyle textarea {
     background: #f8f5f0 !important;
     border: 2px solid #e8e0d5 !important;
     border-radius: 20px !important;
@@ -649,6 +705,7 @@
     background: #4a3c31;
     color: #fdfaf5;
 }
+
 /* Tag Ban Đêm */
 .tag-ban-dem {
     background: linear-gradient(90deg, #0f2027, #203a43, #2c5364);
@@ -657,42 +714,52 @@
     box-shadow: 0 4px 15px rgba(32, 58, 67, 0.5);
     letter-spacing: 1px;
 }
+
 /* =========================================================================
    HIỆU ỨNG TOÀN WEB: BẦU TRỜI ĐÊM TINH TÚ (BẢN TỐI ƯU ÁNH SÁNG)
    ========================================================================= */
 
 /* 1. Lớp màn đêm làm tối toàn bộ web một chút */
 .night-sky-overlay {
-    position: absolute; /* Phủ kín container */
+    position: absolute;
+    /* Phủ kín container */
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(10, 15, 30, 0.45); /* Màu xanh đen trong suốt 45% */
-    z-index: 0; /* Nằm dưới các vì sao */
+    background: rgba(10, 15, 30, 0.45);
+    /* Màu xanh đen trong suốt 45% */
+    z-index: 0;
+    /* Nằm dưới các vì sao */
     animation: fadeInNightOverlay 2s ease-in-out forwards;
 }
 
 @keyframes fadeInNightOverlay {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 /* 2. Cấu trúc các vì sao rõ nét hơn */
 .effect-night-star {
     position: absolute;
-    background: #ffffff; 
+    background: #ffffff;
     border-radius: 50%;
-    pointer-events: none; 
+    pointer-events: none;
     opacity: 0;
-    z-index: 1; /* Nằm trên lớp màn đêm */
-    
+    z-index: 1;
+    /* Nằm trên lớp màn đêm */
+
     /* Quầng sáng tĩnh được làm đậm và rõ hơn */
-    box-shadow: 
+    box-shadow:
         0 0 8px #ffffff,
-        0 0 15px #00e5ff,  
-        0 0 25px #aa00ff;  
-        
+        0 0 15px #00e5ff,
+        0 0 25px #aa00ff;
+
     animation-name: nightStarTwinkleGlobal;
     animation-timing-function: ease-in-out;
     animation-fill-mode: forwards;
@@ -704,24 +771,29 @@
         transform: scale(0);
         opacity: 0;
     }
+
     40% {
-        transform: scale(1.5); /* Tỷ lệ phóng đại to hơn (1.5 thay vì 1.3) */
+        transform: scale(1.5);
+        /* Tỷ lệ phóng đại to hơn (1.5 thay vì 1.3) */
         opacity: 1;
         /* Quầng sáng khi chớp gắt hơn rất nhiều để đục thủng lớp nền tối */
-        box-shadow: 
+        box-shadow:
             0 0 15px #ffffff,
             0 0 30px #00e5ff,
             0 0 50px #e040fb;
     }
+
     70% {
         transform: scale(1);
         opacity: 0.8;
     }
+
     100% {
         transform: scale(0);
         opacity: 0;
     }
 }
+
 /* =========================================================
    GIAO DIỆN BAN ĐÊM - DẢI NGÂN HÀ (SỰ KIỆN ĐỘC QUYỀN)
    Kích hoạt khi body có class .theme-night-sky
@@ -746,7 +818,7 @@
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(129, 212, 250, 0.25);
     /* Bo góc vát chéo cực mạnh tạo dáng tương lai */
-    border-radius: 20px 40px 20px 40px !important; 
+    border-radius: 20px 40px 20px 40px !important;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), inset 0 0 15px rgba(170, 0, 255, 0.15);
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
@@ -762,7 +834,8 @@
 .theme-night-sky .nav-bar {
     background: linear-gradient(180deg, rgba(5, 8, 16, 0.9), rgba(15, 20, 35, 0.95));
     border-right: 1px solid rgba(170, 0, 255, 0.3);
-    border-radius: 0 35px 35px 0; /* Vuốt cong nhẹ một bên */
+    border-radius: 0 35px 35px 0;
+    /* Vuốt cong nhẹ một bên */
     box-shadow: 5px 0 25px rgba(0, 0, 0, 0.8);
 }
 
@@ -775,7 +848,7 @@
 
 /* 4. Định hình lại Modal / Pop-up (Gọn gàng, viền sáng dạ quang) */
 .theme-night-sky .modal-content,
-.theme-night-sky #viewQuestionsModal > div {
+.theme-night-sky #viewQuestionsModal>div {
     background: linear-gradient(135deg, #101423 0%, #050810 100%) !important;
     border: 1px solid #81d4fa !important;
     border-radius: 30px !important;
@@ -783,9 +856,9 @@
 }
 
 /* 5. Text, Tiêu đề (Màu Cyan phát sáng) */
-.theme-night-sky h1, 
-.theme-night-sky h2, 
-.theme-night-sky h3, 
+.theme-night-sky h1,
+.theme-night-sky h2,
+.theme-night-sky h3,
 .theme-night-sky h4,
 .theme-night-sky .item-name {
     color: #81d4fa !important;
@@ -800,7 +873,8 @@
     background: linear-gradient(45deg, #3f51b5, #aa00ff) !important;
     color: #ffffff !important;
     border: none !important;
-    border-radius: 25px !important; /* Dáng nút con nhộng tròn */
+    border-radius: 25px !important;
+    /* Dáng nút con nhộng tròn */
     font-weight: 700;
     box-shadow: 0 4px 15px rgba(170, 0, 255, 0.35) !important;
     text-transform: uppercase;
@@ -819,23 +893,26 @@
     border: 1px solid rgba(129, 212, 250, 0.4) !important;
     border-radius: 25px !important;
 }
+
 .theme-night-sky .btn-preview:hover {
     background: rgba(129, 212, 250, 0.2) !important;
 }
 
 /* 7. Input và Textarea */
-.theme-night-sky input, 
+.theme-night-sky input,
 .theme-night-sky textarea {
     background: rgba(5, 8, 16, 0.5) !important;
     border: 1px solid rgba(170, 0, 255, 0.3) !important;
     border-radius: 15px !important;
     color: #e0f7fa !important;
 }
-.theme-night-sky input:focus, 
+
+.theme-night-sky input:focus,
 .theme-night-sky textarea:focus {
     border-color: #81d4fa !important;
     box-shadow: 0 0 10px rgba(129, 212, 250, 0.2) !important;
 }
+
 /* Tag Ban Ngày (Màu xanh da trời - vàng nắng) */
 .tag-ban-ngay {
     background: linear-gradient(90deg, #36D1DC, #5B86E5);
@@ -844,6 +921,7 @@
     box-shadow: 0 4px 15px rgba(54, 209, 220, 0.5);
     letter-spacing: 1px;
 }
+
 /* =========================================================================
    HIỆU ỨNG TOÀN WEB: NẮNG ẤM BAN MAI (SỰ KIỆN BAN NGÀY)
    ========================================================================= */
@@ -863,8 +941,13 @@
 }
 
 @keyframes pulseSunbeam {
-    0% { opacity: 0.5; }
-    100% { opacity: 1; }
+    0% {
+        opacity: 0.5;
+    }
+
+    100% {
+        opacity: 1;
+    }
 }
 
 /* 2. Hạt bụi nắng / Bồ công anh bay lơ lửng */
@@ -875,13 +958,13 @@
     pointer-events: none;
     opacity: 0;
     z-index: 1;
-    
+
     /* Vầng hào quang ánh kim bao quanh hạt bụi */
-    box-shadow: 
+    box-shadow:
         0 0 5px #ffffff,
         0 0 10px #FFD700,
         0 0 20px #FFA500;
-        
+
     animation-name: floatDaylightMoteGlobal;
     animation-timing-function: ease-in-out;
     animation-fill-mode: forwards;
@@ -893,19 +976,23 @@
         transform: translateY(0) translateX(0) scale(0.5);
         opacity: 0;
     }
+
     15% {
         opacity: 0.8;
         transform: scale(1.2);
     }
+
     80% {
         opacity: 0.6;
     }
+
     100% {
         /* Bay cao lên và xéo sang phải một chút */
         transform: translateY(-90vh) translateX(60px) scale(0.5);
         opacity: 0;
     }
 }
+
 /* =========================================================================
    HIỆU ỨNG TOÀN WEB: BẦU TRỜI MÙA HẠ (KHÔNG TÁI CHẾ)
    ========================================================================= */
@@ -918,27 +1005,31 @@
     width: 200%;
     height: 200%;
     /* Tạo các mảng sáng tối đan xen phát ra từ tâm giữa mép trên */
-    background: repeating-conic-gradient(
-        from 0deg at 50% 0%,
-        transparent 0deg 10deg,
-        rgba(255, 235, 160, 0.15) 10deg 20deg
-    );
+    background: repeating-conic-gradient(from 0deg at 50% 0%,
+            transparent 0deg 10deg,
+            rgba(255, 235, 160, 0.15) 10deg 20deg);
     z-index: 0;
     pointer-events: none;
     animation: sweepGodRays 25s ease-in-out infinite alternate;
 }
 
 @keyframes sweepGodRays {
-    0% { transform: rotate(-5deg); }
-    100% { transform: rotate(5deg); }
+    0% {
+        transform: rotate(-5deg);
+    }
+
+    100% {
+        transform: rotate(5deg);
+    }
 }
 
 /* 2. MÂY TRÔI (Bay ngang màn hình theo đường thẳng) */
 .effect-daylight-cloud {
     position: fixed;
-    left: -150px; /* Xuất phát ngoài rìa trái */
+    left: -150px;
+    /* Xuất phát ngoài rìa trái */
     color: #fff;
-    filter: drop-shadow(0 10px 15px rgba(0,0,0,0.05));
+    filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.05));
     z-index: 1;
     pointer-events: none;
     animation-name: floatCloudAcross;
@@ -947,29 +1038,50 @@
 }
 
 @keyframes floatCloudAcross {
-    from { transform: translateX(0); }
-    to { transform: translateX(110vw); } /* Trôi tít sang bên phải */
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(110vw);
+    }
+
+    /* Trôi tít sang bên phải */
 }
 
 /* 3. CHIM BAY (Bay ngang + Lượn lên lượn xuống nhịp nhàng) */
 .effect-daylight-bird {
     position: fixed;
-    left: -100px; /* Xoải cánh từ ngoài rìa trái */
+    left: -100px;
+    /* Xoải cánh từ ngoài rìa trái */
     z-index: 2;
     pointer-events: none;
-    filter: drop-shadow(0 5px 8px rgba(0,0,0,0.15));
+    filter: drop-shadow(0 5px 8px rgba(0, 0, 0, 0.15));
     /* Animation được gán trực tiếp bằng JS để kết hợp 2 loại chuyển động */
 }
 
 @keyframes flyBirdAcross {
-    from { transform: translateX(0); }
-    to { transform: translateX(110vw); }
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(110vw);
+    }
 }
 
 @keyframes birdBobbing {
-    0% { margin-top: 0; }
-    100% { margin-top: -30px; } /* Lượn lên lượn xuống */
+    0% {
+        margin-top: 0;
+    }
+
+    100% {
+        margin-top: -30px;
+    }
+
+    /* Lượn lên lượn xuống */
 }
+
 /* =========================================================
    GIAO DIỆN BAN NGÀY - NGÀY MỚI RỰC RỠ (ĐỘC QUYỀN MỚI 100%)
    Kích hoạt khi body có class .theme-daylight-sky
@@ -980,7 +1092,8 @@
 
 .theme-daylight-sky {
     font-family: 'Fredoka', sans-serif;
-    color: #023e8a; /* Xanh dương đậm cho chữ dễ đọc */
+    color: #023e8a;
+    /* Xanh dương đậm cho chữ dễ đọc */
     /* Nền Gradient mượt từ Xanh dương nhạt -> Xanh lơ -> Trắng kem */
     background: linear-gradient(135deg, #e0fbfc 0%, #caf0f8 50%, #fff1e6 100%);
     background-attachment: fixed;
@@ -991,15 +1104,19 @@
 .theme-daylight-sky .store-item-card,
 .theme-daylight-sky .submit-box {
     background: rgba(255, 255, 255, 0.85);
-    border: 4px solid #ffffff; /* Viền trắng cực dày tạo viền mây */
-    border-radius: 40px 15px 40px 15px !important; /* Bo lệch tạo dáng đám mây trôi */
+    border: 4px solid #ffffff;
+    /* Viền trắng cực dày tạo viền mây */
+    border-radius: 40px 15px 40px 15px !important;
+    /* Bo lệch tạo dáng đám mây trôi */
     box-shadow: 0 12px 25px rgba(0, 180, 216, 0.15), inset 0 0 15px rgba(255, 255, 255, 1);
     backdrop-filter: blur(8px);
-    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); /* Chuyển động có độ đàn hồi */
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    /* Chuyển động có độ đàn hồi */
 }
 
 .theme-daylight-sky .store-item-card:hover {
-    border-color: #ffd166; /* Chạm vào chuyển viền vàng nắng */
+    border-color: #ffd166;
+    /* Chạm vào chuyển viền vàng nắng */
     transform: translateY(-10px) scale(1.02);
     box-shadow: 0 15px 35px rgba(255, 170, 0, 0.25);
 }
@@ -1010,7 +1127,7 @@
     background: rgba(255, 255, 255, 0.95);
     border-right: none;
     /* Vuốt cong cực tròn để ôm trọn thanh menu */
-    border-radius: 0 45px 45px 0; 
+    border-radius: 0 45px 45px 0;
     box-shadow: 8px 0 25px rgba(0, 180, 216, 0.15);
 }
 
@@ -1024,17 +1141,18 @@
 
 /* 4. Định hình Modals / Pop-ups (Sunburst - Nắng Ban Mai) */
 .theme-daylight-sky .modal-content,
-.theme-daylight-sky #viewQuestionsModal > div {
+.theme-daylight-sky #viewQuestionsModal>div {
     background: #ffffff !important;
-    border: 5px solid #ffca3a !important; /* Viền pop-up vàng rực rỡ */
+    border: 5px solid #ffca3a !important;
+    /* Viền pop-up vàng rực rỡ */
     border-radius: 50px 20px 50px 20px !important;
     box-shadow: 0 0 50px rgba(255, 170, 0, 0.25) !important;
 }
 
 /* 5. Tiêu đề và Văn bản nổi bật */
-.theme-daylight-sky h1, 
-.theme-daylight-sky h2, 
-.theme-daylight-sky h3, 
+.theme-daylight-sky h1,
+.theme-daylight-sky h2,
+.theme-daylight-sky h3,
 .theme-daylight-sky h4,
 .theme-daylight-sky .item-name {
     color: #0077b6 !important;
@@ -1046,14 +1164,16 @@
 .theme-daylight-sky button:not(.btn-preview),
 .theme-daylight-sky .btn-approve {
     background: linear-gradient(135deg, #ffaa00, #ffea00) !important;
-    color: #d00000 !important; /* Chữ đỏ gạch nhạt nổi bật trên nền vàng */
+    color: #d00000 !important;
+    /* Chữ đỏ gạch nhạt nổi bật trên nền vàng */
     border: 3px solid #ffffff !important;
-    border-radius: 30px !important; /* Tròn xoe hoàn toàn */
+    border-radius: 30px !important;
+    /* Tròn xoe hoàn toàn */
     font-weight: 700;
     box-shadow: 0 6px 15px rgba(255, 170, 0, 0.3) !important;
     text-transform: capitalize;
     /* Hiệu ứng nhún (bouncy) khi trỏ chuột */
-    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important; 
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
 }
 
 .theme-daylight-sky button:not(.btn-preview):hover {
@@ -1062,7 +1182,7 @@
 }
 
 /* 7. Khung nhập liệu (Input & Textarea) */
-.theme-daylight-sky input, 
+.theme-daylight-sky input,
 .theme-daylight-sky textarea {
     background: #f0f8ff !important;
     border: 2px solid #90e0ef !important;
@@ -1071,13 +1191,14 @@
     font-family: 'Fredoka', sans-serif;
 }
 
-.theme-daylight-sky input:focus, 
+.theme-daylight-sky input:focus,
 .theme-daylight-sky textarea:focus {
     border-color: #ffaa00 !important;
     background: #ffffff !important;
     box-shadow: 0 0 15px rgba(255, 170, 0, 0.2) !important;
     outline: none;
 }
+
 /* =========================================================================
    HIỆU ỨNG TOÀN WEB: MƯA TINH LINH (KẾT HỢP VỚI CỔ TÍCH 3)
    ========================================================================= */
@@ -1102,29 +1223,76 @@
 
 /* Keyframe tạo quỹ đạo rơi dập dềnh và lấp lánh */
 @keyframes fairyDustFallAndSway {
-    0% { 
-        transform: translateY(0) translateX(0) scale(0.5) rotate(0deg); 
-        opacity: 0; 
+    0% {
+        transform:
+            translate3d(0, 0, 0)
+            scale(0.5)
+            rotate(0deg);
+
+        opacity: 0;
     }
-    15% { 
-        opacity: 1; 
-        transform: translateY(15vh) translateX(20px) scale(1.2) rotate(45deg); 
-        box-shadow: 0 0 15px #00cec9, 0 0 25px #fd79a8;
+
+    15% {
+        opacity: 1;
+
+        transform:
+            translate3d(20px, 80px, 0)
+            scale(1.2)
+            rotate(45deg);
+
+        box-shadow:
+            0 0 15px #00cec9,
+            0 0 25px #fd79a8;
     }
-    50% { 
-        transform: translateY(50vh) translateX(-20px) scale(0.9) rotate(180deg); 
-        opacity: 0.8; 
+
+    50% {
+        transform:
+            translate3d(
+                -20px,
+                calc(
+                    var(--fairy-fall-distance, 900px) / 2
+                ),
+                0
+            )
+            scale(0.9)
+            rotate(180deg);
+
+        opacity: 0.8;
     }
+
     85% {
         opacity: 0.9;
-        transform: translateY(85vh) translateX(15px) scale(1) rotate(270deg);
-        box-shadow: 0 0 10px #00cec9, 0 0 15px #fd79a8;
+
+        transform:
+            translate3d(
+                15px,
+                calc(
+                    var(--fairy-fall-distance, 900px) - 100px
+                ),
+                0
+            )
+            scale(1)
+            rotate(270deg);
+
+        box-shadow:
+            0 0 10px #00cec9,
+            0 0 15px #fd79a8;
     }
-    100% { 
-        transform: translateY(100vh) translateX(-10px) scale(0.5) rotate(360deg); 
-        opacity: 0; 
+
+    100% {
+        transform:
+            translate3d(
+                -10px,
+                var(--fairy-fall-distance, 900px),
+                0
+            )
+            scale(0.5)
+            rotate(360deg);
+
+        opacity: 0;
     }
 }
+
 /* =========================================================
    GIAO DIỆN CỔ TÍCH 3 - CUNG ĐIỆN PHA LÊ (SỰ KIỆN)
    Kích hoạt khi body có class .theme-crystal-palace
@@ -1136,7 +1304,7 @@
 .theme-crystal-palace {
     /* Tiêu đề dùng Cinzel, chữ thường dùng Montserrat dễ đọc */
     font-family: 'Montserrat', sans-serif;
-    color: #e2dff1; 
+    color: #e2dff1;
     /* Nền Gradient mượt từ tím than -> đen -> xanh ngọc siêu tối */
     background: linear-gradient(135deg, #1a1829 0%, #0d0c14 60%, #081e26 100%);
     background-attachment: fixed;
@@ -1146,12 +1314,16 @@
 .theme-crystal-palace .card,
 .theme-crystal-palace .store-item-card,
 .theme-crystal-palace .submit-box {
-    background: rgba(30, 27, 46, 0.45); /* Cực kỳ trong suốt */
-    border: 1px solid rgba(162, 155, 254, 0.4); /* Viền tím mờ */
-    border-top: 2px solid rgba(0, 206, 201, 0.6); /* Viền trên xanh ngọc nổi bật */
-    border-radius: 10px 40px 10px 40px !important; /* Cắt góc chéo tạo khối tinh thể */
-    box-shadow: 
-        0 15px 35px rgba(0, 0, 0, 0.5), 
+    background: rgba(30, 27, 46, 0.45);
+    /* Cực kỳ trong suốt */
+    border: 1px solid rgba(162, 155, 254, 0.4);
+    /* Viền tím mờ */
+    border-top: 2px solid rgba(0, 206, 201, 0.6);
+    /* Viền trên xanh ngọc nổi bật */
+    border-radius: 10px 40px 10px 40px !important;
+    /* Cắt góc chéo tạo khối tinh thể */
+    box-shadow:
+        0 15px 35px rgba(0, 0, 0, 0.5),
         inset 0 0 25px rgba(162, 155, 254, 0.1);
     backdrop-filter: blur(15px);
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -1161,8 +1333,8 @@
     border-color: #00cec9;
     background: rgba(45, 40, 70, 0.6);
     transform: translateY(-8px) scale(1.03);
-    box-shadow: 
-        0 20px 40px rgba(0, 206, 201, 0.25), 
+    box-shadow:
+        0 20px 40px rgba(0, 206, 201, 0.25),
         inset 0 0 30px rgba(162, 155, 254, 0.3);
 }
 
@@ -1171,7 +1343,8 @@
 .theme-crystal-palace .nav-bar {
     background: linear-gradient(180deg, rgba(13, 12, 20, 0.95), rgba(26, 24, 41, 0.95));
     border-right: 2px solid rgba(162, 155, 254, 0.3);
-    border-radius: 0 50px 0 0; /* Vuốt nhọn vút lên ở góc trên cùng */
+    border-radius: 0 50px 0 0;
+    /* Vuốt nhọn vút lên ở góc trên cùng */
     box-shadow: 10px 0 30px rgba(0, 0, 0, 0.8);
 }
 
@@ -1185,23 +1358,25 @@
 
 /* 4. Định hình Modals / Pop-ups (Gương thần) */
 .theme-crystal-palace .modal-content,
-.theme-crystal-palace #viewQuestionsModal > div {
+.theme-crystal-palace #viewQuestionsModal>div {
     background: linear-gradient(135deg, rgba(20, 18, 30, 0.95) 0%, rgba(10, 9, 15, 0.98) 100%) !important;
-    border: 2px solid #a29bfe !important; 
-    border-radius: 30px 5px 30px 5px !important; /* Dáng gương thần bất đối xứng */
-    box-shadow: 
-        0 0 50px rgba(162, 155, 254, 0.2), 
+    border: 2px solid #a29bfe !important;
+    border-radius: 30px 5px 30px 5px !important;
+    /* Dáng gương thần bất đối xứng */
+    box-shadow:
+        0 0 50px rgba(162, 155, 254, 0.2),
         inset 0 0 20px rgba(0, 206, 201, 0.2) !important;
     backdrop-filter: blur(20px);
 }
 
 /* 5. Tiêu đề và Văn bản nổi bật */
-.theme-crystal-palace h1, 
-.theme-crystal-palace h2, 
-.theme-crystal-palace h3, 
+.theme-crystal-palace h1,
+.theme-crystal-palace h2,
+.theme-crystal-palace h3,
 .theme-crystal-palace h4,
 .theme-crystal-palace .item-name {
-    font-family: 'Cinzel', serif; /* Font chữ đậm chất thần thoại cổ đại */
+    font-family: 'Cinzel', serif;
+    /* Font chữ đậm chất thần thoại cổ đại */
     color: #a29bfe !important;
     font-weight: 700;
     letter-spacing: 1.5px;
@@ -1212,15 +1387,16 @@
 .theme-crystal-palace button:not(.btn-preview),
 .theme-crystal-palace .btn-approve {
     background: linear-gradient(135deg, #6c5ce7, #00cec9) !important;
-    color: #ffffff !important; 
+    color: #ffffff !important;
     border: none !important;
-    border-radius: 12px 4px 12px 4px !important; /* Khối ngọc lởm chởm */
+    border-radius: 12px 4px 12px 4px !important;
+    /* Khối ngọc lởm chởm */
     font-family: 'Cinzel', serif;
     font-weight: 700;
     letter-spacing: 1px;
     box-shadow: 0 6px 20px rgba(0, 206, 201, 0.4) !important;
     text-transform: uppercase;
-    transition: all 0.3s ease !important; 
+    transition: all 0.3s ease !important;
 }
 
 .theme-crystal-palace button:not(.btn-preview):hover {
@@ -1235,12 +1411,13 @@
     border: 1px solid rgba(162, 155, 254, 0.5) !important;
     border-radius: 12px 4px 12px 4px !important;
 }
+
 .theme-crystal-palace .btn-preview:hover {
     background: rgba(162, 155, 254, 0.15) !important;
 }
 
 /* 7. Khung nhập liệu (Input & Textarea) */
-.theme-crystal-palace input, 
+.theme-crystal-palace input,
 .theme-crystal-palace textarea {
     background: rgba(10, 9, 15, 0.6) !important;
     border: 1px solid rgba(162, 155, 254, 0.3) !important;
@@ -1249,12 +1426,13 @@
     font-family: 'Montserrat', sans-serif;
 }
 
-.theme-crystal-palace input:focus, 
+.theme-crystal-palace input:focus,
 .theme-crystal-palace textarea:focus {
     border-color: #00cec9 !important;
     box-shadow: 0 0 15px rgba(0, 206, 201, 0.3) !important;
     outline: none;
 }
+
 /* Tag Truyền Thuyết (Rực rỡ, Đẳng cấp) */
 .tag-truyen-thuyet {
     background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);
@@ -1263,13 +1441,18 @@
     box-shadow: 0 4px 15px rgba(255, 8, 68, 0.6);
     font-weight: 900;
     text-transform: uppercase;
-    
+
     /* Các dòng fix lỗi tràn dải băng: */
-    font-size: 0.65em !important; /* Ép nhỏ chữ lại để vừa vặn góc chéo */
-    letter-spacing: 0 !important; /* Bỏ khoảng cách chữ dư thừa */
-    white-space: nowrap; /* Ngăn chữ bị rớt dòng làm hỏng form */
-    padding: 4px 25px !important; /* Chỉnh lại vùng đệm cho cân đối với chữ nhỏ */
+    font-size: 0.65em !important;
+    /* Ép nhỏ chữ lại để vừa vặn góc chéo */
+    letter-spacing: 0 !important;
+    /* Bỏ khoảng cách chữ dư thừa */
+    white-space: nowrap;
+    /* Ngăn chữ bị rớt dòng làm hỏng form */
+    padding: 4px 25px !important;
+    /* Chỉnh lại vùng đệm cho cân đối với chữ nhỏ */
 }
+
 /* =========================================================================
    HỆ THỐNG ĐỒ HỌA VŨ TRỤ CINEMATIC (100% PURE CSS - ĐẲNG CẤP TRUYỀN THUYẾT)
    ========================================================================= */
@@ -1288,7 +1471,7 @@
 .cosmic-nebula-core {
     position: absolute;
     inset: 0;
-    background: 
+    background:
         radial-gradient(circle at 15% 25%, rgba(138, 43, 226, 0.12), transparent 45%),
         radial-gradient(circle at 85% 75%, rgba(0, 210, 211, 0.12), transparent 45%);
     mix-blend-mode: screen;
@@ -1302,16 +1485,22 @@
     border-radius: 50%;
     pointer-events: none;
 }
+
 .cosmic-orbit-ring.ring-primary {
-    top: -10%; left: -10%;
-    width: 60vw; height: 60vw;
+    top: -10%;
+    left: -10%;
+    width: 60vw;
+    height: 60vw;
     transform: rotateX(75deg) rotateY(20deg);
     border-color: rgba(0, 210, 211, 0.15);
     animation: cosmicOrbitSpin 30s linear infinite;
 }
+
 .cosmic-orbit-ring.ring-secondary {
-    bottom: -20%; right: -10%;
-    width: 70vw; height: 70vw;
+    bottom: -20%;
+    right: -10%;
+    width: 70vw;
+    height: 70vw;
     transform: rotateX(65deg) rotateY(-30deg);
     border-color: rgba(138, 43, 226, 0.15);
     animation: cosmicOrbitSpin 45s linear infinite reverse;
@@ -1329,37 +1518,52 @@
 }
 
 /* Vị trí cụ thể của từng hành tinh */
-.planet-galaxy-purple { top: 15%; left: 8%; animation-delay: 0s; }
-.planet-galaxy-cyan { bottom: 18%; right: 5%; animation-delay: -3s; }
+.planet-galaxy-purple {
+    top: 15%;
+    left: 8%;
+    animation-delay: 0s;
+}
+
+.planet-galaxy-cyan {
+    bottom: 18%;
+    right: 5%;
+    animation-delay: -3s;
+}
 
 /* Thân hành tinh với đổ bóng khối 3D cầu và quầng sáng khí quyển */
 .planet-galaxy-purple .planet-sphere {
-    width: 45px; height: 45px;
+    width: 45px;
+    height: 45px;
     border-radius: 50%;
     background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
-    box-shadow: inset -8px -8px 15px rgba(0,0,0,0.7), 0 0 25px rgba(108, 92, 231, 0.6);
+    box-shadow: inset -8px -8px 15px rgba(0, 0, 0, 0.7), 0 0 25px rgba(108, 92, 231, 0.6);
 }
+
 .planet-galaxy-cyan .planet-sphere {
-    width: 35px; height: 35px;
+    width: 35px;
+    height: 35px;
     border-radius: 50%;
     background: linear-gradient(135deg, #00cec9 0%, #0097e6 100%);
-    box-shadow: inset -6px -6px 12px rgba(0,0,0,0.7), 0 0 20px rgba(0, 206, 201, 0.5);
+    box-shadow: inset -6px -6px 12px rgba(0, 0, 0, 0.7), 0 0 20px rgba(0, 206, 201, 0.5);
 }
 
 /* Vành đai nghiêng cắt góc ôm xuyên qua thân hành tinh */
 .planet-planetary-ring {
     position: absolute;
-    width: 90px; height: 90px;
+    width: 90px;
+    height: 90px;
     border: 3px solid transparent;
     border-radius: 50%;
     pointer-events: none;
 }
+
 .planet-galaxy-purple .planet-planetary-ring {
     border-top: 5px solid rgba(0, 210, 211, 0.8);
     border-bottom: 2px solid rgba(0, 210, 211, 0.3);
     transform: rotateX(75deg) rotateY(-15deg);
     filter: drop-shadow(0 0 8px #00d2d1);
 }
+
 .planet-galaxy-cyan .planet-planetary-ring {
     border-top: 4px solid rgba(255, 118, 117, 0.8);
     border-bottom: 2px solid rgba(138, 43, 226, 0.4);
@@ -1373,86 +1577,233 @@
     opacity: 0.6;
     animation: constellationPulse 4s ease-in-out infinite alternate;
 }
-.constellation-alpha { top: 35%; right: 15%; }
-.constellation-beta { bottom: 40%; left: 12%; }
+
+.constellation-alpha {
+    top: 35%;
+    right: 15%;
+}
+
+.constellation-beta {
+    bottom: 40%;
+    left: 12%;
+}
 
 .const-star {
     position: absolute;
-    width: 4px; height: 4px;
+    width: 4px;
+    height: 4px;
     background: #fff;
     border-radius: 50%;
     box-shadow: 0 0 10px #fff, 0 0 20px #00d2d1;
 }
+
 /* Thiết lập các đường kẻ border tạo hình chòm sao nối tiếp */
-.constellation-alpha .c-star-1 { top: 0; left: 0; }
-.constellation-alpha .c-star-2 { top: 40px; left: 30px; border-left: 1px solid rgba(255,255,255,0.2); height: 40px; }
-.constellation-alpha .c-star-3 { top: 20px; left: 80px; border-bottom: 1px solid rgba(255,255,255,0.2); width: 50px; }
+.constellation-alpha .c-star-1 {
+    top: 0;
+    left: 0;
+}
+
+.constellation-alpha .c-star-2 {
+    top: 40px;
+    left: 30px;
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    height: 40px;
+}
+
+.constellation-alpha .c-star-3 {
+    top: 20px;
+    left: 80px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    width: 50px;
+}
 
 /* 5. MƯA SAO BĂNG ĐIỆN ẢNH XÉT NGANG (Cinematic Comets) */
 .cinematic-comet {
     position: absolute;
     height: 2px;
-    background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,1) 50%, rgba(0,210,211,0));
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1) 50%, rgba(0, 210, 211, 0));
     transform: rotate(-45deg);
     opacity: 0;
     filter: drop-shadow(0 0 6px #00d2d1);
 }
-.comet-v1 { top: 5%; right: 10%; width: 120px; animation: cometSweep 6s linear infinite; animation-delay: 0s; }
-.comet-v2 { top: 25%; right: -5%; width: 160px; animation: cometSweep 8s linear infinite; animation-delay: 2.5s; }
-.comet-v3 { top: -5%; right: 40%; width: 90px; animation: cometSweep 5s linear infinite; animation-delay: 4.3s; }
+
+.comet-v1 {
+    top: 5%;
+    right: 10%;
+    width: 120px;
+    animation: cometSweep 6s linear infinite;
+    animation-delay: 0s;
+}
+
+.comet-v2 {
+    top: 25%;
+    right: -5%;
+    width: 160px;
+    animation: cometSweep 8s linear infinite;
+    animation-delay: 2.5s;
+}
+
+.comet-v3 {
+    top: -5%;
+    right: 40%;
+    width: 90px;
+    animation: cometSweep 5s linear infinite;
+    animation-delay: 4.3s;
+}
 
 /* 6. LỚP BỤI TINH TRẦN LƠ LỬNG BỒNG BỀNH (Pure CSS Ambient Particles) */
 .pure-css-cosmic-dust span {
     position: absolute;
-    width: 3px; height: 3px;
+    width: 3px;
+    height: 3px;
     background: #fff;
     border-radius: 50%;
     animation: ambientDustFloat 15s linear infinite;
 }
+
 /* Phân bổ các tọa độ bụi cố định chạy mượt bằng CSS */
-.pure-css-cosmic-dust span:nth-child(1) { top: 20%; left: 30%; box-shadow: 0 0 8px #8a2be2; animation-duration: 12s; }
-.pure-css-cosmic-dust span:nth-child(2) { top: 60%; left: 25%; box-shadow: 0 0 8px #00d2d1; animation-duration: 18s; }
-.pure-css-cosmic-dust span:nth-child(3) { top: 40%; left: 75%; box-shadow: 0 0 8px #fff; animation-duration: 14s; }
-.pure-css-cosmic-dust span:nth-child(4) { top: 80%; left: 45%; box-shadow: 0 0 8px #8a2be2; animation-duration: 22s; }
-.pure-css-cosmic-dust span:nth-child(5) { top: 10%; left: 65%; box-shadow: 0 0 8px #00d2d1; animation-duration: 16s; }
-.pure-css-cosmic-dust span:nth-child(6) { top: 70%; left: 85%; box-shadow: 0 0 6px #ff7675; animation-duration: 13s; }
-.pure-css-cosmic-dust span:nth-child(7) { top: 85%; left: 15%; box-shadow: 0 0 8px #8a2be2; animation-duration: 20s; }
-.pure-css-cosmic-dust span:nth-child(8) { top: 30%; left: 90%; box-shadow: 0 0 8px #00d2d1; animation-duration: 15s; }
+.pure-css-cosmic-dust span:nth-child(1) {
+    top: 20%;
+    left: 30%;
+    box-shadow: 0 0 8px #8a2be2;
+    animation-duration: 12s;
+}
+
+.pure-css-cosmic-dust span:nth-child(2) {
+    top: 60%;
+    left: 25%;
+    box-shadow: 0 0 8px #00d2d1;
+    animation-duration: 18s;
+}
+
+.pure-css-cosmic-dust span:nth-child(3) {
+    top: 40%;
+    left: 75%;
+    box-shadow: 0 0 8px #fff;
+    animation-duration: 14s;
+}
+
+.pure-css-cosmic-dust span:nth-child(4) {
+    top: 80%;
+    left: 45%;
+    box-shadow: 0 0 8px #8a2be2;
+    animation-duration: 22s;
+}
+
+.pure-css-cosmic-dust span:nth-child(5) {
+    top: 10%;
+    left: 65%;
+    box-shadow: 0 0 8px #00d2d1;
+    animation-duration: 16s;
+}
+
+.pure-css-cosmic-dust span:nth-child(6) {
+    top: 70%;
+    left: 85%;
+    box-shadow: 0 0 6px #ff7675;
+    animation-duration: 13s;
+}
+
+.pure-css-cosmic-dust span:nth-child(7) {
+    top: 85%;
+    left: 15%;
+    box-shadow: 0 0 8px #8a2be2;
+    animation-duration: 20s;
+}
+
+.pure-css-cosmic-dust span:nth-child(8) {
+    top: 30%;
+    left: 90%;
+    box-shadow: 0 0 8px #00d2d1;
+    animation-duration: 15s;
+}
 
 /* --- HỆ THỐNG KEYFRAMES KHÔNG GIAN --- */
 @keyframes nebulaGasBreathe {
-    0% { opacity: 0.4; transform: scale(1) rotate(0deg); }
-    100% { opacity: 0.7; transform: scale(1.15) rotate(3deg); }
+    0% {
+        opacity: 0.4;
+        transform: scale(1) rotate(0deg);
+    }
+
+    100% {
+        opacity: 0.7;
+        transform: scale(1.15) rotate(3deg);
+    }
 }
 
 @keyframes cosmicOrbitSpin {
-    0% { transform: rotateX(70deg) rotateY(20deg) rotateZ(0deg); }
-    100% { transform: rotateX(70deg) rotateY(20deg) rotateZ(360deg); }
+    0% {
+        transform: rotateX(70deg) rotateY(20deg) rotateZ(0deg);
+    }
+
+    100% {
+        transform: rotateX(70deg) rotateY(20deg) rotateZ(360deg);
+    }
 }
 
 @keyframes planetCosmicFloat {
-    0% { transform: translateY(0) rotate(0deg); }
-    100% { transform: translateY(-25px) rotate(8deg); }
+    0% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    100% {
+        transform: translateY(-25px) rotate(8deg);
+    }
 }
 
 @keyframes constellationPulse {
-    0% { opacity: 0.3; filter: drop-shadow(0 0 2px rgba(0,210,211,0.4)); }
-    100% { opacity: 0.8; filter: drop-shadow(0 0 8px rgba(0,210,211,1)); }
+    0% {
+        opacity: 0.3;
+        filter: drop-shadow(0 0 2px rgba(0, 210, 211, 0.4));
+    }
+
+    100% {
+        opacity: 0.8;
+        filter: drop-shadow(0 0 8px rgba(0, 210, 211, 1));
+    }
 }
 
 @keyframes cometSweep {
-    0% { transform: translate(100px, -100px) rotate(-45deg); opacity: 0; }
-    5% { opacity: 1; }
-    15% { transform: translate(-300px, 300px) rotate(-45deg); opacity: 0; }
-    100% { transform: translate(-300px, 300px) rotate(-45deg); opacity: 0; }
+    0% {
+        transform: translate(100px, -100px) rotate(-45deg);
+        opacity: 0;
+    }
+
+    5% {
+        opacity: 1;
+    }
+
+    15% {
+        transform: translate(-300px, 300px) rotate(-45deg);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translate(-300px, 300px) rotate(-45deg);
+        opacity: 0;
+    }
 }
 
 @keyframes ambientDustFloat {
-    0% { transform: translateY(0) translateX(0); opacity: 0; }
-    10% { opacity: 0.8; }
-    90% { opacity: 0.8; }
-    100% { transform: translateY(-80px) translateX(20px); opacity: 0; }
+    0% {
+        transform: translateY(0) translateX(0);
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 0.8;
+    }
+
+    90% {
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: translateY(-80px) translateX(20px);
+        opacity: 0;
+    }
 }
+
 /* =========================================================================
    SIÊU GIAO DIỆN: THẦN HỆ TINH VÂN (CẬP NHẬT TỐI ƯU HIỂN THỊ CHỮ)
    ========================================================================= */
@@ -1461,48 +1812,64 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@400;500;600;700&display=swap');
 
 /* Font mặc định cho toàn trang: Rajdhani (Viễn tưởng nhưng sắc nét, nét thanh, cực dễ đọc) */
-.theme-cosmic-godhood, .theme_truyenthuyet_vutru,
-.theme-cosmic-godhood *, .theme_truyenthuyet_vutru * {
+.theme-cosmic-godhood,
+.theme_truyenthuyet_vutru,
+.theme-cosmic-godhood *,
+.theme_truyenthuyet_vutru * {
     font-family: 'Rajdhani', sans-serif !important;
 }
 
 /* Giữ font Orbitron hầm hố cho các Tiêu đề, Nút bấm và Nhãn dán */
-.theme-cosmic-godhood h1, .theme_truyenthuyet_vutru h1,
-.theme-cosmic-godhood h2, .theme_truyenthuyet_vutru h2,
-.theme-cosmic-godhood h3, .theme_truyenthuyet_vutru h3,
-.theme-cosmic-godhood h4, .theme_truyenthuyet_vutru h4,
-.theme-cosmic-godhood h5, .theme_truyenthuyet_vutru h5,
-.theme-cosmic-godhood h6, .theme_truyenthuyet_vutru h6,
-.theme-cosmic-godhood strong, .theme_truyenthuyet_vutru strong,
-.theme-cosmic-godhood button, .theme_truyenthuyet_vutru button,
-.theme-cosmic-godhood .item-tag, .theme_truyenthuyet_vutru .item-tag {
+.theme-cosmic-godhood h1,
+.theme_truyenthuyet_vutru h1,
+.theme-cosmic-godhood h2,
+.theme_truyenthuyet_vutru h2,
+.theme-cosmic-godhood h3,
+.theme_truyenthuyet_vutru h3,
+.theme-cosmic-godhood h4,
+.theme_truyenthuyet_vutru h4,
+.theme-cosmic-godhood h5,
+.theme_truyenthuyet_vutru h5,
+.theme-cosmic-godhood h6,
+.theme_truyenthuyet_vutru h6,
+.theme-cosmic-godhood strong,
+.theme_truyenthuyet_vutru strong,
+.theme-cosmic-godhood button,
+.theme_truyenthuyet_vutru button,
+.theme-cosmic-godhood .item-tag,
+.theme_truyenthuyet_vutru .item-tag {
     font-family: 'Orbitron', sans-serif !important;
     letter-spacing: 0.5px;
 }
 
 /* --- 2. MÀU SẮC CHỦ ĐẠO TOÀN TRANG & LƯỚI MA TRẬN --- */
-.theme-cosmic-godhood, .theme_truyenthuyet_vutru {
+.theme-cosmic-godhood,
+.theme_truyenthuyet_vutru {
     background-color: #050508 !important;
-    background-image: 
+    background-image:
         linear-gradient(rgba(0, 245, 255, 0.03) 1px, transparent 1px),
         linear-gradient(90deg, rgba(0, 245, 255, 0.03) 1px, transparent 1px),
         radial-gradient(circle at 50% 50%, #0c0f1d 0%, #04050a 100%) !important;
     background-size: 25px 25px, 25px 25px, 100% 100% !important;
-    
+
     /* Tăng độ sáng chữ tổng thể lên Trắng Xanh để nét căng trên nền đen */
-    color: #f1f5f9 !important; 
+    color: #f1f5f9 !important;
 }
 
 /* Làm sáng và tăng nhẹ cỡ chữ cho các đoạn văn bản mô tả nhỏ */
-.theme-cosmic-godhood p, .theme_truyenthuyet_vutru p {
+.theme-cosmic-godhood p,
+.theme_truyenthuyet_vutru p {
     color: #cbd5e1 !important;
     font-size: 1.08em !important;
 }
 
 /* --- 3. ĐỊNH HÌNH LẠI POPUP / MODAL (Vát góc cơ khí Cyber-Clip) --- */
-.theme-cosmic-godhood .modal-content, .theme_truyenthuyet_vutru .modal-content,
-.theme-cosmic-godhood .form-container, .theme_truyenthuyet_vutru .form-container,
-.theme-cosmic-godhood #petInteractionInfoModal .modal-content, .theme_truyenthuyet_vutru #petInteractionInfoModal .modal-content {
+.theme-cosmic-godhood .modal-content,
+.theme_truyenthuyet_vutru .modal-content,
+.theme-cosmic-godhood .form-container,
+.theme_truyenthuyet_vutru .form-container,
+.theme-cosmic-godhood #petInteractionInfoModal .modal-content,
+.theme_truyenthuyet_vutru #petInteractionInfoModal .modal-content {
     background: rgba(10, 11, 22, 0.95) !important;
     border: 2px solid #00f5ff !important;
     border-radius: 0px !important;
@@ -1511,7 +1878,8 @@
     border-image: none !important;
 }
 
-.theme-cosmic-godhood .modal-content::before, .theme_truyenthuyet_vutru .modal-content::before {
+.theme-cosmic-godhood .modal-content::before,
+.theme_truyenthuyet_vutru .modal-content::before {
     content: '';
     position: absolute;
     inset: 4px;
@@ -1521,10 +1889,14 @@
 }
 
 /* --- 4. Ô VẬT PHẨM & CÁC SLOT CONTAINER (Hologram Frame) --- */
-.theme-cosmic-godhood .store-item, .theme_truyenthuyet_vutru .store-item,
-.theme-cosmic-godhood .reward-box, .theme_truyenthuyet_vutru .reward-box,
-.theme-cosmic-godhood .item-card, .theme_truyenthuyet_vutru .item-card,
-.theme-cosmic-godhood #interactivePetList > div, .theme_truyenthuyet_vutru #interactivePetList > div {
+.theme-cosmic-godhood .store-item,
+.theme_truyenthuyet_vutru .store-item,
+.theme-cosmic-godhood .reward-box,
+.theme_truyenthuyet_vutru .reward-box,
+.theme-cosmic-godhood .item-card,
+.theme_truyenthuyet_vutru .item-card,
+.theme-cosmic-godhood #interactivePetList>div,
+.theme_truyenthuyet_vutru #interactivePetList>div {
     background: linear-gradient(135deg, rgba(16, 20, 38, 0.8), rgba(7, 8, 15, 0.9)) !important;
     border: 1px solid rgba(0, 245, 255, 0.3) !important;
     border-radius: 4px !important;
@@ -1533,7 +1905,8 @@
     box-shadow: inset 0 0 15px rgba(189, 0, 255, 0.1) !important;
 }
 
-.theme-cosmic-godhood .store-item::after, .theme_truyenthuyet_vutru .store-item::after {
+.theme-cosmic-godhood .store-item::after,
+.theme_truyenthuyet_vutru .store-item::after {
     content: '';
     position: absolute;
     inset: 0;
@@ -1543,34 +1916,42 @@
     pointer-events: none;
 }
 
-.theme-cosmic-godhood .store-item button, .theme_truyenthuyet_vutru .store-item button,
-.theme-cosmic-godhood .main-btn, .theme_truyenthuyet_vutru .main-btn {
+.theme-cosmic-godhood .store-item button,
+.theme_truyenthuyet_vutru .store-item button,
+.theme-cosmic-godhood .main-btn,
+.theme_truyenthuyet_vutru .main-btn {
     border-radius: 2px !important;
     background: linear-gradient(90deg, #bd00ff, #00f5ff) !important;
     color: #fff !important;
     font-weight: bold !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
     border: none !important;
     box-shadow: 0 0 10px rgba(0, 245, 255, 0.4) !important;
 }
 
 /* --- 5. THANH CUỘN PLASMA TRÊN TRÌNH DUYỆT --- */
-.theme-cosmic-godhood ::-webkit-scrollbar, .theme_truyenthuyet_vutru ::-webkit-scrollbar {
+.theme-cosmic-godhood ::-webkit-scrollbar,
+.theme_truyenthuyet_vutru ::-webkit-scrollbar {
     width: 6px !important;
     height: 6px !important;
 }
-.theme-cosmic-godhood ::-webkit-scrollbar-track, .theme_truyenthuyet_vutru ::-webkit-scrollbar-track {
+
+.theme-cosmic-godhood ::-webkit-scrollbar-track,
+.theme_truyenthuyet_vutru ::-webkit-scrollbar-track {
     background: #04050a !important;
-    border-left: 1px solid rgba(255,255,255,0.05) !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.05) !important;
 }
-.theme-cosmic-godhood ::-webkit-scrollbar-thumb, .theme_truyenthuyet_vutru ::-webkit-scrollbar-thumb {
+
+.theme-cosmic-godhood ::-webkit-scrollbar-thumb,
+.theme_truyenthuyet_vutru ::-webkit-scrollbar-thumb {
     background: linear-gradient(180deg, #00f5ff, #bd00ff) !important;
     border-radius: 10px !important;
     box-shadow: 0 0 8px rgba(0, 245, 255, 0.8) !important;
 }
 
 /* --- 6. THANH TRƯỢT SLIDER BAR / RANGE INPUT --- */
-.theme-cosmic-godhood input[type="range"], .theme_truyenthuyet_vutru input[type="range"] {
+.theme-cosmic-godhood input[type="range"],
+.theme_truyenthuyet_vutru input[type="range"] {
     -webkit-appearance: none !important;
     appearance: none !important;
     background: #0f111a !important;
@@ -1579,7 +1960,9 @@
     border-radius: 0px !important;
     box-shadow: inset 0 0 5px rgba(189, 0, 255, 0.5) !important;
 }
-.theme-cosmic-godhood input[type="range"]::-webkit-slider-thumb, .theme_truyenthuyet_vutru input[type="range"]::-webkit-slider-thumb {
+
+.theme-cosmic-godhood input[type="range"]::-webkit-slider-thumb,
+.theme_truyenthuyet_vutru input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none !important;
     appearance: none !important;
     width: 14px !important;
@@ -1597,42 +1980,57 @@
    ========================================================================= */
 
 /* 1. Đổi toàn bộ chữ thường thành Trắng Tinh Khiết và thêm viền Đen dày */
-.theme-cosmic-godhood, .theme_truyenthuyet_vutru,
-.theme-cosmic-godhood p, .theme_truyenthuyet_vutru p,
-.theme-cosmic-godhood span, .theme_truyenthuyet_vutru span,
-.theme-cosmic-godhood div, .theme_truyenthuyet_vutru div {
+.theme-cosmic-godhood,
+.theme_truyenthuyet_vutru,
+.theme-cosmic-godhood p,
+.theme_truyenthuyet_vutru p,
+.theme-cosmic-godhood span,
+.theme_truyenthuyet_vutru span,
+.theme-cosmic-godhood div,
+.theme_truyenthuyet_vutru div {
     color: #ffffff !important;
     /* Bóng đen gắt giúp chữ nổi bật bất chấp nền phía sau phức tạp cỡ nào */
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9), 0 1px 2px rgba(0, 0, 0, 0.8) !important;
 }
 
 /* 2. Đổi màu Tên Vật Phẩm và Tiêu Đề sang Xanh Neon (Plasma) rực sáng */
-.theme-cosmic-godhood h1, .theme_truyenthuyet_vutru h1,
-.theme-cosmic-godhood h2, .theme_truyenthuyet_vutru h2,
-.theme-cosmic-godhood h3, .theme_truyenthuyet_vutru h3,
-.theme-cosmic-godhood h4, .theme_truyenthuyet_vutru h4,
-.theme-cosmic-godhood h5, .theme_truyenthuyet_vutru h5,
-.theme-cosmic-godhood strong, .theme_truyenthuyet_vutru strong,
-.theme-cosmic-godhood .item-name, .theme_truyenthuyet_vutru .item-name {
-    color: #00f5ff !important; 
+.theme-cosmic-godhood h1,
+.theme_truyenthuyet_vutru h1,
+.theme-cosmic-godhood h2,
+.theme_truyenthuyet_vutru h2,
+.theme-cosmic-godhood h3,
+.theme_truyenthuyet_vutru h3,
+.theme-cosmic-godhood h4,
+.theme_truyenthuyet_vutru h4,
+.theme-cosmic-godhood h5,
+.theme_truyenthuyet_vutru h5,
+.theme-cosmic-godhood strong,
+.theme_truyenthuyet_vutru strong,
+.theme-cosmic-godhood .item-name,
+.theme_truyenthuyet_vutru .item-name {
+    color: #00f5ff !important;
     /* Hiệu ứng Glow xanh lấp lánh như bảng Neon */
     text-shadow: 0 0 10px rgba(0, 245, 255, 0.6), 0 2px 5px rgba(0, 0, 0, 1) !important;
     font-weight: 800 !important;
 }
 
 /* 3. Tối màu nền của các ô chứa vật phẩm lại một chút để làm bệ phóng cho chữ */
-.theme-cosmic-godhood .store-item-card, .theme_truyenthuyet_vutru .store-item-card,
-.theme-cosmic-godhood .modal-content, .theme_truyenthuyet_vutru .modal-content {
+.theme-cosmic-godhood .store-item-card,
+.theme_truyenthuyet_vutru .store-item-card,
+.theme-cosmic-godhood .modal-content,
+.theme_truyenthuyet_vutru .modal-content {
     /* Ép nền tối xuống gần như đen đặc (95%) để chữ màu sáng không bị lóa */
-    background: rgba(5, 6, 12, 0.95) !important; 
+    background: rgba(5, 6, 12, 0.95) !important;
     border: 1px solid rgba(0, 245, 255, 0.3) !important;
 }
 
 /* Giữ nguyên màu text cho nút bấm để không bị lỗi */
-.theme-cosmic-godhood button, .theme_truyenthuyet_vutru button {
+.theme-cosmic-godhood button,
+.theme_truyenthuyet_vutru button {
     color: #ffffff !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.5) !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5) !important;
 }
+
 /* =========================================================================
    HIỆU ỨNG TOÀN WEB: MƯA TINH THỂ SAO THỦY (HỆ VŨ TRỤ)
    ========================================================================= */
@@ -1643,37 +2041,54 @@
     /* Gradient tạo vệt kim loại lỏng: Đầu trắng sáng, thân xanh neon, đuôi mờ dần */
     background: linear-gradient(180deg, #ffffff 0%, #00f2fe 50%, transparent 100%);
     border-radius: 50px;
-    
+
     /* Phát sáng viền màu Xanh kim loại và Tím nhạt đồng bộ với Mèo Sao Thủy */
     box-shadow: 0 0 8px #00f2fe, 0 0 15px rgba(224, 195, 252, 0.6);
     opacity: 0.8;
-    
+
     animation-name: fallLiquidMercury;
     animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     animation-fill-mode: forwards;
-    pointer-events: none; /* Rất quan trọng: Không chặn click chuột của người dùng */
+    pointer-events: none;
+    /* Rất quan trọng: Không chặn click chuột của người dùng */
     z-index: 9999;
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
 }
 
 /* Keyframes: Mưa tinh thể rớt chéo góc tạo tốc độ xé gió */
 @keyframes fallLiquidMercury {
     0% {
-        transform: translateY(0) translateX(0) rotate(20deg) scale(0);
+        transform:
+            translate3d(0, 0, 0) rotate(20deg) scale(0);
+
         opacity: 0;
     }
+
     10% {
+        transform:
+            translate3d(0, 20px, 0) rotate(20deg) scale(1.2);
+
         opacity: 1;
-        transform: translateY(10vh) translateX(-3vw) rotate(20deg) scale(1.2);
     }
+
     85% {
         opacity: 0.8;
     }
+
     100% {
-        /* Rớt xuống đáy và trượt sang trái một chút */
-        transform: translateY(110vh) translateX(-20vw) rotate(20deg) scale(0.5);
+        transform:
+            translate3d(var(--mercury-drift-distance, -80px),
+                var(--mercury-fall-distance,
+                    calc(100dvh + 130px)),
+                0) rotate(20deg) scale(0.5);
+
         opacity: 0;
     }
 }
+
 /* =========================================================================
    GIAO DIỆN SAO THỦY: TRẠM KHÔNG GIAN (MERCURY STATION)
    - Phong cách: Sci-fi Liquid Metal, Blast-doors, Neon Cyan -
@@ -1684,7 +2099,8 @@
 
 .theme-mercury-station {
     font-family: 'Exo 2', sans-serif !important;
-    color: #e2e8f0; /* Chữ xám bạc sáng */
+    color: #e2e8f0;
+    /* Chữ xám bạc sáng */
     /* Nền Gradient tỏa từ dưới lên tạo cảm giác bề mặt hành tinh kim loại */
     background: radial-gradient(circle at 50% 120%, #1f2833 0%, #0b0c10 70%) !important;
     background-attachment: fixed !important;
@@ -1696,7 +2112,7 @@
 .theme-mercury-station .submit-box {
     background: rgba(11, 12, 16, 0.85) !important;
     /* Dáng cửa sập: Bo tròn 2 góc chéo, vuông 2 góc chéo */
-    border-radius: 30px 4px 30px 4px !important; 
+    border-radius: 30px 4px 30px 4px !important;
     border: none !important;
     /* Hiệu ứng viền kim loại lỏng đọng ở dưới đáy */
     border-bottom: 4px solid #45f3ff !important;
@@ -1717,13 +2133,15 @@
 .theme-mercury-station .nav-bar {
     background: linear-gradient(180deg, rgba(31, 40, 51, 0.95), rgba(11, 12, 16, 0.98)) !important;
     border-right: 2px solid #45f3ff !important;
-    border-radius: 0 40px 0 0 !important; /* Vuốt nhọn một góc duy nhất */
+    border-radius: 0 40px 0 0 !important;
+    /* Vuốt nhọn một góc duy nhất */
     box-shadow: 5px 0 20px rgba(69, 243, 255, 0.15) !important;
 }
 
 .theme-mercury-station .nav-item.active {
     background: rgba(69, 243, 255, 0.1) !important;
-    border-right: 5px solid #45f3ff !important; /* Dời vạch active sang mép phải */
+    border-right: 5px solid #45f3ff !important;
+    /* Dời vạch active sang mép phải */
     border-radius: 0 !important;
     color: #45f3ff !important;
     text-shadow: 0 0 8px rgba(69, 243, 255, 0.6) !important;
@@ -1731,7 +2149,7 @@
 
 /* 4. Định hình Modals / Pop-ups (Màn hình Hologram trung tâm) */
 .theme-mercury-station .modal-content,
-.theme-mercury-station #viewQuestionsModal > div {
+.theme-mercury-station #viewQuestionsModal>div {
     background: #0b0c10 !important;
     /* Dùng viền 2 bên cực dày tạo cảm giác kẹp bằng hàm cơ khí */
     border: none !important;
@@ -1742,9 +2160,9 @@
 }
 
 /* 5. Tiêu đề và Văn bản (Sáng loáng như kim loại mới) */
-.theme-mercury-station h1, 
-.theme-mercury-station h2, 
-.theme-mercury-station h3, 
+.theme-mercury-station h1,
+.theme-mercury-station h2,
+.theme-mercury-station h3,
 .theme-mercury-station h4,
 .theme-mercury-station .item-name {
     color: #ffffff !important;
@@ -1755,22 +2173,25 @@
 }
 
 /* Text thường làm xám bạc để đỡ mỏi mắt */
-.theme-mercury-station p, .theme-mercury-station span {
-    color: #c5c6c7 !important; 
+.theme-mercury-station p,
+.theme-mercury-station span {
+    color: #c5c6c7 !important;
 }
 
 /* 6. Nút Bấm (Năng lượng Lõi) */
 .theme-mercury-station button:not(.btn-preview),
 .theme-mercury-station .btn-approve {
     background: linear-gradient(90deg, #c5c6c7, #45f3ff) !important;
-    color: #0b0c10 !important; /* Chữ đen tương phản trên nền sáng */
+    color: #0b0c10 !important;
+    /* Chữ đen tương phản trên nền sáng */
     border: none !important;
-    border-radius: 50px !important; /* Nút con nhộng */
+    border-radius: 50px !important;
+    /* Nút con nhộng */
     font-family: 'Exo 2', sans-serif !important;
     font-weight: 800;
     letter-spacing: 1.5px;
     box-shadow: 0 4px 15px rgba(69, 243, 255, 0.4) !important;
-    transition: all 0.3s ease !important; 
+    transition: all 0.3s ease !important;
 }
 
 .theme-mercury-station button:not(.btn-preview):hover {
@@ -1786,12 +2207,13 @@
     border: 1px solid #45f3ff !important;
     border-radius: 50px !important;
 }
+
 .theme-mercury-station .btn-preview:hover {
     background: rgba(69, 243, 255, 0.15) !important;
 }
 
 /* 7. Khung nhập liệu (Input & Textarea) */
-.theme-mercury-station input, 
+.theme-mercury-station input,
 .theme-mercury-station textarea {
     background: rgba(31, 40, 51, 0.6) !important;
     border: 1px solid rgba(197, 198, 199, 0.3) !important;
@@ -1799,13 +2221,14 @@
     color: #ffffff !important;
 }
 
-.theme-mercury-station input:focus, 
+.theme-mercury-station input:focus,
 .theme-mercury-station textarea:focus {
     border-color: #45f3ff !important;
     background: rgba(11, 12, 16, 0.8) !important;
     box-shadow: 0 0 15px rgba(69, 243, 255, 0.2) !important;
     outline: none;
 }
+
 /* =========================================================================
    FIX LỖI HIỂN THỊ CHỮ: GIAO DIỆN TRẠM KHÔNG GIAN SAO THỦY
    ========================================================================= */
@@ -1816,34 +2239,36 @@
 .theme-mercury-station span,
 .theme-mercury-station div,
 .theme-mercury-station li {
-    color: #f8fafc !important; 
+    color: #f8fafc !important;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9) !important;
 }
 
 /* 2. Ép các tiêu đề và in đậm thành màu Xanh Cyan (Plasma) sáng rực */
-.theme-mercury-station h1, 
-.theme-mercury-station h2, 
-.theme-mercury-station h3, 
+.theme-mercury-station h1,
+.theme-mercury-station h2,
+.theme-mercury-station h3,
 .theme-mercury-station h4,
 .theme-mercury-station strong,
 .theme-mercury-station b {
     color: #45f3ff !important;
-    text-shadow: 0 0 10px rgba(69, 243, 255, 0.4), 0 2px 4px rgba(0,0,0,0.8) !important;
+    text-shadow: 0 0 10px rgba(69, 243, 255, 0.4), 0 2px 4px rgba(0, 0, 0, 0.8) !important;
 }
 
 /* 3. Khử các nền trắng/sáng được tạo ra từ JS gốc (Tác nhân làm chói chữ) */
 .theme-mercury-station div[style*="rgba(255,255,255"],
 .theme-mercury-station div[style*="rgba(0,0,0,0.03)"],
 .theme-mercury-station input[type="file"] {
-    background: rgba(31, 40, 51, 0.6) !important; /* Đưa về nền kính viễn tưởng */
+    background: rgba(31, 40, 51, 0.6) !important;
+    /* Đưa về nền kính viễn tưởng */
     border: 1px solid rgba(69, 243, 255, 0.3) !important;
     color: #f8fafc !important;
 }
 
 /* 4. Fix màu Placeholder (chữ mờ gợi ý trong ô nhập liệu) */
-.theme-mercury-station input::placeholder, 
+.theme-mercury-station input::placeholder,
 .theme-mercury-station textarea::placeholder {
-    color: #94a3b8 !important; /* Xám nhạt nổi bật trên nền tối */
+    color: #94a3b8 !important;
+    /* Xám nhạt nổi bật trên nền tối */
     opacity: 1 !important;
 }
 
@@ -1864,6 +2289,7 @@
     color: #2ed573 !important;
     text-shadow: 0 0 8px rgba(46, 213, 115, 0.5) !important;
 }
+
 /* =========================================================================
    GIAO DIỆN MỚI: DỊ ĐIỂM KHÔNG GIAN (THEME COSMIC ANOMALY) - MỚI 100%
    ========================================================================= */
@@ -1872,7 +2298,7 @@
 body.theme-cosmic-anomaly {
     font-family: 'Segoe UI', Roboto, 'Orbitron', -apple-system, sans-serif !important;
     background-color: #030712 !important;
-    background-image: 
+    background-image:
         radial-gradient(at 10% 20%, rgba(236, 72, 153, 0.15) 0px, transparent 50%),
         radial-gradient(at 90% 80%, rgba(6, 118, 234, 0.15) 0px, transparent 50%) !important;
     background-attachment: fixed !important;
@@ -1880,9 +2306,9 @@ body.theme-cosmic-anomaly {
 }
 
 /* Ký tự đặc biệt hoặc chữ quan trọng */
-.theme-cosmic-anomaly h1, 
-.theme-cosmic-anomaly h2, 
-.theme-cosmic-anomaly h3, 
+.theme-cosmic-anomaly h1,
+.theme-cosmic-anomaly h2,
+.theme-cosmic-anomaly h3,
 .theme-cosmic-anomaly h4 {
     color: #00f2fe !important;
     text-shadow: 0 0 10px rgba(0, 242, 254, 0.5) !important;
@@ -1894,13 +2320,14 @@ body.theme-cosmic-anomaly {
 .theme-cosmic-anomaly div[id*="modal"],
 .theme-cosmic-anomaly div[class*="popup"],
 .theme-cosmic-anomaly div[class*="card"] {
-    background: rgba(15, 23, 42, 0.65) !important; /* Nền tối hố đen */
+    background: rgba(15, 23, 42, 0.65) !important;
+    /* Nền tối hố đen */
     backdrop-filter: blur(20px) saturate(180%) !important;
     -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
     /* Thiết kế bo viền bất đối xứng góc vũ trụ */
     border-radius: 30px 10px 30px 10px !important;
     border: 1px solid rgba(6, 182, 212, 0.3) !important;
-    box-shadow: 
+    box-shadow:
         0 15px 35px rgba(0, 0, 0, 0.6),
         0 0 20px rgba(236, 72, 153, 0.15),
         inset 0 1px 2px rgba(255, 255, 255, 0.1) !important;
@@ -1910,7 +2337,7 @@ body.theme-cosmic-anomaly {
 /* Hiệu ứng di chuột kích hoạt tia gamma */
 .theme-cosmic-anomaly .store-item-card:hover {
     border-color: #ec4899 !important;
-    box-shadow: 
+    box-shadow:
         0 20px 40px rgba(0, 0, 0, 0.7),
         0 0 30px rgba(236, 72, 153, 0.4),
         0 0 60px rgba(6, 182, 212, 0.2) !important;
@@ -1924,7 +2351,8 @@ body.theme-cosmic-anomaly {
     background: rgba(3, 7, 18, 0.8) !important;
     border: 1px solid rgba(241, 245, 249, 0.2) !important;
     border-radius: 12px !important;
-    color: #38bdf8 !important; /* Chữ màu neon cyan */
+    color: #38bdf8 !important;
+    /* Chữ màu neon cyan */
     padding: 10px 15px !important;
     text-shadow: 0 0 5px rgba(56, 189, 248, 0.3) !important;
 }
@@ -1981,7 +2409,8 @@ body.theme-cosmic-anomaly {
 
 .theme-cosmic-anomaly button:hover,
 .theme-cosmic-anomaly .btn:hover {
-    background: linear-gradient(135deg, #ec4899 0%, #d946ef 100%) !important; /* Đổi sang phổ hồng tím khi hover */
+    background: linear-gradient(135deg, #ec4899 0%, #d946ef 100%) !important;
+    /* Đổi sang phổ hồng tím khi hover */
     box-shadow: 0 6px 20px rgba(236, 72, 153, 0.5) !important;
     transform: translateY(-2px) !important;
 }
@@ -1994,6 +2423,7 @@ body.theme-cosmic-anomaly {
     font-weight: 800 !important;
     box-shadow: 0 0 10px rgba(6, 182, 212, 0.5) !important;
 }
+
 /* =========================================================================
    HIỆU ỨNG TOÀN WEB: BỤI TINH VÂN & SAO BĂNG (COSMIC DUST)
    ========================================================================= */
@@ -2009,19 +2439,24 @@ body.theme-cosmic-anomaly {
 }
 
 @keyframes floatUpCosmic {
-    0% { 
-        transform: translateY(0) scale(0.5); 
-        opacity: 0; 
+    0% {
+        transform: translateY(0) scale(0.5);
+        opacity: 0;
     }
-    15% { 
-        opacity: 0.8; /* Tỏa sáng khi vừa trồi lên */
+
+    15% {
+        opacity: 0.8;
+        /* Tỏa sáng khi vừa trồi lên */
     }
-    85% { 
-        opacity: 0.8; 
+
+    85% {
+        opacity: 0.8;
     }
-    100% { 
-        transform: translateY(-120vh) scale(1.5); /* Bay vút qua mép trên màn hình */
-        opacity: 0; 
+
+    100% {
+        transform: translateY(-120vh) scale(1.5);
+        /* Bay vút qua mép trên màn hình */
+        opacity: 0;
     }
 }
 
@@ -2040,20 +2475,23 @@ body.theme-cosmic-anomaly {
 }
 
 @keyframes shootingStarZoom {
-    0% { 
-        transform: translateX(0) translateY(0) rotate(20deg) scale(0); 
-        opacity: 0; 
+    0% {
+        transform: translateX(0) translateY(0) rotate(20deg) scale(0);
+        opacity: 0;
     }
-    10% { 
-        opacity: 1; 
+
+    10% {
+        opacity: 1;
         transform: translateX(5vw) translateY(5vh) rotate(20deg) scale(1);
     }
-    100% { 
+
+    100% {
         /* Bay chéo xẹt ngang qua khung hình */
-        transform: translateX(120vw) translateY(60vh) rotate(20deg) scale(0.5); 
-        opacity: 0; 
+        transform: translateX(120vw) translateY(60vh) rotate(20deg) scale(0.5);
+        opacity: 0;
     }
 }
+
 /* =========================================================================
    HIỆU ỨNG TOÀN WEB: CHẤN ĐỘNG KHÔNG GIAN (VỆ THẦN NGÂN HÀ)
    Phong cách: Không rơi rụng - Dựa trên sự biến đổi không gian (Scale & Fade)
@@ -2062,12 +2500,12 @@ body.theme-cosmic-anomaly {
 /* 1. Lớp Cực Quang Nền (Aurora Background) */
 .effect-guardian-aurora-bg {
     position: absolute;
-    top: -50%; 
+    top: -50%;
     left: -50%;
-    width: 200%; 
+    width: 200%;
     height: 200%;
     /* 2 luồng khí Xanh Ngọc và Tím đan xen */
-    background: 
+    background:
         radial-gradient(ellipse at 30% 40%, rgba(138, 43, 226, 0.08), transparent 50%),
         radial-gradient(ellipse at 70% 60%, rgba(0, 210, 211, 0.08), transparent 50%);
     filter: blur(50px);
@@ -2077,14 +2515,19 @@ body.theme-cosmic-anomaly {
 }
 
 @keyframes auroraGuardianSway {
-    0% { transform: rotate(-5deg) scale(1); }
-    100% { transform: rotate(5deg) scale(1.1); }
+    0% {
+        transform: rotate(-5deg) scale(1);
+    }
+
+    100% {
+        transform: rotate(5deg) scale(1.1);
+    }
 }
 
 /* 2. Sóng Hấp Dẫn Lượng Tử (Quantum Ripples) */
 .effect-guardian-ripple {
     position: absolute;
-    width: 10px; 
+    width: 10px;
     height: 10px;
     border-radius: 50%;
     /* Viền ngoài xanh, bóng trong tím tạo chiều sâu */
@@ -2099,22 +2542,23 @@ body.theme-cosmic-anomaly {
 
 /* Vòng tròn lan rộng ra to gấp 60 lần rồi tan biến */
 @keyframes rippleGuardianExpand {
-    0% { 
-        transform: translate(-50%, -50%) scale(0); 
-        opacity: 1; 
-        border-width: 4px; 
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 1;
+        border-width: 4px;
     }
-    100% { 
-        transform: translate(-50%, -50%) scale(60); 
-        opacity: 0; 
-        border-width: 0px; 
+
+    100% {
+        transform: translate(-50%, -50%) scale(60);
+        opacity: 0;
+        border-width: 0px;
     }
 }
 
 /* 3. Vết Nứt Thời Không (Spatial Rifts) */
 .effect-guardian-rift {
     position: absolute;
-    width: 0px; 
+    width: 0px;
     height: 2px;
     background: #ffffff;
     border-radius: 50%;
@@ -2128,29 +2572,35 @@ body.theme-cosmic-anomaly {
 
 /* Hiệu ứng xé rách: Nứt dọc dài ra -> Bùng chói -> Khép lại */
 @keyframes riftGuardianTear {
-    0% { 
-        width: 0px; 
-        opacity: 0; 
-        filter: brightness(1); 
+    0% {
+        width: 0px;
+        opacity: 0;
+        filter: brightness(1);
     }
-    15% { 
-        width: 180px; 
+
+    15% {
+        width: 180px;
         height: 2px;
-        opacity: 1; 
-        filter: brightness(2); /* Lóe sáng chói mắt */
+        opacity: 1;
+        filter: brightness(2);
+        /* Lóe sáng chói mắt */
     }
-    30% { 
-        width: 150px; 
-        height: 8px; /* Tách rộng ra ở giữa */
-        opacity: 1; 
+
+    30% {
+        width: 150px;
+        height: 8px;
+        /* Tách rộng ra ở giữa */
+        opacity: 1;
     }
-    100% { 
-        width: 0px; 
-        height: 0px; 
-        opacity: 0; 
-        filter: brightness(0.5); 
+
+    100% {
+        width: 0px;
+        height: 0px;
+        opacity: 0;
+        filter: brightness(0.5);
     }
 }
+
 /* =========================================================================
    GIAO DIỆN TRUYỀN THUYẾT: VỆ THẦN NGÂN HÀ (THEME GALAXY GUARDIAN)
    Phong cách thiết kế: Trạm chỉ huy cơ giới vũ trụ kết hợp Tinh vân thần thoại
@@ -2164,9 +2614,9 @@ body.theme-vethan-nganha {
     color: #e2e8f0 !important;
     letter-spacing: 0.3px;
     /* Hiệu ứng hạt bụi không gian ẩn nhẹ dưới nền trang web */
-    background-image: 
-        radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px),
-        radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px);
+    background-image:
+        radial-gradient(white, rgba(255, 255, 255, .2) 2px, transparent 40px),
+        radial-gradient(white, rgba(255, 255, 255, .15) 1px, transparent 30px);
     background-size: 550px 550px, 350px 350px;
     background-position: 0 0, 40px 60px;
 }
@@ -2175,9 +2625,11 @@ body.theme-vethan-nganha {
 body.theme-vethan-nganha::-webkit-scrollbar {
     width: 8px;
 }
+
 body.theme-vethan-nganha::-webkit-scrollbar-track {
     background: #04060f;
 }
+
 body.theme-vethan-nganha::-webkit-scrollbar-thumb {
     background: linear-gradient(180deg, #00f2fe, #9b5de5);
     border-radius: 4px;
@@ -2200,6 +2652,7 @@ body.theme-vethan-nganha::-webkit-scrollbar-thumb {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     border: 1px solid transparent;
 }
+
 .theme-vethan-nganha .nav-item:hover {
     background: rgba(0, 242, 254, 0.08) !important;
     color: #00f2fe !important;
@@ -2212,7 +2665,7 @@ body.theme-vethan-nganha::-webkit-scrollbar-thumb {
     background: linear-gradient(135deg, rgba(0, 242, 254, 0.15) 0%, rgba(138, 43, 226, 0.15) 100%) !important;
     color: #ffffff !important;
     border: 1px solid #00f2fe !important;
-    box-shadow: 
+    box-shadow:
         0 0 15px rgba(0, 242, 254, 0.3),
         inset 0 0 10px rgba(0, 242, 254, 0.2) !important;
     font-weight: bold;
@@ -2220,7 +2673,7 @@ body.theme-vethan-nganha::-webkit-scrollbar-thumb {
 
 /* --- C. THAY ĐỔI CÁC Ô VẬT PHẨM VÀ Ô LƯỚI TÚI ĐỒ (CARDS & SLOTS) --- */
 /* Ô vật phẩm ngoài cửa hàng */
-.theme-vethan-nganha .store-item-card, 
+.theme-vethan-nganha .store-item-card,
 .theme-vethan-nganha .card.submit-box {
     background: rgba(11, 17, 39, 0.7) !important;
     border: 1px solid rgba(138, 43, 226, 0.25) !important;
@@ -2228,6 +2681,7 @@ body.theme-vethan-nganha::-webkit-scrollbar-thumb {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.05) !important;
     backdrop-filter: blur(10px);
 }
+
 .theme-vethan-nganha .store-item-card:hover {
     border-color: #00f2fe !important;
     box-shadow: 0 12px 40px rgba(0, 242, 254, 0.15), inset 0 0 15px rgba(0, 242, 254, 0.1) !important;
@@ -2241,6 +2695,7 @@ body.theme-vethan-nganha::-webkit-scrollbar-thumb {
     border-radius: 12px !important;
     box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5) !important;
 }
+
 /* Hiệu ứng khi rê chuột vào ô đồ trong túi */
 .theme-vethan-nganha .bag-inventory-slot:hover {
     background: rgba(138, 43, 226, 0.15) !important;
@@ -2251,12 +2706,14 @@ body.theme-vethan-nganha::-webkit-scrollbar-thumb {
 /* --- D. THAY ĐỔI DIỆN MẠO BẢNG POPUP / MODAL THANH TOÁN THÔNG TIN --- */
 .theme-vethan-nganha .modal-content,
 .theme-vethan-nganha #checkoutModal .form-container,
-.theme-vethan-nganha #discountInfoModal > div {
+.theme-vethan-nganha #discountInfoModal>div {
     background: rgba(6, 11, 28, 0.95) !important;
-    border: 2px solid #00f2fe !important; /* Viền neon trắng xanh gắt */
+    border: 2px solid #00f2fe !important;
+    /* Viền neon trắng xanh gắt */
     border-radius: 24px !important;
-    box-shadow: 
-        0 0 40px rgba(138, 43, 226, 0.4), /* Hào quang tím bao phủ ngoài */
+    box-shadow:
+        0 0 40px rgba(138, 43, 226, 0.4),
+        /* Hào quang tím bao phủ ngoài */
         inset 0 0 20px rgba(0, 242, 254, 0.15) !important;
     color: #f1f5f9 !important;
     backdrop-filter: blur(25px);
@@ -2282,14 +2739,14 @@ body.theme-vethan-nganha::-webkit-scrollbar-thumb {
 /* --- E. CÁC THÀNH PHẦN BỔ TRỢ ĐẶC SẮC (WIDGET COIN & BUTTON) --- */
 /* Widget xu vàng cơ lơ lửng góc màn hình biến đổi thành lõi năng lượng */
 .theme-vethan-nganha #coinWidget {
-    background: linear-gradient(135deg, rgba(5,8,22,0.9) 0%, rgba(15,23,42,0.8) 100%) !important;
+    background: linear-gradient(135deg, rgba(5, 8, 22, 0.9) 0%, rgba(15, 23, 42, 0.8) 100%) !important;
     border: 1px solid #00f2fe !important;
     box-shadow: 0 0 20px rgba(0, 242, 254, 0.25) !important;
     color: #00f2fe !important;
 }
 
 /* Nút bấm mua hàng/xác nhận (Holographic Button) */
-.theme-vethan-nganha .btn-approve, 
+.theme-vethan-nganha .btn-approve,
 .theme-vethan-nganha #btnConfirmCheckout {
     background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%) !important;
     color: white !important;
@@ -2299,7 +2756,8 @@ body.theme-vethan-nganha::-webkit-scrollbar-thumb {
     box-shadow: 0 4px 15px rgba(0, 198, 255, 0.3) !important;
     transition: all 0.2s ease !important;
 }
-.theme-vethan-nganha .btn-approve:hover, 
+
+.theme-vethan-nganha .btn-approve:hover,
 .theme-vethan-nganha #btnConfirmCheckout:hover {
     box-shadow: 0 0 20px #00f2fe !important;
     letter-spacing: 0.5px;

@@ -638,3 +638,65 @@
 }
 
 /* KẾT THÚC KHỐI @MEDIA MOBILE. KHÔNG VIẾT CODE Ở DƯỚI DẤU NÀY! */
+/* =====================================================
+   FIX KÉO TẤT CẢ PET TRÊN ĐIỆN THOẠI
+   ===================================================== */
+
+@media screen and (max-width: 768px) {
+    #virtual-pet-container {
+        position: fixed !important;
+
+        touch-action: none !important;
+        user-select: none !important;
+        -webkit-user-select: none !important;
+        -webkit-touch-callout: none !important;
+
+        cursor: grab;
+        z-index: 99998 !important;
+
+        transform: translateZ(0);
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+    }
+
+    #virtual-pet-container:active {
+        cursor: grabbing;
+    }
+
+    #virtual-pet-img {
+        touch-action: none !important;
+
+        user-select: none !important;
+        -webkit-user-select: none !important;
+        -webkit-user-drag: none !important;
+        -webkit-touch-callout: none !important;
+
+        max-width: none !important;
+    }
+
+    /*
+     * Các lớp trang trí không được giành thao tác chạm
+     * của container pet.
+     */
+    #virtual-pet-container
+    .fairy-narwhal-water-aura,
+
+    #virtual-pet-container
+    .fairy-narwhal-orbit-bubble,
+
+    #virtual-pet-container
+    .amon-chronicle-court,
+
+    #virtual-pet-container
+    .amon-chronicle-court * {
+        pointer-events: none !important;
+        touch-action: none !important;
+    }
+
+    /* Nút đóng vẫn phải bấm được */
+    #virtual-pet-container
+    .virtual-pet-close-btn {
+        pointer-events: auto !important;
+        touch-action: manipulation !important;
+    }
+}
