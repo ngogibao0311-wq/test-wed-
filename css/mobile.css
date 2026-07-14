@@ -155,7 +155,7 @@
     /* ==========================================
        FIX NÚT BẢNG THI ĐUA (LEADERBOARD BUTTON)
        ========================================== */
-    .lb-trigger-btn,
+    .leaderboard-trigger-btn,
     #btnLeaderboard {
         position: fixed !important;
         top: 15px !important;
@@ -629,7 +629,8 @@
        FIX LỖI KHÔNG DI CHUYỂN ĐƯỢC THÚ CƯNG
        ========================================== */
     #virtual-pet-container {
-        touch-action: none !important; /* Ngăn trình duyệt cuộn trang khi chạm vào Pet */
+        touch-action: none !important;
+        /* Ngăn trình duyệt cuộn trang khi chạm vào Pet */
         user-select: none !important;
         -webkit-user-select: none !important;
         -webkit-touch-callout: none !important;

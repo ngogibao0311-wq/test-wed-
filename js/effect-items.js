@@ -1,7 +1,12 @@
 // js/effect-items.js
+const IS_MOBILE_EFFECT = window.matchMedia(
+    '(max-width: 768px), (pointer: coarse)'
+).matches;
 
 class EffectManager {
-    static container = document.getElementById('global-effect-container');
+    static get container() {
+        return document.getElementById('global-effect-container');
+    }
     static currentInterval = null;
     static shootingStarInterval = null;
 
@@ -109,7 +114,7 @@ class EffectManager {
             setTimeout(() => {
                 snowflake.remove();
             }, 5000);
-        }, 300);
+        }, IS_MOBILE_EFFECT ? 600 : 300);
     }
 
     static createFairyDust() {
@@ -135,7 +140,7 @@ class EffectManager {
                 particle.remove();
             }, duration * 1000);
 
-        }, 200); // Đẩy tốc độ sinh hạt lên (0.2s/hạt) để hiệu ứng nhìn rõ ràng hơn
+        }, IS_MOBILE_EFFECT ? 500 : 200); // Đẩy tốc độ sinh hạt lên (0.2s/hạt) để hiệu ứng nhìn rõ ràng hơn
     }
 
     static createFireflyEffect() {
@@ -163,7 +168,7 @@ class EffectManager {
                 firefly.remove();
             }, duration * 1000);
 
-        }, 350); // Tốc độ sinh đom đóm (0.35s/con)
+        }, IS_MOBILE_EFFECT ? 700 : 350); // Tốc độ sinh đom đóm (0.35s/con)
     }
 
     static createFallingLeavesEffect() {
@@ -197,7 +202,7 @@ class EffectManager {
                 leaf.remove();
             }, duration * 1000);
 
-        }, 350); // Nhịp độ sinh lá (0.35s / lá)
+        }, IS_MOBILE_EFFECT ? 700 : 350); // Nhịp độ sinh lá (0.35s / lá)
     }
 
     static createNightSkyEffect() {
@@ -311,7 +316,7 @@ class EffectManager {
                 particle.remove();
             }, duration * 1000);
 
-        }, 200); // Tốc độ sinh hạt: 0.2s tạo ra 1 hạt
+        }, IS_MOBILE_EFFECT ? 500 : 200); // Tốc độ sinh hạt: 0.2s tạo ra 1 hạt
     }
 
     static createGalaxyLegendEffect() {
@@ -720,7 +725,7 @@ class EffectManager {
             setTimeout(() => {
                 if (particle.parentNode) particle.remove();
             }, duration * 1000);
-        }, hasNyxPet ? 120 : 250);
+        }, IS_MOBILE_EFFECT ? 700 : (hasNyxPet ? 120 : 250));
 
         // 3. Bộ đếm tạo dải sao băng xẹt chéo màn hình cực đẹp mắt (NÂNG CẤP CỘNG HƯỞNG)
         this.shootingStarInterval = setInterval(() => {
@@ -761,7 +766,7 @@ class EffectManager {
                     if (star.parentNode) star.remove();
                 }, (starDuration + 0.5) * 1000);
             }
-        }, hasNyxPet ? 2000 : 4500);
+        }, IS_MOBILE_EFFECT ? 5500 : (hasNyxPet ? 2000 : 4500));
     }
 
     static createPearlDreamEffect() {
@@ -852,3 +857,16 @@ class EffectManager {
         }, 650);
     }
 }
+
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        EffectManager.stopIntervals();
+        return;
+    }
+
+    const activeEffect = localStorage.getItem('active_effect');
+
+    if (activeEffect) {
+        EffectManager.applyEffect(activeEffect);
+    }
+});

@@ -2310,3 +2310,825 @@ body.theme-fairy-sea-dream
     font-family: "Segoe UI", Tahoma, Arial, sans-serif;
     color-scheme: light;
 }
+/* =========================================================
+   GIAO DIỆN MỚI: THÔNG BÁO VÀ KHẢO SÁT HỌC SINH
+   Dán toàn bộ đoạn này xuống CUỐI file student.css
+   ========================================================= */
+
+/* ---------- LỚP NỀN POPUP ---------- */
+
+#studentNotificationModal,
+#studentSurveyModal {
+    padding: 20px !important;
+    box-sizing: border-box !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    background:
+        radial-gradient(
+            circle at top left,
+            rgba(99, 102, 241, 0.24),
+            transparent 38%
+        ),
+        radial-gradient(
+            circle at bottom right,
+            rgba(236, 72, 153, 0.18),
+            transparent 35%
+        ),
+        rgba(15, 23, 42, 0.75) !important;
+
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+/* ---------- KHUNG CHUNG ---------- */
+
+#studentNotificationModal .modal-content,
+#studentSurveyModal .modal-content {
+    position: relative !important;
+    width: min(100%, 620px) !important;
+    max-width: 620px !important;
+    max-height: 90vh !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+
+    text-align: left !important;
+
+    border: 1px solid rgba(255, 255, 255, 0.85) !important;
+    border-top: none !important;
+    border-radius: 26px !important;
+
+    background: rgba(248, 250, 252, 0.98) !important;
+
+    box-shadow:
+        0 30px 80px rgba(2, 6, 23, 0.42),
+        0 10px 30px rgba(2, 6, 23, 0.2) !important;
+
+    animation: studentPopupOpen 0.3s
+        cubic-bezier(.22, .9, .28, 1) both;
+}
+
+/* Thanh màu trang trí phía trên */
+
+#studentNotificationModal .modal-content::before,
+#studentSurveyModal .modal-content::before {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 9px;
+}
+
+#studentNotificationModal .modal-content::before {
+    background: linear-gradient(
+        90deg,
+        #4338ca,
+        #6366f1,
+        #8b5cf6
+    );
+}
+
+#studentSurveyModal .modal-content::before {
+    background: linear-gradient(
+        90deg,
+        #be185d,
+        #ec4899,
+        #fb7185
+    );
+}
+
+/* =========================================================
+   BẢNG THÔNG BÁO
+   ========================================================= */
+
+/* Tiêu đề thông báo */
+
+#studentNotificationModal h3 {
+    position: relative;
+
+    margin: 0 !important;
+    padding: 25px 70px 20px 78px !important;
+
+    color: #ffffff !important;
+    font-size: clamp(1.25rem, 3vw, 1.6rem) !important;
+    line-height: 1.3;
+    font-weight: 900 !important;
+    text-transform: none !important;
+    letter-spacing: -0.02em;
+
+    background:
+        linear-gradient(
+            135deg,
+            #4338ca 0%,
+            #6366f1 55%,
+            #8b5cf6 100%
+        );
+}
+
+/* Biểu tượng chuông */
+
+#studentNotificationModal h3::before {
+    content: "🔔";
+
+    position: absolute;
+    left: 22px;
+    top: 50%;
+
+    width: 42px;
+    height: 42px;
+
+    display: grid;
+    place-items: center;
+
+    transform: translateY(-50%);
+
+    font-size: 22px;
+
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 14px;
+
+    background: rgba(255, 255, 255, 0.16);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Nhãn bắt buộc */
+
+#studentNotificationModal h3::after {
+    content: "BẮT BUỘC";
+
+    position: absolute;
+    right: 18px;
+    top: 18px;
+
+    padding: 6px 9px;
+
+    color: #ffffff;
+    font-size: 0.62rem;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 999px;
+
+    background: rgba(15, 23, 42, 0.2);
+}
+
+/* Vùng nội dung thông báo */
+
+#studentNotificationScrollBox {
+    max-height: min(42vh, 330px) !important;
+
+    margin: 22px 24px 18px !important;
+    padding: 22px !important;
+
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 18px !important;
+
+    background: #ffffff !important;
+
+    box-shadow:
+        0 8px 22px rgba(15, 23, 42, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+
+    scrollbar-width: thin;
+    scrollbar-color: #a5b4fc transparent;
+}
+
+/* Thanh cuộn Chrome */
+
+#studentNotificationScrollBox::-webkit-scrollbar {
+    width: 8px;
+}
+
+#studentNotificationScrollBox::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#studentNotificationScrollBox::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background: #a5b4fc;
+    background-clip: padding-box;
+}
+
+/* Nội dung chữ */
+
+#studentNotificationMessage {
+    margin: 0 !important;
+
+    color: #263247 !important;
+    font-size: clamp(0.98rem, 2vw, 1.08rem) !important;
+    line-height: 1.75 !important;
+    font-weight: 600 !important;
+
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+/* Khu vực xác nhận */
+
+#studentNotificationModal
+.modal-content > div:nth-of-type(2) {
+    margin: 0 !important;
+    padding: 0 24px 18px !important;
+}
+
+/* Thẻ checkbox */
+
+#labelUnderstandCheckbox {
+    position: relative;
+
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+
+    padding: 15px 16px !important;
+
+    color: #64748b !important;
+    font-size: 0.94rem !important;
+    line-height: 1.5;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+
+    background: #f1f5f9;
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+/* Khi checkbox được mở khóa */
+
+#labelUnderstandCheckbox:has(
+    #checkUnderstand:not(:disabled)
+) {
+    color: #334155 !important;
+    cursor: pointer !important;
+
+    border-color: #c7d2fe;
+    background: #eef2ff;
+}
+
+#labelUnderstandCheckbox:has(
+    #checkUnderstand:not(:disabled)
+):hover {
+    transform: translateY(-1px);
+    border-color: #818cf8;
+}
+
+/* Checkbox */
+
+#checkUnderstand {
+    flex: 0 0 auto;
+
+    width: 21px !important;
+    height: 21px !important;
+    margin: 1px 0 0 !important;
+
+    accent-color: #4f46e5;
+}
+
+/* Dòng nhắc cuộn */
+
+#scrollReminderText {
+    margin: 8px 4px 0 !important;
+
+    color: #e11d48 !important;
+    font-size: 0.78rem !important;
+    line-height: 1.4;
+    font-style: normal !important;
+    font-weight: 700;
+}
+
+/* Nút xác nhận */
+
+#btnAcknowledgeNotification {
+    width: calc(100% - 48px) !important;
+
+    margin: 0 24px 24px !important;
+    padding: 14px 18px !important;
+
+    color: #ffffff !important;
+    font-size: 1rem !important;
+    line-height: 1.3;
+    font-weight: 850 !important;
+
+    border: none !important;
+    border-radius: 15px !important;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        opacity 0.2s ease !important;
+}
+
+#btnAcknowledgeNotification:disabled {
+    cursor: not-allowed !important;
+
+    background: #a8b0bd !important;
+    box-shadow: none !important;
+    opacity: 0.82;
+}
+
+#btnAcknowledgeNotification:not(:disabled) {
+    cursor: pointer !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #4338ca,
+            #6366f1
+        ) !important;
+
+    box-shadow:
+        0 10px 24px rgba(79, 70, 229, 0.28) !important;
+}
+
+#btnAcknowledgeNotification:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 14px 30px rgba(79, 70, 229, 0.36) !important;
+}
+
+/* =========================================================
+   BẢNG KHẢO SÁT
+   ========================================================= */
+
+/* Tiêu đề khảo sát */
+
+#studentSurveyTitle {
+    position: relative;
+
+    margin: 0 !important;
+    padding: 25px 70px 20px 78px !important;
+
+    color: #ffffff !important;
+    font-size: clamp(1.25rem, 3vw, 1.6rem) !important;
+    line-height: 1.3;
+    font-weight: 900 !important;
+    letter-spacing: -0.02em;
+
+    border-bottom: none !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #be185d 0%,
+            #ec4899 55%,
+            #fb7185 100%
+        );
+}
+
+/* Biểu tượng khảo sát */
+
+#studentSurveyTitle::before {
+    content: "📝";
+
+    position: absolute;
+    left: 22px;
+    top: 50%;
+
+    width: 42px;
+    height: 42px;
+
+    display: grid;
+    place-items: center;
+
+    transform: translateY(-50%);
+
+    font-size: 22px;
+
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 14px;
+
+    background: rgba(255, 255, 255, 0.16);
+}
+
+/* Nhãn bắt buộc */
+
+#studentSurveyTitle::after {
+    content: "BẮT BUỘC";
+
+    position: absolute;
+    right: 18px;
+    top: 18px;
+
+    padding: 6px 9px;
+
+    color: #ffffff;
+    font-size: 0.62rem;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 999px;
+
+    background: rgba(15, 23, 42, 0.2);
+}
+
+/* Vùng danh sách câu hỏi */
+
+#studentSurveyBody {
+    max-height: min(58vh, 520px) !important;
+
+    margin: 0 !important;
+    padding: 22px 24px 8px !important;
+
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+
+    background: #f8fafc;
+
+    scrollbar-width: thin;
+    scrollbar-color: #f9a8d4 transparent;
+}
+
+#studentSurveyBody::-webkit-scrollbar {
+    width: 8px;
+}
+
+#studentSurveyBody::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background: #f9a8d4;
+    background-clip: padding-box;
+}
+
+/* Mỗi câu hỏi */
+
+#studentSurveyModal .survey-answer-block {
+    position: relative;
+
+    margin: 0 0 16px !important;
+    padding: 18px !important;
+
+    border: 1px solid #e2e8f0 !important;
+    border-left: 5px solid #ec4899 !important;
+    border-radius: 18px !important;
+
+    background: #ffffff !important;
+
+    box-shadow:
+        0 8px 22px rgba(15, 23, 42, 0.055) !important;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+#studentSurveyModal .survey-answer-block:hover {
+    transform: translateY(-1px);
+
+    border-color: #f9a8d4 !important;
+
+    box-shadow:
+        0 12px 28px rgba(190, 24, 93, 0.09) !important;
+}
+
+/* Nội dung câu hỏi */
+
+#studentSurveyModal .survey-answer-block > p {
+    margin: 0 0 14px !important;
+
+    color: #1e293b !important;
+    font-size: 1rem !important;
+    line-height: 1.55;
+    font-weight: 850 !important;
+
+    overflow-wrap: anywhere;
+}
+
+/* Các lựa chọn trắc nghiệm */
+
+#studentSurveyModal .survey-answer-block label {
+    display: flex !important;
+    align-items: center !important;
+    gap: 11px !important;
+
+    margin: 8px 0 0 !important;
+    padding: 12px 14px !important;
+
+    cursor: pointer !important;
+
+    color: #475569;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 13px !important;
+
+    background: #f8fafc !important;
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease,
+        transform 0.2s ease !important;
+}
+
+#studentSurveyModal .survey-answer-block label:hover {
+    transform: translateX(3px);
+
+    color: #9d174d;
+
+    border-color: #f9a8d4;
+    background: #fdf2f8 !important;
+}
+
+#studentSurveyModal
+.survey-answer-block label:has(input:checked) {
+    color: #9d174d;
+    font-weight: 750;
+
+    border-color: #ec4899;
+    background: #fce7f3 !important;
+
+    box-shadow:
+        0 0 0 3px rgba(236, 72, 153, 0.1);
+}
+
+/* Nút radio */
+
+#studentSurveyModal input[type="radio"] {
+    flex: 0 0 auto;
+
+    width: 19px !important;
+    height: 19px !important;
+    margin: 0 !important;
+
+    accent-color: #db2777;
+}
+
+/* Ô nhập tự luận */
+
+#studentSurveyModal textarea {
+    width: 100% !important;
+    min-height: 105px !important;
+
+    margin: 4px 0 0 !important;
+    padding: 13px 14px !important;
+
+    box-sizing: border-box;
+    resize: vertical;
+
+    color: #1e293b !important;
+    font: inherit;
+    line-height: 1.6;
+
+    outline: none;
+
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 14px !important;
+
+    background: #ffffff !important;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease !important;
+}
+
+#studentSurveyModal textarea:focus {
+    border-color: #ec4899 !important;
+
+    box-shadow:
+        0 0 0 4px rgba(236, 72, 153, 0.11) !important;
+}
+
+/* Dòng cảnh báo */
+
+#surveyAlertMsg {
+    margin: 0 !important;
+    padding: 13px 24px 12px !important;
+
+    color: #be123c !important;
+    font-size: 0.84rem !important;
+    line-height: 1.45;
+    font-weight: 750 !important;
+    text-align: center;
+
+    border-top: 1px solid #e2e8f0;
+
+    background: #fff1f2;
+}
+
+/* Nút gửi khảo sát */
+
+#btnSubmitSurvey {
+    width: calc(100% - 48px) !important;
+
+    margin: 18px 24px 24px !important;
+    padding: 14px 18px !important;
+
+    color: #ffffff !important;
+    font-size: 1rem !important;
+    line-height: 1.3;
+    font-weight: 850 !important;
+
+    border: none !important;
+    border-radius: 15px !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #be185d,
+            #ec4899
+        ) !important;
+
+    box-shadow:
+        0 10px 24px rgba(219, 39, 119, 0.28) !important;
+
+    cursor: pointer !important;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease !important;
+}
+
+#btnSubmitSurvey:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 14px 30px rgba(219, 39, 119, 0.36) !important;
+}
+
+/* ---------- HIỆU ỨNG ---------- */
+
+@keyframes studentPopupOpen {
+    from {
+        opacity: 0;
+        transform: translateY(22px) scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* =========================================================
+   GIAO DIỆN ĐIỆN THOẠI
+   ========================================================= */
+
+@media (max-width: 600px) {
+    #studentNotificationModal,
+    #studentSurveyModal {
+        padding: 10px !important;
+        align-items: flex-end !important;
+    }
+
+    #studentNotificationModal .modal-content,
+    #studentSurveyModal .modal-content {
+        width: 100% !important;
+        max-height: 94vh !important;
+
+        border-radius: 23px 23px 15px 15px !important;
+    }
+
+    #studentNotificationModal h3,
+    #studentSurveyTitle {
+        padding:
+            23px 62px 19px 68px !important;
+
+        font-size: 1.22rem !important;
+    }
+
+    #studentNotificationModal h3::before,
+    #studentSurveyTitle::before {
+        left: 17px;
+
+        width: 40px;
+        height: 40px;
+
+        font-size: 20px;
+    }
+
+    #studentNotificationModal h3::after,
+    #studentSurveyTitle::after {
+        right: 13px;
+        top: 13px;
+
+        padding: 5px 7px;
+
+        font-size: 0.55rem;
+    }
+
+    #studentNotificationScrollBox {
+        max-height: 41vh !important;
+
+        margin: 16px 16px 14px !important;
+        padding: 17px !important;
+    }
+
+    #studentNotificationModal
+    .modal-content > div:nth-of-type(2) {
+        padding: 0 16px 14px !important;
+    }
+
+    #btnAcknowledgeNotification,
+    #btnSubmitSurvey {
+        width: calc(100% - 32px) !important;
+
+        margin-left: 16px !important;
+        margin-right: 16px !important;
+        margin-bottom: 16px !important;
+    }
+
+    #studentSurveyBody {
+        max-height: 57vh !important;
+        padding: 16px 16px 4px !important;
+    }
+
+    #studentSurveyModal .survey-answer-block {
+        padding: 15px !important;
+        border-radius: 15px !important;
+    }
+
+    #studentSurveyModal
+    .survey-answer-block label {
+        padding: 11px 12px !important;
+    }
+
+    #surveyAlertMsg {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+    }
+}
+/* =====================================================
+   FIX HIỆU ỨNG TRÊN ĐIỆN THOẠI
+   ===================================================== */
+
+#global-effect-container {
+    position: fixed !important;
+    inset: 0 !important;
+
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+
+    overflow: hidden !important;
+    pointer-events: none !important;
+
+    contain: layout paint style;
+}
+
+#global-effect-container > * {
+    pointer-events: none !important;
+}
+
+#coinWidget,
+#virtual-pet-container {
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Sửa selector modal bị sai khoảng trắng */
+body:not(:has(#examWarningModal.active)):has(
+    #studentNotificationModal.active
+)
+.modal-overlay.active:not(#studentNotificationModal) {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+@media (max-width: 768px), (pointer: coarse) {
+    body.theme-fairy-sea-dream {
+        min-height: 100dvh;
+
+        /* Fixed background thường giật trên điện thoại */
+        background-attachment: scroll !important;
+    }
+
+    #studentNotificationModal,
+    #studentSurveyModal {
+        padding-bottom:
+            max(10px, env(safe-area-inset-bottom)) !important;
+    }
+
+    #studentNotificationModal .modal-content,
+    #studentSurveyModal .modal-content {
+        max-height: 94vh !important;
+        max-height: 94dvh !important;
+    }
+
+    /* Giảm một số thành phần trang trí quá nặng */
+    .cosmic-orbit-ring.ring-secondary,
+    .mythic-constellation.constellation-beta,
+    .cinematic-comet.comet-v2,
+    .cinematic-comet.comet-v3,
+    .pure-css-cosmic-dust span:nth-child(n + 7),
+    .amon-paradox-counterfeit.counterfeit-two {
+        display: none !important;
+    }
+
+    .fairy-narwhal-bubble-magic {
+        will-change: transform;
+    }
+}

@@ -363,9 +363,9 @@ const RoyalBallEvent = {
             button.classList.add('royal-start-button');
 
             button.innerHTML = `
-            <span class="royal-button-crown">♛</span>
-            <span>Bắt đầu điệu Waltz</span>
-        `;
+    <span class="royal-button-crown">♛</span>
+    <span>Bắt đầu điệu Waltz · 5 Coin</span>
+`;
         }
 
         /*
@@ -803,6 +803,79 @@ const RoyalBallEvent = {
         }
         // --- KẾT THÚC: LOGIC KIỂM TRA ---
 
+        // =====================================================
+        // PHÍ KHIÊU VŨ: 5 COIN / 1 LẦN
+        // =====================================================
+        const DANCE_ENTRY_FEE = 5;
+
+        const danceCoinRef = db.ref(
+            `student_coins/${currentUser.username}`
+        );
+
+        let currentDanceCoins = 0;
+
+        try {
+            const feeTransaction =
+                await danceCoinRef.transaction(currentValue => {
+                    currentDanceCoins =
+                        Number(currentValue) || 0;
+
+                    // Không đủ Coin thì hủy transaction.
+                    if (
+                        currentDanceCoins <
+                        DANCE_ENTRY_FEE
+                    ) {
+                        return;
+                    }
+
+                    return (
+                        currentDanceCoins -
+                        DANCE_ENTRY_FEE
+                    );
+                });
+
+            if (!feeTransaction.committed) {
+                /*
+                 * Đã giữ lượt trong ngày nhưng không đủ Coin,
+                 * vì vậy phải xóa lượt để học sinh có thể
+                 * quay lại sau khi kiếm đủ Coin.
+                 */
+                await limitRef.remove();
+
+                alert(
+                    `🪙 Bạn cần ${DANCE_ENTRY_FEE} Coin để khiêu vũ.\n` +
+                    `Số dư hiện tại: ${currentDanceCoins} Coin.`
+                );
+
+                return;
+            }
+        } catch (error) {
+            console.error(
+                'Lỗi trừ phí khiêu vũ:',
+                error
+            );
+
+            /*
+             * Trừ Coin lỗi thì hoàn lại lượt trong ngày.
+             */
+            try {
+                await limitRef.remove();
+            } catch (rollbackError) {
+                console.error(
+                    'Không thể hoàn lại lượt Dạ hội:',
+                    rollbackError
+                );
+            }
+
+            alert(
+                '❌ Không thể thanh toán phí khiêu vũ. ' +
+                'Vui lòng thử lại!'
+            );
+
+            return;
+        }
+
+
         this.enhanceUI();
         this.isDancing = true;
 
@@ -821,11 +894,19 @@ const RoyalBallEvent = {
         if (!btn || !floor || !status) {
             this.isDancing = false;
 
+            // Hoàn lại lượt trong ngày.
             await limitRef.remove();
+
+            // Hoàn lại 5 Coin.
+            await danceCoinRef.transaction(
+                currentValue =>
+                    (Number(currentValue) || 0) +
+                    DANCE_ENTRY_FEE
+            );
 
             return alert(
                 '❌ Giao diện Dạ hội chưa tải đầy đủ. ' +
-                'Vui lòng tải lại trang!'
+                'Hệ thống đã hoàn lại 5 Coin.'
             );
         }
 
@@ -929,6 +1010,11 @@ const RoyalBallEvent = {
 
                 try {
                     await limitRef.remove();
+                    await danceCoinRef.transaction(
+                        currentValue =>
+                            (Number(currentValue) || 0) +
+                            DANCE_ENTRY_FEE
+                    );
                 } catch (rollbackError) {
                     console.error(
                         'Không thể hoàn lại lượt Dạ hội:',

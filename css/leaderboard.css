@@ -1511,3 +1511,11 @@ body.theme-fairy-sea-dream
     transform: translateY(-2px) !important;
     background: rgba(255,255,255,.24) !important;
 }
+/* Máy tính: nút nằm theo nội dung, không đi theo khi cuộn */
+@media screen and (min-width: 769px) {
+    .leaderboard-trigger-btn {
+        position: absolute !important;
+        top: 20px !important;
+        right: 195px !important;
+    }
+}

@@ -724,7 +724,7 @@
 
             <span>
                 <strong>Thi</strong>
-                <small>Tham gia vòng thi</small>
+<small>Tham gia vòng thi · Miễn phí</small>
             </span>
         </button>
 
@@ -737,7 +737,7 @@
 
             <span>
                 <strong>Luyện tập</strong>
-                <small>Vẽ tự do</small>
+<small>Vẽ tự do · 25 Coin/lần</small>
             </span>
         </button>
     </div>
@@ -854,24 +854,149 @@
                 return;
             }
 
+            const nextMode =
+                mode === 'practice'
+                    ? 'practice'
+                    : 'contest';
+
+            /*
+             * Chế độ Thi hoàn toàn miễn phí.
+             * Chỉ Luyện tập mới mất 25 Coin.
+             */
+            const PRACTICE_ENTRY_FEE = 25;
+
+            let practiceCoinRef = null;
+            let practiceFeePaid = false;
+
+            if (nextMode === 'practice') {
+                if (
+                    !this.user ||
+                    !this.user.username
+                ) {
+                    this.toast(
+                        'Không xác định được tài khoản học sinh.',
+                        'error'
+                    );
+
+                    return;
+                }
+
+                practiceCoinRef = db.ref(
+                    `student_coins/${this.user.username}`
+                );
+
+                let currentCoins = 0;
+
+                try {
+                    const feeTransaction =
+                        await practiceCoinRef.transaction(
+                            currentValue => {
+                                currentCoins =
+                                    Number(currentValue) || 0;
+
+                                if (
+                                    currentCoins <
+                                    PRACTICE_ENTRY_FEE
+                                ) {
+                                    return;
+                                }
+
+                                return (
+                                    currentCoins -
+                                    PRACTICE_ENTRY_FEE
+                                );
+                            }
+                        );
+
+                    if (!feeTransaction.committed) {
+                        this.toast(
+                            `Bạn cần ${PRACTICE_ENTRY_FEE} Coin ` +
+                            `để vào Luyện tập. ` +
+                            `Số dư hiện tại: ${currentCoins} Coin.`,
+                            'warning'
+                        );
+
+                        return;
+                    }
+
+                    practiceFeePaid = true;
+                } catch (error) {
+                    console.error(
+                        'Lỗi thanh toán phí Luyện tập:',
+                        error
+                    );
+
+                    this.toast(
+                        'Không thể thanh toán phí Luyện tập. ' +
+                        'Vui lòng thử lại.',
+                        'error'
+                    );
+
+                    return;
+                }
+            }
+
             // Thu menu lựa chọn lại.
             this.toggleStudioMenu(false);
 
-            this.activeStudentModal = true;
+            try {
+                this.activeStudentModal = true;
 
-            modal.classList.add('active');
+                modal.classList.add('active');
 
-            modal.setAttribute(
-                'aria-hidden',
-                'false'
-            );
+                modal.setAttribute(
+                    'aria-hidden',
+                    'false'
+                );
 
-            await this.switchStudioMode(
-                mode === 'practice'
-                    ? 'practice'
-                    : 'contest',
-                true
-            );
+                await this.switchStudioMode(
+                    nextMode,
+                    true
+                );
+            } catch (error) {
+                console.error(
+                    'Không thể mở Studio Hội họa:',
+                    error
+                );
+
+                this.activeStudentModal = false;
+
+                modal.classList.remove('active');
+
+                modal.setAttribute(
+                    'aria-hidden',
+                    'true'
+                );
+
+                /*
+                 * Nếu mở Luyện tập thất bại sau khi đã trừ Coin
+                 * thì hoàn lại 25 Coin.
+                 */
+                if (
+                    practiceFeePaid &&
+                    practiceCoinRef
+                ) {
+                    try {
+                        await practiceCoinRef.transaction(
+                            currentValue =>
+                                (Number(currentValue) || 0) +
+                                PRACTICE_ENTRY_FEE
+                        );
+                    } catch (refundError) {
+                        console.error(
+                            'Không thể hoàn phí Luyện tập:',
+                            refundError
+                        );
+                    }
+                }
+
+                this.toast(
+                    nextMode === 'practice'
+                        ? 'Không thể mở Luyện tập. Đã hoàn lại 25 Coin.'
+                        : 'Không thể mở vòng Thi Hội họa.',
+                    'error'
+                );
+            }
         },
 
         updateStudioModeUI() {

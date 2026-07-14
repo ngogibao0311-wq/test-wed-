@@ -3010,8 +3010,21 @@ document.addEventListener('DOMContentLoaded', () => {
         let savedTop = parseInt(savedPos.top);
 
         // Giới hạn lại tọa độ không cho lọt ra ngoài màn hình
-        const maxX = window.innerWidth - coinWidget.offsetWidth;
-        const maxY = window.innerHeight - coinWidget.offsetHeight;
+        const viewportWidth =
+            window.visualViewport?.width || window.innerWidth;
+
+        const viewportHeight =
+            window.visualViewport?.height || window.innerHeight;
+
+        const maxX = Math.max(
+            0,
+            viewportWidth - coinWidget.offsetWidth
+        );
+
+        const maxY = Math.max(
+            0,
+            viewportHeight - coinWidget.offsetHeight
+        );
 
         if (savedLeft < 0) savedLeft = 0;
         if (savedTop < 0) savedTop = 0;
@@ -3025,6 +3038,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleDragStart(e) {
+        if (e.type === 'touchstart' && e.touches.length !== 1) {
+            return;
+        }
         isDraggingCoin = true;
         coinWidget.style.cursor = 'grabbing';
         coinWidget.style.transition = 'none'; // Tắt mượt để kéo không bị lag trễ
@@ -3047,7 +3063,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- BỔ SUNG KHỐI LỆNH NÀY ---
         // Nếu phát hiện người dùng chạm từ 2 ngón tay trở lên (để zoom), thì lập tức dừng lệnh kéo thả
-        if (e.type === 'touchmove' && e.touches.length > 1) {
+        if (e.type === 'touchmove' && e.touches.length !== 1) {
+            handleDragEnd();
             return;
         }
         // -----------------------------
@@ -3101,6 +3118,7 @@ document.addEventListener('DOMContentLoaded', () => {
     coinWidget.addEventListener('touchstart', handleDragStart, { passive: false });
     document.addEventListener('touchmove', handleDragMove, { passive: false });
     document.addEventListener('touchend', handleDragEnd);
+    document.addEventListener('touchcancel', handleDragEnd);
 
     // Sự kiện chuột trên Máy tính
     coinWidget.addEventListener('mousedown', handleDragStart);
@@ -8008,54 +8026,132 @@ window.handleExamInterruption = async function (reason) {
     }, 300);
 };
 /* =======================================================
-   BỔ TRỢ TÍNH NĂNG KÉO THẢ THÚ CƯNG TRÊN MÀN HÌNH CẢM ỨNG
+   KÉO THẢ THÚ CƯNG TRÊN ĐIỆN THOẠI
    ======================================================= */
 document.addEventListener('DOMContentLoaded', () => {
-    const petContainer = document.getElementById('virtual-pet-container');
+    const petContainer =
+        document.getElementById('virtual-pet-container');
+
     if (!petContainer) return;
 
     let isDraggingPet = false;
-    let startX, startY, initialLeft, initialTop;
+    let hasMovedPet = false;
 
-    // Khi ngón tay bắt đầu chạm vào Pet
-    petContainer.addEventListener('touchstart', (e) => {
-        isDraggingPet = true;
-        const touch = e.touches[0];
-        startX = touch.clientX;
-        startY = touch.clientY;
-        
-        // Lấy tọa độ hiện tại của Pet trên màn hình
-        const rect = petContainer.getBoundingClientRect();
-        initialLeft = rect.left;
-        initialTop = rect.top;
-        
-        // Chuyển đổi định vị sang left/top và tắt hiệu ứng chuyển động để kéo mượt hơn
-        petContainer.style.bottom = 'auto'; 
-        petContainer.style.right = 'auto';
-        petContainer.style.transition = 'none'; 
-    }, { passive: false });
+    let startX = 0;
+    let startY = 0;
+    let initialLeft = 0;
+    let initialTop = 0;
 
-    // Khi ngón tay di chuyển
-    document.addEventListener('touchmove', (e) => {
-        if (!isDraggingPet) return;
-        
-        e.preventDefault(); // QUAN TRỌNG: Khóa chết màn hình, không cho cuộn trang khi đang kéo Pet
-        
-        const touch = e.touches[0];
-        const dx = touch.clientX - startX;
-        const dy = touch.clientY - startY;
-        
-        // Cập nhật vị trí mới cho Pet
-        petContainer.style.left = `${initialLeft + dx}px`;
-        petContainer.style.top = `${initialTop + dy}px`;
-    }, { passive: false });
+    petContainer.addEventListener(
+        'touchstart',
+        (e) => {
+            // Chỉ kéo khi dùng đúng một ngón tay
+            if (e.touches.length !== 1) return;
 
-    // Khi ngón tay nhấc lên
-    document.addEventListener('touchend', () => {
-        if (isDraggingPet) {
-            isDraggingPet = false;
-            // Bật lại hiệu ứng nếu có
-            petContainer.style.transition = 'transform 0.2s'; 
-        }
-    });
+            const touch = e.touches[0];
+            const rect = petContainer.getBoundingClientRect();
+
+            isDraggingPet = true;
+            hasMovedPet = false;
+
+            startX = touch.clientX;
+            startY = touch.clientY;
+
+            initialLeft = rect.left;
+            initialTop = rect.top;
+
+            petContainer.style.left = `${rect.left}px`;
+            petContainer.style.top = `${rect.top}px`;
+
+            petContainer.style.right = 'auto';
+            petContainer.style.bottom = 'auto';
+            petContainer.style.transition = 'none';
+        },
+        { passive: true }
+    );
+
+    document.addEventListener(
+        'touchmove',
+        (e) => {
+            if (!isDraggingPet) return;
+
+            // Chạm nhiều ngón thì hủy kéo để người dùng zoom
+            if (e.touches.length !== 1) {
+                isDraggingPet = false;
+                hasMovedPet = false;
+                return;
+            }
+
+            const touch = e.touches[0];
+
+            const dx = touch.clientX - startX;
+            const dy = touch.clientY - startY;
+
+            // Chưa di chuyển đủ xa thì vẫn cho trang cuộn bình thường
+            if (
+                !hasMovedPet &&
+                Math.abs(dx) < 8 &&
+                Math.abs(dy) < 8
+            ) {
+                return;
+            }
+
+            hasMovedPet = true;
+
+            // Chỉ chặn cuộn khi thật sự đang kéo thú cưng
+            e.preventDefault();
+
+            const viewportWidth =
+                window.visualViewport?.width ||
+                window.innerWidth;
+
+            const viewportHeight =
+                window.visualViewport?.height ||
+                window.innerHeight;
+
+            const maxLeft = Math.max(
+                0,
+                viewportWidth - petContainer.offsetWidth
+            );
+
+            const maxTop = Math.max(
+                0,
+                viewportHeight - petContainer.offsetHeight
+            );
+
+            const newLeft = Math.min(
+                Math.max(0, initialLeft + dx),
+                maxLeft
+            );
+
+            const newTop = Math.min(
+                Math.max(0, initialTop + dy),
+                maxTop
+            );
+
+            petContainer.style.left = `${newLeft}px`;
+            petContainer.style.top = `${newTop}px`;
+        },
+        { passive: false }
+    );
+
+    function finishPetDragging() {
+        if (!isDraggingPet && !hasMovedPet) return;
+
+        isDraggingPet = false;
+        hasMovedPet = false;
+
+        petContainer.style.transition =
+            'transform 0.2s ease';
+    }
+
+    document.addEventListener(
+        'touchend',
+        finishPetDragging
+    );
+
+    document.addEventListener(
+        'touchcancel',
+        finishPetDragging
+    );
 });
