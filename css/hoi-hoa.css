@@ -1,0 +1,2265 @@
+/* =========================================================
+   THÚ CƯNG HỘI HỌA — NÀNG HỌA SĨ TINH LINH
+   Hiệu ứng riêng, không nhấn, không phủ toàn màn hình.
+   ========================================================= */
+
+
+/* =========================
+   TAG HỘI HỌA TRONG CỬA HÀNG
+   ========================= */
+
+.item-tag.tag-hoi-hoa {
+    color: #fffaf0;
+
+    background: linear-gradient(
+        115deg,
+        #0891b2 0%,
+        #7c3aed 38%,
+        #db2777 70%,
+        #d97706 100%
+    );
+
+    border: 1px solid rgba(255, 255, 255, 0.5);
+
+    box-shadow:
+        0 5px 16px rgba(124, 58, 237, 0.24),
+        inset 0 1px 0 rgba(255, 255, 255, 0.34);
+}
+
+
+/* =========================
+   KHU VỰC HIỆU ỨNG THÚ CƯNG
+   ========================= */
+
+#virtual-pet-container.pet-painting-stage {
+    isolation: isolate;
+    overflow: visible;
+}
+
+
+/* Ảnh thú cưng */
+
+#virtual-pet-container.pet-painting-stage
+#virtual-pet-img.painting-muse-magic {
+    position: relative;
+    z-index: 4;
+
+    filter:
+        drop-shadow(0 10px 16px rgba(38, 78, 112, 0.26))
+        drop-shadow(0 0 9px rgba(125, 211, 252, 0.2));
+
+    animation:
+        painting-pet-lustre 4.8s ease-in-out infinite;
+}
+
+
+/* =========================
+   HÀO QUANG PHA MÀU
+   ========================= */
+
+#virtual-pet-container.pet-painting-stage
+.painting-canvas-aura {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 1;
+
+    width: 168px;
+    height: 168px;
+
+    pointer-events: none;
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 50% 50%,
+            rgba(255, 255, 255, 0.24) 0 34%,
+            transparent 62%
+        ),
+        conic-gradient(
+            from 20deg,
+            rgba(34, 211, 238, 0.48),
+            rgba(167, 139, 250, 0.52),
+            rgba(244, 114, 182, 0.46),
+            rgba(251, 191, 36, 0.42),
+            rgba(52, 211, 153, 0.44),
+            rgba(34, 211, 238, 0.48)
+        );
+
+    filter: blur(11px) saturate(1.1);
+    opacity: 0.5;
+
+    transform:
+        translate(-50%, -50%)
+        scale(0.92);
+
+    animation:
+        painting-aura-breathe 5.4s ease-in-out infinite;
+}
+
+
+/* =========================
+   NÉT CỌ ÁNH SÁNG
+   ========================= */
+
+#virtual-pet-container.pet-painting-stage
+.painting-brush-stroke {
+    position: absolute;
+    left: 50%;
+    top: 52%;
+    z-index: 2;
+
+    width: 148px;
+    height: 13px;
+
+    pointer-events: none;
+
+    border-radius:
+        999px 55% 999px 55%;
+
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(34, 211, 238, 0.08) 8%,
+        rgba(34, 211, 238, 0.78) 24%,
+        rgba(167, 139, 250, 0.82) 47%,
+        rgba(244, 114, 182, 0.72) 68%,
+        rgba(251, 191, 36, 0.08) 92%,
+        transparent 100%
+    );
+
+    filter:
+        blur(0.4px)
+        drop-shadow(
+            0 0 7px rgba(167, 139, 250, 0.42)
+        );
+
+    opacity: 0;
+
+    transform:
+        translate(-54%, -50%)
+        rotate(-13deg)
+        scaleX(0.72);
+
+    animation:
+        painting-brush-sweep 4.6s ease-in-out infinite;
+}
+
+
+/* =========================
+   GIỌT MÀU BAY XUNG QUANH
+   ========================= */
+
+#virtual-pet-container.pet-painting-stage
+.painting-pigment {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 3;
+
+    width: 10px;
+    height: 10px;
+
+    pointer-events: none;
+
+    border-radius:
+        58% 42% 64% 36% /
+        42% 60% 40% 58%;
+
+    background: radial-gradient(
+        circle at 28% 24%,
+        #ffffff 0 12%,
+        var(--paint-color) 35% 68%,
+        transparent 74%
+    );
+
+    box-shadow:
+        0 0 9px var(--paint-color);
+
+    opacity: 0.3;
+
+    animation:
+        painting-pigment-float
+        4.2s
+        ease-in-out
+        infinite;
+
+    animation-delay:
+        var(--paint-delay);
+}
+
+
+/* =========================
+   ANIMATION ẢNH THÚ CƯNG
+   ========================= */
+
+@keyframes painting-pet-lustre {
+    0%,
+    100% {
+        filter:
+            drop-shadow(
+                0 10px 16px
+                rgba(38, 78, 112, 0.26)
+            )
+            drop-shadow(
+                0 0 8px
+                rgba(125, 211, 252, 0.18)
+            );
+    }
+
+    50% {
+        filter:
+            drop-shadow(
+                0 12px 19px
+                rgba(38, 78, 112, 0.3)
+            )
+            drop-shadow(
+                0 0 13px
+                rgba(196, 181, 253, 0.34)
+            );
+    }
+}
+
+
+/* =========================
+   ANIMATION HÀO QUANG
+   ========================= */
+
+@keyframes painting-aura-breathe {
+    0%,
+    100% {
+        opacity: 0.36;
+
+        transform:
+            translate(-50%, -50%)
+            scale(0.88)
+            rotate(-7deg);
+    }
+
+    50% {
+        opacity: 0.62;
+
+        transform:
+            translate(-50%, -50%)
+            scale(1.04)
+            rotate(9deg);
+    }
+}
+
+
+/* =========================
+   ANIMATION NÉT CỌ
+   ========================= */
+
+@keyframes painting-brush-sweep {
+    0%,
+    18%,
+    100% {
+        opacity: 0;
+
+        transform:
+            translate(-68%, -50%)
+            rotate(-13deg)
+            scaleX(0.45);
+    }
+
+    42% {
+        opacity: 0.72;
+    }
+
+    64% {
+        opacity: 0.2;
+
+        transform:
+            translate(-40%, -50%)
+            rotate(-9deg)
+            scaleX(1.02);
+    }
+}
+
+
+/* =========================
+   ANIMATION GIỌT MÀU
+   ========================= */
+
+@keyframes painting-pigment-float {
+    0%,
+    100% {
+        opacity: 0.18;
+
+        transform:
+            translate(-50%, -50%)
+            rotate(var(--paint-angle))
+            translateX(var(--paint-radius))
+            rotate(var(--paint-angle-inverse))
+            scale(0.7);
+    }
+
+    45% {
+        opacity: 0.9;
+
+        transform:
+            translate(-50%, -50%)
+            rotate(var(--paint-angle-middle))
+            translateX(
+                calc(var(--paint-radius) + 8px)
+            )
+            rotate(
+                var(--paint-angle-middle-inverse)
+            )
+            scale(1.08);
+    }
+
+    72% {
+        opacity: 0.46;
+
+        transform:
+            translate(-50%, -50%)
+            rotate(var(--paint-angle-end))
+            translateX(
+                calc(var(--paint-radius) - 2px)
+            )
+            rotate(
+                var(--paint-angle-end-inverse)
+            )
+            scale(0.84);
+    }
+}
+
+
+/* Tắt chuyển động nếu thiết bị yêu cầu giảm hiệu ứng */
+
+@media (prefers-reduced-motion: reduce) {
+    #virtual-pet-container.pet-painting-stage
+    #virtual-pet-img.painting-muse-magic,
+
+    #virtual-pet-container.pet-painting-stage
+    .painting-canvas-aura,
+
+    #virtual-pet-container.pet-painting-stage
+    .painting-brush-stroke,
+
+    #virtual-pet-container.pet-painting-stage
+    .painting-pigment {
+        animation: none !important;
+    }
+}
+/* =========================================================
+   THÚ CƯNG HỘI HỌA — NÀNG HỌA SĨ TINH LINH
+   Hiệu ứng riêng, không nhấn, không phủ toàn màn hình.
+   ========================================================= */
+
+
+/* =========================
+   TAG HỘI HỌA TRONG CỬA HÀNG
+   ========================= */
+
+.item-tag.tag-hoi-hoa {
+    color: #fffaf0;
+
+    background: linear-gradient(
+        115deg,
+        #0891b2 0%,
+        #7c3aed 38%,
+        #db2777 70%,
+        #d97706 100%
+    );
+
+    border: 1px solid rgba(255, 255, 255, 0.5);
+
+    box-shadow:
+        0 5px 16px rgba(124, 58, 237, 0.24),
+        inset 0 1px 0 rgba(255, 255, 255, 0.34);
+}
+
+
+/* =========================
+   KHU VỰC HIỆU ỨNG THÚ CƯNG
+   ========================= */
+
+#virtual-pet-container.pet-painting-stage {
+    isolation: isolate;
+    overflow: visible;
+}
+
+
+/* Ảnh thú cưng */
+
+#virtual-pet-container.pet-painting-stage
+#virtual-pet-img.painting-muse-magic {
+    position: relative;
+    z-index: 4;
+
+    filter:
+        drop-shadow(0 10px 16px rgba(38, 78, 112, 0.26))
+        drop-shadow(0 0 9px rgba(125, 211, 252, 0.2));
+
+    animation:
+        painting-pet-lustre 4.8s ease-in-out infinite;
+}
+
+
+/* =========================
+   HÀO QUANG PHA MÀU
+   ========================= */
+
+#virtual-pet-container.pet-painting-stage
+.painting-canvas-aura {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 1;
+
+    width: 168px;
+    height: 168px;
+
+    pointer-events: none;
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 50% 50%,
+            rgba(255, 255, 255, 0.24) 0 34%,
+            transparent 62%
+        ),
+        conic-gradient(
+            from 20deg,
+            rgba(34, 211, 238, 0.48),
+            rgba(167, 139, 250, 0.52),
+            rgba(244, 114, 182, 0.46),
+            rgba(251, 191, 36, 0.42),
+            rgba(52, 211, 153, 0.44),
+            rgba(34, 211, 238, 0.48)
+        );
+
+    filter: blur(11px) saturate(1.1);
+    opacity: 0.5;
+
+    transform:
+        translate(-50%, -50%)
+        scale(0.92);
+
+    animation:
+        painting-aura-breathe 5.4s ease-in-out infinite;
+}
+
+
+/* =========================
+   NÉT CỌ ÁNH SÁNG
+   ========================= */
+
+#virtual-pet-container.pet-painting-stage
+.painting-brush-stroke {
+    position: absolute;
+    left: 50%;
+    top: 52%;
+    z-index: 2;
+
+    width: 148px;
+    height: 13px;
+
+    pointer-events: none;
+
+    border-radius:
+        999px 55% 999px 55%;
+
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(34, 211, 238, 0.08) 8%,
+        rgba(34, 211, 238, 0.78) 24%,
+        rgba(167, 139, 250, 0.82) 47%,
+        rgba(244, 114, 182, 0.72) 68%,
+        rgba(251, 191, 36, 0.08) 92%,
+        transparent 100%
+    );
+
+    filter:
+        blur(0.4px)
+        drop-shadow(
+            0 0 7px rgba(167, 139, 250, 0.42)
+        );
+
+    opacity: 0;
+
+    transform:
+        translate(-54%, -50%)
+        rotate(-13deg)
+        scaleX(0.72);
+
+    animation:
+        painting-brush-sweep 4.6s ease-in-out infinite;
+}
+
+
+/* =========================
+   GIỌT MÀU BAY XUNG QUANH
+   ========================= */
+
+#virtual-pet-container.pet-painting-stage
+.painting-pigment {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 3;
+
+    width: 10px;
+    height: 10px;
+
+    pointer-events: none;
+
+    border-radius:
+        58% 42% 64% 36% /
+        42% 60% 40% 58%;
+
+    background: radial-gradient(
+        circle at 28% 24%,
+        #ffffff 0 12%,
+        var(--paint-color) 35% 68%,
+        transparent 74%
+    );
+
+    box-shadow:
+        0 0 9px var(--paint-color);
+
+    opacity: 0.3;
+
+    animation:
+        painting-pigment-float
+        4.2s
+        ease-in-out
+        infinite;
+
+    animation-delay:
+        var(--paint-delay);
+}
+
+
+/* =========================
+   ANIMATION ẢNH THÚ CƯNG
+   ========================= */
+
+@keyframes painting-pet-lustre {
+    0%,
+    100% {
+        filter:
+            drop-shadow(
+                0 10px 16px
+                rgba(38, 78, 112, 0.26)
+            )
+            drop-shadow(
+                0 0 8px
+                rgba(125, 211, 252, 0.18)
+            );
+    }
+
+    50% {
+        filter:
+            drop-shadow(
+                0 12px 19px
+                rgba(38, 78, 112, 0.3)
+            )
+            drop-shadow(
+                0 0 13px
+                rgba(196, 181, 253, 0.34)
+            );
+    }
+}
+
+
+/* =========================
+   ANIMATION HÀO QUANG
+   ========================= */
+
+@keyframes painting-aura-breathe {
+    0%,
+    100% {
+        opacity: 0.36;
+
+        transform:
+            translate(-50%, -50%)
+            scale(0.88)
+            rotate(-7deg);
+    }
+
+    50% {
+        opacity: 0.62;
+
+        transform:
+            translate(-50%, -50%)
+            scale(1.04)
+            rotate(9deg);
+    }
+}
+
+
+/* =========================
+   ANIMATION NÉT CỌ
+   ========================= */
+
+@keyframes painting-brush-sweep {
+    0%,
+    18%,
+    100% {
+        opacity: 0;
+
+        transform:
+            translate(-68%, -50%)
+            rotate(-13deg)
+            scaleX(0.45);
+    }
+
+    42% {
+        opacity: 0.72;
+    }
+
+    64% {
+        opacity: 0.2;
+
+        transform:
+            translate(-40%, -50%)
+            rotate(-9deg)
+            scaleX(1.02);
+    }
+}
+
+
+/* =========================
+   ANIMATION GIỌT MÀU
+   ========================= */
+
+@keyframes painting-pigment-float {
+    0%,
+    100% {
+        opacity: 0.18;
+
+        transform:
+            translate(-50%, -50%)
+            rotate(var(--paint-angle))
+            translateX(var(--paint-radius))
+            rotate(var(--paint-angle-inverse))
+            scale(0.7);
+    }
+
+    45% {
+        opacity: 0.9;
+
+        transform:
+            translate(-50%, -50%)
+            rotate(var(--paint-angle-middle))
+            translateX(
+                calc(var(--paint-radius) + 8px)
+            )
+            rotate(
+                var(--paint-angle-middle-inverse)
+            )
+            scale(1.08);
+    }
+
+    72% {
+        opacity: 0.46;
+
+        transform:
+            translate(-50%, -50%)
+            rotate(var(--paint-angle-end))
+            translateX(
+                calc(var(--paint-radius) - 2px)
+            )
+            rotate(
+                var(--paint-angle-end-inverse)
+            )
+            scale(0.84);
+    }
+}
+
+
+/* Tắt chuyển động nếu thiết bị yêu cầu giảm hiệu ứng */
+
+@media (prefers-reduced-motion: reduce) {
+    #virtual-pet-container.pet-painting-stage
+    #virtual-pet-img.painting-muse-magic,
+
+    #virtual-pet-container.pet-painting-stage
+    .painting-canvas-aura,
+
+    #virtual-pet-container.pet-painting-stage
+    .painting-brush-stroke,
+
+    #virtual-pet-container.pet-painting-stage
+    .painting-pigment {
+        animation: none !important;
+    }
+}
+/* =========================================================
+   GIAO DIỆN HỘI HỌA — XƯỞNG VẼ TINH LINH
+   Thiết kế mới hoàn toàn:
+   - giấy vẽ ngà, mực xanh cổ vịt, tím hoa cà, hồng cánh sen;
+   - khung bất đối xứng như nét cọ;
+   - popup, ô nội dung, sidebar, thanh trượt và phông chữ riêng;
+   - không dùng animation hoặc hiệu ứng của giao diện cũ.
+   ========================================================= */
+
+body.theme-enchanted-atelier {
+    --atelier-paper: #f6efd9;
+    --atelier-paper-light: #fffaf0;
+    --atelier-paper-deep: #ead9b7;
+    --atelier-ink: #24444a;
+    --atelier-muted: #6f6258;
+    --atelier-teal: #1595a5;
+    --atelier-cyan: #38bfc9;
+    --atelier-violet: #8b5cf6;
+    --atelier-pink: #db5d93;
+    --atelier-gold: #d89a2b;
+    --atelier-green: #4ba985;
+    --atelier-border: rgba(68, 78, 76, 0.22);
+    --atelier-shadow: 0 18px 42px rgba(71, 55, 40, 0.16);
+    --atelier-soft-shadow: 0 9px 24px rgba(65, 55, 44, 0.12);
+
+    min-height: 100vh;
+    color: var(--atelier-ink);
+
+    font-family:
+        "Trebuchet MS",
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    background-color: var(--atelier-paper);
+    background-image:
+        radial-gradient(
+            circle at 8% 16%,
+            rgba(21, 149, 165, 0.14) 0 3.5%,
+            transparent 3.8%
+        ),
+        radial-gradient(
+            circle at 89% 13%,
+            rgba(219, 93, 147, 0.12) 0 4.5%,
+            transparent 4.8%
+        ),
+        radial-gradient(
+            circle at 82% 82%,
+            rgba(139, 92, 246, 0.11) 0 5%,
+            transparent 5.3%
+        ),
+        radial-gradient(
+            circle at 15% 86%,
+            rgba(216, 154, 43, 0.13) 0 4%,
+            transparent 4.3%
+        ),
+        repeating-linear-gradient(
+            0deg,
+            rgba(84, 68, 53, 0.025) 0,
+            rgba(84, 68, 53, 0.025) 1px,
+            transparent 1px,
+            transparent 5px
+        ),
+        linear-gradient(
+            135deg,
+            #fffaf0 0%,
+            #f6efd9 46%,
+            #efe1c5 100%
+        );
+
+    background-attachment: fixed;
+}
+
+body.theme-enchanted-atelier :where(
+    button,
+    input,
+    select,
+    textarea
+) {
+    font-family: inherit;
+}
+
+body.theme-enchanted-atelier :where(
+    h1,
+    h2,
+    h3,
+    h4,
+    .page-title,
+    .section-title,
+    .modal-title
+) {
+    color: #224e55;
+
+    font-family:
+        "Segoe Print",
+        "Bradley Hand",
+        "Comic Sans MS",
+        cursive;
+
+    letter-spacing: 0.015em;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* =========================
+   THANH ĐẦU TRANG VÀ SIDEBAR
+   ========================= */
+
+body.theme-enchanted-atelier :where(
+    header,
+    .header,
+    .topbar,
+    .top-bar,
+    .navbar,
+    nav
+):not(.ui-theme-immune) {
+    color: var(--atelier-ink);
+
+    background:
+        linear-gradient(
+            100deg,
+            rgba(255, 250, 240, 0.96),
+            rgba(235, 244, 235, 0.94) 46%,
+            rgba(241, 230, 248, 0.94)
+        );
+
+    border-bottom:
+        3px solid rgba(21, 149, 165, 0.34);
+
+    box-shadow:
+        0 8px 24px rgba(77, 61, 47, 0.1);
+}
+
+body.theme-enchanted-atelier :where(
+    .sidebar,
+    aside,
+    .side-menu,
+    .navigation-panel
+):not(.ui-theme-immune) {
+    color: var(--atelier-ink);
+
+    background:
+        linear-gradient(
+            165deg,
+            rgba(255, 250, 240, 0.97),
+            rgba(237, 226, 204, 0.96)
+        );
+
+    border:
+        1px solid rgba(21, 149, 165, 0.25);
+
+    border-radius:
+        8px 30px 14px 24px /
+        22px 12px 28px 10px;
+
+    box-shadow: var(--atelier-soft-shadow);
+}
+
+/* =========================
+   Ô, CARD VÀ KHỐI NỘI DUNG
+   ========================= */
+
+body.theme-enchanted-atelier :where(
+    .card,
+    .panel,
+    .widget,
+    .dashboard-card,
+    .stat-card,
+    .content-box,
+    .info-box,
+    .settings-card,
+    .store-item-card
+):not(.ui-theme-immune):not(.store-theme-locked) {
+    position: relative;
+    color: var(--atelier-ink);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 252, 244, 0.97),
+            rgba(246, 237, 216, 0.94)
+        );
+
+    border:
+        1px solid var(--atelier-border);
+
+    border-left:
+        5px solid rgba(21, 149, 165, 0.72);
+
+    border-radius:
+        24px 10px 28px 13px /
+        13px 26px 12px 24px;
+
+    box-shadow: var(--atelier-soft-shadow);
+}
+
+body.theme-enchanted-atelier :where(
+    .card,
+    .panel,
+    .widget,
+    .dashboard-card,
+    .stat-card,
+    .content-box,
+    .info-box,
+    .settings-card,
+    .store-item-card
+):not(.ui-theme-immune):not(.store-theme-locked)::after {
+    content: "";
+    position: absolute;
+    right: 14px;
+    bottom: 10px;
+    width: 42px;
+    height: 9px;
+    pointer-events: none;
+    border-radius: 80% 25% 70% 35%;
+    opacity: 0.35;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--atelier-pink),
+            var(--atelier-violet),
+            transparent
+        );
+}
+
+body.theme-enchanted-atelier
+.store-item-card:not(.ui-theme-immune):not(.store-theme-locked)
+.item-icon-wrapper {
+    background:
+        radial-gradient(
+            circle,
+            rgba(255, 255, 255, 0.92),
+            rgba(21, 149, 165, 0.11) 57%,
+            rgba(139, 92, 246, 0.09)
+        );
+
+    border:
+        2px dashed rgba(21, 149, 165, 0.38);
+
+    border-radius:
+        54% 46% 58% 42% /
+        45% 59% 41% 55%;
+}
+
+/* =========================
+   POPUP VÀ HỘP THOẠI
+   ========================= */
+
+body.theme-enchanted-atelier
+.modal-overlay:not(.ui-theme-immune) {
+    background:
+        rgba(49, 51, 49, 0.34);
+
+    backdrop-filter:
+        blur(8px)
+        saturate(0.86);
+}
+
+body.theme-enchanted-atelier
+.modal-overlay:not(.ui-theme-immune)
+:where(
+    .modal-content,
+    .form-container,
+    .popup-content,
+    .dialog-content
+) {
+    color: var(--atelier-ink);
+
+    background:
+        linear-gradient(
+            148deg,
+            rgba(255, 252, 244, 0.99),
+            rgba(245, 234, 211, 0.98)
+        );
+
+    border:
+        1px solid rgba(57, 76, 74, 0.22);
+
+    border-top:
+        7px solid var(--atelier-teal);
+
+    border-right:
+        3px solid rgba(219, 93, 147, 0.45);
+
+    border-radius:
+        34px 12px 30px 16px /
+        16px 32px 14px 28px;
+
+    box-shadow:
+        0 28px 74px rgba(49, 37, 28, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.82);
+}
+
+body.theme-enchanted-atelier :where(
+    .toast,
+    .notification,
+    .alert-box,
+    .message-box
+):not(.ui-theme-immune) {
+    color: var(--atelier-ink);
+    background: rgba(255, 250, 240, 0.97);
+
+    border:
+        1px solid rgba(21, 149, 165, 0.3);
+
+    border-left:
+        6px solid var(--atelier-pink);
+
+    border-radius:
+        18px 7px 20px 9px /
+        9px 19px 8px 17px;
+
+    box-shadow: var(--atelier-soft-shadow);
+}
+
+/* =========================
+   INPUT, SELECT VÀ TEXTAREA
+   ========================= */
+
+body.theme-enchanted-atelier :where(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+    select,
+    textarea,
+    .search-box,
+    .input-group
+):not(.ui-theme-immune) {
+    color: var(--atelier-ink);
+    caret-color: var(--atelier-pink);
+
+    background:
+        rgba(255, 252, 244, 0.9);
+
+    border:
+        1px solid rgba(36, 68, 74, 0.25);
+
+    border-bottom:
+        3px solid rgba(21, 149, 165, 0.52);
+
+    border-radius:
+        17px 7px 19px 8px /
+        8px 18px 7px 16px;
+
+    outline: none;
+
+    box-shadow:
+        inset 0 2px 7px rgba(79, 61, 42, 0.07);
+}
+
+body.theme-enchanted-atelier :where(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+    select,
+    textarea
+):focus {
+    border-color:
+        rgba(139, 92, 246, 0.62);
+
+    box-shadow:
+        0 0 0 4px rgba(139, 92, 246, 0.12),
+        inset 0 2px 7px rgba(79, 61, 42, 0.06);
+}
+
+/* =========================
+   NÚT BẤM DẠNG NÉT CỌ
+   ========================= */
+
+body.theme-enchanted-atelier :where(
+    .btn,
+    .btn-primary,
+    .btn-buy,
+    .btn-equip,
+    .btn-preview,
+    .action-button,
+    .submit-button,
+    button:not(.close-btn)
+):not(.ui-theme-immune):not(:disabled) {
+    color: #fffdf6;
+
+    background:
+        linear-gradient(
+            105deg,
+            var(--atelier-teal),
+            var(--atelier-violet) 58%,
+            var(--atelier-pink)
+        );
+
+    border:
+        0;
+
+    border-radius:
+        18px 7px 20px 8px /
+        8px 19px 7px 17px;
+
+    box-shadow:
+        0 8px 18px rgba(66, 70, 101, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.32);
+
+    text-shadow:
+        0 1px 1px rgba(22, 35, 39, 0.24);
+
+    transition:
+        transform 0.16s ease,
+        filter 0.16s ease,
+        box-shadow 0.16s ease;
+}
+
+body.theme-enchanted-atelier :where(
+    .btn,
+    .btn-primary,
+    .btn-buy,
+    .btn-equip,
+    .btn-preview,
+    .action-button,
+    .submit-button,
+    button:not(.close-btn)
+):not(.ui-theme-immune):not(:disabled):hover {
+    filter:
+        saturate(1.08)
+        brightness(1.04);
+
+    transform:
+        translateY(-2px)
+        rotate(-0.35deg);
+
+    box-shadow:
+        0 12px 24px rgba(66, 70, 101, 0.25);
+}
+
+body.theme-enchanted-atelier
+.close-btn:not(.ui-theme-immune) {
+    color: #fffaf0;
+    background: var(--atelier-pink);
+    border: 2px solid rgba(255, 255, 255, 0.72);
+    border-radius: 56% 44% 58% 42%;
+    box-shadow: 0 5px 14px rgba(113, 50, 79, 0.24);
+}
+
+/* =========================
+   TAB, MENU VÀ NHÃN
+   ========================= */
+
+body.theme-enchanted-atelier :where(
+    .tab-button,
+    .filter-btn,
+    .nav-item,
+    .menu-item,
+    .sidebar a,
+    .side-menu a
+):not(.ui-theme-immune) {
+    color: var(--atelier-ink);
+    border-radius:
+        14px 5px 15px 7px /
+        7px 15px 6px 13px;
+}
+
+body.theme-enchanted-atelier :where(
+    .tab-button.active,
+    .filter-btn.active,
+    .nav-item.active,
+    .menu-item.active,
+    .sidebar a.active,
+    .side-menu a.active
+):not(.ui-theme-immune) {
+    color: #fffdf7;
+
+    background:
+        linear-gradient(
+            95deg,
+            var(--atelier-teal),
+            var(--atelier-violet)
+        );
+
+    box-shadow:
+        0 7px 16px rgba(72, 73, 114, 0.2);
+}
+
+body.theme-enchanted-atelier :where(
+    .badge,
+    .chip,
+    .tag,
+    .status-badge
+):not(.ui-theme-immune) {
+    color: #5e3c51;
+    background: rgba(219, 93, 147, 0.12);
+    border: 1px solid rgba(219, 93, 147, 0.3);
+    border-radius: 999px 680px 900px 720px;
+}
+
+/* =========================
+   BẢNG
+   ========================= */
+
+body.theme-enchanted-atelier table:not(.ui-theme-immune) {
+    color: var(--atelier-ink);
+    background: rgba(255, 252, 244, 0.74);
+    border-collapse: separate;
+    border-spacing: 0 7px;
+}
+
+body.theme-enchanted-atelier
+table:not(.ui-theme-immune)
+thead {
+    color: #fffdf7;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--atelier-teal),
+            var(--atelier-violet)
+        );
+}
+
+body.theme-enchanted-atelier
+table:not(.ui-theme-immune)
+tbody tr {
+    background: rgba(255, 250, 240, 0.86);
+    box-shadow: 0 4px 12px rgba(76, 62, 47, 0.08);
+}
+
+body.theme-enchanted-atelier
+table:not(.ui-theme-immune)
+:where(th, td) {
+    border-color: rgba(36, 68, 74, 0.12);
+}
+
+/* =========================
+   PROGRESS, SLIDER VÀ SCROLLBAR
+   ========================= */
+
+body.theme-enchanted-atelier :where(
+    progress,
+    .progress,
+    .progress-track,
+    .slider-track
+):not(.ui-theme-immune) {
+    overflow: hidden;
+    background: rgba(64, 70, 66, 0.12);
+    border: 1px solid rgba(36, 68, 74, 0.13);
+    border-radius: 999px;
+}
+
+body.theme-enchanted-atelier :where(
+    .progress-fill,
+    .slider-fill
+):not(.ui-theme-immune) {
+    background:
+        linear-gradient(
+            90deg,
+            var(--atelier-cyan),
+            var(--atelier-violet),
+            var(--atelier-pink)
+        );
+}
+
+body.theme-enchanted-atelier input[type="range"] {
+    width: 100%;
+    height: 8px;
+    appearance: none;
+    -webkit-appearance: none;
+    outline: none;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(21, 149, 165, 0.55),
+            rgba(139, 92, 246, 0.48),
+            rgba(219, 93, 147, 0.5)
+        );
+
+    border:
+        1px solid rgba(36, 68, 74, 0.18);
+
+    border-radius:
+        999px;
+}
+
+body.theme-enchanted-atelier
+input[type="range"]::-webkit-slider-thumb {
+    width: 22px;
+    height: 22px;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: grab;
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #fffaf0 0 18%,
+            var(--atelier-gold) 20% 44%,
+            var(--atelier-pink) 46% 70%,
+            var(--atelier-violet) 72%
+        );
+
+    border:
+        2px solid #fffaf0;
+
+    border-radius:
+        58% 42% 64% 36% /
+        42% 60% 40% 58%;
+
+    box-shadow:
+        0 4px 10px rgba(78, 53, 69, 0.25);
+}
+
+body.theme-enchanted-atelier
+input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    cursor: grab;
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #fffaf0 0 18%,
+            var(--atelier-gold) 20% 44%,
+            var(--atelier-pink) 46% 70%,
+            var(--atelier-violet) 72%
+        );
+
+    border:
+        2px solid #fffaf0;
+
+    border-radius:
+        58% 42% 64% 36% /
+        42% 60% 40% 58%;
+}
+
+body.theme-enchanted-atelier {
+    scrollbar-color:
+        var(--atelier-violet)
+        rgba(90, 74, 55, 0.11);
+
+    scrollbar-width: thin;
+}
+
+body.theme-enchanted-atelier ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+body.theme-enchanted-atelier ::-webkit-scrollbar-track {
+    background:
+        linear-gradient(
+            180deg,
+            rgba(234, 217, 183, 0.62),
+            rgba(255, 250, 240, 0.7)
+        );
+
+    border-radius: 999px;
+}
+
+body.theme-enchanted-atelier ::-webkit-scrollbar-thumb {
+    background:
+        linear-gradient(
+            180deg,
+            var(--atelier-teal),
+            var(--atelier-violet),
+            var(--atelier-pink)
+        );
+
+    border:
+        3px solid rgba(255, 250, 240, 0.82);
+
+    border-radius:
+        999px;
+}
+
+/* =========================
+   PHỐI HỢP VỚI NÀNG HỌA SĨ TINH LINH
+   ========================= */
+
+body.theme-enchanted-atelier
+#virtual-pet-container.pet-painting-stage
+.painting-canvas-aura {
+    opacity: 0.63;
+    filter:
+        blur(12px)
+        saturate(1.24);
+}
+
+body.theme-enchanted-atelier
+#virtual-pet-container.pet-painting-stage
+#virtual-pet-img.painting-muse-magic {
+    filter:
+        drop-shadow(
+            0 12px 18px rgba(36, 68, 74, 0.28)
+        )
+        drop-shadow(
+            0 0 13px rgba(139, 92, 246, 0.26)
+        );
+}
+
+body.theme-enchanted-atelier
+#virtual-pet-container.pet-painting-stage {
+    border-radius:
+        48% 52% 46% 54% /
+        56% 44% 58% 42%;
+
+    box-shadow:
+        0 0 0 1px rgba(21, 149, 165, 0.08);
+}
+
+/* =========================
+   THIẾT BỊ NHỎ
+   ========================= */
+
+@media (max-width: 720px) {
+    body.theme-enchanted-atelier :where(
+        .card,
+        .panel,
+        .widget,
+        .dashboard-card,
+        .stat-card,
+        .content-box,
+        .info-box,
+        .settings-card,
+        .store-item-card
+    ):not(.ui-theme-immune):not(.store-theme-locked) {
+        border-radius:
+            18px 8px 20px 9px /
+            9px 19px 8px 17px;
+    }
+
+    body.theme-enchanted-atelier
+    .modal-overlay:not(.ui-theme-immune)
+    :where(
+        .modal-content,
+        .form-container,
+        .popup-content,
+        .dialog-content
+    ) {
+        width: min(94vw, 680px);
+        max-height: 88vh;
+        overflow: auto;
+
+        border-radius:
+            24px 9px 22px 11px /
+            11px 23px 10px 20px;
+    }
+}
+/* =========================================================
+   HỌA GIỚI SẮC MÀU
+   Hiệu ứng Hội họa toàn web.
+
+   Không nhận chuột.
+   Không che nội dung.
+   Không dùng animation cũ.
+   ========================================================= */
+
+.effect-atelier-world {
+    --effect-paint-teal: #1595a5;
+    --effect-paint-cyan: #38bfc9;
+    --effect-paint-violet: #8b5cf6;
+    --effect-paint-pink: #db5d93;
+    --effect-paint-gold: #d89a2b;
+    --effect-paint-green: #4ba985;
+
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+
+    overflow: hidden;
+
+    pointer-events: none;
+    user-select: none;
+
+    isolation: isolate;
+    contain: layout paint style;
+}
+
+
+/* =========================
+   VÂN GIẤY VẼ
+   ========================= */
+
+.effect-atelier-paper-light {
+    position: absolute;
+    inset: -30px;
+    z-index: 0;
+
+    opacity: 0.12;
+    pointer-events: none;
+
+    background-image:
+        repeating-linear-gradient(
+            8deg,
+            rgba(92, 70, 47, 0.07) 0 1px,
+            transparent 1px 15px
+        ),
+        repeating-linear-gradient(
+            97deg,
+            rgba(255, 255, 255, 0.16) 0 1px,
+            transparent 1px 19px
+        );
+
+    mix-blend-mode: soft-light;
+
+    animation:
+        atelier-world-paper-drift
+        22s
+        ease-in-out
+        infinite alternate;
+}
+
+
+/* =========================
+   MẢNG MÀU NƯỚC BỐN GÓC
+   ========================= */
+
+.effect-atelier-wash {
+    position: absolute;
+    z-index: 0;
+
+    width: min(42vw, 520px);
+    aspect-ratio: 1;
+
+    border-radius:
+        57% 43% 64% 36% /
+        42% 61% 39% 58%;
+
+    opacity: 0.18;
+
+    filter:
+        blur(44px)
+        saturate(1.08);
+
+    mix-blend-mode: multiply;
+
+    animation:
+        atelier-world-wash-breathe
+        15s
+        ease-in-out
+        infinite alternate;
+}
+
+.effect-atelier-wash.wash-top-left {
+    left: -16vw;
+    top: -22vh;
+
+    background:
+        radial-gradient(
+            circle at 65% 64%,
+            rgba(21, 149, 165, 0.82),
+            rgba(56, 191, 201, 0.2) 52%,
+            transparent 74%
+        );
+
+    animation-delay: -3s;
+}
+
+.effect-atelier-wash.wash-top-right {
+    right: -18vw;
+    top: -20vh;
+
+    background:
+        radial-gradient(
+            circle at 34% 67%,
+            rgba(139, 92, 246, 0.68),
+            rgba(219, 93, 147, 0.18) 54%,
+            transparent 75%
+        );
+
+    animation-delay: -8s;
+}
+
+.effect-atelier-wash.wash-bottom-left {
+    left: -18vw;
+    bottom: -25vh;
+
+    background:
+        radial-gradient(
+            circle at 67% 30%,
+            rgba(75, 169, 133, 0.7),
+            rgba(21, 149, 165, 0.14) 56%,
+            transparent 76%
+        );
+
+    animation-delay: -11s;
+}
+
+.effect-atelier-wash.wash-bottom-right {
+    right: -17vw;
+    bottom: -23vh;
+
+    background:
+        radial-gradient(
+            circle at 33% 31%,
+            rgba(216, 154, 43, 0.64),
+            rgba(219, 93, 147, 0.16) 56%,
+            transparent 76%
+        );
+
+    animation-delay: -6s;
+}
+
+
+/* =========================
+   NÉT CỌ Ở MÉP TRANG
+   ========================= */
+
+.effect-atelier-border-stroke {
+    position: absolute;
+    left: 4vw;
+    right: 4vw;
+    z-index: 2;
+
+    height: 7px;
+
+    opacity: 0.3;
+
+    border-radius:
+        92% 8% 86% 14% /
+        42% 58% 36% 64%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            var(--effect-paint-teal),
+            var(--effect-paint-violet),
+            var(--effect-paint-pink),
+            var(--effect-paint-gold),
+            transparent
+        );
+
+    background-size: 180% 100%;
+
+    filter:
+        blur(0.25px)
+        drop-shadow(
+            0 0 6px
+            rgba(139, 92, 246, 0.2)
+        );
+
+    animation:
+        atelier-world-border-flow
+        10s
+        ease-in-out
+        infinite alternate;
+}
+
+.effect-atelier-border-stroke.border-top {
+    top: 12px;
+    transform: rotate(-0.35deg);
+}
+
+.effect-atelier-border-stroke.border-bottom {
+    bottom: 12px;
+    transform: rotate(0.45deg);
+
+    animation-delay: -5s;
+}
+
+
+/* =========================
+   CHỮ KÝ HỌA SĨ
+   ========================= */
+
+.effect-atelier-signature {
+    position: absolute;
+    right: 2.5vw;
+    bottom: 3vh;
+    z-index: 4;
+
+    width: 118px;
+    height: 60px;
+
+    opacity: 0.28;
+
+    transform: rotate(-7deg);
+
+    animation:
+        atelier-world-signature-float
+        6.5s
+        ease-in-out
+        infinite;
+}
+
+.effect-atelier-signature .signature-line {
+    position: absolute;
+    display: block;
+
+    height: 4px;
+
+    border-radius:
+        84% 16% 78% 22% /
+        38% 62% 42% 58%;
+}
+
+.effect-atelier-signature .line-one {
+    left: 4px;
+    top: 30px;
+
+    width: 104px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            var(--effect-paint-teal),
+            var(--effect-paint-violet),
+            transparent
+        );
+
+    transform: rotate(-8deg);
+}
+
+.effect-atelier-signature .line-two {
+    left: 18px;
+    top: 39px;
+
+    width: 82px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            var(--effect-paint-pink),
+            var(--effect-paint-gold),
+            transparent
+        );
+
+    transform: rotate(8deg);
+}
+
+.effect-atelier-signature .signature-dot {
+    position: absolute;
+    display: block;
+
+    border-radius:
+        62% 38% 55% 45% /
+        43% 59% 41% 57%;
+}
+
+.effect-atelier-signature .dot-one {
+    left: 23px;
+    top: 8px;
+
+    width: 9px;
+    height: 9px;
+
+    background: var(--effect-paint-cyan);
+}
+
+.effect-atelier-signature .dot-two {
+    right: 18px;
+    top: 14px;
+
+    width: 7px;
+    height: 7px;
+
+    background: var(--effect-paint-pink);
+}
+
+.effect-atelier-signature .dot-three {
+    right: 5px;
+    bottom: 5px;
+
+    width: 11px;
+    height: 11px;
+
+    background: var(--effect-paint-gold);
+}
+
+
+/* =========================
+   GIỌT MÀU LOANG
+   ========================= */
+
+.effect-atelier-pigment-bloom {
+    position: absolute;
+    z-index: 2;
+
+    display: block;
+
+    opacity: 0;
+    pointer-events: none;
+
+    border-radius:
+        58% 42% 67% 33% /
+        38% 62% 43% 57%;
+
+    background:
+        radial-gradient(
+            circle at 33% 29%,
+            rgba(255, 255, 255, 0.84) 0 5%,
+            var(--atelier-bloom-color-a) 18%,
+            var(--atelier-bloom-color-b) 58%,
+            transparent 75%
+        );
+
+    box-shadow:
+        inset 7px -8px 14px
+        rgba(255, 255, 255, 0.16),
+
+        0 0 22px
+        rgba(139, 92, 246, 0.12);
+
+    mix-blend-mode: multiply;
+
+    animation-name:
+        atelier-world-pigment-bloom;
+
+    animation-timing-function:
+        cubic-bezier(0.2, 0.72, 0.22, 1);
+
+    animation-fill-mode:
+        forwards;
+}
+
+
+/* =========================
+   NÉT CỌ BAY NGANG
+   ========================= */
+
+.effect-atelier-brush-ribbon {
+    position: absolute;
+    left: -340px;
+    z-index: 3;
+
+    display: block;
+
+    height: 12px;
+
+    opacity: 0;
+
+    border-radius:
+        82% 18% 76% 24% /
+        54% 46% 62% 38%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent 0%,
+            var(--atelier-ribbon-color-a) 14%,
+            var(--atelier-ribbon-color-b) 83%,
+            transparent 100%
+        );
+
+    filter:
+        blur(0.25px)
+        drop-shadow(
+            0 0 7px
+            rgba(139, 92, 246, 0.24)
+        );
+
+    transform:
+        rotate(var(--atelier-ribbon-angle));
+
+    animation-name:
+        atelier-world-ribbon-cross;
+
+    animation-timing-function:
+        cubic-bezier(0.16, 0.76, 0.23, 1);
+
+    animation-fill-mode:
+        forwards;
+}
+
+.effect-atelier-brush-ribbon.is-reverse {
+    left: auto;
+    right: -340px;
+
+    animation-name:
+        atelier-world-ribbon-cross-reverse;
+}
+
+
+/* =========================
+   VÒNG MÀU NƯỚC
+   ========================= */
+
+.effect-atelier-paint-ripple {
+    position: absolute;
+    z-index: 1;
+
+    display: block;
+
+    opacity: 0;
+    pointer-events: none;
+
+    border:
+        3px solid
+        var(--atelier-ripple-color);
+
+    border-radius:
+        59% 41% 65% 35% /
+        44% 58% 42% 56%;
+
+    transform:
+        translate(-50%, -50%)
+        rotate(var(--atelier-ripple-tilt))
+        scale(0.22);
+
+    box-shadow:
+        inset 0 0 0 5px
+        rgba(255, 255, 255, 0.08),
+
+        0 0 20px
+        rgba(139, 92, 246, 0.14);
+
+    animation:
+        atelier-world-ripple-open
+        4.1s
+        ease-out
+        forwards;
+}
+
+
+/* =========================
+   PHỐI HỢP VỚI XƯỞNG VẼ
+   ========================= */
+
+body.theme-enchanted-atelier
+.effect-atelier-wash {
+    opacity: 0.23;
+}
+
+body.theme-enchanted-atelier
+.effect-atelier-paper-light {
+    opacity: 0.18;
+}
+
+body.theme-enchanted-atelier
+.effect-atelier-border-stroke {
+    opacity: 0.38;
+}
+
+
+/* =========================
+   PHỐI HỢP VỚI NÀNG HỌA SĨ
+   ========================= */
+
+body:has(
+    #virtual-pet-img.painting-muse-magic
+)
+.effect-atelier-signature {
+    opacity: 0.45;
+
+    filter:
+        drop-shadow(
+            0 0 8px
+            rgba(139, 92, 246, 0.32)
+        );
+}
+
+body:has(
+    .effect-atelier-world
+)
+#virtual-pet-container.pet-painting-stage
+.painting-canvas-aura {
+    opacity: 0.68;
+
+    filter:
+        blur(10px)
+        saturate(1.32);
+}
+
+body.theme-enchanted-atelier:has(
+    #virtual-pet-img.painting-muse-magic
+)
+.effect-atelier-border-stroke {
+    opacity: 0.46;
+
+    filter:
+        blur(0.2px)
+        drop-shadow(
+            0 0 8px
+            rgba(219, 93, 147, 0.26)
+        );
+}
+
+
+/* =========================
+   ANIMATION RIÊNG
+   ========================= */
+
+@keyframes atelier-world-paper-drift {
+    from {
+        transform:
+            translate3d(-8px, -5px, 0)
+            scale(1.02);
+    }
+
+    to {
+        transform:
+            translate3d(10px, 7px, 0)
+            scale(1.04);
+    }
+}
+
+@keyframes atelier-world-wash-breathe {
+    from {
+        transform:
+            rotate(-7deg)
+            scale(0.9);
+    }
+
+    to {
+        transform:
+            rotate(9deg)
+            scale(1.09);
+    }
+}
+
+@keyframes atelier-world-border-flow {
+    from {
+        opacity: 0.18;
+        background-position: 0% 50%;
+
+        transform:
+            translateX(-1.2vw)
+            scaleX(0.96);
+    }
+
+    to {
+        opacity: 0.38;
+        background-position: 100% 50%;
+
+        transform:
+            translateX(1.2vw)
+            scaleX(1.02);
+    }
+}
+
+@keyframes atelier-world-signature-float {
+    0%,
+    100% {
+        transform:
+            translateY(0)
+            rotate(-7deg);
+    }
+
+    50% {
+        transform:
+            translateY(-7px)
+            rotate(-4deg);
+    }
+}
+
+@keyframes atelier-world-pigment-bloom {
+    0% {
+        opacity: 0;
+
+        transform:
+            translate(-50%, -50%)
+            rotate(var(--atelier-bloom-rotate))
+            scale(0.18);
+    }
+
+    18% {
+        opacity: 0.48;
+    }
+
+    58% {
+        opacity: 0.34;
+
+        transform:
+            translate(
+                calc(
+                    -50% +
+                    var(--atelier-bloom-drift-x)
+                ),
+                calc(
+                    -50% +
+                    var(--atelier-bloom-drift-y)
+                )
+            )
+            rotate(
+                calc(
+                    var(--atelier-bloom-rotate) +
+                    18deg
+                )
+            )
+            scale(1);
+    }
+
+    100% {
+        opacity: 0;
+
+        transform:
+            translate(
+                calc(
+                    -50% +
+                    var(--atelier-bloom-drift-x)
+                ),
+                calc(
+                    -50% +
+                    var(--atelier-bloom-drift-y)
+                )
+            )
+            rotate(
+                calc(
+                    var(--atelier-bloom-rotate) +
+                    28deg
+                )
+            )
+            scale(1.26);
+    }
+}
+
+@keyframes atelier-world-ribbon-cross {
+    0% {
+        left: -340px;
+        opacity: 0;
+
+        transform:
+            translateY(0)
+            rotate(var(--atelier-ribbon-angle))
+            scaleX(0.58);
+    }
+
+    16% {
+        opacity: 0.54;
+    }
+
+    54% {
+        transform:
+            translateY(var(--atelier-ribbon-wave))
+            rotate(var(--atelier-ribbon-angle))
+            scaleX(1);
+    }
+
+    100% {
+        left: calc(100vw + 80px);
+        opacity: 0;
+
+        transform:
+            translateY(
+                calc(
+                    var(--atelier-ribbon-wave) * -0.4
+                )
+            )
+            rotate(var(--atelier-ribbon-angle))
+            scaleX(0.72);
+    }
+}
+
+@keyframes atelier-world-ribbon-cross-reverse {
+    0% {
+        right: -340px;
+        opacity: 0;
+
+        transform:
+            translateY(0)
+            rotate(
+                calc(
+                    var(--atelier-ribbon-angle) * -1
+                )
+            )
+            scaleX(0.58);
+    }
+
+    16% {
+        opacity: 0.54;
+    }
+
+    54% {
+        transform:
+            translateY(var(--atelier-ribbon-wave))
+            rotate(
+                calc(
+                    var(--atelier-ribbon-angle) * -1
+                )
+            )
+            scaleX(1);
+    }
+
+    100% {
+        right: calc(100vw + 80px);
+        opacity: 0;
+
+        transform:
+            translateY(
+                calc(
+                    var(--atelier-ribbon-wave) * -0.4
+                )
+            )
+            rotate(
+                calc(
+                    var(--atelier-ribbon-angle) * -1
+                )
+            )
+            scaleX(0.72);
+    }
+}
+
+@keyframes atelier-world-ripple-open {
+    0% {
+        opacity: 0;
+
+        transform:
+            translate(-50%, -50%)
+            rotate(var(--atelier-ripple-tilt))
+            scale(0.22);
+    }
+
+    28% {
+        opacity: 0.42;
+    }
+
+    100% {
+        opacity: 0;
+
+        transform:
+            translate(-50%, -50%)
+            rotate(
+                calc(
+                    var(--atelier-ripple-tilt) +
+                    12deg
+                )
+            )
+            scale(1.34);
+    }
+}
+
+
+/* =========================
+   ĐIỆN THOẠI
+   ========================= */
+
+@media (max-width: 768px) {
+    .effect-atelier-world {
+        contain: paint style;
+    }
+
+    .effect-atelier-wash {
+        width: 68vw;
+
+        opacity: 0.14;
+
+        filter:
+            blur(34px);
+    }
+
+    .effect-atelier-border-stroke {
+        left: 7vw;
+        right: 7vw;
+
+        height: 5px;
+    }
+
+    .effect-atelier-signature {
+        right: 3vw;
+        bottom: 2.5vh;
+
+        width: 88px;
+        height: 46px;
+    }
+
+    .effect-atelier-pigment-bloom {
+        mix-blend-mode: normal;
+    }
+}
+
+
+/* =========================
+   GIẢM CHUYỂN ĐỘNG
+   ========================= */
+
+@media (prefers-reduced-motion: reduce) {
+    .effect-atelier-paper-light,
+    .effect-atelier-wash,
+    .effect-atelier-border-stroke,
+    .effect-atelier-signature {
+        animation: none !important;
+    }
+
+    .effect-atelier-pigment-bloom,
+    .effect-atelier-brush-ribbon,
+    .effect-atelier-paint-ripple {
+        display: none !important;
+    }
+}

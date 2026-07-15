@@ -1,29 +1,29 @@
 /* Style khu vực chấm điểm */
-.grading-box { 
-    margin-top: 15px; 
-    padding-top: 15px; 
+.grading-box {
+    margin-top: 15px;
+    padding-top: 15px;
 }
 
-.grading-box input { 
-    width: 120px; 
-    margin-right: 15px; 
+.grading-box input {
+    width: 120px;
+    margin-right: 15px;
     text-align: center;
     font-weight: bold;
     color: #667eea;
 }
 
-.grading-box button { 
-    width: auto; 
-    padding: 12px 25px; 
-    background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); 
-    color: #1e3c72; 
+.grading-box button {
+    width: auto;
+    padding: 12px 25px;
+    background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+    color: #1e3c72;
     box-shadow: 0 4px 15px rgba(161, 196, 253, 0.4);
     border-radius: 12px;
 }
 
-.grading-box button:hover { 
-    background: linear-gradient(135deg, #8fd3f4 0%, #84fab0 100%); 
-    color: #1e3c72; 
+.grading-box button:hover {
+    background: linear-gradient(135deg, #8fd3f4 0%, #84fab0 100%);
+    color: #1e3c72;
 }
 
 /* Style Bảng quản lý học sinh */
@@ -32,9 +32,11 @@ table th {
     background: rgba(255, 255, 255, 0.6) !important;
     border-radius: 8px 8px 0 0;
 }
+
 table td {
     color: #444;
 }
+
 /* Nút lọc học sinh */
 .btn-student-filter {
     padding: 8px 16px;
@@ -63,19 +65,36 @@ table td {
 #submittedStudentFilterContainer::-webkit-scrollbar {
     height: 6px;
 }
+
 #assignedStudentFilterContainer::-webkit-scrollbar-thumb,
 #submittedStudentFilterContainer::-webkit-scrollbar-thumb {
-    background: rgba(0,0,0,0.1);
+    background: rgba(0, 0, 0, 0.1);
     border-radius: 10px;
 }
+
 /* Giao diện nút chọn (như ô input) */
-.custom-student-select { position: relative; width: 100%; margin-bottom: 15px; }
-.css-select-trigger {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 12px 15px; background: #fff; border: 1px solid #e5e7eb;
-    border-radius: 8px; cursor: pointer; font-size: 14.5px; color: #374151;
+.custom-student-select {
+    position: relative;
+    width: 100%;
+    margin-bottom: 15px;
 }
-.css-select-trigger:hover { border-color: #3b82f6; }
+
+.css-select-trigger {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14.5px;
+    color: #374151;
+}
+
+.css-select-trigger:hover {
+    border-color: #3b82f6;
+}
 
 /* Popup/Modal - Cập nhật giống hệt ảnh image_8d26fa.jpg */
 .student-modal-overlay {
@@ -95,9 +114,12 @@ table td {
     background: #ffffff;
     width: 90%;
     max-width: 420px;
-    border-radius: 16px; /* Bo góc to và mềm mại */
-    display: flex; flex-direction: column;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12); /* Bóng đổ 3D nhẹ */
+    border-radius: 16px;
+    /* Bo góc to và mềm mại */
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+    /* Bóng đổ 3D nhẹ */
     overflow: hidden;
     font-family: inherit;
 }
@@ -106,71 +128,209 @@ table td {
 .student-modal-header {
     padding: 24px 24px 16px 24px;
 }
+
 .student-search-box {
-    display: flex; align-items: center; 
-    background: #f4f5f7; /* Nền xám nhạt */
-    border-radius: 12px; /* Bo góc ô tìm kiếm */
+    display: flex;
+    align-items: center;
+    background: #f4f5f7;
+    /* Nền xám nhạt */
+    border-radius: 12px;
+    /* Bo góc ô tìm kiếm */
     padding: 12px 16px;
 }
+
 .student-search-box input {
-    border: none; background: transparent; outline: none;
-    width: 100%; margin-left: 10px; font-size: 15px; color: #333;
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    margin-left: 10px;
+    font-size: 15px;
+    color: #333;
 }
+
 .student-search-box input::placeholder {
     color: #9ca3af;
 }
 
 /* Danh sách học sinh */
-.student-modal-list { 
-    max-height: 280px; overflow-y: auto; 
-    padding: 0 24px; 
+.student-modal-list {
+    max-height: 280px;
+    overflow-y: auto;
+    padding: 0 24px;
 }
+
 .student-item {
-    display: flex; align-items: center; padding: 12px 0;
-    cursor: pointer; margin: 0; transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    cursor: pointer;
+    margin: 0;
+    transition: background 0.2s;
     border-radius: 8px;
 }
-.student-item:hover { background: #f9fafb; } /* Hiệu ứng hover nhẹ */
+
+.student-item:hover {
+    background: #f9fafb;
+}
+
+/* Hiệu ứng hover nhẹ */
 
 /* Checkbox màu xanh hiện đại */
 .student-item input[type="checkbox"] {
-    width: 18px; height: 18px; margin-right: 16px; 
-    cursor: pointer; 
-    accent-color: #3b82f6; /* Đổi màu checkbox khi tick thành xanh lam */
+    width: 18px;
+    height: 18px;
+    margin-right: 16px;
+    cursor: pointer;
+    accent-color: #3b82f6;
+    /* Đổi màu checkbox khi tick thành xanh lam */
 }
 
 /* Avatar tròn */
 .student-avatar {
-    width: 36px; height: 36px; border-radius: 50%;
-    margin-right: 12px; display: flex; align-items: center; 
-    justify-content: center; font-size: 14px; font-weight: 600;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
 }
 
 /* Hai nút Đóng / Xác nhận */
 .student-modal-footer {
     padding: 20px 24px 24px 24px;
-    display: flex; justify-content: space-between; gap: 16px;
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
 }
-.btn-cancel, .btn-confirm {
-    flex: 1; /* Chia đều độ rộng 2 nút */
-    padding: 12px 0; border-radius: 8px; 
-    font-size: 15px; font-weight: 600; cursor: pointer; 
-    text-align: center; transition: all 0.2s;
+
+.btn-cancel,
+.btn-confirm {
+    flex: 1;
+    /* Chia đều độ rộng 2 nút */
+    padding: 12px 0;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
 }
+
 .btn-cancel {
-    background: #ffffff; border: 1px solid #e5e7eb;
-    color: #4b5563; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    color: #4b5563;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
-.btn-cancel:hover { background: #f9fafb; }
+
+.btn-cancel:hover {
+    background: #f9fafb;
+}
 
 .btn-confirm {
-    background: #3b82f6; border: none;
-    color: #ffffff; box-shadow: 0 2px 4px rgba(59,130,246,0.3);
+    background: #3b82f6;
+    border: none;
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
 }
-.btn-confirm:hover { background: #2563eb; }
+
+.btn-confirm:hover {
+    background: #2563eb;
+}
 
 /* Tùy chỉnh thanh cuộn (Scrollbar) cho đẹp */
-.student-modal-list::-webkit-scrollbar { width: 6px; }
-.student-modal-list::-webkit-scrollbar-track { background: transparent; }
-.student-modal-list::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
-.student-modal-list::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+.student-modal-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.student-modal-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.student-modal-list::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 4px;
+}
+
+.student-modal-list::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+/* ==================================================
+       FIX NÚT CHỌN MÀU QUILL BỊ TRẮNG / CHÌM VÀO NỀN
+       ================================================== */
+
+.ql-toolbar .ql-color-picker {
+    width: 30px !important;
+    height: 30px !important;
+    vertical-align: middle !important;
+}
+
+.ql-toolbar .ql-color-picker .ql-picker-label {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    width: 28px !important;
+    height: 28px !important;
+    padding: 3px !important;
+
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+
+    opacity: 1 !important;
+    visibility: visible !important;
+    overflow: visible !important;
+}
+
+/* Buộc biểu tượng SVG hiện rõ */
+.ql-toolbar .ql-color-picker .ql-picker-label svg {
+    display: block !important;
+    width: 18px !important;
+    height: 18px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Nét của biểu tượng */
+.ql-toolbar .ql-color-picker .ql-stroke {
+    stroke: #1f2937 !important;
+    opacity: 1 !important;
+}
+
+/* Phần tô của biểu tượng */
+.ql-toolbar .ql-color-picker .ql-fill {
+    fill: #1f2937 !important;
+    opacity: 1 !important;
+}
+
+/* Vạch thể hiện màu chữ đang chọn */
+.ql-toolbar .ql-color-picker.ql-color .ql-color-label {
+    stroke: #e11d48 !important;
+    stroke-width: 3px !important;
+}
+
+/* Biểu tượng màu nền */
+.ql-toolbar .ql-color-picker.ql-background .ql-color-label {
+    fill: #f59e0b !important;
+    stroke: #1f2937 !important;
+}
+
+/* Khi rê chuột */
+.ql-toolbar .ql-color-picker .ql-picker-label:hover {
+    background: #eef2ff !important;
+    border-color: #667eea !important;
+}
+
+/* Bảng màu luôn nằm trên khung nhập */
+.ql-toolbar .ql-color-picker .ql-picker-options {
+    z-index: 99999 !important;
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18) !important;
+}

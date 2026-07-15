@@ -22,86 +22,264 @@
     --lotm-ink: rgba(2, 3, 6, 0.94);
 }
 
-/* ===============================
-   NHÃN SỰ KIỆN
-   =============================== */
+/* =========================================================
+   TAG LORD OF THE MYSTERIES — PHONG ẤN SƯƠNG XÁM
+   ========================================================= */
 
-.tag-lotm {
-    width: 196px !important;
-    padding: 6px 0 !important;
+.store-item-card .item-tag.tag-lotm {
     position: absolute !important;
+
     top: 14px !important;
-    right: -57px !important;
+    right: -48px !important;
+    left: auto !important;
+    bottom: auto !important;
+
+    width: 174px !important;
+    min-width: 174px !important;
+    height: 38px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
     display: flex !important;
-    justify-content: flex-start !important;
+    align-items: center;
+    justify-content: center !important;
+
     overflow: hidden !important;
-    color: #fff7df;
+
+    color: #f5e5bd !important;
+
     background:
         linear-gradient(
-            90deg,
-            transparent 0 5%,
-            rgba(245, 217, 154, 0.22) 17%,
-            transparent 30%
+            105deg,
+            transparent 0 28%,
+            rgba(217, 224, 231, 0.13) 42%,
+            transparent 57%
         ),
         linear-gradient(
             135deg,
-            #090b10 0%,
-            #3a2f23 26%,
-            #a58149 50%,
-            #3a2f23 74%,
-            #090b10 100%
-        );
-    border-top: 1px solid rgba(245, 217, 154, 0.9);
-    border-bottom: 1px solid rgba(245, 217, 154, 0.9);
+            #05070b 0%,
+            #11151d 24%,
+            #493c2c 49%,
+            #17151a 72%,
+            #05070b 100%
+        ) !important;
+
+    border-top:
+        1px solid rgba(245, 217, 154, 0.88) !important;
+
+    border-bottom:
+        1px solid rgba(125, 23, 36, 0.78) !important;
+
+    border-left:
+        1px solid rgba(217, 224, 231, 0.22) !important;
+
+    border-right:
+        1px solid rgba(217, 224, 231, 0.22) !important;
+
+    border-radius: 2px !important;
+
     box-shadow:
-        0 4px 16px rgba(0, 0, 0, 0.72),
-        0 0 22px rgba(201, 169, 110, 0.34),
-        inset 0 0 15px rgba(0, 0, 0, 0.7);
-    font-weight: 900;
-    letter-spacing: 0.7px;
-    text-transform: uppercase;
+        0 8px 20px rgba(0, 0, 0, 0.64),
+        0 0 16px rgba(201, 169, 110, 0.22),
+        inset 0 0 18px rgba(0, 0, 0, 0.72),
+        inset 0 2px 0 rgba(245, 217, 154, 0.12) !important;
+
+    transform: rotate(45deg) !important;
+    transform-origin: center center !important;
+
+    z-index: 21;
+
+    box-sizing: border-box;
+
+    transition:
+        filter 0.28s ease,
+        box-shadow 0.28s ease;
 }
 
-.tag-lotm::before,
-.tag-lotm::after {
-    content: '✦';
-    position: absolute;
-    top: 50%;
-    z-index: 3;
-    color: var(--lotm-gold-bright);
-    font-size: 8px;
-    text-shadow: 0 0 8px var(--lotm-gold-bright);
-    transform: translateY(-50%);
-}
 
-.tag-lotm::before {
-    left: 7px;
-}
-
-.tag-lotm::after {
-    right: 7px;
-}
-
-.tag-lotm span {
-    display: inline-block;
+/* Ẩn chuỗi dài gốc nhưng vẫn giữ HTML */
+.store-item-card .item-tag.tag-lotm span {
     position: relative;
+    z-index: 5;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+
+    padding: 0 7px 0 23px !important;
+
+    color: transparent !important;
+
+    font-size: 0 !important;
+    line-height: 1;
+
     white-space: nowrap;
-    padding-right: 34px;
-    font-size: 0.92em !important;
-    animation: lotmEventMarquee 7.5s linear infinite;
+
+    animation: none !important;
+    transform: none !important;
 }
 
-.tag-lotm span::after {
-    content: 'LORD OF THE MYSTERIES • EVENT MYTHIC';
+
+/* Nội dung hiển thị vừa đúng kích thước tag */
+.store-item-card .item-tag.tag-lotm span::before {
+    content: "LORD OF MYSTERIES";
+
+    color: #f5e5bd;
+
+    font-family:
+        "Cinzel",
+        "Palatino Linotype",
+        Georgia,
+        serif;
+
+    font-size: 8.7px;
+    font-weight: 900;
+    line-height: 1;
+
+    letter-spacing: 0.55px;
+    text-transform: uppercase;
+
+    text-shadow:
+        0 1px 0 #000000,
+        0 0 6px rgba(201, 169, 110, 0.54);
+}
+
+
+/* Xóa dòng chữ marquee cũ */
+.store-item-card .item-tag.tag-lotm span::after {
+    content: none !important;
+    display: none !important;
+}
+
+
+/* Huy hiệu con mắt bí ẩn */
+.store-item-card .item-tag.tag-lotm::before {
+    content: "◉";
+
     position: absolute;
-    top: 0;
-    left: 100%;
-    white-space: nowrap;
+    z-index: 6;
+
+    left: 29px;
+    top: 50%;
+
+    transform: translateY(-51%);
+
+    color: #d8bd82;
+
+    font-size: 14px;
+    line-height: 1;
+
+    text-shadow:
+        0 0 4px rgba(245, 217, 154, 0.92),
+        0 0 10px rgba(125, 23, 36, 0.52);
+
+    pointer-events: none;
+
+    animation:
+        lotm-seal-eye-pulse
+        3.8s
+        ease-in-out
+        infinite;
 }
 
-@keyframes lotmEventMarquee {
-    to {
-        transform: translateX(-100%);
+
+/* Làn sương chạy bên trong phong ấn */
+.store-item-card .item-tag.tag-lotm::after {
+    content: "";
+
+    position: absolute;
+    z-index: 2;
+
+    top: -50%;
+    left: -35%;
+
+    width: 70%;
+    height: 210%;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(217, 224, 231, 0.2),
+            rgba(140, 152, 166, 0.07) 48%,
+            transparent 72%
+        );
+
+    filter: blur(5px);
+
+    transform:
+        translateX(-90%)
+        rotate(12deg);
+
+    animation:
+        lotm-sefirah-fog-pass
+        7.2s
+        ease-in-out
+        infinite;
+
+    pointer-events: none;
+}
+
+
+.store-item-card:hover .item-tag.tag-lotm {
+    filter:
+        brightness(1.1)
+        contrast(1.04);
+
+    box-shadow:
+        0 10px 24px rgba(0, 0, 0, 0.72),
+        0 0 21px rgba(201, 169, 110, 0.32),
+        0 0 11px rgba(125, 23, 36, 0.2),
+        inset 0 0 18px rgba(0, 0, 0, 0.75) !important;
+}
+
+
+/* Animation mới, không dùng marquee cũ */
+@keyframes lotm-seal-eye-pulse {
+    0%,
+    100% {
+        opacity: 0.65;
+
+        text-shadow:
+            0 0 3px rgba(245, 217, 154, 0.7),
+            0 0 8px rgba(125, 23, 36, 0.35);
+    }
+
+    50% {
+        opacity: 1;
+
+        text-shadow:
+            0 0 6px rgba(245, 217, 154, 1),
+            0 0 14px rgba(125, 23, 36, 0.58);
+    }
+}
+
+
+@keyframes lotm-sefirah-fog-pass {
+    0%,
+    55% {
+        transform:
+            translateX(-90%)
+            rotate(12deg);
+
+        opacity: 0;
+    }
+
+    70% {
+        opacity: 0.74;
+    }
+
+    92%,
+    100% {
+        transform:
+            translateX(280%)
+            rotate(6deg);
+
+        opacity: 0;
     }
 }
 
@@ -3261,3 +3439,981 @@ body.theme-lotm-mysteries .content > :is(
     }
 }
 /* === END FIX HIỂN THỊ 4 NÚT HỆ THỐNG — LOTM === */
+/* =========================================================
+   HOTFIX NỀN: THẦN ĐIỆN SƯƠNG MÙ XÁM
+   Khử thuộc tính body::before/body::after từ common.css mới.
+   Chỉ tác động khi body có class theme-lotm-mysteries.
+   ========================================================= */
+
+body.theme-lotm-mysteries {
+    color-scheme: dark;
+    overflow-x: hidden;
+}
+
+/* common.css mới đặt pseudo-element thành hình tròn 280px.
+   Phải trả lại kích thước toàn màn hình cho bầu trời và đại điện. */
+body.theme-lotm-mysteries::before,
+body.theme-lotm-mysteries::after {
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    pointer-events: none !important;
+}
+
+body.theme-lotm-mysteries::before {
+    inset: -8% !important;
+    opacity: 1 !important;
+    filter: blur(.2px) !important;
+    transform: translateZ(0) !important;
+}
+
+body.theme-lotm-mysteries::after {
+    left: -4vw !important;
+    right: -4vw !important;
+    top: 4vh !important;
+    bottom: -18vh !important;
+    opacity: .8 !important;
+    filter: none !important;
+    transform: none !important;
+}
+
+/* Xóa dải sáng 170px do giao diện chung đặt phía trên .content. */
+body.theme-lotm-mysteries .content::before,
+body.theme-lotm-mysteries .main-content::before,
+body.theme-lotm-mysteries .page-content::before {
+    content: none !important;
+    display: none !important;
+    background: none !important;
+}
+
+/* Bảo đảm khung nội dung không tạo nền sáng che Đại Điện. */
+body.theme-lotm-mysteries .dashboard,
+body.theme-lotm-mysteries .content,
+body.theme-lotm-mysteries .main-content,
+body.theme-lotm-mysteries .page-content,
+body.theme-lotm-mysteries main {
+    background-color: transparent !important;
+    background-image: none !important;
+}
+/* =========================================================
+   AMON TRINITY STORE CARD
+   PHONG ẤN KẺ ĐÁNH CẮP THỜI GIAN
+
+   Áp dụng cho:
+   - Thiên Sứ Thời Gian Amon
+   - Nghịch Lý Ký Sinh
+   - Thần Điện Sương Mù Xám
+
+   Không nhận CSS từ vật phẩm giao diện.
+   ========================================================= */
+
+
+/* =========================================================
+   CARD CHÍNH — KHÓA TOÀN BỘ GIAO DIỆN
+   ========================================================= */
+
+html body
+.store-item-card.store-card-amon-trinity.store-theme-locked {
+    --amon-card-void: #05070b;
+    --amon-card-black: #0a0d13;
+    --amon-card-fog: #8c98a6;
+    --amon-card-fog-light: #d9e0e7;
+    --amon-card-gold: #c9a96e;
+    --amon-card-gold-light: #f5d99a;
+    --amon-card-bronze: #746044;
+    --amon-card-red: #7d1724;
+
+    position: relative !important;
+    isolation: isolate !important;
+    overflow: hidden !important;
+
+    color:
+        var(--amon-card-fog-light)
+        !important;
+
+    font-family:
+        "Trebuchet MS",
+        "Segoe UI",
+        Arial,
+        sans-serif
+        !important;
+
+    background:
+        radial-gradient(
+            circle at 50% 2%,
+            rgba(245, 217, 154, 0.13),
+            transparent 27%
+        ),
+        radial-gradient(
+            circle at 9% 77%,
+            rgba(125, 23, 36, 0.16),
+            transparent 32%
+        ),
+        radial-gradient(
+            circle at 92% 78%,
+            rgba(140, 152, 166, 0.13),
+            transparent 34%
+        ),
+        linear-gradient(
+            150deg,
+            #05070b 0%,
+            #12151b 35%,
+            #201a15 53%,
+            #0b0d12 75%,
+            #040508 100%
+        )
+        !important;
+
+    border:
+        1px solid
+        rgba(201, 169, 110, 0.72)
+        !important;
+
+    border-radius:
+        4px 27px 4px 27px
+        !important;
+
+    box-shadow:
+        0 20px 44px
+        rgba(0, 0, 0, 0.52),
+
+        0 0 22px
+        rgba(201, 169, 110, 0.13),
+
+        inset 0 1px 0
+        rgba(245, 217, 154, 0.2),
+
+        inset 0 -14px 28px
+        rgba(0, 0, 0, 0.42)
+        !important;
+
+    backdrop-filter:
+        blur(7px)
+        saturate(0.9)
+        !important;
+
+    -webkit-backdrop-filter:
+        blur(7px)
+        saturate(0.9)
+        !important;
+
+    transition:
+        transform 0.34s
+        cubic-bezier(.22, 1, .36, 1),
+
+        border-color 0.34s ease,
+
+        box-shadow 0.34s ease
+        !important;
+}
+
+
+/* =========================================================
+   MẶT ĐỒNG HỒ PHÍA SAU ICON
+   ========================================================= */
+
+html body
+.store-item-card.store-card-amon-trinity.store-theme-locked::before {
+    content: "";
+
+    position: absolute !important;
+    z-index: 0 !important;
+
+    top: -67px !important;
+    left: 50% !important;
+
+    width: 194px !important;
+    height: 194px !important;
+
+    transform:
+        translateX(-50%)
+        rotate(0deg);
+
+    border:
+        1px solid
+        rgba(201, 169, 110, 0.42)
+        !important;
+
+    border-radius:
+        50% !important;
+
+    background:
+        repeating-conic-gradient(
+            from 0deg,
+            rgba(245, 217, 154, 0.73)
+            0deg 1deg,
+
+            transparent
+            1deg 15deg
+        ),
+        radial-gradient(
+            circle,
+            rgba(4, 5, 8, 0.96)
+            0 43%,
+
+            rgba(116, 96, 68, 0.21)
+            44% 46%,
+
+            transparent
+            47%
+        )
+        !important;
+
+    box-shadow:
+        0 0 20px
+        rgba(201, 169, 110, 0.18),
+
+        0 0 46px
+        rgba(140, 152, 166, 0.1),
+
+        inset 0 0 23px
+        rgba(0, 0, 0, 0.94)
+        !important;
+
+    opacity: 0.76 !important;
+
+    animation:
+        amon-store-chronicle-turn
+        26s
+        linear
+        infinite
+        !important;
+
+    pointer-events: none !important;
+}
+
+
+/* Khung phong ấn trong card */
+html body
+.store-item-card.store-card-amon-trinity.store-theme-locked::after {
+    content: "";
+
+    position: absolute !important;
+    z-index: 1 !important;
+
+    inset: 9px !important;
+
+    pointer-events: none !important;
+
+    border:
+        1px solid
+        rgba(217, 224, 231, 0.12)
+        !important;
+
+    border-radius:
+        1px 19px 1px 19px
+        !important;
+
+    background:
+        linear-gradient(
+            115deg,
+            transparent 0 43%,
+            rgba(245, 217, 154, 0.035)
+            49%,
+            transparent 55%
+        )
+        !important;
+
+    box-shadow:
+        inset 0 0 18px
+        rgba(201, 169, 110, 0.035)
+        !important;
+}
+
+
+/* Nội dung nằm trên lớp phong ấn */
+html body
+.store-item-card.store-card-amon-trinity.store-theme-locked
+> .card-glow,
+
+html body
+.store-item-card.store-card-amon-trinity.store-theme-locked
+> .item-icon-wrapper,
+
+html body
+.store-item-card.store-card-amon-trinity.store-theme-locked
+> .item-info,
+
+html body
+.store-item-card.store-card-amon-trinity.store-theme-locked
+> .item-actions {
+    position: relative !important;
+    z-index: 4 !important;
+}
+
+
+/* =========================================================
+   SƯƠNG XÁM QUANH ICON
+   ========================================================= */
+
+html body
+.store-item-card.store-card-amon-trinity.store-theme-locked
+.card-glow {
+    position: absolute !important;
+    z-index: 1 !important;
+
+    top: 10px !important;
+    left: 50% !important;
+
+    width: 180px !important;
+    height: 140px !important;
+
+    transform:
+        translateX(-50%)
+        scale(1);
+
+    border-radius: 50% !important;
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(217, 224, 231, 0.2),
+            rgba(140, 152, 166, 0.12)
+            43%,
+            rgba(125, 23, 36, 0.055)
+            59%,
+            transparent 73%
+        )
+        !important;
+
+    filter: blur(7px) !important;
+
+    opacity: 0.76 !important;
+
+    animation:
+        amon-store-gray-fog
+        5.8s
+        ease-in-out
+        infinite
+        !important;
+}
+
+
+/* =========================================================
+   KHUNG ICON — KÍNH MỘT TRÒNG
+   ========================================================= */
+
+html body
+.store-item-card.store-card-amon-trinity.store-theme-locked
+.item-icon-wrapper {
+    width: 108px !important;
+    height: 104px !important;
+
+    margin:
+        0 auto 13px
+        !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    overflow: visible !important;
+
+    border:
+        1px solid
+        rgba(201, 169, 110, 0.32)
+        !important;
+
+    border-radius: 50% !important;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(245, 217, 154, 0.08),
+            rgba(10, 13, 19, 0.62)
+            57%,
+            transparent 72%
+        )
+        !important;
+
+    box-shadow:
+        0 0 18px
+        rgba(201, 169, 110, 0.13),
+
+        inset 0 0 18px
+        rgba(0, 0, 0, 0.38)
+        !important;
+}
+
+
+/* Vạch giờ chạy quanh icon */
+html body
+.store-item-card.store-card-amon-trinity.store-theme-locked
+.item-icon-wrapper::before {
+    content: "";
+
+    position: absolute !important;
+    inset: 4px !important;
+
+    border-radius: 50% !important;
+
+    background:
+        repeating-conic-gradient(
+            from 0deg,
+            rgba(245, 217, 154, 0.8)
+            0deg 1deg,
+
+            transparent
+            1deg 30deg
+        )
+        !important;
+
+    border:
+        1px solid
+        rgba(217, 224, 231, 0.18)
+        !important;
+
+    opacity: 0.68 !important;
+
+    animation:
+        amon-store-hour-marks
+        16s
+        steps(60)
+        infinite
+        !important;
+
+    pointer-events: none !important;
+}
+
+
+/* Kính một tròng và dây xích */
+html body
+.store-item-card.store-card-amon-trinity.store-theme-locked
+.item-icon-wrapper::after {
+    content: "◉";
+
+    position: absolute !important;
+
+    right: -4px !important;
+    bottom: 7px !important;
+
+    color:
+        var(--amon-card-gold-light)
+        !important;
+
+    font-family:
+        Georgia,
+        serif
+        !important;
+
+    font-size: 17px !important;
+    line-height: 1 !important;
+
+    text-shadow:
+        0 0 5px
+        rgba(245, 217, 154, 0.94),
+
+        0 0 12px
+        rgba(125, 23, 36, 0.5)
+        !important;
+
+    filter:
+        drop-shadow(
+            -5px 9px 0
+            rgba(201, 169, 110, 0.5)
+        )
+        !important;
+
+    animation:
+        amon-store-monocle-watch
+        3.8s
+        ease-in-out
+        infinite
+        !important;
+
+    pointer-events: none !important;
+}
+
+
+/* =========================================================
+   ICON VẬT PHẨM
+   ========================================================= */
+
+html body
+.store-item-card.store-card-amon-trinity.store-theme-locked
+.item-icon {
+    position: relative !important;
+    z-index: 3 !important;
+
+    color:
+        var(--amon-card-gold-light)
+        !important;
+
+    background: transparent !important;
+
+    filter:
+        drop-shadow(
+            0 10px 12px
+            rgba(0, 0, 0, 0.6)
+        )
+        drop-shadow(
+            0 0 7px
+            rgba(201, 169, 110, 0.34)
+        )
+        !important;
+
+    transition:
+        transform 0.35s
+        cubic-bezier(.22, 1, .36, 1),
+
+        filter 0.35s ease
+        !important;
+}
+
+
+/* Ảnh Amon */
+html body
+.store-item-card.store-card-amon-trinity.store-theme-locked
+img.item-icon {
+    width: 88px !important;
+    height: 88px !important;
+
+    max-width: none !important;
+
+    object-fit: contain !important;
+}
+
+
+/* Icon hiệu ứng và giao diện */
+html body
+.store-item-card.store-card-amon-trinity.store-theme-locked
+div.item-icon {
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif
+        !important;
+
+    font-size: 3.6em !important;
+}
+
+/* =========================================================
+   TÊN VÀ LOẠI VẬT PHẨM
+   ========================================================= */
+
+html body
+.store-item-card.store-card-amon-trinity.store-theme-locked
+.item-info {
+    margin-bottom: 19px !important;
+
+    color:
+        var(--amon-card-fog-light)
+        !important;
+
+    background: transparent !important;
+}
+
+
+html body
+.store-item-card.store-card-amon-trinity.store-theme-locked
+.item-name {
+    color:
+        var(--amon-card-gold-light)
+        !important;
+
+    font-family:
+        "Cinzel",
+        "Palatino Linotype",
+        Georgia,
+        serif
+        !important;
+
+    font-weight: 900 !important;
+    letter-spacing: 0.22px !important;
+
+    text-shadow:
+        0 2px 4px
+        rgba(0, 0, 0, 0.92),
+
+        0 0 8px
+        rgba(201, 169, 110, 0.24)
+        !important;
+}
+
+
+html body
+.store-item-card.store-card-amon-trinity.store-theme-locked
+.item-type-label {
+    color:
+        #b8c0c9
+        !important;
+
+    font-family:
+        "Trebuchet MS",
+        "Segoe UI",
+        sans-serif
+        !important;
+
+    font-weight: 800 !important;
+    letter-spacing: 1.05px !important;
+
+    background: transparent !important;
+
+    text-shadow:
+        0 1px 2px
+        rgba(0, 0, 0, 0.8)
+        !important;
+}
+
+
+/* Đường thời gian dưới tên */
+html body
+.store-item-card.store-card-amon-trinity.store-theme-locked
+.item-info::after {
+    content: "";
+
+    display: block !important;
+
+    width: 65px !important;
+    height: 1px !important;
+
+    margin:
+        12px auto 0
+        !important;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(245, 217, 154, 0.87),
+            rgba(125, 23, 36, 0.58),
+            transparent
+        )
+        !important;
+
+    box-shadow:
+        0 0 7px
+        rgba(201, 169, 110, 0.27)
+        !important;
+}
+
+
+/* =========================================================
+   NÚT — KHÓA KHỎI THEME
+   ========================================================= */
+
+html body
+.store-item-card.store-card-amon-trinity.store-theme-locked
+.item-actions {
+    gap: 10px !important;
+
+    background: transparent !important;
+}
+
+
+html body
+.store-item-card.store-card-amon-trinity.store-theme-locked
+.item-actions button {
+    min-height: 50px !important;
+
+    color:
+        var(--amon-card-gold-light)
+        !important;
+
+    font-family:
+        "Trebuchet MS",
+        "Segoe UI",
+        sans-serif
+        !important;
+
+    font-weight: 900 !important;
+
+    border-radius:
+        3px 14px 3px 14px
+        !important;
+
+    transition:
+        transform 0.22s ease,
+        filter 0.22s ease,
+        box-shadow 0.22s ease
+        !important;
+}
+
+
+/* Nút chính */
+html body
+.store-item-card.store-card-amon-trinity.store-theme-locked
+:is(
+    .btn-buy,
+    .btn-equip:not(.active)
+) {
+    color:
+        #fff3cf
+        !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #11151c,
+            #4e3f2c 50%,
+            #771a27
+        )
+        !important;
+
+    border:
+        1px solid
+        rgba(245, 217, 154, 0.52)
+        !important;
+
+    box-shadow:
+        0 7px 18px
+        rgba(0, 0, 0, 0.42),
+
+        inset 0 1px 0
+        rgba(245, 217, 154, 0.15)
+        !important;
+}
+
+
+/* Nút dùng thử / khóa */
+html body
+.store-item-card.store-card-amon-trinity.store-theme-locked
+.btn-preview {
+    color:
+        #bdc5ce
+        !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(15, 18, 24, 0.94),
+            rgba(55, 51, 47, 0.9)
+        )
+        !important;
+
+    border:
+        1px dashed
+        rgba(201, 169, 110, 0.34)
+        !important;
+
+    box-shadow:
+        inset 0 0 12px
+        rgba(0, 0, 0, 0.35)
+        !important;
+}
+
+
+/* =========================================================
+   HOVER
+   ========================================================= */
+
+html body
+.store-item-card.store-card-amon-trinity.store-theme-locked:hover {
+    transform:
+        translateY(-7px)
+        scale(1.012)
+        !important;
+
+    border-color:
+        rgba(245, 217, 154, 0.94)
+        !important;
+
+    box-shadow:
+        0 26px 52px
+        rgba(0, 0, 0, 0.66),
+
+        0 0 28px
+        rgba(201, 169, 110, 0.25),
+
+        0 0 13px
+        rgba(125, 23, 36, 0.15),
+
+        inset 0 1px 0
+        rgba(245, 217, 154, 0.27),
+
+        inset 0 -14px 28px
+        rgba(0, 0, 0, 0.46)
+        !important;
+}
+
+
+html body
+.store-item-card.store-card-amon-trinity.store-theme-locked:hover
+.item-icon {
+    transform:
+        translateY(-4px)
+        scale(1.08)
+        rotate(1deg)
+        !important;
+
+    filter:
+        drop-shadow(
+            0 12px 14px
+            rgba(0, 0, 0, 0.68)
+        )
+        drop-shadow(
+            0 0 13px
+            rgba(245, 217, 154, 0.55)
+        )
+        !important;
+}
+
+
+html body
+.store-item-card.store-card-amon-trinity.store-theme-locked
+.item-actions button:hover:not(:disabled) {
+    transform:
+        translateY(-2px)
+        !important;
+
+    filter:
+        brightness(1.08)
+        saturate(1.04)
+        !important;
+}
+
+
+/* =========================================================
+   ANIMATION RIÊNG
+   ========================================================= */
+
+@keyframes amon-store-chronicle-turn {
+    from {
+        transform:
+            translateX(-50%)
+            rotate(0deg);
+    }
+
+    to {
+        transform:
+            translateX(-50%)
+            rotate(360deg);
+    }
+}
+
+
+@keyframes amon-store-gray-fog {
+    0%,
+    100% {
+        transform:
+            translateX(-50%)
+            translateY(2px)
+            scale(0.91);
+
+        opacity: 0.46;
+    }
+
+    50% {
+        transform:
+            translateX(-50%)
+            translateY(-5px)
+            scale(1.09);
+
+        opacity: 0.86;
+    }
+}
+
+
+@keyframes amon-store-hour-marks {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(-360deg);
+    }
+}
+
+
+@keyframes amon-store-monocle-watch {
+    0%,
+    100% {
+        transform:
+            translateY(1px)
+            rotate(-3deg)
+            scale(0.87);
+
+        opacity: 0.58;
+    }
+
+    50% {
+        transform:
+            translateY(-2px)
+            rotate(2deg)
+            scale(1.08);
+
+        opacity: 1;
+    }
+}
+
+
+@keyframes amon-store-tag-eye {
+    0%,
+    100% {
+        opacity: 0.6;
+    }
+
+    50% {
+        opacity: 1;
+
+        text-shadow:
+            0 0 7px
+            rgba(245, 217, 154, 1),
+
+            0 0 15px
+            rgba(125, 23, 36, 0.62);
+    }
+}
+
+
+@keyframes amon-store-tag-fog {
+    0%,
+    57% {
+        transform:
+            translateX(-130%)
+            rotate(12deg);
+
+        opacity: 0;
+    }
+
+    72% {
+        opacity: 0.68;
+    }
+
+    94%,
+    100% {
+        transform:
+            translateX(410%)
+            rotate(5deg);
+
+        opacity: 0;
+    }
+}
+
+
+/* =========================================================
+   TẮT CHUYỂN ĐỘNG KHI THIẾT BỊ YÊU CẦU
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    html body
+    .store-item-card.store-card-amon-trinity::before,
+
+    html body
+    .store-item-card.store-card-amon-trinity
+    .card-glow,
+
+    html body
+    .store-item-card.store-card-amon-trinity
+    .item-icon-wrapper::before,
+
+    html body
+    .store-item-card.store-card-amon-trinity
+    .item-icon-wrapper::after,
+
+    html body
+    .store-item-card.store-card-amon-trinity
+    > .item-tag.tag-lotm::before,
+
+    html body
+    .store-item-card.store-card-amon-trinity
+    > .item-tag.tag-lotm::after {
+        animation: none !important;
+    }
+}

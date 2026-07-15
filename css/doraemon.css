@@ -1,0 +1,3021 @@
+/* =========================================================
+   TAG DORAEMON — CHUÔNG TUỔI THƠ
+   Tag riêng cho pet, theme và effect Doraemon
+   ========================================================= */
+
+.store-item-card:has(.item-tag.tag-doraemon) {
+    position: relative;
+    overflow: hidden;
+}
+
+
+/* Thanh ruy-băng */
+.store-item-card .item-tag.tag-doraemon {
+    position: absolute !important;
+
+    top: 13px !important;
+    right: -42px !important;
+    left: auto !important;
+    bottom: auto !important;
+
+    width: 152px !important;
+    min-width: 152px !important;
+    height: 36px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    color: #ffffff;
+
+    background:
+        linear-gradient(
+            135deg,
+            #087fc4 0%,
+            #18a8e5 48%,
+            #68d1f3 100%
+        );
+
+    border:
+        1px solid rgba(255, 255, 255, 0.82) !important;
+
+    border-radius: 4px !important;
+
+    box-shadow:
+        0 7px 16px rgba(8, 127, 196, 0.28),
+        inset 0 2px 0 rgba(255, 255, 255, 0.34),
+        inset 0 -4px 0 rgba(230, 62, 81, 0.42);
+
+    transform: rotate(45deg) !important;
+    transform-origin: center center !important;
+
+    z-index: 20;
+
+    box-sizing: border-box;
+
+    transition:
+        filter 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+
+/* Chữ Doraemon */
+.store-item-card .item-tag.tag-doraemon span {
+    position: relative;
+    z-index: 3;
+
+    display: block;
+
+    padding-left: 20px;
+
+    color: #ffffff;
+
+    font-family:
+        "Trebuchet MS",
+        "Arial Rounded MT Bold",
+        "Segoe UI",
+        sans-serif;
+
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1;
+
+    letter-spacing: 0.45px;
+    white-space: nowrap;
+
+    text-align: center;
+
+    text-shadow:
+        0 1px 0 rgba(0, 72, 119, 0.78),
+        0 0 5px rgba(255, 255, 255, 0.34);
+}
+
+
+/* Chuông vàng Doraemon */
+.store-item-card .item-tag.tag-doraemon::before {
+    content: "";
+
+    position: absolute;
+    z-index: 4;
+
+    left: 27px;
+    top: 50%;
+
+    width: 15px;
+    height: 15px;
+
+    transform: translateY(-50%);
+
+    border:
+        2px solid rgba(255, 255, 255, 0.92);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 50% 67%,
+            #985c00 0 8%,
+            transparent 9%
+        ),
+        linear-gradient(
+            180deg,
+            #fff5a3 0%,
+            #ffd84d 48%,
+            #f3a900 100%
+        );
+
+    box-shadow:
+        0 2px 5px rgba(112, 67, 0, 0.3),
+        inset 0 2px 2px rgba(255, 255, 255, 0.72);
+
+    pointer-events: none;
+}
+
+
+/* Vệt sáng chạy nhẹ */
+.store-item-card .item-tag.tag-doraemon::after {
+    content: "";
+
+    position: absolute;
+    z-index: 2;
+
+    top: -45%;
+    left: -45%;
+
+    width: 30%;
+    height: 190%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.72),
+            transparent
+        );
+
+    transform:
+        rotate(17deg)
+        translateX(-190%);
+
+    animation:
+        doraemon-tag-bell-shine
+        4.8s
+        ease-in-out
+        infinite;
+
+    pointer-events: none;
+}
+
+
+/* Rê chuột vào thẻ */
+.store-item-card:hover .item-tag.tag-doraemon {
+    filter:
+        brightness(1.06)
+        saturate(1.08);
+
+    box-shadow:
+        0 9px 20px rgba(8, 127, 196, 0.34),
+        inset 0 2px 0 rgba(255, 255, 255, 0.42),
+        inset 0 -4px 0 rgba(230, 62, 81, 0.52);
+}
+
+
+/* Animation riêng của tag Doraemon */
+@keyframes doraemon-tag-bell-shine {
+    0%,
+    58% {
+        transform:
+            rotate(17deg)
+            translateX(-190%);
+    }
+
+    78% {
+        transform:
+            rotate(17deg)
+            translateX(560%);
+    }
+
+    100% {
+        transform:
+            rotate(17deg)
+            translateX(560%);
+    }
+}
+
+
+/* Tắt chuyển động khi thiết bị yêu cầu */
+@media (prefers-reduced-motion: reduce) {
+    .store-item-card
+    .item-tag.tag-doraemon::after {
+        animation: none !important;
+    }
+}
+
+
+/* =========================================================
+   KHUNG THÚ CƯNG
+   ========================================================= */
+
+#virtual-pet-container.pet-doraemon-shizuka-stage {
+    isolation: isolate;
+    overflow: visible;
+}
+
+
+/* Hào quang tròn phía sau ảnh */
+
+#virtual-pet-container.pet-doraemon-shizuka-stage::before {
+    content: "";
+
+    position: absolute;
+    z-index: -1;
+
+    left: 50%;
+    top: 50%;
+
+    width: 145px;
+    height: 145px;
+
+    border-radius: 50%;
+
+    background: radial-gradient(
+        circle,
+        rgba(255, 255, 255, 0.68) 0%,
+        rgba(255, 231, 137, 0.28) 43%,
+        rgba(255, 202, 61, 0.12) 62%,
+        transparent 74%
+    );
+
+    border: 2px solid rgba(255, 207, 70, 0.35);
+
+    box-shadow:
+        0 0 16px rgba(255, 211, 80, 0.24),
+        inset 0 0 18px rgba(255, 255, 255, 0.48);
+
+    transform: translate(-50%, -50%);
+
+    animation:
+        shizuka-soft-halo
+        3.8s
+        ease-in-out
+        infinite;
+
+    pointer-events: none;
+}
+
+
+/* Một nốt nhạc nhỏ bên cạnh */
+
+#virtual-pet-container.pet-doraemon-shizuka-stage::after {
+    content: "♪";
+
+    position: absolute;
+    z-index: 4;
+
+    top: 2px;
+    right: -3px;
+
+    color: #e883aa;
+
+    font-size: 23px;
+    font-weight: 700;
+
+    text-shadow:
+        0 2px 4px rgba(255, 255, 255, 0.95),
+        0 3px 8px rgba(232, 131, 170, 0.28);
+
+    animation:
+        shizuka-music-note
+        3.2s
+        ease-in-out
+        infinite;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   ẢNH SHIZUKA
+   ========================================================= */
+
+#virtual-pet-container.pet-doraemon-shizuka-stage
+#virtual-pet-img.doraemon-shizuka-study-magic {
+    position: relative;
+    z-index: 2;
+
+    width: 132px !important;
+    height: auto !important;
+
+    object-fit: contain;
+
+    transform-origin: center bottom;
+
+    filter:
+        drop-shadow(
+            0 8px 10px
+            rgba(18, 100, 145, 0.18)
+        )
+        drop-shadow(
+            0 0 5px
+            rgba(255, 222, 112, 0.24)
+        );
+
+    animation:
+        shizuka-gentle-float
+        4s
+        ease-in-out
+        infinite;
+
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+
+/* =========================================================
+   ANIMATION RIÊNG
+   ========================================================= */
+
+@keyframes shizuka-tag-light {
+    0%,
+    55% {
+        left: -70%;
+    }
+
+    78%,
+    100% {
+        left: 130%;
+    }
+}
+
+
+@keyframes shizuka-soft-halo {
+    0%,
+    100% {
+        transform:
+            translate(-50%, -50%)
+            scale(0.97);
+
+        opacity: 0.68;
+    }
+
+    50% {
+        transform:
+            translate(-50%, -50%)
+            scale(1.035);
+
+        opacity: 1;
+    }
+}
+
+
+@keyframes shizuka-gentle-float {
+    0%,
+    100% {
+        transform:
+            translateY(0)
+            rotate(-0.3deg);
+    }
+
+    50% {
+        transform:
+            translateY(-6px)
+            rotate(0.3deg);
+    }
+}
+
+
+@keyframes shizuka-music-note {
+    0%,
+    100% {
+        transform:
+            translateY(2px)
+            rotate(-7deg)
+            scale(0.92);
+
+        opacity: 0.52;
+    }
+
+    50% {
+        transform:
+            translateY(-6px)
+            rotate(5deg)
+            scale(1.06);
+
+        opacity: 0.95;
+    }
+}
+
+
+/* =========================================================
+   TẮT CHUYỂN ĐỘNG KHI THIẾT BỊ YÊU CẦU
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    .item-tag.tag-doraemon::before,
+
+    #virtual-pet-container.pet-doraemon-shizuka-stage::before,
+
+    #virtual-pet-container.pet-doraemon-shizuka-stage::after,
+
+    #virtual-pet-container.pet-doraemon-shizuka-stage
+    #virtual-pet-img.doraemon-shizuka-study-magic {
+        animation: none !important;
+    }
+}
+/* Phóng riêng ảnh Shizuka trong thẻ cửa hàng */
+.store-item-card
+.item-icon-wrapper
+img.item-icon[src$="sishuka.png"] {
+    width: 88px !important;
+    height: 88px !important;
+
+    /* Cắt phần khoảng trống hai bên ảnh */
+    object-fit: cover !important;
+    object-position: center !important;
+
+    border-radius: 50%;
+
+    transform: scale(1.08);
+
+    filter:
+        drop-shadow(0 5px 8px rgba(20, 137, 212, 0.22));
+}
+/* Chuyển động mượt cho ảnh Shizuka trong cửa hàng */
+.store-item-card
+img.item-icon[src$="sishuka.png"] {
+    transform: scale(1.1) rotate(0deg);
+    transform-origin: center bottom;
+
+    transition:
+        transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+        filter 0.35s ease;
+}
+
+/* Rê chuột: chỉ nghiêng rất nhẹ sang phải */
+.store-item-card:hover
+img.item-icon[src$="sishuka.png"] {
+    transform:
+        translateY(-2px)
+        translateX(1px)
+        scale(1.12)
+        rotate(2deg);
+
+    filter:
+        drop-shadow(0 7px 10px rgba(20, 137, 212, 0.24))
+        drop-shadow(0 0 5px rgba(255, 214, 74, 0.2));
+}
+/* =========================================================
+   SHIZUKA — GIAI ĐIỆU ÁNH SÁNG
+   Hiệu ứng cân bằng, không quá đơn giản và không quá rối
+   ========================================================= */
+
+#virtual-pet-container.pet-doraemon-shizuka-stage {
+    isolation: isolate;
+    overflow: visible;
+}
+
+
+/* Vòng năng lượng phía sau thú cưng */
+#virtual-pet-container.pet-doraemon-shizuka-stage::before {
+    content: "";
+
+    position: absolute;
+    z-index: -1;
+
+    left: 50%;
+    top: 50%;
+
+    width: 158px;
+    height: 158px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(255, 255, 255, 0.74) 0%,
+            rgba(255, 238, 168, 0.32) 35%,
+            rgba(255, 255, 255, 0.08) 55%,
+            transparent 70%
+        ),
+        conic-gradient(
+            from 0deg,
+            rgba(29, 161, 221, 0.52),
+            rgba(255, 143, 184, 0.44),
+            rgba(255, 214, 92, 0.5),
+            rgba(29, 161, 221, 0.52)
+        );
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.75);
+
+    box-shadow:
+        0 0 14px rgba(41, 170, 225, 0.28),
+        0 0 28px rgba(255, 150, 190, 0.17),
+        inset 0 0 20px rgba(255, 255, 255, 0.65);
+
+    transform:
+        translate(-50%, -50%)
+        rotate(0deg)
+        scale(0.96);
+
+    animation:
+        shizuka-aura-orbit 10s linear infinite,
+        shizuka-aura-breathe 3.8s ease-in-out infinite;
+
+    pointer-events: none;
+}
+
+
+/* Nốt nhạc và tinh quang quanh thú cưng */
+#virtual-pet-container.pet-doraemon-shizuka-stage::after {
+    content: "✦   ♪   ✧";
+
+    position: absolute;
+    z-index: 4;
+
+    left: 50%;
+    top: -9px;
+
+    width: 180px;
+
+    color: #e88caf;
+
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 12px;
+    text-align: center;
+
+    text-shadow:
+        0 0 4px #ffffff,
+        0 0 8px rgba(255, 148, 190, 0.58),
+        0 3px 7px rgba(29, 145, 206, 0.22);
+
+    transform:
+        translateX(-50%)
+        translateY(0);
+
+    animation:
+        shizuka-symbol-dance
+        3.6s
+        ease-in-out
+        infinite;
+
+    pointer-events: none;
+}
+
+
+/* Ảnh thú cưng */
+#virtual-pet-container.pet-doraemon-shizuka-stage
+#virtual-pet-img.doraemon-shizuka-study-magic {
+    position: relative;
+    z-index: 2;
+
+    width: 136px !important;
+    height: auto !important;
+
+    object-fit: contain;
+
+    transform-origin: 50% 82%;
+
+    filter:
+        drop-shadow(
+            0 8px 10px
+            rgba(15, 105, 160, 0.22)
+        )
+        drop-shadow(
+            0 0 5px
+            rgba(255, 221, 104, 0.3)
+        );
+
+    animation:
+        shizuka-balanced-float
+        4.2s
+        ease-in-out
+        infinite,
+        shizuka-soft-image-glow
+        2.8s
+        ease-in-out
+        infinite alternate;
+
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+
+/* =========================================================
+   ANIMATION MỚI
+   ========================================================= */
+
+@keyframes shizuka-aura-orbit {
+    from {
+        transform:
+            translate(-50%, -50%)
+            rotate(0deg)
+            scale(0.98);
+    }
+
+    to {
+        transform:
+            translate(-50%, -50%)
+            rotate(360deg)
+            scale(0.98);
+    }
+}
+
+
+@keyframes shizuka-aura-breathe {
+    0%,
+    100% {
+        opacity: 0.62;
+
+        width: 154px;
+        height: 154px;
+    }
+
+    50% {
+        opacity: 0.95;
+
+        width: 164px;
+        height: 164px;
+    }
+}
+
+
+@keyframes shizuka-symbol-dance {
+    0%,
+    100% {
+        transform:
+            translateX(-50%)
+            translateY(3px)
+            rotate(-1deg);
+
+        opacity: 0.5;
+    }
+
+    45% {
+        transform:
+            translateX(-50%)
+            translateY(-8px)
+            rotate(1deg);
+
+        opacity: 1;
+    }
+
+    70% {
+        transform:
+            translateX(-50%)
+            translateY(-4px)
+            rotate(0deg);
+
+        opacity: 0.78;
+    }
+}
+
+
+@keyframes shizuka-balanced-float {
+    0%,
+    100% {
+        transform:
+            translateY(0)
+            rotate(-0.5deg)
+            scale(1);
+    }
+
+    42% {
+        transform:
+            translateY(-7px)
+            rotate(0.7deg)
+            scale(1.015);
+    }
+
+    68% {
+        transform:
+            translateY(-3px)
+            rotate(0deg)
+            scale(1.006);
+    }
+}
+
+
+@keyframes shizuka-soft-image-glow {
+    from {
+        filter:
+            drop-shadow(
+                0 7px 9px
+                rgba(15, 105, 160, 0.2)
+            )
+            drop-shadow(
+                0 0 4px
+                rgba(255, 220, 102, 0.22)
+            );
+    }
+
+    to {
+        filter:
+            drop-shadow(
+                0 10px 13px
+                rgba(15, 105, 160, 0.28)
+            )
+            drop-shadow(
+                0 0 10px
+                rgba(255, 159, 195, 0.32)
+            );
+    }
+}
+
+
+/* Người dùng chọn giảm chuyển động */
+@media (prefers-reduced-motion: reduce) {
+    #virtual-pet-container.pet-doraemon-shizuka-stage::before,
+    #virtual-pet-container.pet-doraemon-shizuka-stage::after,
+    #virtual-pet-container.pet-doraemon-shizuka-stage
+    #virtual-pet-img.doraemon-shizuka-study-magic {
+        animation: none !important;
+    }
+}
+/* =========================================================
+   DORAEMON THEME — KHÚC CA TUỔI THƠ
+   Phối hợp riêng cho Shizuka - Giai Điệu Dịu Dàng
+   Không tái chế giao diện cũ
+   ========================================================= */
+
+body.theme-doraemon-childhood {
+    --dora-sky: #69b9eb;
+    --dora-blue: #2f90cb;
+    --dora-pink: #f4a7c1;
+    --dora-soft-pink: #ffe9f1;
+    --dora-cream: #fff8ed;
+    --dora-warm: #ffe08a;
+    --dora-mint: #dff9f2;
+    --dora-ink: #355a74;
+    --dora-border: rgba(105, 185, 235, 0.38);
+
+    min-height: 100vh;
+    color: var(--dora-ink);
+
+    font-family:
+        "Trebuchet MS",
+        "Comic Sans MS",
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    background:
+        radial-gradient(circle at 12% 14%,
+            rgba(255, 255, 255, 0.96) 0 3%,
+            transparent 11%),
+        radial-gradient(circle at 83% 18%,
+            rgba(244, 167, 193, 0.28),
+            transparent 22%),
+        radial-gradient(circle at 20% 78%,
+            rgba(105, 185, 235, 0.22),
+            transparent 28%),
+        radial-gradient(circle at 88% 80%,
+            rgba(255, 224, 138, 0.22),
+            transparent 24%),
+        linear-gradient(
+            150deg,
+            #fffdf8 0%,
+            #f4fbff 46%,
+            #fff4fa 100%
+        ) !important;
+
+    background-attachment: fixed !important;
+}
+
+
+/* lớp nền sticker nhẹ */
+body.theme-doraemon-childhood::before {
+    content: "";
+
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent 0,
+            transparent 96%,
+            rgba(255, 255, 255, 0.18) 100%
+        ),
+        repeating-linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.10) 0 18px,
+            rgba(255, 255, 255, 0.00) 18px 36px
+        );
+
+    opacity: 0.45;
+}
+
+
+/* =========================================================
+   TIÊU ĐỀ
+   ========================================================= */
+
+body.theme-doraemon-childhood :is(
+    h1, h2, h3,
+    .page-title,
+    .section-title,
+    .modal-title,
+    .student-name,
+    .item-name
+):not(.ui-theme-immune):not(.ui-theme-immune *) {
+    color: #2f7fb0;
+    font-family:
+        "Trebuchet MS",
+        "Comic Sans MS",
+        "Segoe UI",
+        sans-serif !important;
+    letter-spacing: 0.02em;
+    text-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.95),
+        0 0 10px rgba(105, 185, 235, 0.12);
+}
+
+
+/* =========================================================
+   HEADER / TOPBAR
+   ========================================================= */
+
+body.theme-doraemon-childhood :is(
+    header,
+    .header,
+    .topbar,
+    .top-bar,
+    .student-header,
+    .main-header
+):not(.ui-theme-immune):not(.ui-theme-immune *) {
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.95),
+            rgba(230, 247, 255, 0.94) 52%,
+            rgba(255, 240, 246, 0.96)
+        ) !important;
+
+    border-bottom:
+        2px solid rgba(105, 185, 235, 0.34) !important;
+
+    box-shadow:
+        0 10px 28px rgba(47, 144, 203, 0.10),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.75) !important;
+
+    backdrop-filter: blur(10px);
+}
+
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+
+body.theme-doraemon-childhood :is(
+    .sidebar,
+    .student-sidebar,
+    #sidebar,
+    .side-menu
+):not(.ui-theme-immune):not(.ui-theme-immune *) {
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    color: var(--dora-ink) !important;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(240, 250, 255, 0.97),
+            rgba(255, 245, 250, 0.96) 58%,
+            rgba(255, 250, 237, 0.96)
+        ) !important;
+
+    border-right:
+        2px dashed rgba(105, 185, 235, 0.42) !important;
+
+    border-radius:
+        0 34px 34px 0 / 0 24px 24px 0 !important;
+
+    box-shadow:
+        14px 0 30px rgba(47, 144, 203, 0.10),
+        inset -4px 0 0 rgba(255, 255, 255, 0.65) !important;
+}
+
+
+/* sticker nhỏ trong sidebar */
+body.theme-doraemon-childhood :is(
+    .sidebar,
+    .student-sidebar,
+    #sidebar,
+    .side-menu
+):not(.ui-theme-immune):not(.ui-theme-immune *)::after {
+    content: "";
+
+    position: absolute;
+    right: -12px;
+    top: 22px;
+
+    width: 64px;
+    height: 64px;
+
+    border-radius: 18px;
+    transform: rotate(12deg);
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255, 227, 138, 0.80),
+            rgba(255, 255, 255, 0.88)
+        );
+
+    box-shadow:
+        0 8px 18px rgba(244, 167, 193, 0.14);
+
+    border:
+        1px solid rgba(255, 255, 255, 0.85);
+}
+
+
+/* item sidebar */
+body.theme-doraemon-childhood :is(
+    .nav-item,
+    .menu-item,
+    .sidebar-item,
+    .sidebar a,
+    .student-sidebar a
+):not(.ui-theme-immune):not(.ui-theme-immune *) {
+    color: #36627d !important;
+
+    border:
+        1px solid transparent !important;
+
+    border-radius:
+        18px 10px 18px 10px !important;
+
+    transition:
+        transform 0.22s ease,
+        background 0.22s ease,
+        box-shadow 0.22s ease !important;
+}
+
+
+body.theme-doraemon-childhood :is(
+    .nav-item,
+    .menu-item,
+    .sidebar-item,
+    .sidebar a,
+    .student-sidebar a
+):not(.ui-theme-immune):not(.ui-theme-immune *):hover {
+    transform:
+        translateX(4px) rotate(0.2deg);
+
+    color: #2c7bb0 !important;
+
+    background:
+        linear-gradient(
+            120deg,
+            rgba(255, 255, 255, 0.92),
+            rgba(225, 246, 255, 0.88),
+            rgba(255, 236, 244, 0.86)
+        ) !important;
+
+    border-color:
+        rgba(105, 185, 235, 0.40) !important;
+
+    box-shadow:
+        0 8px 18px rgba(47, 144, 203, 0.10) !important;
+}
+
+
+body.theme-doraemon-childhood :is(
+    .nav-item.active,
+    .menu-item.active,
+    .sidebar-item.active,
+    .sidebar a.active
+):not(.ui-theme-immune):not(.ui-theme-immune *) {
+    color: #ffffff !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #45a6de,
+            #7ecbf2 56%,
+            #f4a7c1
+        ) !important;
+
+    border-color:
+        rgba(255, 255, 255, 0.82) !important;
+
+    box-shadow:
+        0 10px 22px rgba(69, 166, 222, 0.20),
+        inset 0 1px 0 rgba(255, 255, 255, 0.55) !important;
+}
+
+
+/* =========================================================
+   CARD / Ô NỘI DUNG / STORE CARD
+   ========================================================= */
+
+body.theme-doraemon-childhood :is(
+    .card,
+    .panel,
+    .content-card,
+    .student-card,
+    .assignment-card,
+    .lesson-card,
+    .info-card,
+    .dashboard-card,
+    .submit-box,
+    .store-item-card
+):not(.ui-theme-immune):not(.ui-theme-immune *) {
+    position: relative;
+    overflow: hidden;
+
+    color: var(--dora-ink) !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.95),
+            rgba(244, 251, 255, 0.94) 56%,
+            rgba(255, 243, 248, 0.93)
+        ) !important;
+
+    border:
+        1px solid rgba(105, 185, 235, 0.30) !important;
+
+    border-radius:
+        26px 14px 26px 14px / 18px 28px 18px 28px !important;
+
+    box-shadow:
+        0 15px 30px rgba(47, 144, 203, 0.10),
+        inset 0 1px 0 rgba(255, 255, 255, 0.96),
+        inset 0 -4px 12px rgba(244, 167, 193, 0.08) !important;
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease !important;
+}
+
+
+/* viền nét đứt bên trong */
+body.theme-doraemon-childhood :is(
+    .card,
+    .panel,
+    .content-card,
+    .student-card,
+    .assignment-card,
+    .lesson-card,
+    .info-card,
+    .dashboard-card,
+    .submit-box,
+    .store-item-card
+):not(.ui-theme-immune):not(.ui-theme-immune *)::before {
+    content: "";
+
+    position: absolute;
+    inset: 10px;
+    pointer-events: none;
+
+    border:
+        1px dashed rgba(105, 185, 235, 0.20);
+
+    border-radius:
+        18px 10px 18px 10px;
+}
+
+
+body.theme-doraemon-childhood :is(
+    .card,
+    .panel,
+    .content-card,
+    .student-card,
+    .assignment-card,
+    .lesson-card,
+    .dashboard-card,
+    .store-item-card
+):not(.ui-theme-immune):not(.ui-theme-immune *):hover {
+    transform: translateY(-4px);
+
+    box-shadow:
+        0 20px 36px rgba(47, 144, 203, 0.14),
+        0 0 16px rgba(244, 167, 193, 0.10),
+        inset 0 1px 0 rgba(255, 255, 255, 1) !important;
+}
+
+
+/* =========================================================
+   POPUP / MODAL
+   ========================================================= */
+
+body.theme-doraemon-childhood .modal-overlay:not(.ui-theme-immune):not(.ui-theme-immune *) {
+    background:
+        rgba(63, 116, 151, 0.22) !important;
+    backdrop-filter:
+        blur(8px) saturate(1.05);
+}
+
+
+body.theme-doraemon-childhood :is(
+    .modal-content,
+    .popup-content,
+    .dialog-content,
+    .modal-box,
+    .student-modal-content
+):not(.ui-theme-immune):not(.ui-theme-immune *) {
+    position: relative;
+    overflow: hidden;
+
+    color: var(--dora-ink) !important;
+
+    background:
+        linear-gradient(
+            160deg,
+            rgba(255, 255, 255, 0.98),
+            rgba(242, 251, 255, 0.97) 50%,
+            rgba(255, 241, 247, 0.96)
+        ) !important;
+
+    border:
+        2px solid rgba(105, 185, 235, 0.34) !important;
+
+    border-radius:
+        38px 38px 22px 22px / 30px 30px 26px 26px !important;
+
+    box-shadow:
+        0 25px 60px rgba(47, 144, 203, 0.18),
+        0 0 18px rgba(244, 167, 193, 0.12),
+        inset 0 2px 0 rgba(255, 255, 255, 1) !important;
+}
+
+
+/* thanh trang trí trên popup */
+body.theme-doraemon-childhood :is(
+    .modal-content,
+    .popup-content,
+    .dialog-content,
+    .modal-box,
+    .student-modal-content
+):not(.ui-theme-immune):not(.ui-theme-immune *)::after {
+    content: "";
+
+    position: absolute;
+    top: 12px;
+    left: 50%;
+
+    width: 66px;
+    height: 7px;
+
+    transform: translateX(-50%);
+
+    border-radius: 999px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #69b9eb,
+            #ffe08a,
+            #f4a7c1
+        );
+
+    opacity: 0.95;
+}
+
+
+/* =========================================================
+   NÚT
+   ========================================================= */
+
+body.theme-doraemon-childhood :is(
+    button,
+    .btn,
+    .btn-buy,
+    .btn-equip,
+    .btn-preview
+):not(.ui-theme-immune):not(.ui-theme-immune *) {
+    border: 1px solid rgba(255, 255, 255, 0.76) !important;
+
+    border-radius:
+        18px 10px 18px 10px !important;
+
+    color: #ffffff !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #46a8df,
+            #7dcff0 56%,
+            #f4a7c1
+        ) !important;
+
+    box-shadow:
+        0 8px 18px rgba(70, 168, 223, 0.20),
+        inset 0 1px 0 rgba(255, 255, 255, 0.48) !important;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        filter 0.2s ease !important;
+}
+
+
+body.theme-doraemon-childhood :is(
+    button,
+    .btn,
+    .btn-buy,
+    .btn-equip,
+    .btn-preview
+):not(.ui-theme-immune):not(.ui-theme-immune *):hover {
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 12px 22px rgba(70, 168, 223, 0.24),
+        0 0 10px rgba(244, 167, 193, 0.12) !important;
+
+    filter: brightness(1.02);
+}
+
+
+/* =========================================================
+   INPUT / TEXTAREA / SELECT
+   ========================================================= */
+
+body.theme-doraemon-childhood :is(
+    input,
+    textarea,
+    select
+):not(.ui-theme-immune):not(.ui-theme-immune *) {
+    color: #3e6480 !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.95),
+            rgba(247, 252, 255, 0.96)
+        ) !important;
+
+    border:
+        1px solid rgba(105, 185, 235, 0.30) !important;
+
+    border-radius:
+        16px 10px 16px 10px !important;
+
+    box-shadow:
+        inset 0 1px 3px rgba(47, 144, 203, 0.05) !important;
+}
+
+
+body.theme-doraemon-childhood :is(
+    input,
+    textarea,
+    select
+):not(.ui-theme-immune):not(.ui-theme-immune *):focus {
+    outline: none !important;
+
+    border-color:
+        rgba(69, 166, 222, 0.52) !important;
+
+    box-shadow:
+        0 0 0 4px rgba(105, 185, 235, 0.10),
+        inset 0 1px 3px rgba(47, 144, 203, 0.06) !important;
+}
+
+
+/* =========================================================
+   BẢNG / KHUNG PHỤ
+   ========================================================= */
+
+body.theme-doraemon-childhood :is(
+    table,
+    .table,
+    .leaderboard-table,
+    .list-group,
+    .score-box
+):not(.ui-theme-immune):not(.ui-theme-immune *) {
+    border-radius: 20px !important;
+    overflow: hidden;
+    border: 1px solid rgba(105, 185, 235, 0.24) !important;
+}
+
+
+body.theme-doraemon-childhood :is(
+    th,
+    .table-header
+):not(.ui-theme-immune):not(.ui-theme-immune *) {
+    background:
+        linear-gradient(
+            135deg,
+            rgba(105, 185, 235, 0.20),
+            rgba(244, 167, 193, 0.18)
+        ) !important;
+
+    color: #33617d !important;
+}
+
+
+/* =========================================================
+   THANH CUỘN
+   ========================================================= */
+
+body.theme-doraemon-childhood ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+body.theme-doraemon-childhood ::-webkit-scrollbar-track {
+    background:
+        linear-gradient(
+            180deg,
+            rgba(244, 251, 255, 0.95),
+            rgba(255, 244, 249, 0.95)
+        );
+    border-radius: 999px;
+}
+
+body.theme-doraemon-childhood ::-webkit-scrollbar-thumb {
+    background:
+        linear-gradient(
+            180deg,
+            #7fcdf0,
+            #f4a7c1
+        );
+    border-radius: 999px;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+}
+
+
+/* =========================================================
+   STORE — tăng hòa hợp với tag Doraemon
+   ========================================================= */
+
+body.theme-doraemon-childhood .store-item-card .item-tag.tag-doraemon {
+    box-shadow:
+        0 6px 16px rgba(70, 168, 223, 0.28) !important;
+}
+
+body.theme-doraemon-childhood .store-item-card .item-name {
+    color: #2f7fb0 !important;
+}
+
+body.theme-doraemon-childhood .item-type-label {
+    color: #6f88a0 !important;
+}
+
+
+/* =========================================================
+   DIALOGUE / KHUNG PHỤ PET
+   ========================================================= */
+
+body.theme-doraemon-childhood #virtual-pet-container .pet-close-btn {
+    background: rgba(244, 167, 193, 0.22) !important;
+    color: #d6407c !important;
+}
+/* =========================================================
+   DORAEMON EFFECT — KÝ ỨC SÂN TRƯỜNG
+   ID: effect_doraemon_school_memories
+
+   - Hiệu ứng trên toàn web.
+   - Không cản thao tác.
+   - Không có sự kiện nhấn.
+   - Không dùng lại animation của hiệu ứng cũ.
+   ========================================================= */
+
+
+/* =========================================================
+   KHUNG TOÀN TRANG
+   ========================================================= */
+
+.effect-doraemon-childhood-stage {
+    position: absolute;
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+
+    isolation: isolate;
+    contain: layout paint style;
+
+    opacity: 1;
+}
+
+
+/*
+ * Những đường kẻ vở học sinh.
+ * Không làm tối hoặc che nội dung trang.
+ */
+.effect-doraemon-childhood-stage::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+
+    pointer-events: none;
+
+    background:
+        repeating-linear-gradient(
+            180deg,
+            transparent 0,
+            transparent 43px,
+            rgba(90, 180, 230, 0.075) 44px,
+            rgba(90, 180, 230, 0.075) 45px
+        );
+
+    -webkit-mask-image:
+        linear-gradient(
+            to bottom,
+            transparent,
+            #000 9%,
+            #000 91%,
+            transparent
+        );
+
+    mask-image:
+        linear-gradient(
+            to bottom,
+            transparent,
+            #000 9%,
+            #000 91%,
+            transparent
+        );
+
+    animation:
+        doraemon-childhood-notebook-lines
+        13s
+        linear
+        infinite;
+}
+
+
+/*
+ * Lớp phản quang nhẹ giống nắng chiếu
+ * qua cửa sổ lớp học.
+ */
+.effect-doraemon-childhood-stage::after {
+    content: "";
+
+    position: absolute;
+    inset: -18%;
+    z-index: 1;
+
+    pointer-events: none;
+
+    background:
+        linear-gradient(
+            115deg,
+            transparent 22%,
+            rgba(255, 255, 255, 0.07) 34%,
+            rgba(255, 245, 198, 0.17) 43%,
+            rgba(255, 255, 255, 0.06) 51%,
+            transparent 66%
+        );
+
+    transform:
+        translateX(-24%)
+        rotate(-4deg);
+
+    animation:
+        doraemon-childhood-window-light
+        12s
+        ease-in-out
+        infinite;
+}
+
+
+/* =========================================================
+   VÙNG SÁNG PASTEL
+   ========================================================= */
+
+.effect-doraemon-daylight {
+    position: absolute;
+    inset: -20%;
+    z-index: 0;
+
+    pointer-events: none;
+
+    background:
+        radial-gradient(
+            circle at 14% 20%,
+            rgba(90, 180, 230, 0.19),
+            transparent 25%
+        ),
+        radial-gradient(
+            circle at 82% 18%,
+            rgba(244, 167, 193, 0.18),
+            transparent 24%
+        ),
+        radial-gradient(
+            circle at 72% 82%,
+            rgba(255, 224, 138, 0.16),
+            transparent 24%
+        ),
+        radial-gradient(
+            circle at 22% 78%,
+            rgba(125, 217, 197, 0.13),
+            transparent 25%
+        );
+
+    filter: blur(4px);
+
+    animation:
+        doraemon-childhood-daylight-drift
+        15s
+        ease-in-out
+        infinite alternate;
+}
+
+
+/* =========================================================
+   DẢI MÀU KÝ ỨC
+   ========================================================= */
+
+.effect-doraemon-ribbon {
+    position: absolute;
+    z-index: 1;
+
+    width: 58vw;
+    min-width: 540px;
+    height: 150px;
+
+    pointer-events: none;
+
+    border-radius: 50%;
+
+    filter: blur(12px);
+
+    opacity: 0.14;
+}
+
+
+.effect-doraemon-ribbon-blue {
+    left: -18vw;
+    top: 16%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(90, 180, 230, 0.85),
+            rgba(125, 217, 197, 0.58),
+            transparent
+        );
+
+    transform:
+        rotate(-12deg);
+
+    animation:
+        doraemon-childhood-blue-ribbon
+        14s
+        ease-in-out
+        infinite;
+}
+
+
+.effect-doraemon-ribbon-pink {
+    right: -20vw;
+    bottom: 12%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(244, 167, 193, 0.82),
+            rgba(255, 224, 138, 0.62),
+            transparent
+        );
+
+    transform:
+        rotate(10deg);
+
+    animation:
+        doraemon-childhood-pink-ribbon
+        16s
+        ease-in-out
+        infinite;
+}
+
+
+/* =========================================================
+   VÒNG KÝ ỨC CỐ ĐỊNH
+   ========================================================= */
+
+.effect-doraemon-memory-ring {
+    position: absolute;
+    z-index: 2;
+
+    width: 170px;
+    height: 170px;
+
+    pointer-events: none;
+
+    border:
+        1px dashed
+        rgba(90, 180, 230, 0.26);
+
+    border-radius: 50%;
+
+    box-shadow:
+        inset 0 0 24px
+        rgba(255, 255, 255, 0.24),
+        0 0 18px
+        rgba(244, 167, 193, 0.08);
+}
+
+
+.effect-doraemon-ring-left {
+    left: 7%;
+    bottom: 12%;
+
+    animation:
+        doraemon-childhood-ring-left
+        9s
+        ease-in-out
+        infinite;
+}
+
+
+.effect-doraemon-ring-right {
+    right: 8%;
+    top: 14%;
+
+    width: 128px;
+    height: 128px;
+
+    border-color:
+        rgba(244, 167, 193, 0.26);
+
+    animation:
+        doraemon-childhood-ring-right
+        10.5s
+        ease-in-out
+        infinite;
+}
+
+
+/* =========================================================
+   KÝ HIỆU TUỔI THƠ BAY TRÊN TRANG
+   ========================================================= */
+
+.effect-doraemon-childhood-doodle {
+    position: absolute;
+    z-index: 4;
+
+    display: grid;
+    place-items: center;
+
+    width:
+        calc(
+            var(--doraemon-doodle-size) * 1.7
+        );
+
+    height:
+        calc(
+            var(--doraemon-doodle-size) * 1.7
+        );
+
+    pointer-events: none;
+
+    color:
+        var(--doraemon-doodle-color);
+
+    font-family:
+        "Trebuchet MS",
+        "Comic Sans MS",
+        "Segoe UI Symbol",
+        sans-serif;
+
+    font-size:
+        var(--doraemon-doodle-size);
+
+    font-weight: 800;
+    line-height: 1;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255, 255, 255, 0.72),
+            rgba(255, 255, 255, 0.14) 58%,
+            transparent 72%
+        );
+
+    text-shadow:
+        0 1px 0
+        rgba(255, 255, 255, 0.95),
+        0 0 8px
+        color-mix(
+            in srgb,
+            var(--doraemon-doodle-color) 55%,
+            transparent
+        );
+
+    filter:
+        drop-shadow(
+            0 4px 5px
+            rgba(53, 90, 116, 0.12)
+        );
+
+    opacity: 0;
+
+    will-change:
+        transform,
+        opacity;
+
+    animation-name:
+        doraemon-childhood-doodle-flight;
+
+    animation-timing-function:
+        linear;
+
+    animation-fill-mode:
+        forwards;
+}
+
+/* Nốt nhạc */
+.effect-doraemon-childhood-doodle[
+    data-doodle-type="music"
+] {
+    border-radius:
+        54% 46% 58% 42% /
+        48% 57% 43% 52%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255, 255, 255, 0.78),
+            rgba(244, 167, 193, 0.12) 64%,
+            transparent 72%
+        );
+}
+
+
+/* Hình học giống nét phấn */
+.effect-doraemon-childhood-doodle[
+    data-doodle-type="shape"
+] {
+    opacity: 0;
+
+    background: transparent;
+
+    text-shadow:
+        0 1px 0 #ffffff,
+        0 0 6px
+        var(--doraemon-doodle-color);
+}
+
+
+/* Bút chì */
+.effect-doraemon-childhood-doodle[
+    data-doodle-type="pencil"
+] {
+    transform-origin: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255, 224, 138, 0.22),
+            rgba(255, 255, 255, 0.64),
+            rgba(90, 180, 230, 0.12)
+        );
+}
+
+
+/* =========================================================
+   VÒNG KÝ ỨC NGẪU NHIÊN
+   ========================================================= */
+
+.effect-doraemon-memory-pulse {
+    position: absolute;
+    z-index: 3;
+
+    width: 24px;
+    height: 24px;
+
+    margin-left: -12px;
+    margin-top: -12px;
+
+    pointer-events: none;
+
+    border:
+        2px solid
+        var(--doraemon-pulse-color);
+
+    border-radius: 50%;
+
+    box-shadow:
+        0 0 12px
+        color-mix(
+            in srgb,
+            var(--doraemon-pulse-color) 45%,
+            transparent
+        ),
+        inset 0 0 12px
+        rgba(255, 255, 255, 0.7);
+
+    animation:
+        doraemon-childhood-memory-pulse
+        2.35s
+        cubic-bezier(.18, .72, .25, 1)
+        forwards;
+}
+
+/*
+ * Selector đúng cho chính phần tử stage.
+ */
+.effect-doraemon-childhood-stage.effect-doraemon-childhood-combo
+.effect-doraemon-daylight {
+    filter:
+        blur(3px)
+        saturate(1.08);
+}
+
+
+.effect-doraemon-childhood-stage.effect-doraemon-childhood-combo
+.effect-doraemon-memory-ring {
+    border-width: 2px;
+
+    box-shadow:
+        0 0 20px
+        rgba(90, 180, 230, 0.13),
+        inset 0 0 28px
+        rgba(255, 255, 255, 0.28);
+}
+
+
+.effect-doraemon-childhood-stage.effect-doraemon-childhood-complete::before {
+    opacity: 0.84;
+}
+
+
+.effect-doraemon-childhood-stage.effect-doraemon-childhood-complete
+.effect-doraemon-ribbon {
+    opacity: 0.19;
+}
+
+
+/* =========================================================
+   ANIMATION RIÊNG HOÀN TOÀN
+   ========================================================= */
+
+@keyframes doraemon-childhood-notebook-lines {
+    from {
+        background-position:
+            0 0;
+    }
+
+    to {
+        background-position:
+            0 90px;
+    }
+}
+
+
+@keyframes doraemon-childhood-window-light {
+    0%,
+    100% {
+        transform:
+            translateX(-25%)
+            rotate(-4deg);
+
+        opacity: 0.38;
+    }
+
+    50% {
+        transform:
+            translateX(22%)
+            rotate(-2deg);
+
+        opacity: 0.72;
+    }
+}
+
+
+@keyframes doraemon-childhood-daylight-drift {
+    from {
+        transform:
+            translate3d(-2%, -1%, 0)
+            scale(0.98);
+
+        opacity: 0.72;
+    }
+
+    to {
+        transform:
+            translate3d(3%, 2%, 0)
+            scale(1.05);
+
+        opacity: 1;
+    }
+}
+
+
+@keyframes doraemon-childhood-blue-ribbon {
+    0%,
+    100% {
+        transform:
+            translateX(-5%)
+            translateY(0)
+            rotate(-12deg)
+            scaleX(0.94);
+    }
+
+    50% {
+        transform:
+            translateX(14%)
+            translateY(24px)
+            rotate(-8deg)
+            scaleX(1.06);
+    }
+}
+
+
+@keyframes doraemon-childhood-pink-ribbon {
+    0%,
+    100% {
+        transform:
+            translateX(5%)
+            translateY(0)
+            rotate(10deg)
+            scaleX(0.96);
+    }
+
+    50% {
+        transform:
+            translateX(-13%)
+            translateY(-28px)
+            rotate(6deg)
+            scaleX(1.07);
+    }
+}
+
+
+@keyframes doraemon-childhood-ring-left {
+    0%,
+    100% {
+        transform:
+            rotate(-5deg)
+            scale(0.92);
+
+        opacity: 0.28;
+    }
+
+    50% {
+        transform:
+            rotate(7deg)
+            scale(1.08);
+
+        opacity: 0.64;
+    }
+}
+
+
+@keyframes doraemon-childhood-ring-right {
+    0%,
+    100% {
+        transform:
+            rotate(8deg)
+            scale(1.05);
+
+        opacity: 0.24;
+    }
+
+    50% {
+        transform:
+            rotate(-6deg)
+            scale(0.91);
+
+        opacity: 0.58;
+    }
+}
+
+
+@keyframes doraemon-childhood-doodle-flight {
+    0% {
+        transform:
+            translate3d(
+                0,
+                28px,
+                0
+            )
+            rotate(
+                calc(
+                    var(--doraemon-doodle-turn) * -0.35
+                )
+            )
+            scale(0.65);
+
+        opacity: 0;
+    }
+
+    13% {
+        opacity: 0.72;
+    }
+
+    52% {
+        transform:
+            translate3d(
+                calc(
+                    var(--doraemon-doodle-drift) * 0.55
+                ),
+                calc(
+                    var(--doraemon-doodle-rise) * -0.52
+                ),
+                0
+            )
+            rotate(
+                calc(
+                    var(--doraemon-doodle-turn) * 0.35
+                )
+            )
+            scale(1);
+
+        opacity: 0.82;
+    }
+
+    86% {
+        opacity: 0.44;
+    }
+
+    100% {
+        transform:
+            translate3d(
+                var(--doraemon-doodle-drift),
+                calc(
+                    var(--doraemon-doodle-rise) * -1
+                ),
+                0
+            )
+            rotate(
+                var(--doraemon-doodle-turn)
+            )
+            scale(0.84);
+
+        opacity: 0;
+    }
+}
+
+
+@keyframes doraemon-childhood-memory-pulse {
+    0% {
+        transform:
+            scale(0.22);
+
+        opacity: 0;
+    }
+
+    18% {
+        opacity: 0.72;
+    }
+
+    72% {
+        opacity: 0.34;
+    }
+
+    100% {
+        transform:
+            scale(5.4);
+
+        opacity: 0;
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 768px),
+(pointer: coarse) {
+    .effect-doraemon-ribbon {
+        min-width: 420px;
+        height: 110px;
+        opacity: 0.1;
+    }
+
+    .effect-doraemon-memory-ring {
+        width: 115px;
+        height: 115px;
+    }
+
+    .effect-doraemon-ring-right {
+        width: 94px;
+        height: 94px;
+    }
+
+    .effect-doraemon-childhood-doodle {
+        filter:
+            drop-shadow(
+                0 3px 4px
+                rgba(53, 90, 116, 0.1)
+            );
+    }
+}
+
+
+/* =========================================================
+   GIẢM CHUYỂN ĐỘNG
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    .effect-doraemon-childhood-stage,
+    .effect-doraemon-childhood-stage::before,
+    .effect-doraemon-childhood-stage::after,
+    .effect-doraemon-daylight,
+    .effect-doraemon-ribbon,
+    .effect-doraemon-memory-ring,
+    .effect-doraemon-childhood-doodle,
+    .effect-doraemon-memory-pulse {
+        animation: none !important;
+    }
+
+    .effect-doraemon-childhood-doodle,
+    .effect-doraemon-memory-pulse {
+        display: none !important;
+    }
+}
+/* =========================================================
+   SHIZUKA TRINITY STORE CARD
+   NHẬT KÝ GIAI ĐIỆU TUỔI THƠ
+
+   Áp dụng cho:
+   - Shizuka - Giai Điệu Dịu Dàng
+   - Khúc Ca Tuổi Thơ
+   - Ký Ức Sân Trường
+
+   Không thiết kế lại tag Doraemon.
+   ========================================================= */
+
+
+/* =========================================================
+   CARD CHÍNH — KHÓA KHỎI MỌI THEME
+   ========================================================= */
+
+html body
+.store-item-card.store-card-shizuka-trinity.store-theme-locked {
+    --shizuka-sky: #66b9e8;
+    --shizuka-blue: #2f8fc7;
+    --shizuka-pink: #f3a3bf;
+    --shizuka-pink-soft: #ffe7f0;
+    --shizuka-cream: #fff9ed;
+    --shizuka-yellow: #ffe18b;
+    --shizuka-mint: #dff7ef;
+    --shizuka-ink: #355d77;
+
+    position: relative !important;
+    isolation: isolate !important;
+    overflow: hidden !important;
+
+    padding:
+        25px 20px
+        !important;
+
+    color:
+        var(--shizuka-ink)
+        !important;
+
+    font-family:
+        "Trebuchet MS",
+        "Arial Rounded MT Bold",
+        "Segoe UI",
+        Arial,
+        sans-serif
+        !important;
+
+    /*
+     * Giấy vở có đường kẻ xanh
+     * và đường lề hồng.
+     */
+    background:
+        linear-gradient(
+            90deg,
+            transparent 0 26px,
+            rgba(243, 163, 191, 0.20)
+            26px 28px,
+            transparent 28px
+        ),
+
+        repeating-linear-gradient(
+            180deg,
+            transparent 0 31px,
+            rgba(102, 185, 232, 0.11)
+            31px 32px
+        ),
+
+        radial-gradient(
+            circle at 88% 14%,
+            rgba(243, 163, 191, 0.24),
+            transparent 25%
+        ),
+
+        radial-gradient(
+            circle at 14% 84%,
+            rgba(102, 185, 232, 0.20),
+            transparent 30%
+        ),
+
+        linear-gradient(
+            145deg,
+            #fffdf7 0%,
+            #f4fbff 52%,
+            #fff1f7 100%
+        )
+        !important;
+
+    border:
+        1px solid
+        rgba(102, 185, 232, 0.52)
+        !important;
+
+    border-radius:
+        30px 12px 30px 12px /
+        20px 30px 20px 30px
+        !important;
+
+    box-shadow:
+        0 17px 36px
+        rgba(47, 143, 199, 0.15),
+
+        0 0 18px
+        rgba(243, 163, 191, 0.10),
+
+        inset 0 2px 0
+        rgba(255, 255, 255, 0.96),
+
+        inset 0 -8px 18px
+        rgba(102, 185, 232, 0.06)
+        !important;
+
+    backdrop-filter:
+        blur(8px)
+        saturate(1.03)
+        !important;
+
+    -webkit-backdrop-filter:
+        blur(8px)
+        saturate(1.03)
+        !important;
+
+    transition:
+        transform 0.32s
+        cubic-bezier(.22, 1, .36, 1),
+
+        border-color 0.32s ease,
+
+        box-shadow 0.32s ease
+        !important;
+}
+
+
+/* Viền khâu bên trong trang nhật ký */
+html body
+.store-item-card.store-card-shizuka-trinity.store-theme-locked::before {
+    content: "";
+
+    position: absolute !important;
+    z-index: 0 !important;
+
+    inset: 9px !important;
+
+    pointer-events: none !important;
+
+    border:
+        1px dashed
+        rgba(102, 185, 232, 0.25)
+        !important;
+
+    border-radius:
+        22px 8px 22px 8px /
+        15px 23px 15px 23px
+        !important;
+
+    background: transparent !important;
+
+    box-shadow:
+        inset 0 0 18px
+        rgba(255, 255, 255, 0.40)
+        !important;
+}
+
+
+/* Nhãn giấy nhỏ ở góc trái */
+html body
+.store-item-card.store-card-shizuka-trinity.store-theme-locked::after {
+    content: "♪";
+
+    position: absolute !important;
+    z-index: 2 !important;
+
+    top: 13px !important;
+    left: 14px !important;
+
+    width: 34px !important;
+    height: 25px !important;
+
+    display: grid !important;
+    place-items: center !important;
+
+    pointer-events: none !important;
+
+    color:
+        #df749d
+        !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 238, 159, 0.94),
+            rgba(255, 250, 218, 0.96)
+        )
+        !important;
+
+    border:
+        1px solid
+        rgba(236, 187, 79, 0.38)
+        !important;
+
+    border-radius:
+        8px 12px 7px 11px
+        !important;
+
+    box-shadow:
+        0 5px 10px
+        rgba(192, 139, 36, 0.12)
+        !important;
+
+    font-size: 16px !important;
+    font-weight: 900 !important;
+
+    transform:
+        rotate(-7deg)
+        !important;
+}
+
+
+/* Nội dung chính nằm trên nền giấy */
+html body
+.store-item-card.store-card-shizuka-trinity.store-theme-locked
+> .card-glow,
+
+html body
+.store-item-card.store-card-shizuka-trinity.store-theme-locked
+> .item-icon-wrapper,
+
+html body
+.store-item-card.store-card-shizuka-trinity.store-theme-locked
+> .item-info,
+
+html body
+.store-item-card.store-card-shizuka-trinity.store-theme-locked
+> .item-actions {
+    position: relative !important;
+    z-index: 4 !important;
+}
+
+
+/* =========================================================
+   HÀO QUANG PASTEL
+   ========================================================= */
+
+html body
+.store-item-card.store-card-shizuka-trinity.store-theme-locked
+.card-glow {
+    position: absolute !important;
+    z-index: 1 !important;
+
+    top: 13px !important;
+    left: 50% !important;
+
+    width: 164px !important;
+    height: 132px !important;
+
+    transform:
+        translateX(-50%)
+        scale(1);
+
+    border-radius: 50% !important;
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(255, 255, 255, 0.82),
+            rgba(102, 185, 232, 0.19) 38%,
+            rgba(243, 163, 191, 0.12) 58%,
+            transparent 74%
+        )
+        !important;
+
+    filter: blur(3px) !important;
+
+    opacity: 0.86 !important;
+
+    animation:
+        shizuka-store-pastel-glow
+        4.8s
+        ease-in-out
+        infinite
+        !important;
+}
+
+
+/* =========================================================
+   KHUNG ICON
+   ========================================================= */
+
+html body
+.store-item-card.store-card-shizuka-trinity.store-theme-locked
+.item-icon-wrapper {
+    width: 112px !important;
+    height: 104px !important;
+
+    margin:
+        0 auto 14px
+        !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    overflow: visible !important;
+
+    border:
+        1px solid
+        rgba(102, 185, 232, 0.35)
+        !important;
+
+    border-radius:
+        46% 54% 49% 51% /
+        55% 47% 53% 45%
+        !important;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255, 255, 255, 0.92),
+            rgba(238, 250, 255, 0.82) 54%,
+            rgba(255, 231, 240, 0.48) 72%
+        )
+        !important;
+
+    box-shadow:
+        0 8px 18px
+        rgba(47, 143, 199, 0.12),
+
+        inset 0 1px 0
+        rgba(255, 255, 255, 1)
+        !important;
+}
+
+
+/* Vòng giai điệu quanh icon */
+html body
+.store-item-card.store-card-shizuka-trinity.store-theme-locked
+.item-icon-wrapper::before {
+    content: "";
+
+    position: absolute !important;
+    inset: 5px !important;
+
+    border-radius: 50% !important;
+
+    border:
+        1px dashed
+        rgba(243, 163, 191, 0.42)
+        !important;
+
+    background:
+        conic-gradient(
+            from 20deg,
+            transparent 0 23%,
+            rgba(102, 185, 232, 0.22)
+            24% 27%,
+            transparent 28% 56%,
+            rgba(255, 212, 93, 0.26)
+            57% 60%,
+            transparent 61%
+        )
+        !important;
+
+    animation:
+        shizuka-store-melody-orbit
+        15s
+        linear
+        infinite
+        !important;
+
+    pointer-events: none !important;
+}
+
+
+/* Nốt nhạc nhỏ */
+html body
+.store-item-card.store-card-shizuka-trinity.store-theme-locked
+.item-icon-wrapper::after {
+    content: "♫";
+
+    position: absolute !important;
+
+    right: -2px !important;
+    bottom: 8px !important;
+
+    color:
+        #e77fa6
+        !important;
+
+    font-size: 16px !important;
+    font-weight: 900 !important;
+
+    text-shadow:
+        0 1px 0 #ffffff,
+        0 0 7px
+        rgba(231, 127, 166, 0.40)
+        !important;
+
+    animation:
+        shizuka-store-music-note
+        3.3s
+        ease-in-out
+        infinite
+        !important;
+
+    pointer-events: none !important;
+}
+
+
+/* =========================================================
+   ICON VẬT PHẨM
+   ========================================================= */
+
+html body
+.store-item-card.store-card-shizuka-trinity.store-theme-locked
+.item-icon {
+    position: relative !important;
+    z-index: 3 !important;
+
+    color:
+        var(--shizuka-blue)
+        !important;
+
+    background: transparent !important;
+
+    filter:
+        drop-shadow(
+            0 8px 10px
+            rgba(36, 113, 158, 0.18)
+        )
+        drop-shadow(
+            0 0 6px
+            rgba(255, 208, 96, 0.20)
+        )
+        !important;
+
+    transition:
+        transform 0.34s
+        cubic-bezier(.22, 1, .36, 1),
+
+        filter 0.34s ease
+        !important;
+}
+
+
+/* Ảnh Shizuka */
+html body
+.store-item-card.store-card-shizuka-trinity.store-theme-locked
+img.item-icon {
+    width: 94px !important;
+    height: 94px !important;
+
+    max-width: none !important;
+
+    object-fit: cover !important;
+    object-position: center !important;
+
+    border-radius: 50% !important;
+
+    transform:
+        scale(1.04)
+        rotate(0deg)
+        !important;
+}
+
+
+/* Icon của giao diện và hiệu ứng */
+html body
+.store-item-card.store-card-shizuka-trinity.store-theme-locked
+div.item-icon {
+    font-size: 3.55em !important;
+    line-height: 1 !important;
+
+    transform:
+        rotate(0deg)
+        scale(1)
+        !important;
+}
+
+
+/* =========================================================
+   TÊN VÀ LOẠI
+   ========================================================= */
+
+html body
+.store-item-card.store-card-shizuka-trinity.store-theme-locked
+.item-info {
+    margin-bottom: 19px !important;
+
+    color:
+        var(--shizuka-ink)
+        !important;
+
+    background: transparent !important;
+}
+
+
+html body
+.store-item-card.store-card-shizuka-trinity.store-theme-locked
+.item-name {
+    color:
+        #2e80ad
+        !important;
+
+    font-family:
+        "Trebuchet MS",
+        "Arial Rounded MT Bold",
+        "Segoe UI",
+        sans-serif
+        !important;
+
+    font-weight: 900 !important;
+    letter-spacing: 0.15px !important;
+
+    text-shadow:
+        0 1px 0
+        rgba(255, 255, 255, 1),
+
+        0 0 8px
+        rgba(102, 185, 232, 0.14)
+        !important;
+}
+
+
+html body
+.store-item-card.store-card-shizuka-trinity.store-theme-locked
+.item-type-label {
+    color:
+        #718da1
+        !important;
+
+    font-family:
+        "Trebuchet MS",
+        "Segoe UI",
+        sans-serif
+        !important;
+
+    font-weight: 800 !important;
+    letter-spacing: 1.05px !important;
+
+    background: transparent !important;
+    text-shadow: none !important;
+}
+
+
+/* Đường giai điệu dưới tên */
+html body
+.store-item-card.store-card-shizuka-trinity.store-theme-locked
+.item-info::after {
+    content: "";
+
+    display: block !important;
+
+    width: 68px !important;
+    height: 2px !important;
+
+    margin:
+        12px auto 0
+        !important;
+
+    border-radius: 999px !important;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            #69bbe8,
+            #ffe18b,
+            #f3a3bf,
+            transparent
+        )
+        !important;
+
+    box-shadow:
+        0 0 7px
+        rgba(102, 185, 232, 0.18)
+        !important;
+}
+
+
+/* =========================================================
+   NÚT — KHÓA KHỎI THEME
+   ========================================================= */
+
+html body
+.store-item-card.store-card-shizuka-trinity.store-theme-locked
+.item-actions {
+    gap: 10px !important;
+    background: transparent !important;
+}
+
+
+html body
+.store-item-card.store-card-shizuka-trinity.store-theme-locked
+.item-actions button {
+    min-height: 50px !important;
+
+    font-family:
+        "Trebuchet MS",
+        "Segoe UI",
+        sans-serif
+        !important;
+
+    font-weight: 900 !important;
+
+    border-radius:
+        17px 9px 17px 9px
+        !important;
+
+    transition:
+        transform 0.21s ease,
+        filter 0.21s ease,
+        box-shadow 0.21s ease
+        !important;
+}
+
+
+/* Nút mua, nhận sự kiện hoặc trang bị */
+html body
+.store-item-card.store-card-shizuka-trinity.store-theme-locked
+:is(
+    .btn-buy,
+    .btn-equip:not(.active)
+) {
+    color:
+        #ffffff
+        !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #4ca8db 0%,
+            #76c8ec 46%,
+            #ed9fbd 100%
+        )
+        !important;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.84)
+        !important;
+
+    box-shadow:
+        0 7px 17px
+        rgba(76, 168, 219, 0.22),
+
+        inset 0 1px 0
+        rgba(255, 255, 255, 0.48)
+        !important;
+}
+
+
+/* Nút dùng thử */
+html body
+.store-item-card.store-card-shizuka-trinity.store-theme-locked
+.btn-preview {
+    color:
+        #3b7fa8
+        !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.94),
+            rgba(234, 248, 255, 0.94),
+            rgba(255, 238, 245, 0.92)
+        )
+        !important;
+
+    border:
+        1px solid
+        rgba(102, 185, 232, 0.36)
+        !important;
+
+    box-shadow:
+        inset 0 1px 0
+        rgba(255, 255, 255, 0.96)
+        !important;
+}
+
+
+/* Nút dùng thử bị vô hiệu hóa */
+html body
+.store-item-card.store-card-shizuka-trinity.store-theme-locked
+.btn-preview.disabled {
+    color:
+        #8a98a4
+        !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(244, 247, 249, 0.94),
+            rgba(237, 241, 244, 0.92)
+        )
+        !important;
+
+    border:
+        1px dashed
+        rgba(113, 141, 161, 0.28)
+        !important;
+
+    box-shadow: none !important;
+}
+
+
+/* Nút đang mặc */
+html body
+.store-item-card.store-card-shizuka-trinity.store-theme-locked
+.btn-equip.active {
+    color:
+        #607887
+        !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #e8f8f2,
+            #eef9ff
+        )
+        !important;
+
+    border:
+        1px solid
+        rgba(95, 184, 154, 0.30)
+        !important;
+
+    box-shadow: none !important;
+}
+
+
+/* =========================================================
+   HOVER
+   ========================================================= */
+
+html body
+.store-item-card.store-card-shizuka-trinity.store-theme-locked:hover {
+    transform:
+        translateY(-6px)
+        scale(1.01)
+        !important;
+
+    border-color:
+        rgba(102, 185, 232, 0.78)
+        !important;
+
+    box-shadow:
+        0 23px 45px
+        rgba(47, 143, 199, 0.20),
+
+        0 0 22px
+        rgba(243, 163, 191, 0.14),
+
+        inset 0 2px 0
+        rgba(255, 255, 255, 1),
+
+        inset 0 -8px 18px
+        rgba(102, 185, 232, 0.07)
+        !important;
+}
+
+
+html body
+.store-item-card.store-card-shizuka-trinity.store-theme-locked:hover
+.item-icon {
+    transform:
+        translateY(-3px)
+        translateX(1px)
+        scale(1.07)
+        rotate(1.5deg)
+        !important;
+
+    filter:
+        drop-shadow(
+            0 10px 12px
+            rgba(36, 113, 158, 0.23)
+        )
+        drop-shadow(
+            0 0 9px
+            rgba(243, 163, 191, 0.27)
+        )
+        !important;
+}
+
+
+html body
+.store-item-card.store-card-shizuka-trinity.store-theme-locked
+.item-actions button:hover:not(:disabled) {
+    transform:
+        translateY(-2px)
+        !important;
+
+    filter:
+        brightness(1.04)
+        saturate(1.04)
+        !important;
+}
+
+
+/* =========================================================
+   ANIMATION RIÊNG
+   ========================================================= */
+
+@keyframes shizuka-store-pastel-glow {
+    0%,
+    100% {
+        transform:
+            translateX(-50%)
+            scale(0.94);
+
+        opacity: 0.62;
+    }
+
+    50% {
+        transform:
+            translateX(-50%)
+            scale(1.06);
+
+        opacity: 0.94;
+    }
+}
+
+
+@keyframes shizuka-store-melody-orbit {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+@keyframes shizuka-store-music-note {
+    0%,
+    100% {
+        transform:
+            translateY(2px)
+            rotate(-5deg)
+            scale(0.88);
+
+        opacity: 0.55;
+    }
+
+    50% {
+        transform:
+            translateY(-4px)
+            rotate(3deg)
+            scale(1.07);
+
+        opacity: 1;
+    }
+}
+
+
+/* =========================================================
+   GIẢM CHUYỂN ĐỘNG
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    html body
+    .store-item-card.store-card-shizuka-trinity
+    .card-glow,
+
+    html body
+    .store-item-card.store-card-shizuka-trinity
+    .item-icon-wrapper::before,
+
+    html body
+    .store-item-card.store-card-shizuka-trinity
+    .item-icon-wrapper::after {
+        animation: none !important;
+    }
+}

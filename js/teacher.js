@@ -468,7 +468,7 @@ window.toggleAssessmentFields = function () {
         if (scoreDist) scoreDist.style.display = 'none';
 
         // Trắc nghiệm thường không dùng video
-        if (videoGroup) videoGroup.style.display = 'none';
+        if (videoGroup) videoGroup.style.display = 'block';
 
     } else if (type === 'ket_hop') {
         if (tuLuan) tuLuan.style.display = 'block';
@@ -2054,13 +2054,9 @@ window.openEditAssignmentModal = async function (fbKey) {
         if (tuLuanSec) tuLuanSec.style.display = 'none';
         if (tracNghiemSec) tracNghiemSec.style.display = 'none';
         if (weightSec) weightSec.style.display = 'none';
-        // Hiện video cho Tự luận, Kết hợp và Thi.
-        // Chỉ ẩn đối với Trắc nghiệm thường.
+        // Tất cả loại hình đều được phép đính kèm video
         if (editVideoGroup) {
-            editVideoGroup.style.display =
-                assign.assessmentType === 'trac_nghiem'
-                    ? 'none'
-                    : 'block';
+            editVideoGroup.style.display = 'block';
         }
 
         if (editVideoInput) {
@@ -2221,9 +2217,7 @@ window.saveAssignmentEdit = async function () {
         document.getElementById('editVideoLink');
 
     const editVideoLink =
-        assign.assessmentType === 'trac_nghiem'
-            ? ''
-            : (editVideoInput?.value || '').trim();
+        (editVideoInput?.value || '').trim();
 
     // Kiểm tra link YouTube nếu giáo viên có nhập
     if (editVideoLink) {

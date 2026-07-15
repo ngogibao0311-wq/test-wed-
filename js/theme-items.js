@@ -82,37 +82,215 @@ class ThemeManager {
             background: '#e8fbff',
             className: 'theme-fairy-sea-dream'
         },
+        'theme_doraemon_childhood': {
+            primary: '#5ab4e6',
+            secondary: '#f5a3c2',
+            background: '#fff8ed',
+            className: 'theme-doraemon-childhood'
+        },
+        'theme_hoihoa_atelier': {
+            primary: '#1595a5',
+            secondary: '#8b5cf6',
+            background: '#f6efd9',
+            className: 'theme-enchanted-atelier'
+        },
     };
 
     // Những popup phải giữ giao diện riêng,
     // không nhận CSS từ vật phẩm giao diện.
     static themeImmunePopupSelectors = Object.freeze([
-        // 4 popup hệ thống
-        '#studentInfoModal',
-        '#studentInboxModal',
-        '#studentBagModal',
-        '#leaderboardModal',
-
-        // Popup trò chơi và sự kiện
-        '#rulesModal',
-        '#treasureChestModal',
-        '#luckyWheelModal',
-        '#royalBallModal',
-        '#royalRewardsModal',
-
-        // Đăng nhập 7 ngày
-        '#dl-student-modal',
-        '#dl-teacher-modal',
-
-        // Hội họa và popup phụ
-        '#hoihoaStudentModal',
-        '#artworkPreviewModal',
-        '#hhConfirmModal',
-        '#hhEventInfoModal',
-
-        // Cho phép tự đánh dấu popup mới
         '[data-theme-immune="true"]'
     ]);
+
+    /* =========================================================
+   CARD AMON KHÔNG NHẬN GIAO DIỆN TOÀN WEB
+   ========================================================= */
+
+    /* =========================================================
+   CARD ĐẶC BIỆT KHÔNG NHẬN GIAO DIỆN TOÀN WEB
+   ========================================================= */
+
+    static specialStoreCardGroups = Object.freeze({
+        'amon-trinity': Object.freeze({
+            itemIds: Object.freeze([
+                'pet_lotm_amon',
+                'effect_lotm_amon',
+                'theme_lotm_mysteries'
+            ]),
+
+            className:
+                'store-card-amon-trinity',
+
+            styleId:
+                'amon-trinity-card-style'
+        }),
+
+        'shizuka-trinity': Object.freeze({
+            itemIds: Object.freeze([
+                'pet_doraemon_shizuka',
+                'theme_doraemon_childhood',
+                'effect_doraemon_school_memories'
+            ]),
+
+            className:
+                'store-card-shizuka-trinity',
+
+            styleId:
+                'shizuka-trinity-card-style'
+        })
+    });
+
+
+    static preserveSpecialStoreCards(
+        root = document
+    ) {
+        const selector =
+            '.store-item-card[data-item-id]';
+
+        const cards = [];
+
+        if (
+            root instanceof Element &&
+            root.matches(selector)
+        ) {
+            cards.push(root);
+        }
+
+        if (root.querySelectorAll) {
+            cards.push(
+                ...root.querySelectorAll(selector)
+            );
+        }
+
+
+        cards.forEach(card => {
+            const itemId =
+                card.dataset.itemId;
+
+            const matchedGroup =
+                Object.entries(
+                    this.specialStoreCardGroups
+                ).find(([, config]) => {
+                    return config
+                        .itemIds
+                        .includes(itemId);
+                });
+
+            if (!matchedGroup) {
+                return;
+            }
+
+            const [
+                groupName,
+                config
+            ] = matchedGroup;
+
+            card.classList.add(
+                config.className,
+                'store-theme-locked',
+                'ui-theme-immune'
+            );
+
+            card.dataset.themeImmune =
+                'true';
+
+            card.dataset.specialCard =
+                groupName;
+        });
+
+
+        /*
+         * Đưa CSS card đặc biệt xuống cuối <head>.
+         * Giao diện toàn web không thể ghi đè.
+         */
+        Object.values(
+            this.specialStoreCardGroups
+        ).forEach(config => {
+            const stylesheet =
+                document.getElementById(
+                    config.styleId
+                );
+
+            if (
+                stylesheet &&
+                stylesheet.parentNode
+            ) {
+                document.head.appendChild(
+                    stylesheet
+                );
+            }
+        });
+    }
+
+
+    static preserveAmonStoreCards(
+        root = document
+    ) {
+        const cards = [];
+
+        const selector =
+            '.store-item-card[data-item-id]';
+
+        if (
+            root instanceof Element &&
+            root.matches(selector)
+        ) {
+            cards.push(root);
+        }
+
+        if (root.querySelectorAll) {
+            cards.push(
+                ...root.querySelectorAll(
+                    selector
+                )
+            );
+        }
+
+        cards.forEach(card => {
+            const itemId =
+                card.dataset.itemId;
+
+            if (
+                !this.amonStoreItemIds.includes(
+                    itemId
+                )
+            ) {
+                return;
+            }
+
+            card.classList.add(
+                'store-card-amon-trinity',
+                'store-theme-locked',
+                'ui-theme-immune'
+            );
+
+            card.dataset.themeImmune =
+                'true';
+
+            card.dataset.specialCard =
+                'amon-trinity';
+        });
+
+
+        /*
+         * Luôn chuyển CSS card Amon xuống cuối <head>.
+         * Nhờ đó CSS của giao diện vừa mặc không thể
+         * ghi đè card Amon.
+         */
+        const amonStyle =
+            document.getElementById(
+                'amon-trinity-card-style'
+            );
+
+        if (
+            amonStyle &&
+            amonStyle.parentNode
+        ) {
+            document.head.appendChild(
+                amonStyle
+            );
+        }
+    }
 
     static markThemeImmunePopups(root = document) {
         const selector = this.themeImmunePopupSelectors.join(',');
@@ -137,13 +315,25 @@ class ThemeManager {
         const start = () => {
             // Bảo vệ những popup đã tồn tại
             this.markThemeImmunePopups(document);
+            this.preserveSpecialStoreCards(
+                document
+            );
 
             // Bảo vệ popup được JavaScript tạo sau
             this._themePopupObserver = new MutationObserver(mutations => {
                 mutations.forEach(mutation => {
                     mutation.addedNodes.forEach(node => {
-                        if (node.nodeType === Node.ELEMENT_NODE) {
-                            this.markThemeImmunePopups(node);
+                        if (
+                            node.nodeType ===
+                            Node.ELEMENT_NODE
+                        ) {
+                            this.markThemeImmunePopups(
+                                node
+                            );
+
+                            this.preserveSpecialStoreCards(
+                                node
+                            );
                         }
                     });
                 });
@@ -188,6 +378,11 @@ class ThemeManager {
 
         // Lưu lựa chọn vào bộ nhớ trình duyệt
         localStorage.setItem('active_theme', themeId);
+        requestAnimationFrame(() => {
+            this.preserveSpecialStoreCards(
+                document
+            );
+        });
     }
 }
 

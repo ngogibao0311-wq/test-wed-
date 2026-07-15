@@ -972,7 +972,9 @@ async function loadAssignments() {
                 });
             }
 
-            let videoHTML = assign.videoLink && assign.assessmentType !== 'trac_nghiem' ? getEmbedHTML(assign.videoLink) : '';
+            let videoHTML = assign.videoLink
+                ? getEmbedHTML(assign.videoLink)
+                : '';
 
             let myFileHTML = '';
             if (mySub.file) {
@@ -1389,13 +1391,15 @@ async function loadAssignments() {
                     quizHTML += '</div>';
                 }
 
-                let videoHTML = '';
+                let videoHTML = assign.videoLink
+                    ? getTrackedVideoHTML(assign.videoLink, assign.id)
+                    : '';
+
                 let descHTML = '';
                 let teacherFileHTML = '';
                 let tuLuanInputHTML = '';
 
                 if (assign.assessmentType === 'tu_luan' || assign.assessmentType === 'ket_hop' || assign.assessmentType === 'thi' || !assign.assessmentType) {
-                    videoHTML = assign.videoLink ? getTrackedVideoHTML(assign.videoLink, assign.id) : '';
                     descHTML = assign.desc ? `<div class="assignment-desc"><strong>Yêu cầu bài tập:</strong> <br>${(assign.desc || '').replace(/\n/g, '<br>')}</div>` : '';
                     if (assign.file) {
                         let aFiles = Array.isArray(assign.file) ? assign.file : [assign.file];
@@ -3782,7 +3786,9 @@ StoreManager.unapplyItem = async function (itemId) {
         if (item.value) document.body.classList.remove(item.value);
         ThemeManager.applyTheme('default');
     }
-    if (item.type === 'effect') EffectManager.clearEffects();
+    if (item.type === 'effect') {
+        EffectManager.clearEffects(true);
+    }
     if (item.type === 'pet') {
         const petContainer = document.getElementById('virtual-pet-container');
         if (petContainer) petContainer.style.display = 'none';
@@ -3911,7 +3917,12 @@ window.applyEquippedItems = function () {
         typeof EffectManager !== 'undefined' &&
         typeof EffectManager.clearEffects === 'function'
     ) {
-        EffectManager.clearEffects();
+        /*
+         * Xóa cả hiệu ứng lưu cũ.
+         * Hiệu ứng thực sự đang trang bị sẽ được
+         * áp dụng lại ở vòng lặp phía dưới.
+         */
+        EffectManager.clearEffects(true);
     }
 
     if (effectContainer) {
@@ -5776,23 +5787,52 @@ window.saveDraft = function (assignId, type, qIndex, value) {
 };
 
 // Bắt sự kiện chuyển tab hoặc thu nhỏ trình duyệt
-document.addEventListener('visibilitychange', () => {
-    if (
-        window.isSelectingFile ||
-        window.isFinalizingExamSubmission
-    ) {
-        return;
-    }
+document.addEventListener(
+    'visibilitychange',
+    () => {
+        if (document.hidden) {
+            EffectManager.stopIntervals();
+            return;
+        }
 
-    if (
-        document.hidden &&
-        window.currentActiveExamId
-    ) {
-        window.handleExamInterruption(
-            'visibilitychange'
-        );
+        const activeEffect =
+            localStorage.getItem('active_effect');
+
+        if (!activeEffect) {
+            EffectManager.clearEffects();
+            return;
+        }
+
+        const effectDefinition =
+            typeof StoreManager !== 'undefined'
+                ? StoreManager.getItemById(activeEffect)
+                : null;
+
+        /*
+         * Kiểm tra hiệu ứng có thực sự đang
+         * được trang bị trong túi đồ hay không.
+         */
+        const inventory =
+            typeof myInventory !== 'undefined' &&
+                Array.isArray(myInventory)
+                ? myInventory
+                : [];
+
+        const isActuallyEquipped =
+            effectDefinition?.type === 'effect' &&
+            inventory.some(invItem =>
+                invItem.id === activeEffect &&
+                invItem.isEquipped === true
+            );
+
+        if (!isActuallyEquipped) {
+            EffectManager.clearEffects(true);
+            return;
+        }
+
+        EffectManager.applyEffect(activeEffect);
     }
-});
+);
 
 // ==============================================================
 // ĐOẠN CODE FIX LỖI PHÍM WINDOWS VÀ HÌNH-TRONG-HÌNH (THÊM MỚI)
@@ -8141,133 +8181,3 @@ window.handleExamInterruption = async function (reason) {
         }
     }, 300);
 };
-/* =======================================================
-   KÉO THẢ THÚ CƯNG TRÊN ĐIỆN THOẠI
-   ======================================================= */
-document.addEventListener('DOMContentLoaded', () => {
-    const petContainer =
-        document.getElementById('virtual-pet-container');
-
-    if (!petContainer) return;
-
-    let isDraggingPet = false;
-    let hasMovedPet = false;
-
-    let startX = 0;
-    let startY = 0;
-    let initialLeft = 0;
-    let initialTop = 0;
-
-    petContainer.addEventListener(
-        'touchstart',
-        (e) => {
-            // Chỉ kéo khi dùng đúng một ngón tay
-            if (e.touches.length !== 1) return;
-
-            const touch = e.touches[0];
-            const rect = petContainer.getBoundingClientRect();
-
-            isDraggingPet = true;
-            hasMovedPet = false;
-
-            startX = touch.clientX;
-            startY = touch.clientY;
-
-            initialLeft = rect.left;
-            initialTop = rect.top;
-
-            petContainer.style.left = `${rect.left}px`;
-            petContainer.style.top = `${rect.top}px`;
-
-            petContainer.style.right = 'auto';
-            petContainer.style.bottom = 'auto';
-            petContainer.style.transition = 'none';
-        },
-        { passive: true }
-    );
-
-    document.addEventListener(
-        'touchmove',
-        (e) => {
-            if (!isDraggingPet) return;
-
-            // Chạm nhiều ngón thì hủy kéo để người dùng zoom
-            if (e.touches.length !== 1) {
-                isDraggingPet = false;
-                hasMovedPet = false;
-                return;
-            }
-
-            const touch = e.touches[0];
-
-            const dx = touch.clientX - startX;
-            const dy = touch.clientY - startY;
-
-            // Chưa di chuyển đủ xa thì vẫn cho trang cuộn bình thường
-            if (
-                !hasMovedPet &&
-                Math.abs(dx) < 8 &&
-                Math.abs(dy) < 8
-            ) {
-                return;
-            }
-
-            hasMovedPet = true;
-
-            // Chỉ chặn cuộn khi thật sự đang kéo thú cưng
-            e.preventDefault();
-
-            const viewportWidth =
-                window.visualViewport?.width ||
-                window.innerWidth;
-
-            const viewportHeight =
-                window.visualViewport?.height ||
-                window.innerHeight;
-
-            const maxLeft = Math.max(
-                0,
-                viewportWidth - petContainer.offsetWidth
-            );
-
-            const maxTop = Math.max(
-                0,
-                viewportHeight - petContainer.offsetHeight
-            );
-
-            const newLeft = Math.min(
-                Math.max(0, initialLeft + dx),
-                maxLeft
-            );
-
-            const newTop = Math.min(
-                Math.max(0, initialTop + dy),
-                maxTop
-            );
-
-            petContainer.style.left = `${newLeft}px`;
-            petContainer.style.top = `${newTop}px`;
-        },
-        { passive: false }
-    );
-
-    function finishPetDragging() {
-        if (!isDraggingPet && !hasMovedPet) return;
-
-        isDraggingPet = false;
-        hasMovedPet = false;
-
-        petContainer.style.transition =
-            'transform 0.2s ease';
-    }
-
-    document.addEventListener(
-        'touchend',
-        finishPetDragging
-    );
-
-    document.addEventListener(
-        'touchcancel',
-        finishPetDragging
-    );
-});

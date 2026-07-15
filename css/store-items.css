@@ -1433,24 +1433,194 @@
     outline: none;
 }
 
-/* Tag Truyền Thuyết (Rực rỡ, Đẳng cấp) */
-.tag-truyen-thuyet {
-    background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);
-    color: white;
-    border-bottom: 2px dashed #ffeaa7;
-    box-shadow: 0 4px 15px rgba(255, 8, 68, 0.6);
-    font-weight: 900;
-    text-transform: uppercase;
+/* =========================================================
+   TAG TRUYỀN THUYẾT — VƯƠNG MIỆN HUYẾT NGUYỆT
+   ========================================================= */
 
-    /* Các dòng fix lỗi tràn dải băng: */
-    font-size: 0.65em !important;
-    /* Ép nhỏ chữ lại để vừa vặn góc chéo */
-    letter-spacing: 0 !important;
-    /* Bỏ khoảng cách chữ dư thừa */
+.store-item-card .item-tag.tag-truyen-thuyet {
+    position: absolute !important;
+
+    top: 13px !important;
+    right: -42px !important;
+    left: auto !important;
+    bottom: auto !important;
+
+    width: 154px !important;
+    min-width: 154px !important;
+    height: 36px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    color: #fff8dc !important;
+
+    background:
+        radial-gradient(
+            circle at 48% 10%,
+            rgba(255, 237, 166, 0.34),
+            transparent 30%
+        ),
+        linear-gradient(
+            135deg,
+            #37091c 0%,
+            #7c163b 30%,
+            #9d174d 49%,
+            #5b1677 72%,
+            #1d123d 100%
+        ) !important;
+
+    border:
+        1px solid rgba(255, 225, 137, 0.86) !important;
+
+    border-radius: 3px !important;
+
+    box-shadow:
+        0 7px 18px rgba(83, 12, 61, 0.44),
+        0 0 13px rgba(225, 29, 72, 0.22),
+        inset 0 2px 0 rgba(255, 255, 255, 0.22),
+        inset 0 -3px 0 rgba(247, 197, 72, 0.34) !important;
+
+    transform: rotate(45deg) !important;
+    transform-origin: center !important;
+
+    z-index: 20;
+
+    box-sizing: border-box;
     white-space: nowrap;
-    /* Ngăn chữ bị rớt dòng làm hỏng form */
-    padding: 4px 25px !important;
-    /* Chỉnh lại vùng đệm cho cân đối với chữ nhỏ */
+
+    transition:
+        filter 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+
+/* Chữ Truyền thuyết */
+.store-item-card .item-tag.tag-truyen-thuyet span {
+    position: relative;
+    z-index: 4;
+
+    display: block;
+
+    padding-left: 19px;
+
+    color: #fff8dc !important;
+
+    font-family:
+        "Cinzel",
+        "Palatino Linotype",
+        Georgia,
+        serif;
+
+    font-size: 10px !important;
+    font-weight: 900;
+    line-height: 1;
+
+    letter-spacing: 0.55px !important;
+    text-transform: uppercase;
+    white-space: nowrap;
+
+    text-shadow:
+        0 1px 0 rgba(54, 4, 28, 0.95),
+        0 0 5px rgba(255, 217, 112, 0.54);
+}
+
+
+/* Vương miện vàng */
+.store-item-card .item-tag.tag-truyen-thuyet::before {
+    content: "♛";
+
+    position: absolute;
+    z-index: 5;
+
+    left: 25px;
+    top: 50%;
+
+    transform:
+        translateY(-52%)
+        rotate(-2deg);
+
+    color: #ffe28a;
+
+    font-size: 16px;
+    line-height: 1;
+
+    text-shadow:
+        0 1px 0 #754500,
+        0 0 6px rgba(255, 219, 113, 0.9),
+        0 0 12px rgba(255, 184, 56, 0.38);
+
+    pointer-events: none;
+}
+
+
+/* Vệt sáng hoàng kim */
+.store-item-card .item-tag.tag-truyen-thuyet::after {
+    content: "";
+
+    position: absolute;
+    z-index: 2;
+
+    top: -55%;
+    left: -50%;
+
+    width: 31%;
+    height: 215%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 240, 186, 0.76),
+            transparent
+        );
+
+    transform:
+        rotate(17deg)
+        translateX(-210%);
+
+    animation:
+        legendary-crown-ribbon-shine
+        5.2s
+        ease-in-out
+        infinite;
+
+    pointer-events: none;
+}
+
+
+.store-item-card:hover .item-tag.tag-truyen-thuyet {
+    filter:
+        brightness(1.09)
+        saturate(1.1);
+
+    box-shadow:
+        0 9px 22px rgba(83, 12, 61, 0.52),
+        0 0 17px rgba(225, 29, 72, 0.3),
+        inset 0 2px 0 rgba(255, 255, 255, 0.28),
+        inset 0 -3px 0 rgba(247, 197, 72, 0.45) !important;
+}
+
+
+@keyframes legendary-crown-ribbon-shine {
+    0%,
+    62% {
+        transform:
+            rotate(17deg)
+            translateX(-210%);
+    }
+
+    80%,
+    100% {
+        transform:
+            rotate(17deg)
+            translateX(590%);
+    }
 }
 
 /* =========================================================================

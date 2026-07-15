@@ -116,29 +116,36 @@ class EffectManager {
         }
     }
 
-    static clearEffects() {
+    static clearEffects(removeSavedEffect = false) {
         this.stopIntervals();
 
         if (this.container) {
-            const children = Array.from(this.container.children);
+            const children = Array.from(
+                this.container.children
+            );
 
             children.forEach(child => {
                 if (child.dataset.isClearing) {
-                    if (child.parentNode) child.remove();
+                    child.remove();
                     return;
                 }
 
                 child.dataset.isClearing = 'true';
                 child.style.animation = 'none';
-                child.style.transition = 'opacity 0.3s ease-out';
+                child.style.transition =
+                    'opacity 0.3s ease-out';
                 child.style.opacity = '0';
 
                 setTimeout(() => {
-                    if (child && child.parentNode) {
+                    if (child?.parentNode) {
                         child.remove();
                     }
                 }, 300);
             });
+        }
+
+        if (removeSavedEffect) {
+            localStorage.removeItem('active_effect');
         }
     }
 
@@ -188,6 +195,12 @@ class EffectManager {
                 break;
             case 'effect_cotich_bot_ngoc_mong':
                 this.createPearlDreamEffect();
+                break;
+            case 'effect_doraemon_school_memories':
+                this.createDoraemonSchoolMemoriesEffect();
+                break;
+            case 'effect_hoihoa_living_canvas':
+                this.createEnchantedAtelierEffect();
                 break;
         }
         localStorage.setItem('active_effect', effectId);
@@ -968,6 +981,574 @@ class EffectManager {
             }, duration * 1000 + 500);
 
         }, 650);
+    }
+
+    static createDoraemonSchoolMemoriesEffect() {
+        this.stopIntervals();
+
+        if (!this.container) return;
+
+        /*
+         * Lớp hiệu ứng riêng.
+         * Không dùng lại cấu trúc của tuyết, bong bóng,
+         * bụi phép thuật hoặc hiệu ứng cũ.
+         */
+        const stage = document.createElement('div');
+
+        stage.className =
+            'effect-doraemon-childhood-stage';
+
+        const hasShizuka = Boolean(
+            document.querySelector(
+                '.doraemon-shizuka-study-magic'
+            )
+        );
+
+        const hasChildhoodTheme =
+            document.body.classList.contains(
+                'theme-doraemon-childhood'
+            );
+
+        /*
+         * Cộng hưởng khi đang dùng pet hoặc giao diện Doraemon.
+         */
+        if (hasShizuka || hasChildhoodTheme) {
+            stage.classList.add(
+                'effect-doraemon-childhood-combo'
+            );
+        }
+
+        /*
+         * Cộng hưởng hoàn chỉnh khi dùng đủ cả pet và theme.
+         */
+        if (hasShizuka && hasChildhoodTheme) {
+            stage.classList.add(
+                'effect-doraemon-childhood-complete'
+            );
+        }
+
+        stage.innerHTML = `
+        <div class="effect-doraemon-daylight"></div>
+
+        <div
+            class="
+                effect-doraemon-ribbon
+                effect-doraemon-ribbon-blue
+            "
+        ></div>
+
+        <div
+            class="
+                effect-doraemon-ribbon
+                effect-doraemon-ribbon-pink
+            "
+        ></div>
+
+        <div
+            class="
+                effect-doraemon-memory-ring
+                effect-doraemon-ring-left
+            "
+        ></div>
+
+        <div
+            class="
+                effect-doraemon-memory-ring
+                effect-doraemon-ring-right
+            "
+        ></div>
+    `;
+
+        this.container.appendChild(stage);
+
+        /*
+         * Bộ ký hiệu tuổi thơ riêng.
+         */
+        const childhoodTokens = [
+            {
+                character: '♪',
+                type: 'music'
+            },
+            {
+                character: '♫',
+                type: 'music'
+            },
+            {
+                character: '✦',
+                type: 'spark'
+            },
+            {
+                character: '♡',
+                type: 'heart'
+            },
+            {
+                character: '✎',
+                type: 'pencil'
+            },
+            {
+                character: '○',
+                type: 'shape'
+            },
+            {
+                character: '△',
+                type: 'shape'
+            },
+            {
+                character: '□',
+                type: 'shape'
+            }
+        ];
+
+        const childhoodColors = [
+            '#5ab4e6',
+            '#f4a7c1',
+            '#ffe08a',
+            '#7dd9c5',
+            '#ffffff'
+        ];
+
+        const spawnDoodle = (isInitial = false) => {
+            if (!stage.isConnected) return;
+
+            const token =
+                childhoodTokens[
+                Math.floor(
+                    Math.random() *
+                    childhoodTokens.length
+                )
+                ];
+
+            const doodle =
+                document.createElement('span');
+
+            doodle.className =
+                'effect-doraemon-childhood-doodle';
+
+            doodle.dataset.doodleType =
+                token.type;
+
+            doodle.textContent =
+                token.character;
+
+            const viewport =
+                this.getViewport();
+
+            const duration =
+                Math.random() * 5 + 8;
+
+            const size =
+                Math.random() * 12 + 14;
+
+            const horizontalPosition =
+                Math.random() * 92 + 4;
+
+            doodle.style.left =
+                `${horizontalPosition}%`;
+
+            /*
+             * Các phần tử ban đầu được rải khắp trang.
+             * Phần tử mới bắt đầu từ cạnh dưới.
+             */
+            doodle.style.top =
+                isInitial
+                    ? `${Math.random() * 90 + 5}%`
+                    : `calc(100% + ${Math.random() * 35 + 20
+                    }px)`;
+
+            doodle.style.setProperty(
+                '--doraemon-doodle-size',
+                `${size}px`
+            );
+
+            doodle.style.setProperty(
+                '--doraemon-doodle-drift',
+                `${Math.random() * 120 - 60}px`
+            );
+
+            doodle.style.setProperty(
+                '--doraemon-doodle-rise',
+                `${Math.round(
+                    viewport.height + 190
+                )}px`
+            );
+
+            doodle.style.setProperty(
+                '--doraemon-doodle-turn',
+                `${Math.random() * 34 - 17}deg`
+            );
+
+            doodle.style.setProperty(
+                '--doraemon-doodle-color',
+                childhoodColors[
+                Math.floor(
+                    Math.random() *
+                    childhoodColors.length
+                )
+                ]
+            );
+
+            doodle.style.animationDuration =
+                `${duration}s`;
+
+            if (isInitial) {
+                doodle.style.animationDelay =
+                    `${-Math.random() * duration}s`;
+            }
+
+            stage.appendChild(doodle);
+
+            setTimeout(() => {
+                if (doodle.parentNode) {
+                    doodle.remove();
+                }
+            }, (duration + 1) * 1000);
+        };
+
+        /*
+         * Tạo vòng ký ức xuất hiện ngẫu nhiên.
+         */
+        const spawnMemoryPulse = () => {
+            if (!stage.isConnected) return;
+
+            const pulse =
+                document.createElement('span');
+
+            pulse.className =
+                'effect-doraemon-memory-pulse';
+
+            pulse.style.left =
+                `${Math.random() * 84 + 8}%`;
+
+            pulse.style.top =
+                `${Math.random() * 72 + 14}%`;
+
+            pulse.style.setProperty(
+                '--doraemon-pulse-color',
+                childhoodColors[
+                Math.floor(
+                    Math.random() *
+                    childhoodColors.length
+                )
+                ]
+            );
+
+            stage.appendChild(pulse);
+
+            setTimeout(() => {
+                if (pulse.parentNode) {
+                    pulse.remove();
+                }
+            }, 2400);
+        };
+
+        /*
+         * Rải một lượng phần tử vừa phải ngay khi kích hoạt.
+         */
+        const initialDoodleCount =
+            IS_MOBILE_EFFECT ? 8 : 15;
+
+        for (
+            let index = 0;
+            index < initialDoodleCount;
+            index++
+        ) {
+            spawnDoodle(true);
+        }
+
+        let effectTick = 0;
+
+        this.currentInterval =
+            setInterval(() => {
+                effectTick++;
+
+                spawnDoodle(false);
+
+                /*
+                 * Sau mỗi năm ký hiệu sẽ xuất hiện
+                 * một vòng ký ức.
+                 */
+                if (effectTick % 5 === 0) {
+                    spawnMemoryPulse();
+                }
+            }, IS_MOBILE_EFFECT ? 1500 : 900);
+    }
+
+    /* =========================================================
+   HỌA GIỚI SẮC MÀU
+   Hiệu ứng Hội họa toàn web mới hoàn toàn.
+
+   Phối hợp với:
+   - Pet: Nàng Họa Sĩ Tinh Linh
+   - Theme: Xưởng Vẽ Tinh Linh
+   ========================================================= */
+    static createEnchantedAtelierEffect() {
+        this.stopIntervals();
+
+        if (!this.container) return;
+
+        // Sân khấu toàn màn hình
+        const stage = document.createElement('div');
+
+        stage.className = 'effect-atelier-world';
+        stage.setAttribute('aria-hidden', 'true');
+
+        stage.innerHTML = `
+        <div class="effect-atelier-paper-light"></div>
+
+        <div class="effect-atelier-wash wash-top-left"></div>
+        <div class="effect-atelier-wash wash-top-right"></div>
+        <div class="effect-atelier-wash wash-bottom-left"></div>
+        <div class="effect-atelier-wash wash-bottom-right"></div>
+
+        <div class="effect-atelier-border-stroke border-top"></div>
+        <div class="effect-atelier-border-stroke border-bottom"></div>
+
+        <div class="effect-atelier-signature">
+            <span class="signature-line line-one"></span>
+            <span class="signature-line line-two"></span>
+
+            <span class="signature-dot dot-one"></span>
+            <span class="signature-dot dot-two"></span>
+            <span class="signature-dot dot-three"></span>
+        </div>
+    `;
+
+        this.container.appendChild(stage);
+
+        // Cùng bảng màu với Xưởng Vẽ Tinh Linh
+        const palette = [
+            '#1595a5',
+            '#38bfc9',
+            '#8b5cf6',
+            '#db5d93',
+            '#d89a2b',
+            '#4ba985'
+        ];
+
+        const getColor = offset => {
+            const randomIndex =
+                Math.floor(Math.random() * palette.length);
+
+            return palette[
+                (randomIndex + offset) % palette.length
+            ];
+        };
+
+        // Giọt màu loang trên nền
+        const spawnPigmentBloom = (
+            isInitial = false
+        ) => {
+            if (!stage.isConnected) return;
+
+            const bloom =
+                document.createElement('span');
+
+            bloom.className =
+                'effect-atelier-pigment-bloom';
+
+            const minSize =
+                IS_MOBILE_EFFECT ? 28 : 38;
+
+            const extraSize =
+                IS_MOBILE_EFFECT ? 36 : 58;
+
+            const size =
+                Math.round(
+                    Math.random() * extraSize +
+                    minSize
+                );
+
+            const duration =
+                Math.random() * 4.5 + 6.5;
+
+            bloom.style.left =
+                `${Math.random() * 100}%`;
+
+            bloom.style.top =
+                `${Math.random() * 100}%`;
+
+            bloom.style.width = `${size}px`;
+            bloom.style.height = `${size}px`;
+
+            bloom.style.setProperty(
+                '--atelier-bloom-color-a',
+                getColor(0)
+            );
+
+            bloom.style.setProperty(
+                '--atelier-bloom-color-b',
+                getColor(2)
+            );
+
+            bloom.style.setProperty(
+                '--atelier-bloom-rotate',
+                `${Math.random() * 90 - 45}deg`
+            );
+
+            bloom.style.setProperty(
+                '--atelier-bloom-drift-x',
+                `${Math.random() * 110 - 55}px`
+            );
+
+            bloom.style.setProperty(
+                '--atelier-bloom-drift-y',
+                `${Math.random() * 90 - 45}px`
+            );
+
+            bloom.style.animationDuration =
+                `${duration}s`;
+
+            // Những giọt đầu xuất hiện ở nhiều giai đoạn khác nhau
+            if (isInitial) {
+                bloom.style.animationDelay =
+                    `${-Math.random() * duration}s`;
+            }
+
+            stage.appendChild(bloom);
+
+            setTimeout(() => {
+                bloom.remove();
+            }, (duration + 0.5) * 1000);
+        };
+
+        // Nét cọ bay ngang màn hình
+        const spawnBrushRibbon = () => {
+            if (!stage.isConnected) return;
+
+            const ribbon =
+                document.createElement('span');
+
+            const isReverse =
+                Math.random() > 0.5;
+
+            ribbon.className =
+                isReverse
+                    ? 'effect-atelier-brush-ribbon is-reverse'
+                    : 'effect-atelier-brush-ribbon';
+
+            const duration =
+                Math.random() * 2.4 + 5.6;
+
+            ribbon.style.top =
+                `${8 + Math.random() * 78}%`;
+
+            ribbon.style.width =
+                `${Math.round(
+                    Math.random() *
+                    (IS_MOBILE_EFFECT ? 100 : 190) +
+                    (IS_MOBILE_EFFECT ? 110 : 170)
+                )}px`;
+
+            ribbon.style.setProperty(
+                '--atelier-ribbon-color-a',
+                getColor(0)
+            );
+
+            ribbon.style.setProperty(
+                '--atelier-ribbon-color-b',
+                getColor(3)
+            );
+
+            ribbon.style.setProperty(
+                '--atelier-ribbon-angle',
+                `${Math.random() * 9 - 4.5}deg`
+            );
+
+            ribbon.style.setProperty(
+                '--atelier-ribbon-wave',
+                `${Math.random() * 36 - 18}px`
+            );
+
+            ribbon.style.animationDuration =
+                `${duration}s`;
+
+            stage.appendChild(ribbon);
+
+            setTimeout(() => {
+                ribbon.remove();
+            }, (duration + 0.5) * 1000);
+        };
+
+        // Vòng màu nước lan nhẹ
+        const spawnPaintRipple = () => {
+            if (!stage.isConnected) return;
+
+            const ripple =
+                document.createElement('span');
+
+            ripple.className =
+                'effect-atelier-paint-ripple';
+
+            const size =
+                Math.round(
+                    Math.random() *
+                    (IS_MOBILE_EFFECT ? 70 : 120) +
+                    (IS_MOBILE_EFFECT ? 80 : 110)
+                );
+
+            ripple.style.left =
+                `${10 + Math.random() * 80}%`;
+
+            ripple.style.top =
+                `${10 + Math.random() * 80}%`;
+
+            ripple.style.width = `${size}px`;
+            ripple.style.height = `${size}px`;
+
+            ripple.style.setProperty(
+                '--atelier-ripple-color',
+                getColor(1)
+            );
+
+            ripple.style.setProperty(
+                '--atelier-ripple-tilt',
+                `${Math.random() * 35 - 17.5}deg`
+            );
+
+            stage.appendChild(ripple);
+
+            setTimeout(() => {
+                ripple.remove();
+            }, 4300);
+        };
+
+        // Tạo sẵn màu khi vừa trang bị
+        const initialBloomCount =
+            IS_MOBILE_EFFECT ? 7 : 13;
+
+        for (
+            let index = 0;
+            index < initialBloomCount;
+            index++
+        ) {
+            spawnPigmentBloom(true);
+        }
+
+        spawnPaintRipple();
+
+        let effectTick = 0;
+
+        this.currentInterval =
+            setInterval(() => {
+                if (!stage.isConnected) {
+                    this.stopIntervals();
+                    return;
+                }
+
+                effectTick++;
+
+                spawnPigmentBloom(false);
+
+                // Mỗi bốn nhịp xuất hiện một nét cọ
+                if (effectTick % 4 === 0) {
+                    spawnBrushRibbon();
+                }
+
+                // Mỗi bảy nhịp xuất hiện vòng màu nước
+                if (effectTick % 7 === 0) {
+                    spawnPaintRipple();
+                }
+            }, IS_MOBILE_EFFECT ? 1100 : 680);
     }
 }
 

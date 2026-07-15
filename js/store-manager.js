@@ -210,7 +210,7 @@ const StoreConfig = {
             name: 'Thần Hệ Tinh Vân',
             type: 'theme',
             price: 0,               // Không bán bằng Coin
-            isNonCoin: false,        // Vật phẩm sự kiện đặc biệt
+            isNonCoin: true,        // Vật phẩm sự kiện đặc biệt
             tag: 'Truyền thuyết',   // Gắn tag Truyền thuyết
             value: 'theme-cosmic-godhood', // Class CSS định danh của giao diện
             customIcon: '🌗'
@@ -401,7 +401,7 @@ const StoreConfig = {
             id: 'theme_cotich_hai_nguyet',
             name: 'Vịnh Ngọc Trai Mộng',
             type: 'theme',
-            price: 450,
+            price: 550,
             isNonCoin: false,
             tag: 'Cổ tích',
             value: 'theme-fairy-sea-dream',
@@ -415,6 +415,70 @@ const StoreConfig = {
             isNonCoin: false,
             tag: 'Cổ tích',
             customIcon: '🫧'
+        },
+        {
+            id: 'pet_doraemon_shizuka',
+            name: 'Shizuka - Giai Điệu Dịu Dàng',
+            type: 'pet',
+            price: 300,
+            isNonCoin: false,
+            tag: 'Doraemon',
+            value: 'assets/pet/Doraemon/sishuka.png',
+            isIcon: false,
+            petEffect: 'doraemon-shizuka-study-magic',
+            disableClickEffect: true
+        },
+        {
+            id: 'theme_doraemon_childhood',
+            name: 'Khúc Ca Tuổi Thơ',
+            type: 'theme',
+            price: 0,
+            isNonCoin: true,
+            tag: 'Doraemon',
+            value: 'theme-doraemon-childhood',
+            customIcon: '🎶'
+        },
+        {
+            id: 'effect_doraemon_school_memories',
+            name: 'Ký Ức Sân Trường',
+            type: 'effect',
+            price: 0,
+            isNonCoin: true,
+            tag: 'Doraemon',
+            value: 'effect_doraemon_school_memories',
+            customIcon: '🪁'
+        },
+        {
+            id: 'pet_hoihoa_1',
+            name: 'Nàng Họa Sĩ Tinh Linh',
+            type: 'pet',
+            price: 0,
+            isNonCoin: false,
+            tag: 'Hội họa',
+            value: 'assets/pet/hội họa/hội họa 1.png',
+            isIcon: false,
+            petEffect: 'painting-muse-magic',
+            disableClickEffect: true
+        },
+        {
+            id: 'theme_hoihoa_atelier',
+            name: 'Xưởng Vẽ Tinh Linh',
+            type: 'theme',
+            price: 0,
+            isNonCoin: true,
+            tag: 'Hội họa',
+            value: 'theme-enchanted-atelier',
+            customIcon: '🎨'
+        },
+        {
+            id: 'effect_hoihoa_living_canvas',
+            name: 'Họa Giới Sắc Màu',
+            type: 'effect',
+            price: 0,
+            isNonCoin: true,
+            tag: 'Hội họa',
+            value: 'effect_hoihoa_living_canvas',
+            customIcon: '🖌️'
         },
     ]
 };
@@ -456,7 +520,19 @@ class StoreManager {
     }
 
     static renderStoreItem(item, isOwned = false, isEquipped = false, isTrial = false, isUpcoming = false) {
-        let tagClass = item.tag === 'Lord of the Mysteries' ? 'tag-lotm' : (item.tag === 'Truyền thuyết' ? 'tag-truyen-thuyet' : (item.tag === 'Sao thủy' ? 'tag-sao-thuy' : (item.tag === 'Cổ tích' ? 'tag-co-tich' : (item.tag === 'Đời sống' ? 'tag-doi-song' : (item.tag === 'Ban đêm' ? 'tag-ban-dem' : (item.tag === 'Ban ngày' ? 'tag-ban-ngay' : 'tag-normal'))))));
+        const tagClassMap = {
+            'Lord of the Mysteries': 'tag-lotm',
+            'Truyền thuyết': 'tag-truyen-thuyet',
+            'Sao thủy': 'tag-sao-thuy',
+            'Cổ tích': 'tag-co-tich',
+            'Đời sống': 'tag-doi-song',
+            'Ban đêm': 'tag-ban-dem',
+            'Ban ngày': 'tag-ban-ngay',
+            'Doraemon': 'tag-doraemon',
+            'Hội họa': 'tag-hoi-hoa'
+        };
+
+        let tagClass = tagClassMap[item.tag] || 'tag-normal';
         let actionButton = '';
         let trialButton = '';
 
@@ -520,23 +596,118 @@ class StoreManager {
             iconHTML = `<div class="item-icon">${displayIcon}</div>`;
         }
 
+        /* =========================================================
+   NHÓM CARD CỬA HÀNG ĐẶC BIỆT
+   ========================================================= */
+
+        const nyxTrinityIds = new Set([
+            'pet_truyenthuyet_nyx',
+            'effect_truyenthuyet_nyx_domain',
+            'theme_truyenthuyet_celestial'
+        ]);
+
+        const amonTrinityIds = new Set([
+            'pet_lotm_amon',
+            'effect_lotm_amon',
+            'theme_lotm_mysteries'
+        ]);
+
+        const shizukaTrinityIds = new Set([
+            'pet_doraemon_shizuka',
+            'theme_doraemon_childhood',
+            'effect_doraemon_school_memories'
+        ]);
+
+        const cardClasses = [
+            'store-item-card'
+        ];
+
+        let specialCardGroup = '';
+        let isThemeImmune = false;
+
+
+        /* Bộ ba Nyx */
+        if (nyxTrinityIds.has(item.id)) {
+            cardClasses.push(
+                'store-card-nyx-trinity',
+                'store-theme-locked',
+                'ui-theme-immune'
+            );
+
+            specialCardGroup = 'nyx-trinity';
+            isThemeImmune = true;
+        }
+
+
+        /* Bộ ba Amon */
+        if (amonTrinityIds.has(item.id)) {
+            cardClasses.push(
+                'store-card-amon-trinity',
+                'store-theme-locked',
+                'ui-theme-immune'
+            );
+
+            specialCardGroup = 'amon-trinity';
+            isThemeImmune = true;
+        }
+
+        /* Bộ ba Shizuka */
+        if (shizukaTrinityIds.has(item.id)) {
+            cardClasses.push(
+                'store-card-shizuka-trinity',
+                'store-theme-locked',
+                'ui-theme-immune'
+            );
+
+            specialCardGroup = 'shizuka-trinity';
+            isThemeImmune = true;
+        }
+
         return `
-        <div class="store-item-card" data-type="${item.type}" style="${item.isLocked ? 'opacity: 0.75; filter: grayscale(0.4); border: 1px solid rgba(225,29,72,0.3);' : ''}">
-            <div class="card-glow"></div>
-            <div class="item-tag ${tagClass}"><span>${item.tag}</span></div>
-            <div class="item-icon-wrapper">
-                ${iconHTML}
-            </div>
-            <div class="item-info">
-                <h4 class="item-name">${item.name}</h4>
-                <span class="item-type-label">${typeName}</span>
-            </div>
-            <div class="item-actions">
-                ${trialButton}
-                ${actionButton}
-            </div>
+    <div
+        class="${cardClasses.join(' ')}"
+
+        data-item-id="${item.id}"
+        data-type="${item.type}"
+
+        data-special-card="${specialCardGroup}"
+
+        data-theme-immune="${isThemeImmune
+                ? 'true'
+                : 'false'
+            }"
+
+        style="${item.isLocked
+                ? 'opacity: 0.75; filter: grayscale(0.4); border: 1px solid rgba(225,29,72,0.3);'
+                : ''
+            }"
+    >
+        <div class="card-glow"></div>
+
+        <div class="item-tag ${tagClass}">
+            <span>${item.tag}</span>
         </div>
-    `;
+
+        <div class="item-icon-wrapper">
+            ${iconHTML}
+        </div>
+
+        <div class="item-info">
+            <h4 class="item-name">
+                ${item.name}
+            </h4>
+
+            <span class="item-type-label">
+                ${typeName}
+            </span>
+        </div>
+
+        <div class="item-actions">
+            ${trialButton}
+            ${actionButton}
+        </div>
+    </div>
+`;
     }
 
     static getIconForType(type) {

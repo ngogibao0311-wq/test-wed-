@@ -1326,3 +1326,1384 @@ body.theme-legendary-celestial {
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
 }
+/* =========================================================
+   STORE CARD TRUYỀN THUYẾT
+   Phong cách: Tinh Điện Hoàng Gia
+
+   Chỉ tác động các card có tag Truyền thuyết.
+   Không ảnh hưởng card Doraemon, LOTM hoặc tag khác.
+   ========================================================= */
+
+
+/* =========================================================
+   KHUNG CARD CHÍNH
+   ========================================================= */
+
+.store-item-card:has(> .item-tag.tag-truyen-thuyet) {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+
+    color: #f8f4ff !important;
+
+    background:
+        radial-gradient(
+            circle at 18% 8%,
+            rgba(255, 224, 138, 0.18),
+            transparent 27%
+        ),
+        radial-gradient(
+            circle at 86% 76%,
+            rgba(168, 85, 247, 0.22),
+            transparent 34%
+        ),
+        linear-gradient(
+            145deg,
+            #21102f 0%,
+            #351347 34%,
+            #21193d 67%,
+            #101426 100%
+        ) !important;
+
+    border:
+        1px solid rgba(255, 220, 126, 0.66) !important;
+
+    border-radius:
+        26px 8px 26px 8px !important;
+
+    box-shadow:
+        0 15px 34px rgba(30, 10, 48, 0.34),
+        0 0 18px rgba(168, 85, 247, 0.12),
+        inset 0 1px 0 rgba(255, 244, 199, 0.24),
+        inset 0 -8px 22px rgba(7, 8, 24, 0.36) !important;
+
+    transition:
+        transform 0.32s cubic-bezier(.22, 1, .36, 1),
+        box-shadow 0.32s ease,
+        border-color 0.32s ease !important;
+}
+
+
+/*
+ * Bầu trời sao nhỏ trong card.
+ * Ghi đè viền nét đứt từ các giao diện khác.
+ */
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+
+    pointer-events: none;
+
+    border: none !important;
+    border-radius: inherit !important;
+
+    background:
+        radial-gradient(
+            circle at 12% 24%,
+            rgba(255, 255, 255, 0.85) 0 1px,
+            transparent 2px
+        ),
+        radial-gradient(
+            circle at 28% 62%,
+            rgba(255, 219, 126, 0.75) 0 1.2px,
+            transparent 2.2px
+        ),
+        radial-gradient(
+            circle at 61% 18%,
+            rgba(232, 213, 255, 0.82) 0 1px,
+            transparent 2px
+        ),
+        radial-gradient(
+            circle at 78% 48%,
+            rgba(255, 255, 255, 0.72) 0 1px,
+            transparent 2px
+        ),
+        radial-gradient(
+            circle at 48% 83%,
+            rgba(196, 181, 253, 0.72) 0 1px,
+            transparent 2px
+        );
+
+    opacity: 0.66;
+
+    animation:
+        legendary-card-stars
+        5s
+        ease-in-out
+        infinite alternate;
+}
+
+
+/* Khung vàng mảnh bên trong */
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)::after {
+    content: "";
+
+    position: absolute;
+    inset: 9px;
+    z-index: 1;
+
+    pointer-events: none;
+
+    border:
+        1px solid rgba(255, 220, 126, 0.19);
+
+    border-radius:
+        18px 4px 18px 4px;
+
+    box-shadow:
+        inset 0 0 16px rgba(255, 220, 126, 0.035);
+}
+
+
+/* Đưa nội dung lên trên các lớp trang trí */
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+> * {
+    position: relative;
+    z-index: 3;
+}
+
+
+/* Tag phải nằm cao nhất */
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+> .item-tag {
+    z-index: 20;
+}
+
+
+/* =========================================================
+   HÀO QUANG ICON
+   ========================================================= */
+
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+.card-glow {
+    position: absolute;
+    z-index: 1;
+
+    top: 15px;
+    left: 50%;
+
+    width: 148px;
+    height: 118px;
+
+    transform: translateX(-50%);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            ellipse at center,
+            rgba(255, 226, 142, 0.26) 0%,
+            rgba(168, 85, 247, 0.18) 40%,
+            transparent 72%
+        );
+
+    filter: blur(2px);
+
+    opacity: 0.8;
+
+    animation:
+        legendary-card-aura
+        3.8s
+        ease-in-out
+        infinite;
+}
+
+
+/* Vòng huy hiệu quanh icon */
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+.item-icon-wrapper {
+    position: relative;
+    z-index: 4;
+
+    width: 108px;
+    height: 96px;
+
+    margin:
+        0 auto 13px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255, 255, 255, 0.11),
+            rgba(121, 53, 157, 0.12) 58%,
+            transparent 72%
+        );
+
+    border:
+        1px solid rgba(255, 220, 126, 0.24);
+
+    box-shadow:
+        0 0 19px rgba(168, 85, 247, 0.13),
+        inset 0 0 16px rgba(255, 255, 255, 0.05);
+}
+
+
+/* Quỹ đạo vàng quanh icon */
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+.item-icon-wrapper::before {
+    content: "";
+
+    position: absolute;
+    inset: 6px;
+
+    border-radius: 50%;
+
+    border:
+        1px dashed rgba(255, 221, 132, 0.37);
+
+    animation:
+        legendary-card-orbit
+        13s
+        linear
+        infinite;
+
+    pointer-events: none;
+}
+
+
+/* Tinh thạch nhỏ */
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+.item-icon-wrapper::after {
+    content: "✦";
+
+    position: absolute;
+
+    right: 3px;
+    bottom: 9px;
+
+    color: #ffe292;
+
+    font-size: 12px;
+
+    text-shadow:
+        0 0 5px #ffe292,
+        0 0 12px rgba(168, 85, 247, 0.72);
+
+    animation:
+        legendary-card-gem
+        2.6s
+        ease-in-out
+        infinite;
+
+    pointer-events: none;
+}
+
+
+/* Icon vật phẩm */
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+.item-icon {
+    position: relative;
+    z-index: 2;
+
+    filter:
+        drop-shadow(
+            0 8px 10px rgba(0, 0, 0, 0.38)
+        )
+        drop-shadow(
+            0 0 7px rgba(255, 218, 122, 0.25)
+        ) !important;
+
+    transition:
+        transform 0.34s cubic-bezier(.22, 1, .36, 1),
+        filter 0.34s ease !important;
+}
+
+
+/* =========================================================
+   TÊN VÀ LOẠI VẬT PHẨM
+   ========================================================= */
+
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+.item-info {
+    position: relative;
+    z-index: 4;
+
+    margin-bottom: 19px;
+}
+
+
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+.item-name {
+    color: #fff4c7 !important;
+
+    font-family:
+        "Cinzel",
+        "Palatino Linotype",
+        Georgia,
+        serif !important;
+
+    font-weight: 900;
+    letter-spacing: 0.25px;
+
+    text-shadow:
+        0 2px 3px rgba(0, 0, 0, 0.72),
+        0 0 8px rgba(255, 220, 126, 0.22);
+}
+
+
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+.item-type-label {
+    color: #d8c7ee !important;
+
+    font-weight: 800;
+    letter-spacing: 1.1px;
+
+    text-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.58);
+}
+
+
+/* Đường ngăn trang trí */
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+.item-info::after {
+    content: "";
+
+    display: block;
+
+    width: 58px;
+    height: 1px;
+
+    margin:
+        12px auto 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 220, 126, 0.85),
+            transparent
+        );
+
+    box-shadow:
+        0 0 7px rgba(255, 220, 126, 0.32);
+}
+
+
+/* =========================================================
+   NÚT TRONG CARD
+   ========================================================= */
+
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+.item-actions {
+    position: relative;
+    z-index: 5;
+
+    gap: 10px;
+}
+
+
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+.item-actions button {
+    min-height: 51px;
+
+    border-radius:
+        13px 4px 13px 4px !important;
+
+    font-family:
+        "Trebuchet MS",
+        "Segoe UI",
+        sans-serif;
+
+    font-weight: 900;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        filter 0.2s ease !important;
+}
+
+
+/* Nút nhận sự kiện hoặc mua */
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+.btn-buy {
+    color: #27132f !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f6d67f 0%,
+            #fff0b0 46%,
+            #c88b3f 100%
+        ) !important;
+
+    border:
+        1px solid rgba(255, 248, 208, 0.9) !important;
+
+    box-shadow:
+        0 7px 17px rgba(205, 147, 58, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.68) !important;
+}
+
+
+/* Nút trang bị */
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+.btn-equip:not(.active) {
+    color: #ffffff !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #6d28d9,
+            #9333ea 54%,
+            #be185d
+        ) !important;
+
+    border:
+        1px solid rgba(233, 213, 255, 0.45) !important;
+
+    box-shadow:
+        0 7px 17px rgba(109, 40, 217, 0.28) !important;
+}
+
+
+/* Nút không hỗ trợ thử nghiệm */
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+.btn-preview.disabled {
+    color: #cfc3df !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(65, 42, 84, 0.82),
+            rgba(94, 60, 122, 0.78)
+        ) !important;
+
+    border:
+        1px dashed rgba(216, 199, 238, 0.35) !important;
+
+    box-shadow:
+        inset 0 0 13px rgba(0, 0, 0, 0.18) !important;
+
+    opacity: 0.88;
+}
+
+
+/* =========================================================
+   HOVER CARD
+   ========================================================= */
+
+.store-item-card:has(> .item-tag.tag-truyen-thuyet):hover {
+    transform:
+        translateY(-7px)
+        scale(1.012) !important;
+
+    border-color:
+        rgba(255, 224, 138, 0.92) !important;
+
+    box-shadow:
+        0 23px 46px rgba(30, 10, 48, 0.46),
+        0 0 25px rgba(168, 85, 247, 0.22),
+        0 0 13px rgba(255, 220, 126, 0.18),
+        inset 0 1px 0 rgba(255, 244, 199, 0.31),
+        inset 0 -8px 22px rgba(7, 8, 24, 0.4) !important;
+}
+
+
+.store-item-card:has(> .item-tag.tag-truyen-thuyet):hover
+.item-icon {
+    transform:
+        translateY(-4px)
+        scale(1.09)
+        rotate(1.5deg) !important;
+
+    filter:
+        drop-shadow(
+            0 11px 13px rgba(0, 0, 0, 0.44)
+        )
+        drop-shadow(
+            0 0 12px rgba(255, 219, 126, 0.45)
+        ) !important;
+}
+
+
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+.item-actions button:hover:not(:disabled) {
+    transform: translateY(-2px);
+
+    filter:
+        brightness(1.06)
+        saturate(1.05);
+}
+
+
+/* =========================================================
+   ANIMATION RIÊNG
+   ========================================================= */
+
+@keyframes legendary-card-stars {
+    from {
+        opacity: 0.4;
+        filter: brightness(0.85);
+    }
+
+    to {
+        opacity: 0.82;
+        filter: brightness(1.25);
+    }
+}
+
+
+@keyframes legendary-card-aura {
+    0%,
+    100% {
+        transform:
+            translateX(-50%)
+            scale(0.94);
+
+        opacity: 0.58;
+    }
+
+    50% {
+        transform:
+            translateX(-50%)
+            scale(1.07);
+
+        opacity: 0.94;
+    }
+}
+
+
+@keyframes legendary-card-orbit {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+@keyframes legendary-card-gem {
+    0%,
+    100% {
+        transform:
+            translateY(2px)
+            scale(0.82);
+
+        opacity: 0.46;
+    }
+
+    50% {
+        transform:
+            translateY(-3px)
+            scale(1.08);
+
+        opacity: 1;
+    }
+}
+
+
+/* =========================================================
+   GIẢM CHUYỂN ĐỘNG
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    .store-item-card:has(> .item-tag.tag-truyen-thuyet)::before,
+
+    .store-item-card:has(> .item-tag.tag-truyen-thuyet)
+    .card-glow,
+
+    .store-item-card:has(> .item-tag.tag-truyen-thuyet)
+    .item-icon-wrapper::before,
+
+    .store-item-card:has(> .item-tag.tag-truyen-thuyet)
+    .item-icon-wrapper::after {
+        animation: none !important;
+    }
+}
+/* =========================================================
+   NYX TRINITY STORE CARD — NHẬT THỰC VĨNH DẠ
+
+   Áp dụng chung cho:
+   - Nyx - Nữ Thần Màn Đêm
+   - Kỷ Nguyên Đêm Trường Cửu
+   - Thánh Vực Tối Thượng
+
+   Không ảnh hưởng các card Truyền thuyết khác.
+   ========================================================= */
+
+
+/* =========================================================
+   CARD CHÍNH
+   ========================================================= */
+
+body .store-item-card.store-card-nyx-trinity {
+    --nyx-card-void: #05030b;
+    --nyx-card-deep: #130721;
+    --nyx-card-purple: #6d28d9;
+    --nyx-card-violet: #a855f7;
+    --nyx-card-lilac: #e9d5ff;
+    --nyx-card-gold: #f8d477;
+
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+
+    color: #f6efff !important;
+
+    background:
+        radial-gradient(
+            circle at 50% 3%,
+            rgba(248, 212, 119, 0.14),
+            transparent 27%
+        ),
+        radial-gradient(
+            circle at 13% 72%,
+            rgba(109, 40, 217, 0.26),
+            transparent 36%
+        ),
+        radial-gradient(
+            circle at 90% 82%,
+            rgba(168, 85, 247, 0.19),
+            transparent 32%
+        ),
+        linear-gradient(
+            155deg,
+            #090411 0%,
+            #1c092d 38%,
+            #10081f 69%,
+            #04030a 100%
+        ) !important;
+
+    border:
+        1px solid rgba(248, 212, 119, 0.63) !important;
+
+    border-radius:
+        9px 31px 9px 31px !important;
+
+    box-shadow:
+        0 18px 40px rgba(7, 3, 14, 0.54),
+        0 0 21px rgba(109, 40, 217, 0.17),
+        inset 0 1px 0 rgba(248, 212, 119, 0.2),
+        inset 0 -14px 30px rgba(0, 0, 0, 0.35) !important;
+
+    transition:
+        transform 0.34s cubic-bezier(.22, 1, .36, 1),
+        border-color 0.34s ease,
+        box-shadow 0.34s ease !important;
+}
+
+
+/* Nhật thực nằm phía sau icon */
+body .store-item-card.store-card-nyx-trinity::before {
+    content: "";
+
+    position: absolute;
+    z-index: 0;
+
+    top: -77px;
+    left: 50%;
+
+    width: 190px;
+    height: 190px;
+
+    transform:
+        translateX(-50%)
+        rotate(0deg);
+
+    border: none !important;
+    border-radius: 50% !important;
+
+    background:
+        radial-gradient(
+            circle,
+            #030106 0 44%,
+            transparent 46%
+        ),
+        conic-gradient(
+            from 20deg,
+            rgba(109, 40, 217, 0.38),
+            rgba(233, 213, 255, 0.88),
+            rgba(248, 212, 119, 0.86),
+            rgba(168, 85, 247, 0.68),
+            rgba(109, 40, 217, 0.38)
+        );
+
+    box-shadow:
+        0 0 17px rgba(233, 213, 255, 0.44),
+        0 0 40px rgba(109, 40, 217, 0.33),
+        0 0 65px rgba(168, 85, 247, 0.13),
+        inset 0 0 19px rgba(0, 0, 0, 0.92);
+
+    opacity: 0.84;
+
+    animation:
+        nyx-trinity-card-eclipse
+        18s
+        linear
+        infinite;
+
+    pointer-events: none;
+}
+
+
+/* Khung phong ấn bên trong */
+body .store-item-card.store-card-nyx-trinity::after {
+    content: "";
+
+    position: absolute;
+    z-index: 1;
+
+    inset: 9px;
+
+    pointer-events: none;
+
+    border:
+        1px solid rgba(233, 213, 255, 0.14);
+
+    border-radius:
+        4px 23px 4px 23px;
+
+    background:
+        linear-gradient(
+            120deg,
+            transparent,
+            rgba(255, 255, 255, 0.025),
+            transparent
+        );
+
+    box-shadow:
+        inset 0 0 20px rgba(168, 85, 247, 0.05);
+}
+
+
+/* Toàn bộ nội dung nằm trên lớp nền */
+body .store-item-card.store-card-nyx-trinity
+> * {
+    position: relative;
+    z-index: 3;
+}
+
+
+/* =========================================================
+   SƯƠNG VÀ ÁNH SÁNG ICON
+   ========================================================= */
+
+body .store-item-card.store-card-nyx-trinity
+.card-glow {
+    position: absolute;
+    z-index: 1;
+
+    top: 18px;
+    left: 50%;
+
+    width: 172px;
+    height: 135px;
+
+    transform: translateX(-50%);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(233, 213, 255, 0.2),
+            rgba(109, 40, 217, 0.13) 43%,
+            transparent 72%
+        ) !important;
+
+    filter: blur(5px);
+
+    opacity: 0.78;
+
+    animation:
+        nyx-trinity-card-mist
+        4.6s
+        ease-in-out
+        infinite;
+}
+
+
+/* Khung icon */
+body .store-item-card.store-card-nyx-trinity
+.item-icon-wrapper {
+    position: relative;
+    z-index: 4;
+
+    width: 108px;
+    height: 103px;
+
+    margin:
+        0 auto 13px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255, 255, 255, 0.08),
+            rgba(109, 40, 217, 0.1) 50%,
+            transparent 72%
+        );
+
+    border:
+        1px solid rgba(248, 212, 119, 0.22);
+
+    box-shadow:
+        0 0 16px rgba(168, 85, 247, 0.14),
+        inset 0 0 19px rgba(0, 0, 0, 0.24);
+}
+
+
+/* Vòng tinh tú */
+body .store-item-card.store-card-nyx-trinity
+.item-icon-wrapper::before {
+    content: "";
+
+    position: absolute;
+    inset: 4px;
+
+    border-radius: 50%;
+
+    border:
+        1px dashed rgba(233, 213, 255, 0.38);
+
+    background:
+        repeating-conic-gradient(
+            from 0deg,
+            rgba(248, 212, 119, 0.7) 0deg 1deg,
+            transparent 1deg 31deg
+        );
+
+    opacity: 0.7;
+
+    animation:
+        nyx-trinity-card-sigil
+        15s
+        linear
+        infinite;
+
+    pointer-events: none;
+}
+
+
+/* Ngôi sao vàng */
+body .store-item-card.store-card-nyx-trinity
+.item-icon-wrapper::after {
+    content: "✦";
+
+    position: absolute;
+
+    right: 1px;
+    top: 14px;
+
+    color: var(--nyx-card-gold);
+
+    font-size: 12px;
+
+    text-shadow:
+        0 0 5px var(--nyx-card-gold),
+        0 0 12px rgba(168, 85, 247, 0.88);
+
+    animation:
+        nyx-trinity-card-star
+        2.8s
+        ease-in-out
+        infinite;
+
+    pointer-events: none;
+}
+
+
+/* Hình ảnh và emoji */
+body .store-item-card.store-card-nyx-trinity
+.item-icon {
+    position: relative;
+    z-index: 3;
+
+    filter:
+        drop-shadow(
+            0 9px 11px rgba(0, 0, 0, 0.5)
+        )
+        drop-shadow(
+            0 0 8px rgba(168, 85, 247, 0.38)
+        ) !important;
+
+    transition:
+        transform 0.35s cubic-bezier(.22, 1, .36, 1),
+        filter 0.35s ease !important;
+}
+
+
+/* Ảnh Nyx */
+body .store-item-card.store-card-nyx-trinity
+img.item-icon {
+    width: 88px !important;
+    height: 88px !important;
+
+    object-fit: contain !important;
+}
+
+
+/* Emoji theme và effect */
+body .store-item-card.store-card-nyx-trinity
+div.item-icon {
+    font-size: 3.65em !important;
+}
+
+
+/* =========================================================
+   TAG RIÊNG CHO BỘ BA NYX
+   Vẫn hiển thị chữ Truyền thuyết
+   ========================================================= */
+
+body .store-item-card.store-card-nyx-trinity
+> .item-tag.tag-truyen-thuyet {
+    position: absolute !important;
+    z-index: 25;
+
+    top: 14px !important;
+    right: -45px !important;
+    left: auto !important;
+    bottom: auto !important;
+
+    width: 162px !important;
+    min-width: 162px !important;
+    height: 37px !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    transform:
+        rotate(45deg) !important;
+
+    color: #f8e8b6 !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #030207 0%,
+            #21142f 27%,
+            #6d28d9 48%,
+            #392044 68%,
+            #09050e 100%
+        ) !important;
+
+    border:
+        1px solid rgba(248, 212, 119, 0.76) !important;
+
+    border-radius: 2px !important;
+
+    box-shadow:
+        0 7px 18px rgba(0, 0, 0, 0.58),
+        0 0 13px rgba(109, 40, 217, 0.31),
+        inset 0 -3px 0 rgba(248, 212, 119, 0.3) !important;
+}
+
+
+/* Chữ tag */
+body .store-item-card.store-card-nyx-trinity
+> .item-tag.tag-truyen-thuyet span {
+    position: relative;
+    z-index: 4;
+
+    display: block;
+
+    padding-left: 19px !important;
+
+    color: #f8e8b6 !important;
+
+    font-family:
+        "Cinzel",
+        "Palatino Linotype",
+        Georgia,
+        serif;
+
+    font-size: 9.7px !important;
+    font-weight: 900;
+    line-height: 1;
+
+    letter-spacing: 0.38px !important;
+    text-transform: uppercase;
+    white-space: nowrap;
+
+    text-shadow:
+        0 1px 0 #000000,
+        0 0 6px rgba(248, 212, 119, 0.42);
+}
+
+
+/* Biểu tượng trăng khuyết */
+body .store-item-card.store-card-nyx-trinity
+> .item-tag.tag-truyen-thuyet::before {
+    content: "☾";
+
+    position: absolute;
+    z-index: 5;
+
+    left: 27px;
+    top: 50%;
+
+    transform: translateY(-52%);
+
+    color: #f8d477;
+
+    font-size: 16px;
+
+    text-shadow:
+        0 0 5px rgba(248, 212, 119, 0.92),
+        0 0 12px rgba(168, 85, 247, 0.62);
+
+    pointer-events: none;
+}
+
+
+/* Sương lướt qua tag */
+body .store-item-card.store-card-nyx-trinity
+> .item-tag.tag-truyen-thuyet::after {
+    content: "";
+
+    position: absolute;
+    z-index: 2;
+
+    top: -65%;
+    left: -45%;
+
+    width: 48%;
+    height: 230%;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(233, 213, 255, 0.52),
+            rgba(233, 213, 255, 0.08) 52%,
+            transparent 72%
+        );
+
+    filter: blur(4px);
+
+    animation:
+        nyx-trinity-tag-fog
+        6.8s
+        ease-in-out
+        infinite;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   TÊN VẬT PHẨM
+   ========================================================= */
+
+body .store-item-card.store-card-nyx-trinity
+.item-info {
+    position: relative;
+    z-index: 5;
+
+    margin-bottom: 19px;
+}
+
+
+body .store-item-card.store-card-nyx-trinity
+.item-name {
+    color: #f7e9bc !important;
+
+    font-family:
+        "Cinzel",
+        "Palatino Linotype",
+        Georgia,
+        serif !important;
+
+    font-weight: 900;
+    letter-spacing: 0.2px;
+
+    text-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.88),
+        0 0 9px rgba(168, 85, 247, 0.24);
+}
+
+
+body .store-item-card.store-card-nyx-trinity
+.item-type-label {
+    color: #d8c7ed !important;
+
+    font-weight: 800;
+    letter-spacing: 1.05px;
+
+    text-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.75);
+}
+
+
+/* Vạch vàng dưới tên */
+body .store-item-card.store-card-nyx-trinity
+.item-info::after {
+    content: "";
+
+    display: block;
+
+    width: 62px;
+    height: 1px;
+
+    margin:
+        12px auto 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(248, 212, 119, 0.9),
+            transparent
+        );
+
+    box-shadow:
+        0 0 7px rgba(248, 212, 119, 0.31);
+}
+
+
+/* =========================================================
+   NÚT
+   ========================================================= */
+
+body .store-item-card.store-card-nyx-trinity
+.item-actions {
+    position: relative;
+    z-index: 6;
+
+    gap: 10px;
+}
+
+
+body .store-item-card.store-card-nyx-trinity
+.item-actions button {
+    min-height: 50px;
+
+    border-radius:
+        5px 15px 5px 15px !important;
+
+    font-weight: 900;
+
+    transition:
+        transform 0.22s ease,
+        filter 0.22s ease,
+        box-shadow 0.22s ease !important;
+}
+
+
+/* Nút chính */
+body .store-item-card.store-card-nyx-trinity
+:is(
+    .btn-buy,
+    .btn-equip:not(.active)
+) {
+    color: #fff7dc !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #351050,
+            #6d28d9 52%,
+            #9d174d
+        ) !important;
+
+    border:
+        1px solid rgba(248, 212, 119, 0.5) !important;
+
+    box-shadow:
+        0 7px 18px rgba(45, 12, 73, 0.37),
+        inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
+}
+
+
+/* Nút phụ */
+body .store-item-card.store-card-nyx-trinity
+.btn-preview {
+    color: #d9c9ed !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(36, 20, 49, 0.92),
+            rgba(72, 42, 91, 0.88)
+        ) !important;
+
+    border:
+        1px dashed rgba(216, 199, 237, 0.35) !important;
+
+    box-shadow:
+        inset 0 0 12px rgba(0, 0, 0, 0.21) !important;
+}
+
+
+/* =========================================================
+   HOVER
+   ========================================================= */
+
+body .store-item-card.store-card-nyx-trinity:hover {
+    transform:
+        translateY(-7px)
+        scale(1.012) !important;
+
+    border-color:
+        rgba(248, 212, 119, 0.9) !important;
+
+    box-shadow:
+        0 25px 50px rgba(7, 3, 14, 0.64),
+        0 0 30px rgba(109, 40, 217, 0.28),
+        0 0 15px rgba(248, 212, 119, 0.17),
+        inset 0 1px 0 rgba(248, 212, 119, 0.27),
+        inset 0 -14px 30px rgba(0, 0, 0, 0.4) !important;
+}
+
+
+body .store-item-card.store-card-nyx-trinity:hover
+.item-icon {
+    transform:
+        translateY(-4px)
+        scale(1.09)
+        rotate(1deg) !important;
+
+    filter:
+        drop-shadow(
+            0 12px 14px rgba(0, 0, 0, 0.55)
+        )
+        drop-shadow(
+            0 0 14px rgba(168, 85, 247, 0.65)
+        )
+        drop-shadow(
+            0 0 6px rgba(248, 212, 119, 0.36)
+        ) !important;
+}
+
+
+body .store-item-card.store-card-nyx-trinity
+.item-actions button:hover:not(:disabled) {
+    transform: translateY(-2px);
+
+    filter:
+        brightness(1.08)
+        saturate(1.06);
+}
+
+
+/* =========================================================
+   ANIMATION RIÊNG
+   ========================================================= */
+
+@keyframes nyx-trinity-card-eclipse {
+    from {
+        transform:
+            translateX(-50%)
+            rotate(0deg);
+    }
+
+    to {
+        transform:
+            translateX(-50%)
+            rotate(360deg);
+    }
+}
+
+
+@keyframes nyx-trinity-card-mist {
+    0%,
+    100% {
+        transform:
+            translateX(-50%)
+            scale(0.91);
+
+        opacity: 0.48;
+    }
+
+    50% {
+        transform:
+            translateX(-50%)
+            scale(1.09);
+
+        opacity: 0.9;
+    }
+}
+
+
+@keyframes nyx-trinity-card-sigil {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(-360deg);
+    }
+}
+
+
+@keyframes nyx-trinity-card-star {
+    0%,
+    100% {
+        transform:
+            translateY(2px)
+            scale(0.82);
+
+        opacity: 0.48;
+    }
+
+    50% {
+        transform:
+            translateY(-3px)
+            scale(1.08);
+
+        opacity: 1;
+    }
+}
+
+
+@keyframes nyx-trinity-tag-fog {
+    0%,
+    58% {
+        transform:
+            translateX(-140%)
+            rotate(12deg);
+
+        opacity: 0;
+    }
+
+    72% {
+        opacity: 0.72;
+    }
+
+    94%,
+    100% {
+        transform:
+            translateX(450%)
+            rotate(5deg);
+
+        opacity: 0;
+    }
+}
+
+
+/* =========================================================
+   GIẢM CHUYỂN ĐỘNG
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    body .store-item-card.store-card-nyx-trinity::before,
+
+    body .store-item-card.store-card-nyx-trinity
+    .card-glow,
+
+    body .store-item-card.store-card-nyx-trinity
+    .item-icon-wrapper::before,
+
+    body .store-item-card.store-card-nyx-trinity
+    .item-icon-wrapper::after,
+
+    body .store-item-card.store-card-nyx-trinity
+    > .item-tag.tag-truyen-thuyet::after {
+        animation: none !important;
+    }
+}

@@ -615,3 +615,1696 @@ body.theme-pink h2, body.theme-pink h3, body.theme-pink h4 {
     box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
     outline: none;
 }
+
+/* ======================================================================
+   GIAO DIỆN CHUNG 2026 — LỚP TRANG TRÍ AN TOÀN
+   Chỉ thay đổi hiển thị. Không đổi ID, dữ liệu, Firebase hoặc sự kiện JS.
+   ====================================================================== */
+
+:root {
+    --ui-font: 'Nunito', 'Segoe UI', Arial, sans-serif;
+    --ui-bg-start: #eef2ff;
+    --ui-bg-middle: #f5f3ff;
+    --ui-bg-end: #ecfeff;
+    --ui-surface: rgba(255, 255, 255, 0.76);
+    --ui-surface-strong: rgba(255, 255, 255, 0.94);
+    --ui-surface-soft: rgba(248, 250, 252, 0.7);
+    --ui-border: rgba(148, 163, 184, 0.22);
+    --ui-border-strong: rgba(129, 140, 248, 0.32);
+    --ui-text: #172033;
+    --ui-heading: #172554;
+    --ui-muted: #64748b;
+    --ui-primary: #4f46e5;
+    --ui-primary-strong: #4338ca;
+    --ui-secondary: #7c3aed;
+    --ui-accent: #db2777;
+    --ui-success: #059669;
+    --ui-warning: #d97706;
+    --ui-danger: #e11d48;
+    --ui-info: #0284c7;
+    --ui-sidebar-start: #141b3c;
+    --ui-sidebar-middle: #27275e;
+    --ui-sidebar-end: #4c1d95;
+    --ui-sidebar-text: rgba(255, 255, 255, 0.78);
+    --ui-shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.08);
+    --ui-shadow: 0 18px 48px rgba(15, 23, 42, 0.13);
+    --ui-shadow-hover: 0 24px 58px rgba(15, 23, 42, 0.17);
+    --ui-radius-sm: 12px;
+    --ui-radius-md: 18px;
+    --ui-radius-lg: 26px;
+    --ui-radius-xl: 34px;
+    --ui-transition: 0.24s cubic-bezier(.2, .8, .2, 1);
+}
+
+html {
+    min-width: 320px;
+    scroll-behavior: smooth;
+    color-scheme: light;
+}
+
+body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    color: var(--ui-text);
+    font-family: var(--ui-font);
+    background:
+        radial-gradient(circle at 8% 12%, rgba(99, 102, 241, 0.18), transparent 30%),
+        radial-gradient(circle at 92% 8%, rgba(219, 39, 119, 0.11), transparent 28%),
+        radial-gradient(circle at 84% 88%, rgba(14, 165, 233, 0.14), transparent 33%),
+        linear-gradient(135deg, var(--ui-bg-start), var(--ui-bg-middle) 48%, var(--ui-bg-end));
+    background-attachment: fixed;
+    animation: none;
+}
+
+body::before,
+body::after {
+    content: '';
+    position: fixed;
+    z-index: -1;
+    width: 280px;
+    height: 280px;
+    pointer-events: none;
+    border-radius: 50%;
+    filter: blur(2px);
+    opacity: 0.55;
+}
+
+body::before {
+    left: -110px;
+    bottom: -120px;
+    background: radial-gradient(circle, rgba(129, 140, 248, 0.26), transparent 68%);
+}
+
+body::after {
+    right: -110px;
+    top: 18%;
+    background: radial-gradient(circle, rgba(236, 72, 153, 0.17), transparent 68%);
+}
+
+::selection {
+    color: #fff;
+    background: rgba(79, 70, 229, 0.82);
+}
+
+:focus-visible {
+    outline: 3px solid rgba(99, 102, 241, 0.3);
+    outline-offset: 3px;
+}
+
+a {
+    color: var(--ui-primary);
+    text-underline-offset: 3px;
+}
+
+/* ---------- Chủ đề cũ vẫn hoạt động thông qua biến màu ---------- */
+
+body.theme-blue {
+    --ui-bg-start: #e0f2fe;
+    --ui-bg-middle: #eef2ff;
+    --ui-bg-end: #ecfeff;
+    --ui-primary: #2563eb;
+    --ui-primary-strong: #1d4ed8;
+    --ui-secondary: #0284c7;
+    --ui-accent: #0ea5e9;
+    --ui-sidebar-start: #0f2949;
+    --ui-sidebar-middle: #123d6d;
+    --ui-sidebar-end: #075985;
+}
+
+body.theme-green {
+    --ui-bg-start: #ecfdf5;
+    --ui-bg-middle: #f0fdf4;
+    --ui-bg-end: #ecfeff;
+    --ui-primary: #059669;
+    --ui-primary-strong: #047857;
+    --ui-secondary: #0d9488;
+    --ui-accent: #65a30d;
+    --ui-sidebar-start: #063b35;
+    --ui-sidebar-middle: #065f46;
+    --ui-sidebar-end: #0f766e;
+}
+
+body.theme-pink {
+    --ui-bg-start: #fff1f2;
+    --ui-bg-middle: #fdf2f8;
+    --ui-bg-end: #f5f3ff;
+    --ui-primary: #db2777;
+    --ui-primary-strong: #be185d;
+    --ui-secondary: #9333ea;
+    --ui-accent: #f43f5e;
+    --ui-sidebar-start: #4a1536;
+    --ui-sidebar-middle: #831843;
+    --ui-sidebar-end: #701a75;
+}
+
+/* ---------- Chữ và tiêu đề ---------- */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: var(--ui-heading);
+    font-family: var(--ui-font);
+    font-weight: 800;
+    letter-spacing: -0.018em;
+}
+
+.content h2 {
+    margin-bottom: 24px;
+    color: var(--ui-heading);
+    font-size: clamp(1.65rem, 3vw, 2.35rem);
+    line-height: 1.15;
+    text-shadow: none;
+}
+
+.content h2::after {
+    content: '';
+    display: block;
+    width: 54px;
+    height: 5px;
+    margin-top: 11px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--ui-primary), var(--ui-secondary), var(--ui-accent));
+    box-shadow: 0 4px 13px rgba(99, 102, 241, 0.25);
+}
+
+/* ---------- Dashboard và sidebar ---------- */
+
+.dashboard {
+    display: flex;
+    min-height: 100vh;
+    min-height: 100dvh;
+    align-items: stretch;
+}
+
+.sidebar {
+    position: sticky;
+    top: 0;
+    z-index: 120;
+    width: 288px;
+    height: 100vh;
+    height: 100dvh;
+    flex: 0 0 288px;
+    overflow-x: visible;
+    overflow-y: auto;
+    color: var(--ui-sidebar-text);
+    background:
+        radial-gradient(circle at 20% 6%, rgba(255, 255, 255, 0.14), transparent 24%),
+        radial-gradient(circle at 84% 92%, rgba(236, 72, 153, 0.18), transparent 32%),
+        linear-gradient(170deg, var(--ui-sidebar-start), var(--ui-sidebar-middle) 55%, var(--ui-sidebar-end));
+    border-right: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 16px 0 45px rgba(15, 23, 42, 0.14);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    transition:
+        width 0.38s cubic-bezier(.2, .8, .2, 1),
+        flex-basis 0.38s cubic-bezier(.2, .8, .2, 1);
+}
+
+.sidebar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        repeating-linear-gradient(120deg, transparent 0 34px, rgba(255, 255, 255, 0.025) 35px 36px);
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+.sidebar-top,
+.sidebar-bottom {
+    position: relative;
+    z-index: 1;
+}
+
+.sidebar-top {
+    flex-grow: 1;
+    padding: 28px 18px 20px;
+}
+
+.sidebar-bottom {
+    padding: 16px 18px 22px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar h3,
+.sidebar-top h3 {
+    margin: 0 4px 20px;
+    padding: 0 0 18px;
+    color: #fff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.13);
+    font-size: 1.35rem;
+    line-height: 1.25;
+    text-shadow: 0 5px 18px rgba(0, 0, 0, 0.18);
+}
+
+.nav-item {
+    position: relative;
+    width: 100%;
+    min-height: 48px;
+    margin: 0 0 8px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    overflow: hidden;
+    color: var(--ui-sidebar-text);
+    text-align: left;
+    white-space: nowrap;
+    border: 1px solid transparent;
+    border-radius: 15px;
+    background: transparent;
+    box-shadow: none;
+    font-size: 0.96rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    transition:
+        transform var(--ui-transition),
+        color var(--ui-transition),
+        background var(--ui-transition),
+        border-color var(--ui-transition),
+        box-shadow var(--ui-transition);
+}
+
+.nav-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 4px;
+    height: 0;
+    border-radius: 0 999px 999px 0;
+    background: #fff;
+    transform: translateY(-50%);
+    transition: height var(--ui-transition);
+}
+
+.nav-item:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+    transform: translateX(4px);
+}
+
+.nav-item.active {
+    color: #fff;
+    background:
+        linear-gradient(115deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.09));
+    border: 1px solid rgba(255, 255, 255, 0.23);
+    border-left: 1px solid rgba(255, 255, 255, 0.23);
+    box-shadow:
+        0 12px 28px rgba(0, 0, 0, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.nav-item.active::before {
+    height: 26px;
+}
+
+.btn-logout {
+    color: #ffe4e6;
+    background: rgba(244, 63, 94, 0.15);
+    border: 1px solid rgba(251, 113, 133, 0.24);
+    box-shadow: none;
+}
+
+.btn-logout:hover {
+    color: #fff;
+    background: linear-gradient(135deg, #e11d48, #fb7185);
+    border-color: transparent;
+    box-shadow: 0 10px 24px rgba(225, 29, 72, 0.28);
+}
+
+.sidebar-toggle {
+    top: 32px;
+    right: -17px;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    color: #fff;
+    border: 2px solid rgba(255, 255, 255, 0.85);
+    background: linear-gradient(135deg, var(--ui-primary), var(--ui-secondary));
+    box-shadow: 0 8px 22px rgba(49, 46, 129, 0.32);
+}
+
+.sidebar-toggle:hover {
+    transform: scale(1.08);
+    box-shadow: 0 11px 26px rgba(49, 46, 129, 0.42);
+}
+
+.dashboard.collapsed .sidebar {
+    width: 82px;
+    flex-basis: 82px;
+}
+
+.dashboard.collapsed .content {
+    width: calc(100% - 82px);
+}
+
+.dashboard.collapsed .sidebar-top,
+.dashboard.collapsed .sidebar-bottom {
+    padding-left: 11px;
+    padding-right: 11px;
+}
+
+.dashboard.collapsed .nav-item {
+    min-height: 50px;
+    padding: 12px 0;
+    justify-content: center;
+    text-align: center;
+    font-size: 1.25rem;
+}
+
+.dashboard.collapsed .nav-item::before {
+    display: none;
+}
+
+.dashboard.collapsed .sidebar-top h3::before {
+    content: '✦';
+    color: #fff;
+    font-size: 1.55rem;
+}
+
+/* ---------- Khu vực nội dung ---------- */
+
+.content {
+    position: relative;
+    width: calc(100% - 288px);
+    min-width: 0;
+    flex: 1 1 auto;
+    padding: clamp(24px, 3.5vw, 48px);
+    overflow-x: clip;
+    transition: width 0.38s cubic-bezier(.2, .8, .2, 1);
+}
+
+.content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 170px;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.34), transparent);
+}
+
+.tab-content.active {
+    animation: uiContentEnter 0.42s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+@keyframes uiContentEnter {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ---------- Thẻ, bảng điều khiển và khối nội dung ---------- */
+
+.card,
+.panel,
+.content-card,
+.student-card,
+.teacher-card,
+.dashboard-card,
+.info-card {
+    position: relative;
+    color: var(--ui-text);
+    background:
+        radial-gradient(circle at 9% 0, rgba(255, 255, 255, 0.92), transparent 22%),
+        linear-gradient(145deg, var(--ui-surface-strong), var(--ui-surface));
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    border-radius: var(--ui-radius-lg);
+    box-shadow:
+        var(--ui-shadow-soft),
+        inset 0 1px 0 rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(18px) saturate(1.08);
+    -webkit-backdrop-filter: blur(18px) saturate(1.08);
+}
+
+.card {
+    margin-bottom: 24px;
+    padding: clamp(20px, 2.8vw, 30px);
+    transition:
+        transform var(--ui-transition),
+        box-shadow var(--ui-transition),
+        border-color var(--ui-transition);
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    border-color: var(--ui-border-strong);
+    box-shadow: var(--ui-shadow-hover);
+}
+
+.card > div[style*="background: #fdfdfd"],
+.card > div[style*="background: #f8f9fa"] {
+    background: rgba(248, 250, 252, 0.72) !important;
+    border: 1px solid var(--ui-border) !important;
+    border-radius: var(--ui-radius-md) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85) !important;
+}
+
+/* ---------- Form và trường nhập liệu ---------- */
+
+label,
+.form-container label,
+.modal-content label {
+    color: #334155;
+    font-weight: 800;
+}
+
+input:not([type='checkbox']):not([type='radio']):not([type='range']),
+textarea,
+select,
+.search-bar {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 15px;
+    color: var(--ui-text);
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.82);
+    box-shadow:
+        inset 0 1px 3px rgba(15, 23, 42, 0.035),
+        0 5px 14px rgba(15, 23, 42, 0.035);
+    outline: none;
+    font: inherit;
+    transition:
+        border-color var(--ui-transition),
+        background var(--ui-transition),
+        box-shadow var(--ui-transition),
+        transform var(--ui-transition);
+}
+
+textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+input:not([type='checkbox']):not([type='radio']):not([type='range']):hover,
+textarea:hover,
+select:hover,
+.search-bar:hover {
+    border-color: rgba(99, 102, 241, 0.4);
+    background: rgba(255, 255, 255, 0.94);
+}
+
+input:not([type='checkbox']):not([type='radio']):not([type='range']):focus,
+textarea:focus,
+select:focus,
+.search-bar:focus {
+    border-color: var(--ui-primary);
+    background: #fff;
+    box-shadow:
+        0 0 0 4px rgba(99, 102, 241, 0.13),
+        0 8px 20px rgba(79, 70, 229, 0.08);
+}
+
+input::placeholder,
+textarea::placeholder,
+.search-bar::placeholder {
+    color: #94a3b8;
+}
+
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.form-group {
+    min-width: min(100%, 220px);
+    flex: 1 1 220px;
+}
+
+/* ---------- Nút bấm ---------- */
+
+button,
+.btn,
+.button {
+    min-height: 44px;
+    border-radius: 14px;
+    font-family: var(--ui-font);
+    font-weight: 800;
+    transition:
+        transform var(--ui-transition),
+        box-shadow var(--ui-transition),
+        filter var(--ui-transition),
+        background var(--ui-transition);
+}
+
+button:not(.nav-item):not(.close-btn):not(.sidebar-toggle):not(.profile-trigger-btn),
+.btn-primary {
+    background: linear-gradient(125deg, var(--ui-primary), var(--ui-secondary));
+    box-shadow: 0 9px 22px rgba(79, 70, 229, 0.22);
+}
+
+button:not(.nav-item):not(.close-btn):not(.sidebar-toggle):not(.profile-trigger-btn):hover,
+.btn-primary:hover {
+    filter: brightness(1.04) saturate(1.05);
+    transform: translateY(-2px);
+    box-shadow: 0 13px 28px rgba(79, 70, 229, 0.3);
+}
+
+button:disabled,
+.btn:disabled,
+button[aria-disabled='true'] {
+    cursor: not-allowed;
+    opacity: 0.58;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.btn-approve {
+    color: #064e3b;
+    background: linear-gradient(135deg, #a7f3d0, #5eead4);
+    box-shadow: 0 8px 20px rgba(5, 150, 105, 0.17);
+}
+
+.btn-reject {
+    color: #fff;
+    background: linear-gradient(135deg, #e11d48, #fb7185);
+    box-shadow: 0 8px 20px rgba(225, 29, 72, 0.2);
+}
+
+/* ---------- Các khối mô tả ---------- */
+
+.assignment-meta,
+.assignment-desc,
+.assignment-file,
+.glass-alert,
+.update-banner {
+    border-radius: var(--ui-radius-md);
+}
+
+.assignment-meta {
+    color: #475569;
+    background: rgba(248, 250, 252, 0.72);
+    border: 1px solid var(--ui-border);
+}
+
+.assignment-desc {
+    color: #334155;
+    background: rgba(238, 242, 255, 0.72);
+    border-left: 5px solid var(--ui-primary);
+}
+
+.assignment-file {
+    background: rgba(255, 255, 255, 0.66);
+    border: 1px dashed rgba(99, 102, 241, 0.42);
+}
+
+.file-download-link {
+    color: var(--ui-primary);
+}
+
+.file-download-link:hover {
+    color: var(--ui-secondary);
+}
+
+.glass-alert {
+    background: rgba(255, 255, 255, 0.75);
+    border-top: 1px solid rgba(255, 255, 255, 0.85);
+    border-right: 1px solid rgba(255, 255, 255, 0.85);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.85);
+    box-shadow: var(--ui-shadow-soft);
+}
+
+.glass-alert.success {
+    border-left-color: var(--ui-success);
+}
+
+.glass-alert.danger {
+    border-left-color: var(--ui-danger);
+}
+
+/* ---------- Accordion ---------- */
+
+.accordion-card {
+    padding: 10px 14px;
+}
+
+.accordion-header {
+    min-height: 58px;
+    padding: 13px 16px;
+    border: 1px solid var(--ui-border);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.045);
+}
+
+.accordion-header:hover {
+    border-color: rgba(99, 102, 241, 0.35);
+    background: rgba(255, 255, 255, 0.92);
+    transform: translateY(-1px);
+}
+
+.accordion-title h4 {
+    color: var(--ui-heading);
+}
+
+.accordion-title span,
+.toggle-icon {
+    color: var(--ui-primary);
+}
+
+.accordion-header.active {
+    border-bottom: 2px solid var(--ui-primary);
+    border-radius: 16px 16px 8px 8px;
+}
+
+/* ---------- Bảng dữ liệu ---------- */
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
+    color: var(--ui-text);
+    background: rgba(255, 255, 255, 0.62);
+    border: 1px solid var(--ui-border);
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.055);
+}
+
+th,
+td {
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+    text-align: left;
+    vertical-align: middle;
+}
+
+th {
+    color: #334155;
+    background: rgba(238, 242, 255, 0.82);
+    font-size: 0.83rem;
+    font-weight: 900;
+    letter-spacing: 0.025em;
+}
+
+tbody tr {
+    transition: background var(--ui-transition);
+}
+
+tbody tr:hover {
+    background: rgba(238, 242, 255, 0.64);
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ---------- Video ---------- */
+
+.video-wrapper {
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    border-radius: 20px;
+    background: rgba(15, 23, 42, 0.05);
+    box-shadow: 0 16px 38px rgba(15, 23, 42, 0.14);
+}
+
+.video-wrapper:hover {
+    transform: translateY(-2px) scale(1.005);
+}
+
+/* ---------- Modal ---------- */
+
+.modal-overlay {
+    padding: 20px;
+    background: rgba(15, 23, 42, 0.48);
+    backdrop-filter: blur(12px) saturate(1.08);
+    -webkit-backdrop-filter: blur(12px) saturate(1.08);
+}
+
+.modal-content {
+    width: min(92vw, 620px);
+    max-width: 620px;
+    max-height: min(88vh, 880px);
+    padding: clamp(24px, 3.5vw, 36px);
+    color: var(--ui-text);
+    background:
+        radial-gradient(circle at 10% 0, rgba(255, 255, 255, 0.98), transparent 25%),
+        linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.92));
+    border: 1px solid rgba(255, 255, 255, 0.84);
+    border-radius: var(--ui-radius-lg);
+    box-shadow:
+        0 30px 90px rgba(15, 23, 42, 0.32),
+        inset 0 1px 0 #fff;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(99, 102, 241, 0.38) transparent;
+}
+
+.modal-content::-webkit-scrollbar {
+    width: 7px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: rgba(99, 102, 241, 0.34);
+}
+
+.close-btn {
+    top: 16px;
+    right: 17px;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    color: #64748b;
+    border: 1px solid var(--ui-border);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.78);
+    box-shadow: 0 7px 18px rgba(15, 23, 42, 0.09);
+    font-size: 1.25rem;
+}
+
+.close-btn:hover {
+    color: #fff;
+    background: var(--ui-danger);
+    border-color: transparent;
+    transform: rotate(90deg) scale(1.04);
+    box-shadow: 0 9px 22px rgba(225, 29, 72, 0.25);
+}
+
+/* ---------- Nút hồ sơ ---------- */
+
+.profile-trigger-btn {
+    top: 24px;
+    right: clamp(22px, 3vw, 38px);
+    width: 52px;
+    height: 52px;
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.78);
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.12);
+}
+
+.profile-trigger-btn:hover {
+    border-color: rgba(99, 102, 241, 0.55);
+    box-shadow: 0 14px 32px rgba(79, 70, 229, 0.19);
+    transform: translateY(-2px) scale(1.06);
+}
+
+/* ======================================================================
+   TRANG ĐĂNG NHẬP
+   ====================================================================== */
+
+body.login-page {
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: clamp(18px, 4vw, 48px);
+    display: grid;
+    place-items: center;
+    color: var(--ui-text);
+    background:
+        radial-gradient(circle at 8% 12%, rgba(56, 189, 248, 0.25), transparent 28%),
+        radial-gradient(circle at 91% 17%, rgba(236, 72, 153, 0.19), transparent 28%),
+        radial-gradient(circle at 70% 95%, rgba(139, 92, 246, 0.2), transparent 32%),
+        linear-gradient(135deg, #eef2ff 0%, #f5f3ff 48%, #ecfeff 100%);
+}
+
+body.login-page::before {
+    left: 4%;
+    bottom: 6%;
+    width: 210px;
+    height: 210px;
+    border: 1px dashed rgba(99, 102, 241, 0.2);
+    background: transparent;
+    animation: loginDecorSpin 22s linear infinite;
+}
+
+body.login-page::after {
+    right: 4%;
+    top: 6%;
+    width: 170px;
+    height: 170px;
+    border: 1px dashed rgba(219, 39, 119, 0.18);
+    background: transparent;
+    animation: loginDecorSpin 17s linear infinite reverse;
+}
+
+.login-shell {
+    position: relative;
+    width: min(1080px, 100%);
+    min-height: min(700px, calc(100dvh - 56px));
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(370px, 0.85fr);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.86);
+    border-radius: 34px;
+    background: rgba(255, 255, 255, 0.68);
+    box-shadow:
+        0 32px 100px rgba(30, 41, 59, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(22px) saturate(1.12);
+    -webkit-backdrop-filter: blur(22px) saturate(1.12);
+}
+
+.login-brand-panel {
+    position: relative;
+    min-height: 100%;
+    padding: clamp(36px, 5vw, 68px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    color: #fff;
+    background:
+        radial-gradient(circle at 15% 10%, rgba(255, 255, 255, 0.18), transparent 24%),
+        radial-gradient(circle at 86% 86%, rgba(236, 72, 153, 0.28), transparent 34%),
+        linear-gradient(145deg, #172554, #3730a3 48%, #7c3aed 76%, #be185d);
+}
+
+.login-brand-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        repeating-linear-gradient(120deg, transparent 0 32px, rgba(255, 255, 255, 0.026) 33px 34px);
+}
+
+.login-brand-content,
+.login-brand-footer {
+    position: relative;
+    z-index: 2;
+}
+
+.login-brand-mark {
+    width: 72px;
+    height: 72px;
+    margin-bottom: 36px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 24px 10px 24px 10px;
+    background: rgba(255, 255, 255, 0.14);
+    box-shadow:
+        0 14px 34px rgba(15, 23, 42, 0.24),
+        inset 0 1px 0 rgba(255, 255, 255, 0.24);
+    font-size: 30px;
+    backdrop-filter: blur(12px);
+    animation: loginBrandFloat 3.2s ease-in-out infinite;
+}
+
+.login-brand-eyebrow,
+.login-kicker {
+    margin: 0 0 10px;
+    font-size: 0.69rem;
+    font-weight: 900;
+    letter-spacing: 0.2em;
+}
+
+.login-brand-eyebrow {
+    color: rgba(255, 255, 255, 0.68);
+}
+
+.login-brand-panel h1 {
+    max-width: 560px;
+    margin: 0;
+    color: #fff;
+    font-size: clamp(2.3rem, 5.2vw, 4.5rem);
+    line-height: 1.02;
+    letter-spacing: -0.045em;
+    text-shadow: 0 8px 30px rgba(15, 23, 42, 0.24);
+}
+
+.login-brand-description {
+    max-width: 530px;
+    margin: 22px 0 0;
+    color: rgba(255, 255, 255, 0.76);
+    font-size: 0.96rem;
+    line-height: 1.75;
+}
+
+.login-feature-list {
+    max-width: 540px;
+    margin-top: 36px;
+    display: grid;
+    gap: 12px;
+}
+
+.login-feature-item {
+    padding: 11px 13px;
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr);
+    gap: 11px;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.075);
+}
+
+.login-feature-item > span {
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.14);
+    font-weight: 900;
+}
+
+.login-feature-item p {
+    margin: 0;
+}
+
+.login-feature-item strong,
+.login-feature-item small {
+    display: block;
+}
+
+.login-feature-item strong {
+    color: #fff;
+    font-size: 0.82rem;
+}
+
+.login-feature-item small {
+    margin-top: 2px;
+    color: rgba(255, 255, 255, 0.61);
+    font-size: 0.68rem;
+}
+
+.login-brand-footer {
+    margin-top: 36px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: rgba(255, 255, 255, 0.64);
+    font-size: 0.74rem;
+    font-weight: 700;
+}
+
+.login-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #34d399;
+    box-shadow: 0 0 0 5px rgba(52, 211, 153, 0.13);
+    animation: loginStatusPulse 1.4s ease-in-out infinite alternate;
+}
+
+.login-brand-decoration {
+    position: absolute;
+    pointer-events: none;
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+}
+
+.login-orbit-one {
+    right: -120px;
+    top: -85px;
+    width: 330px;
+    height: 330px;
+    animation: loginDecorSpin 24s linear infinite;
+}
+
+.login-orbit-two {
+    left: -100px;
+    bottom: -120px;
+    width: 260px;
+    height: 260px;
+    animation: loginDecorSpin 18s linear infinite reverse;
+}
+
+.login-container {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: clamp(34px, 5vw, 64px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: var(--ui-text);
+    background:
+        radial-gradient(circle at 100% 0, rgba(129, 140, 248, 0.13), transparent 28%),
+        linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.9));
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+}
+
+.login-mobile-brand {
+    display: none;
+}
+
+.login-heading {
+    margin-bottom: 28px;
+}
+
+.login-kicker {
+    color: var(--ui-primary);
+}
+
+.login-heading h2 {
+    margin: 0 0 8px;
+    color: var(--ui-heading);
+    text-align: left;
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    line-height: 1.08;
+}
+
+.login-heading > p:last-child {
+    margin: 0;
+    color: var(--ui-muted);
+    font-size: 0.9rem;
+}
+
+.login-container form {
+    display: grid;
+    gap: 18px;
+}
+
+.login-field label {
+    display: block;
+    margin: 0 0 8px;
+    color: #334155;
+    font-size: 0.8rem;
+    font-weight: 900;
+}
+
+.login-input-wrap {
+    position: relative;
+}
+
+.login-input-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    z-index: 2;
+    transform: translateY(-50%);
+    pointer-events: none;
+    opacity: 0.62;
+    font-size: 0.95rem;
+}
+
+.login-container input:not([type='checkbox']):not([type='radio']):not([type='range']) {
+    min-height: 54px;
+    margin: 0;
+    padding: 13px 16px 13px 46px;
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    border-radius: 16px;
+    background: rgba(248, 250, 252, 0.82);
+    box-shadow:
+        inset 0 1px 3px rgba(15, 23, 42, 0.035),
+        0 7px 18px rgba(15, 23, 42, 0.04);
+}
+
+.login-container input:not([type='checkbox']):not([type='radio']):not([type='range']):focus {
+    background: #fff;
+    border-color: var(--ui-primary);
+    box-shadow:
+        0 0 0 4px rgba(99, 102, 241, 0.12),
+        0 10px 25px rgba(79, 70, 229, 0.09);
+}
+
+.login-submit-btn {
+    width: 100%;
+    min-height: 54px;
+    margin-top: 4px;
+    padding: 13px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #fff;
+    border: 0;
+    border-radius: 16px;
+    background: linear-gradient(120deg, var(--ui-primary), var(--ui-secondary), var(--ui-accent));
+    box-shadow: 0 14px 30px rgba(79, 70, 229, 0.27);
+    font-size: 0.94rem;
+    font-weight: 900;
+}
+
+.login-submit-btn span:last-child {
+    width: 29px;
+    height: 29px;
+    display: grid;
+    place-items: center;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.17);
+    transition: transform var(--ui-transition);
+}
+
+.login-submit-btn:hover span:last-child {
+    transform: translateX(3px);
+}
+
+.login-container .error {
+    min-height: 24px;
+    margin: 16px 0 0;
+    padding: 0;
+    color: var(--ui-danger);
+    text-align: left;
+    font-size: 0.78rem;
+    font-weight: 800;
+    line-height: 1.55;
+}
+
+.login-container .error:not(:empty) {
+    padding: 10px 12px;
+    border: 1px solid rgba(225, 29, 72, 0.15);
+    border-radius: 12px;
+    background: rgba(255, 241, 242, 0.78);
+}
+
+.login-help-note {
+    margin-top: 20px;
+    padding-top: 18px;
+    display: flex;
+    gap: 9px;
+    align-items: flex-start;
+    color: #64748b;
+    border-top: 1px solid rgba(148, 163, 184, 0.16);
+    font-size: 0.72rem;
+    line-height: 1.55;
+}
+
+.login-help-note p {
+    margin: 0;
+}
+
+@keyframes loginBrandFloat {
+    50% {
+        transform: translateY(-7px) rotate(-3deg);
+    }
+}
+
+@keyframes loginDecorSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes loginStatusPulse {
+    to {
+        opacity: 0.48;
+        transform: scale(0.82);
+    }
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 980px) {
+    .sidebar {
+        width: 250px;
+        flex-basis: 250px;
+    }
+
+    .content {
+        width: calc(100% - 250px);
+        padding: 28px;
+    }
+
+    .login-shell {
+        grid-template-columns: minmax(0, 0.95fr) minmax(350px, 1.05fr);
+    }
+
+    .login-brand-panel {
+        padding: 40px;
+    }
+
+    .login-feature-list {
+        display: none;
+    }
+}
+
+@media (max-width: 760px) {
+    body:not(.login-page) {
+        padding-bottom: 72px;
+    }
+
+    .dashboard {
+        display: block;
+    }
+
+    .sidebar,
+    .dashboard.collapsed .sidebar {
+        position: fixed;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        top: auto;
+        z-index: 9000;
+        width: auto;
+        height: auto;
+        max-height: 74px;
+        overflow: hidden;
+        display: block;
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        border-radius: 22px;
+        box-shadow: 0 18px 50px rgba(15, 23, 42, 0.3);
+    }
+
+    .sidebar-top {
+        padding: 8px;
+        display: flex;
+        gap: 6px;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .sidebar-top::-webkit-scrollbar {
+        display: none;
+    }
+
+    .sidebar-top h3,
+    .sidebar-bottom,
+    .sidebar-toggle {
+        display: none !important;
+    }
+
+    .nav-item,
+    .dashboard.collapsed .nav-item {
+        width: auto;
+        min-width: 58px;
+        min-height: 56px;
+        margin: 0;
+        padding: 8px 11px;
+        flex: 0 0 auto;
+        justify-content: center;
+        text-align: center;
+        border-radius: 16px;
+        font-size: 1rem;
+    }
+
+    .nav-item .nav-text {
+        display: none;
+    }
+
+    .content,
+    .dashboard.collapsed .content {
+        width: 100%;
+        padding: 22px 15px 32px;
+    }
+
+    .profile-trigger-btn {
+        top: 16px;
+        right: 16px;
+        width: 46px;
+        height: 46px;
+    }
+
+    .form-row {
+        display: block;
+    }
+
+    .form-group {
+        width: 100%;
+    }
+
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .modal-overlay {
+        padding: 12px;
+        align-items: flex-end;
+    }
+
+    .modal-content {
+        width: 100%;
+        max-width: none;
+        max-height: 90vh;
+        border-radius: 26px 26px 14px 14px;
+    }
+
+    .login-shell {
+        width: min(560px, 100%);
+        min-height: auto;
+        grid-template-columns: 1fr;
+        border-radius: 28px;
+    }
+
+    .login-brand-panel {
+        display: none;
+    }
+
+    .login-container {
+        padding: clamp(28px, 7vw, 44px);
+    }
+
+    .login-mobile-brand {
+        width: 62px;
+        height: 62px;
+        margin: 0 0 26px;
+        display: grid;
+        place-items: center;
+        color: #fff;
+        border-radius: 20px 9px 20px 9px;
+        background: linear-gradient(135deg, var(--ui-primary), var(--ui-secondary), var(--ui-accent));
+        box-shadow: 0 13px 28px rgba(79, 70, 229, 0.25);
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 430px) {
+    body.login-page {
+        padding: 12px;
+    }
+
+    .login-shell {
+        border-radius: 23px;
+    }
+
+    .login-container {
+        padding: 28px 20px;
+    }
+
+    .login-heading h2 {
+        font-size: 2rem;
+    }
+
+    .card {
+        padding: 18px;
+        border-radius: 20px;
+    }
+
+    .content h2 {
+        padding-right: 52px;
+        font-size: 1.65rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ==========================================================================
+   QUILL TOOLBAR ISOLATION HOTFIX
+   Ngăn giao diện chung và vật phẩm theme áp style nút/form lên Quill.
+   Không thay đổi nội dung, dữ liệu hoặc JavaScript của trình soạn thảo.
+   ========================================================================== */
+
+/* Khung toolbar: gọn, cho phép xuống dòng trên màn hình hẹp. */
+html body .dashboard .ql-toolbar.ql-snow {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 4px 0 !important;
+
+    min-height: 42px !important;
+    padding: 8px 10px !important;
+
+    overflow: visible !important;
+    line-height: normal !important;
+}
+
+/* Mỗi nhóm công cụ trở lại đúng kích thước mặc định Quill. */
+html body .dashboard .ql-toolbar.ql-snow .ql-formats {
+    display: inline-flex !important;
+    align-items: center !important;
+    flex: 0 0 auto !important;
+    gap: 0 !important;
+
+    margin: 0 15px 0 0 !important;
+    padding: 0 !important;
+
+    vertical-align: middle !important;
+}
+
+/* Cô lập các nút Quill khỏi button toàn cục và CSS của theme vật phẩm. */
+html body .dashboard .ql-toolbar.ql-snow button[class],
+html body .dashboard .ql-toolbar.ql-snow button[class]:hover,
+html body .dashboard .ql-toolbar.ql-snow button[class]:focus,
+html body .dashboard .ql-toolbar.ql-snow button[class]:active,
+html body .dashboard .ql-toolbar.ql-snow button[class].ql-active {
+    position: relative !important;
+
+    width: 28px !important;
+    min-width: 28px !important;
+    max-width: 28px !important;
+
+    height: 24px !important;
+    min-height: 24px !important;
+    max-height: 24px !important;
+
+    margin: 0 !important;
+    padding: 3px 5px !important;
+
+    display: inline-block !important;
+    flex: 0 0 28px !important;
+
+    color: inherit !important;
+    background: transparent !important;
+    background-image: none !important;
+
+    border: 0 !important;
+    border-radius: 0 !important;
+
+    box-shadow: none !important;
+    text-shadow: none !important;
+
+    font: inherit !important;
+    font-size: 0 !important;
+    font-weight: normal !important;
+    letter-spacing: normal !important;
+    line-height: 1 !important;
+
+    filter: none !important;
+    transform: none !important;
+
+    overflow: visible !important;
+    opacity: 1 !important;
+
+    vertical-align: middle !important;
+}
+
+/* Xóa tia sáng/pseudo-element mà theme chung thêm vào button. */
+html body .dashboard .ql-toolbar.ql-snow button[class]::before,
+html body .dashboard .ql-toolbar.ql-snow button[class]::after {
+    content: none !important;
+    display: none !important;
+    position: static !important;
+    inset: auto !important;
+    width: 0 !important;
+    height: 0 !important;
+    background: none !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+/* Khóa kích thước SVG icon. */
+html body .dashboard .ql-toolbar.ql-snow button[class] svg {
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    min-height: 18px !important;
+    max-width: 18px !important;
+    max-height: 18px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    display: block !important;
+    overflow: visible !important;
+
+    filter: none !important;
+    transform: none !important;
+}
+
+/* Giữ màu trạng thái mặc định của Quill. */
+html body .dashboard .ql-snow .ql-stroke {
+    stroke: #444 !important;
+}
+
+html body .dashboard .ql-snow .ql-fill,
+html body .dashboard .ql-snow .ql-stroke.ql-fill {
+    fill: #444 !important;
+}
+
+html body .dashboard .ql-snow button:hover .ql-stroke,
+html body .dashboard .ql-snow button:focus .ql-stroke,
+html body .dashboard .ql-snow button.ql-active .ql-stroke,
+html body .dashboard .ql-snow .ql-picker-label:hover .ql-stroke,
+html body .dashboard .ql-snow .ql-picker-label.ql-active .ql-stroke {
+    stroke: var(--ui-primary, #4f46e5) !important;
+}
+
+html body .dashboard .ql-snow button:hover .ql-fill,
+html body .dashboard .ql-snow button:focus .ql-fill,
+html body .dashboard .ql-snow button.ql-active .ql-fill,
+html body .dashboard .ql-snow .ql-picker-label:hover .ql-fill,
+html body .dashboard .ql-snow .ql-picker-label.ql-active .ql-fill {
+    fill: var(--ui-primary, #4f46e5) !important;
+}
+
+/* Picker màu/nền không nhận style select/input chung. */
+html body .dashboard .ql-toolbar.ql-snow .ql-picker {
+    width: auto !important;
+    min-width: 0 !important;
+    min-height: 24px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    color: #444 !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+
+    font-family: Helvetica, Arial, sans-serif !important;
+    font-size: 14px !important;
+    line-height: 24px !important;
+
+    transform: none !important;
+    filter: none !important;
+}
+
+html body .dashboard .ql-toolbar.ql-snow .ql-picker-label {
+    height: 24px !important;
+    min-height: 24px !important;
+    padding: 0 2px !important;
+
+    color: #444 !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+
+    line-height: 22px !important;
+}
+
+html body .dashboard .ql-toolbar.ql-snow .ql-picker-options {
+    z-index: 10020 !important;
+
+    padding: 4px 8px !important;
+
+    color: #334155 !important;
+    background: #fff !important;
+
+    border: 1px solid rgba(148, 163, 184, 0.45) !important;
+    border-radius: 8px !important;
+
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18) !important;
+}
+
+/* Khung nhập liệu Quill. */
+html body .dashboard .ql-container.ql-snow {
+    width: 100% !important;
+
+    color: #1f2937 !important;
+    background: #fff !important;
+
+    font-family: 'Nunito', 'Segoe UI', sans-serif !important;
+    font-size: 15px !important;
+}
+
+html body .dashboard .ql-editor {
+    min-height: 145px !important;
+    padding: 14px 16px !important;
+
+    color: #1f2937 !important;
+    background: #fff !important;
+
+    line-height: 1.65 !important;
+}
+
+html body .dashboard .ql-editor::before {
+    left: 16px !important;
+    right: 16px !important;
+    color: #94a3b8 !important;
+}
+
+/* Tooltip chèn liên kết không nhận input/button toàn cục. */
+html body .dashboard .ql-snow .ql-tooltip {
+    z-index: 10030 !important;
+
+    padding: 6px 10px !important;
+
+    color: #334155 !important;
+    background: #fff !important;
+
+    border: 1px solid rgba(148, 163, 184, 0.42) !important;
+    border-radius: 8px !important;
+
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.2) !important;
+}
+
+html body .dashboard .ql-snow .ql-tooltip input[type='text'] {
+    width: 170px !important;
+    min-width: 0 !important;
+    min-height: 26px !important;
+
+    margin: 0 8px !important;
+    padding: 3px 6px !important;
+
+    color: #1f2937 !important;
+    background: #fff !important;
+
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+
+    font: 13px/1.35 Helvetica, Arial, sans-serif !important;
+}
+
+/* Theme tối: chỉ đổi màu, không đổi kích thước toolbar. */
+html body.theme-lotm-mysteries .dashboard .ql-toolbar.ql-snow,
+html body.theme-lotm-mysteries .dashboard .ql-container.ql-snow {
+    background: rgba(8, 10, 15, 0.96) !important;
+    border-color: rgba(201, 169, 110, 0.42) !important;
+}
+
+html body.theme-lotm-mysteries .dashboard .ql-editor {
+    color: #e8e1d2 !important;
+    background: rgba(8, 10, 15, 0.96) !important;
+}
+
+html body.theme-lotm-mysteries .dashboard .ql-snow .ql-stroke {
+    stroke: #d9e0e7 !important;
+}
+
+html body.theme-lotm-mysteries .dashboard .ql-snow .ql-fill,
+html body.theme-lotm-mysteries .dashboard .ql-snow .ql-stroke.ql-fill {
+    fill: #d9e0e7 !important;
+}
+
+html body.theme-lotm-mysteries .dashboard .ql-toolbar.ql-snow .ql-picker,
+html body.theme-lotm-mysteries .dashboard .ql-toolbar.ql-snow .ql-picker-label {
+    color: #d9e0e7 !important;
+}
+
+/* Màn hình nhỏ: toolbar tự xuống dòng nhưng icon không phình. */
+@media (max-width: 720px) {
+    html body .dashboard .ql-toolbar.ql-snow {
+        padding: 7px 6px !important;
+    }
+
+    html body .dashboard .ql-toolbar.ql-snow .ql-formats {
+        margin-right: 8px !important;
+        margin-bottom: 2px !important;
+    }
+
+    html body .dashboard .ql-editor {
+        min-height: 130px !important;
+        padding: 12px !important;
+    }
+}

@@ -5,10 +5,28 @@ class PetManager {
     static interactionAbortController = null;
 
     static spawnPet(petData) {
-        if (!this.container) return;
+        this.container =
+            document.getElementById('virtual-pet-container') ||
+            this.container;
+
+        if (!this.container || !petData) return;
+        // Dọn toàn bộ tương tác và vòng lặp của thú cưng trước
+        if (
+            typeof PetInteractionManager !== 'undefined' &&
+            typeof PetInteractionManager.detachEvents === 'function'
+        ) {
+            PetInteractionManager.detachEvents({
+                keepLoop: false,
+                removeHungerBar: true
+            });
+        }
 
         // Xóa đồ họa thú cưng cũ nếu có
         this.container.innerHTML = '';
+        this.container.classList.remove(
+            'pet-doraemon-shizuka-stage',
+            'pet-painting-stage'
+        );
 
         let petElement;
 
@@ -28,17 +46,20 @@ class PetManager {
             petElement.style.height = 'auto';
             petElement.style.filter = 'drop-shadow(0 5px 15px rgba(0,0,0,0.3))';
         }
-        // Chống trình duyệt tự kéo ảnh hoặc mở menu khi giữ lâu
-        petElement.setAttribute('draggable', 'false');
-
-        petElement.style.touchAction = 'none';
-        petElement.style.userSelect = 'none';
-        petElement.style.webkitUserSelect = 'none';
-        petElement.style.webkitUserDrag = 'none';
-        petElement.style.webkitTouchCallout = 'none';
         if (petData.petEffect) {
             petElement.classList.add(petData.petEffect);
             petElement.style.filter = '';
+        }
+        // Hiệu ứng Giai Điệu Học Đường riêng của Shizuka
+        if (
+            petData.petEffect ===
+            'doraemon-shizuka-study-magic'
+        ) {
+            this.container.classList.add(
+                'pet-doraemon-shizuka-stage'
+            );
+
+            petElement.setAttribute('draggable', 'false');
         }
 
         // Hiệu ứng riêng của Kỳ Lân Biển Mộng Mơ
@@ -144,33 +165,175 @@ class PetManager {
             this.container.appendChild(chronicleCourt);
         }
 
+        // =========================================================
+        // NÀNG HỌA SĨ TINH LINH — HIỆU ỨNG HỘI HỌA
+        // Chỉ hiển thị quanh thú cưng, không phủ toàn màn hình.
+        // Không có hiệu ứng khi nhấn.
+        // =========================================================
+        if (petData.petEffect === 'painting-muse-magic') {
+            petElement.setAttribute('draggable', 'false');
+
+            this.container.classList.add('pet-painting-stage');
+
+            // Hào quang pha màu phía sau
+            const canvasAura = document.createElement('div');
+            canvasAura.className = 'painting-canvas-aura';
+            canvasAura.setAttribute('aria-hidden', 'true');
+            this.container.appendChild(canvasAura);
+
+            // Nét cọ ánh sáng
+            const brushStroke = document.createElement('span');
+            brushStroke.className = 'painting-brush-stroke';
+            brushStroke.setAttribute('aria-hidden', 'true');
+            this.container.appendChild(brushStroke);
+
+            // Những giọt màu bay xung quanh
+            const pigmentColors = [
+                '#22d3ee',
+                '#a78bfa',
+                '#f472b6',
+                '#fbbf24',
+                '#34d399',
+                '#fb7185'
+            ];
+
+            pigmentColors.forEach((color, index) => {
+                const pigment = document.createElement('span');
+
+                pigment.className = 'painting-pigment';
+                pigment.setAttribute('aria-hidden', 'true');
+
+                const startAngle = index * 60;
+                const middleAngle = startAngle + 16;
+                const endAngle = startAngle + 28;
+
+                pigment.style.setProperty('--paint-color', color);
+
+                pigment.style.setProperty(
+                    '--paint-angle',
+                    `${startAngle}deg`
+                );
+
+                pigment.style.setProperty(
+                    '--paint-angle-inverse',
+                    `${-startAngle}deg`
+                );
+
+                pigment.style.setProperty(
+                    '--paint-angle-middle',
+                    `${middleAngle}deg`
+                );
+
+                pigment.style.setProperty(
+                    '--paint-angle-middle-inverse',
+                    `${-middleAngle}deg`
+                );
+
+                pigment.style.setProperty(
+                    '--paint-angle-end',
+                    `${endAngle}deg`
+                );
+
+                pigment.style.setProperty(
+                    '--paint-angle-end-inverse',
+                    `${-endAngle}deg`
+                );
+
+                pigment.style.setProperty(
+                    '--paint-radius',
+                    `${72 + (index % 2) * 10}px`
+                );
+
+                pigment.style.setProperty(
+                    '--paint-delay',
+                    `${-index * 0.52}s`
+                );
+
+                this.container.appendChild(pigment);
+            });
+        }
+
         this.container.appendChild(petElement);
         this.container.style.display = 'block';
         this.container.classList.add('pet-idle');
 
-        let closeBtn = document.createElement('div');
+        const closeBtn = document.createElement('button');
 
-        closeBtn.className = 'virtual-pet-close-btn';
+        closeBtn.type = 'button';
+        closeBtn.className = 'pet-close-btn';
         closeBtn.innerHTML = '✖';
-        closeBtn.style.cssText = 'position: absolute; top: -5px; right: -15px; width: 22px; height: 22px; background: rgba(225, 29, 72, 0.2); color: #e11d48; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 11px; cursor: pointer; opacity: 0; transition: opacity 0.3s; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.1);';
+        closeBtn.title = 'Tháo thú cưng';
+        closeBtn.setAttribute('aria-label', 'Tháo thú cưng');
 
-        // Tàng hình, chỉ hiện khi rê chuột hoặc chạm vào thú cưng
-        this.container.onmouseenter = () => closeBtn.style.opacity = '1';
-        this.container.onmouseleave = () => closeBtn.style.opacity = '0';
+        closeBtn.style.cssText = `
+    position: absolute;
+    top: -5px;
+    right: -15px;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    background: rgba(225, 29, 72, 0.18);
+    color: #e11d48;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 11px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    font-weight: bold;
+    z-index: 20;
+`;
 
-        closeBtn.onclick = (e) => {
-            e.stopPropagation(); // Ngăn lệnh kéo thả bị kích hoạt
-            if (typeof StoreManager !== 'undefined' && StoreManager.unapplyItem) {
-                StoreManager.unapplyItem(petData.id); // Gọi hàm tháo trang bị
-            }
+        const isTouchDevice =
+            window.matchMedia?.('(pointer: coarse)').matches;
+
+        closeBtn.style.opacity = isTouchDevice ? '0.82' : '0';
+
+        this.container.onmouseenter = () => {
+            closeBtn.style.opacity = '1';
         };
+
+        this.container.onmouseleave = () => {
+            closeBtn.style.opacity = isTouchDevice ? '0.82' : '0';
+        };
+
+        closeBtn.addEventListener('pointerdown', (event) => {
+            event.stopPropagation();
+        });
+
+        closeBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            if (
+                typeof StoreManager !== 'undefined' &&
+                typeof StoreManager.unapplyItem === 'function'
+            ) {
+                StoreManager.unapplyItem(petData.id);
+            }
+        });
+
         this.container.appendChild(closeBtn);
         this.makePetDraggable();
         localStorage.setItem('active_pet', petData.id);
 
-        if (typeof PetInteractionManager !== 'undefined') {
-            const petImg = document.getElementById('virtual-pet-img');
-            if (petImg) PetInteractionManager.attachEvents(petImg, petData);
+        // Chỉ gắn hiệu ứng tương tác nếu vật phẩm cho phép
+        if (
+            !petData.disableClickEffect &&
+            typeof PetInteractionManager !== 'undefined'
+        ) {
+            const petImg =
+                document.getElementById('virtual-pet-img');
+
+            if (petImg) {
+                PetInteractionManager.attachEvents(
+                    petImg,
+                    petData
+                );
+            }
         }
     }
 
@@ -191,16 +354,43 @@ class PetManager {
         this.interactionAbortController = new AbortController();
         const { signal } = this.interactionAbortController;
 
-        this.container.addEventListener('mousedown', (e) => {
-            if (e.button !== 0) return;
+        // Cần gỡ bỏ event mousedown cũ để không bị nhân bản sự kiện khi spawn thú mới
+
+        this.container.addEventListener('pointerdown', (e) => {
+            if (e.pointerType === 'mouse' && e.button !== 0) return;
+
+            if (
+                e.target instanceof Element &&
+                e.target.closest(
+                    '.pet-close-btn, #pet-hunger-bar, button, a, input'
+                )
+            ) {
+                return;
+            }
+
+            const rect = this.container.getBoundingClientRect();
 
             isDragging = true;
             didDrag = false;
+
+            this.container.dataset.petDragged = '0';
             this.container.classList.remove('pet-idle');
+
             startX = e.clientX;
             startY = e.clientY;
-            initialX = this.container.offsetLeft;
-            initialY = this.container.offsetTop;
+            initialX = rect.left;
+            initialY = rect.top;
+
+            this.container.style.left = `${rect.left}px`;
+            this.container.style.top = `${rect.top}px`;
+            this.container.style.right = 'auto';
+            this.container.style.bottom = 'auto';
+            this.container.style.transition = 'none';
+
+            if (typeof PetInteractionManager !== 'undefined') {
+                PetInteractionManager.isPetDragging = false;
+                PetInteractionManager.resetIdle?.();
+            }
         }, { signal });
 
         document.addEventListener('mousemove', (e) => {
@@ -376,201 +566,6 @@ class PetManager {
             isDragging = false;
             this.container.classList.add('pet-idle');
         }, { signal });
-
-        // =====================================================
-        // KÉO PET TRÊN ĐIỆN THOẠI
-        // =====================================================
-
-        let activeTouchId = null;
-
-        this.container.addEventListener(
-            'touchstart',
-            (e) => {
-                // Không kéo khi người dùng chạm nút đóng
-                if (
-                    e.target.closest &&
-                    e.target.closest('.virtual-pet-close-btn')
-                ) {
-                    return;
-                }
-
-                // Chỉ kéo bằng một ngón tay
-                if (e.touches.length !== 1) return;
-
-                const touch = e.touches[0];
-                const rect =
-                    this.container.getBoundingClientRect();
-
-                activeTouchId = touch.identifier;
-                isDragging = true;
-                didDrag = false;
-
-                startX = touch.clientX;
-                startY = touch.clientY;
-
-                /*
-                 * Dùng boundingClientRect thay vì offsetLeft.
-                 * Cách này chính xác hơn khi container dùng
-                 * position: fixed, right hoặc bottom.
-                 */
-                initialX = rect.left;
-                initialY = rect.top;
-
-                this.container.style.left =
-                    `${Math.round(rect.left)}px`;
-
-                this.container.style.top =
-                    `${Math.round(rect.top)}px`;
-
-                this.container.style.right = 'auto';
-                this.container.style.bottom = 'auto';
-
-                this.container.classList.remove('pet-idle');
-            },
-            {
-                passive: true,
-                signal
-            }
-        );
-
-        document.addEventListener(
-            'touchmove',
-            (e) => {
-                if (!isDragging || activeTouchId === null) {
-                    return;
-                }
-
-                // Có nhiều ngón tay thì hủy kéo
-                if (e.touches.length !== 1) {
-                    isDragging = false;
-                    activeTouchId = null;
-
-                    this.container.classList.add('pet-idle');
-                    return;
-                }
-
-                const touch = Array.from(e.touches).find(
-                    item => item.identifier === activeTouchId
-                );
-
-                if (!touch) return;
-
-                const dx = touch.clientX - startX;
-                const dy = touch.clientY - startY;
-
-                /*
-                 * Chạm nhẹ dưới 8px vẫn được coi là nhấn pet,
-                 * chưa coi là thao tác kéo.
-                 */
-                if (
-                    !didDrag &&
-                    Math.abs(dx) < 8 &&
-                    Math.abs(dy) < 8
-                ) {
-                    return;
-                }
-
-                didDrag = true;
-
-                // Chỉ khóa cuộn khi người dùng thực sự kéo
-                e.preventDefault();
-
-                const viewport = window.visualViewport;
-
-                const viewportWidth =
-                    viewport?.width ||
-                    document.documentElement.clientWidth ||
-                    window.innerWidth;
-
-                const viewportHeight =
-                    viewport?.height ||
-                    document.documentElement.clientHeight ||
-                    window.innerHeight;
-
-                const viewportLeft =
-                    viewport?.offsetLeft || 0;
-
-                const viewportTop =
-                    viewport?.offsetTop || 0;
-
-                const petRect =
-                    this.container.getBoundingClientRect();
-
-                const maxLeft = Math.max(
-                    viewportLeft,
-                    viewportLeft +
-                    viewportWidth -
-                    petRect.width
-                );
-
-                const maxTop = Math.max(
-                    viewportTop,
-                    viewportTop +
-                    viewportHeight -
-                    petRect.height
-                );
-
-                const newLeft = Math.min(
-                    Math.max(
-                        initialX + dx,
-                        viewportLeft
-                    ),
-                    maxLeft
-                );
-
-                const newTop = Math.min(
-                    Math.max(
-                        initialY + dy,
-                        viewportTop
-                    ),
-                    maxTop
-                );
-
-                this.container.style.left =
-                    `${Math.round(newLeft)}px`;
-
-                this.container.style.top =
-                    `${Math.round(newTop)}px`;
-
-                this.container.style.right = 'auto';
-                this.container.style.bottom = 'auto';
-            },
-            {
-                passive: false,
-                signal
-            }
-        );
-
-        const finishTouchDragging = (cancelled = false) => {
-            if (!isDragging && activeTouchId === null) {
-                return;
-            }
-
-            isDragging = false;
-            activeTouchId = null;
-
-            this.container.classList.add('pet-idle');
-
-            /*
-             * touchcancel không tạo click theo sau,
-             * nên có thể reset didDrag ngay.
-             */
-            if (cancelled) {
-                didDrag = false;
-            }
-        };
-
-        document.addEventListener(
-            'touchend',
-            () => finishTouchDragging(false),
-            { signal }
-        );
-
-        document.addEventListener(
-            'touchcancel',
-            () => finishTouchDragging(true),
-            { signal }
-        );
 
         // Lắng nghe sự kiện click trên toàn trang
         document.addEventListener('click', (e) => {
