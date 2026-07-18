@@ -6,6 +6,16 @@ const StoreConfig = {
         { id: 'effect_snow', name: 'Tuyết Mùa Đông', type: 'effect', price: 200, isNonCoin: false, tag: 'Hiệu ứng' },
         { id: 'pet_shiba', name: 'Chó Shiba', type: 'pet', price: 300, isNonCoin: false, tag: 'Thú cưng', value: '🐕', isIcon: true },
         {
+            id: 'pet_cat_wizard',
+            name: 'Mèo Phù Thủy',
+            type: 'pet',
+            price: 0,
+            isNonCoin: true,
+            tag: 'Thú cưng',
+            value: 'assets/pet/cat_wizard.png',
+            isIcon: false
+        },
+        {
             id: 'pet_cotich_1',
             name: 'Phượng Hoàng Lửa',
             type: 'pet',
@@ -453,7 +463,7 @@ const StoreConfig = {
             name: 'Nàng Họa Sĩ Tinh Linh',
             type: 'pet',
             price: 0,
-            isNonCoin: false,
+            isNonCoin: true,
             tag: 'Hội họa',
             value: 'assets/pet/hội họa/hội họa 1.png',
             isIcon: false,

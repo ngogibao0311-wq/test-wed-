@@ -93,10 +93,35 @@
                     <input type="text" id="title" placeholder="Nhập tiêu đề bài tập...">
 
                     <div class="form-row">
-                        <div class="form-group"><label for="startDate"><strong>Hạn bắt đầu:</strong></label><input
-                                type="datetime-local" id="startDate"></div>
-                        <div class="form-group"><label for="endDate"><strong>Hạn nộp bài:</strong></label><input
-                                type="datetime-local" id="endDate"></div>
+                        <div class="form-group">
+                            <label for="startDate">
+                                <strong>Thời gian bắt đầu:</strong>
+                                <span style="font-size: 0.85em; color: #64748b;">
+                                    (Không bắt buộc)
+                                </span>
+                            </label>
+
+                            <input type="datetime-local" id="startDate">
+
+                            <small style="display: block; margin-top: 5px; color: #64748b;">
+                                Để trống thì học sinh được làm ngay.
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="endDate">
+                                <strong>Hạn nộp bài:</strong>
+                                <span style="font-size: 0.85em; color: #64748b;">
+                                    (Không bắt buộc)
+                                </span>
+                            </label>
+
+                            <input type="datetime-local" id="endDate">
+
+                            <small style="display: block; margin-top: 5px; color: #64748b;">
+                                Để trống thì bài không giới hạn thời gian.
+                            </small>
+                        </div>
                     </div>
                     <div class="form-row" style="align-items: flex-start;">
                         <div class="form-group" style="flex: 1;">
@@ -147,7 +172,7 @@
                                 nhanh từ văn bản (Copy/Paste):</label>
                             <textarea id="quickImportText" rows="5"
                                 placeholder="Dán nội dung câu hỏi vào đây...&#10;Ví dụ:&#10;Câu 1: Khi làm việc trong phòng thí nghiệm...&#10;A. Tự ý pha chế&#10;B. Tuân thủ nội quy..."></textarea>
-                            <button type="button" onclick="importQuestions()"
+                            <button type="button" id="quickImportButton" onclick="importQuestions()"
                                 style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 10px; margin-top: 10px; font-size: 0.95em;">🔍
                                 Tự động bóc tách câu hỏi</button>
                         </div>
@@ -181,27 +206,26 @@
 
                         <input type="file" id="fileInput" accept=".docx, .pdf, image/*" multiple>
 
-                        <label style="
-                            display: flex;
-                            align-items: center;
-                            gap: 8px;
-                            margin-top: 15px;
-                            cursor: pointer;
-                        ">
-                            <input type="checkbox" id="hideEssayText" style="
-                                width: 20px;
-                                height: 20px;
-                                flex-shrink: 0;
-                                margin: 0;
-                                cursor: pointer;
-                                transition: none;
-                            ">
+                        <div class="assignment-option-row">
+                            <label id="fileOnlyOptionLabel" class="assignment-option-item" for="hideEssayText">
+                                <input type="checkbox" id="hideEssayText">
 
-                            <strong style="color: #764ba2;">
-                                📁 Chỉ cho phép nộp bằng Tệp
-                                (Ẩn ô viết chữ tự luận phía học sinh)
-                            </strong>
-                        </label>
+                                <strong>
+                                    📁 Chỉ cho phép nộp bằng Tệp
+                                </strong>
+                            </label>
+
+                            <label class="video-summary-toggle-row" for="enableVideoSummary">
+                                <input type="checkbox" id="enableVideoSummary" disabled
+                                    onchange="handleVideoSummaryToggle('create')">
+
+                                <strong>📝 Tóm tắt</strong>
+
+                                <span id="videoSummaryStatus" class="video-summary-status">
+                                    Dán link video để bật
+                                </span>
+                            </label>
+                        </div>
                     </div>
 
                     <button type="button" onclick="createAssignment()" style="margin-top: 20px;">
@@ -1312,8 +1336,9 @@
 
             <!-- [source: 1] -->
             <div id="editAssignmentModal" class="modal-overlay">
-                <div class="modal-content form-container"
-                    style="max-width: 700px; padding: 25px; max-height: 90vh; display: flex; flex-direction: column; position: relative;">
+                <div class="modal-content form-container" style="width: 94vw; max-width: 840px; padding: 25px;
+    max-height: 90vh; display: flex; flex-direction: column;
+    position: relative; box-sizing: border-box;">
                     <button class="close-btn" onclick="closeEditAssignmentModal()"
                         style="top: 15px; right: 15px; z-index: 101;">✖</button>
                     <h3
@@ -1333,11 +1358,21 @@
 
                             <div class="form-row" style="margin-bottom: 0;">
                                 <div class="form-group">
-                                    <label for="editStartDate"><strong>Hạn bắt đầu:</strong></label>
+                                    <label for="editStartDate">
+                                        <strong>Thời gian bắt đầu:</strong>
+                                        <span style="font-size: 0.85em; color: #64748b;">
+                                            (Không bắt buộc)
+                                        </span>
+                                    </label>
                                     <input type="datetime-local" id="editStartDate" style="background: white;">
                                 </div>
                                 <div class="form-group">
-                                    <label for="editEndDate"><strong>Hạn nộp bài:</strong></label>
+                                    <label for="editEndDate">
+                                        <strong>Hạn nộp bài:</strong>
+                                        <span style="font-size: 0.85em; color: #64748b;">
+                                            (Không bắt buộc)
+                                        </span>
+                                    </label>
                                     <input type="datetime-local" id="editEndDate" style="background: white;">
                                 </div>
                             </div>
@@ -1416,9 +1451,6 @@
                                     margin-bottom: 20px;
                                     border: 1px solid rgba(102, 126, 234, 0.25);
                                 ">
-                                <h4 style="color: #667eea; margin-bottom: 15px;">
-                                    🎬 Đính kèm Video (Nếu có)
-                                </h4>
 
                                 <label for="editVideoLink">
                                     <strong>🎬 Đính kèm Video (Link YouTube - Nếu có):</strong>
@@ -1426,6 +1458,17 @@
 
                                 <input type="text" id="editVideoLink" placeholder="Dán link YouTube vào đây..."
                                     style="background: white;">
+
+                                <label class="video-summary-toggle-row" for="editEnableVideoSummary">
+                                    <input type="checkbox" id="editEnableVideoSummary" disabled
+                                        onchange="handleVideoSummaryToggle('edit')">
+
+                                    <strong>📝 Tóm tắt</strong>
+
+                                    <span id="editVideoSummaryStatus" class="video-summary-status">
+                                        Dán link video để bật
+                                    </span>
+                                </label>
                             </div>
 
                             <div id="editTuLuanSection"
@@ -1542,6 +1585,7 @@
     <script src="js/firebase-config.js?v=3.0"></script>
 
     <!-- 3. Mã nền tảng -->
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
     <script src="js/common.js?v=3.0"></script>
     <script src="js/security.js?v=3.0"></script>
 

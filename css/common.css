@@ -2308,3 +2308,572 @@ html body.theme-lotm-mysteries .dashboard .ql-toolbar.ql-snow .ql-picker-label {
         padding: 12px !important;
     }
 }
+/* ==============================================================
+   BỘ XEM TRỰC TIẾP TỆP/LINK TRÊN WEB
+   ============================================================== */
+.preview-file-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-top: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border-left: 4px solid #667eea;
+    background: rgba(102, 126, 234, 0.09);
+}
+
+.preview-file-card--green {
+    border-left-color: #10b981;
+    background: rgba(16, 185, 129, 0.09);
+}
+
+.preview-file-card--orange {
+    border-left-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.10);
+}
+
+.preview-file-info {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.preview-file-info strong {
+    color: #2c3e50;
+    font-size: 0.92rem;
+}
+
+.preview-file-info span {
+    color: #64748b;
+    font-size: 0.86rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: min(48vw, 520px);
+}
+
+.preview-file-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.preview-inline-btn,
+.preview-action-btn {
+    width: auto;
+    border: 0;
+    border-radius: 9px;
+    padding: 8px 12px;
+    margin: 0;
+    cursor: pointer;
+    font-size: 0.84rem;
+    font-weight: 800;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    box-shadow: 0 3px 10px rgba(102, 126, 234, 0.24);
+}
+
+.preview-inline-btn-secondary {
+    background: rgba(255,255,255,0.9);
+    color: #475569;
+    border: 1px solid rgba(100,116,139,0.25);
+    box-shadow: none;
+}
+
+.universal-preview-overlay {
+    z-index: 10000000 !important;
+    padding: 18px;
+    align-items: center;
+    justify-content: center;
+}
+
+.universal-preview-overlay.active {
+    display: flex !important;
+}
+
+.universal-preview-modal {
+    width: min(1180px, 96vw);
+    height: min(88vh, 900px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 18px;
+    background: #f8fafc;
+    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.35);
+    border: 1px solid rgba(255,255,255,0.9);
+}
+
+.universal-preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 16px 20px 12px;
+    background: #fff;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.universal-preview-header h3 {
+    margin: 2px 0 0;
+    color: #1e293b;
+    text-align: left;
+    font-size: 1.15rem;
+    word-break: break-word;
+}
+
+.universal-preview-kicker {
+    margin: 0;
+    color: #6366f1;
+    font-weight: 900;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+}
+
+.universal-preview-close {
+    position: static !important;
+    flex: 0 0 auto;
+    width: 38px !important;
+    height: 38px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+}
+
+.universal-preview-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #fff;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.preview-download-btn {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.universal-preview-notice {
+    margin: 10px 20px 0;
+    padding: 9px 12px;
+    border-radius: 10px;
+    background: #fff7ed;
+    color: #9a3412;
+    border: 1px solid #fed7aa;
+    font-size: 0.86rem;
+}
+
+.universal-preview-body {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    padding: 14px;
+    background: #e2e8f0;
+}
+
+.universal-preview-frame {
+    width: 100%;
+    height: 100%;
+    min-height: 60vh;
+    border: 0;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.universal-image-wrap {
+    min-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+}
+
+.universal-preview-image {
+    display: block;
+    max-width: 100%;
+    max-height: 72vh;
+    object-fit: contain;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 8px 26px rgba(15,23,42,0.18);
+}
+
+.universal-docx-content {
+    width: min(900px, 100%);
+    min-height: 100%;
+    margin: 0 auto;
+    padding: 42px 52px;
+    border-radius: 8px;
+    background: #fff;
+    color: #1f2937;
+    box-shadow: 0 8px 25px rgba(15,23,42,0.12);
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+.universal-docx-content img {
+    max-width: 100%;
+    height: auto;
+}
+
+.universal-docx-content table {
+    width: 100%;
+    border-collapse: collapse;
+    overflow-x: auto;
+}
+
+.universal-docx-content td,
+.universal-docx-content th {
+    border: 1px solid #cbd5e1;
+    padding: 7px;
+}
+
+.preview-loading,
+.preview-empty-state {
+    min-height: 58vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: #475569;
+    background: #fff;
+    border-radius: 12px;
+    text-align: center;
+    padding: 24px;
+}
+
+.preview-spinner {
+    width: 34px;
+    height: 34px;
+    border: 4px solid #cbd5e1;
+    border-top-color: #6366f1;
+    border-radius: 50%;
+    animation: previewSpin 0.8s linear infinite;
+}
+
+@keyframes previewSpin {
+    to { transform: rotate(360deg); }
+}
+
+body.preview-modal-open {
+    overflow: hidden !important;
+}
+
+@media (max-width: 720px) {
+    .preview-file-card {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .preview-file-info span {
+        max-width: 80vw;
+    }
+
+    .preview-file-buttons {
+        width: 100%;
+        justify-content: stretch;
+    }
+
+    .preview-inline-btn {
+        flex: 1;
+    }
+
+    .universal-preview-overlay {
+        padding: 6px;
+    }
+
+    .universal-preview-modal {
+        width: 100%;
+        height: 96vh;
+        border-radius: 14px;
+    }
+
+    .universal-docx-content {
+        padding: 24px 18px;
+    }
+}
+/* =========================================================
+   LOGIN LEFT PANEL - ẢNH CON ĐƯỜNG HÀNG CÂY
+   ========================================================= */
+
+.login-scene-panel {
+    position: relative;
+    overflow: hidden;
+    min-height: 720px;
+    padding: 0 !important;
+    border-radius: 32px 0 0 32px;
+    background: #dff4ff;
+    isolation: isolate;
+}
+
+/* Các lớp nền */
+.login-scene-panel .scene-layer {
+    position: absolute;
+    inset: 0;
+}
+
+/* Lớp phủ giúp ảnh nổi hơn và hợp giao diện */
+.login-scene-panel .scene-overlay {
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.10) 0%,
+            rgba(255,255,255,0.00) 30%,
+            rgba(0,0,0,0.08) 100%
+        );
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* Lớp ánh sáng mềm */
+.login-scene-panel .scene-light {
+    background:
+        radial-gradient(circle at 50% 20%, rgba(255,255,255,0.22), transparent 35%),
+        radial-gradient(circle at 50% 70%, rgba(255,255,255,0.08), transparent 42%);
+    mix-blend-mode: screen;
+    animation: lightBreath 5s ease-in-out infinite;
+    z-index: 3;
+    pointer-events: none;
+}
+
+/* Viền tối nhẹ cho khung đẹp hơn */
+.login-scene-panel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.12);
+    z-index: 4;
+    pointer-events: none;
+}
+
+/* Lá bay */
+.floating-leaf {
+    position: absolute;
+    width: 16px;
+    height: 10px;
+    border-radius: 60% 40% 60% 40%;
+    background: linear-gradient(135deg, #98f06f, #2faa42);
+    opacity: 0.72;
+    filter: blur(0.2px);
+    z-index: 5;
+    pointer-events: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+}
+
+.floating-leaf::before {
+    content: "";
+    position: absolute;
+    left: 7px;
+    top: 1px;
+    width: 1px;
+    height: 8px;
+    background: rgba(255,255,255,0.55);
+    transform: rotate(18deg);
+}
+
+/* Từng lá */
+.leaf-1 {
+    top: 14%;
+    left: 18%;
+    animation: leafFloat1 9s linear infinite;
+}
+.leaf-2 {
+    top: 24%;
+    left: 72%;
+    animation: leafFloat2 11s linear infinite;
+}
+.leaf-3 {
+    top: 52%;
+    left: 12%;
+    animation: leafFloat3 10s linear infinite;
+}
+.leaf-4 {
+    top: 40%;
+    left: 84%;
+    animation: leafFloat4 12s linear infinite;
+}
+.leaf-5 {
+    top: 8%;
+    left: 58%;
+    animation: leafFloat5 13s linear infinite;
+}
+
+/* Animation nền */
+@keyframes scenicPan {
+    0% {
+        transform: scale(1.04) translate3d(0, 0, 0);
+    }
+    100% {
+        transform: scale(1.10) translate3d(-10px, -6px, 0);
+    }
+}
+
+@keyframes lightBreath {
+    0%, 100% {
+        opacity: 0.85;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Animation lá */
+@keyframes leafFloat1 {
+    0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+    10%  { opacity: 0.7; }
+    100% { transform: translate(140px, 260px) rotate(320deg); opacity: 0; }
+}
+
+@keyframes leafFloat2 {
+    0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+    10%  { opacity: 0.65; }
+    100% { transform: translate(-120px, 280px) rotate(-300deg); opacity: 0; }
+}
+
+@keyframes leafFloat3 {
+    0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+    10%  { opacity: 0.7; }
+    100% { transform: translate(180px, 200px) rotate(290deg); opacity: 0; }
+}
+
+@keyframes leafFloat4 {
+    0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+    10%  { opacity: 0.6; }
+    100% { transform: translate(-160px, 220px) rotate(-260deg); opacity: 0; }
+}
+
+@keyframes leafFloat5 {
+    0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+    10%  { opacity: 0.65; }
+    100% { transform: translate(100px, 300px) rotate(340deg); opacity: 0; }
+}
+
+/* Mobile thì ẩn panel trái như cũ */
+@media (max-width: 980px) {
+    .login-scene-panel {
+        display: none !important;
+    }
+}
+.login-scene-panel {
+    position: relative;
+    overflow: hidden;
+    padding: 0 !important;
+}
+
+.scene-video {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+    object-position: center;
+
+    pointer-events: none;
+}
+
+/* Các lớp ánh sáng và lá phải nằm phía trên video */
+.scene-overlay {
+    z-index: 2;
+}
+
+.scene-light {
+    z-index: 3;
+}
+
+.floating-leaf {
+    z-index: 4;
+}
+/* VIDEO NỀN TRANG ĐĂNG NHẬP */
+
+.login-scene-panel {
+    position: relative;
+    overflow: hidden;
+    padding: 0 !important;
+    background: #dcecff;
+}
+
+.scene-video {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+
+    display: block;
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+    object-position: center center;
+
+    pointer-events: none;
+    user-select: none;
+}
+
+/* Tắt các hiệu ứng lá cũ */
+.floating-leaf {
+    display: none !important;
+}
+
+/* Lớp phủ phải nằm phía trên video */
+.scene-overlay {
+    z-index: 2;
+    pointer-events: none;
+}
+
+.scene-light {
+    z-index: 3;
+    pointer-events: none;
+}
+/* ===== VIDEO LOGIN RÕ NÉT ===== */
+
+.login-scene-panel {
+    position: relative !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    background: #000 !important;
+    isolation: isolate;
+}
+
+/* Xóa lớp màu và ánh sáng làm mờ video */
+.login-scene-panel .scene-overlay,
+.login-scene-panel .scene-light,
+.login-scene-panel .floating-leaf {
+    display: none !important;
+}
+
+/* Xóa lớp trang trí cũ phủ lên video */
+.login-scene-panel::before,
+.login-scene-panel::after {
+    display: none !important;
+    content: none !important;
+}
+
+.login-scene-panel .scene-video {
+    position: absolute !important;
+    inset: 0 !important;
+
+    width: 100% !important;
+    height: 100% !important;
+
+    object-fit: cover !important;
+    object-position: center center !important;
+
+    opacity: 1 !important;
+    filter: none !important;
+    transform: none !important;
+    mix-blend-mode: normal !important;
+
+    backface-visibility: visible !important;
+    will-change: auto !important;
+
+    z-index: 10 !important;
+}

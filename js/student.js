@@ -25,6 +25,168 @@ window.showToast = function (message, type = 'error') {
 // ======================================
 
 const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+/*
+ * Chuẩn hóa ID để tránh lỗi:
+ * 123 !== "123"
+ */
+function normalizeStoreItemId(value) {
+    return value === null || value === undefined
+        ? ''
+        : String(value);
+}
+
+/*
+ * Vật phẩm thực sự mua bằng Coin:
+ * giá phải là số và lớn hơn 0.
+ */
+function isCoinPurchasableStoreItem(item) {
+    if (!item) return false;
+
+    const price = Number(item.price);
+
+    return Number.isFinite(price) && price > 0;
+}
+
+/*
+ * Kiểm tra thẻ giảm giá áp dụng cho vật phẩm.
+ */
+function isDiscountEligibleForStoreItem(
+    targetItems,
+    item,
+    discount = null
+) {
+    // Mọi thẻ chỉ áp dụng cho vật phẩm có giá Coin lớn hơn 0.
+    if (!isCoinPurchasableStoreItem(item)) {
+        return false;
+    }
+
+    const discountSource =
+        discount?.source || 'teacher_gift';
+
+    const isDailyLoginDiscount =
+        discountSource === 'daily_login';
+
+    const isTeacherGiftDiscount =
+        discountSource === 'teacher_gift';
+
+    const isHoiHoaRunnerUpDiscount =
+        discountSource === 'hoihoa_runner_up' ||
+        discountSource === 'hoihoa_season';
+
+    const isHoiHoaChestDiscount =
+        discountSource === 'hoihoa_chest';
+
+    const itemPrice = Number(item.price);
+
+    /*
+     * Chuẩn hóa tag để nhận đúng:
+     * Doraemon, doraemon, Truyền thuyết,
+     * truyen thuyet...
+     */
+    const normalizeDiscountTag = value => {
+        return String(value || '')
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/đ/g, 'd')
+            .replace(/Đ/g, 'D')
+            .trim()
+            .toLowerCase();
+    };
+
+    const itemTags = [
+        item.tag,
+        ...(Array.isArray(item.tags) ? item.tags : [])
+    ].map(normalizeDiscountTag);
+
+    const hasBlockedHoiHoaTag =
+        itemTags.includes('doraemon') ||
+        itemTags.includes('truyen thuyet');
+
+    if (
+        isDailyLoginDiscount &&
+        (
+            !Number.isFinite(itemPrice) ||
+            itemPrice > 500 ||
+            item.isNonCoin === true ||
+            hasBlockedHoiHoaTag
+        )
+    ) {
+        return false;
+    }
+
+    // Thẻ giáo viên: món dưới 700 Coin.
+    if (
+        isTeacherGiftDiscount &&
+        (
+            !Number.isFinite(itemPrice) ||
+            itemPrice >= 700
+        )
+    ) {
+        return false;
+    }
+
+    /*
+     * Thẻ Á quân Hội Họa:
+     * - Chỉ vật phẩm bán bằng Coin.
+     * - Không dùng cho vật phẩm sự kiện.
+     * - Không dùng cho Doraemon/Truyền thuyết.
+     * - Giá dưới 600 Coin.
+     */
+    if (
+        isHoiHoaRunnerUpDiscount &&
+        (
+            !Number.isFinite(itemPrice) ||
+            itemPrice >= 600 ||
+            item.isNonCoin === true ||
+            hasBlockedHoiHoaTag
+        )
+    ) {
+        return false;
+    }
+
+    /*
+     * Thẻ từ Rương Hội Họa:
+     * - Chỉ vật phẩm bán bằng Coin.
+     * - Không dùng cho vật phẩm sự kiện.
+     * - Không dùng cho Doraemon/Truyền thuyết.
+     * - Giá dưới 700 Coin.
+     */
+    if (
+        isHoiHoaChestDiscount &&
+        (
+            !Number.isFinite(itemPrice) ||
+            itemPrice >= 700 ||
+            item.isNonCoin === true ||
+            hasBlockedHoiHoaTag
+        )
+    ) {
+        return false;
+    }
+
+    let normalizedTargets =
+        targetItems || ['all'];
+
+    if (!Array.isArray(normalizedTargets)) {
+        normalizedTargets = [normalizedTargets];
+    }
+
+    normalizedTargets = normalizedTargets.map(
+        normalizeStoreItemId
+    );
+
+    const itemId =
+        normalizeStoreItemId(item.id);
+
+    return (
+        normalizedTargets.includes('all') ||
+        normalizedTargets.includes(itemId)
+    );
+}
+
+// Trạng thái popup bắt buộc
+window.currentMandatoryNotification = null;
+window.currentActiveSurvey = window.currentActiveSurvey || null;
 // ==============================================================
 // ECONOMY TRANSACTION HELPERS - CHỐNG RACE CONDITION NHIỀU TAB
 // ==============================================================
@@ -240,8 +402,14 @@ window.onload = async function () {
             if (!isDeepEqual(val, cacheSubmissionsSt)) {
                 cacheSubmissionsSt = val;
 
-                window.cachedSubmissions =
-                    val ? Object.values(val) : [];
+                window.cachedSubmissions = val
+                    ? Object.entries(val).map(
+                        ([firebaseKey, submission]) => ({
+                            _fbKey: firebaseKey,
+                            ...submission
+                        })
+                    )
+                    : [];
 
                 await loadAssignments();
 
@@ -417,6 +585,7 @@ window.onload = async function () {
             if (unreadNoti) {
                 // Tạm hoãn nếu học sinh đang trong chế độ thi
                 if (window.currentActiveExamId) return;
+                window.currentMandatoryNotification = unreadNoti;
 
                 const msgEl = document.getElementById('studentNotificationMessage');
                 const btn = document.getElementById('btnAcknowledgeNotification');
@@ -508,6 +677,9 @@ window.onload = async function () {
                         btn.innerText = "⏳ Đang ghi nhận...";
                         try {
                             await db.ref(`global_notifications/${unreadNoti._fbKey}/receivers/${currentUser.username}`).set(true);
+
+                            // Đã xác nhận thành công mới cho phép đóng
+                            window.currentMandatoryNotification = null;
                             modal.classList.remove('active');
                         } catch (e) {
                             console.error("Lỗi khi xác nhận thông báo: ", e);
@@ -715,7 +887,20 @@ window.onload = async function () {
 
         let updates = {};
         // Lấy danh sách ID vật phẩm hợp lệ (<= 500 coin)
-        const validItems = StoreConfig.items.filter(item => typeof item.price === 'number' && item.price <= 500).map(i => i.id);
+        const validItems = StoreConfig.items
+            .filter(item => {
+                const price = Number(item.price);
+
+                return (
+                    Number.isFinite(price) &&
+                    price > 0 &&
+                    price <= 500 &&
+                    item.isNonCoin !== true &&
+                    item.tag !== 'Doraemon' &&
+                    item.tag !== 'Truyền thuyết'
+                );
+            })
+            .map(item => item.id);
 
         Object.keys(discounts).forEach(key => {
             const discount = discounts[key];
@@ -728,17 +913,57 @@ window.onload = async function () {
             /*
              * Không sửa các thẻ phần thưởng Hội Họa.
              */
+            /*
+ * Bổ sung nguồn cho thẻ Hội Họa cũ để chúng
+ * không bị nhận nhầm thành thẻ giáo viên.
+ */
+            const isLegacyHoiHoaRunnerUp =
+                key.startsWith('hh_discount_') &&
+                !discount.source;
+
+            const isLegacyHoiHoaChest =
+                key.startsWith('hh_chest_discount_') &&
+                !discount.source;
+
+            if (isLegacyHoiHoaRunnerUp) {
+                updates[
+                    `student_discounts/${currentUser.username}/${key}/source`
+                ] = 'hoihoa_runner_up';
+
+                updates[
+                    `student_discounts/${currentUser.username}/${key}/usageLimit`
+                ] = 1;
+
+                updates[
+                    `student_discounts/${currentUser.username}/${key}/maxEligiblePriceExclusive`
+                ] = 600;
+            }
+
+            if (isLegacyHoiHoaChest) {
+                updates[
+                    `student_discounts/${currentUser.username}/${key}/source`
+                ] = 'hoihoa_chest';
+
+                updates[
+                    `student_discounts/${currentUser.username}/${key}/usageLimit`
+                ] = 1;
+
+                updates[
+                    `student_discounts/${currentUser.username}/${key}/maxEligiblePriceExclusive`
+                ] = 700;
+            }
+
             const isHoiHoaDiscount =
                 key.startsWith('hh_discount_') ||
                 key.startsWith('hh_chest_discount_') ||
                 discount.source === 'hoihoa_chest' ||
+                discount.source === 'hoihoa_runner_up' ||
                 discount.source === 'hoihoa_season';
 
             /*
              * Chỉ chuyển đổi các thẻ đăng nhập cũ.
              */
             const isLegacyDailyLogin =
-                !discount.source ||
                 discount.source === 'daily_login';
 
             if (
@@ -808,6 +1033,105 @@ function formatSecondsToDHMS(totalSeconds) {
     return parts.join(' ');
 }
 
+// ======================================================
+// TÌM BẢN NỘP PHÙ HỢP NHẤT CỦA HỌC SINH
+// ======================================================
+function normalizeStudentSubmissionValue(value) {
+    return String(value ?? '');
+}
+
+function getStudentSubmissionTime(sub) {
+    const timestamp = Number(
+        sub && (sub.submittedAt || sub.updatedAt)
+    );
+
+    if (
+        Number.isFinite(timestamp) &&
+        timestamp > 0
+    ) {
+        return timestamp;
+    }
+
+    const idMatch =
+        normalizeStudentSubmissionValue(
+            sub && sub.id
+        ).match(/^(\d{13})/);
+
+    return idMatch ? Number(idMatch[1]) : 0;
+}
+
+function getStudentSubmissionRank(sub) {
+    if (!sub) return -1;
+
+    const isPenalty = !!(
+        sub.isAutoSubmitted ||
+        sub.isLateFail ||
+        sub.isCheatFail
+    );
+
+    if (sub.forcePass) return 500;
+    if (sub.isRedoing) return 450;
+
+    if (sub.hasRedone && !isPenalty) {
+        return 425;
+    }
+
+    if (!isPenalty) return 400;
+
+    const hasGrade =
+        sub.grade !== null &&
+        sub.grade !== undefined &&
+        sub.grade !== '';
+
+    return hasGrade ? 200 : 100;
+}
+
+function getPreferredStudentSubmission(
+    submissions,
+    assignmentId,
+    username
+) {
+    const matches = (submissions || []).filter(
+        sub =>
+            normalizeStudentSubmissionValue(
+                sub.assignmentId
+            ) ===
+            normalizeStudentSubmissionValue(
+                assignmentId
+            ) &&
+            normalizeStudentSubmissionValue(
+                sub.studentUsername
+            ) ===
+            normalizeStudentSubmissionValue(
+                username
+            )
+    );
+
+    return matches.reduce(
+        (preferred, candidate) => {
+            if (!preferred) return candidate;
+
+            const preferredRank =
+                getStudentSubmissionRank(preferred);
+
+            const candidateRank =
+                getStudentSubmissionRank(candidate);
+
+            if (candidateRank !== preferredRank) {
+                return candidateRank > preferredRank
+                    ? candidate
+                    : preferred;
+            }
+
+            return getStudentSubmissionTime(candidate) >=
+                getStudentSubmissionTime(preferred)
+                ? candidate
+                : preferred;
+        },
+        null
+    );
+}
+
 async function loadAssignments() {
     const assignments = (window.cachedAssignments && window.cachedAssignments.length > 0) ? window.cachedAssignments : await getDB('assignments');
     const submissions = (window.cachedSubmissions && window.cachedSubmissions.length > 0) ? window.cachedSubmissions : await getDB('submissions');
@@ -852,7 +1176,11 @@ async function loadAssignments() {
     const nowSort = new Date();
     assignments.sort((a, b) => {
         const getSortVals = (assign) => {
-            const mySub = submissions.find(s => s.assignmentId === assign.id && s.studentUsername === currentUser.username);
+            const mySub = getPreferredStudentSubmission(
+                submissions,
+                assign.id,
+                currentUser.username
+            );
             const end = assign.endDate ? new Date(assign.endDate.replace(" ", "T")) : new Date("2100-01-01");
 
             let rank = 2; // Nhóm 2: Bài đã chốt (Đã chấm / Xong)
@@ -893,7 +1221,11 @@ async function loadAssignments() {
         const targetArr = Array.isArray(assign.targetStudent) ? assign.targetStudent : [assign.targetStudent || 'all'];
         if (!targetArr.includes('all') && !targetArr.includes(currentUser.username)) return;
 
-        const mySub = submissions.find(s => s.assignmentId === assign.id && s.studentUsername === currentUser.username);
+        const mySub = getPreferredStudentSubmission(
+            submissions,
+            assign.id,
+            currentUser.username
+        );
 
         const now = new Date();
         const startTime = assign.startDate ? new Date(assign.startDate.replace(" ", "T")) : new Date(0);
@@ -908,7 +1240,17 @@ async function loadAssignments() {
         // === TỐI ƯU HÓA: DOM DIFFING BẰNG MÃ BĂM (HASH) ===
         // 1. Tạo chuỗi Hash đại diện cho trạng thái hiện tại của bài tập
         let subState = mySub ? `${mySub.submitTime}_${mySub.grade}_${mySub.isRedoing}_${mySub.isAutoSubmitted}` : 'none';
-        let cardHash = `${assign.id}_${subState}_${isGracePeriod}_${assign.endDate}_${assign.startDate}_${window.currentActiveExamId || 'none'}`;
+        let cardHash =
+            `${assign.id}_` +
+            `${subState}_` +
+            `${isGracePeriod}_` +
+            `${assign.endDate}_` +
+            `${assign.startDate}_` +
+            `${assign.videoLink || ''}_` +
+            `${assign.watchCondition || 0}_` +
+            `${assign.videoSummaryEnabled ? '1' : '0'}_` +
+            `${assign.videoSummary || ''}_` +
+            `${window.currentActiveExamId || 'none'}`;
 
         let existingCard = document.querySelector(`.card[data-id="${assign.id}"]`);
 
@@ -930,7 +1272,7 @@ async function loadAssignments() {
             let typeText = '';
             if (assign.assessmentType === 'trac_nghiem') typeText = 'Trắc nghiệm';
             else if (assign.assessmentType === 'ket_hop') typeText = 'Kết hợp';
-            else if (assign.assessmentType === 'thi') typeText = 'Thi (Nghiêm ngặt)';
+            else if (assign.assessmentType === 'thi') typeText = 'Thi';
             else typeText = 'Tự luận';
 
             let statusText = `Đã hoàn thành (${typeText})`;
@@ -949,46 +1291,68 @@ async function loadAssignments() {
             let missingEssayBadgeHTML = mySub.isEssayMissing ? `<span style="color: #e11d48; font-weight: bold; font-size: 0.9em; margin-left: 8px;">[❌ Chưa nộp tự luận]</span>` : '';
 
             let teacherFileHTML = '';
+
             if (assign.file && assign.assessmentType !== 'trac_nghiem') {
-                let aFiles = Array.isArray(assign.file) ? assign.file : [assign.file];
-                aFiles.forEach((f, index) => {
-                    let isImg = (f.type && f.type.startsWith('image/')) || (f.base64 && f.base64.startsWith('data:image/'));
-                    if (isImg) {
-                        let uniqueId = 'img_nop_' + Date.now() + '_' + index + '_' + Math.floor(Math.random() * 1000);
-                        teacherFileHTML += `
-                        <div class="assignment-file" style="margin-top: 10px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.02); padding: 6px 10px; border-radius: 6px;">
-                                <span style="font-size: 0.9em;"><strong>📎 Ảnh đính kèm:</strong> <span style="color: #666;">${f.name}</span></span>
-                                <button onclick="let content = document.getElementById('${uniqueId}'); if(content.style.display==='none'){content.style.display='block'; this.innerHTML='🔼 Thu gọn';}else{content.style.display='none'; this.innerHTML='🔽 Xem ảnh';}" style="background: white; border: 1px solid #ccc; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8em; font-weight: bold; box-shadow: 0 1px 2px rgba(0,0,0,0.1); transition: 0.2s;">🔽 Xem ảnh</button>
-                            </div>
-                            <div id="${uniqueId}" style="display: none; margin-top: 8px; text-align: center; background: rgba(0,0,0,0.03); padding: 10px; border-radius: 8px; border: 1px dashed rgba(0,0,0,0.1);">
-                                <img src="${f.base64}" alt="${f.name}" style="max-width: 100%; max-height: 300px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: block; margin: 0 auto 10px auto; cursor: pointer;" onclick="window.open('${f.base64}', '_blank')" title="Bấm để xem ảnh gốc">
-                                <a href="${f.base64}" download="${f.name}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 0.85em; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">📥 Tải ảnh xuống</a>
-                            </div>
-                        </div>`;
-                    } else {
-                        teacherFileHTML += `<div class="assignment-file" style="margin-top: 10px;"><p style="font-size: 0.9em;"><strong>📎 Tài liệu đính kèm:</strong> <a href="${f.base64}" download="${f.name}" class="file-download-link" target="_blank">${f.name}</a></p></div>`;
-                    }
+                const aFiles = Array.isArray(assign.file)
+                    ? assign.file
+                    : [assign.file];
+
+                aFiles.forEach(f => {
+                    teacherFileHTML += window.buildFilePreviewHTML(
+                        f,
+                        '📎 Tài liệu đính kèm',
+                        { tone: 'orange' }
+                    );
                 });
             }
 
-            let videoHTML = assign.videoLink
-                ? getEmbedHTML(assign.videoLink)
-                : '';
+            // Lấy thời gian học sinh đã xem video từ Firebase
+            const resultVideoWatchSeconds =
+                Number(
+                    trackingData?.[assign.id]
+                    ?.[currentUser.username]
+                ) || 0;
+
+            // Hiển thị video có bảng Tóm tắt
+            let videoHTML =
+                assign.videoLink
+                    ? getTrackedVideoHTML(
+                        assign.videoLink,
+                        assign.id,
+                        assign,
+                        resultVideoWatchSeconds
+                    )
+                    : '';
 
             let myFileHTML = '';
+
             if (mySub.file) {
-                let mFiles = Array.isArray(mySub.file) ? mySub.file : [mySub.file];
+                const mFiles = Array.isArray(mySub.file)
+                    ? mySub.file
+                    : [mySub.file];
+
                 mFiles.forEach(f => {
-                    myFileHTML += `<div class="assignment-file" style="background: rgba(102, 126, 234, 0.1); border-left: 4px solid #667eea; margin-top: 15px;"><p><strong>📄 File bạn đã nộp:</strong> <a href="${f.base64}" download="${f.name}" class="file-download-link" target="_blank">${f.name}</a></p></div>`;
+                    myFileHTML += window.buildFilePreviewHTML(
+                        f,
+                        '📄 File bạn đã nộp',
+                        { tone: 'purple' }
+                    );
                 });
             }
 
             let gradedFileHTML = '';
+
             if (mySub.teacherFile) {
-                let tFiles = Array.isArray(mySub.teacherFile) ? mySub.teacherFile : [mySub.teacherFile];
+                const tFiles = Array.isArray(mySub.teacherFile)
+                    ? mySub.teacherFile
+                    : [mySub.teacherFile];
+
                 tFiles.forEach(f => {
-                    gradedFileHTML += `<div class="assignment-file" style="background: rgba(67, 233, 123, 0.15); border-left: 4px solid #43e97b; margin-top: 15px;"><p><strong>👩‍🏫 File nhận xét từ GV:</strong> <a href="${f.base64}" download="${f.name}" class="file-download-link" target="_blank">${f.name}</a></p></div>`;
+                    gradedFileHTML += window.buildFilePreviewHTML(
+                        f,
+                        '👩‍🏫 File nhận xét từ GV',
+                        { tone: 'green' }
+                    );
                 });
             }
 
@@ -1162,8 +1526,9 @@ async function loadAssignments() {
 
                         // 3. Đẩy lên Firebase
                         try {
-                            await pushDB('submissions', {
-                                id: Date.now().toString() + Math.floor(Math.random() * 1000),
+                            const saveTime = Date.now();
+
+                            const autoPayload = {
                                 assignmentId: assign.id,
                                 studentUsername: currentUser.username,
                                 studentName: currentUser.name,
@@ -1171,16 +1536,64 @@ async function loadAssignments() {
                                 rawEssay: rawEssay,
                                 mcAnswers: mcAnswersObj,
                                 grade: finalCalculatedGrade,
+
+                                submittedAt: saveTime,
+
                                 submitTime:
-                                    new Date().toLocaleTimeString('vi-VN') + ' ' +
-                                    new Date().toLocaleDateString('vi-VN'),
+                                    new Date(saveTime)
+                                        .toLocaleTimeString('vi-VN') +
+                                    ' ' +
+                                    new Date(saveTime)
+                                        .toLocaleDateString('vi-VN'),
+
                                 file: rescuedFiles,
                                 teacherFile: null,
                                 isAutoSubmitted: true,
                                 isRedoing: false,
                                 isLateFail: true,
                                 isEssayMissing: isEssayMissingAuto
-                            });
+                            };
+
+                            // Kiểm tra lại Firebase ngay trước khi ghi.
+                            // Tránh trường hợp học sinh vừa bấm nộp,
+                            // đồng thời bộ đếm hết giờ cũng chạy.
+                            const latestSubmissions =
+                                await getDB('submissions');
+
+                            const existingSubmission =
+                                getPreferredStudentSubmission(
+                                    latestSubmissions,
+                                    assign.id,
+                                    currentUser.username
+                                );
+
+                            if (
+                                existingSubmission &&
+                                !existingSubmission.isRedoing
+                            ) {
+                                // Đã có bài nộp rồi:
+                                // không tạo thêm và không ghi đè bài hợp lệ.
+                            } else if (
+                                existingSubmission &&
+                                existingSubmission._fbKey
+                            ) {
+                                // Đang làm lại thì cập nhật đúng bản cũ
+                                await updateDB(
+                                    'submissions',
+                                    existingSubmission._fbKey,
+                                    autoPayload
+                                );
+                            } else {
+                                // Chỉ tạo mới khi thực sự chưa có bản ghi
+                                autoPayload.id =
+                                    saveTime.toString() +
+                                    Math.floor(Math.random() * 1000);
+
+                                await pushDB(
+                                    'submissions',
+                                    autoPayload
+                                );
+                            }
 
                             // Chỉ xóa nháp sau khi Firebase đã lưu thành công
                             if (
@@ -1391,9 +1804,21 @@ async function loadAssignments() {
                     quizHTML += '</div>';
                 }
 
-                let videoHTML = assign.videoLink
-                    ? getTrackedVideoHTML(assign.videoLink, assign.id)
-                    : '';
+                const initialVideoWatchSeconds =
+                    Number(
+                        trackingData?.[assign.id]
+                        ?.[currentUser.username]
+                    ) || 0;
+
+                let videoHTML =
+                    assign.videoLink
+                        ? getTrackedVideoHTML(
+                            assign.videoLink,
+                            assign.id,
+                            assign,
+                            initialVideoWatchSeconds
+                        )
+                        : '';
 
                 let descHTML = '';
                 let teacherFileHTML = '';
@@ -1402,25 +1827,16 @@ async function loadAssignments() {
                 if (assign.assessmentType === 'tu_luan' || assign.assessmentType === 'ket_hop' || assign.assessmentType === 'thi' || !assign.assessmentType) {
                     descHTML = assign.desc ? `<div class="assignment-desc"><strong>Yêu cầu bài tập:</strong> <br>${(assign.desc || '').replace(/\n/g, '<br>')}</div>` : '';
                     if (assign.file) {
-                        let aFiles = Array.isArray(assign.file) ? assign.file : [assign.file];
-                        aFiles.forEach((f, index) => {
-                            let isImg = (f.type && f.type.startsWith('image/')) || (f.base64 && f.base64.startsWith('data:image/'));
-                            if (isImg) {
-                                let uniqueId = 'img_lam_' + Date.now() + '_' + index + '_' + Math.floor(Math.random() * 1000);
-                                teacherFileHTML += `
-                                <div class="assignment-file" style="margin-top: 10px;">
-                                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.02); padding: 6px 10px; border-radius: 6px;">
-                                        <span style="font-size: 0.9em;"><strong>📎 Ảnh đính kèm:</strong> <span style="color: #666;">${f.name}</span></span>
-                                        <button onclick="let content = document.getElementById('${uniqueId}'); if(content.style.display==='none'){content.style.display='block'; this.innerHTML='🔼 Thu gọn';}else{content.style.display='none'; this.innerHTML='🔽 Xem ảnh';}" style="background: white; border: 1px solid #ccc; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8em; font-weight: bold; box-shadow: 0 1px 2px rgba(0,0,0,0.1); transition: 0.2s;">🔽 Xem ảnh</button>
-                                    </div>
-                                    <div id="${uniqueId}" style="display: none; margin-top: 8px; text-align: center; background: rgba(0,0,0,0.03); padding: 10px; border-radius: 8px; border: 1px dashed rgba(0,0,0,0.1);">
-                                        <img src="${f.base64}" alt="${f.name}" style="max-width: 100%; max-height: 300px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: block; margin: 0 auto 10px auto; cursor: pointer;" onclick="window.open('${f.base64}', '_blank')" title="Bấm để xem ảnh gốc">
-                                        <a href="${f.base64}" download="${f.name}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 0.85em; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">📥 Tải ảnh xuống</a>
-                                    </div>
-                                </div>`;
-                            } else {
-                                teacherFileHTML += `<div class="assignment-file" style="margin-top: 10px;"><p style="font-size: 0.9em;"><strong>📎 Tài liệu đính kèm:</strong> <a href="${f.base64}" download="${f.name}" class="file-download-link" target="_blank">${f.name}</a></p></div>`;
-                            }
+                        const aFiles = Array.isArray(assign.file)
+                            ? assign.file
+                            : [assign.file];
+
+                        aFiles.forEach(f => {
+                            teacherFileHTML += window.buildFilePreviewHTML(
+                                f,
+                                '📎 Tài liệu đính kèm',
+                                { tone: 'orange' }
+                            );
                         });
                     }
 
@@ -1437,12 +1853,25 @@ async function loadAssignments() {
                     if (!savedEssay && mySub && mySub.answer) savedEssay = mySub.answer.replace(/\[PHẦN TRẮC NGHIỆM\][\s\S]*?\[PHẦN TỰ LUẬN\]\n/, '');
 
                     let prevFileHTML = '';
+
                     if (mySub && mySub.file) {
-                        let mFiles = Array.isArray(mySub.file) ? mySub.file : [mySub.file];
+                        const mFiles = Array.isArray(mySub.file)
+                            ? mySub.file
+                            : [mySub.file];
+
                         mFiles.forEach(f => {
-                            prevFileHTML += `<p style="font-size: 0.85em; color: #11998e; margin-bottom: 8px;">📄 <strong>File nộp cũ:</strong> <a href="${f.base64}" target="_blank">${f.name}</a></p>`;
+                            prevFileHTML += window.buildFilePreviewHTML(
+                                f,
+                                '📄 File nộp cũ',
+                                { tone: 'green' }
+                            );
                         });
-                        prevFileHTML += `<p style="font-size: 0.85em; color: #e74c3c; margin-bottom: 8px;">(Bạn có thể tải file khác để ghi đè)</p>`;
+
+                        prevFileHTML += `
+        <p style="font-size:0.85em; color:#e74c3c; margin:8px 0;">
+            Bạn có thể chọn file khác để ghi đè.
+        </p>
+    `;
                     }
                     let essayTextAreaHTML = assign.hideEssayText
                         ? `<div class="glass-alert success" style="padding: 12px; margin-bottom: 12px; border-left-color: #38ef7d; background: rgba(56, 239, 125, 0.1);"><p style="margin:0; font-size:0.95em; font-weight:bold;">📁 Giáo viên yêu cầu nộp bài bằng tệp đính kèm (Không cần nhập nội dung văn bản).</p></div>`
@@ -1696,82 +2125,1452 @@ async function loadAssignments() {
 
 
 // =====================================================================
-// HÀM HIỂN THỊ POPUP CHỈ XEM CÂU HỎI BÀI TẬP (KHÔNG HIỆN ĐÁP ÁN)
+// XEM LẠI CÂU HỎI + LÀM LẠI TRẮC NGHIỆM
+// CHỈ ÔN LUYỆN, KHÔNG LƯU FIREBASE HOẶC LOCALSTORAGE
 // =====================================================================
+
+function escapePracticeHTML(value) {
+    return String(value ?? '').replace(/[&<>'"]/g, character => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        "'": '&#039;',
+        '"': '&quot;'
+    })[character]);
+}
+
+// Kiểm tra bài có câu hỏi trắc nghiệm hay không.
+function hasPracticeMultipleChoice(assign) {
+    return !!(
+        assign &&
+        Array.isArray(assign.questions) &&
+        assign.questions.length > 0
+    );
+}
+
+// Tạo CSS cho popup bằng JavaScript.
+// Không cần sửa thêm student.css.
+function ensurePracticeRedoStyles() {
+    if (document.getElementById('practiceRedoDynamicStyles')) return;
+
+    const style = document.createElement('style');
+    style.id = 'practiceRedoDynamicStyles';
+
+    style.textContent = `
+        body.practice-redo-open {
+            overflow: hidden !important;
+        }
+
+        .practice-redo-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 100001;
+
+            display: none;
+            align-items: center;
+            justify-content: center;
+
+            padding: 15px;
+            box-sizing: border-box;
+
+            background: rgba(15, 23, 42, 0.72);
+        }
+
+        .practice-redo-warning-overlay {
+            z-index: 100002;
+        }
+
+        .practice-redo-box {
+            position: relative;
+
+            width: min(1000px, calc(100vw - 30px));
+            max-height: 92vh;
+
+            display: flex;
+            flex-direction: column;
+
+            overflow: hidden;
+
+            border-radius: 18px;
+            background: #ffffff;
+
+            box-shadow:
+                0 25px 70px rgba(0, 0, 0, 0.35);
+        }
+
+        .practice-redo-header {
+            padding:
+                22px 60px 18px 22px;
+
+            color: #ffffff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #4338ca,
+                    #7c3aed
+                );
+        }
+
+        .practice-redo-header h3,
+        .practice-redo-header p {
+            color: #ffffff !important;
+        }
+
+        .practice-redo-scroll {
+            min-height: 0;
+
+            overflow-y: auto;
+
+            padding: 20px;
+
+            background: #f8fafc;
+        }
+
+        .practice-redo-question {
+            margin-bottom: 15px;
+            padding: 15px;
+
+            border:
+                1px solid #dbe3ed;
+
+            border-left:
+                5px solid #94a3b8;
+
+            border-radius: 13px;
+
+            background: #ffffff;
+        }
+
+        .practice-redo-question.unanswered {
+            border-color: #f59e0b;
+
+            box-shadow:
+                0 0 0 3px
+                rgba(245, 158, 11, 0.14);
+        }
+
+        .practice-redo-question.correct-question {
+            border-left-color: #16a34a;
+        }
+
+        .practice-redo-question.wrong-question {
+            border-left-color: #dc2626;
+        }
+
+        .practice-redo-options {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+
+            gap: 10px;
+        }
+
+        .practice-redo-option {
+            display: flex;
+            align-items: flex-start;
+
+            gap: 9px;
+
+            padding: 12px;
+
+            cursor: pointer;
+
+            border:
+                1px solid #dbe3ed;
+
+            border-radius: 10px;
+
+            background: #f8fafc;
+
+            transition:
+                border-color 0.2s,
+                background 0.2s,
+                transform 0.2s;
+        }
+
+        .practice-redo-option:hover {
+            border-color: #818cf8;
+            background: #eef2ff;
+            transform: translateY(-1px);
+        }
+
+        .practice-redo-option:has(input:checked) {
+            border-color: #6366f1;
+            background: #eef2ff;
+        }
+
+        .practice-redo-option.answer-correct {
+            border-color: #16a34a !important;
+            background: #dcfce7 !important;
+        }
+
+        .practice-redo-option.answer-wrong {
+            border-color: #dc2626 !important;
+            background: #fee2e2 !important;
+        }
+
+        .practice-redo-feedback {
+            display: none;
+
+            margin-top: 12px;
+            padding: 10px 12px;
+
+            border-radius: 9px;
+
+            font-weight: 800;
+        }
+
+        .practice-redo-feedback.feedback-correct {
+            display: block;
+
+            color: #166534;
+            background: #dcfce7;
+        }
+
+        .practice-redo-feedback.feedback-wrong {
+            display: block;
+
+            color: #991b1b;
+            background: #fee2e2;
+        }
+
+        .practice-redo-result {
+            display: none;
+
+            margin-bottom: 18px;
+            padding: 16px;
+
+            color: #14532d;
+
+            border:
+                2px solid #86efac;
+
+            border-radius: 13px;
+
+            background: #f0fdf4;
+        }
+
+        .practice-redo-result.show {
+            display: block;
+        }
+
+        .practice-redo-video {
+            margin-bottom: 18px;
+            padding: 15px;
+
+            border:
+                1px solid #c7d2fe;
+
+            border-radius: 13px;
+
+            background: #eef2ff;
+        }
+
+        .practice-redo-video iframe {
+            display: block;
+
+            width: 100%;
+            min-height: 260px;
+
+            border: none;
+            border-radius: 10px;
+        }
+
+        .practice-redo-footer,
+        .practice-review-actions,
+        .practice-warning-actions {
+            display: flex;
+
+            gap: 10px;
+
+            padding: 15px 20px;
+
+            background: #ffffff;
+        }
+
+        .practice-review-actions {
+            padding: 18px 0 0;
+        }
+
+        .practice-warning-actions {
+            padding: 18px 0 0;
+        }
+
+        .practice-btn {
+            flex: 1;
+
+            min-height: 45px;
+
+            padding: 11px 16px;
+
+            border: none;
+            border-radius: 10px;
+
+            cursor: pointer;
+
+            font: inherit;
+            font-weight: 850;
+
+            transition:
+                transform 0.2s,
+                box-shadow 0.2s,
+                opacity 0.2s;
+        }
+
+        .practice-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 6px 15px
+                rgba(0, 0, 0, 0.15);
+        }
+
+        .practice-btn-primary {
+            color: #ffffff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #667eea,
+                    #764ba2
+                );
+        }
+
+        .practice-btn-success {
+            color: #ffffff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #059669,
+                    #22c55e
+                );
+        }
+
+        .practice-btn-secondary {
+            color: #334155;
+            background: #e2e8f0;
+        }
+
+        .practice-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.65;
+        }
+
+        .practice-modal-close {
+            position: absolute;
+
+            top: 13px;
+            right: 13px;
+
+            z-index: 5;
+
+            width: 34px;
+            height: 34px;
+
+            padding: 0;
+
+            cursor: pointer;
+
+            border: none;
+            border-radius: 50%;
+
+            color: #e11d48;
+            background: #f1f5f9;
+
+            font-weight: 900;
+        }
+
+        .practice-redo-box > .practice-modal-close {
+            color: #ffffff;
+
+            background:
+                rgba(255, 255, 255, 0.2);
+        }
+
+        .practice-warning-box {
+            width:
+                min(
+                    450px,
+                    calc(100vw - 30px)
+                );
+
+            padding: 28px;
+
+            text-align: center;
+
+            border-radius: 18px;
+
+            background: #ffffff;
+
+            box-shadow:
+                0 25px 70px
+                rgba(0, 0, 0, 0.35);
+        }
+
+        @media (max-width: 700px) {
+            .practice-redo-options {
+                grid-template-columns: 1fr;
+            }
+
+            .practice-redo-footer,
+            .practice-review-actions,
+            .practice-warning-actions {
+                flex-direction: column;
+            }
+
+            .practice-redo-scroll {
+                padding: 14px;
+            }
+
+            .practice-redo-video iframe {
+                min-height: 210px;
+            }
+        }
+    `;
+
+    document.head.appendChild(style);
+}
+
+// Đóng popup xem lại toàn bộ câu hỏi.
+window.closeAssignmentQuestionsReview = function () {
+    const modal =
+        document.getElementById(
+            'viewQuestionsModal'
+        );
+
+    if (modal) {
+        modal.style.display = 'none';
+        modal.innerHTML = '';
+    }
+};
+
+// Mở popup xem lại toàn bộ câu hỏi.
 window.viewAssignmentQuestions = async function (assignId) {
-    const assignments = await getDB('assignments');
-    const assign = assignments.find(a => a.id === assignId);
-    if (!assign) return;
+    ensurePracticeRedoStyles();
 
-    // Đã thêm padding-right: 30px để tiêu đề không bị đè dưới nút X
-    let contentHTML = `<h3 style="color: #2c3e50; border-bottom: 2px solid #667eea; padding-bottom: 10px; margin-bottom: 20px; padding-right: 30px;">Nội dung câu hỏi: ${assign.title}</h3>`;
+    const assignments =
+        await getDB('assignments');
 
-    // Nếu có phần trắc nghiệm
-    if ((assign.assessmentType === 'trac_nghiem' || assign.assessmentType === 'ket_hop') && assign.questions) {
-        contentHTML += `<h4 style="color: #d35400; margin-bottom: 10px;">📚 Phần Trắc Nghiệm</h4>`;
-        assign.questions.forEach((q, idx) => {
-            contentHTML += `
-            <div style="margin-bottom: 15px; background: rgba(0,0,0,0.03); padding: 12px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.05);">
-                <p style="font-weight: bold; color: #2c3e50; margin-bottom: 8px;">Câu ${idx + 1}: ${q.qText}</p>
-                <ul style="list-style-type: none; padding-left: 0; line-height: 1.8; color: #444;">
-                    <li>A. ${q.A}</li>
-                    <li>B. ${q.B}</li>
-                    <li>C. ${q.C}</li>
-                    <li>D. ${q.D}</li>
-                </ul>
-            </div>`;
-        });
+    const assign = assignments.find(
+        item =>
+            String(item.id) ===
+            String(assignId)
+    );
+
+    if (!assign) {
+        alert(
+            'Không tìm thấy bài tập này. ' +
+            'Vui lòng tải lại trang!'
+        );
+
+        return;
     }
 
-    // Nếu có phần tự luận
-    if (assign.assessmentType === 'tu_luan' || assign.assessmentType === 'ket_hop' || !assign.assessmentType) {
+    const hasMC =
+        hasPracticeMultipleChoice(assign);
+
+    let contentHTML = `
+        <h3
+            style="
+                color:#2c3e50;
+                border-bottom:2px solid #667eea;
+                padding:0 40px 10px 0;
+                margin:0 0 20px;
+            "
+        >
+            Nội dung câu hỏi:
+            ${escapePracticeHTML(
+        assign.title || ''
+    )}
+        </h3>
+    `;
+
+    // Hiện phần trắc nghiệm.
+    if (hasMC) {
+        contentHTML += `
+            <h4
+                style="
+                    color:#d35400;
+                    margin-bottom:10px;
+                "
+            >
+                📚 Phần Trắc Nghiệm
+            </h4>
+        `;
+
+        assign.questions.forEach(
+            (question, index) => {
+                contentHTML += `
+                    <div
+                        style="
+                            margin-bottom:15px;
+                            padding:12px;
+                            border:1px solid #e2e8f0;
+                            border-radius:10px;
+                            background:#f8fafc;
+                        "
+                    >
+                        <p
+                            style="
+                                font-weight:bold;
+                                color:#2c3e50;
+                                margin:0 0 8px;
+                            "
+                        >
+                            Câu ${index + 1}:
+                            ${escapePracticeHTML(
+                    question.qText || ''
+                )}
+                        </p>
+
+                        <ul
+                            style="
+                                list-style:none;
+                                padding:0;
+                                margin:0;
+                                line-height:1.8;
+                                color:#444;
+                            "
+                        >
+                            <li>
+                                A.
+                                ${escapePracticeHTML(
+                    question.A || ''
+                )}
+                            </li>
+
+                            <li>
+                                B.
+                                ${escapePracticeHTML(
+                    question.B || ''
+                )}
+                            </li>
+
+                            <li>
+                                C.
+                                ${escapePracticeHTML(
+                    question.C || ''
+                )}
+                            </li>
+
+                            <li>
+                                D.
+                                ${escapePracticeHTML(
+                    question.D || ''
+                )}
+                            </li>
+                        </ul>
+                    </div>
+                `;
+            }
+        );
+    }
+
+    // Hiện phần tự luận hoặc yêu cầu bài.
+    if (
+        assign.assessmentType === 'tu_luan' ||
+        assign.assessmentType === 'ket_hop' ||
+        assign.assessmentType === 'thi' ||
+        !assign.assessmentType
+    ) {
         if (assign.desc) {
             contentHTML += `
-            <h4 style="color: #d35400; margin-bottom: 10px; margin-top: 20px;">✍️ Phần Tự Luận / Yêu cầu</h4>
-            <div style="background: rgba(0,0,0,0.03); padding: 15px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.05); white-space: pre-wrap; color: #444;">${assign.desc}</div>
+                <h4
+                    style="
+                        color:#d35400;
+                        margin:20px 0 10px;
+                    "
+                >
+                    ✍️ Phần Tự Luận / Yêu cầu
+                </h4>
+
+                <div
+                    style="
+                        padding:15px;
+                        border:1px solid #e2e8f0;
+                        border-radius:10px;
+                        background:#f8fafc;
+                        color:#444;
+                    "
+                >
+                    ${assign.desc}
+                </div>
             `;
         }
     }
 
-    // Khởi tạo popup (Modal Overlay) nếu chưa có
-    let modal = document.getElementById('viewQuestionsModal');
+    let modal =
+        document.getElementById(
+            'viewQuestionsModal'
+        );
+
     if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'viewQuestionsModal';
-        // Thêm padding cho overlay để trên điện thoại không bị sát mép màn hình
-        modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; display: flex; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box;';
+        modal =
+            document.createElement('div');
+
+        modal.id =
+            'viewQuestionsModal';
+
         document.body.appendChild(modal);
     }
 
-    // Cấu trúc lại HTML của Modal: Dùng flexbox, tách vùng cuộn (overflow-y) ra khỏi thẻ ngoài cùng
+    modal.style.cssText = `
+        position:fixed;
+        inset:0;
+        z-index:99999;
+
+        display:flex;
+        justify-content:center;
+        align-items:center;
+
+        padding:15px;
+
+        background:rgba(0,0,0,.65);
+
+        box-sizing:border-box;
+    `;
+
     modal.innerHTML = `
-        <div style="background: white; padding: 25px; border-radius: 12px; max-width: 600px; width: 100%; max-height: 85vh; display: flex; flex-direction: column; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
-            
-            <button onclick="document.getElementById('viewQuestionsModal').style.display='none'" style="position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.05); border-radius: 50%; width: 30px; height: 30px; border: none; font-size: 1em; cursor: pointer; color: #e74c3c; font-weight: bold; z-index: 10; display: flex; justify-content: center; align-items: center; padding: 0;">✖</button>
-            
-            <div style="overflow-y: auto; padding-right: 10px; flex-grow: 1;">
+        <div
+            style="
+                position:relative;
+
+                width:min(
+                    1000px,
+                    calc(100vw - 30px)
+                );
+
+                max-height:92vh;
+
+                padding:28px;
+
+                display:flex;
+                flex-direction:column;
+
+                box-sizing:border-box;
+
+                border-radius:16px;
+
+                background:#fff;
+
+                box-shadow:
+                    0 20px 60px
+                    rgba(0,0,0,.3);
+            "
+        >
+            <button
+                id="btnCloseQuestionsReviewTop"
+                class="practice-modal-close"
+                type="button"
+            >
+                ✖
+            </button>
+
+            <div
+                style="
+                    min-height:0;
+                    overflow-y:auto;
+                    padding-right:10px;
+                "
+            >
                 ${contentHTML}
             </div>
-            
-            <button onclick="document.getElementById('viewQuestionsModal').style.display='none'" style="width: 100%; padding: 12px; background: #ddd; border: none; border-radius: 8px; margin-top: 20px; font-weight: bold; cursor: pointer; flex-shrink: 0; transition: background 0.2s;">Đóng lại</button>
+
+            <div class="practice-review-actions">
+                ${hasMC
+            ? `
+                            <button
+                                id="btnPracticeRedoFromReview"
+                                class="
+                                    practice-btn
+                                    practice-btn-primary
+                                "
+                                type="button"
+                            >
+                                🔁 Làm lại trắc nghiệm
+                            </button>
+                        `
+            : ''
+        }
+
+                <button
+                    id="btnCloseQuestionsReview"
+                    class="
+                        practice-btn
+                        practice-btn-secondary
+                    "
+                    type="button"
+                >
+                    Đóng lại
+                </button>
+            </div>
         </div>
     `;
+
+    document
+        .getElementById(
+            'btnCloseQuestionsReviewTop'
+        )
+        ?.addEventListener(
+            'click',
+            window.closeAssignmentQuestionsReview
+        );
+
+    document
+        .getElementById(
+            'btnCloseQuestionsReview'
+        )
+        ?.addEventListener(
+            'click',
+            window.closeAssignmentQuestionsReview
+        );
+
+    document
+        .getElementById(
+            'btnPracticeRedoFromReview'
+        )
+        ?.addEventListener(
+            'click',
+            () =>
+                window.openPracticeRedoWarning(
+                    assign
+                )
+        );
+
+    if (
+        window.MathJax &&
+        typeof window.MathJax
+            .typesetPromise === 'function'
+    ) {
+        MathJax
+            .typesetPromise([modal])
+            .catch(console.error);
+    }
+};
+
+// Mở bảng cảnh báo trước khi làm lại.
+window.openPracticeRedoWarning = function (assign) {
+    ensurePracticeRedoStyles();
+
+    if (!hasPracticeMultipleChoice(assign)) {
+        return;
+    }
+
+    window.pendingPracticeRedoAssignment =
+        assign;
+
+    let modal =
+        document.getElementById(
+            'practiceRedoWarningModal'
+        );
+
+    if (!modal) {
+        modal =
+            document.createElement('div');
+
+        modal.id =
+            'practiceRedoWarningModal';
+
+        modal.className =
+            'practice-redo-overlay ' +
+            'practice-redo-warning-overlay';
+
+        document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+        <div
+            class="practice-warning-box"
+            role="alertdialog"
+            aria-modal="true"
+        >
+            <div style="font-size:3rem;">
+                ⚠️
+            </div>
+
+            <h3
+                style="
+                    color:#b45309;
+                    margin:8px 0 12px;
+                "
+            >
+                Xác nhận làm lại
+            </h3>
+
+            <p>
+                <strong>
+                    Bài chỉ được làm lại
+                    phần trắc nghiệm.
+                </strong>
+            </p>
+
+            <p
+                style="
+                    font-size:.92rem;
+                    color:#64748b;
+                "
+            >
+                Đây là phần ôn luyện,
+                kết quả không được lưu
+                và không ảnh hưởng
+                điểm chính thức.
+            </p>
+
+            <div class="practice-warning-actions">
+                <button
+                    id="btnConfirmPracticeRedo"
+                    class="
+                        practice-btn
+                        practice-btn-primary
+                    "
+                    type="button"
+                >
+                    Đã rõ
+                </button>
+
+                <button
+                    id="btnCancelPracticeRedo"
+                    class="
+                        practice-btn
+                        practice-btn-secondary
+                    "
+                    type="button"
+                >
+                    Hủy
+                </button>
+            </div>
+        </div>
+    `;
+
     modal.style.display = 'flex';
 
-    if (window.MathJax) {
-        MathJax.typesetPromise([modal]).catch((err) => console.log('MathJax error:', err));
+    document.body.classList.add(
+        'practice-redo-open'
+    );
+
+    document
+        .getElementById(
+            'btnConfirmPracticeRedo'
+        )
+        ?.addEventListener(
+            'click',
+            window.confirmPracticeRedo
+        );
+
+    document
+        .getElementById(
+            'btnCancelPracticeRedo'
+        )
+        ?.addEventListener(
+            'click',
+            window.cancelPracticeRedoWarning
+        );
+};
+
+// Hủy bảng cảnh báo.
+window.cancelPracticeRedoWarning = function () {
+    const modal =
+        document.getElementById(
+            'practiceRedoWarningModal'
+        );
+
+    if (modal) {
+        modal.style.display = 'none';
+        modal.innerHTML = '';
     }
+
+    window.pendingPracticeRedoAssignment =
+        null;
+
+    document.body.classList.remove(
+        'practice-redo-open'
+    );
+};
+
+// Nhấn "Đã rõ".
+window.confirmPracticeRedo = function () {
+    const assign =
+        window.pendingPracticeRedoAssignment;
+
+    const warningModal =
+        document.getElementById(
+            'practiceRedoWarningModal'
+        );
+
+    if (warningModal) {
+        warningModal.style.display = 'none';
+        warningModal.innerHTML = '';
+    }
+
+    window.pendingPracticeRedoAssignment =
+        null;
+
+    if (!hasPracticeMultipleChoice(assign)) {
+        document.body.classList.remove(
+            'practice-redo-open'
+        );
+
+        return;
+    }
+
+    window.closeAssignmentQuestionsReview();
+
+    window.openPracticeRedoModal(assign);
+};
+
+// Mở popup làm lại trắc nghiệm.
+window.openPracticeRedoModal = function (assign) {
+    if (!hasPracticeMultipleChoice(assign)) {
+        return;
+    }
+
+    // Chỉ giữ dữ liệu tạm trong RAM.
+    window.practiceRedoSession = {
+        submitted: false,
+
+        questions: assign.questions.map(
+            question => ({
+                qText: String(
+                    question.qText || ''
+                ),
+
+                A: String(
+                    question.A || ''
+                ),
+
+                B: String(
+                    question.B || ''
+                ),
+
+                C: String(
+                    question.C || ''
+                ),
+
+                D: String(
+                    question.D || ''
+                ),
+
+                correct: String(
+                    question.correct || ''
+                ).toUpperCase()
+            })
+        )
+    };
+
+    const safeId =
+        String(
+            assign.id || 'practice'
+        ).replace(
+            /[^a-zA-Z0-9_-]/g,
+            '_'
+        );
+
+    // Hiển thị video nếu bài có video.
+    const videoHTML =
+        assign.videoLink
+            ? `
+                <div class="practice-redo-video">
+                    <h4
+                        style="
+                            color:#4338ca;
+                            margin:0 0 12px;
+                        "
+                    >
+                        🎬 Video bài học
+                    </h4>
+
+                    ${getEmbedHTML(
+                assign.videoLink
+            )}
+                </div>
+            `
+            : '';
+
+    const questionsHTML =
+        window.practiceRedoSession
+            .questions
+            .map(
+                (question, index) => `
+                    <section
+                        class="practice-redo-question"
+                        data-practice-question="${index}"
+                    >
+                        <p
+                            style="
+                                font-weight:850;
+                                color:#172033;
+                                line-height:1.55;
+                                margin:0 0 12px;
+                            "
+                        >
+                            Câu ${index + 1}:
+                            ${escapePracticeHTML(
+                    question.qText
+                )}
+                        </p>
+
+                        <div
+                            class="practice-redo-options"
+                        >
+                            ${[
+                        'A',
+                        'B',
+                        'C',
+                        'D'
+                    ].map(
+                        letter => `
+                                    <label
+                                        class="
+                                            practice-redo-option
+                                        "
+                                        data-practice-option="${letter}"
+                                    >
+                                        <input
+                                            type="radio"
+                                            name="
+                                                practice-${safeId}-${index}
+                                            "
+                                            value="${letter}"
+                                            style="
+                                                width:18px;
+                                                height:18px;
+                                                margin:2px 0 0;
+                                            "
+                                        >
+
+                                        <strong>
+                                            ${letter}.
+                                        </strong>
+
+                                        <span>
+                                            ${escapePracticeHTML(
+                            question[letter]
+                        )}
+                                        </span>
+                                    </label>
+                                `
+                    ).join('')}
+                        </div>
+
+                        <div
+                            class="
+                                practice-redo-feedback
+                            "
+                        ></div>
+                    </section>
+                `
+            )
+            .join('');
+
+    let modal =
+        document.getElementById(
+            'practiceRedoModal'
+        );
+
+    if (!modal) {
+        modal =
+            document.createElement('div');
+
+        modal.id =
+            'practiceRedoModal';
+
+        modal.className =
+            'practice-redo-overlay';
+
+        document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+        <div
+            class="practice-redo-box"
+            role="dialog"
+            aria-modal="true"
+        >
+            <button
+                id="btnClosePracticeRedoTop"
+                class="practice-modal-close"
+                type="button"
+            >
+                ✖
+            </button>
+
+            <header class="practice-redo-header">
+                <p
+                    style="
+                        margin:0 0 4px;
+                        font-size:.78rem;
+                        font-weight:900;
+                    "
+                >
+                    ÔN LUYỆN KHÔNG LƯU KẾT QUẢ
+                </p>
+
+                <h3 style="margin:0 0 8px;">
+                    🔁
+                    ${escapePracticeHTML(
+        assign.title || ''
+    )}
+                </h3>
+
+                <p style="margin:0;">
+                    Khi đóng popup, toàn bộ
+                    đáp án và điểm luyện tập
+                    sẽ bị xóa ngay.
+                </p>
+            </header>
+
+            <div class="practice-redo-scroll">
+                ${videoHTML}
+
+                <div
+                    id="practiceRedoResult"
+                    class="practice-redo-result"
+                ></div>
+
+                ${questionsHTML}
+            </div>
+
+            <footer class="practice-redo-footer">
+                <button
+                    id="btnSubmitPracticeRedo"
+                    class="
+                        practice-btn
+                        practice-btn-success
+                    "
+                    type="button"
+                >
+                    📤 Nộp và chấm điểm
+                </button>
+
+                <button
+                    id="btnClosePracticeRedo"
+                    class="
+                        practice-btn
+                        practice-btn-secondary
+                    "
+                    type="button"
+                >
+                    Đóng
+                </button>
+            </footer>
+        </div>
+    `;
+
+    modal.style.display = 'flex';
+
+    document.body.classList.add(
+        'practice-redo-open'
+    );
+
+    document
+        .getElementById(
+            'btnSubmitPracticeRedo'
+        )
+        ?.addEventListener(
+            'click',
+            window.submitPracticeRedo
+        );
+
+    document
+        .getElementById(
+            'btnClosePracticeRedo'
+        )
+        ?.addEventListener(
+            'click',
+            window.closePracticeRedo
+        );
+
+    document
+        .getElementById(
+            'btnClosePracticeRedoTop'
+        )
+        ?.addEventListener(
+            'click',
+            window.closePracticeRedo
+        );
+
+    if (
+        window.MathJax &&
+        typeof window.MathJax
+            .typesetPromise === 'function'
+    ) {
+        MathJax
+            .typesetPromise([modal])
+            .catch(console.error);
+    }
+};
+
+// Nộp bài luyện tập và chấm điểm.
+window.submitPracticeRedo = function () {
+    const session =
+        window.practiceRedoSession;
+
+    const modal =
+        document.getElementById(
+            'practiceRedoModal'
+        );
+
+    if (
+        !session ||
+        !modal ||
+        session.submitted
+    ) {
+        return;
+    }
+
+    const answers = {};
+    const unanswered = [];
+
+    // Kiểm tra câu chưa trả lời.
+    session.questions.forEach(
+        (question, index) => {
+            const block =
+                modal.querySelector(
+                    `[data-practice-question="${index}"]`
+                );
+
+            const selected =
+                block?.querySelector(
+                    'input[type="radio"]:checked'
+                );
+
+            block?.classList.remove(
+                'unanswered'
+            );
+
+            if (!selected) {
+                unanswered.push(index);
+
+                block?.classList.add(
+                    'unanswered'
+                );
+            } else {
+                answers[index] =
+                    selected.value;
+            }
+        }
+    );
+
+    if (unanswered.length > 0) {
+        modal
+            .querySelector(
+                `[data-practice-question="${unanswered[0]}"]`
+            )
+            ?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+
+        alert(
+            `Còn ${unanswered.length} ` +
+            `câu chưa chọn đáp án.`
+        );
+
+        return;
+    }
+
+    let correctCount = 0;
+
+    session.questions.forEach(
+        (question, index) => {
+            const block =
+                modal.querySelector(
+                    `[data-practice-question="${index}"]`
+                );
+
+            const selectedAnswer =
+                answers[index];
+
+            const correctAnswer =
+                question.correct;
+
+            const isCorrect =
+                selectedAnswer ===
+                correctAnswer;
+
+            if (isCorrect) {
+                correctCount++;
+            }
+
+            block?.classList.add(
+                isCorrect
+                    ? 'correct-question'
+                    : 'wrong-question'
+            );
+
+            // Khóa đáp án sau khi nộp.
+            block
+                ?.querySelectorAll('input')
+                .forEach(input => {
+                    input.disabled = true;
+                });
+
+            // Tô xanh đáp án đúng.
+            block
+                ?.querySelector(
+                    `[data-practice-option="${correctAnswer}"]`
+                )
+                ?.classList.add(
+                    'answer-correct'
+                );
+
+            // Tô đỏ lựa chọn sai.
+            if (!isCorrect) {
+                block
+                    ?.querySelector(
+                        `[data-practice-option="${selectedAnswer}"]`
+                    )
+                    ?.classList.add(
+                        'answer-wrong'
+                    );
+            }
+
+            const feedback =
+                block?.querySelector(
+                    '.practice-redo-feedback'
+                );
+
+            if (feedback) {
+                feedback.classList.add(
+                    isCorrect
+                        ? 'feedback-correct'
+                        : 'feedback-wrong'
+                );
+
+                feedback.textContent =
+                    isCorrect
+                        ? (
+                            `✅ Đúng — bạn chọn ` +
+                            `${selectedAnswer}.`
+                        )
+                        : (
+                            `❌ Sai — bạn chọn ` +
+                            `${selectedAnswer}, ` +
+                            `đáp án đúng là ` +
+                            `${correctAnswer}.`
+                        );
+            }
+        }
+    );
+
+    const total =
+        session.questions.length;
+
+    // Điểm thang 10, làm tròn 1 chữ số.
+    const score =
+        Math.round(
+            (correctCount / total) *
+            100
+        ) / 10;
+
+    const scoreText =
+        Number.isInteger(score)
+            ? score
+            : score.toFixed(1);
+
+    const result =
+        document.getElementById(
+            'practiceRedoResult'
+        );
+
+    if (result) {
+        result.classList.add('show');
+
+        result.innerHTML = `
+            <h3
+                style="
+                    margin:0 0 8px;
+                    color:#166534;
+                "
+            >
+                🎯 Điểm:
+                ${scoreText}/10
+            </h3>
+
+            <p style="margin:0 0 5px;">
+                Đúng
+                <strong>
+                    ${correctCount}/${total}
+                </strong>
+                câu.
+            </p>
+
+            <small>
+                Kết quả này chỉ để ôn luyện,
+                không được lưu lên hệ thống.
+            </small>
+        `;
+
+        result.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
+    }
+
+    const submitButton =
+        document.getElementById(
+            'btnSubmitPracticeRedo'
+        );
+
+    if (submitButton) {
+        submitButton.disabled = true;
+
+        submitButton.textContent =
+            '✅ Đã nộp và chấm điểm';
+    }
+
+    session.submitted = true;
+};
+
+// Đóng popup và xóa toàn bộ dữ liệu luyện tập.
+window.closePracticeRedo = function () {
+    const modal =
+        document.getElementById(
+            'practiceRedoModal'
+        );
+
+    if (modal) {
+        // Dừng video đang phát.
+        modal
+            .querySelectorAll('iframe')
+            .forEach(iframe => {
+                iframe.src =
+                    'about:blank';
+            });
+
+        modal.style.display = 'none';
+        modal.innerHTML = '';
+    }
+
+    // Xóa dữ liệu luyện lại khỏi RAM.
+    window.practiceRedoSession = null;
+
+    window.pendingPracticeRedoAssignment =
+        null;
+
+    document.body.classList.remove(
+        'practice-redo-open'
+    );
 };
 
 async function submitAssignment(assignId, isAuto = false, isCheat = false) {
     if (currentUser.isLocked && !isAuto) return alert("🔒 LỖI: Tài khoản đang bị khóa tạm thời!");
 
     const assignments = await getDB('assignments');
-    const assign = assignments.find(a => a.id === assignId);
+    const assign = assignments.find(
+        a => String(a.id) === String(assignId)
+    );
     if (!assign) return;
 
     const submissions = await getDB('submissions');
-    const mySub = submissions.find(s => s.assignmentId === assignId && s.studentUsername === currentUser.username);
+    const mySub = getPreferredStudentSubmission(
+        submissions,
+        assignId,
+        currentUser.username
+    );
     const isRedoing = mySub && mySub.isRedoing;
 
     const now = new Date();
@@ -1956,13 +3755,14 @@ async function submitAssignment(assignId, isAuto = false, isCheat = false) {
         }
 
         const payload = {
-            assignmentId: assignId,
+            assignmentId: assign.id,
             studentUsername: currentUser.username,
             studentName: currentUser.name,
             answer: finalAnswerText || (isAuto ? "⚠️ [Hệ thống tự động thu bài - Trống]" : ""),
             rawEssay: answer,
             mcAnswers: mcAnswersObj,
             grade: finalCalculatedGrade,
+            submittedAt: submitNow.getTime(),
             submitTime: submitNow.toLocaleTimeString('vi-VN') + ' ' + submitNow.toLocaleDateString('vi-VN'),
             file: finalFile,
             teacherFile: null,
@@ -1976,11 +3776,55 @@ async function submitAssignment(assignId, isAuto = false, isCheat = false) {
             payload.isLateFail = true;
         }
 
-        if (mySub) {
-            await updateDB('submissions', mySub._fbKey, payload);
-        } else {
-            payload.id = Date.now().toString() + Math.floor(Math.random() * 1000);
-            await pushDB('submissions', payload);
+        const saveLockKey =
+            `submissionSaveLock_${String(assign.id)}`;
+
+        if (window[saveLockKey]) {
+            if (!isAuto) {
+                alert(
+                    "⏳ Bài đang được lưu, vui lòng không bấm nộp nhiều lần!"
+                );
+            }
+
+            return;
+        }
+
+        window[saveLockKey] = true;
+
+        try {
+            // Đọc lại dữ liệu mới nhất ngay trước khi lưu,
+            // không phụ thuộc dữ liệu đã tải từ trước.
+            const latestSubmissions =
+                await getDB('submissions');
+
+            const latestSubmission =
+                getPreferredStudentSubmission(
+                    latestSubmissions,
+                    assign.id,
+                    currentUser.username
+                );
+
+            if (
+                latestSubmission &&
+                latestSubmission._fbKey
+            ) {
+                await updateDB(
+                    'submissions',
+                    latestSubmission._fbKey,
+                    payload
+                );
+            } else {
+                payload.id =
+                    Date.now().toString() +
+                    Math.floor(Math.random() * 1000);
+
+                await pushDB(
+                    'submissions',
+                    payload
+                );
+            }
+        } finally {
+            window[saveLockKey] = false;
         }
 
         // Dọn dẹp bản nháp sau khi nộp bài thành công
@@ -2040,27 +3884,31 @@ async function loadMaterialsListStudent() {
         // ---> KẾT THÚC ĐOẠN LỌC <---
 
         let fileHTML = '';
+
         if (mat.docLink) {
-            // Nút bấm dành cho link URL (Mở trực tiếp trên web)
-            fileHTML = `<div class="assignment-file" style="margin-top: 15px; background: rgba(56, 239, 125, 0.05); border-left: 4px solid #38ef7d;"><p><strong>📚 Link bài học:</strong> <a href="${mat.docLink}" class="file-download-link" target="_blank" rel="noopener">Nhấn vào đây để xem trực tiếp</a></p></div>`;
-        } else if (mat.file) {
-            let isImg = (mat.file.type && mat.file.type.startsWith('image/')) || (mat.file.base64 && mat.file.base64.startsWith('data:image/'));
-            if (isImg) {
-                let uniqueId = 'img_mat_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
-                fileHTML = `
-                <div class="assignment-file" style="margin-top: 10px; background: rgba(56, 239, 125, 0.05); border-left: 4px solid #38ef7d; padding: 8px 10px; border-radius: 0 8px 8px 0;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-size: 0.9em;"><strong>📚 Ảnh bài học:</strong> <span style="color: #666;">${mat.file.name}</span></span>
-                        <button onclick="let content = document.getElementById('${uniqueId}'); if(content.style.display==='none'){content.style.display='block'; this.innerHTML='🔼 Thu gọn';}else{content.style.display='none'; this.innerHTML='🔽 Xem ảnh';}" style="background: white; border: 1px solid #38ef7d; color: #059669; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8em; font-weight: bold; box-shadow: 0 1px 2px rgba(0,0,0,0.1); transition: 0.2s;">🔽 Xem ảnh</button>
-                    </div>
-                    <div id="${uniqueId}" style="display: none; margin-top: 10px; text-align: center; background: white; padding: 10px; border-radius: 8px; border: 1px dashed rgba(56, 239, 125, 0.3);">
-                        <img src="${mat.file.base64}" alt="${mat.file.name}" style="max-width: 100%; max-height: 300px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: block; margin: 0 auto 10px auto; cursor: pointer;" onclick="window.open('${mat.file.base64}', '_blank')" title="Bấm để xem ảnh gốc">
-                        <a href="${mat.file.base64}" download="${mat.file.name}" style="display: inline-block; background: #059669; color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 0.85em; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">📥 Tải ảnh xuống</a>
-                    </div>
-                </div>`;
-            } else {
-                fileHTML = `<div class="assignment-file" style="margin-top: 10px; background: rgba(56, 239, 125, 0.05); border-left: 4px solid #38ef7d;"><p style="font-size: 0.9em;"><strong>📚 Tải file bài học:</strong> <a href="${mat.file.base64}" download="${mat.file.name}" class="file-download-link" target="_blank">${mat.file.name}</a></p></div>`;
-            }
+            fileHTML += window.buildFilePreviewHTML(
+                mat.docLink,
+                '📚 Link bài học',
+                {
+                    name: mat.title || 'Link bài học',
+                    tone: 'green',
+                    allowDownload: false
+                }
+            );
+        }
+
+        if (mat.file) {
+            const materialFiles = Array.isArray(mat.file)
+                ? mat.file
+                : [mat.file];
+
+            materialFiles.forEach(file => {
+                fileHTML += window.buildFilePreviewHTML(
+                    file,
+                    '📚 File bài học',
+                    { tone: 'green' }
+                );
+            });
         }
 
         let videoHTML = mat.videoLink ? getEmbedHTML(mat.videoLink) : '';
@@ -3502,8 +5350,18 @@ window.buyItem = async function (itemId, isUpgradingFromTrial = false) {
                     if (!Array.isArray(targetArr)) targetArr = ['all'];
 
                     // LƯU TOÀN BỘ THẺ VÀO MẢNG, đánh dấu thẻ nào đủ điều kiện cho món đồ này
-                    let isEligible = targetArr.includes('all') || targetArr.includes(itemId);
-                    discounts.push({ ...d, _key: child.key, isEligible: isEligible });
+                    const isEligible =
+                        isDiscountEligibleForStoreItem(
+                            targetArr,
+                            item,
+                            d
+                        );
+
+                    discounts.push({
+                        ...d,
+                        _key: child.key,
+                        isEligible
+                    });
                 }
             }
         });
@@ -3521,6 +5379,23 @@ window.openPaymentModal = function (item, basePrice, currentCoins, discounts, is
     discounts.forEach(d => {
         let expStr = d.expiry ? ` | HSD: ${new Date(d.expiry).toLocaleDateString('vi-VN')}` : '';
 
+        const discountSource =
+            d.source || 'teacher_gift';
+
+        const sourceInfo =
+            discountSource === 'teacher_gift'
+                ? ' | GV tặng: chỉ món 1–699 Coin'
+                : discountSource === 'daily_login'
+                    ? ' | Đăng nhập 7 ngày: tối đa 500 Coin'
+                    : (
+                        discountSource === 'hoihoa_runner_up' ||
+                        discountSource === 'hoihoa_season'
+                    )
+                        ? ' | Á quân Hội Họa: món dưới 600 Coin'
+                        : discountSource === 'hoihoa_chest'
+                            ? ' | Rương Hội Họa: món dưới 700 Coin'
+                            : '';
+
         let targetArr = d.targetItem || ['all'];
         if (!Array.isArray(targetArr)) targetArr = [targetArr];
         const targetStr = targetArr.join(',');
@@ -3529,7 +5404,19 @@ window.openPaymentModal = function (item, basePrice, currentCoins, discounts, is
         let eligibleText = d.isEligible ? "" : " 🚫 (Không áp dụng)";
         let colorStyle = d.isEligible ? "" : "color: #999;"; // Làm mờ thẻ không dùng được
 
-        discountOptions += `<option value="${d._key}" data-percent="${d.percent}" data-expiry="${d.expiry || ''}" data-target="${targetStr}" data-eligible="${d.isEligible}" style="${colorStyle}">🏷️ Giảm ${d.percent}%${expStr}${eligibleText}</option>`;
+        discountOptions += `
+    <option
+        value="${d._key}"
+        data-percent="${d.percent}"
+        data-expiry="${d.expiry || ''}"
+        data-target="${targetStr}"
+        data-source="${d.source || ''}"
+        data-eligible="${d.isEligible}"
+        style="${colorStyle}"
+    >
+        🏷️ Giảm ${d.percent}%${sourceInfo}${expStr}${eligibleText}
+    </option>
+`;
     });
 
     const modalHtml = `
@@ -3651,7 +5538,10 @@ window.processPayment = async function (itemId, basePrice, currentCoins) {
         percent = parseInt(option.getAttribute('data-percent')) || 0;
     }
 
-    const finalPrice = Math.max(0, Math.floor(basePrice * (1 - percent / 100)));
+    let finalPrice = Math.max(
+        0,
+        Math.floor(basePrice * (1 - percent / 100))
+    );
 
     const coinPath = `student_coins/${currentUser.username}`;
     const itemPath = `student_inventory/${currentUser.username}/${itemId}`;
@@ -3664,28 +5554,92 @@ window.processPayment = async function (itemId, basePrice, currentCoins) {
     try {
         // 1. Nếu dùng thẻ giảm giá, transaction để chặn dùng cùng 1 thẻ ở 2 tab
         if (discountPath) {
-            const discountTx = await db.ref(discountPath).transaction(discount => {
-                if (!discount || discount.isUsed) {
-                    return; // abort
-                }
+            const discountRef = db.ref(discountPath);
 
-                return {
-                    ...discount,
-                    isUsed: true,
-                    usedAt: Date.now()
-                };
-            });
+            // Đọc dữ liệu từ máy chủ trước để Firebase nạp thẻ vào cache
+            const discountSnap = await discountRef.once('value');
+            const latestDiscount = discountSnap.val();
 
-            if (!discountTx.committed) {
+            if (!latestDiscount) {
+                throw new Error('DISCOUNT_NOT_FOUND');
+            }
+
+            if (latestDiscount.isUsed === true) {
                 throw new Error('DISCOUNT_ALREADY_USED');
             }
+
+            // Kiểm tra hạn sử dụng
+            if (
+                latestDiscount.expiry &&
+                Date.now() > Number(latestDiscount.expiry)
+            ) {
+                throw new Error('DISCOUNT_EXPIRED');
+            }
+
+            // Kiểm tra vật phẩm có nằm trong phạm vi áp dụng
+            const paymentItem =
+                StoreManager.getItemById(itemId);
+
+            if (!paymentItem) {
+                throw new Error('ITEM_NOT_FOUND');
+            }
+
+            const targetItems =
+                latestDiscount.targetItem || ['all'];
+
+            if (
+                !isDiscountEligibleForStoreItem(
+                    targetItems,
+                    paymentItem,
+                    latestDiscount
+                )
+            ) {
+                throw new Error('DISCOUNT_NOT_ELIGIBLE');
+            }
+            // Lấy phần trăm thật trực tiếp từ Firebase
+            percent = Number(latestDiscount.percent) || 0;
+
+            finalPrice = Math.max(
+                0,
+                Math.floor(basePrice * (1 - percent / 100))
+            );
+
+            // Chỉ transaction riêng trường isUsed.
+            // null hoặc false đều có nghĩa là thẻ chưa dùng.
+            const usedRef = discountRef.child('isUsed');
+
+            const usedTx = await usedRef.transaction(
+                currentUsed => {
+                    // Nếu đã được tab/giao dịch khác sử dụng thì hủy
+                    if (currentUsed === true) {
+                        return;
+                    }
+
+                    // null hoặc false -> đánh dấu đã sử dụng
+                    return true;
+                },
+                undefined,
+                false
+            );
+
+            if (!usedTx.committed) {
+                throw new Error('DISCOUNT_ALREADY_USED');
+            }
+
+            // Ghi thêm thời gian và vật phẩm đã sử dụng thẻ
+            await discountRef.update({
+                usedAt: Date.now(),
+                usedForItem: itemId
+            });
 
             discountMarked = true;
         }
 
         // 2. Trừ coin bằng transaction, không dùng currentCoins cũ nữa
-        await decrementNumberTx(coinPath, finalPrice);
-        coinDebited = true;
+        if (finalPrice > 0) {
+            await decrementNumberTx(coinPath, finalPrice);
+            coinDebited = true;
+        }
 
         // 3. Thêm vật phẩm bằng transaction để tránh ghi đè vật phẩm đã có
         const itemTx = await db.ref(itemPath).transaction(existingItem => {
@@ -3731,22 +5685,50 @@ window.processPayment = async function (itemId, basePrice, currentCoins) {
         }
 
         if (discountMarked && !itemAdded && discountPath) {
-            await db.ref(discountPath).transaction(discount => {
-                if (!discount) return discount;
-                return {
-                    ...discount,
-                    isUsed: false,
-                    usedAt: null
-                };
+            await db.ref(discountPath).update({
+                isUsed: false,
+                usedAt: null,
+                usedForItem: null
             });
         }
 
         if (e.message === 'INSUFFICIENT_BALANCE') {
-            alert("❌ Bạn không đủ Coin! Số dư đã thay đổi ở tab khác.");
+            alert(
+                "❌ Bạn không đủ Coin! Số dư đã thay đổi ở tab khác."
+            );
+
         } else if (e.message === 'DISCOUNT_ALREADY_USED') {
-            alert("❌ Thẻ giảm giá này đã được sử dụng ở tab khác.");
+            alert(
+                "❌ Thẻ giảm giá này vừa được sử dụng trong một giao dịch khác."
+            );
+
+        } else if (e.message === 'DISCOUNT_NOT_FOUND') {
+            alert(
+                "❌ Thẻ giảm giá không còn tồn tại trên Firebase. " +
+                "Vui lòng đóng bảng thanh toán và mở lại."
+            );
+
+        } else if (e.message === 'DISCOUNT_EXPIRED') {
+            alert(
+                "❌ Thẻ giảm giá đã hết hạn sử dụng."
+            );
+
+        } else if (e.message === 'DISCOUNT_NOT_ELIGIBLE') {
+            alert(
+                "❌ Thẻ giảm giá không áp dụng cho vật phẩm này. " +
+                "Mã “tất cả” chỉ áp dụng cho vật phẩm đang bán bằng Coin."
+            );
+
+        } else if (e.message === 'ITEM_NOT_FOUND') {
+            alert(
+                "❌ Không tìm thấy vật phẩm trong cấu hình cửa hàng."
+            );
+
         } else {
-            alert("❌ Đã xảy ra lỗi khi thanh toán. Hệ thống đã cố gắng hoàn tác thao tác.");
+            alert(
+                "❌ Đã xảy ra lỗi khi thanh toán. " +
+                "Hệ thống đã cố gắng hoàn tác thao tác."
+            );
         }
 
         btn.disabled = false;
@@ -4086,8 +6068,216 @@ window.submitSurvey = async function () {
     }, 1500);
 };
 
+// =====================================================
+// HÀM XỬ LÝ ĐIỂM VÀ TIỀN LỘ TRÌNH
+// =====================================================
+function parseRoadmapNumber(value, fallback = NaN) {
+    if (value === null || value === undefined || value === '') {
+        return fallback;
+    }
+
+    const number = parseFloat(String(value).trim().replace(',', '.'));
+    return Number.isFinite(number) ? number : fallback;
+}
+
+function getRoadmapPassingGrade(assign) {
+    const assignmentGrade = parseRoadmapNumber(
+        assign && assign.passingGrade,
+        NaN
+    );
+
+    if (Number.isFinite(assignmentGrade)) {
+        return assignmentGrade;
+    }
+
+    const globalGrade = parseRoadmapNumber(
+        window.currentPassingGrade,
+        NaN
+    );
+
+    return Number.isFinite(globalGrade) ? globalGrade : 7;
+}
+
+function getRoadmapMoney(assign) {
+    const money = parseInt(
+        String(assign?.roadmapMoney || 0).replace(/[^0-9-]/g, ''),
+        10
+    );
+
+    return Number.isFinite(money) ? money : 0;
+}
+
+function isSameRoadmapValue(value1, value2) {
+    return String(value1 ?? '') === String(value2 ?? '');
+}
+
+function isRoadmapSubmissionFailed(sub) {
+    return !!(
+        sub &&
+        !sub.forcePass &&
+        (
+            sub.isAutoSubmitted ||
+            sub.isLateFail ||
+            sub.isCheatFail
+        )
+    );
+}
+
+// Lấy đúng bài nộp có kết quả hợp lệ nhất
+function getRoadmapSubmission(assign, submissions, username) {
+    const passingGrade = getRoadmapPassingGrade(assign);
+
+    const matchedSubmissions = (submissions || []).filter(sub =>
+        isSameRoadmapValue(sub.assignmentId, assign.id) &&
+        isSameRoadmapValue(sub.studentUsername, username)
+    );
+
+    if (matchedSubmissions.length === 0) {
+        return null;
+    }
+
+    function getSubmissionPriority(sub) {
+        if (sub.forcePass) return 50;
+
+        const grade = parseRoadmapNumber(sub.grade, NaN);
+        const failed = isRoadmapSubmissionFailed(sub);
+
+        if (
+            !failed &&
+            !sub.isRegrading &&
+            Number.isFinite(grade) &&
+            grade >= passingGrade
+        ) {
+            return 40;
+        }
+
+        if (
+            !failed &&
+            !sub.isRegrading &&
+            Number.isFinite(grade)
+        ) {
+            return 30;
+        }
+
+        if (sub.isRegrading) return 20;
+        if (failed) return 10;
+
+        return 0;
+    }
+
+    matchedSubmissions.sort((a, b) => {
+        const priorityDifference =
+            getSubmissionPriority(b) -
+            getSubmissionPriority(a);
+
+        if (priorityDifference !== 0) {
+            return priorityDifference;
+        }
+
+        const gradeA = parseRoadmapNumber(a.grade, -Infinity);
+        const gradeB = parseRoadmapNumber(b.grade, -Infinity);
+
+        if (gradeB !== gradeA) {
+            return gradeB - gradeA;
+        }
+
+        return Number(b.id || b.timestamp || 0) -
+            Number(a.id || a.timestamp || 0);
+    });
+
+    return matchedSubmissions[0];
+}
+
+function isRoadmapSubmissionPassed(assign, sub) {
+    if (!sub) return false;
+    if (sub.forcePass) return true;
+
+    if (
+        sub.isRegrading ||
+        isRoadmapSubmissionFailed(sub)
+    ) {
+        return false;
+    }
+
+    const grade = parseRoadmapNumber(sub.grade, NaN);
+
+    return (
+        Number.isFinite(grade) &&
+        grade >= getRoadmapPassingGrade(assign)
+    );
+}
+
+function calculateRoadmapBaseMoney(
+    assignments,
+    submissions,
+    username
+) {
+    return (assignments || []).reduce((total, assign) => {
+        const targetStudents = Array.isArray(assign.targetStudent)
+            ? assign.targetStudent.map(String)
+            : String(assign.targetStudent || 'all')
+                .split(',')
+                .map(value => value.trim());
+
+        const isAssigned =
+            targetStudents.includes('all') ||
+            targetStudents.includes(String(username));
+
+        if (!isAssigned) {
+            return total;
+        }
+
+        const sub = getRoadmapSubmission(
+            assign,
+            submissions,
+            username
+        );
+
+        if (isRoadmapSubmissionPassed(assign, sub)) {
+            return total + getRoadmapMoney(assign);
+        }
+
+        return total;
+    }, 0);
+}
+
 // Render lộ trình cá nhân của học sinh đang đăng nhập
+// Hàng đợi chống nhiều lần render chạy song song
+let studentRoadmapRenderPromise = null;
+let studentRoadmapRenderQueued = false;
+
 async function renderStudentRoadmap() {
+    // Ghi nhận có yêu cầu cập nhật mới
+    studentRoadmapRenderQueued = true;
+
+    // Nếu đang render thì không mở thêm một tiến trình khác.
+    // Yêu cầu mới sẽ được xử lý trong vòng lặp bên dưới.
+    if (studentRoadmapRenderPromise) {
+        return studentRoadmapRenderPromise;
+    }
+
+    studentRoadmapRenderPromise = (async () => {
+        try {
+            while (studentRoadmapRenderQueued) {
+                studentRoadmapRenderQueued = false;
+
+                // Mỗi thời điểm chỉ có duy nhất một lần dựng bảng
+                await renderStudentRoadmapCore();
+            }
+        } catch (error) {
+            console.error(
+                'Lỗi cập nhật lộ trình học sinh:',
+                error
+            );
+        } finally {
+            studentRoadmapRenderPromise = null;
+        }
+    })();
+
+    return studentRoadmapRenderPromise;
+}
+
+async function renderStudentRoadmapCore() {
     const body = document.getElementById('studentRoadmapBody');
     if (!body) return;
     body.innerHTML = '';
@@ -4133,9 +6323,13 @@ async function renderStudentRoadmap() {
 
     sortedAssignments.forEach(assign => {
         // Lấy điểm chuẩn riêng của từng bài do Giáo viên đã thiết lập
-        const passingGrade = assign.passingGrade || 7;
+        const passingGrade = getRoadmapPassingGrade(assign);
 
-        const sub = submissions.find(s => s.assignmentId === assign.id && s.studentUsername === currentUser.username);
+        const sub = getRoadmapSubmission(
+            assign,
+            submissions,
+            currentUser.username
+        );
 
         let studentScore = '-';
         let statusText = 'Chưa nộp';
@@ -4143,8 +6337,11 @@ async function renderStudentRoadmap() {
         let cellBgStyle = '';
 
         // Đưa việc khai báo tiền lên trước để có thể ghi đè nếu học sinh bị loại do nộp trễ hoặc điểm thấp
-        let moneyVal = assign.roadmapMoney ? parseInt(assign.roadmapMoney).toLocaleString('vi-VN') + ' đ' : '-';
-        let currentItemMoney = assign.roadmapMoney ? parseInt(assign.roadmapMoney) : 0;
+        let currentItemMoney = getRoadmapMoney(assign);
+
+        let moneyVal = currentItemMoney > 0
+            ? currentItemMoney.toLocaleString('vi-VN') + ' đ'
+            : '-';
 
         if (sub) {
             // KIỂM TRA XEM CÓ ĐƯỢC GIÁO VIÊN THA ĐIỂM THẤP/NỘP TRỄ KHÔNG
@@ -4152,15 +6349,23 @@ async function renderStudentRoadmap() {
                 statusText = 'Đạt';
                 statusClass = 'status-done';
                 cellBgStyle = 'background: rgba(16, 185, 129, 0.25) !important; color: #047857; font-weight: bold; border-radius: 8px;';
-                studentScore = (sub.grade !== null && sub.grade !== undefined && sub.grade !== '') ? parseFloat(sub.grade) : '0';
+                studentScore = (sub.grade !== null && sub.grade !== undefined && sub.grade !== '')
+                    ? parseRoadmapNumber(sub.grade, 0)
+                    : '0';
                 totalMoney += currentItemMoney; // Được tha điểm thấp -> Cộng tiền tích lũy
             }
             // ƯU TIÊN KIỂM TRA NỘP TRỄ TRƯỚC
-            else if (sub.isAutoSubmitted || sub.isLateFail) {
+            else if (
+                sub.isAutoSubmitted ||
+                sub.isLateFail ||
+                sub.isCheatFail
+            ) {
                 statusText = 'Loại';
                 statusClass = 'status-pending';
                 cellBgStyle = 'background: rgba(225, 29, 72, 0.2) !important; color: #b91c1c; font-weight: bold; border-radius: 8px;';
-                studentScore = (sub.grade !== null && sub.grade !== undefined && sub.grade !== '') ? parseFloat(sub.grade) : '0';
+                studentScore = (sub.grade !== null && sub.grade !== undefined && sub.grade !== '')
+                    ? parseRoadmapNumber(sub.grade, 0)
+                    : '0';
                 moneyVal = '0 đ'; // Ép tiền thưởng về 0 đ
             }
             else if (sub.isRegrading) {
@@ -4168,10 +6373,10 @@ async function renderStudentRoadmap() {
                 statusClass = 'status-pending';
                 studentScore = '🔄';
             } else if (sub.grade !== null && sub.grade !== undefined && sub.grade !== '') {
-                studentScore = parseFloat(sub.grade);
+                studentScore = parseRoadmapNumber(sub.grade, 0);
 
                 // So sánh với điểm chuẩn riêng của bài
-                if (studentScore >= passingGrade) {
+                if (isRoadmapSubmissionPassed(assign, sub)) {
                     statusText = 'Đạt';
                     statusClass = 'status-done';
                     cellBgStyle = 'background: rgba(16, 185, 129, 0.25) !important; color: #047857; font-weight: bold; border-radius: 8px;';
@@ -4208,7 +6413,7 @@ async function renderStudentRoadmap() {
 
     // FETCH SỐ TIỀN BÙ TRỪ SAU KHI QUY ĐỔI COIN (OFFSET)
     const offsetSnap = await db.ref('student_money_offset/' + currentUser.username).once('value');
-    let moneyOffset = offsetSnap.val() || 0;
+    const moneyOffset = Number(offsetSnap.val()) || 0;
 
     // Tổng tiền cuối cùng = Tiền làm bài + Tiền bán Coin - Tiền mua Coin
     let finalMoney = totalMoney + moneyOffset;
@@ -4290,30 +6495,20 @@ window.executeConversion = async function () {
     let currentCoins = coinSnap.val() || 0;
 
     // 2. Tính dữ liệu Tiền Lộ Trình Gốc (Theo điểm)
-    let baseRoadmapMoney = 0;
-    const assignments = await getDB('assignments');
-    const submissions = await getDB('submissions');
-    const myAssignments = assignments.filter(assign => {
-        const targetArr = Array.isArray(assign.targetStudent) ? assign.targetStudent : [assign.targetStudent || 'all'];
-        return targetArr.includes('all') || targetArr.includes(currentUser.username);
-    });
+    const [assignments, submissions] = await Promise.all([
+        getDB('assignments'),
+        getDB('submissions')
+    ]);
 
-    myAssignments.forEach(assign => {
-        const passingGrade = assign.passingGrade || 7;
-        const sub = submissions.find(s => s.assignmentId === assign.id && s.studentUsername === currentUser.username);
-        let currentItemMoney = assign.roadmapMoney ? parseInt(assign.roadmapMoney) : 0;
-
-        if (sub) {
-            if (sub.forcePass) baseRoadmapMoney += currentItemMoney;
-            else if (!sub.isAutoSubmitted && !sub.isLateFail && !sub.isRegrading && sub.grade !== null && sub.grade !== '') {
-                if (parseFloat(sub.grade) >= passingGrade) baseRoadmapMoney += currentItemMoney;
-            }
-        }
-    });
+    const baseRoadmapMoney = calculateRoadmapBaseMoney(
+        assignments,
+        submissions,
+        currentUser.username
+    );
 
     // 3. Lấy biến động tiền do lịch sử quy đổi trước đây (Offset)
     const offsetSnap = await db.ref('student_money_offset/' + currentUser.username).once('value');
-    let currentOffset = offsetSnap.val() || 0;
+    let currentOffset = Number(offsetSnap.val()) || 0;
 
     let currentMoney = baseRoadmapMoney + currentOffset;
     if (currentMoney < 0) currentMoney = 0;
@@ -4505,8 +6700,51 @@ window.renderStudentInbox = function () {
             else if (msg.giftType === 'discount') {
                 let expStr = msg.discountExpiry ? `\n(HSD: ${new Date(msg.discountExpiry).toLocaleString('vi-VN')})` : ' (Vĩnh viễn)';
 
+                const messageDiscountSource =
+                    msg.source || 'teacher_gift';
+
+                const conditionHTML =
+                    messageDiscountSource === 'teacher_gift'
+                        ? `
+                            <br>
+                            <span style="
+                                display: inline-block;
+                                margin-top: 5px;
+                                padding: 5px 8px;
+                                border-radius: 6px;
+                                background: #fff7ed;
+                                color: #c2410c;
+                                font-size: 0.8em;
+                                font-weight: normal;
+                            ">
+                                ⚠️ Chỉ dùng cho vật phẩm giá từ
+                                1 đến 699 Coin; không dùng cho món
+                                từ 700 Coin trở lên.
+                            </span>
+                        `
+                        : messageDiscountSource === 'daily_login'
+                            ? `
+                                <br>
+                                <span style="
+                                    display: inline-block;
+                                    margin-top: 5px;
+                                    padding: 5px 8px;
+                                    border-radius: 6px;
+                                    background: #eff6ff;
+                                    color: #1d4ed8;
+                                    font-size: 0.8em;
+                                    font-weight: normal;
+                                ">
+                                    ℹ️ Thẻ đăng nhập 7 ngày:
+                                    chỉ dùng cho vật phẩm đủ điều kiện,
+                                    giá tối đa 500 Coin.
+                                </span>
+                            `
+                            : '';
+
                 // XỬ LÝ ĐỌC DANH SÁCH MẢNG VẬT PHẨM
-                let targetText = "Tất cả Cửa hàng";
+                let targetText =
+                    "Tất cả vật phẩm mua bằng Coin";
                 let targetArr = msg.discountTargetItem || ['all'];
                 if (!Array.isArray(targetArr)) targetArr = [targetArr]; // Cứu code cũ
 
@@ -4525,7 +6763,21 @@ window.renderStudentInbox = function () {
                 if (isExpiredDiscountInInbox) {
                     giftDisplay = `<span style="text-decoration: line-through; color: #999;">🏷️ Thẻ giảm giá ${msg.giftValue}%</span> <span style="font-size: 0.8em; color: #e11d48; font-weight: bold;">\n(Đã quá hạn)</span>`;
                 } else {
-                    giftDisplay = `🏷️ Thẻ giảm giá ${msg.giftValue}% <span style="font-size: 0.8em; color: #e11d48;">${expStr}</span><br><span style="font-size: 0.85em; color: #059669; font-weight: normal;">Áp dụng: ${targetText}</span>`;
+                    giftDisplay = `
+    🏷️ Thẻ giảm giá ${msg.giftValue}%
+    <span style="font-size: 0.8em; color: #e11d48;">
+        ${expStr}
+    </span>
+    <br>
+    <span style="
+        font-size: 0.85em;
+        color: #059669;
+        font-weight: normal;
+    ">
+        Áp dụng: ${targetText}
+    </span>
+    ${conditionHTML}
+`;
                 }
             }
             else if (msg.giftType === 'item') {
@@ -4610,6 +6862,9 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
             // Xử lý đọc dạng mảng
             let targetArr = msgData.discountTargetItem ? msgData.discountTargetItem : ['all'];
             if (!Array.isArray(targetArr)) targetArr = [targetArr];
+            targetArr = targetArr.map(
+                normalizeStoreItemId
+            );
 
             if (expiry && Date.now() > expiry) {
                 alert("❌ Thẻ giảm giá này đã quá hạn sử dụng, hệ thống không thể thêm vào túi đồ!");
@@ -4617,12 +6872,28 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
                 return;
             }
 
-            await db.ref(`student_discounts/${currentUser.username}`).push({
+            await db.ref(
+                `student_discounts/${currentUser.username}`
+            ).push({
                 percent: parseInt(giftValue),
                 dateAcquired: Date.now(),
                 isUsed: false,
                 expiry: expiry,
-                targetItem: targetArr // Lưu mảng trực tiếp vào Database
+                targetItem: targetArr,
+
+                discountScope:
+                    msgData.discountScope ||
+                    (
+                        targetArr.includes('all')
+                            ? 'all_coin'
+                            : 'selected_coin_items'
+                    ),
+
+                source:
+                    msgData.source ||
+                    'teacher_gift',
+
+                originMessageKey: msgKey
             });
             alert(`🎉 Bạn đã nhận được Thẻ giảm giá ${giftValue}%!`);
         }
@@ -6309,45 +8580,309 @@ window.showRoyalBallRewards = function () {
 // HÀM HIỂN THỊ THÔNG TIN CHI TIẾT THẺ GIẢM GIÁ ĐANG CHỌN
 window.showSelectedDiscountInfo = function () {
     const select = document.getElementById('checkoutDiscount');
-    if (!select || select.selectedIndex <= 0 || select.value === "0") {
-        alert("Vui lòng nhấp vào ô bên dưới để chọn một thẻ giảm giá trước khi xem thông tin nhé!");
+
+    if (
+        !select ||
+        select.selectedIndex <= 0 ||
+        select.value === '0'
+    ) {
+        alert(
+            'Vui lòng nhấp vào ô bên dưới để chọn một thẻ giảm giá trước khi xem thông tin nhé!'
+        );
         return;
     }
 
     const option = select.options[select.selectedIndex];
-    const percent = option.getAttribute('data-percent');
-    const expiry = option.getAttribute('data-expiry');
-    const targetStr = option.getAttribute('data-target');
 
-    let expiryText = expiry ? new Date(parseInt(expiry)).toLocaleString('vi-VN') : "Vĩnh viễn (Không bao giờ hết hạn)";
+    const percent =
+        option.getAttribute('data-percent');
 
-    // Tách chuỗi và hiển thị dạng danh sách hoa thị (Bullet List) nếu có nhiều món
-    let targetText = "Tất cả vật phẩm (Mua bằng Coin) hiện có trong Cửa hàng.";
-    if (targetStr && targetStr !== 'all') {
-        const targetIds = targetStr.split(',');
-        const itemNamesHTML = targetIds.map(id => {
-            const itemDef = typeof StoreConfig !== 'undefined' ? StoreConfig.items.find(i => i.id === id) : null;
-            return itemDef ? `<li style="margin-bottom: 4px;">[${itemDef.tag}] ${itemDef.name}</li>` : '';
-        }).join('');
+    const expiry =
+        option.getAttribute('data-expiry');
 
-        targetText = `Chỉ áp dụng khi mua:<br><ul style="color: #c0392b; padding-left: 20px; margin-top: 5px; max-height: 120px; overflow-y: auto; font-weight: bold;">${itemNamesHTML}</ul>`;
+    const targetStr =
+        option.getAttribute('data-target');
+
+    /*
+ * Các thẻ cũ chưa có source được xem là thẻ giáo viên tặng.
+ * Chỉ dùng để xác định nội dung hiển thị.
+ */
+
+    const discountSource =
+        option.getAttribute('data-source') ||
+        'teacher_gift';
+
+    const isDailyLoginDiscount =
+        discountSource === 'daily_login';
+
+    const isTeacherGiftDiscount =
+        discountSource === 'teacher_gift';
+
+    const isHoiHoaRunnerUpDiscount =
+        discountSource === 'hoihoa_runner_up' ||
+        discountSource === 'hoihoa_season';
+
+    const isHoiHoaChestDiscount =
+        discountSource === 'hoihoa_chest';
+
+    const sourceText =
+        isTeacherGiftDiscount
+            ? 'Giáo viên tặng qua thư'
+            : isDailyLoginDiscount
+                ? 'Phần thưởng đăng nhập đủ 7 ngày'
+                : isHoiHoaRunnerUpDiscount
+                    ? 'Phần thưởng Á quân mùa giải Hội Họa'
+                    : isHoiHoaChestDiscount
+                        ? 'Mở Rương Kho Báu Hội Họa'
+                        : 'Phần thưởng hệ thống';
+
+    const conditionText =
+        isTeacherGiftDiscount
+            ? 'Chỉ áp dụng cho vật phẩm mua bằng Coin có giá từ 1 đến 699 Coin. Không áp dụng cho vật phẩm có giá từ 700 Coin trở lên.'
+            : isDailyLoginDiscount
+                ? 'Chỉ áp dụng cho vật phẩm thông thường có giá từ 1 đến 500 Coin; không áp dụng cho vật phẩm sự kiện, tag Doraemon và tag Truyền thuyết,...'
+                : isHoiHoaRunnerUpDiscount
+                    ? 'Dùng 1 lần. Chỉ áp dụng cho vật phẩm bán bằng Coin có giá dưới 600 Coin; không áp dụng cho vật phẩm sự kiện, tag Doraemon và tag Truyền thuyết,...'
+                    : isHoiHoaChestDiscount
+                        ? 'Dùng 1 lần. Chỉ áp dụng cho vật phẩm bán bằng Coin có giá dưới 700 Coin; không áp dụng cho vật phẩm sự kiện, tag Doraemon và tag Truyền thuyết,...'
+                        : 'Áp dụng theo danh sách vật phẩm được ghi trên thẻ.';
+
+    const expiryText = expiry
+        ? new Date(parseInt(expiry, 10))
+            .toLocaleString('vi-VN')
+        : 'Vĩnh viễn (Không bao giờ hết hạn)';
+
+    let targetText =
+        'Tất cả vật phẩm mua bằng Coin hiện có trong Cửa hàng.';
+
+    /*
+     * Chỉ điều chỉnh nội dung HIỂN THỊ cho vé đăng nhập.
+     * Không thay đổi targetItem, Firebase hoặc logic thanh toán.
+     */
+    if (
+        isDailyLoginDiscount &&
+        (!targetStr || targetStr === 'all')
+    ) {
+        targetText =
+            'Tất cả vật phẩm bán bằng Coin, ngoại trừ vật phẩm sự kiện, tag Doraemon và tag Truyền thuyết.';
+    } else if (
+        isHoiHoaRunnerUpDiscount &&
+        (!targetStr || targetStr === 'all')
+    ) {
+        targetText =
+            'Vật phẩm bán bằng Coin có giá từ 1 đến 599 Coin, ngoại trừ vật phẩm sự kiện, tag Doraemon và tag Truyền thuyết.';
+    } else if (
+        isHoiHoaChestDiscount &&
+        (!targetStr || targetStr === 'all')
+    ) {
+        targetText =
+            'Vật phẩm bán bằng Coin có giá từ 1 đến 699 Coin, ngoại trừ vật phẩm sự kiện, tag Doraemon và tag Truyền thuyết.';
+    } else if (
+        targetStr &&
+        targetStr !== 'all'
+    ) {
+        const targetIds = targetStr
+            .split(',')
+            .map(id => id.trim())
+            .filter(Boolean);
+
+        const visibleItems = targetIds
+            .map(id => {
+                if (typeof StoreConfig === 'undefined') {
+                    return null;
+                }
+
+                return StoreConfig.items.find(
+                    item => String(item.id) === String(id)
+                ) || null;
+            })
+            .filter(item => {
+                if (!item) return false;
+
+                // Các vé khác giữ nguyên danh sách hiển thị.
+                if (!isDailyLoginDiscount) {
+                    return true;
+                }
+
+                // Chỉ ẩn khỏi phần chi tiết của vé đăng nhập.
+                return (
+                    item.isNonCoin !== true &&
+                    item.tag !== 'Doraemon' &&
+                    item.tag !== 'Truyền thuyết'
+                );
+            });
+
+        const itemNamesHTML = visibleItems
+            .map(item => {
+                return `
+                    <li style="margin-bottom: 4px;">
+                        [${item.tag}] ${item.name}
+                    </li>
+                `;
+            })
+            .join('');
+
+        if (itemNamesHTML) {
+            targetText = `
+                Chỉ áp dụng khi mua:
+                <br>
+                <ul style="
+                    color: #c0392b;
+                    padding-left: 20px;
+                    margin-top: 5px;
+                    max-height: 120px;
+                    overflow-y: auto;
+                    font-weight: bold;
+                ">
+                    ${itemNamesHTML}
+                </ul>
+            `;
+        } else {
+            targetText =
+                'Thẻ này hiện không có vật phẩm phù hợp trong Cửa hàng.';
+        }
     }
 
     const infoHtml = `
-    <div id="discountInfoModal" class="modal-overlay" style="z-index: 9999999; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.4);">
-        <div style="background: white; padding: 20px; border-radius: 12px; width: 340px; max-width: 90%; text-align: left; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border-left: 5px solid #00acc1; animation: scaleIn 0.2s ease;">
-            <h4 style="margin: 0 0 15px 0; color: #00838f; display: flex; align-items: center; gap: 8px; font-size: 1.2em;">ℹ️ Chi tiết Thẻ giảm giá</h4>
-            
-            <p style="margin: 0 0 10px 0; font-size: 0.95em; color: #444;"><strong>Mức giảm giá:</strong> <span style="color: #e11d48; font-weight: bold; font-size: 1.1em;">${percent}%</span></p>
-            <p style="margin: 0 0 10px 0; font-size: 0.95em; color: #444;"><strong>Hạn sử dụng:</strong> <span style="color: #d35400;">${expiryText}</span></p>
-            
-            <p style="margin: 0 0 15px 0; font-size: 0.95em; color: #444; line-height: 1.5;"><strong>Phạm vi áp dụng:</strong> <br><span style="color: #059669;">${targetText}</span></p>
-            
-            <button onclick="document.getElementById('discountInfoModal').remove()" style="width: 100%; padding: 12px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: bold; color: #334155; cursor: pointer; transition: 0.2s;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">Đã hiểu & Đóng lại</button>
+        <div
+            id="discountInfoModal"
+            class="modal-overlay"
+            style="
+                z-index: 9999999;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: rgba(0,0,0,0.4);
+            "
+        >
+            <div style="
+                background: white;
+                padding: 20px;
+                border-radius: 12px;
+                width: 340px;
+                max-width: 90%;
+                text-align: left;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+                border-left: 5px solid #00acc1;
+                animation: scaleIn 0.2s ease;
+            ">
+                <h4 style="
+                    margin: 0 0 15px 0;
+                    color: #00838f;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    font-size: 1.2em;
+                ">
+                    ℹ️ Chi tiết Thẻ giảm giá
+                </h4>
+
+                <p style="
+                    margin: 0 0 10px 0;
+                    font-size: 0.95em;
+                    color: #444;
+                ">
+                    <strong>Mức giảm giá:</strong>
+
+                    <span style="
+                        color: #e11d48;
+                        font-weight: bold;
+                        font-size: 1.1em;
+                    ">
+                        ${percent}%
+                    </span>
+                </p>
+
+                <p style="
+                    margin: 0 0 10px 0;
+                    font-size: 0.95em;
+                    color: #444;
+                ">
+                    <strong>Hạn sử dụng:</strong>
+
+                    <span style="color: #d35400;">
+                        ${expiryText}
+                    </span>
+                </p>
+
+                                <p style="
+                    margin: 0 0 10px 0;
+                    font-size: 0.95em;
+                    color: #444;
+                ">
+                    <strong>Nguồn thẻ:</strong>
+
+                    <span style="
+                        color: #2563eb;
+                        font-weight: bold;
+                    ">
+                        ${sourceText}
+                    </span>
+                </p>
+
+                <div style="
+                    margin: 0 0 15px 0;
+                    padding: 10px 12px;
+                    border-radius: 8px;
+                    background: #fff7ed;
+                    border: 1px solid #fdba74;
+                    color: #c2410c;
+                    font-size: 0.9em;
+                    line-height: 1.5;
+                ">
+                    <strong>⚠️ Điều kiện sử dụng:</strong>
+                    <br>
+                    ${conditionText}
+                </div>
+
+                <p style="
+                    margin: 0 0 15px 0;
+                    font-size: 0.95em;
+                    color: #444;
+                    line-height: 1.5;
+                ">
+                    <strong>Phạm vi áp dụng:</strong>
+                    <br>
+
+                    <span style="color: #059669;">
+                        ${targetText}
+                    </span>
+                </p>
+
+                <button
+                    onclick="
+                        document
+                            .getElementById('discountInfoModal')
+                            .remove()
+                    "
+                    style="
+                        width: 100%;
+                        padding: 12px;
+                        background: #f1f5f9;
+                        border: 1px solid #cbd5e1;
+                        border-radius: 8px;
+                        font-weight: bold;
+                        color: #334155;
+                        cursor: pointer;
+                        transition: 0.2s;
+                    "
+                    onmouseover="
+                        this.style.background='#e2e8f0'
+                    "
+                    onmouseout="
+                        this.style.background='#f1f5f9'
+                    "
+                >
+                    Đã hiểu & Đóng lại
+                </button>
+            </div>
         </div>
-    </div>
     `;
-    document.body.insertAdjacentHTML('beforeend', infoHtml);
+
+    document.body.insertAdjacentHTML(
+        'beforeend',
+        infoHtml
+    );
 };
 
 // ================= HỆ THỐNG TÚI ĐỒ NÂNG CẤP (GRID INVENTORY) =================
@@ -6509,15 +9044,31 @@ window.renderStudentBag = async function () {
             let d = discounts[key];
             if (d.isUsed) continue; // Bỏ qua nếu thẻ đã dùng xong
 
-            let targetStr = d.targetItem ? JSON.stringify(d.targetItem) : '["all"]';
-            // Nhóm theo phần trăm, hạn dùng và mục tiêu áp dụng
-            let groupKey = `${d.percent}_${d.expiry || 'permanent'}_${targetStr}`;
+            let targetStr =
+                d.targetItem
+                    ? JSON.stringify(d.targetItem)
+                    : '["all"]';
+
+            /*
+             * Chỉ thêm source vào khóa gộp giao diện.
+             * Không sửa dữ liệu Firebase của thẻ.
+             */
+            const discountSource =
+                d.source || 'teacher_gift';
+
+            // Không gộp thẻ giáo viên với thẻ đăng nhập 7 ngày.
+            let groupKey =
+                `${discountSource}_` +
+                `${d.percent}_` +
+                `${d.expiry || 'permanent'}_` +
+                `${targetStr}`;
 
             if (!groupedDiscounts[groupKey]) {
                 groupedDiscounts[groupKey] = {
                     percent: d.percent,
                     expiry: d.expiry || null,
                     targetItem: d.targetItem || ['all'],
+                    source: discountSource,
                     keys: []
                 };
             }
@@ -6538,7 +9089,8 @@ window.renderStudentBag = async function () {
                 let expText = group.expiry ? new Date(group.expiry).toLocaleString('vi-VN') : 'Vĩnh viễn';
                 if (isExpired) expText = '<span style="color: #e11d48; font-weight: bold;">Đã hết hạn</span>';
 
-                let targetText = "Áp dụng toàn bộ Cửa hàng";
+                let targetText =
+                    "Áp dụng tất cả vật phẩm mua bằng Coin";
                 if (group.targetItem && !group.targetItem.includes('all')) {
                     // Chuyển danh sách ID thành tên vật phẩm
                     const validNames = (Array.isArray(group.targetItem) ? group.targetItem : [group.targetItem]).map(id => {
@@ -6554,6 +9106,41 @@ window.renderStudentBag = async function () {
                     }
                 }
 
+                const isTeacherGiftDiscount =
+                    group.source === 'teacher_gift';
+
+                const isDailyLoginDiscount =
+                    group.source === 'daily_login';
+
+                const isHoiHoaRunnerUpDiscount =
+                    group.source === 'hoihoa_runner_up' ||
+                    group.source === 'hoihoa_season';
+
+                const isHoiHoaChestDiscount =
+                    group.source === 'hoihoa_chest';
+
+                const sourceText =
+                    isTeacherGiftDiscount
+                        ? 'Giáo viên tặng qua thư'
+                        : isDailyLoginDiscount
+                            ? 'Đăng nhập đủ 7 ngày'
+                            : isHoiHoaRunnerUpDiscount
+                                ? 'Á quân mùa giải Hội Họa'
+                                : isHoiHoaChestDiscount
+                                    ? 'Mở Rương Kho Báu Hội Họa'
+                                    : 'Phần thưởng hệ thống';
+
+                const conditionText =
+                    isTeacherGiftDiscount
+                        ? 'Chỉ dùng cho vật phẩm mua bằng Coin có giá từ 1 đến 699 Coin. Không dùng cho món từ 700 Coin trở lên.'
+                        : isDailyLoginDiscount
+                            ? 'Chỉ dùng cho vật phẩm thông thường có giá tối đa 500 Coin; không dùng cho vật phẩm sự kiện, Doraemon và Truyền thuyết,...'
+                            : isHoiHoaRunnerUpDiscount
+                                ? 'Dùng 1 lần, hạn 30 ngày từ ngày nhận. Chỉ dùng cho vật phẩm bán bằng Coin dưới 600 Coin; không dùng cho vật phẩm sự kiện, Doraemon và Truyền thuyết,...'
+                                : isHoiHoaChestDiscount
+                                    ? 'Dùng 1 lần, hạn 30 ngày từ ngày nhận. Chỉ dùng cho vật phẩm bán bằng Coin dưới 700 Coin; không dùng cho vật phẩm sự kiện, Doraemon và Truyền thuyết,...'
+                                    : 'Áp dụng theo phạm vi ghi trên thẻ.';
+
                 let sellPrice = Math.max(1, Math.min(10, Math.floor(group.percent / 10)));
 
                 slotsData.push({
@@ -6567,7 +9154,12 @@ window.renderStudentBag = async function () {
                     isExpired: isExpired,
                     sellPrice: sellPrice,
                     firebaseKeys: currentChunkKeys,
-                    description: `🏷️ <b>Mức giảm:</b> ${group.percent}%<br>🕒 <b>Hạn dùng:</b> ${expText}<br>🎯 <b>Phạm vi:</b> ${targetText}`
+                    description:
+                        `🏷️ <b>Mức giảm:</b> ${group.percent}%` +
+                        `<br>🕒 <b>Hạn dùng:</b> ${expText}` +
+                        `<br>🎁 <b>Nguồn:</b> ${sourceText}` +
+                        `<br>🎯 <b>Phạm vi:</b> ${targetText}` +
+                        `<br>⚠️ <b>Điều kiện:</b> ${conditionText}`
                 });
 
                 index += count;
@@ -6726,32 +9318,24 @@ async function renderCashRequestHistory() {
 
 // HÀM MỚI: Tính toán chính xác Tổng tiền lộ trình thời gian thực
 window.calculateCurrentRouteMoney = async function () {
-    let baseMoney = 0;
-    const assignments = await getDB('assignments');
-    const submissions = await getDB('submissions');
-    const myAssignments = assignments.filter(assign => {
-        const targetArr = Array.isArray(assign.targetStudent) ? assign.targetStudent : [assign.targetStudent || 'all'];
-        return targetArr.includes('all') || targetArr.includes(currentUser.username);
-    });
+    const [assignments, submissions] = await Promise.all([
+        getDB('assignments'),
+        getDB('submissions')
+    ]);
 
-    myAssignments.forEach(assign => {
-        const passingGrade = assign.passingGrade || 7;
-        const sub = submissions.find(s => s.assignmentId === assign.id && s.studentUsername === currentUser.username);
-        let currentItemMoney = assign.roadmapMoney ? parseInt(assign.roadmapMoney) : 0;
+    const baseMoney = calculateRoadmapBaseMoney(
+        assignments,
+        submissions,
+        currentUser.username
+    );
 
-        if (sub) {
-            if (sub.forcePass) baseMoney += currentItemMoney;
-            else if (!sub.isAutoSubmitted && !sub.isLateFail && !sub.isRegrading && sub.grade !== null && sub.grade !== '') {
-                if (parseFloat(sub.grade) >= passingGrade) baseMoney += currentItemMoney;
-            }
-        }
-    });
+    const offsetSnap = await db
+        .ref('student_money_offset/' + currentUser.username)
+        .once('value');
 
-    // Cộng trừ với lịch sử quy đổi Coin (offset)
-    const offsetSnap = await db.ref('student_money_offset/' + currentUser.username).once('value');
-    let moneyOffset = offsetSnap.val() || 0;
+    const moneyOffset = Number(offsetSnap.val()) || 0;
+    const currentMoney = baseMoney + moneyOffset;
 
-    let currentMoney = baseMoney + moneyOffset;
     return currentMoney < 0 ? 0 : currentMoney;
 };
 
@@ -6817,37 +9401,607 @@ let watchDurations = {}; // Lưu mốc thời gian XA NHẤT học sinh đã xem
 let lastSavedTime = {};  // Biến phụ để chống spam lưu lên Firebase liên tục
 
 // Hàm thay thế getEmbedHTML dành riêng cho việc có theo dõi thời gian
-function getTrackedVideoHTML(url, assignId) {
-    if (!url) return '';
-    let videoId = '';
-    if (url.includes('watch?v=')) { videoId = url.split('v=')[1].split('&')[0]; }
-    else if (url.includes('youtu.be/')) { videoId = url.split('youtu.be/')[1].split('?')[0]; }
-    else if (url.includes('youtube.com/shorts/')) { videoId = url.split('shorts/')[1].split('?')[0]; }
-    else if (url.includes('embed/')) { videoId = url.split('embed/')[1].split('?')[0]; }
+function escapeVideoSummaryHTML(value) {
+    return String(
+        value ?? ''
+    ).replace(
+        /[&<>"']/g,
+        character => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        })[character]
+    );
+}
 
-    if (videoId) {
-        // Tự động nhận diện nguồn đang chạy web để khai báo với YouTube
-        const originParam =
-            window.location.origin !== 'null'
-                ? `&origin=${encodeURIComponent(
+function getTrackedVideoHTML(
+    url,
+    assignId,
+    assign = null,
+    watchedSeconds = 0
+) {
+    if (!url) return '';
+
+    let videoId = '';
+
+    if (url.includes('watch?v=')) {
+        videoId =
+            url.split('v=')[1]
+                .split('&')[0];
+    } else if (
+        url.includes('youtu.be/')
+    ) {
+        videoId =
+            url.split('youtu.be/')[1]
+                .split('?')[0];
+    } else if (
+        url.includes(
+            'youtube.com/shorts/'
+        )
+    ) {
+        videoId =
+            url.split(
+                'shorts/'
+            )[1].split('?')[0];
+    } else if (
+        url.includes('embed/')
+    ) {
+        videoId =
+            url.split('embed/')[1]
+                .split('?')[0];
+    }
+
+    if (!videoId) return '';
+
+    const originParam =
+        window.location.origin !==
+            'null'
+            ? (
+                '&origin=' +
+                encodeURIComponent(
                     window.location.origin
-                )}`
+                )
+            )
+            : '';
+
+    const embedUrl =
+        `https://www.youtube.com/embed/` +
+        `${videoId}` +
+        `?enablejsapi=1&rel=0` +
+        `${originParam}`;
+
+    const summaryText =
+        String(
+            assign?.videoSummary || ''
+        ).trim();
+
+    const hasSummary =
+        !!assign?.videoSummaryEnabled &&
+        !!summaryText;
+
+    const requiredSeconds =
+        Number(
+            assign?.watchCondition
+        ) || 0;
+
+    const summaryUnlocked =
+        requiredSeconds <= 0 ||
+        Number(watchedSeconds) >=
+        requiredSeconds;
+
+    const summaryHTML =
+        hasSummary
+            ? `
+                <aside
+                    id="video-summary-panel-${assignId}"
+                    class="video-summary-panel"
+                    aria-hidden="true"
+                >
+                    <div
+                        class="video-summary-panel-inner"
+                    >
+                        <h4
+                            class="video-summary-panel-title"
+                        >
+                            📝 Tóm tắt video
+                        </h4>
+
+                        <div
+                            class="video-summary-panel-text"
+                        >${escapeVideoSummaryHTML(
+                summaryText
+            )}</div>
+                    </div>
+
+                    <div
+                        class="video-summary-resizer"
+                        title="Kéo để điều chỉnh độ rộng"
+                        onpointerdown="
+                            startVideoSummaryResize(
+                                event,
+                                '${assignId}'
+                            )
+                        "
+                    ></div>
+                </aside>
+
+                <button
+                    id="video-summary-toggle-${assignId}"
+                    class="
+                        video-summary-toggle
+                        ${summaryUnlocked
+                ? ''
+                : 'is-locked'
+            }
+                    "
+                    type="button"
+                    ${summaryUnlocked
+                ? ''
+                : 'disabled'
+            }
+                    data-required-seconds="${requiredSeconds}"
+                    aria-expanded="false"
+                    title="${summaryUnlocked
+                ? 'Mở bảng tóm tắt'
+                : 'Cần đạt điều kiện xem video trước'
+            }"
+                    onclick="
+                        toggleVideoSummaryPanel(
+                            '${assignId}'
+                        )
+                    "
+                >
+                    <span
+                        id="video-summary-arrow-${assignId}"
+                    >
+                        ›
+                    </span>
+                </button>
+            `
+            : '';
+
+    const lockNote =
+        hasSummary &&
+            !summaryUnlocked
+            ? `
+                <div
+                    id="video-summary-lock-note-${assignId}"
+                    class="
+                        video-summary-lock-note
+                        show
+                    "
+                >
+                    🔒 Bảng tóm tắt sẽ mở
+                    sau khi đạt điều kiện
+                    xem video.
+                </div>
+            `
+            : hasSummary
+                ? `
+                    <div
+                        id="video-summary-lock-note-${assignId}"
+                        class="video-summary-lock-note"
+                    ></div>
+                `
                 : '';
 
-        let embedUrl =
-            `https://www.youtube.com/embed/${videoId}` +
-            `?enablejsapi=1&rel=0${originParam}`;
+    return `
+        <div
+            class="
+                video-wrapper
+                tracked-video-wrapper
+            "
+            style="
+                margin-top:15px;
+                margin-bottom:20px;
+                border:2px solid #667eea;
+                padding:10px;
+                border-radius:12px;
+                background:rgba(
+                    255,
+                    255,
+                    255,
+                    0.8
+                );
+            "
+        >
+            <div
+                id="tracked-video-shell-${assignId}"
+                class="tracked-video-shell"
+            >
+                <iframe
+                    id="yt-player-${assignId}"
+                    width="100%"
+                    height="315"
+                    src="${embedUrl}"
+                    frameborder="0"
+                    allow="
+                        accelerometer;
+                        autoplay;
+                        encrypted-media;
+                        picture-in-picture;
+                        fullscreen
+                    "
+                ></iframe>
 
-        return `
-        <div class="video-wrapper" style="margin-top: 15px; margin-bottom: 20px; border: 2px solid #667eea; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.8);">
-            <iframe id="yt-player-${assignId}" width="100%" height="315" src="${embedUrl}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; picture-in-picture; fullscreen"></iframe>
-            <div style="text-align: center; margin-top: 10px; font-weight: bold; color: #059669; font-size: 1.1em;">
-                ⏱️ Mốc thời gian đã xem tới: <span id="watch-time-display-${assignId}">0 giây</span>
+                ${summaryHTML}
             </div>
-        </div>`;
-    }
-    return '';
+
+            <div
+                style="
+                    text-align:center;
+                    margin-top:10px;
+                    font-weight:bold;
+                    color:#059669;
+                    font-size:1.1em;
+                "
+            >
+                ⏱️ Mốc thời gian đã xem tới:
+
+                <span
+                    id="watch-time-display-${assignId}"
+                >
+                    ${formatSecondsToDHMS(
+        Number(
+            watchedSeconds
+        ) || 0
+    )}
+                </span>
+            </div>
+
+            ${lockNote}
+        </div>
+    `;
 }
+
+window.toggleVideoSummaryPanel =
+    function (assignId) {
+        const shell =
+            document.getElementById(
+                `tracked-video-shell-${assignId}`
+            );
+
+        const panel =
+            document.getElementById(
+                `video-summary-panel-${assignId}`
+            );
+
+        const button =
+            document.getElementById(
+                `video-summary-toggle-${assignId}`
+            );
+
+        const arrow =
+            document.getElementById(
+                `video-summary-arrow-${assignId}`
+            );
+
+        if (
+            !shell ||
+            !panel ||
+            !button
+        ) {
+            return;
+        }
+
+        if (
+            button.disabled ||
+            button.classList.contains(
+                'is-locked'
+            )
+        ) {
+            const required =
+                Number(
+                    button.dataset
+                        .requiredSeconds
+                ) || 0;
+
+            alert(
+                required > 0
+                    ? (
+                        '🔒 Bạn cần xem video đạt ' +
+                        `${formatSecondsToDHMS(
+                            required
+                        )} trước khi mở ` +
+                        'bảng tóm tắt.'
+                    )
+                    : (
+                        '🔒 Bảng tóm tắt hiện ' +
+                        'chưa được mở khóa.'
+                    )
+            );
+
+            return;
+        }
+
+        const isOpen =
+            shell.classList.toggle(
+                'summary-open'
+            );
+
+        panel.setAttribute(
+            'aria-hidden',
+            String(!isOpen)
+        );
+
+        button.setAttribute(
+            'aria-expanded',
+            String(isOpen)
+        );
+
+        button.title =
+            isOpen
+                ? 'Đóng bảng tóm tắt'
+                : 'Mở bảng tóm tắt';
+
+        if (arrow) {
+            arrow.textContent =
+                isOpen ? '‹' : '›';
+        }
+    };
+
+window.updateVideoSummaryAccess =
+    function (
+        assignId,
+        isUnlocked,
+        requiredSeconds = 0
+    ) {
+        const button =
+            document.getElementById(
+                `video-summary-toggle-${assignId}`
+            );
+
+        const note =
+            document.getElementById(
+                `video-summary-lock-note-${assignId}`
+            );
+
+        if (!button) return;
+
+        button.dataset.requiredSeconds =
+            String(
+                Number(
+                    requiredSeconds
+                ) || 0
+            );
+
+        button.disabled =
+            !isUnlocked;
+
+        button.classList.toggle(
+            'is-locked',
+            !isUnlocked
+        );
+
+        button.title =
+            isUnlocked
+                ? 'Mở bảng tóm tắt'
+                : (
+                    'Cần đạt điều kiện ' +
+                    'xem video trước'
+                );
+
+        if (note) {
+            note.classList.toggle(
+                'show',
+                !isUnlocked
+            );
+
+            note.textContent =
+                isUnlocked
+                    ? ''
+                    : (
+                        '🔒 Bảng tóm tắt sẽ mở ' +
+                        'sau khi đạt điều kiện ' +
+                        'xem video.'
+                    );
+        }
+    };
+
+window.startVideoSummaryResize =
+    function (event, assignId) {
+        // Chỉ nhận chuột trái.
+        if (
+            event.button !== undefined &&
+            event.button !== 0
+        ) {
+            return;
+        }
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        const shell =
+            document.getElementById(
+                `tracked-video-shell-${assignId}`
+            );
+
+        const panel =
+            document.getElementById(
+                `video-summary-panel-${assignId}`
+            );
+
+        const handle =
+            event.currentTarget;
+
+        if (
+            !shell ||
+            !panel ||
+            !handle
+        ) {
+            return;
+        }
+
+        const pointerId =
+            event.pointerId;
+
+        document.body.classList.add(
+            'video-summary-resizing'
+        );
+
+        shell.classList.add(
+            'is-resizing'
+        );
+
+        /*
+        Giữ sự kiện chuột ở thanh kéo.
+        Dù con trỏ đi qua iframe YouTube,
+        thao tác kéo vẫn không bị mất.
+        */
+        try {
+            handle.setPointerCapture(
+                pointerId
+            );
+        } catch (error) {
+            // Trình duyệt không hỗ trợ thì bỏ qua.
+        }
+
+        const updateWidth =
+            clientX => {
+                const rect =
+                    shell.getBoundingClientRect();
+
+                if (!rect.width) return;
+
+                const rawPercent =
+                    (
+                        (
+                            clientX -
+                            rect.left
+                        ) /
+                        rect.width
+                    ) * 100;
+
+                const isMobile =
+                    window.innerWidth <= 700;
+
+                const minPercent =
+                    isMobile ? 45 : 25;
+
+                const maxPercent =
+                    isMobile ? 94 : 90;
+
+                const widthPercent =
+                    Math.min(
+                        maxPercent,
+                        Math.max(
+                            minPercent,
+                            rawPercent
+                        )
+                    );
+
+                shell.style.setProperty(
+                    '--video-summary-width',
+                    `${widthPercent}%`
+                );
+            };
+
+        // Cập nhật ngay từ vị trí nhấn đầu tiên.
+        updateWidth(
+            event.clientX
+        );
+
+        const move =
+            moveEvent => {
+                if (
+                    moveEvent.pointerId !==
+                    pointerId
+                ) {
+                    return;
+                }
+
+                moveEvent.preventDefault();
+
+                updateWidth(
+                    moveEvent.clientX
+                );
+            };
+
+        const cleanup = () => {
+            window.removeEventListener(
+                'pointermove',
+                move
+            );
+
+            window.removeEventListener(
+                'pointerup',
+                stop
+            );
+
+            window.removeEventListener(
+                'pointercancel',
+                stop
+            );
+
+            window.removeEventListener(
+                'blur',
+                cleanup
+            );
+
+            document.body.classList.remove(
+                'video-summary-resizing'
+            );
+
+            shell.classList.remove(
+                'is-resizing'
+            );
+
+            try {
+                if (
+                    handle.hasPointerCapture(
+                        pointerId
+                    )
+                ) {
+                    handle.releasePointerCapture(
+                        pointerId
+                    );
+                }
+            } catch (error) {
+                // Không cần xử lý.
+            }
+        };
+
+        const stop =
+            stopEvent => {
+                if (
+                    stopEvent.pointerId !==
+                    pointerId
+                ) {
+                    return;
+                }
+
+                cleanup();
+            };
+
+        window.addEventListener(
+            'pointermove',
+            move,
+            {
+                passive: false
+            }
+        );
+
+        window.addEventListener(
+            'pointerup',
+            stop
+        );
+
+        window.addEventListener(
+            'pointercancel',
+            stop
+        );
+
+        // Tránh bị kẹt trạng thái kéo khi đổi cửa sổ.
+        window.addEventListener(
+            'blur',
+            cleanup,
+            {
+                once: true
+            }
+        );
+    };
 
 function updateVideoWatchDisplays(assignId, seconds) {
     const formattedTime =
@@ -6899,6 +10053,21 @@ window.initYouTubeTrackers = function (assignments, retryCount = 0) {
                             updateVideoWatchDisplays(
                                 assign.id,
                                 watchDurations[assign.id]
+                            );
+
+                            const requiredSeconds =
+                                Number(
+                                    assign.watchCondition
+                                ) || 0;
+
+                            window.updateVideoSummaryAccess(
+                                assign.id,
+
+                                requiredSeconds <= 0 ||
+                                watchDurations[assign.id] >=
+                                requiredSeconds,
+
+                                requiredSeconds
                             );
                         });
                     },
@@ -7010,6 +10179,15 @@ window.onPlayerStateChange = function (event, assignId) {
                                     );
 
                                     window[`unlocked_${assignId}`] = true;
+
+                                    window.updateVideoSummaryAccess(
+                                        assignId,
+                                        true,
+
+                                        Number(
+                                            currentAssign.watchCondition
+                                        ) || 0
+                                    );
 
                                     // Ẩn bảng cảnh báo yêu cầu xem video.
                                     const noticeBox = document.getElementById(
@@ -7797,7 +10975,9 @@ window.openHoiHoaChest = async function (chestKey) {
     const accepted = confirm(
         'Bạn có muốn mở Rương Kho Báu Hội Họa không?\n\n' +
         '• 1%: Vật phẩm Hội Họa\n' +
-        '• 8%: Thẻ giảm giá 10–35%\n' +
+        '• 8%: Thẻ giảm giá 10–35%, dùng 1 lần, hạn 30 ngày\n' +
+        '  Chỉ dùng cho vật phẩm bán bằng Coin dưới 700 Coin;\n' +
+        '  không dùng cho vật phẩm sự kiện, Doraemon và Truyền thuyết,...\n' +
         '• 91%: 100–700 Coin'
     );
 
@@ -8010,19 +11190,34 @@ window.openHoiHoaChest = async function (chestKey) {
                     isUsed: false,
                     targetItem: ['all'],
 
+                    // Thẻ chỉ dùng một lần.
+                    usageLimit: 1,
+
+                    // Thời hạn tính từ thời điểm mở rương.
+                    createdAt: Date.now(),
+
                     expiry:
                         Date.now() +
                         30 * 24 * 60 * 60 * 1000,
 
                     source: 'hoihoa_chest',
-                    createdAt: Date.now()
+                    rewardType: 'hoihoa_treasure_chest',
+
+                    maxEligiblePriceExclusive: 700,
+                    excludesEventItems: true,
+
+                    excludedTags: [
+                        'Doraemon',
+                        'Truyền thuyết'
+                    ]
                 });
 
             rewardType = 'discount';
 
             rewardText =
                 `🏷️ Thẻ giảm giá ${percent}% ` +
-                `(hạn sử dụng 30 ngày)`;
+                `(dùng 1 lần, hạn 30 ngày, ` +
+                `chỉ áp dụng cho món Coin dưới 700)`;
         }
 
         /*
@@ -8110,21 +11305,168 @@ window.openHoiHoaChest = async function (chestKey) {
     }
 };
 
-// === CHẶN ĐÓNG POPUP THÔNG BÁO KHI CLICK RA NGOÀI ===
-document.addEventListener('DOMContentLoaded', () => {
-    const studentNotificationModal = document.getElementById('studentNotificationModal');
+// ======================================================
+// KHÓA THÔNG BÁO VÀ KHẢO SÁT BẮT BUỘC
+// Chặn bấm nền ngoài, nút đóng và phím ESC
+// ======================================================
+(function installMandatoryModalGuards() {
+    const modalConfigs = [
+        {
+            id: 'studentNotificationModal',
 
-    if (studentNotificationModal) {
-        studentNotificationModal.addEventListener('click', function (event) {
-            // Kiểm tra nếu người dùng click đúng vào vùng nền mờ
-            if (event.target === studentNotificationModal) {
-                // Chỉ chặn sự kiện đóng, không hiển thị bất kỳ thông báo nào
-                event.stopPropagation();
-                event.preventDefault();
+            // Còn thông báo chưa xác nhận thì khóa
+            isLocked: function () {
+                return !!window.currentMandatoryNotification;
+            },
+
+            // Nút này vẫn được phép bấm
+            allowedButtonIds: ['btnAcknowledgeNotification']
+        },
+        {
+            id: 'studentSurveyModal',
+
+            // Còn khảo sát chưa nộp thì khóa
+            isLocked: function () {
+                return !!window.currentActiveSurvey;
+            },
+
+            // Nút gửi khảo sát vẫn được phép bấm
+            allowedButtonIds: ['btnSubmitSurvey']
+        }
+    ];
+
+    function getLockedModals() {
+        const result = [];
+
+        modalConfigs.forEach(function (config) {
+            const modal = document.getElementById(config.id);
+
+            if (
+                modal &&
+                modal.classList.contains('active') &&
+                config.isLocked()
+            ) {
+                result.push({
+                    modal: modal,
+                    config: config
+                });
             }
         });
+
+        return result;
     }
-});
+
+    // Kiểm tra học sinh có bấm nút X hoặc nút đóng không
+    function isCloseControl(target, modal, config) {
+        if (!(target instanceof Element)) return false;
+
+        const control = target.closest(
+            [
+                '[data-close-modal]',
+                '[data-dismiss="modal"]',
+                '.modal-close',
+                '.close-modal',
+                '.close',
+                '[aria-label="Close"]',
+                '[aria-label="Đóng"]'
+            ].join(',')
+        );
+
+        if (!control || !modal.contains(control)) {
+            return false;
+        }
+
+        // Không chặn nút xác nhận hoặc nút gửi khảo sát
+        if (
+            control.id &&
+            config.allowedButtonIds.includes(control.id)
+        ) {
+            return false;
+        }
+
+        return true;
+    }
+
+    function showLockedMessage(config) {
+        if (typeof window.showToast !== 'function') return;
+
+        if (config.id === 'studentSurveyModal') {
+            window.showToast(
+                'Bạn phải trả lời đầy đủ và gửi khảo sát trước khi thoát.',
+                'warning'
+            );
+        } else {
+            window.showToast(
+                'Bạn phải đọc và xác nhận thông báo trước khi thoát.',
+                'warning'
+            );
+        }
+    }
+
+    function blockCloseAttempt(event) {
+        const lockedModals = getLockedModals();
+
+        if (lockedModals.length === 0) return;
+
+        for (const item of lockedModals) {
+            const modal = item.modal;
+            const config = item.config;
+
+            // Bấm đúng vào lớp nền mờ bên ngoài nội dung
+            const clickedOutside = event.target === modal;
+
+            // Bấm nút X hoặc nút đóng
+            const clickedCloseButton = isCloseControl(
+                event.target,
+                modal,
+                config
+            );
+
+            if (!clickedOutside && !clickedCloseButton) {
+                continue;
+            }
+
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+
+            showLockedMessage(config);
+            return;
+        }
+    }
+
+    // capture=true để chặn trước những onclick đóng modal khác
+    document.addEventListener(
+        'pointerdown',
+        blockCloseAttempt,
+        true
+    );
+
+    document.addEventListener(
+        'click',
+        blockCloseAttempt,
+        true
+    );
+
+    // Chặn phím ESC
+    document.addEventListener(
+        'keydown',
+        function (event) {
+            if (event.key !== 'Escape') return;
+
+            const lockedModals = getLockedModals();
+
+            if (lockedModals.length === 0) return;
+
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+
+            showLockedMessage(lockedModals[0].config);
+        },
+        true
+    );
+})();
 
 window.handleExamInterruption = async function (reason) {
     if (

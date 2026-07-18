@@ -619,3 +619,925 @@ window.setupAutoSave = function (inputElement, storageKey) {
 window.clearAutoSave = function (storageKey) {
     localStorage.removeItem(storageKey);
 };
+
+// ==============================================================
+// BỘ XEM TRỰC TIẾP TỆP/LINK TRÊN WEB (ẢNH, PDF, DOCX, URL)
+// ==============================================================
+(function () {
+    const registry =
+        window.__filePreviewRegistry =
+        window.__filePreviewRegistry || {};
+
+    let previewCounter = 0;
+
+    // Chống chèn mã HTML vào giao diện
+    function escapeHTML(value) {
+        return String(value == null ? '' : value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    // Chuẩn hóa và kiểm tra URL
+    function normalizeUrl(url) {
+        const value = String(url || '').trim();
+
+        if (
+            !value ||
+            /^(javascript|vbscript|file):/i.test(value)
+        ) {
+            return '';
+        }
+
+        // Chỉ chấp nhận các Data URL an toàn cần dùng
+        if (/^data:/i.test(value)) {
+            const safeData =
+                /^data:(image\/|application\/pdf|application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document)/i.test(
+                    value
+                );
+
+            return safeData ? value : '';
+        }
+
+        if (
+            /^(blob:|https?:\/\/|\/|\.\.?\/)/i.test(value)
+        ) {
+            return value;
+        }
+
+        // Tự thêm https:// khi người dùng nhập www...
+        if (
+            /^www\./i.test(value) ||
+            /^[a-z0-9.-]+\.[a-z]{2,}(?:[\/:?#]|$)/i.test(
+                value
+            )
+        ) {
+            return 'https://' + value;
+        }
+
+        return value;
+    }
+
+    // Lấy phần mở rộng của tên file hoặc URL
+    function getExtension(nameOrUrl) {
+        const clean = String(nameOrUrl || '')
+            .split('#')[0]
+            .split('?')[0];
+
+        const match = clean.match(/\.([a-z0-9]{1,8})$/i);
+
+        return match ? match[1].toLowerCase() : '';
+    }
+
+    // Nhận diện file là ảnh, PDF, DOCX, DOC hay link web
+    function inferKind(item) {
+        const url = item.url || '';
+        const type = String(item.type || '').toLowerCase();
+        const ext = getExtension(item.name || url);
+
+        const dataMime = url.startsWith('data:')
+            ? (
+                url.slice(5).split(';')[0] || ''
+            ).toLowerCase()
+            : '';
+
+        const mime = type || dataMime;
+
+        if (
+            mime.startsWith('image/') ||
+            [
+                'png',
+                'jpg',
+                'jpeg',
+                'gif',
+                'webp',
+                'bmp',
+                'svg',
+                'avif'
+            ].includes(ext)
+        ) {
+            return 'image';
+        }
+
+        if (
+            mime === 'application/pdf' ||
+            ext === 'pdf'
+        ) {
+            return 'pdf';
+        }
+
+        if (
+            mime.includes('wordprocessingml') ||
+            ext === 'docx'
+        ) {
+            return 'docx';
+        }
+
+        if (
+            mime === 'application/msword' ||
+            ext === 'doc'
+        ) {
+            return 'doc';
+        }
+
+        return 'web';
+    }
+
+    // Chuyển một số link Google thành link có thể xem trong iframe
+    function toEmbeddableUrl(url) {
+        let value = normalizeUrl(url);
+
+        if (!value) {
+            return '';
+        }
+
+        try {
+            const parsed = new URL(
+                value,
+                window.location.href
+            );
+
+            const host = parsed.hostname.toLowerCase();
+
+            // Google Drive
+            if (host.includes('drive.google.com')) {
+                const fileMatch =
+                    parsed.pathname.match(
+                        /\/file\/d\/([^/]+)/
+                    );
+
+                if (fileMatch) {
+                    return (
+                        'https://drive.google.com/file/d/' +
+                        fileMatch[1] +
+                        '/preview'
+                    );
+                }
+            }
+
+            // Google Docs, Sheets, Slides
+            if (host.includes('docs.google.com')) {
+                const docsMatch =
+                    parsed.pathname.match(
+                        /\/(document|spreadsheets|presentation)\/d\/([^/]+)/
+                    );
+
+                if (docsMatch) {
+                    return (
+                        'https://docs.google.com/' +
+                        docsMatch[1] +
+                        '/d/' +
+                        docsMatch[2] +
+                        '/preview'
+                    );
+                }
+            }
+
+            return parsed.href;
+        } catch (error) {
+            return value;
+        }
+    }
+
+    // Chuyển DOCX dạng Base64 thành ArrayBuffer cho Mammoth
+    function dataUrlToArrayBuffer(dataUrl) {
+        const parts = String(dataUrl).split(',');
+
+        if (parts.length < 2) {
+            throw new Error(
+                'Dữ liệu DOCX không hợp lệ.'
+            );
+        }
+
+        const meta = parts[0];
+        const body = parts.slice(1).join(',');
+
+        const binary = meta.includes(';base64')
+            ? atob(body)
+            : decodeURIComponent(body);
+
+        const bytes = new Uint8Array(binary.length);
+
+        for (
+            let index = 0;
+            index < binary.length;
+            index++
+        ) {
+            bytes[index] =
+                binary.charCodeAt(index);
+        }
+
+        return bytes.buffer;
+    }
+
+    // Loại bỏ các nội dung nguy hiểm trong HTML do Mammoth tạo
+    function sanitizeMammothHTML(html) {
+        const doc = new DOMParser().parseFromString(
+            `<div>${html || ''}</div>`,
+            'text/html'
+        );
+
+        doc.querySelectorAll(
+            'script, iframe, object, embed, style, link, meta'
+        ).forEach(element => {
+            element.remove();
+        });
+
+        doc.querySelectorAll('*').forEach(element => {
+            [...element.attributes].forEach(attribute => {
+                const name =
+                    attribute.name.toLowerCase();
+
+                const value =
+                    String(attribute.value || '')
+                        .trim()
+                        .toLowerCase();
+
+                if (
+                    name.startsWith('on') ||
+                    (
+                        (
+                            name === 'href' ||
+                            name === 'src'
+                        ) &&
+                        value.startsWith('javascript:')
+                    )
+                ) {
+                    element.removeAttribute(
+                        attribute.name
+                    );
+                }
+            });
+        });
+
+        return doc.body.firstElementChild
+            ? doc.body.firstElementChild.innerHTML
+            : '';
+    }
+
+    // Tạo cửa sổ xem file nếu chưa tồn tại
+    function ensureModal() {
+        let modal = document.getElementById(
+            'universalFilePreviewModal'
+        );
+
+        if (modal) {
+            return modal;
+        }
+
+        modal = document.createElement('div');
+
+        modal.id = 'universalFilePreviewModal';
+
+        modal.className =
+            'modal-overlay universal-preview-overlay';
+
+        modal.innerHTML = `
+            <div
+                class="universal-preview-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="universalPreviewTitle"
+            >
+                <div class="universal-preview-header">
+                    <div>
+                        <p class="universal-preview-kicker">
+                            XEM TRỰC TIẾP TRÊN WEB
+                        </p>
+
+                        <h3 id="universalPreviewTitle">
+                            Tài liệu
+                        </h3>
+                    </div>
+
+                    <button
+                        type="button"
+                        class="close-btn universal-preview-close"
+                        onclick="closeFilePreview()"
+                        aria-label="Đóng"
+                    >
+                        ✖
+                    </button>
+                </div>
+
+                <div class="universal-preview-actions">
+                    <button
+                        type="button"
+                        id="universalPreviewOpenTab"
+                        class="preview-action-btn"
+                        onclick="openPreviewSourceInNewTab()"
+                    >
+                        ↗ Mở tab mới
+                    </button>
+
+                    <a
+                        id="universalPreviewDownload"
+                        class="preview-action-btn preview-download-btn"
+                        href="#"
+                        download
+                        style="display:none;"
+                    >
+                        ⬇ Tải xuống
+                    </a>
+                </div>
+
+                <div
+                    id="universalPreviewNotice"
+                    class="universal-preview-notice"
+                    style="display:none;"
+                ></div>
+
+                <div
+                    id="universalPreviewBody"
+                    class="universal-preview-body"
+                ></div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        return modal;
+    }
+
+    // Hiển thị trạng thái đang tải
+    function showLoading(text) {
+        const body = document.getElementById(
+            'universalPreviewBody'
+        );
+
+        if (!body) {
+            return;
+        }
+
+        body.innerHTML = `
+            <div class="preview-loading">
+                <span class="preview-spinner"></span>
+
+                <p>
+                    ${escapeHTML(
+                        text ||
+                        'Đang mở tài liệu...'
+                    )}
+                </p>
+            </div>
+        `;
+    }
+
+    // Hiện thông báo phía trên khung xem
+    function showNotice(message) {
+        const notice = document.getElementById(
+            'universalPreviewNotice'
+        );
+
+        if (!notice) {
+            return;
+        }
+
+        notice.textContent = message || '';
+
+        notice.style.display = message
+            ? 'block'
+            : 'none';
+    }
+
+    // Tạo iframe dùng xem PDF, link web, Google Drive...
+    function createIframe(
+        url,
+        title,
+        sandboxed
+    ) {
+        const iframe =
+            document.createElement('iframe');
+
+        iframe.className =
+            'universal-preview-frame';
+
+        iframe.title =
+            title || 'Xem tài liệu';
+
+        iframe.src = url;
+
+        iframe.referrerPolicy =
+            'no-referrer-when-downgrade';
+
+        iframe.allow =
+            'fullscreen; clipboard-read; clipboard-write';
+
+        if (sandboxed) {
+            iframe.setAttribute(
+                'sandbox',
+                [
+                    'allow-scripts',
+                    'allow-same-origin',
+                    'allow-forms',
+                    'allow-popups',
+                    'allow-downloads'
+                ].join(' ')
+            );
+        }
+
+        return iframe;
+    }
+
+    /**
+     * Tạo HTML nút xem file.
+     *
+     * source có thể là:
+     * - Chuỗi URL
+     * - Object: { name, type, base64 }
+     * - Object: { name, type, url }
+     */
+    window.buildFilePreviewHTML = function (
+        source,
+        label,
+        options
+    ) {
+        options = options || {};
+
+        const raw =
+            typeof source === 'string'
+                ? { url: source }
+                : (source || {});
+
+        const url = normalizeUrl(
+            raw.url ||
+            raw.base64 ||
+            raw.href ||
+            ''
+        );
+
+        if (!url) {
+            return '';
+        }
+
+        const name =
+            raw.name ||
+            options.name ||
+            (
+                typeof source === 'string'
+                    ? source
+                    : 'Tài liệu'
+            );
+
+        const key =
+            `preview_${Date.now()}_${++previewCounter}`;
+
+        registry[key] = {
+            url: url,
+            name: name,
+            type: raw.type || '',
+            label: label || 'Tài liệu',
+
+            allowDownload:
+                options.allowDownload !== false,
+
+            sourceIsLink:
+                typeof source === 'string' ||
+                (
+                    Boolean(raw.url) &&
+                    !raw.base64
+                )
+        };
+
+        const tone = options.tone
+            ? (
+                ' preview-file-card--' +
+                escapeHTML(options.tone)
+            )
+            : '';
+
+        return `
+            <div class="preview-file-card${tone}">
+                <div class="preview-file-info">
+                    <strong>
+                        ${escapeHTML(
+                            label ||
+                            '📎 Tài liệu'
+                        )}
+                    </strong>
+
+                    <span title="${escapeHTML(name)}">
+                        ${escapeHTML(name)}
+                    </span>
+                </div>
+
+                <div class="preview-file-buttons">
+                    <button
+                        type="button"
+                        class="preview-inline-btn"
+                        onclick="
+                            event.stopPropagation();
+                            openFilePreview('${key}');
+                        "
+                    >
+                        👁 Xem trực tiếp
+                    </button>
+
+                    <button
+                        type="button"
+                        class="
+                            preview-inline-btn
+                            preview-inline-btn-secondary
+                        "
+                        onclick="
+                            event.stopPropagation();
+                            openPreviewSourceInNewTab('${key}');
+                        "
+                    >
+                        ↗ Mở tab mới
+                    </button>
+                </div>
+            </div>
+        `;
+    };
+
+    // Mở cửa sổ xem trực tiếp
+    window.openFilePreview = async function (
+        key
+    ) {
+        const item = registry[key];
+
+        if (!item) {
+            alert(
+                'Không tìm thấy dữ liệu tài liệu để mở.'
+            );
+
+            return;
+        }
+
+        const modal = ensureModal();
+
+        window.__activePreviewKey = key;
+
+        modal.classList.add('active');
+
+        document.body.classList.add(
+            'preview-modal-open'
+        );
+
+        const title =
+            document.getElementById(
+                'universalPreviewTitle'
+            );
+
+        const body =
+            document.getElementById(
+                'universalPreviewBody'
+            );
+
+        const download =
+            document.getElementById(
+                'universalPreviewDownload'
+            );
+
+        if (title) {
+            title.textContent =
+                item.name ||
+                item.label ||
+                'Tài liệu';
+        }
+
+        if (body) {
+            body.innerHTML = '';
+        }
+
+        showNotice('');
+        showLoading('Đang chuẩn bị nội dung...');
+
+        if (download) {
+            const isDownloadableData =
+                /^(data:|blob:)/i.test(
+                    item.url
+                );
+
+            download.style.display =
+                item.allowDownload &&
+                isDownloadableData
+                    ? 'inline-flex'
+                    : 'none';
+
+            download.href = item.url;
+
+            download.download =
+                item.name || 'tai-lieu';
+        }
+
+        const kind = inferKind(item);
+
+        try {
+            body.innerHTML = '';
+
+            // Xem ảnh
+            if (kind === 'image') {
+                const wrap =
+                    document.createElement('div');
+
+                wrap.className =
+                    'universal-image-wrap';
+
+                const image =
+                    document.createElement('img');
+
+                image.src = item.url;
+
+                image.alt =
+                    item.name ||
+                    'Ảnh tài liệu';
+
+                image.className =
+                    'universal-preview-image';
+
+                wrap.appendChild(image);
+                body.appendChild(wrap);
+
+                return;
+            }
+
+            // Xem PDF
+            if (kind === 'pdf') {
+                body.appendChild(
+                    createIframe(
+                        item.url,
+                        item.name,
+                        false
+                    )
+                );
+
+                return;
+            }
+
+            // Xem DOCX
+            if (kind === 'docx') {
+                // Ưu tiên dùng Mammoth.js
+                if (window.mammoth) {
+                    try {
+                        let arrayBuffer;
+
+                        // DOCX được lưu Base64 trong Firebase
+                        if (
+                            item.url.startsWith(
+                                'data:'
+                            )
+                        ) {
+                            arrayBuffer =
+                                dataUrlToArrayBuffer(
+                                    item.url
+                                );
+                        } else {
+                            // DOCX dạng link công khai
+                            const response =
+                                await fetch(item.url);
+
+                            if (!response.ok) {
+                                throw new Error(
+                                    'Không tải được DOCX'
+                                );
+                            }
+
+                            arrayBuffer =
+                                await response.arrayBuffer();
+                        }
+
+                        const result =
+                            await window.mammoth
+                                .convertToHtml({
+                                    arrayBuffer:
+                                        arrayBuffer
+                                });
+
+                        const article =
+                            document.createElement(
+                                'article'
+                            );
+
+                        article.className =
+                            'universal-docx-content';
+
+                        article.innerHTML =
+                            sanitizeMammothHTML(
+                                result.value
+                            );
+
+                        body.appendChild(article);
+
+                        if (
+                            result.messages &&
+                            result.messages.length
+                        ) {
+                            showNotice(
+                                'Một số định dạng phức tạp trong DOCX có thể hiển thị khác so với Microsoft Word.'
+                            );
+                        }
+
+                        return;
+                    } catch (docxError) {
+                        console.warn(
+                            'Không thể đọc DOCX trực tiếp bằng Mammoth:',
+                            docxError
+                        );
+                    }
+                }
+
+                // Nếu Mammoth không đọc được và DOCX là URL công khai
+                if (
+                    /^https?:\/\//i.test(
+                        item.url
+                    )
+                ) {
+                    const officeUrl =
+                        'https://view.officeapps.live.com/op/embed.aspx?src=' +
+                        encodeURIComponent(
+                            item.url
+                        );
+
+                    showNotice(
+                        'Đang dùng Microsoft Office Online để xem DOCX. Link phải được chia sẻ công khai.'
+                    );
+
+                    body.appendChild(
+                        createIframe(
+                            officeUrl,
+                            item.name,
+                            false
+                        )
+                    );
+                } else {
+                    showNotice(
+                        'Trình duyệt chưa thể đọc DOCX này trực tiếp. Hãy dùng nút “Mở tab mới” hoặc “Tải xuống”.'
+                    );
+
+                    body.innerHTML = `
+                        <div class="preview-empty-state">
+                            Không thể hiển thị DOCX
+                            trong khung xem.
+                        </div>
+                    `;
+                }
+
+                return;
+            }
+
+            // Xem định dạng Word .doc cũ
+            if (kind === 'doc') {
+                if (
+                    /^https?:\/\//i.test(
+                        item.url
+                    )
+                ) {
+                    const officeUrl =
+                        'https://view.officeapps.live.com/op/embed.aspx?src=' +
+                        encodeURIComponent(
+                            item.url
+                        );
+
+                    showNotice(
+                        'Đang dùng Microsoft Office Online để xem tệp Word. Link phải được chia sẻ công khai.'
+                    );
+
+                    body.appendChild(
+                        createIframe(
+                            officeUrl,
+                            item.name,
+                            false
+                        )
+                    );
+                } else {
+                    showNotice(
+                        'Tệp .doc cũ không thể đọc trực tiếp từ dữ liệu nội bộ. Vui lòng tải xuống.'
+                    );
+
+                    body.innerHTML = `
+                        <div class="preview-empty-state">
+                            Không thể hiển thị
+                            tệp .doc cũ.
+                        </div>
+                    `;
+                }
+
+                return;
+            }
+
+            // Xem link trang web, Google Drive, Google Docs...
+            const embedUrl =
+                toEmbeddableUrl(item.url);
+
+            showNotice(
+                'Nếu trang nguồn chặn nhúng, hãy bấm “Mở tab mới” ở phía trên.'
+            );
+
+            body.appendChild(
+                createIframe(
+                    embedUrl,
+                    item.name,
+                    true
+                )
+            );
+        } catch (error) {
+            console.error(
+                'Lỗi xem trực tiếp tài liệu:',
+                error
+            );
+
+            showNotice(
+                'Không thể hiển thị tài liệu trong khung xem. Hãy thử mở ở tab mới.'
+            );
+
+            body.innerHTML = `
+                <div class="preview-empty-state">
+                    Không thể tải nội dung tài liệu.
+                </div>
+            `;
+        }
+    };
+
+    // Mở nguồn tài liệu trong tab mới
+    window.openPreviewSourceInNewTab =
+        function (key) {
+            const activeKey =
+                key ||
+                window.__activePreviewKey;
+
+            const item =
+                registry[activeKey];
+
+            if (
+                !item ||
+                !item.url
+            ) {
+                return;
+            }
+
+            const targetUrl =
+                toEmbeddableUrl(item.url);
+
+            const opened =
+                window.open(
+                    targetUrl,
+                    '_blank'
+                );
+
+            if (opened) {
+                try {
+                    opened.opener = null;
+                } catch (error) {
+                    // Không cần xử lý
+                }
+            } else {
+                alert(
+                    'Trình duyệt đang chặn cửa sổ mới. Vui lòng cho phép pop-up cho trang này.'
+                );
+            }
+        };
+
+    // Đóng cửa sổ xem file
+    window.closeFilePreview = function () {
+        const modal =
+            document.getElementById(
+                'universalFilePreviewModal'
+            );
+
+        const body =
+            document.getElementById(
+                'universalPreviewBody'
+            );
+
+        if (modal) {
+            modal.classList.remove('active');
+        }
+
+        if (body) {
+            body.innerHTML = '';
+        }
+
+        showNotice('');
+
+        document.body.classList.remove(
+            'preview-modal-open'
+        );
+
+        window.__activePreviewKey = null;
+    };
+
+    // Nhấn Escape để đóng cửa sổ xem
+    document.addEventListener(
+        'keydown',
+        function (event) {
+            const modal =
+                document.getElementById(
+                    'universalFilePreviewModal'
+                );
+
+            if (
+                event.key === 'Escape' &&
+                modal &&
+                modal.classList.contains(
+                    'active'
+                )
+            ) {
+                window.closeFilePreview();
+            }
+        }
+    );
+})();

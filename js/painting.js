@@ -21,14 +21,22 @@
     });
 
     const TOOL_LABELS = Object.freeze({
+        select: 'Chọn / Di chuyển',
         brush: 'Bút mềm',
         pencil: 'Bút chì',
+        ink: 'Bút mực',
+        watercolor: 'Màu nước',
         marker: 'Bút dạ',
+        neon: 'Bút neon',
+        pixel: 'Bút pixel',
         spray: 'Bình xịt',
         eraser: 'Tẩy',
         line: 'Đường thẳng',
+        arrow: 'Mũi tên',
         rect: 'Hình chữ nhật',
         ellipse: 'Hình elip',
+        star: 'Ngôi sao',
+        text: 'Chèn chữ',
         fill: 'Đổ màu',
         picker: 'Hút màu'
     });
@@ -40,11 +48,22 @@
     ];
 
     const HoiHoaSystem = {
-        version: '2.0.0',
+        version: '3.0.0',
         canvas: null,
         ctx: null,
         previewCanvas: null,
         previewCtx: null,
+        objectCanvas: null,
+        objectCtx: null,
+
+        objects: [],
+        selectedObjectId: null,
+
+        isDraggingObject: false,
+        objectDragStart: null,
+        objectDragOriginal: null,
+
+        objectImageCache: new Map(),
         canvasStage: null,
         canvasScroll: null,
         currentRound: null,
@@ -56,6 +75,16 @@
         currentOpacity: 1,
         fillTolerance: 24,
         shapeMode: 'stroke',
+        currentFontFamily: 'Arial, sans-serif',
+
+        imageAdjustments: {
+            brightness: 0,
+            contrast: 0,
+            saturation: 0,
+            temperature: 0,
+            grayscale: 0,
+            blur: 0
+        },
         mirrorX: false,
         mirrorY: false,
         gridEnabled: false,
@@ -252,7 +281,9 @@
 
                         <div class="hh-reward-list">
                             <article class="hh-reward-item rank-one">
-                                <div class="hh-reward-rank">🥇</div>
+                                <div class="hh-reward-rank hh-reward-rank-badge">
+    ${this.badgeEmblem('talent')}
+</div>
 
                                 <div>
                                     <strong>
@@ -261,7 +292,9 @@
 
                                     <p>
                                         500 Coin, huy hiệu
-                                        “Họa sĩ tài năng” và
+                                        <b class="hh-badge-name hh-badge-name-talent">
+    “Họa sĩ tài năng”
+</b> và
                                         1 Rương Kho Báu Hội Họa.
                                     </p>
                                 </div>
@@ -284,9 +317,14 @@
                                 </p>
 
                                 <p>
-                                    <b>8%</b> nhận thẻ giảm giá
-                                    từ 10–35%, có hạn 30 ngày.
-                                </p>
+    <b>8%</b> nhận thẻ giảm giá
+    ngẫu nhiên từ 10–35%, dùng 1 lần
+    và có hạn 30 ngày kể từ lúc mở rương.
+    Thẻ chỉ dùng cho vật phẩm bán bằng Coin
+    có giá dưới 700 Coin; không dùng cho
+    vật phẩm sự kiện, tag Doraemon và
+    tag Truyền thuyết,...
+</p>
 
                                 <p>
                                     <b>91%</b> nhận ngẫu nhiên
@@ -295,7 +333,9 @@
                             </div>
 
                             <article class="hh-reward-item rank-two">
-                                <div class="hh-reward-rank">🥈</div>
+                                <div class="hh-reward-rank hh-reward-rank-badge">
+    ${this.badgeEmblem('golden-brush')}
+</div>
 
                                 <div>
                                     <strong>
@@ -304,21 +344,31 @@
 
                                     <p>
                                         300 Coin, huy hiệu
-                                        “Bút vẽ vàng” và thẻ giảm
-                                        giá 20% có hạn 30 ngày.
+<b class="hh-badge-name hh-badge-name-golden-brush">
+    “Bút vẽ vàng”
+</b> và thẻ giảm giá 20%, dùng 1 lần,
+có hạn 30 ngày. Thẻ chỉ dùng cho
+vật phẩm bán bằng Coin có giá dưới
+600 Coin; không dùng cho vật phẩm
+sự kiện, tag Doraemon và tag
+Truyền thuyết.
                                     </p>
                                 </div>
                             </article>
 
                             <article class="hh-reward-item rank-three">
-                                <div class="hh-reward-rank">🥉</div>
+                                <div class="hh-reward-rank hh-reward-rank-badge">
+    ${this.badgeEmblem('vibrant-color')}
+</div>
 
                                 <div>
                                     <strong>Hạng 3</strong>
 
                                     <p>
                                         200 Coin và huy hiệu
-                                        “Màu sắc rực rỡ”.
+                                        <b class="hh-badge-name hh-badge-name-vibrant-color">
+    “Màu sắc rực rỡ”
+</b>.
                                     </p>
                                 </div>
                             </article>
@@ -376,6 +426,320 @@
                     }
                 });
             }
+        },
+
+        badgeEmblem(type) {
+            const badges = {
+                talent: `
+            <span
+                class="hh-award-badge hh-award-badge-talent"
+                role="img"
+                aria-label="Huy hiệu Họa sĩ tài năng">
+
+                <svg
+                    viewBox="0 0 88 100"
+                    aria-hidden="true"
+                    focusable="false">
+
+                    <defs>
+                        <linearGradient
+                            id="hhTalentGold"
+                            x1="0"
+                            y1="0"
+                            x2="1"
+                            y2="1">
+
+                            <stop
+                                offset="0"
+                                stop-color="#fff3a6"/>
+
+                            <stop
+                                offset="0.42"
+                                stop-color="#fbbf24"/>
+
+                            <stop
+                                offset="1"
+                                stop-color="#b45309"/>
+                        </linearGradient>
+
+                        <linearGradient
+                            id="hhTalentCore"
+                            x1="0"
+                            y1="0"
+                            x2="1"
+                            y2="1">
+
+                            <stop
+                                offset="0"
+                                stop-color="#7c3aed"/>
+
+                            <stop
+                                offset="1"
+                                stop-color="#db2777"/>
+                        </linearGradient>
+
+                        <filter
+                            id="hhTalentShadow"
+                            x="-30%"
+                            y="-30%"
+                            width="160%"
+                            height="180%">
+
+                            <feDropShadow
+                                dx="0"
+                                dy="5"
+                                stdDeviation="4"
+                                flood-color="#6b21a8"
+                                flood-opacity=".28"/>
+                        </filter>
+                    </defs>
+
+                    <path
+                        d="M23 68 17 97l17-9 10 12 4-31z"
+                        fill="#7c3aed"/>
+
+                    <path
+                        d="m65 68 6 29-17-9-10 12-4-31z"
+                        fill="#db2777"/>
+
+                    <circle
+                        cx="44"
+                        cy="42"
+                        r="34"
+                        fill="url(#hhTalentGold)"
+                        filter="url(#hhTalentShadow)"/>
+
+                    <circle
+                        cx="44"
+                        cy="42"
+                        r="27"
+                        fill="#fff7d6"
+                        stroke="#fff"
+                        stroke-width="2"/>
+
+                    <circle
+                        cx="44"
+                        cy="42"
+                        r="22"
+                        fill="url(#hhTalentCore)"/>
+
+                    <path
+                        d="M32 47c0-10 7-18 16-18 7 0 13 5 13 11 0 4-3 7-7 7h-4c-2 0-3 2-2 4l1 2c1 3-1 6-4 6-8 0-13-5-13-12Z"
+                        fill="#fff"
+                        opacity=".96"/>
+
+                    <circle cx="40" cy="35" r="2.4" fill="#fbbf24"/>
+                    <circle cx="47" cy="34" r="2.4" fill="#38bdf8"/>
+                    <circle cx="53" cy="39" r="2.4" fill="#fb7185"/>
+                    <circle cx="38" cy="43" r="2.4" fill="#34d399"/>
+
+                    <path
+                        d="m65 17 2.1 4.8L72 24l-4.9 2.1L65 31l-2.1-4.9L58 24l4.9-2.2Z"
+                        fill="#fff"/>
+                </svg>
+            </span>
+        `,
+
+                'golden-brush': `
+            <span
+                class="hh-award-badge hh-award-badge-golden-brush"
+                role="img"
+                aria-label="Huy hiệu Bút vẽ vàng">
+
+                <svg
+                    viewBox="0 0 88 100"
+                    aria-hidden="true"
+                    focusable="false">
+
+                    <defs>
+                        <linearGradient
+                            id="hhBrushGold"
+                            x1="0"
+                            y1="0"
+                            x2="1"
+                            y2="1">
+
+                            <stop
+                                offset="0"
+                                stop-color="#fff7b2"/>
+
+                            <stop
+                                offset="0.5"
+                                stop-color="#f59e0b"/>
+
+                            <stop
+                                offset="1"
+                                stop-color="#92400e"/>
+                        </linearGradient>
+
+                        <linearGradient
+                            id="hhBrushBlue"
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1">
+
+                            <stop
+                                offset="0"
+                                stop-color="#2563eb"/>
+
+                            <stop
+                                offset="1"
+                                stop-color="#172554"/>
+                        </linearGradient>
+                    </defs>
+
+                    <path
+                        d="M25 68 19 97l17-9 8 11 4-30z"
+                        fill="#1d4ed8"/>
+
+                    <path
+                        d="m63 68 6 29-17-9-8 11-4-30z"
+                        fill="#0f172a"/>
+
+                    <path
+                        d="M44 7 75 21v25c0 22-13 36-31 43-18-7-31-21-31-43V21Z"
+                        fill="url(#hhBrushGold)"/>
+
+                    <path
+                        d="M44 14 68 25v20c0 17-9 29-24 36-15-7-24-19-24-36V25Z"
+                        fill="url(#hhBrushBlue)"
+                        stroke="#fff4b0"
+                        stroke-width="2"/>
+
+                    <path
+                        d="m30 26 5 2 4-5 5 5 5-5 4 5 5-2-2 10H32Z"
+                        fill="#fcd34d"/>
+
+                    <g transform="rotate(-38 45 52)">
+                        <rect
+                            x="41"
+                            y="34"
+                            width="8"
+                            height="31"
+                            rx="4"
+                            fill="#fbbf24"/>
+
+                        <rect
+                            x="42.5"
+                            y="38"
+                            width="2"
+                            height="24"
+                            rx="1"
+                            fill="#fff2a8"
+                            opacity=".8"/>
+
+                        <path
+                            d="M41 64h8l-1.2 9-2.8 5-2.8-5Z"
+                            fill="#f8fafc"/>
+
+                        <path
+                            d="M42.2 72.5h5.6L45 78Z"
+                            fill="#f97316"/>
+                    </g>
+                </svg>
+            </span>
+        `,
+
+                'vibrant-color': `
+            <span
+                class="hh-award-badge hh-award-badge-vibrant-color"
+                role="img"
+                aria-label="Huy hiệu Màu sắc rực rỡ">
+
+                <svg
+                    viewBox="0 0 88 100"
+                    aria-hidden="true"
+                    focusable="false">
+
+                    <defs>
+                        <linearGradient
+                            id="hhColorRing"
+                            x1="0"
+                            y1="0"
+                            x2="1"
+                            y2="1">
+
+                            <stop offset="0" stop-color="#fb7185"/>
+                            <stop offset="0.25" stop-color="#f59e0b"/>
+                            <stop offset="0.5" stop-color="#22c55e"/>
+                            <stop offset="0.75" stop-color="#38bdf8"/>
+                            <stop offset="1" stop-color="#a855f7"/>
+                        </linearGradient>
+
+                        <radialGradient
+                            id="hhColorCore"
+                            cx="35%"
+                            cy="28%"
+                            r="75%">
+
+                            <stop offset="0" stop-color="#ffffff"/>
+                            <stop offset="0.17" stop-color="#d8b4fe"/>
+                            <stop offset="0.58" stop-color="#7c3aed"/>
+                            <stop offset="1" stop-color="#312e81"/>
+                        </radialGradient>
+                    </defs>
+
+                    <path
+                        d="M23 68 17 97l17-9 10 12 4-31z"
+                        fill="#ec4899"/>
+
+                    <path
+                        d="m65 68 6 29-17-9-10 12-4-31z"
+                        fill="#06b6d4"/>
+
+                    <circle
+                        cx="44"
+                        cy="42"
+                        r="34"
+                        fill="url(#hhColorRing)"/>
+
+                    <circle
+                        cx="44"
+                        cy="42"
+                        r="27"
+                        fill="#fff"
+                        opacity=".92"/>
+
+                    <circle
+                        cx="44"
+                        cy="42"
+                        r="23"
+                        fill="url(#hhColorCore)"/>
+
+                    <path
+                        d="M27 48a20 20 0 0 1 34-14"
+                        fill="none"
+                        stroke="#fb7185"
+                        stroke-width="4"
+                        stroke-linecap="round"/>
+
+                    <path
+                        d="M30 52a16 16 0 0 1 28-15"
+                        fill="none"
+                        stroke="#fbbf24"
+                        stroke-width="4"
+                        stroke-linecap="round"/>
+
+                    <path
+                        d="M34 55a12 12 0 0 1 21-14"
+                        fill="none"
+                        stroke="#34d399"
+                        stroke-width="4"
+                        stroke-linecap="round"/>
+
+                    <path
+                        d="m58 50 2.3 5.2L66 58l-5.7 2.3L58 66l-2.3-5.7L50 58l5.7-2.8Z"
+                        fill="#fff"/>
+
+                    <circle cx="30" cy="35" r="2.5" fill="#38bdf8"/>
+                    <circle cx="52" cy="29" r="2.1" fill="#f9a8d4"/>
+                </svg>
+            </span>
+        `
+            };
+
+            return badges[type] || badges.talent;
         },
 
         bindGlobalEvents() {
@@ -477,6 +841,9 @@
                 'toggle-mirror-x': () => this.toggleMirror('x'),
                 'toggle-mirror-y': () => this.toggleMirror('y'),
                 'fullscreen': () => this.toggleFullscreen(),
+                'toggle-adjustments': () => this.toggleAdjustmentPanel(),
+                'apply-adjustments': () => this.applyImageAdjustments(),
+                'reset-adjustments': () => this.resetImageAdjustments(),
                 'palette': () => this.setColor(el.dataset.color),
                 'vote': () => this.voteArtwork(el.dataset.submissionId),
                 'preview': () => this.previewImage(el.dataset.image || el.currentSrc || el.src || el.querySelector('img')?.currentSrc || el.querySelector('img')?.src),
@@ -535,6 +902,35 @@
                 if (output) output.textContent = `${Math.round(this.fillTolerance)}`;
             }
             if (setting === 'shape-mode') this.shapeMode = value === 'fill' ? 'fill' : 'stroke';
+            if (setting === 'font-family') {
+                this.currentFontFamily = value || 'Arial, sans-serif';
+            }
+
+            if (setting.startsWith('adjust-')) {
+                const key = setting.replace('adjust-', '');
+
+                if (
+                    Object.prototype.hasOwnProperty.call(
+                        this.imageAdjustments,
+                        key
+                    )
+                ) {
+                    this.imageAdjustments[key] = Number(value) || 0;
+
+                    const output = document.getElementById(
+                        `hh-adjust-${key}-output`
+                    );
+
+                    if (output) {
+                        output.textContent =
+                            key === 'blur'
+                                ? `${this.imageAdjustments[key]} px`
+                                : `${this.imageAdjustments[key]}%`;
+                    }
+
+                    this.previewImageAdjustments();
+                }
+            }
             if (setting === 'grade-search') this.filterGradingCards(target.value);
             if (setting === 'grade-sort') this.sortGradingCards(target.value);
         },
@@ -1601,18 +1997,41 @@
             container.innerHTML = `
                 <section class="hh-workspace">
                     <aside class="hh-tool-dock" aria-label="Công cụ vẽ">
-                        ${this.toolButton('brush', '🖌', 'B')}
-                        ${this.toolButton('pencil', '✎', 'P')}
-                        ${this.toolButton('marker', '▰', 'M')}
-                        ${this.toolButton('spray', '⁙', 'S')}
-                        ${this.toolButton('eraser', '⌫', 'E')}
-                        <span class="hh-tool-separator"></span>
-                        ${this.toolButton('line', '╱', 'L')}
-                        ${this.toolButton('rect', '□', 'R')}
-                        ${this.toolButton('ellipse', '○', 'O')}
-                        ${this.toolButton('fill', '◒', 'G')}
-                        ${this.toolButton('picker', '◉', 'I')}
-                    </aside>
+    <span class="hh-tool-dock-label">Nét vẽ</span>
+
+    ${this.toolButton('brush', '🖌', 'B')}
+    ${this.toolButton('pencil', '✎', 'P')}
+    ${this.toolButton('ink', '✒', 'K')}
+    ${this.toolButton('watercolor', '◌', 'W')}
+    ${this.toolButton('marker', '▰', 'M')}
+    ${this.toolButton('neon', '✦', 'N')}
+    ${this.toolButton('pixel', '▦', 'X')}
+    ${this.toolButton('spray', '⁙', 'S')}
+    ${this.toolButton('eraser', '⌫', 'E')}
+
+    <span class="hh-tool-separator"></span>
+    <span class="hh-tool-dock-label">
+    Hình & chữ
+</span>
+
+${this.toolButton(
+                'select',
+                '↖',
+                'V'
+            )}
+
+    ${this.toolButton('line', '╱', 'L')}
+    ${this.toolButton('arrow', '➜', 'A')}
+    ${this.toolButton('rect', '□', 'R')}
+    ${this.toolButton('ellipse', '○', 'O')}
+    ${this.toolButton('star', '☆', 'H')}
+    ${this.toolButton('text', 'T', 'T')}
+
+    <span class="hh-tool-separator"></span>
+
+    ${this.toolButton('fill', '◒', 'G')}
+    ${this.toolButton('picker', '◉', 'I')}
+</aside>
 
                     <div class="hh-workspace-main">
                         <div class="canvas-toolbar hh-top-toolbar">
@@ -1640,6 +2059,55 @@
                                     <option value="fill" ${this.shapeMode === 'fill' ? 'selected' : ''}>Tô kín</option>
                                 </select>
                             </div>
+                            <div
+    class="hh-control-group hh-text-options
+    ${this.currentTool === 'text' ? 'active' : ''}"
+    id="hh-text-options">
+
+    <label>Phông chữ</label>
+
+    <select data-hh-setting="font-family">
+        <option
+            value="Arial, sans-serif"
+            ${this.currentFontFamily === 'Arial, sans-serif'
+                    ? 'selected'
+                    : ''}>
+            Arial
+        </option>
+
+        <option
+            value="Georgia, serif"
+            ${this.currentFontFamily === 'Georgia, serif'
+                    ? 'selected'
+                    : ''}>
+            Georgia
+        </option>
+
+        <option
+            value="'Times New Roman', serif"
+            ${this.currentFontFamily === "'Times New Roman', serif"
+                    ? 'selected'
+                    : ''}>
+            Times New Roman
+        </option>
+
+        <option
+            value="'Courier New', monospace"
+            ${this.currentFontFamily === "'Courier New', monospace"
+                    ? 'selected'
+                    : ''}>
+            Courier New
+        </option>
+
+        <option
+            value="system-ui, sans-serif"
+            ${this.currentFontFamily === 'system-ui, sans-serif'
+                    ? 'selected'
+                    : ''}>
+            System UI
+        </option>
+    </select>
+</div>
                             <div class="hh-control-group hh-fill-options">
                                 <label>Độ lan <output id="hh-tolerance-output">${this.fillTolerance}</output></label>
                                 <input type="range" min="0" max="100" value="${this.fillTolerance}" data-hh-setting="tolerance">
@@ -1656,6 +2124,14 @@
                                 <button type="button" class="hh-icon-text-btn" id="hh-mirror-x" data-hh-action="toggle-mirror-x">↔ Đối xứng X</button>
                                 <button type="button" class="hh-icon-text-btn" id="hh-mirror-y" data-hh-action="toggle-mirror-y">↕ Đối xứng Y</button>
                                 <button type="button" class="hh-icon-text-btn" id="hh-grid-button" data-hh-action="toggle-grid"># Lưới</button>
+                                <button
+    type="button"
+    class="hh-icon-text-btn hh-adjust-toggle"
+    id="hh-adjust-toggle"
+    data-hh-action="toggle-adjustments">
+
+    ☀ Chỉnh ảnh
+</button>
                             </div>
                             <div class="hh-zoom-controls">
                                 <button type="button" class="hh-icon-btn" data-hh-action="zoom-out" aria-label="Thu nhỏ">−</button>
@@ -1665,10 +2141,110 @@
                             </div>
                         </div>
 
+                        <section
+    class="hh-adjust-panel"
+    id="hh-adjust-panel"
+    hidden
+    aria-label="Bảng chỉnh ảnh">
+
+    <header class="hh-adjust-header">
+        <div>
+            <strong>Chỉnh ảnh chuyên nghiệp</strong>
+            <span>
+                Xem trước trực tiếp, sau đó bấm “Áp dụng”.
+            </span>
+        </div>
+
+        <div class="hh-adjust-actions">
+            <button
+                type="button"
+                class="hh-icon-text-btn"
+                data-hh-action="reset-adjustments">
+
+                Đặt lại
+            </button>
+
+            <button
+                type="button"
+                class="hh-btn hh-btn-primary"
+                data-hh-action="apply-adjustments">
+
+                Áp dụng
+            </button>
+        </div>
+    </header>
+
+    <div class="hh-adjust-grid">
+        ${this.adjustmentControl(
+                        'brightness',
+                        'Độ sáng',
+                        -100,
+                        100,
+                        1
+                    )}
+
+        ${this.adjustmentControl(
+                        'contrast',
+                        'Tương phản',
+                        -100,
+                        100,
+                        1
+                    )}
+
+        ${this.adjustmentControl(
+                        'saturation',
+                        'Bão hòa',
+                        -100,
+                        100,
+                        1
+                    )}
+
+        ${this.adjustmentControl(
+                        'temperature',
+                        'Nhiệt độ màu',
+                        -100,
+                        100,
+                        1
+                    )}
+
+        ${this.adjustmentControl(
+                        'grayscale',
+                        'Trắng đen',
+                        0,
+                        100,
+                        1
+                    )}
+
+        ${this.adjustmentControl(
+                        'blur',
+                        'Làm mờ',
+                        0,
+                        12,
+                        0.5,
+                        'px'
+                    )}
+    </div>
+</section>
+
                         <div class="hh-canvas-scroll" id="hh-canvas-scroll">
                             <div class="hh-canvas-stage" id="hh-canvas-stage" style="aspect-ratio:${config.canvasWidth}/${config.canvasHeight}; --hh-canvas-bg:${config.backgroundColor};">
-                                <canvas id="hoihoaCanvas" width="${config.canvasWidth}" height="${config.canvasHeight}"></canvas>
-                                <canvas id="hoihoaPreviewCanvas" width="${config.canvasWidth}" height="${config.canvasHeight}"></canvas>
+                                <canvas
+    id="hoihoaCanvas"
+    width="${config.canvasWidth}"
+    height="${config.canvasHeight}">
+</canvas>
+
+<canvas
+    id="hoihoaObjectCanvas"
+    width="${config.canvasWidth}"
+    height="${config.canvasHeight}">
+</canvas>
+
+<canvas
+    id="hoihoaPreviewCanvas"
+    width="${config.canvasWidth}"
+    height="${config.canvasHeight}">
+</canvas>
                                 <div class="hh-grid-overlay" id="hh-grid-overlay"></div>
                             </div>
                         </div>
@@ -1741,17 +2317,76 @@
             return `<button type="button" class="hh-tool-button ${this.currentTool === tool ? 'active' : ''}" data-hh-action="tool" data-tool="${tool}" title="${TOOL_LABELS[tool]} (${shortcut})"><span>${icon}</span><small>${this.escapeHTML(TOOL_LABELS[tool])}</small></button>`;
         },
 
+        adjustmentControl(
+            key,
+            label,
+            min,
+            max,
+            step = 1,
+            suffix = '%'
+        ) {
+            const value = Number(
+                this.imageAdjustments[key] || 0
+            );
+
+            return `
+        <label class="hh-adjust-control">
+            <span>
+                ${this.escapeHTML(label)}
+
+                <output id="hh-adjust-${key}-output">
+                    ${value}${suffix}
+                </output>
+            </span>
+
+            <input
+                type="range"
+                min="${min}"
+                max="${max}"
+                step="${step}"
+                value="${value}"
+                data-hh-setting="adjust-${key}">
+        </label>
+    `;
+        },
+
         setupCanvas(config) {
             this.canvas = document.getElementById('hoihoaCanvas');
             this.ctx = this.canvas ? this.canvas.getContext('2d', { willReadFrequently: true }) : null;
             this.previewCanvas = document.getElementById('hoihoaPreviewCanvas');
-            this.previewCtx = this.previewCanvas ? this.previewCanvas.getContext('2d') : null;
+            this.previewCtx =
+                this.previewCanvas
+                    ? this.previewCanvas.getContext('2d')
+                    : null;
+            this.objectCanvas =
+                document.getElementById(
+                    'hoihoaObjectCanvas'
+                );
+
+            this.objectCtx =
+                this.objectCanvas
+                    ? this.objectCanvas.getContext('2d')
+                    : null;
             this.canvasStage = document.getElementById('hh-canvas-stage');
             this.canvasScroll = document.getElementById('hh-canvas-scroll');
-            if (!this.canvas || !this.ctx || !this.previewCanvas || !this.previewCtx) return;
+            if (
+                !this.canvas ||
+                !this.ctx ||
+                !this.objectCanvas ||
+                !this.objectCtx ||
+                !this.previewCanvas ||
+                !this.previewCtx
+            ) {
+                return;
+            }
 
             this.canvas.width = config.canvasWidth;
             this.canvas.height = config.canvasHeight;
+            this.objectCanvas.width =
+                config.canvasWidth;
+
+            this.objectCanvas.height =
+                config.canvasHeight;
             this.previewCanvas.width = config.canvasWidth;
             this.previewCanvas.height = config.canvasHeight;
             this.canvasStage.style.setProperty('--hh-canvas-bg', config.backgroundColor);
@@ -1760,6 +2395,12 @@
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
             this.ctx.imageSmoothingEnabled = true;
             this.previewCtx.imageSmoothingEnabled = true;
+            this.objectCtx.imageSmoothingEnabled = true;
+
+            this.objects = [];
+            this.selectedObjectId = null;
+            this.isDraggingObject = false;
+            this.objectImageCache = new Map();
 
             this.boundPointerDown = (e) => this.onPointerDown(e);
             this.boundPointerMove = (e) => this.onPointerMove(e);
@@ -1850,6 +2491,17 @@
             this.ctx = null;
             this.previewCanvas = null;
             this.previewCtx = null;
+            this.objectCanvas = null;
+            this.objectCtx = null;
+
+            this.objects = [];
+            this.selectedObjectId = null;
+
+            this.isDraggingObject = false;
+            this.objectDragStart = null;
+            this.objectDragOriginal = null;
+
+            this.objectImageCache = new Map();
             this.canvasStage = null;
             this.canvasScroll = null;
             this.isDrawing = false;
@@ -1863,21 +2515,1034 @@
             this.zoom = 1;
         },
 
-        onPointerDown(event) {
-            if (!this.canvas || !this.ctx || event.button > 0) return;
-            event.preventDefault();
-            this.previewCanvas.setPointerCapture?.(event.pointerId);
-            this.activePointerId = event.pointerId;
-            const point = this.getCanvasPoint(event);
+        createObjectId() {
+            return (
+                `hh-object-${Date.now()}-` +
+                Math.random()
+                    .toString(36)
+                    .slice(2, 9)
+            );
+        },
 
-            if (this.currentTool === 'picker') {
+        cloneObjects(objects = this.objects) {
+            return JSON.parse(
+                JSON.stringify(objects || [])
+            );
+        },
+
+        getSelectedObject() {
+            return this.objects.find(
+                object =>
+                    object.id ===
+                    this.selectedObjectId
+            ) || null;
+        },
+
+        createShapeObject(
+            type,
+            start,
+            end
+        ) {
+            const common = {
+                id: this.createObjectId(),
+                type,
+                color: this.currentColor,
+                lineWidth: this.currentSize,
+                opacity: this.currentOpacity,
+                mode: this.shapeMode
+            };
+
+            if (
+                type === 'line' ||
+                type === 'arrow'
+            ) {
+                return {
+                    ...common,
+
+                    x1: start.x,
+                    y1: start.y,
+
+                    x2: end.x,
+                    y2: end.y
+                };
+            }
+
+            return {
+                ...common,
+
+                x: Math.min(
+                    start.x,
+                    end.x
+                ),
+
+                y: Math.min(
+                    start.y,
+                    end.y
+                ),
+
+                width: Math.abs(
+                    end.x - start.x
+                ),
+
+                height: Math.abs(
+                    end.y - start.y
+                )
+            };
+        },
+
+        measureTextObject(object) {
+            const context =
+                this.objectCtx ||
+                this.ctx;
+
+            const lines =
+                String(
+                    object.text || ''
+                ).split(/\n/);
+
+            const fontSize =
+                Number(
+                    object.fontSize || 20
+                );
+
+            context.save();
+
+            context.font =
+                `700 ${fontSize}px ` +
+                (
+                    object.fontFamily ||
+                    'Arial, sans-serif'
+                );
+
+            const width = Math.max(
+                20,
+
+                ...lines.map(line =>
+                    context.measureText(line).width
+                )
+            );
+
+            context.restore();
+
+            return {
+                width,
+                height:
+                    Math.max(
+                        1,
+                        lines.length
+                    ) *
+                    fontSize *
+                    1.25
+            };
+        },
+
+        getObjectBounds(object) {
+            if (!object) {
+                return {
+                    x: 0,
+                    y: 0,
+                    width: 0,
+                    height: 0
+                };
+            }
+
+            if (
+                object.type === 'line' ||
+                object.type === 'arrow'
+            ) {
+                const padding = Math.max(
+                    10,
+                    Number(
+                        object.lineWidth || 1
+                    ) * 2
+                );
+
+                const x = Math.min(
+                    object.x1,
+                    object.x2
+                );
+
+                const y = Math.min(
+                    object.y1,
+                    object.y2
+                );
+
+                return {
+                    x: x - padding,
+                    y: y - padding,
+
+                    width:
+                        Math.abs(
+                            object.x2 -
+                            object.x1
+                        ) +
+                        padding * 2,
+
+                    height:
+                        Math.abs(
+                            object.y2 -
+                            object.y1
+                        ) +
+                        padding * 2
+                };
+            }
+
+            if (object.type === 'text') {
+                const measured =
+                    this.measureTextObject(
+                        object
+                    );
+
+                return {
+                    x: object.x,
+                    y: object.y,
+
+                    width:
+                        measured.width,
+
+                    height:
+                        measured.height
+                };
+            }
+
+            return {
+                x: object.x,
+                y: object.y,
+
+                width:
+                    Math.max(
+                        1,
+                        object.width || 1
+                    ),
+
+                height:
+                    Math.max(
+                        1,
+                        object.height || 1
+                    )
+            };
+        },
+
+        pointToSegmentDistance(
+            point,
+            x1,
+            y1,
+            x2,
+            y2
+        ) {
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+
+            if (dx === 0 && dy === 0) {
+                return Math.hypot(
+                    point.x - x1,
+                    point.y - y1
+                );
+            }
+
+            const lengthSquared =
+                dx * dx +
+                dy * dy;
+
+            const t = this.clamp(
+                (
+                    (
+                        point.x - x1
+                    ) * dx +
+                    (
+                        point.y - y1
+                    ) * dy
+                ) / lengthSquared,
+                0,
+                1
+            );
+
+            const px =
+                x1 + t * dx;
+
+            const py =
+                y1 + t * dy;
+
+            return Math.hypot(
+                point.x - px,
+                point.y - py
+            );
+        },
+
+        objectContainsPoint(
+            object,
+            point
+        ) {
+            if (
+                object.type === 'line' ||
+                object.type === 'arrow'
+            ) {
+                return (
+                    this.pointToSegmentDistance(
+                        point,
+                        object.x1,
+                        object.y1,
+                        object.x2,
+                        object.y2
+                    ) <=
+                    Math.max(
+                        12,
+                        Number(
+                            object.lineWidth || 1
+                        ) + 8
+                    )
+                );
+            }
+
+            const bounds =
+                this.getObjectBounds(
+                    object
+                );
+
+            const padding = 8;
+
+            return (
+                point.x >=
+                bounds.x - padding &&
+
+                point.x <=
+                bounds.x +
+                bounds.width +
+                padding &&
+
+                point.y >=
+                bounds.y - padding &&
+
+                point.y <=
+                bounds.y +
+                bounds.height +
+                padding
+            );
+        },
+
+        hitTestObject(point) {
+            for (
+                let index =
+                    this.objects.length - 1;
+
+                index >= 0;
+
+                index--
+            ) {
+                const object =
+                    this.objects[index];
+
+                if (
+                    this.objectContainsPoint(
+                        object,
+                        point
+                    )
+                ) {
+                    return object;
+                }
+            }
+
+            return null;
+        },
+
+        moveObjectFromOriginal(
+            object,
+            original,
+            dx,
+            dy
+        ) {
+            if (
+                object.type === 'line' ||
+                object.type === 'arrow'
+            ) {
+                object.x1 =
+                    original.x1 + dx;
+
+                object.y1 =
+                    original.y1 + dy;
+
+                object.x2 =
+                    original.x2 + dx;
+
+                object.y2 =
+                    original.y2 + dy;
+
+                return;
+            }
+
+            object.x =
+                original.x + dx;
+
+            object.y =
+                original.y + dy;
+        },
+
+        getObjectImage(src) {
+            if (!src) return null;
+
+            const cached =
+                this.objectImageCache.get(
+                    src
+                );
+
+            if (cached?.image) {
+                return cached.image;
+            }
+
+            if (!cached?.promise) {
+                const promise =
+                    this.loadImage(src)
+                        .then(image => {
+                            this.objectImageCache.set(
+                                src,
+                                {
+                                    image,
+                                    promise: null
+                                }
+                            );
+
+                            this.renderObjectLayer();
+
+                            return image;
+                        })
+                        .catch(error => {
+                            console.warn(
+                                'Không thể tải ảnh đối tượng:',
+                                error
+                            );
+
+                            this.objectImageCache.delete(
+                                src
+                            );
+
+                            return null;
+                        });
+
+                this.objectImageCache.set(
+                    src,
+                    {
+                        image: null,
+                        promise
+                    }
+                );
+            }
+
+            return null;
+        },
+
+        async preloadObjectImages() {
+            const imageObjects =
+                this.objects.filter(
+                    object =>
+                        object.type ===
+                        'image' &&
+                        object.src
+                );
+
+            await Promise.all(
+                imageObjects.map(
+                    async object => {
+                        try {
+                            const image =
+                                await this.loadImage(
+                                    object.src
+                                );
+
+                            this.objectImageCache.set(
+                                object.src,
+                                {
+                                    image,
+                                    promise: null
+                                }
+                            );
+                        } catch (error) {
+                            console.warn(
+                                'Không thể khôi phục ảnh đối tượng:',
+                                error
+                            );
+                        }
+                    }
+                )
+            );
+        },
+
+        drawObject(
+            context,
+            object
+        ) {
+            if (!context || !object) {
+                return;
+            }
+
+            context.save();
+
+            context.globalAlpha =
+                this.clamp(
+                    Number(
+                        object.opacity ?? 1
+                    ),
+                    0.05,
+                    1
+                );
+
+            context.lineWidth =
+                Math.max(
+                    1,
+                    Number(
+                        object.lineWidth || 1
+                    )
+                );
+
+            context.lineCap = 'round';
+            context.lineJoin = 'round';
+
+            context.strokeStyle =
+                object.color ||
+                '#111827';
+
+            context.fillStyle =
+                object.color ||
+                '#111827';
+
+            if (object.type === 'line') {
+                context.beginPath();
+
+                context.moveTo(
+                    object.x1,
+                    object.y1
+                );
+
+                context.lineTo(
+                    object.x2,
+                    object.y2
+                );
+
+                context.stroke();
+            }
+
+            if (object.type === 'arrow') {
+                const angle =
+                    Math.atan2(
+                        object.y2 -
+                        object.y1,
+
+                        object.x2 -
+                        object.x1
+                    );
+
+                const head =
+                    Math.max(
+                        10,
+                        Number(
+                            object.lineWidth || 1
+                        ) * 3.2
+                    );
+
+                context.beginPath();
+
+                context.moveTo(
+                    object.x1,
+                    object.y1
+                );
+
+                context.lineTo(
+                    object.x2,
+                    object.y2
+                );
+
+                context.stroke();
+
+                context.beginPath();
+
+                context.moveTo(
+                    object.x2,
+                    object.y2
+                );
+
+                context.lineTo(
+                    object.x2 -
+                    head *
+                    Math.cos(
+                        angle -
+                        Math.PI / 6
+                    ),
+
+                    object.y2 -
+                    head *
+                    Math.sin(
+                        angle -
+                        Math.PI / 6
+                    )
+                );
+
+                context.lineTo(
+                    object.x2 -
+                    head *
+                    Math.cos(
+                        angle +
+                        Math.PI / 6
+                    ),
+
+                    object.y2 -
+                    head *
+                    Math.sin(
+                        angle +
+                        Math.PI / 6
+                    )
+                );
+
+                context.closePath();
+                context.fill();
+            }
+
+            if (object.type === 'rect') {
+                if (object.mode === 'fill') {
+                    context.fillRect(
+                        object.x,
+                        object.y,
+                        object.width,
+                        object.height
+                    );
+                } else {
+                    context.strokeRect(
+                        object.x,
+                        object.y,
+                        object.width,
+                        object.height
+                    );
+                }
+            }
+
+            if (object.type === 'ellipse') {
+                context.beginPath();
+
+                context.ellipse(
+                    object.x +
+                    object.width / 2,
+
+                    object.y +
+                    object.height / 2,
+
+                    Math.max(
+                        1,
+                        object.width / 2
+                    ),
+
+                    Math.max(
+                        1,
+                        object.height / 2
+                    ),
+
+                    0,
+                    0,
+                    Math.PI * 2
+                );
+
+                if (object.mode === 'fill') {
+                    context.fill();
+                } else {
+                    context.stroke();
+                }
+            }
+
+            if (object.type === 'star') {
+                const cx =
+                    object.x +
+                    object.width / 2;
+
+                const cy =
+                    object.y +
+                    object.height / 2;
+
+                const outerRadius =
+                    Math.max(
+                        2,
+
+                        Math.min(
+                            object.width,
+                            object.height
+                        ) / 2
+                    );
+
+                const innerRadius =
+                    Math.max(
+                        1,
+                        outerRadius / 2.2
+                    );
+
+                let angle =
+                    -Math.PI / 2;
+
+                context.beginPath();
+
+                for (
+                    let index = 0;
+                    index < 10;
+                    index++
+                ) {
+                    const radius =
+                        index % 2 === 0
+                            ? outerRadius
+                            : innerRadius;
+
+                    const x =
+                        cx +
+                        Math.cos(angle) *
+                        radius;
+
+                    const y =
+                        cy +
+                        Math.sin(angle) *
+                        radius;
+
+                    if (index === 0) {
+                        context.moveTo(x, y);
+                    } else {
+                        context.lineTo(x, y);
+                    }
+
+                    angle += Math.PI / 5;
+                }
+
+                context.closePath();
+
+                if (object.mode === 'fill') {
+                    context.fill();
+                } else {
+                    context.stroke();
+                }
+            }
+
+            if (object.type === 'text') {
+                const fontSize =
+                    Math.max(
+                        14,
+                        Number(
+                            object.fontSize || 20
+                        )
+                    );
+
+                const lines =
+                    String(
+                        object.text || ''
+                    ).split(/\n/);
+
+                context.textBaseline =
+                    'top';
+
+                context.font =
+                    `700 ${fontSize}px ` +
+                    (
+                        object.fontFamily ||
+                        'Arial, sans-serif'
+                    );
+
+                lines.forEach(
+                    (line, index) => {
+                        context.fillText(
+                            line,
+                            object.x,
+
+                            object.y +
+                            index *
+                            fontSize *
+                            1.25
+                        );
+                    }
+                );
+            }
+
+            if (object.type === 'image') {
+                const image =
+                    this.getObjectImage(
+                        object.src
+                    );
+
+                if (image) {
+                    context.drawImage(
+                        image,
+                        object.x,
+                        object.y,
+                        object.width,
+                        object.height
+                    );
+                }
+            }
+
+            context.restore();
+        },
+
+        renderObjectLayer() {
+            if (
+                !this.objectCanvas ||
+                !this.objectCtx
+            ) {
+                return;
+            }
+
+            this.objectCtx.clearRect(
+                0,
+                0,
+                this.objectCanvas.width,
+                this.objectCanvas.height
+            );
+
+            this.objects.forEach(
+                object =>
+                    this.drawObject(
+                        this.objectCtx,
+                        object
+                    )
+            );
+        },
+
+        renderSelectionOverlay() {
+            if (
+                !this.previewCanvas ||
+                !this.previewCtx
+            ) {
+                return;
+            }
+
+            this.previewCtx.clearRect(
+                0,
+                0,
+                this.previewCanvas.width,
+                this.previewCanvas.height
+            );
+
+            const selected =
+                this.getSelectedObject();
+
+            if (!selected) return;
+
+            const bounds =
+                this.getObjectBounds(
+                    selected
+                );
+
+            this.previewCtx.save();
+
+            this.previewCtx.strokeStyle =
+                '#2563eb';
+
+            this.previewCtx.fillStyle =
+                '#ffffff';
+
+            this.previewCtx.lineWidth =
+                Math.max(
+                    1,
+                    2 / Math.max(
+                        this.zoom,
+                        0.1
+                    )
+                );
+
+            this.previewCtx.setLineDash([
+                8,
+                5
+            ]);
+
+            this.previewCtx.strokeRect(
+                bounds.x - 5,
+                bounds.y - 5,
+                bounds.width + 10,
+                bounds.height + 10
+            );
+
+            this.previewCtx.setLineDash([]);
+
+            const handleSize = 9;
+
+            [
+                [bounds.x - 5, bounds.y - 5],
+
+                [
+                    bounds.x +
+                    bounds.width +
+                    5,
+
+                    bounds.y - 5
+                ],
+
+                [
+                    bounds.x - 5,
+
+                    bounds.y +
+                    bounds.height +
+                    5
+                ],
+
+                [
+                    bounds.x +
+                    bounds.width +
+                    5,
+
+                    bounds.y +
+                    bounds.height +
+                    5
+                ]
+            ].forEach(([x, y]) => {
+                this.previewCtx.fillRect(
+                    x - handleSize / 2,
+                    y - handleSize / 2,
+                    handleSize,
+                    handleSize
+                );
+
+                this.previewCtx.strokeRect(
+                    x - handleSize / 2,
+                    y - handleSize / 2,
+                    handleSize,
+                    handleSize
+                );
+            });
+
+            this.previewCtx.restore();
+        },
+
+        refreshObjects() {
+            this.renderObjectLayer();
+            this.renderSelectionOverlay();
+        },
+
+        deleteSelectedObject() {
+            if (!this.selectedObjectId) {
+                return;
+            }
+
+            const oldLength =
+                this.objects.length;
+
+            this.objects =
+                this.objects.filter(
+                    object =>
+                        object.id !==
+                        this.selectedObjectId
+                );
+
+            if (
+                this.objects.length ===
+                oldLength
+            ) {
+                return;
+            }
+
+            this.selectedObjectId = null;
+
+            this.refreshObjects();
+            this.markChanged(true);
+            this.pushHistory();
+        },
+
+        moveSelectedObjectBy(
+            dx,
+            dy
+        ) {
+            const object =
+                this.getSelectedObject();
+
+            if (!object) return;
+
+            const original =
+                this.cloneObjects([
+                    object
+                ])[0];
+
+            this.moveObjectFromOriginal(
+                object,
+                original,
+                dx,
+                dy
+            );
+
+            this.refreshObjects();
+            this.markChanged(true);
+        },
+
+        onPointerDown(event) {
+            if (
+                !this.canvas ||
+                !this.ctx ||
+                event.button > 0
+            ) {
+                return;
+            }
+
+            event.preventDefault();
+
+            this.previewCanvas
+                .setPointerCapture?.(
+                    event.pointerId
+                );
+
+            this.activePointerId =
+                event.pointerId;
+
+            const point =
+                this.getCanvasPoint(
+                    event
+                );
+
+            if (
+                this.currentTool ===
+                'select'
+            ) {
+                const object =
+                    this.hitTestObject(
+                        point
+                    );
+
+                this.selectedObjectId =
+                    object?.id || null;
+
+                this.renderSelectionOverlay();
+
+                if (object) {
+                    this.isDraggingObject =
+                        true;
+
+                    this.objectDragStart = {
+                        x: point.x,
+                        y: point.y
+                    };
+
+                    this.objectDragOriginal =
+                        this.cloneObjects([
+                            object
+                        ])[0];
+                }
+
+                return;
+            }
+
+            if (
+                this.currentTool ===
+                'picker'
+            ) {
                 this.pickColor(point);
                 return;
             }
-            if (this.currentTool === 'fill') {
-                this.floodFill(Math.round(point.x), Math.round(point.y));
+
+            if (
+                this.currentTool ===
+                'fill'
+            ) {
+                this.floodFill(
+                    Math.round(point.x),
+                    Math.round(point.y)
+                );
+
                 this.markChanged();
                 this.pushHistory();
+                return;
+            }
+
+            if (
+                this.currentTool ===
+                'text'
+            ) {
+                this.insertText(point);
                 return;
             }
 
@@ -1885,235 +3550,1369 @@
             this.startPoint = point;
             this.lastPoint = point;
 
-            if (['brush', 'pencil', 'marker', 'eraser', 'spray'].includes(this.currentTool)) {
-                this.drawFreehandSegment(point, point, event.pressure);
+            const freehandTools = [
+                'brush',
+                'pencil',
+                'ink',
+                'watercolor',
+                'marker',
+                'neon',
+                'pixel',
+                'eraser',
+                'spray'
+            ];
+
+            if (
+                freehandTools.includes(
+                    this.currentTool
+                )
+            ) {
+                this.drawFreehandSegment(
+                    point,
+                    point,
+                    event.pressure
+                );
+
                 this.markChanged();
             }
         },
 
         onPointerMove(event) {
-            if (!this.isDrawing || event.pointerId !== this.activePointerId) return;
+            if (
+                event.pointerId !==
+                this.activePointerId
+            ) {
+                return;
+            }
+
+            const point =
+                this.getCanvasPoint(
+                    event
+                );
+
+            if (
+                this.currentTool ===
+                'select' &&
+                this.isDraggingObject
+            ) {
+                event.preventDefault();
+
+                const object =
+                    this.getSelectedObject();
+
+                if (
+                    !object ||
+                    !this.objectDragStart ||
+                    !this.objectDragOriginal
+                ) {
+                    return;
+                }
+
+                const dx =
+                    point.x -
+                    this.objectDragStart.x;
+
+                const dy =
+                    point.y -
+                    this.objectDragStart.y;
+
+                this.moveObjectFromOriginal(
+                    object,
+                    this.objectDragOriginal,
+                    dx,
+                    dy
+                );
+
+                this.refreshObjects();
+                this.markChanged(true);
+
+                return;
+            }
+
+            if (!this.isDrawing) return;
+
             event.preventDefault();
-            const point = this.getCanvasPoint(event);
-            if (['brush', 'pencil', 'marker', 'eraser', 'spray'].includes(this.currentTool)) {
-                this.drawFreehandSegment(this.lastPoint, point, event.pressure);
+
+            const freehandTools = [
+                'brush',
+                'pencil',
+                'ink',
+                'watercolor',
+                'marker',
+                'neon',
+                'pixel',
+                'eraser',
+                'spray'
+            ];
+
+            if (
+                freehandTools.includes(
+                    this.currentTool
+                )
+            ) {
+                this.drawFreehandSegment(
+                    this.lastPoint,
+                    point,
+                    event.pressure
+                );
+
                 this.lastPoint = point;
                 this.markChanged();
             } else {
-                this.renderShapePreview(this.startPoint, point);
+                this.renderShapePreview(
+                    this.startPoint,
+                    point
+                );
             }
         },
 
         onPointerUp(event) {
-            if (!this.isDrawing || event.pointerId !== this.activePointerId) return;
-            event.preventDefault();
-            const point = this.getCanvasPoint(event);
-            if (['line', 'rect', 'ellipse'].includes(this.currentTool)) {
-                this.previewCtx.clearRect(0, 0, this.previewCanvas.width, this.previewCanvas.height);
-                this.drawShape(this.ctx, this.startPoint, point);
-                this.markChanged();
+            if (
+                event.pointerId !==
+                this.activePointerId
+            ) {
+                return;
             }
+
+            event.preventDefault();
+
+            if (
+                this.currentTool ===
+                'select' &&
+                this.isDraggingObject
+            ) {
+                this.isDraggingObject =
+                    false;
+
+                this.objectDragStart =
+                    null;
+
+                this.objectDragOriginal =
+                    null;
+
+                this.activePointerId =
+                    null;
+
+                this.refreshObjects();
+                this.pushHistory();
+
+                return;
+            }
+
+            if (!this.isDrawing) {
+                this.activePointerId =
+                    null;
+
+                return;
+            }
+
+            const point =
+                this.getCanvasPoint(
+                    event
+                );
+
+            const shapeTools = [
+                'line',
+                'arrow',
+                'rect',
+                'ellipse',
+                'star'
+            ];
+
+            if (
+                shapeTools.includes(
+                    this.currentTool
+                )
+            ) {
+                const object =
+                    this.createShapeObject(
+                        this.currentTool,
+                        this.startPoint,
+                        point
+                    );
+
+                const bounds =
+                    this.getObjectBounds(
+                        object
+                    );
+
+                if (
+                    bounds.width >= 3 ||
+                    bounds.height >= 3
+                ) {
+                    this.objects.push(
+                        object
+                    );
+
+                    this.selectedObjectId =
+                        object.id;
+
+                    this.markChanged(true);
+                    this.pushHistory();
+
+                    this.setTool(
+                        'select'
+                    );
+                }
+
+                this.refreshObjects();
+            }
+
             this.isDrawing = false;
-            this.activePointerId = null;
+
+            this.activePointerId =
+                null;
+
             this.ctx.beginPath();
-            if (this.isDirty) this.pushHistory();
         },
 
         getCanvasPoint(event) {
-            const rect = this.previewCanvas.getBoundingClientRect();
+            const rect =
+                this.previewCanvas.getBoundingClientRect();
+
             return {
-                x: this.clamp((event.clientX - rect.left) * (this.previewCanvas.width / rect.width), 0, this.previewCanvas.width),
-                y: this.clamp((event.clientY - rect.top) * (this.previewCanvas.height / rect.height), 0, this.previewCanvas.height)
+                x: this.clamp(
+                    (event.clientX - rect.left) *
+                    (
+                        this.previewCanvas.width /
+                        rect.width
+                    ),
+                    0,
+                    this.previewCanvas.width
+                ),
+
+                y: this.clamp(
+                    (event.clientY - rect.top) *
+                    (
+                        this.previewCanvas.height /
+                        rect.height
+                    ),
+                    0,
+                    this.previewCanvas.height
+                )
             };
         },
 
         getMirroredPairs(from, to) {
             const width = this.canvas.width;
             const height = this.canvas.height;
-            const pairs = [{ from, to }];
-            if (this.mirrorX) pairs.push({ from: { x: width - 1 - from.x, y: from.y }, to: { x: width - 1 - to.x, y: to.y } });
-            if (this.mirrorY) pairs.push({ from: { x: from.x, y: height - 1 - from.y }, to: { x: to.x, y: height - 1 - to.y } });
-            if (this.mirrorX && this.mirrorY) pairs.push({ from: { x: width - 1 - from.x, y: height - 1 - from.y }, to: { x: width - 1 - to.x, y: height - 1 - to.y } });
+
+            const pairs = [
+                {
+                    from,
+                    to
+                }
+            ];
+
+            if (this.mirrorX) {
+                pairs.push({
+                    from: {
+                        x: width - 1 - from.x,
+                        y: from.y
+                    },
+
+                    to: {
+                        x: width - 1 - to.x,
+                        y: to.y
+                    }
+                });
+            }
+
+            if (this.mirrorY) {
+                pairs.push({
+                    from: {
+                        x: from.x,
+                        y: height - 1 - from.y
+                    },
+
+                    to: {
+                        x: to.x,
+                        y: height - 1 - to.y
+                    }
+                });
+            }
+
+            if (this.mirrorX && this.mirrorY) {
+                pairs.push({
+                    from: {
+                        x: width - 1 - from.x,
+                        y: height - 1 - from.y
+                    },
+
+                    to: {
+                        x: width - 1 - to.x,
+                        y: height - 1 - to.y
+                    }
+                });
+            }
+
             return pairs;
         },
 
-        drawFreehandSegment(from, to, pressure = 0.5) {
+        drawFreehandSegment(
+            from,
+            to,
+            pressure = 0.5
+        ) {
             const ctx = this.ctx;
-            const effectivePressure = pressure > 0 ? pressure : 0.5;
-            const baseSize = this.currentSize * (this.currentTool === 'pencil' ? 0.45 : 1);
-            const lineSize = Math.max(1, baseSize * (0.55 + effectivePressure * 0.45));
-            const config = this.getRoundConfig(this.currentRound);
 
-            this.getMirroredPairs(from, to).forEach(pair => {
-                if (this.currentTool === 'spray') {
-                    this.drawSpray(pair.to, lineSize);
-                    return;
-                }
+            const effectivePressure =
+                pressure > 0
+                    ? pressure
+                    : 0.5;
 
-                ctx.save();
-                ctx.globalAlpha = this.currentTool === 'eraser' ? 1 : (this.currentTool === 'marker' ? Math.min(this.currentOpacity, 0.3) : this.currentOpacity);
-                ctx.lineWidth = this.currentTool === 'marker' ? lineSize * 1.7 : lineSize;
-                ctx.lineCap = this.currentTool === 'pencil' ? 'butt' : 'round';
-                ctx.lineJoin = 'round';
-                ctx.strokeStyle = this.currentTool === 'eraser' ? config.backgroundColor : this.currentColor;
-                if (this.currentTool === 'brush') {
-                    ctx.shadowColor = this.currentColor;
-                    ctx.shadowBlur = Math.max(0, lineSize * 0.08);
-                }
-                ctx.beginPath();
-                ctx.moveTo(pair.from.x, pair.from.y);
-                ctx.lineTo(pair.to.x, pair.to.y);
-                ctx.stroke();
-                ctx.restore();
-            });
+            const baseSize =
+                this.currentSize *
+                (
+                    this.currentTool === 'pencil'
+                        ? 0.45
+                        : 1
+                );
+
+            const lineSize = Math.max(
+                1,
+                baseSize *
+                (
+                    0.55 +
+                    effectivePressure * 0.45
+                )
+            );
+
+            const config =
+                this.getRoundConfig(this.currentRound);
+
+            this.getMirroredPairs(from, to)
+                .forEach(pair => {
+                    if (
+                        this.currentTool === 'spray'
+                    ) {
+                        this.drawSpray(
+                            pair.to,
+                            lineSize
+                        );
+
+                        return;
+                    }
+
+                    if (
+                        this.currentTool ===
+                        'watercolor'
+                    ) {
+                        this.drawWatercolorStroke(
+                            pair.from,
+                            pair.to,
+                            lineSize
+                        );
+
+                        return;
+                    }
+
+                    if (
+                        this.currentTool === 'neon'
+                    ) {
+                        this.drawNeonStroke(
+                            pair.from,
+                            pair.to,
+                            lineSize
+                        );
+
+                        return;
+                    }
+
+                    if (
+                        this.currentTool === 'pixel'
+                    ) {
+                        this.drawPixelStroke(
+                            pair.from,
+                            pair.to,
+                            lineSize
+                        );
+
+                        return;
+                    }
+
+                    ctx.save();
+
+                    ctx.globalAlpha =
+                        this.currentTool === 'eraser'
+                            ? 1
+                            : (
+                                this.currentTool ===
+                                    'marker'
+                                    ? Math.min(
+                                        this.currentOpacity,
+                                        0.3
+                                    )
+                                    : this.currentOpacity
+                            );
+
+                    if (
+                        this.currentTool === 'marker'
+                    ) {
+                        ctx.lineWidth =
+                            lineSize * 1.7;
+                    } else if (
+                        this.currentTool === 'ink'
+                    ) {
+                        ctx.lineWidth = Math.max(
+                            1,
+                            lineSize * 0.72
+                        );
+                    } else {
+                        ctx.lineWidth = lineSize;
+                    }
+
+                    ctx.lineCap = [
+                        'pencil',
+                        'ink'
+                    ].includes(this.currentTool)
+                        ? 'butt'
+                        : 'round';
+
+                    ctx.lineJoin = 'round';
+
+                    ctx.strokeStyle =
+                        this.currentTool === 'eraser'
+                            ? config.backgroundColor
+                            : this.currentColor;
+
+                    if (
+                        this.currentTool === 'brush'
+                    ) {
+                        ctx.shadowColor =
+                            this.currentColor;
+
+                        ctx.shadowBlur = Math.max(
+                            0,
+                            lineSize * 0.08
+                        );
+                    }
+
+                    ctx.beginPath();
+
+                    ctx.moveTo(
+                        pair.from.x,
+                        pair.from.y
+                    );
+
+                    ctx.lineTo(
+                        pair.to.x,
+                        pair.to.y
+                    );
+
+                    ctx.stroke();
+                    ctx.restore();
+                });
         },
 
         drawSpray(point, radius) {
             const ctx = this.ctx;
-            const dots = Math.max(8, Math.round(radius * 1.8));
+
+            const dots = Math.max(
+                8,
+                Math.round(radius * 1.8)
+            );
+
             ctx.save();
+
             ctx.fillStyle = this.currentColor;
-            ctx.globalAlpha = this.currentOpacity * 0.65;
+
+            ctx.globalAlpha =
+                this.currentOpacity * 0.65;
+
             for (let i = 0; i < dots; i++) {
-                const angle = Math.random() * Math.PI * 2;
-                const distance = Math.sqrt(Math.random()) * radius;
-                const dotRadius = Math.max(0.6, radius * 0.035 * Math.random());
+                const angle =
+                    Math.random() * Math.PI * 2;
+
+                const distance =
+                    Math.sqrt(Math.random()) *
+                    radius;
+
+                const dotRadius = Math.max(
+                    0.6,
+                    radius *
+                    0.035 *
+                    Math.random()
+                );
+
                 ctx.beginPath();
-                ctx.arc(point.x + Math.cos(angle) * distance, point.y + Math.sin(angle) * distance, dotRadius, 0, Math.PI * 2);
+
+                ctx.arc(
+                    point.x +
+                    Math.cos(angle) *
+                    distance,
+
+                    point.y +
+                    Math.sin(angle) *
+                    distance,
+
+                    dotRadius,
+                    0,
+                    Math.PI * 2
+                );
+
                 ctx.fill();
             }
+
             ctx.restore();
         },
 
-        renderShapePreview(start, end) {
-            this.previewCtx.clearRect(0, 0, this.previewCanvas.width, this.previewCanvas.height);
-            this.drawShape(this.previewCtx, start, end);
+        drawWatercolorStroke(
+            from,
+            to,
+            size
+        ) {
+            const ctx = this.ctx;
+            const layers = 7;
+
+            ctx.save();
+
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = this.currentColor;
+
+            ctx.globalCompositeOperation =
+                'source-over';
+
+            for (
+                let i = 0;
+                i < layers;
+                i++
+            ) {
+                const jitter = Math.max(
+                    0.5,
+                    size * 0.12
+                );
+
+                const ox =
+                    (Math.random() - 0.5) *
+                    jitter;
+
+                const oy =
+                    (Math.random() - 0.5) *
+                    jitter;
+
+                ctx.globalAlpha = Math.max(
+                    0.018,
+                    this.currentOpacity *
+                    (
+                        0.035 +
+                        Math.random() * 0.035
+                    )
+                );
+
+                ctx.lineWidth =
+                    size *
+                    (
+                        0.7 +
+                        Math.random() * 0.65
+                    );
+
+                ctx.beginPath();
+
+                ctx.moveTo(
+                    from.x + ox,
+                    from.y + oy
+                );
+
+                ctx.lineTo(
+                    to.x + ox,
+                    to.y + oy
+                );
+
+                ctx.stroke();
+            }
+
+            ctx.restore();
+        },
+
+        drawNeonStroke(
+            from,
+            to,
+            size
+        ) {
+            const ctx = this.ctx;
+
+            ctx.save();
+
+            ctx.globalAlpha =
+                this.currentOpacity;
+
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            ctx.strokeStyle =
+                this.currentColor;
+
+            ctx.shadowColor =
+                this.currentColor;
+
+            ctx.shadowBlur = Math.max(
+                8,
+                size * 1.15
+            );
+
+            ctx.lineWidth = Math.max(
+                3,
+                size * 1.45
+            );
+
+            ctx.beginPath();
+
+            ctx.moveTo(
+                from.x,
+                from.y
+            );
+
+            ctx.lineTo(
+                to.x,
+                to.y
+            );
+
+            ctx.stroke();
+
+            ctx.shadowBlur = Math.max(
+                3,
+                size * 0.35
+            );
+
+            ctx.strokeStyle = '#ffffff';
+
+            ctx.globalAlpha = Math.min(
+                1,
+                this.currentOpacity * 0.9
+            );
+
+            ctx.lineWidth = Math.max(
+                1,
+                size * 0.28
+            );
+
+            ctx.stroke();
+            ctx.restore();
+        },
+
+        drawPixelStroke(
+            from,
+            to,
+            size
+        ) {
+            const ctx = this.ctx;
+
+            const cell = Math.max(
+                2,
+                Math.round(size)
+            );
+
+            const distance = Math.hypot(
+                to.x - from.x,
+                to.y - from.y
+            );
+
+            const steps = Math.max(
+                1,
+                Math.ceil(
+                    distance /
+                    Math.max(
+                        1,
+                        cell * 0.45
+                    )
+                )
+            );
+
+            ctx.save();
+
+            ctx.fillStyle =
+                this.currentColor;
+
+            ctx.globalAlpha =
+                this.currentOpacity;
+
+            for (
+                let i = 0;
+                i <= steps;
+                i++
+            ) {
+                const t = i / steps;
+
+                const x = Math.round(
+                    (
+                        from.x +
+                        (
+                            to.x - from.x
+                        ) * t
+                    ) / cell
+                ) * cell;
+
+                const y = Math.round(
+                    (
+                        from.y +
+                        (
+                            to.y - from.y
+                        ) * t
+                    ) / cell
+                ) * cell;
+
+                ctx.fillRect(
+                    x - cell / 2,
+                    y - cell / 2,
+                    cell,
+                    cell
+                );
+            }
+
+            ctx.restore();
+        },
+
+        renderShapePreview(
+            start,
+            end
+        ) {
+            this.previewCtx.clearRect(
+                0,
+                0,
+                this.previewCanvas.width,
+                this.previewCanvas.height
+            );
+
+            const object =
+                this.createShapeObject(
+                    this.currentTool,
+                    start,
+                    end
+                );
+
+            this.drawObject(
+                this.previewCtx,
+                object
+            );
         },
 
         drawShape(ctx, start, end) {
             ctx.save();
-            ctx.globalAlpha = this.currentOpacity;
-            ctx.lineWidth = this.currentSize;
+
+            ctx.globalAlpha =
+                this.currentOpacity;
+
+            ctx.lineWidth =
+                this.currentSize;
+
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
-            ctx.strokeStyle = this.currentColor;
-            ctx.fillStyle = this.currentColor;
 
-            const x = Math.min(start.x, end.x);
-            const y = Math.min(start.y, end.y);
-            const w = Math.abs(end.x - start.x);
-            const h = Math.abs(end.y - start.y);
+            ctx.strokeStyle =
+                this.currentColor;
 
-            if (this.currentTool === 'line') {
+            ctx.fillStyle =
+                this.currentColor;
+
+            const x = Math.min(
+                start.x,
+                end.x
+            );
+
+            const y = Math.min(
+                start.y,
+                end.y
+            );
+
+            const w = Math.abs(
+                end.x - start.x
+            );
+
+            const h = Math.abs(
+                end.y - start.y
+            );
+
+            if (
+                this.currentTool === 'line'
+            ) {
                 ctx.beginPath();
-                ctx.moveTo(start.x, start.y);
-                ctx.lineTo(end.x, end.y);
+
+                ctx.moveTo(
+                    start.x,
+                    start.y
+                );
+
+                ctx.lineTo(
+                    end.x,
+                    end.y
+                );
+
                 ctx.stroke();
             }
-            if (this.currentTool === 'rect') {
-                if (this.shapeMode === 'fill') ctx.fillRect(x, y, w, h);
-                else ctx.strokeRect(x, y, w, h);
+
+            if (
+                this.currentTool === 'arrow'
+            ) {
+                this.drawArrow(
+                    ctx,
+                    start,
+                    end
+                );
             }
-            if (this.currentTool === 'ellipse') {
+
+            if (
+                this.currentTool === 'rect'
+            ) {
+                if (
+                    this.shapeMode === 'fill'
+                ) {
+                    ctx.fillRect(
+                        x,
+                        y,
+                        w,
+                        h
+                    );
+                } else {
+                    ctx.strokeRect(
+                        x,
+                        y,
+                        w,
+                        h
+                    );
+                }
+            }
+
+            if (
+                this.currentTool === 'ellipse'
+            ) {
                 ctx.beginPath();
-                ctx.ellipse(x + w / 2, y + h / 2, Math.max(1, w / 2), Math.max(1, h / 2), 0, 0, Math.PI * 2);
-                if (this.shapeMode === 'fill') ctx.fill();
-                else ctx.stroke();
+
+                ctx.ellipse(
+                    x + w / 2,
+                    y + h / 2,
+                    Math.max(
+                        1,
+                        w / 2
+                    ),
+                    Math.max(
+                        1,
+                        h / 2
+                    ),
+                    0,
+                    0,
+                    Math.PI * 2
+                );
+
+                if (
+                    this.shapeMode === 'fill'
+                ) {
+                    ctx.fill();
+                } else {
+                    ctx.stroke();
+                }
             }
+
+            if (
+                this.currentTool === 'star'
+            ) {
+                this.drawStar(
+                    ctx,
+                    x + w / 2,
+                    y + h / 2,
+
+                    Math.max(
+                        2,
+                        Math.min(w, h) / 2
+                    ),
+
+                    Math.max(
+                        1,
+                        Math.min(w, h) / 4.4
+                    )
+                );
+            }
+
             ctx.restore();
         },
 
+        drawArrow(ctx, start, end) {
+            const angle = Math.atan2(
+                end.y - start.y,
+                end.x - start.x
+            );
+
+            const head = Math.max(
+                10,
+                this.currentSize * 3.2
+            );
+
+            ctx.beginPath();
+
+            ctx.moveTo(
+                start.x,
+                start.y
+            );
+
+            ctx.lineTo(
+                end.x,
+                end.y
+            );
+
+            ctx.stroke();
+
+            ctx.beginPath();
+
+            ctx.moveTo(
+                end.x,
+                end.y
+            );
+
+            ctx.lineTo(
+                end.x -
+                head *
+                Math.cos(
+                    angle -
+                    Math.PI / 6
+                ),
+
+                end.y -
+                head *
+                Math.sin(
+                    angle -
+                    Math.PI / 6
+                )
+            );
+
+            ctx.lineTo(
+                end.x -
+                head *
+                Math.cos(
+                    angle +
+                    Math.PI / 6
+                ),
+
+                end.y -
+                head *
+                Math.sin(
+                    angle +
+                    Math.PI / 6
+                )
+            );
+
+            ctx.closePath();
+
+            if (
+                this.shapeMode === 'fill'
+            ) {
+                ctx.fill();
+            } else {
+                ctx.stroke();
+            }
+        },
+
+        drawStar(
+            ctx,
+            cx,
+            cy,
+            outerRadius,
+            innerRadius
+        ) {
+            let angle = -Math.PI / 2;
+
+            const step =
+                Math.PI / 5;
+
+            ctx.beginPath();
+
+            for (
+                let i = 0;
+                i < 10;
+                i++
+            ) {
+                const radius =
+                    i % 2 === 0
+                        ? outerRadius
+                        : innerRadius;
+
+                const px =
+                    cx +
+                    Math.cos(angle) *
+                    radius;
+
+                const py =
+                    cy +
+                    Math.sin(angle) *
+                    radius;
+
+                if (i === 0) {
+                    ctx.moveTo(px, py);
+                } else {
+                    ctx.lineTo(px, py);
+                }
+
+                angle += step;
+            }
+
+            ctx.closePath();
+
+            if (
+                this.shapeMode === 'fill'
+            ) {
+                ctx.fill();
+            } else {
+                ctx.stroke();
+            }
+        },
+
+        insertText(point) {
+            const text =
+                window.prompt(
+                    'Nhập nội dung cần chèn:'
+                );
+
+            if (!text) return;
+
+            const object = {
+                id: this.createObjectId(),
+                type: 'text',
+
+                x: point.x,
+                y: point.y,
+
+                text:
+                    String(text),
+
+                fontSize:
+                    Math.max(
+                        14,
+                        Math.round(
+                            this.currentSize
+                        )
+                    ),
+
+                fontFamily:
+                    this.currentFontFamily,
+
+                color:
+                    this.currentColor,
+
+                opacity:
+                    this.currentOpacity
+            };
+
+            this.objects.push(
+                object
+            );
+
+            this.selectedObjectId =
+                object.id;
+
+            this.refreshObjects();
+
+            this.markChanged(true);
+            this.pushHistory();
+
+            this.setTool('select');
+        },
+
         hexToRgba(hex, alpha = 255) {
-            const normalized = hex.replace('#', '');
+            const normalized =
+                hex.replace('#', '');
+
             return [
-                parseInt(normalized.slice(0, 2), 16),
-                parseInt(normalized.slice(2, 4), 16),
-                parseInt(normalized.slice(4, 6), 16),
+                parseInt(
+                    normalized.slice(0, 2),
+                    16
+                ),
+
+                parseInt(
+                    normalized.slice(2, 4),
+                    16
+                ),
+
+                parseInt(
+                    normalized.slice(4, 6),
+                    16
+                ),
+
                 alpha
             ];
         },
 
         floodFill(startX, startY) {
-            if (!this.ctx || startX < 0 || startY < 0 || startX >= this.canvas.width || startY >= this.canvas.height) return;
-            const image = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+            if (
+                !this.ctx ||
+                startX < 0 ||
+                startY < 0 ||
+                startX >= this.canvas.width ||
+                startY >= this.canvas.height
+            ) {
+                return;
+            }
+
+            const image =
+                this.ctx.getImageData(
+                    0,
+                    0,
+                    this.canvas.width,
+                    this.canvas.height
+                );
+
             const data = image.data;
             const width = this.canvas.width;
             const height = this.canvas.height;
-            const startIndex = (startY * width + startX) * 4;
-            const target = [data[startIndex], data[startIndex + 1], data[startIndex + 2], data[startIndex + 3]];
-            const replacement = this.hexToRgba(this.currentColor, Math.round(this.currentOpacity * 255));
-            const tolerance = this.fillTolerance * 2.55;
 
-            const matches = (idx) =>
-                Math.abs(data[idx] - target[0]) <= tolerance &&
-                Math.abs(data[idx + 1] - target[1]) <= tolerance &&
-                Math.abs(data[idx + 2] - target[2]) <= tolerance &&
-                Math.abs(data[idx + 3] - target[3]) <= tolerance;
+            const startIndex =
+                (
+                    startY *
+                    width +
+                    startX
+                ) * 4;
 
-            if (target.every((v, i) => Math.abs(v - replacement[i]) <= tolerance)) return;
+            const target = [
+                data[startIndex],
+                data[startIndex + 1],
+                data[startIndex + 2],
+                data[startIndex + 3]
+            ];
 
-            const stack = new Int32Array(width * height);
-            const visited = new Uint8Array(width * height);
+            const replacement =
+                this.hexToRgba(
+                    this.currentColor,
+                    Math.round(
+                        this.currentOpacity *
+                        255
+                    )
+                );
+
+            const tolerance =
+                this.fillTolerance * 2.55;
+
+            const matches = idx =>
+                Math.abs(
+                    data[idx] -
+                    target[0]
+                ) <= tolerance &&
+
+                Math.abs(
+                    data[idx + 1] -
+                    target[1]
+                ) <= tolerance &&
+
+                Math.abs(
+                    data[idx + 2] -
+                    target[2]
+                ) <= tolerance &&
+
+                Math.abs(
+                    data[idx + 3] -
+                    target[3]
+                ) <= tolerance;
+
+            if (
+                target.every(
+                    (value, index) =>
+                        Math.abs(
+                            value -
+                            replacement[index]
+                        ) <= tolerance
+                )
+            ) {
+                return;
+            }
+
+            const stack =
+                new Int32Array(
+                    width * height
+                );
+
+            const visited =
+                new Uint8Array(
+                    width * height
+                );
+
             let stackSize = 0;
-            const startPosition = startY * width + startX;
-            stack[stackSize++] = startPosition;
+
+            const startPosition =
+                startY * width + startX;
+
+            stack[stackSize++] =
+                startPosition;
+
             visited[startPosition] = 1;
 
-            const pushOnce = (position) => {
+            const pushOnce = position => {
                 if (!visited[position]) {
                     visited[position] = 1;
-                    stack[stackSize++] = position;
+                    stack[stackSize++] =
+                        position;
                 }
             };
 
             while (stackSize > 0) {
-                const position = stack[--stackSize];
-                const x = position % width;
-                const y = (position / width) | 0;
-                const idx = position * 4;
-                if (!matches(idx)) continue;
+                const position =
+                    stack[--stackSize];
 
-                data[idx] = replacement[0];
-                data[idx + 1] = replacement[1];
-                data[idx + 2] = replacement[2];
-                data[idx + 3] = replacement[3];
+                const x =
+                    position % width;
 
-                if (x > 0) pushOnce(position - 1);
-                if (x < width - 1) pushOnce(position + 1);
-                if (y > 0) pushOnce(position - width);
-                if (y < height - 1) pushOnce(position + width);
+                const y =
+                    (position / width) | 0;
+
+                const index =
+                    position * 4;
+
+                if (!matches(index)) {
+                    continue;
+                }
+
+                data[index] =
+                    replacement[0];
+
+                data[index + 1] =
+                    replacement[1];
+
+                data[index + 2] =
+                    replacement[2];
+
+                data[index + 3] =
+                    replacement[3];
+
+                if (x > 0) {
+                    pushOnce(
+                        position - 1
+                    );
+                }
+
+                if (x < width - 1) {
+                    pushOnce(
+                        position + 1
+                    );
+                }
+
+                if (y > 0) {
+                    pushOnce(
+                        position - width
+                    );
+                }
+
+                if (y < height - 1) {
+                    pushOnce(
+                        position + width
+                    );
+                }
             }
-            this.ctx.putImageData(image, 0, 0);
+
+            this.ctx.putImageData(
+                image,
+                0,
+                0
+            );
         },
 
         pickColor(point) {
-            const pixel = this.ctx.getImageData(Math.floor(point.x), Math.floor(point.y), 1, 1).data;
-            const hex = `#${[pixel[0], pixel[1], pixel[2]].map(v => v.toString(16).padStart(2, '0')).join('')}`;
+            const pixel =
+                this.ctx.getImageData(
+                    Math.floor(point.x),
+                    Math.floor(point.y),
+                    1,
+                    1
+                ).data;
+
+            const hex = `#${[
+                pixel[0],
+                pixel[1],
+                pixel[2]
+            ]
+                .map(value =>
+                    value
+                        .toString(16)
+                        .padStart(2, '0')
+                )
+                .join('')
+                }`;
+
             this.setColor(hex);
             this.setTool('brush');
-            this.toast(`Đã lấy màu ${hex}`, 'success');
+
+            this.toast(
+                `Đã lấy màu ${hex}`,
+                'success'
+            );
         },
 
         setTool(tool) {
-            if (!TOOL_LABELS[tool]) return;
+            if (!TOOL_LABELS[tool]) {
+                return;
+            }
+
             this.currentTool = tool;
+
             this.updateToolUI();
         },
 
         setColor(color) {
-            if (!/^#[0-9a-f]{6}$/i.test(color || '')) return;
+            if (
+                !/^#[0-9a-f]{6}$/i.test(
+                    color || ''
+                )
+            ) {
+                return;
+            }
+
             this.currentColor = color;
-            const input = document.getElementById('hh-color');
-            const chip = document.getElementById('hh-color-chip');
-            if (input && input.value !== color) input.value = color;
-            if (chip) chip.style.setProperty('--hh-current-color', color);
+
+            const input =
+                document.getElementById(
+                    'hh-color'
+                );
+
+            const chip =
+                document.getElementById(
+                    'hh-color-chip'
+                );
+
+            if (
+                input &&
+                input.value !== color
+            ) {
+                input.value = color;
+            }
+
+            if (chip) {
+                chip.style.setProperty(
+                    '--hh-current-color',
+                    color
+                );
+            }
         },
 
         updateToolUI() {
-            document.querySelectorAll('.hh-tool-button').forEach(btn => btn.classList.toggle('active', btn.dataset.tool === this.currentTool));
+            document
+                .querySelectorAll(
+                    '.hh-tool-button'
+                )
+                .forEach(button => {
+                    button.classList.toggle(
+                        'active',
+                        button.dataset.tool ===
+                        this.currentTool
+                    );
+                });
+
+            document
+                .getElementById(
+                    'hh-text-options'
+                )
+                ?.classList.toggle(
+                    'active',
+                    this.currentTool === 'text'
+                );
+
             if (this.previewCanvas) {
-                const cursors = { picker: 'copy', fill: 'cell', eraser: 'crosshair' };
-                this.previewCanvas.style.cursor = cursors[this.currentTool] || 'crosshair';
+                const cursors = {
+                    select: 'default',
+                    picker: 'copy',
+                    fill: 'cell',
+                    eraser: 'crosshair',
+                    text: 'text'
+                };
+
+                this.previewCanvas.style.cursor =
+                    cursors[this.currentTool] ||
+                    'crosshair';
             }
         },
 
@@ -2188,20 +4987,111 @@
 
         pushHistory() {
             if (!this.canvas) return;
-            const config = this.getRoundConfig(this.currentRound);
-            const snapshot = this.canvas.toDataURL('image/webp', 0.92);
-            if (this.historyStep < this.history.length - 1) this.history = this.history.slice(0, this.historyStep + 1);
-            this.history.push(snapshot);
-            if (this.history.length > config.historyLimit) this.history.shift();
-            this.historyStep = this.history.length - 1;
+
+            const config =
+                this.getRoundConfig(
+                    this.currentRound
+                );
+
+            const snapshot = {
+                image:
+                    this.canvas.toDataURL(
+                        'image/webp',
+                        0.92
+                    ),
+
+                objects:
+                    this.cloneObjects()
+            };
+
+            if (
+                this.historyStep <
+                this.history.length - 1
+            ) {
+                this.history =
+                    this.history.slice(
+                        0,
+                        this.historyStep + 1
+                    );
+            }
+
+            this.history.push(
+                snapshot
+            );
+
+            if (
+                this.history.length >
+                config.historyLimit
+            ) {
+                this.history.shift();
+            }
+
+            this.historyStep =
+                this.history.length - 1;
+
             this.updateHistoryButtons();
         },
 
         async restoreHistoryStep() {
-            if (!this.canvas || this.historyStep < 0 || !this.history[this.historyStep]) return;
-            const img = await this.loadImage(this.history[this.historyStep]);
-            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            this.ctx.drawImage(img, 0, 0, this.canvas.width, this.canvas.height);
+            if (
+                !this.canvas ||
+                this.historyStep < 0 ||
+                !this.history[
+                this.historyStep
+                ]
+            ) {
+                return;
+            }
+
+            const snapshot =
+                this.history[
+                this.historyStep
+                ];
+
+            const imageSource =
+                typeof snapshot === 'string'
+                    ? snapshot
+                    : snapshot.image;
+
+            const image =
+                await this.loadImage(
+                    imageSource
+                );
+
+            this.ctx.clearRect(
+                0,
+                0,
+                this.canvas.width,
+                this.canvas.height
+            );
+
+            this.ctx.drawImage(
+                image,
+                0,
+                0,
+                this.canvas.width,
+                this.canvas.height
+            );
+
+            await this.preloadObjectImages();
+
+            this.selectedObjectId = null;
+
+            this.refreshObjects();
+
+            this.objects =
+                typeof snapshot === 'object'
+                    ? this.cloneObjects(
+                        snapshot.objects || []
+                    )
+                    : [];
+
+            this.selectedObjectId = null;
+
+            await this.preloadObjectImages();
+
+            this.refreshObjects();
+
             this.markChanged(false);
             this.updateHistoryButtons();
         },
@@ -2232,8 +5122,14 @@
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             this.ctx.fillStyle = config.backgroundColor;
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            this.objects = [];
+            this.selectedObjectId = null;
+            this.objectImageCache = new Map();
+
+            this.refreshObjects();
+
             this.hasDrawnContent = false;
-            this.markChanged();
+            this.markChanged(false);
             this.pushHistory();
         },
 
@@ -2280,10 +5176,21 @@
                     const parsed = JSON.parse(raw);
                     image = parsed.image || '';
                     savedAt = Number(parsed.savedAt || 0);
+                    this.objects =
+                        Array.isArray(
+                            parsed.objects
+                        )
+                            ? this.cloneObjects(
+                                parsed.objects
+                            )
+                            : [];
                     if (parsed.settings) {
                         this.currentColor = parsed.settings.color || this.currentColor;
                         this.currentSize = Number(parsed.settings.size || this.currentSize);
                         this.currentOpacity = Number(parsed.settings.opacity || this.currentOpacity);
+                        this.currentFontFamily =
+                            parsed.settings.fontFamily ||
+                            this.currentFontFamily;
                     }
                 }
             } catch (_) {
@@ -2319,7 +5226,13 @@
                     height: this.canvas.height,
                     savedAt: Date.now(),
                     image: this.canvas.toDataURL('image/webp', 0.9),
-                    settings: { color: this.currentColor, size: this.currentSize, opacity: this.currentOpacity }
+                    objects: this.cloneObjects(),
+                    settings: {
+                        color: this.currentColor,
+                        size: this.currentSize,
+                        opacity: this.currentOpacity,
+                        fontFamily: this.currentFontFamily
+                    }
                 };
                 localStorage.setItem(this.getDraftKey(), JSON.stringify(payload));
                 this.isDirty = false;
@@ -2334,15 +5247,657 @@
         },
 
         getExportCanvas() {
-            const config = this.getRoundConfig(this.currentRound);
-            const output = document.createElement('canvas');
-            output.width = this.canvas.width;
-            output.height = this.canvas.height;
-            const ctx = output.getContext('2d');
-            ctx.fillStyle = config.backgroundColor;
-            ctx.fillRect(0, 0, output.width, output.height);
-            ctx.drawImage(this.canvas, 0, 0);
+            const config =
+                this.getRoundConfig(
+                    this.currentRound
+                );
+
+            /*
+             * Nếu người dùng đang xem trước hiệu ứng
+             * nhưng chưa nhấn Áp dụng, ảnh tải xuống
+             * hoặc ảnh nộp vẫn có đầy đủ hiệu ứng.
+             */
+            const source =
+                this.hasPendingAdjustments()
+                    ? this.createAdjustedCanvas(
+                        this.canvas
+                    )
+                    : this.canvas;
+
+            const output =
+                document.createElement(
+                    'canvas'
+                );
+
+            output.width =
+                this.canvas.width;
+
+            output.height =
+                this.canvas.height;
+
+            const ctx =
+                output.getContext('2d');
+
+            ctx.fillStyle =
+                config.backgroundColor;
+
+            ctx.fillRect(
+                0,
+                0,
+                output.width,
+                output.height
+            );
+
+            ctx.drawImage(
+                source,
+                0,
+                0
+            );
+
+            this.renderObjectLayer();
+
+            ctx.drawImage(
+                this.objectCanvas,
+                0,
+                0
+            );
+
             return output;
+        },
+
+        /*
+         * Mở hoặc đóng bảng chỉnh ảnh.
+         */
+        toggleAdjustmentPanel() {
+            const panel =
+                document.getElementById(
+                    'hh-adjust-panel'
+                );
+
+            if (!panel) return;
+
+            panel.hidden =
+                !panel.hidden;
+
+            document
+                .getElementById(
+                    'hh-adjust-toggle'
+                )
+                ?.classList.toggle(
+                    'active',
+                    !panel.hidden
+                );
+        },
+
+        /*
+         * Kiểm tra người dùng có chỉnh bất kỳ
+         * thông số ảnh nào hay chưa.
+         */
+        hasPendingAdjustments() {
+            return Object
+                .values(
+                    this.imageAdjustments
+                )
+                .some(value => {
+                    return Math.abs(
+                        Number(value) || 0
+                    ) > 0.001;
+                });
+        },
+
+        /*
+         * Xem trước hiệu ứng trực tiếp trên canvas.
+         *
+         * Đây mới chỉ là hiệu ứng CSS, chưa làm thay
+         * đổi dữ liệu pixel thật của bức tranh.
+         */
+        previewImageAdjustments() {
+            if (!this.canvas) return;
+
+            const adjustments =
+                this.imageAdjustments;
+
+            const temperature =
+                Number(
+                    adjustments.temperature ||
+                    0
+                );
+
+            /*
+             * Nhiệt độ dương:
+             * làm ảnh ấm hơn.
+             *
+             * Nhiệt độ âm:
+             * làm ảnh lạnh hơn.
+             */
+            const sepia =
+                Math.max(
+                    0,
+                    temperature
+                ) * 0.28;
+
+            const hue =
+                temperature >= 0
+                    ? temperature * -0.08
+                    : Math.abs(
+                        temperature
+                    ) * 0.12;
+
+            this.canvas.style.filter = [
+                `brightness(${Math.max(
+                    0,
+                    100 +
+                    Number(
+                        adjustments
+                            .brightness ||
+                        0
+                    )
+                )
+                }%)`,
+
+                `contrast(${Math.max(
+                    0,
+                    100 +
+                    Number(
+                        adjustments
+                            .contrast ||
+                        0
+                    )
+                )
+                }%)`,
+
+                `saturate(${Math.max(
+                    0,
+                    100 +
+                    Number(
+                        adjustments
+                            .saturation ||
+                        0
+                    )
+                )
+                }%)`,
+
+                `sepia(${sepia}%)`,
+
+                `hue-rotate(${hue}deg)`,
+
+                `grayscale(${Math.max(
+                    0,
+                    Number(
+                        adjustments
+                            .grayscale ||
+                        0
+                    )
+                )
+                }%)`,
+
+                `blur(${Math.max(
+                    0,
+                    Number(
+                        adjustments.blur ||
+                        0
+                    )
+                )
+                }px)`
+            ].join(' ');
+        },
+
+        /*
+         * Đặt tất cả thanh chỉnh ảnh về 0.
+         */
+        resetImageAdjustments(
+            showToast = true
+        ) {
+            Object
+                .keys(
+                    this.imageAdjustments
+                )
+                .forEach(key => {
+                    this.imageAdjustments[key] =
+                        0;
+
+                    const input =
+                        document.querySelector(
+                            `[data-hh-setting="adjust-${key}"]`
+                        );
+
+                    const output =
+                        document.getElementById(
+                            `hh-adjust-${key}-output`
+                        );
+
+                    if (input) {
+                        input.value = 0;
+                    }
+
+                    if (output) {
+                        output.textContent =
+                            key === 'blur'
+                                ? '0 px'
+                                : '0%';
+                    }
+                });
+
+            /*
+             * Xóa hiệu ứng xem trước CSS.
+             */
+            if (this.canvas) {
+                this.canvas.style.filter =
+                    'none';
+            }
+
+            if (showToast) {
+                this.toast(
+                    'Đã đặt lại các thông số chỉnh ảnh.',
+                    'success'
+                );
+            }
+        },
+
+        /*
+         * Tạo một canvas mới đã được áp dụng
+         * các hiệu ứng ảnh bằng xử lý pixel thật.
+         *
+         * Không sửa trực tiếp canvas chính cho đến
+         * khi người dùng nhấn nút Áp dụng.
+         */
+        createAdjustedCanvas(
+            sourceCanvas
+        ) {
+            const result =
+                document.createElement(
+                    'canvas'
+                );
+
+            result.width =
+                sourceCanvas.width;
+
+            result.height =
+                sourceCanvas.height;
+
+            const resultCtx =
+                result.getContext(
+                    '2d',
+                    {
+                        willReadFrequently:
+                            true
+                    }
+                );
+
+            resultCtx.drawImage(
+                sourceCanvas,
+                0,
+                0
+            );
+
+            const adjustments =
+                this.imageAdjustments;
+
+            /*
+             * Chuyển khoảng -100 đến 100 thành
+             * giá trị phù hợp cho pixel 0 đến 255.
+             */
+            const brightness =
+                Number(
+                    adjustments.brightness ||
+                    0
+                ) * 2.55;
+
+            const contrastValue =
+                this.clamp(
+                    Number(
+                        adjustments.contrast ||
+                        0
+                    ) * 2.55,
+                    -255,
+                    255
+                );
+
+            const contrast =
+                (
+                    259 *
+                    (
+                        contrastValue +
+                        255
+                    )
+                ) /
+                (
+                    255 *
+                    (
+                        259 -
+                        contrastValue ||
+                        1
+                    )
+                );
+
+            const saturation =
+                Number(
+                    adjustments.saturation ||
+                    0
+                ) / 100;
+
+            const temperature =
+                Number(
+                    adjustments.temperature ||
+                    0
+                ) * 0.9;
+
+            const grayscale =
+                this.clamp(
+                    Number(
+                        adjustments.grayscale ||
+                        0
+                    ) / 100,
+                    0,
+                    1
+                );
+
+            /*
+             * Chỉ đọc và xử lý pixel khi có
+             * hiệu ứng màu cần áp dụng.
+             */
+            if (
+                brightness ||
+                contrastValue ||
+                saturation ||
+                temperature ||
+                grayscale
+            ) {
+                const image =
+                    resultCtx.getImageData(
+                        0,
+                        0,
+                        result.width,
+                        result.height
+                    );
+
+                const data =
+                    image.data;
+
+                for (
+                    let i = 0;
+                    i < data.length;
+                    i += 4
+                ) {
+                    /*
+                     * Độ sáng và nhiệt độ màu.
+                     *
+                     * Nhiệt độ dương:
+                     * tăng đỏ, giảm xanh lam.
+                     *
+                     * Nhiệt độ âm:
+                     * giảm đỏ, tăng xanh lam.
+                     */
+                    let red =
+                        data[i] +
+                        brightness +
+                        temperature;
+
+                    let green =
+                        data[i + 1] +
+                        brightness +
+                        temperature * 0.12;
+
+                    let blue =
+                        data[i + 2] +
+                        brightness -
+                        temperature;
+
+                    /*
+                     * Tương phản.
+                     */
+                    red =
+                        contrast *
+                        (
+                            red - 128
+                        ) +
+                        128;
+
+                    green =
+                        contrast *
+                        (
+                            green - 128
+                        ) +
+                        128;
+
+                    blue =
+                        contrast *
+                        (
+                            blue - 128
+                        ) +
+                        128;
+
+                    /*
+                     * Tính độ sáng cảm nhận
+                     * của pixel hiện tại.
+                     */
+                    const luminance =
+                        red * 0.2126 +
+                        green * 0.7152 +
+                        blue * 0.0722;
+
+                    /*
+                     * Độ bão hòa.
+                     */
+                    red =
+                        luminance +
+                        (
+                            red -
+                            luminance
+                        ) *
+                        (
+                            1 +
+                            saturation
+                        );
+
+                    green =
+                        luminance +
+                        (
+                            green -
+                            luminance
+                        ) *
+                        (
+                            1 +
+                            saturation
+                        );
+
+                    blue =
+                        luminance +
+                        (
+                            blue -
+                            luminance
+                        ) *
+                        (
+                            1 +
+                            saturation
+                        );
+
+                    /*
+                     * Chuyển dần sang trắng đen.
+                     */
+                    red =
+                        red *
+                        (
+                            1 -
+                            grayscale
+                        ) +
+                        luminance *
+                        grayscale;
+
+                    green =
+                        green *
+                        (
+                            1 -
+                            grayscale
+                        ) +
+                        luminance *
+                        grayscale;
+
+                    blue =
+                        blue *
+                        (
+                            1 -
+                            grayscale
+                        ) +
+                        luminance *
+                        grayscale;
+
+                    /*
+                     * Giới hạn lại màu trong
+                     * khoảng hợp lệ 0–255.
+                     */
+                    data[i] =
+                        this.clamp(
+                            Math.round(red),
+                            0,
+                            255
+                        );
+
+                    data[i + 1] =
+                        this.clamp(
+                            Math.round(green),
+                            0,
+                            255
+                        );
+
+                    data[i + 2] =
+                        this.clamp(
+                            Math.round(blue),
+                            0,
+                            255
+                        );
+
+                    /*
+                     * data[i + 3] là độ trong suốt.
+                     * Không thay đổi giá trị này.
+                     */
+                }
+
+                resultCtx.putImageData(
+                    image,
+                    0,
+                    0
+                );
+            }
+
+            /*
+             * Làm mờ được áp dụng riêng sau khi
+             * đã xử lý độ sáng và màu sắc.
+             */
+            const blur =
+                Math.max(
+                    0,
+                    Number(
+                        adjustments.blur ||
+                        0
+                    )
+                );
+
+            if (blur > 0) {
+                const blurred =
+                    document.createElement(
+                        'canvas'
+                    );
+
+                blurred.width =
+                    result.width;
+
+                blurred.height =
+                    result.height;
+
+                const blurredCtx =
+                    blurred.getContext('2d');
+
+                blurredCtx.filter =
+                    `blur(${blur}px)`;
+
+                blurredCtx.drawImage(
+                    result,
+                    0,
+                    0
+                );
+
+                return blurred;
+            }
+
+            return result;
+        },
+
+        /*
+         * Ghi các hiệu ứng vào canvas chính.
+         *
+         * Sau khi áp dụng, người dùng có thể
+         * hoàn tác bằng nút Undo hoặc Ctrl + Z.
+         */
+        applyImageAdjustments() {
+            if (
+                !this.canvas ||
+                !this.ctx
+            ) {
+                return;
+            }
+
+            if (
+                !this.hasPendingAdjustments()
+            ) {
+                this.toast(
+                    'Chưa có thông số chỉnh ảnh nào thay đổi.',
+                    'warning'
+                );
+
+                return;
+            }
+
+            const adjusted =
+                this.createAdjustedCanvas(
+                    this.canvas
+                );
+
+            this.ctx.save();
+
+            /*
+             * Đặt lại mọi phép biến đổi trước khi
+             * vẽ ảnh đã chỉnh vào canvas chính.
+             */
+            this.ctx.setTransform(
+                1,
+                0,
+                0,
+                1,
+                0,
+                0
+            );
+
+            this.ctx.clearRect(
+                0,
+                0,
+                this.canvas.width,
+                this.canvas.height
+            );
+
+            this.ctx.drawImage(
+                adjusted,
+                0,
+                0
+            );
+
+            this.ctx.restore();
+
+            /*
+             * Xóa thông số và hiệu ứng xem trước
+             * vì hiệu ứng đã nằm trong pixel thật.
+             */
+            this.resetImageAdjustments(
+                false
+            );
+
+            this.markChanged();
+            this.pushHistory();
+
+            this.toast(
+                'Đã áp dụng chỉnh ảnh vào tác phẩm.',
+                'success'
+            );
         },
 
         triggerPracticeImageUpload() {
@@ -2377,6 +5932,34 @@
              */
             input.value = '';
             input.click();
+        },
+
+        readFileAsDataURL(file) {
+            return new Promise(
+                (resolve, reject) => {
+                    const reader =
+                        new FileReader();
+
+                    reader.onload = () =>
+                        resolve(
+                            String(
+                                reader.result ||
+                                ''
+                            )
+                        );
+
+                    reader.onerror = () =>
+                        reject(
+                            new Error(
+                                'Không đọc được file ảnh.'
+                            )
+                        );
+
+                    reader.readAsDataURL(
+                        file
+                    );
+                }
+            );
         },
 
         async handlePracticeImageUpload(file) {
@@ -2452,7 +6035,6 @@
             ) {
                 const accepted =
                     await this.confirmDialog(
-                        'Tải ảnh mới sẽ thay toàn bộ nội dung hiện tại. Bạn vẫn có thể dùng Hoàn tác sau khi tải. Tiếp tục?',
                         'Tải ảnh vào bảng vẽ',
                         false
                     );
@@ -2460,13 +6042,15 @@
                 if (!accepted) return;
             }
 
-            const objectUrl =
-                URL.createObjectURL(file);
-
             try {
+                const dataUrl =
+                    await this.readFileAsDataURL(
+                        file
+                    );
+
                 const image =
                     await this.loadImage(
-                        objectUrl
+                        dataUrl
                     );
 
                 const imageWidth =
@@ -2490,98 +6074,77 @@
                     );
                 }
 
-                /*
-                 * Giữ nguyên tỉ lệ ảnh,
-                 * đặt ảnh vừa bên trong canvas,
-                 * không kéo méo ảnh.
-                 */
                 const scale = Math.min(
-                    this.canvas.width /
-                    imageWidth,
+                    (
+                        this.canvas.width *
+                        0.8
+                    ) / imageWidth,
 
-                    this.canvas.height /
-                    imageHeight
+                    (
+                        this.canvas.height *
+                        0.8
+                    ) / imageHeight,
+
+                    1
                 );
 
-                const drawWidth =
+                const width =
                     Math.round(
                         imageWidth * scale
                     );
 
-                const drawHeight =
+                const height =
                     Math.round(
                         imageHeight * scale
                     );
 
-                const drawX =
-                    Math.round(
+                const object = {
+                    id: this.createObjectId(),
+                    type: 'image',
+
+                    src: dataUrl,
+
+                    x: Math.round(
                         (
                             this.canvas.width -
-                            drawWidth
+                            width
                         ) / 2
-                    );
+                    ),
 
-                const drawY =
-                    Math.round(
+                    y: Math.round(
                         (
                             this.canvas.height -
-                            drawHeight
+                            height
                         ) / 2
-                    );
+                    ),
 
-                const config =
-                    this.getRoundConfig(
-                        this.currentRound
-                    );
+                    width,
+                    height,
+                    opacity: 1
+                };
 
-                /*
-                 * Xóa ảnh cũ và tạo nền trước
-                 * khi đặt ảnh mới.
-                 */
-                this.ctx.clearRect(
-                    0,
-                    0,
-                    this.canvas.width,
-                    this.canvas.height
+                this.objectImageCache.set(
+                    dataUrl,
+                    {
+                        image,
+                        promise: null
+                    }
                 );
 
-                this.ctx.fillStyle =
-                    config.backgroundColor;
-
-                this.ctx.fillRect(
-                    0,
-                    0,
-                    this.canvas.width,
-                    this.canvas.height
+                this.objects.push(
+                    object
                 );
 
-                this.ctx.drawImage(
-                    image,
-                    drawX,
-                    drawY,
-                    drawWidth,
-                    drawHeight
-                );
+                this.selectedObjectId =
+                    object.id;
 
-                /*
-                 * Xóa lớp xem trước công cụ hình học.
-                 */
-                this.previewCtx.clearRect(
-                    0,
-                    0,
-                    this.previewCanvas.width,
-                    this.previewCanvas.height
-                );
+                this.refreshObjects();
 
-                this.hasDrawnContent = true;
                 this.markChanged(true);
                 this.pushHistory();
-
-                /*
-                 * Lưu nháp ngay, không phải chờ
-                 * chu kỳ tự lưu 8 giây.
-                 */
                 this.saveDraft(true);
+
+                this.setTool('select');
 
                 const status =
                     document.getElementById(
@@ -2590,16 +6153,16 @@
 
                 if (status) {
                     status.textContent =
-                        `Đã tải ảnh “${file.name}” — có thể bắt đầu chỉnh sửa`;
+                        `Đã chèn ảnh “${file.name}” — kéo ảnh để di chuyển`;
                 }
 
                 this.toast(
-                    'Đã đưa ảnh vào bảng luyện tập.',
+                    'Đã chèn ảnh. Bạn có thể kéo ảnh đến vị trí khác.',
                     'success'
                 );
             } catch (error) {
                 console.error(
-                    'Không thể tải ảnh vào bảng vẽ:',
+                    'Không thể chèn ảnh:',
                     error
                 );
 
@@ -2610,10 +6173,6 @@
                     'error'
                 );
             } finally {
-                URL.revokeObjectURL(
-                    objectUrl
-                );
-
                 const input =
                     document.getElementById(
                         'hh-practice-image-input'
@@ -4105,8 +7664,10 @@
                             label: 'Quán quân',
                             badge: [
                                 'badge_hoasi',
-                                '🥇',
-                                'Họa sĩ tài năng'
+                                '🎨',
+                                'Họa sĩ tài năng',
+                                'talent',
+                                'Biểu tượng bảng màu tỏa sáng dành cho Quán quân.'
                             ],
                             chest: true
                         }
@@ -4116,8 +7677,10 @@
                                 label: 'Á quân',
                                 badge: [
                                     'badge_butve',
-                                    '🥈',
-                                    'Bút vẽ vàng'
+                                    '🖌️',
+                                    'Bút vẽ vàng',
+                                    'golden-brush',
+                                    'Chiếc bút vàng trên khiên xanh dành cho Á quân.'
                                 ],
                                 discount: 20
                             }
@@ -4127,8 +7690,10 @@
                                     label: 'Hạng ba',
                                     badge: [
                                         'badge_mausac',
-                                        '🥉',
-                                        'Màu sắc rực rỡ'
+                                        '🌈',
+                                        'Màu sắc rực rỡ',
+                                        'vibrant-color',
+                                        'Huy chương cầu vồng dành cho tác phẩm giàu sắc màu.'
                                     ]
                                 }
                                 : rank <= 10
@@ -4158,7 +7723,9 @@
                     const [
                         badgeId,
                         badgeIcon,
-                        badgeName
+                        badgeName,
+                        badgeStyle,
+                        badgeDescription
                     ] = reward.badge;
 
                     updates[
@@ -4169,6 +7736,17 @@
                         name: badgeName,
                         icon: badgeIcon,
 
+                        badgeStyle,
+
+                        rarity:
+                            rank === 1
+                                ? 'legendary'
+                                : rank === 2
+                                    ? 'epic'
+                                    : 'rare',
+
+                        visualVersion: 2,
+
                         isEquipped: false,
                         purchaseTime: Date.now(),
 
@@ -4177,19 +7755,50 @@
                         rank,
 
                         description:
-                            `Huy hiệu ${reward.label} ` +
-                            `mùa giải Hội Họa.`
+                            badgeDescription ||
+                            (
+                                `Huy hiệu ${reward.label} ` +
+                                `mùa giải Hội Họa.`
+                            )
                     };
                 }
                 if (reward.chest) {
                     updates[`student_inventory/${student.studentUsername}/chest_hh_${seasonId}`] = { id: 'chest_hoihoa', type: 'chest', name: 'Rương Kho Báu Hội Họa', icon: '🎁', isEquipped: false, purchaseTime: Date.now(), description: 'Phần thưởng Quán quân mùa giải Hội Họa.' };
                 }
                 if (reward.discount) {
-                    updates[`student_discounts/${student.studentUsername}/hh_discount_${seasonId}`] = { percent: reward.discount, isUsed: false, targetItem: ['all'], expiry: Date.now() + 30 * 24 * 60 * 60 * 1000 };
+                    const discountCreatedAt = Date.now();
+
+                    updates[
+                        `student_discounts/${student.studentUsername}/hh_discount_${seasonId}`
+                    ] = {
+                        percent: reward.discount,
+                        isUsed: false,
+                        targetItem: ['all'],
+
+                        // Thẻ chỉ dùng một lần.
+                        usageLimit: 1,
+
+                        createdAt: discountCreatedAt,
+
+                        expiry:
+                            discountCreatedAt +
+                            30 * 24 * 60 * 60 * 1000,
+
+                        source: 'hoihoa_runner_up',
+                        rewardType: 'season_runner_up',
+
+                        maxEligiblePriceExclusive: 600,
+                        excludesEventItems: true,
+
+                        excludedTags: [
+                            'Doraemon',
+                            'Truyền thuyết'
+                        ]
+                    };
                 }
                 updates[`inbox_messages/${student.studentUsername}/hh_season_${seasonId}`] = {
                     title: '🏆 Tổng kết mùa giải Hội Họa',
-                    message: `Bạn đạt ${reward.label} với tổng ${student.totalScore.toFixed(2)} điểm qua ${student.roundsJoined} vòng. Phần thưởng: ${reward.coins} Coin${reward.badge ? `, huy hiệu “${reward.badge[2]}”` : ''}${reward.chest ? ', Rương Kho Báu' : ''}${reward.discount ? `, thẻ giảm ${reward.discount}%` : ''}.`,
+                    message: `Bạn đạt ${reward.label} với tổng ${student.totalScore.toFixed(2)} điểm qua ${student.roundsJoined} vòng. Phần thưởng: ${reward.coins} Coin${reward.badge ? `, huy hiệu “${reward.badge[2]}”` : ''}${reward.chest ? ', Rương Kho Báu' : ''}${reward.discount ? `, thẻ giảm ${reward.discount}% dùng 1 lần, hạn 30 ngày, chỉ áp dụng cho vật phẩm bán bằng Coin dưới 600 Coin; không áp dụng cho vật phẩm sự kiện, Doraemon và Truyền thuyết` : ''}.`,
                     time: Date.now() + i,
                     timestamp: Date.now() + i,
                     timeString: new Date().toLocaleString('vi-VN'),
@@ -4215,7 +7824,79 @@
             if ((event.ctrlKey || event.metaKey) && key === 'y') {
                 event.preventDefault(); this.redo(); return;
             }
-            const tools = { b: 'brush', p: 'pencil', m: 'marker', s: 'spray', e: 'eraser', l: 'line', r: 'rect', o: 'ellipse', g: 'fill', i: 'picker' };
+            const tools = {
+                v: 'select',
+                b: 'brush',
+                p: 'pencil',
+                k: 'ink',
+                w: 'watercolor',
+                m: 'marker',
+                n: 'neon',
+                x: 'pixel',
+                s: 'spray',
+                e: 'eraser',
+                l: 'line',
+                a: 'arrow',
+                r: 'rect',
+                o: 'ellipse',
+                h: 'star',
+                t: 'text',
+                g: 'fill',
+                i: 'picker'
+            };
+            if (
+                (
+                    key === 'delete' ||
+                    key === 'backspace'
+                ) &&
+                this.selectedObjectId
+            ) {
+                event.preventDefault();
+
+                this.deleteSelectedObject();
+
+                return;
+            }
+
+            if (
+                this.selectedObjectId &&
+                [
+                    'arrowleft',
+                    'arrowright',
+                    'arrowup',
+                    'arrowdown'
+                ].includes(key)
+            ) {
+                event.preventDefault();
+
+                const distance =
+                    event.shiftKey
+                        ? 10
+                        : 1;
+
+                const movement = {
+                    arrowleft:
+                        [-distance, 0],
+
+                    arrowright:
+                        [distance, 0],
+
+                    arrowup:
+                        [0, -distance],
+
+                    arrowdown:
+                        [0, distance]
+                }[key];
+
+                this.moveSelectedObjectBy(
+                    movement[0],
+                    movement[1]
+                );
+
+                this.pushHistory();
+
+                return;
+            }
             if (tools[key]) { event.preventDefault(); this.setTool(tools[key]); }
             if (key === '[') { this.currentSize = this.clamp(this.currentSize - 2, 1, 120); this.syncSizeInput(); }
             if (key === ']') { this.currentSize = this.clamp(this.currentSize + 2, 1, 120); this.syncSizeInput(); }
