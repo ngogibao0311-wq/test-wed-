@@ -638,3 +638,227 @@
 }
 
 /* KẾT THÚC KHỐI @MEDIA MOBILE. KHÔNG VIẾT CODE Ở DƯỚI DẤU NÀY! */
+/* =========================================================
+   TÓM TẮT VIDEO TRÊN ĐIỆN THOẠI
+   NÚT NẰM DƯỚI MỐC THỜI GIAN ĐÃ XEM
+   ========================================================= */
+
+@media screen and (max-width: 700px) {
+
+    /*
+    Ẩn bảng và nút trượt ngang của máy tính.
+    Trên điện thoại chỉ dùng bảng xổ xuống.
+    */
+    .tracked-video-shell
+    > .video-summary-toggle,
+
+    .tracked-video-shell
+    > .video-summary-panel {
+        display: none !important;
+    }
+
+    .video-summary-mobile-area {
+        display: block !important;
+
+        width: 100% !important;
+
+        box-sizing: border-box !important;
+
+        margin-top: 12px !important;
+    }
+
+    /* Nút lớn, dễ bấm bằng ngón tay */
+    .video-summary-mobile-toggle {
+        width: 100% !important;
+        min-height: 52px !important;
+
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+
+        gap: 12px !important;
+
+        box-sizing: border-box !important;
+
+        margin: 0 !important;
+        padding: 12px 16px !important;
+
+        border: none !important;
+        border-radius: 12px !important;
+
+        cursor: pointer !important;
+
+        color: #ffffff !important;
+
+        background:
+            linear-gradient(
+                135deg,
+                #4f46e5,
+                #7c3aed
+            ) !important;
+
+        box-shadow:
+            0 6px 16px
+            rgba(79, 70, 229, 0.24) !important;
+
+        font-family: inherit !important;
+        font-size: 16px !important;
+        font-weight: 850 !important;
+
+        -webkit-tap-highlight-color:
+            transparent !important;
+    }
+
+    .video-summary-mobile-toggle:active {
+        transform: scale(0.98) !important;
+    }
+
+    .video-summary-mobile-toggle:disabled,
+    .video-summary-mobile-toggle.is-locked {
+        cursor: not-allowed !important;
+
+        opacity: 0.58 !important;
+
+        background: #64748b !important;
+
+        box-shadow: none !important;
+
+        transform: none !important;
+    }
+
+    .video-summary-mobile-arrow {
+        flex-shrink: 0 !important;
+
+        font-size: 14px !important;
+    }
+
+    /*
+    Trạng thái đóng:
+    bảng cao 0 và nằm hơi phía trên.
+    */
+    .video-summary-mobile-panel {
+        width: 100% !important;
+        max-height: 0 !important;
+
+        box-sizing: border-box !important;
+
+        margin-top: 0 !important;
+
+        overflow: hidden !important;
+
+        opacity: 0 !important;
+
+        transform:
+            translateY(-10px) !important;
+
+        border:
+            0 solid transparent !important;
+
+        border-radius: 12px !important;
+
+        background:
+            rgba(
+                255,
+                255,
+                255,
+                0.98
+            ) !important;
+
+        transition:
+            max-height 0.38s ease,
+            margin-top 0.38s ease,
+            opacity 0.24s ease,
+            transform 0.38s ease,
+            border-width 0.1s ease !important;
+    }
+
+    /*
+    Trạng thái mở:
+    bảng trượt xuống dưới.
+    Nội dung dài hơn 360px sẽ cuộn bên trong.
+    */
+    .video-summary-mobile-panel.mobile-summary-open {
+        max-height: 360px !important;
+
+        margin-top: 10px !important;
+
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+
+        opacity: 1 !important;
+
+        transform:
+            translateY(0) !important;
+
+        border-width: 1px !important;
+
+        border-color:
+            rgba(
+                99,
+                102,
+                241,
+                0.24
+            ) !important;
+
+        box-shadow:
+            0 8px 22px
+            rgba(15, 23, 42, 0.13) !important;
+
+        -webkit-overflow-scrolling:
+            touch !important;
+    }
+
+    .video-summary-mobile-panel-inner {
+        width: 100% !important;
+
+        box-sizing: border-box !important;
+
+        padding:
+            15px 16px 18px !important;
+    }
+
+    .video-summary-mobile-title {
+        position: sticky !important;
+
+        top: 0 !important;
+
+        z-index: 1 !important;
+
+        margin:
+            -15px -16px 12px !important;
+
+        padding:
+            13px 16px 10px !important;
+
+        color: #4338ca !important;
+
+        background:
+            rgba(
+                255,
+                255,
+                255,
+                0.98
+            ) !important;
+
+        border-bottom:
+            1px solid
+            rgba(
+                99,
+                102,
+                241,
+                0.18
+            ) !important;
+    }
+
+    .video-summary-mobile-text {
+        color: #334155 !important;
+
+        font-size: 16px !important;
+        line-height: 1.65 !important;
+
+        white-space: pre-wrap !important;
+
+        overflow-wrap: anywhere !important;
+        word-break: break-word !important;
+    }
+}

@@ -9562,6 +9562,79 @@ function getTrackedVideoHTML(
             `
             : '';
 
+    // Giao diện Tóm tắt riêng cho điện thoại.
+    // Nút nằm dưới dòng Mốc thời gian đã xem.
+    const mobileSummaryHTML =
+        hasSummary
+            ? `
+            <div
+                class="video-summary-mobile-area"
+            >
+                <button
+                    id="video-summary-mobile-toggle-${assignId}"
+                    class="
+                        video-summary-mobile-toggle
+                        ${summaryUnlocked
+                ? ''
+                : 'is-locked'
+            }
+                    "
+                    type="button"
+                    ${summaryUnlocked
+                ? ''
+                : 'disabled'
+            }
+                    data-required-seconds="${requiredSeconds}"
+                    aria-expanded="false"
+                    title="${summaryUnlocked
+                ? 'Mở bảng tóm tắt'
+                : 'Cần đạt điều kiện xem video trước'
+            }"
+                    onclick="
+                        toggleMobileVideoSummary(
+                            '${assignId}'
+                        )
+                    "
+                >
+                    <span
+                        id="video-summary-mobile-label-${assignId}"
+                    >
+                        📝 Xem tóm tắt
+                    </span>
+
+                    <span
+                        id="video-summary-mobile-arrow-${assignId}"
+                        class="video-summary-mobile-arrow"
+                    >
+                        ▼
+                    </span>
+                </button>
+
+                <div
+                    id="video-summary-mobile-panel-${assignId}"
+                    class="video-summary-mobile-panel"
+                    aria-hidden="true"
+                >
+                    <div
+                        class="video-summary-mobile-panel-inner"
+                    >
+                        <h4
+                            class="video-summary-mobile-title"
+                        >
+                            📝 Tóm tắt video
+                        </h4>
+
+                        <div
+                            class="video-summary-mobile-text"
+                        >${escapeVideoSummaryHTML(
+                summaryText
+            )}</div>
+                    </div>
+                </div>
+            </div>
+        `
+            : '';
+
     const lockNote =
         hasSummary &&
             !summaryUnlocked
@@ -9649,7 +9722,9 @@ function getTrackedVideoHTML(
         ) || 0
     )}
                 </span>
-            </div>
+                        </div>
+
+            ${mobileSummaryHTML}
 
             ${lockNote}
         </div>
@@ -9742,24 +9817,148 @@ window.toggleVideoSummaryPanel =
         }
     };
 
-window.updateVideoSummaryAccess =
-    function (
-        assignId,
-        isUnlocked,
-        requiredSeconds = 0
-    ) {
+// ==========================================================
+// MỞ / ĐÓNG TÓM TẮT TRÊN ĐIỆN THOẠI
+// ==========================================================
+
+window.toggleMobileVideoSummary =
+    function (assignId) {
+        const panel =
+            document.getElementById(
+                `video-summary-mobile-panel-${assignId}`
+            );
+
         const button =
             document.getElementById(
-                `video-summary-toggle-${assignId}`
+                `video-summary-mobile-toggle-${assignId}`
             );
 
-        const note =
+        const label =
             document.getElementById(
-                `video-summary-lock-note-${assignId}`
+                `video-summary-mobile-label-${assignId}`
             );
 
-        if (!button) return;
+        const arrow =
+            document.getElementById(
+                `video-summary-mobile-arrow-${assignId}`
+            );
 
+        if (!panel || !button) {
+            return;
+        }
+
+        // Không cho mở khi chưa đạt điều kiện xem.
+        if (
+            button.disabled ||
+            button.classList.contains(
+                'is-locked'
+            )
+        ) {
+            const required =
+                Number(
+                    button.dataset.requiredSeconds
+                ) || 0;
+
+            alert(
+                required > 0
+                    ? (
+                        '🔒 Bạn cần xem video đạt ' +
+                        `${formatSecondsToDHMS(
+                            required
+                        )} trước khi mở ` +
+                        'bảng tóm tắt.'
+                    )
+                    : (
+                        '🔒 Bảng tóm tắt hiện ' +
+                        'chưa được mở khóa.'
+                    )
+            );
+
+            return;
+        }
+
+        const isOpen =
+            panel.classList.toggle(
+                'mobile-summary-open'
+            );
+
+        panel.setAttribute(
+            'aria-hidden',
+            String(!isOpen)
+        );
+
+        button.setAttribute(
+            'aria-expanded',
+            String(isOpen)
+        );
+
+        button.title =
+            isOpen
+                ? 'Thu gọn bảng tóm tắt'
+                : 'Mở bảng tóm tắt';
+
+        if (label) {
+            label.textContent =
+                isOpen
+                    ? '📝 Thu gọn tóm tắt'
+                    : '📝 Xem tóm tắt';
+        }
+
+        if (arrow) {
+            arrow.textContent =
+                isOpen ? '▲' : '▼';
+        }
+
+        /*
+        Khi bảng vừa mở trên điện thoại,
+        trang tự lướt xuống 160px.
+        */
+        if (
+            isOpen &&
+            window.innerWidth <= 700
+        ) {
+            setTimeout(() => {
+                window.scrollBy({
+                    top: 160,
+                    behavior: 'smooth'
+                });
+            }, 180);
+        }
+    };
+
+window.updateVideoSummaryAccess =
+function (
+    assignId,
+    isUnlocked,
+    requiredSeconds = 0
+) {
+    // Nút trượt ngang trên máy tính.
+    const desktopButton =
+        document.getElementById(
+            `video-summary-toggle-${assignId}`
+        );
+
+    // Nút xổ xuống trên điện thoại.
+    const mobileButton =
+        document.getElementById(
+            `video-summary-mobile-toggle-${assignId}`
+        );
+
+    const buttons = [
+        desktopButton,
+        mobileButton
+    ].filter(Boolean);
+
+    const note =
+        document.getElementById(
+            `video-summary-lock-note-${assignId}`
+        );
+
+    if (buttons.length === 0) {
+        return;
+    }
+
+    buttons.forEach(button => {
         button.dataset.requiredSeconds =
             String(
                 Number(
@@ -9782,23 +9981,24 @@ window.updateVideoSummaryAccess =
                     'Cần đạt điều kiện ' +
                     'xem video trước'
                 );
+    });
 
-        if (note) {
-            note.classList.toggle(
-                'show',
-                !isUnlocked
-            );
+    if (note) {
+        note.classList.toggle(
+            'show',
+            !isUnlocked
+        );
 
-            note.textContent =
-                isUnlocked
-                    ? ''
-                    : (
-                        '🔒 Bảng tóm tắt sẽ mở ' +
-                        'sau khi đạt điều kiện ' +
-                        'xem video.'
-                    );
-        }
-    };
+        note.textContent =
+            isUnlocked
+                ? ''
+                : (
+                    '🔒 Bảng tóm tắt sẽ mở ' +
+                    'sau khi đạt điều kiện ' +
+                    'xem video.'
+                );
+    }
+};
 
 window.startVideoSummaryResize =
     function (event, assignId) {
