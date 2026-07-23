@@ -947,7 +947,13 @@ window.onload = async function () {
                     grants
                 );
 
+            /*
+ * Không chạy phục hồi đúng lúc một giao dịch
+ * đổi Xu Đặc Biệt đang thực hiện.
+ */
             if (
+                !window
+                    .__specialBirthdayRedeemProcessing &&
                 typeof window
                     .recoverSpecialBirthdayRedeemedItems ===
                 'function'
@@ -10423,6 +10429,8 @@ window
     async function (grants = null) {
         if (
             window
+                .__specialBirthdayRedeemProcessing ||
+            window
                 .__specialBirthdayRecoveryRunning
         ) {
             return;
@@ -10551,8 +10559,23 @@ window.redeemSpecialBirthdayItem =
                 'value'
             );
 
+        /*
+ * Dùng giờ Firebase để không bị permission_denied
+ * khi đồng hồ máy học sinh lệch giờ.
+ */
+        const offsetSnapshot =
+            await db.ref(
+                '.info/serverTimeOffset'
+            ).once('value');
+
+        const serverOffset =
+            Number(
+                offsetSnapshot.val()
+            ) || 0;
+
         const now =
-            Date.now();
+            Date.now() +
+            serverOffset;
 
         // Ưu tiên dùng xu sắp hết hạn trước.
         const candidates =
@@ -10621,7 +10644,8 @@ window.redeemSpecialBirthdayItem =
                         .key;
 
                 const redeemedAt =
-                    Date.now();
+                    Date.now() +
+                    serverOffset;
 
                 const grantTx =
                     await grantRef.transaction(
@@ -10731,9 +10755,32 @@ window.redeemSpecialBirthdayItem =
                     '⚠️ Xu đã được ghi nhận là đã dùng. Hệ thống sẽ tự phục hồi vật phẩm khi mạng ổn định.'
                 );
             } else {
-                alert(
-                    '❌ Không còn Xu Đặc Biệt khả dụng hoặc xu đã hết hạn.'
-                );
+                const errorText =
+                    String(
+                        error?.code ||
+                        error?.message ||
+                        error
+                    ).toLowerCase();
+
+                if (
+                    errorText.includes(
+                        'permission_denied'
+                    ) ||
+                    errorText.includes(
+                        'permission-denied'
+                    )
+                ) {
+                    alert(
+                        '❌ Firebase từ chối giao dịch.\n' +
+                        'Hãy kiểm tra danh mục vật phẩm ' +
+                        'Xu Đặc Biệt và dữ liệu của xu.'
+                    );
+                } else {
+                    alert(
+                        '❌ Không còn Xu Đặc Biệt khả dụng ' +
+                        'hoặc xu đã hết hạn.'
+                    );
+                }
             }
         } finally {
             window
