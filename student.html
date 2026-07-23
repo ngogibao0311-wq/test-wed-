@@ -6,19 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trang Học Sinh</title>
     <link rel="icon" type="image/png" href="assets/icon.png">
-    <link rel="stylesheet" href="css/common.css?v=3.0">
-    <link rel="stylesheet" href="css/student.css?v=3.0">
-    <link rel="stylesheet" href="css/mobile.css?v=3.0">
-    <link rel="stylesheet" href="css/store-items.css?v=3.0">
-    <link rel="stylesheet" href="css/effects-pets.css?v=3.0">
-    <link rel="stylesheet" href="css/royal-ball.css?v=3.0">
-    <link rel="stylesheet" href="css/daily-login.css?v=3.0">
+    <link rel="stylesheet" href="css/common.css?v=3.5">
+    <link rel="stylesheet" href="css/student.css?v=3.5">
+    <link rel="stylesheet" href="css/mobile.css?v=3.5">
+    <link rel="stylesheet" href="css/store-items.css?v=3.5">
+    <link rel="stylesheet" href="css/effects-pets.css?v=3.5">
+    <link rel="stylesheet" href="css/royal-ball.css?v=3.5">
+    <link rel="stylesheet" href="css/daily-login.css?v=3.5">
     <link rel="stylesheet" href="css/lord-of-mysteries.css?v=3.3">
-    <link rel="stylesheet" href="css/legendery.css?v=3.0">
+    <link rel="stylesheet" href="css/legendery.css?v=3.5">
     <link rel="stylesheet" href="css/leaderboard.css?v=3.3">
-    <link rel="stylesheet" href="css/painting.css?v=3.0">
-    <link rel="stylesheet" href="css/doraemon.css?v=3.0">
-    <link rel="stylesheet" href="css/hoi-hoa.css?v=3.0">
+    <link rel="stylesheet" href="css/painting.css?v=3.5">
+    <link rel="stylesheet" href="css/doraemon.css?v=3.5">
+    <link rel="stylesheet" href="css/hoi-hoa.css?v=3.5">
+    <link rel="stylesheet" href="css/that-dai-toi.css?v=3.5">
+    <link rel="stylesheet" href="css/pet-sinh-nhat.css?v=3.5">
     <script>
         MathJax = {
             tex: {
@@ -263,6 +265,37 @@
                         </label>
                     </div>
 
+                    <div style="background: rgba(255,255,255,0.5);
+    padding: 15px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(0,0,0,0.05);">
+
+                        <div>
+                            <strong style="color: #2c3e50;">
+                                🪙 Hiển thị thanh số dư Coin
+                            </strong>
+
+                            <p style="margin: 4px 0 0;
+            color: #666;
+            font-size: 0.85em;
+            line-height: 1.4;">
+                                Chỉ ẩn hoặc hiện thanh Coin trên màn hình,
+                                không ảnh hưởng số dư và các chức năng khác.
+                            </p>
+                        </div>
+
+                        <label class="switch" title="Ẩn hoặc hiện thanh số dư Coin">
+                            <input type="checkbox" id="toggleCoinBalanceWidget"
+                                onchange="toggleCoinBalanceWidget(this.checked)" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
                     <label><strong>🎨 Giao diện hiển thị:</strong></label>
                     <select id="themeSelector" onchange="changeTheme(this.value)"
                         style="margin-bottom: 20px; font-weight: bold; color: #667eea;">
@@ -358,6 +391,43 @@
 
             <h3 id="infoModalName" style="color: #764ba2; margin-bottom: 5px; font-size: 1.5em;">Tên học sinh</h3>
             <p style="color: #667eea; font-weight: bold; margin-bottom: 20px;" id="infoModalClass">Lớp: ...</p>
+
+            <div id="studentBirthdayProfileCard" style="text-align:left;
+           background:rgba(255,255,255,0.62);
+           padding:15px;
+           border-radius:12px;
+           margin-bottom:15px;
+           border:1px solid rgba(236,72,153,0.18);">
+
+                <strong style="color:#be185d;">🎂 Ngày sinh:</strong>
+
+                <p id="infoModalBirthDate" style="display:none; margin:7px 0 0; color:#444; font-weight:700;">
+                </p>
+
+                <div id="studentBirthDateInputArea" style="margin-top:10px;">
+                    <input type="date" id="studentBirthDateInput" style="margin:0 0 8px;">
+
+                    <button id="saveStudentBirthDateBtn" onclick="saveStudentBirthDateOnce()" style="margin:0;
+                   width:100%;
+                   padding:10px;
+                   background:linear-gradient(135deg,#ec4899,#f97316);
+                   color:white;
+                   border:none;
+                   border-radius:8px;
+                   font-weight:800;
+                   cursor:pointer;">
+                        🎁 Lưu ngày sinh
+                    </button>
+
+                    <small id="studentBirthDateNote" style="display:block;
+                   margin-top:8px;
+                   color:#be123c;
+                   line-height:1.45;">
+                        Lưu ý: học sinh chỉ được tự nhập ngày sinh 1 lần duy nhất.
+                        Hãy kiểm tra thật kỹ trước khi lưu.
+                    </small>
+                </div>
+            </div>
 
             <div
                 style="text-align: left; background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; margin-bottom: 15px;">
@@ -793,33 +863,41 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <!-- 2. Khởi tạo Firebase -->
-    <script src="js/firebase-config.js?v=3.0"></script>
+    <script src="js/firebase-config.js?v=3.5"></script>
+    <script src="js/cloudinary-storage.js?v=3.5"></script>
+
+    <script>
+        window.R2_WORKER_URL =
+            "https://school-r2-files.ngogibao0311.workers.dev";
+    </script>
+
+    <script src="js/cloudflare-r2-storage.js?v=3.5"></script>
 
     <!-- 3. Thư viện đọc file DOCX -->
     <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 
     <!-- 4. Mã nền tảng -->
-    <script src="js/common.js?v=3.0"></script>
-    
+    <script src="js/common.js?v=3.5"></script>
+
 
 
     <!-- 4. Các module tính năng -->
-    <script src="js/daily-login.js?v=3.0"></script>
-    <script src="js/royal-ball.js?v=3.0"></script>
-    <script src="js/theme-items.js?v=3.0"></script>
-    <script src="js/effect-items.js?v=3.0"></script>
-    <script src="js/pet-items.js?v=3.0"></script>
-    <script src="js/pet-interactions.js?v=3.0"></script>
-    <script src="js/music-manager.js?v=3.0"></script>
-    <script src="js/store-manager.js?v=3.0"></script>
+    <script src="js/daily-login.js?v=3.5"></script>
+    <script src="js/royal-ball.js?v=3.5"></script>
+    <script src="js/theme-items.js?v=3.5"></script>
+    <script src="js/effect-items.js?v=3.5"></script>
+    <script src="js/pet-items.js?v=3.5"></script>
+    <script src="js/pet-interactions.js?v=3.5"></script>
+    <script src="js/music-manager.js?v=3.5"></script>
+    <script src="js/store-manager.js?v=3.5"></script>
     <script src="js/leaderboard.js?v=3.3"></script>
-    <script src="js/painting.js?v=3.0"></script>
+    <script src="js/painting.js?v=3.5"></script>
 
     <!-- YouTube API không phụ thuộc Firebase -->
     <script src="https://www.youtube.com/iframe_api"></script>
 
     <!-- 5. Logic chính của trang học sinh luôn đặt cuối -->
-    <script src="js/student.js?v=3.0"></script>
+    <script src="js/student.js?v=3.5"></script>
 
 </body>
 

@@ -22,7 +22,6 @@ const firebaseConfig = {
   appId: "1:623035254774:web:70ee10a059363d8cb429d7"
 };
 
-
 // 2. Khởi tạo kết nối
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();

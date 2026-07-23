@@ -94,6 +94,24 @@ class ThemeManager {
             background: '#f6efd9',
             className: 'theme-enchanted-atelier'
         },
+        'theme_thatdaitoi_acedia_dream': {
+            primary: '#8f68b8',
+            secondary: '#d4b9f2',
+            background: '#0b0712',
+            className: 'theme-seven-sins-acedia'
+        },
+        'theme_he_mat_troi_sinh_quyen': {
+            primary: '#36d6c3',
+            secondary: '#ffbd45',
+            background: '#071a28',
+            className: 'theme-solar-biosphere'
+        },
+        'theme_sinh_nhat_tiec_ngot_2026': {
+            primary: '#ef7866',
+            secondary: '#2f846b',
+            background: '#fff7e9',
+            className: 'theme-birthday-sweet-2026'
+        },
     };
 
     // Những popup phải giữ giao diện riêng,
@@ -137,7 +155,53 @@ class ThemeManager {
 
             styleId:
                 'shizuka-trinity-card-style'
-        })
+        }),
+
+        'seven-sins-sloth': Object.freeze({
+            itemIds: Object.freeze([
+                'pet_thatdaitoi_luoibieng_1',
+                'theme_thatdaitoi_acedia_dream',
+                'effect_thatdaitoi_acedia_domain'
+            ]),
+
+            className:
+                'store-card-seven-sins-sloth'
+        }),
+
+        /* Bộ Thần Hệ Tinh Vân */
+        'galaxy-legend-trinity': Object.freeze({
+            itemIds: Object.freeze([
+                'pet_truyenthuyet_1',
+                'effect_truyenthuyet_vutru',
+                'theme_truyenthuyet_vutru'
+            ]),
+
+            className:
+                'store-card-galaxy-legend-trinity'
+        }),
+
+        /* Bộ Vệ Thần Ngân Hà */
+        'galaxy-guardian-trinity': Object.freeze({
+            itemIds: Object.freeze([
+                'pet_truyenthuyet_2',
+                'effect_truyenthuyet_nganha',
+                'theme_truyenthuyet_nganha'
+            ]),
+
+            className:
+                'store-card-galaxy-guardian-trinity'
+        }),
+
+        'birthday-2026': Object.freeze({
+            itemIds: Object.freeze([
+                'pet_sinh_nhat_2026',
+                'theme_sinh_nhat_tiec_ngot_2026',
+                'effect_sinh_nhat_than_an_phuc_loc_2026'
+            ]),
+
+            className:
+                'store-card-birthday-2026'
+        }),
     });
 
 
@@ -354,8 +418,182 @@ class ThemeManager {
         }
     }
 
+    static clearAcediaPalaceDecor() {
+        const oldDecor =
+            document.getElementById(
+                'acedia-palace-chrome'
+            );
+
+        if (oldDecor) {
+            oldDecor.remove();
+        }
+
+        document.documentElement.classList.remove(
+            'acedia-palace-mounted'
+        );
+    }
+
+    static createAcediaPalaceDecor() {
+        this.clearAcediaPalaceDecor();
+
+        if (!document.body) return;
+
+        const decor = document.createElement('div');
+
+        decor.id = 'acedia-palace-chrome';
+        decor.className = 'acedia-palace-chrome';
+        decor.setAttribute('aria-hidden', 'true');
+
+        decor.innerHTML = `
+            <div class="acedia-palace-vault"></div>
+
+            <div class="acedia-palace-eclipse">
+                <span class="eclipse-crown"></span>
+                <span class="eclipse-core">Ⅶ</span>
+            </div>
+
+            <div class="acedia-palace-arches"></div>
+
+            <div class="acedia-palace-hourglass">
+                <span class="hourglass-crown"></span>
+                <span class="hourglass-frame"></span>
+
+                <span
+                    class="hourglass-sand sand-upper"
+                ></span>
+
+                <span
+                    class="hourglass-sand sand-lower"
+                ></span>
+            </div>
+
+            <div
+                class="acedia-palace-chain chain-a"
+            ></div>
+
+            <div
+                class="acedia-palace-chain chain-b"
+            ></div>
+
+            <div
+                class="acedia-palace-chain chain-c"
+            ></div>
+
+            <div class="acedia-palace-dust"></div>
+
+            <div class="acedia-palace-inscription">
+                <span>PECCATUM VII</span>
+
+                <strong>
+                    MỘNG ĐIỆN TRÌ HOÃN
+                </strong>
+
+                <small>
+                    Ở đây, mọi khoảnh khắc đều đến muộn.
+                </small>
+            </div>
+        `;
+
+        const arches =
+            decor.querySelector(
+                '.acedia-palace-arches'
+            );
+
+        const numerals = [
+            'Ⅰ', 'Ⅱ', 'Ⅲ', 'Ⅳ', 'Ⅴ', 'Ⅵ', 'Ⅶ'
+        ];
+
+        for (let index = 0; index < 7; index++) {
+            const arch =
+                document.createElement('span');
+
+            arch.className = 'acedia-palace-arch';
+            arch.dataset.number = numerals[index];
+
+            arch.style.setProperty(
+                '--acedia-arch-index',
+                index
+            );
+
+            arch.style.setProperty(
+                '--acedia-arch-delay',
+                `${-index * 0.7}s`
+            );
+
+            arch.style.setProperty(
+                '--acedia-arch-height',
+                `${58 + index * 2.7}%`
+            );
+
+            arches.appendChild(arch);
+        }
+
+        const dustField =
+            decor.querySelector(
+                '.acedia-palace-dust'
+            );
+
+        const isMobile = window.matchMedia(
+            '(max-width: 768px), (pointer: coarse)'
+        ).matches;
+
+        const dustCount = isMobile ? 18 : 36;
+
+        for (
+            let index = 0;
+            index < dustCount;
+            index++
+        ) {
+            const mote =
+                document.createElement('span');
+
+            const duration = 8 + index % 9;
+
+            mote.className =
+                'acedia-palace-mote';
+
+            mote.style.setProperty(
+                '--acedia-palace-x',
+                `${(index * 37) % 100}%`
+            );
+
+            mote.style.setProperty(
+                '--acedia-palace-y',
+                `${(index * 61) % 100}%`
+            );
+
+            mote.style.setProperty(
+                '--acedia-palace-size',
+                `${1 + index % 4}px`
+            );
+
+            mote.style.setProperty(
+                '--acedia-palace-duration',
+                `${duration}s`
+            );
+
+            mote.style.setProperty(
+                '--acedia-palace-delay',
+                `${-(index % 13) * 0.55}s`
+            );
+
+            dustField.appendChild(mote);
+        }
+
+        document.body.prepend(decor);
+
+        document.documentElement.classList.add(
+            'acedia-palace-mounted'
+        );
+
+        requestAnimationFrame(() => {
+            decor.classList.add('is-mounted');
+        });
+    }
+
     static applyTheme(themeId) {
         this.initThemePopupIsolation();
+        this.clearAcediaPalaceDecor();
         const theme = this.themes[themeId] || this.themes['default'];
         const root = document.documentElement;
 
@@ -374,6 +612,13 @@ class ThemeManager {
         // 2. Tiêm class mới vào body nếu theme đó có yêu cầu thay đổi hình dáng
         if (theme.className) {
             document.body.classList.add(theme.className);
+        }
+
+        if (
+            themeId ===
+            'theme_thatdaitoi_acedia_dream'
+        ) {
+            this.createAcediaPalaceDecor();
         }
 
         // Lưu lựa chọn vào bộ nhớ trình duyệt

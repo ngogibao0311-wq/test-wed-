@@ -968,8 +968,31 @@ Truyền thuyết.
         },
 
         safeDataImage(value) {
-            const image = String(value || '');
-            return /^data:image\/(png|jpeg|jpg|webp);base64,[a-z0-9+/=\s]+$/i.test(image) ? image : '';
+            const image =
+                String(value || '')
+                    .trim();
+
+            /*
+             * Ảnh Cloudinary mới.
+             */
+            if (
+                /^https:\/\/res\.cloudinary\.com\/kexe2zqv\/.+/i
+                    .test(image)
+            ) {
+                return image;
+            }
+
+            /*
+             * Ảnh Base64 cũ vẫn được hỗ trợ.
+             */
+            if (
+                /^data:image\/(png|jpeg|jpg|webp);base64,[a-z0-9+/=\s]+$/i
+                    .test(image)
+            ) {
+                return image;
+            }
+
+            return '';
         },
 
         getRoundConfig(round) {
@@ -1945,8 +1968,9 @@ Truyền thuyết.
 
                     const safeImage =
                         this.safeDataImage(
+                            sub.imageUrl ||
                             sub.imageBase64
-                        );
+                        )
 
                     container.innerHTML = `
                 <section class="hh-submitted-state">
@@ -6228,85 +6252,253 @@ ${this.toolButton(
 
         async submitArtwork() {
             if (
-                this.studioMode === 'practice'
+                this.studioMode ===
+                'practice'
             ) {
                 this.downloadBackup();
+
                 return;
             }
-            if (!this.canvas || !this.currentRound || this.isSubmitting) return;
-            if (Date.now() < Number(this.currentRound.startTime) || Date.now() > Number(this.currentRound.endTime)) {
-                this.toast('Vòng thi hiện không nhận bài.', 'error');
+
+            if (
+                !this.canvas ||
+                !this.currentRound ||
+                this.isSubmitting
+            ) {
                 return;
             }
+
+            if (
+                Date.now() <
+                Number(
+                    this.currentRound
+                        .startTime
+                ) ||
+                Date.now() >
+                Number(
+                    this.currentRound
+                        .endTime
+                )
+            ) {
+                this.toast(
+                    'Vòng thi hiện không nhận bài.',
+                    'error'
+                );
+
+                return;
+            }
+
             if (!this.hasDrawnContent) {
-                this.toast('Bảng vẽ đang trống. Hãy tạo tác phẩm trước khi nộp.', 'warning');
+                this.toast(
+                    'Bảng vẽ đang trống. ' +
+                    'Hãy tạo tác phẩm trước khi nộp.',
+                    'warning'
+                );
+
                 return;
             }
-            const accepted = await this.confirmDialog('Nộp tác phẩm và khóa bài vĩnh viễn? Hãy tải bản dự phòng trước khi nộp nếu cần.', 'Nộp tác phẩm', false);
+
+            const accepted =
+                await this.confirmDialog(
+                    'Nộp tác phẩm và khóa bài vĩnh viễn? ' +
+                    'Hãy tải bản dự phòng trước khi nộp nếu cần.',
+                    'Nộp tác phẩm',
+                    false
+                );
+
             if (!accepted) return;
 
             this.isSubmitting = true;
-            const button = document.getElementById('hh-submit-btn');
+
+            const button =
+                document.getElementById(
+                    'hh-submit-btn'
+                );
+
             if (button) {
                 button.disabled = true;
-                button.textContent = 'Đang nộp...';
+                button.textContent =
+                    'Đang tải tác phẩm...';
             }
-
-            const output = this.getExportCanvas();
-            const imageBase64 = output.toDataURL('image/png');
-            const sizeInBytes = this.estimateBase64Bytes(imageBase64);
-            if (sizeInBytes > DEFAULTS.maxImageBytes) {
-                this.toast('Ảnh vượt giới hạn 9 MB. Hãy giảm kích thước vòng thi hoặc nét vẽ.', 'error');
-                this.isSubmitting = false;
-                if (button) {
-                    button.disabled = false;
-                    button.textContent = 'Nộp tác phẩm';
-                }
-                return;
-            }
-
-            const id = `${this.currentRound.id}_${this.user.username}`;
-            const payload = {
-                id,
-                roundId: this.currentRound.id,
-                studentUsername: this.user.username,
-                studentName: this.user.name,
-                imageBase64,
-                submitTime: Date.now(),
-                teacherScore: 0,
-                teacherFeedback: '',
-                votes: 0,
-                voters: {},
-                finalScore: 0,
-                rank: 0,
-                schemaVersion: 2,
-                canvasMeta: {
-                    width: output.width,
-                    height: output.height,
-                    backgroundColor: this.getRoundConfig(this.currentRound).backgroundColor,
-                    appVersion: this.version
-                }
-            };
 
             try {
-                const ref = db.ref(`hoihoa_submissions/${id}`);
-                const transaction = await ref.transaction(current => current || payload);
-                if (!transaction.committed || (transaction.snapshot.val() || {}).studentUsername !== this.user.username) {
-                    throw new Error('Bài đã tồn tại hoặc không thể khóa bài.');
+                if (
+                    !window.CloudinaryStorage
+                ) {
+                    throw new Error(
+                        'Không tìm thấy cloudinary-storage.js.'
+                    );
                 }
-                localStorage.removeItem(this.getDraftKey());
-                localStorage.removeItem(this.getLegacyDraftKey());
+
+                const output =
+                    this.getExportCanvas();
+
+                const id =
+                    `${this.currentRound.id}_` +
+                    `${this.user.username}`;
+
+                /*
+                 * Tạo Blob/File trực tiếp từ canvas.
+                 * Không gọi canvas.toDataURL().
+                 */
+                const imageFile =
+                    await window
+                        .CloudinaryStorage
+                        .canvasToFile(
+                            output,
+                            `${id}.png`,
+                            'image/png'
+                        );
+
+                if (
+                    imageFile.size >
+                    DEFAULTS.maxImageBytes
+                ) {
+                    throw new Error(
+                        'Ảnh vượt giới hạn 9 MB. ' +
+                        'Hãy giảm kích thước vòng thi hoặc nét vẽ.'
+                    );
+                }
+
+                const uploadedImage =
+                    await window
+                        .CloudinaryStorage
+                        .uploadFile(
+                            imageFile,
+                            {
+                                maxSizeBytes:
+                                    DEFAULTS
+                                        .maxImageBytes
+                            }
+                        );
+
+                const payload = {
+                    id,
+
+                    roundId:
+                        this.currentRound.id,
+
+                    studentUsername:
+                        this.user.username,
+
+                    studentName:
+                        this.user.name,
+
+                    /*
+                     * Chỉ lưu URL Cloudinary.
+                     * Không còn imageBase64.
+                     */
+                    imageUrl:
+                        uploadedImage.url,
+
+                    submitTime:
+                        Date.now(),
+
+                    teacherScore:
+                        0,
+
+                    teacherFeedback:
+                        '',
+
+                    votes:
+                        0,
+
+                    voters:
+                        {},
+
+                    finalScore:
+                        0,
+
+                    rank:
+                        0,
+
+                    schemaVersion:
+                        3,
+
+                    canvasMeta: {
+                        width:
+                            output.width,
+
+                        height:
+                            output.height,
+
+                        backgroundColor:
+                            this
+                                .getRoundConfig(
+                                    this.currentRound
+                                )
+                                .backgroundColor,
+
+                        appVersion:
+                            this.version
+                    }
+                };
+
+                const ref =
+                    db.ref(
+                        `hoihoa_submissions/${id}`
+                    );
+
+                const transaction =
+                    await ref.transaction(
+                        current =>
+                            current ||
+                            payload
+                    );
+
+                if (
+                    !transaction.committed ||
+                    (
+                        transaction
+                            .snapshot
+                            .val() ||
+                        {}
+                    ).studentUsername !==
+                    this.user.username
+                ) {
+                    throw new Error(
+                        'Bài đã tồn tại hoặc không thể khóa bài.'
+                    );
+                }
+
+                localStorage.removeItem(
+                    this.getDraftKey()
+                );
+
+                localStorage.removeItem(
+                    this.getLegacyDraftKey()
+                );
+
                 this.isDirty = false;
-                this.toast('Tác phẩm đã được nộp và khóa thành công.', 'success');
-                await this.selectRound(this.currentRound.id);
+
+                this.toast(
+                    'Tác phẩm đã được nộp và khóa thành công.',
+                    'success'
+                );
+
+                await this.selectRound(
+                    this.currentRound.id
+                );
             } catch (error) {
                 console.error(error);
-                this.toast(`Nộp bài thất bại: ${error.message || 'kiểm tra kết nối và Firebase Rules.'}`, 'error');
+
+                this.toast(
+                    `Nộp bài thất bại: ` +
+                    `${error.message ||
+                    'kiểm tra kết nối.'
+                    }`,
+                    'error'
+                );
             } finally {
-                this.isSubmitting = false;
+                this.isSubmitting =
+                    false;
+
                 if (button) {
-                    button.disabled = false;
-                    button.textContent = 'Nộp tác phẩm';
+                    button.disabled =
+                        false;
+
+                    button.textContent =
+                        'Nộp tác phẩm';
                 }
             }
         },
@@ -6353,7 +6545,10 @@ ${this.toolButton(
         },
 
         renderArtworkCard(sub, config) {
-            const safeImage = this.safeDataImage(sub.imageBase64);
+            const safeImage = this.safeDataImage(
+                sub.imageUrl ||
+                sub.imageBase64
+            )
             if (!safeImage) return '';
             const isMine = sub.studentUsername === this.user.username;
             const hasVoted = !!(sub.voters && sub.voters[this.user.username]);
@@ -6571,7 +6766,10 @@ ${this.toolButton(
                 <div class="hh-table-wrap"><table class="leaderboard-table">
                     <thead><tr><th>#</th><th>Tác phẩm</th><th>Họa sĩ</th><th>Điểm GV</th><th>Phiếu</th><th>Điểm vòng</th></tr></thead>
                     <tbody>${submissions.map((sub, index) => {
-                const safe = this.safeDataImage(sub.imageBase64);
+                const safe = this.safeDataImage(
+                    sub.imageUrl ||
+                    sub.imageBase64
+                )
                 return `<tr><td>${index + 1}</td><td>${safe ? `<img src="${safe}" class="hh-result-thumb" data-hh-action="preview" alt="Tác phẩm">` : '-'}</td><td><strong>${this.escapeHTML(sub.studentName)}</strong></td><td>${Number(sub.teacherScore || 0).toFixed(1)}</td><td>${this.getVoteCount(sub)}</td><td class="hh-final-score">${Number(sub.finalScore || 0).toFixed(2)}</td></tr>`;
             }).join('')}</tbody>
                 </table></div>
@@ -6786,6 +6984,107 @@ ${this.toolButton(
             this.loadTeacherRounds();
         },
 
+        getArtworkStorageAsset(
+            submission
+        ) {
+            if (
+                !submission ||
+                typeof submission !==
+                'object'
+            ) {
+                return null;
+            }
+
+            if (
+                submission.imageStorage &&
+                typeof submission
+                    .imageStorage ===
+                'object'
+            ) {
+                return {
+                    ...submission.imageStorage,
+
+                    provider:
+                        submission
+                            .imageStorage
+                            .provider ||
+                        'cloudinary'
+                };
+            }
+
+            const imageUrl =
+                String(
+                    submission.imageUrl ||
+                    submission.image ||
+                    ''
+                ).trim();
+
+            /*
+             * Base64 cũ nằm trong Firebase,
+             * không có ảnh ngoài cần gọi API xóa.
+             */
+            if (
+                !imageUrl ||
+                imageUrl.startsWith(
+                    'data:'
+                )
+            ) {
+                return null;
+            }
+
+            return {
+                provider:
+                    submission.imageProvider ||
+                    'cloudinary',
+
+                publicId:
+                    submission.imagePublicId ||
+                    '',
+
+                resourceType:
+                    submission
+                        .imageResourceType ||
+                    'image',
+
+                url:
+                    imageUrl
+            };
+        },
+
+        async deleteArtworkFiles(
+            submissions
+        ) {
+            const assets =
+                (submissions || [])
+                    .map(submission =>
+                        this
+                            .getArtworkStorageAsset(
+                                submission
+                            )
+                    )
+                    .filter(Boolean);
+
+            if (assets.length === 0) {
+                return;
+            }
+
+            if (
+                !window.CloudflareR2Storage ||
+                typeof window
+                    .CloudflareR2Storage
+                    .deleteAssets !==
+                'function'
+            ) {
+                throw new Error(
+                    'Không tìm thấy chức năng xóa ảnh trên Worker.'
+                );
+            }
+
+            await window
+                .CloudflareR2Storage
+                .deleteAssets(assets);
+        },
+
         async deleteRound(roundKey, roundId) {
             if (!this.isTeacher || !roundKey) return;
 
@@ -6819,6 +7118,14 @@ ${this.toolButton(
                 );
 
                 if (!confirmed) return;
+
+                /*
+                 * Xóa tất cả ảnh Cloudinary trước.
+                 * Lỗi xóa ảnh thì chưa xóa Firebase.
+                 */
+                await this.deleteArtworkFiles(
+                    submissions
+                );
 
                 const updates = {};
 
@@ -7218,7 +7525,10 @@ ${this.toolButton(
         },
 
         renderGradingCard(sub, roundId) {
-            const safe = this.safeDataImage(sub.imageBase64);
+            const safe = this.safeDataImage(
+                sub.imageUrl ||
+                sub.imageBase64
+            )
             const votes = this.getVoteCount(sub);
 
             const name =
@@ -7422,6 +7732,14 @@ ${this.toolButton(
                 );
 
                 if (!confirmed) return;
+
+                /*
+                 * Xóa ảnh Cloudinary trước khi
+                 * xóa bài nộp Firebase.
+                 */
+                await this.deleteArtworkFiles(
+                    [submission]
+                );
 
                 const effectiveRoundId = String(
                     roundId ??

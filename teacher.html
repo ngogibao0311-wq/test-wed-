@@ -6,13 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Trang Giáo Viên</title>
     <link rel="icon" type="image/png" href="assets/icon.png">
-    <link rel="stylesheet" href="css/common.css?v=3.0">
-    <link rel="stylesheet" href="css/teacher.css?v=3.0">
-    <link rel="stylesheet" href="css/mobile.css?v=3.0">
-    <link rel="stylesheet" href="css/store-items.css?v=3.0">
-    <link rel="stylesheet" href="css/effects-pets.css?v=3.0">
-    <link rel="stylesheet" href="css/daily-login.css?v=3.0">
-    <link rel="stylesheet" href="css/painting.css?v=3.0">
+    <link rel="stylesheet" href="css/common.css?v=3.5">
+    <link rel="stylesheet" href="css/teacher.css?v=3.5">
+    <link rel="stylesheet" href="css/mobile.css?v=3.5">
+    <link rel="stylesheet" href="css/store-items.css?v=3.5">
+    <link rel="stylesheet" href="css/effects-pets.css?v=3.5">
+    <link rel="stylesheet" href="css/daily-login.css?v=3.5">
+    <link rel="stylesheet" href="css/painting.css?v=3.5">
     <script>
         MathJax = {
             tex: {
@@ -1071,6 +1071,7 @@
                             style="background: white; margin-bottom: 15px; font-weight: bold; color: #d35400;">
                             <option value="none">Chỉ gửi thư (Không kèm quà)</option>
                             <option value="coin">🪙 Tặng Coin</option>
+                            <option value="special_birthday_coin">✨ Tặng Xu Đặc Biệt</option>
                             <option value="money">💵 Tặng Tiền Lộ Trình (đ)</option>
                             <option value="item">📦 Tặng Vật Phẩm Cửa Hàng</option>
                             <option value="ticket">🎫 Tặng Vé Quay May Mắn</option>
@@ -1283,6 +1284,14 @@
                                     id="newStudentClass" placeholder="VD: 10A1"></div>
                         </div>
 
+                        <label><strong>Ngày sinh:</strong></label>
+                        <input type="date" id="newStudentBirthDate">
+
+                        <small style="display:block; margin:-8px 0 14px; color:#64748b; line-height:1.45;">
+                            Có thể để trống để học sinh tự nhập sau.
+                            Khi học sinh tự lưu, học sinh chỉ được nhập đúng 1 lần.
+                        </small>
+
                         <label><strong>Sở thích:</strong></label>
                         <input type="text" id="newStudentHobbies" placeholder="VD: Đọc sách, Nghe nhạc...">
 
@@ -1316,6 +1325,13 @@
                             <div class="form-group"><label><strong>Lớp:</strong></label><input type="text"
                                     id="editStudentClass"></div>
                         </div>
+                        <label><strong>Ngày sinh:</strong></label>
+                        <input type="date" id="editStudentBirthDate">
+
+                        <small style="display:block; margin:-8px 0 14px; color:#64748b; line-height:1.45;">
+                            Giáo viên có thể cập nhật ngày sinh khi cần.
+                            Việc sửa ngày sinh không tạo thêm xu nếu năm đó đã được tặng.
+                        </small>
                         <label><strong>Mật khẩu (để trống nếu không đổi):</strong></label>
                         <input type="text" id="editStudentPassword" placeholder="Nhập mật khẩu mới...">
 
@@ -1582,25 +1598,33 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <!-- 2. Khởi tạo Firebase -->
-    <script src="js/firebase-config.js?v=3.0"></script>
+    <script src="js/firebase-config.js?v=3.5"></script>
+    <script src="js/cloudinary-storage.js?v=3.5"></script>
+
+    <script>
+        window.R2_WORKER_URL =
+            "https://school-r2-files.ngogibao0311.workers.dev";
+    </script>
+
+    <script src="js/cloudflare-r2-storage.js?v=3.5"></script>
 
     <!-- 3. Mã nền tảng -->
     <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
-    <script src="js/common.js?v=3.0"></script>
-    <script src="js/security.js?v=3.0"></script>
+    <script src="js/common.js?v=3.5"></script>
+    <script src="js/security.js?v=3.5"></script>
 
     <!-- 4. Các module tính năng -->
-    <script src="js/daily-login.js?v=3.0"></script>
-    <script src="js/theme-items.js?v=3.0"></script>
-    <script src="js/effect-items.js?v=3.0"></script>
-    <script src="js/pet-items.js?v=3.0"></script>
-    <script src="js/royal-ball.js?v=3.0"></script>
-    <script src="js/music-manager.js?v=3.0"></script>
-    <script src="js/store-manager.js?v=3.0"></script>
-    <script src="js/painting.js?v=3.1"></script>
+    <script src="js/daily-login.js?v=3.5"></script>
+    <script src="js/theme-items.js?v=3.5"></script>
+    <script src="js/effect-items.js?v=3.5"></script>
+    <script src="js/pet-items.js?v=3.5"></script>
+    <script src="js/royal-ball.js?v=3.5"></script>
+    <script src="js/music-manager.js?v=3.5"></script>
+    <script src="js/store-manager.js?v=3.5"></script>
+    <script src="js/painting.js?v=3.5"></script>
 
     <!-- 5. Logic chính của trang giáo viên luôn đặt cuối -->
-    <script src="js/teacher.js?v=3.0"></script>
+    <script src="js/teacher.js?v=3.5"></script>
 </body>
 
 </html>

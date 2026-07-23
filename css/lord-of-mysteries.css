@@ -3403,6 +3403,7 @@ body.theme-lotm-mysteries .content > :is(
 }
 
 @media (max-width: 720px) {
+
     body.theme-lotm-mysteries .content > :is(
         .profile-trigger-btn,
         .inbox-trigger-btn,
@@ -3411,31 +3412,57 @@ body.theme-lotm-mysteries .content > :is(
     ) {
         position: fixed !important;
         top: 15px !important;
+
         width: 40px !important;
         min-width: 40px !important;
         max-width: 40px !important;
+
         height: 40px !important;
         min-height: 40px !important;
         max-height: 40px !important;
+
         border-radius: 13px !important;
         font-size: 20px !important;
-        z-index: 2147482000 !important;
+
+        /* Thấp hơn sidebar 10000 */
+        z-index: 9999 !important;
     }
 
-    body.theme-lotm-mysteries .content > .profile-trigger-btn {
+    body.theme-lotm-mysteries
+    .content > .profile-trigger-btn {
         right: 15px !important;
     }
 
-    body.theme-lotm-mysteries .content > .inbox-trigger-btn {
+    body.theme-lotm-mysteries
+    .content > .inbox-trigger-btn {
         right: 65px !important;
     }
 
-    body.theme-lotm-mysteries .content > .bag-trigger-btn {
+    body.theme-lotm-mysteries
+    .content > .bag-trigger-btn {
         right: 115px !important;
     }
 
-    body.theme-lotm-mysteries .content > .leaderboard-trigger-btn {
+    body.theme-lotm-mysteries
+    .content > .leaderboard-trigger-btn {
         right: 165px !important;
+    }
+
+    /*
+     * Khi sidebar đang mở:
+     * ẩn cả 4 nút để không nằm lấp ló bên cạnh sidebar.
+     */
+    body.theme-lotm-mysteries
+    .dashboard:not(.collapsed)
+    .content > :is(
+        .profile-trigger-btn,
+        .inbox-trigger-btn,
+        .bag-trigger-btn,
+        .leaderboard-trigger-btn
+    ) {
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
     }
 }
 /* === END FIX HIỂN THỊ 4 NÚT HỆ THỐNG — LOTM === */

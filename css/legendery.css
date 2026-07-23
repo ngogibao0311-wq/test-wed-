@@ -668,27 +668,23 @@ body:has(.nyx-night-goddess-magic)
         inset 0 0 140px rgba(0, 0, 0, 0.58);
 }
 /* =========================================================
-   THÁNH VỰC TỐI THƯỢNG
+   THÁNH VỰC TỐI THƯỢNG — NỀN TẢNG CHUNG
    ========================================================= */
 
 body.theme-legendary-celestial {
     --celestial-bg: #07050d;
-    --celestial-panel: rgba(17, 12, 28, 0.86);
-    --celestial-panel-2: rgba(27, 17, 43, 0.78);
+    --celestial-panel: rgba(17, 12, 28, 0.9);
+    --celestial-panel-2: rgba(27, 17, 43, 0.82);
     --celestial-gold: #f8d477;
-    --celestial-gold-soft:
-        rgba(248, 212, 119, 0.38);
+    --celestial-gold-soft: rgba(248, 212, 119, 0.38);
     --celestial-text: #f5f1ff;
 
     min-height: 100vh;
+    min-height: 100dvh;
+
     color: var(--celestial-text) !important;
 
-    font-family:
-        Georgia, 'Times New Roman', serif !important;
-
-    background-color:
-        var(--celestial-bg) !important;
-
+    background-color: var(--celestial-bg) !important;
     background-image:
         radial-gradient(
             circle at 50% -12%,
@@ -715,9 +711,9 @@ body.theme-legendary-celestial {
     background-attachment: fixed !important;
 }
 
-/* Thanh cuộn */
 .theme-legendary-celestial ::-webkit-scrollbar {
-    width: 11px;
+    width: 10px;
+    height: 10px;
 }
 
 .theme-legendary-celestial ::-webkit-scrollbar-track {
@@ -737,14 +733,16 @@ body.theme-legendary-celestial {
         );
 }
 
-/* Các ô và thẻ */
-.theme-legendary-celestial .store-item-card,
-.theme-legendary-celestial .inventory-item,
-.theme-legendary-celestial .dashboard-card,
-.theme-legendary-celestial .panel,
-.theme-legendary-celestial .cell,
-.theme-legendary-celestial .card {
+.theme-legendary-celestial :is(
+    .store-item-card,
+    .inventory-item,
+    .dashboard-card,
+    .panel,
+    .cell,
+    .card
+) {
     position: relative;
+
     color: var(--celestial-text) !important;
 
     background:
@@ -755,8 +753,7 @@ body.theme-legendary-celestial {
         ) !important;
 
     border:
-        1px solid var(--celestial-gold-soft)
-        !important;
+        1px solid var(--celestial-gold-soft) !important;
 
     border-radius:
         18px 5px 18px 5px !important;
@@ -767,33 +764,14 @@ body.theme-legendary-celestial {
         !important;
 
     backdrop-filter: blur(11px);
-
-    transition:
-        transform 0.28s ease,
-        border-color 0.28s ease,
-        box-shadow 0.28s ease;
+    -webkit-backdrop-filter: blur(11px);
 }
 
-.theme-legendary-celestial .store-item-card:hover,
-.theme-legendary-celestial .inventory-item:hover,
-.theme-legendary-celestial .dashboard-card:hover {
-    transform: translateY(-4px);
-
-    border-color:
-        rgba(248, 212, 119, 0.76)
-        !important;
-
-    box-shadow:
-        0 18px 42px rgba(0, 0, 0, 0.42),
-        0 0 22px rgba(168, 85, 247, 0.2)
-        !important;
-}
-
-/* Popup */
-.theme-legendary-celestial .modal-content,
-.theme-legendary-celestial .popup,
-.theme-legendary-celestial .dialog-box {
-    position: relative;
+.theme-legendary-celestial :is(
+    .modal-content,
+    .popup,
+    .dialog-box
+) {
     color: var(--celestial-text) !important;
 
     background:
@@ -804,8 +782,7 @@ body.theme-legendary-celestial {
         ) !important;
 
     border:
-        1px solid rgba(248, 212, 119, 0.76)
-        !important;
+        1px solid rgba(248, 212, 119, 0.76) !important;
 
     border-radius:
         20px 6px 20px 6px !important;
@@ -816,17 +793,17 @@ body.theme-legendary-celestial {
         !important;
 }
 
-/* Nút chính */
-.theme-legendary-celestial .btn,
-.theme-legendary-celestial .btn-buy,
-.theme-legendary-celestial .btn-equip,
-.theme-legendary-celestial .btn-preview {
+.theme-legendary-celestial :is(
+    .btn,
+    .btn-buy,
+    .btn-equip,
+    .btn-preview
+) {
     color: #160d22 !important;
     font-weight: 800 !important;
 
     border:
-        1px solid rgba(255, 255, 255, 0.28)
-        !important;
+        1px solid rgba(255, 255, 255, 0.28) !important;
 
     border-radius:
         12px 4px 12px 4px !important;
@@ -847,73 +824,1993 @@ body.theme-legendary-celestial {
         0 7px 17px rgba(0, 0, 0, 0.22),
         inset 0 1px 0 rgba(255, 255, 255, 0.48)
         !important;
-
-    transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease,
-        background-position 0.35s ease
-        !important;
 }
 
-.theme-legendary-celestial .btn:hover,
-.theme-legendary-celestial .btn-buy:hover,
-.theme-legendary-celestial .btn-equip:hover,
-.theme-legendary-celestial .btn-preview:hover {
-    transform: translateY(-2px);
-
-    background-position:
-        100% 0 !important;
-
-    box-shadow:
-        0 10px 24px rgba(0, 0, 0, 0.32),
-        0 0 18px rgba(248, 212, 119, 0.42)
-        !important;
-}
-
-/* Tiêu đề */
 .theme-legendary-celestial h1,
 .theme-legendary-celestial h2,
-.theme-legendary-celestial h3 {
-    color:
-        var(--celestial-gold) !important;
+.theme-legendary-celestial h3,
+.theme-legendary-celestial h4,
+.theme-legendary-celestial h5,
+.theme-legendary-celestial h6 {
+    color: var(--celestial-gold) !important;
 
     font-family:
-        Georgia, 'Times New Roman', serif !important;
+        Georgia,
+        "Times New Roman",
+        serif !important;
 
-    letter-spacing: 1.4px;
+    letter-spacing: 1px;
+
     text-shadow:
-        0 2px 12px rgba(248, 212, 119, 0.26),
-        0 0 18px rgba(168, 85, 247, 0.18);
+        0 2px 12px rgba(248, 212, 119, 0.22),
+        0 0 18px rgba(168, 85, 247, 0.16);
 }
 
-.theme-legendary-celestial h1::after,
-.theme-legendary-celestial h2::after {
-    content: '✦';
-    display: inline-block;
-    margin-left: 10px;
-    color: #e9d5ff;
-    font-size: 0.72em;
-
-    animation:
-        celestialTitleStar
-        2.3s
-        ease-in-out
-        infinite alternate;
-}
-
-/* Ô nhập liệu */
-.theme-legendary-celestial input,
-.theme-legendary-celestial textarea,
-.theme-legendary-celestial select {
+.theme-legendary-celestial :is(
+    input,
+    textarea,
+    select
+) {
     color: var(--celestial-text) !important;
 
     background:
-        rgba(7, 5, 13, 0.72) !important;
+        rgba(7, 5, 13, 0.76) !important;
 
     border:
-        1px solid rgba(248, 212, 119, 0.28)
-        !important;
+        1px solid rgba(248, 212, 119, 0.28) !important;
 }
+
+
+
+/* =====================================================================
+   DESKTOP REWORK — THÁNH VỰC TỐI THƯỢNG
+   Chỉ áp dụng cho máy tính, không đụng phần mobile bên trên.
+   ===================================================================== */
+@media screen and (min-width: 769px) {
+
+    body.theme-legendary-celestial {
+        --celestial-void: #030208;
+        --celestial-night: #090611;
+        --celestial-purple-deep: #1a0d2b;
+        --celestial-purple: #6d28d9;
+        --celestial-violet: #a855f7;
+        --celestial-gold: #f8d477;
+        --celestial-gold-bright: #fff1a8;
+        --celestial-gold-muted: rgba(248, 212, 119, 0.42);
+        --celestial-lilac: #eadcff;
+        --celestial-text: #f7f2ff;
+        --celestial-muted: #c8b8dc;
+        --celestial-glass: rgba(15, 9, 27, 0.82);
+        --celestial-glass-strong: rgba(10, 6, 19, 0.94);
+
+        position: relative;
+        isolation: isolate;
+        min-height: 100vh;
+        min-height: 100dvh;
+        overflow-x: hidden;
+
+        color: var(--celestial-text) !important;
+        font-family: "Segoe UI", Arial, sans-serif !important;
+
+        background-color: var(--celestial-void) !important;
+        background-image:
+            radial-gradient(
+                circle at 82% 8%,
+                rgba(248, 212, 119, 0.19),
+                transparent 20%
+            ),
+            radial-gradient(
+                circle at 18% 18%,
+                rgba(126, 34, 206, 0.28),
+                transparent 31%
+            ),
+            radial-gradient(
+                ellipse at 68% 82%,
+                rgba(76, 29, 149, 0.24),
+                transparent 38%
+            ),
+            linear-gradient(
+                135deg,
+                #030208 0%,
+                #0c0716 34%,
+                #160a25 62%,
+                #05030b 100%
+            ) !important;
+
+        background-size:
+            120% 120%,
+            130% 130%,
+            140% 140%,
+            100% 100% !important;
+
+        background-attachment: fixed !important;
+
+        animation:
+            celestialDesktopBackground
+            18s
+            ease-in-out
+            infinite alternate;
+    }
+
+    /* Đại pháp trận phía sau toàn trang */
+    body.theme-legendary-celestial::before {
+        content: "";
+
+        position: fixed;
+        z-index: 0;
+
+        top: -300px;
+        right: -210px;
+
+        width: 760px;
+        height: 760px;
+
+        pointer-events: none;
+        border-radius: 50%;
+
+        background:
+            repeating-conic-gradient(
+                from 0deg,
+                rgba(248, 212, 119, 0.16) 0deg 1deg,
+                transparent 1deg 14deg
+            ),
+            repeating-radial-gradient(
+                circle,
+                transparent 0 54px,
+                rgba(233, 213, 255, 0.08) 55px 56px,
+                transparent 57px 92px
+            );
+
+        -webkit-mask:
+            radial-gradient(
+                circle,
+                transparent 0 31%,
+                #000 31.5% 32.5%,
+                transparent 33% 45%,
+                #000 45.5% 47%,
+                transparent 47.5% 59%,
+                #000 59.5% 61%,
+                transparent 61.5%
+            );
+
+        mask:
+            radial-gradient(
+                circle,
+                transparent 0 31%,
+                #000 31.5% 32.5%,
+                transparent 33% 45%,
+                #000 45.5% 47%,
+                transparent 47.5% 59%,
+                #000 59.5% 61%,
+                transparent 61.5%
+            );
+
+        opacity: 0.78;
+
+        filter:
+            drop-shadow(0 0 20px rgba(248, 212, 119, 0.2))
+            drop-shadow(0 0 55px rgba(126, 34, 206, 0.24));
+
+        animation:
+            celestialDesktopSigil
+            46s
+            linear
+            infinite;
+    }
+
+    /* Bầu trời sao và lưới ánh sáng */
+    body.theme-legendary-celestial::after {
+        content: "";
+
+        position: fixed;
+        z-index: 0;
+        inset: 0;
+
+        pointer-events: none;
+
+        background-image:
+            radial-gradient(
+                circle at 10% 18%,
+                rgba(255, 255, 255, 0.9) 0 1px,
+                transparent 1.8px
+            ),
+            radial-gradient(
+                circle at 72% 26%,
+                rgba(248, 212, 119, 0.88) 0 1px,
+                transparent 1.8px
+            ),
+            radial-gradient(
+                circle at 43% 71%,
+                rgba(233, 213, 255, 0.82) 0 1px,
+                transparent 1.8px
+            ),
+            radial-gradient(
+                circle at 91% 82%,
+                rgba(192, 132, 252, 0.86) 0 1px,
+                transparent 1.8px
+            ),
+            linear-gradient(
+                rgba(248, 212, 119, 0.025) 1px,
+                transparent 1px
+            ),
+            linear-gradient(
+                90deg,
+                rgba(248, 212, 119, 0.025) 1px,
+                transparent 1px
+            );
+
+        background-size:
+            220px 190px,
+            280px 240px,
+            340px 300px,
+            410px 360px,
+            70px 70px,
+            70px 70px;
+
+        opacity: 0.56;
+
+        -webkit-mask:
+            linear-gradient(
+                90deg,
+                transparent 0,
+                rgba(0, 0, 0, 0.62) 22%,
+                #000 48%,
+                #000 100%
+            );
+
+        mask:
+            linear-gradient(
+                90deg,
+                transparent 0,
+                rgba(0, 0, 0, 0.62) 22%,
+                #000 48%,
+                #000 100%
+            );
+
+        animation:
+            celestialDesktopStars
+            24s
+            linear
+            infinite;
+    }
+
+    body.theme-legendary-celestial .dashboard {
+        position: relative;
+        z-index: 1;
+
+        min-height: 100vh;
+        min-height: 100dvh;
+
+        background:
+            linear-gradient(
+                90deg,
+                rgba(3, 2, 8, 0.26),
+                transparent 28%
+            );
+    }
+
+    /* =============================================================
+       SIDEBAR — CỔNG THÁNH ĐIỆN
+       ============================================================= */
+
+    body.theme-legendary-celestial .sidebar {
+        position: sticky;
+        top: 0;
+        z-index: 120;
+
+        width: 310px;
+        height: 100vh;
+        height: 100dvh;
+        flex: 0 0 310px;
+
+        overflow-x: visible;
+        overflow-y: auto;
+
+        color: var(--celestial-text) !important;
+
+        background:
+            radial-gradient(
+                circle at 50% -4%,
+                rgba(248, 212, 119, 0.22),
+                transparent 24%
+            ),
+            radial-gradient(
+                circle at 16% 78%,
+                rgba(126, 34, 206, 0.25),
+                transparent 38%
+            ),
+            linear-gradient(
+                180deg,
+                rgba(20, 10, 35, 0.98),
+                rgba(8, 5, 16, 0.98) 54%,
+                rgba(4, 3, 10, 0.99)
+            ) !important;
+
+        border-right:
+            1px solid rgba(248, 212, 119, 0.48) !important;
+
+        box-shadow:
+            22px 0 60px rgba(0, 0, 0, 0.46),
+            5px 0 22px rgba(109, 40, 217, 0.15),
+            inset -1px 0 0 rgba(255, 240, 178, 0.1),
+            inset 0 0 60px rgba(109, 40, 217, 0.08)
+            !important;
+
+        backdrop-filter:
+            blur(22px)
+            saturate(1.18) !important;
+
+        -webkit-backdrop-filter:
+            blur(22px)
+            saturate(1.18) !important;
+
+        transition:
+            width 0.38s cubic-bezier(.2, .8, .2, 1),
+            flex-basis 0.38s cubic-bezier(.2, .8, .2, 1),
+            box-shadow 0.32s ease !important;
+    }
+
+    body.theme-legendary-celestial .sidebar::before {
+        content: "";
+
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+
+        pointer-events: none;
+
+        background:
+            linear-gradient(
+                90deg,
+                transparent,
+                rgba(248, 212, 119, 0.06),
+                transparent
+            ),
+            repeating-linear-gradient(
+                118deg,
+                transparent 0 34px,
+                rgba(255, 255, 255, 0.018) 35px 36px
+            );
+
+        background-size:
+            100% 1px,
+            auto;
+
+        background-position:
+            0 94px,
+            0 0;
+
+        background-repeat:
+            no-repeat,
+            repeat;
+    }
+
+    body.theme-legendary-celestial .sidebar::after {
+        content: "✦";
+
+        position: absolute;
+        z-index: 1;
+
+        top: 21px;
+        left: 50%;
+
+        width: 58px;
+        height: 58px;
+
+        display: grid;
+        place-items: center;
+
+        pointer-events: none;
+
+        color: var(--celestial-gold-bright);
+
+        border:
+            1px solid rgba(248, 212, 119, 0.55);
+
+        border-radius: 50%;
+
+        background:
+            radial-gradient(
+                circle,
+                rgba(248, 212, 119, 0.18),
+                rgba(109, 40, 217, 0.18) 48%,
+                rgba(4, 3, 10, 0.86) 70%
+            );
+
+        box-shadow:
+            0 0 20px rgba(248, 212, 119, 0.23),
+            0 0 44px rgba(109, 40, 217, 0.24),
+            inset 0 0 16px rgba(255, 255, 255, 0.08);
+
+        transform:
+            translateX(-50%)
+            rotate(0deg);
+
+        font-family:
+            Georgia,
+            serif;
+
+        font-size: 24px;
+
+        animation:
+            celestialDesktopEmblem
+            9s
+            ease-in-out
+            infinite;
+    }
+
+    body.theme-legendary-celestial .sidebar-top,
+    body.theme-legendary-celestial .sidebar-bottom {
+        position: relative;
+        z-index: 2;
+    }
+
+    body.theme-legendary-celestial .sidebar-top {
+        padding:
+            102px 22px 24px !important;
+    }
+
+    body.theme-legendary-celestial .sidebar-bottom {
+        padding:
+            17px 22px 24px !important;
+
+        border-top:
+            1px solid rgba(248, 212, 119, 0.16) !important;
+
+        background:
+            linear-gradient(
+                180deg,
+                transparent,
+                rgba(109, 40, 217, 0.08)
+            );
+    }
+
+    body.theme-legendary-celestial .sidebar h3,
+    body.theme-legendary-celestial .sidebar-top h3 {
+        margin:
+            0 4px 22px !important;
+
+        padding:
+            0 0 18px !important;
+
+        color:
+            var(--celestial-gold-bright) !important;
+
+        border-bottom:
+            1px solid rgba(248, 212, 119, 0.24) !important;
+
+        font-family:
+            Georgia,
+            "Times New Roman",
+            serif !important;
+
+        font-size:
+            1.42rem !important;
+
+        font-weight: 800 !important;
+
+        letter-spacing:
+            1.6px !important;
+
+        text-align: center;
+
+        text-shadow:
+            0 2px 2px rgba(0, 0, 0, 0.8),
+            0 0 13px rgba(248, 212, 119, 0.28),
+            0 0 25px rgba(168, 85, 247, 0.18)
+            !important;
+    }
+
+    body.theme-legendary-celestial .nav-item {
+        position: relative;
+
+        width: 100%;
+        min-height: 52px;
+
+        margin:
+            0 0 9px !important;
+
+        padding:
+            13px 15px !important;
+
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        overflow: hidden;
+
+        color:
+            rgba(241, 232, 255, 0.78) !important;
+
+        text-align: left;
+
+        border:
+            1px solid rgba(248, 212, 119, 0.08) !important;
+
+        border-radius:
+            16px 5px 16px 5px !important;
+
+        background:
+            linear-gradient(
+                100deg,
+                rgba(255, 255, 255, 0.035),
+                rgba(126, 34, 206, 0.025)
+            ) !important;
+
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.025)
+            !important;
+
+        font-size:
+            0.98rem !important;
+
+        font-weight:
+            760 !important;
+
+        letter-spacing:
+            0.15px !important;
+
+        transition:
+            transform 0.25s ease,
+            color 0.25s ease,
+            border-color 0.25s ease,
+            background 0.25s ease,
+            box-shadow 0.25s ease !important;
+    }
+
+    body.theme-legendary-celestial .nav-item::before {
+        content: "";
+
+        position: absolute;
+
+        top: 50%;
+        left: 0;
+
+        width: 3px;
+        height: 0;
+
+        border-radius:
+            0 999px 999px 0;
+
+        background:
+            linear-gradient(
+                180deg,
+                var(--celestial-gold-bright),
+                var(--celestial-violet)
+            );
+
+        box-shadow:
+            0 0 12px rgba(248, 212, 119, 0.65);
+
+        transform:
+            translateY(-50%);
+
+        transition:
+            height 0.25s ease;
+    }
+
+    body.theme-legendary-celestial .nav-item::after {
+        content: "✦";
+
+        position: absolute;
+
+        right: 13px;
+        top: 50%;
+
+        color:
+            var(--celestial-gold);
+
+        opacity: 0;
+
+        transform:
+            translateY(-50%)
+            translateX(6px)
+            scale(0.7);
+
+        transition:
+            opacity 0.24s ease,
+            transform 0.24s ease;
+
+        font-size:
+            11px;
+    }
+
+    body.theme-legendary-celestial .nav-item:hover {
+        color:
+            #ffffff !important;
+
+        border-color:
+            rgba(248, 212, 119, 0.3) !important;
+
+        background:
+            linear-gradient(
+                100deg,
+                rgba(109, 40, 217, 0.19),
+                rgba(248, 212, 119, 0.07)
+            ) !important;
+
+        box-shadow:
+            0 12px 25px rgba(0, 0, 0, 0.2),
+            inset 0 0 18px rgba(168, 85, 247, 0.05)
+            !important;
+
+        transform:
+            translateX(5px);
+    }
+
+    body.theme-legendary-celestial .nav-item:hover::before {
+        height: 26px;
+    }
+
+    body.theme-legendary-celestial .nav-item:hover::after {
+        opacity: 0.9;
+
+        transform:
+            translateY(-50%)
+            translateX(0)
+            scale(1);
+    }
+
+    body.theme-legendary-celestial .nav-item.active {
+        color:
+            #fff4bf !important;
+
+        border-color:
+            rgba(248, 212, 119, 0.66) !important;
+
+        background:
+            radial-gradient(
+                circle at 92% 50%,
+                rgba(248, 212, 119, 0.15),
+                transparent 34%
+            ),
+            linear-gradient(
+                105deg,
+                rgba(76, 29, 149, 0.58),
+                rgba(126, 34, 206, 0.34) 56%,
+                rgba(248, 212, 119, 0.1)
+            ) !important;
+
+        box-shadow:
+            0 13px 30px rgba(0, 0, 0, 0.28),
+            0 0 18px rgba(109, 40, 217, 0.22),
+            inset 0 1px 0 rgba(255, 239, 178, 0.11)
+            !important;
+    }
+
+    body.theme-legendary-celestial .nav-item.active::before {
+        height: 31px;
+    }
+
+    body.theme-legendary-celestial .nav-item.active::after {
+        opacity: 1;
+
+        transform:
+            translateY(-50%)
+            translateX(0)
+            scale(1.05);
+    }
+
+    body.theme-legendary-celestial .btn-logout {
+        color:
+            #ffe6ee !important;
+
+        border:
+            1px solid rgba(251, 113, 133, 0.3) !important;
+
+        background:
+            linear-gradient(
+                135deg,
+                rgba(136, 19, 55, 0.52),
+                rgba(76, 29, 149, 0.45)
+            ) !important;
+
+        box-shadow:
+            0 10px 24px rgba(0, 0, 0, 0.22)
+            !important;
+    }
+
+    body.theme-legendary-celestial .btn-logout:hover {
+        color:
+            #fff !important;
+
+        border-color:
+            rgba(255, 205, 215, 0.58) !important;
+
+        background:
+            linear-gradient(
+                135deg,
+                #9f1239,
+                #7e22ce
+            ) !important;
+
+        box-shadow:
+            0 13px 30px rgba(159, 18, 57, 0.28),
+            0 0 20px rgba(126, 34, 206, 0.19)
+            !important;
+    }
+
+    body.theme-legendary-celestial .sidebar-toggle {
+        top: 32px;
+        right: -21px;
+
+        width: 42px;
+        height: 42px;
+
+        padding: 0;
+
+        color:
+            var(--celestial-gold-bright) !important;
+
+        border:
+            1px solid rgba(248, 212, 119, 0.74) !important;
+
+        border-radius:
+            50% !important;
+
+        background:
+            radial-gradient(
+                circle at 34% 28%,
+                rgba(255, 247, 208, 0.24),
+                transparent 34%
+            ),
+            linear-gradient(
+                145deg,
+                #4c1d95,
+                #7e22ce 58%,
+                #8b5e16
+            ) !important;
+
+        box-shadow:
+            0 10px 24px rgba(0, 0, 0, 0.34),
+            0 0 18px rgba(248, 212, 119, 0.22),
+            inset 0 1px 0 rgba(255, 255, 255, 0.23)
+            !important;
+    }
+
+    body.theme-legendary-celestial .sidebar-toggle:hover {
+        transform:
+            scale(1.1)
+            rotate(8deg) !important;
+
+        box-shadow:
+            0 13px 30px rgba(0, 0, 0, 0.4),
+            0 0 25px rgba(248, 212, 119, 0.36),
+            0 0 38px rgba(126, 34, 206, 0.24)
+            !important;
+    }
+
+    body.theme-legendary-celestial
+    .dashboard.collapsed .sidebar {
+        width: 96px;
+        flex-basis: 96px;
+    }
+
+    body.theme-legendary-celestial
+    .dashboard.collapsed .content {
+        width:
+            calc(100% - 96px);
+    }
+
+    body.theme-legendary-celestial
+    .dashboard.collapsed .sidebar::after {
+        top: 24px;
+
+        width: 46px;
+        height: 46px;
+
+        font-size: 19px;
+    }
+
+    body.theme-legendary-celestial
+    .dashboard.collapsed .sidebar-top {
+        padding:
+            92px 12px 20px !important;
+    }
+
+    body.theme-legendary-celestial
+    .dashboard.collapsed .sidebar-bottom {
+        padding:
+            16px 12px 22px !important;
+    }
+
+    body.theme-legendary-celestial
+    .dashboard.collapsed .nav-item {
+        min-height: 54px;
+
+        padding:
+            13px 0 !important;
+
+        justify-content:
+            center;
+
+        border-radius:
+            15px 5px 15px 5px !important;
+
+        font-size:
+            1.28rem !important;
+    }
+
+    body.theme-legendary-celestial
+    .dashboard.collapsed .nav-item::before,
+    body.theme-legendary-celestial
+    .dashboard.collapsed .nav-item::after {
+        display:
+            none;
+    }
+
+    /* =============================================================
+       KHU VỰC NỘI DUNG — ĐẠI SẢNH
+       ============================================================= */
+
+    body.theme-legendary-celestial .content {
+        position: relative;
+
+        width:
+            calc(100% - 310px);
+
+        min-width: 0;
+
+        padding:
+            42px clamp(34px, 4vw, 66px) 62px !important;
+
+        overflow-x:
+            clip;
+
+        background:
+            radial-gradient(
+                circle at 84% 6%,
+                rgba(248, 212, 119, 0.09),
+                transparent 23%
+            ),
+            radial-gradient(
+                circle at 25% 90%,
+                rgba(109, 40, 217, 0.11),
+                transparent 30%
+            );
+
+        transition:
+            width 0.38s cubic-bezier(.2, .8, .2, 1);
+    }
+
+    body.theme-legendary-celestial .content::before {
+        content: "";
+
+        position: absolute;
+        z-index: -1;
+
+        top: 0;
+        left: 0;
+        right: 0;
+
+        height: 250px;
+
+        pointer-events: none;
+
+        background:
+            linear-gradient(
+                180deg,
+                rgba(248, 212, 119, 0.055),
+                transparent 76%
+            ),
+            repeating-linear-gradient(
+                90deg,
+                transparent 0 94px,
+                rgba(248, 212, 119, 0.028) 95px 96px
+            );
+
+        -webkit-mask:
+            linear-gradient(
+                180deg,
+                #000,
+                transparent
+            );
+
+        mask:
+            linear-gradient(
+                180deg,
+                #000,
+                transparent
+            );
+    }
+
+    body.theme-legendary-celestial .content h2 {
+        position: relative;
+
+        margin:
+            0 0 34px !important;
+
+        padding:
+            0 0 18px !important;
+
+        color:
+            var(--celestial-gold-bright) !important;
+
+        font-family:
+            Georgia,
+            "Times New Roman",
+            serif !important;
+
+        font-size:
+            clamp(2rem, 3.1vw, 3.15rem) !important;
+
+        font-weight:
+            800 !important;
+
+        line-height:
+            1.08 !important;
+
+        letter-spacing:
+            1.5px !important;
+
+        text-shadow:
+            0 3px 2px rgba(0, 0, 0, 0.74),
+            0 0 18px rgba(248, 212, 119, 0.24),
+            0 0 34px rgba(126, 34, 206, 0.16)
+            !important;
+    }
+
+    body.theme-legendary-celestial .content h2::before {
+        content: "✦";
+
+        display: inline-grid;
+        place-items: center;
+
+        width: 42px;
+        height: 42px;
+
+        margin-right:
+            14px;
+
+        vertical-align:
+            7px;
+
+        color:
+            #fff3b4;
+
+        border:
+            1px solid rgba(248, 212, 119, 0.52);
+
+        border-radius:
+            50%;
+
+        background:
+            radial-gradient(
+                circle,
+                rgba(248, 212, 119, 0.16),
+                rgba(109, 40, 217, 0.18) 58%,
+                transparent 70%
+            );
+
+        box-shadow:
+            0 0 18px rgba(248, 212, 119, 0.19),
+            inset 0 0 14px rgba(255, 255, 255, 0.05);
+
+        font-size:
+            17px;
+    }
+
+    body.theme-legendary-celestial .content h2::after {
+        content: "";
+
+        display: block;
+
+        width:
+            min(360px, 46%);
+
+        height:
+            2px;
+
+        margin-top:
+            16px;
+
+        border-radius:
+            999px;
+
+        background:
+            linear-gradient(
+                90deg,
+                var(--celestial-gold-bright),
+                rgba(168, 85, 247, 0.85),
+                transparent
+            ) !important;
+
+        box-shadow:
+            0 0 12px rgba(248, 212, 119, 0.26)
+            !important;
+    }
+
+    body.theme-legendary-celestial h1,
+    body.theme-legendary-celestial h2,
+    body.theme-legendary-celestial h3,
+    body.theme-legendary-celestial h4,
+    body.theme-legendary-celestial h5,
+    body.theme-legendary-celestial h6 {
+        color:
+            var(--celestial-gold) !important;
+
+        font-family:
+            Georgia,
+            "Times New Roman",
+            serif !important;
+
+        letter-spacing:
+            0.7px;
+
+        text-shadow:
+            0 2px 2px rgba(0, 0, 0, 0.66),
+            0 0 12px rgba(248, 212, 119, 0.15);
+    }
+
+    /* =============================================================
+       THẺ / PANEL / KHỐI NỘI DUNG
+       ============================================================= */
+
+    body.theme-legendary-celestial :is(
+        .card,
+        .panel,
+        .content-card,
+        .student-card,
+        .teacher-card,
+        .dashboard-card,
+        .info-card,
+        .inventory-item,
+        .cell
+    ) {
+        position: relative;
+        isolation: isolate;
+
+        overflow: hidden;
+
+        color:
+            var(--celestial-text) !important;
+
+        background:
+            radial-gradient(
+                circle at 10% 0%,
+                rgba(248, 212, 119, 0.09),
+                transparent 23%
+            ),
+            radial-gradient(
+                circle at 90% 100%,
+                rgba(109, 40, 217, 0.14),
+                transparent 31%
+            ),
+            linear-gradient(
+                145deg,
+                rgba(30, 17, 48, 0.88),
+                rgba(12, 8, 23, 0.92) 58%,
+                rgba(7, 5, 15, 0.94)
+            ) !important;
+
+        border:
+            1px solid rgba(248, 212, 119, 0.3) !important;
+
+        border-radius:
+            24px 7px 24px 7px !important;
+
+        box-shadow:
+            0 18px 44px rgba(0, 0, 0, 0.34),
+            0 0 24px rgba(109, 40, 217, 0.08),
+            inset 0 1px 0 rgba(255, 245, 205, 0.08),
+            inset 0 0 30px rgba(168, 85, 247, 0.04)
+            !important;
+
+        backdrop-filter:
+            blur(18px)
+            saturate(1.08);
+
+        -webkit-backdrop-filter:
+            blur(18px)
+            saturate(1.08);
+
+        transition:
+            transform 0.3s cubic-bezier(.2, .8, .2, 1),
+            border-color 0.3s ease,
+            box-shadow 0.3s ease !important;
+    }
+
+    body.theme-legendary-celestial :is(
+        .card,
+        .panel,
+        .content-card,
+        .student-card,
+        .teacher-card,
+        .dashboard-card,
+        .info-card
+    )::before {
+        content: "";
+
+        position: absolute;
+        z-index: 0;
+
+        top: 0;
+        left: 0;
+        right: 0;
+
+        height:
+            2px;
+
+        pointer-events:
+            none;
+
+        background:
+            linear-gradient(
+                90deg,
+                transparent,
+                rgba(248, 212, 119, 0.86),
+                rgba(192, 132, 252, 0.72),
+                transparent
+            );
+
+        opacity:
+            0.72;
+    }
+
+    body.theme-legendary-celestial :is(
+        .card,
+        .panel,
+        .content-card,
+        .student-card,
+        .teacher-card,
+        .dashboard-card,
+        .info-card
+    )::after {
+        content: "✦";
+
+        position: absolute;
+        z-index: 0;
+
+        right: 16px;
+        top: 12px;
+
+        pointer-events:
+            none;
+
+        color:
+            rgba(248, 212, 119, 0.22);
+
+        font-family:
+            Georgia,
+            serif;
+
+        font-size:
+            22px;
+
+        text-shadow:
+            0 0 14px rgba(248, 212, 119, 0.18);
+    }
+
+    body.theme-legendary-celestial :is(
+        .card,
+        .panel,
+        .content-card,
+        .student-card,
+        .teacher-card,
+        .dashboard-card,
+        .info-card
+    ) > * {
+        position:
+            relative;
+
+        z-index:
+            1;
+    }
+
+    body.theme-legendary-celestial :is(
+        .card,
+        .panel,
+        .content-card,
+        .student-card,
+        .teacher-card,
+        .dashboard-card,
+        .info-card,
+        .inventory-item
+    ):hover {
+        transform:
+            translateY(-5px);
+
+        border-color:
+            rgba(248, 212, 119, 0.66) !important;
+
+        box-shadow:
+            0 25px 58px rgba(0, 0, 0, 0.43),
+            0 0 28px rgba(109, 40, 217, 0.16),
+            0 0 17px rgba(248, 212, 119, 0.08),
+            inset 0 1px 0 rgba(255, 245, 205, 0.12)
+            !important;
+    }
+
+    body.theme-legendary-celestial .card {
+        padding:
+            clamp(25px, 2.7vw, 34px) !important;
+
+        margin-bottom:
+            28px !important;
+    }
+
+    body.theme-legendary-celestial :is(
+        .assignment-meta,
+        .assignment-desc,
+        .assignment-file,
+        .glass-alert,
+        .update-banner
+    ) {
+        color:
+            var(--celestial-text) !important;
+
+        border:
+            1px solid rgba(248, 212, 119, 0.19) !important;
+
+        border-radius:
+            16px 5px 16px 5px !important;
+
+        background:
+            linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0.045),
+                rgba(109, 40, 217, 0.06)
+            ) !important;
+
+        box-shadow:
+            inset 0 0 18px rgba(126, 34, 206, 0.035)
+            !important;
+    }
+
+    body.theme-legendary-celestial .assignment-desc {
+        border-left:
+            4px solid var(--celestial-gold) !important;
+    }
+
+    body.theme-legendary-celestial .accordion-header {
+        color:
+            var(--celestial-text) !important;
+
+        border:
+            1px solid rgba(248, 212, 119, 0.22) !important;
+
+        border-radius:
+            16px 5px 16px 5px !important;
+
+        background:
+            linear-gradient(
+                115deg,
+                rgba(255, 255, 255, 0.055),
+                rgba(109, 40, 217, 0.08)
+            ) !important;
+
+        box-shadow:
+            0 9px 22px rgba(0, 0, 0, 0.2)
+            !important;
+    }
+
+    body.theme-legendary-celestial .accordion-header:hover,
+    body.theme-legendary-celestial .accordion-header.active {
+        border-color:
+            rgba(248, 212, 119, 0.58) !important;
+
+        background:
+            linear-gradient(
+                115deg,
+                rgba(109, 40, 217, 0.25),
+                rgba(248, 212, 119, 0.08)
+            ) !important;
+
+        box-shadow:
+            0 13px 28px rgba(0, 0, 0, 0.28),
+            0 0 17px rgba(109, 40, 217, 0.14)
+            !important;
+    }
+
+    body.theme-legendary-celestial
+    .accordion-title span,
+    body.theme-legendary-celestial
+    .accordion-meta,
+    body.theme-legendary-celestial
+    .toggle-icon {
+        color:
+            var(--celestial-lilac) !important;
+    }
+
+    /* =============================================================
+       CỬA HÀNG VÀ TÚI ĐỒ
+       ============================================================= */
+
+    body.theme-legendary-celestial
+    .store-item-card:not(.store-card-nyx-trinity) {
+        position: relative;
+        isolation: isolate;
+        overflow: hidden;
+
+        color:
+            var(--celestial-text) !important;
+
+        background:
+            radial-gradient(
+                circle at 50% -4%,
+                rgba(248, 212, 119, 0.13),
+                transparent 28%
+            ),
+            radial-gradient(
+                circle at 84% 88%,
+                rgba(109, 40, 217, 0.2),
+                transparent 35%
+            ),
+            linear-gradient(
+                145deg,
+                rgba(31, 17, 49, 0.94),
+                rgba(9, 7, 19, 0.96)
+            ) !important;
+
+        border:
+            1px solid rgba(248, 212, 119, 0.36) !important;
+
+        border-radius:
+            26px 8px 26px 8px !important;
+
+        box-shadow:
+            0 18px 42px rgba(0, 0, 0, 0.38),
+            inset 0 1px 0 rgba(255, 245, 205, 0.09),
+            inset 0 0 30px rgba(168, 85, 247, 0.05)
+            !important;
+    }
+
+    body.theme-legendary-celestial
+    .store-item-card:not(.store-card-nyx-trinity):hover {
+        transform:
+            translateY(-8px)
+            scale(1.012) !important;
+
+        border-color:
+            rgba(248, 212, 119, 0.82) !important;
+
+        box-shadow:
+            0 28px 58px rgba(0, 0, 0, 0.48),
+            0 0 25px rgba(109, 40, 217, 0.19),
+            0 0 16px rgba(248, 212, 119, 0.1)
+            !important;
+    }
+
+    body.theme-legendary-celestial
+    .store-item-card:not(.store-card-nyx-trinity)
+    .item-name {
+        color:
+            var(--celestial-gold-bright) !important;
+
+        font-family:
+            Georgia,
+            "Times New Roman",
+            serif !important;
+
+        text-shadow:
+            0 2px 2px rgba(0, 0, 0, 0.76),
+            0 0 10px rgba(248, 212, 119, 0.18);
+    }
+
+    body.theme-legendary-celestial
+    .store-item-card:not(.store-card-nyx-trinity)
+    .item-type-label {
+        color:
+            var(--celestial-lilac) !important;
+    }
+
+    body.theme-legendary-celestial .bag-inventory-slot {
+        color:
+            var(--celestial-text) !important;
+
+        border:
+            1px dashed rgba(248, 212, 119, 0.32) !important;
+
+        border-radius:
+            16px 5px 16px 5px !important;
+
+        background:
+            radial-gradient(
+                circle at 50% 20%,
+                rgba(248, 212, 119, 0.07),
+                transparent 38%
+            ),
+            rgba(8, 5, 17, 0.72) !important;
+
+        box-shadow:
+            inset 0 0 19px rgba(109, 40, 217, 0.07)
+            !important;
+    }
+
+    body.theme-legendary-celestial
+    .bag-inventory-slot:hover {
+        border-color:
+            rgba(248, 212, 119, 0.7) !important;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(109, 40, 217, 0.18),
+                rgba(248, 212, 119, 0.06)
+            ) !important;
+
+        box-shadow:
+            0 0 19px rgba(109, 40, 217, 0.14),
+            inset 0 0 16px rgba(248, 212, 119, 0.05)
+            !important;
+    }
+
+    /* =============================================================
+       NÚT, Ô NHẬP, BẢNG
+       ============================================================= */
+
+    body.theme-legendary-celestial
+    button:not(.nav-item):not(.sidebar-toggle):not(.profile-trigger-btn):not(.bag-trigger-btn):not(.inbox-trigger-btn):not(.leaderboard-trigger-btn):not(#btnLeaderboard):not(.close-btn),
+    body.theme-legendary-celestial .btn,
+    body.theme-legendary-celestial .button {
+        color:
+            #1d1025 !important;
+
+        border:
+            1px solid rgba(255, 248, 208, 0.7) !important;
+
+        border-radius:
+            14px 5px 14px 5px !important;
+
+        background:
+            linear-gradient(
+                112deg,
+                #9a681a 0%,
+                #f8d477 36%,
+                #fff1ae 54%,
+                #b77a1f 100%
+            ) !important;
+
+        background-size:
+            220% 100% !important;
+
+        box-shadow:
+            0 9px 22px rgba(0, 0, 0, 0.25),
+            0 0 14px rgba(248, 212, 119, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.55)
+            !important;
+
+        font-weight:
+            850 !important;
+
+        transition:
+            transform 0.22s ease,
+            background-position 0.35s ease,
+            box-shadow 0.22s ease,
+            filter 0.22s ease !important;
+    }
+
+    body.theme-legendary-celestial
+    button:not(.nav-item):not(.sidebar-toggle):not(.profile-trigger-btn):not(.bag-trigger-btn):not(.inbox-trigger-btn):not(.leaderboard-trigger-btn):not(#btnLeaderboard):not(.close-btn):hover:not(:disabled),
+    body.theme-legendary-celestial .btn:hover:not(:disabled),
+    body.theme-legendary-celestial .button:hover:not(:disabled) {
+        transform:
+            translateY(-3px);
+
+        background-position:
+            100% 0 !important;
+
+        filter:
+            brightness(1.04)
+            saturate(1.05);
+
+        box-shadow:
+            0 14px 30px rgba(0, 0, 0, 0.33),
+            0 0 22px rgba(248, 212, 119, 0.27),
+            inset 0 1px 0 rgba(255, 255, 255, 0.65)
+            !important;
+    }
+
+    body.theme-legendary-celestial
+    button:disabled,
+    body.theme-legendary-celestial
+    .btn:disabled {
+        filter:
+            grayscale(0.34)
+            brightness(0.72);
+
+        opacity:
+            0.7;
+    }
+
+    body.theme-legendary-celestial
+    .btn-equip:not(.active) {
+        color:
+            #fff !important;
+
+        border-color:
+            rgba(233, 213, 255, 0.48) !important;
+
+        background:
+            linear-gradient(
+                135deg,
+                #4c1d95,
+                #7e22ce 58%,
+                #be185d
+            ) !important;
+
+        box-shadow:
+            0 9px 22px rgba(76, 29, 149, 0.33),
+            inset 0 1px 0 rgba(255, 255, 255, 0.15)
+            !important;
+    }
+
+    body.theme-legendary-celestial
+    :is(
+        input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+        textarea,
+        select,
+        .search-bar
+    ) {
+        color:
+            var(--celestial-text) !important;
+
+        caret-color:
+            var(--celestial-gold-bright);
+
+        border:
+            1px solid rgba(248, 212, 119, 0.26) !important;
+
+        border-radius:
+            14px 5px 14px 5px !important;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(5, 3, 11, 0.88),
+                rgba(25, 13, 41, 0.78)
+            ) !important;
+
+        box-shadow:
+            inset 0 2px 7px rgba(0, 0, 0, 0.26),
+            0 7px 18px rgba(0, 0, 0, 0.12)
+            !important;
+    }
+
+    body.theme-legendary-celestial
+    :is(
+        input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+        textarea,
+        select,
+        .search-bar
+    ):focus {
+        border-color:
+            rgba(248, 212, 119, 0.72) !important;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(11, 7, 20, 0.96),
+                rgba(34, 17, 53, 0.9)
+            ) !important;
+
+        box-shadow:
+            0 0 0 4px rgba(248, 212, 119, 0.08),
+            0 0 22px rgba(109, 40, 217, 0.13),
+            inset 0 2px 7px rgba(0, 0, 0, 0.28)
+            !important;
+    }
+
+    body.theme-legendary-celestial
+    :is(
+        input,
+        textarea,
+        .search-bar
+    )::placeholder {
+        color:
+            rgba(216, 199, 238, 0.56) !important;
+    }
+
+    body.theme-legendary-celestial label {
+        color:
+            #eadfff !important;
+
+        font-weight:
+            750 !important;
+    }
+
+    body.theme-legendary-celestial table {
+        overflow:
+            hidden;
+
+        color:
+            var(--celestial-text) !important;
+
+        border:
+            1px solid rgba(248, 212, 119, 0.28) !important;
+
+        border-radius:
+            18px 6px 18px 6px !important;
+
+        background:
+            rgba(8, 5, 17, 0.74) !important;
+
+        box-shadow:
+            0 16px 40px rgba(0, 0, 0, 0.28),
+            inset 0 0 26px rgba(109, 40, 217, 0.04)
+            !important;
+    }
+
+    body.theme-legendary-celestial th {
+        color:
+            var(--celestial-gold-bright) !important;
+
+        background:
+            linear-gradient(
+                120deg,
+                rgba(76, 29, 149, 0.64),
+                rgba(126, 34, 206, 0.35),
+                rgba(248, 212, 119, 0.08)
+            ) !important;
+
+        border-bottom:
+            1px solid rgba(248, 212, 119, 0.24) !important;
+
+        font-family:
+            Georgia,
+            "Times New Roman",
+            serif !important;
+
+        letter-spacing:
+            0.45px;
+    }
+
+    body.theme-legendary-celestial td {
+        color:
+            #eee7f8 !important;
+
+        border-bottom:
+            1px solid rgba(248, 212, 119, 0.09) !important;
+    }
+
+    body.theme-legendary-celestial tbody tr:hover {
+        background:
+            rgba(109, 40, 217, 0.12) !important;
+    }
+
+    /* =============================================================
+       POPUP VÀ CÁC NÚT NỔI
+       ============================================================= */
+
+    body.theme-legendary-celestial .modal-overlay {
+        background:
+            rgba(3, 2, 8, 0.72) !important;
+
+        backdrop-filter:
+            blur(14px)
+            saturate(1.08) !important;
+
+        -webkit-backdrop-filter:
+            blur(14px)
+            saturate(1.08) !important;
+    }
+
+    body.theme-legendary-celestial
+    :is(
+        .modal-content,
+        .popup,
+        .dialog-box
+    ) {
+        color:
+            var(--celestial-text) !important;
+
+        background:
+            radial-gradient(
+                circle at 15% 0,
+                rgba(248, 212, 119, 0.12),
+                transparent 24%
+            ),
+            linear-gradient(
+                145deg,
+                rgba(24, 13, 39, 0.98),
+                rgba(6, 4, 13, 0.99)
+            ) !important;
+
+        border:
+            1px solid rgba(248, 212, 119, 0.58) !important;
+
+        border-radius:
+            26px 8px 26px 8px !important;
+
+        box-shadow:
+            0 34px 100px rgba(0, 0, 0, 0.68),
+            0 0 34px rgba(109, 40, 217, 0.22),
+            inset 0 1px 0 rgba(255, 245, 205, 0.1)
+            !important;
+    }
+
+    body.theme-legendary-celestial .close-btn {
+        color:
+            var(--celestial-gold-bright) !important;
+
+        border:
+            1px solid rgba(248, 212, 119, 0.45) !important;
+
+        background:
+            rgba(17, 10, 28, 0.92) !important;
+
+        box-shadow:
+            0 8px 20px rgba(0, 0, 0, 0.3),
+            0 0 14px rgba(109, 40, 217, 0.14)
+            !important;
+    }
+
+    body.theme-legendary-celestial .close-btn:hover {
+        color:
+            #fff !important;
+
+        border-color:
+            rgba(255, 224, 138, 0.75) !important;
+
+        background:
+            linear-gradient(
+                135deg,
+                #9f1239,
+                #7e22ce
+            ) !important;
+
+        transform:
+            rotate(90deg)
+            scale(1.06) !important;
+    }
+
+    body.theme-legendary-celestial
+    .content > :is(
+        .profile-trigger-btn,
+        .bag-trigger-btn,
+        .inbox-trigger-btn,
+        .leaderboard-trigger-btn,
+        #btnLeaderboard
+    ) {
+        color:
+            var(--celestial-gold-bright) !important;
+
+        border:
+            1px solid rgba(248, 212, 119, 0.62) !important;
+
+        background:
+            radial-gradient(
+                circle at 30% 22%,
+                rgba(255, 248, 214, 0.22),
+                transparent 34%
+            ),
+            linear-gradient(
+                145deg,
+                rgba(41, 20, 63, 0.94),
+                rgba(8, 5, 16, 0.96)
+            ) !important;
+
+        box-shadow:
+            0 10px 27px rgba(0, 0, 0, 0.35),
+            0 0 16px rgba(109, 40, 217, 0.16),
+            inset 0 1px 0 rgba(255, 255, 255, 0.12)
+            !important;
+
+        backdrop-filter:
+            blur(13px);
+
+        -webkit-backdrop-filter:
+            blur(13px);
+
+        transition:
+            transform 0.24s ease,
+            border-color 0.24s ease,
+            box-shadow 0.24s ease !important;
+    }
+
+    body.theme-legendary-celestial
+    .content > :is(
+        .profile-trigger-btn,
+        .bag-trigger-btn,
+        .inbox-trigger-btn,
+        .leaderboard-trigger-btn,
+        #btnLeaderboard
+    ):hover {
+        border-color:
+            rgba(255, 238, 171, 0.9) !important;
+
+        transform:
+            translateY(-3px)
+            scale(1.07) !important;
+
+        box-shadow:
+            0 14px 34px rgba(0, 0, 0, 0.42),
+            0 0 24px rgba(248, 212, 119, 0.28),
+            0 0 34px rgba(109, 40, 217, 0.16)
+            !important;
+    }
+
+    body.theme-legendary-celestial
+    .profile-trigger-btn img {
+        border-radius:
+            50%;
+    }
+
+    body.theme-legendary-celestial #coinWidget {
+        color:
+            var(--celestial-gold-bright) !important;
+
+        background:
+            radial-gradient(
+                circle at 14% 30%,
+                rgba(248, 212, 119, 0.19),
+                transparent 24%
+            ),
+            linear-gradient(
+                135deg,
+                rgba(25, 12, 39, 0.96),
+                rgba(5, 4, 12, 0.97)
+            ) !important;
+
+        border:
+            1px solid rgba(248, 212, 119, 0.67) !important;
+
+        border-radius:
+            28px 8px 28px 8px !important;
+
+        box-shadow:
+            0 17px 40px rgba(0, 0, 0, 0.46),
+            0 0 24px rgba(109, 40, 217, 0.18),
+            inset 0 1px 0 rgba(255, 245, 205, 0.11)
+            !important;
+
+        backdrop-filter:
+            blur(16px)
+            saturate(1.12) !important;
+
+        -webkit-backdrop-filter:
+            blur(16px)
+            saturate(1.12) !important;
+    }
+
+    body.theme-legendary-celestial #coinWidget:hover {
+        box-shadow:
+            0 21px 48px rgba(0, 0, 0, 0.53),
+            0 0 31px rgba(248, 212, 119, 0.22),
+            0 0 34px rgba(109, 40, 217, 0.19),
+            inset 0 1px 0 rgba(255, 245, 205, 0.14)
+            !important;
+    }
+
+    body.theme-legendary-celestial .tab-content.active {
+        animation:
+            celestialDesktopContentEnter
+            0.55s
+            cubic-bezier(.2, .8, .2, 1)
+            both !important;
+    }
+
+    body.theme-legendary-celestial ::-webkit-scrollbar {
+        width:
+            10px;
+
+        height:
+            10px;
+    }
+
+    body.theme-legendary-celestial ::-webkit-scrollbar-track {
+        background:
+            rgba(4, 3, 10, 0.72);
+    }
+
+    body.theme-legendary-celestial ::-webkit-scrollbar-thumb {
+        border:
+            2px solid rgba(4, 3, 10, 0.82);
+
+        border-radius:
+            999px;
+
+        background:
+            linear-gradient(
+                180deg,
+                #5b21b6,
+                #f8d477 48%,
+                #7e22ce
+            );
+    }
+}
+
+/* =============================================================
+   CHUYỂN ĐỘNG DESKTOP — THÁNH VỰC TỐI THƯỢNG
+   ============================================================= */
+
+@keyframes celestialDesktopBackground {
+    from {
+        background-position:
+            0% 0%,
+            0% 0%,
+            0% 0%,
+            center;
+    }
+
+    to {
+        background-position:
+            5% 3%,
+            -4% 5%,
+            3% -5%,
+            center;
+    }
+}
+
+@keyframes celestialDesktopSigil {
+    to {
+        transform:
+            rotate(360deg);
+    }
+}
+
+@keyframes celestialDesktopStars {
+    to {
+        background-position:
+            110px 95px,
+            -140px 120px,
+            170px -150px,
+            -205px -180px,
+            70px 70px,
+            70px 70px;
+    }
+}
+
+@keyframes celestialDesktopEmblem {
+    0%,
+    100% {
+        transform:
+            translateX(-50%)
+            rotate(-5deg)
+            scale(0.95);
+
+        filter:
+            brightness(0.9);
+    }
+
+    50% {
+        transform:
+            translateX(-50%)
+            rotate(5deg)
+            scale(1.05);
+
+        filter:
+            brightness(1.18);
+    }
+}
+
+@keyframes celestialDesktopContentEnter {
+    from {
+        opacity:
+            0;
+
+        transform:
+            translateY(16px)
+            scale(0.992);
+
+        filter:
+            blur(3px);
+    }
+
+    to {
+        opacity:
+            1;
+
+        transform:
+            translateY(0)
+            scale(1);
+
+        filter:
+            blur(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.theme-legendary-celestial,
+    body.theme-legendary-celestial::before,
+    body.theme-legendary-celestial::after,
+    body.theme-legendary-celestial .sidebar::after,
+    body.theme-legendary-celestial .tab-content.active {
+        animation:
+            none !important;
+    }
+}
+
 @keyframes nyxSovereignFloat {
     0%,
     100% {
@@ -2705,5 +4602,431 @@ body .store-item-card.store-card-nyx-trinity
     body .store-item-card.store-card-nyx-trinity
     > .item-tag.tag-truyen-thuyet::after {
         animation: none !important;
+    }
+}
+/* =========================================================
+   FIX MOBILE — THÁNH VỰC TỐI THƯỢNG
+   Class giao diện: theme-legendary-celestial
+   ========================================================= */
+
+@media screen and (max-width: 768px) {
+
+    /* Sidebar phong cách Thánh Vực Tối Thượng */
+    body.theme-legendary-celestial
+    .dashboard .sidebar {
+        position: fixed !important;
+
+        top: 0 !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: auto !important;
+
+        width: 260px !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+
+        display: flex !important;
+        flex-direction: column !important;
+
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+
+        color: #f5f1ff !important;
+
+        background:
+            radial-gradient(
+                circle at 20% 8%,
+                rgba(126, 34, 206, 0.27),
+                transparent 28%
+            ),
+            radial-gradient(
+                circle at 85% 85%,
+                rgba(248, 212, 119, 0.12),
+                transparent 30%
+            ),
+            linear-gradient(
+                180deg,
+                rgba(20, 12, 35, 0.99),
+                rgba(10, 6, 19, 0.99) 55%,
+                rgba(5, 3, 10, 0.99)
+            ) !important;
+
+        border: none !important;
+        border-right:
+            1px solid rgba(248, 212, 119, 0.55) !important;
+
+        border-radius: 0 24px 24px 0 !important;
+
+        box-shadow:
+            14px 0 38px rgba(0, 0, 0, 0.68),
+            inset -1px 0 rgba(248, 212, 119, 0.14),
+            inset 0 0 35px rgba(126, 34, 206, 0.12)
+            !important;
+
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+
+        z-index: 10000 !important;
+    }
+
+    /* Sidebar đóng */
+    body.theme-legendary-celestial
+    .dashboard.collapsed .sidebar {
+        left: -270px !important;
+    }
+
+    /* Khu vực menu */
+    body.theme-legendary-celestial
+    .sidebar-top {
+        display: block !important;
+        flex: 1 1 auto !important;
+
+        padding:
+            70px 18px 20px !important;
+    }
+
+    /* Tên học sinh */
+    body.theme-legendary-celestial
+    .sidebar h3,
+    body.theme-legendary-celestial
+    .sidebar-top h3 {
+        display: block !important;
+
+        color: #f8d477 !important;
+
+        border-bottom:
+            1px solid rgba(248, 212, 119, 0.3) !important;
+
+        text-shadow:
+            0 0 12px rgba(248, 212, 119, 0.25),
+            0 0 20px rgba(126, 34, 206, 0.25)
+            !important;
+    }
+
+    /* Các mục menu */
+    body.theme-legendary-celestial
+    .sidebar .nav-item,
+    body.theme-legendary-celestial
+    .dashboard.collapsed
+    .sidebar .nav-item {
+        width: 100% !important;
+        min-width: 0 !important;
+        min-height: 52px !important;
+
+        margin: 0 0 9px !important;
+        padding: 13px 15px !important;
+
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+
+        gap: 11px !important;
+
+        color: #eee9fa !important;
+
+        text-align: left !important;
+        font-size: 1rem !important;
+
+        background:
+            rgba(255, 255, 255, 0.035) !important;
+
+        border:
+            1px solid rgba(248, 212, 119, 0.18) !important;
+
+        border-radius:
+            14px 5px 14px 5px !important;
+
+        box-shadow:
+            inset 0 0 15px rgba(126, 34, 206, 0.035)
+            !important;
+    }
+
+    /* Hiện chữ menu */
+    body.theme-legendary-celestial
+    .sidebar .nav-item .nav-text {
+        display: inline !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+
+        color: inherit !important;
+    }
+
+    /* Mục đang được chọn */
+    body.theme-legendary-celestial
+    .sidebar .nav-item.active {
+        color: #fff2b9 !important;
+
+        background:
+            linear-gradient(
+                120deg,
+                rgba(126, 34, 206, 0.34),
+                rgba(248, 212, 119, 0.12)
+            ) !important;
+
+        border-color:
+            rgba(248, 212, 119, 0.7) !important;
+
+        box-shadow:
+            0 0 18px rgba(126, 34, 206, 0.2),
+            inset 0 0 16px rgba(248, 212, 119, 0.08)
+            !important;
+    }
+
+    /* Phần cuối và nút đăng xuất */
+    body.theme-legendary-celestial
+    .sidebar-bottom {
+        display: block !important;
+
+        padding:
+            16px 18px 24px !important;
+
+        border-top:
+            1px solid rgba(248, 212, 119, 0.16) !important;
+    }
+
+    body.theme-legendary-celestial
+    .sidebar .btn-logout {
+        color: #fff2b9 !important;
+
+        background:
+            linear-gradient(
+                120deg,
+                #4c1d95,
+                #7c3aed
+            ) !important;
+
+        border:
+            1px solid rgba(248, 212, 119, 0.32) !important;
+
+        box-shadow:
+            0 8px 22px rgba(76, 29, 149, 0.35)
+            !important;
+    }
+
+    /* Nút đóng/mở sidebar */
+    body.theme-legendary-celestial
+    .sidebar-toggle {
+        position: fixed !important;
+
+        top: 15px !important;
+        left: 15px !important;
+        right: auto !important;
+
+        width: 45px !important;
+        min-width: 45px !important;
+        max-width: 45px !important;
+
+        height: 45px !important;
+        min-height: 45px !important;
+        max-height: 45px !important;
+
+        padding: 0 !important;
+        margin: 0 !important;
+
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+
+        color: #fff2b9 !important;
+
+        background:
+            linear-gradient(
+                135deg,
+                #4c1d95,
+                #7e22ce,
+                #a86f14
+            ) !important;
+
+        border:
+            1px solid rgba(248, 212, 119, 0.75)
+            !important;
+
+        border-radius: 50% !important;
+
+        box-shadow:
+            0 7px 20px rgba(76, 29, 149, 0.48),
+            0 0 14px rgba(248, 212, 119, 0.2)
+            !important;
+
+        z-index: 10002 !important;
+    }
+
+    /* Khi đóng: nút ☰ ở góc trái */
+    body.theme-legendary-celestial
+    .dashboard.collapsed
+    .sidebar-toggle {
+        left: 15px !important;
+        transform: none !important;
+    }
+
+    /* Khi mở: đặt nút X bên trong sidebar */
+    body.theme-legendary-celestial
+    .dashboard:not(.collapsed)
+    .sidebar-toggle {
+        left: 205px !important;
+        transform: none !important;
+    }
+
+    body.theme-legendary-celestial
+    .dashboard.collapsed
+    .sidebar-toggle::before {
+        content: "☰" !important;
+
+        color: #fff2b9 !important;
+        font-size: 24px !important;
+        font-weight: 900 !important;
+        line-height: 1 !important;
+    }
+
+    body.theme-legendary-celestial
+    .dashboard:not(.collapsed)
+    .sidebar-toggle::before {
+        content: "✕" !important;
+
+        color: #ffffff !important;
+        font-size: 22px !important;
+        font-weight: 900 !important;
+        line-height: 1 !important;
+    }
+
+    /* Ẩn 4 nút góc trên khi sidebar mở */
+    body.theme-legendary-celestial
+    .dashboard:not(.collapsed)
+    .content > :is(
+        .profile-trigger-btn,
+        .inbox-trigger-btn,
+        .bag-trigger-btn,
+        .leaderboard-trigger-btn,
+        #btnLeaderboard
+    ) {
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+
+    /* Ẩn Coin và thú cưng khi sidebar mở */
+    body.theme-legendary-celestial:has(
+        .dashboard:not(.collapsed)
+    ) #coinWidget,
+
+    body.theme-legendary-celestial:has(
+        .dashboard:not(.collapsed)
+    ) #virtual-pet-container {
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+}
+
+/* =====================================================================
+   DESKTOP CLEANUP — THÁNH VỰC TỐI THƯỢNG
+   - Bỏ biểu tượng ✦ bị lặp dưới huy hiệu
+   - Ẩn thanh cuộn tím của sidebar
+   - Thu gọn khoảng trống giữa sidebar và nội dung
+   ===================================================================== */
+@media screen and (min-width: 769px) {
+
+    /* Sidebar vẫn cuộn được nhưng không hiện thanh cuộn màu tím. */
+    body.theme-legendary-celestial .sidebar {
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
+    }
+
+    body.theme-legendary-celestial .sidebar::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+
+    /*
+     * Khi sidebar thu gọn, common.css tạo thêm một dấu ✦
+     * bằng h3::before. Giao diện đã có huy hiệu sidebar::after,
+     * vì vậy ẩn hẳn tiêu đề và pseudo-element bị lặp.
+     */
+    body.theme-legendary-celestial
+    .dashboard.collapsed
+    .sidebar h3,
+
+    body.theme-legendary-celestial
+    .dashboard.collapsed
+    .sidebar-top h3 {
+        display: none !important;
+        visibility: hidden !important;
+
+        width: 0 !important;
+        height: 0 !important;
+        min-height: 0 !important;
+
+        margin: 0 !important;
+        padding: 0 !important;
+
+        overflow: hidden !important;
+        border: 0 !important;
+
+        font-size: 0 !important;
+        line-height: 0 !important;
+    }
+
+    body.theme-legendary-celestial
+    .dashboard.collapsed
+    .sidebar h3::before,
+
+    body.theme-legendary-celestial
+    .dashboard.collapsed
+    .sidebar h3::after,
+
+    body.theme-legendary-celestial
+    .dashboard.collapsed
+    .sidebar-top h3::before,
+
+    body.theme-legendary-celestial
+    .dashboard.collapsed
+    .sidebar-top h3::after {
+        content: none !important;
+        display: none !important;
+    }
+
+    /* Đưa dãy nút menu lên gần huy hiệu hơn sau khi bỏ tiêu đề. */
+    body.theme-legendary-celestial
+    .dashboard.collapsed
+    .sidebar-top {
+        padding:
+            88px 10px 18px !important;
+    }
+
+    body.theme-legendary-celestial
+    .dashboard.collapsed
+    .sidebar-bottom {
+        padding:
+            14px 10px 18px !important;
+    }
+
+    /*
+     * Bản cũ dùng padding trái tối đa 66px cho cả sidebar mở và đóng.
+     * Khi sidebar chỉ còn 96px, khoảng này tạo một dải trống quá lớn.
+     */
+    body.theme-legendary-celestial
+    .dashboard.collapsed
+    .content {
+        width:
+            calc(100% - 96px) !important;
+
+        padding-left:
+            24px !important;
+
+        padding-right:
+            clamp(26px, 3vw, 48px) !important;
+    }
+
+    /* Giữ khoảng cách nhỏ, đều giữa các nút trong sidebar thu gọn. */
+    body.theme-legendary-celestial
+    .dashboard.collapsed
+    .nav-item {
+        margin:
+            0 0 8px !important;
     }
 }

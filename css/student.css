@@ -672,7 +672,7 @@ body.theme-fairy-sea-dream {
 
 /* Tiêu đề kiểu truyện cổ tích dưới biển */
 
-body.theme-fairy-sea-dream:is(h1,
+body.theme-fairy-sea-dream :is(h1,
     h2,
     h3,
     .page-title,
@@ -696,7 +696,7 @@ body.theme-fairy-sea-dream:is(h1,
 
 /* ---------- Thanh trên cùng ---------- */
 
-body.theme-fairy-sea-dream:is(header,
+body.theme-fairy-sea-dream :is(header,
     .header,
     .topbar,
     .top-bar,
@@ -720,7 +720,7 @@ body.theme-fairy-sea-dream:is(header,
 
 /* ---------- Sidebar hình dòng nước ---------- */
 
-body.theme-fairy-sea-dream:is(.sidebar,
+body.theme-fairy-sea-dream :is(.sidebar,
     .student-sidebar,
     #sidebar,
     .side-menu) {
@@ -749,7 +749,7 @@ body.theme-fairy-sea-dream:is(.sidebar,
         inset -8px 0 20px rgba(255, 255, 255, 0.54) !important;
 }
 
-body.theme-fairy-sea-dream:is(.sidebar,
+body.theme-fairy-sea-dream :is(.sidebar,
     .student-sidebar,
     #sidebar,
     .side-menu)::after {
@@ -786,7 +786,7 @@ body.theme-fairy-sea-dream:is(.sidebar,
 
 /* Các mục trong sidebar */
 
-body.theme-fairy-sea-dream:is(.nav-item,
+body.theme-fairy-sea-dream :is(.nav-item,
     .menu-item,
     .sidebar-item,
     .sidebar a,
@@ -805,7 +805,7 @@ body.theme-fairy-sea-dream:is(.nav-item,
         box-shadow 0.2s ease !important;
 }
 
-body.theme-fairy-sea-dream:is(.nav-item,
+body.theme-fairy-sea-dream :is(.nav-item,
     .menu-item,
     .sidebar-item,
     .sidebar a,
@@ -828,7 +828,7 @@ body.theme-fairy-sea-dream:is(.nav-item,
         0 7px 18px rgba(14, 116, 144, 0.14) !important;
 }
 
-body.theme-fairy-sea-dream:is(.nav-item.active,
+body.theme-fairy-sea-dream :is(.nav-item.active,
     .menu-item.active,
     .sidebar-item.active,
     .sidebar a.active) {
@@ -850,7 +850,7 @@ body.theme-fairy-sea-dream:is(.nav-item.active,
 
 /* ---------- Các ô nội dung và thẻ ---------- */
 
-body.theme-fairy-sea-dream:is(.card,
+body.theme-fairy-sea-dream :is(.card,
     .panel,
     .content-card,
     .student-card,
@@ -891,7 +891,7 @@ body.theme-fairy-sea-dream:is(.card,
         box-shadow 0.25s ease !important;
 }
 
-body.theme-fairy-sea-dream:is(.card,
+body.theme-fairy-sea-dream :is(.card,
     .panel,
     .content-card,
     .student-card,
@@ -918,7 +918,7 @@ body.theme-fairy-sea-dream .modal-overlay:not(.ui-theme-immune):not(.ui-theme-im
         blur(9px) saturate(1.15);
 }
 
-body.theme-fairy-sea-dream:is(.modal-content,
+body.theme-fairy-sea-dream :is(.modal-content,
     .popup-content,
     .dialog-content,
     .modal-box,
@@ -954,7 +954,7 @@ body.theme-fairy-sea-dream:is(.modal-content,
         inset 0 -12px 32px rgba(103, 232, 249, 0.12) !important;
 }
 
-body.theme-fairy-sea-dream:is(.modal-content,
+body.theme-fairy-sea-dream :is(.modal-content,
     .popup-content,
     .dialog-content,
     .modal-box,
@@ -1005,7 +1005,7 @@ body.theme-fairy-sea-dream:is(.modal-content,
 
 /* ---------- Ô nhập liệu ---------- */
 
-body.theme-fairy-sea-dream:is(input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
+body.theme-fairy-sea-dream :is(input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
     textarea,
     select,
     .input-box,
@@ -1038,7 +1038,7 @@ body.theme-fairy-sea-dream:is(input:not([type="range"]):not([type="checkbox"]):n
         transform 0.2s ease !important;
 }
 
-body.theme-fairy-sea-dream:is(input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
+body.theme-fairy-sea-dream :is(input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
     textarea,
     select):focus {
     transform:
@@ -1053,14 +1053,14 @@ body.theme-fairy-sea-dream:is(input:not([type="range"]):not([type="checkbox"]):n
         inset 0 2px 7px rgba(14, 116, 144, 0.07) !important;
 }
 
-body.theme-fairy-sea-dream:is(input, textarea)::placeholder {
+body.theme-fairy-sea-dream :is(input, textarea)::placeholder {
     color:
         rgba(22, 78, 99, 0.53) !important;
 }
 
 /* ---------- Nút bấm dạng ngọc nước ---------- */
 
-body.theme-fairy-sea-dream:is(button:not(.close):not(.modal-close),
+body.theme-fairy-sea-dream :is(button:not(.close):not(.modal-close),
     .btn,
     .button,
     .btn-buy,
@@ -1099,7 +1099,7 @@ body.theme-fairy-sea-dream:is(button:not(.close):not(.modal-close),
         box-shadow 0.18s ease !important;
 }
 
-body.theme-fairy-sea-dream:is(button:not(.close):not(.modal-close),
+body.theme-fairy-sea-dream :is(button:not(.close):not(.modal-close),
     .btn,
     .button,
     .btn-buy,
@@ -1117,7 +1117,7 @@ body.theme-fairy-sea-dream:is(button:not(.close):not(.modal-close),
         inset 0 2px 0 rgba(255, 255, 255, 0.53) !important;
 }
 
-body.theme-fairy-sea-dream:is(button,
+body.theme-fairy-sea-dream :is(button,
     .btn,
     .button):disabled {
     opacity: 0.58;
@@ -1126,7 +1126,7 @@ body.theme-fairy-sea-dream:is(button,
 
 /* Nút đóng popup */
 
-body.theme-fairy-sea-dream:is(.close,
+body.theme-fairy-sea-dream :is(.close,
     .modal-close,
     .close-button,
     .btn-close) {
@@ -1281,7 +1281,7 @@ body.theme-fairy-sea-dream table:not(.ui-theme-immune):not(.ui-theme-immune *) {
         0 10px 26px rgba(14, 116, 144, 0.1);
 }
 
-body.theme-fairy-sea-dream:is(th, .table-header):not(.ui-theme-immune):not(.ui-theme-immune *) {
+body.theme-fairy-sea-dream :is(th, .table-header):not(.ui-theme-immune):not(.ui-theme-immune *) {
     color: #ffffff !important;
 
     background:
@@ -1533,36 +1533,8 @@ body.theme-fairy-sea-dream .fairy-narwhal-dialogue {
    FIX SIDEBAR BỊ NẰM Ở ĐẦU TRANG KHI MỞ
    ========================================================= */
 
-@media (max-width: 768px) {
-
-    body.theme-fairy-sea-dream :is(.sidebar,
-        .student-sidebar,
-        #sidebar,
-        .side-menu) {
-        position: fixed !important;
-
-        top: 0 !important;
-        left: 0;
-        bottom: 0 !important;
-
-        height: 100vh !important;
-        height: 100dvh !important;
-        max-height: 100dvh !important;
-
-        margin: 0 !important;
-
-        overflow-x: hidden !important;
-        overflow-y: auto !important;
-
-        overscroll-behavior: contain;
-        -webkit-overflow-scrolling: touch;
-
-        z-index: 9998 !important;
-    }
-}
-
 /* Ẩn thanh cuộn sidebar nhưng vẫn cuộn được */
-body.theme-fairy-sea-dream:is(.sidebar,
+body.theme-fairy-sea-dream :is(.sidebar,
     .student-sidebar,
     #sidebar,
     .side-menu) {
@@ -1570,7 +1542,7 @@ body.theme-fairy-sea-dream:is(.sidebar,
     -ms-overflow-style: none !important;
 }
 
-body.theme-fairy-sea-dream:is(.sidebar,
+body.theme-fairy-sea-dream :is(.sidebar,
     .student-sidebar,
     #sidebar,
     .side-menu)::-webkit-scrollbar {

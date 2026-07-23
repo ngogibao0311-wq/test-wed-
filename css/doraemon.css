@@ -1360,11 +1360,15 @@ body.theme-doraemon-childhood .store-item-card .item-tag.tag-doraemon {
         0 6px 16px rgba(70, 168, 223, 0.28) !important;
 }
 
-body.theme-doraemon-childhood .store-item-card .item-name {
+body.theme-doraemon-childhood
+.store-item-card:not(.ui-theme-immune)
+.item-name {
     color: #2f7fb0 !important;
 }
 
-body.theme-doraemon-childhood .item-type-label {
+body.theme-doraemon-childhood
+.store-item-card:not(.ui-theme-immune)
+.item-type-label {
     color: #6f88a0 !important;
 }
 

@@ -4,12 +4,539 @@ class PetManager {
     static container = document.getElementById('virtual-pet-container');
     static interactionAbortController = null;
 
+    static clearSlothDreamRealm() {
+        const oldRealm =
+            document.getElementById('sloth-dream-realm');
+
+        if (oldRealm) {
+            if (oldRealm._slothObserver) {
+                oldRealm._slothObserver.disconnect();
+            }
+
+            oldRealm.remove();
+        }
+
+        document.documentElement.classList.remove(
+            'sloth-dream-realm-equipped'
+        );
+    }
+
+    static clearBirthday2026Realm() {
+        const oldRealm =
+            document.getElementById('birthday-2026-realm');
+
+        if (oldRealm) {
+            if (oldRealm._birthday2026Observer) {
+                oldRealm._birthday2026Observer.disconnect();
+            }
+
+            oldRealm.remove();
+        }
+
+        document.documentElement.classList.remove(
+            'birthday-2026-equipped'
+        );
+    }
+
+    static createBirthday2026Realm() {
+        this.clearBirthday2026Realm();
+
+        const realm = document.createElement('div');
+
+        realm.id = 'birthday-2026-realm';
+        realm.className = 'birthday-2026-realm';
+        realm.setAttribute('aria-hidden', 'true');
+
+        realm.innerHTML = `
+            <div class="birthday-2026-screen-wash"></div>
+
+            <div class="birthday-2026-grand-medallion">
+                <span class="birthday-2026-medallion-ring ring-one"></span>
+                <span class="birthday-2026-medallion-ring ring-two"></span>
+
+                <span class="birthday-2026-medallion-core">
+                    <b>福</b>
+                    <small>2026</small>
+                </span>
+            </div>
+
+            <div class="birthday-2026-ribbon-vault">
+                <span class="birthday-2026-vault-bow"></span>
+            </div>
+
+            <div class="birthday-2026-lantern-field"></div>
+            <div class="birthday-2026-confetti-field"></div>
+
+            <div class="birthday-2026-candle-altar">
+                <span class="birthday-2026-altar-base"></span>
+
+                <span class="birthday-2026-screen-candle candle-one">
+                    <i></i>
+                </span>
+
+                <span class="birthday-2026-screen-candle candle-two">
+                    <i></i>
+                </span>
+
+                <span class="birthday-2026-screen-candle candle-three">
+                    <i></i>
+                </span>
+            </div>
+
+            <div class="birthday-2026-screen-title">
+                <span>SINH NHẬT 2026</span>
+                <strong>PHÚC LỘC AN KHANG</strong>
+            </div>
+        `;
+
+        const lanternField =
+            realm.querySelector('.birthday-2026-lantern-field');
+
+        for (let index = 0; index < 12; index++) {
+            const lantern = document.createElement('span');
+
+            lantern.className = 'birthday-2026-screen-lantern';
+
+            const isLeft = index < 6;
+            const rowIndex = index % 6;
+
+            lantern.style.setProperty(
+                '--birthday-lantern-x',
+                isLeft
+                    ? `${2 + rowIndex * 2.5}%`
+                    : `${98 - rowIndex * 2.5}%`
+            );
+
+            lantern.style.setProperty(
+                '--birthday-lantern-y',
+                `${8 + rowIndex * 15}%`
+            );
+
+            lantern.style.setProperty(
+                '--birthday-lantern-delay',
+                `${-index * 0.48}s`
+            );
+
+            lantern.style.setProperty(
+                '--birthday-lantern-scale',
+                `${0.72 + index % 3 * 0.12}`
+            );
+
+            lanternField.appendChild(lantern);
+        }
+
+        const confettiField =
+            realm.querySelector('.birthday-2026-confetti-field');
+
+        const confettiColors = [
+            '#ef7766',
+            '#f4ca70',
+            '#31876d',
+            '#fff0bf'
+        ];
+
+        for (let index = 0; index < 38; index++) {
+            const confetti = document.createElement('span');
+
+            confetti.className = 'birthday-2026-screen-confetti';
+
+            confetti.style.setProperty(
+                '--birthday-confetti-x',
+                `${(index * 37) % 100}%`
+            );
+
+            confetti.style.setProperty(
+                '--birthday-confetti-y',
+                `${(index * 61) % 100}%`
+            );
+
+            confetti.style.setProperty(
+                '--birthday-confetti-color',
+                confettiColors[index % confettiColors.length]
+            );
+
+            confetti.style.setProperty(
+                '--birthday-confetti-delay',
+                `${-(index % 14) * 0.45}s`
+            );
+
+            confetti.style.setProperty(
+                '--birthday-confetti-duration',
+                `${6 + index % 6}s`
+            );
+
+            confetti.style.setProperty(
+                '--birthday-confetti-turn',
+                `${index % 2 === 0 ? -18 : 18}deg`
+            );
+
+            confettiField.appendChild(confetti);
+        }
+
+        document.body.appendChild(realm);
+
+        document.documentElement.classList.add(
+            'birthday-2026-equipped'
+        );
+
+        requestAnimationFrame(() => {
+            realm.classList.add('is-active');
+        });
+
+        /*
+         * Tự xóa hiệu ứng khi thú cưng bị tháo,
+         * đổi sang thú cưng khác hoặc container bị ẩn.
+         */
+        const observer = new MutationObserver(() => {
+            const activePet =
+                document.getElementById('virtual-pet-img');
+
+            const containerStyle =
+                this.container
+                    ? window.getComputedStyle(this.container)
+                    : null;
+
+            const isStillActive =
+                activePet?.classList.contains(
+                    'birthday-serpent-2026-magic'
+                ) &&
+                containerStyle?.display !== 'none' &&
+                containerStyle?.visibility !== 'hidden';
+
+            if (!isStillActive) {
+                this.clearBirthday2026Realm();
+            }
+        });
+
+        if (this.container) {
+            observer.observe(this.container, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                attributeFilter: [
+                    'class',
+                    'style'
+                ]
+            });
+        }
+
+        realm._birthday2026Observer = observer;
+
+        return realm;
+    }
+
+    static createSlothDreamRealm() {
+        this.clearSlothDreamRealm();
+
+        const realm = document.createElement('div');
+
+        realm.id = 'sloth-dream-realm';
+        realm.className = 'sloth-dream-realm';
+
+        realm.setAttribute('aria-hidden', 'true');
+
+        realm.innerHTML = `
+            <div class="sloth-realm-backdrop"></div>
+            <div class="sloth-realm-cathedral"></div>
+
+            <div
+                class="
+                    sloth-realm-curtain
+                    curtain-left
+                "
+            ></div>
+
+            <div
+                class="
+                    sloth-realm-curtain
+                    curtain-right
+                "
+            ></div>
+
+            <div class="sloth-realm-aurora"></div>
+
+            <div
+                class="
+                    sloth-realm-fog
+                    sloth-realm-fog-a
+                "
+            ></div>
+
+            <div
+                class="
+                    sloth-realm-fog
+                    sloth-realm-fog-b
+                "
+            ></div>
+
+            <div
+                class="
+                    sloth-realm-fog
+                    sloth-realm-fog-c
+                "
+            ></div>
+
+            <div class="sloth-realm-choir"></div>
+
+            <div
+                class="
+                    sloth-realm-chain
+                    chain-left
+                "
+            ></div>
+
+            <div
+                class="
+                    sloth-realm-chain
+                    chain-right
+                "
+            ></div>
+
+            <div class="sloth-realm-sigil">
+                <span
+                    class="sloth-realm-crown"
+                ></span>
+
+                <span
+                    class="
+                        sloth-realm-ring
+                        ring-one
+                    "
+                ></span>
+
+                <span
+                    class="
+                        sloth-realm-ring
+                        ring-two
+                    "
+                ></span>
+
+                <span
+                    class="
+                        sloth-realm-ring
+                        ring-three
+                    "
+                ></span>
+
+                <span class="sloth-realm-core">
+                    <b>Ⅶ</b>
+                    <small>ACEDIA</small>
+                </span>
+
+                <div
+                    class="sloth-realm-runes"
+                ></div>
+            </div>
+
+            <div class="sloth-realm-hourglass">
+                <span
+                    class="sloth-hourglass-frame"
+                ></span>
+
+                <span
+                    class="
+                        sloth-hourglass-sand
+                        sand-top
+                    "
+                ></span>
+
+                <span
+                    class="
+                        sloth-hourglass-sand
+                        sand-bottom
+                    "
+                ></span>
+            </div>
+
+            <div
+                class="sloth-realm-particles"
+            ></div>
+
+            <div class="sloth-realm-title">
+                <span>
+                    PECCATUM VII · THẤT ĐẠI TỘI
+                </span>
+
+                <strong>
+                    MỘNG GIỚI TRÌ HOÃN
+                </strong>
+
+                <small>
+                    ACEDIA · KẺ CANH GIẤC NGỦ
+                    VĨNH HẰNG
+                </small>
+            </div>
+        `;
+
+        const runeContainer =
+            realm.querySelector('.sloth-realm-runes');
+
+        for (let index = 0; index < 7; index++) {
+            const rune = document.createElement('span');
+
+            const angle = index * (360 / 7);
+
+            rune.className = 'sloth-realm-rune';
+            rune.textContent =
+                ['Ⅰ', 'Ⅱ', 'Ⅲ', 'Ⅳ', 'Ⅴ', 'Ⅵ', 'Ⅶ'][index];
+
+            rune.style.setProperty(
+                '--sloth-domain-angle',
+                `${angle}deg`
+            );
+
+            rune.style.setProperty(
+                '--sloth-domain-angle-back',
+                `${-angle}deg`
+            );
+
+            rune.style.setProperty(
+                '--sloth-domain-delay',
+                `${-index * 0.42}s`
+            );
+
+            runeContainer.appendChild(rune);
+        }
+
+        const choir =
+            realm.querySelector(
+                '.sloth-realm-choir'
+            );
+
+        const choirNumerals = [
+            'Ⅰ', 'Ⅱ', 'Ⅲ', 'Ⅳ', 'Ⅴ', 'Ⅵ', 'Ⅶ'
+        ];
+
+        for (let index = 0; index < 7; index++) {
+            const pillar =
+                document.createElement('span');
+
+            pillar.className =
+                'sloth-realm-choir-pillar';
+
+            pillar.dataset.number =
+                choirNumerals[index];
+
+            pillar.style.setProperty(
+                '--sloth-choir-index',
+                index
+            );
+
+            pillar.style.setProperty(
+                '--sloth-choir-delay',
+                `${-index * 0.56}s`
+            );
+
+            pillar.style.setProperty(
+                '--sloth-choir-height',
+                `${42 + index * 4}%`
+            );
+
+            choir.appendChild(pillar);
+        }
+
+        const particles =
+            realm.querySelector('.sloth-realm-particles');
+
+        for (let index = 0; index < 32; index++) {
+            const particle = document.createElement('span');
+
+            particle.className = 'sloth-realm-particle';
+
+            particle.style.setProperty(
+                '--realm-x',
+                `${(index * 37) % 100}%`
+            );
+
+            particle.style.setProperty(
+                '--realm-y',
+                `${(index * 61) % 100}%`
+            );
+
+            particle.style.setProperty(
+                '--realm-size',
+                `${2 + index % 5}px`
+            );
+
+            particle.style.setProperty(
+                '--realm-delay',
+                `${-(index % 12) * 0.55}s`
+            );
+
+            particle.style.setProperty(
+                '--realm-duration',
+                `${6 + index % 7}s`
+            );
+
+            particle.style.setProperty(
+                '--realm-drift',
+                `${20 + index % 6 * 11}px`
+            );
+
+            particles.appendChild(particle);
+        }
+
+        document.body.appendChild(realm);
+
+        document.documentElement.classList.add(
+            'sloth-dream-realm-equipped'
+        );
+
+        requestAnimationFrame(() => {
+            realm.classList.add('is-active');
+        });
+
+        /*
+         * Tự dọn hiệu ứng nếu thú cưng bị tháo,
+         * chuyển thú cưng hoặc bị ẩn trong chế độ thi.
+         */
+        const observer = new MutationObserver(() => {
+            const activePet =
+                document.getElementById('virtual-pet-img');
+
+            const containerStyle =
+                this.container
+                    ? window.getComputedStyle(this.container)
+                    : null;
+
+            const isStillActive =
+                activePet?.classList.contains(
+                    'seven-sins-sloth-magic'
+                ) &&
+                containerStyle?.display !== 'none' &&
+                containerStyle?.visibility !== 'hidden';
+
+            if (!isStillActive) {
+                this.clearSlothDreamRealm();
+            }
+        });
+
+        if (this.container) {
+            observer.observe(this.container, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                attributeFilter: [
+                    'class',
+                    'style'
+                ]
+            });
+        }
+
+        realm._slothObserver = observer;
+
+        return realm;
+    }
+
     static spawnPet(petData) {
         this.container =
             document.getElementById('virtual-pet-container') ||
             this.container;
 
         if (!this.container || !petData) return;
+
+        this.clearSlothDreamRealm();
+        this.clearBirthday2026Realm();
         // Dọn toàn bộ tương tác và vòng lặp của thú cưng trước
         if (
             typeof PetInteractionManager !== 'undefined' &&
@@ -25,7 +552,11 @@ class PetManager {
         this.container.innerHTML = '';
         this.container.classList.remove(
             'pet-doraemon-shizuka-stage',
-            'pet-painting-stage'
+            'pet-painting-stage',
+            'pet-seven-sins-sloth-stage',
+            'sloth-dream-release',
+            'sloth-domain-casting',
+            'pet-birthday-serpent-2026-stage',
         );
 
         let petElement;
@@ -253,9 +784,322 @@ class PetManager {
             });
         }
 
+        // =========================================================
+        // THẤT ĐẠI TỘI — LƯỜI BIẾNG
+        // Hiệu ứng đứng chờ quanh thú cưng
+        // =========================================================
+        if (petData.petEffect === 'seven-sins-sloth-magic') {
+            this.container.classList.add(
+                'pet-seven-sins-sloth-stage'
+            );
+
+            petElement.setAttribute('draggable', 'false');
+
+            const dreamHaze = document.createElement('div');
+            dreamHaze.className = 'sloth-dream-haze';
+            dreamHaze.setAttribute('aria-hidden', 'true');
+            this.container.appendChild(dreamHaze);
+
+            const dreamThrone =
+                document.createElement('div');
+
+            dreamThrone.className =
+                'sloth-dream-throne';
+
+            dreamThrone.setAttribute(
+                'aria-hidden',
+                'true'
+            );
+
+            this.container.appendChild(
+                dreamThrone
+            );
+
+            const dreamHalo =
+                document.createElement('div');
+
+            dreamHalo.className =
+                'sloth-dream-halo';
+
+            dreamHalo.setAttribute(
+                'aria-hidden',
+                'true'
+            );
+
+            this.container.appendChild(
+                dreamHalo
+            );
+
+            const dreamHourglass =
+                document.createElement('div');
+
+            dreamHourglass.className =
+                'sloth-pet-hourglass';
+
+            dreamHourglass.setAttribute(
+                'aria-hidden',
+                'true'
+            );
+
+            dreamHourglass.innerHTML = `
+                <span
+                    class="pet-hourglass-frame"
+                ></span>
+
+                <span
+                    class="pet-hourglass-sand"
+                ></span>
+            `;
+
+            this.container.appendChild(
+                dreamHourglass
+            );
+
+            const dreamSeal = document.createElement('div');
+            dreamSeal.className = 'sloth-dream-seal';
+            dreamSeal.setAttribute('aria-hidden', 'true');
+            this.container.appendChild(dreamSeal);
+
+            const runeRing = document.createElement('div');
+            runeRing.className = 'sloth-rune-ring';
+            runeRing.setAttribute('aria-hidden', 'true');
+
+            const runes = [
+                'Ⅰ', 'Ⅱ', 'Ⅲ', 'Ⅳ', 'Ⅴ', 'Ⅵ', 'Ⅶ'
+            ];
+
+            runes.forEach((symbol, index) => {
+                const rune = document.createElement('span');
+                const angle = index * (360 / runes.length);
+
+                rune.className = 'sloth-orbit-rune';
+                rune.textContent = symbol;
+
+                rune.style.transform = `
+            rotate(${angle}deg)
+            translateX(78px)
+            rotate(${-angle}deg)
+        `;
+
+                rune.style.setProperty(
+                    '--sloth-rune-delay',
+                    `${-index * 0.38}s`
+                );
+
+                runeRing.appendChild(rune);
+            });
+
+            this.container.appendChild(runeRing);
+
+            for (
+                let index = 0;
+                index < 7;
+                index++
+            ) {
+                const feather =
+                    document.createElement('span');
+
+                const angle =
+                    index * (360 / 7);
+
+                feather.className =
+                    'sloth-dream-feather';
+
+                feather.textContent =
+                    index === 6 ? 'Ⅶ' : '✦';
+
+                feather.setAttribute(
+                    'aria-hidden',
+                    'true'
+                );
+
+                feather.style.setProperty(
+                    '--sloth-feather-angle',
+                    `${angle}deg`
+                );
+
+                feather.style.setProperty(
+                    '--sloth-feather-angle-back',
+                    `${-angle}deg`
+                );
+
+                feather.style.setProperty(
+                    '--sloth-feather-delay',
+                    `${-index * 0.44}s`
+                );
+
+                this.container.appendChild(
+                    feather
+                );
+            }
+
+            for (let index = 0; index < 6; index++) {
+                const mote = document.createElement('span');
+
+                mote.className = 'sloth-sleep-mote';
+                mote.textContent = index % 2 === 0 ? 'z' : '✦';
+                mote.setAttribute('aria-hidden', 'true');
+
+                mote.style.setProperty(
+                    '--sloth-x',
+                    `${18 + index * 13}%`
+                );
+
+                mote.style.setProperty(
+                    '--sloth-delay',
+                    `${-index * 0.72}s`
+                );
+
+                mote.style.setProperty(
+                    '--sloth-duration',
+                    `${3.8 + (index % 3) * 0.65}s`
+                );
+
+                mote.style.setProperty(
+                    '--sloth-size',
+                    `${10 + (index % 3) * 3}px`
+                );
+
+                this.container.appendChild(mote);
+            }
+        }
+
+        // =========================================================
+        // BÉ RẮN PHÚC LỘC 2026
+        // Trang trí riêng quanh thú cưng.
+        // Hiệu ứng toàn màn hình được tạo sau khi pet đã xuất hiện.
+        // Không có hiệu ứng nhấn.
+        // =========================================================
+        if (petData.petEffect === 'birthday-serpent-2026-magic') {
+            petElement.setAttribute('draggable', 'false');
+
+            this.container.classList.add(
+                'pet-birthday-serpent-2026-stage'
+            );
+
+            const petCrest = document.createElement('div');
+
+            petCrest.className = 'birthday-2026-pet-crest';
+            petCrest.setAttribute('aria-hidden', 'true');
+
+            petCrest.innerHTML = `
+                <span class="birthday-2026-pet-ring ring-outer"></span>
+                <span class="birthday-2026-pet-ring ring-inner"></span>
+                <span class="birthday-2026-pet-platform"></span>
+                <span class="birthday-2026-pet-plaque">2026</span>
+            `;
+
+            for (let index = 0; index < 10; index++) {
+                const bead = document.createElement('span');
+
+                bead.className = 'birthday-2026-blessing-bead';
+
+                bead.style.setProperty(
+                    '--birthday-bead-angle',
+                    `${index * 36}deg`
+                );
+
+                bead.style.setProperty(
+                    '--birthday-bead-angle-back',
+                    `${index * -36}deg`
+                );
+
+                bead.style.setProperty(
+                    '--birthday-bead-delay',
+                    `${-index * 0.32}s`
+                );
+
+                petCrest.appendChild(bead);
+            }
+
+            this.container.appendChild(petCrest);
+        }
+
+        // =========================================================
+
+        // =========================================================
+        // LINH THÚ TRÁI ĐẤT — HIỆU ỨNG RIÊNG
+        // Không tái chế hiệu ứng cũ
+        // =========================================================
+        if (petData.petEffect === 'earth-guardian-magic') {
+            petElement.setAttribute('draggable', 'false');
+            this.container.classList.add('pet-earth-guardian-stage');
+
+            // Hào quang sinh quyển
+            const aura = document.createElement('div');
+            aura.className = 'earth-guardian-aura';
+            aura.setAttribute('aria-hidden', 'true');
+            this.container.appendChild(aura);
+
+            // Vòng nhịp sống
+            const pulse = document.createElement('div');
+            pulse.className = 'earth-life-pulse';
+            pulse.setAttribute('aria-hidden', 'true');
+            this.container.appendChild(pulse);
+
+            // Quỹ đạo mặt trăng
+            const moonOrbit = document.createElement('div');
+            moonOrbit.className = 'earth-moon-orbit';
+            moonOrbit.setAttribute('aria-hidden', 'true');
+            moonOrbit.innerHTML = `<span class="earth-moon"></span>`;
+            this.container.appendChild(moonOrbit);
+
+            // Hạt sinh thái xoay quanh pet
+            const particleKinds = ['leaf', 'water', 'cloud', 'spark'];
+
+            for (let i = 0; i < 12; i++) {
+                const particle = document.createElement('span');
+                particle.className = `earth-orbit-particle earth-particle-${particleKinds[i % particleKinds.length]}`;
+                particle.setAttribute('aria-hidden', 'true');
+
+                particle.style.setProperty('--earth-angle', `${i * 30}deg`);
+                particle.style.setProperty('--earth-delay', `${-i * 0.35}s`);
+                particle.style.setProperty('--earth-size', `${6 + (i % 3) * 3}px`);
+                particle.style.setProperty('--earth-radius', `${68 + (i % 2) * 10}px`);
+
+                this.container.appendChild(particle);
+            }
+        }
+
         this.container.appendChild(petElement);
-        this.container.style.display = 'block';
+
+        /*
+         * Bé Rắn dùng grid để ảnh, vòng và bệ được căn giữa.
+         * Các pet khác vẫn giữ display block như cũ.
+         */
+        this.container.style.display =
+            petData.id === 'pet_sinh_nhat_2026'
+                ? 'grid'
+                : 'block';
+
         this.container.classList.add('pet-idle');
+
+        /*
+         * Đặt Bé Rắn cách xa mép phải và mép dưới.
+         * Chạy sau khi DOM và class hiệu ứng đã được gắn.
+         */
+        if (petData.id === 'pet_sinh_nhat_2026') {
+            requestAnimationFrame(() => {
+                const container = this.container;
+
+                container.style.position = 'fixed';
+
+                container.style.left = 'auto';
+                container.style.top = 'auto';
+
+                container.style.right = '42px';
+                container.style.bottom = '72px';
+
+                container.style.margin = '0';
+                container.style.zIndex = '5000';
+
+                /*
+                 * Không đặt transform: none vì có thể chặn
+                 * animation đứng chờ của thú cưng.
+                 */
+                container.style.removeProperty('transform');
+            });
+        }
 
         const closeBtn = document.createElement('button');
 
@@ -319,6 +1163,72 @@ class PetManager {
         this.container.appendChild(closeBtn);
         this.makePetDraggable();
         localStorage.setItem('active_pet', petData.id);
+
+        // =========================================================
+        // KỸ NĂNG TOÀN MÀN HÌNH — MỘNG GIỚI TRÌ HOÃN
+        // =========================================================
+        if (petData.petEffect === 'seven-sins-sloth-magic') {
+            // Tạo lớp hiệu ứng toàn màn hình khi trang bị
+            this.createSlothDreamRealm();
+
+            const slothPetImage =
+                document.getElementById('virtual-pet-img');
+
+            let slothSkillLocked = false;
+
+            if (slothPetImage) {
+                slothPetImage.addEventListener(
+                    'click',
+                    (event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        if (slothSkillLocked) return;
+
+                        slothSkillLocked = true;
+
+                        const realm =
+                            document.getElementById(
+                                'sloth-dream-realm'
+                            );
+
+                        this.container.classList.remove(
+                            'sloth-domain-casting'
+                        );
+
+                        realm?.classList.remove('is-casting');
+
+                        void this.container.offsetWidth;
+
+                        if (realm) {
+                            void realm.offsetWidth;
+                        }
+
+                        this.container.classList.add(
+                            'sloth-domain-casting'
+                        );
+
+                        realm?.classList.add('is-casting');
+
+                        window.setTimeout(() => {
+                            this.container.classList.remove(
+                                'sloth-domain-casting'
+                            );
+
+                            realm?.classList.remove(
+                                'is-casting'
+                            );
+
+                            slothSkillLocked = false;
+                        }, 5000);
+                    },
+                    {
+                        signal:
+                            this.interactionAbortController.signal
+                    }
+                );
+            }
+        }
 
         // Chỉ gắn hiệu ứng tương tác nếu vật phẩm cho phép
         if (
@@ -400,8 +1310,47 @@ class PetManager {
             if (Math.abs(dx) + Math.abs(dy) > 6) {
                 didDrag = true;
             }
-            this.container.style.left = `${initialX + dx}px`;
-            this.container.style.top = `${initialY + dy}px`;
+            const containerWidth =
+                this.container.offsetWidth || 188;
+
+            const containerHeight =
+                this.container.offsetHeight || 198;
+
+            /*
+ * Bé Rắn có vòng, bệ và nhãn tràn ra ngoài container,
+ * vì vậy cần chừa khoảng an toàn lớn hơn.
+ */
+            const isBirthdayPet =
+                this.container.classList.contains(
+                    'pet-birthday-serpent-2026-stage'
+                );
+
+            const safeRightGap = isBirthdayPet ? 34 : 8;
+            const safeBottomGap = isBirthdayPet ? 58 : 8;
+
+            const safeLeft = Math.min(
+                Math.max(8, initialX + dx),
+                Math.max(
+                    8,
+                    window.innerWidth -
+                    containerWidth -
+                    safeRightGap
+                )
+            );
+
+            const safeTop = Math.min(
+                Math.max(8, initialY + dy),
+                Math.max(
+                    8,
+                    window.innerHeight -
+                    containerHeight -
+                    safeBottomGap
+                )
+            );
+
+            this.container.style.left = `${safeLeft}px`;
+            this.container.style.top = `${safeTop}px`;
+
             this.container.style.bottom = 'auto';
             this.container.style.right = 'auto';
 

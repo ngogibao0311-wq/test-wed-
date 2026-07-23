@@ -355,11 +355,11 @@ const StoreConfig = {
         // Thêm vào cuối mảng StoreConfig.items
         {
             id: 'music_lofi_01',
-            name: 'That gril',
+            name: 'Hí Khúc',
             type: 'music',
             price: 250,
             isNonCoin: false,
-            tag: 'Thư giãn',
+            tag: 'Âm nhạc',
             customIcon: '🎧',
             musicUrl: 'https://youtu.be/TWX6Eq8v46M?si=xOz5ZQcJmbKI1Paa',
             volume: 0.35,
@@ -490,6 +490,160 @@ const StoreConfig = {
             value: 'effect_hoihoa_living_canvas',
             customIcon: '🖌️'
         },
+        {
+            id: 'pet_thatdaitoi_luoibieng_1',
+            name: 'Acedia - Linh Thú Lười Biếng',
+            type: 'pet',
+            price: 0,
+            isNonCoin: true,
+            eventOnly: true,
+            tag: 'Thất Đại Tội',
+            value: 'assets/pet/thất đại tội/lười biếng/lười biếng i.png',
+            isIcon: false,
+            petEffect: 'seven-sins-sloth-magic',
+            disableClickEffect: true,
+
+            acediaRole: 'Linh thú ngủ giới',
+            acediaLore: 'Kẻ canh giữ giấc ngủ vĩnh hằng',
+            acediaGlyph: '☾',
+            acediaIndex: 'VII·FAMILIAR'
+        },
+        {
+            id: 'theme_thatdaitoi_acedia_dream',
+            name: 'Mộng Điện Trì Hoãn',
+            type: 'theme',
+            price: 0,
+            isNonCoin: true,
+            eventOnly: true,
+            tag: 'Thất Đại Tội',
+            value: 'theme-seven-sins-acedia',
+            customIcon: '⌛',
+
+            acediaRole: 'Mộng điện tối thượng',
+            acediaLore: 'Cung điện nơi thời gian từ chối bước tiếp',
+            acediaGlyph: '⌛',
+            acediaIndex: 'VII·PALACE'
+        },
+        {
+            id: 'effect_thatdaitoi_acedia_domain',
+            name: 'Thất Trọng Mộng Vực',
+            type: 'effect',
+            price: 0,
+            isNonCoin: true,
+            eventOnly: true,
+            tag: 'Thất Đại Tội',
+            value: 'effect_thatdaitoi_acedia_domain',
+            customIcon: 'Ⅶ',
+
+            acediaRole: 'Mộng vực bảy tầng',
+            acediaLore: 'Bảy tầng giấc mơ đè nặng lên thực tại',
+            acediaGlyph: 'Ⅶ',
+            acediaIndex: 'VII·DOMAIN'
+        },
+        {
+            id: 'pet_he_mat_troi_trai_dat',
+            name: 'Linh Thú Trái Đất',
+            type: 'pet',
+            price: 400,
+            isNonCoin: false,
+            tag: 'Hệ Mặt Trời',
+            value: 'assets/pet/Trái Đất.png',
+            isIcon: false,
+            petEffect: 'earth-guardian-magic',
+            disableClickEffect: true
+        },
+        {
+            id: 'theme_he_mat_troi_sinh_quyen',
+            name: 'Quỹ Đạo Sinh Quyển',
+            type: 'theme',
+            price: 705,
+            isNonCoin: false,
+            tag: 'Hệ Mặt Trời',
+
+            value: 'theme-solar-biosphere',
+            customIcon: '🌞',
+            annualSale: {
+                startMonth: 4,
+                startDay: 22,
+                endMonth: 4,
+                endDay: 25
+            }
+        },
+        {
+            id: 'effect_he_mat_troi_nhat_trieu_gaia',
+            name: 'Nhật Triều Gaia',
+            type: 'effect',
+            price: 710,
+            isNonCoin: false,
+            tag: 'Hệ Mặt Trời',
+            value: 'effect_he_mat_troi_nhat_trieu_gaia',
+            customIcon: '◉',
+            annualSale: {
+                startMonth: 4,
+                startDay: 22,
+                endMonth: 4,
+                endDay: 25
+            }
+        },
+        {
+            id: 'pet_sinh_nhat_2026',
+            name: 'Bé Rắn Phúc Lộc 2026',
+            type: 'pet',
+            price: 0,
+            isNonCoin: true,
+            eventOnly: true,
+            rewardSource: 'birthday_coin',
+            rewardLabel: 'Xu Sinh Nhật',
+            birthdayYear: 2026,
+            tag: 'Sinh nhật 2026',
+            value: 'assets/pet/sinh nhật/sinh nhật 2026.png',
+            isIcon: false,
+            petEffect: 'birthday-serpent-2026-magic'
+        },
+        {
+            id: 'theme_sinh_nhat_tiec_ngot_2026',
+            name: 'Bữa Tiệc Ngọt 2026',
+            type: 'theme',
+
+            price: 0,
+            isNonCoin: true,
+            eventOnly: true,
+
+            rewardSource: 'birthday_coin',
+            rewardLabel: 'Xu Sinh Nhật',
+
+            /* Cho phép đổi bằng Xu Đặc Biệt */
+            specialBirthdayCoinEligible: true,
+
+            birthdayYear: 2026,
+            tag: 'Sinh nhật 2026',
+
+            value: 'theme-birthday-sweet-2026',
+            customIcon: '🎂'
+        },
+        {
+            id: 'effect_sinh_nhat_than_an_phuc_loc_2026',
+            name: 'Thần Ấn Phúc Lộc 2026',
+            type: 'effect',
+
+            price: 0,
+            isNonCoin: true,
+            eventOnly: true,
+
+            rewardSource: 'birthday_coin',
+            rewardLabel: 'Xu Sinh Nhật',
+
+            /* Cho phép dùng cả Xu Đặc Biệt */
+            specialBirthdayCoinEligible: true,
+
+            birthdayYear: 2026,
+            tag: 'Sinh nhật 2026',
+
+            value:
+                'effect_sinh_nhat_than_an_phuc_loc_2026',
+
+            customIcon: '✦'
+        }
     ]
 };
 
@@ -501,6 +655,184 @@ class StoreManager {
 
     static getItemById(id) {
         return StoreConfig.items.find(item => item.id === id);
+    }
+
+    static getAnnualSaleState(item, now = new Date()) {
+        const schedule = item?.annualSale;
+
+        // Vật phẩm bình thường không bị giới hạn ngày bán
+        if (!schedule) {
+            return {
+                hasAnnualSale: false,
+                isOpen: true,
+                start: null,
+                end: null,
+                nextStart: null,
+                nextOpenLabel: '',
+                windowLabel: ''
+            };
+        }
+
+        const year = now.getFullYear();
+
+        const start = new Date(
+            year,
+            schedule.startMonth - 1,
+            schedule.startDay,
+            0,
+            0,
+            0,
+            0
+        );
+
+        const end = new Date(
+            year,
+            schedule.endMonth - 1,
+            schedule.endDay,
+            23,
+            59,
+            59,
+            999
+        );
+
+        const isOpen =
+            now.getTime() >= start.getTime() &&
+            now.getTime() <= end.getTime();
+
+        const nextStart =
+            now.getTime() < start.getTime()
+                ? start
+                : new Date(
+                    year + 1,
+                    schedule.startMonth - 1,
+                    schedule.startDay,
+                    0,
+                    0,
+                    0,
+                    0
+                );
+
+        const padNumber = number =>
+            String(number).padStart(2, '0');
+
+        const formatFullDate = date => {
+            return [
+                padNumber(date.getDate()),
+                padNumber(date.getMonth() + 1),
+                date.getFullYear()
+            ].join('/');
+        };
+
+        const windowLabel =
+            `${padNumber(schedule.startDay)}/${padNumber(schedule.startMonth)}` +
+            `–${padNumber(schedule.endDay)}/${padNumber(schedule.endMonth)}`;
+
+        return {
+            hasAnnualSale: true,
+            isOpen,
+            start,
+            end,
+            nextStart,
+            nextOpenLabel: formatFullDate(nextStart),
+            windowLabel
+        };
+    }
+
+    /*
+     * Cổng mua vật phẩm.
+     * Ngăn giao diện giới hạn bị mua ngoài ngày mở bán.
+     */
+    static buyItemSafely(itemId, isUpgrade = false) {
+        const item = this.getItemById(itemId);
+
+        if (!item) {
+            console.error(
+                `[StoreManager] Không tìm thấy vật phẩm: ${itemId}`
+            );
+            return;
+        }
+
+        const saleState =
+            this.getAnnualSaleState(item);
+
+        if (
+            saleState.hasAnnualSale &&
+            !saleState.isOpen
+        ) {
+            window.alert(
+                `${item.name} chỉ mở bán từ ` +
+                `${saleState.windowLabel} hằng năm.\n\n` +
+                `Đợt mở bán tiếp theo: ${saleState.nextOpenLabel}.`
+            );
+
+            return;
+        }
+
+        const purchaseHandler =
+            typeof window.buyItem === 'function'
+                ? window.buyItem
+                : (
+                    typeof buyItem === 'function'
+                        ? buyItem
+                        : null
+                );
+
+        if (!purchaseHandler) {
+            console.error(
+                '[StoreManager] Không tìm thấy hàm buyItem().'
+            );
+            return;
+        }
+
+        purchaseHandler(itemId, isUpgrade);
+    }
+
+    /*
+     * Dùng thử cũng chỉ hoạt động trong thời gian mở bán.
+     */
+    static trialItemSafely(itemId) {
+        const item = this.getItemById(itemId);
+
+        if (!item) {
+            console.error(
+                `[StoreManager] Không tìm thấy vật phẩm: ${itemId}`
+            );
+            return;
+        }
+
+        const saleState =
+            this.getAnnualSaleState(item);
+
+        if (
+            saleState.hasAnnualSale &&
+            !saleState.isOpen
+        ) {
+            window.alert(
+                `${item.name} hiện chưa mở bán.\n\n` +
+                `Thời gian: ${saleState.windowLabel} hằng năm.\n` +
+                `Mở lại: ${saleState.nextOpenLabel}.`
+            );
+
+            return;
+        }
+
+        const trialHandler =
+            typeof window.trialItem === 'function'
+                ? window.trialItem
+                : (
+                    typeof trialItem === 'function'
+                        ? trialItem
+                        : null
+                );
+
+        if (!trialHandler) {
+            console.error(
+                '[StoreManager] Không tìm thấy hàm trialItem().'
+            );
+            return;
+        }
+
+        trialHandler(itemId);
     }
 
     static applyItem(itemId) {
@@ -530,6 +862,17 @@ class StoreManager {
     }
 
     static renderStoreItem(item, isOwned = false, isEquipped = false, isTrial = false, isUpcoming = false) {
+        const annualSaleState =
+            this.getAnnualSaleState(item);
+
+        /*
+         * Người đã sở hữu vẫn có thể mặc giao diện quanh năm.
+         * Chỉ khóa người chưa sở hữu.
+         */
+        const annualSaleLocked =
+            annualSaleState.hasAnnualSale &&
+            !annualSaleState.isOpen &&
+            !isOwned;
         const tagClassMap = {
             'Lord of the Mysteries': 'tag-lotm',
             'Truyền thuyết': 'tag-truyen-thuyet',
@@ -539,19 +882,87 @@ class StoreManager {
             'Ban đêm': 'tag-ban-dem',
             'Ban ngày': 'tag-ban-ngay',
             'Doraemon': 'tag-doraemon',
-            'Hội họa': 'tag-hoi-hoa'
+            'Hội họa': 'tag-hoi-hoa',
+            'Thất Đại Tội': 'tag-that-dai-toi',
+            'Hệ Mặt Trời': 'tag-he-mat-troi',
+            'Sinh nhật 2026': 'tag-sinh-nhat-2026',
         };
 
         let tagClass = tagClassMap[item.tag] || 'tag-normal';
         let actionButton = '';
         let trialButton = '';
 
+        const normalizedBirthdayTag =
+            String(item.tag || '')
+                .normalize('NFD')
+                .replace(
+                    /[\u0300-\u036f]/g,
+                    ''
+                )
+                .replace(/đ/g, 'd')
+                .replace(/Đ/g, 'D')
+                .trim()
+                .toLowerCase();
+
+        const specialBirthdayCoinEligible =
+            item
+                .specialBirthdayCoinEligible !==
+            false &&
+            (
+                normalizedBirthdayTag ===
+                'sinh nhat' ||
+                normalizedBirthdayTag
+                    .startsWith(
+                        'sinh nhat '
+                    )
+            );
+
+        const specialBirthdayCoinBalance =
+            Number(
+                window
+                    .studentSpecialBirthdayCoinCount
+            ) || 0;
+
         // --- LOGIC 1: XỬ LÝ VẬT PHẨM BỊ GIÁO VIÊN KHÓA SỬ DỤNG VÀ MUA ---
         if (item.isLocked) {
-            trialButton = `<button class="btn-preview disabled" disabled>🔒 Đã bị khóa</button>`;
-            actionButton = `<button class="btn-equip disabled" disabled style="background: #e11d48; color: white; border: none; cursor: not-allowed; box-shadow: none;">🔒 Giáo viên đã khóa</button>`;
+            trialButton =
+                `<button class="btn-preview disabled" disabled>` +
+                `🔒 Đã bị khóa` +
+                `</button>`;
+
+            actionButton =
+                `<button class="btn-equip disabled" disabled ` +
+                `style="background: #e11d48; color: white; border: none; ` +
+                `cursor: not-allowed; box-shadow: none;">` +
+                `🔒 Giáo viên đã khóa` +
+                `</button>`;
         }
-        // --- LOGIC 2: XỬ LÝ VẬT PHẨM CHƯA ĐẾN GIỜ MỞ BÁN ---
+
+        /*
+         * Vật phẩm giới hạn Hệ Mặt Trời
+         */
+        else if (annualSaleLocked) {
+            trialButton = `
+        <button
+            class="btn-preview disabled"
+            disabled
+            title="Chỉ dùng thử trong thời gian mở bán"
+        >
+            🚫 Thử từ ${annualSaleState.windowLabel}
+        </button>
+    `;
+
+            actionButton = `
+        <button
+            class="btn-equip active annual-sale-locked"
+            disabled
+            title="Vật phẩm giới hạn Ngày Trái Đất"
+        >
+            🌍 Mở lại ${annualSaleState.nextOpenLabel}
+        </button>
+    `;
+        }
+
         else if (isUpcoming) {
             trialButton = `<button class="btn-preview disabled" disabled>🔒 Chưa mở bán</button>`;
             actionButton = `<button class="btn-equip active" disabled id="countdown-btn-${item.id}" style="background: #2c3e50; color: #f1c40f; cursor: not-allowed; font-family: 'Courier New', Courier, monospace; font-size: 1.05em; font-weight: bold; border: 1px solid #7f8c8d; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);">⏳ Đang tính toán...</button>`;
@@ -563,15 +974,170 @@ class StoreManager {
             } else if (isOwned) {
                 actionButton = `<button class="btn-equip" onclick="StoreManager.applyItem('${item.id}')">✨ Mặc ngay</button>`;
             } else {
-                if (item.isNonCoin) {
-                    // NẾU GIÁO VIÊN XÉT GIÁ > 0 THÌ CHO PHÉP MUA BẰNG COIN TRONG THỜI GIAN GIỚI HẠN
+                if (
+                    item.rewardSource ===
+                    'birthday_coin' ||
+                    specialBirthdayCoinEligible
+                ) {
+                    const rewardButtons = [];
+
+                    // Xu Sinh Nhật đúng năm.
+                    if (
+                        item.rewardSource ===
+                        'birthday_coin'
+                    ) {
+                        const birthdayYear =
+                            Number(
+                                item.birthdayYear
+                            );
+
+                        const birthdayBalance =
+                            Number(
+                                window
+                                    .studentBirthdayCoins &&
+                                window
+                                    .studentBirthdayCoins[
+                                String(
+                                    birthdayYear
+                                )
+                                ]
+                            ) || 0;
+
+                        if (
+                            birthdayBalance > 0 &&
+                            typeof window
+                                .redeemBirthdayItem ===
+                            'function'
+                        ) {
+                            rewardButtons.push(`
+                <button
+                    class="
+                        btn-buy
+                        birthday-coin-reward
+                    "
+                    onclick="
+                        window.redeemBirthdayItem(
+                            '${item.id}',
+                            ${birthdayYear}
+                        )
+                    "
+                >
+                    🎂 Đổi Xu Sinh Nhật
+                    ${birthdayYear}
+                </button>
+            `);
+                        } else {
+                            rewardButtons.push(`
+                <button
+                    class="
+                        btn-buy
+                        birthday-coin-reward
+                    "
+                    disabled
+                >
+                    🎂 Cần Xu Sinh Nhật
+                    ${birthdayYear}
+                </button>
+            `);
+                        }
+                    }
+
+                    // Xu Đặc Biệt không phân biệt năm.
+                    if (
+                        specialBirthdayCoinEligible
+                    ) {
+                        if (
+                            specialBirthdayCoinBalance >
+                            0 &&
+                            typeof window
+                                .redeemSpecialBirthdayItem ===
+                            'function'
+                        ) {
+                            rewardButtons.push(`
+                <button
+                    class="btn-buy"
+                    onclick="
+                        window.redeemSpecialBirthdayItem(
+                            '${item.id}'
+                        )
+                    "
+                    style="
+                        background:
+                            linear-gradient(
+                                135deg,
+                                #8b5cf6,
+                                #ec4899
+                            );
+                    "
+                >
+                    ✨ Đổi 1 Xu Đặc Biệt
+                </button>
+            `);
+                        } else {
+                            rewardButtons.push(`
+                <button
+                    class="btn-buy"
+                    disabled
+                    style="
+                        background:#cbd5e1;
+                        color:#64748b;
+                    "
+                >
+                    ✨ Cần Xu Đặc Biệt
+                </button>
+            `);
+                        }
+                    }
+
+                    actionButton = `
+        <div style="
+            display:flex;
+            flex-direction:column;
+            gap:8px;
+        ">
+            ${rewardButtons.join('')}
+        </div>
+    `;
+                } else if (item.eventOnly === true) {
+                    actionButton = `
+            <button
+                class="btn-buy event-only"
+                disabled
+                title="Vật phẩm này chỉ được trao từ sự kiện"
+            >
+                🎁 Chỉ nhận từ sự kiện
+            </button>
+        `;
+                } else if (item.isNonCoin) {
+                    // Nếu giáo viên đặt giá lớn hơn 0 thì mở bán giới hạn
                     if (item.price > 0) {
-                        actionButton = `<button class="btn-buy" onclick="buyItem('${item.id}')">🛒 Mua giới hạn: ${item.price} 🪙</button>`;
+                        actionButton = `
+                <button
+                    class="btn-buy"
+                    onclick="StoreManager.buyItemSafely('${item.id}')"
+                >
+                    🛒 Mua giới hạn: ${item.price} 🪙
+                </button>
+            `;
                     } else {
-                        actionButton = `<button class="btn-buy" onclick="buyItem('${item.id}')">🎁 Nhận được từ sự kiện</button>`;
+                        actionButton = `
+                <button
+                    class="btn-buy"
+                    onclick="StoreManager.buyItemSafely('${item.id}')"
+                >
+                    🎁 Nhận được từ sự kiện
+                </button>
+            `;
                     }
                 } else {
-                    actionButton = `<button class="btn-buy" onclick="buyItem('${item.id}')">🛒 Mua đứt: ${item.price} 🪙</button>`;
+                    actionButton = `
+            <button
+                class="btn-buy"
+                onclick="StoreManager.buyItemSafely('${item.id}')"
+            >
+                🛒 Mua đứt: ${item.price} 🪙
+            </button>
+        `;
                 }
             }
 
@@ -584,10 +1150,10 @@ class StoreManager {
                 let finalPrice = item.price - refund;
 
                 trialButton = `<button class="btn-preview active" disabled>⏳ Đang trong 24h dùng thử</button>`;
-                actionButton = `<button class="btn-buy upgrade" onclick="buyItem('${item.id}', true)">💎 Nâng cấp vĩnh viễn: ${finalPrice} 🪙</button>`;
+                actionButton = `<button class="btn-buy upgrade" onclick="StoreManager.buyItemSafely('${item.id}', true)">💎 Nâng cấp vĩnh viễn: ${finalPrice} 🪙</button>`;
             } else if (!isOwned) {
                 let trialPrice = item.price / 2;
-                trialButton = `<button class="btn-preview" onclick="trialItem('${item.id}')">⏳ Dùng thử 1 ngày: ${trialPrice} 🪙</button>`;
+                trialButton = `<button class="btn-preview" onclick="StoreManager.trialItemSafely('${item.id}')">⏳ Dùng thử 1 ngày: ${trialPrice} 🪙</button>`;
             }
         }
 
@@ -627,6 +1193,87 @@ class StoreManager {
             'theme_doraemon_childhood',
             'effect_doraemon_school_memories'
         ]);
+
+        const sevenSinsSlothIds = new Set([
+            'pet_thatdaitoi_luoibieng_1',
+            'theme_thatdaitoi_acedia_dream',
+            'effect_thatdaitoi_acedia_domain'
+        ]);
+
+        const birthday2026Ids = new Set([
+            'pet_sinh_nhat_2026',
+            'theme_sinh_nhat_tiec_ngot_2026',
+            'effect_sinh_nhat_than_an_phuc_loc_2026'
+        ]);
+
+        const acediaCardVariantMap = Object.freeze({
+            pet_thatdaitoi_luoibieng_1: 'familiar',
+            theme_thatdaitoi_acedia_dream: 'palace',
+            effect_thatdaitoi_acedia_domain: 'domain'
+        });
+
+        const acediaVariant =
+            acediaCardVariantMap[item.id] || '';
+
+        const acediaRelicHTML = acediaVariant
+            ? `
+                <div
+                    class="acedia-card-architecture"
+                    aria-hidden="true"
+                >
+                    <span
+                        class="acedia-card-pillar pillar-left"
+                    ></span>
+
+                    <span
+                        class="acedia-card-pillar pillar-right"
+                    ></span>
+
+                    <span class="acedia-card-arch"></span>
+                    <span class="acedia-card-hourglass"></span>
+
+                    <span
+                        class="acedia-card-chain chain-left"
+                    ></span>
+
+                    <span
+                        class="acedia-card-chain chain-right"
+                    ></span>
+                </div>
+
+                <div class="acedia-relic-header">
+                    <span class="acedia-relic-number">
+                        Ⅶ
+                    </span>
+
+                    <span class="acedia-relic-order">
+                        ORDO ACEDIAE
+                    </span>
+
+                    <span class="acedia-relic-index">
+                        ${item.acediaIndex || 'VII'}
+                    </span>
+                </div>
+
+                <div class="acedia-relic-lore">
+                    <span class="acedia-relic-glyph">
+                        ${item.acediaGlyph || '☾'}
+                    </span>
+
+                    <span class="acedia-relic-copy">
+                        <b>
+                            ${item.acediaRole ||
+            'Di vật Lười Biếng'}
+                        </b>
+
+                        <small>
+                            ${item.acediaLore ||
+            'Thời gian ngủ quên trong mộng điện.'}
+                        </small>
+                    </span>
+                </div>
+            `
+            : '';
 
         const cardClasses = [
             'store-item-card'
@@ -673,6 +1320,55 @@ class StoreManager {
             isThemeImmune = true;
         }
 
+        /* Thẻ riêng Thất Đại Tội — Lười Biếng */
+        if (sevenSinsSlothIds.has(item.id)) {
+            cardClasses.push(
+                'store-card-seven-sins-sloth',
+                `store-card-acedia-${acediaVariant}`,
+                'store-theme-locked',
+                'ui-theme-immune'
+            );
+
+            specialCardGroup = 'seven-sins-sloth';
+            isThemeImmune = true;
+        }
+
+        /* Thẻ riêng Sinh Nhật 2026 */
+        if (birthday2026Ids.has(item.id)) {
+            cardClasses.push(
+                'store-card-birthday-2026',
+                'store-theme-locked',
+                'ui-theme-immune'
+            );
+
+            specialCardGroup = 'birthday-2026';
+            isThemeImmune = true;
+        }
+
+        const annualSaleBadge =
+            annualSaleState.hasAnnualSale
+                ? `
+            <div class="
+                annual-sale-chip
+                ${annualSaleState.isOpen
+                    ? 'is-open'
+                    : 'is-closed'
+                }
+            ">
+                <strong>
+                    ${annualSaleState.isOpen
+                    ? '● ĐANG MỞ BÁN'
+                    : '◌ GIỚI HẠN HẰNG NĂM'
+                }
+                </strong>
+
+                <small>
+                    ${annualSaleState.windowLabel}
+                </small>
+            </div>
+        `
+                : '';
+
         return `
     <div
         class="${cardClasses.join(' ')}"
@@ -681,6 +1377,7 @@ class StoreManager {
         data-type="${item.type}"
 
         data-special-card="${specialCardGroup}"
+        data-acedia-variant="${acediaVariant}"
 
         data-theme-immune="${isThemeImmune
                 ? 'true'
@@ -693,6 +1390,9 @@ class StoreManager {
             }"
     >
         <div class="card-glow"></div>
+
+        ${acediaRelicHTML}
+        ${annualSaleBadge}
 
         <div class="item-tag ${tagClass}">
             <span>${item.tag}</span>

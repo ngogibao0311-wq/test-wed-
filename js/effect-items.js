@@ -202,6 +202,15 @@ class EffectManager {
             case 'effect_hoihoa_living_canvas':
                 this.createEnchantedAtelierEffect();
                 break;
+            case 'effect_thatdaitoi_acedia_domain':
+                this.createAcediaSevenfoldDreamEffect();
+                break;
+            case 'effect_he_mat_troi_nhat_trieu_gaia':
+                this.createGaiaHeliotideEffect();
+                break;
+            case 'effect_sinh_nhat_than_an_phuc_loc_2026':
+                this.createBirthdayMythicBlessingEffect();
+                break;
         }
         localStorage.setItem('active_effect', effectId);
     }
@@ -1549,6 +1558,875 @@ class EffectManager {
                     spawnPaintRipple();
                 }
             }, IS_MOBILE_EFFECT ? 1100 : 680);
+    }
+
+    /* =========================================================
+   THẤT TRỌNG MỘNG VỰC
+   Hiệu ứng toàn web của Acedia
+
+   Phối hợp với:
+   - Acedia - Linh Thú Lười Biếng
+   - Mộng Điện Trì Hoãn
+   ========================================================= */
+
+    static createAcediaSevenfoldDreamEffect() {
+        this.stopIntervals();
+
+        if (!this.container) return;
+
+        const stage = document.createElement('div');
+
+        stage.className =
+            'effect-acedia-sevenfold-world';
+
+        stage.setAttribute('aria-hidden', 'true');
+
+        stage.innerHTML = `
+            <div
+                class="effect-acedia-sevenfold-veil"
+            ></div>
+
+            <div
+                class="effect-acedia-sevenfold-depth"
+            ></div>
+
+            <div
+                class="
+                    effect-acedia-sevenfold-gate
+                    gate-left
+                "
+            >
+                <span class="gate-pillar"></span>
+                <span class="gate-rune">
+                    SOMNUS
+                </span>
+            </div>
+
+            <div
+                class="
+                    effect-acedia-sevenfold-gate
+                    gate-right
+                "
+            >
+                <span class="gate-pillar"></span>
+                <span class="gate-rune">
+                    TARDITAS
+                </span>
+            </div>
+
+            <div
+                class="effect-acedia-sevenfold-moon"
+            >
+                <span class="moon-halo"></span>
+                <span class="moon-disc"></span>
+                <span class="moon-scar"></span>
+            </div>
+
+            <div
+                class="
+                    effect-acedia-sevenfold-edge
+                    edge-left
+                "
+            ></div>
+
+            <div
+                class="
+                    effect-acedia-sevenfold-edge
+                    edge-right
+                "
+            ></div>
+
+            <div
+                class="
+                    effect-acedia-sevenfold-dream-layers
+                "
+            ></div>
+
+            <div
+                class="effect-acedia-sevenfold-seal"
+            >
+                <span
+                    class="
+                        effect-acedia-sevenfold-crown
+                    "
+                ></span>
+
+                <span
+                    class="
+                        effect-acedia-sevenfold-ring
+                        ring-outer
+                    "
+                ></span>
+
+                <span
+                    class="
+                        effect-acedia-sevenfold-ring
+                        ring-middle
+                    "
+                ></span>
+
+                <span
+                    class="
+                        effect-acedia-sevenfold-ring
+                        ring-inner
+                    "
+                ></span>
+
+                <span
+                    class="
+                        effect-acedia-sevenfold-core
+                    "
+                >
+                    <b>Ⅶ</b>
+                    <small>ACEDIA</small>
+                </span>
+
+                <div
+                    class="
+                        effect-acedia-sevenfold-glyph-field
+                    "
+                ></div>
+            </div>
+
+            <div
+                class="
+                    effect-acedia-sevenfold-chain-field
+                "
+            ></div>
+
+            <div
+                class="
+                    effect-acedia-sevenfold-clock-field
+                "
+            ></div>
+
+            <div
+                class="
+                    effect-acedia-sevenfold-thread-field
+                "
+            ></div>
+
+            <div
+                class="
+                    effect-acedia-sevenfold-ripple-field
+                "
+            >
+                <span class="ripple-one"></span>
+                <span class="ripple-two"></span>
+                <span class="ripple-three"></span>
+                <span class="ripple-four"></span>
+            </div>
+
+            <div
+                class="
+                    effect-acedia-sevenfold-mote-field
+                "
+            ></div>
+
+            <div
+                class="
+                    effect-acedia-sevenfold-shard-field
+                "
+            ></div>
+
+            <div
+                class="
+                    effect-acedia-sevenfold-title
+                "
+            >
+                <span>
+                    PECCATUM VII · ACEDIA
+                </span>
+
+                <strong>
+                    THẤT TRỌNG MỘNG VỰC
+                </strong>
+
+                <small>
+                    Thực tại đang chìm qua
+                    bảy tầng trì hoãn.
+                </small>
+            </div>
+        `;
+
+        /*
+         * Bảy phù văn đại diện cho Thất Đại Tội.
+         */
+        const glyphField =
+            stage.querySelector(
+                '.effect-acedia-sevenfold-glyph-field'
+            );
+
+        const glyphs = [
+            'Ⅰ', 'Ⅱ', 'Ⅲ', 'Ⅳ', 'Ⅴ', 'Ⅵ', 'Ⅶ'
+        ];
+
+        glyphs.forEach((symbol, index) => {
+            const glyph = document.createElement('span');
+
+            const angle =
+                index * (360 / glyphs.length);
+
+            glyph.className =
+                'effect-acedia-sevenfold-glyph';
+
+            glyph.textContent = symbol;
+
+            glyph.style.setProperty(
+                '--acedia-glyph-angle',
+                `${angle}deg`
+            );
+
+            glyph.style.setProperty(
+                '--acedia-glyph-angle-back',
+                `${-angle}deg`
+            );
+
+            glyph.style.setProperty(
+                '--acedia-glyph-delay',
+                `${-index * 0.48}s`
+            );
+
+            glyphField.appendChild(glyph);
+        });
+
+        /*
+ * Bảy tầng mộng xếp chồng về tâm vực.
+ */
+        const dreamLayers =
+            stage.querySelector(
+                '.effect-acedia-sevenfold-dream-layers'
+            );
+
+        const layerNumerals = [
+            'Ⅰ', 'Ⅱ', 'Ⅲ', 'Ⅳ', 'Ⅴ', 'Ⅵ', 'Ⅶ'
+        ];
+
+        for (let index = 0; index < 7; index++) {
+            const layer =
+                document.createElement('span');
+
+            layer.className =
+                'effect-acedia-sevenfold-dream-layer';
+
+            layer.dataset.number =
+                layerNumerals[index];
+
+            layer.style.setProperty(
+                '--acedia-layer-index',
+                index
+            );
+
+            layer.style.setProperty(
+                '--acedia-layer-delay',
+                `${-index * 0.52}s`
+            );
+
+            layer.style.setProperty(
+                '--acedia-layer-scale',
+                `${(1 - index * 0.075).toFixed(3)}`
+            );
+
+            layer.style.setProperty(
+                '--acedia-layer-lift',
+                `${index * 13}px`
+            );
+
+            dreamLayers.appendChild(layer);
+        }
+
+        /*
+         * Xích mộng.
+         */
+        const chainField =
+            stage.querySelector(
+                '.effect-acedia-sevenfold-chain-field'
+            );
+
+        const chainCount =
+            IS_MOBILE_EFFECT ? 4 : 7;
+
+        for (
+            let index = 0;
+            index < chainCount;
+            index++
+        ) {
+            const chain =
+                document.createElement('span');
+
+            chain.className =
+                'effect-acedia-sevenfold-chain';
+
+            chain.style.setProperty(
+                '--acedia-chain-x',
+                `${8 +
+                index *
+                (
+                    84 /
+                    Math.max(
+                        1,
+                        chainCount - 1
+                    )
+                )
+                }%`
+            );
+
+            chain.style.setProperty(
+                '--acedia-chain-length',
+                `${110 + (index % 3) * 58}px`
+            );
+
+            chain.style.setProperty(
+                '--acedia-chain-delay',
+                `${-index * 0.67}s`
+            );
+
+            chainField.appendChild(chain);
+        }
+
+        /*
+         * Những mảnh đồng hồ nứt.
+         */
+        const clockField =
+            stage.querySelector(
+                '.effect-acedia-sevenfold-clock-field'
+            );
+
+        const clockCount =
+            IS_MOBILE_EFFECT ? 7 : 14;
+
+        for (
+            let index = 0;
+            index < clockCount;
+            index++
+        ) {
+            const clock =
+                document.createElement('span');
+
+            const angle =
+                index * (360 / clockCount);
+
+            clock.className =
+                'effect-acedia-sevenfold-clock';
+
+            clock.textContent =
+                layerNumerals[index % 7];
+
+            clock.style.setProperty(
+                '--acedia-clock-angle',
+                `${angle}deg`
+            );
+
+            clock.style.setProperty(
+                '--acedia-clock-angle-back',
+                `${-angle}deg`
+            );
+
+            clock.style.setProperty(
+                '--acedia-clock-radius',
+                `${155 +
+                (index % 2) * 42
+                }px`
+            );
+
+            clock.style.setProperty(
+                '--acedia-clock-delay',
+                `${-index * 0.31}s`
+            );
+
+            clockField.appendChild(clock);
+        }
+
+        /*
+         * Những sợi trọng lực rơi từ trên màn hình.
+         */
+        const threadField =
+            stage.querySelector(
+                '.effect-acedia-sevenfold-thread-field'
+            );
+
+        const threadCount =
+            IS_MOBILE_EFFECT ? 7 : 13;
+
+        for (
+            let index = 0;
+            index < threadCount;
+            index++
+        ) {
+            const thread = document.createElement('span');
+
+            const duration =
+                7 + Math.random() * 6;
+
+            thread.className =
+                'effect-acedia-sevenfold-thread';
+
+            thread.style.setProperty(
+                '--acedia-thread-x',
+                `${4 + Math.random() * 92}%`
+            );
+
+            thread.style.setProperty(
+                '--acedia-thread-height',
+                `${80 + Math.random() * 150}px`
+            );
+
+            thread.style.setProperty(
+                '--acedia-thread-opacity',
+                `${0.15 + Math.random() * 0.32}`
+            );
+
+            thread.style.setProperty(
+                '--acedia-thread-duration',
+                `${duration}s`
+            );
+
+            thread.style.setProperty(
+                '--acedia-thread-delay',
+                `${-Math.random() * duration}s`
+            );
+
+            threadField.appendChild(thread);
+        }
+
+        /*
+         * Hạt mộng lơ lửng toàn màn hình.
+         */
+        const moteField =
+            stage.querySelector(
+                '.effect-acedia-sevenfold-mote-field'
+            );
+
+        const moteCount =
+            IS_MOBILE_EFFECT ? 13 : 27;
+
+        for (
+            let index = 0;
+            index < moteCount;
+            index++
+        ) {
+            const mote = document.createElement('span');
+
+            const duration =
+                7 + Math.random() * 8;
+
+            mote.className =
+                'effect-acedia-sevenfold-mote';
+
+            mote.style.setProperty(
+                '--acedia-mote-x',
+                `${Math.random() * 100}%`
+            );
+
+            mote.style.setProperty(
+                '--acedia-mote-y',
+                `${Math.random() * 100}%`
+            );
+
+            mote.style.setProperty(
+                '--acedia-mote-size',
+                `${2 + Math.random() * 4}px`
+            );
+
+            mote.style.setProperty(
+                '--acedia-mote-drift-x',
+                `${-45 + Math.random() * 90}px`
+            );
+
+            mote.style.setProperty(
+                '--acedia-mote-drift-y',
+                `${-55 - Math.random() * 70}px`
+            );
+
+            mote.style.setProperty(
+                '--acedia-mote-duration',
+                `${duration}s`
+            );
+
+            mote.style.setProperty(
+                '--acedia-mote-delay',
+                `${-Math.random() * duration}s`
+            );
+
+            moteField.appendChild(mote);
+        }
+
+        /*
+         * Các mảnh tinh thể trì trệ.
+         */
+        const shardField =
+            stage.querySelector(
+                '.effect-acedia-sevenfold-shard-field'
+            );
+
+        const shardCount =
+            IS_MOBILE_EFFECT ? 5 : 10;
+
+        for (
+            let index = 0;
+            index < shardCount;
+            index++
+        ) {
+            const shard = document.createElement('span');
+
+            const duration =
+                9 + Math.random() * 8;
+
+            shard.className =
+                'effect-acedia-sevenfold-shard';
+
+            shard.style.setProperty(
+                '--acedia-shard-x',
+                `${Math.random() * 100}%`
+            );
+
+            shard.style.setProperty(
+                '--acedia-shard-size',
+                `${5 + Math.random() * 8}px`
+            );
+
+            shard.style.setProperty(
+                '--acedia-shard-tilt',
+                `${-35 + Math.random() * 70}deg`
+            );
+
+            shard.style.setProperty(
+                '--acedia-shard-duration',
+                `${duration}s`
+            );
+
+            shard.style.setProperty(
+                '--acedia-shard-delay',
+                `${-Math.random() * duration}s`
+            );
+
+            shardField.appendChild(shard);
+        }
+
+        this.container.appendChild(stage);
+
+        requestAnimationFrame(() => {
+            stage.classList.add('is-visible');
+        });
+    }
+
+    static createGaiaHeliotideEffect() {
+        this.stopIntervals();
+
+        if (!this.container) return;
+
+        const stage = document.createElement('div');
+
+        stage.className = 'effect-gaia-heliotide';
+        stage.setAttribute('aria-hidden', 'true');
+
+        stage.innerHTML = `
+        <div class="gaia-heliotide-light-front"></div>
+        <div class="gaia-heliotide-terminator"></div>
+
+        <div class="gaia-heliotide-solar-source">
+            <span class="gaia-solar-disc"></span>
+            <span class="gaia-solar-corona corona-a"></span>
+            <span class="gaia-solar-corona corona-b"></span>
+            <span class="gaia-solar-corona corona-c"></span>
+        </div>
+
+        <div class="gaia-heliotide-atmosphere atmosphere-a"></div>
+        <div class="gaia-heliotide-atmosphere atmosphere-b"></div>
+        <div class="gaia-heliotide-atmosphere atmosphere-c"></div>
+
+        <div class="gaia-heliotide-magnetosphere">
+            <span class="gaia-field-line field-a"></span>
+            <span class="gaia-field-line field-b"></span>
+            <span class="gaia-field-line field-c"></span>
+            <span class="gaia-field-line field-d"></span>
+        </div>
+
+        <div class="gaia-heliotide-orbit gaia-orbit-outer">
+            <span class="gaia-orbit-node node-ocean"></span>
+            <span class="gaia-orbit-node node-forest"></span>
+            <span class="gaia-orbit-node node-sun"></span>
+            <span class="gaia-orbit-node node-cloud"></span>
+        </div>
+
+        <div class="gaia-heliotide-orbit gaia-orbit-inner">
+            <span class="gaia-orbit-node node-ocean"></span>
+            <span class="gaia-orbit-node node-forest"></span>
+            <span class="gaia-orbit-node node-sun"></span>
+        </div>
+
+        <div class="gaia-heliotide-breath">
+            <span class="gaia-breath-core"></span>
+            <span class="gaia-breath-ring ring-a"></span>
+            <span class="gaia-breath-ring ring-b"></span>
+            <span class="gaia-breath-ring ring-c"></span>
+        </div>
+
+        <div class="gaia-heliotide-mote-field"></div>
+    `;
+
+        const moteField = stage.querySelector(
+            '.gaia-heliotide-mote-field'
+        );
+
+        const moteKinds = [
+            'ocean',
+            'forest',
+            'sun',
+            'cloud'
+        ];
+
+        /*
+         * Tạo hạt một lần khi trang bị.
+         * Không chạy interval liên tục nên nhẹ hơn.
+         */
+        const moteCount =
+            IS_MOBILE_EFFECT ? 14 : 30;
+
+        for (let index = 0; index < moteCount; index++) {
+            const mote = document.createElement('span');
+            const duration = 8 + Math.random() * 9;
+
+            mote.className =
+                `gaia-heliotide-mote ` +
+                `mote-${moteKinds[index % moteKinds.length]}`;
+
+            mote.style.setProperty(
+                '--gaia-mote-x',
+                `${Math.random() * 100}%`
+            );
+
+            mote.style.setProperty(
+                '--gaia-mote-y',
+                `${15 + Math.random() * 90}%`
+            );
+
+            mote.style.setProperty(
+                '--gaia-mote-size',
+                `${3 + Math.random() * 7}px`
+            );
+
+            mote.style.setProperty(
+                '--gaia-mote-drift-x',
+                `${-55 + Math.random() * 110}px`
+            );
+
+            mote.style.setProperty(
+                '--gaia-mote-drift-y',
+                `${-80 - Math.random() * 150}px`
+            );
+
+            mote.style.setProperty(
+                '--gaia-mote-duration',
+                `${duration}s`
+            );
+
+            mote.style.setProperty(
+                '--gaia-mote-delay',
+                `${-Math.random() * duration}s`
+            );
+
+            moteField.appendChild(mote);
+        }
+
+        this.container.appendChild(stage);
+
+        requestAnimationFrame(() => {
+            stage.classList.add('is-visible');
+        });
+    }
+
+    static createBirthdayMythicBlessingEffect() {
+        this.stopIntervals();
+
+        if (!this.container) return;
+
+        const stage =
+            document.createElement('div');
+
+        stage.className =
+            'effect-birthday-mythic-2026';
+
+        stage.setAttribute(
+            'aria-hidden',
+            'true'
+        );
+
+        stage.innerHTML = `
+        <div
+            class="birthday-mythic-wash"
+        ></div>
+
+        <div
+            class="
+                birthday-mythic-corner
+                corner-upper-left
+            "
+        ></div>
+
+        <div
+            class="
+                birthday-mythic-corner
+                corner-lower-right
+            "
+        ></div>
+
+        <div
+            class="
+                birthday-mythic-line
+                line-top
+            "
+        ></div>
+
+        <div
+            class="
+                birthday-mythic-line
+                line-bottom
+            "
+        ></div>
+
+        <div class="birthday-mythic-seal">
+            <span
+                class="
+                    birthday-seal-orbit
+                    orbit-outer
+                "
+            ></span>
+
+            <span
+                class="
+                    birthday-seal-orbit
+                    orbit-inner
+                "
+            ></span>
+
+            <span
+                class="birthday-seal-core"
+            >
+                ✦
+            </span>
+
+            <span
+                class="birthday-seal-year"
+            >
+                2026
+            </span>
+        </div>
+
+        <div
+            class="birthday-mythic-mote-field"
+        ></div>
+    `;
+
+        const moteField =
+            stage.querySelector(
+                '.birthday-mythic-mote-field'
+            );
+
+        /*
+         * Chỉ tạo hạt một lần.
+         * Không dùng setInterval nên nhẹ hơn.
+         */
+        const moteCount =
+            IS_MOBILE_EFFECT ? 8 : 16;
+
+        const moteKinds = [
+            'gold',
+            'coral',
+            'jade'
+        ];
+
+        for (
+            let index = 0;
+            index < moteCount;
+            index++
+        ) {
+            const mote =
+                document.createElement('span');
+
+            const edge =
+                index % 4;
+
+            let x;
+            let y;
+
+            /*
+             * Chỉ đặt hạt quanh mép màn hình,
+             * không che nội dung chính.
+             */
+            if (edge === 0) {
+                x = 5 + Math.random() * 90;
+                y = 4 + Math.random() * 13;
+            } else if (edge === 1) {
+                x = 5 + Math.random() * 90;
+                y = 83 + Math.random() * 12;
+            } else if (edge === 2) {
+                x = 2 + Math.random() * 10;
+                y = 18 + Math.random() * 64;
+            } else {
+                x = 88 + Math.random() * 10;
+                y = 18 + Math.random() * 64;
+            }
+
+            const duration =
+                5 + Math.random() * 5;
+
+            mote.className =
+                `birthday-mythic-mote ` +
+                `mote-${moteKinds[
+                index % moteKinds.length
+                ]}`;
+
+            mote.textContent =
+                index % 3 === 0
+                    ? '✦'
+                    : '•';
+
+            mote.style.setProperty(
+                '--birthday-mote-x',
+                `${x}%`
+            );
+
+            mote.style.setProperty(
+                '--birthday-mote-y',
+                `${y}%`
+            );
+
+            mote.style.setProperty(
+                '--birthday-mote-size',
+                `${7 + Math.random() * 8}px`
+            );
+
+            mote.style.setProperty(
+                '--birthday-mote-drift-x',
+                `${-18 + Math.random() * 36}px`
+            );
+
+            mote.style.setProperty(
+                '--birthday-mote-drift-y',
+                `${-12 - Math.random() * 25}px`
+            );
+
+            mote.style.setProperty(
+                '--birthday-mote-duration',
+                `${duration}s`
+            );
+
+            mote.style.setProperty(
+                '--birthday-mote-delay',
+                `${-Math.random() * duration}s`
+            );
+
+            moteField.appendChild(mote);
+        }
+
+        this.container.appendChild(stage);
+
+        requestAnimationFrame(() => {
+            stage.classList.add(
+                'is-visible'
+            );
+        });
     }
 }
 
