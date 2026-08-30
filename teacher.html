@@ -575,25 +575,78 @@
                 },
 
                 async registerServiceWorker() {
-                    if (state.serviceWorkerPromise) return state.serviceWorkerPromise;
+                    if (state.serviceWorkerPromise) {
+                        return state.serviceWorkerPromise;
+                    }
 
                     state.serviceWorkerPromise = (async () => {
                         if (!('serviceWorker' in navigator)) {
-                            api.markWarning('Trình duyệt không hỗ trợ Service Worker.');
+                            api.markWarning(
+                                'Trình duyệt không hỗ trợ Service Worker.'
+                            );
                             return true;
                         }
 
                         if (!/^https?:$/.test(location.protocol)) {
-                            api.markWarning('Service Worker chỉ hoạt động trên HTTP/HTTPS.');
+                            api.markWarning(
+                                'Service Worker chỉ hoạt động trên HTTP/HTTPS.'
+                            );
                             return true;
                         }
 
                         try {
-                            const registration = await navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' });
+                            /*
+                             * common.js là nơi duy nhất thực hiện registration.
+                             * Loader chỉ chờ kết quả để tránh đăng ký trùng.
+                             */
+                            if (
+                                window.AppServiceWorker &&
+                                typeof window.AppServiceWorker
+                                    .ensureRegistered === 'function'
+                            ) {
+                                await window.AppServiceWorker
+                                    .ensureRegistered();
+
+                                return true;
+                            }
+
+                            /*
+                             * Dự phòng nếu common.js chưa sẵn sàng.
+                             * URL vẫn được tính theo document.baseURI,
+                             * tương thích GitHub Pages project site.
+                             */
+                            const baseURL =
+                                new URL('./', document.baseURI);
+
+                            const registration =
+                                await navigator.serviceWorker.register(
+                                    new URL(
+                                        'sw.js',
+                                        baseURL
+                                    ).href,
+                                    {
+                                        scope: baseURL.pathname,
+                                        updateViaCache: 'none'
+                                    }
+                                );
+
                             registration.update().catch(() => {});
                             return true;
+
                         } catch (error) {
-                            api.markWarning('Không đăng ký được Service Worker: ' + (error && error.message ? error.message : error));
+                            api.markWarning(
+                                'Không đăng ký được Service Worker: ' +
+                                (
+                                    error && error.message
+                                        ? error.message
+                                        : error
+                                )
+                            );
+
+                            /*
+                             * Service Worker là lớp hỗ trợ offline,
+                             * không được chặn Firebase/Web chính.
+                             */
                             return true;
                         }
                     })();
@@ -3193,7 +3246,7 @@
 
     <!-- 3. Mã nền tảng -->
     <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
-    <script src="js/common.js?v=3.5"></script>
+    <script src="js/common.js?v=3.6"></script>
     <script src="js/transaction-history.js?v=3.5"></script>
     <script src="js/security.js?v=3.5"></script>
 
@@ -3209,6 +3262,9 @@
     <script src="js/luxury-store.js?v=4.2"></script>
 
     <!-- 5. Logic chính của trang giáo viên luôn đặt cuối -->
+    <!-- Hotfix: xác nhận cài đặt lộ trình trước khi teacher.js chờ loader -->
+    <script src="js/roadmap-startup-fix.js?v=1.0"></script>
+
     <script src="js/teacher.js?v=3.5"></script>
     <script src="js/huong-dan-nguoi-moi.js?v=1.0.0"></script>
 </body>
