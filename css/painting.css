@@ -1,0 +1,4059 @@
+/* ============================================================================
+   STUDIO HỘI HỌA PRO v2 — CSS ĐƯỢC GIỚI HẠN PHẠM VI
+   Không thay đổi button/card/modal/table của các chức năng khác.
+   ========================================================================== */
+
+:root {
+    --hh-primary: #6d28d9;
+    --hh-primary-2: #8b5cf6;
+    --hh-accent: #ec4899;
+    --hh-ink: #172033;
+    --hh-muted: #64748b;
+    --hh-line: #e2e8f0;
+    --hh-soft: #f8fafc;
+    --hh-success: #059669;
+    --hh-warning: #d97706;
+    --hh-danger: #dc2626;
+    --hh-radius: 18px;
+    --hh-shadow: 0 24px 70px rgba(30, 20, 70, .22);
+}
+
+/* ------------------------------ Nút dùng riêng ----------------------------- */
+#hh-student-entry-card .hh-btn,
+#hoihoaStudentModal .hh-btn,
+#hh-teacher-container-wrapper .hh-btn,
+#hhConfirmModal .hh-btn {
+    appearance: none;
+    border: 0;
+    border-radius: 12px;
+    min-height: 42px;
+    padding: 10px 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform .18s ease, box-shadow .18s ease, background .18s ease, opacity .18s ease;
+}
+
+#hh-student-entry-card .hh-btn:hover,
+#hoihoaStudentModal .hh-btn:hover,
+#hh-teacher-container-wrapper .hh-btn:hover,
+#hhConfirmModal .hh-btn:hover {
+    transform: translateY(-1px);
+}
+
+#hh-student-entry-card .hh-btn:disabled,
+#hoihoaStudentModal .hh-btn:disabled,
+#hh-teacher-container-wrapper .hh-btn:disabled,
+#hhConfirmModal .hh-btn:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+    transform: none;
+}
+
+#hh-student-entry-card .hh-btn-primary,
+#hoihoaStudentModal .hh-btn-primary,
+#hh-teacher-container-wrapper .hh-btn-primary,
+#hhConfirmModal .hh-btn-primary {
+    color: #fff;
+    background: linear-gradient(135deg, var(--hh-primary), var(--hh-primary-2));
+    box-shadow: 0 10px 24px rgba(109, 40, 217, .28);
+}
+
+#hoihoaStudentModal .hh-btn-ghost,
+#hh-teacher-container-wrapper .hh-btn-ghost,
+#hhConfirmModal .hh-btn-ghost {
+    color: #475569;
+    background: #fff;
+    border: 1px solid var(--hh-line);
+}
+
+#hh-teacher-container-wrapper .hh-btn-success {
+    color: #fff;
+    background: #059669;
+}
+
+#hh-teacher-container-wrapper .hh-btn-warning {
+    color: #fff;
+    background: #d97706;
+}
+
+#hhConfirmModal .hh-btn-danger {
+    color: #fff;
+    background: var(--hh-danger);
+}
+
+#hh-teacher-container-wrapper .hh-full-width {
+    width: 100%;
+}
+
+#hh-teacher-container-wrapper .hh-hidden {
+    display: none !important;
+}
+
+#hoihoaStudentModal .hh-icon-btn,
+#artworkPreviewModal .hh-icon-btn {
+    width: 38px;
+    height: 38px;
+    border: 1px solid rgba(148, 163, 184, .35);
+    border-radius: 11px;
+    background: rgba(255, 255, 255, .92);
+    color: #334155;
+    cursor: pointer;
+    display: inline-grid;
+    place-items: center;
+    font-size: 18px;
+    transition: .18s ease;
+}
+
+#hoihoaStudentModal .hh-icon-btn:hover,
+#artworkPreviewModal .hh-icon-btn:hover {
+    background: #fff;
+    transform: translateY(-1px);
+}
+
+#hoihoaStudentModal .hh-icon-text-btn,
+#hh-teacher-container-wrapper .hh-icon-text-btn {
+    border: 1px solid var(--hh-line);
+    background: #fff;
+    color: #475569;
+    border-radius: 10px;
+    padding: 8px 11px;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 750;
+    cursor: pointer;
+    transition: .18s ease;
+}
+
+#hoihoaStudentModal .hh-icon-text-btn:hover,
+#hoihoaStudentModal .hh-icon-text-btn.active,
+#hh-teacher-container-wrapper .hh-icon-text-btn:hover {
+    color: var(--hh-primary);
+    border-color: #c4b5fd;
+    background: #f5f3ff;
+}
+
+#hoihoaStudentModal .hh-icon-text-btn:disabled {
+    opacity: .42;
+    cursor: not-allowed;
+}
+
+/* ------------------------------ Card mở studio ----------------------------- */
+#hh-student-entry-card.hh-entry-card {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    margin-top: 22px;
+    padding: 24px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 20px;
+    border: 1px solid rgba(139, 92, 246, .28);
+    border-radius: 22px;
+    background:
+        radial-gradient(circle at 10% 0%, rgba(236, 72, 153, .26), transparent 34%),
+        radial-gradient(circle at 90% 100%, rgba(59, 130, 246, .23), transparent 38%),
+        linear-gradient(135deg, #fdf4ff 0%, #eef2ff 48%, #eff6ff 100%);
+    box-shadow: 0 16px 42px rgba(87, 61, 148, .13);
+}
+
+#hh-student-entry-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    opacity: .34;
+    background-image: linear-gradient(rgba(109, 40, 217, .08) 1px, transparent 1px), linear-gradient(90deg, rgba(109, 40, 217, .08) 1px, transparent 1px);
+    background-size: 28px 28px;
+    mask-image: linear-gradient(to right, #000, transparent 78%);
+}
+
+#hh-student-entry-card .hh-entry-art {
+    width: 86px;
+    height: 86px;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    color: #fff;
+    font-size: 29px;
+    background: linear-gradient(145deg, #581c87, #7c3aed 58%, #db2777);
+    box-shadow: inset 0 1px rgba(255, 255, 255, .3), 0 14px 30px rgba(109, 40, 217, .28);
+    transform: rotate(-3deg);
+}
+
+#hh-student-entry-card .hh-entry-art span:first-child,
+#hh-student-entry-card .hh-entry-art span:last-child {
+    font-size: 12px;
+    opacity: .8;
+}
+
+#hh-student-entry-card .hh-entry-copy h3 {
+    margin: 3px 0 6px;
+    color: #2e1065;
+    font-size: clamp(21px, 2vw, 28px);
+}
+
+#hh-student-entry-card .hh-entry-copy p {
+    margin: 0;
+    max-width: 680px;
+    color: #475569;
+    line-height: 1.6;
+}
+
+#hh-student-entry-card .hh-entry-button {
+    white-space: nowrap;
+    padding-inline: 22px;
+}
+
+.hh-eyebrow {
+    display: inline-block;
+    color: var(--hh-primary);
+    font-size: 11px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+}
+
+/* ------------------------------- Modal studio ------------------------------ */
+#hoihoaStudentModal.hh-student-overlay {
+    z-index: 999998;
+    padding: 20px;
+    background: rgba(15, 23, 42, .76);
+    backdrop-filter: blur(10px);
+}
+
+#hoihoaStudentModal .hoihoa-container.hh-studio-modal {
+    position: relative;
+    width: min(1500px, 98vw);
+    height: min(94vh, 1060px);
+    max-width: none;
+    margin: 0 auto;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, .55);
+    border-radius: 24px;
+    background: #f7f8fc;
+    box-shadow: var(--hh-shadow);
+}
+
+#hoihoaStudentModal .hh-modal-close {
+    position: absolute !important;
+    z-index: 100 !important;
+
+    top: 14px !important;
+    right: 22px !important;
+
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    display: grid !important;
+    place-items: center !important;
+
+    border-radius: 14px !important;
+    background: #ffffff !important;
+    color: #1e293b !important;
+
+    box-shadow:
+        0 8px 20px rgba(15, 23, 42, 0.18) !important;
+}
+
+#hoihoaStudentModal .hoihoa-header.hh-studio-header {
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 20px 100px 16px 24px;
+    border: 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    background:
+        radial-gradient(circle at 0 0, rgba(196, 181, 253, .55), transparent 34%),
+        linear-gradient(135deg, #ffffff, #f5f3ff 48%, #eff6ff);
+    border-bottom: 1px solid #e9e5f5;
+}
+
+#hoihoaStudentModal .hh-round-heading h2 {
+    margin: 5px 0 4px;
+    color: var(--hh-ink);
+    font-size: clamp(21px, 2.4vw, 32px);
+}
+
+#hoihoaStudentModal .hh-round-heading p {
+    margin: 0;
+    color: #be185d;
+    font-weight: 750;
+}
+
+#hoihoaStudentModal .hh-round-meta {
+    min-width: 240px;
+    padding-right: 0;
+    margin-right: 0;
+    text-align: right;
+}
+
+#hoihoaStudentModal .hh-round-meta p {
+    margin: 7px 0 0;
+    color: var(--hh-muted);
+    font-size: 13px;
+}
+
+#hoihoaStudentModal .hh-round-meta .hh-countdown {
+    color: #c2410c;
+    font-weight: 850;
+    font-variant-numeric: tabular-nums;
+}
+
+#hoihoaStudentModal .hh-status-pill,
+#hh-teacher-container-wrapper .hh-status-pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 30px;
+    padding: 6px 11px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 850;
+    color: #475569;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+}
+
+#hoihoaStudentModal .hh-status-pill[data-status="active"],
+#hh-teacher-container-wrapper .hh-status-pill[data-status="active"] {
+    color: #047857;
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+}
+
+#hoihoaStudentModal .hh-status-pill[data-status="voting"],
+#hh-teacher-container-wrapper .hh-status-pill[data-status="voting"] {
+    color: #be185d;
+    background: #fdf2f8;
+    border-color: #fbcfe8;
+}
+
+#hoihoaStudentModal .hh-status-pill[data-status="closed"],
+#hh-teacher-container-wrapper .hh-status-pill[data-status="closed"] {
+    color: #5b21b6;
+    background: #f5f3ff;
+    border-color: #ddd6fe;
+}
+
+#hoihoaStudentModal .hh-status-pill[data-status="scheduled"],
+#hh-teacher-container-wrapper .hh-status-pill[data-status="scheduled"] {
+    color: #1d4ed8;
+    background: #eff6ff;
+    border-color: #bfdbfe;
+}
+
+#hoihoaStudentModal .hh-status-pill[data-status="awaiting_voting"],
+#hh-teacher-container-wrapper .hh-status-pill[data-status="awaiting_voting"] {
+    color: #b45309;
+    background: #fffbeb;
+    border-color: #fde68a;
+}
+
+#hoihoaStudentModal .hh-studio-mode-button.active>span {
+    background:
+        rgba(255, 255, 255, 0.18);
+}
+
+#hoihoaStudentModal .hh-studio-mode-button.active small {
+    color:
+        rgba(255, 255, 255, 0.78);
+}
+
+#hoihoaStudentModal .hh-round-tabs[hidden] {
+    display: none !important;
+}
+
+#hoihoaStudentModal .hh-status-pill[data-status="practice"] {
+    color: #0369a1;
+    background: #f0f9ff;
+    border-color: #bae6fd;
+}
+
+#hoihoaStudentModal .hh-round-tabs {
+    flex: 0 0 auto;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 10px 18px;
+    background: #fff;
+    border-bottom: 1px solid var(--hh-line);
+    scrollbar-width: thin;
+}
+
+#hoihoaStudentModal .hh-round-tab {
+    flex: 0 0 auto;
+    border: 1px solid var(--hh-line);
+    border-radius: 999px;
+    padding: 8px 13px;
+    background: #fff;
+    color: #64748b;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: .18s ease;
+}
+
+#hoihoaStudentModal .hh-round-tab span {
+    margin-right: 6px;
+    color: #a78bfa;
+}
+
+#hoihoaStudentModal .hh-round-tab:hover {
+    border-color: #c4b5fd;
+    color: var(--hh-primary);
+}
+
+#hoihoaStudentModal .hh-round-tab.active {
+    color: #fff;
+    border-color: transparent;
+    background: linear-gradient(135deg, var(--hh-primary), var(--hh-primary-2));
+    box-shadow: 0 8px 20px rgba(109, 40, 217, .22);
+}
+
+#hoihoaStudentModal .hh-student-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    padding: 16px;
+}
+
+/* ------------------------------- Workspace -------------------------------- */
+#hoihoaStudentModal .hh-workspace {
+    min-height: 100%;
+    display: grid;
+    grid-template-columns: 76px minmax(0, 1fr);
+    gap: 12px;
+}
+
+#hoihoaStudentModal .hh-tool-dock {
+    align-self: start;
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px;
+    border: 1px solid var(--hh-line);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, .96);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, .06);
+}
+
+#hoihoaStudentModal .hh-tool-button {
+    min-height: 55px;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    background: transparent;
+    color: #64748b;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    cursor: pointer;
+    transition: .17s ease;
+}
+
+#hoihoaStudentModal .hh-tool-button span {
+    font-size: 20px;
+    line-height: 1;
+}
+
+#hoihoaStudentModal .hh-tool-button small {
+    font-size: 9px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+#hoihoaStudentModal .hh-tool-button:hover {
+    color: var(--hh-primary);
+    background: #faf5ff;
+}
+
+#hoihoaStudentModal .hh-tool-button.active {
+    color: var(--hh-primary);
+    background: #f3e8ff;
+    border-color: #d8b4fe;
+    box-shadow: inset 3px 0 var(--hh-primary);
+}
+
+#hoihoaStudentModal .hh-tool-separator {
+    height: 1px;
+    margin: 3px 5px;
+    background: var(--hh-line);
+}
+
+#hoihoaStudentModal .hh-workspace-main {
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--hh-line);
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 8px 28px rgba(15, 23, 42, .06);
+}
+
+#hoihoaStudentModal .canvas-toolbar.hh-top-toolbar {
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 10px 12px;
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+    flex-wrap: wrap;
+    border: 0;
+    border-bottom: 1px solid var(--hh-line);
+    border-radius: 0;
+    background: #fff;
+}
+
+#hoihoaStudentModal .hh-control-group {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 6px 9px;
+    border: 1px solid #edf0f5;
+    border-radius: 11px;
+    background: #fafbfe;
+}
+
+#hoihoaStudentModal .hh-control-group label {
+    color: #475569;
+    font-size: 11px;
+    font-weight: 850;
+}
+
+#hoihoaStudentModal .hh-slider-group {
+    min-width: 180px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 3px;
+}
+
+#hoihoaStudentModal .hh-slider-group label {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+#hoihoaStudentModal .hh-slider-group output {
+    color: var(--hh-primary);
+    font-variant-numeric: tabular-nums;
+}
+
+#hoihoaStudentModal input[type="range"] {
+    accent-color: var(--hh-primary);
+    height: 18px;
+}
+
+#hoihoaStudentModal select {
+    border: 1px solid var(--hh-line);
+    border-radius: 8px;
+    padding: 6px;
+    background: #fff;
+    color: #334155;
+    font: inherit;
+    font-size: 12px;
+}
+
+#hoihoaStudentModal .hh-color-group {
+    flex: 1 1 340px;
+}
+
+#hoihoaStudentModal .hh-color-input-wrap {
+    position: relative;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 auto;
+    cursor: pointer;
+}
+
+#hoihoaStudentModal .hh-color-input-wrap input {
+    position: absolute;
+    opacity: 0;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+#hoihoaStudentModal #hh-color-chip {
+    display: block;
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    background: var(--hh-current-color);
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 1px #cbd5e1, 0 3px 8px rgba(15, 23, 42, .16);
+}
+
+#hoihoaStudentModal .hh-palette {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+#hoihoaStudentModal .hh-swatch {
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border-radius: 7px;
+    border: 2px solid #fff;
+    outline: 1px solid #dbe1e9;
+    background: var(--swatch);
+    cursor: pointer;
+    transition: transform .15s ease;
+}
+
+#hoihoaStudentModal .hh-swatch:hover {
+    transform: scale(1.16);
+    z-index: 1;
+}
+
+#hoihoaStudentModal .hh-canvas-commandbar {
+    flex: 0 0 auto;
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    background: #f8fafc;
+    border-bottom: 1px solid var(--hh-line);
+}
+
+#hoihoaStudentModal .hh-canvas-commandbar>div {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#hoihoaStudentModal .hh-zoom-controls .hh-icon-btn {
+    width: 32px;
+    height: 32px;
+}
+
+#hoihoaStudentModal .hh-zoom-value {
+    min-width: 58px;
+    border: 0;
+    background: transparent;
+    color: #475569;
+    font-weight: 850;
+    cursor: pointer;
+}
+
+#hoihoaStudentModal .hh-canvas-scroll {
+    flex: 1 1 auto;
+    min-height: 350px;
+    overflow: auto;
+    padding: 24px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    background:
+        linear-gradient(45deg, #e8ebf1 25%, transparent 25%),
+        linear-gradient(-45deg, #e8ebf1 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #e8ebf1 75%),
+        linear-gradient(-45deg, transparent 75%, #e8ebf1 75%), #f3f5f9;
+    background-size: 22px 22px;
+    background-position: 0 0, 0 11px, 11px -11px, -11px 0;
+    overscroll-behavior: contain;
+}
+
+#hoihoaStudentModal .hh-canvas-stage {
+    position: relative;
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: none;
+    min-width: 280px;
+    overflow: hidden;
+    background: var(--hh-canvas-bg, #fff);
+    border-radius: 5px;
+    box-shadow: 0 0 0 1px rgba(15, 23, 42, .15), 0 18px 50px rgba(15, 23, 42, .2);
+    transition: width .15s ease;
+    touch-action: none;
+}
+
+#hoihoaStudentModal #hoihoaCanvas,
+#hoihoaStudentModal #hoihoaPreviewCanvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+#hoihoaStudentModal #hoihoaCanvas {
+    z-index: 1;
+}
+
+#hoihoaStudentModal #hoihoaPreviewCanvas {
+    z-index: 3;
+    touch-action: none;
+}
+
+#hoihoaStudentModal .hh-grid-overlay {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    background-image: linear-gradient(rgba(59, 130, 246, .18) 1px, transparent 1px), linear-gradient(90deg, rgba(59, 130, 246, .18) 1px, transparent 1px);
+    background-size: 5% 5%;
+    transition: opacity .15s ease;
+}
+
+#hoihoaStudentModal .hh-grid-overlay.active {
+    opacity: 1;
+}
+
+#hoihoaStudentModal .hh-workspace-footer {
+    flex: 0 0 auto;
+    padding: 11px 13px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-top: 1px solid var(--hh-line);
+    background: #fff;
+}
+
+#hoihoaStudentModal .hh-draft-info {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #64748b;
+    font-size: 12px;
+}
+
+#hoihoaStudentModal .hh-save-dot {
+    width: 8px;
+    height: 8px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, .12);
+}
+
+#hoihoaStudentModal .hh-save-dot.dirty {
+    background: #f59e0b;
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, .13);
+}
+
+#hoihoaStudentModal .hh-canvas-spec {
+    padding-left: 8px;
+    border-left: 1px solid var(--hh-line);
+    font-variant-numeric: tabular-nums;
+}
+
+#hoihoaStudentModal .hh-submit-actions {
+    display: flex;
+    gap: 8px;
+}
+
+#hoihoaStudentModal .hh-integrity-note {
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 7px 13px 10px;
+    color: #9f1239;
+    background: #fff;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* ------------------------ Submitted / loading / empty ---------------------- */
+#hoihoaStudentModal .hh-submitted-state {
+    min-height: 430px;
+    padding: 34px;
+    display: grid;
+    grid-template-columns: auto 1fr minmax(220px, 420px);
+    align-items: center;
+    gap: 28px;
+    border: 1px solid #bbf7d0;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #f0fdf4, #fff 58%, #ecfdf5);
+}
+
+#hoihoaStudentModal .hh-success-orb {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    background: linear-gradient(145deg, #059669, #34d399);
+    font-size: 34px;
+    box-shadow: 0 14px 30px rgba(5, 150, 105, .25);
+}
+
+#hoihoaStudentModal .hh-submitted-state h3 {
+    margin: 6px 0;
+    color: #064e3b;
+    font-size: 24px;
+}
+
+#hoihoaStudentModal .hh-submitted-state p {
+    margin: 5px 0;
+    color: #475569;
+    line-height: 1.6;
+}
+
+#hoihoaStudentModal .hh-submitted-preview {
+    width: 100%;
+    max-height: 330px;
+    object-fit: contain;
+    cursor: zoom-in;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid #d1fae5;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, .12);
+}
+
+#hoihoaStudentModal .hh-muted {
+    font-size: 12px;
+    color: #94a3b8 !important;
+}
+
+#hoihoaStudentModal .hh-loading,
+#hh-teacher-container-wrapper .hh-loading {
+    min-height: 180px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 12px;
+    color: #64748b;
+}
+
+#hoihoaStudentModal .hh-loading span,
+#hh-teacher-container-wrapper .hh-loading span {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #ddd6fe;
+    border-top-color: var(--hh-primary);
+    border-radius: 50%;
+    animation: hh-spin .8s linear infinite;
+}
+
+#hoihoaStudentModal .hh-loading p,
+#hh-teacher-container-wrapper .hh-loading p {
+    margin: 0;
+}
+
+@keyframes hh-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+#hoihoaStudentModal .hh-empty-state,
+#hh-teacher-container-wrapper .hh-empty-state {
+    min-height: 260px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    text-align: center;
+    padding: 28px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 18px;
+    background: #fff;
+}
+
+#hoihoaStudentModal .hh-empty-state>span,
+#hh-teacher-container-wrapper .hh-empty-state>span {
+    font-size: 45px;
+}
+
+#hoihoaStudentModal .hh-empty-state h3,
+#hh-teacher-container-wrapper .hh-empty-state h3 {
+    margin: 10px 0 4px;
+    color: #334155;
+}
+
+#hoihoaStudentModal .hh-empty-state p,
+#hh-teacher-container-wrapper .hh-empty-state p {
+    margin: 0;
+    color: #64748b;
+}
+
+/* --------------------------- Gallery / bình chọn --------------------------- */
+#hoihoaStudentModal .hh-gallery-header {
+    margin-bottom: 16px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    border-radius: 18px;
+    color: #fff;
+    background:
+        radial-gradient(circle at 100% 0, rgba(255, 255, 255, .19), transparent 32%),
+        linear-gradient(135deg, #581c87, #7c3aed 58%, #db2777);
+    box-shadow: 0 14px 34px rgba(91, 33, 182, .2);
+}
+
+#hoihoaStudentModal .hh-gallery-header .hh-eyebrow {
+    color: #e9d5ff;
+}
+
+#hoihoaStudentModal .hh-gallery-header h3 {
+    margin: 5px 0;
+    font-size: 22px;
+}
+
+#hoihoaStudentModal .hh-gallery-header p {
+    margin: 0;
+    color: rgba(255, 255, 255, .82);
+}
+
+#hoihoaStudentModal .hh-vote-meter {
+    min-width: 112px;
+    padding: 12px;
+    text-align: center;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, .14);
+    border: 1px solid rgba(255, 255, 255, .24);
+    backdrop-filter: blur(8px);
+}
+
+#hoihoaStudentModal .hh-vote-meter strong {
+    font-size: 30px;
+}
+
+#hoihoaStudentModal .hh-vote-meter span {
+    font-weight: 800;
+    opacity: .8;
+}
+
+#hoihoaStudentModal .hh-vote-meter small {
+    display: block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    opacity: .78;
+}
+
+#hoihoaStudentModal .hoihoa-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+    margin: 0;
+}
+
+#hoihoaStudentModal .artwork-card {
+    overflow: hidden;
+    padding: 0;
+    text-align: left;
+    border: 1px solid var(--hh-line);
+    border-radius: 17px;
+    background: #fff;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .06);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+#hoihoaStudentModal .artwork-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 17px 36px rgba(15, 23, 42, .13);
+}
+
+#hoihoaStudentModal .hh-artwork-image-button {
+    position: relative;
+    width: 100%;
+    height: 230px;
+    padding: 0;
+    border: 0;
+    background: #eef1f6;
+    cursor: zoom-in;
+    overflow: hidden;
+}
+
+#hoihoaStudentModal .artwork-img {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    object-fit: cover;
+    border: 0;
+    border-radius: 0;
+    transition: transform .28s ease;
+}
+
+#hoihoaStudentModal .hh-artwork-image-button:hover .artwork-img {
+    transform: scale(1.03);
+}
+
+#hoihoaStudentModal .hh-artwork-image-button>span {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    padding: 6px 9px;
+    color: #fff;
+    background: rgba(15, 23, 42, .7);
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 800;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: .18s ease;
+}
+
+#hoihoaStudentModal .hh-artwork-image-button:hover>span {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#hoihoaStudentModal .hh-artwork-body {
+    padding: 14px;
+}
+
+#hoihoaStudentModal .hh-artwork-body h4 {
+    margin: 0 0 3px;
+    color: #334155;
+}
+
+#hoihoaStudentModal .hh-artwork-body p {
+    margin: 0 0 10px;
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+#hoihoaStudentModal .vote-btn {
+    width: 100%;
+    min-height: 40px;
+    margin: 0;
+    border: 0;
+    border-radius: 11px;
+    color: #fff;
+    background: linear-gradient(135deg, #db2777, #f43f5e);
+    font: inherit;
+    font-weight: 850;
+    cursor: pointer;
+    box-shadow: 0 8px 18px rgba(219, 39, 119, .22);
+}
+
+#hoihoaStudentModal .vote-btn.voted {
+    background: #059669;
+    box-shadow: none;
+}
+
+#hoihoaStudentModal .hh-own-artwork {
+    min-height: 40px;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+    color: #92400e;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    font-weight: 850;
+}
+
+/* ------------------------------ Bảng kết quả ------------------------------- */
+#hoihoaStudentModal .hh-result-hero {
+    margin-bottom: 16px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: #fff;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #b45309, #f59e0b 58%, #f97316);
+    box-shadow: 0 14px 34px rgba(217, 119, 6, .18);
+}
+
+#hoihoaStudentModal .hh-result-hero-blue {
+    background: linear-gradient(135deg, #1e3a8a, #4f46e5 55%, #7c3aed);
+    box-shadow: 0 14px 34px rgba(79, 70, 229, .18);
+}
+
+#hoihoaStudentModal .hh-result-hero>span {
+    font-size: 42px;
+}
+
+#hoihoaStudentModal .hh-result-hero .hh-eyebrow {
+    color: rgba(255, 255, 255, .74);
+}
+
+#hoihoaStudentModal .hh-result-hero h3 {
+    margin: 4px 0;
+    font-size: 23px;
+}
+
+#hoihoaStudentModal .hh-result-hero p {
+    margin: 0;
+    color: rgba(255, 255, 255, .82);
+}
+
+#hoihoaStudentModal .hh-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--hh-line);
+    border-radius: 16px;
+    background: #fff;
+}
+
+#hoihoaStudentModal .leaderboard-table {
+    width: 100%;
+    min-width: 720px;
+    margin: 0;
+    border-collapse: collapse;
+}
+
+#hoihoaStudentModal .leaderboard-table th,
+#hoihoaStudentModal .leaderboard-table td {
+    padding: 12px 14px;
+    text-align: center;
+    border-bottom: 1px solid #eef2f7;
+}
+
+#hoihoaStudentModal .leaderboard-table th {
+    color: #64748b;
+    background: #f8fafc;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+}
+
+#hoihoaStudentModal .leaderboard-table tr:last-child td {
+    border-bottom: 0;
+}
+
+#hoihoaStudentModal .rank-1 {
+    color: #d97706;
+    font-size: 18px;
+    font-weight: 950;
+}
+
+#hoihoaStudentModal .rank-2 {
+    color: #64748b;
+    font-size: 17px;
+    font-weight: 900;
+}
+
+#hoihoaStudentModal .rank-3 {
+    color: #b45309;
+    font-size: 17px;
+    font-weight: 900;
+}
+
+#hoihoaStudentModal .hh-result-thumb {
+    width: 76px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 8px;
+    cursor: zoom-in;
+    box-shadow: 0 3px 9px rgba(15, 23, 42, .13);
+}
+
+#hoihoaStudentModal .hh-final-score {
+    color: #be185d;
+    font-weight: 950;
+    font-size: 16px;
+}
+
+/* ------------------------------ Preview modal ------------------------------ */
+#artworkPreviewModal.hh-preview-overlay {
+    z-index: 9999999;
+    padding: 20px;
+    background: rgba(2, 6, 23, .9);
+    backdrop-filter: blur(10px);
+}
+
+#artworkPreviewModal .hh-preview-shell {
+    position: relative;
+    width: min(96vw, 1500px);
+    height: 92vh;
+    display: grid;
+    place-items: center;
+}
+
+#artworkPreviewModal .hh-preview-close {
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    right: 0;
+}
+
+#artworkPreviewModal #artworkPreviewImg {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, .55);
+    object-fit: contain;
+}
+
+/* ------------------------------- Confirm ----------------------------------- */
+#hhConfirmModal.hh-confirm-overlay {
+    z-index: 10000000;
+    padding: 20px;
+    background: rgba(15, 23, 42, .68);
+    backdrop-filter: blur(6px);
+}
+
+#hhConfirmModal .hh-dialog {
+    width: min(440px, 94vw);
+    padding: 24px;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: var(--hh-shadow);
+}
+
+#hhConfirmModal .hh-dialog h3 {
+    margin: 0 0 8px;
+    color: #1e293b;
+}
+
+#hhConfirmModal .hh-dialog p {
+    margin: 0;
+    color: #64748b;
+    line-height: 1.65;
+    white-space: pre-line;
+}
+
+#hhConfirmModal .hh-dialog-actions {
+    margin-top: 22px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 9px;
+}
+
+/* ---------------------------- Teacher dashboard ---------------------------- */
+#hh-teacher-container-wrapper.hoihoa-teacher-section {
+    margin-top: 28px;
+    overflow: hidden;
+    border: 1px solid #ddd6fe;
+    border-radius: 19px;
+    background: #fff;
+    box-shadow: 0 10px 30px rgba(76, 29, 149, .08);
+}
+
+#hh-teacher-container-wrapper .hh-teacher-heading {
+    width: 100%;
+    padding: 17px 20px;
+    border: 0;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 13px;
+    text-align: left;
+    cursor: pointer;
+    color: #2e1065;
+    background: linear-gradient(135deg, #faf5ff, #eef2ff);
+}
+
+#hh-teacher-container-wrapper .hh-teacher-heading-icon {
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    color: #fff;
+    background: linear-gradient(145deg, #6d28d9, #db2777);
+    font-size: 22px;
+    box-shadow: 0 8px 18px rgba(109, 40, 217, .22);
+}
+
+#hh-teacher-container-wrapper .hh-teacher-heading strong {
+    display: block;
+    font-size: 18px;
+}
+
+#hh-teacher-container-wrapper .hh-teacher-heading small {
+    display: block;
+    margin-top: 3px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+#hh-teacher-container-wrapper .hh-teacher-heading #hh-toggle-icon {
+    font-size: 24px;
+    transition: transform .2s ease;
+}
+
+#hh-teacher-container-wrapper .hh-teacher-heading[aria-expanded="true"] #hh-toggle-icon {
+    transform: rotate(180deg);
+}
+
+#hh-teacher-container-wrapper .hh-teacher-content {
+    display: none;
+    padding: 18px;
+    border-top: 1px solid #ede9fe;
+}
+
+#hh-teacher-container-wrapper .hh-teacher-content.open {
+    display: block;
+}
+
+#hh-teacher-container-wrapper .hh-teacher-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+    gap: 16px;
+}
+
+#hh-teacher-container-wrapper .hh-admin-card {
+    padding: 18px;
+    border: 1px solid var(--hh-line);
+    border-radius: 16px;
+    background: #fff;
+}
+
+#hh-teacher-container-wrapper .hh-round-form-card {
+    background: linear-gradient(145deg, #fff, #fafaff);
+}
+
+#hh-teacher-container-wrapper .hh-guide-card {
+    color: #fff;
+    background: linear-gradient(145deg, #312e81, #6d28d9 66%, #9333ea);
+    border: 0;
+}
+
+#hh-teacher-container-wrapper .hh-guide-card .hh-eyebrow {
+    color: #ddd6fe;
+}
+
+#hh-teacher-container-wrapper .hh-guide-card h3 {
+    margin: 5px 0 12px;
+}
+
+#hh-teacher-container-wrapper .hh-guide-card ol {
+    margin: 0;
+    padding-left: 20px;
+    line-height: 1.9;
+}
+
+#hh-teacher-container-wrapper .hh-guide-card p {
+    margin: 14px 0 0;
+    padding: 11px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, .1);
+    color: #ede9fe;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+#hh-teacher-container-wrapper .hh-admin-card-title,
+#hh-teacher-container-wrapper .hh-round-list-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+#hh-teacher-container-wrapper .hh-admin-card-title h3,
+#hh-teacher-container-wrapper .hh-round-list-heading h3 {
+    margin: 4px 0 0;
+    color: #334155;
+}
+
+#hh-teacher-container-wrapper .hh-form-grid {
+    margin: 16px 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+#hh-teacher-container-wrapper .hh-span-2 {
+    grid-column: span 2;
+}
+
+#hh-teacher-container-wrapper .hh-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+#hh-teacher-container-wrapper .hh-field>span {
+    color: #475569;
+    font-size: 12px;
+    font-weight: 850;
+}
+
+#hh-teacher-container-wrapper .hh-field input,
+#hh-teacher-container-wrapper .hh-field select,
+#hh-teacher-container-wrapper .hh-field textarea,
+#hh-teacher-container-wrapper .hh-grading-toolbar input,
+#hh-teacher-container-wrapper .hh-grading-toolbar select,
+#hh-teacher-container-wrapper .hh-grading-card input,
+#hh-teacher-container-wrapper .hh-grading-card textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #dce2ea;
+    border-radius: 10px;
+    padding: 10px 11px;
+    color: #1e293b;
+    background: #fff;
+    font: inherit;
+    outline: none;
+    transition: border-color .16s ease, box-shadow .16s ease;
+}
+
+#hh-teacher-container-wrapper .hh-field input:focus,
+#hh-teacher-container-wrapper .hh-field select:focus,
+#hh-teacher-container-wrapper .hh-field textarea:focus,
+#hh-teacher-container-wrapper .hh-grading-card input:focus,
+#hh-teacher-container-wrapper .hh-grading-card textarea:focus {
+    border-color: #a78bfa;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, .12);
+}
+
+#hh-teacher-container-wrapper .hh-check-field {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    color: #475569;
+    background: #f8fafc;
+    font-weight: 750;
+}
+
+#hh-teacher-container-wrapper .hh-check-field input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--hh-primary);
+}
+
+#hh-teacher-container-wrapper .hh-round-list-heading {
+    margin: 24px 0 12px;
+}
+
+#hh-teacher-container-wrapper .hh-round-admin-card {
+    margin-bottom: 12px;
+    padding: 16px;
+    border: 1px solid var(--hh-line);
+    border-left: 5px solid #8b5cf6;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 5px 16px rgba(15, 23, 42, .04);
+}
+
+#hh-teacher-container-wrapper .hh-round-admin-card.archived {
+    opacity: .68;
+    border-left-color: #94a3b8;
+    background: #f8fafc;
+}
+
+#hh-teacher-container-wrapper .hh-round-card-main {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+#hh-teacher-container-wrapper .hh-round-card-title {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+#hh-teacher-container-wrapper .hh-status-dot {
+    width: 10px;
+    height: 10px;
+    margin-top: 6px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: #94a3b8;
+}
+
+#hh-teacher-container-wrapper .hh-status-dot[data-status="active"] {
+    background: #10b981;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, .12);
+}
+
+#hh-teacher-container-wrapper .hh-status-dot[data-status="voting"] {
+    background: #ec4899;
+    box-shadow: 0 0 0 4px rgba(236, 72, 153, .12);
+}
+
+#hh-teacher-container-wrapper .hh-status-dot[data-status="closed"] {
+    background: #8b5cf6;
+}
+
+#hh-teacher-container-wrapper .hh-status-dot[data-status="scheduled"] {
+    background: #3b82f6;
+}
+
+#hh-teacher-container-wrapper .hh-status-dot[data-status="awaiting_voting"] {
+    background: #f59e0b;
+}
+
+#hh-teacher-container-wrapper .hh-round-card-title h4 {
+    margin: 0;
+    color: #2e1065;
+    font-size: 17px;
+}
+
+#hh-teacher-container-wrapper .hh-round-card-title p {
+    margin: 4px 0 0;
+    color: #64748b;
+}
+
+#hh-teacher-container-wrapper .hh-round-card-meta {
+    margin: 13px 0;
+    display: flex;
+    gap: 13px;
+    flex-wrap: wrap;
+    color: #64748b;
+    font-size: 12px;
+}
+
+#hh-teacher-container-wrapper .hh-round-card-meta span {
+    padding: 6px 9px;
+    border-radius: 8px;
+    background: #f8fafc;
+}
+
+#hh-teacher-container-wrapper .hh-round-card-actions {
+    padding-top: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border-top: 1px solid #edf1f5;
+}
+
+#hh-teacher-container-wrapper .hh-round-card-actions>div {
+    display: flex;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+
+#hh-teacher-container-wrapper .hh-complete-label {
+    padding: 8px 11px;
+    color: #047857;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    border-radius: 10px;
+    font-weight: 850;
+}
+
+#hh-teacher-container-wrapper .hh-grading-area {
+    display: none;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px dashed #cbd5e1;
+}
+
+#hh-teacher-container-wrapper .hh-grading-area.open {
+    display: block;
+}
+
+#hh-teacher-container-wrapper .hh-grading-toolbar {
+    margin-bottom: 12px;
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) 190px auto;
+    gap: 8px;
+}
+
+#hh-teacher-container-wrapper .hh-grading-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+    gap: 12px;
+}
+
+#hh-teacher-container-wrapper .hh-grading-card {
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 145px minmax(0, 1fr);
+    border: 1px solid var(--hh-line);
+    border-radius: 13px;
+    background: #fff;
+}
+
+#hh-teacher-container-wrapper .hh-grading-image {
+    position: relative;
+    min-height: 245px;
+    padding: 0;
+    border: 0;
+    background: #eef2f7;
+    cursor: zoom-in;
+    overflow: hidden;
+}
+
+#hh-teacher-container-wrapper .hh-grading-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#hh-teacher-container-wrapper .hh-grading-image span {
+    position: absolute;
+    inset: auto 8px 8px;
+    padding: 5px;
+    border-radius: 7px;
+    color: #fff;
+    background: rgba(15, 23, 42, .72);
+    font-size: 10px;
+    font-weight: 800;
+}
+
+#hh-teacher-container-wrapper .hh-image-missing {
+    display: grid;
+    place-items: center;
+    color: #94a3b8;
+}
+
+#hh-teacher-container-wrapper .hh-grading-body {
+    min-width: 0;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+#hh-teacher-container-wrapper .hh-grading-student {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+#hh-teacher-container-wrapper .hh-grading-student strong {
+    display: block;
+    color: #334155;
+}
+
+#hh-teacher-container-wrapper .hh-grading-student small {
+    display: block;
+    margin-top: 2px;
+    color: #94a3b8;
+}
+
+#hh-teacher-container-wrapper .hh-grading-student>span {
+    color: #be185d;
+    font-weight: 850;
+}
+
+#hh-teacher-container-wrapper .hh-grading-body label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+#hh-teacher-container-wrapper .hh-grading-body label>span {
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+/* -------------------------------- Toast ------------------------------------ */
+.hh-toast-container {
+    position: fixed;
+    z-index: 10000020;
+    right: 18px;
+    bottom: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+}
+
+.hh-toast {
+    max-width: min(390px, calc(100vw - 36px));
+    padding: 12px 15px;
+    border-radius: 12px;
+    color: #fff;
+    background: #334155;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, .25);
+    font-weight: 750;
+    transform: translateX(120%);
+    transition: transform .22s ease;
+}
+
+.hh-toast.show {
+    transform: translateX(0);
+}
+
+.hh-toast-success {
+    background: #047857;
+}
+
+.hh-toast-error {
+    background: #be123c;
+}
+
+.hh-toast-warning {
+    background: #b45309;
+}
+
+/* ------------------------------- Responsive -------------------------------- */
+@media (max-width: 1000px) {
+    #hh-student-entry-card.hh-entry-card {
+        grid-template-columns: auto 1fr;
+    }
+
+    #hh-student-entry-card .hh-entry-button {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+
+    #hoihoaStudentModal .hh-workspace {
+        grid-template-columns: 1fr;
+    }
+
+    #hoihoaStudentModal .hh-tool-dock {
+        position: static;
+        flex-direction: row;
+        overflow-x: auto;
+    }
+
+    #hoihoaStudentModal .hh-tool-button {
+        min-width: 64px;
+    }
+
+    #hoihoaStudentModal .hh-tool-separator {
+        width: 1px;
+        height: 38px;
+        margin: 8px 3px;
+    }
+
+    #hh-teacher-container-wrapper .hh-teacher-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 760px) {
+    #hoihoaStudentModal .hh-modal-close {
+        top: 10px !important;
+        right: 10px !important;
+
+        width: 42px !important;
+        height: 42px !important;
+    }
+
+    #hoihoaStudentModal .hoihoa-header.hh-studio-header {
+        padding: 62px 15px 13px 15px;
+    }
+
+    #hoihoaStudentModal.hh-student-overlay {
+        padding: 0;
+    }
+
+    #hoihoaStudentModal .hoihoa-container.hh-studio-modal {
+        width: 100vw;
+        height: 100dvh;
+        max-height: none;
+        border-radius: 0;
+    }
+
+    #hoihoaStudentModal .hoihoa-header.hh-studio-header {
+        padding: 15px 54px 13px 15px;
+        flex-direction: column;
+        gap: 9px;
+    }
+
+    #hoihoaStudentModal .hh-round-meta {
+        min-width: 0;
+        padding: 0;
+        text-align: left;
+    }
+
+    #hoihoaStudentModal .hh-round-meta p {
+        display: inline-block;
+        margin-right: 8px;
+    }
+
+    #hoihoaStudentModal .hh-student-content {
+        padding: 9px;
+    }
+
+    #hoihoaStudentModal .canvas-toolbar.hh-top-toolbar {
+        max-height: 190px;
+        overflow-y: auto;
+    }
+
+    #hoihoaStudentModal .hh-control-group {
+        flex: 1 1 145px;
+    }
+
+    #hoihoaStudentModal .hh-color-group {
+        flex-basis: 100%;
+    }
+
+    #hoihoaStudentModal .hh-slider-group {
+        min-width: 145px;
+    }
+
+    #hoihoaStudentModal .hh-canvas-commandbar {
+        align-items: flex-start;
+    }
+
+    #hoihoaStudentModal .hh-canvas-commandbar>div {
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    #hoihoaStudentModal .hh-canvas-scroll {
+        min-height: 300px;
+        padding: 14px;
+    }
+
+    #hoihoaStudentModal .hh-workspace-footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    #hoihoaStudentModal .hh-submit-actions {
+        width: 100%;
+    }
+
+    #hoihoaStudentModal .hh-submit-actions .hh-btn {
+        flex: 1;
+    }
+
+    #hoihoaStudentModal .hh-submitted-state {
+        grid-template-columns: 1fr;
+        padding: 22px;
+        text-align: center;
+    }
+
+    #hoihoaStudentModal .hh-success-orb {
+        margin: auto;
+    }
+
+    #hoihoaStudentModal .hh-gallery-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #hoihoaStudentModal .hh-vote-meter {
+        align-self: flex-end;
+    }
+
+    #hh-teacher-container-wrapper .hh-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #hh-teacher-container-wrapper .hh-span-2 {
+        grid-column: span 1;
+    }
+
+    #hh-teacher-container-wrapper .hh-round-card-main,
+    #hh-teacher-container-wrapper .hh-round-card-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    #hh-teacher-container-wrapper .hh-grading-toolbar {
+        grid-template-columns: 1fr;
+    }
+
+    #hh-teacher-container-wrapper .hh-grading-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 520px) {
+    #hh-student-entry-card.hh-entry-card {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    #hh-student-entry-card .hh-entry-art {
+        margin: auto;
+    }
+
+    #hoihoaStudentModal .hh-tool-dock {
+        padding: 6px;
+    }
+
+    #hoihoaStudentModal .hh-tool-button {
+        min-width: 58px;
+    }
+
+    #hoihoaStudentModal .hh-tool-button small {
+        display: none;
+    }
+
+    #hoihoaStudentModal .hoihoa-gallery {
+        grid-template-columns: 1fr;
+    }
+
+    #hh-teacher-container-wrapper .hh-grading-card {
+        grid-template-columns: 1fr;
+    }
+
+    #hh-teacher-container-wrapper .hh-grading-image {
+        min-height: 210px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    #hoihoaStudentModal *,
+    #hh-teacher-container-wrapper *,
+    #hh-student-entry-card *,
+    #artworkPreviewModal * {
+        scroll-behavior: auto !important;
+        transition-duration: .001ms !important;
+        animation-duration: .001ms !important;
+    }
+}
+
+#hh-teacher-container-wrapper .hh-grading-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+#hh-teacher-container-wrapper .hh-btn-danger {
+    color: #ffffff;
+    background: #dc2626;
+    box-shadow: 0 7px 18px rgba(220, 38, 38, 0.2);
+}
+
+#hh-teacher-container-wrapper .hh-btn-danger:hover {
+    background: #b91c1c;
+}
+
+#hh-teacher-container-wrapper .hh-submission-count {
+    color: #4c1d95;
+    white-space: nowrap;
+}
+
+#hh-teacher-container-wrapper .hh-delete-round-btn {
+    color: #be123c;
+    border-color: #fecdd3;
+    background: #fff1f2;
+}
+
+#hh-teacher-container-wrapper .hh-delete-round-btn:hover {
+    color: #ffffff;
+    border-color: #be123c;
+    background: #be123c;
+}
+
+#hh-student-entry-card .hh-entry-title-row {
+    margin: 3px 0 6px;
+
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+#hh-student-entry-card .hh-entry-title-row h3 {
+    margin: 0;
+}
+
+#hh-student-entry-card .hh-entry-info-button {
+    width: 27px;
+    height: 27px;
+    min-width: 27px;
+
+    padding: 0;
+
+    display: inline-grid;
+    place-items: center;
+
+    border: 1px solid #c4b5fd;
+    border-radius: 50%;
+
+    color: #6d28d9;
+    background: rgba(255, 255, 255, 0.9);
+
+    font: inherit;
+    font-size: 14px;
+    font-weight: 900;
+    line-height: 1;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 5px 14px rgba(109, 40, 217, 0.18);
+
+    transition:
+        transform 0.18s ease,
+        color 0.18s ease,
+        background 0.18s ease;
+}
+
+#hh-student-entry-card .hh-entry-info-button:hover {
+    color: #ffffff;
+    background: #7c3aed;
+    transform: scale(1.1);
+}
+
+#hh-student-entry-card .hh-entry-info-button:focus-visible {
+    outline: 3px solid rgba(124, 58, 237, 0.25);
+    outline-offset: 2px;
+}
+
+@media (max-width: 520px) {
+    #hh-student-entry-card .hh-entry-title-row {
+        justify-content: center;
+    }
+}
+
+/* ===== Nút ? cạnh Studio Hội Họa ===== */
+
+#hoihoaStudentModal .hh-studio-label-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#hoihoaStudentModal .hh-event-info-button {
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    padding: 0;
+
+    display: inline-grid;
+    place-items: center;
+
+    border: 1px solid #c4b5fd;
+    border-radius: 50%;
+
+    color: #6d28d9;
+    background: #ffffff;
+
+    font: inherit;
+    font-size: 14px;
+    font-weight: 900;
+    line-height: 1;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 4px 12px rgba(109, 40, 217, 0.16);
+
+    transition:
+        transform 0.18s ease,
+        color 0.18s ease,
+        background 0.18s ease;
+}
+
+#hoihoaStudentModal .hh-event-info-button:hover {
+    color: #ffffff;
+    background: #7c3aed;
+    transform: scale(1.08);
+}
+
+/* ===== Modal quy tắc và phần thưởng ===== */
+
+#hhEventInfoModal.hh-event-info-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000040;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(15, 23, 42, 0.78);
+    backdrop-filter: blur(9px);
+}
+
+#hhEventInfoModal.hh-event-info-overlay.active {
+    display: flex;
+}
+
+#hhEventInfoModal .hh-event-info-dialog {
+    position: relative;
+
+    width: min(960px, 96vw);
+    max-height: min(90vh, 900px);
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 24px;
+
+    background: #f8fafc;
+
+    box-shadow:
+        0 30px 100px rgba(0, 0, 0, 0.45);
+}
+
+#hhEventInfoModal .hh-event-info-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 5;
+
+    width: 42px;
+    height: 42px;
+
+    display: grid;
+    place-items: center;
+
+    padding: 0;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+
+    color: #334155;
+    background: #ffffff;
+
+    font-size: 18px;
+    cursor: pointer;
+
+    box-shadow:
+        0 8px 20px rgba(15, 23, 42, 0.14);
+}
+
+#hhEventInfoModal .hh-event-info-header {
+    flex: 0 0 auto;
+
+    padding: 25px 76px 21px 25px;
+
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    background:
+        radial-gradient(circle at 0 0,
+            rgba(196, 181, 253, 0.65),
+            transparent 36%),
+        linear-gradient(135deg,
+            #ffffff,
+            #f5f3ff,
+            #eff6ff);
+
+    border-bottom: 1px solid #e9e5f5;
+}
+
+#hhEventInfoModal .hh-event-info-icon {
+    width: 58px;
+    height: 58px;
+
+    flex: 0 0 auto;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 18px;
+
+    color: #ffffff;
+    background:
+        linear-gradient(135deg, #7c3aed, #ec4899);
+
+    font-size: 29px;
+
+    box-shadow:
+        0 12px 26px rgba(124, 58, 237, 0.25);
+}
+
+#hhEventInfoModal .hh-event-info-header h2 {
+    margin: 5px 0 5px;
+    color: #1e293b;
+    font-size: clamp(22px, 3vw, 30px);
+}
+
+#hhEventInfoModal .hh-event-info-header p {
+    margin: 0;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+#hhEventInfoModal .hh-event-info-content {
+    flex: 1 1 auto;
+    min-height: 0;
+
+    overflow-y: auto;
+
+    padding: 20px;
+
+    display: grid;
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+#hhEventInfoModal .hh-event-info-section {
+    min-width: 0;
+}
+
+#hhEventInfoModal .hh-event-info-section h3 {
+    margin: 0 0 12px;
+    color: #4c1d95;
+    font-size: 18px;
+}
+
+#hhEventInfoModal .hh-rule-list,
+#hhEventInfoModal .hh-reward-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#hhEventInfoModal .hh-rule-item,
+#hhEventInfoModal .hh-reward-item {
+    padding: 13px 14px;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+
+    background: #ffffff;
+}
+
+#hhEventInfoModal .hh-rule-item strong,
+#hhEventInfoModal .hh-reward-item strong {
+    color: #334155;
+}
+
+#hhEventInfoModal .hh-rule-item p,
+#hhEventInfoModal .hh-reward-item p,
+#hhEventInfoModal .hh-chest-details p {
+    margin: 5px 0 0;
+    color: #64748b;
+    line-height: 1.55;
+    font-size: 13px;
+}
+
+#hhEventInfoModal .hh-reward-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+}
+
+#hhEventInfoModal .hh-reward-rank {
+    width: 38px;
+    height: 38px;
+
+    flex: 0 0 auto;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 12px;
+    background: #f1f5f9;
+
+    font-size: 21px;
+}
+
+#hhEventInfoModal .rank-one {
+    border-color: #fde68a;
+    background: #fffbeb;
+}
+
+#hhEventInfoModal .rank-two {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+}
+
+#hhEventInfoModal .rank-three {
+    border-color: #fed7aa;
+    background: #fff7ed;
+}
+
+#hhEventInfoModal .hh-chest-details {
+    padding: 14px;
+
+    border: 1px dashed #f59e0b;
+    border-radius: 14px;
+
+    background:
+        linear-gradient(135deg, #fff7ed, #fffbeb);
+}
+
+#hhEventInfoModal .hh-chest-details>strong {
+    color: #b45309;
+}
+
+#hhEventInfoModal .hh-event-info-footer {
+    flex: 0 0 auto;
+
+    padding: 13px 20px;
+
+    display: flex;
+    justify-content: flex-end;
+
+    border-top: 1px solid #e2e8f0;
+    background: #ffffff;
+}
+
+#hhEventInfoModal .hh-event-info-understood {
+    min-height: 43px;
+    padding: 10px 24px;
+
+    border: 0;
+    border-radius: 12px;
+
+    color: #ffffff;
+    background:
+        linear-gradient(135deg, #7c3aed, #ec4899);
+
+    font: inherit;
+    font-weight: 850;
+    cursor: pointer;
+
+    box-shadow:
+        0 9px 22px rgba(124, 58, 237, 0.24);
+}
+
+@media (max-width: 760px) {
+    #hhEventInfoModal.hh-event-info-overlay {
+        padding: 0;
+    }
+
+    #hhEventInfoModal .hh-event-info-dialog {
+        width: 100vw;
+        max-height: 100dvh;
+        height: 100dvh;
+        border-radius: 0;
+    }
+
+    #hhEventInfoModal .hh-event-info-header {
+        padding: 18px 62px 16px 15px;
+    }
+
+    #hhEventInfoModal .hh-event-info-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 24px;
+    }
+
+    #hhEventInfoModal .hh-event-info-content {
+        grid-template-columns: 1fr;
+        padding: 14px;
+    }
+
+    #hhEventInfoModal .hh-event-info-footer {
+        padding: 11px 14px;
+    }
+
+    #hhEventInfoModal .hh-event-info-understood {
+        width: 100%;
+    }
+}
+
+/* ===== Menu Thi / Luyện tập tại thẻ Studio ===== */
+
+#hh-student-entry-card .hh-entry-actions {
+    min-width: 260px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+}
+
+#hh-student-entry-card .hh-entry-mode-menu {
+    display: grid;
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+    gap: 8px;
+
+    max-height: 0;
+    margin-bottom: -8px;
+
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+
+    transform:
+        translateY(18px) scale(0.97);
+
+    transform-origin: bottom center;
+
+    transition:
+        max-height 0.3s ease,
+        margin-bottom 0.3s ease,
+        opacity 0.22s ease,
+        transform 0.3s ease;
+}
+
+#hh-student-entry-card .hh-entry-mode-menu.open {
+    max-height: 100px;
+    margin-bottom: 0;
+
+    opacity: 1;
+    pointer-events: auto;
+
+    transform:
+        translateY(0) scale(1);
+}
+
+#hh-student-entry-card .hh-entry-mode-choice {
+    min-height: 64px;
+    padding: 9px 11px;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 9px;
+
+    border: 1px solid #ddd6fe;
+    border-radius: 14px;
+
+    color: #475569;
+    background: rgba(255, 255, 255, 0.94);
+
+    font: inherit;
+    text-align: left;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 7px 18px rgba(76,
+            29,
+            149,
+            0.09);
+
+    transition:
+        transform 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
+        background 0.18s ease;
+}
+
+#hh-student-entry-card .hh-entry-mode-choice:hover {
+    transform: translateY(-2px);
+}
+
+#hh-student-entry-card .hh-entry-contest-choice:hover {
+    color: #92400e;
+    border-color: #fcd34d;
+    background: #fffbeb;
+}
+
+#hh-student-entry-card .hh-entry-practice-choice:hover {
+    color: #6d28d9;
+    border-color: #c4b5fd;
+    background: #faf5ff;
+}
+
+#hh-student-entry-card .hh-entry-choice-icon {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 auto;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 10px;
+    background: #f5f3ff;
+
+    font-size: 18px;
+}
+
+#hh-student-entry-card .hh-entry-mode-choice>span:last-child {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+#hh-student-entry-card .hh-entry-mode-choice strong {
+    font-size: 13px;
+}
+
+#hh-student-entry-card .hh-entry-mode-choice small {
+    color: #94a3b8;
+    font-size: 10px;
+    font-weight: 650;
+    white-space: nowrap;
+}
+
+#hh-student-entry-card .hh-entry-button {
+    width: 100%;
+}
+
+#hh-student-entry-card .hh-entry-open-arrow {
+    display: inline-block;
+
+    transition:
+        transform 0.28s ease;
+}
+
+#hh-student-entry-card .hh-entry-button.menu-open .hh-entry-open-arrow {
+    transform: rotate(180deg);
+}
+
+#hoihoaStudentModal .hh-practice-upload-btn {
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+    background: #f0f9ff;
+}
+
+#hoihoaStudentModal .hh-practice-upload-btn:hover {
+    color: #075985;
+    border-color: #7dd3fc;
+    background: #e0f2fe;
+}
+
+@media (max-width: 620px) {
+    #hoihoaStudentModal .hh-submit-actions {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    #hoihoaStudentModal .hh-submit-actions .hh-btn {
+        flex: 1 1 180px;
+    }
+}
+
+/* =====================================================
+   THANH CÔNG CỤ CUỘN DỌC ĐỘC LẬP
+   ===================================================== */
+
+@media (min-width: 1001px) {
+    #hoihoaStudentModal .hh-workspace {
+        min-height: 0;
+        align-items: stretch;
+    }
+
+    #hoihoaStudentModal .hh-tool-dock {
+        position: sticky;
+        top: 0;
+
+        align-self: start;
+
+        /*
+         * Khi danh sách công cụ dài hơn chiều cao
+         * khả dụng, chỉ thanh này cuộn.
+         */
+        max-height:
+            calc(94vh - 260px);
+
+        overflow-y: auto;
+        overflow-x: hidden;
+
+        overscroll-behavior: contain;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+
+        padding-right: 6px;
+    }
+
+    #hoihoaStudentModal .hh-tool-dock::-webkit-scrollbar {
+        display: none;
+        width: 0;
+        height: 0;
+    }
+}
+
+/* =====================================================
+   CĂN CHỈNH CỤM ZOOM
+   ===================================================== */
+
+#hoihoaStudentModal .hh-zoom-controls {
+    margin-left: auto;
+
+    display: grid !important;
+
+    grid-template-columns:
+        34px 72px 34px 34px;
+
+    align-items: center;
+    justify-content: end;
+
+    gap: 6px !important;
+
+    flex: 0 0 auto;
+}
+
+#hoihoaStudentModal .hh-zoom-controls .hh-icon-btn {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+
+    padding: 0;
+
+    display: grid;
+    place-items: center;
+}
+
+#hoihoaStudentModal .hh-zoom-value {
+    width: 72px;
+    min-width: 72px;
+    height: 34px;
+
+    padding: 0 8px;
+
+    display: inline-grid;
+    place-items: center;
+
+    border: 1px solid var(--hh-line);
+    border-radius: 10px;
+
+    color: #334155;
+    background: #ffffff;
+
+    font-size: 14px;
+    font-weight: 850;
+    line-height: 1;
+
+    box-shadow:
+        0 4px 12px rgba(15,
+            23,
+            42,
+            0.08);
+}
+
+@media (min-width: 1001px) {
+    #hoihoaStudentModal .hh-canvas-commandbar {
+        display: grid;
+
+        grid-template-columns:
+            minmax(0, 1fr) auto minmax(0, 1fr);
+
+        align-items: center;
+        gap: 12px;
+    }
+
+    #hoihoaStudentModal .hh-canvas-commandbar>div:first-child {
+        justify-self: start;
+    }
+
+    #hoihoaStudentModal .hh-canvas-commandbar>div:nth-child(2) {
+        justify-self: center;
+    }
+
+    #hoihoaStudentModal .hh-canvas-commandbar .hh-zoom-controls {
+        justify-self: end;
+        margin-left: 0;
+    }
+}
+
+/* =====================================================
+   FULLSCREEN TOÀN BỘ WORKSPACE
+   Gồm thanh bút và khu vực vẽ
+   ===================================================== */
+
+#hoihoaStudentModal .hh-workspace:fullscreen {
+    width: 100vw;
+    height: 100vh;
+    min-height: 0;
+
+    box-sizing: border-box;
+
+    display: grid;
+
+    grid-template-columns:
+        88px minmax(0, 1fr);
+
+    align-items: stretch;
+    gap: 12px;
+
+    padding: 12px;
+
+    overflow: hidden;
+
+    background: #eef2f7;
+}
+
+/* Hỗ trợ một số trình duyệt WebKit */
+#hoihoaStudentModal .hh-workspace:-webkit-full-screen {
+    width: 100vw;
+    height: 100vh;
+    min-height: 0;
+
+    box-sizing: border-box;
+
+    display: grid;
+
+    grid-template-columns:
+        88px minmax(0, 1fr);
+
+    gap: 12px;
+    padding: 12px;
+
+    overflow: hidden;
+
+    background: #eef2f7;
+}
+
+#hoihoaStudentModal .hh-workspace:fullscreen .hh-tool-dock,
+#hoihoaStudentModal .hh-workspace:-webkit-full-screen .hh-tool-dock {
+    position: relative;
+    top: auto;
+
+    width: 88px;
+    height: calc(100vh - 24px);
+    max-height: none;
+
+    align-self: stretch;
+
+    flex-direction: column;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    padding: 8px 6px;
+
+    border-radius: 15px;
+
+    background:
+        rgba(255, 255, 255, 0.98);
+}
+
+#hoihoaStudentModal .hh-workspace:fullscreen .hh-workspace-main,
+#hoihoaStudentModal .hh-workspace:-webkit-full-screen .hh-workspace-main {
+    width: auto;
+    height: calc(100vh - 24px);
+
+    min-width: 0;
+    min-height: 0;
+
+    border-radius: 16px;
+
+    background: #ffffff;
+}
+
+#hoihoaStudentModal .hh-workspace:fullscreen .hh-canvas-scroll,
+#hoihoaStudentModal .hh-workspace:-webkit-full-screen .hh-canvas-scroll {
+    min-width: 0;
+    min-height: 0;
+}
+
+#hoihoaStudentModal .hh-workspace:fullscreen .hh-canvas-commandbar,
+#hoihoaStudentModal .hh-workspace:-webkit-full-screen .hh-canvas-commandbar {
+    flex: 0 0 auto;
+}
+/* =====================================================
+   MOBILE FIX CUỐI CÙNG — STUDIO HỘI HỌA
+   Dán cuối file CSS
+   ===================================================== */
+
+@media screen and (max-width: 760px) {
+
+    /* ---------- Modal toàn màn hình ---------- */
+
+    #hoihoaStudentModal.hh-student-overlay {
+        padding: 0 !important;
+        overscroll-behavior: contain;
+    }
+
+    #hoihoaStudentModal
+    .hoihoa-container.hh-studio-modal {
+        width: 100vw !important;
+        height: 100dvh !important;
+        max-width: none !important;
+        max-height: none !important;
+
+        margin: 0 !important;
+
+        border: 0 !important;
+        border-radius: 0 !important;
+    }
+
+    #hoihoaStudentModal .hh-modal-close {
+        top: max(
+            8px,
+            env(safe-area-inset-top)
+        ) !important;
+
+        right: max(
+            8px,
+            env(safe-area-inset-right)
+        ) !important;
+
+        width: 40px !important;
+        height: 40px !important;
+
+        min-width: 40px !important;
+        min-height: 40px !important;
+
+        border-radius: 12px !important;
+    }
+
+    /* ---------- Header gọn hơn ---------- */
+
+    #hoihoaStudentModal
+    .hoihoa-header.hh-studio-header {
+        padding:
+            calc(10px + env(safe-area-inset-top))
+            calc(56px + env(safe-area-inset-right))
+            9px
+            calc(12px + env(safe-area-inset-left))
+            !important;
+
+        flex-direction: column !important;
+        align-items: stretch !important;
+
+        gap: 7px !important;
+    }
+
+    #hoihoaStudentModal
+    .hh-round-heading h2 {
+        margin: 4px 0 3px;
+
+        font-size: 20px;
+        line-height: 1.25;
+    }
+
+    #hoihoaStudentModal
+    .hh-round-heading p {
+        font-size: 12px;
+        line-height: 1.4;
+    }
+
+    #hoihoaStudentModal .hh-round-meta {
+        width: 100%;
+        min-width: 0;
+
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+
+        gap: 5px 9px;
+
+        text-align: left;
+    }
+
+    #hoihoaStudentModal
+    .hh-round-meta p {
+        display: inline-block;
+
+        margin: 0 !important;
+
+        font-size: 11px;
+        line-height: 1.35;
+    }
+
+    #hoihoaStudentModal
+    .hh-status-pill {
+        min-height: 27px;
+
+        padding: 5px 9px;
+
+        font-size: 11px;
+    }
+
+    /* ---------- Danh sách vòng ---------- */
+
+    #hoihoaStudentModal .hh-round-tabs {
+        padding: 7px 8px;
+
+        gap: 6px;
+
+        scrollbar-width: none;
+    }
+
+    #hoihoaStudentModal
+    .hh-round-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    #hoihoaStudentModal .hh-round-tab {
+        padding: 7px 10px;
+        font-size: 11px;
+    }
+
+    /* ---------- Nội dung ---------- */
+
+    #hoihoaStudentModal
+    .hh-student-content {
+        min-height: 0;
+
+        padding: 6px;
+
+        overflow: auto;
+        overscroll-behavior: contain;
+    }
+
+    #hoihoaStudentModal .hh-workspace {
+        min-width: 0;
+        min-height: 100%;
+
+        display: grid !important;
+
+        grid-template-columns: 1fr !important;
+        grid-template-rows:
+            auto
+            minmax(0, 1fr);
+
+        gap: 6px;
+    }
+
+    /* ---------- Thanh bút nằm ngang ---------- */
+
+    #hoihoaStudentModal .hh-tool-dock {
+        position: relative !important;
+        top: auto !important;
+
+        width: 100%;
+        max-width: 100%;
+        max-height: none !important;
+
+        box-sizing: border-box;
+
+        display: flex !important;
+        flex-direction: row !important;
+
+        gap: 5px;
+
+        padding: 5px;
+
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+
+        border-radius: 12px;
+
+        overscroll-behavior-x: contain;
+        scroll-snap-type: x proximity;
+
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    #hoihoaStudentModal
+    .hh-tool-dock::-webkit-scrollbar {
+        display: none;
+        width: 0;
+        height: 0;
+    }
+
+    #hoihoaStudentModal .hh-tool-button {
+        flex: 0 0 57px;
+
+        width: 57px;
+        min-width: 57px;
+
+        min-height: 50px;
+
+        padding: 4px 3px;
+
+        scroll-snap-align: start;
+    }
+
+    #hoihoaStudentModal
+    .hh-tool-button span {
+        font-size: 18px;
+    }
+
+    #hoihoaStudentModal
+    .hh-tool-button small {
+        display: block;
+
+        max-width: 52px;
+
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        font-size: 8px;
+
+        white-space: nowrap;
+    }
+
+    #hoihoaStudentModal
+    .hh-tool-separator {
+        flex: 0 0 1px;
+
+        width: 1px;
+        height: 37px;
+
+        margin: 6px 2px;
+    }
+
+    /* ---------- Khung chính ---------- */
+
+    #hoihoaStudentModal
+    .hh-workspace-main {
+        min-width: 0;
+        min-height: 0;
+
+        border-radius: 12px;
+    }
+
+    /* ---------- Thanh màu và điều chỉnh ---------- */
+
+    #hoihoaStudentModal
+    .canvas-toolbar.hh-top-toolbar {
+        max-height: none !important;
+
+        padding: 6px !important;
+
+        display: flex !important;
+        flex-wrap: nowrap !important;
+
+        align-items: center !important;
+
+        gap: 6px !important;
+
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    #hoihoaStudentModal
+    .canvas-toolbar.hh-top-toolbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    #hoihoaStudentModal
+    .hh-control-group {
+        flex: 0 0 auto !important;
+
+        min-height: 44px;
+
+        padding: 5px 7px;
+    }
+
+    #hoihoaStudentModal
+    .hh-color-group {
+        width: max-content;
+        min-width: 310px;
+
+        flex-basis: auto !important;
+    }
+
+    #hoihoaStudentModal .hh-palette {
+        flex-wrap: nowrap;
+    }
+
+    #hoihoaStudentModal
+    .hh-color-input-wrap,
+    #hoihoaStudentModal
+    #hh-color-chip {
+        width: 34px;
+        height: 34px;
+    }
+
+    #hoihoaStudentModal
+    .hh-slider-group {
+        width: 165px;
+        min-width: 165px;
+    }
+
+    /* ---------- Thanh lệnh ---------- */
+
+    #hoihoaStudentModal
+    .hh-canvas-commandbar {
+        padding: 6px !important;
+
+        display: flex !important;
+        flex-wrap: nowrap !important;
+
+        align-items: center !important;
+        justify-content: flex-start !important;
+
+        gap: 8px !important;
+
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    #hoihoaStudentModal
+    .hh-canvas-commandbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    #hoihoaStudentModal
+    .hh-canvas-commandbar > div {
+        flex: 0 0 auto;
+
+        max-width: none !important;
+
+        overflow: visible !important;
+    }
+
+    #hoihoaStudentModal
+    .hh-canvas-commandbar .hh-icon-text-btn {
+        min-height: 36px;
+
+        padding: 7px 9px;
+
+        font-size: 11px;
+
+        white-space: nowrap;
+    }
+
+    /* ---------- Zoom ---------- */
+
+    #hoihoaStudentModal .hh-zoom-controls {
+        margin-left: 0 !important;
+
+        display: grid !important;
+
+        grid-template-columns:
+            30px
+            60px
+            30px
+            30px
+            !important;
+
+        gap: 5px !important;
+    }
+
+    #hoihoaStudentModal
+    .hh-zoom-controls .hh-icon-btn {
+        width: 30px !important;
+        height: 30px !important;
+
+        min-width: 30px !important;
+        min-height: 30px !important;
+    }
+
+    #hoihoaStudentModal
+    .hh-zoom-value {
+        width: 60px !important;
+        min-width: 60px !important;
+        height: 30px !important;
+
+        padding: 0 4px;
+
+        font-size: 12px;
+    }
+
+    /* ---------- Canvas ---------- */
+
+    #hoihoaStudentModal
+    .hh-canvas-scroll {
+        min-width: 0;
+        min-height: 260px;
+
+        padding: 8px;
+    }
+
+    #hoihoaStudentModal
+    .hh-canvas-stage {
+        min-width: 260px;
+    }
+
+    /* ---------- Footer ---------- */
+
+    #hoihoaStudentModal
+    .hh-workspace-footer {
+        padding: 8px;
+
+        flex-direction: column;
+        align-items: stretch;
+
+        gap: 7px;
+    }
+
+    #hoihoaStudentModal
+    .hh-draft-info {
+        width: 100%;
+
+        overflow-x: auto;
+
+        font-size: 10px;
+
+        white-space: nowrap;
+
+        scrollbar-width: none;
+    }
+
+    #hoihoaStudentModal
+    .hh-draft-info::-webkit-scrollbar {
+        display: none;
+    }
+
+    #hoihoaStudentModal
+    .hh-submit-actions {
+        width: 100%;
+
+        display: grid;
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 6px;
+    }
+
+    #hoihoaStudentModal
+    .hh-submit-actions .hh-btn {
+        min-width: 0;
+
+        padding: 8px 7px;
+
+        font-size: 11px;
+    }
+
+    #hoihoaStudentModal
+    .hh-integrity-note {
+        padding: 6px 8px 8px;
+
+        font-size: 9px;
+        line-height: 1.4;
+    }
+
+    /* ---------- Toast không bị che ---------- */
+
+    .hh-toast-container {
+        right:
+            calc(
+                8px +
+                env(safe-area-inset-right)
+            );
+
+        bottom:
+            calc(
+                8px +
+                env(safe-area-inset-bottom)
+            );
+
+        left:
+            calc(
+                8px +
+                env(safe-area-inset-left)
+            );
+    }
+
+    .hh-toast {
+        width: 100%;
+        max-width: none;
+
+        box-sizing: border-box;
+
+        font-size: 12px;
+    }
+}
+
+/* Điện thoại rất nhỏ */
+
+@media screen and (max-width: 420px) {
+
+    #hoihoaStudentModal
+    .hh-round-heading h2 {
+        font-size: 18px;
+    }
+
+    #hoihoaStudentModal
+    .hh-round-heading p {
+        font-size: 11px;
+    }
+
+    #hoihoaStudentModal
+    .hh-tool-button {
+        flex-basis: 49px;
+
+        width: 49px;
+        min-width: 49px;
+
+        min-height: 46px;
+    }
+
+    #hoihoaStudentModal
+    .hh-tool-button small {
+        display: none;
+    }
+
+    #hoihoaStudentModal
+    .hh-color-group {
+        min-width: 280px;
+    }
+
+    #hoihoaStudentModal
+    .hh-submit-actions {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =====================================================
+   FULLSCREEN TRÊN ĐIỆN THOẠI
+   ===================================================== */
+
+@media screen and (max-width: 760px) {
+
+    #hoihoaStudentModal
+    .hh-workspace:fullscreen,
+    #hoihoaStudentModal
+    .hh-workspace:-webkit-full-screen {
+        width: 100vw !important;
+        height: 100dvh !important;
+
+        grid-template-columns:
+            1fr !important;
+
+        grid-template-rows:
+            auto
+            minmax(0, 1fr)
+            !important;
+
+        gap: 5px !important;
+
+        padding:
+            calc(
+                4px +
+                env(safe-area-inset-top)
+            )
+            4px
+            calc(
+                4px +
+                env(safe-area-inset-bottom)
+            )
+            4px
+            !important;
+
+        overflow: hidden !important;
+    }
+
+    #hoihoaStudentModal
+    .hh-workspace:fullscreen
+    .hh-tool-dock,
+    #hoihoaStudentModal
+    .hh-workspace:-webkit-full-screen
+    .hh-tool-dock {
+        width: 100% !important;
+        height: 58px !important;
+        max-height: 58px !important;
+
+        flex-direction: row !important;
+
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+    }
+
+    #hoihoaStudentModal
+    .hh-workspace:fullscreen
+    .hh-workspace-main,
+    #hoihoaStudentModal
+    .hh-workspace:-webkit-full-screen
+    .hh-workspace-main {
+        width: 100% !important;
+        height: auto !important;
+
+        min-width: 0 !important;
+        min-height: 0 !important;
+
+        border-radius: 9px;
+    }
+
+    #hoihoaStudentModal
+    .hh-workspace:fullscreen
+    .hh-canvas-scroll,
+    #hoihoaStudentModal
+    .hh-workspace:-webkit-full-screen
+    .hh-canvas-scroll {
+        min-height: 0 !important;
+    }
+}
+/* =====================================================
+   CANVAS MOBILE — KHÔNG BỊ CẮT, KHÔNG QUÁ NHỎ
+   ===================================================== */
+
+@media screen and (max-width: 760px) {
+
+    #hoihoaStudentModal
+    .hh-canvas-scroll {
+        /*
+         * Không căn giữa bằng flex vì canvas lớn hơn
+         * màn hình sẽ bị mất mép trái.
+         */
+        justify-content: flex-start !important;
+        align-items: flex-start !important;
+
+        min-height:
+            clamp(
+                390px,
+                58dvh,
+                650px
+            ) !important;
+
+        padding: 8px !important;
+
+        overflow: auto !important;
+        overscroll-behavior: contain;
+
+        scroll-padding: 8px;
+    }
+
+    #hoihoaStudentModal
+    .hh-canvas-stage {
+        flex: 0 0 auto !important;
+
+        /*
+         * Canvas không thu nhỏ dưới mức này.
+         * Người dùng vuốt vùng xám để xem các phần khác.
+         */
+        min-width: 520px !important;
+
+        margin-top: 0;
+        margin-bottom: 0;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    #hoihoaStudentModal
+    .hh-workspace-main {
+        min-height: 540px;
+        overflow: hidden;
+    }
+}
+
+@media screen and (max-width: 380px) {
+    #hoihoaStudentModal
+    .hh-canvas-stage {
+        min-width: 480px !important;
+    }
+
+    #hoihoaStudentModal
+    .hh-canvas-scroll {
+        min-height: 370px !important;
+    }
+}
+/* =====================================================
+   FULLSCREEN MOBILE — ƯU TIÊN DIỆN TÍCH BẢNG VẼ
+   ===================================================== */
+
+@media screen and (max-width: 760px) {
+
+    #hoihoaStudentModal
+    .hh-workspace:fullscreen,
+    #hoihoaStudentModal
+    .hh-workspace:-webkit-full-screen {
+        width: 100vw !important;
+        height: 100dvh !important;
+
+        box-sizing: border-box;
+
+        display: grid !important;
+
+        grid-template-columns:
+            minmax(0, 1fr) !important;
+
+        grid-template-rows:
+            56px
+            minmax(0, 1fr)
+            !important;
+
+        gap: 5px !important;
+
+        padding:
+            calc(
+                4px +
+                env(safe-area-inset-top)
+            )
+            4px
+            calc(
+                4px +
+                env(safe-area-inset-bottom)
+            )
+            4px
+            !important;
+
+        overflow: hidden !important;
+
+        background: #eef2f7;
+    }
+
+    /* Thanh bút luôn hiện phía trên */
+
+    #hoihoaStudentModal
+    .hh-workspace:fullscreen
+    .hh-tool-dock,
+    #hoihoaStudentModal
+    .hh-workspace:-webkit-full-screen
+    .hh-tool-dock {
+        position: relative !important;
+        top: auto !important;
+
+        width: 100% !important;
+        height: 56px !important;
+        max-height: 56px !important;
+
+        box-sizing: border-box;
+
+        flex-direction: row !important;
+
+        padding: 4px !important;
+
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+
+        border-radius: 10px;
+
+        scrollbar-width: none;
+    }
+
+    #hoihoaStudentModal
+    .hh-workspace:fullscreen
+    .hh-tool-dock::-webkit-scrollbar,
+    #hoihoaStudentModal
+    .hh-workspace:-webkit-full-screen
+    .hh-tool-dock::-webkit-scrollbar {
+        display: none;
+    }
+
+    #hoihoaStudentModal
+    .hh-workspace:fullscreen
+    .hh-tool-button,
+    #hoihoaStudentModal
+    .hh-workspace:-webkit-full-screen
+    .hh-tool-button {
+        flex: 0 0 52px;
+
+        width: 52px;
+        min-width: 52px;
+        min-height: 46px;
+
+        padding: 3px;
+    }
+
+    /* Khu vực bảng vẽ chiếm toàn bộ phần còn lại */
+
+    #hoihoaStudentModal
+    .hh-workspace:fullscreen
+    .hh-workspace-main,
+    #hoihoaStudentModal
+    .hh-workspace:-webkit-full-screen
+    .hh-workspace-main {
+        width: 100% !important;
+        height: 100% !important;
+
+        min-width: 0 !important;
+        min-height: 0 !important;
+
+        display: flex !important;
+        flex-direction: column !important;
+
+        overflow: hidden !important;
+
+        border-radius: 10px;
+    }
+
+    /* Thanh màu thu gọn thành một hàng */
+
+    #hoihoaStudentModal
+    .hh-workspace:fullscreen
+    .canvas-toolbar.hh-top-toolbar,
+    #hoihoaStudentModal
+    .hh-workspace:-webkit-full-screen
+    .canvas-toolbar.hh-top-toolbar {
+        flex: 0 0 52px;
+
+        max-height: 52px !important;
+
+        padding: 4px !important;
+
+        flex-wrap: nowrap !important;
+
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+
+        scrollbar-width: none;
+    }
+
+    #hoihoaStudentModal
+    .hh-workspace:fullscreen
+    .canvas-toolbar::-webkit-scrollbar,
+    #hoihoaStudentModal
+    .hh-workspace:-webkit-full-screen
+    .canvas-toolbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Thanh hoàn tác, zoom */
+
+    #hoihoaStudentModal
+    .hh-workspace:fullscreen
+    .hh-canvas-commandbar,
+    #hoihoaStudentModal
+    .hh-workspace:-webkit-full-screen
+    .hh-canvas-commandbar {
+        flex: 0 0 43px;
+
+        min-height: 43px;
+
+        padding: 4px !important;
+
+        flex-wrap: nowrap !important;
+
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+    }
+
+    /*
+     * Canvas nhận toàn bộ chiều cao còn lại.
+     */
+
+    #hoihoaStudentModal
+    .hh-workspace:fullscreen
+    .hh-canvas-scroll,
+    #hoihoaStudentModal
+    .hh-workspace:-webkit-full-screen
+    .hh-canvas-scroll {
+        flex: 1 1 auto !important;
+
+        width: 100% !important;
+
+        min-width: 0 !important;
+        min-height: 0 !important;
+
+        padding: 5px !important;
+
+        justify-content: flex-start !important;
+        align-items: flex-start !important;
+
+        overflow: auto !important;
+    }
+
+    #hoihoaStudentModal
+    .hh-workspace:fullscreen
+    .hh-canvas-stage,
+    #hoihoaStudentModal
+    .hh-workspace:-webkit-full-screen
+    .hh-canvas-stage {
+        min-width: 560px !important;
+
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Thu gọn phần lưu bài */
+
+    #hoihoaStudentModal
+    .hh-workspace:fullscreen
+    .hh-workspace-footer,
+    #hoihoaStudentModal
+    .hh-workspace:-webkit-full-screen
+    .hh-workspace-footer {
+        flex: 0 0 auto;
+
+        min-height: 42px;
+
+        padding: 4px 6px !important;
+
+        flex-direction: row;
+        align-items: center;
+
+        gap: 5px;
+    }
+
+    #hoihoaStudentModal
+    .hh-workspace:fullscreen
+    .hh-draft-info,
+    #hoihoaStudentModal
+    .hh-workspace:-webkit-full-screen
+    .hh-draft-info {
+        display: none;
+    }
+
+    /*
+     * Ẩn dòng giải thích trong fullscreen
+     * để dành chiều cao cho canvas.
+     */
+
+    #hoihoaStudentModal
+    .hh-workspace:fullscreen
+    .hh-integrity-note,
+    #hoihoaStudentModal
+    .hh-workspace:-webkit-full-screen
+    .hh-integrity-note {
+        display: none !important;
+    }
+}
+/* =========================================================
+   HUY HIỆU PHẦN THƯỞNG HỘI HỌA
+   ========================================================= */
+
+#hhEventInfoModal .hh-reward-rank-badge {
+    width: 72px;
+    height: 78px;
+    margin: -5px 0 -7px -3px;
+
+    overflow: visible;
+    border-radius: 0;
+    background: transparent;
+}
+
+#hhEventInfoModal .hh-award-badge {
+    width: 72px;
+    height: 82px;
+
+    display: block;
+
+    transform-origin: 50% 52%;
+    filter: saturate(1.04);
+
+    transition:
+        transform .24s ease,
+        filter .24s ease;
+}
+
+#hhEventInfoModal .hh-award-badge svg {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+    overflow: visible;
+}
+
+#hhEventInfoModal
+.hh-reward-item:hover
+.hh-award-badge {
+    transform:
+        translateY(-3px)
+        rotate(-2deg)
+        scale(1.04);
+
+    filter:
+        saturate(1.12)
+        drop-shadow(
+            0 8px 10px rgba(15, 23, 42, .14)
+        );
+}
+
+#hhEventInfoModal .hh-badge-name {
+    display: inline;
+    font-weight: 900;
+    letter-spacing: .01em;
+}
+
+#hhEventInfoModal .hh-badge-name-talent {
+    color: #7e22ce;
+}
+
+#hhEventInfoModal .hh-badge-name-golden-brush {
+    color: #b45309;
+}
+
+#hhEventInfoModal .hh-badge-name-vibrant-color {
+    color: #db2777;
+}
+
+/* Hạng nhất */
+
+#hhEventInfoModal .rank-one {
+    border-color: #f5d76e;
+
+    background:
+        radial-gradient(
+            circle at 92% 0%,
+            rgba(236, 72, 153, .12),
+            transparent 38%
+        ),
+        linear-gradient(
+            135deg,
+            #fffdf3,
+            #fff7d6
+        );
+
+    box-shadow: inset 4px 0 #f59e0b;
+}
+
+/* Hạng nhì */
+
+#hhEventInfoModal .rank-two {
+    border-color: #bfdbfe;
+
+    background:
+        radial-gradient(
+            circle at 92% 0%,
+            rgba(37, 99, 235, .12),
+            transparent 38%
+        ),
+        linear-gradient(
+            135deg,
+            #f8fbff,
+            #eef4ff
+        );
+
+    box-shadow: inset 4px 0 #2563eb;
+}
+
+/* Hạng ba */
+
+#hhEventInfoModal .rank-three {
+    border-color: #fbcfe8;
+
+    background:
+        radial-gradient(
+            circle at 92% 0%,
+            rgba(168, 85, 247, .14),
+            transparent 38%
+        ),
+        linear-gradient(
+            135deg,
+            #fff7fd,
+            #f5f3ff
+        );
+
+    box-shadow: inset 4px 0 #ec4899;
+}
+
+/* Điện thoại */
+
+@media (max-width: 640px) {
+    #hhEventInfoModal .hh-reward-rank-badge {
+        width: 60px;
+        height: 67px;
+        margin-left: -5px;
+    }
+
+    #hhEventInfoModal .hh-award-badge {
+        width: 60px;
+        height: 69px;
+    }
+}
+/* ============================================================================
+   STUDIO HỘI HỌA PRO v3 — CÔNG CỤ NÂNG CAO & CHỈNH ẢNH
+   ========================================================================== */
+
+#hoihoaStudentModal .hh-tool-dock-label {
+    display: block;
+    padding: 4px 2px 2px;
+    color: #94a3b8;
+    font-size: 8px;
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: .09em;
+    text-align: center;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+#hoihoaStudentModal .hh-tool-button[data-tool="ink"] span,
+#hoihoaStudentModal .hh-tool-button[data-tool="neon"] span,
+#hoihoaStudentModal .hh-tool-button[data-tool="text"] span {
+    font-family: Georgia, serif;
+    font-weight: 900;
+}
+
+#hoihoaStudentModal .hh-tool-button[data-tool="watercolor"] span {
+    color: #0ea5e9;
+    text-shadow: 0 0 10px rgba(14, 165, 233, .22);
+}
+
+#hoihoaStudentModal .hh-tool-button[data-tool="neon"] span {
+    color: #c026d3;
+    text-shadow:
+        0 0 4px rgba(217, 70, 239, .65),
+        0 0 10px rgba(168, 85, 247, .45);
+}
+
+#hoihoaStudentModal .hh-tool-button[data-tool="pixel"] span {
+    color: #2563eb;
+}
+
+#hoihoaStudentModal .hh-text-options {
+    display: none;
+}
+
+#hoihoaStudentModal .hh-text-options.active {
+    display: flex;
+}
+
+#hoihoaStudentModal .hh-adjust-toggle.active {
+    color: #7c3aed;
+    border-color: #c4b5fd;
+    background: linear-gradient(135deg, #faf5ff, #eef2ff);
+    box-shadow: 0 5px 14px rgba(109, 40, 217, .12);
+}
+
+#hoihoaStudentModal .hh-adjust-panel[hidden] {
+    display: none !important;
+}
+
+#hoihoaStudentModal .hh-adjust-panel {
+    flex: 0 0 auto;
+    position: relative;
+    z-index: 6;
+    max-height: min(38vh, 340px);
+    overflow: auto;
+    padding: 13px;
+    border-bottom: 1px solid #ddd6fe;
+    background:
+        radial-gradient(circle at 0 0, rgba(196, 181, 253, .25), transparent 32%),
+        linear-gradient(135deg, #ffffff, #faf8ff 50%, #f5f8ff);
+    box-shadow: inset 0 -1px rgba(255, 255, 255, .7);
+    scrollbar-width: thin;
+}
+
+#hoihoaStudentModal .hh-adjust-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 12px;
+}
+
+#hoihoaStudentModal .hh-adjust-header > div:first-child {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+#hoihoaStudentModal .hh-adjust-header strong {
+    color: #312e81;
+    font-size: 14px;
+    font-weight: 900;
+}
+
+#hoihoaStudentModal .hh-adjust-header span {
+    color: #64748b;
+    font-size: 11px;
+    line-height: 1.45;
+}
+
+#hoihoaStudentModal .hh-adjust-actions {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+#hoihoaStudentModal .hh-adjust-actions .hh-btn,
+#hoihoaStudentModal .hh-adjust-actions .hh-icon-text-btn {
+    min-height: 35px;
+    padding: 7px 12px;
+    white-space: nowrap;
+}
+
+#hoihoaStudentModal .hh-adjust-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(170px, 1fr));
+    gap: 9px;
+}
+
+#hoihoaStudentModal .hh-adjust-control {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 9px 10px;
+    border: 1px solid #e9e5f5;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, .82);
+    box-shadow: 0 4px 13px rgba(76, 29, 149, .045);
+}
+
+#hoihoaStudentModal .hh-adjust-control > span {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 850;
+}
+
+#hoihoaStudentModal .hh-adjust-control output {
+    color: #7c3aed;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+}
+
+#hoihoaStudentModal .hh-adjust-control input[type="range"] {
+    width: 100%;
+    accent-color: #7c3aed;
+}
+
+#hoihoaStudentModal #hoihoaCanvas {
+    transition: filter .12s ease;
+    transform: translateZ(0);
+}
+
+@media (min-width: 1001px) {
+    #hoihoaStudentModal .hh-tool-dock {
+        max-height: calc(94vh - 230px);
+    }
+}
+
+@media (max-width: 1000px) {
+    #hoihoaStudentModal .hh-tool-dock-label {
+        flex: 0 0 auto;
+        align-self: center;
+        padding: 0 5px;
+        writing-mode: horizontal-tb;
+    }
+
+    #hoihoaStudentModal .hh-adjust-grid {
+        grid-template-columns: repeat(2, minmax(160px, 1fr));
+    }
+}
+
+@media (max-width: 760px) {
+    #hoihoaStudentModal .hh-tool-dock-label {
+        display: none;
+    }
+
+    #hoihoaStudentModal .hh-adjust-panel {
+        max-height: 42vh;
+        padding: 10px;
+    }
+
+    #hoihoaStudentModal .hh-adjust-header {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    #hoihoaStudentModal .hh-adjust-actions {
+        width: 100%;
+    }
+
+    #hoihoaStudentModal .hh-adjust-actions > * {
+        flex: 1 1 0;
+    }
+
+    #hoihoaStudentModal .hh-adjust-grid {
+        grid-template-columns: 1fr;
+        gap: 7px;
+    }
+
+    #hoihoaStudentModal .hh-adjust-control {
+        padding: 7px 9px;
+    }
+}
+/* ================================================================
+   LỚP ĐỐI TƯỢNG CÓ THỂ CHỌN VÀ DI CHUYỂN
+   ================================================================ */
+
+#hoihoaStudentModal #hoihoaObjectCanvas {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+
+    width: 100%;
+    height: 100%;
+
+    display: block;
+    pointer-events: none;
+}
+
+#hoihoaStudentModal #hh-grid-overlay {
+    z-index: 3;
+}
+
+#hoihoaStudentModal #hoihoaPreviewCanvas {
+    z-index: 4;
+}
+
+#hoihoaStudentModal
+.hh-tool-button[data-tool="select"] span {
+    color: #2563eb;
+    font-size: 23px;
+    font-weight: 900;
+}
+
+#hoihoaStudentModal
+.hh-tool-button[data-tool="select"].active {
+    color: #1d4ed8;
+    border-color: #93c5fd;
+    background:
+        linear-gradient(
+            135deg,
+            #eff6ff,
+            #eef2ff
+        );
+    box-shadow:
+        inset 3px 0 #2563eb;
+}

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#07111f">
+    <title>Trạng thái hệ thống</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: grid;
+            place-items: center;
+            padding: 20px;
+            font-family: Inter, Arial, sans-serif;
+            color: #f8fafc;
+            background:
+                radial-gradient(circle at 20% 12%, rgba(56,189,248,.18), transparent 30%),
+                radial-gradient(circle at 82% 85%, rgba(129,140,248,.18), transparent 30%),
+                linear-gradient(145deg, #050b18, #091a35 55%, #061022);
+        }
+        .box { width: min(720px, 100%); text-align: center; }
+        .scene {
+            position: relative;
+            height: 280px;
+            overflow: hidden;
+            border-radius: 28px;
+            border: 1px solid rgba(125,211,252,.28);
+            background: linear-gradient(180deg, rgba(11,53,100,.88), rgba(6,19,40,.94));
+            box-shadow: 0 28px 80px rgba(0,0,0,.35);
+            margin-bottom: 26px;
+        }
+        .ghost { position: absolute; top: 38px; left: 8%; font-size: 56px; animation: float 2.6s ease-in-out infinite; z-index: 3; }
+        .beam {
+            position: absolute; top: 110px; left: 12%; width: 80%; height: 140px;
+            background: linear-gradient(90deg, rgba(230,255,255,.86), rgba(80,210,255,.22), transparent);
+            clip-path: polygon(0 42%,100% 0,100% 100%,0 58%);
+        }
+        .code {
+            position: absolute; inset: 50% auto auto 50%; transform: translate(-50%,-50%) rotate(-4deg);
+            font-size: clamp(5.8rem, 22vw, 11rem); font-weight: 1000; color: #67e8f9;
+            text-shadow: 0 8px 0 #07527c; z-index: 4; letter-spacing: -.06em;
+        }
+        .status-pill {
+            display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; margin-bottom: 12px;
+            border-radius: 999px; font-size: .85rem; font-weight: 800;
+            background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.10);
+        }
+        h1 { margin: 0 0 10px; font-size: clamp(1.8rem, 6vw, 2.7rem); }
+        .lead { margin: 0 auto; max-width: 620px; color: #b8c7dc; line-height: 1.7; }
+        #networkStatus {
+            margin: 18px auto 0; padding: 13px 15px; max-width: 620px; border-radius: 13px;
+            color: #dbeafe; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08);
+        }
+        .actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+        button, a {
+            min-height: 46px; padding: 0 18px; border-radius: 12px; border: 0; cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center; text-decoration: none; font-weight: 850;
+        }
+        .primary { background: linear-gradient(135deg,#67e8f9,#38bdf8); color: #06202c; }
+        .secondary { background: rgba(255,255,255,.09); color: white; }
+        details {
+            margin: 18px auto 0; max-width: 620px; padding: 12px 14px; text-align: left;
+            border-radius: 13px; background: rgba(255,255,255,.05); color: #cbd5e1;
+        }
+        summary { cursor: pointer; font-weight: 800; }
+        #diagnostics { margin-top: 10px; white-space: pre-wrap; word-break: break-word; font: 12px/1.6 Consolas, monospace; }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+        @media (max-width: 520px) { .scene{height:230px}.ghost{top:26px;font-size:46px}.beam{top:90px}.actions>*{width:100%} }
+    </style>
+</head>
+<body>
+    <main class="box">
+        <div class="scene" aria-hidden="true">
+            <div class="ghost">👻</div>
+            <div class="beam"></div>
+            <div class="code" id="errorCode">404</div>
+        </div>
+
+        <div class="status-pill" id="statusPill">Đang kiểm tra trạng thái...</div>
+        <h1 id="title">Có ai ở đó không?</h1>
+        <p class="lead" id="message">Hệ thống đang xác định đây là lỗi đường dẫn hay sự cố kết nối.</p>
+        <div id="networkStatus">Đang kiểm tra Internet và Service Worker...</div>
+
+        <div class="actions">
+            <button type="button" class="primary" onclick="retryPage()">↻ Thử lại</button>
+            <button type="button" class="secondary" onclick="goBack()">← Quay lại</button>
+            <button type="button" class="secondary" onclick="goHome()">⌂ Trang đăng nhập</button>
+        </div>
+
+        <details>
+            <summary>Thông tin chẩn đoán</summary>
+            <div id="diagnostics"></div>
+        </details>
+    </main>
+
+    <script>
+        (() => {
+            'use strict';
+            const injectedMode = window.__APP_SW_ERROR_MODE__ || '';
+            const failedUrl = window.__APP_FAILED_URL__ || new URLSearchParams(location.search).get('from') || location.href;
+            let mode = injectedMode || (navigator.onLine ? 'status' : 'offline');
+            let wasOffline = mode === 'offline' || !navigator.onLine;
+            let autoRetried = false;
+
+            const ui = {
+                code: document.getElementById('errorCode'),
+                pill: document.getElementById('statusPill'),
+                title: document.getElementById('title'),
+                message: document.getElementById('message'),
+                network: document.getElementById('networkStatus'),
+                diagnostics: document.getElementById('diagnostics')
+            };
+
+            function setText(el, text) { if (el) el.textContent = text; }
+
+            function render() {
+                const online = navigator.onLine;
+                if (mode === '404') {
+                    setText(ui.code, '404');
+                    setText(ui.pill, '🔎 Không tìm thấy tài nguyên');
+                    setText(ui.title, 'Trang này không tồn tại');
+                    setText(ui.message, 'Máy chủ đang hoạt động nhưng đường dẫn bạn mở không tồn tại, đã bị đổi tên hoặc đã bị xóa.');
+                    setText(ui.network, online ? '✅ Internet đang hoạt động. Đây là lỗi 404, không phải mất mạng.' : '⚠️ Thiết bị vừa mất mạng trong lúc đang ở trang 404.');
+                } else if (mode === 'server') {
+                    setText(ui.code, '503');
+                    setText(ui.pill, '🛠️ Máy chủ tạm thời không sẵn sàng');
+                    setText(ui.title, 'Hệ thống chưa thể phản hồi');
+                    setText(ui.message, 'Máy chủ trả về lỗi tạm thời. Dữ liệu đám mây chưa được xác nhận nên ứng dụng không mở giao diện chính.');
+                    setText(ui.network, online ? '🌐 Internet có kết nối; hãy thử lại sau khi máy chủ phục hồi.' : '📴 Thiết bị hiện cũng đang ngoại tuyến.');
+                } else if (mode === 'offline' || !online) {
+                    mode = 'offline';
+                    setText(ui.code, 'OFF');
+                    setText(ui.pill, '📴 Ngoại tuyến');
+                    setText(ui.title, 'Mất kết nối Internet');
+                    setText(ui.message, 'Không thể lấy dữ liệu mới nhất từ Firebase và các dịch vụ đám mây. Trang chính được khóa để tránh hiển thị dữ liệu chưa đầy đủ.');
+                    setText(ui.network, '⚠️ Hãy kiểm tra Wi‑Fi/4G/5G. Khi mạng trở lại, hệ thống sẽ thử tải lại một lần.');
+                } else {
+                    setText(ui.code, 'OK?');
+                    setText(ui.pill, '🌐 Trang kiểm tra hệ thống');
+                    setText(ui.title, 'Kết nối Internet đang hoạt động');
+                    setText(ui.message, 'Bạn đang mở trực tiếp trang trạng thái. Có thể quay lại hoặc về trang đăng nhập.');
+                    setText(ui.network, '✅ Trình duyệt báo thiết bị đang trực tuyến.');
+                }
+
+                updateDiagnostics();
+            }
+
+            async function getScopeInfo() {
+                try {
+                    if (!('serviceWorker' in navigator)) return { sw: 'unsupported', scope: '' };
+                    const registration = await navigator.serviceWorker.getRegistration();
+                    return {
+                        sw: navigator.serviceWorker.controller ? 'controlled' : (registration ? 'registered' : 'not-registered'),
+                        scope: registration ? registration.scope : ''
+                    };
+                } catch (error) {
+                    return { sw: 'error: ' + error.message, scope: '' };
+                }
+            }
+
+            async function updateDiagnostics() {
+                const info = await getScopeInfo();
+                setText(ui.diagnostics,
+                    `Chế độ: ${mode}\n` +
+                    `Online: ${navigator.onLine}\n` +
+                    `URL lỗi: ${failedUrl}\n` +
+                    `Service Worker: ${info.sw}\n` +
+                    `Scope: ${info.scope || '(không có)'}\n` +
+                    `Thời gian: ${new Date().toLocaleString('vi-VN')}`
+                );
+            }
+
+            window.retryPage = function () {
+                if (failedUrl && failedUrl !== location.href && /^https?:/i.test(failedUrl)) {
+                    location.href = failedUrl;
+                } else {
+                    location.reload();
+                }
+            };
+
+            window.goBack = function () {
+                if (history.length > 1) history.back();
+                else goHome();
+            };
+
+            window.goHome = async function () {
+                try {
+                    if ('serviceWorker' in navigator) {
+                        const registration = await navigator.serviceWorker.getRegistration();
+                        if (registration && registration.scope) {
+                            location.href = new URL('index.html', registration.scope).href;
+                            return;
+                        }
+                        if (navigator.serviceWorker.controller && navigator.serviceWorker.controller.scriptURL) {
+                            location.href = new URL('index.html', navigator.serviceWorker.controller.scriptURL).href;
+                            return;
+                        }
+                    }
+                } catch (_) {}
+                location.href = new URL('/index.html', location.origin).href;
+            };
+
+            window.addEventListener('online', () => {
+                render();
+                if (wasOffline && !autoRetried && mode === 'offline') {
+                    autoRetried = true;
+                    setText(ui.network, '✅ Đã có Internet. Đang thử mở lại trang trước...');
+                    setTimeout(() => retryPage(), 900);
+                }
+            });
+            window.addEventListener('offline', render);
+            render();
+        })();
+    </script>
+</body>
+</html>

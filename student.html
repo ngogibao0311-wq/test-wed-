@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Học Sinh</title>
+    <link rel="icon" type="image/png" href="assets/icon.png">
+    <link rel="stylesheet" href="css/common.css?v=3.5">
+    <link rel="stylesheet" href="css/student.css?v=3.5">
+    <link rel="stylesheet" href="css/mobile.css?v=3.5">
+    <link rel="stylesheet" href="css/store-items.css?v=3.5">
+    <link rel="stylesheet" href="css/effects-pets.css?v=3.5">
+    <link rel="stylesheet" href="css/royal-ball.css?v=3.5">
+    <link rel="stylesheet" href="css/daily-login.css?v=3.5">
+    <link rel="stylesheet" href="css/lord-of-mysteries.css?v=3.3">
+    <link rel="stylesheet" href="css/legendery.css?v=3.5">
+    <link rel="stylesheet" href="css/leaderboard.css?v=3.3">
+    <link rel="stylesheet" href="css/painting.css?v=3.5">
+    <link rel="stylesheet" href="css/doraemon.css?v=3.5">
+    <link rel="stylesheet" href="css/hoi-hoa.css?v=3.5">
+    <link rel="stylesheet" href="css/that-dai-toi.css?v=3.5">
+    <link rel="stylesheet" href="css/pet-sinh-nhat.css?v=3.5">
+    <link rel="stylesheet" href="css/thoi-tiet.css?v=3.5">
+    <link rel="stylesheet" href="css/store-collections.css?v=3.5">
+    <link rel="stylesheet" href="css/luxury-store.css?v=3.5">
+    <link rel="stylesheet" href="css/premium-mua-xuan.css?v=3.5">
+    <link rel="stylesheet" href="css/lich-su-hao-hung.css?v=3.5">
+    <link rel="stylesheet" href="css/quoc-khanh-pet.css?v=3.5">
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']], // Cú pháp toán học trên cùng 1 dòng
+                displayMath: [['$$', '$$'], ['\\[', '\\]']] // Cú pháp toán học đứng 1 dòng riêng
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
+    <style id="appStartupLoaderStyles">
+        #appStartupLoader {
+            position: fixed;
+            inset: 0;
+            z-index: 2147483640;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            box-sizing: border-box;
+            background:
+                radial-gradient(circle at 50% 25%, rgba(99, 102, 241, .30), transparent 33%),
+                radial-gradient(circle at 16% 82%, rgba(14, 165, 233, .14), transparent 28%),
+                linear-gradient(145deg, #07111f 0%, #101b33 52%, #07111f 100%);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            opacity: 1;
+            visibility: visible;
+            transition: opacity .32s ease, visibility .32s ease;
+        }
+
+        #appStartupLoader.is-hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .app-startup-loader-card {
+            width: min(94vw, 520px);
+            max-height: min(88vh, 760px);
+            overflow: auto;
+            padding: 28px;
+            border: 1px solid rgba(255, 255, 255, .16);
+            border-radius: 26px;
+            background: rgba(15, 23, 42, .78);
+            box-shadow: 0 28px 90px rgba(0, 0, 0, .42);
+            text-align: left;
+            color: #fff;
+        }
+
+        .app-startup-loader-head {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .app-startup-cloud-icon {
+            width: 58px;
+            height: 58px;
+            flex: 0 0 58px;
+            display: grid;
+            place-items: center;
+            border-radius: 18px;
+            font-size: 1.75rem;
+            background: linear-gradient(135deg, rgba(56, 189, 248, .24), rgba(99, 102, 241, .34));
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .13);
+            animation: appStartupPulse 1.7s ease-in-out infinite;
+        }
+
+        .app-startup-loader-title strong {
+            display: block;
+            font-size: 1.16rem;
+            margin-bottom: 5px;
+        }
+
+        #appStartupLoaderStatus {
+            display: block;
+            min-height: 1.45em;
+            font-size: .92rem;
+            line-height: 1.5;
+            color: rgba(226, 232, 240, .86);
+        }
+
+        .app-startup-progress-track {
+            width: 100%;
+            height: 10px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: rgba(148, 163, 184, .18);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05);
+        }
+
+        #appStartupProgressBar {
+            display: block;
+            width: 4%;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #38bdf8, #818cf8, #a78bfa);
+            transition: width .26s ease;
+        }
+
+        .app-startup-meta {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 9px 1px 0;
+            color: rgba(203, 213, 225, .78);
+            font-size: .79rem;
+            font-weight: 700;
+        }
+
+        #appStartupDetails {
+            margin-top: 17px;
+            padding: 11px 12px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, .055);
+            color: rgba(226, 232, 240, .80);
+            font-size: .82rem;
+            line-height: 1.55;
+        }
+
+        #appStartupError {
+            margin-top: 17px;
+            padding: 14px;
+            border: 1px solid rgba(251, 113, 133, .34);
+            border-radius: 15px;
+            background: rgba(159, 18, 57, .18);
+        }
+
+        #appStartupError[hidden] { display: none !important; }
+
+        #appStartupError strong {
+            display: block;
+            margin-bottom: 6px;
+            color: #fecdd3;
+        }
+
+        #appStartupErrorText {
+            color: #ffe4e6;
+            font-size: .86rem;
+            line-height: 1.55;
+            white-space: pre-wrap;
+        }
+
+        .app-startup-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+            margin-top: 12px;
+        }
+
+        .app-startup-actions button {
+            min-height: 40px;
+            padding: 0 14px;
+            border: 0;
+            border-radius: 11px;
+            cursor: pointer;
+            font-weight: 800;
+        }
+
+        .app-startup-retry { background: #e0f2fe; color: #0c4a6e; }
+        .app-startup-offline { background: rgba(255,255,255,.10); color: #fff; }
+
+        @keyframes appStartupPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.055); }
+        }
+
+        @media (max-width: 560px) {
+            #appStartupLoader { padding: 14px; }
+            .app-startup-loader-card { padding: 21px 18px; border-radius: 21px; }
+            .app-startup-cloud-icon { width: 50px; height: 50px; flex-basis: 50px; }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="appStartupLoader" role="status" aria-live="polite" aria-busy="true">
+        <div class="app-startup-loader-card">
+            <div class="app-startup-loader-head">
+                <div class="app-startup-cloud-icon" aria-hidden="true">☁️</div>
+                <div class="app-startup-loader-title">
+                    <strong>Đang đồng bộ hệ thống học tập</strong>
+                    <span id="appStartupLoaderStatus">Đang kiểm tra tài nguyên và kết nối đám mây...</span>
+                </div>
+            </div>
+
+            <div class="app-startup-progress-track" aria-hidden="true">
+                <i id="appStartupProgressBar"></i>
+            </div>
+            <div class="app-startup-meta">
+                <span id="appStartupProgressText">Đang chuẩn bị...</span>
+                <span id="appStartupNetworkText">Đang kiểm tra mạng</span>
+            </div>
+
+            <div id="appStartupDetails">Hệ thống sẽ chỉ mở giao diện sau khi các dữ liệu bắt buộc đã phản hồi.</div>
+
+            <div id="appStartupError" hidden>
+                <strong>Không thể hoàn tất khởi động</strong>
+                <div id="appStartupErrorText"></div>
+                <div class="app-startup-actions">
+                    <button type="button" class="app-startup-retry" onclick="window.AppStartupLoader.retry()">↻ Thử lại</button>
+                    <button type="button" class="app-startup-offline" onclick="window.AppStartupLoader.openStatusPage()">🛟 Trang 404 / kết nối</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            'use strict';
+
+            const state = {
+                expected: new Set(),
+                ready: new Set(),
+                labels: new Map(),
+                warnings: [],
+                resourceErrors: [],
+                blocked: false,
+                errorKind: '',
+                hidden: false,
+                serviceWorkerPromise: null
+            };
+
+            const byId = id => document.getElementById(id);
+            const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+            function safeText(value) {
+                return String(value == null ? '' : value);
+            }
+
+            function updateNetworkLabel() {
+                const el = byId('appStartupNetworkText');
+                if (!el) return;
+                el.textContent = navigator.onLine ? '🌐 Có Internet' : '📴 Đang ngoại tuyến';
+            }
+
+            function getMissing() {
+                return [...state.expected].filter(key => !state.ready.has(key));
+            }
+
+            function render() {
+                if (state.hidden) return;
+                updateNetworkLabel();
+
+                const total = state.expected.size;
+                const done = [...state.expected].filter(key => state.ready.has(key)).length;
+                const percent = total ? Math.max(4, Math.min(100, Math.round((done / total) * 100))) : 4;
+
+                const bar = byId('appStartupProgressBar');
+                const text = byId('appStartupProgressText');
+                const details = byId('appStartupDetails');
+                if (bar) bar.style.width = percent + '%';
+                if (text) text.textContent = total ? `${done}/${total} bước • ${percent}%` : 'Đang chuẩn bị...';
+
+                if (details) {
+                    const missing = getMissing();
+                    if (missing.length) {
+                        const shown = missing.slice(0, 5).map(key => state.labels.get(key) || key);
+                        details.textContent = 'Đang chờ: ' + shown.join(' • ') + (missing.length > shown.length ? ` • +${missing.length - shown.length} bước` : '');
+                    } else if (total) {
+                        details.textContent = state.warnings.length
+                            ? `Dữ liệu bắt buộc đã sẵn sàng. Có ${state.warnings.length} cảnh báo không chặn hệ thống.`
+                            : '✅ Dữ liệu bắt buộc đã sẵn sàng.';
+                    }
+                }
+            }
+
+            function clearError() {
+                const box = byId('appStartupError');
+                if (box) box.hidden = true;
+                state.blocked = false;
+                state.errorKind = '';
+            }
+
+            function showError(message, detail, kind) {
+                state.blocked = true;
+                state.errorKind = kind || 'fatal';
+                const box = byId('appStartupError');
+                const text = byId('appStartupErrorText');
+                if (box) box.hidden = false;
+                if (text) text.textContent = safeText(message) + (detail ? '\n' + safeText(detail) : '');
+                api.setStatus('Khởi động bị gián đoạn. Hãy kiểm tra thông tin bên dưới.');
+                render();
+            }
+
+            function resolvePath(path) {
+                const normalized = safeText(path).trim();
+
+                // db thường được khai báo bằng const trong firebase-config.js,
+                // nên không nhất thiết nằm trên window.
+                if (normalized === 'db' || normalized.startsWith('db.')) {
+                    const database = (typeof db !== 'undefined' ? db : window.db);
+                    if (!database) return undefined;
+                    if (normalized === 'db') return database;
+                    return normalized.slice(3).split('.').filter(Boolean)
+                        .reduce((value, key) => value == null ? undefined : value[key], database);
+                }
+
+                return normalized.split('.').filter(Boolean)
+                    .reduce((value, key) => value == null ? undefined : value[key], window);
+            }
+
+            const api = {
+                expect(keys, labels) {
+                    (keys || []).forEach(key => {
+                        const normalized = safeText(key).trim();
+                        if (!normalized) return;
+                        state.expected.add(normalized);
+                        if (labels && labels[normalized]) state.labels.set(normalized, labels[normalized]);
+                    });
+                    render();
+                },
+
+                label(key, label) {
+                    if (key) state.labels.set(safeText(key), safeText(label));
+                    render();
+                },
+
+                markReady(key, label) {
+                    const normalized = safeText(key).trim();
+                    if (!normalized) return;
+                    if (label) state.labels.set(normalized, safeText(label));
+                    state.ready.add(normalized);
+                    render();
+
+                    if (state.blocked && state.errorKind === 'timeout' && getMissing().length === 0) {
+                        clearError();
+                        api.setStatus('Kết nối đã phục hồi. Hoàn tất khởi động...');
+                        setTimeout(() => api.hide(), 250);
+                    }
+                },
+
+                markWarning(message) {
+                    const text = safeText(message).trim();
+                    if (text && !state.warnings.includes(text)) state.warnings.push(text);
+                    render();
+                },
+
+                setStatus(message) {
+                    const el = byId('appStartupLoaderStatus');
+                    if (el) el.textContent = safeText(message);
+                },
+
+                fail(message, detail, kind) {
+                    showError(message, detail, kind || 'fatal');
+                    return false;
+                },
+
+                checkRuntime(paths) {
+                    const missing = (paths || []).filter(path => typeof resolvePath(path) === 'undefined');
+                    if (missing.length) {
+                        showError('Thiếu thư viện hoặc module bắt buộc.', 'Không tìm thấy: ' + missing.join(', '), 'runtime');
+                        return false;
+                    }
+                    return true;
+                },
+
+                checkStylesheets() {
+                    const failed = [...document.querySelectorAll('link[rel="stylesheet"][href]')]
+                        .filter(link => !link.disabled && !link.sheet)
+                        .map(link => link.href);
+
+                    if (failed.length) {
+                        showError(
+                            'Một hoặc nhiều giao diện CSS chưa tải được.',
+                            failed.join('\n'),
+                            'resource'
+                        );
+                        return false;
+                    }
+                    return true;
+                },
+
+                async registerServiceWorker() {
+                    if (state.serviceWorkerPromise) return state.serviceWorkerPromise;
+
+                    state.serviceWorkerPromise = (async () => {
+                        if (!('serviceWorker' in navigator)) {
+                            api.markWarning('Trình duyệt không hỗ trợ Service Worker.');
+                            return true;
+                        }
+
+                        if (!/^https?:$/.test(location.protocol)) {
+                            api.markWarning('Service Worker chỉ hoạt động trên HTTP/HTTPS.');
+                            return true;
+                        }
+
+                        try {
+                            const registration = await navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' });
+                            registration.update().catch(() => {});
+                            return true;
+                        } catch (error) {
+                            api.markWarning('Không đăng ký được Service Worker: ' + (error && error.message ? error.message : error));
+                            return true;
+                        }
+                    })();
+
+                    return state.serviceWorkerPromise;
+                },
+
+                async waitForCloudConnection(options) {
+                    const timeoutMs = Math.max(3000, Number(options && options.timeoutMs) || 18000);
+                    api.setStatus('Đang kết nối Firebase Realtime Database...');
+
+                    if (!navigator.onLine) {
+                        showError('Thiết bị đang ngoại tuyến.', 'Cần Internet để lấy dữ liệu mới nhất từ đám mây.', 'network');
+                        return false;
+                    }
+
+                    const database = (typeof db !== 'undefined' ? db : window.db);
+
+                    if (!database || typeof database.ref !== 'function') {
+                        showError('Firebase Database chưa được khởi tạo.', 'Không tìm thấy đối tượng db.ref().', 'runtime');
+                        return false;
+                    }
+
+                    return await new Promise(resolve => {
+                        let settled = false;
+                        const ref = database.ref('.info/connected');
+
+                        const finish = ok => {
+                            if (settled) return;
+                            settled = true;
+                            clearTimeout(timer);
+                            try { ref.off('value', handler); } catch (_) {}
+                            if (!ok) {
+                                showError(
+                                    'Không kết nối được máy chủ Firebase.',
+                                    `Đã chờ ${Math.round(timeoutMs / 1000)} giây nhưng máy chủ chưa phản hồi. Dữ liệu đám mây chưa đủ nên giao diện chưa được mở.`,
+                                    'network'
+                                );
+                            }
+                            resolve(ok);
+                        };
+
+                        const handler = snapshot => {
+                            if (snapshot && snapshot.val() === true) finish(true);
+                        };
+
+                        const timer = setTimeout(() => finish(false), timeoutMs);
+                        ref.on('value', handler, error => {
+                            showError('Firebase trả về lỗi kết nối.', error && error.message ? error.message : error, 'network');
+                            finish(false);
+                        });
+                    });
+                },
+
+                async runStage(key, label, task) {
+                    if (label) state.labels.set(key, label);
+                    api.setStatus('Đang tải: ' + (label || key) + '...');
+                    try {
+                        const result = await task();
+                        api.markReady(key, label);
+                        return result;
+                    } catch (error) {
+                        showError('Không tải được: ' + (label || key), error && error.message ? error.message : error, 'cloud');
+                        throw error;
+                    }
+                },
+
+                async waitForExpected(options) {
+                    const timeoutMs = Math.max(5000, Number(options && options.timeoutMs) || 30000);
+                    const started = Date.now();
+                    api.setStatus('Đang chờ các dữ liệu bắt buộc từ đám mây...');
+
+                    while (getMissing().length) {
+                        if (Date.now() - started >= timeoutMs) {
+                            const missing = getMissing();
+                            showError(
+                                'Một số dữ liệu bắt buộc chưa phản hồi.',
+                                'Còn thiếu: ' + missing.map(key => state.labels.get(key) || key).join(', '),
+                                'timeout'
+                            );
+                            return false;
+                        }
+                        await sleep(120);
+                    }
+
+                    return true;
+                },
+
+                async waitForMedia(options) {
+                    const timeoutMs = Math.max(1000, Number(options && options.timeoutMs) || 7000);
+                    const quietMs = Math.max(0, Number(options && options.quietMs) || 350);
+                    api.setStatus('Đang hoàn thiện ảnh và nội dung web...');
+
+                    const media = [...document.querySelectorAll('img[src], iframe[data-startup-video="1"]')]
+                        .filter(el => el.getAttribute('src'));
+
+                    const waits = media.map(el => new Promise(resolve => {
+                        if (el.tagName === 'IMG' && el.complete) return resolve();
+                        let done = false;
+                        const finish = () => {
+                            if (done) return;
+                            done = true;
+                            el.removeEventListener('load', finish);
+                            el.removeEventListener('error', finish);
+                            resolve();
+                        };
+                        el.addEventListener('load', finish, { once: true });
+                        el.addEventListener('error', finish, { once: true });
+                        setTimeout(finish, Math.min(timeoutMs, 5000));
+                    }));
+
+                    await Promise.race([
+                        Promise.all(waits),
+                        sleep(timeoutMs)
+                    ]);
+                    if (quietMs) await sleep(quietMs);
+                    return true;
+                },
+
+                hide(force) {
+                    if (state.hidden) return true;
+                    if (state.blocked && force !== true) return false;
+                    if (getMissing().length && force !== true) {
+                        showError('Dữ liệu chưa đủ để mở giao diện.', 'Còn thiếu: ' + getMissing().join(', '), 'timeout');
+                        return false;
+                    }
+
+                    const loader = byId('appStartupLoader');
+                    if (!loader) return true;
+                    state.hidden = true;
+                    loader.setAttribute('aria-busy', 'false');
+                    loader.classList.add('is-hidden');
+                    setTimeout(() => loader.remove(), 380);
+                    return true;
+                },
+
+                retry() {
+                    location.reload();
+                },
+
+                openStatusPage() {
+                    const target = new URL('./offline.html', location.href);
+                    target.searchParams.set('from', location.href);
+                    location.href = target.href;
+                },
+
+                diagnostics() {
+                    return {
+                        online: navigator.onLine,
+                        expected: [...state.expected],
+                        ready: [...state.ready],
+                        missing: getMissing(),
+                        warnings: [...state.warnings],
+                        resourceErrors: [...state.resourceErrors]
+                    };
+                }
+            };
+
+            window.AppStartupLoader = api;
+
+            window.addEventListener('online', updateNetworkLabel);
+            window.addEventListener('offline', updateNetworkLabel);
+            updateNetworkLabel();
+
+            window.addEventListener('error', event => {
+                const target = event.target;
+                if (target && target !== window && (target.src || target.href)) {
+                    const url = target.src || target.href;
+                    state.resourceErrors.push(url);
+
+                    let isCriticalLocalResource = false;
+                    try {
+                        const parsed = new URL(url, location.href);
+                        isCriticalLocalResource =
+                            parsed.origin === location.origin &&
+                            (target.tagName === 'SCRIPT' || target.tagName === 'LINK');
+                    } catch (_) {}
+
+                    if (isCriticalLocalResource) {
+                        showError(
+                            'Không tải được tài nguyên bắt buộc của website.',
+                            url,
+                            'resource'
+                        );
+                    } else {
+                        api.markWarning('Không tải được tài nguyên: ' + url);
+                    }
+                }
+            }, true);
+
+            window.addEventListener('unhandledrejection', event => {
+                if (state.hidden) return;
+                const reason = event.reason;
+                const message = reason && reason.message ? reason.message : reason;
+                showError('Có lỗi trong quá trình khởi động.', message || 'Promise bị từ chối nhưng không có thông báo chi tiết.', 'runtime');
+            });
+        })();
+    </script>
+    <div class="dashboard">
+        <div class="sidebar">
+            <div class="sidebar-toggle" onclick="toggleSidebar()">
+                <span class="toggle-icon">◀</span>
+            </div>
+
+            <div class="sidebar-top">
+                <h3 id="studentName">Học sinh</h3><br>
+                <button class="nav-item active" onclick="switchTab('tab-todo', this)">📝 <span class="nav-text">Bài tập
+                        cần làm</span></button>
+                <button class="nav-item" onclick="switchTab('tab-grades', this)">📈 <span class="nav-text">Kết quả học
+                        tập</span></button>
+                <button class="nav-item" onclick="switchTab('tab-materials', this)">📚 <span class="nav-text">Tài liệu
+                        học tập</span></button>
+                <button class="nav-item" onclick="switchTab('tab-roadmap', this)">🗺️ <span class="nav-text">Lộ
+                        trình & Lịch</span></button>
+                <button class="nav-item" onclick="switchTab('tab-game', this)">🎮 <span class="nav-text">Trò
+                        chơi</span></button>
+                <button class="nav-item" onclick="switchTab('tab-store', this)">🛒 <span class="nav-text">Cửa
+                        hàng</span></button>
+                <button class="nav-item" id="btnSettingsNav" onclick="switchTab('tab-settings', this)">⚙️ <span
+                        class="nav-text">Cài đặt</span></button>
+            </div>
+            <div class="sidebar-bottom">
+                <button class="btn-logout" onclick="logout()">🚪 <span class="nav-text">Đăng xuất</span></button>
+            </div>
+        </div>
+
+        <div class="content">
+            <button class="inbox-trigger-btn ui-theme-immune" onclick="openStudentInbox()" title="Hộp thư đến"
+                style="position: absolute; top: 20px; right: 85px; width: 45px; height: 45px; border-radius: 50%; background: rgba(255,255,255,0.7); border: 2px solid rgba(255,255,255,0.9); font-size: 1.5em; cursor: pointer; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; justify-content: center; align-items: center;">
+                💌
+                <span id="inboxBadge"
+                    style="display: none; position: absolute; top: -5px; right: -5px; background: #e11d48; color: white; font-size: 0.65em; font-weight: bold; padding: 3px 6px; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">0</span>
+            </button>
+
+            <button class="bag-trigger-btn ui-theme-immune" onclick="openStudentBag()" title="Túi đồ của tôi"
+                style="position: absolute; top: 20px; right: 140px; width: 45px; height: 45px; border-radius: 50%; background: rgba(255,255,255,0.7); border: 2px solid rgba(255,255,255,0.9); font-size: 1.5em; cursor: pointer; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; justify-content: center; align-items: center; transition: 0.2s;">
+                🎒
+            </button>
+            <button class="profile-trigger-btn ui-theme-immune" onclick="openStudentInfoModal()" title="Hồ sơ cá nhân">
+                <img id="avatarImage" src=""
+                    style="display: none; width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+
+                <span id="avatarPlaceholder" style="font-size: 1.5em;">👤</span>
+            </button>
+            <div id="tab-todo" class="tab-content active">
+                <h2>Bài tập cần làm</h2>
+                <input type="text" class="search-bar" placeholder="🔍 Tìm kiếm bài tập..."
+                    onkeyup="filterItems('assignmentsList', this.value)">
+                <div id="assignmentsList"></div>
+            </div>
+
+            <div id="tab-grades" class="tab-content">
+                <h2>Kết quả học tập</h2>
+                <input type="text" class="search-bar" placeholder="🔍 Tìm kiếm bài đã nộp, điểm số..."
+                    onkeyup="filterItems('gradesList', this.value)">
+                <div id="gradesList"></div>
+            </div>
+
+            <div id="tab-materials" class="tab-content">
+                <h2>Tài liệu học tập</h2>
+                <input type="text" class="search-bar" placeholder="🔍 Tìm kiếm tài liệu, bài giảng..."
+                    onkeyup="filterItems('studentMaterialsList', this.value)">
+                <div id="studentMaterialsList"></div>
+            </div>
+
+            <div id="tab-roadmap" class="tab-content">
+                <h2>Lộ trình & Thời khóa biểu</h2>
+
+                <div class="card"
+                    style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; padding: 15px 20px; border-radius: 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 8px 20px rgba(17, 153, 142, 0.15);">
+                    <div>
+                        <h4
+                            style="margin: 0; font-size: 0.85em; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9;">
+                            💰 Tổng tiền tích lũy lộ trình</h4>
+                        <p
+                            style="margin: 5px 0 0 0; font-size: 1.8em; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <span id="totalRoadmapMoney">0</span> đ
+                        </p>
+                    </div>
+                    <span style="font-size: 2.3em; opacity: 0.3;">¼</span>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button id="btnSubRoadmap" onclick="toggleRoadmapView('roadmap')"
+                        style="flex: 1; padding: 12px; border-radius: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-weight: bold; border: none; cursor: pointer; transition: 0.3s;">🗺️
+                        Lộ trình cá nhân</button>
+                    <button id="btnSubSchedule" onclick="toggleRoadmapView('schedule')"
+                        style="flex: 1; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.5); color: #667eea; font-weight: bold; border: 2px solid #667eea; cursor: pointer; transition: 0.3s;">📅
+                        Thời khóa biểu</button>
+                </div>
+
+                <div id="view-roadmap">
+                    <div class="card">
+                        <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
+                            <button onclick="downloadStudentRoadmapPDF()"
+                                style="background: #e11d48; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9em; display: flex; align-items: center; gap: 5px;">
+                                📄 Tải xuống PDF
+                            </button>
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table style="width:100%; border-collapse: collapse; text-align: left;">
+                                <thead>
+                                    <tr
+                                        style="background:rgba(255,255,255,0.7); border-bottom: 2px solid rgba(0,0,0,0.05);">
+                                        <th style="padding:15px;">Bài học</th>
+                                        <th style="padding:15px; text-align: center;">Số điểm</th>
+                                        <th style="padding:15px; text-align: center;">Tình trạng</th>
+                                        <th style="padding:15px; text-align: center;">Cộng tiền</th>
+                                        <th style="padding:15px;">Hạn nộp</th>
+                                        <th style="padding:15px;">Điều kiện cụ thể</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="studentRoadmapBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-schedule" style="display: none;">
+                    <div class="card">
+                        <h3 style="margin-bottom: 15px; color: #2c3e50;">Thời khóa biểu lớp học</h3>
+                        <div style="overflow-x: auto;">
+                            <table style="width:100%; border-collapse: collapse; text-align: left;">
+                                <thead>
+                                    <tr
+                                        style="background:rgba(255,255,255,0.7); border-bottom: 2px solid rgba(0,0,0,0.05);">
+                                        <th style="padding:15px;">Thứ / Ngày</th>
+                                        <th style="padding:15px;">Thời gian</th>
+                                        <th style="padding:15px;">Môn / Nội dung</th>
+                                        <th style="padding:15px;">Ghi chú</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="studentScheduleBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-game" class="tab-content">
+                <h2>Khu vực giải trí & Trò chơi học tập</h2>
+
+                <div id="gameLockedView" style="display: none;">
+                    <div class="glass-alert danger"
+                        style="padding: 25px; text-align: center; border-left: 6px solid #e11d48; background: rgba(225, 29, 72, 0.08); border-radius: 16px;">
+                        <h3 style="color: #e11d48; margin-bottom: 12px; font-size: 1.4em; font-weight: 800;">🔒 Mục
+                            trò
+                            chơi đã bị Giáo viên tạm khóa</h3>
+                        <p id="gameLockedMessageText"
+                            style="font-size: 1.1em; font-weight: bold; color: #b91c1c; white-space: pre-wrap; background: rgba(255,255,255,0.7); padding: 15px; border-radius: 12px; margin-top: 15px; border: 1px solid rgba(225, 29, 72, 0.15); line-height: 1.6;">
+                            Nội dung tin nhắn nhắc nhở từ giáo viên sẽ hiển thị tại đây...</p>
+                    </div>
+                </div>
+
+                <div id="gameActiveView" style="display: block;">
+                    <div class="card">
+                        <h3 style="color: #059669; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                            🎉 Chào mừng các em đến với Khu vui chơi!</h3>
+                        <p style="color: #333; line-height: 1.6; font-size: 1em;">Nơi tham gia các hoạt động, sự
+                            kiện
+                            trò chơi tích điểm và đổi tiền thưởng Lộ trình một cách chủ động.</p>
+                    </div>
+
+                    <div class="card"
+                        style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);">
+                        <div>
+                            <h3 style="color: #d35400; margin-bottom: 8px;">🎡 Vòng quay nhân phẩm</h3>
+                            <p style="color: #666; font-size: 0.9em; margin: 0;">Thử vận may mỗi ngày để nhận Coin
+                                và
+                                Quà bí ẩn!</p>
+                        </div>
+                        <button onclick="openLuckyWheel()"
+                            style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white; padding: 12px 25px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(246, 211, 101, 0.4);">Chơi
+                            ngay ➡️</button>
+                    </div>
+                    <div id="royalEventCard" class="card royal-event-card ui-theme-immune" data-event-state="loading"
+                        data-ribbon-text="ĐANG KIỂM TRA"
+                        style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; margin-top: 20px;">
+                        <div>
+                            <h3
+                                style="color: #c0392b; margin-bottom: 8px; display: flex; align-items: center; gap: 10px;">
+                                🏰 Dạ Hội Hoàng Gia
+                                <button onclick="showRoyalBallRewards()"
+                                    style="background: rgba(192, 57, 43, 0.15); color: #c0392b; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 14px; transition: 0.2s;"
+                                    title="Xem phần thưởng" onmouseover="this.style.background='rgba(192, 57, 43, 0.3)'"
+                                    onmouseout="this.style.background='rgba(192, 57, 43, 0.15)'">?</button>
+                            </h3>
+                            <p id="royalEventDesc" style="color: #ddd; font-size: 0.9em; margin: 0;">
+                                Đang kiểm tra trạng thái Dạ Hội Hoàng Gia...
+                            </p>Sự kiện giới hạn! Khiêu vũ để nhận đồ
+                            Truyền thuyết hoặc lượng lớn Coin. (Chỉ mở 29/07 - 01/08)</p>
+                        </div>
+                        <button id="btnRoyalJoin" onclick="RoyalBallEvent.openModal()"
+                            style="background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%); color: white; padding: 12px 25px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 8, 68, 0.4);">Tham
+                            gia ngay ➡️</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-settings" class="tab-content">
+                <h2>Cài đặt tài khoản</h2>
+                <div id="updateBannerArea" class="update-banner">
+                    <div>
+                        <h4 style="margin: 0; font-size: 1.2em;">🚀 Có phiên bản hệ thống mới!</h4>
+                        <p style="margin: 5px 0 0 0; font-size: 0.95em;">Nhấn nút bên cạnh để tải lại toàn bộ tài
+                            nguyên
+                            web mới nhất.</p>
+                    </div>
+                    <button class="btn-do-update" onclick="applySystemUpdate()">Cập nhật ngay</button>
+                </div>
+                <div class="card form-container">
+                    <div
+                        style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; border: 1px solid rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <strong style="color: #2c3e50;">🐾 Tương tác thú cưng</strong>
+                            <button onclick="PetInteractionManager.showInfo()"
+                                style="background: rgba(102, 126, 234, 0.15); color: #667eea; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 12px;">?</button>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="togglePetInteractions"
+                                onchange="PetInteractionManager.toggle(this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div style="background: rgba(255,255,255,0.5);
+    padding: 15px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(0,0,0,0.05);">
+
+                        <div>
+                            <strong style="color: #2c3e50;">
+                                🪙 Hiển thị thanh số dư Coin
+                            </strong>
+
+                            <p style="margin: 4px 0 0;
+            color: #666;
+            font-size: 0.85em;
+            line-height: 1.4;">
+                                Chỉ ẩn hoặc hiện thanh Coin trên màn hình,
+                                không ảnh hưởng số dư và các chức năng khác.
+                            </p>
+                        </div>
+
+                        <label class="switch" title="Ẩn hoặc hiện thanh số dư Coin">
+                            <input type="checkbox" id="toggleCoinBalanceWidget"
+                                onchange="toggleCoinBalanceWidget(this.checked)" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <label><strong>🎨 Giao diện hiển thị:</strong></label>
+                    <select id="themeSelector" onchange="changeTheme(this.value)"
+                        style="margin-bottom: 20px; font-weight: bold; color: #667eea;">
+                        <option value="default">✨ Mặc định (Tím mộng mơ)</option>
+                        <option value="blue">🌊 Xanh biển (Tươi mát)</option>
+                        <option value="green">🌿 Xanh lá (Yên bình)</option>
+                        <option value="pink">🌸 Hồng (Ngọt ngào)</option>
+                    </select>
+                    <label><strong>Tên hiển thị của bạn:</strong></label>
+                    <input type="text" id="settingName" placeholder="Nhập tên hiển thị mới...">
+
+                    <label><strong>Mật khẩu mới (để trống nếu không muốn đổi):</strong></label>
+                    <input type="password" id="settingPass" placeholder="Nhập mật khẩu mới...">
+
+                    <button onclick="updateProfile()"
+                        style="margin-top: 15px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: #fff;">Gửi
+                        yêu cầu thay đổi</button>
+
+                    <div id="requestNotifications" style="margin-top: 25px;"></div>
+                </div>
+                <div class="glass-alert"
+                    style="margin-top: 30px; border-left-color: #3b82f6; background: rgba(59, 130, 246, 0.05);">
+                    <h3
+                        style="color: #2c3e50; margin-bottom: 10px; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 5px;">
+                        🔍 Trình Quét Lỗi Hệ Thống</h3>
+                    <p style="font-size: 0.9em; color: #555; margin-bottom: 15px;">Công cụ này sẽ rà soát toàn bộ tệp
+                        tin, hình ảnh, biến môi trường và luồng dữ liệu hiện tại để phát hiện các nguy cơ tiềm ẩn gây
+                        sập web hoặc lỗi chức năng.</p>
+                    <button onclick="runSystemDiagnostics()"
+                        style="width: 100%; padding: 12px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);">🚀
+                        Bắt đầu quét hệ thống</button>
+
+                    <div id="diagnosticResults"
+                        style="display: none; margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.8); border-radius: 8px; max-height: 300px; overflow-y: auto; border: 1px solid rgba(0,0,0,0.1);">
+                        <p style="text-align: center; color: #666;" id="diagnosticStatus">Đang chờ quét...</p>
+                        <ul id="diagnosticList"
+                            style="list-style-type: none; padding: 0; margin: 0; font-size: 0.9em; line-height: 1.6;">
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div id="tab-store" class="tab-content">
+                <h2>Cửa hàng Vật phẩm</h2>
+                <div id="storeLockedView" style="display: none;">
+                    <div class="glass-alert danger"
+                        style="padding: 25px; text-align: center; border-left: 6px solid #e11d48; background: rgba(225, 29, 72, 0.08); border-radius: 16px;">
+                        <h3 style="color: #e11d48; margin-bottom: 12px;">🔒 Cửa hàng đã bị đóng</h3>
+                        <p style="font-size: 1.1em; font-weight: bold; color: #b91c1c;">Giáo viên đang tạm khóa cửa
+                            hàng, vui lòng quay lại sau!</p>
+                    </div>
+                </div>
+
+                <div id="storeActiveView" style="display: block;">
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                        <button onclick="filterStore('all')" class="btn-approve"
+                            style="background: #667eea; color: white;">Tất cả</button>
+                        <button onclick="filterStore('theme')" class="btn-approve"
+                            style="background: rgba(255,255,255,0.5); color: #667eea;">🎨 Giao diện</button>
+                        <button onclick="filterStore('effect')" class="btn-approve"
+                            style="background: rgba(255,255,255,0.5); color: #667eea;">✨ Hiệu ứng</button>
+                        <button onclick="filterStore('pet')" class="btn-approve"
+                            style="background: rgba(255,255,255,0.5); color: #667eea;">🐾 Thú cưng</button>
+                        <button onclick="filterStore('music')" class="btn-approve"
+                            style="background: rgba(255,255,255,0.5); color: #667eea;">🎵 Nhạc nền</button>
+                    </div>
+                    <div id="storeItemsContainer"
+                        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <div id="studentInfoModal" class="modal-overlay ui-theme-immune">
+        <div class="modal-content form-container">
+            <button class="close-btn" onclick="closeStudentInfoModal()">✖</button>
+
+            <div class="avatar-upload-container"
+                style="position: relative; display: inline-block; margin-bottom: 20px; cursor: pointer;"
+                onclick="document.getElementById('avatarInput').click()" title="Click để đổi ảnh đại diện">
+                <img id="modalAvatarPreview" src=""
+                    style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid rgba(102, 126, 234, 0.3);">
+                <span
+                    style="position: absolute; bottom: 0; right: 0; background: #667eea; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; font-size: 0.8em; border: 2px solid white;">✏️</span>
+            </div>
+
+            <input type="file" id="avatarInput" accept="image/png, image/jpeg, image/gif" style="display: none;"
+                onchange="previewAvatar(this)">
+            <button id="saveAvatarBtn" onclick="saveNewAvatar()"
+                style="display: none; width: auto; font-size: 0.8em; padding: 5px 15px; background: linear-gradient(135deg, #16a085 0%, #2ecc71 100%); margin: -10px auto 15px auto;">Lưu
+                ảnh mới ✅</button>
+
+            <h3 id="infoModalName" style="color: #764ba2; margin-bottom: 5px; font-size: 1.5em;">Tên học sinh</h3>
+            <p style="color: #667eea; font-weight: bold; margin-bottom: 20px;" id="infoModalClass">Lớp: ...</p>
+
+            <div id="studentBirthdayProfileCard" style="text-align:left;
+           background:rgba(255,255,255,0.62);
+           padding:15px;
+           border-radius:12px;
+           margin-bottom:15px;
+           border:1px solid rgba(236,72,153,0.18);">
+
+                <strong style="color:#be185d;">🎂 Ngày sinh:</strong>
+
+                <p id="infoModalBirthDate" style="display:none; margin:7px 0 0; color:#444; font-weight:700;">
+                </p>
+
+                <div id="studentBirthDateInputArea" style="margin-top:10px;">
+                    <input type="date" id="studentBirthDateInput" style="margin:0 0 8px;">
+
+                    <button id="saveStudentBirthDateBtn" onclick="saveStudentBirthDateOnce()" style="margin:0;
+                   width:100%;
+                   padding:10px;
+                   background:linear-gradient(135deg,#ec4899,#f97316);
+                   color:white;
+                   border:none;
+                   border-radius:8px;
+                   font-weight:800;
+                   cursor:pointer;">
+                        🎁 Lưu ngày sinh
+                    </button>
+
+                    <small id="studentBirthDateNote" style="display:block;
+                   margin-top:8px;
+                   color:#be123c;
+                   line-height:1.45;">
+                        Lưu ý: học sinh chỉ được tự nhập ngày sinh 1 lần duy nhất.
+                        Hãy kiểm tra thật kỹ trước khi lưu.
+                    </small>
+                </div>
+            </div>
+
+            <div
+                style="text-align: left; background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; margin-bottom: 15px;">
+                <strong style="color: #2c3e50;">🌟 Sở thích:</strong>
+                <p id="infoModalHobbies" style="margin-top: 5px; color: #444;">Chưa cập nhật</p>
+            </div>
+
+            <div style="text-align: left; background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px;">
+                <strong style="color: #2c3e50;">💬 Chân ngôn:</strong>
+                <p id="infoModalMotto" style="margin-top: 5px; font-style: italic; color: #444;">Chưa cập nhật</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="luckyWheelModal" class="modal-overlay ui-theme-immune" style="background: rgba(0,0,0,0.6);">
+        <div class="modal-content"
+            style="max-width: 480px; text-align: center; position: relative; background: rgba(30, 30, 50, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 30px 60px rgba(0,0,0,0.5); border-radius: 24px; padding: 35px 20px 45px 20px;">
+
+            <button class="close-btn" onclick="closeLuckyWheel()"
+                style="z-index: 10; background: rgba(255,255,255,0.1); border-radius: 50%; color: #fff; top: 15px; right: 15px; border: 1px solid rgba(255,255,255,0.2);">✖</button>
+
+            <h3
+                style="color: #fff; margin-bottom: 35px; font-size: 1.8em; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); font-weight: 900;">
+                🎡 Vòng Quay Nhân Phẩm</h3>
+
+            <div style="position: relative; width: 320px; height: 320px; margin: 0 auto 40px auto;">
+                <div
+                    style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); z-index: 10; width: 0; height: 0; border-left: 18px solid transparent; border-right: 18px solid transparent; border-top: 35px solid #ff0844; filter: drop-shadow(0 6px 4px rgba(0,0,0,0.5));">
+                </div>
+                <div
+                    style="position: absolute; top: -18px; left: 50%; transform: translateX(-50%); z-index: 11; width: 36px; height: 12px; background: #ff0844; border-radius: 50px; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                </div>
+
+                <div id="wheelContainer" style="width: 100%; height: 100%; border-radius: 50%; border: 8px solid #f8f9fa; box-shadow: 0 15px 35px rgba(0,0,0,0.5), inset 0 0 25px rgba(0,0,0,0.6); position: relative; overflow: hidden; transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99); background: conic-gradient(
+                #ff4757 0deg 51.4deg, #2ed573 51.4deg 102.8deg, #1e90ff 102.8deg 154.2deg, #ffa502 154.2deg 205.7deg, #3742fa 205.7deg 257.1deg, #ff69b4 257.1deg 308.5deg, #2f3542 308.5deg 360deg
+            );">
+                    <style>
+                        .wheel-text {
+                            position: absolute;
+                            top: 50%;
+                            left: 50%;
+                            width: 50%;
+                            height: 40px;
+                            margin-top: -20px;
+                            transform-origin: 0 50%;
+                            font-weight: 900;
+                            font-size: 0.95em;
+                            color: #fff;
+                            text-shadow: 1px 2px 5px rgba(0, 0, 0, 0.9), 0 0 10px rgba(255, 255, 255, 0.2);
+                            display: flex;
+                            align-items: center;
+                            justify-content: flex-end;
+                            padding-right: 25px;
+                            box-sizing: border-box;
+                            letter-spacing: 0.5px;
+                        }
+                    </style>
+                    <div class="wheel-text" style="transform: rotate(-64.3deg);">Mất lượt 1</div>
+                    <div class="wheel-text" style="transform: rotate(-12.9deg);">50 Coin</div>
+                    <div class="wheel-text" style="transform: rotate(38.5deg);">Mất lượt 2</div>
+                    <div class="wheel-text" style="transform: rotate(89.9deg);">70 Coin</div>
+                    <div class="wheel-text" style="transform: rotate(141.3deg);">Mất lượt 3</div>
+                    <div class="wheel-text" style="transform: rotate(192.7deg);">200 Coin</div>
+                    <div class="wheel-text" style="transform: rotate(244.1deg);">🎁 Bí ẩn</div>
+                </div>
+
+                <div
+                    style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 45px; height: 45px; background: radial-gradient(circle, #fff 0%, #bdc3c7 100%); border-radius: 50%; border: 6px solid #2f3542; box-shadow: 0 5px 15px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.8); z-index: 10;">
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 15px; justify-content: center; align-items: center; flex-wrap: wrap;">
+                <button id="spinBtn" onclick="spinWheel()"
+                    style="background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%); color: white; padding: 15px 40px; font-size: 1.2em; border-radius: 50px; border: 2px solid rgba(255,255,255,0.3); font-weight: 900; cursor: pointer; box-shadow: 0 10px 25px rgba(255, 8, 68, 0.5); text-transform: uppercase; transition: all 0.2s ease;">
+                    Quay Ngay!
+                </button>
+
+                <button id="quickSpinBtn" onclick="spinMultipleWheel()"
+                    style="display: none; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.4); border-bottom: 4px solid rgba(255, 255, 255, 0.2); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.3); color: #ffd700; padding: 15px 30px; font-size: 1.2em; border-radius: 50px; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: transform 0.1s ease, filter 0.3s; text-shadow: 0 2px 4px rgba(0,0,0,0.6);"
+                    onmousedown="this.style.transform='translateY(4px)'; this.style.borderBottom='1px solid rgba(255, 255, 255, 0.4)';"
+                    onmouseup="this.style.transform='translateY(0)'; this.style.borderBottom='4px solid rgba(255, 255, 255, 0.2)';">
+                    ⚡ Quay Nhanh
+                </button>
+            </div>
+
+            <div
+                style="min-height: 70px; margin-top: 25px; display: flex; align-items: center; justify-content: center;">
+                <p id="spinResultText"
+                    style="font-weight: 900; color: #fff; font-size: 1.3em; text-shadow: 0 2px 5px rgba(0,0,0,0.5); transition: all 0.3s ease; transform: scale(0.8); opacity: 0; margin: 0; line-height: 1.4;">
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div id="coinWidget"
+        style="position: fixed; bottom: 20px; left: 20px; background: rgba(30, 30, 50, 0.85); backdrop-filter: blur(10px); border: 2px solid #ffd700; padding: 8px 18px; border-radius: 50px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; gap: 10px; cursor: grab; user-select: none; transition: transform 0.1s;">
+        <span style="font-size: 1.6em; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); pointer-events: none;">🪙</span>
+        <div style="display: flex; flex-direction: column;">
+            <span
+                style="color: #ffd700; font-size: 0.7em; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: -3px; display: flex; align-items: center; gap: 5px;">
+                <span style="pointer-events: none;">Số dư Coin</span>
+                <span onclick="openCoinConversionModal()"
+                    style="pointer-events: auto; background: rgba(255,255,255,0.2); border: 1px solid #ffd700; color: #fff; width: 14px; height: 14px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 10px; cursor: pointer; transition: 0.2s;"
+                    title="Bảng quy đổi Tiền & Coin" onmouseover="this.style.background='rgba(255,255,255,0.4)'"
+                    onmouseout="this.style.background='rgba(255,255,255,0.2)'">!</span>
+            </span>
+            <span id="studentCoinBalance"
+                style="color: #fff; font-size: 1.3em; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.5); transition: all 0.3s ease; pointer-events: none;">0</span>
+        </div>
+    </div>
+
+    <div id="global-effect-container"
+        style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9998; overflow: hidden;">
+    </div>
+
+    <div id="virtual-pet-container"
+        style="position: fixed; bottom: 80px; right: 20px; z-index: 9999; display: none; cursor: grab; user-select: none; transition: transform 0.2s;">
+        <img id="virtual-pet-img" src=""
+            style="width: 80px; height: auto; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));">
+    </div>
+
+    <div id="studentNotificationModal" class="modal-overlay" style="z-index: 999999;">
+        <div class="modal-content" style="max-width: 450px; text-align: center; border-top: 6px solid #f59e0b;">
+            <h3 style="color: #d35400; margin-bottom: 15px; font-size: 1.6em; text-transform: uppercase;">🔔 Thông Báo
+                Mới</h3>
+
+            <!-- Đã thêm ID, max-height và overflow-y để tạo thanh cuộn nếu nội dung dài -->
+            <div id="studentNotificationScrollBox"
+                style="background: rgba(255,255,255,0.7); padding: 20px; border-radius: 12px; margin-bottom: 15px; text-align: left; border: 1px solid rgba(0,0,0,0.05); box-shadow: inset 0 2px 5px rgba(0,0,0,0.02); max-height: 250px; overflow-y: auto;">
+                <p id="studentNotificationMessage"
+                    style="font-size: 1.1em; color: #2c3e50; line-height: 1.6; white-space: pre-wrap; margin: 0; font-weight: 700;">
+                </p>
+            </div>
+
+            <!-- Khu vực checkbox xác nhận -->
+            <div style="margin-bottom: 15px; text-align: left;">
+                <label id="labelUnderstandCheckbox"
+                    style="display: flex; align-items: center; gap: 8px; cursor: not-allowed; color: #999; font-weight: bold; font-size: 0.95em;">
+                    <input type="checkbox" id="checkUnderstand" disabled
+                        style="width: 18px; height: 18px; cursor: inherit;">
+                    Tôi đã đọc và hiểu toàn bộ nội dung thông báo
+                </label>
+                <p id="scrollReminderText"
+                    style="color: #e11d48; font-size: 0.8em; margin: 5px 0 0 0; font-style: italic;">* Vui lòng lướt
+                    xuống cuối thông báo để có thể xác nhận.</p>
+            </div>
+
+            <!-- Nút bấm mặc định bị vô hiệu hóa -->
+            <button id="btnAcknowledgeNotification" disabled
+                style="background: #9ca3af; font-size: 1.1em; padding: 12px; font-weight: 800; border-radius: 12px; width: 100%; border: none; color: white; cursor: not-allowed; transition: 0.3s;">
+                ✅ Đã nhận và đọc hiểu (Khóa)
+            </button>
+        </div>
+    </div>
+
+    <div id="studentSurveyModal" class="modal-overlay" style="z-index: 999998;">
+        <div class="modal-content"
+            style="max-width: 550px; background: rgba(255, 255, 255, 0.95); border-top: 6px solid #e83e8c;">
+            <h3 id="studentSurveyTitle"
+                style="color: #e83e8c; margin-bottom: 15px; font-size: 1.5em; border-bottom: 1px solid rgba(232, 62, 140, 0.2); padding-bottom: 10px;">
+                📝 Bảng Khảo Sát</h3>
+
+            <div id="studentSurveyBody"
+                style="max-height: 60vh; overflow-y: auto; padding-right: 10px; margin-bottom: 20px;">
+            </div>
+
+            <p id="surveyAlertMsg"
+                style="color: #e11d48; font-weight: bold; font-size: 0.9em; text-align: center; margin-bottom: 10px;">⚠️
+                Bạn cần hoàn thành tất cả câu hỏi để hiện nút Nộp bài & Thoát!</p>
+
+            <button id="btnSubmitSurvey" onclick="submitSurvey()"
+                style="display: none; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); font-size: 1.1em; padding: 12px; font-weight: 800; border-radius: 12px; width: 100%; box-shadow: 0 4px 15px rgba(17, 153, 142, 0.3);">📤
+                Gửi câu trả lời & Thoát X</button>
+        </div>
+    </div>
+
+    <div id="coinConversionModal" class="modal-overlay" style="z-index: 999999;">
+        <div class="modal-content" style="max-width: 420px; text-align: center; border-top: 6px solid #f6d365;">
+            <button class="close-btn" onclick="closeCoinConversionModal()">✖</button>
+            <h3 style="color: #d35400; margin-bottom: 15px; font-size: 1.5em; text-transform: uppercase;">💱 Bảng Quy
+                Đổi</h3>
+
+            <div
+                style="background: rgba(255,255,255,0.7); padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: left; border: 1px dashed #f6d365;">
+
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <button id="btnDirM2C" onclick="setConvertDir('M2C')"
+                        style="flex: 1; padding: 10px; border-radius: 8px; border: none; background: #059669; color: white; font-weight: bold; cursor: pointer; transition: 0.2s;">💵
+                        Tiền ➔ Coin</button>
+                    <button id="btnDirC2M" onclick="setConvertDir('C2M')"
+                        style="flex: 1; padding: 10px; border-radius: 8px; border: 2px solid #d35400; background: transparent; color: #d35400; font-weight: bold; cursor: pointer; transition: 0.2s;">🪙
+                        Coin ➔ Tiền</button>
+                </div>
+
+                <p id="convertLimitText"
+                    style="color: #e11d48; font-size: 0.85em; margin-bottom: 15px; display: none; font-weight: bold;">*
+                    Lưu ý: Mỗi lần chỉ được đổi tối đa 500 Coin sang Tiền lộ trình.</p>
+
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="flex: 1;">
+                        <label id="lblConvertSource" style="font-weight: bold; font-size: 0.9em; color: #2c3e50;">Tiền
+                            Lộ Trình (đ):</label>
+                        <input type="number" id="convertAmount" placeholder="Nhập số lượng..."
+                            style="width: 100%; padding: 10px; margin-top: 5px; border-radius: 8px; border: 1px solid #ccc; font-weight: bold; font-size: 1.1em; color: #2c3e50; outline: none;"
+                            oninput="updateConvertPreview()">
+                    </div>
+                    <div style="font-size: 1.5em; margin-top: 25px; color: #666;">➡️</div>
+                    <div style="flex: 1;">
+                        <label id="lblConvertTarget" style="font-weight: bold; font-size: 0.9em; color: #2c3e50;">Nhận
+                            được (Coin):</label>
+                        <input type="number" id="convertResult" disabled placeholder="0"
+                            style="width: 100%; padding: 10px; margin-top: 5px; border-radius: 8px; border: 1px solid #ccc; background: #eee; font-weight: bold; font-size: 1.1em; color: #059669;">
+                    </div>
+                </div>
+
+                <button onclick="executeConversion()"
+                    style="width: 100%; margin-top: 20px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); padding: 12px; border-radius: 8px; border: none; font-weight: bold; color: white; cursor: pointer; font-size: 1.1em; text-transform: uppercase; box-shadow: 0 4px 10px rgba(246, 211, 101, 0.3); transition: 0.2s;">🔄
+                    Thực hiện Quy đổi</button>
+            </div>
+
+            <div id="cashWithdrawalSection"
+                style="margin-top: 25px; border-top: 2px dashed #cbd5e1; padding-top: 20px; text-align: left; font-family: system-ui, -apple-system, sans-serif; clear: both; display: block;">
+                <h3
+                    style="color: #059669; font-size: 1.15em; margin: 0 0 8px 0; display: flex; align-items: center; gap: 6px;">
+                    💸 Yêu cầu lấy tiền mặt
+                </h3>
+                <p style="margin: 0 0 15px 0; color: #475569; font-size: 0.95em;">
+                    Tổng tiền tích lũy lộ trình hiện có: <strong id="displayRouteMoney"
+                        style="color: #dc2626; font-size: 1.1em;">0</strong> VNĐ
+                </p>
+
+                <div
+                    style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; width: 100%; box-sizing: border-box;">
+                    <input type="number" id="inputWithdrawAmount" placeholder="Nhập số tiền mặt bạn muốn lấy..."
+                        style="width: 100%; padding: 12px 15px; border: 2px solid #cbd5e1; border-radius: 8px; font-size: 1em; outline: none; box-sizing: border-box; background-color: #f8fafc;">
+                    <button onclick="handleRequestCashSubmit()"
+                        style="width: 100%; background: #059669; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1.05em; text-align: center; box-shadow: 0 2px 4px rgba(5, 150, 105, 0.2);">
+                        Gửi Yêu Cầu Cho Giáo Viên
+                    </button>
+                </div>
+
+                <h4 style="font-size: 0.95em; color: #1e293b; margin: 15px 0 8px 0; font-weight: 600;">📋 Lịch sử yêu
+                    cầu nhận tiền:</h4>
+                <div id="cashRequestHistoryContainer"
+                    style="max-height: 180px; overflow-y: auto; border: 1px solid #f1f5f9; border-radius: 6px; padding: 8px; background: #fafafa; box-sizing: border-box;">
+                </div>
+            </div>
+
+            <p style="margin: 0; font-size: 0.85em; color: #666; font-style: italic; line-height: 1.5;">* Tỉ lệ quy đổi
+                luôn là 1:1. Số tiền hoặc Coin sẽ được tự động cập nhật ngay sau khi thực hiện giao dịch thành công.</p>
+        </div>
+    </div>
+
+    <div id="studentInboxModal" class="modal-overlay ui-theme-immune" style="z-index: 999998;">
+        <div class="modal-content form-container"
+            style="max-width: 500px; background: rgba(255, 255, 255, 0.95); border-top: 6px solid #3b82f6;">
+            <button class="close-btn" onclick="closeStudentInbox()">✖</button>
+            <h3
+                style="color: #3b82f6; margin-bottom: 15px; font-size: 1.5em; border-bottom: 1px solid rgba(59, 130, 246, 0.2); padding-bottom: 10px;">
+                📬 Hộp thư đến
+            </h3>
+            <p style="font-size: 0.85em; color: #666; font-style: italic; margin-top: -10px; margin-bottom: 15px;">* Thư
+                sẽ tự động bị xóa sau 5 ngày nếu không nhận.</p>
+            <div id="studentInboxBody"
+                style="max-height: 60vh; overflow-y: auto; padding-right: 10px; margin-bottom: 10px;">
+            </div>
+        </div>
+    </div>
+
+    <div id="studentBagModal" class="modal-overlay ui-theme-immune" style="z-index: 999998;">
+        <div class="modal-content form-container"
+            style="max-width: 450px; background: rgba(255, 255, 255, 0.98); border-top: 6px solid #8e44ad; position: relative; border-radius: 12px; box-shadow: 0 15px 30px rgba(0,0,0,0.2);">
+            <button class="close-btn" onclick="closeStudentBag()">✖</button>
+            <h3
+                style="color: #8e44ad; margin-bottom: 12px; font-size: 1.4em; border-bottom: 1px solid rgba(142, 68, 173, 0.2); padding-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                🎒 Túi đồ của tôi
+            </h3>
+            <p
+                style="font-size: 0.8em; color: #666; font-style: italic; margin-top: -8px; margin-bottom: 15px; line-height: 1.3;">
+                💡 *Mỗi ô xếp tối đa 50 vật phẩm cùng loại. <b>Nhấn và giữ im</b> vào ô vật phẩm để xem thông tin chi
+                tiết hoặc bán thẻ giảm giá lấy Coin.*
+            </p>
+
+            <div id="studentBagBody" style="max-height: 55vh; overflow-y: auto; padding: 4px; margin-bottom: 5px;">
+            </div>
+
+            <div id="bagItemPopup"
+                style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border: 3px solid #8e44ad; border-radius: 14px; padding: 20px; box-shadow: 0 12px 35px rgba(0,0,0,0.35); z-index: 999999; width: 280px; text-align: center; animation: scaleIn 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);">
+                <div id="bagItemPopupContent"></div>
+                <button onclick="closeBagItemPopup()"
+                    style="margin-top: 15px; background: #cbd5e1; border: none; padding: 8px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; color: #334155; font-size: 0.9em; width: 100%; transition: 0.2s;">
+                    Đóng cửa sổ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="petInteractionInfoModal" class="modal-overlay" style="z-index: 999999;">
+        <div class="modal-content form-container"
+            style="max-width: 400px; text-align: center; border-top: 6px solid #667eea;">
+            <button class="close-btn"
+                onclick="document.getElementById('petInteractionInfoModal').classList.remove('active')">✖</button>
+            <h3 style="color: #667eea; margin-bottom: 15px; font-size: 1.4em;">🐾 Thú cưng tương tác</h3>
+            <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">Dưới đây là danh sách các thú cưng có hoạt
+                ảnh ẩn khi bạn chạm hoặc nhấn đúp vào chúng.</p>
+
+            <div id="interactivePetList" style="max-height: 50vh; overflow-y: auto;">
+            </div>
+        </div>
+    </div>
+
+    <div id="examWarningModal" class="modal-overlay" style="z-index: 999999;">
+        <div class="modal-content" style="max-width: 450px; text-align: center; border-top: 6px solid #e11d48;">
+            <h3 style="color: #e11d48; margin-bottom: 15px; font-size: 1.6em; text-transform: uppercase;">⚠️ Cảnh báo
+                bài thi</h3>
+            <div
+                style="background: rgba(225, 29, 72, 0.1); padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: left; border: 1px solid rgba(225, 29, 72, 0.2);">
+                <p style="font-size: 1.1em; color: #b91c1c; line-height: 1.6; margin: 0; font-weight: 700;">
+                    Bạn chuẩn bị bước vào chế độ THI NGHIÊM NGẶT.
+                    <br><br>
+
+                    - Hệ thống sẽ yêu cầu quyền Toàn màn hình.<br>
+
+                    - Nếu bạn tự ý thoát toàn màn hình
+                    (nhấn phím ESC, F11 hoặc chuyển tab khác),
+                    hệ thống sẽ
+                    <strong style="color: red;">
+                        TỰ ĐỘNG THU BÀI
+                    </strong>
+                    ngay lập tức.<br>
+
+                    - Nếu giáo viên đặt giới hạn thời gian, đồng hồ sẽ bắt đầu đếm ngược ngay khi bạn vào toàn màn hình.
+                    Hết giờ, hệ thống tự động thu bài và <strong>không tính là vi phạm</strong>.<br><br>
+
+                    - Khi bắt đầu thi, toàn bộ
+                    <strong style="color: #d97706;">
+                        thú cưng và hiệu ứng trang trí
+                    </strong>
+                    đang sử dụng sẽ tạm thời bị tắt.<br>
+
+                    - Các vật phẩm
+                    <strong>không bị mất hoặc bị tháo</strong>
+                    và sẽ tự động bật lại sau khi bạn
+                    <strong>
+                        nộp bài, hết giờ, bị thu bài do vi phạm
+                        hoặc kết thúc chế độ thi
+                    </strong>.<br>
+
+                    - Vui lòng nhấn "Cho phép" nếu trình duyệt hỏi quyền.
+                </p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="closeExamWarning()"
+                    style="flex: 1; background: rgba(0,0,0,0.1); color: #333; padding: 12px; font-weight: 800; border-radius: 12px; border: none; cursor: pointer;">Hủy
+                    bỏ</button>
+                <button onclick="startExamFullscreen()"
+                    style="flex: 2; background: linear-gradient(135deg, #e11d48 0%, #ff4d4d 100%); font-size: 1.1em; padding: 12px; font-weight: 800; border-radius: 12px; color: white; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(225, 29, 72, 0.3);">Đã
+                    hiểu & Bắt đầu</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="royalBallModal" class="modal-overlay ui-theme-immune" style="z-index: 999999;">
+        <div class="modal-content" style="max-width: 600px; padding: 0;">
+            <div class="castle-overlay"></div>
+            <button class="close-btn" onclick="RoyalBallEvent.closeModal()"
+                style="z-index: 10; color: white; background: rgba(0,0,0,0.5); border-radius: 50%;">✖</button>
+
+            <div class="royal-content-wrapper">
+                <h3
+                    style="color: #ffd700; font-size: 2em; text-transform: uppercase; text-shadow: 0 2px 10px rgba(0,0,0,1); margin-bottom: 10px;">
+                    Dạ Hội Hoàng Gia</h3>
+                <p style="color: #fff; font-style: italic; margin-bottom: 20px; text-shadow: 0 1px 3px black;">"Âm nhạc
+                    bắt đầu, định mệnh hội ngộ..."</p>
+
+                <div id="royalDanceFloor" class="dance-floor">
+                    <div class="dancer dancer-male">🤴</div>
+                    <div class="dancer dancer-female">👸</div>
+                </div>
+                <div class="spotlight"></div>
+
+                <button id="btnStartDance" onclick="RoyalBallEvent.startDance()"
+                    style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: #c0392b; padding: 12px 40px; font-size: 1.2em; border: none; border-radius: 50px; font-weight: 900; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.5); text-transform: uppercase;">🎵
+                    Bắt đầu Khiêu vũ</button>
+
+                <h4 id="royalDanceStatus"
+                    style="display: none; color: #38ef7d; text-shadow: 0 2px 4px black; font-size: 1.2em;"></h4>
+
+                <div id="royalBallResult"
+                    style="display: none; background: rgba(0,0,0,0.6); padding: 20px; border-radius: 12px; margin: 20px; border: 1px dashed #ffd700;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="royalRewardsModal" class="modal-overlay ui-theme-immune" style="z-index: 999999;">
+        <div class="modal-content form-container"
+            style="max-width: 450px; text-align: center; border-top: 6px solid #c0392b; background: rgba(255, 255, 255, 0.95);">
+            <button class="close-btn"
+                onclick="document.getElementById('royalRewardsModal').classList.remove('active')">✖</button>
+            <h3
+                style="color: #c0392b; margin-bottom: 15px; font-size: 1.5em; border-bottom: 1px solid rgba(192, 57, 43, 0.2); padding-bottom: 10px;">
+                🎁 Phần Thưởng Dạ Hội
+            </h3>
+            <p style="font-size: 0.95em; color: #666; margin-bottom: 15px; line-height: 1.5;">Tham gia khiêu vũ để có cơ
+                hội nhận lượng lớn Coin hoặc các vật phẩm mang nhãn <strong>Truyền Thuyết</strong> cực hiếm dưới đây:
+            </p>
+
+            <div id="royalRewardsList"
+                style="max-height: 50vh; overflow-y: auto; text-align: left; padding-right: 5px;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Banner Quảng bá Sự kiện Động -->
+    <div id="dynamicEventBanner"
+        style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 999999; background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%); color: white; padding: 15px 45px 15px 20px; border-radius: 12px; box-shadow: 0 10px 25px rgba(255, 8, 68, 0.5); cursor: pointer; animation: slideDown 0.5s ease; max-width: 90vw;">
+        <div onclick="goToEventGame()" style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 2.5em; animation: pulse 1s infinite;">🎉</span>
+            <div>
+                <h4 id="eventBannerTitle"
+                    style="margin: 0; font-size: 1.2em; text-transform: uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                    Tên Sự Kiện</h4>
+                <p id="eventBannerDesc" style="margin: 5px 0 0 0; font-size: 0.9em; opacity: 0.95;">Mô tả ngắn...</p>
+            </div>
+        </div>
+        <button onclick="closeEventBanner(event)"
+            style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); background: rgba(0,0,0,0.2); border: none; color: white; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; transition: 0.2s;"
+            onmouseover="this.style.background='rgba(0,0,0,0.4)'"
+            onmouseout="this.style.background='rgba(0,0,0,0.2)'">✖</button>
+    </div>
+
+    <!-- 1. Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <!-- 2. Khởi tạo Firebase -->
+    <script src="js/firebase-config.js?v=3.5"></script>
+    <script src="js/cloudinary-storage.js?v=3.5"></script>
+
+    <script>
+        window.APP_STORAGE_CONFIG = Object.freeze({
+            r2WorkerUrl: 'https://school-r2-files.ngogibao0311.workers.dev'
+        });
+    </script>
+
+    <script src="js/cloudflare-r2-storage.js?v=3.5"></script>
+
+    <!-- 3. Thư viện đọc file DOCX -->
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
+
+    <!-- Thư viện chống chèn mã HTML/XSS -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.7/dist/purify.min.js"></script>
+
+    <!-- 4. Mã nền tảng -->
+    <script src="js/common.js?v=3.5"></script>
+    <script src="js/transaction-history.js?v=3.5"></script>
+
+    <!-- 4. Các module tính năng -->
+    <script src="js/daily-login.js?v=3.5"></script>
+    <script src="js/royal-ball.js?v=3.5"></script>
+    <script src="js/theme-items.js?v=4.2"></script>
+    <script src="js/effect-items.js?v=4.2"></script>
+    <script src="js/pet-items.js?v=4.2"></script>
+    <script src="js/pet-interactions.js?v=3.5"></script>
+    <script src="js/music-manager.js?v=3.5"></script>
+    <script src="js/store-manager.js?v=3.5"></script>
+    <script src="js/leaderboard.js?v=3.3"></script>
+    <script src="js/painting.js?v=3.5"></script>
+    <script src="js/luxury-store.js?v=4.2"></script>
+
+    <!-- YouTube API không phụ thuộc Firebase -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+
+    <!-- 5. Logic chính của trang học sinh luôn đặt cuối -->
+    <script src="js/student.js?v=3.5"></script>
+    <script src="js/lich-su-hao-hung.js?v=1.0"></script>
+    <script src="js/huong-dan-nguoi-moi.js?v=1.0.0"></script>
+    <script src="js/store-collections.js?v=1.0"></script>
+
+</body>
+
+</html>

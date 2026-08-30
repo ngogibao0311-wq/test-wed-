@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#4f46e5">
+    <title>Đăng nhập Hệ thống</title>
+    <link rel="stylesheet" href="css/common.css?v=4.0">
+    <link rel="icon" type="image/png" href="assets/icon.png">
+</head>
+
+<body class="login-page login-layout-split">
+    <main class="login-shell" aria-label="Khu vực đăng nhập hệ thống">
+        <section id="loginScenePanel" class="login-brand-panel login-scene-panel" aria-hidden="true"
+            data-media-src="assets/ChatGPT Image 22_01_25 26 thg 7, 2026.png" data-media-type="auto" data-fallback-image=""
+            data-object-position="center"></section>
+
+        <section class="login-container">
+            <div class="login-mobile-brand" aria-hidden="true">
+                <span>✦</span>
+            </div>
+
+            <div class="login-heading">
+                <p class="login-kicker">CHÀO MỪNG TRỞ LẠI</p>
+                <h2>Đăng nhập</h2>
+                <p>Sử dụng tài khoản đã được cấp để tiếp tục.</p>
+            </div>
+
+            <form id="loginForm" autocomplete="on">
+                <div class="login-field">
+                    <label for="username">Tên đăng nhập</label>
+                    <div class="login-input-wrap">
+                        <span class="login-input-icon" aria-hidden="true">👤</span>
+                        <input type="text" id="username" name="username" placeholder="Nhập tên đăng nhập"
+                            autocomplete="username" spellcheck="false" required>
+                    </div>
+                </div>
+
+                <div class="login-field">
+                    <label for="password">Mật khẩu</label>
+                    <div class="login-input-wrap">
+                        <span class="login-input-icon" aria-hidden="true">🔒</span>
+                        <input type="password" id="password" name="password" placeholder="Nhập mật khẩu"
+                            autocomplete="current-password" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="login-submit-btn">
+                    <span>Đăng nhập</span>
+                    <span aria-hidden="true">→</span>
+                </button>
+            </form>
+
+            <p id="errorMsg" class="error" role="status" aria-live="polite"></p>
+
+            <div class="login-help-note">
+                <span aria-hidden="true">🛡️</span>
+                <p>Không chia sẻ mật khẩu hoặc mã đăng nhập cho người khác.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- 1. Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <!-- 2. Khởi tạo Firebase -->
+    <script src="js/firebase-config.js?v=3.5"></script>
+
+    <!-- 3. Mã dùng chung -->
+    <script src="js/common.js?v=3.5"></script>
+
+    <!-- 4. Logic đăng nhập và bảo mật -->
+
+</body>
+
+</html>

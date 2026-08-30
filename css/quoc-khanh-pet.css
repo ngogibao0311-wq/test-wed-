@@ -1,0 +1,3835 @@
+/* ================================================================
+   QUỐC KHÁNH 2/9 · SỨ GIẢ SAO VÀNG
+   Một file CSS duy nhất đảm nhận:
+   1) Tag 2/9 riêng
+   2) Card cửa hàng độc lập, miễn nhiễm giao diện khác
+   3) Idle / Awakening / Casting của thú cưng
+   4) Kỹ năng click toàn màn hình “Rạng Danh Non Sông”
+
+   Namespace riêng: nd29-* / store-card-national-day-2-9
+   Không dùng lại CSS của national-day-dong-son-magic.
+   ================================================================ */
+
+:root {
+    --nd29-red-950: #4a0508;
+    --nd29-red-900: #6b080c;
+    --nd29-red-800: #8d0b10;
+    --nd29-red-700: #b20d13;
+    --nd29-red-600: #d8171d;
+    --nd29-red-500: #ed1c24;
+    --nd29-gold-100: #fff7cf;
+    --nd29-gold-200: #ffe99a;
+    --nd29-gold-300: #ffd95a;
+    --nd29-gold-400: #ffc928;
+    --nd29-gold-500: #f4b400;
+    --nd29-cream: #fff9e9;
+    --nd29-ink: #2a0807;
+}
+
+/* ================================================================
+   TAG 2/9 — THIẾT KẾ RIÊNG
+   ================================================================ */
+.item-tag.tag-quoc-khanh-2-9,
+/* =========================================================
+   TAG 2/9 — RIBBON CHÉO GÓC TRÊN BÊN PHẢI
+   ========================================================= */
+.store-card-national-day-2-9 .item-tag.tag-quoc-khanh-2-9 {
+    position: absolute !important;
+
+    top: 20px !important;
+    right: -42px !important;
+    left: auto !important;
+    bottom: auto !important;
+
+    width: 150px !important;
+    min-width: 150px !important;
+    height: 30px !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 0 !important;
+
+    transform: rotate(45deg) !important;
+    transform-origin: center !important;
+
+    z-index: 20 !important;
+
+    background:
+        linear-gradient(180deg,
+            #e31822 0%,
+            #bd0d15 52%,
+            #8e070c 100%) !important;
+
+    border-top: 1px solid rgba(255, 229, 118, .95) !important;
+    border-bottom: 1px solid rgba(255, 213, 61, .85) !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+
+    box-shadow:
+        0 4px 10px rgba(75, 0, 3, .28),
+        inset 0 1px 0 rgba(255, 255, 255, .22) !important;
+
+    color: #fff3b0 !important;
+
+    font-size: 13px !important;
+    font-weight: 900 !important;
+    letter-spacing: .08em !important;
+
+    overflow: hidden !important;
+}
+
+.store-card-national-day-2-9 .item-tag.tag-quoc-khanh-2-9::before {
+    content: "★";
+
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+
+    width: auto !important;
+    height: auto !important;
+
+    margin-right: 7px !important;
+
+    display: inline-block !important;
+
+    color: #ffe65a !important;
+    font-size: 12px !important;
+
+    transform: none !important;
+
+    text-shadow:
+        0 0 5px rgba(255, 222, 72, .8) !important;
+
+    animation: nd29RibbonStarPulse 1.8s ease-in-out infinite !important;
+}
+
+.item-tag.tag-quoc-khanh-2-9::after {
+    content: "";
+    position: absolute;
+    inset: 3px;
+    z-index: -1;
+    border: 1px solid rgba(255, 230, 133, .24);
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+.store-card-national-day-2-9 .item-tag.tag-quoc-khanh-2-9::after {
+    display: none !important;
+}
+
+@keyframes nd29RibbonStarPulse {
+
+    0%,
+    100% {
+        transform: scale(.9);
+        filter: brightness(1);
+    }
+
+    50% {
+        transform: scale(1.18);
+        filter: brightness(1.3);
+    }
+}
+
+@keyframes nd29TagStarPulse {
+
+    0%,
+    100% {
+        transform: translateY(-50%) scale(.94) rotate(-5deg);
+        filter: brightness(.96);
+    }
+
+    50% {
+        transform: translateY(-50%) scale(1.14) rotate(5deg);
+        filter: brightness(1.2);
+    }
+}
+
+/* ================================================================
+   CARD VẬT PHẨM RIÊNG — KHÓA STYLE, KHÔNG ĂN THEME KHÁC
+   ================================================================ */
+.store-item-card.store-card-national-day-2-9,
+.store-item-card[data-special-card="national-day-2-9"] {
+    --card-bg: transparent;
+    position: relative !important;
+    isolation: isolate !important;
+    overflow: hidden !important;
+    color: var(--nd29-cream) !important;
+    background:
+        radial-gradient(circle at 76% 18%, rgba(255, 214, 61, .21), transparent 27%),
+        radial-gradient(circle at 18% 82%, rgba(255, 179, 0, .12), transparent 34%),
+        linear-gradient(145deg, #7a070c 0%, #a80b11 43%, #760509 72%, #4d0407 100%) !important;
+    border: 1px solid rgba(255, 218, 87, .72) !important;
+    border-radius: 18px !important;
+    box-shadow:
+        0 18px 42px rgba(74, 3, 7, .26),
+        0 0 0 1px rgba(92, 4, 8, .78),
+        inset 0 1px 0 rgba(255, 243, 192, .22),
+        inset 0 -26px 40px rgba(57, 0, 3, .23) !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    text-shadow: none !important;
+    transform-style: flat !important;
+}
+
+/* Chặn các lớp glow/theme chung phủ màu card đặc biệt. */
+.store-card-national-day-2-9>.card-glow {
+    position: absolute !important;
+    inset: -45% !important;
+    z-index: -2 !important;
+    opacity: .72 !important;
+    background:
+        conic-gradient(from 0deg,
+            transparent 0 12%,
+            rgba(255, 214, 64, .18) 12% 15%,
+            transparent 15% 33%,
+            rgba(255, 239, 170, .12) 33% 36%,
+            transparent 36% 100%) !important;
+    border: 0 !important;
+    border-radius: 50% !important;
+    box-shadow: none !important;
+    filter: none !important;
+    animation: nd29CardGlowRotate 18s linear infinite !important;
+    pointer-events: none !important;
+}
+
+.store-card-national-day-2-9::before {
+    content: "★";
+    position: absolute;
+    right: -22px;
+    top: -35px;
+    z-index: -1;
+    color: rgba(255, 220, 74, .095);
+    font-size: 142px;
+    line-height: 1;
+    transform: rotate(9deg);
+    text-shadow: none;
+    pointer-events: none;
+}
+
+.store-card-national-day-2-9::after {
+    content: "02 · 09  •  VIỆT NAM";
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 10px;
+    z-index: -1;
+    padding-top: 7px;
+    color: rgba(255, 235, 154, .33);
+    border-top: 1px solid rgba(255, 224, 110, .14);
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: .22em;
+    text-align: right;
+    pointer-events: none;
+}
+
+.store-card-national-day-2-9 .item-icon-wrapper {
+    position: relative !important;
+    isolation: isolate !important;
+    background:
+        radial-gradient(circle, rgba(255, 224, 100, .16) 0 34%, transparent 35%),
+        linear-gradient(180deg, rgba(255, 255, 255, .05), rgba(75, 0, 3, .12)) !important;
+    border: 1px solid rgba(255, 223, 111, .22) !important;
+    border-radius: 16px !important;
+    box-shadow:
+        inset 0 0 22px rgba(255, 197, 35, .08),
+        0 8px 20px rgba(69, 0, 3, .18) !important;
+    filter: none !important;
+}
+
+.store-card-national-day-2-9 .item-icon-wrapper::before,
+.store-card-national-day-2-9 .item-icon-wrapper::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: -1;
+    width: 76px;
+    height: 76px;
+    border: 1px solid rgba(255, 214, 70, .24);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.store-card-national-day-2-9 .item-icon-wrapper::after {
+    width: 58px;
+    height: 58px;
+    border-style: dashed;
+    animation: nd29IconRingSpin 10s linear infinite reverse;
+}
+
+.store-card-national-day-2-9 .item-icon,
+.store-card-national-day-2-9 img.item-icon {
+    position: relative !important;
+    z-index: 2 !important;
+    width: 92px !important;
+    height: 92px !important;
+    object-fit: contain !important;
+    opacity: 1 !important;
+    mix-blend-mode: normal !important;
+    filter:
+        drop-shadow(0 7px 8px rgba(57, 0, 3, .3)) drop-shadow(0 0 8px rgba(255, 214, 67, .16)) !important;
+    transform: none !important;
+    animation: nd29CardPetFloat 4.2s ease-in-out infinite !important;
+}
+
+.store-card-national-day-2-9 .item-info,
+.store-card-national-day-2-9 .item-actions {
+    position: relative !important;
+    z-index: 3 !important;
+    background: transparent !important;
+    border-color: transparent !important;
+    filter: none !important;
+}
+
+.store-card-national-day-2-9 .item-name {
+    color: #fff5ce !important;
+    background: none !important;
+    -webkit-text-fill-color: #fff5ce !important;
+    text-shadow: 0 1px 0 rgba(63, 0, 3, .95) !important;
+}
+
+.store-card-national-day-2-9 .item-type-label {
+    color: rgba(255, 238, 184, .78) !important;
+    background: none !important;
+    -webkit-text-fill-color: rgba(255, 238, 184, .78) !important;
+}
+
+.store-card-national-day-2-9 .btn-buy.event-only,
+.store-card-national-day-2-9 .btn-buy[disabled] {
+    color: #ffe9a2 !important;
+    background:
+        linear-gradient(180deg, rgba(255, 210, 72, .16), rgba(83, 3, 7, .26)) !important;
+    border: 1px solid rgba(255, 216, 84, .36) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .09) !important;
+    opacity: .92 !important;
+    filter: none !important;
+}
+
+.store-card-national-day-2-9 .btn-preview.disabled,
+.store-card-national-day-2-9 .btn-preview[disabled] {
+    color: rgba(255, 232, 160, .54) !important;
+    background: rgba(71, 2, 5, .2) !important;
+    border-color: rgba(255, 218, 95, .16) !important;
+    opacity: .8 !important;
+    filter: none !important;
+}
+
+.store-card-national-day-2-9:hover {
+    border-color: rgba(255, 226, 112, .96) !important;
+    box-shadow:
+        0 22px 48px rgba(74, 3, 7, .32),
+        0 0 0 1px rgba(116, 5, 10, .88),
+        0 0 26px rgba(255, 196, 30, .17),
+        inset 0 1px 0 rgba(255, 246, 208, .28) !important;
+}
+
+@keyframes nd29CardGlowRotate {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes nd29IconRingSpin {
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+@keyframes nd29CardPetFloat {
+
+    0%,
+    100% {
+        transform: translateY(0) scale(1);
+    }
+
+    50% {
+        transform: translateY(-5px) scale(1.025);
+    }
+}
+
+/* ================================================================
+   PET LOCAL STAGE — KHÔNG CAN THIỆP THEME/EFFECT ĐANG TRANG BỊ
+   ================================================================ */
+#virtual-pet-container.pet-national-day-chibi-stage {
+    isolation: isolate !important;
+    overflow: visible !important;
+}
+
+#virtual-pet-container.pet-national-day-chibi-stage #virtual-pet-img.national-day-chibi-star-magic {
+    position: relative;
+    z-index: 8;
+    width: 138px !important;
+    height: auto !important;
+    object-fit: contain;
+    user-select: none;
+    -webkit-user-drag: none;
+    cursor: grab;
+    transform-origin: 50% 84%;
+    filter:
+        drop-shadow(0 8px 8px rgba(63, 0, 3, .28)) drop-shadow(0 0 7px rgba(255, 213, 58, .25)) !important;
+    animation: nd29PetIdle 3.8s ease-in-out infinite;
+}
+
+#virtual-pet-container.pet-national-day-chibi-stage:active #virtual-pet-img.national-day-chibi-star-magic {
+    cursor: grabbing;
+}
+
+.nd29-pet-emblem {
+    position: absolute;
+    left: 65px;
+    top: 66px;
+    z-index: 1;
+    width: 154px;
+    height: 154px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    opacity: 1;
+}
+
+.nd29-halo {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.nd29-halo.halo-outer {
+    width: 132px;
+    height: 132px;
+    border: 1px solid rgba(255, 214, 63, .32);
+    box-shadow:
+        0 0 22px rgba(255, 201, 42, .09),
+        inset 0 0 18px rgba(255, 224, 109, .06);
+    animation: nd29HaloRotate 13s linear infinite;
+}
+
+.nd29-halo.halo-outer::before,
+.nd29-halo.halo-outer::after {
+    content: "";
+    position: absolute;
+    inset: 8px;
+    border: 1px dashed rgba(255, 225, 123, .27);
+    border-radius: 50%;
+}
+
+.nd29-halo.halo-outer::after {
+    inset: 21px;
+    border-style: solid;
+    border-color: rgba(255, 204, 46, .14);
+}
+
+.nd29-halo.halo-inner {
+    width: 94px;
+    height: 94px;
+    background:
+        radial-gradient(circle, rgba(255, 230, 134, .15), rgba(196, 12, 20, .045) 48%, transparent 70%);
+    border: 1px solid rgba(255, 232, 148, .17);
+    animation: nd29HaloBreathe 3.4s ease-in-out infinite;
+}
+
+.nd29-emblem-star {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: -1;
+    color: rgba(255, 214, 66, .17);
+    font-size: 70px;
+    line-height: 1;
+    transform: translate(-50%, -50%) rotate(-6deg);
+    text-shadow: 0 0 20px rgba(255, 192, 31, .12);
+    animation: nd29StarBreathe 3.8s ease-in-out infinite;
+}
+
+.nd29-ribbon {
+    position: absolute;
+    top: 78px;
+    width: 50px;
+    height: 9px;
+    border-radius: 99px;
+    background: linear-gradient(90deg, transparent, rgba(209, 17, 24, .55), rgba(255, 216, 71, .34));
+    filter: drop-shadow(0 2px 3px rgba(76, 0, 4, .2));
+}
+
+.nd29-ribbon.ribbon-left {
+    left: -5px;
+    transform: rotate(20deg);
+    transform-origin: right center;
+}
+
+.nd29-ribbon.ribbon-right {
+    right: -5px;
+    transform: scaleX(-1) rotate(20deg);
+    transform-origin: right center;
+}
+
+.nd29-ambient-particles {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    animation: nd29ParticleFieldRotate 16s linear infinite;
+}
+
+.nd29-ambient-star,
+.nd29-ambient-spark {
+    --nd29-angle: 0deg;
+    --nd29-radius: 64px;
+    --nd29-delay: 0s;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    color: #ffd94f;
+    font-size: 9px;
+    line-height: 1;
+    transform:
+        translate(-50%, -50%) rotate(var(--nd29-angle)) translateX(var(--nd29-radius)) rotate(calc(var(--nd29-angle) * -1));
+    animation: nd29ParticleTwinkle 2.4s ease-in-out var(--nd29-delay) infinite;
+}
+
+.nd29-ambient-spark {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: #ffe995;
+    box-shadow: 0 0 7px rgba(255, 215, 74, .75);
+}
+
+#virtual-pet-container.nd29-awakening .nd29-pet-emblem {
+    animation: nd29AwakenEmblem 1.35s cubic-bezier(.18, .75, .18, 1) both;
+}
+
+#virtual-pet-container.nd29-awakening #virtual-pet-img.national-day-chibi-star-magic {
+    animation: nd29AwakenPet 1.35s cubic-bezier(.18, .75, .18, 1) both;
+}
+
+#virtual-pet-container.nd29-casting #virtual-pet-img.national-day-chibi-star-magic {
+    animation: nd29PetCast 1.1s cubic-bezier(.2, .8, .2, 1) both !important;
+    filter:
+        drop-shadow(0 8px 8px rgba(63, 0, 3, .28)) drop-shadow(0 0 13px rgba(255, 217, 69, .75)) !important;
+}
+
+#virtual-pet-container.nd29-casting .nd29-halo.halo-outer {
+    border-color: rgba(255, 229, 118, .8);
+    box-shadow:
+        0 0 26px rgba(255, 198, 32, .36),
+        inset 0 0 20px rgba(255, 225, 109, .16);
+    animation: nd29CastHalo .9s ease-out both;
+}
+
+#virtual-pet-container.nd29-casting .nd29-emblem-star {
+    color: rgba(255, 220, 75, .42);
+    animation: nd29CastStar .95s ease-out both;
+}
+
+.nd29-pet-dialogue {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 14px);
+    z-index: 40;
+    width: max-content;
+    max-width: min(310px, 72vw);
+    padding: 10px 14px;
+    color: #fff5cc;
+    background:
+        linear-gradient(180deg, rgba(129, 6, 11, .96), rgba(78, 3, 7, .97));
+    border: 1px solid rgba(255, 218, 80, .68);
+    border-radius: 12px;
+    box-shadow:
+        0 10px 28px rgba(55, 0, 3, .3),
+        inset 0 1px 0 rgba(255, 255, 255, .1);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .025em;
+    text-align: center;
+    transform: translateX(-50%);
+    pointer-events: none;
+    animation: nd29DialogueInOut 3.25s ease both;
+}
+
+.nd29-pet-dialogue::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -7px;
+    width: 12px;
+    height: 12px;
+    background: #5a0408;
+    border-right: 1px solid rgba(255, 218, 80, .58);
+    border-bottom: 1px solid rgba(255, 218, 80, .58);
+    transform: translateX(-50%) rotate(45deg);
+}
+
+@keyframes nd29PetIdle {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(-.7deg) scale(1);
+    }
+
+    50% {
+        transform: translateY(-7px) rotate(.8deg) scale(1.018);
+    }
+}
+
+@keyframes nd29HaloRotate {
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+@keyframes nd29HaloBreathe {
+
+    0%,
+    100% {
+        transform: translate(-50%, -50%) scale(.96);
+        opacity: .58;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.05);
+        opacity: 1;
+    }
+}
+
+@keyframes nd29StarBreathe {
+
+    0%,
+    100% {
+        transform: translate(-50%, -50%) rotate(-6deg) scale(.94);
+        opacity: .58;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) rotate(2deg) scale(1.06);
+        opacity: 1;
+    }
+}
+
+@keyframes nd29ParticleFieldRotate {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes nd29ParticleTwinkle {
+
+    0%,
+    100% {
+        opacity: .2;
+        filter: brightness(.8);
+    }
+
+    50% {
+        opacity: 1;
+        filter: brightness(1.35);
+    }
+}
+
+@keyframes nd29AwakenEmblem {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(.35) rotate(-22deg);
+        filter: blur(8px);
+    }
+
+    58% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.12) rotate(4deg);
+        filter: blur(0);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1) rotate(0);
+    }
+}
+
+@keyframes nd29AwakenPet {
+    0% {
+        opacity: 0;
+        transform: translateY(18px) scale(.72);
+        filter: brightness(2) blur(6px);
+    }
+
+    62% {
+        opacity: 1;
+        transform: translateY(-8px) scale(1.08);
+        filter: brightness(1.22) blur(0);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: brightness(1);
+    }
+}
+
+@keyframes nd29PetCast {
+    0% {
+        transform: translateY(0) scale(1) rotate(0);
+    }
+
+    28% {
+        transform: translateY(5px) scale(.92) rotate(-4deg);
+    }
+
+    58% {
+        transform: translateY(-15px) scale(1.13) rotate(3deg);
+    }
+
+    100% {
+        transform: translateY(0) scale(1) rotate(0);
+    }
+}
+
+@keyframes nd29CastHalo {
+    0% {
+        transform: translate(-50%, -50%) scale(.88) rotate(0);
+        opacity: .5;
+    }
+
+    62% {
+        transform: translate(-50%, -50%) scale(1.24) rotate(120deg);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1) rotate(180deg);
+        opacity: .72;
+    }
+}
+
+@keyframes nd29CastStar {
+    0% {
+        transform: translate(-50%, -50%) scale(.75) rotate(-12deg);
+    }
+
+    58% {
+        transform: translate(-50%, -50%) scale(1.38) rotate(8deg);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1) rotate(0);
+    }
+}
+
+@keyframes nd29DialogueInOut {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(9px) scale(.94);
+    }
+
+    12%,
+    76% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-6px) scale(.98);
+    }
+}
+
+/* ================================================================
+   KỸ NĂNG TOÀN MÀN HÌNH — “RẠNG DANH NON SÔNG”
+   ================================================================ */
+.nd29-independence-flash {
+    --nd29-origin-x: 50vw;
+    --nd29-origin-y: 50vh;
+    position: fixed;
+    inset: 0;
+    z-index: 2147483000;
+    overflow: hidden;
+    pointer-events: none;
+    isolation: isolate;
+    animation: nd29FlashLife 3.35s ease both;
+}
+
+.nd29-screen-wash {
+    position: absolute;
+    inset: 0;
+    z-index: -4;
+    background:
+        radial-gradient(circle at var(--nd29-origin-x) var(--nd29-origin-y), rgba(255, 231, 127, .31), transparent 18%),
+        radial-gradient(circle at center, rgba(215, 17, 24, .12), transparent 60%);
+    animation: nd29ScreenWash 1.3s ease-out both;
+}
+
+.nd29-skill-medallion,
+.nd29-skill-ring,
+.nd29-skill-rays,
+.nd29-skill-stars {
+    position: absolute;
+    left: var(--nd29-origin-x);
+    top: var(--nd29-origin-y);
+    transform: translate(-50%, -50%);
+}
+
+.nd29-skill-medallion {
+    z-index: 5;
+    width: 118px;
+    height: 118px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: var(--nd29-gold-100);
+    background:
+        radial-gradient(circle at 50% 36%, rgba(255, 235, 153, .26), transparent 32%),
+        linear-gradient(145deg, #bd1118, #730509 68%, #430205);
+    border: 2px solid rgba(255, 222, 87, .9);
+    box-shadow:
+        0 0 0 6px rgba(117, 5, 9, .56),
+        0 0 0 7px rgba(255, 220, 88, .34),
+        0 0 58px rgba(255, 199, 34, .34),
+        inset 0 0 28px rgba(255, 224, 117, .12);
+    text-align: center;
+    animation: nd29MedallionBurst 2.8s cubic-bezier(.18, .76, .18, 1) both;
+}
+
+.nd29-skill-star {
+    color: #ffdf54;
+    font-size: 42px;
+    line-height: .9;
+    text-shadow: 0 0 12px rgba(255, 219, 77, .58);
+}
+
+.nd29-skill-medallion strong {
+    margin-top: 5px;
+    font-size: 14px;
+    font-weight: 1000;
+    letter-spacing: .13em;
+}
+
+.nd29-skill-medallion small {
+    margin-top: 4px;
+    color: rgba(255, 242, 199, .78);
+    font-size: 7px;
+    font-weight: 900;
+    letter-spacing: .12em;
+}
+
+.nd29-skill-ring {
+    z-index: 2;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 218, 71, .62);
+    box-shadow: 0 0 18px rgba(255, 204, 38, .14);
+    animation: nd29RingExpand 2.25s ease-out both;
+}
+
+.nd29-skill-ring.ring-one {
+    width: 145px;
+    height: 145px;
+    animation-delay: .04s;
+}
+
+.nd29-skill-ring.ring-two {
+    width: 190px;
+    height: 190px;
+    animation-delay: .11s;
+    border-style: dashed;
+}
+
+.nd29-skill-ring.ring-three {
+    width: 245px;
+    height: 245px;
+    animation-delay: .18s;
+    opacity: .62;
+}
+
+.nd29-skill-rays {
+    z-index: 0;
+    width: 330px;
+    height: 330px;
+    opacity: .56;
+    background:
+        repeating-conic-gradient(from -2deg,
+            rgba(255, 222, 92, .24) 0deg 2deg,
+            transparent 2deg 14deg);
+    border-radius: 50%;
+    mask-image: radial-gradient(circle, transparent 0 27%, #000 28% 64%, transparent 78%);
+    -webkit-mask-image: radial-gradient(circle, transparent 0 27%, #000 28% 64%, transparent 78%);
+    animation: nd29SkillRays 3s ease-out both;
+}
+
+.nd29-skill-stars {
+    z-index: 4;
+    width: 2px;
+    height: 2px;
+}
+
+.nd29-skill-particle {
+    --nd29-skill-angle: 0deg;
+    --nd29-skill-distance: 130px;
+    --nd29-skill-delay: 0s;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #ffe17a;
+    box-shadow: 0 0 10px rgba(255, 215, 74, .9);
+    transform: rotate(var(--nd29-skill-angle)) translateX(0);
+    opacity: 0;
+    animation: nd29SkillParticle 1.35s cubic-bezier(.17, .76, .25, 1) var(--nd29-skill-delay) both;
+}
+
+.nd29-skill-particle.is-star {
+    width: auto;
+    height: auto;
+    color: #ffdd4e;
+    background: transparent;
+    box-shadow: none;
+    font-size: 15px;
+    line-height: 1;
+    text-shadow: 0 0 11px rgba(255, 216, 65, .78);
+}
+
+@keyframes nd29FlashLife {
+    0% {
+        opacity: 0;
+    }
+
+    8%,
+    78% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes nd29ScreenWash {
+    0% {
+        opacity: 0;
+        filter: brightness(1.8);
+    }
+
+    22% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: .18;
+        filter: brightness(1);
+    }
+}
+
+@keyframes nd29MedallionBurst {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(.28) rotate(-16deg);
+        filter: blur(5px);
+    }
+
+    22% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.12) rotate(4deg);
+        filter: blur(0);
+    }
+
+    38%,
+    72% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1) rotate(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.08) rotate(2deg);
+    }
+}
+
+@keyframes nd29RingExpand {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(.34) rotate(-15deg);
+    }
+
+    28% {
+        opacity: .95;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(2.45) rotate(70deg);
+    }
+}
+
+@keyframes nd29SkillRays {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(.38) rotate(-20deg);
+    }
+
+    28% {
+        opacity: .58;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(2.25) rotate(56deg);
+    }
+}
+
+@keyframes nd29SkillParticle {
+    0% {
+        opacity: 0;
+        transform: rotate(var(--nd29-skill-angle)) translateX(0) scale(.4);
+    }
+
+    18% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+            rotate(var(--nd29-skill-angle)) translateX(var(--nd29-skill-distance)) scale(1.05);
+    }
+}
+
+/* ================================================================
+   RESPONSIVE + REDUCED MOTION
+   ================================================================ */
+@media (max-width: 768px),
+(pointer: coarse) {
+    #virtual-pet-container.pet-national-day-chibi-stage #virtual-pet-img.national-day-chibi-star-magic {
+        width: 118px !important;
+    }
+
+    .nd29-pet-emblem {
+        left: 56px;
+        top: 58px;
+        width: 132px;
+        height: 132px;
+        transform: translate(-50%, -50%) scale(.88);
+    }
+
+    .nd29-skill-medallion {
+        width: 102px;
+        height: 102px;
+    }
+
+    .nd29-skill-rays {
+        width: 270px;
+        height: 270px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .store-card-national-day-2-9 *,
+    .store-card-national-day-2-9::before,
+    .store-card-national-day-2-9::after,
+    .item-tag.tag-quoc-khanh-2-9::before,
+    #virtual-pet-container.pet-national-day-chibi-stage *,
+    .nd29-independence-flash * {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
+/* ================================================================
+   QUỐC KHÁNH 2/9
+   ULTIMATE — SAO VÀNG KHẢI HOÀN
+   ================================================================ */
+
+.nd29-victory-ultimate {
+    --nd29-origin-x: 50vw;
+    --nd29-origin-y: 60vh;
+
+    position: fixed !important;
+    inset: 0 !important;
+
+    width: 100vw !important;
+    height: 100vh !important;
+
+    z-index: 2147483000 !important;
+
+    overflow: hidden !important;
+
+    pointer-events: none !important;
+
+    opacity: 0;
+
+    isolation: isolate;
+
+    font-family: inherit;
+}
+
+.nd29-victory-ultimate.is-active {
+    opacity: 1;
+}
+
+/* ================================================================
+   MÀN ĐỎ ĐIỆN ẢNH
+   ================================================================ */
+
+.nd29-victory-backdrop {
+    position: absolute;
+    inset: 0;
+
+    z-index: -10;
+
+    background:
+        radial-gradient(circle at var(--nd29-origin-x) var(--nd29-origin-y),
+            rgba(255, 224, 68, .18) 0,
+            rgba(180, 16, 18, .20) 21%,
+            transparent 48%),
+        radial-gradient(ellipse at 50% 110%,
+            rgba(255, 198, 44, .18),
+            transparent 52%),
+        linear-gradient(135deg,
+            rgba(52, 0, 3, .96) 0%,
+            rgba(117, 4, 9, .94) 34%,
+            rgba(158, 8, 13, .91) 52%,
+            rgba(75, 0, 5, .97) 100%);
+
+    opacity: 0;
+
+    animation:
+        nd29VictoryBackdropIn .75s cubic-bezier(.17, .84, .32, 1) forwards;
+}
+
+.nd29-victory-backdrop::before {
+    content: "";
+
+    position: absolute;
+    inset: -30%;
+
+    background:
+        repeating-linear-gradient(115deg,
+            transparent 0 60px,
+            rgba(255, 221, 78, .025) 61px 63px,
+            transparent 64px 124px);
+
+    transform: translateX(-18%);
+
+    animation:
+        nd29VictoryPatternDrift 8s linear infinite;
+}
+
+/* ================================================================
+   ĐIỂM PHÁT NỔ TỪ PET
+   ================================================================ */
+
+.nd29-victory-origin-flare {
+    position: absolute;
+
+    left: var(--nd29-origin-x);
+    top: var(--nd29-origin-y);
+
+    width: 20px;
+    height: 20px;
+
+    border-radius: 50%;
+
+    transform:
+        translate(-50%, -50%) scale(.1);
+
+    background: #fff9c6;
+
+    box-shadow:
+        0 0 20px #fff5a2,
+        0 0 55px #ffd530,
+        0 0 110px rgba(255, 187, 0, .88),
+        0 0 220px rgba(238, 34, 24, .65);
+
+    opacity: 0;
+
+    animation:
+        nd29VictoryOriginBurst 1.15s cubic-bezier(.15, .82, .21, 1) forwards;
+}
+
+/* ================================================================
+   5 TIA SAO
+   ================================================================ */
+
+.nd29-victory-rays {
+    position: absolute;
+
+    left: var(--nd29-origin-x);
+    top: var(--nd29-origin-y);
+
+    width: 1px;
+    height: 1px;
+
+    z-index: -2;
+}
+
+.nd29-victory-rays .ray {
+    position: absolute;
+
+    left: 0;
+    top: 0;
+
+    width: 18vmax;
+    height: 145vmax;
+
+    transform-origin:
+        50% 0%;
+
+    clip-path:
+        polygon(45% 0,
+            55% 0,
+            100% 100%,
+            0 100%);
+
+    opacity: 0;
+
+    background:
+        linear-gradient(to bottom,
+            rgba(255, 247, 180, .78),
+            rgba(255, 207, 38, .19) 35%,
+            transparent 82%);
+
+    filter:
+        blur(.3px) drop-shadow(0 0 14px rgba(255, 213, 45, .35));
+
+    animation:
+        nd29VictoryRayOpen 1.55s cubic-bezier(.12, .82, .28, 1) forwards;
+}
+
+.nd29-victory-rays .ray-1 {
+    transform: rotate(0deg);
+}
+
+.nd29-victory-rays .ray-2 {
+    transform: rotate(72deg);
+}
+
+.nd29-victory-rays .ray-3 {
+    transform: rotate(144deg);
+}
+
+.nd29-victory-rays .ray-4 {
+    transform: rotate(216deg);
+}
+
+.nd29-victory-rays .ray-5 {
+    transform: rotate(288deg);
+}
+
+/* ================================================================
+   ĐẠI HUY HIỆU 02/09
+   ================================================================ */
+
+.nd29-victory-emblem {
+    position: absolute;
+
+    left: 50%;
+    top: 44%;
+
+    width: min(46vw, 470px);
+    aspect-ratio: 1;
+
+    transform:
+        translate(-50%, -50%) scale(.18) rotate(-10deg);
+
+    display: grid;
+    place-items: center;
+
+    opacity: 0;
+
+    z-index: 10;
+
+    animation:
+        nd29VictoryEmblemEntrance 1.3s .2s cubic-bezier(.12, .92, .22, 1.1) forwards;
+}
+
+.nd29-victory-star {
+    position: absolute;
+
+    color: #ffdc3d;
+
+    font-size:
+        clamp(110px, 17vw, 220px);
+
+    line-height: 1;
+
+    text-shadow:
+        0 0 8px rgba(255, 255, 210, .96),
+        0 0 30px rgba(255, 211, 43, .9),
+        0 0 80px rgba(255, 167, 0, .56);
+
+    filter:
+        drop-shadow(0 15px 18px rgba(75, 0, 3, .38));
+
+    animation:
+        nd29VictoryStarHeartbeat 1.45s 1.35s ease-in-out infinite;
+}
+
+.nd29-victory-number {
+    position: absolute;
+
+    top: 8%;
+
+    color: #fff4b0;
+
+    font-weight: 1000;
+
+    font-size:
+        clamp(18px, 2.5vw, 31px);
+
+    letter-spacing: .24em;
+
+    text-shadow:
+        0 2px 8px rgba(91, 0, 5, .88);
+}
+
+.nd29-victory-emblem>small {
+    position: absolute;
+
+    bottom: 6%;
+
+    color:
+        rgba(255, 246, 195, .92);
+
+    font-size:
+        clamp(10px, 1.25vw, 15px);
+
+    font-weight: 900;
+
+    letter-spacing: .52em;
+
+    text-indent: .52em;
+}
+
+.nd29-victory-ring {
+    position: absolute;
+
+    border-radius: 50%;
+
+    border:
+        1px solid rgba(255, 220, 75, .65);
+
+    box-shadow:
+        0 0 15px rgba(255, 202, 42, .12);
+}
+
+.nd29-victory-ring.ring-a {
+    inset: 0;
+
+    border-width: 2px;
+
+    animation:
+        nd29VictoryRingSpin 9s linear infinite;
+}
+
+.nd29-victory-ring.ring-b {
+    inset: 10%;
+
+    border-style: dashed;
+
+    opacity: .62;
+
+    animation:
+        nd29VictoryRingSpinReverse 6s linear infinite;
+}
+
+.nd29-victory-ring.ring-c {
+    inset: 22%;
+
+    border:
+        1px solid rgba(255, 243, 168, .34);
+
+    animation:
+        nd29VictoryRingPulse 2s ease-in-out infinite;
+}
+
+/* ================================================================
+   DẢI LỤA
+   ================================================================ */
+
+.nd29-victory-ribbons {
+    position: absolute;
+
+    left: var(--nd29-origin-x);
+    top: var(--nd29-origin-y);
+
+    width: 1px;
+    height: 1px;
+
+    z-index: 4;
+}
+
+.nd29-victory-ribbon {
+    position: absolute;
+
+    left: 0;
+    top: 0;
+
+    width:
+        var(--nd29-ribbon-width);
+
+    height: 155vmax;
+
+    transform-origin:
+        50% 0;
+
+    transform:
+        rotate(var(--nd29-ribbon-angle)) scaleY(.05);
+
+    border-radius:
+        999px 999px 70% 70%;
+
+    opacity: 0;
+
+    animation:
+        nd29VictoryRibbonOpen 1.65s var(--nd29-ribbon-delay) cubic-bezier(.12, .84, .28, 1) forwards;
+}
+
+.nd29-victory-ribbon.is-red {
+    background:
+        linear-gradient(to bottom,
+            #ef2430,
+            rgba(194, 8, 17, .75) 34%,
+            rgba(120, 0, 7, .12) 82%,
+            transparent);
+
+    box-shadow:
+        0 0 18px rgba(230, 24, 30, .36);
+}
+
+.nd29-victory-ribbon.is-gold {
+    background:
+        linear-gradient(to bottom,
+            #fff1a1,
+            #f2bc20 28%,
+            rgba(222, 137, 0, .1) 80%,
+            transparent);
+
+    box-shadow:
+        0 0 18px rgba(255, 212, 48, .28);
+}
+
+/* ================================================================
+   SAO BAY
+   ================================================================ */
+
+.nd29-victory-particle-star {
+    position: absolute;
+
+    left: var(--nd29-star-x);
+    top: var(--nd29-star-y);
+
+    color: #ffe04f;
+
+    font-size:
+        var(--nd29-star-size);
+
+    opacity: 0;
+
+    text-shadow:
+        0 0 8px rgba(255, 215, 44, .72);
+
+    animation:
+        nd29VictoryParticleStar 2.65s var(--nd29-star-delay) cubic-bezier(.12, .7, .22, 1) forwards;
+}
+
+/* ================================================================
+   TIA LỬA
+   ================================================================ */
+
+.nd29-victory-spark {
+    position: absolute;
+
+    left: var(--nd29-spark-x);
+    top: var(--nd29-spark-y);
+
+    width:
+        var(--nd29-spark-size);
+    height:
+        var(--nd29-spark-size);
+
+    border-radius: 50%;
+
+    background: #ffd74b;
+
+    box-shadow:
+        0 0 8px rgba(255, 215, 75, .72);
+
+    opacity: 0;
+
+    animation:
+        nd29VictorySpark 2.25s var(--nd29-spark-delay) ease-out forwards;
+}
+
+.nd29-victory-spark.is-bright {
+    background: #fffbd2;
+
+    box-shadow:
+        0 0 8px #fff7a8,
+        0 0 18px #ffc928;
+}
+
+/* ================================================================
+   CHẤN ĐỘNG
+   ================================================================ */
+
+.nd29-victory-impact {
+    position: absolute;
+
+    left: var(--nd29-origin-x);
+    top: var(--nd29-origin-y);
+
+    width: 60px;
+    height: 60px;
+
+    border-radius: 50%;
+
+    border:
+        3px solid rgba(255, 225, 82, .82);
+
+    transform:
+        translate(-50%, -50%) scale(.1);
+
+    opacity: 0;
+
+    box-shadow:
+        0 0 40px rgba(255, 210, 37, .45);
+
+    animation:
+        nd29VictoryImpact 1.4s .08s cubic-bezier(.1, .77, .21, 1) forwards;
+}
+
+/* ================================================================
+   TITLE
+   ================================================================ */
+
+.nd29-victory-title {
+    position: absolute;
+
+    left: 50%;
+    bottom: 9vh;
+
+    width: min(90vw, 820px);
+
+    transform:
+        translate(-50%, 35px);
+
+    text-align: center;
+
+    opacity: 0;
+
+    z-index: 25;
+
+    animation:
+        nd29VictoryTitleIn .8s 1.1s cubic-bezier(.17, .82, .31, 1) forwards;
+}
+
+.nd29-victory-title small {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color:
+        rgba(255, 232, 144, .78);
+
+    font-size:
+        clamp(10px, 1.3vw, 14px);
+
+    font-weight: 900;
+
+    letter-spacing: .42em;
+
+    text-indent: .42em;
+}
+
+.nd29-victory-title strong {
+    display: block;
+
+    color: #fff5b4;
+
+    font-size:
+        clamp(27px, 5vw, 62px);
+
+    font-weight: 1000;
+
+    letter-spacing: .06em;
+
+    line-height: 1;
+
+    text-shadow:
+        0 3px 0 #83070b,
+        0 0 14px rgba(255, 215, 59, .62),
+        0 0 42px rgba(255, 167, 0, .28);
+}
+
+.nd29-victory-title span {
+    display: block;
+
+    margin-top: 11px;
+
+    color:
+        rgba(255, 246, 202, .78);
+
+    font-size:
+        clamp(9px, 1.1vw, 13px);
+
+    font-weight: 800;
+
+    letter-spacing: .34em;
+
+    text-indent: .34em;
+}
+
+/* ================================================================
+   DIALOGUE
+   ================================================================ */
+
+.nd29-victory-dialogue {
+    position: absolute;
+
+    left: 50%;
+    bottom: 145px;
+
+    width: max-content;
+    max-width: min(360px, 82vw);
+
+    transform:
+        translateX(-50%);
+
+    z-index: 100;
+
+    padding:
+        10px 16px;
+
+    border:
+        1px solid rgba(255, 221, 79, .58);
+
+    border-radius: 14px;
+
+    color: #fff5bf;
+
+    background:
+        linear-gradient(135deg,
+            rgba(117, 3, 8, .94),
+            rgba(68, 0, 4, .94));
+
+    box-shadow:
+        0 8px 22px rgba(58, 0, 3, .34),
+        inset 0 1px 0 rgba(255, 243, 191, .13);
+
+    font-size: 12px;
+    font-weight: 800;
+
+    text-align: center;
+
+    pointer-events: none;
+
+    animation:
+        nd29VictoryDialogue 5.5s ease both;
+}
+
+/* ================================================================
+   THOÁT ULTIMATE
+   ================================================================ */
+
+.nd29-victory-ultimate.is-leaving {
+    animation:
+        nd29VictoryUltimateLeave .7s ease forwards;
+}
+
+/* ================================================================
+   KEYFRAMES
+   ================================================================ */
+
+@keyframes nd29VictoryBackdropIn {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes nd29VictoryPatternDrift {
+    to {
+        transform: translateX(18%);
+    }
+}
+
+@keyframes nd29VictoryOriginBurst {
+    0% {
+        opacity: 0;
+        transform:
+            translate(-50%, -50%) scale(.1);
+    }
+
+    24% {
+        opacity: 1;
+    }
+
+    58% {
+        opacity: .95;
+        transform:
+            translate(-50%, -50%) scale(8);
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+            translate(-50%, -50%) scale(15);
+    }
+}
+
+@keyframes nd29VictoryRayOpen {
+    0% {
+        opacity: 0;
+
+        scale: .1 0;
+    }
+
+    32% {
+        opacity: .68;
+    }
+
+    100% {
+        opacity: .12;
+
+        scale: 1 1;
+    }
+}
+
+@keyframes nd29VictoryEmblemEntrance {
+    0% {
+        opacity: 0;
+
+        transform:
+            translate(-50%, -50%) scale(.18) rotate(-10deg);
+    }
+
+    55% {
+        opacity: 1;
+
+        transform:
+            translate(-50%, -50%) scale(1.08) rotate(2deg);
+    }
+
+    100% {
+        opacity: 1;
+
+        transform:
+            translate(-50%, -50%) scale(1) rotate(0);
+    }
+}
+
+@keyframes nd29VictoryStarHeartbeat {
+
+    0%,
+    100% {
+        transform: scale(.96);
+    }
+
+    50% {
+        transform: scale(1.055);
+    }
+}
+
+@keyframes nd29VictoryRingSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes nd29VictoryRingSpinReverse {
+    to {
+        transform: rotate(-360deg);
+    }
+}
+
+@keyframes nd29VictoryRingPulse {
+
+    0%,
+    100% {
+        opacity: .38;
+        transform: scale(.96);
+    }
+
+    50% {
+        opacity: .82;
+        transform: scale(1.05);
+    }
+}
+
+@keyframes nd29VictoryRibbonOpen {
+    0% {
+        opacity: 0;
+
+        transform:
+            rotate(var(--nd29-ribbon-angle)) scaleY(.04);
+    }
+
+    30% {
+        opacity: .88;
+    }
+
+    100% {
+        opacity: .14;
+
+        transform:
+            rotate(var(--nd29-ribbon-angle)) scaleY(1);
+    }
+}
+
+@keyframes nd29VictoryParticleStar {
+    0% {
+        opacity: 0;
+        transform:
+            scale(.1) rotate(0deg);
+    }
+
+    24% {
+        opacity: .95;
+    }
+
+    100% {
+        opacity: 0;
+
+        transform:
+            translateY(-65px) scale(1.25) rotate(var(--nd29-star-spin));
+    }
+}
+
+@keyframes nd29VictorySpark {
+    0% {
+        opacity: 0;
+        transform:
+            translateY(22px) scale(.1);
+    }
+
+    26% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+            translateY(-75px) scale(1.4);
+    }
+}
+
+@keyframes nd29VictoryImpact {
+    0% {
+        opacity: 0;
+
+        transform:
+            translate(-50%, -50%) scale(.1);
+    }
+
+    35% {
+        opacity: .82;
+    }
+
+    100% {
+        opacity: 0;
+
+        transform:
+            translate(-50%, -50%) scale(24);
+    }
+}
+
+@keyframes nd29VictoryTitleIn {
+    from {
+        opacity: 0;
+
+        transform:
+            translate(-50%, 35px);
+
+        filter: blur(7px);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translate(-50%, 0);
+
+        filter: blur(0);
+    }
+}
+
+@keyframes nd29VictoryDialogue {
+
+    0%,
+    100% {
+        opacity: 0;
+        transform:
+            translate(-50%, 12px) scale(.94);
+    }
+
+    10%,
+    86% {
+        opacity: 1;
+
+        transform:
+            translate(-50%, 0) scale(1);
+    }
+}
+
+@keyframes nd29VictoryUltimateLeave {
+    to {
+        opacity: 0;
+        filter: brightness(1.35);
+    }
+}
+
+/* ================================================================
+   MOBILE
+   ================================================================ */
+
+@media (max-width: 768px) {
+
+    .nd29-victory-emblem {
+        top: 43%;
+
+        width: min(72vw, 330px);
+    }
+
+    .nd29-victory-title {
+        bottom: 12vh;
+    }
+
+    .nd29-victory-title strong {
+        font-size:
+            clamp(25px, 9vw, 43px);
+    }
+
+    .nd29-victory-dialogue {
+        bottom: 125px;
+    }
+}
+
+/* ================================================================
+   REDUCED MOTION
+   ================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .nd29-victory-ultimate *,
+    .nd29-victory-ultimate *::before,
+    .nd29-victory-ultimate *::after {
+        animation-duration:
+            .8s !important;
+
+        animation-iteration-count:
+            1 !important;
+    }
+}
+
+/* ================================================================
+   QUỐC KHÁNH 2/9 · HIỆU ỨNG TOÀN WEBSITE
+   VIỆT DIỆU · HÀO QUANG NON SÔNG
+   Đồng bộ với pet Việt Diệu · Sao Vàng Nhí
+   ================================================================ */
+
+
+/* ================================================================
+   ICON CARD HIỆU ỨNG
+   ================================================================ */
+
+.store-card-national-day-2-9[ data-item-id="effect_quoc_khanh_viet_dieu_non_song"
+
+] .item-icon-wrapper {
+    overflow: hidden !important;
+}
+
+.store-card-national-day-2-9[ data-item-id="effect_quoc_khanh_viet_dieu_non_song"
+
+] .item-icon {
+    width: 92px !important;
+    height: 92px !important;
+
+    display: grid !important;
+    place-items: center !important;
+
+    color: #ffe34e !important;
+
+    font-size: 54px !important;
+    line-height: 1 !important;
+
+    background:
+        radial-gradient(circle,
+            rgba(255, 244, 166, .28) 0 16%,
+            transparent 17%),
+        radial-gradient(circle,
+            rgba(255, 204, 41, .18) 0 44%,
+            transparent 45%) !important;
+
+    text-shadow:
+        0 0 7px rgba(255, 248, 188, .98),
+        0 0 18px rgba(255, 211, 48, .82),
+        0 0 36px rgba(220, 40, 24, .42) !important;
+
+    animation:
+        nd29EffectCardStar 2.8s ease-in-out infinite !important;
+}
+
+@keyframes nd29EffectCardStar {
+
+    0%,
+    100% {
+        transform:
+            scale(.94) rotate(-4deg);
+
+        filter:
+            brightness(1);
+    }
+
+    50% {
+        transform:
+            scale(1.08) rotate(4deg);
+
+        filter:
+            brightness(1.22);
+    }
+}
+
+
+/* ================================================================
+   ROOT HIỆU ỨNG TOÀN WEB
+   Không chặn click
+   ================================================================ */
+
+.nd29-web-effect {
+    position: fixed !important;
+    inset: 0 !important;
+
+    width: 100vw !important;
+    height: 100vh !important;
+
+    overflow: hidden !important;
+
+    pointer-events: none !important;
+
+    isolation: isolate !important;
+
+    opacity: 0;
+
+    z-index: 1 !important;
+
+    transition:
+        opacity .7s ease !important;
+}
+
+.nd29-web-effect.is-active {
+    opacity: 1;
+}
+
+
+/* ================================================================
+   ÁNH ĐỎ / VÀNG NHẸ
+   ================================================================ */
+
+.nd29-web-wash {
+    position: absolute;
+    inset: 0;
+
+    z-index: -5;
+
+    background:
+        radial-gradient(circle at 9% 12%,
+            rgba(238, 26, 31, .12),
+            transparent 28%),
+        radial-gradient(circle at 92% 86%,
+            rgba(255, 202, 37, .12),
+            transparent 30%),
+        linear-gradient(135deg,
+            rgba(138, 5, 11, .035),
+            transparent 38%,
+            rgba(255, 205, 49, .025) 72%,
+            transparent);
+
+    animation:
+        nd29WebWashBreath 7s ease-in-out infinite;
+}
+
+
+/* ================================================================
+   5 TIA SAO VÀNG
+   ================================================================ */
+
+.nd29-web-rays {
+    position: absolute;
+
+    left: 50%;
+    top: 48%;
+
+    width: 1px;
+    height: 1px;
+
+    z-index: -3;
+
+    opacity: .45;
+
+    animation:
+        nd29WebRayTurn 44s linear infinite;
+}
+
+.nd29-web-ray {
+    position: absolute;
+
+    left: 0;
+    top: 0;
+
+    width: 10vmax;
+    height: 84vmax;
+
+    transform-origin:
+        50% 0;
+
+    clip-path:
+        polygon(46% 0,
+            54% 0,
+            100% 100%,
+            0 100%);
+
+    background:
+        linear-gradient(to bottom,
+            rgba(255, 231, 105, .22),
+            rgba(255, 208, 45, .045) 44%,
+            transparent 82%);
+
+    filter:
+        blur(1px);
+}
+
+.nd29-web-ray.ray-1 {
+    transform: rotate(0deg);
+}
+
+.nd29-web-ray.ray-2 {
+    transform: rotate(72deg);
+}
+
+.nd29-web-ray.ray-3 {
+    transform: rotate(144deg);
+}
+
+.nd29-web-ray.ray-4 {
+    transform: rotate(216deg);
+}
+
+.nd29-web-ray.ray-5 {
+    transform: rotate(288deg);
+}
+
+
+/* ================================================================
+   DẢI LỤA QUỐC KHÁNH
+   ================================================================ */
+
+.nd29-web-ribbon {
+    position: absolute;
+
+    z-index: -2;
+
+    width: 18vw;
+    min-width: 130px;
+
+    height: 125vh;
+
+    top: -14vh;
+
+    opacity: .17;
+
+    border-radius: 50%;
+
+    filter:
+        blur(.4px);
+}
+
+.nd29-web-ribbon.ribbon-left {
+    left: -10vw;
+
+    transform:
+        rotate(-17deg);
+
+    background:
+        linear-gradient(90deg,
+            transparent,
+            rgba(230, 24, 31, .84),
+            rgba(255, 207, 45, .34),
+            transparent);
+
+    animation:
+        nd29WebRibbonLeft 12s ease-in-out infinite alternate;
+}
+
+.nd29-web-ribbon.ribbon-right {
+    right: -10vw;
+
+    transform:
+        rotate(17deg);
+
+    background:
+        linear-gradient(90deg,
+            transparent,
+            rgba(255, 211, 55, .38),
+            rgba(203, 10, 17, .78),
+            transparent);
+
+    animation:
+        nd29WebRibbonRight 13.5s ease-in-out infinite alternate;
+}
+
+
+/* ================================================================
+   STAR / SPARK FIELD
+   ================================================================ */
+
+.nd29-web-star-field,
+.nd29-web-spark-field {
+    position: absolute;
+    inset: 0;
+
+    overflow: hidden;
+}
+
+
+/* Sao vàng */
+
+.nd29-web-star {
+    position: absolute;
+
+    left:
+        var(--nd29-web-x);
+
+    top:
+        var(--nd29-web-y);
+
+    color:
+        rgba(255, 219, 62, .68);
+
+    font-size:
+        var(--nd29-web-size);
+
+    line-height: 1;
+
+    opacity: 0;
+
+    text-shadow:
+        0 0 5px rgba(255, 238, 143, .66),
+        0 0 13px rgba(255, 198, 28, .25);
+
+    animation:
+        nd29WebStarDrift var(--nd29-web-duration) var(--nd29-web-delay) ease-in-out infinite;
+}
+
+.nd29-web-star.is-major {
+    color:
+        rgba(255, 225, 75, .86);
+
+    text-shadow:
+        0 0 7px rgba(255, 249, 194, .9),
+        0 0 20px rgba(255, 195, 29, .38);
+}
+
+
+/* Bụi sáng */
+
+.nd29-web-spark {
+    position: absolute;
+
+    left:
+        var(--nd29-spark-x);
+
+    top:
+        var(--nd29-spark-y);
+
+    width:
+        var(--nd29-spark-size);
+
+    height:
+        var(--nd29-spark-size);
+
+    border-radius: 50%;
+
+    background:
+        rgba(255, 207, 52, .72);
+
+    box-shadow:
+        0 0 7px rgba(255, 214, 73, .55);
+
+    opacity: 0;
+
+    animation:
+        nd29WebSparkFloat var(--nd29-spark-duration) var(--nd29-spark-delay) ease-in-out infinite;
+}
+
+.nd29-web-spark.is-bright {
+    background:
+        #fff6b8;
+
+    box-shadow:
+        0 0 7px rgba(255, 249, 205, .95),
+        0 0 15px rgba(255, 197, 25, .48);
+}
+
+
+/* ================================================================
+   HUY HIỆU 02/09
+   ================================================================ */
+
+.nd29-web-seal {
+    position: absolute;
+
+    right: 30px;
+    bottom: 26px;
+
+    width: 112px;
+    height: 112px;
+
+    border-radius: 50%;
+
+    display: grid;
+    place-items: center;
+
+    opacity: .23;
+
+    color: #ffd94a;
+
+    filter:
+        drop-shadow(0 5px 14px rgba(114, 4, 9, .18));
+
+    animation:
+        nd29WebSealFloat 7.5s ease-in-out infinite;
+}
+
+.nd29-web-seal b {
+    position: absolute;
+
+    top: 20px;
+
+    font-size: 31px;
+    line-height: 1;
+
+    text-shadow:
+        0 0 12px rgba(255, 210, 44, .55);
+}
+
+.nd29-web-seal strong {
+    position: absolute;
+
+    top: 58px;
+
+    font-size: 12px;
+    font-weight: 1000;
+
+    letter-spacing: .12em;
+}
+
+.nd29-web-seal small {
+    position: absolute;
+
+    bottom: 18px;
+
+    font-size: 6px;
+    font-weight: 900;
+
+    letter-spacing: .16em;
+}
+
+.nd29-web-seal-ring {
+    position: absolute;
+
+    border-radius: 50%;
+
+    border:
+        1px solid rgba(255, 211, 58, .75);
+}
+
+.nd29-web-seal-ring.ring-a {
+    inset: 4px;
+
+    animation:
+        nd29WebSealSpin 18s linear infinite;
+}
+
+.nd29-web-seal-ring.ring-b {
+    inset: 13px;
+
+    border-style: dashed;
+
+    opacity: .7;
+
+    animation:
+        nd29WebSealSpin 12s linear infinite reverse;
+}
+
+
+/* ================================================================
+   ANIMATION
+   ================================================================ */
+
+@keyframes nd29WebWashBreath {
+
+    0%,
+    100% {
+        opacity: .62;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+@keyframes nd29WebRayTurn {
+    to {
+        transform:
+            rotate(360deg);
+    }
+}
+
+@keyframes nd29WebRibbonLeft {
+    from {
+        transform:
+            translateX(-18px) rotate(-17deg);
+
+        opacity: .12;
+    }
+
+    to {
+        transform:
+            translateX(28px) rotate(-11deg);
+
+        opacity: .22;
+    }
+}
+
+@keyframes nd29WebRibbonRight {
+    from {
+        transform:
+            translateX(18px) rotate(17deg);
+
+        opacity: .12;
+    }
+
+    to {
+        transform:
+            translateX(-28px) rotate(11deg);
+
+        opacity: .21;
+    }
+}
+
+@keyframes nd29WebStarDrift {
+    0% {
+        opacity: 0;
+
+        transform:
+            translate(0, 24px) scale(.55) rotate(-16deg);
+    }
+
+    18% {
+        opacity: .75;
+    }
+
+    52% {
+        opacity: .95;
+
+        transform:
+            translate(calc(var(--nd29-web-drift-x) * .55),
+                -12px) scale(1.04) rotate(9deg);
+    }
+
+    100% {
+        opacity: 0;
+
+        transform:
+            translate(var(--nd29-web-drift-x),
+                -72px) scale(.76) rotate(34deg);
+    }
+}
+
+@keyframes nd29WebSparkFloat {
+    0% {
+        opacity: 0;
+
+        transform:
+            translateY(18px) scale(.35);
+    }
+
+    24% {
+        opacity: .82;
+    }
+
+    62% {
+        opacity: .55;
+    }
+
+    100% {
+        opacity: 0;
+
+        transform:
+            translateY(-52px) scale(1.15);
+    }
+}
+
+@keyframes nd29WebSealFloat {
+
+    0%,
+    100% {
+        transform:
+            translateY(0) rotate(-2deg);
+    }
+
+    50% {
+        transform:
+            translateY(-9px) rotate(2deg);
+    }
+}
+
+@keyframes nd29WebSealSpin {
+    to {
+        transform:
+            rotate(360deg);
+    }
+}
+
+
+/* ================================================================
+   MOBILE
+   ================================================================ */
+
+@media (max-width: 768px),
+(pointer: coarse) {
+
+    .nd29-web-ribbon {
+        width: 30vw;
+
+        opacity: .12;
+    }
+
+    .nd29-web-seal {
+        right: 12px;
+        bottom: 18px;
+
+        width: 88px;
+        height: 88px;
+
+        opacity: .18;
+    }
+
+    .nd29-web-seal b {
+        top: 15px;
+
+        font-size: 25px;
+    }
+
+    .nd29-web-seal strong {
+        top: 45px;
+
+        font-size: 9px;
+    }
+
+    .nd29-web-seal small {
+        bottom: 13px;
+
+        font-size: 5px;
+    }
+}
+
+
+/* ================================================================
+   REDUCED MOTION
+   ================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .nd29-web-effect *,
+    .nd29-web-effect *::before,
+    .nd29-web-effect *::after {
+        animation-duration:
+            .001ms !important;
+
+        animation-iteration-count:
+            1 !important;
+    }
+}
+
+/* ================================================================
+   VIỆT DIỆU · HỒNG KỲ TÂN CHƯƠNG — UI V2
+   Concept:
+   SƠN MÀI ĐỎ · ÁNH KIM VÀNG · QUỐC KỲ HIỆN ĐẠI
+
+   Không tái sử dụng bố cục theme cũ.
+   ================================================================ */
+
+body.theme-viet-dieu-hong-ky {
+    --vd-red-950: #430306;
+    --vd-red-900: #68070b;
+    --vd-red-800: #8f0a10;
+    --vd-red-700: #b80e16;
+    --vd-red-600: #d71920;
+
+    --vd-gold-500: #e7b930;
+    --vd-gold-400: #f2cf62;
+    --vd-gold-300: #f9e39a;
+
+    --vd-ivory: #fffaf0;
+    --vd-paper: #f8f3e8;
+
+    --vd-text: #29181a;
+    --vd-muted: #765f61;
+
+    color: var(--vd-text) !important;
+
+    font-family:
+        "Segoe UI Variable",
+        "Segoe UI",
+        system-ui,
+        sans-serif !important;
+
+    background:
+        radial-gradient(circle at 92% 4%,
+            rgba(215, 25, 32, .10),
+            transparent 27%),
+        radial-gradient(circle at 4% 96%,
+            rgba(231, 185, 48, .09),
+            transparent 31%),
+        linear-gradient(145deg,
+            #fffdf8 0%,
+            #fbf6ec 48%,
+            #f5eee2 100%) !important;
+
+    background-attachment: fixed !important;
+}
+
+
+/* ================================================================
+   FONT
+   ================================================================ */
+
+body.theme-viet-dieu-hong-ky:where(main,
+    section,
+    article,
+    aside,
+    nav,
+    button,
+    input,
+    select,
+    textarea,
+    table,
+    label):not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *) {
+    font-family:
+        "Segoe UI Variable",
+        "Segoe UI",
+        system-ui,
+        sans-serif !important;
+}
+
+
+/* ================================================================
+   TIÊU ĐỀ — KHÔNG DÙNG GEORGIA NỮA
+   ================================================================ */
+
+body.theme-viet-dieu-hong-ky:where(h1,
+    h2,
+    h3,
+    .page-title,
+    .section-title,
+    .modal-title,
+    .popup-title,
+    .card-title):not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *) {
+
+    color: #76080d !important;
+
+    font-family:
+        "Segoe UI Variable Display",
+        "Segoe UI",
+        system-ui,
+        sans-serif !important;
+
+    font-weight: 850 !important;
+
+    letter-spacing: -.025em !important;
+
+    text-shadow: none !important;
+}
+
+
+/* ================================================================
+   POPUP — QUỐC ẤN HIỆN ĐẠI
+
+   Không còn cắt tám góc.
+   Hình dạng: cong lớn + góc trên phải cắt nhẹ.
+   ================================================================ */
+
+body.theme-viet-dieu-hong-ky:where(.modal-content,
+    .popup-content,
+    .dialog-content,
+    .modal-container,
+    .popup-container,
+    [role="dialog"]):not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *) {
+
+    position: relative !important;
+
+    color: var(--vd-text) !important;
+
+    background:
+        linear-gradient(160deg,
+            rgba(255, 255, 255, .97),
+            rgba(255, 250, 239, .97) 62%,
+            rgba(249, 239, 218, .96)) !important;
+
+    border:
+        1px solid rgba(126, 8, 13, .18) !important;
+
+    border-radius:
+        24px 7px 24px 24px !important;
+
+    clip-path: none !important;
+
+    box-shadow:
+        0 28px 70px rgba(69, 5, 8, .20),
+        0 8px 25px rgba(69, 5, 8, .08),
+        inset 0 1px 0 rgba(255, 255, 255, .96) !important;
+
+    backdrop-filter:
+        blur(18px) saturate(1.08) !important;
+}
+
+
+/* vàng mảnh ở đỉnh popup */
+
+body.theme-viet-dieu-hong-ky:where(.modal-content,
+    .popup-content,
+    .dialog-content,
+    [role="dialog"]):not(.ui-theme-immune):not([data-theme-immune="true"])::before {
+
+    content: "";
+
+    position: absolute;
+
+    left: 24px;
+    right: 72px;
+    top: 0;
+
+    height: 3px;
+
+    border-radius:
+        0 0 999px 999px;
+
+    background:
+        linear-gradient(90deg,
+            #a90b11,
+            #d71920 28%,
+            #f0ca58 70%,
+            transparent);
+
+    pointer-events: none;
+}
+
+
+/* dấu sao riêng góc popup */
+
+body.theme-viet-dieu-hong-ky:where(.modal-content,
+    .popup-content,
+    .dialog-content,
+    [role="dialog"]):not(.ui-theme-immune):not([data-theme-immune="true"])::after {
+
+    content: "★";
+
+    position: absolute;
+
+    right: 19px;
+    top: 13px;
+
+    color:
+        rgba(203, 157, 26, .24);
+
+    font-size: 30px;
+
+    line-height: 1;
+
+    pointer-events: none;
+}
+
+
+/* ================================================================
+   OVERLAY
+   ================================================================ */
+
+body.theme-viet-dieu-hong-ky:where(.modal-overlay,
+    .popup-overlay,
+    .dialog-overlay,
+    .overlay,
+    .backdrop):not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *) {
+
+    background:
+        radial-gradient(circle at 50% 40%,
+            rgba(190, 15, 22, .12),
+            transparent 42%),
+        rgba(34, 10, 12, .35) !important;
+
+    backdrop-filter:
+        blur(7px) saturate(.92) !important;
+}
+
+
+/* ================================================================
+   CARD / Ô — PHÙ HIỆU VIỆT DIỆU
+
+   Không còn clip-path răng cưa.
+   Chỉ góc trên-phải vuông hơn để tạo nhận diện riêng.
+   ================================================================ */
+
+body.theme-viet-dieu-hong-ky:where(.card,
+    .panel,
+    .widget,
+    .box,
+    .dashboard-card,
+    .stat-card,
+    .info-card,
+    .content-card,
+    .section-card,
+    .glass-card,
+    .game-card,
+    .task-card,
+    .subject-card,
+    .summary-card):not(.store-item-card):not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *) {
+
+    color: var(--vd-text) !important;
+
+    background:
+        linear-gradient(150deg,
+            rgba(255, 255, 255, .90),
+            rgba(255, 250, 241, .84)) !important;
+
+    border:
+        1px solid rgba(118, 19, 23, .12) !important;
+
+    border-radius:
+        20px 6px 20px 20px !important;
+
+    clip-path: none !important;
+
+    box-shadow:
+        0 12px 28px rgba(80, 12, 15, .08),
+        0 2px 7px rgba(80, 12, 15, .04),
+        inset 0 1px 0 rgba(255, 255, 255, .92) !important;
+
+    transition:
+        transform .22s ease,
+        box-shadow .22s ease,
+        border-color .22s ease !important;
+}
+
+
+body.theme-viet-dieu-hong-ky:where(.card,
+    .panel,
+    .widget,
+    .dashboard-card,
+    .stat-card,
+    .info-card):not(.store-item-card):not(.ui-theme-immune):hover {
+
+    border-color:
+        rgba(195, 31, 37, .23) !important;
+
+    box-shadow:
+        0 18px 38px rgba(91, 8, 12, .12),
+        0 3px 9px rgba(91, 8, 12, .05) !important;
+}
+
+
+/* ================================================================
+   SIDEBAR — KHÔNG PHỦ ĐỎ TOÀN KHỐI NỮA
+   ================================================================ */
+
+body.theme-viet-dieu-hong-ky:where(.sidebar,
+    .side-bar,
+    .side-nav):not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *) {
+
+    color: var(--vd-text) !important;
+
+    background:
+        linear-gradient(180deg,
+            rgba(255, 255, 255, .93),
+            rgba(251, 244, 231, .91)) !important;
+
+    border-right:
+        1px solid rgba(121, 16, 21, .12) !important;
+
+    box-shadow:
+        13px 0 35px rgba(74, 8, 11, .065) !important;
+
+    backdrop-filter:
+        blur(17px) !important;
+}
+
+
+/* ================================================================
+   TOPBAR — ĐỎ SƠN MÀI NHẸ
+   ================================================================ */
+
+body.theme-viet-dieu-hong-ky:where(.navbar,
+    .nav-bar,
+    .topbar,
+    .top-bar,
+    .header-bar,
+    .app-header):not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *) {
+
+    color: #fff9df !important;
+
+    background:
+        linear-gradient(120deg,
+            #71070c,
+            #9e0a10 56%,
+            #76070c) !important;
+
+    border-color:
+        rgba(242, 207, 98, .28) !important;
+
+    box-shadow:
+        0 8px 24px rgba(83, 4, 8, .15),
+        inset 0 -1px 0 rgba(248, 212, 103, .18) !important;
+}
+
+
+/* ================================================================
+   MENU ITEM
+   ================================================================ */
+
+body.theme-viet-dieu-hong-ky:where(.sidebar a,
+    .side-nav a,
+    .nav-item,
+    .menu-item,
+    .tab-button,
+    .tab-btn,
+    [role="tab"]):not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *) {
+
+    border-radius:
+        12px 4px 12px 12px !important;
+
+    clip-path: none !important;
+
+    transition:
+        background .2s ease,
+        color .2s ease,
+        transform .2s ease !important;
+}
+
+
+/* ================================================================
+   BUTTON
+
+   Không còn gradient chia đôi đỏ-vàng.
+   ================================================================ */
+
+body.theme-viet-dieu-hong-ky button:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *) {
+
+    border-radius:
+        12px 4px 12px 12px !important;
+
+    clip-path: none !important;
+
+    color: #fff9e6 !important;
+
+    background:
+        linear-gradient(135deg,
+            #930a10,
+            #c51119) !important;
+
+    border:
+        1px solid rgba(107, 5, 9, .34) !important;
+
+    box-shadow:
+        0 7px 17px rgba(108, 6, 11, .15),
+        inset 0 1px 0 rgba(255, 255, 255, .15) !important;
+
+    transition:
+        transform .18s ease,
+        filter .18s ease,
+        box-shadow .18s ease !important;
+}
+
+
+body.theme-viet-dieu-hong-ky button:not(.ui-theme-immune):hover {
+
+    filter:
+        brightness(1.08) !important;
+
+    transform:
+        translateY(-1px);
+
+    box-shadow:
+        0 10px 22px rgba(108, 6, 11, .20) !important;
+}
+
+
+/* ================================================================
+   INPUT
+   ================================================================ */
+
+body.theme-viet-dieu-hong-ky:where(input:not([type="range"]),
+    select,
+    textarea,
+    .input,
+    .search-box,
+    .form-control):not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *) {
+
+    color:
+        var(--vd-text) !important;
+
+    background:
+        rgba(255, 255, 255, .82) !important;
+
+    border:
+        1px solid rgba(123, 22, 27, .17) !important;
+
+    border-radius:
+        12px 4px 12px 12px !important;
+
+    clip-path:
+        none !important;
+
+    box-shadow:
+        inset 0 2px 6px rgba(83, 13, 16, .035) !important;
+
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease !important;
+}
+
+
+body.theme-viet-dieu-hong-ky:where(input:not([type="range"]),
+    select,
+    textarea,
+    .form-control):focus {
+
+    outline: none !important;
+
+    border-color:
+        rgba(194, 21, 28, .55) !important;
+
+    box-shadow:
+        0 0 0 3px rgba(215, 25, 32, .09) !important;
+}
+
+
+/* ================================================================
+   PROGRESS BAR
+   ================================================================ */
+
+body.theme-viet-dieu-hong-ky:where(.progress,
+    .progress-bar-container,
+    .progress-track) {
+
+    overflow: hidden !important;
+
+    height:
+        max(7px, var(--progress-height, 7px));
+
+    background:
+        #eadfd1 !important;
+
+    border:
+        0 !important;
+
+    border-radius:
+        999px !important;
+
+    box-shadow:
+        inset 0 1px 3px rgba(71, 9, 12, .10) !important;
+}
+
+
+body.theme-viet-dieu-hong-ky:where(.progress-bar,
+    .progress-fill,
+    .progress-value) {
+
+    background:
+        linear-gradient(90deg,
+            #a50b12,
+            #db1c25 68%,
+            #e6bb3a) !important;
+
+    border-radius:
+        999px !important;
+
+    box-shadow:
+        0 0 9px rgba(215, 25, 32, .20) !important;
+}
+
+
+/* ================================================================
+   RANGE SLIDER
+   ================================================================ */
+
+body.theme-viet-dieu-hong-ky input[type="range"] {
+
+    accent-color:
+        #c91018 !important;
+}
+
+
+body.theme-viet-dieu-hong-ky input[type="range"]::-webkit-slider-runnable-track {
+
+    height: 6px;
+
+    border: 0;
+
+    border-radius: 999px;
+
+    background:
+        linear-gradient(90deg,
+            #b50e16,
+            #d91b23 68%,
+            #e5bc3e);
+}
+
+
+body.theme-viet-dieu-hong-ky input[type="range"]::-webkit-slider-thumb {
+
+    width: 17px;
+    height: 17px;
+
+    margin-top: -5.5px;
+
+    -webkit-appearance: none;
+    appearance: none;
+
+    border-radius:
+        4px 1px 4px 4px;
+
+    background:
+        linear-gradient(145deg,
+            #fff4bd,
+            #e4b72f);
+
+    border:
+        2px solid #9b0a10;
+
+    transform:
+        rotate(45deg);
+
+    box-shadow:
+        0 2px 8px rgba(87, 4, 8, .22);
+}
+
+
+/* ================================================================
+   SCROLLBAR
+   ================================================================ */
+
+body.theme-viet-dieu-hong-ky,
+body.theme-viet-dieu-hong-ky *:not(.ui-theme-immune) {
+
+    scrollbar-width: thin;
+
+    scrollbar-color:
+        #b91219 rgba(220, 205, 185, .62);
+}
+
+
+body.theme-viet-dieu-hong-ky::-webkit-scrollbar,
+body.theme-viet-dieu-hong-ky *:not(.ui-theme-immune)::-webkit-scrollbar {
+
+    width: 9px;
+    height: 9px;
+}
+
+
+body.theme-viet-dieu-hong-ky::-webkit-scrollbar-track,
+body.theme-viet-dieu-hong-ky *:not(.ui-theme-immune)::-webkit-scrollbar-track {
+
+    background:
+        rgba(224, 213, 195, .52);
+}
+
+
+body.theme-viet-dieu-hong-ky::-webkit-scrollbar-thumb,
+body.theme-viet-dieu-hong-ky *:not(.ui-theme-immune)::-webkit-scrollbar-thumb {
+
+    border:
+        2px solid transparent;
+
+    border-radius: 999px;
+
+    background:
+        linear-gradient(#c61018,
+            #8e080e) padding-box;
+}
+
+
+/* ================================================================
+   SELECTION
+   ================================================================ */
+
+body.theme-viet-dieu-hong-ky ::selection {
+    color: #fff8df;
+
+    background:
+        rgba(181, 14, 21, .90);
+}
+
+
+/* ================================================================
+   MOBILE
+   ================================================================ */
+
+@media (max-width: 768px) {
+
+    body.theme-viet-dieu-hong-ky :where(.modal-content,
+        .popup-content,
+        .dialog-content,
+        [role="dialog"]) {
+        border-radius:
+            18px 5px 18px 18px !important;
+    }
+
+    body.theme-viet-dieu-hong-ky :where(.card,
+        .panel,
+        .widget,
+        .dashboard-card):not(.store-item-card) {
+
+        border-radius:
+            16px 5px 16px 16px !important;
+    }
+}
+
+/* ================================================================
+   VIỆT DIỆU · QUỐC ẤN KHẢI HOÀN
+   KHUNG AVATAR QUỐC KHÁNH 2/9
+
+   Vị trí dựa trên Hoa Mộng · Vạn Sinh Chi Hoàn.
+   Màu/animation hoàn toàn riêng.
+   ================================================================ */
+
+
+/* ================================================================
+   PREVIEW TRONG CỬA HÀNG
+   ================================================================ */
+
+.store-card-national-day-2-9[ data-item-id="frame_quoc_khanh_viet_dieu_quoc_an"
+
+] .item-icon-wrapper {
+
+    min-height: 128px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    overflow: visible !important;
+}
+
+
+.store-card-national-day-2-9[ data-item-id="frame_quoc_khanh_viet_dieu_quoc_an"
+
+] .item-icon {
+
+    width: 122px !important;
+    height: 122px !important;
+
+    max-width: none !important;
+    max-height: none !important;
+
+    object-fit: contain !important;
+
+    animation:
+        vd29FrameShopFloat 4.5s ease-in-out infinite !important;
+
+    filter:
+        drop-shadow(0 8px 10px rgba(76, 3, 7, .28)) drop-shadow(0 0 9px rgba(244, 190, 52, .30)) !important;
+}
+
+
+@keyframes vd29FrameShopFloat {
+
+    0%,
+    100% {
+        transform:
+            translateY(0) scale(1) !important;
+    }
+
+    50% {
+        transform:
+            translateY(-4px) scale(1.025) !important;
+    }
+}
+
+
+/* ================================================================
+   HOST CHUNG
+   ================================================================ */
+
+.avatar-frame-equipped[ data-avatar-frame-effect="national-day-viet-dieu-frame"
+
+] {
+
+    overflow: visible !important;
+    isolation: isolate !important;
+}
+
+
+/* ================================================================
+   1. AVATAR NHỎ — NÚT HỒ SƠ GÓC PHẢI
+
+   Hoa Mộng dùng avatar 42px và khung nằm giữa.
+   Giữ đúng tâm đó.
+   ================================================================ */
+
+.profile-trigger-btn.avatar-frame-profile-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
+
+] {
+
+    overflow: visible !important;
+    isolation: isolate !important;
+}
+
+
+/* Avatar thật */
+
+.profile-trigger-btn.avatar-frame-profile-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
+
+]>#avatarImage {
+
+    position: relative !important;
+
+    width: 50px !important;
+    height: 50px !important;
+
+    object-fit: cover !important;
+
+    border-radius: 50% !important;
+
+    z-index: 3 !important;
+
+    border:
+        1px solid rgba(255, 226, 122, .32) !important;
+
+    box-shadow:
+        0 2px 7px rgba(77, 3, 6, .15) !important;
+}
+
+
+/* Nếu chưa có ảnh */
+
+.profile-trigger-btn.avatar-frame-profile-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
+
+]>#avatarPlaceholder {
+
+    position: relative !important;
+    z-index: 3 !important;
+}
+
+
+/* Ảnh khung */
+
+.profile-trigger-btn.avatar-frame-profile-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
+
+]>.avatar-frame-decoration {
+
+    position: absolute !important;
+
+    left: 50% !important;
+
+    /*
+     * Ảnh Quốc khánh có bảng chữ khá nặng phía dưới,
+     * hạ ảnh khoảng 2px để lỗ avatar nằm đúng tâm.
+     */
+    top: calc(50% + 2px) !important;
+
+    width: 68px !important;
+    height: 68px !important;
+
+    max-width: none !important;
+    max-height: none !important;
+
+    object-fit: contain !important;
+
+    transform:
+        translate(-50%, -50%) !important;
+
+    transform-origin:
+        center center !important;
+
+    z-index: 6 !important;
+
+    pointer-events: none !important;
+    user-select: none !important;
+
+    filter:
+        drop-shadow(0 3px 4px rgba(80, 4, 7, .25)) drop-shadow(0 0 5px rgba(246, 191, 43, .40)) !important;
+
+    animation:
+        vd29NationalFrameFloat 5.5s ease-in-out infinite !important;
+}
+
+
+/* ================================================================
+   HÀO QUANG NHỎ
+   ================================================================ */
+
+.profile-trigger-btn.avatar-frame-profile-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
+
+]>.avatar-frame-aura {
+
+    position: absolute !important;
+
+    left: 50% !important;
+    top: 50% !important;
+
+    width: 62px !important;
+    height: 62px !important;
+
+    transform:
+        translate(-50%, -50%) !important;
+
+    border-radius: 50% !important;
+
+    z-index: 0 !important;
+
+    pointer-events: none !important;
+
+    opacity: .30 !important;
+
+    background:
+        conic-gradient(from 0deg,
+            rgba(255, 214, 67, .04),
+            rgba(215, 25, 32, .26),
+            rgba(255, 219, 83, .28),
+            rgba(155, 6, 12, .17),
+            rgba(255, 214, 67, .04)) !important;
+
+    filter:
+        blur(5px) saturate(1.12) !important;
+
+    animation:
+        vd29NationalFrameAura 13s linear infinite !important;
+}
+
+
+/* ================================================================
+   TINH QUANG PROFILE
+   ================================================================ */
+
+.profile-trigger-btn.avatar-frame-profile-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
+
+]>.avatar-frame-spark {
+
+    position: absolute !important;
+
+    z-index: 8 !important;
+
+    color: #ffe783 !important;
+
+    font-family:
+        Arial,
+        sans-serif !important;
+
+    font-weight: 900 !important;
+
+    text-shadow:
+        0 0 3px #fff4bb,
+        0 0 8px rgba(255, 205, 45, .92),
+        0 0 13px rgba(202, 20, 25, .46) !important;
+
+    pointer-events: none !important;
+
+    animation:
+        vd29NationalFrameSpark 2.1s ease-in-out infinite alternate !important;
+}
+
+
+.profile-trigger-btn.avatar-frame-profile-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
+
+]>.avatar-frame-spark.spark-1 {
+
+    left: -7px !important;
+    top: -8px !important;
+
+    font-size: 11px !important;
+}
+
+
+.profile-trigger-btn.avatar-frame-profile-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
+
+]>.avatar-frame-spark.spark-2 {
+
+    right: -7px !important;
+    top: 3px !important;
+
+    font-size: 8px !important;
+
+    animation-delay:
+        -.65s !important;
+}
+
+
+.profile-trigger-btn.avatar-frame-profile-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
+
+]>.avatar-frame-spark.spark-3 {
+
+    left: 0 !important;
+    bottom: -7px !important;
+
+    font-size: 8px !important;
+
+    animation-delay:
+        -1.1s !important;
+}
+
+
+.profile-trigger-btn.avatar-frame-profile-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
+
+]>.avatar-frame-spark.spark-4 {
+
+    right: -2px !important;
+    bottom: -6px !important;
+
+    font-size: 10px !important;
+
+    animation-delay:
+        -.35s !important;
+}
+
+
+/* ================================================================
+   2. AVATAR TRONG POPUP HỒ SƠ
+
+   Vị trí gần như Hoa Mộng:
+   host ~88px
+   avatar ~74px
+   frame ~145px
+   ================================================================ */
+
+#studentInfoModal .avatar-upload-container.avatar-frame-modal-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
+
+] {
+
+    position: relative !important;
+
+    width: 92px !important;
+    height: 92px !important;
+
+    display: block !important;
+
+    margin:
+        8px auto 40px auto !important;
+
+    overflow: visible !important;
+
+    isolation: isolate !important;
+}
+
+
+/* Avatar popup */
+
+#studentInfoModal .avatar-upload-container.avatar-frame-modal-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
+
+]>#modalAvatarPreview {
+
+    position: relative !important;
+
+    z-index: 3 !important;
+
+    display: block !important;
+
+    width: 80px !important;
+    height: 80px !important;
+
+    margin:
+        5px auto 0 auto !important;
+
+    object-fit: cover !important;
+
+    border-radius: 50% !important;
+
+    border:
+        2px solid rgba(255, 220, 89, .30) !important;
+
+    box-shadow:
+        0 5px 14px rgba(91, 7, 11, .12) !important;
+}
+
+
+/* Ảnh khung popup */
+
+#studentInfoModal .avatar-upload-container.avatar-frame-modal-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
+
+]>.avatar-frame-decoration {
+
+    position: absolute !important;
+
+    left: calc(50% + 6px) !important;
+    top: calc(50% + 7px) !important;
+
+    width: 145px !important;
+    height: 145px !important;
+
+    max-width: none !important;
+    max-height: none !important;
+
+    object-fit: contain !important;
+
+    transform:
+        translate(-50%, -50%) !important;
+
+    z-index: 6 !important;
+
+    pointer-events: none !important;
+
+    filter:
+        drop-shadow(0 7px 10px rgba(83, 3, 7, .23)) drop-shadow(0 0 8px rgba(244, 189, 44, .34)) !important;
+
+    animation:
+        vd29NationalFrameFloat 5.5s ease-in-out infinite !important;
+}
+
+
+/* Hào quang popup */
+
+#studentInfoModal .avatar-upload-container.avatar-frame-modal-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
+
+]>.avatar-frame-aura {
+
+    position: absolute !important;
+
+    left: 50% !important;
+    top: 50% !important;
+
+    width: 142px !important;
+    height: 142px !important;
+
+    transform:
+        translate(-50%, -50%) !important;
+
+    border-radius: 50% !important;
+
+    z-index: 0 !important;
+
+    pointer-events: none !important;
+
+    opacity: .17 !important;
+
+    background:
+        radial-gradient(circle,
+            rgba(255, 220, 89, .28),
+            rgba(215, 24, 31, .12) 46%,
+            transparent 72%) !important;
+
+    filter:
+        blur(7px) !important;
+
+    animation:
+        vd29NationalFrameAuraBreath 3.7s ease-in-out infinite alternate !important;
+}
+
+
+/* Popup không cần 4 ngôi sao nhỏ vì bản thân frame đã rất nhiều chi tiết */
+
+#studentInfoModal .avatar-upload-container.avatar-frame-modal-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
+
+]>.avatar-frame-spark {
+
+    display: none !important;
+}
+
+
+/* Nút sửa avatar luôn trên khung */
+
+#studentInfoModal .avatar-upload-container.avatar-frame-modal-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
+
+]>span:not(.avatar-frame-aura) :not(.avatar-frame-spark) {
+
+    z-index: 10 !important;
+}
+
+
+/* ================================================================
+   ANIMATION RIÊNG QUỐC KHÁNH
+   KHÔNG DÙNG KEYFRAME HOA MỘNG
+   ================================================================ */
+
+@keyframes vd29NationalFrameFloat {
+
+    0%,
+    100% {
+        translate: 0 0;
+    }
+
+    50% {
+        translate: 0 -1px;
+    }
+}
+
+
+@keyframes vd29NationalFrameAura {
+
+    from {
+        transform:
+            translate(-50%, -50%) rotate(0deg);
+    }
+
+    to {
+        transform:
+            translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+
+@keyframes vd29NationalFrameAuraBreath {
+
+    from {
+        opacity: .11;
+    }
+
+    to {
+        opacity: .22;
+    }
+}
+
+
+@keyframes vd29NationalFrameSpark {
+
+    from {
+        opacity: .28;
+
+        transform:
+            scale(.78) rotate(-5deg);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            scale(1.12) rotate(5deg);
+    }
+}
+
+
+/* ================================================================
+   MOBILE
+   ================================================================ */
+
+@media (max-width: 768px) {
+
+    .profile-trigger-btn.avatar-frame-profile-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
+
+    ]>.avatar-frame-decoration {
+
+        width: 64px !important;
+        height: 64px !important;
+    }
+
+
+    #studentInfoModal .avatar-upload-container.avatar-frame-modal-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
+
+    ]>.avatar-frame-decoration {
+
+        width: 138px !important;
+        height: 138px !important;
+    }
+
+
+    #studentInfoModal .avatar-upload-container.avatar-frame-modal-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
+
+    ]>.avatar-frame-aura {
+
+        width: 136px !important;
+        height: 136px !important;
+    }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+
+    [data-avatar-frame-effect="national-day-viet-dieu-frame"] .avatar-frame-decoration,
+
+    [data-avatar-frame-effect="national-day-viet-dieu-frame"] .avatar-frame-aura,
+
+    [data-avatar-frame-effect="national-day-viet-dieu-frame"] .avatar-frame-spark {
+
+        animation:
+            none !important;
+    }
+}
+/* ================================================================
+   VIỆT NAM · SƠN HÀ RỰC SÁNG
+   PREVIEW NỀN QUỐC KHÁNH 2/9
+   KHÔNG HIỆU ỨNG
+   ================================================================ */
+
+.store-card-national-day-2-9[
+    data-item-id="background_quoc_khanh_son_ha_ruc_sang"
+]
+.item-icon-wrapper {
+
+    min-height: 118px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    overflow: visible !important;
+}
+
+
+/* Thumbnail nền */
+
+.store-card-national-day-2-9[
+    data-item-id="background_quoc_khanh_son_ha_ruc_sang"
+]
+.item-icon {
+
+    width: 142px !important;
+    height: 86px !important;
+
+    max-width: 142px !important;
+    max-height: 86px !important;
+
+    object-fit: cover !important;
+    object-position: center center !important;
+
+    border-radius: 13px !important;
+
+    border:
+        1px solid
+        rgba(255, 219, 91, .64) !important;
+
+    box-shadow:
+        0 9px 20px
+            rgba(63, 0, 4, .26),
+
+        0 0 0 3px
+            rgba(255, 242, 190, .11)
+        !important;
+
+    /* NỀN KHÔNG CÓ HIỆU ỨNG */
+    animation: none !important;
+    transform: none !important;
+    filter: none !important;
+}
+
+
+/* Hover cũng đứng yên */
+
+.store-card-national-day-2-9[
+    data-item-id="background_quoc_khanh_son_ha_ruc_sang"
+]:hover
+.item-icon {
+
+    animation: none !important;
+    transform: none !important;
+    filter: none !important;
+}

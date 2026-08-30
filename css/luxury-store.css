@@ -1,0 +1,4040 @@
+/* =====================================================
+   CỬA HÀNG SANG TRỌNG
+===================================================== */
+
+
+/* Tạo đường ngăn nhẹ giữa Sưu tầm và Luxury */
+
+.luxury-store-menu-item {
+    margin-top: 5px;
+    border-top: 1px solid rgba(102, 126, 234, .10);
+}
+
+
+/* =====================================================
+   PAGE
+===================================================== */
+
+.luxury-store-page {
+    opacity: 0;
+    transform: translateY(10px);
+
+    transition:
+        opacity .2s ease,
+        transform .2s ease;
+}
+
+
+.luxury-store-page.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
+/* =====================================================
+   HEADER - FIX KHÔNG BỊ ÉP CHỮ / NÚT DÀI
+===================================================== */
+
+.luxury-store-toolbar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+
+    gap: 24px;
+
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 24px 28px;
+    margin-bottom: 24px;
+
+    border-radius: 22px;
+
+    background:
+        linear-gradient(135deg,
+            #111827,
+            #312e81);
+
+    box-shadow:
+        0 18px 40px rgba(15, 23, 42, .16);
+
+    color: white;
+}
+
+
+/* PHẦN CHỮ BÊN TRÁI */
+
+.luxury-store-toolbar>div:first-child {
+    flex: 1 1 auto !important;
+    min-width: 0;
+    width: auto !important;
+}
+
+
+.luxury-store-kicker {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #facc15;
+
+    font-size: .72rem;
+    font-weight: 900;
+
+    letter-spacing: 2.5px;
+}
+
+
+.luxury-store-toolbar h3 {
+    margin: 0 0 6px !important;
+
+    color: white !important;
+
+    font-size: 1.55rem;
+    line-height: 1.3;
+
+    white-space: normal;
+}
+
+
+.luxury-store-toolbar p {
+    margin: 0 !important;
+
+    max-width: 520px;
+
+    color:
+        rgba(255, 255, 255, .72);
+
+    line-height: 1.55;
+}
+
+
+/* NÚT QUAY LẠI */
+
+.luxury-store-back {
+    width: auto !important;
+    min-width: 130px !important;
+    max-width: none !important;
+
+    flex: 0 0 auto !important;
+
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+
+    padding: 11px 18px !important;
+    margin: 0 !important;
+
+    border:
+        1px solid rgba(255, 255, 255, .20) !important;
+
+    border-radius: 11px !important;
+
+    background:
+        rgba(255, 255, 255, .10) !important;
+
+    color: white !important;
+
+    font-size: .92rem;
+    font-weight: 800;
+
+    white-space: nowrap;
+
+    cursor: pointer;
+
+    box-shadow: none !important;
+}
+
+
+.luxury-store-back:hover {
+    background:
+        rgba(255, 255, 255, .18) !important;
+
+    transform: translateY(-1px);
+}
+
+
+/* =====================================================
+   GRID
+===================================================== */
+
+.luxury-store-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fill,
+            minmax(220px, 1fr));
+
+    gap: 22px;
+}
+
+
+/* =====================================================
+   PRODUCT CARD
+===================================================== */
+
+.luxury-product-card {
+    overflow: hidden;
+
+    background: white;
+
+    border-radius: 20px;
+
+    border:
+        1px solid rgba(148, 163, 184, .14);
+
+    box-shadow:
+        0 12px 28px rgba(15, 23, 42, .09);
+
+    transition:
+        transform .3s ease,
+        box-shadow .3s ease;
+}
+
+
+.luxury-product-card:hover {
+    transform: translateY(-7px);
+
+    box-shadow:
+        0 22px 45px rgba(15, 23, 42, .15);
+}
+
+
+/* =====================================================
+   PRODUCT IMAGE
+===================================================== */
+
+.luxury-product-visual {
+    position: relative;
+
+    height: 220px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+}
+
+
+.luxury-product-shape {
+    position: absolute;
+
+    width: 160px;
+    height: 160px;
+
+    border-radius:
+        50% 40% 55% 45%;
+
+    background:
+        linear-gradient(135deg,
+            #4338ca,
+            #7c3aed);
+
+    transform: rotate(-12deg);
+
+    transition:
+        transform .4s ease;
+}
+
+
+.luxury-product-card:hover .luxury-product-shape {
+
+    transform:
+        rotate(5deg) scale(1.08);
+}
+
+
+.luxury-product-image {
+    position: relative;
+    z-index: 2;
+
+    width: 78%;
+    height: 78%;
+
+    object-fit: contain;
+
+    filter:
+        drop-shadow(0 15px 14px rgba(15, 23, 42, .23));
+
+    transition:
+        transform .4s ease;
+}
+
+
+.luxury-product-card:hover .luxury-product-image {
+
+    transform:
+        translateY(-9px) rotate(-3deg) scale(1.05);
+}
+
+
+.luxury-product-placeholder {
+    position: relative;
+    z-index: 2;
+
+    font-size: 5rem;
+}
+
+
+/* =====================================================
+   INFO
+===================================================== */
+
+.luxury-product-info {
+    padding: 0 18px 20px;
+}
+
+
+.luxury-product-label {
+    display: inline-block;
+
+    padding: 4px 8px;
+    margin-bottom: 8px;
+
+    border-radius: 999px;
+
+    background: #fef3c7;
+    color: #92400e;
+
+    font-size: .67rem;
+    font-weight: 900;
+
+    letter-spacing: 1px;
+}
+
+
+.luxury-product-info h3 {
+    margin: 0 0 8px;
+
+    color: #111827;
+
+    font-size: 1.05rem;
+}
+
+
+.luxury-product-price {
+    margin-bottom: 14px;
+
+    color: #4338ca;
+
+    font-weight: 900;
+}
+
+
+/* =====================================================
+   BUY
+===================================================== */
+
+.luxury-buy-button {
+    width: 100%;
+
+    padding: 11px 12px;
+
+    border: 0;
+
+    border-radius: 10px;
+
+    background:
+        linear-gradient(135deg,
+            #111827,
+            #4338ca);
+
+    color: white;
+
+    font-weight: 900;
+
+    cursor: pointer;
+
+    transition:
+        transform .2s ease;
+}
+
+
+.luxury-buy-button:hover {
+    transform: translateY(-2px);
+}
+
+
+.luxury-buy-button.is-disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+
+/* =====================================================
+   EMPTY
+===================================================== */
+
+.luxury-store-empty {
+    grid-column: 1 / -1;
+
+    padding: 60px 25px;
+
+    text-align: center;
+
+    border:
+        2px dashed rgba(148, 163, 184, .25);
+
+    border-radius: 20px;
+
+    color: #64748b;
+}
+
+
+.luxury-store-empty-icon {
+    margin-bottom: 10px;
+
+    font-size: 3.5rem;
+}
+
+
+.luxury-store-empty strong {
+    display: block;
+
+    color: #334155;
+
+    font-size: 1.1rem;
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 600px) {
+
+    .luxury-store-toolbar {
+        align-items: flex-start !important;
+        flex-direction: column !important;
+
+        padding: 20px;
+        gap: 16px;
+    }
+
+
+    .luxury-store-toolbar>div:first-child {
+        width: 100% !important;
+    }
+
+
+    .luxury-store-back {
+        width: auto !important;
+        min-width: 0 !important;
+
+        align-self: flex-start;
+    }
+
+
+    .luxury-store-grid {
+        grid-template-columns:
+            repeat(2,
+                minmax(0, 1fr));
+
+        gap: 12px;
+    }
+
+
+    .luxury-product-visual {
+        height: 155px;
+    }
+
+
+    .luxury-product-shape {
+        width: 115px;
+        height: 115px;
+    }
+
+
+    .luxury-product-info {
+        padding: 0 12px 14px;
+    }
+}
+
+/* ============================================================
+   PREMIUM · MÙA XUÂN
+   PRODUCT CARD HOVER / TOUCH
+
+   Bình thường:
+   - nền
+   - tag
+   - nhân vật
+
+   Hover / touch:
+   - thông tin trượt từ dưới lên
+
+   CHỈ tác động card data-luxury-style="spring"
+============================================================ */
+
+
+/* ============================================================
+   CARD
+============================================================ */
+
+.spring-premium-card[data-luxury-style="spring"] {
+    position: relative !important;
+
+    width: 100%;
+    max-width: 300px;
+
+    height: 430px;
+
+    padding: 0 !important;
+
+    overflow: hidden !important;
+
+    border-radius: 26px !important;
+
+    border:
+        1px solid rgba(123, 171, 102, .32) !important;
+
+    background:
+        #f6f4dc !important;
+
+    box-shadow:
+        0 16px 35px rgba(62, 94, 58, .13) !important;
+
+    isolation: isolate;
+
+    cursor: pointer;
+
+    transform: translateZ(0);
+
+    transition:
+        transform .32s ease,
+        box-shadow .32s ease;
+}
+
+
+.spring-premium-card[data-luxury-style="spring"]:hover,
+.spring-premium-card[data-luxury-style="spring"].is-revealed {
+
+    transform:
+        translateY(-7px);
+
+    box-shadow:
+        0 25px 55px rgba(68, 105, 61, .20) !important;
+}
+
+
+/* ============================================================
+   VÙNG HÌNH
+============================================================ */
+
+.spring-premium-card__visual {
+    position: relative;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+
+    background:
+        radial-gradient(circle at 78% 18%,
+            rgba(255, 242, 169, .95) 0 5%,
+            rgba(255, 226, 143, .45) 10%,
+            transparent 27%),
+        linear-gradient(180deg,
+            #ecf7d8 0%,
+            #fff8dc 48%,
+            #f7e7dd 100%);
+}
+
+
+/* ============================================================
+   NỀN RIÊNG
+============================================================ */
+
+.spring-premium-sky {
+    position: absolute;
+    inset: 0;
+
+    z-index: 0;
+
+    pointer-events: none;
+
+    background:
+
+        radial-gradient(circle at 18% 25%,
+            rgba(255, 184, 196, .22),
+            transparent 25%),
+
+        radial-gradient(circle at 82% 36%,
+            rgba(178, 216, 137, .24),
+            transparent 28%);
+}
+
+
+/* Đồi xa */
+
+.spring-premium-hill {
+    position: absolute;
+
+    pointer-events: none;
+
+    border-radius: 50%;
+}
+
+
+.spring-premium-hill--back {
+    z-index: 0;
+
+    left: -85px;
+    bottom: -90px;
+
+    width: 330px;
+    height: 185px;
+
+    background:
+        linear-gradient(160deg,
+            #c7e5a8,
+            #8fc67b);
+
+    transform:
+        rotate(8deg);
+}
+
+
+/* Đồi gần */
+
+.spring-premium-hill--front {
+    z-index: 1;
+
+    right: -110px;
+    bottom: -110px;
+
+    width: 390px;
+    height: 205px;
+
+    background:
+        linear-gradient(205deg,
+            #a8d489,
+            #6eaa71);
+
+    transform:
+        rotate(-9deg);
+}
+
+
+/* ============================================================
+   TAG MÙA XUÂN
+============================================================ */
+
+.spring-premium-tag {
+    position: absolute;
+
+    top: 14px;
+    left: 14px;
+
+    z-index: 6;
+
+    width: 142px;
+    height: auto;
+
+    max-width: 51%;
+
+    object-fit: contain;
+
+    user-select: none;
+    pointer-events: none;
+
+    filter:
+        drop-shadow(0 5px 6px rgba(46, 76, 42, .23));
+
+    transition:
+        transform .38s ease,
+        opacity .3s ease;
+}
+
+
+/* ============================================================
+   NHÂN VẬT
+============================================================ */
+
+.spring-premium-character {
+    position: relative;
+
+    z-index: 3;
+
+    display: block;
+
+    width: auto;
+    height: 92%;
+
+    max-width: 96%;
+
+    object-fit: contain;
+    object-position: center bottom;
+
+    pointer-events: none;
+    user-select: none;
+
+    filter:
+        drop-shadow(0 15px 13px rgba(75, 57, 64, .20));
+
+    transform:
+        translateY(8px) scale(1);
+
+    transform-origin:
+        center bottom;
+
+    transition:
+        transform .5s cubic-bezier(.2,
+            .75,
+            .2,
+            1),
+        filter .4s ease;
+}
+
+
+/*
+ * Khi hover:
+ * nhân vật nhích lên như Product Card.
+ */
+
+.spring-premium-card:hover .spring-premium-character,
+
+.spring-premium-card.is-revealed .spring-premium-character {
+
+    transform:
+        translateY(-18px) scale(1.055);
+
+    filter:
+        drop-shadow(0 20px 18px rgba(75, 57, 64, .27));
+}
+
+
+/* Tag hơi nhỏ lại để nhường thông tin */
+
+.spring-premium-card:hover .spring-premium-tag,
+
+.spring-premium-card.is-revealed .spring-premium-tag {
+
+    transform:
+        translateY(-2px) scale(.94);
+}
+
+
+/* ============================================================
+   THÔNG TIN
+   MẶC ĐỊNH: GIẤU
+============================================================ */
+
+.spring-premium-details {
+    position: absolute;
+
+    z-index: 10;
+
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    box-sizing: border-box;
+
+    min-height: 220px;
+
+    padding:
+        58px 20px 20px;
+
+    color: #344b37;
+
+    /*
+     * Phía trên trong suốt để vẫn thấy nhân vật.
+     */
+    background:
+        linear-gradient(180deg,
+            rgba(248, 255, 237, 0) 0%,
+
+            rgba(250, 255, 240, .78) 24%,
+
+            rgba(252, 255, 246, .96) 46%,
+
+            rgba(255, 251, 247, .99) 100%);
+
+    backdrop-filter:
+        blur(5px);
+
+    -webkit-backdrop-filter:
+        blur(5px);
+
+    /*
+     * GIẤU XUỐNG DƯỚI.
+     */
+    transform:
+        translateY(105%);
+
+    opacity: 0;
+
+    visibility: hidden;
+
+    pointer-events: none;
+
+    transition:
+        transform .43s cubic-bezier(.2,
+            .75,
+            .2,
+            1),
+        opacity .28s ease,
+        visibility .28s;
+}
+
+
+/* ============================================================
+   MÁY TÍNH: HOVER
+   ĐIỆN THOẠI: .is-revealed
+============================================================ */
+
+.spring-premium-card:hover .spring-premium-details,
+
+.spring-premium-card.is-revealed .spring-premium-details,
+
+.spring-premium-card:focus-within .spring-premium-details {
+
+    transform:
+        translateY(0);
+
+    opacity: 1;
+
+    visibility: visible;
+
+    pointer-events: auto;
+}
+
+
+/* ============================================================
+   LOẠI VẬT PHẨM
+============================================================ */
+
+.spring-premium-type {
+    display: inline-flex;
+
+    align-items: center;
+
+    padding:
+        5px 10px;
+
+    margin-bottom:
+        9px;
+
+    border-radius:
+        999px;
+
+    background:
+        rgba(238, 247, 220, .94);
+
+    border:
+        1px solid rgba(115, 155, 91, .24);
+
+    color:
+        #59764c;
+
+    font-size:
+        .67rem;
+
+    line-height: 1;
+
+    font-weight:
+        900;
+
+    letter-spacing:
+        .9px;
+}
+
+
+/* ============================================================
+   TÊN
+============================================================ */
+
+.spring-premium-card[data-luxury-style="spring"] .spring-premium-details h3 {
+    display: block !important;
+
+    width: 100% !important;
+    max-width: 100% !important;
+
+    margin: 0 0 8px !important;
+    padding: 0 !important;
+
+    color: #365439 !important;
+
+    /* Font hỗ trợ tiếng Việt tốt */
+    font-family:
+        "Segoe UI",
+        Arial,
+        Helvetica,
+        sans-serif !important;
+
+    font-size: 1.32rem !important;
+    font-weight: 800 !important;
+    line-height: 1.25 !important;
+
+    /* QUAN TRỌNG: không cho CSS khác bẻ chữ */
+    letter-spacing: 0 !important;
+    word-spacing: 0 !important;
+
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
+
+    text-transform: none !important;
+    text-indent: 0 !important;
+
+    overflow: visible !important;
+    text-overflow: clip !important;
+
+    text-align: left !important;
+
+    font-variant: normal !important;
+    font-feature-settings: normal !important;
+
+    text-rendering: optimizeLegibility;
+}
+
+
+/* ============================================================
+   MÔ TẢ
+============================================================ */
+
+.spring-premium-description {
+    margin:
+        0 0 9px;
+
+    color:
+        #677667;
+
+    font-size:
+        .82rem;
+
+    line-height:
+        1.45;
+}
+
+
+/* ============================================================
+   NGUỒN
+============================================================ */
+
+.spring-premium-source {
+    margin-bottom:
+        13px;
+
+    color:
+        #c36f81;
+
+    font-size:
+        .78rem;
+
+    font-weight:
+        800;
+}
+
+
+/* ============================================================
+   NÚT
+============================================================ */
+
+.spring-premium-event-button,
+.spring-premium-use-button {
+
+    width: 100% !important;
+
+    min-height: 43px;
+
+    padding:
+        10px 13px !important;
+
+    margin: 0 !important;
+
+    border-radius:
+        12px !important;
+
+    font-size:
+        .84rem;
+
+    font-weight:
+        900;
+}
+
+
+/* Chưa sở hữu */
+
+.spring-premium-event-button {
+    border:
+        1px solid rgba(197, 126, 143, .22) !important;
+
+    color:
+        #ad7480 !important;
+
+    background:
+        linear-gradient(135deg,
+            #fff0f2,
+            #f1f8e6) !important;
+
+    opacity: 1 !important;
+
+    cursor:
+        default;
+}
+
+
+/* Đã sở hữu */
+
+.spring-premium-use-button {
+    border: none !important;
+
+    color:
+        white !important;
+
+    cursor:
+        pointer;
+
+    background:
+        linear-gradient(135deg,
+            #588d55,
+            #91b76b) !important;
+
+    box-shadow:
+        0 8px 18px rgba(78, 129, 73, .20);
+}
+
+
+.spring-premium-use-button:hover {
+    transform:
+        translateY(-2px);
+}
+
+
+/* Đang dùng */
+
+.spring-premium-use-button.is-equipped {
+    background:
+        linear-gradient(135deg,
+            #b76f7c,
+            #db929d) !important;
+}
+
+
+/* ============================================================
+   MOBILE
+============================================================ */
+
+@media (max-width: 600px) {
+
+    .spring-premium-card[data-luxury-style="spring"] {
+        height:
+            365px;
+
+        max-width:
+            260px;
+    }
+
+
+    .spring-premium-tag {
+        width:
+            112px;
+    }
+
+
+    .spring-premium-character {
+        height:
+            91%;
+    }
+
+
+    .spring-premium-card[data-luxury-style="spring"] .spring-premium-details {
+        font-family:
+            "Segoe UI",
+            Arial,
+            Helvetica,
+            sans-serif !important;
+
+        letter-spacing: normal !important;
+        word-spacing: normal !important;
+        text-transform: none !important;
+    }
+
+
+    .spring-premium-details h3 {
+        font-size:
+            1.1rem !important;
+    }
+
+
+    .spring-premium-description {
+        font-size:
+            .75rem;
+    }
+}
+
+
+/* ============================================================================
+   PREMIUM MÙA XUÂN V2 - REWORK: MỘNG ẢO THÀNH LÂM (ETHEREAL SANCTUARY)
+   - Thiết kế lộng lẫy, ánh sáng bloom mềm mại, cánh hoa rơi tự nhiên.
+   ============================================================================ */
+
+/* ============================================================================
+   1) CARD LUXURY · NÂNG CẤP VẺ ĐẸP
+   ============================================================================ */
+.spring-premium-card[data-luxury-style="spring"] {
+    border: 1px solid rgba(255, 182, 193, 0.4) !important;
+    background: linear-gradient(155deg, #fffcfd 0%, #f4fdf8 44%, #fff0f5 100%) !important;
+    box-shadow: 
+        0 20px 48px rgba(34, 197, 94, 0.1),
+        0 0 30px rgba(244, 114, 182, 0.15),
+        inset 0 0 20px rgba(255, 255, 255, 0.9) !important;
+}
+
+.spring-premium-card[data-luxury-style="spring"]::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(110deg, transparent 0 38%, rgba(255, 255, 255, 0.7) 47%, transparent 56% 100%);
+    transform: translateX(-130%);
+    animation: premiumSpringCardShine 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* Mặt trời lấp lánh nhẹ nhàng trên thẻ */
+.spring-premium-card-sun {
+    position: absolute;
+    z-index: 1;
+    right: -40px;
+    top: -40px;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 247, 204, 0.9) 0%, rgba(255, 192, 203, 0.3) 40%, transparent 70%);
+    filter: blur(8px);
+    animation: etherealSunBreathe 4s ease-in-out infinite alternate;
+}
+
+/* Cải thiện nhân vật trong thẻ */
+.spring-premium-character {
+    z-index: 5;
+    filter: 
+        drop-shadow(0 15px 20px rgba(0, 0, 0, 0.15))
+        drop-shadow(0 0 15px rgba(255, 182, 193, 0.4));
+    transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.5s ease;
+}
+
+.spring-premium-card:hover .spring-premium-character,
+.spring-premium-card.is-revealed .spring-premium-character {
+    filter: 
+        drop-shadow(0 20px 25px rgba(0, 0, 0, 0.2))
+        drop-shadow(0 0 25px rgba(255, 215, 0, 0.5))
+        drop-shadow(0 0 15px rgba(244, 114, 182, 0.6));
+    transform: translateY(-20px) scale(1.08);
+}
+
+
+/* ============================================================================
+   2) PET REALM · THÁNH VỰC MÙA XUÂN (ÁNH SÁNG & QUỸ ĐẠO MỀM MẠI)
+   ============================================================================ */
+#virtual-pet-container.pet-premium-spring-stage {
+    isolation: isolate !important;
+    overflow: visible !important;
+}
+
+/* Nữ thần bồng bềnh và tỏa hào quang cực mạnh */
+#virtual-pet-container.pet-premium-spring-stage #virtual-pet-img.premium-spring-goddess-magic {
+    position: relative;
+    z-index: 15;
+    width: 175px !important;
+    max-width: none !important;
+    height: auto !important;
+    transform-origin: 50% 70%;
+    
+    filter: 
+        drop-shadow(0 15px 20px rgba(10, 50, 20, 0.3))
+        drop-shadow(0 0 25px rgba(255, 223, 140, 0.6))
+        drop-shadow(0 0 45px rgba(244, 114, 182, 0.4)) !important;
+        
+    animation: 
+        etherealGoddessFloat 5s cubic-bezier(0.37, 0, 0.63, 1) infinite alternate !important;
+}
+
+/* Vòng hào quang phía sau (Thế chỗ cho các vòng nhẫn cứng nhắc cũ) */
+.premium-spring-pet-halo {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 250px;
+    height: 250px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, rgba(253, 164, 175, 0.3) 30%, rgba(134, 239, 172, 0.1) 60%, transparent 80%);
+    filter: blur(10px);
+    z-index: 2;
+    animation: etherealHaloPulse 4s ease-in-out infinite alternate;
+}
+
+/* Các vòng sáng biến thành các dải lụa/tinh vân quay chậm */
+.premium-spring-pet-ring {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 3;
+}
+
+.premium-spring-pet-ring.ring-one {
+    width: 220px;
+    height: 220px;
+    border: 2px solid transparent;
+    border-top: 3px solid rgba(255, 215, 0, 0.8);
+    border-bottom: 3px solid rgba(244, 114, 182, 0.6);
+    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.6));
+    animation: etherealRingSpin 10s linear infinite;
+}
+
+.premium-spring-pet-ring.ring-two {
+    width: 190px;
+    height: 190px;
+    border: 2px solid transparent;
+    border-left: 2px dashed rgba(134, 239, 172, 0.8);
+    border-right: 2px dashed rgba(253, 164, 175, 0.8);
+    filter: drop-shadow(0 0 8px rgba(134, 239, 172, 0.5));
+    animation: etherealRingSpinReverse 14s linear infinite;
+}
+
+/* Thảm hoa dưới chân phát sáng */
+.premium-spring-pet-garden {
+    position: absolute;
+    z-index: 1;
+    left: 50%;
+    bottom: -15px;
+    width: 200px;
+    height: 60px;
+    transform: translateX(-50%);
+    background: radial-gradient(ellipse at center, rgba(134, 239, 172, 0.4) 0%, rgba(253, 164, 175, 0.2) 50%, transparent 70%);
+    border-radius: 50%;
+    filter: blur(5px);
+    animation: etherealGardenBreathe 3s ease-in-out infinite alternate;
+}
+
+/* Bướm tiên bay quanh pet */
+.premium-spring-pet-mote {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 10px 2px rgba(255, 215, 0, 0.8), 0 0 20px 5px rgba(244, 114, 182, 0.6);
+    animation: etherealFairyFly 6s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+    z-index: 20;
+}
+.premium-spring-pet-mote:nth-child(even) {
+    box-shadow: 0 0 10px 2px #fff, 0 0 20px 5px rgba(134, 239, 172, 0.8);
+    animation-duration: 8s;
+    animation-direction: reverse;
+}
+
+/* ============================================================================
+   3) EFFECT TOÀN MÀN HÌNH · MƯA HOA & NẮNG MA THUẬT
+   ============================================================================ */
+.premium-spring-world {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-effect, 9000);
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+.premium-spring-world.is-active {
+    opacity: 1;
+}
+
+/* Nền trời phủ một lớp sương hồng phấn mờ ảo */
+.premium-spring-world-wash {
+    position: absolute;
+    inset: 0;
+    background: 
+        radial-gradient(circle at 20% 0%, rgba(255, 215, 0, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 100%, rgba(244, 114, 182, 0.1) 0%, transparent 50%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(134, 239, 172, 0.05) 100%);
+    mix-blend-mode: overlay;
+    z-index: 0;
+}
+
+/* God Rays - Tia sáng mặt trời chiếu từ trên xuống */
+.premium-spring-world-sun {
+    position: absolute;
+    top: -20vh;
+    left: -10vw;
+    width: 120vw;
+    height: 100vh;
+    background: repeating-conic-gradient(from 45deg at 50% -10%, rgba(255, 248, 204, 0.15) 0 5deg, transparent 5deg 10deg);
+    filter: blur(20px);
+    z-index: 1;
+    animation: etherealGodRays 15s linear infinite alternate;
+}
+
+/* Cánh hoa rơi lãng mạn */
+.premium-spring-screen-petal {
+    position: absolute;
+    top: -50px;
+    width: 12px;
+    height: 18px;
+    background: linear-gradient(135deg, #fff, #ffb6c1);
+    border-radius: 15px 0px 15px 0px;
+    box-shadow: 0 0 10px rgba(255, 182, 193, 0.5);
+    opacity: 0.8;
+    z-index: 10;
+    animation: etherealPetalFall var(--ps-duration) linear infinite;
+    animation-delay: var(--ps-delay);
+    left: var(--ps-x);
+}
+
+/* Cành đào / cành hoa lòa xòa ở góc màn hình */
+.premium-spring-world-bough {
+    position: absolute;
+    z-index: 5;
+    width: 350px;
+    height: auto;
+    opacity: 0.85;
+    filter: drop-shadow(0 15px 20px rgba(0, 0, 0, 0.2));
+}
+
+.premium-spring-world-bough.bough-left {
+    left: -50px;
+    top: -50px;
+    transform: rotate(-10deg);
+    animation: etherealBoughSway 6s ease-in-out infinite alternate;
+}
+
+.premium-spring-world-bough.bough-right {
+    right: -50px;
+    top: -30px;
+    transform: scaleX(-1) rotate(15deg);
+    animation: etherealBoughSway 8s ease-in-out infinite alternate-reverse;
+}
+
+/* ============================================================================
+   4) KEYFRAMES SIÊU MƯỢT
+   ============================================================================ */
+
+@keyframes etherealGoddessFloat {
+    0% { transform: translateY(5px); }
+    100% { transform: translateY(-15px) scale(1.02); }
+}
+
+@keyframes etherealHaloPulse {
+    0% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.6; }
+    100% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+}
+
+@keyframes etherealRingSpin {
+    0% { transform: translate(-50%, -50%) rotate(0deg) rotateX(60deg) rotateY(10deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg) rotateX(60deg) rotateY(10deg); }
+}
+
+@keyframes etherealRingSpinReverse {
+    0% { transform: translate(-50%, -50%) rotate(360deg) rotateX(70deg) rotateY(-15deg); }
+    100% { transform: translate(-50%, -50%) rotate(0deg) rotateX(70deg) rotateY(-15deg); }
+}
+
+@keyframes etherealFairyFly {
+    0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
+    20% { opacity: 1; }
+    50% { transform: translate(60px, -80px) scale(1.5); }
+    80% { opacity: 1; }
+    100% { transform: translate(-40px, -150px) scale(0.5); opacity: 0; }
+}
+
+@keyframes etherealGodRays {
+    0% { transform: rotate(-5deg); opacity: 0.6; }
+    100% { transform: rotate(5deg); opacity: 1; }
+}
+
+@keyframes etherealPetalFall {
+    0% { 
+        transform: translate3d(0, -50px, 0) rotate(0deg) scale(0.8); 
+        opacity: 0; 
+    }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { 
+        transform: translate3d(var(--ps-drift, 100px), 110vh, 0) rotate(720deg) scale(1.2); 
+        opacity: 0; 
+    }
+}
+
+@keyframes etherealBoughSway {
+    0% { transform: rotate(-5deg) translateY(0px); }
+    100% { transform: rotate(2deg) translateY(-10px); }
+}
+
+@keyframes etherealGardenBreathe {
+    0% { transform: translateX(-50%) scaleX(0.9); opacity: 0.5; }
+    100% { transform: translateX(-50%) scaleX(1.2); opacity: 1; }
+}
+
+/* ============================================================================
+   PREMIUM MÙA XUÂN V3 · VƯƠNG MIỆN XUÂN THẦN
+   Bộ hình ảnh mới hoàn toàn: botanical couture + ngọc xuân + ánh bình minh.
+   3 lớp chạy đồng thời: FULL-WEB EFFECT / INTERFACE / PET REALM.
+   ============================================================================ */
+
+/* ------------------------------
+   A. GIAO DIỆN V4 — XUÂN THẦN NGỰ UYỂN
+   Palace garden / botanical couture / jade + ivory + rose gold
+   ------------------------------ */
+html.premium-spring-sanctuary-equipped {
+    --spring-ui-ink: #193c33;
+    --spring-ui-ink-soft: #46685d;
+    --spring-ui-jade: #286e59;
+    --spring-ui-jade-2: #4d9874;
+    --spring-ui-jade-soft: #dfeee5;
+    --spring-ui-rose: #c86786;
+    --spring-ui-rose-soft: #f3c8d4;
+    --spring-ui-gold: #c69b52;
+    --spring-ui-gold-soft: #ead6a4;
+    --spring-ui-ivory: #fffaf0;
+    --spring-ui-paper: #fffdf8;
+    --spring-ui-line: rgba(70, 126, 101, .22);
+    --spring-ui-line-gold: rgba(198, 155, 82, .32);
+    --spring-ui-glass: rgba(255, 253, 248, .88);
+    --spring-ui-shadow: 0 18px 48px rgba(37, 89, 69, .14);
+    --spring-ui-shadow-soft: 0 10px 28px rgba(37, 89, 69, .09);
+    color-scheme: light;
+}
+
+html.premium-spring-sanctuary-equipped body {
+    color: var(--spring-ui-ink);
+    background:
+        radial-gradient(circle at 8% 5%, rgba(239, 184, 201, .25), transparent 24%),
+        radial-gradient(circle at 91% 8%, rgba(234, 214, 164, .20), transparent 23%),
+        radial-gradient(circle at 14% 91%, rgba(96, 159, 124, .17), transparent 28%),
+        radial-gradient(circle at 88% 89%, rgba(211, 133, 159, .13), transparent 26%),
+        linear-gradient(145deg, #fffdf7 0%, #f2f8ef 42%, #fff6f6 74%, #fffaf0 100%) !important;
+    background-attachment: fixed !important;
+}
+
+html.premium-spring-sanctuary-equipped body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: .34;
+    background-image:
+        linear-gradient(rgba(54, 112, 87, .035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(54, 112, 87, .035) 1px, transparent 1px);
+    background-size: 32px 32px;
+    -webkit-mask-image: radial-gradient(circle at 50% 45%, #000 0 52%, transparent 88%);
+    mask-image: radial-gradient(circle at 50% 45%, #000 0 52%, transparent 88%);
+}
+
+html.premium-spring-sanctuary-equipped :where(
+    .dashboard,
+    .content,
+    .sidebar,
+    .nav-item,
+    .card,
+    .form-container,
+    .accordion-card,
+    .modal-content,
+    .student-modal-box,
+    .search-bar,
+    .custom-student-select,
+    .css-select-trigger,
+    button,
+    input,
+    select,
+    textarea,
+    table
+):not(.ui-theme-immune):not([data-theme-immune="true"]):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, Helvetica, sans-serif;
+}
+
+html.premium-spring-sanctuary-equipped :where(
+    h1,
+    h2,
+    h3,
+    .accordion-title,
+    .teacher-question-bank-entry-title,
+    .luxury-store-toolbar h3,
+    .modal-title
+):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, Helvetica, sans-serif !important;
+    letter-spacing: .018em;
+}
+
+html.premium-spring-sanctuary-equipped .dashboard,
+html.premium-spring-sanctuary-equipped .content {
+    background: transparent !important;
+}
+
+/* ===== KHUNG CUNG ĐIỆN HOA ===== */
+.spring-palace-ui-frame {
+    position: fixed;
+    inset: 0;
+    z-index: 2250;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .7s ease;
+}
+
+.spring-palace-ui-frame.is-mounted {
+    opacity: 1;
+}
+
+.spring-palace-top-arch {
+    position: absolute;
+    left: 50%;
+    top: 7px;
+    width: min(640px, 68vw);
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transform: translateX(-50%);
+    color: rgba(139, 95, 34, .76);
+}
+
+.spring-palace-top-arch::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: -27px;
+    width: min(350px, 40vw);
+    height: 58px;
+    transform: translateX(-50%);
+    border: 1px solid rgba(198, 155, 82, .28);
+    border-bottom: 0;
+    border-radius: 50% 50% 0 0;
+    opacity: .78;
+}
+
+.spring-palace-arch-line {
+    width: min(180px, 19vw);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(62, 130, 98, .46), rgba(198,155,82,.50));
+}
+.spring-palace-arch-line.line-right { transform: scaleX(-1); }
+
+.spring-palace-arch-bloom {
+    font-size: 14px;
+    color: rgba(200, 103, 134, .78);
+    text-shadow: 0 0 12px rgba(235, 181, 199, .55);
+    animation: springPalaceBloomBreath 3.1s ease-in-out infinite alternate;
+}
+
+.spring-palace-arch-gem {
+    width: 29px;
+    height: 29px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(198,155,82,.42);
+    border-radius: 50% 50% 18% 50%;
+    background: linear-gradient(145deg, rgba(255,255,255,.96), rgba(241,227,188,.78));
+    color: #a97e38;
+    box-shadow: 0 7px 18px rgba(97, 72, 35, .12), inset 0 0 0 3px rgba(255,255,255,.48);
+    transform: rotate(45deg);
+}
+.spring-palace-arch-gem::first-letter { transform: rotate(-45deg); }
+
+.spring-palace-side-vine {
+    position: absolute;
+    top: 16%;
+    bottom: 17%;
+    width: 28px;
+    opacity: .42;
+}
+.spring-palace-side-vine.vine-left { left: 5px; }
+.spring-palace-side-vine.vine-right { right: 5px; transform: scaleX(-1); }
+.spring-palace-side-vine::before {
+    content: '';
+    position: absolute;
+    left: 13px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(180deg, transparent, rgba(46,112,85,.45) 13%, rgba(198,155,82,.35) 54%, rgba(46,112,85,.38) 88%, transparent);
+}
+.spring-palace-side-vine i {
+    position: absolute;
+    left: 8px;
+    width: 16px;
+    height: 8px;
+    border-radius: 100% 0 100% 0;
+    border: 1px solid rgba(45, 115, 84, .34);
+    background: linear-gradient(145deg, rgba(104,166,128,.19), rgba(255,255,255,.18));
+    transform: rotate(35deg);
+}
+.spring-palace-side-vine i:nth-child(1) { top: 8%; }
+.spring-palace-side-vine i:nth-child(2) { top: 27%; transform: rotate(-35deg) scaleX(-1); }
+.spring-palace-side-vine i:nth-child(3) { top: 47%; }
+.spring-palace-side-vine i:nth-child(4) { top: 66%; transform: rotate(-35deg) scaleX(-1); }
+.spring-palace-side-vine i:nth-child(5) { top: 84%; }
+
+.spring-palace-corner-garden {
+    position: absolute;
+    width: clamp(70px, 8vw, 126px);
+    aspect-ratio: 1;
+    opacity: .34;
+    filter: drop-shadow(0 8px 12px rgba(47, 99, 78, .10));
+}
+.spring-palace-corner-garden::before,
+.spring-palace-corner-garden::after {
+    content: '';
+    position: absolute;
+    border: 1px solid rgba(53, 126, 93, .34);
+    background: linear-gradient(145deg, rgba(100,166,126,.18), rgba(240,190,204,.12));
+}
+.spring-palace-corner-garden::before {
+    inset: 24% 12% 28% 38%;
+    border-radius: 100% 0 100% 0;
+    transform: rotate(19deg);
+}
+.spring-palace-corner-garden::after {
+    inset: 45% 42% 8% 15%;
+    border-radius: 0 100% 0 100%;
+    border-color: rgba(198,155,82,.34);
+}
+.spring-palace-corner-garden.garden-tl { left: -10px; top: -6px; }
+.spring-palace-corner-garden.garden-tr { right: -10px; top: -6px; transform: scaleX(-1); }
+.spring-palace-corner-garden.garden-bl { left: -10px; bottom: -6px; transform: scaleY(-1); }
+.spring-palace-corner-garden.garden-br { right: -10px; bottom: -6px; transform: scale(-1); }
+
+.spring-palace-bottom-seal {
+    position: absolute;
+    left: 50%;
+    bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transform: translateX(-50%);
+    color: rgba(177, 127, 52, .60);
+    font-family: "Segoe UI Symbol", "Noto Sans Symbols 2", sans-serif;
+}
+.spring-palace-bottom-seal i {
+    width: min(84px, 9vw);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(198,155,82,.42));
+}
+.spring-palace-bottom-seal i:last-child { transform: scaleX(-1); }
+.spring-palace-bottom-seal b { font-size: 13px; }
+
+/* ===== SIDEBAR — DẢI LỤA NGỌC XUÂN ===== */
+html.premium-spring-sanctuary-equipped .sidebar {
+    /*
+     * FIX V4:
+     * Không được đổi cơ chế định vị của sidebar.
+     * Sidebar gốc dùng position: sticky trên desktop
+     * và mobile.css có thể đổi sang fixed bằng !important.
+     * Chỉ trang trí, không can thiệp layout.
+     */
+    background:
+        radial-gradient(circle at 18% 3%, rgba(255,255,255,.94), transparent 28%),
+        linear-gradient(180deg, rgba(235,246,235,.97) 0%, rgba(255,251,245,.96) 45%, rgba(249,236,240,.95) 100%) !important;
+    border-right: 1px solid rgba(198,155,82,.30) !important;
+    border-radius: 0 56px 24px 0 !important;
+    box-shadow: 18px 0 48px rgba(43, 93, 72, .12), inset -1px 0 rgba(255,255,255,.78) !important;
+    backdrop-filter: blur(18px) saturate(1.08);
+    -webkit-backdrop-filter: blur(18px) saturate(1.08);
+}
+
+html.premium-spring-sanctuary-equipped .sidebar::before {
+    content: '❀';
+    position: absolute;
+    right: 14px;
+    top: 16px;
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    color: rgba(193, 91, 126, .62);
+    border: 1px solid rgba(198,155,82,.30);
+    border-radius: 50% 50% 18% 50%;
+    background: rgba(255,255,255,.56);
+    transform: rotate(12deg);
+    pointer-events: none;
+}
+
+html.premium-spring-sanctuary-equipped .sidebar::after {
+    content: '';
+    position: absolute;
+    right: 4px;
+    top: 9%;
+    bottom: 9%;
+    width: 3px;
+    border-radius: 99px;
+    background: linear-gradient(180deg, transparent, rgba(198,155,82,.48), rgba(58,129,97,.45), rgba(200,103,134,.38), transparent);
+    box-shadow: 0 0 12px rgba(77,152,116,.10);
+}
+
+html.premium-spring-sanctuary-equipped .sidebar-top > h3,
+html.premium-spring-sanctuary-equipped #studentName {
+    color: #235946 !important;
+    text-shadow: 0 1px 0 rgba(255,255,255,.8);
+}
+
+html.premium-spring-sanctuary-equipped .nav-item {
+    position: relative;
+    overflow: hidden;
+    color: #315f50 !important;
+    background: rgba(255,255,255,.54) !important;
+    border: 1px solid rgba(67,132,103,.11) !important;
+    border-radius: 24px 7px 24px 7px !important;
+    box-shadow: inset 0 1px rgba(255,255,255,.80) !important;
+    transition: transform .22s ease, background .22s ease, box-shadow .22s ease, color .22s ease !important;
+}
+
+html.premium-spring-sanctuary-equipped .nav-item::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    width: 7px;
+    height: 14px;
+    border-radius: 100% 0 100% 0;
+    background: linear-gradient(180deg, rgba(72,146,108,.48), rgba(200,103,134,.28));
+    transform: translateY(-50%) rotate(24deg) scale(.72);
+    opacity: 0;
+    transition: opacity .22s ease, transform .22s ease;
+}
+
+html.premium-spring-sanctuary-equipped .nav-item:hover {
+    transform: translateX(5px);
+    color: #1f5543 !important;
+    background: rgba(255,252,247,.90) !important;
+    box-shadow: 0 10px 24px rgba(44,105,80,.10) !important;
+}
+html.premium-spring-sanctuary-equipped .nav-item:hover::before {
+    opacity: 1;
+    transform: translateY(-50%) rotate(24deg) scale(1);
+}
+
+html.premium-spring-sanctuary-equipped .nav-item.active {
+    color: #fffdf4 !important;
+    background:
+        radial-gradient(circle at 85% 0%, rgba(255,224,180,.25), transparent 29%),
+        linear-gradient(125deg, #215c49 0%, #3d8867 58%, #aa5b76 128%) !important;
+    border-color: rgba(255,255,255,.36) !important;
+    border-radius: 27px 7px 27px 7px !important;
+    box-shadow: 0 12px 27px rgba(36, 96, 73, .23), inset 0 1px rgba(255,255,255,.22) !important;
+}
+
+html.premium-spring-sanctuary-equipped .nav-item.active::after {
+    content: '✦';
+    position: absolute;
+    right: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255,239,196,.88);
+    font-size: 10px;
+}
+
+/* ===== NÚT NỔI ===== */
+html.premium-spring-sanctuary-equipped :where(
+    .sidebar-toggle,
+    .inbox-trigger-btn,
+    .bag-trigger-btn,
+    .profile-trigger-btn
+):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    border: 1px solid rgba(198,155,82,.34) !important;
+    border-radius: 50% 50% 18% 50% !important;
+    color: #286e59 !important;
+    background:
+        radial-gradient(circle at 30% 20%, rgba(255,255,255,.98), transparent 35%),
+        linear-gradient(145deg, rgba(242,249,239,.96), rgba(251,231,238,.92)) !important;
+    box-shadow: 0 9px 23px rgba(44,100,78,.13), inset 0 0 0 2px rgba(255,255,255,.52) !important;
+}
+
+/* ===== TIÊU ĐỀ & THANH CÔNG CỤ ===== */
+html.premium-spring-sanctuary-equipped :where(
+    .content h1,
+    .content h2,
+    .content h3,
+    .tab-content > h2,
+    .tab-content > h3
+):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    color: #244f42 !important;
+}
+
+html.premium-spring-sanctuary-equipped :where(
+    .content h2,
+    .tab-content > h2,
+    .accordion-title
+):not(.ui-theme-immune *):not([data-theme-immune="true"] *)::after {
+    content: '';
+    display: block;
+    width: min(132px, 34%);
+    height: 2px;
+    margin-top: 7px;
+    border-radius: 99px;
+    background: linear-gradient(90deg, #397d61, #c86786 62%, transparent);
+    opacity: .58;
+}
+
+html.premium-spring-sanctuary-equipped .luxury-store-toolbar {
+    border: 1px solid rgba(198,155,82,.30) !important;
+    border-radius: 34px 11px 34px 11px !important;
+    background:
+        radial-gradient(circle at 88% 10%, rgba(237,210,149,.24), transparent 31%),
+        linear-gradient(135deg, #1e5545, #3e8062 58%, #8b5165) !important;
+    box-shadow: 0 20px 44px rgba(35,87,67,.18) !important;
+}
+
+/* ===== CARD / FORM / ACCORDION — PHIẾN HOA KÉP ===== */
+html.premium-spring-sanctuary-equipped :where(
+    .card,
+    .form-container,
+    .accordion-card,
+    .teacher-question-bank-entry,
+    .login-layout-settings-card,
+    .settings-card,
+    .stat-card,
+    .roadmap-card,
+    .material-card
+):not(.ui-theme-immune):not([data-theme-immune="true"]):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    position: relative;
+    overflow: hidden;
+    color: var(--spring-ui-ink) !important;
+    background:
+        radial-gradient(circle at 92% 0%, rgba(238,197,207,.18), transparent 25%),
+        radial-gradient(circle at 0% 100%, rgba(103,164,128,.13), transparent 28%),
+        linear-gradient(153deg, rgba(255,255,255,.96), rgba(255,250,241,.88)) !important;
+    border: 1px solid var(--spring-ui-line) !important;
+    border-bottom-color: rgba(198,155,82,.25) !important;
+    border-radius: 35px 11px 35px 11px !important;
+    box-shadow: var(--spring-ui-shadow) !important;
+    backdrop-filter: blur(14px) saturate(1.06);
+    -webkit-backdrop-filter: blur(14px) saturate(1.06);
+}
+
+html.premium-spring-sanctuary-equipped :where(
+    .card,
+    .form-container,
+    .accordion-card,
+    .teacher-question-bank-entry,
+    .settings-card,
+    .stat-card
+):not(.ui-theme-immune):not([data-theme-immune="true"]):not(.ui-theme-immune *):not([data-theme-immune="true"] *)::before {
+    content: '';
+    position: absolute;
+    right: -17px;
+    top: -18px;
+    width: 76px;
+    height: 76px;
+    border: 1px solid rgba(198,155,82,.20);
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 38% 45%, rgba(255,255,255,.78) 0 6%, transparent 7%),
+        conic-gradient(from 10deg, rgba(200,103,134,.12), rgba(82,151,113,.13), rgba(234,214,164,.16), rgba(200,103,134,.12));
+    pointer-events: none;
+}
+
+html.premium-spring-sanctuary-equipped :where(
+    .card,
+    .form-container,
+    .accordion-card
+):not(.ui-theme-immune):not([data-theme-immune="true"]):not(.ui-theme-immune *):not([data-theme-immune="true"] *)::after {
+    content: '';
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 0;
+    height: 2px;
+    border-radius: 99px;
+    background: linear-gradient(90deg, transparent, rgba(70,142,105,.30), rgba(198,155,82,.42), rgba(200,103,134,.24), transparent);
+    pointer-events: none;
+}
+
+/* ===== POPUP — VÒM HOA HOÀNG GIA ===== */
+html.premium-spring-sanctuary-equipped :where(
+    .modal-content,
+    .student-modal-box,
+    .glass-alert,
+    .modal-box
+):not(.ui-theme-immune):not([data-theme-immune="true"]):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    position: relative;
+    color: var(--spring-ui-ink) !important;
+    background:
+        radial-gradient(circle at 50% -2%, rgba(234,197,207,.25), transparent 27%),
+        linear-gradient(164deg, rgba(255,255,255,.985), rgba(246,251,241,.97) 60%, rgba(255,246,246,.96)) !important;
+    border: 1px solid rgba(67,132,103,.26) !important;
+    border-top-color: rgba(198,155,82,.42) !important;
+    border-radius: 58px 58px 23px 23px !important;
+    box-shadow:
+        0 30px 80px rgba(28,72,56,.25),
+        inset 0 1px 0 rgba(255,255,255,.98),
+        inset 0 0 0 3px rgba(255,255,255,.44) !important;
+}
+
+html.premium-spring-sanctuary-equipped :where(
+    .modal-content,
+    .student-modal-box,
+    .glass-alert,
+    .modal-box
+):not(.ui-theme-immune):not([data-theme-immune="true"]):not(.ui-theme-immune *):not([data-theme-immune="true"] *)::before {
+    content: '❀  ✦  ❀';
+    position: absolute;
+    left: 50%;
+    top: 8px;
+    transform: translateX(-50%);
+    color: rgba(164,107,47,.60);
+    font-family: "Segoe UI Symbol", "Noto Sans Symbols 2", sans-serif;
+    font-size: 11px;
+    letter-spacing: 7px;
+    pointer-events: none;
+}
+
+html.premium-spring-sanctuary-equipped :where(
+    .modal-overlay,
+    .student-modal-overlay,
+    .popup-overlay
+):not(.ui-theme-immune):not([data-theme-immune="true"]):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    background:
+        radial-gradient(circle at 50% 23%, rgba(206,233,211,.22), transparent 35%),
+        rgba(20, 53, 42, .47) !important;
+    backdrop-filter: blur(9px) saturate(.92);
+    -webkit-backdrop-filter: blur(9px) saturate(.92);
+}
+
+html.premium-spring-sanctuary-equipped .close-btn:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    border: 1px solid rgba(200,103,134,.25) !important;
+    border-radius: 50% 50% 18% 50% !important;
+    color: #a64e6e !important;
+    background: linear-gradient(145deg, #fffdf8, #f7dde5) !important;
+    box-shadow: 0 7px 18px rgba(114,62,81,.12) !important;
+}
+
+/* ===== INPUT / SELECT / SEARCH — PHIẾN NGỌC ===== */
+html.premium-spring-sanctuary-equipped :where(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+    select,
+    textarea,
+    .search-bar,
+    .css-select-trigger,
+    .custom-student-select
+):not(.ui-theme-immune):not([data-theme-immune="true"]):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    color: #234f40 !important;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,.95), rgba(250,251,244,.92)) !important;
+    border: 1px solid rgba(58,126,96,.24) !important;
+    border-bottom-color: rgba(198,155,82,.32) !important;
+    border-radius: 21px 7px 21px 7px !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.92), 0 5px 14px rgba(47,99,77,.06) !important;
+    outline: none !important;
+}
+
+html.premium-spring-sanctuary-equipped :where(input, select, textarea):not(.ui-theme-immune *):not([data-theme-immune="true"] *):focus {
+    border-color: rgba(200,103,134,.54) !important;
+    box-shadow:
+        0 0 0 4px rgba(200,103,134,.09),
+        0 10px 23px rgba(45,105,81,.10),
+        inset 0 1px 0 rgba(255,255,255,.96) !important;
+}
+
+html.premium-spring-sanctuary-equipped input::placeholder,
+html.premium-spring-sanctuary-equipped textarea::placeholder {
+    color: rgba(65,103,91,.55) !important;
+}
+
+/* ===== BUTTON — CÁNH HOA NGỌC ===== */
+html.premium-spring-sanctuary-equipped button:not(.nav-item):not(.ui-theme-immune):not([data-theme-immune="true"]):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    border-radius: 20px 7px 20px 7px !important;
+    transition: transform .2s ease, box-shadow .2s ease, filter .2s ease !important;
+}
+
+html.premium-spring-sanctuary-equipped :where(
+    .btn-submit,
+    .btn-confirm,
+    .btn-approve,
+    .btn-primary,
+    .login-layout-save-button,
+    .spring-premium-use-button
+):not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    color: #fffdf5 !important;
+    background:
+        radial-gradient(circle at 88% 0%, rgba(255,225,179,.26), transparent 34%),
+        linear-gradient(125deg, #245d4b 0%, #3e8967 58%, #a95773 125%) !important;
+    border: 1px solid rgba(255,255,255,.30) !important;
+    box-shadow: 0 11px 25px rgba(39,102,76,.20), inset 0 1px rgba(255,255,255,.20) !important;
+}
+
+html.premium-spring-sanctuary-equipped :where(
+    .btn-submit,
+    .btn-confirm,
+    .btn-approve,
+    .btn-primary,
+    .spring-premium-use-button
+):not(.ui-theme-immune):not(.ui-theme-immune *):hover {
+    transform: translateY(-2px);
+    filter: saturate(1.06) brightness(1.03);
+    box-shadow: 0 15px 30px rgba(39,102,76,.24) !important;
+}
+
+html.premium-spring-sanctuary-equipped :where(
+    .btn-cancel,
+    .btn-secondary,
+    .luxury-store-back
+):not(.ui-theme-immune):not(.ui-theme-immune *) {
+    color: #315f50 !important;
+    background: rgba(255,253,248,.78) !important;
+    border: 1px solid rgba(65,132,102,.22) !important;
+}
+
+/* ===== TABLE ===== */
+html.premium-spring-sanctuary-equipped table:not(.ui-theme-immune):not([data-theme-immune="true"]):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
+    border: 1px solid rgba(65,132,102,.16) !important;
+    border-radius: 24px 8px 24px 8px !important;
+    background: rgba(255,253,248,.76) !important;
+    box-shadow: var(--spring-ui-shadow-soft);
+}
+html.premium-spring-sanctuary-equipped table:not(.ui-theme-immune *) thead th {
+    color: #fffdf5 !important;
+    background: linear-gradient(125deg, #2b6b55, #568d6c 68%, #a86178) !important;
+    border-color: rgba(255,255,255,.12) !important;
+}
+html.premium-spring-sanctuary-equipped table:not(.ui-theme-immune *) tbody tr:nth-child(even) {
+    background: rgba(232,243,232,.42) !important;
+}
+html.premium-spring-sanctuary-equipped table:not(.ui-theme-immune *) tbody tr:hover {
+    background: rgba(248,226,234,.42) !important;
+}
+
+/* ===== BADGE / CHIP / FILTER ===== */
+html.premium-spring-sanctuary-equipped :where(
+    .badge,
+    .status-badge,
+    .tag,
+    .chip,
+    .filter-chip
+):not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    border-radius: 999px 5px 999px 5px !important;
+    border: 1px solid rgba(198,155,82,.24) !important;
+    color: #315e4f !important;
+    background: linear-gradient(135deg, rgba(238,248,235,.92), rgba(250,228,235,.82)) !important;
+}
+
+/* ===== ACCORDION / TAB PHỤ ===== */
+html.premium-spring-sanctuary-equipped :where(
+    .sub-tab-btn,
+    .tab-btn,
+    .filter-button
+):not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    border-radius: 19px 6px 19px 6px !important;
+    border: 1px solid rgba(66,130,101,.17) !important;
+    background: rgba(255,253,248,.70) !important;
+    color: #315e50 !important;
+}
+
+html.premium-spring-sanctuary-equipped :where(
+    .sub-tab-btn.active,
+    .tab-btn.active,
+    .filter-button.active
+):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    color: #fffdf5 !important;
+    background: linear-gradient(125deg, #2d6f58, #61936f 66%, #b7637e) !important;
+    box-shadow: 0 8px 20px rgba(45,104,80,.16) !important;
+}
+
+/* ===== PROGRESS ===== */
+html.premium-spring-sanctuary-equipped :where(
+    .progress,
+    .progress-bar-container,
+    .progress-track
+):not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    overflow: hidden;
+    border-radius: 999px 5px 999px 5px !important;
+    background: linear-gradient(90deg, #e3eee4, #f3e2e7) !important;
+    border: 1px solid rgba(62,126,97,.14) !important;
+    box-shadow: inset 0 2px 5px rgba(40,86,68,.08) !important;
+}
+html.premium-spring-sanctuary-equipped :where(
+    .progress-fill,
+    .progress-bar
+):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    background: linear-gradient(90deg, #36795f, #79aa7c 54%, #cc718d 82%, #d7b066) !important;
+}
+
+/* ===== SWITCH / RANGE ===== */
+html.premium-spring-sanctuary-equipped .switch .slider {
+    background: linear-gradient(90deg, #dce9df, #f0dfe5) !important;
+    border: 1px solid rgba(63,126,97,.20) !important;
+    border-radius: 16px 5px 16px 5px !important;
+    box-shadow: inset 0 2px 5px rgba(38,88,69,.08) !important;
+}
+html.premium-spring-sanctuary-equipped .switch .slider::before {
+    background: linear-gradient(145deg, #fffdf7, #f1d4de) !important;
+    border: 1px solid rgba(200,103,134,.20) !important;
+    border-radius: 50% 50% 18% 50% !important;
+    box-shadow: 0 4px 10px rgba(37,92,72,.16) !important;
+}
+html.premium-spring-sanctuary-equipped .switch input:checked + .slider {
+    background: linear-gradient(90deg, #2f735a, #76a87a) !important;
+}
+
+html.premium-spring-sanctuary-equipped input[type="range"] {
+    accent-color: #c86786;
+}
+html.premium-spring-sanctuary-equipped input[type="range"]::-webkit-slider-runnable-track {
+    height: 8px;
+    border-radius: 999px 4px 999px 4px;
+    background: linear-gradient(90deg, #2f735a 0%, #82b083 48%, #d28aa0 76%, #c69b52 100%);
+    box-shadow: inset 0 1px 3px rgba(27,76,58,.18);
+}
+html.premium-spring-sanctuary-equipped input[type="range"]::-webkit-slider-thumb {
+    width: 21px;
+    height: 21px;
+    margin-top: -6px;
+    appearance: none;
+    -webkit-appearance: none;
+    border: 2px solid #fffaf0;
+    border-radius: 50% 50% 18% 50%;
+    background: linear-gradient(145deg, #bd5c7c, #e2a0b3);
+    box-shadow: 0 3px 10px rgba(151,58,93,.28);
+}
+
+/* ===== SCROLLBAR ===== */
+html.premium-spring-sanctuary-equipped ::-webkit-scrollbar {
+    width: 11px;
+    height: 11px;
+}
+html.premium-spring-sanctuary-equipped ::-webkit-scrollbar-track {
+    background: rgba(229,240,228,.74);
+}
+html.premium-spring-sanctuary-equipped ::-webkit-scrollbar-thumb {
+    border: 3px solid rgba(246,250,241,.94);
+    border-radius: 999px 4px 999px 4px;
+    background: linear-gradient(180deg, #448568, #bb6884 68%, #bd9147);
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 768px) {
+    .spring-palace-top-arch {
+        width: 72vw;
+        transform: translateX(-50%) scale(.82);
+        transform-origin: 50% 0;
+    }
+    .spring-palace-side-vine { opacity: .24; }
+    .spring-palace-corner-garden { opacity: .22; }
+    html.premium-spring-sanctuary-equipped .sidebar {
+        border-radius: 0 34px 18px 0 !important;
+    }
+    html.premium-spring-sanctuary-equipped :where(
+        .card,
+        .form-container,
+        .accordion-card,
+        .teacher-question-bank-entry,
+        .settings-card,
+        .stat-card
+    ):not(.ui-theme-immune):not(.ui-theme-immune *) {
+        border-radius: 27px 9px 27px 9px !important;
+    }
+    html.premium-spring-sanctuary-equipped :where(
+        .modal-content,
+        .student-modal-box,
+        .glass-alert,
+        .modal-box
+    ):not(.ui-theme-immune):not(.ui-theme-immune *) {
+        border-radius: 38px 38px 18px 18px !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .spring-palace-ui-frame *,
+    .spring-palace-ui-frame *::before,
+    .spring-palace-ui-frame *::after {
+        animation: none !important;
+    }
+}
+
+@keyframes springPalaceBloomBreath {
+    from { opacity: .48; transform: scale(.92) rotate(-4deg); }
+    to { opacity: .92; transform: scale(1.08) rotate(4deg); }
+}
+
+/* ------------------------------
+   B. EFFECT TOÀN WEB — NGỰ HOA THIÊN MÔN
+   ------------------------------ */
+.premium-spring-world.spring-crown-world-v3 {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 2100 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+    opacity: 0;
+    transition: opacity .9s cubic-bezier(.2,.7,.2,1);
+    isolation: isolate;
+}
+
+.premium-spring-world.spring-crown-world-v3.is-active { opacity: 1; }
+
+.spring-crown-sky-vault {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 78% 13%, rgba(255,235,177,.16), transparent 24%),
+        radial-gradient(circle at 17% 75%, rgba(122,190,143,.11), transparent 33%);
+}
+
+.spring-crown-dawn-orb {
+    position: absolute;
+    right: 7vw;
+    top: -12vh;
+    width: min(46vw, 540px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle, rgba(255,255,244,.72) 0 7%, rgba(255,223,142,.22) 23%, rgba(244,149,181,.10) 47%, transparent 70%);
+    filter: blur(2px);
+    animation: springCrownDawnBreathe 7s ease-in-out infinite alternate;
+}
+
+.spring-crown-aurora {
+    position: absolute;
+    width: 78vw;
+    height: 22vh;
+    border-radius: 50%;
+    filter: blur(34px);
+    opacity: .18;
+    mix-blend-mode: screen;
+}
+.spring-crown-aurora.aurora-a { left: -22vw; top: 16vh; background: #57aa7d; transform: rotate(18deg); animation: springCrownAuroraA 12s ease-in-out infinite alternate; }
+.spring-crown-aurora.aurora-b { right: -20vw; top: 34vh; background: #e483a5; transform: rotate(-15deg); animation: springCrownAuroraB 15s ease-in-out infinite alternate; }
+.spring-crown-aurora.aurora-c { left: 15vw; bottom: -9vh; background: #e5be72; transform: rotate(4deg); animation: springCrownAuroraA 18s ease-in-out infinite alternate-reverse; }
+
+.spring-crown-prism {
+    position: absolute;
+    width: 2px;
+    height: 55vh;
+    top: -9vh;
+    transform-origin: 50% 0;
+    background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,220,146,.10), transparent);
+    filter: blur(.3px) drop-shadow(0 0 8px rgba(255,231,177,.40));
+    opacity: .5;
+}
+.spring-crown-prism.prism-a { left: 23%; transform: rotate(23deg); }
+.spring-crown-prism.prism-b { right: 21%; transform: rotate(-18deg); opacity: .33; }
+
+.spring-crown-silk-road {
+    position: absolute;
+    width: 92vw;
+    height: 80px;
+    left: -24vw;
+    top: 30vh;
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: 50%;
+    transform: rotate(-18deg);
+    box-shadow: 0 -14px 44px rgba(80,161,117,.09), inset 0 7px 20px rgba(255,255,255,.08);
+    opacity: .54;
+    animation: springCrownSilkDrift 13s ease-in-out infinite alternate;
+}
+.spring-crown-silk-road.silk-two { left: 26vw; top: 56vh; transform: rotate(15deg); border-color: rgba(226,137,167,.21); animation-delay: -4s; }
+.spring-crown-silk-road.silk-three { left: -8vw; top: 77vh; transform: rotate(5deg); border-color: rgba(215,170,85,.18); animation-delay: -8s; }
+
+.spring-crown-petal-field,
+.spring-crown-lumina-field,
+.spring-crown-butterfly-field,
+.spring-crown-sigil-field {
+    position: absolute;
+    inset: 0;
+}
+
+.spring-crown-falling-petal {
+    position: absolute;
+    left: var(--sc-x);
+    top: -8vh;
+    width: var(--sc-size);
+    height: var(--sc-size);
+    opacity: 0;
+    transform-origin: 50% 25%;
+    animation: springCrownPetalFall var(--sc-duration) linear infinite;
+    animation-delay: var(--sc-delay);
+    filter: drop-shadow(0 3px 4px rgba(140,67,92,.13));
+}
+
+.spring-crown-falling-petal.petal-round {
+    border-radius: 75% 25% 72% 28%;
+    background: linear-gradient(150deg, #fffaf7, #ef9eb8 68%, #c75e84);
+}
+.spring-crown-falling-petal.petal-heart {
+    border-radius: 80% 20% 80% 20%;
+    background: linear-gradient(150deg, #fff7dc, #f1b5c7 55%, #dd7da0);
+}
+.spring-crown-falling-petal.petal-lance {
+    border-radius: 95% 5% 95% 5%;
+    background: linear-gradient(150deg, #f5fff6, #8dc79a 52%, #3f8868);
+}
+.spring-crown-falling-petal.is-near { filter: blur(.15px) drop-shadow(0 6px 8px rgba(125,63,83,.15)); }
+
+.spring-crown-lumina {
+    position: absolute;
+    left: var(--sc-lx);
+    top: var(--sc-ly);
+    width: var(--sc-lsize);
+    height: var(--sc-lsize);
+    border-radius: 50%;
+    background: #fffbe9;
+    box-shadow: 0 0 9px rgba(255,224,153,.8), 0 0 18px rgba(94,176,129,.36);
+    animation: springCrownLumina var(--sc-lduration) ease-in-out infinite;
+    animation-delay: var(--sc-ldelay);
+}
+
+.spring-crown-screen-butterfly {
+    position: absolute;
+    left: -50px;
+    top: var(--sc-by);
+    width: 22px;
+    height: 15px;
+    transform: scale(var(--sc-bscale));
+    animation: springCrownButterflyFlight var(--sc-bduration) linear infinite;
+    animation-delay: var(--sc-bdelay);
+}
+.spring-crown-screen-butterfly i,
+.spring-crown-screen-butterfly b {
+    position: absolute;
+    top: 1px;
+    width: 12px;
+    height: 14px;
+    border: 1px solid rgba(131,77,104,.28);
+    background: linear-gradient(145deg, rgba(255,248,232,.92), rgba(234,135,166,.68));
+    box-shadow: 0 0 8px rgba(235,151,177,.25);
+}
+.spring-crown-screen-butterfly i { left: 0; border-radius: 90% 12% 75% 20%; transform-origin: 100% 60%; animation: springCrownWingLeft .42s ease-in-out infinite alternate; }
+.spring-crown-screen-butterfly b { right: 0; border-radius: 12% 90% 20% 75%; transform-origin: 0 60%; animation: springCrownWingRight .42s ease-in-out infinite alternate; }
+
+.spring-crown-sigil {
+    position: absolute;
+    left: var(--sc-sx);
+    top: var(--sc-sy);
+    color: rgba(176,128,48,.30);
+    font-family: "Segoe UI Symbol", "Noto Sans Symbols 2", sans-serif;
+    font-size: var(--sc-ssize);
+    text-shadow: 0 0 14px rgba(255,235,189,.55);
+    animation: springCrownSigilBreath 5.5s ease-in-out infinite;
+    animation-delay: var(--sc-sdelay);
+}
+
+.spring-crown-edge-garden {
+    position: absolute;
+    bottom: -22px;
+    width: 230px;
+    height: 180px;
+    opacity: .48;
+    transform-origin: 50% 100%;
+}
+.spring-crown-edge-garden.garden-left { left: -35px; animation: springCrownGardenSway 8s ease-in-out infinite alternate; }
+.spring-crown-edge-garden.garden-right { right: -35px; transform: scaleX(-1); animation: springCrownGardenSwayMirror 9s ease-in-out infinite alternate; }
+
+.spring-crown-stem {
+    position: absolute;
+    left: 58px;
+    bottom: 0;
+    width: 3px;
+    height: 158px;
+    border-radius: 100%;
+    background: linear-gradient(180deg, rgba(74,145,105,.15), rgba(46,112,83,.72));
+    transform: rotate(28deg);
+}
+.spring-crown-stem.stem-b { left: 112px; height: 126px; transform: rotate(-15deg); }
+
+.spring-crown-bloom {
+    position: absolute;
+    width: 26px;
+    height: 26px;
+    border-radius: 50% 50% 18% 50%;
+    background: radial-gradient(circle at 60% 38%, #fff8ec 0 12%, #ef9db7 28%, #c85f84 66%, rgba(200,95,132,.05) 72%);
+    box-shadow: 0 0 16px rgba(229,137,168,.22);
+}
+.spring-crown-bloom.bloom-a { left: 82px; top: 8px; }
+.spring-crown-bloom.bloom-b { left: 142px; top: 50px; transform: scale(.76) rotate(35deg); }
+.spring-crown-bloom.bloom-c { left: 52px; top: 70px; transform: scale(.58) rotate(-18deg); }
+
+.spring-crown-leaf {
+    position: absolute;
+    width: 34px;
+    height: 17px;
+    border-radius: 100% 0 100% 0;
+    background: linear-gradient(135deg, rgba(113,183,132,.68), rgba(45,122,86,.30));
+}
+.spring-crown-leaf.leaf-a { left: 72px; top: 82px; transform: rotate(31deg); }
+.spring-crown-leaf.leaf-b { left: 112px; top: 112px; transform: rotate(-42deg) scaleX(-1); }
+
+.spring-crown-bottom-haze {
+    position: absolute;
+    left: -10%;
+    right: -10%;
+    bottom: -80px;
+    height: 180px;
+    background: radial-gradient(ellipse at 50% 100%, rgba(109,173,126,.16), rgba(232,151,179,.07) 45%, transparent 72%);
+    filter: blur(18px);
+}
+
+/* Burst toàn màn hình khi chạm pet. */
+.spring-crown-screen-burst {
+    position: fixed;
+    inset: 0;
+    z-index: 2140;
+    pointer-events: none;
+}
+.spring-crown-burst-wave,
+.spring-crown-burst-core,
+.spring-crown-burst-petals {
+    position: absolute;
+    left: var(--sc-burst-x);
+    top: var(--sc-burst-y);
+    transform: translate(-50%, -50%);
+}
+.spring-crown-burst-wave {
+    width: 48px;
+    height: 48px;
+    border-radius: 50% 50% 18% 50%;
+    border: 1px solid rgba(216,95,140,.55);
+    opacity: 0;
+}
+.spring-crown-screen-burst.is-active .spring-crown-burst-wave { animation: springCrownBurstWave 1.3s cubic-bezier(.18,.72,.2,1) forwards; }
+.spring-crown-screen-burst.is-active .wave-b { animation-delay: .11s; border-color: rgba(47,125,98,.50); }
+.spring-crown-screen-burst.is-active .wave-c { animation-delay: .22s; border-color: rgba(215,170,85,.48); }
+.spring-crown-burst-core {
+    color: #fff6cf;
+    font-size: 24px;
+    text-shadow: 0 0 9px #d7aa55, 0 0 20px rgba(216,95,140,.65);
+    opacity: 0;
+}
+.spring-crown-screen-burst.is-active .spring-crown-burst-core { animation: springCrownBurstCore .9s ease-out forwards; }
+.spring-crown-burst-petals i {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 9px;
+    height: 14px;
+    border-radius: 80% 20% 80% 20%;
+    background: linear-gradient(150deg, #fff7e5, #e989aa);
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--sc-burst-angle));
+}
+.spring-crown-screen-burst.is-active .spring-crown-burst-petals i {
+    animation: springCrownBurstPetal .95s cubic-bezier(.18,.72,.22,1) forwards;
+    animation-delay: var(--sc-burst-delay);
+}
+
+
+.spring-crown-skill-manifestation {
+    backdrop-filter: blur(1.6px);
+    -webkit-backdrop-filter: blur(1.6px);
+}
+.spring-crown-burst-ray {
+    position: absolute;
+    left: var(--sc-burst-x);
+    top: var(--sc-burst-y);
+    width: 240px;
+    height: 240px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,248,218,.75) 0%, rgba(255,244,209,.46) 16%, rgba(233,137,170,.18) 38%, rgba(95,171,131,.10) 58%, transparent 78%);
+    filter: blur(10px);
+    opacity: 0;
+}
+.spring-crown-screen-burst.is-active .spring-crown-burst-ray {
+    animation: springCrownBurstRay 1.25s ease-out forwards;
+}
+.spring-crown-burst-halo {
+    position: absolute;
+    left: var(--sc-burst-x);
+    top: var(--sc-burst-y);
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px solid rgba(255,244,209,.55);
+    box-shadow: inset 0 0 20px rgba(255,255,255,.35), 0 0 24px rgba(215,170,85,.22);
+    opacity: 0;
+}
+.spring-crown-burst-halo.halo-b {
+    border-color: rgba(233,137,170,.48);
+    width: 108px;
+    height: 108px;
+}
+.spring-crown-screen-burst.is-active .spring-crown-burst-halo.halo-a {
+    animation: springCrownBurstHaloOuter 1.35s ease-out forwards;
+}
+.spring-crown-screen-burst.is-active .spring-crown-burst-halo.halo-b {
+    animation: springCrownBurstHaloInner 1s ease-out forwards;
+}
+.spring-crown-burst-lotus {
+    position: absolute;
+    left: var(--sc-burst-x);
+    top: var(--sc-burst-y);
+    width: 0;
+    height: 0;
+    transform: translate(-50%, -50%);
+}
+.spring-crown-burst-lotus .lotus-petal {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 18px;
+    height: 42px;
+    border-radius: 85% 85% 18% 18%;
+    background: linear-gradient(180deg, rgba(255,251,236,.98), rgba(244,181,198,.92) 46%, rgba(233,137,170,.88));
+    box-shadow: 0 0 16px rgba(255,255,255,.22);
+    opacity: 0;
+    transform-origin: 50% 100%;
+}
+.spring-crown-burst-lotus .lotus-a { --sc-lotus-rotate: 0deg; transform: translate(-50%, -50%) rotate(var(--sc-lotus-rotate)) translateY(-44px); }
+.spring-crown-burst-lotus .lotus-b { --sc-lotus-rotate: 60deg; transform: translate(-50%, -50%) rotate(var(--sc-lotus-rotate)) translateY(-44px); }
+.spring-crown-burst-lotus .lotus-c { --sc-lotus-rotate: 120deg; transform: translate(-50%, -50%) rotate(var(--sc-lotus-rotate)) translateY(-44px); }
+.spring-crown-burst-lotus .lotus-d { --sc-lotus-rotate: 180deg; transform: translate(-50%, -50%) rotate(var(--sc-lotus-rotate)) translateY(-44px); }
+.spring-crown-burst-lotus .lotus-e { --sc-lotus-rotate: 240deg; transform: translate(-50%, -50%) rotate(var(--sc-lotus-rotate)) translateY(-44px); }
+.spring-crown-burst-lotus .lotus-f { --sc-lotus-rotate: 300deg; transform: translate(-50%, -50%) rotate(var(--sc-lotus-rotate)) translateY(-44px); }
+.spring-crown-screen-burst.is-active .spring-crown-burst-lotus .lotus-petal {
+    animation: springCrownLotusBloom .9s cubic-bezier(.2,.78,.2,1) forwards;
+}
+.spring-crown-burst-sigil {
+    position: absolute;
+    left: var(--sc-burst-x);
+    top: var(--sc-burst-y);
+    width: 114px;
+    height: 114px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 1px solid rgba(47,125,98,.42);
+    box-shadow: inset 0 0 0 1px rgba(255,247,222,.32), 0 0 24px rgba(47,125,98,.15);
+    opacity: 0;
+}
+.spring-crown-burst-sigil::before,
+.spring-crown-burst-sigil::after {
+    content: '';
+    position: absolute;
+    inset: 14px;
+    border-radius: 50%;
+    border: 1px dashed rgba(215,170,85,.52);
+}
+.spring-crown-burst-sigil::after {
+    inset: 31px;
+    border-style: solid;
+    border-color: rgba(233,137,170,.38);
+}
+.spring-crown-screen-burst.is-active .spring-crown-burst-sigil {
+    animation: springCrownBurstSigil 1.2s cubic-bezier(.2,.72,.2,1) forwards;
+}
+.spring-crown-burst-motes,
+.spring-crown-burst-butterflies {
+    position: absolute;
+    left: var(--sc-burst-x);
+    top: var(--sc-burst-y);
+    width: 0;
+    height: 0;
+    transform: translate(-50%, -50%);
+}
+.spring-crown-burst-mote {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--sc-mote-size);
+    height: var(--sc-mote-size);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,.96) 0%, rgba(255,244,209,.92) 45%, rgba(215,170,85,.2) 100%);
+    box-shadow: 0 0 12px rgba(255,247,222,.7);
+    opacity: 0;
+    transform: translate(-50%, -50%);
+}
+.spring-crown-screen-burst.is-active .spring-crown-burst-mote {
+    animation: springCrownBurstMote 1.05s ease-out forwards;
+    animation-delay: var(--sc-mote-delay);
+}
+.spring-crown-burst-butterfly {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 30px;
+    height: 22px;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+}
+.spring-crown-burst-butterfly b,
+.spring-crown-burst-butterfly u {
+    position: absolute;
+    top: 0;
+    width: 15px;
+    height: 22px;
+    content: '';
+    display: block;
+    background: linear-gradient(180deg, rgba(255,251,236,.96), rgba(233,137,170,.92));
+    box-shadow: 0 0 12px rgba(255,240,210,.3);
+}
+.spring-crown-burst-butterfly b {
+    left: 0;
+    border-radius: 95% 12% 78% 24%;
+    transform-origin: 100% 55%;
+    animation: springCrownBurstWingLeft .38s ease-in-out infinite alternate;
+}
+.spring-crown-burst-butterfly u {
+    right: 0;
+    text-decoration: none;
+    border-radius: 12% 95% 24% 78%;
+    transform-origin: 0 55%;
+    animation: springCrownBurstWingRight .38s ease-in-out infinite alternate;
+}
+.spring-crown-screen-burst.is-active .spring-crown-burst-butterfly {
+    animation: springCrownBurstButterfly 1.4s cubic-bezier(.16,.74,.2,1) forwards;
+    animation-delay: var(--sc-butterfly-delay);
+}
+.spring-crown-burst-title {
+    position: absolute;
+    left: var(--sc-burst-x);
+    top: calc(var(--sc-burst-y) + 92px);
+    transform: translateX(-50%);
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,244,209,.46);
+    background: linear-gradient(135deg, rgba(255,251,236,.38), rgba(233,137,170,.22));
+    box-shadow: 0 12px 28px rgba(86,56,68,.18), inset 0 0 0 1px rgba(255,255,255,.18);
+    color: #fffdf6;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    text-shadow: 0 0 16px rgba(215,170,85,.36);
+    white-space: nowrap;
+    opacity: 0;
+}
+.spring-crown-screen-burst.is-active .spring-crown-burst-title {
+    animation: springCrownBurstTitle 1.3s ease-out forwards;
+}
+
+@keyframes springCrownBurstRay {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(.4); }
+    18% { opacity: .88; }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.45); }
+}
+@keyframes springCrownBurstHaloOuter {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(.45) rotate(0deg); }
+    25% { opacity: .82; }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(2.3) rotate(32deg); }
+}
+@keyframes springCrownBurstHaloInner {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(.2) rotate(0deg); }
+    18% { opacity: .92; }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.65) rotate(-28deg); }
+}
+@keyframes springCrownLotusBloom {
+    0% { opacity: 0; filter: blur(8px); }
+    28% { opacity: .98; filter: blur(0); }
+    100% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--sc-lotus-rotate, 0deg)) translateY(-66px) scale(1.22); }
+}
+@keyframes springCrownBurstSigil {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(.3) rotate(0deg); }
+    24% { opacity: .8; }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.55) rotate(88deg); }
+}
+@keyframes springCrownBurstMote {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(var(--sc-mote-angle)) translateY(0) scale(.35);
+    }
+    28% { opacity: 1; }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(var(--sc-mote-angle)) translateY(calc(0px - var(--sc-mote-distance))) scale(1.2);
+    }
+}
+@keyframes springCrownBurstButterfly {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(var(--sc-butterfly-angle)) translateY(0) scale(.36);
+    }
+    24% { opacity: 1; }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(var(--sc-butterfly-angle)) translateY(calc(0px - var(--sc-butterfly-distance))) translateX(32px) scale(1.12);
+    }
+}
+@keyframes springCrownBurstTitle {
+    0% { opacity: 0; transform: translateX(-50%) translateY(18px) scale(.92); }
+    18% { opacity: 1; }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-8px) scale(1); }
+}
+@keyframes springCrownBurstWingLeft {
+    from { transform: rotate(16deg) scaleY(1); }
+    to { transform: rotate(-16deg) scaleY(.92); }
+}
+@keyframes springCrownBurstWingRight {
+    from { transform: rotate(-16deg) scaleY(1); }
+    to { transform: rotate(16deg) scaleY(.92); }
+}
+
+/* ------------------------------
+   C. PET REALM — VƯƠNG MIỆN HOA LINH
+   ------------------------------ */
+#virtual-pet-container.spring-crown-pet-stage-v3 {
+    isolation: isolate !important;
+    overflow: visible !important;
+    min-width: 190px;
+    min-height: 200px;
+}
+
+#virtual-pet-container.spring-crown-pet-stage-v3 #virtual-pet-img.spring-crown-goddess-avatar-v3 {
+    position: relative;
+    z-index: 18;
+    width: 182px !important;
+    max-width: none !important;
+    height: auto !important;
+    transform-origin: 50% 82%;
+    filter:
+        drop-shadow(0 13px 16px rgba(29,72,55,.28))
+        drop-shadow(0 0 13px rgba(255,236,190,.68))
+        drop-shadow(0 0 27px rgba(219,104,145,.24)) !important;
+    animation: springCrownGoddessFloat 4.8s cubic-bezier(.37,0,.24,1) infinite alternate !important;
+    cursor: pointer;
+}
+
+.spring-crown-pet-court {
+    position: absolute;
+    inset: -30px -38px -38px;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.spring-crown-pet-throne {
+    position: absolute;
+    left: 50%;
+    top: 49%;
+    width: 184px;
+    height: 184px;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+}
+
+.spring-crown-throne-petal {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 70px;
+    height: 112px;
+    margin: -56px 0 0 -35px;
+    border-radius: 70% 30% 68% 32%;
+    transform-origin: 50% 88%;
+    background:
+        linear-gradient(180deg, rgba(255,250,240,.50), rgba(117,183,136,.18) 44%, rgba(214,101,142,.15));
+    border: 1px solid rgba(255,255,255,.44);
+    box-shadow: inset 0 0 14px rgba(255,255,255,.42), 0 0 14px rgba(85,154,116,.08);
+    opacity: .78;
+}
+.spring-crown-throne-petal.petal-1 { transform: rotate(0deg) translateY(-49px); }
+.spring-crown-throne-petal.petal-2 { transform: rotate(45deg) translateY(-49px); }
+.spring-crown-throne-petal.petal-3 { transform: rotate(90deg) translateY(-49px); }
+.spring-crown-throne-petal.petal-4 { transform: rotate(135deg) translateY(-49px); }
+.spring-crown-throne-petal.petal-5 { transform: rotate(180deg) translateY(-49px); }
+.spring-crown-throne-petal.petal-6 { transform: rotate(225deg) translateY(-49px); }
+.spring-crown-throne-petal.petal-7 { transform: rotate(270deg) translateY(-49px); }
+.spring-crown-throne-petal.petal-8 { transform: rotate(315deg) translateY(-49px); }
+
+.spring-crown-throne-core {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 104px;
+    height: 104px;
+    display: grid;
+    place-items: center;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    color: rgba(255,245,209,.72);
+    font-size: 20px;
+    background: radial-gradient(circle, rgba(255,251,229,.52), rgba(215,170,85,.08) 42%, transparent 70%);
+    text-shadow: 0 0 12px rgba(215,170,85,.66);
+    animation: springCrownThronePulse 3.6s ease-in-out infinite;
+}
+
+.spring-crown-pet-silk {
+    position: absolute;
+    left: 50%;
+    top: 48%;
+    width: 205px;
+    height: 58px;
+    border: 1px solid rgba(255,255,255,.28);
+    border-radius: 50%;
+    opacity: .58;
+    transform: translate(-50%, -50%) rotate(-15deg);
+    box-shadow: 0 -7px 16px rgba(216,95,140,.10);
+}
+.spring-crown-pet-silk.silk-b { width: 164px; transform: translate(-50%, -50%) rotate(28deg); border-color: rgba(47,125,98,.28); animation: springCrownPetSilk 6s ease-in-out infinite alternate; }
+.spring-crown-pet-silk.silk-c { width: 224px; height: 82px; transform: translate(-50%, -50%) rotate(74deg); border-color: rgba(215,170,85,.19); opacity: .34; animation: springCrownPetSilk 8s ease-in-out infinite alternate-reverse; }
+
+.spring-crown-pet-rune {
+    position: absolute;
+    z-index: 4;
+    color: rgba(165,115,40,.58);
+    font-family: "Segoe UI Symbol", "Noto Sans Symbols 2", sans-serif;
+    text-shadow: 0 0 10px rgba(255,239,197,.64);
+    animation: springCrownPetRune 3.3s ease-in-out infinite;
+}
+.spring-crown-pet-rune.rune-a { left: 10%; top: 23%; font-size: 15px; }
+.spring-crown-pet-rune.rune-b { right: 8%; top: 31%; font-size: 18px; animation-delay: -.9s; }
+.spring-crown-pet-rune.rune-c { left: 18%; bottom: 25%; font-size: 13px; animation-delay: -1.7s; }
+
+.spring-crown-pet-dais {
+    position: absolute;
+    left: 50%;
+    bottom: 12px;
+    width: 190px;
+    height: 54px;
+    transform: translateX(-50%);
+    z-index: 5;
+}
+.spring-crown-dais-light {
+    position: absolute;
+    inset: 11px 7px 0;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(255,243,205,.65) 0, rgba(106,176,126,.22) 45%, rgba(216,95,140,.08) 67%, transparent 74%);
+    filter: blur(5px);
+    animation: springCrownDaisLight 2.8s ease-in-out infinite alternate;
+}
+.spring-crown-dais-bloom {
+    position: absolute;
+    bottom: 12px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50% 50% 15% 50%;
+    background: radial-gradient(circle at 64% 36%, #fff8df 0 13%, #ed9bb5 25%, #c75a81 70%);
+    box-shadow: 0 0 8px rgba(218,101,143,.22);
+}
+.spring-crown-dais-bloom.bloom-1 { left: 17px; transform: rotate(-15deg) scale(.8); }
+.spring-crown-dais-bloom.bloom-2 { left: 48px; bottom: 5px; transform: rotate(34deg) scale(.6); }
+.spring-crown-dais-bloom.bloom-3 { left: 82px; bottom: 17px; transform: rotate(7deg); }
+.spring-crown-dais-bloom.bloom-4 { right: 45px; bottom: 7px; transform: rotate(-28deg) scale(.72); }
+.spring-crown-dais-bloom.bloom-5 { right: 15px; transform: rotate(18deg) scale(.88); }
+.spring-crown-dais-leaf {
+    position: absolute;
+    bottom: 5px;
+    width: 29px;
+    height: 12px;
+    border-radius: 100% 0 100% 0;
+    background: linear-gradient(135deg, #75b985, #397b5d);
+    opacity: .7;
+}
+.spring-crown-dais-leaf.leaf-1 { left: 28px; transform: rotate(26deg); }
+.spring-crown-dais-leaf.leaf-2 { left: 78px; transform: rotate(-18deg) scaleX(-1); }
+.spring-crown-dais-leaf.leaf-3 { right: 30px; transform: rotate(38deg); }
+
+.spring-crown-pet-mote-field,
+.spring-crown-pet-butterfly-field {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+}
+.spring-crown-pet-mote-v3 {
+    position: absolute;
+    left: var(--scp-x);
+    top: var(--scp-y);
+    width: var(--scp-size);
+    height: var(--scp-size);
+    border-radius: 50%;
+    background: #fff8d8;
+    box-shadow: 0 0 7px #f4d790, 0 0 14px rgba(92,168,120,.45);
+    animation: springCrownPetMote 4.2s ease-in-out infinite;
+    animation-delay: var(--scp-delay);
+}
+
+.spring-crown-pet-butterfly-v3 {
+    position: absolute;
+    left: 7%;
+    top: 24%;
+    width: 18px;
+    height: 13px;
+    animation: springCrownPetButterfly 4.8s ease-in-out infinite;
+    animation-delay: var(--scp-bdelay);
+}
+
+.spring-crown-pet-butterfly-v3:nth-child(2) { left: 26%; top: 42%; }
+.spring-crown-pet-butterfly-v3:nth-child(3) { left: 45%; top: 60%; }
+.spring-crown-pet-butterfly-v3:nth-child(4) { left: 64%; top: 24%; }
+.spring-crown-pet-butterfly-v3:nth-child(5) { left: 83%; top: 42%; }
+.spring-crown-pet-butterfly-v3 i,
+.spring-crown-pet-butterfly-v3 b {
+    position: absolute;
+    width: 10px;
+    height: 12px;
+    background: linear-gradient(145deg, rgba(255,249,230,.95), rgba(225,123,158,.72));
+    border: 1px solid rgba(181,83,119,.22);
+}
+.spring-crown-pet-butterfly-v3 i { left: 0; border-radius: 90% 10% 75% 20%; transform-origin: 100% 55%; animation: springCrownWingLeft .35s ease-in-out infinite alternate; }
+.spring-crown-pet-butterfly-v3 b { right: 0; border-radius: 10% 90% 20% 75%; transform-origin: 0 55%; animation: springCrownWingRight .35s ease-in-out infinite alternate; }
+
+.spring-crown-pet-burst-v3 {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 1px;
+    height: 1px;
+    z-index: 24;
+    pointer-events: none;
+}
+.spring-crown-pet-burst-v3::before {
+    content: "✦";
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform: translate(-50%, -50%);
+    color: #fff5c8;
+    font-size: 24px;
+    text-shadow: 0 0 10px #d7aa55, 0 0 22px rgba(216,95,140,.62);
+    animation: springCrownLocalCore 1.05s ease-out forwards;
+}
+.spring-crown-pet-burst-v3 span {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 8px;
+    height: 13px;
+    border-radius: 80% 20% 80% 20%;
+    background: linear-gradient(145deg, #fff8df, #e886a8);
+    transform: translate(-50%, -50%) rotate(var(--scp-burst-angle));
+    animation: springCrownLocalPetal 1s cubic-bezier(.17,.74,.18,1) forwards;
+}
+
+#virtual-pet-container.spring-crown-pet-casting #virtual-pet-img.spring-crown-goddess-avatar-v3 {
+    animation: springCrownGoddessCast 1s cubic-bezier(.16,.8,.2,1) !important;
+}
+
+/* ------------------------------
+   D. CARD CỬA HÀNG — PHÙ HỢP BỘ V3
+   ------------------------------ */
+.spring-premium-card[data-luxury-style="spring"] {
+    border: 1px solid rgba(47,125,98,.26) !important;
+    border-radius: 34px 12px 34px 12px !important;
+    background:
+        radial-gradient(circle at 78% 13%, rgba(255,225,153,.38), transparent 25%),
+        linear-gradient(150deg, #fffdf4 0%, #eff9ef 48%, #fff0f5 100%) !important;
+    box-shadow:
+        0 22px 50px rgba(38,101,77,.15),
+        0 0 0 1px rgba(255,255,255,.75) inset !important;
+}
+.spring-premium-card[data-luxury-style="spring"]::before {
+    background: linear-gradient(112deg, transparent 0 34%, rgba(255,255,255,.72) 44%, rgba(255,230,173,.20) 50%, transparent 61% 100%) !important;
+    animation: springCrownCardSweep 6.8s cubic-bezier(.4,0,.2,1) infinite !important;
+}
+.spring-premium-card-sun {
+    right: -25px !important;
+    top: -18px !important;
+    width: 150px !important;
+    height: 150px !important;
+    background: radial-gradient(circle, rgba(255,246,207,.90), rgba(215,170,85,.16) 32%, rgba(216,95,140,.08) 52%, transparent 72%) !important;
+    filter: blur(2px) !important;
+}
+.spring-premium-character {
+    filter:
+        drop-shadow(0 15px 20px rgba(32,80,62,.18))
+        drop-shadow(0 0 18px rgba(255,229,170,.44))
+        drop-shadow(0 0 12px rgba(216,95,140,.22)) !important;
+}
+.spring-premium-details {
+    background:
+        linear-gradient(180deg, rgba(255,253,246,.08), rgba(248,255,247,.94) 23%, rgba(255,247,249,.98)) !important;
+    backdrop-filter: blur(13px) saturate(1.12) !important;
+    -webkit-backdrop-filter: blur(13px) saturate(1.12) !important;
+}
+
+/* ------------------------------
+   E. KEYFRAMES V3
+   ------------------------------ */
+@keyframes springCrownCrestPulse {
+    0%, 100% { transform: scale(.88) rotate(0); opacity: .55; }
+    50% { transform: scale(1.12) rotate(45deg); opacity: 1; }
+}
+@keyframes springCrownDawnBreathe {
+    from { transform: scale(.92); opacity: .58; }
+    to { transform: scale(1.08); opacity: .88; }
+}
+@keyframes springCrownAuroraA {
+    from { transform: translate3d(-3vw, -1vh, 0) rotate(14deg) scale(.92); }
+    to { transform: translate3d(10vw, 4vh, 0) rotate(20deg) scale(1.08); }
+}
+@keyframes springCrownAuroraB {
+    from { transform: translate3d(5vw, -1vh, 0) rotate(-18deg) scale(1.02); }
+    to { transform: translate3d(-9vw, 5vh, 0) rotate(-11deg) scale(.92); }
+}
+@keyframes springCrownSilkDrift {
+    from { transform: translateX(-2vw) rotate(-18deg) scaleX(.96); opacity: .28; }
+    to { transform: translateX(7vw) rotate(-14deg) scaleX(1.04); opacity: .62; }
+}
+@keyframes springCrownPetalFall {
+    0% { transform: translate3d(0,-8vh,0) rotate(0deg) scale(.72); opacity: 0; }
+    8% { opacity: .86; }
+    48% { opacity: .95; }
+    92% { opacity: .76; }
+    100% { transform: translate3d(var(--sc-drift),112vh,0) rotate(var(--sc-turn)) scale(1.13); opacity: 0; }
+}
+@keyframes springCrownLumina {
+    0%,100% { transform: translateY(5px) scale(.65); opacity: .2; }
+    50% { transform: translateY(-13px) scale(1.35); opacity: .95; }
+}
+@keyframes springCrownButterflyFlight {
+    0% { transform: translate3d(-40px,0,0) scale(var(--sc-bscale)) rotate(-4deg); opacity: 0; }
+    8% { opacity: .75; }
+    40% { transform: translate3d(42vw,-5vh,0) scale(var(--sc-bscale)) rotate(7deg); }
+    72% { transform: translate3d(77vw,5vh,0) scale(var(--sc-bscale)) rotate(-6deg); opacity: .72; }
+    100% { transform: translate3d(calc(100vw + 80px),-3vh,0) scale(var(--sc-bscale)) rotate(4deg); opacity: 0; }
+}
+@keyframes springCrownWingLeft { from { transform: rotateY(10deg); } to { transform: rotateY(68deg); } }
+@keyframes springCrownWingRight { from { transform: rotateY(-10deg); } to { transform: rotateY(-68deg); } }
+@keyframes springCrownSigilBreath {
+    0%,100% { transform: rotate(-8deg) scale(.8); opacity: .16; }
+    50% { transform: rotate(9deg) scale(1.15); opacity: .54; }
+}
+@keyframes springCrownGardenSway { from { transform: rotate(-2deg); } to { transform: rotate(4deg); } }
+@keyframes springCrownGardenSwayMirror { from { transform: scaleX(-1) rotate(-2deg); } to { transform: scaleX(-1) rotate(4deg); } }
+@keyframes springCrownBurstWave {
+    0% { transform: translate(-50%,-50%) scale(.25) rotate(0); opacity: .8; }
+    100% { transform: translate(-50%,-50%) scale(8.8) rotate(72deg); opacity: 0; }
+}
+@keyframes springCrownBurstCore {
+    0% { transform: translate(-50%,-50%) scale(.3) rotate(0); opacity: 0; }
+    35% { opacity: 1; }
+    100% { transform: translate(-50%,-50%) scale(1.8) rotate(120deg); opacity: 0; }
+}
+@keyframes springCrownBurstPetal {
+    0% { transform: translate(-50%,-50%) rotate(var(--sc-burst-angle)) translateX(0) scale(.35); opacity: 0; }
+    18% { opacity: 1; }
+    100% { transform: translate(-50%,-50%) rotate(var(--sc-burst-angle)) translateX(var(--sc-burst-distance)) rotate(220deg) scale(1); opacity: 0; }
+}
+@keyframes springCrownGoddessFloat {
+    0% { transform: translateY(4px) rotate(-.5deg) scale(.99); }
+    100% { transform: translateY(-13px) rotate(.7deg) scale(1.018); }
+}
+@keyframes springCrownThronePulse {
+    0%,100% { transform: translate(-50%,-50%) scale(.94) rotate(0); opacity: .58; }
+    50% { transform: translate(-50%,-50%) scale(1.07) rotate(45deg); opacity: .96; }
+}
+@keyframes springCrownPetSilk {
+    from { transform: translate(-50%,-50%) rotate(24deg) scaleX(.91); opacity: .32; }
+    to { transform: translate(-50%,-50%) rotate(33deg) scaleX(1.08); opacity: .66; }
+}
+@keyframes springCrownPetRune {
+    0%,100% { transform: translateY(4px) rotate(-8deg) scale(.85); opacity: .28; }
+    50% { transform: translateY(-7px) rotate(8deg) scale(1.12); opacity: .88; }
+}
+@keyframes springCrownDaisLight {
+    from { transform: scaleX(.88); opacity: .48; }
+    to { transform: scaleX(1.13); opacity: .86; }
+}
+@keyframes springCrownPetMote {
+    0%,100% { transform: translateY(7px) scale(.55); opacity: .18; }
+    50% { transform: translateY(-15px) scale(1.4); opacity: 1; }
+}
+@keyframes springCrownPetButterfly {
+    0%,100% { transform: translate3d(-6px,5px,0) rotate(-8deg) scale(.86); }
+    50% { transform: translate3d(13px,-15px,0) rotate(9deg) scale(1.08); }
+}
+@keyframes springCrownLocalCore {
+    0% { transform: translate(-50%,-50%) scale(.25) rotate(0); opacity: 0; }
+    28% { opacity: 1; }
+    100% { transform: translate(-50%,-50%) scale(2.1) rotate(140deg); opacity: 0; }
+}
+@keyframes springCrownLocalPetal {
+    0% { transform: translate(-50%,-50%) rotate(var(--scp-burst-angle)) translateX(0) scale(.4); opacity: 0; }
+    18% { opacity: 1; }
+    100% { transform: translate(-50%,-50%) rotate(var(--scp-burst-angle)) translateX(var(--scp-burst-distance)) rotate(240deg) scale(1); opacity: 0; }
+}
+@keyframes springCrownGoddessCast {
+    0% { transform: translateY(0) scale(1) rotate(0); }
+    26% { transform: translateY(-18px) scale(1.06) rotate(-2deg); }
+    56% { transform: translateY(-12px) scale(1.035) rotate(2deg); }
+    100% { transform: translateY(0) scale(1) rotate(0); }
+}
+@keyframes springCrownCardSweep {
+    0%, 18% { transform: translateX(-140%) skewX(-12deg); opacity: 0; }
+    34% { opacity: .9; }
+    52% { transform: translateX(145%) skewX(-12deg); opacity: 0; }
+    100% { transform: translateX(145%) skewX(-12deg); opacity: 0; }
+}
+
+/* ------------------------------
+   F. MOBILE + REDUCED MOTION
+   ------------------------------ */
+@media (max-width: 768px) {
+    html.premium-spring-sanctuary-equipped .sidebar {
+        border-radius: 0 28px 28px 0 !important;
+    }
+
+    html.premium-spring-sanctuary-equipped :where(.card,.form-container,.accordion-card) {
+        border-radius: 24px 9px 24px 9px !important;
+    }
+
+    html.premium-spring-sanctuary-equipped :where(.modal-content,.student-modal-box):not(.ui-theme-immune) {
+        border-radius: 32px 32px 18px 18px !important;
+    }
+
+    .spring-crown-edge-garden { opacity: .32; transform: scale(.78); }
+    .spring-crown-edge-garden.garden-right { transform: scaleX(-1) scale(.78); }
+    .spring-crown-silk-road { opacity: .32; }
+    #virtual-pet-container.spring-crown-pet-stage-v3 #virtual-pet-img.spring-crown-goddess-avatar-v3 {
+        width: 154px !important;
+    }
+    .spring-crown-pet-court { transform: scale(.88); transform-origin: 50% 55%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .premium-spring-world.spring-crown-world-v3 *,
+    .spring-crown-ui-frame *,
+    .spring-palace-ui-frame *,
+    #virtual-pet-container.spring-crown-pet-stage-v3 * {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
+/* ============================================================================
+   PREMIUM MÙA XUÂN · CLICK ULTIMATE
+   THẦN VỰC — VẠN HOA KHAI GIỚI
+   Cảnh toàn màn hình khi nhấn trực tiếp vào Nữ Thần Mùa Xuân.
+   ============================================================================ */
+
+.spring-goddess-divine-world {
+    position: fixed;
+    inset: 0;
+    z-index: 9200;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0;
+    isolation: isolate;
+    background:
+        radial-gradient(circle at 50% 42%, rgba(255, 246, 205, .28) 0 8%, transparent 31%),
+        radial-gradient(circle at 17% 78%, rgba(77, 160, 113, .22), transparent 38%),
+        radial-gradient(circle at 86% 68%, rgba(225, 112, 151, .21), transparent 34%),
+        linear-gradient(180deg, rgba(16, 61, 49, .92) 0%, rgba(37, 91, 66, .83) 38%, rgba(246, 225, 217, .89) 100%);
+    animation: springGoddessWorldArrival 6.2s ease-in-out forwards;
+}
+
+.spring-goddess-divine-world::before {
+    content: "";
+    position: absolute;
+    inset: -20%;
+    z-index: 0;
+    background:
+        repeating-conic-gradient(
+            from 12deg at 50% 41%,
+            transparent 0 8deg,
+            rgba(255, 244, 202, .10) 9deg 11deg,
+            transparent 12deg 23deg
+        );
+    filter: blur(13px);
+    animation: springGoddessCelestialTurn 13s linear infinite;
+}
+
+.spring-goddess-divine-world::after {
+    content: "";
+    position: absolute;
+    left: -12%;
+    right: -12%;
+    bottom: -18%;
+    height: 55%;
+    z-index: 1;
+    border-radius: 50%;
+    background:
+        radial-gradient(ellipse at 50% 100%, rgba(255, 251, 225, .68), rgba(244, 177, 196, .28) 34%, rgba(82, 159, 111, .18) 52%, transparent 72%),
+        repeating-radial-gradient(ellipse at 50% 100%, transparent 0 28px, rgba(255,255,255,.08) 30px 32px);
+    filter: blur(9px);
+    animation: springGoddessGroundTide 3.2s ease-in-out infinite alternate;
+}
+
+.spring-goddess-divine-world.is-active {
+    opacity: 1;
+}
+
+.spring-goddess-skill-dawn {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background:
+        radial-gradient(circle at 50% 34%, rgba(255,255,240,.55), transparent 9%),
+        radial-gradient(circle at 50% 34%, rgba(255,211,132,.30), transparent 27%),
+        linear-gradient(180deg, rgba(255,248,226,.10), transparent 48%);
+    mix-blend-mode: screen;
+    opacity: 0;
+    animation: springGoddessDawnOpen 6.2s ease-in-out forwards;
+}
+
+.spring-goddess-skill-heaven-rays {
+    position: absolute;
+    left: -20%;
+    top: -30%;
+    width: 140%;
+    height: 105%;
+    z-index: 2;
+    transform-origin: 50% 0;
+    background:
+        repeating-conic-gradient(
+            from -22deg at 50% 0%,
+            transparent 0 9deg,
+            rgba(255, 249, 217, .15) 10deg 15deg,
+            transparent 16deg 27deg
+        );
+    filter: blur(11px);
+    opacity: 0;
+    animation: springGoddessHeavenRays 6.2s ease-in-out forwards;
+}
+
+.spring-goddess-skill-aurora {
+    position: absolute;
+    z-index: 2;
+    top: 8%;
+    width: 72%;
+    height: 48%;
+    border-radius: 48% 52% 62% 38%;
+    filter: blur(34px);
+    opacity: 0;
+    mix-blend-mode: screen;
+}
+
+.spring-goddess-skill-aurora.aurora-left {
+    left: -24%;
+    background: linear-gradient(120deg, transparent, rgba(91, 189, 128, .23), rgba(255, 228, 156, .16), transparent);
+    animation: springGoddessAuroraLeft 6.2s ease-in-out forwards;
+}
+
+.spring-goddess-skill-aurora.aurora-right {
+    right: -24%;
+    background: linear-gradient(240deg, transparent, rgba(235, 130, 166, .25), rgba(255, 236, 190, .13), transparent);
+    animation: springGoddessAuroraRight 6.2s ease-in-out forwards;
+}
+
+/* Mặt Trời Hoa Thần */
+.spring-goddess-skill-sun {
+    position: absolute;
+    left: 50%;
+    top: 35%;
+    width: min(35vw, 340px);
+    aspect-ratio: 1;
+    z-index: 5;
+    transform: translate(-50%, -50%) scale(.22);
+    opacity: 0;
+    animation: springGoddessSunDescend 6.2s cubic-bezier(.2,.74,.2,1) forwards;
+}
+
+.spring-goddess-skill-sun-core {
+    position: absolute;
+    inset: 23%;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 42% 36%, #fffef1 0 12%, #ffeab2 31%, #f4bc85 59%, #df7d98 100%);
+    box-shadow:
+        0 0 28px rgba(255, 251, 222, .95),
+        0 0 74px rgba(255, 216, 137, .72),
+        0 0 145px rgba(232, 112, 151, .42);
+}
+
+.spring-goddess-skill-sun-core::before,
+.spring-goddess-skill-sun-core::after {
+    content: "";
+    position: absolute;
+    inset: -28%;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 249, 214, .44);
+}
+
+.spring-goddess-skill-sun-core::after {
+    inset: -49%;
+    border-style: dashed;
+    border-color: rgba(232, 146, 173, .42);
+    animation: springGoddessSunRuneSpin 8s linear infinite reverse;
+}
+
+.spring-goddess-skill-sun-ring {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 248, 216, .52);
+    transform: translate(-50%, -50%);
+}
+
+.spring-goddess-skill-sun-ring.ring-a {
+    width: 88%;
+    height: 88%;
+    border-style: dashed;
+    animation: springGoddessSunRingSpin 8s linear infinite;
+}
+
+.spring-goddess-skill-sun-ring.ring-b {
+    width: 116%;
+    height: 116%;
+    border-color: rgba(105, 191, 132, .44);
+    animation: springGoddessSunRingSpin 11s linear infinite reverse;
+}
+
+.spring-goddess-skill-sun-ring.ring-c {
+    width: 142%;
+    height: 142%;
+    border-style: dotted;
+    border-color: rgba(236, 143, 174, .38);
+    animation: springGoddessSunRingSpin 15s linear infinite;
+}
+
+/* Đại pháp trận */
+.spring-goddess-skill-sigil {
+    position: absolute;
+    left: 50%;
+    top: 40%;
+    width: min(62vw, 590px);
+    aspect-ratio: 1;
+    z-index: 4;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(.25) rotate(-24deg);
+    animation: springGoddessSigilArrival 6.2s ease-in-out forwards;
+}
+
+.spring-goddess-skill-sigil-ring {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.spring-goddess-skill-sigil-ring.ring-one {
+    width: 100%;
+    height: 100%;
+    border: 1px solid rgba(255, 245, 207, .40);
+    background: repeating-conic-gradient(from 0deg, transparent 0 10deg, rgba(255,229,154,.38) 11deg 12deg, transparent 13deg 24deg);
+    -webkit-mask: radial-gradient(circle, transparent 0 62%, #000 63% 66%, transparent 67%);
+    mask: radial-gradient(circle, transparent 0 62%, #000 63% 66%, transparent 67%);
+    animation: springGoddessSigilSpin 14s linear infinite;
+}
+
+.spring-goddess-skill-sigil-ring.ring-two {
+    width: 76%;
+    height: 76%;
+    border: 1px dashed rgba(120, 204, 143, .55);
+    box-shadow: inset 0 0 38px rgba(76,154,105,.10);
+    animation: springGoddessSigilSpin 10s linear infinite reverse;
+}
+
+.spring-goddess-skill-sigil-ring.ring-three {
+    width: 52%;
+    height: 52%;
+    border: 1px solid rgba(238, 146, 176, .58);
+    background: repeating-conic-gradient(from 15deg, transparent 0 20deg, rgba(244,183,199,.32) 21deg 23deg, transparent 24deg 44deg);
+    -webkit-mask: radial-gradient(circle, transparent 0 73%, #000 74% 79%, transparent 80%);
+    mask: radial-gradient(circle, transparent 0 73%, #000 74% 79%, transparent 80%);
+    animation: springGoddessSigilSpin 7s linear infinite;
+}
+
+.spring-goddess-skill-sigil-core {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: rgba(255, 249, 218, .88);
+    font-size: clamp(36px, 6vw, 64px);
+    text-shadow:
+        0 0 12px rgba(255,255,255,.85),
+        0 0 32px rgba(229,128,163,.72);
+    animation: springGoddessCorePulse 1.7s ease-in-out infinite alternate;
+}
+
+/* Cổng hoa mở ở tầng sau */
+.spring-goddess-skill-gate {
+    position: absolute;
+    left: 50%;
+    bottom: -5%;
+    width: min(76vw, 760px);
+    height: min(46vw, 440px);
+    z-index: 3;
+    transform: translateX(-50%);
+    opacity: 0;
+    animation: springGoddessGateRise 6.2s ease-in-out forwards;
+}
+
+.spring-goddess-skill-pillar {
+    position: absolute;
+    bottom: 0;
+    width: 7%;
+    height: 73%;
+    border-radius: 44% 44% 12% 12%;
+    background:
+        linear-gradient(90deg, rgba(28,85,59,.45), rgba(241,226,178,.40), rgba(81,145,98,.42));
+    border: 1px solid rgba(255,245,206,.26);
+    box-shadow: 0 0 26px rgba(50,114,78,.16);
+}
+
+.spring-goddess-skill-pillar.pillar-left { left: 12%; }
+.spring-goddess-skill-pillar.pillar-right { right: 12%; }
+
+.spring-goddess-skill-arch {
+    position: absolute;
+    left: 12%;
+    right: 12%;
+    top: 0;
+    height: 58%;
+    border: 12px solid rgba(129, 173, 107, .36);
+    border-bottom: 0;
+    border-radius: 50% 50% 0 0;
+    box-shadow:
+        inset 0 0 20px rgba(255,244,198,.16),
+        0 0 24px rgba(105,166,111,.15);
+}
+
+.spring-goddess-skill-arch::before,
+.spring-goddess-skill-arch::after {
+    content: "";
+    position: absolute;
+    width: 30%;
+    height: 30%;
+    top: -18%;
+    border-radius: 100% 0 100% 0;
+    background: linear-gradient(145deg, rgba(111,186,127,.62), rgba(236,151,176,.44));
+    filter: drop-shadow(0 0 12px rgba(255,232,179,.18));
+}
+.spring-goddess-skill-arch::before { left: 6%; transform: rotate(-28deg); }
+.spring-goddess-skill-arch::after { right: 6%; transform: rotate(118deg); }
+
+.spring-goddess-skill-gate-light {
+    position: absolute;
+    left: 22%;
+    right: 22%;
+    top: 14%;
+    bottom: 0;
+    border-radius: 50% 50% 0 0;
+    background: linear-gradient(180deg, rgba(255,252,223,.46), rgba(255,224,180,.24) 54%, transparent 100%);
+    filter: blur(8px);
+    animation: springGoddessGateLight 2s ease-in-out infinite alternate;
+}
+
+/* Dây leo hai biên */
+.spring-goddess-skill-vines {
+    position: absolute;
+    z-index: 7;
+    bottom: -5%;
+    width: min(23vw, 250px);
+    height: 72%;
+    opacity: 0;
+    background:
+        radial-gradient(ellipse at 32% 82%, rgba(130, 198, 135, .76) 0 8%, transparent 9%),
+        radial-gradient(ellipse at 66% 64%, rgba(237, 147, 178, .70) 0 8%, transparent 9%),
+        radial-gradient(ellipse at 38% 45%, rgba(111, 186, 127, .70) 0 7%, transparent 8%),
+        radial-gradient(ellipse at 63% 24%, rgba(255, 224, 163, .65) 0 6%, transparent 7%),
+        linear-gradient(82deg, transparent 46%, rgba(56,125,75,.65) 48% 51%, transparent 53%);
+    filter: drop-shadow(0 0 15px rgba(34,94,59,.16));
+}
+
+.spring-goddess-skill-vines.vines-left {
+    left: -2%;
+    transform-origin: 0 100%;
+    animation: springGoddessVineLeft 6.2s ease-in-out forwards;
+}
+
+.spring-goddess-skill-vines.vines-right {
+    right: -2%;
+    transform: scaleX(-1);
+    transform-origin: 100% 100%;
+    animation: springGoddessVineRight 6.2s ease-in-out forwards;
+}
+
+.spring-goddess-skill-petal-storm,
+.spring-goddess-skill-light-seeds,
+.spring-goddess-skill-butterflies {
+    position: absolute;
+    inset: 0;
+    z-index: 8;
+    overflow: hidden;
+}
+
+.spring-goddess-skill-petal {
+    position: absolute;
+    top: -8%;
+    width: var(--spring-petal-size);
+    height: calc(var(--spring-petal-size) + 6px);
+    opacity: 0;
+    background: linear-gradient(150deg, #fff9e8, #f1adc0 56%, #d96d93);
+    border-radius: 90% 12% 82% 20%;
+    box-shadow: 0 0 8px rgba(255,244,214,.30);
+    animation: springGoddessPetalStorm var(--spring-petal-duration) linear forwards;
+    animation-delay: var(--spring-petal-delay);
+}
+.spring-goddess-skill-petal.petal-1 { background: linear-gradient(150deg, #fff7d6, #efc37f); }
+.spring-goddess-skill-petal.petal-2 { background: linear-gradient(150deg, #effae8, #80c48c); }
+
+.spring-goddess-skill-seed {
+    position: absolute;
+    width: var(--spring-seed-size);
+    height: var(--spring-seed-size);
+    border-radius: 50%;
+    background: #fff8cc;
+    box-shadow:
+        0 0 7px rgba(255,255,255,.95),
+        0 0 16px rgba(255,214,127,.72);
+    opacity: 0;
+    animation: springGoddessSeedRise 2.5s ease-in-out infinite;
+    animation-delay: var(--spring-seed-delay);
+}
+
+.spring-goddess-skill-butterfly {
+    position: absolute;
+    left: var(--spring-bfly-start-x);
+    top: var(--spring-bfly-start-y);
+    width: 34px;
+    height: 24px;
+    opacity: 0;
+    animation: springGoddessButterflyFlight 3.7s cubic-bezier(.2,.62,.2,1) forwards;
+    animation-delay: var(--spring-bfly-delay);
+}
+
+.spring-goddess-skill-butterfly i,
+.spring-goddess-skill-butterfly b {
+    position: absolute;
+    top: 0;
+    width: 17px;
+    height: 24px;
+    background: linear-gradient(180deg, rgba(255,249,226,.96), rgba(237,139,172,.88));
+    box-shadow: 0 0 11px rgba(255,232,184,.30);
+}
+.spring-goddess-skill-butterfly i {
+    left: 0;
+    border-radius: 95% 12% 76% 22%;
+    transform-origin: 100% 56%;
+    animation: springGoddessButterflyWingL .34s ease-in-out infinite alternate;
+}
+.spring-goddess-skill-butterfly b {
+    right: 0;
+    border-radius: 12% 95% 22% 76%;
+    transform-origin: 0 56%;
+    animation: springGoddessButterflyWingR .34s ease-in-out infinite alternate;
+}
+
+.spring-goddess-skill-ground-bloom {
+    position: absolute;
+    left: 50%;
+    bottom: -18%;
+    z-index: 6;
+    width: min(96vw, 1000px);
+    height: 40%;
+    transform: translateX(-50%) scale(.42);
+    opacity: 0;
+    border-radius: 50%;
+    background:
+        radial-gradient(ellipse at 50% 65%, rgba(255,250,221,.76), transparent 23%),
+        repeating-conic-gradient(from 0deg at 50% 65%, rgba(239,158,183,.42) 0 7deg, transparent 8deg 22deg),
+        radial-gradient(ellipse at 50% 70%, rgba(95,175,113,.40), transparent 64%);
+    filter: blur(2px);
+    animation: springGoddessGroundBloom 6.2s ease-in-out forwards;
+}
+
+.spring-goddess-skill-impact {
+    position: fixed;
+    z-index: 12;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff9d8;
+    box-shadow:
+        0 0 0 0 rgba(255, 244, 204, .72),
+        0 0 38px rgba(244, 135, 171, .92);
+    animation: springGoddessImpactBurst 1.25s ease-out forwards;
+}
+
+.spring-goddess-skill-title {
+    position: absolute;
+    left: 50%;
+    bottom: 10%;
+    z-index: 14;
+    width: min(90%, 660px);
+    transform: translateX(-50%) translateY(28px);
+    text-align: center;
+    color: #fffbe8;
+    opacity: 0;
+    text-shadow: 0 2px 18px rgba(40,82,59,.62);
+    animation: springGoddessTitleReveal 6.2s ease-in-out forwards;
+}
+
+.spring-goddess-skill-title small,
+.spring-goddess-skill-title strong {
+    display: block;
+}
+.spring-goddess-skill-title small {
+    margin-bottom: 7px;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, Helvetica, sans-serif;
+    font-size: clamp(10px, 1.5vw, 13px);
+    font-weight: 800;
+    letter-spacing: .28em;
+    color: rgba(255,245,208,.82);
+}
+.spring-goddess-skill-title strong {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, Helvetica, sans-serif;
+    font-size: clamp(23px, 4vw, 46px);
+    line-height: 1.15;
+    letter-spacing: .055em;
+}
+
+.spring-goddess-dialogue-box {
+    position: absolute;
+    left: 50%;
+    bottom: 108%;
+    z-index: 9300;
+    width: max-content;
+    max-width: min(82vw, 430px);
+    padding: 10px 15px;
+    transform: translateX(-50%);
+    border: 1px solid rgba(255, 242, 196, .55);
+    border-radius: 18px 7px 18px 7px;
+    background: linear-gradient(135deg, rgba(28,88,61,.94), rgba(163,72,108,.90));
+    box-shadow: 0 15px 35px rgba(22,63,44,.32), 0 0 22px rgba(255,229,173,.15);
+    color: #fffaf0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    line-height: 1.45;
+    text-align: center;
+    pointer-events: none;
+    opacity: 0;
+    animation: springGoddessDialogue 6.2s ease-in-out forwards;
+}
+
+@keyframes springGoddessWorldArrival {
+    0% { opacity: 0; }
+    8% { opacity: 1; }
+    88% { opacity: 1; }
+    100% { opacity: 0; }
+}
+@keyframes springGoddessCelestialTurn {
+    to { transform: rotate(360deg); }
+}
+@keyframes springGoddessGroundTide {
+    from { transform: translateY(10px) scaleX(.96); opacity: .7; }
+    to { transform: translateY(-5px) scaleX(1.04); opacity: 1; }
+}
+@keyframes springGoddessDawnOpen {
+    0%, 5% { opacity: 0; transform: scale(.8); }
+    24%, 78% { opacity: 1; transform: scale(1.05); }
+    100% { opacity: 0; transform: scale(1.2); }
+}
+@keyframes springGoddessHeavenRays {
+    0%, 8% { opacity: 0; transform: rotate(-7deg) scale(.9); }
+    28%, 82% { opacity: .92; }
+    100% { opacity: 0; transform: rotate(7deg) scale(1.12); }
+}
+@keyframes springGoddessAuroraLeft {
+    0% { opacity: 0; transform: translateX(-16%) rotate(-8deg); }
+    25%, 75% { opacity: .9; }
+    100% { opacity: 0; transform: translateX(18%) rotate(8deg); }
+}
+@keyframes springGoddessAuroraRight {
+    0% { opacity: 0; transform: translateX(16%) rotate(8deg); }
+    25%, 75% { opacity: .9; }
+    100% { opacity: 0; transform: translateX(-18%) rotate(-8deg); }
+}
+@keyframes springGoddessSunDescend {
+    0%, 7% { opacity: 0; transform: translate(-50%, -64%) scale(.22); filter: blur(9px); }
+    24% { opacity: 1; transform: translate(-50%, -50%) scale(1); filter: blur(0); }
+    76% { opacity: 1; transform: translate(-50%, -48%) scale(1.04); }
+    100% { opacity: 0; transform: translate(-50%, -43%) scale(1.34); filter: blur(5px); }
+}
+@keyframes springGoddessSunRuneSpin { to { transform: rotate(360deg); } }
+@keyframes springGoddessSunRingSpin {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+@keyframes springGoddessSigilArrival {
+    0%, 9% { opacity: 0; transform: translate(-50%, -50%) scale(.25) rotate(-24deg); }
+    27% { opacity: .9; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+    78% { opacity: .82; transform: translate(-50%, -50%) scale(1.04) rotate(13deg); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.28) rotate(35deg); }
+}
+@keyframes springGoddessSigilSpin {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+@keyframes springGoddessCorePulse {
+    from { transform: translate(-50%, -50%) scale(.88); opacity: .72; }
+    to { transform: translate(-50%, -50%) scale(1.13); opacity: 1; }
+}
+@keyframes springGoddessGateRise {
+    0%, 12% { opacity: 0; transform: translateX(-50%) translateY(26%) scale(.82); }
+    34%, 80% { opacity: .82; transform: translateX(-50%) translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-4%) scale(1.05); }
+}
+@keyframes springGoddessGateLight {
+    from { opacity: .38; filter: blur(11px); }
+    to { opacity: .8; filter: blur(6px); }
+}
+@keyframes springGoddessVineLeft {
+    0%, 14% { opacity: 0; transform: rotate(-18deg) translateY(24%); }
+    38%, 82% { opacity: .88; transform: rotate(2deg) translateY(0); }
+    100% { opacity: 0; transform: rotate(8deg) translateY(-4%); }
+}
+@keyframes springGoddessVineRight {
+    0%, 14% { opacity: 0; transform: scaleX(-1) rotate(-18deg) translateY(24%); }
+    38%, 82% { opacity: .88; transform: scaleX(-1) rotate(2deg) translateY(0); }
+    100% { opacity: 0; transform: scaleX(-1) rotate(8deg) translateY(-4%); }
+}
+@keyframes springGoddessPetalStorm {
+    0% { opacity: 0; transform: translate3d(0,-8vh,0) rotate(0deg) scale(.72); }
+    10% { opacity: .94; }
+    88% { opacity: .86; }
+    100% { opacity: 0; transform: translate3d(var(--spring-petal-drift),112vh,0) rotate(650deg) scale(1.16); }
+}
+@keyframes springGoddessSeedRise {
+    0% { opacity: 0; transform: translateY(18px) scale(.4); }
+    22% { opacity: 1; }
+    75% { opacity: .92; }
+    100% { opacity: 0; transform: translateY(-86px) scale(1.25); }
+}
+@keyframes springGoddessButterflyFlight {
+    0% { opacity: 0; transform: translate(0, 24px) scale(.45) rotate(-8deg); }
+    18% { opacity: 1; }
+    74% { opacity: 1; }
+    100% { opacity: 0; transform: translate(var(--spring-bfly-drift-x), -180px) scale(1.08) rotate(12deg); }
+}
+@keyframes springGoddessButterflyWingL {
+    from { transform: rotate(18deg) scaleY(1); }
+    to { transform: rotate(-20deg) scaleY(.86); }
+}
+@keyframes springGoddessButterflyWingR {
+    from { transform: rotate(-18deg) scaleY(1); }
+    to { transform: rotate(20deg) scaleY(.86); }
+}
+@keyframes springGoddessGroundBloom {
+    0%, 15% { opacity: 0; transform: translateX(-50%) scale(.42); filter: blur(11px); }
+    35%, 82% { opacity: .85; transform: translateX(-50%) scale(1); filter: blur(2px); }
+    100% { opacity: 0; transform: translateX(-50%) scale(1.18); filter: blur(8px); }
+}
+@keyframes springGoddessImpactBurst {
+    0% { opacity: 1; transform: translate(-50%, -50%) scale(.15); box-shadow: 0 0 0 0 rgba(255,244,204,.72), 0 0 28px rgba(244,135,171,.9); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(3.4); box-shadow: 0 0 0 95px rgba(255,244,204,0), 0 0 95px rgba(244,135,171,0); }
+}
+@keyframes springGoddessTitleReveal {
+    0%, 24% { opacity: 0; transform: translateX(-50%) translateY(28px); filter: blur(7px); }
+    38%, 77% { opacity: 1; transform: translateX(-50%) translateY(0); filter: blur(0); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-17px); filter: blur(5px); }
+}
+@keyframes springGoddessDialogue {
+    0%, 20% { opacity: 0; transform: translateX(-50%) translateY(12px) scale(.94); }
+    31%, 77% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-12px) scale(.98); }
+}
+
+@media (max-width: 680px) {
+    .spring-goddess-skill-sun {
+        width: min(55vw, 290px);
+        top: 34%;
+    }
+    .spring-goddess-skill-sigil {
+        width: min(92vw, 520px);
+        top: 39%;
+    }
+    .spring-goddess-skill-gate {
+        width: 104vw;
+        height: 58vw;
+        bottom: 2%;
+    }
+    .spring-goddess-skill-vines {
+        width: 31vw;
+        height: 65%;
+    }
+    .spring-goddess-skill-title {
+        bottom: 14%;
+    }
+    .spring-goddess-dialogue-box {
+        font-size: 12px;
+        max-width: 74vw;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .spring-goddess-divine-world *,
+    .spring-goddess-divine-world::before,
+    .spring-goddess-divine-world::after,
+    .spring-goddess-dialogue-box {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
+
+/* ============================================================
+   FIX V4 SIDEBAR PERSISTENCE
+   Giữ sidebar đứng yên khi cuộn trang; không thay width/flex/height.
+   ============================================================ */
+@media (min-width: 769px) {
+    html.premium-spring-sanctuary-equipped .sidebar {
+        position: sticky;
+        top: 0;
+    }
+}
+
+
+/* ============================================================
+   FIX FONT TIẾNG VIỆT — PREMIUM MÙA XUÂN V4
+   Không dùng Georgia/Times/Trebuchet cho nội dung chữ.
+   ============================================================ */
+html.premium-spring-sanctuary-equipped :where(
+    .dashboard,
+    .content,
+    .sidebar,
+    .nav-item,
+    .card,
+    .form-container,
+    .accordion-card,
+    .modal-content,
+    .student-modal-box,
+    .search-bar,
+    .custom-student-select,
+    .css-select-trigger,
+    .luxury-store-page,
+    .luxury-store-toolbar,
+    button,
+    input,
+    select,
+    textarea,
+    table,
+    label,
+    p,
+    span,
+    small,
+    strong
+):not(.ui-theme-immune):not([data-theme-immune="true"]):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, Helvetica, sans-serif !important;
+    font-synthesis: none;
+}
+
+html.premium-spring-sanctuary-equipped :where(
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    .accordion-title,
+    .teacher-question-bank-entry-title,
+    .luxury-store-toolbar h3,
+    .modal-title,
+    .spring-goddess-skill-title strong,
+    .spring-goddess-dialogue-box
+):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, Helvetica, sans-serif !important;
+    font-variant: normal !important;
+    font-feature-settings: normal !important;
+    text-transform: none;
+}
+
+/* Tiêu đề vẫn sang trọng bằng độ đậm, không cần serif gây lỗi dấu. */
+html.premium-spring-sanctuary-equipped :where(
+    h1,
+    h2,
+    h3,
+    .accordion-title,
+    .teacher-question-bank-entry-title,
+    .luxury-store-toolbar h3,
+    .modal-title
+):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    font-weight: 750;
+    letter-spacing: .008em !important;
+}
+
+/* Ký hiệu trang trí dùng font symbol riêng, không tác động chữ tiếng Việt. */
+.spring-palace-bottom-seal,
+.spring-goddess-skill-realm .spring-crown-sigil,
+.spring-crown-pet-rune {
+    font-family: "Segoe UI Symbol", "Noto Sans Symbols 2", sans-serif !important;
+}
+/* ============================================================
+   FIX · WEB EFFECT V2 TRONG XUÂN THẦN LUXURY
+   ============================================================ */
+
+.premium-spring-legacy-petal-field {
+    position: absolute;
+    inset: 0;
+
+    z-index: 10;
+
+    overflow: hidden;
+
+    pointer-events: none;
+}
+/* ============================================================================
+   XUÂN THẦN · KÍCH HOẠT CÁC LỚP ĐÃ VIẾT NHƯNG CHƯA CÓ RUNTIME
+   ============================================================================ */
+
+
+/* ============================================================
+   PET REALM V2
+   ============================================================ */
+
+.premium-spring-pet-legacy-realm {
+    position: absolute;
+
+    inset:
+        -34px -30px -36px;
+
+    pointer-events: none;
+
+    overflow: visible;
+}
+
+
+.premium-spring-pet-mote-field {
+    position: absolute;
+
+    inset: 0;
+
+    overflow: visible;
+
+    pointer-events: none;
+}
+
+
+/* ============================================================
+   CÀNH HOA HAI GÓC WEB
+   ============================================================ */
+
+.premium-spring-world-bough {
+    width: 360px;
+    height: 235px;
+
+    pointer-events: none;
+
+    background:
+
+        radial-gradient(
+            circle at 23% 37%,
+            #fff8f4 0 3px,
+            #f6a7bd 4px 8px,
+            transparent 9px
+        ),
+
+        radial-gradient(
+            circle at 38% 28%,
+            #fff8f4 0 3px,
+            #f4bdcf 4px 8px,
+            transparent 9px
+        ),
+
+        radial-gradient(
+            circle at 52% 43%,
+            #fff8f4 0 3px,
+            #ef96b3 4px 9px,
+            transparent 10px
+        ),
+
+        radial-gradient(
+            circle at 67% 31%,
+            #fff8f4 0 3px,
+            #f7c0d1 4px 8px,
+            transparent 9px
+        ),
+
+        radial-gradient(
+            circle at 78% 50%,
+            #fff8f4 0 3px,
+            #ed91ae 4px 9px,
+            transparent 10px
+        ),
+
+        radial-gradient(
+            ellipse at 30% 55%,
+            rgba(105,171,112,.82)
+            0 8px,
+            transparent 9px
+        ),
+
+        radial-gradient(
+            ellipse at 56% 58%,
+            rgba(91,158,101,.76)
+            0 9px,
+            transparent 10px
+        ),
+
+        radial-gradient(
+            ellipse at 73% 63%,
+            rgba(126,181,111,.70)
+            0 8px,
+            transparent 9px
+        ),
+
+        linear-gradient(
+            16deg,
+            transparent 0 46%,
+            rgba(103,72,55,.78)
+            47% 49%,
+            rgba(148,103,70,.72)
+            50% 51%,
+            transparent 52% 100%
+        );
+
+    background-repeat:
+        no-repeat;
+}
+
+
+/* ============================================================
+   PHÙ HIỆU VƯƠNG MIỆN
+   Kích hoạt keyframe springCrownCrestPulse đã viết sẵn
+   ============================================================ */
+
+.spring-crown-throne-core::after {
+    content: '✦';
+
+    position: absolute;
+
+    inset: 27%;
+
+    display: grid;
+
+    place-items: center;
+
+    border-radius: 50%;
+
+    color:
+        rgba(255, 242, 188, .94);
+
+    text-shadow:
+        0 0 8px
+        rgba(255, 229, 151, .95),
+
+        0 0 18px
+        rgba(211, 103, 143, .34);
+
+    pointer-events: none;
+
+    animation:
+        springCrownCrestPulse
+        5.4s ease-in-out
+        infinite;
+}
+
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 768px) {
+
+    .premium-spring-world-bough {
+        width: 245px;
+        height: 170px;
+
+        opacity: .58;
+    }
+
+
+    .premium-spring-pet-legacy-realm {
+        inset:
+            -26px -22px -30px;
+
+        transform:
+            scale(.88);
+
+        transform-origin:
+            50% 55%;
+    }
+}

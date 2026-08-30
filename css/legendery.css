@@ -1,0 +1,5032 @@
+/* =========================================================
+   NYX REWORK — NHẬT THỰC VĨNH DẠ
+   ========================================================= */
+
+:root {
+    --nyx-void: #05030b;
+    --nyx-deep: #120521;
+    --nyx-purple: #6d28d9;
+    --nyx-violet: #a855f7;
+    --nyx-lilac: #e9d5ff;
+    --nyx-gold: #f8d477;
+    --nyx-effect-z: var(--z-effect, 9000);
+}
+
+/* Nyx đứng chờ */
+.nyx-night-goddess-magic {
+    position: relative;
+    z-index: 3;
+    width: 145px !important;
+    max-width: none;
+    cursor: grab;
+    user-select: none;
+    transform-origin: 50% 65%;
+    will-change: transform, filter;
+
+    animation:
+        nyxSovereignFloat 4.8s ease-in-out infinite,
+        nyxSovereignGlow 2.7s ease-in-out infinite alternate;
+}
+
+.nyx-night-goddess-magic:active {
+    cursor: grabbing;
+}
+
+.nyx-night-goddess-magic:hover {
+    filter:
+        drop-shadow(0 10px 15px rgba(0, 0, 0, 0.75))
+        drop-shadow(0 0 18px rgba(168, 85, 247, 0.9))
+        drop-shadow(0 0 34px rgba(233, 213, 255, 0.38))
+        !important;
+}
+
+/* Đĩa nhật thực sau lưng */
+#virtual-pet-container:has(.nyx-night-goddess-magic)::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 52%;
+    width: 154px;
+    height: 154px;
+    z-index: 1;
+    pointer-events: none;
+    border-radius: 50%;
+
+    transform:
+        translate(-50%, -50%);
+
+    background:
+        radial-gradient(
+            circle,
+            #05020a 0 47%,
+            transparent 49%
+        ),
+        conic-gradient(
+            from 35deg,
+            rgba(109, 40, 217, 0.08),
+            rgba(168, 85, 247, 0.88),
+            rgba(248, 212, 119, 0.64),
+            rgba(109, 40, 217, 0.14),
+            rgba(233, 213, 255, 0.82),
+            rgba(109, 40, 217, 0.08)
+        );
+
+    box-shadow:
+        0 0 18px rgba(168, 85, 247, 0.65),
+        0 0 44px rgba(109, 40, 217, 0.36),
+        inset 0 0 20px rgba(0, 0, 0, 0.94);
+
+    animation:
+        nyxEclipseBreathe
+        4.2s
+        ease-in-out
+        infinite;
+}
+
+/* Vương miện sao xoay quanh Nyx */
+#virtual-pet-container:has(.nyx-night-goddess-magic)::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 52%;
+    width: 5px;
+    height: 5px;
+    z-index: 4;
+    pointer-events: none;
+    border-radius: 50%;
+    background: white;
+
+    box-shadow:
+        71px 0 0 -1px #fff,
+        50px 50px 0 -1px #e9d5ff,
+        0 72px 0 0 #f8d477,
+        -51px 50px 0 -1px #fff,
+        -72px 0 0 0 #c084fc,
+        -50px -50px 0 -1px #fff,
+        0 -72px 0 -1px #e9d5ff,
+        50px -50px 0 0 #f8d477;
+
+    filter:
+        drop-shadow(
+            0 0 7px rgba(233, 213, 255, 0.9)
+        );
+
+    transform:
+        translate(-50%, -50%);
+
+    animation:
+        nyxCrownOrbit
+        11s
+        linear
+        infinite;
+}
+
+.nyx-power-release {
+    animation:
+        nyxSovereignRelease
+        0.95s
+        cubic-bezier(.2, .82, .2, 1)
+        !important;
+}
+
+/* Nền kỹ năng */
+.nyx-dark-world {
+    position: fixed;
+    inset: 0;
+    z-index: var(--nyx-effect-z);
+    pointer-events: none;
+    overflow: hidden;
+    opacity: 0;
+    isolation: isolate;
+
+    background:
+        radial-gradient(
+            circle at 50% 45%,
+            rgba(91, 33, 182, 0.24) 0 12%,
+            transparent 34%
+        ),
+        radial-gradient(
+            circle at 50% 50%,
+            rgba(18, 5, 33, 0.72) 0 42%,
+            rgba(2, 1, 6, 0.97) 100%
+        );
+
+    animation:
+        nyxWorldArrive
+        6.4s
+        ease-in-out
+        forwards;
+}
+
+.nyx-dark-world::before {
+    content: '';
+    position: absolute;
+    inset: -35%;
+
+    background:
+        conic-gradient(
+            from 0deg,
+            transparent 0 12%,
+            rgba(126, 34, 206, 0.13) 18%,
+            transparent 27% 44%,
+            rgba(192, 132, 252, 0.1) 52%,
+            transparent 61% 78%,
+            rgba(248, 212, 119, 0.08) 86%,
+            transparent 94%
+        );
+
+    filter: blur(34px);
+
+    animation:
+        nyxAuroraTurn
+        15s
+        linear
+        infinite;
+}
+
+.nyx-dark-world::after {
+    content: '';
+    position: absolute;
+    left: -10%;
+    right: -10%;
+    bottom: -16%;
+    height: 52%;
+
+    background:
+        radial-gradient(
+            ellipse at 50% 100%,
+            rgba(109, 40, 217, 0.32),
+            transparent 62%
+        ),
+        repeating-radial-gradient(
+            ellipse at 50% 100%,
+            transparent 0 22px,
+            rgba(233, 213, 255, 0.035) 24px 26px
+        );
+
+    filter: blur(10px);
+
+    animation:
+        nyxVoidTide
+        5.5s
+        ease-in-out
+        infinite alternate;
+}
+
+/* Nhật thực trung tâm */
+.nyx-eclipse {
+    position: absolute;
+    left: 50%;
+    top: 40%;
+    width: min(34vw, 330px);
+    aspect-ratio: 1;
+    z-index: 2;
+    border-radius: 50%;
+    opacity: 0;
+
+    transform:
+        translate(-50%, -50%) scale(0.35);
+
+    background:
+        radial-gradient(
+            circle,
+            #020105 0 57%,
+            transparent 58%
+        ),
+        conic-gradient(
+            from 20deg,
+            #6d28d9,
+            #e9d5ff,
+            #f8d477,
+            #7e22ce,
+            #ffffff,
+            #6d28d9
+        );
+
+    box-shadow:
+        0 0 24px rgba(255, 255, 255, 0.82),
+        0 0 70px rgba(168, 85, 247, 0.9),
+        0 0 150px rgba(109, 40, 217, 0.56);
+
+    animation:
+        nyxEclipseDescend
+        6.4s
+        ease-in-out
+        forwards;
+}
+
+/* Ma pháp trận */
+.nyx-eclipse-sigil {
+    position: absolute;
+    left: 50%;
+    top: 40%;
+    width: min(50vw, 470px);
+    aspect-ratio: 1;
+    z-index: 1;
+    border-radius: 50%;
+    opacity: 0;
+
+    transform:
+        translate(-50%, -50%)
+        scale(0.3)
+        rotate(0deg);
+
+    border:
+        1px solid rgba(233, 213, 255, 0.33);
+
+    background:
+        repeating-conic-gradient(
+            from 0deg,
+            transparent 0 13deg,
+            rgba(248, 212, 119, 0.58) 14deg 15deg,
+            transparent 16deg 29deg
+        );
+
+    -webkit-mask:
+        radial-gradient(
+            circle,
+            transparent 0 55%,
+            #000 56% 60%,
+            transparent 61%
+        );
+
+    mask:
+        radial-gradient(
+            circle,
+            transparent 0 55%,
+            #000 56% 60%,
+            transparent 61%
+        );
+
+    filter:
+        drop-shadow(
+            0 0 12px rgba(168, 85, 247, 0.8)
+        );
+
+    animation:
+        nyxSigilAwaken
+        6.4s
+        ease-in-out
+        forwards;
+}
+
+.nyx-star {
+    position: absolute;
+    z-index: 3;
+    border-radius: 50%;
+    background: white;
+    opacity: 0;
+
+    box-shadow:
+        0 0 5px white,
+        0 0 11px rgba(192, 132, 252, 0.92);
+
+    animation:
+        nyxStarBreathe
+        ease-in-out
+        infinite;
+}
+
+.nyx-judgement-meteor {
+    position: absolute;
+    z-index: 3;
+    width: var(--meteor-length, 190px);
+    height: 2px;
+    border-radius: 999px;
+    opacity: 0;
+    transform: rotate(34deg);
+    transform-origin: right center;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(192, 132, 252, 0.72) 55%,
+            white 100%
+        );
+
+    filter:
+        drop-shadow(0 0 8px white)
+        drop-shadow(0 0 18px #a855f7);
+
+    animation:
+        nyxJudgementMeteor
+        var(--meteor-speed, 1.7s)
+        ease-in
+        forwards;
+
+    animation-delay:
+        var(--meteor-delay, 0s);
+}
+
+/* Lời thoại */
+.nyx-dialogue-box {
+    position: absolute;
+    left: 50%;
+    top: -88px;
+    z-index: 8;
+    min-width: 270px;
+    padding: 11px 18px;
+    pointer-events: none;
+    opacity: 0;
+
+    transform:
+        translateX(-50%)
+        translateY(10px)
+        scale(0.92);
+
+    color: #f5efff;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(6, 3, 13, 0.96),
+            rgba(56, 17, 91, 0.93)
+        );
+
+    border:
+        1px solid rgba(248, 212, 119, 0.72);
+
+    border-radius:
+        16px 16px 16px 4px;
+
+    box-shadow:
+        0 12px 34px rgba(0, 0, 0, 0.46),
+        0 0 22px rgba(168, 85, 247, 0.36);
+
+    font-family:
+        Georgia, 'Times New Roman', serif;
+
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+    white-space: nowrap;
+
+    animation:
+        nyxDialogueAppear
+        6.4s
+        ease-in-out
+        forwards;
+}
+
+/* Vệt kéo */
+.nyx-trail-particle {
+    position: fixed;
+    z-index: calc(var(--nyx-effect-z) + 2);
+    width: var(--nyx-particle-size, 6px);
+    height: var(--nyx-particle-size, 6px);
+    pointer-events: none;
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            white 0 18%,
+            #e9d5ff 28%,
+            #a855f7 62%,
+            transparent 72%
+        );
+
+    box-shadow:
+        0 0 8px rgba(255, 255, 255, 0.9),
+        0 0 17px rgba(168, 85, 247, 0.82);
+
+    animation:
+        nyxTrailVanish
+        1.35s
+        cubic-bezier(.18, .8, .25, 1)
+        forwards;
+}
+
+.nyx-trail-particle::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 20px;
+    height: 1px;
+
+    transform:
+        translate(-100%, -50%)
+        rotate(var(--nyx-trail-angle, -22deg));
+
+    transform-origin: right center;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(233, 213, 255, 0.72)
+        );
+}
+
+.nyx-trail-particle.nyx-trail-enhanced {
+    box-shadow:
+        0 0 12px white,
+        0 0 26px #c084fc,
+        0 0 48px rgba(109, 40, 217, 0.92);
+}
+/* =========================================================
+   KỶ NGUYÊN ĐÊM TRƯỜNG CỬU
+   ========================================================= */
+
+.nyx-domain-ambient {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+    isolation: isolate;
+
+    background:
+        radial-gradient(
+            circle at 78% 15%,
+            rgba(192, 132, 252, 0.13),
+            transparent 24%
+        ),
+        radial-gradient(
+            circle at 18% 72%,
+            rgba(109, 40, 217, 0.16),
+            transparent 30%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(6, 3, 15, 0.24),
+            rgba(16, 4, 30, 0.38)
+        );
+
+    animation:
+        nyxDomainPulse
+        7s
+        ease-in-out
+        infinite alternate;
+}
+
+/* Cực quang */
+.nyx-domain-ambient::before {
+    content: '';
+    position: absolute;
+    left: -20%;
+    top: -30%;
+    width: 140%;
+    height: 72%;
+
+    background:
+        repeating-linear-gradient(
+            112deg,
+            transparent 0 8%,
+            rgba(126, 34, 206, 0.08) 11%,
+            rgba(233, 213, 255, 0.11) 13%,
+            transparent 17% 26%
+        );
+
+    filter: blur(24px);
+    transform: rotate(-5deg);
+
+    animation:
+        nyxDomainAurora
+        12s
+        ease-in-out
+        infinite alternate;
+}
+
+/* Nền sao trôi */
+.nyx-domain-ambient::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+
+    background-image:
+        radial-gradient(
+            circle at 12% 18%,
+            white 0 1px,
+            transparent 1.6px
+        ),
+        radial-gradient(
+            circle at 74% 22%,
+            #e9d5ff 0 1px,
+            transparent 1.6px
+        ),
+        radial-gradient(
+            circle at 37% 66%,
+            white 0 1px,
+            transparent 1.5px
+        ),
+        radial-gradient(
+            circle at 88% 78%,
+            #c084fc 0 1px,
+            transparent 1.6px
+        );
+
+    background-size:
+        220px 190px,
+        260px 230px,
+        300px 270px,
+        340px 310px;
+
+    opacity: 0.55;
+
+    animation:
+        nyxDomainStarDrift
+        18s
+        linear
+        infinite;
+}
+
+.nyx-domain-dust {
+    position: fixed;
+    z-index: 2;
+    width: var(--dust-size, 4px);
+    height: var(--dust-size, 4px);
+    pointer-events: none;
+    border-radius: 50%;
+    opacity: 0;
+
+    background:
+        radial-gradient(
+            circle,
+            white,
+            #c084fc 55%,
+            transparent 70%
+        );
+
+    box-shadow:
+        0 0 8px rgba(192, 132, 252, 0.8);
+
+    animation:
+        nyxDomainDustRise
+        var(--dust-duration, 5s)
+        linear
+        forwards;
+}
+
+.nyx-domain-shooting-star {
+    position: fixed;
+    z-index: 3;
+    width: 170px;
+    height: 2px;
+    pointer-events: none;
+    border-radius: 999px;
+    opacity: 0;
+    transform: rotate(34deg);
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(192, 132, 252, 0.65) 64%,
+            white 100%
+        );
+
+    filter:
+        drop-shadow(0 0 7px white)
+        drop-shadow(
+            0 0 14px rgba(168, 85, 247, 0.9)
+        );
+
+    animation:
+        nyxDomainMeteor
+        linear
+        forwards;
+}
+
+/* Nyx và Kỷ Nguyên cùng trang bị */
+.nyx-domain-shooting-star.nyx-enhanced-star,
+body:has(.nyx-night-goddess-magic)
+.nyx-domain-shooting-star {
+    width: 235px;
+    height: 3px;
+
+    filter:
+        drop-shadow(0 0 9px white)
+        drop-shadow(0 0 22px #c084fc)
+        drop-shadow(
+            0 0 38px rgba(109, 40, 217, 0.72)
+        );
+}
+
+body:has(.nyx-night-goddess-magic)
+.nyx-domain-ambient {
+    background:
+        radial-gradient(
+            circle at 50% 40%,
+            rgba(168, 85, 247, 0.2),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 78% 15%,
+            rgba(248, 212, 119, 0.11),
+            transparent 24%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(6, 3, 15, 0.3),
+            rgba(16, 4, 30, 0.48)
+        );
+
+    box-shadow:
+        inset 0 0 140px rgba(0, 0, 0, 0.58);
+}
+/* =========================================================
+   THÁNH VỰC TỐI THƯỢNG — NỀN TẢNG CHUNG
+   ========================================================= */
+
+body.theme-legendary-celestial {
+    --celestial-bg: #07050d;
+    --celestial-panel: rgba(17, 12, 28, 0.9);
+    --celestial-panel-2: rgba(27, 17, 43, 0.82);
+    --celestial-gold: #f8d477;
+    --celestial-gold-soft: rgba(248, 212, 119, 0.38);
+    --celestial-text: #f5f1ff;
+
+    min-height: 100vh;
+    min-height: 100dvh;
+
+    color: var(--celestial-text) !important;
+
+    background-color: var(--celestial-bg) !important;
+    background-image:
+        radial-gradient(
+            circle at 50% -12%,
+            rgba(248, 212, 119, 0.17),
+            transparent 28%
+        ),
+        radial-gradient(
+            circle at 12% 20%,
+            rgba(126, 34, 206, 0.21),
+            transparent 34%
+        ),
+        radial-gradient(
+            circle at 88% 68%,
+            rgba(109, 40, 217, 0.18),
+            transparent 32%
+        ),
+        linear-gradient(
+            145deg,
+            #090610 0%,
+            #11091c 48%,
+            #050308 100%
+        ) !important;
+
+    background-attachment: fixed !important;
+}
+
+.theme-legendary-celestial ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+.theme-legendary-celestial ::-webkit-scrollbar-track {
+    background: #07050d;
+}
+
+.theme-legendary-celestial ::-webkit-scrollbar-thumb {
+    border: 2px solid #07050d;
+    border-radius: 999px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #5b21b6,
+            #f8d477 48%,
+            #7e22ce
+        );
+}
+
+.theme-legendary-celestial :is(
+    .store-item-card,
+    .inventory-item,
+    .dashboard-card,
+    .panel,
+    .cell,
+    .card
+) {
+    position: relative;
+
+    color: var(--celestial-text) !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            var(--celestial-panel-2),
+            var(--celestial-panel)
+        ) !important;
+
+    border:
+        1px solid var(--celestial-gold-soft) !important;
+
+    border-radius:
+        18px 5px 18px 5px !important;
+
+    box-shadow:
+        0 14px 34px rgba(0, 0, 0, 0.32),
+        inset 0 0 24px rgba(168, 85, 247, 0.06)
+        !important;
+
+    backdrop-filter: blur(11px);
+    -webkit-backdrop-filter: blur(11px);
+}
+
+.theme-legendary-celestial :is(
+    .modal-content,
+    .popup,
+    .dialog-box
+) {
+    color: var(--celestial-text) !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(15, 10, 25, 0.98),
+            rgba(30, 17, 47, 0.97)
+        ) !important;
+
+    border:
+        1px solid rgba(248, 212, 119, 0.76) !important;
+
+    border-radius:
+        20px 6px 20px 6px !important;
+
+    box-shadow:
+        0 28px 80px rgba(0, 0, 0, 0.58),
+        0 0 34px rgba(126, 34, 206, 0.24)
+        !important;
+}
+
+.theme-legendary-celestial :is(
+    .btn,
+    .btn-buy,
+    .btn-equip,
+    .btn-preview
+) {
+    color: #160d22 !important;
+    font-weight: 800 !important;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.28) !important;
+
+    border-radius:
+        12px 4px 12px 4px !important;
+
+    background:
+        linear-gradient(
+            110deg,
+            #8b5e16,
+            #f8d477 42%,
+            #fff2b9 58%,
+            #a86f14
+        ) !important;
+
+    background-size:
+        220% 100% !important;
+
+    box-shadow:
+        0 7px 17px rgba(0, 0, 0, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.48)
+        !important;
+}
+
+.theme-legendary-celestial h1,
+.theme-legendary-celestial h2,
+.theme-legendary-celestial h3,
+.theme-legendary-celestial h4,
+.theme-legendary-celestial h5,
+.theme-legendary-celestial h6 {
+    color: var(--celestial-gold) !important;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif !important;
+
+    letter-spacing: 1px;
+
+    text-shadow:
+        0 2px 12px rgba(248, 212, 119, 0.22),
+        0 0 18px rgba(168, 85, 247, 0.16);
+}
+
+.theme-legendary-celestial :is(
+    input,
+    textarea,
+    select
+) {
+    color: var(--celestial-text) !important;
+
+    background:
+        rgba(7, 5, 13, 0.76) !important;
+
+    border:
+        1px solid rgba(248, 212, 119, 0.28) !important;
+}
+
+
+
+/* =====================================================================
+   DESKTOP REWORK — THÁNH VỰC TỐI THƯỢNG
+   Chỉ áp dụng cho máy tính, không đụng phần mobile bên trên.
+   ===================================================================== */
+@media screen and (min-width: 769px) {
+
+    body.theme-legendary-celestial {
+        --celestial-void: #030208;
+        --celestial-night: #090611;
+        --celestial-purple-deep: #1a0d2b;
+        --celestial-purple: #6d28d9;
+        --celestial-violet: #a855f7;
+        --celestial-gold: #f8d477;
+        --celestial-gold-bright: #fff1a8;
+        --celestial-gold-muted: rgba(248, 212, 119, 0.42);
+        --celestial-lilac: #eadcff;
+        --celestial-text: #f7f2ff;
+        --celestial-muted: #c8b8dc;
+        --celestial-glass: rgba(15, 9, 27, 0.82);
+        --celestial-glass-strong: rgba(10, 6, 19, 0.94);
+
+        position: relative;
+        isolation: isolate;
+        min-height: 100vh;
+        min-height: 100dvh;
+        overflow-x: hidden;
+
+        color: var(--celestial-text) !important;
+        font-family: "Segoe UI", Arial, sans-serif !important;
+
+        background-color: var(--celestial-void) !important;
+        background-image:
+            radial-gradient(
+                circle at 82% 8%,
+                rgba(248, 212, 119, 0.19),
+                transparent 20%
+            ),
+            radial-gradient(
+                circle at 18% 18%,
+                rgba(126, 34, 206, 0.28),
+                transparent 31%
+            ),
+            radial-gradient(
+                ellipse at 68% 82%,
+                rgba(76, 29, 149, 0.24),
+                transparent 38%
+            ),
+            linear-gradient(
+                135deg,
+                #030208 0%,
+                #0c0716 34%,
+                #160a25 62%,
+                #05030b 100%
+            ) !important;
+
+        background-size:
+            120% 120%,
+            130% 130%,
+            140% 140%,
+            100% 100% !important;
+
+        background-attachment: fixed !important;
+
+        animation:
+            celestialDesktopBackground
+            18s
+            ease-in-out
+            infinite alternate;
+    }
+
+    /* Đại pháp trận phía sau toàn trang */
+    body.theme-legendary-celestial::before {
+        content: "";
+
+        position: fixed;
+        z-index: 0;
+
+        top: -300px;
+        right: -210px;
+
+        width: 760px;
+        height: 760px;
+
+        pointer-events: none;
+        border-radius: 50%;
+
+        background:
+            repeating-conic-gradient(
+                from 0deg,
+                rgba(248, 212, 119, 0.16) 0deg 1deg,
+                transparent 1deg 14deg
+            ),
+            repeating-radial-gradient(
+                circle,
+                transparent 0 54px,
+                rgba(233, 213, 255, 0.08) 55px 56px,
+                transparent 57px 92px
+            );
+
+        -webkit-mask:
+            radial-gradient(
+                circle,
+                transparent 0 31%,
+                #000 31.5% 32.5%,
+                transparent 33% 45%,
+                #000 45.5% 47%,
+                transparent 47.5% 59%,
+                #000 59.5% 61%,
+                transparent 61.5%
+            );
+
+        mask:
+            radial-gradient(
+                circle,
+                transparent 0 31%,
+                #000 31.5% 32.5%,
+                transparent 33% 45%,
+                #000 45.5% 47%,
+                transparent 47.5% 59%,
+                #000 59.5% 61%,
+                transparent 61.5%
+            );
+
+        opacity: 0.78;
+
+        filter:
+            drop-shadow(0 0 20px rgba(248, 212, 119, 0.2))
+            drop-shadow(0 0 55px rgba(126, 34, 206, 0.24));
+
+        animation:
+            celestialDesktopSigil
+            46s
+            linear
+            infinite;
+    }
+
+    /* Bầu trời sao và lưới ánh sáng */
+    body.theme-legendary-celestial::after {
+        content: "";
+
+        position: fixed;
+        z-index: 0;
+        inset: 0;
+
+        pointer-events: none;
+
+        background-image:
+            radial-gradient(
+                circle at 10% 18%,
+                rgba(255, 255, 255, 0.9) 0 1px,
+                transparent 1.8px
+            ),
+            radial-gradient(
+                circle at 72% 26%,
+                rgba(248, 212, 119, 0.88) 0 1px,
+                transparent 1.8px
+            ),
+            radial-gradient(
+                circle at 43% 71%,
+                rgba(233, 213, 255, 0.82) 0 1px,
+                transparent 1.8px
+            ),
+            radial-gradient(
+                circle at 91% 82%,
+                rgba(192, 132, 252, 0.86) 0 1px,
+                transparent 1.8px
+            ),
+            linear-gradient(
+                rgba(248, 212, 119, 0.025) 1px,
+                transparent 1px
+            ),
+            linear-gradient(
+                90deg,
+                rgba(248, 212, 119, 0.025) 1px,
+                transparent 1px
+            );
+
+        background-size:
+            220px 190px,
+            280px 240px,
+            340px 300px,
+            410px 360px,
+            70px 70px,
+            70px 70px;
+
+        opacity: 0.56;
+
+        -webkit-mask:
+            linear-gradient(
+                90deg,
+                transparent 0,
+                rgba(0, 0, 0, 0.62) 22%,
+                #000 48%,
+                #000 100%
+            );
+
+        mask:
+            linear-gradient(
+                90deg,
+                transparent 0,
+                rgba(0, 0, 0, 0.62) 22%,
+                #000 48%,
+                #000 100%
+            );
+
+        animation:
+            celestialDesktopStars
+            24s
+            linear
+            infinite;
+    }
+
+    body.theme-legendary-celestial .dashboard {
+        position: relative;
+        z-index: 1;
+
+        min-height: 100vh;
+        min-height: 100dvh;
+
+        background:
+            linear-gradient(
+                90deg,
+                rgba(3, 2, 8, 0.26),
+                transparent 28%
+            );
+    }
+
+    /* =============================================================
+       SIDEBAR — CỔNG THÁNH ĐIỆN
+       ============================================================= */
+
+    body.theme-legendary-celestial .sidebar {
+        position: sticky;
+        top: 0;
+        z-index: 120;
+
+        width: 310px;
+        height: 100vh;
+        height: 100dvh;
+        flex: 0 0 310px;
+
+        overflow-x: visible;
+        overflow-y: auto;
+
+        color: var(--celestial-text) !important;
+
+        background:
+            radial-gradient(
+                circle at 50% -4%,
+                rgba(248, 212, 119, 0.22),
+                transparent 24%
+            ),
+            radial-gradient(
+                circle at 16% 78%,
+                rgba(126, 34, 206, 0.25),
+                transparent 38%
+            ),
+            linear-gradient(
+                180deg,
+                rgba(20, 10, 35, 0.98),
+                rgba(8, 5, 16, 0.98) 54%,
+                rgba(4, 3, 10, 0.99)
+            ) !important;
+
+        border-right:
+            1px solid rgba(248, 212, 119, 0.48) !important;
+
+        box-shadow:
+            22px 0 60px rgba(0, 0, 0, 0.46),
+            5px 0 22px rgba(109, 40, 217, 0.15),
+            inset -1px 0 0 rgba(255, 240, 178, 0.1),
+            inset 0 0 60px rgba(109, 40, 217, 0.08)
+            !important;
+
+        backdrop-filter:
+            blur(22px)
+            saturate(1.18) !important;
+
+        -webkit-backdrop-filter:
+            blur(22px)
+            saturate(1.18) !important;
+
+        transition:
+            width 0.38s cubic-bezier(.2, .8, .2, 1),
+            flex-basis 0.38s cubic-bezier(.2, .8, .2, 1),
+            box-shadow 0.32s ease !important;
+    }
+
+    body.theme-legendary-celestial .sidebar::before {
+        content: "";
+
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+
+        pointer-events: none;
+
+        background:
+            linear-gradient(
+                90deg,
+                transparent,
+                rgba(248, 212, 119, 0.06),
+                transparent
+            ),
+            repeating-linear-gradient(
+                118deg,
+                transparent 0 34px,
+                rgba(255, 255, 255, 0.018) 35px 36px
+            );
+
+        background-size:
+            100% 1px,
+            auto;
+
+        background-position:
+            0 94px,
+            0 0;
+
+        background-repeat:
+            no-repeat,
+            repeat;
+    }
+
+    body.theme-legendary-celestial .sidebar::after {
+        content: "✦";
+
+        position: absolute;
+        z-index: 1;
+
+        top: 21px;
+        left: 50%;
+
+        width: 58px;
+        height: 58px;
+
+        display: grid;
+        place-items: center;
+
+        pointer-events: none;
+
+        color: var(--celestial-gold-bright);
+
+        border:
+            1px solid rgba(248, 212, 119, 0.55);
+
+        border-radius: 50%;
+
+        background:
+            radial-gradient(
+                circle,
+                rgba(248, 212, 119, 0.18),
+                rgba(109, 40, 217, 0.18) 48%,
+                rgba(4, 3, 10, 0.86) 70%
+            );
+
+        box-shadow:
+            0 0 20px rgba(248, 212, 119, 0.23),
+            0 0 44px rgba(109, 40, 217, 0.24),
+            inset 0 0 16px rgba(255, 255, 255, 0.08);
+
+        transform:
+            translateX(-50%)
+            rotate(0deg);
+
+        font-family:
+            Georgia,
+            serif;
+
+        font-size: 24px;
+
+        animation:
+            celestialDesktopEmblem
+            9s
+            ease-in-out
+            infinite;
+    }
+
+    body.theme-legendary-celestial .sidebar-top,
+    body.theme-legendary-celestial .sidebar-bottom {
+        position: relative;
+        z-index: 2;
+    }
+
+    body.theme-legendary-celestial .sidebar-top {
+        padding:
+            102px 22px 24px !important;
+    }
+
+    body.theme-legendary-celestial .sidebar-bottom {
+        padding:
+            17px 22px 24px !important;
+
+        border-top:
+            1px solid rgba(248, 212, 119, 0.16) !important;
+
+        background:
+            linear-gradient(
+                180deg,
+                transparent,
+                rgba(109, 40, 217, 0.08)
+            );
+    }
+
+    body.theme-legendary-celestial .sidebar h3,
+    body.theme-legendary-celestial .sidebar-top h3 {
+        margin:
+            0 4px 22px !important;
+
+        padding:
+            0 0 18px !important;
+
+        color:
+            var(--celestial-gold-bright) !important;
+
+        border-bottom:
+            1px solid rgba(248, 212, 119, 0.24) !important;
+
+        font-family:
+            Georgia,
+            "Times New Roman",
+            serif !important;
+
+        font-size:
+            1.42rem !important;
+
+        font-weight: 800 !important;
+
+        letter-spacing:
+            1.6px !important;
+
+        text-align: center;
+
+        text-shadow:
+            0 2px 2px rgba(0, 0, 0, 0.8),
+            0 0 13px rgba(248, 212, 119, 0.28),
+            0 0 25px rgba(168, 85, 247, 0.18)
+            !important;
+    }
+
+    body.theme-legendary-celestial .nav-item {
+        position: relative;
+
+        width: 100%;
+        min-height: 52px;
+
+        margin:
+            0 0 9px !important;
+
+        padding:
+            13px 15px !important;
+
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        overflow: hidden;
+
+        color:
+            rgba(241, 232, 255, 0.78) !important;
+
+        text-align: left;
+
+        border:
+            1px solid rgba(248, 212, 119, 0.08) !important;
+
+        border-radius:
+            16px 5px 16px 5px !important;
+
+        background:
+            linear-gradient(
+                100deg,
+                rgba(255, 255, 255, 0.035),
+                rgba(126, 34, 206, 0.025)
+            ) !important;
+
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.025)
+            !important;
+
+        font-size:
+            0.98rem !important;
+
+        font-weight:
+            760 !important;
+
+        letter-spacing:
+            0.15px !important;
+
+        transition:
+            transform 0.25s ease,
+            color 0.25s ease,
+            border-color 0.25s ease,
+            background 0.25s ease,
+            box-shadow 0.25s ease !important;
+    }
+
+    body.theme-legendary-celestial .nav-item::before {
+        content: "";
+
+        position: absolute;
+
+        top: 50%;
+        left: 0;
+
+        width: 3px;
+        height: 0;
+
+        border-radius:
+            0 999px 999px 0;
+
+        background:
+            linear-gradient(
+                180deg,
+                var(--celestial-gold-bright),
+                var(--celestial-violet)
+            );
+
+        box-shadow:
+            0 0 12px rgba(248, 212, 119, 0.65);
+
+        transform:
+            translateY(-50%);
+
+        transition:
+            height 0.25s ease;
+    }
+
+    body.theme-legendary-celestial .nav-item::after {
+        content: "✦";
+
+        position: absolute;
+
+        right: 13px;
+        top: 50%;
+
+        color:
+            var(--celestial-gold);
+
+        opacity: 0;
+
+        transform:
+            translateY(-50%)
+            translateX(6px)
+            scale(0.7);
+
+        transition:
+            opacity 0.24s ease,
+            transform 0.24s ease;
+
+        font-size:
+            11px;
+    }
+
+    body.theme-legendary-celestial .nav-item:hover {
+        color:
+            #ffffff !important;
+
+        border-color:
+            rgba(248, 212, 119, 0.3) !important;
+
+        background:
+            linear-gradient(
+                100deg,
+                rgba(109, 40, 217, 0.19),
+                rgba(248, 212, 119, 0.07)
+            ) !important;
+
+        box-shadow:
+            0 12px 25px rgba(0, 0, 0, 0.2),
+            inset 0 0 18px rgba(168, 85, 247, 0.05)
+            !important;
+
+        transform:
+            translateX(5px);
+    }
+
+    body.theme-legendary-celestial .nav-item:hover::before {
+        height: 26px;
+    }
+
+    body.theme-legendary-celestial .nav-item:hover::after {
+        opacity: 0.9;
+
+        transform:
+            translateY(-50%)
+            translateX(0)
+            scale(1);
+    }
+
+    body.theme-legendary-celestial .nav-item.active {
+        color:
+            #fff4bf !important;
+
+        border-color:
+            rgba(248, 212, 119, 0.66) !important;
+
+        background:
+            radial-gradient(
+                circle at 92% 50%,
+                rgba(248, 212, 119, 0.15),
+                transparent 34%
+            ),
+            linear-gradient(
+                105deg,
+                rgba(76, 29, 149, 0.58),
+                rgba(126, 34, 206, 0.34) 56%,
+                rgba(248, 212, 119, 0.1)
+            ) !important;
+
+        box-shadow:
+            0 13px 30px rgba(0, 0, 0, 0.28),
+            0 0 18px rgba(109, 40, 217, 0.22),
+            inset 0 1px 0 rgba(255, 239, 178, 0.11)
+            !important;
+    }
+
+    body.theme-legendary-celestial .nav-item.active::before {
+        height: 31px;
+    }
+
+    body.theme-legendary-celestial .nav-item.active::after {
+        opacity: 1;
+
+        transform:
+            translateY(-50%)
+            translateX(0)
+            scale(1.05);
+    }
+
+    body.theme-legendary-celestial .btn-logout {
+        color:
+            #ffe6ee !important;
+
+        border:
+            1px solid rgba(251, 113, 133, 0.3) !important;
+
+        background:
+            linear-gradient(
+                135deg,
+                rgba(136, 19, 55, 0.52),
+                rgba(76, 29, 149, 0.45)
+            ) !important;
+
+        box-shadow:
+            0 10px 24px rgba(0, 0, 0, 0.22)
+            !important;
+    }
+
+    body.theme-legendary-celestial .btn-logout:hover {
+        color:
+            #fff !important;
+
+        border-color:
+            rgba(255, 205, 215, 0.58) !important;
+
+        background:
+            linear-gradient(
+                135deg,
+                #9f1239,
+                #7e22ce
+            ) !important;
+
+        box-shadow:
+            0 13px 30px rgba(159, 18, 57, 0.28),
+            0 0 20px rgba(126, 34, 206, 0.19)
+            !important;
+    }
+
+    body.theme-legendary-celestial .sidebar-toggle {
+        top: 32px;
+        right: -21px;
+
+        width: 42px;
+        height: 42px;
+
+        padding: 0;
+
+        color:
+            var(--celestial-gold-bright) !important;
+
+        border:
+            1px solid rgba(248, 212, 119, 0.74) !important;
+
+        border-radius:
+            50% !important;
+
+        background:
+            radial-gradient(
+                circle at 34% 28%,
+                rgba(255, 247, 208, 0.24),
+                transparent 34%
+            ),
+            linear-gradient(
+                145deg,
+                #4c1d95,
+                #7e22ce 58%,
+                #8b5e16
+            ) !important;
+
+        box-shadow:
+            0 10px 24px rgba(0, 0, 0, 0.34),
+            0 0 18px rgba(248, 212, 119, 0.22),
+            inset 0 1px 0 rgba(255, 255, 255, 0.23)
+            !important;
+    }
+
+    body.theme-legendary-celestial .sidebar-toggle:hover {
+        transform:
+            scale(1.1)
+            rotate(8deg) !important;
+
+        box-shadow:
+            0 13px 30px rgba(0, 0, 0, 0.4),
+            0 0 25px rgba(248, 212, 119, 0.36),
+            0 0 38px rgba(126, 34, 206, 0.24)
+            !important;
+    }
+
+    body.theme-legendary-celestial
+    .dashboard.collapsed .sidebar {
+        width: 96px;
+        flex-basis: 96px;
+    }
+
+    body.theme-legendary-celestial
+    .dashboard.collapsed .content {
+        width:
+            calc(100% - 96px);
+    }
+
+    body.theme-legendary-celestial
+    .dashboard.collapsed .sidebar::after {
+        top: 24px;
+
+        width: 46px;
+        height: 46px;
+
+        font-size: 19px;
+    }
+
+    body.theme-legendary-celestial
+    .dashboard.collapsed .sidebar-top {
+        padding:
+            92px 12px 20px !important;
+    }
+
+    body.theme-legendary-celestial
+    .dashboard.collapsed .sidebar-bottom {
+        padding:
+            16px 12px 22px !important;
+    }
+
+    body.theme-legendary-celestial
+    .dashboard.collapsed .nav-item {
+        min-height: 54px;
+
+        padding:
+            13px 0 !important;
+
+        justify-content:
+            center;
+
+        border-radius:
+            15px 5px 15px 5px !important;
+
+        font-size:
+            1.28rem !important;
+    }
+
+    body.theme-legendary-celestial
+    .dashboard.collapsed .nav-item::before,
+    body.theme-legendary-celestial
+    .dashboard.collapsed .nav-item::after {
+        display:
+            none;
+    }
+
+    /* =============================================================
+       KHU VỰC NỘI DUNG — ĐẠI SẢNH
+       ============================================================= */
+
+    body.theme-legendary-celestial .content {
+        position: relative;
+
+        width:
+            calc(100% - 310px);
+
+        min-width: 0;
+
+        padding:
+            42px clamp(34px, 4vw, 66px) 62px !important;
+
+        overflow-x:
+            clip;
+
+        background:
+            radial-gradient(
+                circle at 84% 6%,
+                rgba(248, 212, 119, 0.09),
+                transparent 23%
+            ),
+            radial-gradient(
+                circle at 25% 90%,
+                rgba(109, 40, 217, 0.11),
+                transparent 30%
+            );
+
+        transition:
+            width 0.38s cubic-bezier(.2, .8, .2, 1);
+    }
+
+    body.theme-legendary-celestial .content::before {
+        content: "";
+
+        position: absolute;
+        z-index: -1;
+
+        top: 0;
+        left: 0;
+        right: 0;
+
+        height: 250px;
+
+        pointer-events: none;
+
+        background:
+            linear-gradient(
+                180deg,
+                rgba(248, 212, 119, 0.055),
+                transparent 76%
+            ),
+            repeating-linear-gradient(
+                90deg,
+                transparent 0 94px,
+                rgba(248, 212, 119, 0.028) 95px 96px
+            );
+
+        -webkit-mask:
+            linear-gradient(
+                180deg,
+                #000,
+                transparent
+            );
+
+        mask:
+            linear-gradient(
+                180deg,
+                #000,
+                transparent
+            );
+    }
+
+    body.theme-legendary-celestial .content h2 {
+        position: relative;
+
+        margin:
+            0 0 34px !important;
+
+        padding:
+            0 0 18px !important;
+
+        color:
+            var(--celestial-gold-bright) !important;
+
+        font-family:
+            Georgia,
+            "Times New Roman",
+            serif !important;
+
+        font-size:
+            clamp(2rem, 3.1vw, 3.15rem) !important;
+
+        font-weight:
+            800 !important;
+
+        line-height:
+            1.08 !important;
+
+        letter-spacing:
+            1.5px !important;
+
+        text-shadow:
+            0 3px 2px rgba(0, 0, 0, 0.74),
+            0 0 18px rgba(248, 212, 119, 0.24),
+            0 0 34px rgba(126, 34, 206, 0.16)
+            !important;
+    }
+
+    body.theme-legendary-celestial .content h2::before {
+        content: "✦";
+
+        display: inline-grid;
+        place-items: center;
+
+        width: 42px;
+        height: 42px;
+
+        margin-right:
+            14px;
+
+        vertical-align:
+            7px;
+
+        color:
+            #fff3b4;
+
+        border:
+            1px solid rgba(248, 212, 119, 0.52);
+
+        border-radius:
+            50%;
+
+        background:
+            radial-gradient(
+                circle,
+                rgba(248, 212, 119, 0.16),
+                rgba(109, 40, 217, 0.18) 58%,
+                transparent 70%
+            );
+
+        box-shadow:
+            0 0 18px rgba(248, 212, 119, 0.19),
+            inset 0 0 14px rgba(255, 255, 255, 0.05);
+
+        font-size:
+            17px;
+    }
+
+    body.theme-legendary-celestial .content h2::after {
+        content: "";
+
+        display: block;
+
+        width:
+            min(360px, 46%);
+
+        height:
+            2px;
+
+        margin-top:
+            16px;
+
+        border-radius:
+            999px;
+
+        background:
+            linear-gradient(
+                90deg,
+                var(--celestial-gold-bright),
+                rgba(168, 85, 247, 0.85),
+                transparent
+            ) !important;
+
+        box-shadow:
+            0 0 12px rgba(248, 212, 119, 0.26)
+            !important;
+    }
+
+    body.theme-legendary-celestial h1,
+    body.theme-legendary-celestial h2,
+    body.theme-legendary-celestial h3,
+    body.theme-legendary-celestial h4,
+    body.theme-legendary-celestial h5,
+    body.theme-legendary-celestial h6 {
+        color:
+            var(--celestial-gold) !important;
+
+        font-family:
+            Georgia,
+            "Times New Roman",
+            serif !important;
+
+        letter-spacing:
+            0.7px;
+
+        text-shadow:
+            0 2px 2px rgba(0, 0, 0, 0.66),
+            0 0 12px rgba(248, 212, 119, 0.15);
+    }
+
+    /* =============================================================
+       THẺ / PANEL / KHỐI NỘI DUNG
+       ============================================================= */
+
+    body.theme-legendary-celestial :is(
+        .card,
+        .panel,
+        .content-card,
+        .student-card,
+        .teacher-card,
+        .dashboard-card,
+        .info-card,
+        .inventory-item,
+        .cell
+    ) {
+        position: relative;
+        isolation: isolate;
+
+        overflow: hidden;
+
+        color:
+            var(--celestial-text) !important;
+
+        background:
+            radial-gradient(
+                circle at 10% 0%,
+                rgba(248, 212, 119, 0.09),
+                transparent 23%
+            ),
+            radial-gradient(
+                circle at 90% 100%,
+                rgba(109, 40, 217, 0.14),
+                transparent 31%
+            ),
+            linear-gradient(
+                145deg,
+                rgba(30, 17, 48, 0.88),
+                rgba(12, 8, 23, 0.92) 58%,
+                rgba(7, 5, 15, 0.94)
+            ) !important;
+
+        border:
+            1px solid rgba(248, 212, 119, 0.3) !important;
+
+        border-radius:
+            24px 7px 24px 7px !important;
+
+        box-shadow:
+            0 18px 44px rgba(0, 0, 0, 0.34),
+            0 0 24px rgba(109, 40, 217, 0.08),
+            inset 0 1px 0 rgba(255, 245, 205, 0.08),
+            inset 0 0 30px rgba(168, 85, 247, 0.04)
+            !important;
+
+        backdrop-filter:
+            blur(18px)
+            saturate(1.08);
+
+        -webkit-backdrop-filter:
+            blur(18px)
+            saturate(1.08);
+
+        transition:
+            transform 0.3s cubic-bezier(.2, .8, .2, 1),
+            border-color 0.3s ease,
+            box-shadow 0.3s ease !important;
+    }
+
+    body.theme-legendary-celestial :is(
+        .card,
+        .panel,
+        .content-card,
+        .student-card,
+        .teacher-card,
+        .dashboard-card,
+        .info-card
+    )::before {
+        content: "";
+
+        position: absolute;
+        z-index: 0;
+
+        top: 0;
+        left: 0;
+        right: 0;
+
+        height:
+            2px;
+
+        pointer-events:
+            none;
+
+        background:
+            linear-gradient(
+                90deg,
+                transparent,
+                rgba(248, 212, 119, 0.86),
+                rgba(192, 132, 252, 0.72),
+                transparent
+            );
+
+        opacity:
+            0.72;
+    }
+
+    body.theme-legendary-celestial :is(
+        .card,
+        .panel,
+        .content-card,
+        .student-card,
+        .teacher-card,
+        .dashboard-card,
+        .info-card
+    )::after {
+        content: "✦";
+
+        position: absolute;
+        z-index: 0;
+
+        right: 16px;
+        top: 12px;
+
+        pointer-events:
+            none;
+
+        color:
+            rgba(248, 212, 119, 0.22);
+
+        font-family:
+            Georgia,
+            serif;
+
+        font-size:
+            22px;
+
+        text-shadow:
+            0 0 14px rgba(248, 212, 119, 0.18);
+    }
+
+    body.theme-legendary-celestial :is(
+        .card,
+        .panel,
+        .content-card,
+        .student-card,
+        .teacher-card,
+        .dashboard-card,
+        .info-card
+    ) > * {
+        position:
+            relative;
+
+        z-index:
+            1;
+    }
+
+    body.theme-legendary-celestial :is(
+        .card,
+        .panel,
+        .content-card,
+        .student-card,
+        .teacher-card,
+        .dashboard-card,
+        .info-card,
+        .inventory-item
+    ):hover {
+        transform:
+            translateY(-5px);
+
+        border-color:
+            rgba(248, 212, 119, 0.66) !important;
+
+        box-shadow:
+            0 25px 58px rgba(0, 0, 0, 0.43),
+            0 0 28px rgba(109, 40, 217, 0.16),
+            0 0 17px rgba(248, 212, 119, 0.08),
+            inset 0 1px 0 rgba(255, 245, 205, 0.12)
+            !important;
+    }
+
+    body.theme-legendary-celestial .card {
+        padding:
+            clamp(25px, 2.7vw, 34px) !important;
+
+        margin-bottom:
+            28px !important;
+    }
+
+    body.theme-legendary-celestial :is(
+        .assignment-meta,
+        .assignment-desc,
+        .assignment-file,
+        .glass-alert,
+        .update-banner
+    ) {
+        color:
+            var(--celestial-text) !important;
+
+        border:
+            1px solid rgba(248, 212, 119, 0.19) !important;
+
+        border-radius:
+            16px 5px 16px 5px !important;
+
+        background:
+            linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0.045),
+                rgba(109, 40, 217, 0.06)
+            ) !important;
+
+        box-shadow:
+            inset 0 0 18px rgba(126, 34, 206, 0.035)
+            !important;
+    }
+
+    body.theme-legendary-celestial .assignment-desc {
+        border-left:
+            4px solid var(--celestial-gold) !important;
+    }
+
+    body.theme-legendary-celestial .accordion-header {
+        color:
+            var(--celestial-text) !important;
+
+        border:
+            1px solid rgba(248, 212, 119, 0.22) !important;
+
+        border-radius:
+            16px 5px 16px 5px !important;
+
+        background:
+            linear-gradient(
+                115deg,
+                rgba(255, 255, 255, 0.055),
+                rgba(109, 40, 217, 0.08)
+            ) !important;
+
+        box-shadow:
+            0 9px 22px rgba(0, 0, 0, 0.2)
+            !important;
+    }
+
+    body.theme-legendary-celestial .accordion-header:hover,
+    body.theme-legendary-celestial .accordion-header.active {
+        border-color:
+            rgba(248, 212, 119, 0.58) !important;
+
+        background:
+            linear-gradient(
+                115deg,
+                rgba(109, 40, 217, 0.25),
+                rgba(248, 212, 119, 0.08)
+            ) !important;
+
+        box-shadow:
+            0 13px 28px rgba(0, 0, 0, 0.28),
+            0 0 17px rgba(109, 40, 217, 0.14)
+            !important;
+    }
+
+    body.theme-legendary-celestial
+    .accordion-title span,
+    body.theme-legendary-celestial
+    .accordion-meta,
+    body.theme-legendary-celestial
+    .toggle-icon {
+        color:
+            var(--celestial-lilac) !important;
+    }
+
+    /* =============================================================
+       CỬA HÀNG VÀ TÚI ĐỒ
+       ============================================================= */
+
+    body.theme-legendary-celestial
+    .store-item-card:not(.store-card-nyx-trinity) {
+        position: relative;
+        isolation: isolate;
+        overflow: hidden;
+
+        color:
+            var(--celestial-text) !important;
+
+        background:
+            radial-gradient(
+                circle at 50% -4%,
+                rgba(248, 212, 119, 0.13),
+                transparent 28%
+            ),
+            radial-gradient(
+                circle at 84% 88%,
+                rgba(109, 40, 217, 0.2),
+                transparent 35%
+            ),
+            linear-gradient(
+                145deg,
+                rgba(31, 17, 49, 0.94),
+                rgba(9, 7, 19, 0.96)
+            ) !important;
+
+        border:
+            1px solid rgba(248, 212, 119, 0.36) !important;
+
+        border-radius:
+            26px 8px 26px 8px !important;
+
+        box-shadow:
+            0 18px 42px rgba(0, 0, 0, 0.38),
+            inset 0 1px 0 rgba(255, 245, 205, 0.09),
+            inset 0 0 30px rgba(168, 85, 247, 0.05)
+            !important;
+    }
+
+    body.theme-legendary-celestial
+    .store-item-card:not(.store-card-nyx-trinity):hover {
+        transform:
+            translateY(-8px)
+            scale(1.012) !important;
+
+        border-color:
+            rgba(248, 212, 119, 0.82) !important;
+
+        box-shadow:
+            0 28px 58px rgba(0, 0, 0, 0.48),
+            0 0 25px rgba(109, 40, 217, 0.19),
+            0 0 16px rgba(248, 212, 119, 0.1)
+            !important;
+    }
+
+    body.theme-legendary-celestial
+    .store-item-card:not(.store-card-nyx-trinity)
+    .item-name {
+        color:
+            var(--celestial-gold-bright) !important;
+
+        font-family:
+            Georgia,
+            "Times New Roman",
+            serif !important;
+
+        text-shadow:
+            0 2px 2px rgba(0, 0, 0, 0.76),
+            0 0 10px rgba(248, 212, 119, 0.18);
+    }
+
+    body.theme-legendary-celestial
+    .store-item-card:not(.store-card-nyx-trinity)
+    .item-type-label {
+        color:
+            var(--celestial-lilac) !important;
+    }
+
+    body.theme-legendary-celestial .bag-inventory-slot {
+        color:
+            var(--celestial-text) !important;
+
+        border:
+            1px dashed rgba(248, 212, 119, 0.32) !important;
+
+        border-radius:
+            16px 5px 16px 5px !important;
+
+        background:
+            radial-gradient(
+                circle at 50% 20%,
+                rgba(248, 212, 119, 0.07),
+                transparent 38%
+            ),
+            rgba(8, 5, 17, 0.72) !important;
+
+        box-shadow:
+            inset 0 0 19px rgba(109, 40, 217, 0.07)
+            !important;
+    }
+
+    body.theme-legendary-celestial
+    .bag-inventory-slot:hover {
+        border-color:
+            rgba(248, 212, 119, 0.7) !important;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(109, 40, 217, 0.18),
+                rgba(248, 212, 119, 0.06)
+            ) !important;
+
+        box-shadow:
+            0 0 19px rgba(109, 40, 217, 0.14),
+            inset 0 0 16px rgba(248, 212, 119, 0.05)
+            !important;
+    }
+
+    /* =============================================================
+       NÚT, Ô NHẬP, BẢNG
+       ============================================================= */
+
+    body.theme-legendary-celestial
+    button:not(.nav-item):not(.sidebar-toggle):not(.profile-trigger-btn):not(.bag-trigger-btn):not(.inbox-trigger-btn):not(.leaderboard-trigger-btn):not(#btnLeaderboard):not(.close-btn),
+    body.theme-legendary-celestial .btn,
+    body.theme-legendary-celestial .button {
+        color:
+            #1d1025 !important;
+
+        border:
+            1px solid rgba(255, 248, 208, 0.7) !important;
+
+        border-radius:
+            14px 5px 14px 5px !important;
+
+        background:
+            linear-gradient(
+                112deg,
+                #9a681a 0%,
+                #f8d477 36%,
+                #fff1ae 54%,
+                #b77a1f 100%
+            ) !important;
+
+        background-size:
+            220% 100% !important;
+
+        box-shadow:
+            0 9px 22px rgba(0, 0, 0, 0.25),
+            0 0 14px rgba(248, 212, 119, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.55)
+            !important;
+
+        font-weight:
+            850 !important;
+
+        transition:
+            transform 0.22s ease,
+            background-position 0.35s ease,
+            box-shadow 0.22s ease,
+            filter 0.22s ease !important;
+    }
+
+    body.theme-legendary-celestial
+    button:not(.nav-item):not(.sidebar-toggle):not(.profile-trigger-btn):not(.bag-trigger-btn):not(.inbox-trigger-btn):not(.leaderboard-trigger-btn):not(#btnLeaderboard):not(.close-btn):hover:not(:disabled),
+    body.theme-legendary-celestial .btn:hover:not(:disabled),
+    body.theme-legendary-celestial .button:hover:not(:disabled) {
+        transform:
+            translateY(-3px);
+
+        background-position:
+            100% 0 !important;
+
+        filter:
+            brightness(1.04)
+            saturate(1.05);
+
+        box-shadow:
+            0 14px 30px rgba(0, 0, 0, 0.33),
+            0 0 22px rgba(248, 212, 119, 0.27),
+            inset 0 1px 0 rgba(255, 255, 255, 0.65)
+            !important;
+    }
+
+    body.theme-legendary-celestial
+    button:disabled,
+    body.theme-legendary-celestial
+    .btn:disabled {
+        filter:
+            grayscale(0.34)
+            brightness(0.72);
+
+        opacity:
+            0.7;
+    }
+
+    body.theme-legendary-celestial
+    .btn-equip:not(.active) {
+        color:
+            #fff !important;
+
+        border-color:
+            rgba(233, 213, 255, 0.48) !important;
+
+        background:
+            linear-gradient(
+                135deg,
+                #4c1d95,
+                #7e22ce 58%,
+                #be185d
+            ) !important;
+
+        box-shadow:
+            0 9px 22px rgba(76, 29, 149, 0.33),
+            inset 0 1px 0 rgba(255, 255, 255, 0.15)
+            !important;
+    }
+
+    body.theme-legendary-celestial
+    :is(
+        input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+        textarea,
+        select,
+        .search-bar
+    ) {
+        color:
+            var(--celestial-text) !important;
+
+        caret-color:
+            var(--celestial-gold-bright);
+
+        border:
+            1px solid rgba(248, 212, 119, 0.26) !important;
+
+        border-radius:
+            14px 5px 14px 5px !important;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(5, 3, 11, 0.88),
+                rgba(25, 13, 41, 0.78)
+            ) !important;
+
+        box-shadow:
+            inset 0 2px 7px rgba(0, 0, 0, 0.26),
+            0 7px 18px rgba(0, 0, 0, 0.12)
+            !important;
+    }
+
+    body.theme-legendary-celestial
+    :is(
+        input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+        textarea,
+        select,
+        .search-bar
+    ):focus {
+        border-color:
+            rgba(248, 212, 119, 0.72) !important;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(11, 7, 20, 0.96),
+                rgba(34, 17, 53, 0.9)
+            ) !important;
+
+        box-shadow:
+            0 0 0 4px rgba(248, 212, 119, 0.08),
+            0 0 22px rgba(109, 40, 217, 0.13),
+            inset 0 2px 7px rgba(0, 0, 0, 0.28)
+            !important;
+    }
+
+    body.theme-legendary-celestial
+    :is(
+        input,
+        textarea,
+        .search-bar
+    )::placeholder {
+        color:
+            rgba(216, 199, 238, 0.56) !important;
+    }
+
+    body.theme-legendary-celestial label {
+        color:
+            #eadfff !important;
+
+        font-weight:
+            750 !important;
+    }
+
+    body.theme-legendary-celestial table {
+        overflow:
+            hidden;
+
+        color:
+            var(--celestial-text) !important;
+
+        border:
+            1px solid rgba(248, 212, 119, 0.28) !important;
+
+        border-radius:
+            18px 6px 18px 6px !important;
+
+        background:
+            rgba(8, 5, 17, 0.74) !important;
+
+        box-shadow:
+            0 16px 40px rgba(0, 0, 0, 0.28),
+            inset 0 0 26px rgba(109, 40, 217, 0.04)
+            !important;
+    }
+
+    body.theme-legendary-celestial th {
+        color:
+            var(--celestial-gold-bright) !important;
+
+        background:
+            linear-gradient(
+                120deg,
+                rgba(76, 29, 149, 0.64),
+                rgba(126, 34, 206, 0.35),
+                rgba(248, 212, 119, 0.08)
+            ) !important;
+
+        border-bottom:
+            1px solid rgba(248, 212, 119, 0.24) !important;
+
+        font-family:
+            Georgia,
+            "Times New Roman",
+            serif !important;
+
+        letter-spacing:
+            0.45px;
+    }
+
+    body.theme-legendary-celestial td {
+        color:
+            #eee7f8 !important;
+
+        border-bottom:
+            1px solid rgba(248, 212, 119, 0.09) !important;
+    }
+
+    body.theme-legendary-celestial tbody tr:hover {
+        background:
+            rgba(109, 40, 217, 0.12) !important;
+    }
+
+    /* =============================================================
+       POPUP VÀ CÁC NÚT NỔI
+       ============================================================= */
+
+    body.theme-legendary-celestial .modal-overlay {
+        background:
+            rgba(3, 2, 8, 0.72) !important;
+
+        backdrop-filter:
+            blur(14px)
+            saturate(1.08) !important;
+
+        -webkit-backdrop-filter:
+            blur(14px)
+            saturate(1.08) !important;
+    }
+
+    body.theme-legendary-celestial
+    :is(
+        .modal-content,
+        .popup,
+        .dialog-box
+    ) {
+        color:
+            var(--celestial-text) !important;
+
+        background:
+            radial-gradient(
+                circle at 15% 0,
+                rgba(248, 212, 119, 0.12),
+                transparent 24%
+            ),
+            linear-gradient(
+                145deg,
+                rgba(24, 13, 39, 0.98),
+                rgba(6, 4, 13, 0.99)
+            ) !important;
+
+        border:
+            1px solid rgba(248, 212, 119, 0.58) !important;
+
+        border-radius:
+            26px 8px 26px 8px !important;
+
+        box-shadow:
+            0 34px 100px rgba(0, 0, 0, 0.68),
+            0 0 34px rgba(109, 40, 217, 0.22),
+            inset 0 1px 0 rgba(255, 245, 205, 0.1)
+            !important;
+    }
+
+    body.theme-legendary-celestial .close-btn {
+        color:
+            var(--celestial-gold-bright) !important;
+
+        border:
+            1px solid rgba(248, 212, 119, 0.45) !important;
+
+        background:
+            rgba(17, 10, 28, 0.92) !important;
+
+        box-shadow:
+            0 8px 20px rgba(0, 0, 0, 0.3),
+            0 0 14px rgba(109, 40, 217, 0.14)
+            !important;
+    }
+
+    body.theme-legendary-celestial .close-btn:hover {
+        color:
+            #fff !important;
+
+        border-color:
+            rgba(255, 224, 138, 0.75) !important;
+
+        background:
+            linear-gradient(
+                135deg,
+                #9f1239,
+                #7e22ce
+            ) !important;
+
+        transform:
+            rotate(90deg)
+            scale(1.06) !important;
+    }
+
+    body.theme-legendary-celestial
+    .content > :is(
+        .profile-trigger-btn,
+        .bag-trigger-btn,
+        .inbox-trigger-btn,
+        .leaderboard-trigger-btn,
+        #btnLeaderboard
+    ) {
+        color:
+            var(--celestial-gold-bright) !important;
+
+        border:
+            1px solid rgba(248, 212, 119, 0.62) !important;
+
+        background:
+            radial-gradient(
+                circle at 30% 22%,
+                rgba(255, 248, 214, 0.22),
+                transparent 34%
+            ),
+            linear-gradient(
+                145deg,
+                rgba(41, 20, 63, 0.94),
+                rgba(8, 5, 16, 0.96)
+            ) !important;
+
+        box-shadow:
+            0 10px 27px rgba(0, 0, 0, 0.35),
+            0 0 16px rgba(109, 40, 217, 0.16),
+            inset 0 1px 0 rgba(255, 255, 255, 0.12)
+            !important;
+
+        backdrop-filter:
+            blur(13px);
+
+        -webkit-backdrop-filter:
+            blur(13px);
+
+        transition:
+            transform 0.24s ease,
+            border-color 0.24s ease,
+            box-shadow 0.24s ease !important;
+    }
+
+    body.theme-legendary-celestial
+    .content > :is(
+        .profile-trigger-btn,
+        .bag-trigger-btn,
+        .inbox-trigger-btn,
+        .leaderboard-trigger-btn,
+        #btnLeaderboard
+    ):hover {
+        border-color:
+            rgba(255, 238, 171, 0.9) !important;
+
+        transform:
+            translateY(-3px)
+            scale(1.07) !important;
+
+        box-shadow:
+            0 14px 34px rgba(0, 0, 0, 0.42),
+            0 0 24px rgba(248, 212, 119, 0.28),
+            0 0 34px rgba(109, 40, 217, 0.16)
+            !important;
+    }
+
+    body.theme-legendary-celestial
+    .profile-trigger-btn img {
+        border-radius:
+            50%;
+    }
+
+    body.theme-legendary-celestial #coinWidget {
+        color:
+            var(--celestial-gold-bright) !important;
+
+        background:
+            radial-gradient(
+                circle at 14% 30%,
+                rgba(248, 212, 119, 0.19),
+                transparent 24%
+            ),
+            linear-gradient(
+                135deg,
+                rgba(25, 12, 39, 0.96),
+                rgba(5, 4, 12, 0.97)
+            ) !important;
+
+        border:
+            1px solid rgba(248, 212, 119, 0.67) !important;
+
+        border-radius:
+            28px 8px 28px 8px !important;
+
+        box-shadow:
+            0 17px 40px rgba(0, 0, 0, 0.46),
+            0 0 24px rgba(109, 40, 217, 0.18),
+            inset 0 1px 0 rgba(255, 245, 205, 0.11)
+            !important;
+
+        backdrop-filter:
+            blur(16px)
+            saturate(1.12) !important;
+
+        -webkit-backdrop-filter:
+            blur(16px)
+            saturate(1.12) !important;
+    }
+
+    body.theme-legendary-celestial #coinWidget:hover {
+        box-shadow:
+            0 21px 48px rgba(0, 0, 0, 0.53),
+            0 0 31px rgba(248, 212, 119, 0.22),
+            0 0 34px rgba(109, 40, 217, 0.19),
+            inset 0 1px 0 rgba(255, 245, 205, 0.14)
+            !important;
+    }
+
+    body.theme-legendary-celestial .tab-content.active {
+        animation:
+            celestialDesktopContentEnter
+            0.55s
+            cubic-bezier(.2, .8, .2, 1)
+            both !important;
+    }
+
+    body.theme-legendary-celestial ::-webkit-scrollbar {
+        width:
+            10px;
+
+        height:
+            10px;
+    }
+
+    body.theme-legendary-celestial ::-webkit-scrollbar-track {
+        background:
+            rgba(4, 3, 10, 0.72);
+    }
+
+    body.theme-legendary-celestial ::-webkit-scrollbar-thumb {
+        border:
+            2px solid rgba(4, 3, 10, 0.82);
+
+        border-radius:
+            999px;
+
+        background:
+            linear-gradient(
+                180deg,
+                #5b21b6,
+                #f8d477 48%,
+                #7e22ce
+            );
+    }
+}
+
+/* =============================================================
+   CHUYỂN ĐỘNG DESKTOP — THÁNH VỰC TỐI THƯỢNG
+   ============================================================= */
+
+@keyframes celestialDesktopBackground {
+    from {
+        background-position:
+            0% 0%,
+            0% 0%,
+            0% 0%,
+            center;
+    }
+
+    to {
+        background-position:
+            5% 3%,
+            -4% 5%,
+            3% -5%,
+            center;
+    }
+}
+
+@keyframes celestialDesktopSigil {
+    to {
+        transform:
+            rotate(360deg);
+    }
+}
+
+@keyframes celestialDesktopStars {
+    to {
+        background-position:
+            110px 95px,
+            -140px 120px,
+            170px -150px,
+            -205px -180px,
+            70px 70px,
+            70px 70px;
+    }
+}
+
+@keyframes celestialDesktopEmblem {
+    0%,
+    100% {
+        transform:
+            translateX(-50%)
+            rotate(-5deg)
+            scale(0.95);
+
+        filter:
+            brightness(0.9);
+    }
+
+    50% {
+        transform:
+            translateX(-50%)
+            rotate(5deg)
+            scale(1.05);
+
+        filter:
+            brightness(1.18);
+    }
+}
+
+@keyframes celestialDesktopContentEnter {
+    from {
+        opacity:
+            0;
+
+        transform:
+            translateY(16px)
+            scale(0.992);
+
+        filter:
+            blur(3px);
+    }
+
+    to {
+        opacity:
+            1;
+
+        transform:
+            translateY(0)
+            scale(1);
+
+        filter:
+            blur(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.theme-legendary-celestial,
+    body.theme-legendary-celestial::before,
+    body.theme-legendary-celestial::after,
+    body.theme-legendary-celestial .sidebar::after,
+    body.theme-legendary-celestial .tab-content.active {
+        animation:
+            none !important;
+    }
+}
+
+@keyframes nyxSovereignFloat {
+    0%,
+    100% {
+        transform:
+            translateY(0) rotate(-1deg);
+    }
+
+    48% {
+        transform:
+            translateY(-11px) rotate(1.1deg);
+    }
+
+    72% {
+        transform:
+            translateY(-5px) rotate(0.2deg);
+    }
+}
+
+@keyframes nyxSovereignGlow {
+    from {
+        filter:
+            drop-shadow(
+                0 8px 11px rgba(0, 0, 0, 0.7)
+            )
+            drop-shadow(
+                0 0 10px rgba(109, 40, 217, 0.6)
+            );
+    }
+
+    to {
+        filter:
+            drop-shadow(
+                0 10px 15px rgba(0, 0, 0, 0.8)
+            )
+            drop-shadow(
+                0 0 19px rgba(168, 85, 247, 0.9)
+            )
+            drop-shadow(
+                0 0 31px rgba(248, 212, 119, 0.16)
+            );
+    }
+}
+
+@keyframes nyxEclipseBreathe {
+    0%,
+    100% {
+        transform:
+            translate(-50%, -50%) scale(0.94);
+
+        opacity: 0.72;
+    }
+
+    50% {
+        transform:
+            translate(-50%, -50%) scale(1.05);
+
+        opacity: 1;
+    }
+}
+
+@keyframes nyxCrownOrbit {
+    to {
+        transform:
+            translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+@keyframes nyxSovereignRelease {
+    0% {
+        transform:
+            scale(1) rotate(0deg);
+    }
+
+    28% {
+        transform:
+            scale(0.88) rotate(-4deg);
+    }
+
+    58% {
+        transform:
+            scale(1.22) rotate(3deg);
+
+        filter:
+            drop-shadow(0 0 26px white)
+            drop-shadow(0 0 62px #a855f7);
+    }
+
+    100% {
+        transform:
+            scale(1) rotate(0deg);
+    }
+}
+
+@keyframes nyxWorldArrive {
+    0% {
+        opacity: 0;
+    }
+
+    14%,
+    82% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes nyxAuroraTurn {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes nyxVoidTide {
+    from {
+        transform:
+            translateY(0) scaleX(0.95);
+
+        opacity: 0.55;
+    }
+
+    to {
+        transform:
+            translateY(-7%) scaleX(1.08);
+
+        opacity: 0.88;
+    }
+}
+
+@keyframes nyxEclipseDescend {
+    0% {
+        transform:
+            translate(-50%, -58%) scale(0.28);
+
+        opacity: 0;
+    }
+
+    16% {
+        transform:
+            translate(-50%, -50%) scale(1.04);
+
+        opacity: 1;
+    }
+
+    30%,
+    78% {
+        transform:
+            translate(-50%, -50%) scale(1);
+
+        opacity: 1;
+    }
+
+    100% {
+        transform:
+            translate(-50%, -42%) scale(1.12);
+
+        opacity: 0;
+    }
+}
+
+@keyframes nyxSigilAwaken {
+    0% {
+        transform:
+            translate(-50%, -50%)
+            scale(0.3)
+            rotate(0deg);
+
+        opacity: 0;
+    }
+
+    18%,
+    78% {
+        opacity: 0.78;
+    }
+
+    100% {
+        transform:
+            translate(-50%, -50%)
+            scale(1.26)
+            rotate(210deg);
+
+        opacity: 0;
+    }
+}
+
+@keyframes nyxStarBreathe {
+    0%,
+    100% {
+        opacity: 0.18;
+        transform: scale(0.55);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.35);
+    }
+}
+
+@keyframes nyxJudgementMeteor {
+    0% {
+        opacity: 0;
+
+        transform:
+            translate(-18vw, -15vh)
+            rotate(34deg);
+    }
+
+    12% {
+        opacity: 1;
+    }
+
+    82% {
+        opacity: 0.95;
+    }
+
+    100% {
+        opacity: 0;
+
+        transform:
+            translate(118vw, 82vh)
+            rotate(34deg);
+    }
+}
+
+@keyframes nyxDialogueAppear {
+    0% {
+        opacity: 0;
+
+        transform:
+            translateX(-50%)
+            translateY(10px)
+            scale(0.92);
+    }
+
+    14%,
+    76% {
+        opacity: 1;
+
+        transform:
+            translateX(-50%)
+            translateY(0)
+            scale(1);
+    }
+
+    100% {
+        opacity: 0;
+
+        transform:
+            translateX(-50%)
+            translateY(-9px)
+            scale(0.96);
+    }
+}
+
+@keyframes nyxTrailVanish {
+    0% {
+        opacity: 1;
+
+        transform:
+            translate(-50%, -50%)
+            scale(1.2);
+    }
+
+    100% {
+        opacity: 0;
+
+        transform:
+            translate(
+                calc(
+                    -50% +
+                    var(--nyx-trail-drift, -28px)
+                ),
+                calc(
+                    -50% +
+                    var(--nyx-trail-fall, 42px)
+                )
+            )
+            scale(0.12);
+    }
+}
+
+@keyframes nyxDomainPulse {
+    from {
+        opacity: 0.72;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes nyxDomainAurora {
+    from {
+        transform:
+            translateX(-5%)
+            rotate(-5deg)
+            scaleY(0.92);
+
+        opacity: 0.45;
+    }
+
+    to {
+        transform:
+            translateX(8%)
+            rotate(2deg)
+            scaleY(1.08);
+
+        opacity: 0.78;
+    }
+}
+
+@keyframes nyxDomainStarDrift {
+    to {
+        background-position:
+            110px 95px,
+            -130px 115px,
+            150px -135px,
+            -170px -155px;
+    }
+}
+
+@keyframes nyxDomainDustRise {
+    0% {
+        transform:
+            translateY(24px) scale(0.3);
+
+        opacity: 0;
+    }
+
+    18% {
+        opacity: 0.86;
+    }
+
+    76% {
+        opacity: 0.66;
+    }
+
+    100% {
+        transform:
+            translateY(-78px)
+            translateX(
+                var(--dust-drift, 20px)
+            )
+            scale(1.12);
+
+        opacity: 0;
+    }
+}
+
+@keyframes nyxDomainMeteor {
+    0% {
+        opacity: 0;
+
+        transform:
+            translate(-20vw, -18vh)
+            rotate(34deg);
+    }
+
+    14% {
+        opacity: 1;
+    }
+
+    86% {
+        opacity: 0.9;
+    }
+
+    100% {
+        opacity: 0;
+
+        transform:
+            translate(115vw, 76vh)
+            rotate(34deg);
+    }
+}
+
+@keyframes celestialTitleStar {
+    from {
+        opacity: 0.45;
+
+        transform:
+            scale(0.82) rotate(0deg);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            scale(1.14) rotate(35deg);
+    }
+}
+/* SỬA LỖI CHỮ TIẾNG VIỆT TRONG LỜI THOẠI NYX */
+.nyx-dialogue-box {
+    font-family: Arial, "Segoe UI", Tahoma, sans-serif !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+
+    letter-spacing: 0 !important;
+    word-spacing: 0 !important;
+    font-kerning: normal !important;
+    font-variant-ligatures: none !important;
+
+    line-height: 1.45 !important;
+    white-space: nowrap !important;
+
+    width: max-content !important;
+    min-width: max-content !important;
+    max-width: 90vw !important;
+
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+}
+/* =========================================================
+   STORE CARD TRUYỀN THUYẾT
+   Phong cách: Tinh Điện Hoàng Gia
+
+   Chỉ tác động các card có tag Truyền thuyết.
+   Không ảnh hưởng card Doraemon, LOTM hoặc tag khác.
+   ========================================================= */
+
+
+/* =========================================================
+   KHUNG CARD CHÍNH
+   ========================================================= */
+
+.store-item-card:has(> .item-tag.tag-truyen-thuyet) {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+
+    color: #f8f4ff !important;
+
+    background:
+        radial-gradient(
+            circle at 18% 8%,
+            rgba(255, 224, 138, 0.18),
+            transparent 27%
+        ),
+        radial-gradient(
+            circle at 86% 76%,
+            rgba(168, 85, 247, 0.22),
+            transparent 34%
+        ),
+        linear-gradient(
+            145deg,
+            #21102f 0%,
+            #351347 34%,
+            #21193d 67%,
+            #101426 100%
+        ) !important;
+
+    border:
+        1px solid rgba(255, 220, 126, 0.66) !important;
+
+    border-radius:
+        26px 8px 26px 8px !important;
+
+    box-shadow:
+        0 15px 34px rgba(30, 10, 48, 0.34),
+        0 0 18px rgba(168, 85, 247, 0.12),
+        inset 0 1px 0 rgba(255, 244, 199, 0.24),
+        inset 0 -8px 22px rgba(7, 8, 24, 0.36) !important;
+
+    transition:
+        transform 0.32s cubic-bezier(.22, 1, .36, 1),
+        box-shadow 0.32s ease,
+        border-color 0.32s ease !important;
+}
+
+
+/*
+ * Bầu trời sao nhỏ trong card.
+ * Ghi đè viền nét đứt từ các giao diện khác.
+ */
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+
+    pointer-events: none;
+
+    border: none !important;
+    border-radius: inherit !important;
+
+    background:
+        radial-gradient(
+            circle at 12% 24%,
+            rgba(255, 255, 255, 0.85) 0 1px,
+            transparent 2px
+        ),
+        radial-gradient(
+            circle at 28% 62%,
+            rgba(255, 219, 126, 0.75) 0 1.2px,
+            transparent 2.2px
+        ),
+        radial-gradient(
+            circle at 61% 18%,
+            rgba(232, 213, 255, 0.82) 0 1px,
+            transparent 2px
+        ),
+        radial-gradient(
+            circle at 78% 48%,
+            rgba(255, 255, 255, 0.72) 0 1px,
+            transparent 2px
+        ),
+        radial-gradient(
+            circle at 48% 83%,
+            rgba(196, 181, 253, 0.72) 0 1px,
+            transparent 2px
+        );
+
+    opacity: 0.66;
+
+    animation:
+        legendary-card-stars
+        5s
+        ease-in-out
+        infinite alternate;
+}
+
+
+/* Khung vàng mảnh bên trong */
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)::after {
+    content: "";
+
+    position: absolute;
+    inset: 9px;
+    z-index: 1;
+
+    pointer-events: none;
+
+    border:
+        1px solid rgba(255, 220, 126, 0.19);
+
+    border-radius:
+        18px 4px 18px 4px;
+
+    box-shadow:
+        inset 0 0 16px rgba(255, 220, 126, 0.035);
+}
+
+
+/* Đưa nội dung lên trên các lớp trang trí */
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+> * {
+    position: relative;
+    z-index: 3;
+}
+
+
+/* Tag phải nằm cao nhất */
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+> .item-tag {
+    z-index: 20;
+}
+
+
+/* =========================================================
+   HÀO QUANG ICON
+   ========================================================= */
+
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+.card-glow {
+    position: absolute;
+    z-index: 1;
+
+    top: 15px;
+    left: 50%;
+
+    width: 148px;
+    height: 118px;
+
+    transform: translateX(-50%);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            ellipse at center,
+            rgba(255, 226, 142, 0.26) 0%,
+            rgba(168, 85, 247, 0.18) 40%,
+            transparent 72%
+        );
+
+    filter: blur(2px);
+
+    opacity: 0.8;
+
+    animation:
+        legendary-card-aura
+        3.8s
+        ease-in-out
+        infinite;
+}
+
+
+/* Vòng huy hiệu quanh icon */
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+.item-icon-wrapper {
+    position: relative;
+    z-index: 4;
+
+    width: 108px;
+    height: 96px;
+
+    margin:
+        0 auto 13px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255, 255, 255, 0.11),
+            rgba(121, 53, 157, 0.12) 58%,
+            transparent 72%
+        );
+
+    border:
+        1px solid rgba(255, 220, 126, 0.24);
+
+    box-shadow:
+        0 0 19px rgba(168, 85, 247, 0.13),
+        inset 0 0 16px rgba(255, 255, 255, 0.05);
+}
+
+
+/* Quỹ đạo vàng quanh icon */
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+.item-icon-wrapper::before {
+    content: "";
+
+    position: absolute;
+    inset: 6px;
+
+    border-radius: 50%;
+
+    border:
+        1px dashed rgba(255, 221, 132, 0.37);
+
+    animation:
+        legendary-card-orbit
+        13s
+        linear
+        infinite;
+
+    pointer-events: none;
+}
+
+
+/* Tinh thạch nhỏ */
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+.item-icon-wrapper::after {
+    content: "✦";
+
+    position: absolute;
+
+    right: 3px;
+    bottom: 9px;
+
+    color: #ffe292;
+
+    font-size: 12px;
+
+    text-shadow:
+        0 0 5px #ffe292,
+        0 0 12px rgba(168, 85, 247, 0.72);
+
+    animation:
+        legendary-card-gem
+        2.6s
+        ease-in-out
+        infinite;
+
+    pointer-events: none;
+}
+
+
+/* Icon vật phẩm */
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+.item-icon {
+    position: relative;
+    z-index: 2;
+
+    filter:
+        drop-shadow(
+            0 8px 10px rgba(0, 0, 0, 0.38)
+        )
+        drop-shadow(
+            0 0 7px rgba(255, 218, 122, 0.25)
+        ) !important;
+
+    transition:
+        transform 0.34s cubic-bezier(.22, 1, .36, 1),
+        filter 0.34s ease !important;
+}
+
+
+/* =========================================================
+   TÊN VÀ LOẠI VẬT PHẨM
+   ========================================================= */
+
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+.item-info {
+    position: relative;
+    z-index: 4;
+
+    margin-bottom: 19px;
+}
+
+
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+.item-name {
+    color: #fff4c7 !important;
+
+    font-family:
+        "Cinzel",
+        "Palatino Linotype",
+        Georgia,
+        serif !important;
+
+    font-weight: 900;
+    letter-spacing: 0.25px;
+
+    text-shadow:
+        0 2px 3px rgba(0, 0, 0, 0.72),
+        0 0 8px rgba(255, 220, 126, 0.22);
+}
+
+
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+.item-type-label {
+    color: #d8c7ee !important;
+
+    font-weight: 800;
+    letter-spacing: 1.1px;
+
+    text-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.58);
+}
+
+
+/* Đường ngăn trang trí */
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+.item-info::after {
+    content: "";
+
+    display: block;
+
+    width: 58px;
+    height: 1px;
+
+    margin:
+        12px auto 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 220, 126, 0.85),
+            transparent
+        );
+
+    box-shadow:
+        0 0 7px rgba(255, 220, 126, 0.32);
+}
+
+
+/* =========================================================
+   NÚT TRONG CARD
+   ========================================================= */
+
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+.item-actions {
+    position: relative;
+    z-index: 5;
+
+    gap: 10px;
+}
+
+
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+.item-actions button {
+    min-height: 51px;
+
+    border-radius:
+        13px 4px 13px 4px !important;
+
+    font-family:
+        "Trebuchet MS",
+        "Segoe UI",
+        sans-serif;
+
+    font-weight: 900;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        filter 0.2s ease !important;
+}
+
+
+/* Nút nhận sự kiện hoặc mua */
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+.btn-buy {
+    color: #27132f !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f6d67f 0%,
+            #fff0b0 46%,
+            #c88b3f 100%
+        ) !important;
+
+    border:
+        1px solid rgba(255, 248, 208, 0.9) !important;
+
+    box-shadow:
+        0 7px 17px rgba(205, 147, 58, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.68) !important;
+}
+
+
+/* Nút trang bị */
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+.btn-equip:not(.active) {
+    color: #ffffff !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #6d28d9,
+            #9333ea 54%,
+            #be185d
+        ) !important;
+
+    border:
+        1px solid rgba(233, 213, 255, 0.45) !important;
+
+    box-shadow:
+        0 7px 17px rgba(109, 40, 217, 0.28) !important;
+}
+
+
+/* Nút không hỗ trợ thử nghiệm */
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+.btn-preview.disabled {
+    color: #cfc3df !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(65, 42, 84, 0.82),
+            rgba(94, 60, 122, 0.78)
+        ) !important;
+
+    border:
+        1px dashed rgba(216, 199, 238, 0.35) !important;
+
+    box-shadow:
+        inset 0 0 13px rgba(0, 0, 0, 0.18) !important;
+
+    opacity: 0.88;
+}
+
+
+/* =========================================================
+   HOVER CARD
+   ========================================================= */
+
+.store-item-card:has(> .item-tag.tag-truyen-thuyet):hover {
+    transform:
+        translateY(-7px)
+        scale(1.012) !important;
+
+    border-color:
+        rgba(255, 224, 138, 0.92) !important;
+
+    box-shadow:
+        0 23px 46px rgba(30, 10, 48, 0.46),
+        0 0 25px rgba(168, 85, 247, 0.22),
+        0 0 13px rgba(255, 220, 126, 0.18),
+        inset 0 1px 0 rgba(255, 244, 199, 0.31),
+        inset 0 -8px 22px rgba(7, 8, 24, 0.4) !important;
+}
+
+
+.store-item-card:has(> .item-tag.tag-truyen-thuyet):hover
+.item-icon {
+    transform:
+        translateY(-4px)
+        scale(1.09)
+        rotate(1.5deg) !important;
+
+    filter:
+        drop-shadow(
+            0 11px 13px rgba(0, 0, 0, 0.44)
+        )
+        drop-shadow(
+            0 0 12px rgba(255, 219, 126, 0.45)
+        ) !important;
+}
+
+
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)
+.item-actions button:hover:not(:disabled) {
+    transform: translateY(-2px);
+
+    filter:
+        brightness(1.06)
+        saturate(1.05);
+}
+
+
+/* =========================================================
+   ANIMATION RIÊNG
+   ========================================================= */
+
+@keyframes legendary-card-stars {
+    from {
+        opacity: 0.4;
+        filter: brightness(0.85);
+    }
+
+    to {
+        opacity: 0.82;
+        filter: brightness(1.25);
+    }
+}
+
+
+@keyframes legendary-card-aura {
+    0%,
+    100% {
+        transform:
+            translateX(-50%)
+            scale(0.94);
+
+        opacity: 0.58;
+    }
+
+    50% {
+        transform:
+            translateX(-50%)
+            scale(1.07);
+
+        opacity: 0.94;
+    }
+}
+
+
+@keyframes legendary-card-orbit {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+@keyframes legendary-card-gem {
+    0%,
+    100% {
+        transform:
+            translateY(2px)
+            scale(0.82);
+
+        opacity: 0.46;
+    }
+
+    50% {
+        transform:
+            translateY(-3px)
+            scale(1.08);
+
+        opacity: 1;
+    }
+}
+
+
+/* =========================================================
+   GIẢM CHUYỂN ĐỘNG
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    .store-item-card:has(> .item-tag.tag-truyen-thuyet)::before,
+
+    .store-item-card:has(> .item-tag.tag-truyen-thuyet)
+    .card-glow,
+
+    .store-item-card:has(> .item-tag.tag-truyen-thuyet)
+    .item-icon-wrapper::before,
+
+    .store-item-card:has(> .item-tag.tag-truyen-thuyet)
+    .item-icon-wrapper::after {
+        animation: none !important;
+    }
+}
+/* =========================================================
+   NYX TRINITY STORE CARD — NHẬT THỰC VĨNH DẠ
+
+   Áp dụng chung cho:
+   - Nyx - Nữ Thần Màn Đêm
+   - Kỷ Nguyên Đêm Trường Cửu
+   - Thánh Vực Tối Thượng
+
+   Không ảnh hưởng các card Truyền thuyết khác.
+   ========================================================= */
+
+
+/* =========================================================
+   CARD CHÍNH
+   ========================================================= */
+
+body .store-item-card.store-card-nyx-trinity {
+    --nyx-card-void: #05030b;
+    --nyx-card-deep: #130721;
+    --nyx-card-purple: #6d28d9;
+    --nyx-card-violet: #a855f7;
+    --nyx-card-lilac: #e9d5ff;
+    --nyx-card-gold: #f8d477;
+
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+
+    color: #f6efff !important;
+
+    background:
+        radial-gradient(
+            circle at 50% 3%,
+            rgba(248, 212, 119, 0.14),
+            transparent 27%
+        ),
+        radial-gradient(
+            circle at 13% 72%,
+            rgba(109, 40, 217, 0.26),
+            transparent 36%
+        ),
+        radial-gradient(
+            circle at 90% 82%,
+            rgba(168, 85, 247, 0.19),
+            transparent 32%
+        ),
+        linear-gradient(
+            155deg,
+            #090411 0%,
+            #1c092d 38%,
+            #10081f 69%,
+            #04030a 100%
+        ) !important;
+
+    border:
+        1px solid rgba(248, 212, 119, 0.63) !important;
+
+    border-radius:
+        9px 31px 9px 31px !important;
+
+    box-shadow:
+        0 18px 40px rgba(7, 3, 14, 0.54),
+        0 0 21px rgba(109, 40, 217, 0.17),
+        inset 0 1px 0 rgba(248, 212, 119, 0.2),
+        inset 0 -14px 30px rgba(0, 0, 0, 0.35) !important;
+
+    transition:
+        transform 0.34s cubic-bezier(.22, 1, .36, 1),
+        border-color 0.34s ease,
+        box-shadow 0.34s ease !important;
+}
+
+
+/* Nhật thực nằm phía sau icon */
+body .store-item-card.store-card-nyx-trinity::before {
+    content: "";
+
+    position: absolute;
+    z-index: 0;
+
+    top: -77px;
+    left: 50%;
+
+    width: 190px;
+    height: 190px;
+
+    transform:
+        translateX(-50%)
+        rotate(0deg);
+
+    border: none !important;
+    border-radius: 50% !important;
+
+    background:
+        radial-gradient(
+            circle,
+            #030106 0 44%,
+            transparent 46%
+        ),
+        conic-gradient(
+            from 20deg,
+            rgba(109, 40, 217, 0.38),
+            rgba(233, 213, 255, 0.88),
+            rgba(248, 212, 119, 0.86),
+            rgba(168, 85, 247, 0.68),
+            rgba(109, 40, 217, 0.38)
+        );
+
+    box-shadow:
+        0 0 17px rgba(233, 213, 255, 0.44),
+        0 0 40px rgba(109, 40, 217, 0.33),
+        0 0 65px rgba(168, 85, 247, 0.13),
+        inset 0 0 19px rgba(0, 0, 0, 0.92);
+
+    opacity: 0.84;
+
+    animation:
+        nyx-trinity-card-eclipse
+        18s
+        linear
+        infinite;
+
+    pointer-events: none;
+}
+
+
+/* Khung phong ấn bên trong */
+body .store-item-card.store-card-nyx-trinity::after {
+    content: "";
+
+    position: absolute;
+    z-index: 1;
+
+    inset: 9px;
+
+    pointer-events: none;
+
+    border:
+        1px solid rgba(233, 213, 255, 0.14);
+
+    border-radius:
+        4px 23px 4px 23px;
+
+    background:
+        linear-gradient(
+            120deg,
+            transparent,
+            rgba(255, 255, 255, 0.025),
+            transparent
+        );
+
+    box-shadow:
+        inset 0 0 20px rgba(168, 85, 247, 0.05);
+}
+
+
+/* Toàn bộ nội dung nằm trên lớp nền */
+body .store-item-card.store-card-nyx-trinity
+> * {
+    position: relative;
+    z-index: 3;
+}
+
+
+/* =========================================================
+   SƯƠNG VÀ ÁNH SÁNG ICON
+   ========================================================= */
+
+body .store-item-card.store-card-nyx-trinity
+.card-glow {
+    position: absolute;
+    z-index: 1;
+
+    top: 18px;
+    left: 50%;
+
+    width: 172px;
+    height: 135px;
+
+    transform: translateX(-50%);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(233, 213, 255, 0.2),
+            rgba(109, 40, 217, 0.13) 43%,
+            transparent 72%
+        ) !important;
+
+    filter: blur(5px);
+
+    opacity: 0.78;
+
+    animation:
+        nyx-trinity-card-mist
+        4.6s
+        ease-in-out
+        infinite;
+}
+
+
+/* Khung icon */
+body .store-item-card.store-card-nyx-trinity
+.item-icon-wrapper {
+    position: relative;
+    z-index: 4;
+
+    width: 108px;
+    height: 103px;
+
+    margin:
+        0 auto 13px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255, 255, 255, 0.08),
+            rgba(109, 40, 217, 0.1) 50%,
+            transparent 72%
+        );
+
+    border:
+        1px solid rgba(248, 212, 119, 0.22);
+
+    box-shadow:
+        0 0 16px rgba(168, 85, 247, 0.14),
+        inset 0 0 19px rgba(0, 0, 0, 0.24);
+}
+
+
+/* Vòng tinh tú */
+body .store-item-card.store-card-nyx-trinity
+.item-icon-wrapper::before {
+    content: "";
+
+    position: absolute;
+    inset: 4px;
+
+    border-radius: 50%;
+
+    border:
+        1px dashed rgba(233, 213, 255, 0.38);
+
+    background:
+        repeating-conic-gradient(
+            from 0deg,
+            rgba(248, 212, 119, 0.7) 0deg 1deg,
+            transparent 1deg 31deg
+        );
+
+    opacity: 0.7;
+
+    animation:
+        nyx-trinity-card-sigil
+        15s
+        linear
+        infinite;
+
+    pointer-events: none;
+}
+
+
+/* Ngôi sao vàng */
+body .store-item-card.store-card-nyx-trinity
+.item-icon-wrapper::after {
+    content: "✦";
+
+    position: absolute;
+
+    right: 1px;
+    top: 14px;
+
+    color: var(--nyx-card-gold);
+
+    font-size: 12px;
+
+    text-shadow:
+        0 0 5px var(--nyx-card-gold),
+        0 0 12px rgba(168, 85, 247, 0.88);
+
+    animation:
+        nyx-trinity-card-star
+        2.8s
+        ease-in-out
+        infinite;
+
+    pointer-events: none;
+}
+
+
+/* Hình ảnh và emoji */
+body .store-item-card.store-card-nyx-trinity
+.item-icon {
+    position: relative;
+    z-index: 3;
+
+    filter:
+        drop-shadow(
+            0 9px 11px rgba(0, 0, 0, 0.5)
+        )
+        drop-shadow(
+            0 0 8px rgba(168, 85, 247, 0.38)
+        ) !important;
+
+    transition:
+        transform 0.35s cubic-bezier(.22, 1, .36, 1),
+        filter 0.35s ease !important;
+}
+
+
+/* Ảnh Nyx */
+body .store-item-card.store-card-nyx-trinity
+img.item-icon {
+    width: 88px !important;
+    height: 88px !important;
+
+    object-fit: contain !important;
+}
+
+
+/* Emoji theme và effect */
+body .store-item-card.store-card-nyx-trinity
+div.item-icon {
+    font-size: 3.65em !important;
+}
+
+
+/* =========================================================
+   TAG RIÊNG CHO BỘ BA NYX
+   Vẫn hiển thị chữ Truyền thuyết
+   ========================================================= */
+
+body .store-item-card.store-card-nyx-trinity
+> .item-tag.tag-truyen-thuyet {
+    position: absolute !important;
+    z-index: 25;
+
+    top: 14px !important;
+    right: -45px !important;
+    left: auto !important;
+    bottom: auto !important;
+
+    width: 162px !important;
+    min-width: 162px !important;
+    height: 37px !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    transform:
+        rotate(45deg) !important;
+
+    color: #f8e8b6 !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #030207 0%,
+            #21142f 27%,
+            #6d28d9 48%,
+            #392044 68%,
+            #09050e 100%
+        ) !important;
+
+    border:
+        1px solid rgba(248, 212, 119, 0.76) !important;
+
+    border-radius: 2px !important;
+
+    box-shadow:
+        0 7px 18px rgba(0, 0, 0, 0.58),
+        0 0 13px rgba(109, 40, 217, 0.31),
+        inset 0 -3px 0 rgba(248, 212, 119, 0.3) !important;
+}
+
+
+/* Chữ tag */
+body .store-item-card.store-card-nyx-trinity
+> .item-tag.tag-truyen-thuyet span {
+    position: relative;
+    z-index: 4;
+
+    display: block;
+
+    padding-left: 19px !important;
+
+    color: #f8e8b6 !important;
+
+    font-family:
+        "Cinzel",
+        "Palatino Linotype",
+        Georgia,
+        serif;
+
+    font-size: 9.7px !important;
+    font-weight: 900;
+    line-height: 1;
+
+    letter-spacing: 0.38px !important;
+    text-transform: uppercase;
+    white-space: nowrap;
+
+    text-shadow:
+        0 1px 0 #000000,
+        0 0 6px rgba(248, 212, 119, 0.42);
+}
+
+
+/* Biểu tượng trăng khuyết */
+body .store-item-card.store-card-nyx-trinity
+> .item-tag.tag-truyen-thuyet::before {
+    content: "☾";
+
+    position: absolute;
+    z-index: 5;
+
+    left: 27px;
+    top: 50%;
+
+    transform: translateY(-52%);
+
+    color: #f8d477;
+
+    font-size: 16px;
+
+    text-shadow:
+        0 0 5px rgba(248, 212, 119, 0.92),
+        0 0 12px rgba(168, 85, 247, 0.62);
+
+    pointer-events: none;
+}
+
+
+/* Sương lướt qua tag */
+body .store-item-card.store-card-nyx-trinity
+> .item-tag.tag-truyen-thuyet::after {
+    content: "";
+
+    position: absolute;
+    z-index: 2;
+
+    top: -65%;
+    left: -45%;
+
+    width: 48%;
+    height: 230%;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(233, 213, 255, 0.52),
+            rgba(233, 213, 255, 0.08) 52%,
+            transparent 72%
+        );
+
+    filter: blur(4px);
+
+    animation:
+        nyx-trinity-tag-fog
+        6.8s
+        ease-in-out
+        infinite;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   TÊN VẬT PHẨM
+   ========================================================= */
+
+body .store-item-card.store-card-nyx-trinity
+.item-info {
+    position: relative;
+    z-index: 5;
+
+    margin-bottom: 19px;
+}
+
+
+body .store-item-card.store-card-nyx-trinity
+.item-name {
+    color: #f7e9bc !important;
+
+    font-family:
+        "Cinzel",
+        "Palatino Linotype",
+        Georgia,
+        serif !important;
+
+    font-weight: 900;
+    letter-spacing: 0.2px;
+
+    text-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.88),
+        0 0 9px rgba(168, 85, 247, 0.24);
+}
+
+
+body .store-item-card.store-card-nyx-trinity
+.item-type-label {
+    color: #d8c7ed !important;
+
+    font-weight: 800;
+    letter-spacing: 1.05px;
+
+    text-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.75);
+}
+
+
+/* Vạch vàng dưới tên */
+body .store-item-card.store-card-nyx-trinity
+.item-info::after {
+    content: "";
+
+    display: block;
+
+    width: 62px;
+    height: 1px;
+
+    margin:
+        12px auto 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(248, 212, 119, 0.9),
+            transparent
+        );
+
+    box-shadow:
+        0 0 7px rgba(248, 212, 119, 0.31);
+}
+
+
+/* =========================================================
+   NÚT
+   ========================================================= */
+
+body .store-item-card.store-card-nyx-trinity
+.item-actions {
+    position: relative;
+    z-index: 6;
+
+    gap: 10px;
+}
+
+
+body .store-item-card.store-card-nyx-trinity
+.item-actions button {
+    min-height: 50px;
+
+    border-radius:
+        5px 15px 5px 15px !important;
+
+    font-weight: 900;
+
+    transition:
+        transform 0.22s ease,
+        filter 0.22s ease,
+        box-shadow 0.22s ease !important;
+}
+
+
+/* Nút chính */
+body .store-item-card.store-card-nyx-trinity
+:is(
+    .btn-buy,
+    .btn-equip:not(.active)
+) {
+    color: #fff7dc !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #351050,
+            #6d28d9 52%,
+            #9d174d
+        ) !important;
+
+    border:
+        1px solid rgba(248, 212, 119, 0.5) !important;
+
+    box-shadow:
+        0 7px 18px rgba(45, 12, 73, 0.37),
+        inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
+}
+
+
+/* Nút phụ */
+body .store-item-card.store-card-nyx-trinity
+.btn-preview {
+    color: #d9c9ed !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(36, 20, 49, 0.92),
+            rgba(72, 42, 91, 0.88)
+        ) !important;
+
+    border:
+        1px dashed rgba(216, 199, 237, 0.35) !important;
+
+    box-shadow:
+        inset 0 0 12px rgba(0, 0, 0, 0.21) !important;
+}
+
+
+/* =========================================================
+   HOVER
+   ========================================================= */
+
+body .store-item-card.store-card-nyx-trinity:hover {
+    transform:
+        translateY(-7px)
+        scale(1.012) !important;
+
+    border-color:
+        rgba(248, 212, 119, 0.9) !important;
+
+    box-shadow:
+        0 25px 50px rgba(7, 3, 14, 0.64),
+        0 0 30px rgba(109, 40, 217, 0.28),
+        0 0 15px rgba(248, 212, 119, 0.17),
+        inset 0 1px 0 rgba(248, 212, 119, 0.27),
+        inset 0 -14px 30px rgba(0, 0, 0, 0.4) !important;
+}
+
+
+body .store-item-card.store-card-nyx-trinity:hover
+.item-icon {
+    transform:
+        translateY(-4px)
+        scale(1.09)
+        rotate(1deg) !important;
+
+    filter:
+        drop-shadow(
+            0 12px 14px rgba(0, 0, 0, 0.55)
+        )
+        drop-shadow(
+            0 0 14px rgba(168, 85, 247, 0.65)
+        )
+        drop-shadow(
+            0 0 6px rgba(248, 212, 119, 0.36)
+        ) !important;
+}
+
+
+body .store-item-card.store-card-nyx-trinity
+.item-actions button:hover:not(:disabled) {
+    transform: translateY(-2px);
+
+    filter:
+        brightness(1.08)
+        saturate(1.06);
+}
+
+
+/* =========================================================
+   ANIMATION RIÊNG
+   ========================================================= */
+
+@keyframes nyx-trinity-card-eclipse {
+    from {
+        transform:
+            translateX(-50%)
+            rotate(0deg);
+    }
+
+    to {
+        transform:
+            translateX(-50%)
+            rotate(360deg);
+    }
+}
+
+
+@keyframes nyx-trinity-card-mist {
+    0%,
+    100% {
+        transform:
+            translateX(-50%)
+            scale(0.91);
+
+        opacity: 0.48;
+    }
+
+    50% {
+        transform:
+            translateX(-50%)
+            scale(1.09);
+
+        opacity: 0.9;
+    }
+}
+
+
+@keyframes nyx-trinity-card-sigil {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(-360deg);
+    }
+}
+
+
+@keyframes nyx-trinity-card-star {
+    0%,
+    100% {
+        transform:
+            translateY(2px)
+            scale(0.82);
+
+        opacity: 0.48;
+    }
+
+    50% {
+        transform:
+            translateY(-3px)
+            scale(1.08);
+
+        opacity: 1;
+    }
+}
+
+
+@keyframes nyx-trinity-tag-fog {
+    0%,
+    58% {
+        transform:
+            translateX(-140%)
+            rotate(12deg);
+
+        opacity: 0;
+    }
+
+    72% {
+        opacity: 0.72;
+    }
+
+    94%,
+    100% {
+        transform:
+            translateX(450%)
+            rotate(5deg);
+
+        opacity: 0;
+    }
+}
+
+
+/* =========================================================
+   GIẢM CHUYỂN ĐỘNG
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    body .store-item-card.store-card-nyx-trinity::before,
+
+    body .store-item-card.store-card-nyx-trinity
+    .card-glow,
+
+    body .store-item-card.store-card-nyx-trinity
+    .item-icon-wrapper::before,
+
+    body .store-item-card.store-card-nyx-trinity
+    .item-icon-wrapper::after,
+
+    body .store-item-card.store-card-nyx-trinity
+    > .item-tag.tag-truyen-thuyet::after {
+        animation: none !important;
+    }
+}
+/* =========================================================
+   FIX MOBILE — THÁNH VỰC TỐI THƯỢNG
+   Class giao diện: theme-legendary-celestial
+   ========================================================= */
+
+@media screen and (max-width: 768px) {
+
+    /* Sidebar phong cách Thánh Vực Tối Thượng */
+    body.theme-legendary-celestial
+    .dashboard .sidebar {
+        position: fixed !important;
+
+        top: 0 !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: auto !important;
+
+        width: 260px !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+
+        display: flex !important;
+        flex-direction: column !important;
+
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+
+        color: #f5f1ff !important;
+
+        background:
+            radial-gradient(
+                circle at 20% 8%,
+                rgba(126, 34, 206, 0.27),
+                transparent 28%
+            ),
+            radial-gradient(
+                circle at 85% 85%,
+                rgba(248, 212, 119, 0.12),
+                transparent 30%
+            ),
+            linear-gradient(
+                180deg,
+                rgba(20, 12, 35, 0.99),
+                rgba(10, 6, 19, 0.99) 55%,
+                rgba(5, 3, 10, 0.99)
+            ) !important;
+
+        border: none !important;
+        border-right:
+            1px solid rgba(248, 212, 119, 0.55) !important;
+
+        border-radius: 0 24px 24px 0 !important;
+
+        box-shadow:
+            14px 0 38px rgba(0, 0, 0, 0.68),
+            inset -1px 0 rgba(248, 212, 119, 0.14),
+            inset 0 0 35px rgba(126, 34, 206, 0.12)
+            !important;
+
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+
+        z-index: 10000 !important;
+    }
+
+    /* Sidebar đóng */
+    body.theme-legendary-celestial
+    .dashboard.collapsed .sidebar {
+        left: -270px !important;
+    }
+
+    /* Khu vực menu */
+    body.theme-legendary-celestial
+    .sidebar-top {
+        display: block !important;
+        flex: 1 1 auto !important;
+
+        padding:
+            70px 18px 20px !important;
+    }
+
+    /* Tên học sinh */
+    body.theme-legendary-celestial
+    .sidebar h3,
+    body.theme-legendary-celestial
+    .sidebar-top h3 {
+        display: block !important;
+
+        color: #f8d477 !important;
+
+        border-bottom:
+            1px solid rgba(248, 212, 119, 0.3) !important;
+
+        text-shadow:
+            0 0 12px rgba(248, 212, 119, 0.25),
+            0 0 20px rgba(126, 34, 206, 0.25)
+            !important;
+    }
+
+    /* Các mục menu */
+    body.theme-legendary-celestial
+    .sidebar .nav-item,
+    body.theme-legendary-celestial
+    .dashboard.collapsed
+    .sidebar .nav-item {
+        width: 100% !important;
+        min-width: 0 !important;
+        min-height: 52px !important;
+
+        margin: 0 0 9px !important;
+        padding: 13px 15px !important;
+
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+
+        gap: 11px !important;
+
+        color: #eee9fa !important;
+
+        text-align: left !important;
+        font-size: 1rem !important;
+
+        background:
+            rgba(255, 255, 255, 0.035) !important;
+
+        border:
+            1px solid rgba(248, 212, 119, 0.18) !important;
+
+        border-radius:
+            14px 5px 14px 5px !important;
+
+        box-shadow:
+            inset 0 0 15px rgba(126, 34, 206, 0.035)
+            !important;
+    }
+
+    /* Hiện chữ menu */
+    body.theme-legendary-celestial
+    .sidebar .nav-item .nav-text {
+        display: inline !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+
+        color: inherit !important;
+    }
+
+    /* Mục đang được chọn */
+    body.theme-legendary-celestial
+    .sidebar .nav-item.active {
+        color: #fff2b9 !important;
+
+        background:
+            linear-gradient(
+                120deg,
+                rgba(126, 34, 206, 0.34),
+                rgba(248, 212, 119, 0.12)
+            ) !important;
+
+        border-color:
+            rgba(248, 212, 119, 0.7) !important;
+
+        box-shadow:
+            0 0 18px rgba(126, 34, 206, 0.2),
+            inset 0 0 16px rgba(248, 212, 119, 0.08)
+            !important;
+    }
+
+    /* Phần cuối và nút đăng xuất */
+    body.theme-legendary-celestial
+    .sidebar-bottom {
+        display: block !important;
+
+        padding:
+            16px 18px 24px !important;
+
+        border-top:
+            1px solid rgba(248, 212, 119, 0.16) !important;
+    }
+
+    body.theme-legendary-celestial
+    .sidebar .btn-logout {
+        color: #fff2b9 !important;
+
+        background:
+            linear-gradient(
+                120deg,
+                #4c1d95,
+                #7c3aed
+            ) !important;
+
+        border:
+            1px solid rgba(248, 212, 119, 0.32) !important;
+
+        box-shadow:
+            0 8px 22px rgba(76, 29, 149, 0.35)
+            !important;
+    }
+
+    /* Nút đóng/mở sidebar */
+    body.theme-legendary-celestial
+    .sidebar-toggle {
+        position: fixed !important;
+
+        top: 15px !important;
+        left: 15px !important;
+        right: auto !important;
+
+        width: 45px !important;
+        min-width: 45px !important;
+        max-width: 45px !important;
+
+        height: 45px !important;
+        min-height: 45px !important;
+        max-height: 45px !important;
+
+        padding: 0 !important;
+        margin: 0 !important;
+
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+
+        color: #fff2b9 !important;
+
+        background:
+            linear-gradient(
+                135deg,
+                #4c1d95,
+                #7e22ce,
+                #a86f14
+            ) !important;
+
+        border:
+            1px solid rgba(248, 212, 119, 0.75)
+            !important;
+
+        border-radius: 50% !important;
+
+        box-shadow:
+            0 7px 20px rgba(76, 29, 149, 0.48),
+            0 0 14px rgba(248, 212, 119, 0.2)
+            !important;
+
+        z-index: 10002 !important;
+    }
+
+    /* Khi đóng: nút ☰ ở góc trái */
+    body.theme-legendary-celestial
+    .dashboard.collapsed
+    .sidebar-toggle {
+        left: 15px !important;
+        transform: none !important;
+    }
+
+    /* Khi mở: đặt nút X bên trong sidebar */
+    body.theme-legendary-celestial
+    .dashboard:not(.collapsed)
+    .sidebar-toggle {
+        left: 205px !important;
+        transform: none !important;
+    }
+
+    body.theme-legendary-celestial
+    .dashboard.collapsed
+    .sidebar-toggle::before {
+        content: "☰" !important;
+
+        color: #fff2b9 !important;
+        font-size: 24px !important;
+        font-weight: 900 !important;
+        line-height: 1 !important;
+    }
+
+    body.theme-legendary-celestial
+    .dashboard:not(.collapsed)
+    .sidebar-toggle::before {
+        content: "✕" !important;
+
+        color: #ffffff !important;
+        font-size: 22px !important;
+        font-weight: 900 !important;
+        line-height: 1 !important;
+    }
+
+    /* Ẩn 4 nút góc trên khi sidebar mở */
+    body.theme-legendary-celestial
+    .dashboard:not(.collapsed)
+    .content > :is(
+        .profile-trigger-btn,
+        .inbox-trigger-btn,
+        .bag-trigger-btn,
+        .leaderboard-trigger-btn,
+        #btnLeaderboard
+    ) {
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+
+    /* Ẩn Coin và thú cưng khi sidebar mở */
+    body.theme-legendary-celestial:has(
+        .dashboard:not(.collapsed)
+    ) #coinWidget,
+
+    body.theme-legendary-celestial:has(
+        .dashboard:not(.collapsed)
+    ) #virtual-pet-container {
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+}
+
+/* =====================================================================
+   DESKTOP CLEANUP — THÁNH VỰC TỐI THƯỢNG
+   - Bỏ biểu tượng ✦ bị lặp dưới huy hiệu
+   - Ẩn thanh cuộn tím của sidebar
+   - Thu gọn khoảng trống giữa sidebar và nội dung
+   ===================================================================== */
+@media screen and (min-width: 769px) {
+
+    /* Sidebar vẫn cuộn được nhưng không hiện thanh cuộn màu tím. */
+    body.theme-legendary-celestial .sidebar {
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
+    }
+
+    body.theme-legendary-celestial .sidebar::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+
+    /*
+     * Khi sidebar thu gọn, common.css tạo thêm một dấu ✦
+     * bằng h3::before. Giao diện đã có huy hiệu sidebar::after,
+     * vì vậy ẩn hẳn tiêu đề và pseudo-element bị lặp.
+     */
+    body.theme-legendary-celestial
+    .dashboard.collapsed
+    .sidebar h3,
+
+    body.theme-legendary-celestial
+    .dashboard.collapsed
+    .sidebar-top h3 {
+        display: none !important;
+        visibility: hidden !important;
+
+        width: 0 !important;
+        height: 0 !important;
+        min-height: 0 !important;
+
+        margin: 0 !important;
+        padding: 0 !important;
+
+        overflow: hidden !important;
+        border: 0 !important;
+
+        font-size: 0 !important;
+        line-height: 0 !important;
+    }
+
+    body.theme-legendary-celestial
+    .dashboard.collapsed
+    .sidebar h3::before,
+
+    body.theme-legendary-celestial
+    .dashboard.collapsed
+    .sidebar h3::after,
+
+    body.theme-legendary-celestial
+    .dashboard.collapsed
+    .sidebar-top h3::before,
+
+    body.theme-legendary-celestial
+    .dashboard.collapsed
+    .sidebar-top h3::after {
+        content: none !important;
+        display: none !important;
+    }
+
+    /* Đưa dãy nút menu lên gần huy hiệu hơn sau khi bỏ tiêu đề. */
+    body.theme-legendary-celestial
+    .dashboard.collapsed
+    .sidebar-top {
+        padding:
+            88px 10px 18px !important;
+    }
+
+    body.theme-legendary-celestial
+    .dashboard.collapsed
+    .sidebar-bottom {
+        padding:
+            14px 10px 18px !important;
+    }
+
+    /*
+     * Bản cũ dùng padding trái tối đa 66px cho cả sidebar mở và đóng.
+     * Khi sidebar chỉ còn 96px, khoảng này tạo một dải trống quá lớn.
+     */
+    body.theme-legendary-celestial
+    .dashboard.collapsed
+    .content {
+        width:
+            calc(100% - 96px) !important;
+
+        padding-left:
+            24px !important;
+
+        padding-right:
+            clamp(26px, 3vw, 48px) !important;
+    }
+
+    /* Giữ khoảng cách nhỏ, đều giữa các nút trong sidebar thu gọn. */
+    body.theme-legendary-celestial
+    .dashboard.collapsed
+    .nav-item {
+        margin:
+            0 0 8px !important;
+    }
+}

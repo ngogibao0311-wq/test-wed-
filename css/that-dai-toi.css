@@ -1,0 +1,9655 @@
+/* =========================================================
+   THẤT ĐẠI TỘI — LƯỜI BIẾNG
+   Card, tag và hiệu ứng thú cưng độc lập
+   ========================================================= */
+
+:root {
+    --sloth-void: #100b19;
+    --sloth-deep: #1d1230;
+    --sloth-purple: #6d4aa2;
+    --sloth-lilac: #c4b5fd;
+    --sloth-pale: #ede9fe;
+    --sloth-silver: #d8d5e5;
+}
+
+
+/* =========================================================
+   CARD VẬT PHẨM RIÊNG
+   Miễn nhiễm giao diện đang trang bị
+   ========================================================= */
+
+.store-item-card.store-card-seven-sins-sloth.ui-theme-immune {
+    position: relative !important;
+    isolation: isolate !important;
+    overflow: hidden !important;
+
+    color: var(--sloth-pale) !important;
+
+    background:
+        radial-gradient(circle at 18% 16%,
+            rgba(196, 181, 253, 0.25),
+            transparent 30%),
+        radial-gradient(circle at 83% 82%,
+            rgba(109, 74, 162, 0.2),
+            transparent 36%),
+        linear-gradient(145deg,
+            #211634 0%,
+            #171024 52%,
+            #0d0914 100%) !important;
+
+    border:
+        1px solid rgba(196, 181, 253, 0.7) !important;
+
+    border-radius: 18px !important;
+
+    box-shadow:
+        0 18px 40px rgba(12, 7, 20, 0.48),
+        0 0 22px rgba(109, 74, 162, 0.23),
+        inset 0 1px 0 rgba(255, 255, 255, 0.13) !important;
+
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease !important;
+}
+
+.store-item-card.store-card-seven-sins-sloth.ui-theme-immune:hover {
+    transform: translateY(-5px) !important;
+
+    box-shadow:
+        0 24px 50px rgba(10, 6, 17, 0.58),
+        0 0 32px rgba(139, 92, 246, 0.32),
+        inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
+}
+
+
+/* Họa tiết trăng ngủ */
+
+.store-card-seven-sins-sloth::before {
+    content: "☾";
+
+    position: absolute;
+    z-index: 0;
+
+    left: 15px;
+    top: 10px;
+
+    color: rgba(237, 233, 254, 0.11);
+
+    font-size: 88px;
+    font-weight: 400;
+    line-height: 1;
+
+    transform: rotate(-18deg);
+
+    pointer-events: none;
+}
+
+
+/* Làn sáng chậm trong card */
+
+.store-card-seven-sins-sloth .card-glow {
+    position: absolute !important;
+    z-index: 0 !important;
+
+    inset: -55% !important;
+
+    opacity: 0.75 !important;
+
+    background:
+        conic-gradient(from 0deg,
+            transparent 0 28%,
+            rgba(196, 181, 253, 0.12) 38%,
+            transparent 48% 78%,
+            rgba(109, 74, 162, 0.12) 88%,
+            transparent 100%) !important;
+
+    animation:
+        tdt-sloth-card-drift 16s linear infinite !important;
+
+    pointer-events: none !important;
+}
+
+
+/* Nội dung luôn ở trên họa tiết */
+
+.store-card-seven-sins-sloth .item-icon-wrapper,
+.store-card-seven-sins-sloth .item-info,
+.store-card-seven-sins-sloth .item-actions {
+    position: relative;
+    z-index: 3;
+}
+
+.store-card-seven-sins-sloth .item-icon-wrapper {
+    background:
+        radial-gradient(circle,
+            rgba(237, 233, 254, 0.13),
+            rgba(109, 74, 162, 0.08) 48%,
+            transparent 70%) !important;
+
+    border-color:
+        rgba(196, 181, 253, 0.25) !important;
+}
+
+.store-card-seven-sins-sloth .item-name {
+    color: #f5f3ff !important;
+
+    text-shadow:
+        0 0 10px rgba(196, 181, 253, 0.25) !important;
+}
+
+.store-card-seven-sins-sloth .item-type-label {
+    color: rgba(237, 233, 254, 0.72) !important;
+}
+
+
+/* Nút sự kiện */
+
+.store-card-seven-sins-sloth .btn-buy.event-only {
+    opacity: 1 !important;
+
+    color: #ddd6fe !important;
+
+    background:
+        linear-gradient(135deg,
+            rgba(76, 55, 111, 0.78),
+            rgba(33, 22, 52, 0.94)) !important;
+
+    border:
+        1px solid rgba(196, 181, 253, 0.4) !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+
+    cursor: not-allowed !important;
+}
+
+
+/* =========================================================
+   TAG THẤT ĐẠI TỘI RIÊNG
+   ========================================================= */
+
+.store-card-seven-sins-sloth .item-tag.tag-that-dai-toi {
+    position: absolute !important;
+    z-index: 20 !important;
+
+    top: 13px !important;
+    right: -42px !important;
+    left: auto !important;
+
+    width: 158px !important;
+    min-width: 158px !important;
+    height: 36px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    overflow: hidden !important;
+
+    color: #ffffff !important;
+
+    background:
+        linear-gradient(135deg,
+            #251536 0%,
+            #513171 48%,
+            #8060a7 100%) !important;
+
+    border:
+        1px solid rgba(237, 233, 254, 0.72) !important;
+
+    border-radius: 4px !important;
+
+    box-shadow:
+        0 8px 18px rgba(12, 7, 20, 0.4),
+        inset 0 2px 0 rgba(255, 255, 255, 0.16),
+        inset 0 -4px 0 rgba(13, 9, 20, 0.38) !important;
+
+    transform: rotate(45deg) !important;
+    transform-origin: center !important;
+
+    box-sizing: border-box !important;
+}
+
+.store-card-seven-sins-sloth .item-tag.tag-that-dai-toi span {
+    position: relative;
+    z-index: 3;
+
+    display: block;
+
+    padding-left: 18px;
+
+    color: #ffffff !important;
+
+    font-family:
+        "Trebuchet MS",
+        "Segoe UI",
+        sans-serif !important;
+
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+
+    letter-spacing: 0.7px !important;
+    white-space: nowrap !important;
+
+    text-shadow:
+        0 1px 0 rgba(20, 10, 31, 0.9),
+        0 0 7px rgba(237, 233, 254, 0.32) !important;
+}
+
+
+/* Biểu tượng tội thứ bảy */
+
+.store-card-seven-sins-sloth .item-tag.tag-that-dai-toi::before {
+    content: "Ⅶ";
+
+    position: absolute;
+    z-index: 4;
+
+    left: 28px;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    color: #ede9fe;
+
+    font-size: 14px;
+    font-weight: 900;
+
+    text-shadow:
+        0 0 7px rgba(237, 233, 254, 0.72);
+
+    pointer-events: none;
+}
+
+
+/* Vệt sáng tag riêng */
+
+.store-card-seven-sins-sloth .item-tag.tag-that-dai-toi::after {
+    content: "";
+
+    position: absolute;
+    z-index: 2;
+
+    top: -55%;
+    left: -52%;
+
+    width: 28%;
+    height: 210%;
+
+    background:
+        linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.68),
+            transparent);
+
+    transform:
+        rotate(17deg) translateX(-220%);
+
+    animation:
+        tdt-sloth-tag-shine 5.6s ease-in-out infinite;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   HIỆU ỨNG THÚ CƯNG LƯỜI BIẾNG
+   ========================================================= */
+
+#virtual-pet-container.pet-seven-sins-sloth-stage {
+    isolation: isolate !important;
+    overflow: visible !important;
+}
+
+
+/* Ảnh thú cưng */
+
+#virtual-pet-container.pet-seven-sins-sloth-stage .seven-sins-sloth-magic {
+    position: relative;
+    z-index: 8 !important;
+
+    width: 155px !important;
+    max-width: none !important;
+    height: auto !important;
+
+    user-select: none;
+    -webkit-user-drag: none;
+
+    cursor: grab;
+
+    transform-origin: 50% 78%;
+
+    filter:
+        drop-shadow(0 12px 13px rgba(8, 4, 14, 0.64)) drop-shadow(0 0 12px rgba(139, 92, 246, 0.34)) drop-shadow(0 0 25px rgba(196, 181, 253, 0.16)) !important;
+
+    animation:
+        tdt-sloth-idle 5.8s ease-in-out infinite !important;
+}
+
+#virtual-pet-container.pet-seven-sins-sloth-stage .seven-sins-sloth-magic:active {
+    cursor: grabbing;
+}
+
+
+/* Sương mộng */
+
+.sloth-dream-haze {
+    position: absolute;
+    z-index: 1;
+
+    left: 50%;
+    top: 59%;
+
+    width: 210px;
+    height: 115px;
+
+    border-radius: 50%;
+
+    transform:
+        translate(-50%, -50%);
+
+    background:
+        radial-gradient(ellipse,
+            rgba(139, 92, 246, 0.24) 0%,
+            rgba(76, 55, 111, 0.14) 42%,
+            transparent 72%);
+
+    filter: blur(7px);
+
+    animation:
+        tdt-sloth-haze 7.2s ease-in-out infinite;
+
+    pointer-events: none;
+}
+
+
+/* Mộng ấn */
+
+.sloth-dream-seal {
+    position: absolute;
+    z-index: 2;
+
+    left: 50%;
+    top: 54%;
+
+    width: 166px;
+    height: 166px;
+
+    border-radius: 50%;
+
+    transform:
+        translate(-50%, -50%);
+
+    background:
+        radial-gradient(circle,
+            transparent 0 42%,
+            rgba(196, 181, 253, 0.1) 43% 45%,
+            transparent 46%),
+        repeating-conic-gradient(from 0deg,
+            rgba(196, 181, 253, 0.55) 0 2deg,
+            transparent 2deg 22deg);
+
+    border:
+        1px solid rgba(196, 181, 253, 0.28);
+
+    box-shadow:
+        0 0 18px rgba(139, 92, 246, 0.24),
+        inset 0 0 24px rgba(76, 55, 111, 0.18);
+
+    opacity: 0.78;
+
+    animation:
+        tdt-sloth-seal-turn 20s linear infinite;
+
+    pointer-events: none;
+}
+
+
+/* Vòng bảy ký hiệu */
+
+.sloth-rune-ring {
+    position: absolute;
+    z-index: 4;
+
+    left: 50%;
+    top: 54%;
+
+    width: 0;
+    height: 0;
+
+    animation:
+        tdt-sloth-rune-turn 18s linear infinite;
+
+    pointer-events: none;
+}
+
+.sloth-orbit-rune {
+    position: absolute;
+
+    left: -12px;
+    top: -12px;
+
+    width: 24px;
+    height: 24px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: rgba(237, 233, 254, 0.86);
+
+    font-size: 11px;
+    font-weight: 900;
+
+    border:
+        1px solid rgba(196, 181, 253, 0.25);
+
+    border-radius: 50%;
+
+    background:
+        rgba(24, 15, 38, 0.68);
+
+    box-shadow:
+        0 0 8px rgba(139, 92, 246, 0.3);
+
+    animation:
+        tdt-sloth-rune-breathe 2.8s ease-in-out var(--sloth-rune-delay) infinite;
+}
+
+
+/* Ký tự ngủ */
+
+.sloth-sleep-mote {
+    position: absolute;
+    z-index: 7;
+
+    left: var(--sloth-x);
+    bottom: 17%;
+
+    color: rgba(237, 233, 254, 0.92);
+
+    font-size: var(--sloth-size);
+    font-weight: 900;
+
+    text-shadow:
+        0 0 8px rgba(196, 181, 253, 0.75);
+
+    opacity: 0;
+
+    animation:
+        tdt-sloth-mote-rise var(--sloth-duration) ease-in-out var(--sloth-delay) infinite;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   KỸ NĂNG NHẤN — MỘNG GIỚI TRÌ HOÃN
+   ========================================================= */
+
+#virtual-pet-container.sloth-dream-release .seven-sins-sloth-magic {
+    animation:
+        tdt-sloth-release 1.1s cubic-bezier(0.18, 0.78, 0.24, 1) both !important;
+}
+
+#virtual-pet-container.sloth-dream-release .sloth-dream-seal {
+    animation:
+        tdt-sloth-seal-release 1.25s ease-out both !important;
+}
+
+.sloth-dream-burst {
+    position: absolute;
+    z-index: 8;
+
+    left: 50%;
+    top: 54%;
+
+    width: 1px;
+    height: 1px;
+
+    pointer-events: none;
+}
+
+.sloth-dream-burst span {
+    position: absolute;
+
+    left: -5px;
+    top: -5px;
+
+    width: 10px;
+    height: 10px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(circle,
+            #ffffff 0 18%,
+            #c4b5fd 22% 48%,
+            rgba(109, 74, 162, 0.15) 70%,
+            transparent 72%);
+
+    box-shadow:
+        0 0 12px rgba(196, 181, 253, 0.88);
+
+    opacity: 0;
+
+    transform:
+        rotate(var(--burst-angle)) translateX(12px) scale(0.3);
+
+    animation:
+        tdt-sloth-burst-shard 1.35s ease-out var(--burst-delay) forwards;
+}
+
+
+/* =========================================================
+   KEYFRAMES RIÊNG — KHÔNG DÙNG LẠI HIỆU ỨNG CŨ
+   ========================================================= */
+
+@keyframes tdt-sloth-card-drift {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes tdt-sloth-tag-shine {
+
+    0%,
+    58% {
+        transform:
+            rotate(17deg) translateX(-220%);
+    }
+
+    80%,
+    100% {
+        transform:
+            rotate(17deg) translateX(650%);
+    }
+}
+
+@keyframes tdt-sloth-idle {
+
+    0%,
+    100% {
+        transform:
+            translateY(2px) rotate(-1deg) scale(0.985);
+    }
+
+    48% {
+        transform:
+            translateY(-5px) rotate(1deg) scale(1.015);
+    }
+
+    70% {
+        transform:
+            translateY(-3px) rotate(0deg) scale(1);
+    }
+}
+
+@keyframes tdt-sloth-haze {
+
+    0%,
+    100% {
+        transform:
+            translate(-50%, -50%) scaleX(0.9) scaleY(0.82);
+
+        opacity: 0.42;
+    }
+
+    50% {
+        transform:
+            translate(-50%, -50%) scaleX(1.12) scaleY(1.04);
+
+        opacity: 0.78;
+    }
+}
+
+@keyframes tdt-sloth-seal-turn {
+    from {
+        transform:
+            translate(-50%, -50%) rotate(0deg);
+    }
+
+    to {
+        transform:
+            translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+@keyframes tdt-sloth-rune-turn {
+    from {
+        transform:
+            rotate(0deg);
+    }
+
+    to {
+        transform:
+            rotate(-360deg);
+    }
+}
+
+@keyframes tdt-sloth-rune-breathe {
+
+    0%,
+    100% {
+        opacity: 0.35;
+        filter: brightness(0.82);
+    }
+
+    50% {
+        opacity: 1;
+        filter: brightness(1.28);
+    }
+}
+
+@keyframes tdt-sloth-mote-rise {
+    0% {
+        transform:
+            translateY(8px) translateX(0) scale(0.65);
+
+        opacity: 0;
+    }
+
+    18% {
+        opacity: 0.9;
+    }
+
+    62% {
+        transform:
+            translateY(-46px) translateX(9px) scale(1);
+
+        opacity: 0.72;
+    }
+
+    100% {
+        transform:
+            translateY(-88px) translateX(-7px) scale(0.72);
+
+        opacity: 0;
+    }
+}
+
+@keyframes tdt-sloth-release {
+    0% {
+        transform:
+            translateY(0) scale(1);
+    }
+
+    22% {
+        transform:
+            translateY(5px) scale(0.9, 1.06);
+    }
+
+    48% {
+        transform:
+            translateY(-13px) scale(1.12);
+    }
+
+    72% {
+        transform:
+            translateY(-4px) scale(1.02);
+    }
+
+    100% {
+        transform:
+            translateY(0) scale(1);
+    }
+}
+
+@keyframes tdt-sloth-seal-release {
+    0% {
+        transform:
+            translate(-50%, -50%) rotate(0deg) scale(0.72);
+
+        opacity: 0.3;
+    }
+
+    48% {
+        transform:
+            translate(-50%, -50%) rotate(165deg) scale(1.34);
+
+        opacity: 1;
+    }
+
+    100% {
+        transform:
+            translate(-50%, -50%) rotate(280deg) scale(1.62);
+
+        opacity: 0;
+    }
+}
+
+@keyframes tdt-sloth-burst-shard {
+    0% {
+        transform:
+            rotate(var(--burst-angle)) translateX(10px) scale(0.25);
+
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    100% {
+        transform:
+            rotate(var(--burst-angle)) translateX(112px) scale(0.1);
+
+        opacity: 0;
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media screen and (max-width: 768px) {
+    #virtual-pet-container.pet-seven-sins-sloth-stage .seven-sins-sloth-magic {
+        width: 128px !important;
+    }
+
+    .sloth-dream-seal {
+        width: 146px;
+        height: 146px;
+    }
+
+    .sloth-orbit-rune {
+        scale: 0.9;
+    }
+}
+
+
+/* Người dùng yêu cầu giảm chuyển động */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .store-card-seven-sins-sloth .card-glow,
+    .store-card-seven-sins-sloth .item-tag.tag-that-dai-toi::after,
+    .seven-sins-sloth-magic,
+    .sloth-dream-haze,
+    .sloth-dream-seal,
+    .sloth-rune-ring,
+    .sloth-orbit-rune,
+    .sloth-sleep-mote {
+        animation: none !important;
+    }
+}
+
+/* =========================================================
+   THẤT ĐẠI TỘI — LƯỜI BIẾNG REWORK
+   Card thánh tích + tag huy hiệu + Mộng giới toàn màn hình
+   ========================================================= */
+
+:root {
+    --sloth-black: #08050e;
+    --sloth-abyss: #12091d;
+    --sloth-violet: #51306f;
+    --sloth-purple: #8057ad;
+    --sloth-lilac: #cbb7ef;
+    --sloth-moon: #f0e8ff;
+    --sloth-gold: #d9bc7c;
+}
+
+
+/* =========================================================
+   CARD THÁNH TÍCH LƯỜI BIẾNG
+   ========================================================= */
+
+.store-item-card.store-card-seven-sins-sloth.ui-theme-immune {
+    position: relative !important;
+    isolation: isolate !important;
+    overflow: hidden !important;
+
+    min-height: 420px !important;
+
+    padding:
+        62px 20px 22px !important;
+
+    color: var(--sloth-moon) !important;
+
+    background:
+        radial-gradient(circle at 50% 21%,
+            rgba(203, 183, 239, 0.18),
+            transparent 31%) padding-box,
+
+        radial-gradient(circle at 90% 86%,
+            rgba(128, 87, 173, 0.18),
+            transparent 38%) padding-box,
+
+        linear-gradient(155deg,
+            #21122f 0%,
+            #12091d 54%,
+            #07040c 100%) padding-box,
+
+        linear-gradient(135deg,
+            rgba(240, 232, 255, 0.9),
+            rgba(128, 87, 173, 0.28) 22%,
+            rgba(217, 188, 124, 0.78) 49%,
+            rgba(128, 87, 173, 0.35) 73%,
+            rgba(240, 232, 255, 0.8)) border-box !important;
+
+    border:
+        2px solid transparent !important;
+
+    border-radius: 24px !important;
+
+    box-shadow:
+        0 22px 48px rgba(8, 5, 14, 0.52),
+        0 0 0 1px rgba(240, 232, 255, 0.1),
+        0 0 30px rgba(128, 87, 173, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.13),
+        inset 0 -22px 42px rgba(0, 0, 0, 0.32) !important;
+
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+
+    animation:
+        sloth-card-sovereign-breathe 5.5s ease-in-out infinite !important;
+
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease !important;
+}
+
+.store-item-card.store-card-seven-sins-sloth.ui-theme-immune:hover {
+    transform:
+        translateY(-8px) scale(1.018) !important;
+
+    box-shadow:
+        0 30px 60px rgba(8, 5, 14, 0.62),
+        0 0 0 1px rgba(240, 232, 255, 0.2),
+        0 0 44px rgba(128, 87, 173, 0.38),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18),
+        inset 0 -22px 42px rgba(0, 0, 0, 0.32) !important;
+}
+
+
+/* Trăng khuyết lớn phía sau */
+
+.store-card-seven-sins-sloth::before {
+    content: "";
+
+    position: absolute;
+    z-index: 0;
+
+    left: 50%;
+    top: 77px;
+
+    width: 190px;
+    height: 190px;
+
+    transform:
+        translateX(-50%) rotate(-20deg);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(circle at 65% 45%,
+            transparent 0 45%,
+            rgba(203, 183, 239, 0.15) 46% 55%,
+            transparent 57%);
+
+    filter:
+        drop-shadow(0 0 24px rgba(203, 183, 239, 0.24));
+
+    pointer-events: none;
+}
+
+
+/* Ấn VII chìm dưới card */
+
+.store-card-seven-sins-sloth::after {
+    content: "Ⅶ";
+
+    position: absolute;
+    z-index: 0;
+
+    right: 13px;
+    bottom: -30px;
+
+    color: rgba(240, 232, 255, 0.045);
+
+    font-family: Georgia, serif;
+    font-size: 160px;
+    font-weight: 900;
+    line-height: 1;
+
+    transform: rotate(-9deg);
+
+    pointer-events: none;
+}
+
+
+/* Ánh sáng quay trong card */
+
+.store-card-seven-sins-sloth .card-glow {
+    position: absolute !important;
+    z-index: 1 !important;
+
+    inset: -75% !important;
+
+    opacity: 0.72 !important;
+
+    background:
+        conic-gradient(from 0deg,
+            transparent 0 18%,
+            rgba(203, 183, 239, 0.14) 24%,
+            transparent 32% 52%,
+            rgba(217, 188, 124, 0.11) 59%,
+            transparent 67% 84%,
+            rgba(128, 87, 173, 0.13) 92%,
+            transparent 100%) !important;
+
+    mix-blend-mode: screen;
+
+    animation:
+        sloth-card-royal-orbit 18s linear infinite !important;
+
+    pointer-events: none !important;
+}
+
+
+/* Nội dung nổi trên card */
+
+.store-card-seven-sins-sloth .item-tag,
+.store-card-seven-sins-sloth .item-icon-wrapper,
+.store-card-seven-sins-sloth .item-info,
+.store-card-seven-sins-sloth .item-actions {
+    position: relative;
+    z-index: 5;
+}
+
+
+/* =========================================================
+   TAG HUY HIỆU THẤT ĐẠI TỘI
+   Không còn dùng ribbon chéo
+   ========================================================= */
+
+.store-card-seven-sins-sloth .item-tag.tag-that-dai-toi {
+    position: absolute !important;
+    z-index: 20 !important;
+
+    top: 15px !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+
+    width: auto !important;
+    min-width: 178px !important;
+    height: 36px !important;
+
+    margin: 0 !important;
+    padding:
+        0 20px 0 48px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    overflow: visible !important;
+
+    color: #fff !important;
+
+    background:
+        radial-gradient(circle at 18% 50%,
+            rgba(240, 232, 255, 0.26),
+            transparent 18%),
+        linear-gradient(180deg,
+            #5f3b7d 0%,
+            #321c47 50%,
+            #1a0c27 100%) !important;
+
+    border:
+        1px solid rgba(240, 232, 255, 0.68) !important;
+
+    border-radius: 999px !important;
+
+    box-shadow:
+        0 8px 20px rgba(8, 5, 14, 0.45),
+        0 0 14px rgba(128, 87, 173, 0.33),
+        inset 0 1px 0 rgba(255, 255, 255, 0.24),
+        inset 0 -4px 8px rgba(0, 0, 0, 0.32) !important;
+
+    transform:
+        translateX(-50%) !important;
+
+    transform-origin: center !important;
+}
+
+.store-card-seven-sins-sloth:hover .item-tag.tag-that-dai-toi {
+    transform:
+        translateX(-50%) translateY(-1px) !important;
+}
+
+
+/* Huy hiệu VII bên trái */
+
+.store-card-seven-sins-sloth .item-tag.tag-that-dai-toi::before {
+    content: "Ⅶ";
+
+    position: absolute;
+    z-index: 4;
+
+    left: 5px;
+    top: 50%;
+
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transform:
+        translateY(-50%) rotate(-7deg);
+
+    color: #251432;
+
+    font-family: Georgia, serif;
+    font-size: 14px;
+    font-weight: 900;
+
+    background:
+        radial-gradient(circle at 38% 28%,
+            #ffffff,
+            #e7dafa 33%,
+            #a783ce 70%,
+            #5b3979 100%);
+
+    border:
+        1px solid rgba(255, 255, 255, 0.8);
+
+    border-radius: 50%;
+
+    box-shadow:
+        0 0 12px rgba(203, 183, 239, 0.75),
+        inset 0 1px 2px rgba(255, 255, 255, 0.9);
+
+    pointer-events: none;
+}
+
+
+/* Vệt sáng riêng của tag */
+
+.store-card-seven-sins-sloth .item-tag.tag-that-dai-toi::after {
+    content: "";
+
+    position: absolute;
+    z-index: 2;
+
+    top: 0;
+    left: -30%;
+
+    width: 18%;
+    height: 100%;
+
+    border-radius: inherit;
+
+    background:
+        linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.62),
+            transparent);
+
+    transform: skewX(-22deg);
+
+    animation:
+        sloth-tag-royal-shine 4.8s ease-in-out infinite;
+
+    pointer-events: none;
+}
+
+.store-card-seven-sins-sloth .item-tag.tag-that-dai-toi span {
+    position: relative;
+    z-index: 3;
+
+    display: block !important;
+
+    padding: 0 !important;
+
+    color: #ffffff !important;
+
+    font-family:
+        "Trebuchet MS",
+        "Segoe UI",
+        sans-serif !important;
+
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+
+    letter-spacing: 1.2px !important;
+    white-space: nowrap !important;
+
+    text-transform: uppercase;
+
+    text-shadow:
+        0 1px 1px rgba(0, 0, 0, 0.9),
+        0 0 8px rgba(240, 232, 255, 0.3) !important;
+}
+
+
+/* =========================================================
+   BỆ ĐẶT ẢNH THÚ CƯNG
+   ========================================================= */
+
+.store-card-seven-sins-sloth .item-icon-wrapper {
+    position: relative !important;
+
+    width: 142px !important;
+    height: 142px !important;
+
+    margin:
+        4px auto 24px !important;
+
+    overflow: visible !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border:
+        1px solid rgba(203, 183, 239, 0.42) !important;
+
+    border-radius: 50% !important;
+
+    background:
+        radial-gradient(circle,
+            rgba(240, 232, 255, 0.14) 0 16%,
+            rgba(128, 87, 173, 0.16) 42%,
+            rgba(18, 9, 29, 0.86) 70%) !important;
+
+    box-shadow:
+        0 0 25px rgba(128, 87, 173, 0.28),
+        inset 0 0 26px rgba(0, 0, 0, 0.52) !important;
+}
+
+
+/* Vòng ma pháp quanh ảnh */
+
+.store-card-seven-sins-sloth .item-icon-wrapper::before {
+    content: "";
+
+    position: absolute;
+
+    inset: -9px;
+
+    border:
+        1px dashed rgba(203, 183, 239, 0.38);
+
+    border-radius: 50%;
+
+    box-shadow:
+        0 0 13px rgba(128, 87, 173, 0.23);
+
+    animation:
+        sloth-card-icon-ring 13s linear infinite;
+
+    pointer-events: none;
+}
+
+.store-card-seven-sins-sloth .item-icon-wrapper::after {
+    content: "SLOTH · VII";
+
+    position: absolute;
+
+    left: 50%;
+    bottom: -18px;
+
+    transform: translateX(-50%);
+
+    padding: 3px 10px;
+
+    color: rgba(240, 232, 255, 0.75);
+
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 1.7px;
+    white-space: nowrap;
+
+    background: #12091d;
+
+    border:
+        1px solid rgba(203, 183, 239, 0.22);
+
+    border-radius: 999px;
+
+    box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.36);
+}
+
+
+/* Ghi đè kích thước 80px trong HTML */
+
+.store-card-seven-sins-sloth .item-icon-wrapper .item-icon {
+    width: 112px !important;
+    height: 112px !important;
+
+    max-width: none !important;
+
+    object-fit: contain !important;
+
+    transform:
+        scale(1.08) !important;
+
+    filter:
+        drop-shadow(0 8px 10px rgba(0, 0, 0, 0.65)) drop-shadow(0 0 12px rgba(128, 87, 173, 0.55)) brightness(1.08) contrast(1.08) !important;
+}
+
+
+/* Tên vật phẩm */
+
+.store-card-seven-sins-sloth .item-info {
+    min-height: 90px;
+}
+
+.store-card-seven-sins-sloth .item-name {
+    margin-top: 0 !important;
+
+    color: #f5efff !important;
+
+    font-size: 20px !important;
+    font-weight: 900 !important;
+    line-height: 1.35 !important;
+
+    text-shadow:
+        0 2px 2px rgba(0, 0, 0, 0.78),
+        0 0 13px rgba(203, 183, 239, 0.22) !important;
+}
+
+.store-card-seven-sins-sloth .item-type-label {
+    color: rgba(217, 188, 124, 0.9) !important;
+
+    font-size: 11px !important;
+    font-weight: 900 !important;
+
+    letter-spacing: 1.4px !important;
+}
+
+
+/* Nút trong card */
+
+.store-card-seven-sins-sloth .btn-preview,
+.store-card-seven-sins-sloth .btn-buy,
+.store-card-seven-sins-sloth .btn-equip {
+    border-radius: 12px !important;
+
+    font-weight: 900 !important;
+
+    border:
+        1px solid rgba(203, 183, 239, 0.35) !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.13),
+        0 8px 18px rgba(0, 0, 0, 0.22) !important;
+}
+
+
+/* =========================================================
+   MỘNG GIỚI TOÀN MÀN HÌNH
+   ========================================================= */
+
+.sloth-dream-realm {
+    position: fixed;
+    z-index: 8500;
+
+    inset: 0;
+
+    overflow: hidden;
+    isolation: isolate;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    transition:
+        opacity 1.1s ease;
+}
+
+.sloth-dream-realm.is-active {
+    opacity: 1;
+}
+
+
+/* Lớp phủ tối nhẹ, không che nội dung */
+
+.sloth-realm-backdrop {
+    position: absolute;
+    z-index: 0;
+
+    inset: 0;
+
+    background:
+        radial-gradient(circle at 73% 70%,
+            rgba(116, 74, 161, 0.17),
+            transparent 25%),
+        radial-gradient(circle at 50% 45%,
+            transparent 0 28%,
+            rgba(43, 22, 60, 0.1) 58%,
+            rgba(7, 4, 12, 0.25) 100%);
+
+    backdrop-filter:
+        saturate(0.92) contrast(1.03);
+
+    -webkit-backdrop-filter:
+        saturate(0.92) contrast(1.03);
+}
+
+.sloth-realm-backdrop::before {
+    content: "";
+
+    position: absolute;
+
+    inset: -40%;
+
+    background:
+        conic-gradient(from 0deg,
+            transparent 0 9%,
+            rgba(128, 87, 173, 0.1) 15%,
+            transparent 22% 43%,
+            rgba(203, 183, 239, 0.08) 51%,
+            transparent 60% 80%,
+            rgba(217, 188, 124, 0.055) 88%,
+            transparent 95%);
+
+    filter: blur(46px);
+
+    animation:
+        sloth-realm-sky-turn 24s linear infinite;
+}
+
+
+/* Cực quang mộng */
+
+.sloth-realm-aurora {
+    position: absolute;
+    z-index: 1;
+
+    left: -15%;
+    right: -15%;
+    bottom: -22%;
+
+    height: 70%;
+
+    opacity: 0.45;
+
+    background:
+        radial-gradient(ellipse at 18% 100%,
+            rgba(109, 67, 150, 0.3),
+            transparent 46%),
+        radial-gradient(ellipse at 50% 100%,
+            rgba(167, 131, 206, 0.2),
+            transparent 52%),
+        radial-gradient(ellipse at 83% 100%,
+            rgba(72, 43, 100, 0.28),
+            transparent 45%);
+
+    filter: blur(28px);
+
+    animation:
+        sloth-realm-aurora-dream 8s ease-in-out infinite;
+}
+
+
+/* Mộng ấn trung tâm màn hình */
+
+.sloth-realm-sigil {
+    position: absolute;
+    z-index: 2;
+
+    left: 50%;
+    top: 48%;
+
+    width: min(58vw, 690px);
+    aspect-ratio: 1;
+
+    transform:
+        translate(-50%, -50%);
+
+    opacity: 0.14;
+
+    border:
+        1px solid rgba(203, 183, 239, 0.36);
+
+    border-radius: 50%;
+
+    box-shadow:
+        0 0 55px rgba(128, 87, 173, 0.18),
+        inset 0 0 60px rgba(128, 87, 173, 0.12);
+
+    animation:
+        sloth-realm-sigil-breathe 6.8s ease-in-out infinite;
+}
+
+.sloth-realm-ring {
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    border-radius: 50%;
+
+    transform:
+        translate(-50%, -50%);
+
+    pointer-events: none;
+}
+
+.sloth-realm-ring.ring-one {
+    width: 91%;
+    height: 91%;
+
+    border:
+        1px dashed rgba(203, 183, 239, 0.72);
+
+    animation:
+        sloth-realm-ring-clockwise 28s linear infinite;
+}
+
+.sloth-realm-ring.ring-two {
+    width: 69%;
+    height: 69%;
+
+    border:
+        1px solid rgba(217, 188, 124, 0.54);
+
+    box-shadow:
+        inset 0 0 18px rgba(217, 188, 124, 0.09);
+
+    animation:
+        sloth-realm-ring-counter 19s linear infinite;
+}
+
+.sloth-realm-ring.ring-three {
+    width: 46%;
+    height: 46%;
+
+    border:
+        6px double rgba(128, 87, 173, 0.6);
+
+    animation:
+        sloth-realm-ring-clockwise 13s linear infinite;
+}
+
+
+/* Số VII trung tâm */
+
+.sloth-realm-core {
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    width: 24%;
+    aspect-ratio: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transform:
+        translate(-50%, -50%) rotate(-7deg);
+
+    color: rgba(240, 232, 255, 0.78);
+
+    font-family: Georgia, serif;
+    font-size: clamp(48px, 7vw, 94px);
+
+    border:
+        1px solid rgba(203, 183, 239, 0.45);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(circle,
+            rgba(128, 87, 173, 0.3),
+            rgba(18, 9, 29, 0.48) 72%);
+
+    box-shadow:
+        0 0 38px rgba(128, 87, 173, 0.33),
+        inset 0 0 30px rgba(0, 0, 0, 0.48);
+}
+
+
+/* Bảy ký hiệu quanh mộng ấn */
+
+.sloth-realm-runes {
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    width: 0;
+    height: 0;
+}
+
+.sloth-realm-rune {
+    position: absolute;
+
+    left: -18px;
+    top: -18px;
+
+    width: 36px;
+    height: 36px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: rgba(240, 232, 255, 0.86);
+
+    font-family: Georgia, serif;
+    font-size: 13px;
+    font-weight: 900;
+
+    background:
+        radial-gradient(circle,
+            rgba(128, 87, 173, 0.52),
+            rgba(18, 9, 29, 0.88));
+
+    border:
+        1px solid rgba(203, 183, 239, 0.65);
+
+    border-radius: 50%;
+
+    box-shadow:
+        0 0 15px rgba(128, 87, 173, 0.4);
+
+    transform:
+        rotate(var(--sloth-domain-angle)) translateY(calc(min(29vw, 345px) * -1)) rotate(var(--sloth-domain-angle-back));
+
+    animation:
+        sloth-realm-rune-pulse 3.3s ease-in-out var(--sloth-domain-delay) infinite;
+}
+
+
+/* Hạt mộng toàn màn hình */
+
+.sloth-realm-particle {
+    position: absolute;
+
+    left: var(--realm-x);
+    top: var(--realm-y);
+
+    width: var(--realm-size);
+    height: var(--realm-size);
+
+    border-radius: 50%;
+
+    opacity: 0;
+
+    background: #efe7ff;
+
+    box-shadow:
+        0 0 7px rgba(203, 183, 239, 0.92),
+        0 0 15px rgba(128, 87, 173, 0.45);
+
+    animation:
+        sloth-realm-particle-drift var(--realm-duration) ease-in-out var(--realm-delay) infinite;
+}
+
+
+/* Ba lớp sương */
+
+.sloth-realm-fog {
+    position: absolute;
+    z-index: 3;
+
+    left: -20%;
+
+    width: 140%;
+    height: 30%;
+
+    opacity: 0.2;
+
+    background:
+        radial-gradient(ellipse at 20% 50%,
+            rgba(203, 183, 239, 0.2),
+            transparent 47%),
+        radial-gradient(ellipse at 65% 50%,
+            rgba(128, 87, 173, 0.25),
+            transparent 52%);
+
+    filter: blur(32px);
+}
+
+.sloth-realm-fog-a {
+    top: 13%;
+
+    animation:
+        sloth-realm-fog-left 13s ease-in-out infinite;
+}
+
+.sloth-realm-fog-b {
+    top: 46%;
+
+    opacity: 0.14;
+
+    animation:
+        sloth-realm-fog-right 17s ease-in-out infinite;
+}
+
+.sloth-realm-fog-c {
+    bottom: -7%;
+
+    opacity: 0.28;
+
+    animation:
+        sloth-realm-fog-left 20s ease-in-out infinite reverse;
+}
+
+
+/* Tên kỹ năng điện ảnh */
+
+.sloth-realm-title {
+    position: absolute;
+    z-index: 8;
+
+    left: 50%;
+    top: 48%;
+
+    width: min(92vw, 720px);
+
+    transform:
+        translate(-50%, -50%) scale(0.82);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    opacity: 0;
+
+    color: white;
+
+    text-align: center;
+
+    filter:
+        drop-shadow(0 8px 18px rgba(0, 0, 0, 0.9));
+}
+
+.sloth-realm-title span {
+    margin-bottom: 10px;
+
+    color: var(--sloth-gold);
+
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 5px;
+}
+
+.sloth-realm-title strong {
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size:
+        clamp(31px, 5vw, 69px);
+
+    font-weight: 900;
+    letter-spacing: 3px;
+
+    text-shadow:
+        0 0 13px rgba(240, 232, 255, 0.8),
+        0 0 32px rgba(128, 87, 173, 0.75),
+        0 4px 2px rgba(0, 0, 0, 0.8);
+}
+
+.sloth-realm-title small {
+    margin-top: 11px;
+
+    color: rgba(240, 232, 255, 0.62);
+
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 7px;
+}
+
+
+/* =========================================================
+   TRẠNG THÁI KÍCH HOẠT KỸ NĂNG
+   ========================================================= */
+
+.sloth-dream-realm.is-casting .sloth-realm-backdrop {
+    animation:
+        sloth-domain-backdrop-flash 2.8s ease-out both;
+}
+
+.sloth-dream-realm.is-casting .sloth-realm-sigil {
+    animation:
+        sloth-domain-sigil-release 2.8s cubic-bezier(.18, .78, .21, 1) both;
+}
+
+.sloth-dream-realm.is-casting .sloth-realm-title {
+    animation:
+        sloth-domain-title-arrive 2.8s ease-in-out both;
+}
+
+.sloth-dream-realm.is-casting .sloth-realm-aurora {
+    animation:
+        sloth-domain-aurora-release 2.8s ease-out both;
+}
+
+#virtual-pet-container.sloth-domain-casting .seven-sins-sloth-magic {
+    animation:
+        sloth-pet-domain-release 1.3s cubic-bezier(.18, .82, .2, 1) both !important;
+}
+
+
+/* =========================================================
+   ANIMATION REWORK
+   ========================================================= */
+
+@keyframes sloth-card-sovereign-breathe {
+
+    0%,
+    100% {
+        filter:
+            brightness(0.98) saturate(1);
+    }
+
+    50% {
+        filter:
+            brightness(1.05) saturate(1.1);
+    }
+}
+
+@keyframes sloth-card-royal-orbit {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes sloth-tag-royal-shine {
+
+    0%,
+    58% {
+        left: -30%;
+        opacity: 0;
+    }
+
+    68% {
+        opacity: 1;
+    }
+
+    88%,
+    100% {
+        left: 115%;
+        opacity: 0;
+    }
+}
+
+@keyframes sloth-card-icon-ring {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(-360deg);
+    }
+}
+
+@keyframes sloth-realm-sky-turn {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes sloth-realm-aurora-dream {
+
+    0%,
+    100% {
+        transform:
+            translateX(-2%) scaleY(0.9);
+
+        opacity: 0.32;
+    }
+
+    50% {
+        transform:
+            translateX(3%) scaleY(1.08);
+
+        opacity: 0.57;
+    }
+}
+
+@keyframes sloth-realm-sigil-breathe {
+
+    0%,
+    100% {
+        transform:
+            translate(-50%, -50%) scale(0.96);
+
+        opacity: 0.1;
+    }
+
+    50% {
+        transform:
+            translate(-50%, -50%) scale(1.035);
+
+        opacity: 0.18;
+    }
+}
+
+@keyframes sloth-realm-ring-clockwise {
+    from {
+        transform:
+            translate(-50%, -50%) rotate(0deg);
+    }
+
+    to {
+        transform:
+            translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+@keyframes sloth-realm-ring-counter {
+    from {
+        transform:
+            translate(-50%, -50%) rotate(360deg);
+    }
+
+    to {
+        transform:
+            translate(-50%, -50%) rotate(0deg);
+    }
+}
+
+@keyframes sloth-realm-rune-pulse {
+
+    0%,
+    100% {
+        opacity: 0.35;
+
+        filter:
+            brightness(0.82);
+    }
+
+    50% {
+        opacity: 1;
+
+        filter:
+            brightness(1.35);
+    }
+}
+
+@keyframes sloth-realm-particle-drift {
+    0% {
+        transform:
+            translateY(20px) translateX(0) scale(0.5);
+
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 0.75;
+    }
+
+    70% {
+        opacity: 0.42;
+    }
+
+    100% {
+        transform:
+            translateY(-110px) translateX(var(--realm-drift)) scale(1.2);
+
+        opacity: 0;
+    }
+}
+
+@keyframes sloth-realm-fog-left {
+
+    0%,
+    100% {
+        transform: translateX(-7%);
+    }
+
+    50% {
+        transform: translateX(8%);
+    }
+}
+
+@keyframes sloth-realm-fog-right {
+
+    0%,
+    100% {
+        transform: translateX(8%);
+    }
+
+    50% {
+        transform: translateX(-9%);
+    }
+}
+
+@keyframes sloth-domain-backdrop-flash {
+    0% {
+        background-color:
+            rgba(0, 0, 0, 0);
+    }
+
+    18% {
+        background-color:
+            rgba(17, 8, 27, 0.72);
+    }
+
+    48% {
+        background-color:
+            rgba(50, 25, 70, 0.36);
+    }
+
+    100% {
+        background-color:
+            rgba(0, 0, 0, 0);
+    }
+}
+
+@keyframes sloth-domain-sigil-release {
+    0% {
+        transform:
+            translate(-50%, -50%) scale(0.5) rotate(-16deg);
+
+        opacity: 0;
+    }
+
+    26% {
+        transform:
+            translate(-50%, -50%) scale(1.04) rotate(5deg);
+
+        opacity: 0.76;
+    }
+
+    62% {
+        transform:
+            translate(-50%, -50%) scale(1.12) rotate(17deg);
+
+        opacity: 0.42;
+    }
+
+    100% {
+        transform:
+            translate(-50%, -50%) scale(1.45) rotate(34deg);
+
+        opacity: 0;
+    }
+}
+
+@keyframes sloth-domain-title-arrive {
+
+    0%,
+    12% {
+        transform:
+            translate(-50%, -50%) scale(0.72);
+
+        opacity: 0;
+        filter: blur(14px);
+    }
+
+    31% {
+        transform:
+            translate(-50%, -50%) scale(1.04);
+
+        opacity: 1;
+        filter: blur(0);
+    }
+
+    68% {
+        transform:
+            translate(-50%, -50%) scale(1);
+
+        opacity: 1;
+        filter: blur(0);
+    }
+
+    100% {
+        transform:
+            translate(-50%, -50%) scale(1.08);
+
+        opacity: 0;
+        filter: blur(7px);
+    }
+}
+
+@keyframes sloth-domain-aurora-release {
+    0% {
+        transform:
+            scaleY(0.45);
+
+        opacity: 0.15;
+    }
+
+    35% {
+        transform:
+            scaleY(1.35);
+
+        opacity: 0.88;
+    }
+
+    100% {
+        transform:
+            scaleY(1.7);
+
+        opacity: 0.18;
+    }
+}
+
+@keyframes sloth-pet-domain-release {
+    0% {
+        transform:
+            translateY(0) scale(1);
+    }
+
+    19% {
+        transform:
+            translateY(8px) scale(0.88, 1.08);
+    }
+
+    45% {
+        transform:
+            translateY(-20px) scale(1.16);
+    }
+
+    70% {
+        transform:
+            translateY(-5px) scale(1.035);
+    }
+
+    100% {
+        transform:
+            translateY(0) scale(1);
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media screen and (max-width: 768px) {
+    .store-item-card.store-card-seven-sins-sloth {
+        min-height: 400px !important;
+    }
+
+    .store-card-seven-sins-sloth .item-icon-wrapper {
+        width: 126px !important;
+        height: 126px !important;
+    }
+
+    .store-card-seven-sins-sloth .item-icon-wrapper .item-icon {
+        width: 112px !important;
+        height: 112px !important;
+    }
+
+    .sloth-realm-rune {
+        width: 28px;
+        height: 28px;
+
+        left: -14px;
+        top: -14px;
+
+        font-size: 10px;
+    }
+
+    .sloth-realm-title span {
+        letter-spacing: 3px;
+    }
+
+    .sloth-realm-title small {
+        letter-spacing: 4px;
+    }
+}
+
+
+/* Tôn trọng chế độ giảm chuyển động */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .store-card-seven-sins-sloth,
+    .store-card-seven-sins-sloth .card-glow,
+    .store-card-seven-sins-sloth .item-icon-wrapper::before,
+    .sloth-realm-backdrop::before,
+    .sloth-realm-aurora,
+    .sloth-realm-sigil,
+    .sloth-realm-ring,
+    .sloth-realm-rune,
+    .sloth-realm-particle,
+    .sloth-realm-fog {
+        animation: none !important;
+    }
+}
+
+@media screen and (max-width: 768px) {
+
+    /* Ảnh trong card */
+    .store-card-seven-sins-sloth .item-icon-wrapper .item-icon {
+        width: 102px !important;
+        height: 102px !important;
+
+        transform: scale(1.06) !important;
+    }
+
+    /* Pet trang bị */
+    #virtual-pet-container.pet-seven-sins-sloth-stage .seven-sins-sloth-magic {
+        width: 158px !important;
+    }
+
+    #virtual-pet-container.pet-seven-sins-sloth-stage .sloth-dream-seal {
+        width: 178px !important;
+        height: 178px !important;
+
+        top: 54% !important;
+        opacity: 0.72 !important;
+    }
+
+    /* Sương bao ngoài rộng hơn */
+    #virtual-pet-container.pet-seven-sins-sloth-stage .sloth-dream-haze {
+        width: 215px !important;
+        height: 112px !important;
+
+        top: 59% !important;
+        opacity: 0.74 !important;
+    }
+}
+/* =========================================================
+   THẤT ĐẠI TỘI — MỘNG ĐIỆN TRÌ HOÃN
+   Giao diện hoàn toàn mới dành cho Acedia
+   Không sử dụng class hoặc keyframe của giao diện cũ
+   ========================================================= */
+
+body.theme-seven-sins-acedia {
+    --acedia-void: #08050d;
+    --acedia-night: #100919;
+    --acedia-panel: rgba(24, 14, 36, 0.88);
+    --acedia-panel-strong: rgba(15, 8, 24, 0.95);
+
+    --acedia-purple: #8056a5;
+    --acedia-violet: #a781c8;
+    --acedia-lilac: #d5c0eb;
+    --acedia-moon: #f1e9fb;
+    --acedia-gold: #d2b87a;
+
+    --acedia-text: #eee8f6;
+    --acedia-muted: #a99bb9;
+    --acedia-danger: #d15e83;
+
+    min-height: 100vh;
+
+    color: var(--acedia-text) !important;
+
+    background:
+        radial-gradient(
+            circle at 78% 78%,
+            rgba(128, 86, 165, 0.18),
+            transparent 31%
+        ),
+        radial-gradient(
+            circle at 25% 18%,
+            rgba(213, 192, 235, 0.08),
+            transparent 26%
+        ),
+        linear-gradient(
+            145deg,
+            #0c0712 0%,
+            #130a1d 48%,
+            #07040b 100%
+        ) !important;
+
+    background-attachment: fixed !important;
+
+    font-family:
+        Candara,
+        "Trebuchet MS",
+        "Segoe UI",
+        sans-serif !important;
+}
+
+
+/* Lớp mộng ấn chìm toàn trang */
+
+body.theme-seven-sins-acedia::before {
+    content: "Ⅶ";
+
+    position: fixed;
+    z-index: 0;
+
+    left: 57%;
+    top: 50%;
+
+    transform:
+        translate(-50%, -50%)
+        rotate(-11deg);
+
+    color: rgba(226, 209, 244, 0.025);
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: min(70vw, 820px);
+    font-weight: 900;
+    line-height: 1;
+
+    text-shadow:
+        0 0 70px rgba(128, 86, 165, 0.15);
+
+    pointer-events: none;
+
+    animation:
+        acedia-theme-sigil-breathe
+        11s
+        ease-in-out
+        infinite;
+}
+
+
+/* Sương mộng dịch chuyển chậm */
+
+body.theme-seven-sins-acedia::after {
+    content: "";
+
+    position: fixed;
+    z-index: 0;
+
+    inset: -30%;
+
+    opacity: 0.48;
+
+    background:
+        conic-gradient(
+            from 20deg,
+            transparent 0 12%,
+            rgba(128, 86, 165, 0.11) 18%,
+            transparent 25% 47%,
+            rgba(213, 192, 235, 0.07) 55%,
+            transparent 63% 83%,
+            rgba(210, 184, 122, 0.045) 90%,
+            transparent 97%
+        );
+
+    filter: blur(52px);
+
+    pointer-events: none;
+
+    animation:
+        acedia-theme-mist-turn
+        28s
+        linear
+        infinite;
+}
+
+
+/* Nội dung nằm trên lớp nền */
+
+body.theme-seven-sins-acedia .dashboard,
+body.theme-seven-sins-acedia .content,
+body.theme-seven-sins-acedia .tab-content {
+    position: relative;
+    z-index: 1;
+}
+
+
+/* =========================================================
+   PHÔNG CHỮ
+   ========================================================= */
+
+body.theme-seven-sins-acedia h1,
+body.theme-seven-sins-acedia h2,
+body.theme-seven-sins-acedia h3,
+body.theme-seven-sins-acedia h4,
+body.theme-seven-sins-acedia
+.modal-content
+h1,
+body.theme-seven-sins-acedia
+.modal-content
+h2,
+body.theme-seven-sins-acedia
+.modal-content
+h3 {
+    color: var(--acedia-moon) !important;
+
+    font-family:
+        Georgia,
+        "Palatino Linotype",
+        serif !important;
+
+    font-weight: 700 !important;
+    letter-spacing: 0.035em;
+
+    text-shadow:
+        0 2px 2px rgba(0, 0, 0, 0.72),
+        0 0 15px rgba(167, 129, 200, 0.2);
+}
+
+body.theme-seven-sins-acedia p,
+body.theme-seven-sins-acedia label,
+body.theme-seven-sins-acedia span,
+body.theme-seven-sins-acedia li,
+body.theme-seven-sins-acedia td,
+body.theme-seven-sins-acedia th {
+    color: inherit;
+}
+
+body.theme-seven-sins-acedia ::selection {
+    color: #ffffff;
+
+    background:
+        rgba(128, 86, 165, 0.78);
+}
+
+
+/* =========================================================
+   SIDEBAR HÌNH PHIẾN MỘNG
+   ========================================================= */
+
+body.theme-seven-sins-acedia .sidebar {
+    color: var(--acedia-text) !important;
+
+    background:
+        radial-gradient(
+            circle at 30% 12%,
+            rgba(213, 192, 235, 0.12),
+            transparent 29%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(25, 14, 39, 0.98),
+            rgba(9, 5, 14, 0.99)
+        ) !important;
+
+    border-right:
+        1px solid rgba(213, 192, 235, 0.25) !important;
+
+    box-shadow:
+        18px 0 40px rgba(5, 2, 9, 0.34),
+        inset -1px 0 rgba(255, 255, 255, 0.04)
+        !important;
+
+    clip-path:
+        polygon(
+            0 0,
+            calc(100% - 15px) 0,
+            100% 15px,
+            100% calc(100% - 15px),
+            calc(100% - 15px) 100%,
+            0 100%
+        );
+}
+
+body.theme-seven-sins-acedia
+.sidebar::before {
+    content: "Ⅶ";
+
+    position: absolute;
+
+    left: 50%;
+    bottom: 70px;
+
+    transform:
+        translateX(-50%)
+        rotate(-8deg);
+
+    color: rgba(213, 192, 235, 0.045);
+
+    font-family: Georgia, serif;
+    font-size: 112px;
+    font-weight: 900;
+
+    pointer-events: none;
+}
+
+
+/* Nút điều hướng */
+
+body.theme-seven-sins-acedia
+.sidebar
+.nav-item {
+    position: relative;
+
+    color:
+        rgba(238, 232, 246, 0.78) !important;
+
+    background:
+        transparent !important;
+
+    border:
+        1px solid transparent !important;
+
+    border-radius: 0 !important;
+
+    clip-path:
+        polygon(
+            10px 0,
+            100% 0,
+            100% calc(100% - 10px),
+            calc(100% - 10px) 100%,
+            0 100%,
+            0 10px
+        );
+
+    transition:
+        transform 0.22s ease,
+        color 0.22s ease,
+        background 0.22s ease,
+        box-shadow 0.22s ease !important;
+}
+
+body.theme-seven-sins-acedia
+.sidebar
+.nav-item:hover {
+    color: #ffffff !important;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(128, 86, 165, 0.28),
+            rgba(128, 86, 165, 0.04)
+        ) !important;
+
+    border-color:
+        rgba(213, 192, 235, 0.18) !important;
+
+    transform:
+        translateX(4px);
+}
+
+body.theme-seven-sins-acedia
+.sidebar
+.nav-item.active {
+    color: #ffffff !important;
+
+    background:
+        linear-gradient(
+            100deg,
+            rgba(128, 86, 165, 0.72),
+            rgba(38, 19, 56, 0.76)
+        ) !important;
+
+    border-color:
+        rgba(213, 192, 235, 0.48) !important;
+
+    box-shadow:
+        0 8px 19px rgba(7, 3, 12, 0.38),
+        inset 3px 0 var(--acedia-gold),
+        inset 0 1px rgba(255, 255, 255, 0.13)
+        !important;
+}
+
+
+/* Nút thu gọn sidebar */
+
+body.theme-seven-sins-acedia
+.sidebar-toggle {
+    color: var(--acedia-moon) !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            #4c2d67,
+            #1d102a
+        ) !important;
+
+    border:
+        1px solid rgba(213, 192, 235, 0.42)
+        !important;
+
+    box-shadow:
+        0 0 16px rgba(128, 86, 165, 0.3)
+        !important;
+}
+
+
+/* =========================================================
+   KHUNG, CARD VÀ Ô NỘI DUNG
+   ========================================================= */
+
+body.theme-seven-sins-acedia
+.card:not(.ui-theme-immune),
+body.theme-seven-sins-acedia
+.form-container:not(.ui-theme-immune),
+body.theme-seven-sins-acedia
+.assignment-item,
+body.theme-seven-sins-acedia
+.material-item,
+body.theme-seven-sins-acedia
+.grade-item,
+body.theme-seven-sins-acedia
+.settings-section {
+    color: var(--acedia-text) !important;
+
+    background:
+        radial-gradient(
+            circle at 92% 0%,
+            rgba(167, 129, 200, 0.12),
+            transparent 31%
+        ),
+        linear-gradient(
+            145deg,
+            rgba(30, 17, 43, 0.91),
+            rgba(14, 8, 22, 0.94)
+        ) !important;
+
+    border:
+        1px solid rgba(213, 192, 235, 0.22)
+        !important;
+
+    border-radius: 0 !important;
+
+    clip-path:
+        polygon(
+            16px 0,
+            calc(100% - 16px) 0,
+            100% 16px,
+            100% calc(100% - 16px),
+            calc(100% - 16px) 100%,
+            16px 100%,
+            0 calc(100% - 16px),
+            0 16px
+        );
+
+    box-shadow:
+        0 18px 38px rgba(5, 2, 9, 0.27),
+        inset 0 1px rgba(255, 255, 255, 0.06),
+        inset 0 -20px 35px rgba(0, 0, 0, 0.16)
+        !important;
+
+    backdrop-filter:
+        blur(12px)
+        saturate(1.05);
+
+    -webkit-backdrop-filter:
+        blur(12px)
+        saturate(1.05);
+
+    transition:
+        transform 0.23s ease,
+        border-color 0.23s ease,
+        box-shadow 0.23s ease !important;
+}
+
+body.theme-seven-sins-acedia
+.card:not(.ui-theme-immune):hover,
+body.theme-seven-sins-acedia
+.assignment-item:hover,
+body.theme-seven-sins-acedia
+.material-item:hover,
+body.theme-seven-sins-acedia
+.grade-item:hover {
+    border-color:
+        rgba(213, 192, 235, 0.46) !important;
+
+    transform:
+        translateY(-3px);
+
+    box-shadow:
+        0 23px 44px rgba(5, 2, 9, 0.38),
+        0 0 19px rgba(128, 86, 165, 0.13),
+        inset 0 1px rgba(255, 255, 255, 0.08)
+        !important;
+}
+
+
+/* =========================================================
+   POPUP MỘNG MÔN
+   Không tác động popup có ui-theme-immune
+   ========================================================= */
+
+body.theme-seven-sins-acedia
+.modal-overlay:not(.ui-theme-immune) {
+    background:
+        radial-gradient(
+            circle,
+            rgba(69, 38, 94, 0.26),
+            rgba(5, 2, 8, 0.83)
+        ) !important;
+
+    backdrop-filter:
+        blur(11px)
+        saturate(0.78) !important;
+
+    -webkit-backdrop-filter:
+        blur(11px)
+        saturate(0.78) !important;
+}
+
+body.theme-seven-sins-acedia
+.modal-overlay:not(.ui-theme-immune)
+.modal-content {
+    position: relative;
+
+    color: var(--acedia-text) !important;
+
+    background:
+        radial-gradient(
+            circle at 50% 0%,
+            rgba(213, 192, 235, 0.13),
+            transparent 33%
+        ),
+        linear-gradient(
+            155deg,
+            rgba(31, 17, 44, 0.98),
+            rgba(10, 5, 16, 0.99)
+        ) !important;
+
+    border:
+        1px solid rgba(213, 192, 235, 0.52)
+        !important;
+
+    border-top:
+        1px solid rgba(213, 192, 235, 0.52)
+        !important;
+
+    border-radius: 0 !important;
+
+    clip-path:
+        polygon(
+            24px 0,
+            calc(100% - 24px) 0,
+            100% 24px,
+            100% calc(100% - 24px),
+            calc(100% - 24px) 100%,
+            24px 100%,
+            0 calc(100% - 24px),
+            0 24px
+        );
+
+    box-shadow:
+        0 32px 80px rgba(0, 0, 0, 0.64),
+        0 0 38px rgba(128, 86, 165, 0.19),
+        inset 0 1px rgba(255, 255, 255, 0.1),
+        inset 0 0 45px rgba(128, 86, 165, 0.09)
+        !important;
+
+    animation:
+        acedia-theme-popup-arrive
+        0.38s
+        cubic-bezier(.16, .8, .2, 1)
+        both;
+}
+
+
+/* Nút đóng popup */
+
+body.theme-seven-sins-acedia
+.modal-overlay:not(.ui-theme-immune)
+.close-btn {
+    color: var(--acedia-moon) !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(103, 61, 133, 0.92),
+            rgba(26, 13, 38, 0.96)
+        ) !important;
+
+    border:
+        1px solid rgba(213, 192, 235, 0.45)
+        !important;
+
+    border-radius: 4px !important;
+
+    box-shadow:
+        0 5px 13px rgba(0, 0, 0, 0.34),
+        inset 0 1px rgba(255, 255, 255, 0.12)
+        !important;
+}
+
+
+/* =========================================================
+   INPUT, TEXTAREA VÀ SELECT
+   ========================================================= */
+
+body.theme-seven-sins-acedia
+input:not([type="range"]),
+body.theme-seven-sins-acedia
+textarea,
+body.theme-seven-sins-acedia
+select,
+body.theme-seven-sins-acedia
+.search-bar {
+    color: var(--acedia-text) !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(12, 6, 18, 0.84),
+            rgba(28, 15, 40, 0.82)
+        ) !important;
+
+    border:
+        1px solid rgba(167, 129, 200, 0.35)
+        !important;
+
+    border-radius: 0 !important;
+
+    clip-path:
+        polygon(
+            9px 0,
+            100% 0,
+            100% calc(100% - 9px),
+            calc(100% - 9px) 100%,
+            0 100%,
+            0 9px
+        );
+
+    box-shadow:
+        inset 0 2px 8px rgba(0, 0, 0, 0.34),
+        0 1px rgba(255, 255, 255, 0.025)
+        !important;
+
+    caret-color:
+        var(--acedia-lilac);
+
+    outline: none !important;
+}
+
+body.theme-seven-sins-acedia
+input:not([type="range"]):focus,
+body.theme-seven-sins-acedia
+textarea:focus,
+body.theme-seven-sins-acedia
+select:focus,
+body.theme-seven-sins-acedia
+.search-bar:focus {
+    border-color:
+        rgba(213, 192, 235, 0.74)
+        !important;
+
+    box-shadow:
+        0 0 0 3px rgba(128, 86, 165, 0.15),
+        0 0 18px rgba(128, 86, 165, 0.16),
+        inset 0 2px 8px rgba(0, 0, 0, 0.32)
+        !important;
+}
+
+body.theme-seven-sins-acedia
+input::placeholder,
+body.theme-seven-sins-acedia
+textarea::placeholder {
+    color:
+        rgba(190, 174, 207, 0.56) !important;
+}
+
+
+/* Select option */
+
+body.theme-seven-sins-acedia option {
+    color: #ece5f5;
+
+    background: #150c20;
+}
+
+
+/* =========================================================
+   NÚT BẤM DẠNG PHIẾN ẤN
+   ========================================================= */
+
+body.theme-seven-sins-acedia
+button:not(.nav-item):not(.sidebar-toggle)
+body.theme-seven-sins-acedia
+.btn-approve,
+body.theme-seven-sins-acedia
+.btn-primary,
+body.theme-seven-sins-acedia
+.btn-buy,
+body.theme-seven-sins-acedia
+.btn-equip,
+body.theme-seven-sins-acedia
+.btn-preview {
+    border-radius: 0 !important;
+
+    clip-path:
+        polygon(
+            9px 0,
+            calc(100% - 9px) 0,
+            100% 9px,
+            100% calc(100% - 9px),
+            calc(100% - 9px) 100%,
+            9px 100%,
+            0 calc(100% - 9px),
+            0 9px
+        );
+
+    transition:
+        transform 0.2s ease,
+        filter 0.2s ease,
+        box-shadow 0.2s ease !important;
+}
+
+body.theme-seven-sins-acedia
+.btn-approve,
+body.theme-seven-sins-acedia
+.btn-primary {
+    color: #ffffff !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #76509a,
+            #321c47
+        ) !important;
+
+    border:
+        1px solid rgba(213, 192, 235, 0.42)
+        !important;
+
+    box-shadow:
+        0 8px 17px rgba(5, 2, 9, 0.28),
+        inset 0 1px rgba(255, 255, 255, 0.14)
+        !important;
+}
+
+body.theme-seven-sins-acedia
+button:hover:not(:disabled),
+body.theme-seven-sins-acedia
+.btn-approve:hover,
+body.theme-seven-sins-acedia
+.btn-primary:hover {
+    transform:
+        translateY(-2px);
+
+    filter:
+        brightness(1.12);
+
+    box-shadow:
+        0 12px 23px rgba(5, 2, 9, 0.38),
+        0 0 17px rgba(128, 86, 165, 0.2)
+        !important;
+}
+
+
+/* =========================================================
+   RANGE SLIDER — THANH TRÌ HOÃN
+   ========================================================= */
+
+body.theme-seven-sins-acedia
+input[type="range"] {
+    width: 100%;
+    height: 7px;
+
+    appearance: none;
+    -webkit-appearance: none;
+
+    border:
+        1px solid rgba(213, 192, 235, 0.23);
+
+    border-radius: 999px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #2b173d,
+            #875dad 52%,
+            #d2b87a
+        ) !important;
+
+    box-shadow:
+        inset 0 2px 5px rgba(0, 0, 0, 0.52),
+        0 0 11px rgba(128, 86, 165, 0.15);
+
+    cursor: pointer;
+}
+
+body.theme-seven-sins-acedia
+input[type="range"]::-webkit-slider-thumb {
+    width: 20px;
+    height: 20px;
+
+    appearance: none;
+    -webkit-appearance: none;
+
+    border:
+        2px solid #efe5fb;
+
+    border-radius:
+        50% 50% 50% 18%;
+
+    background:
+        radial-gradient(
+            circle at 38% 30%,
+            #ffffff,
+            #c6a8df 35%,
+            #654382 75%,
+            #251431
+        );
+
+    box-shadow:
+        0 0 12px rgba(213, 192, 235, 0.62),
+        0 4px 9px rgba(0, 0, 0, 0.42);
+
+    transform:
+        rotate(45deg);
+
+    cursor: grab;
+}
+
+body.theme-seven-sins-acedia
+input[type="range"]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+
+    border:
+        2px solid #efe5fb;
+
+    border-radius:
+        50% 50% 50% 18%;
+
+    background:
+        radial-gradient(
+            circle at 38% 30%,
+            #ffffff,
+            #c6a8df 35%,
+            #654382 75%,
+            #251431
+        );
+
+    box-shadow:
+        0 0 12px rgba(213, 192, 235, 0.62);
+
+    transform:
+        rotate(45deg);
+}
+
+
+/* =========================================================
+   THANH CUỘN RIÊNG
+   ========================================================= */
+
+body.theme-seven-sins-acedia {
+    scrollbar-width: thin;
+    scrollbar-color:
+        #8056a5
+        #100919;
+}
+
+body.theme-seven-sins-acedia
+::-webkit-scrollbar {
+    width: 11px;
+    height: 11px;
+}
+
+body.theme-seven-sins-acedia
+::-webkit-scrollbar-track {
+    background:
+        linear-gradient(
+            180deg,
+            #0c0712,
+            #160c20
+        );
+
+    border-left:
+        1px solid rgba(213, 192, 235, 0.07);
+}
+
+body.theme-seven-sins-acedia
+::-webkit-scrollbar-thumb {
+    border:
+        2px solid #100919;
+
+    border-radius: 999px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #c0a4d9,
+            #8056a5 46%,
+            #3c2450
+        );
+
+    box-shadow:
+        inset 0 1px rgba(255, 255, 255, 0.25),
+        0 0 8px rgba(128, 86, 165, 0.25);
+}
+
+body.theme-seven-sins-acedia
+::-webkit-scrollbar-thumb:hover {
+    background:
+        linear-gradient(
+            180deg,
+            #dbc7ef,
+            #9b70bc 46%,
+            #523268
+        );
+}
+
+
+/* =========================================================
+   BẢNG DỮ LIỆU
+   ========================================================= */
+
+body.theme-seven-sins-acedia table {
+    overflow: hidden;
+
+    color: var(--acedia-text) !important;
+
+    background:
+        rgba(13, 7, 20, 0.78) !important;
+
+    border:
+        1px solid rgba(213, 192, 235, 0.18)
+        !important;
+
+    border-collapse:
+        separate !important;
+
+    border-spacing: 0 !important;
+}
+
+body.theme-seven-sins-acedia th {
+    color: #ffffff !important;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(97, 58, 126, 0.92),
+            rgba(42, 23, 59, 0.95)
+        ) !important;
+
+    border-color:
+        rgba(213, 192, 235, 0.16)
+        !important;
+}
+
+body.theme-seven-sins-acedia td {
+    color:
+        rgba(238, 232, 246, 0.88) !important;
+
+    background:
+        rgba(17, 9, 25, 0.62) !important;
+
+    border-color:
+        rgba(213, 192, 235, 0.09)
+        !important;
+}
+
+body.theme-seven-sins-acedia
+tr:hover
+td {
+    background:
+        rgba(128, 86, 165, 0.13) !important;
+}
+
+
+/* =========================================================
+   CARD CỬA HÀNG CỦA GIAO DIỆN ACEDIA
+   ========================================================= */
+
+.store-card-seven-sins-sloth[
+    data-item-id="theme_thatdaitoi_acedia_dream"
+]
+.item-icon-wrapper {
+    background:
+        radial-gradient(
+            circle,
+            rgba(213, 192, 235, 0.19),
+            rgba(60, 32, 80, 0.16) 49%,
+            rgba(10, 5, 16, 0.92) 72%
+        ) !important;
+}
+
+.store-card-seven-sins-sloth[
+    data-item-id="theme_thatdaitoi_acedia_dream"
+]
+.item-icon {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    color: #eadcf8 !important;
+
+    font-family:
+        Georgia,
+        serif !important;
+
+    font-size: 76px !important;
+    line-height: 1 !important;
+
+    text-shadow:
+        0 0 12px rgba(213, 192, 235, 0.86),
+        0 0 31px rgba(128, 86, 165, 0.58)
+        !important;
+
+    animation:
+        acedia-theme-store-moon
+        5.8s
+        ease-in-out
+        infinite;
+}
+
+
+/* =========================================================
+   ĐỒNG BỘ VỚI PET ACEDIA
+   ========================================================= */
+
+body.theme-seven-sins-acedia
+#virtual-pet-container.pet-seven-sins-sloth-stage
+.sloth-dream-seal {
+    border-color:
+        rgba(210, 184, 122, 0.35) !important;
+
+    box-shadow:
+        0 0 22px rgba(128, 86, 165, 0.34),
+        0 0 42px rgba(210, 184, 122, 0.08),
+        inset 0 0 24px rgba(65, 34, 88, 0.25)
+        !important;
+}
+
+body.theme-seven-sins-acedia
+#virtual-pet-container.pet-seven-sins-sloth-stage
+.sloth-orbit-rune {
+    color: #f3ebfc !important;
+
+    border-color:
+        rgba(210, 184, 122, 0.42) !important;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(102, 61, 132, 0.88),
+            rgba(16, 8, 25, 0.96)
+        ) !important;
+
+    box-shadow:
+        0 0 9px rgba(213, 192, 235, 0.5),
+        0 0 16px rgba(210, 184, 122, 0.1)
+        !important;
+}
+
+body.theme-seven-sins-acedia
+#virtual-pet-container.pet-seven-sins-sloth-stage
+.seven-sins-sloth-magic {
+    width: 138px !important;
+    max-width: none !important;
+    height: auto !important;
+
+    z-index: 8 !important;
+
+    filter:
+        drop-shadow(0 11px 13px rgba(5, 2, 9, 0.72))
+        drop-shadow(0 0 12px rgba(128, 86, 165, 0.48))
+        drop-shadow(0 0 22px rgba(213, 192, 235, 0.14))
+        !important;
+}
+
+
+/* =========================================================
+   ANIMATION RIÊNG CỦA GIAO DIỆN
+   Không dùng lại animation cũ
+   ========================================================= */
+
+@keyframes acedia-theme-sigil-breathe {
+    0%,
+    100% {
+        opacity: 0.5;
+
+        transform:
+            translate(-50%, -50%)
+            rotate(-11deg)
+            scale(0.97);
+    }
+
+    50% {
+        opacity: 1;
+
+        transform:
+            translate(-50%, -50%)
+            rotate(-8deg)
+            scale(1.025);
+    }
+}
+
+@keyframes acedia-theme-mist-turn {
+    from {
+        transform:
+            rotate(0deg)
+            scale(1);
+    }
+
+    50% {
+        transform:
+            rotate(180deg)
+            scale(1.08);
+    }
+
+    to {
+        transform:
+            rotate(360deg)
+            scale(1);
+    }
+}
+
+@keyframes acedia-theme-popup-arrive {
+    from {
+        opacity: 0;
+
+        transform:
+            translateY(18px)
+            scale(0.94);
+
+        filter:
+            blur(7px);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translateY(0)
+            scale(1);
+
+        filter:
+            blur(0);
+    }
+}
+
+@keyframes acedia-theme-store-moon {
+    0%,
+    100% {
+        transform:
+            translateY(2px)
+            rotate(-9deg)
+            scale(0.94);
+
+        filter:
+            brightness(0.92);
+    }
+
+    50% {
+        transform:
+            translateY(-4px)
+            rotate(-3deg)
+            scale(1.06);
+
+        filter:
+            brightness(1.22);
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media screen and (max-width: 768px) {
+    body.theme-seven-sins-acedia::before {
+        left: 62%;
+
+        font-size:
+            min(120vw, 620px);
+    }
+
+    body.theme-seven-sins-acedia
+    .sidebar {
+        clip-path: none;
+    }
+
+    body.theme-seven-sins-acedia
+    .card:not(.ui-theme-immune),
+    body.theme-seven-sins-acedia
+    .form-container:not(.ui-theme-immune) {
+        clip-path:
+            polygon(
+                11px 0,
+                calc(100% - 11px) 0,
+                100% 11px,
+                100% calc(100% - 11px),
+                calc(100% - 11px) 100%,
+                11px 100%,
+                0 calc(100% - 11px),
+                0 11px
+            );
+    }
+
+    body.theme-seven-sins-acedia
+    .modal-overlay:not(.ui-theme-immune)
+    .modal-content {
+        clip-path:
+            polygon(
+                15px 0,
+                calc(100% - 15px) 0,
+                100% 15px,
+                100% calc(100% - 15px),
+                calc(100% - 15px) 100%,
+                15px 100%,
+                0 calc(100% - 15px),
+                0 15px
+            );
+    }
+}
+
+
+/* Giảm chuyển động */
+
+@media (prefers-reduced-motion: reduce) {
+    body.theme-seven-sins-acedia::before,
+    body.theme-seven-sins-acedia::after,
+    .store-card-seven-sins-sloth[
+        data-item-id="theme_thatdaitoi_acedia_dream"
+    ]
+    .item-icon {
+        animation: none !important;
+    }
+}
+/* =========================================================
+   SỬA CARD CỬA HÀNG THÔNG THƯỜNG
+   Không tác động card đặc biệt có ui-theme-immune
+   ========================================================= */
+
+body.theme-seven-sins-acedia
+#storeItemsContainer
+.store-item-card:not(.ui-theme-immune):not(.store-theme-locked) {
+    position: relative !important;
+    isolation: isolate !important;
+    overflow: hidden !important;
+
+    color: #eee8f6 !important;
+
+    background:
+        radial-gradient(
+            circle at 82% 13%,
+            rgba(213, 192, 235, 0.13),
+            transparent 29%
+        ),
+        radial-gradient(
+            circle at 18% 88%,
+            rgba(128, 86, 165, 0.12),
+            transparent 34%
+        ),
+        linear-gradient(
+            155deg,
+            rgba(32, 18, 45, 0.97),
+            rgba(13, 7, 21, 0.98)
+        ) !important;
+
+    border:
+        1px solid rgba(213, 192, 235, 0.25)
+        !important;
+
+    border-radius: 0 !important;
+
+    clip-path:
+        polygon(
+            14px 0,
+            calc(100% - 14px) 0,
+            100% 14px,
+            100% calc(100% - 14px),
+            calc(100% - 14px) 100%,
+            14px 100%,
+            0 calc(100% - 14px),
+            0 14px
+        );
+
+    box-shadow:
+        0 18px 38px rgba(4, 2, 7, 0.43),
+        inset 0 1px rgba(255, 255, 255, 0.07),
+        inset 0 -25px 42px rgba(0, 0, 0, 0.22)
+        !important;
+
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+
+/* Ánh sáng chìm riêng, không tái sử dụng hiệu ứng cũ */
+
+body.theme-seven-sins-acedia
+#storeItemsContainer
+.store-item-card:not(.ui-theme-immune):not(.store-theme-locked)::before {
+    content: "";
+
+    position: absolute;
+    z-index: 0;
+
+    inset: -55%;
+
+    opacity: 0.42;
+
+    background:
+        conic-gradient(
+            from 20deg,
+            transparent 0 25%,
+            rgba(213, 192, 235, 0.11) 33%,
+            transparent 42% 70%,
+            rgba(210, 184, 122, 0.07) 78%,
+            transparent 87%
+        );
+
+    animation:
+        acedia-normal-store-drift
+        20s
+        linear
+        infinite;
+
+    pointer-events: none;
+}
+
+
+/* Đưa phần nội dung card lên trên, nhưng không đổi vị trí tag */
+
+body.theme-seven-sins-acedia
+#storeItemsContainer
+.store-item-card:not(.ui-theme-immune):not(.store-theme-locked)
+.item-icon-wrapper,
+
+body.theme-seven-sins-acedia
+#storeItemsContainer
+.store-item-card:not(.ui-theme-immune):not(.store-theme-locked)
+.item-info,
+
+body.theme-seven-sins-acedia
+#storeItemsContainer
+.store-item-card:not(.ui-theme-immune):not(.store-theme-locked)
+.item-actions {
+    position: relative;
+    z-index: 2;
+}
+
+
+/* Giữ tag ở vị trí tuyệt đối do CSS gốc quy định */
+
+body.theme-seven-sins-acedia
+#storeItemsContainer
+.store-item-card:not(.ui-theme-immune):not(.store-theme-locked)
+> .item-tag {
+    position: absolute !important;
+    z-index: 15 !important;
+}
+
+
+/* Khung biểu tượng */
+
+body.theme-seven-sins-acedia
+#storeItemsContainer
+.store-item-card:not(.ui-theme-immune):not(.store-theme-locked)
+.item-icon-wrapper {
+    background:
+        radial-gradient(
+            circle,
+            rgba(213, 192, 235, 0.14),
+            rgba(83, 48, 108, 0.11) 47%,
+            rgba(11, 6, 17, 0.68) 72%
+        ) !important;
+
+    border:
+        1px solid rgba(213, 192, 235, 0.19)
+        !important;
+
+    box-shadow:
+        inset 0 0 23px rgba(0, 0, 0, 0.3),
+        0 0 19px rgba(128, 86, 165, 0.12)
+        !important;
+}
+
+
+/* Tên vật phẩm */
+
+body.theme-seven-sins-acedia
+#storeItemsContainer
+.store-item-card:not(.ui-theme-immune):not(.store-theme-locked)
+.item-name {
+    color: #f3ecfa !important;
+
+    text-shadow:
+        0 2px 2px rgba(0, 0, 0, 0.78),
+        0 0 11px rgba(167, 129, 200, 0.2)
+        !important;
+}
+
+
+/* Loại vật phẩm */
+
+body.theme-seven-sins-acedia
+#storeItemsContainer
+.store-item-card:not(.ui-theme-immune):not(.store-theme-locked)
+.item-type-label {
+    color: #c9b2dc !important;
+
+    text-shadow: none !important;
+}
+
+
+/* Nút bên trong card thường */
+
+body.theme-seven-sins-acedia
+#storeItemsContainer
+.store-item-card:not(.ui-theme-immune):not(.store-theme-locked)
+.btn-preview,
+
+body.theme-seven-sins-acedia
+#storeItemsContainer
+.store-item-card:not(.ui-theme-immune):not(.store-theme-locked)
+.btn-buy,
+
+body.theme-seven-sins-acedia
+#storeItemsContainer
+.store-item-card:not(.ui-theme-immune):not(.store-theme-locked)
+.btn-equip {
+    color: #ffffff !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #744c99,
+            #342047
+        ) !important;
+
+    border:
+        1px solid rgba(213, 192, 235, 0.32)
+        !important;
+
+    box-shadow:
+        inset 0 1px rgba(255, 255, 255, 0.13),
+        0 8px 17px rgba(0, 0, 0, 0.25)
+        !important;
+}
+
+
+/* Nút bị vô hiệu hóa */
+
+body.theme-seven-sins-acedia
+#storeItemsContainer
+.store-item-card:not(.ui-theme-immune):not(.store-theme-locked)
+button:disabled {
+    color:
+        rgba(222, 211, 233, 0.57) !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(61, 39, 77, 0.7),
+            rgba(23, 13, 31, 0.82)
+        ) !important;
+
+    border-color:
+        rgba(213, 192, 235, 0.15)
+        !important;
+
+    opacity: 1 !important;
+}
+
+
+/* Hover card thường */
+
+body.theme-seven-sins-acedia
+#storeItemsContainer
+.store-item-card:not(.ui-theme-immune):not(.store-theme-locked):hover {
+    transform:
+        translateY(-5px) !important;
+
+    border-color:
+        rgba(213, 192, 235, 0.5) !important;
+
+    box-shadow:
+        0 25px 48px rgba(4, 2, 7, 0.53),
+        0 0 24px rgba(128, 86, 165, 0.17),
+        inset 0 1px rgba(255, 255, 255, 0.09)
+        !important;
+}
+
+
+@keyframes acedia-normal-store-drift {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+/* Vòng hiệu ứng lớn hơn pet */
+#virtual-pet-container.pet-seven-sins-sloth-stage
+.sloth-dream-seal {
+    width: 174px !important;
+    height: 174px !important;
+
+    top: 54% !important;
+}
+
+/* Sương bao ngoài */
+#virtual-pet-container.pet-seven-sins-sloth-stage
+.sloth-dream-haze {
+    width: 208px !important;
+    height: 108px !important;
+
+    top: 59% !important;
+}
+
+/* Rune vẫn nằm ngoài hình pet */
+#virtual-pet-container.pet-seven-sins-sloth-stage
+.sloth-orbit-rune {
+    width: 22px !important;
+    height: 22px !important;
+
+    left: -11px !important;
+    top: -11px !important;
+
+    font-size: 10px !important;
+}
+@media screen and (max-width: 768px) {
+    #virtual-pet-container.pet-seven-sins-sloth-stage
+    .seven-sins-sloth-magic {
+        width: 122px !important;
+    }
+
+    #virtual-pet-container.pet-seven-sins-sloth-stage
+    .sloth-dream-seal {
+        width: 154px !important;
+        height: 154px !important;
+    }
+
+    #virtual-pet-container.pet-seven-sins-sloth-stage
+    .sloth-dream-haze {
+        width: 182px !important;
+        height: 94px !important;
+    }
+}
+/* =========================================================
+   ACEDIA FULLSCREEN REWORK V2
+   TRỌNG LỰC TRÌ TRỆ
+   Chỉ xuất hiện khi nhấn pet
+   ========================================================= */
+
+
+/* =========================================================
+   1. ẨN HOÀN TOÀN KHI CHỈ TRANG BỊ
+   ========================================================= */
+
+.sloth-dream-realm {
+    position: fixed !important;
+    z-index: 8500 !important;
+
+    inset: 0 !important;
+
+    overflow: hidden !important;
+    isolation: isolate !important;
+
+    opacity: 0 !important;
+    visibility: hidden !important;
+
+    background: transparent !important;
+
+    pointer-events: none !important;
+
+    transition: none !important;
+}
+
+
+/*
+ * Class is-active được thêm ngay khi trang bị pet.
+ * Không cho class này tự làm hiệu ứng hiện ra.
+ */
+.sloth-dream-realm.is-active {
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+
+/* Chỉ hiện khi người dùng nhấn pet */
+
+.sloth-dream-realm.is-active.is-casting {
+    opacity: 1 !important;
+    visibility: visible !important;
+
+    animation:
+        acedia-gravity-domain-shell-v2
+        3.4s
+        linear
+        both !important;
+}
+
+
+/* =========================================================
+   2. LỚP PHỦ TRỌNG LỰC
+   ========================================================= */
+
+.sloth-realm-backdrop {
+    position: absolute !important;
+    z-index: 0 !important;
+
+    inset: 0 !important;
+
+    opacity: 0;
+
+    background:
+        radial-gradient(
+            ellipse at 50% 58%,
+            rgba(102, 61, 132, 0.27) 0%,
+            rgba(40, 19, 57, 0.27) 31%,
+            transparent 60%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(4, 2, 7, 0.96) 0%,
+            rgba(12, 6, 18, 0.88) 35%,
+            rgba(24, 11, 35, 0.78) 68%,
+            rgba(4, 2, 7, 0.96) 100%
+        ) !important;
+
+    backdrop-filter:
+        blur(2px)
+        saturate(0.72)
+        brightness(0.65) !important;
+
+    -webkit-backdrop-filter:
+        blur(2px)
+        saturate(0.72)
+        brightness(0.65) !important;
+}
+
+
+/* Những đường trọng lực rơi dọc màn hình */
+
+.sloth-realm-backdrop::before {
+    content: "";
+
+    position: absolute;
+
+    inset: -25% -10%;
+
+    opacity: 0;
+
+    background:
+        repeating-linear-gradient(
+            90deg,
+            transparent 0 6vw,
+            rgba(213, 192, 235, 0.035) 6.15vw,
+            transparent 6.3vw 12vw
+        ),
+        linear-gradient(
+            180deg,
+            transparent 0%,
+            rgba(167, 129, 200, 0.07) 45%,
+            rgba(213, 192, 235, 0.18) 100%
+        );
+
+    filter: blur(1px);
+
+    transform:
+        translateY(-25%)
+        scaleY(0.75);
+}
+
+
+/* Hố trọng lực ở đáy */
+
+.sloth-realm-backdrop::after {
+    content: "";
+
+    position: absolute;
+
+    left: 50%;
+    bottom: -21%;
+
+    width: min(115vw, 1450px);
+    height: min(48vw, 510px);
+
+    transform:
+        translateX(-50%)
+        scaleX(0.55)
+        scaleY(0.3);
+
+    opacity: 0;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(238, 224, 252, 0.34) 0%,
+            rgba(128, 86, 165, 0.3) 16%,
+            rgba(60, 30, 82, 0.23) 36%,
+            rgba(10, 5, 16, 0.88) 68%,
+            transparent 72%
+        );
+
+    box-shadow:
+        0 0 50px rgba(128, 86, 165, 0.4),
+        0 -30px 90px rgba(87, 47, 116, 0.2);
+
+    filter: blur(5px);
+}
+
+
+/* =========================================================
+   3. MỘNG ẤN VII TRUNG TÂM
+   ========================================================= */
+
+.sloth-realm-sigil {
+    position: absolute !important;
+    z-index: 3 !important;
+
+    left: 50% !important;
+    top: 48% !important;
+
+    width: min(68vmin, 680px) !important;
+    height: min(68vmin, 680px) !important;
+
+    aspect-ratio: 1 !important;
+
+    transform:
+        translate(-50%, -50%)
+        scale(0.28)
+        rotate(-28deg);
+
+    opacity: 0;
+
+    border:
+        1px solid rgba(213, 192, 235, 0.54)
+        !important;
+
+    border-radius: 50% !important;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(128, 86, 165, 0.2) 0 14%,
+            rgba(20, 10, 30, 0.34) 15% 39%,
+            transparent 40%
+        ) !important;
+
+    box-shadow:
+        0 0 35px rgba(128, 86, 165, 0.42),
+        0 0 110px rgba(74, 38, 99, 0.2),
+        inset 0 0 55px rgba(128, 86, 165, 0.24)
+        !important;
+}
+
+
+/* Các vòng ma pháp */
+
+.sloth-realm-ring {
+    position: absolute !important;
+
+    left: 50% !important;
+    top: 50% !important;
+
+    transform:
+        translate(-50%, -50%);
+
+    border-radius: 50% !important;
+
+    animation: none !important;
+}
+
+.sloth-realm-ring.ring-one {
+    width: 94% !important;
+    height: 94% !important;
+
+    border:
+        2px dashed rgba(213, 192, 235, 0.75)
+        !important;
+
+    box-shadow:
+        0 0 21px rgba(167, 129, 200, 0.21)
+        !important;
+}
+
+.sloth-realm-ring.ring-two {
+    width: 70% !important;
+    height: 70% !important;
+
+    border:
+        1px solid rgba(210, 184, 122, 0.72)
+        !important;
+
+    outline:
+        1px dashed rgba(167, 129, 200, 0.35);
+
+    outline-offset: 10px;
+}
+
+.sloth-realm-ring.ring-three {
+    width: 43% !important;
+    height: 43% !important;
+
+    border:
+        5px double rgba(213, 192, 235, 0.67)
+        !important;
+
+    box-shadow:
+        0 0 28px rgba(128, 86, 165, 0.26),
+        inset 0 0 28px rgba(128, 86, 165, 0.2)
+        !important;
+}
+
+
+/* Số VII tại tâm */
+
+.sloth-realm-core {
+    position: absolute !important;
+
+    left: 50% !important;
+    top: 50% !important;
+
+    width: 25% !important;
+    aspect-ratio: 1 !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    transform:
+        translate(-50%, -50%)
+        rotate(-9deg);
+
+    color:
+        rgba(245, 237, 253, 0.94) !important;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif !important;
+
+    font-size:
+        clamp(48px, 7vw, 92px) !important;
+
+    border:
+        1px solid rgba(213, 192, 235, 0.7)
+        !important;
+
+    border-radius: 50% !important;
+
+    background:
+        radial-gradient(
+            circle at 43% 35%,
+            rgba(222, 207, 239, 0.25),
+            rgba(100, 57, 130, 0.44) 36%,
+            rgba(12, 6, 19, 0.92) 76%
+        ) !important;
+
+    box-shadow:
+        0 0 24px rgba(213, 192, 235, 0.58),
+        0 0 62px rgba(128, 86, 165, 0.37),
+        inset 0 0 25px rgba(0, 0, 0, 0.62)
+        !important;
+
+    text-shadow:
+        0 0 13px rgba(255, 255, 255, 0.8),
+        0 0 31px rgba(167, 129, 200, 0.76)
+        !important;
+}
+
+
+/* =========================================================
+   4. BẢY ẤN TRỌNG LỰC
+   ========================================================= */
+
+.sloth-realm-runes {
+    position: absolute !important;
+
+    left: 50% !important;
+    top: 50% !important;
+
+    width: 0 !important;
+    height: 0 !important;
+}
+
+.sloth-realm-rune {
+    position: absolute !important;
+
+    left: -18px !important;
+    top: -18px !important;
+
+    width: 36px !important;
+    height: 36px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    color: #f4ebfc !important;
+
+    font-family:
+        Georgia,
+        serif !important;
+
+    font-size: 13px !important;
+    font-weight: 900 !important;
+
+    border:
+        1px solid rgba(213, 192, 235, 0.62)
+        !important;
+
+    border-radius: 50% !important;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(119, 74, 151, 0.92),
+            rgba(15, 7, 23, 0.98)
+        ) !important;
+
+    box-shadow:
+        0 0 14px rgba(167, 129, 200, 0.55),
+        inset 0 1px rgba(255, 255, 255, 0.15)
+        !important;
+
+    transform:
+        rotate(var(--sloth-domain-angle))
+        translateY(
+            calc(min(34vmin, 310px) * -1)
+        )
+        rotate(var(--sloth-domain-angle-back));
+
+    opacity: 0;
+
+    animation: none !important;
+}
+
+
+/* =========================================================
+   5. SƯƠNG RƠI THẲNG XUỐNG
+   ========================================================= */
+
+.sloth-realm-fog {
+    position: absolute !important;
+    z-index: 2 !important;
+
+    left: -15% !important;
+
+    width: 130% !important;
+    height: 32% !important;
+
+    opacity: 0;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(213, 192, 235, 0.13),
+            rgba(128, 86, 165, 0.11) 38%,
+            transparent 70%
+        ) !important;
+
+    filter:
+        blur(32px) !important;
+
+    animation: none !important;
+}
+
+.sloth-realm-fog-a {
+    top: -20% !important;
+}
+
+.sloth-realm-fog-b {
+    top: 13% !important;
+}
+
+.sloth-realm-fog-c {
+    top: 46% !important;
+}
+
+
+/* =========================================================
+   6. HẠT MỘNG RƠI XUỐNG
+   ========================================================= */
+
+.sloth-realm-particle {
+    position: absolute !important;
+
+    left: var(--realm-x) !important;
+    top: var(--realm-y) !important;
+
+    width: var(--realm-size) !important;
+    height: calc(var(--realm-size) * 4) !important;
+
+    border-radius: 999px !important;
+
+    opacity: 0;
+
+    background:
+        linear-gradient(
+            180deg,
+            transparent,
+            rgba(242, 232, 251, 0.94),
+            rgba(128, 86, 165, 0.2)
+        ) !important;
+
+    box-shadow:
+        0 0 8px rgba(213, 192, 235, 0.72)
+        !important;
+
+    animation: none !important;
+}
+
+
+/* =========================================================
+   7. TIÊU ĐỀ KỸ NĂNG
+   ========================================================= */
+
+.sloth-realm-title {
+    position: absolute !important;
+    z-index: 10 !important;
+
+    left: 50% !important;
+    top: 51% !important;
+
+    width: min(92vw, 880px) !important;
+
+    transform:
+        translate(-50%, -50%)
+        scaleX(0.72)
+        scaleY(1.12);
+
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+
+    opacity: 0;
+
+    text-align: center !important;
+
+    filter:
+        blur(12px)
+        drop-shadow(0 10px 22px rgba(0, 0, 0, 0.95));
+}
+
+.sloth-realm-title span {
+    margin-bottom: 12px !important;
+
+    color:
+        rgba(210, 184, 122, 0.96) !important;
+
+    font-size:
+        clamp(9px, 1vw, 13px) !important;
+
+    font-weight: 900 !important;
+    letter-spacing: 6px !important;
+}
+
+.sloth-realm-title strong {
+    color: #f8f1ff !important;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif !important;
+
+    font-size:
+        clamp(34px, 5.4vw, 76px) !important;
+
+    font-weight: 900 !important;
+    letter-spacing: 3px !important;
+
+    text-shadow:
+        0 2px 2px rgba(0, 0, 0, 0.95),
+        0 0 12px rgba(255, 255, 255, 0.63),
+        0 0 32px rgba(167, 129, 200, 0.83),
+        0 0 64px rgba(80, 42, 107, 0.5)
+        !important;
+}
+
+.sloth-realm-title small {
+    margin-top: 12px !important;
+
+    color:
+        rgba(219, 205, 233, 0.68) !important;
+
+    font-size: 10px !important;
+    font-weight: 900 !important;
+
+    letter-spacing: 8px !important;
+}
+
+
+/* =========================================================
+   8. KÍCH HOẠT CÁC THÀNH PHẦN
+   ========================================================= */
+
+.sloth-dream-realm.is-casting
+.sloth-realm-backdrop {
+    animation:
+        acedia-gravity-backdrop-v2
+        3.4s
+        ease-in-out
+        both !important;
+}
+
+.sloth-dream-realm.is-casting
+.sloth-realm-backdrop::before {
+    animation:
+        acedia-gravity-lines-v2
+        3.4s
+        cubic-bezier(.18, .76, .24, 1)
+        both !important;
+}
+
+.sloth-dream-realm.is-casting
+.sloth-realm-backdrop::after {
+    animation:
+        acedia-gravity-well-v2
+        3.4s
+        cubic-bezier(.16, .82, .18, 1)
+        both !important;
+}
+
+.sloth-dream-realm.is-casting
+.sloth-realm-sigil {
+    animation:
+        acedia-gravity-sigil-v2
+        3.4s
+        cubic-bezier(.14, .8, .17, 1)
+        both !important;
+}
+
+.sloth-dream-realm.is-casting
+.sloth-realm-ring.ring-one {
+    animation:
+        acedia-gravity-ring-one-v2
+        3.4s
+        ease-out
+        both !important;
+}
+
+.sloth-dream-realm.is-casting
+.sloth-realm-ring.ring-two {
+    animation:
+        acedia-gravity-ring-two-v2
+        3.4s
+        ease-out
+        both !important;
+}
+
+.sloth-dream-realm.is-casting
+.sloth-realm-ring.ring-three {
+    animation:
+        acedia-gravity-ring-three-v2
+        3.4s
+        ease-out
+        both !important;
+}
+
+.sloth-dream-realm.is-casting
+.sloth-realm-rune {
+    animation:
+        acedia-gravity-rune-v2
+        3.4s
+        ease-in-out
+        var(--sloth-domain-delay)
+        both !important;
+}
+
+.sloth-dream-realm.is-casting
+.sloth-realm-fog-a {
+    animation:
+        acedia-gravity-fog-fall-a-v2
+        3.4s
+        ease-in
+        both !important;
+}
+
+.sloth-dream-realm.is-casting
+.sloth-realm-fog-b {
+    animation:
+        acedia-gravity-fog-fall-b-v2
+        3.4s
+        ease-in
+        both !important;
+}
+
+.sloth-dream-realm.is-casting
+.sloth-realm-fog-c {
+    animation:
+        acedia-gravity-fog-fall-c-v2
+        3.4s
+        ease-in
+        both !important;
+}
+
+.sloth-dream-realm.is-casting
+.sloth-realm-particle {
+    animation:
+        acedia-gravity-particle-fall-v2
+        2.4s
+        cubic-bezier(.2, .68, .25, 1)
+        both !important;
+}
+
+.sloth-dream-realm.is-casting
+.sloth-realm-title {
+    animation:
+        acedia-gravity-title-v2
+        3.4s
+        ease-in-out
+        both !important;
+}
+
+
+/* Pet bị ép xuống trước khi bật sức mạnh */
+
+#virtual-pet-container.sloth-domain-casting
+.seven-sins-sloth-magic {
+    animation:
+        acedia-pet-gravity-cast-v2
+        1.4s
+        cubic-bezier(.16, .8, .2, 1)
+        both !important;
+}
+
+
+/* =========================================================
+   9. KEYFRAMES HOÀN TOÀN MỚI
+   ========================================================= */
+
+@keyframes acedia-gravity-domain-shell-v2 {
+    0% {
+        opacity: 0;
+    }
+
+    8% {
+        opacity: 1;
+    }
+
+    88% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes acedia-gravity-backdrop-v2 {
+    0% {
+        opacity: 0;
+    }
+
+    13% {
+        opacity: 1;
+    }
+
+    76% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes acedia-gravity-lines-v2 {
+    0% {
+        opacity: 0;
+
+        transform:
+            translateY(-35%)
+            scaleY(0.5);
+    }
+
+    24% {
+        opacity: 0.62;
+    }
+
+    72% {
+        opacity: 0.35;
+
+        transform:
+            translateY(18%)
+            scaleY(1.55);
+    }
+
+    100% {
+        opacity: 0;
+
+        transform:
+            translateY(47%)
+            scaleY(2);
+    }
+}
+
+@keyframes acedia-gravity-well-v2 {
+    0% {
+        opacity: 0;
+
+        transform:
+            translateX(-50%)
+            scaleX(0.35)
+            scaleY(0.16);
+    }
+
+    31% {
+        opacity: 0.92;
+
+        transform:
+            translateX(-50%)
+            scaleX(0.76)
+            scaleY(0.42);
+    }
+
+    72% {
+        opacity: 0.68;
+
+        transform:
+            translateX(-50%)
+            scaleX(1.04)
+            scaleY(0.62);
+    }
+
+    100% {
+        opacity: 0;
+
+        transform:
+            translateX(-50%)
+            scaleX(1.3)
+            scaleY(0.78);
+    }
+}
+
+@keyframes acedia-gravity-sigil-v2 {
+    0% {
+        opacity: 0;
+
+        transform:
+            translate(-50%, -50%)
+            scale(0.2)
+            rotate(-32deg);
+
+        filter: blur(12px);
+    }
+
+    24% {
+        opacity: 0.93;
+
+        transform:
+            translate(-50%, -50%)
+            scale(1.04)
+            rotate(-6deg);
+
+        filter: blur(0);
+    }
+
+    52% {
+        opacity: 0.77;
+
+        transform:
+            translate(-50%, -50%)
+            scale(0.91)
+            rotate(7deg);
+    }
+
+    78% {
+        opacity: 0.4;
+
+        transform:
+            translate(-50%, 7%)
+            scale(0.72)
+            rotate(18deg);
+    }
+
+    100% {
+        opacity: 0;
+
+        transform:
+            translate(-50%, 46%)
+            scale(0.38)
+            rotate(28deg);
+
+        filter: blur(8px);
+    }
+}
+
+@keyframes acedia-gravity-ring-one-v2 {
+    0% {
+        transform:
+            translate(-50%, -50%)
+            rotate(0deg)
+            scale(0.4);
+    }
+
+    32% {
+        transform:
+            translate(-50%, -50%)
+            rotate(125deg)
+            scale(1);
+    }
+
+    100% {
+        transform:
+            translate(-50%, -50%)
+            rotate(330deg)
+            scale(0.62);
+    }
+}
+
+@keyframes acedia-gravity-ring-two-v2 {
+    0% {
+        transform:
+            translate(-50%, -50%)
+            rotate(240deg)
+            scale(0.45);
+    }
+
+    35% {
+        transform:
+            translate(-50%, -50%)
+            rotate(90deg)
+            scale(1);
+    }
+
+    100% {
+        transform:
+            translate(-50%, -50%)
+            rotate(-160deg)
+            scale(0.55);
+    }
+}
+
+@keyframes acedia-gravity-ring-three-v2 {
+    0% {
+        transform:
+            translate(-50%, -50%)
+            rotate(-90deg)
+            scale(0.25);
+    }
+
+    38% {
+        transform:
+            translate(-50%, -50%)
+            rotate(26deg)
+            scale(1.08);
+    }
+
+    100% {
+        transform:
+            translate(-50%, -50%)
+            rotate(180deg)
+            scale(0.35);
+    }
+}
+
+@keyframes acedia-gravity-rune-v2 {
+    0% {
+        opacity: 0;
+
+        filter:
+            brightness(0.6)
+            blur(4px);
+    }
+
+    27% {
+        opacity: 1;
+
+        filter:
+            brightness(1.5)
+            blur(0);
+    }
+
+    65% {
+        opacity: 0.8;
+    }
+
+    100% {
+        opacity: 0;
+
+        filter:
+            brightness(0.7)
+            blur(5px);
+    }
+}
+
+@keyframes acedia-gravity-fog-fall-a-v2 {
+    0% {
+        opacity: 0;
+
+        transform:
+            translateY(-30%)
+            scaleX(0.8);
+    }
+
+    35% {
+        opacity: 0.34;
+    }
+
+    100% {
+        opacity: 0;
+
+        transform:
+            translateY(360%)
+            scaleX(1.15);
+    }
+}
+
+@keyframes acedia-gravity-fog-fall-b-v2 {
+    0% {
+        opacity: 0;
+
+        transform:
+            translateY(-35%)
+            scaleX(1.1);
+    }
+
+    31% {
+        opacity: 0.25;
+    }
+
+    100% {
+        opacity: 0;
+
+        transform:
+            translateY(250%)
+            scaleX(0.84);
+    }
+}
+
+@keyframes acedia-gravity-fog-fall-c-v2 {
+    0% {
+        opacity: 0;
+
+        transform:
+            translateY(-15%)
+            scaleX(0.9);
+    }
+
+    28% {
+        opacity: 0.3;
+    }
+
+    100% {
+        opacity: 0;
+
+        transform:
+            translateY(145%)
+            scaleX(1.2);
+    }
+}
+
+@keyframes acedia-gravity-particle-fall-v2 {
+    0% {
+        opacity: 0;
+
+        transform:
+            translateY(-90px)
+            scaleY(0.5);
+    }
+
+    20% {
+        opacity: 0.8;
+    }
+
+    82% {
+        opacity: 0.42;
+    }
+
+    100% {
+        opacity: 0;
+
+        transform:
+            translateY(65vh)
+            scaleY(2.2);
+    }
+}
+
+@keyframes acedia-gravity-title-v2 {
+    0%,
+    15% {
+        opacity: 0;
+
+        transform:
+            translate(-50%, -50%)
+            scaleX(0.58)
+            scaleY(1.22);
+
+        filter:
+            blur(16px)
+            drop-shadow(
+                0 10px 22px
+                rgba(0, 0, 0, 0.95)
+            );
+    }
+
+    31% {
+        opacity: 1;
+
+        transform:
+            translate(-50%, -50%)
+            scaleX(1.04)
+            scaleY(0.98);
+
+        filter:
+            blur(0)
+            drop-shadow(
+                0 10px 22px
+                rgba(0, 0, 0, 0.95)
+            );
+    }
+
+    61% {
+        opacity: 1;
+
+        transform:
+            translate(-50%, -50%)
+            scale(1);
+    }
+
+    79% {
+        opacity: 0.65;
+
+        transform:
+            translate(-50%, -42%)
+            scaleX(1.03)
+            scaleY(0.88);
+    }
+
+    100% {
+        opacity: 0;
+
+        transform:
+            translate(-50%, 6%)
+            scaleX(1.1)
+            scaleY(0.56);
+
+        filter:
+            blur(10px);
+    }
+}
+
+@keyframes acedia-pet-gravity-cast-v2 {
+    0% {
+        transform:
+            translateY(0)
+            scale(1);
+    }
+
+    22% {
+        transform:
+            translateY(9px)
+            scaleX(1.08)
+            scaleY(0.84);
+    }
+
+    48% {
+        transform:
+            translateY(-8px)
+            scale(1.08);
+    }
+
+    70% {
+        transform:
+            translateY(3px)
+            scaleX(0.96)
+            scaleY(1.04);
+    }
+
+    100% {
+        transform:
+            translateY(0)
+            scale(1);
+    }
+}
+
+
+/* =========================================================
+   10. MOBILE
+   ========================================================= */
+
+@media screen and (max-width: 768px) {
+    .sloth-realm-sigil {
+        width: min(88vmin, 520px) !important;
+        height: min(88vmin, 520px) !important;
+    }
+
+    .sloth-realm-rune {
+        width: 28px !important;
+        height: 28px !important;
+
+        left: -14px !important;
+        top: -14px !important;
+
+        font-size: 10px !important;
+
+        transform:
+            rotate(var(--sloth-domain-angle))
+            translateY(
+                calc(min(42vmin, 220px) * -1)
+            )
+            rotate(var(--sloth-domain-angle-back));
+    }
+
+    .sloth-realm-title strong {
+        font-size:
+            clamp(27px, 8vw, 46px) !important;
+
+        letter-spacing: 1.5px !important;
+    }
+
+    .sloth-realm-title span {
+        letter-spacing: 3px !important;
+    }
+
+    .sloth-realm-title small {
+        letter-spacing: 4px !important;
+    }
+}
+/* =========================================================
+   THẤT ĐẠI TỘI — THẤT TRỌNG MỘNG VỰC
+   Hiệu ứng toàn web hoàn toàn mới
+
+   Phối hợp:
+   - Acedia - Linh Thú Lười Biếng
+   - Mộng Điện Trì Hoãn
+   ========================================================= */
+
+.effect-acedia-sevenfold-world {
+    --acedia-effect-void: #07040c;
+    --acedia-effect-night: #130a1d;
+    --acedia-effect-purple: #6f4592;
+    --acedia-effect-violet: #9f76c4;
+    --acedia-effect-lilac: #d9c5ef;
+    --acedia-effect-moon: #f3ebfc;
+    --acedia-effect-gold: #d2b879;
+
+    position: fixed;
+    z-index: 7800;
+
+    inset: 0;
+
+    overflow: hidden;
+    isolation: isolate;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    transition:
+        opacity 0.7s ease;
+}
+
+.effect-acedia-sevenfold-world.is-visible {
+    opacity: 1;
+}
+
+
+/* =========================================================
+   MÀN MỘNG TOÀN WEB
+   ========================================================= */
+
+.effect-acedia-sevenfold-veil {
+    position: absolute;
+    z-index: 0;
+
+    inset: 0;
+
+    background:
+        radial-gradient(
+            circle at 74% 62%,
+            rgba(111, 69, 146, 0.17),
+            transparent 28%
+        ),
+        radial-gradient(
+            circle at 18% 14%,
+            rgba(217, 197, 239, 0.075),
+            transparent 25%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(7, 4, 12, 0.08),
+            rgba(17, 8, 26, 0.12) 48%,
+            rgba(7, 4, 12, 0.18)
+        );
+
+    backdrop-filter:
+        saturate(0.92)
+        contrast(1.02);
+
+    -webkit-backdrop-filter:
+        saturate(0.92)
+        contrast(1.02);
+
+    animation:
+        acedia-world-veil-breathe
+        9s
+        ease-in-out
+        infinite;
+}
+
+
+/* Khi dùng cùng giao diện Mộng Điện Trì Hoãn */
+
+body.theme-seven-sins-acedia
+.effect-acedia-sevenfold-veil {
+    background:
+        radial-gradient(
+            circle at 74% 62%,
+            rgba(126, 78, 163, 0.22),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 18% 14%,
+            rgba(217, 197, 239, 0.1),
+            transparent 27%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(7, 4, 12, 0.11),
+            rgba(17, 8, 26, 0.16) 48%,
+            rgba(7, 4, 12, 0.23)
+        );
+}
+
+
+/* =========================================================
+   TRĂNG KHUYẾT MỘNG
+   ========================================================= */
+
+.effect-acedia-sevenfold-moon {
+    position: absolute;
+    z-index: 1;
+
+    left: 8%;
+    top: 11%;
+
+    width: 118px;
+    height: 118px;
+
+    opacity: 0.34;
+
+    border-radius: 50%;
+
+    transform:
+        rotate(-20deg);
+
+    filter:
+        drop-shadow(
+            0 0 22px
+            rgba(217, 197, 239, 0.48)
+        );
+
+    animation:
+        acedia-world-moon-drift
+        11s
+        ease-in-out
+        infinite;
+}
+
+.effect-acedia-sevenfold-moon span {
+    position: absolute;
+
+    inset: 0;
+
+    border:
+        3px solid rgba(243, 235, 252, 0.8);
+
+    border-right-color:
+        transparent;
+
+    border-bottom-color:
+        transparent;
+
+    border-radius: 50%;
+
+    box-shadow:
+        inset 12px 8px 22px
+        rgba(159, 118, 196, 0.25);
+}
+
+
+/* =========================================================
+   MỘNG ẤN VII
+   ========================================================= */
+
+.effect-acedia-sevenfold-seal {
+    position: absolute;
+    z-index: 2;
+
+    left: 73%;
+    top: 61%;
+
+    width: min(36vw, 470px);
+    aspect-ratio: 1;
+
+    transform:
+        translate(-50%, -50%)
+        rotate(-7deg);
+
+    opacity: 0.14;
+
+    border:
+        1px solid
+        rgba(217, 197, 239, 0.48);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(111, 69, 146, 0.18) 0 14%,
+            rgba(20, 10, 30, 0.14) 15% 40%,
+            transparent 41%
+        );
+
+    box-shadow:
+        0 0 35px
+        rgba(111, 69, 146, 0.24),
+        0 0 90px
+        rgba(111, 69, 146, 0.1),
+        inset 0 0 42px
+        rgba(111, 69, 146, 0.18);
+
+    animation:
+        acedia-world-seal-float
+        10s
+        ease-in-out
+        infinite;
+}
+
+body.theme-seven-sins-acedia
+.effect-acedia-sevenfold-seal {
+    opacity: 0.2;
+}
+
+.effect-acedia-sevenfold-ring {
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    border-radius: 50%;
+
+    transform:
+        translate(-50%, -50%);
+
+    pointer-events: none;
+}
+
+.effect-acedia-sevenfold-ring.ring-outer {
+    width: 92%;
+    height: 92%;
+
+    border:
+        1px dashed
+        rgba(217, 197, 239, 0.68);
+
+    animation:
+        acedia-world-ring-clockwise
+        27s
+        linear
+        infinite;
+}
+
+.effect-acedia-sevenfold-ring.ring-middle {
+    width: 69%;
+    height: 69%;
+
+    border:
+        1px solid
+        rgba(210, 184, 121, 0.55);
+
+    outline:
+        1px dotted
+        rgba(159, 118, 196, 0.38);
+
+    outline-offset: 9px;
+
+    animation:
+        acedia-world-ring-counter
+        20s
+        linear
+        infinite;
+}
+
+.effect-acedia-sevenfold-ring.ring-inner {
+    width: 44%;
+    height: 44%;
+
+    border:
+        5px double
+        rgba(159, 118, 196, 0.57);
+
+    box-shadow:
+        0 0 20px
+        rgba(111, 69, 146, 0.25),
+        inset 0 0 20px
+        rgba(111, 69, 146, 0.17);
+
+    animation:
+        acedia-world-ring-clockwise
+        14s
+        linear
+        infinite;
+}
+
+
+/* Số VII */
+
+.effect-acedia-sevenfold-core {
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    width: 24%;
+    aspect-ratio: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transform:
+        translate(-50%, -50%)
+        rotate(-8deg);
+
+    color:
+        rgba(243, 235, 252, 0.88);
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size:
+        clamp(32px, 4vw, 66px);
+
+    font-weight: 900;
+
+    border:
+        1px solid
+        rgba(217, 197, 239, 0.57);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(111, 69, 146, 0.36),
+            rgba(12, 6, 19, 0.76)
+        );
+
+    box-shadow:
+        0 0 22px
+        rgba(217, 197, 239, 0.35),
+        inset 0 0 22px
+        rgba(0, 0, 0, 0.48);
+
+    text-shadow:
+        0 0 11px
+        rgba(243, 235, 252, 0.76);
+}
+
+
+/* =========================================================
+   BẢY PHÙ VĂN
+   ========================================================= */
+
+.effect-acedia-sevenfold-glyph-field {
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    width: 0;
+    height: 0;
+}
+
+.effect-acedia-sevenfold-glyph {
+    position: absolute;
+
+    left: -15px;
+    top: -15px;
+
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color:
+        rgba(243, 235, 252, 0.84);
+
+    font-family:
+        Georgia,
+        serif;
+
+    font-size: 11px;
+    font-weight: 900;
+
+    border:
+        1px solid
+        rgba(217, 197, 239, 0.48);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(111, 69, 146, 0.76),
+            rgba(12, 6, 19, 0.92)
+        );
+
+    box-shadow:
+        0 0 11px
+        rgba(159, 118, 196, 0.4);
+
+    transform:
+        rotate(var(--acedia-glyph-angle))
+        translateY(
+            calc(min(18vw, 225px) * -1)
+        )
+        rotate(
+            var(--acedia-glyph-angle-back)
+        );
+
+    animation:
+        acedia-world-glyph-breathe
+        3.4s
+        ease-in-out
+        var(--acedia-glyph-delay)
+        infinite;
+}
+
+
+/* Phối hợp trực tiếp với pet Acedia */
+
+html.sloth-dream-realm-equipped
+.effect-acedia-sevenfold-glyph {
+    border-color:
+        rgba(210, 184, 121, 0.6);
+
+    box-shadow:
+        0 0 13px
+        rgba(217, 197, 239, 0.5),
+        0 0 23px
+        rgba(210, 184, 121, 0.1);
+}
+
+
+/* =========================================================
+   RÈM MỘNG HAI BÊN
+   ========================================================= */
+
+.effect-acedia-sevenfold-edge {
+    position: absolute;
+    z-index: 1;
+
+    top: -15%;
+    bottom: -15%;
+
+    width: 25%;
+
+    opacity: 0.28;
+
+    filter: blur(30px);
+
+    pointer-events: none;
+}
+
+.effect-acedia-sevenfold-edge.edge-left {
+    left: -13%;
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(111, 69, 146, 0.25),
+            transparent 67%
+        );
+
+    animation:
+        acedia-world-edge-left
+        12s
+        ease-in-out
+        infinite;
+}
+
+.effect-acedia-sevenfold-edge.edge-right {
+    right: -13%;
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(159, 118, 196, 0.21),
+            transparent 67%
+        );
+
+    animation:
+        acedia-world-edge-right
+        14s
+        ease-in-out
+        infinite;
+}
+
+
+/* =========================================================
+   SỢI TRỌNG LỰC
+   ========================================================= */
+
+.effect-acedia-sevenfold-thread-field,
+.effect-acedia-sevenfold-mote-field,
+.effect-acedia-sevenfold-shard-field {
+    position: absolute;
+
+    inset: 0;
+
+    overflow: hidden;
+
+    pointer-events: none;
+}
+
+.effect-acedia-sevenfold-thread {
+    position: absolute;
+
+    left: var(--acedia-thread-x);
+    top: -24%;
+
+    width: 1px;
+    height: var(--acedia-thread-height);
+
+    opacity:
+        var(--acedia-thread-opacity);
+
+    background:
+        linear-gradient(
+            180deg,
+            transparent,
+            rgba(243, 235, 252, 0.85),
+            rgba(111, 69, 146, 0.18),
+            transparent
+        );
+
+    box-shadow:
+        0 0 7px
+        rgba(217, 197, 239, 0.38);
+
+    animation:
+        acedia-world-thread-fall
+        var(--acedia-thread-duration)
+        linear
+        var(--acedia-thread-delay)
+        infinite;
+}
+
+
+/* =========================================================
+   HẠT MỘNG
+   ========================================================= */
+
+.effect-acedia-sevenfold-mote {
+    position: absolute;
+
+    left: var(--acedia-mote-x);
+    top: var(--acedia-mote-y);
+
+    width: var(--acedia-mote-size);
+    height: var(--acedia-mote-size);
+
+    border-radius: 50%;
+
+    background:
+        rgba(243, 235, 252, 0.9);
+
+    box-shadow:
+        0 0 7px
+        rgba(217, 197, 239, 0.74),
+        0 0 14px
+        rgba(111, 69, 146, 0.3);
+
+    opacity: 0;
+
+    animation:
+        acedia-world-mote-drift
+        var(--acedia-mote-duration)
+        ease-in-out
+        var(--acedia-mote-delay)
+        infinite;
+}
+
+
+/* =========================================================
+   TINH THỂ TRÌ TRỆ
+   ========================================================= */
+
+.effect-acedia-sevenfold-shard {
+    position: absolute;
+
+    left: var(--acedia-shard-x);
+    top: -8%;
+
+    width: var(--acedia-shard-size);
+    height:
+        calc(var(--acedia-shard-size) * 2.4);
+
+    opacity: 0;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(243, 235, 252, 0.92),
+            rgba(159, 118, 196, 0.68) 44%,
+            rgba(47, 24, 64, 0.1)
+        );
+
+    clip-path:
+        polygon(
+            50% 0,
+            100% 38%,
+            62% 100%,
+            0 66%
+        );
+
+    filter:
+        drop-shadow(
+            0 0 6px
+            rgba(217, 197, 239, 0.64)
+        );
+
+    animation:
+        acedia-world-shard-fall
+        var(--acedia-shard-duration)
+        linear
+        var(--acedia-shard-delay)
+        infinite;
+}
+
+
+/* =========================================================
+   SÓNG MỘNG Ở ĐÁY
+   ========================================================= */
+
+.effect-acedia-sevenfold-ripple-field {
+    position: absolute;
+    z-index: 1;
+
+    left: 50%;
+    bottom: -17%;
+
+    width: min(90vw, 1200px);
+    height: min(32vw, 390px);
+
+    transform:
+        translateX(-50%);
+
+    pointer-events: none;
+}
+
+.effect-acedia-sevenfold-ripple-field span {
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    width: 38%;
+    height: 45%;
+
+    border:
+        1px solid
+        rgba(159, 118, 196, 0.35);
+
+    border-radius: 50%;
+
+    transform:
+        translate(-50%, -50%)
+        scale(0.3);
+
+    opacity: 0;
+
+    box-shadow:
+        0 0 23px
+        rgba(111, 69, 146, 0.16);
+
+    animation:
+        acedia-world-ripple-expand
+        8s
+        ease-out
+        infinite;
+}
+
+.effect-acedia-sevenfold-ripple-field
+.ripple-two {
+    animation-delay: -2.7s;
+}
+
+.effect-acedia-sevenfold-ripple-field
+.ripple-three {
+    animation-delay: -5.4s;
+}
+
+
+/* =========================================================
+   CARD RIÊNG CỦA HIỆU ỨNG
+   ========================================================= */
+
+.store-item-card.store-card-seven-sins-sloth[
+    data-item-id="effect_thatdaitoi_acedia_domain"
+]
+.item-icon-wrapper::after {
+    content: "DOMAIN · VII" !important;
+}
+
+.store-item-card.store-card-seven-sins-sloth[
+    data-item-id="effect_thatdaitoi_acedia_domain"
+]
+.item-icon {
+    width: 102px !important;
+    height: 102px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    color: #eee4fa !important;
+
+    font-family:
+        Georgia,
+        serif !important;
+
+    font-size: 66px !important;
+    line-height: 1 !important;
+
+    transform:
+        rotate(-8deg)
+        scale(0.92) !important;
+
+    text-shadow:
+        0 0 10px
+        rgba(243, 235, 252, 0.85),
+        0 0 26px
+        rgba(111, 69, 146, 0.75),
+        0 0 46px
+        rgba(111, 69, 146, 0.35)
+        !important;
+
+    animation:
+        acedia-world-store-icon
+        5s
+        ease-in-out
+        infinite;
+}
+
+
+/* =========================================================
+   KEYFRAMES RIÊNG
+   ========================================================= */
+
+@keyframes acedia-world-veil-breathe {
+    0%,
+    100% {
+        opacity: 0.72;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+@keyframes acedia-world-moon-drift {
+    0%,
+    100% {
+        transform:
+            translateY(4px)
+            rotate(-20deg)
+            scale(0.95);
+
+        opacity: 0.24;
+    }
+
+    50% {
+        transform:
+            translateY(-8px)
+            rotate(-14deg)
+            scale(1.04);
+
+        opacity: 0.45;
+    }
+}
+
+@keyframes acedia-world-seal-float {
+    0%,
+    100% {
+        transform:
+            translate(-50%, -50%)
+            rotate(-7deg)
+            scale(0.97);
+    }
+
+    50% {
+        transform:
+            translate(-50%, -52%)
+            rotate(-2deg)
+            scale(1.025);
+    }
+}
+
+@keyframes acedia-world-ring-clockwise {
+    from {
+        transform:
+            translate(-50%, -50%)
+            rotate(0deg);
+    }
+
+    to {
+        transform:
+            translate(-50%, -50%)
+            rotate(360deg);
+    }
+}
+
+@keyframes acedia-world-ring-counter {
+    from {
+        transform:
+            translate(-50%, -50%)
+            rotate(360deg);
+    }
+
+    to {
+        transform:
+            translate(-50%, -50%)
+            rotate(0deg);
+    }
+}
+
+@keyframes acedia-world-glyph-breathe {
+    0%,
+    100% {
+        opacity: 0.32;
+
+        filter:
+            brightness(0.8);
+    }
+
+    50% {
+        opacity: 1;
+
+        filter:
+            brightness(1.35);
+    }
+}
+
+@keyframes acedia-world-edge-left {
+    0%,
+    100% {
+        transform:
+            translateX(-7%)
+            scaleY(0.93);
+    }
+
+    50% {
+        transform:
+            translateX(11%)
+            scaleY(1.08);
+    }
+}
+
+@keyframes acedia-world-edge-right {
+    0%,
+    100% {
+        transform:
+            translateX(7%)
+            scaleY(1.06);
+    }
+
+    50% {
+        transform:
+            translateX(-10%)
+            scaleY(0.92);
+    }
+}
+
+@keyframes acedia-world-thread-fall {
+    0% {
+        transform:
+            translateY(-25vh)
+            scaleY(0.6);
+
+        opacity: 0;
+    }
+
+    17% {
+        opacity:
+            var(--acedia-thread-opacity);
+    }
+
+    76% {
+        opacity:
+            calc(
+                var(--acedia-thread-opacity) * 0.7
+            );
+    }
+
+    100% {
+        transform:
+            translateY(135vh)
+            scaleY(1.45);
+
+        opacity: 0;
+    }
+}
+
+@keyframes acedia-world-mote-drift {
+    0% {
+        transform:
+            translate(0, 16px)
+            scale(0.55);
+
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 0.8;
+    }
+
+    65% {
+        opacity: 0.48;
+    }
+
+    100% {
+        transform:
+            translate(
+                var(--acedia-mote-drift-x),
+                var(--acedia-mote-drift-y)
+            )
+            scale(1.25);
+
+        opacity: 0;
+    }
+}
+
+@keyframes acedia-world-shard-fall {
+    0% {
+        transform:
+            translateY(-16vh)
+            rotate(var(--acedia-shard-tilt))
+            scale(0.55);
+
+        opacity: 0;
+    }
+
+    18% {
+        opacity: 0.52;
+    }
+
+    78% {
+        opacity: 0.24;
+    }
+
+    100% {
+        transform:
+            translateY(120vh)
+            rotate(
+                calc(
+                    var(--acedia-shard-tilt)
+                    + 125deg
+                )
+            )
+            scale(1);
+
+        opacity: 0;
+    }
+}
+
+@keyframes acedia-world-ripple-expand {
+    0% {
+        transform:
+            translate(-50%, -50%)
+            scale(0.2);
+
+        opacity: 0;
+    }
+
+    18% {
+        opacity: 0.44;
+    }
+
+    100% {
+        transform:
+            translate(-50%, -50%)
+            scale(2.8);
+
+        opacity: 0;
+    }
+}
+
+@keyframes acedia-world-store-icon {
+    0%,
+    100% {
+        transform:
+            translateY(3px)
+            rotate(-10deg)
+            scale(0.88);
+
+        filter:
+            brightness(0.9);
+    }
+
+    50% {
+        transform:
+            translateY(-5px)
+            rotate(-3deg)
+            scale(1.02);
+
+        filter:
+            brightness(1.3);
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media screen and (max-width: 768px) {
+    .effect-acedia-sevenfold-moon {
+        left: 7%;
+        top: 9%;
+
+        width: 82px;
+        height: 82px;
+    }
+
+    .effect-acedia-sevenfold-seal {
+        left: 68%;
+        top: 63%;
+
+        width: min(72vw, 340px);
+    }
+
+    .effect-acedia-sevenfold-glyph {
+        width: 24px;
+        height: 24px;
+
+        left: -12px;
+        top: -12px;
+
+        font-size: 9px;
+
+        transform:
+            rotate(var(--acedia-glyph-angle))
+            translateY(
+                calc(min(35vw, 150px) * -1)
+            )
+            rotate(
+                var(--acedia-glyph-angle-back)
+            );
+    }
+
+    .effect-acedia-sevenfold-world {
+        opacity: 0;
+    }
+
+    .effect-acedia-sevenfold-world.is-visible {
+        opacity: 0.86;
+    }
+}
+
+
+/* Giảm chuyển động */
+
+@media (prefers-reduced-motion: reduce) {
+    .effect-acedia-sevenfold-veil,
+    .effect-acedia-sevenfold-moon,
+    .effect-acedia-sevenfold-seal,
+    .effect-acedia-sevenfold-ring,
+    .effect-acedia-sevenfold-glyph,
+    .effect-acedia-sevenfold-edge,
+    .effect-acedia-sevenfold-thread,
+    .effect-acedia-sevenfold-mote,
+    .effect-acedia-sevenfold-shard,
+    .effect-acedia-sevenfold-ripple-field span,
+    .store-item-card[
+        data-item-id="effect_thatdaitoi_acedia_domain"
+    ]
+    .item-icon {
+        animation: none !important;
+    }
+}
+/* =========================================================
+   ACEDIA REFORGED
+   DÁN Ở CUỐI css/that-dai-toi.css
+   ========================================================= */
+
+:root {
+    --acedia-ink: #050308;
+    --acedia-abyss: #0b0611;
+    --acedia-wine: #24102e;
+    --acedia-violet: #73449a;
+    --acedia-amethyst: #aa77d2;
+    --acedia-lilac: #dfc9f4;
+    --acedia-moon: #fbf7ff;
+    --acedia-gold: #d9b66f;
+    --acedia-blue: #6f8fbd;
+}
+
+/* =========================================================
+   THẺ VẬT PHẨM VÀ TAG
+   ========================================================= */
+
+.store-item-card.store-card-seven-sins-sloth.ui-theme-immune {
+    position: relative !important;
+    isolation: isolate !important;
+    overflow: hidden !important;
+
+    min-height: 535px !important;
+    padding: 108px 22px 22px !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+
+    color: var(--acedia-moon) !important;
+
+    border: 1px solid transparent !important;
+    border-radius: 7px 7px 24px 24px !important;
+
+    clip-path: polygon(
+        22px 0,
+        calc(100% - 22px) 0,
+        100% 22px,
+        100% calc(100% - 17px),
+        calc(100% - 17px) 100%,
+        17px 100%,
+        0 calc(100% - 17px),
+        0 22px
+    ) !important;
+
+    background:
+        radial-gradient(
+            circle at 50% 23%,
+            rgba(223, 201, 244, 0.16),
+            transparent 26%
+        ) padding-box,
+        linear-gradient(
+            162deg,
+            rgba(35, 15, 47, 0.985),
+            rgba(9, 5, 14, 0.995) 58%,
+            #030205
+        ) padding-box,
+        linear-gradient(
+            145deg,
+            #fbf7ff,
+            #73449a 24%,
+            #d9b66f 50%,
+            #73449a 76%,
+            #fbf7ff
+        ) border-box !important;
+
+    box-shadow:
+        0 28px 62px rgba(2, 1, 5, 0.68),
+        0 0 38px rgba(115, 68, 154, 0.24),
+        inset 0 1px rgba(255, 255, 255, 0.15),
+        inset 0 -45px 80px rgba(0, 0, 0, 0.38)
+        !important;
+
+    animation:
+        acediaCardBreath
+        7s
+        ease-in-out
+        infinite !important;
+
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease,
+        filter 0.3s ease !important;
+}
+
+.store-item-card.store-card-seven-sins-sloth.ui-theme-immune:hover {
+    transform:
+        translateY(-9px)
+        scale(1.012) !important;
+
+    filter:
+        saturate(1.08)
+        brightness(1.04) !important;
+
+    box-shadow:
+        0 38px 78px rgba(2, 1, 5, 0.76),
+        0 0 52px rgba(170, 119, 210, 0.34),
+        inset 0 1px rgba(255, 255, 255, 0.19)
+        !important;
+}
+
+.store-card-acedia-familiar {
+    background:
+        radial-gradient(
+            circle at 50% 27%,
+            rgba(214, 193, 235, 0.22),
+            transparent 25%
+        ) padding-box,
+        linear-gradient(
+            165deg,
+            #24122f,
+            #0c0711 61%,
+            #040306
+        ) padding-box,
+        linear-gradient(
+            145deg,
+            #f7edff,
+            #8c5cb3 24%,
+            #d9b66f 52%,
+            #69428b 76%,
+            #f7edff
+        ) border-box !important;
+}
+
+.store-card-acedia-palace {
+    background:
+        radial-gradient(
+            circle at 50% 13%,
+            rgba(217, 182, 111, 0.18),
+            transparent 22%
+        ) padding-box,
+        linear-gradient(
+            158deg,
+            #271334,
+            #100918 55%,
+            #050307
+        ) padding-box,
+        linear-gradient(
+            145deg,
+            #f7edff,
+            #b98bda 20%,
+            #d9b66f 48%,
+            #7b4b9e 76%,
+            #f7edff
+        ) border-box !important;
+}
+
+.store-card-acedia-domain {
+    background:
+        radial-gradient(
+            circle at 50% 28%,
+            rgba(111, 143, 189, 0.17),
+            transparent 26%
+        ) padding-box,
+        conic-gradient(
+            from 15deg at 50% 50%,
+            transparent,
+            rgba(115, 68, 154, 0.12),
+            transparent 25%,
+            rgba(217, 182, 111, 0.07),
+            transparent 52%
+        ) padding-box,
+        linear-gradient(
+            165deg,
+            #190c27,
+            #08050e 57%,
+            #020204
+        ) padding-box,
+        linear-gradient(
+            145deg,
+            #e8dcf7,
+            #6f8fbd 22%,
+            #d9b66f 50%,
+            #75459b 74%,
+            #f6edff
+        ) border-box !important;
+}
+
+.store-card-seven-sins-sloth::before {
+    content: "" !important;
+
+    position: absolute !important;
+    z-index: 0 !important;
+
+    inset: 8px !important;
+    width: auto !important;
+    height: auto !important;
+
+    transform: none !important;
+
+    border:
+        1px solid
+        rgba(223, 201, 244, 0.12) !important;
+
+    border-radius:
+        2px 2px 17px 17px !important;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(217, 182, 111, 0.42),
+            transparent 16%,
+            transparent 84%,
+            rgba(217, 182, 111, 0.42)
+        )
+        top / 100% 1px
+        no-repeat !important;
+
+    pointer-events: none !important;
+}
+
+.store-card-seven-sins-sloth::after {
+    content: "ACEDIA" !important;
+
+    position: absolute !important;
+    right: -16px !important;
+    bottom: 117px !important;
+
+    color:
+        rgba(251, 247, 255, 0.04)
+        !important;
+
+    font-family:
+        Georgia,
+        serif !important;
+
+    font-size: 66px !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+
+    letter-spacing: 0.14em !important;
+    writing-mode: vertical-rl !important;
+
+    transform: rotate(180deg) !important;
+
+    pointer-events: none !important;
+}
+
+.store-card-seven-sins-sloth .card-glow {
+    z-index: 0 !important;
+
+    inset: -62% !important;
+    opacity: 0.56 !important;
+
+    background:
+        conic-gradient(
+            from 0deg,
+            transparent 0 16%,
+            rgba(223, 201, 244, 0.13) 21%,
+            transparent 28% 48%,
+            rgba(217, 182, 111, 0.11) 54%,
+            transparent 61% 81%,
+            rgba(111, 143, 189, 0.11) 88%,
+            transparent 96%
+        ) !important;
+
+    animation:
+        acediaCardOrbit
+        24s
+        linear
+        infinite !important;
+}
+
+.store-card-seven-sins-sloth
+.acedia-card-architecture {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+
+    overflow: hidden;
+
+    pointer-events: none;
+}
+
+.store-card-seven-sins-sloth
+.acedia-card-pillar {
+    position: absolute;
+
+    top: 52px;
+    bottom: 82px;
+
+    width: 19px;
+
+    opacity: 0.46;
+
+    border:
+        1px solid
+        rgba(223, 201, 244, 0.16);
+
+    background:
+        repeating-linear-gradient(
+            90deg,
+            rgba(251, 247, 255, 0.08)
+            0 1px,
+            transparent 1px 5px
+        ),
+        linear-gradient(
+            180deg,
+            rgba(115, 68, 154, 0.24),
+            rgba(8, 4, 12, 0.06)
+        );
+
+    box-shadow:
+        inset 0 0 12px
+        rgba(0, 0, 0, 0.5);
+}
+
+.store-card-seven-sins-sloth
+.pillar-left {
+    left: 18px;
+}
+
+.store-card-seven-sins-sloth
+.pillar-right {
+    right: 18px;
+}
+
+.store-card-seven-sins-sloth
+.acedia-card-arch {
+    position: absolute;
+
+    left: 50%;
+    top: 72px;
+
+    width: 198px;
+    height: 220px;
+
+    transform: translateX(-50%);
+
+    border:
+        1px solid
+        rgba(223, 201, 244, 0.14);
+
+    border-bottom: 0;
+
+    border-radius:
+        105px 105px 0 0;
+
+    box-shadow:
+        inset 0 0 28px
+        rgba(115, 68, 154, 0.12),
+        0 0 21px
+        rgba(115, 68, 154, 0.08);
+}
+
+.store-card-seven-sins-sloth
+.acedia-card-hourglass {
+    position: absolute;
+
+    right: 29px;
+    top: 101px;
+
+    width: 15px;
+    height: 31px;
+
+    opacity: 0.7;
+
+    border-top:
+        2px solid var(--acedia-gold);
+
+    border-bottom:
+        2px solid var(--acedia-gold);
+
+    clip-path:
+        polygon(
+            0 0,
+            100% 0,
+            66% 43%,
+            100% 100%,
+            0 100%,
+            34% 57%
+        );
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(223, 201, 244, 0.44),
+            transparent 47%,
+            rgba(217, 182, 111, 0.55)
+        );
+
+    filter:
+        drop-shadow(
+            0 0 6px
+            rgba(217, 182, 111, 0.3)
+        );
+
+    animation:
+        acediaHourglass
+        5s
+        ease-in-out
+        infinite;
+}
+
+.store-card-seven-sins-sloth
+.acedia-card-chain {
+    position: absolute;
+
+    top: -17px;
+
+    width: 6px;
+    height: 128px;
+
+    opacity: 0.35;
+
+    background:
+        repeating-linear-gradient(
+            180deg,
+            transparent 0 4px,
+            rgba(223, 201, 244, 0.5)
+            4px 7px,
+            transparent 7px 11px
+        );
+
+    filter:
+        drop-shadow(
+            0 0 3px
+            rgba(170, 119, 210, 0.42)
+        );
+
+    transform-origin: 50% 0;
+
+    animation:
+        acediaChain
+        6.8s
+        ease-in-out
+        infinite;
+}
+
+.store-card-seven-sins-sloth
+.chain-left {
+    left: 51px;
+}
+
+.store-card-seven-sins-sloth
+.chain-right {
+    right: 51px;
+    animation-delay: -3.2s;
+}
+
+.store-card-seven-sins-sloth
+.acedia-relic-header {
+    position: absolute;
+    z-index: 8;
+
+    left: 22px;
+    right: 22px;
+    top: 58px;
+
+    height: 33px;
+
+    display: grid;
+
+    grid-template-columns:
+        35px 1fr auto;
+
+    align-items: center;
+    gap: 9px;
+
+    color:
+        rgba(251, 247, 255, 0.76);
+
+    border-top:
+        1px solid
+        rgba(223, 201, 244, 0.16);
+
+    border-bottom:
+        1px solid
+        rgba(223, 201, 244, 0.1);
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(115, 68, 154, 0.13),
+            transparent 42%,
+            rgba(217, 182, 111, 0.055)
+        );
+}
+
+.acedia-relic-number {
+    display: grid;
+    place-items: center;
+
+    align-self: stretch;
+
+    color:
+        var(--acedia-ink)
+        !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            #fbf7ff,
+            #b98bd8 55%,
+            #705094
+        );
+
+    font-family: Georgia, serif;
+    font-weight: 900;
+
+    clip-path:
+        polygon(
+            0 0,
+            75% 0,
+            100% 50%,
+            75% 100%,
+            0 100%,
+            18% 50%
+        );
+}
+
+.acedia-relic-order,
+.acedia-relic-index {
+    color: inherit !important;
+
+    font-size: 8px;
+    font-weight: 900;
+
+    letter-spacing: 0.19em;
+
+    white-space: nowrap;
+}
+
+.acedia-relic-index {
+    color:
+        var(--acedia-gold)
+        !important;
+}
+
+.store-item-card.store-card-seven-sins-sloth.ui-theme-immune
+.item-tag.tag-that-dai-toi {
+    position: absolute !important;
+    z-index: 20 !important;
+
+    top: 13px !important;
+    right: 18px !important;
+    left: auto !important;
+
+    width: 143px !important;
+    min-width: 0 !important;
+    height: 35px !important;
+
+    margin: 0 !important;
+
+    padding:
+        0 13px 0 42px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content:
+        flex-start !important;
+
+    transform: none !important;
+
+    overflow: hidden !important;
+
+    border-radius:
+        2px 12px 2px 12px
+        !important;
+
+    border:
+        1px solid
+        rgba(251, 247, 255, 0.48)
+        !important;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(217, 182, 111, 0.16),
+            transparent 32%
+        ),
+        linear-gradient(
+            145deg,
+            #4a245f,
+            #1d0c29 58%,
+            #0b0610
+        ) !important;
+
+    box-shadow:
+        0 8px 19px rgba(0, 0, 0, 0.5),
+        0 0 15px
+        rgba(170, 119, 210, 0.2),
+        inset 0 1px
+        rgba(255, 255, 255, 0.14)
+        !important;
+}
+
+.store-item-card.store-card-seven-sins-sloth.ui-theme-immune
+.item-tag.tag-that-dai-toi::before {
+    content: "Ⅶ" !important;
+
+    position: absolute !important;
+
+    left: 0 !important;
+    top: 0 !important;
+
+    width: 35px !important;
+    height: 35px !important;
+
+    display: grid !important;
+    place-items: center !important;
+
+    transform: none !important;
+
+    color: #16091f !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            #ffffff,
+            #dcc4f0 50%,
+            #9a6fbe
+        ) !important;
+
+    border: 0 !important;
+
+    border-radius:
+        0 50% 50% 0 !important;
+
+    font-size: 14px !important;
+
+    box-shadow:
+        inset -5px 0 10px
+        rgba(51, 22, 68, 0.18),
+        0 0 12px
+        rgba(223, 201, 244, 0.45)
+        !important;
+}
+
+.store-item-card.store-card-seven-sins-sloth.ui-theme-immune
+.item-tag.tag-that-dai-toi::after {
+    content: "" !important;
+
+    position: absolute !important;
+
+    top: -50% !important;
+    left: -38% !important;
+
+    width: 24% !important;
+    height: 200% !important;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.7),
+            transparent
+        ) !important;
+
+    transform:
+        rotate(18deg) !important;
+
+    animation:
+        acediaTagSweep
+        5.8s
+        ease-in-out
+        infinite !important;
+}
+
+.store-item-card.store-card-seven-sins-sloth.ui-theme-immune
+.item-tag.tag-that-dai-toi span {
+    position: relative !important;
+    z-index: 2 !important;
+
+    padding: 0 !important;
+
+    color: #ffffff !important;
+
+    font-size: 9px !important;
+    font-weight: 900 !important;
+
+    letter-spacing: 0.13em !important;
+
+    white-space: nowrap !important;
+}
+
+.store-card-seven-sins-sloth
+.item-icon-wrapper {
+    order: 1;
+
+    position: relative !important;
+    z-index: 6 !important;
+
+    width: 168px !important;
+    height: 168px !important;
+
+    margin:
+        4px auto 17px !important;
+
+    border-radius:
+        50% 50% 44% 44% !important;
+
+    border:
+        1px solid
+        rgba(223, 201, 244, 0.38)
+        !important;
+
+    background:
+        radial-gradient(
+            circle at 50% 38%,
+            rgba(251, 247, 255, 0.17),
+            transparent 18%
+        ),
+        radial-gradient(
+            circle,
+            rgba(115, 68, 154, 0.23),
+            rgba(9, 5, 14, 0.91) 68%
+        ) !important;
+
+    box-shadow:
+        0 0 36px
+        rgba(115, 68, 154, 0.28),
+        inset 0 0 39px
+        rgba(0, 0, 0, 0.67),
+        inset 0 1px
+        rgba(255, 255, 255, 0.13)
+        !important;
+}
+
+.store-card-seven-sins-sloth
+.item-icon-wrapper::before {
+    content: "" !important;
+
+    position: absolute !important;
+
+    inset: -12px !important;
+
+    border:
+        1px solid
+        rgba(223, 201, 244, 0.27)
+        !important;
+
+    border-radius: 50% !important;
+
+    background:
+        repeating-conic-gradient(
+            from 0deg,
+            rgba(217, 182, 111, 0.5)
+            0 1deg,
+            transparent 1deg 14deg
+        ) !important;
+
+    -webkit-mask:
+        radial-gradient(
+            circle,
+            transparent 65%,
+            #000 66% 69%,
+            transparent 70%
+        );
+
+    mask:
+        radial-gradient(
+            circle,
+            transparent 65%,
+            #000 66% 69%,
+            transparent 70%
+        );
+
+    animation:
+        acediaZodiac
+        22s
+        linear
+        infinite !important;
+}
+
+.store-card-seven-sins-sloth
+.item-icon-wrapper::after {
+    content:
+        "RELIC · VII" !important;
+
+    position: absolute !important;
+
+    left: 50% !important;
+    bottom: -10px !important;
+
+    transform:
+        translateX(-50%) !important;
+
+    padding:
+        4px 14px !important;
+
+    color:
+        var(--acedia-gold)
+        !important;
+
+    background:
+        #09050e !important;
+
+    border:
+        1px solid
+        rgba(217, 182, 111, 0.32)
+        !important;
+
+    border-radius:
+        2px 9px !important;
+
+    font-size: 8px !important;
+    font-weight: 900 !important;
+
+    letter-spacing:
+        0.21em !important;
+
+    white-space: nowrap !important;
+}
+
+.store-card-acedia-familiar
+.item-icon-wrapper::after {
+    content:
+        "FAMILIAR · VII"
+        !important;
+}
+
+.store-card-acedia-palace
+.item-icon-wrapper::after {
+    content:
+        "PALACE · VII"
+        !important;
+}
+
+.store-card-acedia-domain
+.item-icon-wrapper::after {
+    content:
+        "DOMAIN · VII"
+        !important;
+}
+
+.store-card-acedia-palace
+.item-icon-wrapper {
+    border-radius:
+        88px 88px 14px 14px
+        !important;
+
+    clip-path:
+        polygon(
+            19% 0,
+            81% 0,
+            100% 22%,
+            100% 100%,
+            0 100%,
+            0 22%
+        ) !important;
+}
+
+.store-card-acedia-domain
+.item-icon-wrapper {
+    border-radius: 22px !important;
+
+    transform:
+        rotate(45deg)
+        scale(0.85);
+}
+
+.store-card-acedia-domain
+.item-icon-wrapper
+.item-icon {
+    transform:
+        rotate(-45deg) !important;
+}
+
+.store-card-seven-sins-sloth
+.item-icon-wrapper
+.item-icon {
+    width: 132px !important;
+    height: 132px !important;
+
+    object-fit: contain !important;
+
+    filter:
+        drop-shadow(
+            0 14px 18px
+            rgba(0, 0, 0, 0.72)
+        )
+        drop-shadow(
+            0 0 15px
+            rgba(170, 119, 210, 0.32)
+        ) !important;
+}
+
+.store-card-seven-sins-sloth
+.item-info {
+    order: 2;
+
+    position: relative;
+    z-index: 6 !important;
+
+    min-height: 70px;
+
+    text-align: center;
+}
+
+.store-card-seven-sins-sloth
+.item-name {
+    margin: 0 !important;
+
+    color: #ffffff !important;
+
+    font-family:
+        Georgia,
+        "Palatino Linotype",
+        serif !important;
+
+    font-size: 18px !important;
+    line-height: 1.22 !important;
+
+    text-shadow:
+        0 2px 2px
+        rgba(0, 0, 0, 0.85),
+        0 0 16px
+        rgba(170, 119, 210, 0.32)
+        !important;
+}
+
+.store-card-seven-sins-sloth
+.item-type-label {
+    display: inline-block;
+
+    margin-top: 7px;
+
+    color:
+        rgba(223, 201, 244, 0.67)
+        !important;
+
+    font-size: 9px !important;
+    font-weight: 900 !important;
+
+    letter-spacing:
+        0.22em !important;
+
+    text-transform:
+        uppercase !important;
+}
+
+.store-card-seven-sins-sloth
+.acedia-relic-lore {
+    order: 3;
+
+    position: relative;
+    z-index: 7;
+
+    min-height: 58px;
+
+    margin:
+        8px 0 15px;
+
+    padding:
+        10px 11px 10px 52px;
+
+    display: flex;
+    align-items: center;
+
+    border-top:
+        1px solid
+        rgba(223, 201, 244, 0.13);
+
+    border-bottom:
+        1px solid
+        rgba(223, 201, 244, 0.1);
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(115, 68, 154, 0.16),
+            rgba(9, 5, 14, 0.38)
+        );
+
+    clip-path:
+        polygon(
+            10px 0,
+            100% 0,
+            calc(100% - 10px) 100%,
+            0 100%
+        );
+}
+
+.acedia-relic-glyph {
+    position: absolute;
+
+    left: 12px;
+    top: 50%;
+
+    width: 30px;
+    height: 30px;
+
+    transform:
+        translateY(-50%)
+        rotate(-7deg);
+
+    display: grid;
+    place-items: center;
+
+    color:
+        var(--acedia-gold)
+        !important;
+
+    font-family: Georgia, serif;
+    font-size: 18px;
+
+    border:
+        1px solid
+        rgba(217, 182, 111, 0.42);
+
+    border-radius: 50%;
+
+    background:
+        rgba(7, 4, 11, 0.72);
+
+    box-shadow:
+        0 0 12px
+        rgba(217, 182, 111, 0.15);
+}
+
+.acedia-relic-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+
+    text-align: left;
+}
+
+.acedia-relic-copy b {
+    color: #f7efff !important;
+
+    font-size: 10px;
+
+    letter-spacing: 0.08em;
+
+    text-transform: uppercase;
+}
+
+.acedia-relic-copy small {
+    color:
+        rgba(223, 201, 244, 0.62)
+        !important;
+
+    font-size: 9px;
+    line-height: 1.35;
+}
+
+.store-card-seven-sins-sloth
+.item-actions {
+    order: 4;
+
+    position: relative;
+    z-index: 8 !important;
+
+    margin-top: auto !important;
+
+    display: grid !important;
+    gap: 8px !important;
+}
+
+.store-card-seven-sins-sloth
+.btn-preview,
+.store-card-seven-sins-sloth
+.btn-buy,
+.store-card-seven-sins-sloth
+.btn-equip {
+    min-height: 40px !important;
+
+    border-radius:
+        3px 11px 3px 11px
+        !important;
+
+    font-size: 11px !important;
+    font-weight: 800 !important;
+}
+
+/* =========================================================
+   MỘNG ĐIỆN TRÌ HOÃN
+   ========================================================= */
+
+body.theme-seven-sins-acedia {
+    background:
+        radial-gradient(
+            circle at 50% -5%,
+            #3a1d4b 0,
+            #160b20 28%,
+            #08040d 65%,
+            #030205 100%
+        ) fixed !important;
+
+    color: #f8f1ff !important;
+}
+
+.acedia-palace-chrome {
+    position: fixed;
+    z-index: 0;
+
+    inset: 0;
+
+    overflow: hidden;
+
+    pointer-events: none;
+
+    opacity: 0;
+
+    transition:
+        opacity 0.8s ease;
+}
+
+.acedia-palace-chrome.is-mounted {
+    opacity: 1;
+}
+
+.acedia-palace-vault {
+    position: absolute;
+    inset: 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(217, 182, 111, 0.08)
+            1px,
+            transparent 1px
+        )
+        0 0 / 8vw 100%,
+        radial-gradient(
+            ellipse at 50% 0,
+            rgba(170, 119, 210, 0.22),
+            transparent 48%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(4, 2, 7, 0.1),
+            rgba(4, 2, 7, 0.76)
+        );
+}
+
+.acedia-palace-eclipse {
+    position: absolute;
+
+    left: 50%;
+    top: 8vh;
+
+    width: 220px;
+    height: 220px;
+
+    transform:
+        translateX(-50%);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            #060309 0 43%,
+            #b98bd8 44% 46%,
+            rgba(217, 182, 111, 0.7)
+            47% 48%,
+            transparent 50%
+        );
+
+    filter:
+        drop-shadow(
+            0 0 35px
+            rgba(170, 119, 210, 0.42)
+        );
+
+    animation:
+        acediaEclipse
+        8s
+        ease-in-out
+        infinite;
+}
+
+.eclipse-crown {
+    position: absolute;
+    inset: -20px;
+
+    border-radius: 50%;
+
+    background:
+        repeating-conic-gradient(
+            from 0deg,
+            rgba(217, 182, 111, 0.65)
+            0 1deg,
+            transparent 1deg 15deg
+        );
+
+    -webkit-mask:
+        radial-gradient(
+            circle,
+            transparent 69%,
+            #000 70% 72%,
+            transparent 73%
+        );
+
+    mask:
+        radial-gradient(
+            circle,
+            transparent 69%,
+            #000 70% 72%,
+            transparent 73%
+        );
+
+    animation:
+        acediaZodiac
+        30s
+        linear
+        infinite;
+}
+
+.eclipse-core {
+    position: absolute;
+    inset: 0;
+
+    display: grid;
+    place-items: center;
+
+    color:
+        rgba(251, 247, 255, 0.84)
+        !important;
+
+    font-family: Georgia, serif;
+    font-size: 48px;
+    font-weight: 900;
+
+    text-shadow:
+        0 0 22px
+        rgba(223, 201, 244, 0.65);
+}
+
+.acedia-palace-arches {
+    position: absolute;
+
+    left: 3%;
+    right: 3%;
+    bottom: 0;
+
+    height: 72%;
+
+    display: flex;
+
+    justify-content:
+        space-around;
+
+    align-items: flex-end;
+
+    opacity: 0.38;
+}
+
+.acedia-palace-arch {
+    position: relative;
+
+    width: 11%;
+    height:
+        var(--acedia-arch-height);
+
+    border:
+        1px solid
+        rgba(223, 201, 244, 0.24);
+
+    border-bottom: 0;
+
+    border-radius:
+        70px 70px 0 0;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(115, 68, 154, 0.1),
+            rgba(4, 2, 7, 0.4)
+        );
+
+    box-shadow:
+        inset 0 0 30px
+        rgba(0, 0, 0, 0.65);
+
+    animation:
+        acediaArchPulse
+        6s
+        var(--acedia-arch-delay)
+        ease-in-out
+        infinite;
+}
+
+.acedia-palace-arch::before {
+    content: attr(data-number);
+
+    position: absolute;
+
+    left: 50%;
+    top: 16%;
+
+    transform:
+        translateX(-50%);
+
+    color:
+        rgba(217, 182, 111, 0.65);
+
+    font-family: Georgia, serif;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.acedia-palace-arch::after {
+    content: "";
+
+    position: absolute;
+
+    left: 18%;
+    right: 18%;
+    bottom: 0;
+
+    height: 72%;
+
+    border:
+        1px solid
+        rgba(223, 201, 244, 0.13);
+
+    border-bottom: 0;
+
+    border-radius:
+        55px 55px 0 0;
+}
+
+.acedia-palace-hourglass {
+    position: absolute;
+
+    right: 7vw;
+    top: 25vh;
+
+    width: 74px;
+    height: 130px;
+
+    filter:
+        drop-shadow(
+            0 0 20px
+            rgba(217, 182, 111, 0.32)
+        );
+
+    animation:
+        acediaHourglassFloat
+        7s
+        ease-in-out
+        infinite;
+}
+
+.hourglass-frame {
+    position: absolute;
+    inset: 0;
+
+    border-top:
+        7px solid
+        var(--acedia-gold);
+
+    border-bottom:
+        7px solid
+        var(--acedia-gold);
+
+    clip-path:
+        polygon(
+            0 0,
+            100% 0,
+            67% 43%,
+            100% 100%,
+            0 100%,
+            33% 57%
+        );
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(223, 201, 244, 0.25),
+            transparent 47%,
+            rgba(217, 182, 111, 0.28)
+        );
+}
+
+.hourglass-crown {
+    position: absolute;
+
+    left: 50%;
+    top: -26px;
+
+    width: 34px;
+    height: 20px;
+
+    transform:
+        translateX(-50%);
+
+    border-top:
+        2px solid
+        var(--acedia-gold);
+
+    border-radius: 50%;
+}
+
+.hourglass-sand {
+    position: absolute;
+
+    left: 27%;
+    right: 27%;
+
+    background:
+        linear-gradient(
+            #f2e4ff,
+            #d9b66f
+        );
+
+    filter:
+        drop-shadow(
+            0 0 5px
+            rgba(217, 182, 111, 0.5)
+        );
+}
+
+.sand-upper {
+    top: 22%;
+
+    height: 29%;
+
+    clip-path:
+        polygon(
+            0 0,
+            100% 0,
+            50% 100%
+        );
+
+    animation:
+        acediaSandTop
+        6s
+        linear
+        infinite;
+}
+
+.sand-lower {
+    bottom: 22%;
+
+    height: 29%;
+
+    clip-path:
+        polygon(
+            50% 0,
+            100% 100%,
+            0 100%
+        );
+
+    animation:
+        acediaSandBottom
+        6s
+        linear
+        infinite;
+}
+
+.acedia-palace-chain {
+    position: absolute;
+
+    top: -30px;
+
+    width: 8px;
+    height: 36vh;
+
+    opacity: 0.42;
+
+    background:
+        repeating-linear-gradient(
+            180deg,
+            transparent 0 7px,
+            rgba(223, 201, 244, 0.42)
+            7px 11px,
+            transparent 11px 17px
+        );
+
+    transform-origin: top;
+
+    animation:
+        acediaChain
+        8s
+        ease-in-out
+        infinite;
+}
+
+.acedia-palace-chain.chain-a {
+    left: 12%;
+}
+
+.acedia-palace-chain.chain-b {
+    left: 50%;
+
+    height: 18vh;
+
+    animation-delay: -2.7s;
+}
+
+.acedia-palace-chain.chain-c {
+    right: 12%;
+
+    animation-delay: -5.2s;
+}
+
+.acedia-palace-inscription {
+    position: absolute;
+
+    left: 50%;
+    bottom: 4vh;
+
+    transform:
+        translateX(-50%);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+
+    text-align: center;
+
+    text-shadow:
+        0 3px 10px #000000;
+}
+
+.acedia-palace-inscription span {
+    color:
+        var(--acedia-gold)
+        !important;
+
+    font-size: 9px;
+    font-weight: 900;
+
+    letter-spacing: 0.38em;
+}
+
+.acedia-palace-inscription strong {
+    color: #ffffff !important;
+
+    font-family:
+        Georgia,
+        serif;
+
+    font-size:
+        clamp(20px, 3vw, 38px);
+
+    font-weight: 700;
+
+    letter-spacing: 0.12em;
+}
+
+.acedia-palace-inscription small {
+    color:
+        rgba(223, 201, 244, 0.64)
+        !important;
+
+    font-size: 10px;
+
+    letter-spacing: 0.08em;
+}
+
+.acedia-palace-mote {
+    position: absolute;
+
+    left:
+        var(--acedia-palace-x);
+
+    top:
+        var(--acedia-palace-y);
+
+    width:
+        var(--acedia-palace-size);
+
+    height:
+        var(--acedia-palace-size);
+
+    border-radius: 50%;
+
+    background: #f5eaff;
+
+    box-shadow:
+        0 0 10px #aa77d2;
+
+    animation:
+        acediaMote
+        var(--acedia-palace-duration)
+        var(--acedia-palace-delay)
+        linear
+        infinite;
+}
+
+/* =========================================================
+   LINH THÚ ACEDIA
+   ========================================================= */
+
+#virtual-pet-container.pet-seven-sins-sloth-stage {
+    isolation: isolate !important;
+    overflow: visible !important;
+}
+
+#virtual-pet-container.pet-seven-sins-sloth-stage
+.seven-sins-sloth-magic {
+    position: relative;
+    z-index: 10 !important;
+
+    width: 168px !important;
+    max-width: none !important;
+
+    filter:
+        drop-shadow(
+            0 15px 15px
+            rgba(0, 0, 0, 0.72)
+        )
+        drop-shadow(
+            0 0 18px
+            rgba(170, 119, 210, 0.45)
+        ) !important;
+
+    animation:
+        acediaPetIdle
+        5.8s
+        ease-in-out
+        infinite !important;
+}
+
+.sloth-dream-throne {
+    position: absolute;
+    z-index: 1;
+
+    left: 50%;
+    top: 54%;
+
+    width: 190px;
+    height: 160px;
+
+    transform:
+        translate(-50%, -50%);
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent 0 9%,
+            rgba(217, 182, 111, 0.25)
+            10% 12%,
+            transparent 13% 87%,
+            rgba(217, 182, 111, 0.25)
+            88% 90%,
+            transparent 91%
+        ),
+        radial-gradient(
+            ellipse at 50% 72%,
+            rgba(115, 68, 154, 0.36),
+            transparent 60%
+        );
+
+    clip-path:
+        polygon(
+            14% 100%,
+            20% 32%,
+            36% 18%,
+            42% 0,
+            58% 0,
+            64% 18%,
+            80% 32%,
+            86% 100%
+        );
+
+    filter:
+        drop-shadow(
+            0 0 16px
+            rgba(170, 119, 210, 0.22)
+        );
+}
+
+.sloth-dream-halo {
+    position: absolute;
+    z-index: 2;
+
+    left: 50%;
+    top: 48%;
+
+    width: 205px;
+    height: 205px;
+
+    transform:
+        translate(-50%, -50%);
+
+    border:
+        1px solid
+        rgba(223, 201, 244, 0.3);
+
+    border-radius: 50%;
+
+    background:
+        repeating-conic-gradient(
+            from 0deg,
+            rgba(217, 182, 111, 0.5)
+            0 1deg,
+            transparent 1deg 15deg
+        );
+
+    -webkit-mask:
+        radial-gradient(
+            circle,
+            transparent 69%,
+            #000 70% 72%,
+            transparent 73%
+        );
+
+    mask:
+        radial-gradient(
+            circle,
+            transparent 69%,
+            #000 70% 72%,
+            transparent 73%
+        );
+
+    animation:
+        acediaZodiac
+        24s
+        linear
+        infinite;
+}
+
+.sloth-pet-hourglass {
+    position: absolute;
+    z-index: 7;
+
+    right: -18px;
+    top: 35px;
+
+    width: 30px;
+    height: 52px;
+
+    filter:
+        drop-shadow(
+            0 0 9px
+            rgba(217, 182, 111, 0.45)
+        );
+
+    animation:
+        acediaHourglassFloat
+        5s
+        ease-in-out
+        infinite;
+}
+
+.pet-hourglass-frame {
+    position: absolute;
+    inset: 0;
+
+    border-top:
+        3px solid
+        var(--acedia-gold);
+
+    border-bottom:
+        3px solid
+        var(--acedia-gold);
+
+    clip-path:
+        polygon(
+            0 0,
+            100% 0,
+            66% 43%,
+            100% 100%,
+            0 100%,
+            34% 57%
+        );
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(223, 201, 244, 0.3),
+            transparent 48%,
+            rgba(217, 182, 111, 0.4)
+        );
+}
+
+.pet-hourglass-sand {
+    position: absolute;
+
+    left: 31%;
+    right: 31%;
+    top: 21%;
+    bottom: 21%;
+
+    background:
+        linear-gradient(
+            #f5eaff,
+            transparent 46%,
+            #d9b66f
+        );
+
+    clip-path:
+        polygon(
+            0 0,
+            100% 0,
+            57% 46%,
+            57% 54%,
+            100% 100%,
+            0 100%,
+            43% 54%,
+            43% 46%
+        );
+}
+
+.sloth-dream-feather {
+    position: absolute;
+    z-index: 6;
+
+    left: 50%;
+    top: 50%;
+
+    color:
+        rgba(223, 201, 244, 0.78)
+        !important;
+
+    font-size: 13px;
+
+    text-shadow:
+        0 0 9px #aa77d2;
+
+    transform:
+        rotate(
+            var(--sloth-feather-angle)
+        )
+        translateX(104px)
+        rotate(
+            var(--sloth-feather-angle-back)
+        );
+
+    animation:
+        acediaFeather
+        5.8s
+        var(--sloth-feather-delay)
+        ease-in-out
+        infinite;
+}
+
+/* =========================================================
+   MỘNG GIỚI LINH THÚ
+   ========================================================= */
+
+.sloth-realm-cathedral {
+    position: absolute;
+    inset: 0;
+
+    background:
+        repeating-linear-gradient(
+            90deg,
+            transparent 0 9vw,
+            rgba(223, 201, 244, 0.05)
+            9vw calc(9vw + 1px)
+        ),
+        linear-gradient(
+            180deg,
+            rgba(115, 68, 154, 0.1),
+            transparent 65%
+        );
+}
+
+.sloth-realm-curtain {
+    position: absolute;
+    z-index: 4;
+
+    top: 0;
+    bottom: 0;
+
+    width: 51%;
+
+    background:
+        linear-gradient(
+            90deg,
+            #09050d,
+            rgba(52, 22, 67, 0.96),
+            #120817
+        );
+
+    box-shadow:
+        0 0 70px
+        rgba(0, 0, 0, 0.8);
+
+    transition:
+        transform 1.2s
+        cubic-bezier(
+            0.2,
+            0.75,
+            0.2,
+            1
+        );
+}
+
+.sloth-realm-curtain::after {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    background:
+        repeating-linear-gradient(
+            90deg,
+            transparent 0 28px,
+            rgba(255, 255, 255, 0.035)
+            29px,
+            transparent 31px
+        );
+}
+
+.sloth-realm-curtain.curtain-left {
+    left: 0;
+
+    border-right:
+        1px solid
+        rgba(217, 182, 111, 0.25);
+}
+
+.sloth-realm-curtain.curtain-right {
+    right: 0;
+
+    border-left:
+        1px solid
+        rgba(217, 182, 111, 0.25);
+}
+
+.sloth-dream-realm.is-active
+.curtain-left {
+    transform:
+        translateX(-88%);
+}
+
+.sloth-dream-realm.is-active
+.curtain-right {
+    transform:
+        translateX(88%);
+}
+
+.sloth-realm-choir {
+    position: absolute;
+
+    left: 4%;
+    right: 4%;
+    bottom: 0;
+
+    height: 62%;
+
+    display: flex;
+    align-items: flex-end;
+
+    justify-content:
+        space-around;
+
+    opacity: 0.42;
+}
+
+.sloth-realm-choir-pillar {
+    position: relative;
+
+    width: 10%;
+    height:
+        var(--sloth-choir-height);
+
+    border:
+        1px solid
+        rgba(223, 201, 244, 0.22);
+
+    border-bottom: 0;
+
+    border-radius:
+        80px 80px 0 0;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(115, 68, 154, 0.16),
+            rgba(4, 2, 7, 0.55)
+        );
+
+    animation:
+        acediaArchPulse
+        6s
+        var(--sloth-choir-delay)
+        ease-in-out
+        infinite;
+}
+
+.sloth-realm-choir-pillar::before {
+    content: attr(data-number);
+
+    position: absolute;
+
+    left: 50%;
+    top: 12%;
+
+    transform:
+        translateX(-50%);
+
+    color:
+        rgba(217, 182, 111, 0.72);
+
+    font-family: Georgia, serif;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.sloth-realm-chain {
+    position: absolute;
+    z-index: 5;
+
+    top: -20px;
+
+    width: 8px;
+    height: 42vh;
+
+    background:
+        repeating-linear-gradient(
+            180deg,
+            transparent 0 7px,
+            rgba(223, 201, 244, 0.42)
+            7px 11px,
+            transparent 11px 17px
+        );
+
+    transform-origin: top;
+
+    animation:
+        acediaChain
+        8s
+        ease-in-out
+        infinite;
+}
+
+.sloth-realm-chain.chain-left {
+    left: 15%;
+}
+
+.sloth-realm-chain.chain-right {
+    right: 15%;
+
+    animation-delay: -4s;
+}
+
+.sloth-realm-crown,
+.effect-acedia-sevenfold-crown {
+    position: absolute;
+
+    left: 50%;
+    top: -38px;
+
+    width: 90px;
+    height: 35px;
+
+    transform:
+        translateX(-50%);
+
+    background:
+        linear-gradient(
+            135deg,
+            transparent 0 18%,
+            var(--acedia-gold) 19% 22%,
+            transparent 23% 38%,
+            var(--acedia-lilac) 39% 42%,
+            transparent 43% 57%,
+            var(--acedia-lilac) 58% 61%,
+            transparent 62% 77%,
+            var(--acedia-gold) 78% 81%,
+            transparent 82%
+        );
+
+    clip-path:
+        polygon(
+            0 100%,
+            12% 35%,
+            30% 75%,
+            50% 0,
+            70% 75%,
+            88% 35%,
+            100% 100%
+        );
+
+    filter:
+        drop-shadow(
+            0 0 8px
+            rgba(217, 182, 111, 0.42)
+        );
+}
+
+.sloth-realm-core small,
+.effect-acedia-sevenfold-core small {
+    display: block;
+
+    margin-top: 3px;
+
+    color:
+        var(--acedia-gold)
+        !important;
+
+    font-size: 7px;
+    font-weight: 900;
+
+    letter-spacing: 0.24em;
+}
+
+.sloth-realm-hourglass {
+    position: absolute;
+    z-index: 8;
+
+    left: 74%;
+    top: 52%;
+
+    width: 54px;
+    height: 92px;
+
+    transform:
+        translate(-50%, -50%);
+
+    filter:
+        drop-shadow(
+            0 0 18px
+            rgba(217, 182, 111, 0.35)
+        );
+
+    animation:
+        acediaHourglassFloat
+        7s
+        ease-in-out
+        infinite;
+}
+
+.sloth-hourglass-frame {
+    position: absolute;
+    inset: 0;
+
+    border-top:
+        5px solid
+        var(--acedia-gold);
+
+    border-bottom:
+        5px solid
+        var(--acedia-gold);
+
+    clip-path:
+        polygon(
+            0 0,
+            100% 0,
+            66% 43%,
+            100% 100%,
+            0 100%,
+            34% 57%
+        );
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(223, 201, 244, 0.28),
+            transparent 47%,
+            rgba(217, 182, 111, 0.35)
+        );
+}
+
+.sloth-hourglass-sand {
+    position: absolute;
+
+    left: 29%;
+    right: 29%;
+
+    background:
+        linear-gradient(
+            #f3e4ff,
+            #d9b66f
+        );
+}
+
+.sloth-hourglass-sand.sand-top {
+    top: 22%;
+
+    height: 28%;
+
+    clip-path:
+        polygon(
+            0 0,
+            100% 0,
+            50% 100%
+        );
+
+    animation:
+        acediaSandTop
+        6s
+        linear
+        infinite;
+}
+
+.sloth-hourglass-sand.sand-bottom {
+    bottom: 22%;
+
+    height: 28%;
+
+    clip-path:
+        polygon(
+            50% 0,
+            100% 100%,
+            0 100%
+        );
+
+    animation:
+        acediaSandBottom
+        6s
+        linear
+        infinite;
+}
+
+/* =========================================================
+   THẤT TRỌNG MỘNG VỰC
+   ========================================================= */
+
+.effect-acedia-sevenfold-world {
+    z-index: 2147481000 !important;
+    isolation: isolate !important;
+}
+
+.effect-acedia-sevenfold-depth {
+    position: absolute;
+    inset: 0;
+
+    background:
+        radial-gradient(
+            circle at 50% 50%,
+            transparent 0 16%,
+            rgba(115, 68, 154, 0.08)
+            17% 18%,
+            transparent 19% 28%,
+            rgba(217, 182, 111, 0.045)
+            29% 30%,
+            transparent 31%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(4, 2, 7, 0.15),
+            rgba(4, 2, 7, 0.72)
+        );
+
+    animation:
+        acediaDepth
+        9s
+        ease-in-out
+        infinite;
+}
+
+.effect-acedia-sevenfold-gate {
+    position: absolute;
+    z-index: 2;
+
+    top: 10%;
+    bottom: 8%;
+
+    width: 16%;
+
+    opacity: 0.48;
+}
+
+.effect-acedia-sevenfold-gate.gate-left {
+    left: 2%;
+}
+
+.effect-acedia-sevenfold-gate.gate-right {
+    right: 2%;
+
+    transform: scaleX(-1);
+}
+
+.gate-pillar {
+    position: absolute;
+    inset: 0;
+
+    border:
+        1px solid
+        rgba(223, 201, 244, 0.2);
+
+    border-bottom: 0;
+
+    border-radius:
+        110px 110px 0 0;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(115, 68, 154, 0.14),
+            rgba(5, 3, 8, 0.62)
+        );
+
+    box-shadow:
+        inset 0 0 40px
+        rgba(0, 0, 0, 0.65);
+}
+
+.gate-rune {
+    position: absolute;
+
+    left: 50%;
+    top: 20%;
+
+    transform:
+        translateX(-50%)
+        rotate(-90deg);
+
+    color:
+        rgba(217, 182, 111, 0.66)
+        !important;
+
+    font-size: 9px;
+    font-weight: 900;
+
+    letter-spacing: 0.35em;
+}
+
+.effect-acedia-sevenfold-moon {
+    width: 180px !important;
+    height: 180px !important;
+}
+
+.effect-acedia-sevenfold-moon
+.moon-halo {
+    position: absolute;
+
+    inset: -24px;
+
+    border-radius: 50%;
+
+    background:
+        repeating-conic-gradient(
+            from 0deg,
+            rgba(217, 182, 111, 0.5)
+            0 1deg,
+            transparent 1deg 13deg
+        );
+
+    -webkit-mask:
+        radial-gradient(
+            circle,
+            transparent 69%,
+            #000 70% 72%,
+            transparent 73%
+        );
+
+    mask:
+        radial-gradient(
+            circle,
+            transparent 69%,
+            #000 70% 72%,
+            transparent 73%
+        );
+
+    animation:
+        acediaZodiac
+        28s
+        linear
+        infinite;
+}
+
+.effect-acedia-sevenfold-moon
+.moon-disc {
+    position: absolute;
+    inset: 0;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 38% 32%,
+            #f4e8ff,
+            #b68ad6 42%,
+            #32153f 44%,
+            #08040d 69%
+        );
+
+    box-shadow:
+        0 0 42px
+        rgba(170, 119, 210, 0.4),
+        inset -25px -18px 30px
+        rgba(0, 0, 0, 0.62);
+}
+
+.effect-acedia-sevenfold-moon
+.moon-scar {
+    position: absolute;
+
+    left: 51%;
+    top: 15%;
+
+    width: 2px;
+    height: 70%;
+
+    background:
+        linear-gradient(
+            transparent,
+            #d9b66f,
+            transparent
+        );
+
+    transform: rotate(18deg);
+
+    box-shadow:
+        -12px 25px 0 -1px
+        rgba(217, 182, 111, 0.6),
+        13px 41px 0 -1px
+        rgba(217, 182, 111, 0.5);
+}
+
+.effect-acedia-sevenfold-dream-layers {
+    position: absolute;
+    z-index: 2;
+
+    inset: 0;
+
+    display: grid;
+    place-items: center;
+
+    pointer-events: none;
+}
+
+.effect-acedia-sevenfold-dream-layer {
+    position: absolute;
+
+    width:
+        min(72vw, 820px);
+
+    height:
+        min(48vh, 470px);
+
+    transform:
+        translateY(
+            var(--acedia-layer-lift)
+        )
+        scale(
+            var(--acedia-layer-scale)
+        );
+
+    border:
+        1px solid
+        rgba(223, 201, 244, 0.12);
+
+    border-radius: 50%;
+
+    box-shadow:
+        inset 0 0 60px
+        rgba(115, 68, 154, 0.08),
+        0 0 25px
+        rgba(0, 0, 0, 0.4);
+
+    animation:
+        acediaLayer
+        7s
+        var(--acedia-layer-delay)
+        ease-in-out
+        infinite;
+}
+
+.effect-acedia-sevenfold-dream-layer::before {
+    content: attr(data-number);
+
+    position: absolute;
+
+    left: 50%;
+    top: -10px;
+
+    transform:
+        translateX(-50%);
+
+    color:
+        rgba(217, 182, 111, 0.55);
+
+    font-family: Georgia, serif;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.effect-acedia-sevenfold-core {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.effect-acedia-sevenfold-core b {
+    font-size: 52px;
+    line-height: 1;
+}
+
+.effect-acedia-sevenfold-chain-field,
+.effect-acedia-sevenfold-clock-field {
+    position: absolute;
+    z-index: 4;
+
+    inset: 0;
+
+    pointer-events: none;
+}
+
+.effect-acedia-sevenfold-chain {
+    position: absolute;
+
+    left:
+        var(--acedia-chain-x);
+
+    top: -25px;
+
+    width: 7px;
+
+    height:
+        var(--acedia-chain-length);
+
+    background:
+        repeating-linear-gradient(
+            180deg,
+            transparent 0 6px,
+            rgba(223, 201, 244, 0.43)
+            6px 10px,
+            transparent 10px 15px
+        );
+
+    transform-origin: top;
+
+    animation:
+        acediaChain
+        7s
+        var(--acedia-chain-delay)
+        ease-in-out
+        infinite;
+}
+
+.effect-acedia-sevenfold-clock {
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    color:
+        rgba(217, 182, 111, 0.62)
+        !important;
+
+    font-family: Georgia, serif;
+    font-size: 13px;
+    font-weight: 700;
+
+    text-shadow:
+        0 0 8px
+        rgba(217, 182, 111, 0.35);
+
+    transform:
+        rotate(
+            var(--acedia-clock-angle)
+        )
+        translateX(
+            var(--acedia-clock-radius)
+        )
+        rotate(
+            var(--acedia-clock-angle-back)
+        );
+
+    animation:
+        acediaClock
+        8s
+        var(--acedia-clock-delay)
+        ease-in-out
+        infinite;
+}
+
+.effect-acedia-sevenfold-ripple-field
+.ripple-four {
+    position: absolute;
+
+    inset: -22%;
+
+    border:
+        1px solid
+        rgba(217, 182, 111, 0.12);
+
+    border-radius: 50%;
+
+    animation:
+        acediaRipple
+        6.8s
+        -2.4s
+        ease-out
+        infinite;
+}
+
+.effect-acedia-sevenfold-title {
+    position: absolute;
+    z-index: 8;
+
+    left: 50%;
+    bottom: 5%;
+
+    transform:
+        translateX(-50%);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+
+    text-align: center;
+
+    text-shadow:
+        0 3px 12px #000000;
+}
+
+.effect-acedia-sevenfold-title span {
+    color:
+        var(--acedia-gold)
+        !important;
+
+    font-size: 9px;
+    font-weight: 900;
+
+    letter-spacing: 0.35em;
+}
+
+.effect-acedia-sevenfold-title strong {
+    color: #ffffff !important;
+
+    font-family: Georgia, serif;
+
+    font-size:
+        clamp(20px, 3vw, 38px);
+
+    font-weight: 700;
+
+    letter-spacing: 0.1em;
+}
+
+.effect-acedia-sevenfold-title small {
+    color:
+        rgba(223, 201, 244, 0.64)
+        !important;
+
+    font-size: 10px;
+
+    letter-spacing: 0.06em;
+}
+
+body.theme-seven-sins-acedia
+.effect-acedia-sevenfold-world {
+    mix-blend-mode: screen;
+}
+
+/* =========================================================
+   ANIMATION
+   ========================================================= */
+
+@keyframes acediaCardBreath {
+    0%,
+    100% {
+        filter: brightness(0.96);
+    }
+
+    50% {
+        filter: brightness(1.05);
+    }
+}
+
+@keyframes acediaCardOrbit {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes acediaHourglass {
+    0%,
+    100% {
+        transform: rotate(-3deg);
+        opacity: 0.58;
+    }
+
+    50% {
+        transform: rotate(3deg);
+        opacity: 0.95;
+    }
+}
+
+@keyframes acediaChain {
+    0%,
+    100% {
+        transform: rotate(-2deg);
+    }
+
+    50% {
+        transform: rotate(2.5deg);
+    }
+}
+
+@keyframes acediaTagSweep {
+    0%,
+    65% {
+        transform:
+            translateX(-260%)
+            rotate(18deg);
+    }
+
+    82%,
+    100% {
+        transform:
+            translateX(700%)
+            rotate(18deg);
+    }
+}
+
+@keyframes acediaZodiac {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes acediaEclipse {
+    0%,
+    100% {
+        transform:
+            translateX(-50%)
+            scale(0.96);
+
+        filter:
+            drop-shadow(
+                0 0 28px
+                rgba(170, 119, 210, 0.35)
+            );
+    }
+
+    50% {
+        transform:
+            translateX(-50%)
+            scale(1.04);
+
+        filter:
+            drop-shadow(
+                0 0 48px
+                rgba(170, 119, 210, 0.58)
+            );
+    }
+}
+
+@keyframes acediaArchPulse {
+    0%,
+    100% {
+        opacity: 0.26;
+        filter: brightness(0.85);
+    }
+
+    50% {
+        opacity: 0.62;
+        filter: brightness(1.15);
+    }
+}
+
+@keyframes acediaHourglassFloat {
+    0%,
+    100% {
+        transform:
+            translateY(0)
+            rotate(-2deg);
+    }
+
+    50% {
+        transform:
+            translateY(-10px)
+            rotate(2deg);
+    }
+}
+
+@keyframes acediaSandTop {
+    0% {
+        transform: scaleY(1);
+        transform-origin: bottom;
+    }
+
+    100% {
+        transform: scaleY(0.05);
+        transform-origin: bottom;
+    }
+}
+
+@keyframes acediaSandBottom {
+    0% {
+        transform: scaleY(0.08);
+        transform-origin: bottom;
+    }
+
+    100% {
+        transform: scaleY(1);
+        transform-origin: bottom;
+    }
+}
+
+@keyframes acediaMote {
+    0% {
+        transform:
+            translateY(16px)
+            scale(0.6);
+
+        opacity: 0;
+    }
+
+    25% {
+        opacity: 0.8;
+    }
+
+    100% {
+        transform:
+            translateY(-80px)
+            scale(1.2);
+
+        opacity: 0;
+    }
+}
+
+@keyframes acediaPetIdle {
+    0%,
+    100% {
+        transform:
+            translateY(0)
+            rotate(-1deg);
+    }
+
+    50% {
+        transform:
+            translateY(-8px)
+            rotate(1deg);
+    }
+}
+
+@keyframes acediaFeather {
+    0%,
+    100% {
+        opacity: 0.35;
+
+        transform:
+            rotate(
+                var(--sloth-feather-angle)
+            )
+            translateX(94px)
+            rotate(
+                var(--sloth-feather-angle-back)
+            )
+            scale(0.85);
+    }
+
+    50% {
+        opacity: 1;
+
+        transform:
+            rotate(
+                var(--sloth-feather-angle)
+            )
+            translateX(108px)
+            rotate(
+                var(--sloth-feather-angle-back)
+            )
+            scale(1.08);
+    }
+}
+
+@keyframes acediaDepth {
+    0%,
+    100% {
+        opacity: 0.64;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.03);
+    }
+}
+
+@keyframes acediaLayer {
+    0%,
+    100% {
+        opacity: 0.18;
+    }
+
+    50% {
+        opacity: 0.55;
+    }
+}
+
+@keyframes acediaClock {
+    0%,
+    100% {
+        opacity: 0.28;
+    }
+
+    50% {
+        opacity: 0.9;
+    }
+}
+
+@keyframes acediaRipple {
+    0% {
+        transform: scale(0.65);
+        opacity: 0.45;
+    }
+
+    100% {
+        transform: scale(1.2);
+        opacity: 0;
+    }
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media
+(max-width: 768px),
+(pointer: coarse) {
+    .store-item-card.store-card-seven-sins-sloth.ui-theme-immune {
+        min-height: 500px !important;
+
+        padding:
+            102px 16px 18px
+            !important;
+    }
+
+    .store-card-seven-sins-sloth
+    .acedia-relic-header {
+        left: 16px;
+        right: 16px;
+    }
+
+    .store-card-seven-sins-sloth
+    .item-icon-wrapper {
+        width: 148px !important;
+        height: 148px !important;
+    }
+
+    .store-card-seven-sins-sloth
+    .item-icon-wrapper
+    .item-icon {
+        width: 116px !important;
+        height: 116px !important;
+    }
+
+    .acedia-palace-eclipse {
+        width: 150px;
+        height: 150px;
+    }
+
+    .acedia-palace-hourglass {
+        right: 4vw;
+        top: 20vh;
+
+        scale: 0.75;
+    }
+
+    .acedia-palace-inscription small,
+    .effect-acedia-sevenfold-title small {
+        display: none;
+    }
+
+    .effect-acedia-sevenfold-gate {
+        opacity: 0.28;
+        width: 20%;
+    }
+
+    .effect-acedia-sevenfold-dream-layer {
+        width: 90vw;
+        height: 38vh;
+    }
+
+    .sloth-realm-hourglass {
+        left: 82%;
+
+        scale: 0.72;
+    }
+}
+
+@media
+(prefers-reduced-motion: reduce) {
+    .store-item-card.store-card-seven-sins-sloth.ui-theme-immune,
+    .store-card-seven-sins-sloth .card-glow,
+    .store-card-seven-sins-sloth .acedia-card-hourglass,
+    .store-card-seven-sins-sloth .acedia-card-chain,
+    .store-card-seven-sins-sloth .item-icon-wrapper::before,
+    .acedia-palace-chrome *,
+    .sloth-dream-realm *,
+    .effect-acedia-sevenfold-world *,
+    #virtual-pet-container.pet-seven-sins-sloth-stage * {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+/* =========================================================
+   ACEDIA CARD CLEAN V2
+   Dán ở CUỐI CÙNG file that-dai-toi.css
+   ========================================================= */
+
+/* Bỏ thanh ORDO ACEDIAE gây trùng nội dung */
+.store-item-card.store-card-seven-sins-sloth
+.acedia-relic-header {
+    display: none !important;
+}
+
+/* Bỏ chữ ACEDIA khổng lồ nằm dọc */
+.store-item-card.store-card-seven-sins-sloth::after {
+    content: none !important;
+    display: none !important;
+}
+
+/* Bỏ cột, xích và đồng hồ nhỏ trong card */
+.store-item-card.store-card-seven-sins-sloth
+.acedia-card-pillar,
+.store-item-card.store-card-seven-sins-sloth
+.acedia-card-chain,
+.store-item-card.store-card-seven-sins-sloth
+.acedia-card-hourglass {
+    display: none !important;
+}
+
+/* Chỉ giữ vòm kiến trúc rất nhẹ */
+.store-item-card.store-card-seven-sins-sloth
+.acedia-card-architecture {
+    opacity: 0.26 !important;
+}
+
+.store-item-card.store-card-seven-sins-sloth
+.acedia-card-arch {
+    top: 103px !important;
+
+    width: 190px !important;
+    height: 202px !important;
+
+    border-color:
+        rgba(220, 195, 245, 0.13)
+        !important;
+
+    box-shadow:
+        inset 0 0 35px
+        rgba(104, 65, 145, 0.1)
+        !important;
+}
+
+/* =========================================================
+   THÂN CARD
+   ========================================================= */
+
+.store-item-card.store-card-seven-sins-sloth.ui-theme-immune {
+    min-height: 500px !important;
+
+    padding:
+        73px 18px 18px
+        !important;
+
+    clip-path: none !important;
+
+    border-radius: 22px !important;
+
+    border:
+        1px solid
+        rgba(205, 174, 235, 0.4)
+        !important;
+
+    background:
+        radial-gradient(
+            circle at 50% 25%,
+            rgba(165, 112, 205, 0.19),
+            transparent 31%
+        ),
+        radial-gradient(
+            circle at 50% 75%,
+            rgba(81, 44, 112, 0.12),
+            transparent 37%
+        ),
+        linear-gradient(
+            165deg,
+            #26152f 0%,
+            #130b1b 49%,
+            #09060d 100%
+        ) !important;
+
+    box-shadow:
+        0 20px 45px
+        rgba(12, 6, 18, 0.48),
+        0 0 20px
+        rgba(131, 82, 173, 0.14),
+        inset 0 1px 0
+        rgba(255, 255, 255, 0.1)
+        !important;
+
+    animation: none !important;
+}
+
+.store-item-card.store-card-seven-sins-sloth.ui-theme-immune:hover {
+    transform:
+        translateY(-6px)
+        scale(1.008)
+        !important;
+
+    filter: none !important;
+
+    box-shadow:
+        0 28px 55px
+        rgba(8, 4, 13, 0.58),
+        0 0 28px
+        rgba(156, 104, 199, 0.23),
+        inset 0 1px 0
+        rgba(255, 255, 255, 0.13)
+        !important;
+}
+
+/* Viền trong card */
+.store-item-card.store-card-seven-sins-sloth::before {
+    content: "" !important;
+
+    position: absolute !important;
+
+    inset: 8px !important;
+
+    width: auto !important;
+    height: auto !important;
+
+    border:
+        1px solid
+        rgba(215, 188, 238, 0.09)
+        !important;
+
+    border-radius: 16px !important;
+
+    background: none !important;
+
+    transform: none !important;
+
+    pointer-events: none !important;
+}
+
+/* Bỏ vòng sáng xoay gây rối */
+.store-item-card.store-card-seven-sins-sloth
+.card-glow {
+    inset: 0 !important;
+
+    opacity: 1 !important;
+
+    background:
+        radial-gradient(
+            circle at 50% 27%,
+            rgba(202, 169, 230, 0.11),
+            transparent 35%
+        ) !important;
+
+    animation: none !important;
+}
+
+/* =========================================================
+   TAG DUY NHẤT Ở ĐẦU CARD
+   ========================================================= */
+
+.store-item-card.store-card-seven-sins-sloth.ui-theme-immune
+.item-tag.tag-that-dai-toi {
+    position: absolute !important;
+    z-index: 30 !important;
+
+    top: 14px !important;
+    left: 17px !important;
+    right: 17px !important;
+
+    width: auto !important;
+    min-width: 0 !important;
+    height: 42px !important;
+
+    margin: 0 !important;
+
+    padding:
+        0 17px 0 54px
+        !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    transform: none !important;
+
+    border:
+        1px solid
+        rgba(215, 188, 238, 0.38)
+        !important;
+
+    border-radius: 13px !important;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(150, 101, 192, 0.28),
+            rgba(43, 23, 57, 0.94) 35%,
+            rgba(23, 13, 31, 0.97)
+        ) !important;
+
+    box-shadow:
+        inset 0 1px 0
+        rgba(255, 255, 255, 0.1),
+        0 6px 14px
+        rgba(0, 0, 0, 0.28)
+        !important;
+
+    overflow: hidden !important;
+}
+
+/* Huy hiệu VII duy nhất */
+.store-item-card.store-card-seven-sins-sloth.ui-theme-immune
+.item-tag.tag-that-dai-toi::before {
+    content: "Ⅶ" !important;
+
+    position: absolute !important;
+
+    left: 7px !important;
+    top: 50% !important;
+
+    width: 32px !important;
+    height: 32px !important;
+
+    display: grid !important;
+    place-items: center !important;
+
+    transform:
+        translateY(-50%)
+        !important;
+
+    color: #21102c !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            #fbf7ff,
+            #d5b8ec 55%,
+            #9870ba
+        ) !important;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.58)
+        !important;
+
+    border-radius: 50% !important;
+
+    font-family:
+        Georgia,
+        serif !important;
+
+    font-size: 14px !important;
+    font-weight: 900 !important;
+
+    box-shadow:
+        0 0 12px
+        rgba(206, 171, 234, 0.27)
+        !important;
+}
+
+/* Bỏ vệt sáng chạy trên tag */
+.store-item-card.store-card-seven-sins-sloth.ui-theme-immune
+.item-tag.tag-that-dai-toi::after {
+    content: none !important;
+    display: none !important;
+}
+
+.store-item-card.store-card-seven-sins-sloth.ui-theme-immune
+.item-tag.tag-that-dai-toi span {
+    padding: 0 !important;
+
+    color:
+        rgba(250, 245, 255, 0.94)
+        !important;
+
+    font-family:
+        "Segoe UI",
+        sans-serif !important;
+
+    font-size: 10px !important;
+    font-weight: 800 !important;
+
+    letter-spacing: 0.14em !important;
+
+    white-space: nowrap !important;
+
+    text-shadow: none !important;
+}
+
+/* =========================================================
+   KHUNG ẢNH VẬT PHẨM
+   ========================================================= */
+
+.store-item-card.store-card-seven-sins-sloth
+.item-icon-wrapper {
+    order: 1 !important;
+
+    position: relative !important;
+    z-index: 6 !important;
+
+    width: 166px !important;
+    height: 166px !important;
+
+    margin:
+        15px auto 22px
+        !important;
+
+    border:
+        1px solid
+        rgba(205, 176, 230, 0.28)
+        !important;
+
+    border-radius: 50% !important;
+
+    clip-path: none !important;
+
+    transform: none !important;
+
+    background:
+        radial-gradient(
+            circle at 50% 42%,
+            rgba(191, 151, 224, 0.2),
+            rgba(45, 23, 59, 0.34) 42%,
+            rgba(8, 5, 12, 0.92) 73%
+        ) !important;
+
+    box-shadow:
+        0 0 26px
+        rgba(132, 82, 173, 0.22),
+        inset 0 0 30px
+        rgba(0, 0, 0, 0.55)
+        !important;
+}
+
+/* Một vòng trang trí nhẹ */
+.store-item-card.store-card-seven-sins-sloth
+.item-icon-wrapper::before {
+    content: "" !important;
+
+    position: absolute !important;
+
+    inset: -9px !important;
+
+    border:
+        1px solid
+        rgba(205, 174, 231, 0.2)
+        !important;
+
+    border-radius: 50% !important;
+
+    background:
+        repeating-conic-gradient(
+            from 0deg,
+            rgba(206, 174, 231, 0.35)
+            0 1deg,
+            transparent 1deg 22deg
+        ) !important;
+
+    -webkit-mask:
+        radial-gradient(
+            circle,
+            transparent 68%,
+            #000 69% 71%,
+            transparent 72%
+        ) !important;
+
+    mask:
+        radial-gradient(
+            circle,
+            transparent 68%,
+            #000 69% 71%,
+            transparent 72%
+        ) !important;
+
+    animation:
+        acediaCleanRing
+        30s
+        linear
+        infinite !important;
+}
+
+/* Nhãn loại vật phẩm dưới ảnh */
+.store-item-card.store-card-seven-sins-sloth
+.item-icon-wrapper::after {
+    position: absolute !important;
+
+    left: 50% !important;
+    bottom: -12px !important;
+
+    transform:
+        translateX(-50%)
+        !important;
+
+    min-width: 112px !important;
+
+    padding:
+        5px 11px !important;
+
+    color:
+        #d9b66f
+        !important;
+
+    background:
+        #0c0711 !important;
+
+    border:
+        1px solid
+        rgba(217, 182, 111, 0.3)
+        !important;
+
+    border-radius: 10px !important;
+
+    font-size: 8px !important;
+    font-weight: 800 !important;
+
+    letter-spacing: 0.14em !important;
+
+    text-align: center !important;
+
+    white-space: nowrap !important;
+}
+
+/* Không xoay card Thất Trọng Mộng Vực */
+.store-item-card.store-card-acedia-domain
+.item-icon-wrapper {
+    transform: none !important;
+    border-radius: 50% !important;
+}
+
+.store-item-card.store-card-acedia-domain
+.item-icon-wrapper
+.item-icon {
+    transform: none !important;
+}
+
+/* Ảnh vật phẩm */
+.store-item-card.store-card-seven-sins-sloth
+.item-icon-wrapper
+.item-icon {
+    width: 132px !important;
+    height: 132px !important;
+
+    object-fit: contain !important;
+
+    transform: none !important;
+
+    filter:
+        drop-shadow(
+            0 12px 15px
+            rgba(0, 0, 0, 0.58)
+        )
+        drop-shadow(
+            0 0 12px
+            rgba(167, 112, 207, 0.24)
+        ) !important;
+}
+
+/* =========================================================
+   TÊN VÀ LOẠI
+   ========================================================= */
+
+.store-item-card.store-card-seven-sins-sloth
+.item-info {
+    order: 2 !important;
+
+    position: relative !important;
+    z-index: 7 !important;
+
+    min-height: 74px !important;
+
+    padding:
+        0 5px !important;
+
+    text-align: center !important;
+}
+
+.store-item-card.store-card-seven-sins-sloth
+.item-name {
+    width: 100% !important;
+
+    margin:
+        0 auto !important;
+
+    color: #ffffff !important;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif !important;
+
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    line-height: 1.26 !important;
+
+    letter-spacing: 0 !important;
+
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
+
+    text-shadow:
+        0 2px 7px
+        rgba(0, 0, 0, 0.78)
+        !important;
+}
+
+.store-item-card.store-card-seven-sins-sloth
+.item-type-label {
+    display: block !important;
+
+    margin-top: 8px !important;
+
+    color:
+        rgba(213, 190, 232, 0.68)
+        !important;
+
+    font-size: 9px !important;
+    font-weight: 800 !important;
+
+    letter-spacing: 0.17em !important;
+
+    text-transform: uppercase !important;
+}
+
+/* =========================================================
+   MÔ TẢ NGẮN
+   ========================================================= */
+
+.store-item-card.store-card-seven-sins-sloth
+.acedia-relic-lore {
+    order: 3 !important;
+
+    position: relative !important;
+    z-index: 7 !important;
+
+    min-height: 60px !important;
+
+    margin:
+        9px 0 15px
+        !important;
+
+    padding:
+        10px 10px 10px 48px
+        !important;
+
+    border:
+        1px solid
+        rgba(204, 175, 229, 0.11)
+        !important;
+
+    border-radius: 13px !important;
+
+    clip-path: none !important;
+
+    background:
+        rgba(255, 255, 255, 0.035)
+        !important;
+}
+
+.store-item-card.store-card-seven-sins-sloth
+.acedia-relic-glyph {
+    left: 10px !important;
+
+    width: 29px !important;
+    height: 29px !important;
+
+    transform:
+        translateY(-50%)
+        !important;
+
+    border-color:
+        rgba(217, 182, 111, 0.34)
+        !important;
+
+    background:
+        rgba(15, 8, 20, 0.85)
+        !important;
+
+    font-size: 16px !important;
+}
+
+.store-item-card.store-card-seven-sins-sloth
+.acedia-relic-copy b {
+    color:
+        rgba(249, 243, 255, 0.91)
+        !important;
+
+    font-size: 9px !important;
+    line-height: 1.3 !important;
+
+    letter-spacing: 0.07em !important;
+}
+
+.store-item-card.store-card-seven-sins-sloth
+.acedia-relic-copy small {
+    margin-top: 3px !important;
+
+    color:
+        rgba(205, 183, 223, 0.59)
+        !important;
+
+    font-size: 9px !important;
+    line-height: 1.35 !important;
+}
+
+/* =========================================================
+   NÚT
+   ========================================================= */
+
+.store-item-card.store-card-seven-sins-sloth
+.item-actions {
+    order: 4 !important;
+
+    position: relative !important;
+    z-index: 8 !important;
+
+    margin-top: auto !important;
+
+    gap: 9px !important;
+}
+
+/* Nút thử nghiệm bị khóa */
+.store-item-card.store-card-seven-sins-sloth
+.btn-preview {
+    min-height: 42px !important;
+
+    color:
+        rgba(209, 190, 224, 0.45)
+        !important;
+
+    background:
+        rgba(255, 255, 255, 0.035)
+        !important;
+
+    border:
+        1px solid
+        rgba(203, 177, 225, 0.1)
+        !important;
+
+    border-radius: 12px !important;
+
+    box-shadow: none !important;
+}
+
+/* Nút mặc ngay */
+.store-item-card.store-card-seven-sins-sloth
+.btn-equip {
+    min-height: 45px !important;
+
+    color: #ffffff !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #7351dc,
+            #8841dc
+        ) !important;
+
+    border:
+        1px solid
+        rgba(227, 213, 255, 0.26)
+        !important;
+
+    border-radius: 12px !important;
+
+    box-shadow:
+        0 8px 17px
+        rgba(91, 49, 167, 0.26),
+        inset 0 1px 0
+        rgba(255, 255, 255, 0.14)
+        !important;
+}
+
+.store-item-card.store-card-seven-sins-sloth
+.btn-equip:hover {
+    transform:
+        translateY(-2px)
+        !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #8060eb,
+            #984ee9
+        ) !important;
+}
+
+/* Ba card có màu nhấn nhẹ khác nhau */
+.store-item-card.store-card-acedia-familiar {
+    border-color:
+        rgba(188, 147, 220, 0.46)
+        !important;
+}
+
+.store-item-card.store-card-acedia-palace {
+    border-color:
+        rgba(217, 182, 111, 0.38)
+        !important;
+}
+
+.store-item-card.store-card-acedia-domain {
+    border-color:
+        rgba(126, 150, 192, 0.43)
+        !important;
+}
+
+@keyframes acediaCleanRing {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Mobile */
+@media
+(max-width: 768px),
+(pointer: coarse) {
+    .store-item-card.store-card-seven-sins-sloth.ui-theme-immune {
+        min-height: 480px !important;
+
+        padding:
+            70px 15px 16px
+            !important;
+    }
+
+    .store-item-card.store-card-seven-sins-sloth
+    .item-icon-wrapper {
+        width: 145px !important;
+        height: 145px !important;
+    }
+
+    .store-item-card.store-card-seven-sins-sloth
+    .item-icon-wrapper
+    .item-icon {
+        width: 114px !important;
+        height: 114px !important;
+    }
+}
+/* =========================================================
+   SỬA FONT TÊN VẬT PHẨM ACEDIA
+   ========================================================= */
+
+.store-item-card.store-card-seven-sins-sloth .item-name,
+.store-item-card.store-card-acedia-domain .item-name {
+    font-family:
+        "Segoe UI",
+        Arial,
+        sans-serif !important;
+
+    font-weight: 800 !important;
+    line-height: 1.25 !important;
+    letter-spacing: 0 !important;
+
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
+
+    font-variant-ligatures: none !important;
+}

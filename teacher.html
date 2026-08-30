@@ -1,0 +1,3216 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Trang Giáo Viên</title>
+    <link rel="icon" type="image/png" href="assets/icon.png">
+    <link rel="stylesheet" href="css/common.css?v=3.5">
+    <link rel="stylesheet" href="css/teacher.css?v=3.5">
+    <link rel="stylesheet" href="css/mobile.css?v=3.5">
+    <link rel="stylesheet" href="css/store-items.css?v=3.5">
+    <link rel="stylesheet" href="css/effects-pets.css?v=3.5">
+    <link rel="stylesheet" href="css/daily-login.css?v=3.5">
+    <link rel="stylesheet" href="css/painting.css?v=3.5">
+    <link rel="stylesheet" href="css/luxury-store.css?v=4.2">
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']], // Cú pháp toán học trên cùng 1 dòng
+                displayMath: [['$$', '$$'], ['\\[', '\\]']] // Cú pháp toán học đứng 1 dòng riêng
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
+    <style id="teacherAssignmentWorkspaceStyles">
+        .teacher-assignment-heading-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .teacher-assignment-heading-row h2 {
+            margin: 0;
+        }
+
+        .teacher-question-bank-shortcut-toggle {
+            width: 36px !important;
+            height: 42px;
+            flex: 0 0 36px;
+            margin: 0 !important;
+            padding: 0 !important;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            color: #fff !important;
+            background: linear-gradient(135deg, #667eea, #7c3aed) !important;
+            border: 0 !important;
+            border-radius: 10px !important;
+            box-shadow: 0 6px 14px rgba(79, 70, 229, .20) !important;
+            font-size: 1.2rem;
+            font-weight: 900;
+            line-height: 1;
+            cursor: pointer;
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+        .teacher-question-bank-shortcut-toggle:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 9px 18px rgba(79, 70, 229, .27) !important;
+        }
+
+        .teacher-question-bank-shortcut-toggle-icon {
+            display: inline-block;
+            transition: transform .22s ease;
+        }
+
+        .teacher-question-bank-shortcut-toggle.is-collapsed .teacher-question-bank-shortcut-toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .teacher-question-bank-shortcut-panel[hidden] {
+            display: none !important;
+        }
+
+        .teacher-question-bank-entry {
+            width: 100% !important;
+            max-width: 620px;
+            margin: 0 0 22px !important;
+            padding: 16px 18px !important;
+            display: flex !important;
+            align-items: center;
+            gap: 16px;
+            text-align: left;
+            color: #26355f !important;
+            background: rgba(255, 255, 255, 0.78) !important;
+            border: 1px solid rgba(102, 126, 234, 0.20) !important;
+            border-radius: 18px !important;
+            box-shadow: 0 9px 22px rgba(79, 70, 229, 0.08) !important;
+            cursor: pointer;
+            transition: transform .2s ease,
+                box-shadow .2s ease,
+                border-color .2s ease;
+        }
+
+        .teacher-question-bank-entry:hover {
+            transform: translateY(-2px);
+            border-color: rgba(102, 126, 234, 0.42) !important;
+            box-shadow: 0 13px 28px rgba(79, 70, 229, 0.14) !important;
+        }
+
+        .teacher-question-bank-entry:focus-visible {
+            outline: 3px solid rgba(102, 126, 234, 0.28);
+            outline-offset: 3px;
+        }
+
+        .teacher-question-bank-entry-icon {
+            width: 54px;
+            height: 54px;
+            flex: 0 0 54px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            font-size: 1.65rem;
+            background: linear-gradient(135deg,
+                    rgba(102, 126, 234, 0.18),
+                    rgba(118, 75, 162, 0.16));
+        }
+
+        .teacher-question-bank-entry-text {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .teacher-question-bank-entry-title {
+            display: block;
+            margin-bottom: 4px;
+            color: #26355f;
+            font-size: 1.08rem;
+            font-weight: 900;
+        }
+
+        .teacher-question-bank-entry-description {
+            display: block;
+            color: #7b86a8;
+            font-size: .91rem;
+            font-weight: 700;
+            line-height: 1.45;
+        }
+
+        .teacher-question-bank-entry-arrow {
+            flex: 0 0 auto;
+            color: #667eea;
+            font-size: 1.45rem;
+            font-weight: 900;
+            transition: transform .2s ease;
+        }
+
+        .teacher-question-bank-entry:hover .teacher-question-bank-entry-arrow {
+            transform: translateX(4px);
+        }
+
+        .teacher-question-bank-heading-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+
+        .teacher-question-bank-heading-row h2 {
+            margin: 0;
+        }
+
+        .teacher-question-bank-back-button {
+            width: auto !important;
+            margin: 0 !important;
+            padding: 10px 15px !important;
+            color: #5b5fc7 !important;
+            background: rgba(255, 255, 255, 0.70) !important;
+            border: 1px solid rgba(102, 126, 234, 0.26) !important;
+            border-radius: 11px !important;
+            box-shadow: none !important;
+            font-weight: 800;
+        }
+
+        .teacher-question-bank-back-button:hover {
+            background: rgba(238, 242, 255, 0.96) !important;
+        }
+
+        @media (max-width: 640px) {
+            .teacher-question-bank-entry {
+                max-width: none;
+                padding: 14px !important;
+                gap: 12px;
+            }
+
+            .teacher-question-bank-entry-icon {
+                width: 48px;
+                height: 48px;
+                flex-basis: 48px;
+                font-size: 1.45rem;
+            }
+
+            .teacher-question-bank-entry-description {
+                font-size: .84rem;
+            }
+
+            .teacher-question-bank-heading-row {
+                align-items: flex-start;
+            }
+        }
+    </style>
+
+    <style id="appStartupLoaderStyles">
+        #appStartupLoader {
+            position: fixed;
+            inset: 0;
+            z-index: 2147483640;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            box-sizing: border-box;
+            background:
+                radial-gradient(circle at 50% 25%, rgba(99, 102, 241, .30), transparent 33%),
+                radial-gradient(circle at 16% 82%, rgba(14, 165, 233, .14), transparent 28%),
+                linear-gradient(145deg, #07111f 0%, #101b33 52%, #07111f 100%);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            opacity: 1;
+            visibility: visible;
+            transition: opacity .32s ease, visibility .32s ease;
+        }
+
+        #appStartupLoader.is-hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .app-startup-loader-card {
+            width: min(94vw, 520px);
+            max-height: min(88vh, 760px);
+            overflow: auto;
+            padding: 28px;
+            border: 1px solid rgba(255, 255, 255, .16);
+            border-radius: 26px;
+            background: rgba(15, 23, 42, .78);
+            box-shadow: 0 28px 90px rgba(0, 0, 0, .42);
+            text-align: left;
+            color: #fff;
+        }
+
+        .app-startup-loader-head {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .app-startup-cloud-icon {
+            width: 58px;
+            height: 58px;
+            flex: 0 0 58px;
+            display: grid;
+            place-items: center;
+            border-radius: 18px;
+            font-size: 1.75rem;
+            background: linear-gradient(135deg, rgba(56, 189, 248, .24), rgba(99, 102, 241, .34));
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .13);
+            animation: appStartupPulse 1.7s ease-in-out infinite;
+        }
+
+        .app-startup-loader-title strong {
+            display: block;
+            font-size: 1.16rem;
+            margin-bottom: 5px;
+        }
+
+        #appStartupLoaderStatus {
+            display: block;
+            min-height: 1.45em;
+            font-size: .92rem;
+            line-height: 1.5;
+            color: rgba(226, 232, 240, .86);
+        }
+
+        .app-startup-progress-track {
+            width: 100%;
+            height: 10px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: rgba(148, 163, 184, .18);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05);
+        }
+
+        #appStartupProgressBar {
+            display: block;
+            width: 4%;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #38bdf8, #818cf8, #a78bfa);
+            transition: width .26s ease;
+        }
+
+        .app-startup-meta {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 9px 1px 0;
+            color: rgba(203, 213, 225, .78);
+            font-size: .79rem;
+            font-weight: 700;
+        }
+
+        #appStartupDetails {
+            margin-top: 17px;
+            padding: 11px 12px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, .055);
+            color: rgba(226, 232, 240, .80);
+            font-size: .82rem;
+            line-height: 1.55;
+        }
+
+        #appStartupError {
+            margin-top: 17px;
+            padding: 14px;
+            border: 1px solid rgba(251, 113, 133, .34);
+            border-radius: 15px;
+            background: rgba(159, 18, 57, .18);
+        }
+
+        #appStartupError[hidden] { display: none !important; }
+
+        #appStartupError strong {
+            display: block;
+            margin-bottom: 6px;
+            color: #fecdd3;
+        }
+
+        #appStartupErrorText {
+            color: #ffe4e6;
+            font-size: .86rem;
+            line-height: 1.55;
+            white-space: pre-wrap;
+        }
+
+        .app-startup-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+            margin-top: 12px;
+        }
+
+        .app-startup-actions button {
+            min-height: 40px;
+            padding: 0 14px;
+            border: 0;
+            border-radius: 11px;
+            cursor: pointer;
+            font-weight: 800;
+        }
+
+        .app-startup-retry { background: #e0f2fe; color: #0c4a6e; }
+        .app-startup-offline { background: rgba(255,255,255,.10); color: #fff; }
+
+        @keyframes appStartupPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.055); }
+        }
+
+        @media (max-width: 560px) {
+            #appStartupLoader { padding: 14px; }
+            .app-startup-loader-card { padding: 21px 18px; border-radius: 21px; }
+            .app-startup-cloud-icon { width: 50px; height: 50px; flex-basis: 50px; }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="appStartupLoader" role="status" aria-live="polite" aria-busy="true">
+        <div class="app-startup-loader-card">
+            <div class="app-startup-loader-head">
+                <div class="app-startup-cloud-icon" aria-hidden="true">☁️</div>
+                <div class="app-startup-loader-title">
+                    <strong>Đang đồng bộ hệ thống học tập</strong>
+                    <span id="appStartupLoaderStatus">Đang kiểm tra tài nguyên và kết nối đám mây...</span>
+                </div>
+            </div>
+
+            <div class="app-startup-progress-track" aria-hidden="true">
+                <i id="appStartupProgressBar"></i>
+            </div>
+            <div class="app-startup-meta">
+                <span id="appStartupProgressText">Đang chuẩn bị...</span>
+                <span id="appStartupNetworkText">Đang kiểm tra mạng</span>
+            </div>
+
+            <div id="appStartupDetails">Hệ thống sẽ chỉ mở giao diện sau khi các dữ liệu bắt buộc đã phản hồi.</div>
+
+            <div id="appStartupError" hidden>
+                <strong>Không thể hoàn tất khởi động</strong>
+                <div id="appStartupErrorText"></div>
+                <div class="app-startup-actions">
+                    <button type="button" class="app-startup-retry" onclick="window.AppStartupLoader.retry()">↻ Thử lại</button>
+                    <button type="button" class="app-startup-offline" onclick="window.AppStartupLoader.openStatusPage()">🛟 Trang 404 / kết nối</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            'use strict';
+
+            const state = {
+                expected: new Set(),
+                ready: new Set(),
+                labels: new Map(),
+                warnings: [],
+                resourceErrors: [],
+                blocked: false,
+                errorKind: '',
+                hidden: false,
+                serviceWorkerPromise: null
+            };
+
+            const byId = id => document.getElementById(id);
+            const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+            function safeText(value) {
+                return String(value == null ? '' : value);
+            }
+
+            function updateNetworkLabel() {
+                const el = byId('appStartupNetworkText');
+                if (!el) return;
+                el.textContent = navigator.onLine ? '🌐 Có Internet' : '📴 Đang ngoại tuyến';
+            }
+
+            function getMissing() {
+                return [...state.expected].filter(key => !state.ready.has(key));
+            }
+
+            function render() {
+                if (state.hidden) return;
+                updateNetworkLabel();
+
+                const total = state.expected.size;
+                const done = [...state.expected].filter(key => state.ready.has(key)).length;
+                const percent = total ? Math.max(4, Math.min(100, Math.round((done / total) * 100))) : 4;
+
+                const bar = byId('appStartupProgressBar');
+                const text = byId('appStartupProgressText');
+                const details = byId('appStartupDetails');
+                if (bar) bar.style.width = percent + '%';
+                if (text) text.textContent = total ? `${done}/${total} bước • ${percent}%` : 'Đang chuẩn bị...';
+
+                if (details) {
+                    const missing = getMissing();
+                    if (missing.length) {
+                        const shown = missing.slice(0, 5).map(key => state.labels.get(key) || key);
+                        details.textContent = 'Đang chờ: ' + shown.join(' • ') + (missing.length > shown.length ? ` • +${missing.length - shown.length} bước` : '');
+                    } else if (total) {
+                        details.textContent = state.warnings.length
+                            ? `Dữ liệu bắt buộc đã sẵn sàng. Có ${state.warnings.length} cảnh báo không chặn hệ thống.`
+                            : '✅ Dữ liệu bắt buộc đã sẵn sàng.';
+                    }
+                }
+            }
+
+            function clearError() {
+                const box = byId('appStartupError');
+                if (box) box.hidden = true;
+                state.blocked = false;
+                state.errorKind = '';
+            }
+
+            function showError(message, detail, kind) {
+                state.blocked = true;
+                state.errorKind = kind || 'fatal';
+                const box = byId('appStartupError');
+                const text = byId('appStartupErrorText');
+                if (box) box.hidden = false;
+                if (text) text.textContent = safeText(message) + (detail ? '\n' + safeText(detail) : '');
+                api.setStatus('Khởi động bị gián đoạn. Hãy kiểm tra thông tin bên dưới.');
+                render();
+            }
+
+            function resolvePath(path) {
+                const normalized = safeText(path).trim();
+
+                // db thường được khai báo bằng const trong firebase-config.js,
+                // nên không nhất thiết nằm trên window.
+                if (normalized === 'db' || normalized.startsWith('db.')) {
+                    const database = (typeof db !== 'undefined' ? db : window.db);
+                    if (!database) return undefined;
+                    if (normalized === 'db') return database;
+                    return normalized.slice(3).split('.').filter(Boolean)
+                        .reduce((value, key) => value == null ? undefined : value[key], database);
+                }
+
+                return normalized.split('.').filter(Boolean)
+                    .reduce((value, key) => value == null ? undefined : value[key], window);
+            }
+
+            const api = {
+                expect(keys, labels) {
+                    (keys || []).forEach(key => {
+                        const normalized = safeText(key).trim();
+                        if (!normalized) return;
+                        state.expected.add(normalized);
+                        if (labels && labels[normalized]) state.labels.set(normalized, labels[normalized]);
+                    });
+                    render();
+                },
+
+                label(key, label) {
+                    if (key) state.labels.set(safeText(key), safeText(label));
+                    render();
+                },
+
+                markReady(key, label) {
+                    const normalized = safeText(key).trim();
+                    if (!normalized) return;
+                    if (label) state.labels.set(normalized, safeText(label));
+                    state.ready.add(normalized);
+                    render();
+
+                    if (state.blocked && state.errorKind === 'timeout' && getMissing().length === 0) {
+                        clearError();
+                        api.setStatus('Kết nối đã phục hồi. Hoàn tất khởi động...');
+                        setTimeout(() => api.hide(), 250);
+                    }
+                },
+
+                markWarning(message) {
+                    const text = safeText(message).trim();
+                    if (text && !state.warnings.includes(text)) state.warnings.push(text);
+                    render();
+                },
+
+                setStatus(message) {
+                    const el = byId('appStartupLoaderStatus');
+                    if (el) el.textContent = safeText(message);
+                },
+
+                fail(message, detail, kind) {
+                    showError(message, detail, kind || 'fatal');
+                    return false;
+                },
+
+                checkRuntime(paths) {
+                    const missing = (paths || []).filter(path => typeof resolvePath(path) === 'undefined');
+                    if (missing.length) {
+                        showError('Thiếu thư viện hoặc module bắt buộc.', 'Không tìm thấy: ' + missing.join(', '), 'runtime');
+                        return false;
+                    }
+                    return true;
+                },
+
+                checkStylesheets() {
+                    const failed = [...document.querySelectorAll('link[rel="stylesheet"][href]')]
+                        .filter(link => !link.disabled && !link.sheet)
+                        .map(link => link.href);
+
+                    if (failed.length) {
+                        showError(
+                            'Một hoặc nhiều giao diện CSS chưa tải được.',
+                            failed.join('\n'),
+                            'resource'
+                        );
+                        return false;
+                    }
+                    return true;
+                },
+
+                async registerServiceWorker() {
+                    if (state.serviceWorkerPromise) return state.serviceWorkerPromise;
+
+                    state.serviceWorkerPromise = (async () => {
+                        if (!('serviceWorker' in navigator)) {
+                            api.markWarning('Trình duyệt không hỗ trợ Service Worker.');
+                            return true;
+                        }
+
+                        if (!/^https?:$/.test(location.protocol)) {
+                            api.markWarning('Service Worker chỉ hoạt động trên HTTP/HTTPS.');
+                            return true;
+                        }
+
+                        try {
+                            const registration = await navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' });
+                            registration.update().catch(() => {});
+                            return true;
+                        } catch (error) {
+                            api.markWarning('Không đăng ký được Service Worker: ' + (error && error.message ? error.message : error));
+                            return true;
+                        }
+                    })();
+
+                    return state.serviceWorkerPromise;
+                },
+
+                async waitForCloudConnection(options) {
+                    const timeoutMs = Math.max(3000, Number(options && options.timeoutMs) || 18000);
+                    api.setStatus('Đang kết nối Firebase Realtime Database...');
+
+                    if (!navigator.onLine) {
+                        showError('Thiết bị đang ngoại tuyến.', 'Cần Internet để lấy dữ liệu mới nhất từ đám mây.', 'network');
+                        return false;
+                    }
+
+                    const database = (typeof db !== 'undefined' ? db : window.db);
+
+                    if (!database || typeof database.ref !== 'function') {
+                        showError('Firebase Database chưa được khởi tạo.', 'Không tìm thấy đối tượng db.ref().', 'runtime');
+                        return false;
+                    }
+
+                    return await new Promise(resolve => {
+                        let settled = false;
+                        const ref = database.ref('.info/connected');
+
+                        const finish = ok => {
+                            if (settled) return;
+                            settled = true;
+                            clearTimeout(timer);
+                            try { ref.off('value', handler); } catch (_) {}
+                            if (!ok) {
+                                showError(
+                                    'Không kết nối được máy chủ Firebase.',
+                                    `Đã chờ ${Math.round(timeoutMs / 1000)} giây nhưng máy chủ chưa phản hồi. Dữ liệu đám mây chưa đủ nên giao diện chưa được mở.`,
+                                    'network'
+                                );
+                            }
+                            resolve(ok);
+                        };
+
+                        const handler = snapshot => {
+                            if (snapshot && snapshot.val() === true) finish(true);
+                        };
+
+                        const timer = setTimeout(() => finish(false), timeoutMs);
+                        ref.on('value', handler, error => {
+                            showError('Firebase trả về lỗi kết nối.', error && error.message ? error.message : error, 'network');
+                            finish(false);
+                        });
+                    });
+                },
+
+                async runStage(key, label, task) {
+                    if (label) state.labels.set(key, label);
+                    api.setStatus('Đang tải: ' + (label || key) + '...');
+                    try {
+                        const result = await task();
+                        api.markReady(key, label);
+                        return result;
+                    } catch (error) {
+                        showError('Không tải được: ' + (label || key), error && error.message ? error.message : error, 'cloud');
+                        throw error;
+                    }
+                },
+
+                async waitForExpected(options) {
+                    const timeoutMs = Math.max(5000, Number(options && options.timeoutMs) || 30000);
+                    const started = Date.now();
+                    api.setStatus('Đang chờ các dữ liệu bắt buộc từ đám mây...');
+
+                    while (getMissing().length) {
+                        if (Date.now() - started >= timeoutMs) {
+                            const missing = getMissing();
+                            showError(
+                                'Một số dữ liệu bắt buộc chưa phản hồi.',
+                                'Còn thiếu: ' + missing.map(key => state.labels.get(key) || key).join(', '),
+                                'timeout'
+                            );
+                            return false;
+                        }
+                        await sleep(120);
+                    }
+
+                    return true;
+                },
+
+                async waitForMedia(options) {
+                    const timeoutMs = Math.max(1000, Number(options && options.timeoutMs) || 7000);
+                    const quietMs = Math.max(0, Number(options && options.quietMs) || 350);
+                    api.setStatus('Đang hoàn thiện ảnh và nội dung web...');
+
+                    const media = [...document.querySelectorAll('img[src], iframe[data-startup-video="1"]')]
+                        .filter(el => el.getAttribute('src'));
+
+                    const waits = media.map(el => new Promise(resolve => {
+                        if (el.tagName === 'IMG' && el.complete) return resolve();
+                        let done = false;
+                        const finish = () => {
+                            if (done) return;
+                            done = true;
+                            el.removeEventListener('load', finish);
+                            el.removeEventListener('error', finish);
+                            resolve();
+                        };
+                        el.addEventListener('load', finish, { once: true });
+                        el.addEventListener('error', finish, { once: true });
+                        setTimeout(finish, Math.min(timeoutMs, 5000));
+                    }));
+
+                    await Promise.race([
+                        Promise.all(waits),
+                        sleep(timeoutMs)
+                    ]);
+                    if (quietMs) await sleep(quietMs);
+                    return true;
+                },
+
+                hide(force) {
+                    if (state.hidden) return true;
+                    if (state.blocked && force !== true) return false;
+                    if (getMissing().length && force !== true) {
+                        showError('Dữ liệu chưa đủ để mở giao diện.', 'Còn thiếu: ' + getMissing().join(', '), 'timeout');
+                        return false;
+                    }
+
+                    const loader = byId('appStartupLoader');
+                    if (!loader) return true;
+                    state.hidden = true;
+                    loader.setAttribute('aria-busy', 'false');
+                    loader.classList.add('is-hidden');
+                    setTimeout(() => loader.remove(), 380);
+                    return true;
+                },
+
+                retry() {
+                    location.reload();
+                },
+
+                openStatusPage() {
+                    const target = new URL('./offline.html', location.href);
+                    target.searchParams.set('from', location.href);
+                    location.href = target.href;
+                },
+
+                diagnostics() {
+                    return {
+                        online: navigator.onLine,
+                        expected: [...state.expected],
+                        ready: [...state.ready],
+                        missing: getMissing(),
+                        warnings: [...state.warnings],
+                        resourceErrors: [...state.resourceErrors]
+                    };
+                }
+            };
+
+            window.AppStartupLoader = api;
+
+            window.addEventListener('online', updateNetworkLabel);
+            window.addEventListener('offline', updateNetworkLabel);
+            updateNetworkLabel();
+
+            window.addEventListener('error', event => {
+                const target = event.target;
+                if (target && target !== window && (target.src || target.href)) {
+                    const url = target.src || target.href;
+                    state.resourceErrors.push(url);
+
+                    let isCriticalLocalResource = false;
+                    try {
+                        const parsed = new URL(url, location.href);
+                        isCriticalLocalResource =
+                            parsed.origin === location.origin &&
+                            (target.tagName === 'SCRIPT' || target.tagName === 'LINK');
+                    } catch (_) {}
+
+                    if (isCriticalLocalResource) {
+                        showError(
+                            'Không tải được tài nguyên bắt buộc của website.',
+                            url,
+                            'resource'
+                        );
+                    } else {
+                        api.markWarning('Không tải được tài nguyên: ' + url);
+                    }
+                }
+            }, true);
+
+            window.addEventListener('unhandledrejection', event => {
+                if (state.hidden) return;
+                const reason = event.reason;
+                const message = reason && reason.message ? reason.message : reason;
+                showError('Có lỗi trong quá trình khởi động.', message || 'Promise bị từ chối nhưng không có thông báo chi tiết.', 'runtime');
+            });
+        })();
+    </script>
+    <div class="dashboard">
+        <div class="sidebar">
+            <div class="sidebar-toggle" onclick="toggleSidebar()">
+                <span class="toggle-icon">◀</span>
+            </div>
+
+            <div class="sidebar-top">
+                <h3>Bảng điều khiển</h3><br>
+                <button id="teacherAssignmentMainNav" class="nav-item active"
+                    onclick="openTeacherAssignmentWorkspace('create', this)">➕
+                    <span class="nav-text">Giao bài tập mới</span>
+                </button>
+                <button class="nav-item" onclick="switchTab('tab-assigned', this)">📋 <span class="nav-text">Bài tập đã
+                        giao</span></button>
+                <button class="nav-item" onclick="switchTab('tab-list', this)">📥 <span class="nav-text">Danh sách bài
+                        đã nộp</span></button>
+                <button class="nav-item" onclick="switchTab('tab-materials', this)">📚 <span class="nav-text">Tài liệu
+                        học tập</span></button>
+                <button class="nav-item" onclick="switchTab('tab-manage-students', this)">👥 <span class="nav-text">Quản
+                        lý học sinh</span></button>
+                <button class="nav-item" onclick="switchTab('tab-roadmap', this)">🗺️ <span class="nav-text">Lộ
+                        trình & Lịch</span></button>
+                <button id="teacherGameMainNav" class="nav-item" onclick="openTeacherGameWorkspace('game', this)">🎮
+                    <span class="nav-text">Quản lý trò chơi</span>
+                </button>
+                <button class="nav-item" id="btnSettingsNav" onclick="switchTab('tab-settings', this)">⚙️ <span
+                        class="nav-text">Cài đặt</span></button>
+            </div>
+
+            <div class="sidebar-bottom">
+                <button class="btn-logout" onclick="logout()">🚪 <span class="nav-text">Đăng xuất</span></button>
+            </div>
+        </div>
+
+        <div class="content">
+            <div id="tab-create" class="tab-content active">
+                <div class="teacher-assignment-heading-row">
+                    <h2>Giao bài tập mới</h2>
+
+                    <button type="button" id="teacherQuestionBankShortcutToggle"
+                        class="teacher-question-bank-shortcut-toggle" onclick="toggleTeacherQuestionBankShortcut()"
+                        aria-expanded="true" aria-controls="teacherQuestionBankShortcutPanel"
+                        title="Thu gọn Ngân hàng câu hỏi">
+                        <span class="teacher-question-bank-shortcut-toggle-icon" aria-hidden="true">⌃</span>
+                    </button>
+                </div>
+
+                <div id="teacherQuestionBankShortcutPanel" class="teacher-question-bank-shortcut-panel">
+
+                    <button type="button" class="teacher-question-bank-entry"
+                        onclick="openTeacherAssignmentWorkspace('question-bank')" aria-label="Mở Ngân hàng câu hỏi">
+
+                        <span class="teacher-question-bank-entry-icon" aria-hidden="true">
+                            🧠
+                        </span>
+
+                        <span class="teacher-question-bank-entry-text">
+                            <span class="teacher-question-bank-entry-title">
+                                Ngân hàng câu hỏi
+                            </span>
+
+                            <span class="teacher-question-bank-entry-description">
+                                Lưu, tìm kiếm, tái sử dụng câu hỏi và tạo đề ngẫu nhiên
+                            </span>
+                        </span>
+
+                        <span class="teacher-question-bank-entry-arrow" aria-hidden="true">
+                            →
+                        </span>
+                    </button>
+                </div>
+
+                <div class="card form-container">
+                    <label for="assessmentType"><strong>Loại hình kiểm tra:</strong></label>
+                    <select id="assessmentType" onchange="toggleAssessmentFields()">
+                        <option value="tu_luan">Chỉ Tự luận </option>
+                        <option value="trac_nghiem">Chỉ Trắc nghiệm </option>
+                        <option value="ket_hop">Kết hợp cả 2</option>
+                        <option value="thi">Thi</option>
+                    </select>
+
+                    <div id="scoreDistributionFields"
+                        style="display: none; background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; margin-top: 15px; border: 1px dashed #764ba2;">
+                        <label style="color: #764ba2; font-weight: 800; display: block; margin-bottom: 8px;">⚖️ Phân
+                            chia thang điểm 10:</label>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Điểm Trắc nghiệm tối đa:</label>
+                                <input type="number" id="mcWeight" value="4" min="1" max="9" step="0.5"
+                                    oninput="document.getElementById('essayWeight').value = 10 - this.value"
+                                    style="font-weight: bold; color: #d35400; margin-bottom: 0;">
+                            </div>
+                            <div class="form-group">
+                                <label>Điểm Tự luận tối đa:</label>
+                                <input type="number" id="essayWeight" value="6" readonly
+                                    style="background: rgba(0,0,0,0.05); font-weight: bold; margin-bottom: 0;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <label for="title"><strong>Tiêu đề bài tập:</strong></label>
+                    <input type="text" id="title" placeholder="Nhập tiêu đề bài tập...">
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="startDate">
+                                <strong>Thời gian bắt đầu:</strong>
+                                <span style="font-size: 0.85em; color: #64748b;">
+                                    (Không bắt buộc)
+                                </span>
+                            </label>
+
+                            <input type="datetime-local" id="startDate">
+
+                            <small style="display: block; margin-top: 5px; color: #64748b;">
+                                Để trống thì học sinh được làm ngay.
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="endDate">
+                                <strong>Hạn nộp bài:</strong>
+                                <span style="font-size: 0.85em; color: #64748b;">
+                                    (Không bắt buộc)
+                                </span>
+                            </label>
+
+                            <input type="datetime-local" id="endDate">
+
+                            <small style="display: block; margin-top: 5px; color: #64748b;">
+                                Để trống thì bài không giới hạn thời gian.
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-row" style="align-items: flex-start;">
+                        <div class="form-group" style="flex: 1;">
+                            <label><strong>Giao cho học sinh:</strong></label>
+                            <div class="custom-student-select">
+                                <div class="css-select-trigger" onclick="openCustomStudentSelect('targetStudent')">
+                                    <span id="targetStudent_displayText">Tất cả học sinh</span>
+                                    <span style="color: #9ca3af; font-size: 12px;">▼</span>
+                                </div>
+                                <select id="targetStudent" multiple style="display: none;">
+                                    <option value="all" selected>Tất cả học sinh</option>
+                                </select>
+                            </div>
+                            <p style="margin: 5px 0 15px 0; font-size: 0.85em; color: #d35400;">💡 <strong>Mẹo:</strong>
+                                Giữ phím <strong>Ctrl</strong> để chọn nhiều.</p>
+                        </div>
+
+                        <div class="form-group" style="flex: 1;">
+                            <label><strong>Điều kiện Video:</strong> <span id="videoTotalTimeDisplay"
+                                    style="color: #059669; font-size: 0.9em; font-weight: normal;">(Chưa có
+                                    video)</span></label>
+                            <div
+                                style="display: flex; gap: 5px; align-items: center; background: rgba(255,255,255,0.5); padding: 5px; border-radius: 8px; border: 1px dashed #10b981;">
+                                <input type="number" id="condDay" min="0" placeholder="Ngày"
+                                    style="width: 60px; margin: 0; padding: 5px;" disabled
+                                    oninput="validateConditionInput()"> <span style="font-size: 0.8em;">N</span>
+                                <input type="number" id="condHour" min="0" placeholder="Giờ"
+                                    style="width: 60px; margin: 0; padding: 5px;" disabled
+                                    oninput="validateConditionInput()"> <span style="font-size: 0.8em;">G</span>
+                                <input type="number" id="condMin" min="0" placeholder="Phút"
+                                    style="width: 60px; margin: 0; padding: 5px;" disabled
+                                    oninput="validateConditionInput()"> <span style="font-size: 0.8em;">P</span>
+                                <input type="number" id="condSec" min="0" placeholder="Giây"
+                                    style="width: 60px; margin: 0; padding: 5px;" disabled
+                                    oninput="validateConditionInput()"> <span style="font-size: 0.8em;">s</span>
+                            </div>
+                            <p style="margin: 5px 0 0 0; font-size: 0.8em; color: #666;">Yêu cầu HS xem đạt mốc thời
+                                gian này mới được làm bài.</p>
+                        </div>
+                    </div>
+
+                    <div id="tracNghiemFields"
+                        style="display: none; background: rgba(255,255,255,0.4); padding: 15px; border-radius: 12px; margin-top: 15px; border: 1px solid rgba(255,255,255,0.8);">
+                        <h3 style="margin-bottom: 10px; color: #764ba2; font-size: 1.1em;">Phần Trắc Nghiệm</h3>
+                        <div
+                            style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px dashed #667eea; box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);">
+                            <label style="color: #2c3e50; font-weight: 800; display: block; margin-bottom: 8px;">⚡ Nhập
+                                nhanh từ văn bản (Copy/Paste):</label>
+                            <textarea id="quickImportText" rows="5"
+                                placeholder="Dán nội dung câu hỏi vào đây...&#10;Ví dụ:&#10;Câu 1: Khi làm việc trong phòng thí nghiệm...&#10;A. Tự ý pha chế&#10;B. Tuân thủ nội quy..."></textarea>
+                            <button type="button" id="quickImportButton" onclick="importQuestions()"
+                                style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 10px; margin-top: 10px; font-size: 0.95em;">🔍
+                                Tự động bóc tách câu hỏi</button>
+                        </div>
+                        <div id="questionsContainer"></div>
+                        <button type="button" onclick="addQuestion()"
+                            style="background: rgba(102, 126, 234, 0.1); color: #667eea; border: 2px dashed #667eea; box-shadow: none; margin-top: 10px; width: 100%;">+
+                            Thêm câu hỏi trắc nghiệm</button>
+                        <div id="randomExamConfigPanel"
+                            style="margin-top:15px;padding:15px;border-radius:12px;background:rgba(102,126,234,.08);border:1px dashed rgba(102,126,234,.55);">
+
+                            <label for="enableRandomExam"
+                                style="display:flex;align-items:center;gap:8px;cursor:pointer;margin:0 0 12px;">
+                                <input type="checkbox" id="enableRandomExam" onchange="toggleRandomExamConfig()"
+                                    style="width:20px;height:20px;margin:0;">
+                                <strong>🎲 Tạo nhiều mã đề ngẫu nhiên</strong>
+                            </label>
+
+                            <div id="randomExamConfigFields" style="display:none;">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label><strong>Số câu lấy từ bộ câu hỏi:</strong></label>
+                                        <input type="number" id="randomQuestionCount" min="1" step="1"
+                                            placeholder="Để trống = lấy toàn bộ">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label><strong>Số mã đề:</strong></label>
+                                        <input type="number" id="examVersionCount" min="1" max="50" step="1" value="4">
+                                    </div>
+                                </div>
+
+                                <div
+                                    style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-bottom:12px;">
+                                    <label
+                                        style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.7);padding:10px;border-radius:9px;cursor:pointer;">
+                                        <input type="checkbox" id="shuffleQuestionOrder" checked
+                                            style="width:18px;height:18px;margin:0;">
+                                        <span>Xáo trộn thứ tự câu</span>
+                                    </label>
+
+                                    <label
+                                        style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.7);padding:10px;border-radius:9px;cursor:pointer;">
+                                        <input type="checkbox" id="shuffleAnswerOrder" checked
+                                            style="width:18px;height:18px;margin:0;">
+                                        <span>Xáo trộn đáp án A–D</span>
+                                    </label>
+                                </div>
+
+                                <div class="form-row" style="align-items:end;">
+                                    <div class="form-group">
+                                        <label><strong>Môn:</strong></label>
+                                        <input type="text" id="assignmentQuestionSubject" placeholder="VD: Toán">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label><strong>Lớp:</strong></label>
+                                        <input type="text" id="assignmentQuestionGrade" placeholder="VD: 8">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label><strong>Bài/chủ đề:</strong></label>
+                                        <input type="text" id="assignmentQuestionLesson" placeholder="VD: Bài 3">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label><strong>Mức độ:</strong></label>
+                                        <select id="assignmentQuestionDifficulty">
+                                            <option value="Nhận biết">Nhận biết</option>
+                                            <option value="Thông hiểu">Thông hiểu</option>
+                                            <option value="Vận dụng">Vận dụng</option>
+                                            <option value="Vận dụng cao">Vận dụng cao</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div style="display:flex;flex-wrap:wrap;gap:10px;">
+                                    <button type="button" onclick="previewRandomExamVersions()"
+                                        style="flex:1;min-width:180px;background:linear-gradient(135deg,#667eea,#764ba2);color:white;">
+                                        👁️ Xem thử các mã đề
+                                    </button>
+
+                                    <button type="button" onclick="saveDraftQuestionsToBank()"
+                                        style="flex:1;min-width:180px;background:linear-gradient(135deg,#11998e,#38ef7d);color:white;">
+                                        💾 Lưu câu đang soạn vào ngân hàng
+                                    </button>
+                                </div>
+
+                                <p id="randomExamSummary" style="margin:10px 0 0;color:#475569;font-size:.86em;">
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- VIDEO ĐỘC LẬP VỚI PHẦN TỰ LUẬN -->
+                    <div id="videoLinkGroup" style="margin-top: 15px;">
+                        <label for="videoLink">
+                            <strong>
+                                🎬 Đính kèm Video (Link YouTube - Nếu có):
+                            </strong>
+                        </label>
+
+                        <input type="text" id="videoLink" placeholder="Dán link YouTube vào đây...">
+                    </div>
+
+                    <div id="tuLuanFields" style="margin-top: 15px;">
+                        <label for="desc">
+                            <strong>Yêu cầu bài tập (Tự luận):</strong>
+                        </label>
+
+                        <div id="desc" style="height: 150px; background: white;"></div>
+
+                        <label for="fileInput" class="file-label">
+                            <strong>Đính kèm tài liệu:</strong>
+                        </label>
+
+                        <input type="file" id="fileInput" accept=".docx, .pdf, image/*" multiple>
+
+                        <div class="assignment-option-row">
+                            <label id="fileOnlyOptionLabel" class="assignment-option-item" for="hideEssayText">
+                                <input type="checkbox" id="hideEssayText">
+
+                                <strong>
+                                    📁 Chỉ cho phép nộp bằng Tệp
+                                </strong>
+                            </label>
+
+                            <label class="video-summary-toggle-row" for="enableVideoSummary">
+                                <input type="checkbox" id="enableVideoSummary" disabled
+                                    onchange="handleVideoSummaryToggle('create')">
+
+                                <strong>📝 Tóm tắt</strong>
+
+                                <span id="videoSummaryStatus" class="video-summary-status">
+                                    Dán link video để bật
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="examTimeLimitOption"
+                        style="display: none; margin-top: 12px; padding: 12px; border-radius: 12px; background: rgba(225, 29, 72, 0.07); border: 1px dashed rgba(225, 29, 72, 0.45);">
+
+                        <label for="enableExamTimeLimit"
+                            style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin: 0;">
+
+                            <input type="checkbox" id="enableExamTimeLimit" onchange="toggleExamTimeLimitInput()"
+                                style="width: 20px; height: 20px; margin: 0; cursor: pointer;">
+
+                            <strong>⏱️ Giới hạn thời gian làm bài</strong>
+                        </label>
+
+                        <div id="examTimeLimitInputWrap"
+                            style="display: none; align-items: center; gap: 8px; margin-top: 10px;">
+
+                            <input type="number" id="examTimeLimitMinutes" min="1" step="1" placeholder="VD: 120"
+                                style="width: 150px; margin: 0; background: white;">
+
+                            <strong>phút</strong>
+                        </div>
+
+                        <small style="display: block; margin-top: 8px; color: #64748b; line-height: 1.45;">
+                            Thời gian bắt đầu tính từ lúc học sinh nhấn bắt đầu thi và vào chế độ toàn màn hình.
+                            Hết giờ, hệ thống tự động thu bài nhưng không đánh dấu vi phạm.
+                        </small>
+                    </div>
+
+                    <button type="button" onclick="createAssignment()" style="margin-top: 20px;">
+                        Phát hành bài tập
+                    </button>
+
+                    <!-- Đóng card form-container -->
+                </div>
+
+                <!-- Đóng tab-create -->
+            </div>
+
+            <div id="tab-assigned" class="tab-content">
+                <h2>Danh sách bài tập đã giao</h2>
+                <input type="text" id="searchAssigned" class="search-bar"
+                    placeholder="🔍 Tìm kiếm theo tên bài tập, loại hình..." onkeyup="applyAssignedFilters()">
+                <div id="assignedStudentFilterContainer"
+                    style="display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px;">
+                    <button class="btn-student-filter active" data-id="all"
+                        onclick="setStudentFilter('all', this, 'assigned')">Tất cả</button>
+                </div>
+                <div id="assignedListContainer"></div>
+            </div>
+
+            <div id="tab-list" class="tab-content">
+                <h2>Danh sách bài đã nộp</h2>
+                <input type="text" id="searchSubmissions" class="search-bar"
+                    placeholder="🔍 Tìm kiếm theo tên bài tập..." onkeyup="applySubmissionFilters()">
+                <div id="submittedStudentFilterContainer"
+                    style="display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px;">
+                    <button class="btn-student-filter active" data-id="all"
+                        onclick="setStudentFilter('all', this, 'submitted')">Tất cả</button>
+                </div>
+                <div id="submissionsList"></div>
+            </div>
+
+            <div id="tab-materials" class="tab-content">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
+                    <h2 style="margin: 0;">Quản lý Tài liệu học tập</h2>
+                    <button onclick="openMaterialModal()"
+                        style="width: auto; padding: 12px 25px; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">➕
+                        Thêm tài liệu mới</button>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 15px; color: #2c3e50;">Danh sách tài liệu đã đăng tải</h3>
+                    <input type="text" id="searchMaterials" class="search-bar" placeholder="🔍 Tìm kiếm tài liệu..."
+                        onkeyup="applyMaterialFilters()">
+
+                    <div id="materialsStudentFilterContainer"
+                        style="display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px;">
+                        <button class="btn-student-filter active" data-id="all"
+                            onclick="setStudentFilter('all', this, 'materials')">Tất cả</button>
+                    </div>
+
+                    <div id="teacherMaterialsContainer"></div>
+                </div>
+            </div>
+
+            <div id="tab-manage-students" class="tab-content">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
+                    <h2 style="margin: 0;">Quản lý tài khoản học sinh</h2>
+                    <button onclick="openStudentModal()"
+                        style="width: auto; padding: 12px 25px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">➕
+                        Thêm học sinh mới</button>
+                </div>
+
+                <div class="glass-alert" id="requestsCard" style="display: none; margin-bottom: 25px;">
+                    <h3 style="margin-bottom: 15px; color: #d35400;">🔔 Yêu cầu đổi thông tin</h3>
+                    <div id="requestsListContainer"></div>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 15px; color: #2c3e50;">Danh sách tài khoản</h3>
+                    <input type="text" class="search-bar" placeholder="🔍 Tìm kiếm họ tên, tài khoản, lớp học..."
+                        onkeyup="filterItems('studentsListContainer', this.value)">
+                    <div id="studentsListContainer"></div>
+                </div>
+            </div>
+
+            <div id="tab-transactions" class="tab-content">
+                <div class="teacher-question-bank-heading-row">
+                    <h2>🧾 Nhật ký giao dịch</h2>
+
+                    <button type="button" class="teacher-question-bank-back-button"
+                        onclick="openTeacherGameWorkspace('game')">
+                        ← Quay lại Quản lý trò chơi
+                    </button>
+                </div>
+
+                <div class="card" style="margin-bottom:20px;">
+                    <h3>
+                        🪙 Cộng hoặc trừ Coin
+                    </h3>
+
+                    <p style="color:#64748b;">
+                        Nhập số dương để cộng Coin,
+                        số âm để trừ Coin.
+                    </p>
+
+                    <div style="
+            display:grid;
+            grid-template-columns:
+                repeat(
+                    auto-fit,
+                    minmax(200px,1fr)
+                );
+            gap:12px;
+        ">
+                        <div>
+                            <label>
+                                <strong>
+                                    Học sinh
+                                </strong>
+                            </label>
+
+                            <select id="txCoinStudent" style="
+                        width:100%;
+                        padding:10px;
+                        margin-top:5px;
+                    ">
+                                <option value="">
+                                    -- Chọn học sinh --
+                                </option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label>
+                                <strong>
+                                    Coin thay đổi
+                                </strong>
+                            </label>
+
+                            <input id="txCoinDelta" type="number" step="1" placeholder="Ví dụ: 50 hoặc -20" style="
+                        width:100%;
+                        padding:10px;
+                        margin-top:5px;
+                        box-sizing:border-box;
+                    ">
+                        </div>
+                    </div>
+
+                    <div style="margin-top:12px;">
+                        <label>
+                            <strong>
+                                Lý do
+                            </strong>
+                        </label>
+
+                        <textarea id="txCoinReason" placeholder="Ví dụ: Thưởng bài kiểm tra..." style="
+                    width:100%;
+                    min-height:70px;
+                    padding:10px;
+                    margin-top:5px;
+                    box-sizing:border-box;
+                "></textarea>
+                    </div>
+
+                    <button type="button" class="btn-submit" style="margin-top:12px;" onclick="
+                TransactionHistory
+                    .adjustCoinFromTeacher()
+            ">
+                        ✅ Xác nhận
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div style="
+            display:flex;
+            justify-content:
+                space-between;
+            align-items:center;
+            gap:10px;
+            flex-wrap:wrap;
+        ">
+                        <h3 style="margin:0;">
+                            📋 Lịch sử thay đổi
+                        </h3>
+
+                        <button type="button" onclick="
+                    TransactionHistory
+                        .loadTeacherLogs()
+                ">
+                            🔄 Tải lại
+                        </button>
+                    </div>
+
+                    <div style="
+            display:grid;
+            grid-template-columns:
+                repeat(
+                    auto-fit,
+                    minmax(180px,1fr)
+                );
+            gap:10px;
+            margin:16px 0;
+        ">
+                        <input id="transactionSearch" type="search" placeholder="Tìm học sinh hoặc nội dung..." oninput="
+                    TransactionHistory
+                        .renderTeacherLogs()
+                " style="padding:10px;">
+
+                        <select id="transactionTypeFilter" onchange="
+                    TransactionHistory
+                        .renderTeacherLogs()
+                " style="padding:10px;">
+                            <option value="all">
+                                Tất cả loại
+                            </option>
+
+                            <option value="coin_adjustment">
+                                Điều chỉnh Coin
+                            </option>
+
+                            <option value="coin_change">
+                                Biến động Coin
+                            </option>
+
+                            <option value="grade_change">
+                                Đổi điểm
+                            </option>
+
+                            <option value="store_purchase">
+                                Mua vật phẩm
+                            </option>
+
+                            <option value="inventory_grant">
+                                Nhận vật phẩm
+                            </option>
+
+                            <option value="discount_used">
+                                Dùng mã giảm giá
+                            </option>
+
+                            <option value="coin_conversion">
+                                Quy đổi Coin/Tiền
+                            </option>
+
+                            <option value="profile_request_decision">
+                                Duyệt đổi thông tin
+                            </option>
+                        </select>
+
+                        <select id="transactionStatusFilter" onchange="
+                    TransactionHistory
+                        .renderTeacherLogs()
+                " style="padding:10px;">
+                            <option value="all">
+                                Tất cả trạng thái
+                            </option>
+
+                            <option value="active">
+                                Đang có hiệu lực
+                            </option>
+
+                            <option value="undone">
+                                Đã hoàn tác
+                            </option>
+
+                            <option value="undoing">
+                                Đang hoàn tác
+                            </option>
+                        </select>
+                    </div>
+
+                    <div id="transactionLogList">
+                        Chưa tải nhật ký.
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-roadmap" class="tab-content">
+                <h2>Lộ trình & Thời khóa biểu</h2>
+
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button id="btnSubRoadmap" onclick="toggleRoadmapView('roadmap')"
+                        style="flex: 1; padding: 12px; border-radius: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-weight: bold; border: none; cursor: pointer; transition: 0.3s;">🗺️
+                        Lộ trình học tập</button>
+                    <button id="btnSubSchedule" onclick="toggleRoadmapView('schedule')"
+                        style="flex: 1; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.5); color: #667eea; font-weight: bold; border: 2px solid #667eea; cursor: pointer; transition: 0.3s;">📅
+                        Thời khóa biểu</button>
+                </div>
+
+                <div id="view-roadmap">
+                    <div class="card">
+                        <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
+                            <button onclick="downloadRoadmapPDF()"
+                                style="background: #e11d48; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9em; display: flex; align-items: center; gap: 5px;">
+                                📄 Tải xuống PDF
+                            </button>
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table style="width:100%; border-collapse: collapse; text-align: left;">
+                                <thead>
+                                    <tr
+                                        style="background:rgba(255,255,255,0.7); border-bottom: 2px solid rgba(0,0,0,0.05);">
+                                        <th style="padding:15px; min-width: 15px;">Bài học</th>
+
+                                        <th style="padding:15px; white-space: nowrap;">
+                                            Số điểm
+                                            <select id="roadmapStudentSelect" onchange="renderTeacherRoadmap()"
+                                                style="width: auto; padding: 4px 8px; margin: 0 0 0 5px; display: inline-block; font-size: 0.85em; border-radius: 6px; border: 1px solid rgba(0,0,0,0.15);">
+                                                <option value="">Chọn HS</option>
+                                            </select>
+                                        </th>
+
+                                        <th style="padding:15px; text-align: center; white-space: nowrap;">Tình
+                                            trạng
+                                        </th>
+
+                                        <th style="padding:15px;">Cộng tiền</th>
+                                        <th style="padding:15px;">Hạn nộp</th>
+                                        <th style="padding:15px;">Điều kiện cụ thể</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="teacherRoadmapBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-schedule" style="display: none;">
+                    <div class="card">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 15px;">
+                            <h3 style="margin: 0; color: #2c3e50;">Thời khóa biểu lớp học</h3>
+                            <button onclick="openScheduleModal()"
+                                style="width: auto; padding: 10px 20px; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); margin: 0;">➕
+                                Thêm lịch học</button>
+                        </div>
+
+                        <div id="scheduleStudentFilterContainer"
+                            style="display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px;">
+                            <button class="btn-student-filter active" data-id="all"
+                                onclick="setStudentFilter('all', this, 'schedule')">Tất cả</button>
+                        </div>
+
+                        <div style="overflow-x: auto;">
+                            <table style="width:100%; border-collapse: collapse; text-align: left;">
+                                <thead>
+                                    <tr
+                                        style="background:rgba(255,255,255,0.7); border-bottom: 2px solid rgba(0,0,0,0.05);">
+                                        <th style="padding:15px;">Thứ / Ngày</th>
+                                        <th style="padding:15px;">Thời gian</th>
+                                        <th style="padding:15px;">Môn / Nội dung</th>
+                                        <th style="padding:15px;">Ghi chú</th>
+                                        <th style="padding:15px; text-align:center;">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="teacherScheduleBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-game-manage" class="tab-content">
+                <div class="teacher-assignment-heading-row">
+                    <h2>Quản lý trò chơi (Giáo viên)</h2>
+
+                    <button type="button" id="teacherTransactionShortcutToggle"
+                        class="teacher-question-bank-shortcut-toggle" onclick="toggleTeacherTransactionShortcut()"
+                        aria-expanded="true" aria-controls="teacherTransactionShortcutPanel"
+                        title="Thu gọn Nhật ký giao dịch">
+                        <span class="teacher-question-bank-shortcut-toggle-icon" aria-hidden="true">⌃</span>
+                    </button>
+                </div>
+
+                <div id="teacherTransactionShortcutPanel" class="teacher-question-bank-shortcut-panel">
+
+                    <button type="button" class="teacher-question-bank-entry"
+                        onclick="openTeacherGameWorkspace('transactions')" aria-label="Mở Nhật ký giao dịch">
+
+                        <span class="teacher-question-bank-entry-icon" aria-hidden="true">
+                            🧾
+                        </span>
+
+                        <span class="teacher-question-bank-entry-text">
+                            <span class="teacher-question-bank-entry-title">
+                                Nhật ký giao dịch
+                            </span>
+
+                            <span class="teacher-question-bank-entry-description">
+                                Điều chỉnh Coin, xem lịch sử thay đổi và hoàn tác giao dịch
+                            </span>
+                        </span>
+
+                        <span class="teacher-question-bank-entry-arrow" aria-hidden="true">
+                            →
+                        </span>
+                    </button>
+                </div>
+
+                <div class="card">
+                    <h3 style="color: #764ba2; margin-bottom: 12px;">Kho lưu trữ & Thiết lập Sự kiện</h3>
+                    <p style="color: #666; font-style: italic;">Quản lý trạng thái đóng/mở khu vực trò chơi
+                        chung,
+                        cấu
+                        hình vòng quay và cửa hàng đổi thưởng.</p>
+                </div>
+
+                <div class="card accordion-card" style="margin-top: 20px;">
+                    <div class="accordion-header" onclick="toggleAccordion('wheelManageView', this)">
+                        <div class="accordion-title">
+                            <h3 style="color: #d35400; margin: 0; display: flex; align-items: center; gap: 8px;">
+                                🎡
+                                Quản
+                                lý Vòng quay may mắn</h3>
+                        </div>
+                        <div class="accordion-meta"><span class="toggle-icon">▼</span></div>
+                    </div>
+
+                    <div id="wheelManageView" class="accordion-content">
+
+                        <label
+                            style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 15px; background: rgba(255,255,255,0.4); padding: 12px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.05);">
+                            <input type="checkbox" id="gameToggle" onchange="toggleGameStatus(this.checked)"
+                                style="width: 22px; height: 22px; margin: 0; cursor: pointer;">
+                            <strong style="color: #2c3e50; font-size: 0.95em;">Cho phép học sinh truy cập mục
+                                Trò
+                                chơi
+                                (Bật = Mở khóa)</strong>
+                        </label>
+
+                        <div id="gameLockMessageArea"
+                            style="display: none; background: rgba(225, 29, 72, 0.05); padding: 15px; border-radius: 12px; border: 1px dashed #e11d48; margin-bottom: 20px;">
+                            <label><strong style="color: #b91c1c; font-size: 0.9em;">💬 Nhập tin nhắn thông báo
+                                    lý
+                                    do
+                                    khóa mục trò chơi:</strong></label>
+                            <input type="text" id="gameLockMessage"
+                                placeholder="Ví dụ: Đã hết giờ chơi giải trí, các em tập trung làm bài tập nhé!..."
+                                style="background: white; border: 1px solid rgba(0,0,0,0.12); margin-top: 8px; margin-bottom: 10px;">
+                            <button type="button" onclick="saveGameLockMessage()"
+                                style="width: auto; padding: 10px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Xác
+                                nhận khóa & Gửi tin nhắn</button>
+                        </div>
+
+                        <div
+                            style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; border: 1px dashed #d35400; margin-bottom: 20px;">
+                            <h4 style="color: #d35400; margin-top: 0; margin-bottom: 10px;">⚙️ Tùy chỉnh tỉ lệ
+                                nhận
+                                thưởng</h4>
+                            <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;"><i>Tổng của tất cả
+                                    các ô
+                                    phải
+                                    <strong>đúng bằng 100%</strong>.</i></p>
+
+                            <div
+                                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; align-items: end;">
+                                <div>
+                                    <label style="font-size: 0.8em; font-weight: bold; color: #555;">May mắn
+                                        (%)</label>
+                                    <input type="number" id="probMiss" value="50" min="0" max="100"
+                                        style="margin:0; background: white; text-align: center; font-weight: bold; padding: 8px;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.8em; font-weight: bold; color: #1e90ff;">50 Coin
+                                        (%)</label>
+                                    <input type="number" id="prob100" value="20" min="0" max="100"
+                                        style="margin:0; background: white; text-align: center; font-weight: bold; padding: 8px;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.8em; font-weight: bold; color: #2ed573;">70 Coin
+                                        (%)</label>
+                                    <input type="number" id="prob150" value="25" min="0" max="100"
+                                        style="margin:0; background: white; text-align: center; font-weight: bold; padding: 8px;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.8em; font-weight: bold; color: #ffa502;">200 Coin
+                                        (%)</label>
+                                    <input type="number" id="prob500" value="4" min="0" max="100"
+                                        style="margin:0; background: white; text-align: center; font-weight: bold; padding: 8px;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.8em; font-weight: bold; color: #ff4757;">Bí ẩn
+                                        (%)</label>
+                                    <input type="number" id="probGift" value="1" min="0" max="100"
+                                        style="margin:0; background: white; text-align: center; font-weight: bold; padding: 8px;">
+                                </div>
+                            </div>
+
+                            <p id="probErrorMsg"
+                                style="color: #e11d48; font-weight: bold; font-size: 0.9em; margin-top: 10px; display: none;">
+                            </p>
+
+                            <button onclick="saveWheelProbabilities()"
+                                style="margin-top: 15px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white; border: none; font-weight: bold; width: 100%; padding: 10px;">💾
+                                Lưu cấu hình tỉ lệ</button>
+                        </div>
+
+                        <div class="card accordion-card" style="margin-top: 20px;">
+                            <div class="accordion-header" onclick="toggleAccordion('ticketManageView', this)">
+                                <div class="accordion-title">
+                                    <h3
+                                        style="color: #059669; margin: 0; display: flex; align-items: center; gap: 8px;">
+                                        🎫 Quản lý vé quay may mắn</h3>
+                                </div>
+                                <div class="accordion-meta"><span class="toggle-icon">▼</span></div>
+                            </div>
+
+                            <div id="ticketManageView" class="accordion-content">
+                                <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">Chọn học sinh để
+                                    kiểm
+                                    tra
+                                    số dư vé hiện tại và thực hiện cộng/trừ vé thủ công.</p>
+
+                                <div style="display: flex; flex-direction: column; gap: 15px;">
+                                    <div>
+                                        <label
+                                            style="font-weight: bold; font-size: 0.9em; display: block; margin-bottom: 5px;">👤
+                                            Chọn học sinh:</label>
+                                        <select id="ticketStudentSelect" onchange="onTicketStudentChange()"
+                                            style="width: 100%; padding: 10px; border-radius: 8px; border: 2px dashed #ccc; font-size: 0.95em; cursor: pointer; outline: none; transition: 0.3s;"
+                                            onfocus="this.style.borderColor='#3b82f6'"
+                                            onblur="this.style.borderColor='#ccc'">
+                                            <option value="">-- Đang tải danh sách học sinh... --</option>
+                                        </select>
+                                    </div>
+
+                                    <div
+                                        style="background: rgba(16, 185, 129, 0.1); padding: 15px; border-radius: 8px; border: 1px dashed #10b981; text-align: center;">
+                                        <span style="font-size: 1em; color: #059669; font-weight: bold;">Số vé
+                                            học
+                                            sinh
+                                            đang có: </span><br>
+                                        <span id="currentTicketDisplay"
+                                            style="font-size: 2em; color: #10b981; font-weight: 900; line-height: 1.2;">0</span>
+                                        <span style="font-size: 1.2em; color: #10b981;">🎫</span>
+                                    </div>
+
+                                    <div>
+                                        <label
+                                            style="font-weight: bold; font-size: 0.9em; display: block; margin-bottom: 5px;">⚙️
+                                            Số lượng vé cần điều chỉnh:</label>
+                                        <input type="number" id="ticketModifyAmount" placeholder="Nhập số vé..." min="1"
+                                            style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 0.95em; margin-bottom: 10px;">
+                                    </div>
+
+                                    <div style="display: flex; gap: 10px;">
+                                        <button onclick="modifyStudentTickets('add')"
+                                            style="flex: 1; padding: 10px; font-weight: bold; font-size: 0.95em; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3); transition: 0.2s;">➕
+                                            Cộng Thêm Vé</button>
+                                        <button onclick="modifyStudentTickets('sub')"
+                                            style="flex: 1; padding: 10px; font-weight: bold; font-size: 0.95em; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3); transition: 0.2s;">➖
+                                            Trừ Bớt Vé</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05);">
+                            <h4 style="color: #059669; margin-top: 0; margin-bottom: 15px;">📊 Lịch sử quay
+                                thưởng
+                            </h4>
+
+                            <div
+                                style="overflow-x: auto; max-height: 350px; overflow-y: auto; border-radius: 8px; border: 1px solid rgba(0,0,0,0.05);">
+                                <table style="width:100%; border-collapse: collapse; text-align: left;">
+                                    <thead style="position: sticky; top: 0; z-index: 1;">
+                                        <tr style="background:#f8f9fa; border-bottom: 2px solid rgba(0,0,0,0.05);">
+                                            <th style="padding:12px; font-size: 0.9em;">Học sinh</th>
+                                            <th style="padding:12px; text-align: center; font-size: 0.9em;">Thời
+                                                gian
+                                            </th>
+                                            <th style="padding:12px; font-size: 0.9em;">Kết quả</th>
+                                            <th style="padding:12px; text-align: center; font-size: 0.9em;">Xóa
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="spinHistoryBody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="card accordion-card" style="margin-top: 20px;">
+                    <div class="accordion-header" onclick="toggleAccordion('storeManageView', this)">
+                        <div class="accordion-title">
+                            <h3 style="color: #10b981; margin: 0; display: flex; align-items: center; gap: 8px;">
+                                🛒
+                                Quản
+                                lý
+                                Cửa hàng</h3>
+                        </div>
+                        <div class="accordion-meta"><span class="toggle-icon">▼</span></div>
+                    </div>
+
+                    <div id="storeManageView" class="accordion-content">
+                        <label
+                            style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 15px; background: rgba(255,255,255,0.4); padding: 12px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.05);">
+                            <input type="checkbox" id="storeToggle" onchange="toggleStoreStatus(this.checked)"
+                                style="width: 22px; height: 22px; margin: 0; cursor: pointer;">
+                            <strong style="color: #2c3e50; font-size: 0.95em;">Mở cửa hàng cho học sinh truy
+                                cập</strong>
+                        </label>
+
+                        <div
+                            style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; border: 1px dashed #f59e0b; margin-bottom: 20px;">
+                            <h4 style="color: #d97706; margin-top: 0; margin-bottom: 15px;">✏️ Chỉnh sửa hàng
+                                hóa
+                            </h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Tên hàng hóa:</label>
+                                    <select id="editStoreItemId" onchange="loadStoreItemDetails()"
+                                        style="font-weight: bold; color: #764ba2; width: 100%; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                        <option value="">-- Chọn hàng hóa cần sửa --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Giá (Coin):</label>
+                                    <input type="number" id="editStoreItemPrice" min="0" placeholder="Nhập giá mới...">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Ngày mở bán:</label>
+                                    <input type="datetime-local" id="editStoreItemStart">
+                                </div>
+                                <div class="form-group">
+                                    <label>Ngày kết thúc:</label>
+                                    <input type="datetime-local" id="editStoreItemEnd">
+                                </div>
+                            </div>
+
+                            <button onclick="updateStoreItem()"
+                                style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white; width: 100%; margin-top: 10px;">Lưu
+                                thay đổi</button>
+                        </div>
+
+
+                        <div
+                            style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05);">
+                            <h4 style="color: #2c3e50; margin-top: 0; margin-bottom: 15px;">📦 Danh sách Hàng
+                                hóa
+                            </h4>
+                            <div id="teacherStoreItemsList"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card accordion-card" style="margin-top: 20px;">
+                    <div class="accordion-header" onclick="toggleAccordion('royalBallManageView', this)">
+                        <div class="accordion-title">
+                            <h3 style="color: #c0392b; margin: 0; display: flex; align-items: center; gap: 8px;">
+                                🏰
+                                Quản
+                                lý Dạ Hội Hoàng Gia</h3>
+                        </div>
+                        <div class="accordion-meta"><span class="toggle-icon">▼</span></div>
+                    </div>
+
+                    <div id="royalBallManageView" class="accordion-content">
+                        <div
+                            style="background: rgba(0, 0, 0, 0.03); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid rgba(0,0,0,0.08);">
+                            <label
+                                style="font-weight: bold; display: block; margin-bottom: 8px; color: #333; font-size: 0.95em;">🚫
+                                Quyền đóng/mở sự kiện khẩn cấp:</label>
+                            <button id="btnToggleRoyalStatus" onclick="RoyalBallEvent.toggleStatusByTeacher()"
+                                data-status="open"
+                                style="color: white; font-weight: bold; padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 1em; width: 100%; transition: all 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                                🟢 Sự Kiện Đang: MỞ CHO HỌC SINH (Bấm để KHÓA)
+                            </button>
+                            <p
+                                style="font-size: 0.85em; color: #e11d48; margin-top: 6px; margin-bottom: 0; font-style: italic;">
+                                *Lưu ý: Khi trạng thái hiển thị KHÓA, học sinh bấm tham gia sẽ bị chặn ngay lập
+                                tức,
+                                bất
+                                kể có đang trong thời gian từ 29/07 đến 01/05 hay không.
+                            </p>
+                        </div>
+                        <div
+                            style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; border: 1px dashed #c0392b; margin-bottom: 20px;">
+                            <h4 style="color: #c0392b; margin-top: 0; margin-bottom: 10px;">⚙️ Tùy chỉnh tỉ lệ
+                                rớt
+                                đồ Sự
+                                Kiện</h4>
+                            <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;"><i>Học sinh tham gia
+                                    sẽ
+                                    nhận
+                                    Vật phẩm (Tag: Truyền thuyết) hoặc Coin ngẫu nhiên. Tổng phải <strong>đúng
+                                        100%</strong>.</i></p>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; align-items: end;">
+                                <div>
+                                    <label style="font-size: 0.9em; font-weight: bold; color: #e11d48;">Ra VP
+                                        Truyền
+                                        thuyết (%)</label>
+                                    <input type="number" id="probRoyalItem" value="5" min="0" max="100"
+                                        style="margin:0; background: white; text-align: center; font-weight: bold; padding: 10px;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.9em; font-weight: bold; color: #059669;">Ra Coin
+                                        ngẫu
+                                        nhiên (%)</label>
+                                    <input type="number" id="probRoyalCoin" value="95" min="0" max="100"
+                                        style="margin:0; background: white; text-align: center; font-weight: bold; padding: 10px;">
+                                </div>
+                            </div>
+
+                            <p id="royalErrorMsg"
+                                style="color: #e11d48; font-weight: bold; font-size: 0.9em; margin-top: 10px; display: none;">
+                            </p>
+
+                            <button onclick="RoyalBallEvent.saveSettings()"
+                                style="margin-top: 15px; background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%); color: white; border: none; font-weight: bold; width: 100%; padding: 10px; border-radius: 8px;">💾
+                                Lưu cấu hình Dạ hội</button>
+                        </div>
+
+                        <div
+                            style="background: rgba(255, 255, 255, 0.6); padding: 15px; border-radius: 12px; border: 1px solid #fda085; margin-bottom: 15px;">
+                            <h4 style="color: #c0392b; margin-top: 0; margin-bottom: 8px;">📅 Thiết lập Lịch Sự
+                                Kiện
+                            </h4>
+                            <p style="font-size: 0.85em; color: #555; margin-bottom: 12px;">
+                                <i>Mặc định hệ thống chạy theo lịch cố định hằng năm (29/07 - 01/05). Tích chọn
+                                    bên
+                                    dưới
+                                    để tổ chức sớm hoặc kéo dài tùy ý.</i>
+                            </p>
+
+                            <label
+                                style="display: flex; align-items: center; gap: 8px; font-weight: bold; cursor: pointer; color: #2c3e50; margin-bottom: 12px; font-size: 0.95em;">
+                                <input type="checkbox" id="useCustomDates" style="width: auto; margin: 0;"> Kích
+                                hoạt
+                                thời gian tùy chỉnh (Tổ chức sớm / Kéo dài)
+                            </label>
+
+                            <div id="royalCustomDatesArea"
+                                style="display: none; background: rgba(0,0,0,0.02); padding: 12px; border-radius: 8px; border: 1px dashed #ccc;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                    <div>
+                                        <label
+                                            style="font-size: 0.85em; font-weight: bold; color: #444; display: block; margin-bottom: 4px;">Ngày
+                                            bắt đầu mở:</label>
+                                        <input type="date" id="royalStartDate"
+                                            style="margin: 0; background: white; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                    </div>
+                                    <div>
+                                        <label
+                                            style="font-size: 0.85em; font-weight: bold; color: #444; display: block; margin-bottom: 4px;">Ngày
+                                            kết thúc khóa:</label>
+                                        <input type="date" id="royalEndDate"
+                                            style="margin: 0; background: white; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p style="font-size:0.85em; color:#888; font-style:italic;">*Lịch sử nhận thưởng từ Dạ
+                            hội
+                            sẽ
+                            được gộp chung vào bảng Lịch sử quay thưởng phía trên để dễ theo dõi.</p>
+                    </div>
+                </div>
+
+                <div class="card accordion-card" style="margin-top: 20px;">
+                    <div class="accordion-header" onclick="toggleAccordion('leaderboardManageView', this)">
+                        <div class="accordion-title">
+                            <h3 style="color: #f39c12; margin: 0; display: flex; align-items: center; gap: 8px;">
+                                🏆
+                                Quản
+                                lý Bảng Xếp Hạng Thi Đua</h3>
+                        </div>
+                        <div class="accordion-meta"><span class="toggle-icon">▼</span></div>
+                    </div>
+
+                    <div id="leaderboardManageView" class="accordion-content">
+                        <!-- 1. Tắt/Mở Bảng Xếp Hạng -->
+                        <label
+                            style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 15px; background: rgba(255,255,255,0.4); padding: 12px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.05);">
+                            <input type="checkbox" id="lbToggle" onchange="toggleLeaderboardStatus(this.checked)"
+                                style="width: 22px; height: 22px; margin: 0; cursor: pointer;">
+                            <strong style="color: #2c3e50; font-size: 0.95em;">Mở Bảng Xếp Hạng cho học
+                                sinh</strong>
+                        </label>
+
+                        <!-- 2. Đặt lịch mở mùa giải -->
+                        <div
+                            style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; border: 1px dashed #3b82f6; margin-bottom: 20px;">
+                            <h4 style="color: #3b82f6; margin-top: 0; margin-bottom: 10px;">📅 Đặt lịch mùa giải
+                            </h4>
+                            <p style="font-size: 0.9em; color: #666; margin-bottom: 10px;">Hệ thống sẽ tự động
+                                cấu
+                                hình
+                                mùa giải cho tháng tiếp theo nếu bạn đang ở giữa tháng hiện tại.</p>
+                            <p>Mùa giải đang xét: <strong id="currentSeasonDisplay" style="color: #e11d48;">Chưa
+                                    cấu
+                                    hình</strong></p>
+
+                            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                                <button onclick="setNextMonthSeason()"
+                                    style="flex: 2; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer;">📅
+                                    Tự động đặt lịch</button>
+                                <button onclick="deleteCurrentSeason()"
+                                    style="flex: 1; background: linear-gradient(135deg, #e11d48 0%, #ff4d4d 100%); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer;">🗑️
+                                    Xóa lịch</button>
+                            </div>
+                        </div>
+
+                        <!-- 3. Điều chỉnh phần thưởng & Rương -->
+                        <div
+                            style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; border: 1px dashed #f39c12; margin-bottom: 20px;">
+                            <h4 style="color: #f39c12; margin-top: 0; margin-bottom: 10px;">🎁 Điều chỉnh phần
+                                thưởng &
+                                Tỉ lệ Rương</h4>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                                <div>
+                                    <label style="font-size: 0.9em; font-weight: bold;">Thưởng Hạng 3
+                                        (Coin):</label>
+                                    <input type="number" id="lbRewardRank3" min="0"
+                                        style="width: 100%; padding: 8px; margin-top: 5px;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.9em; font-weight: bold;">Thưởng Hạng 4+
+                                        (Coin):</label>
+                                    <input type="number" id="lbRewardRank4" min="0"
+                                        style="width: 100%; padding: 8px; margin-top: 5px;">
+                                </div>
+                            </div>
+
+                            <hr style="border: 0; border-top: 1px dashed #ccc; margin: 15px 0;">
+                            <h5 style="color: #c0392b; margin: 0 0 10px 0;">📦 Tỉ lệ Rương Hạng 1 (Khi chọn mở
+                                Vật
+                                phẩm)
+                            </h5>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                                <div>
+                                    <label style="font-size: 0.8em; font-weight: bold; color: #888;">Trùng lặp
+                                        (%)</label>
+                                    <input type="number" id="lbChestDup" min="0" max="100"
+                                        style="padding: 8px; width: 100%; text-align: center;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.8em; font-weight: bold; color: #2980b9;">VP
+                                        Thường
+                                        (%)</label>
+                                    <input type="number" id="lbChestNorm" min="0" max="100"
+                                        style="padding: 8px; width: 100%; text-align: center;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.8em; font-weight: bold; color: #e11d48;">VP
+                                        Truyền
+                                        Thuyết
+                                        (%)</label>
+                                    <input type="number" id="lbChestLeg" min="0" max="100"
+                                        style="padding: 8px; width: 100%; text-align: center;">
+                                </div>
+                            </div>
+                            <p id="lbErrorMsg"
+                                style="color: #e11d48; font-weight: bold; font-size: 0.85em; display: none; margin-top: 5px;">
+                            </p>
+
+                            <button onclick="saveLeaderboardSettings()"
+                                style="margin-top: 15px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white; border: none; font-weight: bold; width: 100%; padding: 10px; border-radius: 8px;">💾
+                                Lưu cấu hình Phần thưởng</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-question-bank" class="tab-content">
+                <div class="teacher-question-bank-heading-row">
+                    <h2>🧠 Ngân hàng câu hỏi & Đề ngẫu nhiên</h2>
+
+                    <button type="button" class="teacher-question-bank-back-button"
+                        onclick="openTeacherAssignmentWorkspace('create')">
+                        ← Quay lại Giao bài tập mới
+                    </button>
+                </div>
+
+                <div id="questionBankSaveCard" class="card form-container" style="margin-bottom:20px;">
+                    <input type="hidden" id="qbEditingKey">
+
+                    <div
+                        style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:15px;">
+                        <h3 style="margin:0;color:#4338ca;">Lưu câu hỏi</h3>
+
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+
+                            <button type="button" id="questionBankSaveToggle" onclick="toggleQuestionBankSave()"
+                                aria-expanded="false" style="
+            width:auto;
+            background:#eef2ff;
+            color:#4338ca;
+            border:1px solid rgba(79,70,229,.25);
+        ">
+                                ▼ Mở rộng
+                            </button>
+
+                            <button type="button" onclick="importQuestionsFromAssignmentsToBank()"
+                                style="width:auto;background:linear-gradient(135deg,#f59e0b,#f97316);color:white;">
+                                ♻️ Nhập câu hỏi từ bài cũ
+                            </button>
+
+                            <button type="button" onclick="resetQuestionBankForm()"
+                                style="width:auto;background:#e2e8f0;color:#334155;">
+                                Làm mới
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="questionBankSaveContent" style="display:none;">
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label><strong>Môn:</strong></label>
+                                <input id="qbSubject" type="text" placeholder="VD: Toán">
+                            </div>
+
+                            <div class="form-group">
+                                <label><strong>Lớp:</strong></label>
+                                <input id="qbGrade" type="text" placeholder="VD: 8">
+                            </div>
+
+                            <div class="form-group">
+                                <label><strong>Bài/chủ đề:</strong></label>
+                                <input id="qbLesson" type="text" placeholder="VD: Bài 3 - Đa thức">
+                            </div>
+
+                            <div class="form-group">
+                                <label><strong>Mức độ:</strong></label>
+                                <select id="qbDifficulty">
+                                    <option value="Nhận biết">Nhận biết</option>
+                                    <option value="Thông hiểu">Thông hiểu</option>
+                                    <option value="Vận dụng">Vận dụng</option>
+                                    <option value="Vận dụng cao">Vận dụng cao</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <label><strong>Nội dung câu hỏi:</strong></label>
+                        <textarea id="qbText" rows="3" placeholder="Nhập nội dung câu hỏi..."></textarea>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>A.</label>
+                                <input id="qbA" type="text">
+                            </div>
+
+                            <div class="form-group">
+                                <label>B.</label>
+                                <input id="qbB" type="text">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>C.</label>
+                                <input id="qbC" type="text">
+                            </div>
+
+                            <div class="form-group">
+                                <label>D.</label>
+                                <input id="qbD" type="text">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label><strong>Đáp án đúng:</strong></label>
+                                <select id="qbCorrect">
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label><strong>Ghi chú/giải thích:</strong></label>
+                                <input id="qbExplanation" type="text" placeholder="Không bắt buộc">
+                            </div>
+                        </div>
+
+                        <button type="button" onclick="saveQuestionBankItem()"
+                            style="background:linear-gradient(135deg,#4f46e5,#7c3aed);color:white;">
+                            💾 Lưu câu hỏi
+                        </button>
+
+                    </div> <!-- đóng questionBankSaveContent -->
+                </div>
+
+                <div id="questionBankListCard" class="card" style="padding:18px;margin-bottom:20px;">
+
+                    <div
+                        style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
+
+                        <h3 style="margin:0;color:#0f766e;">
+                            Danh sách câu hỏi
+                        </h3>
+
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+
+                            <button type="button" id="questionBankListToggle" onclick="toggleQuestionBankSection(
+                    'questionBankListContent',
+                    'questionBankListToggle',
+                    'questionBankListCollapsed'
+                )" aria-expanded="false" style="
+                    width:auto;
+                    background:#ecfdf5;
+                    color:#0f766e;
+                    border:1px solid rgba(15,118,110,.25);
+                ">
+                                ▼ Mở rộng
+                            </button>
+
+                            <button type="button" onclick="loadQuestionBank(true)"
+                                style="width:auto;background:#0f766e;color:white;">
+                                🔄 Tải lại
+                            </button>
+
+                        </div>
+                    </div>
+
+                    <div id="questionBankListContent" style="display:none;">
+
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;">
+                            <input id="qbSearch" type="text" placeholder="🔍 Tìm nội dung..."
+                                oninput="renderQuestionBank()">
+
+                            <input id="qbFilterSubject" type="text" placeholder="Lọc môn"
+                                oninput="renderQuestionBank()">
+
+                            <input id="qbFilterGrade" type="text" placeholder="Lọc lớp" oninput="renderQuestionBank()">
+
+                            <input id="qbFilterLesson" type="text" placeholder="Lọc bài" oninput="renderQuestionBank()">
+
+                            <select id="qbFilterDifficulty" onchange="renderQuestionBank()">
+                                <option value="">Tất cả mức độ</option>
+                                <option value="Nhận biết">Nhận biết</option>
+                                <option value="Thông hiểu">Thông hiểu</option>
+                                <option value="Vận dụng">Vận dụng</option>
+                                <option value="Vận dụng cao">Vận dụng cao</option>
+                            </select>
+                        </div>
+
+                        <div style="
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin:10px 0;
+">
+                            <p id="qbCount" style="
+        color:#64748b;
+        margin:0;
+    ">
+                            </p>
+
+                            <label style="
+        display:flex;
+        align-items:center;
+        gap:7px;
+        color:#475569;
+        font-size:.9em;
+        font-weight:700;
+    ">
+                                Hiện
+
+                                <select id="qbPageSize" onchange="changeQuestionBankPageSize(this.value)" style="
+                width:auto;
+                min-width:70px;
+                margin:0;
+                padding:7px 9px;
+            ">
+                                    <option value="5" selected>5</option>
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                </select>
+
+                                câu/trang
+                            </label>
+                        </div>
+
+                        <div id="questionBankList" style="
+        display:grid;
+        gap:10px;
+        max-height:70vh;
+        overflow-y:auto;
+        padding-right:5px;
+        scroll-behavior:smooth;
+    ">
+                        </div>
+
+                        <div id="qbPagination" style="
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:14px;
+">
+                        </div>
+
+                    </div> <!-- đóng questionBankListContent -->
+                </div> <!-- đóng questionBankListCard -->
+
+                <div id="questionBankStatsCard" class="card" style="padding:18px;">
+
+                    <div
+                        style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
+
+                        <div>
+                            <h3 style="margin:0;color:#be123c;">
+                                📊 Câu học sinh làm sai nhiều
+                            </h3>
+
+                            <p style="margin:5px 0 0;color:#64748b;font-size:.9em;">
+                                Tính từ dữ liệu bài nộp có lưu kết quả từng câu.
+                            </p>
+                        </div>
+
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+
+                            <button type="button" id="questionBankStatsToggle" onclick="toggleQuestionBankSection(
+                    'questionBankStatsContent',
+                    'questionBankStatsToggle',
+                    'questionBankStatsCollapsed'
+                )" aria-expanded="false" style="
+                    width:auto;
+                    background:#fff1f2;
+                    color:#be123c;
+                    border:1px solid rgba(190,18,60,.25);
+                ">
+                                ▼ Mở rộng
+                            </button>
+
+                            <button type="button" onclick="
+                    setQuestionBankSectionCollapsed(
+                        'questionBankStatsContent',
+                        'questionBankStatsToggle',
+                        'questionBankStatsCollapsed',
+                        false
+                    );
+                    calculateQuestionBankStatistics();
+                " style="width:auto;background:#be123c;color:white;">
+                                Tính lại thống kê
+                            </button>
+
+                        </div>
+                    </div>
+
+                    <div id="questionBankStatsContent" style="display:none;">
+                        <div id="questionBankStats"></div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="tab-settings" class="tab-content">
+                <h2>Cài đặt tài khoản & Hệ thống</h2>
+
+                <div id="updateBannerArea" class="update-banner" style="display: none;">
+                    <div>
+                        <h4 style="margin: 0; font-size: 1.2em;">🚀 Có phiên bản hệ thống mới!</h4>
+                        <p style="margin: 5px 0 0 0; font-size: 0.95em;">Nhấn nút bên cạnh để tải lại toàn bộ
+                            tài
+                            nguyên
+                            web mới nhất.</p>
+                    </div>
+                    <button class="btn-do-update" onclick="applySystemUpdate()">Cập nhật ngay</button>
+                </div>
+
+                <div class="card form-container">
+                    <label><strong>🎨 Giao diện hiển thị:</strong></label>
+                    <select id="themeSelector" onchange="changeTheme(this.value)"
+                        style="margin-bottom: 20px; font-weight: bold; color: #667eea;">
+                        <option value="default">✨ Mặc định (Tím mộng mơ)</option>
+                        <option value="blue">🌊 Xanh biển (Tươi mát)</option>
+                        <option value="green">🌿 Xanh lá (Yên bình)</option>
+                        <option value="pink">🌸 Hồng (Ngọt ngào)</option>
+                    </select>
+
+                    <label><strong>Tên hiển thị của bạn:</strong></label>
+                    <input type="text" id="settingName" placeholder="Nhập tên hiển thị mới...">
+
+                    <label><strong>Mật khẩu mới (để trống nếu không muốn đổi):</strong></label>
+                    <input type="password" id="settingPass" placeholder="Nhập mật khẩu mới...">
+
+                    <button onclick="updateProfile()"
+                        style="margin-top: 15px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: #fff;">💾
+                        Lưu thay đổi tài khoản</button>
+                </div>
+
+                <!-- =====================================================
+     CÀI ĐẶT BỐ CỤC TRANG ĐĂNG NHẬP
+     Chỉ thêm chức năng mới, không ảnh hưởng mục khác
+     ===================================================== -->
+                <div id="loginLayoutSettingsCard" class="card form-container login-layout-settings-card">
+
+                    <div class="login-layout-settings-heading">
+                        <p class="login-layout-settings-kicker">
+                            GIAO DIỆN TRANG ĐĂNG NHẬP
+                        </p>
+
+                        <h3>🖼️ Thay đổi bố cục đăng nhập</h3>
+
+                        <p>
+                            Tùy chọn này chỉ thay đổi cách trình bày trang đăng nhập.
+                            Tài khoản, mật khẩu, Firebase và các chức năng khác
+                            không bị thay đổi.
+                        </p>
+                    </div>
+
+                    <div class="login-layout-choice-grid">
+
+                        <!-- Bố cục 1 -->
+                        <label class="login-layout-choice">
+                            <input type="radio" name="loginPageLayout" value="split"
+                                onchange="updateLoginLayoutNotice(this.value)">
+
+                            <span class="login-layout-choice-preview login-layout-preview-split" aria-hidden="true">
+                                <i></i>
+                                <b></b>
+                            </span>
+
+                            <span class="login-layout-choice-copy">
+                                <strong>1. Bố cục hiện tại</strong>
+
+                                <small>
+                                    Ảnh hoặc video bên trái, khung đăng nhập bên phải.
+                                    Trên điện thoại, phần ảnh được ẩn.
+                                </small>
+                            </span>
+                        </label>
+
+                        <!-- Bố cục 2 -->
+                        <label class="login-layout-choice">
+                            <input type="radio" name="loginPageLayout" value="centered"
+                                onchange="updateLoginLayoutNotice(this.value)">
+
+                            <span class="login-layout-choice-preview login-layout-preview-centered" aria-hidden="true">
+                                <i></i>
+                                <b></b>
+                            </span>
+
+                            <span class="login-layout-choice-copy">
+                                <strong>2. Ảnh phủ toàn bộ khung đăng nhập</strong>
+
+                                <small>
+                                    Ảnh hoặc video phủ toàn bộ chiếc khung lớn bo góc,
+                                    form đăng nhập nằm chính giữa. Nền bên ngoài vẫn giữ nguyên.
+                                </small>
+                            </span>
+                        </label>
+
+                    </div>
+
+                    <!-- Cảnh báo kích thước ảnh thay đổi theo bố cục -->
+                    <div id="loginLayoutSizeWarning" class="login-layout-size-warning" role="note" aria-live="polite">
+                    </div>
+
+                    <button id="saveLoginLayoutButton" type="button" class="login-layout-save-button"
+                        onclick="saveLoginLayoutSetting()">
+                        💾 Lưu bố cục trang đăng nhập
+                    </button>
+                </div>
+
+                <div
+                    style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; border: 1px solid rgba(0,0,0,0.05);">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <strong style="color: #2c3e50;">💱 Tắt/Mở Bảng quy đổi</strong>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="toggleConversionTable"
+                            onchange="toggleConversionSettings(this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div id="teacherCashRequestsSection"
+                    style="margin: 20px 0; padding: 20px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); font-family: system-ui, -apple-system, sans-serif; text-align: left; display: block; clear: both;">
+                    <h3
+                        style="color: #1e3a8a; font-size: 1.2em; margin-top: 0; margin-bottom: 15px; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                        📥 Danh sách Yêu cầu lấy Tiền mặt của Học sinh
+                    </h3>
+
+                    <div id="teacherCashRequestsListContainer"
+                        style="display: grid; gap: 12px; max-height: 400px; overflow-y: auto; padding-right: 5px; box-sizing: border-box;">
+                    </div>
+                </div>
+
+                <div class="glass-alert"
+                    style="margin-top: 30px; border-left-color: #3b82f6; background: rgba(59, 130, 246, 0.05);">
+                    <h3
+                        style="color: #2c3e50; margin-bottom: 10px; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 5px;">
+                        🔍 Trình Quét Lỗi Hệ Thống</h3>
+                    <p style="font-size: 0.9em; color: #555; margin-bottom: 15px;">Công cụ này sẽ rà soát toàn
+                        bộ
+                        tệp
+                        tin, hình ảnh, biến môi trường và luồng dữ liệu hiện tại để phát hiện các nguy cơ tiềm
+                        ẩn
+                        gây
+                        sập web hoặc lỗi chức năng.</p>
+                    <button onclick="runSystemDiagnostics()"
+                        style="width: 100%; padding: 12px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);">🚀
+                        Bắt đầu quét hệ thống</button>
+
+                    <div id="diagnosticResults"
+                        style="display: none; margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.8); border-radius: 8px; max-height: 300px; overflow-y: auto; border: 1px solid rgba(0,0,0,0.1);">
+                        <p style="text-align: center; color: #666;" id="diagnosticStatus">Đang chờ quét...</p>
+                        <ul id="diagnosticList"
+                            style="list-style-type: none; padding: 0; margin: 0; font-size: 0.9em; line-height: 1.6;">
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card form-container" style="margin-top: 20px; position: relative;">
+                    <div style="position: absolute; top: 15px; right: 15px;">
+                        <button onclick="openNotificationHistory()"
+                            style="width: 40px; height: 40px; border-radius: 50%; padding: 0; background: rgba(255,255,255,0.5); color: #667eea; border: 2px solid #667eea; font-weight: bold; font-size: 1.2em; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.2s;"
+                            title="Lịch sử thông báo" onmouseover="this.style.transform='scale(1.1)'"
+                            onmouseout="this.style.transform='scale(1)'">❓</button>
+                    </div>
+                    <h3
+                        style="color: #764ba2; margin-bottom: 15px; border-bottom: 2px solid rgba(118, 75, 162, 0.2); padding-bottom: 10px;">
+                        📢 Thông báo & Khảo sát toàn trường</h3>
+
+                    <label
+                        style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 15px; background: rgba(255,255,255,0.4); padding: 12px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.05);">
+                        <input type="checkbox" id="notificationToggle" onchange="toggleNotificationArea(this.checked)"
+                            style="width: 22px; height: 22px; margin: 0; cursor: pointer;">
+                        <strong style="color: #2c3e50; font-size: 0.95em;">Bật tính năng gửi Thông báo
+                            mới</strong>
+                    </label>
+
+                    <div id="notificationInputArea" style="display: none; animation: fadeInUp 0.4s ease;">
+                        <label><strong>Nội dung thông báo:</strong></label>
+                        <textarea id="globalNotificationMessage"
+                            placeholder="Nhập tin nhắn thông báo gửi đến toàn bộ học sinh... (Ví dụ: Nhắc nhở lịch học, thông báo nghỉ lễ)"
+                            rows="3" style="background: rgba(255,255,255,0.7);"></textarea>
+
+                        <button onclick="sendGlobalNotification()"
+                            style="margin-top: 10px; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">🚀
+                            Gửi
+                            thông báo ngay</button>
+                    </div>
+                </div>
+
+                <div class="card form-container"
+                    style="margin-top: 20px; position: relative; background: linear-gradient(135deg, rgba(255, 154, 158, 0.2) 0%, rgba(254, 207, 239, 0.2) 100%);">
+                    <div style="position: absolute; top: 15px; right: 15px;">
+                        <button onclick="openSurveyHistory()"
+                            style="width: 40px; height: 40px; border-radius: 50%; padding: 0; background: rgba(255,255,255,0.8); color: #e83e8c; border: 2px solid #e83e8c; font-weight: bold; font-size: 1.2em; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.2s;"
+                            title="Lịch sử Khảo sát" onmouseover="this.style.transform='scale(1.1)'"
+                            onmouseout="this.style.transform='scale(1)'">❓</button>
+                    </div>
+                    <h3
+                        style="color: #e83e8c; margin-bottom: 15px; border-bottom: 2px solid rgba(232, 62, 140, 0.2); padding-bottom: 10px;">
+                        📝 Tạo Khảo sát / Lấy ý kiến</h3>
+
+                    <label
+                        style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 15px; background: rgba(255,255,255,0.6); padding: 12px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.05);">
+                        <input type="checkbox" id="surveyToggle" onchange="toggleSurveyArea(this.checked)"
+                            style="width: 22px; height: 22px; margin: 0; cursor: pointer;">
+                        <strong style="color: #2c3e50; font-size: 0.95em;">Bật tính năng tạo Khảo sát
+                            mới</strong>
+                    </label>
+
+                    <div id="surveyInputArea" style="display: none; animation: fadeInUp 0.4s ease;">
+                        <label><strong>Tiêu đề Khảo sát:</strong></label>
+                        <input type="text" id="surveyTitle" placeholder="Ví dụ: Khảo sát chất lượng buổi học hôm nay..."
+                            style="background: white;">
+
+                        <div id="surveyQuestionsBuilder"
+                            style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; border: 1px dashed #e83e8c; margin-bottom: 15px;">
+                        </div>
+
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                            <button onclick="addSurveyQuestion('mc')"
+                                style="background: rgba(102, 126, 234, 0.1); color: #667eea; border: 2px dashed #667eea; box-shadow: none;">+
+                                Thêm câu Trắc nghiệm</button>
+                            <button onclick="addSurveyQuestion('text')"
+                                style="background: rgba(56, 239, 125, 0.1); color: #059669; border: 2px dashed #059669; box-shadow: none;">+
+                                Thêm câu Trả lời chữ</button>
+                        </div>
+
+                        <button onclick="sendGlobalSurvey()"
+                            style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); color: #d32f2f;">🚀
+                            Phát
+                            hành Khảo sát</button>
+                    </div>
+                </div>
+
+                <div class="card form-container"
+                    style="margin-top: 20px; position: relative; background: linear-gradient(135deg, rgba(161, 140, 209, 0.15) 0%, rgba(251, 194, 235, 0.15) 100%);">
+                    <h3
+                        style="color: #764ba2; margin-bottom: 15px; border-bottom: 2px solid rgba(118, 75, 162, 0.2); padding-bottom: 10px;">
+                        🎁 Gửi Quà & Lời Nhắn</h3>
+
+                    <label
+                        style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 15px; background: rgba(255,255,255,0.6); padding: 12px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.05);">
+                        <input type="checkbox" id="giftToggle" onchange="toggleGiftArea(this.checked)"
+                            style="width: 22px; height: 22px; margin: 0; cursor: pointer;">
+                        <strong style="color: #2c3e50; font-size: 0.95em;">Bật tính năng gửi Thư & Quà
+                            tặng</strong>
+                    </label>
+
+                    <div id="giftInputArea" style="display: none; animation: fadeInUp 0.4s ease;">
+                        <label><strong>Gửi đến:</strong></label>
+                        <div class="custom-student-select">
+                            <div class="css-select-trigger" onclick="openCustomStudentSelect('giftTargetStudent')">
+                                <span id="giftTargetStudent_displayText">Tất cả học sinh</span>
+                                <span style="color: #9ca3af; font-size: 12px;">▼</span>
+                            </div>
+                            <select id="giftTargetStudent" multiple style="display: none;">
+                                <option value="all" selected>Tất cả học sinh</option>
+                            </select>
+                        </div>
+                        <p style="margin: 0 0 15px 0; font-size: 0.85em; color: #d35400;">💡 Giữ
+                            <strong>Ctrl</strong>
+                            để chọn nhiều.
+                        </p>
+
+                        <label><strong>Lời nhắn (Không bắt buộc nếu có quà):</strong></label>
+                        <textarea id="giftMessage" placeholder="Nhập lời chúc hoặc tin nhắn gửi đến học sinh..."
+                            rows="3" style="background: white; margin-bottom: 15px;"></textarea>
+
+                        <label><strong>Loại quà đính kèm:</strong></label>
+                        <select id="giftType" onchange="toggleGiftInput()"
+                            style="background: white; margin-bottom: 15px; font-weight: bold; color: #d35400;">
+                            <option value="none">Chỉ gửi thư (Không kèm quà)</option>
+                            <option value="coin">🪙 Tặng Coin</option>
+                            <option value="special_birthday_coin">✨ Tặng Xu Đặc Biệt</option>
+                            <option value="money">💵 Tặng Tiền Lộ Trình (đ)</option>
+                            <option value="item">📦 Tặng Vật Phẩm Cửa Hàng</option>
+                            <option value="ticket">🎫 Tặng Vé Quay May Mắn</option>
+                            <option value="discount">🏷️ Tặng Thẻ giảm giá (%)</option>
+                        </select>
+
+                        <div id="giftValueInputArea" style="display: none; margin-bottom: 15px;">
+                            <label id="giftValueLabel"><strong>Nhập Số lượng / % Giảm / Chọn Vật
+                                    phẩm:</strong></label>
+                            <input type="number" id="giftValueNumber" placeholder="Nhập số lượng..."
+                                style="background: white; display: none; font-weight: bold;">
+                            <select id="giftValueItem"
+                                style="background: white; display: none; font-weight: bold; width: 100%;"></select>
+                        </div>
+
+                        <div id="giftDiscountTargetArea" style="display: none; margin-bottom: 15px;">
+                            <label><strong>Vật phẩm áp dụng (Chỉ dành cho Thẻ giảm giá):</strong></label>
+                            <select id="giftDiscountTargetItem" multiple
+                                style="width: 100%; height: 160px; padding: 12px; overflow-y: auto; line-height: 1.8; border-radius: 8px; border: 1px solid #ccc; font-family: inherit;">
+                                <!-- Các option sẽ được JS đổ vào đây -->
+                            </select>
+                            <p style="margin: 5px 0 0 0; font-size: 0.85em; color: #d35400;">💡
+                                <strong>Mẹo:</strong>
+                                Giữ phím <strong>Ctrl</strong> (hoặc kéo thả trên điện thoại) để chọn nhiều vật
+                                phẩm
+                                cùng lúc. Các vật phẩm sự kiện đã tự động bị ẩn đi.
+                            </p>
+                        </div>
+
+                        <div id="giftExpiryInputArea" style="display: none; margin-bottom: 15px;">
+                            <label><strong>Hạn sử dụng thẻ (Bỏ trống nếu thẻ vĩnh viễn):</strong></label>
+                            <input type="datetime-local" id="giftExpiryDate"
+                                style="background: white; font-weight: bold;">
+                        </div>
+
+                        <button onclick="sendGiftMessage()"
+                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; width: 100%; padding: 12px; font-size: 1.1em;">💌
+                            Gửi Thư & Quà ngay</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="materialModal" class="modal-overlay">
+                <div class="modal-content form-container"
+                    style="max-height: 90vh; display: flex; flex-direction: column; position: relative;">
+                    <button class="close-btn" onclick="closeMaterialModal()">✖</button>
+                    <h3
+                        style="color: #2c3e50; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
+                        Đăng tải bài học mới
+                    </h3>
+
+                    <!-- Vùng nội dung cuộn bên trong pop-up -->
+                    <div style="overflow-y: auto; padding-right: 10px; flex-grow: 1; margin-bottom: 10px;">
+                        <label for="materialTitle"><strong>Tiêu đề tài liệu:</strong></label>
+                        <input type="text" id="materialTitle"
+                            placeholder="Nhập tiêu đề (VD: Bài giảng lý thuyết chương 1)...">
+
+                        <label for="materialVideoLink"><strong>Link Video bài giảng (YouTube - Nếu
+                                có):</strong></label>
+                        <input type="text" id="materialVideoLink" placeholder="Dán link bài giảng YouTube vào đây...">
+
+                        <label for="materialLinkInput"><strong>Link File tài liệu (Google Drive, OneDrive - Nếu
+                                có):</strong></label>
+                        <input type="text" id="materialLinkInput" placeholder="Dán link chia sẻ tài liệu vào đây...">
+
+                        <label><strong>Giao cho học sinh:</strong></label>
+                        <div class="custom-student-select">
+                            <div class="css-select-trigger" onclick="openCustomStudentSelect('materialTargetStudent')">
+                                <span id="materialTargetStudent_displayText">Tất cả học sinh</span>
+                                <span style="color: #9ca3af; font-size: 12px;">▼</span>
+                            </div>
+                            <select id="materialTargetStudent" multiple style="display: none;">
+                                <option value="all" selected>Tất cả học sinh</option>
+                            </select>
+                        </div>
+                        <p style="margin: 0 0 15px 0; font-size: 0.85em; color: #d35400;">💡 Giữ
+                            <strong>Ctrl</strong>
+                            để chọn nhiều.
+                        </p>
+                    </div>
+
+                    <!-- NÚT ĐĂNG TẢI CỐ ĐỊNH (STICKY FOOTER) -->
+                    <button onclick="createMaterial()"
+                        style="position: sticky; bottom: -25px; margin-top: 5px; flex-shrink: 0; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); z-index: 100; box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.15);">
+                        Đăng tải bài học
+                    </button>
+                </div>
+            </div>
+
+            <div id="editMaterialModal" class="modal-overlay">
+                <div class="modal-content form-container"
+                    style="max-height: 90vh; display: flex; flex-direction: column; position: relative;">
+                    <button class="close-btn" onclick="closeEditMaterialModal()">✖</button>
+                    <h3
+                        style="color: #f6d365; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
+                        ✏️ Sửa tài liệu
+                    </h3>
+                    <input type="hidden" id="editMaterialKey">
+
+                    <!-- Vùng nội dung cuộn bên trong pop-up -->
+                    <div style="overflow-y: auto; padding-right: 10px; flex-grow: 1; margin-bottom: 10px;">
+                        <label for="editMaterialTitle"><strong>Tiêu đề tài liệu:</strong></label>
+                        <input type="text" id="editMaterialTitle" placeholder="Nhập tên tài liệu mới...">
+
+                        <label for="editMaterialVideoLink"><strong>Link Video bài giảng (YouTube - Nếu
+                                có):</strong></label>
+                        <input type="text" id="editMaterialVideoLink" placeholder="Dán link bài giảng YouTube mới...">
+
+                        <label for="editMaterialLinkInput"><strong>Link File tài liệu (Google Drive, OneDrive -
+                                Nếu
+                                có):</strong></label>
+                        <input type="text" id="editMaterialLinkInput" placeholder="Dán link chia sẻ tài liệu mới...">
+
+                        <label><strong>Giao cho học sinh:</strong></label>
+                        <div class="custom-student-select">
+                            <div class="css-select-trigger"
+                                onclick="openCustomStudentSelect('editMaterialTargetStudent')">
+                                <span id="editMaterialTargetStudent_displayText">Tất cả học sinh</span>
+                                <span style="color: #9ca3af; font-size: 12px;">▼</span>
+                            </div>
+                            <select id="editMaterialTargetStudent" multiple style="display: none;">
+                                <option value="all" selected>Tất cả học sinh</option>
+                            </select>
+                        </div>
+                        <p style="margin: 0 0 15px 0; font-size: 0.85em; color: #d35400;">💡 Giữ
+                            <strong>Ctrl</strong>
+                            để chọn nhiều.
+                        </p>
+                    </div>
+
+                    <!-- NÚT LƯU THAY ĐỔI CỐ ĐỊNH (STICKY FOOTER) -->
+                    <button onclick="saveMaterialEdit()"
+                        style="position: sticky; bottom: -25px; margin-top: 5px; flex-shrink: 0; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: #fff; z-index: 100; box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.15);">
+                        💾 Lưu thay đổi
+                    </button>
+                </div>
+            </div>
+
+            <div id="scheduleModal" class="modal-overlay">
+                <div class="modal-content form-container"
+                    style="max-height: 90vh; display: flex; flex-direction: column; position: relative;">
+                    <button class="close-btn" onclick="closeScheduleModal()">✖</button>
+                    <h3
+                        style="color: #11998e; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
+                        Quản lý Lịch học
+                    </h3>
+                    <input type="hidden" id="editScheduleKey">
+
+                    <!-- Vùng nội dung cuộn bên trong pop-up -->
+                    <div style="overflow-y: auto; padding-right: 10px; flex-grow: 1; margin-bottom: 10px;">
+                        <label><strong>Thứ / Ngày:</strong></label>
+                        <input type="text" id="scheduleDay" placeholder="VD: Thứ 2, Thứ 3, hoặc 20/11...">
+
+                        <label><strong>Thời gian học:</strong></label>
+                        <input type="text" id="scheduleTime" placeholder="VD: 19:00 - 21:00...">
+
+                        <label><strong>Môn học / Nội dung:</strong></label>
+                        <input type="text" id="scheduleSubject" placeholder="VD: Toán Đại Số - Chương 1...">
+
+                        <label><strong>Ghi chú thêm:</strong></label>
+                        <input type="text" id="scheduleNote" placeholder="VD: Nhớ mang theo máy tính bỏ túi...">
+
+                        <label style="margin-top: 15px; display: block;"><strong>Áp dụng cho học
+                                sinh:</strong></label>
+                        <div class="custom-student-select">
+                            <div class="css-select-trigger" onclick="openCustomStudentSelect('scheduleTargetStudent')">
+                                <span id="scheduleTargetStudent_displayText">Tất cả học sinh</span>
+                                <span style="color: #9ca3af; font-size: 12px;">▼</span>
+                            </div>
+                            <select id="scheduleTargetStudent" multiple style="display: none;">
+                                <option value="all" selected>Tất cả học sinh</option>
+                            </select>
+                        </div>
+                        <p style="margin: 0 0 15px 0; font-size: 0.85em; color: #d35400;">💡 Giữ
+                            <strong>Ctrl</strong>
+                            để chọn nhiều.
+                        </p>
+                    </div>
+
+                    <!-- NÚT LƯU LỊCH CỐ ĐỊNH (STICKY FOOTER) -->
+                    <button onclick="saveSchedule()"
+                        style="position: sticky; bottom: -25px; margin-top: 5px; flex-shrink: 0; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); z-index: 100; box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.15);">
+                        Lưu Lịch Học
+                    </button>
+                </div>
+            </div>
+
+            <div id="studentModal" class="modal-overlay">
+                <div class="modal-content form-container"
+                    style="max-height: 90vh; display: flex; flex-direction: column; position: relative;">
+                    <button class="close-btn" onclick="closeStudentModal()">✖</button>
+                    <h3
+                        style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
+                        Thêm tài khoản học sinh
+                    </h3>
+
+                    <!-- Vùng nội dung cuộn bên trong pop-up -->
+                    <div style="overflow-y: auto; padding-right: 10px; flex-grow: 1; margin-bottom: 10px;">
+                        <div class="form-row">
+                            <div class="form-group"><label><strong>Tên đăng nhập:</strong></label><input type="text"
+                                    id="newStudentUsername" placeholder="VD: hs2"></div>
+                            <div class="form-group"><label><strong>Mật khẩu:</strong></label><input type="text"
+                                    id="newStudentPassword" placeholder="VD: 123"></div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group"><label><strong>Họ và tên:</strong></label><input type="text"
+                                    id="newStudentName" placeholder="VD: Nguyễn Văn A"></div>
+                            <div class="form-group"><label><strong>Lớp:</strong></label><input type="text"
+                                    id="newStudentClass" placeholder="VD: 10A1"></div>
+                        </div>
+
+                        <label><strong>Ngày sinh:</strong></label>
+                        <input type="date" id="newStudentBirthDate">
+
+                        <small style="display:block; margin:-8px 0 14px; color:#64748b; line-height:1.45;">
+                            Có thể để trống để học sinh tự nhập sau.
+                            Khi học sinh tự lưu, học sinh chỉ được nhập đúng 1 lần.
+                        </small>
+
+                        <label><strong>Sở thích:</strong></label>
+                        <input type="text" id="newStudentHobbies" placeholder="VD: Đọc sách, Nghe nhạc...">
+
+                        <label><strong>Chân ngôn (Câu nói yêu thích):</strong></label>
+                        <input type="text" id="newStudentMotto" placeholder="VD: Không có áp lực không có kim cương">
+                    </div>
+
+                    <!-- NÚT TẠO TÀI KHOẢN CỐ ĐỊNH (STICKY FOOTER) -->
+                    <button onclick="createStudent()"
+                        style="position: sticky; bottom: -25px; margin-top: 5px; flex-shrink: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); z-index: 100; box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.15);">
+                        Tạo tài khoản
+                    </button>
+                </div>
+            </div>
+
+            <div id="editStudentModal" class="modal-overlay">
+                <div class="modal-content form-container"
+                    style="max-height: 90vh; display: flex; flex-direction: column; position: relative;">
+                    <button class="close-btn" onclick="closeEditStudentModal()">✖</button>
+                    <h3
+                        style="color: #f6d365; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
+                        ✏️ Cập nhật thông tin học sinh
+                    </h3>
+                    <input type="hidden" id="editStudentKey">
+
+                    <!-- Vùng nội dung cuộn bên trong pop-up -->
+                    <div style="overflow-y: auto; padding-right: 10px; flex-grow: 1; margin-bottom: 10px;">
+                        <div class="form-row">
+                            <div class="form-group"><label><strong>Họ và tên:</strong></label><input type="text"
+                                    id="editStudentName"></div>
+                            <div class="form-group"><label><strong>Lớp:</strong></label><input type="text"
+                                    id="editStudentClass"></div>
+                        </div>
+                        <label><strong>Ngày sinh:</strong></label>
+                        <input type="date" id="editStudentBirthDate">
+
+                        <small style="display:block; margin:-8px 0 14px; color:#64748b; line-height:1.45;">
+                            Giáo viên có thể cập nhật ngày sinh khi cần.
+                            Việc sửa ngày sinh không tạo thêm xu nếu năm đó đã được tặng.
+                        </small>
+                        <label><strong>Mật khẩu (để trống nếu không đổi):</strong></label>
+                        <input type="text" id="editStudentPassword" placeholder="Nhập mật khẩu mới...">
+
+                        <label><strong>Sở thích:</strong></label>
+                        <input type="text" id="editStudentHobbies">
+
+                        <label><strong>Chân ngôn:</strong></label>
+                        <input type="text" id="editStudentMotto">
+                    </div>
+
+                    <!-- NÚT LƯU THAY ĐỔI CỐ ĐỊNH (STICKY FOOTER) -->
+                    <button onclick="saveStudentEdit()"
+                        style="position: sticky; bottom: -25px; margin-top: 5px; flex-shrink: 0; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: #fff; z-index: 100; box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.15);">
+                        Lưu thay đổi
+                    </button>
+                </div>
+            </div>
+
+            <!-- [source: 1] -->
+            <div id="editAssignmentModal" class="modal-overlay">
+                <div class="modal-content form-container" style="width: 94vw; max-width: 840px; padding: 25px;
+    max-height: 90vh; display: flex; flex-direction: column;
+    position: relative; box-sizing: border-box;">
+                    <button class="close-btn" onclick="closeEditAssignmentModal()"
+                        style="top: 15px; right: 15px; z-index: 101;">✖</button>
+                    <h3
+                        style="color: #764ba2; margin-bottom: 20px; border-bottom: 2px solid rgba(118, 75, 162, 0.2); padding-bottom: 10px; font-size: 1.5em;">
+                        ✏️ Chỉnh sửa bài tập
+                    </h3>
+
+                    <!-- Vùng nội dung cuộn bên trong pop-up -->
+                    <div style="overflow-y: auto; padding-right: 10px; flex-grow: 1; margin-bottom: 10px;">
+
+                        <div
+                            style="background: rgba(102, 126, 234, 0.05); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(102, 126, 234, 0.2);">
+                            <h4 style="color: #667eea; margin-bottom: 15px;">📝 Thông tin chung</h4>
+                            <label for="editTitle"><strong>Tiêu đề bài tập:</strong></label>
+                            <input type="text" id="editTitle" placeholder="Nhập tiêu đề bài tập..."
+                                style="background: white;">
+
+                            <div class="form-row" style="margin-bottom: 0;">
+                                <div class="form-group">
+                                    <label for="editStartDate">
+                                        <strong>Thời gian bắt đầu:</strong>
+                                        <span style="font-size: 0.85em; color: #64748b;">
+                                            (Không bắt buộc)
+                                        </span>
+                                    </label>
+                                    <input type="datetime-local" id="editStartDate" style="background: white;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="editEndDate">
+                                        <strong>Hạn nộp bài:</strong>
+                                        <span style="font-size: 0.85em; color: #64748b;">
+                                            (Không bắt buộc)
+                                        </span>
+                                    </label>
+                                    <input type="datetime-local" id="editEndDate" style="background: white;">
+                                </div>
+                            </div>
+                            <div class="form-row" style="align-items: flex-start;">
+                                <div class="form-group" style="flex: 1;">
+                                    <label><strong>Giao cho học sinh:</strong></label>
+                                    <div class="custom-student-select">
+                                        <div class="css-select-trigger"
+                                            onclick="openCustomStudentSelect('editTargetStudent')">
+                                            <span id="editTargetStudent_displayText">Tất cả học sinh</span>
+                                            <span style="color: #9ca3af; font-size: 12px;">▼</span>
+                                        </div>
+                                        <select id="editTargetStudent" multiple style="display: none;">
+                                            <option value="all" selected>Tất cả học sinh</option>
+                                        </select>
+                                    </div>
+                                    <p style="margin: 5px 0 15px 0; font-size: 0.85em; color: #d35400;">💡
+                                        <strong>Mẹo:</strong> Giữ phím <strong>Ctrl</strong> để chọn nhiều.
+                                    </p>
+                                </div>
+
+                                <div class="form-group" style="flex: 1;">
+                                    <label><strong>Điều kiện Video:</strong> <span id="editVideoTotalTimeDisplay"
+                                            style="color: #059669; font-size: 0.9em; font-weight: normal;">(Chưa
+                                            có
+                                            video)</span></label>
+                                    <div
+                                        style="display: flex; gap: 5px; align-items: center; background: rgba(255,255,255,0.5); padding: 5px; border-radius: 8px; border: 1px dashed #10b981;">
+                                        <input type="number" id="editCondDay" min="0" placeholder="Ngày"
+                                            style="width: 60px; margin: 0; padding: 5px;" disabled
+                                            oninput="validateEditConditionInput()"> <span
+                                            style="font-size: 0.8em;">N</span>
+                                        <input type="number" id="editCondHour" min="0" placeholder="Giờ"
+                                            style="width: 60px; margin: 0; padding: 5px;" disabled
+                                            oninput="validateEditConditionInput()"> <span
+                                            style="font-size: 0.8em;">G</span>
+                                        <input type="number" id="editCondMin" min="0" placeholder="Phút"
+                                            style="width: 60px; margin: 0; padding: 5px;" disabled
+                                            oninput="validateEditConditionInput()"> <span
+                                            style="font-size: 0.8em;">P</span>
+                                        <input type="number" id="editCondSec" min="0" placeholder="Giây"
+                                            style="width: 60px; margin: 0; padding: 5px;" disabled
+                                            oninput="validateEditConditionInput()"> <span
+                                            style="font-size: 0.8em;">s</span>
+                                    </div>
+                                    <p style="margin: 5px 0 0 0; font-size: 0.8em; color: #666;">Yêu cầu HS xem
+                                        đạt
+                                        mốc
+                                        thời gian này mới được làm bài.</p>
+                                </div>
+                            </div>
+
+                            <div id="editScoreWeightFields"
+                                style="display: none; background: rgba(246, 211, 101, 0.1); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px dashed #f6d365;">
+                                <h4 style="color: #d35400; margin-bottom: 15px;">⚖️ Phân chia thang điểm 10</h4>
+                                <div class="form-row" style="margin-bottom: 0;">
+                                    <div class="form-group">
+                                        <label>Điểm Trắc nghiệm tối đa:</label>
+                                        <input type="number" id="editMcWeight" min="1" max="9" step="0.5"
+                                            oninput="document.getElementById('editEssayWeight').value = 10 - this.value"
+                                            style="font-weight: bold; color: #d35400; background: white;">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Điểm Tự luận tối đa:</label>
+                                        <input type="number" id="editEssayWeight" readonly
+                                            style="background: rgba(0,0,0,0.05); font-weight: bold; margin-bottom: 0;">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="editVideoLinkGroup" style="
+                                    display: none;
+                                    background: rgba(102, 126, 234, 0.08);
+                                    padding: 15px;
+                                    border-radius: 12px;
+                                    margin-bottom: 20px;
+                                    border: 1px solid rgba(102, 126, 234, 0.25);
+                                ">
+
+                                <label for="editVideoLink">
+                                    <strong>🎬 Đính kèm Video (Link YouTube - Nếu có):</strong>
+                                </label>
+
+                                <input type="text" id="editVideoLink" placeholder="Dán link YouTube vào đây..."
+                                    style="background: white;">
+
+                                <label class="video-summary-toggle-row" for="editEnableVideoSummary">
+                                    <input type="checkbox" id="editEnableVideoSummary" disabled
+                                        onchange="handleVideoSummaryToggle('edit')">
+
+                                    <strong>📝 Tóm tắt</strong>
+
+                                    <span id="editVideoSummaryStatus" class="video-summary-status">
+                                        Dán link video để bật
+                                    </span>
+                                </label>
+                            </div>
+
+                            <div id="editTuLuanSection"
+                                style="display: none; background: rgba(56, 239, 125, 0.05); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(56, 239, 125, 0.2);">
+                                <h4 style="color: #11998e; margin-bottom: 15px;">✍️ Phần Tự luận</h4>
+                                <label for="editDesc"><strong>Yêu cầu bài tập:</strong></label>
+                                <div id="editDesc" style="height: 150px; background: white;"></div>
+
+                                <label
+                                    style="display: flex; align-items: center; gap: 8px; margin-top: 15px; cursor: pointer; background: rgba(255,255,255,0.7); padding: 10px; border-radius: 8px;">
+                                    <input type="checkbox" id="editHideEssayText"
+                                        style="width: 20px; height: 20px; flex-shrink: 0; margin: 0; cursor: pointer;">
+                                    <strong style="color: #764ba2; font-size: 0.9em;">📁 Chỉ cho phép nộp bằng
+                                        Tệp
+                                        (Ẩn ô
+                                        viết chữ phía học sinh)</strong>
+                                </label>
+                            </div>
+
+                            <div id="editExamTimeLimitOption"
+                                style="display: none; background: rgba(225, 29, 72, 0.07); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px dashed rgba(225, 29, 72, 0.45);">
+
+                                <label for="editEnableExamTimeLimit"
+                                    style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin: 0;">
+
+                                    <input type="checkbox" id="editEnableExamTimeLimit"
+                                        onchange="toggleEditExamTimeLimitInput()"
+                                        style="width: 20px; height: 20px; margin: 0; cursor: pointer;">
+
+                                    <strong>⏱️ Giới hạn thời gian làm bài</strong>
+                                </label>
+
+                                <div id="editExamTimeLimitInputWrap"
+                                    style="display: none; align-items: center; gap: 8px; margin-top: 10px;">
+
+                                    <input type="number" id="editExamTimeLimitMinutes" min="1" step="1"
+                                        placeholder="VD: 120" style="width: 150px; margin: 0; background: white;">
+
+                                    <strong>phút</strong>
+                                </div>
+
+                                <small style="display: block; margin-top: 8px; color: #64748b; line-height: 1.45;">
+                                    Tính từ lúc học sinh bắt đầu thi trong toàn màn hình.
+                                    Hết giờ sẽ tự động thu bài, không tính là vi phạm.
+                                </small>
+                            </div>
+
+                            <div id="editTracNghiemSection"
+                                style="display: none; background: rgba(255, 8, 68, 0.05); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(255, 8, 68, 0.2);">
+                                <h4 style="color: #e11d48; margin-bottom: 15px;">📚 Phần Trắc nghiệm</h4>
+                                <div id="editQuestionsContainer"></div>
+                                <button type="button" onclick="addEditQuestionBlock()"
+                                    style="background: rgba(225, 29, 72, 0.1); color: #e11d48; border: 2px dashed #e11d48; box-shadow: none; margin-top: 10px; width: 100%; padding: 12px; font-weight: bold;">+
+                                    Thêm câu hỏi trắc nghiệm</button>
+                                <div id="editRandomExamConfigPanel"
+                                    style="margin-top:15px;padding:15px;border-radius:12px;background:rgba(102,126,234,.08);border:1px dashed rgba(102,126,234,.55);">
+
+                                    <label for="editEnableRandomExam"
+                                        style="display:flex;align-items:center;gap:8px;cursor:pointer;margin:0 0 12px;">
+
+                                        <input type="checkbox" id="editEnableRandomExam"
+                                            onchange="toggleEditRandomExamConfig()"
+                                            style="width:20px;height:20px;margin:0;">
+
+                                        <strong>🎲 Tạo nhiều mã đề ngẫu nhiên</strong>
+                                    </label>
+
+                                    <div id="editRandomExamConfigFields" style="display:none;">
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label>Số câu lấy:</label>
+                                                <input type="number" id="editRandomQuestionCount" min="1" step="1">
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label>Số mã đề:</label>
+                                                <input type="number" id="editExamVersionCount" min="1" max="50" step="1"
+                                                    value="4">
+                                            </div>
+                                        </div>
+
+                                        <div
+                                            style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;">
+                                            <label
+                                                style="display:flex;align-items:center;gap:8px;background:white;padding:9px;border-radius:8px;">
+                                                <input type="checkbox" id="editShuffleQuestionOrder" checked
+                                                    style="width:18px;height:18px;margin:0;">
+                                                Xáo trộn câu
+                                            </label>
+
+                                            <label
+                                                style="display:flex;align-items:center;gap:8px;background:white;padding:9px;border-radius:8px;">
+                                                <input type="checkbox" id="editShuffleAnswerOrder" checked
+                                                    style="width:18px;height:18px;margin:0;">
+                                                Xáo trộn đáp án
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- NÚT LƯU CỐ ĐỊNH (STICKY FOOTER) -->
+                    <button onclick="saveAssignmentEdit()"
+                        style="position: sticky; bottom: -25px; margin-top: 5px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: #fff; flex-shrink: 0; font-size: 1.1em; padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; z-index: 100; box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.15);">
+                        💾 Lưu toàn bộ thay đổi
+                    </button>
+                </div>
+            </div>
+
+            <div id="assignmentStatusModal" class="modal-overlay">
+                <div class="modal-content form-container">
+                    <button class="close-btn" onclick="closeAssignmentStatusModal()">✖</button>
+                    <h3
+                        style="color: #11998e; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
+                        📊 Trạng thái làm bài
+                    </h3>
+                    <div id="assignmentStatusContainer" style="max-height: 400px; overflow-y: auto;">
+                    </div>
+                </div>
+            </div>
+
+            <div id="notificationHistoryModal" class="modal-overlay">
+                <div class="modal-content form-container" style="max-width: 650px;">
+                    <button class="close-btn" onclick="closeNotificationHistory()">✖</button>
+                    <h3
+                        style="color: #667eea; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
+                        🕒 Lịch sử Thông báo</h3>
+                    <div id="notificationHistoryList" style="max-height: 60vh; overflow-y: auto; padding-right: 10px;">
+                    </div>
+                </div>
+            </div>
+
+            <div id="surveyHistoryModal" class="modal-overlay">
+                <div class="modal-content form-container" style="max-width: 650px;">
+                    <button class="close-btn" onclick="closeSurveyHistory()">✖</button>
+                    <h3
+                        style="color: #e83e8c; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
+                        🕒 Lịch sử Khảo sát</h3>
+                    <div id="surveyHistoryList" style="max-height: 60vh; overflow-y: auto; padding-right: 10px;">
+                    </div>
+                </div>
+            </div>
+
+            <div id="surveyResultsModal" class="modal-overlay" style="z-index: 100000;">
+                <div class="modal-content form-container" style="max-width: 700px;">
+                    <button class="close-btn" onclick="closeSurveyResults()">✖</button>
+                    <h3 id="surveyResultTitle"
+                        style="color: #11998e; margin-bottom: 20px; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 10px;">
+                        📊 Kết quả Khảo sát</h3>
+                    <div id="surveyResultsContent" style="max-height: 65vh; overflow-y: auto; padding-right: 10px;">
+                    </div>
+                </div>
+            </div>
+
+            <div class="student-modal-overlay" id="customStudentModal">
+                <div class="student-modal-box">
+                    <div class="student-modal-header">
+                        <div class="student-search-box">
+                            <span style="color: #9ca3af;">🔍</span>
+                            <input type="text" id="customStudentSearch" placeholder="Tìm kiếm học sinh..."
+                                onkeyup="filterCustomStudentList()">
+                        </div>
+                    </div>
+
+                    <div class="student-modal-list" id="customStudentList">
+                    </div>
+
+                    <div class="student-modal-footer">
+                        <button type="button" class="btn-cancel" onclick="closeCustomStudentSelect()">Đóng</button>
+                        <button type="button" class="btn-confirm" onclick="confirmCustomStudentSelect()">Xác
+                            nhận</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1. Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <!-- 2. Khởi tạo Firebase -->
+    <script src="js/firebase-config.js?v=3.5"></script>
+    <script src="js/cloudinary-storage.js?v=3.5"></script>
+
+    <script>
+        window.APP_STORAGE_CONFIG = Object.freeze({
+            r2WorkerUrl: 'https://school-r2-files.ngogibao0311.workers.dev'
+        });
+    </script>
+
+    <script src="js/cloudflare-r2-storage.js?v=3.5"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.7/dist/purify.min.js">
+    </script>
+
+    <!-- 3. Mã nền tảng -->
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
+    <script src="js/common.js?v=3.5"></script>
+    <script src="js/transaction-history.js?v=3.5"></script>
+    <script src="js/security.js?v=3.5"></script>
+
+    <!-- 4. Các module tính năng -->
+    <script src="js/daily-login.js?v=3.5"></script>
+    <script src="js/theme-items.js?v=4.2"></script>
+    <script src="js/effect-items.js?v=4.2"></script>
+    <script src="js/pet-items.js?v=4.2"></script>
+    <script src="js/royal-ball.js?v=3.5"></script>
+    <script src="js/music-manager.js?v=3.5"></script>
+    <script src="js/store-manager.js?v=3.5"></script>
+    <script src="js/painting.js?v=3.5"></script>
+    <script src="js/luxury-store.js?v=4.2"></script>
+
+    <!-- 5. Logic chính của trang giáo viên luôn đặt cuối -->
+    <script src="js/teacher.js?v=3.5"></script>
+    <script src="js/huong-dan-nguoi-moi.js?v=1.0.0"></script>
+</body>
+
+</html>

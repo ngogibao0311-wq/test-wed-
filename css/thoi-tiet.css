@@ -1,0 +1,2269 @@
+/* =========================================================
+   MÈO NHỎ NGÀY MƯA
+   - Một file CSS riêng cho tag, trạng thái đứng chờ và hiệu ứng nhấn.
+   - Không tạo card cửa hàng riêng.
+   - Không có lớp phủ toàn màn hình.
+   - Không dùng lại class hoặc keyframes của vật phẩm cũ.
+   ========================================================= */
+
+/* =========================================================
+   TAG “CƠN MƯA” — chỉ đổi nhãn, giữ nguyên card mặc định
+   ========================================================= */
+
+.item-tag.tag-con-mua {
+    color: #f7fcff;
+    background:
+        linear-gradient(
+            135deg,
+            #486f8f 0%,
+            #74a9c6 48%,
+            #9fc9dc 100%
+        );
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    box-shadow:
+        0 5px 14px rgba(58, 98, 126, 0.24),
+        inset 0 1px 0 rgba(255, 255, 255, 0.36);
+}
+
+.item-tag.tag-con-mua span {
+    text-shadow: 0 1px 2px rgba(30, 62, 82, 0.48);
+}
+
+.item-tag.tag-con-mua::before {
+    content: "";
+    position: absolute;
+    left: 27px;
+    top: 50%;
+    width: 7px;
+    height: 10px;
+    transform: translateY(-56%) rotate(38deg);
+    border-radius: 70% 30% 68% 32%;
+    background: rgba(239, 249, 255, 0.92);
+    box-shadow:
+        12px 4px 0 -1px rgba(229, 245, 253, 0.78),
+        24px -2px 0 -2px rgba(255, 255, 255, 0.66);
+    pointer-events: none;
+}
+
+/* =========================================================
+   KHUNG THÚ CƯNG CỤC BỘ
+   ========================================================= */
+
+#virtual-pet-container.pet-rainy-day-stage {
+    width: 184px;
+    height: 178px;
+    isolation: isolate;
+    overflow: visible;
+}
+
+#virtual-pet-container.pet-rainy-day-stage
+#virtual-pet-img.rainy-day-cat-magic {
+    position: relative;
+    z-index: 6;
+    width: 146px !important;
+    height: auto !important;
+    max-width: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    cursor: pointer;
+    transform-origin: 52% 72%;
+    filter:
+        drop-shadow(0 11px 13px rgba(48, 81, 100, 0.25))
+        drop-shadow(0 0 7px rgba(161, 211, 234, 0.2));
+    animation:
+        rainy-pet-soft-bob 4.6s ease-in-out infinite,
+        rainy-pet-damp-lustre 3.8s ease-in-out infinite;
+}
+
+/* Mảng trời mưa dạng vòm, chỉ nằm sau pet */
+#virtual-pet-container.pet-rainy-day-stage
+.rainy-day-local-backdrop {
+    position: absolute;
+    z-index: 0;
+    left: 50%;
+    top: 50%;
+    width: 168px;
+    height: 145px;
+    transform: translate(-50%, -52%);
+    border-radius: 48% 52% 46% 54% / 42% 46% 54% 58%;
+    pointer-events: none;
+    background:
+        radial-gradient(
+            ellipse at 50% 88%,
+            rgba(165, 210, 230, 0.27) 0 22%,
+            transparent 49%
+        ),
+        linear-gradient(
+            165deg,
+            rgba(223, 239, 248, 0.66),
+            rgba(135, 178, 203, 0.18) 50%,
+            rgba(96, 136, 163, 0.05)
+        );
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.52),
+        0 12px 24px rgba(62, 103, 130, 0.11);
+    opacity: 0.75;
+    animation: rainy-pet-backdrop-breathe 5.2s ease-in-out infinite;
+}
+
+#virtual-pet-container.pet-rainy-day-stage
+.rainy-day-local-backdrop::before,
+#virtual-pet-container.pet-rainy-day-stage
+.rainy-day-local-backdrop::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+}
+
+#virtual-pet-container.pet-rainy-day-stage
+.rainy-day-local-backdrop::before {
+    left: 20px;
+    top: 13px;
+    width: 72px;
+    height: 24px;
+    border-radius: 999px;
+    background:
+        radial-gradient(circle at 23% 56%, #edf7fc 0 13px, transparent 14px),
+        radial-gradient(circle at 49% 35%, #dcecf4 0 18px, transparent 19px),
+        radial-gradient(circle at 76% 59%, #c6dce8 0 14px, transparent 15px),
+        linear-gradient(180deg, #e7f3f8, #bdd4e0);
+    filter: drop-shadow(0 4px 5px rgba(58, 91, 111, 0.16));
+    animation: rainy-pet-cloud-wander 6.8s ease-in-out infinite;
+}
+
+#virtual-pet-container.pet-rainy-day-stage
+.rainy-day-local-backdrop::after {
+    right: 22px;
+    top: 30px;
+    width: 38px;
+    height: 11px;
+    border-radius: 999px;
+    background: rgba(238, 248, 252, 0.58);
+    box-shadow:
+        -17px 9px 0 -3px rgba(223, 239, 247, 0.42),
+        7px 16px 0 -4px rgba(206, 227, 238, 0.38);
+    filter: blur(0.4px);
+    animation: rainy-pet-mist-slide 5.7s ease-in-out infinite;
+}
+
+/* Mưa đứng chờ, giới hạn trong vùng quanh pet */
+#virtual-pet-container.pet-rainy-day-stage
+.rainy-day-drizzle-field {
+    position: absolute;
+    z-index: 3;
+    inset: 6px 5px 17px;
+    overflow: hidden;
+    border-radius: 42% 48% 36% 44%;
+    pointer-events: none;
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 14%, #000 88%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 14%, #000 88%, transparent 100%);
+}
+
+#virtual-pet-container.pet-rainy-day-stage
+.rainy-day-idle-drop {
+    position: absolute;
+    left: var(--rainy-idle-x);
+    top: -18px;
+    width: 2px;
+    height: var(--rainy-idle-length);
+    border-radius: 999px;
+    background:
+        linear-gradient(
+            180deg,
+            transparent,
+            rgba(206, 235, 248, 0.92)
+        );
+    opacity: 0;
+    transform: rotate(8deg);
+    animation:
+        rainy-pet-idle-rain
+        var(--rainy-idle-duration)
+        linear
+        infinite;
+    animation-delay: var(--rainy-idle-delay);
+}
+
+/* Vũng nước nền */
+#virtual-pet-container.pet-rainy-day-stage
+.rainy-day-puddle {
+    position: absolute;
+    z-index: 2;
+    left: 50%;
+    bottom: 5px;
+    width: 142px;
+    height: 28px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    pointer-events: none;
+    background:
+        radial-gradient(
+            ellipse at center,
+            rgba(232, 248, 255, 0.86) 0 14%,
+            rgba(125, 190, 218, 0.46) 38%,
+            rgba(72, 131, 164, 0.12) 67%,
+            transparent 72%
+        );
+    filter: blur(0.2px);
+}
+
+#virtual-pet-container.pet-rainy-day-stage
+.rainy-day-puddle-sheen {
+    position: absolute;
+    left: 23%;
+    top: 5px;
+    width: 45%;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(249, 253, 255, 0.72);
+    transform: rotate(-4deg);
+    animation: rainy-pet-puddle-sheen 3.4s ease-in-out infinite;
+}
+
+#virtual-pet-container.pet-rainy-day-stage
+.rainy-day-puddle-ripple {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 42px;
+    height: 11px;
+    border: 1px solid rgba(88, 157, 191, 0.46);
+    border-radius: 50%;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.55);
+    animation: rainy-pet-idle-ripple 3.1s ease-out infinite;
+}
+
+#virtual-pet-container.pet-rainy-day-stage
+.rainy-day-puddle-ripple.ripple-b {
+    animation-delay: 1.55s;
+}
+
+/* =========================================================
+   HIỆU ỨNG NHẤN “VŨ ĐIỆU MÁI Ô” — KHÔNG TOÀN MÀN HÌNH
+   ========================================================= */
+
+#virtual-pet-container.pet-rainy-day-stage
+.rainy-day-click-scene {
+    position: absolute;
+    z-index: 8;
+    inset: -10px -12px -4px;
+    overflow: visible;
+    pointer-events: none;
+}
+
+#virtual-pet-container.pet-rainy-day-stage
+.rainy-day-click-scene::before,
+#virtual-pet-container.pet-rainy-day-stage
+.rainy-day-click-scene::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 22px;
+    pointer-events: none;
+    border-radius: 52% 48% 0 0 / 100% 100% 0 0;
+    transform-origin: 50% 100%;
+}
+
+/* Hai đường gió theo dáng mái ô, không dùng vòng tròn quỹ đạo */
+#virtual-pet-container.pet-rainy-day-stage
+.rainy-day-click-scene::before {
+    width: 136px;
+    height: 58px;
+    transform: translateX(-50%) scaleX(0.72);
+    border-top: 3px solid rgba(231, 247, 255, 0.9);
+    border-left: 1px solid transparent;
+    border-right: 1px solid transparent;
+    filter: drop-shadow(0 -2px 4px rgba(107, 179, 211, 0.42));
+    opacity: 0;
+    animation: rainy-pet-canopy-wave 0.72s cubic-bezier(.2, .78, .18, 1) forwards;
+}
+
+#virtual-pet-container.pet-rainy-day-stage
+.rainy-day-click-scene::after {
+    width: 108px;
+    height: 45px;
+    transform: translateX(-50%) scaleX(0.68);
+    border-top: 2px dashed rgba(123, 190, 219, 0.78);
+    opacity: 0;
+    animation: rainy-pet-canopy-wave 0.72s 0.08s cubic-bezier(.2, .78, .18, 1) forwards;
+}
+
+#virtual-pet-container.pet-rainy-day-stage
+.rainy-day-click-drop {
+    position: absolute;
+    left: var(--rainy-click-x);
+    top: 32px;
+    width: 3px;
+    height: 17px;
+    border-radius: 999px;
+    background:
+        linear-gradient(
+            180deg,
+            rgba(246, 252, 255, 0),
+            rgba(202, 235, 248, 0.98)
+        );
+    opacity: 0;
+    transform: rotate(var(--rainy-click-slant));
+    animation:
+        rainy-pet-click-rain
+        0.62s
+        cubic-bezier(.18, .68, .28, 1)
+        forwards;
+    animation-delay: var(--rainy-click-delay);
+}
+
+#virtual-pet-container.pet-rainy-day-stage
+.rainy-day-click-ripple {
+    position: absolute;
+    z-index: 9;
+    left: 50%;
+    bottom: 8px;
+    width: 54px;
+    height: 13px;
+    border: 2px solid rgba(92, 166, 198, 0.74);
+    border-radius: 50%;
+    opacity: 0;
+    transform: translateX(-50%) scaleX(0.55) scaleY(0.7);
+    animation: rainy-pet-click-ripple 0.86s ease-out forwards;
+    animation-delay: var(--rainy-ripple-delay);
+}
+
+#virtual-pet-container.pet-rainy-day-stage
+.rainy-day-splash-tooth {
+    position: absolute;
+    z-index: 10;
+    left: var(--rainy-splash-x);
+    bottom: 16px;
+    width: 6px;
+    height: 11px;
+    border-radius: 60% 40% 58% 42% / 78% 72% 28% 22%;
+    background:
+        linear-gradient(
+            180deg,
+            rgba(239, 250, 255, 0.98),
+            rgba(107, 181, 213, 0.76)
+        );
+    opacity: 0;
+    transform: translate(-50%, 0) rotate(18deg) scale(0.4);
+    animation: rainy-pet-splash-tooth 0.68s ease-out forwards;
+    animation-delay: var(--rainy-splash-delay);
+}
+
+#virtual-pet-container.pet-rainy-day-stage
+#virtual-pet-img.rainy-day-cat-magic.rainy-day-umbrella-twirl {
+    animation: rainy-pet-umbrella-twirl 0.9s cubic-bezier(.2, .78, .18, 1) both !important;
+}
+
+#virtual-pet-container.pet-rainy-day-stage.rainy-day-click-active
+.rainy-day-local-backdrop {
+    animation: rainy-pet-backdrop-click 0.85s ease-out both;
+}
+
+/* =========================================================
+   KEYFRAMES RIÊNG
+   ========================================================= */
+
+@keyframes rainy-pet-soft-bob {
+    0%, 100% {
+        transform: translateY(0) rotate(-0.5deg);
+    }
+    50% {
+        transform: translateY(-5px) rotate(0.7deg);
+    }
+}
+
+@keyframes rainy-pet-damp-lustre {
+    0%, 100% {
+        filter:
+            drop-shadow(0 11px 13px rgba(48, 81, 100, 0.25))
+            drop-shadow(0 0 6px rgba(161, 211, 234, 0.16));
+    }
+    50% {
+        filter:
+            drop-shadow(0 13px 16px rgba(48, 81, 100, 0.3))
+            drop-shadow(0 0 11px rgba(181, 225, 243, 0.34));
+    }
+}
+
+@keyframes rainy-pet-backdrop-breathe {
+    0%, 100% {
+        transform: translate(-50%, -52%) scale(0.97);
+        opacity: 0.67;
+    }
+    50% {
+        transform: translate(-50%, -52%) scale(1.02);
+        opacity: 0.82;
+    }
+}
+
+@keyframes rainy-pet-cloud-wander {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(14px);
+    }
+}
+
+@keyframes rainy-pet-mist-slide {
+    0%, 100% {
+        transform: translateX(0);
+        opacity: 0.42;
+    }
+    50% {
+        transform: translateX(-16px);
+        opacity: 0.68;
+    }
+}
+
+@keyframes rainy-pet-idle-rain {
+    0% {
+        transform: translate3d(0, -12px, 0) rotate(8deg);
+        opacity: 0;
+    }
+    16% {
+        opacity: 0.74;
+    }
+    86% {
+        opacity: 0.56;
+    }
+    100% {
+        transform: translate3d(9px, 148px, 0) rotate(8deg);
+        opacity: 0;
+    }
+}
+
+@keyframes rainy-pet-puddle-sheen {
+    0%, 100% {
+        transform: translateX(0) rotate(-4deg) scaleX(0.78);
+        opacity: 0.48;
+    }
+    50% {
+        transform: translateX(25px) rotate(-4deg) scaleX(1.08);
+        opacity: 0.83;
+    }
+}
+
+@keyframes rainy-pet-idle-ripple {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.45);
+    }
+    12% {
+        opacity: 0.56;
+    }
+    72% {
+        opacity: 0.2;
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scaleX(2.15) scaleY(1.45);
+    }
+}
+
+@keyframes rainy-pet-umbrella-twirl {
+    0% {
+        transform: translateY(0) rotate(0deg) scale(1);
+    }
+    18% {
+        transform: translateY(3px) rotate(-7deg) scale(0.96, 1.04);
+    }
+    44% {
+        transform: translateY(-9px) rotate(8deg) scale(1.05, 0.96);
+    }
+    68% {
+        transform: translateY(-4px) rotate(-3deg) scale(1.02);
+    }
+    100% {
+        transform: translateY(0) rotate(0deg) scale(1);
+    }
+}
+
+@keyframes rainy-pet-canopy-wave {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) scaleX(0.58) scaleY(0.72);
+    }
+    35% {
+        opacity: 0.94;
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) scaleX(1.18) scaleY(1.12) translateY(-10px);
+    }
+}
+
+@keyframes rainy-pet-click-rain {
+    0% {
+        opacity: 0;
+        transform: translate3d(0, -9px, 0) rotate(var(--rainy-click-slant)) scaleY(0.7);
+    }
+    18% {
+        opacity: 1;
+    }
+    82% {
+        opacity: 0.88;
+    }
+    100% {
+        opacity: 0;
+        transform: translate3d(8px, var(--rainy-click-fall), 0) rotate(var(--rainy-click-slant)) scaleY(1.18);
+    }
+}
+
+@keyframes rainy-pet-click-ripple {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) scaleX(0.45) scaleY(0.58);
+    }
+    18% {
+        opacity: 0.8;
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) scaleX(2.5) scaleY(1.5);
+    }
+}
+
+@keyframes rainy-pet-splash-tooth {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, 0) rotate(18deg) scale(0.35);
+    }
+    24% {
+        opacity: 0.94;
+    }
+    62% {
+        opacity: 0.72;
+        transform: translate(-50%, calc(-1 * var(--rainy-splash-lift))) rotate(-10deg) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -4px) rotate(-18deg) scale(0.5);
+    }
+}
+
+@keyframes rainy-pet-backdrop-click {
+    0% {
+        transform: translate(-50%, -52%) scale(0.95);
+        filter: saturate(0.95);
+    }
+    42% {
+        transform: translate(-50%, -52%) scale(1.08);
+        filter: saturate(1.18) brightness(1.08);
+    }
+    100% {
+        transform: translate(-50%, -52%) scale(1);
+        filter: saturate(1);
+    }
+}
+
+/* =========================================================
+   MOBILE VÀ GIẢM CHUYỂN ĐỘNG
+   ========================================================= */
+
+@media (max-width: 700px) {
+    #virtual-pet-container.pet-rainy-day-stage {
+        width: 164px;
+        height: 160px;
+    }
+
+    #virtual-pet-container.pet-rainy-day-stage
+    #virtual-pet-img.rainy-day-cat-magic {
+        width: 130px !important;
+    }
+
+    #virtual-pet-container.pet-rainy-day-stage
+    .rainy-day-local-backdrop {
+        width: 151px;
+        height: 131px;
+    }
+
+    #virtual-pet-container.pet-rainy-day-stage
+    .rainy-day-puddle {
+        width: 126px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #virtual-pet-container.pet-rainy-day-stage
+    #virtual-pet-img.rainy-day-cat-magic,
+
+    #virtual-pet-container.pet-rainy-day-stage
+    .rainy-day-local-backdrop,
+
+    #virtual-pet-container.pet-rainy-day-stage
+    .rainy-day-idle-drop,
+
+    #virtual-pet-container.pet-rainy-day-stage
+    .rainy-day-puddle-sheen,
+
+    #virtual-pet-container.pet-rainy-day-stage
+    .rainy-day-puddle-ripple,
+
+    #virtual-pet-container.pet-rainy-day-stage
+    .rainy-day-click-scene::before,
+
+    #virtual-pet-container.pet-rainy-day-stage
+    .rainy-day-click-scene::after,
+
+    #virtual-pet-container.pet-rainy-day-stage
+    .rainy-day-click-drop,
+
+    #virtual-pet-container.pet-rainy-day-stage
+    .rainy-day-click-ripple,
+
+    #virtual-pet-container.pet-rainy-day-stage
+    .rainy-day-splash-tooth {
+        animation: none !important;
+    }
+}
+/* ============================================================================
+   GIAO DIỆN CƠN MƯA — ĐÀI QUAN TRẮC MƯA SAO
+
+   Thiết kế mới hoàn toàn.
+   Không dùng class, animation, hình nền hoặc cấu trúc của giao diện cũ.
+   Đồng bộ màu sắc với Mèo Nhỏ Ngày Mưa.
+   ============================================================================ */
+
+body.theme-rain-cosmos {
+    --raincosmos-void: #06111d;
+    --raincosmos-deep: #0a1a2a;
+    --raincosmos-panel: rgba(13, 35, 54, 0.88);
+    --raincosmos-panel-soft: rgba(22, 48, 70, 0.76);
+
+    --raincosmos-cyan: #7fcbe6;
+    --raincosmos-cyan-bright: #c5efff;
+
+    --raincosmos-violet: #8b83d6;
+    --raincosmos-violet-soft: #b8b3ef;
+
+    --raincosmos-warm: #f2cb72;
+
+    --raincosmos-text: #eaf8ff;
+    --raincosmos-muted: #a9c2d3;
+
+    --raincosmos-line:
+        rgba(158, 218, 242, 0.24);
+
+    --raincosmos-shadow:
+        rgba(1, 8, 15, 0.58);
+
+    color-scheme: dark;
+
+    color:
+        var(--raincosmos-text);
+
+    font-family:
+        "Aptos",
+        "Segoe UI Variable",
+        "Segoe UI",
+        sans-serif;
+
+    background-color:
+        var(--raincosmos-void) !important;
+
+    /*
+     * Lưới kính nghiêng của trạm quan trắc.
+     * Không sử dụng sao bay, tinh vân xoay hoặc hiệu ứng nền cũ.
+     */
+    background-image:
+        linear-gradient(
+            116deg,
+            transparent 0 46%,
+            rgba(176, 226, 246, 0.035) 47% 48%,
+            transparent 49% 100%
+        ),
+        radial-gradient(
+            circle at 14% 12%,
+            rgba(127, 203, 230, 0.2),
+            transparent 31%
+        ),
+        radial-gradient(
+            circle at 84% 18%,
+            rgba(139, 131, 214, 0.2),
+            transparent 34%
+        ),
+        radial-gradient(
+            circle at 52% 92%,
+            rgba(78, 142, 178, 0.14),
+            transparent 36%
+        ),
+        linear-gradient(
+            155deg,
+            #0a1b2c 0%,
+            #071421 48%,
+            #050d18 100%
+        ) !important;
+
+    background-size:
+        42px 42px,
+        100% 100%,
+        100% 100%,
+        100% 100%,
+        100% 100% !important;
+
+    background-attachment:
+        fixed !important;
+}
+
+/* ============================================================================
+   PHÔNG CHỮ
+   ============================================================================ */
+
+body.theme-rain-cosmos :is(
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    .section-title,
+    .page-title,
+    .modal-title,
+    .popup-title,
+    .item-name
+) {
+    color:
+        var(--raincosmos-text) !important;
+
+    font-family:
+        "Bahnschrift",
+        "Trebuchet MS",
+        "Segoe UI",
+        sans-serif !important;
+
+    font-weight:
+        750 !important;
+
+    letter-spacing:
+        0.035em;
+
+    text-shadow:
+        0 1px 0 rgba(0, 0, 0, 0.72),
+        0 0 16px rgba(127, 203, 230, 0.12);
+}
+
+body.theme-rain-cosmos :is(
+    p,
+    label,
+    small,
+    .description,
+    .subtitle,
+    .item-type-label,
+    .muted,
+    .text-muted
+) {
+    color:
+        var(--raincosmos-muted) !important;
+}
+
+/* ============================================================================
+   KHU VỰC NỘI DUNG CHÍNH
+   ============================================================================ */
+
+body.theme-rain-cosmos :is(
+    .dashboard,
+    .main-content,
+    .content,
+    .page-content,
+    .dashboard-content
+) {
+    background:
+        transparent !important;
+}
+
+/* ============================================================================
+   SIDEBAR — KHOANG ĐIỀU KHIỂN QUAN TRẮC
+   ============================================================================ */
+
+body.theme-rain-cosmos :is(
+    .sidebar,
+    .dashboard-sidebar,
+    .side-panel
+):not(.ui-theme-immune):not([data-theme-immune="true"]) {
+    color:
+        var(--raincosmos-text) !important;
+
+    background:
+        radial-gradient(
+            circle at 50% 0%,
+            rgba(127, 203, 230, 0.16),
+            transparent 34%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(15, 40, 61, 0.98),
+            rgba(7, 20, 33, 0.98)
+        ) !important;
+
+    border-right:
+        1px solid rgba(167, 222, 244, 0.22) !important;
+
+    border-radius:
+        0 30px 14px 0 !important;
+
+    box-shadow:
+        18px 0 42px rgba(2, 10, 18, 0.32),
+        inset -1px 0 0 rgba(255, 255, 255, 0.035) !important;
+}
+
+body.theme-rain-cosmos :is(
+    .nav-item,
+    .sidebar-item,
+    .menu-item
+):not(.ui-theme-immune):not(.ui-theme-immune *) {
+    color:
+        var(--raincosmos-muted) !important;
+
+    border:
+        1px solid transparent !important;
+
+    border-radius:
+        16px 5px 16px 5px !important;
+
+    background:
+        transparent !important;
+
+    transition:
+        transform 0.22s ease,
+        color 0.22s ease,
+        background 0.22s ease,
+        border-color 0.22s ease !important;
+}
+
+body.theme-rain-cosmos :is(
+    .nav-item,
+    .sidebar-item,
+    .menu-item
+):not(.ui-theme-immune):not(.ui-theme-immune *):hover,
+
+body.theme-rain-cosmos :is(
+    .nav-item.active,
+    .sidebar-item.active,
+    .menu-item.active
+):not(.ui-theme-immune):not(.ui-theme-immune *) {
+    color:
+        #ffffff !important;
+
+    background:
+        linear-gradient(
+            110deg,
+            rgba(127, 203, 230, 0.2),
+            rgba(139, 131, 214, 0.14)
+        ) !important;
+
+    border-color:
+        rgba(158, 218, 242, 0.28) !important;
+
+    transform:
+        translateX(3px);
+}
+
+/* ============================================================================
+   CARD, PANEL VÀ CÁC Ô NỘI DUNG
+
+   Dạng cửa sổ khoang tàu có hai góc lớn, hai góc nhỏ.
+   Không dùng lại kiểu bo tròn hoặc glass card của giao diện cũ.
+   ============================================================================ */
+
+body.theme-rain-cosmos :is(
+    .dashboard-card,
+    .assignment-card,
+    .material-card,
+    .content-card,
+    .panel,
+    .card,
+    .widget,
+    .stat-card,
+    .info-box,
+    .settings-section,
+    .store-item-card
+):not(.ui-theme-immune)
+:not(.store-theme-locked)
+:not([data-theme-immune="true"]) {
+    color:
+        var(--raincosmos-text) !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(21, 50, 72, 0.88),
+            rgba(9, 26, 42, 0.92)
+        ) !important;
+
+    border:
+        1px solid var(--raincosmos-line) !important;
+
+    border-radius:
+        26px 8px 26px 8px !important;
+
+    box-shadow:
+        0 18px 42px var(--raincosmos-shadow),
+        0 0 0 1px rgba(139, 131, 214, 0.045),
+        inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
+
+    backdrop-filter:
+        blur(16px) saturate(1.08) !important;
+
+    -webkit-backdrop-filter:
+        blur(16px) saturate(1.08) !important;
+}
+
+body.theme-rain-cosmos :is(
+    .dashboard-card,
+    .assignment-card,
+    .material-card,
+    .content-card,
+    .panel,
+    .card,
+    .widget,
+    .stat-card,
+    .info-box,
+    .settings-section,
+    .store-item-card
+):not(.ui-theme-immune)
+:not(.store-theme-locked)
+:not([data-theme-immune="true"]):hover {
+    border-color:
+        rgba(178, 231, 250, 0.42) !important;
+
+    box-shadow:
+        0 22px 52px rgba(1, 8, 15, 0.66),
+        0 0 24px rgba(127, 203, 230, 0.09),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+/* ============================================================================
+   POPUP — CỬA SỔ QUAN TRẮC DẠNG GIỌT MƯA
+   ============================================================================ */
+
+body.theme-rain-cosmos :is(
+    .modal-content,
+    .popup-content,
+    .dialog-content,
+    .form-container,
+    .confirm-dialog,
+    .alert-dialog,
+    .settings-modal,
+    .store-modal-content
+):not(.ui-theme-immune):not([data-theme-immune="true"]) {
+    color:
+        var(--raincosmos-text) !important;
+
+    background:
+        radial-gradient(
+            circle at 88% 10%,
+            rgba(139, 131, 214, 0.18),
+            transparent 31%
+        ),
+        radial-gradient(
+            circle at 10% 90%,
+            rgba(127, 203, 230, 0.14),
+            transparent 34%
+        ),
+        linear-gradient(
+            150deg,
+            rgba(17, 43, 64, 0.98),
+            rgba(6, 18, 31, 0.99)
+        ) !important;
+
+    border:
+        1px solid rgba(171, 226, 247, 0.35) !important;
+
+    border-radius:
+        38px 12px 38px 12px !important;
+
+    box-shadow:
+        0 30px 80px rgba(1, 7, 13, 0.72),
+        0 0 36px rgba(127, 203, 230, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.09) !important;
+
+    backdrop-filter:
+        blur(22px) saturate(1.1) !important;
+
+    -webkit-backdrop-filter:
+        blur(22px) saturate(1.1) !important;
+}
+
+/* Nền phía sau popup */
+body.theme-rain-cosmos :is(
+    .modal,
+    .popup-overlay,
+    .dialog-overlay,
+    .modal-overlay
+):not(.ui-theme-immune):not([data-theme-immune="true"]) {
+    background:
+        radial-gradient(
+            circle at 50% 42%,
+            rgba(70, 119, 150, 0.16),
+            rgba(2, 8, 15, 0.78) 62%
+        ) !important;
+
+    backdrop-filter:
+        blur(8px) !important;
+
+    -webkit-backdrop-filter:
+        blur(8px) !important;
+}
+
+/* ============================================================================
+   INPUT, TEXTAREA, SELECT VÀ Ô TÌM KIẾM
+   ============================================================================ */
+
+body.theme-rain-cosmos :is(
+    input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
+    textarea,
+    select,
+    .input-group,
+    .search-box
+):not(.ui-theme-immune)
+:not(.ui-theme-immune *)
+:not([data-theme-immune="true"])
+:not([data-theme-immune="true"] *) {
+    color:
+        var(--raincosmos-text) !important;
+
+    caret-color:
+        var(--raincosmos-cyan-bright) !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(6, 20, 34, 0.86),
+            rgba(18, 43, 62, 0.72)
+        ) !important;
+
+    border:
+        1px solid rgba(151, 209, 233, 0.25) !important;
+
+    border-radius:
+        18px 6px 18px 6px !important;
+
+    box-shadow:
+        inset 0 2px 8px rgba(0, 0, 0, 0.28),
+        0 1px 0 rgba(255, 255, 255, 0.025) !important;
+}
+
+body.theme-rain-cosmos :is(
+    input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
+    textarea,
+    select
+):not(.ui-theme-immune):not(.ui-theme-immune *):focus {
+    outline:
+        none !important;
+
+    border-color:
+        rgba(181, 235, 255, 0.7) !important;
+
+    box-shadow:
+        0 0 0 4px rgba(127, 203, 230, 0.12),
+        0 0 22px rgba(139, 131, 214, 0.11),
+        inset 0 2px 8px rgba(0, 0, 0, 0.22) !important;
+}
+
+body.theme-rain-cosmos ::placeholder {
+    color:
+        rgba(169, 194, 211, 0.62) !important;
+}
+
+/* ============================================================================
+   NÚT BẤM
+
+   Hình viên nang bất đối xứng.
+   Màu vàng được lấy từ áo mưa của Mèo Nhỏ Ngày Mưa.
+   ============================================================================ */
+
+body.theme-rain-cosmos
+button:not(.ui-theme-immune)
+:not(.ui-theme-immune *)
+:not([data-theme-immune="true"])
+:not([data-theme-immune="true"] *),
+
+body.theme-rain-cosmos
+:is(.btn, .button)
+:not(.ui-theme-immune)
+:not(.ui-theme-immune *) {
+    color:
+        #f8fdff !important;
+
+    font-family:
+        "Bahnschrift",
+        "Segoe UI",
+        sans-serif !important;
+
+    font-weight:
+        700 !important;
+
+    letter-spacing:
+        0.02em;
+
+    background:
+        linear-gradient(
+            120deg,
+            #397a9c 0%,
+            #6269aa 62%,
+            #756bb7 100%
+        ) !important;
+
+    border:
+        1px solid rgba(204, 240, 255, 0.28) !important;
+
+    border-radius:
+        18px 6px 18px 6px !important;
+
+    box-shadow:
+        0 8px 18px rgba(3, 13, 23, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.13) !important;
+
+    transition:
+        transform 0.2s ease,
+        filter 0.2s ease,
+        box-shadow 0.2s ease !important;
+}
+
+body.theme-rain-cosmos
+button:not(.ui-theme-immune)
+:not(.ui-theme-immune *)
+:not(:disabled):hover,
+
+body.theme-rain-cosmos
+:is(.btn, .button)
+:not(.ui-theme-immune)
+:not(.ui-theme-immune *)
+:not(:disabled):hover {
+    filter:
+        brightness(1.1) saturate(1.06);
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 12px 24px rgba(2, 10, 18, 0.4),
+        0 0 18px rgba(127, 203, 230, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.17) !important;
+}
+
+/* Nút mua, lưu và gửi */
+body.theme-rain-cosmos :is(
+    .btn-buy,
+    .btn-primary,
+    .save-btn,
+    .submit-btn
+):not(.ui-theme-immune):not(.ui-theme-immune *) {
+    color:
+        #122030 !important;
+
+    background:
+        linear-gradient(
+            115deg,
+            #f4d57f,
+            #e8b95a 58%,
+            #7fcbe6 100%
+        ) !important;
+
+    border-color:
+        rgba(255, 241, 190, 0.42) !important;
+}
+
+/* ============================================================================
+   BẢNG
+   ============================================================================ */
+
+body.theme-rain-cosmos :is(
+    table,
+    .table,
+    .data-table
+):not(.ui-theme-immune):not(.ui-theme-immune *) {
+    color:
+        var(--raincosmos-text) !important;
+
+    background:
+        rgba(7, 23, 38, 0.62) !important;
+
+    border:
+        1px solid rgba(158, 218, 242, 0.16) !important;
+
+    border-radius:
+        22px 7px 22px 7px !important;
+
+    overflow:
+        hidden;
+}
+
+body.theme-rain-cosmos :is(
+    th,
+    .table-header
+):not(.ui-theme-immune):not(.ui-theme-immune *) {
+    color:
+        #dff6ff !important;
+
+    background:
+        rgba(52, 102, 133, 0.32) !important;
+}
+
+body.theme-rain-cosmos :is(
+    td,
+    th
+):not(.ui-theme-immune):not(.ui-theme-immune *) {
+    border-color:
+        rgba(158, 218, 242, 0.12) !important;
+}
+
+/* ============================================================================
+   SLIDE BAR / INPUT RANGE
+
+   Thanh mưa sao và nút kéo tinh thể bất đối xứng.
+   ============================================================================ */
+
+body.theme-rain-cosmos
+input[type="range"]
+:not(.ui-theme-immune)
+:not(.ui-theme-immune *) {
+    height:
+        24px;
+
+    background:
+        transparent !important;
+
+    accent-color:
+        var(--raincosmos-cyan);
+}
+
+body.theme-rain-cosmos
+input[type="range"]::-webkit-slider-runnable-track {
+    height:
+        7px;
+
+    border:
+        1px solid rgba(173, 226, 247, 0.3);
+
+    border-radius:
+        999px 5px 999px 5px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #397a9c,
+            #7fcbe6 48%,
+            #8b83d6
+        );
+
+    box-shadow:
+        inset 0 1px 3px rgba(0, 0, 0, 0.42),
+        0 0 12px rgba(127, 203, 230, 0.12);
+}
+
+body.theme-rain-cosmos
+input[type="range"]::-webkit-slider-thumb {
+    appearance:
+        none;
+
+    -webkit-appearance:
+        none;
+
+    width:
+        20px;
+
+    height:
+        20px;
+
+    margin-top:
+        -7px;
+
+    border:
+        2px solid #e8f8ff;
+
+    border-radius:
+        5px 11px 5px 11px;
+
+    background:
+        radial-gradient(
+            circle at 34% 28%,
+            #ffffff 0 12%,
+            #f2cb72 16% 28%,
+            #7fcbe6 31% 62%,
+            #5a5799 100%
+        );
+
+    box-shadow:
+        0 0 0 3px rgba(127, 203, 230, 0.13),
+        0 4px 10px rgba(1, 8, 15, 0.48);
+
+    cursor:
+        pointer;
+}
+
+body.theme-rain-cosmos
+input[type="range"]::-moz-range-track {
+    height:
+        7px;
+
+    border:
+        1px solid rgba(173, 226, 247, 0.3);
+
+    border-radius:
+        999px 5px 999px 5px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #397a9c,
+            #7fcbe6 48%,
+            #8b83d6
+        );
+}
+
+body.theme-rain-cosmos
+input[type="range"]::-moz-range-thumb {
+    width:
+        17px;
+
+    height:
+        17px;
+
+    border:
+        2px solid #e8f8ff;
+
+    border-radius:
+        5px 11px 5px 11px;
+
+    background:
+        #7fcbe6;
+
+    box-shadow:
+        0 0 0 3px rgba(127, 203, 230, 0.13);
+
+    cursor:
+        pointer;
+}
+
+/* ============================================================================
+   THANH CUỘN
+   ============================================================================ */
+
+body.theme-rain-cosmos,
+body.theme-rain-cosmos * {
+    scrollbar-color:
+        #5e89a4 #081724;
+
+    scrollbar-width:
+        thin;
+}
+
+body.theme-rain-cosmos::-webkit-scrollbar,
+body.theme-rain-cosmos *::-webkit-scrollbar {
+    width:
+        11px;
+
+    height:
+        11px;
+}
+
+body.theme-rain-cosmos::-webkit-scrollbar-track,
+body.theme-rain-cosmos *::-webkit-scrollbar-track {
+    background:
+        #081724;
+
+    border-radius:
+        999px;
+}
+
+body.theme-rain-cosmos::-webkit-scrollbar-thumb,
+body.theme-rain-cosmos *::-webkit-scrollbar-thumb {
+    border:
+        3px solid #081724;
+
+    border-radius:
+        999px 5px 999px 5px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #7fcbe6,
+            #6d6fb5
+        );
+}
+
+/* ============================================================================
+   CHECKBOX VÀ RADIO
+   ============================================================================ */
+
+body.theme-rain-cosmos :is(
+    input[type="checkbox"],
+    input[type="radio"]
+):not(.ui-theme-immune):not(.ui-theme-immune *) {
+    accent-color:
+        var(--raincosmos-cyan);
+
+    filter:
+        drop-shadow(
+            0 0 5px rgba(127, 203, 230, 0.2)
+        );
+}
+
+/* ============================================================================
+   PHỐI HỢP VỚI MÈO NHỎ NGÀY MƯA
+
+   Chỉ thay màu hiển thị.
+   Không thay logic hoặc tái sử dụng hiệu ứng của giao diện khác.
+   ============================================================================ */
+
+body.theme-rain-cosmos
+#virtual-pet-container.pet-rainy-day-stage
+.rainy-day-local-backdrop {
+    background:
+        radial-gradient(
+            ellipse at 50% 88%,
+            rgba(155, 215, 240, 0.32) 0 22%,
+            transparent 50%
+        ),
+        radial-gradient(
+            circle at 80% 18%,
+            rgba(139, 131, 214, 0.18),
+            transparent 37%
+        ),
+        linear-gradient(
+            165deg,
+            rgba(213, 240, 251, 0.72),
+            rgba(101, 163, 195, 0.2) 52%,
+            rgba(55, 77, 128, 0.08)
+        );
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.6),
+        0 0 25px rgba(127, 203, 230, 0.13),
+        0 14px 28px rgba(3, 13, 23, 0.18);
+}
+
+body.theme-rain-cosmos
+#virtual-pet-container.pet-rainy-day-stage
+#virtual-pet-img.rainy-day-cat-magic {
+    filter:
+        drop-shadow(
+            0 12px 15px rgba(2, 13, 23, 0.42)
+        )
+        drop-shadow(
+            0 0 10px rgba(127, 203, 230, 0.28)
+        )
+        drop-shadow(
+            0 0 18px rgba(139, 131, 214, 0.12)
+        );
+}
+
+body.theme-rain-cosmos
+#virtual-pet-container.pet-rainy-day-stage
+.rainy-day-puddle {
+    background:
+        radial-gradient(
+            ellipse at center,
+            rgba(241, 252, 255, 0.92) 0 13%,
+            rgba(127, 203, 230, 0.55) 36%,
+            rgba(139, 131, 214, 0.18) 62%,
+            transparent 73%
+        );
+}
+
+/* ============================================================================
+   MOBILE
+   ============================================================================ */
+
+@media (max-width: 700px) {
+    body.theme-rain-cosmos :is(
+        .modal-content,
+        .popup-content,
+        .dialog-content,
+        .form-container,
+        .confirm-dialog,
+        .alert-dialog
+    ):not(.ui-theme-immune):not([data-theme-immune="true"]) {
+        border-radius:
+            28px 9px 28px 9px !important;
+    }
+
+    body.theme-rain-cosmos :is(
+        .dashboard-card,
+        .assignment-card,
+        .material-card,
+        .content-card,
+        .panel,
+        .card,
+        .widget,
+        .store-item-card
+    ):not(.ui-theme-immune):not(.store-theme-locked) {
+        border-radius:
+            21px 7px 21px 7px !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.theme-rain-cosmos *,
+    body.theme-rain-cosmos *::before,
+    body.theme-rain-cosmos *::after {
+        scroll-behavior:
+            auto !important;
+    }
+}
+/* ============================================================================
+   HIỆU ỨNG TOÀN WEB — MƯA NGOÀI Ô CỬA
+
+   - Hiệu ứng toàn màn hình.
+   - Không chặn chuột hoặc bàn phím.
+   - Không tái sử dụng class hay keyframe của hiệu ứng cũ.
+   - Phối màu với Mèo Nhỏ Ngày Mưa và Đài Quan Trắc Mưa Sao.
+   ============================================================================ */
+
+.effect-rain-window-stage {
+    position:
+        fixed;
+
+    z-index:
+        2400;
+
+    inset:
+        0;
+
+    overflow:
+        hidden;
+
+    isolation:
+        isolate;
+
+    pointer-events:
+        none;
+
+    opacity:
+        0;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(69, 119, 151, 0.08),
+            transparent 42%,
+            rgba(24, 54, 77, 0.09) 100%
+        );
+
+    transition:
+        opacity 0.45s ease;
+}
+
+.effect-rain-window-stage.is-visible {
+    opacity:
+        1;
+}
+
+/*
+ * Hai dải ánh sáng khúc xạ trên mặt kính.
+ * Không dùng sao bay hoặc vòng quỹ đạo của giao diện vũ trụ cũ.
+ */
+.effect-rain-window-stage::before,
+.effect-rain-window-stage::after {
+    content:
+        "";
+
+    position:
+        absolute;
+
+    z-index:
+        1;
+
+    pointer-events:
+        none;
+}
+
+.effect-rain-window-stage::before {
+    top:
+        -28%;
+
+    left:
+        8%;
+
+    width:
+        38vw;
+
+    height:
+        150vh;
+
+    opacity:
+        0.13;
+
+    background:
+        linear-gradient(
+            112deg,
+            transparent 0 35%,
+            rgba(188, 234, 250, 0.54) 47%,
+            rgba(139, 131, 214, 0.2) 51%,
+            transparent 61% 100%
+        );
+
+    filter:
+        blur(18px);
+
+    transform:
+        rotate(-7deg);
+
+    animation:
+        rain-window-prism-drift
+        13s
+        ease-in-out
+        infinite;
+}
+
+.effect-rain-window-stage::after {
+    right:
+        -15%;
+
+    top:
+        8%;
+
+    width:
+        48vw;
+
+    height:
+        76vh;
+
+    border-radius:
+        50%;
+
+    opacity:
+        0.16;
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(127, 203, 230, 0.34),
+            rgba(139, 131, 214, 0.12) 38%,
+            transparent 70%
+        );
+
+    filter:
+        blur(44px);
+
+    animation:
+        rain-window-lens-breathe
+        8s
+        ease-in-out
+        infinite;
+}
+
+/* ============================================================================
+   MÂY MƯA Ở PHẦN TRÊN
+   ============================================================================ */
+
+.rain-window-cloud-bank {
+    position:
+        absolute;
+
+    z-index:
+        2;
+
+    left:
+        -12%;
+
+    top:
+        -18%;
+
+    width:
+        124%;
+
+    height:
+        54%;
+
+    pointer-events:
+        none;
+
+    opacity:
+        0.52;
+
+    background:
+        radial-gradient(
+            ellipse at 15% 60%,
+            rgba(138, 184, 207, 0.26),
+            transparent 33%
+        ),
+        radial-gradient(
+            ellipse at 48% 38%,
+            rgba(82, 124, 153, 0.25),
+            transparent 38%
+        ),
+        radial-gradient(
+            ellipse at 82% 52%,
+            rgba(124, 117, 186, 0.17),
+            transparent 36%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(35, 65, 88, 0.38),
+            transparent
+        );
+
+    filter:
+        blur(28px);
+
+    transform:
+        translateX(-2%);
+
+    animation:
+        rain-window-cloud-drift
+        18s
+        ease-in-out
+        infinite;
+}
+
+/* ============================================================================
+   VÙNG PHẢN CHIẾU PHÍA DƯỚI
+   ============================================================================ */
+
+.rain-window-horizon {
+    position:
+        absolute;
+
+    z-index:
+        2;
+
+    left:
+        0;
+
+    bottom:
+        0;
+
+    width:
+        100%;
+
+    height:
+        27vh;
+
+    pointer-events:
+        none;
+
+    opacity:
+        0.42;
+
+    background:
+        radial-gradient(
+            ellipse at 50% 100%,
+            rgba(127, 203, 230, 0.2),
+            transparent 54%
+        ),
+        repeating-linear-gradient(
+            176deg,
+            transparent 0 13px,
+            rgba(193, 233, 248, 0.045) 14px 15px,
+            transparent 16px 29px
+        );
+
+    mask-image:
+        linear-gradient(
+            to bottom,
+            transparent,
+            #000 38%,
+            #000
+        );
+
+    -webkit-mask-image:
+        linear-gradient(
+            to bottom,
+            transparent,
+            #000 38%,
+            #000
+        );
+
+    animation:
+        rain-window-horizon-shimmer
+        7.5s
+        ease-in-out
+        infinite;
+}
+
+/* ============================================================================
+   CÁC TRƯỜNG HIỆU ỨNG
+   ============================================================================ */
+
+.rain-window-bead-field,
+.rain-window-drop-field,
+.rain-window-ripple-field {
+    position:
+        absolute;
+
+    inset:
+        0;
+
+    overflow:
+        hidden;
+
+    pointer-events:
+        none;
+}
+
+.rain-window-bead-field {
+    z-index:
+        5;
+}
+
+.rain-window-drop-field {
+    z-index:
+        6;
+}
+
+.rain-window-ripple-field {
+    z-index:
+        7;
+}
+
+/* ============================================================================
+   GIỌT NƯỚC BÁM TRÊN KÍNH
+   ============================================================================ */
+
+.rain-window-bead {
+    position:
+        absolute;
+
+    left:
+        var(--rain-window-bead-x);
+
+    top:
+        var(--rain-window-bead-y);
+
+    width:
+        var(--rain-window-bead-size);
+
+    height:
+        var(--rain-window-bead-size);
+
+    border:
+        1px solid rgba(222, 246, 255, 0.42);
+
+    border-radius:
+        62% 38% 66% 34% /
+        72% 63% 37% 28%;
+
+    opacity:
+        0.38;
+
+    background:
+        radial-gradient(
+            circle at 28% 22%,
+            rgba(255, 255, 255, 0.96) 0 10%,
+            rgba(185, 230, 247, 0.42) 19% 48%,
+            rgba(73, 126, 157, 0.16) 68%,
+            transparent 72%
+        );
+
+    box-shadow:
+        inset -2px -3px 5px rgba(31, 76, 106, 0.3),
+        0 2px 5px rgba(4, 15, 25, 0.26);
+
+    filter:
+        blur(0.1px);
+
+    transform:
+        scaleY(1.28);
+
+    animation:
+        rain-window-bead-slide
+        var(--rain-window-bead-duration)
+        ease-in-out
+        infinite;
+
+    animation-delay:
+        var(--rain-window-bead-delay);
+}
+
+/* ============================================================================
+   VỆT MƯA
+   ============================================================================ */
+
+.rain-window-streak {
+    position:
+        fixed;
+
+    width:
+        var(--rain-window-streak-width);
+
+    height:
+        var(--rain-window-streak-length);
+
+    border-radius:
+        999px;
+
+    opacity:
+        0;
+
+    background:
+        linear-gradient(
+            180deg,
+            transparent 0%,
+            rgba(226, 246, 255, 0.24) 18%,
+            rgba(178, 224, 242, 0.92) 72%,
+            rgba(139, 131, 214, 0.42) 100%
+        );
+
+    box-shadow:
+        0 0 5px rgba(127, 203, 230, 0.16);
+
+    transform:
+        rotate(-8deg);
+
+    transform-origin:
+        50% 0;
+
+    will-change:
+        transform,
+        opacity;
+
+    animation:
+        rain-window-streak-fall
+        var(--rain-window-streak-duration)
+        linear
+        forwards;
+}
+
+/* ============================================================================
+   GỢN NƯỚC
+   ============================================================================ */
+
+.rain-window-ripple {
+    position:
+        absolute;
+
+    width:
+        var(--rain-window-ripple-width);
+
+    height:
+        calc(var(--rain-window-ripple-width) * 0.2);
+
+    border:
+        1.5px solid rgba(152, 215, 239, 0.56);
+
+    border-radius:
+        50%;
+
+    opacity:
+        0;
+
+    box-shadow:
+        0 0 8px rgba(127, 203, 230, 0.13),
+        inset 0 0 6px rgba(139, 131, 214, 0.1);
+
+    transform:
+        translateX(-50%)
+        scale(0.34);
+
+    animation:
+        rain-window-ripple-open
+        var(--rain-window-ripple-duration)
+        ease-out
+        forwards;
+}
+
+/* ============================================================================
+   KHI KẾT HỢP VỚI ĐÀI QUAN TRẮC MƯA SAO
+   ============================================================================ */
+
+body.theme-rain-cosmos
+.effect-rain-window-stage {
+    background:
+        linear-gradient(
+            180deg,
+            rgba(74, 126, 160, 0.1),
+            transparent 38%,
+            rgba(58, 69, 126, 0.1)
+        );
+}
+
+body.theme-rain-cosmos
+.rain-window-cloud-bank {
+    opacity:
+        0.65;
+
+    background:
+        radial-gradient(
+            ellipse at 17% 58%,
+            rgba(127, 203, 230, 0.31),
+            transparent 34%
+        ),
+        radial-gradient(
+            ellipse at 51% 38%,
+            rgba(68, 115, 148, 0.28),
+            transparent 40%
+        ),
+        radial-gradient(
+            ellipse at 84% 50%,
+            rgba(139, 131, 214, 0.23),
+            transparent 37%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(21, 47, 68, 0.44),
+            transparent
+        );
+}
+
+body.theme-rain-cosmos
+.rain-window-streak {
+    box-shadow:
+        0 0 6px rgba(127, 203, 230, 0.23),
+        0 0 13px rgba(139, 131, 214, 0.07);
+}
+
+/* ============================================================================
+   KHI KẾT HỢP VỚI MÈO NHỎ NGÀY MƯA
+   ============================================================================ */
+
+body:has(
+    #virtual-pet-img.rainy-day-cat-magic
+)
+.rain-window-horizon {
+    background:
+        radial-gradient(
+            ellipse at 78% 100%,
+            rgba(242, 203, 114, 0.16),
+            transparent 27%
+        ),
+        radial-gradient(
+            ellipse at 50% 100%,
+            rgba(127, 203, 230, 0.21),
+            transparent 56%
+        ),
+        repeating-linear-gradient(
+            176deg,
+            transparent 0 13px,
+            rgba(193, 233, 248, 0.05) 14px 15px,
+            transparent 16px 29px
+        );
+}
+
+/* ============================================================================
+   ANIMATION RIÊNG
+   ============================================================================ */
+
+@keyframes rain-window-prism-drift {
+    0%,
+    100% {
+        transform:
+            translateX(-4%)
+            rotate(-7deg);
+
+        opacity:
+            0.08;
+    }
+
+    50% {
+        transform:
+            translateX(18%)
+            rotate(-4deg);
+
+        opacity:
+            0.17;
+    }
+}
+
+@keyframes rain-window-lens-breathe {
+    0%,
+    100% {
+        transform:
+            scale(0.92);
+
+        opacity:
+            0.11;
+    }
+
+    50% {
+        transform:
+            scale(1.08);
+
+        opacity:
+            0.2;
+    }
+}
+
+@keyframes rain-window-cloud-drift {
+    0%,
+    100% {
+        transform:
+            translateX(-3%)
+            scale(1);
+    }
+
+    50% {
+        transform:
+            translateX(7%)
+            scale(1.05);
+    }
+}
+
+@keyframes rain-window-horizon-shimmer {
+    0%,
+    100% {
+        transform:
+            translateX(0);
+
+        opacity:
+            0.35;
+    }
+
+    50% {
+        transform:
+            translateX(2%);
+
+        opacity:
+            0.5;
+    }
+}
+
+@keyframes rain-window-bead-slide {
+    0% {
+        transform:
+            translateY(-8px)
+            scaleY(1.18);
+
+        opacity:
+            0;
+    }
+
+    15% {
+        opacity:
+            0.42;
+    }
+
+    68% {
+        opacity:
+            0.34;
+    }
+
+    100% {
+        transform:
+            translateY(
+                var(--rain-window-bead-slide)
+            )
+            scaleY(1.52);
+
+        opacity:
+            0;
+    }
+}
+
+@keyframes rain-window-streak-fall {
+    0% {
+        transform:
+            translate3d(0, -28px, 0)
+            rotate(-8deg)
+            scaleY(0.76);
+
+        opacity:
+            0;
+    }
+
+    12% {
+        opacity:
+            var(--rain-window-streak-opacity);
+    }
+
+    82% {
+        opacity:
+            calc(
+                var(--rain-window-streak-opacity)
+                * 0.82
+            );
+    }
+
+    100% {
+        transform:
+            translate3d(
+                var(--rain-window-streak-drift),
+                var(--rain-window-streak-fall),
+                0
+            )
+            rotate(-8deg)
+            scaleY(1.12);
+
+        opacity:
+            0;
+    }
+}
+
+@keyframes rain-window-ripple-open {
+    0% {
+        transform:
+            translateX(-50%)
+            scaleX(0.25)
+            scaleY(0.45);
+
+        opacity:
+            0;
+    }
+
+    18% {
+        opacity:
+            0.62;
+    }
+
+    70% {
+        opacity:
+            0.19;
+    }
+
+    100% {
+        transform:
+            translateX(-50%)
+            scaleX(1.8)
+            scaleY(1.25);
+
+        opacity:
+            0;
+    }
+}
+
+/* ============================================================================
+   MOBILE
+   ============================================================================ */
+
+@media (max-width: 768px) {
+    .effect-rain-window-stage::before {
+        width:
+            62vw;
+
+        opacity:
+            0.09;
+    }
+
+    .rain-window-cloud-bank {
+        height:
+            46%;
+
+        opacity:
+            0.43;
+    }
+
+    .rain-window-horizon {
+        height:
+            21vh;
+    }
+
+    .rain-window-bead {
+        opacity:
+            0.3;
+    }
+}
+
+/* ============================================================================
+   GIẢM CHUYỂN ĐỘNG
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    .effect-rain-window-stage::before,
+    .effect-rain-window-stage::after,
+    .rain-window-cloud-bank,
+    .rain-window-horizon,
+    .rain-window-bead,
+    .rain-window-streak,
+    .rain-window-ripple {
+        animation:
+            none !important;
+    }
+
+    .rain-window-streak,
+    .rain-window-ripple {
+        display:
+            none !important;
+    }
+}
