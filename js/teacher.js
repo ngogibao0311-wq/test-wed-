@@ -10634,10 +10634,164 @@ window.openCoinConversionModal = function () {
 };
 
 // =========================================================================
-// CHỨC NĂNG KIỂM DUYỆT RÚT TIỀN MẶT - PHÍA GIÁO VIÊN (CÁCH 2)
+// KIỂM DUYỆT RÚT TIỀN MẶT - PHÍA GIÁO VIÊN (BẢN AN TOÀN)
 // =========================================================================
 
-// Hàm tải toàn bộ yêu cầu tiền mặt lên bảng điều khiển của giáo viên
+function teacherCashNumber(value, fallback = NaN) {
+    if (value === null || value === undefined || value === '') return fallback;
+    const number = parseFloat(String(value).trim().replace(',', '.'));
+    return Number.isFinite(number) ? number : fallback;
+}
+
+function teacherCashAmount(value) {
+    const amount = Number(value);
+    return Number.isFinite(amount) && amount > 0 ? Math.floor(amount) : 0;
+}
+
+function teacherCashSameValue(a, b) {
+    return String(a ?? '') === String(b ?? '');
+}
+
+function getTeacherCashPassingGrade(assign) {
+    const assignmentGrade = teacherCashNumber(assign && assign.passingGrade, NaN);
+    if (Number.isFinite(assignmentGrade)) return assignmentGrade;
+
+    const globalGrade = teacherCashNumber(window.currentPassingGrade, NaN);
+    return Number.isFinite(globalGrade) ? globalGrade : 7;
+}
+
+function getTeacherCashRoadmapMoney(assign) {
+    const money = parseInt(
+        String(assign?.roadmapMoney || 0).replace(/[^0-9-]/g, ''),
+        10
+    );
+    return Number.isFinite(money) ? money : 0;
+}
+
+function isTeacherCashSubmissionFailed(sub) {
+    return !!(
+        sub &&
+        !sub.forcePass &&
+        (sub.isAutoSubmitted || sub.isLateFail || sub.isCheatFail)
+    );
+}
+
+// Đồng bộ cách chọn bài nộp với student.js: ưu tiên forcePass,
+// bài đạt, bài có điểm hợp lệ, đang chấm lại, rồi mới tới bài lỗi.
+function getTeacherCashBestSubmission(assign, submissions, username) {
+    const passingGrade = getTeacherCashPassingGrade(assign);
+    const matched = (submissions || []).filter(sub =>
+        teacherCashSameValue(sub.assignmentId, assign.id) &&
+        teacherCashSameValue(sub.studentUsername, username)
+    );
+
+    if (!matched.length) return null;
+
+    function priority(sub) {
+        if (sub.forcePass) return 50;
+
+        const grade = teacherCashNumber(sub.grade, NaN);
+        const failed = isTeacherCashSubmissionFailed(sub);
+
+        if (!failed && !sub.isRegrading && Number.isFinite(grade) && grade >= passingGrade) {
+            return 40;
+        }
+        if (!failed && !sub.isRegrading && Number.isFinite(grade)) return 30;
+        if (sub.isRegrading) return 20;
+        if (failed) return 10;
+        return 0;
+    }
+
+    matched.sort((a, b) => {
+        const priorityDiff = priority(b) - priority(a);
+        if (priorityDiff !== 0) return priorityDiff;
+
+        const gradeA = teacherCashNumber(a.grade, -Infinity);
+        const gradeB = teacherCashNumber(b.grade, -Infinity);
+        if (gradeB !== gradeA) return gradeB - gradeA;
+
+        return Number(b.id || b.timestamp || 0) - Number(a.id || a.timestamp || 0);
+    });
+
+    return matched[0];
+}
+
+function calculateTeacherCashBaseMoney(assignments, submissions, username) {
+    return (assignments || []).reduce((total, assign) => {
+        const targets = Array.isArray(assign.targetStudent)
+            ? assign.targetStudent.map(String)
+            : String(assign.targetStudent || 'all')
+                .split(',')
+                .map(value => value.trim());
+
+        if (!targets.includes('all') && !targets.includes(String(username))) {
+            return total;
+        }
+
+        const sub = getTeacherCashBestSubmission(assign, submissions, username);
+        if (!sub) return total;
+        if (sub.forcePass) return total + getTeacherCashRoadmapMoney(assign);
+        if (sub.isRegrading || isTeacherCashSubmissionFailed(sub)) return total;
+
+        const grade = teacherCashNumber(sub.grade, NaN);
+        if (Number.isFinite(grade) && grade >= getTeacherCashPassingGrade(assign)) {
+            return total + getTeacherCashRoadmapMoney(assign);
+        }
+
+        return total;
+    }, 0);
+}
+
+async function resolveCashRequestStudentUsername(reqData) {
+    // Dữ liệu mới: dùng username đã lưu ngay lúc học sinh gửi yêu cầu.
+    if (reqData && reqData.studentUsername) {
+        return String(reqData.studentUsername);
+    }
+
+    // Tương thích dữ liệu cũ: chỉ khi request chưa có username mới dò theo tên.
+    const usersSnapshot = await db.ref('users').once('value');
+    const usersData = usersSnapshot.val();
+    const matches = [];
+
+    if (usersData) {
+        Object.values(usersData).forEach(user => {
+            if (
+                user &&
+                user.role === 'student' &&
+                String(user.name || '') === String(reqData?.studentName || '') &&
+                user.username
+            ) {
+                matches.push(String(user.username));
+            }
+        });
+    }
+
+    // Không tự chọn khi có nhiều học sinh trùng tên.
+    if (matches.length === 1) return matches[0];
+    if (matches.length > 1) {
+        throw new Error('Có nhiều học sinh trùng tên. Yêu cầu cũ thiếu studentUsername nên không thể xác định an toàn.');
+    }
+
+    return null;
+}
+
+async function resetCashRequestToPending(reqRef, reason) {
+    try {
+        await reqRef.update({
+            status: 'pending',
+            processingAt: null,
+            processingBy: null,
+            processingOffsetBefore: null,
+            processingOffsetAfter: null,
+            processingBaseMoney: null,
+            processingAmount: null,
+            processingError: reason || null
+        });
+    } catch (rollbackError) {
+        console.error('Không thể trả yêu cầu về pending:', rollbackError);
+    }
+}
+
 window.loadTeacherCashRequests = async function () {
     const container = document.getElementById('teacherCashRequestsListContainer');
     if (!container) return;
@@ -10645,183 +10799,340 @@ window.loadTeacherCashRequests = async function () {
     try {
         let requests = await getDB('cash_requests');
         const now = Date.now();
-        const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000; // 2 ngày tính bằng mili-giây
-
-        // Quét và tự động xóa các yêu cầu đã xử lý quá 2 ngày
+        const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
         const validRequests = [];
-        for (let req of requests) {
+
+        for (const req of (requests || [])) {
             if (req.status === 'completed' || req.status === 'rejected') {
-                const checkTime = req.resolvedAt || req.timestamp; // Lấy thời gian xử lý (hoặc thời gian tạo nếu là dữ liệu cũ)
-                if (now - checkTime > TWO_DAYS_MS) {
-                    // Xóa vĩnh viễn khỏi Firebase
+                const checkTime = Number(req.resolvedAt || req.timestamp || 0);
+                if (checkTime && now - checkTime > TWO_DAYS_MS) {
                     await removeDB('cash_requests', req._fbKey);
-                    continue; // Bỏ qua, không hiển thị ra màn hình
+                    continue;
                 }
             }
             validRequests.push(req);
         }
+
         requests = validRequests;
 
-        if (requests.length === 0) {
+        if (!requests.length) {
             container.innerHTML = '<p style="color: #64748b; font-size: 0.95em; text-align: center; padding: 20px; margin: 0;">Hiện tại chưa có yêu cầu nhận tiền mặt nào.</p>';
             return;
         }
 
         let html = '';
-        // Hiện yêu cầu mới nhất lên trước
-        requests.reverse().forEach(req => {
-            let statusLabel = '';
-            let actionsHtml = '';
 
-            if (req.status === 'pending') {
-                statusLabel = '<span style="color: #d97706; background: #fef3c7; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 0.85em;">⏳ Chờ duyệt</span>';
-                actionsHtml = `
-                    <button onclick="handleTeacherProcessCash('${req._fbKey}', 'approve')" 
-                            style="background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85em;">
-                        Chấp nhận
-                    </button>
-                    <button onclick="handleTeacherProcessCash('${req._fbKey}', 'reject')" 
-                            style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85em; margin-left: 5px;">
-                        Từ chối
-                    </button>
-                `;
-            } else if (req.status === 'transferring') {
-                statusLabel = '<span style="color: #2563eb; background: #e0f2fe; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 0.85em;">🔄 Đang chuyển</span>';
-                actionsHtml = `
-                    <button onclick="handleTeacherProcessCash('${req._fbKey}', 'complete')" 
-                            style="background: #3b82f6; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85em;">
-                        Đã chuyển
-                    </button>
-                `;
-            } else if (req.status === 'completed') {
-                statusLabel = '<span style="color: #16a34a; background: #dcfce7; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 0.85em;">✅ Đã hoàn tất</span>';
-            } else if (req.status === 'rejected') {
-                statusLabel = '<span style="color: #dc2626; background: #fee2e2; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 0.85em;">❌ Đã từ chối</span>';
-            }
+        [...requests]
+            .sort((a, b) => Number(b.timestamp || 0) - Number(a.timestamp || 0))
+            .forEach(req => {
+                let statusLabel = '';
+                let actionsHtml = '';
+                const amount = teacherCashAmount(req.amount);
 
-            html += `
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; display: flex; justify-content: space-between; align-items: center; gap: 15px; box-sizing: border-box;">
-                    <div>
-                        <div style="font-weight: bold; color: #1e293b; font-size: 0.95em;">👤 Học sinh: ${req.studentName}</div>
-                        <div style="margin-top: 4px; color: #475569; font-size: 0.9em;">
-                            Số tiền yêu cầu: <strong style="color: #ea580c;">${req.amount.toLocaleString('vi-VN')} VNĐ</strong>
+                if (req.status === 'pending') {
+                    statusLabel = '<span style="color: #d97706; background: #fef3c7; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 0.85em;">⏳ Chờ duyệt</span>';
+                    actionsHtml = `
+                        <button onclick="handleTeacherProcessCash('${req._fbKey}', 'approve')"
+                                style="background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85em;">
+                            Chấp nhận
+                        </button>
+                        <button onclick="handleTeacherProcessCash('${req._fbKey}', 'reject')"
+                                style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85em; margin-left: 5px;">
+                            Từ chối
+                        </button>`;
+                } else if (req.status === 'processing') {
+                    statusLabel = '<span style="color: #7c3aed; background: #ede9fe; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 0.85em;">🔐 Đang xử lý an toàn</span>';
+                    actionsHtml = `
+                        <button onclick="handleTeacherProcessCash('${req._fbKey}', 'recover')"
+                                style="background: #7c3aed; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85em;">
+                            Khôi phục trạng thái
+                        </button>`;
+                } else if (req.status === 'transferring') {
+                    statusLabel = '<span style="color: #2563eb; background: #e0f2fe; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 0.85em;">🔄 Đang chuyển</span>';
+                    actionsHtml = `
+                        <button onclick="handleTeacherProcessCash('${req._fbKey}', 'complete')"
+                                style="background: #3b82f6; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85em;">
+                            Đã chuyển
+                        </button>`;
+                } else if (req.status === 'completed') {
+                    statusLabel = '<span style="color: #16a34a; background: #dcfce7; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 0.85em;">✅ Đã hoàn tất</span>';
+                } else if (req.status === 'rejected') {
+                    statusLabel = '<span style="color: #dc2626; background: #fee2e2; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 0.85em;">❌ Đã từ chối</span>';
+                } else {
+                    statusLabel = '<span style="color: #475569; background: #f1f5f9; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 0.85em;">Không xác định</span>';
+                }
+
+                const usernameText = req.studentUsername
+                    ? `<div style="margin-top: 3px; color: #64748b; font-size: 0.78em;">@${req.studentUsername}</div>`
+                    : '';
+
+                html += `
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; display: flex; justify-content: space-between; align-items: center; gap: 15px; box-sizing: border-box;">
+                        <div>
+                            <div style="font-weight: bold; color: #1e293b; font-size: 0.95em;">👤 Học sinh: ${req.studentName || req.studentUsername || 'Không rõ'}</div>
+                            ${usernameText}
+                            <div style="margin-top: 4px; color: #475569; font-size: 0.9em;">
+                                Số tiền yêu cầu: <strong style="color: #ea580c;">${amount.toLocaleString('vi-VN')} VNĐ</strong>
+                            </div>
+                            <div style="margin-top: 6px; display: flex; align-items: center; gap: 6px;">
+                                <span style="font-size: 0.8em; color: #94a3b8;">Trạng thái:</span> ${statusLabel}
+                            </div>
                         </div>
-                        <div style="margin-top: 6px; display: flex; align-items: center; gap: 6px;">
-                            <span style="font-size: 0.8em; color: #94a3b8;">Trạng thái:</span> ${statusLabel}
+                        <div style="display: flex; align-items: center; box-sizing: border-box;">
+                            ${actionsHtml}
                         </div>
-                    </div>
-                    <div style="display: flex; align-items: center; box-sizing: border-box;">
-                        ${actionsHtml}
-                    </div>
-                </div>
-            `;
-        });
+                    </div>`;
+            });
 
         container.innerHTML = html;
     } catch (error) {
-        console.error("Lỗi hiển thị yêu cầu phía giáo viên:", error);
+        console.error('Lỗi hiển thị yêu cầu phía giáo viên:', error);
         container.innerHTML = '<p style="color: #ef4444; font-size: 0.9em; text-align: center;">Không thể tải dữ liệu kiểm duyệt từ Firebase!</p>';
     }
 };
 
-// Hàm xử lý kiểm duyệt (Đã fix lỗi tính sai tiền cho Giáo Viên)
 window.handleTeacherProcessCash = async function (reqFbKey, action) {
+    const reqRef = db.ref(`cash_requests/${reqFbKey}`);
+
     try {
-        const reqSnapshot = await db.ref(`cash_requests/${reqFbKey}`).once('value');
-        const reqData = reqSnapshot.val();
+        const reqSnapshot = await reqRef.once('value');
+        let reqData = reqSnapshot.val();
+
         if (!reqData) {
-            alert("⚠️ Yêu cầu kiểm duyệt không tồn tại trên hệ thống!");
+            alert('⚠️ Yêu cầu kiểm duyệt không tồn tại trên hệ thống!');
             return;
         }
 
-        // --- THAO TÁC 1: CHẤP NHẬN ---
+        const amount = teacherCashAmount(reqData.amount);
+        if (!amount) {
+            alert('❌ Yêu cầu có số tiền không hợp lệ. Không thể xử lý.');
+            return;
+        }
+
         if (action === 'approve') {
-            if (!confirm(`Bạn có đồng ý duyệt yêu cầu lấy tiền mặt trị giá ${reqData.amount.toLocaleString('vi-VN')} VNĐ của học sinh "${reqData.studentName}" không? Hệ thống sẽ kiểm tra tài khoản học sinh ngay bây giờ.`)) return;
-
-            // 1. Tìm Username chính xác của học sinh
-            const usersSnapshot = await db.ref('users').once('value');
-            const usersData = usersSnapshot.val();
-            let studentUsername = null;
-
-            if (usersData) {
-                for (let key in usersData) {
-                    if (usersData[key].name === reqData.studentName && usersData[key].role === 'student') {
-                        studentUsername = usersData[key].username;
-                        break;
-                    }
-                }
+            if (reqData.status !== 'pending') {
+                alert('⚠️ Yêu cầu này không còn ở trạng thái chờ duyệt. Hãy tải lại danh sách.');
+                return;
             }
 
+            if (!confirm(`Bạn có đồng ý duyệt yêu cầu lấy tiền mặt trị giá ${amount.toLocaleString('vi-VN')} VNĐ của học sinh "${reqData.studentName || reqData.studentUsername}" không?`)) {
+                return;
+            }
+
+            // BƯỚC 1: khóa request bằng transaction. Chỉ một lần duyệt có thể
+            // chuyển pending -> processing, nên double-click/tab khác không thể trừ lặp.
+            const claimResult = await reqRef.transaction(current => {
+                if (!current || current.status !== 'pending') return;
+
+                return {
+                    ...current,
+                    status: 'processing',
+                    processingAt: Date.now(),
+                    processingBy: currentUser?.username || currentUser?.name || 'teacher'
+                };
+            });
+
+            if (!claimResult.committed) {
+                alert('⚠️ Yêu cầu đã được xử lý ở nơi khác hoặc trạng thái vừa thay đổi.');
+                return;
+            }
+
+            reqData = claimResult.snapshot.val();
+
+            try {
+                const studentUsername = await resolveCashRequestStudentUsername(reqData);
+                if (!studentUsername) {
+                    throw new Error('Không tìm thấy tài khoản học sinh tương ứng.');
+                }
+
+                const [assignments, submissions, offsetSnap] = await Promise.all([
+                    getDB('assignments'),
+                    getDB('submissions'),
+                    db.ref(`student_money_offset/${studentUsername}`).once('value')
+                ]);
+
+                // Cùng thuật toán chọn bài/điểm như student.js.
+                const baseMoney = calculateTeacherCashBaseMoney(
+                    assignments,
+                    submissions,
+                    studentUsername
+                );
+
+                const offsetBefore = Number(offsetSnap.val()) || 0;
+                const currentRouteMoney = Math.max(0, baseMoney + offsetBefore);
+
+                if (currentRouteMoney < amount) {
+                    await resetCashRequestToPending(reqRef, 'insufficient_balance');
+                    alert(`❌ KHÔNG THỂ DUYỆT! Số dư lộ trình hiện tại chỉ còn ${currentRouteMoney.toLocaleString('vi-VN')} VNĐ, không đủ để rút ${amount.toLocaleString('vi-VN')} VNĐ.`);
+                    return;
+                }
+
+                const offsetAfter = offsetBefore - amount;
+
+                // Lưu kế hoạch trừ tiền TRƯỚC khi transaction. Nếu mạng rớt ngay
+                // sau khi trừ, nút "Khôi phục trạng thái" có thể xác định kết quả.
+                await reqRef.update({
+                    studentUsername,
+                    processingOffsetBefore: offsetBefore,
+                    processingOffsetAfter: offsetAfter,
+                    processingBaseMoney: baseMoney,
+                    processingAmount: amount
+                });
+
+                const offsetRef = db.ref(`student_money_offset/${studentUsername}`);
+
+                // BƯỚC 2: transaction tiền. Chỉ trừ nếu offset vẫn đúng giá trị
+                // vừa kiểm tra; nếu có thay đổi đồng thời thì abort, không ghi đè.
+                const debitResult = await offsetRef.transaction(currentOffset => {
+                    const normalizedOffset = Number(currentOffset) || 0;
+                    if (normalizedOffset !== offsetBefore) return;
+                    return offsetAfter;
+                });
+
+                if (!debitResult.committed) {
+                    await resetCashRequestToPending(reqRef, 'offset_changed');
+                    alert('⚠️ Số dư vừa thay đổi bởi một thao tác khác. Không có tiền nào bị trừ; hãy duyệt lại yêu cầu.');
+                    return;
+                }
+
+                // BƯỚC 3: đánh dấu đã trừ. Nếu bước này lỗi mạng, request vẫn
+                // giữ status=processing, vì vậy không thể bấm duyệt lần hai.
+                await reqRef.update({
+                    status: 'transferring',
+                    studentUsername,
+                    approvedAt: Date.now(),
+                    debitApplied: true,
+                    debitAmount: amount,
+                    debitOffsetBefore: offsetBefore,
+                    debitOffsetAfter: offsetAfter,
+                    processingError: null
+                });
+
+                alert('✅ Duyệt thành công! Tiền lộ trình đã được trừ bằng transaction và yêu cầu chuyển sang Đang chuyển.');
+            } catch (approveError) {
+                // Không tự đưa về pending ở đây vì có thể transaction tiền đã
+                // commit nhưng phản hồi cuối bị mất. Giữ processing để tránh trừ lần hai.
+                console.error('Lỗi trong quá trình duyệt tiền mặt:', approveError);
+                try {
+                    await reqRef.update({
+                        processingError: String(approveError?.message || approveError),
+                        processingFailedAt: Date.now()
+                    });
+                } catch (_) { }
+
+                alert('❌ Quá trình duyệt bị gián đoạn. Yêu cầu đã được khóa ở trạng thái Đang xử lý để tránh trừ tiền lặp. Hãy dùng nút "Khôi phục trạng thái".');
+                return;
+            }
+        }
+
+        else if (action === 'recover') {
+            if (reqData.status !== 'processing') {
+                alert('ℹ️ Yêu cầu này không cần khôi phục.');
+                return;
+            }
+
+            const studentUsername = await resolveCashRequestStudentUsername(reqData);
             if (!studentUsername) {
-                alert("❌ Thất bại: Không tìm thấy tài khoản thông tin của học sinh này trên Firebase.");
+                alert('❌ Không xác định được username của học sinh. Không thể tự khôi phục an toàn.');
                 return;
             }
 
-            // 2. TÍNH LẠI CHÍNH XÁC TỔNG TIỀN LỘ TRÌNH CỦA HỌC SINH ĐÓ
-            let baseMoney = 0;
-            const assignments = await getDB('assignments');
-            const submissions = await getDB('submissions');
-            const stdAssignments = assignments.filter(a => {
-                const targetArr = Array.isArray(a.targetStudent) ? a.targetStudent : [a.targetStudent || 'all'];
-                return targetArr.includes('all') || targetArr.includes(studentUsername);
-            });
+            const before = Number(reqData.processingOffsetBefore);
+            const after = Number(reqData.processingOffsetAfter);
 
-            stdAssignments.forEach(assign => {
-                const passingGrade = assign.passingGrade || 7;
-                const sub = submissions.find(s => s.assignmentId === assign.id && s.studentUsername === studentUsername);
-                let currentItemMoney = assign.roadmapMoney ? parseInt(assign.roadmapMoney) : 0;
-
-                if (sub) {
-                    if (sub.forcePass) baseMoney += currentItemMoney;
-                    else if (!sub.isAutoSubmitted && !sub.isLateFail && !sub.isRegrading && sub.grade !== null && sub.grade !== '') {
-                        if (parseFloat(sub.grade) >= passingGrade) baseMoney += currentItemMoney;
-                    }
-                }
-            });
-
-            // Lấy độ lệch tiền (offset)
-            const offsetSnap = await db.ref('student_money_offset/' + studentUsername).once('value');
-            let moneyOffset = offsetSnap.val() || 0;
-
-            let currentRouteMoney = baseMoney + moneyOffset;
-            if (currentRouteMoney < 0) currentRouteMoney = 0;
-
-            // 3. KIỂM TRA ĐIỀU KIỆN TRỪ TIỀN
-            if (currentRouteMoney < reqData.amount) {
-                alert(`❌ KHÔNG THỂ DUYỆT! Số dư lộ trình của học sinh hiện tại chỉ còn ${currentRouteMoney.toLocaleString('vi-VN')} VNĐ, không đủ để rút ${reqData.amount.toLocaleString('vi-VN')} VNĐ. Hãy bấm Từ Chối yêu cầu này.`);
+            if (!Number.isFinite(before) || !Number.isFinite(after)) {
+                alert('⚠️ Yêu cầu không có đủ dữ liệu kiểm tra trước/sau. Cần kiểm tra thủ công, hệ thống sẽ không tự trừ thêm tiền.');
                 return;
             }
 
-            // TRỪ TIỀN HỌC SINH BẰNG CÁCH CHỈNH OFFSET (Cách hệ thống bạn đang hoạt động)
-            await db.ref(`student_money_offset/${studentUsername}`).set(moneyOffset - reqData.amount);
+            const offsetSnap = await db.ref(`student_money_offset/${studentUsername}`).once('value');
+            const currentOffset = Number(offsetSnap.val()) || 0;
 
-            // Chuyển trạng thái sang 'Đang chuyển'
-            await db.ref(`cash_requests/${reqFbKey}`).update({ status: 'transferring' });
-            alert("✅ Duyệt thành công! Tài khoản học sinh đã được trừ tiền hợp lệ.");
+            if (currentOffset === after) {
+                // Tiền đã trừ nhưng bước cập nhật trạng thái bị gián đoạn.
+                await reqRef.update({
+                    status: 'transferring',
+                    studentUsername,
+                    approvedAt: reqData.approvedAt || Date.now(),
+                    debitApplied: true,
+                    debitAmount: teacherCashAmount(reqData.processingAmount || reqData.amount),
+                    debitOffsetBefore: before,
+                    debitOffsetAfter: after,
+                    recoveredAt: Date.now(),
+                    processingError: null
+                });
+                alert('✅ Khôi phục thành công: hệ thống xác nhận tiền ĐÃ được trừ trước đó và chỉ sửa trạng thái sang Đang chuyển.');
+            } else if (currentOffset === before) {
+                // Tiền chưa trừ, trả lại pending. Không thực hiện debit tại recovery.
+                await resetCashRequestToPending(reqRef, 'recovered_not_debited');
+                alert('✅ Khôi phục thành công: tiền CHƯA bị trừ. Yêu cầu đã trở lại Chờ duyệt.');
+            } else {
+                alert(
+                    '⚠️ Offset hiện tại đã khác cả giá trị trước và sau dự kiến. ' +
+                    'Có thể đã phát sinh giao dịch khác. Hệ thống không tự trừ hoặc hoàn tiền để tránh sai số; cần kiểm tra thủ công.'
+                );
+            }
         }
 
-        // --- THAO TÁC 2: TỪ CHỐI ---
         else if (action === 'reject') {
-            if (!confirm(`Bạn có chắc muốn TỪ CHỐI yêu cầu rút ${reqData.amount.toLocaleString('vi-VN')} VNĐ của học sinh "${reqData.studentName}"?`)) return;
+            if (reqData.status !== 'pending') {
+                alert('⚠️ Chỉ có thể từ chối yêu cầu đang Chờ duyệt.');
+                return;
+            }
 
-            await db.ref(`cash_requests/${reqFbKey}`).update({ status: 'rejected', resolvedAt: Date.now() });
-            alert("❌ Đã hủy và từ chối yêu cầu.");
+            if (!confirm(`Bạn có chắc muốn TỪ CHỐI yêu cầu rút ${amount.toLocaleString('vi-VN')} VNĐ của học sinh "${reqData.studentName || reqData.studentUsername}"?`)) {
+                return;
+            }
+
+            const rejectResult = await reqRef.transaction(current => {
+                if (!current || current.status !== 'pending') return;
+                return {
+                    ...current,
+                    status: 'rejected',
+                    resolvedAt: Date.now()
+                };
+            });
+
+            if (!rejectResult.committed) {
+                alert('⚠️ Trạng thái yêu cầu vừa thay đổi. Không thực hiện từ chối.');
+                return;
+            }
+
+            alert('❌ Đã từ chối yêu cầu.');
         }
 
-        // --- THAO TÁC 3: XÁC NHẬN ĐÃ CHUYỂN TIỀN XONG ---
         else if (action === 'complete') {
-            if (!confirm(`Xác nhận bạn ĐÃ thực hiện chuyển/giao tiền mặt thành công cho học sinh "${reqData.studentName}"?`)) return;
+            if (reqData.status !== 'transferring') {
+                alert('⚠️ Chỉ có thể hoàn tất yêu cầu đang ở trạng thái Đang chuyển.');
+                return;
+            }
 
-            await db.ref(`cash_requests/${reqFbKey}`).update({ status: 'completed', resolvedAt: Date.now() });
-            alert("🎉 Quy trình hoàn tất!");
+            if (!confirm(`Xác nhận bạn ĐÃ thực hiện chuyển/giao tiền mặt thành công cho học sinh "${reqData.studentName || reqData.studentUsername}"?`)) {
+                return;
+            }
+
+            const completeResult = await reqRef.transaction(current => {
+                if (!current || current.status !== 'transferring') return;
+                return {
+                    ...current,
+                    status: 'completed',
+                    resolvedAt: Date.now()
+                };
+            });
+
+            if (!completeResult.committed) {
+                alert('⚠️ Trạng thái yêu cầu vừa thay đổi. Không thể đánh dấu hoàn tất.');
+                return;
+            }
+
+            alert('🎉 Quy trình hoàn tất!');
         }
 
-        // Cập nhật lại giao diện danh sách
-        loadTeacherCashRequests();
+        await window.loadTeacherCashRequests();
 
     } catch (error) {
-        console.error("Lỗi khi xử lý phê duyệt tiền mặt:", error);
-        alert("❌ Lỗi thao tác Firebase. Vui lòng kiểm tra lại đường truyền kết nối.");
+        console.error('Lỗi khi xử lý phê duyệt tiền mặt:', error);
+        alert('❌ Lỗi thao tác Firebase. Không thực hiện thêm thay đổi để tránh sai số tiền.');
     }
 };
 

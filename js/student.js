@@ -11024,23 +11024,50 @@ function isRoadmapSubmissionPassed(assign, sub) {
     );
 }
 
+function getRoadmapTargetStudents(assign) {
+    const rawTarget = assign?.targetStudent;
+
+    if (Array.isArray(rawTarget)) {
+        const values = rawTarget
+            .flatMap(value => String(value ?? '').split(','))
+            .map(value => value.trim())
+            .filter(Boolean);
+
+        return values.length
+            ? [...new Set(values)]
+            : ['all'];
+    }
+
+    const values = String(rawTarget ?? 'all')
+        .split(',')
+        .map(value => value.trim())
+        .filter(Boolean);
+
+    return values.length
+        ? [...new Set(values)]
+        : ['all'];
+}
+
+function isRoadmapAssignmentForStudent(assign, username) {
+    const targetStudents =
+        getRoadmapTargetStudents(assign);
+
+    const normalizedUsername =
+        String(username ?? '').trim();
+
+    return (
+        targetStudents.includes('all') ||
+        targetStudents.includes(normalizedUsername)
+    );
+}
+
 function calculateRoadmapBaseMoney(
     assignments,
     submissions,
     username
 ) {
     return (assignments || []).reduce((total, assign) => {
-        const targetStudents = Array.isArray(assign.targetStudent)
-            ? assign.targetStudent.map(String)
-            : String(assign.targetStudent || 'all')
-                .split(',')
-                .map(value => value.trim());
-
-        const isAssigned =
-            targetStudents.includes('all') ||
-            targetStudents.includes(String(username));
-
-        if (!isAssigned) {
+        if (!isRoadmapAssignmentForStudent(assign, username)) {
             return total;
         }
 
@@ -12127,124 +12154,9 @@ window.executeConversion = async function () {
 };
 
 // =========================================================================
-// HỆ THỐNG RÚT TIỀN MẶT CỦA HỌC SINH (ĐÃ FIX LỖI GIAO DIỆN & LOGIC)
+// HỆ THỐNG RÚT TIỀN MẶT CỦA HỌC SINH
+// Lưu ý: luồng cũ trùng hàm đã được loại bỏ. Luồng duy nhất nằm ở cuối file.
 // =========================================================================
-
-// 1. Khởi tạo và hiển thị giao diện rút tiền mặt
-window.initCashWithdrawInterface = async function () {
-    const displayEl = document.getElementById('displayRouteMoney');
-    if (!displayEl) return;
-
-    // Tính toán tổng tiền thực tế (Từ điểm Lộ trình + Biến động tiền bù trừ)
-    const [assignments, submissions, offsetSnap] = await Promise.all([
-        getDB('assignments'),
-        getDB('submissions'),
-        db.ref('student_money_offset/' + currentUser.username).once('value')
-    ]);
-
-    const baseRoadmapMoney = calculateRoadmapBaseMoney(assignments, submissions, currentUser.username);
-    const moneyOffset = Number(offsetSnap.val()) || 0;
-    let finalMoney = baseRoadmapMoney + moneyOffset;
-    if (finalMoney < 0) finalMoney = 0;
-
-    displayEl.innerText = finalMoney.toLocaleString('vi-VN');
-
-    // Lưu lại số dư thực tế vào biến toàn cục để xác thực khi rút tiền
-    window.currentRoadmapMoneyAmount = finalMoney;
-
-    if (typeof window.loadCashRequestsStudent === 'function') {
-        window.loadCashRequestsStudent();
-    }
-};
-
-// 2. Tải lịch sử yêu cầu rút tiền của học sinh
-window.loadCashRequestsStudent = async function () {
-    const requests = await getDB('cash_requests');
-    const myRequests = requests.filter(r => r.studentName === currentUser.name);
-
-    let html = '';
-    myRequests.reverse().forEach(req => {
-        let statusText = '';
-        let noteText = '';
-
-        switch (req.status) {
-            case 'pending':
-                statusText = '<span style="color: #f39c12; font-weight: bold;">⏳ Đang chờ duyệt</span>';
-                break;
-            case 'transferring':
-                statusText = '<span style="color: #2980b9; font-weight: bold;">🔄 Đang chuyển</span>';
-                noteText = '<div style="font-size: 0.85em; color: #7f8c8d; margin-top: 5px;"><i>(Tiền sẽ được chuyển đến trong 2-3 ngày)</i></div>';
-                break;
-            case 'completed':
-                statusText = '<span style="color: #27ae60; font-weight: bold;">✅ Đã hoàn tất yêu cầu</span>';
-                break;
-            case 'rejected':
-                statusText = '<span style="color: #c0392b; font-weight: bold;">❌ Bị từ chối</span>';
-                break;
-        }
-
-        html += `
-            <div style="background: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px; margin-bottom: 8px;">
-                <div><strong>Số tiền:</strong> ${req.amount.toLocaleString('vi-VN')} VNĐ</div>
-                <div><strong>Trạng thái:</strong> ${statusText}</div>
-                ${noteText}
-            </div>
-        `;
-    });
-
-    // Liên kết với đúng ID trong HTML
-    const historyContainer = document.getElementById('cashRequestHistoryContainer');
-    if (historyContainer) {
-        historyContainer.innerHTML = html || '<p style="color: #999;">Chưa có yêu cầu nào.</p>';
-    }
-};
-
-// 3. Hàm xử lý gửi yêu cầu rút tiền (Khớp lệnh onclick trong HTML)
-window.handleRequestCashSubmit = async function () {
-    const amountInput = document.getElementById('inputWithdrawAmount');
-    if (!amountInput) return;
-
-    const amount = parseInt(amountInput.value);
-    const currentMoney = window.currentRoadmapMoneyAmount || 0;
-
-    if (!amount || amount <= 0) {
-        alert("Vui lòng nhập số tiền hợp lệ!");
-        return;
-    }
-
-    if (amount > currentMoney) {
-        alert("Số tiền vượt quá Tổng tiền tích lũy lộ trình hiện có!");
-        return;
-    }
-
-    // Chống Spam rút tiền: Lấy tổng số tiền của các yêu cầu "Đang chờ duyệt"
-    const requests = await getDB('cash_requests');
-    const pendingAmount = requests
-        .filter(r => r.studentName === currentUser.name && r.status === 'pending')
-        .reduce((sum, r) => sum + r.amount, 0);
-
-    if (amount + pendingAmount > currentMoney) {
-        alert(`Bạn đang có ${pendingAmount.toLocaleString('vi-VN')} VNĐ chờ duyệt. Số dư còn lại không đủ để thực hiện yêu cầu này!`);
-        return;
-    }
-
-    // Gửi dữ liệu an toàn lên Firebase
-    await pushDB('cash_requests', {
-        studentName: currentUser.name,
-        amount: amount,
-        status: 'pending',
-        timestamp: Date.now()
-    });
-
-    alert("Gửi yêu cầu thành công! Vui lòng chờ giáo viên xác nhận.");
-    amountInput.value = ''; // Làm sạch ô nhập
-
-    // Refresh lại lịch sử tức thì
-    window.loadCashRequestsStudent();
-};
-
-// Chạy hàm load khi mở bảng quy đổi
-// loadCashRequestsStudent();
 
 // ================= HỆ THỐNG HỘP THƯ & NHẬN QUÀ (HỌC SINH) =================
 
@@ -17721,10 +17633,28 @@ window.renderStudentBag = async function () {
 };
 
 // =========================================================================
-// CHỨC NĂNG YÊU CẦU LẤY TIỀN MẶT - PHÍA HỌC SINH (CÁCH 2)
+// HỆ THỐNG YÊU CẦU LẤY TIỀN MẶT - PHÍA HỌC SINH (BẢN HỢP NHẤT / AN TOÀN)
 // =========================================================================
 
-// Hàm hiển thị danh sách lịch sử yêu cầu rút tiền của học sinh
+function isCashRequestOwnedByCurrentStudent(req) {
+    if (!req) return false;
+
+    // Dữ liệu mới: luôn ưu tiên username vì tên hiển thị có thể trùng/đổi.
+    if (req.studentUsername) {
+        return String(req.studentUsername) === String(currentUser.username);
+    }
+
+    // Tương thích dữ liệu cũ chưa có studentUsername.
+    return String(req.studentName || '') === String(currentUser.name || '');
+}
+
+function getCashRequestAmount(req) {
+    const amount = Number(req && req.amount);
+    return Number.isFinite(amount) && amount > 0 ? amount : 0;
+}
+
+// Hiển thị lịch sử. Học sinh chỉ ẩn bản ghi cũ khỏi giao diện,
+// KHÔNG tự xóa Firebase để tránh lỗi quyền ghi/xóa phía client.
 async function renderCashRequestHistory() {
     const container = document.getElementById('cashRequestHistoryContainer');
     if (!container) return;
@@ -17733,22 +17663,17 @@ async function renderCashRequestHistory() {
         const allRequests = await getDB('cash_requests');
         const now = Date.now();
         const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
-        const myRequests = [];
 
-        // Lọc yêu cầu của học sinh hiện tại VÀ tự động xóa cái quá 2 ngày
-        for (let req of allRequests) {
-            if (req.studentName === currentUser.name) {
-                if (req.status === 'completed' || req.status === 'rejected') {
-                    const checkTime = req.resolvedAt || req.timestamp;
-                    if (now - checkTime > TWO_DAYS_MS) {
-                        // Xóa vĩnh viễn khỏi Firebase để tránh nặng data
-                        await removeDB('cash_requests', req._fbKey);
-                        continue; // Bỏ qua không hiển thị vào danh sách
-                    }
+        const myRequests = (allRequests || [])
+            .filter(isCashRequestOwnedByCurrentStudent)
+            .filter(req => {
+                if (req.status !== 'completed' && req.status !== 'rejected') {
+                    return true;
                 }
-                myRequests.push(req);
-            }
-        }
+
+                const checkTime = Number(req.resolvedAt || req.timestamp || 0);
+                return !checkTime || now - checkTime <= TWO_DAYS_MS;
+            });
 
         if (myRequests.length === 0) {
             container.innerHTML = '<p style="color: #94a3b8; font-size: 0.9em; margin: 0; text-align: center; padding: 10px;">Chưa có yêu cầu lấy tiền mặt nào.</p>';
@@ -17756,46 +17681,59 @@ async function renderCashRequestHistory() {
         }
 
         let html = '';
-        // Đảo thứ tự để yêu cầu mới nhất hiện lên trên đầu
-        myRequests.reverse().forEach(req => {
-            let statusBadge = '';
-            let note = '';
 
-            if (req.status === 'pending') {
-                statusBadge = '<span style="background: #fef3c7; color: #d97706; padding: 3px 8px; border-radius: 4px; font-weight: 500; font-size: 0.85em;">⏳ Đang chờ duyệt</span>';
-            } else if (req.status === 'transferring') {
-                statusBadge = '<span style="background: #e0f2fe; color: #0284c7; padding: 3px 8px; border-radius: 4px; font-weight: 500; font-size: 0.85em;">🔄 Đang chuyển</span>';
-                note = '<p style="margin: 5px 0 0 0; font-size: 0.85em; color: #64748b; font-style: italic;">👉 Ghi chú: Tiền sẽ được chuyển đến trong 2-3 ngày</p>';
-            } else if (req.status === 'completed') {
-                statusBadge = '<span style="background: #dcfce7; color: #16a34a; padding: 3px 8px; border-radius: 4px; font-weight: 500; font-size: 0.85em;">✅ Đã hoàn tất yêu cầu</span>';
-            } else if (req.status === 'rejected') {
-                statusBadge = '<span style="background: #fee2e2; color: #dc2626; padding: 3px 8px; border-radius: 4px; font-weight: 500; font-size: 0.85em;">❌ Bị từ chối</span>';
-            }
+        [...myRequests]
+            .sort((a, b) => Number(b.timestamp || 0) - Number(a.timestamp || 0))
+            .forEach(req => {
+                let statusBadge = '';
+                let note = '';
 
-            html += `
-                <div style="background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; margin-bottom: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
-                        <span style="font-weight: 600; color: #1e293b;">${req.amount.toLocaleString('vi-VN')} VNĐ</span>
-                        ${statusBadge}
+                if (req.status === 'pending') {
+                    statusBadge = '<span style="background: #fef3c7; color: #d97706; padding: 3px 8px; border-radius: 4px; font-weight: 500; font-size: 0.85em;">⏳ Đang chờ duyệt</span>';
+                } else if (req.status === 'processing') {
+                    statusBadge = '<span style="background: #ede9fe; color: #7c3aed; padding: 3px 8px; border-radius: 4px; font-weight: 500; font-size: 0.85em;">🔐 Giáo viên đang xử lý</span>';
+                    note = '<p style="margin: 5px 0 0 0; font-size: 0.85em; color: #64748b; font-style: italic;">Yêu cầu đang được khóa để tránh trừ tiền lặp.</p>';
+                } else if (req.status === 'transferring') {
+                    statusBadge = '<span style="background: #e0f2fe; color: #0284c7; padding: 3px 8px; border-radius: 4px; font-weight: 500; font-size: 0.85em;">🔄 Đang chuyển</span>';
+                    note = '<p style="margin: 5px 0 0 0; font-size: 0.85em; color: #64748b; font-style: italic;">👉 Ghi chú: Tiền sẽ được chuyển đến trong 2-3 ngày</p>';
+                } else if (req.status === 'completed') {
+                    statusBadge = '<span style="background: #dcfce7; color: #16a34a; padding: 3px 8px; border-radius: 4px; font-weight: 500; font-size: 0.85em;">✅ Đã hoàn tất yêu cầu</span>';
+                } else if (req.status === 'rejected') {
+                    statusBadge = '<span style="background: #fee2e2; color: #dc2626; padding: 3px 8px; border-radius: 4px; font-weight: 500; font-size: 0.85em;">❌ Bị từ chối</span>';
+                } else {
+                    statusBadge = '<span style="background: #f1f5f9; color: #475569; padding: 3px 8px; border-radius: 4px; font-weight: 500; font-size: 0.85em;">Không xác định</span>';
+                }
+
+                const amount = getCashRequestAmount(req);
+                const timestamp = Number(req.timestamp || 0);
+                const timeText = timestamp
+                    ? new Date(timestamp).toLocaleString('vi-VN')
+                    : 'Không rõ';
+
+                html += `
+                    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; margin-bottom: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                            <span style="font-weight: 600; color: #1e293b;">${amount.toLocaleString('vi-VN')} VNĐ</span>
+                            ${statusBadge}
+                        </div>
+                        <div style="font-size: 0.8em; color: #94a3b8; margin-top: 4px;">Thời gian: ${timeText}</div>
+                        ${note}
                     </div>
-                    <div style="font-size: 0.8em; color: #94a3b8; margin-top: 4px;">Thời gian: ${new Date(req.timestamp).toLocaleString('vi-VN')}</div>
-                    ${note}
-                </div>
-            `;
-        });
+                `;
+            });
 
         container.innerHTML = html;
     } catch (error) {
-        console.error("Lỗi khi tải lịch sử rút tiền:", error);
+        console.error('Lỗi khi tải lịch sử rút tiền:', error);
         container.innerHTML = '<p style="color: #dc2626; font-size: 0.85em; padding: 5px; margin: 0;">Lỗi tải dữ liệu lịch sử!</p>';
     }
 }
 
-// HÀM MỚI: Tính toán chính xác Tổng tiền lộ trình thời gian thực
 window.calculateCurrentRouteMoney = async function () {
-    const [assignments, submissions] = await Promise.all([
+    const [assignments, submissions, offsetSnap] = await Promise.all([
         getDB('assignments'),
-        getDB('submissions')
+        getDB('submissions'),
+        db.ref('student_money_offset/' + currentUser.username).once('value')
     ]);
 
     const baseMoney = calculateRoadmapBaseMoney(
@@ -17804,68 +17742,95 @@ window.calculateCurrentRouteMoney = async function () {
         currentUser.username
     );
 
-    const offsetSnap = await db
-        .ref('student_money_offset/' + currentUser.username)
-        .once('value');
-
     const moneyOffset = Number(offsetSnap.val()) || 0;
-    const currentMoney = baseMoney + moneyOffset;
-
-    return currentMoney < 0 ? 0 : currentMoney;
+    return Math.max(0, baseMoney + moneyOffset);
 };
 
-// HÀM MỚI: Khởi tạo giao diện (Đã fix lỗi hiện 0 VNĐ)
 window.initCashWithdrawInterface = async function () {
-    // Gọi hàm tính tiền thực tế ở trên
-    const totalRouteMoney = await window.calculateCurrentRouteMoney();
-
     const displayEl = document.getElementById('displayRouteMoney');
-    if (displayEl) {
-        displayEl.innerText = totalRouteMoney.toLocaleString('vi-VN');
-    }
+    if (!displayEl) return;
 
-    // Tải danh sách lịch sử yêu cầu
-    renderCashRequestHistory();
+    try {
+        const totalRouteMoney = await window.calculateCurrentRouteMoney();
+        displayEl.innerText = totalRouteMoney.toLocaleString('vi-VN');
+        window.currentRoadmapMoneyAmount = totalRouteMoney;
+        await renderCashRequestHistory();
+    } catch (error) {
+        console.error('Lỗi khởi tạo giao diện rút tiền mặt:', error);
+        displayEl.innerText = '—';
+    }
 };
 
-// HÀM MỚI: Xử lý gửi yêu cầu (Đã fix lỗi lấy sai số dư)
 window.handleRequestCashSubmit = async function () {
     const inputEl = document.getElementById('inputWithdrawAmount');
     if (!inputEl) return;
 
-    const amount = parseInt(inputEl.value);
-
-    // Lấy số tiền thực tế vào đúng thời điểm học sinh bấm Gửi
-    const totalRouteMoney = await window.calculateCurrentRouteMoney();
-
-    if (isNaN(amount) || amount <= 0) {
-        alert("⚠️ Vui lòng nhập số tiền mặt muốn lấy hợp lệ!");
-        return;
-    }
-
-    if (amount > totalRouteMoney) {
-        alert(`⚠️ Số tiền yêu cầu (${amount.toLocaleString('vi-VN')} VNĐ) vượt quá Tổng tiền tích lũy lộ trình hiện tại (${totalRouteMoney.toLocaleString('vi-VN')} VNĐ)!`);
-        return;
-    }
-
-    if (!confirm(`Bạn có chắc chắn muốn gửi yêu cầu lấy ${amount.toLocaleString('vi-VN')} VNĐ về giáo viên không?`)) {
-        return;
-    }
+    // Chặn double-click / nhiều Promise gửi song song trên cùng client.
+    if (window.cashRequestSubmitInFlight) return;
+    window.cashRequestSubmitInFlight = true;
 
     try {
+        const amount = parseInt(inputEl.value, 10);
+
+        if (!Number.isFinite(amount) || amount <= 0) {
+            alert('⚠️ Vui lòng nhập số tiền mặt muốn lấy hợp lệ!');
+            return;
+        }
+
+        // Toàn bộ await được đặt trong try/catch để không phát sinh
+        // Uncaught (in promise) từ luồng rút tiền mặt.
+        const [totalRouteMoney, allRequests] = await Promise.all([
+            window.calculateCurrentRouteMoney(),
+            getDB('cash_requests')
+        ]);
+
+        if (amount > totalRouteMoney) {
+            alert(`⚠️ Số tiền yêu cầu (${amount.toLocaleString('vi-VN')} VNĐ) vượt quá Tổng tiền tích lũy lộ trình hiện tại (${totalRouteMoney.toLocaleString('vi-VN')} VNĐ)!`);
+            return;
+        }
+
+        // Pending + processing chưa chắc đã được trừ khỏi offset,
+        // vì vậy phải coi chúng là số tiền đã được giữ chỗ.
+        const reservedAmount = (allRequests || [])
+            .filter(isCashRequestOwnedByCurrentStudent)
+            .filter(req => req.status === 'pending' || req.status === 'processing')
+            .reduce((sum, req) => sum + getCashRequestAmount(req), 0);
+
+        if (amount + reservedAmount > totalRouteMoney) {
+            const available = Math.max(0, totalRouteMoney - reservedAmount);
+            alert(
+                `⚠️ Bạn đang có ${reservedAmount.toLocaleString('vi-VN')} VNĐ ` +
+                `đang chờ/được xử lý. Số tiền còn có thể yêu cầu là ` +
+                `${available.toLocaleString('vi-VN')} VNĐ.`
+            );
+            return;
+        }
+
+        if (!confirm(`Bạn có chắc chắn muốn gửi yêu cầu lấy ${amount.toLocaleString('vi-VN')} VNĐ về giáo viên không?`)) {
+            return;
+        }
+
         await pushDB('cash_requests', {
+            studentUsername: currentUser.username,
             studentName: currentUser.name,
             amount: amount,
             status: 'pending',
+            requestVersion: 2,
             timestamp: Date.now()
         });
 
-        alert("🎉 Gửi yêu cầu thành công! Vui lòng đợi giáo viên xét duyệt.");
+        alert('🎉 Gửi yêu cầu thành công! Vui lòng đợi giáo viên xét duyệt.');
         inputEl.value = '';
-        renderCashRequestHistory();
+
+        await Promise.all([
+            renderCashRequestHistory(),
+            window.initCashWithdrawInterface()
+        ]);
     } catch (error) {
-        console.error("Lỗi gửi yêu cầu tiền mặt:", error);
-        alert("❌ Đã xảy ra lỗi kết nối khi gửi yêu cầu.");
+        console.error('Lỗi gửi yêu cầu tiền mặt:', error);
+        alert('❌ Không thể gửi yêu cầu tiền mặt. Vui lòng kiểm tra kết nối rồi thử lại.');
+    } finally {
+        window.cashRequestSubmitInFlight = false;
     }
 };
 
