@@ -6,27 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trang Học Sinh</title>
     <link rel="icon" type="image/png" href="assets/icon.png">
-    <link rel="stylesheet" href="css/common.css?v=3.5">
-    <link rel="stylesheet" href="css/student.css?v=3.5">
-    <link rel="stylesheet" href="css/mobile.css?v=3.5">
-    <link rel="stylesheet" href="css/store-items.css?v=3.5">
-    <link rel="stylesheet" href="css/effects-pets.css?v=3.5">
-    <link rel="stylesheet" href="css/royal-ball.css?v=3.5">
-    <link rel="stylesheet" href="css/daily-login.css?v=3.5">
+    <link rel="stylesheet" href="css/common.css?v=3.8">
+    <link rel="stylesheet" href="css/student.css?v=3.8.1">
+    <link rel="stylesheet" href="css/mobile.css?v=3.8">
+    <link rel="stylesheet" href="css/web-animations.css?v=1.0">
+    <link rel="stylesheet" href="css/store-items.css?v=3.8">
+    <link rel="stylesheet" href="css/effects-pets.css?v=3.8">
+    <link rel="stylesheet" href="css/royal-ball.css?v=3.8">
+    <link rel="stylesheet" href="css/daily-login.css?v=3.8">
     <link rel="stylesheet" href="css/lord-of-mysteries.css?v=3.3">
-    <link rel="stylesheet" href="css/legendery.css?v=3.5">
+    <link rel="stylesheet" href="css/legendery.css?v=3.8">
     <link rel="stylesheet" href="css/leaderboard.css?v=3.3">
-    <link rel="stylesheet" href="css/painting.css?v=3.5">
-    <link rel="stylesheet" href="css/doraemon.css?v=3.5">
-    <link rel="stylesheet" href="css/hoi-hoa.css?v=3.5">
-    <link rel="stylesheet" href="css/that-dai-toi.css?v=3.5">
-    <link rel="stylesheet" href="css/pet-sinh-nhat.css?v=3.5">
-    <link rel="stylesheet" href="css/thoi-tiet.css?v=3.5">
-    <link rel="stylesheet" href="css/store-collections.css?v=3.5">
-    <link rel="stylesheet" href="css/luxury-store.css?v=3.5">
-    <link rel="stylesheet" href="css/premium-mua-xuan.css?v=3.5">
-    <link rel="stylesheet" href="css/lich-su-hao-hung.css?v=3.5">
-    <link rel="stylesheet" href="css/quoc-khanh-pet.css?v=3.5">
+    <link rel="stylesheet" href="css/painting.css?v=3.8">
+    <link rel="stylesheet" href="css/doraemon.css?v=3.8">
+    <link rel="stylesheet" href="css/hoi-hoa.css?v=3.8">
+    <link rel="stylesheet" href="css/that-dai-toi.css?v=3.8">
+    <link rel="stylesheet" href="css/pet-sinh-nhat.css?v=3.8">
+    <link rel="stylesheet" href="css/thoi-tiet.css?v=3.8">
+    <link rel="stylesheet" href="css/store-collections.css?v=3.8">
+    <link rel="stylesheet" href="css/luxury-store.css?v=3.8">
+    <link rel="stylesheet" href="css/premium-mua-xuan.css?v=3.8">
+    <link rel="stylesheet" href="css/lich-su-hao-hung.css?v=3.8">
+    <link rel="stylesheet" href="css/quoc-khanh-pet.css?v=3.8">
     <script>
         MathJax = {
             tex: {
@@ -160,7 +161,9 @@
             background: rgba(159, 18, 57, .18);
         }
 
-        #appStartupError[hidden] { display: none !important; }
+        #appStartupError[hidden] {
+            display: none !important;
+        }
 
         #appStartupError strong {
             display: block;
@@ -191,18 +194,43 @@
             font-weight: 800;
         }
 
-        .app-startup-retry { background: #e0f2fe; color: #0c4a6e; }
-        .app-startup-offline { background: rgba(255,255,255,.10); color: #fff; }
+        .app-startup-retry {
+            background: #e0f2fe;
+            color: #0c4a6e;
+        }
+
+        .app-startup-offline {
+            background: rgba(255, 255, 255, .10);
+            color: #fff;
+        }
 
         @keyframes appStartupPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.055); }
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.055);
+            }
         }
 
         @media (max-width: 560px) {
-            #appStartupLoader { padding: 14px; }
-            .app-startup-loader-card { padding: 21px 18px; border-radius: 21px; }
-            .app-startup-cloud-icon { width: 50px; height: 50px; flex-basis: 50px; }
+            #appStartupLoader {
+                padding: 14px;
+            }
+
+            .app-startup-loader-card {
+                padding: 21px 18px;
+                border-radius: 21px;
+            }
+
+            .app-startup-cloud-icon {
+                width: 50px;
+                height: 50px;
+                flex-basis: 50px;
+            }
         }
     </style>
 </head>
@@ -232,8 +260,10 @@
                 <strong>Không thể hoàn tất khởi động</strong>
                 <div id="appStartupErrorText"></div>
                 <div class="app-startup-actions">
-                    <button type="button" class="app-startup-retry" onclick="window.AppStartupLoader.retry()">↻ Thử lại</button>
-                    <button type="button" class="app-startup-offline" onclick="window.AppStartupLoader.openStatusPage()">🛟 Trang 404 / kết nối</button>
+                    <button type="button" class="app-startup-retry" onclick="window.AppStartupLoader.retry()">↻ Thử
+                        lại</button>
+                    <button type="button" class="app-startup-offline"
+                        onclick="window.AppStartupLoader.openStatusPage()">🛟 Trang 404 / kết nối</button>
                 </div>
             </div>
         </div>
@@ -421,7 +451,7 @@
 
                         try {
                             const registration = await navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' });
-                            registration.update().catch(() => {});
+                            registration.update().catch(() => { });
                             return true;
                         } catch (error) {
                             api.markWarning('Không đăng ký được Service Worker: ' + (error && error.message ? error.message : error));
@@ -456,7 +486,7 @@
                             if (settled) return;
                             settled = true;
                             clearTimeout(timer);
-                            try { ref.off('value', handler); } catch (_) {}
+                            try { ref.off('value', handler); } catch (_) { }
                             if (!ok) {
                                 showError(
                                     'Không kết nối được máy chủ Firebase.',
@@ -601,7 +631,7 @@
                         isCriticalLocalResource =
                             parsed.origin === location.origin &&
                             (target.tagName === 'SCRIPT' || target.tagName === 'LINK');
-                    } catch (_) {}
+                    } catch (_) { }
 
                     if (isCriticalLocalResource) {
                         showError(
@@ -1210,8 +1240,9 @@
                 </div>
 
                 <p id="convertLimitText"
-                    style="color: #e11d48; font-size: 0.85em; margin-bottom: 15px; display: none; font-weight: bold;">*
-                    Lưu ý: Mỗi lần chỉ được đổi tối đa 500 Coin sang Tiền lộ trình.</p>
+                    style="color: #e11d48; font-size: 0.85em; margin-bottom: 15px; display: none; font-weight: bold;">
+                    * Tiền → Coin được đổi tối đa 2 lần/ngày, không giới hạn số tiền mỗi lần.
+                </p>
 
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <div style="flex: 1;">
@@ -1453,8 +1484,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <!-- 2. Khởi tạo Firebase -->
-    <script src="js/firebase-config.js?v=3.5"></script>
-    <script src="js/cloudinary-storage.js?v=3.5"></script>
+    <script src="js/firebase-config.js?v=3.8"></script>
+    <script src="js/cloudinary-storage.js?v=3.8"></script>
 
     <script>
         window.APP_STORAGE_CONFIG = Object.freeze({
@@ -1462,7 +1493,7 @@
         });
     </script>
 
-    <script src="js/cloudflare-r2-storage.js?v=3.5"></script>
+    <script src="js/cloudflare-r2-storage.js?v=3.8"></script>
 
     <!-- 3. Thư viện đọc file DOCX -->
     <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
@@ -1471,28 +1502,29 @@
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.7/dist/purify.min.js"></script>
 
     <!-- 4. Mã nền tảng -->
-    <script src="js/common.js?v=3.5"></script>
-    <script src="js/transaction-history.js?v=3.5"></script>
+    <script src="js/common.js?v=3.8"></script>
+    <script src="js/web-animations.js?v=1.0"></script>
+    <script src="js/transaction-history.js?v=3.8"></script>
 
     <!-- 4. Các module tính năng -->
-    <script src="js/daily-login.js?v=3.5"></script>
-    <script src="js/royal-ball.js?v=3.5"></script>
+    <script src="js/daily-login.js?v=3.8"></script>
+    <script src="js/royal-ball.js?v=3.8"></script>
     <script src="js/theme-items.js?v=4.2"></script>
     <script src="js/effect-items.js?v=4.2"></script>
     <script src="js/pet-items.js?v=4.2"></script>
-    <script src="js/pet-interactions.js?v=3.5"></script>
-    <script src="js/music-manager.js?v=3.5"></script>
-    <script src="js/store-manager.js?v=3.5"></script>
+    <script src="js/pet-interactions.js?v=3.8"></script>
+    <script src="js/music-manager.js?v=3.8"></script>
+    <script src="js/store-manager.js?v=3.8"></script>
     <script src="js/leaderboard.js?v=3.3"></script>
-    <script src="js/painting.js?v=3.5"></script>
+    <script src="js/painting.js?v=3.8"></script>
     <script src="js/luxury-store.js?v=4.2"></script>
 
     <!-- YouTube API không phụ thuộc Firebase -->
     <script src="https://www.youtube.com/iframe_api"></script>
 
     <!-- 5. Logic chính của trang học sinh luôn đặt cuối -->
-    <script src="js/student.js?v=3.5"></script>
-    <script src="js/lich-su-hao-hung.js?v=1.0"></script>
+    <script src="js/student.js?v=3.8"></script>
+    <script src="js/lich-su-hao-hung.js?v=1.0.1"></script>
     <script src="js/huong-dan-nguoi-moi.js?v=1.0.0"></script>
     <script src="js/store-collections.js?v=1.0"></script>
 
