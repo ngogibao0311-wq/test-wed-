@@ -1349,27 +1349,49 @@
 
         async function submitCurrentQuestion({ input = '', timeout = false } = {}) {
                 if (state.busy || state.progress?.status !== 'in_progress') return;
-                state.busy = true;
-                stopTimer();
 
                 const index = Number(state.progress.currentIndex) || 0;
                 const questionId = state.progress.questionIds?.[index];
                 const question = getQuestionById(questionId);
-                if (!question) { state.busy = false; return; }
+                if (!question) return;
+
+                const ref = progressRef();
+                if (!ref) {
+                        notify('Không tìm thấy tiến trình Firebase của sự kiện. Hãy tải lại trang rồi thử lại.', 'error');
+                        return;
+                }
+
+                state.busy = true;
+                stopTimer();
+
+                const inputEl = document.getElementById('historyAnswerInput');
+                const button = document.getElementById('historySubmitAnswer');
+                const feedback = document.getElementById('historyFeedback');
+
+                if (button) {
+                        button.disabled = true;
+                        button.dataset.originalText = button.textContent || 'Gửi đáp án';
+                        button.textContent = 'Đang gửi...';
+                }
 
                 const expired = now() > Number(state.progress.questionDeadline || 0);
                 const wasTimeout = Boolean(timeout || expired);
                 const correct = !wasTimeout && isCorrectAnswer(question, input);
-                const ref = progressRef();
 
                 try {
                         const processedAt = now();
+                        const fallbackYear = Number(state.currentYear || getAnnualWindow().year || getVietnamParts().year);
+
                         const tx = await ref.transaction(current => {
                                 if (!current || current.status !== 'in_progress') return;
                                 if (Number(current.currentIndex) !== index) return;
 
                                 const nextIndex = index + 1;
-                                const nextScore = Math.min(CONFIG.questionCount, (Number(current.score) || 0) + (correct ? 1 : 0));
+                                const nextScore = Math.min(
+                                        CONFIG.questionCount,
+                                        (Number(current.score) || 0) + (correct ? 1 : 0)
+                                );
+
                                 const log = Object.assign({}, current.answerLog || {});
                                 log[String(index)] = {
                                         questionId: Number(question.id),
@@ -1378,7 +1400,18 @@
                                         answeredAt: processedAt
                                 };
 
-                                return Object.assign({}, current, {
+                                /*
+                                 * Tương thích tiến trình cũ / dữ liệu test:
+                                 * luôn bổ sung lại metadata bắt buộc để Firebase Rules
+                                 * không từ chối chỉ vì node cũ thiếu eventId/eventName/year.
+                                 */
+                                const nextData = Object.assign({}, current, {
+                                        eventId: CONFIG.id,
+                                        eventName: CONFIG.title,
+                                        year: Number(current.year) >= 2026
+                                                ? Number(current.year)
+                                                : fallbackYear,
+                                        startedAt: Number(current.startedAt) || processedAt,
                                         currentIndex: nextIndex,
                                         score: nextScore,
                                         updatedAt: processedAt,
@@ -1386,23 +1419,38 @@
                                         questionDeadline: nextIndex < CONFIG.questionCount
                                                 ? processedAt + CONFIG.secondsPerQuestion * 1000
                                                 : 0,
-                                        status: nextIndex >= CONFIG.questionCount ? 'completed' : 'in_progress',
-                                        completedAt: nextIndex >= CONFIG.questionCount ? processedAt : (current.completedAt || null)
+                                        status: nextIndex >= CONFIG.questionCount
+                                                ? 'completed'
+                                                : 'in_progress'
                                 });
+
+                                if (nextIndex >= CONFIG.questionCount) {
+                                        nextData.completedAt = processedAt;
+                                } else if (nextData.completedAt == null) {
+                                        delete nextData.completedAt;
+                                }
+
+                                return nextData;
                         });
 
                         if (!tx.committed) {
                                 await loadProgress();
-                                if (state.progress?.status === 'completed') return renderResult();
+                                state.busy = false;
+
+                                if (state.progress?.status === 'completed') {
+                                        return renderResult();
+                                }
+
                                 return renderGame();
                         }
 
                         state.progress = tx.snapshot.val();
-                        const feedback = document.getElementById('historyFeedback');
-                        const inputEl = document.getElementById('historyAnswerInput');
-                        const button = document.getElementById('historySubmitAnswer');
+
                         if (inputEl) inputEl.disabled = true;
-                        if (button) button.disabled = true;
+                        if (button) {
+                                button.disabled = true;
+                                button.textContent = 'Đã gửi';
+                        }
 
                         if (feedback) {
                                 feedback.className = `history-feedback show ${correct ? 'correct' : 'wrong'}`;
@@ -1414,18 +1462,45 @@
                         }
 
                         setTimeout(async () => {
-                                if (state.progress?.status === 'completed') {
-                                        await finalizeRewardState();
-                                        renderResult();
-                                } else {
-                                        renderGame();
+                                try {
+                                        if (state.progress?.status === 'completed') {
+                                                /*
+                                                 * Lỗi ở bước trao thưởng không được phép khóa
+                                                 * nút/logic gửi đáp án của cả sự kiện.
+                                                 */
+                                                try {
+                                                        await finalizeRewardState();
+                                                } catch (rewardError) {
+                                                        console.error(
+                                                                '[Lịch sử hào hùng] Đáp án đã lưu nhưng chưa thể xác nhận phần thưởng:',
+                                                                rewardError
+                                                        );
+                                                }
+
+                                                await renderResult();
+                                        } else {
+                                                renderGame();
+                                        }
+                                } finally {
+                                        state.busy = false;
                                 }
-                                state.busy = false;
                         }, 950);
                 } catch (error) {
                         state.busy = false;
                         console.error('[Lịch sử hào hùng] Lỗi ghi đáp án:', error);
-                        notify('Không thể lưu đáp án. Hãy kiểm tra kết nối mạng rồi thử lại.', 'error');
+
+                        const permissionDenied =
+                                error?.code === 'PERMISSION_DENIED' ||
+                                error?.code === 'permission_denied';
+
+                        notify(
+                                permissionDenied
+                                        ? 'Firebase Rules đang từ chối lưu đáp án của Lịch Sử Hào Hùng.'
+                                        : 'Không thể lưu đáp án. Hãy kiểm tra kết nối mạng rồi thử lại.',
+                                'error'
+                        );
+
+                        /* Render lại đúng câu hiện tại để người chơi có thể thử gửi lại. */
                         renderGame();
                 }
         }
