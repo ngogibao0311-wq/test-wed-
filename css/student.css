@@ -6615,3 +6615,64 @@ body.video-summary-resizing
         width: 32px !important;
     }
 }
+/* =========================================================
+   KHÓA VỊ TRÍ CỤM NÚT GÓC PHẢI
+   ========================================================= */
+
+@media (min-width: 721px) {
+
+    .content > .profile-trigger-btn,
+    .content > .inbox-trigger-btn,
+    .content > .bag-trigger-btn,
+    .content > .leaderboard-trigger-btn {
+        position: fixed !important;
+        top: 20px !important;
+
+        left: auto !important;
+        bottom: auto !important;
+
+        margin: 0 !important;
+        z-index: 100 !important;
+    }
+
+    /* 👤 Hồ sơ */
+    .content > .profile-trigger-btn {
+        right: 35px !important;
+    }
+
+    /* 💌 Hộp thư */
+    .content > .inbox-trigger-btn {
+        right: 95px !important;
+    }
+
+    /* 🎒 Túi đồ */
+    .content > .bag-trigger-btn {
+        right: 150px !important;
+    }
+
+    /* 🏆 BXH */
+    .content > .leaderboard-trigger-btn {
+        right: 205px !important;
+    }
+}
+
+/* =========================================================
+   FIX DESKTOP — KHÓA VỊ TRÍ NÚT ĐÓNG / MỞ SIDEBAR
+   - Không đổi kích thước sidebar.
+   - Không đổi logic collapsed.
+   - Không áp dụng mobile <= 768px.
+   - Độ ưu tiên cao để không bị theme/event kéo nút về left:15px.
+   ========================================================= */
+@media (min-width: 769px) {
+    html body .dashboard > .sidebar > .sidebar-toggle,
+    html body .dashboard:not(.collapsed) > .sidebar > .sidebar-toggle,
+    html body .dashboard.collapsed > .sidebar > .sidebar-toggle {
+        position: absolute !important;
+        top: 32px !important;
+        left: auto !important;
+        right: -17px !important;
+        bottom: auto !important;
+        margin: 0 !important;
+    }
+}
+
