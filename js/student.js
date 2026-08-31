@@ -1572,7 +1572,7 @@ window.onload = async function () {
 
     // Đồng bộ điểm chuẩn từ xa do giáo viên cài đặt
     listenFirebase(db.ref('roadmap_settings/passingGrade'), 'value', (snapshot) => {
-        window.currentPassingGrade = parseFloat(snapshot.val() || 7);
+        window.currentPassingGrade = parseFloat(snapshot.val() ?? 7);
         if (document.getElementById('studentRoadmapBody')) renderStudentRoadmap();
         if (startupLoader) startupLoader.markReady('student-roadmap-settings');
     });
@@ -3068,7 +3068,10 @@ window.onload = async function () {
 
     // 2. Lắng nghe trạng thái duyệt/từ chối rút tiền mặt từ Giáo viên
     listenFirebase(db.ref('cash_requests'), 'value', async () => {
-        if (typeof renderCashRequestHistory === 'function' && document.getElementById('cashRequestHistoryContainer')) {
+        // Khi trạng thái yêu cầu đổi, cập nhật cả lịch sử lẫn số tiền còn có thể yêu cầu.
+        if (typeof window.initCashWithdrawInterface === 'function' && document.getElementById('displayRouteMoney')) {
+            await window.initCashWithdrawInterface();
+        } else if (typeof renderCashRequestHistory === 'function' && document.getElementById('cashRequestHistoryContainer')) {
             await renderCashRequestHistory();
         }
         if (startupLoader) startupLoader.markReady('student-cash-requests');
@@ -3200,10 +3203,12 @@ window.onload = async function () {
             )
         );
 
-        await startupLoader.waitForMedia({
-            timeoutMs: 9000,
-            quietMs: 600
-        });
+        // Không khóa giao diện chỉ để chờ YouTube/iframe.
+        // Video tiếp tục tải bình thường sau khi web đã mở.
+        startupLoader.waitForMedia({
+            timeoutMs: 2000,
+            quietMs: 150
+        }).catch(() => { });
 
         startupLoader.hide();
     }
@@ -8236,6 +8241,163 @@ async function readMultipleFiles(
 // ================= HỆ THỐNG VÒNG QUAY MAY MẮN =================
 let isSpinning = false;
 
+// ======================================================
+// GIỜ VÀNG VÒNG QUAY MAY MẮN
+// - Chỉ tăng phần thưởng Coin.
+// - Không đổi tỉ lệ trúng, vé quay hoặc vật phẩm.
+// - Mỗi lượt trúng Coin trong Giờ Vàng được cộng thêm 50 Coin.
+// - Thời gian tính theo múi giờ Việt Nam (Asia/Ho_Chi_Minh).
+// ======================================================
+const LUCKY_WHEEL_GOLDEN_HOUR_BONUS = 50;
+
+const LUCKY_WHEEL_GOLDEN_WINDOWS = Object.freeze([
+    { start: 0, end: 60, label: '00:00 - 01:00' },
+    { start: 9 * 60, end: 10 * 60, label: '09:00 - 10:00' },
+    { start: 12 * 60, end: 13 * 60, label: '12:00 - 13:00' },
+    { start: 14 * 60, end: 15 * 60, label: '14:00 - 15:00' },
+    { start: 20 * 60, end: 20 * 60 + 30, label: '20:00 - 20:30' }
+]);
+
+function getLuckyWheelVietnamClock(date = new Date()) {
+    const parts = new Intl.DateTimeFormat(
+        'en-GB',
+        {
+            timeZone: 'Asia/Ho_Chi_Minh',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hourCycle: 'h23'
+        }
+    ).formatToParts(date);
+
+    const values = {};
+
+    parts.forEach(part => {
+        if (part.type !== 'literal') {
+            values[part.type] = Number(part.value);
+        }
+    });
+
+    const hour = Number(values.hour) || 0;
+    const minute = Number(values.minute) || 0;
+    const second = Number(values.second) || 0;
+
+    return {
+        hour,
+        minute,
+        second,
+        totalMinutes:
+            hour * 60 +
+            minute +
+            second / 60
+    };
+}
+
+function getLuckyWheelGoldenHourStatus(date = new Date()) {
+    const clock = getLuckyWheelVietnamClock(date);
+
+    const activeWindow =
+        LUCKY_WHEEL_GOLDEN_WINDOWS.find(windowConfig =>
+            clock.totalMinutes >= windowConfig.start &&
+            clock.totalMinutes < windowConfig.end
+        ) || null;
+
+    return {
+        active: Boolean(activeWindow),
+        bonus: activeWindow
+            ? LUCKY_WHEEL_GOLDEN_HOUR_BONUS
+            : 0,
+        windowLabel: activeWindow?.label || '',
+        clock
+    };
+}
+
+window.getLuckyWheelGoldenHourStatus =
+    getLuckyWheelGoldenHourStatus;
+
+function renderLuckyWheelGoldenHourNotice() {
+    const modal =
+        document.getElementById('luckyWheelModal');
+
+    if (!modal) return;
+
+    const title =
+        modal.querySelector('h3');
+
+    if (!title) return;
+
+    let notice =
+        document.getElementById(
+            'luckyWheelGoldenHourNotice'
+        );
+
+    if (!notice) {
+        notice = document.createElement('div');
+        notice.id = 'luckyWheelGoldenHourNotice';
+
+        title.insertAdjacentElement(
+            'afterend',
+            notice
+        );
+    }
+
+    const status =
+        getLuckyWheelGoldenHourStatus();
+
+    notice.style.cssText = status.active
+        ? `
+            margin: 10px auto 12px;
+            max-width: 520px;
+            padding: 10px 14px;
+            border: 1px solid rgba(255, 215, 0, .75);
+            border-radius: 12px;
+            background: linear-gradient(
+                135deg,
+                rgba(255, 111, 0, .22),
+                rgba(255, 215, 0, .18)
+            );
+            box-shadow: 0 0 18px rgba(255, 193, 7, .22);
+            color: #ffd700;
+            font-size: .9em;
+            font-weight: 800;
+            line-height: 1.45;
+            text-align: center;
+        `
+        : `
+            margin: 10px auto 12px;
+            max-width: 520px;
+            padding: 9px 12px;
+            border: 1px solid rgba(255,255,255,.16);
+            border-radius: 12px;
+            background: rgba(255,255,255,.06);
+            color: rgba(255,255,255,.78);
+            font-size: .82em;
+            font-weight: 600;
+            line-height: 1.45;
+            text-align: center;
+        `;
+
+    notice.innerHTML = status.active
+        ? `
+            🔥 <strong>GIỜ VÀNG ĐANG DIỄN RA</strong><br>
+            Trúng Coin được cộng thêm
+            <strong>+${LUCKY_WHEEL_GOLDEN_HOUR_BONUS} Coin</strong>
+            mỗi lượt · ${status.windowLabel}
+        `
+        : `
+            🕒 Giờ Vàng:
+            00:00–01:00 · 09:00–10:00 ·
+            12:00–13:00 · 14:00–15:00 ·
+            20:00–20:30<br>
+            Trong Giờ Vàng:
+            <strong>+${LUCKY_WHEEL_GOLDEN_HOUR_BONUS} Coin</strong>
+            cho mỗi lượt trúng Coin
+        `;
+}
+
+window.renderLuckyWheelGoldenHourNotice =
+    renderLuckyWheelGoldenHourNotice;
+
 // HÀM DÙNG CHUNG: Tính vé chính xác (Vé từ điểm + Vé quà tặng - Số lần đã quay)
 window.calculateTotalTickets = async function () {
     const submissions = await getDB('submissions');
@@ -8591,6 +8753,9 @@ window.openLuckyWheel = async function () {
 
     const ticketData = await window.calculateTotalTickets();
 
+    // Cập nhật trạng thái Giờ Vàng mỗi lần mở vòng quay.
+    renderLuckyWheelGoldenHourNotice();
+
     const titleWheel = document.querySelector('#luckyWheelModal h3');
     if (titleWheel) {
         titleWheel.innerHTML = `🎡 Vòng Quay Nhân Phẩm<br><span style="font-size: 0.5em; color: #ffd700; text-transform: none;">🎫 Vé hiện có: ${ticketData.remaining}</span>`;
@@ -8635,6 +8800,11 @@ window.spinWheel = async function () {
     }
 
     isSpinning = true;
+
+    // Chốt Giờ Vàng ngay tại thời điểm bắt đầu quay.
+    // Animation kết thúc sau giờ vẫn giữ đúng quyền lợi của lượt đã bấm.
+    const goldenHourAtSpin =
+        getLuckyWheelGoldenHourStatus();
 
     const wheel = document.getElementById('wheelContainer');
     const resultText = document.getElementById('spinResultText');
@@ -8750,6 +8920,42 @@ window.spinWheel = async function () {
             }
         }
 
+        // GIỜ VÀNG:
+        // Nếu lượt này nhận Coin thì cộng thêm đúng 50 Coin.
+        // Vật phẩm thật không bị chuyển đổi và không nhận bonus.
+        const baseWonCoins = wonCoins;
+        const goldenHourBonus =
+            wonCoins > 0 &&
+                goldenHourAtSpin.active
+                ? LUCKY_WHEEL_GOLDEN_HOUR_BONUS
+                : 0;
+
+        if (goldenHourBonus > 0) {
+            wonCoins += goldenHourBonus;
+
+            if (
+                finalRewardStr === '50 Coin' ||
+                finalRewardStr === '70 Coin' ||
+                finalRewardStr === '200 Coin'
+            ) {
+                displayResult =
+                    `${wonCoins} Coin ` +
+                    `(Gốc ${baseWonCoins} + ` +
+                    `Giờ Vàng ${goldenHourBonus})`;
+
+                actualRewardRecord =
+                    `${wonCoins} Coin ` +
+                    `(Gốc ${baseWonCoins} + ` +
+                    `Giờ Vàng ${goldenHourBonus})`;
+            } else {
+                displayResult +=
+                    ` + Giờ Vàng ${goldenHourBonus} Coin`;
+
+                actualRewardRecord +=
+                    ` + Giờ Vàng ${goldenHourBonus} Coin`;
+            }
+        }
+
         // Hiển thị kết quả ra màn hình
         resultText.style.transform = 'scale(1.2)';
         resultText.style.color = (wonCoins > 0 || finalRewardStr === "Quà bí ẩn") ? '#ffd700' : '#ff4757';
@@ -8847,6 +9053,18 @@ window.spinWheel = async function () {
                         wonCoins:
                             wonCoins,
 
+                        baseWonCoins:
+                            baseWonCoins,
+
+                        goldenHour:
+                            goldenHourAtSpin.active,
+
+                        goldenHourWindow:
+                            goldenHourAtSpin.windowLabel,
+
+                        goldenHourBonus:
+                            goldenHourBonus,
+
                         itemId:
                             wonItem?.id ||
                             '',
@@ -8916,6 +9134,11 @@ window.spinMultipleWheel = async function () {
 
     isSpinning = true;
 
+    // Toàn bộ lượt trong một lần Quay Nhanh dùng trạng thái
+    // Giờ Vàng tại thời điểm người dùng bấm bắt đầu.
+    const goldenHourAtMultiSpin =
+        getLuckyWheelGoldenHourStatus();
+
     const resultText = document.getElementById('spinResultText');
     const titleWheel = document.querySelector('#luckyWheelModal h3');
 
@@ -8928,7 +9151,10 @@ window.spinMultipleWheel = async function () {
     resultText.style.opacity = '1';
     resultText.style.color = '#fff';
     resultText.style.transform = 'scale(1)';
-    resultText.innerText = `⚡ Đang xử lý quay ${spinsToDo} lần... 🌀`;
+    resultText.innerText =
+        goldenHourAtMultiSpin.active
+            ? `🔥 GIỜ VÀNG +${LUCKY_WHEEL_GOLDEN_HOUR_BONUS} Coin/lượt trúng Coin · Đang quay ${spinsToDo} lần...`
+            : `⚡ Đang xử lý quay ${spinsToDo} lần... 🌀`;
 
     // Chạy ngầm thuật toán quay y hệt hàm spinWheel gốc
     const cotichItems = (typeof StoreConfig !== 'undefined') ? StoreConfig.items.filter(i => i.tag && i.tag.toLowerCase() === 'cổ tích') : [];
@@ -8938,10 +9164,32 @@ window.spinMultipleWheel = async function () {
     let currentOwned = invSnap.val() ? Object.values(invSnap.val()).map(i => i.id) : [];
 
     let totalCoinsWon = 0;
+    let baseCoinsWon = 0;
+    let goldenHourBonusCoins = 0;
+    let coinRewardSpinCount = 0;
     let missCount = 0;
     let newlyWonItems = [];
     let newlyWonItemNames = [];
     let duplicateItemsCount = 0;
+
+    const addMultiWheelCoinReward = baseAmount => {
+        const normalizedBase =
+            Math.max(0, Number(baseAmount) || 0);
+
+        if (normalizedBase <= 0) return;
+
+        baseCoinsWon += normalizedBase;
+        totalCoinsWon += normalizedBase;
+        coinRewardSpinCount++;
+
+        if (goldenHourAtMultiSpin.active) {
+            totalCoinsWon +=
+                LUCKY_WHEEL_GOLDEN_HOUR_BONUS;
+
+            goldenHourBonusCoins +=
+                LUCKY_WHEEL_GOLDEN_HOUR_BONUS;
+        }
+    };
 
     const p = window.wheelProbs || { miss: 50, c100: 20, c150: 25, c500: 4, gift: 1 };
 
@@ -8950,15 +9198,15 @@ window.spinMultipleWheel = async function () {
         let cumulative = 0;
 
         if (rand < (cumulative += p.miss)) { missCount++; }
-        else if (rand < (cumulative += p.c100)) { totalCoinsWon += 50; }
-        else if (rand < (cumulative += p.c150)) { totalCoinsWon += 70; }
-        else if (rand < (cumulative += p.c500)) { totalCoinsWon += 200; }
+        else if (rand < (cumulative += p.c100)) { addMultiWheelCoinReward(50); }
+        else if (rand < (cumulative += p.c150)) { addMultiWheelCoinReward(70); }
+        else if (rand < (cumulative += p.c500)) { addMultiWheelCoinReward(200); }
         else {
             // Trúng Quà bí ẩn
             if (cotichItems.length > 0) {
                 const randomItem = cotichItems[Math.floor(Math.random() * cotichItems.length)];
                 if (currentOwned.includes(randomItem.id)) {
-                    totalCoinsWon += 600; // Đền bù 600 Coin
+                    addMultiWheelCoinReward(600); // Đền bù 600 Coin
                     duplicateItemsCount++;
                 } else {
                     currentOwned.push(randomItem.id);
@@ -8966,7 +9214,7 @@ window.spinMultipleWheel = async function () {
                     newlyWonItemNames.push(randomItem.name);
                 }
             } else {
-                totalCoinsWon += 600;
+                addMultiWheelCoinReward(600);
             }
         }
     }
@@ -9083,6 +9331,21 @@ window.spinMultipleWheel = async function () {
                     totalCoinsWon:
                         totalCoinsWon,
 
+                    baseCoinsWon:
+                        baseCoinsWon,
+
+                    coinRewardSpinCount:
+                        coinRewardSpinCount,
+
+                    goldenHour:
+                        goldenHourAtMultiSpin.active,
+
+                    goldenHourWindow:
+                        goldenHourAtMultiSpin.windowLabel,
+
+                    goldenHourBonusCoins:
+                        goldenHourBonusCoins,
+
                     duplicateItemsCount:
                         duplicateItemsCount,
 
@@ -9097,7 +9360,14 @@ window.spinMultipleWheel = async function () {
             });
     }
 
-    let historyStr = `Quay nhanh ${spinsToDo} lần: Trượt ${missCount}, +${totalCoinsWon} Coin`;
+    let historyStr =
+        `Quay nhanh ${spinsToDo} lần: ` +
+        `Trượt ${missCount}, +${totalCoinsWon} Coin`;
+
+    if (goldenHourBonusCoins > 0) {
+        historyStr +=
+            ` (Giờ Vàng +${goldenHourBonusCoins} Coin)`;
+    }
     if (duplicateItemsCount > 0) historyStr += ` (Bao gồm ${duplicateItemsCount} trùng lặp)`;
     if (newlyWonItemNames.length > 0) historyStr += `. Nhận VP: ${newlyWonItemNames.join(', ')}`;
 
@@ -9936,7 +10206,9 @@ window.openPaymentModal = function (item, basePrice, currentCoins, discounts, is
                         ? ' | Á quân Hội Họa: món dưới 600 Coin'
                         : discountSource === 'hoihoa_chest'
                             ? ' | Rương Hội Họa: món dưới 700 Coin'
-                            : '';
+                            : discountSource === 'leaderboard_runner_up'
+                                ? ' | Á quân BXH: thẻ thưởng mùa thi đua'
+                                : '';
 
         let targetArr = d.targetItem || ['all'];
         if (!Array.isArray(targetArr)) targetArr = [targetArr];
@@ -11126,8 +11398,11 @@ async function renderStudentRoadmapCore() {
     if (!body) return;
     body.innerHTML = '';
 
-    const assignments = await getDB('assignments');
-    const submissions = await getDB('submissions');
+    const [assignments, submissions, offsetSnap] = await Promise.all([
+        getDB('assignments'),
+        getDB('submissions'),
+        db.ref('student_money_offset/' + currentUser.username).once('value')
+    ]);
 
     // KIỂM TRA TRẠNG THÁI THAM GIA LỘ TRÌNH CỦA HỌC SINH
     const isParticipating = currentUser.isParticipatingRoadmap !== false;
@@ -11149,17 +11424,25 @@ async function renderStudentRoadmapCore() {
         totalMoneyCard.style.display = isParticipating ? 'flex' : 'none';
     }
 
-    // Lọc bài học được giao cho "Tất cả" hoặc giao riêng cho chính học sinh này
-    const myAssignments = assignments.filter(assign => {
-        const targetArr = Array.isArray(assign.targetStudent) ? assign.targetStudent : [assign.targetStudent || 'all'];
-        return targetArr.includes('all') || targetArr.includes(currentUser.username);
-    });
+    // Dùng cùng một hàm chuẩn hóa mục tiêu với phần tính tiền/rút tiền.
+    // Tránh lệch số dư khi dữ liệu targetStudent cũ chứa chuỗi phân cách bằng dấu phẩy.
+    const myAssignments = assignments.filter(assign =>
+        isRoadmapAssignmentForStudent(assign, currentUser.username)
+    );
     // Sắp xếp bài tập thông minh theo số đếm trong Tiêu đề (VD: Bài 1 -> Bài 2 -> Bài 10)
     const sortedAssignments = [...myAssignments].sort((a, b) => (a.title || '').localeCompare(b.title || '', 'vi-VN', { numeric: true, sensitivity: 'base' }));
 
     if (sortedAssignments.length === 0) {
         body.innerHTML = `<tr><td colspan="6" style="padding:15px; text-align:center; color:#666; font-style:italic;">Chưa có dữ liệu lộ trình học tập.</td></tr>`;
-        if (document.getElementById('totalRoadmapMoney')) document.getElementById('totalRoadmapMoney').innerText = '0';
+
+        // Không được ép về 0 vì học sinh vẫn có thể còn tiền offset
+        // (Coin → Tiền, quà, điều chỉnh hoặc giao dịch trước đó).
+        const moneyOffset = Number(offsetSnap.val()) || 0;
+        const finalMoney = Math.max(0, moneyOffset);
+        const totalMoneyEl = document.getElementById('totalRoadmapMoney');
+        if (totalMoneyEl) {
+            totalMoneyEl.innerText = finalMoney.toLocaleString('vi-VN');
+        }
         return;
     }
 
@@ -11255,13 +11538,15 @@ async function renderStudentRoadmapCore() {
         body.appendChild(tr);
     });
 
-    // FETCH SỐ TIỀN BÙ TRỪ SAU KHI QUY ĐỔI COIN (OFFSET)
-    const offsetSnap = await db.ref('student_money_offset/' + currentUser.username).once('value');
+    // Tổng hiển thị phải dùng đúng cùng thuật toán với bảng quy đổi/rút tiền.
+    // totalMoney ở trên chỉ phục vụ dựng trạng thái từng dòng; không dùng làm nguồn tổng cuối.
+    const baseMoney = calculateRoadmapBaseMoney(
+        assignments,
+        submissions,
+        currentUser.username
+    );
     const moneyOffset = Number(offsetSnap.val()) || 0;
-
-    // Tổng tiền cuối cùng = Tiền làm bài + Tiền bán Coin - Tiền mua Coin
-    let finalMoney = totalMoney + moneyOffset;
-    if (finalMoney < 0) finalMoney = 0; // Chặn về âm
+    const finalMoney = Math.max(0, baseMoney + moneyOffset);
 
     // Cập nhật hiển thị số tiền cuối cùng lên ô tổng
     const totalMoneyEl = document.getElementById('totalRoadmapMoney');
@@ -11271,21 +11556,23 @@ async function renderStudentRoadmapCore() {
 }
 
 // ================= QUY ĐỔI TIỀN VÀ COIN =================
-// Tiền → Coin: 1 lần/tháng, tối đa 500đ.
+// Tiền → Coin: tối đa 2 lần/ngày, không giới hạn số tiền mỗi lần.
 // Coin → Tiền: 1 lần/tuần, tối đa 500 Coin.
 // Tuần bắt đầu từ thứ Hai, tính theo múi giờ Việt Nam UTC+7.
 
 const STUDENT_CONVERSION_RULES = Object.freeze({
     M2C: Object.freeze({
-        maxAmount: 500,
-        periodType: 'month',
+        maxAmount: null,
+        periodType: 'day',
+        maxUses: 2,
         limitMessage:
-            '* Lưu ý: Chỉ được đổi 1 lần/tháng, tối đa 500đ sang Coin.'
+            '* Lưu ý: Tiền → Coin được đổi tối đa 2 lần/ngày, không giới hạn số tiền mỗi lần.'
     }),
 
     C2M: Object.freeze({
         maxAmount: 500,
         periodType: 'week',
+        maxUses: 1,
         limitMessage:
             '* Lưu ý: Chỉ được đổi 1 lần/tuần, tối đa 500 Coin sang Tiền lộ trình.'
     })
@@ -11335,8 +11622,8 @@ function padStudentConversionDatePart(value) {
     return String(value).padStart(2, '0');
 }
 
-// M2C tạo khóa tháng: 2026-07
-// C2M tạo khóa ngày thứ Hai đầu tuần: 2026-07-27
+// M2C tạo khóa theo ngày: 2026-08-30
+// C2M tạo khóa ngày thứ Hai đầu tuần: 2026-08-24
 function getStudentConversionPeriodKey(
     direction,
     timestamp = Date.now()
@@ -11344,6 +11631,16 @@ function getStudentConversionPeriodKey(
     const rule = getStudentConversionRule(direction);
     const parts = getVietnamCalendarParts(timestamp);
 
+    // Tiền → Coin: reset lượt mỗi ngày theo giờ Việt Nam
+    if (rule.periodType === 'day') {
+        return [
+            parts.year,
+            padStudentConversionDatePart(parts.month),
+            padStudentConversionDatePart(parts.day)
+        ].join('-');
+    }
+
+    // Giữ tương thích nếu sau này cần giới hạn tháng
     if (rule.periodType === 'month') {
         return (
             `${parts.year}-` +
@@ -11351,16 +11648,15 @@ function getStudentConversionPeriodKey(
         );
     }
 
+    // Coin → Tiền: theo tuần, tuần bắt đầu thứ Hai
     const date = new Date(Date.UTC(
         parts.year,
         parts.month - 1,
         parts.day
     ));
 
-    // Chủ nhật được đổi thành 7.
     const dayOfWeek = date.getUTCDay() || 7;
 
-    // Lùi về thứ Hai đầu tuần.
     date.setUTCDate(
         date.getUTCDate() - dayOfWeek + 1
     );
@@ -11405,13 +11701,14 @@ function getStudentConversionUsedMessage(direction) {
     }
 
     return (
-        '⛔ Bạn đã dùng lượt đổi Tiền → Coin của tháng này. ' +
-        'Mỗi tháng chỉ được đổi 1 lần.'
+        '⛔ Bạn đã dùng đủ 2 lượt đổi Tiền → Coin hôm nay. ' +
+        'Lượt sẽ được reset vào ngày mới.'
     );
 }
 
 // Giữ lượt trước khi cộng/trừ tiền.
-// Firebase Transaction ngăn hai tab cùng đổi một lúc.
+// M2C có 2 slot/ngày.
+// Firebase Transaction ngăn 2 tab chiếm cùng một slot.
 async function reserveStudentConversionUsage(
     direction,
     amount,
@@ -11425,7 +11722,7 @@ async function reserveStudentConversionUsage(
         serverNow
     );
 
-    const usagePath = getStudentConversionUsagePath(
+    const usageBasePath = getStudentConversionUsagePath(
         normalizedDirection,
         serverNow
     );
@@ -11435,10 +11732,61 @@ async function reserveStudentConversionUsage(
         Math.random().toString(36).slice(2, 12)
     ].join('_');
 
+    // =====================================================
+    // TIỀN → COIN: TỐI ĐA 2 LƯỢT MỖI NGÀY
+    // =====================================================
+    if (normalizedDirection === 'M2C') {
+        for (let slot = 1; slot <= 2; slot++) {
+            const usagePath =
+                `${usageBasePath}/slot${slot}`;
+
+            const transactionResult = await db
+                .ref(usagePath)
+                .transaction(currentValue => {
+                    // Slot đã có người dùng
+                    if (currentValue) {
+                        return;
+                    }
+
+                    return {
+                        used: true,
+                        status: 'reserved',
+                        direction: normalizedDirection,
+                        amount: amount,
+                        periodKey: periodKey,
+                        reservationId: reservationId,
+                        createdAt: serverNow
+                    };
+                });
+
+            if (transactionResult.committed) {
+                return {
+                    direction: normalizedDirection,
+                    periodKey: periodKey,
+                    usagePath: usagePath,
+                    reservationId: reservationId,
+                    serverNow: serverNow,
+                    slot: slot
+                };
+            }
+        }
+
+        const error = new Error(
+            'CONVERSION_LIMIT_ALREADY_USED'
+        );
+
+        error.code =
+            'CONVERSION_LIMIT_ALREADY_USED';
+
+        throw error;
+    }
+
+    // =====================================================
+    // COIN → TIỀN: GIỮ NGUYÊN 1 LẦN/TUẦN
+    // =====================================================
     const transactionResult = await db
-        .ref(usagePath)
+        .ref(usageBasePath)
         .transaction(currentValue => {
-            // Đã tồn tại bản ghi nghĩa là đã dùng hoặc đang giữ lượt.
             if (currentValue) {
                 return;
             }
@@ -11468,7 +11816,7 @@ async function reserveStudentConversionUsage(
     return {
         direction: normalizedDirection,
         periodKey: periodKey,
-        usagePath: usagePath,
+        usagePath: usageBasePath,
         reservationId: reservationId,
         serverNow: serverNow
     };
@@ -11567,7 +11915,23 @@ window.refreshStudentConversionLimitNotice =
                 return;
             }
 
-            if (snapshot.exists()) {
+            if (normalizedDirection === 'M2C') {
+                const usageData = snapshot.val() || {};
+
+                const usedCount = [
+                    usageData.slot1,
+                    usageData.slot2
+                ].filter(Boolean).length;
+
+                if (usedCount >= 2) {
+                    limitText.innerText =
+                        getStudentConversionUsedMessage('M2C');
+                } else {
+                    limitText.innerText =
+                        `* Tiền → Coin: đã dùng ${usedCount}/2 lượt hôm nay. ` +
+                        `Không giới hạn số tiền mỗi lần đổi.`;
+                }
+            } else if (snapshot.exists()) {
                 limitText.innerText =
                     getStudentConversionUsedMessage(
                         normalizedDirection
@@ -11666,13 +12030,20 @@ window.setConvertDir = function (direction) {
     if (amountInput) {
         amountInput.value = '';
         amountInput.min = '1';
-        amountInput.max = String(rule.maxAmount);
         amountInput.step = '1';
 
-        amountInput.placeholder =
-            normalizedDirection === 'M2C'
-                ? 'Nhập số tiền (tối đa 500đ)'
-                : 'Nhập số Coin (tối đa 500)';
+        if (normalizedDirection === 'M2C') {
+            // Không giới hạn số tiền nhập
+            amountInput.removeAttribute('max');
+            amountInput.placeholder =
+                'Nhập số tiền muốn đổi';
+        } else {
+            amountInput.max =
+                String(rule.maxAmount);
+
+            amountInput.placeholder =
+                'Nhập số Coin (tối đa 500)';
+        }
     }
 
     if (resultInput) {
@@ -11777,6 +12148,7 @@ window.updateConvertPreview = function () {
     if (
         rawAmount &&
         Number.isFinite(amount) &&
+        Number.isFinite(rule.maxAmount) &&
         amount > rule.maxAmount
     ) {
         amountInput.value =
@@ -11791,8 +12163,23 @@ window.updateConvertPreview = function () {
     resultInput.value = rawAmount;
 };
 
-// Thực hiện quy đổi.
-window.executeConversion = async function () {
+// Khóa dùng chung cho mọi thao tác làm thay đổi/giữ chỗ Tiền lộ trình.
+async function runWithStudentMoneyMutationLock(task) {
+    if (
+        navigator.locks &&
+        typeof navigator.locks.request === 'function'
+    ) {
+        return navigator.locks.request(
+            `student-money:${currentUser.username}`,
+            task
+        );
+    }
+
+    return task();
+}
+
+// Thực hiện quy đổi nội bộ.
+async function executeConversionCore() {
     const amountInput =
         document.getElementById('convertAmount');
 
@@ -11822,11 +12209,12 @@ window.executeConversion = async function () {
         return;
     }
 
-    if (amount > rule.maxAmount) {
+    if (
+        Number.isFinite(rule.maxAmount) &&
+        amount > rule.maxAmount
+    ) {
         alert(
-            direction === 'M2C'
-                ? '❌ Mỗi tháng chỉ được đổi tối đa 500đ sang Coin.'
-                : '❌ Mỗi tuần chỉ được đổi tối đa 500 Coin sang Tiền lộ trình.'
+            '❌ Mỗi tuần chỉ được đổi tối đa 500 Coin sang Tiền lộ trình.'
         );
         return;
     }
@@ -11850,12 +12238,14 @@ window.executeConversion = async function () {
             assignments,
             submissions,
             offsetSnapshot,
+            cashRequests,
             serverNow
         ] = await Promise.all([
             db.ref(coinPath).once('value'),
             getDB('assignments'),
             getDB('submissions'),
             db.ref(offsetPath).once('value'),
+            getDB('cash_requests'),
             getStudentConversionServerNow()
         ]);
 
@@ -11877,12 +12267,26 @@ window.executeConversion = async function () {
             baseRoadmapMoney + currentOffset
         );
 
-        // Kiểm tra nhanh số dư trước khi giữ lượt.
+        // Tiền đang chờ/đang xử lý nhưng CHƯA bị trừ khỏi offset phải được giữ chỗ.
+        const reservedCashAmount = getReservedCashRequestAmount(
+            cashRequests,
+            currentOffset
+        );
+        const currentAvailableMoney = Math.max(
+            0,
+            currentMoney - reservedCashAmount
+        );
+
+        // Kiểm tra nhanh số dư khả dụng trước khi giữ lượt.
         if (
             direction === 'M2C' &&
-            amount > currentMoney
+            amount > currentAvailableMoney
         ) {
-            alert('❌ Không đủ tiền lộ trình!');
+            alert(
+                `❌ Không đủ tiền lộ trình khả dụng! ` +
+                `Bạn còn có thể dùng ${currentAvailableMoney.toLocaleString('vi-VN')}đ ` +
+                `sau khi trừ các yêu cầu tiền mặt đang chờ/đang xử lý.`
+            );
             return;
         }
 
@@ -11916,7 +12320,8 @@ window.executeConversion = async function () {
                     const latestMoney = Math.max(
                         0,
                         baseRoadmapMoney +
-                        latestOffset
+                        latestOffset -
+                        reservedCashAmount
                     );
 
                     if (amount > latestMoney) {
@@ -11962,7 +12367,7 @@ window.executeConversion = async function () {
                 `${amount.toLocaleString('vi-VN')}đ ` +
                 `để nhận ` +
                 `${amount.toLocaleString('vi-VN')} Coin 🪙.\n` +
-                `Lượt Tiền → Coin của tháng này đã được sử dụng.`;
+                `Tiền → Coin được phép tối đa 2 lượt mỗi ngày.`;
         } else {
             // Trừ Coin.
             await decrementNumberTx(
@@ -12151,6 +12556,10 @@ window.executeConversion = async function () {
             )
             .catch(() => { });
     }
+}
+
+window.executeConversion = function () {
+    return runWithStudentMoneyMutationLock(executeConversionCore);
 };
 
 // =========================================================================
@@ -17653,6 +18062,76 @@ function getCashRequestAmount(req) {
     return Number.isFinite(amount) && amount > 0 ? amount : 0;
 }
 
+// Tính phần tiền đang được giữ chỗ bởi yêu cầu tiền mặt nhưng chưa bị trừ khỏi offset.
+// processing có thể rơi vào cửa sổ phục hồi: nếu offset đã bằng processingOffsetAfter
+// thì tiền đã được trừ, không được giữ chỗ lần hai.
+function getReservedCashRequestAmount(allRequests, currentOffset) {
+    const normalizedOffset = Number(currentOffset) || 0;
+
+    return (allRequests || [])
+        .filter(isCashRequestOwnedByCurrentStudent)
+        .reduce((sum, req) => {
+            const amount = getCashRequestAmount(req);
+            if (!amount) return sum;
+
+            if (req.status === 'pending') {
+                return sum + amount;
+            }
+
+            if (req.status === 'processing') {
+                if (req.debitApplied === true) {
+                    return sum;
+                }
+
+                const expectedAfter = Number(req.processingOffsetAfter);
+                if (
+                    Number.isFinite(expectedAfter) &&
+                    normalizedOffset === expectedAfter
+                ) {
+                    return sum;
+                }
+
+                return sum + amount;
+            }
+
+            return sum;
+        }, 0);
+}
+
+async function getCurrentRoadmapMoneyState() {
+    const [assignments, submissions, offsetSnap, cashRequests] = await Promise.all([
+        getDB('assignments'),
+        getDB('submissions'),
+        db.ref('student_money_offset/' + currentUser.username).once('value'),
+        getDB('cash_requests')
+    ]);
+
+    const baseMoney = calculateRoadmapBaseMoney(
+        assignments,
+        submissions,
+        currentUser.username
+    );
+
+    const moneyOffset = Number(offsetSnap.val()) || 0;
+    const totalMoney = Math.max(0, baseMoney + moneyOffset);
+    const reservedAmount = getReservedCashRequestAmount(
+        cashRequests,
+        moneyOffset
+    );
+    const availableMoney = Math.max(0, totalMoney - reservedAmount);
+
+    return {
+        assignments,
+        submissions,
+        cashRequests,
+        baseMoney,
+        moneyOffset,
+        totalMoney,
+        reservedAmount,
+        availableMoney
+    };
+}
+
 // Hiển thị lịch sử. Học sinh chỉ ẩn bản ghi cũ khỏi giao diện,
 // KHÔNG tự xóa Firebase để tránh lỗi quyền ghi/xóa phía client.
 async function renderCashRequestHistory() {
@@ -17730,20 +18209,13 @@ async function renderCashRequestHistory() {
 }
 
 window.calculateCurrentRouteMoney = async function () {
-    const [assignments, submissions, offsetSnap] = await Promise.all([
-        getDB('assignments'),
-        getDB('submissions'),
-        db.ref('student_money_offset/' + currentUser.username).once('value')
-    ]);
+    const state = await getCurrentRoadmapMoneyState();
+    return state.totalMoney;
+};
 
-    const baseMoney = calculateRoadmapBaseMoney(
-        assignments,
-        submissions,
-        currentUser.username
-    );
-
-    const moneyOffset = Number(offsetSnap.val()) || 0;
-    return Math.max(0, baseMoney + moneyOffset);
+window.calculateCurrentAvailableRouteMoney = async function () {
+    const state = await getCurrentRoadmapMoneyState();
+    return state.availableMoney;
 };
 
 window.initCashWithdrawInterface = async function () {
@@ -17751,9 +18223,43 @@ window.initCashWithdrawInterface = async function () {
     if (!displayEl) return;
 
     try {
-        const totalRouteMoney = await window.calculateCurrentRouteMoney();
-        displayEl.innerText = totalRouteMoney.toLocaleString('vi-VN');
-        window.currentRoadmapMoneyAmount = totalRouteMoney;
+        const state = await getCurrentRoadmapMoneyState();
+        displayEl.innerText = state.totalMoney.toLocaleString('vi-VN');
+        window.currentRoadmapMoneyAmount = state.totalMoney;
+        window.currentAvailableRoadmapMoneyAmount = state.availableMoney;
+
+        const inputEl = document.getElementById('inputWithdrawAmount');
+        if (inputEl) {
+            inputEl.max = String(Math.floor(state.availableMoney));
+            inputEl.dataset.availableMoney = String(state.availableMoney);
+        }
+
+        const section = document.getElementById('cashWithdrawalSection');
+        if (section) {
+            let availableEl = document.getElementById('cashAvailableMoneyNotice');
+            if (!availableEl) {
+                availableEl = document.createElement('p');
+                availableEl.id = 'cashAvailableMoneyNotice';
+                availableEl.style.margin = '-8px 0 15px 0';
+                availableEl.style.color = '#64748b';
+                availableEl.style.fontSize = '0.88em';
+
+                const firstParagraph = section.querySelector('p');
+                if (firstParagraph) {
+                    firstParagraph.insertAdjacentElement('afterend', availableEl);
+                }
+            }
+
+            if (availableEl) {
+                availableEl.innerHTML =
+                    `Có thể yêu cầu lúc này: <strong style="color:#059669;">` +
+                    `${state.availableMoney.toLocaleString('vi-VN')} VNĐ</strong>` +
+                    (state.reservedAmount > 0
+                        ? ` · Đang giữ chỗ: ${state.reservedAmount.toLocaleString('vi-VN')} VNĐ`
+                        : '');
+            }
+        }
+
         await renderCashRequestHistory();
     } catch (error) {
         console.error('Lỗi khởi tạo giao diện rút tiền mặt:', error);
@@ -17761,7 +18267,7 @@ window.initCashWithdrawInterface = async function () {
     }
 };
 
-window.handleRequestCashSubmit = async function () {
+async function handleRequestCashSubmitCore() {
     const inputEl = document.getElementById('inputWithdrawAmount');
     if (!inputEl) return;
 
@@ -17770,38 +18276,26 @@ window.handleRequestCashSubmit = async function () {
     window.cashRequestSubmitInFlight = true;
 
     try {
-        const amount = parseInt(inputEl.value, 10);
+        const rawAmount = String(inputEl.value || '').trim();
+        const amount = Number(rawAmount);
 
-        if (!Number.isFinite(amount) || amount <= 0) {
-            alert('⚠️ Vui lòng nhập số tiền mặt muốn lấy hợp lệ!');
+        if (!rawAmount || !Number.isInteger(amount) || amount <= 0) {
+            alert('⚠️ Vui lòng nhập số tiền mặt muốn lấy là số nguyên dương hợp lệ!');
             return;
         }
 
-        // Toàn bộ await được đặt trong try/catch để không phát sinh
-        // Uncaught (in promise) từ luồng rút tiền mặt.
-        const [totalRouteMoney, allRequests] = await Promise.all([
-            window.calculateCurrentRouteMoney(),
-            getDB('cash_requests')
-        ]);
+        let state = await getCurrentRoadmapMoneyState();
 
-        if (amount > totalRouteMoney) {
-            alert(`⚠️ Số tiền yêu cầu (${amount.toLocaleString('vi-VN')} VNĐ) vượt quá Tổng tiền tích lũy lộ trình hiện tại (${totalRouteMoney.toLocaleString('vi-VN')} VNĐ)!`);
+        if (amount > state.totalMoney) {
+            alert(`⚠️ Số tiền yêu cầu (${amount.toLocaleString('vi-VN')} VNĐ) vượt quá Tổng tiền tích lũy lộ trình hiện tại (${state.totalMoney.toLocaleString('vi-VN')} VNĐ)!`);
             return;
         }
 
-        // Pending + processing chưa chắc đã được trừ khỏi offset,
-        // vì vậy phải coi chúng là số tiền đã được giữ chỗ.
-        const reservedAmount = (allRequests || [])
-            .filter(isCashRequestOwnedByCurrentStudent)
-            .filter(req => req.status === 'pending' || req.status === 'processing')
-            .reduce((sum, req) => sum + getCashRequestAmount(req), 0);
-
-        if (amount + reservedAmount > totalRouteMoney) {
-            const available = Math.max(0, totalRouteMoney - reservedAmount);
+        if (amount > state.availableMoney) {
             alert(
-                `⚠️ Bạn đang có ${reservedAmount.toLocaleString('vi-VN')} VNĐ ` +
+                `⚠️ Bạn đang có ${state.reservedAmount.toLocaleString('vi-VN')} VNĐ ` +
                 `đang chờ/được xử lý. Số tiền còn có thể yêu cầu là ` +
-                `${available.toLocaleString('vi-VN')} VNĐ.`
+                `${state.availableMoney.toLocaleString('vi-VN')} VNĐ.`
             );
             return;
         }
@@ -17810,7 +18304,20 @@ window.handleRequestCashSubmit = async function () {
             return;
         }
 
+        // Đọc lại ngay trước khi tạo request để tránh dùng số dư cũ sau thời gian confirm.
+        state = await getCurrentRoadmapMoneyState();
+        if (amount > state.availableMoney) {
+            alert(
+                `⚠️ Số dư khả dụng vừa thay đổi. Hiện chỉ còn ` +
+                `${state.availableMoney.toLocaleString('vi-VN')} VNĐ có thể yêu cầu.`
+            );
+            await window.initCashWithdrawInterface();
+            return;
+        }
+
         await pushDB('cash_requests', {
+            // Tương thích cả Firebase Rules cũ và luồng duyệt tiền hiện tại.
+            username: currentUser.username,
             studentUsername: currentUser.username,
             studentName: currentUser.name,
             amount: amount,
@@ -17822,16 +18329,30 @@ window.handleRequestCashSubmit = async function () {
         alert('🎉 Gửi yêu cầu thành công! Vui lòng đợi giáo viên xét duyệt.');
         inputEl.value = '';
 
-        await Promise.all([
-            renderCashRequestHistory(),
-            window.initCashWithdrawInterface()
-        ]);
+        await window.initCashWithdrawInterface();
     } catch (error) {
         console.error('Lỗi gửi yêu cầu tiền mặt:', error);
-        alert('❌ Không thể gửi yêu cầu tiền mặt. Vui lòng kiểm tra kết nối rồi thử lại.');
+
+        const errorCode = String(error?.code || '').toLowerCase();
+        const errorMessage = String(error?.message || '').toLowerCase();
+
+        if (
+            errorCode.includes('permission-denied') ||
+            errorCode.includes('permission_denied') ||
+            errorMessage.includes('permission_denied') ||
+            errorMessage.includes('permission denied')
+        ) {
+            alert('❌ Firebase từ chối quyền tạo yêu cầu tiền mặt. Vui lòng kiểm tra Rules của cash_requests.');
+        } else {
+            alert('❌ Không thể gửi yêu cầu tiền mặt. Vui lòng kiểm tra kết nối rồi thử lại.');
+        }
     } finally {
         window.cashRequestSubmitInFlight = false;
     }
+}
+
+window.handleRequestCashSubmit = function () {
+    return runWithStudentMoneyMutationLock(handleRequestCashSubmitCore);
 };
 
 // ================= HỆ THỐNG THEO DÕI VIDEO YOUTUBE =================
@@ -19370,79 +19891,8 @@ window.onPlayerStateChange = function (event, assignId) {
     }
 };
 
-window.downloadStudentRoadmapPDF = async function () {
-    const assignments = await getDB('assignments');
-    const submissions = await getDB('submissions');
+// [FIX] Đã loại bỏ phiên bản downloadStudentRoadmapPDF cũ bị trùng.
 
-    const htmlContent = `
-        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
-            <h2 style="text-align: center; color: #2c3e50; text-transform: uppercase;">BẢNG ĐIỂM HỌC TẬP</h2>
-            <p style="font-size: 16px;"><strong>Họ và tên học sinh:</strong> ${currentUser.name}</p>
-            <p style="font-size: 16px;"><strong>Ngày xuất:</strong> ${new Date().toLocaleDateString('vi-VN')}</p>
-            <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-                <thead>
-                    <tr style="background-color: #f1f5f9;">
-                        <th style="border: 1px solid #cbd5e1; padding: 12px; text-align: left;">Tên bài học</th>
-                        <th style="border: 1px solid #cbd5e1; padding: 12px; text-align: center; width: 100px;">Điểm số</th>
-                        <th style="border: 1px solid #cbd5e1; padding: 12px; text-align: center; width: 150px;">Hạn nộp</th>
-                    </tr>
-                </thead>
-                <tbody>
-    `;
-
-    // Lọc bài tập của học sinh
-    const myAssignments = assignments.filter(assign => {
-        const targetArr = Array.isArray(assign.targetStudent) ? assign.targetStudent : [assign.targetStudent || 'all'];
-        return targetArr.includes('all') || targetArr.includes(currentUser.username);
-    });
-    const sortedAssignments = [...myAssignments].sort((a, b) => (a.title || '').localeCompare(b.title || '', 'vi-VN', { numeric: true, sensitivity: 'base' }));
-
-    let rowsHTML = "";
-    sortedAssignments.forEach(assign => {
-        // Đã sửa lại đúng tên biến: assign.id và s.studentUsername
-        const subs = submissions.filter(s => s.assignmentId === assign.id && s.studentUsername === currentUser.username);
-        let studentScore = "Chưa làm";
-
-        if (subs.length > 0) {
-            // Sắp xếp lấy bài có điểm cao nhất (dùng thuộc tính grade)
-            const bestSub = subs.sort((a, b) => (parseFloat(b.grade) || 0) - (parseFloat(a.grade) || 0))[0];
-
-            if (bestSub.isRegrading) {
-                studentScore = "Đang chấm lại";
-            } else if (bestSub.grade !== null && bestSub.grade !== undefined && bestSub.grade !== '') {
-                studentScore = parseFloat(bestSub.grade); // Hiển thị điểm thật
-            } else {
-                studentScore = "Chưa chấm";
-            }
-        }
-
-        rowsHTML += `
-            <tr>
-                <td style="border: 1px solid #cbd5e1; padding: 12px;">${assign.title}</td>
-                <td style="border: 1px solid #cbd5e1; padding: 12px; text-align: center; font-weight: bold; color: #e11d48;">${studentScore}</td>
-                <td style="border: 1px solid #cbd5e1; padding: 12px; text-align: center; color: #64748b;">${assign.endDate || '---'}</td>
-            </tr>
-        `;
-    });
-
-    const finalHTML = htmlContent + rowsHTML + `
-                </tbody>
-            </table>
-        </div>
-    `;
-
-    const opt = {
-        margin: 10,
-        filename: `BangDiem_${currentUser.name}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = finalHTML;
-    html2pdf().set(opt).from(tempDiv).save();
-};
 
 const LimitedEventAnnouncementManager = {
     events: {},
@@ -21099,18 +21549,39 @@ window.handleExamInterruption = async function (
 // =========================================================================
 
 window.downloadStudentRoadmapPDF = async function () {
-    // 1. Lấy dữ liệu bài tập và bài nộp từ Firebase
+    // Dùng đúng cùng thuật toán với bảng lộ trình trên màn hình.
     const assignments = await getDB('assignments');
     const submissions = await getDB('submissions');
 
-    const stName = currentUser.name || currentUser.username;
+    const username = String(currentUser?.username || '').trim();
+    const stName = currentUser?.name || username || 'HocSinh';
 
-    // 2. Tạo khung giao diện HTML cho file PDF
+    // Chỉ lấy những bài thực sự giao cho học sinh này.
+    const myAssignments = (assignments || []).filter(assign =>
+        isRoadmapAssignmentForStudent(assign, username)
+    );
+
+    const sortedAssignments = [...myAssignments].sort((a, b) =>
+        (a.title || '').localeCompare(
+            b.title || '',
+            'vi-VN',
+            { numeric: true, sensitivity: 'base' }
+        )
+    );
+
     let htmlContent = `
         <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
-            <h2 style="text-align: center; color: #2c3e50; text-transform: uppercase;">BẢNG ĐIỂM LỘ TRÌNH HỌC TẬP</h2>
-            <p style="font-size: 16px;"><strong>Họ và tên học sinh:</strong> ${stName}</p>
-            <p style="font-size: 16px;"><strong>Ngày xuất:</strong> ${new Date().toLocaleDateString('vi-VN')}</p>
+            <h2 style="text-align: center; color: #2c3e50; text-transform: uppercase;">
+                BẢNG ĐIỂM LỘ TRÌNH HỌC TẬP
+            </h2>
+            <p style="font-size: 16px;">
+                <strong>Họ và tên học sinh:</strong>
+                ${studentAttachmentSafeHTML(stName)}
+            </p>
+            <p style="font-size: 16px;">
+                <strong>Ngày xuất:</strong>
+                ${new Date().toLocaleDateString('vi-VN')}
+            </p>
             <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
                 <thead>
                     <tr style="background-color: #f1f5f9;">
@@ -21123,52 +21594,66 @@ window.downloadStudentRoadmapPDF = async function () {
                 <tbody>
     `;
 
-    // 3. Lọc bài tập được giao cho học sinh này hoặc giao cho tất cả
-    const myAssignments = assignments.filter(assign => {
-        const targetArr = Array.isArray(assign.targetStudent) ? assign.targetStudent : [assign.targetStudent || 'all'];
-        return targetArr.includes('all') || targetArr.includes(currentUser.username);
-    });
-
-    // Sắp xếp bài tập theo tên/số thứ tự
-    const sortedAssignments = [...myAssignments].sort((a, b) => (a.title || '').localeCompare(b.title || '', 'vi-VN', { numeric: true, sensitivity: 'base' }));
-
-    // 4. Xử lý từng bài tập và ráp kết quả vào bảng
     sortedAssignments.forEach(assign => {
-        const passingGrade = assign.passingGrade || 7;
-        const subs = submissions.filter(s => s.assignmentId === assign.id && s.studentUsername === currentUser.username);
+        // Chính helper này cũng được dùng khi tính tiền lộ trình:
+        // forcePass -> bài đạt -> bài có điểm -> chấm lại -> bài lỗi.
+        const bestSub = getRoadmapSubmission(
+            assign,
+            submissions,
+            username
+        );
 
-        let studentScore = "-";
-        let statusText = "Chưa nộp";
+        let studentScore = '-';
+        let statusText = 'Chưa nộp';
 
-        if (subs.length > 0) {
-            // Lấy bài nộp có kết quả tốt nhất/mới nhất
-            const bestSub = subs.sort((a, b) => (parseFloat(b.grade) || 0) - (parseFloat(a.grade) || 0))[0];
+        if (bestSub) {
+            const parsedGrade = parseRoadmapNumber(
+                bestSub.grade,
+                NaN
+            );
 
-            // Phân tích trạng thái đạt/loại/chấm lại
             if (bestSub.forcePass) {
-                studentScore = (bestSub.grade !== null && bestSub.grade !== '') ? bestSub.grade : '0';
-                statusText = "Đạt (Được tha)";
-            } else if (bestSub.isAutoSubmitted || bestSub.isLateFail || bestSub.isCheatFail) {
-                studentScore = (bestSub.grade !== null && bestSub.grade !== '') ? bestSub.grade : '0';
-                statusText = bestSub.isCheatFail ? "Loại (Vi phạm)" : "Loại";
+                studentScore = Number.isFinite(parsedGrade)
+                    ? parsedGrade
+                    : '0';
+                statusText = 'Đạt (Được tha)';
+            } else if (isRoadmapSubmissionFailed(bestSub)) {
+                studentScore = Number.isFinite(parsedGrade)
+                    ? parsedGrade
+                    : '0';
+                statusText = bestSub.isCheatFail
+                    ? 'Loại (Vi phạm)'
+                    : 'Loại';
             } else if (bestSub.isRegrading) {
-                studentScore = "🔄";
-                statusText = "Đang chấm lại";
-            } else if (bestSub.grade !== null && bestSub.grade !== undefined && bestSub.grade !== '') {
-                studentScore = bestSub.grade;
-                statusText = (parseFloat(studentScore) >= passingGrade) ? "Đạt" : "Loại";
+                studentScore = '🔄';
+                statusText = 'Đang chấm lại';
+            } else if (Number.isFinite(parsedGrade)) {
+                studentScore = parsedGrade;
+                statusText = isRoadmapSubmissionPassed(
+                    assign,
+                    bestSub
+                )
+                    ? 'Đạt'
+                    : 'Loại';
             } else {
-                statusText = "Chưa chấm";
+                statusText = 'Chưa chấm';
             }
         }
 
-        // Tạo dòng dữ liệu cho PDF
         htmlContent += `
             <tr>
-                <td style="border: 1px solid #cbd5e1; padding: 12px;">${assign.title}</td>
-                <td style="border: 1px solid #cbd5e1; padding: 12px; text-align: center; font-weight: bold; color: #e11d48;">${studentScore}</td>
-                <td style="border: 1px solid #cbd5e1; padding: 12px; text-align: center;">${statusText}</td>
-                <td style="border: 1px solid #cbd5e1; padding: 12px; text-align: center; color: #64748b;">${assign.endDate || 'Không giới hạn'}</td>
+                <td style="border: 1px solid #cbd5e1; padding: 12px;">
+                    ${studentAttachmentSafeHTML(assign?.title || 'Bài học')}
+                </td>
+                <td style="border: 1px solid #cbd5e1; padding: 12px; text-align: center; font-weight: bold; color: #e11d48;">
+                    ${studentAttachmentSafeHTML(studentScore)}
+                </td>
+                <td style="border: 1px solid #cbd5e1; padding: 12px; text-align: center;">
+                    ${studentAttachmentSafeHTML(statusText)}
+                </td>
+                <td style="border: 1px solid #cbd5e1; padding: 12px; text-align: center; color: #64748b;">
+                    ${studentAttachmentSafeHTML(assign?.endDate || 'Không giới hạn')}
+                </td>
             </tr>
         `;
     });
@@ -21179,18 +21664,29 @@ window.downloadStudentRoadmapPDF = async function () {
         </div>
     `;
 
-    // 5. Cấu hình thư viện HTML2PDF và xuất file
+    const safeFileName = String(stName)
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-zA-Z0-9_-]+/g, '');
+
     const opt = {
         margin: 10,
-        filename: `BangDiem_LoTrinh_${stName.replace(/\s+/g, '')}.pdf`,
+        filename: `BangDiem_LoTrinh_${safeFileName || 'HocSinh'}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        jsPDF: {
+            unit: 'mm',
+            format: 'a4',
+            orientation: 'portrait'
+        }
     };
 
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = htmlContent;
 
-    // Yêu cầu thư viện tải và lưu PDF
-    html2pdf().set(opt).from(tempDiv).save();
+    await html2pdf()
+        .set(opt)
+        .from(tempDiv)
+        .save();
 };
+

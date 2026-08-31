@@ -4038,3 +4038,27 @@ html.premium-spring-sanctuary-equipped :where(
             50% 55%;
     }
 }
+/* ==============================================================
+   FIX — NÚT THU GỌN SIDEBAR BỊ TRÔI VỀ GÓC TRÁI TRONG LUXURY STORE
+   - Chỉ áp dụng khi trang Cửa hàng Sang trọng đang mở.
+   - Chỉ áp dụng desktop; không đụng logic sidebar mobile.
+   - Giữ nguyên giao diện/theme của nút, chỉ sửa vị trí.
+   ============================================================== */
+@media (min-width: 769px) {
+    body:has(#luxuryStorePage:not([hidden]))
+    .sidebar > .sidebar-toggle {
+        position: absolute !important;
+        top: 32px !important;
+        left: auto !important;
+        right: -17px !important;
+        margin: 0 !important;
+    }
+
+    body:has(#luxuryStorePage:not([hidden]))
+    .dashboard.collapsed
+    .sidebar > .sidebar-toggle {
+        left: auto !important;
+        right: -17px !important;
+        transform: rotate(180deg) !important;
+    }
+}

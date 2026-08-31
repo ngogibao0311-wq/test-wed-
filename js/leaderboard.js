@@ -284,7 +284,7 @@ function initLeaderboardSystem() {
                                 <span>🥉</span>
                                 <span>
                                     <strong>Hạng 3</strong><br>
-                                    100 Coin
+                                    <span id="lbRuleRank3Reward">100 Coin</span>
                                 </span>
                             </div>
 
@@ -292,7 +292,7 @@ function initLeaderboardSystem() {
                                 <span>🎖️</span>
                                 <span>
                                     <strong>Hạng 4+</strong><br>
-                                    50 Coin khích lệ
+                                    <span id="lbRuleRank4Reward">50 Coin khích lệ</span>
                                 </span>
                             </div>
 
@@ -685,6 +685,1350 @@ function getProgressPercent(score) {
 }
 
 
+
+function leaderboardText(value) {
+    return String(value ?? '').trim();
+}
+
+
+function getLeaderboardAssignmentIds(assignment) {
+    return [...new Set(
+        [
+            assignment?.id,
+            assignment?._fbKey,
+            assignment?.assignmentId,
+            assignment?.assignmentKey,
+            assignment?.key
+        ]
+            .map(leaderboardText)
+            .filter(Boolean)
+    )];
+}
+
+
+function getLeaderboardSubmissionAssignmentId(submission) {
+    return leaderboardText(
+        submission?.assignmentId ??
+        submission?.assignId ??
+        submission?.assignmentKey ??
+        submission?.taskId ??
+        submission?.exerciseId
+    );
+}
+
+
+function getLeaderboardSubmissionUsername(submission) {
+    return leaderboardText(
+        submission?.studentUsername ??
+        submission?.username ??
+        submission?.studentUser ??
+        submission?.studentId
+    );
+}
+
+
+function getLeaderboardTargets(assignment) {
+    const rawTarget =
+        assignment?.targetStudent;
+
+    if (Array.isArray(rawTarget)) {
+        const values = rawTarget
+            .flatMap(value =>
+                String(value ?? '').split(',')
+            )
+            .map(value => value.trim())
+            .filter(Boolean);
+
+        return values.length
+            ? [...new Set(values)]
+            : ['all'];
+    }
+
+    const values =
+        String(rawTarget ?? 'all')
+            .split(',')
+            .map(value => value.trim())
+            .filter(Boolean);
+
+    return values.length
+        ? [...new Set(values)]
+        : ['all'];
+}
+
+
+function isLeaderboardAssignmentForStudent(
+    assignment,
+    username
+) {
+    const targets =
+        getLeaderboardTargets(assignment);
+
+    const normalizedUsername =
+        leaderboardText(username);
+
+    return (
+        targets.includes('all') ||
+        targets.includes(normalizedUsername)
+    );
+}
+
+
+function getLeaderboardPassingGrade(assignment) {
+    const assignmentGrade =
+        Number(assignment?.passingGrade);
+
+    if (Number.isFinite(assignmentGrade)) {
+        return assignmentGrade;
+    }
+
+    const globalGrade =
+        Number(window.currentPassingGrade);
+
+    return Number.isFinite(globalGrade)
+        ? globalGrade
+        : 7;
+}
+
+
+function isLeaderboardSubmissionFailed(submission) {
+    return Boolean(
+        submission &&
+        !submission.forcePass &&
+        (
+            submission.isAutoSubmitted ||
+            submission.isLateFail ||
+            submission.isCheatFail
+        )
+    );
+}
+
+
+/*
+ * Một bài tập chỉ được tính đúng MỘT lần.
+ * Ưu tiên giống logic lộ trình:
+ * forcePass -> đạt -> có điểm -> chấm lại -> lỗi.
+ */
+function getLeaderboardBestSubmission(
+    assignment,
+    submissions,
+    username
+) {
+    const assignmentIds =
+        getLeaderboardAssignmentIds(assignment);
+
+    const normalizedUsername =
+        leaderboardText(username);
+
+    const passingGrade =
+        getLeaderboardPassingGrade(assignment);
+
+    const matched = (submissions || [])
+        .filter(submission => {
+            return (
+                assignmentIds.includes(
+                    getLeaderboardSubmissionAssignmentId(
+                        submission
+                    )
+                ) &&
+                getLeaderboardSubmissionUsername(
+                    submission
+                ) === normalizedUsername
+            );
+        });
+
+    if (!matched.length) {
+        return null;
+    }
+
+    const getPriority = submission => {
+        if (submission.forcePass) {
+            return 50;
+        }
+
+        const grade =
+            Number(submission.grade);
+
+        const failed =
+            isLeaderboardSubmissionFailed(
+                submission
+            );
+
+        if (
+            !failed &&
+            !submission.isRegrading &&
+            Number.isFinite(grade) &&
+            grade >= passingGrade
+        ) {
+            return 40;
+        }
+
+        if (
+            !failed &&
+            !submission.isRegrading &&
+            Number.isFinite(grade)
+        ) {
+            return 30;
+        }
+
+        if (submission.isRegrading) {
+            return 20;
+        }
+
+        if (failed) {
+            return 10;
+        }
+
+        return 0;
+    };
+
+    matched.sort((a, b) => {
+        const priorityDifference =
+            getPriority(b) -
+            getPriority(a);
+
+        if (priorityDifference !== 0) {
+            return priorityDifference;
+        }
+
+        const gradeA =
+            Number.isFinite(Number(a.grade))
+                ? Number(a.grade)
+                : -Infinity;
+
+        const gradeB =
+            Number.isFinite(Number(b.grade))
+                ? Number(b.grade)
+                : -Infinity;
+
+        if (gradeB !== gradeA) {
+            return gradeB - gradeA;
+        }
+
+        const timeA =
+            Number(
+                a.timestamp ??
+                a.submitTimestamp ??
+                a.id ??
+                0
+            ) || 0;
+
+        const timeB =
+            Number(
+                b.timestamp ??
+                b.submitTimestamp ??
+                b.id ??
+                0
+            ) || 0;
+
+        return timeB - timeA;
+    });
+
+    return matched[0];
+}
+
+
+function getLeaderboardMonthAssignments(
+    assignments,
+    year,
+    monthIndex
+) {
+    return (assignments || []).filter(
+        assignment => {
+            if (!assignment?.endDate) {
+                return false;
+            }
+
+            const assignmentDate =
+                new Date(
+                    String(assignment.endDate)
+                        .replace(' ', 'T')
+                );
+
+            return (
+                !Number.isNaN(
+                    assignmentDate.getTime()
+                ) &&
+                assignmentDate.getMonth() ===
+                    monthIndex &&
+                assignmentDate.getFullYear() ===
+                    year
+            );
+        }
+    );
+}
+
+
+/*
+ * Hàm tính BXH dùng chung cho:
+ * - tháng hiện tại;
+ * - tháng trước để phát thưởng.
+ */
+function buildLeaderboardDataForPeriod({
+    users,
+    assignments,
+    submissions,
+    trackingData,
+    year,
+    monthIndex
+}) {
+    const students =
+        (users || []).filter(
+            user =>
+                String(user?.role || '')
+                    .toLowerCase() ===
+                'student'
+        );
+
+    const monthAssignments =
+        getLeaderboardMonthAssignments(
+            assignments,
+            year,
+            monthIndex
+        );
+
+    const rankedData = [];
+
+    students.forEach(student => {
+        const username =
+            leaderboardText(
+                student.username
+            );
+
+        if (!username) {
+            return;
+        }
+
+        const assignedMonthAssignments =
+            monthAssignments.filter(
+                assignment =>
+                    isLeaderboardAssignmentForStudent(
+                        assignment,
+                        username
+                    )
+            );
+
+        let totalScore = 0;
+        let validCount = 0;
+        let count10s = 0;
+        let violationCount = 0;
+        let totalVideoBonus = 0;
+
+        assignedMonthAssignments.forEach(
+            assignment => {
+                if (
+                    Number(
+                        assignment.watchCondition
+                    ) > 0
+                ) {
+                    const assignmentIds =
+                        getLeaderboardAssignmentIds(
+                            assignment
+                        );
+
+                    const watchedTime =
+                        Math.max(
+                            0,
+                            ...assignmentIds.map(
+                                assignmentId =>
+                                    Number(
+                                        trackingData[
+                                            assignmentId
+                                        ]?.[username]
+                                    ) || 0
+                            )
+                        );
+
+                    const ratio =
+                        Math.min(
+                            1,
+                            watchedTime /
+                            Number(
+                                assignment.watchCondition
+                            )
+                        );
+
+                    totalVideoBonus +=
+                        ratio * 0.5;
+                }
+
+                const submission =
+                    getLeaderboardBestSubmission(
+                        assignment,
+                        submissions,
+                        username
+                    );
+
+                if (!submission) {
+                    return;
+                }
+
+                if (
+                    submission.grade === null ||
+                    submission.grade ===
+                        undefined ||
+                    submission.grade === '' ||
+                    submission.isRegrading
+                ) {
+                    return;
+                }
+
+                const isLate =
+                    submission.isLateFail ||
+                    submission.isAutoSubmitted;
+
+                const isCheat =
+                    submission.isCheatFail;
+
+                const isMissingEssay =
+                    submission.isEssayMissing;
+
+                if (!submission.forcePass) {
+                    if (
+                        isLate ||
+                        isCheat ||
+                        isMissingEssay
+                    ) {
+                        violationCount++;
+                    }
+
+                    if (
+                        isLate ||
+                        isCheat
+                    ) {
+                        return;
+                    }
+                }
+
+                const score =
+                    Number(submission.grade);
+
+                if (!Number.isFinite(score)) {
+                    return;
+                }
+
+                totalScore += score;
+                validCount++;
+
+                if (score === 10) {
+                    count10s++;
+                }
+            }
+        );
+
+        totalVideoBonus =
+            Math.min(
+                totalVideoBonus,
+                1
+            );
+
+        const average =
+            validCount > 0
+                ? totalScore / validCount
+                : 0;
+
+        const roundedAverage =
+            Math.round(
+                average * 100
+            ) / 100;
+
+        const finalScore =
+            roundedAverage +
+            totalVideoBonus;
+
+        if (validCount > 0) {
+            rankedData.push({
+                name:
+                    student.name ||
+                    username ||
+                    'Học sinh',
+
+                username,
+
+                avatar:
+                    student.avatar ||
+                    '👤',
+
+                finalScore:
+                    Math.round(
+                        finalScore * 100
+                    ) / 100,
+
+                dtb:
+                    roundedAverage,
+
+                videoBonus:
+                    Math.round(
+                        totalVideoBonus *
+                        100
+                    ) / 100,
+
+                tens:
+                    count10s,
+
+                violations:
+                    violationCount,
+
+                validCount
+            });
+        }
+    });
+
+    rankedData.sort((a, b) => {
+        if (
+            b.finalScore !==
+            a.finalScore
+        ) {
+            return (
+                b.finalScore -
+                a.finalScore
+            );
+        }
+
+        if (
+            b.tens !==
+            a.tens
+        ) {
+            return (
+                b.tens -
+                a.tens
+            );
+        }
+
+        return (
+            a.violations -
+            b.violations
+        );
+    });
+
+    return rankedData;
+}
+
+
+function getLeaderboardPreviousSeasonInfo(
+    now = new Date()
+) {
+    const previousMonthDate =
+        new Date(
+            now.getFullYear(),
+            now.getMonth() - 1,
+            1
+        );
+
+    const year =
+        previousMonthDate.getFullYear();
+
+    const monthIndex =
+        previousMonthDate.getMonth();
+
+    const month =
+        monthIndex + 1;
+
+    return {
+        year,
+        month,
+        monthIndex,
+        seasonKey:
+            `${year}-` +
+            `${String(month).padStart(2, '0')}`,
+
+        display:
+            `Tháng ${month}/${year}`
+    };
+}
+
+
+function getLeaderboardClaimPath(
+    seasonKey,
+    username
+) {
+    return (
+        'leaderboard_reward_claims/' +
+        `${seasonKey}/` +
+        `${username}`
+    );
+}
+
+
+function getLeaderboardRewardTypeForRank(
+    rank
+) {
+    if (rank === 1) {
+        return 'chest';
+    }
+
+    if (rank === 2) {
+        return 'discount';
+    }
+
+    return 'coin';
+}
+
+
+function getDeterministicLeaderboardDiscountPercent(
+    seasonKey,
+    username
+) {
+    const choices =
+        [10, 15, 20, 25, 30];
+
+    const seed =
+        `${seasonKey}:${username}`;
+
+    let hash = 0;
+
+    for (
+        let index = 0;
+        index < seed.length;
+        index++
+    ) {
+        hash =
+            (
+                (hash * 31) +
+                seed.charCodeAt(index)
+            ) >>> 0;
+    }
+
+    return choices[
+        hash % choices.length
+    ];
+}
+
+
+async function getLeaderboardSourceData() {
+    const [
+        users,
+        assignments,
+        submissions,
+        trackingSnap,
+        settingsSnap
+    ] = await Promise.all([
+        getDB('users'),
+        getDB('assignments'),
+        getDB('submissions'),
+        db.ref('video_tracking')
+            .once('value'),
+        db.ref('leaderboard_settings')
+            .once('value')
+    ]);
+
+    return {
+        users,
+        assignments,
+        submissions,
+        trackingData:
+            trackingSnap.val() || {},
+        settings:
+            settingsSnap.val() || {}
+    };
+}
+
+
+async function getPreviousLeaderboardRewardState() {
+    const username =
+        getCurrentUsername();
+
+    if (!username) {
+        return null;
+    }
+
+    const season =
+        getLeaderboardPreviousSeasonInfo();
+
+    const source =
+        await getLeaderboardSourceData();
+
+    const rankedData =
+        buildLeaderboardDataForPeriod({
+            users:
+                source.users,
+            assignments:
+                source.assignments,
+            submissions:
+                source.submissions,
+            trackingData:
+                source.trackingData,
+            year:
+                season.year,
+            monthIndex:
+                season.monthIndex
+        });
+
+    const rankIndex =
+        rankedData.findIndex(
+            student =>
+                student.username ===
+                username
+        );
+
+    const rank =
+        rankIndex >= 0
+            ? rankIndex + 1
+            : null;
+
+    const claimRef =
+        db.ref(
+            getLeaderboardClaimPath(
+                season.seasonKey,
+                username
+            )
+        );
+
+    const claimSnap =
+        await claimRef.once('value');
+
+    return {
+        ...season,
+        username,
+        rank,
+        rankedData,
+        settings:
+            source.settings,
+        claim:
+            claimSnap.val() || null
+    };
+}
+
+
+function renderLeaderboardRewardPanelHTML(
+    rewardState
+) {
+    if (!rewardState) {
+        return '';
+    }
+
+    const {
+        rank,
+        display,
+        claim,
+        settings
+    } = rewardState;
+
+    if (!rank) {
+        return `
+            <section
+                style="
+                    margin: 0 0 16px;
+                    padding: 14px 16px;
+                    border-radius: 14px;
+                    background:
+                        rgba(148,163,184,.12);
+                    border:
+                        1px solid
+                        rgba(148,163,184,.25);
+                "
+            >
+                <strong>
+                    🏁 Phần thưởng ${escapeHTML(display)}
+                </strong>
+                <div style="margin-top:6px;color:#64748b;">
+                    Bạn không có thứ hạng hợp lệ trong mùa này.
+                </div>
+            </section>
+        `;
+    }
+
+    if (claim?.status === 'claimed') {
+        return `
+            <section
+                style="
+                    margin: 0 0 16px;
+                    padding: 14px 16px;
+                    border-radius: 14px;
+                    background:
+                        rgba(16,185,129,.10);
+                    border:
+                        1px solid
+                        rgba(16,185,129,.28);
+                "
+            >
+                <strong>
+                    ✅ Đã nhận thưởng ${escapeHTML(display)}
+                </strong>
+                <div style="margin-top:6px;">
+                    Hạng #${rank} ·
+                    ${escapeHTML(
+                        claim.rewardLabel ||
+                        'Phần thưởng đã được ghi nhận.'
+                    )}
+                </div>
+            </section>
+        `;
+    }
+
+    if (
+        rank === 1 &&
+        claim?.status ===
+            'available_chest'
+    ) {
+        return `
+            <section
+                style="
+                    margin: 0 0 16px;
+                    padding: 14px 16px;
+                    border-radius: 14px;
+                    background:
+                        linear-gradient(
+                            135deg,
+                            rgba(245,158,11,.16),
+                            rgba(251,191,36,.08)
+                        );
+                    border:
+                        1px solid
+                        rgba(245,158,11,.35);
+                "
+            >
+                <strong>
+                    🥇 Rương Hạng 1 · ${escapeHTML(display)}
+                </strong>
+                <div style="margin:7px 0 10px;">
+                    Rương đã mở khóa và chỉ có thể nhận một lần.
+                </div>
+                <button
+                    type="button"
+                    class="lb-primary-btn"
+                    onclick="openTreasureChest()"
+                >
+                    🎁 Mở Rương Hạng 1
+                </button>
+            </section>
+        `;
+    }
+
+    const rewardRank3 =
+        Number(settings?.rewardRank3);
+
+    const rewardRank4 =
+        Number(settings?.rewardRank4);
+
+    let rewardText = '';
+
+    if (rank === 1) {
+        rewardText =
+            '1 Rương Kho Báu';
+    } else if (rank === 2) {
+        rewardText =
+            '1 Thẻ giảm giá ngẫu nhiên 10–30%';
+    } else if (rank === 3) {
+        rewardText =
+            `${Number.isFinite(rewardRank3)
+                ? rewardRank3
+                : 100} Coin`;
+    } else {
+        rewardText =
+            `${Number.isFinite(rewardRank4)
+                ? rewardRank4
+                : 50} Coin khích lệ`;
+    }
+
+    return `
+        <section
+            style="
+                margin: 0 0 16px;
+                padding: 14px 16px;
+                border-radius: 14px;
+                background:
+                    rgba(99,102,241,.10);
+                border:
+                    1px solid
+                    rgba(99,102,241,.28);
+            "
+        >
+            <strong>
+                🏆 Phần thưởng ${escapeHTML(display)}
+            </strong>
+
+            <div style="margin:7px 0 10px;">
+                Bạn xếp hạng
+                <strong>#${rank}</strong>
+                · ${escapeHTML(rewardText)}
+            </div>
+
+            <button
+                type="button"
+                class="lb-primary-btn"
+                onclick="claimPreviousLeaderboardReward()"
+            >
+                🎁 Nhận phần thưởng
+            </button>
+        </section>
+    `;
+}
+
+
+async function refreshPreviousLeaderboardRewardPanel() {
+    const area =
+        document.getElementById(
+            'lbSeasonRewardArea'
+        );
+
+    if (!area) {
+        return;
+    }
+
+    area.innerHTML = `
+        <div
+            style="
+                margin: 0 0 16px;
+                color: #64748b;
+            "
+        >
+            ⏳ Đang kiểm tra phần thưởng mùa trước…
+        </div>
+    `;
+
+    try {
+        const rewardState =
+            await getPreviousLeaderboardRewardState();
+
+        area.innerHTML =
+            renderLeaderboardRewardPanelHTML(
+                rewardState
+            );
+    } catch (error) {
+        console.error(
+            'Lỗi kiểm tra thưởng BXH:',
+            error
+        );
+
+        area.innerHTML = `
+            <div
+                style="
+                    margin: 0 0 16px;
+                    color: #e11d48;
+                "
+            >
+                ⚠️ Không thể kiểm tra phần thưởng mùa trước.
+            </div>
+        `;
+    }
+}
+
+
+async function recordLeaderboardRewardHistory(
+    payload
+) {
+    if (!window.TransactionHistory) {
+        return;
+    }
+
+    try {
+        await window
+            .TransactionHistory
+            .recordSafe(payload);
+    } catch (error) {
+        console.warn(
+            'Không thể ghi lịch sử thưởng BXH:',
+            error
+        );
+    }
+}
+
+
+window.claimPreviousLeaderboardReward =
+    async function () {
+        const buttons =
+            document.querySelectorAll(
+                '#lbSeasonRewardArea button'
+            );
+
+        buttons.forEach(button => {
+            button.disabled = true;
+        });
+
+        let lockedClaimRef = null;
+        let rewardFinalized = false;
+
+        try {
+            /*
+             * Luôn tính lại BXH tháng trước ngay lúc nhận.
+             * Không tin rank đang hiển thị trên DOM.
+             */
+            const rewardState =
+                await getPreviousLeaderboardRewardState();
+
+            if (
+                !rewardState ||
+                !rewardState.rank
+            ) {
+                alert(
+                    '❌ Bạn không có phần thưởng BXH của mùa trước.'
+                );
+                return;
+            }
+
+            const {
+                seasonKey,
+                display,
+                username,
+                rank,
+                settings,
+                claim
+            } = rewardState;
+
+            if (claim?.status === 'claimed') {
+                alert(
+                    '✅ Phần thưởng mùa này đã được nhận trước đó.'
+                );
+                return;
+            }
+
+            if (
+                rank === 1 &&
+                claim?.status ===
+                    'available_chest'
+            ) {
+                await window
+                    .openTreasureChest();
+                return;
+            }
+
+            const claimRef =
+                db.ref(
+                    getLeaderboardClaimPath(
+                        seasonKey,
+                        username
+                    )
+                );
+
+            lockedClaimRef =
+                claimRef;
+
+            const rewardType =
+                getLeaderboardRewardTypeForRank(
+                    rank
+                );
+
+            const lockResult =
+                await claimRef.transaction(
+                    current => {
+                        if (
+                            current &&
+                            (
+                                current.status ===
+                                    'claimed' ||
+                                current.status ===
+                                    'available_chest' ||
+                                current.status ===
+                                    'processing' ||
+                                current.status ===
+                                    'processing_chest'
+                            )
+                        ) {
+                            return;
+                        }
+
+                        return {
+                            seasonKey,
+                            seasonLabel:
+                                display,
+                            username,
+                            rank,
+                            rewardType,
+                            status:
+                                'processing',
+                            startedAt:
+                                Date.now()
+                        };
+                    }
+                );
+
+            if (!lockResult.committed) {
+                const current =
+                    lockResult.snapshot.val();
+
+                if (
+                    current?.status ===
+                        'available_chest'
+                ) {
+                    await window
+                        .openTreasureChest();
+                    return;
+                }
+
+                alert(
+                    current?.status ===
+                        'claimed'
+                        ? '✅ Phần thưởng đã được nhận.'
+                        : '⏳ Phần thưởng đang được xử lý ở một tab khác.'
+                );
+                return;
+            }
+
+            if (rank === 1) {
+                await claimRef.update({
+                    status:
+                        'available_chest',
+                    rewardLabel:
+                        'Rương Kho Báu Hạng 1',
+                    unlockedAt:
+                        firebase.database
+                            .ServerValue
+                            .TIMESTAMP
+                });
+
+                rewardFinalized = true;
+
+                await refreshPreviousLeaderboardRewardPanel();
+
+                await window
+                    .openTreasureChest();
+
+                return;
+            }
+
+            if (rank === 2) {
+                const percent =
+                    getDeterministicLeaderboardDiscountPercent(
+                        seasonKey,
+                        username
+                    );
+
+                const discountKey =
+                    'leaderboard_' +
+                    seasonKey.replace(
+                        /-/g,
+                        '_'
+                    );
+
+                const rootUpdates = {};
+
+                rootUpdates[
+                    `student_discounts/` +
+                    `${username}/` +
+                    `${discountKey}`
+                ] = {
+                    percent,
+                    dateAcquired:
+                        firebase.database
+                            .ServerValue
+                            .TIMESTAMP,
+                    isUsed:
+                        false,
+                    expiry:
+                        null,
+                    targetItem:
+                        ['all'],
+                    discountScope:
+                        'all_coin',
+                    source:
+                        'leaderboard_runner_up',
+                    seasonKey,
+                    rank:
+                        2
+                };
+
+                rootUpdates[
+                    getLeaderboardClaimPath(
+                        seasonKey,
+                        username
+                    )
+                ] = {
+                    seasonKey,
+                    seasonLabel:
+                        display,
+                    username,
+                    rank,
+                    rewardType:
+                        'discount',
+                    rewardLabel:
+                        `Thẻ giảm giá ${percent}%`,
+                    status:
+                        'claimed',
+                    claimedAt:
+                        firebase.database
+                            .ServerValue
+                            .TIMESTAMP
+                };
+
+                await db.ref()
+                    .update(rootUpdates);
+
+                rewardFinalized = true;
+
+                await recordLeaderboardRewardHistory({
+                    type:
+                        'leaderboard_reward',
+                    summary:
+                        `Nhận Thẻ giảm giá ${percent}% ` +
+                        `do xếp hạng 2 BXH ${display}`,
+                    source:
+                        'leaderboard_rank_reward',
+                    targetUsername:
+                        username,
+                    targetName:
+                        currentUser?.name ||
+                        username,
+                    amount:
+                        null,
+                    unit:
+                        '',
+                    reversible:
+                        false,
+                    nonReversibleReason:
+                        'Phần thưởng xếp hạng mùa thi đua.',
+                    details: {
+                        seasonKey,
+                        rank,
+                        rewardType:
+                            'discount',
+                        percent,
+                        discountKey
+                    }
+                });
+
+                alert(
+                    `🥈 Chúc mừng! Bạn nhận được ` +
+                    `Thẻ giảm giá ${percent}% cho ${display}.`
+                );
+            } else {
+                const configuredAmount =
+                    rank === 3
+                        ? Number(
+                            settings?.rewardRank3
+                        )
+                        : Number(
+                            settings?.rewardRank4
+                        );
+
+                const fallbackAmount =
+                    rank === 3
+                        ? 100
+                        : 50;
+
+                const amount =
+                    Number.isFinite(
+                        configuredAmount
+                    ) &&
+                    configuredAmount >= 0
+                        ? configuredAmount
+                        : fallbackAmount;
+
+                const rootUpdates = {};
+
+                rootUpdates[
+                    `student_coins/${username}`
+                ] =
+                    firebase.database
+                        .ServerValue
+                        .increment(amount);
+
+                rootUpdates[
+                    getLeaderboardClaimPath(
+                        seasonKey,
+                        username
+                    )
+                ] = {
+                    seasonKey,
+                    seasonLabel:
+                        display,
+                    username,
+                    rank,
+                    rewardType:
+                        'coin',
+                    rewardLabel:
+                        `${amount} Coin`,
+                    rewardAmount:
+                        amount,
+                    status:
+                        'claimed',
+                    claimedAt:
+                        firebase.database
+                            .ServerValue
+                            .TIMESTAMP
+                };
+
+                await db.ref()
+                    .update(rootUpdates);
+
+                rewardFinalized = true;
+
+                await recordLeaderboardRewardHistory({
+                    type:
+                        'leaderboard_reward',
+                    summary:
+                        `Nhận ${amount} Coin ` +
+                        `do xếp hạng #${rank} BXH ${display}`,
+                    source:
+                        'leaderboard_rank_reward',
+                    targetUsername:
+                        username,
+                    targetName:
+                        currentUser?.name ||
+                        username,
+                    amount,
+                    unit:
+                        'Coin',
+                    reversible:
+                        false,
+                    nonReversibleReason:
+                        'Phần thưởng xếp hạng mùa thi đua.',
+                    details: {
+                        seasonKey,
+                        rank,
+                        rewardType:
+                            'coin',
+                        amount
+                    }
+                });
+
+                alert(
+                    `🏆 Chúc mừng! Hạng #${rank} ` +
+                    `nhận ${amount} Coin cho ${display}.`
+                );
+            }
+
+            await refreshPreviousLeaderboardRewardPanel();
+        } catch (error) {
+            console.error(
+                'Lỗi nhận thưởng BXH:',
+                error
+            );
+
+            if (
+                lockedClaimRef &&
+                !rewardFinalized
+            ) {
+                try {
+                    await lockedClaimRef.transaction(
+                        current => {
+                            if (
+                                current?.status !==
+                                    'processing'
+                            ) {
+                                return;
+                            }
+
+                            return {
+                                ...current,
+                                status:
+                                    'retry',
+                                lastErrorAt:
+                                    Date.now()
+                            };
+                        }
+                    );
+                } catch (
+                    rollbackError
+                ) {
+                    console.warn(
+                        'Không thể mở khóa claim BXH:',
+                        rollbackError
+                    );
+                }
+            }
+
+            alert(
+                '❌ Không thể nhận thưởng BXH. ' +
+                'Vui lòng thử lại.'
+            );
+        } finally {
+            buttons.forEach(button => {
+                button.disabled = false;
+            });
+        }
+    };
+
+
 // ======================================================
 // 5. ĐÓNG VÀ MỞ MODAL
 // ======================================================
@@ -770,140 +2114,240 @@ function closeTreasureChestModal() {
 // ======================================================
 
 window.openLeaderboardModal = async function () {
-    // Không cho mở bảng xếp hạng
-    // khi học sinh đang làm bài thi nghiêm ngặt.
     if (window.currentActiveExamId) {
         if (
             typeof window.showExamLockWarning ===
-            "function"
+            'function'
         ) {
             window.showExamLockWarning(
-                "⚠️ Bảng xếp hạng tạm khóa khi đang làm bài thi!"
+                '⚠️ Bảng xếp hạng tạm khóa khi đang làm bài thi!'
             );
         } else {
             alert(
-                "⚠️ Bảng xếp hạng tạm khóa khi đang làm bài thi!"
+                '⚠️ Bảng xếp hạng tạm khóa khi đang làm bài thi!'
             );
         }
 
         return;
     }
 
-
     try {
         const lbSettingsSnap =
             await db
-                .ref("leaderboard_settings")
-                .once("value");
-
+                .ref('leaderboard_settings')
+                .once('value');
 
         const lbSettings =
             lbSettingsSnap.val() || {
                 isOpen: false
             };
 
-
-        const now =
-            new Date();
-
+        const now = new Date();
 
         const currentMonth =
             now.getMonth() + 1;
 
-
         const currentYear =
             now.getFullYear();
 
-
         let isSeasonActive =
-            lbSettings.isOpen;
+            lbSettings.isOpen === true;
 
-
-        // Tự động mở bảng xếp hạng
-        // khi đến tháng đã được giáo viên hẹn.
+        /*
+         * FIX QUAN TRỌNG:
+         * Học sinh KHÔNG còn tự ghi
+         * leaderboard_settings/isOpen.
+         *
+         * Firebase Rules chỉ cho teacher ghi node này.
+         * Nếu đã tới tháng được hẹn, phía học sinh chỉ
+         * coi mùa giải là đang mở trên giao diện.
+         */
         if (
             !isSeasonActive &&
             lbSettings.targetMonth &&
             lbSettings.targetYear
         ) {
-            const reachedTarget =
-                currentYear >
-                lbSettings.targetYear ||
-                (
-                    currentYear ===
-                    lbSettings.targetYear &&
-                    currentMonth >=
+            const targetMonth =
+                Number(
                     lbSettings.targetMonth
                 );
 
+            const targetYear =
+                Number(
+                    lbSettings.targetYear
+                );
+
+            const reachedTarget =
+                currentYear > targetYear ||
+                (
+                    currentYear ===
+                        targetYear &&
+                    currentMonth >=
+                        targetMonth
+                );
 
             if (reachedTarget) {
                 isSeasonActive = true;
-
-                await db
-                    .ref("leaderboard_settings")
-                    .update({
-                        isOpen: true
-                    });
             }
         }
 
-
         if (!isSeasonActive) {
-            if (
-                lbSettings.targetMonth &&
-                lbSettings.targetYear
-            ) {
-                alert(
-                    `🔒 Bảng xếp hạng đang đóng để bảo trì. ` +
-                    `Mùa giải mới bắt đầu vào Tháng ` +
-                    `${lbSettings.targetMonth}/${lbSettings.targetYear}.`
-                );
-            } else {
-                alert(
-                    "🔒 Bảng xếp hạng đang bị khóa do chưa bắt đầu mùa giải!"
+            /*
+             * BXH hiện tại có thể đóng nhưng học sinh vẫn phải
+             * nhận được phần thưởng của tháng đã kết thúc.
+             */
+            let previousRewardState = null;
+
+            try {
+                previousRewardState =
+                    await getPreviousLeaderboardRewardState();
+            } catch (rewardError) {
+                console.warn(
+                    'Không thể kiểm tra thưởng mùa trước khi BXH đóng:',
+                    rewardError
                 );
             }
+
+            if (
+                !previousRewardState?.rank &&
+                !previousRewardState?.claim
+            ) {
+                if (
+                    lbSettings.targetMonth &&
+                    lbSettings.targetYear
+                ) {
+                    alert(
+                        `🔒 Bảng xếp hạng đang đóng. ` +
+                        `Mùa giải mới bắt đầu vào Tháng ` +
+                        `${lbSettings.targetMonth}/` +
+                        `${lbSettings.targetYear}.`
+                    );
+                } else {
+                    alert(
+                        '🔒 Bảng xếp hạng đang bị khóa do chưa bắt đầu mùa giải!'
+                    );
+                }
+
+                return;
+            }
+
+            const lbModal =
+                document.getElementById(
+                    'leaderboardModal'
+                );
+
+            if (!lbModal) {
+                return;
+            }
+
+            lbModal.classList.add('active');
+
+            document.body.classList.add(
+                'leaderboard-open'
+            );
+
+            const monthDisplay =
+                document.getElementById(
+                    'lbMonthDisplay'
+                );
+
+            if (monthDisplay) {
+                monthDisplay.textContent =
+                    'Mùa hiện tại đang đóng';
+            }
+
+            const body =
+                document.getElementById(
+                    'leaderboardBody'
+                );
+
+            if (body) {
+                body.innerHTML = `
+                    <div id="lbSeasonRewardArea"></div>
+                    ${getLeaderboardStateHTML(
+                        'empty',
+                        'Mùa giải hiện tại đang đóng',
+                        'Bạn vẫn có thể nhận phần thưởng của mùa thi đua đã kết thúc.'
+                    )}
+                `;
+            }
+
+            await refreshPreviousLeaderboardRewardPanel();
 
             return;
         }
 
+        const rank3Reward =
+            Number.isFinite(
+                Number(
+                    lbSettings.rewardRank3
+                )
+            )
+                ? Number(
+                    lbSettings.rewardRank3
+                )
+                : 100;
+
+        const rank4Reward =
+            Number.isFinite(
+                Number(
+                    lbSettings.rewardRank4
+                )
+            )
+                ? Number(
+                    lbSettings.rewardRank4
+                )
+                : 50;
+
+        const ruleRank3 =
+            document.getElementById(
+                'lbRuleRank3Reward'
+            );
+
+        if (ruleRank3) {
+            ruleRank3.textContent =
+                `${rank3Reward} Coin`;
+        }
+
+        const ruleRank4 =
+            document.getElementById(
+                'lbRuleRank4Reward'
+            );
+
+        if (ruleRank4) {
+            ruleRank4.textContent =
+                `${rank4Reward} Coin khích lệ`;
+        }
 
         const lbModal =
             document.getElementById(
-                "leaderboardModal"
+                'leaderboardModal'
             );
-
 
         if (!lbModal) {
             return;
         }
 
-
-        lbModal.classList.add("active");
+        lbModal.classList.add('active');
 
         document.body.classList.add(
-            "leaderboard-open"
+            'leaderboard-open'
         );
 
-
         document
-            .getElementById("lbCloseBtn")
+            .getElementById('lbCloseBtn')
             ?.focus();
 
-
         await calculateAndRenderLeaderboard();
-
     } catch (error) {
         console.error(error);
 
         alert(
-            "❌ Không thể mở bảng xếp hạng. " +
-            "Vui lòng kiểm tra kết nối và thử lại!"
+            '❌ Không thể mở bảng xếp hạng. ' +
+            'Vui lòng kiểm tra kết nối và thử lại!'
         );
     }
 };
-
 
 // ======================================================
 // 7. TÍNH TOÁN DỮ LIỆU BẢNG XẾP HẠNG
@@ -912,369 +2356,85 @@ window.openLeaderboardModal = async function () {
 async function calculateAndRenderLeaderboard() {
     const body =
         document.getElementById(
-            "leaderboardBody"
+            'leaderboardBody'
         );
-
 
     const monthDisplay =
         document.getElementById(
-            "lbMonthDisplay"
+            'lbMonthDisplay'
         );
-
 
     if (!body || !monthDisplay) {
         return;
     }
 
-
     body.innerHTML =
         getLeaderboardLoadingHTML();
 
-
-    const now =
-        new Date();
-
+    const now = new Date();
 
     const currentMonth =
         now.getMonth();
 
-
     const currentYear =
         now.getFullYear();
-
 
     monthDisplay.textContent =
         `Mùa thi đua · Tháng ` +
         `${currentMonth + 1}/${currentYear}`;
 
-
     try {
-        const [
-            users,
-            assignments,
-            submissions,
-            trackingSnap
-        ] = await Promise.all([
-            getDB("users"),
-            getDB("assignments"),
-            getDB("submissions"),
-            db.ref("video_tracking").once("value")
-        ]);
-
-
-        const trackingData =
-            trackingSnap.val() || {};
-
-
-        const students =
-            (users || []).filter(
-                (user) =>
-                    user.role === "student"
-            );
-
-
-        const rankedData = [];
-
-
-        // Chỉ lấy bài tập thuộc tháng hiện tại.
-        const monthAssignments =
-            (assignments || []).filter(
-                (assignment) => {
-                    if (!assignment.endDate) {
-                        return false;
-                    }
-
-
-                    const assignmentDate =
-                        new Date(
-                            assignment.endDate.replace(
-                                " ",
-                                "T"
-                            )
-                        );
-
-
-                    return (
-                        !Number.isNaN(
-                            assignmentDate.getTime()
-                        ) &&
-                        assignmentDate.getMonth() ===
-                        currentMonth &&
-                        assignmentDate.getFullYear() ===
-                        currentYear
-                    );
-                }
-            );
-
-
-        students.forEach((student) => {
-            let totalScore = 0;
-            let validCount = 0;
-            let count10s = 0;
-            let violationCount = 0;
-            let totalVideoBonus = 0;
-
-
-            // ------------------------------------------
-            // TÍNH ĐIỂM THƯỞNG XEM VIDEO
-            // ------------------------------------------
-
-            monthAssignments.forEach(
-                (assignment) => {
-                    if (
-                        assignment.watchCondition &&
-                        assignment.watchCondition > 0
-                    ) {
-                        const watchedTime =
-                            trackingData[
-                            assignment.id
-                            ]?.[
-                            student.username
-                            ] || 0;
-
-
-                        const ratio =
-                            Math.min(
-                                1,
-                                watchedTime /
-                                assignment.watchCondition
-                            );
-
-
-                        totalVideoBonus +=
-                            ratio * 0.5;
-                    }
-                }
-            );
-
-
-            // Tổng điểm video tối đa 1 điểm.
-            totalVideoBonus =
-                Math.min(
-                    totalVideoBonus,
-                    1
-                );
-
-
-            // ------------------------------------------
-            // LẤY BÀI NỘP CỦA HỌC SINH
-            // ------------------------------------------
-
-            const studentSubmissions =
-                (submissions || []).filter(
-                    (submission) =>
-                        submission.studentUsername ===
-                        student.username
-                );
-
-
-            studentSubmissions.forEach(
-                (submission) => {
-                    const assignment =
-                        monthAssignments.find(
-                            (item) =>
-                                item.id ===
-                                submission.assignmentId
-                        );
-
-
-                    if (!assignment) {
-                        return;
-                    }
-
-
-                    // Bỏ qua bài chưa chấm
-                    // hoặc đang được chấm lại.
-                    if (
-                        submission.grade === null ||
-                        submission.grade === undefined ||
-                        submission.grade === "" ||
-                        submission.isRegrading
-                    ) {
-                        return;
-                    }
-
-
-                    const isLate =
-                        submission.isLateFail ||
-                        submission.isAutoSubmitted;
-
-
-                    const isCheat =
-                        submission.isCheatFail;
-
-
-                    const isMissingEssay =
-                        submission.isEssayMissing;
-
-
-                    // Nếu giáo viên không tha lỗi.
-                    if (!submission.forcePass) {
-                        if (
-                            isLate ||
-                            isCheat ||
-                            isMissingEssay
-                        ) {
-                            violationCount++;
-                        }
-
-
-                        // Nộp trễ hoặc gian lận
-                        // không được tính vào ĐTB.
-                        if (
-                            isLate ||
-                            isCheat
-                        ) {
-                            return;
-                        }
-                    }
-
-
-                    const score =
-                        parseFloat(
-                            submission.grade
-                        ) || 0;
-
-
-                    totalScore += score;
-
-                    validCount++;
-
-
-                    if (score === 10) {
-                        count10s++;
-                    }
-                }
-            );
-
-
-            const average =
-                validCount > 0
-                    ? totalScore / validCount
-                    : 0;
-
-
-            const roundedAverage =
-                Math.round(
-                    average * 100
-                ) / 100;
-
-
-            const finalScore =
-                roundedAverage +
-                totalVideoBonus;
-
-
-            // Chỉ đưa học sinh có bài hợp lệ vào BXH.
-            if (validCount > 0) {
-                rankedData.push({
-                    name:
-                        student.name ||
-                        student.username ||
-                        "Học sinh",
-
-                    username:
-                        student.username,
-
-                    avatar:
-                        student.avatar || "👤",
-
-                    finalScore:
-                        Math.round(
-                            finalScore * 100
-                        ) / 100,
-
-                    dtb:
-                        roundedAverage,
-
-                    videoBonus:
-                        Math.round(
-                            totalVideoBonus * 100
-                        ) / 100,
-
-                    tens:
-                        count10s,
-
-                    violations:
-                        violationCount,
-
-                    validCount:
-                        validCount
-                });
-            }
-        });
-
-
-        // ------------------------------------------
-        // SẮP XẾP THỨ HẠNG
-        // ------------------------------------------
-
-        rankedData.sort((a, b) => {
-            // Ưu tiên 1:
-            // Điểm xếp hạng cao hơn.
-            if (
-                b.finalScore !==
-                a.finalScore
-            ) {
-                return (
-                    b.finalScore -
-                    a.finalScore
-                );
-            }
-
-
-            // Ưu tiên 2:
-            // Nhiều điểm 10 hơn.
-            if (
-                b.tens !==
-                a.tens
-            ) {
-                return (
-                    b.tens -
-                    a.tens
-                );
-            }
-
-
-            // Ưu tiên 3:
-            // Ít vi phạm hơn.
-            return (
-                a.violations -
-                b.violations
-            );
-        });
-
+        const source =
+            await getLeaderboardSourceData();
+
+        const rankedData =
+            buildLeaderboardDataForPeriod({
+                users:
+                    source.users,
+                assignments:
+                    source.assignments,
+                submissions:
+                    source.submissions,
+                trackingData:
+                    source.trackingData,
+                year:
+                    currentYear,
+                monthIndex:
+                    currentMonth
+            });
 
         if (rankedData.length === 0) {
             body.innerHTML =
                 getLeaderboardStateHTML(
-                    "empty",
-                    "Chưa có dữ liệu xếp hạng",
-                    "Tháng này chưa có bài tập hợp lệ đã được chấm điểm."
+                    'empty',
+                    'Chưa có dữ liệu xếp hạng',
+                    'Tháng này chưa có bài tập hợp lệ đã được chấm điểm.'
                 );
 
             return;
         }
-
 
         body.innerHTML =
             renderLeaderboard(
                 rankedData
             );
 
+        /*
+         * Sau khi dựng BXH hiện tại,
+         * kiểm tra phần thưởng của tháng ĐÃ KẾT THÚC.
+         */
+        await refreshPreviousLeaderboardRewardPanel();
     } catch (error) {
         body.innerHTML =
             getLeaderboardStateHTML(
-                "error",
-                "Không thể tải bảng xếp hạng",
-                "Đã xảy ra lỗi kết nối dữ liệu. Hãy nhấn nút làm mới để thử lại."
+                'error',
+                'Không thể tải bảng xếp hạng',
+                'Đã xảy ra lỗi kết nối dữ liệu. Hãy nhấn nút làm mới để thử lại.'
             );
-
 
         console.error(error);
     }
 }
-
 
 // ======================================================
 // 8. HIỂN THỊ TOÀN BỘ BẢNG XẾP HẠNG
@@ -1324,6 +2484,8 @@ function renderLeaderboard(rankedData) {
 
 
     return `
+        <div id="lbSeasonRewardArea"></div>
+
         <section
             class="lb-summary-grid"
             aria-label="Thống kê tổng quan"
@@ -1767,20 +2929,65 @@ function renderRankRow(
 // 13. MỞ RƯƠNG KHO BÁU
 // ======================================================
 
-window.openTreasureChest = function () {
-    document
-        .getElementById("treasureChestModal")
-        ?.classList.add("active");
+window.openTreasureChest = async function () {
+    try {
+        const rewardState =
+            await getPreviousLeaderboardRewardState();
 
+        if (
+            !rewardState ||
+            rewardState.rank !== 1 ||
+            rewardState.claim?.rewardType !==
+                'chest' ||
+            rewardState.claim?.status !==
+                'available_chest'
+        ) {
+            alert(
+                '🔒 Bạn không có Rương Hạng 1 hợp lệ để mở.'
+            );
+            return;
+        }
 
-    document.body.classList.add(
-        "leaderboard-open"
-    );
+        window.activeLeaderboardChestSeasonKey =
+            rewardState.seasonKey;
 
+        const chestCopy =
+            document.querySelector(
+                '#treasureChestModal .lb-chest-copy'
+            );
 
-    document
-        .getElementById("chestCloseBtn")
-        ?.focus();
+        if (chestCopy) {
+            chestCopy.textContent =
+                `Rương Hạng 1 ${rewardState.display}. ` +
+                `Chỉ được nhận một lần. ` +
+                `Hãy chọn một loại phần thưởng.`;
+        }
+
+        document
+            .getElementById(
+                'treasureChestModal'
+            )
+            ?.classList.add('active');
+
+        document.body.classList.add(
+            'leaderboard-open'
+        );
+
+        document
+            .getElementById(
+                'chestCloseBtn'
+            )
+            ?.focus();
+    } catch (error) {
+        console.error(
+            'Lỗi mở Rương Hạng 1:',
+            error
+        );
+
+        alert(
+            '❌ Không thể xác minh quyền mở Rương Hạng 1.'
+        );
+    }
 };
 
 
@@ -1793,22 +3000,103 @@ window.claimChestReward = async function (
 ) {
     const btnNodes =
         document.querySelectorAll(
-            "#treasureChestModal [data-chest-choice]"
+            '#treasureChestModal [data-chest-choice]'
         );
 
-
-    btnNodes.forEach((button) => {
+    btnNodes.forEach(button => {
         button.disabled = true;
-        button.style.opacity = "0.5";
+        button.style.opacity = '0.5';
     });
 
+    let claimRef = null;
+    let awardCommitted = false;
 
     try {
+        if (
+            choiceType !== 'coin' &&
+            choiceType !== 'item'
+        ) {
+            throw new Error(
+                'INVALID_CHEST_CHOICE'
+            );
+        }
+
+        const rewardState =
+            await getPreviousLeaderboardRewardState();
+
+        if (
+            !rewardState ||
+            rewardState.rank !== 1 ||
+            rewardState.claim?.rewardType !==
+                'chest' ||
+            rewardState.claim?.status !==
+                'available_chest'
+        ) {
+            alert(
+                '🔒 Rương không còn khả dụng hoặc bạn không có quyền mở.'
+            );
+
+            closeTreasureChestModal();
+            return;
+        }
+
+        const {
+            seasonKey,
+            display,
+            username
+        } = rewardState;
+
+        claimRef =
+            db.ref(
+                getLeaderboardClaimPath(
+                    seasonKey,
+                    username
+                )
+            );
+
+        /*
+         * Khóa rương bằng transaction.
+         * Hai tab bấm cùng lúc chỉ một tab được quyền tiếp tục.
+         */
+        const lockResult =
+            await claimRef.transaction(
+                current => {
+                    if (
+                        !current ||
+                        current.rank !== 1 ||
+                        current.rewardType !==
+                            'chest' ||
+                        current.status !==
+                            'available_chest'
+                    ) {
+                        return;
+                    }
+
+                    return {
+                        ...current,
+                        status:
+                            'processing_chest',
+                        selectedChoice:
+                            choiceType,
+                        processingAt:
+                            Date.now()
+                    };
+                }
+            );
+
+        if (!lockResult.committed) {
+            alert(
+                '⚠️ Rương này đang được xử lý hoặc đã nhận ở tab khác.'
+            );
+            return;
+        }
+
         const lbSettingsSnap =
             await db
-                .ref("leaderboard_settings")
-                .once("value");
-
+                .ref(
+                    'leaderboard_settings'
+                )
+                .once('value');
 
         const lbSettings =
             lbSettingsSnap.val() || {
@@ -1817,27 +3105,34 @@ window.claimChestReward = async function (
                 chestLeg: 1
             };
 
-
         const dupThreshold =
-            lbSettings.chestDup / 100;
-
+            Math.max(
+                0,
+                Number(
+                    lbSettings.chestDup
+                ) || 0
+            ) / 100;
 
         const normThreshold =
             dupThreshold +
-            lbSettings.chestNorm / 100;
+            (
+                Math.max(
+                    0,
+                    Number(
+                        lbSettings.chestNorm
+                    ) || 0
+                ) / 100
+            );
 
+        let rewardLabel = '';
+        let historyPayload = null;
+        const rootUpdates = {};
 
-        // ------------------------------------------
-        // NHẬN COIN
-        // ------------------------------------------
-
-        if (choiceType === "coin") {
+        if (choiceType === 'coin') {
             const rand =
                 Math.random();
 
-
             let amount = 0;
-
 
             if (rand < 0.70) {
                 amount =
@@ -1856,536 +3151,502 @@ window.claimChestReward = async function (
                     ) + 700;
             }
 
+            rewardLabel =
+                `${amount} Coin`;
 
-            const coinRef =
-                db.ref(
-                    "student_coins/" +
-                    currentUser.username
-                );
+            rootUpdates[
+                `student_coins/${username}`
+            ] =
+                firebase.database
+                    .ServerValue
+                    .increment(amount);
 
-
-            const snap =
-                await coinRef.once("value");
-
-
-            await coinRef.set(
-                (snap.val() || 0) +
-                amount
-            );
-
-            if (window.TransactionHistory) {
-                await window.TransactionHistory.recordSafe({
-                    type:
-                        'leaderboard_reward',
-
-                    summary:
-                        `Mở Rương Thi Đua và nhận ` +
-                        `${amount.toLocaleString('vi-VN')} Coin`,
-
-                    source:
-                        'leaderboard_chest',
-
-                    targetUsername:
-                        currentUser.username,
-
-                    targetName:
-                        currentUser.name ||
-                        currentUser.username,
-
-                    amount:
-                        amount,
-
-                    unit:
-                        'Coin',
-
-                    reversible:
-                        false,
-
-                    nonReversibleReason:
-                        'Phần thưởng ngẫu nhiên từ Rương Thi Đua.',
-
-                    details: {
-                        rewardType:
-                            'coin',
-
-                        chestType:
-                            'leaderboard',
-
-                        coinPath:
-                            `student_coins/${currentUser.username}`,
-
-                        amount:
-                            amount
-                    }
-                });
-            }
-
-
-            alert(
-                `🎉 CHÚC MỪNG! ` +
-                `Bạn đã mở Rương và nhận được ` +
-                `${amount} Coin!`
-            );
-        }
-
-
-        // ------------------------------------------
-        // NHẬN VẬT PHẨM
-        // ------------------------------------------
-
-        else if (choiceType === "item") {
-            const rand = Math.random();
-
-            const invSnap = await db
-                .ref(`student_inventory/${currentUser.username}`)
-                .once("value");
-
-            const inventoryData = invSnap.val() || {};
-
-            const exactInventory = Object
-                .values(inventoryData)
-                .map(item => item.id);
-
-
-            // Chuẩn hóa tag để không bị lỗi do chữ hoa, chữ thường hoặc dấu.
-            const normalizeTag = value => {
-                return String(value || "")
-                    .normalize("NFD")
-                    .replace(/[\u0300-\u036f]/g, "")
-                    .replace(/đ/g, "d")
-                    .replace(/Đ/g, "D")
-                    .trim()
-                    .toLowerCase();
+            historyPayload = {
+                type:
+                    'leaderboard_reward',
+                summary:
+                    `Mở Rương Hạng 1 ${display} ` +
+                    `và nhận ${amount} Coin`,
+                source:
+                    'leaderboard_chest',
+                targetUsername:
+                    username,
+                targetName:
+                    currentUser?.name ||
+                    username,
+                amount,
+                unit:
+                    'Coin',
+                reversible:
+                    false,
+                nonReversibleReason:
+                    'Phần thưởng ngẫu nhiên từ Rương Hạng 1.',
+                details: {
+                    seasonKey,
+                    rank:
+                        1,
+                    rewardType:
+                        'coin',
+                    amount
+                }
             };
+        } else {
+            const invSnap =
+                await db
+                    .ref(
+                        `student_inventory/` +
+                        `${username}`
+                    )
+                    .once('value');
 
+            const inventoryData =
+                invSnap.val() || {};
 
-            // Kiểm tra vật phẩm có tag Hội họa hay không.
-            const isPaintingItem = item => {
-                return normalizeTag(item.tag) === "hoi hoa";
-            };
+            const exactInventory =
+                Object.values(
+                    inventoryData
+                )
+                    .map(item =>
+                        String(
+                            item?.id ?? ''
+                        )
+                    )
+                    .filter(Boolean);
 
+            const normalizeTag =
+                value => {
+                    return String(value || '')
+                        .normalize('NFD')
+                        .replace(
+                            /[\u0300-\u036f]/g,
+                            ''
+                        )
+                        .replace(/đ/g, 'd')
+                        .replace(/Đ/g, 'D')
+                        .trim()
+                        .toLowerCase();
+                };
+
+            const isPaintingItem =
+                item =>
+                    normalizeTag(
+                        item?.tag
+                    ) === 'hoi hoa';
 
             const legendaryTags = [
-                "truyen thuyet",
-                "tu ky si"
+                'truyen thuyet',
+                'tu ky si'
             ];
 
+            const isRareItem =
+                item => {
+                    return (
+                        legendaryTags.includes(
+                            normalizeTag(
+                                item?.tag
+                            )
+                        ) ||
+                        Number(
+                            item?.price
+                        ) > 700
+                    );
+                };
 
-            const isRareItem = item => {
-                return (
-                    legendaryTags.includes(
-                        normalizeTag(item.tag)
-                    ) ||
-                    Number(item.price) > 700
+            const validItems =
+                (
+                    typeof StoreConfig !==
+                        'undefined' &&
+                    Array.isArray(
+                        StoreConfig.items
+                    )
+                )
+                    ? StoreConfig.items.filter(
+                        item =>
+                            item.type !==
+                            'music'
+                    )
+                    : [];
+
+            if (!validItems.length) {
+                throw new Error(
+                    'NO_VALID_STORE_ITEMS'
                 );
-            };
+            }
 
+            const unownedItems =
+                validItems.filter(
+                    item =>
+                        !exactInventory.includes(
+                            String(item.id)
+                        )
+                );
 
-            // Loại bỏ vật phẩm âm nhạc.
-            const validItems = StoreConfig.items.filter(
-                item => item.type !== "music"
-            );
+            const ownedDuplicateCandidates =
+                validItems.filter(
+                    item =>
+                        exactInventory.includes(
+                            String(item.id)
+                        ) &&
+                        !isPaintingItem(
+                            item
+                        )
+                );
 
-
-            // Chỉ lấy vật phẩm học sinh chưa sở hữu.
-            // Vì vậy vật phẩm Hội họa không thể được nhận trùng.
-            const unownedItems = validItems.filter(
-                item => !exactInventory.includes(item.id)
-            );
-
-
-            /*
-             * Chỉ vật phẩm KHÔNG thuộc tag Hội họa
-             * mới được phép kích hoạt trường hợp trùng lặp.
-             */
-            const ownedDuplicateCandidates = validItems.filter(
-                item =>
-                    exactInventory.includes(item.id) &&
-                    !isPaintingItem(item)
-            );
-
-
-            let selectedItem = null;
-
-
-            // ==================================================
-            // TRƯỜNG HỢP VẬT PHẨM TRÙNG
-            // ==================================================
+            const rand =
+                Math.random();
 
             if (
                 rand < dupThreshold &&
-                ownedDuplicateCandidates.length > 0
+                ownedDuplicateCandidates
+                    .length > 0
             ) {
                 const duplicateItem =
                     ownedDuplicateCandidates[
-                    Math.floor(
-                        Math.random() *
-                        ownedDuplicateCandidates.length
-                    )
+                        Math.floor(
+                            Math.random() *
+                            ownedDuplicateCandidates
+                                .length
+                        )
                     ];
 
-
-                const coinRef = db.ref(
-                    "student_coins/" +
-                    currentUser.username
-                );
-
-
-                const coinSnap = await coinRef.once("value");
-
-
-                await coinRef.set(
-                    (coinSnap.val() || 0) + 200
-                );
-
-                if (window.TransactionHistory) {
-                    await window.TransactionHistory.recordSafe({
-                        type:
-                            'leaderboard_reward',
-
-                        summary:
-                            `Nhận bù 200 Coin vì vật phẩm ` +
-                            `${duplicateItem.name} bị trùng`,
-
-                        source:
-                            'leaderboard_chest_duplicate',
-
-                        targetUsername:
-                            currentUser.username,
-
-                        targetName:
-                            currentUser.name ||
-                            currentUser.username,
-
-                        amount:
-                            200,
-
-                        unit:
-                            'Coin',
-
-                        reversible:
-                            false,
-
-                        nonReversibleReason:
-                            'Coin bồi thường do vật phẩm trong rương bị trùng.',
-
-                        details: {
-                            rewardType:
-                                'duplicate_compensation',
-
-                            chestType:
-                                'leaderboard',
-
-                            amount:
-                                200,
-
-                            itemId:
-                                duplicateItem.id,
-
-                            itemName:
-                                duplicateItem.name,
-
-                            itemTag:
-                                duplicateItem.tag ||
-                                ''
-                        }
-                    });
-                }
-
-
-                alert(
-                    `♻️ Vật phẩm [${duplicateItem.tag}] ` +
-                    `${duplicateItem.name} đã bị trùng. ` +
-                    `Hệ thống quy đổi thành +200 Coin!`
-                );
-
-
-                closeTreasureChestModal();
-
-                return;
-            }
-
-
-            // Nếu chỉ có vật phẩm Hội họa bị trùng,
-            // hệ thống sẽ không đổi thành Coin mà tiếp tục chọn
-            // một vật phẩm chưa sở hữu.
-
-
-            // ==================================================
-            // KHÔNG CÒN VẬT PHẨM CHƯA SỞ HỮU
-            // ==================================================
-
-            if (unownedItems.length === 0) {
-                const coinRef = db.ref(
-                    "student_coins/" +
-                    currentUser.username
-                );
-
-
-                const coinSnap = await coinRef.once("value");
-
-
-                await coinRef.set(
-                    (coinSnap.val() || 0) + 500
-                );
-
-                if (window.TransactionHistory) {
-                    await window.TransactionHistory.recordSafe({
-                        type:
-                            'leaderboard_reward',
-
-                        summary:
-                            'Nhận bù 500 Coin vì đã sở hữu toàn bộ vật phẩm',
-
-                        source:
-                            'leaderboard_chest_all_owned',
-
-                        targetUsername:
-                            currentUser.username,
-
-                        targetName:
-                            currentUser.name ||
-                            currentUser.username,
-
-                        amount:
-                            500,
-
-                        unit:
-                            'Coin',
-
-                        reversible:
-                            false,
-
-                        nonReversibleReason:
-                            'Coin bồi thường từ Rương Thi Đua.',
-
-                        details: {
-                            rewardType:
-                                'all_items_owned_compensation',
-
-                            chestType:
-                                'leaderboard',
-
-                            amount:
-                                500,
-
-                            coinPath:
-                                `student_coins/${currentUser.username}`
-                        }
-                    });
-                }
-
-
-                alert(
-                    "🏆 Bạn đã sở hữu toàn bộ vật phẩm. " +
-                    "Hệ thống tặng bù +500 Coin!"
-                );
-
-
-                closeTreasureChestModal();
-
-                return;
-            }
-
-
-            // ==================================================
-            // NHẬN VẬT PHẨM THƯỜNG
-            // ==================================================
-
-            if (rand < normThreshold) {
-                const normalItems = unownedItems.filter(
-                    item => !isRareItem(item)
-                );
-
-
-                if (normalItems.length > 0) {
-                    selectedItem =
-                        normalItems[
-                        Math.floor(
-                            Math.random() *
-                            normalItems.length
-                        )
-                        ];
-                } else {
-                    // Nếu hết vật phẩm thường,
-                    // lấy một vật phẩm chưa sở hữu bất kỳ.
-                    selectedItem =
-                        unownedItems[
-                        Math.floor(
-                            Math.random() *
-                            unownedItems.length
-                        )
-                        ];
-                }
-            }
-
-
-            // ==================================================
-            // NHẬN VẬT PHẨM HIẾM / TRUYỀN THUYẾT
-            // ==================================================
-
-            else {
-                const rareItems = unownedItems.filter(
-                    item => isRareItem(item)
-                );
-
-
-                if (rareItems.length > 0) {
-                    selectedItem =
-                        rareItems[
-                        Math.floor(
-                            Math.random() *
-                            rareItems.length
-                        )
-                        ];
-                } else {
-                    // Nếu hết vật phẩm hiếm,
-                    // chọn một vật phẩm chưa sở hữu khác.
-                    selectedItem =
-                        unownedItems[
-                        Math.floor(
-                            Math.random() *
-                            unownedItems.length
-                        )
-                        ];
-                }
-            }
-
-
-            if (!selectedItem) {
-                throw new Error(
-                    "Không tìm thấy vật phẩm phù hợp để trao thưởng."
-                );
-            }
-
-
-            // Kiểm tra thêm lần cuối để tránh trùng vật phẩm Hội họa.
-            if (
-                isPaintingItem(selectedItem) &&
-                exactInventory.includes(selectedItem.id)
-            ) {
-                throw new Error(
-                    "Phát hiện vật phẩm Hội họa bị trùng."
-                );
-            }
-
-
-            // Lưu vật phẩm vào túi đồ.
-            await db
-                .ref(
-                    `student_inventory/` +
-                    `${currentUser.username}/` +
-                    `${selectedItem.id}`
-                )
-                .update({
-                    id:
-                        selectedItem.id,
-
-                    purchaseTime:
-                        Date.now(),
-
-                    source:
-                        'leaderboard_chest',
-
-                    isTrial:
-                        null,
-
-                    trialExpiry:
-                        null,
-
-                    isEquipped:
-                        false
-                });
-
-            if (window.TransactionHistory) {
-                await window.TransactionHistory.recordSafe({
+                const amount = 200;
+
+                rewardLabel =
+                    `${amount} Coin bù ` +
+                    `do trùng ${duplicateItem.name}`;
+
+                rootUpdates[
+                    `student_coins/${username}`
+                ] =
+                    firebase.database
+                        .ServerValue
+                        .increment(amount);
+
+                historyPayload = {
                     type:
                         'leaderboard_reward',
-
                     summary:
-                        `Mở Rương Thi Đua và nhận ` +
-                        `vật phẩm ${selectedItem.name}`,
-
+                        `Rương Hạng 1 ${display}: ` +
+                        `trùng ${duplicateItem.name}, ` +
+                        `nhận bù ${amount} Coin`,
                     source:
-                        'leaderboard_chest',
-
+                        'leaderboard_chest_duplicate',
                     targetUsername:
-                        currentUser.username,
-
+                        username,
                     targetName:
-                        currentUser.name ||
-                        currentUser.username,
-
-                    amount:
-                        null,
-
+                        currentUser?.name ||
+                        username,
+                    amount,
                     unit:
-                        '',
-
+                        'Coin',
                     reversible:
                         false,
-
                     nonReversibleReason:
-                        'Vật phẩm ngẫu nhiên từ Rương Thi Đua.',
-
+                        'Coin bồi thường do vật phẩm trong rương bị trùng.',
                     details: {
+                        seasonKey,
+                        rank:
+                            1,
+                        rewardType:
+                            'duplicate_compensation',
+                        itemId:
+                            duplicateItem.id,
+                        itemName:
+                            duplicateItem.name,
+                        amount
+                    }
+                };
+            } else if (
+                unownedItems.length === 0
+            ) {
+                const amount = 500;
+
+                rewardLabel =
+                    `${amount} Coin bù ` +
+                    `do đã sở hữu toàn bộ vật phẩm`;
+
+                rootUpdates[
+                    `student_coins/${username}`
+                ] =
+                    firebase.database
+                        .ServerValue
+                        .increment(amount);
+
+                historyPayload = {
+                    type:
+                        'leaderboard_reward',
+                    summary:
+                        `Rương Hạng 1 ${display}: ` +
+                        `nhận bù ${amount} Coin ` +
+                        `do đã sở hữu toàn bộ vật phẩm`,
+                    source:
+                        'leaderboard_chest_all_owned',
+                    targetUsername:
+                        username,
+                    targetName:
+                        currentUser?.name ||
+                        username,
+                    amount,
+                    unit:
+                        'Coin',
+                    reversible:
+                        false,
+                    nonReversibleReason:
+                        'Coin bồi thường từ Rương Hạng 1.',
+                    details: {
+                        seasonKey,
+                        rank:
+                            1,
+                        rewardType:
+                            'all_items_owned_compensation',
+                        amount
+                    }
+                };
+            } else {
+                let selectedItem = null;
+
+                if (rand < normThreshold) {
+                    const normalItems =
+                        unownedItems.filter(
+                            item =>
+                                !isRareItem(
+                                    item
+                                )
+                        );
+
+                    selectedItem =
+                        normalItems.length
+                            ? normalItems[
+                                Math.floor(
+                                    Math.random() *
+                                    normalItems.length
+                                )
+                            ]
+                            : unownedItems[
+                                Math.floor(
+                                    Math.random() *
+                                    unownedItems.length
+                                )
+                            ];
+                } else {
+                    const rareItems =
+                        unownedItems.filter(
+                            item =>
+                                isRareItem(
+                                    item
+                                )
+                        );
+
+                    selectedItem =
+                        rareItems.length
+                            ? rareItems[
+                                Math.floor(
+                                    Math.random() *
+                                    rareItems.length
+                                )
+                            ]
+                            : unownedItems[
+                                Math.floor(
+                                    Math.random() *
+                                    unownedItems.length
+                                )
+                            ];
+                }
+
+                if (!selectedItem) {
+                    throw new Error(
+                        'NO_SELECTED_ITEM'
+                    );
+                }
+
+                if (
+                    isPaintingItem(
+                        selectedItem
+                    ) &&
+                    exactInventory.includes(
+                        String(
+                            selectedItem.id
+                        )
+                    )
+                ) {
+                    throw new Error(
+                        'DUPLICATE_PAINTING_ITEM'
+                    );
+                }
+
+                rewardLabel =
+                    `Vật phẩm ` +
+                    `${selectedItem.name}`;
+
+                rootUpdates[
+                    `student_inventory/` +
+                    `${username}/` +
+                    `${selectedItem.id}`
+                ] = {
+                    id:
+                        selectedItem.id,
+                    purchaseTime:
+                        firebase.database
+                            .ServerValue
+                            .TIMESTAMP,
+                    source:
+                        'leaderboard_chest',
+                    leaderboardSeason:
+                        seasonKey,
+                    isTrial:
+                        null,
+                    trialExpiry:
+                        null,
+                    isEquipped:
+                        false
+                };
+
+                historyPayload = {
+                    type:
+                        'leaderboard_reward',
+                    summary:
+                        `Mở Rương Hạng 1 ${display} ` +
+                        `và nhận vật phẩm ` +
+                        `${selectedItem.name}`,
+                    source:
+                        'leaderboard_chest',
+                    targetUsername:
+                        username,
+                    targetName:
+                        currentUser?.name ||
+                        username,
+                    amount:
+                        null,
+                    unit:
+                        '',
+                    reversible:
+                        false,
+                    nonReversibleReason:
+                        'Vật phẩm ngẫu nhiên từ Rương Hạng 1.',
+                    details: {
+                        seasonKey,
+                        rank:
+                            1,
                         rewardType:
                             'item',
-
-                        chestType:
-                            'leaderboard',
-
                         itemId:
                             selectedItem.id,
-
                         itemName:
                             selectedItem.name,
-
                         itemTag:
                             selectedItem.tag ||
-                            '',
-
-                        itemPath:
-                            `student_inventory/` +
-                            `${currentUser.username}/` +
-                            `${selectedItem.id}`
+                            ''
                     }
-                });
+                };
             }
+        }
 
+        /*
+         * Phần thưởng và trạng thái CLAIMED được ghi
+         * trong CÙNG một multi-location update.
+         */
+        rootUpdates[
+            getLeaderboardClaimPath(
+                seasonKey,
+                username
+            )
+        ] = {
+            seasonKey,
+            seasonLabel:
+                display,
+            username,
+            rank:
+                1,
+            rewardType:
+                'chest',
+            rewardLabel,
+            selectedChoice:
+                choiceType,
+            status:
+                'claimed',
+            claimedAt:
+                firebase.database
+                    .ServerValue
+                    .TIMESTAMP
+        };
 
-            const paintingNotice =
-                isPaintingItem(selectedItem)
-                    ? "\n🎨 Vật phẩm Hội họa được bảo vệ không trùng."
-                    : "";
+        await db.ref()
+            .update(rootUpdates);
 
+        awardCommitted = true;
 
-            alert(
-                `🎊 KỲ TÍCH! Bạn đã nhận được ` +
-                `[${selectedItem.tag}] ${selectedItem.name}!` +
-                paintingNotice
+        if (historyPayload) {
+            await recordLeaderboardRewardHistory(
+                historyPayload
             );
         }
 
+        alert(
+            `🎉 Nhận thưởng thành công!\n` +
+            `${rewardLabel}`
+        );
 
         closeTreasureChestModal();
 
+        await refreshPreviousLeaderboardRewardPanel();
     } catch (error) {
-        console.error(error);
-
-        alert(
-            "❌ Có lỗi xảy ra khi nhận thưởng. " +
-            "Vui lòng thử lại!"
+        console.error(
+            'Lỗi nhận Rương Hạng 1:',
+            error
         );
 
+        /*
+         * Chỉ mở khóa lại nếu phần thưởng
+         * CHƯA được ghi thành công.
+         */
+        if (
+            claimRef &&
+            !awardCommitted
+        ) {
+            try {
+                await claimRef.transaction(
+                    current => {
+                        if (
+                            current?.status !==
+                                'processing_chest'
+                        ) {
+                            return;
+                        }
+
+                        return {
+                            ...current,
+                            status:
+                                'available_chest',
+                            selectedChoice:
+                                null,
+                            processingAt:
+                                null,
+                            lastErrorAt:
+                                Date.now()
+                        };
+                    }
+                );
+            } catch (
+                rollbackError
+            ) {
+                console.warn(
+                    'Không thể mở khóa lại Rương:',
+                    rollbackError
+                );
+            }
+        }
+
+        alert(
+            '❌ Có lỗi xảy ra khi nhận thưởng Rương. ' +
+            'Vui lòng thử lại!'
+        );
     } finally {
-        btnNodes.forEach((button) => {
+        btnNodes.forEach(button => {
             button.disabled = false;
-            button.style.opacity = "1";
+            button.style.opacity = '1';
         });
     }
 };
-
 
 // ======================================================
 // 15. TỰ ĐỘNG KHỞI TẠO KHI TRANG TẢI XONG

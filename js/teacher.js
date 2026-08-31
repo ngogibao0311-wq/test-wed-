@@ -1491,7 +1491,7 @@ window.onload = async function () {
     // PHẦN 3: LẮNG NGHE SETTINGS (Dữ liệu nhỏ, giữ nguyên real-time)
     // ==========================================
     listenFirebase(db.ref('roadmap_settings/passingGrade'), 'value', (snapshot) => {
-        const val = snapshot.val() || 7;
+        const val = snapshot.val() ?? 7;
         if (document.getElementById('passingGradeSetting')) document.getElementById('passingGradeSetting').value = val;
         window.currentPassingGrade = parseFloat(val);
         if (document.getElementById('teacherRoadmapBody')) renderTeacherRoadmap();
@@ -6768,7 +6768,7 @@ async function renderTeacherRoadmap() {
             }
         }
         // THÊM DÒNG NÀY: Lấy điều kiện điểm chuẩn của RIÊNG bài tập này (Mặc định là 7 nếu chưa cài)
-        const passingGrade = assign.passingGrade || 7;
+        const passingGrade = getTeacherCashPassingGrade(assign);
 
         let studentScore = '-';
         let statusText = 'Chưa nộp';
@@ -6784,7 +6784,11 @@ async function renderTeacherRoadmap() {
                 style="margin:0; padding:6px 10px; font-size:0.9em; min-width:90px; text-align: center; font-weight: bold;">`;
 
         if (selectedStudent) {
-            const sub = submissions.find(s => s.assignmentId === assign.id && s.studentUsername === selectedStudent);
+            const sub = getTeacherCashBestSubmission(
+                assign,
+                submissions,
+                selectedStudent
+            );
             if (sub) {
                 // TRƯỜNG HỢP 1: GIÁO VIÊN ĐÃ ẤN NÚT THA ĐIỂM THẤP (FORCE PASS)
                 if (sub.forcePass) {
@@ -7697,7 +7701,11 @@ window.openAssignmentStatusModal = async function (assignId) {
 
     students.forEach(st => {
         // Tìm lịch sử bản ghi bài làm tương ứng
-        const sub = submissions.find(s => s.assignmentId === assignId && s.studentUsername === st.username);
+        const sub = getTeacherCashBestSubmission(
+            assign,
+            submissions,
+            st.username
+        );
 
         let statusText = '';
         let statusBg = '';
@@ -10551,66 +10559,34 @@ window.toggleConversionSettings = async function (isChecked) {
     alert("Đã " + (isChecked ? "MỞ" : "ĐÓNG") + " chức năng Bảng quy đổi tiền của học sinh!");
 };
 
-// Hàm hiển thị danh sách yêu cầu rút tiền
+// Tương thích hàm cũ: chỉ chuyển tiếp sang luồng kiểm duyệt an toàn hiện tại.
+// Không còn cho phép đổi trạng thái cash_requests trực tiếp vì có thể bỏ qua bước trừ tiền.
 async function loadCashRequestsForTeacher() {
-    const requests = await getDB('cash_requests');
-    let html = '';
-
-    requests.reverse().forEach(req => {
-        let actionButtons = '';
-        let statusDisplay = '';
-
-        if (req.status === 'pending') {
-            statusDisplay = '<span style="color: #f39c12;">Đang chờ duyệt</span>';
-            actionButtons = `
-                <button onclick="updateRequestStatus('${req._fbKey}', 'transferring')" style="background: #2980b9; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">Chấp nhận</button>
-                <button onclick="updateRequestStatus('${req._fbKey}', 'rejected')" style="background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; margin-left: 5px;">Từ chối</button>
-            `;
-        } else if (req.status === 'transferring') {
-            statusDisplay = '<span style="color: #2980b9;">Đang chuyển tiền</span>';
-            actionButtons = `
-                <button onclick="updateRequestStatus('${req._fbKey}', 'completed')" style="background: #27ae60; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">Đã chuyển</button>
-            `;
-        } else if (req.status === 'completed') {
-            statusDisplay = '<span style="color: #27ae60;">Đã hoàn tất</span>';
-        } else if (req.status === 'rejected') {
-            statusDisplay = '<span style="color: #c0392b;">Đã từ chối</span>';
-        }
-
-        html += `
-            <div style="background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <strong>Học sinh:</strong> ${req.studentName} <br>
-                    <strong>Số tiền:</strong> <span style="color: #e67e22; font-weight: bold;">${req.amount.toLocaleString()} VNĐ</span> <br>
-                    <strong>Trạng thái:</strong> ${statusDisplay}
-                </div>
-                <div>
-                    ${actionButtons}
-                </div>
-            </div>
-        `;
-    });
-
-    const listElement = document.getElementById('teacherCashRequestsList');
-    if (listElement) {
-        listElement.innerHTML = html || '<p>Chưa có yêu cầu nào.</p>';
+    if (typeof window.loadTeacherCashRequests === 'function') {
+        return window.loadTeacherCashRequests();
     }
 }
 
-// Hàm cập nhật trạng thái yêu cầu
 async function updateRequestStatus(requestId, newStatus) {
-    let confirmMsg = "";
-    if (newStatus === 'transferring') confirmMsg = "Chấp nhận yêu cầu và báo học sinh đang chuyển tiền?";
-    if (newStatus === 'completed') confirmMsg = "Xác nhận đã chuyển tiền thành công?";
-    if (newStatus === 'rejected') confirmMsg = "Từ chối yêu cầu này (Tiền sẽ cần được hoàn lại nếu đã trừ trước đó)?";
+    const actionMap = {
+        transferring: 'approve',
+        completed: 'complete',
+        rejected: 'reject'
+    };
 
-    if (confirm(confirmMsg)) {
-        await updateDB('cash_requests', requestId, { status: newStatus });
-
-        // Nếu bạn trừ tiền khi gửi yêu cầu mà giáo viên 'Từ chối', nhớ cộng lại tiền cho học sinh tại đây.
-
-        loadCashRequestsForTeacher(); // Render lại danh sách
+    const action = actionMap[newStatus];
+    if (!action) {
+        console.warn('Bỏ qua trạng thái tiền mặt cũ không hợp lệ:', newStatus);
+        return;
     }
+
+    if (typeof window.handleTeacherProcessCash !== 'function') {
+        console.error('Luồng kiểm duyệt tiền mặt an toàn chưa sẵn sàng.');
+        alert('❌ Chức năng kiểm duyệt tiền mặt chưa sẵn sàng. Vui lòng tải lại trang.');
+        return;
+    }
+
+    return window.handleTeacherProcessCash(requestId, action);
 }
 
 // Đã ẩn gọi hàm cũ để tránh lỗi xung đột thẻ HTML
@@ -10676,6 +10652,30 @@ function isTeacherCashSubmissionFailed(sub) {
     );
 }
 
+function getTeacherCashTargetStudents(assign) {
+    const rawTarget = assign?.targetStudent;
+
+    if (Array.isArray(rawTarget)) {
+        const values = rawTarget
+            .flatMap(value => String(value ?? '').split(','))
+            .map(value => value.trim())
+            .filter(Boolean);
+
+        return values.length
+            ? [...new Set(values)]
+            : ['all'];
+    }
+
+    const values = String(rawTarget ?? 'all')
+        .split(',')
+        .map(value => value.trim())
+        .filter(Boolean);
+
+    return values.length
+        ? [...new Set(values)]
+        : ['all'];
+}
+
 // Đồng bộ cách chọn bài nộp với student.js: ưu tiên forcePass,
 // bài đạt, bài có điểm hợp lệ, đang chấm lại, rồi mới tới bài lỗi.
 function getTeacherCashBestSubmission(assign, submissions, username) {
@@ -10718,13 +10718,10 @@ function getTeacherCashBestSubmission(assign, submissions, username) {
 
 function calculateTeacherCashBaseMoney(assignments, submissions, username) {
     return (assignments || []).reduce((total, assign) => {
-        const targets = Array.isArray(assign.targetStudent)
-            ? assign.targetStudent.map(String)
-            : String(assign.targetStudent || 'all')
-                .split(',')
-                .map(value => value.trim());
+        const targets = getTeacherCashTargetStudents(assign);
+        const normalizedUsername = String(username ?? '').trim();
 
-        if (!targets.includes('all') && !targets.includes(String(username))) {
+        if (!targets.includes('all') && !targets.includes(normalizedUsername)) {
             return total;
         }
 
@@ -11855,6 +11852,67 @@ listenFirebase(db.ref('leaderboard_settings'), 'value', (snapshot) => {
     const chestNorm = settings.chestNorm !== undefined ? settings.chestNorm : 4;
     const chestLeg = settings.chestLeg !== undefined ? settings.chestLeg : 1;
 
+    /*
+     * FIX LỊCH MÙA GIẢI:
+     * Chỉ phía giáo viên mới có quyền ghi leaderboard_settings.
+     * Khi dashboard giáo viên đang mở và đã tới tháng hẹn,
+     * chuẩn hóa lịch thành isOpen=true rồi xóa mốc hẹn.
+     *
+     * Phía học sinh cũng có fallback chỉ-đọc, nên dù giáo viên
+     * chưa mở dashboard đúng thời điểm thì BXH vẫn không bị lỗi quyền.
+     */
+    if (
+        !isOpen &&
+        settings.targetMonth &&
+        settings.targetYear
+    ) {
+        const now = new Date();
+
+        const currentMonth =
+            now.getMonth() + 1;
+
+        const currentYear =
+            now.getFullYear();
+
+        const reachedTarget =
+            currentYear >
+                Number(settings.targetYear) ||
+            (
+                currentYear ===
+                    Number(settings.targetYear) &&
+                currentMonth >=
+                    Number(settings.targetMonth)
+            );
+
+        if (
+            reachedTarget &&
+            !window.__leaderboardScheduleOpening
+        ) {
+            window.__leaderboardScheduleOpening = true;
+
+            db.ref('leaderboard_settings')
+                .update({
+                    isOpen: true,
+                    targetMonth: null,
+                    targetYear: null,
+                    autoOpenedAt:
+                        firebase.database
+                            .ServerValue
+                            .TIMESTAMP
+                })
+                .catch(error => {
+                    console.error(
+                        'Lỗi tự mở mùa giải BXH:',
+                        error
+                    );
+                })
+                .finally(() => {
+                    window.__leaderboardScheduleOpening =
+                        false;
+                });
+        }
+    }
+
     // Cập nhật giao diện an toàn theo từng ID riêng biệt để tránh lỗi DOM sập luồng
     const toggleInput = document.getElementById('lbToggle');
     if (toggleInput) toggleInput.checked = !!isOpen;
@@ -11906,7 +11964,11 @@ window.setNextMonthSeason = async function () {
     if (confirm(`Bạn có muốn thiết lập lịch hẹn mùa giải mới bắt đầu vào Tháng ${targetMonth}/${targetYear}?`)) {
         await db.ref('leaderboard_settings').update({
             targetMonth: targetMonth,
-            targetYear: targetYear
+            targetYear: targetYear,
+            scheduledAt:
+                firebase.database
+                    .ServerValue
+                    .TIMESTAMP
         });
         alert(`✅ Đã đặt lịch hẹn! Khi đến tháng ${targetMonth}/${targetYear}, hệ thống sẽ tự động kích hoạt lại bảng xếp hạng.`);
     }

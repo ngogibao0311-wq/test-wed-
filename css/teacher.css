@@ -505,3 +505,66 @@ table td {
         flex-direction: column;
     }
 }
+/* ============================
+   FIX NÚT ĐÓNG / MỞ SIDEBAR
+   ============================ */
+
+.sidebar-toggle {
+    position: absolute !important;
+    top: 32px !important;
+    right: -17px !important;
+    left: auto !important;
+    bottom: auto !important;
+    margin: 0 !important;
+
+    width: 34px !important;
+    height: 34px !important;
+    padding: 0 !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+
+    border: 2px solid rgba(255,255,255,.85) !important;
+    border-radius: 50% !important;
+
+    cursor: pointer !important;
+    z-index: 200 !important;
+
+    box-sizing: border-box !important;
+    transform-origin: center center !important;
+
+    transition:
+        transform .3s ease,
+        box-shadow .3s ease !important;
+
+    box-shadow: 0 8px 22px rgba(49,46,129,.32) !important;
+}
+
+/* SIDEBAR ĐANG MỞ */
+.dashboard:not(.collapsed) .sidebar-toggle {
+    transform: rotate(0deg) !important;
+}
+
+.dashboard:not(.collapsed) .sidebar-toggle:hover {
+    transform: scale(1.08) !important;
+}
+
+/* SIDEBAR THU GỌN */
+.dashboard.collapsed .sidebar-toggle {
+    transform: rotate(180deg) !important;
+}
+
+.dashboard.collapsed .sidebar-toggle:hover {
+    transform: rotate(180deg) scale(1.08) !important;
+}
+
+/* Mobile */
+@media (max-width: 760px) {
+    body.use-bottom-mobile-nav .sidebar-toggle {
+        display: none !important;
+    }
+}

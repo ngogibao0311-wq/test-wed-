@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'study-shell-v3';
+const CACHE_VERSION = 'study-shell-v4';
 const OFFLINE_CACHE = `${CACHE_VERSION}-offline`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const OFFLINE_PAGE = './offline.html';
@@ -58,44 +58,121 @@ async function buildFallbackResponse(mode, failedUrl, status) {
 
 async function networkFirstNavigation(request) {
     const url = new URL(request.url);
+    const cache = await caches.open(RUNTIME_CACHE);
 
     if (url.pathname.endsWith('/offline.html')) {
         try {
             const response = await fetch(request);
             if (response && response.ok) return response;
         } catch (_) {}
-        const cached = await caches.match(OFFLINE_PAGE, { ignoreSearch: true });
-        return cached || buildFallbackResponse('offline', request.url, 503);
+
+        const cachedOffline = await caches.match(
+            OFFLINE_PAGE,
+            { ignoreSearch: true }
+        );
+
+        return cachedOffline ||
+            buildFallbackResponse(
+                'offline',
+                request.url,
+                503
+            );
     }
 
     try {
         const response = await fetch(request);
 
-        if (response.status === 404 || response.status === 410) {
-            return buildFallbackResponse('404', request.url, 404);
+        if (response && response.ok) {
+            cache.put(
+                request,
+                response.clone()
+            )
+                .then(pruneRuntimeCache)
+                .catch(() => {});
+
+            return response;
         }
 
-        if (response.status >= 500) {
-            return buildFallbackResponse('server', request.url, response.status);
+        // Server có phản hồi nhưng trang đang lỗi:
+        // ưu tiên bản cache tốt gần nhất nếu đã từng tải thành công.
+        if (
+            response.status === 404 ||
+            response.status === 410 ||
+            response.status >= 500
+        ) {
+            const cached = await cache.match(request);
+
+            if (cached) {
+                return cached;
+            }
+
+            return buildFallbackResponse(
+                response.status === 404 ||
+                response.status === 410
+                    ? '404'
+                    : 'server',
+                request.url,
+                response.status
+            );
         }
 
         return response;
     } catch (error) {
-        return buildFallbackResponse('offline', request.url, 503);
+        const cached = await cache.match(request);
+
+        if (cached) {
+            return cached;
+        }
+
+        return buildFallbackResponse(
+            'offline',
+            request.url,
+            503
+        );
     }
 }
 
 async function networkFirstStatic(request) {
     const cache = await caches.open(RUNTIME_CACHE);
+
     try {
         const response = await fetch(request);
+
         if (response && response.ok) {
-            cache.put(request, response.clone()).then(pruneRuntimeCache).catch(() => {});
+            cache.put(
+                request,
+                response.clone()
+            )
+                .then(pruneRuntimeCache)
+                .catch(() => {});
+
+            return response;
         }
+
+        // 404/410/5xx không xóa khả năng dùng bản JS/CSS đã cache tốt.
+        if (
+            response &&
+            (
+                response.status === 404 ||
+                response.status === 410 ||
+                response.status >= 500
+            )
+        ) {
+            const cached = await cache.match(request);
+
+            if (cached) {
+                return cached;
+            }
+        }
+
         return response;
     } catch (error) {
         const cached = await cache.match(request);
-        if (cached) return cached;
+
+        if (cached) {
+            return cached;
+        }
+
         throw error;
     }
 }
