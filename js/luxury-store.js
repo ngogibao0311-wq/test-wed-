@@ -5827,6 +5827,53 @@ if (isNationalDay) {
         const id =
             escapeHTML(item.id);
 
+        // ====================================================
+        // KHÓA BỞI GIÁO VIÊN — ÁP DỤNG CHO TOÀN BỘ LUXURY CARD
+        // Dùng đúng item.isLocked đã được đồng bộ từ store_settings.
+        // Khi khóa: che đen toàn bộ thẻ, không render nút mua / dùng / gỡ,
+        // chỉ hiện dấu ? lớn ở giữa.
+        // ====================================================
+        if (item.isLocked === true) {
+            return `
+                <article
+                    class="luxury-product-card luxury-teacher-locked-card ui-theme-immune"
+                    data-item-id="${id}"
+                    data-locked-by-teacher="true"
+                    aria-label="Vật phẩm đang bị giáo viên khóa"
+                    style="
+                        position:relative !important;
+                        min-height:430px;
+                        overflow:hidden !important;
+                        background:#030303 !important;
+                        border:1px solid rgba(255,255,255,.08) !important;
+                        box-shadow:0 18px 42px rgba(0,0,0,.55) !important;
+                        cursor:not-allowed !important;
+                        isolation:isolate;
+                    "
+                >
+                    <div
+                        aria-hidden="true"
+                        style="
+                            position:absolute;
+                            inset:-2px;
+                            z-index:2147483000;
+                            display:flex;
+                            align-items:center;
+                            justify-content:center;
+                            background:#030303;
+                            color:#fff;
+                            font-size:clamp(96px, 12vw, 160px);
+                            font-weight:1000;
+                            line-height:1;
+                            text-shadow:0 0 26px rgba(255,255,255,.22);
+                            user-select:none;
+                            pointer-events:auto;
+                        "
+                    >?</div>
+                </article>
+            `;
+        }
+
         const inventoryItem =
             getLuxuryInventoryItem(item.id);
 

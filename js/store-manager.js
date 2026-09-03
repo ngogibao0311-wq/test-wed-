@@ -1524,6 +1524,15 @@ class StoreManager {
         const item = this.getItemById(itemId);
         if (!item) return;
 
+        // Chặn trang bị từ mọi đường dẫn khi Giáo viên đã khóa vật phẩm.
+        // Không ảnh hưởng thao tác Gỡ vật phẩm đang mặc.
+        if (item.isLocked === true) {
+            window.alert(
+                `🔒 ${item.name} đang bị Giáo viên khóa, không thể sử dụng.`
+            );
+            return false;
+        }
+
         switch (item.type) {
             case 'theme':
                 // FIX KẸT GIAO DIỆN: Xóa toàn bộ class giao diện cũ trong StoreConfig khỏi thẻ <body> trước khi đổi
