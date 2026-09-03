@@ -4062,3 +4062,29 @@ html.premium-spring-sanctuary-equipped :where(
         transform: rotate(180deg) !important;
     }
 }
+
+/* ============================================================================
+   FIX BỐ CỤC LUXURY · 3 THẺ HIỆN TẠI
+   - Chỉ kích hoạt khi grid có đúng 3 card.
+   - Căn cụm 3 card vào giữa vùng nội dung.
+   - Không can thiệp hiệu ứng / tag / panel thông tin của từng vật phẩm.
+   ============================================================================ */
+@media (min-width: 900px) {
+    #luxuryStoreGrid.luxury-store-grid:has(> .luxury-product-card:nth-child(3):last-child) {
+        grid-template-columns: repeat(3, minmax(240px, 282px)) !important;
+        justify-content: center !important;
+        align-items: start !important;
+        column-gap: 28px !important;
+        row-gap: 22px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    #luxuryStoreGrid.luxury-store-grid:has(> .luxury-product-card:nth-child(3):last-child)
+    > .luxury-product-card {
+        width: 100% !important;
+        max-width: 282px !important;
+        margin-inline: 0 !important;
+        justify-self: center !important;
+    }
+}

@@ -16,7 +16,10 @@
     // Muốn món nào xuất hiện thì ghi ID món đó vào đây.
     const LUXURY_ITEM_IDS = [
         'pet_luxury_mua_xuan',
-        'pet_quoc_khanh_1'
+        'pet_quoc_khanh_1',
+        'pet_mythic_nyx_1',
+        'pet_tamon_b_side_1',
+        'pet_tamon_b_side_2'
     ];
 
     // ========================================================
@@ -74,7 +77,7 @@
          * trống đồng Đông Sơn + sơn son đỏ + quầng sao vàng.
          * Không tái sử dụng runtime / class / keyframe của vật phẩm cũ.
          */
-        petEffect: 'national-day-dong-son-magic',
+        petEffect: 'national-day-chibi-star-magic',
         premiumSuite: 'national-day-heritage-v1',
         premiumLayers: [
             'world-effect',
@@ -960,6 +963,2008 @@
 
         // Không dùng hiệu ứng click thú cưng mặc định
         disableClickEffect: true
+    };
+
+    // ========================================================
+    // NYX · HẮC DẠ NGUYÊN SƠ — THẦN THOẠI
+    // - Bán 12.000 Coin
+    // - Card + tag riêng, khóa theo data-item-id
+    // - Chỉ là thú cưng; không tự bật theme/effect giao diện khác
+    // ========================================================
+    const MYTHIC_NYX_PET = {
+        id: 'pet_mythic_nyx_1',
+        name: 'NYX · Vĩnh Dạ Tinh Thần',
+        type: 'pet',
+        price: 12000,
+        isNonCoin: false,
+        luxuryOnly: true,
+        eventOnly: false,
+
+        tag: 'Thần thoại',
+        tags: [
+            'Thần thoại',
+            'Nyx',
+            'Nữ thần màn đêm',
+            'Premium'
+        ],
+
+        image: 'assets/Premium/Thần thoại/nyx-nhanvat1.png',
+        asset: 'assets/Premium/Thần thoại/nyx-nhanvat1.png',
+        value: 'assets/Premium/Thần thoại/nyx-nhanvat1.png',
+        luxuryTagImage:
+            'assets/Premium/Thần thoại/nyx-tag1.png',
+        isIcon: false,
+
+        // Namespace hiệu ứng mới, không tái sử dụng pet cũ.
+        petEffect: 'mythic-nyx-night-magic',
+        premiumSuite: 'nyx-first-night-v2',
+        premiumLayers: [
+            'world-effect',
+            'interface',
+            'pet-realm',
+            'global-click',
+            'ultimate'
+        ],
+        disableClickEffect: true
+    };
+
+
+
+    // ========================================================
+    // TAMON'S B-SIDE · PREMIUM PET
+    // - Bán 15.000 Coin
+    // - Tag ảnh: assets/Premium/Tamon/tamon-tag1.png
+    // - Nhân vật: assets/Premium/Tamon/tamon-nhan-vat1.png
+    // - Card giữ đúng bố cục Luxury hiện có nhưng có skin riêng.
+    // - Full suite độc lập; KHÔNG dùng ThemeManager/EffectManager.
+    // ========================================================
+    const TAMON_BSIDE_PET = {
+        id: 'pet_tamon_b_side_1',
+        name: "Tamon · Bóng Hồng Ngạo Nghễ  ",
+        type: 'pet',
+        price: 15000,
+        isNonCoin: false,
+        luxuryOnly: true,
+        eventOnly: false,
+
+        tag: "Tamon's B-Side",
+        tags: [
+            "Tamon's B-Side",
+            'Tamon',
+            'B-Side',
+            'Premium'
+        ],
+
+        image: 'assets/Premium/Tamon/tamon-nhan-vat1.png',
+        asset: 'assets/Premium/Tamon/tamon-nhan-vat1.png',
+        value: 'assets/Premium/Tamon/tamon-nhan-vat1.png',
+        luxuryTagImage: 'assets/Premium/Tamon/tamon-tag1.png',
+        isIcon: false,
+
+        petEffect: 'tamon-b-side-soundwave-magic',
+        premiumSuite: 'tamon-b-side-stage-v1',
+        premiumLayers: [
+            'world-effect',
+            'interface',
+            'pet-realm',
+            'global-click',
+            'ultimate'
+        ],
+        disableClickEffect: true
+    };
+
+
+    // ========================================================
+    // TAMON'S B-SIDE · PINK STATIC · PREMIUM PET #2
+    // - KHÔNG bán bằng Coin
+    // - Nhận từ sự kiện
+    // - Tag: assets/Premium/Tamon/tamon-tag1.png
+    // - Nhân vật: assets/Premium/Tamon/tamon-nhan-vat2.png
+    // - Full suite hoàn toàn mới; không tái sử dụng hiệu ứng pet 1.
+    // - Dùng CHUNG file css/tamon-b-side.css.
+    // ========================================================
+    const TAMON_PINKSTATIC_PET = {
+        id: 'pet_tamon_b_side_2',
+        name: 'Tamon · Hắc Miêu Thiếu Niên  ',
+        type: 'pet',
+        price: 0,
+        isNonCoin: true,
+        luxuryOnly: true,
+        eventOnly: true,
+
+        eventId: 'tamon_b_side_event',
+        eventRewardTier: 'luxury',
+        eventScoreRequired: 10,
+
+        tag: "Tamon's B-Side",
+        tags: [
+            "Tamon's B-Side",
+            'Tamon',
+            'B-Side',
+            'Pink Static',
+            'Premium',
+            'Sự kiện'
+        ],
+
+        image: 'assets/Premium/Tamon/tamon-nhan-vat2.png',
+        asset: 'assets/Premium/Tamon/tamon-nhan-vat2.png',
+        value: 'assets/Premium/Tamon/tamon-nhan-vat2.png',
+        luxuryTagImage: 'assets/Premium/Tamon/tamon-tag1.png',
+        isIcon: false,
+
+        petEffect: 'tamon-pink-static-magic',
+        premiumSuite: 'tamon-pink-static-stage-v1',
+        premiumLayers: [
+            'world-effect',
+            'interface',
+            'pet-realm',
+            'global-click',
+            'ultimate'
+        ],
+        disableClickEffect: true
+    };
+
+
+
+    // ========================================================
+    // TAMON'S B-SIDE · CSS LOADER
+    // Một file CSS đảm nhiệm toàn bộ skin / animation.
+    // Có thể đặt window.TAMON_BSIDE_CSS_PATH trước khi file này chạy
+    // nếu project lưu CSS ở đường dẫn khác.
+    // ========================================================
+    function ensureTamonBSideStylesheet() {
+        if (document.getElementById('tamon-b-side-premium-style')) {
+            return;
+        }
+
+        /*
+         * Project hiện tại đặt JavaScript trong /js và CSS trong /css.
+         * Trước đây href='tamon-b-side.css' bị browser hiểu theo URL của
+         * trang HTML, nên phát sinh ERR_FILE_NOT_FOUND.
+         *
+         * Ưu tiên:
+         * 1) window.TAMON_BSIDE_CSS_PATH nếu project tự cấu hình.
+         * 2) Tự suy ra ../css/tamon-b-side.css từ chính luxury-store.js.
+         * 3) Fallback css/tamon-b-side.css theo document.baseURI.
+         */
+        let href = '';
+
+        if (window.TAMON_BSIDE_CSS_PATH) {
+            href = String(window.TAMON_BSIDE_CSS_PATH).trim();
+        }
+
+        if (!href) {
+            const scripts = Array.from(document.scripts || []);
+            const ownScript = scripts
+                .slice()
+                .reverse()
+                .find(script => /(?:^|\/)luxury-store(?:[^\/]*)?\.js(?:[?#].*)?$/i.test(script.src || ''));
+
+            if (ownScript?.src) {
+                try {
+                    href = new URL('../css/tamon-b-side.css', ownScript.src).href;
+                } catch (error) {
+                    href = '';
+                }
+            }
+        }
+
+        if (!href) {
+            href = new URL('css/tamon-b-side.css', document.baseURI).href;
+        }
+
+        const link = document.createElement('link');
+        link.id = 'tamon-b-side-premium-style';
+        link.rel = 'stylesheet';
+        link.href = href;
+        link.dataset.tamonBside = 'true';
+
+        link.addEventListener('error', () => {
+            console.error(
+                '[Tamon B-Side] Không tải được CSS:',
+                link.href,
+                'Hãy đặt file tại css/tamon-b-side.css hoặc gán window.TAMON_BSIDE_CSS_PATH trước khi nạp luxury-store.js.'
+            );
+        }, { once: true });
+
+        document.head.appendChild(link);
+    }
+
+
+
+    // ========================================================
+    // TAMON · PINK STATIC · CSS LOADER
+    // Dùng CHUNG file css/tamon-b-side.css với pet 1.
+    // ========================================================
+    function ensureTamonPinkStaticStylesheet() {
+        ensureTamonBSideStylesheet();
+    }
+
+
+    // ========================================================
+    // TAMON'S B-SIDE · FULL PREMIUM RUNTIME V1
+    // Namespace: tamon-bside-*
+    // Không đụng active_theme / active_effect, vì vậy pet này không
+    // ghi đè dữ liệu giao diện hoặc hiệu ứng khác trong localStorage.
+    // ========================================================
+    const LuxuryTamonBSideRuntime = {
+        activePetElement: null,
+        petClickHandler: null,
+        documentPointerHandler: null,
+        skillLocked: false,
+        timers: new Set(),
+
+        setTimer(callback, delay) {
+            const timer = window.setTimeout(() => {
+                this.timers.delete(timer);
+                callback();
+            }, delay);
+
+            this.timers.add(timer);
+            return timer;
+        },
+
+        clearTimers() {
+            this.timers.forEach(timer => {
+                window.clearTimeout(timer);
+            });
+            this.timers.clear();
+        },
+
+        clear() {
+            if (
+                this.activePetElement &&
+                this.petClickHandler
+            ) {
+                this.activePetElement.removeEventListener(
+                    'click',
+                    this.petClickHandler
+                );
+            }
+
+            if (this.documentPointerHandler) {
+                document.removeEventListener(
+                    'pointerdown',
+                    this.documentPointerHandler,
+                    true
+                );
+                document.removeEventListener(
+                    'click',
+                    this.documentPointerHandler,
+                    true
+                );
+            }
+
+            this.clearTimers();
+
+            this.activePetElement = null;
+            this.petClickHandler = null;
+            this.documentPointerHandler = null;
+            this.skillLocked = false;
+
+            document.documentElement.classList.remove(
+                'tamon-bside-equipped'
+            );
+
+            document.body?.classList.remove(
+                'theme-tamon-bside-stage'
+            );
+
+            document
+                .querySelectorAll(
+                    '.tamon-bside-world,' +
+                    '.tamon-bside-ui-frame,' +
+                    '.tamon-bside-page-click,' +
+                    '.tamon-bside-ultimate,' +
+                    '.tamon-bside-screen-dialogue'
+                )
+                .forEach(element => element.remove());
+
+            const container =
+                document.getElementById(
+                    'virtual-pet-container'
+                );
+
+            container?.classList.remove(
+                'pet-tamon-bside-stage',
+                'tamon-bside-pet-casting'
+            );
+
+            container
+                ?.querySelectorAll(
+                    '.tamon-bside-pet-realm'
+                )
+                .forEach(element => element.remove());
+
+            const pet =
+                container?.querySelector(
+                    '#virtual-pet-img'
+                );
+
+            pet?.classList.remove(
+                'tamon-bside-pet'
+            );
+        },
+
+        createWorld() {
+            document
+                .querySelectorAll(
+                    '.tamon-bside-world'
+                )
+                .forEach(element => element.remove());
+
+            const world =
+                document.createElement('div');
+
+            world.className =
+                'tamon-bside-world';
+
+            world.setAttribute(
+                'aria-hidden',
+                'true'
+            );
+
+            world.innerHTML = `
+                <div class="tamon-bside-world-wash"></div>
+                <div class="tamon-bside-world-grid"></div>
+
+                <div class="tamon-bside-vinyl vinyl-left">
+                    <i></i><b></b><span></span>
+                </div>
+
+                <div class="tamon-bside-vinyl vinyl-right">
+                    <i></i><b></b><span></span>
+                </div>
+
+                <div class="tamon-bside-world-wave wave-a"></div>
+                <div class="tamon-bside-world-wave wave-b"></div>
+                <div class="tamon-bside-world-wave wave-c"></div>
+
+                <div class="tamon-bside-world-stars"></div>
+                <div class="tamon-bside-world-eq"></div>
+                <div class="tamon-bside-world-glints"></div>
+            `;
+
+            const reduced =
+                window.matchMedia?.(
+                    '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+                ).matches;
+
+            const starField =
+                world.querySelector(
+                    '.tamon-bside-world-stars'
+                );
+
+            const eqField =
+                world.querySelector(
+                    '.tamon-bside-world-eq'
+                );
+
+            const glintField =
+                world.querySelector(
+                    '.tamon-bside-world-glints'
+                );
+
+            const starCount = reduced ? 18 : 42;
+            const eqCount = reduced ? 14 : 28;
+            const glintCount = reduced ? 7 : 15;
+
+            for (
+                let index = 0;
+                index < starCount;
+                index++
+            ) {
+                const star =
+                    document.createElement('span');
+
+                star.className =
+                    index % 6 === 0
+                        ? 'tamon-bside-world-star is-star'
+                        : 'tamon-bside-world-star';
+
+                star.textContent =
+                    index % 6 === 0
+                        ? '✦'
+                        : '';
+
+                star.style.setProperty(
+                    '--tb-x',
+                    `${(index * 47 + 9) % 97}%`
+                );
+
+                star.style.setProperty(
+                    '--tb-y',
+                    `${(index * 71 + 13) % 93}%`
+                );
+
+                star.style.setProperty(
+                    '--tb-size',
+                    `${1.5 + (index % 5) * .85}px`
+                );
+
+                star.style.setProperty(
+                    '--tb-delay',
+                    `${-(index % 11) * .43}s`
+                );
+
+                starField?.appendChild(star);
+            }
+
+            for (
+                let index = 0;
+                index < eqCount;
+                index++
+            ) {
+                const bar =
+                    document.createElement('i');
+
+                bar.style.setProperty(
+                    '--tb-eq-i',
+                    index
+                );
+
+                bar.style.setProperty(
+                    '--tb-eq-h',
+                    `${24 + ((index * 17) % 72)}px`
+                );
+
+                bar.style.setProperty(
+                    '--tb-eq-delay',
+                    `${-(index % 9) * .16}s`
+                );
+
+                eqField?.appendChild(bar);
+            }
+
+            for (
+                let index = 0;
+                index < glintCount;
+                index++
+            ) {
+                const glint =
+                    document.createElement('span');
+
+                glint.style.setProperty(
+                    '--tb-gx',
+                    `${8 + ((index * 37) % 84)}%`
+                );
+
+                glint.style.setProperty(
+                    '--tb-gy',
+                    `${10 + ((index * 53) % 78)}%`
+                );
+
+                glint.style.setProperty(
+                    '--tb-gd',
+                    `${-(index % 7) * .7}s`
+                );
+
+                glintField?.appendChild(glint);
+            }
+
+            document.body.appendChild(world);
+
+            requestAnimationFrame(() => {
+                world.classList.add('is-mounted');
+            });
+        },
+
+        createInterface() {
+            document
+                .querySelectorAll(
+                    '.tamon-bside-ui-frame'
+                )
+                .forEach(element => element.remove());
+
+            const frame =
+                document.createElement('div');
+
+            frame.className =
+                'tamon-bside-ui-frame';
+
+            frame.setAttribute(
+                'aria-hidden',
+                'true'
+            );
+
+            frame.innerHTML = `
+                <div class="tamon-bside-ui-top">
+                    <i></i>
+                    <div class="tamon-bside-ui-badge">
+                        <strong>TAMON</strong>
+                        <span>B-SIDE</span>
+                    </div>
+                    <i></i>
+                </div>
+
+                <span class="tamon-bside-ui-corner corner-tl">✦</span>
+                <span class="tamon-bside-ui-corner corner-tr">✦</span>
+                <span class="tamon-bside-ui-corner corner-bl">✦</span>
+                <span class="tamon-bside-ui-corner corner-br">✦</span>
+
+                <div class="tamon-bside-ui-side side-left">
+                    <b></b><b></b><b></b><b></b><b></b>
+                </div>
+
+                <div class="tamon-bside-ui-side side-right">
+                    <b></b><b></b><b></b><b></b><b></b>
+                </div>
+
+                <div class="tamon-bside-now-playing">
+                    <div class="tamon-bside-now-playing__pulse"></div>
+                    <div class="tamon-bside-now-playing__copy">
+                        <small>NOW PLAYING</small>
+                        <strong>TAMON'S B-SIDE</strong>
+                        <span>TRACK 02 · FLIP THE SIDE</span>
+                    </div>
+                    <div class="tamon-bside-now-playing__eq" aria-hidden="true">
+                        <i></i><i></i><i></i><i></i><i></i>
+                        <i></i><i></i><i></i><i></i>
+                    </div>
+                </div>
+
+                <div class="tamon-bside-ui-bottom">
+                    <span>01</span>
+                    <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                    <strong>PLAY THE OTHER SIDE</strong>
+                    <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                    <span>02</span>
+                </div>
+            `;
+
+            document.body.appendChild(frame);
+
+            requestAnimationFrame(() => {
+                frame.classList.add('is-mounted');
+            });
+        },
+
+        createPetRealm() {
+            const container =
+                document.getElementById(
+                    'virtual-pet-container'
+                );
+
+            const pet =
+                container?.querySelector(
+                    '#virtual-pet-img'
+                );
+
+            if (!container || !pet) {
+                return;
+            }
+
+            container.classList.add(
+                'pet-tamon-bside-stage'
+            );
+
+            pet.classList.add(
+                'tamon-bside-pet'
+            );
+
+            container
+                .querySelectorAll(
+                    '.tamon-bside-pet-realm'
+                )
+                .forEach(element => element.remove());
+
+            const realm =
+                document.createElement('div');
+
+            realm.className =
+                'tamon-bside-pet-realm';
+
+            realm.setAttribute(
+                'aria-hidden',
+                'true'
+            );
+
+            realm.innerHTML = `
+                <span class="tamon-bside-pet-halo"></span>
+                <span class="tamon-bside-pet-disc disc-a"></span>
+                <span class="tamon-bside-pet-disc disc-b"></span>
+                <span class="tamon-bside-pet-orbit orbit-a"><i>★</i></span>
+                <span class="tamon-bside-pet-orbit orbit-b"><i>✦</i></span>
+                <span class="tamon-bside-pet-wave wave-a"></span>
+                <span class="tamon-bside-pet-wave wave-b"></span>
+                <span class="tamon-bside-pet-eq"></span>
+            `;
+
+            const eq =
+                realm.querySelector(
+                    '.tamon-bside-pet-eq'
+                );
+
+            for (
+                let index = 0;
+                index < 13;
+                index++
+            ) {
+                const bar =
+                    document.createElement('i');
+
+                bar.style.setProperty(
+                    '--tb-pet-i',
+                    index
+                );
+
+                bar.style.setProperty(
+                    '--tb-pet-delay',
+                    `${-(index % 7) * .13}s`
+                );
+
+                eq?.appendChild(bar);
+            }
+
+            container.insertBefore(
+                realm,
+                pet
+            );
+
+            this.installPetSkill(
+                pet,
+                container
+            );
+        },
+
+        installPetSkill(pet, container) {
+            if (!pet || !container) {
+                return;
+            }
+
+            this.activePetElement = pet;
+
+            this.petClickHandler = event => {
+                if (this.skillLocked) {
+                    return;
+                }
+
+                if (
+                    !document.documentElement.classList.contains(
+                        'tamon-bside-equipped'
+                    )
+                ) {
+                    return;
+                }
+
+                if (
+                    typeof PetInteractionManager !== 'undefined' &&
+                    PetInteractionManager.isPetDragging
+                ) {
+                    return;
+                }
+
+                event.stopPropagation();
+
+                const rect =
+                    pet.getBoundingClientRect();
+
+                const x =
+                    Number.isFinite(event.clientX) &&
+                    event.clientX > 0
+                        ? event.clientX
+                        : rect.left + rect.width / 2;
+
+                const y =
+                    Number.isFinite(event.clientY) &&
+                    event.clientY > 0
+                        ? event.clientY
+                        : rect.top + rect.height / 2;
+
+                this.skillLocked = true;
+
+                container.classList.add(
+                    'tamon-bside-pet-casting'
+                );
+
+                this.createPageClick(
+                    x,
+                    y,
+                    true
+                );
+
+                this.createUltimate(
+                    x,
+                    y,
+                    container
+                );
+
+                this.setTimer(() => {
+                    this.skillLocked = false;
+                    container.classList.remove(
+                        'tamon-bside-pet-casting'
+                    );
+                }, 5200);
+            };
+
+            pet.addEventListener(
+                'click',
+                this.petClickHandler
+            );
+        },
+
+        installGlobalClick() {
+            this.documentPointerHandler = event => {
+                if (
+                    !document.documentElement.classList.contains(
+                        'tamon-bside-equipped'
+                    )
+                ) {
+                    return;
+                }
+
+                const target = event.target;
+
+                /*
+                 * Click đúng Tamon:
+                 * chạy skill ngay ở capture phase để không bị drag/click
+                 * handler khác nuốt mất sự kiện. petClickHandler có khóa
+                 * skill nên listener bubble phía sau không thể chạy lặp.
+                 */
+                if (
+                    target instanceof Element &&
+                    target.closest(
+                        '#virtual-pet-container'
+                    )
+                ) {
+                    const pet =
+                        target.closest('#virtual-pet-img') ||
+                        document.querySelector(
+                            '#virtual-pet-container #virtual-pet-img.tamon-bside-pet'
+                        );
+
+                    if (
+                        pet &&
+                        typeof this.petClickHandler === 'function'
+                    ) {
+                        this.petClickHandler(event);
+                    }
+
+                    return;
+                }
+
+                if (
+                    target instanceof Element &&
+                    target.closest(
+                        '.ui-theme-immune, ' +
+                        '[data-theme-immune="true"]'
+                    )
+                ) {
+                    return;
+                }
+
+                const x =
+                    Number.isFinite(event.clientX)
+                        ? event.clientX
+                        : window.innerWidth / 2;
+
+                const y =
+                    Number.isFinite(event.clientY)
+                        ? event.clientY
+                        : window.innerHeight / 2;
+
+                this.createPageClick(x, y, false);
+            };
+
+            document.addEventListener(
+                'click',
+                this.documentPointerHandler,
+                true
+            );
+        },
+
+        createPageClick(x, y, strong = false) {
+            const burst =
+                document.createElement('div');
+
+            burst.className =
+                'tamon-bside-page-click' +
+                (strong ? ' is-strong' : '');
+
+            burst.style.setProperty(
+                '--tb-click-x',
+                `${x}px`
+            );
+
+            burst.style.setProperty(
+                '--tb-click-y',
+                `${y}px`
+            );
+
+            burst.innerHTML = `
+                <i class="ring ring-a"></i>
+                <i class="ring ring-b"></i>
+                <b class="spark spark-a">✦</b>
+                <b class="spark spark-b">★</b>
+                <b class="spark spark-c">✦</b>
+                <span class="beat beat-a"></span>
+                <span class="beat beat-b"></span>
+                <span class="beat beat-c"></span>
+            `;
+
+            document.body.appendChild(burst);
+
+            requestAnimationFrame(() => {
+                burst.classList.add('is-active');
+            });
+
+            this.setTimer(() => {
+                burst.remove();
+            }, strong ? 1350 : 900);
+        },
+
+        createUltimate(x, y, container) {
+            document
+                .querySelectorAll(
+                    '.tamon-bside-ultimate,' +
+                    '.tamon-bside-screen-dialogue'
+                )
+                .forEach(element => element.remove());
+
+            const ultimate =
+                document.createElement('div');
+
+            ultimate.className =
+                'tamon-bside-ultimate';
+
+            ultimate.style.setProperty(
+                '--tb-ultimate-x',
+                `${x}px`
+            );
+
+            ultimate.style.setProperty(
+                '--tb-ultimate-y',
+                `${y}px`
+            );
+
+            ultimate.setAttribute(
+                'aria-hidden',
+                'true'
+            );
+
+            ultimate.innerHTML = `
+                <div class="tamon-bside-ultimate-flash"></div>
+                <div class="tamon-bside-ultimate-shutter shutter-a"></div>
+                <div class="tamon-bside-ultimate-shutter shutter-b"></div>
+
+                <div class="tamon-bside-ultimate-disc">
+                    <i class="ring ring-a"></i>
+                    <i class="ring ring-b"></i>
+                    <i class="ring ring-c"></i>
+                    <b></b>
+                    <strong>B</strong>
+                </div>
+
+                <div class="tamon-bside-ultimate-spectrum"></div>
+                <div class="tamon-bside-ultimate-stars"></div>
+                <div class="tamon-bside-ultimate-scan"></div>
+            `;
+
+            const spectrum =
+                ultimate.querySelector(
+                    '.tamon-bside-ultimate-spectrum'
+                );
+
+            for (
+                let index = 0;
+                index < 36;
+                index++
+            ) {
+                const bar =
+                    document.createElement('i');
+
+                bar.style.setProperty(
+                    '--tb-u-i',
+                    index
+                );
+
+                bar.style.setProperty(
+                    '--tb-u-delay',
+                    `${-(index % 12) * .07}s`
+                );
+
+                spectrum?.appendChild(bar);
+            }
+
+            const stars =
+                ultimate.querySelector(
+                    '.tamon-bside-ultimate-stars'
+                );
+
+            for (
+                let index = 0;
+                index < 24;
+                index++
+            ) {
+                const star =
+                    document.createElement('i');
+
+                star.textContent =
+                    index % 3 === 0
+                        ? '★'
+                        : '✦';
+
+                star.style.setProperty(
+                    '--tb-u-angle',
+                    `${index * 15}deg`
+                );
+
+                star.style.setProperty(
+                    '--tb-u-angle-neg',
+                    `${index * -15}deg`
+                );
+
+                star.style.setProperty(
+                    '--tb-u-distance',
+                    `${120 + (index % 6) * 28}px`
+                );
+
+                star.style.setProperty(
+                    '--tb-u-delay',
+                    `${(index % 8) * .035}s`
+                );
+
+                stars?.appendChild(star);
+            }
+
+            const dialogue =
+                document.createElement('div');
+
+            dialogue.className =
+                'tamon-bside-screen-dialogue';
+
+            dialogue.innerHTML = `
+                <span>NOW PLAYING</span>
+                <strong>TAMON'S B-SIDE</strong>
+                <small>FLIP THE TRACK · BREAK THE FRAME</small>
+            `;
+
+            document.body.append(
+                ultimate,
+                dialogue
+            );
+
+            requestAnimationFrame(() => {
+                ultimate.classList.add('is-active');
+                dialogue.classList.add('is-active');
+            });
+
+            this.setTimer(() => {
+                ultimate.classList.add('is-climax');
+            }, 700);
+
+            this.setTimer(() => {
+                dialogue.classList.add('is-visible');
+            }, 780);
+
+            this.setTimer(() => {
+                ultimate.classList.add('is-ending');
+                dialogue.classList.add('is-ending');
+            }, 3900);
+
+            this.setTimer(() => {
+                ultimate.remove();
+                dialogue.remove();
+                container?.classList.remove(
+                    'tamon-bside-pet-casting'
+                );
+            }, 5000);
+        },
+
+        mount() {
+            this.clear();
+            ensureTamonBSideStylesheet();
+
+            document.documentElement.classList.add(
+                'tamon-bside-equipped'
+            );
+
+            document.body?.classList.add(
+                'theme-tamon-bside-stage'
+            );
+
+            this.createWorld();
+            this.createInterface();
+            this.createPetRealm();
+            this.installGlobalClick();
+
+            /*
+             * Một số trang gọi render/spawn liên tiếp trong cùng frame.
+             * Tự kiểm tra lại để world / HUD / pet realm không bị render
+             * tiếp theo xóa mất.
+             */
+            const repairMount = () => {
+                if (
+                    !document.documentElement.classList.contains(
+                        'tamon-bside-equipped'
+                    )
+                ) {
+                    return;
+                }
+
+                if (!document.querySelector('.tamon-bside-world')) {
+                    this.createWorld();
+                }
+
+                if (!document.querySelector('.tamon-bside-ui-frame')) {
+                    this.createInterface();
+                }
+
+                const pet =
+                    document.querySelector(
+                        '#virtual-pet-container #virtual-pet-img'
+                    );
+
+                if (
+                    pet &&
+                    !document.querySelector(
+                        '#virtual-pet-container .tamon-bside-pet-realm'
+                    )
+                ) {
+                    this.createPetRealm();
+                }
+            };
+
+            this.setTimer(repairMount, 120);
+            this.setTimer(repairMount, 520);
+            this.setTimer(repairMount, 1200);
+        }
+    };
+
+
+
+    // ========================================================
+    // TAMON · HẮC PHẤN NGHỊCH NHỊP · FULL PREMIUM RUNTIME V1
+    // Namespace mới: tamon-pinkstatic-*
+    // Concept: cassette / sticker / scanline / black-pink backstage.
+    // Không gọi ThemeManager / EffectManager và không dùng tamon-bside-*.
+    // ========================================================
+    const LuxuryTamonPinkStaticRuntime = {
+        activePetElement: null,
+        petClickHandler: null,
+        documentClickHandler: null,
+        skillLocked: false,
+        timers: new Set(),
+
+        setTimer(callback, delay) {
+            const timer = window.setTimeout(() => {
+                this.timers.delete(timer);
+                callback();
+            }, delay);
+            this.timers.add(timer);
+            return timer;
+        },
+
+        clearTimers() {
+            this.timers.forEach(timer => window.clearTimeout(timer));
+            this.timers.clear();
+        },
+
+        clear() {
+            if (this.activePetElement && this.petClickHandler) {
+                this.activePetElement.removeEventListener(
+                    'click',
+                    this.petClickHandler
+                );
+            }
+
+            if (this.documentClickHandler) {
+                document.removeEventListener(
+                    'click',
+                    this.documentClickHandler,
+                    true
+                );
+            }
+
+            this.clearTimers();
+            this.activePetElement = null;
+            this.petClickHandler = null;
+            this.documentClickHandler = null;
+            this.skillLocked = false;
+
+            document.documentElement.classList.remove(
+                'tamon-pinkstatic-equipped'
+            );
+            document.body?.classList.remove(
+                'theme-tamon-pinkstatic-stage'
+            );
+
+            document
+                .querySelectorAll(
+                    '.tamon-pinkstatic-world,' +
+                    '.tamon-pinkstatic-ui,' +
+                    '.tamon-pinkstatic-click,' +
+                    '.tamon-pinkstatic-ultimate,' +
+                    '.tamon-pinkstatic-dialogue'
+                )
+                .forEach(node => node.remove());
+
+            const container = document.getElementById(
+                'virtual-pet-container'
+            );
+
+            container?.classList.remove(
+                'pet-tamon-pinkstatic-stage',
+                'tamon-pinkstatic-casting'
+            );
+
+            container
+                ?.querySelectorAll('.tamon-pinkstatic-realm')
+                .forEach(node => node.remove());
+
+            container
+                ?.querySelector('#virtual-pet-img')
+                ?.classList.remove('tamon-pinkstatic-pet');
+        },
+
+        createWorld() {
+            document
+                .querySelectorAll('.tamon-pinkstatic-world')
+                .forEach(node => node.remove());
+
+            const world = document.createElement('div');
+            world.className = 'tamon-pinkstatic-world';
+            world.setAttribute('aria-hidden', 'true');
+            world.innerHTML = `
+                <div class="tamon-pinkstatic-wash"></div>
+                <div class="tamon-pinkstatic-dotgrid"></div>
+                <div class="tamon-pinkstatic-scanlines"></div>
+                <div class="tamon-pinkstatic-tape tape-a"></div>
+                <div class="tamon-pinkstatic-tape tape-b"></div>
+                <div class="tamon-pinkstatic-tape tape-c"></div>
+                <div class="tamon-pinkstatic-cassette-mark">
+                    <span class="reel reel-a"></span>
+                    <span class="reel reel-b"></span>
+                    <i></i>
+                </div>
+                <div class="tamon-pinkstatic-world-particles"></div>
+                <div class="tamon-pinkstatic-world-spectrum"></div>
+            `;
+
+            const reduced = window.matchMedia?.(
+                '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+            ).matches;
+
+            const particleField = world.querySelector(
+                '.tamon-pinkstatic-world-particles'
+            );
+            const particleCount = reduced ? 18 : 44;
+
+            for (let index = 0; index < particleCount; index++) {
+                const particle = document.createElement('span');
+                particle.className =
+                    index % 7 === 0
+                        ? 'is-sticker'
+                        : index % 3 === 0
+                            ? 'is-dash'
+                            : 'is-dot';
+                particle.textContent =
+                    index % 7 === 0
+                        ? (index % 14 === 0 ? '★' : '✦')
+                        : '';
+                particle.style.setProperty(
+                    '--ps-x',
+                    `${(index * 37 + 9) % 96}%`
+                );
+                particle.style.setProperty(
+                    '--ps-y',
+                    `${(index * 61 + 13) % 92}%`
+                );
+                particle.style.setProperty(
+                    '--ps-delay',
+                    `${-(index % 13) * .43}s`
+                );
+                particle.style.setProperty(
+                    '--ps-drift',
+                    `${22 + (index % 8) * 9}px`
+                );
+                particleField?.appendChild(particle);
+            }
+
+            const spectrum = world.querySelector(
+                '.tamon-pinkstatic-world-spectrum'
+            );
+            const bars = reduced ? 18 : 42;
+            for (let index = 0; index < bars; index++) {
+                const bar = document.createElement('i');
+                bar.style.setProperty(
+                    '--ps-bar-delay',
+                    `${-(index % 11) * .07}s`
+                );
+                bar.style.setProperty(
+                    '--ps-bar-height',
+                    `${18 + (index * 17) % 72}%`
+                );
+                spectrum?.appendChild(bar);
+            }
+
+            document.body.appendChild(world);
+            requestAnimationFrame(() => world.classList.add('is-active'));
+        },
+
+        createInterface() {
+            document
+                .querySelectorAll('.tamon-pinkstatic-ui')
+                .forEach(node => node.remove());
+
+            const ui = document.createElement('div');
+            ui.className = 'tamon-pinkstatic-ui';
+            ui.setAttribute('aria-hidden', 'true');
+            ui.innerHTML = `
+                <div class="tamon-pinkstatic-ui-top">
+                    <span>TRACK 03</span>
+                    <i></i>
+                    <strong>TAMON // B-SIDE</strong>
+                    <i></i>
+                    <span>PINK STATIC</span>
+                </div>
+                <div class="tamon-pinkstatic-ui-corner corner-tl">✦</div>
+                <div class="tamon-pinkstatic-ui-corner corner-tr">03</div>
+                <div class="tamon-pinkstatic-ui-corner corner-bl">SIDE B</div>
+                <div class="tamon-pinkstatic-ui-corner corner-br">★</div>
+                <div class="tamon-pinkstatic-nowplaying">
+                    <div class="tamon-pinkstatic-nowplaying-disc">
+                        <i></i>
+                    </div>
+                    <div class="tamon-pinkstatic-nowplaying-copy">
+                        <small>NOW PLAYING</small>
+                        <strong>HẮC PHẤN NGHỊCH NHỊP</strong>
+                        <span>CASSETTE 03 · PINK STATIC</span>
+                    </div>
+                    <div class="tamon-pinkstatic-nowplaying-eq">
+                        <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(ui);
+            requestAnimationFrame(() => ui.classList.add('is-active'));
+        },
+
+        createPetRealm() {
+            const container = document.getElementById(
+                'virtual-pet-container'
+            );
+            const pet = container?.querySelector('#virtual-pet-img');
+            if (!container || !pet) return;
+
+            container
+                .querySelectorAll('.tamon-pinkstatic-realm')
+                .forEach(node => node.remove());
+
+            container.classList.add('pet-tamon-pinkstatic-stage');
+            pet.classList.add('tamon-pinkstatic-pet');
+            pet.setAttribute('draggable', 'false');
+
+            const realm = document.createElement('div');
+            realm.className = 'tamon-pinkstatic-realm';
+            realm.setAttribute('aria-hidden', 'true');
+            realm.innerHTML = `
+                <div class="tamon-pinkstatic-realm-glow"></div>
+                <div class="tamon-pinkstatic-realm-cassette">
+                    <span class="reel reel-a"><i></i></span>
+                    <span class="reel reel-b"><i></i></span>
+                    <b>SIDE B</b>
+                </div>
+                <div class="tamon-pinkstatic-realm-orbit orbit-a"><i>★</i></div>
+                <div class="tamon-pinkstatic-realm-orbit orbit-b"><i>✦</i></div>
+                <div class="tamon-pinkstatic-realm-wave wave-a"></div>
+                <div class="tamon-pinkstatic-realm-wave wave-b"></div>
+                <div class="tamon-pinkstatic-realm-eq">
+                    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                </div>
+                <div class="tamon-pinkstatic-realm-stickers">
+                    <span>★</span><span>03</span><span>✦</span><span>B</span>
+                </div>
+            `;
+
+            container.insertBefore(realm, pet);
+            this.activePetElement = pet;
+
+            this.petClickHandler = event => {
+                if (event?.__tamonPinkStaticHandled) {
+                    return;
+                }
+                if (event) {
+                    event.__tamonPinkStaticHandled = true;
+                }
+                event?.stopPropagation?.();
+                const rect = pet.getBoundingClientRect();
+                const x = Number.isFinite(event?.clientX)
+                    ? event.clientX
+                    : rect.left + rect.width / 2;
+                const y = Number.isFinite(event?.clientY)
+                    ? event.clientY
+                    : rect.top + rect.height / 2;
+
+                this.createPageClick(x, y, true);
+                this.triggerUltimate(x, y);
+            };
+
+            pet.addEventListener('click', this.petClickHandler);
+        },
+
+        installGlobalClick() {
+            this.documentClickHandler = event => {
+                if (!document.documentElement.classList.contains(
+                    'tamon-pinkstatic-equipped'
+                )) {
+                    return;
+                }
+
+                const target = event.target;
+
+                if (
+                    target instanceof Element &&
+                    target.closest('#virtual-pet-container')
+                ) {
+                    const pet = target.closest('#virtual-pet-img') ||
+                        document.querySelector(
+                            '#virtual-pet-container #virtual-pet-img.tamon-pinkstatic-pet'
+                        );
+                    if (pet && typeof this.petClickHandler === 'function') {
+                        this.petClickHandler(event);
+                    }
+                    return;
+                }
+
+                if (
+                    target instanceof Element &&
+                    target.closest(
+                        '.ui-theme-immune, [data-theme-immune="true"]'
+                    )
+                ) {
+                    return;
+                }
+
+                const x = Number.isFinite(event.clientX)
+                    ? event.clientX
+                    : window.innerWidth / 2;
+                const y = Number.isFinite(event.clientY)
+                    ? event.clientY
+                    : window.innerHeight / 2;
+                this.createPageClick(x, y, false);
+            };
+
+            document.addEventListener(
+                'click',
+                this.documentClickHandler,
+                true
+            );
+        },
+
+        createPageClick(x, y, strong = false) {
+            const click = document.createElement('div');
+            click.className =
+                'tamon-pinkstatic-click' +
+                (strong ? ' is-strong' : '');
+            click.style.left = `${x}px`;
+            click.style.top = `${y}px`;
+            click.innerHTML = `
+                <i class="ring ring-a"></i>
+                <i class="ring ring-b"></i>
+                <span class="spark spark-a">✦</span>
+                <span class="spark spark-b">★</span>
+                <span class="note">B</span>
+            `;
+            document.body.appendChild(click);
+            this.setTimer(() => click.remove(), strong ? 1050 : 720);
+        },
+
+        triggerUltimate(x, y) {
+            if (this.skillLocked) return;
+            this.skillLocked = true;
+
+            document
+                .querySelectorAll(
+                    '.tamon-pinkstatic-ultimate, .tamon-pinkstatic-dialogue'
+                )
+                .forEach(node => node.remove());
+
+            const ultimate = document.createElement('div');
+            ultimate.className = 'tamon-pinkstatic-ultimate';
+            ultimate.setAttribute('aria-hidden', 'true');
+            ultimate.style.setProperty('--ps-ux', `${x}px`);
+            ultimate.style.setProperty('--ps-uy', `${y}px`);
+            ultimate.innerHTML = `
+                <div class="tamon-pinkstatic-ultimate-blackout"></div>
+                <div class="tamon-pinkstatic-ultimate-flash"></div>
+                <div class="tamon-pinkstatic-ultimate-grid"></div>
+                <div class="tamon-pinkstatic-ultimate-cassette">
+                    <span class="reel reel-a"><i></i></span>
+                    <span class="reel reel-b"><i></i></span>
+                    <strong>B</strong>
+                </div>
+                <div class="tamon-pinkstatic-ultimate-rings">
+                    <i></i><i></i><i></i><i></i>
+                </div>
+                <div class="tamon-pinkstatic-ultimate-spectrum"></div>
+                <div class="tamon-pinkstatic-ultimate-stickers"></div>
+            `;
+
+            const spectrum = ultimate.querySelector(
+                '.tamon-pinkstatic-ultimate-spectrum'
+            );
+            for (let index = 0; index < 36; index++) {
+                const bar = document.createElement('i');
+                bar.style.setProperty(
+                    '--ps-u-delay',
+                    `${-(index % 9) * .055}s`
+                );
+                spectrum?.appendChild(bar);
+            }
+
+            const stickers = ultimate.querySelector(
+                '.tamon-pinkstatic-ultimate-stickers'
+            );
+            const glyphs = ['★', '✦', 'B', '03', 'SIDE', 'PLAY', '★', '✧'];
+            for (let index = 0; index < 24; index++) {
+                const sticker = document.createElement('span');
+                sticker.textContent = glyphs[index % glyphs.length];
+                sticker.style.setProperty(
+                    '--ps-u-angle',
+                    `${index * 15}deg`
+                );
+                sticker.style.setProperty(
+                    '--ps-u-distance',
+                    `${105 + (index % 6) * 38}px`
+                );
+                sticker.style.setProperty(
+                    '--ps-u-delay',
+                    `${index * .018}s`
+                );
+                stickers?.appendChild(sticker);
+            }
+
+            const dialogue = document.createElement('div');
+            dialogue.className = 'tamon-pinkstatic-dialogue';
+            dialogue.innerHTML = `
+                <span>BEAT DROP // SIDE B</span>
+                <strong>HẮC PHẤN NGHỊCH NHỊP</strong>
+                <small>FLIP THE TAPE · BREAK THE QUIET</small>
+            `;
+
+            document.body.append(ultimate, dialogue);
+            requestAnimationFrame(() => {
+                ultimate.classList.add('is-active');
+                dialogue.classList.add('is-active');
+            });
+
+            this.setTimer(() => ultimate.classList.add('is-climax'), 620);
+            this.setTimer(() => dialogue.classList.add('is-visible'), 700);
+            this.setTimer(() => {
+                ultimate.classList.add('is-ending');
+                dialogue.classList.add('is-ending');
+            }, 2600);
+            this.setTimer(() => {
+                ultimate.remove();
+                dialogue.remove();
+                this.skillLocked = false;
+            }, 3400);
+        },
+
+        mount() {
+            this.clear();
+            ensureTamonPinkStaticStylesheet();
+
+            document.documentElement.classList.add(
+                'tamon-pinkstatic-equipped'
+            );
+            document.body?.classList.add(
+                'theme-tamon-pinkstatic-stage'
+            );
+
+            this.createWorld();
+            this.createInterface();
+            this.createPetRealm();
+            this.installGlobalClick();
+
+            const repair = () => {
+                if (!document.documentElement.classList.contains(
+                    'tamon-pinkstatic-equipped'
+                )) {
+                    return;
+                }
+                if (!document.querySelector('.tamon-pinkstatic-world')) {
+                    this.createWorld();
+                }
+                if (!document.querySelector('.tamon-pinkstatic-ui')) {
+                    this.createInterface();
+                }
+                const pet = document.querySelector(
+                    '#virtual-pet-container #virtual-pet-img'
+                );
+                if (
+                    pet &&
+                    !document.querySelector(
+                        '#virtual-pet-container .tamon-pinkstatic-realm'
+                    )
+                ) {
+                    this.createPetRealm();
+                }
+            };
+
+            this.setTimer(repair, 120);
+            this.setTimer(repair, 520);
+            this.setTimer(repair, 1200);
+        }
+    };
+
+
+    // ========================================================
+    // NYX · HẮC DẠ NGUYÊN SƠ — FULL PREMIUM SUITE V2
+    // WORLD + INTERFACE + GLOBAL CLICK + SCREEN SKILL
+    // Pet Realm + ultimate gốc vẫn do PetManager quản lý.
+    // Namespace độc lập: nyx-mythic-*
+    // ========================================================
+    const LuxuryNyxRuntime = {
+        activePetElement: null,
+        petClickHandler: null,
+        documentPointerHandler: null,
+        skillLocked: false,
+
+        clear() {
+            if (
+                this.activePetElement &&
+                this.petClickHandler
+            ) {
+                this.activePetElement.removeEventListener(
+                    'click',
+                    this.petClickHandler
+                );
+            }
+
+            if (this.documentPointerHandler) {
+                document.removeEventListener(
+                    'pointerdown',
+                    this.documentPointerHandler,
+                    true
+                );
+            }
+
+            this.activePetElement = null;
+            this.petClickHandler = null;
+            this.documentPointerHandler = null;
+            this.skillLocked = false;
+
+            document.documentElement.classList.remove(
+                'nyx-first-night-equipped'
+            );
+
+            document.body?.classList.remove(
+                'theme-nyx-first-night'
+            );
+
+            document
+                .querySelectorAll(
+                    '.nyx-mythic-world-v2,' +
+                    '.nyx-mythic-ui-frame-v2,' +
+                    '.nyx-mythic-page-click,' +
+                    '.nyx-mythic-screen-burst-v2,' +
+                    '.nyx-mythic-screen-dialogue-v2'
+                )
+                .forEach(element => element.remove());
+        },
+
+        createWorld() {
+            document
+                .querySelectorAll('.nyx-mythic-world-v2')
+                .forEach(element => element.remove());
+
+            const world = document.createElement('div');
+            world.className = 'nyx-mythic-world-v2';
+            world.setAttribute('aria-hidden', 'true');
+
+            world.innerHTML = `
+                <div class="nyx-world-night-wash"></div>
+                <div class="nyx-world-nebula nebula-a"></div>
+                <div class="nyx-world-nebula nebula-b"></div>
+                <div class="nyx-world-nebula nebula-c"></div>
+
+                <div class="nyx-world-eclipse-crown">
+                    <span class="nyx-world-eclipse-core"></span>
+                    <span class="nyx-world-eclipse-orbit orbit-a"></span>
+                    <span class="nyx-world-eclipse-orbit orbit-b"></span>
+                    <span class="nyx-world-eclipse-mark">☾</span>
+                </div>
+
+                <div class="nyx-world-veil veil-a"></div>
+                <div class="nyx-world-veil veil-b"></div>
+                <div class="nyx-world-veil veil-c"></div>
+
+                <div class="nyx-world-star-field"></div>
+                <div class="nyx-world-dust-field"></div>
+                <div class="nyx-world-horizon"></div>
+            `;
+
+            const starField = world.querySelector(
+                '.nyx-world-star-field'
+            );
+            const dustField = world.querySelector(
+                '.nyx-world-dust-field'
+            );
+
+            const reduced = window.matchMedia?.(
+                '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+            ).matches;
+
+            const starCount = reduced ? 20 : 48;
+            const dustCount = reduced ? 10 : 24;
+
+            for (let index = 0; index < starCount; index++) {
+                const star = document.createElement('span');
+                star.className =
+                    index % 7 === 0
+                        ? 'nyx-world-star is-cross'
+                        : 'nyx-world-star';
+                star.textContent = index % 7 === 0 ? '✦' : '';
+                star.style.setProperty(
+                    '--nyx-wx',
+                    `${(index * 47 + 11) % 98}%`
+                );
+                star.style.setProperty(
+                    '--nyx-wy',
+                    `${(index * 71 + 7) % 94}%`
+                );
+                star.style.setProperty(
+                    '--nyx-ws',
+                    `${1.2 + (index % 5) * .75}px`
+                );
+                star.style.setProperty(
+                    '--nyx-wd',
+                    `${-(index % 13) * .37}s`
+                );
+                star.style.setProperty(
+                    '--nyx-wt',
+                    `${3.8 + (index % 7) * .55}s`
+                );
+                starField?.appendChild(star);
+            }
+
+            for (let index = 0; index < dustCount; index++) {
+                const dust = document.createElement('span');
+                dust.className = 'nyx-world-dust';
+                dust.style.setProperty(
+                    '--nyx-dx',
+                    `${(index * 61 + 5) % 100}%`
+                );
+                dust.style.setProperty(
+                    '--nyx-dy',
+                    `${(index * 43 + 17) % 100}%`
+                );
+                dust.style.setProperty(
+                    '--nyx-ds',
+                    `${8 + (index % 6) * 5}px`
+                );
+                dust.style.setProperty(
+                    '--nyx-dd',
+                    `${-(index % 9) * .54}s`
+                );
+                dustField?.appendChild(dust);
+            }
+
+            document.body.appendChild(world);
+
+            requestAnimationFrame(() => {
+                world.classList.add('is-mounted');
+            });
+        },
+
+        createInterface() {
+            document
+                .querySelectorAll('.nyx-mythic-ui-frame-v2')
+                .forEach(element => element.remove());
+
+            const frame = document.createElement('div');
+            frame.className = 'nyx-mythic-ui-frame-v2';
+            frame.setAttribute('aria-hidden', 'true');
+
+            frame.innerHTML = `
+                <div class="nyx-ui-top-seal">
+                    <span class="nyx-ui-top-line left"></span>
+                    <div class="nyx-ui-crown">
+                        <i>☾</i>
+                        <strong>NYX</strong>
+                        <small>HẮC DẠ NGUYÊN SƠ</small>
+                    </div>
+                    <span class="nyx-ui-top-line right"></span>
+                </div>
+
+                <div class="nyx-ui-side-rail rail-left">
+                    <i></i><b>✦</b><i></i><b>·</b><i></i>
+                </div>
+                <div class="nyx-ui-side-rail rail-right">
+                    <i></i><b>✦</b><i></i><b>·</b><i></i>
+                </div>
+
+                <span class="nyx-ui-corner corner-tl">⌜✦</span>
+                <span class="nyx-ui-corner corner-tr">✦⌝</span>
+                <span class="nyx-ui-corner corner-bl">⌞☾</span>
+                <span class="nyx-ui-corner corner-br">☾⌟</span>
+
+                <div class="nyx-ui-bottom-seal">
+                    <i></i>
+                    <span>PRIMORDIAL NIGHT · FIRST DARKNESS</span>
+                    <i></i>
+                </div>
+            `;
+
+            document.body.appendChild(frame);
+
+            requestAnimationFrame(() => {
+                frame.classList.add('is-mounted');
+            });
+        },
+
+        createPageClick(x, y) {
+            if (
+                !document.documentElement.classList.contains(
+                    'nyx-first-night-equipped'
+                )
+            ) {
+                return;
+            }
+
+            const click = document.createElement('div');
+            click.className = 'nyx-mythic-page-click';
+            click.style.setProperty('--nyx-click-x', `${x}px`);
+            click.style.setProperty('--nyx-click-y', `${y}px`);
+            click.setAttribute('aria-hidden', 'true');
+
+            click.innerHTML = `
+                <span class="nyx-page-click-core"></span>
+                <span class="nyx-page-click-ring ring-a"></span>
+                <span class="nyx-page-click-ring ring-b"></span>
+                <div class="nyx-page-click-shards"></div>
+            `;
+
+            const shardField = click.querySelector(
+                '.nyx-page-click-shards'
+            );
+
+            for (let index = 0; index < 8; index++) {
+                const shard = document.createElement('i');
+                shard.style.setProperty(
+                    '--nyx-click-angle',
+                    `${index * 45}deg`
+                );
+                shardField?.appendChild(shard);
+            }
+
+            document.body.appendChild(click);
+            requestAnimationFrame(() => click.classList.add('is-active'));
+            window.setTimeout(() => click.remove(), 950);
+        },
+
+        installGlobalClickEffect() {
+            this.documentPointerHandler = event => {
+                if (
+                    event.button !== undefined &&
+                    event.button !== 0
+                ) {
+                    return;
+                }
+
+                const target = event.target;
+
+                if (
+                    target?.closest?.(
+                        '.nyx-mythic-ultimate,' +
+                        '.nyx-mythic-screen-burst-v2,' +
+                        '.nyx-mythic-page-click'
+                    )
+                ) {
+                    return;
+                }
+
+                this.createPageClick(
+                    Number(event.clientX) || 0,
+                    Number(event.clientY) || 0
+                );
+            };
+
+            document.addEventListener(
+                'pointerdown',
+                this.documentPointerHandler,
+                true
+            );
+        },
+
+        createScreenBurst(x, y) {
+            document
+                .querySelectorAll(
+                    '.nyx-mythic-screen-burst-v2,' +
+                    '.nyx-mythic-screen-dialogue-v2'
+                )
+                .forEach(element => element.remove());
+
+            const burst = document.createElement('div');
+            burst.className = 'nyx-mythic-screen-burst-v2';
+            burst.style.setProperty('--nyx-skill-x', `${x}px`);
+            burst.style.setProperty('--nyx-skill-y', `${y}px`);
+            burst.setAttribute('aria-hidden', 'true');
+
+            burst.innerHTML = `
+                <div class="nyx-skill-black-flash"></div>
+                <div class="nyx-skill-eclipse">
+                    <span class="nyx-skill-eclipse-core"></span>
+                    <span class="nyx-skill-eclipse-ring ring-a"></span>
+                    <span class="nyx-skill-eclipse-ring ring-b"></span>
+                </div>
+                <div class="nyx-skill-ray-field"></div>
+                <div class="nyx-skill-star-field"></div>
+                <div class="nyx-skill-fracture fracture-a"></div>
+                <div class="nyx-skill-fracture fracture-b"></div>
+            `;
+
+            const rayField = burst.querySelector(
+                '.nyx-skill-ray-field'
+            );
+            const starField = burst.querySelector(
+                '.nyx-skill-star-field'
+            );
+
+            for (let index = 0; index < 14; index++) {
+                const ray = document.createElement('i');
+                ray.style.setProperty(
+                    '--nyx-skill-angle',
+                    `${index * (360 / 14)}deg`
+                );
+                ray.style.setProperty(
+                    '--nyx-skill-length',
+                    `${110 + (index % 4) * 42}px`
+                );
+                rayField?.appendChild(ray);
+            }
+
+            for (let index = 0; index < 26; index++) {
+                const star = document.createElement('i');
+                star.textContent = index % 5 === 0 ? '✦' : '';
+                star.style.setProperty(
+                    '--nyx-skill-star-x',
+                    `${(index * 41 + 3) % 97}%`
+                );
+                star.style.setProperty(
+                    '--nyx-skill-star-y',
+                    `${(index * 67 + 9) % 91}%`
+                );
+                star.style.setProperty(
+                    '--nyx-skill-star-delay',
+                    `${index * .025}s`
+                );
+                starField?.appendChild(star);
+            }
+
+            const dialogue = document.createElement('div');
+            dialogue.className = 'nyx-mythic-screen-dialogue-v2';
+            dialogue.innerHTML = `
+                <span>☾</span>
+                <div>
+                    <small>NYX · NỮ THẦN MÀN ĐÊM</small>
+                    <strong>“MỌI ÁNH SÁNG ĐỀU SINH RA TỪ ĐÊM.”</strong>
+                </div>
+                <span>✦</span>
+            `;
+
+            document.body.append(burst, dialogue);
+
+            requestAnimationFrame(() => {
+                burst.classList.add('is-active');
+                dialogue.classList.add('is-active');
+            });
+
+            window.setTimeout(() => {
+                burst.classList.add('is-climax');
+            }, 620);
+
+            window.setTimeout(() => {
+                burst.classList.add('is-ending');
+                dialogue.classList.add('is-ending');
+            }, 2450);
+
+            window.setTimeout(() => {
+                burst.remove();
+                dialogue.remove();
+            }, 3400);
+        },
+
+        installPetSkill() {
+            const container = document.getElementById(
+                'virtual-pet-container'
+            );
+            const pet = container?.querySelector(
+                '#virtual-pet-img.mythic-nyx-night-magic, #virtual-pet-img.nyx-mythic-avatar'
+            );
+
+            if (!container || !pet) {
+                return;
+            }
+
+            this.activePetElement = pet;
+
+            this.petClickHandler = event => {
+                if (this.skillLocked) {
+                    return;
+                }
+
+                if (
+                    !document.documentElement.classList.contains(
+                        'nyx-first-night-equipped'
+                    )
+                ) {
+                    return;
+                }
+
+                if (
+                    typeof PetInteractionManager !== 'undefined' &&
+                    PetInteractionManager.isPetDragging
+                ) {
+                    return;
+                }
+
+                this.skillLocked = true;
+
+                const rect = pet.getBoundingClientRect();
+                const x =
+                    Number.isFinite(event.clientX) &&
+                        event.clientX > 0
+                        ? event.clientX
+                        : rect.left + rect.width / 2;
+                const y =
+                    Number.isFinite(event.clientY) &&
+                        event.clientY > 0
+                        ? event.clientY
+                        : rect.top + rect.height / 2;
+
+                // Tầng 2: screen burst của Luxury Runtime.
+                this.createScreenBurst(x, y);
+
+                // Tầng 3: ĐÊM NGUYÊN SƠ V3.
+                // Nếu PetManager listener chạy trước thì cờ Event đã được đặt,
+                // nếu Luxury listener chạy trước thì gọi canonical creator tại đây.
+                container.classList.remove('nyx-mythic-casting');
+                void container.offsetWidth;
+                container.classList.add('nyx-mythic-casting');
+
+                if (
+                    !event.__nyxUltimateHandled &&
+                    typeof PetManager !== 'undefined' &&
+                    typeof PetManager.createNyxPrimordialNightUltimate === 'function'
+                ) {
+                    event.__nyxUltimateHandled = true;
+                    PetManager.createNyxPrimordialNightUltimate(x, y);
+                }
+
+                window.setTimeout(() => {
+                    container.classList.remove('nyx-mythic-casting');
+                }, 1750);
+
+                window.setTimeout(() => {
+                    this.skillLocked = false;
+                }, 5600);
+            };
+
+            pet.addEventListener(
+                'click',
+                this.petClickHandler
+            );
+        },
+
+        mount() {
+            this.clear();
+
+            document.documentElement.classList.add(
+                'nyx-first-night-equipped'
+            );
+            document.body?.classList.add(
+                'theme-nyx-first-night'
+            );
+
+            this.createWorld();
+            this.createInterface();
+            this.installGlobalClickEffect();
+            this.installPetSkill();
+        }
     };
 
     // ========================================================
@@ -2746,8 +4751,34 @@
                     );
                 }
 
+                try {
+                    LuxuryNyxRuntime.clear();
+                } catch (error) {
+                    console.warn(
+                        '[LuxuryStore] Không thể dọn runtime Nyx:',
+                        error
+                    );
+                }
 
-                // Render pet gốc trước.
+                try {
+                    LuxuryTamonBSideRuntime.clear();
+                } catch (error) {
+                    console.warn(
+                        "[LuxuryStore] Không thể dọn runtime Tamon's B-Side:",
+                        error
+                    );
+                }
+
+                try {
+                    LuxuryTamonPinkStaticRuntime.clear();
+                } catch (error) {
+                    console.warn(
+                        '[LuxuryStore] Không thể dọn runtime Tamon Pink Static:',
+                        error
+                    );
+                }
+
+// Render pet gốc trước.
                 originalSpawnPet(
                     petData
                 );
@@ -2755,18 +4786,34 @@
 
                 const isLuxurySpring =
                     petData?.id ===
-                        'pet_luxury_mua_xuan' ||
+                    'pet_luxury_mua_xuan' ||
                     petData?.petEffect ===
-                        'premium-spring-goddess-magic';
+                    'premium-spring-goddess-magic';
 
                 const isNationalDay =
                     petData?.id ===
-                        'pet_quoc_khanh_1' ||
+                    'pet_quoc_khanh_1' ||
                     petData?.petEffect ===
-                        'national-day-dong-son-magic';
+                    'national-day-dong-son-magic';
 
+                const isMythicNyx =
+                    petData?.id ===
+                    'pet_mythic_nyx_1' ||
+                    petData?.petEffect ===
+                    'mythic-nyx-night-magic';
 
-                /*
+                const isTamonBSide =
+                    petData?.id ===
+                    'pet_tamon_b_side_1' ||
+                    petData?.petEffect ===
+                    'tamon-b-side-soundwave-magic';
+
+                const isTamonPinkStatic =
+                    petData?.id ===
+                    'pet_tamon_b_side_2' ||
+                    petData?.petEffect ===
+                    'tamon-pink-static-magic';
+/*
                  * XUÂN THẦN:
                  * phải mount lại đủ Pet Realm + World + Interface.
                  * Đây là nhánh đã bị mất trong bản trước.
@@ -2779,6 +4826,74 @@
                             } catch (error) {
                                 console.error(
                                     '[LuxuryStore] Lỗi mount Xuân Thần:',
+                                    error
+                                );
+                            }
+                        }
+                    );
+
+                    return;
+                }
+
+
+                /*
+                 * TAMON'S B-SIDE:
+                 * Runtime riêng dựng pet realm + world + interface + click.
+                 * Không gọi ThemeManager/EffectManager nên không xóa lớp khác.
+                 */
+                if (isTamonBSide) {
+                    requestAnimationFrame(
+                        () => {
+                            try {
+                                LuxuryTamonBSideRuntime.mount();
+                            } catch (error) {
+                                console.error(
+                                    "[LuxuryStore] Lỗi mount Tamon's B-Side:",
+                                    error
+                                );
+                            }
+                        }
+                    );
+
+                    return;
+                }
+
+                /*
+                 * TAMON PINK STATIC:
+                 * Suite #2 hoàn toàn mới: cassette + sticker + black/pink UI.
+                 */
+                if (isTamonPinkStatic) {
+                    requestAnimationFrame(
+                        () => {
+                            try {
+                                LuxuryTamonPinkStaticRuntime.mount();
+                            } catch (error) {
+                                console.error(
+                                    '[LuxuryStore] Lỗi mount Tamon Pink Static:',
+                                    error
+                                );
+                            }
+                        }
+                    );
+
+                    return;
+                }
+
+
+                /*
+                 * NYX THẦN THOẠI:
+                 * PetManager dựng pet realm + ultimate gốc.
+                 * Runtime V2 bổ sung World + Interface + global click
+                 * + screen burst khi nhấn Nyx.
+                 */
+                if (isMythicNyx) {
+                    requestAnimationFrame(
+                        () => {
+                            try {
+                                LuxuryNyxRuntime.mount();
+                            } catch (error) {
+                                console.error(
+                                    '[LuxuryStore] Lỗi mount Nyx:',
                                     error
                                 );
                             }
@@ -2866,15 +4981,37 @@
                     String(itemId) ===
                     'pet_quoc_khanh_1';
 
+                const isMythicNyx =
+                    String(itemId) ===
+                    'pet_mythic_nyx_1';
 
-                /*
+                const isTamonBSide =
+                    String(itemId) ===
+                    'pet_tamon_b_side_1';
+
+                const isTamonPinkStatic =
+                    String(itemId) ===
+                    'pet_tamon_b_side_2';
+/*
                  * DỌN NGAY trước khi Firebase cập nhật.
                  */
                 if (isLuxurySpring) {
                     LuxurySpringRuntime.clear();
                 }
 
-                if (isNationalDay) {
+                if (isMythicNyx) {
+                    LuxuryNyxRuntime.clear();
+                }
+
+                if (isTamonBSide) {
+                    LuxuryTamonBSideRuntime.clear();
+                }
+
+                if (isTamonPinkStatic) {
+                    LuxuryTamonPinkStaticRuntime.clear();
+                }
+
+if (isNationalDay) {
 
                     LuxuryNationalDayRuntime.clear();
 
@@ -2951,6 +5088,105 @@
                                 element =>
                                     element.remove()
                             );
+                    }
+
+                    if (isMythicNyx) {
+                        LuxuryNyxRuntime.clear();
+
+                        const container =
+                            document.getElementById(
+                                'virtual-pet-container'
+                            );
+
+                        container?.classList.remove(
+                            'pet-nyx-mythic-stage',
+                            'nyx-mythic-awakening',
+                            'nyx-mythic-casting'
+                        );
+
+                        document.documentElement.classList.remove(
+                            'nyx-mythic-pet-equipped',
+                            'nyx-first-night-equipped'
+                        );
+
+                        document
+                            .querySelectorAll(
+                                '.nyx-mythic-ultimate,' +
+                                '.nyx-mythic-pet-realm,' +
+                                '.nyx-mythic-world-v2,' +
+                                '.nyx-mythic-ui-frame-v2,' +
+                                '.nyx-mythic-screen-burst-v2,' +
+                                '.nyx-mythic-screen-dialogue-v2'
+                            )
+                            .forEach(element => element.remove());
+                    }
+
+                    if (isTamonBSide) {
+                        LuxuryTamonBSideRuntime.clear();
+
+                        const container =
+                            document.getElementById(
+                                'virtual-pet-container'
+                            );
+
+                        container?.classList.remove(
+                            'pet-tamon-bside-stage',
+                            'tamon-bside-pet-casting'
+                        );
+
+                        container
+                            ?.querySelectorAll(
+                                '.tamon-bside-pet-realm'
+                            )
+                            .forEach(element => element.remove());
+
+                        container
+                            ?.querySelector('#virtual-pet-img')
+                            ?.classList.remove(
+                                'tamon-bside-pet'
+                            );
+
+                        document.documentElement.classList.remove(
+                            'tamon-bside-equipped'
+                        );
+
+                        document.body?.classList.remove(
+                            'theme-tamon-bside-stage'
+                        );
+                    }
+
+                    if (isTamonPinkStatic) {
+                        LuxuryTamonPinkStaticRuntime.clear();
+
+                        const container =
+                            document.getElementById(
+                                'virtual-pet-container'
+                            );
+
+                        container?.classList.remove(
+                            'pet-tamon-pinkstatic-stage',
+                            'tamon-pinkstatic-casting'
+                        );
+
+                        container
+                            ?.querySelectorAll(
+                                '.tamon-pinkstatic-realm'
+                            )
+                            .forEach(element => element.remove());
+
+                        container
+                            ?.querySelector('#virtual-pet-img')
+                            ?.classList.remove(
+                                'tamon-pinkstatic-pet'
+                            );
+
+                        document.documentElement.classList.remove(
+                            'tamon-pinkstatic-equipped'
+                        );
+
+                        document.body?.classList.remove(
+                            'theme-tamon-pinkstatic-stage'
+                        );
                     }
 
                     if (isNationalDay) {
@@ -3344,7 +5580,10 @@
     ) {
         [
             SPRING_PREMIUM_PET,
-            NATIONAL_DAY_PREMIUM_PET
+            NATIONAL_DAY_PREMIUM_PET,
+            MYTHIC_NYX_PET,
+            TAMON_BSIDE_PET,
+            TAMON_PINKSTATIC_PET
         ].forEach(itemDefinition => {
             const existing = StoreConfig.items.find(
                 item =>
@@ -3365,11 +5604,15 @@
              */
             if (
                 itemDefinition.id ===
-                NATIONAL_DAY_PREMIUM_PET.id
+                NATIONAL_DAY_PREMIUM_PET.id ||
+                itemDefinition.id ===
+                TAMON_BSIDE_PET.id ||
+                itemDefinition.id ===
+                TAMON_PINKSTATIC_PET.id
             ) {
                 Object.assign(
                     existing,
-                    NATIONAL_DAY_PREMIUM_PET
+                    itemDefinition
                 );
             }
         });
@@ -3495,7 +5738,22 @@
                         );
                 }
 
-                /*
+                const equippedMythicNyx =
+                    Object
+                        .values(
+                            luxuryInventoryState || {}
+                        )
+                        .find(
+                            item =>
+                                String(item?.id) ===
+                                'pet_mythic_nyx_1' &&
+                                item?.isEquipped === true
+                        );
+
+                if (!equippedMythicNyx) {
+                    LuxuryNyxRuntime.clear();
+                }
+/*
                  * Khi Firebase thay đổi:
                  * render lại Luxury Store ngay.
                  */
@@ -3728,6 +5986,310 @@
     `;
         }
 
+
+        // ====================================================
+        // CARD RIÊNG TAMON'S B-SIDE
+        // Dùng CHÍNH bố cục card Luxury thường:
+        // visual -> info -> label -> title -> price -> action.
+        // Chỉ skin bằng CSS riêng, không đổi kích thước / flow của grid.
+        // ====================================================
+        if (item.id === 'pet_tamon_b_side_1') {
+
+            const tagImage = escapeHTML(
+                item.luxuryTagImage ||
+                'assets/Premium/Tamon/tamon-tag1.png'
+            );
+
+            const price =
+                Number(item.price) || 15000;
+
+            const formattedPrice =
+                price.toLocaleString('vi-VN');
+
+            let actionHTML = '';
+
+            if (!isOwned) {
+                actionHTML = `
+                    <button
+                        type="button"
+                        class="tamon-bside-card-action tamon-bside-buy"
+                        onclick="window.buyItem('${id}')"
+                    >
+                        🪙 Mua ${formattedPrice} Coin
+                    </button>
+                `;
+            } else if (isEquipped) {
+                actionHTML = `
+                    <button
+                        type="button"
+                        class="tamon-bside-card-action is-equipped"
+                        onclick="StoreManager.unapplyItem('${id}')"
+                    >
+                        ✕ Gỡ
+                    </button>
+                `;
+            } else {
+                actionHTML = `
+                    <button
+                        type="button"
+                        class="tamon-bside-card-action"
+                        onclick="StoreManager.applyItem('${id}')"
+                    >
+                        ▶ Sử dụng
+                    </button>
+                `;
+            }
+
+            return `
+                <article
+                    class="luxury-product-card tamon-bside-card store-theme-locked ui-theme-immune"
+                    data-item-id="${id}"
+                    data-special-card="tamon-b-side-premium"
+                    data-theme-immune="true"
+                    data-luxury-style="tamon-b-side"
+                    tabindex="0"
+                >
+                    <div class="luxury-product-visual tamon-bside-card-visual">
+                        <div class="luxury-product-shape tamon-bside-card-shape"></div>
+                        <div class="tamon-bside-card-eq" aria-hidden="true">
+                            <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                        </div>
+
+                        <div class="tamon-bside-card-tag" aria-label="Tamon's B-Side">
+                            <img
+                                src="${tagImage}"
+                                alt="Tamon's B-Side"
+                                class="tamon-bside-card-tag-art"
+                                draggable="false"
+                            >
+                        </div>
+
+                        <img
+                            src="${image}"
+                            alt="${name}"
+                            class="luxury-product-image tamon-bside-card-character"
+                            draggable="false"
+                        >
+                    </div>
+
+                    <div class="luxury-product-info tamon-bside-card-info">
+                        <span class="luxury-product-label tamon-bside-card-label">
+                            TAMON'S B-SIDE
+                        </span>
+
+                        <h3>${name}</h3>
+
+                        <div class="luxury-product-price tamon-bside-card-price">
+                            🪙 ${formattedPrice} Coin
+                        </div>
+
+                        ${actionHTML}
+                    </div>
+                </article>
+            `;
+        }
+
+
+
+        // ====================================================
+        // CARD TAMON · PINK STATIC
+        // Giữ ĐÚNG flow Luxury: visual -> info -> label -> title -> price -> action.
+        // Chỉ đổi skin bằng namespace tamon-pinkstatic-*.
+        // ====================================================
+        if (item.id === 'pet_tamon_b_side_2') {
+            const tagImage = escapeHTML(
+                item.luxuryTagImage ||
+                'assets/Premium/Tamon/tamon-tag1.png'
+            );
+
+            let actionHTML = '';
+
+            if (!isOwned) {
+                actionHTML = `
+                    <button
+                        type="button"
+                        class="tamon-pinkstatic-card-action tamon-pinkstatic-event-lock"
+                        disabled
+                        title="Vật phẩm này nhận từ sự kiện"
+                    >
+                        🎁 Nhận từ sự kiện
+                    </button>
+                `;
+            } else if (isEquipped) {
+                actionHTML = `
+                    <button
+                        type="button"
+                        class="tamon-pinkstatic-card-action is-equipped"
+                        onclick="StoreManager.unapplyItem('${id}')"
+                    >
+                        ✕ Gỡ
+                    </button>
+                `;
+            } else {
+                actionHTML = `
+                    <button
+                        type="button"
+                        class="tamon-pinkstatic-card-action"
+                        onclick="StoreManager.applyItem('${id}')"
+                    >
+                        ▶ Sử dụng
+                    </button>
+                `;
+            }
+
+            return `
+                <article
+                    class="luxury-product-card tamon-pinkstatic-card store-theme-locked ui-theme-immune"
+                    data-item-id="${id}"
+                    data-special-card="tamon-pink-static-premium"
+                    data-theme-immune="true"
+                    data-luxury-style="tamon-pink-static"
+                    tabindex="0"
+                >
+                    <div class="luxury-product-visual tamon-pinkstatic-card-visual">
+                        <div class="luxury-product-shape tamon-pinkstatic-card-shape"></div>
+                        <div class="tamon-pinkstatic-card-tape" aria-hidden="true"></div>
+                        <div class="tamon-pinkstatic-card-eq" aria-hidden="true">
+                            <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                        </div>
+
+                        <div class="tamon-pinkstatic-card-tag" aria-label="Tamon's B-Side">
+                            <img
+                                src="${tagImage}"
+                                alt="Tamon's B-Side"
+                                class="tamon-pinkstatic-card-tag-art"
+                                draggable="false"
+                            >
+                        </div>
+
+                        <img
+                            src="${image}"
+                            alt="${name}"
+                            class="luxury-product-image tamon-pinkstatic-card-character"
+                            draggable="false"
+                        >
+                    </div>
+
+                    <div class="luxury-product-info tamon-pinkstatic-card-info">
+                        <span class="luxury-product-label tamon-pinkstatic-card-label">
+                            TAMON'S B-SIDE
+                        </span>
+                        <h3>${name}</h3>
+                        <div class="luxury-product-price tamon-pinkstatic-card-price">
+                            🎁 Phần thưởng sự kiện
+                        </div>
+                        ${actionHTML}
+                    </div>
+                </article>
+            `;
+        }
+
+
+        // ====================================================
+        // CARD RIÊNG NYX · THẦN THOẠI
+        // Namespace riêng: nyx-mythic-*
+        // Không dùng class card của Mùa Xuân / Quốc khánh.
+        // ====================================================
+        if (item.id === 'pet_mythic_nyx_1') {
+
+            const tagImage = escapeHTML(
+                item.luxuryTagImage ||
+                'assets/Premium/Thần thoại/nyx-tag1.png'
+            );
+
+            let actionHTML = '';
+
+            if (!isOwned) {
+                actionHTML = `
+                    <button
+                        type="button"
+                        class="nyx-mythic-action nyx-mythic-buy"
+                        onclick="window.buyItem('${id}')"
+                    >
+                        🪙 Mua 12.000 Coin
+                    </button>
+                `;
+            } else if (isEquipped) {
+                actionHTML = `
+                    <button
+                        type="button"
+                        class="nyx-mythic-action is-equipped"
+                        onclick="StoreManager.unapplyItem('${id}')"
+                    >
+                        ✕ Gỡ
+                    </button>
+                `;
+            } else {
+                actionHTML = `
+                    <button
+                        type="button"
+                        class="nyx-mythic-action"
+                        onclick="StoreManager.applyItem('${id}')"
+                    >
+                        ☾ Sử dụng
+                    </button>
+                `;
+            }
+
+            return `
+                <article
+                    class="luxury-product-card nyx-mythic-card store-theme-locked ui-theme-immune"
+                    data-item-id="${id}"
+                    data-special-card="mythic-nyx"
+                    data-theme-immune="true"
+                    data-luxury-style="mythic-nyx"
+                    tabindex="0"
+                >
+                    <div class="nyx-mythic-visual">
+                        <div class="nyx-mythic-nightglass" aria-hidden="true"></div>
+                        <div class="nyx-mythic-eclipse" aria-hidden="true">
+                            <span class="nyx-mythic-eclipse-core"></span>
+                            <span class="nyx-mythic-eclipse-ring ring-a"></span>
+                            <span class="nyx-mythic-eclipse-ring ring-b"></span>
+                        </div>
+
+                        <div class="nyx-mythic-constellation" aria-hidden="true">
+                            <i style="--i:0"></i><i style="--i:1"></i>
+                            <i style="--i:2"></i><i style="--i:3"></i>
+                            <i style="--i:4"></i><i style="--i:5"></i>
+                            <i style="--i:6"></i><i style="--i:7"></i>
+                            <i style="--i:8"></i><i style="--i:9"></i>
+                            <i style="--i:10"></i><i style="--i:11"></i>
+                        </div>
+
+                        <div
+    class="nyx-mythic-tag"
+    aria-label="Thần thoại"
+>
+    <img
+        src="${tagImage}"
+        alt="Thần thoại"
+        class="nyx-mythic-tag-art"
+        draggable="false"
+    >
+</div>
+
+                        <img
+                            src="${image}"
+                            alt="${name}"
+                            class="nyx-mythic-character"
+                            draggable="false"
+                        >
+
+                        <div class="nyx-mythic-details">
+                            <div class="nyx-mythic-type">☾ THÚ CƯNG PREMIUM · THẦN THOẠI</div>
+                            <h3>${name}</h3>
+                            <p>
+                                Quyền năng của màn đêm nguyên sơ: nguyệt thực,
+                                tinh tú và những dải bóng tối chuyển động quanh Nyx.
+                            </p>
+                            <div class="nyx-mythic-price">🪙 Giá bán: 12.000 Coin</div>
+                            ${actionHTML}
+                        </div>
+                    </div>
+                </article>
+            `;
+        }
 
         // ====================================================
         // CARD RIÊNG MÙA XUÂN
@@ -4016,6 +6578,40 @@
             items
                 .map(renderCard)
                 .join('');
+
+        // Giáo viên khóa vật phẩm: che đen toàn bộ card và hiện dấu ? lớn.
+        // Vẫn dùng chính trường isLocked đang đồng bộ qua store_settings.
+        items.forEach(item => {
+            if (!item?.isLocked) return;
+
+            const card = Array.from(
+                grid.querySelectorAll('[data-item-id]')
+            ).find(element =>
+                String(element.dataset.itemId || '') ===
+                String(item.id || '')
+            );
+
+            if (!card) return;
+
+            card.classList.add('is-teacher-locked');
+
+            if (!card.querySelector('.store-teacher-lock-overlay')) {
+                const overlay = document.createElement('div');
+                overlay.className = 'store-teacher-lock-overlay';
+                overlay.setAttribute('role', 'status');
+                overlay.setAttribute(
+                    'aria-label',
+                    'Vật phẩm đang bị giáo viên khóa'
+                );
+                overlay.title = 'Vật phẩm đang bị giáo viên khóa';
+                overlay.innerHTML =
+                    '<span class="store-teacher-lock-question">?</span>';
+                card.appendChild(overlay);
+            }
+        });
+
+        // Khóa thao tác copy/lưu cho toàn bộ ảnh của Cửa hàng Sang trọng.
+        window.StoreImageProtection?.protectSubtree(grid);
     }
 
 
@@ -4347,6 +6943,9 @@
         );
 
 
+        window.StoreImageProtection?.protectSubtree(page);
+
+
         // CLICK MỞ
         button.addEventListener(
             'click',
@@ -4407,6 +7006,42 @@
             }
         },
 
+        // Test nhanh Tamon's B-Side — kích hoạt FULL SUITE V1.
+        previewTamonBSide: () => {
+            if (
+                typeof PetManager !== 'undefined' &&
+                typeof PetManager.spawnPet === 'function'
+            ) {
+                PetManager.spawnPet(
+                    TAMON_BSIDE_PET
+                );
+            }
+        },
+
+        // Test nhanh Tamon · Hắc Phấn Nghịch Nhịp — FULL SUITE mới.
+        previewTamonPinkStatic: () => {
+            if (
+                typeof PetManager !== 'undefined' &&
+                typeof PetManager.spawnPet === 'function'
+            ) {
+                PetManager.spawnPet(
+                    TAMON_PINKSTATIC_PET
+                );
+            }
+        },
+
+        // Test nhanh Nyx Thần thoại — kích hoạt FULL SUITE V2.
+        previewNyx: () => {
+            if (
+                typeof PetManager !== 'undefined' &&
+                typeof PetManager.spawnPet === 'function'
+            ) {
+                PetManager.spawnPet(
+                    MYTHIC_NYX_PET
+                );
+            }
+        },
+
         // Test nhanh thú cưng Quốc khánh (không cấp quyền sở hữu).
         previewNationalDay: () => {
             if (
@@ -4417,6 +7052,18 @@
                     NATIONAL_DAY_PREMIUM_PET
                 );
             }
+        },
+
+        clearNyx: () => {
+            LuxuryNyxRuntime.clear();
+        },
+
+        clearTamonBSide: () => {
+            LuxuryTamonBSideRuntime.clear();
+        },
+
+        clearTamonPinkStatic: () => {
+            LuxuryTamonPinkStaticRuntime.clear();
         },
 
         clearSpring: () => {
@@ -4439,6 +7086,8 @@
     // KHỞI ĐỘNG
     // ========================================================
     function bootLuxuryStore() {
+
+        ensureTamonBSideStylesheet();
 
         installLuxurySpringPetHook();
 

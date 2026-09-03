@@ -151,6 +151,20 @@ class ThemeManager {
             background: '#f7f0df',
             className: 'theme-viet-dieu-hong-ky'
         },
+        'theme_truyenthuyet_thanh_dien_nguyet_da': {
+            primary: '#8ed8ff',
+            secondary: '#7a9cff',
+            background: '#030814',
+            className: 'theme-nyx-moon-sanctum'
+        },
+        // TAMON'S B-SIDE · HẬU TRƯỜNG NHIỄU SÓNG
+        // Theme độc lập, không dùng class/effect của các theme Tamon cũ.
+        'theme_tamon_bside_backstage': {
+            primary: '#ff5aa7',
+            secondary: '#76a9ff',
+            background: '#080b14',
+            className: 'theme-tamon-bside-backstage'
+        },
     };
 
     // Những popup phải giữ giao diện riêng,
@@ -241,8 +255,7 @@ class ThemeManager {
             className:
                 'store-card-birthday-2026'
         }),
-
-        'national-day-premium-pet': Object.freeze({
+'national-day-premium-pet': Object.freeze({
             itemIds: Object.freeze([
                 'pet_quoc_khanh_1'
             ]),
@@ -252,6 +265,47 @@ class ThemeManager {
 
             tagImage:
                 'assets/Premium/quốc khánh/tag.png'
+        }),
+
+        /* =========================================================
+           TAMON'S B-SIDE · TIỂU QUỶ + GIAO DIỆN HẬU TRƯỜNG
+           Cùng tag, cùng thẻ; khóa khỏi mọi giao diện toàn web.
+           ========================================================= */
+        'tamon-bside-chibi-pair': Object.freeze({
+            itemIds: Object.freeze([
+                'pet_tamon_bside_chibi_1',
+                'theme_tamon_bside_backstage'
+            ]),
+
+            className:
+                'store-card-tamon-bside-chibi'
+        }),
+
+        /* =========================================================
+   TAMON'S B-SIDE · PET PREMIUM
+   Card có skin riêng nhưng giữ nguyên bố cục của Luxury Store.
+   Khi một theme toàn web đang hoạt động, card này vẫn được miễn skin.
+   ========================================================= */
+        'tamon-b-side-premium': Object.freeze({
+            itemIds: Object.freeze([
+                'pet_tamon_b_side_1'
+            ]),
+
+            className:
+                'store-card-tamon-b-side'
+        }),
+
+        /* =========================================================
+           TAMON · PINK STATIC · PET PREMIUM #2
+           Miễn toàn bộ theme khác; skin do tamon-b-side-2.css quản lý.
+           ========================================================= */
+        'tamon-pink-static-premium': Object.freeze({
+            itemIds: Object.freeze([
+                'pet_tamon_b_side_2'
+            ]),
+
+            className:
+                'store-card-tamon-pink-static'
         }),
 
         /* =========================================================
@@ -275,7 +329,8 @@ class ThemeManager {
         root = document
     ) {
         const selector =
-            '.store-item-card[data-item-id]';
+            '.store-item-card[data-item-id], ' +
+            '.luxury-product-card[data-item-id]';
 
         const cards = [];
 
@@ -345,8 +400,7 @@ class ThemeManager {
                     tagImage.className =
                         'special-card-tag-image';
 
-                    tagImage.alt =
-                        'Quốc khánh';
+                    tagImage.alt = 'Quốc khánh';
 
                     tagImage.draggable =
                         false;
@@ -776,9 +830,71 @@ class ThemeManager {
         )?.remove();
     }
 
+    // =========================================================
+    // TAMON'S B-SIDE · HẬU TRƯỜNG NHIỄU SÓNG
+    // Decor/effect hoàn toàn mới: tbtheme1-*
+    // Không sửa, không gọi lại effect của các giao diện khác.
+    // =========================================================
+    static clearTamonBsideBackstageDecor() {
+        document.getElementById(
+            'tbtheme1-backstage-decor'
+        )?.remove();
+
+        document.documentElement.classList.remove(
+            'tbtheme1-backstage-mounted'
+        );
+    }
+
+    static createTamonBsideBackstageDecor() {
+        this.clearTamonBsideBackstageDecor();
+
+        if (!document.body) return;
+
+        const decor = document.createElement('div');
+        decor.id = 'tbtheme1-backstage-decor';
+        decor.className = 'tbtheme1-backstage-decor';
+        decor.setAttribute('aria-hidden', 'true');
+
+        decor.innerHTML = `
+            <div class="tbtheme1-screen-haze"></div>
+            <div class="tbtheme1-grid-plane"></div>
+            <div class="tbtheme1-scan-field"></div>
+
+            <div class="tbtheme1-stage-rail rail-top"></div>
+            <div class="tbtheme1-stage-rail rail-bottom"></div>
+
+            <div class="tbtheme1-signal-cluster cluster-left">
+                <span></span><span></span><span></span><span></span><span></span>
+            </div>
+
+            <div class="tbtheme1-signal-cluster cluster-right">
+                <span></span><span></span><span></span><span></span><span></span>
+            </div>
+
+            <div class="tbtheme1-vinyl-orbit orbit-a"></div>
+            <div class="tbtheme1-vinyl-orbit orbit-b"></div>
+
+            <div class="tbtheme1-stage-caption">
+                <small>TAMON'S B-SIDE</small>
+                <strong>BACKSTAGE SIGNAL</strong>
+            </div>
+        `;
+
+        document.body.prepend(decor);
+
+        document.documentElement.classList.add(
+            'tbtheme1-backstage-mounted'
+        );
+
+        requestAnimationFrame(() => {
+            decor.classList.add('is-mounted');
+        });
+    }
+
     static applyTheme(themeId) {
         this.initThemePopupIsolation();
         this.clearAcediaPalaceDecor();
+        this.clearTamonBsideBackstageDecor();
         const theme = this.themes[themeId] || this.themes['default'];
         const root = document.documentElement;
 
@@ -804,6 +920,13 @@ class ThemeManager {
             'theme_thatdaitoi_acedia_dream'
         ) {
             this.createAcediaPalaceDecor();
+        }
+
+        if (
+            themeId ===
+            'theme_tamon_bside_backstage'
+        ) {
+            this.createTamonBsideBackstageDecor();
         }
 
         // Lưu lựa chọn vào bộ nhớ trình duyệt

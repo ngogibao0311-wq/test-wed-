@@ -1033,6 +1033,197 @@ const StoreConfig = {
             rewardSource: 'lich_su_hao_hung',
             rewardLabel: 'Sự kiện Lịch sử hào hùng'
         },
+        {
+            id: 'pet_tamon_bside_chibi_1',
+            name: 'Tiểu Quỷ Sân Khấu',
+            type: 'pet',
+
+            price: 850,
+            isNonCoin: false,
+
+            tag: "Tamon's B-Side",
+            tags: ["Tamon's B-Side"],
+
+            value: 'assets/Premium/Tamon/tamon-chibi1.png',
+            asset: 'assets/Premium/Tamon/tamon-chibi1.png',
+            isIcon: false,
+
+            // Hiệu ứng RIÊNG của vật phẩm mới, không tái dùng effect Tamon cũ.
+            petEffect: 'tamon-bside-chibi-signal-magic',
+            disableClickEffect: true
+        },
+        {
+            id: 'theme_tamon_bside_backstage',
+            name: "Hậu Trường Nhiễu Sóng",
+            type: 'theme',
+
+            price: 800,
+            isNonCoin: false,
+
+            tag: "Tamon's B-Side",
+            tags: ["Tamon's B-Side"],
+
+            value: 'theme-tamon-bside-backstage',
+            customIcon: '◈',
+
+            // Theme riêng: không tái dùng effect / class của các giao diện Tamon khác.
+            themeEffect: 'tbtheme1-backstage-signal-field'
+        },
+        {
+            id: 'effect_tamon_bside_spectrum_break',
+            name: 'Phổ Nhiễu B-Side',
+            type: 'effect',
+
+            price: 900,
+            isNonCoin: false,
+
+            tag: "Tamon's B-Side",
+            tags: ["Tamon's B-Side"],
+
+            value: 'effect_tamon_bside_spectrum_break',
+            customIcon: '≋',
+
+            // Effect toàn web RIÊNG, namespace tbfx1-*; không tái dùng effect Tamon cũ.
+            effectNamespace: 'tbfx1-spectrum-break'
+        },
+        {
+            id: 'frame_tamon_bside_signal_ring',
+            name: 'B-Mask · Neon Heart',
+            type: 'frame',
+
+            price: 250,
+            isNonCoin: false,
+
+            tag: "Tamon's B-Side",
+            tags: ["Tamon's B-Side"],
+
+            value: 'assets/Premium/Tamon/tamon-khung1.png',
+            isIcon: false,
+
+            // Khung avatar riêng của bộ Tamon's B-Side.
+            // Vị trí/size lấy theo chuẩn khung Premium Mùa Xuân.
+            frameEffect: 'tamon-bside-signal-ring'
+        },
+        {
+            id: 'background_tamon_bside_stage_signal',
+            name: 'Tamon · Midnight Idol Room',
+            type: 'background',
+
+            price: 150,
+            isNonCoin: false,
+
+            tag: "Tamon's B-Side",
+            tags: ["Tamon's B-Side"],
+
+            value: 'assets/Premium/Tamon/tamon-nen1.png',
+            isIcon: false,
+
+            // Nền tĩnh riêng. WebBackgroundManager hiện tại tự dùng:
+            // cover + center center + no-repeat + fixed.
+            backgroundFit: 'cover',
+            backgroundPosition: 'center center'
+        },
+        {
+            id: 'pet_truyenthuyet_nyx_chibi_1',
+
+            name: 'NYX · Tiểu Dạ Tinh Linh',
+
+            type: 'pet',
+
+            price: 1700,
+            isNonCoin: false,
+
+            /*
+             * Dùng CHÍNH XÁC tag của:
+             * Nyx - Nữ Thần Màn Đêm
+             */
+            tag: 'Truyền thuyết',
+
+            value:
+                'assets/Premium/Thần thoại/nyx-chibi1.png',
+
+            asset:
+                'assets/Premium/Thần thoại/nyx-chibi1.png',
+
+            isIcon: false,
+
+            /*
+             * Effect HOÀN TOÀN RIÊNG.
+             * Không phải mythic-nyx-night-magic.
+             */
+            petEffect:
+                'nyx-little-night-spirit-magic',
+
+            /*
+             * Không chạy click effect mặc định,
+             * vì pet có kỹ năng toàn màn hình riêng.
+             */
+            disableClickEffect: true
+        },
+        {
+            id: 'theme_truyenthuyet_thanh_dien_nguyet_da',
+            name: 'Thánh Điện Nguyệt Dạ',
+            type: 'theme',
+
+            price: 1700,
+            isNonCoin: false,
+
+            tag: 'Truyền thuyết',
+
+            value: 'theme-nyx-moon-sanctum',
+
+            customIcon: '☾'
+        },
+        {
+            id: 'effect_truyenthuyet_da_trieu_tinh_nguyet',
+            name: 'Dạ Triều Tinh Nguyệt',
+            type: 'effect',
+
+            price: 1700,
+            isNonCoin: false,
+
+            tag: 'Truyền thuyết',
+
+            value: 'effect_truyenthuyet_da_trieu_tinh_nguyet',
+            customIcon: '☽'
+        },
+        {
+            id: 'frame_truyenthuyet_nyx_hac_nguyet_chi_hoan',
+
+            name: 'Vương Miện Vĩnh Dạ',
+
+            type: 'frame',
+
+            price: 250,
+            isNonCoin: false,
+
+            tag: 'Truyền thuyết',
+
+            value:
+                'assets/Premium/Thần thoại/nyx-khung1.png',
+
+            isIcon: false,
+
+            frameEffect:
+                'nyx-hac-nguyet-frame'
+        },
+        {
+            id: 'background_truyenthuyet_nyx_vinh_da_thien_mac',
+
+            name: 'Thánh Điện Nguyệt Dạ',
+
+            type: 'background',
+
+            price: 150,
+            isNonCoin: false,
+
+            tag: 'Truyền thuyết',
+
+            value:
+                'assets/Premium/Thần thoại/nyx-nen1.png',
+
+            isIcon: false
+        },
     ]
 };
 
@@ -1232,6 +1423,13 @@ class StoreManager {
             return;
         }
 
+        if (item.isLocked) {
+            window.alert(
+                `🔒 ${item.name} đang bị Giáo viên khóa.`
+            );
+            return;
+        }
+
         const saleState =
             this.getAnnualSaleState(item);
 
@@ -1276,6 +1474,13 @@ class StoreManager {
         if (!item) {
             console.error(
                 `[StoreManager] Không tìm thấy vật phẩm: ${itemId}`
+            );
+            return;
+        }
+
+        if (item.isLocked) {
+            window.alert(
+                `🔒 ${item.name} đang bị Giáo viên khóa.`
             );
             return;
         }
@@ -1680,6 +1885,34 @@ class StoreManager {
             'theme_truyenthuyet_celestial'
         ]);
 
+        /*
+ * NYX · TIỂU DẠ TINH LINH
+ * Card riêng hoàn toàn.
+ */
+        const nyxLittleSpiritIds = new Set([
+            'pet_truyenthuyet_nyx_chibi_1'
+        ]);
+
+        /*
+ * BỘ NGUYỆT DẠ NYX
+ * Card giữ nguyên thiết kế riêng,
+ * không cho giao diện khác ghi đè.
+ */
+        const nyxMoonRelicIds = new Set([
+            'theme_truyenthuyet_thanh_dien_nguyet_da',
+            'effect_truyenthuyet_da_trieu_tinh_nguyet',
+            'frame_truyenthuyet_nyx_hac_nguyet_chi_hoan',
+            'background_truyenthuyet_nyx_vinh_da_thien_mac'
+        ]);
+
+        const tamonBsideChibiIds = new Set([
+            'pet_tamon_bside_chibi_1',
+            'theme_tamon_bside_backstage',
+            'effect_tamon_bside_spectrum_break',
+            'frame_tamon_bside_signal_ring',
+            'background_tamon_bside_stage_signal'
+        ]);
+
         const premiumSpringIds = new Set([
             'pet_premium_mua_xuan',
             'effect_premium_mua_xuan',
@@ -1793,8 +2026,24 @@ class StoreManager {
             'store-item-card'
         ];
 
+        if (item.isLocked) {
+            cardClasses.push('is-teacher-locked');
+        }
+
         let specialCardGroup = '';
         let isThemeImmune = false;
+
+        /* TAMON'S B-SIDE · CHIBI — card riêng nhưng giữ nguyên bố cục chuẩn */
+        if (tamonBsideChibiIds.has(item.id)) {
+            cardClasses.push(
+                'store-card-tamon-bside-chibi',
+                'store-theme-locked',
+                'ui-theme-immune'
+            );
+
+            specialCardGroup = 'tamon-bside-chibi';
+            isThemeImmune = true;
+        }
 
         if (premiumSpringIds.has(item.id)) {
             cardClasses.push(
@@ -1818,6 +2067,45 @@ class StoreManager {
             );
 
             specialCardGroup = 'nyx-trinity';
+            isThemeImmune = true;
+        }
+
+        /* =============================================
+   NYX · TIỂU DẠ TINH LINH
+   Card riêng + miễn nhiễm giao diện
+   ============================================= */
+
+        if (nyxLittleSpiritIds.has(item.id)) {
+
+            cardClasses.push(
+                'store-card-nyx-little-spirit',
+                'store-theme-locked',
+                'ui-theme-immune'
+            );
+
+            specialCardGroup =
+                'nyx-little-spirit';
+
+            isThemeImmune = true;
+        }
+
+        /* =============================================
+   THÁNH ĐIỆN NGUYỆT DẠ
+   + DẠ TRIỀU TINH NGUYỆT
+   Miễn nhiễm mọi giao diện bên ngoài
+   ============================================= */
+
+        if (nyxMoonRelicIds.has(item.id)) {
+
+            cardClasses.push(
+                'store-card-nyx-moon-relic',
+                'store-theme-locked',
+                'ui-theme-immune'
+            );
+
+            specialCardGroup =
+                'nyx-moon-relic';
+
             isThemeImmune = true;
         }
 
@@ -1925,11 +2213,22 @@ class StoreManager {
                 : 'false'
             }"
 
-        style="${item.isLocked
-                ? 'opacity: 0.75; filter: grayscale(0.4); border: 1px solid rgba(225,29,72,0.3);'
-                : ''
-            }"
+        style=""
     >
+        ${item.isLocked
+                ? `
+        <div
+            class="store-teacher-lock-overlay"
+            role="status"
+            aria-label="Vật phẩm đang bị giáo viên khóa"
+            title="Vật phẩm đang bị giáo viên khóa"
+        >
+            <span class="store-teacher-lock-question">?</span>
+        </div>
+        `
+                : ''
+            }
+
         <div class="card-glow"></div>
 
         ${acediaRelicHTML}
@@ -1973,6 +2272,458 @@ class StoreManager {
         }
     }
 }
+
+
+/* =========================================================
+   HIỂN THỊ VẬT PHẨM BỊ GIÁO VIÊN KHÓA
+   - Che đen toàn bộ thẻ thay vì chỉ khóa nút Mua / Dùng thử.
+   - Dấu ? lớn ở giữa thẻ.
+   - Dùng chung cho Cửa hàng thường và Cửa hàng Sang trọng.
+   ========================================================= */
+(function installTeacherLockedStoreCardStyle() {
+    if (document.getElementById('teacherLockedStoreCardStyle')) {
+        return;
+    }
+
+    const style = document.createElement('style');
+    style.id = 'teacherLockedStoreCardStyle';
+    style.textContent = `
+        .is-teacher-locked {
+            position: relative !important;
+            overflow: hidden !important;
+            isolation: isolate;
+        }
+
+        .is-teacher-locked > :not(.store-teacher-lock-overlay) {
+            filter: grayscale(1) brightness(.05) !important;
+            opacity: .08 !important;
+            pointer-events: none !important;
+            user-select: none !important;
+        }
+
+        .store-teacher-lock-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 2147483000;
+            display: grid;
+            place-items: center;
+            border-radius: inherit;
+            background: rgba(0, 0, 0, .96);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08);
+            cursor: not-allowed;
+            pointer-events: auto;
+        }
+
+        .store-teacher-lock-question {
+            display: grid;
+            place-items: center;
+            width: min(42%, 118px);
+            aspect-ratio: 1;
+            border-radius: 50%;
+            color: #fff;
+            font-size: clamp(4.8rem, 9vw, 7.8rem);
+            font-weight: 1000;
+            line-height: 1;
+            text-shadow: 0 0 18px rgba(255, 255, 255, .45);
+            border: 3px solid rgba(255, 255, 255, .88);
+            background: rgba(255, 255, 255, .05);
+            box-shadow: 0 0 35px rgba(255, 255, 255, .12);
+        }
+    `;
+
+    document.head.appendChild(style);
+})();
+
+
+/* =========================================================
+   BẢO VỆ ẢNH VẬT PHẨM TRONG CỬA HÀNG
+   - Áp dụng cho Cửa hàng thường + Cửa hàng Sang trọng.
+   - Chặn chuột phải trên ảnh, kéo ảnh, copy ảnh và Ctrl/Cmd+S.
+   - Dùng event delegation nên ảnh render động cũng được bảo vệ.
+   ========================================================= */
+(function installStoreImageProtection() {
+    if (window.StoreImageProtection) return;
+
+    const STORE_ROOT_SELECTOR = '#tab-store';
+    const STYLE_ID = 'store-image-protection-style';
+    let lastNoticeAt = 0;
+
+    function getStoreRoot() {
+        return document.querySelector(STORE_ROOT_SELECTOR);
+    }
+
+    function isStoreOpen() {
+        const root = getStoreRoot();
+        if (!root) return false;
+
+        if (root.classList.contains('active')) {
+            return true;
+        }
+
+        const style = window.getComputedStyle(root);
+        return (
+            style.display !== 'none' &&
+            style.visibility !== 'hidden' &&
+            !root.hidden
+        );
+    }
+
+    function isImageElement(target) {
+        return Boolean(
+            target &&
+            target.nodeType === 1 &&
+            target.matches?.('img')
+        );
+    }
+
+    function isStoreImage(target) {
+        return Boolean(
+            isImageElement(target) &&
+            target.closest(STORE_ROOT_SELECTOR)
+        );
+    }
+
+    /*
+     * Nhân vật/thú cưng nổi ở góc màn hình nằm NGOÀI #tab-store.
+     * Khi người dùng đang ở Cửa hàng, nó vẫn là ảnh vật phẩm nên phải
+     * được bảo vệ giống ảnh trong card Cửa hàng.
+     */
+    function isFloatingStoreItemImage(target) {
+        if (!isStoreOpen() || !isImageElement(target)) {
+            return false;
+        }
+
+        return Boolean(
+            target.closest('#virtual-pet-container') ||
+            target.id === 'virtual-pet-img'
+        );
+    }
+
+    function isProtectedStoreImage(target) {
+        return (
+            isStoreImage(target) ||
+            isFloatingStoreItemImage(target)
+        );
+    }
+
+    function selectionContainsStoreImage() {
+        const selection = window.getSelection?.();
+        if (!selection || selection.rangeCount === 0) {
+            return false;
+        }
+
+        const range = selection.getRangeAt(0);
+        const node = range.commonAncestorContainer;
+        const element = node?.nodeType === 1
+            ? node
+            : node?.parentElement;
+
+        const storeRoot = element?.closest?.(STORE_ROOT_SELECTOR);
+        if (!storeRoot) return false;
+
+        // Trường hợp trình duyệt chọn trực tiếp chính thẻ ảnh.
+        if (element?.matches?.('img')) {
+            return true;
+        }
+
+        // Chỉ chặn copy khi vùng chọn thực sự chạm vào một ảnh vật phẩm.
+        return Array.from(
+            storeRoot.querySelectorAll('img')
+        ).some(img => {
+            try {
+                return range.intersectsNode(img);
+            } catch (error) {
+                return false;
+            }
+        });
+    }
+
+    function showProtectionNotice() {
+        const now = Date.now();
+
+        // Tránh spam thông báo khi người dùng giữ phím/chuột.
+        if (now - lastNoticeAt < 900) return;
+        lastNoticeAt = now;
+
+        const message =
+            'Ảnh vật phẩm trong Cửa hàng được bảo vệ và không hỗ trợ sao chép/lưu trực tiếp.';
+
+        if (typeof window.showToast === 'function') {
+            window.showToast(message, 'warning');
+            return;
+        }
+
+        console.info('[StoreImageProtection]', message);
+    }
+
+    function blockEvent(event, shouldNotify = true) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (typeof event.stopImmediatePropagation === 'function') {
+            event.stopImmediatePropagation();
+        }
+
+        if (shouldNotify) {
+            showProtectionNotice();
+        }
+
+        return false;
+    }
+
+    function protectSubtree(root = getStoreRoot()) {
+        if (!root) return;
+
+        const images = [];
+
+        if (root.matches?.('img')) {
+            images.push(root);
+        }
+
+        root.querySelectorAll?.('img').forEach(img => {
+            images.push(img);
+        });
+
+        images.forEach(img => {
+            img.setAttribute('draggable', 'false');
+            img.setAttribute('data-store-image-protected', 'true');
+            img.style.webkitUserDrag = 'none';
+            img.style.userSelect = 'none';
+            img.style.webkitUserSelect = 'none';
+            img.style.webkitTouchCallout = 'none';
+        });
+    }
+
+    function protectFloatingStoreItemImages() {
+        if (!isStoreOpen()) return;
+
+        document
+            .querySelectorAll('#virtual-pet-container img, #virtual-pet-img')
+            .forEach(img => {
+                img.setAttribute('draggable', 'false');
+                img.setAttribute(
+                    'data-store-floating-image-protected',
+                    'true'
+                );
+                img.style.webkitUserDrag = 'none';
+                img.style.userSelect = 'none';
+                img.style.webkitUserSelect = 'none';
+                img.style.webkitTouchCallout = 'none';
+            });
+    }
+
+    function installStyle() {
+        if (document.getElementById(STYLE_ID)) return;
+
+        const style = document.createElement('style');
+        style.id = STYLE_ID;
+        style.textContent = `
+            #tab-store img,
+            #tab-store [data-store-image-protected="true"],
+            #virtual-pet-container img[data-store-floating-image-protected="true"],
+            #virtual-pet-img[data-store-floating-image-protected="true"] {
+                -webkit-user-drag: none !important;
+                -webkit-user-select: none !important;
+                user-select: none !important;
+                -webkit-touch-callout: none !important;
+            }
+        `;
+
+        (document.head || document.documentElement)
+            .appendChild(style);
+    }
+
+    /*
+     * CHẶN MENU CHUỘT PHẢI / NHẤN 2 NGÓN TOUCHPAD.
+     *
+     * Khi đang ở tab Cửa hàng, chặn context menu trên TOÀN BỘ giao diện.
+     * Làm như vậy để trình duyệt không thể hiện các mục:
+     * - Copy image
+     * - Save image as...
+     * - Open image in new tab
+     *
+     * Cách này cũng bao phủ nhân vật/thú cưng nổi góc phải vì phần tử đó
+     * nằm ngoài #tab-store trong DOM.
+     */
+    document.addEventListener('contextmenu', event => {
+        if (isStoreOpen()) {
+            blockEvent(event);
+        }
+    }, true);
+
+    // Kéo ảnh vật phẩm ra Desktop/tab mới, kể cả nhân vật nổi góc phải.
+    document.addEventListener('dragstart', event => {
+        if (isProtectedStoreImage(event.target)) {
+            blockEvent(event);
+        }
+    }, true);
+
+    // Copy ảnh trong Cửa hàng. Copy chữ bình thường vẫn được phép.
+    document.addEventListener('copy', event => {
+        const activeElement = document.activeElement;
+        const activeImage = Boolean(
+            isProtectedStoreImage(activeElement)
+        );
+
+        if (
+            isStoreOpen() &&
+            (
+                isProtectedStoreImage(event.target) ||
+                activeImage ||
+                selectionContainsStoreImage()
+            )
+        ) {
+            blockEvent(event);
+        }
+    }, true);
+
+    // Chặn Ctrl/Cmd+S khi đang đứng ở tab Cửa hàng.
+    // Ctrl/Cmd+C chỉ chặn nếu vùng chọn có ảnh; copy chữ vẫn hoạt động.
+    document.addEventListener('keydown', event => {
+        if (!isStoreOpen()) return;
+
+        const modifier = event.ctrlKey || event.metaKey;
+        if (!modifier) return;
+
+        const key = String(event.key || '').toLowerCase();
+
+        if (key === 's') {
+            blockEvent(event);
+            return;
+        }
+
+        if (
+            key === 'c' &&
+            selectionContainsStoreImage()
+        ) {
+            blockEvent(event);
+        }
+    }, true);
+
+    installStyle();
+
+    if (document.readyState === 'loading') {
+        document.addEventListener(
+            'DOMContentLoaded',
+            () => {
+                protectSubtree();
+                protectFloatingStoreItemImages();
+            },
+            { once: true }
+        );
+    } else {
+        protectSubtree();
+        protectFloatingStoreItemImages();
+    }
+
+    // Ảnh mới được render sau khi lọc/mua/chuyển Luxury cũng tự khóa.
+    const observer = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+            mutation.addedNodes.forEach(node => {
+                if (
+                    node.nodeType !== 1 ||
+                    !node.closest?.(STORE_ROOT_SELECTOR)
+                ) {
+                    return;
+                }
+
+                protectSubtree(node);
+            });
+        });
+    });
+
+    const startObserver = () => {
+        const root = getStoreRoot();
+        if (!root) return false;
+
+        observer.observe(root, {
+            childList: true,
+            subtree: true
+        });
+
+        protectSubtree(root);
+        protectFloatingStoreItemImages();
+        return true;
+    };
+
+    if (!startObserver()) {
+        let attempts = 0;
+        const timer = setInterval(() => {
+            attempts += 1;
+
+            if (startObserver() || attempts >= 100) {
+                clearInterval(timer);
+            }
+        }, 100);
+    }
+
+    /*
+     * Theo dõi DOM toàn trang để nếu PetManager thay ảnh nhân vật sau khi
+     * trang bị vật phẩm, ảnh mới vẫn bị vô hiệu kéo/long-press ngay khi
+     * người dùng đang ở Cửa hàng.
+     */
+    const floatingObserver = new MutationObserver(() => {
+        protectFloatingStoreItemImages();
+    });
+
+    const observeFloatingAssets = () => {
+        if (!document.body) return false;
+
+        floatingObserver.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+
+        protectFloatingStoreItemImages();
+        return true;
+    };
+
+    if (!observeFloatingAssets()) {
+        document.addEventListener(
+            'DOMContentLoaded',
+            observeFloatingAssets,
+            { once: true }
+        );
+    }
+
+    /*
+     * Tab được mở/đóng bằng class "active". Theo dõi riêng #tab-store
+     * để cập nhật bảo vệ cho nhân vật nổi mà không tạo vòng lặp observer.
+     */
+    const observeStoreVisibility = () => {
+        const root = getStoreRoot();
+        if (!root) return false;
+
+        const visibilityObserver = new MutationObserver(() => {
+            if (isStoreOpen()) {
+                protectSubtree(root);
+                protectFloatingStoreItemImages();
+            }
+        });
+
+        visibilityObserver.observe(root, {
+            attributes: true,
+            attributeFilter: ['class', 'style', 'hidden']
+        });
+
+        return true;
+    };
+
+    if (!observeStoreVisibility()) {
+        document.addEventListener(
+            'DOMContentLoaded',
+            observeStoreVisibility,
+            { once: true }
+        );
+    }
+
+    window.StoreImageProtection = Object.freeze({
+        protectSubtree,
+        protectFloatingStoreItemImages,
+        isStoreOpen,
+        isProtectedStoreImage
+    });
+})();
 
 /* =========================================================
    THÊM TAB KHUNG VIỀN + NỀN VÀO CỬA HÀNG

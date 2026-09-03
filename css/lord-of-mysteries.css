@@ -3448,22 +3448,6 @@ body.theme-lotm-mysteries .content > :is(
         right: 165px !important;
     }
 
-    /*
-     * Khi sidebar đang mở:
-     * ẩn cả 4 nút để không nằm lấp ló bên cạnh sidebar.
-     */
-    body.theme-lotm-mysteries
-    .dashboard:not(.collapsed)
-    .content > :is(
-        .profile-trigger-btn,
-        .inbox-trigger-btn,
-        .bag-trigger-btn,
-        .leaderboard-trigger-btn
-    ) {
-        visibility: hidden !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
-    }
 }
 /* === END FIX HIỂN THỊ 4 NÚT HỆ THỐNG — LOTM === */
 /* =========================================================

@@ -1191,6 +1191,7 @@
                     <article><b>🎯 Cách chơi</b><p>Hệ thống chọn ngẫu nhiên 10 câu trong bộ 100 câu có sẵn. Trả lời đúng 1 câu = 1 điểm.</p></article>
                     <article><b>⏱️ Thời gian</b><p>Mỗi câu có 50 giây. Hết giờ mà chưa gửi đáp án sẽ tính là bỏ câu và tự chuyển câu tiếp theo.</p></article>
                     <article><b>⌨️ Nhập đáp án</b><p>Phải đúng từng chữ và dấu tiếng Việt. Không phân biệt chữ hoa/thường; dấu chấm, phẩy và một số dấu câu không ảnh hưởng kết quả.</p></article>
+                    <article><b>💡 Gợi ý</b><p>Mỗi câu có nút Gợi ý. Gợi ý chỉ cho biết dạng đáp án, số từ hoặc chữ cái đầu; không hiển thị thẳng đáp án và không trừ điểm.</p></article>
                     <article><b>🏁 Giới hạn</b><p>Mỗi mùa sự kiện có 1 lượt chính thức. Nếu tải lại trang giữa chừng, hệ thống tiếp tục tiến trình đã lưu.</p></article>
                 </div>
                 <div class="history-reward-table">
@@ -1286,6 +1287,37 @@
                 renderGame();
         }
 
+        function buildQuestionHint(question) {
+                const answer = String(question?.displayAnswer || question?.answers?.[0] || '').trim();
+                if (!answer) return 'Hãy chú ý các từ khóa quan trọng trong câu hỏi.';
+
+                // Với mốc thời gian / con số, chỉ gợi ý dạng đáp án để tránh lộ trực tiếp.
+                if (/^\d{1,2}\/\d{1,2}(\/\d{2,4})?$/.test(answer)) {
+                        return `Đáp án là một mốc thời gian theo dạng ${answer.split('/').length === 3 ? 'ngày/tháng/năm' : 'ngày/tháng'}.`;
+                }
+                if (/^\d{4}$/.test(answer)) {
+                        return 'Đáp án là một năm gồm 4 chữ số.';
+                }
+                if (/^\d+\s*năm$/i.test(answer)) {
+                        return 'Đáp án là một con số kèm đơn vị “năm”.';
+                }
+                if (/\d/.test(answer)) {
+                        return `Đáp án có ${answer.length} ký tự và có chứa số.`;
+                }
+
+                // Với đáp án chữ, cho số từ + chữ cái đầu của từng từ.
+                const words = answer.split(/\s+/).filter(Boolean);
+                const initials = words.map(word => {
+                        const match = word.match(/[A-Za-zÀ-ỹĐđ]/u);
+                        return match ? match[0].toUpperCase() : '?';
+                }).join(' – ');
+
+                if (words.length === 1) {
+                        return `Đáp án gồm 1 từ và bắt đầu bằng chữ “${initials}”.`;
+                }
+                return `Đáp án gồm ${words.length} từ. Chữ cái đầu lần lượt: ${initials}.`;
+        }
+
         function renderGame() {
                 stopTimer();
                 const p = state.progress;
@@ -1311,6 +1343,11 @@
                     <h3>${escapeHtml(question.question)}</h3>
                     <label class="history-answer-label" for="historyAnswerInput">Nhập đáp án</label>
                     <input id="historyAnswerInput" class="history-answer-input" type="text" autocomplete="off" autocapitalize="sentences" spellcheck="false" maxlength="180" placeholder="Nhập đáp án chính xác...">
+                    <div class="history-hint-row">
+                        <button type="button" id="historyHintBtn" class="history-hint-btn">💡 Gợi ý</button>
+                        <span>Không trừ điểm</span>
+                    </div>
+                    <div id="historyHintBox" class="history-hint-box" aria-live="polite"></div>
                     <div id="historyFeedback" class="history-feedback" aria-live="polite"></div>
                     <button type="button" id="historySubmitAnswer" class="history-primary-btn history-submit-btn">Gửi đáp án</button>
                 </div>
@@ -1320,6 +1357,18 @@
 
                 const input = view.querySelector('#historyAnswerInput');
                 const submit = view.querySelector('#historySubmitAnswer');
+                const hintBtn = view.querySelector('#historyHintBtn');
+                const hintBox = view.querySelector('#historyHintBox');
+
+                hintBtn?.addEventListener('click', () => {
+                        if (!hintBox || state.answerSubmitting) return;
+                        hintBox.textContent = buildQuestionHint(question);
+                        hintBox.classList.add('show');
+                        hintBtn.disabled = true;
+                        hintBtn.textContent = '💡 Đã mở gợi ý';
+                        input?.focus();
+                });
+
                 input?.addEventListener('keydown', e => {
                         if (e.key === 'Enter') {
                                 e.preventDefault();
@@ -1411,9 +1460,11 @@
 
                 const inputEl = document.getElementById('historyAnswerInput');
                 const button = document.getElementById('historySubmitAnswer');
+                const hintButton = document.getElementById('historyHintBtn');
                 const feedback = document.getElementById('historyFeedback');
 
                 if (inputEl) inputEl.disabled = true;
+                if (hintButton) hintButton.disabled = true;
 
                 if (button) {
                         button.disabled = true;

@@ -223,6 +223,12 @@ class EffectManager {
             case 'effect_quoc_khanh_viet_dieu_non_song':
                 this.createNationalDayVietDieuWebEffect();
                 break;
+            case 'effect_truyenthuyet_da_trieu_tinh_nguyet':
+                this.createNyxMoonTideEffect();
+                break;
+            case 'effect_tamon_bside_spectrum_break':
+                this.createTamonBsideSpectrumBreakEffect();
+                break;
         }
         localStorage.setItem('active_effect', effectId);
     }
@@ -3397,6 +3403,309 @@ class EffectManager {
         });
 
         return realm;
+    }
+
+    /* =========================================================
+       TAMON'S B-SIDE · PHỔ NHIỄU B-SIDE
+       ID: effect_tamon_bside_spectrum_break
+       Namespace độc lập: tbfx1-*
+       - Hiệu ứng phủ toàn viewport.
+       - Không dùng lại class/keyframe của effect Tamon hay effect khác.
+       ========================================================= */
+    static createTamonBsideSpectrumBreakEffect() {
+        this.stopIntervals();
+        if (!this.container) return;
+
+        const reducedMotion =
+            window.matchMedia?.(
+                '(prefers-reduced-motion: reduce)'
+            ).matches;
+
+        const compact =
+            IS_MOBILE_EFFECT || reducedMotion;
+
+        const field = document.createElement('div');
+        field.className = 'tbfx1-spectrum-field ui-theme-immune';
+        field.dataset.themeImmune = 'true';
+        field.setAttribute('aria-hidden', 'true');
+
+        field.innerHTML = `
+            <div class="tbfx1-screen-wash"></div>
+            <div class="tbfx1-scan-matrix"></div>
+            <div class="tbfx1-spectrum-horizon"></div>
+
+            <div class="tbfx1-orbit tbfx1-orbit-a"></div>
+            <div class="tbfx1-orbit tbfx1-orbit-b"></div>
+            <div class="tbfx1-orbit tbfx1-orbit-c"></div>
+
+            <div class="tbfx1-wave wave-a"></div>
+            <div class="tbfx1-wave wave-b"></div>
+            <div class="tbfx1-wave wave-c"></div>
+
+            <div class="tbfx1-eq-bank eq-left"></div>
+            <div class="tbfx1-eq-bank eq-right"></div>
+
+            <div class="tbfx1-shard-field"></div>
+            <div class="tbfx1-signal-dust"></div>
+
+            <div class="tbfx1-spectrum-mark">
+                <small>TAMON'S B-SIDE</small>
+                <strong>SPECTRUM BREAK</strong>
+                <span>CHANNEL B · LIVE SIGNAL</span>
+            </div>
+        `;
+
+        const eqBanks = field.querySelectorAll('.tbfx1-eq-bank');
+        eqBanks.forEach((bank, bankIndex) => {
+            const barCount = compact ? 7 : 12;
+
+            for (let index = 0; index < barCount; index++) {
+                const bar = document.createElement('i');
+                bar.style.setProperty(
+                    '--tbfx1-bar-h',
+                    `${20 + ((index * 17 + bankIndex * 11) % 54)}px`
+                );
+                bar.style.setProperty(
+                    '--tbfx1-bar-delay',
+                    `${-(index % 7) * 0.13}s`
+                );
+                bank.appendChild(bar);
+            }
+        });
+
+        const shardField = field.querySelector('.tbfx1-shard-field');
+        const shardCount = compact ? 14 : 32;
+
+        for (let index = 0; index < shardCount; index++) {
+            const shard = document.createElement('span');
+            shard.className =
+                index % 5 === 0
+                    ? 'tbfx1-shard is-hot'
+                    : 'tbfx1-shard';
+
+            shard.style.setProperty(
+                '--tbfx1-x',
+                `${(index * 37 + 9) % 96}%`
+            );
+            shard.style.setProperty(
+                '--tbfx1-y',
+                `${(index * 61 + 7) % 92}%`
+            );
+            shard.style.setProperty(
+                '--tbfx1-rot',
+                `${(index * 29) % 180 - 90}deg`
+            );
+            shard.style.setProperty(
+                '--tbfx1-delay',
+                `${-(index % 13) * 0.31}s`
+            );
+            shard.style.setProperty(
+                '--tbfx1-duration',
+                `${4.8 + (index % 7) * 0.55}s`
+            );
+
+            shardField?.appendChild(shard);
+        }
+
+        const dustField = field.querySelector('.tbfx1-signal-dust');
+        const dustCount = compact ? 18 : 46;
+
+        for (let index = 0; index < dustCount; index++) {
+            const mote = document.createElement('span');
+            mote.className = 'tbfx1-mote';
+            mote.style.setProperty(
+                '--tbfx1-mote-x',
+                `${(index * 43 + 3) % 100}%`
+            );
+            mote.style.setProperty(
+                '--tbfx1-mote-y',
+                `${(index * 67 + 17) % 100}%`
+            );
+            mote.style.setProperty(
+                '--tbfx1-mote-size',
+                `${2 + (index % 4)}px`
+            );
+            mote.style.setProperty(
+                '--tbfx1-mote-delay',
+                `${-(index % 17) * 0.24}s`
+            );
+            mote.style.setProperty(
+                '--tbfx1-mote-duration',
+                `${4.2 + (index % 8) * 0.52}s`
+            );
+            dustField?.appendChild(mote);
+        }
+
+        this.container.appendChild(field);
+
+        requestAnimationFrame(() => {
+            field.classList.add('is-active');
+        });
+
+        // Vệt tín hiệu động sinh theo nhịp riêng của effect này.
+        this.currentInterval = setInterval(() => {
+            if (!field.isConnected) return;
+
+            const streak = document.createElement('span');
+            streak.className =
+                Math.random() > 0.72
+                    ? 'tbfx1-live-streak is-pink'
+                    : 'tbfx1-live-streak';
+
+            streak.style.setProperty(
+                '--tbfx1-streak-y',
+                `${Math.round(Math.random() * 88 + 6)}vh`
+            );
+            streak.style.setProperty(
+                '--tbfx1-streak-w',
+                `${Math.round(Math.random() * 24 + 16)}vw`
+            );
+            streak.style.setProperty(
+                '--tbfx1-streak-speed',
+                `${(Math.random() * 0.7 + 1.1).toFixed(2)}s`
+            );
+
+            field.appendChild(streak);
+
+            setTimeout(() => {
+                streak.remove();
+            }, 2200);
+        }, compact ? 1150 : 620);
+
+        return field;
+    }
+
+    static createNyxMoonTideEffect() {
+        this.stopIntervals();
+        if (!this.container) return;
+
+        const field = document.createElement('div');
+        field.classList.add('nyx-moon-tide-field');
+        this.container.appendChild(field);
+
+        const hasLittleSpirit =
+            document.querySelector('.nyx-little-night-spirit-magic') !== null;
+
+        const hasMoonTheme =
+            document.body.classList.contains('theme-nyx-moon-sanctum');
+
+        const densityBoost = hasLittleSpirit || hasMoonTheme;
+
+        // Hạt sáng + phù hiệu trăng / sao
+        this.currentInterval = setInterval(() => {
+            const isRune = Math.random() < 0.24;
+            const particle = document.createElement('span');
+
+            particle.classList.add(
+                isRune
+                    ? 'nyx-moon-tide-rune'
+                    : 'nyx-moon-tide-mote'
+            );
+
+            const viewport = this.getViewport();
+
+            const startX =
+                viewport.offsetLeft +
+                Math.random() * viewport.width;
+
+            const startY =
+                viewport.offsetTop +
+                viewport.height + 28;
+
+            particle.style.left = `${Math.round(startX)}px`;
+            particle.style.top = `${Math.round(startY)}px`;
+
+            particle.style.setProperty(
+                '--nyx-moon-drift',
+                `${Math.round(Math.random() * 140 - 70)}px`
+            );
+
+            particle.style.setProperty(
+                '--nyx-moon-rotate',
+                `${Math.round(Math.random() * 70 - 35)}deg`
+            );
+
+            const duration = Math.random() * 4 + 6;
+            particle.style.animationDuration = `${duration}s`;
+
+            if (isRune) {
+                particle.textContent =
+                    Math.random() > 0.5 ? '☾' : '✦';
+
+                particle.style.fontSize =
+                    `${Math.random() * 10 + 12}px`;
+
+                particle.style.opacity =
+                    `${Math.random() * 0.28 + 0.55}`;
+            } else {
+                const size = Math.random() * 5 + 4;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+            }
+
+            this.container.appendChild(particle);
+
+            setTimeout(() => {
+                if (particle.parentNode) {
+                    particle.remove();
+                }
+            }, duration * 1000 + 500);
+        }, IS_MOBILE_EFFECT ? 420 : (densityBoost ? 180 : 280));
+
+        // Sao băng / vòng hào quang
+        this.shootingStarInterval = setInterval(() => {
+            const comet = document.createElement('span');
+            comet.classList.add('nyx-moon-tide-comet');
+
+            if (densityBoost) {
+                comet.classList.add('is-enhanced');
+            }
+
+            this.setShootingStarPosition(comet);
+
+            comet.style.setProperty(
+                '--nyx-moon-comet-length',
+                `${Math.round(Math.random() * 120 + 120)}px`
+            );
+
+            const duration = Math.random() * 1.3 + 1.2;
+            comet.style.animationDuration = `${duration}s`;
+
+            this.container.appendChild(comet);
+
+            setTimeout(() => {
+                if (comet.parentNode) {
+                    comet.remove();
+                }
+            }, (duration + 0.5) * 1000);
+
+            if (Math.random() < 0.45) {
+                const halo = document.createElement('span');
+                halo.classList.add('nyx-moon-tide-halo');
+
+                this.setRandomScreenPosition(halo, 60);
+
+                const haloSize =
+                    Math.round(Math.random() * 110 + 90);
+
+                halo.style.width = `${haloSize}px`;
+                halo.style.height = `${haloSize}px`;
+
+                const haloDuration =
+                    Math.random() * 2 + 3.4;
+
+                halo.style.animationDuration =
+                    `${haloDuration}s`;
+
+                this.container.appendChild(halo);
+
+                setTimeout(() => {
+                    if (halo.parentNode) {
+                        halo.remove();
+                    }
+                }, haloDuration * 1000 + 500);
+            }
+        }, IS_MOBILE_EFFECT ? 3200 : (densityBoost ? 2100 : 3400));
     }
 
 }

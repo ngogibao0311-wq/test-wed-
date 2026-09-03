@@ -5,6 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trang Học Sinh</title>
+    <!-- Kết nối sớm tới CDN lõi; không tải thêm tài nguyên và không đổi chức năng -->
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="stylesheet" href="css/common.css?v=3.8">
     <link rel="stylesheet" href="css/student.css?v=3.8.1">
@@ -16,7 +20,7 @@
     <link rel="stylesheet" href="css/daily-login.css?v=3.8">
     <link rel="stylesheet" href="css/lord-of-mysteries.css?v=3.3">
     <link rel="stylesheet" href="css/legendery.css?v=3.8">
-    <link rel="stylesheet" href="css/leaderboard.css?v=3.3">
+    <link rel="stylesheet" href="css/leaderboard.css?v=3.4">
     <link rel="stylesheet" href="css/painting.css?v=3.8">
     <link rel="stylesheet" href="css/doraemon.css?v=3.8">
     <link rel="stylesheet" href="css/hoi-hoa.css?v=3.8">
@@ -28,6 +32,9 @@
     <link rel="stylesheet" href="css/premium-mua-xuan.css?v=3.8">
     <link rel="stylesheet" href="css/lich-su-hao-hung.css?v=20260831.1">
     <link rel="stylesheet" href="css/quoc-khanh-pet.css?v=3.8">
+    <link rel="stylesheet" href="css/update-manager.css?v=1.0.0">
+    <link rel="stylesheet" href="css/nyx-than-thoai.css?v=3.8">
+    <link rel="stylesheet" href="css/tamon-b-side.css?v=3.8">
     <script>
         MathJax = {
             tex: {
@@ -254,7 +261,7 @@
                 <span id="appStartupNetworkText">Đang kiểm tra mạng</span>
             </div>
 
-            <div id="appStartupDetails">Hệ thống sẽ chỉ mở giao diện sau khi các dữ liệu bắt buộc đã phản hồi.</div>
+            <div id="appStartupDetails">Hệ thống sẽ chỉ mở giao diện sau khi các dữ liệu bắt buộc đã phản hồi. Đang kiểm tra cấu hình tối ưu hiệu năng...</div>
 
             <div id="appStartupError" hidden>
                 <strong>Không thể hoàn tất khởi động</strong>
@@ -966,7 +973,7 @@
                 </div>
 
                 <div id="storeActiveView" style="display: block;">
-                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <div id="storeCategoryFilter" style="display: flex; gap: 10px; margin-bottom: 20px;">
                         <button onclick="filterStore('all')" class="btn-approve"
                             style="background: #667eea; color: white;">Tất cả</button>
                         <button onclick="filterStore('theme')" class="btn-approve"
@@ -1502,8 +1509,19 @@
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.7/dist/purify.min.js"></script>
 
     <!-- 4. Mã nền tảng -->
+    <script>
+        // Phiên bản thực sự của bộ HTML/JS đang chạy.
+        // common.js cũ đọc appVersion từ localStorage, nên đồng bộ trước khi nạp common.js.
+        window.APP_VERSION = '3.3.0';
+        try {
+            localStorage.setItem('appVersion', window.APP_VERSION);
+        } catch (_) {}
+    </script>
     <script src="js/common.js?v=3.8"></script>
+    <script src="js/update-manager.js?v=1.0.0"></script>
     <script src="js/web-animations.js?v=1.0"></script>
+    <!-- Tối ưu hiệu năng: tự bật trên mobile; desktop theo Cài đặt -->
+    <script src="js/web-performance-optimizer.js?v=2.0.0"></script>
     <script src="js/transaction-history.js?v=3.8"></script>
 
     <!-- 4. Các module tính năng -->
@@ -1514,16 +1532,16 @@
     <script src="js/pet-items.js?v=4.2"></script>
     <script src="js/pet-interactions.js?v=3.8"></script>
     <script src="js/music-manager.js?v=3.8"></script>
-    <script src="js/store-manager.js?v=3.8"></script>
-    <script src="js/leaderboard.js?v=3.3"></script>
+    <script src="js/store-manager.js?v=3.8.1"></script>
+    <script src="js/leaderboard.js?v=20260901.1707"></script>
     <script src="js/painting.js?v=3.8"></script>
-    <script src="js/luxury-store.js?v=4.2"></script>
+    <script src="js/luxury-store.js?v=4.2.1"></script>
 
     <!-- YouTube API không phụ thuộc Firebase -->
     <script src="https://www.youtube.com/iframe_api"></script>
 
     <!-- 5. Logic chính của trang học sinh luôn đặt cuối -->
-    <script src="js/student.js?v=3.8"></script>
+    <script src="js/student.js?v=3.10.2"></script>
     <script src="js/lich-su-hao-hung.js?v=20260831.1"></script>
     <script src="js/huong-dan-nguoi-moi.js?v=1.0.0"></script>
     <script src="js/store-collections.js?v=1.0"></script>

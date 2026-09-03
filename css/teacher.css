@@ -505,66 +505,38 @@ table td {
         flex-direction: column;
     }
 }
-/* ============================
-   FIX NÚT ĐÓNG / MỞ SIDEBAR
-   ============================ */
+/* FIX SIDEBAR GIÁO VIÊN */
+@media (min-width: 769px) {
+    .sidebar {
+        position: sticky !important;
+        top: 0 !important;
 
-.sidebar-toggle {
-    position: absolute !important;
-    top: 32px !important;
-    right: -17px !important;
-    left: auto !important;
-    bottom: auto !important;
-    margin: 0 !important;
+        height: 100vh !important;
+        height: 100dvh !important;
 
-    width: 34px !important;
-    height: 34px !important;
-    padding: 0 !important;
+        align-self: flex-start !important;
 
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-    color: white !important;
-
-    border: 2px solid rgba(255,255,255,.85) !important;
-    border-radius: 50% !important;
-
-    cursor: pointer !important;
-    z-index: 200 !important;
-
-    box-sizing: border-box !important;
-    transform-origin: center center !important;
-
-    transition:
-        transform .3s ease,
-        box-shadow .3s ease !important;
-
-    box-shadow: 0 8px 22px rgba(49,46,129,.32) !important;
+        overflow-x: visible !important;
+        overflow-y: auto !important;
+    }
 }
 
-/* SIDEBAR ĐANG MỞ */
-.dashboard:not(.collapsed) .sidebar-toggle {
-    transform: rotate(0deg) !important;
-}
-
-.dashboard:not(.collapsed) .sidebar-toggle:hover {
-    transform: scale(1.08) !important;
-}
-
-/* SIDEBAR THU GỌN */
-.dashboard.collapsed .sidebar-toggle {
-    transform: rotate(180deg) !important;
-}
-
-.dashboard.collapsed .sidebar-toggle:hover {
-    transform: rotate(180deg) scale(1.08) !important;
-}
-
-/* Mobile */
-@media (max-width: 760px) {
-    body.use-bottom-mobile-nav .sidebar-toggle {
-        display: none !important;
+/* 2. Định vị nút toggle bất kể thẻ cha ngoài cùng là gì */
+@media (min-width: 769px) {
+    .sidebar .sidebar-toggle {
+        position: absolute !important;
+        top: 32px !important;
+        right: -17px !important; /* Đẩy ra mép phải */
+        left: auto !important;
+        bottom: auto !important;
+        margin: 0 !important;
+        
+        z-index: 99999 !important; 
+        
+        width: 34px !important;
+        height: 34px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
 }

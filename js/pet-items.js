@@ -793,6 +793,137 @@ class PetManager {
         return realm;
     }
 
+    // =========================================================
+    // NYX · ĐÊM NGUYÊN SƠ V3 — ULTIMATE CANONICAL
+    // Một nơi duy nhất tạo ultimate để Luxury runtime và PetManager
+    // không còn chia đôi/mất tầng hiệu ứng khi click.
+    // =========================================================
+    static createNyxPrimordialNightUltimate(originX = null, originY = null) {
+        document
+            .querySelectorAll('.nyx-mythic-ultimate')
+            .forEach(node => node.remove());
+
+        const pet = document.querySelector(
+            '#virtual-pet-img.mythic-nyx-night-magic, #virtual-pet-img.nyx-mythic-avatar'
+        );
+        const rect = pet?.getBoundingClientRect?.();
+
+        const x = Number.isFinite(originX)
+            ? originX
+            : (rect ? rect.left + rect.width / 2 : window.innerWidth * .78);
+        const y = Number.isFinite(originY)
+            ? originY
+            : (rect ? rect.top + rect.height / 2 : window.innerHeight * .58);
+
+        const ultimate = document.createElement('div');
+        ultimate.className = 'nyx-mythic-ultimate nyx-mythic-ultimate-v3';
+        ultimate.setAttribute('aria-hidden', 'true');
+        ultimate.style.setProperty('--nyx-origin-x', `${x}px`);
+        ultimate.style.setProperty('--nyx-origin-y', `${y}px`);
+
+        ultimate.innerHTML = `
+            <div class="nyx-v3-nightfall"></div>
+            <div class="nyx-mythic-ultimate-veil"></div>
+
+            <div class="nyx-v3-abyss-gate">
+                <span class="nyx-v3-gate-ring gate-a"></span>
+                <span class="nyx-v3-gate-ring gate-b"></span>
+                <span class="nyx-v3-gate-ring gate-c"></span>
+                <span class="nyx-v3-gate-rune">ΝΥΞ</span>
+            </div>
+
+            <div class="nyx-mythic-ultimate-eclipse">
+                <span class="nyx-mythic-ultimate-core"></span>
+                <span class="nyx-mythic-ultimate-corona"></span>
+                <span class="nyx-v3-eclipse-ring ring-a"></span>
+                <span class="nyx-v3-eclipse-ring ring-b"></span>
+                <span class="nyx-v3-eclipse-crescent crescent-a">☾</span>
+                <span class="nyx-v3-eclipse-crescent crescent-b">☽</span>
+            </div>
+
+            <div class="nyx-v3-night-wings wing-left"></div>
+            <div class="nyx-v3-night-wings wing-right"></div>
+
+            <div class="nyx-v3-ray-vault"></div>
+            <div class="nyx-v3-rune-field"></div>
+            <div class="nyx-v3-shard-field"></div>
+            <div class="nyx-mythic-ultimate-stars"></div>
+
+            <div class="nyx-v3-horizon"></div>
+            <div class="nyx-v3-final-wave wave-a"></div>
+            <div class="nyx-v3-final-wave wave-b"></div>
+
+            <div class="nyx-mythic-ultimate-title">
+                <small>NYX · NỮ THẦN CỦA MÀN ĐÊM ĐẦU TIÊN</small>
+                <strong>ĐÊM NGUYÊN SƠ</strong>
+                <em>TRƯỚC ÁNH SÁNG · CHỈ CÓ HẮC DẠ</em>
+            </div>
+        `;
+
+        const reduced = window.matchMedia?.(
+            '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+        ).matches;
+
+        const stars = ultimate.querySelector('.nyx-mythic-ultimate-stars');
+        const starCount = reduced ? 22 : 54;
+        for (let index = 0; index < starCount; index++) {
+            const star = document.createElement('span');
+            star.textContent = index % 5 === 0 ? '✦' : '';
+            star.style.setProperty('--nyx-ux', `${(index * 37 + 5) % 96}%`);
+            star.style.setProperty('--nyx-uy', `${(index * 61 + 11) % 92}%`);
+            star.style.setProperty('--nyx-us', `${1.5 + (index % 6) * 1.35}px`);
+            star.style.setProperty('--nyx-ud', `${-index * .055}s`);
+            star.style.setProperty('--nyx-v3-star-drift', `${18 + (index % 7) * 8}px`);
+            stars?.appendChild(star);
+        }
+
+        const runeField = ultimate.querySelector('.nyx-v3-rune-field');
+        const runes = ['Ν', 'Υ', 'Ξ', '☾', '✦', '◈', '⋆', '☽', 'Ν', 'Υ', 'Ξ', '✧'];
+        runes.forEach((glyph, index) => {
+            const rune = document.createElement('span');
+            rune.textContent = glyph;
+            rune.style.setProperty('--nyx-v3-rune-angle', `${index * 30}deg`);
+            rune.style.setProperty('--nyx-v3-rune-radius', `${150 + (index % 3) * 32}px`);
+            rune.style.setProperty('--nyx-v3-rune-delay', `${index * .045}s`);
+            runeField?.appendChild(rune);
+        });
+
+        const shardField = ultimate.querySelector('.nyx-v3-shard-field');
+        const shardCount = reduced ? 14 : 34;
+        for (let index = 0; index < shardCount; index++) {
+            const shard = document.createElement('i');
+            shard.style.setProperty('--nyx-v3-shard-angle', `${(index * 137.5) % 360}deg`);
+            shard.style.setProperty('--nyx-v3-shard-distance', `${120 + (index % 8) * 34}px`);
+            shard.style.setProperty('--nyx-v3-shard-delay', `${(index % 9) * .035}s`);
+            shard.style.setProperty('--nyx-v3-shard-length', `${14 + (index % 6) * 7}px`);
+            shardField?.appendChild(shard);
+        }
+
+        document.body.appendChild(ultimate);
+
+        requestAnimationFrame(() => {
+            ultimate.classList.add('is-active');
+        });
+
+        window.setTimeout(() => {
+            ultimate.classList.add('is-climax');
+        }, 1050);
+
+        window.setTimeout(() => {
+            ultimate.classList.add('is-collapse');
+        }, 3150);
+
+        window.setTimeout(() => {
+            ultimate.classList.add('is-ending');
+        }, 4300);
+
+        window.setTimeout(() => {
+            ultimate.remove();
+        }, 5400);
+
+        return ultimate;
+    }
+
     static spawnPet(petData) {
         this.container =
             document.getElementById('virtual-pet-container') ||
@@ -808,6 +939,10 @@ class PetManager {
             .querySelectorAll(
                 '.nd29-independence-flash, .nd29-pet-dialogue'
             )
+            .forEach(node => node.remove());
+        // Dọn ultimate toàn màn hình Tamon Chibi nếu đổi / tháo pet khi hiệu ứng còn chạy.
+        document
+            .querySelectorAll('.tbc1-fullscreen-ultimate')
             .forEach(node => node.remove());
         // Dọn toàn bộ tương tác và vòng lặp của thú cưng trước
         if (
@@ -840,6 +975,25 @@ class PetManager {
             'pet-national-day-chibi-stage',
             'nd29-awakening',
             'nd29-casting',
+            'pet-nyx-mythic-stage',
+            'nyx-mythic-awakening',
+            'nyx-mythic-casting',
+            'pet-nyx-little-night-stage',
+            'nyx-little-night-casting',
+            'pet-tamon-bside-stage',
+            'tamon-bside-pet-casting',
+            'pet-tamon-bside-chibi-stage',
+            'tamon-bside-chibi-casting',
+            'pet-tamon-pinkstatic-stage',
+            'tamon-pinkstatic-casting',
+        );
+
+        // Dọn lớp Nyx toàn màn hình nếu người dùng đổi pet khi kỹ năng đang chạy.
+        document
+            .querySelectorAll('.nyx-mythic-ultimate')
+            .forEach(node => node.remove());
+        document.documentElement.classList.remove(
+            'nyx-mythic-pet-equipped'
         );
 
         let petElement;
@@ -863,6 +1017,205 @@ class PetManager {
         if (petData.petEffect) {
             petElement.classList.add(petData.petEffect);
             petElement.style.filter = '';
+        }
+
+        // =========================================================
+        // TAMON'S B-SIDE — FALLBACK LOCAL STAGE
+        // Luôn gắn class kích thước / idle trực tiếp từ PetManager.
+        // LuxuryStore sẽ bổ sung realm + world + UI sau khi spawn.
+        // =========================================================
+        if (
+            petData.id === 'pet_tamon_b_side_1' ||
+            petData.petEffect === 'tamon-b-side-soundwave-magic'
+        ) {
+            petElement.setAttribute('draggable', 'false');
+            petElement.classList.add('tamon-bside-pet');
+
+            this.container.classList.add(
+                'pet-tamon-bside-stage'
+            );
+        }
+
+
+        // =========================================================
+        // TAMON'S B-SIDE · CHIBI SIGNAL — EFFECT RIÊNG
+        // Không dùng class/keyframe của tamon-bside cũ hoặc Pink Static.
+        // =========================================================
+        if (
+            petData.id === 'pet_tamon_bside_chibi_1' ||
+            petData.petEffect === 'tamon-bside-chibi-signal-magic'
+        ) {
+            petElement.setAttribute('draggable', 'false');
+            petElement.classList.add('tamon-bside-chibi-avatar');
+            this.container.classList.add('pet-tamon-bside-chibi-stage');
+
+            const realm = document.createElement('div');
+            realm.className = 'tamon-bside-chibi-realm';
+            realm.setAttribute('aria-hidden', 'true');
+            realm.innerHTML = `
+                <span class="tbc1-halo halo-a"></span>
+                <span class="tbc1-halo halo-b"></span>
+                <span class="tbc1-signal-ring ring-a"></span>
+                <span class="tbc1-signal-ring ring-b"></span>
+                <span class="tbc1-wave wave-a"></span>
+                <span class="tbc1-wave wave-b"></span>
+                <div class="tbc1-spark-field"></div>
+            `;
+
+            const sparkField = realm.querySelector('.tbc1-spark-field');
+            const reducedMotion = window.matchMedia?.(
+                '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+            ).matches;
+            const sparkCount = reducedMotion ? 8 : 16;
+
+            for (let index = 0; index < sparkCount; index++) {
+                const spark = document.createElement('i');
+                spark.className = 'tbc1-ambient-spark';
+                spark.style.setProperty('--tbc1-angle', `${index * (360 / sparkCount)}deg`);
+                spark.style.setProperty('--tbc1-radius', `${54 + (index % 5) * 9}px`);
+                spark.style.setProperty('--tbc1-delay', `${-index * 0.18}s`);
+                sparkField?.appendChild(spark);
+            }
+
+            this.container.appendChild(realm);
+
+            let tamonBsideChibiClickLocked = false;
+            petElement.addEventListener('click', event => {
+                if (tamonBsideChibiClickLocked) return;
+                if (
+                    typeof PetInteractionManager !== 'undefined' &&
+                    PetInteractionManager.isPetDragging
+                ) return;
+
+                event.preventDefault();
+                event.stopPropagation();
+                tamonBsideChibiClickLocked = true;
+
+                this.container.classList.remove('tamon-bside-chibi-casting');
+                void this.container.offsetWidth;
+                this.container.classList.add('tamon-bside-chibi-casting');
+
+                const burst = document.createElement('div');
+                burst.className = 'tamon-bside-chibi-click-burst';
+                burst.setAttribute('aria-hidden', 'true');
+                burst.innerHTML = `
+                    <span class="tbc1-click-ring ring-a"></span>
+                    <span class="tbc1-click-ring ring-b"></span>
+                    <div class="tbc1-click-sparks"></div>
+                `;
+
+                const clickSparks = burst.querySelector('.tbc1-click-sparks');
+                for (let index = 0; index < 12; index++) {
+                    const spark = document.createElement('i');
+                    spark.className = 'tbc1-click-spark';
+                    spark.style.setProperty('--tbc1-click-angle', `${index * 30}deg`);
+                    spark.style.setProperty('--tbc1-click-distance', `${62 + (index % 4) * 13}px`);
+                    clickSparks?.appendChild(spark);
+                }
+
+                this.container.appendChild(burst);
+
+                // =====================================================
+                // TAMON'S B-SIDE CHIBI — FULLSCREEN CLICK ULTIMATE
+                // Hiệu ứng mới hoàn toàn, chỉ tồn tại khi nhấn pet này.
+                // Namespace tbc1-* không dùng class / keyframe effect cũ.
+                // =====================================================
+                document
+                    .querySelectorAll('.tbc1-fullscreen-ultimate')
+                    .forEach(node => node.remove());
+
+                const ultimate = document.createElement('div');
+                ultimate.className = 'tbc1-fullscreen-ultimate';
+                ultimate.setAttribute('aria-hidden', 'true');
+                ultimate.innerHTML = `
+                    <div class="tbc1-screen-flash"></div>
+                    <div class="tbc1-screen-vignette"></div>
+                    <div class="tbc1-screen-split split-blue"></div>
+                    <div class="tbc1-screen-split split-pink"></div>
+                    <div class="tbc1-screen-scanlines"></div>
+                    <div class="tbc1-screen-grid"></div>
+                    <div class="tbc1-screen-orbit orbit-a"></div>
+                    <div class="tbc1-screen-orbit orbit-b"></div>
+                    <div class="tbc1-screen-core">
+                        <span class="tbc1-screen-core-ring ring-one"></span>
+                        <span class="tbc1-screen-core-ring ring-two"></span>
+                        <span class="tbc1-screen-core-dot"></span>
+                    </div>
+                    <div class="tbc1-screen-wave wave-one"></div>
+                    <div class="tbc1-screen-wave wave-two"></div>
+                    <div class="tbc1-screen-wave wave-three"></div>
+                    <div class="tbc1-screen-shards"></div>
+                    <div class="tbc1-screen-eq"></div>
+                    <div class="tbc1-screen-signature">
+                        <small>TAMON'S B-SIDE</small>
+                        <strong>SIGNAL BREAK</strong>
+                    </div>
+                `;
+
+                const shardField = ultimate.querySelector('.tbc1-screen-shards');
+                const eqField = ultimate.querySelector('.tbc1-screen-eq');
+                const ultimateReduced = window.matchMedia?.(
+                    '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+                ).matches;
+
+                const shardCount = ultimateReduced ? 12 : 28;
+                for (let index = 0; index < shardCount; index++) {
+                    const shard = document.createElement('i');
+                    shard.className = 'tbc1-screen-shard';
+                    shard.style.setProperty('--tbc1-fx-x', `${(index * 37 + 9) % 100}%`);
+                    shard.style.setProperty('--tbc1-fx-y', `${(index * 61 + 13) % 100}%`);
+                    shard.style.setProperty('--tbc1-fx-delay', `${-(index % 9) * 0.07}s`);
+                    shard.style.setProperty('--tbc1-fx-rot', `${-28 + (index % 8) * 9}deg`);
+                    shard.style.setProperty('--tbc1-fx-scale', `${0.65 + (index % 5) * 0.18}`);
+                    shardField?.appendChild(shard);
+                }
+
+                const eqCount = ultimateReduced ? 14 : 30;
+                for (let index = 0; index < eqCount; index++) {
+                    const bar = document.createElement('i');
+                    bar.className = 'tbc1-screen-eq-bar';
+                    bar.style.setProperty('--tbc1-eq-index', index);
+                    bar.style.setProperty('--tbc1-eq-height', `${18 + ((index * 17) % 66)}px`);
+                    bar.style.setProperty('--tbc1-eq-delay', `${-(index % 10) * 0.045}s`);
+                    eqField?.appendChild(bar);
+                }
+
+                document.body.appendChild(ultimate);
+
+                requestAnimationFrame(() => {
+                    ultimate.classList.add('is-active');
+                });
+
+                window.setTimeout(() => {
+                    ultimate.classList.add('is-leaving');
+                }, 2200);
+
+                window.setTimeout(() => {
+                    ultimate.remove();
+                }, 2850);
+
+                window.setTimeout(() => burst.remove(), 1050);
+                window.setTimeout(() => {
+                    this.container?.classList.remove('tamon-bside-chibi-casting');
+                    tamonBsideChibiClickLocked = false;
+                }, 1150);
+            });
+        }
+
+
+        // =========================================================
+        // TAMON · PINK STATIC — FALLBACK LOCAL STAGE
+        // Class riêng hoàn toàn, không dùng tamon-bside-*.
+        // =========================================================
+        if (
+            petData.id === 'pet_tamon_b_side_2' ||
+            petData.petEffect === 'tamon-pink-static-magic'
+        ) {
+            petElement.setAttribute('draggable', 'false');
+            petElement.classList.add('tamon-pinkstatic-pet');
+            this.container.classList.add(
+                'pet-tamon-pinkstatic-stage'
+            );
         }
 
         // =========================================================
@@ -1069,6 +1422,219 @@ class PetManager {
 
             this.container.appendChild(drum);
         }
+
+        // =========================================================
+        // NYX · HẮC DẠ NGUYÊN SƠ — THẦN THOẠI
+        // Realm cục bộ hoàn toàn mới: nguyệt thực + sợi đêm + tinh tú.
+        // Không dùng class/keyframe của Mùa Xuân, Quốc khánh hay pet khác.
+        // =========================================================
+        if (
+            petData.petEffect ===
+            'mythic-nyx-night-magic'
+        ) {
+            petElement.setAttribute('draggable', 'false');
+            petElement.classList.add('nyx-mythic-avatar');
+
+            this.container.classList.add(
+                'pet-nyx-mythic-stage',
+                'nyx-mythic-awakening'
+            );
+
+            document.documentElement.classList.add(
+                'nyx-mythic-pet-equipped'
+            );
+
+            const realm = document.createElement('div');
+            realm.className = 'nyx-mythic-pet-realm';
+            realm.setAttribute('aria-hidden', 'true');
+
+            realm.innerHTML = `
+                <span class="nyx-v3-local-aura"></span>
+                <span class="nyx-mythic-local-eclipse"></span>
+                <span class="nyx-mythic-local-ring ring-a"></span>
+                <span class="nyx-mythic-local-ring ring-b"></span>
+                <span class="nyx-mythic-local-ring ring-c"></span>
+
+                <div class="nyx-v3-local-rune-wheel">
+                    <i>Ν</i><i>Υ</i><i>Ξ</i><i>☾</i>
+                    <i>✦</i><i>☽</i><i>◈</i><i>⋆</i>
+                </div>
+
+                <span class="nyx-v3-shadow-wing wing-left"></span>
+                <span class="nyx-v3-shadow-wing wing-right"></span>
+
+                <span class="nyx-mythic-night-thread thread-a"></span>
+                <span class="nyx-mythic-night-thread thread-b"></span>
+                <span class="nyx-mythic-night-thread thread-c"></span>
+
+                <div class="nyx-v3-crescent-orbit">
+                    <b class="crescent crescent-a">☾</b>
+                    <b class="crescent crescent-b">☽</b>
+                    <b class="crescent crescent-c">✦</b>
+                </div>
+
+                <div class="nyx-mythic-star-orbit"></div>
+                <div class="nyx-mythic-void-motes"></div>
+                <span class="nyx-v3-ground-sigil"></span>
+            `;
+
+            const orbit = realm.querySelector(
+                '.nyx-mythic-star-orbit'
+            );
+            const moteField = realm.querySelector(
+                '.nyx-mythic-void-motes'
+            );
+
+            const reduced = window.matchMedia?.(
+                '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+            ).matches;
+
+            const starCount = reduced ? 10 : 18;
+            for (let index = 0; index < starCount; index++) {
+                const star = document.createElement('span');
+                star.className = 'nyx-mythic-orbit-star';
+                star.textContent = index % 3 === 0 ? '✦' : '·';
+                star.style.setProperty('--nyx-angle', `${index * (360 / starCount)}deg`);
+                star.style.setProperty('--nyx-radius', `${68 + (index % 5) * 11}px`);
+                star.style.setProperty('--nyx-delay', `${-index * .31}s`);
+                orbit?.appendChild(star);
+            }
+
+            const moteCount = reduced ? 12 : 28;
+            for (let index = 0; index < moteCount; index++) {
+                const mote = document.createElement('span');
+                mote.className = 'nyx-mythic-void-mote';
+                mote.style.setProperty('--nyx-mx', `${(index * 47 + 9) % 100}%`);
+                mote.style.setProperty('--nyx-my', `${(index * 71 + 13) % 100}%`);
+                mote.style.setProperty('--nyx-md', `${-index * .27}s`);
+                mote.style.setProperty('--nyx-ms', `${2 + (index % 4)}px`);
+                moteField?.appendChild(mote);
+            }
+
+            this.container.appendChild(realm);
+
+            window.setTimeout(() => {
+                this.container?.classList.remove(
+                    'nyx-mythic-awakening'
+                );
+            }, 1500);
+        }
+
+        // =========================================================
+        // NYX · TIỂU DẠ TINH LINH
+        // Concept: tinh linh đêm + trăng non + bụi sao.
+        // KHÔNG dùng realm / class / animation Hắc Dạ Nguyên Sơ.
+        // =========================================================
+
+        if (
+            petData.petEffect ===
+            'nyx-little-night-spirit-magic'
+        ) {
+            petElement.setAttribute(
+                'draggable',
+                'false'
+            );
+
+            this.container.classList.add(
+                'pet-nyx-little-night-stage'
+            );
+
+            const realm =
+                document.createElement('div');
+
+            realm.className =
+                'nyx-little-pet-realm';
+
+            realm.setAttribute(
+                'aria-hidden',
+                'true'
+            );
+
+            realm.innerHTML = `
+        <span class="nyx-little-aura"></span>
+
+        <span
+            class="
+                nyx-little-orbit
+                orbit-one
+            "
+        ></span>
+
+        <span
+            class="
+                nyx-little-orbit
+                orbit-two
+            "
+        ></span>
+
+        <span class="nyx-little-crescent">
+            ☾
+        </span>
+
+        <span class="nyx-little-floor"></span>
+
+        <div
+            class="nyx-little-star-field"
+        ></div>
+    `;
+
+            const starField =
+                realm.querySelector(
+                    '.nyx-little-star-field'
+                );
+
+            /*
+             * Tinh tú quay quanh pet
+             */
+            for (
+                let index = 0;
+                index < 14;
+                index++
+            ) {
+                const star =
+                    document.createElement('span');
+
+                star.className =
+                    'nyx-little-pet-star';
+
+                star.textContent =
+                    index % 4 === 0
+                        ? '✦'
+                        : '·';
+
+                const littleAngle =
+                    index * (360 / 14);
+
+                star.style.setProperty(
+                    '--nyx-little-angle',
+                    `${littleAngle}deg`
+                );
+
+                star.style.setProperty(
+                    '--nyx-little-angle-back',
+                    `${-littleAngle}deg`
+                );
+
+                star.style.setProperty(
+                    '--nyx-little-radius',
+                    `${55 + (index % 4) * 9}px`
+                );
+
+                star.style.setProperty(
+                    '--nyx-little-delay',
+                    `${-index * 0.31}s`
+                );
+
+                starField?.appendChild(
+                    star
+                );
+            }
+
+            this.container.appendChild(
+                realm
+            );
+        }
+
         // =========================================================
         // MÈO NHỎ NGÀY MƯA — KHUNG MƯA CỤC BỘ
         // Chỉ tạo phần tử bên trong container thú cưng.
@@ -1905,44 +2471,48 @@ class PetManager {
 
         this.container.appendChild(petElement);
 
-        /*
-         * Bé Rắn dùng grid để ảnh, vòng và bệ được căn giữa.
-         * Các pet khác vẫn giữ display block như cũ.
-         */
+        // =========================================================
+        // KHÔI PHỤC HIỂN THỊ CHUNG CHO MỌI THÚ CƯNG
+        // applyEquippedItems() / unapplyItem() có thể để container
+        // ở display:none. spawnPet phải chủ động bật lại container.
+        // =========================================================
         this.container.style.display =
             petData.id === 'pet_sinh_nhat_2026'
                 ? 'grid'
                 : 'block';
 
+        this.container.style.visibility = 'visible';
+        this.container.style.opacity = '1';
+        this.container.style.pointerEvents = 'auto';
+        this.container.removeAttribute('hidden');
+        this.container.setAttribute('aria-hidden', 'false');
+
         this.container.classList.add('pet-idle');
 
         /*
-         * Đặt Bé Rắn cách xa mép phải và mép dưới.
-         * Chạy sau khi DOM và class hiệu ứng đã được gắn.
+         * Bé Rắn dùng vị trí riêng như cơ chế cũ.
+         * Các pet khác giữ vị trí đã có/được kéo bởi người dùng.
          */
         if (petData.id === 'pet_sinh_nhat_2026') {
             requestAnimationFrame(() => {
                 const container = this.container;
 
-                container.style.position = 'fixed';
+                if (!container) return;
 
+                container.style.position = 'fixed';
                 container.style.left = 'auto';
                 container.style.top = 'auto';
-
                 container.style.right = '42px';
                 container.style.bottom = '72px';
-
                 container.style.margin = '0';
                 container.style.zIndex = '5000';
-
-                /*
-                 * Không đặt transform: none vì có thể chặn
-                 * animation đứng chờ của thú cưng.
-                 */
                 container.style.removeProperty('transform');
             });
         }
 
+        // =========================================================
+        // NÚT THÁO THÚ CƯNG — KHÔI PHỤC CƠ CHẾ CHUNG
+        // =========================================================
         const closeBtn = document.createElement('button');
 
         closeBtn.type = 'button';
@@ -1986,11 +2556,11 @@ class PetManager {
             closeBtn.style.opacity = isTouchDevice ? '0.82' : '0';
         };
 
-        closeBtn.addEventListener('pointerdown', (event) => {
+        closeBtn.addEventListener('pointerdown', event => {
             event.stopPropagation();
         });
 
-        closeBtn.addEventListener('click', (event) => {
+        closeBtn.addEventListener('click', event => {
             event.preventDefault();
             event.stopPropagation();
 
@@ -2003,8 +2573,424 @@ class PetManager {
         });
 
         this.container.appendChild(closeBtn);
+
+        // Khôi phục kéo-thả + lưu pet hiện tại như cơ chế cũ.
         this.makePetDraggable();
         localStorage.setItem('active_pet', petData.id);
+
+        // =========================================================
+        // NYX · TIỂU DẠ TINH LINH
+        // CLICK ULTIMATE — DẠ TINH GIỚI
+        // =========================================================
+
+        if (
+            petData.petEffect ===
+            'nyx-little-night-spirit-magic'
+        ) {
+
+            let littleNyxLocked = false;
+
+
+            petElement.addEventListener(
+
+                'click',
+
+                event => {
+
+                    if (littleNyxLocked) {
+                        return;
+                    }
+
+
+                    if (
+                        typeof PetInteractionManager !==
+                        'undefined' &&
+
+                        PetInteractionManager
+                            .isPetDragging
+                    ) {
+                        return;
+                    }
+
+
+                    event.preventDefault();
+                    event.stopPropagation();
+
+
+                    littleNyxLocked = true;
+
+
+                    document
+                        .querySelectorAll(
+                            '.nyx-little-night-ultimate'
+                        )
+                        .forEach(
+                            node => node.remove()
+                        );
+
+
+                    const rect =
+                        petElement
+                            .getBoundingClientRect();
+
+
+                    const x =
+                        event.clientX > 0
+                            ? event.clientX
+                            : rect.left +
+                            rect.width / 2;
+
+
+                    const y =
+                        event.clientY > 0
+                            ? event.clientY
+                            : rect.top +
+                            rect.height / 2;
+
+
+                    const ultimate =
+                        document.createElement(
+                            'div'
+                        );
+
+
+                    ultimate.className =
+                        'nyx-little-night-ultimate';
+
+
+                    ultimate.style.setProperty(
+                        '--nyx-little-origin-x',
+                        `${x}px`
+                    );
+
+
+                    ultimate.style.setProperty(
+                        '--nyx-little-origin-y',
+                        `${y}px`
+                    );
+
+
+                    ultimate.innerHTML = `
+
+                <div
+                    class="nyx-little-screen-veil"
+                ></div>
+
+
+                <div
+                    class="nyx-little-origin-burst"
+                ></div>
+
+
+                <div
+                    class="nyx-little-grand-moon"
+                >
+
+                    <span
+                        class="nyx-little-moon-core"
+                    ></span>
+
+                    <span
+                        class="
+                            nyx-little-moon-ring
+                            ring-one
+                        "
+                    ></span>
+
+                    <span
+                        class="
+                            nyx-little-moon-ring
+                            ring-two
+                        "
+                    ></span>
+
+                    <span
+                        class="
+                            nyx-little-moon-ring
+                            ring-three
+                        "
+                    ></span>
+
+                </div>
+
+
+                <div
+                    class="nyx-little-rune-circle"
+                >
+
+                    <span>Ν</span>
+                    <span>Υ</span>
+                    <span>Ξ</span>
+                    <span>☾</span>
+
+                    <span>✦</span>
+                    <span>☽</span>
+                    <span>⋆</span>
+                    <span>◈</span>
+
+                </div>
+
+
+                <div
+                    class="nyx-little-screen-stars"
+                ></div>
+
+
+                <div
+                    class="nyx-little-screen-comets"
+                ></div>
+
+
+                <span
+                    class="nyx-little-horizon"
+                ></span>
+
+
+                <div
+                    class="nyx-little-ultimate-title"
+                >
+
+                    <small>
+                        NYX · TIỂU DẠ TINH LINH
+                    </small>
+
+                    <strong>
+                        DẠ TINH GIỚI
+                    </strong>
+
+                    <em>
+                        TINH TÚ THỨC GIẤC
+                        GIỮA MÀN ĐÊM
+                    </em>
+
+                </div>
+            `;
+
+
+                    /* ==========================
+                       TINH TÚ TOÀN MÀN HÌNH
+                       ========================== */
+
+                    const starField =
+                        ultimate.querySelector(
+                            '.nyx-little-screen-stars'
+                        );
+
+
+                    for (
+                        let i = 0;
+                        i < 52;
+                        i++
+                    ) {
+
+                        const star =
+                            document.createElement(
+                                'span'
+                            );
+
+
+                        star.textContent =
+                            i % 5 === 0
+                                ? '✦'
+                                : '·';
+
+
+                        star.style.setProperty(
+                            '--star-x',
+                            `${(i * 37 + 7) % 100}%`
+                        );
+
+
+                        star.style.setProperty(
+                            '--star-y',
+                            `${(i * 59 + 11) % 100}%`
+                        );
+
+
+                        star.style.setProperty(
+                            '--star-size',
+                            `${5 + i % 11}px`
+                        );
+
+
+                        star.style.setProperty(
+                            '--star-delay',
+                            `${(i % 12) * .06}s`
+                        );
+
+
+                        starField?.appendChild(
+                            star
+                        );
+                    }
+
+
+                    /* ==========================
+                       SAO BĂNG
+                       ========================== */
+
+                    const cometField =
+                        ultimate.querySelector(
+                            '.nyx-little-screen-comets'
+                        );
+
+
+                    for (
+                        let i = 0;
+                        i < 10;
+                        i++
+                    ) {
+
+                        const comet =
+                            document.createElement(
+                                'i'
+                            );
+
+
+                        comet.style.setProperty(
+                            '--comet-y',
+                            `${7 + i * 9}%`
+                        );
+
+
+                        comet.style.setProperty(
+                            '--comet-delay',
+                            `${.35 + i * .16}s`
+                        );
+
+
+                        cometField?.appendChild(
+                            comet
+                        );
+                    }
+
+
+                    document.body.appendChild(
+                        ultimate
+                    );
+
+
+                    this.container.classList.add(
+                        'nyx-little-night-casting'
+                    );
+
+
+                    requestAnimationFrame(
+                        () => {
+                            ultimate.classList.add(
+                                'is-active'
+                            );
+                        }
+                    );
+
+
+                    window.setTimeout(
+                        () => {
+
+                            ultimate.classList.add(
+                                'is-ending'
+                            );
+
+                        },
+                        4500
+                    );
+
+
+                    window.setTimeout(
+                        () => {
+
+                            ultimate.remove();
+
+                            this.container
+                                ?.classList.remove(
+                                    'nyx-little-night-casting'
+                                );
+
+                            littleNyxLocked =
+                                false;
+
+                        },
+                        5400
+                    );
+                },
+
+                {
+                    signal:
+                        this
+                            .interactionAbortController
+                            .signal
+                }
+            );
+        }
+
+        // =========================================================
+        // NYX · KỸ NĂNG CLICK — "ĐÊM NGUYÊN SƠ V3"
+        // PetManager phụ trách local casting + ultimate canonical.
+        // Luxury runtime phụ trách screen burst / giao diện toàn web.
+        // Cờ trên Event bảo đảm ultimate chỉ tạo đúng 1 lần dù thứ tự listener thay đổi.
+        // =========================================================
+        if (
+            petData.petEffect ===
+            'mythic-nyx-night-magic'
+        ) {
+            let nyxSkillLocked = false;
+
+            petElement.addEventListener(
+                'click',
+                event => {
+                    if (nyxSkillLocked) return;
+
+                    if (
+                        typeof PetInteractionManager !== 'undefined' &&
+                        PetInteractionManager.isPetDragging
+                    ) {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    this.container.classList.remove(
+                        'nyx-mythic-casting'
+                    );
+                    void this.container.offsetWidth;
+                    this.container.classList.add(
+                        'nyx-mythic-casting'
+                    );
+
+                    const rect = petElement.getBoundingClientRect();
+                    const x =
+                        Number.isFinite(event.clientX) && event.clientX > 0
+                            ? event.clientX
+                            : rect.left + rect.width / 2;
+                    const y =
+                        Number.isFinite(event.clientY) && event.clientY > 0
+                            ? event.clientY
+                            : rect.top + rect.height / 2;
+
+                    if (!event.__nyxUltimateHandled) {
+                        event.__nyxUltimateHandled = true;
+                        this.createNyxPrimordialNightUltimate(x, y);
+                    }
+
+                    nyxSkillLocked = true;
+
+                    window.setTimeout(() => {
+                        this.container?.classList.remove(
+                            'nyx-mythic-casting'
+                        );
+                    }, 1750);
+
+                    window.setTimeout(() => {
+                        nyxSkillLocked = false;
+                    }, 5600);
+                },
+                {
+                    signal:
+                        this.interactionAbortController?.signal
+                }
+            );
+        }
 
         // =========================================================
         // QUỐC KHÁNH 2/9 — ULTIMATE NHẤN

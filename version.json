@@ -1,3 +1,18 @@
 {
-  "version": "3.1.0"
+  "version": "3.3.0",
+  "build": "2026.09.01.1",
+  "channel": "stable",
+  "releasedAt": "2026-09-01T13:00:00+07:00",
+  "title": "Trung tâm cập nhật hệ thống mới",
+  "summary": "Nâng cấp toàn bộ cơ chế kiểm tra và cài đặt phiên bản mới cho cả trang Giáo viên và Học sinh.",
+  "mandatory": false,
+  "minSupportedVersion": "3.0.0",
+  "changes": [
+    "Hiển thị phiên bản đang chạy, phiên bản mới nhất, build, ngày phát hành và ghi chú thay đổi.",
+    "So sánh phiên bản theo SemVer để tránh nhận nhầm bản cũ là bản cập nhật mới.",
+    "Cập nhật Service Worker và dọn cache theo thứ tự, có trạng thái và phần trăm tiến trình.",
+    "Chỉ xác nhận cập nhật thành công sau khi trang mới thực sự chạy đúng phiên bản.",
+    "Tự kiểm tra lại khi có Internet, khi quay lại tab và định kỳ mà không làm gián đoạn bài tập hoặc bài nộp.",
+    "Hỗ trợ Để sau và sẵn cơ chế cập nhật bắt buộc bằng trường mandatory hoặc minSupportedVersion."
+  ]
 }

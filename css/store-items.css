@@ -2839,9 +2839,9 @@ body.theme-vethan-nganha::-webkit-scrollbar-thumb {
         transform: none !important;
     }
 
-    /* Sidebar mở: nút ✕ nằm cạnh sidebar */
+    /* Mobile: nút ✕ vẫn ở góc trái; chỉ sidebar trượt. */
     body.theme-vethan-nganha .dashboard:not(.collapsed) .sidebar-toggle {
-        left: 275px !important;
+        left: 15px !important;
         right: auto !important;
         transform: none !important;
     }

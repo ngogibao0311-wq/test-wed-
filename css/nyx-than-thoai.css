@@ -1,0 +1,6029 @@
+/* ============================================================================
+   NYX · HẮC DẠ NGUYÊN SƠ — THẦN THOẠI
+   Dành riêng cho: pet_mythic_nyx_1
+
+   Một file CSS đảm nhận:
+   1) Tag THẦN THOẠI thiết kế riêng
+   2) Card cửa hàng riêng, khóa theo data-item-id / data-special-card
+   3) Pet idle / awakening / casting riêng
+   4) Ultimate click "ĐÊM NGUYÊN SƠ"
+   5) Full Premium Suite: world + interface + global click + skin toàn web
+
+   Namespace duy nhất: nyx-mythic-*
+   Không dùng lại keyframe/class của Mùa Xuân, Quốc khánh hay pet cũ.
+   ============================================================================ */
+
+:root {
+    --nyx-ink: #090713;
+    --nyx-night: #130d25;
+    --nyx-violet: #34205d;
+    --nyx-amethyst: #7752b9;
+    --nyx-mauve: #b695e4;
+    --nyx-moon: #e5dcff;
+    --nyx-star: #f5efff;
+    --nyx-silver: #bdb5d4;
+}
+
+/* ============================================================================
+   1) CARD RIÊNG — KHÓA STYLE
+   ============================================================================ */
+
+.luxury-product-card.nyx-mythic-card,
+.luxury-product-card[data-item-id="pet_mythic_nyx_1"],
+.luxury-product-card[data-special-card="mythic-nyx"] {
+    position: relative !important;
+    isolation: isolate !important;
+    overflow: hidden !important;
+    min-height: 365px;
+    border: 1px solid rgba(190, 169, 230, .44) !important;
+    border-radius: 20px !important;
+    background: #0d0918 !important;
+    color: #f6f1ff !important;
+    box-shadow:
+        0 20px 46px rgba(14, 8, 28, .34),
+        inset 0 0 0 1px rgba(255, 255, 255, .035) !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    text-shadow: none !important;
+    transform-style: flat !important;
+}
+
+.nyx-mythic-card .nyx-mythic-visual {
+    position: relative !important;
+    min-height: 365px !important;
+    overflow: hidden !important;
+    border-radius: inherit !important;
+    background:
+        radial-gradient(circle at 50% 28%, rgba(119, 82, 185, .19), transparent 27%),
+        radial-gradient(circle at 18% 12%, rgba(229, 220, 255, .06), transparent 20%),
+        linear-gradient(168deg, #18102b 0%, #0d0918 48%, #07060d 100%) !important;
+}
+
+.nyx-mythic-nightglass {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(112deg, transparent 0 35%, rgba(226, 216, 255, .045) 45%, transparent 56%),
+        radial-gradient(ellipse at 50% 115%, rgba(68, 43, 110, .26), transparent 48%);
+}
+
+.nyx-mythic-nightglass::before,
+.nyx-mythic-nightglass::after {
+    content: "";
+    position: absolute;
+    width: 180px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(215, 200, 255, .22), transparent);
+    transform-origin: center;
+}
+
+.nyx-mythic-nightglass::before {
+    left: -18px;
+    top: 74px;
+    transform: rotate(26deg);
+}
+
+.nyx-mythic-nightglass::after {
+    right: -24px;
+    top: 126px;
+    transform: rotate(-31deg);
+}
+
+.nyx-mythic-eclipse {
+    position: absolute;
+    left: 50%;
+    top: 38%;
+    z-index: 1;
+    width: 196px;
+    height: 196px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.nyx-mythic-eclipse-core {
+    position: absolute;
+    inset: 38px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 42% 35%, #25163e 0%, #100b1b 48%, #05040a 100%);
+    box-shadow:
+        0 0 0 1px rgba(229, 220, 255, .18),
+        0 0 23px rgba(119, 82, 185, .24),
+        -13px -7px 28px rgba(214, 196, 255, .13);
+}
+
+.nyx-mythic-eclipse-ring {
+    position: absolute;
+    inset: 18px;
+    border-radius: 50%;
+    border: 1px solid rgba(202, 187, 238, .28);
+}
+
+.nyx-mythic-eclipse-ring.ring-a {
+    animation: nyxMythicCardOrbit 12s linear infinite;
+    clip-path: polygon(0 0, 100% 0, 100% 46%, 0 73%);
+}
+
+.nyx-mythic-eclipse-ring.ring-b {
+    inset: 6px;
+    border-color: rgba(119, 82, 185, .18);
+    animation: nyxMythicCardOrbitReverse 17s linear infinite;
+    clip-path: polygon(0 34%, 100% 8%, 100% 100%, 0 100%);
+}
+
+.nyx-mythic-constellation {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.nyx-mythic-constellation i {
+    --x: calc(8% + (var(--i) * 7.2%));
+    position: absolute;
+    left: var(--x);
+    top: calc(12% + var(--i) * 4.8%);
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: rgba(244, 239, 255, .82);
+    box-shadow: 0 0 7px rgba(204, 184, 245, .74);
+    animation: nyxMythicStarBlink calc(2.1s + var(--i) * .11s) ease-in-out infinite alternate;
+}
+
+/* ================================================================
+   NYX · TAG THẦN THOẠI BẰNG ẢNH
+   assets/Premium/Thần thoại/nyx-tag1.png
+   ================================================================ */
+
+.nyx-mythic-tag {
+    position: absolute !important;
+
+    top: 12px !important;
+    left: 12px !important;
+
+    z-index: 25 !important;
+
+    width: 128px !important;
+    height: auto !important;
+
+    display: block !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    border: 0 !important;
+    border-radius: 0 !important;
+
+    background: transparent !important;
+    box-shadow: none !important;
+
+    overflow: visible !important;
+
+    pointer-events: none !important;
+
+    transform-origin: center !important;
+
+    animation:
+        nyxMythicTagImageFloat 4.6s ease-in-out infinite !important;
+}
+
+
+/* ẢNH TAG */
+
+.nyx-mythic-tag-art {
+    position: relative !important;
+
+    z-index: 2 !important;
+
+    display: block !important;
+
+    width: 100% !important;
+    height: auto !important;
+
+    object-fit: contain !important;
+
+    opacity: 1 !important;
+
+    filter:
+        drop-shadow(0 4px 7px rgba(5, 2, 13, .72)) drop-shadow(0 0 5px rgba(137, 91, 211, .28)) !important;
+
+    animation:
+        nyxMythicTagImageGlow 3.6s ease-in-out infinite !important;
+}
+
+
+/* ÁNH SÁNG QUÉT THEO HÌNH TAG */
+
+.nyx-mythic-tag::after {
+    content: "";
+
+    position: absolute !important;
+    inset: 0 !important;
+
+    z-index: 3 !important;
+
+    pointer-events: none !important;
+
+    background:
+        linear-gradient(110deg,
+            transparent 20%,
+            rgba(255, 255, 255, 0) 35%,
+            rgba(242, 230, 255, .72) 49%,
+            rgba(191, 155, 239, .32) 55%,
+            transparent 72%) !important;
+
+    background-size: 260% 100% !important;
+    background-position: 180% 50%;
+
+    -webkit-mask:
+        url("assets/Premium/Thần thoại/nyx-tag1.png") center / contain no-repeat;
+
+    mask:
+        url("assets/Premium/Thần thoại/nyx-tag1.png") center / contain no-repeat;
+
+    opacity: 0;
+
+    animation:
+        nyxMythicTagImageSweep 5.8s ease-in-out infinite !important;
+}
+
+
+/* ================================================================
+   ANIMATION TAG
+   ================================================================ */
+
+@keyframes nyxMythicTagImageFloat {
+
+    0%,
+    100% {
+        transform:
+            translateY(0) scale(1);
+    }
+
+    50% {
+        transform:
+            translateY(-2px) scale(1.018);
+    }
+}
+
+
+@keyframes nyxMythicTagImageGlow {
+
+    0%,
+    100% {
+        filter:
+            drop-shadow(0 4px 7px rgba(5, 2, 13, .72)) drop-shadow(0 0 4px rgba(137, 91, 211, .22));
+    }
+
+    50% {
+        filter:
+            drop-shadow(0 5px 9px rgba(5, 2, 13, .76)) drop-shadow(0 0 9px rgba(175, 128, 235, .48));
+    }
+}
+
+
+@keyframes nyxMythicTagImageSweep {
+
+    0%,
+    58% {
+        opacity: 0;
+        background-position: 180% 50%;
+    }
+
+    66% {
+        opacity: .78;
+    }
+
+    82% {
+        opacity: .35;
+        background-position: -80% 50%;
+    }
+
+    86%,
+    100% {
+        opacity: 0;
+        background-position: -80% 50%;
+    }
+}
+
+.nyx-mythic-character {
+    position: absolute !important;
+    left: 50% !important;
+    bottom: 16px !important;
+    z-index: 7 !important;
+    width: min(78%, 205px) !important;
+    max-height: 315px !important;
+    object-fit: contain !important;
+    transform: translateX(-50%) !important;
+    transform-origin: 50% 88% !important;
+    filter:
+        drop-shadow(0 17px 15px rgba(3, 2, 8, .42)) drop-shadow(0 0 9px rgba(136, 100, 193, .18)) !important;
+    transition: transform .35s ease, filter .35s ease !important;
+}
+
+.nyx-mythic-card:hover .nyx-mythic-character,
+.nyx-mythic-card:focus-within .nyx-mythic-character {
+    transform: translateX(-50%) translateY(-9px) scale(1.035) !important;
+    filter:
+        drop-shadow(0 20px 18px rgba(3, 2, 8, .48)) drop-shadow(0 0 15px rgba(174, 139, 224, .28)) !important;
+}
+
+.nyx-mythic-details {
+    position: absolute !important;
+    left: 10px !important;
+    right: 10px !important;
+    bottom: 10px !important;
+    z-index: 30 !important;
+    padding: 14px !important;
+    border: 1px solid rgba(202, 187, 238, .24) !important;
+    border-radius: 14px !important;
+    background: rgba(9, 7, 19, .91) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    box-shadow: 0 12px 26px rgba(0, 0, 0, .28) !important;
+    transform: translateY(calc(100% + 16px));
+    opacity: 0;
+    transition: transform .32s ease, opacity .25s ease;
+}
+
+.nyx-mythic-card:hover .nyx-mythic-details,
+.nyx-mythic-card:focus-within .nyx-mythic-details,
+.nyx-mythic-card:focus .nyx-mythic-details {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.nyx-mythic-type {
+    margin-bottom: 6px;
+    color: #cdb8ef !important;
+    font-size: 10px !important;
+    font-weight: 900 !important;
+    letter-spacing: .11em !important;
+}
+
+.nyx-mythic-details h3 {
+    margin: 0 0 7px !important;
+    color: #fbf9ff !important;
+    font-size: 1.04rem !important;
+}
+
+.nyx-mythic-details p {
+    margin: 0 0 10px !important;
+    color: rgba(235, 226, 249, .73) !important;
+    font-size: .78rem !important;
+    line-height: 1.48 !important;
+}
+
+.nyx-mythic-price {
+    margin-bottom: 10px;
+    color: #e2d5f7 !important;
+    font-size: .78rem;
+    font-weight: 800;
+}
+
+.nyx-mythic-action {
+    width: 100% !important;
+    padding: 10px 12px !important;
+    border: 1px solid rgba(220, 205, 250, .32) !important;
+    border-radius: 10px !important;
+    background: linear-gradient(135deg, #291b45, #5b3a88) !important;
+    color: white !important;
+    font-weight: 900 !important;
+    cursor: pointer !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .09) !important;
+}
+
+.nyx-mythic-action:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.08);
+}
+
+.nyx-mythic-action.is-equipped {
+    background: linear-gradient(135deg, #161020, #332044) !important;
+}
+
+/* ============================================================================
+   2) PET REALM CỤC BỘ
+   ============================================================================ */
+
+#virtual-pet-container.pet-nyx-mythic-stage {
+    isolation: isolate !important;
+    overflow: visible !important;
+    width: 190px;
+    min-height: 210px;
+}
+
+#virtual-pet-container.pet-nyx-mythic-stage #virtual-pet-img.mythic-nyx-night-magic {
+    position: relative !important;
+    z-index: 20 !important;
+    width: 178px !important;
+    max-width: none !important;
+    height: auto !important;
+    user-select: none !important;
+    cursor: pointer !important;
+    transform-origin: 50% 78% !important;
+    filter:
+        drop-shadow(0 13px 13px rgba(7, 4, 14, .32)) drop-shadow(0 0 10px rgba(146, 109, 201, .21)) !important;
+    animation: nyxMythicPetIdle 4.9s cubic-bezier(.42, 0, .35, 1) infinite !important;
+}
+
+.nyx-mythic-pet-realm {
+    position: absolute;
+    inset: -28px -20px -34px;
+    z-index: 4;
+    pointer-events: none;
+    overflow: visible;
+}
+
+.nyx-mythic-local-eclipse {
+    position: absolute;
+    left: 50%;
+    top: 49%;
+    width: 134px;
+    height: 134px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(20, 12, 34, .96) 0 44%, rgba(77, 45, 121, .18) 45% 55%, transparent 70%);
+    box-shadow: 0 0 24px rgba(103, 72, 153, .18);
+    animation: nyxMythicEclipseBreathe 4.3s ease-in-out infinite alternate;
+}
+
+.nyx-mythic-local-ring {
+    position: absolute;
+    left: 50%;
+    top: 49%;
+    width: 154px;
+    height: 154px;
+    margin: -77px 0 0 -77px;
+    border-radius: 50%;
+    border: 1px solid rgba(198, 181, 231, .26);
+}
+
+.nyx-mythic-local-ring.ring-a {
+    animation: nyxMythicPetRing 11s linear infinite;
+    clip-path: polygon(0 0, 100% 0, 100% 46%, 0 68%);
+}
+
+.nyx-mythic-local-ring.ring-b {
+    width: 178px;
+    height: 178px;
+    margin: -89px 0 0 -89px;
+    opacity: .55;
+    animation: nyxMythicPetRingReverse 16s linear infinite;
+    clip-path: polygon(0 42%, 100% 17%, 100% 100%, 0 100%);
+}
+
+.nyx-mythic-night-thread {
+    position: absolute;
+    left: 50%;
+    top: 52%;
+    width: 178px;
+    height: 64px;
+    margin-left: -89px;
+    border-top: 1px solid rgba(152, 116, 207, .24);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 4px rgba(119, 82, 185, .18));
+}
+
+.nyx-mythic-night-thread.thread-a {
+    transform: rotate(18deg);
+    animation: nyxMythicThreadFloat 5.7s ease-in-out infinite alternate;
+}
+
+.nyx-mythic-night-thread.thread-b {
+    transform: rotate(-23deg) scaleX(.88);
+    animation: nyxMythicThreadFloatB 6.4s ease-in-out infinite alternate;
+}
+
+.nyx-mythic-star-orbit,
+.nyx-mythic-void-motes {
+    position: absolute;
+    inset: 0;
+}
+
+.nyx-mythic-orbit-star {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    color: rgba(236, 227, 255, .88);
+    font-size: 9px;
+    text-shadow: 0 0 7px rgba(186, 154, 231, .72);
+    transform:
+        translate(-50%, -50%) rotate(var(--nyx-angle)) translateX(var(--nyx-radius)) rotate(calc(var(--nyx-angle) * -1));
+    animation: nyxMythicOrbitStar 7.8s linear infinite;
+    animation-delay: var(--nyx-delay);
+}
+
+.nyx-mythic-void-mote {
+    position: absolute;
+    left: var(--nyx-mx);
+    top: var(--nyx-my);
+    width: var(--nyx-ms);
+    height: var(--nyx-ms);
+    border-radius: 50%;
+    background: rgba(194, 174, 226, .42);
+    box-shadow: 0 0 7px rgba(119, 82, 185, .42);
+    animation: nyxMythicMoteDrift 4.6s ease-in-out infinite alternate;
+    animation-delay: var(--nyx-md);
+}
+
+.pet-nyx-mythic-stage.nyx-mythic-awakening .nyx-mythic-pet-realm {
+    animation: nyxMythicRealmAwaken 1.45s cubic-bezier(.2, .7, .2, 1) both;
+}
+
+.pet-nyx-mythic-stage.nyx-mythic-casting .nyx-mythic-local-eclipse {
+    animation: nyxMythicLocalCast 1.15s ease-out both;
+}
+
+/* ============================================================================
+   3) ULTIMATE CLICK — ĐÊM NGUYÊN SƠ
+   ============================================================================ */
+
+.nyx-mythic-ultimate {
+    position: fixed;
+    inset: 0;
+    z-index: 999990;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0;
+    background: rgba(4, 3, 9, .10);
+    transition: opacity .28s ease;
+}
+
+.nyx-mythic-ultimate.is-active {
+    opacity: 1;
+}
+
+.nyx-mythic-ultimate.is-ending {
+    opacity: 0;
+    transition-duration: .72s;
+}
+
+.nyx-mythic-ultimate-veil {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 50% 42%, rgba(104, 70, 154, .19), transparent 20%),
+        radial-gradient(ellipse at 50% 115%, rgba(34, 22, 55, .52), transparent 55%),
+        linear-gradient(180deg, rgba(5, 4, 11, .66), rgba(10, 7, 18, .84));
+    transform: scale(1.08);
+    animation: nyxMythicUltimateVeil 3.2s ease-out both;
+}
+
+.nyx-mythic-ultimate-eclipse {
+    position: absolute;
+    left: 50%;
+    top: 44%;
+    width: min(38vw, 360px);
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%) scale(.42);
+    opacity: 0;
+    animation: nyxMythicUltimateEclipse 2.7s cubic-bezier(.16, .75, .22, 1) .12s both;
+}
+
+.nyx-mythic-ultimate-core {
+    position: absolute;
+    inset: 18%;
+    border-radius: 50%;
+    background: #05040a;
+    box-shadow: 0 0 0 1px rgba(225, 215, 248, .16);
+}
+
+.nyx-mythic-ultimate-corona {
+    position: absolute;
+    inset: 8%;
+    border-radius: 50%;
+    border: 1px solid rgba(210, 195, 241, .43);
+    box-shadow:
+        0 0 24px rgba(136, 101, 190, .32),
+        inset 0 0 28px rgba(119, 82, 185, .13);
+    animation: nyxMythicCoronaSpin 6s linear infinite;
+    clip-path: polygon(0 0, 100% 0, 100% 55%, 0 80%);
+}
+
+.nyx-mythic-ultimate-stars {
+    position: absolute;
+    inset: 0;
+}
+
+.nyx-mythic-ultimate-stars span {
+    position: absolute;
+    left: var(--nyx-ux);
+    top: var(--nyx-uy);
+    width: var(--nyx-us);
+    height: var(--nyx-us);
+    border-radius: 50%;
+    background: rgba(231, 221, 251, .74);
+    color: rgba(245, 239, 255, .88);
+    font-size: calc(var(--nyx-us) * 2.2);
+    line-height: 1;
+    box-shadow: 0 0 10px rgba(178, 143, 225, .55);
+    animation: nyxMythicUltimateStar 1.4s ease-in-out infinite alternate;
+    animation-delay: var(--nyx-ud);
+}
+
+.nyx-mythic-ultimate-title {
+    position: absolute;
+    left: 50%;
+    top: 72%;
+    transform: translate(-50%, 18px);
+    text-align: center;
+    opacity: 0;
+    animation: nyxMythicTitleReveal 2.7s ease .55s both;
+}
+
+.nyx-mythic-ultimate-title small {
+    display: block;
+    margin-bottom: 6px;
+    color: rgba(210, 193, 239, .72);
+    font: 800 10px/1 system-ui, sans-serif;
+    letter-spacing: .32em;
+}
+
+.nyx-mythic-ultimate-title strong {
+    color: #f4effd;
+    font: 900 clamp(18px, 2.2vw, 29px)/1.1 system-ui, sans-serif;
+    letter-spacing: .18em;
+    text-shadow: 0 0 17px rgba(150, 113, 204, .35);
+}
+
+/* ============================================================================
+   4) KEYFRAMES — TOÀN BỘ TÊN MỚI
+   ============================================================================ */
+@keyframes nyxMythicCardOrbit {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes nyxMythicCardOrbitReverse {
+    to {
+        transform: rotate(-360deg);
+    }
+}
+
+@keyframes nyxMythicStarBlink {
+    from {
+        opacity: .25;
+        transform: scale(.72);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1.34);
+    }
+}
+
+@keyframes nyxMythicTagSweep {
+
+    0%,
+    58% {
+        transform: translateX(-130%);
+    }
+
+    76%,
+    100% {
+        transform: translateX(150%);
+    }
+}
+
+@keyframes nyxMythicSigilPulse {
+
+    0%,
+    100% {
+        transform: rotate(-8deg) scale(.96);
+    }
+
+    50% {
+        transform: rotate(8deg) scale(1.08);
+    }
+}
+
+@keyframes nyxMythicPetIdle {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(-.6deg);
+    }
+
+    50% {
+        transform: translateY(-7px) rotate(.7deg);
+    }
+}
+
+@keyframes nyxMythicEclipseBreathe {
+    from {
+        transform: translate(-50%, -50%) scale(.94);
+        opacity: .7;
+    }
+
+    to {
+        transform: translate(-50%, -50%) scale(1.06);
+        opacity: 1;
+    }
+}
+
+@keyframes nyxMythicPetRing {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes nyxMythicPetRingReverse {
+    to {
+        transform: rotate(-360deg);
+    }
+}
+
+@keyframes nyxMythicThreadFloat {
+    from {
+        transform: rotate(18deg) translateY(-3px);
+    }
+
+    to {
+        transform: rotate(23deg) translateY(5px);
+    }
+}
+
+@keyframes nyxMythicThreadFloatB {
+    from {
+        transform: rotate(-23deg) scaleX(.88) translateY(3px);
+    }
+
+    to {
+        transform: rotate(-18deg) scaleX(.94) translateY(-5px);
+    }
+}
+
+@keyframes nyxMythicOrbitStar {
+    to {
+        transform: translate(-50%, -50%) rotate(calc(var(--nyx-angle) + 360deg)) translateX(var(--nyx-radius)) rotate(calc((var(--nyx-angle) + 360deg) * -1));
+    }
+}
+
+@keyframes nyxMythicMoteDrift {
+    from {
+        transform: translate(-4px, 4px) scale(.8);
+        opacity: .25;
+    }
+
+    to {
+        transform: translate(5px, -7px) scale(1.2);
+        opacity: .8;
+    }
+}
+
+@keyframes nyxMythicRealmAwaken {
+    0% {
+        opacity: 0;
+        transform: scale(.58) rotate(-8deg);
+        filter: blur(7px);
+    }
+
+    70% {
+        opacity: 1;
+        transform: scale(1.06) rotate(1deg);
+        filter: blur(0);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes nyxMythicLocalCast {
+    0% {
+        transform: translate(-50%, -50%) scale(.88);
+    }
+
+    45% {
+        transform: translate(-50%, -50%) scale(1.24);
+        box-shadow: 0 0 42px rgba(151, 112, 207, .35);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+@keyframes nyxMythicUltimateVeil {
+    0% {
+        opacity: 0;
+        transform: scale(1.14);
+    }
+
+    35% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes nyxMythicUltimateEclipse {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(.42) rotate(-8deg);
+    }
+
+    58% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.05) rotate(2deg);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+@keyframes nyxMythicCoronaSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes nyxMythicUltimateStar {
+    from {
+        opacity: .25;
+        transform: scale(.6);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1.28);
+    }
+}
+
+@keyframes nyxMythicTitleReveal {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, 18px);
+    }
+
+    38%,
+    78% {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+
+    100% {
+        opacity: .1;
+        transform: translate(-50%, -6px);
+    }
+}
+
+/* ============================================================================
+   5) MOBILE / REDUCED MOTION
+   ============================================================================ */
+@media (max-width: 600px) {
+    .luxury-product-card.nyx-mythic-card {
+        min-height: 305px;
+    }
+
+    .nyx-mythic-card .nyx-mythic-visual {
+        min-height: 305px !important;
+    }
+
+    .nyx-mythic-character {
+        width: min(82%, 165px) !important;
+        max-height: 250px !important;
+    }
+
+    @media (max-width: 600px) {
+
+        .nyx-mythic-tag {
+            top: 8px !important;
+            left: 8px !important;
+
+            width: 108px !important;
+        }
+    }
+
+    .nyx-mythic-details {
+        left: 7px !important;
+        right: 7px !important;
+        bottom: 7px !important;
+        padding: 11px !important;
+    }
+
+    #virtual-pet-container.pet-nyx-mythic-stage {
+        width: 165px;
+        min-height: 185px;
+    }
+
+    #virtual-pet-container.pet-nyx-mythic-stage #virtual-pet-img.mythic-nyx-night-magic {
+        width: 140px !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .nyx-mythic-card *,
+    .pet-nyx-mythic-stage *,
+    .nyx-mythic-ultimate * {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
+/* ============================================================================
+   FIX VỊ TRÍ CARD NYX TRONG HÀNG 3 VẬT PHẨM
+   - Đồng bộ chiều cao vùng hình với Mùa Xuân / Quốc khánh (430px).
+   - Kéo nhân vật xuống đúng đáy card và tăng nhẹ kích thước để không bị lọt.
+   - Chỉ tác động pet_mythic_nyx_1.
+   ============================================================================ */
+@media (min-width: 601px) {
+    .luxury-product-card.nyx-mythic-card[data-item-id="pet_mythic_nyx_1"] {
+        height: 430px !important;
+        min-height: 430px !important;
+        max-height: 430px !important;
+    }
+
+    .nyx-mythic-card[data-item-id="pet_mythic_nyx_1"] .nyx-mythic-visual {
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 0 !important;
+    }
+
+    .nyx-mythic-card[data-item-id="pet_mythic_nyx_1"] .nyx-mythic-character {
+        left: 50% !important;
+        bottom: 14px !important;
+        width: min(84%, 224px) !important;
+        max-height: 350px !important;
+        transform: translateX(-50%) !important;
+    }
+
+    .nyx-mythic-card[data-item-id="pet_mythic_nyx_1"]:hover .nyx-mythic-character,
+    .nyx-mythic-card[data-item-id="pet_mythic_nyx_1"]:focus-within .nyx-mythic-character {
+        transform: translateX(-50%) translateY(-9px) scale(1.035) !important;
+    }
+}
+
+/* ============================================================================
+   NYX · HẮC DẠ NGUYÊN SƠ — FULL PREMIUM SUITE V2
+   BỔ SUNG TOÀN WEB:
+   - World effect toàn màn hình
+   - Skin giao diện: sidebar / toolbar / card / popup / modal / form / table
+   - Font, màu chủ đạo, selection, scrollbar, range slider
+   - Khung giao diện Hắc Dạ
+   - Click toàn web + screen burst khi nhấn Nyx
+
+   Kích hoạt bằng:
+   html.nyx-first-night-equipped
+   Fallback: html.nyx-mythic-pet-equipped
+
+   KHÔNG tái sử dụng class/keyframe của Mùa Xuân hoặc Quốc khánh.
+   ============================================================================ */
+
+:root {
+    --nyx-ui-black: #07050d;
+    --nyx-ui-950: #0b0714;
+    --nyx-ui-900: #110a20;
+    --nyx-ui-850: #17102a;
+    --nyx-ui-800: #20143a;
+    --nyx-ui-700: #332052;
+    --nyx-ui-600: #50347c;
+    --nyx-ui-500: #7752b9;
+    --nyx-ui-400: #9c7bd2;
+    --nyx-ui-300: #c6afe9;
+    --nyx-ui-200: #e1d5f7;
+    --nyx-ui-white: #faf7ff;
+    --nyx-ui-line: rgba(197, 171, 235, .28);
+    --nyx-ui-glass: rgba(14, 9, 27, .78);
+    --nyx-ui-glass-soft: rgba(27, 17, 48, .68);
+    --nyx-ui-shadow: rgba(5, 2, 12, .42);
+    --nyx-ui-font-body: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
+    --nyx-ui-font-title: Georgia, "Times New Roman", serif;
+}
+
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped) {
+    --primary-color: #7752b9 !important;
+    --secondary-color: #c6afe9 !important;
+    --accent-color: #9c7bd2 !important;
+    --bg-color: #0b0714 !important;
+    --text-color: #eee8f8 !important;
+    color-scheme: dark;
+    scrollbar-width: thin;
+    scrollbar-color: #7752b9 #100a1d;
+}
+
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped) body {
+    background:
+        radial-gradient(circle at 10% 6%, rgba(119, 82, 185, .22), transparent 24%),
+        radial-gradient(circle at 88% 12%, rgba(198, 175, 233, .10), transparent 20%),
+        radial-gradient(circle at 70% 92%, rgba(71, 43, 112, .22), transparent 31%),
+        linear-gradient(145deg, #080510 0%, #10091e 48%, #090611 100%) !important;
+    background-attachment: fixed !important;
+    color: #ece6f6 !important;
+    font-family: var(--nyx-ui-font-body) !important;
+}
+
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped) body::selection,
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped) ::selection {
+    color: #fff !important;
+    background: rgba(119, 82, 185, .72) !important;
+}
+
+/* Font toàn giao diện, không đụng card immune. */
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped):where(body, button, input, select, textarea, table, label, p, span, small, strong, a):not(.ui-theme-immune):not([data-theme-immune="true"]):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    font-family: var(--nyx-ui-font-body) !important;
+}
+
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped):where(h1, h2, h3, h4, h5, h6, .page-title, .section-title, .modal-title, .popup-title, .card-title, .accordion-title):not(.ui-theme-immune):not([data-theme-immune="true"]):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    color: #f6f0ff !important;
+    font-family: var(--nyx-ui-font-title) !important;
+    font-weight: 700 !important;
+    letter-spacing: .025em !important;
+    text-shadow: 0 0 16px rgba(158, 122, 211, .16);
+}
+
+/* ============================================================================
+   WORLD EFFECT TOÀN WEB
+   ============================================================================ */
+.nyx-mythic-world-v2 {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .9s ease;
+}
+
+.nyx-mythic-world-v2.is-mounted {
+    opacity: 1;
+}
+
+.nyx-world-night-wash {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(115deg, rgba(7, 5, 13, .07), transparent 34%, rgba(117, 80, 184, .035) 53%, transparent 70%),
+        radial-gradient(ellipse at 50% 115%, rgba(102, 67, 154, .10), transparent 58%);
+}
+
+.nyx-world-night-wash::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(118deg, transparent 0 72px, rgba(224, 211, 246, .018) 73px 74px, transparent 75px 144px);
+    opacity: .65;
+    animation: nyxWorldLatticeDrift 28s linear infinite;
+}
+
+.nyx-world-nebula {
+    position: absolute;
+    width: 58vw;
+    height: 42vw;
+    border-radius: 50%;
+    filter: blur(48px);
+    opacity: .16;
+    mix-blend-mode: screen;
+    animation: nyxWorldNebulaBreathe 12s ease-in-out infinite alternate;
+}
+
+.nyx-world-nebula.nebula-a {
+    left: -18vw;
+    top: -17vw;
+    background: #5c3797;
+}
+
+.nyx-world-nebula.nebula-b {
+    right: -21vw;
+    top: 18vh;
+    background: #2f1b55;
+    animation-delay: -4s;
+}
+
+.nyx-world-nebula.nebula-c {
+    left: 26vw;
+    bottom: -28vw;
+    background: #8663b7;
+    animation-delay: -8s;
+    opacity: .09;
+}
+
+.nyx-world-eclipse-crown {
+    position: absolute;
+    right: clamp(30px, 5vw, 90px);
+    top: clamp(38px, 8vh, 110px);
+    width: clamp(150px, 15vw, 250px);
+    aspect-ratio: 1;
+    opacity: .28;
+    animation: nyxWorldCrownFloat 9s ease-in-out infinite alternate;
+}
+
+.nyx-world-eclipse-core {
+    position: absolute;
+    inset: 28%;
+    border-radius: 50%;
+    background: #07040d;
+    box-shadow: 0 0 0 1px rgba(223, 209, 247, .20), 0 0 42px rgba(119, 82, 185, .25);
+}
+
+.nyx-world-eclipse-orbit {
+    position: absolute;
+    inset: 12%;
+    border: 1px solid rgba(213, 195, 241, .22);
+    border-radius: 50%;
+    clip-path: polygon(0 0, 100% 0, 100% 52%, 0 76%);
+    animation: nyxWorldOrbit 18s linear infinite;
+}
+
+.nyx-world-eclipse-orbit.orbit-b {
+    inset: 3%;
+    border-style: dashed;
+    opacity: .58;
+    animation: nyxWorldOrbitReverse 27s linear infinite;
+}
+
+.nyx-world-eclipse-mark {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: rgba(229, 220, 255, .7);
+    font: 700 clamp(22px, 3vw, 44px)/1 Georgia, serif;
+    text-shadow: 0 0 16px rgba(192, 162, 235, .45);
+}
+
+.nyx-world-veil {
+    position: absolute;
+    left: -18vw;
+    width: 140vw;
+    height: 12vh;
+    border-radius: 50%;
+    border-top: 1px solid rgba(207, 184, 239, .08);
+    filter: blur(1px);
+    transform: rotate(-7deg);
+    opacity: .5;
+    animation: nyxWorldVeilSway 13s ease-in-out infinite alternate;
+}
+
+.nyx-world-veil.veil-a {
+    top: 24%;
+}
+
+.nyx-world-veil.veil-b {
+    top: 51%;
+    transform: rotate(6deg);
+    animation-delay: -5s;
+}
+
+.nyx-world-veil.veil-c {
+    top: 76%;
+    transform: rotate(-3deg);
+    animation-delay: -9s;
+    opacity: .32;
+}
+
+.nyx-world-star-field,
+.nyx-world-dust-field {
+    position: absolute;
+    inset: 0;
+}
+
+.nyx-world-star {
+    position: absolute;
+    left: var(--nyx-wx);
+    top: var(--nyx-wy);
+    width: var(--nyx-ws);
+    height: var(--nyx-ws);
+    border-radius: 50%;
+    background: rgba(242, 235, 255, .72);
+    box-shadow: 0 0 9px rgba(181, 145, 229, .55);
+    opacity: .25;
+    animation: nyxWorldStarPulse var(--nyx-wt) ease-in-out var(--nyx-wd) infinite;
+}
+
+.nyx-world-star.is-cross {
+    width: auto;
+    height: auto;
+    background: none;
+    color: rgba(225, 212, 246, .56);
+    font: 700 calc(var(--nyx-ws) * 3.2)/1 Georgia, serif;
+    box-shadow: none;
+}
+
+.nyx-world-dust {
+    position: absolute;
+    left: var(--nyx-dx);
+    top: var(--nyx-dy);
+    width: var(--nyx-ds);
+    height: 1px;
+    border-radius: 50%;
+    background: linear-gradient(90deg, transparent, rgba(180, 145, 222, .18), transparent);
+    transform: rotate(-28deg);
+    animation: nyxWorldDustDrift 9s ease-in-out var(--nyx-dd) infinite alternate;
+}
+
+.nyx-world-horizon {
+    position: absolute;
+    left: 50%;
+    bottom: -17vh;
+    width: 125vw;
+    height: 30vh;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(110, 73, 161, .13), transparent 68%);
+    filter: blur(14px);
+}
+
+/* ============================================================================
+   SKIN GIAO DIỆN TOÀN WEB
+   ============================================================================ */
+
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped):where(.sidebar, aside, .left-sidebar, .side-menu):not(.ui-theme-immune):not([data-theme-immune="true"]) {
+    background:
+        radial-gradient(circle at 28% 8%, rgba(142, 104, 202, .19), transparent 22%),
+        linear-gradient(180deg, rgba(18, 11, 34, .98), rgba(8, 5, 16, .97)) !important;
+    border-right: 1px solid rgba(183, 150, 228, .26) !important;
+    box-shadow: 12px 0 38px rgba(4, 2, 9, .35), inset -1px 0 0 rgba(240, 232, 255, .035) !important;
+    color: #e9e0f6 !important;
+}
+
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped):where(.nav-item, .sidebar-item, .menu-item, .tab-button, .tab-btn, .dropdown-item):not(.ui-theme-immune):not([data-theme-immune="true"]):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    color: rgba(235, 226, 248, .82) !important;
+    border: 1px solid transparent !important;
+    border-radius: 5px 16px 5px 16px !important;
+    background: transparent !important;
+    transition: background .22s ease, border-color .22s ease, transform .22s ease, box-shadow .22s ease !important;
+}
+
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped):where(.nav-item, .sidebar-item, .menu-item, .tab-button, .tab-btn, .dropdown-item):hover:not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    color: #fff !important;
+    background: linear-gradient(110deg, rgba(91, 56, 137, .38), rgba(37, 22, 65, .58)) !important;
+    border-color: rgba(192, 160, 236, .24) !important;
+    box-shadow: inset 0 0 16px rgba(130, 91, 185, .08), 0 7px 16px rgba(3, 2, 8, .18) !important;
+    transform: translateX(2px) !important;
+}
+
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped):where(.nav-item.active, .sidebar-item.active, .menu-item.active, .tab-button.active, .tab-btn.active):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    color: #fff !important;
+    background: linear-gradient(110deg, #3b245f, #6c4aa1) !important;
+    border-color: rgba(220, 202, 249, .38) !important;
+    box-shadow: 0 8px 21px rgba(22, 11, 42, .34), inset 0 1px 0 rgba(255, 255, 255, .08) !important;
+}
+
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped):where(.header, .topbar, .top-bar, .navbar, .toolbar, .page-header, .luxury-store-toolbar):not(.ui-theme-immune):not([data-theme-immune="true"]) {
+    color: #f6efff !important;
+    background:
+        linear-gradient(120deg, rgba(16, 9, 30, .93), rgba(48, 28, 79, .90), rgba(15, 9, 27, .94)) !important;
+    border-color: rgba(192, 160, 236, .24) !important;
+    border-radius: 8px 26px 8px 26px !important;
+    box-shadow: 0 16px 38px rgba(4, 2, 9, .28), inset 0 1px 0 rgba(255, 255, 255, .055) !important;
+}
+
+/* Card / ô nội dung: hình góc bất đối xứng. */
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped):where(.card, .form-container, .accordion-card, .dashboard-card, .stat-card,
+    .info-card, .content-card, .section-card, .glass-card, .game-card,
+    .task-card, .subject-card, .summary-card, .calendar-card, .panel, .widget):not(.store-item-card):not(.luxury-product-card):not(.ui-theme-immune):not([data-theme-immune="true"]):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    color: #eae3f5 !important;
+    background:
+        radial-gradient(circle at 92% 7%, rgba(136, 98, 190, .10), transparent 25%),
+        linear-gradient(145deg, rgba(24, 15, 43, .88), rgba(11, 7, 20, .90)) !important;
+    border: 1px solid rgba(182, 148, 226, .22) !important;
+    border-radius: 9px 25px 9px 25px !important;
+    box-shadow: 0 14px 34px rgba(4, 2, 9, .24), inset 0 1px 0 rgba(255, 255, 255, .035) !important;
+    backdrop-filter: blur(11px) !important;
+    -webkit-backdrop-filter: blur(11px) !important;
+    transition: transform .24s ease, border-color .24s ease, box-shadow .24s ease !important;
+}
+
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped):where(.card, .dashboard-card, .stat-card, .info-card, .content-card, .task-card, .subject-card):not(.store-item-card):not(.ui-theme-immune):hover {
+    border-color: rgba(206, 181, 241, .36) !important;
+    box-shadow: 0 18px 42px rgba(4, 2, 10, .32), 0 0 24px rgba(107, 73, 158, .09) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Popup / Modal / Dialog — Nightglass. */
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped):where(.modal-content, .popup-content, .modal-container, .popup-container,
+    .modal-card, .student-modal-box, .notification-popup, .settings-popup,
+    .dialog-content, .dialog-box, .swal2-popup, .dropdown-menu, .context-menu):not(.ui-theme-immune):not([data-theme-immune="true"]):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    color: #eee7f8 !important;
+    background:
+        radial-gradient(circle at 88% 5%, rgba(157, 117, 210, .17), transparent 24%),
+        linear-gradient(148deg, rgba(24, 14, 43, .97), rgba(8, 5, 15, .96)) !important;
+    border: 1px solid rgba(205, 178, 240, .34) !important;
+    border-radius: 10px 34px 10px 34px !important;
+    box-shadow:
+        0 28px 70px rgba(2, 1, 6, .52),
+        0 0 0 1px rgba(76, 44, 119, .45),
+        inset 0 1px 0 rgba(255, 255, 255, .06) !important;
+    backdrop-filter: blur(18px) saturate(1.18) !important;
+    -webkit-backdrop-filter: blur(18px) saturate(1.18) !important;
+}
+
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped):where(.modal-overlay, .popup-overlay, .dialog-overlay, .swal2-container) {
+    background: rgba(3, 2, 8, .62) !important;
+    backdrop-filter: blur(7px) !important;
+    -webkit-backdrop-filter: blur(7px) !important;
+}
+
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped):where(.modal-header, .popup-header, .card-header, .accordion-header):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    color: #f5effd !important;
+    border-bottom-color: rgba(196, 164, 234, .18) !important;
+    background: linear-gradient(90deg, rgba(85, 52, 128, .16), transparent) !important;
+}
+
+/* Button shape riêng. */
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped):where(button, .btn, .button, .btn-primary, .btn-secondary, .action-btn):not(.ui-theme-immune):not([data-theme-immune="true"]):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    color: #f8f3ff !important;
+    font-family: var(--nyx-ui-font-body) !important;
+    border: 1px solid rgba(204, 176, 240, .28) !important;
+    border-radius: 6px 16px 6px 16px !important;
+    background: linear-gradient(135deg, #281743, #5b3a88 58%, #33204f) !important;
+    box-shadow: 0 8px 20px rgba(5, 2, 12, .24), inset 0 1px 0 rgba(255, 255, 255, .07) !important;
+    transition: transform .18s ease, filter .18s ease, box-shadow .18s ease !important;
+}
+
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped):where(button, .btn, .button, .btn-primary, .btn-secondary, .action-btn):not(:disabled):hover:not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    filter: brightness(1.13) saturate(1.08) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 12px 26px rgba(8, 3, 18, .32), 0 0 18px rgba(140, 102, 195, .16) !important;
+}
+
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped):where(button, .btn, .button):disabled:not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    opacity: .46 !important;
+    filter: grayscale(.15) !important;
+}
+
+/* Input / Select / Textarea. */
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped):where(input:not([type="range"]):not([type="checkbox"]):not([type="radio"]), textarea, select, .input, .search-bar):not(.ui-theme-immune):not([data-theme-immune="true"]):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    color: #f0eafa !important;
+    caret-color: #cbb1ef !important;
+    background: linear-gradient(145deg, rgba(10, 6, 18, .90), rgba(31, 19, 53, .84)) !important;
+    border: 1px solid rgba(184, 149, 229, .23) !important;
+    border-radius: 6px 16px 6px 16px !important;
+    box-shadow: inset 0 0 18px rgba(90, 54, 137, .07) !important;
+    font-family: var(--nyx-ui-font-body) !important;
+}
+
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped):where(input:not([type="range"]), textarea, select):focus:not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    outline: none !important;
+    border-color: rgba(212, 187, 245, .55) !important;
+    box-shadow: 0 0 0 3px rgba(119, 82, 185, .13), 0 0 22px rgba(104, 69, 157, .13) !important;
+}
+
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped):where(input, textarea)::placeholder {
+    color: rgba(210, 196, 231, .48) !important;
+}
+
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped) input[type="checkbox"],
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped) input[type="radio"] {
+    accent-color: #8b68c4 !important;
+}
+
+/* Range slider — Hắc Nguyệt. */
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped) input[type="range"] {
+    accent-color: #9d7ad3 !important;
+    background: transparent !important;
+}
+
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped) input[type="range"]::-webkit-slider-runnable-track {
+    height: 7px !important;
+    border: 1px solid rgba(193, 163, 234, .24) !important;
+    border-radius: 999px !important;
+    background: linear-gradient(90deg, #160d28, #5c3b88, #211337) !important;
+    box-shadow: inset 0 1px 5px rgba(0, 0, 0, .42) !important;
+}
+
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped) input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none !important;
+    width: 18px !important;
+    height: 18px !important;
+    margin-top: -6px !important;
+    border: 2px solid #e4d7f7 !important;
+    border-radius: 4px 10px 4px 10px !important;
+    background: radial-gradient(circle at 35% 30%, #d8c6f2, #7954af 52%, #211336 100%) !important;
+    box-shadow: 0 0 13px rgba(177, 140, 226, .46) !important;
+}
+
+/* Progress / slider bar chung. */
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped):where(.progress, .progress-track, .slider-track, .meter-track):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    background: rgba(18, 10, 31, .78) !important;
+    border: 1px solid rgba(180, 145, 223, .14) !important;
+    border-radius: 999px !important;
+}
+
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped):where(.progress-bar, .progress-fill, .slider-fill, .meter-fill):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    background: linear-gradient(90deg, #4a2e73, #a17bd3, #66428f) !important;
+    box-shadow: 0 0 12px rgba(139, 99, 193, .25) !important;
+    border-radius: inherit !important;
+}
+
+/* Table. */
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped):where(table, .table) {
+    color: #e9e2f3 !important;
+    background: rgba(10, 6, 18, .58) !important;
+    border-color: rgba(183, 149, 225, .18) !important;
+}
+
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped):where(th, .table-header) {
+    color: #f2eafa !important;
+    background: linear-gradient(110deg, rgba(76, 45, 116, .64), rgba(28, 17, 48, .78)) !important;
+    border-color: rgba(193, 161, 232, .20) !important;
+    font-family: var(--nyx-ui-font-title) !important;
+}
+
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped):where(td, .table-cell) {
+    border-color: rgba(176, 143, 218, .12) !important;
+}
+
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped) tr:hover td {
+    background: rgba(100, 65, 148, .10) !important;
+}
+
+/* Toast / notification / badges. */
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped):where(.toast, .notification, .alert, .snackbar, #toast-container > div):not(.ui-theme-immune):not([data-theme-immune="true"]) {
+    color: #f7f1ff !important;
+    background: linear-gradient(135deg, rgba(30, 17, 53, .97), rgba(70, 43, 106, .96)) !important;
+    border: 1px solid rgba(211, 184, 244, .30) !important;
+    border-radius: 7px 20px 7px 20px !important;
+    box-shadow: 0 18px 42px rgba(3, 1, 8, .36) !important;
+}
+
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped):where(.badge, .chip, .tag, .label, .status-badge):not(.item-tag):not(.nyx-mythic-tag):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    color: #eee5fb !important;
+    background: rgba(83, 51, 126, .54) !important;
+    border-color: rgba(196, 164, 235, .23) !important;
+}
+
+/* Scrollbar toàn web. */
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped)::-webkit-scrollbar,
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped) *:not(.ui-theme-immune)::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped)::-webkit-scrollbar-track,
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped) *:not(.ui-theme-immune)::-webkit-scrollbar-track {
+    background: linear-gradient(180deg, #0c0716, #171027) !important;
+    border-left: 1px solid rgba(172, 139, 216, .08);
+}
+
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped)::-webkit-scrollbar-thumb,
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped) *:not(.ui-theme-immune)::-webkit-scrollbar-thumb {
+    border: 2px solid #10091d !important;
+    border-radius: 4px 12px 4px 12px !important;
+    background: linear-gradient(180deg, #9b79ce, #5a3989 58%, #31204e) !important;
+    box-shadow: inset 0 0 8px rgba(255, 255, 255, .06) !important;
+}
+
+html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped) *::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #b89be0, #6d48a0 58%, #3e2860) !important;
+}
+
+/* ============================================================================
+   KHUNG GIAO DIỆN HẮC DẠ
+   ============================================================================ */
+.nyx-mythic-ui-frame-v2 {
+    position: fixed;
+    inset: 0;
+    z-index: 9990;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .8s ease;
+}
+
+.nyx-mythic-ui-frame-v2.is-mounted {
+    opacity: 1;
+}
+
+.nyx-ui-top-seal {
+    position: absolute;
+    left: 50%;
+    top: 7px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transform: translateX(-50%);
+}
+
+.nyx-ui-top-line {
+    width: clamp(60px, 11vw, 165px);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(195, 166, 232, .40));
+}
+
+.nyx-ui-top-line.right {
+    transform: scaleX(-1);
+}
+
+.nyx-ui-crown {
+    position: relative;
+    min-width: 126px;
+    padding: 5px 18px 7px;
+    text-align: center;
+    color: #eee5fb;
+    background: linear-gradient(135deg, rgba(13, 7, 25, .88), rgba(58, 34, 89, .72));
+    border: 1px solid rgba(202, 174, 237, .28);
+    border-radius: 4px 17px 4px 17px;
+    box-shadow: 0 8px 24px rgba(4, 2, 10, .25), inset 0 0 16px rgba(137, 99, 188, .05);
+}
+
+.nyx-ui-crown i {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #cdb7ed;
+    font: 700 18px/1 Georgia, serif;
+}
+
+.nyx-ui-crown strong {
+    display: block;
+    font: 700 12px/1 var(--nyx-ui-font-title);
+    letter-spacing: .26em;
+}
+
+.nyx-ui-crown small {
+    display: block;
+    margin-top: 3px;
+    color: rgba(219, 202, 243, .58);
+    font: 800 7px/1 var(--nyx-ui-font-body);
+    letter-spacing: .18em;
+}
+
+.nyx-ui-side-rail {
+    position: absolute;
+    top: 18%;
+    bottom: 18%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    width: 14px;
+    color: rgba(211, 189, 241, .32);
+}
+
+.nyx-ui-side-rail.rail-left {
+    left: 5px;
+}
+
+.nyx-ui-side-rail.rail-right {
+    right: 5px;
+    transform: scaleX(-1);
+}
+
+.nyx-ui-side-rail i {
+    width: 1px;
+    flex: 1;
+    max-height: 18%;
+    background: linear-gradient(180deg, transparent, rgba(185, 151, 228, .25), transparent);
+}
+
+.nyx-ui-side-rail b {
+    font: 700 8px/1 Georgia, serif;
+}
+
+.nyx-ui-corner {
+    position: absolute;
+    color: rgba(208, 184, 238, .24);
+    font: 700 12px/1 Georgia, serif;
+    letter-spacing: .08em;
+}
+
+.nyx-ui-corner.corner-tl {
+    left: 9px;
+    top: 9px;
+}
+
+.nyx-ui-corner.corner-tr {
+    right: 9px;
+    top: 9px;
+}
+
+.nyx-ui-corner.corner-bl {
+    left: 9px;
+    bottom: 9px;
+}
+
+.nyx-ui-corner.corner-br {
+    right: 9px;
+    bottom: 9px;
+}
+
+.nyx-ui-bottom-seal {
+    position: absolute;
+    left: 50%;
+    bottom: 7px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    transform: translateX(-50%);
+    color: rgba(208, 184, 238, .30);
+    white-space: nowrap;
+    font: 800 7px/1 var(--nyx-ui-font-body);
+    letter-spacing: .22em;
+}
+
+.nyx-ui-bottom-seal i {
+    display: block;
+    width: clamp(50px, 10vw, 145px);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(183, 148, 224, .30));
+}
+
+.nyx-ui-bottom-seal i:last-child {
+    transform: scaleX(-1);
+}
+
+/* ============================================================================
+   CLICK TOÀN WEB — MINI ECLIPSE RIPPLE
+   ============================================================================ */
+.nyx-mythic-page-click {
+    position: fixed;
+    left: var(--nyx-click-x);
+    top: var(--nyx-click-y);
+    z-index: 999980;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+}
+
+.nyx-page-click-core,
+.nyx-page-click-ring {
+    position: absolute;
+    left: 0;
+    top: 0;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(.2);
+    opacity: 0;
+}
+
+.nyx-page-click-core {
+    width: 18px;
+    height: 18px;
+    background: #08040e;
+    box-shadow: 0 0 16px rgba(153, 113, 207, .48);
+}
+
+.nyx-page-click-ring {
+    width: 42px;
+    height: 42px;
+    border: 1px solid rgba(217, 195, 246, .60);
+}
+
+.nyx-page-click-ring.ring-b {
+    width: 68px;
+    height: 68px;
+    border-style: dashed;
+    border-color: rgba(148, 106, 202, .42);
+}
+
+.nyx-mythic-page-click.is-active .nyx-page-click-core {
+    animation: nyxPageClickCore .72s ease-out both;
+}
+
+.nyx-mythic-page-click.is-active .nyx-page-click-ring.ring-a {
+    animation: nyxPageClickRing .8s ease-out both;
+}
+
+.nyx-mythic-page-click.is-active .nyx-page-click-ring.ring-b {
+    animation: nyxPageClickRingB .92s ease-out both;
+}
+
+.nyx-page-click-shards i {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 13px;
+    height: 1px;
+    transform-origin: 0 50%;
+    transform: rotate(var(--nyx-click-angle)) translateX(10px) scaleX(.2);
+    background: linear-gradient(90deg, rgba(222, 204, 246, .76), transparent);
+    opacity: 0;
+}
+
+.nyx-mythic-page-click.is-active .nyx-page-click-shards i {
+    animation: nyxPageClickShard .78s ease-out both;
+}
+
+/* ============================================================================
+   CLICK NYX — SCREEN BURST V2
+   ============================================================================ */
+.nyx-mythic-screen-burst-v2 {
+    position: fixed;
+    inset: 0;
+    z-index: 999985;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .2s ease;
+}
+
+.nyx-mythic-screen-burst-v2.is-active {
+    opacity: 1;
+}
+
+.nyx-mythic-screen-burst-v2.is-ending {
+    opacity: 0;
+    transition-duration: .75s;
+}
+
+.nyx-skill-black-flash {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at var(--nyx-skill-x) var(--nyx-skill-y), rgba(129, 87, 185, .22), transparent 13%), rgba(4, 2, 8, .20);
+    opacity: 0;
+}
+
+.nyx-mythic-screen-burst-v2.is-active .nyx-skill-black-flash {
+    animation: nyxSkillBlackFlash 1.6s ease-out both;
+}
+
+.nyx-skill-eclipse {
+    position: fixed;
+    left: var(--nyx-skill-x);
+    top: var(--nyx-skill-y);
+    width: 150px;
+    height: 150px;
+    transform: translate(-50%, -50%) scale(.16);
+    opacity: 0;
+}
+
+.nyx-skill-eclipse-core {
+    position: absolute;
+    inset: 31%;
+    border-radius: 50%;
+    background: #040207;
+    box-shadow: 0 0 0 1px rgba(230, 217, 249, .23), 0 0 34px rgba(124, 82, 181, .42);
+}
+
+.nyx-skill-eclipse-ring {
+    position: absolute;
+    inset: 14%;
+    border: 1px solid rgba(215, 192, 246, .58);
+    border-radius: 50%;
+    clip-path: polygon(0 0, 100% 0, 100% 50%, 0 76%);
+}
+
+.nyx-skill-eclipse-ring.ring-b {
+    inset: 3%;
+    border-style: dashed;
+    border-color: rgba(146, 104, 201, .44);
+}
+
+.nyx-mythic-screen-burst-v2.is-active .nyx-skill-eclipse {
+    animation: nyxSkillEclipseExpand 2.45s cubic-bezier(.13, .83, .24, 1) both;
+}
+
+.nyx-mythic-screen-burst-v2.is-active .nyx-skill-eclipse-ring.ring-a {
+    animation: nyxSkillOrbit 2.8s linear infinite;
+}
+
+.nyx-mythic-screen-burst-v2.is-active .nyx-skill-eclipse-ring.ring-b {
+    animation: nyxSkillOrbitReverse 3.7s linear infinite;
+}
+
+.nyx-skill-ray-field {
+    position: fixed;
+    left: var(--nyx-skill-x);
+    top: var(--nyx-skill-y);
+}
+
+.nyx-skill-ray-field i {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--nyx-skill-length);
+    height: 1px;
+    transform-origin: 0 50%;
+    transform: rotate(var(--nyx-skill-angle)) scaleX(.05);
+    opacity: 0;
+    background: linear-gradient(90deg, rgba(220, 199, 246, .68), rgba(128, 88, 185, .14), transparent);
+}
+
+.nyx-mythic-screen-burst-v2.is-active .nyx-skill-ray-field i {
+    animation: nyxSkillRayRelease 1.22s cubic-bezier(.12, .73, .2, 1) .15s both;
+}
+
+.nyx-skill-star-field {
+    position: absolute;
+    inset: 0;
+}
+
+.nyx-skill-star-field i {
+    position: absolute;
+    left: var(--nyx-skill-star-x);
+    top: var(--nyx-skill-star-y);
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    color: #efe7fb;
+    background: #cdb6ed;
+    box-shadow: 0 0 10px rgba(188, 150, 235, .72);
+    opacity: 0;
+    font: 700 10px/1 Georgia, serif;
+}
+
+.nyx-mythic-screen-burst-v2.is-climax .nyx-skill-star-field i {
+    animation: nyxSkillStarPop 1.35s ease-out var(--nyx-skill-star-delay) both;
+}
+
+.nyx-skill-fracture {
+    position: absolute;
+    left: -10vw;
+    width: 120vw;
+    height: 1px;
+    opacity: 0;
+    background: linear-gradient(90deg, transparent, rgba(195, 164, 235, .26), transparent);
+    transform-origin: center;
+}
+
+.nyx-skill-fracture.fracture-a {
+    top: 34%;
+    transform: rotate(11deg);
+}
+
+.nyx-skill-fracture.fracture-b {
+    top: 68%;
+    transform: rotate(-8deg);
+}
+
+.nyx-mythic-screen-burst-v2.is-climax .nyx-skill-fracture {
+    animation: nyxSkillFracture 1.2s ease-out both;
+}
+
+.nyx-mythic-screen-dialogue-v2 {
+    position: fixed;
+    left: 50%;
+    bottom: clamp(28px, 7vh, 72px);
+    z-index: 999996;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: min(520px, calc(100vw - 34px));
+    padding: 12px 20px;
+    transform: translate(-50%, 24px) scale(.96);
+    opacity: 0;
+    pointer-events: none;
+    color: #f7f1ff;
+    background: linear-gradient(110deg, rgba(6, 3, 12, .94), rgba(48, 27, 77, .92), rgba(6, 3, 12, .94));
+    border: 1px solid rgba(209, 182, 241, .35);
+    border-radius: 6px 24px 6px 24px;
+    box-shadow: 0 22px 55px rgba(1, 0, 4, .48), inset 0 0 22px rgba(128, 88, 181, .07);
+    text-align: center;
+}
+
+.nyx-mythic-screen-dialogue-v2.is-active {
+    animation: nyxDialogueReveal 2.9s ease both;
+}
+
+.nyx-mythic-screen-dialogue-v2.is-ending {
+    opacity: 0 !important;
+    transition: opacity .5s ease;
+}
+
+.nyx-mythic-screen-dialogue-v2>span {
+    color: #cbb4ec;
+    font: 700 22px/1 Georgia, serif;
+    text-shadow: 0 0 12px rgba(180, 141, 227, .45);
+}
+
+.nyx-mythic-screen-dialogue-v2 div {
+    flex: 1;
+}
+
+.nyx-mythic-screen-dialogue-v2 small {
+    display: block;
+    margin-bottom: 5px;
+    color: rgba(213, 194, 238, .66);
+    font: 800 8px/1 var(--nyx-ui-font-body);
+    letter-spacing: .20em;
+}
+
+.nyx-mythic-screen-dialogue-v2 strong {
+    color: #f7f2ff;
+    font: 700 clamp(11px, 1.2vw, 15px)/1.25 var(--nyx-ui-font-title);
+    letter-spacing: .08em;
+}
+
+/* ============================================================================
+   NÂNG CẤP ULTIMATE GỐC "ĐÊM NGUYÊN SƠ"
+   Markup vẫn do PetManager tạo — chỉ nâng visuals.
+   ============================================================================ */
+.nyx-mythic-ultimate {
+    background:
+        radial-gradient(circle at 50% 42%, rgba(108, 68, 160, .10), transparent 25%),
+        rgba(2, 1, 5, .18) !important;
+    backdrop-filter: blur(1.5px) saturate(.82);
+}
+
+.nyx-mythic-ultimate::before {
+    content: "";
+    position: absolute;
+    inset: -20%;
+    background:
+        repeating-conic-gradient(from 10deg at 50% 44%, transparent 0 8deg, rgba(181, 147, 224, .035) 9deg 10deg, transparent 11deg 21deg);
+    opacity: 0;
+    animation: nyxUltimateVaultOpen 3s ease-out both;
+}
+
+.nyx-mythic-ultimate::after {
+    content: "";
+    position: absolute;
+    left: -10%;
+    right: -10%;
+    top: 50%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(233, 221, 251, .68), rgba(125, 85, 181, .34), transparent);
+    box-shadow: 0 0 28px rgba(163, 120, 218, .32);
+    transform: scaleX(0);
+    transform-origin: center;
+    animation: nyxUltimateHorizonCut 2.2s ease-out .32s both;
+}
+
+.nyx-mythic-ultimate-veil {
+    background:
+        radial-gradient(circle at 50% 42%, rgba(117, 75, 171, .32), transparent 18%),
+        radial-gradient(ellipse at 50% 115%, rgba(47, 27, 75, .62), transparent 55%),
+        linear-gradient(180deg, rgba(2, 1, 6, .76), rgba(8, 4, 15, .94)) !important;
+}
+
+.nyx-mythic-ultimate-eclipse {
+    width: min(44vw, 430px) !important;
+    filter: drop-shadow(0 0 38px rgba(128, 88, 184, .30));
+}
+
+.nyx-mythic-ultimate-corona {
+    border-color: rgba(221, 202, 247, .58) !important;
+    box-shadow: 0 0 42px rgba(150, 107, 204, .42), inset 0 0 38px rgba(119, 82, 185, .18) !important;
+}
+
+.nyx-mythic-ultimate-title {
+    top: 73% !important;
+}
+
+.nyx-mythic-ultimate-title small {
+    color: rgba(222, 204, 245, .76) !important;
+    letter-spacing: .38em !important;
+}
+
+.nyx-mythic-ultimate-title strong {
+    font-family: var(--nyx-ui-font-title) !important;
+    font-size: clamp(24px, 3.2vw, 44px) !important;
+    letter-spacing: .20em !important;
+    text-shadow: 0 0 16px rgba(221, 201, 247, .25), 0 0 42px rgba(128, 87, 183, .46) !important;
+}
+
+/* ============================================================================
+   KEYFRAMES V2 — TÊN RIÊNG
+   ============================================================================ */
+@keyframes nyxWorldLatticeDrift {
+    to {
+        transform: translate3d(82px, -48px, 0);
+    }
+}
+
+@keyframes nyxWorldNebulaBreathe {
+    from {
+        transform: scale(.88) translate3d(-2%, 1%, 0);
+    }
+
+    to {
+        transform: scale(1.12) translate3d(3%, -2%, 0);
+    }
+}
+
+@keyframes nyxWorldCrownFloat {
+    from {
+        transform: translateY(-6px) rotate(-2deg);
+    }
+
+    to {
+        transform: translateY(10px) rotate(2deg);
+    }
+}
+
+@keyframes nyxWorldOrbit {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes nyxWorldOrbitReverse {
+    to {
+        transform: rotate(-360deg);
+    }
+}
+
+@keyframes nyxWorldVeilSway {
+    from {
+        translate: -2vw -5px;
+        scale: 1 .85;
+    }
+
+    to {
+        translate: 3vw 8px;
+        scale: 1 1.14;
+    }
+}
+
+@keyframes nyxWorldStarPulse {
+
+    0%,
+    100% {
+        opacity: .12;
+        transform: scale(.65);
+    }
+
+    48% {
+        opacity: .82;
+        transform: scale(1.32);
+    }
+}
+
+@keyframes nyxWorldDustDrift {
+    from {
+        transform: translate(-12px, 7px) rotate(-28deg);
+        opacity: .05;
+    }
+
+    to {
+        transform: translate(18px, -12px) rotate(-22deg);
+        opacity: .42;
+    }
+}
+
+@keyframes nyxPageClickCore {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(.1);
+    }
+
+    28% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.8);
+    }
+}
+
+@keyframes nyxPageClickRing {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(.18) rotate(-12deg);
+    }
+
+    30% {
+        opacity: .8;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.72) rotate(24deg);
+    }
+}
+
+@keyframes nyxPageClickRingB {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(.2) rotate(18deg);
+    }
+
+    34% {
+        opacity: .55;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.42) rotate(-34deg);
+    }
+}
+
+@keyframes nyxPageClickShard {
+    0% {
+        opacity: 0;
+        transform: rotate(var(--nyx-click-angle)) translateX(7px) scaleX(.2);
+    }
+
+    30% {
+        opacity: .8;
+    }
+
+    100% {
+        opacity: 0;
+        transform: rotate(var(--nyx-click-angle)) translateX(46px) scaleX(1.1);
+    }
+}
+
+@keyframes nyxSkillBlackFlash {
+    0% {
+        opacity: 0;
+    }
+
+    16% {
+        opacity: .8;
+    }
+
+    46% {
+        opacity: .22;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes nyxSkillEclipseExpand {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(.16) rotate(-18deg);
+    }
+
+    36% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.08) rotate(3deg);
+    }
+
+    72% {
+        opacity: .84;
+        transform: translate(-50%, -50%) scale(.92) rotate(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(2.35);
+    }
+}
+
+@keyframes nyxSkillOrbit {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes nyxSkillOrbitReverse {
+    to {
+        transform: rotate(-360deg);
+    }
+}
+
+@keyframes nyxSkillRayRelease {
+    0% {
+        opacity: 0;
+        transform: rotate(var(--nyx-skill-angle)) scaleX(.03);
+    }
+
+    38% {
+        opacity: .82;
+    }
+
+    100% {
+        opacity: 0;
+        transform: rotate(var(--nyx-skill-angle)) scaleX(1);
+    }
+}
+
+@keyframes nyxSkillStarPop {
+    0% {
+        opacity: 0;
+        transform: scale(.1) rotate(-20deg);
+    }
+
+    30% {
+        opacity: 1;
+        transform: scale(1.8) rotate(10deg);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(.4) translateY(-18px);
+    }
+}
+
+@keyframes nyxSkillFracture {
+    0% {
+        opacity: 0;
+        scale: .15 1;
+    }
+
+    32% {
+        opacity: .75;
+    }
+
+    100% {
+        opacity: 0;
+        scale: 1 1;
+    }
+}
+
+@keyframes nyxDialogueReveal {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, 24px) scale(.96);
+    }
+
+    18%,
+    72% {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -9px) scale(.99);
+    }
+}
+
+@keyframes nyxUltimateVaultOpen {
+    0% {
+        opacity: 0;
+        transform: rotate(-8deg) scale(.72);
+    }
+
+    38% {
+        opacity: .8;
+    }
+
+    100% {
+        opacity: .2;
+        transform: rotate(12deg) scale(1.08);
+    }
+}
+
+@keyframes nyxUltimateHorizonCut {
+    0% {
+        opacity: 0;
+        transform: scaleX(0);
+    }
+
+    28% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        transform: scaleX(1);
+    }
+}
+
+/* ============================================================================
+   MOBILE / REDUCED MOTION CHO FULL SUITE
+   ============================================================================ */
+@media (max-width: 768px) {
+    .nyx-world-eclipse-crown {
+        width: 145px;
+        right: -26px;
+        top: 70px;
+        opacity: .20;
+    }
+
+    .nyx-ui-side-rail {
+        display: none;
+    }
+
+    .nyx-ui-corner {
+        opacity: .55;
+    }
+
+    .nyx-ui-bottom-seal span {
+        display: none;
+    }
+
+    .nyx-ui-top-line {
+        width: 42px;
+    }
+
+    .nyx-ui-crown {
+        min-width: 106px;
+        padding-inline: 14px;
+    }
+
+    .nyx-mythic-screen-dialogue-v2 {
+        padding: 10px 13px;
+        gap: 7px;
+    }
+
+    .nyx-mythic-screen-dialogue-v2>span {
+        font-size: 17px;
+    }
+
+    html:is(.nyx-first-night-equipped, .nyx-mythic-pet-equipped) :where(.modal-content, .popup-content, .student-modal-box, .swal2-popup) {
+        border-radius: 8px 24px 8px 24px !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .nyx-mythic-world-v2 *,
+    .nyx-mythic-ui-frame-v2 *,
+    .nyx-mythic-page-click *,
+    .nyx-mythic-screen-burst-v2 *,
+    .nyx-mythic-screen-dialogue-v2 *,
+    .nyx-mythic-ultimate::before,
+    .nyx-mythic-ultimate::after {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
+
+
+/* ============================================================================
+   HOTFIX · TĂNG KÍCH THƯỚC NHÂN VẬT TRÊN CARD LUXURY
+   Chỉ áp dụng cho Nyx · Hắc Dạ Nguyên Sơ
+   ============================================================================ */
+/* =========================================================
+   NYX - TĂNG KÍCH THƯỚC NHÂN VẬT TRÊN CARD
+   ========================================================= */
+
+@media (min-width: 601px) {
+
+    .nyx-mythic-card[data-item-id="pet_mythic_nyx_1"] .nyx-mythic-character {
+
+        width: min(88%, 242px) !important;
+
+        max-height: 374px !important;
+
+        bottom: 8px !important;
+
+        left: 50% !important;
+
+        transform:
+            translateX(-50%) scale(1.03) !important;
+    }
+
+
+    .nyx-mythic-card[data-item-id="pet_mythic_nyx_1"]:hover .nyx-mythic-character {
+
+        transform:
+            translateX(-50%) translateY(-9px) scale(1.065) !important;
+    }
+}
+
+@media (max-width: 600px) {
+
+    .luxury-product-card.nyx-mythic-card[data-item-id="pet_mythic_nyx_1"] .nyx-mythic-character,
+    .luxury-product-card[data-item-id="pet_mythic_nyx_1"] .nyx-mythic-character {
+        width: min(86%, 176px) !important;
+        max-height: 268px !important;
+        bottom: 8px !important;
+        transform: translateX(-50%) scale(1.02) !important;
+    }
+}
+
+
+/* ============================================================================
+   FINAL OVERRIDE · PET GÓC PHẢI TO RÕ RỆT
+   NYX · HẮC DẠ NGUYÊN SƠ
+   - scale là CSS transform longhand độc lập nên không bị keyframe transform ghi đè.
+   - Đặt CUỐI FILE để thắng các rule responsive phía trước.
+   ============================================================================ */
+#virtual-pet-container.pet-nyx-mythic-stage {
+    width: 220px !important;
+    min-height: 240px !important;
+    overflow: visible !important;
+}
+
+#virtual-pet-container.pet-nyx-mythic-stage #virtual-pet-img.mythic-nyx-night-magic {
+    width: 180px !important;
+    max-width: none !important;
+    height: auto !important;
+    scale: 1.15 !important;
+    transform-origin: 50% 92% !important;
+}
+
+/* Hiệu ứng quanh Nyx lớn theo nhân vật một chút. */
+#virtual-pet-container.pet-nyx-mythic-stage .nyx-mythic-pet-realm {
+    scale: 1.10 !important;
+    transform-origin: 50% 62% !important;
+}
+
+/* Không cho rule mobile cũ thu Nyx lại quá nhỏ. */
+@media (max-width: 768px),
+(pointer: coarse) {
+    #virtual-pet-container.pet-nyx-mythic-stage {
+        width: 195px !important;
+        min-height: 215px !important;
+    }
+
+    #virtual-pet-container.pet-nyx-mythic-stage #virtual-pet-img.mythic-nyx-night-magic {
+        width: 172px !important;
+        scale: 1.14 !important;
+    }
+}
+
+/* ============================================================================
+   NYX · ĐÊM NGUYÊN SƠ V3
+   - Nâng cấp mạnh pet realm quanh nhân vật
+   - Khôi phục / hợp nhất ultimate ĐÊM NGUYÊN SƠ thành một chuỗi duy nhất
+   - Tất cả selector/keyframe đều namespace nyx-v3-* / nyxMythicV3*
+   ============================================================================ */
+
+/* ------------------------------
+   A. PET REALM V3 — QUANH NHÂN VẬT
+   ------------------------------ */
+#virtual-pet-container.pet-nyx-mythic-stage .nyx-mythic-pet-realm {
+    inset: -64px -58px -74px !important;
+    z-index: 4 !important;
+    scale: 1.16 !important;
+    transform-origin: 50% 62% !important;
+    filter: drop-shadow(0 0 14px rgba(105, 65, 164, .18));
+}
+
+.nyx-v3-local-aura {
+    position: absolute;
+    left: 50%;
+    top: 53%;
+    width: 248px;
+    height: 248px;
+    translate: -50% -50%;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle, rgba(113, 68, 173, .24) 0 20%, rgba(45, 22, 79, .13) 38%, transparent 68%),
+        conic-gradient(from 12deg, transparent 0 12%, rgba(203, 175, 238, .11) 13% 14%, transparent 15% 31%, rgba(112, 68, 171, .13) 32% 34%, transparent 35% 100%);
+    box-shadow:
+        0 0 36px rgba(104, 64, 163, .22),
+        inset 0 0 38px rgba(192, 158, 230, .05);
+    animation: nyxMythicV3AuraBreathe 4.6s ease-in-out infinite alternate;
+}
+
+#virtual-pet-container.pet-nyx-mythic-stage .nyx-mythic-local-eclipse {
+    width: 166px !important;
+    height: 166px !important;
+    top: 49% !important;
+    background:
+        radial-gradient(circle at 48% 45%, #05030a 0 37%, #10091b 38% 48%, rgba(96, 55, 153, .24) 49% 57%, transparent 72%) !important;
+    box-shadow:
+        0 0 0 1px rgba(220, 199, 245, .13),
+        0 0 30px rgba(111, 67, 171, .28),
+        0 0 58px rgba(55, 28, 91, .20) !important;
+}
+
+#virtual-pet-container.pet-nyx-mythic-stage .nyx-mythic-local-ring {
+    border-color: rgba(216, 194, 244, .38) !important;
+    filter: drop-shadow(0 0 5px rgba(148, 107, 204, .30));
+}
+
+#virtual-pet-container.pet-nyx-mythic-stage .nyx-mythic-local-ring.ring-a {
+    width: 194px !important;
+    height: 194px !important;
+    margin: -97px 0 0 -97px !important;
+}
+
+#virtual-pet-container.pet-nyx-mythic-stage .nyx-mythic-local-ring.ring-b {
+    width: 224px !important;
+    height: 224px !important;
+    margin: -112px 0 0 -112px !important;
+    opacity: .70 !important;
+}
+
+#virtual-pet-container.pet-nyx-mythic-stage .nyx-mythic-local-ring.ring-c {
+    width: 252px;
+    height: 172px;
+    margin: -86px 0 0 -126px;
+    transform: rotate(-18deg);
+    border-style: dashed;
+    opacity: .42;
+    animation: nyxMythicV3RingTilt 9s ease-in-out infinite alternate;
+}
+
+.nyx-v3-local-rune-wheel {
+    position: absolute;
+    left: 50%;
+    top: 49%;
+    width: 232px;
+    height: 232px;
+    translate: -50% -50%;
+    border-radius: 50%;
+    animation: nyxMythicV3RuneWheel 18s linear infinite;
+}
+
+.nyx-v3-local-rune-wheel i {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    color: rgba(224, 206, 246, .72);
+    font: 700 10px/1 Georgia, serif;
+    text-shadow: 0 0 8px rgba(159, 116, 214, .68);
+    transform-origin: 0 0;
+}
+
+.nyx-v3-local-rune-wheel i:nth-child(1) {
+    transform: rotate(0deg) translateX(106px) rotate(0deg);
+}
+
+.nyx-v3-local-rune-wheel i:nth-child(2) {
+    transform: rotate(45deg) translateX(106px) rotate(-45deg);
+}
+
+.nyx-v3-local-rune-wheel i:nth-child(3) {
+    transform: rotate(90deg) translateX(106px) rotate(-90deg);
+}
+
+.nyx-v3-local-rune-wheel i:nth-child(4) {
+    transform: rotate(135deg) translateX(106px) rotate(-135deg);
+}
+
+.nyx-v3-local-rune-wheel i:nth-child(5) {
+    transform: rotate(180deg) translateX(106px) rotate(-180deg);
+}
+
+.nyx-v3-local-rune-wheel i:nth-child(6) {
+    transform: rotate(225deg) translateX(106px) rotate(-225deg);
+}
+
+.nyx-v3-local-rune-wheel i:nth-child(7) {
+    transform: rotate(270deg) translateX(106px) rotate(-270deg);
+}
+
+.nyx-v3-local-rune-wheel i:nth-child(8) {
+    transform: rotate(315deg) translateX(106px) rotate(-315deg);
+}
+
+.nyx-v3-shadow-wing {
+    position: absolute;
+    top: 54%;
+    width: 112px;
+    height: 154px;
+    opacity: .50;
+    background:
+        repeating-linear-gradient(162deg, rgba(166, 124, 219, .19) 0 2px, transparent 2px 14px),
+        radial-gradient(ellipse at 100% 50%, rgba(92, 49, 146, .28), transparent 67%);
+    border-top: 1px solid rgba(202, 177, 235, .22);
+    filter: blur(.15px) drop-shadow(0 0 10px rgba(94, 52, 147, .20));
+    clip-path: polygon(100% 0, 72% 17%, 88% 26%, 53% 37%, 80% 48%, 34% 63%, 64% 72%, 0 100%, 100% 83%);
+    transform-origin: 100% 50%;
+    animation: nyxMythicV3WingPulse 4.8s ease-in-out infinite alternate;
+}
+
+.nyx-v3-shadow-wing.wing-left {
+    right: 50%;
+    transform: rotate(-8deg);
+}
+
+.nyx-v3-shadow-wing.wing-right {
+    left: 50%;
+    transform: scaleX(-1) rotate(-8deg);
+}
+
+#virtual-pet-container.pet-nyx-mythic-stage .nyx-mythic-night-thread {
+    width: 232px !important;
+    height: 84px !important;
+    margin-left: -116px !important;
+    border-top-color: rgba(187, 153, 226, .38) !important;
+    box-shadow: 0 -2px 8px rgba(116, 75, 170, .14);
+}
+
+#virtual-pet-container.pet-nyx-mythic-stage .nyx-mythic-night-thread.thread-c {
+    top: 61%;
+    transform: rotate(3deg) scaleX(.78);
+    opacity: .56;
+    animation: nyxMythicV3ThreadC 7.2s ease-in-out infinite alternate;
+}
+
+.nyx-v3-crescent-orbit {
+    position: absolute;
+    inset: 0;
+    animation: nyxMythicV3CrescentOrbit 13s linear infinite;
+}
+
+.nyx-v3-crescent-orbit .crescent {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    color: rgba(231, 216, 250, .82);
+    text-shadow: 0 0 10px rgba(166, 123, 219, .76);
+    font: 700 18px/1 Georgia, serif;
+}
+
+.nyx-v3-crescent-orbit .crescent-a {
+    transform: translate(-50%, -50%) rotate(18deg) translateX(126px) rotate(-18deg);
+}
+
+.nyx-v3-crescent-orbit .crescent-b {
+    transform: translate(-50%, -50%) rotate(154deg) translateX(112px) rotate(-154deg);
+    font-size: 13px;
+}
+
+.nyx-v3-crescent-orbit .crescent-c {
+    transform: translate(-50%, -50%) rotate(274deg) translateX(132px) rotate(-274deg);
+    font-size: 10px;
+}
+
+#virtual-pet-container.pet-nyx-mythic-stage .nyx-mythic-orbit-star {
+    text-shadow: 0 0 10px rgba(192, 155, 234, .88) !important;
+    font-size: 11px !important;
+}
+
+#virtual-pet-container.pet-nyx-mythic-stage .nyx-mythic-void-mote {
+    background: rgba(211, 189, 240, .58) !important;
+    box-shadow: 0 0 9px rgba(129, 82, 190, .72) !important;
+}
+
+.nyx-v3-ground-sigil {
+    position: absolute;
+    left: 50%;
+    bottom: 4px;
+    width: 186px;
+    height: 42px;
+    translate: -50% 0;
+    border: 1px solid rgba(198, 169, 231, .30);
+    border-radius: 50%;
+    transform: perspective(160px) rotateX(68deg);
+    box-shadow:
+        0 0 18px rgba(114, 71, 171, .24),
+        inset 0 0 16px rgba(175, 134, 224, .12);
+    background: radial-gradient(ellipse, rgba(101, 58, 157, .20), transparent 68%);
+    animation: nyxMythicV3GroundPulse 3.6s ease-in-out infinite alternate;
+}
+
+.nyx-v3-ground-sigil::before,
+.nyx-v3-ground-sigil::after {
+    content: "";
+    position: absolute;
+    inset: 7px 18px;
+    border: 1px dashed rgba(218, 194, 244, .28);
+    border-radius: 50%;
+}
+
+.nyx-v3-ground-sigil::after {
+    inset: 14px 42px;
+    border-style: solid;
+}
+
+#virtual-pet-container.pet-nyx-mythic-stage.nyx-mythic-casting .nyx-mythic-pet-realm {
+    animation: nyxMythicV3RealmCast 1.65s cubic-bezier(.16, .82, .24, 1) both !important;
+}
+
+#virtual-pet-container.pet-nyx-mythic-stage.nyx-mythic-casting .nyx-v3-local-rune-wheel {
+    animation: nyxMythicV3RuneCast 1.65s cubic-bezier(.16, .82, .24, 1) both !important;
+}
+
+#virtual-pet-container.pet-nyx-mythic-stage.nyx-mythic-casting .nyx-v3-shadow-wing {
+    opacity: .90;
+    filter: drop-shadow(0 0 18px rgba(130, 82, 193, .55));
+}
+
+/* ------------------------------
+   B. ĐÊM NGUYÊN SƠ V3 — TOÀN MÀN HÌNH
+   ------------------------------ */
+.nyx-mythic-ultimate.nyx-mythic-ultimate-v3 {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 2147483600 !important;
+    overflow: hidden !important;
+    isolation: isolate !important;
+    pointer-events: none !important;
+    opacity: 0;
+    background: #020104 !important;
+    backdrop-filter: none !important;
+    transition: opacity .7s ease !important;
+}
+
+.nyx-mythic-ultimate-v3.is-active {
+    opacity: 1 !important;
+}
+
+.nyx-mythic-ultimate-v3.is-ending {
+    opacity: 0 !important;
+}
+
+.nyx-v3-nightfall {
+    position: absolute;
+    inset: 0;
+    z-index: -12;
+    background:
+        radial-gradient(circle at var(--nyx-origin-x) var(--nyx-origin-y), rgba(145, 99, 201, .20), transparent 18%),
+        radial-gradient(circle at 50% 44%, rgba(75, 39, 119, .24), transparent 29%),
+        radial-gradient(ellipse at 50% 115%, rgba(67, 37, 104, .38), transparent 55%),
+        linear-gradient(180deg, #06020c 0%, #020104 58%, #080311 100%);
+    animation: nyxMythicV3Nightfall 5.2s ease both;
+}
+
+.nyx-v3-nightfall::before {
+    content: "";
+    position: absolute;
+    inset: -20%;
+    background:
+        repeating-radial-gradient(circle at 50% 44%, transparent 0 48px, rgba(183, 145, 229, .025) 49px 50px, transparent 51px 86px),
+        repeating-conic-gradient(from 8deg at 50% 44%, transparent 0 8deg, rgba(176, 139, 220, .025) 9deg 10deg, transparent 11deg 23deg);
+    animation: nyxMythicV3VaultTurn 18s linear infinite;
+}
+
+.nyx-mythic-ultimate-v3 .nyx-mythic-ultimate-veil {
+    z-index: -10;
+    background:
+        radial-gradient(circle at 50% 43%, rgba(132, 83, 190, .40), transparent 17%),
+        radial-gradient(circle at 50% 43%, transparent 0 24%, rgba(158, 112, 213, .08) 25% 27%, transparent 28% 100%),
+        linear-gradient(180deg, rgba(1, 0, 3, .34), rgba(5, 2, 10, .78)) !important;
+    animation: nyxMythicV3VeilPulse 5s ease both !important;
+}
+
+.nyx-v3-abyss-gate {
+    position: absolute;
+    left: 50%;
+    top: 43%;
+    width: min(62vw, 720px);
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    opacity: 0;
+    animation: nyxMythicV3GateReveal 4.4s cubic-bezier(.16, .8, .22, 1) .18s both;
+}
+
+.nyx-v3-gate-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(203, 174, 237, .22);
+    box-shadow: inset 0 0 32px rgba(111, 68, 166, .07), 0 0 24px rgba(100, 57, 155, .08);
+}
+
+.nyx-v3-gate-ring.gate-a {
+    inset: 3%;
+    animation: nyxMythicV3GateSpin 15s linear infinite;
+    clip-path: polygon(0 0, 100% 0, 100% 48%, 0 76%);
+}
+
+.nyx-v3-gate-ring.gate-b {
+    inset: 12%;
+    border-style: dashed;
+    animation: nyxMythicV3GateSpinReverse 19s linear infinite;
+}
+
+.nyx-v3-gate-ring.gate-c {
+    inset: 23%;
+    border-color: rgba(229, 209, 250, .32);
+    animation: nyxMythicV3GateSpin 9s linear infinite;
+    clip-path: polygon(0 30%, 100% 12%, 100% 100%, 0 100%);
+}
+
+.nyx-v3-gate-rune {
+    position: absolute;
+    left: 50%;
+    top: 4%;
+    translate: -50% 0;
+    color: rgba(215, 188, 244, .42);
+    font: 700 clamp(11px, 1.2vw, 16px)/1 Georgia, serif;
+    letter-spacing: .55em;
+    text-shadow: 0 0 14px rgba(158, 107, 215, .44);
+}
+
+.nyx-mythic-ultimate-v3 .nyx-mythic-ultimate-eclipse {
+    left: 50% !important;
+    top: 43% !important;
+    width: min(36vw, 440px) !important;
+    z-index: 10 !important;
+    filter: drop-shadow(0 0 52px rgba(112, 65, 171, .48)) !important;
+    animation: nyxMythicV3EclipseBirth 4.4s cubic-bezier(.13, .84, .2, 1) .10s both !important;
+}
+
+.nyx-mythic-ultimate-v3 .nyx-mythic-ultimate-core {
+    inset: 20% !important;
+    background:
+        radial-gradient(circle at 42% 37%, #15101f 0 4%, #06030b 20%, #010103 70%) !important;
+    box-shadow:
+        0 0 0 1px rgba(240, 227, 255, .18),
+        inset -18px -15px 28px rgba(51, 26, 81, .48),
+        0 0 36px rgba(111, 66, 171, .34) !important;
+}
+
+.nyx-mythic-ultimate-v3 .nyx-mythic-ultimate-corona {
+    inset: 6% !important;
+    border: 2px solid rgba(222, 198, 248, .60) !important;
+    box-shadow:
+        0 0 20px rgba(222, 198, 248, .23),
+        0 0 62px rgba(139, 89, 197, .46),
+        inset 0 0 42px rgba(121, 74, 179, .18) !important;
+    animation: nyxMythicV3Corona 5.5s linear infinite !important;
+}
+
+.nyx-v3-eclipse-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(228, 205, 251, .38);
+}
+
+.nyx-v3-eclipse-ring.ring-a {
+    inset: -8%;
+    animation: nyxMythicV3EclipseRing 6s linear infinite;
+    clip-path: polygon(0 0, 100% 0, 100% 44%, 0 72%);
+}
+
+.nyx-v3-eclipse-ring.ring-b {
+    inset: -18%;
+    opacity: .56;
+    border-style: dashed;
+    animation: nyxMythicV3EclipseRingReverse 9s linear infinite;
+}
+
+.nyx-v3-eclipse-crescent {
+    position: absolute;
+    color: rgba(231, 215, 250, .74);
+    text-shadow: 0 0 14px rgba(173, 127, 222, .68);
+    font: 700 clamp(20px, 3vw, 42px)/1 Georgia, serif;
+}
+
+.nyx-v3-eclipse-crescent.crescent-a {
+    left: -12%;
+    top: 20%;
+    animation: nyxMythicV3CrescentFloat 3.1s ease-in-out infinite alternate;
+}
+
+.nyx-v3-eclipse-crescent.crescent-b {
+    right: -10%;
+    bottom: 15%;
+    font-size: clamp(14px, 2vw, 30px);
+    animation: nyxMythicV3CrescentFloatB 3.7s ease-in-out infinite alternate;
+}
+
+.nyx-v3-night-wings {
+    position: absolute;
+    top: 43%;
+    width: min(31vw, 420px);
+    height: min(42vw, 560px);
+    opacity: 0;
+    background:
+        repeating-linear-gradient(165deg, rgba(173, 126, 224, .09) 0 2px, transparent 2px 20px),
+        radial-gradient(ellipse at 100% 50%, rgba(92, 47, 145, .29), transparent 70%);
+    clip-path: polygon(100% 0, 78% 13%, 94% 23%, 62% 31%, 88% 42%, 48% 51%, 80% 63%, 26% 74%, 64% 83%, 0 100%, 100% 86%);
+    filter: drop-shadow(0 0 32px rgba(86, 42, 137, .24));
+    transform-origin: 100% 50%;
+    animation: nyxMythicV3NightWing 4s cubic-bezier(.2, .75, .2, 1) .55s both;
+}
+
+.nyx-v3-night-wings.wing-left {
+    right: 50%;
+    transform: translateY(-50%) rotate(-8deg);
+}
+
+.nyx-v3-night-wings.wing-right {
+    left: 50%;
+    transform: translateY(-50%) scaleX(-1) rotate(-8deg);
+}
+
+.nyx-v3-ray-vault {
+    position: absolute;
+    left: 50%;
+    top: 43%;
+    width: 130vmax;
+    height: 130vmax;
+    translate: -50% -50%;
+    opacity: 0;
+    background: repeating-conic-gradient(from 0deg, transparent 0 7deg, rgba(207, 173, 239, .045) 8deg 9deg, transparent 10deg 19deg);
+    animation: nyxMythicV3RayVault 3.4s ease-out .55s both;
+}
+
+.nyx-v3-rune-field,
+.nyx-v3-shard-field,
+.nyx-mythic-ultimate-v3 .nyx-mythic-ultimate-stars {
+    position: absolute;
+    inset: 0;
+}
+
+.nyx-v3-rune-field span {
+    position: absolute;
+    left: 50%;
+    top: 43%;
+    color: rgba(229, 207, 250, .68);
+    font: 700 clamp(10px, 1vw, 15px)/1 Georgia, serif;
+    text-shadow: 0 0 10px rgba(153, 104, 209, .70);
+    opacity: 0;
+    transform:
+        translate(-50%, -50%) rotate(var(--nyx-v3-rune-angle)) translateX(var(--nyx-v3-rune-radius)) rotate(calc(var(--nyx-v3-rune-angle) * -1));
+    animation: nyxMythicV3RuneAppear 3.4s ease var(--nyx-v3-rune-delay) both;
+}
+
+.nyx-v3-shard-field i {
+    position: absolute;
+    left: var(--nyx-origin-x);
+    top: var(--nyx-origin-y);
+    width: var(--nyx-v3-shard-length);
+    height: 1px;
+    background: linear-gradient(90deg, rgba(231, 214, 250, .85), rgba(122, 75, 181, .18), transparent);
+    box-shadow: 0 0 7px rgba(174, 129, 222, .54);
+    opacity: 0;
+    transform-origin: left center;
+    animation: nyxMythicV3ShardFly 2.3s cubic-bezier(.18, .72, .2, 1) var(--nyx-v3-shard-delay) both;
+}
+
+.nyx-mythic-ultimate-v3 .nyx-mythic-ultimate-stars span {
+    animation: nyxMythicV3StarFall 2.8s ease-in-out infinite alternate !important;
+    animation-delay: var(--nyx-ud) !important;
+}
+
+.nyx-v3-horizon {
+    position: absolute;
+    left: -10%;
+    right: -10%;
+    top: 57%;
+    height: 1px;
+    z-index: 18;
+    background: linear-gradient(90deg, transparent, rgba(224, 202, 247, .16), rgba(250, 242, 255, .90), rgba(116, 71, 173, .22), transparent);
+    box-shadow: 0 0 34px rgba(173, 126, 219, .48);
+    transform: scaleX(0);
+    animation: nyxMythicV3Horizon 3.2s ease-out .9s both;
+}
+
+.nyx-v3-final-wave {
+    position: absolute;
+    left: 50%;
+    top: 43%;
+    width: 140px;
+    height: 140px;
+    translate: -50% -50%;
+    border: 1px solid rgba(230, 211, 250, .52);
+    border-radius: 50%;
+    opacity: 0;
+}
+
+.nyx-v3-final-wave.wave-a {
+    animation: nyxMythicV3FinalWave 2.3s ease-out 2.75s both;
+}
+
+.nyx-v3-final-wave.wave-b {
+    animation: nyxMythicV3FinalWave 2.3s ease-out 3.02s both;
+}
+
+.nyx-mythic-ultimate-v3 .nyx-mythic-ultimate-title {
+    left: 50% !important;
+    top: 72% !important;
+    z-index: 30 !important;
+    width: min(880px, 92vw);
+    opacity: 0;
+    transform: translate(-50%, 26px) !important;
+    animation: nyxMythicV3Title 4.8s ease .9s both !important;
+}
+
+.nyx-mythic-ultimate-v3 .nyx-mythic-ultimate-title small {
+    color: rgba(214, 190, 242, .78) !important;
+    font: 800 clamp(8px, .8vw, 11px)/1 system-ui, sans-serif !important;
+    letter-spacing: .38em !important;
+}
+
+.nyx-mythic-ultimate-v3 .nyx-mythic-ultimate-title strong {
+    display: block;
+    margin-top: 11px;
+    color: #fbf7ff !important;
+    font: 700 clamp(32px, 5.4vw, 76px)/1 Georgia, 'Times New Roman', serif !important;
+    letter-spacing: .18em !important;
+    text-shadow:
+        0 0 12px rgba(245, 231, 255, .30),
+        0 0 38px rgba(163, 111, 217, .52),
+        0 0 82px rgba(82, 39, 133, .38) !important;
+}
+
+.nyx-mythic-ultimate-v3 .nyx-mythic-ultimate-title em {
+    display: block;
+    margin-top: 13px;
+    color: rgba(211, 187, 238, .66);
+    font: 700 clamp(8px, .9vw, 12px)/1 system-ui, sans-serif;
+    font-style: normal;
+    letter-spacing: .32em;
+}
+
+.nyx-mythic-ultimate-v3.is-collapse .nyx-mythic-ultimate-eclipse {
+    filter: brightness(1.35) drop-shadow(0 0 82px rgba(169, 119, 220, .62)) !important;
+}
+
+.nyx-mythic-ultimate-v3.is-collapse .nyx-v3-abyss-gate {
+    filter: brightness(1.28);
+}
+
+/* ------------------------------
+   C. KEYFRAMES V3
+   ------------------------------ */
+@keyframes nyxMythicV3AuraBreathe {
+    from {
+        scale: .92;
+        opacity: .62;
+    }
+
+    to {
+        scale: 1.08;
+        opacity: 1;
+    }
+}
+
+@keyframes nyxMythicV3RingTilt {
+    from {
+        transform: rotate(-21deg) scale(.94);
+    }
+
+    to {
+        transform: rotate(-12deg) scale(1.06);
+    }
+}
+
+@keyframes nyxMythicV3RuneWheel {
+    to {
+        rotate: 360deg;
+    }
+}
+
+@keyframes nyxMythicV3WingPulse {
+    from {
+        scale: .92 .86;
+        opacity: .30;
+    }
+
+    to {
+        scale: 1.08 1.06;
+        opacity: .62;
+    }
+}
+
+@keyframes nyxMythicV3ThreadC {
+    from {
+        transform: rotate(0deg) scaleX(.74) translateY(5px);
+    }
+
+    to {
+        transform: rotate(7deg) scaleX(.86) translateY(-7px);
+    }
+}
+
+@keyframes nyxMythicV3CrescentOrbit {
+    to {
+        rotate: 360deg;
+    }
+}
+
+@keyframes nyxMythicV3GroundPulse {
+    from {
+        opacity: .40;
+        scale: .92 1;
+    }
+
+    to {
+        opacity: .88;
+        scale: 1.08 1;
+    }
+}
+
+@keyframes nyxMythicV3RealmCast {
+    0% {
+        scale: 1.16;
+        filter: brightness(1);
+    }
+
+    35% {
+        scale: .94;
+        filter: brightness(.76);
+    }
+
+    62% {
+        scale: 1.35;
+        filter: brightness(1.72) drop-shadow(0 0 22px rgba(171, 120, 221, .58));
+    }
+
+    100% {
+        scale: 1.16;
+        filter: brightness(1);
+    }
+}
+
+@keyframes nyxMythicV3RuneCast {
+    0% {
+        rotate: 0deg;
+        scale: .92;
+        opacity: .55;
+    }
+
+    56% {
+        rotate: 210deg;
+        scale: 1.24;
+        opacity: 1;
+    }
+
+    100% {
+        rotate: 360deg;
+        scale: 1;
+        opacity: .72;
+    }
+}
+
+@keyframes nyxMythicV3Nightfall {
+    0% {
+        opacity: 0;
+        filter: brightness(1.4);
+    }
+
+    18% {
+        opacity: 1;
+    }
+
+    72% {
+        filter: brightness(.72);
+    }
+
+    100% {
+        opacity: 1;
+        filter: brightness(.58);
+    }
+}
+
+@keyframes nyxMythicV3VaultTurn {
+    to {
+        transform: rotate(360deg) scale(1.05);
+    }
+}
+
+@keyframes nyxMythicV3VeilPulse {
+    0% {
+        opacity: 0;
+        transform: scale(1.18);
+    }
+
+    26% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes nyxMythicV3GateReveal {
+    0% {
+        opacity: 0;
+        scale: .34;
+        rotate: -16deg;
+        filter: blur(8px);
+    }
+
+    45% {
+        opacity: .92;
+        scale: 1.04;
+        rotate: 2deg;
+        filter: blur(0);
+    }
+
+    100% {
+        opacity: .48;
+        scale: 1;
+        rotate: 0deg;
+    }
+}
+
+@keyframes nyxMythicV3GateSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes nyxMythicV3GateSpinReverse {
+    to {
+        transform: rotate(-360deg);
+    }
+}
+
+@keyframes nyxMythicV3EclipseBirth {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(.08) rotate(-18deg);
+        filter: blur(8px);
+    }
+
+    35% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.12) rotate(3deg);
+        filter: blur(0);
+    }
+
+    67% {
+        transform: translate(-50%, -50%) scale(.96);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+@keyframes nyxMythicV3Corona {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes nyxMythicV3EclipseRing {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes nyxMythicV3EclipseRingReverse {
+    to {
+        transform: rotate(-360deg);
+    }
+}
+
+@keyframes nyxMythicV3CrescentFloat {
+    from {
+        translate: -6px 4px;
+        rotate: -8deg;
+    }
+
+    to {
+        translate: 8px -10px;
+        rotate: 10deg;
+    }
+}
+
+@keyframes nyxMythicV3CrescentFloatB {
+    from {
+        translate: 6px -4px;
+        rotate: 6deg;
+    }
+
+    to {
+        translate: -8px 8px;
+        rotate: -10deg;
+    }
+}
+
+@keyframes nyxMythicV3NightWing {
+    0% {
+        opacity: 0;
+        scale: .28 .7;
+        filter: blur(9px);
+    }
+
+    48% {
+        opacity: .54;
+        scale: 1.06 1;
+        filter: blur(0);
+    }
+
+    100% {
+        opacity: .27;
+        scale: .96 1;
+    }
+}
+
+@keyframes nyxMythicV3RayVault {
+    0% {
+        opacity: 0;
+        scale: .3;
+        rotate: -14deg;
+    }
+
+    38% {
+        opacity: .62;
+    }
+
+    100% {
+        opacity: .10;
+        scale: 1.1;
+        rotate: 10deg;
+    }
+}
+
+@keyframes nyxMythicV3RuneAppear {
+    0% {
+        opacity: 0;
+        filter: blur(5px);
+        scale: .5;
+    }
+
+    30% {
+        opacity: .92;
+        filter: blur(0);
+        scale: 1.14;
+    }
+
+    100% {
+        opacity: .26;
+        scale: 1;
+    }
+}
+
+@keyframes nyxMythicV3ShardFly {
+    0% {
+        opacity: 0;
+        transform: rotate(var(--nyx-v3-shard-angle)) translateX(8px) scaleX(.1);
+    }
+
+    24% {
+        opacity: .9;
+    }
+
+    100% {
+        opacity: 0;
+        transform: rotate(var(--nyx-v3-shard-angle)) translateX(var(--nyx-v3-shard-distance)) scaleX(1.25);
+    }
+}
+
+@keyframes nyxMythicV3StarFall {
+    from {
+        opacity: .16;
+        translate: 0 0;
+        scale: .55;
+    }
+
+    to {
+        opacity: 1;
+        translate: 0 calc(var(--nyx-v3-star-drift) * -1);
+        scale: 1.35;
+    }
+}
+
+@keyframes nyxMythicV3Horizon {
+    0% {
+        opacity: 0;
+        transform: scaleX(0);
+    }
+
+    34% {
+        opacity: 1;
+        transform: scaleX(.18);
+    }
+
+    65% {
+        opacity: .92;
+        transform: scaleX(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scaleX(1.08);
+    }
+}
+
+@keyframes nyxMythicV3FinalWave {
+    0% {
+        opacity: 0;
+        scale: .2;
+    }
+
+    24% {
+        opacity: .72;
+    }
+
+    100% {
+        opacity: 0;
+        scale: 8;
+        border-width: .25px;
+    }
+}
+
+@keyframes nyxMythicV3Title {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, 26px) scale(.94);
+        filter: blur(6px);
+    }
+
+    22%,
+    72% {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1);
+        filter: blur(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -12px) scale(1.02);
+    }
+}
+
+@media (max-width: 768px),
+(pointer: coarse) {
+    #virtual-pet-container.pet-nyx-mythic-stage .nyx-mythic-pet-realm {
+        inset: -42px -34px -52px !important;
+        scale: 1.04 !important;
+    }
+
+    .nyx-v3-shadow-wing {
+        opacity: .34;
+    }
+
+    .nyx-v3-local-rune-wheel {
+        width: 202px;
+        height: 202px;
+    }
+
+    .nyx-v3-local-rune-wheel i:nth-child(n) {
+        font-size: 8px;
+    }
+
+    .nyx-v3-abyss-gate {
+        width: min(90vw, 620px);
+    }
+
+    .nyx-mythic-ultimate-v3 .nyx-mythic-ultimate-eclipse {
+        width: min(64vw, 390px) !important;
+    }
+
+    .nyx-v3-night-wings {
+        width: 44vw;
+        height: 58vw;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .nyx-mythic-ultimate-v3 *,
+    #virtual-pet-container.pet-nyx-mythic-stage .nyx-v3-local-aura,
+    #virtual-pet-container.pet-nyx-mythic-stage .nyx-v3-local-rune-wheel,
+    #virtual-pet-container.pet-nyx-mythic-stage .nyx-v3-shadow-wing,
+    #virtual-pet-container.pet-nyx-mythic-stage .nyx-v3-crescent-orbit,
+    #virtual-pet-container.pet-nyx-mythic-stage .nyx-v3-ground-sigil {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
+/* =====================================================================
+   NYX · TIỂU DẠ TINH LINH
+   ID: pet_truyenthuyet_nyx_chibi_1
+   EFFECT: nyx-little-night-spirit-magic
+
+   Namespace độc lập:
+   nyx-little-*
+
+   KHÔNG thuộc Nyx · Hắc Dạ Nguyên Sơ.
+   ===================================================================== */
+
+
+/* =====================================================================
+   1. CARD RIÊNG
+   ===================================================================== */
+
+.store-item-card.store-card-nyx-little-spirit,
+.store-item-card[data-special-card="nyx-little-spirit"] {
+    position: relative !important;
+
+    isolation: isolate !important;
+    overflow: hidden !important;
+
+    background:
+        radial-gradient(circle at 75% 17%,
+            rgba(164, 132, 235, .20),
+            transparent 27%),
+        radial-gradient(circle at 20% 82%,
+            rgba(96, 76, 175, .14),
+            transparent 35%),
+        linear-gradient(150deg,
+            #171126 0%,
+            #24163b 42%,
+            #120d20 75%,
+            #090812 100%) !important;
+
+    border:
+        1px solid rgba(199, 177, 245, .48) !important;
+
+    border-radius:
+        20px !important;
+
+    color:
+        #f7f2ff !important;
+
+    box-shadow:
+        0 20px 44px rgba(9, 5, 20, .30),
+
+        inset 0 1px 0 rgba(255, 255, 255, .08),
+
+        inset 0 -28px 45px rgba(7, 4, 14, .20) !important;
+
+    filter: none !important;
+
+    backdrop-filter:
+        none !important;
+
+    -webkit-backdrop-filter:
+        none !important;
+}
+
+
+/*
+ * Không cho theme bên ngoài tô card.
+ */
+.store-card-nyx-little-spirit .card-glow {
+    position: absolute !important;
+
+    inset: -35% !important;
+
+    opacity: .75 !important;
+
+    background:
+        conic-gradient(from 0deg,
+            transparent 0 18%,
+
+            rgba(195,
+                170,
+                244,
+                .17) 18% 21%,
+
+            transparent 21% 48%,
+
+            rgba(115,
+                82,
+                187,
+                .18) 48% 52%,
+
+            transparent 52% 100%) !important;
+
+    border-radius:
+        50% !important;
+
+    filter:
+        none !important;
+
+    animation:
+        nyxLittleCardOrbit 18s linear infinite !important;
+}
+
+
+.store-card-nyx-little-spirit .item-icon-wrapper {
+    position: relative !important;
+
+    isolation: isolate !important;
+
+    overflow: visible !important;
+
+    background:
+        radial-gradient(circle,
+            rgba(178, 145, 232, .16),
+            rgba(42, 27, 69, .06) 48%,
+            transparent 72%) !important;
+
+    border:
+        1px solid rgba(205, 188, 240, .20) !important;
+
+    border-radius:
+        18px !important;
+
+    box-shadow:
+        inset 0 0 24px rgba(147, 105, 218, .09) !important;
+}
+
+
+/*
+ * Vòng sao phía sau icon card.
+ */
+.store-card-nyx-little-spirit .item-icon-wrapper::before,
+.store-card-nyx-little-spirit .item-icon-wrapper::after {
+    content: "";
+
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    width: 82px;
+    height: 82px;
+
+    transform:
+        translate(-50%, -50%);
+
+    border-radius: 50%;
+
+    border:
+        1px solid rgba(211, 192, 244, .23);
+
+    pointer-events: none;
+}
+
+
+.store-card-nyx-little-spirit .item-icon-wrapper::after {
+    width: 62px;
+    height: 62px;
+
+    border-style:
+        dashed;
+
+    animation:
+        nyxLittleCardIconRing 10s linear infinite;
+}
+
+
+.store-card-nyx-little-spirit img.item-icon {
+    position: relative !important;
+
+    z-index: 3 !important;
+
+    width: 92px !important;
+    height: 92px !important;
+
+    object-fit:
+        contain !important;
+
+    opacity: 1 !important;
+
+    mix-blend-mode:
+        normal !important;
+
+    filter:
+        drop-shadow(0 8px 8px rgba(5, 3, 12, .34)) drop-shadow(0 0 9px rgba(173, 133, 232, .25)) !important;
+
+    animation:
+        nyxLittleCardPetFloat 4.3s ease-in-out infinite !important;
+}
+
+
+.store-card-nyx-little-spirit .item-info,
+.store-card-nyx-little-spirit .item-actions {
+    position:
+        relative !important;
+
+    z-index:
+        4 !important;
+
+    background:
+        transparent !important;
+}
+
+
+.store-card-nyx-little-spirit .item-name {
+    color:
+        #f6efff !important;
+
+    -webkit-text-fill-color:
+        #f6efff !important;
+
+    text-shadow:
+        0 0 8px rgba(159, 115, 218, .18) !important;
+}
+
+
+.store-card-nyx-little-spirit .item-type-label {
+    color:
+        rgba(224, 208, 248, .76) !important;
+
+    -webkit-text-fill-color:
+        rgba(224, 208, 248, .76) !important;
+}
+
+
+/*
+ * KHÔNG sửa .tag-truyen-thuyet.
+ * Vì phải dùng đúng tag chung với
+ * Nyx - Nữ Thần Màn Đêm.
+ */
+
+
+/* =====================================================================
+   2. PET KHI TRANG BỊ
+   ===================================================================== */
+
+#virtual-pet-container.pet-nyx-little-night-stage {
+    isolation:
+        isolate !important;
+
+    overflow:
+        visible !important;
+
+    width:
+        190px;
+
+    min-height:
+        205px;
+}
+
+
+#virtual-pet-container.pet-nyx-little-night-stage #virtual-pet-img.nyx-little-night-spirit-magic {
+    position:
+        relative !important;
+
+    z-index:
+        20 !important;
+
+    width:
+        155px !important;
+
+    max-width:
+        none !important;
+
+    height:
+        auto !important;
+
+    object-fit:
+        contain !important;
+
+    user-select:
+        none !important;
+
+    cursor:
+        pointer !important;
+
+    transform-origin:
+        50% 82% !important;
+
+    filter:
+        drop-shadow(0 11px 11px rgba(5, 3, 12, .34)) drop-shadow(0 0 9px rgba(164, 123, 224, .30)) !important;
+
+    animation:
+        nyxLittlePetIdle 4.2s ease-in-out infinite !important;
+}
+
+
+.nyx-little-pet-realm {
+    position:
+        absolute;
+
+    inset:
+        -22px -18px -28px;
+
+    z-index:
+        4;
+
+    overflow:
+        visible;
+
+    pointer-events:
+        none;
+}
+
+
+.nyx-little-aura {
+    position:
+        absolute;
+
+    left:
+        50%;
+
+    top:
+        49%;
+
+    width:
+        126px;
+
+    height:
+        126px;
+
+    transform:
+        translate(-50%, -50%);
+
+    border-radius:
+        50%;
+
+    background:
+        radial-gradient(circle,
+            rgba(132, 93, 203, .20),
+            rgba(51, 31, 82, .08) 45%,
+            transparent 72%);
+
+    box-shadow:
+        0 0 30px rgba(130, 91, 197, .18);
+
+    animation:
+        nyxLittleAuraBreathe 3.8s ease-in-out infinite;
+}
+
+
+.nyx-little-orbit {
+    position:
+        absolute;
+
+    left:
+        50%;
+
+    top:
+        49%;
+
+    border-radius:
+        50%;
+
+    border:
+        1px solid rgba(215, 198, 244, .28);
+}
+
+
+.nyx-little-orbit.orbit-one {
+    width:
+        146px;
+
+    height:
+        146px;
+
+    margin:
+        -73px 0 0 -73px;
+
+    animation:
+        nyxLittleOrbit 9s linear infinite;
+}
+
+
+.nyx-little-orbit.orbit-two {
+    width:
+        174px;
+
+    height:
+        174px;
+
+    margin:
+        -87px 0 0 -87px;
+
+    border-style:
+        dashed;
+
+    opacity:
+        .60;
+
+    animation:
+        nyxLittleOrbitReverse 14s linear infinite;
+}
+
+
+.nyx-little-crescent {
+    position:
+        absolute;
+
+    left:
+        50%;
+
+    top:
+        8%;
+
+    color:
+        #dfd2f7;
+
+    font-size:
+        24px;
+
+    text-shadow:
+        0 0 11px rgba(176, 139, 232, .72);
+
+    animation:
+        nyxLittleCrescentFloat 3.7s ease-in-out infinite;
+}
+
+
+.nyx-little-floor {
+    position:
+        absolute;
+
+    left:
+        50%;
+
+    bottom:
+        4px;
+
+    width:
+        115px;
+
+    height:
+        20px;
+
+    transform:
+        translateX(-50%);
+
+    border-radius:
+        50%;
+
+    background:
+        radial-gradient(ellipse,
+            rgba(152, 113, 214, .24),
+            transparent 70%);
+
+    filter:
+        blur(2px);
+
+    animation:
+        nyxLittleFloorPulse 3.5s ease-in-out infinite;
+}
+
+
+.nyx-little-star-field {
+    position:
+        absolute;
+
+    inset:
+        0;
+
+    animation:
+        nyxLittleStarFieldRotate 18s linear infinite;
+}
+
+
+.nyx-little-pet-star {
+    position:
+        absolute;
+
+    left:
+        50%;
+
+    top:
+        50%;
+
+    color:
+        rgba(235, 225, 252, .92);
+
+    font-size:
+        8px;
+
+    text-shadow:
+        0 0 7px rgba(177, 142, 228, .76);
+
+    transform:
+        translate(-50%, -50%) rotate(var(--nyx-little-angle)) translateX(var(--nyx-little-radius)) rotate(var(--nyx-little-angle-back));
+
+    animation:
+        nyxLittlePetStarBlink 2.8s ease-in-out infinite;
+
+    animation-delay:
+        var(--nyx-little-delay);
+}
+
+
+/* =====================================================================
+   3. CLICK SKILL TOÀN WEB — DẠ TINH GIỚI
+   ===================================================================== */
+
+.nyx-little-night-ultimate {
+    position:
+        fixed;
+
+    inset:
+        0;
+
+    z-index:
+        999995;
+
+    overflow:
+        hidden;
+
+    pointer-events:
+        none;
+
+    opacity:
+        0;
+
+    background:
+        transparent;
+
+    transition:
+        opacity .25s ease;
+}
+
+
+.nyx-little-night-ultimate.is-active {
+    opacity:
+        1;
+}
+
+
+.nyx-little-night-ultimate.is-ending {
+    opacity:
+        0;
+
+    transition-duration:
+        .85s;
+}
+
+
+.nyx-little-screen-veil {
+    position:
+        absolute;
+
+    inset:
+        0;
+
+    background:
+        radial-gradient(circle at 50% 45%,
+            rgba(101, 67, 156, .18),
+            transparent 25%),
+        linear-gradient(180deg,
+            rgba(8, 6, 18, .84),
+            rgba(17, 10, 30, .92));
+
+    backdrop-filter:
+        blur(1.2px);
+
+    animation:
+        nyxLittleScreenVeil 4.9s ease-out both;
+}
+
+
+.nyx-little-origin-burst {
+    position:
+        absolute;
+
+    left:
+        var(--nyx-little-origin-x);
+
+    top:
+        var(--nyx-little-origin-y);
+
+    width:
+        20px;
+
+    height:
+        20px;
+
+    margin:
+        -10px;
+
+    border-radius:
+        50%;
+
+    background:
+        #e7dcff;
+
+    box-shadow:
+        0 0 30px 12px rgba(164, 120, 224, .52);
+
+    animation:
+        nyxLittleOriginBurst 1.3s ease-out both;
+}
+
+
+.nyx-little-grand-moon {
+    position:
+        absolute;
+
+    left:
+        50%;
+
+    top:
+        44%;
+
+    width:
+        min(42vw, 430px);
+
+    aspect-ratio:
+        1;
+
+    transform:
+        translate(-50%, -50%);
+
+    animation:
+        nyxLittleGrandMoonEnter 4.8s cubic-bezier(.2, .7, .2, 1) both;
+}
+
+
+.nyx-little-moon-core {
+    position:
+        absolute;
+
+    inset:
+        22%;
+
+    border-radius:
+        50%;
+
+    background:
+        radial-gradient(circle at 38% 32%,
+            #372452,
+            #150e24 52%,
+            #07060d 74%);
+
+    box-shadow:
+        0 0 0 2px rgba(221, 205, 248, .18),
+
+        0 0 48px rgba(143, 99, 208, .32),
+
+        0 0 100px rgba(95, 55, 154, .20);
+}
+
+
+.nyx-little-moon-ring {
+    position:
+        absolute;
+
+    left:
+        50%;
+
+    top:
+        50%;
+
+    border-radius:
+        50%;
+
+    border:
+        1px solid rgba(215, 197, 244, .34);
+}
+
+
+.nyx-little-moon-ring.ring-one {
+    width:
+        70%;
+
+    height:
+        70%;
+
+    margin:
+        -35%;
+
+    animation:
+        nyxLittleMoonRing 7s linear infinite;
+}
+
+
+.nyx-little-moon-ring.ring-two {
+    width:
+        88%;
+
+    height:
+        88%;
+
+    margin:
+        -44%;
+
+    border-style:
+        dashed;
+
+    animation:
+        nyxLittleMoonRingReverse 11s linear infinite;
+}
+
+
+.nyx-little-moon-ring.ring-three {
+    width:
+        100%;
+
+    height:
+        100%;
+
+    margin:
+        -50%;
+
+    opacity:
+        .45;
+
+    animation:
+        nyxLittleMoonRing 16s linear infinite;
+}
+
+
+.nyx-little-rune-circle {
+    position:
+        absolute;
+
+    left:
+        50%;
+
+    top:
+        44%;
+
+    width:
+        min(48vw, 500px);
+
+    aspect-ratio:
+        1;
+
+    transform:
+        translate(-50%, -50%);
+
+    animation:
+        nyxLittleRuneRotate 18s linear infinite;
+}
+
+
+.nyx-little-rune-circle span {
+    position:
+        absolute;
+
+    left:
+        50%;
+
+    top:
+        50%;
+
+    color:
+        rgba(228, 211, 248, .82);
+
+    font-family:
+        Georgia,
+        serif;
+
+    font-size:
+        clamp(13px,
+            1.6vw,
+            22px);
+
+    text-shadow:
+        0 0 11px rgba(173, 132, 227, .76);
+}
+
+
+.nyx-little-rune-circle span:nth-child(1) {
+    transform:
+        rotate(0deg) translateX(240px) rotate(0deg);
+}
+
+.nyx-little-rune-circle span:nth-child(2) {
+    transform:
+        rotate(45deg) translateX(240px) rotate(-45deg);
+}
+
+.nyx-little-rune-circle span:nth-child(3) {
+    transform:
+        rotate(90deg) translateX(240px) rotate(-90deg);
+}
+
+.nyx-little-rune-circle span:nth-child(4) {
+    transform:
+        rotate(135deg) translateX(240px) rotate(-135deg);
+}
+
+.nyx-little-rune-circle span:nth-child(5) {
+    transform:
+        rotate(180deg) translateX(240px) rotate(-180deg);
+}
+
+.nyx-little-rune-circle span:nth-child(6) {
+    transform:
+        rotate(225deg) translateX(240px) rotate(-225deg);
+}
+
+.nyx-little-rune-circle span:nth-child(7) {
+    transform:
+        rotate(270deg) translateX(240px) rotate(-270deg);
+}
+
+.nyx-little-rune-circle span:nth-child(8) {
+    transform:
+        rotate(315deg) translateX(240px) rotate(-315deg);
+}
+
+
+.nyx-little-screen-stars,
+.nyx-little-screen-comets {
+    position:
+        absolute;
+
+    inset:
+        0;
+}
+
+
+.nyx-little-screen-stars span {
+    position:
+        absolute;
+
+    left:
+        var(--star-x);
+
+    top:
+        var(--star-y);
+
+    color:
+        #eee4ff;
+
+    font-size:
+        var(--star-size);
+
+    opacity:
+        0;
+
+    text-shadow:
+        0 0 9px rgba(187, 150, 235, .90);
+
+    animation:
+        nyxLittleScreenStar 3.4s ease-in-out both;
+
+    animation-delay:
+        var(--star-delay);
+}
+
+
+.nyx-little-screen-comets i {
+    position:
+        absolute;
+
+    right:
+        -15%;
+
+    top:
+        var(--comet-y);
+
+    width:
+        160px;
+
+    height:
+        1px;
+
+    background:
+        linear-gradient(90deg,
+            transparent,
+            rgba(226, 210, 250, .82),
+            #fff);
+
+    filter:
+        drop-shadow(0 0 7px rgba(164, 121, 224, .76));
+
+    transform:
+        rotate(-18deg);
+
+    animation:
+        nyxLittleComet 1.8s ease-in both;
+
+    animation-delay:
+        var(--comet-delay);
+}
+
+
+.nyx-little-horizon {
+    position:
+        absolute;
+
+    left:
+        5%;
+
+    right:
+        5%;
+
+    top:
+        69%;
+
+    height:
+        1px;
+
+    background:
+        linear-gradient(90deg,
+            transparent,
+            rgba(154, 112, 215, .25),
+            rgba(235, 221, 255, .78),
+            rgba(154, 112, 215, .25),
+            transparent);
+
+    box-shadow:
+        0 0 18px rgba(156, 112, 217, .45);
+
+    transform:
+        scaleX(0);
+
+    animation:
+        nyxLittleHorizon 3.5s .8s ease-out both;
+}
+
+
+.nyx-little-ultimate-title {
+    position:
+        absolute;
+
+    left:
+        50%;
+
+    bottom:
+        10%;
+
+    transform:
+        translateX(-50%) translateY(20px);
+
+    width:
+        min(90vw, 700px);
+
+    text-align:
+        center;
+
+    opacity:
+        0;
+
+    color:
+        #f7f1ff;
+
+    animation:
+        nyxLittleTitleEnter 3.8s 1s ease both;
+}
+
+
+.nyx-little-ultimate-title small {
+    display:
+        block;
+
+    margin-bottom:
+        8px;
+
+    color:
+        #c9abea;
+
+    font-size:
+        clamp(9px, 1vw, 12px);
+
+    font-weight:
+        800;
+
+    letter-spacing:
+        .28em;
+}
+
+
+.nyx-little-ultimate-title strong {
+    display:
+        block;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size:
+        clamp(31px,
+            5.5vw,
+            72px);
+
+    font-weight:
+        500;
+
+    letter-spacing:
+        .13em;
+
+    text-shadow:
+        0 0 12px rgba(201, 171, 239, .48),
+
+        0 0 34px rgba(124, 83, 188, .42);
+}
+
+
+.nyx-little-ultimate-title em {
+    display:
+        block;
+
+    margin-top:
+        9px;
+
+    color:
+        rgba(228, 213, 246, .62);
+
+    font-family:
+        Georgia,
+        serif;
+
+    font-size:
+        clamp(11px, 1.4vw, 15px);
+
+    font-style:
+        normal;
+
+    letter-spacing:
+        .12em;
+}
+
+
+/* =====================================================================
+   4. ANIMATION
+   ===================================================================== */
+
+@keyframes nyxLittleCardOrbit {
+    to {
+        transform:
+            rotate(360deg);
+    }
+}
+
+
+@keyframes nyxLittleCardIconRing {
+    to {
+        transform:
+            translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+
+@keyframes nyxLittleCardPetFloat {
+
+    0%,
+    100% {
+        transform:
+            translateY(0) scale(1);
+    }
+
+    50% {
+        transform:
+            translateY(-5px) scale(1.035);
+    }
+}
+
+
+@keyframes nyxLittlePetIdle {
+
+    0%,
+    100% {
+        transform:
+            translateY(0) rotate(-.5deg) scale(1);
+    }
+
+    50% {
+        transform:
+            translateY(-7px) rotate(.6deg) scale(1.025);
+    }
+}
+
+
+@keyframes nyxLittleAuraBreathe {
+
+    0%,
+    100% {
+        transform:
+            translate(-50%, -50%) scale(.94);
+
+        opacity:
+            .55;
+    }
+
+    50% {
+        transform:
+            translate(-50%, -50%) scale(1.08);
+
+        opacity:
+            1;
+    }
+}
+
+
+@keyframes nyxLittleOrbit {
+    to {
+        transform:
+            rotate(360deg);
+    }
+}
+
+
+@keyframes nyxLittleOrbitReverse {
+    to {
+        transform:
+            rotate(-360deg);
+    }
+}
+
+
+@keyframes nyxLittleCrescentFloat {
+
+    0%,
+    100% {
+        transform:
+            translate(-50%, 0) rotate(-8deg);
+    }
+
+    50% {
+        transform:
+            translate(-50%, -6px) rotate(8deg);
+    }
+}
+
+
+@keyframes nyxLittleFloorPulse {
+
+    0%,
+    100% {
+        transform:
+            translateX(-50%) scaleX(.82);
+
+        opacity:
+            .45;
+    }
+
+    50% {
+        transform:
+            translateX(-50%) scaleX(1.15);
+
+        opacity:
+            .9;
+    }
+}
+
+
+@keyframes nyxLittleStarFieldRotate {
+    to {
+        transform:
+            rotate(360deg);
+    }
+}
+
+
+@keyframes nyxLittlePetStarBlink {
+
+    0%,
+    100% {
+        opacity:
+            .28;
+    }
+
+    50% {
+        opacity:
+            1;
+    }
+}
+
+
+@keyframes nyxLittleScreenVeil {
+    0% {
+        opacity:
+            0;
+    }
+
+    15%,
+    86% {
+        opacity:
+            1;
+    }
+
+    100% {
+        opacity:
+            .90;
+    }
+}
+
+
+@keyframes nyxLittleOriginBurst {
+    0% {
+        transform:
+            scale(.15);
+
+        opacity:
+            1;
+    }
+
+    100% {
+        transform:
+            scale(38);
+
+        opacity:
+            0;
+    }
+}
+
+
+@keyframes nyxLittleGrandMoonEnter {
+    0% {
+        transform:
+            translate(-50%, -50%) scale(.25) rotate(-12deg);
+
+        opacity:
+            0;
+    }
+
+    20% {
+        opacity:
+            1;
+    }
+
+    65% {
+        transform:
+            translate(-50%, -50%) scale(1.05) rotate(1deg);
+
+        opacity:
+            1;
+    }
+
+    100% {
+        transform:
+            translate(-50%, -50%) scale(.98);
+
+        opacity:
+            .72;
+    }
+}
+
+
+@keyframes nyxLittleMoonRing {
+    to {
+        transform:
+            rotate(360deg);
+    }
+}
+
+
+@keyframes nyxLittleMoonRingReverse {
+    to {
+        transform:
+            rotate(-360deg);
+    }
+}
+
+
+@keyframes nyxLittleRuneRotate {
+    from {
+        transform:
+            translate(-50%, -50%) rotate(0deg);
+    }
+
+    to {
+        transform:
+            translate(-50%, -50%) rotate(-360deg);
+    }
+}
+
+
+@keyframes nyxLittleScreenStar {
+    0% {
+        opacity:
+            0;
+
+        transform:
+            scale(.1);
+    }
+
+    30% {
+        opacity:
+            1;
+
+        transform:
+            scale(1.25);
+    }
+
+    65% {
+        opacity:
+            .75;
+
+        transform:
+            scale(.9);
+    }
+
+    100% {
+        opacity:
+            0;
+
+        transform:
+            translateY(-34px) scale(.35);
+    }
+}
+
+
+@keyframes nyxLittleComet {
+    from {
+        transform:
+            translateX(0) rotate(-18deg);
+
+        opacity:
+            0;
+    }
+
+    15% {
+        opacity:
+            1;
+    }
+
+    to {
+        transform:
+            translateX(-135vw) translateY(20vh) rotate(-18deg);
+
+        opacity:
+            0;
+    }
+}
+
+
+@keyframes nyxLittleHorizon {
+    0% {
+        transform:
+            scaleX(0);
+
+        opacity:
+            0;
+    }
+
+    35% {
+        transform:
+            scaleX(1);
+
+        opacity:
+            1;
+    }
+
+    100% {
+        transform:
+            scaleX(.70);
+
+        opacity:
+            .25;
+    }
+}
+
+
+@keyframes nyxLittleTitleEnter {
+    0% {
+        opacity:
+            0;
+
+        transform:
+            translateX(-50%) translateY(24px) scale(.96);
+    }
+
+    25%,
+    78% {
+        opacity:
+            1;
+
+        transform:
+            translateX(-50%) translateY(0) scale(1);
+    }
+
+    100% {
+        opacity:
+            0;
+
+        transform:
+            translateX(-50%) translateY(-10px) scale(1.02);
+    }
+}
+
+
+/*
+ * Khi tung DẠ TINH GIỚI,
+ * pet tại góc phải cũng phản ứng.
+ */
+.pet-nyx-little-night-stage #virtual-pet-img.nyx-little-night-spirit-magic {
+    transition:
+        filter .3s ease;
+}
+
+
+.pet-nyx-little-night-stage.nyx-little-night-casting #virtual-pet-img.nyx-little-night-spirit-magic {
+    filter:
+        drop-shadow(0 0 12px rgba(230, 214, 255, .82)) drop-shadow(0 0 30px rgba(150, 104, 216, .72)) !important;
+}
+
+
+/* =====================================================================
+   MOBILE
+   ===================================================================== */
+
+@media (max-width: 600px) {
+
+    #virtual-pet-container.pet-nyx-little-night-stage {
+        width:
+            165px;
+
+        min-height:
+            180px;
+    }
+
+    #virtual-pet-container.pet-nyx-little-night-stage #virtual-pet-img.nyx-little-night-spirit-magic {
+        width:
+            135px !important;
+    }
+
+    .nyx-little-rune-circle {
+        width:
+            78vw;
+    }
+
+    .nyx-little-rune-circle span:nth-child(n) {
+        /*
+         * Mobile không cần rune
+         * vươn quá xa.
+         */
+        font-size:
+            12px;
+    }
+
+    .nyx-little-grand-moon {
+        width:
+            72vw;
+    }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+
+    .nyx-little-pet-realm *,
+    .store-card-nyx-little-spirit *,
+    .nyx-little-night-ultimate * {
+        animation-duration:
+            .001ms !important;
+
+        animation-iteration-count:
+            1 !important;
+    }
+}
+
+/* ============================================================
+   TIỂU DẠ TINH LINH · REALM V2
+   Tăng độ rõ hiệu ứng quanh pet
+   ============================================================ */
+
+#virtual-pet-container.pet-nyx-little-night-stage {
+    overflow: visible !important;
+}
+
+
+/* Không gian hiệu ứng lớn hơn */
+
+.pet-nyx-little-night-stage .nyx-little-pet-realm {
+    inset: -46px -42px -45px !important;
+
+    z-index: 8 !important;
+
+    overflow: visible !important;
+
+    filter:
+        drop-shadow(0 0 10px rgba(143, 91, 221, .32));
+}
+
+
+/* Hào quang tím lớn */
+
+.pet-nyx-little-night-stage .nyx-little-aura {
+    width: 170px !important;
+    height: 170px !important;
+
+    background:
+        radial-gradient(circle,
+
+            rgba(229, 213, 255, .22) 0%,
+
+            rgba(159, 111, 228, .30) 17%,
+
+            rgba(89, 49, 147, .20) 39%,
+
+            rgba(38, 20, 69, .10) 57%,
+
+            transparent 74%) !important;
+
+    box-shadow:
+        0 0 22px rgba(213, 188, 255, .30),
+
+        0 0 48px rgba(151, 99, 225, .36),
+
+        0 0 82px rgba(83, 42, 143, .22) !important;
+}
+
+
+/* Vòng trong */
+
+.pet-nyx-little-night-stage .nyx-little-orbit.orbit-one {
+    width: 172px !important;
+    height: 172px !important;
+
+    margin:
+        -86px 0 0 -86px !important;
+
+    border:
+        2px solid rgba(222, 205, 255, .66) !important;
+
+    box-shadow:
+        0 0 8px rgba(185, 148, 240, .48),
+
+        inset 0 0 9px rgba(153, 111, 217, .16);
+}
+
+
+/* Vòng ngoài */
+
+.pet-nyx-little-night-stage .nyx-little-orbit.orbit-two {
+    width: 208px !important;
+    height: 208px !important;
+
+    margin:
+        -104px 0 0 -104px !important;
+
+    opacity: .9 !important;
+
+    border:
+        1px dashed rgba(185, 147, 238, .62) !important;
+
+    box-shadow:
+        0 0 13px rgba(128, 77, 204, .34);
+}
+
+
+/* Thêm vòng ma pháp lớn mà không cần sửa HTML */
+
+.pet-nyx-little-night-stage .nyx-little-pet-realm::before {
+
+    content: "";
+
+    position: absolute;
+
+    left: 50%;
+    top: 49%;
+
+    width: 224px;
+    height: 224px;
+
+    margin:
+        -112px 0 0 -112px;
+
+    border-radius: 50%;
+
+    border:
+        1px solid rgba(179, 138, 232, .35);
+
+    background:
+        conic-gradient(from 0deg,
+
+            transparent 0 10%,
+
+            rgba(218, 196, 251, .45) 10% 11%,
+
+            transparent 11% 28%,
+
+            rgba(145, 98, 213, .38) 28% 29%,
+
+            transparent 29% 49%,
+
+            rgba(223, 205, 255, .34) 49% 50%,
+
+            transparent 50% 72%,
+
+            rgba(128, 79, 196, .42) 72% 73%,
+
+            transparent 73% 100%);
+
+    box-shadow:
+        0 0 25px rgba(124, 76, 192, .24);
+
+    animation:
+        nyxLittleRealmGrandRotate 19s linear infinite;
+
+    pointer-events: none;
+}
+
+
+/* Vòng rune nhỏ phía trong */
+
+.pet-nyx-little-night-stage .nyx-little-pet-realm::after {
+
+    content: "✦   ☾   ✧   ⋆   ☽   ✦";
+
+    position: absolute;
+
+    left: 50%;
+    top: 49%;
+
+    width: 188px;
+    height: 188px;
+
+    margin:
+        -94px 0 0 -94px;
+
+    border-radius: 50%;
+
+    color:
+        rgba(229, 211, 255, .78);
+
+    font:
+        700 13px/188px Georgia,
+        serif;
+
+    text-align: center;
+
+    letter-spacing: 8px;
+
+    text-shadow:
+        0 0 7px rgba(220, 195, 255, .82),
+
+        0 0 17px rgba(138, 87, 210, .56);
+
+    animation:
+        nyxLittleRealmRuneRotate 13s linear infinite reverse;
+
+    pointer-events: none;
+}
+
+
+/* Trăng phía trên */
+
+.pet-nyx-little-night-stage .nyx-little-crescent {
+
+    font-size: 31px !important;
+
+    color:
+        #f0e4ff !important;
+
+    text-shadow:
+        0 0 6px #fff,
+
+        0 0 15px rgba(201, 164, 250, .95),
+
+        0 0 30px rgba(132, 79, 207, .72) !important;
+}
+
+
+/* Bệ sáng dưới chân */
+
+.pet-nyx-little-night-stage .nyx-little-floor {
+
+    width: 150px !important;
+    height: 28px !important;
+
+    background:
+        radial-gradient(ellipse,
+
+            rgba(230, 212, 255, .47),
+
+            rgba(142, 91, 213, .27) 38%,
+
+            transparent 72%) !important;
+
+    box-shadow:
+        0 0 23px rgba(139, 86, 210, .30);
+}
+
+
+/* Sao quanh nhân vật */
+
+.pet-nyx-little-night-stage .nyx-little-pet-star {
+
+    font-size:
+        11px !important;
+
+    color:
+        rgba(248, 240, 255, .98) !important;
+
+    text-shadow:
+        0 0 5px #fff,
+
+        0 0 12px rgba(193, 155, 244, .94) !important;
+}
+
+
+@keyframes nyxLittleRealmGrandRotate {
+
+    to {
+        transform:
+            rotate(360deg);
+    }
+}
+
+
+@keyframes nyxLittleRealmRuneRotate {
+
+    to {
+        transform:
+            rotate(360deg);
+    }
+}
+
+/* ============================================================
+   THÁNH ĐIỆN NGUYỆT DẠ
+   Theme riêng của Nyx
+   Không tái sử dụng theme Nyx cũ
+   ============================================================ */
+
+body.theme-nyx-moon-sanctum {
+    --moon-void: #02050d;
+    --moon-night: #050d1d;
+    --moon-deep: #08182d;
+
+    --moon-blue: #427da8;
+    --moon-azure: #77c7ef;
+    --moon-light: #b9eaff;
+
+    --moon-silver: #d8e9f3;
+    --moon-white: #f3fbff;
+
+    --moon-border: rgba(155, 218, 247, .26);
+    --moon-shadow: rgba(0, 6, 18, .7);
+
+    --primary-color: #77c7ef;
+    --secondary-color: #7895dc;
+    --bg-color: #020711;
+
+    color: var(--moon-silver);
+    background:
+        radial-gradient(ellipse at 50% -12%,
+            rgba(103, 184, 229, .17),
+            transparent 35%),
+        radial-gradient(circle at 8% 72%,
+            rgba(48, 100, 151, .13),
+            transparent 32%),
+        linear-gradient(160deg,
+            #071327 0%,
+            #030915 44%,
+            #01040b 100%) !important;
+
+    background-attachment: fixed !important;
+}
+
+body.theme-nyx-moon-sanctum,
+body.theme-nyx-moon-sanctum button,
+body.theme-nyx-moon-sanctum input,
+body.theme-nyx-moon-sanctum select,
+body.theme-nyx-moon-sanctum textarea {
+    font-family:
+        "Palatino Linotype",
+        "Book Antiqua",
+        Palatino,
+        Georgia,
+        serif !important;
+}
+
+body.theme-nyx-moon-sanctum:is(.card,
+    .panel,
+    .widget,
+    .dashboard-card,
+    .subject-card,
+    .task-card) {
+    position: relative;
+
+    color: #eaf8ff !important;
+
+    background:
+        linear-gradient(145deg,
+            rgba(10, 28, 48, .92),
+            rgba(3, 11, 23, .96)) !important;
+
+    border:
+        1px solid rgba(143, 212, 244, .22) !important;
+
+    border-radius:
+        22px 7px 22px 7px !important;
+
+    box-shadow:
+        0 16px 36px rgba(0, 4, 14, .43),
+        inset 0 1px rgba(220, 246, 255, .08) !important;
+}
+
+body.theme-nyx-moon-sanctum:is(.modal-content,
+    .popup-content,
+    .dialog-content) {
+    color: #effaff !important;
+
+    background:
+        radial-gradient(ellipse at 50% 0%,
+            rgba(130, 206, 244, .17),
+            transparent 35%),
+        linear-gradient(180deg,
+            #0b2035,
+            #050d1a 70%,
+            #020711) !important;
+
+    border:
+        1px solid rgba(166, 224, 249, .38) !important;
+
+    border-radius:
+        80px 80px 18px 18px !important;
+
+    box-shadow:
+        0 30px 80px rgba(0, 3, 12, .78),
+        inset 0 1px rgba(235, 251, 255, .12) !important;
+}
+
+body.theme-nyx-moon-sanctum:is(input,
+    textarea,
+    select) {
+    color: #effaff !important;
+
+    background:
+        linear-gradient(180deg,
+            rgba(1, 8, 18, .92),
+            rgba(7, 23, 40, .88)) !important;
+
+    border:
+        1px solid rgba(134, 204, 238, .26) !important;
+
+    border-radius:
+        4px 16px 4px 16px !important;
+
+    box-shadow:
+        inset 0 0 16px rgba(57, 133, 177, .07) !important;
+}
+
+body.theme-nyx-moon-sanctum:is(input,
+    textarea,
+    select):focus {
+    outline: none !important;
+
+    border-color:
+        rgba(167, 226, 253, .7) !important;
+
+    box-shadow:
+        0 0 0 3px rgba(94, 183, 226, .1),
+        inset 0 0 18px rgba(88, 173, 218, .1) !important;
+}
+
+body.theme-nyx-moon-sanctum button:not(.close-btn) {
+    color: #f2fbff !important;
+
+    background:
+        linear-gradient(135deg,
+            #173a55,
+            #285f82 52%,
+            #14344e) !important;
+
+    border:
+        1px solid rgba(173, 226, 249, .38) !important;
+
+    border-radius:
+        18px 4px 18px 4px !important;
+
+    box-shadow:
+        inset 0 1px rgba(255, 255, 255, .12),
+        0 7px 17px rgba(0, 6, 15, .31) !important;
+}
+
+body.theme-nyx-moon-sanctum button:hover {
+    filter: brightness(1.15);
+
+    box-shadow:
+        0 0 18px rgba(103, 197, 241, .22),
+        inset 0 1px rgba(255, 255, 255, .17) !important;
+}
+
+body.theme-nyx-moon-sanctum::-webkit-scrollbar,
+body.theme-nyx-moon-sanctum *::-webkit-scrollbar {
+    width: 11px;
+    height: 11px;
+}
+
+body.theme-nyx-moon-sanctum::-webkit-scrollbar-track,
+body.theme-nyx-moon-sanctum *::-webkit-scrollbar-track {
+    background: #020711;
+}
+
+body.theme-nyx-moon-sanctum::-webkit-scrollbar-thumb,
+body.theme-nyx-moon-sanctum *::-webkit-scrollbar-thumb {
+    border:
+        3px solid #020711;
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(180deg,
+            #b4e8fa,
+            #4b89ad 50%,
+            #244c6c);
+}
+
+body.theme-nyx-moon-sanctum::-webkit-scrollbar-thumb:hover,
+body.theme-nyx-moon-sanctum *::-webkit-scrollbar-thumb:hover {
+    background:
+        linear-gradient(180deg,
+            #e1f8ff,
+            #71c1e7,
+            #397596);
+}
+
+body.theme-nyx-moon-sanctum input[type="range"] {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+
+    height: 8px;
+
+    border-radius: 2px 12px 2px 12px !important;
+
+    background:
+        linear-gradient(90deg,
+            #1a4564,
+            #78c7eb,
+            #486d9c) !important;
+}
+
+body.theme-nyx-moon-sanctum input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+
+    width: 21px;
+    height: 21px;
+
+    border-radius: 50% 50% 50% 8px;
+
+    transform: rotate(45deg);
+
+    border:
+        2px solid #dbf6ff;
+
+    background:
+        radial-gradient(circle at 35% 30%,
+            #ffffff,
+            #8ed9fa 38%,
+            #356889 100%);
+
+    box-shadow:
+        0 0 13px rgba(116, 207, 247, .65);
+}
+
+/* ============================================================================
+   HOTFIX · NYX SHARED ITEM NAME COLOR
+   Thánh Điện Nguyệt Dạ dùng đúng màu tên của NYX · Tiểu Dạ Tinh Linh.
+   ============================================================================ */
+body .store-item-card.store-card-nyx-little-spirit .item-name,
+body .store-item-card[data-item-id="theme_truyenthuyet_thanh_dien_nguyet_da"] .item-name {
+    color: #f6efff !important;
+    -webkit-text-fill-color: #f6efff !important;
+    text-shadow: 0 0 8px rgba(159, 115, 218, .18) !important;
+}
+
+/* ============================================================
+   DẠ TRIỀU TINH NGUYỆT
+   Effect toàn web mới cho bộ:
+   - NYX · Tiểu Dạ Tinh Linh
+   - Thánh Điện Nguyệt Dạ
+   Không dùng lại effect Nyx cũ
+   ============================================================ */
+
+.nyx-moon-tide-field {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+    isolation: isolate;
+
+    background:
+        radial-gradient(circle at 82% 14%,
+            rgba(196, 227, 255, .12),
+            transparent 18%),
+        radial-gradient(circle at 50% 120%,
+            rgba(86, 125, 183, .18),
+            transparent 36%),
+        linear-gradient(180deg,
+            rgba(5, 10, 22, .14),
+            rgba(1, 3, 9, .28));
+
+    animation:
+        nyxMoonTideFieldPulse 8s ease-in-out infinite;
+}
+
+.nyx-moon-tide-field::before {
+    content: "";
+    position: absolute;
+    right: 8%;
+    top: 10%;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    pointer-events: none;
+
+    background:
+        radial-gradient(circle at 40% 35%,
+            rgba(255, 255, 255, .95) 0 6%,
+            rgba(181, 228, 255, .55) 18%,
+            rgba(87, 142, 191, .18) 40%,
+            transparent 68%);
+
+    box-shadow:
+        0 0 30px rgba(175, 225, 255, .18),
+        0 0 80px rgba(110, 171, 227, .12);
+
+    opacity: .55;
+
+    animation:
+        nyxMoonTideMoonFloat 7.5s ease-in-out infinite;
+}
+
+.nyx-moon-tide-field::after {
+    content: "";
+    position: absolute;
+    left: -10%;
+    right: -10%;
+    bottom: -10%;
+    height: 40%;
+    pointer-events: none;
+
+    background:
+        radial-gradient(ellipse at 50% 100%,
+            rgba(110, 166, 221, .16),
+            transparent 62%),
+        repeating-radial-gradient(ellipse at 50% 100%,
+            transparent 0 24px,
+            rgba(214, 238, 255, .025) 25px 27px);
+
+    filter: blur(10px);
+
+    animation:
+        nyxMoonTideMistShift 10s ease-in-out infinite alternate;
+}
+
+.nyx-moon-tide-mote {
+    position: fixed;
+    z-index: 2;
+    pointer-events: none;
+    border-radius: 50%;
+    opacity: .82;
+
+    background:
+        radial-gradient(circle,
+            #ffffff 0 24%,
+            #d8f0ff 36%,
+            rgba(121, 194, 238, .74) 62%,
+            transparent 74%);
+
+    box-shadow:
+        0 0 8px rgba(255, 255, 255, .78),
+        0 0 16px rgba(121, 194, 238, .42);
+
+    animation:
+        nyxMoonTideMoteRise linear forwards;
+}
+
+.nyx-moon-tide-rune {
+    position: fixed;
+    z-index: 3;
+    pointer-events: none;
+
+    color: #eef7ff;
+    font-family:
+        "Cinzel",
+        "Palatino Linotype",
+        Georgia,
+        serif;
+    font-weight: 900;
+
+    text-shadow:
+        0 0 8px rgba(194, 233, 255, .45),
+        0 0 18px rgba(117, 170, 228, .34);
+
+    animation:
+        nyxMoonTideRuneRise linear forwards;
+}
+
+.nyx-moon-tide-comet {
+    position: fixed;
+    z-index: 3;
+    width: var(--nyx-moon-comet-length, 160px);
+    height: 2px;
+    pointer-events: none;
+    opacity: 0;
+
+    border-radius: 999px;
+
+    transform: rotate(32deg);
+    transform-origin: right center;
+
+    background:
+        linear-gradient(90deg,
+            transparent,
+            rgba(142, 216, 255, .22) 40%,
+            rgba(240, 249, 255, .98) 100%);
+
+    filter:
+        drop-shadow(0 0 8px rgba(202, 236, 255, .72)) drop-shadow(0 0 18px rgba(118, 172, 230, .42));
+
+    animation:
+        nyxMoonTideComet linear forwards;
+}
+
+.nyx-moon-tide-comet::after {
+    content: "";
+    position: absolute;
+    right: -3px;
+    top: 50%;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+
+    transform: translateY(-50%);
+
+    background:
+        radial-gradient(circle,
+            #ffffff 0 24%,
+            #dff3ff 48%,
+            rgba(141, 214, 255, .42) 72%,
+            transparent 76%);
+}
+
+.nyx-moon-tide-comet.is-enhanced {
+    filter:
+        drop-shadow(0 0 10px rgba(255, 255, 255, .82)) drop-shadow(0 0 22px rgba(146, 211, 255, .58)) drop-shadow(0 0 32px rgba(120, 170, 233, .34));
+}
+
+.nyx-moon-tide-halo {
+    position: fixed;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0;
+    border-radius: 50%;
+
+    border: 1px solid rgba(199, 234, 255, .24);
+
+    box-shadow:
+        0 0 22px rgba(148, 208, 250, .12),
+        inset 0 0 22px rgba(230, 246, 255, .06);
+
+    background:
+        radial-gradient(circle,
+            transparent 54%,
+            rgba(217, 240, 255, .16) 58% 60%,
+            transparent 64%);
+
+    animation:
+        nyxMoonTideHaloBloom linear forwards;
+}
+
+/* ============================================================
+   STORE CARD: đồng bộ màu tên với NYX · Tiểu Dạ Tinh Linh
+   ============================================================ */
+
+.store-card-nyx-little-spirit .item-name,
+.store-item-card[data-item-id="theme_truyenthuyet_thanh_dien_nguyet_da"] .item-name,
+.store-item-card[data-item-id="effect_truyenthuyet_da_trieu_tinh_nguyet"] .item-name,
+.store-item-card[data-item-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"] .item-name,
+.store-item-card[data-item-id="background_truyenthuyet_nyx_vinh_da_thien_mac"] .item-name {
+    color: #f6efff !important;
+    -webkit-text-fill-color: #f6efff !important;
+
+    text-shadow:
+        0 0 8px rgba(159, 115, 218, .18) !important;
+}
+
+.store-card-nyx-little-spirit .item-type-label,
+.store-item-card[data-item-id="theme_truyenthuyet_thanh_dien_nguyet_da"] .item-type-label,
+.store-item-card[data-item-id="effect_truyenthuyet_da_trieu_tinh_nguyet"] .item-type-label,
+.store-item-card[data-item-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"] .item-type-label,
+.store-item-card[data-item-id="background_truyenthuyet_nyx_vinh_da_thien_mac"] .item-type-label {
+    color: rgba(224, 208, 248, .76) !important;
+
+    -webkit-text-fill-color:
+        rgba(224, 208, 248, .76) !important;
+}
+
+/* ============================================================
+   KEYFRAMES
+   ============================================================ */
+
+@keyframes nyxMoonTideFieldPulse {
+
+    0%,
+    100% {
+        opacity: .76;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+@keyframes nyxMoonTideMoonFloat {
+
+    0%,
+    100% {
+        transform: translateY(0) scale(1);
+    }
+
+    50% {
+        transform: translateY(-8px) scale(1.04);
+    }
+}
+
+@keyframes nyxMoonTideMistShift {
+    0% {
+        transform: translateX(-2%) scale(1);
+    }
+
+    100% {
+        transform: translateX(2%) scale(1.04);
+    }
+}
+
+@keyframes nyxMoonTideMoteRise {
+    0% {
+        opacity: 0;
+        transform: translate(0, 0) scale(.4);
+    }
+
+    12% {
+        opacity: .88;
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+            translate(var(--nyx-moon-drift, 0px), -115vh) scale(1.15);
+    }
+}
+
+@keyframes nyxMoonTideRuneRise {
+    0% {
+        opacity: 0;
+        transform: translate(0, 0) rotate(0deg) scale(.72);
+    }
+
+    12% {
+        opacity: .82;
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+            translate(var(--nyx-moon-drift, 0px), -112vh) rotate(var(--nyx-moon-rotate, 16deg)) scale(1.08);
+    }
+}
+
+@keyframes nyxMoonTideComet {
+    0% {
+        opacity: 0;
+        transform: rotate(32deg) translate(0, 0) scale(.95);
+    }
+
+    12% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+            rotate(32deg) translate(-260px, 220px) scale(1.05);
+    }
+}
+
+@keyframes nyxMoonTideHaloBloom {
+    0% {
+        opacity: 0;
+        transform: scale(.35);
+    }
+
+    15% {
+        opacity: .62;
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(1.55);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .nyx-moon-tide-field,
+    .nyx-moon-tide-field::before,
+    .nyx-moon-tide-field::after,
+    .nyx-moon-tide-mote,
+    .nyx-moon-tide-rune,
+    .nyx-moon-tide-comet,
+    .nyx-moon-tide-halo {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+/* ============================================================
+   NGUYỆT DẠ · HẮC NGUYỆT CHI HOÀN
+   Khung avatar thuộc bộ Tiểu Dạ Tinh Linh
+   ============================================================ */
+
+
+/* ============================================================
+   1. ẢNH KHUNG
+   ============================================================ */
+
+.avatar-frame-equipped[
+    data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"
+] > .avatar-frame-decoration {
+
+    filter:
+        drop-shadow(
+            0 0 5px
+            rgba(234, 241, 255, .75)
+        )
+        drop-shadow(
+            0 0 13px
+            rgba(149, 112, 223, .55)
+        )
+        drop-shadow(
+            0 0 25px
+            rgba(68, 83, 171, .34)
+        ) !important;
+
+    animation:
+        nyxMoonFrameFloat
+            4.8s ease-in-out infinite,
+
+        nyxMoonFrameGlow
+            3.1s ease-in-out infinite alternate
+        !important;
+}
+
+
+/* ============================================================
+   2. HÀO QUANG SAU KHUNG
+   ============================================================ */
+
+.avatar-frame-equipped[
+    data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"
+] > .avatar-frame-aura {
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(234, 242, 255, .13) 0 23%,
+            rgba(120, 105, 210, .16) 38%,
+            rgba(64, 72, 153, .12) 54%,
+            transparent 72%
+        ),
+        conic-gradient(
+            from 0deg,
+            transparent 0 12%,
+            rgba(218, 225, 255, .28) 17%,
+            transparent 25% 43%,
+            rgba(125, 94, 208, .34) 50%,
+            transparent 58% 77%,
+            rgba(163, 199, 255, .22) 83%,
+            transparent 91%
+        ) !important;
+
+    filter:
+        blur(7px)
+        saturate(1.15) !important;
+
+    opacity: .70 !important;
+
+    animation:
+        nyxMoonFrameAuraRotate
+            14s linear infinite,
+
+        nyxMoonFrameAuraPulse
+            3.8s ease-in-out infinite alternate
+        !important;
+}
+
+
+/* ============================================================
+   3. TINH QUANG
+   ============================================================ */
+
+.avatar-frame-equipped[
+    data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"
+] > .avatar-frame-spark {
+
+    color: #edf2ff !important;
+
+    text-shadow:
+        0 0 4px #ffffff,
+        0 0 9px rgba(197, 213, 255, .88),
+        0 0 17px rgba(134, 102, 220, .75)
+        !important;
+
+    animation:
+        nyxMoonFrameStar
+        2.4s ease-in-out infinite alternate
+        !important;
+}
+
+
+/* Thay hai tinh quang thành ánh trăng */
+
+.avatar-frame-equipped[
+    data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"
+] > .avatar-frame-spark.spark-1 {
+    color: #ffffff !important;
+}
+
+.avatar-frame-equipped[
+    data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"
+] > .avatar-frame-spark.spark-2 {
+    color: #c8d7ff !important;
+}
+
+.avatar-frame-equipped[
+    data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"
+] > .avatar-frame-spark.spark-3 {
+    color: #b8a0ef !important;
+}
+
+.avatar-frame-equipped[
+    data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"
+] > .avatar-frame-spark.spark-4 {
+    color: #f6efff !important;
+}
+
+
+/* ============================================================
+   4. KÍCH THƯỚC NÚT HỒ SƠ
+   ============================================================ */
+
+.profile-trigger-btn[
+    data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"
+] > .avatar-frame-decoration {
+
+    width: 62px !important;
+    height: 62px !important;
+
+    max-width: none !important;
+    max-height: none !important;
+
+    object-fit: contain !important;
+
+    left: 50% !important;
+    top: 50% !important;
+
+    transform:
+        translate(-50%, -50%) !important;
+}
+
+
+/* Hào quang nút hồ sơ */
+
+.profile-trigger-btn[
+    data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"
+] > .avatar-frame-aura {
+
+    width: 66px !important;
+    height: 66px !important;
+}
+
+
+/* ============================================================
+   5. KHUNG TRONG POPUP HỒ SƠ
+   ============================================================ */
+
+#studentInfoModal
+.avatar-upload-container[
+    data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"
+] > .avatar-frame-decoration {
+
+    width: 132px !important;
+    height: 132px !important;
+
+    max-width: none !important;
+    max-height: none !important;
+
+    object-fit: contain !important;
+
+    left: 50% !important;
+    top: 50% !important;
+
+    transform:
+        translate(-50%, -50%) !important;
+}
+
+
+#studentInfoModal
+.avatar-upload-container[
+    data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"
+] > .avatar-frame-aura {
+
+    width: 138px !important;
+    height: 138px !important;
+}
+
+
+/* ============================================================
+   ANIMATION
+   ============================================================ */
+
+@keyframes nyxMoonFrameFloat {
+
+    0%,
+    100% {
+        translate: 0 0;
+    }
+
+    50% {
+        translate: 0 -2px;
+    }
+}
+
+
+@keyframes nyxMoonFrameGlow {
+
+    0% {
+        filter:
+            drop-shadow(
+                0 0 5px
+                rgba(231, 239, 255, .58)
+            )
+            drop-shadow(
+                0 0 11px
+                rgba(126, 96, 209, .42)
+            );
+    }
+
+    100% {
+        filter:
+            drop-shadow(
+                0 0 9px
+                rgba(244, 248, 255, .86)
+            )
+            drop-shadow(
+                0 0 20px
+                rgba(146, 111, 229, .68)
+            )
+            drop-shadow(
+                0 0 28px
+                rgba(71, 92, 184, .30)
+            );
+    }
+}
+
+
+@keyframes nyxMoonFrameAuraRotate {
+
+    from {
+        transform:
+            translate(-50%, -50%)
+            rotate(0deg);
+    }
+
+    to {
+        transform:
+            translate(-50%, -50%)
+            rotate(360deg);
+    }
+}
+
+
+@keyframes nyxMoonFrameAuraPulse {
+
+    from {
+        opacity: .38;
+    }
+
+    to {
+        opacity: .78;
+    }
+}
+
+
+@keyframes nyxMoonFrameStar {
+
+    from {
+        opacity: .25;
+
+        transform:
+            scale(.72)
+            rotate(-10deg);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            scale(1.18)
+            rotate(10deg);
+    }
+}

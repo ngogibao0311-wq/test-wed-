@@ -146,6 +146,13 @@ body.history-hero-modal-open { overflow: hidden !important; }
 .history-answer-label { display: block; font-size: .82rem; font-weight: 850; color: #705c51; margin-bottom: 7px; }
 .history-answer-input { width: 100%; box-sizing: border-box; min-height: 52px; border-radius: 13px; border: 2px solid #e5cfac; background: #fffefa; color: #261c18; padding: 11px 14px; outline: none; font-size: 1rem; transition: border-color .18s ease, box-shadow .18s ease; }
 .history-answer-input:focus { border-color: #d9171e; box-shadow: 0 0 0 4px rgba(217,23,30,.09); }
+.history-hint-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.history-hint-row > span { color: #8a715f; font-size: .78rem; font-weight: 750; }
+.history-hint-btn { min-height: 40px; padding: 8px 14px; border-radius: 11px; border: 1px solid #dfbd52; background: linear-gradient(135deg, #fff8d8, #ffe9a0); color: #7b5700; font-weight: 900; cursor: pointer; transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease; }
+.history-hint-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 7px 16px rgba(148, 101, 0, .12); }
+.history-hint-btn:disabled { cursor: default; opacity: .72; }
+.history-hint-box { display: none; margin-top: 10px; padding: 11px 13px; border-radius: 11px; color: #6e5100; background: #fff8d5; border: 1px solid #edd37a; font-weight: 800; line-height: 1.45; }
+.history-hint-box.show { display: block; animation: historyFadeIn .18s ease both; }
 .history-submit-btn { width: 100%; margin-top: 13px; }
 .history-feedback { display: none; margin-top: 12px; padding: 11px 13px; border-radius: 11px; font-weight: 800; line-height: 1.45; }
 .history-feedback.show { display: block; }
@@ -183,5 +190,8 @@ body.history-hero-modal-open { overflow: hidden !important; }
     .history-choice-item > span { grid-row: 1 / span 2; margin: 0; }
     .history-choice-item small { margin-top: 1px; }
     .history-card-actions { width: 100%; }
+    .history-hint-row { align-items: stretch; }
+    .history-hint-btn { width: 100%; }
+    .history-hint-row > span { width: 100%; text-align: center; }
     .history-card-actions button { flex: 1; }
 }

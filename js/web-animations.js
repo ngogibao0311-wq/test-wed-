@@ -1,6 +1,6 @@
 /* ============================================================================
  * WEB ANIMATIONS — MODULE DÙNG CHUNG CHO STUDENT.HTML VÀ TEACHER.HTML
- * Phiên bản: 1.0.0
+ * Phiên bản: 1.0.1
  *
  * Cách nạp:
  *   <link rel="stylesheet" href="css/web-animations.css?v=1.0">
@@ -13,7 +13,7 @@
 
     if (window.WebAnimationSystem) return;
 
-    const VERSION = '1.0.0';
+    const VERSION = '1.0.1';
     const LAYER_ID = 'wfx-web-animation-layer';
     const PROGRESS_ID = 'wfx-scroll-progress';
 
@@ -277,7 +277,7 @@
                 ? 0
                 : state.lowPower
                     ? 14
-                    : 32;
+                    : 24;
 
         const fragment =
             document.createDocumentFragment();

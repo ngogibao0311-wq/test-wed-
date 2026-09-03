@@ -367,7 +367,7 @@
 #virtual-pet-container.pet-national-day-chibi-stage #virtual-pet-img.national-day-chibi-star-magic {
     position: relative;
     z-index: 8;
-    width: 138px !important;
+    width: 178px !important;
     height: auto !important;
     object-fit: contain;
     user-select: none;
@@ -3832,4 +3832,208 @@ body.theme-viet-dieu-hong-ky ::selection {
     animation: none !important;
     transform: none !important;
     filter: none !important;
+}
+
+/* ================================================================
+   HOTFIX · TĂNG KÍCH THƯỚC NHÂN VẬT TRÊN CARD QUỐC KHÁNH
+   Chỉ áp dụng cho pet_quoc_khanh_1
+   ================================================================ */
+.store-card-national-day-2-9[data-item-id="pet_quoc_khanh_1"] .item-icon-wrapper {
+    min-height: 126px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: visible !important;
+}
+
+.store-card-national-day-2-9[data-item-id="pet_quoc_khanh_1"] .item-icon,
+.store-card-national-day-2-9[data-item-id="pet_quoc_khanh_1"] img.item-icon {
+    width: 106px !important;
+    height: 106px !important;
+    max-width: 106px !important;
+    max-height: 106px !important;
+    object-fit: contain !important;
+    object-position: center bottom !important;
+    transform: scale(1.08) !important;
+}
+
+.store-card-national-day-2-9[data-item-id="pet_quoc_khanh_1"]:hover .item-icon,
+.store-card-national-day-2-9[data-item-id="pet_quoc_khanh_1"]:hover img.item-icon {
+    transform: translateY(-4px) scale(1.11) !important;
+}
+
+@media (max-width: 600px) {
+    .store-card-national-day-2-9[data-item-id="pet_quoc_khanh_1"] .item-icon,
+    .store-card-national-day-2-9[data-item-id="pet_quoc_khanh_1"] img.item-icon {
+        width: 98px !important;
+        height: 98px !important;
+        max-width: 98px !important;
+        max-height: 98px !important;
+        transform: scale(1.05) !important;
+    }
+}
+/* =========================================================
+   VIỆT DIỆU - TĂNG KÍCH THƯỚC NHÂN VẬT TRÊN CARD
+   CHỈ ÁP DỤNG pet_quoc_khanh_1
+   ========================================================= */
+
+.store-card-national-day-2-9[
+    data-item-id="pet_quoc_khanh_1"
+]
+.item-icon-wrapper {
+
+    min-height: 126px !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    overflow: visible !important;
+}
+
+
+.store-card-national-day-2-9[
+    data-item-id="pet_quoc_khanh_1"
+]
+.item-icon {
+
+    width: 106px !important;
+    height: 106px !important;
+
+    max-width: 106px !important;
+    max-height: 106px !important;
+
+    object-fit: contain !important;
+
+    object-position:
+        center bottom !important;
+
+    transform:
+        scale(1.08) !important;
+}
+
+
+/* Hover */
+
+.store-card-national-day-2-9[
+    data-item-id="pet_quoc_khanh_1"
+]:hover
+.item-icon {
+
+    transform:
+        translateY(-4px)
+        scale(1.11) !important;
+}
+
+/* ================================================================
+   FINAL OVERRIDE · PET GÓC PHẢI TO RÕ RỆT
+   VIỆT DIỆU · HỒN THIÊNG ĐỘC LẬP
+   - scale độc lập với animation transform nd29PetIdle.
+   - Đặt CUỐI FILE để thắng rule (pointer: coarse) ép về 118px.
+   ================================================================ */
+#virtual-pet-container.pet-national-day-chibi-stage {
+    width: 220px !important;
+    min-height: 235px !important;
+    overflow: visible !important;
+}
+
+#virtual-pet-container.pet-national-day-chibi-stage
+#virtual-pet-img.national-day-chibi-star-magic {
+    width: 180px !important;
+    max-width: none !important;
+    height: auto !important;
+    scale: 1.18 !important;
+    transform-origin: 50% 92% !important;
+}
+
+/* Vòng hiệu ứng theo nhân vật, không bị lọt vào giữa người. */
+#virtual-pet-container.pet-national-day-chibi-stage .nd29-pet-emblem {
+    scale: 1.12 !important;
+    transform-origin: 50% 50% !important;
+}
+
+/* Ghi đè rule responsive/pointer coarse cũ. */
+@media (max-width: 768px), (pointer: coarse) {
+    #virtual-pet-container.pet-national-day-chibi-stage {
+        width: 195px !important;
+        min-height: 210px !important;
+    }
+
+    #virtual-pet-container.pet-national-day-chibi-stage
+    #virtual-pet-img.national-day-chibi-star-magic {
+        width: 168px !important;
+        scale: 1.14 !important;
+    }
+}
+/* =========================================================
+   VIỆT DIỆU - KÍCH THƯỚC KHI TRANG BỊ Ở GÓC PHẢI
+   ========================================================= */
+
+#virtual-pet-container.pet-national-day-chibi-stage {
+    width: 225px !important;
+    min-width: 225px !important;
+    min-height: 255px !important;
+    overflow: visible !important;
+}
+
+#virtual-pet-container.pet-national-day-chibi-stage
+#virtual-pet-img.national-day-chibi-star-magic {
+    width: 188px !important;
+    max-width: none !important;
+    height: auto !important;
+
+    scale: 1.04 !important;
+}
+
+#virtual-pet-container.pet-national-day-chibi-stage
+.nd29-pet-emblem {
+    width: 182px !important;
+    height: 182px !important;
+
+    left: 50% !important;
+    top: 48% !important;
+
+    transform: translate(-50%, -50%) !important;
+}
+
+#virtual-pet-container.pet-national-day-chibi-stage
+.nd29-halo.halo-outer {
+    width: 160px !important;
+    height: 160px !important;
+}
+
+#virtual-pet-container.pet-national-day-chibi-stage
+.nd29-halo.halo-inner {
+    width: 120px !important;
+    height: 120px !important;
+}
+/* FIX TAG QUỐC KHÁNH BỊ NHÂN ĐÔI */
+.luxury-product-card.national-day-premium-card[data-item-id="pet_quoc_khanh_1"]
+.special-card-tag-image,
+.luxury-product-card.national-day-premium-card[data-item-id="pet_quoc_khanh_1"]
+.item-tag {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+.luxury-product-card.national-day-premium-card[data-item-id="pet_quoc_khanh_1"]
+.national-day-premium-tag-shell {
+    top: 12px !important;
+    left: 14px !important;
+    right: auto !important;
+
+    width: 140px !important;
+    height: 60px !important;
+
+    z-index: 40 !important;
+}
+
+.luxury-product-card.national-day-premium-card[data-item-id="pet_quoc_khanh_1"]
+.national-day-premium-tag {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    object-position: left top !important;
 }

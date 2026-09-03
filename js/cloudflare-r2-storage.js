@@ -172,10 +172,33 @@
                 originalName
             );
 
+        /*
+         * Nhận diện audio bằng CẢ MIME và phần mở rộng.
+         *
+         * Một số trình duyệt/thiết bị có thể báo:
+         * - .m4a  -> video/mp4
+         * - .webm -> video/webm
+         * - hoặc MIME không chuẩn
+         *
+         * Nếu chỉ kiểm tra audio/* thì các file này bị hiểu
+         * nhầm là file thường và rơi về giới hạn maxSizeBytes
+         * (ví dụ 10 MB phía học sinh).
+         */
+        const audioExtension =
+            String(originalName || '')
+                .split(/[?#]/)[0]
+                .split('.')
+                .pop()
+                .toLowerCase();
+
         const isAudioFile =
             String(inferredContentType || '')
                 .toLowerCase()
-                .startsWith('audio/');
+                .startsWith('audio/') ||
+            Object.prototype.hasOwnProperty.call(
+                FILE_TYPE_BY_EXTENSION,
+                audioExtension
+            );
 
         const maxSizeBytes =
             isAudioFile

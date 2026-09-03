@@ -1,5 +1,9 @@
 // leaderboard.js — giao diện Bảng Xếp Hạng Thi Đua phiên bản mới
 
+window.__LEADERBOARD_BUILD_ID__ = '20260901-chest-exclusive-pool-v2';
+console.info('[Leaderboard] build:', window.__LEADERBOARD_BUILD_ID__);
+
+
 const LB_ICONS = {
     trophy: `
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -25,6 +29,169 @@ const LB_ICONS = {
             <path d="M12 10.8V17M12 7.2h.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
         </svg>`
 };
+
+
+// ======================================================
+// LỊCH SỬ BẢNG XẾP HẠNG
+// Cho phép xem tháng hiện tại và tối đa 3 tháng trước.
+// ======================================================
+
+const LB_HISTORY_MONTH_LIMIT = 3;
+let leaderboardViewMonthOffset = 0;
+let leaderboardRenderRequestId = 0;
+
+
+function getLeaderboardViewPeriod(
+    now = new Date()
+) {
+    const numericOffset =
+        Number(leaderboardViewMonthOffset);
+
+    const offset =
+        Math.max(
+            0,
+            Math.min(
+                LB_HISTORY_MONTH_LIMIT,
+                Number.isFinite(numericOffset)
+                    ? Math.trunc(numericOffset)
+                    : 0
+            )
+        );
+
+    leaderboardViewMonthOffset = offset;
+
+    const date =
+        new Date(
+            now.getFullYear(),
+            now.getMonth() - offset,
+            1
+        );
+
+    const year =
+        date.getFullYear();
+
+    const monthIndex =
+        date.getMonth();
+
+    const month =
+        monthIndex + 1;
+
+    return {
+        year,
+        month,
+        monthIndex,
+        offset,
+        isCurrent:
+            offset === 0,
+        display:
+            `Tháng ${month}/${year}`
+    };
+}
+
+
+function updateLeaderboardPeriodControls(
+    period = getLeaderboardViewPeriod()
+) {
+    const monthDisplay =
+        document.getElementById(
+            'lbMonthDisplay'
+        );
+
+    const status =
+        document.getElementById(
+            'lbSeasonStatus'
+        );
+
+    const statusText =
+        document.getElementById(
+            'lbSeasonStatusText'
+        );
+
+    const prevButton =
+        document.getElementById(
+            'lbPrevMonthBtn'
+        );
+
+    const nextButton =
+        document.getElementById(
+            'lbNextMonthBtn'
+        );
+
+    if (monthDisplay) {
+        monthDisplay.textContent =
+            `Mùa thi đua · ${period.display}`;
+    }
+
+    if (status) {
+        status.classList.toggle(
+            'is-history',
+            !period.isCurrent
+        );
+    }
+
+    if (statusText) {
+        statusText.textContent =
+            period.isCurrent
+                ? 'Đang diễn ra'
+                : 'Đã kết thúc';
+    }
+
+    if (prevButton) {
+        prevButton.disabled =
+            period.offset >=
+            LB_HISTORY_MONTH_LIMIT;
+
+        prevButton.title =
+            prevButton.disabled
+                ? `Chỉ xem lại tối đa ${LB_HISTORY_MONTH_LIMIT} tháng trước`
+                : 'Xem tháng trước';
+    }
+
+    if (nextButton) {
+        nextButton.disabled =
+            period.offset <= 0;
+
+        nextButton.title =
+            nextButton.disabled
+                ? 'Đang ở tháng hiện tại'
+                : 'Xem tháng sau';
+    }
+}
+
+
+async function changeLeaderboardMonth(
+    direction
+) {
+    const delta =
+        Number(direction);
+
+    if (!Number.isFinite(delta)) {
+        return;
+    }
+
+    const nextOffset =
+        Math.max(
+            0,
+            Math.min(
+                LB_HISTORY_MONTH_LIMIT,
+                leaderboardViewMonthOffset +
+                    Math.trunc(delta)
+            )
+        );
+
+    if (
+        nextOffset ===
+        leaderboardViewMonthOffset
+    ) {
+        updateLeaderboardPeriodControls();
+        return;
+    }
+
+    leaderboardViewMonthOffset =
+        nextOffset;
+
+    await calculateAndRenderLeaderboard();
+}
 
 
 // ======================================================
@@ -134,16 +301,47 @@ function initLeaderboardSystem() {
 
                     <div class="lb-season-line">
 
-                        <span
-                            id="lbMonthDisplay"
-                            class="lb-season-chip"
+                        <div
+                            class="lb-month-switcher"
+                            aria-label="Chọn tháng bảng xếp hạng"
                         >
-                            Đang tải mùa thi đua…
-                        </span>
+                            <button
+                                id="lbPrevMonthBtn"
+                                class="lb-month-nav-btn"
+                                type="button"
+                                title="Xem tháng trước"
+                                aria-label="Xem tháng trước"
+                            >
+                                ‹
+                            </button>
 
-                        <span class="lb-live-chip">
+                            <span
+                                id="lbMonthDisplay"
+                                class="lb-season-chip"
+                            >
+                                Đang tải mùa thi đua…
+                            </span>
+
+                            <button
+                                id="lbNextMonthBtn"
+                                class="lb-month-nav-btn"
+                                type="button"
+                                title="Xem tháng sau"
+                                aria-label="Xem tháng sau"
+                                disabled
+                            >
+                                ›
+                            </button>
+                        </div>
+
+                        <span
+                            id="lbSeasonStatus"
+                            class="lb-live-chip"
+                        >
                             <i class="lb-live-dot"></i>
-                            Đang diễn ra
+                            <span id="lbSeasonStatusText">
+                                Đang diễn ra
+                            </span>
                         </span>
 
                     </div>
@@ -430,6 +628,22 @@ function bindLeaderboardEvents() {
         ?.addEventListener(
             "click",
             calculateAndRenderLeaderboard
+        );
+
+
+    document
+        .getElementById("lbPrevMonthBtn")
+        ?.addEventListener(
+            "click",
+            () => changeLeaderboardMonth(1)
+        );
+
+
+    document
+        .getElementById("lbNextMonthBtn")
+        ?.addEventListener(
+            "click",
+            () => changeLeaderboardMonth(-1)
         );
 
 
@@ -927,33 +1141,121 @@ function getLeaderboardBestSubmission(
 }
 
 
-function getLeaderboardMonthAssignments(
-    assignments,
+function parseLeaderboardDateMs(value) {
+    if (
+        value === null ||
+        value === undefined ||
+        value === ''
+    ) {
+        return null;
+    }
+
+    // Timestamp dạng số: gradedAt, submittedAt, updatedAt...
+    const numeric = Number(value);
+    if (
+        Number.isFinite(numeric) &&
+        numeric > 0
+    ) {
+        return numeric;
+    }
+
+    // Ngày của bài tập đang được lưu theo dạng YYYY-MM-DD HH:mm.
+    const normalized = String(value)
+        .trim()
+        .replace(' ', 'T');
+
+    if (!normalized) {
+        return null;
+    }
+
+    const parsed = new Date(normalized).getTime();
+
+    return Number.isNaN(parsed)
+        ? null
+        : parsed;
+}
+
+
+function getLeaderboardSubmissionPeriodMs(submission) {
+    if (!submission) {
+        return null;
+    }
+
+    // Ưu tiên thời điểm giáo viên chấm.
+    // Dữ liệu cũ chưa có gradedAt sẽ tự rơi về thời điểm nộp bài.
+    const candidates = [
+        submission.gradedAt,
+        submission.submittedAt,
+        submission.submitTimestamp,
+        submission.updatedAt,
+        submission.timestamp
+    ];
+
+    for (const value of candidates) {
+        const parsed =
+            parseLeaderboardDateMs(value);
+
+        if (parsed !== null) {
+            return parsed;
+        }
+    }
+
+    // Tương thích bản ghi rất cũ: id thường bắt đầu bằng Date.now().
+    const idMatch =
+        leaderboardText(submission.id)
+            .match(/^(\d{13})/);
+
+    return idMatch
+        ? Number(idMatch[1])
+        : null;
+}
+
+
+function getLeaderboardAssignmentPeriodMs(
+    assignment,
+    submission
+) {
+    // Quy tắc xác định mùa thi đua:
+    // 1) Hạn nộp; 2) ngày bắt đầu; 3) ngày chấm; 4) ngày nộp.
+    const endDateMs =
+        parseLeaderboardDateMs(
+            assignment?.endDate
+        );
+
+    if (endDateMs !== null) {
+        return endDateMs;
+    }
+
+    const startDateMs =
+        parseLeaderboardDateMs(
+            assignment?.startDate
+        );
+
+    if (startDateMs !== null) {
+        return startDateMs;
+    }
+
+    return getLeaderboardSubmissionPeriodMs(
+        submission
+    );
+}
+
+
+function isLeaderboardPeriodMatch(
+    timestamp,
     year,
     monthIndex
 ) {
-    return (assignments || []).filter(
-        assignment => {
-            if (!assignment?.endDate) {
-                return false;
-            }
+    if (timestamp === null) {
+        return false;
+    }
 
-            const assignmentDate =
-                new Date(
-                    String(assignment.endDate)
-                        .replace(' ', 'T')
-                );
+    const date = new Date(timestamp);
 
-            return (
-                !Number.isNaN(
-                    assignmentDate.getTime()
-                ) &&
-                assignmentDate.getMonth() ===
-                    monthIndex &&
-                assignmentDate.getFullYear() ===
-                    year
-            );
-        }
+    return (
+        !Number.isNaN(date.getTime()) &&
+        date.getMonth() === monthIndex &&
+        date.getFullYear() === year
     );
 }
 
@@ -979,12 +1281,10 @@ function buildLeaderboardDataForPeriod({
                 'student'
         );
 
-    const monthAssignments =
-        getLeaderboardMonthAssignments(
-            assignments,
-            year,
-            monthIndex
-        );
+    const allAssignments =
+        Array.isArray(assignments)
+            ? assignments
+            : [];
 
     const rankedData = [];
 
@@ -998,8 +1298,8 @@ function buildLeaderboardDataForPeriod({
             return;
         }
 
-        const assignedMonthAssignments =
-            monthAssignments.filter(
+        const assignedAssignments =
+            allAssignments.filter(
                 assignment =>
                     isLeaderboardAssignmentForStudent(
                         assignment,
@@ -1013,8 +1313,31 @@ function buildLeaderboardDataForPeriod({
         let violationCount = 0;
         let totalVideoBonus = 0;
 
-        assignedMonthAssignments.forEach(
+        assignedAssignments.forEach(
             assignment => {
+                const submission =
+                    getLeaderboardBestSubmission(
+                        assignment,
+                        submissions,
+                        username
+                    );
+
+                const periodMs =
+                    getLeaderboardAssignmentPeriodMs(
+                        assignment,
+                        submission
+                    );
+
+                if (
+                    !isLeaderboardPeriodMatch(
+                        periodMs,
+                        year,
+                        monthIndex
+                    )
+                ) {
+                    return;
+                }
+
                 if (
                     Number(
                         assignment.watchCondition
@@ -1050,13 +1373,6 @@ function buildLeaderboardDataForPeriod({
                     totalVideoBonus +=
                         ratio * 0.5;
                 }
-
-                const submission =
-                    getLeaderboardBestSubmission(
-                        assignment,
-                        submissions,
-                        username
-                    );
 
                 if (!submission) {
                     return;
@@ -1237,6 +1553,49 @@ function getLeaderboardPreviousSeasonInfo(
 }
 
 
+const LEADERBOARD_CLAIM_LOCK_TIMEOUT_MS =
+    90 * 1000;
+
+
+function isLeaderboardClaimLockExpired(
+    claim,
+    now = Date.now()
+) {
+    if (!claim) {
+        return false;
+    }
+
+    const status =
+        String(claim.status || '');
+
+    if (
+        status !== 'processing' &&
+        status !== 'processing_chest'
+    ) {
+        return false;
+    }
+
+    const lockTime =
+        Number(
+            claim.processingAt ??
+            claim.startedAt ??
+            0
+        );
+
+    /*
+     * Claim cũ không có mốc thời gian được xem là khóa rác.
+     * Các khóa mới chỉ được thu hồi sau 90 giây để tránh
+     * hai tab cùng phát thưởng trong lúc một tab còn chạy.
+     */
+    if (!Number.isFinite(lockTime) || lockTime <= 0) {
+        return true;
+    }
+
+    return (now - lockTime) >=
+        LEADERBOARD_CLAIM_LOCK_TIMEOUT_MS;
+}
+
+
 function getLeaderboardClaimPath(
     seasonKey,
     username
@@ -1294,15 +1653,92 @@ function getDeterministicLeaderboardDiscountPercent(
 }
 
 
+function getLeaderboardStudentsFromSubmissions(submissions) {
+    const studentsByUsername = new Map();
+
+    (Array.isArray(submissions) ? submissions : [])
+        .forEach(submission => {
+            const username =
+                getLeaderboardSubmissionUsername(submission);
+
+            if (!username) {
+                return;
+            }
+
+            const name =
+                leaderboardText(
+                    submission?.studentName ??
+                    submission?.name ??
+                    submission?.studentFullName
+                ) || username;
+
+            const existing =
+                studentsByUsername.get(username);
+
+            if (!existing) {
+                studentsByUsername.set(username, {
+                    username,
+                    name,
+                    role: 'student',
+                    avatar: '👤'
+                });
+                return;
+            }
+
+            /*
+             * Ưu tiên tên đầy đủ nếu bản ghi cũ trước đó
+             * chỉ có username hoặc thiếu tên.
+             */
+            if (
+                (!existing.name || existing.name === username) &&
+                name !== username
+            ) {
+                existing.name = name;
+            }
+        });
+
+    /*
+     * Chỉ dùng dữ liệu currentUser của chính học sinh đang đăng nhập
+     * để làm đẹp avatar/tên của bản thân. Không đọc toàn bộ /users.
+     */
+    if (
+        typeof currentUser !== 'undefined' &&
+        currentUser?.username &&
+        studentsByUsername.has(
+            leaderboardText(currentUser.username)
+        )
+    ) {
+        const username =
+            leaderboardText(currentUser.username);
+
+        const ownStudent =
+            studentsByUsername.get(username);
+
+        if (leaderboardText(currentUser.name)) {
+            ownStudent.name = currentUser.name;
+        }
+
+        if (leaderboardText(currentUser.avatar)) {
+            ownStudent.avatar = currentUser.avatar;
+        }
+    }
+
+    return [...studentsByUsername.values()];
+}
+
+
 async function getLeaderboardSourceData() {
+    /*
+     * Không đọc getDB('users') ở phía học sinh.
+     * Firebase Rules chỉ cho teacher đọc toàn bộ /users,
+     * vì vậy BXH dựng danh sách người tham gia từ submissions.
+     */
     const [
-        users,
         assignments,
         submissions,
         trackingSnap,
         settingsSnap
     ] = await Promise.all([
-        getDB('users'),
         getDB('assignments'),
         getDB('submissions'),
         db.ref('video_tracking')
@@ -1310,6 +1746,11 @@ async function getLeaderboardSourceData() {
         db.ref('leaderboard_settings')
             .once('value')
     ]);
+
+    const users =
+        getLeaderboardStudentsFromSubmissions(
+            submissions
+        );
 
     return {
         users,
@@ -1636,6 +2077,7 @@ window.claimPreviousLeaderboardReward =
         });
 
         let lockedClaimRef = null;
+        let lockedClaimToken = null;
         let rewardFinalized = false;
 
         try {
@@ -1698,23 +2140,63 @@ window.claimPreviousLeaderboardReward =
                     rank
                 );
 
+            /*
+             * Firebase có thể chạy transaction callback nhiều lần.
+             * Token giúp callback nhận ra trạng thái processing do
+             * CHÍNH transaction hiện tại tạo ra, thay vì tự abort.
+             */
+            const claimLockToken =
+                `${Date.now()}_` +
+                `${Math.random().toString(36).slice(2)}`;
+
+            lockedClaimToken =
+                claimLockToken;
+
             const lockResult =
                 await claimRef.transaction(
                     current => {
-                        if (
-                            current &&
-                            (
-                                current.status ===
+                        if (current) {
+                            const currentStatus =
+                                String(
+                                    current.status || ''
+                                ).trim();
+
+                            const ownsCurrentLock =
+                                currentStatus ===
+                                    'processing' &&
+                                current.processingToken ===
+                                    claimLockToken;
+
+                            /*
+                             * Idempotent retry: Firebase đang chạy lại
+                             * callback của cùng transaction.
+                             */
+                            if (ownsCurrentLock) {
+                                return current;
+                            }
+
+                            if (
+                                currentStatus ===
                                     'claimed' ||
-                                current.status ===
-                                    'available_chest' ||
-                                current.status ===
-                                    'processing' ||
-                                current.status ===
-                                    'processing_chest'
-                            )
-                        ) {
-                            return;
+                                currentStatus ===
+                                    'available_chest'
+                            ) {
+                                return;
+                            }
+
+                            if (
+                                (
+                                    currentStatus ===
+                                        'processing' ||
+                                    currentStatus ===
+                                        'processing_chest'
+                                ) &&
+                                !isLeaderboardClaimLockExpired(
+                                    current
+                                )
+                            ) {
+                                return;
+                            }
                         }
 
                         return {
@@ -1726,10 +2208,24 @@ window.claimPreviousLeaderboardReward =
                             rewardType,
                             status:
                                 'processing',
+                            processingToken:
+                                claimLockToken,
                             startedAt:
-                                Date.now()
+                                Date.now(),
+                            recoveredStaleLock:
+                                Boolean(
+                                    current &&
+                                    (
+                                        current.status ===
+                                            'processing' ||
+                                        current.status ===
+                                            'processing_chest'
+                                    )
+                                )
                         };
-                    }
+                    },
+                    undefined,
+                    false
                 );
 
             if (!lockResult.committed) {
@@ -1745,12 +2241,20 @@ window.claimPreviousLeaderboardReward =
                     return;
                 }
 
-                alert(
+                if (
                     current?.status ===
                         'claimed'
-                        ? '✅ Phần thưởng đã được nhận.'
-                        : '⏳ Phần thưởng đang được xử lý ở một tab khác.'
-                );
+                ) {
+                    alert(
+                        '✅ Phần thưởng đã được nhận.'
+                    );
+                } else {
+                    alert(
+                        '⏳ Phần thưởng đang được một tab khác xử lý. ' +
+                        'Nếu lần xử lý đó bị gián đoạn, hệ thống sẽ ' +
+                        'cho phép thử lại sau khoảng 90 giây.'
+                    );
+                }
                 return;
             }
 
@@ -1760,6 +2264,8 @@ window.claimPreviousLeaderboardReward =
                         'available_chest',
                     rewardLabel:
                         'Rương Kho Báu Hạng 1',
+                    processingToken:
+                        null,
                     unlockedAt:
                         firebase.database
                             .ServerValue
@@ -1991,9 +2497,30 @@ window.claimPreviousLeaderboardReward =
                 try {
                     await lockedClaimRef.transaction(
                         current => {
+                            const currentStatus =
+                                String(
+                                    current?.status || ''
+                                ).trim();
+
+                            const rollbackToken =
+                                current?.rollbackToken;
+
+                            /*
+                             * Idempotent retry của chính rollback.
+                             */
                             if (
-                                current?.status !==
-                                    'processing'
+                                currentStatus === 'retry' &&
+                                rollbackToken ===
+                                    lockedClaimToken
+                            ) {
+                                return current;
+                            }
+
+                            if (
+                                currentStatus !==
+                                    'processing' ||
+                                current?.processingToken !==
+                                    lockedClaimToken
                             ) {
                                 return;
                             }
@@ -2002,10 +2529,16 @@ window.claimPreviousLeaderboardReward =
                                 ...current,
                                 status:
                                     'retry',
+                                processingToken:
+                                    null,
+                                rollbackToken:
+                                    lockedClaimToken,
                                 lastErrorAt:
                                     Date.now()
                             };
-                        }
+                        },
+                        undefined,
+                        false
                     );
                 } catch (
                     rollbackError
@@ -2246,6 +2779,9 @@ window.openLeaderboardModal = async function () {
                 'leaderboard-open'
             );
 
+            leaderboardViewMonthOffset = 0;
+            updateLeaderboardPeriodControls();
+
             const monthDisplay =
                 document.getElementById(
                     'lbMonthDisplay'
@@ -2254,6 +2790,27 @@ window.openLeaderboardModal = async function () {
             if (monthDisplay) {
                 monthDisplay.textContent =
                     'Mùa hiện tại đang đóng';
+            }
+
+            const seasonStatus =
+                document.getElementById(
+                    'lbSeasonStatus'
+                );
+
+            const seasonStatusText =
+                document.getElementById(
+                    'lbSeasonStatusText'
+                );
+
+            if (seasonStatus) {
+                seasonStatus.classList.add(
+                    'is-history'
+                );
+            }
+
+            if (seasonStatusText) {
+                seasonStatusText.textContent =
+                    'Đã đóng';
             }
 
             const body =
@@ -2338,6 +2895,9 @@ window.openLeaderboardModal = async function () {
             .getElementById('lbCloseBtn')
             ?.focus();
 
+        // Mỗi lần mở BXH bắt đầu từ tháng hiện tại.
+        leaderboardViewMonthOffset = 0;
+
         await calculateAndRenderLeaderboard();
     } catch (error) {
         console.error(error);
@@ -2368,24 +2928,31 @@ async function calculateAndRenderLeaderboard() {
         return;
     }
 
+    const requestId =
+        ++leaderboardRenderRequestId;
+
+    const period =
+        getLeaderboardViewPeriod();
+
+    updateLeaderboardPeriodControls(
+        period
+    );
+
     body.innerHTML =
         getLeaderboardLoadingHTML();
-
-    const now = new Date();
-
-    const currentMonth =
-        now.getMonth();
-
-    const currentYear =
-        now.getFullYear();
-
-    monthDisplay.textContent =
-        `Mùa thi đua · Tháng ` +
-        `${currentMonth + 1}/${currentYear}`;
 
     try {
         const source =
             await getLeaderboardSourceData();
+
+        // Nếu người dùng bấm đổi tháng rất nhanh,
+        // bỏ kết quả của request cũ để tránh render sai tháng.
+        if (
+            requestId !==
+            leaderboardRenderRequestId
+        ) {
+            return;
+        }
 
         const rankedData =
             buildLeaderboardDataForPeriod({
@@ -2398,33 +2965,58 @@ async function calculateAndRenderLeaderboard() {
                 trackingData:
                     source.trackingData,
                 year:
-                    currentYear,
+                    period.year,
                 monthIndex:
-                    currentMonth
+                    period.monthIndex
             });
 
         if (rankedData.length === 0) {
-            body.innerHTML =
-                getLeaderboardStateHTML(
+            body.innerHTML = `
+                ${period.isCurrent
+                    ? '<div id="lbSeasonRewardArea"></div>'
+                    : ''
+                }
+                ${getLeaderboardStateHTML(
                     'empty',
                     'Chưa có dữ liệu xếp hạng',
-                    'Tháng này chưa có bài tập hợp lệ đã được chấm điểm.'
-                );
+                    `${period.display} chưa có bài tập hợp lệ đã được chấm điểm.`
+                )}
+            `;
+
+            if (period.isCurrent) {
+                await refreshPreviousLeaderboardRewardPanel();
+            }
 
             return;
         }
 
         body.innerHTML =
             renderLeaderboard(
-                rankedData
+                rankedData,
+                {
+                    showRewardPanel:
+                        period.isCurrent,
+                    periodLabel:
+                        period.display
+                }
             );
 
         /*
-         * Sau khi dựng BXH hiện tại,
-         * kiểm tra phần thưởng của tháng ĐÃ KẾT THÚC.
+         * Phần thưởng vẫn chỉ kiểm tra ở màn hình tháng hiện tại.
+         * Khi xem lịch sử 1-3 tháng trước chỉ hiển thị thứ hạng,
+         * không cho nhận thưởng cũ từ màn hình lịch sử.
          */
-        await refreshPreviousLeaderboardRewardPanel();
+        if (period.isCurrent) {
+            await refreshPreviousLeaderboardRewardPanel();
+        }
     } catch (error) {
+        if (
+            requestId !==
+            leaderboardRenderRequestId
+        ) {
+            return;
+        }
+
         body.innerHTML =
             getLeaderboardStateHTML(
                 'error',
@@ -2440,7 +3032,18 @@ async function calculateAndRenderLeaderboard() {
 // 8. HIỂN THỊ TOÀN BỘ BẢNG XẾP HẠNG
 // ======================================================
 
-function renderLeaderboard(rankedData) {
+function renderLeaderboard(
+    rankedData,
+    options = {}
+) {
+    const showRewardPanel =
+        options.showRewardPanel !== false;
+
+    const periodLabel =
+        leaderboardText(
+            options.periodLabel
+        ) || 'Tháng hiện tại';
+
     const participantCount =
         rankedData.length;
 
@@ -2484,7 +3087,10 @@ function renderLeaderboard(rankedData) {
 
 
     return `
-        <div id="lbSeasonRewardArea"></div>
+        ${showRewardPanel
+            ? '<div id="lbSeasonRewardArea"></div>'
+            : ''
+        }
 
         <section
             class="lb-summary-grid"
@@ -2530,7 +3136,7 @@ function renderLeaderboard(rankedData) {
                 </h4>
 
                 <span class="lb-section-note">
-                    Top 3 tháng này
+                    Top 3 · ${escapeHTML(periodLabel)}
                 </span>
             </div>
 
@@ -3011,6 +3617,14 @@ window.claimChestReward = async function (
     let claimRef = null;
     let awardCommitted = false;
 
+    /*
+     * Giữ nguyên token trong toàn bộ vòng đời của MỘT lần bấm nhận.
+     * Transaction callback có thể bị Firebase gọi lại nhiều lần.
+     */
+    const chestLockToken =
+        `${Date.now()}_` +
+        `${Math.random().toString(36).slice(2)}`;
+
     try {
         if (
             choiceType !== 'coin' &&
@@ -3024,19 +3638,102 @@ window.claimChestReward = async function (
         const rewardState =
             await getPreviousLeaderboardRewardState();
 
+        const currentChestClaim =
+            rewardState?.claim || null;
+
+        const isRecoverableChestClaim =
+            claim => {
+                if (!claim) {
+                    return false;
+                }
+
+                const status =
+                    String(
+                        claim.status || ''
+                    ).trim();
+
+                /*
+                 * "retry" là trạng thái do luồng nhận thưởng BXH
+                 * đặt lại khi lần mở khóa Rương trước đó bị lỗi.
+                 * Với Hạng 1 + rewardType=chest thì có thể phục hồi
+                 * an toàn mà không bắt học sinh đóng/mở lại BXH.
+                 */
+                if (
+                    status === 'available_chest' ||
+                    status === 'retry'
+                ) {
+                    return true;
+                }
+
+                return (
+                    (
+                        status === 'processing_chest' ||
+                        status === 'processing'
+                    ) &&
+                    isLeaderboardClaimLockExpired(
+                        claim
+                    )
+                );
+            };
+
+        const currentChestStatus =
+            String(
+                currentChestClaim?.status || ''
+            ).trim();
+
         if (
             !rewardState ||
             rewardState.rank !== 1 ||
-            rewardState.claim?.rewardType !==
-                'chest' ||
-            rewardState.claim?.status !==
-                'available_chest'
+            String(
+                currentChestClaim?.rewardType || ''
+            ).trim() !== 'chest' ||
+            !isRecoverableChestClaim(
+                currentChestClaim
+            )
         ) {
-            alert(
-                '🔒 Rương không còn khả dụng hoặc bạn không có quyền mở.'
-            );
+            if (
+                currentChestStatus === 'claimed'
+            ) {
+                alert(
+                    '✅ Rương Hạng 1 này đã được nhận trước đó.'
+                );
+                closeTreasureChestModal();
+            } else if (
+                (
+                    currentChestStatus ===
+                        'processing_chest' ||
+                    currentChestStatus ===
+                        'processing'
+                ) &&
+                currentChestClaim &&
+                !isLeaderboardClaimLockExpired(
+                    currentChestClaim
+                )
+            ) {
+                alert(
+                    '⏳ Rương đang được một tab khác xử lý. ' +
+                    'Nếu lần xử lý đó bị gián đoạn, hệ thống sẽ ' +
+                    'tự mở khóa sau khoảng 90 giây.'
+                );
+            } else {
+                console.warn(
+                    '[Leaderboard] Rương không ở trạng thái có thể nhận:',
+                    {
+                        rank:
+                            rewardState?.rank,
+                        claim:
+                            currentChestClaim
+                    }
+                );
 
-            closeTreasureChestModal();
+                closeTreasureChestModal();
+                await refreshPreviousLeaderboardRewardPanel();
+
+                alert(
+                    '🔒 Rương hiện không ở trạng thái có thể nhận. ' +
+                    'BXH đã được đồng bộ tự động.'
+                );
+            }
             return;
         }
 
@@ -3054,39 +3751,254 @@ window.claimChestReward = async function (
                 )
             );
 
-        /*
-         * Khóa rương bằng transaction.
-         * Hai tab bấm cùng lúc chỉ một tab được quyền tiếp tục.
-         */
-        const lockResult =
-            await claimRef.transaction(
-                current => {
-                    if (
-                        !current ||
-                        current.rank !== 1 ||
-                        current.rewardType !==
-                            'chest' ||
-                        current.status !==
-                            'available_chest'
-                    ) {
-                        return;
-                    }
+        const runChestLockTransaction =
+            async () => {
+                /*
+                 * applyLocally=false:
+                 * tránh transaction quyết định dựa trên cache cũ
+                 * rồi abort trước khi đối chiếu trạng thái máy chủ.
+                 */
+                return claimRef.transaction(
+                    current => {
+                        /*
+                         * Firebase transaction callback có thể được gọi
+                         * lần đầu với null dù dữ liệu thật đang tồn tại.
+                         * Không abort ngay: dùng claim vừa được đọc/kiểm tra
+                         * ở rewardState làm giá trị dự phòng. Nếu server có
+                         * dữ liệu mới hơn, Firebase sẽ phát hiện xung đột và
+                         * gọi lại callback với current mới nhất.
+                         */
+                        let transactionClaim =
+                            current;
 
-                    return {
-                        ...current,
-                        status:
-                            'processing_chest',
-                        selectedChoice:
-                            choiceType,
-                        processingAt:
-                            Date.now()
-                    };
+                        if (
+                            !transactionClaim ||
+                            typeof transactionClaim !==
+                                'object'
+                        ) {
+                            if (
+                                !currentChestClaim ||
+                                typeof currentChestClaim !==
+                                    'object' ||
+                                !isRecoverableChestClaim(
+                                    currentChestClaim
+                                )
+                            ) {
+                                return;
+                            }
+
+                            transactionClaim = {
+                                ...currentChestClaim
+                            };
+                        }
+
+                        /*
+                         * Dữ liệu cũ có thể lưu rank = "1" thay vì 1.
+                         * Chỉ từ chối khi rank tồn tại nhưng thực sự khác hạng 1.
+                         */
+                        const storedRank =
+                            Number(
+                                transactionClaim.rank
+                            );
+
+                        if (
+                            transactionClaim.rank !== undefined &&
+                            transactionClaim.rank !== null &&
+                            transactionClaim.rank !== '' &&
+                            (
+                                !Number.isFinite(
+                                    storedRank
+                                ) ||
+                                storedRank !== 1
+                            )
+                        ) {
+                            return;
+                        }
+
+                        if (
+                            String(
+                                transactionClaim.rewardType || ''
+                            ).trim() !== 'chest'
+                        ) {
+                            return;
+                        }
+
+                        const previousStatus =
+                            String(
+                                transactionClaim.status || ''
+                            ).trim();
+
+                        const ownsCurrentLock =
+                            previousStatus ===
+                                'processing_chest' &&
+                            transactionClaim.processingToken ===
+                                chestLockToken;
+
+                        /*
+                         * Idempotent retry: nếu Firebase gọi lại callback
+                         * sau khi chính transaction này đã tạo trạng thái
+                         * processing_chest, trả lại cùng dữ liệu thay vì abort.
+                         */
+                        if (ownsCurrentLock) {
+                            return {
+                                ...transactionClaim,
+                                selectedChoice:
+                                    choiceType
+                            };
+                        }
+
+                        if (
+                            !isRecoverableChestClaim(
+                                transactionClaim
+                            )
+                        ) {
+                            return;
+                        }
+
+                        return {
+                            ...transactionClaim,
+                            status:
+                                'processing_chest',
+                            selectedChoice:
+                                choiceType,
+                            processingToken:
+                                chestLockToken,
+                            processingAt:
+                                Date.now(),
+                            recoveredStaleLock:
+                                previousStatus !==
+                                    'available_chest'
+                        };
+                    },
+                    undefined,
+                    false
+                );
+            };
+
+        /*
+         * Đọc lại đúng node claim ngay trước transaction.
+         * Nếu giao diện/cached state vừa thay đổi, lần đọc này
+         * ép client đồng bộ trước khi khóa Rương.
+         */
+        await claimRef.once('value');
+
+        let lockResult =
+            await runChestLockTransaction();
+
+        /*
+         * Firebase có thể abort transaction nếu state local vừa
+         * bị thay thế đúng lúc bấm nhận. Khi đó đọc lại server và
+         * thử đúng MỘT lần nữa nếu Rương vẫn thực sự khả dụng.
+         */
+        if (!lockResult.committed) {
+            const latestSnap =
+                await claimRef.once('value');
+
+            const latestClaim =
+                latestSnap.val();
+
+            if (
+                isRecoverableChestClaim(
+                    latestClaim
+                )
+            ) {
+                lockResult =
+                    await runChestLockTransaction();
+            }
+        }
+
+        if (!lockResult.committed) {
+            const latestSnap =
+                await claimRef.once('value');
+
+            const latestClaim =
+                latestSnap.val();
+
+            const latestStatus =
+                String(
+                    latestClaim?.status || ''
+                ).trim();
+
+            console.warn(
+                '[Leaderboard] Không khóa được Rương:',
+                {
+                    seasonKey,
+                    username,
+                    latestClaim
                 }
             );
 
-        if (!lockResult.committed) {
+            if (
+                latestStatus === 'claimed'
+            ) {
+                alert(
+                    '✅ Rương Hạng 1 này đã được nhận trước đó.'
+                );
+                closeTreasureChestModal();
+            } else if (
+                (
+                    latestStatus ===
+                        'processing_chest' ||
+                    latestStatus ===
+                        'processing'
+                ) &&
+                latestClaim &&
+                !isLeaderboardClaimLockExpired(
+                    latestClaim
+                )
+            ) {
+                alert(
+                    '⏳ Rương đang được một tab khác xử lý. ' +
+                    'Nếu lần xử lý đó bị gián đoạn, bạn có thể ' +
+                    'thử lại sau khoảng 90 giây.'
+                );
+            } else if (
+                isRecoverableChestClaim(
+                    latestClaim
+                )
+            ) {
+                /*
+                 * Không đóng modal và không bắt refresh thủ công.
+                 * Người dùng có thể bấm lại ngay; finally sẽ bật nút.
+                 */
+                alert(
+                    'ℹ️ Rương vẫn đang sẵn sàng. ' +
+                    'Bạn có thể chọn phần thưởng lại ngay.'
+                );
+            } else {
+                closeTreasureChestModal();
+                await refreshPreviousLeaderboardRewardPanel();
+
+                alert(
+                    '⚠️ Trạng thái Rương không còn hợp lệ. ' +
+                    'BXH đã được đồng bộ tự động.'
+                );
+            }
+            return;
+        }
+
+        const lockedChestClaim =
+            lockResult.snapshot.val();
+
+        if (
+            String(
+                lockedChestClaim?.status || ''
+            ).trim() !== 'processing_chest' ||
+            lockedChestClaim?.processingToken !==
+                chestLockToken
+        ) {
+            console.warn(
+                '[Leaderboard] Transaction commit nhưng không sở hữu khóa Rương:',
+                {
+                    seasonKey,
+                    username,
+                    lockedChestClaim
+                }
+            );
+
             alert(
-                '⚠️ Rương này đang được xử lý hoặc đã nhận ở tab khác.'
+                '⏳ Không xác nhận được quyền sở hữu khóa Rương. ' +
+                'Vui lòng chọn phần thưởng lại.'
             );
             return;
         }
@@ -3252,6 +4164,148 @@ window.claimChestReward = async function (
                     );
                 };
 
+            /*
+             * Một số vật phẩm Sinh nhật / Special Birthday có rule nhận
+             * riêng và KHÔNG được phép cấp trực tiếp từ Rương BXH.
+             * Nếu để chúng trong pool, multi-location update có thể bị
+             * Firebase từ chối toàn bộ (PERMISSION_DENIED), khiến người
+             * dùng tưởng rằng phần thưởng BXH bị hỏng.
+             */
+            const [
+                birthdayItemYearsSnap,
+                specialBirthdayCatalogSnap
+            ] = await Promise.all([
+                db.ref('birthday_item_years')
+                    .once('value'),
+                db.ref('special_birthday_item_catalog')
+                    .once('value')
+            ]);
+
+            const birthdayItemIds =
+                new Set(
+                    Object.keys(
+                        birthdayItemYearsSnap.val() || {}
+                    ).map(String)
+                );
+
+            const specialBirthdayItemIds =
+                new Set(
+                    Object.entries(
+                        specialBirthdayCatalogSnap.val() || {}
+                    )
+                        .filter(([, config]) =>
+                            config?.enabled === true
+                        )
+                        .map(([itemId]) =>
+                            String(itemId)
+                        )
+                );
+
+            /*
+             * Các nhóm vật phẩm ĐỘC QUYỀN không được phép rơi từ
+             * Rương Hạng 1 của BXH:
+             * - Lord of the Mysteries
+             * - Doraemon
+             * - Thất Đại Tội – Lười Biếng
+             * - Hội họa
+             * - Quốc khánh / 2/9
+             * - Bộ Mùa Xuân Premium trong cửa hàng thường
+             * - Toàn bộ vật phẩm thuộc Cửa hàng Sang trọng
+             *
+             * Chặn theo cả tag + ID + cờ luxuryOnly để:
+             * 1) không phụ thuộc hoàn toàn vào tên hiển thị;
+             * 2) vật phẩm Luxury thêm sau này vẫn tự động bị loại.
+             */
+            const excludedChestTags =
+                new Set([
+                    'lord of the mysteries',
+                    'doraemon',
+                    'that dai toi',
+                    'hoi hoa',
+                    '2/9',
+                    'quoc khanh'
+                ]);
+
+            const excludedPremiumSpringItemIds =
+                new Set([
+                    'pet_premium_mua_xuan',
+                    'effect_premium_mua_xuan',
+                    'theme_mua_xuan_thanh_minh',
+                    'frame_premium_mua_xuan_hoa_mong',
+                    'background_premium_mua_xuan_hoa_mong'
+                ]);
+
+            /*
+             * Danh sách Luxury hiện tại.
+             * luxuryOnly bên dưới vẫn là lớp bảo vệ chính cho
+             * các món Luxury được thêm trong tương lai.
+             */
+            const excludedLuxuryItemIds =
+                new Set([
+                    'pet_luxury_mua_xuan',
+                    'pet_quoc_khanh_1'
+                ]);
+
+            const hasExcludedChestTag =
+                item => {
+                    const itemTags = [
+                        item?.tag,
+                        ...(
+                            Array.isArray(item?.tags)
+                                ? item.tags
+                                : []
+                        )
+                    ]
+                        .map(normalizeTag)
+                        .filter(Boolean);
+
+                    return itemTags.some(tag =>
+                        excludedChestTags.has(tag)
+                    );
+                };
+
+            const isLeaderboardChestEligibleItem =
+                item => {
+                    const itemId =
+                        String(item?.id ?? '');
+
+                    if (!itemId) {
+                        return false;
+                    }
+
+                    if (item?.type === 'music') {
+                        return false;
+                    }
+
+                    if (
+                        birthdayItemIds.has(itemId) ||
+                        specialBirthdayItemIds.has(itemId)
+                    ) {
+                        return false;
+                    }
+
+                    if (
+                        excludedPremiumSpringItemIds.has(
+                            itemId
+                        ) ||
+                        excludedLuxuryItemIds.has(
+                            itemId
+                        )
+                    ) {
+                        return false;
+                    }
+
+                    if (item?.luxuryOnly === true) {
+                        return false;
+                    }
+
+                    if (hasExcludedChestTag(item)) {
+                        return false;
+                    }
+
+                    return true;
+                };
+
             const validItems =
                 (
                     typeof StoreConfig !==
@@ -3261,9 +4315,7 @@ window.claimChestReward = async function (
                     )
                 )
                     ? StoreConfig.items.filter(
-                        item =>
-                            item.type !==
-                            'music'
+                        isLeaderboardChestEligibleItem
                     )
                     : [];
 
@@ -3606,9 +4658,32 @@ window.claimChestReward = async function (
             try {
                 await claimRef.transaction(
                     current => {
+                        const currentStatus =
+                            String(
+                                current?.status || ''
+                            ).trim();
+
+                        /*
+                         * Idempotent retry của chính rollback.
+                         */
                         if (
-                            current?.status !==
-                                'processing_chest'
+                            currentStatus ===
+                                'available_chest' &&
+                            current?.rollbackToken ===
+                                chestLockToken
+                        ) {
+                            return current;
+                        }
+
+                        /*
+                         * Chỉ tab/lần bấm đang sở hữu token mới được
+                         * mở khóa lại claim của chính nó.
+                         */
+                        if (
+                            currentStatus !==
+                                'processing_chest' ||
+                            current?.processingToken !==
+                                chestLockToken
                         ) {
                             return;
                         }
@@ -3619,12 +4694,18 @@ window.claimChestReward = async function (
                                 'available_chest',
                             selectedChoice:
                                 null,
+                            processingToken:
+                                null,
+                            rollbackToken:
+                                chestLockToken,
                             processingAt:
                                 null,
                             lastErrorAt:
                                 Date.now()
                         };
-                    }
+                    },
+                    undefined,
+                    false
                 );
             } catch (
                 rollbackError
@@ -3636,9 +4717,19 @@ window.claimChestReward = async function (
             }
         }
 
+        const errorCode =
+            String(error?.code || '').toUpperCase();
+
+        const permissionDenied =
+            errorCode.includes('PERMISSION_DENIED') ||
+            errorCode.includes('PERMISSION-DENIED');
+
         alert(
-            '❌ Có lỗi xảy ra khi nhận thưởng Rương. ' +
-            'Vui lòng thử lại!'
+            permissionDenied
+                ? '❌ Firebase từ chối ghi phần thưởng Rương. ' +
+                    'Hãy cập nhật Firebase Rules bản mới rồi thử lại.'
+                : '❌ Có lỗi xảy ra khi nhận thưởng Rương. ' +
+                    'Vui lòng thử lại!'
         );
     } finally {
         btnNodes.forEach(button => {

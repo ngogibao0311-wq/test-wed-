@@ -34,10 +34,7 @@
 
 .nyx-night-goddess-magic:hover {
     filter:
-        drop-shadow(0 10px 15px rgba(0, 0, 0, 0.75))
-        drop-shadow(0 0 18px rgba(168, 85, 247, 0.9))
-        drop-shadow(0 0 34px rgba(233, 213, 255, 0.38))
-        !important;
+        drop-shadow(0 10px 15px rgba(0, 0, 0, 0.75)) drop-shadow(0 0 18px rgba(168, 85, 247, 0.9)) drop-shadow(0 0 34px rgba(233, 213, 255, 0.38)) !important;
 }
 
 /* Đĩa nhật thực sau lưng */
@@ -56,20 +53,16 @@
         translate(-50%, -50%);
 
     background:
-        radial-gradient(
-            circle,
+        radial-gradient(circle,
             #05020a 0 47%,
-            transparent 49%
-        ),
-        conic-gradient(
-            from 35deg,
+            transparent 49%),
+        conic-gradient(from 35deg,
             rgba(109, 40, 217, 0.08),
             rgba(168, 85, 247, 0.88),
             rgba(248, 212, 119, 0.64),
             rgba(109, 40, 217, 0.14),
             rgba(233, 213, 255, 0.82),
-            rgba(109, 40, 217, 0.08)
-        );
+            rgba(109, 40, 217, 0.08));
 
     box-shadow:
         0 0 18px rgba(168, 85, 247, 0.65),
@@ -77,10 +70,7 @@
         inset 0 0 20px rgba(0, 0, 0, 0.94);
 
     animation:
-        nyxEclipseBreathe
-        4.2s
-        ease-in-out
-        infinite;
+        nyxEclipseBreathe 4.2s ease-in-out infinite;
 }
 
 /* Vương miện sao xoay quanh Nyx */
@@ -107,26 +97,18 @@
         50px -50px 0 0 #f8d477;
 
     filter:
-        drop-shadow(
-            0 0 7px rgba(233, 213, 255, 0.9)
-        );
+        drop-shadow(0 0 7px rgba(233, 213, 255, 0.9));
 
     transform:
         translate(-50%, -50%);
 
     animation:
-        nyxCrownOrbit
-        11s
-        linear
-        infinite;
+        nyxCrownOrbit 11s linear infinite;
 }
 
 .nyx-power-release {
     animation:
-        nyxSovereignRelease
-        0.95s
-        cubic-bezier(.2, .82, .2, 1)
-        !important;
+        nyxSovereignRelease 0.95s cubic-bezier(.2, .82, .2, 1) !important;
 }
 
 /* Nền kỹ năng */
@@ -140,22 +122,15 @@
     isolation: isolate;
 
     background:
-        radial-gradient(
-            circle at 50% 45%,
+        radial-gradient(circle at 50% 45%,
             rgba(91, 33, 182, 0.24) 0 12%,
-            transparent 34%
-        ),
-        radial-gradient(
-            circle at 50% 50%,
+            transparent 34%),
+        radial-gradient(circle at 50% 50%,
             rgba(18, 5, 33, 0.72) 0 42%,
-            rgba(2, 1, 6, 0.97) 100%
-        );
+            rgba(2, 1, 6, 0.97) 100%);
 
     animation:
-        nyxWorldArrive
-        6.4s
-        ease-in-out
-        forwards;
+        nyxWorldArrive 6.4s ease-in-out forwards;
 }
 
 .nyx-dark-world::before {
@@ -164,24 +139,19 @@
     inset: -35%;
 
     background:
-        conic-gradient(
-            from 0deg,
+        conic-gradient(from 0deg,
             transparent 0 12%,
             rgba(126, 34, 206, 0.13) 18%,
             transparent 27% 44%,
             rgba(192, 132, 252, 0.1) 52%,
             transparent 61% 78%,
             rgba(248, 212, 119, 0.08) 86%,
-            transparent 94%
-        );
+            transparent 94%);
 
     filter: blur(34px);
 
     animation:
-        nyxAuroraTurn
-        15s
-        linear
-        infinite;
+        nyxAuroraTurn 15s linear infinite;
 }
 
 .nyx-dark-world::after {
@@ -193,24 +163,17 @@
     height: 52%;
 
     background:
-        radial-gradient(
-            ellipse at 50% 100%,
+        radial-gradient(ellipse at 50% 100%,
             rgba(109, 40, 217, 0.32),
-            transparent 62%
-        ),
-        repeating-radial-gradient(
-            ellipse at 50% 100%,
+            transparent 62%),
+        repeating-radial-gradient(ellipse at 50% 100%,
             transparent 0 22px,
-            rgba(233, 213, 255, 0.035) 24px 26px
-        );
+            rgba(233, 213, 255, 0.035) 24px 26px);
 
     filter: blur(10px);
 
     animation:
-        nyxVoidTide
-        5.5s
-        ease-in-out
-        infinite alternate;
+        nyxVoidTide 5.5s ease-in-out infinite alternate;
 }
 
 /* Nhật thực trung tâm */
@@ -228,20 +191,16 @@
         translate(-50%, -50%) scale(0.35);
 
     background:
-        radial-gradient(
-            circle,
+        radial-gradient(circle,
             #020105 0 57%,
-            transparent 58%
-        ),
-        conic-gradient(
-            from 20deg,
+            transparent 58%),
+        conic-gradient(from 20deg,
             #6d28d9,
             #e9d5ff,
             #f8d477,
             #7e22ce,
             #ffffff,
-            #6d28d9
-        );
+            #6d28d9);
 
     box-shadow:
         0 0 24px rgba(255, 255, 255, 0.82),
@@ -249,10 +208,7 @@
         0 0 150px rgba(109, 40, 217, 0.56);
 
     animation:
-        nyxEclipseDescend
-        6.4s
-        ease-in-out
-        forwards;
+        nyxEclipseDescend 6.4s ease-in-out forwards;
 }
 
 /* Ma pháp trận */
@@ -267,47 +223,34 @@
     opacity: 0;
 
     transform:
-        translate(-50%, -50%)
-        scale(0.3)
-        rotate(0deg);
+        translate(-50%, -50%) scale(0.3) rotate(0deg);
 
     border:
         1px solid rgba(233, 213, 255, 0.33);
 
     background:
-        repeating-conic-gradient(
-            from 0deg,
+        repeating-conic-gradient(from 0deg,
             transparent 0 13deg,
             rgba(248, 212, 119, 0.58) 14deg 15deg,
-            transparent 16deg 29deg
-        );
+            transparent 16deg 29deg);
 
     -webkit-mask:
-        radial-gradient(
-            circle,
+        radial-gradient(circle,
             transparent 0 55%,
             #000 56% 60%,
-            transparent 61%
-        );
+            transparent 61%);
 
     mask:
-        radial-gradient(
-            circle,
+        radial-gradient(circle,
             transparent 0 55%,
             #000 56% 60%,
-            transparent 61%
-        );
+            transparent 61%);
 
     filter:
-        drop-shadow(
-            0 0 12px rgba(168, 85, 247, 0.8)
-        );
+        drop-shadow(0 0 12px rgba(168, 85, 247, 0.8));
 
     animation:
-        nyxSigilAwaken
-        6.4s
-        ease-in-out
-        forwards;
+        nyxSigilAwaken 6.4s ease-in-out forwards;
 }
 
 .nyx-star {
@@ -322,9 +265,7 @@
         0 0 11px rgba(192, 132, 252, 0.92);
 
     animation:
-        nyxStarBreathe
-        ease-in-out
-        infinite;
+        nyxStarBreathe ease-in-out infinite;
 }
 
 .nyx-judgement-meteor {
@@ -338,22 +279,16 @@
     transform-origin: right center;
 
     background:
-        linear-gradient(
-            90deg,
+        linear-gradient(90deg,
             transparent,
             rgba(192, 132, 252, 0.72) 55%,
-            white 100%
-        );
+            white 100%);
 
     filter:
-        drop-shadow(0 0 8px white)
-        drop-shadow(0 0 18px #a855f7);
+        drop-shadow(0 0 8px white) drop-shadow(0 0 18px #a855f7);
 
     animation:
-        nyxJudgementMeteor
-        var(--meteor-speed, 1.7s)
-        ease-in
-        forwards;
+        nyxJudgementMeteor var(--meteor-speed, 1.7s) ease-in forwards;
 
     animation-delay:
         var(--meteor-delay, 0s);
@@ -371,18 +306,14 @@
     opacity: 0;
 
     transform:
-        translateX(-50%)
-        translateY(10px)
-        scale(0.92);
+        translateX(-50%) translateY(10px) scale(0.92);
 
     color: #f5efff;
 
     background:
-        linear-gradient(
-            135deg,
+        linear-gradient(135deg,
             rgba(6, 3, 13, 0.96),
-            rgba(56, 17, 91, 0.93)
-        );
+            rgba(56, 17, 91, 0.93));
 
     border:
         1px solid rgba(248, 212, 119, 0.72);
@@ -403,10 +334,7 @@
     white-space: nowrap;
 
     animation:
-        nyxDialogueAppear
-        6.4s
-        ease-in-out
-        forwards;
+        nyxDialogueAppear 6.4s ease-in-out forwards;
 }
 
 /* Vệt kéo */
@@ -419,23 +347,18 @@
     border-radius: 50%;
 
     background:
-        radial-gradient(
-            circle,
+        radial-gradient(circle,
             white 0 18%,
             #e9d5ff 28%,
             #a855f7 62%,
-            transparent 72%
-        );
+            transparent 72%);
 
     box-shadow:
         0 0 8px rgba(255, 255, 255, 0.9),
         0 0 17px rgba(168, 85, 247, 0.82);
 
     animation:
-        nyxTrailVanish
-        1.35s
-        cubic-bezier(.18, .8, .25, 1)
-        forwards;
+        nyxTrailVanish 1.35s cubic-bezier(.18, .8, .25, 1) forwards;
 }
 
 .nyx-trail-particle::after {
@@ -447,17 +370,14 @@
     height: 1px;
 
     transform:
-        translate(-100%, -50%)
-        rotate(var(--nyx-trail-angle, -22deg));
+        translate(-100%, -50%) rotate(var(--nyx-trail-angle, -22deg));
 
     transform-origin: right center;
 
     background:
-        linear-gradient(
-            90deg,
+        linear-gradient(90deg,
             transparent,
-            rgba(233, 213, 255, 0.72)
-        );
+            rgba(233, 213, 255, 0.72));
 }
 
 .nyx-trail-particle.nyx-trail-enhanced {
@@ -466,6 +386,7 @@
         0 0 26px #c084fc,
         0 0 48px rgba(109, 40, 217, 0.92);
 }
+
 /* =========================================================
    KỶ NGUYÊN ĐÊM TRƯỜNG CỬU
    ========================================================= */
@@ -479,27 +400,18 @@
     isolation: isolate;
 
     background:
-        radial-gradient(
-            circle at 78% 15%,
+        radial-gradient(circle at 78% 15%,
             rgba(192, 132, 252, 0.13),
-            transparent 24%
-        ),
-        radial-gradient(
-            circle at 18% 72%,
+            transparent 24%),
+        radial-gradient(circle at 18% 72%,
             rgba(109, 40, 217, 0.16),
-            transparent 30%
-        ),
-        linear-gradient(
-            180deg,
+            transparent 30%),
+        linear-gradient(180deg,
             rgba(6, 3, 15, 0.24),
-            rgba(16, 4, 30, 0.38)
-        );
+            rgba(16, 4, 30, 0.38));
 
     animation:
-        nyxDomainPulse
-        7s
-        ease-in-out
-        infinite alternate;
+        nyxDomainPulse 7s ease-in-out infinite alternate;
 }
 
 /* Cực quang */
@@ -512,22 +424,17 @@
     height: 72%;
 
     background:
-        repeating-linear-gradient(
-            112deg,
+        repeating-linear-gradient(112deg,
             transparent 0 8%,
             rgba(126, 34, 206, 0.08) 11%,
             rgba(233, 213, 255, 0.11) 13%,
-            transparent 17% 26%
-        );
+            transparent 17% 26%);
 
     filter: blur(24px);
     transform: rotate(-5deg);
 
     animation:
-        nyxDomainAurora
-        12s
-        ease-in-out
-        infinite alternate;
+        nyxDomainAurora 12s ease-in-out infinite alternate;
 }
 
 /* Nền sao trôi */
@@ -537,26 +444,18 @@
     inset: 0;
 
     background-image:
-        radial-gradient(
-            circle at 12% 18%,
+        radial-gradient(circle at 12% 18%,
             white 0 1px,
-            transparent 1.6px
-        ),
-        radial-gradient(
-            circle at 74% 22%,
+            transparent 1.6px),
+        radial-gradient(circle at 74% 22%,
             #e9d5ff 0 1px,
-            transparent 1.6px
-        ),
-        radial-gradient(
-            circle at 37% 66%,
+            transparent 1.6px),
+        radial-gradient(circle at 37% 66%,
             white 0 1px,
-            transparent 1.5px
-        ),
-        radial-gradient(
-            circle at 88% 78%,
+            transparent 1.5px),
+        radial-gradient(circle at 88% 78%,
             #c084fc 0 1px,
-            transparent 1.6px
-        );
+            transparent 1.6px);
 
     background-size:
         220px 190px,
@@ -567,10 +466,7 @@
     opacity: 0.55;
 
     animation:
-        nyxDomainStarDrift
-        18s
-        linear
-        infinite;
+        nyxDomainStarDrift 18s linear infinite;
 }
 
 .nyx-domain-dust {
@@ -583,21 +479,16 @@
     opacity: 0;
 
     background:
-        radial-gradient(
-            circle,
+        radial-gradient(circle,
             white,
             #c084fc 55%,
-            transparent 70%
-        );
+            transparent 70%);
 
     box-shadow:
         0 0 8px rgba(192, 132, 252, 0.8);
 
     animation:
-        nyxDomainDustRise
-        var(--dust-duration, 5s)
-        linear
-        forwards;
+        nyxDomainDustRise var(--dust-duration, 5s) linear forwards;
 }
 
 .nyx-domain-shooting-star {
@@ -611,62 +502,44 @@
     transform: rotate(34deg);
 
     background:
-        linear-gradient(
-            90deg,
+        linear-gradient(90deg,
             transparent 0%,
             rgba(192, 132, 252, 0.65) 64%,
-            white 100%
-        );
+            white 100%);
 
     filter:
-        drop-shadow(0 0 7px white)
-        drop-shadow(
-            0 0 14px rgba(168, 85, 247, 0.9)
-        );
+        drop-shadow(0 0 7px white) drop-shadow(0 0 14px rgba(168, 85, 247, 0.9));
 
     animation:
-        nyxDomainMeteor
-        linear
-        forwards;
+        nyxDomainMeteor linear forwards;
 }
 
 /* Nyx và Kỷ Nguyên cùng trang bị */
 .nyx-domain-shooting-star.nyx-enhanced-star,
-body:has(.nyx-night-goddess-magic)
-.nyx-domain-shooting-star {
+body:has(.nyx-night-goddess-magic) .nyx-domain-shooting-star {
     width: 235px;
     height: 3px;
 
     filter:
-        drop-shadow(0 0 9px white)
-        drop-shadow(0 0 22px #c084fc)
-        drop-shadow(
-            0 0 38px rgba(109, 40, 217, 0.72)
-        );
+        drop-shadow(0 0 9px white) drop-shadow(0 0 22px #c084fc) drop-shadow(0 0 38px rgba(109, 40, 217, 0.72));
 }
 
-body:has(.nyx-night-goddess-magic)
-.nyx-domain-ambient {
+body:has(.nyx-night-goddess-magic) .nyx-domain-ambient {
     background:
-        radial-gradient(
-            circle at 50% 40%,
+        radial-gradient(circle at 50% 40%,
             rgba(168, 85, 247, 0.2),
-            transparent 30%
-        ),
-        radial-gradient(
-            circle at 78% 15%,
+            transparent 30%),
+        radial-gradient(circle at 78% 15%,
             rgba(248, 212, 119, 0.11),
-            transparent 24%
-        ),
-        linear-gradient(
-            180deg,
+            transparent 24%),
+        linear-gradient(180deg,
             rgba(6, 3, 15, 0.3),
-            rgba(16, 4, 30, 0.48)
-        );
+            rgba(16, 4, 30, 0.48));
 
     box-shadow:
         inset 0 0 140px rgba(0, 0, 0, 0.58);
 }
+
 /* =========================================================
    THÁNH VỰC TỐI THƯỢNG — NỀN TẢNG CHUNG
    ========================================================= */
@@ -686,27 +559,19 @@ body.theme-legendary-celestial {
 
     background-color: var(--celestial-bg) !important;
     background-image:
-        radial-gradient(
-            circle at 50% -12%,
+        radial-gradient(circle at 50% -12%,
             rgba(248, 212, 119, 0.17),
-            transparent 28%
-        ),
-        radial-gradient(
-            circle at 12% 20%,
+            transparent 28%),
+        radial-gradient(circle at 12% 20%,
             rgba(126, 34, 206, 0.21),
-            transparent 34%
-        ),
-        radial-gradient(
-            circle at 88% 68%,
+            transparent 34%),
+        radial-gradient(circle at 88% 68%,
             rgba(109, 40, 217, 0.18),
-            transparent 32%
-        ),
-        linear-gradient(
-            145deg,
+            transparent 32%),
+        linear-gradient(145deg,
             #090610 0%,
             #11091c 48%,
-            #050308 100%
-        ) !important;
+            #050308 100%) !important;
 
     background-attachment: fixed !important;
 }
@@ -725,32 +590,26 @@ body.theme-legendary-celestial {
     border-radius: 999px;
 
     background:
-        linear-gradient(
-            180deg,
+        linear-gradient(180deg,
             #5b21b6,
             #f8d477 48%,
-            #7e22ce
-        );
+            #7e22ce);
 }
 
-.theme-legendary-celestial :is(
-    .store-item-card,
+.theme-legendary-celestial :is(.store-item-card,
     .inventory-item,
     .dashboard-card,
     .panel,
     .cell,
-    .card
-) {
+    .card) {
     position: relative;
 
     color: var(--celestial-text) !important;
 
     background:
-        linear-gradient(
-            145deg,
+        linear-gradient(145deg,
             var(--celestial-panel-2),
-            var(--celestial-panel)
-        ) !important;
+            var(--celestial-panel)) !important;
 
     border:
         1px solid var(--celestial-gold-soft) !important;
@@ -760,26 +619,21 @@ body.theme-legendary-celestial {
 
     box-shadow:
         0 14px 34px rgba(0, 0, 0, 0.32),
-        inset 0 0 24px rgba(168, 85, 247, 0.06)
-        !important;
+        inset 0 0 24px rgba(168, 85, 247, 0.06) !important;
 
     backdrop-filter: blur(11px);
     -webkit-backdrop-filter: blur(11px);
 }
 
-.theme-legendary-celestial :is(
-    .modal-content,
+.theme-legendary-celestial :is(.modal-content,
     .popup,
-    .dialog-box
-) {
+    .dialog-box) {
     color: var(--celestial-text) !important;
 
     background:
-        linear-gradient(
-            145deg,
+        linear-gradient(145deg,
             rgba(15, 10, 25, 0.98),
-            rgba(30, 17, 47, 0.97)
-        ) !important;
+            rgba(30, 17, 47, 0.97)) !important;
 
     border:
         1px solid rgba(248, 212, 119, 0.76) !important;
@@ -789,16 +643,13 @@ body.theme-legendary-celestial {
 
     box-shadow:
         0 28px 80px rgba(0, 0, 0, 0.58),
-        0 0 34px rgba(126, 34, 206, 0.24)
-        !important;
+        0 0 34px rgba(126, 34, 206, 0.24) !important;
 }
 
-.theme-legendary-celestial :is(
-    .btn,
+.theme-legendary-celestial :is(.btn,
     .btn-buy,
     .btn-equip,
-    .btn-preview
-) {
+    .btn-preview) {
     color: #160d22 !important;
     font-weight: 800 !important;
 
@@ -809,21 +660,18 @@ body.theme-legendary-celestial {
         12px 4px 12px 4px !important;
 
     background:
-        linear-gradient(
-            110deg,
+        linear-gradient(110deg,
             #8b5e16,
             #f8d477 42%,
             #fff2b9 58%,
-            #a86f14
-        ) !important;
+            #a86f14) !important;
 
     background-size:
         220% 100% !important;
 
     box-shadow:
         0 7px 17px rgba(0, 0, 0, 0.22),
-        inset 0 1px 0 rgba(255, 255, 255, 0.48)
-        !important;
+        inset 0 1px 0 rgba(255, 255, 255, 0.48) !important;
 }
 
 .theme-legendary-celestial h1,
@@ -846,11 +694,9 @@ body.theme-legendary-celestial {
         0 0 18px rgba(168, 85, 247, 0.16);
 }
 
-.theme-legendary-celestial :is(
-    input,
+.theme-legendary-celestial :is(input,
     textarea,
-    select
-) {
+    select) {
     color: var(--celestial-text) !important;
 
     background:
@@ -894,28 +740,20 @@ body.theme-legendary-celestial {
 
         background-color: var(--celestial-void) !important;
         background-image:
-            radial-gradient(
-                circle at 82% 8%,
+            radial-gradient(circle at 82% 8%,
                 rgba(248, 212, 119, 0.19),
-                transparent 20%
-            ),
-            radial-gradient(
-                circle at 18% 18%,
+                transparent 20%),
+            radial-gradient(circle at 18% 18%,
                 rgba(126, 34, 206, 0.28),
-                transparent 31%
-            ),
-            radial-gradient(
-                ellipse at 68% 82%,
+                transparent 31%),
+            radial-gradient(ellipse at 68% 82%,
                 rgba(76, 29, 149, 0.24),
-                transparent 38%
-            ),
-            linear-gradient(
-                135deg,
+                transparent 38%),
+            linear-gradient(135deg,
                 #030208 0%,
                 #0c0716 34%,
                 #160a25 62%,
-                #05030b 100%
-            ) !important;
+                #05030b 100%) !important;
 
         background-size:
             120% 120%,
@@ -926,10 +764,7 @@ body.theme-legendary-celestial {
         background-attachment: fixed !important;
 
         animation:
-            celestialDesktopBackground
-            18s
-            ease-in-out
-            infinite alternate;
+            celestialDesktopBackground 18s ease-in-out infinite alternate;
     }
 
     /* Đại pháp trận phía sau toàn trang */
@@ -949,53 +784,41 @@ body.theme-legendary-celestial {
         border-radius: 50%;
 
         background:
-            repeating-conic-gradient(
-                from 0deg,
+            repeating-conic-gradient(from 0deg,
                 rgba(248, 212, 119, 0.16) 0deg 1deg,
-                transparent 1deg 14deg
-            ),
-            repeating-radial-gradient(
-                circle,
+                transparent 1deg 14deg),
+            repeating-radial-gradient(circle,
                 transparent 0 54px,
                 rgba(233, 213, 255, 0.08) 55px 56px,
-                transparent 57px 92px
-            );
+                transparent 57px 92px);
 
         -webkit-mask:
-            radial-gradient(
-                circle,
+            radial-gradient(circle,
                 transparent 0 31%,
                 #000 31.5% 32.5%,
                 transparent 33% 45%,
                 #000 45.5% 47%,
                 transparent 47.5% 59%,
                 #000 59.5% 61%,
-                transparent 61.5%
-            );
+                transparent 61.5%);
 
         mask:
-            radial-gradient(
-                circle,
+            radial-gradient(circle,
                 transparent 0 31%,
                 #000 31.5% 32.5%,
                 transparent 33% 45%,
                 #000 45.5% 47%,
                 transparent 47.5% 59%,
                 #000 59.5% 61%,
-                transparent 61.5%
-            );
+                transparent 61.5%);
 
         opacity: 0.78;
 
         filter:
-            drop-shadow(0 0 20px rgba(248, 212, 119, 0.2))
-            drop-shadow(0 0 55px rgba(126, 34, 206, 0.24));
+            drop-shadow(0 0 20px rgba(248, 212, 119, 0.2)) drop-shadow(0 0 55px rgba(126, 34, 206, 0.24));
 
         animation:
-            celestialDesktopSigil
-            46s
-            linear
-            infinite;
+            celestialDesktopSigil 46s linear infinite;
     }
 
     /* Bầu trời sao và lưới ánh sáng */
@@ -1009,35 +832,23 @@ body.theme-legendary-celestial {
         pointer-events: none;
 
         background-image:
-            radial-gradient(
-                circle at 10% 18%,
+            radial-gradient(circle at 10% 18%,
                 rgba(255, 255, 255, 0.9) 0 1px,
-                transparent 1.8px
-            ),
-            radial-gradient(
-                circle at 72% 26%,
+                transparent 1.8px),
+            radial-gradient(circle at 72% 26%,
                 rgba(248, 212, 119, 0.88) 0 1px,
-                transparent 1.8px
-            ),
-            radial-gradient(
-                circle at 43% 71%,
+                transparent 1.8px),
+            radial-gradient(circle at 43% 71%,
                 rgba(233, 213, 255, 0.82) 0 1px,
-                transparent 1.8px
-            ),
-            radial-gradient(
-                circle at 91% 82%,
+                transparent 1.8px),
+            radial-gradient(circle at 91% 82%,
                 rgba(192, 132, 252, 0.86) 0 1px,
-                transparent 1.8px
-            ),
-            linear-gradient(
+                transparent 1.8px),
+            linear-gradient(rgba(248, 212, 119, 0.025) 1px,
+                transparent 1px),
+            linear-gradient(90deg,
                 rgba(248, 212, 119, 0.025) 1px,
-                transparent 1px
-            ),
-            linear-gradient(
-                90deg,
-                rgba(248, 212, 119, 0.025) 1px,
-                transparent 1px
-            );
+                transparent 1px);
 
         background-size:
             220px 190px,
@@ -1050,28 +861,21 @@ body.theme-legendary-celestial {
         opacity: 0.56;
 
         -webkit-mask:
-            linear-gradient(
-                90deg,
+            linear-gradient(90deg,
                 transparent 0,
                 rgba(0, 0, 0, 0.62) 22%,
                 #000 48%,
-                #000 100%
-            );
+                #000 100%);
 
         mask:
-            linear-gradient(
-                90deg,
+            linear-gradient(90deg,
                 transparent 0,
                 rgba(0, 0, 0, 0.62) 22%,
                 #000 48%,
-                #000 100%
-            );
+                #000 100%);
 
         animation:
-            celestialDesktopStars
-            24s
-            linear
-            infinite;
+            celestialDesktopStars 24s linear infinite;
     }
 
     body.theme-legendary-celestial .dashboard {
@@ -1082,11 +886,9 @@ body.theme-legendary-celestial {
         min-height: 100dvh;
 
         background:
-            linear-gradient(
-                90deg,
+            linear-gradient(90deg,
                 rgba(3, 2, 8, 0.26),
-                transparent 28%
-            );
+                transparent 28%);
     }
 
     /* =============================================================
@@ -1109,22 +911,16 @@ body.theme-legendary-celestial {
         color: var(--celestial-text) !important;
 
         background:
-            radial-gradient(
-                circle at 50% -4%,
+            radial-gradient(circle at 50% -4%,
                 rgba(248, 212, 119, 0.22),
-                transparent 24%
-            ),
-            radial-gradient(
-                circle at 16% 78%,
+                transparent 24%),
+            radial-gradient(circle at 16% 78%,
                 rgba(126, 34, 206, 0.25),
-                transparent 38%
-            ),
-            linear-gradient(
-                180deg,
+                transparent 38%),
+            linear-gradient(180deg,
                 rgba(20, 10, 35, 0.98),
                 rgba(8, 5, 16, 0.98) 54%,
-                rgba(4, 3, 10, 0.99)
-            ) !important;
+                rgba(4, 3, 10, 0.99)) !important;
 
         border-right:
             1px solid rgba(248, 212, 119, 0.48) !important;
@@ -1133,16 +929,13 @@ body.theme-legendary-celestial {
             22px 0 60px rgba(0, 0, 0, 0.46),
             5px 0 22px rgba(109, 40, 217, 0.15),
             inset -1px 0 0 rgba(255, 240, 178, 0.1),
-            inset 0 0 60px rgba(109, 40, 217, 0.08)
-            !important;
+            inset 0 0 60px rgba(109, 40, 217, 0.08) !important;
 
         backdrop-filter:
-            blur(22px)
-            saturate(1.18) !important;
+            blur(22px) saturate(1.18) !important;
 
         -webkit-backdrop-filter:
-            blur(22px)
-            saturate(1.18) !important;
+            blur(22px) saturate(1.18) !important;
 
         transition:
             width 0.38s cubic-bezier(.2, .8, .2, 1),
@@ -1160,17 +953,13 @@ body.theme-legendary-celestial {
         pointer-events: none;
 
         background:
-            linear-gradient(
-                90deg,
+            linear-gradient(90deg,
                 transparent,
                 rgba(248, 212, 119, 0.06),
-                transparent
-            ),
-            repeating-linear-gradient(
-                118deg,
+                transparent),
+            repeating-linear-gradient(118deg,
                 transparent 0 34px,
-                rgba(255, 255, 255, 0.018) 35px 36px
-            );
+                rgba(255, 255, 255, 0.018) 35px 36px);
 
         background-size:
             100% 1px,
@@ -1210,12 +999,10 @@ body.theme-legendary-celestial {
         border-radius: 50%;
 
         background:
-            radial-gradient(
-                circle,
+            radial-gradient(circle,
                 rgba(248, 212, 119, 0.18),
                 rgba(109, 40, 217, 0.18) 48%,
-                rgba(4, 3, 10, 0.86) 70%
-            );
+                rgba(4, 3, 10, 0.86) 70%);
 
         box-shadow:
             0 0 20px rgba(248, 212, 119, 0.23),
@@ -1223,8 +1010,7 @@ body.theme-legendary-celestial {
             inset 0 0 16px rgba(255, 255, 255, 0.08);
 
         transform:
-            translateX(-50%)
-            rotate(0deg);
+            translateX(-50%) rotate(0deg);
 
         font-family:
             Georgia,
@@ -1233,10 +1019,7 @@ body.theme-legendary-celestial {
         font-size: 24px;
 
         animation:
-            celestialDesktopEmblem
-            9s
-            ease-in-out
-            infinite;
+            celestialDesktopEmblem 9s ease-in-out infinite;
     }
 
     body.theme-legendary-celestial .sidebar-top,
@@ -1258,11 +1041,9 @@ body.theme-legendary-celestial {
             1px solid rgba(248, 212, 119, 0.16) !important;
 
         background:
-            linear-gradient(
-                180deg,
+            linear-gradient(180deg,
                 transparent,
-                rgba(109, 40, 217, 0.08)
-            );
+                rgba(109, 40, 217, 0.08));
     }
 
     body.theme-legendary-celestial .sidebar h3,
@@ -1297,8 +1078,7 @@ body.theme-legendary-celestial {
         text-shadow:
             0 2px 2px rgba(0, 0, 0, 0.8),
             0 0 13px rgba(248, 212, 119, 0.28),
-            0 0 25px rgba(168, 85, 247, 0.18)
-            !important;
+            0 0 25px rgba(168, 85, 247, 0.18) !important;
     }
 
     body.theme-legendary-celestial .nav-item {
@@ -1331,15 +1111,12 @@ body.theme-legendary-celestial {
             16px 5px 16px 5px !important;
 
         background:
-            linear-gradient(
-                100deg,
+            linear-gradient(100deg,
                 rgba(255, 255, 255, 0.035),
-                rgba(126, 34, 206, 0.025)
-            ) !important;
+                rgba(126, 34, 206, 0.025)) !important;
 
         box-shadow:
-            inset 0 1px 0 rgba(255, 255, 255, 0.025)
-            !important;
+            inset 0 1px 0 rgba(255, 255, 255, 0.025) !important;
 
         font-size:
             0.98rem !important;
@@ -1373,11 +1150,9 @@ body.theme-legendary-celestial {
             0 999px 999px 0;
 
         background:
-            linear-gradient(
-                180deg,
+            linear-gradient(180deg,
                 var(--celestial-gold-bright),
-                var(--celestial-violet)
-            );
+                var(--celestial-violet));
 
         box-shadow:
             0 0 12px rgba(248, 212, 119, 0.65);
@@ -1403,9 +1178,7 @@ body.theme-legendary-celestial {
         opacity: 0;
 
         transform:
-            translateY(-50%)
-            translateX(6px)
-            scale(0.7);
+            translateY(-50%) translateX(6px) scale(0.7);
 
         transition:
             opacity 0.24s ease,
@@ -1423,16 +1196,13 @@ body.theme-legendary-celestial {
             rgba(248, 212, 119, 0.3) !important;
 
         background:
-            linear-gradient(
-                100deg,
+            linear-gradient(100deg,
                 rgba(109, 40, 217, 0.19),
-                rgba(248, 212, 119, 0.07)
-            ) !important;
+                rgba(248, 212, 119, 0.07)) !important;
 
         box-shadow:
             0 12px 25px rgba(0, 0, 0, 0.2),
-            inset 0 0 18px rgba(168, 85, 247, 0.05)
-            !important;
+            inset 0 0 18px rgba(168, 85, 247, 0.05) !important;
 
         transform:
             translateX(5px);
@@ -1446,9 +1216,7 @@ body.theme-legendary-celestial {
         opacity: 0.9;
 
         transform:
-            translateY(-50%)
-            translateX(0)
-            scale(1);
+            translateY(-50%) translateX(0) scale(1);
     }
 
     body.theme-legendary-celestial .nav-item.active {
@@ -1459,23 +1227,18 @@ body.theme-legendary-celestial {
             rgba(248, 212, 119, 0.66) !important;
 
         background:
-            radial-gradient(
-                circle at 92% 50%,
+            radial-gradient(circle at 92% 50%,
                 rgba(248, 212, 119, 0.15),
-                transparent 34%
-            ),
-            linear-gradient(
-                105deg,
+                transparent 34%),
+            linear-gradient(105deg,
                 rgba(76, 29, 149, 0.58),
                 rgba(126, 34, 206, 0.34) 56%,
-                rgba(248, 212, 119, 0.1)
-            ) !important;
+                rgba(248, 212, 119, 0.1)) !important;
 
         box-shadow:
             0 13px 30px rgba(0, 0, 0, 0.28),
             0 0 18px rgba(109, 40, 217, 0.22),
-            inset 0 1px 0 rgba(255, 239, 178, 0.11)
-            !important;
+            inset 0 1px 0 rgba(255, 239, 178, 0.11) !important;
     }
 
     body.theme-legendary-celestial .nav-item.active::before {
@@ -1486,9 +1249,7 @@ body.theme-legendary-celestial {
         opacity: 1;
 
         transform:
-            translateY(-50%)
-            translateX(0)
-            scale(1.05);
+            translateY(-50%) translateX(0) scale(1.05);
     }
 
     body.theme-legendary-celestial .btn-logout {
@@ -1499,15 +1260,12 @@ body.theme-legendary-celestial {
             1px solid rgba(251, 113, 133, 0.3) !important;
 
         background:
-            linear-gradient(
-                135deg,
+            linear-gradient(135deg,
                 rgba(136, 19, 55, 0.52),
-                rgba(76, 29, 149, 0.45)
-            ) !important;
+                rgba(76, 29, 149, 0.45)) !important;
 
         box-shadow:
-            0 10px 24px rgba(0, 0, 0, 0.22)
-            !important;
+            0 10px 24px rgba(0, 0, 0, 0.22) !important;
     }
 
     body.theme-legendary-celestial .btn-logout:hover {
@@ -1518,16 +1276,13 @@ body.theme-legendary-celestial {
             rgba(255, 205, 215, 0.58) !important;
 
         background:
-            linear-gradient(
-                135deg,
+            linear-gradient(135deg,
                 #9f1239,
-                #7e22ce
-            ) !important;
+                #7e22ce) !important;
 
         box-shadow:
             0 13px 30px rgba(159, 18, 57, 0.28),
-            0 0 20px rgba(126, 34, 206, 0.19)
-            !important;
+            0 0 20px rgba(126, 34, 206, 0.19) !important;
     }
 
     body.theme-legendary-celestial .sidebar-toggle {
@@ -1549,51 +1304,41 @@ body.theme-legendary-celestial {
             50% !important;
 
         background:
-            radial-gradient(
-                circle at 34% 28%,
+            radial-gradient(circle at 34% 28%,
                 rgba(255, 247, 208, 0.24),
-                transparent 34%
-            ),
-            linear-gradient(
-                145deg,
+                transparent 34%),
+            linear-gradient(145deg,
                 #4c1d95,
                 #7e22ce 58%,
-                #8b5e16
-            ) !important;
+                #8b5e16) !important;
 
         box-shadow:
             0 10px 24px rgba(0, 0, 0, 0.34),
             0 0 18px rgba(248, 212, 119, 0.22),
-            inset 0 1px 0 rgba(255, 255, 255, 0.23)
-            !important;
+            inset 0 1px 0 rgba(255, 255, 255, 0.23) !important;
     }
 
     body.theme-legendary-celestial .sidebar-toggle:hover {
         transform:
-            scale(1.1)
-            rotate(8deg) !important;
+            scale(1.1) rotate(8deg) !important;
 
         box-shadow:
             0 13px 30px rgba(0, 0, 0, 0.4),
             0 0 25px rgba(248, 212, 119, 0.36),
-            0 0 38px rgba(126, 34, 206, 0.24)
-            !important;
+            0 0 38px rgba(126, 34, 206, 0.24) !important;
     }
 
-    body.theme-legendary-celestial
-    .dashboard.collapsed .sidebar {
+    body.theme-legendary-celestial .dashboard.collapsed .sidebar {
         width: 96px;
         flex-basis: 96px;
     }
 
-    body.theme-legendary-celestial
-    .dashboard.collapsed .content {
+    body.theme-legendary-celestial .dashboard.collapsed .content {
         width:
             calc(100% - 96px);
     }
 
-    body.theme-legendary-celestial
-    .dashboard.collapsed .sidebar::after {
+    body.theme-legendary-celestial .dashboard.collapsed .sidebar::after {
         top: 24px;
 
         width: 46px;
@@ -1602,20 +1347,17 @@ body.theme-legendary-celestial {
         font-size: 19px;
     }
 
-    body.theme-legendary-celestial
-    .dashboard.collapsed .sidebar-top {
+    body.theme-legendary-celestial .dashboard.collapsed .sidebar-top {
         padding:
             92px 12px 20px !important;
     }
 
-    body.theme-legendary-celestial
-    .dashboard.collapsed .sidebar-bottom {
+    body.theme-legendary-celestial .dashboard.collapsed .sidebar-bottom {
         padding:
             16px 12px 22px !important;
     }
 
-    body.theme-legendary-celestial
-    .dashboard.collapsed .nav-item {
+    body.theme-legendary-celestial .dashboard.collapsed .nav-item {
         min-height: 54px;
 
         padding:
@@ -1631,10 +1373,8 @@ body.theme-legendary-celestial {
             1.28rem !important;
     }
 
-    body.theme-legendary-celestial
-    .dashboard.collapsed .nav-item::before,
-    body.theme-legendary-celestial
-    .dashboard.collapsed .nav-item::after {
+    body.theme-legendary-celestial .dashboard.collapsed .nav-item::before,
+    body.theme-legendary-celestial .dashboard.collapsed .nav-item::after {
         display:
             none;
     }
@@ -1658,16 +1398,12 @@ body.theme-legendary-celestial {
             clip;
 
         background:
-            radial-gradient(
-                circle at 84% 6%,
+            radial-gradient(circle at 84% 6%,
                 rgba(248, 212, 119, 0.09),
-                transparent 23%
-            ),
-            radial-gradient(
-                circle at 25% 90%,
+                transparent 23%),
+            radial-gradient(circle at 25% 90%,
                 rgba(109, 40, 217, 0.11),
-                transparent 30%
-            );
+                transparent 30%);
 
         transition:
             width 0.38s cubic-bezier(.2, .8, .2, 1);
@@ -1688,30 +1424,22 @@ body.theme-legendary-celestial {
         pointer-events: none;
 
         background:
-            linear-gradient(
-                180deg,
+            linear-gradient(180deg,
                 rgba(248, 212, 119, 0.055),
-                transparent 76%
-            ),
-            repeating-linear-gradient(
-                90deg,
+                transparent 76%),
+            repeating-linear-gradient(90deg,
                 transparent 0 94px,
-                rgba(248, 212, 119, 0.028) 95px 96px
-            );
+                rgba(248, 212, 119, 0.028) 95px 96px);
 
         -webkit-mask:
-            linear-gradient(
-                180deg,
+            linear-gradient(180deg,
                 #000,
-                transparent
-            );
+                transparent);
 
         mask:
-            linear-gradient(
-                180deg,
+            linear-gradient(180deg,
                 #000,
-                transparent
-            );
+                transparent);
     }
 
     body.theme-legendary-celestial .content h2 {
@@ -1746,8 +1474,7 @@ body.theme-legendary-celestial {
         text-shadow:
             0 3px 2px rgba(0, 0, 0, 0.74),
             0 0 18px rgba(248, 212, 119, 0.24),
-            0 0 34px rgba(126, 34, 206, 0.16)
-            !important;
+            0 0 34px rgba(126, 34, 206, 0.16) !important;
     }
 
     body.theme-legendary-celestial .content h2::before {
@@ -1775,12 +1502,10 @@ body.theme-legendary-celestial {
             50%;
 
         background:
-            radial-gradient(
-                circle,
+            radial-gradient(circle,
                 rgba(248, 212, 119, 0.16),
                 rgba(109, 40, 217, 0.18) 58%,
-                transparent 70%
-            );
+                transparent 70%);
 
         box-shadow:
             0 0 18px rgba(248, 212, 119, 0.19),
@@ -1808,16 +1533,13 @@ body.theme-legendary-celestial {
             999px;
 
         background:
-            linear-gradient(
-                90deg,
+            linear-gradient(90deg,
                 var(--celestial-gold-bright),
                 rgba(168, 85, 247, 0.85),
-                transparent
-            ) !important;
+                transparent) !important;
 
         box-shadow:
-            0 0 12px rgba(248, 212, 119, 0.26)
-            !important;
+            0 0 12px rgba(248, 212, 119, 0.26) !important;
     }
 
     body.theme-legendary-celestial h1,
@@ -1846,8 +1568,7 @@ body.theme-legendary-celestial {
        THẺ / PANEL / KHỐI NỘI DUNG
        ============================================================= */
 
-    body.theme-legendary-celestial :is(
-        .card,
+    body.theme-legendary-celestial :is(.card,
         .panel,
         .content-card,
         .student-card,
@@ -1855,8 +1576,7 @@ body.theme-legendary-celestial {
         .dashboard-card,
         .info-card,
         .inventory-item,
-        .cell
-    ) {
+        .cell) {
         position: relative;
         isolation: isolate;
 
@@ -1866,22 +1586,16 @@ body.theme-legendary-celestial {
             var(--celestial-text) !important;
 
         background:
-            radial-gradient(
-                circle at 10% 0%,
+            radial-gradient(circle at 10% 0%,
                 rgba(248, 212, 119, 0.09),
-                transparent 23%
-            ),
-            radial-gradient(
-                circle at 90% 100%,
+                transparent 23%),
+            radial-gradient(circle at 90% 100%,
                 rgba(109, 40, 217, 0.14),
-                transparent 31%
-            ),
-            linear-gradient(
-                145deg,
+                transparent 31%),
+            linear-gradient(145deg,
                 rgba(30, 17, 48, 0.88),
                 rgba(12, 8, 23, 0.92) 58%,
-                rgba(7, 5, 15, 0.94)
-            ) !important;
+                rgba(7, 5, 15, 0.94)) !important;
 
         border:
             1px solid rgba(248, 212, 119, 0.3) !important;
@@ -1893,16 +1607,13 @@ body.theme-legendary-celestial {
             0 18px 44px rgba(0, 0, 0, 0.34),
             0 0 24px rgba(109, 40, 217, 0.08),
             inset 0 1px 0 rgba(255, 245, 205, 0.08),
-            inset 0 0 30px rgba(168, 85, 247, 0.04)
-            !important;
+            inset 0 0 30px rgba(168, 85, 247, 0.04) !important;
 
         backdrop-filter:
-            blur(18px)
-            saturate(1.08);
+            blur(18px) saturate(1.08);
 
         -webkit-backdrop-filter:
-            blur(18px)
-            saturate(1.08);
+            blur(18px) saturate(1.08);
 
         transition:
             transform 0.3s cubic-bezier(.2, .8, .2, 1),
@@ -1910,15 +1621,13 @@ body.theme-legendary-celestial {
             box-shadow 0.3s ease !important;
     }
 
-    body.theme-legendary-celestial :is(
-        .card,
+    body.theme-legendary-celestial :is(.card,
         .panel,
         .content-card,
         .student-card,
         .teacher-card,
         .dashboard-card,
-        .info-card
-    )::before {
+        .info-card)::before {
         content: "";
 
         position: absolute;
@@ -1935,27 +1644,23 @@ body.theme-legendary-celestial {
             none;
 
         background:
-            linear-gradient(
-                90deg,
+            linear-gradient(90deg,
                 transparent,
                 rgba(248, 212, 119, 0.86),
                 rgba(192, 132, 252, 0.72),
-                transparent
-            );
+                transparent);
 
         opacity:
             0.72;
     }
 
-    body.theme-legendary-celestial :is(
-        .card,
+    body.theme-legendary-celestial :is(.card,
         .panel,
         .content-card,
         .student-card,
         .teacher-card,
         .dashboard-card,
-        .info-card
-    )::after {
+        .info-card)::after {
         content: "✦";
 
         position: absolute;
@@ -1981,15 +1686,13 @@ body.theme-legendary-celestial {
             0 0 14px rgba(248, 212, 119, 0.18);
     }
 
-    body.theme-legendary-celestial :is(
-        .card,
+    body.theme-legendary-celestial :is(.card,
         .panel,
         .content-card,
         .student-card,
         .teacher-card,
         .dashboard-card,
-        .info-card
-    ) > * {
+        .info-card)>* {
         position:
             relative;
 
@@ -1997,16 +1700,14 @@ body.theme-legendary-celestial {
             1;
     }
 
-    body.theme-legendary-celestial :is(
-        .card,
+    body.theme-legendary-celestial :is(.card,
         .panel,
         .content-card,
         .student-card,
         .teacher-card,
         .dashboard-card,
         .info-card,
-        .inventory-item
-    ):hover {
+        .inventory-item):hover {
         transform:
             translateY(-5px);
 
@@ -2017,8 +1718,7 @@ body.theme-legendary-celestial {
             0 25px 58px rgba(0, 0, 0, 0.43),
             0 0 28px rgba(109, 40, 217, 0.16),
             0 0 17px rgba(248, 212, 119, 0.08),
-            inset 0 1px 0 rgba(255, 245, 205, 0.12)
-            !important;
+            inset 0 1px 0 rgba(255, 245, 205, 0.12) !important;
     }
 
     body.theme-legendary-celestial .card {
@@ -2029,13 +1729,11 @@ body.theme-legendary-celestial {
             28px !important;
     }
 
-    body.theme-legendary-celestial :is(
-        .assignment-meta,
+    body.theme-legendary-celestial :is(.assignment-meta,
         .assignment-desc,
         .assignment-file,
         .glass-alert,
-        .update-banner
-    ) {
+        .update-banner) {
         color:
             var(--celestial-text) !important;
 
@@ -2046,15 +1744,12 @@ body.theme-legendary-celestial {
             16px 5px 16px 5px !important;
 
         background:
-            linear-gradient(
-                135deg,
+            linear-gradient(135deg,
                 rgba(255, 255, 255, 0.045),
-                rgba(109, 40, 217, 0.06)
-            ) !important;
+                rgba(109, 40, 217, 0.06)) !important;
 
         box-shadow:
-            inset 0 0 18px rgba(126, 34, 206, 0.035)
-            !important;
+            inset 0 0 18px rgba(126, 34, 206, 0.035) !important;
     }
 
     body.theme-legendary-celestial .assignment-desc {
@@ -2073,15 +1768,12 @@ body.theme-legendary-celestial {
             16px 5px 16px 5px !important;
 
         background:
-            linear-gradient(
-                115deg,
+            linear-gradient(115deg,
                 rgba(255, 255, 255, 0.055),
-                rgba(109, 40, 217, 0.08)
-            ) !important;
+                rgba(109, 40, 217, 0.08)) !important;
 
         box-shadow:
-            0 9px 22px rgba(0, 0, 0, 0.2)
-            !important;
+            0 9px 22px rgba(0, 0, 0, 0.2) !important;
     }
 
     body.theme-legendary-celestial .accordion-header:hover,
@@ -2090,24 +1782,18 @@ body.theme-legendary-celestial {
             rgba(248, 212, 119, 0.58) !important;
 
         background:
-            linear-gradient(
-                115deg,
+            linear-gradient(115deg,
                 rgba(109, 40, 217, 0.25),
-                rgba(248, 212, 119, 0.08)
-            ) !important;
+                rgba(248, 212, 119, 0.08)) !important;
 
         box-shadow:
             0 13px 28px rgba(0, 0, 0, 0.28),
-            0 0 17px rgba(109, 40, 217, 0.14)
-            !important;
+            0 0 17px rgba(109, 40, 217, 0.14) !important;
     }
 
-    body.theme-legendary-celestial
-    .accordion-title span,
-    body.theme-legendary-celestial
-    .accordion-meta,
-    body.theme-legendary-celestial
-    .toggle-icon {
+    body.theme-legendary-celestial .accordion-title span,
+    body.theme-legendary-celestial .accordion-meta,
+    body.theme-legendary-celestial .toggle-icon {
         color:
             var(--celestial-lilac) !important;
     }
@@ -2116,8 +1802,7 @@ body.theme-legendary-celestial {
        CỬA HÀNG VÀ TÚI ĐỒ
        ============================================================= */
 
-    body.theme-legendary-celestial
-    .store-item-card:not(.store-card-nyx-trinity) {
+    body.theme-legendary-celestial .store-item-card:not(.store-card-nyx-trinity) {
         position: relative;
         isolation: isolate;
         overflow: hidden;
@@ -2126,21 +1811,15 @@ body.theme-legendary-celestial {
             var(--celestial-text) !important;
 
         background:
-            radial-gradient(
-                circle at 50% -4%,
+            radial-gradient(circle at 50% -4%,
                 rgba(248, 212, 119, 0.13),
-                transparent 28%
-            ),
-            radial-gradient(
-                circle at 84% 88%,
+                transparent 28%),
+            radial-gradient(circle at 84% 88%,
                 rgba(109, 40, 217, 0.2),
-                transparent 35%
-            ),
-            linear-gradient(
-                145deg,
+                transparent 35%),
+            linear-gradient(145deg,
                 rgba(31, 17, 49, 0.94),
-                rgba(9, 7, 19, 0.96)
-            ) !important;
+                rgba(9, 7, 19, 0.96)) !important;
 
         border:
             1px solid rgba(248, 212, 119, 0.36) !important;
@@ -2151,15 +1830,12 @@ body.theme-legendary-celestial {
         box-shadow:
             0 18px 42px rgba(0, 0, 0, 0.38),
             inset 0 1px 0 rgba(255, 245, 205, 0.09),
-            inset 0 0 30px rgba(168, 85, 247, 0.05)
-            !important;
+            inset 0 0 30px rgba(168, 85, 247, 0.05) !important;
     }
 
-    body.theme-legendary-celestial
-    .store-item-card:not(.store-card-nyx-trinity):hover {
+    body.theme-legendary-celestial .store-item-card:not(.store-card-nyx-trinity):hover {
         transform:
-            translateY(-8px)
-            scale(1.012) !important;
+            translateY(-8px) scale(1.012) !important;
 
         border-color:
             rgba(248, 212, 119, 0.82) !important;
@@ -2167,13 +1843,10 @@ body.theme-legendary-celestial {
         box-shadow:
             0 28px 58px rgba(0, 0, 0, 0.48),
             0 0 25px rgba(109, 40, 217, 0.19),
-            0 0 16px rgba(248, 212, 119, 0.1)
-            !important;
+            0 0 16px rgba(248, 212, 119, 0.1) !important;
     }
 
-    body.theme-legendary-celestial
-    .store-item-card:not(.store-card-nyx-trinity)
-    .item-name {
+    body.theme-legendary-celestial .store-item-card:not(.store-card-nyx-trinity) .item-name {
         color:
             var(--celestial-gold-bright) !important;
 
@@ -2187,9 +1860,7 @@ body.theme-legendary-celestial {
             0 0 10px rgba(248, 212, 119, 0.18);
     }
 
-    body.theme-legendary-celestial
-    .store-item-card:not(.store-card-nyx-trinity)
-    .item-type-label {
+    body.theme-legendary-celestial .store-item-card:not(.store-card-nyx-trinity) .item-type-label {
         color:
             var(--celestial-lilac) !important;
     }
@@ -2205,42 +1876,34 @@ body.theme-legendary-celestial {
             16px 5px 16px 5px !important;
 
         background:
-            radial-gradient(
-                circle at 50% 20%,
+            radial-gradient(circle at 50% 20%,
                 rgba(248, 212, 119, 0.07),
-                transparent 38%
-            ),
+                transparent 38%),
             rgba(8, 5, 17, 0.72) !important;
 
         box-shadow:
-            inset 0 0 19px rgba(109, 40, 217, 0.07)
-            !important;
+            inset 0 0 19px rgba(109, 40, 217, 0.07) !important;
     }
 
-    body.theme-legendary-celestial
-    .bag-inventory-slot:hover {
+    body.theme-legendary-celestial .bag-inventory-slot:hover {
         border-color:
             rgba(248, 212, 119, 0.7) !important;
 
         background:
-            linear-gradient(
-                145deg,
+            linear-gradient(145deg,
                 rgba(109, 40, 217, 0.18),
-                rgba(248, 212, 119, 0.06)
-            ) !important;
+                rgba(248, 212, 119, 0.06)) !important;
 
         box-shadow:
             0 0 19px rgba(109, 40, 217, 0.14),
-            inset 0 0 16px rgba(248, 212, 119, 0.05)
-            !important;
+            inset 0 0 16px rgba(248, 212, 119, 0.05) !important;
     }
 
     /* =============================================================
        NÚT, Ô NHẬP, BẢNG
        ============================================================= */
 
-    body.theme-legendary-celestial
-    button:not(.nav-item):not(.sidebar-toggle):not(.profile-trigger-btn):not(.bag-trigger-btn):not(.inbox-trigger-btn):not(.leaderboard-trigger-btn):not(#btnLeaderboard):not(.close-btn),
+    body.theme-legendary-celestial button:not(.nav-item):not(.sidebar-toggle):not(.profile-trigger-btn):not(.bag-trigger-btn):not(.inbox-trigger-btn):not(.leaderboard-trigger-btn):not(#btnLeaderboard):not(.close-btn),
     body.theme-legendary-celestial .btn,
     body.theme-legendary-celestial .button {
         color:
@@ -2253,13 +1916,11 @@ body.theme-legendary-celestial {
             14px 5px 14px 5px !important;
 
         background:
-            linear-gradient(
-                112deg,
+            linear-gradient(112deg,
                 #9a681a 0%,
                 #f8d477 36%,
                 #fff1ae 54%,
-                #b77a1f 100%
-            ) !important;
+                #b77a1f 100%) !important;
 
         background-size:
             220% 100% !important;
@@ -2267,8 +1928,7 @@ body.theme-legendary-celestial {
         box-shadow:
             0 9px 22px rgba(0, 0, 0, 0.25),
             0 0 14px rgba(248, 212, 119, 0.1),
-            inset 0 1px 0 rgba(255, 255, 255, 0.55)
-            !important;
+            inset 0 1px 0 rgba(255, 255, 255, 0.55) !important;
 
         font-weight:
             850 !important;
@@ -2280,8 +1940,7 @@ body.theme-legendary-celestial {
             filter 0.22s ease !important;
     }
 
-    body.theme-legendary-celestial
-    button:not(.nav-item):not(.sidebar-toggle):not(.profile-trigger-btn):not(.bag-trigger-btn):not(.inbox-trigger-btn):not(.leaderboard-trigger-btn):not(#btnLeaderboard):not(.close-btn):hover:not(:disabled),
+    body.theme-legendary-celestial button:not(.nav-item):not(.sidebar-toggle):not(.profile-trigger-btn):not(.bag-trigger-btn):not(.inbox-trigger-btn):not(.leaderboard-trigger-btn):not(#btnLeaderboard):not(.close-btn):hover:not(:disabled),
     body.theme-legendary-celestial .btn:hover:not(:disabled),
     body.theme-legendary-celestial .button:hover:not(:disabled) {
         transform:
@@ -2291,30 +1950,24 @@ body.theme-legendary-celestial {
             100% 0 !important;
 
         filter:
-            brightness(1.04)
-            saturate(1.05);
+            brightness(1.04) saturate(1.05);
 
         box-shadow:
             0 14px 30px rgba(0, 0, 0, 0.33),
             0 0 22px rgba(248, 212, 119, 0.27),
-            inset 0 1px 0 rgba(255, 255, 255, 0.65)
-            !important;
+            inset 0 1px 0 rgba(255, 255, 255, 0.65) !important;
     }
 
-    body.theme-legendary-celestial
-    button:disabled,
-    body.theme-legendary-celestial
-    .btn:disabled {
+    body.theme-legendary-celestial button:disabled,
+    body.theme-legendary-celestial .btn:disabled {
         filter:
-            grayscale(0.34)
-            brightness(0.72);
+            grayscale(0.34) brightness(0.72);
 
         opacity:
             0.7;
     }
 
-    body.theme-legendary-celestial
-    .btn-equip:not(.active) {
+    body.theme-legendary-celestial .btn-equip:not(.active) {
         color:
             #fff !important;
 
@@ -2322,26 +1975,20 @@ body.theme-legendary-celestial {
             rgba(233, 213, 255, 0.48) !important;
 
         background:
-            linear-gradient(
-                135deg,
+            linear-gradient(135deg,
                 #4c1d95,
                 #7e22ce 58%,
-                #be185d
-            ) !important;
+                #be185d) !important;
 
         box-shadow:
             0 9px 22px rgba(76, 29, 149, 0.33),
-            inset 0 1px 0 rgba(255, 255, 255, 0.15)
-            !important;
+            inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
     }
 
-    body.theme-legendary-celestial
-    :is(
-        input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+    body.theme-legendary-celestial :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
         textarea,
         select,
-        .search-bar
-    ) {
+        .search-bar) {
         color:
             var(--celestial-text) !important;
 
@@ -2355,48 +2002,36 @@ body.theme-legendary-celestial {
             14px 5px 14px 5px !important;
 
         background:
-            linear-gradient(
-                145deg,
+            linear-gradient(145deg,
                 rgba(5, 3, 11, 0.88),
-                rgba(25, 13, 41, 0.78)
-            ) !important;
+                rgba(25, 13, 41, 0.78)) !important;
 
         box-shadow:
             inset 0 2px 7px rgba(0, 0, 0, 0.26),
-            0 7px 18px rgba(0, 0, 0, 0.12)
-            !important;
+            0 7px 18px rgba(0, 0, 0, 0.12) !important;
     }
 
-    body.theme-legendary-celestial
-    :is(
-        input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+    body.theme-legendary-celestial :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
         textarea,
         select,
-        .search-bar
-    ):focus {
+        .search-bar):focus {
         border-color:
             rgba(248, 212, 119, 0.72) !important;
 
         background:
-            linear-gradient(
-                145deg,
+            linear-gradient(145deg,
                 rgba(11, 7, 20, 0.96),
-                rgba(34, 17, 53, 0.9)
-            ) !important;
+                rgba(34, 17, 53, 0.9)) !important;
 
         box-shadow:
             0 0 0 4px rgba(248, 212, 119, 0.08),
             0 0 22px rgba(109, 40, 217, 0.13),
-            inset 0 2px 7px rgba(0, 0, 0, 0.28)
-            !important;
+            inset 0 2px 7px rgba(0, 0, 0, 0.28) !important;
     }
 
-    body.theme-legendary-celestial
-    :is(
-        input,
+    body.theme-legendary-celestial :is(input,
         textarea,
-        .search-bar
-    )::placeholder {
+        .search-bar)::placeholder {
         color:
             rgba(216, 199, 238, 0.56) !important;
     }
@@ -2427,8 +2062,7 @@ body.theme-legendary-celestial {
 
         box-shadow:
             0 16px 40px rgba(0, 0, 0, 0.28),
-            inset 0 0 26px rgba(109, 40, 217, 0.04)
-            !important;
+            inset 0 0 26px rgba(109, 40, 217, 0.04) !important;
     }
 
     body.theme-legendary-celestial th {
@@ -2436,12 +2070,10 @@ body.theme-legendary-celestial {
             var(--celestial-gold-bright) !important;
 
         background:
-            linear-gradient(
-                120deg,
+            linear-gradient(120deg,
                 rgba(76, 29, 149, 0.64),
                 rgba(126, 34, 206, 0.35),
-                rgba(248, 212, 119, 0.08)
-            ) !important;
+                rgba(248, 212, 119, 0.08)) !important;
 
         border-bottom:
             1px solid rgba(248, 212, 119, 0.24) !important;
@@ -2477,34 +2109,25 @@ body.theme-legendary-celestial {
             rgba(3, 2, 8, 0.72) !important;
 
         backdrop-filter:
-            blur(14px)
-            saturate(1.08) !important;
+            blur(14px) saturate(1.08) !important;
 
         -webkit-backdrop-filter:
-            blur(14px)
-            saturate(1.08) !important;
+            blur(14px) saturate(1.08) !important;
     }
 
-    body.theme-legendary-celestial
-    :is(
-        .modal-content,
+    body.theme-legendary-celestial :is(.modal-content,
         .popup,
-        .dialog-box
-    ) {
+        .dialog-box) {
         color:
             var(--celestial-text) !important;
 
         background:
-            radial-gradient(
-                circle at 15% 0,
+            radial-gradient(circle at 15% 0,
                 rgba(248, 212, 119, 0.12),
-                transparent 24%
-            ),
-            linear-gradient(
-                145deg,
+                transparent 24%),
+            linear-gradient(145deg,
                 rgba(24, 13, 39, 0.98),
-                rgba(6, 4, 13, 0.99)
-            ) !important;
+                rgba(6, 4, 13, 0.99)) !important;
 
         border:
             1px solid rgba(248, 212, 119, 0.58) !important;
@@ -2515,8 +2138,7 @@ body.theme-legendary-celestial {
         box-shadow:
             0 34px 100px rgba(0, 0, 0, 0.68),
             0 0 34px rgba(109, 40, 217, 0.22),
-            inset 0 1px 0 rgba(255, 245, 205, 0.1)
-            !important;
+            inset 0 1px 0 rgba(255, 245, 205, 0.1) !important;
     }
 
     body.theme-legendary-celestial .close-btn {
@@ -2531,8 +2153,7 @@ body.theme-legendary-celestial {
 
         box-shadow:
             0 8px 20px rgba(0, 0, 0, 0.3),
-            0 0 14px rgba(109, 40, 217, 0.14)
-            !important;
+            0 0 14px rgba(109, 40, 217, 0.14) !important;
     }
 
     body.theme-legendary-celestial .close-btn:hover {
@@ -2543,25 +2164,19 @@ body.theme-legendary-celestial {
             rgba(255, 224, 138, 0.75) !important;
 
         background:
-            linear-gradient(
-                135deg,
+            linear-gradient(135deg,
                 #9f1239,
-                #7e22ce
-            ) !important;
+                #7e22ce) !important;
 
         transform:
-            rotate(90deg)
-            scale(1.06) !important;
+            rotate(90deg) scale(1.06) !important;
     }
 
-    body.theme-legendary-celestial
-    .content > :is(
-        .profile-trigger-btn,
+    body.theme-legendary-celestial .content> :is(.profile-trigger-btn,
         .bag-trigger-btn,
         .inbox-trigger-btn,
         .leaderboard-trigger-btn,
-        #btnLeaderboard
-    ) {
+        #btnLeaderboard) {
         color:
             var(--celestial-gold-bright) !important;
 
@@ -2569,22 +2184,17 @@ body.theme-legendary-celestial {
             1px solid rgba(248, 212, 119, 0.62) !important;
 
         background:
-            radial-gradient(
-                circle at 30% 22%,
+            radial-gradient(circle at 30% 22%,
                 rgba(255, 248, 214, 0.22),
-                transparent 34%
-            ),
-            linear-gradient(
-                145deg,
+                transparent 34%),
+            linear-gradient(145deg,
                 rgba(41, 20, 63, 0.94),
-                rgba(8, 5, 16, 0.96)
-            ) !important;
+                rgba(8, 5, 16, 0.96)) !important;
 
         box-shadow:
             0 10px 27px rgba(0, 0, 0, 0.35),
             0 0 16px rgba(109, 40, 217, 0.16),
-            inset 0 1px 0 rgba(255, 255, 255, 0.12)
-            !important;
+            inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
 
         backdrop-filter:
             blur(13px);
@@ -2598,30 +2208,24 @@ body.theme-legendary-celestial {
             box-shadow 0.24s ease !important;
     }
 
-    body.theme-legendary-celestial
-    .content > :is(
-        .profile-trigger-btn,
+    body.theme-legendary-celestial .content> :is(.profile-trigger-btn,
         .bag-trigger-btn,
         .inbox-trigger-btn,
         .leaderboard-trigger-btn,
-        #btnLeaderboard
-    ):hover {
+        #btnLeaderboard):hover {
         border-color:
             rgba(255, 238, 171, 0.9) !important;
 
         transform:
-            translateY(-3px)
-            scale(1.07) !important;
+            translateY(-3px) scale(1.07) !important;
 
         box-shadow:
             0 14px 34px rgba(0, 0, 0, 0.42),
             0 0 24px rgba(248, 212, 119, 0.28),
-            0 0 34px rgba(109, 40, 217, 0.16)
-            !important;
+            0 0 34px rgba(109, 40, 217, 0.16) !important;
     }
 
-    body.theme-legendary-celestial
-    .profile-trigger-btn img {
+    body.theme-legendary-celestial .profile-trigger-btn img {
         border-radius:
             50%;
     }
@@ -2631,16 +2235,12 @@ body.theme-legendary-celestial {
             var(--celestial-gold-bright) !important;
 
         background:
-            radial-gradient(
-                circle at 14% 30%,
+            radial-gradient(circle at 14% 30%,
                 rgba(248, 212, 119, 0.19),
-                transparent 24%
-            ),
-            linear-gradient(
-                135deg,
+                transparent 24%),
+            linear-gradient(135deg,
                 rgba(25, 12, 39, 0.96),
-                rgba(5, 4, 12, 0.97)
-            ) !important;
+                rgba(5, 4, 12, 0.97)) !important;
 
         border:
             1px solid rgba(248, 212, 119, 0.67) !important;
@@ -2651,16 +2251,13 @@ body.theme-legendary-celestial {
         box-shadow:
             0 17px 40px rgba(0, 0, 0, 0.46),
             0 0 24px rgba(109, 40, 217, 0.18),
-            inset 0 1px 0 rgba(255, 245, 205, 0.11)
-            !important;
+            inset 0 1px 0 rgba(255, 245, 205, 0.11) !important;
 
         backdrop-filter:
-            blur(16px)
-            saturate(1.12) !important;
+            blur(16px) saturate(1.12) !important;
 
         -webkit-backdrop-filter:
-            blur(16px)
-            saturate(1.12) !important;
+            blur(16px) saturate(1.12) !important;
     }
 
     body.theme-legendary-celestial #coinWidget:hover {
@@ -2668,16 +2265,12 @@ body.theme-legendary-celestial {
             0 21px 48px rgba(0, 0, 0, 0.53),
             0 0 31px rgba(248, 212, 119, 0.22),
             0 0 34px rgba(109, 40, 217, 0.19),
-            inset 0 1px 0 rgba(255, 245, 205, 0.14)
-            !important;
+            inset 0 1px 0 rgba(255, 245, 205, 0.14) !important;
     }
 
     body.theme-legendary-celestial .tab-content.active {
         animation:
-            celestialDesktopContentEnter
-            0.55s
-            cubic-bezier(.2, .8, .2, 1)
-            both !important;
+            celestialDesktopContentEnter 0.55s cubic-bezier(.2, .8, .2, 1) both !important;
     }
 
     body.theme-legendary-celestial ::-webkit-scrollbar {
@@ -2701,12 +2294,10 @@ body.theme-legendary-celestial {
             999px;
 
         background:
-            linear-gradient(
-                180deg,
+            linear-gradient(180deg,
                 #5b21b6,
                 #f8d477 48%,
-                #7e22ce
-            );
+                #7e22ce);
     }
 }
 
@@ -2752,12 +2343,11 @@ body.theme-legendary-celestial {
 }
 
 @keyframes celestialDesktopEmblem {
+
     0%,
     100% {
         transform:
-            translateX(-50%)
-            rotate(-5deg)
-            scale(0.95);
+            translateX(-50%) rotate(-5deg) scale(0.95);
 
         filter:
             brightness(0.9);
@@ -2765,9 +2355,7 @@ body.theme-legendary-celestial {
 
     50% {
         transform:
-            translateX(-50%)
-            rotate(5deg)
-            scale(1.05);
+            translateX(-50%) rotate(5deg) scale(1.05);
 
         filter:
             brightness(1.18);
@@ -2780,8 +2368,7 @@ body.theme-legendary-celestial {
             0;
 
         transform:
-            translateY(16px)
-            scale(0.992);
+            translateY(16px) scale(0.992);
 
         filter:
             blur(3px);
@@ -2792,8 +2379,7 @@ body.theme-legendary-celestial {
             1;
 
         transform:
-            translateY(0)
-            scale(1);
+            translateY(0) scale(1);
 
         filter:
             blur(0);
@@ -2801,6 +2387,7 @@ body.theme-legendary-celestial {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
     body.theme-legendary-celestial,
     body.theme-legendary-celestial::before,
     body.theme-legendary-celestial::after,
@@ -2812,6 +2399,7 @@ body.theme-legendary-celestial {
 }
 
 @keyframes nyxSovereignFloat {
+
     0%,
     100% {
         transform:
@@ -2832,29 +2420,17 @@ body.theme-legendary-celestial {
 @keyframes nyxSovereignGlow {
     from {
         filter:
-            drop-shadow(
-                0 8px 11px rgba(0, 0, 0, 0.7)
-            )
-            drop-shadow(
-                0 0 10px rgba(109, 40, 217, 0.6)
-            );
+            drop-shadow(0 8px 11px rgba(0, 0, 0, 0.7)) drop-shadow(0 0 10px rgba(109, 40, 217, 0.6));
     }
 
     to {
         filter:
-            drop-shadow(
-                0 10px 15px rgba(0, 0, 0, 0.8)
-            )
-            drop-shadow(
-                0 0 19px rgba(168, 85, 247, 0.9)
-            )
-            drop-shadow(
-                0 0 31px rgba(248, 212, 119, 0.16)
-            );
+            drop-shadow(0 10px 15px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 19px rgba(168, 85, 247, 0.9)) drop-shadow(0 0 31px rgba(248, 212, 119, 0.16));
     }
 }
 
 @keyframes nyxEclipseBreathe {
+
     0%,
     100% {
         transform:
@@ -2894,8 +2470,7 @@ body.theme-legendary-celestial {
             scale(1.22) rotate(3deg);
 
         filter:
-            drop-shadow(0 0 26px white)
-            drop-shadow(0 0 62px #a855f7);
+            drop-shadow(0 0 26px white) drop-shadow(0 0 62px #a855f7);
     }
 
     100% {
@@ -2975,9 +2550,7 @@ body.theme-legendary-celestial {
 @keyframes nyxSigilAwaken {
     0% {
         transform:
-            translate(-50%, -50%)
-            scale(0.3)
-            rotate(0deg);
+            translate(-50%, -50%) scale(0.3) rotate(0deg);
 
         opacity: 0;
     }
@@ -2989,15 +2562,14 @@ body.theme-legendary-celestial {
 
     100% {
         transform:
-            translate(-50%, -50%)
-            scale(1.26)
-            rotate(210deg);
+            translate(-50%, -50%) scale(1.26) rotate(210deg);
 
         opacity: 0;
     }
 }
 
 @keyframes nyxStarBreathe {
+
     0%,
     100% {
         opacity: 0.18;
@@ -3015,8 +2587,7 @@ body.theme-legendary-celestial {
         opacity: 0;
 
         transform:
-            translate(-18vw, -15vh)
-            rotate(34deg);
+            translate(-18vw, -15vh) rotate(34deg);
     }
 
     12% {
@@ -3031,8 +2602,7 @@ body.theme-legendary-celestial {
         opacity: 0;
 
         transform:
-            translate(118vw, 82vh)
-            rotate(34deg);
+            translate(118vw, 82vh) rotate(34deg);
     }
 }
 
@@ -3041,9 +2611,7 @@ body.theme-legendary-celestial {
         opacity: 0;
 
         transform:
-            translateX(-50%)
-            translateY(10px)
-            scale(0.92);
+            translateX(-50%) translateY(10px) scale(0.92);
     }
 
     14%,
@@ -3051,18 +2619,14 @@ body.theme-legendary-celestial {
         opacity: 1;
 
         transform:
-            translateX(-50%)
-            translateY(0)
-            scale(1);
+            translateX(-50%) translateY(0) scale(1);
     }
 
     100% {
         opacity: 0;
 
         transform:
-            translateX(-50%)
-            translateY(-9px)
-            scale(0.96);
+            translateX(-50%) translateY(-9px) scale(0.96);
     }
 }
 
@@ -3071,25 +2635,15 @@ body.theme-legendary-celestial {
         opacity: 1;
 
         transform:
-            translate(-50%, -50%)
-            scale(1.2);
+            translate(-50%, -50%) scale(1.2);
     }
 
     100% {
         opacity: 0;
 
         transform:
-            translate(
-                calc(
-                    -50% +
-                    var(--nyx-trail-drift, -28px)
-                ),
-                calc(
-                    -50% +
-                    var(--nyx-trail-fall, 42px)
-                )
-            )
-            scale(0.12);
+            translate(calc(-50% + var(--nyx-trail-drift, -28px)),
+                calc(-50% + var(--nyx-trail-fall, 42px))) scale(0.12);
     }
 }
 
@@ -3106,18 +2660,14 @@ body.theme-legendary-celestial {
 @keyframes nyxDomainAurora {
     from {
         transform:
-            translateX(-5%)
-            rotate(-5deg)
-            scaleY(0.92);
+            translateX(-5%) rotate(-5deg) scaleY(0.92);
 
         opacity: 0.45;
     }
 
     to {
         transform:
-            translateX(8%)
-            rotate(2deg)
-            scaleY(1.08);
+            translateX(8%) rotate(2deg) scaleY(1.08);
 
         opacity: 0.78;
     }
@@ -3151,11 +2701,7 @@ body.theme-legendary-celestial {
 
     100% {
         transform:
-            translateY(-78px)
-            translateX(
-                var(--dust-drift, 20px)
-            )
-            scale(1.12);
+            translateY(-78px) translateX(var(--dust-drift, 20px)) scale(1.12);
 
         opacity: 0;
     }
@@ -3166,8 +2712,7 @@ body.theme-legendary-celestial {
         opacity: 0;
 
         transform:
-            translate(-20vw, -18vh)
-            rotate(34deg);
+            translate(-20vw, -18vh) rotate(34deg);
     }
 
     14% {
@@ -3182,8 +2727,7 @@ body.theme-legendary-celestial {
         opacity: 0;
 
         transform:
-            translate(115vw, 76vh)
-            rotate(34deg);
+            translate(115vw, 76vh) rotate(34deg);
     }
 }
 
@@ -3202,6 +2746,7 @@ body.theme-legendary-celestial {
             scale(1.14) rotate(35deg);
     }
 }
+
 /* SỬA LỖI CHỮ TIẾNG VIỆT TRONG LỜI THOẠI NYX */
 .nyx-dialogue-box {
     font-family: Arial, "Segoe UI", Tahoma, sans-serif !important;
@@ -3223,6 +2768,7 @@ body.theme-legendary-celestial {
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
 }
+
 /* =========================================================
    STORE CARD TRUYỀN THUYẾT
    Phong cách: Tinh Điện Hoàng Gia
@@ -3244,23 +2790,17 @@ body.theme-legendary-celestial {
     color: #f8f4ff !important;
 
     background:
-        radial-gradient(
-            circle at 18% 8%,
+        radial-gradient(circle at 18% 8%,
             rgba(255, 224, 138, 0.18),
-            transparent 27%
-        ),
-        radial-gradient(
-            circle at 86% 76%,
+            transparent 27%),
+        radial-gradient(circle at 86% 76%,
             rgba(168, 85, 247, 0.22),
-            transparent 34%
-        ),
-        linear-gradient(
-            145deg,
+            transparent 34%),
+        linear-gradient(145deg,
             #21102f 0%,
             #351347 34%,
             #21193d 67%,
-            #101426 100%
-        ) !important;
+            #101426 100%) !important;
 
     border:
         1px solid rgba(255, 220, 126, 0.66) !important;
@@ -3298,39 +2838,26 @@ body.theme-legendary-celestial {
     border-radius: inherit !important;
 
     background:
-        radial-gradient(
-            circle at 12% 24%,
+        radial-gradient(circle at 12% 24%,
             rgba(255, 255, 255, 0.85) 0 1px,
-            transparent 2px
-        ),
-        radial-gradient(
-            circle at 28% 62%,
+            transparent 2px),
+        radial-gradient(circle at 28% 62%,
             rgba(255, 219, 126, 0.75) 0 1.2px,
-            transparent 2.2px
-        ),
-        radial-gradient(
-            circle at 61% 18%,
+            transparent 2.2px),
+        radial-gradient(circle at 61% 18%,
             rgba(232, 213, 255, 0.82) 0 1px,
-            transparent 2px
-        ),
-        radial-gradient(
-            circle at 78% 48%,
+            transparent 2px),
+        radial-gradient(circle at 78% 48%,
             rgba(255, 255, 255, 0.72) 0 1px,
-            transparent 2px
-        ),
-        radial-gradient(
-            circle at 48% 83%,
+            transparent 2px),
+        radial-gradient(circle at 48% 83%,
             rgba(196, 181, 253, 0.72) 0 1px,
-            transparent 2px
-        );
+            transparent 2px);
 
     opacity: 0.66;
 
     animation:
-        legendary-card-stars
-        5s
-        ease-in-out
-        infinite alternate;
+        legendary-card-stars 5s ease-in-out infinite alternate;
 }
 
 
@@ -3356,16 +2883,14 @@ body.theme-legendary-celestial {
 
 
 /* Đưa nội dung lên trên các lớp trang trí */
-.store-item-card:has(> .item-tag.tag-truyen-thuyet)
-> * {
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)>* {
     position: relative;
     z-index: 3;
 }
 
 
 /* Tag phải nằm cao nhất */
-.store-item-card:has(> .item-tag.tag-truyen-thuyet)
-> .item-tag {
+.store-item-card:has(> .item-tag.tag-truyen-thuyet)>.item-tag {
     z-index: 20;
 }
 
@@ -3374,8 +2899,7 @@ body.theme-legendary-celestial {
    HÀO QUANG ICON
    ========================================================= */
 
-.store-item-card:has(> .item-tag.tag-truyen-thuyet)
-.card-glow {
+.store-item-card:has(> .item-tag.tag-truyen-thuyet) .card-glow {
     position: absolute;
     z-index: 1;
 
@@ -3390,28 +2914,22 @@ body.theme-legendary-celestial {
     border-radius: 50%;
 
     background:
-        radial-gradient(
-            ellipse at center,
+        radial-gradient(ellipse at center,
             rgba(255, 226, 142, 0.26) 0%,
             rgba(168, 85, 247, 0.18) 40%,
-            transparent 72%
-        );
+            transparent 72%);
 
     filter: blur(2px);
 
     opacity: 0.8;
 
     animation:
-        legendary-card-aura
-        3.8s
-        ease-in-out
-        infinite;
+        legendary-card-aura 3.8s ease-in-out infinite;
 }
 
 
 /* Vòng huy hiệu quanh icon */
-.store-item-card:has(> .item-tag.tag-truyen-thuyet)
-.item-icon-wrapper {
+.store-item-card:has(> .item-tag.tag-truyen-thuyet) .item-icon-wrapper {
     position: relative;
     z-index: 4;
 
@@ -3424,12 +2942,10 @@ body.theme-legendary-celestial {
     border-radius: 50%;
 
     background:
-        radial-gradient(
-            circle,
+        radial-gradient(circle,
             rgba(255, 255, 255, 0.11),
             rgba(121, 53, 157, 0.12) 58%,
-            transparent 72%
-        );
+            transparent 72%);
 
     border:
         1px solid rgba(255, 220, 126, 0.24);
@@ -3441,8 +2957,7 @@ body.theme-legendary-celestial {
 
 
 /* Quỹ đạo vàng quanh icon */
-.store-item-card:has(> .item-tag.tag-truyen-thuyet)
-.item-icon-wrapper::before {
+.store-item-card:has(> .item-tag.tag-truyen-thuyet) .item-icon-wrapper::before {
     content: "";
 
     position: absolute;
@@ -3454,18 +2969,14 @@ body.theme-legendary-celestial {
         1px dashed rgba(255, 221, 132, 0.37);
 
     animation:
-        legendary-card-orbit
-        13s
-        linear
-        infinite;
+        legendary-card-orbit 13s linear infinite;
 
     pointer-events: none;
 }
 
 
 /* Tinh thạch nhỏ */
-.store-item-card:has(> .item-tag.tag-truyen-thuyet)
-.item-icon-wrapper::after {
+.store-item-card:has(> .item-tag.tag-truyen-thuyet) .item-icon-wrapper::after {
     content: "✦";
 
     position: absolute;
@@ -3482,28 +2993,19 @@ body.theme-legendary-celestial {
         0 0 12px rgba(168, 85, 247, 0.72);
 
     animation:
-        legendary-card-gem
-        2.6s
-        ease-in-out
-        infinite;
+        legendary-card-gem 2.6s ease-in-out infinite;
 
     pointer-events: none;
 }
 
 
 /* Icon vật phẩm */
-.store-item-card:has(> .item-tag.tag-truyen-thuyet)
-.item-icon {
+.store-item-card:has(> .item-tag.tag-truyen-thuyet) .item-icon {
     position: relative;
     z-index: 2;
 
     filter:
-        drop-shadow(
-            0 8px 10px rgba(0, 0, 0, 0.38)
-        )
-        drop-shadow(
-            0 0 7px rgba(255, 218, 122, 0.25)
-        ) !important;
+        drop-shadow(0 8px 10px rgba(0, 0, 0, 0.38)) drop-shadow(0 0 7px rgba(255, 218, 122, 0.25)) !important;
 
     transition:
         transform 0.34s cubic-bezier(.22, 1, .36, 1),
@@ -3515,8 +3017,7 @@ body.theme-legendary-celestial {
    TÊN VÀ LOẠI VẬT PHẨM
    ========================================================= */
 
-.store-item-card:has(> .item-tag.tag-truyen-thuyet)
-.item-info {
+.store-item-card:has(> .item-tag.tag-truyen-thuyet) .item-info {
     position: relative;
     z-index: 4;
 
@@ -3524,8 +3025,7 @@ body.theme-legendary-celestial {
 }
 
 
-.store-item-card:has(> .item-tag.tag-truyen-thuyet)
-.item-name {
+.store-item-card:has(> .item-tag.tag-truyen-thuyet) .item-name {
     color: #fff4c7 !important;
 
     font-family:
@@ -3543,8 +3043,7 @@ body.theme-legendary-celestial {
 }
 
 
-.store-item-card:has(> .item-tag.tag-truyen-thuyet)
-.item-type-label {
+.store-item-card:has(> .item-tag.tag-truyen-thuyet) .item-type-label {
     color: #d8c7ee !important;
 
     font-weight: 800;
@@ -3556,8 +3055,7 @@ body.theme-legendary-celestial {
 
 
 /* Đường ngăn trang trí */
-.store-item-card:has(> .item-tag.tag-truyen-thuyet)
-.item-info::after {
+.store-item-card:has(> .item-tag.tag-truyen-thuyet) .item-info::after {
     content: "";
 
     display: block;
@@ -3569,12 +3067,10 @@ body.theme-legendary-celestial {
         12px auto 0;
 
     background:
-        linear-gradient(
-            90deg,
+        linear-gradient(90deg,
             transparent,
             rgba(255, 220, 126, 0.85),
-            transparent
-        );
+            transparent);
 
     box-shadow:
         0 0 7px rgba(255, 220, 126, 0.32);
@@ -3585,8 +3081,7 @@ body.theme-legendary-celestial {
    NÚT TRONG CARD
    ========================================================= */
 
-.store-item-card:has(> .item-tag.tag-truyen-thuyet)
-.item-actions {
+.store-item-card:has(> .item-tag.tag-truyen-thuyet) .item-actions {
     position: relative;
     z-index: 5;
 
@@ -3594,8 +3089,7 @@ body.theme-legendary-celestial {
 }
 
 
-.store-item-card:has(> .item-tag.tag-truyen-thuyet)
-.item-actions button {
+.store-item-card:has(> .item-tag.tag-truyen-thuyet) .item-actions button {
     min-height: 51px;
 
     border-radius:
@@ -3616,17 +3110,14 @@ body.theme-legendary-celestial {
 
 
 /* Nút nhận sự kiện hoặc mua */
-.store-item-card:has(> .item-tag.tag-truyen-thuyet)
-.btn-buy {
+.store-item-card:has(> .item-tag.tag-truyen-thuyet) .btn-buy {
     color: #27132f !important;
 
     background:
-        linear-gradient(
-            135deg,
+        linear-gradient(135deg,
             #f6d67f 0%,
             #fff0b0 46%,
-            #c88b3f 100%
-        ) !important;
+            #c88b3f 100%) !important;
 
     border:
         1px solid rgba(255, 248, 208, 0.9) !important;
@@ -3638,17 +3129,14 @@ body.theme-legendary-celestial {
 
 
 /* Nút trang bị */
-.store-item-card:has(> .item-tag.tag-truyen-thuyet)
-.btn-equip:not(.active) {
+.store-item-card:has(> .item-tag.tag-truyen-thuyet) .btn-equip:not(.active) {
     color: #ffffff !important;
 
     background:
-        linear-gradient(
-            135deg,
+        linear-gradient(135deg,
             #6d28d9,
             #9333ea 54%,
-            #be185d
-        ) !important;
+            #be185d) !important;
 
     border:
         1px solid rgba(233, 213, 255, 0.45) !important;
@@ -3659,16 +3147,13 @@ body.theme-legendary-celestial {
 
 
 /* Nút không hỗ trợ thử nghiệm */
-.store-item-card:has(> .item-tag.tag-truyen-thuyet)
-.btn-preview.disabled {
+.store-item-card:has(> .item-tag.tag-truyen-thuyet) .btn-preview.disabled {
     color: #cfc3df !important;
 
     background:
-        linear-gradient(
-            135deg,
+        linear-gradient(135deg,
             rgba(65, 42, 84, 0.82),
-            rgba(94, 60, 122, 0.78)
-        ) !important;
+            rgba(94, 60, 122, 0.78)) !important;
 
     border:
         1px dashed rgba(216, 199, 238, 0.35) !important;
@@ -3686,8 +3171,7 @@ body.theme-legendary-celestial {
 
 .store-item-card:has(> .item-tag.tag-truyen-thuyet):hover {
     transform:
-        translateY(-7px)
-        scale(1.012) !important;
+        translateY(-7px) scale(1.012) !important;
 
     border-color:
         rgba(255, 224, 138, 0.92) !important;
@@ -3701,30 +3185,20 @@ body.theme-legendary-celestial {
 }
 
 
-.store-item-card:has(> .item-tag.tag-truyen-thuyet):hover
-.item-icon {
+.store-item-card:has(> .item-tag.tag-truyen-thuyet):hover .item-icon {
     transform:
-        translateY(-4px)
-        scale(1.09)
-        rotate(1.5deg) !important;
+        translateY(-4px) scale(1.09) rotate(1.5deg) !important;
 
     filter:
-        drop-shadow(
-            0 11px 13px rgba(0, 0, 0, 0.44)
-        )
-        drop-shadow(
-            0 0 12px rgba(255, 219, 126, 0.45)
-        ) !important;
+        drop-shadow(0 11px 13px rgba(0, 0, 0, 0.44)) drop-shadow(0 0 12px rgba(255, 219, 126, 0.45)) !important;
 }
 
 
-.store-item-card:has(> .item-tag.tag-truyen-thuyet)
-.item-actions button:hover:not(:disabled) {
+.store-item-card:has(> .item-tag.tag-truyen-thuyet) .item-actions button:hover:not(:disabled) {
     transform: translateY(-2px);
 
     filter:
-        brightness(1.06)
-        saturate(1.05);
+        brightness(1.06) saturate(1.05);
 }
 
 
@@ -3746,19 +3220,18 @@ body.theme-legendary-celestial {
 
 
 @keyframes legendary-card-aura {
+
     0%,
     100% {
         transform:
-            translateX(-50%)
-            scale(0.94);
+            translateX(-50%) scale(0.94);
 
         opacity: 0.58;
     }
 
     50% {
         transform:
-            translateX(-50%)
-            scale(1.07);
+            translateX(-50%) scale(1.07);
 
         opacity: 0.94;
     }
@@ -3777,19 +3250,18 @@ body.theme-legendary-celestial {
 
 
 @keyframes legendary-card-gem {
+
     0%,
     100% {
         transform:
-            translateY(2px)
-            scale(0.82);
+            translateY(2px) scale(0.82);
 
         opacity: 0.46;
     }
 
     50% {
         transform:
-            translateY(-3px)
-            scale(1.08);
+            translateY(-3px) scale(1.08);
 
         opacity: 1;
     }
@@ -3803,17 +3275,15 @@ body.theme-legendary-celestial {
 @media (prefers-reduced-motion: reduce) {
     .store-item-card:has(> .item-tag.tag-truyen-thuyet)::before,
 
-    .store-item-card:has(> .item-tag.tag-truyen-thuyet)
-    .card-glow,
+    .store-item-card:has(> .item-tag.tag-truyen-thuyet) .card-glow,
 
-    .store-item-card:has(> .item-tag.tag-truyen-thuyet)
-    .item-icon-wrapper::before,
+    .store-item-card:has(> .item-tag.tag-truyen-thuyet) .item-icon-wrapper::before,
 
-    .store-item-card:has(> .item-tag.tag-truyen-thuyet)
-    .item-icon-wrapper::after {
+    .store-item-card:has(> .item-tag.tag-truyen-thuyet) .item-icon-wrapper::after {
         animation: none !important;
     }
 }
+
 /* =========================================================
    NYX TRINITY STORE CARD — NHẬT THỰC VĨNH DẠ
 
@@ -3845,28 +3315,20 @@ body .store-item-card.store-card-nyx-trinity {
     color: #f6efff !important;
 
     background:
-        radial-gradient(
-            circle at 50% 3%,
+        radial-gradient(circle at 50% 3%,
             rgba(248, 212, 119, 0.14),
-            transparent 27%
-        ),
-        radial-gradient(
-            circle at 13% 72%,
+            transparent 27%),
+        radial-gradient(circle at 13% 72%,
             rgba(109, 40, 217, 0.26),
-            transparent 36%
-        ),
-        radial-gradient(
-            circle at 90% 82%,
+            transparent 36%),
+        radial-gradient(circle at 90% 82%,
             rgba(168, 85, 247, 0.19),
-            transparent 32%
-        ),
-        linear-gradient(
-            155deg,
+            transparent 32%),
+        linear-gradient(155deg,
             #090411 0%,
             #1c092d 38%,
             #10081f 69%,
-            #04030a 100%
-        ) !important;
+            #04030a 100%) !important;
 
     border:
         1px solid rgba(248, 212, 119, 0.63) !important;
@@ -3901,26 +3363,21 @@ body .store-item-card.store-card-nyx-trinity::before {
     height: 190px;
 
     transform:
-        translateX(-50%)
-        rotate(0deg);
+        translateX(-50%) rotate(0deg);
 
     border: none !important;
     border-radius: 50% !important;
 
     background:
-        radial-gradient(
-            circle,
+        radial-gradient(circle,
             #030106 0 44%,
-            transparent 46%
-        ),
-        conic-gradient(
-            from 20deg,
+            transparent 46%),
+        conic-gradient(from 20deg,
             rgba(109, 40, 217, 0.38),
             rgba(233, 213, 255, 0.88),
             rgba(248, 212, 119, 0.86),
             rgba(168, 85, 247, 0.68),
-            rgba(109, 40, 217, 0.38)
-        );
+            rgba(109, 40, 217, 0.38));
 
     box-shadow:
         0 0 17px rgba(233, 213, 255, 0.44),
@@ -3931,10 +3388,7 @@ body .store-item-card.store-card-nyx-trinity::before {
     opacity: 0.84;
 
     animation:
-        nyx-trinity-card-eclipse
-        18s
-        linear
-        infinite;
+        nyx-trinity-card-eclipse 18s linear infinite;
 
     pointer-events: none;
 }
@@ -3958,12 +3412,10 @@ body .store-item-card.store-card-nyx-trinity::after {
         4px 23px 4px 23px;
 
     background:
-        linear-gradient(
-            120deg,
+        linear-gradient(120deg,
             transparent,
             rgba(255, 255, 255, 0.025),
-            transparent
-        );
+            transparent);
 
     box-shadow:
         inset 0 0 20px rgba(168, 85, 247, 0.05);
@@ -3971,8 +3423,7 @@ body .store-item-card.store-card-nyx-trinity::after {
 
 
 /* Toàn bộ nội dung nằm trên lớp nền */
-body .store-item-card.store-card-nyx-trinity
-> * {
+body .store-item-card.store-card-nyx-trinity>* {
     position: relative;
     z-index: 3;
 }
@@ -3982,8 +3433,7 @@ body .store-item-card.store-card-nyx-trinity
    SƯƠNG VÀ ÁNH SÁNG ICON
    ========================================================= */
 
-body .store-item-card.store-card-nyx-trinity
-.card-glow {
+body .store-item-card.store-card-nyx-trinity .card-glow {
     position: absolute;
     z-index: 1;
 
@@ -3998,28 +3448,22 @@ body .store-item-card.store-card-nyx-trinity
     border-radius: 50%;
 
     background:
-        radial-gradient(
-            ellipse,
+        radial-gradient(ellipse,
             rgba(233, 213, 255, 0.2),
             rgba(109, 40, 217, 0.13) 43%,
-            transparent 72%
-        ) !important;
+            transparent 72%) !important;
 
     filter: blur(5px);
 
     opacity: 0.78;
 
     animation:
-        nyx-trinity-card-mist
-        4.6s
-        ease-in-out
-        infinite;
+        nyx-trinity-card-mist 4.6s ease-in-out infinite;
 }
 
 
 /* Khung icon */
-body .store-item-card.store-card-nyx-trinity
-.item-icon-wrapper {
+body .store-item-card.store-card-nyx-trinity .item-icon-wrapper {
     position: relative;
     z-index: 4;
 
@@ -4032,12 +3476,10 @@ body .store-item-card.store-card-nyx-trinity
     border-radius: 50%;
 
     background:
-        radial-gradient(
-            circle,
+        radial-gradient(circle,
             rgba(255, 255, 255, 0.08),
             rgba(109, 40, 217, 0.1) 50%,
-            transparent 72%
-        );
+            transparent 72%);
 
     border:
         1px solid rgba(248, 212, 119, 0.22);
@@ -4049,8 +3491,7 @@ body .store-item-card.store-card-nyx-trinity
 
 
 /* Vòng tinh tú */
-body .store-item-card.store-card-nyx-trinity
-.item-icon-wrapper::before {
+body .store-item-card.store-card-nyx-trinity .item-icon-wrapper::before {
     content: "";
 
     position: absolute;
@@ -4062,27 +3503,21 @@ body .store-item-card.store-card-nyx-trinity
         1px dashed rgba(233, 213, 255, 0.38);
 
     background:
-        repeating-conic-gradient(
-            from 0deg,
+        repeating-conic-gradient(from 0deg,
             rgba(248, 212, 119, 0.7) 0deg 1deg,
-            transparent 1deg 31deg
-        );
+            transparent 1deg 31deg);
 
     opacity: 0.7;
 
     animation:
-        nyx-trinity-card-sigil
-        15s
-        linear
-        infinite;
+        nyx-trinity-card-sigil 15s linear infinite;
 
     pointer-events: none;
 }
 
 
 /* Ngôi sao vàng */
-body .store-item-card.store-card-nyx-trinity
-.item-icon-wrapper::after {
+body .store-item-card.store-card-nyx-trinity .item-icon-wrapper::after {
     content: "✦";
 
     position: absolute;
@@ -4099,28 +3534,19 @@ body .store-item-card.store-card-nyx-trinity
         0 0 12px rgba(168, 85, 247, 0.88);
 
     animation:
-        nyx-trinity-card-star
-        2.8s
-        ease-in-out
-        infinite;
+        nyx-trinity-card-star 2.8s ease-in-out infinite;
 
     pointer-events: none;
 }
 
 
 /* Hình ảnh và emoji */
-body .store-item-card.store-card-nyx-trinity
-.item-icon {
+body .store-item-card.store-card-nyx-trinity .item-icon {
     position: relative;
     z-index: 3;
 
     filter:
-        drop-shadow(
-            0 9px 11px rgba(0, 0, 0, 0.5)
-        )
-        drop-shadow(
-            0 0 8px rgba(168, 85, 247, 0.38)
-        ) !important;
+        drop-shadow(0 9px 11px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 8px rgba(168, 85, 247, 0.38)) !important;
 
     transition:
         transform 0.35s cubic-bezier(.22, 1, .36, 1),
@@ -4129,8 +3555,7 @@ body .store-item-card.store-card-nyx-trinity
 
 
 /* Ảnh Nyx */
-body .store-item-card.store-card-nyx-trinity
-img.item-icon {
+body .store-item-card.store-card-nyx-trinity img.item-icon {
     width: 88px !important;
     height: 88px !important;
 
@@ -4139,8 +3564,7 @@ img.item-icon {
 
 
 /* Emoji theme và effect */
-body .store-item-card.store-card-nyx-trinity
-div.item-icon {
+body .store-item-card.store-card-nyx-trinity div.item-icon {
     font-size: 3.65em !important;
 }
 
@@ -4150,8 +3574,9 @@ div.item-icon {
    Vẫn hiển thị chữ Truyền thuyết
    ========================================================= */
 
-body .store-item-card.store-card-nyx-trinity
-> .item-tag.tag-truyen-thuyet {
+body .store-card-nyx-trinity .item-tag.tag-truyen-thuyet,
+
+.store-card-nyx-little-spirit .item-tag.tag-truyen-thuyet {
     position: absolute !important;
     z-index: 25;
 
@@ -4179,14 +3604,12 @@ body .store-item-card.store-card-nyx-trinity
     color: #f8e8b6 !important;
 
     background:
-        linear-gradient(
-            135deg,
+        linear-gradient(135deg,
             #030207 0%,
             #21142f 27%,
             #6d28d9 48%,
             #392044 68%,
-            #09050e 100%
-        ) !important;
+            #09050e 100%) !important;
 
     border:
         1px solid rgba(248, 212, 119, 0.76) !important;
@@ -4201,8 +3624,7 @@ body .store-item-card.store-card-nyx-trinity
 
 
 /* Chữ tag */
-body .store-item-card.store-card-nyx-trinity
-> .item-tag.tag-truyen-thuyet span {
+body .store-item-card.store-card-nyx-trinity>.item-tag.tag-truyen-thuyet span {
     position: relative;
     z-index: 4;
 
@@ -4233,8 +3655,9 @@ body .store-item-card.store-card-nyx-trinity
 
 
 /* Biểu tượng trăng khuyết */
-body .store-item-card.store-card-nyx-trinity
-> .item-tag.tag-truyen-thuyet::before {
+body .store-card-nyx-trinity .item-tag.tag-truyen-thuyet::before,
+
+.store-card-nyx-little-spirit .item-tag.tag-truyen-thuyet::before {
     content: "☾";
 
     position: absolute;
@@ -4258,8 +3681,9 @@ body .store-item-card.store-card-nyx-trinity
 
 
 /* Sương lướt qua tag */
-body .store-item-card.store-card-nyx-trinity
-> .item-tag.tag-truyen-thuyet::after {
+body .store-card-nyx-trinity .item-tag.tag-truyen-thuyet::after,
+
+.store-card-nyx-little-spirit .item-tag.tag-truyen-thuyet::after {
     content: "";
 
     position: absolute;
@@ -4274,20 +3698,15 @@ body .store-item-card.store-card-nyx-trinity
     border-radius: 50%;
 
     background:
-        radial-gradient(
-            ellipse,
+        radial-gradient(ellipse,
             rgba(233, 213, 255, 0.52),
             rgba(233, 213, 255, 0.08) 52%,
-            transparent 72%
-        );
+            transparent 72%);
 
     filter: blur(4px);
 
     animation:
-        nyx-trinity-tag-fog
-        6.8s
-        ease-in-out
-        infinite;
+        nyx-trinity-tag-fog 6.8s ease-in-out infinite;
 
     pointer-events: none;
 }
@@ -4297,8 +3716,7 @@ body .store-item-card.store-card-nyx-trinity
    TÊN VẬT PHẨM
    ========================================================= */
 
-body .store-item-card.store-card-nyx-trinity
-.item-info {
+body .store-item-card.store-card-nyx-trinity .item-info {
     position: relative;
     z-index: 5;
 
@@ -4306,8 +3724,7 @@ body .store-item-card.store-card-nyx-trinity
 }
 
 
-body .store-item-card.store-card-nyx-trinity
-.item-name {
+body .store-item-card.store-card-nyx-trinity .item-name {
     color: #f7e9bc !important;
 
     font-family:
@@ -4325,8 +3742,7 @@ body .store-item-card.store-card-nyx-trinity
 }
 
 
-body .store-item-card.store-card-nyx-trinity
-.item-type-label {
+body .store-item-card.store-card-nyx-trinity .item-type-label {
     color: #d8c7ed !important;
 
     font-weight: 800;
@@ -4338,8 +3754,7 @@ body .store-item-card.store-card-nyx-trinity
 
 
 /* Vạch vàng dưới tên */
-body .store-item-card.store-card-nyx-trinity
-.item-info::after {
+body .store-item-card.store-card-nyx-trinity .item-info::after {
     content: "";
 
     display: block;
@@ -4351,12 +3766,10 @@ body .store-item-card.store-card-nyx-trinity
         12px auto 0;
 
     background:
-        linear-gradient(
-            90deg,
+        linear-gradient(90deg,
             transparent,
             rgba(248, 212, 119, 0.9),
-            transparent
-        );
+            transparent);
 
     box-shadow:
         0 0 7px rgba(248, 212, 119, 0.31);
@@ -4367,8 +3780,7 @@ body .store-item-card.store-card-nyx-trinity
    NÚT
    ========================================================= */
 
-body .store-item-card.store-card-nyx-trinity
-.item-actions {
+body .store-item-card.store-card-nyx-trinity .item-actions {
     position: relative;
     z-index: 6;
 
@@ -4376,8 +3788,7 @@ body .store-item-card.store-card-nyx-trinity
 }
 
 
-body .store-item-card.store-card-nyx-trinity
-.item-actions button {
+body .store-item-card.store-card-nyx-trinity .item-actions button {
     min-height: 50px;
 
     border-radius:
@@ -4393,20 +3804,15 @@ body .store-item-card.store-card-nyx-trinity
 
 
 /* Nút chính */
-body .store-item-card.store-card-nyx-trinity
-:is(
-    .btn-buy,
-    .btn-equip:not(.active)
-) {
+body .store-item-card.store-card-nyx-trinity:is(.btn-buy,
+    .btn-equip:not(.active)) {
     color: #fff7dc !important;
 
     background:
-        linear-gradient(
-            135deg,
+        linear-gradient(135deg,
             #351050,
             #6d28d9 52%,
-            #9d174d
-        ) !important;
+            #9d174d) !important;
 
     border:
         1px solid rgba(248, 212, 119, 0.5) !important;
@@ -4418,16 +3824,13 @@ body .store-item-card.store-card-nyx-trinity
 
 
 /* Nút phụ */
-body .store-item-card.store-card-nyx-trinity
-.btn-preview {
+body .store-item-card.store-card-nyx-trinity .btn-preview {
     color: #d9c9ed !important;
 
     background:
-        linear-gradient(
-            135deg,
+        linear-gradient(135deg,
             rgba(36, 20, 49, 0.92),
-            rgba(72, 42, 91, 0.88)
-        ) !important;
+            rgba(72, 42, 91, 0.88)) !important;
 
     border:
         1px dashed rgba(216, 199, 237, 0.35) !important;
@@ -4443,8 +3846,7 @@ body .store-item-card.store-card-nyx-trinity
 
 body .store-item-card.store-card-nyx-trinity:hover {
     transform:
-        translateY(-7px)
-        scale(1.012) !important;
+        translateY(-7px) scale(1.012) !important;
 
     border-color:
         rgba(248, 212, 119, 0.9) !important;
@@ -4458,33 +3860,20 @@ body .store-item-card.store-card-nyx-trinity:hover {
 }
 
 
-body .store-item-card.store-card-nyx-trinity:hover
-.item-icon {
+body .store-item-card.store-card-nyx-trinity:hover .item-icon {
     transform:
-        translateY(-4px)
-        scale(1.09)
-        rotate(1deg) !important;
+        translateY(-4px) scale(1.09) rotate(1deg) !important;
 
     filter:
-        drop-shadow(
-            0 12px 14px rgba(0, 0, 0, 0.55)
-        )
-        drop-shadow(
-            0 0 14px rgba(168, 85, 247, 0.65)
-        )
-        drop-shadow(
-            0 0 6px rgba(248, 212, 119, 0.36)
-        ) !important;
+        drop-shadow(0 12px 14px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 14px rgba(168, 85, 247, 0.65)) drop-shadow(0 0 6px rgba(248, 212, 119, 0.36)) !important;
 }
 
 
-body .store-item-card.store-card-nyx-trinity
-.item-actions button:hover:not(:disabled) {
+body .store-item-card.store-card-nyx-trinity .item-actions button:hover:not(:disabled) {
     transform: translateY(-2px);
 
     filter:
-        brightness(1.08)
-        saturate(1.06);
+        brightness(1.08) saturate(1.06);
 }
 
 
@@ -4495,32 +3884,29 @@ body .store-item-card.store-card-nyx-trinity
 @keyframes nyx-trinity-card-eclipse {
     from {
         transform:
-            translateX(-50%)
-            rotate(0deg);
+            translateX(-50%) rotate(0deg);
     }
 
     to {
         transform:
-            translateX(-50%)
-            rotate(360deg);
+            translateX(-50%) rotate(360deg);
     }
 }
 
 
 @keyframes nyx-trinity-card-mist {
+
     0%,
     100% {
         transform:
-            translateX(-50%)
-            scale(0.91);
+            translateX(-50%) scale(0.91);
 
         opacity: 0.48;
     }
 
     50% {
         transform:
-            translateX(-50%)
-            scale(1.09);
+            translateX(-50%) scale(1.09);
 
         opacity: 0.9;
     }
@@ -4539,19 +3925,18 @@ body .store-item-card.store-card-nyx-trinity
 
 
 @keyframes nyx-trinity-card-star {
+
     0%,
     100% {
         transform:
-            translateY(2px)
-            scale(0.82);
+            translateY(2px) scale(0.82);
 
         opacity: 0.48;
     }
 
     50% {
         transform:
-            translateY(-3px)
-            scale(1.08);
+            translateY(-3px) scale(1.08);
 
         opacity: 1;
     }
@@ -4559,11 +3944,11 @@ body .store-item-card.store-card-nyx-trinity
 
 
 @keyframes nyx-trinity-tag-fog {
+
     0%,
     58% {
         transform:
-            translateX(-140%)
-            rotate(12deg);
+            translateX(-140%) rotate(12deg);
 
         opacity: 0;
     }
@@ -4575,8 +3960,7 @@ body .store-item-card.store-card-nyx-trinity
     94%,
     100% {
         transform:
-            translateX(450%)
-            rotate(5deg);
+            translateX(450%) rotate(5deg);
 
         opacity: 0;
     }
@@ -4590,20 +3974,17 @@ body .store-item-card.store-card-nyx-trinity
 @media (prefers-reduced-motion: reduce) {
     body .store-item-card.store-card-nyx-trinity::before,
 
-    body .store-item-card.store-card-nyx-trinity
-    .card-glow,
+    body .store-item-card.store-card-nyx-trinity .card-glow,
 
-    body .store-item-card.store-card-nyx-trinity
-    .item-icon-wrapper::before,
+    body .store-item-card.store-card-nyx-trinity .item-icon-wrapper::before,
 
-    body .store-item-card.store-card-nyx-trinity
-    .item-icon-wrapper::after,
+    body .store-item-card.store-card-nyx-trinity .item-icon-wrapper::after,
 
-    body .store-item-card.store-card-nyx-trinity
-    > .item-tag.tag-truyen-thuyet::after {
+    body .store-item-card.store-card-nyx-trinity>.item-tag.tag-truyen-thuyet::after {
         animation: none !important;
     }
 }
+
 /* =========================================================
    FIX MOBILE — THÁNH VỰC TỐI THƯỢNG
    Class giao diện: theme-legendary-celestial
@@ -4612,8 +3993,7 @@ body .store-item-card.store-card-nyx-trinity
 @media screen and (max-width: 768px) {
 
     /* Sidebar phong cách Thánh Vực Tối Thượng */
-    body.theme-legendary-celestial
-    .dashboard .sidebar {
+    body.theme-legendary-celestial .dashboard .sidebar {
         position: fixed !important;
 
         top: 0 !important;
@@ -4634,22 +4014,16 @@ body .store-item-card.store-card-nyx-trinity
         color: #f5f1ff !important;
 
         background:
-            radial-gradient(
-                circle at 20% 8%,
+            radial-gradient(circle at 20% 8%,
                 rgba(126, 34, 206, 0.27),
-                transparent 28%
-            ),
-            radial-gradient(
-                circle at 85% 85%,
+                transparent 28%),
+            radial-gradient(circle at 85% 85%,
                 rgba(248, 212, 119, 0.12),
-                transparent 30%
-            ),
-            linear-gradient(
-                180deg,
+                transparent 30%),
+            linear-gradient(180deg,
                 rgba(20, 12, 35, 0.99),
                 rgba(10, 6, 19, 0.99) 55%,
-                rgba(5, 3, 10, 0.99)
-            ) !important;
+                rgba(5, 3, 10, 0.99)) !important;
 
         border: none !important;
         border-right:
@@ -4660,8 +4034,7 @@ body .store-item-card.store-card-nyx-trinity
         box-shadow:
             14px 0 38px rgba(0, 0, 0, 0.68),
             inset -1px 0 rgba(248, 212, 119, 0.14),
-            inset 0 0 35px rgba(126, 34, 206, 0.12)
-            !important;
+            inset 0 0 35px rgba(126, 34, 206, 0.12) !important;
 
         backdrop-filter: none !important;
         -webkit-backdrop-filter: none !important;
@@ -4670,14 +4043,12 @@ body .store-item-card.store-card-nyx-trinity
     }
 
     /* Sidebar đóng */
-    body.theme-legendary-celestial
-    .dashboard.collapsed .sidebar {
+    body.theme-legendary-celestial .dashboard.collapsed .sidebar {
         left: -270px !important;
     }
 
     /* Khu vực menu */
-    body.theme-legendary-celestial
-    .sidebar-top {
+    body.theme-legendary-celestial .sidebar-top {
         display: block !important;
         flex: 1 1 auto !important;
 
@@ -4686,10 +4057,8 @@ body .store-item-card.store-card-nyx-trinity
     }
 
     /* Tên học sinh */
-    body.theme-legendary-celestial
-    .sidebar h3,
-    body.theme-legendary-celestial
-    .sidebar-top h3 {
+    body.theme-legendary-celestial .sidebar h3,
+    body.theme-legendary-celestial .sidebar-top h3 {
         display: block !important;
 
         color: #f8d477 !important;
@@ -4699,16 +4068,12 @@ body .store-item-card.store-card-nyx-trinity
 
         text-shadow:
             0 0 12px rgba(248, 212, 119, 0.25),
-            0 0 20px rgba(126, 34, 206, 0.25)
-            !important;
+            0 0 20px rgba(126, 34, 206, 0.25) !important;
     }
 
     /* Các mục menu */
-    body.theme-legendary-celestial
-    .sidebar .nav-item,
-    body.theme-legendary-celestial
-    .dashboard.collapsed
-    .sidebar .nav-item {
+    body.theme-legendary-celestial .sidebar .nav-item,
+    body.theme-legendary-celestial .dashboard.collapsed .sidebar .nav-item {
         width: 100% !important;
         min-width: 0 !important;
         min-height: 52px !important;
@@ -4737,13 +4102,11 @@ body .store-item-card.store-card-nyx-trinity
             14px 5px 14px 5px !important;
 
         box-shadow:
-            inset 0 0 15px rgba(126, 34, 206, 0.035)
-            !important;
+            inset 0 0 15px rgba(126, 34, 206, 0.035) !important;
     }
 
     /* Hiện chữ menu */
-    body.theme-legendary-celestial
-    .sidebar .nav-item .nav-text {
+    body.theme-legendary-celestial .sidebar .nav-item .nav-text {
         display: inline !important;
         visibility: visible !important;
         opacity: 1 !important;
@@ -4752,29 +4115,24 @@ body .store-item-card.store-card-nyx-trinity
     }
 
     /* Mục đang được chọn */
-    body.theme-legendary-celestial
-    .sidebar .nav-item.active {
+    body.theme-legendary-celestial .sidebar .nav-item.active {
         color: #fff2b9 !important;
 
         background:
-            linear-gradient(
-                120deg,
+            linear-gradient(120deg,
                 rgba(126, 34, 206, 0.34),
-                rgba(248, 212, 119, 0.12)
-            ) !important;
+                rgba(248, 212, 119, 0.12)) !important;
 
         border-color:
             rgba(248, 212, 119, 0.7) !important;
 
         box-shadow:
             0 0 18px rgba(126, 34, 206, 0.2),
-            inset 0 0 16px rgba(248, 212, 119, 0.08)
-            !important;
+            inset 0 0 16px rgba(248, 212, 119, 0.08) !important;
     }
 
     /* Phần cuối và nút đăng xuất */
-    body.theme-legendary-celestial
-    .sidebar-bottom {
+    body.theme-legendary-celestial .sidebar-bottom {
         display: block !important;
 
         padding:
@@ -4784,28 +4142,23 @@ body .store-item-card.store-card-nyx-trinity
             1px solid rgba(248, 212, 119, 0.16) !important;
     }
 
-    body.theme-legendary-celestial
-    .sidebar .btn-logout {
+    body.theme-legendary-celestial .sidebar .btn-logout {
         color: #fff2b9 !important;
 
         background:
-            linear-gradient(
-                120deg,
+            linear-gradient(120deg,
                 #4c1d95,
-                #7c3aed
-            ) !important;
+                #7c3aed) !important;
 
         border:
             1px solid rgba(248, 212, 119, 0.32) !important;
 
         box-shadow:
-            0 8px 22px rgba(76, 29, 149, 0.35)
-            !important;
+            0 8px 22px rgba(76, 29, 149, 0.35) !important;
     }
 
     /* Nút đóng/mở sidebar */
-    body.theme-legendary-celestial
-    .sidebar-toggle {
+    body.theme-legendary-celestial .sidebar-toggle {
         position: fixed !important;
 
         top: 15px !important;
@@ -4834,46 +4187,36 @@ body .store-item-card.store-card-nyx-trinity
         color: #fff2b9 !important;
 
         background:
-            linear-gradient(
-                135deg,
+            linear-gradient(135deg,
                 #4c1d95,
                 #7e22ce,
-                #a86f14
-            ) !important;
+                #a86f14) !important;
 
         border:
-            1px solid rgba(248, 212, 119, 0.75)
-            !important;
+            1px solid rgba(248, 212, 119, 0.75) !important;
 
         border-radius: 50% !important;
 
         box-shadow:
             0 7px 20px rgba(76, 29, 149, 0.48),
-            0 0 14px rgba(248, 212, 119, 0.2)
-            !important;
+            0 0 14px rgba(248, 212, 119, 0.2) !important;
 
         z-index: 10002 !important;
     }
 
     /* Khi đóng: nút ☰ ở góc trái */
-    body.theme-legendary-celestial
-    .dashboard.collapsed
-    .sidebar-toggle {
+    body.theme-legendary-celestial .dashboard.collapsed .sidebar-toggle {
         left: 15px !important;
         transform: none !important;
     }
 
-    /* Khi mở: đặt nút X bên trong sidebar */
-    body.theme-legendary-celestial
-    .dashboard:not(.collapsed)
-    .sidebar-toggle {
-        left: 205px !important;
+    /* Mobile: nút X vẫn ở góc trái; sidebar trượt độc lập. */
+    body.theme-legendary-celestial .dashboard:not(.collapsed) .sidebar-toggle {
+        left: 15px !important;
         transform: none !important;
     }
 
-    body.theme-legendary-celestial
-    .dashboard.collapsed
-    .sidebar-toggle::before {
+    body.theme-legendary-celestial .dashboard.collapsed .sidebar-toggle::before {
         content: "☰" !important;
 
         color: #fff2b9 !important;
@@ -4882,9 +4225,7 @@ body .store-item-card.store-card-nyx-trinity
         line-height: 1 !important;
     }
 
-    body.theme-legendary-celestial
-    .dashboard:not(.collapsed)
-    .sidebar-toggle::before {
+    body.theme-legendary-celestial .dashboard:not(.collapsed) .sidebar-toggle::before {
         content: "✕" !important;
 
         color: #ffffff !important;
@@ -4893,29 +4234,21 @@ body .store-item-card.store-card-nyx-trinity
         line-height: 1 !important;
     }
 
-    /* Ẩn 4 nút góc trên khi sidebar mở */
-    body.theme-legendary-celestial
-    .dashboard:not(.collapsed)
-    .content > :is(
-        .profile-trigger-btn,
+    /* Mobile: 4 nút hệ thống không bị sidebar che/khóa. */
+    body.theme-legendary-celestial .dashboard:not(.collapsed) .content> :is(.profile-trigger-btn,
         .inbox-trigger-btn,
         .bag-trigger-btn,
         .leaderboard-trigger-btn,
-        #btnLeaderboard
-    ) {
-        visibility: hidden !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
+        #btnLeaderboard) {
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
     }
 
     /* Ẩn Coin và thú cưng khi sidebar mở */
-    body.theme-legendary-celestial:has(
-        .dashboard:not(.collapsed)
-    ) #coinWidget,
+    body.theme-legendary-celestial:has(.dashboard:not(.collapsed)) #coinWidget,
 
-    body.theme-legendary-celestial:has(
-        .dashboard:not(.collapsed)
-    ) #virtual-pet-container {
+    body.theme-legendary-celestial:has(.dashboard:not(.collapsed)) #virtual-pet-container {
         visibility: hidden !important;
         opacity: 0 !important;
         pointer-events: none !important;
@@ -4947,13 +4280,9 @@ body .store-item-card.store-card-nyx-trinity
      * bằng h3::before. Giao diện đã có huy hiệu sidebar::after,
      * vì vậy ẩn hẳn tiêu đề và pseudo-element bị lặp.
      */
-    body.theme-legendary-celestial
-    .dashboard.collapsed
-    .sidebar h3,
+    body.theme-legendary-celestial .dashboard.collapsed .sidebar h3,
 
-    body.theme-legendary-celestial
-    .dashboard.collapsed
-    .sidebar-top h3 {
+    body.theme-legendary-celestial .dashboard.collapsed .sidebar-top h3 {
         display: none !important;
         visibility: hidden !important;
 
@@ -4971,36 +4300,24 @@ body .store-item-card.store-card-nyx-trinity
         line-height: 0 !important;
     }
 
-    body.theme-legendary-celestial
-    .dashboard.collapsed
-    .sidebar h3::before,
+    body.theme-legendary-celestial .dashboard.collapsed .sidebar h3::before,
 
-    body.theme-legendary-celestial
-    .dashboard.collapsed
-    .sidebar h3::after,
+    body.theme-legendary-celestial .dashboard.collapsed .sidebar h3::after,
 
-    body.theme-legendary-celestial
-    .dashboard.collapsed
-    .sidebar-top h3::before,
+    body.theme-legendary-celestial .dashboard.collapsed .sidebar-top h3::before,
 
-    body.theme-legendary-celestial
-    .dashboard.collapsed
-    .sidebar-top h3::after {
+    body.theme-legendary-celestial .dashboard.collapsed .sidebar-top h3::after {
         content: none !important;
         display: none !important;
     }
 
     /* Đưa dãy nút menu lên gần huy hiệu hơn sau khi bỏ tiêu đề. */
-    body.theme-legendary-celestial
-    .dashboard.collapsed
-    .sidebar-top {
+    body.theme-legendary-celestial .dashboard.collapsed .sidebar-top {
         padding:
             88px 10px 18px !important;
     }
 
-    body.theme-legendary-celestial
-    .dashboard.collapsed
-    .sidebar-bottom {
+    body.theme-legendary-celestial .dashboard.collapsed .sidebar-bottom {
         padding:
             14px 10px 18px !important;
     }
@@ -5009,9 +4326,7 @@ body .store-item-card.store-card-nyx-trinity
      * Bản cũ dùng padding trái tối đa 66px cho cả sidebar mở và đóng.
      * Khi sidebar chỉ còn 96px, khoảng này tạo một dải trống quá lớn.
      */
-    body.theme-legendary-celestial
-    .dashboard.collapsed
-    .content {
+    body.theme-legendary-celestial .dashboard.collapsed .content {
         width:
             calc(100% - 96px) !important;
 
@@ -5023,10 +4338,281 @@ body .store-item-card.store-card-nyx-trinity
     }
 
     /* Giữ khoảng cách nhỏ, đều giữa các nút trong sidebar thu gọn. */
-    body.theme-legendary-celestial
-    .dashboard.collapsed
-    .nav-item {
+    body.theme-legendary-celestial .dashboard.collapsed .nav-item {
         margin:
             0 0 8px !important;
     }
+}
+
+/* ============================================================================
+   NYX · SHARED LEGENDARY TAG
+   Đồng bộ tag TRUYỀN THUYẾT cho toàn bộ bộ Nguyệt Dạ:
+   - NYX gốc
+   - NYX · Tiểu Dạ Tinh Linh
+   - Thánh Điện Nguyệt Dạ
+   - Dạ Triều Tinh Nguyệt
+   - Nguyệt Dạ · Hắc Nguyệt Chi Hoàn
+   ============================================================================ */
+
+
+/* ============================================================
+   1. KHUNG TAG
+   ============================================================ */
+
+body .store-item-card.store-card-nyx-trinity>.item-tag.tag-truyen-thuyet,
+
+body .store-item-card.store-card-nyx-little-spirit>.item-tag.tag-truyen-thuyet,
+
+body .store-item-card[ data-item-id="theme_truyenthuyet_thanh_dien_nguyet_da"
+]>.item-tag.tag-truyen-thuyet,
+
+body .store-item-card[ data-item-id="effect_truyenthuyet_da_trieu_tinh_nguyet"
+]>.item-tag.tag-truyen-thuyet,
+
+body .store-item-card[ data-item-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"
+]>.item-tag.tag-truyen-thuyet,
+body .store-item-card[ data-item-id="background_truyenthuyet_nyx_vinh_da_thien_mac"
+
+]>.item-tag.tag-truyen-thuyet {
+
+    position: absolute !important;
+    z-index: 25 !important;
+
+    top: 14px !important;
+    right: -45px !important;
+
+    left: auto !important;
+    bottom: auto !important;
+
+    width: 162px !important;
+    min-width: 162px !important;
+    height: 37px !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    overflow: hidden !important;
+
+    transform:
+        rotate(45deg) !important;
+
+    color:
+        #f8e8b6 !important;
+
+    background:
+        linear-gradient(135deg,
+
+            #030207 0%,
+            #21142f 27%,
+            #6d28d9 48%,
+            #392044 68%,
+            #09050e 100%) !important;
+
+    border:
+        1px solid rgba(248, 212, 119, .76) !important;
+
+    border-radius:
+        2px !important;
+
+    box-shadow:
+        0 7px 18px rgba(0, 0, 0, .58),
+
+        0 0 13px rgba(109, 40, 217, .31),
+
+        inset 0 -3px 0 rgba(248, 212, 119, .30) !important;
+}
+
+
+/* ============================================================
+   2. CHỮ "TRUYỀN THUYẾT"
+   ============================================================ */
+
+body .store-item-card.store-card-nyx-trinity>.item-tag.tag-truyen-thuyet span,
+
+body .store-item-card.store-card-nyx-little-spirit>.item-tag.tag-truyen-thuyet span,
+
+body .store-item-card[ data-item-id="theme_truyenthuyet_thanh_dien_nguyet_da"
+]>.item-tag.tag-truyen-thuyet span,
+
+body .store-item-card[ data-item-id="effect_truyenthuyet_da_trieu_tinh_nguyet"
+]>.item-tag.tag-truyen-thuyet span,
+
+body .store-item-card[ data-item-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"
+
+]>.item-tag.tag-truyen-thuyet span,
+body .store-item-card[ data-item-id="background_truyenthuyet_nyx_vinh_da_thien_mac"
+
+]>.item-tag.tag-truyen-thuyet span {
+
+    position:
+        relative !important;
+
+    z-index:
+        4 !important;
+
+    display:
+        block !important;
+
+    padding-left:
+        19px !important;
+
+    color:
+        #f8e8b6 !important;
+
+    -webkit-text-fill-color:
+        #f8e8b6 !important;
+
+    font-family:
+        "Cinzel",
+        "Palatino Linotype",
+        Georgia,
+        serif !important;
+
+    font-size:
+        9.7px !important;
+
+    font-weight:
+        900 !important;
+
+    line-height:
+        1 !important;
+
+    letter-spacing:
+        .38px !important;
+
+    text-transform:
+        uppercase !important;
+
+    white-space:
+        nowrap !important;
+
+    text-shadow:
+        0 1px 0 #000,
+
+        0 0 6px rgba(248, 212, 119, .42) !important;
+}
+
+
+/* ============================================================
+   3. BIỂU TƯỢNG TRĂNG
+   ============================================================ */
+
+body .store-item-card.store-card-nyx-trinity>.item-tag.tag-truyen-thuyet::before,
+
+body .store-item-card.store-card-nyx-little-spirit>.item-tag.tag-truyen-thuyet::before,
+
+body .store-item-card[ data-item-id="theme_truyenthuyet_thanh_dien_nguyet_da"
+]>.item-tag.tag-truyen-thuyet::before,
+
+body .store-item-card[ data-item-id="effect_truyenthuyet_da_trieu_tinh_nguyet"
+]>.item-tag.tag-truyen-thuyet::before,
+
+body .store-item-card[ data-item-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"
+
+]>.item-tag.tag-truyen-thuyet::before,
+body .store-item-card[ data-item-id="background_truyenthuyet_nyx_vinh_da_thien_mac"
+
+]>.item-tag.tag-truyen-thuyet::before {
+
+    content:
+        "☾" !important;
+
+    position:
+        absolute !important;
+
+    z-index:
+        5 !important;
+
+    left:
+        27px !important;
+
+    top:
+        50% !important;
+
+    transform:
+        translateY(-52%) !important;
+
+    color:
+        #f8d477 !important;
+
+    font-size:
+        16px !important;
+
+    text-shadow:
+        0 0 5px rgba(248, 212, 119, .92),
+
+        0 0 12px rgba(168, 85, 247, .62) !important;
+
+    pointer-events:
+        none !important;
+}
+
+
+/* ============================================================
+   4. SƯƠNG QUÉT TRÊN TAG
+   ============================================================ */
+
+body .store-item-card.store-card-nyx-trinity>.item-tag.tag-truyen-thuyet::after,
+
+body .store-item-card.store-card-nyx-little-spirit>.item-tag.tag-truyen-thuyet::after,
+
+body .store-item-card[ data-item-id="theme_truyenthuyet_thanh_dien_nguyet_da"
+]>.item-tag.tag-truyen-thuyet::after,
+
+body .store-item-card[ data-item-id="effect_truyenthuyet_da_trieu_tinh_nguyet"
+]>.item-tag.tag-truyen-thuyet::after,
+
+body .store-item-card[ data-item-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"
+
+]>.item-tag.tag-truyen-thuyet::after,
+body .store-item-card[ data-item-id="background_truyenthuyet_nyx_vinh_da_thien_mac"
+
+]>.item-tag.tag-truyen-thuyet::after {
+
+    content:
+        "" !important;
+
+    position:
+        absolute !important;
+
+    z-index:
+        2 !important;
+
+    top:
+        -65% !important;
+
+    left:
+        -45% !important;
+
+    width:
+        48% !important;
+
+    height:
+        230% !important;
+
+    border-radius:
+        50% !important;
+
+    background:
+        radial-gradient(ellipse,
+
+            rgba(233, 213, 255, .52),
+
+            rgba(233, 213, 255, .08) 52%,
+
+            transparent 72%) !important;
+
+    filter:
+        blur(4px) !important;
+
+    animation:
+        nyx-trinity-tag-fog 6.8s ease-in-out infinite !important;
+
+    pointer-events:
+        none !important;
 }

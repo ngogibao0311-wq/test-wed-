@@ -82,6 +82,7 @@ body.leaderboard-open {
 .leaderboard-trigger-btn:focus-visible,
 .lb-icon-btn:focus-visible,
 .lb-rules-btn:focus-visible,
+.lb-month-nav-btn:focus-visible,
 .lb-primary-btn:focus-visible,
 .lb-reward-option:focus-visible {
     outline: 3px solid rgba(109,93,252,.28);
@@ -273,6 +274,50 @@ body.leaderboard-open {
     flex-wrap: wrap;
 }
 
+.lb-month-switcher {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.lb-month-nav-btn {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    flex: 0 0 32px;
+    border: 1px solid rgba(255,255,255,.22);
+    border-radius: 50%;
+    color: #fff;
+    background: rgba(9,15,56,.22);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
+    font-family: inherit;
+    font-size: 1.35rem;
+    font-weight: 900;
+    line-height: 1;
+    cursor: pointer;
+    transition:
+        transform .18s ease,
+        background .18s ease,
+        opacity .18s ease;
+}
+
+.lb-month-nav-btn:hover:not(:disabled) {
+    transform: translateY(-1px) scale(1.04);
+    background: rgba(255,255,255,.20);
+}
+
+.lb-month-nav-btn:active:not(:disabled) {
+    transform: scale(.94);
+}
+
+.lb-month-nav-btn:disabled {
+    opacity: .34;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
 .lb-season-chip,
 .lb-live-chip {
     min-height: 32px;
@@ -286,6 +331,8 @@ body.leaderboard-open {
 }
 
 .lb-season-chip {
+    min-width: 172px;
+    justify-content: center;
     color: #fff;
     background: rgba(9,15,56,.24);
     border: 1px solid rgba(255,255,255,.18);
@@ -295,6 +342,16 @@ body.leaderboard-open {
     color: #dffdf3;
     background: rgba(6,78,59,.34);
     border: 1px solid rgba(167,243,208,.28);
+    transition:
+        color .18s ease,
+        background .18s ease,
+        border-color .18s ease;
+}
+
+.lb-live-chip.is-history {
+    color: #eef2ff;
+    background: rgba(51,65,85,.38);
+    border-color: rgba(226,232,240,.24);
 }
 
 .lb-live-dot {
@@ -304,6 +361,12 @@ body.leaderboard-open {
     background: #5ee9a7;
     box-shadow: 0 0 0 5px rgba(94,233,167,.14);
     animation: lbPulse 1.8s infinite;
+}
+
+.lb-live-chip.is-history .lb-live-dot {
+    background: #cbd5e1;
+    box-shadow: 0 0 0 4px rgba(203,213,225,.10);
+    animation: none;
 }
 
 .lb-content {
@@ -1136,6 +1199,22 @@ body.leaderboard-open {
 
     .lb-season-line {
         margin-top: 21px;
+        gap: 8px;
+    }
+
+    .lb-month-switcher {
+        gap: 5px;
+    }
+
+    .lb-month-nav-btn {
+        width: 30px;
+        height: 30px;
+        flex-basis: 30px;
+        font-size: 1.2rem;
+    }
+
+    .lb-season-chip {
+        min-width: 150px;
     }
 
     .lb-content {
@@ -1308,6 +1387,17 @@ body.leaderboard-open {
         min-height: 28px;
         padding: 0 9px;
         font-size: .7rem;
+    }
+
+    .lb-season-chip {
+        min-width: 132px;
+    }
+
+    .lb-month-nav-btn {
+        width: 28px;
+        height: 28px;
+        flex-basis: 28px;
+        font-size: 1.1rem;
     }
 
     .lb-podium-score small,

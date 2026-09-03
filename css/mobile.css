@@ -67,7 +67,7 @@
     }
 
     .dashboard:not(.collapsed) .sidebar-toggle {
-        left: 275px !important;
+        left: 15px !important;
         background: #e11d48 !important;
         box-shadow: 0 4px 10px rgba(225, 29, 72, 0.4) !important;
     }
@@ -929,4 +929,157 @@
     .login-layout-choice-copy {
         padding-right: 0 !important;
     }
+}
+
+/* ============================================================================
+   MOBILE UI STABILITY — SINGLE SOURCE OF TRUTH
+   Sidebar chuyển động độc lập; các nút điều khiển cố định theo viewport.
+   ============================================================================ */
+@media screen and (max-width: 768px) {
+    html body .sidebar-toggle {
+        position: fixed !important;
+        top: 15px !important;
+        left: 15px !important;
+        right: auto !important;
+        width: 45px !important;
+        min-width: 45px !important;
+        max-width: 45px !important;
+        height: 45px !important;
+        min-height: 45px !important;
+        max-height: 45px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        transform: none !important;
+        transition: background-color .2s ease, box-shadow .2s ease !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        z-index: 2147483000 !important;
+        touch-action: manipulation !important;
+        -webkit-tap-highlight-color: transparent !important;
+    }
+
+    html body .dashboard:not(.collapsed) .sidebar-toggle,
+    html body .dashboard.collapsed .sidebar-toggle {
+        left: 15px !important;
+        right: auto !important;
+        transform: none !important;
+    }
+
+    html body .sidebar-toggle:active,
+    html body .sidebar-toggle:focus,
+    html body .sidebar-toggle:focus-visible,
+    html body .sidebar-toggle:hover {
+        transform: none !important;
+    }
+
+    html body .dashboard.collapsed .sidebar-toggle::before {
+        content: "☰" !important;
+    }
+
+    html body .dashboard:not(.collapsed) .sidebar-toggle::before {
+        content: "✕" !important;
+    }
+
+    html body .sidebar {
+        z-index: 2147482000 !important;
+    }
+
+    html body .profile-trigger-btn,
+    html body .bag-trigger-btn,
+    html body .inbox-trigger-btn,
+    html body .leaderboard-trigger-btn,
+    html body #btnLeaderboard {
+        position: fixed !important;
+        top: 15px !important;
+        width: 40px !important;
+        min-width: 40px !important;
+        max-width: 40px !important;
+        height: 40px !important;
+        min-height: 40px !important;
+        max-height: 40px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        transform: none !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        touch-action: manipulation !important;
+        -webkit-tap-highlight-color: transparent !important;
+        transition: background-color .2s ease, box-shadow .2s ease, opacity .2s ease !important;
+        z-index: 2147482999 !important;
+    }
+
+    html body .profile-trigger-btn { right: 15px !important; left: auto !important; }
+    html body .bag-trigger-btn { right: 65px !important; left: auto !important; }
+    html body .inbox-trigger-btn { right: 115px !important; left: auto !important; }
+    html body .leaderboard-trigger-btn,
+    html body #btnLeaderboard { right: 165px !important; left: auto !important; }
+
+    html body .profile-trigger-btn:active,
+    html body .bag-trigger-btn:active,
+    html body .inbox-trigger-btn:active,
+    html body .leaderboard-trigger-btn:active,
+    html body #btnLeaderboard:active,
+    html body .profile-trigger-btn:hover,
+    html body .bag-trigger-btn:hover,
+    html body .inbox-trigger-btn:hover,
+    html body .leaderboard-trigger-btn:hover,
+    html body #btnLeaderboard:hover,
+    html body .profile-trigger-btn:focus,
+    html body .bag-trigger-btn:focus,
+    html body .inbox-trigger-btn:focus,
+    html body .leaderboard-trigger-btn:focus,
+    html body #btnLeaderboard:focus {
+        transform: none !important;
+    }
+
+    html body .dashboard:not(.collapsed) .content > :is(
+        .profile-trigger-btn,
+        .inbox-trigger-btn,
+        .bag-trigger-btn,
+        .leaderboard-trigger-btn,
+        #btnLeaderboard
+    ) {
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+
+    @supports (top: env(safe-area-inset-top)) {
+        html body .sidebar-toggle,
+        html body .profile-trigger-btn,
+        html body .bag-trigger-btn,
+        html body .inbox-trigger-btn,
+        html body .leaderboard-trigger-btn,
+        html body #btnLeaderboard {
+            top: max(15px, env(safe-area-inset-top)) !important;
+        }
+    }
+}
+/* ==========================================
+   TỐI ƯU THANH LỌC DANH MỤC CỬA HÀNG
+   ========================================== */
+#storeCategoryFilter {
+    padding-bottom: 12px !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important; /* Ẩn thanh cuộn trên Firefox */
+    gap: 10px !important;
+    scroll-behavior: smooth !important;
+}
+
+/* Ẩn thanh cuộn trên Chrome/Safari */
+#storeCategoryFilter::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* Ghi đè lại width: 100% của .btn-approve để nút không bị kéo dài */
+#storeCategoryFilter .btn-approve {
+    width: auto !important;
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    padding: 8px 16px !important; 
 }

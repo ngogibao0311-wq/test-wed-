@@ -5,6 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Trang Giáo Viên</title>
+    <!-- Kết nối sớm tới CDN lõi; không tải thêm tài nguyên và không đổi chức năng -->
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="stylesheet" href="css/common.css?v=3.8">
     <link rel="stylesheet" href="css/teacher.css?v=3.8">
@@ -15,6 +19,7 @@
     <link rel="stylesheet" href="css/daily-login.css?v=3.8">
     <link rel="stylesheet" href="css/painting.css?v=3.8">
     <link rel="stylesheet" href="css/luxury-store.css?v=4.2">
+    <link rel="stylesheet" href="css/update-manager.css?v=1.0.0">
     <script>
         MathJax = {
             tex: {
@@ -396,7 +401,7 @@
                 <span id="appStartupNetworkText">Đang kiểm tra mạng</span>
             </div>
 
-            <div id="appStartupDetails">Hệ thống sẽ chỉ mở giao diện sau khi các dữ liệu bắt buộc đã phản hồi.</div>
+            <div id="appStartupDetails">Hệ thống sẽ chỉ mở giao diện sau khi các dữ liệu bắt buộc đã phản hồi. Đang kiểm tra cấu hình tối ưu hiệu năng...</div>
 
             <div id="appStartupError" hidden>
                 <strong>Không thể hoàn tất khởi động</strong>
@@ -2064,6 +2069,32 @@
                         </div>
                     </div>
                 </div>
+
+                <div id="teacherLuxuryStoreManageCard" class="card accordion-card" style="margin-top: 20px;">
+                    <div class="accordion-header" onclick="toggleAccordion('luxuryStoreManageView', this)">
+                        <div class="accordion-title">
+                            <h3 style="color: #7c3aed; margin: 0; display: flex; align-items: center; gap: 8px;">
+                                💎 Quản lý Cửa hàng Sang trọng
+                            </h3>
+                        </div>
+                        <div class="accordion-meta"><span class="toggle-icon">▼</span></div>
+                    </div>
+
+                    <div id="luxuryStoreManageView" class="accordion-content">
+                        <div
+                            style="margin-bottom:15px; padding:14px 16px; border-radius:12px; border:1px dashed rgba(124,58,237,.35); background:rgba(124,58,237,.06); color:#5b3f86; line-height:1.55;">
+                            <strong>💎 Quản lý riêng vật phẩm Sang trọng</strong><br>
+                            Khóa / mở khóa từng vật phẩm mà không thay đổi cơ chế mua, nhận thưởng, trang bị hoặc các logic cửa hàng khác.
+                            Khi khóa, phía học sinh sẽ thấy toàn bộ thẻ bị che đen và có dấu <strong>?</strong> lớn ở giữa.
+                        </div>
+
+                        <div
+                            style="background:rgba(255,255,255,.55); padding:15px; border-radius:12px; border:1px solid rgba(124,58,237,.14);">
+                            <h4 style="color:#4c1d95; margin:0 0 15px;">📦 Danh sách Vật phẩm Sang trọng</h4>
+                            <div id="teacherLuxuryStoreItemsList"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div id="tab-question-bank" class="tab-content">
@@ -3247,8 +3278,19 @@
 
     <!-- 3. Mã nền tảng -->
     <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
+    <script>
+        // Phiên bản thực sự của bộ HTML/JS đang chạy.
+        // common.js cũ đọc appVersion từ localStorage, nên đồng bộ trước khi nạp common.js.
+        window.APP_VERSION = '3.3.0';
+        try {
+            localStorage.setItem('appVersion', window.APP_VERSION);
+        } catch (_) {}
+    </script>
     <script src="js/common.js?v=3.6"></script>
+    <script src="js/update-manager.js?v=1.0.0"></script>
     <script src="js/web-animations.js?v=1.0"></script>
+    <!-- Tối ưu hiệu năng: tự bật trên mobile; desktop theo Cài đặt -->
+    <script src="js/web-performance-optimizer.js?v=2.0.0"></script>
     <script src="js/transaction-history.js?v=3.8"></script>
     <script src="js/security.js?v=3.8"></script>
 
@@ -3259,15 +3301,15 @@
     <script src="js/pet-items.js?v=4.2"></script>
     <script src="js/royal-ball.js?v=3.8"></script>
     <script src="js/music-manager.js?v=3.8"></script>
-    <script src="js/store-manager.js?v=3.8"></script>
+    <script src="js/store-manager.js?v=3.8.1"></script>
     <script src="js/painting.js?v=3.8"></script>
-    <script src="js/luxury-store.js?v=4.2"></script>
+    <script src="js/luxury-store.js?v=4.2.1"></script>
 
     <!-- 5. Logic chính của trang giáo viên luôn đặt cuối -->
     <!-- Hotfix: xác nhận cài đặt lộ trình trước khi teacher.js chờ loader -->
     <script src="js/roadmap-startup-fix.js?v=1.0"></script>
 
-    <script src="js/teacher.js?v=3.8"></script>
+    <script src="js/teacher.js?v=3.9.2"></script>
     <script src="js/huong-dan-nguoi-moi.js?v=1.0.0"></script>
 </body>
 
