@@ -165,6 +165,17 @@ class ThemeManager {
             background: '#080b14',
             className: 'theme-tamon-bside-backstage'
         },
+
+        // =========================================================
+        // CẦM MỘNG · THANH HUYỀN TIÊN CÁC
+        // Theme hoàn toàn mới: cmtheme1-*
+        // =========================================================
+        'theme_cam_mong_thanh_huyen_tien_cac': {
+            primary: '#2f9a7e',
+            secondary: '#e0c16d',
+            background: '#071c17',
+            className: 'theme-cam-mong-thanh-huyen-tien-cac'
+        },
     };
 
     // Những popup phải giữ giao diện riêng,
@@ -255,6 +266,17 @@ class ThemeManager {
             className:
                 'store-card-birthday-2026'
         }),
+
+        /* MÙA HẠ PREMIUM — card riêng, không nhận skin từ theme khác. */
+        'summer-premium-pet': Object.freeze({
+            itemIds: Object.freeze([
+                'pet_luxury_mua_ha'
+            ]),
+
+            className:
+                'store-card-summer-premium'
+        }),
+
 'national-day-premium-pet': Object.freeze({
             itemIds: Object.freeze([
                 'pet_quoc_khanh_1'
@@ -282,6 +304,20 @@ class ThemeManager {
         }),
 
         /* =========================================================
+           CẦM MỘNG · THANH HUYỀN
+           Pet + theme dùng chung card/tag, miễn mọi theme khác.
+           ========================================================= */
+        'cam-mong-thanh-huyen-pair': Object.freeze({
+            itemIds: Object.freeze([
+                'pet_cam_mong_chibi_1',
+                'theme_cam_mong_thanh_huyen_tien_cac'
+            ]),
+
+            className:
+                'store-card-cam-mong-chibi'
+        }),
+
+        /* =========================================================
    TAMON'S B-SIDE · PET PREMIUM
    Card có skin riêng nhưng giữ nguyên bố cục của Luxury Store.
    Khi một theme toàn web đang hoạt động, card này vẫn được miễn skin.
@@ -306,6 +342,19 @@ class ThemeManager {
 
             className:
                 'store-card-tamon-pink-static'
+        }),
+
+        /* =========================================================
+           TRUNG THU · NGUYỆT CUNG TIÊN TỬ PREMIUM
+           Card riêng, giữ nguyên bố cục Luxury Store và miễn mọi theme khác.
+           ========================================================= */
+        'midautumn-moon-palace-premium': Object.freeze({
+            itemIds: Object.freeze([
+                'pet_trung_thu_nguyet_cung_tien_tu'
+            ]),
+
+            className:
+                'store-card-midautumn-moon-palace'
         }),
 
         /* =========================================================
@@ -891,10 +940,220 @@ class ThemeManager {
         });
     }
 
+
+    // =========================================================
+    // CẦM MỘNG · THANH HUYỀN TIÊN CÁC
+    // Decor/effect hoàn toàn mới: cmtheme1-*
+    // =========================================================
+    static clearCamMongThanhHuyenDecor() {
+        document
+            .getElementById(
+                'cmtheme1-court-decor'
+            )
+            ?.remove();
+
+        document.documentElement.classList.remove(
+            'cmtheme1-court-mounted'
+        );
+    }
+
+    static createCamMongThanhHuyenDecor() {
+        this.clearCamMongThanhHuyenDecor();
+
+        if (!document.body) return;
+
+        const decor =
+            document.createElement('div');
+
+        decor.id =
+            'cmtheme1-court-decor';
+
+        decor.className =
+            'cmtheme1-court-decor';
+
+        decor.setAttribute(
+            'aria-hidden',
+            'true'
+        );
+
+        decor.innerHTML = `
+            <div class="cmtheme1-screen-silk"></div>
+
+            <div class="cmtheme1-moon-window">
+                <i></i>
+                <b>琴</b>
+                <span>梦</span>
+            </div>
+
+            <div class="cmtheme1-palace-line palace-left"></div>
+            <div class="cmtheme1-palace-line palace-right"></div>
+
+            <div class="cmtheme1-cloud cloud-a"></div>
+            <div class="cmtheme1-cloud cloud-b"></div>
+            <div class="cmtheme1-cloud cloud-c"></div>
+
+            <div class="cmtheme1-ribbon ribbon-a"></div>
+            <div class="cmtheme1-ribbon ribbon-b"></div>
+
+            <div class="cmtheme1-qin-field"></div>
+            <div class="cmtheme1-lantern-field"></div>
+            <div class="cmtheme1-petal-field"></div>
+            <div class="cmtheme1-jade-dust"></div>
+
+            <div class="cmtheme1-corner corner-tl">❀</div>
+            <div class="cmtheme1-corner corner-tr">❀</div>
+            <div class="cmtheme1-corner corner-bl">琴</div>
+            <div class="cmtheme1-corner corner-br">梦</div>
+
+            <div class="cmtheme1-caption">
+                <small>清 弦 · 梦 阁</small>
+                <strong>THANH HUYỀN CẦM MỘNG TIÊN CÁC</strong>
+            </div>
+        `;
+
+        const qinField =
+            decor.querySelector(
+                '.cmtheme1-qin-field'
+            );
+
+        for (let index = 0; index < 11; index++) {
+            const string =
+                document.createElement('i');
+
+            string.style.setProperty(
+                '--cmtheme1-qdelay',
+                `${-index * .19}s`
+            );
+
+            qinField?.appendChild(string);
+        }
+
+        const lanternField =
+            decor.querySelector(
+                '.cmtheme1-lantern-field'
+            );
+
+        for (let index = 0; index < 6; index++) {
+            const lantern =
+                document.createElement('i');
+
+            lantern.innerHTML =
+                '<b></b><span></span>';
+
+            lantern.style.setProperty(
+                '--cmtheme1-lx',
+                `${7 + ((index * 83) % 86)}%`
+            );
+
+            lantern.style.setProperty(
+                '--cmtheme1-ly',
+                `${11 + ((index * 47) % 57)}%`
+            );
+
+            lantern.style.setProperty(
+                '--cmtheme1-ld',
+                `${-index * .74}s`
+            );
+
+            lanternField?.appendChild(lantern);
+        }
+
+        const petalField =
+            decor.querySelector(
+                '.cmtheme1-petal-field'
+            );
+
+        const dustField =
+            decor.querySelector(
+                '.cmtheme1-jade-dust'
+            );
+
+        const reduced =
+            window.matchMedia?.(
+                '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+            ).matches;
+
+        const petalCount =
+            reduced ? 14 : 34;
+
+        const dustCount =
+            reduced ? 18 : 42;
+
+        for (
+            let index = 0;
+            index < petalCount;
+            index++
+        ) {
+            const petal =
+                document.createElement('i');
+
+            petal.style.setProperty(
+                '--cmtheme1-px',
+                `${(index * 37 + 8) % 96}%`
+            );
+
+            petal.style.setProperty(
+                '--cmtheme1-pd',
+                `${-(index % 11) * .57}s`
+            );
+
+            petal.style.setProperty(
+                '--cmtheme1-ps',
+                `${6 + (index % 5) * 1.25}px`
+            );
+
+            petal.style.setProperty(
+                '--cmtheme1-pr',
+                `${(index * 41) % 180}deg`
+            );
+
+            petalField?.appendChild(petal);
+        }
+
+        for (
+            let index = 0;
+            index < dustCount;
+            index++
+        ) {
+            const dust =
+                document.createElement('i');
+
+            dust.style.setProperty(
+                '--cmtheme1-dx',
+                `${(index * 29 + 4) % 97}%`
+            );
+
+            dust.style.setProperty(
+                '--cmtheme1-dy',
+                `${(index * 53 + 6) % 91}%`
+            );
+
+            dust.style.setProperty(
+                '--cmtheme1-dd',
+                `${-(index % 13) * .44}s`
+            );
+
+            dustField?.appendChild(dust);
+        }
+
+        document.body.prepend(decor);
+
+        document.documentElement.classList.add(
+            'cmtheme1-court-mounted'
+        );
+
+        requestAnimationFrame(() => {
+            decor.classList.add(
+                'is-mounted'
+            );
+        });
+    }
+
     static applyTheme(themeId) {
         this.initThemePopupIsolation();
         this.clearAcediaPalaceDecor();
         this.clearTamonBsideBackstageDecor();
+        this.clearCamMongThanhHuyenDecor();
         const theme = this.themes[themeId] || this.themes['default'];
         const root = document.documentElement;
 
@@ -927,6 +1186,13 @@ class ThemeManager {
             'theme_tamon_bside_backstage'
         ) {
             this.createTamonBsideBackstageDecor();
+        }
+
+        if (
+            themeId ===
+            'theme_cam_mong_thanh_huyen_tien_cac'
+        ) {
+            this.createCamMongThanhHuyenDecor();
         }
 
         // Lưu lựa chọn vào bộ nhớ trình duyệt

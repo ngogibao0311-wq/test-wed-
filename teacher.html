@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="stylesheet" href="css/common.css?v=3.8">
-    <link rel="stylesheet" href="css/teacher.css?v=3.8">
+    <link rel="stylesheet" href="css/teacher.css?v=20260905.redo-scope-v1">
     <link rel="stylesheet" href="css/mobile.css?v=3.8">
     <link rel="stylesheet" href="css/web-animations.css?v=1.0">
     <link rel="stylesheet" href="css/store-items.css?v=3.8">
@@ -952,7 +952,11 @@
                     </div>
 
                     <label for="title"><strong>Tiêu đề bài tập:</strong></label>
-                    <input type="text" id="title" placeholder="Nhập tiêu đề bài tập...">
+                    <input type="text" id="title" placeholder="Nhập tiêu đề bài tập..."
+                        oninput="scheduleAssignmentDuplicateCheck()" autocomplete="off">
+                    <div id="assignmentDuplicateHint" hidden
+                        style="margin:-6px 0 14px; padding:11px 12px; border:1px solid rgba(239,68,68,.35); border-radius:10px; background:rgba(254,242,242,.92); color:#991b1b; line-height:1.45;">
+                    </div>
 
                     <div class="form-row">
                         <div class="form-group">
@@ -1201,7 +1205,7 @@
                         </small>
                     </div>
 
-                    <button type="button" onclick="createAssignment()" style="margin-top: 20px;">
+                    <button type="button" id="publishAssignmentButton" onclick="createAssignment()" style="margin-top: 20px;">
                         Phát hành bài tập
                     </button>
 
@@ -2663,6 +2667,7 @@
                             <option value="none">Chỉ gửi thư (Không kèm quà)</option>
                             <option value="coin">🪙 Tặng Coin</option>
                             <option value="special_birthday_coin">✨ Tặng Xu Đặc Biệt</option>
+                            <option value="mid_autumn_coin">🌕 Tặng Xu Trung Thu</option>
                             <option value="money">💵 Tặng Tiền Lộ Trình (đ)</option>
                             <option value="item">📦 Tặng Vật Phẩm Cửa Hàng</option>
                             <option value="ticket">🎫 Tặng Vé Quay May Mắn</option>
@@ -3299,17 +3304,19 @@
     <script src="js/theme-items.js?v=4.2"></script>
     <script src="js/effect-items.js?v=4.2"></script>
     <script src="js/pet-items.js?v=4.2"></script>
+    <!-- Điều chỉnh riêng mức hiệu ứng vật phẩm + Web Animations; không đụng theme/logic -->
+    <script src="js/effect-quality-manager.js?v=1.0.0"></script>
     <script src="js/royal-ball.js?v=3.8"></script>
     <script src="js/music-manager.js?v=3.8"></script>
-    <script src="js/store-manager.js?v=3.8.1"></script>
+    <script src="js/store-manager.js?v=3.8.3-sitewide-image-protection"></script>
     <script src="js/painting.js?v=3.8"></script>
-    <script src="js/luxury-store.js?v=4.2.1"></script>
+    <script src="js/luxury-store.js?v=4.2.3-midautumn-coin-v1"></script>
 
     <!-- 5. Logic chính của trang giáo viên luôn đặt cuối -->
     <!-- Hotfix: xác nhận cài đặt lộ trình trước khi teacher.js chờ loader -->
     <script src="js/roadmap-startup-fix.js?v=1.0"></script>
 
-    <script src="js/teacher.js?v=3.9.2"></script>
+    <script src="js/teacher.js?v=20260905.midautumn-coin-v1"></script>
     <script src="js/huong-dan-nguoi-moi.js?v=1.0.0"></script>
 </body>
 

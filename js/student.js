@@ -35,6 +35,1585 @@ window.showToast = function (message, type = 'error') {
 
 const currentUser = JSON.parse(localStorage.getItem('currentUser'));
 
+
+// ======================================================
+// TRUNG THU · LỊCH ÂM VIỆT NAM (UTC+7)
+// Tính ngày 15/8 âm lịch mà không cần Cloud Function/Scheduler.
+// ======================================================
+window.MidAutumnCalendar = window.MidAutumnCalendar || (() => {
+    const TZ = 7;
+    const DAY_MS = 24 * 60 * 60 * 1000;
+    const INT = Math.floor;
+    const PI = Math.PI;
+
+    function jdFromDate(dd, mm, yy) {
+        const a = INT((14 - mm) / 12);
+        const y = yy + 4800 - a;
+        const m = mm + 12 * a - 3;
+        let jd =
+            dd +
+            INT((153 * m + 2) / 5) +
+            365 * y +
+            INT(y / 4) -
+            INT(y / 100) +
+            INT(y / 400) -
+            32045;
+
+        if (jd < 2299161) {
+            jd =
+                dd +
+                INT((153 * m + 2) / 5) +
+                365 * y +
+                INT(y / 4) -
+                32083;
+        }
+
+        return jd;
+    }
+
+    function jdToDate(jd) {
+        let a;
+        let b;
+        let c;
+
+        if (jd > 2299160) {
+            a = jd + 32044;
+            b = INT((4 * a + 3) / 146097);
+            c = a - INT((b * 146097) / 4);
+        } else {
+            b = 0;
+            c = jd + 32082;
+        }
+
+        const d = INT((4 * c + 3) / 1461);
+        const e = c - INT((1461 * d) / 4);
+        const m = INT((5 * e + 2) / 153);
+
+        const day =
+            e -
+            INT((153 * m + 2) / 5) +
+            1;
+
+        const month =
+            m +
+            3 -
+            12 * INT(m / 10);
+
+        const year =
+            b * 100 +
+            d -
+            4800 +
+            INT(m / 10);
+
+        return [day, month, year];
+    }
+
+    function newMoon(k) {
+        const T = k / 1236.85;
+        const T2 = T * T;
+        const T3 = T2 * T;
+        const dr = PI / 180;
+
+        let jd1 =
+            2415020.75933 +
+            29.53058868 * k +
+            0.0001178 * T2 -
+            0.000000155 * T3;
+
+        jd1 +=
+            0.00033 *
+            Math.sin(
+                (166.56 +
+                    132.87 * T -
+                    0.009173 * T2) *
+                    dr
+            );
+
+        const M =
+            359.2242 +
+            29.10535608 * k -
+            0.0000333 * T2 -
+            0.00000347 * T3;
+
+        const Mpr =
+            306.0253 +
+            385.81691806 * k +
+            0.0107306 * T2 +
+            0.00001236 * T3;
+
+        const F =
+            21.2964 +
+            390.67050646 * k -
+            0.0016528 * T2 -
+            0.00000239 * T3;
+
+        let C1 =
+            (0.1734 - 0.000393 * T) *
+                Math.sin(M * dr) +
+            0.0021 *
+                Math.sin(2 * M * dr) -
+            0.4068 *
+                Math.sin(Mpr * dr) +
+            0.0161 *
+                Math.sin(2 * Mpr * dr) -
+            0.0004 *
+                Math.sin(3 * Mpr * dr) +
+            0.0104 *
+                Math.sin(2 * F * dr) -
+            0.0051 *
+                Math.sin((M + Mpr) * dr) -
+            0.0074 *
+                Math.sin((M - Mpr) * dr) +
+            0.0004 *
+                Math.sin((2 * F + M) * dr) -
+            0.0004 *
+                Math.sin((2 * F - M) * dr) -
+            0.0006 *
+                Math.sin((2 * F + Mpr) * dr) +
+            0.0010 *
+                Math.sin((2 * F - Mpr) * dr) +
+            0.0005 *
+                Math.sin((2 * Mpr + M) * dr);
+
+        let deltaT;
+
+        if (T < -11) {
+            deltaT =
+                0.001 +
+                0.000839 * T +
+                0.0002261 * T2 -
+                0.00000845 * T3 -
+                0.000000081 * T * T3;
+        } else {
+            deltaT =
+                -0.000278 +
+                0.000265 * T +
+                0.000262 * T2;
+        }
+
+        return jd1 + C1 - deltaT;
+    }
+
+    function getNewMoonDay(k) {
+        return INT(
+            newMoon(k) +
+            0.5 +
+            TZ / 24
+        );
+    }
+
+    function sunLongitude(jdn) {
+        const T =
+            (jdn - 2451545.0) /
+            36525;
+
+        const T2 = T * T;
+        const dr = PI / 180;
+
+        const M =
+            357.52910 +
+            35999.05030 * T -
+            0.0001559 * T2 -
+            0.00000048 * T * T2;
+
+        const L0 =
+            280.46645 +
+            36000.76983 * T +
+            0.0003032 * T2;
+
+        let DL =
+            (1.914600 -
+                0.004817 * T -
+                0.000014 * T2) *
+            Math.sin(dr * M);
+
+        DL +=
+            (0.019993 -
+                0.000101 * T) *
+                Math.sin(dr * 2 * M) +
+            0.000290 *
+                Math.sin(dr * 3 * M);
+
+        let L =
+            (L0 + DL) * dr;
+
+        L =
+            L -
+            PI *
+                2 *
+                INT(L / (PI * 2));
+
+        return L;
+    }
+
+    function getSunLongitude(dayNumber) {
+        return INT(
+            sunLongitude(
+                dayNumber -
+                    0.5 -
+                    TZ / 24
+            ) /
+                PI *
+                6
+        );
+    }
+
+    function getLunarMonth11(year) {
+        const off =
+            jdFromDate(
+                31,
+                12,
+                year
+            ) -
+            2415021;
+
+        const k =
+            INT(
+                off /
+                    29.530588853
+            );
+
+        let nm =
+            getNewMoonDay(k);
+
+        const sunLong =
+            getSunLongitude(nm);
+
+        if (sunLong >= 9) {
+            nm =
+                getNewMoonDay(
+                    k - 1
+                );
+        }
+
+        return nm;
+    }
+
+    function getLeapMonthOffset(a11) {
+        const k =
+            INT(
+                0.5 +
+                    (a11 -
+                        2415021.076998695) /
+                        29.530588853
+            );
+
+        let last = 0;
+        let i = 1;
+        let arc =
+            getSunLongitude(
+                getNewMoonDay(
+                    k + i
+                )
+            );
+
+        do {
+            last = arc;
+            i += 1;
+
+            arc =
+                getSunLongitude(
+                    getNewMoonDay(
+                        k + i
+                    )
+                );
+        } while (
+            arc !== last &&
+            i < 14
+        );
+
+        return i - 1;
+    }
+
+    function lunarToSolar(
+        lunarDay,
+        lunarMonth,
+        lunarYear,
+        lunarLeap = 0
+    ) {
+        let a11;
+        let b11;
+
+        if (lunarMonth < 11) {
+            a11 =
+                getLunarMonth11(
+                    lunarYear - 1
+                );
+
+            b11 =
+                getLunarMonth11(
+                    lunarYear
+                );
+        } else {
+            a11 =
+                getLunarMonth11(
+                    lunarYear
+                );
+
+            b11 =
+                getLunarMonth11(
+                    lunarYear + 1
+                );
+        }
+
+        const k =
+            INT(
+                0.5 +
+                    (a11 -
+                        2415021.076998695) /
+                        29.530588853
+            );
+
+        let off =
+            lunarMonth - 11;
+
+        if (off < 0) {
+            off += 12;
+        }
+
+        if (b11 - a11 > 365) {
+            const leapOff =
+                getLeapMonthOffset(
+                    a11
+                );
+
+            let leapMonth =
+                leapOff - 2;
+
+            if (leapMonth < 0) {
+                leapMonth += 12;
+            }
+
+            if (
+                lunarLeap !== 0 &&
+                lunarMonth !==
+                    leapMonth
+            ) {
+                return [0, 0, 0];
+            }
+
+            if (
+                lunarLeap !== 0 ||
+                off >= leapOff
+            ) {
+                off += 1;
+            }
+        }
+
+        const monthStart =
+            getNewMoonDay(
+                k + off
+            );
+
+        return jdToDate(
+            monthStart +
+                lunarDay -
+                1
+        );
+    }
+
+    function formatDateKey(
+        day,
+        month,
+        year
+    ) {
+        return (
+            String(year).padStart(4, '0') +
+            '-' +
+            String(month).padStart(2, '0') +
+            '-' +
+            String(day).padStart(2, '0')
+        );
+    }
+
+    function getFestivalInfo(year) {
+        const lunarYear =
+            Number(year);
+
+        const [
+            day,
+            month,
+            solarYear
+        ] = lunarToSolar(
+            15,
+            8,
+            lunarYear,
+            0
+        );
+
+        if (
+            !day ||
+            !month ||
+            !solarYear
+        ) {
+            throw new Error(
+                'MID_AUTUMN_DATE_ERROR'
+            );
+        }
+
+        const festivalStartAt =
+            Date.UTC(
+                solarYear,
+                month - 1,
+                day,
+                0,
+                0,
+                0,
+                0
+            ) -
+            TZ *
+                60 *
+                60 *
+                1000;
+
+        const festivalEndAt =
+            festivalStartAt +
+            DAY_MS -
+            1;
+
+        const autoGrantStartAt =
+            festivalStartAt -
+            5 * DAY_MS;
+
+        return {
+            year:
+                lunarYear,
+
+            festivalDateKey:
+                formatDateKey(
+                    day,
+                    month,
+                    solarYear
+                ),
+
+            festivalStartAt,
+            festivalEndAt,
+
+            autoGrantStartAt,
+            autoGrantEndAt:
+                festivalEndAt
+        };
+    }
+
+    function getVietnamYear(
+        timestamp = Date.now()
+    ) {
+        return new Date(
+            timestamp +
+                TZ *
+                    60 *
+                    60 *
+                    1000
+        ).getUTCFullYear();
+    }
+
+    function getVietnamDateKey(
+        timestamp = Date.now()
+    ) {
+        return new Date(
+            timestamp +
+                TZ *
+                    60 *
+                    60 *
+                    1000
+        )
+            .toISOString()
+            .slice(0, 10);
+    }
+
+    return {
+        TZ,
+        DAY_MS,
+        getFestivalInfo,
+        getVietnamYear,
+        getVietnamDateKey
+    };
+})();
+
+
+// ======================================================
+// XU TRUNG THU · HỌC SINH
+// - Ví xu không hết hạn.
+// - Tự phát 1 xu từ mốc D-5 đến hết ngày Trung Thu,
+//   nhưng chỉ một lần cho mỗi năm.
+// - Không có Scheduler: kiểm tra khi học sinh mở trang
+//   và lặp lại mỗi giờ nếu trang vẫn đang mở.
+// - Chỉ đổi Nguyệt Cung Tiên Tử đúng ngày Trung Thu.
+// ======================================================
+window.MidAutumnCoinManager = (() => {
+    const ITEM_ID =
+        'pet_trung_thu_nguyet_cung_tien_tu';
+
+    const ITEM_NAME =
+        'Nguyệt Cung Tiên Tử';
+
+    const ITEM_COST = 2;
+    const AUTO_GRANT_AMOUNT = 1;
+
+    let wallet = {
+        balance: 0
+    };
+
+    let serverTimeOffset = 0;
+    let walletListenerInstalled = false;
+    let hourlyTimer = null;
+
+    function getUsername() {
+        return String(
+            currentUser?.username || ''
+        ).trim();
+    }
+
+    function getNow() {
+        return (
+            Date.now() +
+            Number(
+                serverTimeOffset || 0
+            )
+        );
+    }
+
+    function normalizeWallet(value) {
+        const source =
+            value &&
+            typeof value === 'object'
+                ? value
+                : {};
+
+        return {
+            ...source,
+
+            balance:
+                Math.max(
+                    0,
+                    Number(
+                        source.balance || 0
+                    )
+                ),
+
+            autoGrants: {
+                ...(source.autoGrants ||
+                    {})
+            },
+
+            teacherGrants: {
+                ...(source.teacherGrants ||
+                    {})
+            },
+
+            teacherClaims: {
+                ...(source.teacherClaims ||
+                    {})
+            },
+
+            redemptions: {
+                ...(source.redemptions ||
+                    {})
+            }
+        };
+    }
+
+    function getWalletRef() {
+        const username =
+            getUsername();
+
+        if (!username) {
+            return null;
+        }
+
+        return db.ref(
+            `mid_autumn_wallets/${username}`
+        );
+    }
+
+    async function getCalendar(year) {
+        const localInfo =
+            window
+                .MidAutumnCalendar
+                .getFestivalInfo(year);
+
+        try {
+            const snapshot =
+                await db
+                    .ref(
+                        `mid_autumn_calendar/${year}`
+                    )
+                    .once('value');
+
+            const remote =
+                snapshot.val();
+
+            if (
+                remote &&
+                Number(
+                    remote.festivalStartAt
+                ) > 0 &&
+                Number(
+                    remote.festivalEndAt
+                ) > 0
+            ) {
+                return {
+                    ...localInfo,
+                    ...remote,
+                    year:
+                        Number(
+                            remote.year ||
+                            year
+                        )
+                };
+            }
+        } catch (error) {
+            console.warn(
+                '[Xu Trung Thu] Không đọc được lịch Firebase, dùng lịch tính cục bộ:',
+                error
+            );
+        }
+
+        return localInfo;
+    }
+
+    function getBalance() {
+        return Math.max(
+            0,
+            Number(
+                wallet?.balance || 0
+            )
+        );
+    }
+
+    function updateBalanceUI() {
+        const balance =
+            getBalance();
+
+        document
+            .querySelectorAll(
+                '[data-midautumn-coin-balance]'
+            )
+            .forEach(element => {
+                element.textContent =
+                    balance.toLocaleString(
+                        'vi-VN'
+                    );
+            });
+
+        document.dispatchEvent(
+            new CustomEvent(
+                'midautumn-wallet-updated',
+                {
+                    detail: {
+                        balance
+                    }
+                }
+            )
+        );
+
+        // Nếu Túi đồ đang mở thì làm mới ngay để Xu Trung Thu
+        // vừa được phát / giáo viên tặng xuất hiện tức thời.
+        const bagModal =
+            document.getElementById(
+                'studentBagModal'
+            );
+
+        if (
+            bagModal &&
+            bagModal.classList.contains(
+                'active'
+            ) &&
+            typeof window
+                .renderStudentBag ===
+                'function'
+        ) {
+            window.renderStudentBag();
+        }
+    }
+
+    function installWalletListener() {
+        if (walletListenerInstalled) {
+            return;
+        }
+
+        const walletRef =
+            getWalletRef();
+
+        if (!walletRef) {
+            return;
+        }
+
+        walletListenerInstalled = true;
+
+        walletRef.on(
+            'value',
+            snapshot => {
+                wallet =
+                    normalizeWallet(
+                        snapshot.val()
+                    );
+
+                window.studentMidAutumnWallet =
+                    wallet;
+
+                window.studentMidAutumnCoinBalance =
+                    getBalance();
+
+                updateBalanceUI();
+            }
+        );
+    }
+
+    async function autoGrantIfEligible() {
+        const walletRef =
+            getWalletRef();
+
+        if (!walletRef) {
+            return;
+        }
+
+        const now = getNow();
+
+        const year =
+            window
+                .MidAutumnCalendar
+                .getVietnamYear(now);
+
+        const calendar =
+            await getCalendar(year);
+
+        if (
+            now <
+                Number(
+                    calendar.autoGrantStartAt
+                ) ||
+            now >
+                Number(
+                    calendar.autoGrantEndAt
+                )
+        ) {
+            return;
+        }
+
+        const grantKey =
+            String(year);
+
+        const operationId =
+            `auto_${year}`;
+
+        try {
+            const tx =
+                await walletRef.transaction(
+                    current => {
+                        const next =
+                            normalizeWallet(
+                                current
+                            );
+
+                        if (
+                            next.autoGrants[
+                                grantKey
+                            ]
+                        ) {
+                            return;
+                        }
+
+                        next.balance =
+                            Number(
+                                next.balance || 0
+                            ) +
+                            AUTO_GRANT_AMOUNT;
+
+                        next.autoGrants[
+                            grantKey
+                        ] = {
+                            year:
+                                grantKey,
+
+                            amount:
+                                AUTO_GRANT_AMOUNT,
+
+                            festivalDateKey:
+                                calendar
+                                    .festivalDateKey,
+
+                            grantedAt:
+                                now,
+
+                            source:
+                                'annual_auto'
+                        };
+
+                        next.lastOperation = {
+                            type:
+                                'auto_grant',
+
+                            operationId:
+                                operationId,
+
+                            year:
+                                grantKey,
+
+                            amount:
+                                AUTO_GRANT_AMOUNT,
+
+                            festivalDateKey:
+                                calendar
+                                    .festivalDateKey,
+
+                            operatedAt:
+                                now
+                        };
+
+                        return next;
+                    },
+                    undefined,
+                    false
+                );
+
+            if (tx.committed) {
+                wallet =
+                    normalizeWallet(
+                        tx.snapshot.val()
+                    );
+
+                updateBalanceUI();
+
+                if (
+                    typeof window
+                        .showToast ===
+                    'function'
+                ) {
+                    window.showToast(
+                        `🌕 Trung Thu ${year}: hệ thống đã tặng bạn ${AUTO_GRANT_AMOUNT} Xu Trung Thu.`,
+                        'success'
+                    );
+                }
+            }
+        } catch (error) {
+            console.warn(
+                '[Xu Trung Thu] Chưa thể tự phát xu:',
+                error
+            );
+        }
+    }
+
+    async function isFestivalDay() {
+        const now =
+            getNow();
+
+        const year =
+            window
+                .MidAutumnCalendar
+                .getVietnamYear(now);
+
+        const calendar =
+            await getCalendar(year);
+
+        return {
+            ok:
+                now >=
+                    Number(
+                        calendar
+                            .festivalStartAt
+                    ) &&
+                now <=
+                    Number(
+                        calendar
+                            .festivalEndAt
+                    ),
+
+            year,
+            now,
+            calendar
+        };
+    }
+
+    async function rollbackRedemption(
+        redemptionId,
+        now
+    ) {
+        const walletRef =
+            getWalletRef();
+
+        if (!walletRef) {
+            return;
+        }
+
+        await walletRef.transaction(
+            current => {
+                const next =
+                    normalizeWallet(
+                        current
+                    );
+
+                const redemption =
+                    next.redemptions?.[
+                        redemptionId
+                    ];
+
+                if (
+                    !redemption ||
+                    redemption.status !==
+                        'reserved' ||
+                    redemption.itemId !==
+                        ITEM_ID
+                ) {
+                    return;
+                }
+
+                next.balance =
+                    Number(
+                        next.balance || 0
+                    ) +
+                    ITEM_COST;
+
+                delete next.redemptions[
+                    redemptionId
+                ];
+
+                next.lastOperation = {
+                    type:
+                        'rollback_redeem',
+
+                    operationId:
+                        redemptionId,
+
+                    year:
+                        String(
+                            redemption.year ||
+                            ''
+                        ),
+
+                    amount:
+                        ITEM_COST,
+
+                    operatedAt:
+                        now
+                };
+
+                return next;
+            },
+            undefined,
+            false
+        );
+    }
+
+    async function redeem(itemId) {
+        if (
+            String(itemId) !== ITEM_ID
+        ) {
+            return false;
+        }
+
+        if (
+            window.isOffline ||
+            !navigator.onLine
+        ) {
+            alert(
+                '❌ Mất kết nối mạng. Không thể đổi Xu Trung Thu lúc này.'
+            );
+            return true;
+        }
+
+        const username =
+            getUsername();
+
+        if (!username) {
+            alert(
+                '❌ Không xác định được tài khoản học sinh.'
+            );
+            return true;
+        }
+
+        const festival =
+            await isFestivalDay();
+
+        if (!festival.ok) {
+            alert(
+                `🌕 ${ITEM_NAME} chỉ đổi được đúng ngày Trung Thu.\n` +
+                `Trung Thu ${festival.year}: ${festival.calendar.festivalDateKey}.\n\n` +
+                `Xu Trung Thu không hết hạn sử dụng và được giữ lại cho các năm sau.\n` +
+                `Khi đổi ${ITEM_NAME}, hệ thống sẽ trừ ${ITEM_COST} Xu khỏi số dư.`
+            );
+
+            return true;
+        }
+
+        const inventoryRef =
+            db.ref(
+                `student_inventory/${username}/${ITEM_ID}`
+            );
+
+        const existing =
+            await inventoryRef.once(
+                'value'
+            );
+
+        if (existing.exists()) {
+            alert(
+                `✅ Bạn đã sở hữu ${ITEM_NAME}.`
+            );
+
+            return true;
+        }
+
+        const walletRef =
+            getWalletRef();
+
+        const now =
+            festival.now;
+
+        const redemptionId =
+            `nguyet_cung_${festival.year}`;
+
+        const walletTx =
+            await walletRef.transaction(
+                current => {
+                    const next =
+                        normalizeWallet(
+                            current
+                        );
+
+                    if (
+                        next.redemptions?.[
+                            redemptionId
+                        ]
+                    ) {
+                        return;
+                    }
+
+                    if (
+                        Number(
+                            next.balance || 0
+                        ) <
+                        ITEM_COST
+                    ) {
+                        return;
+                    }
+
+                    next.balance =
+                        Number(
+                            next.balance || 0
+                        ) -
+                        ITEM_COST;
+
+                    next.redemptions[
+                        redemptionId
+                    ] = {
+                        id:
+                            redemptionId,
+
+                        itemId:
+                            ITEM_ID,
+
+                        amount:
+                            ITEM_COST,
+
+                        year:
+                            String(
+                                festival.year
+                            ),
+
+                        festivalDateKey:
+                            festival
+                                .calendar
+                                .festivalDateKey,
+
+                        status:
+                            'reserved',
+
+                        redeemedAt:
+                            now
+                    };
+
+                    next.lastOperation = {
+                        type:
+                            'redeem',
+
+                        operationId:
+                            redemptionId,
+
+                        year:
+                            String(
+                                festival.year
+                            ),
+
+                        amount:
+                            ITEM_COST,
+
+                        festivalDateKey:
+                            festival
+                                .calendar
+                                .festivalDateKey,
+
+                        operatedAt:
+                            now
+                    };
+
+                    return next;
+                },
+                undefined,
+                false
+            );
+
+        if (!walletTx.committed) {
+            const latest =
+                normalizeWallet(
+                    walletTx.snapshot.val()
+                );
+
+            if (
+                Number(
+                    latest.balance || 0
+                ) <
+                ITEM_COST
+            ) {
+                alert(
+                    `❌ Bạn cần ${ITEM_COST} Xu Trung Thu để đổi ${ITEM_NAME}.\n` +
+                    `Hiện có: ${Number(latest.balance || 0)} Xu.`
+                );
+            } else {
+                alert(
+                    '⚠️ Giao dịch này đã được xử lý ở một tab khác.'
+                );
+            }
+
+            return true;
+        }
+
+        let itemAdded = false;
+
+        try {
+            const itemTx =
+                await inventoryRef.transaction(
+                    existingItem => {
+                        if (
+                            existingItem &&
+                            existingItem.id
+                        ) {
+                            return;
+                        }
+
+                        return {
+                            id:
+                                ITEM_ID,
+
+                            purchaseTime:
+                                now,
+
+                            source:
+                                'mid_autumn_coin',
+
+                            midAutumnYear:
+                                String(
+                                    festival.year
+                                ),
+
+                            midAutumnRedemptionId:
+                                redemptionId,
+
+                            midAutumnCoinCost:
+                                ITEM_COST,
+
+                            isTrial:
+                                null,
+
+                            trialExpiry:
+                                null,
+
+                            isEquipped:
+                                true
+                        };
+                    },
+                    undefined,
+                    false
+                );
+
+            if (!itemTx.committed) {
+                throw new Error(
+                    'MID_AUTUMN_ITEM_ALREADY_OWNED'
+                );
+            }
+
+            itemAdded = true;
+
+            try {
+                await walletRef
+                    .child(
+                        `redemptions/${redemptionId}`
+                    )
+                    .update({
+                        status:
+                            'completed',
+
+                        completedAt:
+                            getNow()
+                    });
+            } catch (completeError) {
+                console.warn(
+                    '[Xu Trung Thu] Đã thêm vật phẩm nhưng chưa đánh dấu completed:',
+                    completeError
+                );
+            }
+
+            if (
+                typeof StoreManager !==
+                    'undefined' &&
+                typeof StoreManager
+                    .applyItem ===
+                    'function'
+            ) {
+                await StoreManager.applyItem(
+                    ITEM_ID
+                );
+            }
+
+            if (
+                window.TransactionHistory
+            ) {
+                await window
+                    .TransactionHistory
+                    .recordSafe({
+                        type:
+                            'store_purchase',
+
+                        summary:
+                            `Đổi vật phẩm: ${ITEM_NAME}`,
+
+                        source:
+                            'mid_autumn_store',
+
+                        targetUsername:
+                            username,
+
+                        targetName:
+                            currentUser.name ||
+                            username,
+
+                        amount:
+                            -ITEM_COST,
+
+                        unit:
+                            'Xu Trung Thu',
+
+                        reversible:
+                            false,
+
+                        nonReversibleReason:
+                            'Vật phẩm sự kiện Trung Thu đã được đổi.',
+
+                        details: {
+                            itemId:
+                                ITEM_ID,
+
+                            itemName:
+                                ITEM_NAME,
+
+                            redemptionId:
+                                redemptionId,
+
+                            midAutumnYear:
+                                String(
+                                    festival.year
+                                ),
+
+                            festivalDateKey:
+                                festival
+                                    .calendar
+                                    .festivalDateKey
+                        }
+                    });
+            }
+
+            const remainingMidAutumnCoins =
+                Math.max(
+                    0,
+                    Number(
+                        walletTx.snapshot
+                            .child('balance')
+                            .val() || 0
+                    )
+                );
+
+            alert(
+                `🎉 Đổi thành công ${ITEM_NAME}!\n` +
+                `Đã trừ ${ITEM_COST} Xu Trung Thu.\n` +
+                `Số dư còn lại: ${remainingMidAutumnCoins} Xu.`
+            );
+
+            if (
+                window.LuxuryStore &&
+                typeof window
+                    .LuxuryStore
+                    .refresh ===
+                    'function'
+            ) {
+                window
+                    .LuxuryStore
+                    .refresh();
+            }
+        } catch (error) {
+            console.error(
+                '[Xu Trung Thu] Đổi vật phẩm thất bại:',
+                error
+            );
+
+            if (!itemAdded) {
+                try {
+                    await rollbackRedemption(
+                        redemptionId,
+                        getNow()
+                    );
+                } catch (
+                    rollbackError
+                ) {
+                    console.error(
+                        '[Xu Trung Thu] Hoàn xu thất bại:',
+                        rollbackError
+                    );
+                }
+            }
+
+            alert(
+                error.message ===
+                    'MID_AUTUMN_ITEM_ALREADY_OWNED'
+                    ? `✅ Bạn đã sở hữu ${ITEM_NAME}. Xu đã được hoàn lại.`
+                    : '❌ Không thể đổi vật phẩm. Hệ thống đã cố gắng hoàn lại Xu Trung Thu.'
+            );
+        }
+
+        return true;
+    }
+
+    async function claimTeacherGift(
+        msgKey,
+        quantity
+    ) {
+        const walletRef =
+            getWalletRef();
+
+        if (!walletRef) {
+            throw new Error(
+                'MID_AUTUMN_WALLET_NOT_READY'
+            );
+        }
+
+        const amount =
+            Number(quantity);
+
+        if (
+            !Number.isInteger(amount) ||
+            amount <= 0
+        ) {
+            throw new Error(
+                'INVALID_MID_AUTUMN_COIN_QUANTITY'
+            );
+        }
+
+        const now =
+            getNow();
+
+        const tx =
+            await walletRef.transaction(
+                current => {
+                    const next =
+                        normalizeWallet(
+                            current
+                        );
+
+                    if (
+                        next.teacherClaims?.[
+                            msgKey
+                        ] ||
+                        next.teacherGrants?.[
+                            msgKey
+                        ]
+                    ) {
+                        return;
+                    }
+
+                    next.balance =
+                        Number(
+                            next.balance || 0
+                        ) +
+                        amount;
+
+                    next.teacherClaims[
+                        msgKey
+                    ] = {
+                        id:
+                            msgKey,
+
+                        amount,
+                        claimedAt:
+                            now,
+
+                        source:
+                            'teacher_gift'
+                    };
+
+                    next.lastOperation = {
+                        type:
+                            'teacher_claim',
+
+                        operationId:
+                            msgKey,
+
+                        amount,
+                        operatedAt:
+                            now
+                    };
+
+                    return next;
+                },
+                undefined,
+                false
+            );
+
+        if (tx.committed) {
+            wallet =
+                normalizeWallet(
+                    tx.snapshot.val()
+                );
+
+            window.studentMidAutumnWallet =
+                wallet;
+
+            window.studentMidAutumnCoinBalance =
+                getBalance();
+
+            updateBalanceUI();
+        }
+
+        return tx;
+    }
+
+    async function init() {
+        const username =
+            getUsername();
+
+        if (
+            !username ||
+            currentUser?.role ===
+                'teacher'
+        ) {
+            return;
+        }
+
+        try {
+            db.ref(
+                '.info/serverTimeOffset'
+            ).on(
+                'value',
+                snapshot => {
+                    serverTimeOffset =
+                        Number(
+                            snapshot.val() ||
+                            0
+                        );
+                }
+            );
+        } catch (error) {
+            console.warn(
+                '[Xu Trung Thu] Không đọc được serverTimeOffset:',
+                error
+            );
+        }
+
+        installWalletListener();
+
+        await autoGrantIfEligible();
+
+        if (hourlyTimer) {
+            clearInterval(
+                hourlyTimer
+            );
+        }
+
+        hourlyTimer =
+            setInterval(
+                () => {
+                    autoGrantIfEligible()
+                        .catch(() => {});
+                },
+                60 *
+                    60 *
+                    1000
+            );
+    }
+
+    return {
+        ITEM_ID,
+        ITEM_NAME,
+        ITEM_COST,
+        AUTO_GRANT_AMOUNT,
+
+        init,
+        getNow,
+        getBalance,
+        getCalendar,
+        isFestivalDay,
+        redeem,
+        claimTeacherGift,
+        autoGrantIfEligible,
+        updateBalanceUI
+    };
+})();
+
+window.redeemMidAutumnItem =
+    function (itemId) {
+        return window
+            .MidAutumnCoinManager
+            .redeem(itemId);
+    };
+
+function initializeMidAutumnCoinSystem() {
+    let attempts = 0;
+
+    const start = () => {
+        attempts += 1;
+
+        if (
+            typeof db ===
+            'undefined'
+        ) {
+            if (attempts < 30) {
+                setTimeout(
+                    start,
+                    500
+                );
+            }
+
+            return;
+        }
+
+        window
+            .MidAutumnCoinManager
+            .init()
+            .catch(error => {
+                console.warn(
+                    '[Xu Trung Thu] Khởi tạo chưa hoàn tất:',
+                    error
+                );
+            });
+    };
+
+    start();
+}
+
+if (
+    document.readyState ===
+    'loading'
+) {
+    document.addEventListener(
+        'DOMContentLoaded',
+        initializeMidAutumnCoinSystem,
+        {
+            once: true
+        }
+    );
+} else {
+    initializeMidAutumnCoinSystem();
+}
+
+
 // ======================================================
 // HỖ TRỢ FILE ÂM THANH TRONG BÀI TẬP
 // ======================================================
@@ -448,6 +2027,268 @@ function getStudentCompatSubmissionUsername(submission) {
         submission?.studentUser ??
         submission?.studentId
     );
+}
+
+// ======================================================
+// PHẠM VI LÀM LẠI + LỊCH SỬ VI PHẠM
+// ======================================================
+function getStudentRedoViolationHistory(submission) {
+    const raw =
+        submission &&
+        typeof submission.redoViolationHistory === 'object' &&
+        submission.redoViolationHistory !== null
+            ? submission.redoViolationHistory
+            : {};
+
+    return {
+        essayMissing: !!raw.essayMissing,
+        late: !!raw.late,
+        autoSubmitted: !!raw.autoSubmitted,
+        cheat: !!raw.cheat
+    };
+}
+
+function mergeStudentRedoViolationHistory(submission) {
+    const history = getStudentRedoViolationHistory(
+        submission
+    );
+
+    return {
+        essayMissing:
+            history.essayMissing ||
+            !!submission?.isEssayMissing,
+        late:
+            history.late ||
+            !!submission?.isLateFail,
+        autoSubmitted:
+            history.autoSubmitted ||
+            !!submission?.isAutoSubmitted,
+        cheat:
+            history.cheat ||
+            !!submission?.isCheatFail
+    };
+}
+
+function getStudentRedoScope(submission, assignment) {
+    if (!submission?.isRedoing) {
+        return 'both';
+    }
+
+    const raw = String(
+        submission.redoScope ||
+        'both'
+    ).toLowerCase();
+
+    if (
+        raw === 'essay' ||
+        raw === 'mc' ||
+        raw === 'both'
+    ) {
+        return raw;
+    }
+
+    // Bài làm lại cũ chưa có redoScope: giữ hành vi cũ, mở toàn bộ.
+    return 'both';
+}
+
+function studentRedoAllowsMultipleChoice(
+    submission,
+    assignment
+) {
+    if (!submission?.isRedoing) return true;
+
+    const scope = getStudentRedoScope(
+        submission,
+        assignment
+    );
+
+    return scope === 'mc' || scope === 'both';
+}
+
+function studentRedoAllowsEssay(
+    submission,
+    assignment
+) {
+    if (!submission?.isRedoing) return true;
+
+    const scope = getStudentRedoScope(
+        submission,
+        assignment
+    );
+
+    return scope === 'essay' || scope === 'both';
+}
+
+function getStudentRedoScopeLabel(scope) {
+    if (scope === 'essay') return 'chỉ phần Tự luận';
+    if (scope === 'mc') return 'chỉ phần Trắc nghiệm';
+    return 'cả Trắc nghiệm và Tự luận';
+}
+
+function getStudentStoredExamSet(submission, assignment) {
+    const storedQuestions =
+        Array.isArray(submission?.questionSnapshot) &&
+        submission.questionSnapshot.length > 0
+            ? submission.questionSnapshot
+            : null;
+
+    if (storedQuestions) {
+        return {
+            questions: storedQuestions,
+            versionCode:
+                submission?.examVersionCode ||
+                'Gốc',
+            versionIndex:
+                Number(
+                    submission?.examVersionIndex
+                ) || 0,
+            randomized:
+                Boolean(
+                    submission?.examVersionCode &&
+                    submission.examVersionCode !== 'Gốc'
+                )
+        };
+    }
+
+    return window.getStudentExamQuestions(
+        assignment
+    );
+}
+
+function getStudentStoredMultipleChoiceText(
+    submission,
+    assignment,
+    examSet
+) {
+    const existingAnswer = String(
+        submission?.answer ||
+        ''
+    );
+
+    const storedMatch = existingAnswer.match(
+        /\[PHẦN TRẮC NGHIỆM\]\s*([\s\S]*?)(?=\n{2,}\[PHẦN TỰ LUẬN\]|$)/i
+    );
+
+    if (storedMatch?.[1]?.trim()) {
+        return storedMatch[1].trim();
+    }
+
+    const questions =
+        Array.isArray(examSet?.questions)
+            ? examSet.questions
+            : [];
+
+    const answers =
+        submission?.mcAnswers &&
+        typeof submission.mcAnswers === 'object'
+            ? submission.mcAnswers
+            : {};
+
+    if (questions.length === 0) {
+        return '';
+    }
+
+    let score = 0;
+    const lines = questions.map((question, index) => {
+        const selected =
+            answers[index] ??
+            answers[String(index)] ??
+            '';
+
+        if (!selected) {
+            return `Câu ${index + 1}: Chưa chọn` +
+                (
+                    question?.correct
+                        ? ` (Đúng là ${question.correct})`
+                        : ''
+                );
+        }
+
+        const isCorrect =
+            question?.correct &&
+            String(selected) ===
+                String(question.correct);
+
+        if (isCorrect) score++;
+
+        return `Câu ${index + 1}: Chọn ${selected} ` +
+            (
+                question?.correct
+                    ? (
+                        isCorrect
+                            ? '✅'
+                            : `❌ (Đúng là ${question.correct})`
+                    )
+                    : ''
+            );
+    });
+
+    if (assignment?.assessmentType === 'trac_nghiem') {
+        const scale10 =
+            Math.round(
+                (score / questions.length) * 100
+            ) / 10;
+
+        lines.push(
+            '',
+            `=> 🎯 CHẤM ĐIỂM TỰ ĐỘNG: ${score} / ${questions.length} (Đạt ${scale10} / 10 điểm)`
+        );
+    } else {
+        const weight = Number(
+            assignment?.mcWeight || 5
+        );
+
+        const weightedScore =
+            Math.round(
+                (score / questions.length) *
+                weight *
+                100
+            ) / 100;
+
+        lines.push(
+            '',
+            `=> 🎯 CHẤM TỰ ĐỘNG PHẦN TRẮC NGHIỆM: ${score} / ${questions.length} (Đạt ${weightedScore} / ${weight} điểm)`
+        );
+    }
+
+    return lines.join('\n');
+}
+
+function getStudentStoredEssayText(submission) {
+    const rawEssay =
+        typeof submission?.rawEssay === 'string'
+            ? submission.rawEssay
+            : '';
+
+    if (rawEssay.trim()) {
+        return rawEssay;
+    }
+
+    const existingAnswer = String(
+        submission?.answer ||
+        ''
+    );
+
+    const essayMarker = '[PHẦN TỰ LUẬN]';
+    const markerIndex = existingAnswer.indexOf(
+        essayMarker
+    );
+
+    if (markerIndex >= 0) {
+        return existingAnswer
+            .slice(markerIndex + essayMarker.length)
+            .replace(/^\s+/, '');
+    }
+
+    // Bài tự luận cũ có thể chỉ lưu answer mà chưa có rawEssay/marker.
+    if (
+        existingAnswer &&
+        !existingAnswer.includes('[PHẦN TRẮC NGHIỆM]')
+    ) {
+        return existingAnswer;
+    }
+
+    return '';
 }
 
 function getStudentAssignmentDescHTML(value) {
@@ -4332,7 +6173,13 @@ async function loadAssignments() {
 
         // === TỐI ƯU HÓA: DOM DIFFING BẰNG MÃ BĂM (HASH) ===
         // 1. Tạo chuỗi Hash đại diện cho trạng thái hiện tại của bài tập
-        let subState = mySub ? `${mySub.submitTime}_${mySub.grade}_${mySub.isRedoing}_${mySub.isAutoSubmitted}` : 'none';
+        const redoHistoryForHash = mySub
+            ? getStudentRedoViolationHistory(mySub)
+            : {};
+
+        let subState = mySub
+            ? `${mySub.submitTime}_${mySub.grade}_${mySub.isRedoing}_${mySub.isAutoSubmitted}_${mySub.isEssayMissing}_${mySub.redoScope || ''}_${redoHistoryForHash.essayMissing ? 'histEssay' : ''}_${redoHistoryForHash.late ? 'histLate' : ''}_${redoHistoryForHash.cheat ? 'histCheat' : ''}`
+            : 'none';
         let cardHash =
             `${assign.id}_` +
             `${subState}_` +
@@ -4378,12 +6225,23 @@ async function loadAssignments() {
                 statusText = `<span style="color: #e11d48; font-weight: bold;">❌ Vi phạm quy chế thi</span>`;
             }
 
-            // THÊM ĐOẠN NÀY ĐỂ HIỂN THỊ LỖI THIẾU TỰ LUẬN
+            // Hiển thị lỗi tự luận hiện tại hoặc lịch sử lỗi sau khi đã làm lại.
+            const redoViolationHistory =
+                getStudentRedoViolationHistory(mySub);
+
             if (mySub.isEssayMissing) {
                 violationHTML += `<div style="background: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; padding: 15px; margin-top: 15px; border-radius: 8px;"><h4 style="color: #d97706; margin: 0 0 5px 0;">⚠️ THIẾU PHẦN TỰ LUẬN</h4><p style="margin: 0; color: #b45309;">Hệ thống ghi nhận bạn chưa nộp bài tự luận hợp lệ (chưa đủ 25 từ hoặc thiếu file đính kèm). Phần tự luận của bạn được tính 0 điểm.</p></div>`;
+            } else if (redoViolationHistory.essayMissing) {
+                violationHTML += `<div style="background: rgba(59, 130, 246, 0.08); border-left: 4px solid #3b82f6; padding: 15px; margin-top: 15px; border-radius: 8px;"><h4 style="color: #1d4ed8; margin: 0 0 5px 0;">⚠️ TỪNG THIẾU PHẦN TỰ LUẬN</h4><p style="margin: 0; color: #1e40af;">Bạn đã nộp lại phần tự luận, nhưng lỗi ở lần nộp trước vẫn được ghi nhận trong Bảng Xếp Hạng Thi Đua. Lỗi chỉ được xóa khi giáo viên chủ động bấm <strong>Tha lỗi</strong>.</p></div>`;
             }
 
-            let missingEssayBadgeHTML = mySub.isEssayMissing ? `<span style="color: #e11d48; font-weight: bold; font-size: 0.9em; margin-left: 8px;">[❌ Chưa nộp tự luận]</span>` : '';
+            let missingEssayBadgeHTML = '';
+
+            if (mySub.isEssayMissing) {
+                missingEssayBadgeHTML = `<span style="color: #e11d48; font-weight: bold; font-size: 0.9em; margin-left: 8px;">[❌ Chưa nộp tự luận]</span>`;
+            } else if (redoViolationHistory.essayMissing) {
+                missingEssayBadgeHTML = `<span style="color: #2563eb; font-weight: bold; font-size: 0.9em; margin-left: 8px;">[⚠️ Từng thiếu tự luận]</span>`;
+            }
 
             let teacherFileHTML = '';
 
@@ -4783,7 +6641,29 @@ async function loadAssignments() {
                 }
             }
             else {
-                let redoNotice = isRedoing ? `<div class="glass-alert success" style="padding: 10px; margin-bottom: 15px;"><p style="margin:0; font-size:0.9em; font-weight:bold;">🔁 Bạn đang ở chế độ làm lại bài.</p></div>` : '';
+                const redoScope =
+                    getStudentRedoScope(
+                        mySub,
+                        assign
+                    );
+
+                const redoAllowsMultipleChoice =
+                    !isRedoing ||
+                    studentRedoAllowsMultipleChoice(
+                        mySub,
+                        assign
+                    );
+
+                const redoAllowsEssay =
+                    !isRedoing ||
+                    studentRedoAllowsEssay(
+                        mySub,
+                        assign
+                    );
+
+                let redoNotice = isRedoing
+                    ? `<div class="glass-alert success student-redo-scope-notice" style="padding: 12px; margin-bottom: 15px;"><p style="margin:0; font-size:0.95em; font-weight:bold;">🔁 Giáo viên cho bạn làm lại <strong>${getStudentRedoScopeLabel(redoScope)}</strong>.</p><p style="margin:6px 0 0; font-size:0.86em;">Phần không được chọn đã bị khóa và dữ liệu cũ của phần đó sẽ được giữ nguyên khi bạn nộp lại.</p></div>`
+                    : '';
 
                 let countdownHTML = '';
                 if (!isRedoing) {
@@ -4956,6 +6836,23 @@ async function loadAssignments() {
                     quizHTML += '</div>';
                 }
 
+                if (
+                    isRedoing &&
+                    !redoAllowsMultipleChoice &&
+                    (
+                        assign.assessmentType === 'trac_nghiem' ||
+                        assign.assessmentType === 'ket_hop' ||
+                        assign.assessmentType === 'thi'
+                    )
+                ) {
+                    quizHTML = `
+                        <div class="student-redo-locked-section">
+                            <strong>🔒 Phần Trắc nghiệm đã khóa</strong>
+                            <span>Giáo viên chỉ cho làm lại phần Tự luận. Đáp án trắc nghiệm và kết quả cũ sẽ được giữ nguyên.</span>
+                        </div>
+                    `;
+                }
+
                 const initialVideoWatchSeconds =
                     Number(
                         trackingData?.[assign.id]
@@ -5063,6 +6960,18 @@ async function loadAssignments() {
                                        <label style="display: block; margin: 10px 0 8px 0;"><strong>📎 Đính kèm file bài làm:</strong></label>
                                        ${prevFileHTML}
                                        <input type="file" id="studentFile-${assign.id}" accept="${ASSIGNMENT_ATTACHMENT_ACCEPT}" multiple onclick="window.isSelectingFile = true;" onchange="handleStudentFileAccumulate(this, '${assign.id}')" style="margin-bottom: 15px; background: rgba(255,255,255,0.5);">`;
+
+                    if (
+                        isRedoing &&
+                        !redoAllowsEssay
+                    ) {
+                        tuLuanInputHTML = `
+                            <div class="student-redo-locked-section">
+                                <strong>🔒 Phần Tự luận đã khóa</strong>
+                                <span>Giáo viên chỉ cho làm lại phần Trắc nghiệm. Bạn không thể nhập chữ hoặc nộp file mới; nội dung và file tự luận cũ sẽ được giữ nguyên.</span>
+                            </div>
+                        `;
+                    }
                 }
 
                 let submitBtnHTML = currentUser.isLocked
@@ -6888,6 +8797,26 @@ async function submitAssignment(assignId, isAuto = false, isCheat = false) {
     // Ép kiểu boolean tuyệt đối để tránh xung đột
     const isCurrentlyRedoing = mySub ? !!mySub.isRedoing : false;
 
+    const redoScope =
+        getStudentRedoScope(
+            mySub,
+            assign
+        );
+
+    const redoAllowsMultipleChoice =
+        !isCurrentlyRedoing ||
+        studentRedoAllowsMultipleChoice(
+            mySub,
+            assign
+        );
+
+    const redoAllowsEssay =
+        !isCurrentlyRedoing ||
+        studentRedoAllowsEssay(
+            mySub,
+            assign
+        );
+
     // --- KHÓA CHẶN 15 GIÂY TRƯỚC HẠN CHÓT ---
     const timeRemaining = endTime.getTime() - now.getTime();
 
@@ -6929,9 +8858,12 @@ async function submitAssignment(assignId, isAuto = false, isCheat = false) {
     let activeQuestions = [];
 
     if (
-        assign.assessmentType === 'trac_nghiem' ||
-        assign.assessmentType === 'ket_hop' ||
-        assign.assessmentType === 'thi'
+        redoAllowsMultipleChoice &&
+        (
+            assign.assessmentType === 'trac_nghiem' ||
+            assign.assessmentType === 'ket_hop' ||
+            assign.assessmentType === 'thi'
+        )
     ) {
         activeExamSet =
             window.getStudentExamQuestions(assign);
@@ -7125,7 +9057,43 @@ async function submitAssignment(assignId, isAuto = false, isCheat = false) {
                 }
             }
         }
+    } else if (
+        isCurrentlyRedoing &&
+        !redoAllowsMultipleChoice &&
+        (
+            assign.assessmentType === 'trac_nghiem' ||
+            assign.assessmentType === 'ket_hop' ||
+            assign.assessmentType === 'thi'
+        )
+    ) {
+        // Giáo viên chỉ cho làm lại Tự luận:
+        // giữ nguyên toàn bộ dữ liệu trắc nghiệm cũ, không đọc radio trên DOM.
+        activeExamSet =
+            getStudentStoredExamSet(
+                mySub,
+                assign
+            );
+
+        activeQuestions =
+            activeExamSet.questions || [];
+
+        mcAnswersObj = {
+            ...(
+                mySub?.mcAnswers &&
+                typeof mySub.mcAnswers === 'object'
+                    ? mySub.mcAnswers
+                    : {}
+            )
+        };
+
+        mcText =
+            getStudentStoredMultipleChoiceText(
+                mySub,
+                assign,
+                activeExamSet
+            );
     }
+
 
     let answer = '';
     let filesArray = null;
@@ -7133,7 +9101,15 @@ async function submitAssignment(assignId, isAuto = false, isCheat = false) {
 
     // --- BẮT ĐẦU ĐOẠN ĐÃ FIX LỖI ---
     // 1. Thêm assign.assessmentType === 'thi' vào điều kiện để chịu đọc file khi thi
-    if (assign.assessmentType === 'tu_luan' || assign.assessmentType === 'ket_hop' || assign.assessmentType === 'thi' || !assign.assessmentType) {
+    if (
+        redoAllowsEssay &&
+        (
+            assign.assessmentType === 'tu_luan' ||
+            assign.assessmentType === 'ket_hop' ||
+            assign.assessmentType === 'thi' ||
+            !assign.assessmentType
+        )
+    ) {
         const answerEl = document.getElementById(`answer-${assignId}`);
         if (answerEl) {
             const qlEditor = answerEl.querySelector('.ql-editor');
@@ -7210,7 +9186,28 @@ async function submitAssignment(assignId, isAuto = false, isCheat = false) {
                 if (finalCalculatedGrade === null) finalCalculatedGrade = 0; // Chỉ tính điểm Trắc nghiệm
             }
         }
+    } else if (
+        isCurrentlyRedoing &&
+        !redoAllowsEssay &&
+        (
+            assign.assessmentType === 'tu_luan' ||
+            assign.assessmentType === 'ket_hop' ||
+            assign.assessmentType === 'thi' ||
+            !assign.assessmentType
+        )
+    ) {
+        // Giáo viên chỉ cho làm lại Trắc nghiệm:
+        // giữ nguyên chữ/file và trạng thái tự luận cũ.
+        answer = getStudentStoredEssayText(
+            mySub
+        );
+
+        isEssayMissing =
+            !!mySub?.isEssayMissing;
+
+        filesArray = null;
     }
+
 
     let finalAnswerText = "";
     if (isCheat) finalAnswerText += "🚨 [HỆ THỐNG TỰ ĐỘNG THU BÀI DO VI PHẠM QUY CHẾ - TỰ Ý THOÁT TOÀN MÀN HÌNH]\n\n";
@@ -7237,9 +9234,11 @@ async function submitAssignment(assignId, isAuto = false, isCheat = false) {
         if (
             !hasNewUploadedFiles &&
             mySub &&
-            mySub.file &&
-            !isCurrentlyRedoing
+            mySub.file
         ) {
+            // Không upload file mới thì luôn giữ file cũ.
+            // Đặc biệt quan trọng khi chỉ làm lại Trắc nghiệm
+            // hoặc khi sửa chữ tự luận mà vẫn dùng file cũ.
             finalFile = mySub.file;
         }
 
@@ -7268,10 +9267,16 @@ async function submitAssignment(assignId, isAuto = false, isCheat = false) {
                 activeQuestions,
 
             questionResults:
-                window.buildStudentQuestionResults(
-                    activeExamSet,
-                    mcAnswersObj
-                ),
+                (
+                    isCurrentlyRedoing &&
+                    !redoAllowsMultipleChoice &&
+                    mySub?.questionResults
+                )
+                    ? mySub.questionResults
+                    : window.buildStudentQuestionResults(
+                        activeExamSet,
+                        mcAnswersObj
+                    ),
 
             grade: finalCalculatedGrade,
             submittedAt: submitNow.getTime(),
@@ -7281,10 +9286,17 @@ async function submitAssignment(assignId, isAuto = false, isCheat = false) {
             isAutoSubmitted: isAuto || isCheat,
             isCheatFail: isCheat,
             isRedoing: false,
-            isEssayMissing: isEssayMissing // <--- THÊM DÒNG NÀY ĐỂ LƯU VÀO DATABASE
+            isEssayMissing: isEssayMissing
         };
 
-        if (mySub && mySub.isLateFail) {
+        if (isCurrentlyRedoing) {
+            // Bài làm lại sạch sẽ không bị mang cờ "nộp trễ" cũ sang bài mới.
+            // Lỗi cũ được giữ riêng trong redoViolationHistory để BXH vẫn tính vi phạm.
+            payload.isLateFail = false;
+            payload.redoScope = null;
+            payload.lastRedoScope = redoScope;
+            payload.redoCompletedAt = submitNow.getTime();
+        } else if (mySub && mySub.isLateFail) {
             payload.isLateFail = true;
         }
 
@@ -7315,6 +9327,134 @@ async function submitAssignment(assignId, isAuto = false, isCheat = false) {
                     assign,
                     currentUser.username
                 );
+
+            if (isCurrentlyRedoing) {
+                /*
+                 * Chụp lịch sử vi phạm từ bản Firebase MỚI NHẤT.
+                 * Nếu giáo viên vừa bấm Tha lỗi trong lúc học sinh đang làm,
+                 * các cờ đã được xóa sẽ không bị dữ liệu cũ trên trình duyệt khôi phục lại.
+                 */
+                payload.redoViolationHistory =
+                    mergeStudentRedoViolationHistory(
+                        latestSubmission
+                    );
+
+                /*
+                 * Nếu giáo viên CHỈ cho làm lại Trắc nghiệm thì phần Tự luận
+                 * đang bị khóa phải lấy lại từ Firebase mới nhất ngay trước khi ghi.
+                 * Nhờ vậy:
+                 * - học sinh không thể sửa chữ/file bằng DOM hoặc DevTools;
+                 * - thao tác "Tha lỗi" của giáo viên trong lúc học sinh đang làm
+                 *   không bị dữ liệu cũ trên trình duyệt ghi đè trở lại;
+                 * - file tự luận cũ luôn được giữ nguyên nếu giáo viên không mở phần đó.
+                 */
+                if (
+                    !redoAllowsMultipleChoice &&
+                    latestSubmission
+                ) {
+                    const latestExamSet =
+                        getStudentStoredExamSet(
+                            latestSubmission,
+                            assign
+                        );
+
+                    const latestMcAnswers = {
+                        ...(
+                            latestSubmission.mcAnswers &&
+                            typeof latestSubmission.mcAnswers === 'object'
+                                ? latestSubmission.mcAnswers
+                                : {}
+                        )
+                    };
+
+                    const latestMcText =
+                        getStudentStoredMultipleChoiceText(
+                            latestSubmission,
+                            assign,
+                            latestExamSet
+                        );
+
+                    payload.mcAnswers =
+                        latestMcAnswers;
+                    payload.examVersionCode =
+                        latestExamSet.versionCode;
+                    payload.examVersionIndex =
+                        latestExamSet.versionIndex;
+                    payload.questionSnapshot =
+                        latestExamSet.questions || [];
+                    payload.questionResults =
+                        latestSubmission.questionResults ||
+                        window.buildStudentQuestionResults(
+                            latestExamSet,
+                            latestMcAnswers
+                        );
+
+                    let lockedMcAnswer = '';
+
+                    if (isCheat) {
+                        lockedMcAnswer +=
+                            '🚨 [HỆ THỐNG TỰ ĐỘNG THU BÀI DO VI PHẠM QUY CHẾ - TỰ Ý THOÁT TOÀN MÀN HÌNH]\n\n';
+                    } else if (isAuto) {
+                        lockedMcAnswer +=
+                            '⚠️ [HỆ THỐNG TỰ ĐỘNG THU BÀI DO HẾT GIỜ LÀM]\n\n';
+                    }
+
+                    if (latestMcText) {
+                        lockedMcAnswer +=
+                            `[PHẦN TRẮC NGHIỆM]\n${latestMcText}\n\n`;
+                    }
+
+                    if (payload.rawEssay) {
+                        lockedMcAnswer +=
+                            `[PHẦN TỰ LUẬN]\n${payload.rawEssay}`;
+                    }
+
+                    payload.answer =
+                        lockedMcAnswer ||
+                        payload.answer;
+                }
+
+                if (
+                    !redoAllowsEssay &&
+                    latestSubmission
+                ) {
+                    const latestEssay =
+                        getStudentStoredEssayText(
+                            latestSubmission
+                        );
+
+                    payload.rawEssay = latestEssay;
+                    payload.file =
+                        latestSubmission.file || null;
+                    payload.isEssayMissing =
+                        !!latestSubmission.isEssayMissing;
+
+                    let lockedEssayAnswer = '';
+
+                    if (isCheat) {
+                        lockedEssayAnswer +=
+                            '🚨 [HỆ THỐNG TỰ ĐỘNG THU BÀI DO VI PHẠM QUY CHẾ - TỰ Ý THOÁT TOÀN MÀN HÌNH]\n\n';
+                    } else if (isAuto) {
+                        lockedEssayAnswer +=
+                            '⚠️ [HỆ THỐNG TỰ ĐỘNG THU BÀI DO HẾT GIỜ LÀM]\n\n';
+                    }
+
+                    if (mcText) {
+                        lockedEssayAnswer +=
+                            `[PHẦN TRẮC NGHIỆM]\n${mcText}\n\n`;
+                    }
+
+                    if (latestEssay) {
+                        lockedEssayAnswer +=
+                            `[PHẦN TỰ LUẬN]\n${latestEssay}`;
+                    }
+
+                    payload.answer =
+                        lockedEssayAnswer ||
+                        latestSubmission.answer ||
+                        payload.answer;
+                }
+            }
 
             /*
  * Chỉ lấy file cũ để xóa khi học sinh
@@ -10131,30 +12271,48 @@ window.WebBackgroundManager = {
         );
 
 
+        /*
+         * Cho phép từng vật phẩm nền tự khai báo cách fit.
+         * Mặc định vẫn y hệt cơ chế cũ:
+         * cover + center center + no-repeat + fixed.
+         */
+        const backgroundFit =
+            String(item.backgroundFit || 'cover');
+
+        const backgroundPosition =
+            String(item.backgroundPosition || 'center center');
+
+        const backgroundRepeat =
+            String(item.backgroundRepeat || 'no-repeat');
+
+        const backgroundAttachment =
+            String(item.backgroundAttachment || 'fixed');
+
+
         body.style.setProperty(
             'background-size',
-            'cover',
+            backgroundFit,
             'important'
         );
 
 
         body.style.setProperty(
             'background-position',
-            'center center',
+            backgroundPosition,
             'important'
         );
 
 
         body.style.setProperty(
             'background-repeat',
-            'no-repeat',
+            backgroundRepeat,
             'important'
         );
 
 
         body.style.setProperty(
             'background-attachment',
-            'fixed',
+            backgroundAttachment,
             'important'
         );
 
@@ -10424,6 +12582,16 @@ window.buyItem = async function (itemId, isUpgradingFromTrial = false) {
     const item = StoreManager.getItemById(itemId);
     if (!item) return;
     if (item.isLocked) return alert("🔒 Vật phẩm này hiện đang bị Giáo viên khóa!");
+
+    if (
+        String(itemId) ===
+        'pet_trung_thu_nguyet_cung_tien_tu'
+    ) {
+        return window
+            .MidAutumnCoinManager
+            .redeem(itemId);
+    }
+
     if (item.isNonCoin && (!item.price || item.price <= 0)) return alert(`🎁 Vật phẩm sự kiện!`);
 
     const coinRef = db.ref('student_coins/' + currentUser.username);
@@ -12905,6 +15073,33 @@ window.renderStudentInbox = function () {
             let giftDisplay = '';
             if (msg.giftType === 'coin') giftDisplay = `🪙 ${parseInt(msg.giftValue).toLocaleString('vi-VN')} Coin`;
             else if (
+                msg.giftType === 'mid_autumn_coin'
+            ) {
+                const quantity =
+                    Math.max(
+                        1,
+                        parseInt(
+                            msg.giftValue,
+                            10
+                        ) || 1
+                    );
+
+                giftDisplay =
+                    `🌕 ${quantity} Xu Trung Thu` +
+                    `<br>` +
+                    `<span style="
+                        font-size:0.82em;
+                        color:#a16207;
+                        font-weight:600;
+                    ">` +
+                    (
+                        msg.giftCredited
+                            ? `Đã cộng tự động vào ví · Không hết hạn.`
+                            : `Không hết hạn · Nhấn nhận để cộng vào ví.`
+                    ) +
+                    `</span>`;
+            }
+            else if (
                 msg.giftType === 'birthday_coin'
             ) {
                 const birthdayYear =
@@ -13048,17 +15243,26 @@ window.renderStudentInbox = function () {
 
             if (isExpiredDiscountInInbox) {
                 btnHTML = `<button onclick="deleteMessage('${msg._fbKey}')" style="background: rgba(225, 29, 72, 0.1); color: #e11d48; width: 100%; padding: 10px; border-radius: 8px; font-weight: bold; border: 1px solid #e11d48; cursor: pointer;">🗑️ Thẻ đã hết hạn (Xóa thư)</button>`;
+            } else if (
+                msg.giftType === 'mid_autumn_coin' &&
+                msg.giftCredited === true
+            ) {
+                btnHTML = `<button onclick="deleteMessage('${msg._fbKey}')" style="background: linear-gradient(135deg,#f7d774,#d6a438); color:#47320d; width:100%; padding:10px; border-radius:8px; font-weight:900; border:none; cursor:pointer;">🌕 Đã nhận Xu Trung Thu · Xóa thư</button>`;
             } else {
                 const claimButtonText =
                     msg.giftType ===
-                        'birthday_coin'
-                        ? '🎂 Nhận Xu Sinh Nhật vào túi'
+                        'mid_autumn_coin'
+                        ? '🌕 Nhận Xu Trung Thu vào ví'
 
                         : msg.giftType ===
-                            'special_birthday_coin'
-                            ? '✨ Nhận Xu Đặc Biệt vào túi'
+                            'birthday_coin'
+                            ? '🎂 Nhận Xu Sinh Nhật vào túi'
 
-                            : '🧧 Mở quà & Nhận vào túi';
+                            : msg.giftType ===
+                                'special_birthday_coin'
+                                ? '✨ Nhận Xu Đặc Biệt vào túi'
+
+                                : '🧧 Mở quà & Nhận vào túi';
                 btnHTML = `
     <button
         onclick="
@@ -13155,6 +15359,79 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
                 `${parseInt(giftValue).toLocaleString('vi-VN')} Coin!`
             );
 
+        } else if (
+            giftType === 'mid_autumn_coin'
+        ) {
+            const quantity =
+                parseInt(
+                    giftValue,
+                    10
+                );
+
+            if (
+                !Number.isInteger(
+                    quantity
+                ) ||
+                quantity <= 0
+            ) {
+                throw new Error(
+                    'INVALID_MID_AUTUMN_COIN_QUANTITY'
+                );
+            }
+
+            if (
+                msgData.giftCredited ===
+                true
+            ) {
+                claimSucceeded = true;
+
+                claimedPath =
+                    `mid_autumn_wallets/` +
+                    `${currentUser.username}`;
+
+                claimedExtra = {
+                    quantity,
+                    alreadyCredited:
+                        true,
+                    sourceMessageId:
+                        msgKey
+                };
+            } else {
+                const walletTx =
+                    await window
+                        .MidAutumnCoinManager
+                        .claimTeacherGift(
+                            msgKey,
+                            quantity
+                        );
+
+                if (
+                    !walletTx.committed
+                ) {
+                    alert(
+                        '🌕 Xu Trung Thu trong thư này đã được nhận trước đó.'
+                    );
+                } else {
+                    claimSucceeded =
+                        true;
+
+                    claimedPath =
+                        `mid_autumn_wallets/` +
+                        `${currentUser.username}`;
+
+                    claimedExtra = {
+                        quantity,
+                        sourceMessageId:
+                            msgKey
+                    };
+
+                    alert(
+                        `🌕 Bạn đã nhận ${quantity} Xu Trung Thu!\n` +
+                        `Xu không hết hạn. Hiện có: ` +
+                        `${window.MidAutumnCoinManager.getBalance()} Xu.`
+                    );
+                }
+            }
         } else if (
             giftType === 'birthday_coin'
         ) {
@@ -13565,6 +15842,19 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
 
                 giftDescription =
                     `Thẻ giảm giá ${logAmount}%`;
+
+            } else if (
+                giftType ===
+                'mid_autumn_coin'
+            ) {
+                logAmount =
+                    Number(giftValue);
+
+                logUnit =
+                    'Xu Trung Thu';
+
+                giftDescription =
+                    `${logAmount} Xu Trung Thu`;
 
             } else if (
                 giftType ===
@@ -17859,6 +20149,40 @@ window.showBagItemPopup = function (item) {
     }
     else if (
         item.type ===
+        'mid_autumn_coin'
+    ) {
+        actionButtonHtml = `
+            <button
+                onclick="
+                    openMidAutumnStoreFromBag()
+                "
+                style="
+                    margin-top:15px;
+                    width:100%;
+                    background:
+                        linear-gradient(
+                            135deg,
+                            #0f766e,
+                            #f59e0b
+                        );
+                    border:none;
+                    padding:10px;
+                    border-radius:8px;
+                    font-weight:bold;
+                    color:white;
+                    cursor:pointer;
+                    box-shadow:
+                        0 4px 10px
+                        rgba(15,118,110,0.28);
+                    font-size:0.95em;
+                "
+            >
+                🏮 Mở Cửa hàng Sang trọng
+            </button>
+        `;
+    }
+    else if (
+        item.type ===
         'special_birthday_coin'
     ) {
         actionButtonHtml =
@@ -17922,13 +20246,44 @@ window.showBagItemPopup = function (item) {
         <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; font-size: 0.88em; color: #475569; text-align: left; line-height: 1.4;">
             ${item.description}
             <p style="margin: 8px 0 0 0; font-weight: bold; color: #1e293b; border-top: 1px dashed #cbd5e1; padding-top: 6px; text-align: right;">
-                Xếp chồng: ${item.quantity}/50
+                ${
+                    item.type === 'mid_autumn_coin'
+                        ? `Số dư: ${Number(item.quantity || 0).toLocaleString('vi-VN')} Xu`
+                        : `Xếp chồng: ${item.quantity}/50`
+                }
             </p>
         </div>
         ${actionButtonHtml}
     `;
 
     popup.style.display = 'block';
+};
+
+// Mở Cửa hàng Sang trọng trực tiếp từ ô Xu Trung Thu trong Túi đồ.
+window.openMidAutumnStoreFromBag = function () {
+    try {
+        window.closeBagItemPopup?.();
+        window.closeStudentBag?.();
+
+        if (
+            window.LuxuryStore &&
+            typeof window.LuxuryStore.open ===
+                'function'
+        ) {
+            window.LuxuryStore.open();
+            return;
+        }
+
+        alert(
+            '🏮 Cửa hàng Sang trọng chưa sẵn sàng. ' +
+            'Vui lòng mở mục Cửa hàng → Sang trọng.'
+        );
+    } catch (error) {
+        console.error(
+            '[Xu Trung Thu] Không thể mở Cửa hàng Sang trọng:',
+            error
+        );
+    }
 };
 
 // Thực hiện giao dịch bán thẻ từ Popup thông tin
@@ -17965,7 +20320,8 @@ window.renderStudentBag = async function () {
             discountSnap,
             invSnap,
             birthdayCoinSnap,
-            specialBirthdayCoinSnap
+            specialBirthdayCoinSnap,
+            midAutumnWalletSnap
         ] = await Promise.all([
             window.calculateTotalTickets(),
 
@@ -17987,6 +20343,11 @@ window.renderStudentBag = async function () {
 
             db.ref(
                 'student_special_birthday_coins/' +
+                currentUser.username
+            ).once('value'),
+
+            db.ref(
+                'mid_autumn_wallets/' +
                 currentUser.username
             ).once('value')
         ]);
@@ -18012,7 +20373,56 @@ window.renderStudentBag = async function () {
             totalTickets -= count;
         }
 
-        // --- 2. XỬ LÝ XU ĐẶC BIỆT ---
+        // --- 2. XỬ LÝ XU TRUNG THU ---
+        // Xu Trung Thu là tiền tệ sự kiện nên không ghi vào student_inventory.
+        // Túi đồ đọc trực tiếp số dư thật từ mid_autumn_wallets.
+        const midAutumnWallet =
+            midAutumnWalletSnap.val() || {};
+
+        const midAutumnBalance =
+            Math.max(
+                0,
+                Number(
+                    midAutumnWallet.balance || 0
+                )
+            );
+
+        window.studentMidAutumnWallet =
+            midAutumnWallet;
+
+        window.studentMidAutumnCoinBalance =
+            midAutumnBalance;
+
+        if (midAutumnBalance > 0) {
+            slotsData.push({
+                type:
+                    'mid_autumn_coin',
+
+                name:
+                    'Xu Trung Thu',
+
+                icon:
+                    '🌕',
+
+                isImg:
+                    false,
+
+                quantity:
+                    midAutumnBalance,
+
+                isExpired:
+                    false,
+
+                description:
+                    `🌕 <b>Xu Trung Thu</b><br>` +
+                    `♾️ <b>Không hết hạn:</b> số Xu còn dư được giữ lại qua các năm.<br>` +
+                    `🏮 Chỉ dùng đổi vật phẩm Trung Thu vào <b>đúng ngày Trung Thu</b> của năm đó.<br>` +
+                    `🐇 <b>Nguyệt Cung Tiên Tử:</b> 2 Xu.<br>` +
+                    `⚠️ Khi đổi vật phẩm, hệ thống sẽ <b>trừ đúng số Xu đã dùng</b>.`
+            });
+        }
+
+        // --- 3. XỬ LÝ XU ĐẶC BIỆT ---
         const specialBirthdayGrants =
             specialBirthdayCoinSnap.val() || {};
 
@@ -18082,7 +20492,7 @@ window.renderStudentBag = async function () {
                 });
             });
 
-        // --- 2. XỬ LÝ XU SINH NHẬT THEO TỪNG NĂM ---
+        // --- 4. XỬ LÝ XU SINH NHẬT THEO TỪNG NĂM ---
         const birthdayWallets =
             birthdayCoinSnap.val() || {};
 
@@ -18136,7 +20546,7 @@ window.renderStudentBag = async function () {
                 });
             });
 
-        // --- 2. XỬ LÝ GỘP Ô: THẺ GIẢM GIÁ (HIỂN THỊ CẢ THẺ HẾT HẠN) ---
+        // --- 5. XỬ LÝ GỘP Ô: THẺ GIẢM GIÁ (HIỂN THỊ CẢ THẺ HẾT HẠN) ---
         const discounts = discountSnap.val() || {};
         let groupedDiscounts = {};
 
@@ -18289,7 +20699,7 @@ window.renderStudentBag = async function () {
             slotsData.push({ type: 'empty' });
         }
 
-        // --- 3. RENDER GIAO DIỆN LƯỚI Ô ĐỒ ---
+        // --- 6. RENDER GIAO DIỆN LƯỚI Ô ĐỒ ---
         let gridHtml = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); gap: 10px; padding: 4px;">';
 
         slotsData.forEach(slot => {
@@ -18667,14 +21077,303 @@ let lastSavedTime = {};  // Biến phụ để chống spam lưu lên Firebase l
 
 let lastPlayerSamples = {};
 let pendingResumeTimes = {};
+let videoTrackerReady = {};
 let videoProgressFlushBound = false;
+let videoPausedByPageExit = {};
+let videoPageExitNoticePending = false;
+let videoPlaybackRateNoticeAt = {};
+
+// ======================================================
+// KHÓA TỐC ĐỘ VIDEO BÀI TẬP Ở 1×
+// - Chặn 1.25× / 1.5× / 2×... trong YouTube iframe.
+// - Nếu tốc độ bị đổi bằng menu, phím tắt hoặc cách khác,
+//   lập tức trả về 1×.
+// - Nếu đã phát nhanh được một đoạn rất ngắn trước khi API
+//   báo sự kiện, quay lại mốc hợp lệ gần nhất để không được
+//   cộng lợi thế thời gian.
+// ======================================================
+function enforceAssignmentVideoNormalSpeed(
+    assignId,
+    player,
+    rollbackProgress = false,
+    notifyStudent = false
+) {
+    if (!player) return true;
+
+    let playbackRate = 1;
+
+    try {
+        if (
+            typeof player.getPlaybackRate === 'function'
+        ) {
+            playbackRate =
+                Number(player.getPlaybackRate()) || 1;
+        }
+    } catch (error) {
+        playbackRate = 1;
+    }
+
+    if (Math.abs(playbackRate - 1) < 0.01) {
+        return true;
+    }
+
+    try {
+        if (
+            typeof player.setPlaybackRate === 'function'
+        ) {
+            player.setPlaybackRate(1);
+        }
+    } catch (error) {
+        console.warn(
+            'Không thể đưa tốc độ video về 1×:',
+            error
+        );
+    }
+
+    if (rollbackProgress) {
+        const safeTime =
+            normalizeVideoProgressSeconds(
+                watchDurations[assignId]
+            );
+
+        try {
+            const currentTime =
+                Number(
+                    player.getCurrentTime?.()
+                ) || 0;
+
+            /*
+             * Chỉ tua lùi nếu tốc độ nhanh đã đẩy video vượt
+             * mốc hợp lệ. Nếu học sinh đang xem lại đoạn cũ thì
+             * không ép nhảy lên mốc cao nhất.
+             */
+            if (
+                currentTime > safeTime + 0.15 &&
+                typeof player.seekTo === 'function'
+            ) {
+                player.seekTo(
+                    safeTime,
+                    true
+                );
+            }
+        } catch (error) {
+            console.warn(
+                'Không thể hoàn tác đoạn phát nhanh:',
+                error
+            );
+        }
+
+        lastPlayerSamples[assignId] = {
+            videoTime: safeTime,
+            wallTime: Date.now()
+        };
+    }
+
+    if (
+        notifyStudent &&
+        typeof window.showToast === 'function'
+    ) {
+        const now = Date.now();
+        const lastNotice =
+            Number(
+                videoPlaybackRateNoticeAt[
+                    assignId
+                ]
+            ) || 0;
+
+        /*
+         * Chống spam cảnh báo nếu học sinh bấm đổi tốc độ
+         * nhiều lần liên tiếp trong menu YouTube.
+         */
+        if (now - lastNotice >= 2500) {
+            videoPlaybackRateNoticeAt[
+                assignId
+            ] = now;
+
+            window.showToast(
+                'Tốc độ video được khóa ở 1×. ' +
+                'Phát nhanh 1.25×, 1.5×, 2× hoặc cao hơn ' +
+                'không được tính và đã được đưa về mốc hợp lệ.',
+                'warning'
+            );
+        }
+    }
+
+    return false;
+}
+
+window.onAssignmentVideoPlaybackRateChange =
+    function (event, assignId) {
+        enforceAssignmentVideoNormalSpeed(
+            String(assignId),
+            event?.target,
+            true,
+            true
+        );
+    };
+
+function isAssignmentVideoPageActive() {
+    if (
+        document.hidden ||
+        document.visibilityState === 'hidden'
+    ) {
+        return false;
+    }
+
+    /*
+     * Trên trình duyệt hỗ trợ hasFocus(), chỉ tính thời gian khi
+     * cửa sổ/tab học tập thực sự đang hoạt động. Focus bên trong
+     * iframe YouTube vẫn được tính là focus của tài liệu này.
+     */
+    try {
+        if (
+            typeof document.hasFocus === 'function' &&
+            !document.hasFocus()
+        ) {
+            return false;
+        }
+    } catch (error) {
+        // Nếu trình duyệt không cho kiểm tra focus, Page Visibility
+        // vẫn là lớp bảo vệ chính.
+    }
+
+    return true;
+}
+
+function stopAssignmentVideoWatchTimer(assignId) {
+    if (watchTimers[assignId]) {
+        clearInterval(watchTimers[assignId]);
+        delete watchTimers[assignId];
+    }
+
+    delete lastPlayerSamples[assignId];
+}
+
+function saveCurrentTrackedVideoProgress(assignId) {
+    const seconds =
+        normalizeVideoProgressSeconds(
+            watchDurations[assignId]
+        );
+
+    if (seconds <= 0) return;
+
+    saveLocalVideoProgress(assignId, seconds);
+    saveVideoProgressToFirebase(assignId, seconds);
+}
+
+function pauseTrackedVideoBecausePageInactive(
+    assignId,
+    player,
+    reason = 'inactive'
+) {
+    if (!player) return false;
+
+    let isPlaying = Boolean(watchTimers[assignId]);
+
+    try {
+        if (
+            typeof player.getPlayerState === 'function'
+        ) {
+            isPlaying =
+                Number(player.getPlayerState()) === 1;
+        }
+    } catch (error) {
+        // Giữ trạng thái suy ra từ timer nếu API YouTube chưa sẵn sàng.
+    }
+
+    if (!isPlaying) return false;
+
+    stopAssignmentVideoWatchTimer(assignId);
+    saveCurrentTrackedVideoProgress(assignId);
+
+    try {
+        if (typeof player.pauseVideo === 'function') {
+            player.pauseVideo();
+        }
+    } catch (error) {
+        console.warn(
+            'Không thể tạm dừng video khi rời trang:',
+            error
+        );
+    }
+
+    videoPausedByPageExit[assignId] = reason;
+    videoPageExitNoticePending = true;
+
+    return true;
+}
+
+function pauseAllTrackedVideosBecausePageInactive(
+    reason = 'inactive'
+) {
+    Object.keys(ytPlayers).forEach(assignId => {
+        pauseTrackedVideoBecausePageInactive(
+            assignId,
+            ytPlayers[assignId],
+            reason
+        );
+    });
+}
+
+function showVideoPageExitPauseNotice() {
+    if (!videoPageExitNoticePending) return;
+    if (!isAssignmentVideoPageActive()) return;
+
+    videoPageExitNoticePending = false;
+
+    if (typeof window.showToast === 'function') {
+        window.showToast(
+            'Video đã tạm dừng vì bạn rời trang học tập. ' +
+            'Thời gian xem trên YouTube/tab khác không được tính. ' +
+            'Hãy nhấn ▶️ để tiếp tục xem trên trang.',
+            'warning'
+        );
+    }
+}
 
 function normalizeVideoProgressSeconds(value) {
     return Math.max(0, Math.floor(Number(value) || 0));
 }
 
+function getVideoTrackingAssignment(assignOrId) {
+    if (
+        assignOrId &&
+        typeof assignOrId === 'object'
+    ) {
+        return assignOrId;
+    }
+
+    const assignId = String(assignOrId ?? '');
+
+    return Array.isArray(window.cachedAssignments)
+        ? window.cachedAssignments.find(
+            item =>
+                String(item?.id ?? '') ===
+                assignId
+        ) || null
+        : null;
+}
+
+function getVideoTrackingRevision(assignOrId) {
+    const assignment =
+        getVideoTrackingAssignment(assignOrId);
+
+    return String(
+        assignment?.videoTrackingRevision || ''
+    ).trim();
+}
+
 function getVideoProgressStorageKey(assignId) {
-    return `student_video_progress:${currentUser.username}:${assignId}`;
+    const revision =
+        getVideoTrackingRevision(assignId) ||
+        'legacy';
+
+    return (
+        `student_video_progress:` +
+        `${currentUser.username}:` +
+        `${assignId}:` +
+        `${revision}`
+    );
 }
 
 function getLocalVideoProgress(assignId) {
@@ -18781,7 +21480,12 @@ function bindVideoProgressFlushEvents() {
 
     window.addEventListener(
         'pagehide',
-        flushAllVideoProgress
+        () => {
+            pauseAllTrackedVideosBecausePageInactive(
+                'pagehide'
+            );
+            flushAllVideoProgress();
+        }
     );
 
     window.addEventListener(
@@ -18796,8 +21500,45 @@ function bindVideoProgressFlushEvents() {
                 document.visibilityState ===
                 'hidden'
             ) {
+                pauseAllTrackedVideosBecausePageInactive(
+                    'hidden'
+                );
                 flushAllVideoProgress();
+            } else {
+                setTimeout(
+                    showVideoPageExitPauseNotice,
+                    120
+                );
             }
+        }
+    );
+
+    /*
+     * Một số trình duyệt mở YouTube/app ngoài làm cửa sổ mất focus
+     * trước khi visibilitychange chạy. Kiểm tra trễ một nhịp để
+     * không nhầm thao tác focus bên trong chính iframe YouTube.
+     */
+    window.addEventListener(
+        'blur',
+        () => {
+            setTimeout(() => {
+                if (!isAssignmentVideoPageActive()) {
+                    pauseAllTrackedVideosBecausePageInactive(
+                        'blur'
+                    );
+                    flushAllVideoProgress();
+                }
+            }, 180);
+        }
+    );
+
+    window.addEventListener(
+        'focus',
+        () => {
+            setTimeout(
+                showVideoPageExitPauseNotice,
+                120
+            );
         }
     );
 }
@@ -18810,6 +21551,7 @@ function destroyTrackedYouTubePlayer(assignId) {
 
     delete lastPlayerSamples[assignId];
     delete pendingResumeTimes[assignId];
+    delete videoTrackerReady[assignId];
 
     const player = ytPlayers[assignId];
 
@@ -18968,7 +21710,7 @@ function getTrackedVideoHTML(
     const embedUrl =
         `https://www.youtube.com/embed/` +
         `${videoId}` +
-        `?enablejsapi=1&rel=0&playsinline=1` +
+        `?enablejsapi=1&rel=0&playsinline=1&disablekb=1` +
         `${originParam}`;
 
     const summaryText =
@@ -19787,6 +22529,8 @@ window.initYouTubeTrackers = function (
 
         if (ytPlayers[assignId]) return;
 
+        videoTrackerReady[assignId] = false;
+
         ytPlayers[assignId] = new YT.Player(
             iframeEl.id,
             {
@@ -19795,6 +22539,19 @@ window.initYouTubeTrackers = function (
                         const resumeEnabled =
                             iframeEl.dataset.resumePlayback !==
                             'false';
+
+                        /*
+                         * YouTube có thể ghi nhớ tốc độ từ lần
+                         * xem trước. Luôn đưa player về 1× ngay
+                         * khi sẵn sàng, nhưng chưa tua vị trí ở
+                         * đây để cơ chế resume vẫn hoạt động.
+                         */
+                        enforceAssignmentVideoNormalSpeed(
+                            assignId,
+                            event.target,
+                            false,
+                            false
+                        );
 
                         db.ref(
                             `video_tracking/${assignId}/${currentUser.username}`
@@ -19875,6 +22632,57 @@ window.initYouTubeTrackers = function (
                                     );
                                 }
 
+                                /*
+                                 * Nếu chưa có tiến độ hợp lệ, ép player về đầu.
+                                 * YouTube đôi khi tự khôi phục vị trí phát từ
+                                 * lịch sử/cookie và vị trí đó không được tính.
+                                 */
+                                if (
+                                    watchDurations[
+                                        assignId
+                                    ] <= 0
+                                ) {
+                                    try {
+                                        const bootTime =
+                                            Number(
+                                                event.target
+                                                    .getCurrentTime?.()
+                                            ) || 0;
+
+                                        if (
+                                            bootTime > 1 &&
+                                            typeof event.target
+                                                .seekTo === 'function'
+                                        ) {
+                                            event.target.seekTo(
+                                                0,
+                                                true
+                                            );
+                                        }
+                                    } catch (error) {
+                                        console.warn(
+                                            'Không thể đưa video về đầu:',
+                                            error
+                                        );
+                                    }
+                                }
+
+                                lastPlayerSamples[
+                                    assignId
+                                ] = {
+                                    videoTime:
+                                        Number(
+                                            event.target
+                                                .getCurrentTime?.()
+                                        ) || 0,
+                                    wallTime:
+                                        Date.now()
+                                };
+
+                                videoTrackerReady[
+                                    assignId
+                                ] = true;
+
                                 if (
                                     localSeconds >
                                     firebaseSeconds
@@ -19886,6 +22694,33 @@ window.initYouTubeTrackers = function (
                                         ]
                                     );
                                 }
+
+                                /*
+                                 * PLAYING có thể phát sinh trước khi Firebase
+                                 * tải xong. Khi tracking sẵn sàng, khởi động lại
+                                 * bộ đếm nếu video vẫn đang phát.
+                                 */
+                                setTimeout(() => {
+                                    try {
+                                        if (
+                                            event.target
+                                                .getPlayerState?.() ===
+                                            YT.PlayerState.PLAYING
+                                        ) {
+                                            window.onPlayerStateChange(
+                                                {
+                                                    target:
+                                                        event.target,
+                                                    data:
+                                                        YT.PlayerState.PLAYING
+                                                },
+                                                assignId
+                                            );
+                                        }
+                                    } catch (error) {
+                                        // Không chặn player nếu API chưa phản hồi.
+                                    }
+                                }, 180);
                             })
                             .catch(error => {
                                 console.error(
@@ -19899,7 +22734,14 @@ window.initYouTubeTrackers = function (
                         window.onPlayerStateChange(
                             event,
                             assignId
-                        )
+                        ),
+
+                    onPlaybackRateChange: event =>
+                        window
+                            .onAssignmentVideoPlaybackRateChange(
+                                event,
+                                assignId
+                            )
                 }
             }
         );
@@ -20007,6 +22849,50 @@ window.onPlayerStateChange = function (event, assignId) {
     }
 
     if (event.data === YT.PlayerState.PLAYING) {
+        /*
+         * Tốc độ của mọi video bài tập/bài thi luôn là 1×.
+         * Việc này không ảnh hưởng nút fullscreen.
+         */
+        enforceAssignmentVideoNormalSpeed(
+            assignId,
+            player,
+            false,
+            false
+        );
+
+        /*
+         * Không cho phát/tính thời gian khi học sinh đã chuyển
+         * sang YouTube, tab khác hoặc cửa sổ khác.
+         */
+        if (!isAssignmentVideoPageActive()) {
+            pauseTrackedVideoBecausePageInactive(
+                assignId,
+                player,
+                'play-while-inactive'
+            );
+            return;
+        }
+
+        delete videoPausedByPageExit[assignId];
+
+        /*
+         * Không ghi nhận thời gian trước khi tiến độ Firebase
+         * của assignment hiện tại đã tải xong.
+         */
+        if (videoTrackerReady[assignId] !== true) {
+            if (watchTimers[assignId]) {
+                clearInterval(
+                    watchTimers[assignId]
+                );
+
+                delete watchTimers[
+                    assignId
+                ];
+            }
+
+            return;
+        }
+
         seekToSavedVideoProgress(
             assignId,
             player,
@@ -20018,7 +22904,37 @@ window.onPlayerStateChange = function (event, assignId) {
         }
 
         watchTimers[assignId] = setInterval(() => {
+            /*
+             * Lớp bảo vệ thứ hai: dù trình duyệt bỏ sót blur/
+             * visibilitychange, tuyệt đối không cộng thời gian
+             * khi trang học tập không còn hoạt động.
+             */
+            if (!isAssignmentVideoPageActive()) {
+                pauseTrackedVideoBecausePageInactive(
+                    assignId,
+                    player,
+                    'timer-inactive'
+                );
+                return;
+            }
+
             if (player && typeof player.getCurrentTime === 'function') {
+                /*
+                 * Lớp bảo vệ liên tục: nếu menu/phím tắt/extension
+                 * vừa đổi tốc độ, không ghi nhận tick này và hoàn
+                 * tác về mốc hợp lệ.
+                 */
+                if (
+                    !enforceAssignmentVideoNormalSpeed(
+                        assignId,
+                        player,
+                        true,
+                        true
+                    )
+                ) {
+                    return;
+                }
+
                 const rawCurrentTime =
                     Number(player.getCurrentTime()) || 0;
 
@@ -20041,31 +22957,55 @@ window.onPlayerStateChange = function (event, assignId) {
                     (now - previousSample.wallTime) / 1000
                 );
 
-                let playbackRate = 1;
-
-                try {
-                    if (
-                        typeof player.getPlaybackRate ===
-                        'function'
-                    ) {
-                        playbackRate = Math.max(
-                            0.25,
-                            Number(player.getPlaybackRate()) ||
-                            1
-                        );
-                    }
-                } catch (error) {
-                    playbackRate = 1;
-                }
-
                 const videoAdvance =
                     rawCurrentTime -
                     previousSample.videoTime;
 
+                /*
+                 * Tốc độ hợp lệ duy nhất là 1×, vì vậy giới hạn
+                 * bước tiến chỉ dựa trên thời gian thực.
+                 */
                 const allowedAdvance =
-                    wallElapsedSeconds *
-                    playbackRate +
-                    3;
+                    wallElapsedSeconds + 3;
+
+                /*
+                 * Chặn cú nhảy ngay cả ở mẫu đầu tiên.
+                 * Bản cũ có thể chấp nhận việc YouTube mở sẵn
+                 * gần cuối video vì previousSample cũng bắt đầu
+                 * ở chính vị trí cuối đó.
+                 */
+                const maxSequentialTime =
+                    lastTime +
+                    Math.max(
+                        3.5,
+                        allowedAdvance
+                    );
+
+                if (
+                    rawCurrentTime >
+                    maxSequentialTime
+                ) {
+                    if (
+                        typeof player.seekTo ===
+                        'function'
+                    ) {
+                        player.seekTo(
+                            lastTime,
+                            true
+                        );
+                    }
+
+                    lastPlayerSamples[
+                        assignId
+                    ] = {
+                        videoTime:
+                            lastTime,
+                        wallTime:
+                            now
+                    };
+
+                    return;
+                }
 
                 if (currentTime > lastTime) {
                     if (

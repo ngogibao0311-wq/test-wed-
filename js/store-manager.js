@@ -1224,6 +1224,150 @@ const StoreConfig = {
 
             isIcon: false
         },
+
+        {
+            id: 'pet_cam_mong_chibi_1',
+
+            name: 'Thanh Huyền Tiểu Cầm Tiên',
+
+            type: 'pet',
+
+            price: 850,
+            isNonCoin: false,
+
+            tag: 'Cầm Mộng',
+
+            value:
+                'assets/Premium/Tu tiên/cam_co_chibi1.png',
+
+            asset:
+                'assets/Premium/Tu tiên/cam_co_chibi1.png',
+
+            isIcon: false,
+
+            /*
+             * Hiệu ứng HOÀN TOÀN MỚI cho bản chibi.
+             * Không dùng runtime / class / keyframe của
+             * Cầm Mộng Premium hoặc bất kỳ pet cũ nào.
+             */
+            petEffect:
+                'cam-mong-chibi-qin-spirit-magic',
+
+            /*
+             * Không dùng click-effect mặc định vì pet này
+             * có hiệu ứng nhấn cục bộ riêng trong PetManager.
+             */
+            disableClickEffect: true
+        },
+        {
+            id: 'theme_cam_mong_thanh_huyen_tien_cac',
+
+            name: 'Thanh Huyền Cầm Mộng Tiên Các',
+
+            type: 'theme',
+
+            price: 800,
+            isNonCoin: false,
+
+            tag: 'Cầm Mộng',
+
+            value:
+                'theme-cam-mong-thanh-huyen-tien-cac',
+
+            customIcon: '琴',
+
+            /*
+             * Giao diện Cầm Mộng mới, namespace riêng cmtheme1-*.
+             * Không tái sử dụng effect/runtime của giao diện cũ.
+             */
+            premiumSuite:
+                'cam-mong-thanh-huyen-court-v1'
+        },
+        {
+            id: 'effect_cam_mong_van_cam_luu_quang',
+
+            name: 'Thanh Huyền Vạn Cầm Lưu Quang',
+
+            type: 'effect',
+
+            price: 850,
+            isNonCoin: false,
+
+            tag: 'Cầm Mộng',
+
+            value:
+                'effect_cam_mong_van_cam_luu_quang',
+
+            customIcon: '弦',
+
+            /*
+             * Hiệu ứng toàn web Cầm Mộng hoàn toàn mới.
+             * Namespace riêng cmefx1-*.
+             * Không dùng lại class / keyframe / runtime của effect khác.
+             */
+            effectSuite:
+                'cam-mong-wan-qin-radiance-v1'
+        },
+        {
+            id: 'frame_cam_mong_thanh_huyen_chi_hoan',
+
+            name: 'Bích Trúc Cầm Nguyệt',
+
+            type: 'frame',
+
+            price: 250,
+            isNonCoin: false,
+
+            tag: 'Cầm Mộng',
+
+            value:
+                'assets/Premium/Tu tiên/cam_co_khung1.png',
+
+            isIcon: false,
+
+            /*
+             * Khung avatar riêng của bộ Cầm Mộng.
+             * Vị trí lấy theo chuẩn Premium Mùa Xuân:
+             * - profile: 60x60, căn giữa avatar
+             * - popup: 126x126, căn giữa host
+             *
+             * CSS định danh bằng data-avatar-frame-effect
+             * nên không bị theme đang mặc nhuộm/đổi vị trí.
+             */
+            frameEffect:
+                'cam-mong-thanh-huyen-frame'
+        },
+        {
+            id: 'background_cam_mong_thanh_huyen_tien_canh',
+
+            name: 'Trúc Hải Tiên Âm',
+
+            type: 'background',
+
+            price: 150,
+            isNonCoin: false,
+
+            tag: 'Cầm Mộng',
+            tags: ['Cầm Mộng'],
+
+            value:
+                'assets/Premium/Tu tiên/cam_co_nen1.png',
+
+            isIcon: false,
+
+            /*
+             * Nền Cầm Mộng độc lập với giao diện/theme.
+             * Dùng cơ chế background chuẩn hiện có.
+             * cover = luôn lấp đầy viewport, không kéo méo ảnh.
+             */
+            backgroundFit: 'cover',
+            backgroundPosition: 'center center',
+            backgroundRepeat: 'no-repeat',
+            backgroundAttachment: 'fixed',
+
+            premiumSuite:
+                'cam-mong-thanh-huyen-background-v1'
+        },
     ]
 };
 
@@ -1589,6 +1733,7 @@ class StoreManager {
             'Cơn mưa': 'tag-con-mua',
             'Mùa xuân': 'tag-mua-xuan',
             '2/9': 'tag-quoc-khanh-2-9',
+            'Cầm Mộng': 'tag-cam-mong-chibi',
         };
 
         let tagClass = tagClassMap[item.tag] || 'tag-normal';
@@ -1922,6 +2067,19 @@ class StoreManager {
             'background_tamon_bside_stage_signal'
         ]);
 
+        /*
+         * THANH HUYỀN · CẦM MỘNG
+         * Pet + theme + effect + frame + background dùng CHUNG card Cầm Mộng
+         * nhưng GIỮ NGUYÊN DOM / bố cục chuẩn.
+         */
+        const camMongChibiIds = new Set([
+            'pet_cam_mong_chibi_1',
+            'theme_cam_mong_thanh_huyen_tien_cac',
+            'effect_cam_mong_van_cam_luu_quang',
+            'frame_cam_mong_thanh_huyen_chi_hoan',
+            'background_cam_mong_thanh_huyen_tien_canh'
+        ]);
+
         const premiumSpringIds = new Set([
             'pet_premium_mua_xuan',
             'effect_premium_mua_xuan',
@@ -2051,6 +2209,22 @@ class StoreManager {
             );
 
             specialCardGroup = 'tamon-bside-chibi';
+            isThemeImmune = true;
+        }
+
+        /*
+         * THANH HUYỀN · CẦM MỘNG
+         * Chỉ thêm class trang trí; cấu trúc card chuẩn phía dưới
+         * không đổi một thẻ HTML nào.
+         */
+        if (camMongChibiIds.has(item.id)) {
+            cardClasses.push(
+                'store-card-cam-mong-chibi',
+                'store-theme-locked',
+                'ui-theme-immune'
+            );
+
+            specialCardGroup = 'cam-mong-chibi';
             isThemeImmune = true;
         }
 
@@ -2345,124 +2519,102 @@ class StoreManager {
 
 
 /* =========================================================
-   BẢO VỆ ẢNH VẬT PHẨM TRONG CỬA HÀNG
-   - Áp dụng cho Cửa hàng thường + Cửa hàng Sang trọng.
-   - Chặn chuột phải trên ảnh, kéo ảnh, copy ảnh và Ctrl/Cmd+S.
-   - Dùng event delegation nên ảnh render động cũng được bảo vệ.
+   BẢO VỆ HÌNH ẢNH TOÀN WEBSITE
+   - Mở rộng cơ chế cũ của Cửa hàng thường + Cửa hàng Sang trọng.
+   - Chặn menu chuột phải / nhấn 2 ngón touchpad trên toàn trang.
+   - Chặn kéo ảnh, copy vùng có ảnh và Ctrl/Cmd+S.
+   - Ảnh được render động sau này cũng tự động được bảo vệ.
+   - Vẫn cho phép Ctrl/Cmd+C đối với văn bản thuần túy.
    ========================================================= */
-(function installStoreImageProtection() {
-    if (window.StoreImageProtection) return;
+(function installSiteImageProtection() {
+    if (window.SiteImageProtection) {
+        // Giữ tương thích với các đoạn code cũ đang gọi tên StoreImageProtection.
+        window.StoreImageProtection = window.SiteImageProtection;
+        return;
+    }
 
-    const STORE_ROOT_SELECTOR = '#tab-store';
-    const STYLE_ID = 'store-image-protection-style';
+    const STYLE_ID = 'site-image-protection-style';
     let lastNoticeAt = 0;
 
-    function getStoreRoot() {
-        return document.querySelector(STORE_ROOT_SELECTOR);
+    function getElement(target) {
+        if (!target) return null;
+
+        return target.nodeType === 1
+            ? target
+            : target.parentElement || null;
     }
 
-    function isStoreOpen() {
-        const root = getStoreRoot();
-        if (!root) return false;
+    function getImageElement(target) {
+        const element = getElement(target);
+        if (!element) return null;
 
-        if (root.classList.contains('active')) {
-            return true;
+        if (element.matches?.('img')) {
+            return element;
         }
 
-        const style = window.getComputedStyle(root);
-        return (
-            style.display !== 'none' &&
-            style.visibility !== 'hidden' &&
-            !root.hidden
-        );
+        return element.closest?.('img') || null;
     }
 
-    function isImageElement(target) {
-        return Boolean(
-            target &&
-            target.nodeType === 1 &&
-            target.matches?.('img')
-        );
+    function isProtectedImage(target) {
+        return Boolean(getImageElement(target));
     }
 
-    function isStoreImage(target) {
-        return Boolean(
-            isImageElement(target) &&
-            target.closest(STORE_ROOT_SELECTOR)
-        );
-    }
-
-    /*
-     * Nhân vật/thú cưng nổi ở góc màn hình nằm NGOÀI #tab-store.
-     * Khi người dùng đang ở Cửa hàng, nó vẫn là ảnh vật phẩm nên phải
-     * được bảo vệ giống ảnh trong card Cửa hàng.
-     */
-    function isFloatingStoreItemImage(target) {
-        if (!isStoreOpen() || !isImageElement(target)) {
-            return false;
-        }
-
-        return Boolean(
-            target.closest('#virtual-pet-container') ||
-            target.id === 'virtual-pet-img'
-        );
-    }
-
-    function isProtectedStoreImage(target) {
-        return (
-            isStoreImage(target) ||
-            isFloatingStoreItemImage(target)
-        );
-    }
-
-    function selectionContainsStoreImage() {
+    function selectionContainsProtectedImage() {
         const selection = window.getSelection?.();
         if (!selection || selection.rangeCount === 0) {
             return false;
         }
 
-        const range = selection.getRangeAt(0);
-        const node = range.commonAncestorContainer;
-        const element = node?.nodeType === 1
-            ? node
-            : node?.parentElement;
+        for (let index = 0; index < selection.rangeCount; index++) {
+            const range = selection.getRangeAt(index);
+            const node = range.commonAncestorContainer;
+            const element = getElement(node);
 
-        const storeRoot = element?.closest?.(STORE_ROOT_SELECTOR);
-        if (!storeRoot) return false;
+            if (!element) continue;
 
-        // Trường hợp trình duyệt chọn trực tiếp chính thẻ ảnh.
-        if (element?.matches?.('img')) {
-            return true;
+            // Trình duyệt chọn trực tiếp chính thẻ ảnh.
+            if (element.matches?.('img')) {
+                return true;
+            }
+
+            const scope = element.nodeType === 1
+                ? element
+                : document.body;
+
+            if (!scope?.querySelectorAll) continue;
+
+            const images = scope.querySelectorAll('img');
+
+            for (const img of images) {
+                try {
+                    if (range.intersectsNode(img)) {
+                        return true;
+                    }
+                } catch (error) {
+                    // Một số node đặc biệt có thể không hỗ trợ intersectsNode.
+                }
+            }
         }
 
-        // Chỉ chặn copy khi vùng chọn thực sự chạm vào một ảnh vật phẩm.
-        return Array.from(
-            storeRoot.querySelectorAll('img')
-        ).some(img => {
-            try {
-                return range.intersectsNode(img);
-            } catch (error) {
-                return false;
-            }
-        });
+        return false;
     }
 
     function showProtectionNotice() {
         const now = Date.now();
 
-        // Tránh spam thông báo khi người dùng giữ phím/chuột.
+        // Tránh spam thông báo khi người dùng giữ phím / chuột.
         if (now - lastNoticeAt < 900) return;
         lastNoticeAt = now;
 
         const message =
-            'Ảnh vật phẩm trong Cửa hàng được bảo vệ và không hỗ trợ sao chép/lưu trực tiếp.';
+            'Hình ảnh trên website được bảo vệ và không hỗ trợ sao chép/lưu trực tiếp.';
 
         if (typeof window.showToast === 'function') {
             window.showToast(message, 'warning');
             return;
         }
 
-        console.info('[StoreImageProtection]', message);
+        console.info('[SiteImageProtection]', message);
     }
 
     function blockEvent(event, shouldNotify = true) {
@@ -2480,7 +2632,7 @@ class StoreManager {
         return false;
     }
 
-    function protectSubtree(root = getStoreRoot()) {
+    function protectSubtree(root = document.body || document.documentElement) {
         if (!root) return;
 
         const images = [];
@@ -2495,7 +2647,7 @@ class StoreManager {
 
         images.forEach(img => {
             img.setAttribute('draggable', 'false');
-            img.setAttribute('data-store-image-protected', 'true');
+            img.setAttribute('data-site-image-protected', 'true');
             img.style.webkitUserDrag = 'none';
             img.style.userSelect = 'none';
             img.style.webkitUserSelect = 'none';
@@ -2503,22 +2655,27 @@ class StoreManager {
         });
     }
 
+    // Tên hàm cũ vẫn được giữ để student.js / luxury-store.js không cần sửa.
     function protectFloatingStoreItemImages() {
-        if (!isStoreOpen()) return;
-
         document
             .querySelectorAll('#virtual-pet-container img, #virtual-pet-img')
-            .forEach(img => {
-                img.setAttribute('draggable', 'false');
-                img.setAttribute(
-                    'data-store-floating-image-protected',
-                    'true'
-                );
-                img.style.webkitUserDrag = 'none';
-                img.style.userSelect = 'none';
-                img.style.webkitUserSelect = 'none';
-                img.style.webkitTouchCallout = 'none';
-            });
+            .forEach(img => protectSubtree(img));
+    }
+
+    function isStoreOpen() {
+        const root = document.querySelector('#tab-store');
+        if (!root) return false;
+
+        if (root.classList.contains('active')) {
+            return true;
+        }
+
+        const style = window.getComputedStyle(root);
+        return (
+            style.display !== 'none' &&
+            style.visibility !== 'hidden' &&
+            !root.hidden
+        );
     }
 
     function installStyle() {
@@ -2527,10 +2684,9 @@ class StoreManager {
         const style = document.createElement('style');
         style.id = STYLE_ID;
         style.textContent = `
-            #tab-store img,
-            #tab-store [data-store-image-protected="true"],
-            #virtual-pet-container img[data-store-floating-image-protected="true"],
-            #virtual-pet-img[data-store-floating-image-protected="true"] {
+            html img,
+            body img,
+            img[data-site-image-protected="true"] {
                 -webkit-user-drag: none !important;
                 -webkit-user-select: none !important;
                 user-select: none !important;
@@ -2543,54 +2699,38 @@ class StoreManager {
     }
 
     /*
-     * CHẶN MENU CHUỘT PHẢI / NHẤN 2 NGÓN TOUCHPAD.
-     *
-     * Khi đang ở tab Cửa hàng, chặn context menu trên TOÀN BỘ giao diện.
-     * Làm như vậy để trình duyệt không thể hiện các mục:
-     * - Copy image
-     * - Save image as...
-     * - Open image in new tab
-     *
-     * Cách này cũng bao phủ nhân vật/thú cưng nổi góc phải vì phần tử đó
-     * nằm ngoài #tab-store trong DOM.
+     * Chặn menu chuột phải trên TOÀN WEBSITE.
+     * Bao gồm chuột phải truyền thống và thao tác 2 ngón trên touchpad.
+     * Đây là phần mở rộng trực tiếp từ cơ chế cũ của Cửa hàng.
      */
     document.addEventListener('contextmenu', event => {
-        if (isStoreOpen()) {
-            blockEvent(event);
-        }
+        blockEvent(event);
     }, true);
 
-    // Kéo ảnh vật phẩm ra Desktop/tab mới, kể cả nhân vật nổi góc phải.
+    // Không cho kéo bất kỳ ảnh nào ra Desktop / tab mới.
     document.addEventListener('dragstart', event => {
-        if (isProtectedStoreImage(event.target)) {
+        if (isProtectedImage(event.target)) {
             blockEvent(event);
         }
     }, true);
 
-    // Copy ảnh trong Cửa hàng. Copy chữ bình thường vẫn được phép.
+    // Chặn copy nếu thao tác copy trực tiếp ảnh hoặc vùng chọn có chứa ảnh.
+    // Văn bản thuần túy vẫn có thể copy bằng Ctrl/Cmd+C.
     document.addEventListener('copy', event => {
         const activeElement = document.activeElement;
-        const activeImage = Boolean(
-            isProtectedStoreImage(activeElement)
-        );
 
         if (
-            isStoreOpen() &&
-            (
-                isProtectedStoreImage(event.target) ||
-                activeImage ||
-                selectionContainsStoreImage()
-            )
+            isProtectedImage(event.target) ||
+            isProtectedImage(activeElement) ||
+            selectionContainsProtectedImage()
         ) {
             blockEvent(event);
         }
     }, true);
 
-    // Chặn Ctrl/Cmd+S khi đang đứng ở tab Cửa hàng.
-    // Ctrl/Cmd+C chỉ chặn nếu vùng chọn có ảnh; copy chữ vẫn hoạt động.
+    // Ctrl/Cmd+S bị khóa toàn trang để tránh Save Page / Save As.
+    // Ctrl/Cmd+C chỉ bị khóa khi vùng chọn có ảnh.
     document.addEventListener('keydown', event => {
-        if (!isStoreOpen()) return;
-
         const modifier = event.ctrlKey || event.metaKey;
         if (!modifier) return;
 
@@ -2603,7 +2743,7 @@ class StoreManager {
 
         if (
             key === 'c' &&
-            selectionContainsStoreImage()
+            selectionContainsProtectedImage()
         ) {
             blockEvent(event);
         }
@@ -2611,127 +2751,66 @@ class StoreManager {
 
     installStyle();
 
+    const startProtection = () => {
+        protectSubtree(document.body || document.documentElement);
+        protectFloatingStoreItemImages();
+    };
+
     if (document.readyState === 'loading') {
         document.addEventListener(
             'DOMContentLoaded',
-            () => {
-                protectSubtree();
-                protectFloatingStoreItemImages();
-            },
+            startProtection,
             { once: true }
         );
     } else {
-        protectSubtree();
-        protectFloatingStoreItemImages();
+        startProtection();
     }
 
-    // Ảnh mới được render sau khi lọc/mua/chuyển Luxury cũng tự khóa.
+    // Mọi ảnh được thêm sau khi trang đã tải (modal, bài tập, avatar,
+    // cửa hàng, pet, thông báo, v.v.) đều tự động bị khóa.
     const observer = new MutationObserver(mutations => {
         mutations.forEach(mutation => {
             mutation.addedNodes.forEach(node => {
-                if (
-                    node.nodeType !== 1 ||
-                    !node.closest?.(STORE_ROOT_SELECTOR)
-                ) {
-                    return;
-                }
-
+                if (node.nodeType !== 1) return;
                 protectSubtree(node);
             });
         });
     });
 
-    const startObserver = () => {
-        const root = getStoreRoot();
-        if (!root) return false;
-
-        observer.observe(root, {
-            childList: true,
-            subtree: true
-        });
-
-        protectSubtree(root);
-        protectFloatingStoreItemImages();
-        return true;
-    };
-
-    if (!startObserver()) {
-        let attempts = 0;
-        const timer = setInterval(() => {
-            attempts += 1;
-
-            if (startObserver() || attempts >= 100) {
-                clearInterval(timer);
-            }
-        }, 100);
-    }
-
-    /*
-     * Theo dõi DOM toàn trang để nếu PetManager thay ảnh nhân vật sau khi
-     * trang bị vật phẩm, ảnh mới vẫn bị vô hiệu kéo/long-press ngay khi
-     * người dùng đang ở Cửa hàng.
-     */
-    const floatingObserver = new MutationObserver(() => {
-        protectFloatingStoreItemImages();
-    });
-
-    const observeFloatingAssets = () => {
+    const observeWholePage = () => {
         if (!document.body) return false;
 
-        floatingObserver.observe(document.body, {
+        observer.observe(document.body, {
             childList: true,
             subtree: true
         });
 
-        protectFloatingStoreItemImages();
+        startProtection();
         return true;
     };
 
-    if (!observeFloatingAssets()) {
+    if (!observeWholePage()) {
         document.addEventListener(
             'DOMContentLoaded',
-            observeFloatingAssets,
+            observeWholePage,
             { once: true }
         );
     }
 
-    /*
-     * Tab được mở/đóng bằng class "active". Theo dõi riêng #tab-store
-     * để cập nhật bảo vệ cho nhân vật nổi mà không tạo vòng lặp observer.
-     */
-    const observeStoreVisibility = () => {
-        const root = getStoreRoot();
-        if (!root) return false;
-
-        const visibilityObserver = new MutationObserver(() => {
-            if (isStoreOpen()) {
-                protectSubtree(root);
-                protectFloatingStoreItemImages();
-            }
-        });
-
-        visibilityObserver.observe(root, {
-            attributes: true,
-            attributeFilter: ['class', 'style', 'hidden']
-        });
-
-        return true;
-    };
-
-    if (!observeStoreVisibility()) {
-        document.addEventListener(
-            'DOMContentLoaded',
-            observeStoreVisibility,
-            { once: true }
-        );
-    }
-
-    window.StoreImageProtection = Object.freeze({
+    const protectionAPI = Object.freeze({
         protectSubtree,
         protectFloatingStoreItemImages,
         isStoreOpen,
-        isProtectedStoreImage
+        isProtectedStoreImage: isProtectedImage,
+        isProtectedImage,
+        selectionContainsProtectedImage
     });
+
+    // Tên mới phản ánh đúng phạm vi toàn website.
+    window.SiteImageProtection = protectionAPI;
+
+    // Alias cũ để không làm hỏng student.js / luxury-store.js hiện tại.
+    window.StoreImageProtection = protectionAPI;
 })();
 
 /* =========================================================
@@ -2860,4 +2939,551 @@ class StoreManager {
         boot();
     }
 
+})();
+
+/* ============================================================================
+   FIX · CẦM MỘNG FRAME EQUIP BRIDGE
+   ITEM: frame_cam_mong_thanh_huyen_chi_hoan
+   Mục tiêu:
+   - Khi Firebase đã đánh dấu "đang trang bị", khung phải thực sự render.
+   - Tương thích cả AvatarFrameManager cũ (chưa gắn data-*) và bản mới.
+   - Không sửa logic / DOM / hiệu ứng của frame khác.
+   ============================================================================ */
+(function installCamMongFrameEquipBridge() {
+    'use strict';
+
+    const ITEM_ID =
+        'frame_cam_mong_thanh_huyen_chi_hoan';
+
+    const FRAME_EFFECT =
+        'cam-mong-thanh-huyen-frame';
+
+    const FRAME_ASSET =
+        'assets/Premium/Tu tiên/cam_co_khung1.png';
+
+    let installed = false;
+
+    function getItem(itemOrId) {
+        if (
+            itemOrId &&
+            typeof itemOrId === 'object'
+        ) {
+            return itemOrId;
+        }
+
+        if (
+            typeof StoreManager === 'undefined' ||
+            typeof StoreManager.getItemById !== 'function'
+        ) {
+            return null;
+        }
+
+        return StoreManager.getItemById(
+            String(itemOrId || '')
+        );
+    }
+
+    function isTarget(itemOrId) {
+        const item = getItem(itemOrId);
+
+        return !!(
+            item &&
+            item.id === ITEM_ID &&
+            item.type === 'frame'
+        );
+    }
+
+    function removeWrongTargetLayer(host) {
+        if (!host) return;
+
+        host
+            .querySelectorAll(
+                ':scope > .avatar-frame-decoration'
+            )
+            .forEach(node => {
+                const src =
+                    node.getAttribute('src') || '';
+
+                if (
+                    src &&
+                    !src.includes('cam_co_khung1.png')
+                ) {
+                    return;
+                }
+
+                /*
+                 * Nếu là layer Cầm Mộng cũ/lỗi thì thay mới.
+                 * Không xóa layer của frame khác.
+                 */
+                if (
+                    src.includes('cam_co_khung1.png')
+                ) {
+                    node.remove();
+                }
+            });
+    }
+
+    function ensureLayer(host, item, variant) {
+        if (!host || !item) return;
+
+        /*
+         * Không sửa style.position/top/right/left/bottom của host.
+         * CSS frame chỉ trang trí bên trong nút; layout nút Hồ sơ
+         * phải do student.css / theme hiện tại giữ nguyên.
+         */
+        host.classList.add(
+            'avatar-frame-equipped',
+            variant === 'profile'
+                ? 'avatar-frame-profile-host'
+                : 'avatar-frame-modal-host'
+        );
+
+        host.setAttribute(
+            'data-avatar-frame-effect',
+            FRAME_EFFECT
+        );
+
+        host.setAttribute(
+            'data-avatar-frame-id',
+            ITEM_ID
+        );
+
+        let aura =
+            host.querySelector(
+                ':scope > .avatar-frame-aura'
+            );
+
+        if (!aura) {
+            aura =
+                document.createElement('span');
+
+            aura.className =
+                'avatar-frame-aura';
+
+            aura.setAttribute(
+                'aria-hidden',
+                'true'
+            );
+
+            host.appendChild(aura);
+        }
+
+        let frame =
+            host.querySelector(
+                ':scope > .avatar-frame-decoration'
+            );
+
+        const currentSrc =
+            frame?.getAttribute('src') || '';
+
+        if (
+            !frame ||
+            !currentSrc.includes(
+                'cam_co_khung1.png'
+            )
+        ) {
+            /*
+             * Nếu manager không tạo layer hoặc đang giữ layer khác
+             * nhưng item hiện tại là Cầm Mộng, tạo đúng ảnh khung.
+             */
+            if (
+                frame &&
+                host.getAttribute(
+                    'data-avatar-frame-id'
+                ) === ITEM_ID
+            ) {
+                frame.remove();
+            }
+
+            frame =
+                document.createElement('img');
+
+            frame.className =
+                'avatar-frame-decoration';
+
+            frame.src =
+                item.value || FRAME_ASSET;
+
+            frame.alt = '';
+            frame.draggable = false;
+
+            frame.setAttribute(
+                'aria-hidden',
+                'true'
+            );
+
+            host.appendChild(frame);
+        }
+
+        /*
+         * Khắc phục trường hợp frame.onerror của manager cũ
+         * từng set display:none rồi item được render lại.
+         */
+        frame.style.removeProperty(
+            'display'
+        );
+
+        frame.style.removeProperty(
+            'visibility'
+        );
+
+        frame.style.removeProperty(
+            'opacity'
+        );
+
+        frame.dataset.camMongFrame =
+            '1';
+
+        const existingSparks =
+            host.querySelectorAll(
+                ':scope > .avatar-frame-spark'
+            );
+
+        if (!existingSparks.length) {
+            [
+                'spark-1',
+                'spark-2',
+                'spark-3',
+                'spark-4'
+            ].forEach(className => {
+                const spark =
+                    document.createElement(
+                        'span'
+                    );
+
+                spark.className =
+                    `avatar-frame-spark ${className}`;
+
+                spark.textContent = '✦';
+
+                spark.setAttribute(
+                    'aria-hidden',
+                    'true'
+                );
+
+                host.appendChild(spark);
+            });
+        }
+    }
+
+    function repairFrame(itemOrId) {
+        const item = getItem(itemOrId);
+
+        if (!isTarget(item)) {
+            return false;
+        }
+
+        const profileButton =
+            document.querySelector(
+                '.profile-trigger-btn'
+            );
+
+        const modalAvatarHost =
+            document.querySelector(
+                '#studentInfoModal ' +
+                '.avatar-upload-container'
+            );
+
+        ensureLayer(
+            profileButton,
+            item,
+            'profile'
+        );
+
+        ensureLayer(
+            modalAvatarHost,
+            item,
+            'modal'
+        );
+
+        return true;
+    }
+
+    function clearOnlyTargetFrame() {
+        document
+            .querySelectorAll(
+                '[data-avatar-frame-id="' +
+                ITEM_ID +
+                '"], ' +
+                '[data-avatar-frame-effect="' +
+                FRAME_EFFECT +
+                '"]'
+            )
+            .forEach(host => {
+                host
+                    .querySelectorAll(
+                        ':scope > ' +
+                        '.avatar-frame-decoration,' +
+                        ':scope > ' +
+                        '.avatar-frame-aura,' +
+                        ':scope > ' +
+                        '.avatar-frame-spark'
+                    )
+                    .forEach(node => {
+                        node.remove();
+                    });
+
+                host.classList.remove(
+                    'avatar-frame-equipped',
+                    'avatar-frame-profile-host',
+                    'avatar-frame-modal-host'
+                );
+
+                host.removeAttribute(
+                    'data-avatar-frame-id'
+                );
+
+                host.removeAttribute(
+                    'data-avatar-frame-effect'
+                );
+            });
+
+        document
+            .querySelectorAll(
+                'img.avatar-frame-decoration' +
+                '[src*="cam_co_khung1.png"]'
+            )
+            .forEach(node => node.remove());
+    }
+
+    function wrapAvatarFrameManager() {
+        const manager =
+            window.AvatarFrameManager;
+
+        if (
+            !manager ||
+            manager.__camMongFrameBridge
+        ) {
+            return !!manager;
+        }
+
+        const originalApply =
+            typeof manager.applyFrame ===
+                'function'
+                ? manager.applyFrame.bind(manager)
+                : null;
+
+        if (originalApply) {
+            manager.applyFrame =
+                function (itemOrId) {
+                    const result =
+                        originalApply(itemOrId);
+
+                    if (isTarget(itemOrId)) {
+                        repairFrame(itemOrId);
+
+                        requestAnimationFrame(
+                            () =>
+                                repairFrame(
+                                    itemOrId
+                                )
+                        );
+                    }
+
+                    return result;
+                };
+        }
+
+        manager.__camMongFrameBridge =
+            true;
+
+        return true;
+    }
+
+    function wrapStoreManager() {
+        if (
+            typeof StoreManager ===
+                'undefined' ||
+            StoreManager
+                .__camMongFrameStoreBridge
+        ) {
+            return (
+                typeof StoreManager !==
+                'undefined'
+            );
+        }
+
+        const originalApply =
+            typeof StoreManager.applyItem ===
+                'function'
+                ? StoreManager.applyItem
+                    .bind(StoreManager)
+                : null;
+
+        const originalUnapply =
+            typeof StoreManager.unapplyItem ===
+                'function'
+                ? StoreManager.unapplyItem
+                    .bind(StoreManager)
+                : null;
+
+        if (originalApply) {
+            StoreManager.applyItem =
+                async function (itemId) {
+                    const result =
+                        await originalApply(
+                            itemId
+                        );
+
+                    if (isTarget(itemId)) {
+                        const item =
+                            getItem(itemId);
+
+                        /*
+                         * Render ngay, không chờ vòng Firebase kế tiếp.
+                         * Firebase vẫn là nguồn trạng thái chính vì
+                         * originalApply vẫn chạy nguyên vẹn.
+                         */
+                        if (
+                            window
+                                .AvatarFrameManager &&
+                            typeof window
+                                .AvatarFrameManager
+                                .applyFrame ===
+                                'function'
+                        ) {
+                            window
+                                .AvatarFrameManager
+                                .applyFrame(item);
+                        } else {
+                            repairFrame(item);
+                        }
+
+                        setTimeout(
+                            () =>
+                                repairFrame(
+                                    item
+                                ),
+                            80
+                        );
+
+                        setTimeout(
+                            () =>
+                                repairFrame(
+                                    item
+                                ),
+                            350
+                        );
+                    }
+
+                    return result;
+                };
+        }
+
+        if (originalUnapply) {
+            StoreManager.unapplyItem =
+                async function (itemId) {
+                    const result =
+                        await originalUnapply(
+                            itemId
+                        );
+
+                    if (isTarget(itemId)) {
+                        clearOnlyTargetFrame();
+                    }
+
+                    return result;
+                };
+        }
+
+        StoreManager
+            .__camMongFrameStoreBridge =
+            true;
+
+        return true;
+    }
+
+    function install() {
+        if (installed) return;
+
+        const hasManager =
+            wrapAvatarFrameManager();
+
+        const hasStore =
+            wrapStoreManager();
+
+        if (
+            hasManager &&
+            hasStore
+        ) {
+            installed = true;
+        }
+    }
+
+    /*
+     * store-manager.js chạy trước student.js trong student.html.
+     * setTimeout đưa việc patch sang cuối task, khi student.js
+     * đã override StoreManager.applyItem / unapplyItem xong.
+     */
+    setTimeout(install, 0);
+
+    let tries = 0;
+
+    const retryTimer =
+        setInterval(() => {
+            tries += 1;
+
+            install();
+
+            if (
+                installed ||
+                tries >= 80
+            ) {
+                clearInterval(
+                    retryTimer
+                );
+            }
+        }, 100);
+
+    /*
+     * Nếu profile/modal bị render lại, khôi phục layer Cầm Mộng
+     * chỉ khi DOM đang mang định danh đúng item này.
+     */
+    const observer =
+        new MutationObserver(
+            mutations => {
+                const targetHost =
+                    document.querySelector(
+                        '[data-avatar-frame-id="' +
+                        ITEM_ID +
+                        '"]'
+                    );
+
+                if (!targetHost) {
+                    return;
+                }
+
+                const item =
+                    getItem(ITEM_ID);
+
+                if (!item) return;
+
+                repairFrame(item);
+            }
+        );
+
+    const startObserver = () => {
+        if (!document.body) return;
+
+        observer.observe(
+            document.body,
+            {
+                childList: true,
+                subtree: true
+            }
+        );
+    };
+
+    if (
+        document.readyState ===
+        'loading'
+    ) {
+        document.addEventListener(
+            'DOMContentLoaded',
+            startObserver,
+            { once: true }
+        );
+    } else {
+        startObserver();
+    }
 })();

@@ -1,0 +1,2359 @@
+/* ============================================================================
+   TRUNG THU · NGUYỆT CUNG TIÊN TỬ — PREMIUM SUITE V1
+   ONE CSS FILE ONLY
+   - Luxury card skin (giữ bố cục card gốc)
+   - Full web Mid-Autumn / fairytale interface
+   - Popup / input / select / textarea / button / tabs / tables
+   - Range slider + scrollbar
+   - Ambient world effect
+   - Pet realm
+   - Global click effect
+   - Pet fullscreen ultimate
+   Namespace: midautumn-* / ma-*
+   ============================================================================ */
+
+:root {
+    --ma-moon: #ffe8a6;
+    --ma-moon-soft: #fff5d5;
+    --ma-gold: #e7b65a;
+    --ma-gold-deep: #a96f24;
+    --ma-jade: #70c5ad;
+    --ma-jade-deep: #2b7f73;
+    --ma-lotus: #e7a7b8;
+    --ma-ink: #13182a;
+    --ma-night: #090d1f;
+    --ma-night-2: #121c38;
+    --ma-paper: #fff8e8;
+    --ma-paper-2: #f7edd2;
+    --ma-text: #3b2b28;
+    --ma-text-soft: #6f5650;
+    --ma-shadow: rgba(22, 20, 37, .28);
+}
+
+/* ============================================================================
+   1. GLOBAL WEB THEME
+   ============================================================================ */
+
+html.midautumn-moon-palace-equipped,
+html.midautumn-moon-palace-equipped body {
+    color-scheme: light;
+}
+
+html.midautumn-moon-palace-equipped body {
+    --primary-color: var(--ma-gold);
+    --secondary-color: var(--ma-jade);
+    --accent-color: var(--ma-lotus);
+    --text-color: var(--ma-text);
+    --background-color: var(--ma-paper);
+    font-family: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, "Times New Roman", serif !important;
+    color: var(--ma-text) !important;
+    background:
+        radial-gradient(circle at 88% 8%, rgba(255, 232, 166, .46), transparent 26%),
+        radial-gradient(circle at 10% 72%, rgba(112, 197, 173, .18), transparent 30%),
+        linear-gradient(145deg, #fff9e9 0%, #f9edcf 48%, #f1e5ca 100%) !important;
+    background-attachment: fixed !important;
+}
+
+html.midautumn-moon-palace-equipped body :where(
+    h1, h2, h3, h4, h5, h6,
+    .title, .page-title, .section-title,
+    .modal-title, .popup-title
+) {
+    font-family: Georgia, "Times New Roman", serif !important;
+    letter-spacing: .025em;
+}
+
+html.midautumn-moon-palace-equipped body :where(
+    header, .header, .topbar, .top-bar, .navbar, nav,
+    .app-header, .main-header
+):not([data-theme-immune="true"]):not(.ui-theme-immune) {
+    background:
+        linear-gradient(180deg, rgba(255, 249, 231, .96), rgba(250, 235, 203, .92)) !important;
+    border-bottom: 1px solid rgba(169, 111, 36, .38) !important;
+    box-shadow:
+        0 10px 28px rgba(67, 44, 32, .11),
+        inset 0 -1px 0 rgba(255, 255, 255, .76) !important;
+    backdrop-filter: blur(14px) saturate(1.08);
+}
+
+html.midautumn-moon-palace-equipped body :where(
+    .sidebar, aside, .side-bar, .navigation-panel, .menu-panel
+):not([data-theme-immune="true"]):not(.ui-theme-immune) {
+    background:
+        linear-gradient(180deg, rgba(19, 24, 42, .97), rgba(11, 16, 35, .97)) !important;
+    color: #fff1c7 !important;
+    border-right: 1px solid rgba(231, 182, 90, .34) !important;
+    box-shadow:
+        14px 0 36px rgba(8, 12, 29, .22),
+        inset -1px 0 rgba(255, 238, 188, .08) !important;
+}
+
+html.midautumn-moon-palace-equipped body :where(
+    .sidebar a, aside a, .sidebar button, aside button,
+    .nav-item, .menu-item
+):not([data-theme-immune="true"]):not(.ui-theme-immune) {
+    border-radius: 18px 6px 18px 6px !important;
+    color: inherit;
+    transition: transform .22s ease, background .22s ease, color .22s ease, box-shadow .22s ease !important;
+}
+
+html.midautumn-moon-palace-equipped body :where(
+    .sidebar a, aside a, .sidebar button, aside button,
+    .nav-item, .menu-item
+):not([data-theme-immune="true"]):not(.ui-theme-immune):hover {
+    background: linear-gradient(135deg, rgba(231, 182, 90, .22), rgba(112, 197, 173, .15)) !important;
+    color: #fff5d9 !important;
+    transform: translateX(3px);
+    box-shadow: inset 3px 0 0 var(--ma-gold);
+}
+
+html.midautumn-moon-palace-equipped body :where(
+    .card, .panel, .widget, .content-card, .content-section,
+    .settings-card, .dashboard-card, .subject-card,
+    .store-section, .store-panel
+):not([data-theme-immune="true"]):not(.ui-theme-immune):not(.luxury-product-card) {
+    background:
+        linear-gradient(145deg, rgba(255, 251, 238, .94), rgba(249, 236, 207, .92)) !important;
+    border: 1px solid rgba(169, 111, 36, .28) !important;
+    border-radius: 24px 7px 24px 7px !important;
+    box-shadow:
+        0 14px 38px rgba(64, 42, 30, .10),
+        inset 0 1px 0 rgba(255, 255, 255, .86) !important;
+}
+
+html.midautumn-moon-palace-equipped body :where(
+    .card, .panel, .widget, .content-card, .content-section,
+    .settings-card, .dashboard-card, .subject-card
+):not([data-theme-immune="true"]):not(.ui-theme-immune):not(.luxury-product-card)::before {
+    border-radius: inherit;
+}
+
+/* Popup / dialog: kiểu “nguyệt môn” mềm nhưng không đổi cấu trúc DOM */
+html.midautumn-moon-palace-equipped body :where(
+    .modal, .popup, .dialog, .popover, .dropdown-menu,
+    [role="dialog"], .swal2-popup
+):not([data-theme-immune="true"]):not(.ui-theme-immune),
+html.midautumn-moon-palace-equipped body :where(
+    .modal-content, .popup-content, .dialog-content,
+    .popover-content
+):not([data-theme-immune="true"]):not(.ui-theme-immune) {
+    font-family: "Palatino Linotype", Georgia, serif !important;
+}
+
+html.midautumn-moon-palace-equipped body :where(
+    .modal-content, .popup-content, .dialog-content,
+    .swal2-popup, [role="dialog"]
+):not([data-theme-immune="true"]):not(.ui-theme-immune) {
+    background:
+        radial-gradient(circle at 85% 3%, rgba(255, 232, 166, .28), transparent 28%),
+        linear-gradient(145deg, #fffaf0, #f6e8c6) !important;
+    border: 1px solid rgba(169, 111, 36, .42) !important;
+    border-radius: 38px 10px 32px 10px !important;
+    clip-path: polygon(3% 0, 97% 0, 100% 5%, 100% 95%, 97% 100%, 3% 100%, 0 95%, 0 5%);
+    box-shadow:
+        0 28px 76px rgba(20, 19, 34, .25),
+        0 0 0 5px rgba(255, 239, 193, .24),
+        inset 0 1px 0 #fff !important;
+}
+
+html.midautumn-moon-palace-equipped body :where(
+    input:not([type="range"]), textarea, select,
+    .form-control, .input, .search-box, .search-input
+):not([data-theme-immune="true"]):not(.ui-theme-immune) {
+    font: inherit !important;
+    color: #42312c !important;
+    background:
+        linear-gradient(180deg, rgba(255, 252, 242, .98), rgba(248, 236, 210, .96)) !important;
+    border: 1px solid rgba(169, 111, 36, .35) !important;
+    border-radius: 17px 5px 17px 5px !important;
+    box-shadow:
+        inset 0 2px 7px rgba(68, 47, 36, .06),
+        0 1px 0 rgba(255, 255, 255, .75) !important;
+    outline: none !important;
+    transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease !important;
+}
+
+html.midautumn-moon-palace-equipped body :where(
+    input:not([type="range"]), textarea, select,
+    .form-control, .input, .search-box, .search-input
+):not([data-theme-immune="true"]):not(.ui-theme-immune):focus {
+    border-color: var(--ma-gold) !important;
+    box-shadow:
+        0 0 0 4px rgba(231, 182, 90, .16),
+        0 8px 24px rgba(111, 80, 43, .10),
+        inset 0 2px 7px rgba(68, 47, 36, .04) !important;
+    transform: translateY(-1px);
+}
+
+html.midautumn-moon-palace-equipped body :where(
+    button, .button, .btn, .action-button, .primary-button,
+    input[type="button"], input[type="submit"]
+):not([data-theme-immune="true"]):not(.ui-theme-immune):not(.midautumn-card-action) {
+    font-family: "Palatino Linotype", Georgia, serif !important;
+    border-radius: 17px 5px 17px 5px !important;
+    border: 1px solid rgba(147, 92, 26, .34) !important;
+    background:
+        linear-gradient(135deg, #f5d581, #e7b65a 54%, #d99b3d) !important;
+    color: #47301e !important;
+    box-shadow:
+        0 8px 20px rgba(134, 86, 30, .17),
+        inset 0 1px 0 rgba(255, 252, 225, .82) !important;
+    transition: transform .18s ease, box-shadow .18s ease, filter .18s ease !important;
+}
+
+html.midautumn-moon-palace-equipped body :where(
+    button, .button, .btn, .action-button, .primary-button,
+    input[type="button"], input[type="submit"]
+):not([data-theme-immune="true"]):not(.ui-theme-immune):not(.midautumn-card-action):hover {
+    transform: translateY(-2px) scale(1.01);
+    filter: brightness(1.04) saturate(1.04);
+    box-shadow:
+        0 12px 26px rgba(134, 86, 30, .23),
+        0 0 0 3px rgba(255, 232, 166, .22) !important;
+}
+
+html.midautumn-moon-palace-equipped body :where(
+    button, .button, .btn, .action-button, .primary-button,
+    input[type="button"], input[type="submit"]
+):not([data-theme-immune="true"]):not(.ui-theme-immune):not(.midautumn-card-action):active {
+    transform: translateY(0) scale(.985);
+}
+
+html.midautumn-moon-palace-equipped body :where(
+    .tab, .tab-button, .filter-button, .chip, .badge
+):not([data-theme-immune="true"]):not(.ui-theme-immune) {
+    border-radius: 999px 18px 999px 18px !important;
+    border-color: rgba(169, 111, 36, .25) !important;
+}
+
+html.midautumn-moon-palace-equipped body :where(
+    table, .table
+):not([data-theme-immune="true"]):not(.ui-theme-immune) {
+    border-radius: 22px 7px 22px 7px !important;
+    overflow: hidden;
+    border-color: rgba(169, 111, 36, .24) !important;
+}
+
+html.midautumn-moon-palace-equipped body :where(
+    th, .table-header
+) {
+    background: linear-gradient(135deg, rgba(231, 182, 90, .22), rgba(112, 197, 173, .14)) !important;
+    color: #4a342a !important;
+}
+
+html.midautumn-moon-palace-equipped body :where(
+    .progress, progress
+):not([data-theme-immune="true"]):not(.ui-theme-immune) {
+    border-radius: 999px !important;
+    overflow: hidden;
+    accent-color: var(--ma-gold);
+}
+
+/* Range slider */
+html.midautumn-moon-palace-equipped body input[type="range"] {
+    appearance: none;
+    -webkit-appearance: none;
+    height: 9px;
+    border-radius: 999px;
+    background:
+        linear-gradient(90deg, #79c7b0 0%, #d4d58b 46%, #e9b85e 100%) !important;
+    border: 1px solid rgba(111, 80, 43, .18);
+    box-shadow: inset 0 2px 5px rgba(22, 25, 39, .15);
+}
+
+html.midautumn-moon-palace-equipped body input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 23px;
+    height: 23px;
+    border-radius: 50% 50% 50% 18%;
+    transform: rotate(-45deg);
+    background:
+        radial-gradient(circle at 37% 31%, #fff9d9 0 18%, #f4d783 20% 52%, #c88c35 55% 100%);
+    border: 2px solid #fff2c1;
+    box-shadow: 0 3px 10px rgba(108, 72, 35, .28), 0 0 0 3px rgba(231, 182, 90, .13);
+    cursor: pointer;
+}
+
+html.midautumn-moon-palace-equipped body input[type="range"]::-moz-range-thumb {
+    width: 21px;
+    height: 21px;
+    border-radius: 50% 50% 50% 18%;
+    background: #f4d783;
+    border: 2px solid #fff2c1;
+    box-shadow: 0 3px 10px rgba(108, 72, 35, .28);
+    cursor: pointer;
+}
+
+/* Scrollbar */
+html.midautumn-moon-palace-equipped,
+html.midautumn-moon-palace-equipped body,
+html.midautumn-moon-palace-equipped body * {
+    scrollbar-width: thin;
+    scrollbar-color: #d6a84e rgba(31, 39, 65, .11);
+}
+
+html.midautumn-moon-palace-equipped body::-webkit-scrollbar,
+html.midautumn-moon-palace-equipped body *::-webkit-scrollbar {
+    width: 11px;
+    height: 11px;
+}
+
+html.midautumn-moon-palace-equipped body::-webkit-scrollbar-track,
+html.midautumn-moon-palace-equipped body *::-webkit-scrollbar-track {
+    background: linear-gradient(180deg, rgba(20, 27, 50, .11), rgba(231, 182, 90, .08));
+    border-radius: 999px;
+}
+
+html.midautumn-moon-palace-equipped body::-webkit-scrollbar-thumb,
+html.midautumn-moon-palace-equipped body *::-webkit-scrollbar-thumb {
+    background:
+        linear-gradient(180deg, #f0d07a, #c8903b 58%, #6ba991);
+    border: 2px solid rgba(255, 248, 229, .82);
+    border-radius: 999px 999px 999px 8px;
+}
+
+html.midautumn-moon-palace-equipped body ::selection {
+    background: rgba(231, 182, 90, .34);
+    color: #3b2924;
+}
+
+/* ============================================================================
+   2. AMBIENT WORLD
+   ============================================================================ */
+
+.midautumn-world {
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .65s ease;
+    isolation: isolate;
+}
+
+.midautumn-world.is-mounted {
+    opacity: 1;
+}
+
+.ma-world-night {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 78% 12%, rgba(255, 239, 188, .18), transparent 24%),
+        radial-gradient(circle at 14% 75%, rgba(80, 166, 146, .10), transparent 28%),
+        linear-gradient(180deg, rgba(9, 13, 31, .05), rgba(8, 12, 30, .11));
+}
+
+.ma-world-moon {
+    position: absolute;
+    top: 3.5vh;
+    right: 4.6vw;
+    width: clamp(150px, 19vw, 330px);
+    aspect-ratio: 1;
+    animation: maMoonFloat 8s ease-in-out infinite;
+}
+
+.ma-world-moon .moon-glow,
+.ma-world-moon .moon-disc {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+}
+
+.ma-world-moon .moon-glow {
+    inset: -18%;
+    background: radial-gradient(circle, rgba(255, 242, 193, .45), rgba(255, 232, 166, .12) 48%, transparent 72%);
+    filter: blur(7px);
+    animation: maMoonGlow 3.8s ease-in-out infinite;
+}
+
+.ma-world-moon .moon-disc {
+    inset: 9%;
+    background:
+        radial-gradient(circle at 34% 28%, rgba(255, 255, 245, .98), #ffe8a6 45%, #e7b65a 100%);
+    box-shadow:
+        0 0 40px rgba(255, 232, 166, .55),
+        inset -18px -14px 30px rgba(181, 121, 39, .16);
+}
+
+.ma-world-moon .moon-rabbit {
+    position: absolute;
+    left: 38%;
+    top: 38%;
+    width: 22%;
+    height: 30%;
+    opacity: .17;
+    transform: rotate(-9deg);
+}
+
+.ma-world-moon .moon-rabbit::before,
+.ma-world-moon .moon-rabbit::after {
+    content: "";
+    position: absolute;
+    background: #6f4a2d;
+}
+
+.ma-world-moon .moon-rabbit::before {
+    width: 58%;
+    height: 62%;
+    bottom: 0;
+    left: 20%;
+    border-radius: 55% 50% 48% 50%;
+}
+
+.ma-world-moon .moon-rabbit::after {
+    width: 18%;
+    height: 62%;
+    left: 35%;
+    top: -31%;
+    border-radius: 90% 90% 28% 28%;
+    box-shadow: 16px 6px 0 -1px #6f4a2d;
+    transform: rotate(-8deg);
+}
+
+.ma-world-moon .moon-cloud {
+    position: absolute;
+    height: 10%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.62), rgba(211, 239, 228, .48), transparent);
+    filter: blur(.4px);
+}
+
+.ma-world-moon .cloud-a {
+    width: 82%;
+    left: -36%;
+    bottom: 18%;
+    animation: maCloudDrift 7s ease-in-out infinite;
+}
+
+.ma-world-moon .cloud-b {
+    width: 64%;
+    right: -27%;
+    top: 42%;
+    animation: maCloudDrift 8.5s ease-in-out -2s infinite reverse;
+}
+
+.ma-world-palace {
+    position: absolute;
+    right: 0;
+    bottom: -3vh;
+    width: clamp(260px, 31vw, 550px);
+    height: clamp(150px, 24vw, 380px);
+    opacity: .11;
+    transform-origin: right bottom;
+    filter: drop-shadow(0 0 16px rgba(231, 182, 90, .14));
+}
+
+.ma-world-palace .roof {
+    position: absolute;
+    right: 1%;
+    height: 14%;
+    background: #11172c;
+    clip-path: polygon(0 80%, 11% 50%, 32% 40%, 38% 0, 43% 36%, 88% 36%, 100% 78%, 82% 70%, 16% 70%);
+}
+
+.ma-world-palace .roof-back {
+    width: 78%;
+    bottom: 49%;
+    opacity: .72;
+}
+
+.ma-world-palace .roof-front {
+    width: 98%;
+    bottom: 30%;
+}
+
+.ma-world-palace .pillar {
+    position: absolute;
+    width: 3%;
+    height: 38%;
+    bottom: 0;
+    background: linear-gradient(#151b31, #090e20);
+}
+
+.ma-world-palace .pillar-a { right: 17%; }
+.ma-world-palace .pillar-b { right: 69%; }
+
+.ma-world-palace .gate {
+    position: absolute;
+    width: 58%;
+    height: 34%;
+    right: 14%;
+    bottom: 0;
+    border: 4px solid #10162b;
+    border-bottom: 0;
+    border-radius: 55% 55% 0 0;
+}
+
+.ma-world-clouds .cloud {
+    position: absolute;
+    width: clamp(150px, 21vw, 340px);
+    height: clamp(18px, 2.6vw, 42px);
+    opacity: .16;
+    border-radius: 999px;
+    background:
+        radial-gradient(ellipse at 25% 50%, rgba(112, 197, 173, .6), transparent 46%),
+        linear-gradient(90deg, transparent, rgba(255, 246, 218, .85), rgba(112, 197, 173, .44), transparent);
+    filter: blur(2px);
+    animation: maCloudAcross 16s ease-in-out infinite;
+}
+
+.ma-world-clouds .c1 { top: 12%; left: -4%; animation-delay: -2s; }
+.ma-world-clouds .c2 { top: 28%; left: 21%; animation-delay: -7s; transform: scale(.72); }
+.ma-world-clouds .c3 { top: 54%; right: 12%; animation-delay: -4s; transform: scale(.9); }
+.ma-world-clouds .c4 { top: 71%; left: 4%; animation-delay: -11s; transform: scale(1.1); }
+.ma-world-clouds .c5 { top: 42%; right: -4%; animation-delay: -8s; transform: scale(.58); }
+.ma-world-clouds .c6 { bottom: 8%; left: 38%; animation-delay: -13s; transform: scale(.8); }
+
+.ma-world-lanterns,
+.ma-world-osmanthus,
+.ma-world-stars,
+.ma-world-jade-dust {
+    position: absolute;
+    inset: 0;
+}
+
+.ma-lantern {
+    position: absolute;
+    left: var(--ma-lx);
+    top: var(--ma-ly);
+    width: 22px;
+    height: 30px;
+    opacity: .23;
+    transform: translate(-50%, -50%) scale(var(--ma-ls));
+    animation: maLanternFloat 6s ease-in-out var(--ma-ld) infinite;
+}
+
+.ma-lantern b {
+    position: absolute;
+    inset: 2px 1px 5px;
+    border-radius: 45% 45% 40% 40%;
+    background: linear-gradient(90deg, #c77b45, #f3c269 48%, #ca7a43);
+    box-shadow: 0 0 14px rgba(238, 178, 83, .52);
+}
+
+.ma-lantern span {
+    position: absolute;
+    left: 3px;
+    right: 3px;
+    top: -2px;
+    height: 3px;
+    background: #79502c;
+    border-radius: 99px;
+    box-shadow: 0 29px 0 #79502c;
+}
+
+.ma-lantern em {
+    position: absolute;
+    left: 50%;
+    bottom: -7px;
+    width: 1px;
+    height: 9px;
+    background: #c78c48;
+}
+
+.ma-osmanthus {
+    position: absolute;
+    top: -4vh;
+    left: var(--ma-fx);
+    width: var(--ma-fsize);
+    height: var(--ma-fsize);
+    border-radius: 68% 22% 68% 22%;
+    background: #f0c568;
+    box-shadow: 0 0 8px rgba(240, 197, 104, .32);
+    opacity: .45;
+    animation: maFlowerFall 10s linear var(--ma-fdelay) infinite;
+}
+
+.ma-star {
+    position: absolute;
+    left: var(--ma-sx);
+    top: var(--ma-sy);
+    width: var(--ma-ss);
+    height: var(--ma-ss);
+    border-radius: 50%;
+    background: #ffe7a7;
+    color: #ffe7a7;
+    font-size: 10px;
+    line-height: 1;
+    box-shadow: 0 0 8px rgba(255, 231, 167, .72);
+    opacity: .34;
+    animation: maStarTwinkle 3.8s ease-in-out var(--ma-sd) infinite;
+}
+
+.ma-jade-dust {
+    position: absolute;
+    left: var(--ma-dx);
+    top: var(--ma-dy);
+    width: var(--ma-ds);
+    height: var(--ma-ds);
+    border-radius: 50%;
+    background: #7fd2b8;
+    box-shadow: 0 0 9px rgba(112, 197, 173, .6);
+    opacity: .24;
+    animation: maDustFloat 5.8s ease-in-out var(--ma-dd) infinite;
+}
+
+.ma-world-ribbons {
+    position: absolute;
+    width: 40vw;
+    height: 9vh;
+    border: 1px solid rgba(231, 182, 90, .11);
+    border-left: 0;
+    border-right: 0;
+    border-radius: 50%;
+    filter: blur(1px);
+}
+
+.ma-world-ribbons.ribbon-a {
+    left: -10vw;
+    top: 18vh;
+    transform: rotate(-10deg);
+}
+
+.ma-world-ribbons.ribbon-b {
+    right: -11vw;
+    bottom: 16vh;
+    transform: rotate(8deg);
+}
+
+.ma-world-vignette {
+    position: absolute;
+    inset: 0;
+    box-shadow: inset 0 0 130px rgba(9, 13, 31, .12);
+}
+
+/* ============================================================================
+   3. DECORATIVE UI FRAME
+   ============================================================================ */
+
+.midautumn-ui-frame {
+    position: fixed;
+    inset: 0;
+    z-index: 2147480500;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .55s ease;
+    font-family: Georgia, "Times New Roman", serif;
+}
+
+.midautumn-ui-frame.is-mounted {
+    opacity: 1;
+}
+
+.ma-ui-top {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    width: min(680px, 74vw);
+    height: 58px;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    opacity: .88;
+}
+
+.ma-ui-top > i {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(169,111,36,.68));
+}
+
+.ma-ui-top > i:last-child {
+    background: linear-gradient(90deg, rgba(169,111,36,.68), transparent);
+}
+
+.ma-ui-seal {
+    min-width: 250px;
+    padding: 7px 22px 8px;
+    text-align: center;
+    border: 1px solid rgba(169, 111, 36, .48);
+    border-radius: 26px 8px 26px 8px;
+    background: linear-gradient(145deg, rgba(255,249,231,.91), rgba(245,228,189,.86));
+    box-shadow: 0 9px 28px rgba(53,38,29,.14), inset 0 1px rgba(255,255,255,.8);
+}
+
+.ma-ui-seal small,
+.ma-ui-seal strong,
+.ma-ui-seal span {
+    display: block;
+}
+
+.ma-ui-seal small {
+    color: #8c6331;
+    font-size: 9px;
+    letter-spacing: .32em;
+}
+
+.ma-ui-seal strong {
+    margin-top: 1px;
+    color: #4f3828;
+    font-size: 14px;
+    letter-spacing: .18em;
+}
+
+.ma-ui-seal span {
+    margin-top: 1px;
+    color: #3f7e70;
+    font-size: 7px;
+    letter-spacing: .16em;
+}
+
+.ma-ui-cloud {
+    width: 46px;
+    height: 12px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, rgba(112,197,173,.45), rgba(255,235,185,.52), transparent);
+}
+
+.ma-ui-cloud.left { transform: rotate(8deg); }
+.ma-ui-cloud.right { transform: rotate(-8deg); }
+
+.ma-ui-corner {
+    position: absolute;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    color: rgba(168, 112, 45, .65);
+    font-size: 21px;
+    text-shadow: 0 0 12px rgba(255, 231, 167, .4);
+}
+
+.ma-ui-corner::before,
+.ma-ui-corner::after {
+    content: "";
+    position: absolute;
+    border-color: rgba(169, 111, 36, .34);
+    border-style: solid;
+}
+
+.ma-ui-corner::before {
+    width: 38px;
+    height: 18px;
+    border-width: 1px 0 0 1px;
+}
+
+.ma-ui-corner::after {
+    width: 18px;
+    height: 38px;
+    border-width: 1px 0 0 1px;
+}
+
+.ma-ui-corner.corner-tl { top: 12px; left: 14px; }
+.ma-ui-corner.corner-tr { top: 12px; right: 14px; transform: rotate(90deg); }
+.ma-ui-corner.corner-bl { bottom: 13px; left: 14px; transform: rotate(-90deg); }
+.ma-ui-corner.corner-br { bottom: 13px; right: 14px; transform: rotate(180deg); }
+
+.ma-ui-side {
+    position: absolute;
+    top: 50%;
+    width: 18px;
+    height: min(290px, 43vh);
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    color: rgba(169, 111, 36, .52);
+}
+
+.ma-ui-side.side-left { left: 8px; }
+.ma-ui-side.side-right { right: 8px; }
+
+.ma-ui-side i {
+    flex: 1;
+    width: 1px;
+    background: linear-gradient(transparent, rgba(169,111,36,.45), transparent);
+}
+
+.ma-ui-side b {
+    font-size: 12px;
+    font-weight: 500;
+    writing-mode: vertical-rl;
+    letter-spacing: .12em;
+}
+
+.ma-ui-bottom {
+    position: absolute;
+    left: 50%;
+    bottom: 8px;
+    width: min(540px, 68vw);
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: rgba(112, 85, 47, .65);
+    font-size: 9px;
+    letter-spacing: .13em;
+}
+
+.ma-ui-bottom i {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(169,111,36,.55), transparent);
+}
+
+.ma-ui-bottom strong {
+    font-weight: 600;
+}
+
+/* ============================================================================
+   4. MID-AUTUMN LUXURY CARD — bố cục không khác card Premium khác
+   ============================================================================ */
+
+.midautumn-premium-card {
+    position: relative !important;
+    overflow: hidden !important;
+    isolation: isolate;
+    border: 1px solid rgba(231, 182, 90, .55) !important;
+    border-radius: 26px 8px 26px 8px !important;
+    background: #0d142b !important;
+    box-shadow:
+        0 20px 55px rgba(7, 12, 31, .35),
+        0 0 0 1px rgba(255, 239, 188, .09) inset !important;
+}
+
+.midautumn-premium-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    pointer-events: none;
+    border-radius: inherit;
+    box-shadow:
+        inset 0 0 0 1px rgba(255, 245, 212, .12),
+        inset 0 -80px 120px rgba(6, 10, 27, .18);
+}
+
+.midautumn-card-visual {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 390px;
+    overflow: hidden;
+    border-radius: inherit;
+    background: #0d142b;
+}
+
+.midautumn-card-night {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 74% 18%, rgba(255, 235, 177, .28), transparent 27%),
+        radial-gradient(circle at 16% 75%, rgba(77, 157, 140, .16), transparent 31%),
+        linear-gradient(180deg, #111a36 0%, #0a1027 58%, #090d1f 100%);
+}
+
+.midautumn-card-moon {
+    position: absolute;
+    right: 7%;
+    top: 8%;
+    width: 42%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle at 34% 30%, #fffdf0, #ffe6a1 47%, #cf9341 100%);
+    box-shadow: 0 0 45px rgba(255, 229, 157, .42);
+    opacity: .92;
+    animation: maCardMoonPulse 4.2s ease-in-out infinite;
+}
+
+.midautumn-card-moon i {
+    position: absolute;
+    inset: -19%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 229, 157, .3), transparent 66%);
+}
+
+.midautumn-card-palace {
+    position: absolute;
+    left: -5%;
+    right: -5%;
+    bottom: 0;
+    height: 35%;
+    opacity: .28;
+    background:
+        linear-gradient(170deg, transparent 0 44%, #11172d 45% 48%, transparent 49%) 15% 20% / 44% 60% no-repeat,
+        linear-gradient(190deg, transparent 0 44%, #11172d 45% 48%, transparent 49%) 85% 23% / 47% 60% no-repeat,
+        linear-gradient(180deg, transparent 0 36%, #10162a 37% 100%);
+    clip-path: polygon(0 44%, 16% 39%, 23% 22%, 29% 38%, 70% 38%, 77% 22%, 84% 39%, 100% 45%, 100% 100%, 0 100%);
+}
+
+.midautumn-card-cloud {
+    position: absolute;
+    height: 26px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, rgba(218, 239, 229, .36), rgba(255,240,197,.42), transparent);
+    filter: blur(.5px);
+}
+
+.midautumn-card-cloud.cloud-a {
+    width: 58%;
+    left: -10%;
+    top: 31%;
+    animation: maCardCloud 6.5s ease-in-out infinite;
+}
+
+.midautumn-card-cloud.cloud-b {
+    width: 46%;
+    right: -8%;
+    top: 46%;
+    animation: maCardCloud 7.4s ease-in-out -2s infinite reverse;
+}
+
+.midautumn-card-lantern {
+    position: absolute;
+    width: 22px;
+    height: 30px;
+    top: 20%;
+    opacity: .65;
+    border-radius: 45% 45% 40% 40%;
+    background: linear-gradient(90deg, #b96e47, #efbd66, #ba6d45);
+    box-shadow: 0 0 18px rgba(239, 189, 102, .42);
+    animation: maLanternFloat 5.4s ease-in-out infinite;
+}
+
+.midautumn-card-lantern::before,
+.midautumn-card-lantern::after {
+    content: "";
+    position: absolute;
+    left: 3px;
+    right: 3px;
+    height: 2px;
+    background: #76502f;
+}
+
+.midautumn-card-lantern::before { top: -2px; }
+.midautumn-card-lantern::after { bottom: -2px; }
+
+.midautumn-card-lantern.lantern-a { left: 11%; animation-delay: -1.2s; }
+.midautumn-card-lantern.lantern-b { right: 13%; top: 36%; transform: scale(.78); animation-delay: -3.1s; }
+
+.midautumn-card-stars {
+    position: absolute;
+    inset: 0;
+}
+
+.midautumn-card-stars i {
+    position: absolute;
+    left: calc(7% + (var(--i) * 7.1%));
+    top: calc(12% + ((var(--i) * 19%) mod 65%));
+    width: calc(2px + (var(--i) % 3) * 1px);
+    height: calc(2px + (var(--i) % 3) * 1px);
+    border-radius: 50%;
+    background: #ffe7a6;
+    box-shadow: 0 0 8px rgba(255,231,166,.65);
+    animation: maStarTwinkle 3s ease-in-out calc(var(--i) * -.28s) infinite;
+}
+
+/* fallback cho browser không hỗ trợ mod() */
+.midautumn-card-stars i:nth-child(1) { left: 8%; top: 14%; }
+.midautumn-card-stars i:nth-child(2) { left: 18%; top: 24%; }
+.midautumn-card-stars i:nth-child(3) { left: 29%; top: 11%; }
+.midautumn-card-stars i:nth-child(4) { left: 40%; top: 35%; }
+.midautumn-card-stars i:nth-child(5) { left: 52%; top: 18%; }
+.midautumn-card-stars i:nth-child(6) { left: 64%; top: 41%; }
+.midautumn-card-stars i:nth-child(7) { left: 77%; top: 10%; }
+.midautumn-card-stars i:nth-child(8) { left: 88%; top: 26%; }
+.midautumn-card-stars i:nth-child(9) { left: 13%; top: 52%; }
+.midautumn-card-stars i:nth-child(10) { left: 32%; top: 61%; }
+.midautumn-card-stars i:nth-child(11) { left: 70%; top: 58%; }
+.midautumn-card-stars i:nth-child(12) { left: 91%; top: 49%; }
+
+.midautumn-card-tag-shell {
+    position: absolute;
+    z-index: 9;
+    top: 13px;
+    left: 13px;
+    width: 42%;
+    max-width: 150px;
+    pointer-events: none;
+    filter: drop-shadow(0 8px 16px rgba(5, 10, 27, .35));
+}
+
+.midautumn-card-tag-art {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    position: relative;
+    z-index: 2;
+}
+
+.midautumn-card-tag-halo {
+    position: absolute;
+    inset: -22%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 229, 157, .22), transparent 68%);
+    animation: maCardMoonPulse 4s ease-in-out infinite;
+}
+
+.midautumn-card-tag-shine {
+    position: absolute;
+    z-index: 4;
+    top: -15%;
+    left: -30%;
+    width: 24%;
+    height: 140%;
+    transform: rotate(19deg);
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.42), transparent);
+    animation: maTagShine 4.8s ease-in-out infinite;
+}
+
+.midautumn-card-character {
+    position: absolute;
+    z-index: 6;
+    left: 50%;
+    bottom: 0;
+    width: 94%;
+    height: 94%;
+    object-fit: contain;
+    object-position: center bottom;
+    transform: translateX(-50%);
+    filter:
+        drop-shadow(0 17px 18px rgba(3, 8, 23, .52))
+        drop-shadow(0 0 16px rgba(255, 228, 157, .13));
+    transition: transform .42s cubic-bezier(.2,.8,.2,1), filter .42s ease;
+}
+
+.midautumn-premium-card:hover .midautumn-card-character,
+.midautumn-premium-card:focus-within .midautumn-card-character {
+    transform: translateX(-50%) scale(1.035) translateY(-5px);
+    filter:
+        drop-shadow(0 20px 22px rgba(3, 8, 23, .58))
+        drop-shadow(0 0 22px rgba(255, 228, 157, .22));
+}
+
+.midautumn-card-details {
+    position: absolute;
+    z-index: 12;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 55px 18px 17px;
+    color: #fff5dd;
+    background:
+        linear-gradient(180deg, transparent 0%, rgba(7,11,27,.24) 14%, rgba(7,11,27,.90) 53%, rgba(7,11,27,.98) 100%);
+    transform: translateY(calc(100% - 72px));
+    transition: transform .38s cubic-bezier(.2,.8,.2,1);
+}
+
+.midautumn-premium-card:hover .midautumn-card-details,
+.midautumn-premium-card:focus-within .midautumn-card-details {
+    transform: translateY(0);
+}
+
+.midautumn-card-type {
+    color: #f7d98b;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .11em;
+}
+
+.midautumn-card-details h3 {
+    margin: 5px 0 7px;
+    color: #fff7dd;
+    font-family: Georgia, "Times New Roman", serif !important;
+    font-size: 20px;
+    letter-spacing: .02em;
+    text-shadow: 0 2px 10px rgba(0,0,0,.42);
+}
+
+.midautumn-card-description {
+    margin: 0 0 9px;
+    color: rgba(255, 244, 220, .82);
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.midautumn-card-price {
+    color: #f6cf72;
+    font-size: 12px;
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+
+.midautumn-card-action {
+    width: 100%;
+    min-height: 38px;
+    border: 1px solid rgba(255, 230, 166, .44);
+    border-radius: 16px 5px 16px 5px;
+    background: linear-gradient(135deg, #f7dda0, #e7b65a 56%, #c88933);
+    color: #3f2d20;
+    font: 800 12px/1.1 "Palatino Linotype", Georgia, serif;
+    letter-spacing: .025em;
+    cursor: pointer;
+    box-shadow:
+        0 9px 22px rgba(0,0,0,.25),
+        inset 0 1px rgba(255,255,255,.75);
+    transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
+}
+
+.midautumn-card-action:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.07);
+    box-shadow:
+        0 12px 25px rgba(0,0,0,.3),
+        0 0 0 3px rgba(255, 230, 166, .12);
+}
+
+.midautumn-card-action:active {
+    transform: translateY(0) scale(.985);
+}
+
+.midautumn-card-action.is-equipped {
+    background: linear-gradient(135deg, #8ac9b5, #5aa48f 58%, #327565);
+    color: #f5fff9;
+    border-color: rgba(197, 248, 232, .4);
+}
+
+/* ============================================================================
+   5. PET REALM
+   ============================================================================ */
+
+#virtual-pet-container.pet-midautumn-moon-palace-stage {
+    isolation: isolate;
+    overflow: visible !important;
+}
+
+#virtual-pet-container.pet-midautumn-moon-palace-stage #virtual-pet-img.midautumn-moon-palace-pet {
+    position: relative;
+    z-index: 12;
+    width: clamp(142px, 12vw, 188px) !important;
+    height: auto !important;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-drag: none;
+    filter:
+        drop-shadow(0 14px 14px rgba(5, 9, 25, .34))
+        drop-shadow(0 0 15px rgba(255, 227, 154, .26)) !important;
+    transform-origin: 50% 90%;
+    animation: maPetIdle 4.2s ease-in-out infinite;
+    transition: filter .2s ease, transform .2s ease;
+}
+
+#virtual-pet-container.pet-midautumn-moon-palace-stage #virtual-pet-img.midautumn-moon-palace-pet:hover {
+    filter:
+        drop-shadow(0 17px 16px rgba(5, 9, 25, .42))
+        drop-shadow(0 0 24px rgba(255, 227, 154, .42)) !important;
+}
+
+.midautumn-pet-realm {
+    position: absolute;
+    z-index: 4;
+    left: 50%;
+    bottom: -8px;
+    width: 270px;
+    height: 270px;
+    transform: translateX(-50%);
+    pointer-events: none;
+    overflow: visible;
+}
+
+.ma-pet-moon {
+    position: absolute;
+    left: 50%;
+    top: 23%;
+    width: 118px;
+    height: 118px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, rgba(255,255,246,.9), rgba(255,229,160,.78) 48%, rgba(211,150,64,.52) 100%);
+    box-shadow: 0 0 28px rgba(255, 230, 163, .35);
+    opacity: .72;
+    animation: maPetMoon 4s ease-in-out infinite;
+}
+
+.ma-pet-moon i {
+    position: absolute;
+    inset: -25%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 230, 163, .23), transparent 68%);
+}
+
+.ma-pet-halo,
+.ma-pet-ring {
+    position: absolute;
+    left: 50%;
+    top: 53%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+}
+
+.ma-pet-halo.halo-a {
+    width: 208px;
+    height: 208px;
+    background: radial-gradient(circle, transparent 48%, rgba(231,182,90,.10) 54%, transparent 69%);
+    animation: maPetHalo 5.5s ease-in-out infinite;
+}
+
+.ma-pet-halo.halo-b {
+    width: 248px;
+    height: 248px;
+    background: radial-gradient(circle, transparent 55%, rgba(112,197,173,.08) 59%, transparent 71%);
+    animation: maPetHalo 6.8s ease-in-out -2s infinite reverse;
+}
+
+.ma-pet-ring.ring-a {
+    width: 174px;
+    height: 174px;
+    border: 1px solid rgba(231,182,90,.34);
+    box-shadow: inset 0 0 13px rgba(231,182,90,.08);
+    animation: maPetRing 10s linear infinite;
+}
+
+.ma-pet-ring.ring-b {
+    width: 220px;
+    height: 220px;
+    border: 1px dashed rgba(112,197,173,.25);
+    animation: maPetRing 14s linear infinite reverse;
+}
+
+.ma-pet-cloud {
+    position: absolute;
+    width: 126px;
+    height: 25px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, rgba(225,242,235,.53), rgba(255,239,192,.46), transparent);
+    filter: blur(.4px);
+}
+
+.ma-pet-cloud.cloud-a {
+    left: 7px;
+    bottom: 42px;
+    animation: maPetCloud 5s ease-in-out infinite;
+}
+
+.ma-pet-cloud.cloud-b {
+    right: 4px;
+    bottom: 76px;
+    transform: scale(.78);
+    animation: maPetCloud 6.2s ease-in-out -2.1s infinite reverse;
+}
+
+.ma-pet-ribbon {
+    position: absolute;
+    width: 120px;
+    height: 48px;
+    border-top: 1px solid rgba(231,182,90,.28);
+    border-radius: 50%;
+}
+
+.ma-pet-ribbon.ribbon-a {
+    left: 14px;
+    top: 84px;
+    transform: rotate(-20deg);
+    animation: maRibbonFloat 4.8s ease-in-out infinite;
+}
+
+.ma-pet-ribbon.ribbon-b {
+    right: 12px;
+    top: 102px;
+    transform: rotate(18deg);
+    animation: maRibbonFloat 5.5s ease-in-out -1.7s infinite reverse;
+}
+
+.ma-pet-lantern {
+    position: absolute;
+    width: 17px;
+    height: 23px;
+    border-radius: 45% 45% 40% 40%;
+    background: linear-gradient(90deg, #b46842, #efbd66, #b46842);
+    box-shadow: 0 0 12px rgba(239,189,102,.5);
+    opacity: .75;
+    animation: maLanternFloat 5s ease-in-out infinite;
+}
+
+.ma-pet-lantern.lantern-a { left: 36px; top: 66px; }
+.ma-pet-lantern.lantern-b { right: 32px; top: 85px; animation-delay: -2.2s; }
+
+.ma-pet-lantern i {
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    width: 1px;
+    height: 10px;
+    background: #b07a42;
+}
+
+.ma-pet-sparks,
+.ma-pet-flowers {
+    position: absolute;
+    inset: 0;
+}
+
+.ma-pet-sparks i,
+.ma-pet-flowers i {
+    position: absolute;
+    left: 50%;
+    top: 53%;
+}
+
+.ma-pet-sparks i {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: #ffe7a3;
+    box-shadow: 0 0 8px rgba(255,231,163,.75);
+    transform: translate(-50%, -50%) rotate(var(--ma-psa)) translateY(var(--ma-psr-neg)) rotate(var(--ma-psa-neg));
+    animation: maPetSpark 3.2s ease-in-out var(--ma-psd) infinite;
+}
+
+.ma-pet-flowers i {
+    width: 6px;
+    height: 6px;
+    border-radius: 70% 20% 70% 20%;
+    background: #efc365;
+    transform: translate(-50%, -50%) rotate(var(--ma-pfa)) translateY(var(--ma-pfr-neg)) rotate(var(--ma-pfa-neg));
+    opacity: .62;
+    animation: maPetFlower 4.1s ease-in-out var(--ma-pfd) infinite;
+}
+
+#virtual-pet-container.midautumn-pet-casting #virtual-pet-img.midautumn-moon-palace-pet {
+    animation: maPetCast .78s cubic-bezier(.2,.8,.2,1) both;
+}
+
+#virtual-pet-container.midautumn-pet-casting .ma-pet-ring.ring-a {
+    animation: maPetRingCast .9s ease-out both;
+}
+
+#virtual-pet-container.midautumn-pet-casting .ma-pet-ring.ring-b {
+    animation: maPetRingCast 1.1s .05s ease-out both reverse;
+}
+
+/* ============================================================================
+   6. GLOBAL CLICK EFFECT
+   ============================================================================ */
+
+.midautumn-page-click {
+    position: fixed;
+    z-index: 2147481800;
+    left: var(--ma-click-x);
+    top: var(--ma-click-y);
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+    opacity: 0;
+}
+
+.midautumn-page-click.is-active {
+    opacity: 1;
+}
+
+.midautumn-page-click .ring {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 26px;
+    height: 26px;
+    transform: translate(-50%, -50%) scale(.18);
+    border-radius: 50%;
+    border: 1px solid rgba(231,182,90,.82);
+    box-shadow: 0 0 14px rgba(255,231,163,.28);
+    animation: maClickRing .85s cubic-bezier(.15,.75,.2,1) forwards;
+}
+
+.midautumn-page-click .ring-b {
+    border-color: rgba(112,197,173,.62);
+    animation-delay: .06s;
+}
+
+.midautumn-page-click .ring-c {
+    border-style: dashed;
+    animation-delay: .12s;
+}
+
+.midautumn-page-click.is-strong .ring {
+    border-width: 2px;
+    animation-duration: 1.2s;
+}
+
+.midautumn-page-click .moon {
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: #f7d47b;
+    font-size: 21px;
+    transform: translate(-50%, -50%) scale(.2) rotate(-30deg);
+    text-shadow: 0 0 12px rgba(255,231,163,.65);
+    animation: maClickMoon .72s ease-out forwards;
+}
+
+.midautumn-page-click .flower {
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: #f1c972;
+    font-size: 12px;
+    opacity: 0;
+}
+
+.midautumn-page-click .flower-a { animation: maClickFlowerA .85s ease-out forwards; }
+.midautumn-page-click .flower-b { animation: maClickFlowerB .9s .04s ease-out forwards; color: #82cdb7; }
+.midautumn-page-click .flower-c { animation: maClickFlowerC .88s .08s ease-out forwards; }
+
+.midautumn-page-click .cloud {
+    position: absolute;
+    top: -4px;
+    width: 64px;
+    height: 10px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, rgba(232,247,239,.75), rgba(255,236,185,.6), transparent);
+    opacity: 0;
+}
+
+.midautumn-page-click .cloud-a { left: -78px; animation: maClickCloudA .7s ease-out forwards; }
+.midautumn-page-click .cloud-b { left: 14px; animation: maClickCloudB .7s ease-out forwards; }
+
+.midautumn-page-click .ray {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1px;
+    height: 46px;
+    transform-origin: 50% 0;
+    background: linear-gradient(#f9d979, transparent);
+    opacity: 0;
+}
+
+.midautumn-page-click .ray-a { transform: rotate(0deg); animation: maClickRay .58s ease-out forwards; }
+.midautumn-page-click .ray-b { transform: rotate(90deg); animation: maClickRay .58s .03s ease-out forwards; }
+.midautumn-page-click .ray-c { transform: rotate(180deg); animation: maClickRay .58s .06s ease-out forwards; }
+.midautumn-page-click .ray-d { transform: rotate(270deg); animation: maClickRay .58s .09s ease-out forwards; }
+
+/* ============================================================================
+   7. FULLSCREEN PET ULTIMATE
+   ============================================================================ */
+
+.midautumn-ultimate {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483000;
+    pointer-events: none;
+    overflow: hidden;
+    opacity: 0;
+    background: #070b1b;
+    font-family: Georgia, "Times New Roman", serif;
+    isolation: isolate;
+}
+
+.midautumn-ultimate.is-active {
+    opacity: 1;
+    animation: maUltOpen .72s ease-out both;
+}
+
+.midautumn-ultimate.is-ending {
+    animation: maUltClose 1.15s ease-in both;
+}
+
+.ma-ult-flash {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at var(--ma-ultimate-x) var(--ma-ultimate-y), rgba(255,247,210,.95), rgba(255,225,146,.45) 12%, transparent 31%);
+    opacity: 0;
+    animation: maUltFlash .85s ease-out both;
+}
+
+.ma-ult-sky {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 50% 37%, rgba(66, 93, 130, .35), transparent 34%),
+        radial-gradient(circle at 50% 50%, rgba(112, 197, 173, .12), transparent 46%),
+        linear-gradient(180deg, #111a39 0%, #080d23 61%, #070a18 100%);
+}
+
+.ma-ult-moon {
+    position: absolute;
+    left: 50%;
+    top: 38%;
+    width: min(52vw, 620px);
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%) scale(.35);
+    border-radius: 50%;
+    background: radial-gradient(circle at 34% 29%, #fffdf0, #ffe4a0 48%, #d29a46 100%);
+    box-shadow: 0 0 120px rgba(255, 227, 157, .55);
+    opacity: 0;
+    animation: maUltMoon 1.8s .08s cubic-bezier(.2,.8,.2,1) forwards;
+}
+
+.ma-ult-moon i {
+    position: absolute;
+    inset: -17%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,231,166,.32), transparent 70%);
+    animation: maMoonGlow 3s ease-in-out infinite;
+}
+
+.ma-ult-moon b {
+    position: absolute;
+    inset: 15%;
+    border-radius: 50%;
+    border: 1px solid rgba(126, 82, 31, .10);
+    box-shadow:
+        inset 32px 24px 48px rgba(255,255,255,.13),
+        inset -30px -22px 60px rgba(121,79,28,.08);
+}
+
+.ma-ult-moon em {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: rgba(110, 72, 29, .15);
+    font-style: normal;
+    font-size: clamp(64px, 10vw, 130px);
+    font-weight: 500;
+}
+
+.ma-ult-rabbit {
+    position: absolute;
+    left: 50%;
+    top: 39%;
+    width: 88px;
+    height: 118px;
+    transform: translate(-50%, -50%) scale(.4);
+    opacity: 0;
+    animation: maUltRabbit 1.4s .78s ease-out forwards;
+}
+
+.ma-ult-rabbit::before,
+.ma-ult-rabbit::after {
+    content: "";
+    position: absolute;
+    background: rgba(97, 64, 27, .23);
+}
+
+.ma-ult-rabbit::before {
+    width: 56px;
+    height: 68px;
+    bottom: 0;
+    left: 16px;
+    border-radius: 52% 52% 44% 44%;
+}
+
+.ma-ult-rabbit::after {
+    width: 16px;
+    height: 64px;
+    top: -4px;
+    left: 27px;
+    border-radius: 90% 90% 28% 28%;
+    box-shadow: 26px 6px 0 -1px rgba(97, 64, 27, .23);
+    transform: rotate(-6deg);
+}
+
+.ma-ult-palace {
+    position: absolute;
+    left: 50%;
+    bottom: -3vh;
+    width: min(70vw, 900px);
+    height: min(32vw, 350px);
+    transform: translateX(-50%) translateY(80px);
+    opacity: 0;
+    animation: maUltPalace 1.4s .55s cubic-bezier(.2,.8,.2,1) forwards;
+}
+
+.ma-ult-palace .roof {
+    position: absolute;
+    left: 50%;
+    bottom: 43%;
+    width: 88%;
+    height: 36%;
+    transform: translateX(-50%);
+    background: linear-gradient(180deg, #192346, #0a1027);
+    clip-path: polygon(0 73%, 12% 57%, 26% 53%, 31% 12%, 37% 50%, 63% 50%, 69% 12%, 74% 53%, 88% 57%, 100% 73%, 84% 68%, 16% 68%);
+    filter: drop-shadow(0 -3px 0 rgba(231,182,90,.26));
+}
+
+.ma-ult-palace .pillar {
+    position: absolute;
+    bottom: 0;
+    width: 18px;
+    height: 48%;
+    background: linear-gradient(#1c2948, #0a1025);
+    box-shadow: inset 2px 0 rgba(231,182,90,.18), inset -2px 0 rgba(231,182,90,.10);
+}
+
+.ma-ult-palace .pillar.left { left: 28%; }
+.ma-ult-palace .pillar.right { right: 28%; }
+
+.ma-ult-palace .gate {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 34%;
+    height: 46%;
+    transform: translateX(-50%);
+    border: 7px solid #121d39;
+    border-bottom: 0;
+    border-radius: 55% 55% 0 0;
+    box-shadow: inset 0 0 25px rgba(112,197,173,.06);
+}
+
+.ma-ult-cloud {
+    position: absolute;
+    height: clamp(32px, 4vw, 62px);
+    border-radius: 999px;
+    background:
+        radial-gradient(ellipse at 30% 55%, rgba(189,229,215,.62), transparent 46%),
+        linear-gradient(90deg, transparent, rgba(239,248,239,.72), rgba(255,235,183,.56), transparent);
+    filter: blur(2px);
+    opacity: 0;
+}
+
+.ma-ult-cloud.cloud-a { width: 42vw; left: -10vw; top: 23%; animation: maUltCloudLeft 2.2s .38s ease-out forwards; }
+.ma-ult-cloud.cloud-b { width: 36vw; right: -9vw; top: 32%; animation: maUltCloudRight 2.4s .48s ease-out forwards; }
+.ma-ult-cloud.cloud-c { width: 32vw; left: 5vw; bottom: 18%; animation: maUltCloudLeft 2.6s .68s ease-out forwards; }
+.ma-ult-cloud.cloud-d { width: 30vw; right: 6vw; bottom: 11%; animation: maUltCloudRight 2.5s .78s ease-out forwards; }
+
+.ma-ult-lanterns,
+.ma-ult-flowers,
+.ma-ult-stars,
+.ma-ult-runes,
+.ma-ult-rays {
+    position: absolute;
+    inset: 0;
+}
+
+.ma-ult-lanterns i {
+    position: absolute;
+    left: var(--ma-ulx);
+    top: var(--ma-uly);
+    width: 28px;
+    height: 38px;
+    transform: translate(-50%, -50%) scale(.2);
+    opacity: 0;
+    animation: maUltLantern 1.2s var(--ma-uld) cubic-bezier(.2,.8,.2,1) forwards;
+}
+
+.ma-ult-lanterns i b {
+    position: absolute;
+    inset: 2px 1px 6px;
+    border-radius: 46% 46% 40% 40%;
+    background: linear-gradient(90deg, #b76441, #f3bd60 48%, #b76441);
+    box-shadow: 0 0 18px rgba(243,189,96,.48);
+}
+
+.ma-ult-lanterns i span {
+    position: absolute;
+    left: 50%;
+    bottom: -8px;
+    width: 1px;
+    height: 10px;
+    background: #d1954f;
+}
+
+.ma-ult-flowers i {
+    position: absolute;
+    left: 50%;
+    top: 42%;
+    width: 8px;
+    height: 8px;
+    border-radius: 70% 20% 70% 20%;
+    background: #efc466;
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--ma-ufa)) translateY(var(--ma-ufr-neg)) rotate(var(--ma-ufa-neg)) scale(.2);
+    animation: maUltFlower 1.55s var(--ma-ufd) cubic-bezier(.15,.7,.2,1) forwards;
+}
+
+.ma-ult-stars i {
+    position: absolute;
+    left: var(--ma-usx);
+    top: var(--ma-usy);
+    width: var(--ma-uss);
+    height: var(--ma-uss);
+    border-radius: 50%;
+    background: #fff0bc;
+    box-shadow: 0 0 10px rgba(255,240,188,.8);
+    opacity: 0;
+    animation: maUltStar 2s var(--ma-usd) ease-out forwards;
+}
+
+.ma-ult-runes i {
+    position: absolute;
+    left: 50%;
+    top: 42%;
+    color: rgba(255, 226, 156, .72);
+    font-style: normal;
+    font-size: clamp(13px, 1.4vw, 22px);
+    text-shadow: 0 0 12px rgba(255,226,156,.32);
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--ma-ura)) translateY(-min(29vw, 310px)) rotate(var(--ma-ura-neg)) scale(.45);
+    animation: maUltRune 1.4s var(--ma-urd) ease-out forwards;
+}
+
+.ma-ult-rays i {
+    position: absolute;
+    left: 50%;
+    top: 42%;
+    width: 1px;
+    height: min(34vw, 380px);
+    transform-origin: 50% 0;
+    transform: rotate(var(--ma-ray-a));
+    background: linear-gradient(rgba(255,229,157,.38), transparent 72%);
+    opacity: 0;
+    animation: maUltRay 1.15s var(--ma-ray-d) ease-out forwards;
+}
+
+.ma-ult-title {
+    position: absolute;
+    left: 50%;
+    top: 56%;
+    width: min(720px, 86vw);
+    transform: translate(-50%, -50%) scale(.82);
+    text-align: center;
+    color: #fff5d1;
+    opacity: 0;
+    text-shadow: 0 4px 25px rgba(0,0,0,.5);
+    animation: maUltTitle 1.2s 1.05s ease-out forwards;
+}
+
+.ma-ult-title small,
+.ma-ult-title strong,
+.ma-ult-title span {
+    display: block;
+}
+
+.ma-ult-title small {
+    color: #dfc07b;
+    font-size: clamp(10px, 1.05vw, 15px);
+    letter-spacing: .34em;
+}
+
+.ma-ult-title strong {
+    margin-top: 12px;
+    font-size: clamp(28px, 5.4vw, 68px);
+    font-weight: 500;
+    letter-spacing: .11em;
+    background: linear-gradient(180deg, #fffbe8, #f0cf79 62%, #bf7e31);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 3px 10px rgba(0,0,0,.42));
+}
+
+.ma-ult-title span {
+    margin-top: 8px;
+    color: #b8ddcf;
+    font-size: clamp(9px, 1vw, 14px);
+    letter-spacing: .24em;
+}
+
+.midautumn-ultimate.is-climax .ma-ult-moon {
+    filter: brightness(1.08) saturate(1.04);
+}
+
+.midautumn-dialogue {
+    position: fixed;
+    z-index: 2147483100;
+    left: 50%;
+    bottom: max(28px, 4vh);
+    width: min(620px, 88vw);
+    padding: 12px 20px 13px;
+    transform: translateX(-50%) translateY(25px) scale(.95);
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: auto auto auto;
+    align-items: center;
+    column-gap: 12px;
+    text-align: center;
+    pointer-events: none;
+    opacity: 0;
+    color: #fff6dc;
+    border: 1px solid rgba(231,182,90,.52);
+    border-radius: 28px 8px 28px 8px;
+    background: linear-gradient(145deg, rgba(15,22,46,.94), rgba(8,13,31,.96));
+    box-shadow: 0 18px 55px rgba(0,0,0,.38), inset 0 1px rgba(255,255,255,.08);
+    font-family: Georgia, "Times New Roman", serif;
+}
+
+.midautumn-dialogue.is-visible,
+.midautumn-dialogue.is-active.is-visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+    transition: opacity .6s ease, transform .6s cubic-bezier(.2,.8,.2,1);
+}
+
+.midautumn-dialogue.is-ending {
+    opacity: 0 !important;
+    transform: translateX(-50%) translateY(16px) scale(.97) !important;
+    transition: opacity .7s ease, transform .7s ease !important;
+}
+
+.midautumn-dialogue i {
+    grid-row: 1 / 4;
+    color: #efcb77;
+    font-style: normal;
+    font-size: 20px;
+}
+
+.midautumn-dialogue small,
+.midautumn-dialogue strong,
+.midautumn-dialogue span {
+    grid-column: 2;
+    display: block;
+}
+
+.midautumn-dialogue small {
+    color: #9bd2c0;
+    font-size: 8px;
+    letter-spacing: .18em;
+}
+
+.midautumn-dialogue strong {
+    margin-top: 2px;
+    color: #ffeab1;
+    font-size: 17px;
+    letter-spacing: .08em;
+}
+
+.midautumn-dialogue span {
+    margin-top: 2px;
+    color: rgba(255,245,218,.72);
+    font-size: 8px;
+    letter-spacing: .12em;
+}
+
+/* ============================================================================
+   8. ANIMATIONS
+   ============================================================================ */
+
+@keyframes maMoonFloat {
+    0%, 100% { transform: translateY(0) rotate(-1deg); }
+    50% { transform: translateY(8px) rotate(1deg); }
+}
+
+@keyframes maMoonGlow {
+    0%, 100% { opacity: .72; transform: scale(.96); }
+    50% { opacity: 1; transform: scale(1.05); }
+}
+
+@keyframes maCloudDrift {
+    0%, 100% { transform: translateX(0); opacity: .58; }
+    50% { transform: translateX(12px); opacity: .86; }
+}
+
+@keyframes maCloudAcross {
+    0%, 100% { translate: -10px 0; opacity: .12; }
+    50% { translate: 18px 4px; opacity: .24; }
+}
+
+@keyframes maLanternFloat {
+    0%, 100% { translate: 0 0; rotate: -2deg; }
+    50% { translate: 0 -8px; rotate: 3deg; }
+}
+
+@keyframes maFlowerFall {
+    0% { transform: translate3d(0,-8vh,0) rotate(0deg); opacity: 0; }
+    10% { opacity: .48; }
+    82% { opacity: .42; }
+    100% { transform: translate3d(var(--ma-fdrift),108vh,0) rotate(420deg); opacity: 0; }
+}
+
+@keyframes maStarTwinkle {
+    0%, 100% { opacity: .18; transform: scale(.72); }
+    50% { opacity: .72; transform: scale(1.25); }
+}
+
+@keyframes maDustFloat {
+    0%, 100% { transform: translateY(0) scale(.8); opacity: .14; }
+    50% { transform: translateY(-18px) scale(1.15); opacity: .43; }
+}
+
+@keyframes maCardMoonPulse {
+    0%, 100% { transform: scale(.98); filter: brightness(.98); }
+    50% { transform: scale(1.025); filter: brightness(1.06); }
+}
+
+@keyframes maCardCloud {
+    0%, 100% { translate: -8px 0; opacity: .45; }
+    50% { translate: 13px 2px; opacity: .75; }
+}
+
+@keyframes maTagShine {
+    0%, 62% { left: -35%; opacity: 0; }
+    70% { opacity: .7; }
+    88% { left: 116%; opacity: 0; }
+    100% { left: 116%; opacity: 0; }
+}
+
+@keyframes maPetIdle {
+    0%, 100% { transform: translateY(0) rotate(-.4deg); }
+    50% { transform: translateY(-6px) rotate(.6deg); }
+}
+
+@keyframes maPetMoon {
+    0%, 100% { transform: translate(-50%, -50%) scale(.96); opacity: .64; }
+    50% { transform: translate(-50%, -50%) scale(1.04); opacity: .84; }
+}
+
+@keyframes maPetHalo {
+    0%, 100% { transform: translate(-50%, -50%) scale(.92); opacity: .58; }
+    50% { transform: translate(-50%, -50%) scale(1.06); opacity: .88; }
+}
+
+@keyframes maPetRing {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes maPetCloud {
+    0%, 100% { translate: -7px 0; opacity: .5; }
+    50% { translate: 11px -3px; opacity: .82; }
+}
+
+@keyframes maRibbonFloat {
+    0%, 100% { translate: 0 0; opacity: .5; }
+    50% { translate: 7px -5px; opacity: .86; }
+}
+
+@keyframes maPetSpark {
+    0%, 100% { opacity: .2; scale: .72; }
+    50% { opacity: .95; scale: 1.3; }
+}
+
+@keyframes maPetFlower {
+    0%, 100% { opacity: .18; scale: .68; }
+    50% { opacity: .75; scale: 1.1; }
+}
+
+@keyframes maPetCast {
+    0% { transform: translateY(0) scale(1); }
+    28% { transform: translateY(-10px) scale(1.07) rotate(-2deg); }
+    52% { transform: translateY(-15px) scale(1.12) rotate(2deg); }
+    100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes maPetRingCast {
+    0% { transform: translate(-50%, -50%) scale(.72); opacity: .35; }
+    50% { opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1.55); opacity: 0; }
+}
+
+@keyframes maClickRing {
+    0% { transform: translate(-50%, -50%) scale(.15); opacity: 0; }
+    18% { opacity: .95; }
+    100% { transform: translate(-50%, -50%) scale(3.3); opacity: 0; }
+}
+
+@keyframes maClickMoon {
+    0% { transform: translate(-50%, -50%) scale(.15) rotate(-45deg); opacity: 0; }
+    35% { opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1.25) rotate(9deg); opacity: 0; }
+}
+
+@keyframes maClickFlowerA {
+    0% { transform: translate(-50%,-50%) scale(.3); opacity: 0; }
+    20% { opacity: 1; }
+    100% { transform: translate(-72px,-52px) rotate(-75deg) scale(1.1); opacity: 0; }
+}
+
+@keyframes maClickFlowerB {
+    0% { transform: translate(-50%,-50%) scale(.3); opacity: 0; }
+    20% { opacity: 1; }
+    100% { transform: translate(60px,-68px) rotate(95deg) scale(1.05); opacity: 0; }
+}
+
+@keyframes maClickFlowerC {
+    0% { transform: translate(-50%,-50%) scale(.3); opacity: 0; }
+    20% { opacity: 1; }
+    100% { transform: translate(48px,47px) rotate(130deg) scale(.9); opacity: 0; }
+}
+
+@keyframes maClickCloudA {
+    0% { transform: translateX(24px) scale(.6); opacity: 0; }
+    30% { opacity: .8; }
+    100% { transform: translateX(-12px) scale(1); opacity: 0; }
+}
+
+@keyframes maClickCloudB {
+    0% { transform: translateX(-24px) scale(.6); opacity: 0; }
+    30% { opacity: .8; }
+    100% { transform: translateX(12px) scale(1); opacity: 0; }
+}
+
+@keyframes maClickRay {
+    0% { opacity: 0; height: 8px; }
+    30% { opacity: .8; }
+    100% { opacity: 0; height: 62px; }
+}
+
+@keyframes maUltOpen {
+    0% { opacity: 0; filter: brightness(1.8); }
+    100% { opacity: 1; filter: brightness(1); }
+}
+
+@keyframes maUltClose {
+    0% { opacity: 1; filter: blur(0); }
+    100% { opacity: 0; filter: blur(7px); }
+}
+
+@keyframes maUltFlash {
+    0% { opacity: 0; transform: scale(.45); }
+    22% { opacity: 1; }
+    100% { opacity: 0; transform: scale(1.8); }
+}
+
+@keyframes maUltMoon {
+    0% { transform: translate(-50%, -50%) scale(.3); opacity: 0; filter: blur(7px); }
+    60% { opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: .95; filter: blur(0); }
+}
+
+@keyframes maUltRabbit {
+    0% { transform: translate(-50%, -50%) scale(.35); opacity: 0; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: .85; }
+}
+
+@keyframes maUltPalace {
+    0% { transform: translateX(-50%) translateY(100px) scale(.9); opacity: 0; }
+    100% { transform: translateX(-50%) translateY(0) scale(1); opacity: .9; }
+}
+
+@keyframes maUltCloudLeft {
+    0% { transform: translateX(-70px) scale(.75); opacity: 0; }
+    100% { transform: translateX(0) scale(1); opacity: .48; }
+}
+
+@keyframes maUltCloudRight {
+    0% { transform: translateX(70px) scale(.75); opacity: 0; }
+    100% { transform: translateX(0) scale(1); opacity: .48; }
+}
+
+@keyframes maUltLantern {
+    0% { transform: translate(-50%, -50%) scale(.2) translateY(20px); opacity: 0; }
+    100% { transform: translate(-50%, -50%) scale(var(--ma-uls)) translateY(0); opacity: .78; }
+}
+
+@keyframes maUltFlower {
+    0% { opacity: 0; scale: .3; }
+    24% { opacity: .95; }
+    100% { opacity: .25; scale: 1; }
+}
+
+@keyframes maUltStar {
+    0% { opacity: 0; transform: scale(.3); }
+    40% { opacity: 1; transform: scale(1.4); }
+    100% { opacity: .58; transform: scale(1); }
+}
+
+@keyframes maUltRune {
+    0% { opacity: 0; scale: .3; filter: blur(5px); }
+    40% { opacity: .95; filter: blur(0); }
+    100% { opacity: .62; scale: 1; filter: blur(0); }
+}
+
+@keyframes maUltRay {
+    0% { opacity: 0; transform: rotate(var(--ma-ray-a)) scaleY(.15); }
+    42% { opacity: .45; }
+    100% { opacity: .12; transform: rotate(var(--ma-ray-a)) scaleY(1); }
+}
+
+@keyframes maUltTitle {
+    0% { transform: translate(-50%, -50%) scale(.72); opacity: 0; filter: blur(8px); }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; filter: blur(0); }
+}
+
+/* ============================================================================
+   9. RESPONSIVE / REDUCED MOTION
+   ============================================================================ */
+
+@media (max-width: 768px), (pointer: coarse) {
+    .ma-ui-top {
+        width: 82vw;
+        top: 5px;
+        transform: translateX(-50%) scale(.88);
+        transform-origin: top center;
+    }
+
+    .ma-ui-side {
+        opacity: .52;
+    }
+
+    .ma-ui-bottom {
+        width: 76vw;
+        bottom: 5px;
+        font-size: 7px;
+    }
+
+    .ma-world-moon {
+        right: -4vw;
+        top: 7vh;
+        width: 190px;
+        opacity: .72;
+    }
+
+    .ma-world-palace {
+        width: 330px;
+        opacity: .08;
+    }
+
+    .midautumn-card-visual {
+        min-height: 360px;
+    }
+
+    .midautumn-card-details {
+        transform: translateY(calc(100% - 76px));
+    }
+
+    .midautumn-premium-card:focus-within .midautumn-card-details,
+    .midautumn-premium-card:hover .midautumn-card-details {
+        transform: translateY(0);
+    }
+
+    #virtual-pet-container.pet-midautumn-moon-palace-stage #virtual-pet-img.midautumn-moon-palace-pet {
+        width: 145px !important;
+    }
+
+    .midautumn-pet-realm {
+        width: 230px;
+        height: 230px;
+    }
+
+    .ma-pet-halo.halo-a { width: 184px; height: 184px; }
+    .ma-pet-halo.halo-b { width: 218px; height: 218px; }
+    .ma-pet-ring.ring-a { width: 154px; height: 154px; }
+    .ma-pet-ring.ring-b { width: 196px; height: 196px; }
+
+    .ma-ult-title {
+        top: 54%;
+    }
+
+    .ma-ult-palace {
+        width: 94vw;
+        height: 42vw;
+    }
+
+    .midautumn-dialogue {
+        bottom: 18px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .midautumn-world *,
+    .midautumn-ui-frame *,
+    .midautumn-pet-realm *,
+    .midautumn-premium-card *,
+    .midautumn-page-click *,
+    .midautumn-ultimate *,
+    .midautumn-dialogue * {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+}
+
+/* ============================================================================
+   10. CARD LAYOUT PATCH V3 — ĐỒNG BỘ BỐ CỤC TAMON'S B-SIDE
+   - Không đổi grid/kích thước card của Luxury Store.
+   - Info là panel bo góc riêng, không còn gradient phủ ngang nhân vật.
+   - Tag Trung Thu tăng nhẹ kích thước.
+   ============================================================================ */
+
+/* Giữ fix trước: không để dòng trang trí ở đáy màn hình nằm dưới card. */
+.midautumn-ui-frame .ma-ui-bottom {
+    display: none !important;
+}
+
+.midautumn-premium-card {
+    position: relative !important;
+    overflow: hidden !important;
+    isolation: isolate !important;
+}
+
+.midautumn-premium-card .midautumn-card-visual {
+    position: relative !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 390px !important;
+    overflow: hidden !important;
+    border-radius: inherit !important;
+}
+
+/* Tag lớn hơn một chút so với bản trước nhưng vẫn chừa khoảng thở ở mép card. */
+.midautumn-premium-card .midautumn-card-tag-shell {
+    top: 12px !important;
+    left: 12px !important;
+    width: 50% !important;
+    max-width: 180px !important;
+    z-index: 13 !important;
+    transform-origin: left top;
+}
+
+.midautumn-premium-card:hover .midautumn-card-tag-shell,
+.midautumn-premium-card:focus-within .midautumn-card-tag-shell {
+    transform: scale(1.035);
+}
+
+.midautumn-premium-card .midautumn-card-tag-art {
+    width: 100% !important;
+    height: auto !important;
+    object-fit: contain !important;
+}
+
+/* Nhân vật vẫn chiếm phần visual giống các card Premium khác. */
+.midautumn-premium-card .midautumn-card-character {
+    left: 50% !important;
+    bottom: 0 !important;
+    width: 96% !important;
+    height: 96% !important;
+    object-fit: contain !important;
+    object-position: center bottom !important;
+    transform: translateX(-50%) !important;
+}
+
+.midautumn-premium-card:hover .midautumn-card-character,
+.midautumn-premium-card:focus-within .midautumn-card-character {
+    transform: translateX(-50%) scale(1.02) translateY(-3px) !important;
+}
+
+/* Loại bỏ hoàn toàn layout details cũ nếu browser còn giữ DOM/cache cũ. */
+.midautumn-premium-card .midautumn-card-details,
+.midautumn-premium-card .midautumn-card-type {
+    display: none !important;
+}
+
+/*
+ * PANEL THÔNG TIN: cùng kiểu bố cục với Tamon B-Side trong Luxury Store.
+ * Panel có khoảng cách với mép card, bo góc riêng và chỉ trượt lên khi hover/focus.
+ */
+.midautumn-premium-card .midautumn-card-info {
+    position: absolute !important;
+    z-index: 30 !important;
+    left: 14px !important;
+    right: 14px !important;
+    bottom: 14px !important;
+    width: auto !important;
+    min-height: 0 !important;
+    padding: 16px 16px 15px !important;
+    margin: 0 !important;
+
+    display: block !important;
+    box-sizing: border-box !important;
+
+    color: #fff6df !important;
+    background:
+        radial-gradient(circle at 88% 4%, rgba(255, 226, 150, .11), transparent 34%),
+        linear-gradient(155deg, rgba(22, 25, 43, .96), rgba(16, 17, 31, .97)) !important;
+
+    border: 1px solid rgba(239, 200, 121, .34) !important;
+    border-radius: 20px 8px 20px 8px !important;
+    box-shadow:
+        0 18px 42px rgba(3, 7, 22, .48),
+        inset 0 1px 0 rgba(255, 244, 210, .08),
+        0 0 0 1px rgba(112, 197, 173, .05) !important;
+
+    backdrop-filter: blur(15px) saturate(1.08) !important;
+    -webkit-backdrop-filter: blur(15px) saturate(1.08) !important;
+
+    transform: translateY(calc(100% + 30px)) !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+
+    transition:
+        transform .38s cubic-bezier(.2,.82,.2,1),
+        opacity .28s ease,
+        visibility 0s linear .38s !important;
+}
+
+.midautumn-premium-card:hover .midautumn-card-info,
+.midautumn-premium-card:focus-within .midautumn-card-info {
+    transform: translateY(0) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    transition-delay: 0s !important;
+}
+
+.midautumn-premium-card .midautumn-card-label {
+    display: inline-flex !important;
+    align-items: center !important;
+    width: fit-content !important;
+    max-width: 100% !important;
+    margin: 0 0 8px !important;
+    padding: 5px 10px 5px !important;
+
+    color: #4b3829 !important;
+    background: linear-gradient(135deg, #fff0bf, #efc96f 58%, #dca64a) !important;
+    border: 1px solid rgba(255, 243, 207, .62) !important;
+    border-radius: 999px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .17) !important;
+
+    font-family: "Palatino Linotype", Georgia, serif !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    letter-spacing: .07em !important;
+    white-space: nowrap !important;
+}
+
+.midautumn-premium-card .midautumn-card-info h3 {
+    margin: 0 0 9px !important;
+    color: #fff7e2 !important;
+    font-family: Georgia, "Times New Roman", serif !important;
+    font-size: 20px !important;
+    line-height: 1.08 !important;
+    letter-spacing: .01em !important;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, .42) !important;
+}
+
+/* Lời giới thiệu ngắn ngay dưới tên vật phẩm. */
+.midautumn-premium-card .midautumn-card-intro {
+    margin: 0 0 10px !important;
+    color: rgba(255, 244, 220, .78) !important;
+    font-family: "Palatino Linotype", Georgia, serif !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    line-height: 1.42 !important;
+    letter-spacing: .005em !important;
+}
+
+.midautumn-premium-card .midautumn-card-price {
+    margin: 0 0 12px !important;
+    color: #f5d47f !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    line-height: 1.2 !important;
+}
+
+.midautumn-premium-card .midautumn-card-action {
+    width: 100% !important;
+    min-height: 44px !important;
+    margin: 0 !important;
+    border-radius: 13px 5px 13px 5px !important;
+    font-size: 12px !important;
+}
+
+@media (max-width: 768px), (pointer: coarse) {
+    .midautumn-premium-card .midautumn-card-visual {
+        min-height: 360px !important;
+    }
+
+    .midautumn-premium-card .midautumn-card-tag-shell {
+        width: 52% !important;
+        max-width: 168px !important;
+    }
+
+    .midautumn-premium-card .midautumn-card-info {
+        left: 10px !important;
+        right: 10px !important;
+        bottom: 10px !important;
+        padding: 13px 13px 12px !important;
+    }
+
+    .midautumn-premium-card .midautumn-card-info h3 {
+        font-size: 18px !important;
+    }
+
+    .midautumn-premium-card .midautumn-card-intro {
+        font-size: 11px !important;
+        line-height: 1.38 !important;
+        margin-bottom: 9px !important;
+    }
+}
+

@@ -101,6 +101,21 @@ class EffectManager {
     static get container() {
         return document.getElementById('global-effect-container');
     }
+
+
+    // EFFECT QUALITY MANAGER v1.2.0
+    // Giảm số lượng hạt ngay từ lúc tạo; khi tắt/Cao thì giữ nguyên 100%.
+    static getQualityCount(baseCount, minimum = 1) {
+        const base = Math.max(0, Number(baseCount) || 0);
+        try {
+            const manager = window.EffectQualityManager;
+            if (manager && typeof manager.getRecommendedCount === 'function') {
+                const next = manager.getRecommendedCount(base);
+                return base > 0 ? Math.max(minimum, next) : 0;
+            }
+        } catch (_) {}
+        return Math.ceil(base);
+    }
     static currentInterval = null;
     static shootingStarInterval = null;
 
@@ -118,6 +133,27 @@ class EffectManager {
 
     static clearEffects(removeSavedEffect = false) {
         this.stopIntervals();
+
+        /*
+         * CẦM MỘNG · VẠN CẦM LƯU QUANG
+         * Root của effect này được mount thẳng vào <body> để thoát
+         * stacking-context của #global-effect-container và luôn nhìn
+         * thấy khi kết hợp với Thanh Huyền Cầm Mộng Tiên Các.
+         *
+         * Chỉ dọn namespace cmefx1-* của effect mới.
+         * Không thay đổi DOM / interval / class của effect khác.
+         */
+        document
+            .querySelectorAll(
+                '.cmefx1-wan-qin-radiance[data-cmefx1-portal="1"]'
+            )
+            .forEach(node => {
+                node.classList.add('is-leaving');
+
+                window.setTimeout(() => {
+                    node.remove();
+                }, 260);
+            });
 
         if (this.container) {
             const children = Array.from(
@@ -228,6 +264,11 @@ class EffectManager {
                 break;
             case 'effect_tamon_bside_spectrum_break':
                 this.createTamonBsideSpectrumBreakEffect();
+                break;
+
+            // CẦM MỘNG · THANH HUYỀN VẠN CẦM LƯU QUANG
+            case 'effect_cam_mong_van_cam_luu_quang':
+                this.createCamMongWanQinRadianceEffect();
                 break;
         }
         localStorage.setItem('active_effect', effectId);
@@ -887,7 +928,7 @@ class EffectManager {
             const isDarkWorld = document.querySelector('.nyx-dark-world') !== null;
 
             // Nếu đang trong màn đêm, số lượng sao băng rơi đồng thời TĂNG LÊN 3 CÁI!
-            const spawnCount = isDarkWorld ? 3 : 1;
+            const spawnCount = this.getQualityCount(isDarkWorld ? 3 : 1);
 
             for (let k = 0; k < spawnCount; k++) {
                 const star = document.createElement('div');
@@ -1272,7 +1313,7 @@ class EffectManager {
          * Rải một lượng phần tử vừa phải ngay khi kích hoạt.
          */
         const initialDoodleCount =
-            IS_MOBILE_EFFECT ? 8 : 15;
+            this.getQualityCount(IS_MOBILE_EFFECT ? 8 : 15);
 
         for (
             let index = 0;
@@ -1541,7 +1582,7 @@ class EffectManager {
 
         // Tạo sẵn màu khi vừa trang bị
         const initialBloomCount =
-            IS_MOBILE_EFFECT ? 7 : 13;
+            this.getQualityCount(IS_MOBILE_EFFECT ? 7 : 13);
 
         for (
             let index = 0;
@@ -1862,7 +1903,7 @@ class EffectManager {
             );
 
         const chainCount =
-            IS_MOBILE_EFFECT ? 4 : 7;
+            this.getQualityCount(IS_MOBILE_EFFECT ? 4 : 7);
 
         for (
             let index = 0;
@@ -1911,7 +1952,7 @@ class EffectManager {
             );
 
         const clockCount =
-            IS_MOBILE_EFFECT ? 7 : 14;
+            this.getQualityCount(IS_MOBILE_EFFECT ? 7 : 14);
 
         for (
             let index = 0;
@@ -1964,7 +2005,7 @@ class EffectManager {
             );
 
         const threadCount =
-            IS_MOBILE_EFFECT ? 7 : 13;
+            this.getQualityCount(IS_MOBILE_EFFECT ? 7 : 13);
 
         for (
             let index = 0;
@@ -2016,7 +2057,7 @@ class EffectManager {
             );
 
         const moteCount =
-            IS_MOBILE_EFFECT ? 13 : 27;
+            this.getQualityCount(IS_MOBILE_EFFECT ? 13 : 27);
 
         for (
             let index = 0;
@@ -2078,7 +2119,7 @@ class EffectManager {
             );
 
         const shardCount =
-            IS_MOBILE_EFFECT ? 5 : 10;
+            this.getQualityCount(IS_MOBILE_EFFECT ? 5 : 10);
 
         for (
             let index = 0;
@@ -2199,7 +2240,7 @@ class EffectManager {
          * Không chạy interval liên tục nên nhẹ hơn.
          */
         const moteCount =
-            IS_MOBILE_EFFECT ? 14 : 30;
+            this.getQualityCount(IS_MOBILE_EFFECT ? 14 : 30);
 
         for (let index = 0; index < moteCount; index++) {
             const mote = document.createElement('span');
@@ -2326,7 +2367,7 @@ class EffectManager {
         ];
 
         const moonCount =
-            IS_MOBILE_EFFECT ? 5 : 9;
+            this.getQualityCount(IS_MOBILE_EFFECT ? 5 : 9);
 
         for (
             let index = 0;
@@ -2393,7 +2434,7 @@ class EffectManager {
             );
 
         const dustCount =
-            IS_MOBILE_EFFECT ? 20 : 44;
+            this.getQualityCount(IS_MOBILE_EFFECT ? 20 : 44);
 
         for (
             let index = 0;
@@ -2550,7 +2591,7 @@ class EffectManager {
          * Không dùng setInterval nên nhẹ hơn.
          */
         const moteCount =
-            IS_MOBILE_EFFECT ? 8 : 16;
+            this.getQualityCount(IS_MOBILE_EFFECT ? 8 : 16);
 
         const moteKinds = [
             'gold',
@@ -2694,7 +2735,7 @@ class EffectManager {
          * Chỉ tạo một lần, không sinh liên tục.
          */
         const beadCount =
-            IS_MOBILE_EFFECT ? 8 : 16;
+            this.getQualityCount(IS_MOBILE_EFFECT ? 8 : 16);
 
         for (
             let index = 0;
@@ -2867,7 +2908,7 @@ class EffectManager {
                 tick++;
 
                 const streakCount =
-                    IS_MOBILE_EFFECT ? 2 : 4;
+                    this.getQualityCount(IS_MOBILE_EFFECT ? 2 : 4);
 
                 for (
                     let index = 0;
@@ -2934,9 +2975,9 @@ class EffectManager {
             '.sv-ambient-glyph-field'
         );
 
-        const beadCount = IS_MOBILE_EFFECT ? 22 : 42;
-        const budCount = IS_MOBILE_EFFECT ? 10 : 20;
-        const glyphCount = IS_MOBILE_EFFECT ? 7 : 12;
+        const beadCount = this.getQualityCount(IS_MOBILE_EFFECT ? 22 : 42);
+        const budCount = this.getQualityCount(IS_MOBILE_EFFECT ? 10 : 20);
+        const glyphCount = this.getQualityCount(IS_MOBILE_EFFECT ? 7 : 12);
 
         for (let index = 0; index < beadCount; index++) {
             const bead = document.createElement('span');
@@ -3128,7 +3169,7 @@ class EffectManager {
             grapeField?.appendChild(cluster);
         });
 
-        const ribbonCount = IS_MOBILE_EFFECT ? 5 : 8;
+        const ribbonCount = this.getQualityCount(IS_MOBILE_EFFECT ? 5 : 8);
 
         for (let index = 0; index < ribbonCount; index++) {
             const ribbon = document.createElement('span');
@@ -3148,7 +3189,7 @@ class EffectManager {
             ribbonField?.appendChild(ribbon);
         }
 
-        const sparkCount = IS_MOBILE_EFFECT ? 30 : 58;
+        const sparkCount = this.getQualityCount(IS_MOBILE_EFFECT ? 30 : 58);
 
         for (let index = 0; index < sparkCount; index++) {
             const spark = document.createElement('span');
@@ -3281,14 +3322,14 @@ class EffectManager {
             );
 
         const starCount =
-            IS_MOBILE_EFFECT
+            this.getQualityCount(IS_MOBILE_EFFECT
                 ? 15
-                : 30;
+                : 30);
 
         const sparkCount =
-            IS_MOBILE_EFFECT
+            this.getQualityCount(IS_MOBILE_EFFECT
                 ? 20
-                : 44;
+                : 44);
 
         /* =========================
            SAO VÀNG
@@ -3457,7 +3498,7 @@ class EffectManager {
 
         const eqBanks = field.querySelectorAll('.tbfx1-eq-bank');
         eqBanks.forEach((bank, bankIndex) => {
-            const barCount = compact ? 7 : 12;
+            const barCount = this.getQualityCount(compact ? 7 : 12);
 
             for (let index = 0; index < barCount; index++) {
                 const bar = document.createElement('i');
@@ -3474,7 +3515,7 @@ class EffectManager {
         });
 
         const shardField = field.querySelector('.tbfx1-shard-field');
-        const shardCount = compact ? 14 : 32;
+        const shardCount = this.getQualityCount(compact ? 14 : 32);
 
         for (let index = 0; index < shardCount; index++) {
             const shard = document.createElement('span');
@@ -3508,7 +3549,7 @@ class EffectManager {
         }
 
         const dustField = field.querySelector('.tbfx1-signal-dust');
-        const dustCount = compact ? 18 : 46;
+        const dustCount = this.getQualityCount(compact ? 18 : 46);
 
         for (let index = 0; index < dustCount; index++) {
             const mote = document.createElement('span');
@@ -3573,6 +3614,411 @@ class EffectManager {
         }, compact ? 1150 : 620);
 
         return field;
+    }
+
+    // =========================================================
+    // CẦM MỘNG · THANH HUYỀN VẠN CẦM LƯU QUANG
+    // Effect toàn web hoàn toàn mới.
+    // Namespace: cmefx1-*
+    //
+    // Không gọi / tái sử dụng method của bất kỳ effect cũ nào.
+    // Không đổi theme, không đổi pet, không đổi giao diện.
+    // Root effect mount trực tiếp vào body để không bị stacking-context
+    // của theme Cầm Mộng che. clearEffects() chỉ dọn đúng root cmefx1-* này.
+    // =========================================================
+    static createCamMongWanQinRadianceEffect() {
+        this.stopIntervals();
+
+        if (!this.container) {
+            return;
+        }
+
+        const root =
+            document.createElement('div');
+
+        root.className =
+            'cmefx1-wan-qin-radiance ui-theme-immune';
+
+        root.dataset.themeImmune =
+            'true';
+
+        root.setAttribute(
+            'aria-hidden',
+            'true'
+        );
+
+        root.innerHTML = `
+            <div class="cmefx1-ink-wash"></div>
+
+            <div class="cmefx1-radiance-beam beam-a"></div>
+            <div class="cmefx1-radiance-beam beam-b"></div>
+            <div class="cmefx1-radiance-beam beam-c"></div>
+
+            <div class="cmefx1-screen-halo halo-a"></div>
+            <div class="cmefx1-screen-halo halo-b"></div>
+
+            <div class="cmefx1-moon-gate">
+                <span class="cmefx1-moon-core"></span>
+                <span class="cmefx1-moon-ring ring-a"></span>
+                <span class="cmefx1-moon-ring ring-b"></span>
+                <b>琴</b>
+                <em>梦</em>
+            </div>
+
+            <div class="cmefx1-mountain mountain-a"></div>
+            <div class="cmefx1-mountain mountain-b"></div>
+
+            <div class="cmefx1-cloud cloud-a"></div>
+            <div class="cmefx1-cloud cloud-b"></div>
+            <div class="cmefx1-cloud cloud-c"></div>
+            <div class="cmefx1-cloud cloud-d"></div>
+
+            <div class="cmefx1-silk silk-a"></div>
+            <div class="cmefx1-silk silk-b"></div>
+            <div class="cmefx1-silk silk-c"></div>
+
+            <div class="cmefx1-qin-vault"></div>
+            <div class="cmefx1-lantern-field"></div>
+            <div class="cmefx1-petal-field"></div>
+            <div class="cmefx1-note-field"></div>
+            <div class="cmefx1-seal-field"></div>
+            <div class="cmefx1-star-field"></div>
+            <div class="cmefx1-foreground-glints"></div>
+
+            <div class="cmefx1-water-ripple ripple-a"></div>
+            <div class="cmefx1-water-ripple ripple-b"></div>
+            <div class="cmefx1-water-ripple ripple-c"></div>
+
+            <div class="cmefx1-edge-ornament edge-left">
+                <i></i><i></i><b>弦</b>
+            </div>
+
+            <div class="cmefx1-edge-ornament edge-right">
+                <i></i><i></i><b>梦</b>
+            </div>
+
+            <div class="cmefx1-title-seal">
+                <small>清弦入梦 · 万籁流光</small>
+                <strong>VẠN CẦM LƯU QUANG</strong>
+            </div>
+        `;
+
+        const qinVault =
+            root.querySelector(
+                '.cmefx1-qin-vault'
+            );
+
+        const stringCount =
+            this.getQualityCount(IS_MOBILE_EFFECT ? 11 : 19);
+
+        for (
+            let index = 0;
+            index < stringCount;
+            index++
+        ) {
+            const string =
+                document.createElement('i');
+
+            string.style.setProperty(
+                '--cmefx1-q-delay',
+                `${-index * .13}s`
+            );
+
+            string.style.setProperty(
+                '--cmefx1-q-scale',
+                `${.72 + (index % 4) * .10}`
+            );
+
+            qinVault?.appendChild(
+                string
+            );
+        }
+
+        const lanternField =
+            root.querySelector(
+                '.cmefx1-lantern-field'
+            );
+
+        const lanternCount =
+            this.getQualityCount(IS_MOBILE_EFFECT ? 5 : 10);
+
+        for (
+            let index = 0;
+            index < lanternCount;
+            index++
+        ) {
+            const lantern =
+                document.createElement('i');
+
+            lantern.innerHTML =
+                '<b></b><span></span>';
+
+            lantern.style.setProperty(
+                '--cmefx1-lx',
+                `${6 + ((index * 79) % 88)}%`
+            );
+
+            lantern.style.setProperty(
+                '--cmefx1-ly',
+                `${8 + ((index * 43) % 61)}%`
+            );
+
+            lantern.style.setProperty(
+                '--cmefx1-ld',
+                `${-index * .64}s`
+            );
+
+            lantern.style.setProperty(
+                '--cmefx1-ls',
+                `${.72 + (index % 4) * .12}`
+            );
+
+            lanternField?.appendChild(
+                lantern
+            );
+        }
+
+        const petalField =
+            root.querySelector(
+                '.cmefx1-petal-field'
+            );
+
+        const petalCount =
+            this.getQualityCount(IS_MOBILE_EFFECT ? 30 : 72);
+
+        for (
+            let index = 0;
+            index < petalCount;
+            index++
+        ) {
+            const petal =
+                document.createElement('i');
+
+            petal.style.setProperty(
+                '--cmefx1-px',
+                `${(index * 37 + 5) % 98}%`
+            );
+
+            petal.style.setProperty(
+                '--cmefx1-ps',
+                `${6 + (index % 6) * 1.35}px`
+            );
+
+            petal.style.setProperty(
+                '--cmefx1-pd',
+                `${-(index % 15) * .47}s`
+            );
+
+            petal.style.setProperty(
+                '--cmefx1-pdrift',
+                `${-54 + (index % 11) * 11}px`
+            );
+
+            petal.style.setProperty(
+                '--cmefx1-prot',
+                `${(index * 43) % 180}deg`
+            );
+
+            petalField?.appendChild(
+                petal
+            );
+        }
+
+        const noteField =
+            root.querySelector(
+                '.cmefx1-note-field'
+            );
+
+        const noteSymbols = [
+            '♪', '♫', '✦', '琴', '梦', '弦',
+            '❀', '云', '月', '音', '灵', '✧'
+        ];
+
+        const noteCount =
+            this.getQualityCount(IS_MOBILE_EFFECT ? 18 : 38);
+
+        for (
+            let index = 0;
+            index < noteCount;
+            index++
+        ) {
+            const note =
+                document.createElement('i');
+
+            note.textContent =
+                noteSymbols[
+                    index %
+                    noteSymbols.length
+                ];
+
+            note.style.setProperty(
+                '--cmefx1-nx',
+                `${5 + ((index * 61) % 90)}%`
+            );
+
+            note.style.setProperty(
+                '--cmefx1-ny',
+                `${12 + ((index * 47) % 75)}%`
+            );
+
+            note.style.setProperty(
+                '--cmefx1-nd',
+                `${-(index % 10) * .52}s`
+            );
+
+            note.style.setProperty(
+                '--cmefx1-ns',
+                `${.74 + (index % 4) * .13}`
+            );
+
+            noteField?.appendChild(
+                note
+            );
+        }
+
+        const sealField =
+            root.querySelector(
+                '.cmefx1-seal-field'
+            );
+
+        const seals = [
+            '琴', '梦', '玄', '音',
+            '云', '月', '灵', '弦',
+            '心', '花', '仙', '境'
+        ];
+
+        seals.forEach(
+            (symbol, index) => {
+                const seal =
+                    document.createElement('i');
+
+                seal.textContent =
+                    symbol;
+
+                seal.style.setProperty(
+                    '--cmefx1-sa',
+                    `${index * 30}deg`
+                );
+
+                seal.style.setProperty(
+                    '--cmefx1-sa-back',
+                    `${index * -30}deg`
+                );
+
+                seal.style.setProperty(
+                    '--cmefx1-sr-neg',
+                    `${-(150 + (index % 4) * 26)}px`
+                );
+
+                seal.style.setProperty(
+                    '--cmefx1-sd',
+                    `${-index * .18}s`
+                );
+
+                sealField?.appendChild(
+                    seal
+                );
+            }
+        );
+
+        const starField =
+            root.querySelector(
+                '.cmefx1-star-field'
+            );
+
+        const starCount =
+            this.getQualityCount(IS_MOBILE_EFFECT ? 38 : 86);
+
+        for (
+            let index = 0;
+            index < starCount;
+            index++
+        ) {
+            const star =
+                document.createElement('i');
+
+            star.style.setProperty(
+                '--cmefx1-sx',
+                `${2 + ((index * 53) % 96)}%`
+            );
+
+            star.style.setProperty(
+                '--cmefx1-sy',
+                `${3 + ((index * 71) % 92)}%`
+            );
+
+            star.style.setProperty(
+                '--cmefx1-ss',
+                `${2 + (index % 5) * .9}px`
+            );
+
+            star.style.setProperty(
+                '--cmefx1-std',
+                `${-(index % 13) * .24}s`
+            );
+
+            starField?.appendChild(
+                star
+            );
+        }
+
+        const glintField =
+            root.querySelector(
+                '.cmefx1-foreground-glints'
+            );
+
+        const glintCount =
+            this.getQualityCount(IS_MOBILE_EFFECT ? 14 : 32);
+
+        for (
+            let index = 0;
+            index < glintCount;
+            index++
+        ) {
+            const glint =
+                document.createElement('i');
+
+            glint.style.setProperty(
+                '--cmefx1-gx',
+                `${3 + ((index * 67) % 94)}%`
+            );
+
+            glint.style.setProperty(
+                '--cmefx1-gy',
+                `${5 + ((index * 41) % 88)}%`
+            );
+
+            glint.style.setProperty(
+                '--cmefx1-gd',
+                `${-(index % 12) * .31}s`
+            );
+
+            glint.style.setProperty(
+                '--cmefx1-grot',
+                `${(index * 29) % 180}deg`
+            );
+
+            glintField?.appendChild(
+                glint
+            );
+        }
+
+        /*
+         * MOUNT PORTAL TRỰC TIẾP VÀO BODY.
+         * Không đặt trong #global-effect-container để tránh parent
+         * stacking-context nằm dưới cmtheme1-court-decor.
+         */
+        root.dataset.cmefx1Portal = '1';
+
+        document.body.appendChild(
+            root
+        );
+
+        requestAnimationFrame(() => {
+            root.classList.add(
+                'is-active'
+            );
+        });
     }
 
     static createNyxMoonTideEffect() {

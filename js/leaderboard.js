@@ -448,6 +448,13 @@ function initLeaderboardSystem() {
                             </li>
 
                             <li>
+                                <strong>Làm lại bài:</strong>
+                                chỉ cho phép sửa/nộp lại phần giáo viên đã mở;
+                                vi phạm của lần nộp trước vẫn được giữ trên BXH
+                                cho đến khi giáo viên chủ động bấm Tha lỗi.
+                            </li>
+
+                            <li>
                                 <strong>Chưa hoàn thành video:</strong>
                                 không được mở khóa bài tập tương ứng.
                             </li>
@@ -1260,6 +1267,40 @@ function isLeaderboardPeriodMatch(
 }
 
 
+// ======================================================
+// LỊCH SỬ VI PHẠM SAU KHI LÀM LẠI
+// Làm lại chỉ sửa bài; không tự xóa lỗi thi đua đã phát sinh.
+// ======================================================
+function getLeaderboardRedoViolationHistory(submission) {
+    const raw =
+        submission &&
+        typeof submission.redoViolationHistory === 'object' &&
+        submission.redoViolationHistory !== null
+            ? submission.redoViolationHistory
+            : {};
+
+    return {
+        essayMissing: !!raw.essayMissing,
+        late: !!raw.late,
+        autoSubmitted: !!raw.autoSubmitted,
+        cheat: !!raw.cheat
+    };
+}
+
+function hasLeaderboardHistoricalViolation(submission) {
+    const history =
+        getLeaderboardRedoViolationHistory(
+            submission
+        );
+
+    return !!(
+        history.essayMissing ||
+        history.late ||
+        history.autoSubmitted ||
+        history.cheat
+    );
+}
+
 /*
  * Hàm tính BXH dùng chung cho:
  * - tháng hiện tại;
@@ -1378,16 +1419,6 @@ function buildLeaderboardDataForPeriod({
                     return;
                 }
 
-                if (
-                    submission.grade === null ||
-                    submission.grade ===
-                        undefined ||
-                    submission.grade === '' ||
-                    submission.isRegrading
-                ) {
-                    return;
-                }
-
                 const isLate =
                     submission.isLateFail ||
                     submission.isAutoSubmitted;
@@ -1398,21 +1429,41 @@ function buildLeaderboardDataForPeriod({
                 const isMissingEssay =
                     submission.isEssayMissing;
 
-                if (!submission.forcePass) {
-                    if (
-                        isLate ||
-                        isCheat ||
-                        isMissingEssay
-                    ) {
-                        violationCount++;
-                    }
+                const hasHistoricalViolation =
+                    hasLeaderboardHistoricalViolation(
+                        submission
+                    );
 
-                    if (
-                        isLate ||
-                        isCheat
-                    ) {
-                        return;
-                    }
+                // Vi phạm được tính độc lập với điểm/forcePass và cả trạng thái đang làm lại.
+                // Vì requestRedo đặt grade = null, phải đếm lịch sử vi phạm TRƯỚC khi bỏ qua bài chưa chấm.
+                // Chỉ nút "Tha lỗi" mới xóa các cờ vi phạm và lịch sử vi phạm.
+                if (
+                    isLate ||
+                    isCheat ||
+                    isMissingEssay ||
+                    hasHistoricalViolation
+                ) {
+                    violationCount++;
+                }
+
+                if (
+                    submission.grade === null ||
+                    submission.grade ===
+                        undefined ||
+                    submission.grade === '' ||
+                    submission.isRegrading
+                ) {
+                    return;
+                }
+
+                // Lỗi nộp trễ / gian lận ở BÀI HIỆN TẠI vẫn loại điểm như cũ.
+                // Lỗi lịch sử từ lần nộp trước chỉ giữ số lần vi phạm,
+                // không làm mất điểm của bài làm lại đã hợp lệ.
+                if (
+                    !submission.forcePass &&
+                    (isLate || isCheat)
+                ) {
+                    return;
                 }
 
                 const score =
