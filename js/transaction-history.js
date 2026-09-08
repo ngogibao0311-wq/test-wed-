@@ -7,6 +7,10 @@
 
     const LOG_PAGE_SIZE = 5;
 
+    // Firebase đọc theo batch lớn hơn UI để giảm số request.
+    // UI vẫn chỉ mở thêm 5 giao dịch mỗi lần như trước.
+    const FIREBASE_LOG_BATCH_SIZE = 50;
+
     const state = {
         logs: [],
         loadingStudents: false,
@@ -16,7 +20,13 @@
             LOG_PAGE_SIZE,
 
         lastLogFilterKey:
-            ''
+            '',
+
+        // Cursor phân trang Firebase cho nhật ký giáo viên.
+        firebaseCursor: null,
+        firebaseHasMore: true,
+        loadingLogs: false,
+        logMonthStart: 0
     };
 
     const user = () => {
@@ -1412,6 +1422,333 @@
         return removedCount;
     }
 
+    function getTeacherLogFilterState() {
+        return {
+            keyword:
+                String(
+                    document.getElementById(
+                        'transactionSearch'
+                    )?.value || ''
+                )
+                    .trim()
+                    .toLowerCase(),
+
+            type:
+                document.getElementById(
+                    'transactionTypeFilter'
+                )?.value ||
+                'all',
+
+            status:
+                document.getElementById(
+                    'transactionStatusFilter'
+                )?.value ||
+                'all'
+        };
+    }
+
+    function getFilteredTeacherLogs() {
+        const filters =
+            getTeacherLogFilterState();
+
+        return state.logs.filter(log => {
+            if (
+                filters.type !== 'all' &&
+                log.type !== filters.type
+            ) {
+                return false;
+            }
+
+            if (
+                filters.status !== 'all' &&
+                log.status !== filters.status
+            ) {
+                return false;
+            }
+
+            if (!filters.keyword) {
+                return true;
+            }
+
+            return [
+                log.summary,
+                log.targetUsername,
+                log.targetName,
+                log.actor?.name,
+                log.actor?.username,
+                log.source,
+                typeName(log.type)
+            ]
+                .join(' ')
+                .toLowerCase()
+                .includes(
+                    filters.keyword
+                );
+        });
+    }
+
+    function sortTeacherLogs(logs) {
+        return logs.sort((a, b) => {
+            const timeDiff =
+                Number(
+                    b.createdAtClient ||
+                    b.createdAt ||
+                    0
+                ) -
+                Number(
+                    a.createdAtClient ||
+                    a.createdAt ||
+                    0
+                );
+
+            if (timeDiff !== 0) {
+                return timeDiff;
+            }
+
+            // Firebase orderByChild dùng key làm tie-breaker.
+            // Danh sách đang hiển thị mới -> cũ nên đảo key khi cùng timestamp.
+            return String(
+                b.firebaseKey ||
+                b.id ||
+                ''
+            ).localeCompare(
+                String(
+                    a.firebaseKey ||
+                    a.id ||
+                    ''
+                )
+            );
+        });
+    }
+
+    function teacherLogFromSnapshotChild(
+        child
+    ) {
+        const logData =
+            child.val() || {};
+
+        return {
+            ...logData,
+
+            // Key Firebase luôn là ID chuẩn của log.
+            id:
+                child.key,
+
+            firebaseKey:
+                child.key
+        };
+    }
+
+    function getTeacherLogCursorValue(log) {
+        return Number(
+            log?.createdAtClient
+        );
+    }
+
+    async function fetchTeacherLogBatch({
+        reset = false
+    } = {}) {
+        if (reset) {
+            state.logs = [];
+            state.firebaseCursor = null;
+            state.firebaseHasMore = true;
+            state.logMonthStart =
+                getCurrentMonthStartTimestamp();
+        }
+
+        if (!state.firebaseHasMore) {
+            return 0;
+        }
+
+        if (!state.logMonthStart) {
+            state.logMonthStart =
+                getCurrentMonthStartTimestamp();
+        }
+
+        let query =
+            db
+                .ref(ROOT)
+                .orderByChild(
+                    'createdAtClient'
+                )
+                .startAt(
+                    state.logMonthStart
+                );
+
+        if (state.firebaseCursor) {
+            query = query.endAt(
+                state.firebaseCursor.value,
+                state.firebaseCursor.key
+            );
+        }
+
+        /*
+         * +2 để có:
+         * - 1 bản ghi cursor inclusive của Firebase;
+         * - 1 bản ghi sentinel xác định còn trang cũ hơn hay không.
+         */
+        const snap =
+            await query
+                .limitToLast(
+                    FIREBASE_LOG_BATCH_SIZE +
+                    2
+                )
+                .once('value');
+
+        let batch = [];
+
+        snap.forEach(child => {
+            batch.push(
+                teacherLogFromSnapshotChild(
+                    child
+                )
+            );
+        });
+
+        if (state.firebaseCursor) {
+            batch = batch.filter(log =>
+                !(
+                    log.firebaseKey ===
+                        state.firebaseCursor.key &&
+                    getTeacherLogCursorValue(
+                        log
+                    ) ===
+                        state.firebaseCursor.value
+                )
+            );
+        }
+
+        /*
+         * Snapshot trả thứ tự cũ -> mới.
+         * Nếu nhiều hơn 50, phần dư ở đầu chỉ là sentinel;
+         * không bỏ mất dữ liệu vì trang kế tiếp sẽ endAt(cursor mới).
+         */
+        const hasOlder =
+            batch.length >
+            FIREBASE_LOG_BATCH_SIZE;
+
+        if (hasOlder) {
+            batch = batch.slice(
+                -FIREBASE_LOG_BATCH_SIZE
+            );
+        }
+
+        state.firebaseHasMore =
+            hasOlder;
+
+        if (!batch.length) {
+            state.firebaseCursor = null;
+            return 0;
+        }
+
+        const oldest =
+            batch[0];
+
+        const oldestCursorValue =
+            getTeacherLogCursorValue(
+                oldest
+            );
+
+        if (
+            Number.isFinite(
+                oldestCursorValue
+            )
+        ) {
+            state.firebaseCursor = {
+                value:
+                    oldestCursorValue,
+
+                key:
+                    oldest.firebaseKey
+            };
+        } else {
+            // Dữ liệu thiếu createdAtClient không thể làm cursor ổn định.
+            state.firebaseHasMore = false;
+            state.firebaseCursor = null;
+        }
+
+        const byId = new Map(
+            state.logs.map(log => [
+                log.firebaseKey || log.id,
+                log
+            ])
+        );
+
+        batch.forEach(log => {
+            byId.set(
+                log.firebaseKey || log.id,
+                log
+            );
+        });
+
+        state.logs =
+            sortTeacherLogs(
+                [...byId.values()]
+            );
+
+        return batch.length;
+    }
+
+    function renderTeacherLogLoadMoreButton(
+        remainingCount
+    ) {
+        const shouldShow =
+            remainingCount > 0 ||
+            state.firebaseHasMore;
+
+        if (!shouldShow) {
+            return '';
+        }
+
+        const label =
+            state.loadingLogs
+                ? '⏳ Đang tải giao dịch cũ hơn...'
+                : remainingCount > 0
+                    ? `📥 Tải thêm (${Math.min(
+                        LOG_PAGE_SIZE,
+                        remainingCount
+                    )} giao dịch)`
+                    : '📥 Tải thêm giao dịch cũ hơn';
+
+        return `
+        <button
+            type="button"
+            onclick="
+                TransactionHistory
+                    .loadMoreTeacherLogs()
+            "
+            ${state.loadingLogs
+                ? 'disabled'
+                : ''
+            }
+            style="
+                width:100%;
+                margin-top:12px;
+                padding:12px;
+                border:0;
+                border-radius:10px;
+                background:linear-gradient(
+                    135deg,
+                    #4f46e5,
+                    #7c3aed
+                );
+                color:#fff;
+                font-weight:700;
+                cursor:${state.loadingLogs
+                    ? 'wait'
+                    : 'pointer'
+                };
+                opacity:${state.loadingLogs
+                    ? '.72'
+                    : '1'
+                };
+            "
+        >
+            ${label}
+        </button>
+      `;
+    }
+
     function renderTeacherLogs() {
         const box =
             document.getElementById(
@@ -1422,66 +1759,17 @@
             return;
         }
 
-        const keyword =
-            String(
-                document.getElementById(
-                    'transactionSearch'
-                )?.value || ''
-            )
-                .trim()
-                .toLowerCase();
-
-        const type =
-            document.getElementById(
-                'transactionTypeFilter'
-            )?.value ||
-            'all';
-
-        const status =
-            document.getElementById(
-                'transactionStatusFilter'
-            )?.value ||
-            'all';
+        const filters =
+            getTeacherLogFilterState();
 
         const logs =
-            state.logs.filter(log => {
-                if (
-                    type !== 'all' &&
-                    log.type !== type
-                ) {
-                    return false;
-                }
-
-                if (
-                    status !== 'all' &&
-                    log.status !== status
-                ) {
-                    return false;
-                }
-
-                if (!keyword) {
-                    return true;
-                }
-
-                return [
-                    log.summary,
-                    log.targetUsername,
-                    log.targetName,
-                    log.actor?.name,
-                    log.actor?.username,
-                    log.source,
-                    typeName(log.type)
-                ]
-                    .join(' ')
-                    .toLowerCase()
-                    .includes(keyword);
-            });
+            getFilteredTeacherLogs();
 
         const filterKey =
             JSON.stringify([
-                keyword,
-                type,
-                status
+                filters.keyword,
+                filters.type,
+                filters.status
             ]);
 
         /*
@@ -1519,8 +1807,12 @@
           color:#64748b;
           padding:20px;
         ">
-          Chưa có giao dịch phù hợp.
+          ${state.firebaseHasMore
+                ? 'Chưa có giao dịch phù hợp trong dữ liệu đã tải.'
+                : 'Chưa có giao dịch phù hợp.'
+            }
         </p>
+        ${renderTeacherLogLoadMoreButton(0)}
       `;
 
             return;
@@ -1696,37 +1988,11 @@
         `;
             }).join('') +
             (
-                remainingCount > 0
-                    ? `
-        <button
-            type="button"
-            onclick="
-                TransactionHistory
-                    .loadMoreTeacherLogs()
-            "
-            style="
-                width:100%;
-                margin-top:12px;
-                padding:12px;
-                border:0;
-                border-radius:10px;
-                background:linear-gradient(
-                    135deg,
-                    #4f46e5,
-                    #7c3aed
-                );
-                color:#fff;
-                font-weight:700;
-                cursor:pointer;
-            "
-        >
-            📥 Tải thêm
-            (${Math.min(
-                        LOG_PAGE_SIZE,
+                remainingCount > 0 ||
+                state.firebaseHasMore
+                    ? renderTeacherLogLoadMoreButton(
                         remainingCount
-                    )} giao dịch)
-        </button>
-      `
+                    )
                     : `
         <p style="
             text-align:center;
@@ -1734,19 +2000,71 @@
             margin:14px 0 0;
             font-size:.9em;
         ">
-            Đã hiển thị
-            ${visibleLogs.length}/${logs.length}
-            giao dịch.
+            Đã hiển thị toàn bộ
+            ${visibleLogs.length}
+            giao dịch phù hợp của tháng này.
         </p>
       `
             );
     }
 
-    function loadMoreTeacherLogs() {
-        state.visibleLogCount +=
-            LOG_PAGE_SIZE;
+    async function loadMoreTeacherLogs() {
+        if (state.loadingLogs) {
+            return;
+        }
 
+        const filteredBefore =
+            getFilteredTeacherLogs();
+
+        const actuallyVisibleBefore =
+            Math.min(
+                state.visibleLogCount,
+                filteredBefore.length
+            );
+
+        // Còn dữ liệu phù hợp đã có trong RAM -> chỉ mở thêm 5 dòng.
+        if (
+            state.visibleLogCount <
+            filteredBefore.length
+        ) {
+            state.visibleLogCount =
+                actuallyVisibleBefore +
+                LOG_PAGE_SIZE;
+
+            renderTeacherLogs();
+            return;
+        }
+
+        // Chỉ chạm Firebase khi 50-log batch hiện tại đã dùng hết.
+        if (!state.firebaseHasMore) {
+            renderTeacherLogs();
+            return;
+        }
+
+        state.loadingLogs = true;
         renderTeacherLogs();
+
+        try {
+            await fetchTeacherLogBatch();
+
+            state.visibleLogCount =
+                actuallyVisibleBefore +
+                LOG_PAGE_SIZE;
+
+        } catch (error) {
+            console.error(
+                '[TransactionHistory] Không tải được trang nhật ký cũ hơn:',
+                error
+            );
+
+            alert(
+                'Không tải được giao dịch cũ hơn. ' +
+                'Vui lòng kiểm tra kết nối rồi thử lại.'
+            );
+        } finally {
+            state.loadingLogs = false;
+            renderTeacherLogs();
+        }
     }
 
     async function loadTeacherLogs() {
@@ -1760,6 +2078,12 @@
                 'Đang tải nhật ký...';
         }
 
+        if (state.loadingLogs) {
+            return;
+        }
+
+        state.loadingLogs = true;
+
         try {
             /*
              * Xóa nhật ký các tháng trước
@@ -1767,57 +2091,19 @@
              */
             await cleanupOldTransactionLogs();
 
-            const snap =
-                await db
-                    .ref(ROOT)
-                    .orderByChild(
-                        'createdAtClient'
-                    )
-                    .once('value');
-
-            const logs = [];
-
-            snap.forEach(child => {
-                const logData =
-                    child.val() || {};
-
-                logs.push({
-                    /*
-                     * Đưa dữ liệu lên trước.
-                     * Sau đó đặt id = child.key để
-                     * không bị trường id cũ ghi đè.
-                     */
-                    ...logData,
-
-                    id:
-                        child.key,
-
-                    firebaseKey:
-                        child.key
-                });
+            /*
+             * Chỉ tải batch mới nhất của tháng từ Firebase.
+             * Không còn .once('value') toàn bộ transaction_logs.
+             */
+            await fetchTeacherLogBatch({
+                reset: true
             });
-
-            state.logs =
-                logs.sort((a, b) =>
-                    Number(
-                        b.createdAtClient ||
-                        b.createdAt ||
-                        0
-                    ) -
-                    Number(
-                        a.createdAtClient ||
-                        a.createdAt ||
-                        0
-                    )
-                );
 
             state.visibleLogCount =
                 LOG_PAGE_SIZE;
 
             state.lastLogFilterKey =
                 '';
-
-            renderTeacherLogs();
 
         } catch (error) {
             console.error(error);
@@ -1830,7 +2116,13 @@
           </p>
         `;
             }
+
+            return;
+        } finally {
+            state.loadingLogs = false;
         }
+
+        renderTeacherLogs();
     }
 
     async function populateStudentSelect() {

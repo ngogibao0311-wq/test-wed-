@@ -37,6 +37,43 @@ const currentUser = JSON.parse(localStorage.getItem('currentUser'));
 
 
 // ======================================================
+// STORE LOCK HOTFIX v4.0.1
+// Chuẩn hóa dữ liệu isLocked từ Firebase.
+// Tránh lỗi !!"false" === true và tự trả về false khi node bị xóa.
+// ======================================================
+window.normalizeStoreItemLockState =
+    window.normalizeStoreItemLockState ||
+    function (value) {
+        if (value === true || value === 1) {
+            return true;
+        }
+
+        if (
+            value === false ||
+            value === 0 ||
+            value === null ||
+            value === undefined ||
+            value === ''
+        ) {
+            return false;
+        }
+
+        const normalized =
+            String(value)
+                .trim()
+                .toLowerCase();
+
+        return (
+            normalized === 'true' ||
+            normalized === '1' ||
+            normalized === 'yes' ||
+            normalized === 'on' ||
+            normalized === 'locked'
+        );
+    };
+
+
+// ======================================================
 // TRUNG THU · LỊCH ÂM VIỆT NAM (UTC+7)
 // Tính ngày 15/8 âm lịch mà không cần Cloud Function/Scheduler.
 // ======================================================
@@ -538,7 +575,8 @@ window.MidAutumnCalendar = window.MidAutumnCalendar || (() => {
 //   nhưng chỉ một lần cho mỗi năm.
 // - Không có Scheduler: kiểm tra khi học sinh mở trang
 //   và lặp lại mỗi giờ nếu trang vẫn đang mở.
-// - Chỉ đổi Nguyệt Cung Tiên Tử đúng ngày Trung Thu.
+// - Nguyệt Cung Tiên Tử: 2 Xu, chỉ đúng ngày Trung Thu.
+// - 5 vật phẩm bộ Trung Thu ở cửa hàng thường: 1 Xu/món, không dùng Coin.
 // ======================================================
 window.MidAutumnCoinManager = (() => {
     const ITEM_ID =
@@ -549,6 +587,17 @@ window.MidAutumnCoinManager = (() => {
 
     const ITEM_COST = 2;
     const AUTO_GRANT_AMOUNT = 1;
+
+    const STORE_ITEM_COST = 1;
+
+    const STORE_ITEM_IDS =
+        new Set([
+            'pet_trung_thu_hang_nga_chibi_1',
+            'theme_trung_thu_nguyet_hoi_hoa_dang',
+            'effect_trung_thu_nguyet_trieu_luu_quang',
+            'frame_trung_thu_nguyet_que_hoa_hoan',
+            'background_trung_thu_nguyet_cung_hoa_dang_da'
+        ]);
 
     let wallet = {
         balance: 0
@@ -925,6 +974,88 @@ window.MidAutumnCoinManager = (() => {
         };
     }
 
+    function getRedeemConfig(itemId) {
+        const normalizedId =
+            String(itemId || '');
+
+        if (normalizedId === ITEM_ID) {
+            return {
+                itemId:
+                    ITEM_ID,
+
+                itemName:
+                    ITEM_NAME,
+
+                cost:
+                    ITEM_COST,
+
+                festivalOnly:
+                    true
+            };
+        }
+
+        if (!STORE_ITEM_IDS.has(normalizedId)) {
+            return null;
+        }
+
+        const storeItem =
+            typeof StoreManager !==
+                'undefined' &&
+            typeof StoreManager
+                .getItemById ===
+                'function'
+                ? StoreManager
+                    .getItemById(
+                        normalizedId
+                    )
+                : null;
+
+        if (
+            !storeItem ||
+            String(
+                storeItem.currency || ''
+            ) !==
+                'mid_autumn_coin'
+        ) {
+            return null;
+        }
+
+        const configuredCost =
+            Number(
+                storeItem
+                    .midAutumnCoinCost ||
+                storeItem.price ||
+                STORE_ITEM_COST
+            );
+
+        if (
+            !Number.isInteger(
+                configuredCost
+            ) ||
+            configuredCost !==
+                STORE_ITEM_COST
+        ) {
+            return null;
+        }
+
+        return {
+            itemId:
+                normalizedId,
+
+            itemName:
+                String(
+                    storeItem.name ||
+                    normalizedId
+                ),
+
+            cost:
+                STORE_ITEM_COST,
+
+            festivalOnly:
+                false
+        };
+    }
+
     async function rollbackRedemption(
         redemptionId,
         now
@@ -951,10 +1082,34 @@ window.MidAutumnCoinManager = (() => {
                 if (
                     !redemption ||
                     redemption.status !==
-                        'reserved' ||
-                    redemption.itemId !==
-                        ITEM_ID
+                        'reserved'
                 ) {
+                    return;
+                }
+
+                const amount =
+                    Number(
+                        redemption.amount || 0
+                    );
+
+                const validAmount =
+                    (
+                        redemption.itemId ===
+                            ITEM_ID &&
+                        amount === ITEM_COST
+                    ) ||
+                    (
+                        STORE_ITEM_IDS.has(
+                            String(
+                                redemption.itemId ||
+                                ''
+                            )
+                        ) &&
+                        amount ===
+                            STORE_ITEM_COST
+                    );
+
+                if (!validAmount) {
                     return;
                 }
 
@@ -962,7 +1117,7 @@ window.MidAutumnCoinManager = (() => {
                     Number(
                         next.balance || 0
                     ) +
-                    ITEM_COST;
+                    amount;
 
                 delete next.redemptions[
                     redemptionId
@@ -982,7 +1137,7 @@ window.MidAutumnCoinManager = (() => {
                         ),
 
                     amount:
-                        ITEM_COST,
+                        amount,
 
                     operatedAt:
                         now
@@ -996,9 +1151,10 @@ window.MidAutumnCoinManager = (() => {
     }
 
     async function redeem(itemId) {
-        if (
-            String(itemId) !== ITEM_ID
-        ) {
+        const config =
+            getRedeemConfig(itemId);
+
+        if (!config) {
             return false;
         }
 
@@ -1022,23 +1178,45 @@ window.MidAutumnCoinManager = (() => {
             return true;
         }
 
-        const festival =
-            await isFestivalDay();
+        const now =
+            getNow();
 
-        if (!festival.ok) {
-            alert(
-                `🌕 ${ITEM_NAME} chỉ đổi được đúng ngày Trung Thu.\n` +
-                `Trung Thu ${festival.year}: ${festival.calendar.festivalDateKey}.\n\n` +
-                `Xu Trung Thu không hết hạn sử dụng và được giữ lại cho các năm sau.\n` +
-                `Khi đổi ${ITEM_NAME}, hệ thống sẽ trừ ${ITEM_COST} Xu khỏi số dư.`
-            );
+        const year =
+            window
+                .MidAutumnCalendar
+                .getVietnamYear(now);
 
-            return true;
+        const calendar =
+            await getCalendar(year);
+
+        if (config.festivalOnly) {
+            const festivalNow =
+                now >=
+                    Number(
+                        calendar
+                            .festivalStartAt
+                    ) &&
+                now <=
+                    Number(
+                        calendar
+                            .festivalEndAt
+                    );
+
+            if (!festivalNow) {
+                alert(
+                    `🌕 ${config.itemName} chỉ đổi được đúng ngày Trung Thu.\n` +
+                    `Trung Thu ${year}: ${calendar.festivalDateKey}.\n\n` +
+                    `Xu Trung Thu không hết hạn sử dụng và được giữ lại cho các năm sau.\n` +
+                    `Khi đổi ${config.itemName}, hệ thống sẽ trừ ${config.cost} Xu khỏi số dư.`
+                );
+
+                return true;
+            }
         }
 
         const inventoryRef =
             db.ref(
-                `student_inventory/${username}/${ITEM_ID}`
+                `student_inventory/${username}/${config.itemId}`
             );
 
         const existing =
@@ -1048,7 +1226,7 @@ window.MidAutumnCoinManager = (() => {
 
         if (existing.exists()) {
             alert(
-                `✅ Bạn đã sở hữu ${ITEM_NAME}.`
+                `✅ Bạn đã sở hữu ${config.itemName}.`
             );
 
             return true;
@@ -1057,101 +1235,148 @@ window.MidAutumnCoinManager = (() => {
         const walletRef =
             getWalletRef();
 
-        const now =
-            festival.now;
+        if (!walletRef) {
+            alert(
+                '❌ Ví Xu Trung Thu chưa sẵn sàng.'
+            );
+            return true;
+        }
 
         const redemptionId =
-            `nguyet_cung_${festival.year}`;
+            config.festivalOnly
+                ? `nguyet_cung_${year}`
+                : (
+                    `midautumn_store_` +
+                    `${config.itemId}_` +
+                    `${now}_` +
+                    `${Math.random()
+                        .toString(36)
+                        .slice(2, 8)}`
+                );
 
-        const walletTx =
-            await walletRef.transaction(
-                current => {
-                    const next =
-                        normalizeWallet(
-                            current
-                        );
+        let walletTx;
 
-                    if (
-                        next.redemptions?.[
+        try {
+                walletTx =
+                    await walletRef.transaction(
+                    current => {
+                        const next =
+                            normalizeWallet(
+                                current
+                            );
+
+                        if (
+                            next.redemptions?.[
+                                redemptionId
+                            ]
+                        ) {
+                            return;
+                        }
+
+                        if (
+                            Number(
+                                next.balance || 0
+                            ) <
+                            config.cost
+                        ) {
+                            return;
+                        }
+
+                        next.balance =
+                            Number(
+                                next.balance || 0
+                            ) -
+                            config.cost;
+
+                        next.redemptions[
                             redemptionId
-                        ]
-                    ) {
-                        return;
-                    }
+                        ] = {
+                            id:
+                                redemptionId,
 
-                    if (
-                        Number(
-                            next.balance || 0
-                        ) <
-                        ITEM_COST
-                    ) {
-                        return;
-                    }
+                            itemId:
+                                config.itemId,
 
-                    next.balance =
-                        Number(
-                            next.balance || 0
-                        ) -
-                        ITEM_COST;
+                            amount:
+                                config.cost,
 
-                    next.redemptions[
-                        redemptionId
-                    ] = {
-                        id:
-                            redemptionId,
+                            year:
+                                String(year),
 
-                        itemId:
-                            ITEM_ID,
+                            festivalDateKey:
+                                String(
+                                    calendar
+                                        .festivalDateKey ||
+                                    ''
+                                ),
 
-                        amount:
-                            ITEM_COST,
+                            status:
+                                'reserved',
 
-                        year:
-                            String(
-                                festival.year
-                            ),
+                            redeemedAt:
+                                now
+                        };
 
-                        festivalDateKey:
-                            festival
-                                .calendar
-                                .festivalDateKey,
+                        next.lastOperation = {
+                            type:
+                                'redeem',
 
-                        status:
-                            'reserved',
+                            operationId:
+                                redemptionId,
 
-                        redeemedAt:
-                            now
-                    };
+                            year:
+                                String(year),
 
-                    next.lastOperation = {
-                        type:
-                            'redeem',
+                            amount:
+                                config.cost,
 
-                        operationId:
-                            redemptionId,
+                            festivalDateKey:
+                                String(
+                                    calendar
+                                        .festivalDateKey ||
+                                    ''
+                                ),
 
-                        year:
-                            String(
-                                festival.year
-                            ),
+                            operatedAt:
+                                now
+                        };
 
-                        amount:
-                            ITEM_COST,
-
-                        festivalDateKey:
-                            festival
-                                .calendar
-                                .festivalDateKey,
-
-                        operatedAt:
-                            now
-                    };
-
-                    return next;
-                },
-                undefined,
-                false
+                        return next;
+                    },
+                    undefined,
+                    false
+                );
+        } catch (walletError) {
+            console.error(
+                '[Xu Trung Thu] Transaction bị Firebase từ chối:',
+                walletError
             );
+
+            const denied =
+                String(
+                    walletError?.code ||
+                    walletError?.message ||
+                    ''
+                )
+                    .toLowerCase()
+                    .includes(
+                        'permission_denied'
+                    );
+
+            alert(
+                denied
+                    ? (
+                        '❌ Firebase Rules đang chặn giao dịch Xu Trung Thu.\n' +
+                        'Xu trong Túi đồ và Xu mua vật phẩm là CÙNG MỘT VÍ.\n' +
+                        'Hãy cập nhật Rules V10 rồi thử lại.'
+                    )
+                    : (
+                        '❌ Không thể xử lý giao dịch Xu Trung Thu lúc này.'
+                    )
+            );
+
+            return true;
+        }
 
         if (!walletTx.committed) {
             const latest =
@@ -1163,10 +1388,10 @@ window.MidAutumnCoinManager = (() => {
                 Number(
                     latest.balance || 0
                 ) <
-                ITEM_COST
+                config.cost
             ) {
                 alert(
-                    `❌ Bạn cần ${ITEM_COST} Xu Trung Thu để đổi ${ITEM_NAME}.\n` +
+                    `❌ Bạn cần ${config.cost} Xu Trung Thu để đổi ${config.itemName}.\n` +
                     `Hiện có: ${Number(latest.balance || 0)} Xu.`
                 );
             } else {
@@ -1193,7 +1418,7 @@ window.MidAutumnCoinManager = (() => {
 
                         return {
                             id:
-                                ITEM_ID,
+                                config.itemId,
 
                             purchaseTime:
                                 now,
@@ -1202,15 +1427,13 @@ window.MidAutumnCoinManager = (() => {
                                 'mid_autumn_coin',
 
                             midAutumnYear:
-                                String(
-                                    festival.year
-                                ),
+                                String(year),
 
                             midAutumnRedemptionId:
                                 redemptionId,
 
                             midAutumnCoinCost:
-                                ITEM_COST,
+                                config.cost,
 
                             isTrial:
                                 null,
@@ -1261,7 +1484,7 @@ window.MidAutumnCoinManager = (() => {
                     'function'
             ) {
                 await StoreManager.applyItem(
-                    ITEM_ID
+                    config.itemId
                 );
             }
 
@@ -1275,7 +1498,7 @@ window.MidAutumnCoinManager = (() => {
                             'store_purchase',
 
                         summary:
-                            `Đổi vật phẩm: ${ITEM_NAME}`,
+                            `Đổi vật phẩm: ${config.itemName}`,
 
                         source:
                             'mid_autumn_store',
@@ -1288,7 +1511,7 @@ window.MidAutumnCoinManager = (() => {
                             username,
 
                         amount:
-                            -ITEM_COST,
+                            -config.cost,
 
                         unit:
                             'Xu Trung Thu',
@@ -1297,27 +1520,32 @@ window.MidAutumnCoinManager = (() => {
                             false,
 
                         nonReversibleReason:
-                            'Vật phẩm sự kiện Trung Thu đã được đổi.',
+                            'Vật phẩm Trung Thu đã được đổi bằng Xu Trung Thu.',
 
                         details: {
                             itemId:
-                                ITEM_ID,
+                                config.itemId,
 
                             itemName:
-                                ITEM_NAME,
+                                config.itemName,
 
                             redemptionId:
                                 redemptionId,
 
                             midAutumnYear:
-                                String(
-                                    festival.year
-                                ),
+                                String(year),
 
                             festivalDateKey:
-                                festival
-                                    .calendar
-                                    .festivalDateKey
+                                String(
+                                    calendar
+                                        .festivalDateKey ||
+                                    ''
+                                ),
+
+                            festivalOnly:
+                                config
+                                    .festivalOnly ===
+                                true
                         }
                     });
             }
@@ -1333,8 +1561,8 @@ window.MidAutumnCoinManager = (() => {
                 );
 
             alert(
-                `🎉 Đổi thành công ${ITEM_NAME}!\n` +
-                `Đã trừ ${ITEM_COST} Xu Trung Thu.\n` +
+                `🎉 Đổi thành công ${config.itemName}!\n` +
+                `Đã trừ ${config.cost} Xu Trung Thu.\n` +
                 `Số dư còn lại: ${remainingMidAutumnCoins} Xu.`
             );
 
@@ -1348,6 +1576,17 @@ window.MidAutumnCoinManager = (() => {
                 window
                     .LuxuryStore
                     .refresh();
+            }
+
+            if (
+                typeof window.filterStore ===
+                    'function'
+            ) {
+                window.filterStore(
+                    window
+                        .currentStoreFilterType ||
+                    'all'
+                );
             }
         } catch (error) {
             console.error(
@@ -1374,7 +1613,7 @@ window.MidAutumnCoinManager = (() => {
             alert(
                 error.message ===
                     'MID_AUTUMN_ITEM_ALREADY_OWNED'
-                    ? `✅ Bạn đã sở hữu ${ITEM_NAME}. Xu đã được hoàn lại.`
+                    ? `✅ Bạn đã sở hữu ${config.itemName}. Xu đã được hoàn lại.`
                     : '❌ Không thể đổi vật phẩm. Hệ thống đã cố gắng hoàn lại Xu Trung Thu.'
             );
         }
@@ -1539,10 +1778,88 @@ window.MidAutumnCoinManager = (() => {
             );
     }
 
+    async function debugWallet() {
+        const username =
+            getUsername();
+
+        const authUser =
+            window.firebase?.auth
+                ? window.firebase.auth().currentUser
+                : (
+                    typeof firebase !== 'undefined' &&
+                    firebase.auth
+                        ? firebase.auth().currentUser
+                        : null
+                );
+
+        const uid =
+            authUser?.uid || '';
+
+        let profileUsername =
+            '';
+
+        try {
+            if (uid) {
+                profileUsername =
+                    String(
+                        (
+                            await db
+                                .ref(
+                                    `users/${uid}/username`
+                                )
+                                .once('value')
+                        ).val() || ''
+                    );
+            }
+        } catch (error) {
+            console.warn(
+                '[Xu Trung Thu] Không đọc được users/<uid>/username:',
+                error
+            );
+        }
+
+        const result = {
+            currentUserUsername:
+                username,
+
+            firebaseUid:
+                uid,
+
+            firebaseProfileUsername:
+                profileUsername,
+
+            walletPath:
+                username
+                    ? `mid_autumn_wallets/${username}`
+                    : null,
+
+            walletBalance:
+                getBalance(),
+
+            bagBalance:
+                Number(
+                    window
+                        .studentMidAutumnCoinBalance ||
+                    0
+                ),
+
+            sameUsername:
+                !uid ||
+                !profileUsername ||
+                profileUsername === username
+        };
+
+        console.table(result);
+
+        return result;
+    }
+
     return {
         ITEM_ID,
         ITEM_NAME,
         ITEM_COST,
+        STORE_ITEM_COST,
+        STORE_ITEM_IDS,
         AUTO_GRANT_AMOUNT,
 
         init,
@@ -1550,6 +1867,7 @@ window.MidAutumnCoinManager = (() => {
         getBalance,
         getCalendar,
         isFestivalDay,
+        debugWallet,
         redeem,
         claimTeacherGift,
         autoGrantIfEligible,
@@ -2069,6 +2387,115 @@ function mergeStudentRedoViolationHistory(submission) {
     };
 }
 
+
+// ======================================================
+// HUY HIỆU "NỘP TRỄ" CHO BÀI TỰ THU ĐÃ LÀM ĐỦ
+// Chỉ gắn khi hệ thống tự thu sau hạn và phần bắt buộc đã hoàn thành.
+// ======================================================
+function isStudentCompleteLateAutoSubmission(
+    submission,
+    assignment
+) {
+    if (
+        !submission?.isAutoSubmitted ||
+        !submission?.isLateFail ||
+        submission?.isCheatFail
+    ) {
+        return false;
+    }
+
+    // Bản ghi mới lưu kết quả kiểm tra ngay lúc tự thu.
+    if (submission.isLateComplete === true) {
+        return true;
+    }
+
+    if (submission.isLateComplete === false) {
+        return false;
+    }
+
+    // Tương thích bản ghi cũ chưa có isLateComplete.
+    const type = String(
+        assignment?.assessmentType ||
+        'tu_luan'
+    );
+
+    const questions =
+        Array.isArray(submission?.questionSnapshot) &&
+        submission.questionSnapshot.length > 0
+            ? submission.questionSnapshot
+            : (
+                Array.isArray(assignment?.questions)
+                    ? assignment.questions
+                    : []
+            );
+
+    const mcAnswers =
+        submission?.mcAnswers &&
+        typeof submission.mcAnswers === 'object'
+            ? submission.mcAnswers
+            : {};
+
+    const requiresMultipleChoice =
+        type === 'trac_nghiem' ||
+        type === 'ket_hop' ||
+        type === 'thi';
+
+    const multipleChoiceComplete =
+        !requiresMultipleChoice ||
+        (
+            questions.length > 0 &&
+            questions.every((question, index) => {
+                const value =
+                    mcAnswers[index] ??
+                    mcAnswers[String(index)] ??
+                    '';
+
+                return String(value).trim() !== '';
+            })
+        );
+
+    const requiresEssay =
+        type !== 'trac_nghiem';
+
+    let essayComplete = true;
+
+    if (requiresEssay) {
+        const files = Array.isArray(submission?.file)
+            ? submission.file
+            : (
+                submission?.file
+                    ? [submission.file]
+                    : []
+            );
+
+        const hasFile = files.length > 0;
+        const rawEssay = String(
+            submission?.rawEssay ||
+            ''
+        ).trim();
+
+        const wordCount = rawEssay
+            ? rawEssay
+                .split(/\s+/)
+                .filter(Boolean)
+                .length
+            : 0;
+
+        essayComplete = assignment?.hideEssayText
+            ? hasFile
+            : (
+                wordCount >= 25 ||
+                hasFile
+            );
+    }
+
+    return (
+        multipleChoiceComplete &&
+        essayComplete &&
+        !submission?.isEssayMissing
+    );
+}
+
 function getStudentRedoScope(submission, assignment) {
     if (!submission?.isRedoing) {
         return 'both';
@@ -2323,6 +2750,14 @@ function normalizeStoreItemId(value) {
  */
 function isCoinPurchasableStoreItem(item) {
     if (!item) return false;
+
+    if (
+        String(item.currency || '') ===
+            'mid_autumn_coin' ||
+        Number(item.midAutumnCoinCost || 0) > 0
+    ) {
+        return false;
+    }
 
     const price = Number(item.price);
 
@@ -3488,6 +3923,27 @@ window.onload = async function () {
         if (startupLoader) startupLoader.markReady('student-wheel-settings');
     });
 
+
+    // Đồng bộ thời gian Firebase để Giờ Vàng không phụ thuộc hoàn toàn vào đồng hồ máy học sinh.
+    listenFirebase(
+        db.ref('.info/serverTimeOffset'),
+        'value',
+        snapshot => {
+            window.luckyWheelServerTimeOffset =
+                Number(snapshot.val()) || 0;
+
+            if (
+                typeof renderLuckyWheelGoldenHourNotice === 'function'
+            ) {
+                renderLuckyWheelGoldenHourNotice();
+            }
+        }
+    );
+
+    // Cấu hình Giờ Vàng: dùng listener Firebase trực tiếp để học sinh
+    // nhận thay đổi của giáo viên ngay lập tức, không cần F5.
+    startLuckyWheelGoldenHourRealtimeSync();
+
     // ==========================================
     // DÁN ĐOẠN LẮNG NGHE COIN VÀO ĐÂY LÀ HẾT LỖI
     // ==========================================
@@ -3517,33 +3973,60 @@ window.onload = async function () {
         if (activeView) activeView.style.display = isOpen ? 'block' : 'none';
         if (lockedView) lockedView.style.display = isOpen ? 'none' : 'block';
 
-        if (settings) {
-            StoreConfig.items.forEach(item => {
-                if (settings[item.id]) {
-                    if (settings[item.id].price !== undefined) item.price = settings[item.id].price;
-                    if (settings[item.id].startDate !== undefined) item.startDate = settings[item.id].startDate;
-                    if (settings[item.id].endDate !== undefined) item.endDate = settings[item.id].endDate;
-                    item.isLocked = !!settings[item.id].isLocked; // ĐỒNG BỘ TRẠNG THÁI KHÓA VỀ HỌC SINH
-                    if (settings[item.id].musicUrl !== undefined) {
-                        item.musicUrl =
-                            settings[item.id].musicUrl;
-                    }
+        /*
+         * Luôn duyệt toàn bộ StoreConfig.
+         * Nếu node store_settings/<itemId> bị xóa thì phải trả isLocked về false
+         * ngay trong phiên hiện tại, không chờ F5.
+         */
+        StoreConfig.items.forEach(item => {
+            const itemSettings =
+                settings &&
+                settings[item.id] &&
+                typeof settings[item.id] === 'object'
+                    ? settings[item.id]
+                    : null;
 
-                    if (settings[item.id].volume !== undefined) {
-                        item.volume =
-                            settings[item.id].volume;
-                    }
+            if (itemSettings) {
+                if (itemSettings.price !== undefined) item.price = itemSettings.price;
+                if (itemSettings.startDate !== undefined) item.startDate = itemSettings.startDate;
+                if (itemSettings.endDate !== undefined) item.endDate = itemSettings.endDate;
 
-                    if (settings[item.id].loop !== undefined) {
-                        item.loop =
-                            settings[item.id].loop;
-                    }
+                if (itemSettings.musicUrl !== undefined) {
+                    item.musicUrl =
+                        itemSettings.musicUrl;
                 }
-            });
-        }
+
+                if (itemSettings.volume !== undefined) {
+                    item.volume =
+                        itemSettings.volume;
+                }
+
+                if (itemSettings.loop !== undefined) {
+                    item.loop =
+                        itemSettings.loop;
+                }
+            }
+
+            item.isLocked =
+                window.normalizeStoreItemLockState(
+                    itemSettings?.isLocked
+                );
+        });
 
         if (typeof window.filterStore === 'function') {
             window.filterStore(window.currentStoreFilterType || 'all');
+        }
+
+        /*
+         * Đồng bộ ngay trang Sưu tầm khi giáo viên khóa/mở khóa vật phẩm.
+         * StoreCollectionPage có thể chưa nạp ở lần callback đầu tiên, nên
+         * chỉ gọi khi API đã tồn tại.
+         */
+        if (
+            window.StoreCollectionPage &&
+            typeof window.StoreCollectionPage.refresh === 'function'
+        ) {
+            window.StoreCollectionPage.refresh();
         }
 
         if (
@@ -5548,10 +6031,604 @@ function getPreferredStudentSubmission(
     return preferred;
 }
 
+
+// ==============================================================
+// TỐI ƯU DANH SÁCH HỌC SINH
+// - Firebase assignments/submissions đã được listener tải vào cache.
+// - Tìm kiếm chạy trực tiếp trên cache, không quét innerText DOM.
+// - Chỉ render một "cửa sổ" card nhỏ cho Bài tập cần làm / Kết quả học tập.
+// - "Tải thêm" tăng cửa sổ đúng trong tập kết quả đang tìm.
+// ==============================================================
+const STUDENT_LIST_PAGE_SIZE = 16;
+const STUDENT_LIST_SEARCH_DELAY = 160;
+
+window.studentListViewState =
+    window.studentListViewState || {
+        todoQuery: '',
+        gradesQuery: '',
+        todoLimit: STUDENT_LIST_PAGE_SIZE,
+        gradesLimit: STUDENT_LIST_PAGE_SIZE
+    };
+
+let studentListSearchTimer = null;
+const studentVideoTrackingCache = new Map();
+const STUDENT_TRACKING_CACHE_TTL = 20 * 1000;
+
+function normalizeStudentListSearchText(value) {
+    return String(value ?? '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd')
+        .replace(/Đ/g, 'D')
+        .toLowerCase()
+        .replace(/<[^>]*>/g, ' ')
+        .replace(/&nbsp;/gi, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function getStudentListAssignmentId(assign) {
+    return String(
+        assign?.id ||
+        assign?._fbKey ||
+        ''
+    );
+}
+
+function isStudentListAssignmentTargeted(assign) {
+    const targets = Array.isArray(assign?.targetStudent)
+        ? assign.targetStudent
+        : [assign?.targetStudent || 'all'];
+
+    return (
+        targets.includes('all') ||
+        targets.includes(currentUser.username)
+    );
+}
+
+function getStudentListDateMs(value) {
+    const text = String(value || '').trim();
+
+    if (!text) return null;
+
+    const parsed = new Date(
+        text.includes('T')
+            ? text
+            : text.replace(' ', 'T')
+    ).getTime();
+
+    return Number.isFinite(parsed)
+        ? parsed
+        : null;
+}
+
+function getStudentListBucket(assign, submissions, nowMs) {
+    const mySub =
+        getPreferredStudentSubmission(
+            submissions,
+            assign,
+            currentUser.username
+        );
+
+    const endMs =
+        getStudentListDateMs(
+            assign?.endDate
+        );
+
+    const isRedoing =
+        mySub?.isRedoing === true;
+
+    const isGracePeriod =
+        endMs !== null &&
+        nowMs > endMs &&
+        nowMs <= endMs + 5 * 60 * 1000;
+
+    return (
+        mySub &&
+        !isRedoing &&
+        !isGracePeriod
+    )
+        ? {
+            bucket: 'grades',
+            submission: mySub
+        }
+        : {
+            bucket: 'todo',
+            submission: mySub
+        };
+}
+
+function getStudentListSearchHaystack(
+    assign,
+    submission,
+    bucket
+) {
+    const typeLabels = {
+        trac_nghiem: 'trac nghiem',
+        ket_hop: 'ket hop',
+        thi: 'thi kiem tra',
+        tu_luan: 'tu luan'
+    };
+
+    const base = [
+        assign?.title,
+        assign?.description,
+        assign?.essayPrompt,
+        assign?.assessmentType,
+        typeLabels[assign?.assessmentType],
+        assign?.startDate,
+        assign?.endDate
+    ];
+
+    if (bucket === 'grades' && submission) {
+        base.push(
+            submission?.grade,
+            submission?.submitTime,
+            submission?.teacherComment,
+            submission?.isRegrading
+                ? 'dang cham lai'
+                : '',
+            submission?.isCheatFail
+                ? 'vi pham'
+                : ''
+        );
+    }
+
+    return normalizeStudentListSearchText(
+        base.filter(Boolean).join(' ')
+    );
+}
+
+function buildStudentListSelection(
+    assignments,
+    submissions,
+    nowMs
+) {
+    const state =
+        window.studentListViewState;
+
+    const todoQuery =
+        normalizeStudentListSearchText(
+            state.todoQuery
+        );
+
+    const gradesQuery =
+        normalizeStudentListSearchText(
+            state.gradesQuery
+        );
+
+    const todoMatches = [];
+    const gradeMatches = [];
+
+    assignments.forEach(assign => {
+        if (
+            !isStudentListAssignmentTargeted(
+                assign
+            )
+        ) {
+            return;
+        }
+
+        const {
+            bucket,
+            submission
+        } = getStudentListBucket(
+            assign,
+            submissions,
+            nowMs
+        );
+
+        const haystack =
+            getStudentListSearchHaystack(
+                assign,
+                submission,
+                bucket
+            );
+
+        if (bucket === 'grades') {
+            if (
+                !gradesQuery ||
+                haystack.includes(gradesQuery)
+            ) {
+                gradeMatches.push(assign);
+            }
+        } else if (
+            !todoQuery ||
+            haystack.includes(todoQuery)
+        ) {
+            todoMatches.push(assign);
+        }
+    });
+
+    const visibleTodo =
+        todoMatches.slice(
+            0,
+            state.todoLimit
+        );
+
+    const visibleGrades =
+        gradeMatches.slice(
+            0,
+            state.gradesLimit
+        );
+
+    return {
+        todoIds: new Set(
+            visibleTodo.map(
+                getStudentListAssignmentId
+            )
+        ),
+        gradeIds: new Set(
+            visibleGrades.map(
+                getStudentListAssignmentId
+            )
+        ),
+        visibleTodo,
+        visibleGrades,
+        todoTotal: todoMatches.length,
+        gradesTotal: gradeMatches.length
+    };
+}
+
+function pruneStudentListContainer(
+    container,
+    keepIds
+) {
+    if (!container) return;
+
+    Array.from(
+        container.querySelectorAll(
+            ':scope > .card[data-id]'
+        )
+    ).forEach(card => {
+        const id =
+            String(
+                card.getAttribute(
+                    'data-id'
+                ) || ''
+            );
+
+        if (!keepIds.has(id)) {
+            if (
+                window.assignTimersObj?.[id]
+            ) {
+                clearInterval(
+                    window.assignTimersObj[id]
+                );
+                delete window.assignTimersObj[id];
+            }
+
+            card.remove();
+        }
+    });
+}
+
+function upsertStudentLoadMoreButton(
+    container,
+    type,
+    shown,
+    total
+) {
+    if (!container) return;
+
+    const id =
+        type === 'todo'
+            ? 'btnLoadMoreStudentTodo'
+            : 'btnLoadMoreStudentGrades';
+
+    let button =
+        document.getElementById(id);
+
+    if (!button) {
+        button =
+            document.createElement(
+                'button'
+            );
+
+        button.id = id;
+        button.type = 'button';
+        button.className =
+            'btn-approve student-list-load-more';
+
+        button.style.cssText =
+            'display:block; margin:14px auto 22px; padding:10px 20px; width:auto;';
+
+        button.onclick = () =>
+            window.loadMoreStudentList(
+                type
+            );
+
+        container.after(button);
+    }
+
+    const hasMore =
+        shown < total;
+
+    button.style.display =
+        hasMore ? 'block' : 'none';
+
+    button.disabled = false;
+
+    button.textContent =
+        type === 'todo'
+            ? `⬇️ Tải thêm bài tập (${shown}/${total})`
+            : `⬇️ Tải thêm kết quả (${shown}/${total})`;
+}
+
+function renderStudentListEmptyState(
+    container,
+    type,
+    total
+) {
+    if (!container) return;
+
+    const className =
+        'student-list-empty-state';
+
+    const old =
+        container.querySelector(
+            `:scope > .${className}`
+        );
+
+    if (total > 0) {
+        old?.remove();
+        return;
+    }
+
+    if (old) return;
+
+    const state =
+        window.studentListViewState;
+
+    const hasQuery =
+        type === 'todo'
+            ? normalizeStudentListSearchText(
+                state.todoQuery
+            ) !== ''
+            : normalizeStudentListSearchText(
+                state.gradesQuery
+            ) !== '';
+
+    const p =
+        document.createElement('p');
+
+    p.className = className;
+    p.style.cssText =
+        'text-align:center; color:#64748b; padding:18px; font-style:italic;';
+
+    p.textContent = hasQuery
+        ? '🔎 Không tìm thấy bài phù hợp trong toàn bộ dữ liệu.'
+        : (
+            type === 'todo'
+                ? 'Hiện không có bài tập cần làm.'
+                : 'Chưa có kết quả học tập.'
+        );
+
+    container.appendChild(p);
+}
+
+function refreshStudentListControls(
+    selection,
+    list,
+    grades
+) {
+    upsertStudentLoadMoreButton(
+        list,
+        'todo',
+        selection.visibleTodo.length,
+        selection.todoTotal
+    );
+
+    upsertStudentLoadMoreButton(
+        grades,
+        'grades',
+        selection.visibleGrades.length,
+        selection.gradesTotal
+    );
+
+    renderStudentListEmptyState(
+        list,
+        'todo',
+        selection.todoTotal
+    );
+
+    renderStudentListEmptyState(
+        grades,
+        'grades',
+        selection.gradesTotal
+    );
+}
+
+async function getStudentVideoTrackingForAssignments(
+    assignments
+) {
+    const trackingData = {};
+    const now = Date.now();
+    const username =
+        String(
+            currentUser.username || ''
+        );
+
+    const uniqueAssignments = [
+        ...new Map(
+            (assignments || [])
+                .filter(
+                    assign =>
+                        assign?.videoLink
+                )
+                .map(assign => [
+                    getStudentListAssignmentId(
+                        assign
+                    ),
+                    assign
+                ])
+        ).values()
+    ];
+
+    await Promise.all(
+        uniqueAssignments.map(
+            async assign => {
+                const assignmentId =
+                    getStudentListAssignmentId(
+                        assign
+                    );
+
+                const cacheKey =
+                    `${assignmentId}\u0000${username}`;
+
+                const cached =
+                    studentVideoTrackingCache.get(
+                        cacheKey
+                    );
+
+                let seconds = 0;
+
+                if (
+                    cached &&
+                    now - cached.loadedAt <
+                        STUDENT_TRACKING_CACHE_TTL
+                ) {
+                    seconds =
+                        cached.seconds;
+                } else {
+                    try {
+                        const snapshot =
+                            await db.ref(
+                                `video_tracking/${assignmentId}/${username}`
+                            ).once('value');
+
+                        seconds =
+                            Number(
+                                snapshot.val()
+                            ) || 0;
+
+                        studentVideoTrackingCache.set(
+                            cacheKey,
+                            {
+                                loadedAt: now,
+                                seconds
+                            }
+                        );
+                    } catch (error) {
+                        console.warn(
+                            'Không tải được tiến độ video:',
+                            assignmentId,
+                            error
+                        );
+                    }
+                }
+
+                trackingData[
+                    assignmentId
+                ] = {
+                    [username]:
+                        seconds
+                };
+            }
+        )
+    );
+
+    return trackingData;
+}
+
+window.queueStudentListSearch = function (
+    type,
+    value
+) {
+    const state =
+        window.studentListViewState;
+
+    if (type === 'grades') {
+        state.gradesQuery =
+            String(value ?? '');
+
+        state.gradesLimit =
+            STUDENT_LIST_PAGE_SIZE;
+    } else {
+        state.todoQuery =
+            String(value ?? '');
+
+        state.todoLimit =
+            STUDENT_LIST_PAGE_SIZE;
+    }
+
+    clearTimeout(
+        studentListSearchTimer
+    );
+
+    studentListSearchTimer =
+        setTimeout(() => {
+            loadAssignments()
+                .catch(console.error);
+        }, STUDENT_LIST_SEARCH_DELAY);
+};
+
+window.loadMoreStudentList = function (
+    type
+) {
+    const state =
+        window.studentListViewState;
+
+    if (type === 'grades') {
+        state.gradesLimit +=
+            STUDENT_LIST_PAGE_SIZE;
+    } else {
+        state.todoLimit +=
+            STUDENT_LIST_PAGE_SIZE;
+    }
+
+    loadAssignments()
+        .catch(console.error);
+};
+
+// Giữ tương thích với HTML/common.js cũ.
+// Chỉ thay cách lọc 2 danh sách bài tập; các danh sách khác vẫn dùng filterItems cũ.
+const studentPreviousFilterItems =
+    window.filterItems;
+
+window.filterItems = function (
+    containerId,
+    value
+) {
+    if (
+        containerId ===
+        'assignmentsList'
+    ) {
+        window.queueStudentListSearch(
+            'todo',
+            value
+        );
+        return;
+    }
+
+    if (
+        containerId ===
+        'gradesList'
+    ) {
+        window.queueStudentListSearch(
+            'grades',
+            value
+        );
+        return;
+    }
+
+    if (
+        typeof studentPreviousFilterItems ===
+        'function'
+    ) {
+        return studentPreviousFilterItems(
+            containerId,
+            value
+        );
+    }
+};
+
+
 async function loadAssignments() {
     const assignmentSource =
-        window.cachedAssignments &&
-            window.cachedAssignments.length > 0
+        Array.isArray(
+            window.cachedAssignments
+        )
             ? window.cachedAssignments
             : await getDB('assignments');
 
@@ -5559,11 +6636,21 @@ async function loadAssignments() {
     const assignments = Array.isArray(assignmentSource)
         ? [...assignmentSource]
         : [];
-    const submissions = (window.cachedSubmissions && window.cachedSubmissions.length > 0) ? window.cachedSubmissions : await getDB('submissions');
+
+    /*
+     * Cache [] cũng là trạng thái hợp lệ (học sinh chưa từng nộp bài).
+     * Không được vì length === 0 mà tải toàn bộ submissions của hệ thống.
+     */
+    const submissions =
+        Array.isArray(
+            window.cachedSubmissions
+        )
+            ? window.cachedSubmissions
+            : await getDB('submissions');
     const list = document.getElementById('assignmentsList');
 
-    const trackingSnap = await db.ref('video_tracking').once('value');
-    const trackingData = trackingSnap.val() || {};
+    // Tiến độ video sẽ chỉ tải cho các card thực sự cần render.
+    let trackingData = {};
     const grades = document.getElementById('gradesList');
 
     // Dọn dẹp trình phát Video cũ (giữ nguyên các đoạn if typeof ytPlayers...)
@@ -6150,6 +7237,44 @@ async function loadAssignments() {
 
     // --- KẾT THÚC LOGIC SẮP XẾP ---
 
+    // Chọn đúng các bài cần render theo trang/từ khóa trước khi dựng DOM nặng.
+    const studentListSelection =
+        buildStudentListSelection(
+            assignments,
+            submissions,
+            nowSortMs
+        );
+
+    pruneStudentListContainer(
+        list,
+        studentListSelection.todoIds
+    );
+
+    pruneStudentListContainer(
+        grades,
+        studentListSelection.gradeIds
+    );
+
+    const visibleAssignmentMap =
+        new Map();
+
+    [
+        ...studentListSelection.visibleTodo,
+        ...studentListSelection.visibleGrades
+    ].forEach(assign => {
+        visibleAssignmentMap.set(
+            getStudentListAssignmentId(
+                assign
+            ),
+            assign
+        );
+    });
+
+    trackingData =
+        await getStudentVideoTrackingForAssignments(
+            [...visibleAssignmentMap.values()]
+        );
+
     assignments.forEach(assign => {
         // [THÊM MỚI] Xử lý mảng đối tượng học sinh
         const targetArr = Array.isArray(assign.targetStudent) ? assign.targetStudent : [assign.targetStudent || 'all'];
@@ -6171,6 +7296,42 @@ async function loadAssignments() {
         const isGracePeriod = (now > endTime && now <= gracePeriodEndTime);
         // =================================================================
 
+        const assignmentListId =
+            getStudentListAssignmentId(
+                assign
+            );
+
+        const isGradeBucket =
+            Boolean(mySub) &&
+            !isRedoing &&
+            !isGracePeriod;
+
+        const isSelectedForRender =
+            isGradeBucket
+                ? studentListSelection
+                    .gradeIds
+                    .has(assignmentListId)
+                : studentListSelection
+                    .todoIds
+                    .has(assignmentListId);
+
+        /*
+         * Bài đã quá hạn mà chưa có submission vẫn phải chạy qua
+         * logic tự thu bài, kể cả khi nằm ngoài trang đang xem.
+         * Các bài bình thường ngoài cửa sổ hiển thị được bỏ qua hoàn toàn.
+         */
+        const mustProcessAutoSubmit =
+            !isGradeBucket &&
+            !mySub &&
+            now > endTime;
+
+        if (
+            !isSelectedForRender &&
+            !mustProcessAutoSubmit
+        ) {
+            return;
+        }
+
         // === TỐI ƯU HÓA: DOM DIFFING BẰNG MÃ BĂM (HASH) ===
         // 1. Tạo chuỗi Hash đại diện cho trạng thái hiện tại của bài tập
         const redoHistoryForHash = mySub
@@ -6178,7 +7339,7 @@ async function loadAssignments() {
             : {};
 
         let subState = mySub
-            ? `${mySub.submitTime}_${mySub.grade}_${mySub.isRedoing}_${mySub.isAutoSubmitted}_${mySub.isEssayMissing}_${mySub.redoScope || ''}_${redoHistoryForHash.essayMissing ? 'histEssay' : ''}_${redoHistoryForHash.late ? 'histLate' : ''}_${redoHistoryForHash.cheat ? 'histCheat' : ''}`
+            ? `${mySub.submitTime}_${mySub.grade}_${mySub.isRedoing}_${mySub.isAutoSubmitted}_${mySub.isLateFail}_${mySub.isLateComplete}_${mySub.isEssayMissing}_${mySub.redoScope || ''}_${redoHistoryForHash.essayMissing ? 'histEssay' : ''}_${redoHistoryForHash.late ? 'histLate' : ''}_${redoHistoryForHash.cheat ? 'histCheat' : ''}`
             : 'none';
         let cardHash =
             `${assign.id}_` +
@@ -6194,7 +7355,29 @@ async function loadAssignments() {
             `${assign.examTimeLimitMinutes || 0}_` +
             `${window.currentActiveExamId || 'none'}`;
 
-        let existingCard = document.querySelector(`.card[data-id="${assign.id}"]`);
+        const targetContainer =
+            isGradeBucket
+                ? grades
+                : list;
+
+        const otherContainer =
+            isGradeBucket
+                ? list
+                : grades;
+
+        let existingCard =
+            targetContainer?.querySelector(
+                `.card[data-id="${assign.id}"]`
+            ) || null;
+
+        const staleOtherCard =
+            otherContainer?.querySelector(
+                `.card[data-id="${assign.id}"]`
+            );
+
+        if (staleOtherCard) {
+            staleOtherCard.remove();
+        }
 
         if (existingCard && existingCard.getAttribute('data-hash') === cardHash) {
             // NẾU HASH KHÔNG ĐỔI -> Trạng thái y nguyên -> Cập nhật vị trí rồi BỎ QUA vẽ lại DOM
@@ -6233,6 +7416,17 @@ async function loadAssignments() {
                 violationHTML += `<div style="background: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; padding: 15px; margin-top: 15px; border-radius: 8px;"><h4 style="color: #d97706; margin: 0 0 5px 0;">⚠️ THIẾU PHẦN TỰ LUẬN</h4><p style="margin: 0; color: #b45309;">Hệ thống ghi nhận bạn chưa nộp bài tự luận hợp lệ (chưa đủ 25 từ hoặc thiếu file đính kèm). Phần tự luận của bạn được tính 0 điểm.</p></div>`;
             } else if (redoViolationHistory.essayMissing) {
                 violationHTML += `<div style="background: rgba(59, 130, 246, 0.08); border-left: 4px solid #3b82f6; padding: 15px; margin-top: 15px; border-radius: 8px;"><h4 style="color: #1d4ed8; margin: 0 0 5px 0;">⚠️ TỪNG THIẾU PHẦN TỰ LUẬN</h4><p style="margin: 0; color: #1e40af;">Bạn đã nộp lại phần tự luận, nhưng lỗi ở lần nộp trước vẫn được ghi nhận trong Bảng Xếp Hạng Thi Đua. Lỗi chỉ được xóa khi giáo viên chủ động bấm <strong>Tha lỗi</strong>.</p></div>`;
+            }
+
+            let lateSubmissionBadgeHTML = '';
+
+            if (
+                isStudentCompleteLateAutoSubmission(
+                    mySub,
+                    assign
+                )
+            ) {
+                lateSubmissionBadgeHTML = `<span style="background: rgba(244, 63, 94, 0.10); color: #e11d48; border: 1px solid rgba(244, 63, 94, 0.55); padding: 3px 7px; border-radius: 6px; font-size: 0.86em; margin-left: 8px; font-weight: 800; white-space: nowrap;">⏰ Nộp trễ</span>`;
             }
 
             let missingEssayBadgeHTML = '';
@@ -6331,7 +7525,7 @@ async function loadAssignments() {
             div.style.position = 'relative'; // Bắt buộc để lớp phủ kính (glassmorphism) định vị chính xác
             div.style.marginBottom = '20px';
 
-            div.innerHTML = `${glassLockHTML}<div class="accordion-header" onclick="${clickHandler}"><div class="accordion-title"><h4>${assign.title}</h4><span>${statusText} ${missingEssayBadgeHTML}</span></div><div class="accordion-meta"><span>Điểm: <strong style="${(mySub.grade !== null && mySub.grade !== undefined && mySub.grade !== '' && !mySub.isRegrading) ? 'color:#059669;' : 'color:#d35400;'}">${gradeDisplay}</strong></span><span class="toggle-icon">▼</span></div></div>
+            div.innerHTML = `${glassLockHTML}<div class="accordion-header" onclick="${clickHandler}"><div class="accordion-title"><h4>${assign.title}</h4><span>${statusText} ${lateSubmissionBadgeHTML} ${missingEssayBadgeHTML}</span></div><div class="accordion-meta"><span>Điểm: <strong style="${(mySub.grade !== null && mySub.grade !== undefined && mySub.grade !== '' && !mySub.isRegrading) ? 'color:#059669;' : 'color:#d35400;'}">${gradeDisplay}</strong></span><span class="toggle-icon">▼</span></div></div>
                 <div id="${uniqueId}" class="accordion-content">
                     <div class="assignment-meta"><p>🕒 <strong>Bạn đã nộp lúc:</strong> ${mySub.submitTime || 'Không rõ'}</p></div>
                     ${violationHTML}
@@ -6492,6 +7686,38 @@ async function loadAssignments() {
                                 if (finalCalculatedGrade === null) finalCalculatedGrade = 0;
                             }
                         }
+
+                        // Chỉ gắn "Nộp trễ" khi bản nháp tự thu đã đủ toàn bộ
+                        // phần bắt buộc của bài: trắc nghiệm (nếu có) + tự luận (nếu có).
+                        const requiresMultipleChoiceAuto =
+                            assign.assessmentType === 'trac_nghiem' ||
+                            assign.assessmentType === 'ket_hop' ||
+                            assign.assessmentType === 'thi';
+
+                        const isMultipleChoiceCompleteAuto =
+                            !requiresMultipleChoiceAuto ||
+                            (
+                                autoQuestions.length > 0 &&
+                                autoQuestions.every((question, index) => {
+                                    const value =
+                                        mcAnswersObj[index] ??
+                                        mcAnswersObj[String(index)] ??
+                                        '';
+
+                                    return String(value).trim() !== '';
+                                })
+                            );
+
+                        const requiresEssayAuto =
+                            assign.assessmentType !== 'trac_nghiem';
+
+                        const isEssayCompleteAuto =
+                            !requiresEssayAuto ||
+                            !isEssayMissingAuto;
+
+                        const isLateCompleteAuto =
+                            isMultipleChoiceCompleteAuto &&
+                            isEssayCompleteAuto;
                         // =======================================================
 
                         // 3. Đẩy lên Firebase
@@ -6537,6 +7763,7 @@ async function loadAssignments() {
                                 isAutoSubmitted: true,
                                 isRedoing: false,
                                 isLateFail: true,
+                                isLateComplete: isLateCompleteAuto,
                                 isEssayMissing: isEssayMissingAuto
                             };
 
@@ -6613,6 +7840,14 @@ async function loadAssignments() {
                         }
                     })();
                     // === KẾT THÚC FIX LOGIC THU NHÁP CÓ FILE ===
+                }
+
+                /*
+                 * Bài ngoài trang/từ khóa vẫn được tự thu ở trên,
+                 * nhưng không được chen một card không liên quan vào kết quả tìm kiếm.
+                 */
+                if (!isSelectedForRender) {
+                    return;
                 }
 
                 if (isGracePeriod) {
@@ -7229,6 +8464,12 @@ async function loadAssignments() {
             }
         }
     });
+
+    refreshStudentListControls(
+        studentListSelection,
+        list,
+        grades
+    );
 
     // Khởi tạo editor: lazy khi bật tối ưu, giữ nguyên hành vi cũ khi tắt.
     initStudentQuillEditors(document);
@@ -10672,23 +11913,501 @@ async function readMultipleFiles(
 let isSpinning = false;
 
 // ======================================================
-// GIỜ VÀNG VÒNG QUAY MAY MẮN
-// - Chỉ tăng phần thưởng Coin.
-// - Không đổi tỉ lệ trúng, vé quay hoặc vật phẩm.
-// - Mỗi lượt trúng Coin trong Giờ Vàng được cộng thêm 50 Coin.
-// - Thời gian tính theo múi giờ Việt Nam (Asia/Ho_Chi_Minh).
+// GIỜ VÀNG VÒNG QUAY MAY MẮN V2
+// - Dùng cấu hình giáo viên từ Firebase.
+// - Dùng serverTimeOffset để giảm lệch giờ máy học sinh.
+// - Chỉ tăng giá trị Coin, không đổi tỉ lệ/vật phẩm/vé.
+// - Nhãn Coin trên bánh xe đổi TẠM THỜI khi Giờ Vàng hoạt động.
+// - Hết Giờ Vàng nhãn tự trở về 50 / 70 / 200 Coin.
 // ======================================================
-const LUCKY_WHEEL_GOLDEN_HOUR_BONUS = 50;
+const LUCKY_WHEEL_GOLDEN_HOUR_DEFAULTS = Object.freeze({
+    enabled: true,
+    bonusCoin: 50,
+    windows: Object.freeze([
+        Object.freeze({ start: '00:00', end: '01:00' }),
+        Object.freeze({ start: '09:00', end: '10:00' }),
+        Object.freeze({ start: '12:00', end: '13:00' }),
+        Object.freeze({ start: '14:00', end: '15:00' }),
+        Object.freeze({ start: '20:00', end: '20:30' })
+    ])
+});
 
-const LUCKY_WHEEL_GOLDEN_WINDOWS = Object.freeze([
-    { start: 0, end: 60, label: '00:00 - 01:00' },
-    { start: 9 * 60, end: 10 * 60, label: '09:00 - 10:00' },
-    { start: 12 * 60, end: 13 * 60, label: '12:00 - 13:00' },
-    { start: 14 * 60, end: 15 * 60, label: '14:00 - 15:00' },
-    { start: 20 * 60, end: 20 * 60 + 30, label: '20:00 - 20:30' }
-]);
+window.luckyWheelGoldenHourConfig =
+    window.luckyWheelGoldenHourConfig || null;
 
-function getLuckyWheelVietnamClock(date = new Date()) {
+window.luckyWheelServerTimeOffset =
+    Number(window.luckyWheelServerTimeOffset || 0);
+
+let luckyWheelGoldenHourUiTimer = null;
+let luckyWheelGoldenStatusLocked = null;
+
+// REALTIME V5
+// Realtime là nguồn chính.
+// Polling 15 giây chỉ chạy khi listener lỗi hoặc Firebase mất kết nối.
+let luckyWheelGoldenRealtimeRef = null;
+let luckyWheelGoldenRealtimeHandler = null;
+let luckyWheelGoldenRealtimeCancelHandler = null;
+let luckyWheelGoldenRealtimeInitialized = false;
+let luckyWheelGoldenRealtimeFingerprint = '';
+let luckyWheelGoldenRealtimeFallbackTimer = null;
+let luckyWheelGoldenRealtimeConnectionRef = null;
+let luckyWheelGoldenRealtimeConnectionHandler = null;
+let luckyWheelGoldenRealtimeFallbackReason = '';
+
+function normalizeLuckyWheelGoldenHourConfig(raw) {
+    const source =
+        raw && typeof raw === 'object'
+            ? raw
+            : {};
+
+    const bonus = Math.max(
+        0,
+        Math.min(
+            100000,
+            Math.floor(
+                Number(
+                    source.bonusCoin ??
+                    LUCKY_WHEEL_GOLDEN_HOUR_DEFAULTS.bonusCoin
+                ) || 0
+            )
+        )
+    );
+
+    const rawWindows = Array.isArray(source.windows)
+        ? source.windows
+        : LUCKY_WHEEL_GOLDEN_HOUR_DEFAULTS.windows;
+
+    const windows = rawWindows
+        .map(entry => ({
+            start: String(entry?.start || '').trim(),
+            end: String(entry?.end || '').trim()
+        }))
+        .filter(entry =>
+            /^([01]\d|2[0-3]):[0-5]\d$/.test(entry.start) &&
+            /^([01]\d|2[0-3]):[0-5]\d$/.test(entry.end) &&
+            entry.start !== entry.end
+        );
+
+    return {
+        enabled: source.enabled !== false,
+        bonusCoin: bonus,
+        windows: windows.length
+            ? windows
+            : LUCKY_WHEEL_GOLDEN_HOUR_DEFAULTS.windows.map(entry => ({ ...entry }))
+    };
+}
+
+function getLuckyWheelGoldenConfigFingerprint(config) {
+    const normalized =
+        normalizeLuckyWheelGoldenHourConfig(
+            config
+        );
+
+    return JSON.stringify({
+        enabled:
+            normalized.enabled,
+
+        bonusCoin:
+            normalized.bonusCoin,
+
+        windows:
+            normalized.windows.map(
+                entry => ({
+                    start:
+                        entry.start,
+
+                    end:
+                        entry.end
+                })
+            )
+    });
+}
+
+function applyLuckyWheelGoldenHourRealtimeConfig(
+    raw,
+    {
+        notify = true
+    } = {}
+) {
+    const previousFingerprint =
+        luckyWheelGoldenRealtimeFingerprint;
+
+    const nextConfig =
+        normalizeLuckyWheelGoldenHourConfig(
+            raw
+        );
+
+    const nextFingerprint =
+        getLuckyWheelGoldenConfigFingerprint(
+            nextConfig
+        );
+
+    window.luckyWheelGoldenHourConfig =
+        nextConfig;
+
+    luckyWheelGoldenRealtimeFingerprint =
+        nextFingerprint;
+
+    const liveStatus =
+        getLuckyWheelGoldenHourStatus();
+
+    /*
+     * Nếu giáo viên đổi cấu hình ngay lúc học sinh đang quay,
+     * bỏ trạng thái Giờ Vàng cũ đã khóa và chuyển UI sang dữ liệu mới.
+     * Phần thưởng lúc thanh toán cũng sẽ đọc lại Firebase lần cuối.
+     */
+    if (isSpinning) {
+        luckyWheelGoldenStatusLocked =
+            liveStatus;
+    }
+
+    if (
+        typeof renderLuckyWheelGoldenHourNotice ===
+        'function'
+    ) {
+        renderLuckyWheelGoldenHourNotice();
+    }
+
+    const changed =
+        luckyWheelGoldenRealtimeInitialized &&
+        previousFingerprint &&
+        previousFingerprint !==
+            nextFingerprint;
+
+    if (
+        changed &&
+        notify &&
+        typeof window.showToast ===
+            'function'
+    ) {
+        if (!nextConfig.enabled) {
+            window.showToast(
+                'Giáo viên vừa tắt Giờ Vàng. Vòng quay đã cập nhật ngay.',
+                'warning'
+            );
+        } else if (liveStatus.active) {
+            window.showToast(
+                `Giờ Vàng vừa được cập nhật: +${liveStatus.bonus} Coin/lượt trúng Coin.`,
+                'warning'
+            );
+        } else {
+            window.showToast(
+                'Giáo viên vừa cập nhật lịch Giờ Vàng. Vòng quay đã đồng bộ.',
+                'warning'
+            );
+        }
+    }
+
+    luckyWheelGoldenRealtimeInitialized =
+        true;
+
+    return liveStatus;
+}
+
+function stopLuckyWheelGoldenHourFallbackPolling() {
+    if (
+        luckyWheelGoldenRealtimeFallbackTimer
+    ) {
+        clearInterval(
+            luckyWheelGoldenRealtimeFallbackTimer
+        );
+
+        luckyWheelGoldenRealtimeFallbackTimer =
+            null;
+    }
+
+    luckyWheelGoldenRealtimeFallbackReason =
+        '';
+}
+
+function startLuckyWheelGoldenHourFallbackPolling(
+    reason = 'realtime-unavailable'
+) {
+    luckyWheelGoldenRealtimeFallbackReason =
+        String(reason || 'realtime-unavailable');
+
+    if (
+        luckyWheelGoldenRealtimeFallbackTimer
+    ) {
+        return;
+    }
+
+    /*
+     * Không đọc ngay lập tức ở đây.
+     * Firebase thường chỉ mất kết nối thoáng qua vài giây;
+     * nếu realtime hồi phục trước 15 giây thì sẽ không phát sinh
+     * bất kỳ .once('value') dự phòng nào.
+     */
+    luckyWheelGoldenRealtimeFallbackTimer =
+        setInterval(
+            () => {
+                if (
+                    navigator.onLine === false
+                ) {
+                    return;
+                }
+
+                refreshLuckyWheelGoldenHourFromServer({
+                    notify:
+                        false
+                });
+            },
+            15000
+        );
+}
+
+function stopLuckyWheelGoldenHourRealtimeSync() {
+    if (
+        luckyWheelGoldenRealtimeRef &&
+        luckyWheelGoldenRealtimeHandler
+    ) {
+        luckyWheelGoldenRealtimeRef.off(
+            'value',
+            luckyWheelGoldenRealtimeHandler
+        );
+    }
+
+    if (
+        luckyWheelGoldenRealtimeConnectionRef &&
+        luckyWheelGoldenRealtimeConnectionHandler
+    ) {
+        luckyWheelGoldenRealtimeConnectionRef.off(
+            'value',
+            luckyWheelGoldenRealtimeConnectionHandler
+        );
+    }
+
+    luckyWheelGoldenRealtimeRef = null;
+    luckyWheelGoldenRealtimeHandler = null;
+    luckyWheelGoldenRealtimeCancelHandler = null;
+    luckyWheelGoldenRealtimeConnectionRef = null;
+    luckyWheelGoldenRealtimeConnectionHandler = null;
+
+    stopLuckyWheelGoldenHourFallbackPolling();
+}
+
+async function refreshLuckyWheelGoldenHourFromServer(
+    {
+        notify = false,
+        failClosed = false
+    } = {}
+) {
+    try {
+        const snapshot =
+            await db
+                .ref(
+                    'game_settings/lucky_wheel_golden_hour'
+                )
+                .once(
+                    'value'
+                );
+
+        return applyLuckyWheelGoldenHourRealtimeConfig(
+            snapshot.val(),
+            {
+                notify
+            }
+        );
+    } catch (error) {
+        console.error(
+            '[Giờ Vàng] Không đọc được cấu hình mới nhất từ Firebase:',
+            error
+        );
+
+        if (failClosed) {
+            const config =
+                getLuckyWheelGoldenHourConfig();
+
+            return {
+                active:
+                    false,
+
+                bonus:
+                    0,
+
+                configuredBonus:
+                    config.bonusCoin,
+
+                windowLabel:
+                    '',
+
+                clock:
+                    getLuckyWheelVietnamClock(),
+
+                config
+            };
+        }
+
+        return getLuckyWheelGoldenHourStatus();
+    }
+}
+
+function startLuckyWheelGoldenHourRealtimeSync() {
+    stopLuckyWheelGoldenHourRealtimeSync();
+
+    const ref =
+        db.ref(
+            'game_settings/lucky_wheel_golden_hour'
+        );
+
+    const connectionRef =
+        db.ref(
+            '.info/connected'
+        );
+
+    luckyWheelGoldenRealtimeRef =
+        ref;
+
+    luckyWheelGoldenRealtimeConnectionRef =
+        connectionRef;
+
+    luckyWheelGoldenRealtimeHandler =
+        snapshot => {
+            /*
+             * Một snapshot realtime thành công là tín hiệu chắc chắn nhất
+             * rằng kênh realtime đã hoạt động trở lại.
+             * Tắt polling ngay để tránh đọc Firebase trùng.
+             */
+            stopLuckyWheelGoldenHourFallbackPolling();
+
+            applyLuckyWheelGoldenHourRealtimeConfig(
+                snapshot.val(),
+                {
+                    notify:
+                        true
+                }
+            );
+        };
+
+    luckyWheelGoldenRealtimeCancelHandler =
+        error => {
+            console.error(
+                '[Giờ Vàng] Listener realtime bị lỗi:',
+                error
+            );
+
+            startLuckyWheelGoldenHourFallbackPolling(
+                'listener-error'
+            );
+        };
+
+    luckyWheelGoldenRealtimeConnectionHandler =
+        snapshot => {
+            const connected =
+                snapshot.val() === true;
+
+            if (!connected) {
+                /*
+                 * Chỉ bật chế độ dự phòng.
+                 * Timer chờ đủ 15 giây mới đọc, nên một disconnect
+                 * thoáng qua không tạo thêm Firebase read.
+                 */
+                startLuckyWheelGoldenHourFallbackPolling(
+                    'firebase-disconnected'
+                );
+            }
+
+            /*
+             * Khi connected=true chưa tắt polling ngay.
+             * Chỉ khi listener cấu hình nhận được snapshot thành công
+             * mới coi realtime đã hồi phục hoàn toàn.
+             */
+        };
+
+    /*
+     * Realtime là nguồn chuẩn.
+     * Teacher .set/.update cấu hình -> học sinh nhận snapshot ngay.
+     */
+    ref.on(
+        'value',
+        luckyWheelGoldenRealtimeHandler,
+        luckyWheelGoldenRealtimeCancelHandler
+    );
+
+    /*
+     * Theo dõi trạng thái kết nối Firebase.
+     * .info/connected là metadata kết nối, không cần polling node cấu hình.
+     */
+    connectionRef.on(
+        'value',
+        luckyWheelGoldenRealtimeConnectionHandler
+    );
+
+    if (
+        !window
+            .__luckyWheelGoldenVisibilityRefreshBound
+    ) {
+        window
+            .__luckyWheelGoldenVisibilityRefreshBound =
+            true;
+
+        /*
+         * Chỉ refresh khi đang ở chế độ fallback.
+         * Bình thường realtime khỏe thì visible/online không tạo read mới.
+         */
+        document.addEventListener(
+            'visibilitychange',
+            () => {
+                if (
+                    document.visibilityState ===
+                        'visible' &&
+                    luckyWheelGoldenRealtimeFallbackTimer &&
+                    navigator.onLine !== false
+                ) {
+                    refreshLuckyWheelGoldenHourFromServer({
+                        notify:
+                            false
+                    });
+                }
+            }
+        );
+
+        window.addEventListener(
+            'online',
+            () => {
+                if (
+                    luckyWheelGoldenRealtimeFallbackTimer
+                ) {
+                    refreshLuckyWheelGoldenHourFromServer({
+                        notify:
+                            false
+                    });
+                }
+            }
+        );
+    }
+}
+
+window.startLuckyWheelGoldenHourRealtimeSync =
+    startLuckyWheelGoldenHourRealtimeSync;
+
+window.refreshLuckyWheelGoldenHourFromServer =
+    refreshLuckyWheelGoldenHourFromServer;
+
+function getLuckyWheelGoldenHourConfig() {
+    return normalizeLuckyWheelGoldenHourConfig(
+        window.luckyWheelGoldenHourConfig
+    );
+}
+
+function luckyWheelTimeToMinutes(value) {
+    const match = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(
+        String(value || '').trim()
+    );
+
+    if (!match) return null;
+
+    return Number(match[1]) * 60 + Number(match[2]);
+}
+
+function getLuckyWheelVietnamClock(date = null) {
+    const effectiveDate = date instanceof Date
+        ? date
+        : new Date(
+            Date.now() +
+            Number(window.luckyWheelServerTimeOffset || 0)
+        );
+
     const parts = new Intl.DateTimeFormat(
         'en-GB',
         {
@@ -10698,7 +12417,7 @@ function getLuckyWheelVietnamClock(date = new Date()) {
             second: '2-digit',
             hourCycle: 'h23'
         }
-    ).formatToParts(date);
+    ).formatToParts(effectiveDate);
 
     const values = {};
 
@@ -10716,78 +12435,136 @@ function getLuckyWheelVietnamClock(date = new Date()) {
         hour,
         minute,
         second,
-        totalMinutes:
-            hour * 60 +
-            minute +
-            second / 60
+        totalMinutes: hour * 60 + minute + second / 60,
+        text: `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')}`
     };
 }
 
-function getLuckyWheelGoldenHourStatus(date = new Date()) {
+function getLuckyWheelGoldenHourStatus(date = null) {
+    const config = getLuckyWheelGoldenHourConfig();
     const clock = getLuckyWheelVietnamClock(date);
 
-    const activeWindow =
-        LUCKY_WHEEL_GOLDEN_WINDOWS.find(windowConfig =>
-            clock.totalMinutes >= windowConfig.start &&
-            clock.totalMinutes < windowConfig.end
-        ) || null;
+    if (!config.enabled || config.bonusCoin <= 0) {
+        return {
+            active: false,
+            bonus: 0,
+            configuredBonus: config.bonusCoin,
+            windowLabel: '',
+            clock,
+            config
+        };
+    }
+
+    const activeWindow = config.windows.find(windowConfig => {
+        const start = luckyWheelTimeToMinutes(windowConfig.start);
+        const end = luckyWheelTimeToMinutes(windowConfig.end);
+
+        if (start === null || end === null || start === end) {
+            return false;
+        }
+
+        // Hỗ trợ cả khung qua nửa đêm, ví dụ 23:30 -> 00:30.
+        return start < end
+            ? (
+                clock.totalMinutes >= start &&
+                clock.totalMinutes < end
+            )
+            : (
+                clock.totalMinutes >= start ||
+                clock.totalMinutes < end
+            );
+    }) || null;
 
     return {
         active: Boolean(activeWindow),
-        bonus: activeWindow
-            ? LUCKY_WHEEL_GOLDEN_HOUR_BONUS
-            : 0,
-        windowLabel: activeWindow?.label || '',
-        clock
+        bonus: activeWindow ? config.bonusCoin : 0,
+        configuredBonus: config.bonusCoin,
+        windowLabel: activeWindow
+            ? `${activeWindow.start} - ${activeWindow.end}`
+            : '',
+        clock,
+        config
     };
 }
 
 window.getLuckyWheelGoldenHourStatus =
     getLuckyWheelGoldenHourStatus;
 
-function renderLuckyWheelGoldenHourNotice() {
-    const modal =
-        document.getElementById('luckyWheelModal');
+function getLuckyWheelGoldenHourUiStatus() {
+    // UI luôn phản ánh cấu hình mới nhất mà Firebase vừa đẩy xuống.
+    return getLuckyWheelGoldenHourStatus();
+}
 
+function renderLuckyWheelCoinLabels(status = getLuckyWheelGoldenHourUiStatus()) {
+    const modal = document.getElementById('luckyWheelModal');
     if (!modal) return;
 
-    const title =
-        modal.querySelector('h3');
+    const wheel = document.getElementById('wheelContainer');
+    const bonus = status.active ? Number(status.bonus || 0) : 0;
 
+    modal
+        .querySelectorAll('[data-wheel-base-coin]')
+        .forEach(label => {
+            const baseCoin = Math.max(
+                0,
+                Number(label.dataset.wheelBaseCoin || 0)
+            );
+
+            label.textContent = `${baseCoin + bonus} Coin`;
+
+            if (status.active) {
+                label.dataset.goldenHour = 'true';
+                label.style.color = '#fff2a6';
+                label.style.textShadow =
+                    '0 0 7px rgba(255,215,0,.95), 1px 2px 5px rgba(0,0,0,.9)';
+            } else {
+                delete label.dataset.goldenHour;
+                label.style.color = '';
+                label.style.textShadow = '';
+            }
+        });
+
+    if (wheel) {
+        wheel.style.borderColor = status.active
+            ? '#ffd54a'
+            : '#f8f9fa';
+
+        wheel.style.boxShadow = status.active
+            ? '0 15px 35px rgba(0,0,0,.5), inset 0 0 25px rgba(0,0,0,.6), 0 0 28px rgba(255,193,7,.55)'
+            : '0 15px 35px rgba(0,0,0,.5), inset 0 0 25px rgba(0,0,0,.6)';
+    }
+}
+
+function renderLuckyWheelGoldenHourNotice() {
+    const modal = document.getElementById('luckyWheelModal');
+    if (!modal) return;
+
+    const title = modal.querySelector('h3');
     if (!title) return;
 
-    let notice =
-        document.getElementById(
-            'luckyWheelGoldenHourNotice'
-        );
+    let notice = document.getElementById('luckyWheelGoldenHourNotice');
 
     if (!notice) {
         notice = document.createElement('div');
         notice.id = 'luckyWheelGoldenHourNotice';
-
-        title.insertAdjacentElement(
-            'afterend',
-            notice
-        );
+        title.insertAdjacentElement('afterend', notice);
     }
 
-    const status =
-        getLuckyWheelGoldenHourStatus();
+    const status = getLuckyWheelGoldenHourUiStatus();
+    const config = status.config || getLuckyWheelGoldenHourConfig();
+
+    renderLuckyWheelCoinLabels(status);
 
     notice.style.cssText = status.active
         ? `
             margin: 10px auto 12px;
             max-width: 520px;
             padding: 10px 14px;
-            border: 1px solid rgba(255, 215, 0, .75);
+            border: 1px solid rgba(255, 215, 0, .82);
             border-radius: 12px;
-            background: linear-gradient(
-                135deg,
-                rgba(255, 111, 0, .22),
-                rgba(255, 215, 0, .18)
-            );
-            box-shadow: 0 0 18px rgba(255, 193, 7, .22);
-            color: #ffd700;
+            background: linear-gradient(135deg, rgba(255,111,0,.28), rgba(255,215,0,.22));
+            box-shadow: 0 0 22px rgba(255,193,7,.30);
+            color: #ffe36e;
             font-size: .9em;
             font-weight: 800;
             line-height: 1.45;
@@ -10807,26 +12584,114 @@ function renderLuckyWheelGoldenHourNotice() {
             text-align: center;
         `;
 
-    notice.innerHTML = status.active
-        ? `
-            🔥 <strong>GIỜ VÀNG ĐANG DIỄN RA</strong><br>
-            Trúng Coin được cộng thêm
-            <strong>+${LUCKY_WHEEL_GOLDEN_HOUR_BONUS} Coin</strong>
-            mỗi lượt · ${status.windowLabel}
-        `
-        : `
-            🕒 Giờ Vàng:
-            00:00–01:00 · 09:00–10:00 ·
-            12:00–13:00 · 14:00–15:00 ·
-            20:00–20:30<br>
-            Trong Giờ Vàng:
-            <strong>+${LUCKY_WHEEL_GOLDEN_HOUR_BONUS} Coin</strong>
-            cho mỗi lượt trúng Coin
-        `;
+    const windowsText = config.windows
+        .map(entry => `${entry.start}–${entry.end}`)
+        .join(' · ');
+
+    notice.innerHTML = !config.enabled
+        ? `🕒 Giờ Vàng hiện đang <strong>TẮT</strong> theo cấu hình giáo viên.`
+        : status.active
+            ? `
+                🔥 <strong>GIỜ VÀNG ĐANG DIỄN RA</strong><br>
+                Các ô Coin trên vòng quay đã tăng tạm thời
+                <strong>+${status.bonus} Coin</strong> · ${status.windowLabel}<br>
+                <small>Giờ hệ thống: ${status.clock.text}</small>
+            `
+            : `
+                🕒 Giờ Vàng: ${windowsText}<br>
+                Khi bắt đầu: các ô Coin tăng tạm thời
+                <strong>+${config.bonusCoin} Coin</strong>;
+                hết giờ sẽ tự trở lại giá gốc.<br>
+                <small>Giờ hệ thống: ${status.clock.text}</small>
+            `;
 }
 
 window.renderLuckyWheelGoldenHourNotice =
     renderLuckyWheelGoldenHourNotice;
+
+function startLuckyWheelGoldenHourUiTicker() {
+    if (luckyWheelGoldenHourUiTimer) {
+        clearInterval(luckyWheelGoldenHourUiTimer);
+    }
+
+    renderLuckyWheelGoldenHourNotice();
+
+    luckyWheelGoldenHourUiTimer = setInterval(() => {
+        const modal = document.getElementById('luckyWheelModal');
+
+        if (!modal || !modal.classList.contains('active')) {
+            return;
+        }
+
+        renderLuckyWheelGoldenHourNotice();
+    }, 1000);
+}
+
+function stopLuckyWheelGoldenHourUiTicker() {
+    if (!luckyWheelGoldenHourUiTimer) return;
+
+    clearInterval(luckyWheelGoldenHourUiTimer);
+    luckyWheelGoldenHourUiTimer = null;
+}
+
+async function creditLuckyWheelCoinsReal(amount) {
+    const normalizedAmount = Math.max(
+        0,
+        Math.floor(Number(amount) || 0)
+    );
+
+    if (normalizedAmount <= 0) {
+        return {
+            credited: 0,
+            balance: null
+        };
+    }
+
+    const coinRef = db.ref(
+        'student_coins/' + currentUser.username
+    );
+
+    const transaction = await coinRef.transaction(
+        currentCoins =>
+            (Number(currentCoins) || 0) + normalizedAmount,
+        undefined,
+        false
+    );
+
+    if (!transaction.committed) {
+        throw new Error('LUCKY_WHEEL_COIN_TRANSACTION_NOT_COMMITTED');
+    }
+
+    return {
+        credited: normalizedAmount,
+        balance: Number(transaction.snapshot.val()) || 0
+    };
+}
+
+async function rollbackLuckyWheelSpinUsage(amount) {
+    const normalizedAmount = Math.max(
+        0,
+        Math.floor(Number(amount) || 0)
+    );
+
+    if (normalizedAmount <= 0) return;
+
+    await db
+        .ref('spin_counts/' + currentUser.username)
+        .transaction(currentData => {
+            const currentCount = Math.max(
+                0,
+                Number(currentData?.count || 0)
+            );
+
+            return {
+                count: Math.max(
+                    0,
+                    currentCount - normalizedAmount
+                )
+            };
+        });
+}
 
 // HÀM DÙNG CHUNG: Tính vé chính xác (Vé từ điểm + Vé quà tặng - Số lần đã quay)
 window.calculateTotalTickets = async function () {
@@ -11209,6 +13074,7 @@ window.openLuckyWheel = async function () {
     }
 
     document.getElementById('luckyWheelModal').classList.add('active');
+    startLuckyWheelGoldenHourUiTicker();
 };
 
 window.spinWheel = async function () {
@@ -11231,10 +13097,14 @@ window.spinWheel = async function () {
 
     isSpinning = true;
 
-    // Chốt Giờ Vàng ngay tại thời điểm bắt đầu quay.
-    // Animation kết thúc sau giờ vẫn giữ đúng quyền lợi của lượt đã bấm.
+    // Ghi nhận trạng thái khi bắt đầu chỉ để hiển thị ban đầu.
+    // Trước lúc cộng Coin sẽ đọc lại Firebase để chống dùng cấu hình Giờ Vàng cũ.
     const goldenHourAtSpin =
         getLuckyWheelGoldenHourStatus();
+
+    luckyWheelGoldenStatusLocked =
+        goldenHourAtSpin;
+    renderLuckyWheelGoldenHourNotice();
 
     const wheel = document.getElementById('wheelContainer');
     const resultText = document.getElementById('spinResultText');
@@ -11350,14 +13220,27 @@ window.spinWheel = async function () {
             }
         }
 
-        // GIỜ VÀNG:
-        // Nếu lượt này nhận Coin thì cộng thêm đúng 50 Coin.
-        // Vật phẩm thật không bị chuyển đổi và không nhận bonus.
+        // GIỜ VÀNG REALTIME:
+        // Đọc lại Firebase NGAY TRƯỚC KHI CHỐT PHẦN THƯỞNG.
+        // Nếu giáo viên vừa tắt/đổi khung giờ trong lúc animation đang chạy,
+        // lượt này sẽ dùng cấu hình mới nhất chứ không dùng snapshot cũ.
+        const goldenHourAtPayout =
+            await refreshLuckyWheelGoldenHourFromServer({
+                notify:
+                    false,
+
+                failClosed:
+                    true
+            });
+
         const baseWonCoins = wonCoins;
         const goldenHourBonus =
             wonCoins > 0 &&
-                goldenHourAtSpin.active
-                ? LUCKY_WHEEL_GOLDEN_HOUR_BONUS
+                goldenHourAtPayout.active
+                ? Number(
+                    goldenHourAtPayout.bonus ||
+                    0
+                )
                 : 0;
 
         if (goldenHourBonus > 0) {
@@ -11392,7 +13275,7 @@ window.spinWheel = async function () {
         resultText.innerText = `🎁 KẾT QUẢ: ${displayResult.toUpperCase()}!`;
         setTimeout(() => { resultText.style.transform = 'scale(1)'; }, 300);
 
-        isSpinning = false;
+        // Giữ khóa quay cho tới khi cập nhật phần thưởng + lịch sử hoàn tất.
 
         // Cập nhật số lượt đã quay (Tăng thêm 1)
         ticketData.spinTracking.count = ticketData.used + 1;
@@ -11406,17 +13289,49 @@ window.spinWheel = async function () {
             titleWheel.innerHTML = `🎡 Vòng Quay Nhân Phẩm<br><span style="font-size: 0.5em; color: #ffd700; text-transform: none;">🎫 Vé hiện có: ${ticketData.remaining - 1}</span>`;
         }
 
-        // Cộng Coin
+        // Cộng Coin THẬT vào student_coins và xác nhận transaction committed.
         if (wonCoins > 0) {
-            const coinRef = db.ref('student_coins/' + currentUser.username);
-            await coinRef.transaction(
-                currentCoins => {
-                    return (
-                        Number(currentCoins) ||
-                        0
-                    ) + wonCoins;
+            try {
+                const creditResult =
+                    await creditLuckyWheelCoinsReal(
+                        wonCoins
+                    );
+
+                actualRewardRecord +=
+                    ` · Số dư sau nhận: ${creditResult.balance} Coin`;
+            } catch (coinError) {
+                console.error(
+                    '[Vòng quay] Không cộng được Coin thật:',
+                    coinError
+                );
+
+                // Hoàn lại lượt quay để học sinh không mất vé khi phần thưởng Coin lỗi.
+                try {
+                    await rollbackLuckyWheelSpinUsage(1);
+                } catch (rollbackError) {
+                    console.error(
+                        '[Vòng quay] Không hoàn lại được lượt quay:',
+                        rollbackError
+                    );
                 }
-            );
+
+                resultText.style.color = '#ff6b6b';
+                resultText.innerText =
+                    '❌ KHÔNG CỘNG ĐƯỢC COIN. LƯỢT QUAY ĐÃ ĐƯỢC HOÀN LẠI.';
+
+                isSpinning = false;
+                luckyWheelGoldenStatusLocked = null;
+                renderLuckyWheelGoldenHourNotice();
+
+                if (typeof window.showToast === 'function') {
+                    window.showToast(
+                        'Vòng quay chưa cộng được Coin; hệ thống đã hoàn lại lượt quay.',
+                        'error'
+                    );
+                }
+
+                return;
+            }
         }
 
         if (
@@ -11519,11 +13434,17 @@ window.spinWheel = async function () {
             quickSpinBtn.style.display = (ticketData.remaining - 1) > 1 ? 'block' : 'none';
         }
 
+        isSpinning = false;
+        luckyWheelGoldenStatusLocked = null;
+        renderLuckyWheelGoldenHourNotice();
+
     }, 4050);
 };
 
 window.closeLuckyWheel = function () {
     if (isSpinning) return;
+    stopLuckyWheelGoldenHourUiTicker();
+    luckyWheelGoldenStatusLocked = null;
     document.getElementById('luckyWheelModal').classList.remove('active');
     const wheel = document.getElementById('wheelContainer');
     const resultText = document.getElementById('spinResultText');
@@ -11564,10 +13485,14 @@ window.spinMultipleWheel = async function () {
 
     isSpinning = true;
 
-    // Toàn bộ lượt trong một lần Quay Nhanh dùng trạng thái
-    // Giờ Vàng tại thời điểm người dùng bấm bắt đầu.
+    // Trạng thái lúc bấm chỉ dùng cho thông báo ban đầu.
+    // Bonus thật sẽ xác nhận lại Firebase ngay trước khi cộng Coin.
     const goldenHourAtMultiSpin =
         getLuckyWheelGoldenHourStatus();
+
+    luckyWheelGoldenStatusLocked =
+        goldenHourAtMultiSpin;
+    renderLuckyWheelGoldenHourNotice();
 
     const resultText = document.getElementById('spinResultText');
     const titleWheel = document.querySelector('#luckyWheelModal h3');
@@ -11583,7 +13508,7 @@ window.spinMultipleWheel = async function () {
     resultText.style.transform = 'scale(1)';
     resultText.innerText =
         goldenHourAtMultiSpin.active
-            ? `🔥 GIỜ VÀNG +${LUCKY_WHEEL_GOLDEN_HOUR_BONUS} Coin/lượt trúng Coin · Đang quay ${spinsToDo} lần...`
+            ? `🔥 GIỜ VÀNG +${goldenHourAtMultiSpin.bonus} Coin/lượt trúng Coin · Đang quay ${spinsToDo} lần...`
             : `⚡ Đang xử lý quay ${spinsToDo} lần... 🌀`;
 
     // Chạy ngầm thuật toán quay y hệt hàm spinWheel gốc
@@ -11604,21 +13529,17 @@ window.spinMultipleWheel = async function () {
 
     const addMultiWheelCoinReward = baseAmount => {
         const normalizedBase =
-            Math.max(0, Number(baseAmount) || 0);
+            Math.max(
+                0,
+                Number(baseAmount) || 0
+            );
 
         if (normalizedBase <= 0) return;
 
-        baseCoinsWon += normalizedBase;
-        totalCoinsWon += normalizedBase;
+        baseCoinsWon +=
+            normalizedBase;
+
         coinRewardSpinCount++;
-
-        if (goldenHourAtMultiSpin.active) {
-            totalCoinsWon +=
-                LUCKY_WHEEL_GOLDEN_HOUR_BONUS;
-
-            goldenHourBonusCoins +=
-                LUCKY_WHEEL_GOLDEN_HOUR_BONUS;
-        }
     };
 
     const p = window.wheelProbs || { miss: 50, c100: 20, c150: 25, c500: 4, gift: 1 };
@@ -11649,6 +13570,36 @@ window.spinMultipleWheel = async function () {
         }
     }
 
+    /*
+     * Chốt bonus Quay Nhanh theo cấu hình Firebase MỚI NHẤT.
+     * Nếu teacher tắt Giờ Vàng trong lúc học sinh đang xử lý lượt quay,
+     * goldenHourBonusCoins lập tức = 0.
+     */
+    const goldenHourAtMultiPayout =
+        await refreshLuckyWheelGoldenHourFromServer({
+            notify:
+                false,
+
+            failClosed:
+                true
+        });
+
+    goldenHourBonusCoins =
+        goldenHourAtMultiPayout.active
+            ? (
+                coinRewardSpinCount *
+                Number(
+                    goldenHourAtMultiPayout
+                        .bonus ||
+                    0
+                )
+            )
+            : 0;
+
+    totalCoinsWon =
+        baseCoinsWon +
+        goldenHourBonusCoins;
+
     // Cập nhật Database
     ticketData.spinTracking.count = ticketData.used + spinsToDo;
     await db.ref('spin_counts/' + currentUser.username).transaction((currentData) => {
@@ -11657,8 +13608,44 @@ window.spinMultipleWheel = async function () {
     });
 
     if (totalCoinsWon > 0) {
-        const coinRef = db.ref('student_coins/' + currentUser.username);
-        await coinRef.transaction((currentCoins) => { return (currentCoins || 0) + totalCoinsWon; });
+        try {
+            await creditLuckyWheelCoinsReal(
+                totalCoinsWon
+            );
+        } catch (coinError) {
+            console.error(
+                '[Vòng quay nhanh] Không cộng được Coin thật:',
+                coinError
+            );
+
+            try {
+                await rollbackLuckyWheelSpinUsage(
+                    spinsToDo
+                );
+            } catch (rollbackError) {
+                console.error(
+                    '[Vòng quay nhanh] Không hoàn lại được lượt quay:',
+                    rollbackError
+                );
+            }
+
+            resultText.style.color = '#ff6b6b';
+            resultText.innerText =
+                `❌ KHÔNG CỘNG ĐƯỢC COIN. ĐÃ HOÀN LẠI ${spinsToDo} LƯỢT QUAY.`;
+
+            isSpinning = false;
+            luckyWheelGoldenStatusLocked = null;
+            renderLuckyWheelGoldenHourNotice();
+
+            if (typeof window.showToast === 'function') {
+                window.showToast(
+                    `Không cộng được Coin; đã hoàn lại ${spinsToDo} lượt quay.`,
+                    'error'
+                );
+            }
+
+            return;
+        }
     }
 
     if (newlyWonItems.length > 0) {
@@ -11820,6 +13807,8 @@ window.spinMultipleWheel = async function () {
 
         setTimeout(() => { resultText.style.transform = 'scale(1)'; }, 300);
         isSpinning = false;
+        luckyWheelGoldenStatusLocked = null;
+        renderLuckyWheelGoldenHourNotice();
 
         if (typeof studentOwnedItems !== 'undefined' && newlyWonItems.length > 0) {
             newlyWonItems.forEach(item => studentOwnedItems.push(item.id));
@@ -12585,7 +14574,9 @@ window.buyItem = async function (itemId, isUpgradingFromTrial = false) {
 
     if (
         String(itemId) ===
-        'pet_trung_thu_nguyet_cung_tien_tu'
+            'pet_trung_thu_nguyet_cung_tien_tu' ||
+        String(item.currency || '') ===
+            'mid_autumn_coin'
     ) {
         return window
             .MidAutumnCoinManager
@@ -13467,6 +15458,24 @@ window.applyEquippedItems = function () {
         );
 
         if (!itemDef) return;
+
+        /*
+         * Giáo viên khóa vật phẩm:
+         * - không áp lại vật phẩm dù Firebase kho vẫn đang đánh dấu isEquipped;
+         * - theme bị khóa phải trả về mặc định ngay;
+         * - effect/pet/frame/background đã được dọn ở đầu hàm;
+         * - music không được gán equippedMusic nên cuối hàm sẽ stopMusic().
+         *
+         * Không sửa isEquipped trong Firebase để khi Giáo viên mở khóa,
+         * trạng thái trang bị cũ có thể hoạt động lại.
+         */
+        if (itemDef.isLocked === true) {
+            if (itemDef.type === 'theme') {
+                ThemeManager.applyTheme('default');
+            }
+
+            return;
+        }
 
         // Theme vẫn được sử dụng khi thi
         if (itemDef.type === 'theme') {

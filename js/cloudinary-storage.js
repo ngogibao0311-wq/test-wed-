@@ -1,16 +1,53 @@
 (function () {
     'use strict';
 
+    /*
+     * SECURITY PATCH:
+     * CloudinaryStorage được giữ lại như API tương thích cho code cũ,
+     * nhưng KHÔNG còn upload trực tiếp tới Cloudinary bằng unsigned preset.
+     *
+     * Mọi upload mới được chuyển qua CloudflareR2Storage, nơi Worker
+     * yêu cầu Firebase ID token trong Authorization: Bearer.
+     */
     const CLOUDINARY_CONFIG = Object.freeze({
-        cloudName: 'kexe2zqv',
-        uploadPreset: 'quan_ly_bai_tap',
+        provider: 'cloudflare-r2',
+        compatibilityMode: true,
 
-        // Mặc định cho file bài tập, tài liệu và bài nộp.
+        // Giữ giới hạn cũ để không đổi hành vi các màn hình đang dùng.
         defaultMaxFileSize: 5 * 1024 * 1024
     });
 
+    function getSecureStorage() {
+        const storage =
+            window.CloudflareR2Storage;
+
+        if (
+            !storage ||
+            typeof storage.uploadFile !==
+                'function'
+        ) {
+            throw new Error(
+                'Kho lưu trữ bảo mật R2 chưa sẵn sàng. ' +
+                'Vui lòng tải lại trang rồi thử lại.'
+            );
+        }
+
+        if (
+            typeof storage.isConfigured ===
+                'function' &&
+            !storage.isConfigured()
+        ) {
+            throw new Error(
+                'Cloudflare R2 chưa được cấu hình.'
+            );
+        }
+
+        return storage;
+    }
+
     /**
-     * Upload một File hoặc Blob lên Cloudinary.
+     * API tương thích với CloudinaryStorage.uploadFile cũ.
+     * Upload thật được thực hiện qua Cloudflare R2 + Firebase ID token.
      *
      * @param {File|Blob} file
      * @param {Object} options
@@ -44,96 +81,70 @@
             file.name ||
             `file-${Date.now()}`;
 
-        const formData = new FormData();
+        const storage =
+            getSecureStorage();
 
-        formData.append(
-            'file',
-            file,
-            originalName
-        );
+        const uploaded =
+            await storage.uploadFile(
+                file,
+                {
+                    ...options,
+                    fileName:
+                        originalName,
 
-        formData.append(
-            'upload_preset',
-            CLOUDINARY_CONFIG.uploadPreset
-        );
+                    maxSizeBytes,
 
-        const endpoint =
-            `https://api.cloudinary.com/v1_1/` +
-            `${encodeURIComponent(
-                CLOUDINARY_CONFIG.cloudName
-            )}/auto/upload`;
-
-        const response = await fetch(
-            endpoint,
-            {
-                method: 'POST',
-                body: formData
-            }
-        );
-
-        const result =
-            await response
-                .json()
-                .catch(() => null);
-
-        if (
-            !response.ok ||
-            !result ||
-            !result.secure_url
-        ) {
-            throw new Error(
-                result?.error?.message ||
-                `Cloudinary trả về lỗi HTTP ${response.status}.`
+                    /*
+                     * Một thư mục chung cho các caller cũ của
+                     * CloudinaryStorage. Caller có thể truyền folder
+                     * riêng và giá trị đó vẫn được ưu tiên.
+                     */
+                    folder:
+                        options.folder ||
+                        'legacy-cloudinary-migrated'
+                }
             );
-        }
 
         /*
-         * Chỉ trả về metadata ngắn.
-         * Không trả Base64 về Firebase.
+         * Trả về metadata tương thích:
+         * - url/secureUrl vẫn giữ nguyên contract cũ
+         * - provider phản ánh storage thật để xóa file đúng backend
          */
         return {
-            provider: 'cloudinary',
+            ...uploaded,
+
+            provider:
+                uploaded.provider ||
+                'cloudflare-r2',
 
             url:
-                result.secure_url,
+                uploaded.url ||
+                uploaded.secureUrl,
 
             secureUrl:
-                result.secure_url,
-
-            publicId:
-                result.public_id || '',
-
-            assetId:
-                result.asset_id || '',
-
-            resourceType:
-                result.resource_type || '',
-
-            format:
-                result.format || '',
+                uploaded.secureUrl ||
+                uploaded.url,
 
             name:
+                uploaded.name ||
                 originalName,
 
             type:
+                uploaded.type ||
                 file.type ||
                 'application/octet-stream',
 
             size:
-                Number(result.bytes) ||
+                Number(uploaded.size) ||
                 Number(file.size) ||
                 0,
 
-            width:
-                Number(result.width) ||
-                null,
-
-            height:
-                Number(result.height) ||
-                null,
-
             uploadedAt:
-                Date.now()
+                Number(uploaded.uploadedAt) ||
+                Date.now(),
+
+            migratedFrom:
+                'cloudinary-unsigned-client'
         };
     }
 
@@ -163,7 +174,7 @@
                 results.push(uploaded);
             } catch (error) {
                 console.error(
-                    'Cloudinary upload error:',
+                    'Secure storage upload error:',
                     file?.name,
                     error
                 );

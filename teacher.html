@@ -1,23 +1,24 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" data-app-role="teacher">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="application-version" content="4.0.1">
     <title>Trang Giáo Viên</title>
     <!-- Kết nối sớm tới CDN lõi; không tải thêm tài nguyên và không đổi chức năng -->
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="icon" type="image/png" href="assets/icon.png">
-    <link rel="stylesheet" href="css/common.css?v=3.8">
-    <link rel="stylesheet" href="css/teacher.css?v=20260905.redo-scope-v1">
-    <link rel="stylesheet" href="css/mobile.css?v=3.8">
+    <link rel="stylesheet" href="css/common.css?v=4.0.1">
+    <link rel="stylesheet" href="css/teacher.css?v=20260906.golden-layout-v3">
+    <link rel="stylesheet" href="css/mobile.css?v=4.0.0">
     <link rel="stylesheet" href="css/web-animations.css?v=1.0">
-    <link rel="stylesheet" href="css/store-items.css?v=3.8">
-    <link rel="stylesheet" href="css/effects-pets.css?v=3.8">
-    <link rel="stylesheet" href="css/daily-login.css?v=3.8">
-    <link rel="stylesheet" href="css/painting.css?v=3.8">
+    <link rel="stylesheet" href="css/store-items.css?v=4.0.0">
+    <link rel="stylesheet" href="css/effects-pets.css?v=4.0.0">
+    <link rel="stylesheet" href="css/daily-login.css?v=4.0.0">
+    <link rel="stylesheet" href="css/painting.css?v=4.0.0">
     <link rel="stylesheet" href="css/luxury-store.css?v=4.2">
     <link rel="stylesheet" href="css/update-manager.css?v=1.0.0">
     <script>
@@ -1218,7 +1219,7 @@
             <div id="tab-assigned" class="tab-content">
                 <h2>Danh sách bài tập đã giao</h2>
                 <input type="text" id="searchAssigned" class="search-bar"
-                    placeholder="🔍 Tìm kiếm theo tên bài tập, loại hình..." onkeyup="applyAssignedFilters()">
+                    placeholder="🔍 Tìm kiếm theo tên bài tập, loại hình..." oninput="applyAssignedFilters()">
                 <div id="assignedStudentFilterContainer"
                     style="display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px;">
                     <button class="btn-student-filter active" data-id="all"
@@ -1230,7 +1231,7 @@
             <div id="tab-list" class="tab-content">
                 <h2>Danh sách bài đã nộp</h2>
                 <input type="text" id="searchSubmissions" class="search-bar"
-                    placeholder="🔍 Tìm kiếm theo tên bài tập..." onkeyup="applySubmissionFilters()">
+                    placeholder="🔍 Tìm kiếm theo tên bài tập..." oninput="applySubmissionFilters()">
                 <div id="submittedStudentFilterContainer"
                     style="display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px;">
                     <button class="btn-student-filter active" data-id="all"
@@ -1697,6 +1698,145 @@
                             <button onclick="saveWheelProbabilities()"
                                 style="margin-top: 15px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white; border: none; font-weight: bold; width: 100%; padding: 10px;">💾
                                 Lưu cấu hình tỉ lệ</button>
+                        </div>
+
+                        <div id="teacherGoldenHourManageCard" class="teacher-golden-hour-card">
+                            <div class="teacher-golden-hour-head">
+                                <div class="teacher-golden-hour-heading">
+                                    <h4>🔥 Quản lý Giờ Vàng vòng quay</h4>
+                                    <p>
+                                        Khi vào Giờ Vàng, chỉ số Coin hiển thị trên bánh xe tăng tạm thời.
+                                        Hết giờ tự trở lại giá gốc; tỉ lệ trúng không đổi.
+                                    </p>
+                                </div>
+
+                                <label class="teacher-golden-hour-toggle">
+                                    <input
+                                        type="checkbox"
+                                        id="goldenHourEnabled"
+                                        checked
+                                        onchange="toggleLuckyWheelGoldenHourRealtime(this.checked)"
+                                    >
+                                    <span>Bật Giờ Vàng</span>
+                                </label>
+                            </div>
+
+                            <div class="teacher-golden-hour-config">
+                                <section class="teacher-golden-bonus-box">
+                                    <label for="goldenHourBonus">
+                                        Coin cộng thêm / lượt trúng Coin
+                                    </label>
+
+                                    <div class="teacher-golden-bonus-input-wrap">
+                                        <span>🪙</span>
+
+                                        <input
+                                            type="number"
+                                            id="goldenHourBonus"
+                                            min="0"
+                                            max="100000"
+                                            value="50"
+                                            inputmode="numeric"
+                                            oninput="renderTeacherLuckyWheelGoldenPreview()"
+                                        >
+
+                                        <small>Coin</small>
+                                    </div>
+                                </section>
+
+                                <section class="teacher-golden-window-section">
+                                    <div class="teacher-golden-window-title">
+                                        <strong>🕒 Các khung giờ Việt Nam</strong>
+                                        <small>Giờ bắt đầu → Giờ kết thúc</small>
+                                    </div>
+
+                                    <div class="teacher-golden-window-grid">
+                                        <div class="teacher-golden-window-card">
+                                            <span class="teacher-golden-window-index">Khung 1</span>
+                                            <div class="teacher-golden-window-row">
+                                                <input type="time" id="goldenHourStart0" value="00:00"
+                                                    aria-label="Giờ bắt đầu khung 1"
+                                                    oninput="renderTeacherLuckyWheelGoldenPreview()">
+                                                <span class="teacher-golden-window-arrow">→</span>
+                                                <input type="time" id="goldenHourEnd0" value="01:00"
+                                                    aria-label="Giờ kết thúc khung 1"
+                                                    oninput="renderTeacherLuckyWheelGoldenPreview()">
+                                            </div>
+                                        </div>
+
+                                        <div class="teacher-golden-window-card">
+                                            <span class="teacher-golden-window-index">Khung 2</span>
+                                            <div class="teacher-golden-window-row">
+                                                <input type="time" id="goldenHourStart1" value="09:00"
+                                                    aria-label="Giờ bắt đầu khung 2"
+                                                    oninput="renderTeacherLuckyWheelGoldenPreview()">
+                                                <span class="teacher-golden-window-arrow">→</span>
+                                                <input type="time" id="goldenHourEnd1" value="10:00"
+                                                    aria-label="Giờ kết thúc khung 2"
+                                                    oninput="renderTeacherLuckyWheelGoldenPreview()">
+                                            </div>
+                                        </div>
+
+                                        <div class="teacher-golden-window-card">
+                                            <span class="teacher-golden-window-index">Khung 3</span>
+                                            <div class="teacher-golden-window-row">
+                                                <input type="time" id="goldenHourStart2" value="12:00"
+                                                    aria-label="Giờ bắt đầu khung 3"
+                                                    oninput="renderTeacherLuckyWheelGoldenPreview()">
+                                                <span class="teacher-golden-window-arrow">→</span>
+                                                <input type="time" id="goldenHourEnd2" value="13:00"
+                                                    aria-label="Giờ kết thúc khung 3"
+                                                    oninput="renderTeacherLuckyWheelGoldenPreview()">
+                                            </div>
+                                        </div>
+
+                                        <div class="teacher-golden-window-card">
+                                            <span class="teacher-golden-window-index">Khung 4</span>
+                                            <div class="teacher-golden-window-row">
+                                                <input type="time" id="goldenHourStart3" value="14:00"
+                                                    aria-label="Giờ bắt đầu khung 4"
+                                                    oninput="renderTeacherLuckyWheelGoldenPreview()">
+                                                <span class="teacher-golden-window-arrow">→</span>
+                                                <input type="time" id="goldenHourEnd3" value="15:00"
+                                                    aria-label="Giờ kết thúc khung 4"
+                                                    oninput="renderTeacherLuckyWheelGoldenPreview()">
+                                            </div>
+                                        </div>
+
+                                        <div class="teacher-golden-window-card">
+                                            <span class="teacher-golden-window-index">Khung 5</span>
+                                            <div class="teacher-golden-window-row">
+                                                <input type="time" id="goldenHourStart4" value="20:00"
+                                                    aria-label="Giờ bắt đầu khung 5"
+                                                    oninput="renderTeacherLuckyWheelGoldenPreview()">
+                                                <span class="teacher-golden-window-arrow">→</span>
+                                                <input type="time" id="goldenHourEnd4" value="20:30"
+                                                    aria-label="Giờ kết thúc khung 5"
+                                                    oninput="renderTeacherLuckyWheelGoldenPreview()">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+
+                            <div id="teacherGoldenHourPreview" class="teacher-golden-hour-preview">
+                                Giá hiển thị trong Giờ Vàng:
+                                <strong>50 → 100</strong> ·
+                                <strong>70 → 120</strong> ·
+                                <strong>200 → 250</strong> Coin
+                            </div>
+
+                            <div id="teacherGoldenHourStatus" class="teacher-golden-hour-status">
+                                🕒 Đang đồng bộ giờ hệ thống...
+                            </div>
+
+                            <button
+                                type="button"
+                                class="teacher-golden-hour-save"
+                                onclick="saveLuckyWheelGoldenHourSettings()"
+                            >
+                                💾 Lưu cấu hình Giờ Vàng
+                            </button>
                         </div>
 
                         <div class="card accordion-card" style="margin-top: 20px;">
@@ -3267,8 +3407,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <!-- 2. Khởi tạo Firebase -->
-    <script src="js/firebase-config.js?v=3.8"></script>
-    <script src="js/cloudinary-storage.js?v=3.8"></script>
+    <script src="js/firebase-config.js?v=4.0.1"></script>
+    <script src="js/cloudinary-storage.js?v=4.0.0"></script>
 
     <script>
         window.APP_STORAGE_CONFIG = Object.freeze({
@@ -3276,7 +3416,7 @@
         });
     </script>
 
-    <script src="js/cloudflare-r2-storage.js?v=3.8"></script>
+    <script src="js/cloudflare-r2-storage.js?v=4.0.0"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.7/dist/purify.min.js">
     </script>
@@ -3286,38 +3426,44 @@
     <script>
         // Phiên bản thực sự của bộ HTML/JS đang chạy.
         // common.js cũ đọc appVersion từ localStorage, nên đồng bộ trước khi nạp common.js.
-        window.APP_VERSION = '3.3.0';
+        window.APP_VERSION = '4.0.1';
         try {
             localStorage.setItem('appVersion', window.APP_VERSION);
         } catch (_) {}
     </script>
-    <script src="js/common.js?v=3.6"></script>
-    <script src="js/update-manager.js?v=1.0.0"></script>
+    <script src="js/common.js?v=4.0.1"></script>
+    <script src="js/update-manager.js?v=1.0.1"></script>
     <script src="js/web-animations.js?v=1.0"></script>
-    <!-- Tối ưu hiệu năng: tự bật trên mobile; desktop theo Cài đặt -->
+    <!-- Tối ưu hiệu năng: mặc định tắt; dùng trạng thái đã lưu trong Cài đặt. Phát hiện mobile/thiết bị yếu chỉ áp dụng sau khi tính năng đã được bật. -->
     <script src="js/web-performance-optimizer.js?v=2.0.0"></script>
-    <script src="js/transaction-history.js?v=3.8"></script>
-    <script src="js/security.js?v=3.8"></script>
+    <script src="js/transaction-history.js?v=4.0.0"></script>
+    <script>
+        // security.js nạp trước teacher.js: đánh dấu rõ đây là trang Giáo viên đang chờ xác thực.
+        window.__APP_PAGE_ROLE__ = 'teacher';
+        window.__teacherSecurityVerificationState =
+            window.__teacherSecurityVerificationState || 'pending';
+    </script>
+    <script src="js/security.js?v=4.1.0-race-safe"></script>
 
     <!-- 4. Các module tính năng -->
-    <script src="js/daily-login.js?v=3.8"></script>
+    <script src="js/daily-login.js?v=4.0.0"></script>
     <script src="js/theme-items.js?v=4.2"></script>
     <script src="js/effect-items.js?v=4.2"></script>
     <script src="js/pet-items.js?v=4.2"></script>
     <!-- Điều chỉnh riêng mức hiệu ứng vật phẩm + Web Animations; không đụng theme/logic -->
     <script src="js/effect-quality-manager.js?v=1.0.0"></script>
-    <script src="js/royal-ball.js?v=3.8"></script>
-    <script src="js/music-manager.js?v=3.8"></script>
-    <script src="js/store-manager.js?v=3.8.3-sitewide-image-protection"></script>
-    <script src="js/painting.js?v=3.8"></script>
-    <script src="js/luxury-store.js?v=4.2.3-midautumn-coin-v1"></script>
+    <script src="js/royal-ball.js?v=4.0.0"></script>
+    <script src="js/music-manager.js?v=4.0.0"></script>
+    <script src="js/store-manager.js?v=4.0.1-lockfix-ui-isolation-r3-height"></script>
+    <script src="js/painting.js?v=20260908.round-query-v1"></script>
+    <script src="js/luxury-store.js?v=4.2.4-lockfix-ui-isolation-r2"></script>
 
     <!-- 5. Logic chính của trang giáo viên luôn đặt cuối -->
     <!-- Hotfix: xác nhận cài đặt lộ trình trước khi teacher.js chờ loader -->
     <script src="js/roadmap-startup-fix.js?v=1.0"></script>
 
-    <script src="js/teacher.js?v=20260905.midautumn-coin-v1"></script>
-    <script src="js/huong-dan-nguoi-moi.js?v=1.0.0"></script>
+    <script src="js/teacher.js?v=20260908.security-racefix-v1"></script>
+    <script src="js/huong-dan-nguoi-moi.js?v=2.14.0"></script>
 </body>
 
 </html>

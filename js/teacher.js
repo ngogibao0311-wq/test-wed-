@@ -1,5 +1,76 @@
 const currentUser = JSON.parse(localStorage.getItem('currentUser')) || {};
 
+// ======================================================
+// SECURITY GUARD · TRẠNG THÁI XÁC THỰC GIÁO VIÊN
+// ======================================================
+// security.js được nạp trước teacher.js. Trạng thái này giúp security.js phân biệt
+// "đang chờ Firebase" với "đã bị từ chối quyền", tránh đá nhầm Giáo viên lúc startup.
+window.__teacherSecurityVerificationState =
+    window.__teacherSecurityVerificationState || 'pending';
+
+window.setTeacherSecurityVerificationState =
+    window.setTeacherSecurityVerificationState ||
+    function (state, detail = '') {
+        const normalized = String(state || 'pending').trim().toLowerCase();
+        window.__teacherSecurityVerificationState = normalized;
+
+        try {
+            document.documentElement.dataset.teacherSecurityState = normalized;
+        } catch (_) {}
+
+        try {
+            window.dispatchEvent(
+                new CustomEvent('teacher-security-state-change', {
+                    detail: {
+                        state: normalized,
+                        message: String(detail || '')
+                    }
+                })
+            );
+        } catch (_) {}
+
+        return normalized;
+    };
+
+window.setTeacherSecurityVerificationState('pending');
+
+
+// ======================================================
+// STORE LOCK HOTFIX v4.0.1
+// Chuẩn hóa dữ liệu isLocked từ Firebase.
+// Tránh lỗi !!"false" === true và tự trả về false khi node bị xóa.
+// ======================================================
+window.normalizeStoreItemLockState =
+    window.normalizeStoreItemLockState ||
+    function (value) {
+        if (value === true || value === 1) {
+            return true;
+        }
+
+        if (
+            value === false ||
+            value === 0 ||
+            value === null ||
+            value === undefined ||
+            value === ''
+        ) {
+            return false;
+        }
+
+        const normalized =
+            String(value)
+                .trim()
+                .toLowerCase();
+
+        return (
+            normalized === 'true' ||
+            normalized === '1' ||
+            normalized === 'yes' ||
+            normalized === 'on' ||
+            normalized === 'locked'
+        );
+    };
+
 
 // ======================================================
 // TRUNG THU · LỊCH ÂM VIỆT NAM (UTC+7)
@@ -1606,7 +1677,517 @@ async function getPaginatedDB(path, limit = 20, cursorKey = null) {
     return { items, nextKey };
 }
 
+// ==============================================================
+// TỐI ƯU TÌM KIẾM + "TẢI THÊM" CHO 2 DANH SÁCH LỚN CỦA GIÁO VIÊN
+// - Danh sách thường: vẫn tải 20 mục/lần bằng Firebase key.
+// - Khi có từ khóa / lọc học sinh: tải chỉ mục 1 lần, cache ngắn hạn,
+//   lọc TOÀN BỘ dữ liệu đúng điều kiện rồi mới phân trang kết quả.
+// - Không còn tình trạng tìm kiếm chỉ trong 20 card đã render.
+// ==============================================================
+const TEACHER_SEARCH_CACHE_TTL = 45 * 1000;
+let teacherAssignedFilteredOffset = 0;
+let teacherSubmissionFilteredOffset = 0;
+let teacherAssignedSearchTimer = null;
+let teacherSubmissionSearchTimer = null;
+let teacherAssignedLoadSeq = 0;
+let teacherSubmissionLoadSeq = 0;
+
+const teacherAssignmentSearchCache = {
+    loadedAt: 0,
+    items: []
+};
+
+const teacherSubmissionSearchCache = {
+    loadedAt: 0,
+    items: []
+};
+
+const teacherStudentsLiteCache = {
+    loadedAt: 0,
+    items: []
+};
+
+function normalizeTeacherSearchText(value) {
+    return String(value ?? '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd')
+        .replace(/Đ/g, 'D')
+        .toLowerCase()
+        .replace(/<[^>]*>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function getTeacherAssignedSearchQuery() {
+    return normalizeTeacherSearchText(
+        document.getElementById('searchAssigned')?.value || ''
+    );
+}
+
+function getTeacherSubmissionSearchQuery() {
+    return normalizeTeacherSearchText(
+        document.getElementById('searchSubmissions')?.value || ''
+    );
+}
+
+function isTeacherAssignedFilteredMode() {
+    return (
+        getTeacherAssignedSearchQuery() !== '' ||
+        activeAssignedStudentFilter !== 'all'
+    );
+}
+
+function isTeacherSubmissionFilteredMode() {
+    return (
+        getTeacherSubmissionSearchQuery() !== '' ||
+        activeSubmissionStudentFilter !== 'all'
+    );
+}
+
+function teacherAssignmentMatchesStudentFilter(assignment, studentId) {
+    if (!studentId || studentId === 'all') return true;
+
+    const targets = normalizeAssignmentTargets(
+        assignment?.targetStudent
+    );
+
+    return (
+        targets.includes('all') ||
+        targets.includes(studentId)
+    );
+}
+
+function getTeacherAssignmentSearchText(assignment) {
+    const targets = normalizeAssignmentTargets(
+        assignment?.targetStudent
+    ).join(' ');
+
+    let typeText = assignment?.assessmentType || '';
+
+    if (assignment?.assessmentType === 'trac_nghiem') {
+        typeText += ' trac nghiem';
+    } else if (assignment?.assessmentType === 'ket_hop') {
+        typeText += ' ket hop';
+    } else if (assignment?.assessmentType === 'thi') {
+        typeText += ' thi kiem tra';
+    } else {
+        typeText += ' tu luan';
+    }
+
+    return normalizeTeacherSearchText([
+        assignment?.title,
+        assignment?.description,
+        assignment?.essayPrompt,
+        typeText,
+        assignment?.startDate,
+        assignment?.endDate,
+        targets
+    ].filter(Boolean).join(' '));
+}
+
+function getTeacherSubmissionSearchText(submission, assignment) {
+    return normalizeTeacherSearchText([
+        assignment?.title,
+        assignment?.assessmentType,
+        submission?.studentName,
+        submission?.studentUsername,
+        submission?.grade,
+        submission?.submitTime,
+        submission?.teacherComment
+    ].filter(Boolean).join(' '));
+}
+
+function getTeacherSearchSortKey(item) {
+    const rawTime =
+        item?.updatedAt ||
+        item?.submitTimestamp ||
+        item?.submittedAt ||
+        item?.createdAt ||
+        item?.timestamp ||
+        item?.id;
+
+    const numeric = Number(rawTime);
+    if (Number.isFinite(numeric) && numeric > 0) {
+        return numeric;
+    }
+
+    const dateText =
+        item?.submitTime ||
+        item?.endDate ||
+        item?.startDate;
+
+    if (dateText) {
+        const parsed = new Date(
+            String(dateText).replace(' ', 'T')
+        ).getTime();
+
+        if (Number.isFinite(parsed)) {
+            return parsed;
+        }
+    }
+
+    return 0;
+}
+
+async function getTeacherAssignmentSearchIndex(forceRefresh = false) {
+    const now = Date.now();
+
+    if (
+        !forceRefresh &&
+        teacherAssignmentSearchCache.loadedAt &&
+        now - teacherAssignmentSearchCache.loadedAt <
+            TEACHER_SEARCH_CACHE_TTL
+    ) {
+        return teacherAssignmentSearchCache.items;
+    }
+
+    const snapshot =
+        await db.ref('assignments').once('value');
+
+    const rows = [];
+
+    snapshot.forEach(child => {
+        rows.push({
+            _fbKey: child.key,
+            ...(child.val() || {})
+        });
+    });
+
+    rows.sort((a, b) => {
+        const timeDiff =
+            getTeacherSearchSortKey(b) -
+            getTeacherSearchSortKey(a);
+
+        if (timeDiff !== 0) return timeDiff;
+
+        return String(b._fbKey || '')
+            .localeCompare(String(a._fbKey || ''));
+    });
+
+    teacherAssignmentSearchCache.loadedAt = now;
+    teacherAssignmentSearchCache.items = rows;
+
+    return rows;
+}
+
+async function getTeacherSubmissionSearchIndex(forceRefresh = false) {
+    const now = Date.now();
+
+    if (
+        !forceRefresh &&
+        teacherSubmissionSearchCache.loadedAt &&
+        now - teacherSubmissionSearchCache.loadedAt <
+            TEACHER_SEARCH_CACHE_TTL
+    ) {
+        return teacherSubmissionSearchCache.items;
+    }
+
+    const snapshot =
+        await db.ref('submissions').once('value');
+
+    const rows = [];
+
+    snapshot.forEach(child => {
+        rows.push({
+            _fbKey: child.key,
+            ...(child.val() || {})
+        });
+    });
+
+    rows.sort((a, b) => {
+        const timeDiff =
+            getTeacherSearchSortKey(b) -
+            getTeacherSearchSortKey(a);
+
+        if (timeDiff !== 0) return timeDiff;
+
+        return String(b._fbKey || '')
+            .localeCompare(String(a._fbKey || ''));
+    });
+
+    teacherSubmissionSearchCache.loadedAt = now;
+    teacherSubmissionSearchCache.items = rows;
+
+    return rows;
+}
+
+function buildTeacherAssignmentIndexMap(assignments) {
+    const map = new Map();
+
+    (assignments || []).forEach(assignment => {
+        getCompatAssignmentIds(assignment).forEach(id => {
+            map.set(String(id), assignment);
+        });
+
+        if (assignment?._fbKey) {
+            map.set(
+                String(assignment._fbKey),
+                assignment
+            );
+        }
+    });
+
+    return map;
+}
+
+async function getTeacherFilteredAssignmentsPage(isLoadMore) {
+    if (!isLoadMore) {
+        teacherAssignedFilteredOffset = 0;
+    }
+
+    const query = getTeacherAssignedSearchQuery();
+    const allAssignments =
+        await getTeacherAssignmentSearchIndex();
+
+    const filtered = allAssignments.filter(assignment => {
+        if (
+            !teacherAssignmentMatchesStudentFilter(
+                assignment,
+                activeAssignedStudentFilter
+            )
+        ) {
+            return false;
+        }
+
+        if (!query) return true;
+
+        return getTeacherAssignmentSearchText(
+            assignment
+        ).includes(query);
+    });
+
+    const start = teacherAssignedFilteredOffset;
+    const items = filtered.slice(
+        start,
+        start + PAGE_LIMIT
+    );
+
+    teacherAssignedFilteredOffset += items.length;
+
+    return {
+        items,
+        total: filtered.length,
+        end:
+            teacherAssignedFilteredOffset >=
+            filtered.length
+    };
+}
+
+async function getTeacherFilteredSubmissionsPage(isLoadMore) {
+    if (!isLoadMore) {
+        teacherSubmissionFilteredOffset = 0;
+    }
+
+    const query =
+        getTeacherSubmissionSearchQuery();
+
+    const [allSubmissions, assignmentIndex] =
+        await Promise.all([
+            getTeacherSubmissionSearchIndex(),
+            getTeacherAssignmentSearchIndex()
+        ]);
+
+    const assignmentMap =
+        buildTeacherAssignmentIndexMap(
+            assignmentIndex
+        );
+
+    const preferred = new Map();
+
+    allSubmissions.forEach(submission => {
+        const studentUsername =
+            compatText(
+                getCompatSubmissionUsername(
+                    submission
+                )
+            );
+
+        if (
+            activeSubmissionStudentFilter !== 'all' &&
+            studentUsername !==
+                activeSubmissionStudentFilter
+        ) {
+            return;
+        }
+
+        const assignmentId =
+            compatText(
+                getCompatSubmissionAssignmentId(
+                    submission
+                )
+            );
+
+        const assignment =
+            assignmentMap.get(assignmentId);
+
+        if (
+            query &&
+            !getTeacherSubmissionSearchText(
+                submission,
+                assignment
+            ).includes(query)
+        ) {
+            return;
+        }
+
+        const groupKey = JSON.stringify([
+            assignmentId,
+            studentUsername
+        ]);
+
+        preferred.set(
+            groupKey,
+            pickPreferredSubmission(
+                preferred.get(groupKey),
+                submission
+            )
+        );
+    });
+
+    const filtered = [
+        ...preferred.values()
+    ].sort(
+        (a, b) =>
+            getTeacherSearchSortKey(b) -
+            getTeacherSearchSortKey(a)
+    );
+
+    const start =
+        teacherSubmissionFilteredOffset;
+
+    const items = filtered.slice(
+        start,
+        start + PAGE_LIMIT
+    );
+
+    teacherSubmissionFilteredOffset +=
+        items.length;
+
+    return {
+        items,
+        total: filtered.length,
+        end:
+            teacherSubmissionFilteredOffset >=
+            filtered.length
+    };
+}
+
+async function getTeacherVideoTrackingForSubmissions(submissions) {
+    const trackingData = {};
+    const pairs = new Map();
+
+    (submissions || []).forEach(submission => {
+        const assignmentId =
+            compatText(
+                getCompatSubmissionAssignmentId(
+                    submission
+                )
+            );
+
+        const username =
+            compatText(
+                getCompatSubmissionUsername(
+                    submission
+                )
+            );
+
+        if (!assignmentId || !username) return;
+
+        pairs.set(
+            `${assignmentId}\u0000${username}`,
+            {
+                assignmentId,
+                username
+            }
+        );
+    });
+
+    await Promise.all(
+        [...pairs.values()].map(
+            async ({ assignmentId, username }) => {
+                try {
+                    const snapshot =
+                        await db.ref(
+                            `video_tracking/${assignmentId}/${username}`
+                        ).once('value');
+
+                    const value =
+                        Number(snapshot.val()) || 0;
+
+                    if (!trackingData[assignmentId]) {
+                        trackingData[assignmentId] = {};
+                    }
+
+                    trackingData[assignmentId][username] =
+                        value;
+                } catch (error) {
+                    console.warn(
+                        'Không tải được tiến độ video:',
+                        assignmentId,
+                        username,
+                        error
+                    );
+                }
+            }
+        )
+    );
+
+    return trackingData;
+}
+
+window.queueTeacherAssignedSearch = function (
+    delay = 180
+) {
+    clearTimeout(teacherAssignedSearchTimer);
+
+    teacherAssignedSearchTimer =
+        setTimeout(() => {
+            loadAssignedList(false)
+                .catch(console.error);
+        }, delay);
+};
+
+window.queueTeacherSubmissionSearch = function (
+    delay = 180
+) {
+    clearTimeout(teacherSubmissionSearchTimer);
+
+    teacherSubmissionSearchTimer =
+        setTimeout(() => {
+            loadSubmissions(false)
+                .catch(console.error);
+        }, delay);
+};
+
+window.invalidateTeacherListSearchCache = function (
+    kind = 'all'
+) {
+    if (
+        kind === 'all' ||
+        kind === 'assignments'
+    ) {
+        teacherAssignmentSearchCache.loadedAt = 0;
+    }
+
+    if (
+        kind === 'all' ||
+        kind === 'submissions'
+    ) {
+        teacherSubmissionSearchCache.loadedAt = 0;
+    }
+};
+
 async function getStudentsLite() {
+    const now = Date.now();
+
+    if (
+        teacherStudentsLiteCache.loadedAt &&
+        now - teacherStudentsLiteCache.loadedAt < 60 * 1000
+    ) {
+        return teacherStudentsLiteCache.items;
+    }
+
     const snap = await db.ref('users').once('value');
     const students = [];
 
@@ -1627,6 +2208,9 @@ async function getStudentsLite() {
             students.push(student);
         }
     });
+
+    teacherStudentsLiteCache.loadedAt = now;
+    teacherStudentsLiteCache.items = students;
 
     return students;
 }
@@ -2759,6 +3343,10 @@ window.onload = async function () {
     if (startupLoader && authUser) startupLoader.markReady('teacher-auth');
 
     if (!authUser) {
+        window.setTeacherSecurityVerificationState(
+            'denied',
+            'Không tìm thấy phiên Firebase Auth hợp lệ.'
+        );
         if (startupLoader) startupLoader.fail('Không tìm thấy phiên đăng nhập hợp lệ.', 'Hãy đăng nhập lại để tiếp tục.', 'auth');
         alert("⛔ Lỗi: Không tìm thấy phiên đăng nhập hợp lệ!");
         localStorage.removeItem('currentUser');
@@ -2766,12 +3354,46 @@ window.onload = async function () {
         return;
     }
 
-    let realUsers = await getDB('users');
-    if (startupLoader) startupLoader.markReady('teacher-users');
+    let realUsers;
+
+    try {
+        // Dữ liệu users là dữ liệu bắt buộc cho bước xác thực quyền.
+        // Không dùng getDB() ở đây vì getDB() cố ý trả [] khi Firebase đọc lỗi,
+        // dễ khiến lỗi mạng/quyền tạm thời bị hiểu nhầm thành giả mạo tài khoản.
+        realUsers = await getDBStrict('users');
+        if (startupLoader) startupLoader.markReady('teacher-users');
+    } catch (error) {
+        window.setTeacherSecurityVerificationState(
+            'network-error',
+            error?.message || 'Firebase chưa trả dữ liệu users.'
+        );
+        console.error('Không thể đọc dữ liệu users để xác minh giáo viên:', error);
+
+        if (startupLoader) {
+            startupLoader.fail(
+                'Chưa thể xác minh quyền giáo viên vì Firebase chưa trả dữ liệu người dùng.',
+                'Kiểm tra Internet/Firebase rồi tải lại trang. Hệ thống chưa kết luận đây là can thiệp phân quyền.',
+                'network'
+            );
+        }
+
+        alert(
+            '⚠️ Chưa thể xác minh quyền giáo viên do lỗi kết nối hoặc Firebase.\n' +
+            'Vui lòng kiểm tra mạng rồi tải lại trang. Tài khoản không bị đăng xuất vì lỗi này.'
+        );
+
+        return;
+    }
+
     let realUser = realUsers.find(u => u.username === currentUser.username);
 
-    // Xác thực nghiêm ngặt: UID Firebase Auth phải khớp với khóa (_fbKey)
+    // Chỉ kết luận sai quyền sau khi node users đã đọc THÀNH CÔNG.
+    // Xác thực nghiêm ngặt: UID Firebase Auth phải khớp với khóa (_fbKey).
     if (!realUser || realUser.role !== 'teacher' || realUser._fbKey !== authUser.uid) {
+        window.setTeacherSecurityVerificationState(
+            'denied',
+            'UID/role không khớp dữ liệu Giáo viên trên Firebase.'
+        );
         alert("⛔ Phát hiện can thiệp dữ liệu phân quyền! Buộc đăng xuất.");
         firebase.auth().signOut();
         localStorage.removeItem('currentUser');
@@ -2780,6 +3402,10 @@ window.onload = async function () {
     }
     // BẬT CỜ XÁC THỰC AN TOÀN SAU KHI FIREBASE ĐÃ KIỂM TRA THÀNH CÔNG
     window.isVerifiedTeacher = true;
+    window.setTeacherSecurityVerificationState(
+        'verified',
+        'Firebase Auth + UID + role Giáo viên đã xác minh thành công.'
+    );
     await issueTodayBirthdayRewardsByTeacher();
     if (startupLoader) startupLoader.markReady('teacher-birthday-rewards');
     if (document.getElementById('settingName')) document.getElementById('settingName').value = currentUser.name;
@@ -2840,6 +3466,7 @@ window.onload = async function () {
 
     // 1. Chỉ lắng nghe khi có một bài nộp nào đó bị chỉnh sửa (ví dụ: HS nộp lại hoặc GV vừa chấm điểm)
     listenFirebase(db.ref('submissions'), 'child_changed', async (snapshot) => {
+        window.invalidateTeacherListSearchCache?.('submissions');
         const updatedSub = { _fbKey: snapshot.key, ...snapshot.val() };
 
         // Cập nhật ngầm phần tử này vào bộ nhớ đệm (Cache) mà không cần tải lại cả bảng
@@ -2858,6 +3485,7 @@ window.onload = async function () {
 
     // 2. Chỉ lắng nghe khi bài tập có sự thay đổi cấu hình
     listenFirebase(db.ref('assignments'), 'child_changed', async (snapshot) => {
+        window.invalidateTeacherListSearchCache?.('assignments');
         const updatedAssign = { _fbKey: snapshot.key, ...snapshot.val() };
         if (window.cachedAssignments) {
             const idx = window.cachedAssignments.findIndex(a => a._fbKey === updatedAssign._fbKey || a.id === updatedAssign.id);
@@ -2868,6 +3496,7 @@ window.onload = async function () {
 
     // 3. Khi có bài nộp hoàn toàn MỚI, ta không tải lại toàn bộ mà chỉ cần thông báo hoặc tải lại trang đầu
     listenFirebase(db.ref('submissions').limitToLast(1), 'child_added', (snapshot) => {
+        window.invalidateTeacherListSearchCache?.('submissions');
         // Chỉ xử lý nếu đây là bài nộp mới phát sinh sau khi trang đã tải xong
         if (window.cachedSubmissions && !window.cachedSubmissions.some(s => s._fbKey === snapshot.key)) {
             // Gọi load lại trang đầu tiên để cập nhật bài mới lên trên cùng
@@ -2921,6 +3550,32 @@ window.onload = async function () {
         if (startupLoader) startupLoader.markReady('teacher-wheel-settings');
     });
 
+
+    listenFirebase(
+        db.ref('.info/serverTimeOffset'),
+        'value',
+        snapshot => {
+            window.teacherLuckyWheelServerTimeOffset =
+                Number(snapshot.val()) || 0;
+
+            if (
+                typeof renderTeacherLuckyWheelGoldenPreview === 'function'
+            ) {
+                renderTeacherLuckyWheelGoldenPreview();
+            }
+        }
+    );
+
+    listenFirebase(
+        db.ref('game_settings/lucky_wheel_golden_hour'),
+        'value',
+        snapshot => {
+            applyTeacherLuckyWheelGoldenSettings(
+                snapshot.val()
+            );
+        }
+    );
+
     listenFirebase(db.ref('store_settings'), 'value', (snapshot) => {
         const settings = snapshot.val();
         const storeToggleInput = document.getElementById('storeToggle');
@@ -2928,18 +3583,28 @@ window.onload = async function () {
             storeToggleInput.checked = settings.isOpen;
         }
 
-        if (settings) {
-            StoreConfig.items.forEach(item => {
-                if (settings[item.id]) {
-                    if (settings[item.id].price !== undefined) item.price = settings[item.id].price;
-                    if (settings[item.id].startDate !== undefined) item.startDate = settings[item.id].startDate;
-                    if (settings[item.id].endDate !== undefined) item.endDate = settings[item.id].endDate;
-                    item.isLocked = !!settings[item.id].isLocked;
-                }
-            });
-            if (typeof initTeacherStoreManagement === 'function') initTeacherStoreManagement();
-            if (typeof initTeacherLuxuryStoreManagement === 'function') initTeacherLuxuryStoreManagement();
-        }
+        StoreConfig.items.forEach(item => {
+            const itemSettings =
+                settings &&
+                settings[item.id] &&
+                typeof settings[item.id] === 'object'
+                    ? settings[item.id]
+                    : null;
+
+            if (itemSettings) {
+                if (itemSettings.price !== undefined) item.price = itemSettings.price;
+                if (itemSettings.startDate !== undefined) item.startDate = itemSettings.startDate;
+                if (itemSettings.endDate !== undefined) item.endDate = itemSettings.endDate;
+            }
+
+            item.isLocked =
+                window.normalizeStoreItemLockState(
+                    itemSettings?.isLocked
+                );
+        });
+
+        if (typeof initTeacherStoreManagement === 'function') initTeacherStoreManagement();
+        if (typeof initTeacherLuxuryStoreManagement === 'function') initTeacherLuxuryStoreManagement();
         if (startupLoader) startupLoader.markReady('teacher-store-settings');
     });
 
@@ -4199,6 +4864,10 @@ async function createAssignment() {
     assignmentDuplicateCache.loadedAt = 0;
     renderAssignmentDuplicateHint([]);
 
+    window.invalidateTeacherListSearchCache?.(
+        'assignments'
+    );
+
     alert("Giao bài tập thành công!");
 }
 
@@ -4206,6 +4875,9 @@ async function loadAssignedList(isLoadMore = false) {
     ensureTeacherAssignmentEssayStyles();
     const container = document.getElementById('assignedListContainer');
     if (!container) return;
+
+    const loadSeq =
+        ++teacherAssignedLoadSeq;
 
     if (!isLoadMore) {
         currentAssignKey = null;
@@ -4222,15 +4894,68 @@ async function loadAssignedList(isLoadMore = false) {
         btn.innerText = '⏳ Đang tải...';
     }
 
-    // 1. Chỉ lấy 20 bài/lần thay vì getDB('assignments') toàn bộ.
-    const { items: assignmentsPage, nextKey } = await getPaginatedDB('assignments', PAGE_LIMIT, currentAssignKey);
-    currentAssignKey = nextKey;
-    if (!nextKey || assignmentsPage.length < PAGE_LIMIT) isAssignEnd = true;
+    // 1. Chế độ thường: phân trang Firebase 20 bài/lần.
+    //    Chế độ tìm kiếm/lọc HS: lọc trên chỉ mục đầy đủ rồi mới lấy 20 kết quả.
+    let assignmentsPage = [];
+    let nextKey = null;
+
+    if (isTeacherAssignedFilteredMode()) {
+        const filteredPage =
+            await getTeacherFilteredAssignmentsPage(
+                isLoadMore
+            );
+
+        assignmentsPage =
+            filteredPage.items;
+
+        isAssignEnd =
+            filteredPage.end;
+    } else {
+        const page =
+            await getPaginatedDB(
+                'assignments',
+                PAGE_LIMIT,
+                currentAssignKey
+            );
+
+        assignmentsPage = page.items;
+        nextKey = page.nextKey;
+        currentAssignKey = nextKey;
+
+        if (
+            !nextKey ||
+            assignmentsPage.length < PAGE_LIMIT
+        ) {
+            isAssignEnd = true;
+        }
+    }
+
+    if (
+        loadSeq !==
+        teacherAssignedLoadSeq
+    ) {
+        return;
+    }
 
     if (!isLoadMore) container.innerHTML = '';
 
     if (assignmentsPage.length === 0 && !isLoadMore) {
-        container.innerHTML = '<p style="color: #666; font-style: italic;">Chưa có bài tập nào.</p>';
+        const hasFilter =
+            isTeacherAssignedFilteredMode();
+
+        container.innerHTML = hasFilter
+            ? '<p style="color:#666; font-style:italic; text-align:center; padding:18px;">🔎 Không tìm thấy bài tập phù hợp trong toàn bộ danh sách.</p>'
+            : '<p style="color: #666; font-style: italic;">Chưa có bài tập nào.</p>';
+
+        const existingLoadMore =
+            document.getElementById(
+                'btnLoadMoreAssignments'
+            );
+
+        if (existingLoadMore) {
+            existingLoadMore.style.display = 'none';
+        }
+
         return;
     }
 
@@ -4255,6 +4980,13 @@ async function loadAssignedList(isLoadMore = false) {
         await getSubmissionsByAssignmentIds(
             assignmentIds
         );
+
+    if (
+        loadSeq !==
+        teacherAssignedLoadSeq
+    ) {
+        return;
+    }
 
     // 4. Sắp xếp trong phạm vi trang hiện tại.
     const nowSort = new Date();
@@ -4549,7 +5281,10 @@ async function loadAssignedList(isLoadMore = false) {
 
     loadMore.style.display = isAssignEnd ? 'none' : 'block';
     loadMore.disabled = false;
-    loadMore.innerText = '⬇️ Tải thêm bài tập';
+    loadMore.innerText =
+        isTeacherAssignedFilteredMode()
+            ? '⬇️ Tải thêm kết quả phù hợp'
+            : '⬇️ Tải thêm bài tập';
 
     typesetMathSafe(container);
 }
@@ -5212,6 +5947,113 @@ function mergeTeacherRedoViolationHistory(submission) {
     };
 }
 
+
+// ======================================================
+// HUY HIỆU "NỘP TRỄ" CHO BÀI TỰ THU ĐÃ LÀM ĐỦ
+// ======================================================
+function isTeacherCompleteLateAutoSubmission(
+    submission,
+    assignment
+) {
+    if (
+        !submission?.isAutoSubmitted ||
+        !submission?.isLateFail ||
+        submission?.isCheatFail
+    ) {
+        return false;
+    }
+
+    if (submission.isLateComplete === true) {
+        return true;
+    }
+
+    if (submission.isLateComplete === false) {
+        return false;
+    }
+
+    // Tương thích bản ghi cũ chưa có isLateComplete.
+    const type = String(
+        assignment?.assessmentType ||
+        'tu_luan'
+    );
+
+    const questions =
+        Array.isArray(submission?.questionSnapshot) &&
+        submission.questionSnapshot.length > 0
+            ? submission.questionSnapshot
+            : (
+                Array.isArray(assignment?.questions)
+                    ? assignment.questions
+                    : []
+            );
+
+    const mcAnswers =
+        submission?.mcAnswers &&
+        typeof submission.mcAnswers === 'object'
+            ? submission.mcAnswers
+            : {};
+
+    const requiresMultipleChoice =
+        type === 'trac_nghiem' ||
+        type === 'ket_hop' ||
+        type === 'thi';
+
+    const multipleChoiceComplete =
+        !requiresMultipleChoice ||
+        (
+            questions.length > 0 &&
+            questions.every((question, index) => {
+                const value =
+                    mcAnswers[index] ??
+                    mcAnswers[String(index)] ??
+                    '';
+
+                return String(value).trim() !== '';
+            })
+        );
+
+    const requiresEssay =
+        type !== 'trac_nghiem';
+
+    let essayComplete = true;
+
+    if (requiresEssay) {
+        const files = Array.isArray(submission?.file)
+            ? submission.file
+            : (
+                submission?.file
+                    ? [submission.file]
+                    : []
+            );
+
+        const hasFile = files.length > 0;
+        const rawEssay = String(
+            submission?.rawEssay ||
+            ''
+        ).trim();
+
+        const wordCount = rawEssay
+            ? rawEssay
+                .split(/\s+/)
+                .filter(Boolean)
+                .length
+            : 0;
+
+        essayComplete = assignment?.hideEssayText
+            ? hasFile
+            : (
+                wordCount >= 25 ||
+                hasFile
+            );
+    }
+
+    return (
+        multipleChoiceComplete &&
+        essayComplete &&
+        !submission?.isEssayMissing
+    );
+}
+
 function hasTeacherPardonableViolation(submission) {
     const history = getTeacherRedoViolationHistory(submission);
 
@@ -5764,6 +6606,9 @@ async function loadSubmissions(isLoadMore = false) {
     const list = document.getElementById('submissionsList');
     if (!list) return;
 
+    const loadSeq =
+        ++teacherSubmissionLoadSeq;
+
     if (!isLoadMore) {
         // Reset trạng thái nếu là tải mới hoàn toàn
         currentSubKey = null;
@@ -5782,13 +6627,52 @@ async function loadSubmissions(isLoadMore = false) {
         list.innerHTML = `<p id="${loadingId}" style="text-align:center; color:#666; padding: 20px;">⏳ Đang tải dữ liệu bài nộp...</p>`;
     }
 
-    // GỌI HÀM PHÂN TRANG (Lấy từ DB thay vì kéo toàn bộ)
-    const { items: rawSubmissions, nextKey } = await getPaginatedDB('submissions', PAGE_LIMIT, currentSubKey);
+    // Chế độ thường: phân trang Firebase theo key.
+    // Khi tìm kiếm/lọc HS: lọc toàn bộ đúng điều kiện trước, sau đó mới phân trang.
+    let rawSubmissions = [];
+    let nextKey = null;
 
-    // Cập nhật mốc key cho lần tải sau
-    currentSubKey = nextKey;
-    if (!nextKey || rawSubmissions.length < PAGE_LIMIT) {
-        isSubEnd = true;
+    if (isTeacherSubmissionFilteredMode()) {
+        const filteredPage =
+            await getTeacherFilteredSubmissionsPage(
+                isLoadMore
+            );
+
+        rawSubmissions =
+            filteredPage.items;
+
+        isSubEnd =
+            filteredPage.end;
+    } else {
+        const page =
+            await getPaginatedDB(
+                'submissions',
+                PAGE_LIMIT,
+                currentSubKey
+            );
+
+        rawSubmissions =
+            page.items;
+
+        nextKey =
+            page.nextKey;
+
+        currentSubKey =
+            nextKey;
+
+        if (
+            !nextKey ||
+            rawSubmissions.length < PAGE_LIMIT
+        ) {
+            isSubEnd = true;
+        }
+    }
+
+    if (
+        loadSeq !==
+        teacherSubmissionLoadSeq
+    ) {
+        return;
     }
 
     // Xóa chữ "Đang tải" của lần tải đầu
@@ -5796,16 +6680,85 @@ async function loadSubmissions(isLoadMore = false) {
     if (loadingEl) loadingEl.remove();
 
     if (rawSubmissions.length === 0 && !isLoadMore) {
-        list.innerHTML = '<p style="color: #666; font-style: italic;">Chưa có bài nộp nào.</p>';
+        const hasFilter =
+            isTeacherSubmissionFilteredMode();
+
+        list.innerHTML = hasFilter
+            ? '<p style="color:#666; font-style:italic; text-align:center; padding:18px;">🔎 Không tìm thấy bài nộp phù hợp trong toàn bộ danh sách.</p>'
+            : '<p style="color: #666; font-style: italic;">Chưa có bài nộp nào.</p>';
+
+        const existingLoadMore =
+            document.getElementById(
+                'btnLoadMoreSubs'
+            );
+
+        if (existingLoadMore) {
+            existingLoadMore.style.display = 'none';
+        }
+
         return;
     }
 
-    // Chỉ lấy assignments liên quan đến 20 bài nộp đang hiển thị, không kéo toàn bộ assignments.
-    const assignmentIdsForSubs = [...new Set(rawSubmissions.map(s => s.assignmentId).filter(Boolean))];
-    const assignments = await getAssignmentsByIds(assignmentIdsForSubs);
+    window.cachedSubmissions = isLoadMore
+        ? [
+            ...(window.cachedSubmissions || []),
+            ...rawSubmissions
+        ]
+        : [...rawSubmissions];
 
-    const trackingSnap = await db.ref('video_tracking').once('value');
-    const trackingData = trackingSnap.val() || {};
+    // Chuẩn hóa cả dữ liệu bài nộp cũ trước khi tìm assignment tương ứng.
+    rawSubmissions.forEach(submission => {
+        const compatAssignmentId =
+            getCompatSubmissionAssignmentId(
+                submission
+            );
+
+        const compatUsername =
+            getCompatSubmissionUsername(
+                submission
+            );
+
+        if (compatAssignmentId) {
+            submission.assignmentId =
+                compatAssignmentId;
+        }
+
+        if (compatUsername) {
+            submission.studentUsername =
+                compatUsername;
+        }
+    });
+
+    // Chỉ lấy assignments liên quan đến bài nộp đang hiển thị.
+    const assignmentIdsForSubs = [
+        ...new Set(
+            rawSubmissions
+                .map(
+                    getCompatSubmissionAssignmentId
+                )
+                .map(compatText)
+                .filter(Boolean)
+        )
+    ];
+
+    const assignments =
+        await getAssignmentsByIds(
+            assignmentIdsForSubs
+        );
+
+    // Chỉ đọc tiến độ video của đúng các bài nộp đang render.
+    // Tránh tải toàn bộ cây video_tracking ở mỗi lần "Tải thêm".
+    const trackingData =
+        await getTeacherVideoTrackingForSubmissions(
+            rawSubmissions
+        );
+
+    if (
+        loadSeq !==
+        teacherSubmissionLoadSeq
+    ) {
+        return;
+    }
 
     const uniqueSubmissions = new Map();
 
@@ -5996,6 +6949,17 @@ async function loadSubmissions(isLoadMore = false) {
 
         const redoViolationHistory =
             getTeacherRedoViolationHistory(sub);
+
+        let lateSubmissionBadge = '';
+
+        if (
+            isTeacherCompleteLateAutoSubmission(
+                sub,
+                assign
+            )
+        ) {
+            lateSubmissionBadge = '<span style="background: rgba(244, 63, 94, 0.10); color: #e11d48; border: 1px solid rgba(244, 63, 94, 0.55); padding: 2px 7px; border-radius: 5px; font-size: 0.8em; margin-left: 8px; font-weight: 800; vertical-align: middle; white-space: nowrap;">⏰ Nộp trễ</span>';
+        }
 
         let missingEssayBadge = '';
 
@@ -6222,7 +7186,7 @@ style="
                 : '';
 
         div.innerHTML = `<div class="accordion-header" onclick="toggleAccordion('${uniqueId}', this)">
-    <div class="accordion-title"><h4>${assign.title}</h4><span>HS: <strong>${sub.studentName}</strong> ${missingEssayBadge}</span></div>
+    <div class="accordion-title"><h4>${assign.title}</h4><span>HS: <strong>${sub.studentName}</strong> ${lateSubmissionBadge} ${missingEssayBadge}</span></div>
     <div class="accordion-meta"><span>${gradeStatus}</span><span class="toggle-icon">▼</span></div>
 </div>
             <div id="${uniqueId}" class="accordion-content">${violationHTML}<span style="color: #888; font-size: 0.85em; display: block; margin-bottom: 10px;">🕒 Lần nộp cuối: ${sub.submitTime || 'Chưa rõ'}</span>
@@ -6277,12 +7241,12 @@ style="
         if (!loadMoreBtn) {
             loadMoreBtn = document.createElement('button');
             loadMoreBtn.id = 'btnLoadMoreSubs';
-            loadMoreBtn.innerText = '👇 Tải thêm các bài nộp cũ hơn';
+            loadMoreBtn.innerText = isTeacherSubmissionFilteredMode() ? '👇 Tải thêm kết quả phù hợp' : '👇 Tải thêm các bài nộp cũ hơn';
             loadMoreBtn.style.cssText = 'width: 100%; padding: 12px; margin-top: 15px; background: transparent; border: 2px dashed #667eea; color: #667eea; border-radius: 8px; cursor: pointer; font-weight: bold;';
             loadMoreBtn.onclick = () => loadSubmissions(true);
             list.parentElement.appendChild(loadMoreBtn);
         } else {
-            loadMoreBtn.innerText = '👇 Tải thêm các bài nộp cũ hơn';
+            loadMoreBtn.innerText = isTeacherSubmissionFilteredMode() ? '👇 Tải thêm kết quả phù hợp' : '👇 Tải thêm các bài nộp cũ hơn';
             loadMoreBtn.style.display = 'block';
         }
     } else if (loadMoreBtn) {
@@ -9686,6 +10650,15 @@ window.openAssignmentStatusModal = async function (assignId) {
                 statusText = '🔁 Đang làm lại'; // Trạng thái học sinh đang phải làm lại bài
                 statusBg = '#f3e8ff';
                 statusColor = '#9333ea';
+            } else if (
+                isTeacherCompleteLateAutoSubmission(
+                    sub,
+                    assign
+                )
+            ) {
+                statusText = '⏰ Nộp trễ (đã thu đủ bài)';
+                statusBg = '#fff1f2';
+                statusColor = '#e11d48';
             } else if (sub.isAutoSubmitted) {
                 statusText = '⏳ Bị thu tự động';
                 statusBg = '#fff7ed';
@@ -10084,6 +11057,383 @@ window.saveGameLockMessage = async function () {
 
 // ================= QUẢN LÝ VÒNG QUAY MAY MẮN =================
 
+const TEACHER_LUCKY_WHEEL_GOLDEN_DEFAULTS = Object.freeze({
+    enabled: true,
+    bonusCoin: 50,
+    windows: Object.freeze([
+        Object.freeze({ start: '00:00', end: '01:00' }),
+        Object.freeze({ start: '09:00', end: '10:00' }),
+        Object.freeze({ start: '12:00', end: '13:00' }),
+        Object.freeze({ start: '14:00', end: '15:00' }),
+        Object.freeze({ start: '20:00', end: '20:30' })
+    ])
+});
+
+window.teacherLuckyWheelGoldenConfig = null;
+window.teacherLuckyWheelServerTimeOffset = 0;
+let teacherLuckyWheelGoldenPreviewTimer = null;
+
+function normalizeTeacherLuckyWheelGoldenSettings(raw) {
+    const source = raw && typeof raw === 'object' ? raw : {};
+
+    const bonusCoin = Math.max(
+        0,
+        Math.min(
+            100000,
+            Math.floor(
+                Number(
+                    source.bonusCoin ??
+                    TEACHER_LUCKY_WHEEL_GOLDEN_DEFAULTS.bonusCoin
+                ) || 0
+            )
+        )
+    );
+
+    const rawWindows = Array.isArray(source.windows)
+        ? source.windows
+        : TEACHER_LUCKY_WHEEL_GOLDEN_DEFAULTS.windows;
+
+    const windows = rawWindows
+        .map(entry => ({
+            start: String(entry?.start || '').trim(),
+            end: String(entry?.end || '').trim()
+        }))
+        .filter(entry =>
+            /^([01]\d|2[0-3]):[0-5]\d$/.test(entry.start) &&
+            /^([01]\d|2[0-3]):[0-5]\d$/.test(entry.end) &&
+            entry.start !== entry.end
+        );
+
+    return {
+        enabled: source.enabled !== false,
+        bonusCoin,
+        windows: windows.length
+            ? windows
+            : TEACHER_LUCKY_WHEEL_GOLDEN_DEFAULTS.windows.map(entry => ({ ...entry }))
+    };
+}
+
+function teacherGoldenTimeToMinutes(value) {
+    const match = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(
+        String(value || '').trim()
+    );
+
+    if (!match) return null;
+
+    return Number(match[1]) * 60 + Number(match[2]);
+}
+
+function getTeacherLuckyWheelVietnamClock() {
+    const date = new Date(
+        Date.now() +
+        Number(window.teacherLuckyWheelServerTimeOffset || 0)
+    );
+
+    const parts = new Intl.DateTimeFormat(
+        'en-GB',
+        {
+            timeZone: 'Asia/Ho_Chi_Minh',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hourCycle: 'h23'
+        }
+    ).formatToParts(date);
+
+    const values = {};
+    parts.forEach(part => {
+        if (part.type !== 'literal') {
+            values[part.type] = Number(part.value);
+        }
+    });
+
+    const hour = Number(values.hour) || 0;
+    const minute = Number(values.minute) || 0;
+    const second = Number(values.second) || 0;
+
+    return {
+        hour,
+        minute,
+        second,
+        totalMinutes: hour * 60 + minute + second / 60,
+        text: `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')}`
+    };
+}
+
+function getTeacherLuckyWheelGoldenStatus(config = null) {
+    const resolved = normalizeTeacherLuckyWheelGoldenSettings(
+        config || window.teacherLuckyWheelGoldenConfig
+    );
+
+    const clock = getTeacherLuckyWheelVietnamClock();
+
+    if (!resolved.enabled || resolved.bonusCoin <= 0) {
+        return {
+            active: false,
+            config: resolved,
+            clock,
+            activeWindow: null
+        };
+    }
+
+    const activeWindow = resolved.windows.find(entry => {
+        const start = teacherGoldenTimeToMinutes(entry.start);
+        const end = teacherGoldenTimeToMinutes(entry.end);
+
+        if (start === null || end === null || start === end) {
+            return false;
+        }
+
+        return start < end
+            ? (
+                clock.totalMinutes >= start &&
+                clock.totalMinutes < end
+            )
+            : (
+                clock.totalMinutes >= start ||
+                clock.totalMinutes < end
+            );
+    }) || null;
+
+    return {
+        active: Boolean(activeWindow),
+        config: resolved,
+        clock,
+        activeWindow
+    };
+}
+
+window.applyTeacherLuckyWheelGoldenSettings =
+function applyTeacherLuckyWheelGoldenSettings(raw) {
+    const config = normalizeTeacherLuckyWheelGoldenSettings(raw);
+    window.teacherLuckyWheelGoldenConfig = config;
+
+    const enabledInput = document.getElementById('goldenHourEnabled');
+    const bonusInput = document.getElementById('goldenHourBonus');
+
+    if (enabledInput) enabledInput.checked = config.enabled;
+    if (bonusInput && !bonusInput.matches(':focus')) {
+        bonusInput.value = config.bonusCoin;
+    }
+
+    for (let index = 0; index < 5; index++) {
+        const startInput = document.getElementById(`goldenHourStart${index}`);
+        const endInput = document.getElementById(`goldenHourEnd${index}`);
+        const entry = config.windows[index] || { start: '', end: '' };
+
+        if (startInput && !startInput.matches(':focus')) {
+            startInput.value = entry.start;
+        }
+
+        if (endInput && !endInput.matches(':focus')) {
+            endInput.value = entry.end;
+        }
+    }
+
+    renderTeacherLuckyWheelGoldenPreview();
+
+    if (!teacherLuckyWheelGoldenPreviewTimer) {
+        teacherLuckyWheelGoldenPreviewTimer = setInterval(
+            renderTeacherLuckyWheelGoldenPreview,
+            1000
+        );
+    }
+};
+
+function readTeacherLuckyWheelGoldenForm() {
+    const enabled = Boolean(
+        document.getElementById('goldenHourEnabled')?.checked
+    );
+
+    const bonusCoin = Math.max(
+        0,
+        Math.floor(
+            Number(
+                document.getElementById('goldenHourBonus')?.value || 0
+            )
+        )
+    );
+
+    const windows = [];
+
+    for (let index = 0; index < 5; index++) {
+        const start = String(
+            document.getElementById(`goldenHourStart${index}`)?.value || ''
+        ).trim();
+
+        const end = String(
+            document.getElementById(`goldenHourEnd${index}`)?.value || ''
+        ).trim();
+
+        if (!start && !end) continue;
+
+        if (!start || !end || start === end) {
+            throw new Error(
+                `Khung Giờ Vàng ${index + 1} phải có giờ bắt đầu và kết thúc khác nhau.`
+            );
+        }
+
+        windows.push({ start, end });
+    }
+
+    if (enabled && windows.length === 0) {
+        throw new Error('Phải có ít nhất 1 khung Giờ Vàng khi đang bật.');
+    }
+
+    if (bonusCoin > 100000) {
+        throw new Error('Coin thưởng Giờ Vàng tối đa là 100.000 Coin/lượt.');
+    }
+
+    return {
+        enabled,
+        bonusCoin,
+        windows
+    };
+}
+
+window.renderTeacherLuckyWheelGoldenPreview =
+function renderTeacherLuckyWheelGoldenPreview() {
+    const statusBox = document.getElementById('teacherGoldenHourStatus');
+    const previewBox = document.getElementById('teacherGoldenHourPreview');
+
+    if (!statusBox && !previewBox) return;
+
+    let config;
+
+    try {
+        config = readTeacherLuckyWheelGoldenForm();
+    } catch (_) {
+        config = normalizeTeacherLuckyWheelGoldenSettings(
+            window.teacherLuckyWheelGoldenConfig
+        );
+    }
+
+    const status = getTeacherLuckyWheelGoldenStatus(config);
+    const bonus = Number(config.bonusCoin || 0);
+
+    if (previewBox) {
+        previewBox.innerHTML = config.enabled
+            ? `Giá hiển thị trong Giờ Vàng: <strong>50 → ${50 + bonus}</strong> · <strong>70 → ${70 + bonus}</strong> · <strong>200 → ${200 + bonus}</strong> Coin`
+            : 'Giờ Vàng đang tắt: vòng quay luôn hiển thị 50 · 70 · 200 Coin.';
+    }
+
+    if (statusBox) {
+        if (!config.enabled) {
+            statusBox.innerHTML =
+                `⚪ Giờ hệ thống ${status.clock.text} · Giờ Vàng đang <strong>TẮT</strong>`;
+            statusBox.style.color = '#64748b';
+        } else if (status.active) {
+            statusBox.innerHTML =
+                `🔥 <strong>ĐANG GIỜ VÀNG</strong> · ${status.activeWindow.start}–${status.activeWindow.end} · +${bonus} Coin/lượt trúng Coin · ${status.clock.text}`;
+            statusBox.style.color = '#b45309';
+        } else {
+            statusBox.innerHTML =
+                `🕒 Chưa vào Giờ Vàng · Giờ hệ thống ${status.clock.text}`;
+            statusBox.style.color = '#475569';
+        }
+    }
+};
+
+window.toggleLuckyWheelGoldenHourRealtime =
+async function (enabled) {
+    const nextEnabled =
+        Boolean(enabled);
+
+    const serverTimestamp =
+        window.firebase
+            ?.database
+            ?.ServerValue
+            ?.TIMESTAMP ||
+        Date.now();
+
+    try {
+        /*
+         * Chỉ cập nhật enabled để không vô tình lưu các ô giờ
+         * mà giáo viên đang nhập dở.
+         * Student có listener realtime trực tiếp và sẽ nhận thay đổi ngay.
+         */
+        await db
+            .ref(
+                'game_settings/lucky_wheel_golden_hour'
+            )
+            .update({
+                enabled:
+                    nextEnabled,
+
+                updatedAt:
+                    serverTimestamp
+            });
+
+        if (
+            typeof renderTeacherLuckyWheelGoldenPreview ===
+            'function'
+        ) {
+            renderTeacherLuckyWheelGoldenPreview();
+        }
+
+        if (
+            typeof window.showToast ===
+            'function'
+        ) {
+            window.showToast(
+                nextEnabled
+                    ? 'Đã bật Giờ Vàng và đồng bộ realtime tới học sinh.'
+                    : 'Đã tắt Giờ Vàng và đồng bộ realtime tới học sinh.',
+                'success'
+            );
+        }
+    } catch (error) {
+        console.error(
+            '[Giờ Vàng] Không thể cập nhật trạng thái realtime:',
+            error
+        );
+
+        const checkbox =
+            document.getElementById(
+                'goldenHourEnabled'
+            );
+
+        if (checkbox) {
+            checkbox.checked =
+                !nextEnabled;
+        }
+
+        alert(
+            '❌ Không thể cập nhật trạng thái Giờ Vàng lên Firebase.'
+        );
+    }
+};
+
+window.saveLuckyWheelGoldenHourSettings = async function () {
+    let config;
+
+    try {
+        config = readTeacherLuckyWheelGoldenForm();
+    } catch (error) {
+        alert(`❌ ${error.message}`);
+        return;
+    }
+
+    const serverTimestamp =
+        window.firebase?.database?.ServerValue?.TIMESTAMP ||
+        Date.now();
+
+    await db
+        .ref('game_settings/lucky_wheel_golden_hour')
+        .set({
+            enabled: config.enabled,
+            bonusCoin: config.bonusCoin,
+            windows: config.windows,
+            updatedAt: serverTimestamp
+        });
+
+    alert(
+        config.enabled
+            ? `✅ Đã lưu Giờ Vàng: +${config.bonusCoin} Coin cho mỗi lượt trúng Coin.`
+            : '✅ Đã tắt Giờ Vàng vòng quay.'
+    );
+};
+
 window.loadSpinHistory = async function () {
     const history = await getDB('spin_history');
     const tbody = document.getElementById('spinHistoryBody');
@@ -10274,21 +11624,32 @@ window.updateStoreItem = async function () {
 // Bộ lắng nghe tự động cập nhật bảng quản lý của giáo viên khi database có thay đổi
 listenFirebase(db.ref('store_settings'), 'value', (snapshot) => {
     const settings = snapshot.val();
-    if (settings) {
-        StoreConfig.items.forEach(item => {
-            if (settings[item.id]) {
-                if (settings[item.id].price !== undefined) item.price = settings[item.id].price;
-                if (settings[item.id].startDate !== undefined) item.startDate = settings[item.id].startDate;
-                if (settings[item.id].endDate !== undefined) item.endDate = settings[item.id].endDate;
-                item.isLocked = !!settings[item.id].isLocked;
-            }
-        });
-        if (typeof initTeacherStoreManagement === 'function') {
-            initTeacherStoreManagement();
+
+    StoreConfig.items.forEach(item => {
+        const itemSettings =
+            settings &&
+            settings[item.id] &&
+            typeof settings[item.id] === 'object'
+                ? settings[item.id]
+                : null;
+
+        if (itemSettings) {
+            if (itemSettings.price !== undefined) item.price = itemSettings.price;
+            if (itemSettings.startDate !== undefined) item.startDate = itemSettings.startDate;
+            if (itemSettings.endDate !== undefined) item.endDate = itemSettings.endDate;
         }
-        if (typeof initTeacherLuxuryStoreManagement === 'function') {
-            initTeacherLuxuryStoreManagement();
-        }
+
+        item.isLocked =
+            window.normalizeStoreItemLockState(
+                itemSettings?.isLocked
+            );
+    });
+
+    if (typeof initTeacherStoreManagement === 'function') {
+        initTeacherStoreManagement();
+    }
+    if (typeof initTeacherLuxuryStoreManagement === 'function') {
+        initTeacherLuxuryStoreManagement();
     }
 });
 
@@ -10622,8 +11983,9 @@ window.toggleLockStoreItem = async function (itemId, isCurrentlyLocked) {
     const actionText = isCurrentlyLocked ? "MỞ KHÓA" : "KHÓA TẠM THỜI";
     if (!confirm(
         `Bạn có chắc chắn muốn ${actionText} vật phẩm này không?\n\n` +
-        `Khi khóa, toàn bộ thẻ vật phẩm phía học sinh sẽ bị che đen, ` +
-        `hiện dấu ? và không thể mua, dùng thử hoặc sử dụng.`
+        `Khi khóa, vật phẩm phía học sinh sẽ chuyển thành thẻ ẩn, ` +
+        `không thể mua, dùng thử hoặc sử dụng. Nếu đang được trang bị, ` +
+        `vật phẩm sẽ tạm ngừng hiển thị cho đến khi được mở khóa.`
     )) return;
 
     try {
@@ -13482,44 +14844,14 @@ window.applyMaterialFilters = function () {
 };
 
 window.applyAssignedFilters = function () {
-    let searchInput = document.getElementById('searchAssigned');
-    let searchText = searchInput ? searchInput.value.toLowerCase() : '';
-    // Quét tất cả các thẻ div đóng vai trò là card bài tập
-    let items = document.querySelectorAll('#assignedListContainer > .card');
-
-    items.forEach(item => {
-        let targetStudent = item.getAttribute('data-target') || 'all';
-        let targetArr = targetStudent.split(','); // Cắt chuỗi thành mảng
-        let text = item.innerText.toLowerCase();
-
-        let matchFilter = (activeAssignedStudentFilter === 'all') ||
-            targetArr.includes('all') ||
-            targetArr.includes(activeAssignedStudentFilter);
-
-        let matchSearch = text.includes(searchText);
-
-        item.style.display = (matchFilter && matchSearch) ? '' : 'none';
-    });
+    // Không quét innerText của hàng chục/hàng trăm card nữa.
+    // Tải lại trang 1 từ chỉ mục đã cache, sau 180ms để tránh gọi liên tục khi gõ.
+    window.queueTeacherAssignedSearch(180);
 };
 
 window.applySubmissionFilters = function () {
-    let searchInput = document.getElementById('searchSubmissions');
-    let searchText = searchInput ? searchInput.value.toLowerCase() : '';
-    // Quét tất cả các thẻ div đóng vai trò là card bài nộp
-    let items = document.querySelectorAll('#submissionsList > .card');
-
-    items.forEach(item => {
-        let studentId = item.getAttribute('data-student') || '';
-        let text = item.innerText.toLowerCase();
-
-        // Ở danh sách bài nộp, nút của ai thì chỉ hiện bài của người đó
-        let matchFilter = (activeSubmissionStudentFilter === 'all') ||
-            (studentId === activeSubmissionStudentFilter);
-
-        let matchSearch = text.includes(searchText);
-
-        item.style.display = (matchFilter && matchSearch) ? '' : 'none';
-    });
+    // Tìm trên dữ liệu, không chỉ trên các card đang hiển thị.
+    window.queueTeacherSubmissionSearch(180);
 };
 
 window.getMultiSelectValues = function (

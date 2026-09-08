@@ -1253,3 +1253,155 @@ body.store-collection-acquisition-open {
         max-width: calc(100% - 38px) !important;
     }
 }
+
+/* ============================================================================
+   SƯU TẦM · KHÓA GIÁO VIÊN
+   - Chỉ áp dụng trong trang Sưu tầm / bảng Cách nhận.
+   - Không dùng class .is-teacher-locked của Cửa hàng để tránh kéo chiều cao
+     card Sưu tầm theo CSS 340px của StoreManager.
+   ============================================================================ */
+#tab-store .store-collection-card.is-collection-teacher-locked {
+    position: relative !important;
+    display: grid !important;
+    place-items: center !important;
+    min-height: 132px !important;
+    padding: 15px !important;
+    overflow: hidden !important;
+    isolation: isolate !important;
+    filter: none !important;
+    opacity: 1 !important;
+    border-color: rgba(255,255,255,.10) !important;
+    background:
+        radial-gradient(circle at 50% 32%, rgba(255,255,255,.075), transparent 31%),
+        linear-gradient(180deg, #0a0c0f 0%, #020304 100%) !important;
+    box-shadow:
+        0 15px 32px rgba(0,0,0,.28),
+        inset 0 0 0 1px rgba(255,255,255,.035) !important;
+    cursor: not-allowed !important;
+}
+
+#tab-store .store-collection-card.is-collection-teacher-locked:hover {
+    transform: translateY(-2px) !important;
+    border-color: rgba(255,255,255,.18) !important;
+    box-shadow:
+        0 18px 38px rgba(0,0,0,.34),
+        inset 0 0 0 1px rgba(255,255,255,.055) !important;
+}
+
+#tab-store .store-collection-card.is-collection-teacher-locked::before,
+#tab-store .store-collection-card.is-collection-teacher-locked::after {
+    content: none !important;
+    display: none !important;
+}
+
+#tab-store .store-collection-card__teacher-lock {
+    width: 100%;
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 13px;
+    color: #f8fafc;
+    text-align: left;
+    user-select: none;
+}
+
+#tab-store .store-collection-card__teacher-question {
+    display: grid;
+    place-items: center;
+    width: 58px;
+    height: 58px;
+    flex: 0 0 58px;
+    border: 2px solid rgba(255,255,255,.86);
+    border-radius: 50%;
+    background: rgba(255,255,255,.035);
+    color: #fff;
+    font-size: 2.35rem;
+    font-weight: 1000;
+    line-height: 1;
+    text-shadow: 0 0 16px rgba(255,255,255,.26);
+    box-shadow: 0 0 22px rgba(255,255,255,.065);
+}
+
+#tab-store .store-collection-card__teacher-lock strong,
+#tab-store .store-collection-card__teacher-lock small {
+    display: block;
+}
+
+#tab-store .store-collection-card__teacher-lock strong {
+    color: #f8fafc;
+    font-size: .92rem;
+    font-weight: 900;
+}
+
+#tab-store .store-collection-card__teacher-lock small {
+    margin-top: 4px;
+    color: #94a3b8;
+    font-size: .72rem;
+    line-height: 1.35;
+}
+
+/* Bảng “Cách nhận” cũng không được làm lộ vật phẩm đã bị khóa. */
+.store-collection-acquisition-item.is-collection-teacher-locked {
+    min-height: 104px;
+    display: grid !important;
+    place-items: center !important;
+    border-color: rgba(255,255,255,.10) !important;
+    background:
+        radial-gradient(circle at 18% 50%, rgba(255,255,255,.07), transparent 24%),
+        linear-gradient(180deg, #090b0e 0%, #020304 100%) !important;
+    box-shadow: 0 12px 28px rgba(0,0,0,.24) !important;
+}
+
+.store-collection-acquisition-item__teacher-lock {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: #f8fafc;
+}
+
+.store-collection-acquisition-item__teacher-question {
+    display: grid;
+    place-items: center;
+    width: 54px;
+    height: 54px;
+    flex: 0 0 54px;
+    border: 2px solid rgba(255,255,255,.84);
+    border-radius: 50%;
+    color: #fff;
+    font-size: 2.1rem;
+    font-weight: 1000;
+    line-height: 1;
+    background: rgba(255,255,255,.035);
+}
+
+.store-collection-acquisition-item__teacher-lock strong,
+.store-collection-acquisition-item__teacher-lock small {
+    display: block;
+}
+
+.store-collection-acquisition-item__teacher-lock strong {
+    font-size: .92rem;
+    font-weight: 900;
+}
+
+.store-collection-acquisition-item__teacher-lock small {
+    margin-top: 4px;
+    color: #94a3b8;
+    font-size: .75rem;
+}
+
+@media (max-width: 560px) {
+    #tab-store .store-collection-card__teacher-lock {
+        gap: 10px;
+    }
+
+    #tab-store .store-collection-card__teacher-question {
+        width: 50px;
+        height: 50px;
+        flex-basis: 50px;
+        font-size: 2rem;
+    }
+}
+

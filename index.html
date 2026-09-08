@@ -4,9 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="application-version" content="4.0.1">
     <meta name="theme-color" content="#4f46e5">
     <title>Đăng nhập Hệ thống</title>
-    <link rel="stylesheet" href="css/common.css?v=4.0">
+    <link rel="stylesheet" href="css/common.css?v=4.0.1">
     <link rel="icon" type="image/png" href="assets/icon.png">
 </head>
 
@@ -67,12 +68,20 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <!-- 2. Khởi tạo Firebase -->
-    <script src="js/firebase-config.js?v=3.5"></script>
+    <script src="js/firebase-config.js?v=4.0.1"></script>
 
-    <!-- 3. Mã dùng chung -->
-    <script src="js/common.js?v=3.5"></script>
+    <!-- 3. Đồng bộ phiên bản ứng dụng trước khi nạp mã dùng chung -->
+    <script>
+        window.APP_VERSION = '4.0.1';
+        try {
+            localStorage.setItem('appVersion', window.APP_VERSION);
+        } catch (_) {}
+    </script>
 
-    <!-- 4. Logic đăng nhập và bảo mật -->
+    <!-- 4. Mã dùng chung -->
+    <script src="js/common.js?v=4.0.1"></script>
+
+    <!-- 5. Logic đăng nhập và bảo mật -->
 
 </body>
 

@@ -768,3 +768,319 @@ table td {
         width: 100%;
     }
 }
+
+
+/* =========================================================
+   VÒNG QUAY · QUẢN LÝ GIỜ VÀNG V3
+   FIX: input time bị tràn/chồng lên nhau trên desktop.
+   ========================================================= */
+
+#teacherGoldenHourManageCard.teacher-golden-hour-card {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    margin-bottom: 20px;
+    padding: 18px;
+    overflow: hidden;
+    border: 1px solid rgba(217, 119, 6, .28);
+    border-radius: 16px;
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255, 247, 214, .92),
+            rgba(255, 237, 188, .76)
+        );
+    box-shadow: 0 8px 24px rgba(180, 83, 9, .08);
+}
+
+.teacher-golden-hour-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    min-width: 0;
+}
+
+.teacher-golden-hour-heading {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.teacher-golden-hour-heading h4 {
+    margin: 0 0 6px;
+    color: #b45309;
+    font-size: 1.04rem;
+}
+
+.teacher-golden-hour-heading p {
+    margin: 0;
+    color: #6b7280;
+    font-size: .88rem;
+    line-height: 1.5;
+}
+
+.teacher-golden-hour-toggle {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 7px 10px;
+    border-radius: 10px;
+    color: #92400e;
+    background: rgba(255, 255, 255, .52);
+    font-weight: 900;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.teacher-golden-hour-toggle input[type="checkbox"] {
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 20px !important;
+    max-width: 20px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    flex: 0 0 20px;
+    accent-color: #f59e0b;
+}
+
+.teacher-golden-hour-config {
+    display: grid;
+    grid-template-columns: minmax(190px, 220px) minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+    min-width: 0;
+    margin-top: 16px;
+}
+
+.teacher-golden-bonus-box,
+.teacher-golden-window-section {
+    min-width: 0;
+}
+
+.teacher-golden-bonus-box > label,
+.teacher-golden-window-title strong {
+    display: block;
+    margin-bottom: 7px;
+    color: #92400e;
+    font-size: .82rem;
+    font-weight: 900;
+}
+
+.teacher-golden-bonus-input-wrap {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    min-height: 52px;
+    padding: 0 12px;
+    border: 1px solid rgba(217, 119, 6, .20);
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 3px 12px rgba(180, 83, 9, .06);
+}
+
+.teacher-golden-bonus-input-wrap input[type="number"] {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 44px !important;
+    margin: 0 !important;
+    padding: 6px 4px !important;
+    border: 0 !important;
+    outline: 0 !important;
+    color: #b45309 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    text-align: center !important;
+    font-size: 1.05rem;
+    font-weight: 900;
+}
+
+.teacher-golden-bonus-input-wrap small {
+    color: #92400e;
+    font-size: .76rem;
+    font-weight: 800;
+}
+
+.teacher-golden-window-title {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 7px;
+}
+
+.teacher-golden-window-title strong {
+    margin-bottom: 0;
+}
+
+.teacher-golden-window-title small {
+    color: #9a6b3d;
+    font-size: .73rem;
+    font-weight: 700;
+}
+
+.teacher-golden-window-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 9px;
+    min-width: 0;
+}
+
+.teacher-golden-window-card {
+    min-width: 0;
+    padding: 9px 10px 10px;
+    border: 1px solid rgba(217, 119, 6, .16);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, .67);
+    box-shadow: 0 3px 10px rgba(180, 83, 9, .045);
+}
+
+.teacher-golden-window-index {
+    display: block;
+    margin-bottom: 6px;
+    color: #9a5c1f;
+    font-size: .70rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.teacher-golden-window-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 18px minmax(0, 1fr);
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+}
+
+.teacher-golden-window-row input[type="time"] {
+    box-sizing: border-box !important;
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    height: 42px !important;
+    margin: 0 !important;
+    padding: 7px 8px !important;
+    overflow: hidden !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 9px !important;
+    outline: 0 !important;
+    color: #27314d !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    font-size: .82rem !important;
+    font-weight: 800 !important;
+}
+
+.teacher-golden-window-row input[type="time"]:focus {
+    border-color: #f59e0b !important;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, .14) !important;
+}
+
+.teacher-golden-window-arrow {
+    width: 18px;
+    min-width: 18px;
+    color: #9a6b3d;
+    font-size: .9rem;
+    font-weight: 900;
+    text-align: center;
+}
+
+.teacher-golden-hour-preview {
+    box-sizing: border-box;
+    width: 100%;
+    margin-top: 13px;
+    padding: 10px 12px;
+    overflow-wrap: anywhere;
+    border: 1px solid rgba(217, 119, 6, .10);
+    border-radius: 11px;
+    color: #78350f;
+    background: rgba(255, 255, 255, .68);
+    font-size: .88rem;
+    line-height: 1.45;
+    text-align: center;
+}
+
+.teacher-golden-hour-status {
+    box-sizing: border-box;
+    width: 100%;
+    margin-top: 8px;
+    padding: 3px 8px;
+    overflow-wrap: anywhere;
+    color: #475569;
+    font-size: .84rem;
+    font-weight: 900;
+    line-height: 1.45;
+    text-align: center;
+}
+
+.teacher-golden-hour-save {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-height: 48px;
+    margin: 12px 0 0 !important;
+    padding: 11px 14px !important;
+    border: 0 !important;
+    border-radius: 11px !important;
+    color: #fff !important;
+    background:
+        linear-gradient(
+            135deg,
+            #f59e0b,
+            #ea580c
+        ) !important;
+    box-shadow: 0 7px 18px rgba(234, 88, 12, .18) !important;
+    font-weight: 900 !important;
+    cursor: pointer;
+}
+
+.teacher-golden-hour-save:hover {
+    filter: brightness(1.03);
+    transform: translateY(-1px);
+}
+
+@media (max-width: 1180px) {
+    .teacher-golden-hour-config {
+        grid-template-columns: 1fr;
+    }
+
+    .teacher-golden-window-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 720px) {
+    #teacherGoldenHourManageCard.teacher-golden-hour-card {
+        padding: 14px;
+    }
+
+    .teacher-golden-hour-head {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .teacher-golden-hour-toggle {
+        align-self: flex-start;
+    }
+
+    .teacher-golden-window-title {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .teacher-golden-window-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .teacher-golden-window-row input[type="time"] {
+        font-size: .9rem !important;
+    }
+}
+

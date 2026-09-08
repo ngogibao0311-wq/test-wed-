@@ -21,9 +21,7 @@
 
     const state = {
         installedVersion: normalizeVersion(
-            window.APP_VERSION ||
-            localStorage.getItem(STORAGE_KEYS.installed) ||
-            '1.0.0'
+            resolveInstalledVersion()
         ),
         latest: null,
         status: 'idle',
@@ -41,6 +39,50 @@
             .trim()
             .replace(/^v/i, '')
             .split('+')[0];
+    }
+
+    function resolveInstalledVersion() {
+        const metaVersion = document
+            .querySelector('meta[name="application-version"]')
+            ?.getAttribute('content');
+
+        const windowVersion =
+            window.APP_VERSION;
+
+        /*
+         * Phiên bản nằm ngay trong HTML là nguồn chuẩn của bộ file
+         * đang thực sự chạy. Không để localStorage cũ ghi đè phiên bản
+         * của trang rồi tạo vòng lặp "có bản cập nhật mới".
+         */
+        if (metaVersion && String(metaVersion).trim()) {
+            if (
+                windowVersion &&
+                normalizeVersion(windowVersion) !==
+                    normalizeVersion(metaVersion)
+            ) {
+                console.warn(
+                    '[SystemUpdate] APP_VERSION khác meta application-version; ' +
+                    'ưu tiên phiên bản khai báo trong HTML:',
+                    metaVersion
+                );
+            }
+
+            return metaVersion;
+        }
+
+        if (
+            windowVersion &&
+            String(windowVersion).trim()
+        ) {
+            return windowVersion;
+        }
+
+        return (
+            localStorage.getItem(
+                STORAGE_KEYS.installed
+            ) ||
+            '1.0.0'
+        );
     }
 
     function parseVersion(value) {

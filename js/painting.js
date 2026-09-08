@@ -6385,11 +6385,23 @@ ${this.toolButton(
                         this.user.name,
 
                     /*
-                     * Chỉ lưu URL Cloudinary.
-                     * Không còn imageBase64.
+                     * Chỉ lưu URL + metadata storage.
+                     * Upload mới đi qua R2 có Firebase Auth;
+                     * dữ liệu Cloudinary cũ vẫn tương thích khi đọc/xóa.
                      */
                     imageUrl:
                         uploadedImage.url,
+
+                    imageStorage:
+                        uploadedImage,
+
+                    imageProvider:
+                        uploadedImage.provider ||
+                        'cloudflare-r2',
+
+                    imageKey:
+                        uploadedImage.key ||
+                        '',
 
                     submitTime:
                         Date.now(),
@@ -6574,54 +6586,202 @@ ${this.toolButton(
         },
 
         async getSubmissionsForRound(roundId) {
-            const targetRoundId = String(roundId ?? '').trim();
+            const targetRoundId =
+                String(roundId ?? '').trim();
 
             if (!targetRoundId) return [];
 
-            // Đọc toàn bộ rồi tự lọc để tương thích:
-            // - roundId dạng chuỗi
-            // - roundId dạng số
-            // - bài cũ thiếu roundId nhưng khóa có dạng ROUND_USERNAME
-            const snap = await db.ref('hoihoa_submissions').once('value');
+            /*
+             * Submission hiện dùng khóa:
+             *   ROUND_ID_USERNAME
+             *
+             * Query theo Firebase key thay vì đọc toàn bộ
+             * hoihoa_submissions rồi lọc trên client.
+             *
+             * Cách này vẫn tương thích bài cũ thiếu roundId
+             * miễn khóa cũ có dạng ROUND_USERNAME như hệ thống
+             * đã dùng từ trước.
+             *
+             * orderByKey() không cần thêm .indexOn.
+             */
+            const keyPrefix =
+                `${targetRoundId}_`;
+
+            const snap =
+                await db
+                    .ref('hoihoa_submissions')
+                    .orderByKey()
+                    .startAt(keyPrefix)
+                    .endAt(`${keyPrefix}\uf8ff`)
+                    .once('value');
+
             const submissions = [];
 
             snap.forEach(child => {
                 const sub = child.val();
 
-                if (!sub || typeof sub !== 'object') return;
+                if (
+                    !sub ||
+                    typeof sub !== 'object'
+                ) {
+                    return;
+                }
 
-                const submissionKey = String(child.key || '');
-                const storedRoundId = String(sub.roundId ?? '').trim();
+                const submissionKey =
+                    String(child.key || '');
 
-                const matchesRoundField =
-                    storedRoundId === targetRoundId;
+                const storedRoundId =
+                    String(
+                        sub.roundId ?? ''
+                    ).trim();
 
-                const matchesLegacyKey =
-                    submissionKey.startsWith(`${targetRoundId}_`);
-
-                if (!matchesRoundField && !matchesLegacyKey) return;
+                /*
+                 * Không tin hoàn toàn vào prefix:
+                 * nếu dữ liệu mới có roundId thì nó cũng phải
+                 * khớp vòng đang truy vấn.
+                 *
+                 * Bài cũ thiếu roundId vẫn được nhận theo key.
+                 */
+                if (
+                    storedRoundId &&
+                    storedRoundId !== targetRoundId
+                ) {
+                    return;
+                }
 
                 submissions.push({
                     ...sub,
 
-                    // Chống bài cũ thiếu id
-                    id: sub.id || child.key,
+                    id:
+                        sub.id ||
+                        child.key,
 
-                    // Chống bài cũ thiếu roundId
-                    roundId: sub.roundId ?? roundId,
+                    roundId:
+                        sub.roundId ??
+                        roundId,
 
-                    _fbKey: child.key
+                    _fbKey:
+                        child.key,
+
+                    _roundKey:
+                        submissionKey
                 });
             });
 
-            // Bài cũ trước, bài mới sau
             submissions.sort(
                 (a, b) =>
-                    Number(a.submitTime || 0) -
-                    Number(b.submitTime || 0)
+                    Number(
+                        a.submitTime || 0
+                    ) -
+                    Number(
+                        b.submitTime || 0
+                    )
             );
 
             return submissions;
+        },
+
+        getRoundStatsFromSubmissions(submissions) {
+            const stats = {
+                submissions: 0,
+                votes: 0,
+                graded: 0
+            };
+
+            (submissions || []).forEach(sub => {
+                stats.submissions += 1;
+
+                stats.votes +=
+                    this.getVoteCount(sub);
+
+                if (
+                    Number(
+                        sub.teacherScore
+                    ) > 0 ||
+                    sub.teacherFeedback
+                ) {
+                    stats.graded += 1;
+                }
+            });
+
+            return stats;
+        },
+
+        async ensureTeacherRoundStats(
+            rounds,
+            {
+                force = false,
+                concurrency = 6
+            } = {}
+        ) {
+            const targets =
+                (rounds || []).filter(round => {
+                    if (!round) return false;
+
+                    if (
+                        !force &&
+                        round._statsLoaded ===
+                            true
+                    ) {
+                        return false;
+                    }
+
+                    return Boolean(
+                        String(
+                            round.id ?? ''
+                        ).trim()
+                    );
+                });
+
+            if (!targets.length) {
+                return;
+            }
+
+            const safeConcurrency =
+                Math.max(
+                    1,
+                    Math.min(
+                        10,
+                        Number(concurrency) ||
+                            6
+                    )
+                );
+
+            /*
+             * Chạy theo nhóm nhỏ để tránh tạo hàng chục
+             * query Firebase đồng thời nếu có nhiều năm dữ liệu.
+             */
+            for (
+                let index = 0;
+                index < targets.length;
+                index += safeConcurrency
+            ) {
+                const batch =
+                    targets.slice(
+                        index,
+                        index +
+                            safeConcurrency
+                    );
+
+                await Promise.all(
+                    batch.map(async round => {
+                        const submissions =
+                            await this
+                                .getSubmissionsForRound(
+                                    round.id
+                                );
+
+                        round._stats =
+                            this
+                                .getRoundStatsFromSubmissions(
+                                    submissions
+                                );
+
+                        round._statsLoaded =
+                            true;
+                    })
+                );
+            }
         },
 
         getVoteCount(submission) {
@@ -7212,126 +7372,137 @@ ${this.toolButton(
             this.loadTeacherRounds();
         },
 
-        toggleArchivedRounds() {
-            this.teacherShowArchived = !this.teacherShowArchived;
-            const button = document.getElementById('hh-toggle-archived');
-            if (button) button.textContent = this.teacherShowArchived ? 'Ẩn vòng đã lưu trữ' : 'Hiện vòng đã lưu trữ';
+        async toggleArchivedRounds() {
+            this.teacherShowArchived =
+                !this.teacherShowArchived;
+
+            const button =
+                document.getElementById(
+                    'hh-toggle-archived'
+                );
+
+            if (button) {
+                button.textContent =
+                    this.teacherShowArchived
+                        ? 'Ẩn vòng đã lưu trữ'
+                        : 'Hiện vòng đã lưu trữ';
+            }
+
+            /*
+             * Mặc định không đọc submission của vòng đã lưu trữ.
+             * Chỉ khi giáo viên bấm hiện vòng cũ mới query thống kê
+             * cho đúng các vòng đó.
+             */
+            if (this.teacherShowArchived) {
+                try {
+                    await this
+                        .ensureTeacherRoundStats(
+                            this.teacherRounds.filter(
+                                round =>
+                                    round.isArchived
+                            )
+                        );
+                } catch (error) {
+                    console.error(
+                        '[Hội họa] Không tải được thống kê vòng lưu trữ:',
+                        error
+                    );
+
+                    this.toast(
+                        'Một số thống kê vòng lưu trữ chưa tải được.',
+                        'warning'
+                    );
+                }
+            }
+
             this.renderTeacherRounds();
         },
 
         async loadTeacherRounds() {
             const container =
-                document.getElementById('hh-teacher-rounds-list');
+                document.getElementById(
+                    'hh-teacher-rounds-list'
+                );
 
             if (!container) return;
 
             container.innerHTML =
-                this.loadingHTML('Đang tải vòng thi và thống kê...');
+                this.loadingHTML(
+                    'Đang tải vòng thi và thống kê...'
+                );
 
             try {
-                const [roundSnap, subSnap] = await Promise.all([
-                    db.ref('hoihoa_rounds').once('value'),
-                    db.ref('hoihoa_submissions').once('value')
-                ]);
+                /*
+                 * Chỉ tải danh sách vòng ở đây.
+                 * Không còn đọc toàn bộ hoihoa_submissions.
+                 */
+                const roundSnap =
+                    await db
+                        .ref('hoihoa_rounds')
+                        .once('value');
 
                 this.teacherRounds = [];
 
                 roundSnap.forEach(child => {
-                    const round = child.val();
+                    const round =
+                        child.val();
 
-                    if (round) {
-                        this.teacherRounds.push({
-                            ...round,
-                            _fbKey: child.key
-                        });
-                    }
-                });
+                    if (!round) return;
 
-                const stats = {};
+                    this.teacherRounds.push({
+                        ...round,
 
-                this.teacherRounds.forEach(round => {
-                    const roundKey = String(round.id ?? '').trim();
+                        _fbKey:
+                            child.key,
 
-                    stats[roundKey] = {
-                        submissions: 0,
-                        votes: 0,
-                        graded: 0
-                    };
-                });
+                        _stats: {
+                            submissions: 0,
+                            votes: 0,
+                            graded: 0
+                        },
 
-                subSnap.forEach(child => {
-                    const sub = child.val();
-
-                    if (!sub || typeof sub !== 'object') return;
-
-                    const submissionKey = String(child.key || '');
-
-                    // Tìm vòng bằng roundId hoặc khóa bài cũ
-                    const matchedRound = this.teacherRounds.find(round => {
-                        const targetRoundId =
-                            String(round.id ?? '').trim();
-
-                        if (!targetRoundId) return false;
-
-                        return (
-                            String(sub.roundId ?? '').trim() ===
-                            targetRoundId ||
-                            submissionKey.startsWith(
-                                `${targetRoundId}_`
-                            )
-                        );
+                        _statsLoaded:
+                            false
                     });
-
-                    if (!matchedRound) return;
-
-                    const statKey =
-                        String(matchedRound.id ?? '').trim();
-
-                    if (!stats[statKey]) {
-                        stats[statKey] = {
-                            submissions: 0,
-                            votes: 0,
-                            graded: 0
-                        };
-                    }
-
-                    stats[statKey].submissions++;
-                    stats[statKey].votes += this.getVoteCount(sub);
-
-                    if (
-                        Number(sub.teacherScore) > 0 ||
-                        sub.teacherFeedback
-                    ) {
-                        stats[statKey].graded++;
-                    }
                 });
-
-                this.teacherRounds = this.teacherRounds.map(round => ({
-                    ...round,
-
-                    _stats:
-                        stats[String(round.id ?? '').trim()] || {
-                            submissions: 0,
-                            votes: 0,
-                            graded: 0
-                        }
-                }));
 
                 this.teacherRounds.sort(
                     (a, b) =>
-                        Number(b.startTime || 0) -
-                        Number(a.startTime || 0)
+                        Number(
+                            b.startTime || 0
+                        ) -
+                        Number(
+                            a.startTime || 0
+                        )
                 );
+
+                /*
+                 * Chỉ query submission của các vòng đang hiển thị.
+                 * Vòng lưu trữ được lazy-load khi giáo viên bấm
+                 * "Hiện vòng đã lưu trữ".
+                 */
+                const roundsNeedingStats =
+                    this.teacherRounds.filter(
+                        round =>
+                            this.teacherShowArchived ||
+                            !round.isArchived
+                    );
+
+                await this
+                    .ensureTeacherRoundStats(
+                        roundsNeedingStats
+                    );
 
                 this.renderTeacherRounds();
             } catch (error) {
                 console.error(error);
 
-                container.innerHTML = this.emptyStateHTML(
-                    '⚠️',
-                    'Không tải được dữ liệu',
-                    'Kiểm tra kết nối và Firebase Rules.'
-                );
+                container.innerHTML =
+                    this.emptyStateHTML(
+                        '⚠️',
+                        'Không tải được dữ liệu',
+                        'Kiểm tra kết nối và Firebase Rules.'
+                    );
             }
         },
 
@@ -7928,20 +8099,91 @@ ${this.toolButton(
             if (!lock.committed || !lockOwned) return false;
 
             try {
-                const allSubsSnap = await db.ref('hoihoa_submissions').once('value');
+                /*
+                 * Chỉ tải submission của đúng 5 vòng trong mùa.
+                 * Không còn quét toàn bộ lịch sử Hội họa nhiều năm.
+                 */
+                const seasonSubmissionGroups =
+                    await Promise.all(
+                        seasonRoundIds.map(
+                            roundId =>
+                                this
+                                    .getSubmissionsForRound(
+                                        roundId
+                                    )
+                        )
+                    );
+
                 const aggregated = {};
-                allSubsSnap.forEach(child => {
-                    const sub = child.val();
-                    if (!seasonRoundIds.includes(sub.roundId)) return;
-                    let finalScore = Number(sub.finalScore || 0);
-                    if (sub.roundId === currentRoundId) {
-                        const current = currentSubmissions.find(item => item.id === sub.id);
-                        if (current) finalScore = Number(current.finalScore || finalScore);
-                    }
-                    if (!aggregated[sub.studentUsername]) aggregated[sub.studentUsername] = { studentUsername: sub.studentUsername, studentName: sub.studentName, totalScore: 0, roundsJoined: 0 };
-                    aggregated[sub.studentUsername].totalScore += finalScore;
-                    aggregated[sub.studentUsername].roundsJoined++;
-                });
+
+                seasonSubmissionGroups
+                    .flat()
+                    .forEach(sub => {
+                        const subRoundId =
+                            String(
+                                sub.roundId ??
+                                ''
+                            );
+
+                        let finalScore =
+                            Number(
+                                sub.finalScore || 0
+                            );
+
+                        if (
+                            subRoundId ===
+                            String(
+                                currentRoundId
+                            )
+                        ) {
+                            const current =
+                                currentSubmissions.find(
+                                    item =>
+                                        String(
+                                            item.id
+                                        ) ===
+                                        String(
+                                            sub.id
+                                        )
+                                );
+
+                            if (current) {
+                                finalScore =
+                                    Number(
+                                        current.finalScore ||
+                                        finalScore
+                                    );
+                            }
+                        }
+
+                        if (
+                            !aggregated[
+                                sub.studentUsername
+                            ]
+                        ) {
+                            aggregated[
+                                sub.studentUsername
+                            ] = {
+                                studentUsername:
+                                    sub.studentUsername,
+
+                                studentName:
+                                    sub.studentName,
+
+                                totalScore: 0,
+                                roundsJoined: 0
+                            };
+                        }
+
+                        aggregated[
+                            sub.studentUsername
+                        ].totalScore +=
+                            finalScore;
+
+                        aggregated[
+                            sub.studentUsername
+                        ].roundsJoined += 1;
+                    });
                 const rankings = Object.values(aggregated).sort((a, b) => b.totalScore - a.totalScore);
                 const updates = {};
                 rankings.forEach((student, index) => {

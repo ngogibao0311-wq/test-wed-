@@ -140,6 +140,18 @@ class ThemeManager {
             background: '#f4f0df',
             className: 'theme-spring-celadon-almanac'
         },
+
+        // =========================================================
+        // MÙA HẠ · HẠ QUANG LƯU LY
+        // Concept riêng: kính nắng lăng kính + gợn nhiệt + hạt quang.
+        // Không dùng lại summer-solstice-* hoặc ha2l-* của pet.
+        // =========================================================
+        'theme_mua_ha_ha_quang_luu_ly': {
+            primary: '#d89b2b',
+            secondary: '#2f9f9a',
+            background: '#f7f2d8',
+            className: 'theme-summer-prismatic-garden'
+        },
         // =========================================================
         // QUỐC KHÁNH 2/9
         // VIỆT DIỆU · HỒNG KỲ TÂN CHƯƠNG
@@ -175,6 +187,17 @@ class ThemeManager {
             secondary: '#e0c16d',
             background: '#071c17',
             className: 'theme-cam-mong-thanh-huyen-tien-cac'
+        },
+
+        // =========================================================
+        // TRUNG THU · NGUYỆT HỘI HOA ĐĂNG
+        // Theme độc lập hoàn toàn: mttheme2-*
+        // =========================================================
+        'theme_trung_thu_nguyet_hoi_hoa_dang': {
+            primary: '#e8b85f',
+            secondary: '#4ea992',
+            background: '#0b1430',
+            className: 'theme-midautumn-lantern-festival'
         },
     };
 
@@ -265,6 +288,20 @@ class ThemeManager {
 
             className:
                 'store-card-birthday-2026'
+        }),
+
+        /* =========================================================
+           MÙA HẠ · TIỂU HẠ QUANG + HẠ QUANG LƯU LY
+           Cùng tag, cùng thẻ; card miễn mọi giao diện toàn web khác.
+           ========================================================= */
+        'summer-limited-pair': Object.freeze({
+            itemIds: Object.freeze([
+                'pet_premium_mua_ha_chibi_2',
+                'theme_mua_ha_ha_quang_luu_ly'
+            ]),
+
+            className:
+                'store-card-premium-summer-limited'
         }),
 
         /* MÙA HẠ PREMIUM — card riêng, không nhận skin từ theme khác. */
@@ -361,6 +398,20 @@ class ThemeManager {
    BỘ VIỆT DIỆU 2/9
    Giữ card riêng, không bị theme toàn web ghi đè
    ========================================================= */
+        /* =========================================================
+           TRUNG THU · TIỂU HẰNG NGA + NGUYỆT HỘI HOA ĐĂNG
+           Cùng tag, cùng thẻ; miễn mọi giao diện toàn web khác.
+           ========================================================= */
+        'midautumn-chibi': Object.freeze({
+            itemIds: Object.freeze([
+                'pet_trung_thu_hang_nga_chibi_1',
+                'theme_trung_thu_nguyet_hoi_hoa_dang'
+            ]),
+
+            className:
+                'store-card-midautumn-chibi'
+        }),
+
         'national-day-2-9': Object.freeze({
             itemIds: Object.freeze([
                 'pet_quoc_khanh_chibi_1',
@@ -1149,11 +1200,254 @@ class ThemeManager {
         });
     }
 
+
+    // =========================================================
+    // TRUNG THU · NGUYỆT HỘI HOA ĐĂNG
+    // Decor/effect độc lập hoàn toàn: mttheme2-*
+    // =========================================================
+    static clearMidAutumnLanternFestivalDecor() {
+        document
+            .getElementById(
+                'mttheme2-festival-decor'
+            )
+            ?.remove();
+
+        document.documentElement.classList.remove(
+            'mttheme2-festival-mounted'
+        );
+    }
+
+    static createMidAutumnLanternFestivalDecor() {
+        this.clearMidAutumnLanternFestivalDecor();
+
+        if (!document.body) return;
+
+        const decor = document.createElement('div');
+
+        decor.id = 'mttheme2-festival-decor';
+        decor.className = 'mttheme2-festival-decor';
+        decor.setAttribute('aria-hidden', 'true');
+
+        decor.innerHTML = `
+            <div class="mttheme2-night-wash"></div>
+
+            <div class="mttheme2-moon-gate">
+                <span class="mttheme2-moon-disc"></span>
+                <span class="mttheme2-rabbit-mark">兔</span>
+                <i class="mttheme2-gate-ring ring-a"></i>
+                <i class="mttheme2-gate-ring ring-b"></i>
+            </div>
+
+            <div class="mttheme2-cloud cloud-a"></div>
+            <div class="mttheme2-cloud cloud-b"></div>
+            <div class="mttheme2-cloud cloud-c"></div>
+
+            <div class="mttheme2-lantern-field"></div>
+            <div class="mttheme2-firefly-field"></div>
+            <div class="mttheme2-petal-field"></div>
+
+            <div class="mttheme2-corner corner-tl">☾</div>
+            <div class="mttheme2-corner corner-tr">✦</div>
+            <div class="mttheme2-corner corner-bl">花</div>
+            <div class="mttheme2-corner corner-br">灯</div>
+
+            <div class="mttheme2-festival-caption">
+                <small>中 秋 · 花 灯</small>
+                <strong>NGUYỆT HỘI HOA ĐĂNG</strong>
+            </div>
+        `;
+
+        const lanternField =
+            decor.querySelector('.mttheme2-lantern-field');
+
+        const fireflyField =
+            decor.querySelector('.mttheme2-firefly-field');
+
+        const petalField =
+            decor.querySelector('.mttheme2-petal-field');
+
+        const reduced =
+            window.matchMedia?.(
+                '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+            ).matches;
+
+        const lanternCount = reduced ? 5 : 9;
+        const fireflyCount = reduced ? 15 : 34;
+        const petalCount = reduced ? 10 : 24;
+
+        for (let index = 0; index < lanternCount; index++) {
+            const lantern = document.createElement('i');
+
+            lantern.className = 'mttheme2-floating-lantern';
+            lantern.innerHTML = '<b></b><span></span><em></em>';
+
+            lantern.style.setProperty(
+                '--mttheme2-lx',
+                `${4 + ((index * 79) % 92)}%`
+            );
+
+            lantern.style.setProperty(
+                '--mttheme2-ly',
+                `${9 + ((index * 43) % 68)}%`
+            );
+
+            lantern.style.setProperty(
+                '--mttheme2-ld',
+                `${-index * .63}s`
+            );
+
+            lantern.style.setProperty(
+                '--mttheme2-ls',
+                `${.72 + (index % 4) * .11}`
+            );
+
+            lanternField?.appendChild(lantern);
+        }
+
+        for (let index = 0; index < fireflyCount; index++) {
+            const firefly = document.createElement('i');
+
+            firefly.style.setProperty(
+                '--mttheme2-fx',
+                `${(index * 37 + 7) % 98}%`
+            );
+
+            firefly.style.setProperty(
+                '--mttheme2-fy',
+                `${(index * 61 + 11) % 94}%`
+            );
+
+            firefly.style.setProperty(
+                '--mttheme2-fd',
+                `${-(index % 12) * .41}s`
+            );
+
+            firefly.style.setProperty(
+                '--mttheme2-fs',
+                `${2 + (index % 3)}px`
+            );
+
+            fireflyField?.appendChild(firefly);
+        }
+
+        for (let index = 0; index < petalCount; index++) {
+            const petal = document.createElement('i');
+
+            petal.style.setProperty(
+                '--mttheme2-px',
+                `${(index * 41 + 5) % 96}%`
+            );
+
+            petal.style.setProperty(
+                '--mttheme2-pd',
+                `${-(index % 10) * .57}s`
+            );
+
+            petal.style.setProperty(
+                '--mttheme2-pr',
+                `${(index * 29) % 180}deg`
+            );
+
+            petalField?.appendChild(petal);
+        }
+
+        document.body.prepend(decor);
+
+        document.documentElement.classList.add(
+            'mttheme2-festival-mounted'
+        );
+
+        requestAnimationFrame(() => {
+            decor.classList.add('is-mounted');
+        });
+    }
+
+    // =========================================================
+    // MÙA HẠ · HẠ QUANG LƯU LY — AMBIENT RIÊNG
+    // Namespace: ha2theme-* (không dùng ha2l-* / summer-solstice-*).
+    // =========================================================
+    static clearSummerPrismaticGardenDecor() {
+        const oldDecor =
+            document.getElementById('ha2theme-prismatic-garden-decor');
+
+        oldDecor?.remove();
+
+        document.documentElement.classList.remove(
+            'ha2theme-prismatic-mounted'
+        );
+    }
+
+    static createSummerPrismaticGardenDecor() {
+        this.clearSummerPrismaticGardenDecor();
+
+        if (!document.body) return;
+
+        const decor = document.createElement('div');
+        decor.id = 'ha2theme-prismatic-garden-decor';
+        decor.className = 'ha2theme-prismatic-garden-decor';
+        decor.setAttribute('aria-hidden', 'true');
+
+        decor.innerHTML = `
+            <div class="ha2theme-heat-haze haze-a"></div>
+            <div class="ha2theme-heat-haze haze-b"></div>
+            <div class="ha2theme-prism-band band-a"></div>
+            <div class="ha2theme-prism-band band-b"></div>
+            <div class="ha2theme-prism-band band-c"></div>
+            <div class="ha2theme-caustic-field"></div>
+            <div class="ha2theme-mote-field"></div>
+        `;
+
+        const causticField =
+            decor.querySelector('.ha2theme-caustic-field');
+
+        const moteField =
+            decor.querySelector('.ha2theme-mote-field');
+
+        const reduced = window.matchMedia?.(
+            '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+        ).matches;
+
+        const causticCount = reduced ? 8 : 18;
+        const moteCount = reduced ? 12 : 30;
+
+        for (let index = 0; index < causticCount; index++) {
+            const shard = document.createElement('i');
+            shard.className = 'ha2theme-caustic';
+            shard.style.setProperty('--ha2theme-x', `${(index * 47 + 9) % 96}%`);
+            shard.style.setProperty('--ha2theme-y', `${(index * 61 + 13) % 92}%`);
+            shard.style.setProperty('--ha2theme-r', `${(index * 29) % 180}deg`);
+            shard.style.setProperty('--ha2theme-d', `${-(index % 9) * .73}s`);
+            shard.style.setProperty('--ha2theme-s', `${.72 + (index % 5) * .13}`);
+            causticField?.appendChild(shard);
+        }
+
+        for (let index = 0; index < moteCount; index++) {
+            const mote = document.createElement('i');
+            mote.className = 'ha2theme-mote';
+            mote.style.setProperty('--ha2theme-mx', `${(index * 37 + 5) % 98}%`);
+            mote.style.setProperty('--ha2theme-my', `${(index * 53 + 17) % 96}%`);
+            mote.style.setProperty('--ha2theme-md', `${-(index % 13) * .52}s`);
+            mote.style.setProperty('--ha2theme-ms', `${2 + (index % 3)}px`);
+            moteField?.appendChild(mote);
+        }
+
+        document.body.prepend(decor);
+        document.documentElement.classList.add(
+            'ha2theme-prismatic-mounted'
+        );
+
+        requestAnimationFrame(() => {
+            decor.classList.add('is-mounted');
+        });
+    }
+
     static applyTheme(themeId) {
         this.initThemePopupIsolation();
         this.clearAcediaPalaceDecor();
         this.clearTamonBsideBackstageDecor();
         this.clearCamMongThanhHuyenDecor();
+        this.clearMidAutumnLanternFestivalDecor();
+        this.clearSummerPrismaticGardenDecor();
         const theme = this.themes[themeId] || this.themes['default'];
         const root = document.documentElement;
 
@@ -1193,6 +1487,20 @@ class ThemeManager {
             'theme_cam_mong_thanh_huyen_tien_cac'
         ) {
             this.createCamMongThanhHuyenDecor();
+        }
+
+        if (
+            themeId ===
+            'theme_trung_thu_nguyet_hoi_hoa_dang'
+        ) {
+            this.createMidAutumnLanternFestivalDecor();
+        }
+
+        if (
+            themeId ===
+            'theme_mua_ha_ha_quang_luu_ly'
+        ) {
+            this.createSummerPrismaticGardenDecor();
         }
 
         // Lưu lựa chọn vào bộ nhớ trình duyệt

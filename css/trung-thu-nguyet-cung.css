@@ -2357,3 +2357,2920 @@ html.midautumn-moon-palace-equipped body ::selection {
     }
 }
 
+
+
+/* ============================================================================
+   TRUNG THU · TIỂU HẰNG NGA — NGUYỆT ĐĂNG VÂN VŨ V1
+   APPEND-ONLY / ISOLATED
+   - Card riêng nhưng KHÔNG đổi bố cục store-item-card.
+   - Tag Trung thu riêng.
+   - Pet realm quanh nhân vật + click ultimate toàn màn hình.
+   - Namespace mafc-*; không tái sử dụng class/keyframe của vật phẩm khác.
+   ============================================================================ */
+
+/* ---------- CARD RIÊNG, GIỮ NGUYÊN DOM/BỐ CỤC CHUNG ---------- */
+.store-item-card.store-card-midautumn-chibi,
+.store-item-card[data-special-card="midautumn-chibi"] {
+    position: relative !important;
+    overflow: hidden !important;
+    isolation: isolate !important;
+    background:
+        radial-gradient(circle at 82% 10%, rgba(255, 235, 166, .34), transparent 26%),
+        radial-gradient(circle at 12% 78%, rgba(80, 179, 152, .18), transparent 32%),
+        linear-gradient(155deg, #101a35 0%, #16274b 43%, #123d42 100%) !important;
+    border: 1px solid rgba(244, 205, 111, .78) !important;
+    box-shadow:
+        0 13px 30px rgba(6, 12, 31, .34),
+        0 0 0 1px rgba(255, 239, 190, .14) inset,
+        0 0 25px rgba(229, 181, 84, .13) !important;
+    color: #fff5d2 !important;
+}
+
+.store-item-card.store-card-midautumn-chibi::before,
+.store-item-card[data-special-card="midautumn-chibi"]::before {
+    content: "";
+    position: absolute;
+    inset: 7px;
+    z-index: 0;
+    pointer-events: none;
+    border: 1px solid rgba(244, 210, 127, .24);
+    border-radius: inherit;
+    background:
+        linear-gradient(90deg, transparent 0 42%, rgba(255,255,255,.04) 50%, transparent 58%);
+    mask: linear-gradient(#000, #000);
+}
+
+.store-item-card.store-card-midautumn-chibi::after,
+.store-item-card[data-special-card="midautumn-chibi"]::after {
+    content: "☾  ✦  ☽";
+    position: absolute;
+    right: 10px;
+    bottom: 7px;
+    z-index: 0;
+    pointer-events: none;
+    color: rgba(255, 225, 148, .16);
+    font: 700 18px/1 Georgia, serif;
+    letter-spacing: .18em;
+}
+
+.store-item-card.store-card-midautumn-chibi > *,
+.store-item-card[data-special-card="midautumn-chibi"] > * {
+    position: relative;
+    z-index: 1;
+}
+
+.store-item-card.store-card-midautumn-chibi .card-glow,
+.store-item-card[data-special-card="midautumn-chibi"] .card-glow {
+    position: absolute;
+    inset: -38%;
+    z-index: 0;
+    pointer-events: none;
+    opacity: .72;
+    background:
+        conic-gradient(from 40deg,
+            transparent 0 20%,
+            rgba(255, 222, 136, .16) 24%,
+            transparent 31% 61%,
+            rgba(105, 211, 180, .13) 66%,
+            transparent 72% 100%);
+    animation: mafcCardGlowSpin 13s linear infinite;
+}
+
+.store-item-card.store-card-midautumn-chibi .item-icon-wrapper,
+.store-item-card[data-special-card="midautumn-chibi"] .item-icon-wrapper {
+    background:
+        radial-gradient(circle, rgba(255, 239, 183, .18), rgba(28, 45, 75, .08) 56%, transparent 72%) !important;
+    border-color: rgba(241, 205, 116, .22) !important;
+}
+
+.store-item-card.store-card-midautumn-chibi .item-icon,
+.store-item-card[data-special-card="midautumn-chibi"] .item-icon {
+    filter:
+        drop-shadow(0 8px 12px rgba(5, 11, 28, .35))
+        drop-shadow(0 0 12px rgba(255, 225, 140, .26)) !important;
+}
+
+.store-item-card.store-card-midautumn-chibi .item-name,
+.store-item-card[data-special-card="midautumn-chibi"] .item-name {
+    color: #fff3c7 !important;
+    text-shadow: 0 1px 0 rgba(0,0,0,.22), 0 0 10px rgba(255, 224, 135, .18);
+}
+
+.store-item-card.store-card-midautumn-chibi .item-type-label,
+.store-item-card[data-special-card="midautumn-chibi"] .item-type-label {
+    color: #bce8d8 !important;
+}
+
+.store-item-card.store-card-midautumn-chibi .btn-buy,
+.store-item-card[data-special-card="midautumn-chibi"] .btn-buy {
+    background:
+        linear-gradient(135deg, #f3ce70 0%, #dca446 52%, #6db6a0 100%) !important;
+    color: #192238 !important;
+    border-color: rgba(255, 240, 190, .55) !important;
+    box-shadow: 0 7px 18px rgba(3, 13, 30, .22) !important;
+}
+
+.store-item-card.store-card-midautumn-chibi .btn-preview,
+.store-item-card[data-special-card="midautumn-chibi"] .btn-preview {
+    background: rgba(255, 246, 215, .08) !important;
+    color: #ffeab2 !important;
+    border-color: rgba(239, 201, 107, .38) !important;
+}
+
+/* ---------- TAG TRUNG THU RIÊNG ---------- */
+.item-tag.tag-trung-thu-chibi {
+    /*
+     * Giữ nguyên cơ chế position/top/right/transform của .item-tag gốc.
+     * Không chuyển tag sang position:relative vì sẽ làm ribbon rơi xuống
+     * vùng ảnh/nội dung của card.
+     */
+    overflow: visible !important;
+    z-index: 12 !important;
+    pointer-events: none;
+    box-sizing: border-box;
+    padding: 5px 12px 5px 27px !important;
+    border: 1px solid rgba(255, 226, 149, .68) !important;
+    border-radius: 999px 8px 999px 8px !important;
+    background:
+        linear-gradient(135deg, rgba(20, 43, 70, .98), rgba(32, 106, 94, .96) 58%, rgba(173, 117, 44, .96)) !important;
+    color: #fff2c4 !important;
+    box-shadow:
+        0 6px 14px rgba(6, 14, 32, .28),
+        inset 0 1px 0 rgba(255,255,255,.14) !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,.38);
+    letter-spacing: .035em;
+}
+
+.item-tag.tag-trung-thu-chibi::before {
+    content: "☾";
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-53%) rotate(-12deg);
+    color: #ffe49a;
+    font-size: 17px;
+    line-height: 1;
+    filter: drop-shadow(0 0 5px rgba(255, 225, 136, .52));
+    animation: mafcTagMoonPulse 2.8s ease-in-out infinite;
+}
+
+.item-tag.tag-trung-thu-chibi::after {
+    content: "◆";
+    position: absolute;
+    right: -7px;
+    top: -8px;
+    width: 15px;
+    height: 20px;
+    display: grid;
+    place-items: center;
+    color: #f5c866;
+    font-size: 11px;
+    text-shadow: 0 0 6px rgba(245, 200, 102, .66);
+    transform-origin: 50% 0;
+    animation: mafcTagLanternSwing 2.4s ease-in-out infinite;
+}
+
+/* ---------- LOCAL PET REALM ---------- */
+.pet-midautumn-hangnga-chibi-stage {
+    overflow: visible !important;
+    isolation: isolate !important;
+}
+
+.pet-midautumn-hangnga-chibi-stage #virtual-pet-img.mafc-avatar {
+    position: relative !important;
+    z-index: 5 !important;
+    width: 146px !important;
+    height: auto !important;
+    max-width: none !important;
+    filter:
+        drop-shadow(0 9px 12px rgba(7, 13, 31, .35))
+        drop-shadow(0 0 12px rgba(255, 224, 139, .32)) !important;
+    transform-origin: 50% 90%;
+    animation: mafcPetFloat 3.7s ease-in-out infinite;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.mafc-local-realm {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 260px;
+    height: 260px;
+    transform: translate(-50%, -51%);
+    z-index: 1;
+    pointer-events: none;
+    overflow: visible;
+    opacity: 1;
+}
+
+.mafc-local-aura {
+    position: absolute;
+    inset: 30px;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle,
+            rgba(255, 244, 205, .35) 0 12%,
+            rgba(244, 206, 113, .20) 28%,
+            rgba(91, 181, 158, .13) 49%,
+            transparent 72%);
+    filter: blur(3px);
+    animation: mafcLocalAura 3.4s ease-in-out infinite;
+}
+
+.mafc-local-moon {
+    position: absolute;
+    width: 102px;
+    height: 102px;
+    left: 50%;
+    top: 42%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 34% 28%, #fffdf1 0 18%, #ffe8a5 35%, #e5b353 72%, #ad722e 100%);
+    box-shadow:
+        0 0 20px rgba(255, 227, 150, .50),
+        0 0 46px rgba(255, 214, 116, .22);
+    opacity: .47;
+    animation: mafcLocalMoon 5.8s ease-in-out infinite;
+}
+
+.mafc-local-ring {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    border: 1px solid rgba(247, 216, 136, .42);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.mafc-local-ring.ring-a {
+    width: 146px;
+    height: 78px;
+    animation: mafcLocalRingA 7s linear infinite;
+}
+
+.mafc-local-ring.ring-b {
+    width: 188px;
+    height: 108px;
+    border-color: rgba(107, 205, 180, .30);
+    animation: mafcLocalRingB 9s linear infinite reverse;
+}
+
+.mafc-local-ring.ring-c {
+    width: 222px;
+    height: 138px;
+    border-style: dashed;
+    border-color: rgba(255, 232, 169, .18);
+    animation: mafcLocalRingC 12s linear infinite;
+}
+
+.mafc-local-cloud {
+    position: absolute;
+    width: 82px;
+    height: 20px;
+    border-radius: 999px;
+    background: rgba(194, 233, 218, .14);
+    box-shadow:
+        20px -8px 0 -3px rgba(229, 246, 235, .12),
+        -17px 6px 0 -5px rgba(255, 237, 190, .11);
+    filter: blur(.2px);
+}
+
+.mafc-local-cloud.cloud-a {
+    left: 12px;
+    top: 67px;
+    animation: mafcCloudDriftA 7s ease-in-out infinite;
+}
+
+.mafc-local-cloud.cloud-b {
+    right: 8px;
+    top: 111px;
+    transform: scale(.82);
+    animation: mafcCloudDriftB 8.4s ease-in-out infinite;
+}
+
+.mafc-local-cloud.cloud-c {
+    left: 81px;
+    bottom: 27px;
+    transform: scale(1.1);
+    animation: mafcCloudDriftA 9s ease-in-out infinite reverse;
+}
+
+.mafc-local-lantern {
+    position: absolute;
+    width: 20px;
+    height: 25px;
+    display: grid;
+    place-items: center;
+    color: #f2c15c;
+    font: 700 14px/1 Georgia, serif;
+    border: 1px solid rgba(255, 231, 170, .48);
+    border-radius: 9px 9px 12px 12px;
+    background: linear-gradient(180deg, rgba(221, 113, 68, .68), rgba(184, 70, 57, .42));
+    box-shadow: 0 0 12px rgba(246, 180, 78, .35);
+    transform-origin: 50% -13px;
+}
+
+.mafc-local-lantern::before {
+    content: "";
+    position: absolute;
+    width: 1px;
+    height: 15px;
+    bottom: 100%;
+    background: rgba(255, 226, 160, .34);
+}
+
+.mafc-local-lantern::after {
+    content: "";
+    position: absolute;
+    width: 1px;
+    height: 12px;
+    top: 100%;
+    background: rgba(245, 193, 92, .42);
+}
+
+.mafc-local-lantern.lantern-a { left: 25px; top: 93px; animation: mafcLanternSwing 3s ease-in-out infinite; }
+.mafc-local-lantern.lantern-b { right: 31px; top: 59px; animation: mafcLanternSwing 2.7s ease-in-out infinite reverse; }
+.mafc-local-lantern.lantern-c { left: 57px; bottom: 42px; transform: scale(.75); animation: mafcLanternSwing 3.4s ease-in-out infinite -.8s; }
+.mafc-local-lantern.lantern-d { right: 49px; bottom: 29px; transform: scale(.66); animation: mafcLanternSwing 3.1s ease-in-out infinite reverse -.5s; }
+
+.mafc-local-star-field,
+.mafc-local-petal-field {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.mafc-local-star {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    color: #ffe8a7;
+    font: 12px/1 Georgia, serif;
+    text-shadow: 0 0 7px rgba(255, 228, 152, .7);
+    transform:
+        rotate(var(--mafc-sa))
+        translateX(var(--mafc-sr))
+        rotate(var(--mafc-sab));
+    animation: mafcStarTwinkle 2.1s ease-in-out infinite var(--mafc-sd);
+}
+
+.mafc-local-petal {
+    position: absolute;
+    left: var(--mafc-px);
+    top: var(--mafc-py);
+    width: 8px;
+    height: 5px;
+    border-radius: 80% 10% 80% 10%;
+    background: linear-gradient(135deg, #f6c7c1, #df8d9c);
+    opacity: .72;
+    transform: rotate(var(--mafc-pr));
+    animation: mafcPetalOrbit 5s ease-in-out infinite var(--mafc-pd);
+}
+
+.mafc-local-ground {
+    position: absolute;
+    left: 50%;
+    bottom: 22px;
+    width: 150px;
+    height: 29px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(246, 211, 122, .28), rgba(84, 188, 159, .12) 52%, transparent 72%);
+    box-shadow: 0 0 22px rgba(255, 225, 144, .16);
+    animation: mafcGroundPulse 3s ease-in-out infinite;
+}
+
+/* ---------- CLICK LOCAL BURST ---------- */
+.mafc-local-click-burst {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 250px;
+    height: 250px;
+    transform: translate(-50%, -50%);
+    z-index: 8;
+    pointer-events: none;
+}
+
+.mafc-click-moon,
+.mafc-click-ring {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    border-radius: 50%;
+}
+
+.mafc-click-moon {
+    width: 74px;
+    height: 74px;
+    transform: translate(-50%, -50%) scale(.2);
+    background: radial-gradient(circle, #fffde8, #f3cc70 58%, #bb7a32);
+    box-shadow: 0 0 40px rgba(255, 224, 135, .72);
+    animation: mafcClickMoon 1.1s cubic-bezier(.18,.82,.26,1) both;
+}
+
+.mafc-click-ring {
+    border: 2px solid rgba(255, 229, 156, .85);
+    transform: translate(-50%, -50%) scale(.2);
+}
+
+.mafc-click-ring.ring-a { width: 130px; height: 130px; animation: mafcClickRing 1.05s ease-out both; }
+.mafc-click-ring.ring-b { width: 185px; height: 185px; border-color: rgba(95, 210, 179, .58); animation: mafcClickRing 1.15s ease-out .08s both; }
+
+.mafc-click-rays {
+    position: absolute;
+    inset: 20px;
+    border-radius: 50%;
+    opacity: .75;
+    background: repeating-conic-gradient(from 0deg, rgba(255, 231, 165, .68) 0 1deg, transparent 1deg 15deg);
+    mask: radial-gradient(circle, transparent 0 27%, #000 31% 100%);
+    animation: mafcClickRaySpin 1.25s ease-out both;
+}
+
+.mafc-click-sparks { position: absolute; inset: 0; }
+.mafc-click-spark {
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: #ffe39a;
+    color: #fff2c5;
+    box-shadow: 0 0 9px rgba(255, 224, 139, .85);
+    transform: translate(-50%, -50%);
+    animation: mafcClickSpark .95s ease-out var(--mafc-cdelay) both;
+}
+
+/* ---------- FULLSCREEN ULTIMATE ---------- */
+.mafc-screen-ultimate {
+    position: fixed;
+    inset: 0;
+    z-index: 9999998;
+    pointer-events: none;
+    overflow: hidden;
+    opacity: 0;
+    isolation: isolate;
+    transition: opacity .28s ease;
+}
+
+.mafc-screen-ultimate.is-active { opacity: 1; }
+.mafc-screen-ultimate.is-leaving { opacity: 0; transition-duration: .75s; }
+
+.mafc-screen-night,
+.mafc-screen-vignette,
+.mafc-screen-flash {
+    position: absolute;
+    inset: 0;
+}
+
+.mafc-screen-night {
+    z-index: 0;
+    background:
+        radial-gradient(circle at 50% 42%, rgba(79, 169, 148, .18), transparent 28%),
+        linear-gradient(180deg, rgba(5, 10, 29, .94), rgba(13, 29, 55, .93) 53%, rgba(7, 16, 31, .96));
+}
+
+.mafc-screen-vignette {
+    z-index: 8;
+    box-shadow: inset 0 0 180px 55px rgba(2, 5, 18, .62);
+}
+
+.mafc-screen-flash {
+    z-index: 15;
+    background: #fff8d8;
+    opacity: 0;
+    animation: mafcScreenFlash .75s ease-out both;
+}
+
+.mafc-screen-moon {
+    position: absolute;
+    left: 50%;
+    top: 43%;
+    width: min(44vw, 560px);
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%) scale(.22);
+    z-index: 2;
+    animation: mafcScreenMoonIn 1.35s cubic-bezier(.17,.86,.24,1) both;
+}
+
+.mafc-screen-moon .moon-glow,
+.mafc-screen-moon .moon-disc {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+}
+
+.mafc-screen-moon .moon-glow {
+    inset: -18%;
+    background: radial-gradient(circle, rgba(255, 240, 188, .50), rgba(255, 216, 117, .16) 48%, transparent 70%);
+    filter: blur(10px);
+    animation: mafcScreenMoonGlow 2.8s ease-in-out infinite;
+}
+
+.mafc-screen-moon .moon-disc {
+    inset: 9%;
+    background:
+        radial-gradient(circle at 34% 28%, #fffef5 0 16%, #ffe8a7 32%, #e9b95f 72%, #bd7c35 100%);
+    box-shadow:
+        0 0 70px rgba(255, 225, 143, .55),
+        inset -26px -18px 45px rgba(135, 83, 33, .18);
+}
+
+.mafc-screen-moon .moon-rabbit {
+    position: absolute;
+    left: 43%;
+    top: 43%;
+    width: 18%;
+    height: 25%;
+    z-index: 2;
+    opacity: .14;
+    border-radius: 55% 55% 48% 48%;
+    background: #744b2b;
+    transform: rotate(-10deg);
+}
+
+.mafc-screen-moon .moon-rabbit::before,
+.mafc-screen-moon .moon-rabbit::after {
+    content: "";
+    position: absolute;
+    width: 29%;
+    height: 78%;
+    top: -57%;
+    border-radius: 80% 80% 40% 40%;
+    background: #744b2b;
+}
+.mafc-screen-moon .moon-rabbit::before { left: 12%; transform: rotate(-13deg); }
+.mafc-screen-moon .moon-rabbit::after { right: 12%; transform: rotate(13deg); }
+
+.mafc-screen-ring {
+    position: absolute;
+    left: 50%;
+    top: 43%;
+    z-index: 3;
+    border: 1px solid rgba(255, 230, 158, .42);
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(.3);
+    opacity: 0;
+}
+.mafc-screen-ring.ring-one { width: min(60vw, 760px); height: min(60vw, 760px); animation: mafcScreenRingIn 1.5s ease-out .18s forwards, mafcScreenRingSpin 15s linear 1.7s infinite; }
+.mafc-screen-ring.ring-two { width: min(72vw, 930px); height: min(48vw, 620px); border-color: rgba(96, 204, 177, .34); animation: mafcScreenRingIn 1.7s ease-out .28s forwards, mafcScreenRingSpin 19s linear 1.9s infinite reverse; }
+.mafc-screen-ring.ring-three { width: min(86vw, 1100px); height: min(58vw, 740px); border-style: dashed; border-color: rgba(255, 235, 181, .20); animation: mafcScreenRingIn 1.9s ease-out .35s forwards, mafcScreenRingSpin 24s linear 2.1s infinite; }
+
+.mafc-screen-cloud {
+    position: absolute;
+    z-index: 4;
+    height: 70px;
+    width: 37vw;
+    min-width: 280px;
+    border-radius: 999px;
+    background: rgba(186, 229, 214, .10);
+    box-shadow:
+        80px -18px 0 -8px rgba(227, 242, 226, .08),
+        -75px 20px 0 -15px rgba(255, 233, 179, .07),
+        145px 16px 0 -20px rgba(165, 215, 199, .06);
+    filter: blur(1px);
+}
+.mafc-screen-cloud.cloud-left { left: -8vw; top: 28%; animation: mafcScreenCloudLeft 4.4s ease-out both; }
+.mafc-screen-cloud.cloud-right { right: -10vw; top: 55%; animation: mafcScreenCloudRight 4.7s ease-out both; }
+.mafc-screen-cloud.cloud-bottom { left: 31%; bottom: 9%; transform: scale(1.35); animation: mafcScreenCloudBottom 5s ease-out both; }
+
+.mafc-screen-lantern-field,
+.mafc-screen-star-field,
+.mafc-screen-petal-field {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+}
+
+.mafc-screen-lantern {
+    position: absolute;
+    left: var(--mafc-lx);
+    top: var(--mafc-ly);
+    width: 28px;
+    height: 38px;
+    transform: scale(var(--mafc-ls));
+    transform-origin: 50% -25px;
+    border: 1px solid rgba(255, 227, 157, .54);
+    border-radius: 10px 10px 15px 15px;
+    background: linear-gradient(180deg, rgba(219, 106, 60, .88), rgba(155, 51, 56, .72));
+    box-shadow: 0 0 18px rgba(247, 181, 76, .35);
+    animation: mafcScreenLanternFloat 3.8s ease-in-out infinite var(--mafc-ld);
+}
+.mafc-screen-lantern::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    width: 1px;
+    height: 31px;
+    background: rgba(255, 231, 172, .26);
+}
+.mafc-screen-lantern::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    width: 1px;
+    height: 22px;
+    background: rgba(244, 192, 92, .34);
+}
+.mafc-screen-lantern b {
+    position: absolute;
+    inset: 6px 8px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 237, 163, .92), rgba(243, 169, 73, .18) 60%, transparent 72%);
+}
+.mafc-screen-lantern span {
+    position: absolute;
+    left: 4px; right: 4px; top: 50%;
+    height: 1px;
+    background: rgba(255, 231, 169, .28);
+    box-shadow: 0 -9px rgba(255, 231, 169, .22), 0 9px rgba(255, 231, 169, .22);
+}
+
+.mafc-screen-star {
+    position: absolute;
+    left: var(--mafc-fx);
+    top: var(--mafc-fy);
+    color: #ffe9aa;
+    font: 15px/1 Georgia, serif;
+    opacity: .85;
+    text-shadow: 0 0 8px rgba(255, 229, 159, .72);
+    animation: mafcScreenStarTwinkle 1.8s ease-in-out infinite var(--mafc-fd);
+}
+
+.mafc-screen-petal {
+    position: absolute;
+    left: var(--mafc-ppx);
+    top: var(--mafc-ppy);
+    width: 13px;
+    height: 8px;
+    border-radius: 80% 10% 80% 10%;
+    background: linear-gradient(135deg, rgba(250, 210, 203, .94), rgba(217, 132, 151, .82));
+    opacity: .78;
+    animation: mafcScreenPetalDrift 4.1s linear infinite var(--mafc-ppd);
+}
+
+.mafc-screen-title {
+    position: absolute;
+    left: 50%;
+    bottom: clamp(38px, 8vh, 92px);
+    z-index: 12;
+    width: min(92vw, 820px);
+    transform: translate(-50%, 26px);
+    opacity: 0;
+    text-align: center;
+    color: #fff1bd;
+    text-shadow: 0 3px 16px rgba(0,0,0,.65), 0 0 22px rgba(255, 220, 131, .26);
+    animation: mafcScreenTitleIn .8s ease-out .72s forwards;
+}
+.mafc-screen-title small {
+    display: block;
+    margin-bottom: 7px;
+    color: #9ed6c4;
+    font: 700 clamp(11px, 1.3vw, 16px)/1.2 Georgia, serif;
+    letter-spacing: .3em;
+}
+.mafc-screen-title strong {
+    display: block;
+    font: 800 clamp(27px, 5.4vw, 72px)/1.04 Georgia, "Times New Roman", serif;
+    letter-spacing: .08em;
+}
+.mafc-screen-title span {
+    display: block;
+    margin-top: 8px;
+    color: #edc972;
+    font: 600 clamp(12px, 1.6vw, 19px)/1.2 Georgia, serif;
+    letter-spacing: .22em;
+}
+
+/* ---------- UNIQUE KEYFRAMES ---------- */
+@keyframes mafcCardGlowSpin { to { transform: rotate(360deg); } }
+@keyframes mafcTagMoonPulse { 0%,100% { transform: translateY(-53%) rotate(-12deg) scale(.92); opacity:.82; } 50% { transform: translateY(-53%) rotate(-12deg) scale(1.08); opacity:1; } }
+@keyframes mafcTagLanternSwing { 0%,100% { transform: rotate(-8deg); } 50% { transform: rotate(9deg); } }
+@keyframes mafcPetFloat { 0%,100% { transform: translateY(0) rotate(-.4deg); } 50% { transform: translateY(-7px) rotate(.5deg); } }
+@keyframes mafcLocalAura { 0%,100% { transform: scale(.92); opacity:.72; } 50% { transform: scale(1.08); opacity:1; } }
+@keyframes mafcLocalMoon { 0%,100% { transform: translate(-50%,-50%) scale(.94); opacity:.38; } 50% { transform: translate(-50%,-50%) scale(1.05); opacity:.56; } }
+@keyframes mafcLocalRingA { to { transform: translate(-50%,-50%) rotate(360deg); } }
+@keyframes mafcLocalRingB { to { transform: translate(-50%,-50%) rotate(360deg); } }
+@keyframes mafcLocalRingC { to { transform: translate(-50%,-50%) rotate(360deg); } }
+@keyframes mafcCloudDriftA { 0%,100% { transform: translateX(-7px); opacity:.58; } 50% { transform: translateX(10px); opacity:.88; } }
+@keyframes mafcCloudDriftB { 0%,100% { transform: translateX(7px) scale(.82); opacity:.55; } 50% { transform: translateX(-9px) scale(.82); opacity:.86; } }
+@keyframes mafcLanternSwing { 0%,100% { rotate:-7deg; } 50% { rotate:8deg; } }
+@keyframes mafcStarTwinkle { 0%,100% { opacity:.24; scale:.7; } 50% { opacity:1; scale:1.15; } }
+@keyframes mafcPetalOrbit { 0%,100% { translate:0 0; opacity:.28; } 50% { translate:9px -10px; opacity:.88; } }
+@keyframes mafcGroundPulse { 0%,100% { transform:translateX(-50%) scaleX(.9); opacity:.55; } 50% { transform:translateX(-50%) scaleX(1.08); opacity:.88; } }
+@keyframes mafcClickMoon { 0% { transform:translate(-50%,-50%) scale(.2); opacity:0; } 45% { opacity:1; } 100% { transform:translate(-50%,-50%) scale(1.7); opacity:0; } }
+@keyframes mafcClickRing { 0% { transform:translate(-50%,-50%) scale(.2); opacity:1; } 100% { transform:translate(-50%,-50%) scale(1.55); opacity:0; } }
+@keyframes mafcClickRaySpin { 0% { transform:scale(.5) rotate(-30deg); opacity:0; } 35% { opacity:.9; } 100% { transform:scale(1.2) rotate(38deg); opacity:0; } }
+@keyframes mafcClickSpark { 0% { transform:translate(-50%,-50%) rotate(var(--mafc-ca)) translateX(0); opacity:1; } 100% { transform:translate(-50%,-50%) rotate(var(--mafc-ca)) translateX(var(--mafc-cd)); opacity:0; } }
+@keyframes mafcScreenFlash { 0% { opacity:.88; } 18% { opacity:.12; } 100% { opacity:0; } }
+@keyframes mafcScreenMoonIn { 0% { transform:translate(-50%,-50%) scale(.22) rotate(-8deg); opacity:0; } 70% { opacity:1; } 100% { transform:translate(-50%,-50%) scale(1) rotate(0); opacity:1; } }
+@keyframes mafcScreenMoonGlow { 0%,100% { transform:scale(.92); opacity:.55; } 50% { transform:scale(1.08); opacity:1; } }
+@keyframes mafcScreenRingIn { 0% { transform:translate(-50%,-50%) scale(.3); opacity:0; } 100% { transform:translate(-50%,-50%) scale(1); opacity:1; } }
+@keyframes mafcScreenRingSpin { to { transform:translate(-50%,-50%) rotate(360deg); } }
+@keyframes mafcScreenCloudLeft { 0% { transform:translateX(-30vw); opacity:0; } 100% { transform:translateX(8vw); opacity:.82; } }
+@keyframes mafcScreenCloudRight { 0% { transform:translateX(30vw); opacity:0; } 100% { transform:translateX(-9vw); opacity:.78; } }
+@keyframes mafcScreenCloudBottom { 0% { transform:translateY(90px) scale(1.35); opacity:0; } 100% { transform:translateY(0) scale(1.35); opacity:.72; } }
+@keyframes mafcScreenLanternFloat { 0%,100% { transform:scale(var(--mafc-ls)) translateY(0) rotate(-4deg); } 50% { transform:scale(var(--mafc-ls)) translateY(-13px) rotate(5deg); } }
+@keyframes mafcScreenStarTwinkle { 0%,100% { opacity:.25; transform:scale(.7); } 50% { opacity:1; transform:scale(1.18); } }
+@keyframes mafcScreenPetalDrift { 0% { transform:translate3d(-7px,-20px,0) rotate(-20deg); opacity:0; } 16% { opacity:.8; } 100% { transform:translate3d(30px,110px,0) rotate(200deg); opacity:0; } }
+@keyframes mafcScreenTitleIn { to { transform:translate(-50%,0); opacity:1; } }
+
+@media (max-width: 768px), (pointer: coarse) {
+    .pet-midautumn-hangnga-chibi-stage #virtual-pet-img.mafc-avatar {
+        width: 126px !important;
+    }
+    .mafc-local-realm {
+        width: 225px;
+        height: 225px;
+    }
+    .mafc-screen-moon {
+        width: min(72vw, 430px);
+    }
+    .mafc-screen-lantern {
+        width: 23px;
+        height: 32px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .store-card-midautumn-chibi .card-glow,
+    .item-tag.tag-trung-thu-chibi::before,
+    .item-tag.tag-trung-thu-chibi::after,
+    .pet-midautumn-hangnga-chibi-stage #virtual-pet-img.mafc-avatar,
+    .mafc-local-realm *,
+    .mafc-screen-ultimate * {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
+
+/* ============================================================================
+   FIX V3 · TAG TRUNG THU — KHÓA VỊ TRÍ GIỐNG TAG CỬA HÀNG CHUẨN
+   Nguyên nhân: rule `.store-card-midautumn-chibi > * { position: relative; }`
+   đã ghi đè position của `.item-tag`, còn transform của tag gốc vẫn tồn tại,
+   nên ribbon bị kéo chéo xuống vùng ảnh.
+   ============================================================================ */
+.store-item-card.store-card-midautumn-chibi > .item-tag.tag-trung-thu-chibi,
+.store-item-card[data-special-card="midautumn-chibi"] > .item-tag.tag-trung-thu-chibi {
+    position: absolute !important;
+
+    top: 12px !important;
+    left: 12px !important;
+    right: auto !important;
+    bottom: auto !important;
+
+    transform: none !important;
+    translate: none !important;
+    rotate: 0deg !important;
+    scale: 1 !important;
+
+    width: max-content !important;
+    max-width: calc(100% - 24px) !important;
+    min-width: 0 !important;
+    height: auto !important;
+
+    margin: 0 !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+
+    white-space: nowrap !important;
+    writing-mode: horizontal-tb !important;
+    text-orientation: mixed !important;
+
+    z-index: 30 !important;
+    pointer-events: none !important;
+}
+
+.store-item-card.store-card-midautumn-chibi > .item-tag.tag-trung-thu-chibi > span,
+.store-item-card[data-special-card="midautumn-chibi"] > .item-tag.tag-trung-thu-chibi > span {
+    display: inline-block !important;
+    position: relative !important;
+
+    transform: none !important;
+    translate: none !important;
+    rotate: 0deg !important;
+
+    writing-mode: horizontal-tb !important;
+    text-orientation: mixed !important;
+    white-space: nowrap !important;
+
+    margin: 0 !important;
+    line-height: 1.2 !important;
+}
+
+/* Không cho bất kỳ style ribbon chéo chung nào tác động vào tag Trung Thu */
+.store-item-card.store-card-midautumn-chibi .tag-trung-thu-chibi,
+.store-item-card[data-special-card="midautumn-chibi"] .tag-trung-thu-chibi {
+    clip-path: none !important;
+    inset: auto !important;
+    top: 12px !important;
+    left: 12px !important;
+    right: auto !important;
+    bottom: auto !important;
+}
+
+
+/* ============================================================================
+   TRUNG THU · NGUYỆT HỘI HOA ĐĂNG — THEME V1
+   APPEND-ONLY / ISOLATED
+   Namespace: mttheme2-* / body.theme-midautumn-lantern-festival
+   ============================================================================ */
+
+html body.theme-midautumn-lantern-festival {
+    --mttheme2-ink: #0b1430;
+    --mttheme2-ink-2: #14244a;
+    --mttheme2-moon: #fff0bd;
+    --mttheme2-gold: #e8b85f;
+    --mttheme2-gold-deep: #ad7331;
+    --mttheme2-lantern: #db6f58;
+    --mttheme2-lantern-deep: #9e493e;
+    --mttheme2-jade: #4ea992;
+    --mttheme2-jade-soft: #9bd4c2;
+    --mttheme2-paper: #fff7e5;
+    --mttheme2-paper-2: #f4e6c7;
+    --mttheme2-text: #382a2a;
+    --mttheme2-text-soft: #715754;
+
+    --primary-color: var(--mttheme2-gold) !important;
+    --secondary-color: var(--mttheme2-jade) !important;
+    --accent-color: var(--mttheme2-lantern) !important;
+    --text-color: var(--mttheme2-text) !important;
+    --background-color: #0b1430 !important;
+    --bg-color: #0b1430 !important;
+
+    color: var(--mttheme2-text) !important;
+    font-family:
+        "Trebuchet MS",
+        "Segoe UI",
+        Tahoma,
+        sans-serif !important;
+
+    background:
+        radial-gradient(circle at 84% 7%, rgba(255, 238, 183, .22), transparent 24%),
+        radial-gradient(circle at 12% 78%, rgba(78, 169, 146, .16), transparent 29%),
+        linear-gradient(145deg, #0a122b 0%, #142349 43%, #102c3f 72%, #241b34 100%) !important;
+    background-attachment: fixed !important;
+}
+
+html body.theme-midautumn-lantern-festival > :not(.mttheme2-festival-decor) {
+    position: relative;
+    z-index: 2;
+}
+
+html body.theme-midautumn-lantern-festival :where(
+    h1, h2, h3, h4, h5, h6,
+    .title, .page-title, .section-title,
+    .modal-title, .popup-title
+):not(.store-theme-locked *):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif !important;
+    letter-spacing: .035em !important;
+}
+
+html body.theme-midautumn-lantern-festival :where(
+    header, .header, .topbar, .top-bar, .navbar, nav,
+    .app-header, .main-header
+):not(.store-theme-locked):not(.ui-theme-immune):not([data-theme-immune="true"]) {
+    background:
+        linear-gradient(180deg, rgba(10, 20, 47, .96), rgba(18, 39, 70, .94)) !important;
+    color: #fff1c4 !important;
+    border-bottom: 1px solid rgba(232, 184, 95, .42) !important;
+    box-shadow:
+        0 12px 30px rgba(3, 8, 24, .28),
+        inset 0 -1px rgba(255, 239, 187, .08) !important;
+    backdrop-filter: blur(14px) saturate(1.12);
+}
+
+html body.theme-midautumn-lantern-festival :where(
+    .sidebar, aside, .side-bar, .navigation-panel, .menu-panel
+):not(.store-theme-locked):not(.ui-theme-immune):not([data-theme-immune="true"]) {
+    background:
+        radial-gradient(circle at 18% 8%, rgba(219, 111, 88, .16), transparent 25%),
+        linear-gradient(180deg, rgba(12, 20, 47, .98), rgba(18, 36, 63, .98)) !important;
+    color: #fff0c1 !important;
+    border-right: 1px solid rgba(232, 184, 95, .30) !important;
+    box-shadow:
+        14px 0 34px rgba(3, 8, 23, .22),
+        inset -1px 0 rgba(255, 242, 199, .06) !important;
+}
+
+html body.theme-midautumn-lantern-festival :where(
+    .sidebar a, aside a, .sidebar button, aside button,
+    .nav-item, .menu-item
+):not(.store-theme-locked *):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    color: inherit !important;
+    border-radius: 999px 8px 999px 8px !important;
+    transition:
+        transform .22s ease,
+        background .22s ease,
+        color .22s ease,
+        box-shadow .22s ease !important;
+}
+
+html body.theme-midautumn-lantern-festival :where(
+    .sidebar a, aside a, .sidebar button, aside button,
+    .nav-item, .menu-item
+):not(.store-theme-locked *):not(.ui-theme-immune *):not([data-theme-immune="true"] *):hover {
+    background:
+        linear-gradient(135deg, rgba(219, 111, 88, .21), rgba(78, 169, 146, .16)) !important;
+    color: #fff6d6 !important;
+    transform: translateX(4px);
+    box-shadow:
+        inset 3px 0 0 var(--mttheme2-gold),
+        0 7px 16px rgba(2, 8, 24, .13) !important;
+}
+
+html body.theme-midautumn-lantern-festival :where(
+    .card, .panel, .widget, .content-card, .content-section,
+    .settings-card, .dashboard-card, .subject-card,
+    .store-section, .store-panel,
+    .store-item-card:not(.store-theme-locked):not(.ui-theme-immune)
+):not(.store-theme-locked):not(.ui-theme-immune):not([data-theme-immune="true"]) {
+    background:
+        radial-gradient(circle at 92% 4%, rgba(255, 236, 179, .24), transparent 27%),
+        linear-gradient(145deg, rgba(255, 248, 229, .97), rgba(243, 228, 197, .95)) !important;
+    color: var(--mttheme2-text) !important;
+    border: 1px solid rgba(173, 115, 49, .38) !important;
+    border-radius: 26px 8px 26px 8px !important;
+    box-shadow:
+        0 16px 42px rgba(3, 10, 28, .18),
+        0 0 0 1px rgba(255, 255, 255, .48) inset,
+        inset 0 -24px 44px rgba(232, 184, 95, .06) !important;
+}
+
+html body.theme-midautumn-lantern-festival :where(
+    .modal-content, .popup-content, .dialog-content,
+    .swal2-popup, [role="dialog"]
+):not(.store-theme-locked):not(.ui-theme-immune):not([data-theme-immune="true"]) {
+    font-family:
+        "Trebuchet MS",
+        "Segoe UI",
+        sans-serif !important;
+
+    background:
+        radial-gradient(circle at 88% 3%, rgba(255, 237, 181, .32), transparent 27%),
+        linear-gradient(145deg, #fff8e8 0%, #f3dfb9 65%, #ecd4a7 100%) !important;
+    color: #3d2d2b !important;
+    border: 1px solid rgba(173, 115, 49, .50) !important;
+    border-radius: 34px 9px 34px 9px !important;
+    clip-path: polygon(4% 0, 96% 0, 100% 5%, 100% 95%, 96% 100%, 4% 100%, 0 95%, 0 5%);
+    box-shadow:
+        0 30px 80px rgba(3, 9, 26, .30),
+        0 0 0 5px rgba(255, 239, 190, .15),
+        inset 0 1px 0 rgba(255,255,255,.86) !important;
+}
+
+html body.theme-midautumn-lantern-festival :where(
+    input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
+    textarea, select, .form-control, .input, .search-box, .search-input
+):not(.store-theme-locked *):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    font: inherit !important;
+    color: #3d2d2b !important;
+    background:
+        linear-gradient(180deg, rgba(255, 252, 239, .98), rgba(246, 232, 203, .96)) !important;
+    border: 1px solid rgba(173, 115, 49, .38) !important;
+    border-radius: 15px 5px 15px 5px !important;
+    outline: none !important;
+    box-shadow:
+        inset 0 2px 8px rgba(82, 50, 30, .06),
+        0 1px 0 rgba(255,255,255,.7) !important;
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease,
+        transform .2s ease !important;
+}
+
+html body.theme-midautumn-lantern-festival :where(
+    input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
+    textarea, select, .form-control, .input, .search-box, .search-input
+):not(.store-theme-locked *):not(.ui-theme-immune *):not([data-theme-immune="true"] *):focus {
+    border-color: var(--mttheme2-lantern) !important;
+    box-shadow:
+        0 0 0 4px rgba(219, 111, 88, .13),
+        0 8px 24px rgba(68, 38, 25, .10),
+        inset 0 2px 7px rgba(68, 47, 36, .035) !important;
+    transform: translateY(-1px);
+}
+
+html body.theme-midautumn-lantern-festival :where(
+    input[type="checkbox"], input[type="radio"]
+):not(.store-theme-locked *):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    accent-color: var(--mttheme2-lantern) !important;
+}
+
+html body.theme-midautumn-lantern-festival :where(
+    button, .button, .btn, .action-button, .primary-button,
+    input[type="button"], input[type="submit"]
+):not(.store-theme-locked *):not(.ui-theme-immune *):not([data-theme-immune="true"] *):not(.midautumn-card-action) {
+    font-family:
+        "Trebuchet MS",
+        "Segoe UI",
+        sans-serif !important;
+    font-weight: 800 !important;
+    border-radius: 999px 8px 999px 8px !important;
+    border: 1px solid rgba(255, 235, 178, .48) !important;
+    background:
+        linear-gradient(135deg, #f2cb74 0%, #db6f58 49%, #4ea992 100%) !important;
+    color: #18233a !important;
+    box-shadow:
+        0 9px 23px rgba(13, 21, 49, .20),
+        inset 0 1px 0 rgba(255, 251, 222, .68) !important;
+    transition:
+        transform .18s ease,
+        box-shadow .18s ease,
+        filter .18s ease !important;
+}
+
+html body.theme-midautumn-lantern-festival :where(
+    button, .button, .btn, .action-button, .primary-button,
+    input[type="button"], input[type="submit"]
+):not(.store-theme-locked *):not(.ui-theme-immune *):not([data-theme-immune="true"] *):not(.midautumn-card-action):hover {
+    transform: translateY(-2px) scale(1.012);
+    filter: brightness(1.06) saturate(1.05);
+    box-shadow:
+        0 13px 30px rgba(13, 21, 49, .25),
+        0 0 0 3px rgba(255, 233, 174, .13) !important;
+}
+
+html body.theme-midautumn-lantern-festival :where(
+    .tab, .tab-button, .filter-button, .chip, .badge
+):not(.store-theme-locked *):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    border-radius: 999px 10px 999px 10px !important;
+    border-color: rgba(173, 115, 49, .31) !important;
+}
+
+html body.theme-midautumn-lantern-festival :where(
+    table, .table
+):not(.store-theme-locked *):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    border-radius: 22px 7px 22px 7px !important;
+    overflow: hidden;
+    border-color: rgba(173, 115, 49, .25) !important;
+}
+
+html body.theme-midautumn-lantern-festival :where(
+    th, .table-header
+):not(.store-theme-locked *):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    background:
+        linear-gradient(135deg, rgba(219, 111, 88, .18), rgba(78, 169, 146, .18)) !important;
+    color: #50372f !important;
+}
+
+html body.theme-midautumn-lantern-festival input[type="range"]:not(.store-theme-locked *) {
+    appearance: none;
+    -webkit-appearance: none;
+    height: 10px;
+    border-radius: 999px;
+    background:
+        linear-gradient(90deg, #4ea992 0%, #e8b85f 47%, #db6f58 100%) !important;
+    border: 1px solid rgba(255, 240, 195, .32);
+    box-shadow:
+        inset 0 2px 6px rgba(5, 12, 31, .22),
+        0 1px 0 rgba(255,255,255,.4);
+}
+
+html body.theme-midautumn-lantern-festival input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50% 50% 50% 12%;
+    transform: rotate(-45deg);
+    background:
+        radial-gradient(circle at 36% 30%, #fffbe5 0 18%, #f4cf78 20% 52%, #d66d57 55% 100%);
+    border: 2px solid #fff1bd;
+    box-shadow:
+        0 4px 12px rgba(26, 18, 23, .25),
+        0 0 0 3px rgba(232, 184, 95, .13);
+    cursor: pointer;
+}
+
+html body.theme-midautumn-lantern-festival input[type="range"]::-moz-range-thumb {
+    width: 21px;
+    height: 21px;
+    border-radius: 50% 50% 50% 12%;
+    background: #e8b85f;
+    border: 2px solid #fff1bd;
+    box-shadow: 0 4px 12px rgba(26, 18, 23, .25);
+    cursor: pointer;
+}
+
+html body.theme-midautumn-lantern-festival :where(
+    .progress, progress
+):not(.store-theme-locked *):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    border-radius: 999px !important;
+    overflow: hidden;
+    accent-color: var(--mttheme2-lantern);
+}
+
+html body.theme-midautumn-lantern-festival,
+html body.theme-midautumn-lantern-festival * {
+    scrollbar-width: thin;
+    scrollbar-color: #d8735c rgba(15, 30, 59, .20);
+}
+
+html body.theme-midautumn-lantern-festival::-webkit-scrollbar,
+html body.theme-midautumn-lantern-festival *::-webkit-scrollbar {
+    width: 11px;
+    height: 11px;
+}
+
+html body.theme-midautumn-lantern-festival::-webkit-scrollbar-track,
+html body.theme-midautumn-lantern-festival *::-webkit-scrollbar-track {
+    background:
+        linear-gradient(180deg, rgba(11, 20, 48, .18), rgba(78, 169, 146, .09));
+    border-radius: 999px;
+}
+
+html body.theme-midautumn-lantern-festival::-webkit-scrollbar-thumb,
+html body.theme-midautumn-lantern-festival *::-webkit-scrollbar-thumb {
+    background:
+        linear-gradient(180deg, #f0ca72, #d66f59 56%, #4ea992);
+    border: 2px solid rgba(255, 246, 218, .82);
+    border-radius: 999px 999px 999px 8px;
+}
+
+html body.theme-midautumn-lantern-festival ::selection {
+    background: rgba(219, 111, 88, .30);
+    color: #2d2022;
+}
+
+/* ---------- AMBIENT TOÀN MÀN HÌNH ---------- */
+.mttheme2-festival-decor {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .65s ease;
+    isolation: isolate;
+}
+
+.mttheme2-festival-decor.is-mounted {
+    opacity: 1;
+}
+
+.mttheme2-night-wash {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 77% 9%, rgba(255, 239, 187, .12), transparent 25%),
+        radial-gradient(circle at 16% 78%, rgba(78, 169, 146, .08), transparent 29%),
+        linear-gradient(180deg, rgba(5, 10, 28, .02), rgba(5, 11, 29, .10));
+}
+
+.mttheme2-moon-gate {
+    position: absolute;
+    right: clamp(26px, 6vw, 105px);
+    top: clamp(28px, 7vh, 90px);
+    width: clamp(150px, 17vw, 285px);
+    aspect-ratio: 1;
+    opacity: .30;
+    animation: mttheme2MoonGateFloat 8s ease-in-out infinite;
+}
+
+.mttheme2-moon-disc {
+    position: absolute;
+    inset: 18%;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 34% 29%, #fffdf0 0 22%, #ffe9aa 43%, #dca64d 100%);
+    box-shadow:
+        0 0 36px rgba(255, 232, 164, .40),
+        inset -17px -12px 28px rgba(153, 91, 29, .14);
+}
+
+.mttheme2-rabbit-mark {
+    position: absolute;
+    left: 50%;
+    top: 52%;
+    transform: translate(-50%, -50%);
+    color: rgba(101, 65, 44, .25);
+    font: 700 clamp(32px, 4vw, 64px)/1 Georgia, serif;
+}
+
+.mttheme2-gate-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(232, 184, 95, .35);
+}
+
+.mttheme2-gate-ring.ring-a {
+    inset: 8%;
+    border-style: dashed;
+    animation: mttheme2RingSpin 18s linear infinite;
+}
+
+.mttheme2-gate-ring.ring-b {
+    inset: 0;
+    border-color: rgba(78, 169, 146, .24);
+    animation: mttheme2RingSpin 25s linear infinite reverse;
+}
+
+.mttheme2-cloud {
+    position: absolute;
+    width: clamp(150px, 22vw, 360px);
+    height: clamp(18px, 2.5vw, 40px);
+    border-radius: 999px;
+    opacity: .13;
+    background:
+        linear-gradient(90deg, transparent, #f8e7bd, #8ed0bd, transparent);
+    filter: blur(2px);
+    animation: mttheme2CloudDrift 13s ease-in-out infinite;
+}
+
+.mttheme2-cloud.cloud-a { left: -4%; top: 18%; }
+.mttheme2-cloud.cloud-b { right: 14%; top: 48%; animation-delay: -4s; transform: scale(.72); }
+.mttheme2-cloud.cloud-c { left: 20%; bottom: 11%; animation-delay: -8s; transform: scale(.86); }
+
+.mttheme2-lantern-field,
+.mttheme2-firefly-field,
+.mttheme2-petal-field {
+    position: absolute;
+    inset: 0;
+}
+
+.mttheme2-floating-lantern {
+    position: absolute;
+    left: var(--mttheme2-lx);
+    top: var(--mttheme2-ly);
+    width: 23px;
+    height: 32px;
+    transform: translate(-50%, -50%) scale(var(--mttheme2-ls));
+    opacity: .28;
+    animation: mttheme2LanternFloat 6.2s ease-in-out var(--mttheme2-ld) infinite;
+}
+
+.mttheme2-floating-lantern b {
+    position: absolute;
+    inset: 2px 1px 5px;
+    border-radius: 44% 44% 38% 38%;
+    background:
+        linear-gradient(90deg, #aa4a40, #e2765d 46%, #f0b45c 100%);
+    box-shadow: 0 0 13px rgba(226, 118, 93, .42);
+}
+
+.mttheme2-floating-lantern span {
+    position: absolute;
+    left: 3px;
+    right: 3px;
+    top: -2px;
+    height: 3px;
+    border-radius: 99px;
+    background: #8d5e36;
+    box-shadow: 0 30px 0 #8d5e36;
+}
+
+.mttheme2-floating-lantern em {
+    position: absolute;
+    left: 50%;
+    bottom: -8px;
+    width: 1px;
+    height: 11px;
+    background: #b77b45;
+}
+
+.mttheme2-firefly-field i {
+    position: absolute;
+    left: var(--mttheme2-fx);
+    top: var(--mttheme2-fy);
+    width: var(--mttheme2-fs);
+    height: var(--mttheme2-fs);
+    border-radius: 50%;
+    background: #ffe69b;
+    box-shadow: 0 0 7px rgba(255, 228, 151, .75);
+    opacity: .22;
+    animation: mttheme2Firefly 4.8s ease-in-out var(--mttheme2-fd) infinite;
+}
+
+.mttheme2-petal-field i {
+    position: absolute;
+    left: var(--mttheme2-px);
+    top: -4vh;
+    width: 7px;
+    height: 10px;
+    border-radius: 78% 20% 70% 22%;
+    background: linear-gradient(135deg, #e98f74, #efc178);
+    opacity: .27;
+    transform: rotate(var(--mttheme2-pr));
+    animation: mttheme2PetalFall 10s linear var(--mttheme2-pd) infinite;
+}
+
+.mttheme2-corner {
+    position: absolute;
+    width: 45px;
+    height: 45px;
+    display: grid;
+    place-items: center;
+    color: rgba(238, 192, 101, .32);
+    font: 600 19px/1 Georgia, serif;
+    text-shadow: 0 0 12px rgba(255, 229, 158, .20);
+}
+
+.mttheme2-corner::before {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border-top: 1px solid rgba(232, 184, 95, .20);
+    border-left: 1px solid rgba(232, 184, 95, .20);
+}
+
+.mttheme2-corner.corner-tl { left: 13px; top: 13px; }
+.mttheme2-corner.corner-tr { right: 13px; top: 13px; transform: rotate(90deg); }
+.mttheme2-corner.corner-bl { left: 13px; bottom: 13px; transform: rotate(-90deg); }
+.mttheme2-corner.corner-br { right: 13px; bottom: 13px; transform: rotate(180deg); }
+
+.mttheme2-festival-caption {
+    position: absolute;
+    left: 50%;
+    bottom: 12px;
+    transform: translateX(-50%);
+    min-width: min(380px, 72vw);
+    text-align: center;
+    color: rgba(255, 235, 185, .36);
+    font-family: Georgia, "Times New Roman", serif;
+    letter-spacing: .15em;
+}
+
+.mttheme2-festival-caption small,
+.mttheme2-festival-caption strong {
+    display: block;
+}
+
+.mttheme2-festival-caption small {
+    font-size: 7px;
+    letter-spacing: .35em;
+}
+
+.mttheme2-festival-caption strong {
+    margin-top: 2px;
+    font-size: 9px;
+    font-weight: 600;
+}
+
+@keyframes mttheme2MoonGateFloat {
+    0%, 100% { transform: translate3d(0, 0, 0) rotate(-1deg); }
+    50% { transform: translate3d(0, -8px, 0) rotate(1deg); }
+}
+
+@keyframes mttheme2RingSpin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes mttheme2CloudDrift {
+    0%, 100% { translate: -7px 0; }
+    50% { translate: 13px -5px; }
+}
+
+@keyframes mttheme2LanternFloat {
+    0%, 100% { translate: 0 0; rotate: -2deg; }
+    50% { translate: 0 -12px; rotate: 3deg; }
+}
+
+@keyframes mttheme2Firefly {
+    0%, 100% {
+        opacity: .12;
+        transform: translate3d(-3px, 4px, 0) scale(.7);
+    }
+    50% {
+        opacity: .52;
+        transform: translate3d(7px, -8px, 0) scale(1.15);
+    }
+}
+
+@keyframes mttheme2PetalFall {
+    0% {
+        transform: translate3d(-9px, -15px, 0) rotate(var(--mttheme2-pr));
+        opacity: 0;
+    }
+    14% { opacity: .28; }
+    100% {
+        transform: translate3d(36px, 108vh, 0) rotate(calc(var(--mttheme2-pr) + 270deg));
+        opacity: 0;
+    }
+}
+
+@media (max-width: 768px), (pointer: coarse) {
+    .mttheme2-moon-gate {
+        width: min(46vw, 210px);
+        opacity: .23;
+    }
+
+    .mttheme2-floating-lantern {
+        width: 20px;
+        height: 28px;
+    }
+
+    .mttheme2-festival-caption {
+        bottom: 8px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mttheme2-festival-decor *,
+    html body.theme-midautumn-lantern-festival * {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
+/* ============================================================================
+   TRUNG THU · NGUYỆT TRIỀU LƯU QUANG — EFFECT TOÀN WEB V2
+   Namespace: mtefx3-*
+   Concept: Đêm hội trăng rực rỡ, vàng kim + ngọc bích + hồng sen.
+   Chỉ thay riêng namespace effect này, không đụng bất kỳ effect cũ nào.
+   ============================================================================ */
+
+.mtefx3-moon-tide-radiance {
+    all: initial;
+    position: fixed !important;
+    inset: 0 !important;
+    display: block !important;
+    z-index: 2147480900 !important;
+    pointer-events: none !important;
+    overflow: hidden !important;
+    isolation: isolate !important;
+    contain: layout style paint !important;
+    opacity: 0;
+    background:
+        radial-gradient(circle at 76% 14%, rgba(255, 212, 91, .12), transparent 25%),
+        radial-gradient(circle at 18% 80%, rgba(56, 213, 171, .09), transparent 30%),
+        linear-gradient(180deg, rgba(5, 8, 25, .06), rgba(8, 13, 31, .16));
+    transition: opacity .42s ease !important;
+}
+
+.mtefx3-moon-tide-radiance.is-active {
+    opacity: 1;
+}
+
+.mtefx3-moon-tide-radiance.is-leaving {
+    opacity: 0 !important;
+}
+
+.mtefx3-moon-tide-radiance,
+.mtefx3-moon-tide-radiance * {
+    box-sizing: border-box !important;
+}
+
+.mtefx3-screen-veil {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 80% 16%, rgba(255, 225, 124, .21), transparent 26%),
+        radial-gradient(circle at 19% 72%, rgba(53, 211, 171, .14), transparent 31%),
+        radial-gradient(circle at 50% 112%, rgba(241, 88, 144, .10), transparent 45%),
+        linear-gradient(180deg, rgba(8, 12, 35, .08), rgba(4, 8, 22, .22));
+    backdrop-filter: saturate(1.12);
+}
+
+.mtefx3-screen-bloom {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(28px);
+    mix-blend-mode: screen;
+    opacity: .40;
+}
+
+.mtefx3-screen-bloom.bloom-a {
+    width: 44vw;
+    height: 44vw;
+    min-width: 360px;
+    min-height: 360px;
+    right: -14vw;
+    top: -18vw;
+    background: radial-gradient(circle, rgba(255, 217, 107, .42), transparent 66%);
+    animation: mtefx3BloomPulse 5.6s ease-in-out infinite;
+}
+
+.mtefx3-screen-bloom.bloom-b {
+    width: 38vw;
+    height: 38vw;
+    min-width: 300px;
+    min-height: 300px;
+    left: -12vw;
+    bottom: -18vw;
+    background: radial-gradient(circle, rgba(45, 222, 177, .28), transparent 67%);
+    animation: mtefx3BloomPulse 7.2s -2.4s ease-in-out infinite reverse;
+}
+
+.mtefx3-aurora {
+    position: absolute;
+    width: 78vw;
+    height: 16vh;
+    border-radius: 50%;
+    filter: blur(14px);
+    opacity: .27;
+    mix-blend-mode: screen;
+}
+
+.mtefx3-aurora.aurora-a {
+    left: 4vw;
+    top: 26vh;
+    transform: rotate(-8deg);
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(38, 217, 175, .20),
+        rgba(255, 215, 101, .27),
+        rgba(238, 92, 147, .18),
+        transparent
+    );
+    animation: mtefx3AuroraSweep 9s ease-in-out infinite;
+}
+
+.mtefx3-aurora.aurora-b {
+    right: -8vw;
+    top: 56vh;
+    transform: rotate(7deg);
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(244, 104, 159, .16),
+        rgba(255, 221, 120, .22),
+        rgba(55, 220, 181, .18),
+        transparent
+    );
+    animation: mtefx3AuroraSweep 11.5s -4s ease-in-out infinite reverse;
+}
+
+.mtefx3-palace-silhouette {
+    position: absolute;
+    right: -1vw;
+    bottom: -2vh;
+    width: min(38vw, 620px);
+    height: min(29vw, 420px);
+    opacity: .14;
+    filter:
+        drop-shadow(0 0 18px rgba(255, 216, 110, .12))
+        drop-shadow(0 0 38px rgba(30, 181, 153, .08));
+}
+
+.mtefx3-palace-silhouette .roof {
+    position: absolute;
+    right: 1%;
+    height: 14%;
+    background: linear-gradient(180deg, #161f42, #071026);
+    clip-path: polygon(0 80%, 11% 50%, 32% 40%, 38% 0, 43% 36%, 88% 36%, 100% 78%, 82% 70%, 16% 70%);
+}
+
+.mtefx3-palace-silhouette .roof-a {
+    width: 76%;
+    bottom: 48%;
+    opacity: .68;
+}
+
+.mtefx3-palace-silhouette .roof-b {
+    width: 98%;
+    bottom: 28%;
+}
+
+.mtefx3-palace-silhouette .pillar {
+    position: absolute;
+    width: 3%;
+    height: 38%;
+    bottom: 0;
+    background: linear-gradient(#15203f, #071022);
+}
+
+.mtefx3-palace-silhouette .pillar-a {
+    right: 18%;
+}
+
+.mtefx3-palace-silhouette .pillar-b {
+    right: 69%;
+}
+
+.mtefx3-palace-silhouette .gate {
+    position: absolute;
+    right: 14%;
+    bottom: 0;
+    width: 58%;
+    height: 34%;
+    border: 4px solid #111a35;
+    border-bottom: 0;
+    border-radius: 58% 58% 0 0;
+}
+
+.mtefx3-moon-lens {
+    position: absolute;
+    top: clamp(22px, 4vh, 60px);
+    right: clamp(20px, 5vw, 92px);
+    width: clamp(190px, 22vw, 390px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    opacity: .96;
+    animation: mtefx3MoonLensFloat 7s ease-in-out infinite;
+}
+
+.mtefx3-moon-flare {
+    position: absolute;
+    inset: -36%;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle, rgba(255, 229, 143, .52), rgba(255, 190, 80, .17) 42%, transparent 69%);
+    filter: blur(8px);
+    animation: mtefx3MoonFlare 4.2s ease-in-out infinite;
+}
+
+.mtefx3-moon-core {
+    position: absolute;
+    inset: 23%;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 34% 27%, #fffdf4 0 10%, #fff2c4 18%, #ffd56f 46%, #d8902f 76%, #8f561c 100%);
+    box-shadow:
+        0 0 32px rgba(255, 237, 181, .92),
+        0 0 74px rgba(255, 202, 89, .54),
+        0 0 140px rgba(255, 175, 54, .20),
+        inset -18px -16px 30px rgba(117, 66, 19, .22);
+}
+
+.mtefx3-moon-lens > b {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: rgba(114, 65, 23, .36) !important;
+    font: 700 clamp(30px, 4.2vw, 70px)/1 Georgia, "Times New Roman", serif !important;
+    text-shadow: 0 1px 0 rgba(255,255,255,.18);
+}
+
+.mtefx3-rabbit-sigil {
+    position: absolute;
+    right: 26%;
+    bottom: 24%;
+    font-size: clamp(24px, 2.8vw, 48px);
+    filter: sepia(1) saturate(.55) brightness(.78);
+    opacity: .24;
+    transform: rotate(-9deg);
+}
+
+.mtefx3-moon-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 215, 105, .52);
+    box-shadow: 0 0 18px rgba(255, 214, 103, .10);
+}
+
+.mtefx3-moon-ring.ring-a {
+    inset: 10%;
+    animation: mtefx3RingSpin 15s linear infinite;
+}
+
+.mtefx3-moon-ring.ring-b {
+    inset: -2%;
+    border-style: dashed;
+    border-color: rgba(95, 231, 193, .46);
+    animation: mtefx3RingSpin 22s linear infinite reverse;
+}
+
+.mtefx3-moon-ring.ring-c {
+    inset: -16%;
+    border-color: rgba(255, 126, 173, .23);
+    box-shadow:
+        0 0 40px rgba(255, 217, 112, .16),
+        inset 0 0 28px rgba(94, 229, 190, .08);
+    animation: mtefx3RingPulse 4.2s ease-in-out infinite;
+}
+
+.mtefx3-light-ribbon {
+    position: absolute;
+    width: 68vw;
+    height: 18vh;
+    border-radius: 50%;
+    border-top: 2px solid rgba(255, 219, 117, .42);
+    filter:
+        drop-shadow(0 0 6px rgba(255, 220, 115, .36))
+        drop-shadow(0 0 16px rgba(255, 180, 65, .14));
+    opacity: .86;
+    mix-blend-mode: screen;
+}
+
+.mtefx3-light-ribbon.ribbon-a {
+    left: -12vw;
+    top: 17vh;
+    transform: rotate(-11deg);
+    animation: mtefx3RibbonDrift 7.4s ease-in-out infinite;
+}
+
+.mtefx3-light-ribbon.ribbon-b {
+    right: -15vw;
+    top: 45vh;
+    border-color: rgba(70, 229, 186, .38);
+    transform: rotate(9deg);
+    animation: mtefx3RibbonDrift 9.8s -3s ease-in-out infinite reverse;
+}
+
+.mtefx3-light-ribbon.ribbon-c {
+    left: 9vw;
+    bottom: 4vh;
+    width: 78vw;
+    border-color: rgba(244, 111, 160, .30);
+    transform: rotate(-3deg);
+    animation: mtefx3RibbonDrift 11.3s -5s ease-in-out infinite;
+}
+
+.mtefx3-light-ribbon.ribbon-d {
+    left: 20vw;
+    top: 61vh;
+    width: 52vw;
+    border-color: rgba(255, 237, 185, .26);
+    transform: rotate(4deg);
+    animation: mtefx3RibbonDrift 8.9s -1.3s ease-in-out infinite reverse;
+}
+
+.mtefx3-tide {
+    position: absolute;
+    left: -12vw;
+    width: 124vw;
+    height: 17vh;
+    bottom: -8vh;
+    border-radius: 50% 50% 0 0;
+    border-top: 2px solid rgba(76, 230, 189, .32);
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(52, 211, 172, .10), transparent 65%);
+    box-shadow:
+        0 -18px 45px rgba(53, 198, 165, .10),
+        0 -2px 18px rgba(255, 210, 100, .10);
+}
+
+.mtefx3-tide.tide-a {
+    animation: mtefx3TideBreath 6.8s ease-in-out infinite;
+}
+
+.mtefx3-tide.tide-b {
+    bottom: -3vh;
+    border-color: rgba(255, 209, 94, .30);
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(255, 203, 91, .08), transparent 64%);
+    transform: scaleX(.92);
+    animation: mtefx3TideBreath 8.8s -2.7s ease-in-out infinite reverse;
+}
+
+.mtefx3-tide.tide-c {
+    bottom: 2vh;
+    border-color: rgba(245, 109, 160, .18);
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(244, 107, 158, .06), transparent 66%);
+    transform: scaleX(.76);
+    animation: mtefx3TideBreath 10.2s -4s ease-in-out infinite;
+}
+
+.mtefx3-cloud-arc {
+    position: absolute;
+    width: clamp(190px, 26vw, 450px);
+    height: 34px;
+    border-radius: 999px;
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(225, 246, 239, .32),
+            rgba(255, 235, 177, .42),
+            rgba(82, 220, 183, .24),
+            transparent
+        );
+    box-shadow: 0 0 18px rgba(255, 226, 153, .08);
+    filter: blur(.45px);
+    opacity: .86;
+}
+
+.mtefx3-cloud-arc.cloud-a {
+    left: -4vw;
+    top: 30vh;
+    animation: mtefx3CloudArc 10.6s ease-in-out infinite;
+}
+
+.mtefx3-cloud-arc.cloud-b {
+    right: 7vw;
+    top: 62vh;
+    transform: scale(.78);
+    animation: mtefx3CloudArc 12.6s -5s ease-in-out infinite reverse;
+}
+
+.mtefx3-cloud-arc.cloud-c {
+    left: 36vw;
+    top: 13vh;
+    transform: scale(.58);
+    opacity: .66;
+    animation: mtefx3CloudArc 13.8s -8s ease-in-out infinite;
+}
+
+.mtefx3-cloud-arc.cloud-d {
+    left: 14vw;
+    top: 72vh;
+    transform: scale(.52);
+    opacity: .58;
+    animation: mtefx3CloudArc 15s -2.4s ease-in-out infinite reverse;
+}
+
+.mtefx3-lantern-field,
+.mtefx3-lunar-seals,
+.mtefx3-mote-field,
+.mtefx3-osmanthus-field,
+.mtefx3-star-field {
+    position: absolute;
+    inset: 0;
+}
+
+.mtefx3-floating-lantern {
+    position: absolute;
+    left: var(--mtefx3-lx);
+    top: var(--mtefx3-ly);
+    width: 25px;
+    height: 35px;
+    transform: translate(-50%, -50%) scale(var(--mtefx3-ls));
+    opacity: .78;
+    animation: mtefx3LanternFloat 6.6s var(--mtefx3-ld) ease-in-out infinite;
+}
+
+.mtefx3-floating-lantern b {
+    position: absolute;
+    inset: 3px 2px 7px;
+    border-radius: 44% 44% 38% 38%;
+    background:
+        linear-gradient(90deg, #a83f30, #ffb84a 28%, #ffe484 50%, #ff9a37 72%, #a83e30);
+    box-shadow:
+        0 0 12px rgba(255, 174, 60, .88),
+        0 0 24px rgba(255, 124, 43, .34);
+}
+
+.mtefx3-floating-lantern i,
+.mtefx3-floating-lantern em {
+    position: absolute;
+    left: 4px;
+    right: 4px;
+    height: 3px;
+    background: #794223;
+    border-radius: 999px;
+}
+
+.mtefx3-floating-lantern i {
+    top: 1px;
+}
+
+.mtefx3-floating-lantern em {
+    bottom: 5px;
+}
+
+.mtefx3-floating-lantern em::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    width: 1px;
+    height: 11px;
+    background: linear-gradient(#b7662f, transparent);
+}
+
+.mtefx3-lunar-seals > span {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    min-width: 34px;
+    min-height: 34px;
+    border: 1px solid rgba(255, 211, 104, .34);
+    border-radius: 50%;
+    color: rgba(255, 230, 164, .62) !important;
+    background:
+        radial-gradient(circle, rgba(255, 215, 109, .10), rgba(7, 15, 34, .06) 68%);
+    box-shadow:
+        0 0 20px rgba(255, 215, 101, .13),
+        inset 0 0 14px rgba(84, 221, 184, .07);
+    font: 600 13px/1 Georgia, "Times New Roman", serif !important;
+    letter-spacing: .08em;
+    animation: mtefx3SealFloat 6.4s ease-in-out infinite;
+}
+
+.mtefx3-lunar-seals .seal-a {
+    left: 6vw;
+    top: 10vh;
+}
+
+.mtefx3-lunar-seals .seal-b {
+    right: 31vw;
+    top: 36vh;
+    min-width: 54px;
+    animation-delay: -2.1s;
+}
+
+.mtefx3-lunar-seals .seal-c {
+    left: 21vw;
+    bottom: 15vh;
+    animation-delay: -3.7s;
+}
+
+.mtefx3-lunar-seals .seal-d {
+    right: 7vw;
+    bottom: 22vh;
+    animation-delay: -5s;
+}
+
+.mtefx3-lunar-seals .seal-e {
+    left: 48vw;
+    top: 18vh;
+    animation-delay: -1.1s;
+}
+
+.mtefx3-moon-mote {
+    position: absolute;
+    left: var(--mtefx3-mx);
+    top: var(--mtefx3-my);
+    width: var(--mtefx3-ms);
+    height: var(--mtefx3-ms);
+    border-radius: 50%;
+    background: #ffd772;
+    box-shadow:
+        0 0 8px rgba(255, 220, 115, .82),
+        0 0 17px rgba(255, 176, 63, .28);
+    opacity: .24;
+    animation: mtefx3MoteFloat 5.4s var(--mtefx3-md) ease-in-out infinite;
+}
+
+.mtefx3-moon-mote.is-jade {
+    background: #6ff1c7;
+    box-shadow:
+        0 0 8px rgba(111, 241, 199, .86),
+        0 0 18px rgba(42, 203, 159, .28);
+}
+
+.mtefx3-moon-mote.is-rose {
+    background: #ff8db6;
+    box-shadow:
+        0 0 8px rgba(255, 141, 182, .82),
+        0 0 18px rgba(235, 83, 140, .25);
+}
+
+.mtefx3-osmanthus-petal {
+    position: absolute;
+    left: var(--mtefx3-fx);
+    top: -22px;
+    width: var(--mtefx3-fs);
+    height: var(--mtefx3-fs);
+    border-radius: 72% 22% 72% 22%;
+    background:
+        linear-gradient(135deg, #fff0a7, #f4c65d 46%, #d88e34);
+    box-shadow:
+        0 0 9px rgba(255, 205, 95, .48);
+    opacity: 0;
+    animation:
+        mtefx3FlowerFall
+        calc(8.4s + (var(--mtefx3-fs) * .11))
+        var(--mtefx3-fd)
+        linear
+        infinite;
+    transform: rotate(var(--mtefx3-fr));
+}
+
+.mtefx3-star {
+    position: absolute;
+    left: var(--mtefx3-sx);
+    top: var(--mtefx3-sy);
+    width: 2.4px;
+    height: 2.4px;
+    border-radius: 50%;
+    background: #fff0b4;
+    box-shadow:
+        0 0 8px rgba(255, 236, 178, .92),
+        0 0 18px rgba(255, 192, 79, .32);
+    opacity: .30;
+    animation: mtefx3StarPulse 3.5s var(--mtefx3-sd) ease-in-out infinite;
+}
+
+.mtefx3-star.is-jade {
+    background: #8df1d1;
+    box-shadow:
+        0 0 8px rgba(141, 241, 209, .88),
+        0 0 16px rgba(54, 205, 166, .28);
+}
+
+.mtefx3-star-glyph {
+    width: auto;
+    height: auto;
+    background: none;
+    box-shadow: none;
+    color: rgba(255, 234, 165, .82) !important;
+    font: 500 13px/1 Georgia, serif !important;
+    text-shadow:
+        0 0 8px rgba(255, 236, 176, .68),
+        0 0 18px rgba(255, 175, 67, .28);
+}
+
+.mtefx3-caption {
+    position: absolute;
+    left: 50%;
+    bottom: 12px;
+    transform: translateX(-50%);
+    min-width: 250px;
+    padding: 7px 22px 8px;
+    text-align: center;
+    border: 1px solid rgba(255, 213, 108, .28);
+    border-radius: 999px;
+    background:
+        linear-gradient(90deg, rgba(8,15,34,.02), rgba(255,214,106,.07), rgba(8,15,34,.02));
+    box-shadow:
+        0 0 22px rgba(255, 205, 92, .08);
+    opacity: .66;
+    color: rgba(255, 237, 187, .92) !important;
+    font-family: Georgia, "Times New Roman", serif !important;
+    letter-spacing: .14em;
+}
+
+.mtefx3-caption small,
+.mtefx3-caption strong,
+.mtefx3-caption em {
+    display: block;
+    color: inherit !important;
+    font-family: inherit !important;
+}
+
+.mtefx3-caption small {
+    font-size: 7px;
+    letter-spacing: .34em;
+}
+
+.mtefx3-caption strong {
+    margin-top: 2px;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.mtefx3-caption em {
+    margin-top: 2px;
+    color: rgba(112, 236, 201, .76) !important;
+    font-size: 6px;
+    font-style: normal;
+    letter-spacing: .22em;
+}
+
+@keyframes mtefx3BloomPulse {
+    0%, 100% {
+        transform: scale(.92);
+        opacity: .26;
+    }
+    50% {
+        transform: scale(1.08);
+        opacity: .52;
+    }
+}
+
+@keyframes mtefx3AuroraSweep {
+    0%, 100% {
+        translate: -2vw 0;
+        scale: .96;
+        opacity: .18;
+    }
+    50% {
+        translate: 3vw -8px;
+        scale: 1.04;
+        opacity: .42;
+    }
+}
+
+@keyframes mtefx3MoonLensFloat {
+    0%, 100% {
+        transform: translate3d(0, 0, 0) rotate(-1deg);
+    }
+    50% {
+        transform: translate3d(-8px, -12px, 0) rotate(1.5deg);
+    }
+}
+
+@keyframes mtefx3MoonFlare {
+    0%, 100% {
+        transform: scale(.90);
+        opacity: .56;
+    }
+    50% {
+        transform: scale(1.11);
+        opacity: .90;
+    }
+}
+
+@keyframes mtefx3RingSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes mtefx3RingPulse {
+    0%, 100% {
+        transform: scale(.94);
+        opacity: .52;
+    }
+    50% {
+        transform: scale(1.07);
+        opacity: .92;
+    }
+}
+
+@keyframes mtefx3RibbonDrift {
+    0%, 100% {
+        translate: -1.6vw 0;
+        opacity: .52;
+    }
+    50% {
+        translate: 2.8vw -10px;
+        opacity: .96;
+    }
+}
+
+@keyframes mtefx3TideBreath {
+    0%, 100% {
+        translate: 0 7px;
+        opacity: .44;
+    }
+    50% {
+        translate: 0 -11px;
+        opacity: .88;
+    }
+}
+
+@keyframes mtefx3CloudArc {
+    0%, 100% {
+        translate: -12px 0;
+    }
+    50% {
+        translate: 22px -8px;
+    }
+}
+
+@keyframes mtefx3SealFloat {
+    0%, 100% {
+        transform: translate3d(0, 0, 0) rotate(-3deg);
+        opacity: .40;
+    }
+    50% {
+        transform: translate3d(0, -11px, 0) rotate(3deg);
+        opacity: .82;
+    }
+}
+
+@keyframes mtefx3MoteFloat {
+    0%, 100% {
+        transform: translate3d(-4px, 6px, 0) scale(.72);
+        opacity: .14;
+    }
+    50% {
+        transform: translate3d(9px, -13px, 0) scale(1.28);
+        opacity: .72;
+    }
+}
+
+@keyframes mtefx3FlowerFall {
+    0% {
+        transform: translate3d(-10px, -18px, 0) rotate(var(--mtefx3-fr));
+        opacity: 0;
+    }
+    10% {
+        opacity: .68;
+    }
+    70% {
+        opacity: .52;
+    }
+    100% {
+        transform: translate3d(48px, 108vh, 0) rotate(calc(var(--mtefx3-fr) + 340deg));
+        opacity: 0;
+    }
+}
+
+@keyframes mtefx3StarPulse {
+    0%, 100% {
+        transform: scale(.60);
+        opacity: .18;
+    }
+    50% {
+        transform: scale(1.38);
+        opacity: .90;
+    }
+}
+
+@keyframes mtefx3LanternFloat {
+    0%, 100% {
+        translate: -5px 5px;
+        rotate: -2deg;
+        opacity: .60;
+    }
+    50% {
+        translate: 7px -13px;
+        rotate: 3deg;
+        opacity: .94;
+    }
+}
+
+@media (max-width: 768px), (pointer: coarse) {
+    .mtefx3-moon-lens {
+        width: min(48vw, 220px);
+        right: 2vw;
+        opacity: .88;
+    }
+
+    .mtefx3-palace-silhouette {
+        width: 62vw;
+        opacity: .10;
+    }
+
+    .mtefx3-light-ribbon {
+        width: 82vw;
+    }
+
+    .mtefx3-lunar-seals .seal-b,
+    .mtefx3-lunar-seals .seal-c,
+    .mtefx3-lunar-seals .seal-e {
+        display: none;
+    }
+
+    .mtefx3-caption {
+        min-width: 210px;
+        opacity: .50;
+        bottom: 7px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mtefx3-moon-tide-radiance * {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
+/* ============================================================================
+   TRUNG THU · NGUYỆT QUẾ · HOA ĐĂNG CHI HOÀN
+   ID: frame_trung_thu_nguyet_que_hoa_hoan
+
+   VỊ TRÍ KHUNG:
+   - Dựa trên chuẩn vị trí đã ổn định của Premium Mùa Xuân.
+   - Profile: 60x60, tâm đúng giữa avatar.
+   - Popup hồ sơ: 126x126, offset -2px/+2px như khung Premium chuẩn.
+
+   PHẠM VI:
+   - Chỉ selector theo data-avatar-frame-id của khung này.
+   - Không thay đổi .avatar-frame-decoration toàn cục.
+   - Không đụng hiệu ứng / khung / giao diện khác.
+   ============================================================================ */
+
+/* Host của riêng khung Trung Thu
+   QUAN TRỌNG:
+   - KHÔNG đổi position/top/right/left/bottom của nút hồ sơ.
+   - Nút hồ sơ phải giữ nguyên vị trí gốc do student.css quản lý.
+*/
+.profile-trigger-btn.avatar-frame-profile-host[
+    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
+] {
+    overflow: visible !important;
+    isolation: isolate !important;
+}
+
+/* Popup avatar có thể dùng relative vì đây là container bên trong modal,
+   không phải nút hồ sơ nổi ở góc màn hình. */
+#studentInfoModal
+.avatar-upload-container.avatar-frame-modal-host[
+    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
+] {
+    position: relative !important;
+    overflow: visible !important;
+    isolation: isolate !important;
+}
+
+/* Avatar luôn nằm đúng tâm, phía dưới khung */
+.profile-trigger-btn.avatar-frame-profile-host[
+    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
+] > #avatarImage,
+.profile-trigger-btn.avatar-frame-profile-host[
+    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
+] > #avatarPlaceholder,
+#studentInfoModal
+.avatar-upload-container.avatar-frame-modal-host[
+    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
+] > #modalAvatarPreview {
+    position: relative !important;
+    z-index: 3 !important;
+}
+
+/* =========================================================
+   PROFILE NHỎ — chuẩn 60x60 từ Premium Mùa Xuân
+   ========================================================= */
+
+.profile-trigger-btn.avatar-frame-profile-host[
+    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
+] > .avatar-frame-decoration {
+    position: absolute !important;
+
+    left: 50% !important;
+    top: 50% !important;
+
+    width: 60px !important;
+    height: 60px !important;
+
+    max-width: none !important;
+    max-height: none !important;
+
+    object-fit: contain !important;
+    object-position: center !important;
+
+    margin: 0 !important;
+
+    transform:
+        translate(-50%, -50%) !important;
+
+    transform-origin:
+        center center !important;
+
+    z-index: 6 !important;
+
+    pointer-events: none !important;
+    user-select: none !important;
+
+    filter:
+        drop-shadow(
+            0 3px 5px
+            rgba(16, 40, 53, .28)
+        )
+        drop-shadow(
+            0 0 5px
+            rgba(245, 207, 102, .42)
+        )
+        drop-shadow(
+            0 0 8px
+            rgba(77, 207, 173, .24)
+        ) !important;
+
+    animation:
+        maFrame4ProfileFloat
+        5.8s ease-in-out infinite
+        !important;
+}
+
+/* Hào quang của profile */
+.profile-trigger-btn.avatar-frame-profile-host[
+    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
+] > .avatar-frame-aura {
+    position: absolute !important;
+
+    left: 50% !important;
+    top: 50% !important;
+
+    width: 64px !important;
+    height: 64px !important;
+
+    transform:
+        translate(-50%, -50%) !important;
+
+    border-radius: 50% !important;
+
+    z-index: 0 !important;
+
+    opacity: .48 !important;
+
+    background:
+        conic-gradient(
+            from 0deg,
+            rgba(255, 226, 135, .08),
+            rgba(94, 220, 183, .28),
+            rgba(255, 202, 91, .24),
+            rgba(236, 126, 166, .18),
+            rgba(255, 226, 135, .08)
+        ) !important;
+
+    filter:
+        blur(5px)
+        saturate(1.15)
+        !important;
+
+    animation:
+        maFrame4AuraSpin
+        13s linear infinite
+        !important;
+}
+
+/* =========================================================
+   POPUP HỒ SƠ — chuẩn 126x126 + offset từ Premium Mùa Xuân
+   ========================================================= */
+
+#studentInfoModal
+.avatar-upload-container.avatar-frame-modal-host[
+    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
+] {
+    overflow: visible !important;
+    isolation: isolate !important;
+}
+
+#studentInfoModal
+.avatar-upload-container.avatar-frame-modal-host[
+    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
+] > .avatar-frame-decoration {
+    position: absolute !important;
+
+    left: 50% !important;
+    top: 50% !important;
+
+    width: 126px !important;
+    height: 126px !important;
+
+    max-width: none !important;
+    max-height: none !important;
+
+    object-fit: contain !important;
+    object-position: center !important;
+
+    margin: 0 !important;
+
+    transform:
+        translate(
+            calc(-50% - 2px),
+            calc(-50% + 2px)
+        ) !important;
+
+    transform-origin:
+        center center !important;
+
+    z-index: 6 !important;
+
+    pointer-events: none !important;
+    user-select: none !important;
+
+    filter:
+        drop-shadow(
+            0 6px 9px
+            rgba(12, 31, 47, .26)
+        )
+        drop-shadow(
+            0 0 8px
+            rgba(247, 209, 103, .42)
+        )
+        drop-shadow(
+            0 0 12px
+            rgba(76, 207, 173, .22)
+        ) !important;
+
+    animation:
+        maFrame4ModalFloat
+        6.2s ease-in-out infinite
+        !important;
+}
+
+/* Hào quang popup — ôm ngoài khung, không che avatar */
+#studentInfoModal
+.avatar-upload-container.avatar-frame-modal-host[
+    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
+] > .avatar-frame-aura {
+    position: absolute !important;
+
+    left: 50% !important;
+    top: 50% !important;
+
+    width: 132px !important;
+    height: 132px !important;
+
+    transform:
+        translate(
+            calc(-50% - 2px),
+            calc(-50% + 2px)
+        ) !important;
+
+    border-radius: 50% !important;
+
+    z-index: 0 !important;
+
+    opacity: .42 !important;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255, 226, 128, .16),
+            rgba(76, 210, 176, .12) 48%,
+            transparent 72%
+        ) !important;
+
+    box-shadow:
+        0 0 19px
+        rgba(255, 203, 88, .16)
+        !important;
+
+    filter:
+        blur(5px)
+        saturate(1.12)
+        !important;
+
+    animation:
+        maFrame4AuraBreathe
+        4.7s ease-in-out infinite
+        !important;
+}
+
+/* =========================================================
+   TINH QUANG RIÊNG — chỉ khung Trung Thu này
+   ========================================================= */
+
+[data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"]
+> .avatar-frame-spark {
+    position: absolute !important;
+    z-index: 8 !important;
+
+    color:
+        #ffe49a !important;
+
+    font-family:
+        Georgia, serif !important;
+
+    text-shadow:
+        0 0 5px
+        rgba(255, 225, 137, .88),
+        0 0 10px
+        rgba(76, 213, 175, .38) !important;
+
+    pointer-events:
+        none !important;
+
+    animation:
+        maFrame4Spark
+        2.8s ease-in-out infinite
+        !important;
+}
+
+.profile-trigger-btn[
+    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
+] > .avatar-frame-spark.spark-1 {
+    left: -4px !important;
+    top: 3px !important;
+}
+
+.profile-trigger-btn[
+    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
+] > .avatar-frame-spark.spark-2 {
+    right: -4px !important;
+    top: 8px !important;
+    animation-delay: -.7s !important;
+}
+
+.profile-trigger-btn[
+    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
+] > .avatar-frame-spark.spark-3 {
+    left: 4px !important;
+    bottom: -3px !important;
+    animation-delay: -1.3s !important;
+}
+
+.profile-trigger-btn[
+    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
+] > .avatar-frame-spark.spark-4 {
+    right: 2px !important;
+    bottom: 0 !important;
+    animation-delay: -2s !important;
+}
+
+/* Popup dùng khoảng cách lớn hơn */
+#studentInfoModal
+.avatar-upload-container[
+    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
+] > .avatar-frame-spark.spark-1 {
+    left: -18px !important;
+    top: -11px !important;
+}
+
+#studentInfoModal
+.avatar-upload-container[
+    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
+] > .avatar-frame-spark.spark-2 {
+    right: -17px !important;
+    top: -7px !important;
+    animation-delay: -.7s !important;
+}
+
+#studentInfoModal
+.avatar-upload-container[
+    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
+] > .avatar-frame-spark.spark-3 {
+    left: -10px !important;
+    bottom: -17px !important;
+    animation-delay: -1.3s !important;
+}
+
+#studentInfoModal
+.avatar-upload-container[
+    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
+] > .avatar-frame-spark.spark-4 {
+    right: -12px !important;
+    bottom: -15px !important;
+    animation-delay: -2s !important;
+}
+
+/* =========================================================
+   CARD CỬA HÀNG — cùng thẻ với bộ Trung Thu,
+   chỉ tinh chỉnh ảnh preview của khung.
+   ========================================================= */
+
+.store-item-card.store-card-midautumn-chibi[
+    data-item-id="frame_trung_thu_nguyet_que_hoa_hoan"
+] .item-icon {
+    width: 112px !important;
+    height: 112px !important;
+    max-width: 112px !important;
+    max-height: 112px !important;
+
+    object-fit: contain !important;
+
+    filter:
+        drop-shadow(
+            0 8px 12px
+            rgba(6, 15, 33, .30)
+        )
+        drop-shadow(
+            0 0 11px
+            rgba(247, 211, 112, .28)
+        ) !important;
+
+    transition:
+        transform .28s ease,
+        filter .28s ease !important;
+}
+
+.store-item-card.store-card-midautumn-chibi[
+    data-item-id="frame_trung_thu_nguyet_que_hoa_hoan"
+]:hover .item-icon {
+    transform:
+        translateY(-4px)
+        scale(1.045) !important;
+
+    filter:
+        drop-shadow(
+            0 10px 14px
+            rgba(5, 14, 31, .34)
+        )
+        drop-shadow(
+            0 0 14px
+            rgba(247, 211, 112, .42)
+        ) !important;
+}
+
+/* =========================================================
+   KEYFRAMES RIÊNG — không tái sử dụng hiệu ứng khác
+   ========================================================= */
+
+@keyframes maFrame4ProfileFloat {
+    0%, 100% {
+        translate: 0 0;
+        filter:
+            drop-shadow(0 3px 5px rgba(16,40,53,.28))
+            drop-shadow(0 0 5px rgba(245,207,102,.38))
+            drop-shadow(0 0 8px rgba(77,207,173,.20));
+    }
+
+    50% {
+        translate: 0 -1.5px;
+        filter:
+            drop-shadow(0 4px 6px rgba(16,40,53,.30))
+            drop-shadow(0 0 8px rgba(245,207,102,.56))
+            drop-shadow(0 0 11px rgba(77,207,173,.30));
+    }
+}
+
+@keyframes maFrame4ModalFloat {
+    0%, 100% {
+        translate: 0 0;
+    }
+
+    50% {
+        translate: 0 -2px;
+    }
+}
+
+@keyframes maFrame4AuraSpin {
+    to {
+        rotate: 360deg;
+    }
+}
+
+@keyframes maFrame4AuraBreathe {
+    0%, 100% {
+        scale: .94;
+        opacity: .34;
+    }
+
+    50% {
+        scale: 1.06;
+        opacity: .56;
+    }
+}
+
+@keyframes maFrame4Spark {
+    0%, 100% {
+        transform:
+            scale(.58)
+            rotate(-8deg);
+
+        opacity: .20;
+    }
+
+    48% {
+        transform:
+            scale(1.16)
+            rotate(8deg);
+
+        opacity: .92;
+    }
+}
+
+@media (max-width: 768px) {
+    .profile-trigger-btn.avatar-frame-profile-host[
+        data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
+    ] > .avatar-frame-decoration {
+        width: 56px !important;
+        height: 56px !important;
+    }
+
+    .profile-trigger-btn.avatar-frame-profile-host[
+        data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
+    ] > .avatar-frame-aura {
+        width: 60px !important;
+        height: 60px !important;
+    }
+
+    #studentInfoModal
+    .avatar-upload-container.avatar-frame-modal-host[
+        data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
+    ] > .avatar-frame-decoration {
+        width: 126px !important;
+        height: 126px !important;
+    }
+
+    #studentInfoModal
+    .avatar-upload-container.avatar-frame-modal-host[
+        data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
+    ] > .avatar-frame-aura {
+        width: 132px !important;
+        height: 132px !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    [data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"]
+    > .avatar-frame-decoration,
+
+    [data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"]
+    > .avatar-frame-aura,
+
+    [data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"]
+    > .avatar-frame-spark {
+        animation: none !important;
+    }
+}
+
+
+/* ============================================================================
+   FIX V2 · NGUYỆT QUẾ · HOA ĐĂNG CHI HOÀN
+   GIỮ NGUYÊN VỊ TRÍ NÚT HỒ SƠ
+   ============================================================================ */
+
+.profile-trigger-btn.avatar-frame-profile-host[
+    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
+] {
+    overflow: visible !important;
+    isolation: isolate !important;
+}
+
+/* Layer trang trí tuyệt đối bên trong nút, không tham gia layout */
+.profile-trigger-btn.avatar-frame-profile-host[
+    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
+] > :is(
+    .avatar-frame-decoration,
+    .avatar-frame-aura,
+    .avatar-frame-spark
+) {
+    position: absolute !important;
+    pointer-events: none !important;
+}
+
+/* Avatar/placeholder vẫn hiển thị */
+.profile-trigger-btn.avatar-frame-profile-host[
+    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
+] > #avatarImage,
+.profile-trigger-btn.avatar-frame-profile-host[
+    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
+] > #avatarPlaceholder {
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Không cho ảnh khung/aura làm thay đổi kích thước layout nút */
+.profile-trigger-btn.avatar-frame-profile-host[
+    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
+] > .avatar-frame-decoration,
+.profile-trigger-btn.avatar-frame-profile-host[
+    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
+] > .avatar-frame-aura {
+    margin: 0 !important;
+}
+
+/* ============================================================================
+   TRUNG THU · NGUYỆT CUNG · HOA ĐĂNG DẠ
+   ID: background_trung_thu_nguyet_cung_hoa_dang_da
+
+   Chỉ trang trí preview của vật phẩm trong cửa hàng.
+   Nền khi mặc được WebBackgroundManager xử lý bằng cấu hình riêng của item:
+   cover + center + no-repeat + fixed.
+   Không sửa selector background toàn cục và không ảnh hưởng nền khác.
+   ============================================================================ */
+
+.store-item-card.store-card-midautumn-chibi[
+    data-item-id="background_trung_thu_nguyet_cung_hoa_dang_da"
+] .item-icon-wrapper {
+    position: relative !important;
+    overflow: hidden !important;
+    border-radius: 18px !important;
+    isolation: isolate !important;
+}
+
+.store-item-card.store-card-midautumn-chibi[
+    data-item-id="background_trung_thu_nguyet_cung_hoa_dang_da"
+] .item-icon {
+    width: min(100%, 190px) !important;
+    height: 112px !important;
+    max-width: 190px !important;
+
+    object-fit: cover !important;
+    object-position: center center !important;
+
+    border-radius: 14px !important;
+
+    filter:
+        saturate(1.08)
+        contrast(1.04)
+        drop-shadow(
+            0 8px 13px
+            rgba(5, 15, 34, .28)
+        )
+        drop-shadow(
+            0 0 11px
+            rgba(246, 207, 102, .25)
+        ) !important;
+
+    transition:
+        transform .30s ease,
+        filter .30s ease !important;
+}
+
+.store-item-card.store-card-midautumn-chibi[
+    data-item-id="background_trung_thu_nguyet_cung_hoa_dang_da"
+] .item-icon-wrapper::after {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    z-index: 2;
+    pointer-events: none;
+
+    border-radius: inherit;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255, 239, 181, .06),
+            transparent 42%,
+            rgba(7, 17, 39, .18)
+        );
+
+    box-shadow:
+        inset 0 0 0 1px
+        rgba(255, 222, 138, .18);
+}
+
+.store-item-card.store-card-midautumn-chibi[
+    data-item-id="background_trung_thu_nguyet_cung_hoa_dang_da"
+]:hover .item-icon {
+    transform:
+        scale(1.045) !important;
+
+    filter:
+        saturate(1.14)
+        contrast(1.06)
+        brightness(1.03)
+        drop-shadow(
+            0 10px 15px
+            rgba(5, 14, 31, .32)
+        )
+        drop-shadow(
+            0 0 14px
+            rgba(247, 210, 108, .34)
+        ) !important;
+}
+
+/* Khi chính nền này đang được mặc:
+   chỉ thêm màu fallback bên dưới ảnh.
+   Không đụng background-image/size/position/repeat/attachment vì
+   WebBackgroundManager đã đặt inline !important theo item. */
+body.store-background-equipped[
+    data-store-background-id="background_trung_thu_nguyet_cung_hoa_dang_da"
+] {
+    background-color:
+        #0b1730 !important;
+}

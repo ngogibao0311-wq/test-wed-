@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="application-version" content="4.0.1">
     <meta name="theme-color" content="#07111f">
     <title>Trạng thái hệ thống</title>
     <style>
@@ -99,6 +100,7 @@
     <script>
         (() => {
             'use strict';
+            const appVersion = '4.0.1';
             const injectedMode = window.__APP_SW_ERROR_MODE__ || '';
             const failedUrl = window.__APP_FAILED_URL__ || new URLSearchParams(location.search).get('from') || location.href;
             let mode = injectedMode || (navigator.onLine ? 'status' : 'offline');
@@ -164,6 +166,7 @@
             async function updateDiagnostics() {
                 const info = await getScopeInfo();
                 setText(ui.diagnostics,
+                    `Phiên bản: ${appVersion}\n` +
                     `Chế độ: ${mode}\n` +
                     `Online: ${navigator.onLine}\n` +
                     `URL lỗi: ${failedUrl}\n` +

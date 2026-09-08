@@ -1,5 +1,5 @@
 /*
- * store-collections-page-v12-auto-detect.js
+ * store-collections-page-v14-no-luxury.js
  *
  * Cách hoạt động:
  * 1. Thêm nút mũi tên cạnh tiêu đề "Cửa hàng Vật phẩm".
@@ -102,15 +102,56 @@
             tags: ['Doraemon']
         },
         {
+            /*
+             * Giữ id "spring" để không làm mất/nhận trùng các mốc thưởng
+             * mà học sinh đã nhận từ phiên bản Mùa xuân cũ. Phần hiển thị
+             * và bộ lọc nay là Bốn mùa.
+             */
             id: 'spring',
-            label: 'Mùa xuân',
-            icon: '🌸',
-            tags: ['Mùa xuân'],
+            label: 'Bốn mùa',
+            icon: '🌈',
+            tags: [
+                'Mùa xuân',
+                'Mùa hạ',
+                'Mùa thu',
+                'Mùa đông'
+            ],
 
+            // Tuyệt đối không đưa vật phẩm Cửa hàng Sang trọng vào bộ này.
             excludeLuxury: true,
 
-            // Mỗi mốc thưởng cao hơn bộ khác 30 Coin
-            rewardBonusCoins: 30
+            // Bốn mùa: bonus cũ +30 Coin, nay cộng thêm +40 Coin = +70 Coin/mốc.
+            rewardBonusCoins: 70
+        },
+        {
+            id: 'national-day-2-9',
+            label: 'Quốc khánh 2/9',
+            icon: '🇻🇳',
+            tags: ['2/9']
+        },
+        {
+            id: 'tamon-b-side',
+            label: "Tamon's B-Side",
+            icon: '🎭',
+            tags: ["Tamon's B-Side"],
+
+            // Thưởng tiến độ riêng: cộng thêm +50 Coin vào mỗi mốc.
+            rewardBonusCoins: 50
+        },
+        {
+            id: 'cam-mong',
+            label: 'Cầm Mộng',
+            icon: '琴',
+            tags: ['Cầm Mộng']
+        },
+        {
+            id: 'mid-autumn',
+            label: 'Trung Thu',
+            icon: '🌕',
+            tags: ['Trung thu'],
+
+            // Thưởng tiến độ riêng: cộng thêm +50 Coin vào mỗi mốc.
+            rewardBonusCoins: 50
         },
     ]);
 
@@ -598,6 +639,76 @@
         return true;
     }
 
+    /*
+     * ================================================================
+     * KHÔNG ĐƯA VẬT PHẨM CỬA HÀNG SANG TRỌNG VÀO SƯU TẦM
+     * ================================================================
+     *
+     * 3 lớp bảo vệ:
+     * 1. luxuryOnly === true
+     * 2. Danh sách ID Luxury hiện hành
+     * 3. Nếu LuxuryStore đã nạp, hỏi trực tiếp LuxuryStore.isLuxuryItem()
+     *
+     * Nhờ vậy vật phẩm Luxury sẽ không xuất hiện ở bất kỳ tab Sưu tầm nào,
+     * kể cả "Tất cả sưu tầm".
+     */
+    const COLLECTION_LUXURY_EXCLUDED_IDS = new Set([
+        'pet_luxury_mua_xuan',
+        'pet_luxury_mua_ha',
+        'pet_quoc_khanh_1',
+        'pet_mythic_nyx_1',
+        'pet_cam_co_cam_mong_1',
+        'pet_tamon_b_side_1',
+        'pet_tamon_b_side_2',
+        'pet_trung_thu_nguyet_cung_tien_tu'
+    ]);
+
+    function isLuxuryCollectionItem(itemOrId) {
+        const item =
+            typeof itemOrId === 'object' && itemOrId
+                ? itemOrId
+                : null;
+
+        const itemId = String(
+            item?.id ??
+            itemOrId ??
+            ''
+        ).trim();
+
+        if (!itemId) return false;
+
+        if (item?.luxuryOnly === true) {
+            return true;
+        }
+
+        if (
+            COLLECTION_LUXURY_EXCLUDED_IDS.has(
+                itemId
+            )
+        ) {
+            return true;
+        }
+
+        try {
+            if (
+                window.LuxuryStore &&
+                typeof window.LuxuryStore
+                    .isLuxuryItem === 'function' &&
+                window.LuxuryStore
+                    .isLuxuryItem(itemId)
+            ) {
+                return true;
+            }
+        } catch (error) {
+            console.warn(
+                '[Sưu tầm] Không kiểm tra được LuxuryStore:',
+                error
+            );
+        }
+
+        return false;
+    }
+
     function getStoreItems() {
         try {
             if (
@@ -609,7 +720,10 @@
                  * Lấy trực tiếp từ StoreConfig.items để vật phẩm vẫn xuất hiện
                  * dù cửa hàng chính đang ẩn vì ngày bán, khóa hoặc điều kiện khác.
                  */
-                return StoreConfig.items.filter(Boolean);
+                return StoreConfig.items.filter(item => (
+                    Boolean(item) &&
+                    !isLuxuryCollectionItem(item)
+                ));
             }
         } catch (error) {
             console.warn('[Sưu tầm] Không đọc được StoreConfig.items:', error);
@@ -635,7 +749,12 @@
     function itemMatchesCollection(item, collection) {
         if (!item || !collection || collection.isAll) return false;
 
-        // Bộ sưu tập có excludeLuxury sẽ bỏ vật phẩm Luxury
+        // Toàn bộ trang Sưu tầm tuyệt đối không nhận vật phẩm Luxury.
+        if (isLuxuryCollectionItem(item)) {
+            return false;
+        }
+
+        // Giữ tương thích cờ excludeLuxury cũ của từng bộ.
         if (
             collection.excludeLuxury === true &&
             item.luxuryOnly === true
@@ -979,6 +1098,21 @@
         const ways = detectItemAcquisitionWays(item);
         const collected = isItemCollected(item);
         const typeInfo = getTypeInfo(item?.type);
+        const teacherLocked = item?.isLocked === true;
+
+        if (teacherLocked) {
+            return `
+                <article class="store-collection-acquisition-item is-collection-teacher-locked">
+                    <div class="store-collection-acquisition-item__teacher-lock" role="status">
+                        <span class="store-collection-acquisition-item__teacher-question" aria-hidden="true">?</span>
+                        <div>
+                            <strong>Vật phẩm đang cập nhật</strong>
+                            <small>Giáo viên đang khóa vật phẩm này.</small>
+                        </div>
+                    </div>
+                </article>
+            `;
+        }
 
         return `
             <article class="store-collection-acquisition-item${collected ? ' is-owned' : ''}">
@@ -1366,8 +1500,33 @@
         const typeInfo = getTypeInfo(item.type);
         const tag = item.tag || 'Chưa phân loại';
         const collected = isItemCollected(item);
+        const teacherLocked = item?.isLocked === true;
         const ownershipClass = collected ? 'is-collected' : 'is-uncollected';
         const ownershipLabel = collected ? 'Đã sưu tầm' : 'Chưa sở hữu';
+
+        /*
+         * Khóa của giáo viên phải che hoàn toàn vật phẩm trong Sưu tầm giống
+         * Cửa hàng chính: không lộ tên, tag, ảnh hay trạng thái sở hữu.
+         * Vật phẩm vẫn ở đúng vị trí trong danh sách và quyền sở hữu vẫn được
+         * giữ nguyên để không làm sai tiến độ/mốc thưởng.
+         */
+        if (teacherLocked) {
+            return `
+                <article
+                    class="store-collection-card is-collection-teacher-locked"
+                    data-collection-item-id="${escapeAttribute(item.id || '')}"
+                    data-collection-item-locked="true"
+                    data-collected="${String(collected)}"
+                    aria-label="Vật phẩm đang bị giáo viên khóa"
+                >
+                    <div class="store-collection-card__teacher-lock" role="status">
+                        <span class="store-collection-card__teacher-question" aria-hidden="true">?</span>
+                        <strong>Vật phẩm đang cập nhật</strong>
+                        <small>Sẽ xuất hiện trong tương lai.</small>
+                    </div>
+                </article>
+            `;
+        }
 
         return `
             <article
@@ -1515,7 +1674,7 @@
             </div>
             <span>
                 <b>${collectedCount}/${items.length}</b> vật phẩm đã sưu tầm
-                · vật phẩm chưa sở hữu sẽ hiển thị màu xám
+                · chưa sở hữu: màu xám · giáo viên khóa: nền đen và dấu ?
             </span>
         `;
 
@@ -1919,7 +2078,17 @@
         close: closeCollectionPage,
         toggleMenu: toggleDropdown,
         show: openCollectionPage,
-        refresh: () => renderCollection(activeCollectionId),
+        refresh: () => {
+            renderCollection(activeCollectionId);
+
+            const modal = document.getElementById(IDS.acquisitionModal);
+            const body = document.getElementById(IDS.acquisitionBody);
+            if (modal?.classList.contains('is-open') && body) {
+                body.innerHTML = createAcquisitionReportHTML(
+                    acquisitionModalCollectionId
+                );
+            }
+        },
         refreshInventory: () => installInventoryListener(),
         checkRewards: () => queueCollectionRewardScan(),
         showAcquisitionWays: (collectionId = activeCollectionId) =>

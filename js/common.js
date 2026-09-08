@@ -2150,54 +2150,39 @@ window.toggleAccordion = function (contentId, headerElement) {
 };
 
 // ==============================================================
-// HỆ THỐNG KIỂM TRA CẬP NHẬT PHIÊN BẢN TỪ GITHUB (TRÁNH CACHE)
+// TƯƠNG THÍCH HỆ THỐNG CẬP NHẬT
+// - Update Manager là nguồn cập nhật DUY NHẤT.
+// - common.js KHÔNG tự fetch version.json, KHÔNG tự xóa cache, KHÔNG tự reload.
+// - Hai hàm dưới đây chỉ là proxy tạm thời cho code/nút cũ.
+// - update-manager.js sẽ ghi đè chúng bằng API chính thức ngay sau khi được nạp.
 // ==============================================================
-let currentAppVersion = localStorage.getItem('appVersion') || '1.0.0';
-let latestAppVersion = currentAppVersion;
+window.checkForUpdates = function () {
+    const manager = window.SystemUpdateManager;
 
-async function checkForUpdates() {
-    try {
-        // Gắn thêm timestamp (?t=...) để ép trình duyệt không dùng bộ nhớ đệm khi tải file này
-        const response = await fetch('version.json?t=' + new Date().getTime());
-        if (!response.ok) return;
-
-        const data = await response.json();
-        latestAppVersion = data.version;
-
-        // Nếu số phiên bản trên GitHub khác số đang lưu trong máy
-        if (latestAppVersion !== currentAppVersion) {
-            // Hiện chấm đỏ nhấp nháy ở Menu
-            const navBtn = document.getElementById('btnSettingsNav');
-            if (navBtn) navBtn.classList.add('has-update');
-
-            // Hiện khung màu đỏ trong tab Cài đặt
-            const updateBanner = document.getElementById('updateBannerArea');
-            if (updateBanner) updateBanner.style.display = 'flex';
-        }
-    } catch (error) {
-        console.log('Không thể kiểm tra cập nhật:', error);
-    }
-}
-
-window.applySystemUpdate = function () {
-    // 1. Lưu phiên bản mới vào máy
-    localStorage.setItem('appVersion', latestAppVersion);
-
-    // 2. Xóa sạch bộ nhớ đệm (Cache) của trình duyệt để ép tải lại file HTML/CSS/JS mới
-    if ('caches' in window) {
-        caches.keys().then((names) => {
-            names.forEach(name => { caches.delete(name); });
-        });
+    if (manager && typeof manager.check === 'function') {
+        return manager.check({ manual: true });
     }
 
-    // 3. Tải lại trang triệt để
-    window.location.reload(true);
+    console.warn(
+        '[SystemUpdate] Update Manager chưa sẵn sàng; bỏ qua yêu cầu kiểm tra tạm thời.'
+    );
+
+    return Promise.resolve(null);
 };
 
-// Đặt độ trễ 2.5 giây sau khi tải trang mới bắt đầu kiểm tra để web luôn tải nhanh nhất
-window.addEventListener('load', () => {
-    setTimeout(checkForUpdates, 2500);
-});
+window.applySystemUpdate = function () {
+    const manager = window.SystemUpdateManager;
+
+    if (manager && typeof manager.apply === 'function') {
+        return manager.apply();
+    }
+
+    console.warn(
+        '[SystemUpdate] Update Manager chưa sẵn sàng; không tự xóa cache hoặc reload từ common.js.'
+    );
+
+    return Promise.resolve(false);
+};
 
 // ==============================================================
 // HỆ THỐNG THAY ĐỔI GIAO DIỆN (ĐỘC LẬP TỪNG TÀI KHOẢN)
@@ -2455,23 +2440,202 @@ window.runSystemDiagnostics = async function () {
     }
 };
 
-// Lắng nghe sự kiện click trên toàn bộ tài liệu
-document.addEventListener('click', function (event) {
-    // Kiểm tra xem vị trí ngón tay chạm vào có phải là lớp phủ mờ (overlay) không
-    if (event.target.classList.contains('modal-overlay') || event.target.classList.contains('student-modal-overlay')) {
+// ==============================================================
+// MODAL MANAGER - ĐÓNG MODAL AN TOÀN, KHÔNG BỎ QUA CLEANUP
+// ==============================================================
+// Mục tiêu:
+// 1) Ưu tiên handler cleanup do module đăng ký.
+// 2) Cho module nghe custom event `app:modal-close-request`.
+// 3) Nếu không có handler riêng thì vẫn click nút đóng cũ để giữ tương thích.
+// 4) KHÔNG force-hide modal khi không biết cách cleanup.
+// ==============================================================
+window.ModalManager = window.ModalManager || (() => {
+    const cleanupHandlers = new WeakMap();
+    const closingModals = new WeakSet();
 
-        // Tìm nút "X" (close-btn) hoặc nút "Hủy" (btn-cancel) bên trong popup đó
-        const closeBtn = event.target.querySelector('.close-btn') || event.target.querySelector('.btn-cancel');
+    function resolveModal(modalOrSelector) {
+        if (!modalOrSelector) return null;
 
-        if (closeBtn) {
-            // Tự động kích hoạt nút đóng để chạy các hàm dọn dẹp dữ liệu nếu có
-            closeBtn.click();
-        } else {
-            // Phương án dự phòng: Nếu popup không có nút X, tự ép đóng bằng cách xóa class active
-            event.target.classList.remove('active');
-            event.target.style.display = 'none';
+        if (modalOrSelector instanceof Element) {
+            return modalOrSelector;
+        }
+
+        if (typeof modalOrSelector === 'string') {
+            return document.querySelector(modalOrSelector);
+        }
+
+        return null;
+    }
+
+    function register(modalOrSelector, closeHandler) {
+        const modal = resolveModal(modalOrSelector);
+
+        if (!modal) {
+            console.warn(
+                '[ModalManager] Không tìm thấy modal để đăng ký cleanup:',
+                modalOrSelector
+            );
+            return function noop() {};
+        }
+
+        if (typeof closeHandler !== 'function') {
+            throw new TypeError(
+                '[ModalManager] closeHandler phải là function.'
+            );
+        }
+
+        cleanupHandlers.set(modal, closeHandler);
+
+        return function unregisterRegisteredModal() {
+            if (cleanupHandlers.get(modal) === closeHandler) {
+                cleanupHandlers.delete(modal);
+            }
+        };
+    }
+
+    function unregister(modalOrSelector) {
+        const modal = resolveModal(modalOrSelector);
+        if (!modal) return false;
+
+        return cleanupHandlers.delete(modal);
+    }
+
+    function findCloseButton(modal) {
+        return (
+            modal.querySelector('[data-modal-close]') ||
+            modal.querySelector('.close-btn') ||
+            modal.querySelector('.btn-cancel')
+        );
+    }
+
+    async function requestClose(modalOrSelector, options = {}) {
+        const modal = resolveModal(modalOrSelector);
+        if (!modal) return false;
+
+        if (closingModals.has(modal)) {
+            return false;
+        }
+
+        closingModals.add(modal);
+
+        const reason =
+            String(options.reason || 'request');
+
+        const sourceEvent =
+            options.sourceEvent || null;
+
+        try {
+            // 1. Module có đăng ký lifecycle cleanup riêng.
+            const closeHandler =
+                cleanupHandlers.get(modal);
+
+            if (typeof closeHandler === 'function') {
+                const result =
+                    await closeHandler({
+                        modal,
+                        reason,
+                        sourceEvent
+                    });
+
+                // false nghĩa là module chủ động từ chối đóng.
+                return result !== false;
+            }
+
+            // 2. Cho module tự bắt event và preventDefault()
+            //    nếu nó muốn xử lý cleanup/đóng theo cách riêng.
+            const closeRequestEvent =
+                new CustomEvent(
+                    'app:modal-close-request',
+                    {
+                        bubbles: false,
+                        cancelable: true,
+                        detail: {
+                            modal,
+                            reason,
+                            sourceEvent
+                        }
+                    }
+                );
+
+            const shouldContinueFallback =
+                modal.dispatchEvent(
+                    closeRequestEvent
+                );
+
+            if (!shouldContinueFallback) {
+                return true;
+            }
+
+            // 3. Giữ tương thích modal cũ:
+            //    click nút đóng để module tự chạy cleanup hiện có.
+            const closeBtn =
+                findCloseButton(modal);
+
+            if (closeBtn) {
+                closeBtn.click();
+                return true;
+            }
+
+            // 4. Không còn force-hide.
+            //    Nếu không có lifecycle hoặc nút đóng an toàn,
+            //    giữ nguyên modal để tránh timer/observer/audio/canvas chạy ngầm.
+            console.warn(
+                '[ModalManager] Bỏ qua force-hide vì modal không có cơ chế cleanup an toàn:',
+                modal.id || modal.className || modal
+            );
+
+            return false;
+        } catch (error) {
+            console.error(
+                '[ModalManager] Lỗi khi đóng modal:',
+                error
+            );
+
+            return false;
+        } finally {
+            closingModals.delete(modal);
         }
     }
+
+    return Object.freeze({
+        register,
+        unregister,
+        requestClose
+    });
+})();
+
+// Lắng nghe click vào chính lớp overlay.
+// Modal có close button vẫn hoạt động như trước;
+// modal đặc biệt có thể đăng ký cleanup qua ModalManager/custom event.
+document.addEventListener('click', function (event) {
+    const target = event.target;
+
+    if (!(target instanceof Element)) {
+        return;
+    }
+
+    const isModalOverlay =
+        target.classList.contains('modal-overlay') ||
+        target.classList.contains('student-modal-overlay');
+
+    if (!isModalOverlay) {
+        return;
+    }
+
+    window.ModalManager
+        .requestClose(
+            target,
+            {
+                reason: 'backdrop',
+                sourceEvent: event
+            }
+        )
+        .catch(error => {
+            console.error(
+                '[ModalManager] Không thể xử lý yêu cầu đóng modal:',
+                error
+            );
+        });
 });
 
 // === HỆ THỐNG AUTO-SAVE DỮ LIỆU NHÁP ===

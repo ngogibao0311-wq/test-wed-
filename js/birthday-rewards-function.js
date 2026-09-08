@@ -30,6 +30,13 @@ if (getApps().length === 0) {
 const TIME_ZONE =
     'Asia/Ho_Chi_Minh';
 
+// Lock cấp quà sinh nhật:
+// - 'issued'  : đã hoàn tất, không chạy lại.
+// - 'issuing' : đang có invocation xử lý.
+// Nếu invocation chết giữa chừng, lock được phép thu hồi sau TTL.
+const BIRTHDAY_REWARD_LOCK_TTL_MS =
+    10 * 60 * 1000;
+
 const DEFAULT_BIRTHDAY_ITEMS_BY_YEAR = {
     2026: [
         'pet_sinh_nhat_2026'
@@ -313,6 +320,10 @@ async function issueOneBirthdayReward(
     const lockResult =
         await logRef.transaction(
             current => {
+                const now =
+                    Date.now();
+
+                // Đã cấp xong thì khóa vĩnh viễn cho năm này.
                 if (
                     current &&
                     current.status ===
@@ -321,13 +332,44 @@ async function issueOneBirthdayReward(
                     return;
                 }
 
+                // 'issuing' còn hạn là một lock thật:
+                // invocation khác phải dừng, không được cùng tiếp tục.
+                if (
+                    current &&
+                    current.status ===
+                        'issuing'
+                ) {
+                    const attemptAt =
+                        Number(
+                            current.attemptAt
+                        );
+
+                    const lockAge =
+                        now - attemptAt;
+
+                    if (
+                        Number.isFinite(
+                            attemptAt
+                        ) &&
+                        attemptAt > 0 &&
+                        lockAge <
+                            BIRTHDAY_REWARD_LOCK_TTL_MS
+                    ) {
+                        return;
+                    }
+                }
+
+                // Không có lock, lock lỗi thời hoặc dữ liệu lock cũ không hợp lệ:
+                // chiếm/reclaim lock để tiếp tục xử lý.
                 return {
                     status: 'issuing',
                     username,
                     year,
                     birthDate,
                     attemptAt:
-                        Date.now(),
+                        now,
+                    lockTtlMs:
+                        BIRTHDAY_REWARD_LOCK_TTL_MS,
                     issuedBy:
                         'cloud_function'
                 };

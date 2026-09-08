@@ -1,18 +1,18 @@
 {
-  "version": "3.3.0",
-  "build": "2026.09.01.1",
+  "version": "4.0.1",
+  "build": "2026.09.06.2",
   "channel": "stable",
-  "releasedAt": "2026-09-01T13:00:00+07:00",
-  "title": "Trung tâm cập nhật hệ thống mới",
-  "summary": "Nâng cấp toàn bộ cơ chế kiểm tra và cài đặt phiên bản mới cho cả trang Giáo viên và Học sinh.",
+  "releasedAt": "2026-09-06T16:27:00+07:00",
+  "title": "Bản vá hệ thống v4.0.1",
+  "summary": "Sửa vòng lặp báo cập nhật trên trang Học sinh và sửa cơ chế khóa/che vật phẩm của Giáo viên.",
   "mandatory": false,
   "minSupportedVersion": "3.0.0",
   "changes": [
-    "Hiển thị phiên bản đang chạy, phiên bản mới nhất, build, ngày phát hành và ghi chú thay đổi.",
-    "So sánh phiên bản theo SemVer để tránh nhận nhầm bản cũ là bản cập nhật mới.",
-    "Cập nhật Service Worker và dọn cache theo thứ tự, có trạng thái và phần trăm tiến trình.",
-    "Chỉ xác nhận cập nhật thành công sau khi trang mới thực sự chạy đúng phiên bản.",
-    "Tự kiểm tra lại khi có Internet, khi quay lại tab và định kỳ mà không làm gián đoạn bài tập hoặc bài nộp.",
-    "Hỗ trợ Để sau và sẵn cơ chế cập nhật bắt buộc bằng trường mandatory hoặc minSupportedVersion."
+    "Đồng bộ phiên bản trang Học sinh, Giáo viên và trang đăng nhập lên 4.0.1 để Kiểm tra cập nhật không báo lặp sau khi đã cài.",
+    "Update Manager ưu tiên phiên bản khai báo trực tiếp trong trang, không dùng nhầm appVersion cũ trong localStorage khi trang đã có meta phiên bản.",
+    "Chuẩn hóa isLocked từ Firebase theo boolean thật; giá trị chuỗi \"false\" hoặc bản ghi bị xóa không còn làm vật phẩm bị khóa nhầm.",
+    "Khi Giáo viên khóa vật phẩm đang được trang bị, Học sinh tạm thời không còn thấy/sử dụng hiệu ứng, pet, nhạc, khung, nền hoặc giao diện đó; mở khóa sẽ có thể khôi phục theo trạng thái kho.",
+    "Cửa hàng thường dùng một placeholder khóa sạch, không render nội dung nhận diện bên dưới lớp che.",
+    "Cửa hàng Sang trọng bỏ lớp khóa trùng lặp và chỉ render một lớp che, tránh dấu hỏi/phần che bị méo hoặc chồng lên nhau."
   ]
 }

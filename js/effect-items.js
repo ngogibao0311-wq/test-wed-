@@ -134,6 +134,36 @@ class EffectManager {
     static clearEffects(removeSavedEffect = false) {
         this.stopIntervals();
 
+
+        /*
+         * PREMIUM MÙA HẠ · PHONG LINH HẠ NHẬT
+         * Root được mount trực tiếp vào <body> để phủ toàn web.
+         * Chỉ dọn namespace ha2efx-* của chính effect này;
+         * không chỉnh sửa / truy cập DOM riêng của effect khác.
+         */
+        document
+            .querySelectorAll(
+                '.ha2efx-summer-windchime[data-ha2efx-portal="1"]'
+            )
+            .forEach(node => node.remove());
+
+        /*
+         * TRUNG THU · NGUYỆT TRIỀU LƯU QUANG
+         * Root mount thẳng vào body và dùng namespace mtefx3-* riêng.
+         * Chỉ dọn đúng effect này, không chạm DOM/runtime của effect khác.
+         */
+        document
+            .querySelectorAll(
+                '.mtefx3-moon-tide-radiance[data-mtefx3-portal="1"]'
+            )
+            .forEach(node => {
+                node.classList.add('is-leaving');
+
+                window.setTimeout(() => {
+                    node.remove();
+                }, 260);
+            });
+
         /*
          * CẦM MỘNG · VẠN CẦM LƯU QUANG
          * Root của effect này được mount thẳng vào <body> để thoát
@@ -266,9 +296,19 @@ class EffectManager {
                 this.createTamonBsideSpectrumBreakEffect();
                 break;
 
+            // PREMIUM MÙA HẠ · PHONG LINH HẠ NHẬT
+            case 'effect_mua_ha_phong_linh_ha_nhat':
+                this.createSummerWindChimeEffect();
+                break;
+
             // CẦM MỘNG · THANH HUYỀN VẠN CẦM LƯU QUANG
             case 'effect_cam_mong_van_cam_luu_quang':
                 this.createCamMongWanQinRadianceEffect();
+                break;
+
+            // TRUNG THU · NGUYỆT TRIỀU LƯU QUANG
+            case 'effect_trung_thu_nguyet_trieu_luu_quang':
+                this.createMidAutumnMoonTideRadianceEffect();
                 break;
         }
         localStorage.setItem('active_effect', effectId);
@@ -4152,6 +4192,593 @@ class EffectManager {
                 }, haloDuration * 1000 + 500);
             }
         }, IS_MOBILE_EFFECT ? 3200 : (densityBoost ? 2100 : 3400));
+    }
+
+
+    // =========================================================
+    // TRUNG THU · NGUYỆT TRIỀU LƯU QUANG V2
+    // Bản nâng cấp thị giác: đậm, sang, nhiều lớp và có chiều sâu.
+    // Namespace duy nhất: mtefx3-*
+    //
+    // KHÔNG gọi method tạo effect cũ.
+    // KHÔNG đổi ThemeManager / PetManager.
+    // Root mount trực tiếp vào body và miễn nhiễm theme ngoài.
+    // =========================================================
+    static createMidAutumnMoonTideRadianceEffect() {
+        this.stopIntervals();
+
+        document
+            .querySelectorAll(
+                '.mtefx3-moon-tide-radiance[data-mtefx3-portal="1"]'
+            )
+            .forEach(node => node.remove());
+
+        if (!document.body) {
+            return;
+        }
+
+        const root =
+            document.createElement('div');
+
+        root.className =
+            'mtefx3-moon-tide-radiance ui-theme-immune';
+
+        root.dataset.themeImmune =
+            'true';
+
+        root.dataset.mtefx3Portal =
+            '1';
+
+        root.setAttribute(
+            'aria-hidden',
+            'true'
+        );
+
+        root.innerHTML = `
+            <div class="mtefx3-screen-veil"></div>
+            <div class="mtefx3-screen-bloom bloom-a"></div>
+            <div class="mtefx3-screen-bloom bloom-b"></div>
+
+            <div class="mtefx3-aurora aurora-a"></div>
+            <div class="mtefx3-aurora aurora-b"></div>
+
+            <div class="mtefx3-palace-silhouette">
+                <span class="roof roof-a"></span>
+                <span class="roof roof-b"></span>
+                <span class="gate"></span>
+                <span class="pillar pillar-a"></span>
+                <span class="pillar pillar-b"></span>
+            </div>
+
+            <div class="mtefx3-moon-lens">
+                <span class="mtefx3-moon-flare"></span>
+                <span class="mtefx3-moon-core"></span>
+                <span class="mtefx3-moon-ring ring-a"></span>
+                <span class="mtefx3-moon-ring ring-b"></span>
+                <span class="mtefx3-moon-ring ring-c"></span>
+                <span class="mtefx3-rabbit-sigil">🐇</span>
+                <b>月</b>
+            </div>
+
+            <div class="mtefx3-light-ribbon ribbon-a"></div>
+            <div class="mtefx3-light-ribbon ribbon-b"></div>
+            <div class="mtefx3-light-ribbon ribbon-c"></div>
+            <div class="mtefx3-light-ribbon ribbon-d"></div>
+
+            <div class="mtefx3-tide tide-a"></div>
+            <div class="mtefx3-tide tide-b"></div>
+            <div class="mtefx3-tide tide-c"></div>
+
+            <div class="mtefx3-cloud-arc cloud-a"></div>
+            <div class="mtefx3-cloud-arc cloud-b"></div>
+            <div class="mtefx3-cloud-arc cloud-c"></div>
+            <div class="mtefx3-cloud-arc cloud-d"></div>
+
+            <div class="mtefx3-lantern-field"></div>
+
+            <div class="mtefx3-lunar-seals">
+                <span class="seal-a">☾</span>
+                <span class="seal-b">中秋</span>
+                <span class="seal-c">桂</span>
+                <span class="seal-d">✦</span>
+                <span class="seal-e">月</span>
+            </div>
+
+            <div class="mtefx3-mote-field"></div>
+            <div class="mtefx3-osmanthus-field"></div>
+            <div class="mtefx3-star-field"></div>
+
+            <div class="mtefx3-caption">
+                <small>月 潮 · 流 光</small>
+                <strong>NGUYỆT TRIỀU LƯU QUANG</strong>
+                <em>TRUNG THU · MOONFEST</em>
+            </div>
+        `;
+
+        const reduced =
+            window.matchMedia?.(
+                '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+            ).matches;
+
+        const moteField =
+            root.querySelector(
+                '.mtefx3-mote-field'
+            );
+
+        const osmanthusField =
+            root.querySelector(
+                '.mtefx3-osmanthus-field'
+            );
+
+        const starField =
+            root.querySelector(
+                '.mtefx3-star-field'
+            );
+
+        const lanternField =
+            root.querySelector(
+                '.mtefx3-lantern-field'
+            );
+
+        const moteCount =
+            this.getQualityCount(
+                reduced ? 18 : 46
+            );
+
+        const flowerCount =
+            this.getQualityCount(
+                reduced ? 12 : 30
+            );
+
+        const starCount =
+            this.getQualityCount(
+                reduced ? 16 : 42
+            );
+
+        const lanternCount =
+            this.getQualityCount(
+                reduced ? 7 : 14
+            );
+
+        for (
+            let index = 0;
+            index < moteCount;
+            index++
+        ) {
+            const mote =
+                document.createElement('i');
+
+            mote.className =
+                index % 7 === 0
+                    ? 'mtefx3-moon-mote is-jade'
+                    : (
+                        index % 5 === 0
+                            ? 'mtefx3-moon-mote is-rose'
+                            : 'mtefx3-moon-mote'
+                    );
+
+            mote.style.setProperty(
+                '--mtefx3-mx',
+                `${(index * 37 + 7) % 98}%`
+            );
+
+            mote.style.setProperty(
+                '--mtefx3-my',
+                `${(index * 61 + 13) % 93}%`
+            );
+
+            mote.style.setProperty(
+                '--mtefx3-md',
+                `${-(index % 12) * .41}s`
+            );
+
+            mote.style.setProperty(
+                '--mtefx3-ms',
+                `${2.4 + (index % 5) * .95}px`
+            );
+
+            moteField?.appendChild(mote);
+        }
+
+        for (
+            let index = 0;
+            index < flowerCount;
+            index++
+        ) {
+            const flower =
+                document.createElement('i');
+
+            flower.className =
+                'mtefx3-osmanthus-petal';
+
+            flower.style.setProperty(
+                '--mtefx3-fx',
+                `${(index * 43 + 4) % 97}%`
+            );
+
+            flower.style.setProperty(
+                '--mtefx3-fd',
+                `${-(index % 10) * .72}s`
+            );
+
+            flower.style.setProperty(
+                '--mtefx3-fr',
+                `${(index * 47) % 180}deg`
+            );
+
+            flower.style.setProperty(
+                '--mtefx3-fs',
+                `${5.5 + (index % 5) * 1.25}px`
+            );
+
+            osmanthusField?.appendChild(
+                flower
+            );
+        }
+
+        for (
+            let index = 0;
+            index < starCount;
+            index++
+        ) {
+            const star =
+                document.createElement('i');
+
+            star.className =
+                index % 5 === 0
+                    ? 'mtefx3-star mtefx3-star-glyph'
+                    : (
+                        index % 3 === 0
+                            ? 'mtefx3-star is-jade'
+                            : 'mtefx3-star'
+                    );
+
+            star.textContent =
+                index % 5 === 0
+                    ? '✦'
+                    : '';
+
+            star.style.setProperty(
+                '--mtefx3-sx',
+                `${(index * 29 + 9) % 96}%`
+            );
+
+            star.style.setProperty(
+                '--mtefx3-sy',
+                `${(index * 53 + 6) % 91}%`
+            );
+
+            star.style.setProperty(
+                '--mtefx3-sd',
+                `${-(index % 11) * .33}s`
+            );
+
+            starField?.appendChild(star);
+        }
+
+        for (
+            let index = 0;
+            index < lanternCount;
+            index++
+        ) {
+            const lantern =
+                document.createElement('span');
+
+            lantern.className =
+                'mtefx3-floating-lantern';
+
+            lantern.innerHTML =
+                '<b></b><i></i><em></em>';
+
+            lantern.style.setProperty(
+                '--mtefx3-lx',
+                `${6 + ((index * 71) % 89)}%`
+            );
+
+            lantern.style.setProperty(
+                '--mtefx3-ly',
+                `${10 + ((index * 43) % 72)}%`
+            );
+
+            lantern.style.setProperty(
+                '--mtefx3-ld',
+                `${-(index % 8) * .85}s`
+            );
+
+            lantern.style.setProperty(
+                '--mtefx3-ls',
+                `${.62 + (index % 4) * .16}`
+            );
+
+            lanternField?.appendChild(
+                lantern
+            );
+        }
+
+        document.body.appendChild(root);
+
+        requestAnimationFrame(() => {
+            root.classList.add('is-active');
+        });
+
+        return root;
+    }
+
+    // =========================================================
+    // PREMIUM MÙA HẠ · PHONG LINH HẠ NHẬT
+    // Effect toàn web mới hoàn toàn — namespace: ha2efx-*
+    // Concept: phong linh thủy tinh + dải gió + sóng âm ánh nắng.
+    // Không gọi/tái sử dụng method, class hay keyframe của effect cũ.
+    // =========================================================
+    static createSummerWindChimeEffect() {
+        this.stopIntervals();
+
+        const oldRoot = document.querySelector(
+            '.ha2efx-summer-windchime[data-ha2efx-portal="1"]'
+        );
+        oldRoot?.remove();
+
+        const root = document.createElement('div');
+        root.className =
+            'ha2efx-summer-windchime ui-theme-immune';
+        root.dataset.ha2efxPortal = '1';
+        root.dataset.themeImmune = 'true';
+        root.setAttribute('aria-hidden', 'true');
+
+        root.innerHTML = `
+            <div class="ha2efx-sun-veil"></div>
+            <div class="ha2efx-breeze breeze-a"></div>
+            <div class="ha2efx-breeze breeze-b"></div>
+            <div class="ha2efx-breeze breeze-c"></div>
+
+            <div class="ha2efx-chime chime-left">
+                <span class="ha2efx-chime-cap"></span>
+                <span class="ha2efx-chime-line line-a"></span>
+                <span class="ha2efx-chime-line line-b"></span>
+                <span class="ha2efx-chime-line line-c"></span>
+                <span class="ha2efx-chime-tube tube-a"></span>
+                <span class="ha2efx-chime-tube tube-b"></span>
+                <span class="ha2efx-chime-tube tube-c"></span>
+                <span class="ha2efx-chime-clapper"></span>
+                <span class="ha2efx-chime-tail">夏</span>
+            </div>
+
+            <div class="ha2efx-chime chime-right">
+                <span class="ha2efx-chime-cap"></span>
+                <span class="ha2efx-chime-line line-a"></span>
+                <span class="ha2efx-chime-line line-b"></span>
+                <span class="ha2efx-chime-line line-c"></span>
+                <span class="ha2efx-chime-tube tube-a"></span>
+                <span class="ha2efx-chime-tube tube-b"></span>
+                <span class="ha2efx-chime-tube tube-c"></span>
+                <span class="ha2efx-chime-clapper"></span>
+                <span class="ha2efx-chime-tail">風</span>
+            </div>
+
+            <div class="ha2efx-ray-field"></div>
+            <div class="ha2efx-resonance-field"></div>
+            <div class="ha2efx-ribbon-field"></div>
+            <div class="ha2efx-leaf-field"></div>
+            <div class="ha2efx-pollen-field"></div>
+            <div class="ha2efx-glass-field"></div>
+            <div class="ha2efx-glint-field"></div>
+        `;
+
+        const rayField = root.querySelector(
+            '.ha2efx-ray-field'
+        );
+        const resonanceField = root.querySelector(
+            '.ha2efx-resonance-field'
+        );
+        const ribbonField = root.querySelector(
+            '.ha2efx-ribbon-field'
+        );
+        const leafField = root.querySelector(
+            '.ha2efx-leaf-field'
+        );
+        const pollenField = root.querySelector(
+            '.ha2efx-pollen-field'
+        );
+        const glassField = root.querySelector(
+            '.ha2efx-glass-field'
+        );
+        const glintField = root.querySelector(
+            '.ha2efx-glint-field'
+        );
+
+        const compact = IS_MOBILE_EFFECT;
+
+        // Bản dày hiệu ứng: vẫn đi qua EffectQualityManager để máy yếu
+        // có thể tự giảm số lượng DOM, nhưng ở mức Cao/Tắt sẽ hiển thị đầy đủ.
+        const rayCount = this.getQualityCount(compact ? 5 : 9);
+        const ringCount = this.getQualityCount(compact ? 12 : 24);
+        const ribbonCount = this.getQualityCount(compact ? 14 : 30);
+        const leafCount = this.getQualityCount(compact ? 10 : 24);
+        const pollenCount = this.getQualityCount(compact ? 24 : 58);
+        const glassCount = this.getQualityCount(compact ? 8 : 18);
+        const glintCount = this.getQualityCount(compact ? 30 : 76);
+
+        for (let index = 0; index < rayCount; index++) {
+            const ray = document.createElement('span');
+            ray.className = 'ha2efx-sun-ray';
+            ray.style.setProperty(
+                '--ha2efx-ray-x',
+                `${-8 + ((index * 19) % 118)}%`
+            );
+            ray.style.setProperty(
+                '--ha2efx-ray-rot',
+                `${-19 + (index % 7) * 6}deg`
+            );
+            ray.style.setProperty(
+                '--ha2efx-ray-delay',
+                `${-(index % 6) * 1.17}s`
+            );
+            ray.style.setProperty(
+                '--ha2efx-ray-width',
+                `${7 + (index % 4) * 3}vw`
+            );
+            rayField?.appendChild(ray);
+        }
+
+        for (let index = 0; index < ringCount; index++) {
+            const ring = document.createElement('span');
+            ring.className = 'ha2efx-resonance-ring';
+            ring.style.setProperty(
+                '--ha2efx-rx',
+                `${8 + ((index * 61) % 85)}%`
+            );
+            ring.style.setProperty(
+                '--ha2efx-ry',
+                `${10 + ((index * 37) % 76)}%`
+            );
+            ring.style.setProperty(
+                '--ha2efx-rd',
+                `${-(index % 7) * .74}s`
+            );
+            ring.style.setProperty(
+                '--ha2efx-rs',
+                `${.66 + (index % 5) * .16}`
+            );
+            ring.style.setProperty(
+                '--ha2efx-rsize',
+                `${58 + (index % 6) * 14}px`
+            );
+            resonanceField?.appendChild(ring);
+        }
+
+        for (let index = 0; index < ribbonCount; index++) {
+            const ribbon = document.createElement('i');
+            ribbon.className =
+                index % 3 === 0
+                    ? 'ha2efx-wind-ribbon is-aqua'
+                    : 'ha2efx-wind-ribbon';
+            ribbon.style.setProperty(
+                '--ha2efx-wy',
+                `${5 + ((index * 43) % 90)}%`
+            );
+            ribbon.style.setProperty(
+                '--ha2efx-wd',
+                `${-(index % 8) * .91}s`
+            );
+            ribbon.style.setProperty(
+                '--ha2efx-ww',
+                `${18 + (index % 5) * 7}vw`
+            );
+            ribbonField?.appendChild(ribbon);
+        }
+
+        for (let index = 0; index < leafCount; index++) {
+            const leaf = document.createElement('span');
+            leaf.className =
+                index % 4 === 0
+                    ? 'ha2efx-summer-leaf is-gold'
+                    : 'ha2efx-summer-leaf';
+            leaf.style.setProperty(
+                '--ha2efx-lx',
+                `${2 + ((index * 53) % 96)}%`
+            );
+            leaf.style.setProperty(
+                '--ha2efx-ly',
+                `${-12 - (index % 5) * 13}%`
+            );
+            leaf.style.setProperty(
+                '--ha2efx-ld',
+                `${-(index % 11) * .73}s`
+            );
+            leaf.style.setProperty(
+                '--ha2efx-ls',
+                `${.72 + (index % 5) * .12}`
+            );
+            leaf.style.setProperty(
+                '--ha2efx-ldr',
+                `${-80 + (index % 9) * 20}px`
+            );
+            leafField?.appendChild(leaf);
+        }
+
+        for (let index = 0; index < pollenCount; index++) {
+            const mote = document.createElement('span');
+            mote.className =
+                index % 7 === 0
+                    ? 'ha2efx-pollen is-aqua'
+                    : 'ha2efx-pollen';
+            mote.style.setProperty(
+                '--ha2efx-px',
+                `${1 + ((index * 41) % 98)}%`
+            );
+            mote.style.setProperty(
+                '--ha2efx-py',
+                `${4 + ((index * 67) % 92)}%`
+            );
+            mote.style.setProperty(
+                '--ha2efx-pd',
+                `${-(index % 14) * .43}s`
+            );
+            mote.style.setProperty(
+                '--ha2efx-ps',
+                `${2 + (index % 4)}px`
+            );
+            pollenField?.appendChild(mote);
+        }
+
+        for (let index = 0; index < glassCount; index++) {
+            const shard = document.createElement('span');
+            shard.className =
+                index % 3 === 0
+                    ? 'ha2efx-glass-shard is-aqua'
+                    : 'ha2efx-glass-shard';
+            shard.style.setProperty(
+                '--ha2efx-sx',
+                `${3 + ((index * 59) % 94)}%`
+            );
+            shard.style.setProperty(
+                '--ha2efx-sy',
+                `${8 + ((index * 31) % 84)}%`
+            );
+            shard.style.setProperty(
+                '--ha2efx-sd',
+                `${-(index % 9) * .82}s`
+            );
+            shard.style.setProperty(
+                '--ha2efx-sr',
+                `${-24 + (index % 8) * 11}deg`
+            );
+            glassField?.appendChild(shard);
+        }
+
+        for (let index = 0; index < glintCount; index++) {
+            const glint = document.createElement('b');
+            glint.className =
+                index % 4 === 0
+                    ? 'ha2efx-glint is-star'
+                    : 'ha2efx-glint';
+            glint.textContent = index % 4 === 0 ? (index % 8 === 0 ? '✦' : '✧') : '';
+            glint.style.setProperty(
+                '--ha2efx-gx',
+                `${3 + ((index * 47) % 94)}%`
+            );
+            glint.style.setProperty(
+                '--ha2efx-gy',
+                `${4 + ((index * 71) % 92)}%`
+            );
+            glint.style.setProperty(
+                '--ha2efx-gd',
+                `${-(index % 10) * .52}s`
+            );
+            glint.style.setProperty(
+                '--ha2efx-gs',
+                `${.65 + (index % 5) * .13}`
+            );
+            glintField?.appendChild(glint);
+        }
+
+        document.body.appendChild(root);
+
+        requestAnimationFrame(() => {
+            root.classList.add('is-active');
+        });
+
+        return root;
     }
 
 }

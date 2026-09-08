@@ -19,6 +19,7 @@ class PetManager {
     static interactionAbortController = null;
     static premiumSpringObserver = null;
     static nationalDayObserver = null;
+    static summerLimitedHa2Observer = null;
 
     // =========================================================
     // PREMIUM MÙA XUÂN — DỌN / QUẢN LÝ THẦN VỰC
@@ -101,6 +102,81 @@ class PetManager {
     }
 
     // =========================================================
+    // PREMIUM MÙA HẠ · TIỂU HẠ QUANG
+    // Namespace hoàn toàn mới: ha2l-*.
+    // Không dùng summer-solstice-* và không gọi ThemeManager/EffectManager.
+    // =========================================================
+    static clearSummerLimitedHa2Realm() {
+        if (this.summerLimitedHa2Observer) {
+            this.summerLimitedHa2Observer.disconnect();
+            this.summerLimitedHa2Observer = null;
+        }
+
+        document
+            .querySelectorAll('.ha2l-screen-ultimate')
+            .forEach(node => node.remove());
+
+        document.documentElement.classList.remove(
+            'ha2l-pet-equipped',
+            'ha2l-screen-active'
+        );
+
+        this.container =
+            document.getElementById('virtual-pet-container') ||
+            this.container;
+
+        this.container?.classList.remove(
+            'pet-ha2l-summer-stage',
+            'ha2l-awakening',
+            'ha2l-casting'
+        );
+
+        if (this.container?.dataset) {
+            delete this.container.dataset.ha2lClickLocked;
+        }
+    }
+
+    static installSummerLimitedHa2Observer() {
+        this.container =
+            document.getElementById('virtual-pet-container') ||
+            this.container;
+
+        if (!this.container) return;
+
+        if (this.summerLimitedHa2Observer) {
+            this.summerLimitedHa2Observer.disconnect();
+        }
+
+        this.summerLimitedHa2Observer = new MutationObserver(() => {
+            const activePet = this.container?.querySelector(
+                '#virtual-pet-img.ha2-limited-sunleaf-magic'
+            );
+
+            const style = this.container
+                ? window.getComputedStyle(this.container)
+                : null;
+
+            const isVisible =
+                style?.display !== 'none' &&
+                style?.visibility !== 'hidden';
+
+            if (!activePet || !isVisible) {
+                this.clearSummerLimitedHa2Realm();
+            }
+        });
+
+        this.summerLimitedHa2Observer.observe(
+            this.container,
+            {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                attributeFilter: ['class', 'style']
+            }
+        );
+    }
+
+    // =========================================================
     // QUỐC KHÁNH — HÀO KHÍ ĐỘC LẬP
     // Concept riêng: trống đồng Đông Sơn + sơn son + sao vàng.
     // Không dùng lại realm, class hoặc animation của pet cũ.
@@ -142,6 +218,7 @@ class PetManager {
 
     static createNationalDayRealm() {
         this.clearNationalDayRealm();
+        this.clearSummerLimitedHa2Realm();
 
         this.container =
             document.getElementById('virtual-pet-container') ||
@@ -965,6 +1042,13 @@ class PetManager {
             )
             .forEach(node => node.remove());
 
+        // Dọn riêng Trung Thu · Tiểu Hằng Nga nếu đổi/tháo pet khi ultimate còn chạy.
+        document
+            .querySelectorAll(
+                '.mafc-screen-ultimate, .mafc-local-click-burst'
+            )
+            .forEach(node => node.remove());
+
         // Dọn toàn bộ tương tác và vòng lặp của thú cưng trước
         if (
             typeof PetInteractionManager !== 'undefined' &&
@@ -990,6 +1074,9 @@ class PetManager {
             'pet-spring-vintage-stage',
             'spring-vintage-awakening',
             'spring-vintage-casting',
+            'pet-ha2l-summer-stage',
+            'ha2l-awakening',
+            'ha2l-casting',
             'pet-summer-solstice-stage',
             'summer-solstice-awakening',
             'summer-solstice-casting',
@@ -1012,6 +1099,9 @@ class PetManager {
             'tamon-pinkstatic-casting',
             'pet-cam-mong-chibi-stage',
             'cam-mong-chibi-casting',
+            'pet-midautumn-hangnga-chibi-stage',
+            'mafc-awakening',
+            'mafc-casting',
             'pet-summer-solstice-stage',
             'summer-solstice-awakening',
             'summer-solstice-casting',
@@ -1240,6 +1330,83 @@ class PetManager {
         }
 
         // =========================================================
+        // PREMIUM MÙA HẠ · TIỂU HẠ QUANG
+        // Hiệu ứng quanh pet hoàn toàn mới: nắng xuyên tán lá,
+        // kính quang phổ và ve mùa hạ. Không dùng hiệu ứng Mùa Hạ cũ.
+        // =========================================================
+        if (
+            petData.id === 'pet_premium_mua_ha_chibi_2' ||
+            petData.petEffect === 'ha2-limited-sunleaf-magic'
+        ) {
+            petElement.setAttribute('draggable', 'false');
+            petElement.classList.add('ha2l-avatar');
+
+            this.container.classList.add(
+                'pet-ha2l-summer-stage',
+                'ha2l-awakening'
+            );
+
+            document.documentElement.classList.add(
+                'ha2l-pet-equipped'
+            );
+
+            const localRealm = document.createElement('div');
+            localRealm.className = 'ha2l-local-realm';
+            localRealm.setAttribute('aria-hidden', 'true');
+            localRealm.innerHTML = `
+                <span class="ha2l-local-sun-disc"></span>
+                <span class="ha2l-local-prism prism-a"></span>
+                <span class="ha2l-local-prism prism-b"></span>
+                <span class="ha2l-local-leaf leaf-a"></span>
+                <span class="ha2l-local-leaf leaf-b"></span>
+                <span class="ha2l-local-leaf leaf-c"></span>
+                <span class="ha2l-local-cicada">◇</span>
+                <span class="ha2l-local-ring ring-a"></span>
+                <span class="ha2l-local-ring ring-b"></span>
+                <span class="ha2l-local-ground"></span>
+                <div class="ha2l-local-spark-field"></div>
+            `;
+
+            const reducedMotion = window.matchMedia?.(
+                '(max-width: 768px), (pointer: coarse), ' +
+                '(prefers-reduced-motion: reduce)'
+            ).matches;
+
+            const sparkField = localRealm.querySelector(
+                '.ha2l-local-spark-field'
+            );
+
+            const sparkCount = this.getQualityCount(
+                reducedMotion ? 9 : 18
+            );
+
+            for (let index = 0; index < sparkCount; index++) {
+                const spark = document.createElement('i');
+                spark.className = 'ha2l-local-spark';
+                spark.style.setProperty(
+                    '--ha2l-angle',
+                    `${index * (360 / sparkCount)}deg`
+                );
+                spark.style.setProperty(
+                    '--ha2l-radius',
+                    `${58 + (index % 5) * 10}px`
+                );
+                spark.style.setProperty(
+                    '--ha2l-delay',
+                    `${-(index % 8) * .27}s`
+                );
+                spark.style.setProperty(
+                    '--ha2l-size',
+                    `${2 + (index % 4) * .8}px`
+                );
+                sparkField?.appendChild(spark);
+            }
+
+            this.container.appendChild(localRealm);
+        }
+
+
+        // =========================================================
         // TAMON'S B-SIDE — FALLBACK LOCAL STAGE
         // Luôn gắn class kích thước / idle trực tiếp từ PetManager.
         // LuxuryStore sẽ bổ sung realm + world + UI sau khi spawn.
@@ -1256,6 +1423,350 @@ class PetManager {
             );
         }
 
+
+        // =========================================================
+        // TRUNG THU · TIỂU HẰNG NGA — NGUYỆT ĐĂNG VÂN VŨ
+        // Runtime MỚI hoàn toàn, namespace mafc-*.
+        // Chỉ thao tác DOM của pet này + overlay click tạm thời.
+        // KHÔNG gọi ThemeManager / EffectManager và không dùng class effect cũ.
+        // =========================================================
+        if (
+            petData.id === 'pet_trung_thu_hang_nga_chibi_1' ||
+            petData.petEffect ===
+                'midautumn-chibi-moon-lantern-magic'
+        ) {
+            petElement.setAttribute('draggable', 'false');
+            petElement.classList.add('mafc-avatar');
+
+            this.container.classList.add(
+                'pet-midautumn-hangnga-chibi-stage',
+                'mafc-awakening'
+            );
+
+            const realm = document.createElement('div');
+            realm.className = 'mafc-local-realm';
+            realm.setAttribute('aria-hidden', 'true');
+            realm.innerHTML = `
+                <span class="mafc-local-aura"></span>
+                <span class="mafc-local-moon"></span>
+                <span class="mafc-local-ring ring-a"></span>
+                <span class="mafc-local-ring ring-b"></span>
+                <span class="mafc-local-ring ring-c"></span>
+
+                <span class="mafc-local-cloud cloud-a"></span>
+                <span class="mafc-local-cloud cloud-b"></span>
+                <span class="mafc-local-cloud cloud-c"></span>
+
+                <span class="mafc-local-lantern lantern-a">◆</span>
+                <span class="mafc-local-lantern lantern-b">◆</span>
+                <span class="mafc-local-lantern lantern-c">◆</span>
+                <span class="mafc-local-lantern lantern-d">◆</span>
+
+                <div class="mafc-local-star-field"></div>
+                <div class="mafc-local-petal-field"></div>
+                <span class="mafc-local-ground"></span>
+            `;
+
+            const reducedMotion = window.matchMedia?.(
+                '(max-width: 768px), (pointer: coarse), ' +
+                '(prefers-reduced-motion: reduce)'
+            ).matches;
+
+            const starField = realm.querySelector(
+                '.mafc-local-star-field'
+            );
+            const starCount = this.getQualityCount(
+                reducedMotion ? 10 : 22
+            );
+
+            for (let index = 0; index < starCount; index++) {
+                const star = document.createElement('i');
+                star.className = 'mafc-local-star';
+                star.textContent =
+                    index % 5 === 0
+                        ? '✦'
+                        : index % 3 === 0
+                            ? '·'
+                            : '✧';
+                star.style.setProperty(
+                    '--mafc-sa',
+                    `${index * (360 / starCount)}deg`
+                );
+                star.style.setProperty(
+                    '--mafc-sab',
+                    `${index * -(360 / starCount)}deg`
+                );
+                star.style.setProperty(
+                    '--mafc-sr',
+                    `${57 + (index % 6) * 10}px`
+                );
+                star.style.setProperty(
+                    '--mafc-sd',
+                    `${-index * .18}s`
+                );
+                starField?.appendChild(star);
+            }
+
+            const petalField = realm.querySelector(
+                '.mafc-local-petal-field'
+            );
+            const petalCount = this.getQualityCount(
+                reducedMotion ? 8 : 16
+            );
+
+            for (let index = 0; index < petalCount; index++) {
+                const petal = document.createElement('i');
+                petal.className = 'mafc-local-petal';
+                petal.style.setProperty(
+                    '--mafc-px',
+                    `${8 + ((index * 43) % 84)}%`
+                );
+                petal.style.setProperty(
+                    '--mafc-py',
+                    `${12 + ((index * 61) % 76)}%`
+                );
+                petal.style.setProperty(
+                    '--mafc-pd',
+                    `${-(index % 9) * .31}s`
+                );
+                petal.style.setProperty(
+                    '--mafc-pr',
+                    `${-28 + (index % 7) * 11}deg`
+                );
+                petalField?.appendChild(petal);
+            }
+
+            this.container.appendChild(realm);
+
+            window.setTimeout(() => {
+                this.container?.classList.remove(
+                    'mafc-awakening'
+                );
+            }, 1500);
+
+            let mafcClickLocked = false;
+
+            petElement.addEventListener('click', event => {
+                if (mafcClickLocked) return;
+
+                if (
+                    typeof PetInteractionManager !== 'undefined' &&
+                    PetInteractionManager.isPetDragging
+                ) {
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+                event.stopImmediatePropagation();
+
+                mafcClickLocked = true;
+
+                this.container.classList.remove('mafc-casting');
+                void this.container.offsetWidth;
+                this.container.classList.add('mafc-casting');
+
+                // -----------------------------
+                // NỔ CỤC BỘ QUANH NHÂN VẬT
+                // -----------------------------
+                const localBurst = document.createElement('div');
+                localBurst.className = 'mafc-local-click-burst';
+                localBurst.setAttribute('aria-hidden', 'true');
+                localBurst.innerHTML = `
+                    <span class="mafc-click-moon"></span>
+                    <span class="mafc-click-ring ring-a"></span>
+                    <span class="mafc-click-ring ring-b"></span>
+                    <div class="mafc-click-rays"></div>
+                    <div class="mafc-click-sparks"></div>
+                `;
+
+                const clickSparks = localBurst.querySelector(
+                    '.mafc-click-sparks'
+                );
+                const clickCount = this.getQualityCount(
+                    reducedMotion ? 10 : 20
+                );
+
+                for (let index = 0; index < clickCount; index++) {
+                    const spark = document.createElement('i');
+                    spark.className = 'mafc-click-spark';
+                    spark.textContent = index % 4 === 0 ? '✦' : '';
+                    spark.style.setProperty(
+                        '--mafc-ca',
+                        `${index * (360 / clickCount)}deg`
+                    );
+                    spark.style.setProperty(
+                        '--mafc-cd',
+                        `${76 + (index % 5) * 18}px`
+                    );
+                    spark.style.setProperty(
+                        '--mafc-cdelay',
+                        `${(index % 5) * .025}s`
+                    );
+                    clickSparks?.appendChild(spark);
+                }
+
+                this.container.appendChild(localBurst);
+
+                // -----------------------------
+                // ULTIMATE TOÀN MÀN HÌNH RIÊNG
+                // -----------------------------
+                document
+                    .querySelectorAll('.mafc-screen-ultimate')
+                    .forEach(node => node.remove());
+
+                const ultimate = document.createElement('div');
+                ultimate.className = 'mafc-screen-ultimate';
+                ultimate.setAttribute('aria-hidden', 'true');
+                ultimate.innerHTML = `
+                    <div class="mafc-screen-flash"></div>
+                    <div class="mafc-screen-vignette"></div>
+                    <div class="mafc-screen-night"></div>
+
+                    <div class="mafc-screen-moon">
+                        <span class="moon-glow"></span>
+                        <span class="moon-disc"></span>
+                        <span class="moon-rabbit"></span>
+                    </div>
+
+                    <span class="mafc-screen-ring ring-one"></span>
+                    <span class="mafc-screen-ring ring-two"></span>
+                    <span class="mafc-screen-ring ring-three"></span>
+
+                    <div class="mafc-screen-cloud cloud-left"></div>
+                    <div class="mafc-screen-cloud cloud-right"></div>
+                    <div class="mafc-screen-cloud cloud-bottom"></div>
+
+                    <div class="mafc-screen-lantern-field"></div>
+                    <div class="mafc-screen-star-field"></div>
+                    <div class="mafc-screen-petal-field"></div>
+
+                    <div class="mafc-screen-title">
+                        <small>TRUNG THU · NGUYỆT ĐĂNG</small>
+                        <strong>NGUYỆT HẠ HOA ĐĂNG</strong>
+                        <span>✦ 月下花燈 ✦</span>
+                    </div>
+                `;
+
+                const lanternField = ultimate.querySelector(
+                    '.mafc-screen-lantern-field'
+                );
+                const lanternCount = this.getQualityCount(
+                    reducedMotion ? 8 : 16
+                );
+
+                for (
+                    let index = 0;
+                    index < lanternCount;
+                    index++
+                ) {
+                    const lantern = document.createElement('i');
+                    lantern.className = 'mafc-screen-lantern';
+                    lantern.innerHTML = '<b></b><span></span>';
+                    lantern.style.setProperty(
+                        '--mafc-lx',
+                        `${5 + ((index * 37) % 90)}%`
+                    );
+                    lantern.style.setProperty(
+                        '--mafc-ly',
+                        `${8 + ((index * 53) % 78)}%`
+                    );
+                    lantern.style.setProperty(
+                        '--mafc-ld',
+                        `${-(index % 8) * .24}s`
+                    );
+                    lantern.style.setProperty(
+                        '--mafc-ls',
+                        `${.7 + (index % 4) * .12}`
+                    );
+                    lanternField?.appendChild(lantern);
+                }
+
+                const screenStarField = ultimate.querySelector(
+                    '.mafc-screen-star-field'
+                );
+                const screenStarCount = this.getQualityCount(
+                    reducedMotion ? 16 : 38
+                );
+
+                for (
+                    let index = 0;
+                    index < screenStarCount;
+                    index++
+                ) {
+                    const star = document.createElement('i');
+                    star.className = 'mafc-screen-star';
+                    star.textContent = index % 6 === 0 ? '✦' : '·';
+                    star.style.setProperty(
+                        '--mafc-fx',
+                        `${(index * 41 + 7) % 100}%`
+                    );
+                    star.style.setProperty(
+                        '--mafc-fy',
+                        `${(index * 67 + 11) % 100}%`
+                    );
+                    star.style.setProperty(
+                        '--mafc-fd',
+                        `${-(index % 11) * .13}s`
+                    );
+                    screenStarField?.appendChild(star);
+                }
+
+                const screenPetalField = ultimate.querySelector(
+                    '.mafc-screen-petal-field'
+                );
+                const screenPetalCount = this.getQualityCount(
+                    reducedMotion ? 12 : 28
+                );
+
+                for (
+                    let index = 0;
+                    index < screenPetalCount;
+                    index++
+                ) {
+                    const petal = document.createElement('i');
+                    petal.className = 'mafc-screen-petal';
+                    petal.style.setProperty(
+                        '--mafc-ppx',
+                        `${(index * 29 + 5) % 100}%`
+                    );
+                    petal.style.setProperty(
+                        '--mafc-ppy',
+                        `${(index * 47 + 9) % 100}%`
+                    );
+                    petal.style.setProperty(
+                        '--mafc-ppd',
+                        `${-(index % 10) * .17}s`
+                    );
+                    screenPetalField?.appendChild(petal);
+                }
+
+                document.body.appendChild(ultimate);
+
+                requestAnimationFrame(() => {
+                    ultimate.classList.add('is-active');
+                });
+
+                window.setTimeout(() => {
+                    ultimate.classList.add('is-leaving');
+                }, 2800);
+
+                window.setTimeout(() => {
+                    ultimate.remove();
+                }, 3700);
+
+                window.setTimeout(() => {
+                    localBurst.remove();
+                    this.container?.classList.remove(
+                        'mafc-casting'
+                    );
+                }, 1300);
+
+                window.setTimeout(() => {
+                    mafcClickLocked = false;
+                }, 4100);
+            });
+        }
 
         // =========================================================
         // TAMON'S B-SIDE · CHIBI SIGNAL — EFFECT RIÊNG
@@ -1738,6 +2249,183 @@ class PetManager {
                     'nyx-mythic-awakening'
                 );
             }, 1500);
+        }
+
+        // =========================================================
+        // PREMIUM MÙA HẠ · CLICK TOÀN MÀN HÌNH
+        // "HẠ QUANG VẠN ẢNH" — namespace ha2l-* độc lập.
+        // =========================================================
+        if (
+            petData.id === 'pet_premium_mua_ha_chibi_2' ||
+            petData.petEffect === 'ha2-limited-sunleaf-magic'
+        ) {
+            requestAnimationFrame(() => {
+                this.installSummerLimitedHa2Observer();
+
+                window.setTimeout(() => {
+                    this.container?.classList.remove('ha2l-awakening');
+                }, 1250);
+            });
+
+            petElement.addEventListener(
+                'click',
+                event => {
+                    if (
+                        typeof PetInteractionManager !== 'undefined' &&
+                        PetInteractionManager.isPetDragging
+                    ) {
+                        return;
+                    }
+
+                    if (
+                        this.container?.dataset?.ha2lClickLocked === '1'
+                    ) {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    if (this.container?.dataset) {
+                        this.container.dataset.ha2lClickLocked = '1';
+                    }
+
+                    this.container?.classList.remove('ha2l-casting');
+                    void this.container?.offsetWidth;
+                    this.container?.classList.add('ha2l-casting');
+
+                    document
+                        .querySelectorAll('.ha2l-screen-ultimate')
+                        .forEach(node => node.remove());
+
+                    document.documentElement.classList.add(
+                        'ha2l-screen-active'
+                    );
+
+                    const rect = petElement.getBoundingClientRect();
+                    const originX =
+                        Number.isFinite(event.clientX) && event.clientX > 0
+                            ? event.clientX
+                            : rect.left + rect.width / 2;
+                    const originY =
+                        Number.isFinite(event.clientY) && event.clientY > 0
+                            ? event.clientY
+                            : rect.top + rect.height / 2;
+
+                    const ultimate = document.createElement('div');
+                    ultimate.className = 'ha2l-screen-ultimate';
+                    ultimate.setAttribute('aria-hidden', 'true');
+                    ultimate.style.setProperty(
+                        '--ha2l-origin-x',
+                        `${originX}px`
+                    );
+                    ultimate.style.setProperty(
+                        '--ha2l-origin-y',
+                        `${originY}px`
+                    );
+
+                    ultimate.innerHTML = `
+                        <div class="ha2l-screen-wash"></div>
+                        <div class="ha2l-screen-canopy"></div>
+                        <div class="ha2l-screen-flare"></div>
+                        <div class="ha2l-screen-prism prism-a"></div>
+                        <div class="ha2l-screen-prism prism-b"></div>
+                        <div class="ha2l-screen-prism prism-c"></div>
+                        <span class="ha2l-screen-ring ring-a"></span>
+                        <span class="ha2l-screen-ring ring-b"></span>
+                        <span class="ha2l-screen-ring ring-c"></span>
+                        <div class="ha2l-screen-leaf-field"></div>
+                        <div class="ha2l-screen-glint-field"></div>
+                        <div class="ha2l-screen-cicada-seal">◇</div>
+                        <div class="ha2l-screen-title">
+                            <small>PREMIUM · MÙA HẠ</small>
+                            <strong>HẠ QUANG VẠN ẢNH</strong>
+                            <span>TIỂU HẠ QUANG · ÁNH NẮNG XUYÊN TÁN LÁ</span>
+                        </div>
+                    `;
+
+                    const leafField = ultimate.querySelector(
+                        '.ha2l-screen-leaf-field'
+                    );
+                    const glintField = ultimate.querySelector(
+                        '.ha2l-screen-glint-field'
+                    );
+                    const reducedMotion = window.matchMedia?.(
+                        '(max-width: 768px), (pointer: coarse), ' +
+                        '(prefers-reduced-motion: reduce)'
+                    ).matches;
+
+                    const leafCount = this.getQualityCount(
+                        reducedMotion ? 14 : 30
+                    );
+                    const glintCount = this.getQualityCount(
+                        reducedMotion ? 12 : 26
+                    );
+
+                    for (let index = 0; index < leafCount; index++) {
+                        const leaf = document.createElement('i');
+                        leaf.className = 'ha2l-screen-leaf';
+                        leaf.style.setProperty(
+                            '--ha2l-leaf-x',
+                            `${(index * 37 + 9) % 100}%`
+                        );
+                        leaf.style.setProperty(
+                            '--ha2l-leaf-delay',
+                            `${(index % 9) * .045}s`
+                        );
+                        leaf.style.setProperty(
+                            '--ha2l-leaf-spin',
+                            `${-42 + (index % 8) * 13}deg`
+                        );
+                        leaf.style.setProperty(
+                            '--ha2l-leaf-scale',
+                            `${.62 + (index % 5) * .12}`
+                        );
+                        leafField?.appendChild(leaf);
+                    }
+
+                    for (let index = 0; index < glintCount; index++) {
+                        const glint = document.createElement('i');
+                        glint.className = 'ha2l-screen-glint';
+                        glint.style.setProperty(
+                            '--ha2l-glint-angle',
+                            `${index * (360 / glintCount)}deg`
+                        );
+                        glint.style.setProperty(
+                            '--ha2l-glint-distance',
+                            `${24 + (index % 7) * 7}vmin`
+                        );
+                        glint.style.setProperty(
+                            '--ha2l-glint-delay',
+                            `${(index % 8) * .035}s`
+                        );
+                        glintField?.appendChild(glint);
+                    }
+
+                    document.body.appendChild(ultimate);
+                    requestAnimationFrame(() => {
+                        ultimate.classList.add('is-active');
+                    });
+
+                    window.setTimeout(() => {
+                        ultimate.classList.add('is-ending');
+                    }, 3650);
+
+                    window.setTimeout(() => {
+                        ultimate.remove();
+                        document.documentElement.classList.remove(
+                            'ha2l-screen-active'
+                        );
+                        this.container?.classList.remove('ha2l-casting');
+                        if (this.container?.dataset) {
+                            delete this.container.dataset.ha2lClickLocked;
+                        }
+                    }, 4550);
+                },
+                {
+                    signal: this.interactionAbortController?.signal
+                }
+            );
         }
 
         // =========================================================

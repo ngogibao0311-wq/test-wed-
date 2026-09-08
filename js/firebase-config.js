@@ -55,6 +55,34 @@ async function getDB(path) {
     }
 }
 
+// 1B. Lấy dữ liệu bắt buộc: PHÂN BIỆT node rỗng với lỗi đọc Firebase.
+// Dùng cho xác thực/quyền hoặc các luồng không được phép coi lỗi mạng là "không có dữ liệu".
+async function getDBStrict(path) {
+    try {
+        const snapshot = await db.ref(path).once('value');
+        const data = snapshot.val();
+
+        // Node tồn tại nhưng đang rỗng: đây là dữ liệu hợp lệ, trả [] như getDB().
+        if (data === null || data === undefined) return [];
+
+        return Object.keys(data).map(key => {
+            const item = data[key];
+
+            if (typeof item === 'object' && item !== null) {
+                return { _fbKey: key, ...item };
+            }
+
+            return { _fbKey: key, value: item };
+        });
+    } catch (error) {
+        console.error(`❌ [Lỗi GetDBStrict] tại '${path}':`, error);
+
+        // Quan trọng: KHÔNG đổi lỗi đọc thành [].
+        // Nơi gọi sẽ tự hiển thị lỗi kết nối/quyền và có thể cho người dùng thử lại.
+        throw error;
+    }
+}
+
 // 2. Thêm dữ liệu mới (Nâng cấp: Trả về ID vừa tạo để tái sử dụng nếu cần)
 async function pushDB(path, obj) {
     try {

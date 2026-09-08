@@ -9564,48 +9564,42 @@ if (isNationalDay) {
             escapeHTML(item.id);
 
         // ====================================================
-        // KHÓA BỞI GIÁO VIÊN — ÁP DỤNG CHO TOÀN BỘ LUXURY CARD
-        // Dùng đúng item.isLocked đã được đồng bộ từ store_settings.
-        // Khi khóa: che đen toàn bộ thẻ, không render nút mua / dùng / gỡ,
-        // chỉ hiện dấu ? lớn ở giữa.
+        // KHÓA BỞI GIÁO VIÊN · HOTFIX v4.0.1
+        // Chỉ render một placeholder khóa duy nhất.
+        // Không render ảnh / tên / nút của vật phẩm ở phía dưới.
         // ====================================================
         if (item.isLocked === true) {
             return `
                 <article
-                    class="luxury-product-card luxury-teacher-locked-card ui-theme-immune"
-                    data-item-id="${id}"
-                    data-locked-by-teacher="true"
-                    aria-label="Vật phẩm đang bị giáo viên khóa"
-                    style="
-                        position:relative !important;
-                        min-height:430px;
-                        overflow:hidden !important;
-                        background:#030303 !important;
-                        border:1px solid rgba(255,255,255,.08) !important;
-                        box-shadow:0 18px 42px rgba(0,0,0,.55) !important;
-                        cursor:not-allowed !important;
-                        isolation:isolate;
+                    class="
+                        luxury-product-card
+                        luxury-teacher-locked-card
+                        is-teacher-locked
+                        ui-theme-immune
                     "
+                    data-locked-by-teacher="true"
+                    aria-label="Vật phẩm đang cập nhật, sẽ xuất hiện trong tương lai"
                 >
                     <div
-                        aria-hidden="true"
-                        style="
-                            position:absolute;
-                            inset:-2px;
-                            z-index:2147483000;
-                            display:flex;
-                            align-items:center;
-                            justify-content:center;
-                            background:#030303;
-                            color:#fff;
-                            font-size:clamp(96px, 12vw, 160px);
-                            font-weight:1000;
-                            line-height:1;
-                            text-shadow:0 0 26px rgba(255,255,255,.22);
-                            user-select:none;
-                            pointer-events:auto;
-                        "
-                    >?</div>
+                        class="store-teacher-lock-overlay"
+                        role="status"
+                        title="Vật phẩm đang cập nhật, sẽ xuất hiện trong tương lai"
+                    >
+                        <div class="store-teacher-lock-content">
+                            <span
+                                class="store-teacher-lock-question"
+                                aria-hidden="true"
+                            >?</span>
+
+                            <strong>
+                                Vật phẩm đang cập nhật
+                            </strong>
+
+                            <small>
+                                Sẽ xuất hiện trong tương lai.
+                            </small>
+                        </div>
+                    </div>
                 </article>
             `;
         }
@@ -10730,36 +10724,11 @@ if (isNationalDay) {
                 .map(renderCard)
                 .join('');
 
-        // Giáo viên khóa vật phẩm: che đen toàn bộ card và hiện dấu ? lớn.
-        // Vẫn dùng chính trường isLocked đang đồng bộ qua store_settings.
-        items.forEach(item => {
-            if (!item?.isLocked) return;
-
-            const card = Array.from(
-                grid.querySelectorAll('[data-item-id]')
-            ).find(element =>
-                String(element.dataset.itemId || '') ===
-                String(item.id || '')
-            );
-
-            if (!card) return;
-
-            card.classList.add('is-teacher-locked');
-
-            if (!card.querySelector('.store-teacher-lock-overlay')) {
-                const overlay = document.createElement('div');
-                overlay.className = 'store-teacher-lock-overlay';
-                overlay.setAttribute('role', 'status');
-                overlay.setAttribute(
-                    'aria-label',
-                    'Vật phẩm đang bị giáo viên khóa'
-                );
-                overlay.title = 'Vật phẩm đang bị giáo viên khóa';
-                overlay.innerHTML =
-                    '<span class="store-teacher-lock-question">?</span>';
-                card.appendChild(overlay);
-            }
-        });
+        /*
+         * HOTFIX v4.0.1:
+         * renderCard() đã tạo placeholder riêng cho vật phẩm bị khóa.
+         * Không gắn thêm overlay lần hai để tránh hai dấu ? chồng nhau.
+         */
 
         // Khóa thao tác copy/lưu cho toàn bộ ảnh của Cửa hàng Sang trọng.
         window.StoreImageProtection?.protectSubtree(grid);

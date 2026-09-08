@@ -1,9 +1,9 @@
 /**
  * NEW USER GUIDE — Hướng dẫn người mới cho website học tập
- * Phiên bản: 2.12.0 — cập nhật hướng dẫn Sưu tầm theo bản V12
+ * Phiên bản: 2.14.0 — đào tạo bắt buộc 1 lần về nộp bài, cập nhật và hiệu năng
  *
  * Cách nạp khuyến nghị (đặt cuối <body>, sau teacher.js hoặc student.js):
- * <script src="js/huong-dan-nguoi-moi.js?v=2.12.0"></script>
+ * <script src="js/huong-dan-nguoi-moi.js?v=2.14.0"></script>
  *
  * API có thể gọi từ nơi khác:
  *   NewUserGuide.open();          // Mở trung tâm hướng dẫn
@@ -17,7 +17,14 @@
 
     if (window.NewUserGuide) return;
 
-    const VERSION = '2.12.0';
+    const VERSION = '2.14.0';
+    const REQUIRED_STUDENT_TRAINING_VERSION =
+        '2026-09-06-submission-update-effects-v1';
+    const REQUIRED_STUDENT_TRAINING_FEATURES = Object.freeze([
+        'submission-guide',
+        'system-update',
+        'effects-performance'
+    ]);
     const ROOT_ID = 'nug-root';
     const STYLE_ID = 'nug-style';
     const MAX_Z_INDEX = 2147483000;
@@ -38,6 +45,7 @@
         coinWidgetTemporarilyRevealed: false,
         coinWidgetInitialStoredVisibility: null,
         mandatoryMode: false,
+        mandatoryScope: 'full',
         mandatoryTourCompleted: false,
         mandatorySuspended: false,
         mandatoryStartPending: false,
@@ -57,7 +65,9 @@
         remoteGuideStatus: 'unknown',
         remoteMandatoryProgress: 0,
         remoteProgressPendingIndex: null,
-        remoteProgressWritePromise: null
+        remoteProgressWritePromise: null,
+        remoteTrainingCompleted: false,
+        remoteTrainingProgress: 0
     };
 
     const roleData = {
@@ -129,6 +139,31 @@
                     details: ['Khóa/mở khu trò chơi.', 'Chỉnh tỉ lệ vòng quay.', 'Cộng hoặc trừ vé.', 'Khóa/mở và định giá cửa hàng.', 'Quản lý Dạ hội, bảng xếp hạng và quà đăng nhập.']
                 },
                 {
+                    id: 'system-update', icon: '🔄', title: 'Kiểm tra & cập nhật hệ thống', tabId: 'tab-settings',
+                    description: 'Kiểm tra phiên bản đang chạy, xem bản mới và cập nhật website an toàn.',
+                    access: 'Thanh bên → Cài đặt → khu vực Cập nhật hệ thống.',
+                    details: [
+                        'Xem phiên bản đang chạy, phiên bản mới nhất và lần kiểm tra gần nhất.',
+                        'Bấm Kiểm tra lại khi cần đối chiếu ngay với máy chủ.',
+                        'Nếu có bản mới, xem Chi tiết trước khi cập nhật.',
+                        'Bản cập nhật thường có thể chọn Để sau; bản bắt buộc phải cập nhật.',
+                        'Trong lúc cập nhật không đóng, tải lại hoặc thoát trang.',
+                        'Nếu báo Ngoại tuyến hoặc Không kiểm tra được, kiểm tra Internet rồi thử lại.'
+                    ]
+                },
+                {
+                    id: 'effects-performance', icon: '⚡', title: 'Hiệu ứng & tối ưu hiệu năng', tabId: 'tab-settings',
+                    description: 'Điều chỉnh độ nặng hiệu ứng và giảm tải hiển thị khi thiết bị chạy chậm.',
+                    access: 'Thanh bên → Cài đặt → Mức hiệu ứng vật phẩm & web / Tối ưu hiệu năng.',
+                    details: [
+                        'Mức hiệu ứng chỉ tác động chuyển động, hạt và lớp trang trí; không đổi theme, dữ liệu hay chức năng.',
+                        'Cao giữ đầy đủ hiệu ứng; Trung bình giảm một phần; Thấp ưu tiên độ ổn định của máy.',
+                        'Tối ưu hiệu năng giảm tải nền, blur và nội dung hiển thị nặng; không thay điểm, trò chơi, dữ liệu hay vật phẩm.',
+                        'Nếu máy giật hoặc nóng, ưu tiên bật Tối ưu hiệu năng và chọn hiệu ứng Trung bình/Thấp.',
+                        'Có thể đổi lại bất cứ lúc nào; trạng thái hiện tại hiển thị ngay dưới từng tùy chọn.'
+                    ]
+                },
+                {
                     id: 'settings', icon: '⚙️', title: 'Cài đặt và công cụ hệ thống', tabId: 'tab-settings',
                     description: 'Cập nhật tài khoản, thông báo, khảo sát và quà tặng.',
                     access: 'Thanh bên → Cài đặt.',
@@ -147,7 +182,24 @@
                     id: 'todo', icon: '📝', title: 'Bài tập cần làm', tabId: 'tab-todo',
                     description: 'Tìm bài giáo viên giao và bắt đầu làm bài.',
                     access: 'Thanh bên → Bài tập cần làm.',
-                    details: ['Tìm theo tên bài.', 'Xem hạn nộp và trạng thái.', 'Mở bài để làm hoặc nộp tệp.']
+                    details: ['Tìm theo tên bài.', 'Xem hạn nộp và trạng thái.', 'Mở bài để làm hoặc nộp tệp.', 'Xem mục Nộp bài & xử lý lỗi nếu cần hướng dẫn chi tiết.']
+                },
+                {
+                    id: 'submission-guide', icon: '📤', title: 'Nộp bài & xử lý lỗi', tabId: 'tab-todo',
+                    description: 'Hướng dẫn bắt buộc 1 lần với bài mô phỏng an toàn: nộp bài, đính kèm tệp và xử lý lỗi thường gặp.',
+                    access: 'Thanh bên → Bài tập cần làm. Hướng dẫn tạo bài giả ngay trên trang, không gửi dữ liệu.',
+                    details: [
+                        'Mỗi học sinh bắt buộc xem mô-đun này một lần; có thể mở lại thủ công bất cứ lúc nào.',
+                        'Bài giả và cảnh báo giả chỉ dùng để học thao tác, không ghi Firebase/R2 và không ảnh hưởng điểm.',
+                        'Đọc yêu cầu, thời gian bắt đầu và hạn nộp trước khi làm.',
+                        'Hoàn thành phần trắc nghiệm/tự luận đúng yêu cầu của giáo viên.',
+                        'Tệp thường tối đa 7 MB mỗi tệp; tệp âm thanh tối đa 30 MB mỗi tệp.',
+                        'Tệp quá dung lượng sẽ bị tự loại khỏi danh sách chờ nộp; hãy giảm dung lượng hoặc chọn tệp khác.',
+                        'Kiểm tra danh sách tệp đang chờ, xóa tệp chọn nhầm rồi mới nộp.',
+                        'Bấm Nộp bài một lần và chờ thông báo; không bấm liên tục khi hệ thống đang lưu.',
+                        'Nếu mất mạng hoặc nộp chưa thành công, giữ nguyên trang, khôi phục kết nối và thử lại; bài làm/tệp đã chọn được giữ trong các tình huống lỗi được hỗ trợ.',
+                        'Chỉ coi là đã nộp khi website báo nộp thành công và trạng thái bài đã thay đổi.'
+                    ]
                 },
                 {
                     id: 'grades', icon: '📈', title: 'Kết quả học tập', tabId: 'tab-grades',
@@ -270,6 +322,33 @@
                         'Nhập số lượng, kiểm tra kết quả rồi mới bấm Thực hiện Quy đổi.',
                         'Coin → Tiền giới hạn tối đa 500 Coin cho mỗi lần đổi.',
                         'Xem tiền tích lũy, gửi yêu cầu lấy tiền mặt và theo dõi lịch sử xử lý.'
+                    ]
+                },
+                {
+                    id: 'system-update', icon: '🔄', title: 'Kiểm tra & cập nhật hệ thống', tabId: 'tab-settings',
+                    description: 'Kiểm tra phiên bản website và cài bản mới khi hệ thống phát hành.',
+                    access: 'Thanh bên → Cài đặt → khu vực Cập nhật hệ thống.',
+                    details: [
+                        'Xem phiên bản đang dùng, phiên bản mới nhất và lần kiểm tra gần nhất.',
+                        'Bấm Kiểm tra lại nếu muốn kiểm tra ngay.',
+                        'Nếu có bản mới, có thể xem Chi tiết trước khi cập nhật.',
+                        'Bản thường có thể Để sau; bản bắt buộc phải cập nhật.',
+                        'Không đóng hoặc tải lại trang khi thanh tiến trình đang cập nhật.',
+                        'Nếu báo Ngoại tuyến hoặc lỗi kiểm tra, kiểm tra mạng rồi thử lại.'
+                    ]
+                },
+                {
+                    id: 'effects-performance', icon: '⚡', title: 'Hiệu ứng & tối ưu hiệu năng', tabId: 'tab-settings',
+                    description: 'Giảm hiệu ứng hoặc tối ưu trang khi máy học sinh bị giật, chậm hoặc nóng.',
+                    access: 'Thanh bên → Cài đặt → Mức hiệu ứng vật phẩm & web / Tối ưu hiệu năng.',
+                    details: [
+                        'Mức hiệu ứng chỉ giảm chuyển động, hạt và lớp trang trí của vật phẩm, thú cưng và Web Animations; không làm mất vật phẩm.',
+                        'Cao giữ đầy đủ hiệu ứng; Trung bình giảm vừa; Thấp ưu tiên máy ổn định.',
+                        'Tối ưu hiệu năng giúp giảm tải nền và các nội dung nặng; phía học sinh còn hỗ trợ danh sách bài, video và trình soạn thảo khi cần.',
+                        'Trên điện thoại/thiết bị cảm ứng màn hình nhỏ, tối ưu hiệu năng có thể tự bật ở lần đầu; máy tính giữ lựa chọn người dùng.',
+                        'Hai chức năng độc lập: có thể bật Tối ưu hiệu năng và đồng thời chọn mức hiệu ứng phù hợp.',
+                        'Nếu máy yếu hoặc trang giật, nên bật Tối ưu hiệu năng và thử Trung bình trước; vẫn chậm thì chuyển Thấp.',
+                        'Các cài đặt này không thay đổi điểm, bài làm, Coin, trò chơi hay dữ liệu tài khoản.'
                     ]
                 },
                 {
@@ -490,6 +569,79 @@
             : 0;
     }
 
+    function isRemoteRequiredTrainingComplete(value) {
+        return Boolean(
+            value &&
+            typeof value === 'object' &&
+            value.requiredTrainingCompleted === true &&
+            value.requiredTrainingVersion ===
+                REQUIRED_STUDENT_TRAINING_VERSION
+        );
+    }
+
+    function normalizeRemoteTrainingProgress(value) {
+        const progress = Number(
+            value?.requiredTrainingCurrentStep ??
+            value?.trainingStep ??
+            0
+        );
+
+        return Number.isInteger(progress) && progress >= 0
+            ? progress
+            : 0;
+    }
+
+    function getTrainingCompletionStorageKey() {
+        return (
+            'new_user_guide_required_training:' +
+            `${REQUIRED_STUDENT_TRAINING_VERSION}:` +
+            `${state.role}:${getGuideUsername()}`
+        );
+    }
+
+    function getTrainingProgressStorageKey() {
+        return (
+            'new_user_guide_required_training_progress:' +
+            `${REQUIRED_STUDENT_TRAINING_VERSION}:` +
+            `${state.role}:${getGuideUsername()}`
+        );
+    }
+
+    function hasRequiredTrainingCompletedLocally() {
+        return (
+            localStorage.getItem(
+                getTrainingCompletionStorageKey()
+            ) === 'true'
+        );
+    }
+
+    function cacheRequiredTrainingCompletionLocally() {
+        localStorage.setItem(
+            getTrainingCompletionStorageKey(),
+            'true'
+        );
+        localStorage.removeItem(
+            getTrainingProgressStorageKey()
+        );
+    }
+
+    function hasRequiredTrainingCompleted() {
+        return (
+            state.role !== 'student' ||
+            state.remoteTrainingCompleted === true ||
+            isRemoteRequiredTrainingComplete(
+                state.user?.newUserGuide
+            ) ||
+            hasRequiredTrainingCompletedLocally()
+        );
+    }
+
+    function isMandatoryRequirementSatisfied() {
+        return state.mandatoryScope === 'training'
+            ? hasRequiredTrainingCompleted()
+            : hasCompletedGuide();
+    }
+
     function cacheGuideCompletionLocally() {
         localStorage.setItem(getStorageKey(), 'true');
         localStorage.setItem(getCompletionStorageKey(), 'true');
@@ -499,7 +651,11 @@
     async function readRemoteGuideCompletion() {
         if (state.role !== 'student') {
             state.remoteCompletionResolved = true;
-            return { available: false, completed: false };
+            return {
+                available: false,
+                completed: false,
+                trainingCompleted: true
+            };
         }
 
         const authUser = await waitForFirebaseAuthUser();
@@ -511,7 +667,11 @@
         if (!database || !path) {
             state.remoteCompletionResolved = true;
             state.remoteCompletionReadFailed = true;
-            return { available: false, completed: false };
+            return {
+                available: false,
+                completed: false,
+                trainingCompleted: false
+            };
         }
 
         try {
@@ -520,10 +680,13 @@
             const completed = isRemoteCompletionValueComplete(
                 remoteValue
             );
+            const trainingCompleted =
+                isRemoteRequiredTrainingComplete(remoteValue);
 
             state.remoteCompletionResolved = true;
             state.remoteCompletionReadFailed = false;
             state.remoteGuideCompleted = completed;
+            state.remoteTrainingCompleted = trainingCompleted;
             state.remoteGuideStatus = completed
                 ? 'completed'
                 : (
@@ -534,16 +697,25 @@
             state.remoteMandatoryProgress = completed
                 ? 0
                 : normalizeRemoteMandatoryProgress(remoteValue);
+            state.remoteTrainingProgress = trainingCompleted
+                ? 0
+                : normalizeRemoteTrainingProgress(remoteValue);
 
             if (completed) {
                 cacheGuideCompletionLocally();
             }
 
+            if (trainingCompleted) {
+                cacheRequiredTrainingCompletionLocally();
+            }
+
             return {
                 available: true,
                 completed,
+                trainingCompleted,
                 status: state.remoteGuideStatus,
-                progress: state.remoteMandatoryProgress
+                progress: state.remoteMandatoryProgress,
+                trainingProgress: state.remoteTrainingProgress
             };
         } catch (error) {
             console.warn(
@@ -553,12 +725,19 @@
 
             state.remoteCompletionResolved = true;
             state.remoteCompletionReadFailed = true;
-            return { available: false, completed: false };
+            return {
+                available: false,
+                completed: false,
+                trainingCompleted: false
+            };
         }
     }
 
-    async function persistGuideCompletionToFirebase() {
+    async function persistGuideCompletionToFirebase(options = {}) {
         if (state.role !== 'student') return false;
+
+        const includeRequiredTraining =
+            options.includeRequiredTraining !== false;
 
         if (state.remoteCompletionWritePromise) {
             return state.remoteCompletionWritePromise;
@@ -593,8 +772,23 @@
                                     ? currentValue
                                     : {};
 
+                                const trainingPatch =
+                                    includeRequiredTraining
+                                        ? {
+                                            requiredTrainingCompleted: true,
+                                            requiredTrainingVersion:
+                                                REQUIRED_STUDENT_TRAINING_VERSION,
+                                            requiredTrainingCompletedAt:
+                                                current.requiredTrainingCompletedAt ||
+                                                serverTimestamp,
+                                            requiredTrainingCurrentStep: null,
+                                            trainingStep: null
+                                        }
+                                        : {};
+
                                 return {
                                     ...current,
+                                    ...trainingPatch,
                                     status: 'completed',
                                     completed: true,
                                     studentCompleted: true,
@@ -629,7 +823,12 @@
                     }
                 }
 
-                if (!saved) throw lastError || new Error('GUIDE_COMPLETION_SAVE_FAILED');
+                if (!saved) {
+                    throw (
+                        lastError ||
+                        new Error('GUIDE_COMPLETION_SAVE_FAILED')
+                    );
+                }
 
                 state.remoteGuideCompleted = true;
                 state.remoteGuideStatus = 'completed';
@@ -638,8 +837,24 @@
                 state.remoteCompletionResolved = true;
                 state.remoteCompletionReadFailed = false;
 
+                if (includeRequiredTraining) {
+                    state.remoteTrainingCompleted = true;
+                    state.remoteTrainingProgress = 0;
+                    cacheRequiredTrainingCompletionLocally();
+                }
+
+                const trainingLocalPatch =
+                    includeRequiredTraining
+                        ? {
+                            requiredTrainingCompleted: true,
+                            requiredTrainingVersion:
+                                REQUIRED_STUDENT_TRAINING_VERSION
+                        }
+                        : {};
+
                 state.user.newUserGuide = {
                     ...(state.user.newUserGuide || {}),
+                    ...trainingLocalPatch,
                     status: 'completed',
                     completed: true,
                     studentCompleted: true,
@@ -657,13 +872,15 @@
                             ...storedUser,
                             newUserGuide: {
                                 ...(storedUser.newUserGuide || {}),
+                                ...trainingLocalPatch,
                                 status: 'completed',
                                 completed: true,
                                 studentCompleted: true,
                                 requiredTourCompleted: true,
                                 completedVersion: VERSION,
                                 completedStepId: 'finish',
-                                completionProof: 'mandatory-final-step'
+                                completionProof:
+                                    'mandatory-final-step'
                             }
                         })
                     );
@@ -684,6 +901,195 @@
         })();
 
         return state.remoteCompletionWritePromise;
+    }
+
+    async function persistRequiredTrainingCompletionToFirebase() {
+        if (state.role !== 'student') return false;
+
+        const authUser = await waitForFirebaseAuthUser();
+        const database = getFirebaseDatabaseForGuide();
+        const path = getRemoteCompletionPath(authUser);
+
+        state.remoteCompletionPath = path || null;
+
+        if (!database || !path) return false;
+
+        const serverTimestamp =
+            window.firebase?.database?.ServerValue?.TIMESTAMP ||
+            Date.now();
+
+        try {
+            const transaction = await database
+                .ref(path)
+                .transaction(currentValue => {
+                    const current = (
+                        currentValue &&
+                        typeof currentValue === 'object'
+                    )
+                        ? currentValue
+                        : (
+                            currentValue === true
+                                ? {
+                                    status: 'completed',
+                                    completed: true,
+                                    studentCompleted: true,
+                                    requiredTourCompleted: true
+                                }
+                                : {}
+                        );
+
+                    return {
+                        ...current,
+                        requiredTrainingCompleted: true,
+                        requiredTrainingVersion:
+                            REQUIRED_STUDENT_TRAINING_VERSION,
+                        requiredTrainingCompletedAt:
+                            current.requiredTrainingCompletedAt ||
+                            serverTimestamp,
+                        requiredTrainingCurrentStep: null,
+                        trainingStep: null,
+                        updatedAt: serverTimestamp
+                    };
+                });
+
+            if (!transaction.committed) return false;
+
+            state.remoteTrainingCompleted = true;
+            state.remoteTrainingProgress = 0;
+            state.remoteCompletionResolved = true;
+            state.remoteCompletionReadFailed = false;
+
+            const trainingPatch = {
+                requiredTrainingCompleted: true,
+                requiredTrainingVersion:
+                    REQUIRED_STUDENT_TRAINING_VERSION
+            };
+
+            state.user.newUserGuide = {
+                ...(state.user.newUserGuide || {}),
+                ...trainingPatch
+            };
+
+            try {
+                const storedUser = readCurrentUser();
+                localStorage.setItem(
+                    'currentUser',
+                    JSON.stringify({
+                        ...storedUser,
+                        newUserGuide: {
+                            ...(storedUser.newUserGuide || {}),
+                            ...trainingPatch
+                        }
+                    })
+                );
+            } catch (_) {
+                // Firebase vẫn là nguồn xác nhận chính.
+            }
+
+            return true;
+        } catch (error) {
+            console.warn(
+                'Không thể lưu trạng thái đào tạo bắt buộc lên Firebase:',
+                error
+            );
+            return false;
+        }
+    }
+
+    async function persistRequiredTrainingProgressToFirebase(stepIndex) {
+        if (
+            state.role !== 'student' ||
+            state.remoteTrainingCompleted === true
+        ) {
+            return false;
+        }
+
+        const normalizedStep = Math.max(
+            0,
+            Number.isInteger(Number(stepIndex))
+                ? Number(stepIndex)
+                : 0
+        );
+
+        const authUser = await waitForFirebaseAuthUser();
+        const database = getFirebaseDatabaseForGuide();
+        const path = getRemoteCompletionPath(authUser);
+
+        state.remoteCompletionPath = path || null;
+
+        if (!database || !path) return false;
+
+        try {
+            const now = Date.now();
+            const transaction = await database
+                .ref(path)
+                .transaction(currentValue => {
+                    const current = (
+                        currentValue &&
+                        typeof currentValue === 'object'
+                    )
+                        ? currentValue
+                        : (
+                            currentValue === true
+                                ? {
+                                    status: 'completed',
+                                    completed: true,
+                                    studentCompleted: true,
+                                    requiredTourCompleted: true
+                                }
+                                : {}
+                        );
+
+                    if (isRemoteRequiredTrainingComplete(current)) {
+                        return current;
+                    }
+
+                    const nextStep = Math.max(
+                        normalizeRemoteTrainingProgress(current),
+                        normalizedStep
+                    );
+
+                    return {
+                        ...current,
+                        requiredTrainingCompleted: false,
+                        requiredTrainingVersion:
+                            REQUIRED_STUDENT_TRAINING_VERSION,
+                        requiredTrainingCurrentStep: nextStep,
+                        trainingStep: nextStep,
+                        requiredTrainingStartedAt:
+                            current.requiredTrainingStartedAt || now,
+                        requiredTrainingUpdatedAt: now,
+                        updatedAt: now
+                    };
+                });
+
+            const savedValue = transaction.snapshot?.val?.() || {};
+
+            if (isRemoteRequiredTrainingComplete(savedValue)) {
+                state.remoteTrainingCompleted = true;
+                state.remoteTrainingProgress = 0;
+                cacheRequiredTrainingCompletionLocally();
+                return true;
+            }
+
+            if (transaction.committed) {
+                state.remoteTrainingProgress = Math.max(
+                    state.remoteTrainingProgress || 0,
+                    normalizeRemoteTrainingProgress(savedValue),
+                    normalizedStep
+                );
+                state.remoteCompletionResolved = true;
+                state.remoteCompletionReadFailed = false;
+                return true;
+            }
+        } catch (error) {
+            console.warn(
+                'Không thể lưu tiến độ đào tạo bắt buộc lên Firebase:',
+                error
+            );
+        }
+
+        return false;
     }
 
     async function persistGuideProgressToFirebase(stepIndex) {
@@ -835,10 +1241,13 @@
 
     async function resolveGuideCompletionState() {
         const localCompleted = hasCompletedGuideLocally();
+        const localTrainingCompleted =
+            hasRequiredTrainingCompletedLocally();
 
         if (state.role !== 'student') {
             return {
                 completed: localCompleted,
+                trainingCompleted: true,
                 remoteAvailable: false
             };
         }
@@ -851,18 +1260,45 @@
         const remote = await readRemoteGuideCompletion();
 
         if (remote.completed) {
-            return { completed: true, remoteAvailable: true };
+            if (
+                !remote.trainingCompleted &&
+                localTrainingCompleted
+            ) {
+                persistRequiredTrainingCompletionToFirebase();
+            }
+
+            return {
+                completed: true,
+                trainingCompleted:
+                    remote.trainingCompleted ||
+                    localTrainingCompleted,
+                remoteAvailable: true
+            };
         }
 
         if (localCompleted) {
             /*
-             * Tự động di chuyển dữ liệu cũ: học sinh đã hoàn thành ở bản
-             * trước sẽ được ghi lên Firebase trong lần mở trang đầu tiên
-             * sau khi nâng cấp, để xóa cache hoặc đổi thiết bị không phải xem lại.
+             * Tự động di chuyển dữ liệu hoàn tất của bản cũ lên Firebase.
+             * Không được tự đánh dấu đào tạo mới là đã xem nếu học sinh chưa
+             * thực sự hoàn thành mô-đun bắt buộc của phiên bản này.
              */
-            persistGuideCompletionToFirebase();
+            persistGuideCompletionToFirebase({
+                includeRequiredTraining:
+                    localTrainingCompleted
+            });
+
             return {
                 completed: true,
+                trainingCompleted: remote.available
+                    ? (
+                        remote.trainingCompleted ||
+                        localTrainingCompleted
+                    )
+                    : (
+                        localTrainingCompleted
+                            ? true
+                            : null
+                    ),
                 remoteAvailable: remote.available
             };
         }
@@ -875,12 +1311,15 @@
              */
             return {
                 completed: null,
+                trainingCompleted:
+                    localTrainingCompleted ? true : null,
                 remoteAvailable: false
             };
         }
 
         return {
             completed: false,
+            trainingCompleted: false,
             remoteAvailable: true
         };
     }
@@ -903,7 +1342,10 @@
         return (
             state.role === 'student' &&
             state.remoteCompletionReadFailed !== true &&
-            !hasCompletedGuide()
+            (
+                !hasCompletedGuide() ||
+                !hasRequiredTrainingCompleted()
+            )
         );
     }
 
@@ -939,7 +1381,7 @@
         if (status) {
             if (locked) {
                 status.textContent =
-                    'Học sinh mới phải hoàn thành hướng dẫn bắt buộc trước khi có thể ẩn nút này.';
+                    'Học sinh cần hoàn thành hướng dẫn bắt buộc trước khi có thể ẩn nút này.';
             } else if (state.launcherVisible) {
                 status.textContent =
                     'Nút dấu hỏi đang hiển thị ở góc màn hình.';
@@ -1050,23 +1492,43 @@
 
     function markGuideAsCompleted() {
         cacheGuideCompletionLocally();
+        cacheRequiredTrainingCompletionLocally();
         state.remoteGuideCompleted = true;
+        state.remoteTrainingCompleted = true;
         state.remoteGuideStatus = 'completed';
         state.remoteMandatoryProgress = 0;
+        state.remoteTrainingProgress = 0;
         state.remoteProgressPendingIndex = null;
 
         /*
-         * Ghi Firebase ở nền. Dữ liệu cục bộ được cập nhật ngay để giao diện
-         * không bị khóa, còn Firebase giúp giữ trạng thái khi xóa trình duyệt,
-         * đổi máy hoặc đăng nhập lại ở thiết bị khác.
+         * Học sinh mới đã đi qua toàn bộ tour, trong đó có mô-đun nộp bài,
+         * cập nhật và hiệu năng. Vì vậy hoàn tất tour đầy đủ cũng đồng thời
+         * hoàn tất đào tạo bắt buộc của phiên bản này.
          */
-        persistGuideCompletionToFirebase().then(saved => {
+        persistGuideCompletionToFirebase({
+            includeRequiredTraining: true
+        }).then(saved => {
             if (!saved) {
                 showToast(
                     'Đã hoàn thành hướng dẫn nhưng chưa đồng bộ được lên máy chủ. Hãy giữ kết nối và tải lại trang để hệ thống thử lại.'
                 );
             }
         });
+    }
+
+    function markRequiredTrainingAsCompleted() {
+        cacheRequiredTrainingCompletionLocally();
+        state.remoteTrainingCompleted = true;
+        state.remoteTrainingProgress = 0;
+
+        persistRequiredTrainingCompletionToFirebase()
+            .then(saved => {
+                if (!saved) {
+                    showToast(
+                        'Đã xem xong hướng dẫn bắt buộc nhưng chưa đồng bộ được lên máy chủ. Hãy giữ kết nối và tải lại trang để hệ thống thử lại.'
+                    );
+                }
+            });
     }
 
     function saveMandatoryProgress(stepIndex) {
@@ -1078,6 +1540,18 @@
                 ? Number(stepIndex)
                 : 0
         );
+
+        if (state.mandatoryScope === 'training') {
+            localStorage.setItem(
+                getTrainingProgressStorageKey(),
+                String(normalizedStep)
+            );
+
+            persistRequiredTrainingProgressToFirebase(
+                normalizedStep
+            );
+            return;
+        }
 
         localStorage.setItem(
             getProgressStorageKey(),
@@ -1092,8 +1566,15 @@
     }
 
     function readMandatoryProgress(maxIndex) {
+        const isTraining =
+            state.mandatoryScope === 'training';
+
         const localSaved = Number(
-            localStorage.getItem(getProgressStorageKey())
+            localStorage.getItem(
+                isTraining
+                    ? getTrainingProgressStorageKey()
+                    : getProgressStorageKey()
+            )
         );
 
         const validLocal = (
@@ -1103,11 +1584,15 @@
             ? localSaved
             : 0;
 
+        const remoteCandidate = isTraining
+            ? state.remoteTrainingProgress
+            : state.remoteMandatoryProgress;
+
         const remoteSaved = (
-            Number.isInteger(Number(state.remoteMandatoryProgress)) &&
-            Number(state.remoteMandatoryProgress) >= 0
+            Number.isInteger(Number(remoteCandidate)) &&
+            Number(remoteCandidate) >= 0
         )
-            ? Number(state.remoteMandatoryProgress)
+            ? Number(remoteCandidate)
             : 0;
 
         return Math.min(
@@ -1246,7 +1731,10 @@
     }
 
     function evaluateMandatoryDialogGate() {
-        if (state.role !== 'student' || hasCompletedGuide()) {
+        if (
+            state.role !== 'student' ||
+            isMandatoryRequirementSatisfied()
+        ) {
             stopMandatoryDialogMonitor();
             return;
         }
@@ -1299,6 +1787,7 @@
 
             startTour(null, {
                 mandatory: true,
+                mandatoryScope: state.mandatoryScope,
                 resume: true
             });
         }
@@ -1336,16 +1825,25 @@
         );
     }
 
-    function queueMandatoryStudentTour() {
+    function queueMandatoryStudentTour(scope = 'full') {
+        const normalizedScope =
+            scope === 'training' ? 'training' : 'full';
+
+        const requirementAlreadyMet =
+            normalizedScope === 'training'
+                ? hasRequiredTrainingCompleted()
+                : hasCompletedGuide();
+
         if (
             state.role !== 'student' ||
-            hasCompletedGuide() ||
+            requirementAlreadyMet ||
             state.mandatoryMode ||
             state.mandatoryStartPending
         ) {
             return false;
         }
 
+        state.mandatoryScope = normalizedScope;
         state.mandatoryStartPending = true;
         state.mandatoryGateStartedAt = Date.now();
         state.mandatoryGateQuietSince = 0;
@@ -2033,6 +2531,161 @@
             .nug-demo-total { text-align: center; margin-top: 12px; font-size: 27px; font-weight: 900; color: #d35400; }
             .nug-demo-confirm { width: 100%; padding: 13px; border: 0; border-radius: 12px; cursor: pointer; background: linear-gradient(135deg,#f6d365,#fda085); color:#fff; font-weight:900; }
             .nug-demo-note { margin: 12px 0 0; color:#667085; font-size:12px; line-height:1.45; }
+
+            #nug-submission-demo {
+                margin: 0 0 18px !important;
+                padding: 18px !important;
+                border: 2px dashed #2563eb !important;
+                border-radius: 18px !important;
+                background: linear-gradient(135deg, #eff6ff, #f8fafc) !important;
+                box-shadow: 0 12px 30px rgba(37,99,235,.12) !important;
+                color: #1e293b !important;
+                font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+            }
+
+            #nug-submission-demo * {
+                box-sizing: border-box !important;
+            }
+
+            .nug-submission-demo-badge {
+                display: inline-flex !important;
+                align-items: center !important;
+                gap: 6px !important;
+                margin-bottom: 10px !important;
+                padding: 6px 10px !important;
+                border-radius: 999px !important;
+                background: #dbeafe !important;
+                color: #1d4ed8 !important;
+                font-size: 12px !important;
+                font-weight: 900 !important;
+                letter-spacing: .02em !important;
+            }
+
+            .nug-submission-demo-head {
+                display: flex !important;
+                justify-content: space-between !important;
+                gap: 12px !important;
+                align-items: flex-start !important;
+                flex-wrap: wrap !important;
+            }
+
+            .nug-submission-demo-head h3 {
+                margin: 0 !important;
+                color: #1e3a8a !important;
+                font-size: 18px !important;
+                line-height: 1.35 !important;
+            }
+
+            .nug-submission-demo-meta {
+                margin: 7px 0 13px !important;
+                color: #64748b !important;
+                font-size: 13px !important;
+                line-height: 1.5 !important;
+            }
+
+            .nug-submission-demo-question {
+                margin: 12px 0 !important;
+                padding: 13px !important;
+                border-radius: 13px !important;
+                background: rgba(255,255,255,.86) !important;
+                border: 1px solid #bfdbfe !important;
+                line-height: 1.55 !important;
+            }
+
+            #nug-submission-demo-answer {
+                min-height: 86px !important;
+                margin: 10px 0 12px !important;
+                padding: 12px !important;
+                border: 1px solid #cbd5e1 !important;
+                border-radius: 12px !important;
+                background: #fff !important;
+                color: #334155 !important;
+                font-size: 13px !important;
+                line-height: 1.55 !important;
+                white-space: pre-wrap !important;
+            }
+
+            #nug-submission-demo-files {
+                display: grid !important;
+                gap: 8px !important;
+                margin: 10px 0 !important;
+            }
+
+            .nug-submission-demo-file {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                gap: 10px !important;
+                padding: 9px 10px !important;
+                border-radius: 10px !important;
+                background: #fff !important;
+                border: 1px solid #e2e8f0 !important;
+                font-size: 12px !important;
+            }
+
+            .nug-submission-demo-file.is-rejected {
+                border-color: #fecaca !important;
+                background: #fff1f2 !important;
+                color: #9f1239 !important;
+            }
+
+            #nug-submission-demo-alert {
+                margin: 11px 0 !important;
+                padding: 11px 12px !important;
+                border-radius: 11px !important;
+                font-size: 13px !important;
+                font-weight: 750 !important;
+                line-height: 1.5 !important;
+            }
+
+            #nug-submission-demo-alert[data-tone="info"] {
+                background: #e0f2fe !important;
+                color: #075985 !important;
+                border: 1px solid #bae6fd !important;
+            }
+
+            #nug-submission-demo-alert[data-tone="warn"] {
+                background: #fffbeb !important;
+                color: #92400e !important;
+                border: 1px solid #fde68a !important;
+            }
+
+            #nug-submission-demo-alert[data-tone="error"] {
+                background: #fff1f2 !important;
+                color: #9f1239 !important;
+                border: 1px solid #fecdd3 !important;
+            }
+
+            #nug-submission-demo-alert[data-tone="success"] {
+                background: #ecfdf5 !important;
+                color: #065f46 !important;
+                border: 1px solid #a7f3d0 !important;
+            }
+
+            #nug-submission-demo-submit {
+                width: 100% !important;
+                min-height: 43px !important;
+                margin: 8px 0 0 !important;
+                padding: 10px 14px !important;
+                border: 0 !important;
+                border-radius: 11px !important;
+                background: linear-gradient(135deg, #2563eb, #4f46e5) !important;
+                color: #fff !important;
+                font-weight: 900 !important;
+                cursor: pointer !important;
+            }
+
+            #nug-submission-demo-submit[disabled] {
+                opacity: .58 !important;
+                cursor: not-allowed !important;
+            }
+
+            .nug-submission-demo-footnote {
+                margin: 10px 0 0 !important;
+                color: #64748b !important;
+                font-size: 11px !important;
+                line-height: 1.5 !important;
+            }
 
             #nug-demo-review-entry {
                 margin: 0 0 16px !important;
@@ -2794,6 +3447,18 @@
             { featureId: 'game-management', tabId: 'tab-game-manage', selector: '#btnToggleRoyalStatus', title: 'Quản lý Dạ hội Hoàng gia', description: 'Khóa/mở sự kiện, chỉnh tỉ lệ nhận Coin hoặc vật phẩm và đặt lịch diễn ra.', access: 'Lưu cấu hình sau khi chỉnh.' },
             { featureId: 'game-management', tabId: 'tab-game-manage', selector: '#lbToggle', title: 'Bảng xếp hạng và phần thưởng', description: 'Bật/tắt bảng xếp hạng, đặt phần thưởng hạng và tỉ lệ rương.', access: 'Kiểm tra mùa hiện tại trước khi lưu.' },
 
+            { featureId: 'system-update', tabId: 'tab-settings', selector: '#updateBannerArea', title: '1. Xem trạng thái cập nhật', description: 'Thẻ Cập nhật hệ thống cho biết phiên bản đang chạy, phiên bản mới nhất, lần kiểm tra gần nhất và trạng thái kết nối với máy chủ cập nhật.', access: 'Hệ thống có thể tự kiểm tra; dùng Kiểm tra lại khi cần kiểm tra ngay.' },
+            { featureId: 'system-update', tabId: 'tab-settings', selector: '#updateBannerArea [data-update-action="check"]', skipIfMissing: true, title: '2. Kiểm tra lại', description: 'Bấm Kiểm tra lại để đối chiếu phiên bản ngay với máy chủ. Nếu đang ngoại tuyến, hãy kết nối Internet rồi thử lại.', access: 'Không cần bấm liên tục; chờ trạng thái Đã mới nhất hoặc Có bản mới.' },
+            { featureId: 'system-update', tabId: 'tab-settings', selector: '#updateBannerArea [data-update-action="details"]', skipIfMissing: true, title: '3. Xem chi tiết bản mới', description: 'Khi có bản mới, nút Chi tiết mở ghi chú thay đổi, số build, ngày phát hành và kênh phát hành nếu máy chủ cung cấp.', access: 'Nên đọc phần Có gì mới trước khi cập nhật.' },
+            { featureId: 'system-update', tabId: 'tab-settings', selector: '#updateBannerArea [data-update-action="apply"]', skipIfMissing: true, title: '4. Cập nhật ngay', description: 'Bấm Cập nhật ngay để hệ thống làm mới tài nguyên/cache và chuyển sang phiên bản mới. Trong lúc có thanh tiến trình, không đóng, tải lại hoặc rời trang.', access: 'Nếu là cập nhật bắt buộc sẽ không có lựa chọn Để sau.' },
+            { featureId: 'system-update', tabId: 'tab-settings', selector: '#updateBannerArea', title: '5. Khi kiểm tra hoặc cập nhật gặp lỗi', description: 'Ngoại tuyến: kiểm tra Internet. Không kiểm tra được: chờ kết nối ổn định rồi bấm Kiểm tra lại. Cập nhật chưa hoàn tất: đọc thông báo lỗi và thử lại sau khi kết nối ổn định.', access: 'Sau cập nhật, website sẽ tải lại và báo kết quả phiên bản.' },
+
+            { featureId: 'effects-performance', tabId: 'tab-settings', selector: '#effectQualitySettingsRow', skipIfMissing: true, title: '1. Mức hiệu ứng vật phẩm & web', description: 'Tùy chọn này chỉ điều chỉnh chuyển động, hạt và lớp trang trí của hiệu ứng vật phẩm, thú cưng và Web Animations. Nó không đổi theme, dữ liệu hay chức năng.', access: 'Bật công tắc nếu muốn tự chọn mức Cao, Trung bình hoặc Thấp.' },
+            { featureId: 'effects-performance', tabId: 'tab-settings', selector: '#toggleEffectQualityManager', skipIfMissing: true, title: '2. Bật điều chỉnh chất lượng hiệu ứng', description: 'Khi tắt, website giữ hiệu ứng gốc. Khi bật, mức Cao giữ đầy đủ hiệu ứng; Trung bình giảm một phần; Thấp giảm mạnh để ưu tiên độ ổn định.', access: 'Nếu thiết bị giật, hãy thử Trung bình rồi Thấp.' },
+            { featureId: 'effects-performance', tabId: 'tab-settings', selector: ['#effectQualityLevelControls:not([hidden])', '#effectQualitySettingsRow'], skipIfMissing: true, title: '3. Chọn Cao / Trung bình / Thấp', description: 'Cao = đầy đủ hiệu ứng. Trung bình = giảm hạt/lớp phụ và tần suất sinh hiệu ứng. Thấp = ưu tiên ổn định, giảm mạnh phần trang trí động.', access: 'Đây là cài đặt hiển thị; không làm mất vật phẩm đang sở hữu.' },
+            { featureId: 'effects-performance', tabId: 'tab-settings', selector: '#webPerformanceOptimizerSettingsRow', skipIfMissing: true, title: '4. Tối ưu hiệu năng', description: 'Tối ưu hiệu năng là chức năng riêng: giảm tải nền, blur và nội dung hiển thị nặng mà không sửa điểm, dữ liệu, trò chơi hay vật phẩm. Trên thiết bị mobile nhỏ, hệ thống có thể tự bật ở lần đầu; máy tính giữ lựa chọn người dùng.', access: 'Phía giáo viên dùng chế độ cân bằng để giảm tải khi trang quản lý có nhiều nội dung.' },
+            { featureId: 'effects-performance', tabId: 'tab-settings', selector: '#toggleWebPerformanceOptimizer', skipIfMissing: true, title: '5. Khi nào nên bật?', description: 'Nên bật khi cuộn trang bị giật, máy nóng hoặc nhiều nội dung làm trình duyệt chậm. Có thể dùng cùng Mức hiệu ứng: bật tối ưu và chọn Trung bình/Thấp nếu cần nhẹ hơn nữa.', access: 'Dòng trạng thái dưới công tắc cho biết tối ưu đang bật, tắt hoặc đang hỗ trợ thêm.' },
+
             { featureId: 'settings', tabId: 'tab-settings', title: 'Mở Cài đặt và công cụ', description: 'Mục này chứa tài khoản, hệ thống, thông báo, khảo sát và quà.', access: 'Bấm Tiếp theo để xem từng nhóm.' },
             { featureId: 'settings', tabId: 'tab-settings', selector: '#nugDetailedGuideSetting', title: 'Ẩn hoặc hiện nút Hướng dẫn chi tiết', description: 'Công tắc này điều khiển nút dấu hỏi nổi ở góc màn hình. Tắt nút không xóa nội dung, tiến độ hay trạng thái đã hoàn thành hướng dẫn.', access: 'Sau khi ẩn, có thể vào lại Cài đặt để bật nút bất cứ lúc nào.' },
             { featureId: 'settings', tabId: 'tab-settings', selector: '#themeSelector', title: 'Cài đặt tài khoản', description: 'Đổi giao diện, tên hiển thị hoặc mật khẩu rồi bấm Lưu thay đổi tài khoản.', access: 'Để trống mật khẩu nếu không muốn đổi.' },
@@ -2851,6 +3516,274 @@
 
     function removeDemoCheckout() {
         document.getElementById('nug-demo-checkout')?.remove();
+    }
+
+    function ensureSubmissionGuideDemo() {
+        if (state.role !== 'student') return null;
+
+        let demo = document.getElementById(
+            'nug-submission-demo'
+        );
+
+        if (demo) return demo;
+
+        const tab = document.getElementById('tab-todo');
+        const list = document.getElementById('assignmentsList');
+
+        if (!tab) return null;
+
+        demo = createElement('section', {
+            id: 'nug-submission-demo'
+        });
+
+        demo.setAttribute(
+            'data-nug-simulation',
+            'true'
+        );
+
+        demo.innerHTML = `
+            <span class="nug-submission-demo-badge">
+                🧪 MÔ PHỎNG HƯỚNG DẪN · KHÔNG GỬI DỮ LIỆU
+            </span>
+            <div class="nug-submission-demo-head">
+                <div>
+                    <h3>📘 Bài tập mẫu: Luyện tập nộp bài đúng cách</h3>
+                    <div class="nug-submission-demo-meta">
+                        Môn: Toán · Loại: Kết hợp ·
+                        Hạn nộp giả: 20:00 hôm nay
+                    </div>
+                </div>
+            </div>
+            <div class="nug-submission-demo-question">
+                <strong>Yêu cầu mô phỏng:</strong>
+                Trả lời phần tự luận, kiểm tra câu trắc nghiệm và
+                đính kèm tệp nếu giáo viên yêu cầu.
+            </div>
+            <div id="nug-submission-demo-answer">
+                Bấm “Tiếp theo” để hệ thống lần lượt mô phỏng
+                cách chuẩn bị bài và các lỗi thường gặp.
+            </div>
+            <div id="nug-submission-demo-files"></div>
+            <div
+                id="nug-submission-demo-alert"
+                data-tone="info"
+            >
+                ℹ️ Đây chỉ là bài giả trong hướng dẫn.
+                Không có bài nộp, file hoặc điểm nào được ghi lên máy chủ.
+            </div>
+            <button
+                type="button"
+                id="nug-submission-demo-submit"
+            >
+                📤 Nộp bài tập ngay · MÔ PHỎNG
+            </button>
+            <p class="nug-submission-demo-footnote">
+                Bài mẫu tự biến mất khi kết thúc mục hướng dẫn.
+                Không liên quan đến bài thật do giáo viên giao.
+            </p>
+        `;
+
+        if (list?.parentElement) {
+            list.parentElement.insertBefore(demo, list);
+        } else {
+            tab.prepend(demo);
+        }
+
+        demo
+            .querySelector('#nug-submission-demo-submit')
+            ?.addEventListener('click', event => {
+                event.preventDefault();
+                showToast(
+                    'Đây là nút mô phỏng, không gửi bài thật.'
+                );
+            });
+
+        return demo;
+    }
+
+    function setSubmissionGuideDemoState(mode = 'intro') {
+        const demo = ensureSubmissionGuideDemo();
+        if (!demo) return null;
+
+        const answer = demo.querySelector(
+            '#nug-submission-demo-answer'
+        );
+        const files = demo.querySelector(
+            '#nug-submission-demo-files'
+        );
+        const alertBox = demo.querySelector(
+            '#nug-submission-demo-alert'
+        );
+        const submit = demo.querySelector(
+            '#nug-submission-demo-submit'
+        );
+
+        const setAlert = (tone, message) => {
+            if (!alertBox) return;
+            alertBox.dataset.tone = tone;
+            alertBox.textContent = message;
+        };
+
+        if (files) files.innerHTML = '';
+        if (submit) {
+            submit.disabled = false;
+            submit.textContent =
+                '📤 Nộp bài tập ngay · MÔ PHỎNG';
+        }
+
+        if (mode === 'ready') {
+            if (answer) {
+                answer.textContent =
+                    'Em đã trình bày đủ nội dung lời giải, nêu cách làm, ' +
+                    'kết quả và kiểm tra lại phép tính. Đây là đoạn văn mẫu ' +
+                    'dài hơn 25 từ để minh họa một bài tự luận đã có nội dung.';
+            }
+
+            setAlert(
+                'info',
+                '✅ Trước khi nộp: đọc lại yêu cầu, kiểm tra đáp án và hạn nộp.'
+            );
+        } else if (mode === 'valid-file') {
+            if (answer) {
+                answer.textContent =
+                    'Nội dung bài làm đã sẵn sàng. Bây giờ mô phỏng việc chọn một tệp hợp lệ.';
+            }
+
+            if (files) {
+                files.innerHTML = `
+                    <div class="nug-submission-demo-file">
+                        <span>📎 Bai_lam_Toan.pdf</span>
+                        <strong>2.35 MB · đang chờ nộp</strong>
+                    </div>
+                `;
+            }
+
+            setAlert(
+                'info',
+                '☁️ Tệp hợp lệ sẽ xuất hiện trong danh sách “đang chờ nộp”. Kiểm tra tên và dung lượng trước khi gửi.'
+            );
+        } else if (mode === 'oversize') {
+            if (answer) {
+                answer.textContent =
+                    'Hệ thống đang mô phỏng hai tệp vượt giới hạn để em nhận biết cảnh báo.';
+            }
+
+            if (files) {
+                files.innerHTML = `
+                    <div class="nug-submission-demo-file is-rejected">
+                        <span>❌ Bai_lam_scan.pdf</span>
+                        <strong>8.40 MB &gt; 7 MB</strong>
+                    </div>
+                    <div class="nug-submission-demo-file is-rejected">
+                        <span>❌ Ghi_am.m4a</span>
+                        <strong>31.20 MB &gt; 30 MB</strong>
+                    </div>
+                `;
+            }
+
+            setAlert(
+                'error',
+                '⚠️ FILE QUÁ DUNG LƯỢNG — File thường tối đa 7 MB/file; file âm thanh tối đa 30 MB/file. File vượt ngưỡng bị tự động loại khỏi danh sách chờ nộp. Hãy giảm dung lượng, chia nhỏ hoặc chọn file khác.'
+            );
+        } else if (mode === 'short-essay') {
+            if (answer) {
+                answer.textContent =
+                    'Em làm bài ngắn quá.';
+            }
+
+            setAlert(
+                'warn',
+                '⚠️ TỰ LUẬN CHƯA ĐỦ — Với bài tự luận thông thường, nếu nội dung dưới 25 từ và không có tệp đính kèm, hệ thống sẽ cảnh báo phần tự luận có thể không được công nhận và nhận 0 điểm. Hãy bổ sung nội dung hoặc tệp theo yêu cầu.'
+            );
+        } else if (mode === 'unanswered') {
+            if (answer) {
+                answer.textContent =
+                    'Câu 1: đã chọn đáp án · Câu 2: CHƯA CHỌN · Câu 3: đã chọn đáp án.';
+            }
+
+            setAlert(
+                'warn',
+                '⚠️ CÒN CÂU CHƯA TRẢ LỜI — Hệ thống sẽ báo số câu còn thiếu và đưa em tới câu đầu tiên chưa chọn. Hoàn thành các câu được đánh dấu rồi nộp lại.'
+            );
+        } else if (mode === 'deadline') {
+            if (answer) {
+                answer.textContent =
+                    'Mô phỏng tình huống chỉ còn dưới 15 giây trước hạn nộp.';
+            }
+
+            if (submit) {
+                submit.disabled = true;
+                submit.textContent =
+                    '🔒 Đã khóa nộp để chuẩn bị đồng bộ';
+            }
+
+            setAlert(
+                'error',
+                '⏱️ SÁT/QUÁ HẠN — Dưới 15 giây trước hạn, hệ thống có thể khóa nút nộp để chuẩn bị đồng bộ; khi đã quá hạn, chức năng nộp bị khóa. Không bấm liên tục. Nếu cần xử lý bài quá hạn, liên hệ giáo viên.'
+            );
+        } else if (mode === 'network') {
+            if (answer) {
+                answer.textContent =
+                    'Mô phỏng mất mạng trong lúc gửi bài.';
+            }
+
+            if (submit) {
+                submit.textContent =
+                    '↻ Thử nộp lại sau khi có mạng · MÔ PHỎNG';
+            }
+
+            setAlert(
+                'error',
+                '📡 MẤT MẠNG / MÁY CHỦ KHÔNG PHẢN HỒI — Giữ nguyên trang, kiểm tra Wi-Fi/4G, chờ kết nối ổn định rồi thử nộp lại. Không coi bài là đã nộp nếu chưa có thông báo thành công.'
+            );
+        } else if (mode === 'success') {
+            if (answer) {
+                answer.textContent =
+                    'Bài mẫu đã đủ nội dung và tệp hợp lệ.';
+            }
+
+            if (files) {
+                files.innerHTML = `
+                    <div class="nug-submission-demo-file">
+                        <span>📎 Bai_lam_Toan.pdf</span>
+                        <strong>2.35 MB · đã gửi mô phỏng</strong>
+                    </div>
+                `;
+            }
+
+            if (submit) {
+                submit.disabled = true;
+                submit.textContent =
+                    '✅ Nộp bài thành công · MÔ PHỎNG';
+            }
+
+            setAlert(
+                'success',
+                '✅ NỘP THÀNH CÔNG (MÔ PHỎNG) — Khi nộp bài thật, chỉ rời trang sau khi website báo thành công và trạng thái bài đã thay đổi. Nếu chỉ thấy cảnh báo lỗi thì chưa được tính là đã nộp.'
+            );
+        } else {
+            if (answer) {
+                answer.textContent =
+                    'Bấm “Tiếp theo” để hệ thống lần lượt mô phỏng cách chuẩn bị bài và các lỗi thường gặp.';
+            }
+
+            setAlert(
+                'info',
+                'ℹ️ Đây chỉ là bài giả trong hướng dẫn. Không có bài nộp, file hoặc điểm nào được ghi lên máy chủ.'
+            );
+        }
+
+        requestAnimationFrame(
+            scheduleTourPositionUpdate
+        );
+
+        return demo;
+    }
+
+    function removeSubmissionGuideDemo() {
+        document
+            .getElementById('nug-submission-demo')
+            ?.remove();
     }
 
     function safeOpenStudentBag() {
@@ -4136,6 +5069,89 @@
             { featureId: 'todo', tabId: 'tab-todo', selector: '#tab-todo input[type="text"]', title: 'Tìm bài tập', description: 'Nhập tên bài để lọc nhanh danh sách.', access: 'Xóa từ khóa để hiện lại tất cả bài.' },
             { featureId: 'todo', tabId: 'tab-todo', selector: '#assignmentsList', title: 'Mở bài cần làm', description: 'Mỗi thẻ hiển thị thông tin bài, hạn nộp và nút thao tác. Chọn đúng bài rồi bắt đầu làm hoặc nộp tệp theo yêu cầu.', access: 'Đọc kỹ yêu cầu và thời gian trước khi bấm làm bài.' },
 
+            {
+                featureId: 'submission-guide',
+                tabId: 'tab-todo',
+                selector: '#nug-submission-demo',
+                before: () => setSubmissionGuideDemoState('intro'),
+                title: '1. Nhận biết bài tập mô phỏng',
+                description: 'Hệ thống tạo một bài giả ngay trên trang để em học cách nộp bài. Bài này chỉ tồn tại trong hướng dẫn, không ghi Firebase/R2, không tạo điểm và không xuất hiện cho giáo viên.',
+                access: 'Nhìn nhãn “MÔ PHỎNG HƯỚNG DẪN · KHÔNG GỬI DỮ LIỆU” để phân biệt với bài thật.'
+            },
+            {
+                featureId: 'submission-guide',
+                tabId: 'tab-todo',
+                selector: '#nug-submission-demo-answer',
+                before: () => setSubmissionGuideDemoState('ready'),
+                title: '2. Hoàn thành nội dung trước khi nộp',
+                description: 'Làm đủ phần trắc nghiệm và tự luận giáo viên yêu cầu. Với tự luận thông thường, hệ thống kiểm tra tối thiểu 25 từ hoặc có tệp đính kèm; bài chỉ yêu cầu tệp thì phải có tệp.',
+                access: 'Đọc kỹ yêu cầu từng bài thật vì giáo viên có thể cấu hình loại bài khác nhau.'
+            },
+            {
+                featureId: 'submission-guide',
+                tabId: 'tab-todo',
+                selector: '#nug-submission-demo-files',
+                before: () => setSubmissionGuideDemoState('valid-file'),
+                title: '3. Tệp hợp lệ sẽ nằm trong danh sách chờ',
+                description: 'Sau khi chọn file thật, kiểm tra tên và dung lượng trong danh sách đang chờ nộp. Có thể xóa file chọn nhầm trước khi bấm Nộp bài.',
+                access: 'Ví dụ mô phỏng đang dùng PDF 2,35 MB nên nằm trong giới hạn.'
+            },
+            {
+                featureId: 'submission-guide',
+                tabId: 'tab-todo',
+                selector: '#nug-submission-demo-alert',
+                before: () => setSubmissionGuideDemoState('oversize'),
+                title: '4. Lỗi giả: File quá dung lượng',
+                description: 'Đây là cảnh báo mô phỏng đúng theo giới hạn hiện tại: file thường tối đa 7 MB/file, file âm thanh tối đa 30 MB/file. File vượt ngưỡng bị tự động loại khỏi danh sách chờ.',
+                access: 'Cách xử lý: giảm dung lượng, chia nhỏ hoặc chọn file khác. Sau đó kiểm tra lại danh sách chờ nộp.'
+            },
+            {
+                featureId: 'submission-guide',
+                tabId: 'tab-todo',
+                selector: '#nug-submission-demo-alert',
+                before: () => setSubmissionGuideDemoState('short-essay'),
+                title: '5. Lỗi giả: Tự luận quá ngắn hoặc thiếu tệp',
+                description: 'Nếu bài tự luận thông thường dưới 25 từ và không có file, website sẽ cảnh báo phần tự luận có thể không được công nhận và nhận 0 điểm. Nếu bài được đặt chế độ chỉ nộp tệp thì thiếu tệp cũng bị cảnh báo.',
+                access: 'Không bấm xác nhận bỏ qua cảnh báo nếu em vẫn còn thời gian bổ sung bài.'
+            },
+            {
+                featureId: 'submission-guide',
+                tabId: 'tab-todo',
+                selector: '#nug-submission-demo-alert',
+                before: () => setSubmissionGuideDemoState('unanswered'),
+                title: '6. Lỗi giả: Còn câu trắc nghiệm chưa trả lời',
+                description: 'Nếu còn câu chưa chọn đáp án, hệ thống sẽ báo số câu còn thiếu và đưa em tới câu đầu tiên chưa làm. Hoàn thành các câu được đánh dấu rồi mới nộp lại.',
+                access: 'Kiểm tra toàn bộ câu trước khi bấm Nộp bài, nhất là bài có nhiều câu.'
+            },
+            {
+                featureId: 'submission-guide',
+                tabId: 'tab-todo',
+                selector: '#nug-submission-demo-alert',
+                before: () => setSubmissionGuideDemoState('deadline'),
+                title: '7. Lỗi giả: Sát hạn hoặc đã quá hạn',
+                description: 'Dưới 15 giây trước hạn, hệ thống có thể khóa nộp để chuẩn bị đồng bộ. Khi đã quá hạn, chức năng nộp bị khóa. Đây là lý do không nên chờ đến những giây cuối.',
+                access: 'Nếu đã quá hạn và cần hỗ trợ, liên hệ giáo viên; không bấm nộp liên tục.'
+            },
+            {
+                featureId: 'submission-guide',
+                tabId: 'tab-todo',
+                selector: '#nug-submission-demo-alert',
+                before: () => setSubmissionGuideDemoState('network'),
+                title: '8. Lỗi giả: Mất mạng hoặc máy chủ chưa phản hồi',
+                description: 'Nếu chưa có thông báo thành công, bài chưa được coi là đã nộp. Giữ nguyên trang, kiểm tra Wi-Fi/4G, chờ kết nối ổn định rồi thử lại.',
+                access: 'Trong lúc file đang tải hoặc bài đang lưu, không đóng tab và không bấm Nộp bài nhiều lần.'
+            },
+            {
+                featureId: 'submission-guide',
+                tabId: 'tab-todo',
+                selector: '#nug-submission-demo-alert',
+                before: () => setSubmissionGuideDemoState('success'),
+                after: removeSubmissionGuideDemo,
+                title: '9. Chỉ rời trang khi đã báo thành công',
+                description: 'Khi nộp bài thật, chỉ rời trang sau khi website báo nộp thành công và trạng thái bài đã thay đổi. Nếu chỉ thấy cảnh báo lỗi thì chưa được tính là đã nộp.',
+                access: 'Khi nghi ngờ, mở lại Bài tập cần làm/Kết quả học tập để kiểm tra trạng thái.'
+            },
+
             { featureId: 'grades', tabId: 'tab-grades', title: 'Mở Kết quả học tập', description: 'Xem các bài đã nộp và kết quả giáo viên chấm.', access: 'Bấm Tiếp theo để xem danh sách điểm.' },
             { featureId: 'grades', tabId: 'tab-grades', selector: '#tab-grades input[type="text"]', title: 'Tìm kết quả', description: 'Tìm theo tên bài hoặc điểm số.', access: 'Dùng khi có nhiều bài đã nộp.' },
             { featureId: 'grades', tabId: 'tab-grades', selector: '#gradesList', title: 'Xem điểm và nhận xét', description: 'Mở từng bài để xem điểm, nhận xét và tệp chữa bài nếu giáo viên có gửi.', access: 'Nếu chưa có điểm, bài có thể đang chờ chấm.' },
@@ -4202,6 +5218,18 @@
             { featureId: 'leaderboard', selector: '.leaderboard-trigger-btn', skipIfMissing: true, title: 'Mở Bảng xếp hạng', description: 'Bấm nút Cúp để xem thứ hạng thi đua khi giáo viên bật chức năng.', access: 'Thứ hạng có thể thay đổi theo dữ liệu mới.' },
             ...coinGuideSteps,
 
+            { featureId: 'system-update', tabId: 'tab-settings', selector: '#updateBannerArea', title: '1. Xem trạng thái cập nhật', description: 'Khu vực Cập nhật hệ thống cho biết phiên bản em đang dùng, bản mới nhất, lần kiểm tra gần nhất và trạng thái cập nhật.', access: 'Website có thể tự kiểm tra; em vẫn có thể bấm Kiểm tra lại khi cần.' },
+            { featureId: 'system-update', tabId: 'tab-settings', selector: '#updateBannerArea [data-update-action="check"]', skipIfMissing: true, title: '2. Kiểm tra lại', description: 'Bấm Kiểm tra lại để hỏi máy chủ ngay. Nếu báo Ngoại tuyến, kiểm tra Wi-Fi/4G hoặc Internet rồi thử lại.', access: 'Chờ website trả về Đã mới nhất hoặc Có bản mới; không bấm liên tục.' },
+            { featureId: 'system-update', tabId: 'tab-settings', selector: '#updateBannerArea [data-update-action="details"]', skipIfMissing: true, title: '3. Xem bản cập nhật có gì mới', description: 'Nếu có bản mới, nút Chi tiết hiển thị ghi chú thay đổi và thông tin phiên bản nếu máy chủ cung cấp.', access: 'Đọc trước rồi mới chọn Cập nhật ngay.' },
+            { featureId: 'system-update', tabId: 'tab-settings', selector: '#updateBannerArea [data-update-action="apply"]', skipIfMissing: true, title: '4. Cập nhật an toàn', description: 'Khi bấm Cập nhật ngay, website sẽ làm mới tài nguyên rồi tải lại sang bản mới. Không đóng tab, tải lại thủ công hoặc thoát trang trong lúc thanh tiến trình đang chạy.', access: 'Bản cập nhật bắt buộc sẽ không có nút Để sau.' },
+            { featureId: 'system-update', tabId: 'tab-settings', selector: '#updateBannerArea', title: '5. Nếu cập nhật gặp lỗi', description: 'Ngoại tuyến hoặc lỗi kiểm tra: kết nối Internet ổn định rồi bấm Kiểm tra lại. Nếu cập nhật chưa hoàn tất, đọc thông báo và thử lại sau; không xóa dữ liệu học tập để sửa lỗi cập nhật.', access: 'Sau khi cập nhật thành công, website tự tải lại và có thể hiện thông báo phiên bản mới.' },
+
+            { featureId: 'effects-performance', tabId: 'tab-settings', selector: '#effectQualitySettingsRow', skipIfMissing: true, title: '1. Mức hiệu ứng vật phẩm & web', description: 'Chức năng này chỉ giảm chuyển động, hạt và lớp trang trí của vật phẩm, thú cưng và Web Animations. Nó không làm mất vật phẩm, không đổi theme và không đổi dữ liệu.', access: 'Bật công tắc để chọn mức phù hợp với máy.' },
+            { featureId: 'effects-performance', tabId: 'tab-settings', selector: '#toggleEffectQualityManager', skipIfMissing: true, title: '2. Bật điều chỉnh hiệu ứng', description: 'Khi tắt, website dùng hiệu ứng gốc. Khi bật: Cao giữ đầy đủ; Trung bình giảm một phần; Thấp ưu tiên ổn định và giảm mạnh phần trang trí động.', access: 'Nếu máy bắt đầu giật, thử Trung bình trước.' },
+            { featureId: 'effects-performance', tabId: 'tab-settings', selector: ['#effectQualityLevelControls:not([hidden])', '#effectQualitySettingsRow'], skipIfMissing: true, title: '3. Chọn mức phù hợp', description: 'Cao phù hợp máy chạy mượt; Trung bình cân bằng hình ảnh và hiệu năng; Thấp dành cho máy yếu hoặc khi website giật/nóng.', access: 'Mức này chỉ ảnh hưởng phần hiệu ứng hiển thị.' },
+            { featureId: 'effects-performance', tabId: 'tab-settings', selector: '#webPerformanceOptimizerSettingsRow', skipIfMissing: true, title: '4. Tối ưu hiệu năng', description: 'Đây là chức năng riêng với Mức hiệu ứng. Nó giảm tải nền và nội dung hiển thị nặng; phía học sinh còn tối ưu danh sách bài, video và trình soạn thảo khi cần. Trên điện thoại/thiết bị cảm ứng màn hình nhỏ, chế độ này có thể tự bật ở lần đầu; máy tính giữ lựa chọn đã lưu.', access: 'Không thay đổi điểm, bài làm, Coin, trò chơi hay vật phẩm.' },
+            { featureId: 'effects-performance', tabId: 'tab-settings', selector: '#toggleWebPerformanceOptimizer', skipIfMissing: true, title: '5. Cách dùng khi máy chậm', description: 'Nếu trang giật hoặc máy nóng, bật Tối ưu hiệu năng. Nếu vẫn nặng, bật thêm Mức hiệu ứng và chọn Trung bình hoặc Thấp. Hai tùy chọn có thể dùng cùng nhau.', access: 'Dòng trạng thái ngay dưới công tắc cho biết chế độ hiện tại; có thể đổi lại bất cứ lúc nào.' },
+
             { featureId: 'settings', tabId: 'tab-settings', title: 'Mở Cài đặt', description: 'Chỉnh tùy chọn cá nhân và gửi yêu cầu đổi thông tin.', access: 'Bấm Tiếp theo để xem từng tùy chọn.' },
             { featureId: 'settings', tabId: 'tab-settings', selector: '#nugDetailedGuideSetting', title: 'Ẩn hoặc hiện nút Hướng dẫn chi tiết', description: state.mandatoryMode ? 'Học sinh mới phải hoàn thành hướng dẫn bắt buộc nên công tắc này tạm khóa. Sau bước cuối, em có thể tắt nút dấu hỏi nếu không muốn nút nổi trên màn hình.' : 'Công tắc này ẩn hoặc hiện nút dấu hỏi nổi. Tắt nút không xóa tiến độ hay nội dung hướng dẫn.', access: 'Nếu đã ẩn, vào lại Cài đặt để bật nút bất cứ lúc nào.' },
             { featureId: 'settings', tabId: 'tab-settings', selector: '#togglePetInteractions', title: 'Bật/tắt tương tác thú cưng', description: 'Tắt khi không muốn thao tác chạm hoặc nhấn trên thú cưng.', access: 'Nút dấu hỏi bên cạnh giải thích cách tương tác.' },
@@ -4262,6 +5290,36 @@
         ];
     }
 
+    function buildRequiredTrainingTourSteps() {
+        const detailSteps = studentTourSteps()
+            .filter(step =>
+                REQUIRED_STUDENT_TRAINING_FEATURES
+                    .includes(step.featureId)
+            );
+
+        return [
+            {
+                id: 'required-training-welcome',
+                title: 'Hướng dẫn bắt buộc: Nộp bài, cập nhật & hiệu năng',
+                description:
+                    'Website có một số chức năng quan trọng em cần biết: cách nộp bài và xử lý lỗi, kiểm tra cập nhật, mức hiệu ứng vật phẩm & web và tối ưu hiệu năng. Mỗi học sinh chỉ phải hoàn thành mô-đun này một lần.',
+                access:
+                    'Hướng dẫn có mô phỏng an toàn; không gửi bài giả, không đổi điểm, Coin, vật phẩm hoặc dữ liệu tài khoản.',
+                selector: '.dashboard'
+            },
+            ...detailSteps,
+            {
+                id: 'required-training-finish',
+                title: 'Đã hoàn thành hướng dẫn bắt buộc',
+                description:
+                    'Em đã xem xong cách nộp bài, nhận biết các lỗi thường gặp, kiểm tra cập nhật và điều chỉnh hiệu ứng/hiệu năng. Từ lần sau hệ thống không bắt xem lại mô-đun này.',
+                access:
+                    'Bấm Hoàn tất. Khi cần, em vẫn có thể mở nút dấu hỏi và xem lại từng mục.',
+                selector: '.dashboard'
+            }
+        ];
+    }
+
     function startTour(featureId = null, options = {}) {
         if (
             state.mandatoryStartPending &&
@@ -4282,6 +5340,13 @@
         );
 
         state.mandatoryMode = mandatory;
+        state.mandatoryScope = mandatory
+            ? (
+                options.mandatoryScope === 'training'
+                    ? 'training'
+                    : 'full'
+            )
+            : 'full';
         state.mandatoryTourCompleted = false;
         state.mandatoryStartPending = false;
         state.mandatoryGateQuietSince = 0;
@@ -4301,6 +5366,7 @@
         }
 
         removeDemoCheckout();
+        removeSubmissionGuideDemo();
         closeReviewPracticeDialogsForGuide();
         safeCloseStudentBag();
         safeCloseStudentInbox();
@@ -4316,12 +5382,21 @@
             : null;
 
         state.activeFeatureTour = mandatory
-            ? null
+            ? (
+                state.mandatoryScope === 'training'
+                    ? 'required-training'
+                    : null
+            )
             : (featureId || null);
 
-        state.tourSteps = buildTourSteps(
-            mandatory ? null : featureId
-        );
+        state.tourSteps = (
+            mandatory &&
+            state.mandatoryScope === 'training'
+        )
+            ? buildRequiredTrainingTourSteps()
+            : buildTourSteps(
+                mandatory ? null : featureId
+            );
         state.currentStep = -1;
 
         const layer = document.getElementById('nug-tour-layer');
@@ -4566,13 +5641,18 @@
 
         if (title) title.textContent = step.title;
         if (text) {
+            const firstMandatoryText =
+                state.mandatoryScope === 'training'
+                    ? 'Đây là mô-đun hướng dẫn cập nhật bắt buộc. Mỗi học sinh chỉ cần xem một lần để nắm cách nộp bài, xử lý lỗi, kiểm tra cập nhật và tối ưu hiệu năng.'
+                    : 'Đây là hướng dẫn bắt buộc dành cho học sinh mới. Em cần bấm “Tiếp theo” và xem đủ các bước để bắt đầu sử dụng website.';
+
             text.textContent = mandatory && state.currentStep === 0
-                ? 'Đây là hướng dẫn bắt buộc dành cho học sinh mới. Em cần bấm “Tiếp theo” và xem đủ các bước để bắt đầu sử dụng website.'
+                ? firstMandatoryText
                 : step.description;
         }
         if (access) {
             access.textContent = mandatory && state.currentStep === 0
-                ? 'Không thể bỏ qua, quay lại hoặc đóng hướng dẫn. Tiến độ được lưu nếu tải lại trang.'
+                ? 'Không thể bỏ qua, quay lại hoặc đóng hướng dẫn. Tiến độ được lưu để tiếp tục nếu tải lại trang.'
                 : (step.access || '');
         }
         if (progress) progress.style.width = `${Math.round((current / total) * 100)}%`;
@@ -4782,6 +5862,8 @@
         }
 
         const wasMandatory = state.mandatoryMode;
+        const completedMandatoryScope =
+            state.mandatoryScope;
         const layer = document.getElementById('nug-tour-layer');
         if (layer) {
             layer.classList.remove('is-open');
@@ -4794,6 +5876,7 @@
         }
 
         removeDemoCheckout();
+        removeSubmissionGuideDemo();
         closeReviewPracticeDialogsForGuide();
         safeCloseStudentBag();
         safeCloseStudentInbox();
@@ -4808,6 +5891,7 @@
         state.transitionLocked = false;
         state.mandatoryTourCompleted = wasMandatory && completed;
         state.mandatoryMode = false;
+        state.mandatoryScope = 'full';
         state.mandatorySuspended = false;
         syncMandatoryLauncherVisibility();
 
@@ -4822,7 +5906,12 @@
         state.previousSidebarCollapsed = null;
 
         if (wasMandatory && completed) {
-            markGuideAsCompleted();
+            if (completedMandatoryScope === 'training') {
+                markRequiredTrainingAsCompleted();
+            } else {
+                markGuideAsCompleted();
+            }
+
             applyLauncherVisibility(
                 getSavedLauncherVisibility(),
                 false
@@ -4963,9 +6052,17 @@
         keysToRemove.forEach(key => localStorage.removeItem(key));
         localStorage.removeItem(getCompletionStorageKey());
         localStorage.removeItem(getProgressStorageKey());
+        localStorage.removeItem(
+            getTrainingCompletionStorageKey()
+        );
+        localStorage.removeItem(
+            getTrainingProgressStorageKey()
+        );
         state.remoteGuideCompleted = false;
+        state.remoteTrainingCompleted = false;
         state.remoteGuideStatus = 'unknown';
         state.remoteMandatoryProgress = 0;
+        state.remoteTrainingProgress = 0;
         state.remoteProgressPendingIndex = null;
 
         if (options.remote === true && state.role === 'student') {
@@ -5026,10 +6123,21 @@
                 completionState.completed === false
             ) {
                 /*
-                 * Không chen lên Quà đăng nhập 7 ngày, thông báo hoặc khảo sát.
-                 * Hướng dẫn chỉ bắt đầu sau khi các cửa sổ đó đã được xử lý.
+                 * Học sinh mới: chạy toàn bộ tour bắt buộc. Tour đầy đủ đã chứa
+                 * mô-đun nộp bài/cập nhật/hiệu năng nên khi hoàn tất sẽ đánh dấu
+                 * cả hai trạng thái.
                  */
-                queueMandatoryStudentTour();
+                queueMandatoryStudentTour('full');
+            } else if (
+                state.role === 'student' &&
+                completionState.completed === true &&
+                completionState.trainingCompleted === false
+            ) {
+                /*
+                 * Học sinh cũ đã hoàn thành onboarding chỉ phải xem phần mới
+                 * một lần, không bị ép xem lại toàn bộ hướng dẫn cũ.
+                 */
+                queueMandatoryStudentTour('training');
             } else if (state.role !== 'student') {
                 /*
                  * Giáo viên luôn vào thẳng trang làm việc. Trung tâm hướng dẫn
