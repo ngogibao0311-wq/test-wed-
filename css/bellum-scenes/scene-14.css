@@ -1,0 +1,21 @@
+/* Bellum · Scene 14: NGHI LỄ ĐẦU TIÊN */
+#bellumEvent.bellum-scene-14 {
+    --bellum-scene-bg: #130b19;
+    --bellum-scene-mid: #49245e;
+    --bellum-accent: #bf8be0;
+    --bellum-scene-glow: rgba(126,65,158,.42);
+}
+#bellumEvent.bellum-scene-14 .bellum-stage {
+    background-color: var(--bellum-scene-bg);
+    background-image:
+        linear-gradient(180deg, rgba(2,3,7,.28) 0%, rgba(2,3,7,.08) 44%, rgba(0,0,0,.50) 100%),
+        radial-gradient(circle at 72% 28%, var(--bellum-scene-glow), transparent 38%),
+        var(--bellum-scene-image, none);
+    background-size: auto, auto, cover;
+    background-position: center, center, center center;
+    background-repeat: no-repeat, no-repeat, no-repeat;
+}
+#bellumEvent.bellum-scene-14 .bellum-scene-number,
+#bellumEvent.bellum-scene-14 .bellum-speaker-name { color: var(--bellum-accent); }
+#bellumEvent.bellum-scene-14 .bellum-dialogue-box { border-color: color-mix(in srgb, var(--bellum-accent) 34%, transparent); }
+#bellumEvent.bellum-scene-14 .bellum-progress-fill { background: linear-gradient(90deg, var(--bellum-accent), #ffffff); }

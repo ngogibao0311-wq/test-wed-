@@ -1,0 +1,1284 @@
+/* ============================================================================
+   LORD OF THE MYSTERIES · KLEIN MORETTI · EVENT PREMIUM PET
+   ONE CSS FILE:
+   1) Luxury card skin — same card structure/layout as other Luxury items.
+   2) Lord of the Mysteries image tag.
+   3) Pet realm / idle presentation.
+   4) Full-web world atmosphere.
+   5) Interface skin: popup, form, button, card, table, sidebar, toolbar.
+   6) Typography, palette, selection, scrollbar, range slider.
+   7) Global click effect.
+   8) Character click ultimate.
+
+   Activate with: html.lotm-klein-equipped
+   Namespace: lotm-klein-* / lotmk-*
+   The store card is theme-immune and keeps its own visual skin.
+   ============================================================================ */
+
+:root {
+    --lotmk-void-1000: #050609;
+    --lotmk-void-950: #090b10;
+    --lotmk-void-900: #0f1219;
+    --lotmk-void-850: #151923;
+    --lotmk-ink: #1c202a;
+    --lotmk-slate: #59616e;
+    --lotmk-silver: #a9b0bb;
+    --lotmk-parchment: #d9d0bb;
+    --lotmk-ivory: #efe9dc;
+    --lotmk-gold: #c2a469;
+    --lotmk-gold-light: #e5cf98;
+    --lotmk-crimson: #6c2330;
+    --lotmk-crimson-light: #b34b5d;
+    --lotmk-fog: rgba(190, 198, 210, .13);
+    --lotmk-glass: rgba(14, 17, 24, .86);
+    --lotmk-line: rgba(201, 175, 114, .24);
+    --lotmk-shadow: rgba(0, 0, 0, .58);
+    --lotmk-font-body: "Palatino Linotype", "Book Antiqua", Georgia, "Times New Roman", serif;
+    --lotmk-font-ui: "Segoe UI", Arial, Helvetica, sans-serif;
+}
+
+/* ============================================================================
+   1) EVENT LUXURY CARD
+   IMPORTANT: keeps the standard structure:
+   article.luxury-product-card
+     > .luxury-product-visual
+     > .luxury-product-info
+   No custom grid geometry, no custom card size.
+   ============================================================================ */
+
+.luxury-product-card.lotm-klein-card,
+.luxury-product-card[data-item-id="pet_lotm_klein_event_1"],
+.luxury-product-card[data-special-card="lotm-klein-event-premium"] {
+    position: relative !important;
+    isolation: isolate !important;
+    overflow: hidden !important;
+    color: var(--lotmk-ivory) !important;
+    border-color: rgba(194, 164, 105, .48) !important;
+    background:
+        radial-gradient(circle at 73% 17%, rgba(229, 207, 152, .08), transparent 24%),
+        radial-gradient(circle at 20% 26%, rgba(108, 35, 48, .12), transparent 30%),
+        linear-gradient(154deg, #171a22 0%, #0d1016 52%, #07080c 100%) !important;
+    box-shadow:
+        0 20px 48px rgba(0, 0, 0, .38),
+        inset 0 0 0 1px rgba(255,255,255,.026) !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    text-shadow: none !important;
+    font-family: var(--lotmk-font-ui) !important;
+}
+
+.luxury-product-card.lotm-klein-card::before,
+.luxury-product-card[data-item-id="pet_lotm_klein_event_1"]::before {
+    content: "";
+    position: absolute;
+    inset: -42% -26%;
+    z-index: 0;
+    pointer-events: none;
+    background:
+        conic-gradient(
+            from 28deg,
+            transparent 0 14%,
+            rgba(194,164,105,.09) 18% 22%,
+            transparent 27% 47%,
+            rgba(108,35,48,.10) 51% 56%,
+            transparent 61% 78%,
+            rgba(169,176,187,.07) 83% 87%,
+            transparent 92% 100%
+        );
+    animation: lotmkCardOrbit 18s linear infinite;
+}
+
+.luxury-product-card.lotm-klein-card::after,
+.luxury-product-card[data-item-id="pet_lotm_klein_event_1"]::after {
+    content: "LORD OF THE MYSTERIES";
+    position: absolute;
+    right: 10px;
+    bottom: 8px;
+    z-index: 1;
+    pointer-events: none;
+    color: rgba(229,207,152,.13);
+    font: 800 8px/1 var(--lotmk-font-ui);
+    letter-spacing: .17em;
+}
+
+.lotm-klein-card .luxury-product-visual,
+.luxury-product-card[data-item-id="pet_lotm_klein_event_1"] .luxury-product-visual {
+    position: relative !important;
+    isolation: isolate !important;
+    overflow: hidden !important;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,.012), rgba(0,0,0,.10)),
+        radial-gradient(circle at 50% 40%, rgba(201,175,114,.07), transparent 42%) !important;
+}
+
+.lotm-klein-card .luxury-product-shape,
+.luxury-product-card[data-item-id="pet_lotm_klein_event_1"] .luxury-product-shape {
+    border-radius: 50% !important;
+    background:
+        repeating-conic-gradient(
+            from 0deg,
+            rgba(194,164,105,.14) 0 1deg,
+            transparent 1deg 22.5deg
+        ),
+        radial-gradient(circle, rgba(229,207,152,.10), rgba(20,23,31,.02) 54%, transparent 57%) !important;
+    border: 1px solid rgba(194,164,105,.19) !important;
+    box-shadow:
+        0 0 34px rgba(194,164,105,.07),
+        inset 0 0 25px rgba(108,35,48,.05) !important;
+    animation: lotmkCardSigil 15s linear infinite !important;
+}
+
+.lotm-klein-card .lotm-klein-card-fog {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: .48;
+    background:
+        radial-gradient(ellipse at 20% 30%, rgba(182,190,202,.18), transparent 31%),
+        radial-gradient(ellipse at 78% 42%, rgba(182,190,202,.12), transparent 33%),
+        linear-gradient(96deg, transparent 0 16%, rgba(175,183,195,.06) 37%, transparent 59% 100%);
+    filter: blur(5px);
+    animation: lotmkCardFog 7.5s ease-in-out infinite alternate;
+}
+
+.lotm-klein-card .lotm-klein-card-clock {
+    position: absolute;
+    right: 8%;
+    top: 8%;
+    z-index: 2;
+    width: 76px;
+    height: 76px;
+    border: 1px solid rgba(194,164,105,.26);
+    border-radius: 50%;
+    opacity: .48;
+    pointer-events: none;
+    box-shadow: inset 0 0 0 5px rgba(194,164,105,.025);
+    animation: lotmkCardClock 19s linear infinite;
+}
+
+.lotm-klein-card .lotm-klein-card-clock::before,
+.lotm-klein-card .lotm-klein-card-clock::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 1px;
+    height: 25px;
+    transform-origin: 50% 0;
+    background: linear-gradient(180deg, var(--lotmk-gold-light), transparent);
+}
+
+.lotm-klein-card .lotm-klein-card-clock::before {
+    transform: rotate(37deg);
+}
+
+.lotm-klein-card .lotm-klein-card-clock::after {
+    height: 19px;
+    transform: rotate(128deg);
+}
+
+.lotm-klein-card .lotm-klein-card-eye {
+    position: absolute;
+    left: 9%;
+    top: 14%;
+    z-index: 2;
+    width: 54px;
+    height: 28px;
+    border: 1px solid rgba(229,207,152,.18);
+    border-radius: 70% 0 70% 0;
+    transform: rotate(45deg);
+    opacity: .44;
+    pointer-events: none;
+    box-shadow: 0 0 20px rgba(194,164,105,.05);
+}
+
+.lotm-klein-card .lotm-klein-card-eye::after {
+    content: "";
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    left: 50%;
+    top: 50%;
+    border-radius: 50%;
+    transform: translate(-50%,-50%);
+    background: radial-gradient(circle, var(--lotmk-gold-light), var(--lotmk-crimson) 46%, transparent 52%);
+    box-shadow: 0 0 8px rgba(229,207,152,.18);
+}
+
+.lotm-klein-card .lotm-klein-card-tag {
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    z-index: 8;
+    width: min(45%, 132px);
+    pointer-events: none;
+    filter: drop-shadow(0 5px 10px rgba(0,0,0,.40));
+}
+
+.lotm-klein-card .lotm-klein-card-tag-art {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+.lotm-klein-card .lotm-klein-card-character {
+    z-index: 5 !important;
+    filter:
+        drop-shadow(0 16px 18px rgba(0,0,0,.50))
+        drop-shadow(0 0 9px rgba(194,164,105,.13)) !important;
+    transition: transform .38s ease, filter .38s ease !important;
+}
+
+.lotm-klein-card:hover .lotm-klein-card-character,
+.lotm-klein-card:focus-within .lotm-klein-card-character {
+    transform: translateY(-7px) scale(1.035) !important;
+    filter:
+        drop-shadow(0 22px 20px rgba(0,0,0,.56))
+        drop-shadow(0 0 13px rgba(229,207,152,.19)) !important;
+}
+
+.lotm-klein-card .luxury-product-info {
+    z-index: 8 !important;
+    color: var(--lotmk-ivory) !important;
+    background:
+        linear-gradient(180deg, rgba(8,10,14,.20), rgba(7,8,12,.91) 28%, rgba(7,8,12,.98)) !important;
+    border-top-color: rgba(194,164,105,.18) !important;
+}
+
+.lotm-klein-card .luxury-product-label {
+    color: var(--lotmk-gold-light) !important;
+    border-color: rgba(194,164,105,.28) !important;
+    background: rgba(194,164,105,.08) !important;
+    letter-spacing: .13em;
+}
+
+.lotm-klein-card .luxury-product-info h3 {
+    color: #f2ecdf !important;
+    font-family: Georgia, "Times New Roman", serif !important;
+    letter-spacing: .025em;
+}
+
+.lotm-klein-card .luxury-product-price {
+    color: #c9c1b1 !important;
+}
+
+.lotm-klein-card .lotm-klein-card-action {
+    width: 100%;
+    min-height: 38px;
+    margin-top: 9px;
+    border: 1px solid rgba(194,164,105,.36) !important;
+    border-radius: 10px !important;
+    color: #f2ead8 !important;
+    background:
+        linear-gradient(135deg, rgba(108,35,48,.58), rgba(26,29,37,.92)) !important;
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.025),
+        0 7px 16px rgba(0,0,0,.22) !important;
+    font: 700 12px/1 var(--lotmk-font-ui) !important;
+    letter-spacing: .03em;
+    cursor: pointer;
+    transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease !important;
+}
+
+.lotm-klein-card .lotm-klein-card-action:hover:not(:disabled) {
+    transform: translateY(-2px);
+    border-color: rgba(229,207,152,.64) !important;
+    box-shadow:
+        0 10px 22px rgba(0,0,0,.28),
+        0 0 18px rgba(194,164,105,.08) !important;
+}
+
+.lotm-klein-card .lotm-klein-card-action:disabled {
+    cursor: not-allowed;
+    opacity: .78;
+    color: rgba(239,233,220,.74) !important;
+    background: linear-gradient(135deg, rgba(50,53,61,.72), rgba(19,21,27,.92)) !important;
+}
+
+.lotm-klein-card .lotm-klein-card-action.is-equipped {
+    color: #16120c !important;
+    background: linear-gradient(135deg, #d6bd83, #a98b54) !important;
+}
+
+/* ============================================================================
+   2) FULL-WEB THEME CORE
+   ============================================================================ */
+
+html.lotm-klein-equipped {
+    color-scheme: dark;
+    scrollbar-color: #7b6846 #0b0d12;
+    scrollbar-width: thin;
+}
+
+html.lotm-klein-equipped body {
+    background:
+        radial-gradient(circle at 80% 8%, rgba(108,35,48,.10), transparent 24%),
+        radial-gradient(circle at 14% 18%, rgba(194,164,105,.06), transparent 28%),
+        linear-gradient(148deg, #11141a 0%, #0b0d12 47%, #07080c 100%) fixed !important;
+    color: #ddd6c8 !important;
+    font-family: var(--lotmk-font-body) !important;
+    transition: background-color .35s ease, color .35s ease;
+}
+
+html.lotm-klein-equipped body ::selection {
+    color: #090a0d;
+    background: #cfb473;
+}
+
+html.lotm-klein-equipped body :where(
+    p, span, label, small, li, td, th, input, textarea, select, button
+) {
+    font-family: var(--lotmk-font-body) !important;
+}
+
+html.lotm-klein-equipped body :where(
+    h1, h2, h3, h4, h5, h6,
+    .page-title, .section-title, .modal-title, .popup-title,
+    .card-title, .accordion-title
+) {
+    color: #eee7d9 !important;
+    font-family: Georgia, "Times New Roman", serif !important;
+    letter-spacing: .025em;
+}
+
+html.lotm-klein-equipped body :where(a, .link, .text-link) {
+    color: #d3ba7d !important;
+}
+
+html.lotm-klein-equipped body :where(a, .link, .text-link):hover {
+    color: #f0dca8 !important;
+    text-shadow: 0 0 10px rgba(194,164,105,.18);
+}
+
+/* ============================================================================
+   3) SIDEBAR / NAVIGATION / TOOLBAR
+   ============================================================================ */
+
+html.lotm-klein-equipped body :where(
+    .sidebar, aside, .left-sidebar, .side-menu,
+    .navigation-sidebar, .student-sidebar
+):not(.ui-theme-immune):not([data-theme-immune="true"]) {
+    color: #d9d1c3 !important;
+    background:
+        linear-gradient(180deg, rgba(18,21,28,.96), rgba(8,10,14,.97)),
+        repeating-linear-gradient(90deg, transparent 0 29px, rgba(194,164,105,.022) 30px 31px) !important;
+    border-color: rgba(194,164,105,.20) !important;
+    box-shadow:
+        10px 0 30px rgba(0,0,0,.22),
+        inset -1px 0 rgba(229,207,152,.035) !important;
+}
+
+html.lotm-klein-equipped body :where(
+    .nav-item, .sidebar-item, .menu-item, .tab-button, .tab-btn,
+    .dropdown-item, .sidebar-link, .nav-link
+):not(.ui-theme-immune):not([data-theme-immune="true"]) {
+    color: #c8c2b7 !important;
+    border-radius: 8px !important;
+    border: 1px solid transparent !important;
+    background: transparent !important;
+    transition: .22s ease !important;
+}
+
+html.lotm-klein-equipped body :where(
+    .nav-item, .sidebar-item, .menu-item, .tab-button, .tab-btn,
+    .dropdown-item, .sidebar-link, .nav-link
+):not(.ui-theme-immune):not([data-theme-immune="true"]):hover {
+    color: #f0e7d4 !important;
+    border-color: rgba(194,164,105,.17) !important;
+    background: linear-gradient(90deg, rgba(194,164,105,.07), rgba(108,35,48,.07)) !important;
+}
+
+html.lotm-klein-equipped body :where(
+    .nav-item.active, .sidebar-item.active, .menu-item.active,
+    .tab-button.active, .tab-btn.active, .nav-link.active
+):not(.ui-theme-immune):not([data-theme-immune="true"]) {
+    color: #f4ead3 !important;
+    border-color: rgba(194,164,105,.34) !important;
+    background:
+        linear-gradient(90deg, rgba(108,35,48,.26), rgba(194,164,105,.08)) !important;
+    box-shadow: inset 3px 0 0 #c2a469 !important;
+}
+
+html.lotm-klein-equipped body :where(
+    .header, .topbar, .top-bar, .navbar, .toolbar,
+    .page-header, .main-header, header
+):not(.ui-theme-immune):not([data-theme-immune="true"]) {
+    color: #e7dfd0 !important;
+    background:
+        linear-gradient(180deg, rgba(20,23,31,.94), rgba(11,13,18,.91)) !important;
+    border-color: rgba(194,164,105,.17) !important;
+    box-shadow: 0 10px 28px rgba(0,0,0,.18) !important;
+    backdrop-filter: blur(13px) saturate(.88) !important;
+    -webkit-backdrop-filter: blur(13px) saturate(.88) !important;
+}
+
+/* ============================================================================
+   4) PANELS / CARDS / CONTENT BOXES
+   ============================================================================ */
+
+html.lotm-klein-equipped body :where(
+    .card, .panel, .content-card, .dashboard-card, .widget,
+    .box, .section-card, .settings-card, .profile-card,
+    .assignment-card, .home-card, .feature-card
+):not(.luxury-product-card):not(.store-item-card):not(.ui-theme-immune):not([data-theme-immune="true"]) {
+    color: #d8d0c2 !important;
+    border-color: rgba(194,164,105,.16) !important;
+    border-radius: 10px 16px 10px 16px !important;
+    background:
+        linear-gradient(145deg, rgba(20,23,31,.90), rgba(10,12,17,.91)) !important;
+    box-shadow:
+        0 14px 34px rgba(0,0,0,.21),
+        inset 0 0 0 1px rgba(255,255,255,.017) !important;
+}
+
+/* ============================================================================
+   5) POPUPS / MODALS / MENUS
+   ============================================================================ */
+
+html.lotm-klein-equipped body :where(
+    .modal-content, .popup-content, .modal-container, .popup-container,
+    .modal-card, .student-modal-box, .notification-popup, .settings-popup,
+    .dialog-content, .dialog-box, .swal2-popup, .dropdown-menu,
+    .context-menu, .menu-popup, .popover, [role="dialog"]
+):not(.ui-theme-immune):not([data-theme-immune="true"]) {
+    color: #ddd4c5 !important;
+    border: 1px solid rgba(194,164,105,.29) !important;
+    border-radius: 8px 20px 8px 20px !important;
+    background:
+        radial-gradient(circle at 88% 7%, rgba(194,164,105,.07), transparent 23%),
+        linear-gradient(155deg, rgba(22,25,33,.98), rgba(9,11,15,.985)) !important;
+    box-shadow:
+        0 28px 70px rgba(0,0,0,.48),
+        inset 0 0 0 1px rgba(255,255,255,.025) !important;
+    backdrop-filter: blur(18px) saturate(.86) !important;
+    -webkit-backdrop-filter: blur(18px) saturate(.86) !important;
+}
+
+html.lotm-klein-equipped body :where(
+    .modal-overlay, .popup-overlay, .dialog-overlay, .swal2-container
+):not(.ui-theme-immune):not([data-theme-immune="true"]) {
+    background: rgba(2,3,5,.63) !important;
+    backdrop-filter: blur(5px) !important;
+    -webkit-backdrop-filter: blur(5px) !important;
+}
+
+html.lotm-klein-equipped body :where(
+    .modal-header, .popup-header, .dialog-header
+):not(.ui-theme-immune):not([data-theme-immune="true"]) {
+    border-bottom-color: rgba(194,164,105,.18) !important;
+    background: linear-gradient(90deg, rgba(108,35,48,.11), transparent 72%) !important;
+}
+
+html.lotm-klein-equipped body :where(
+    .modal-footer, .popup-footer, .dialog-footer
+):not(.ui-theme-immune):not([data-theme-immune="true"]) {
+    border-top-color: rgba(194,164,105,.16) !important;
+}
+
+/* ============================================================================
+   6) BUTTONS / INPUTS / FORM ELEMENTS
+   ============================================================================ */
+
+html.lotm-klein-equipped body :where(button, .btn, .button):not(.ui-theme-immune):not([data-theme-immune="true"]):not(.lotm-klein-card-action) {
+    color: #eee5d4 !important;
+    border-color: rgba(194,164,105,.28) !important;
+    border-radius: 8px !important;
+    background:
+        linear-gradient(135deg, rgba(62,46,38,.48), rgba(20,23,31,.92)) !important;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.018) !important;
+    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease !important;
+}
+
+html.lotm-klein-equipped body :where(button, .btn, .button):not(.ui-theme-immune):not([data-theme-immune="true"]):hover:not(:disabled) {
+    transform: translateY(-1px);
+    border-color: rgba(229,207,152,.48) !important;
+    box-shadow: 0 8px 18px rgba(0,0,0,.18), 0 0 12px rgba(194,164,105,.05) !important;
+}
+
+html.lotm-klein-equipped body :where(button, .btn, .button):disabled {
+    opacity: .54;
+}
+
+html.lotm-klein-equipped body :where(
+    input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
+    textarea, select, .input, .search-bar, .search-input
+):not(.ui-theme-immune):not([data-theme-immune="true"]) {
+    color: #e4ddcf !important;
+    caret-color: #d8bb78 !important;
+    border: 1px solid rgba(194,164,105,.21) !important;
+    border-radius: 7px 12px 7px 12px !important;
+    background: rgba(8,10,14,.74) !important;
+    box-shadow:
+        inset 0 1px 8px rgba(0,0,0,.24),
+        0 0 0 1px rgba(255,255,255,.009) !important;
+}
+
+html.lotm-klein-equipped body :where(
+    input:not([type="range"]), textarea, select, .input, .search-bar, .search-input
+):not(.ui-theme-immune):not([data-theme-immune="true"]):focus {
+    outline: none !important;
+    border-color: rgba(229,207,152,.55) !important;
+    box-shadow:
+        0 0 0 3px rgba(194,164,105,.09),
+        inset 0 1px 8px rgba(0,0,0,.24) !important;
+}
+
+html.lotm-klein-equipped body :where(input, textarea)::placeholder {
+    color: rgba(207,199,185,.46) !important;
+}
+
+html.lotm-klein-equipped body input[type="checkbox"],
+html.lotm-klein-equipped body input[type="radio"] {
+    accent-color: #b99a61;
+}
+
+html.lotm-klein-equipped body input[type="range"] {
+    appearance: none;
+    -webkit-appearance: none;
+    height: 18px;
+    background: transparent !important;
+}
+
+html.lotm-klein-equipped body input[type="range"]::-webkit-slider-runnable-track {
+    height: 5px;
+    border: 1px solid rgba(194,164,105,.24);
+    border-radius: 999px;
+    background:
+        linear-gradient(90deg, #4b2028, #b3945c, #555d68) !important;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,.35);
+}
+
+html.lotm-klein-equipped body input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 17px;
+    height: 17px;
+    margin-top: -7px;
+    border: 2px solid #e0c98f;
+    border-radius: 50%;
+    background: #171a21;
+    box-shadow: 0 0 0 3px rgba(194,164,105,.10), 0 2px 7px rgba(0,0,0,.38);
+}
+
+html.lotm-klein-equipped body input[type="range"]::-moz-range-track {
+    height: 5px;
+    border: 1px solid rgba(194,164,105,.24);
+    border-radius: 999px;
+    background: linear-gradient(90deg, #4b2028, #b3945c, #555d68);
+}
+
+html.lotm-klein-equipped body input[type="range"]::-moz-range-thumb {
+    width: 15px;
+    height: 15px;
+    border: 2px solid #e0c98f;
+    border-radius: 50%;
+    background: #171a21;
+}
+
+/* ============================================================================
+   7) TABLES / LISTS / PROGRESS
+   ============================================================================ */
+
+html.lotm-klein-equipped body :where(table, .table):not(.ui-theme-immune):not([data-theme-immune="true"]) {
+    border-color: rgba(194,164,105,.15) !important;
+    background: rgba(10,12,17,.72) !important;
+}
+
+html.lotm-klein-equipped body :where(th, .table-header):not(.ui-theme-immune):not([data-theme-immune="true"]) {
+    color: #eadfca !important;
+    border-color: rgba(194,164,105,.16) !important;
+    background: rgba(108,35,48,.13) !important;
+    font-family: Georgia, "Times New Roman", serif !important;
+}
+
+html.lotm-klein-equipped body :where(td, .table-cell):not(.ui-theme-immune):not([data-theme-immune="true"]) {
+    color: #d4ccbe !important;
+    border-color: rgba(194,164,105,.10) !important;
+}
+
+html.lotm-klein-equipped body :where(
+    progress, .progress, .progress-bar, .progress-track
+):not(.ui-theme-immune):not([data-theme-immune="true"]) {
+    border-radius: 999px !important;
+    background: #12151b !important;
+    border-color: rgba(194,164,105,.15) !important;
+}
+
+html.lotm-klein-equipped body :where(
+    .progress-fill, .progress-bar-fill, .progress-value
+):not(.ui-theme-immune):not([data-theme-immune="true"]) {
+    background: linear-gradient(90deg, #692735, #b69a61, #727b88) !important;
+}
+
+/* ============================================================================
+   8) SCROLLBARS
+   ============================================================================ */
+
+html.lotm-klein-equipped::-webkit-scrollbar,
+html.lotm-klein-equipped body::-webkit-scrollbar,
+html.lotm-klein-equipped body *:not(.ui-theme-immune)::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+html.lotm-klein-equipped::-webkit-scrollbar-track,
+html.lotm-klein-equipped body::-webkit-scrollbar-track,
+html.lotm-klein-equipped body *:not(.ui-theme-immune)::-webkit-scrollbar-track {
+    background: #0b0d12;
+}
+
+html.lotm-klein-equipped::-webkit-scrollbar-thumb,
+html.lotm-klein-equipped body::-webkit-scrollbar-thumb,
+html.lotm-klein-equipped body *:not(.ui-theme-immune)::-webkit-scrollbar-thumb {
+    border: 2px solid #0b0d12;
+    border-radius: 999px;
+    background:
+        linear-gradient(180deg, #8d764c, #4d4230 52%, #5d2630) !important;
+}
+
+html.lotm-klein-equipped body *::-webkit-scrollbar-thumb:hover,
+html.lotm-klein-equipped::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #bda267, #675638 52%, #793442) !important;
+}
+
+/* ============================================================================
+   9) FULL-WEB WORLD EFFECT
+   ============================================================================ */
+
+.lotm-klein-world {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .45s ease;
+    mix-blend-mode: normal;
+}
+
+.lotm-klein-world.is-active {
+    opacity: 1;
+}
+
+.lotm-klein-world-vignette {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 50% 44%, transparent 12%, rgba(6,7,10,.18) 64%, rgba(3,4,6,.45) 100%),
+        linear-gradient(90deg, rgba(80,27,38,.08), transparent 23% 77%, rgba(80,27,38,.08));
+}
+
+.lotm-klein-world-fog {
+    position: absolute;
+    width: 65vw;
+    height: 26vh;
+    border-radius: 50%;
+    filter: blur(28px);
+    opacity: .30;
+    background: radial-gradient(ellipse, rgba(183,191,204,.28), rgba(96,103,116,.08) 55%, transparent 73%);
+}
+
+.lotm-klein-world-fog.fog-a {
+    left: -12vw;
+    top: 10vh;
+    animation: lotmkWorldFogA 13s ease-in-out infinite alternate;
+}
+
+.lotm-klein-world-fog.fog-b {
+    right: -16vw;
+    bottom: 8vh;
+    animation: lotmkWorldFogB 16s ease-in-out infinite alternate;
+}
+
+.lotm-klein-world-sigil {
+    position: absolute;
+    left: 50%;
+    top: 48%;
+    width: min(66vw, 720px);
+    aspect-ratio: 1;
+    transform: translate(-50%,-50%);
+    border-radius: 50%;
+    opacity: .12;
+    border: 1px solid rgba(194,164,105,.46);
+    background:
+        repeating-conic-gradient(from 0deg, rgba(194,164,105,.42) 0 1deg, transparent 1deg 15deg),
+        radial-gradient(circle, transparent 0 41%, rgba(194,164,105,.20) 41.2% 41.5%, transparent 41.7% 58%, rgba(194,164,105,.16) 58.2% 58.5%, transparent 58.7%);
+    box-shadow: 0 0 80px rgba(194,164,105,.04);
+    animation: lotmkWorldSigil 52s linear infinite;
+}
+
+.lotm-klein-world-clock {
+    position: absolute;
+    right: 3.5vw;
+    top: 12vh;
+    width: 124px;
+    height: 124px;
+    border: 1px solid rgba(194,164,105,.20);
+    border-radius: 50%;
+    opacity: .26;
+    animation: lotmkWorldClock 31s linear infinite;
+}
+
+.lotm-klein-world-clock::before,
+.lotm-klein-world-clock::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 1px;
+    height: 42%;
+    transform-origin: 50% 0;
+    background: linear-gradient(#dcc58f, transparent);
+}
+
+.lotm-klein-world-clock::before { transform: rotate(23deg); }
+.lotm-klein-world-clock::after { height: 31%; transform: rotate(132deg); }
+
+.lotm-klein-world-cards {
+    position: absolute;
+    inset: 0;
+}
+
+.lotm-klein-world-card {
+    position: absolute;
+    width: 34px;
+    height: 52px;
+    border: 1px solid rgba(194,164,105,.22);
+    border-radius: 3px;
+    opacity: .16;
+    background:
+        radial-gradient(circle at 50% 48%, rgba(194,164,105,.24) 0 5%, transparent 6%),
+        linear-gradient(145deg, rgba(108,35,48,.20), rgba(12,14,19,.66));
+    box-shadow: inset 0 0 0 3px rgba(194,164,105,.025);
+    animation: lotmkWorldCardFloat var(--lotmk-duration, 12s) ease-in-out var(--lotmk-delay, 0s) infinite alternate;
+}
+
+.lotm-klein-world-motes {
+    position: absolute;
+    inset: 0;
+}
+
+.lotm-klein-world-mote {
+    position: absolute;
+    left: var(--lotmk-x);
+    top: var(--lotmk-y);
+    width: var(--lotmk-size);
+    height: var(--lotmk-size);
+    border-radius: 50%;
+    opacity: .22;
+    background: #d7c08a;
+    box-shadow: 0 0 8px rgba(215,192,138,.28);
+    animation: lotmkWorldMote var(--lotmk-duration) ease-in-out var(--lotmk-delay) infinite;
+}
+
+/* ============================================================================
+   10) UI FRAME
+   ============================================================================ */
+
+.lotm-klein-ui-frame {
+    position: fixed;
+    inset: 0;
+    z-index: 2147481000;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .38s ease;
+}
+
+.lotm-klein-ui-frame.is-active {
+    opacity: 1;
+}
+
+.lotm-klein-ui-corner {
+    position: absolute;
+    width: 72px;
+    height: 72px;
+    opacity: .54;
+}
+
+.lotm-klein-ui-corner::before,
+.lotm-klein-ui-corner::after {
+    content: "";
+    position: absolute;
+    background: linear-gradient(90deg, transparent, #b89b61);
+}
+
+.lotm-klein-ui-corner::before {
+    width: 72px;
+    height: 1px;
+}
+
+.lotm-klein-ui-corner::after {
+    width: 1px;
+    height: 72px;
+}
+
+.lotm-klein-ui-corner.tl { left: 11px; top: 11px; }
+.lotm-klein-ui-corner.tr { right: 11px; top: 11px; transform: scaleX(-1); }
+.lotm-klein-ui-corner.bl { left: 11px; bottom: 11px; transform: scaleY(-1); }
+.lotm-klein-ui-corner.br { right: 11px; bottom: 11px; transform: scale(-1); }
+
+.lotm-klein-ui-crest {
+    position: absolute;
+    left: 50%;
+    top: 10px;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: rgba(229,207,152,.58);
+    font: 700 8px/1 var(--lotmk-font-ui);
+    letter-spacing: .28em;
+    text-transform: uppercase;
+}
+
+.lotm-klein-ui-crest::before,
+.lotm-klein-ui-crest::after {
+    content: "";
+    width: 72px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(194,164,105,.54));
+}
+
+.lotm-klein-ui-crest::after {
+    transform: scaleX(-1);
+}
+
+/* ============================================================================
+   11) PET REALM / PET IMAGE
+   ============================================================================ */
+
+#virtual-pet-container.pet-lotm-klein-stage {
+    isolation: isolate !important;
+    overflow: visible !important;
+}
+
+#virtual-pet-container.pet-lotm-klein-stage #virtual-pet-img.lotm-klein-pet {
+    position: relative;
+    z-index: 20;
+    user-select: none;
+    cursor: pointer;
+    transform-origin: 50% 77%;
+    filter:
+        drop-shadow(0 14px 14px rgba(0,0,0,.48))
+        drop-shadow(0 0 10px rgba(194,164,105,.16)) !important;
+    animation: lotmkPetIdle 4.8s cubic-bezier(.4,0,.2,1) infinite;
+    transition: filter .25s ease, transform .25s ease !important;
+}
+
+#virtual-pet-container.pet-lotm-klein-stage #virtual-pet-img.lotm-klein-pet:hover {
+    filter:
+        drop-shadow(0 16px 18px rgba(0,0,0,.56))
+        drop-shadow(0 0 15px rgba(229,207,152,.24))
+        drop-shadow(0 0 8px rgba(108,35,48,.21)) !important;
+}
+
+.lotm-klein-pet-realm {
+    position: absolute;
+    inset: -35px -35px -34px -35px;
+    z-index: 4;
+    pointer-events: none;
+    transform-origin: 50% 58%;
+}
+
+.lotm-klein-pet-halo {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 190px;
+    height: 190px;
+    transform: translate(-50%,-50%);
+    border-radius: 50%;
+    border: 1px solid rgba(194,164,105,.28);
+    background:
+        repeating-conic-gradient(from 0deg, rgba(194,164,105,.17) 0 1deg, transparent 1deg 22.5deg),
+        radial-gradient(circle, rgba(229,207,152,.09), rgba(108,35,48,.06) 44%, transparent 67%);
+    box-shadow:
+        inset 0 0 28px rgba(194,164,105,.05),
+        0 0 30px rgba(194,164,105,.06);
+    animation: lotmkPetHalo 17s linear infinite;
+}
+
+.lotm-klein-pet-ring {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    border-radius: 50%;
+    border: 1px dashed rgba(194,164,105,.20);
+    transform: translate(-50%,-50%);
+}
+
+.lotm-klein-pet-ring.ring-a {
+    width: 152px;
+    height: 152px;
+    animation: lotmkPetRingA 10s linear infinite;
+}
+
+.lotm-klein-pet-ring.ring-b {
+    width: 118px;
+    height: 118px;
+    border-color: rgba(169,176,187,.16);
+    animation: lotmkPetRingB 8s linear infinite reverse;
+}
+
+.lotm-klein-pet-eye {
+    position: absolute;
+    left: 50%;
+    top: 47%;
+    width: 58px;
+    height: 29px;
+    transform: translate(-50%,-50%) rotate(45deg);
+    border: 1px solid rgba(229,207,152,.19);
+    border-radius: 70% 0 70% 0;
+    opacity: .36;
+}
+
+.lotm-klein-pet-eye::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 12px;
+    height: 12px;
+    transform: translate(-50%,-50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, #ead69d, #7b2b39 46%, transparent 51%);
+    box-shadow: 0 0 10px rgba(229,207,152,.21);
+}
+
+.lotm-klein-pet-fog {
+    position: absolute;
+    left: 50%;
+    bottom: 18px;
+    width: 180px;
+    height: 54px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(179,187,199,.22), transparent 68%);
+    filter: blur(8px);
+    animation: lotmkPetFog 4.9s ease-in-out infinite alternate;
+}
+
+/* ============================================================================
+   12) GLOBAL CLICK EFFECT
+   ============================================================================ */
+
+.lotm-klein-page-click {
+    position: fixed;
+    left: var(--lotmk-click-x);
+    top: var(--lotmk-click-y);
+    z-index: 2147482000;
+    width: 12px;
+    height: 12px;
+    margin: -6px;
+    pointer-events: none;
+}
+
+.lotm-klein-page-click::before,
+.lotm-klein-page-click::after {
+    content: "";
+    position: absolute;
+    inset: -18px;
+    border: 1px solid rgba(229,207,152,.52);
+    border-radius: 50%;
+    animation: lotmkClickRing .72s ease-out forwards;
+}
+
+.lotm-klein-page-click::after {
+    inset: -8px;
+    border-style: dashed;
+    border-color: rgba(179,75,93,.48);
+    animation-delay: .06s;
+}
+
+.lotm-klein-click-shard {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 2px;
+    height: 11px;
+    transform-origin: 50% 0;
+    transform: rotate(var(--lotmk-angle)) translateY(-5px);
+    background: linear-gradient(180deg, #e2cc93, transparent);
+    animation: lotmkClickShard .72s ease-out forwards;
+}
+
+/* ============================================================================
+   13) CHARACTER CLICK ULTIMATE
+   ============================================================================ */
+
+.lotm-klein-ultimate {
+    position: fixed;
+    inset: 0;
+    z-index: 2147482500;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0;
+    background:
+        radial-gradient(circle at var(--lotmk-ux,50%) var(--lotmk-uy,50%), rgba(194,164,105,.13), transparent 22%),
+        radial-gradient(circle at 50% 50%, rgba(72,24,34,.12), transparent 56%),
+        rgba(3,4,6,.42);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    animation: lotmkUltimateScreen 1.72s ease forwards;
+}
+
+.lotm-klein-ultimate-sigil {
+    position: absolute;
+    left: var(--lotmk-ux,50%);
+    top: var(--lotmk-uy,50%);
+    width: min(72vw, 620px);
+    aspect-ratio: 1;
+    transform: translate(-50%,-50%) scale(.32) rotate(-18deg);
+    border: 1px solid rgba(229,207,152,.66);
+    border-radius: 50%;
+    background:
+        repeating-conic-gradient(from 0deg, rgba(229,207,152,.40) 0 1deg, transparent 1deg 15deg),
+        radial-gradient(circle, transparent 0 34%, rgba(194,164,105,.25) 34.2% 34.5%, transparent 34.7% 50%, rgba(194,164,105,.19) 50.2% 50.5%, transparent 50.7%);
+    box-shadow:
+        0 0 70px rgba(194,164,105,.13),
+        inset 0 0 70px rgba(108,35,48,.08);
+    animation: lotmkUltimateSigil 1.55s cubic-bezier(.2,.75,.2,1) forwards;
+}
+
+.lotm-klein-ultimate-eye {
+    position: absolute;
+    left: var(--lotmk-ux,50%);
+    top: var(--lotmk-uy,50%);
+    width: 110px;
+    height: 55px;
+    transform: translate(-50%,-50%) rotate(45deg) scale(.4);
+    border: 1px solid rgba(238,218,169,.72);
+    border-radius: 70% 0 70% 0;
+    opacity: 0;
+    animation: lotmkUltimateEye 1.25s .16s ease forwards;
+}
+
+.lotm-klein-ultimate-eye::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 28px;
+    height: 28px;
+    transform: translate(-50%,-50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, #f0dfb3 0 14%, #9d7d45 15% 31%, #5d202c 34% 62%, transparent 64%);
+    box-shadow: 0 0 28px rgba(229,207,152,.30);
+}
+
+.lotm-klein-ultimate-title {
+    position: absolute;
+    left: 50%;
+    bottom: 10vh;
+    transform: translateX(-50%) translateY(14px);
+    text-align: center;
+    opacity: 0;
+    color: #eee6d6;
+    text-shadow: 0 6px 22px rgba(0,0,0,.72);
+    animation: lotmkUltimateTitle 1.35s .20s ease forwards;
+}
+
+.lotm-klein-ultimate-title small {
+    display: block;
+    margin-bottom: 8px;
+    color: #c4aa70;
+    font: 700 9px/1 var(--lotmk-font-ui) !important;
+    letter-spacing: .38em;
+    text-transform: uppercase;
+}
+
+.lotm-klein-ultimate-title strong {
+    display: block;
+    font: 700 clamp(20px, 3vw, 39px)/1 Georgia, "Times New Roman", serif !important;
+    letter-spacing: .08em;
+}
+
+.lotm-klein-ultimate-fog {
+    position: absolute;
+    left: -10vw;
+    right: -10vw;
+    height: 22vh;
+    border-radius: 50%;
+    filter: blur(24px);
+    background: radial-gradient(ellipse, rgba(180,188,201,.24), transparent 68%);
+}
+
+.lotm-klein-ultimate-fog.fog-a {
+    top: 16vh;
+    animation: lotmkUltimateFogA 1.6s ease forwards;
+}
+
+.lotm-klein-ultimate-fog.fog-b {
+    bottom: 8vh;
+    animation: lotmkUltimateFogB 1.6s ease forwards;
+}
+
+/* ============================================================================
+   14) RESPONSIVE / ACCESSIBILITY
+   ============================================================================ */
+
+@media (max-width: 768px), (pointer: coarse) {
+    .lotm-klein-world-sigil {
+        width: min(88vw, 520px);
+        opacity: .09;
+    }
+
+    .lotm-klein-world-clock {
+        width: 82px;
+        height: 82px;
+        opacity: .19;
+    }
+
+    .lotm-klein-ui-corner {
+        width: 48px;
+        height: 48px;
+    }
+
+    .lotm-klein-ui-corner::before { width: 48px; }
+    .lotm-klein-ui-corner::after { height: 48px; }
+
+    .lotm-klein-ui-crest {
+        top: 8px;
+        max-width: 64vw;
+        font-size: 6px;
+        letter-spacing: .20em;
+    }
+
+    .lotm-klein-ui-crest::before,
+    .lotm-klein-ui-crest::after {
+        width: 34px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .lotm-klein-card *,
+    .lotm-klein-world *,
+    .lotm-klein-ui-frame *,
+    .lotm-klein-pet-realm *,
+    .lotm-klein-page-click *,
+    .lotm-klein-ultimate * {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+    }
+}
+
+/* ============================================================================
+   15) KEYFRAMES
+   ============================================================================ */
+
+@keyframes lotmkCardOrbit {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes lotmkCardSigil {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes lotmkCardFog {
+    from { transform: translate3d(-4%, -2%, 0) scale(1); opacity: .33; }
+    to { transform: translate3d(5%, 3%, 0) scale(1.08); opacity: .56; }
+}
+
+@keyframes lotmkCardClock {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes lotmkWorldFogA {
+    from { transform: translate3d(-2vw, -1vh, 0) scale(1); }
+    to { transform: translate3d(16vw, 5vh, 0) scale(1.18); }
+}
+
+@keyframes lotmkWorldFogB {
+    from { transform: translate3d(5vw, 1vh, 0) scale(1.08); }
+    to { transform: translate3d(-13vw, -5vh, 0) scale(1.20); }
+}
+
+@keyframes lotmkWorldSigil {
+    to { transform: translate(-50%,-50%) rotate(360deg); }
+}
+
+@keyframes lotmkWorldClock {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes lotmkWorldCardFloat {
+    from { transform: translate3d(0, 8px, 0) rotate(var(--lotmk-rot, -7deg)); }
+    to { transform: translate3d(var(--lotmk-dx, 10px), -18px, 0) rotate(calc(var(--lotmk-rot, -7deg) + 11deg)); }
+}
+
+@keyframes lotmkWorldMote {
+    0%, 100% { transform: translateY(0) scale(.7); opacity: .08; }
+    50% { transform: translateY(-18px) scale(1.2); opacity: .34; }
+}
+
+@keyframes lotmkPetIdle {
+    0%, 100% { transform: translateY(0) rotate(-.35deg); }
+    50% { transform: translateY(-5px) rotate(.35deg); }
+}
+
+@keyframes lotmkPetHalo {
+    to { transform: translate(-50%,-50%) rotate(360deg); }
+}
+
+@keyframes lotmkPetRingA {
+    to { transform: translate(-50%,-50%) rotate(360deg); }
+}
+
+@keyframes lotmkPetRingB {
+    to { transform: translate(-50%,-50%) rotate(360deg); }
+}
+
+@keyframes lotmkPetFog {
+    from { transform: translateX(-50%) scaleX(.88); opacity: .25; }
+    to { transform: translateX(-50%) scaleX(1.12); opacity: .45; }
+}
+
+@keyframes lotmkClickRing {
+    from { transform: scale(.35); opacity: .82; }
+    to { transform: scale(1.65); opacity: 0; }
+}
+
+@keyframes lotmkClickShard {
+    from { opacity: .76; transform: rotate(var(--lotmk-angle)) translateY(-5px) scaleY(.7); }
+    to { opacity: 0; transform: rotate(var(--lotmk-angle)) translateY(-34px) scaleY(1.15); }
+}
+
+@keyframes lotmkUltimateScreen {
+    0% { opacity: 0; }
+    15%, 76% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes lotmkUltimateSigil {
+    0% { opacity: 0; transform: translate(-50%,-50%) scale(.30) rotate(-20deg); }
+    20% { opacity: .92; }
+    72% { opacity: .74; transform: translate(-50%,-50%) scale(1) rotate(16deg); }
+    100% { opacity: 0; transform: translate(-50%,-50%) scale(1.18) rotate(28deg); }
+}
+
+@keyframes lotmkUltimateEye {
+    0% { opacity: 0; transform: translate(-50%,-50%) rotate(45deg) scale(.35); }
+    28%, 67% { opacity: .88; transform: translate(-50%,-50%) rotate(45deg) scale(1); }
+    100% { opacity: 0; transform: translate(-50%,-50%) rotate(45deg) scale(1.18); }
+}
+
+@keyframes lotmkUltimateTitle {
+    0% { opacity: 0; transform: translateX(-50%) translateY(14px); }
+    28%, 72% { opacity: 1; transform: translateX(-50%) translateY(0); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-7px); }
+}
+
+@keyframes lotmkUltimateFogA {
+    from { transform: translateX(-12vw) scaleX(.9); opacity: 0; }
+    30%, 72% { opacity: .48; }
+    to { transform: translateX(16vw) scaleX(1.12); opacity: 0; }
+}
+
+@keyframes lotmkUltimateFogB {
+    from { transform: translateX(14vw) scaleX(1); opacity: 0; }
+    30%, 72% { opacity: .36; }
+    to { transform: translateX(-16vw) scaleX(1.16); opacity: 0; }
+}

@@ -5274,3 +5274,3295 @@ body.store-background-equipped[
     background-color:
         #0b1730 !important;
 }
+
+
+/* ============================================================================
+   14. TRUNG THU · CHÚ CUỘI — NGUYỆT QUẾ TIÊN ĐỒNG
+   Biến thể Premium #2.
+   - Dùng chung cấu trúc/runtime Mid-Autumn để giữ hiệu ứng đầy đủ.
+   - Namespace bổ sung: midautumn-cuoi-* / html.midautumn-cuoi-equipped
+   - KHÔNG thay đổi bố cục card; chỉ đổi skin riêng.
+   ============================================================================ */
+
+html.midautumn-cuoi-equipped body {
+    --ma-moon: #f5e6a8;
+    --ma-moon-soft: #fff8da;
+    --ma-gold: #c9a95d;
+    --ma-gold-deep: #7b5a23;
+    --ma-jade: #7eb89b;
+    --ma-jade-deep: #355f4b;
+    --ma-lotus: #d8a46c;
+    --ma-ink: #17231c;
+    --ma-night: #08130e;
+    --ma-night-2: #10281d;
+    --ma-paper: #f7f1d8;
+    --ma-paper-2: #e8dfbd;
+    --ma-text: #2f362a;
+    --ma-text-soft: #60634f;
+
+    font-family:
+        "Book Antiqua",
+        "Palatino Linotype",
+        Palatino,
+        Georgia,
+        "Times New Roman",
+        serif !important;
+
+    background:
+        radial-gradient(circle at 84% 7%, rgba(246, 228, 163, .42), transparent 26%),
+        radial-gradient(circle at 13% 78%, rgba(91, 143, 105, .20), transparent 31%),
+        linear-gradient(145deg, #f8f3df 0%, #e9e2c5 47%, #d9d4b8 100%) !important;
+    background-attachment: fixed !important;
+}
+
+/* Pop-up / dialog chuyển sang dáng "cổng nguyệt quế", vẫn không đổi DOM. */
+html.midautumn-cuoi-equipped body :where(
+    .modal-content, .popup-content, .dialog-content,
+    .swal2-popup, [role="dialog"]
+):not([data-theme-immune="true"]):not(.ui-theme-immune) {
+    border-radius: 12px 36px 12px 36px !important;
+    clip-path: polygon(
+        5% 0, 95% 0,
+        100% 8%, 100% 92%,
+        95% 100%, 5% 100%,
+        0 92%, 0 8%
+    );
+    border-color: rgba(92, 104, 58, .42) !important;
+    background:
+        radial-gradient(circle at 14% 5%, rgba(255, 238, 176, .26), transparent 29%),
+        linear-gradient(145deg, #f9f5e4, #e5ddbd) !important;
+}
+
+/* Ô nhập / select đổi hình lá quế, nhưng selector vẫn bám đúng hệ form cũ. */
+html.midautumn-cuoi-equipped body :where(
+    input:not([type="range"]), textarea, select,
+    .form-control, .input, .search-box, .search-input
+):not([data-theme-immune="true"]):not(.ui-theme-immune) {
+    border-radius: 5px 20px 5px 20px !important;
+    border-color: rgba(75, 100, 65, .34) !important;
+    background:
+        linear-gradient(180deg, rgba(252, 249, 232, .98), rgba(232, 226, 194, .96)) !important;
+}
+
+/* Button / chip đổi sang ngọc-quế, hiệu ứng nhấn vẫn giữ. */
+html.midautumn-cuoi-equipped body :where(
+    button, .button, .btn, .action-button, .primary-button,
+    input[type="button"], input[type="submit"]
+):not([data-theme-immune="true"]):not(.ui-theme-immune):not(.midautumn-card-action) {
+    border-radius: 5px 20px 5px 20px !important;
+    border-color: rgba(77, 95, 49, .40) !important;
+    color: #243020 !important;
+    background:
+        linear-gradient(135deg, #e9d991, #b9bd70 52%, #7ca06e) !important;
+    box-shadow:
+        0 9px 22px rgba(45, 67, 44, .18),
+        inset 0 1px 0 rgba(255, 253, 230, .82) !important;
+}
+
+html.midautumn-cuoi-equipped body :where(
+    .tab, .tab-button, .filter-button, .chip, .badge
+):not([data-theme-immune="true"]):not(.ui-theme-immune) {
+    border-radius: 18px 999px 18px 999px !important;
+}
+
+/* Slider Cuội: vàng trăng -> xanh quế. */
+html.midautumn-cuoi-equipped body input[type="range"] {
+    background:
+        linear-gradient(90deg, #7ba37a 0%, #bfc77f 46%, #dfc772 100%) !important;
+}
+
+html.midautumn-cuoi-equipped body input[type="range"]::-webkit-slider-thumb {
+    border-radius: 50% 18% 50% 50%;
+    background:
+        radial-gradient(circle at 35% 31%, #fffbdc 0 18%, #dcd382 20% 52%, #72936a 55% 100%);
+}
+
+html.midautumn-cuoi-equipped body input[type="range"]::-moz-range-thumb {
+    border-radius: 50% 18% 50% 50%;
+    background:
+        radial-gradient(circle at 35% 31%, #fffbdc 0 18%, #dcd382 20% 52%, #72936a 55% 100%);
+}
+
+/* Scrollbar riêng. */
+html.midautumn-cuoi-equipped body::-webkit-scrollbar-thumb,
+html.midautumn-cuoi-equipped body *::-webkit-scrollbar-thumb {
+    background:
+        linear-gradient(180deg, #d9c66d, #7da273) !important;
+}
+
+/* World giữ đầy đủ lớp base nhưng chuyển sắc sang rừng nguyệt quế. */
+html.midautumn-cuoi-equipped .ma-world-night {
+    background:
+        radial-gradient(circle at 72% 17%, rgba(236, 222, 158, .20), transparent 25%),
+        linear-gradient(180deg, #07140d 0%, #0d2016 48%, #173022 100%) !important;
+}
+
+html.midautumn-cuoi-equipped .ma-world-aurora.aurora-a {
+    background: radial-gradient(ellipse, rgba(117, 168, 116, .25), transparent 66%) !important;
+}
+
+html.midautumn-cuoi-equipped .ma-world-aurora.aurora-b {
+    background: radial-gradient(ellipse, rgba(215, 188, 105, .22), transparent 66%) !important;
+}
+
+/* Realm pet #2, vẫn cùng kích thước/nhịp bố cục pet hiện tại. */
+#virtual-pet-container.pet-midautumn-cuoi-stage {
+    isolation: isolate;
+    overflow: visible !important;
+}
+
+#virtual-pet-container.pet-midautumn-cuoi-stage #virtual-pet-img.midautumn-cuoi-pet {
+    position: relative;
+    z-index: 12;
+    width: clamp(142px, 12vw, 188px) !important;
+    height: auto !important;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-drag: none;
+    filter:
+        drop-shadow(0 14px 14px rgba(5, 18, 10, .38))
+        drop-shadow(0 0 18px rgba(192, 201, 116, .28)) !important;
+    transform-origin: 50% 90%;
+    animation: maPetIdle 4.2s ease-in-out infinite;
+    transition: filter .2s ease, transform .2s ease;
+}
+
+#virtual-pet-container.pet-midautumn-cuoi-stage #virtual-pet-img.midautumn-cuoi-pet:hover {
+    filter:
+        drop-shadow(0 18px 17px rgba(5, 18, 10, .46))
+        drop-shadow(0 0 27px rgba(198, 207, 123, .46)) !important;
+}
+
+/* Card riêng Chú Cuội: GIỮ NGUYÊN BỐ CỤC, chỉ đổi skin. */
+.midautumn-premium-card.midautumn-cuoi-premium-card,
+.store-card-midautumn-cuoi {
+    --ma-card-accent: #93aa70;
+}
+
+.midautumn-cuoi-premium-card .midautumn-card-night,
+.store-card-midautumn-cuoi .midautumn-card-night {
+    background:
+        radial-gradient(circle at 76% 13%, rgba(240, 223, 153, .22), transparent 30%),
+        linear-gradient(155deg, #08150e 0%, #10281a 51%, #1c3925 100%) !important;
+}
+
+.midautumn-cuoi-premium-card .midautumn-card-palace,
+.store-card-midautumn-cuoi .midautumn-card-palace {
+    filter: hue-rotate(38deg) saturate(.82) brightness(.94);
+}
+
+.midautumn-cuoi-premium-card .midautumn-card-character,
+.store-card-midautumn-cuoi .midautumn-card-character {
+    filter:
+        drop-shadow(0 17px 18px rgba(3, 15, 8, .56))
+        drop-shadow(0 0 18px rgba(192, 204, 119, .18));
+}
+
+/* Card được miễn mọi skin giao diện khác nhưng vẫn giữ layout card gốc. */
+html.midautumn-moon-palace-equipped body
+.midautumn-cuoi-premium-card[data-theme-immune="true"],
+html.midautumn-cuoi-equipped body
+.midautumn-cuoi-premium-card[data-theme-immune="true"] {
+    font-family:
+        "Palatino Linotype",
+        Georgia,
+        serif !important;
+}
+
+/* Click/ultimate biến thể Cuội: chỉ đổi tông; timing/animation đầy đủ giữ nguyên. */
+html.midautumn-cuoi-equipped .midautumn-page-click .ring {
+    border-color: rgba(183, 197, 114, .58) !important;
+}
+
+html.midautumn-cuoi-equipped .midautumn-page-click .click-seal {
+    background:
+        radial-gradient(circle, rgba(255, 246, 196, .96), rgba(176, 188, 104, .85) 58%, rgba(73, 105, 70, .78) 100%) !important;
+}
+
+html.midautumn-cuoi-equipped .ma-ult-sky {
+    background:
+        radial-gradient(circle at 50% 33%, rgba(238, 224, 158, .18), transparent 28%),
+        linear-gradient(180deg, #06120b, #102a1a 58%, #173621) !important;
+}
+
+html.midautumn-cuoi-equipped .midautumn-dialogue {
+    border-color: rgba(186, 198, 113, .44) !important;
+    background:
+        linear-gradient(145deg, rgba(11, 29, 18, .96), rgba(38, 58, 31, .96)) !important;
+}
+
+/* Mobile: giữ nguyên bố cục card như các card khác. */
+@media (max-width: 768px) {
+    #virtual-pet-container.pet-midautumn-cuoi-stage #virtual-pet-img.midautumn-cuoi-pet {
+        width: clamp(126px, 30vw, 164px) !important;
+    }
+}
+
+/* ============================================================================
+   FIX TYPOGRAPHY · CHÚ CUỘI PREMIUM CARD
+   - Chặn text-align/word-spacing bị kế thừa từ giao diện khác.
+   - Dùng font sans-serif có hỗ trợ tiếng Việt ổn định trên Windows/Chrome.
+   - Chỉ tác động tiêu đề Chú Cuội, không đổi layout/card size.
+   ============================================================================ */
+.midautumn-premium-card.midautumn-cuoi-premium-card .midautumn-card-info h3,
+.store-card-midautumn-cuoi .midautumn-card-info h3 {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 0 9px !important;
+
+    font-family: "Segoe UI", Tahoma, Arial, "Noto Sans", sans-serif !important;
+    font-size: 18px !important;
+    font-weight: 800 !important;
+    font-style: normal !important;
+    font-stretch: normal !important;
+    font-variant: normal !important;
+    font-kerning: normal !important;
+    font-feature-settings: normal !important;
+
+    line-height: 1.22 !important;
+    letter-spacing: 0 !important;
+    word-spacing: 0 !important;
+
+    text-align: left !important;
+    text-align-last: left !important;
+    text-indent: 0 !important;
+    text-transform: none !important;
+    text-decoration: none !important;
+
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
+
+    color: #fff7e2 !important;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, .42) !important;
+}
+
+/* Màn hình hẹp: giữ tên gọn trong panel, không ép chữ/giãn từ. */
+@media (max-width: 768px), (pointer: coarse) {
+    .midautumn-premium-card.midautumn-cuoi-premium-card .midautumn-card-info h3,
+    .store-card-midautumn-cuoi .midautumn-card-info h3 {
+        font-size: 17px !important;
+        line-height: 1.2 !important;
+    }
+}
+
+
+/* ============================================================================
+   HOTFIX · CHÚ CUỘI — WORLD KHÔNG CHE NỘI DUNG WEBSITE
+   - World nằm sau dashboard thay vì phủ lên .content.
+   - Nền rừng nguyệt quế chuyển sang bán trong suốt.
+   - Giữ nguyên UI frame / pet / click / ultimate.
+   ============================================================================ */
+
+/* Chỉ áp dụng khi Chú Cuội đang được trang bị. */
+html.midautumn-cuoi-equipped .midautumn-world {
+    z-index: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Toàn bộ giao diện học sinh phải nằm trên ambient world. */
+html.midautumn-cuoi-equipped body > .dashboard {
+    position: relative !important;
+    z-index: 10 !important;
+    isolation: isolate;
+}
+
+/*
+ * Bản cũ dùng #07140d -> #173022 (100% opaque), nên che sạch .content.
+ * Dùng rgba để world chỉ nhuộm màu nền, nội dung vẫn đọc/nhấn bình thường.
+ */
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-night {
+    background:
+        radial-gradient(
+            circle at 72% 17%,
+            rgba(236, 222, 158, .18),
+            transparent 25%
+        ),
+        radial-gradient(
+            circle at 15% 76%,
+            rgba(91, 143, 105, .11),
+            transparent 31%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(7, 20, 13, .18) 0%,
+            rgba(13, 32, 22, .21) 48%,
+            rgba(23, 48, 34, .24) 100%
+        ) !important;
+}
+
+/* Hạ cường độ các dải sáng/sương ở giữa màn hình để không làm mờ chữ. */
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-aurora {
+    opacity: .55 !important;
+}
+
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-mist,
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-ribbons {
+    opacity: .42 !important;
+}
+
+/* Giữ frame trang trí ở trên cùng nhưng frame vốn pointer-events:none. */
+html.midautumn-cuoi-equipped .midautumn-ui-frame {
+    pointer-events: none !important;
+}
+
+/* Modal/toast/popover mở ngoài dashboard vẫn phải nổi trên ambient world. */
+html.midautumn-cuoi-equipped body > :where(
+    .modal-overlay,
+    .modal,
+    .popup,
+    .dialog,
+    .swal2-container,
+    #toast-container
+) {
+    position: relative;
+    z-index: 1000;
+}
+
+
+/* ============================================================================
+   FINAL HOTFIX · CHÚ CUỘI — TÁCH NỀN VÀ HIỆU ỨNG TOÀN WEB
+   - Không hạ toàn bộ .midautumn-world xuống sau dashboard nữa.
+   - World container không tạo stacking-context riêng.
+   - Nền / trăng / cung điện / sương: dưới nội dung.
+   - Lá quế / đèn lồng / sao / bụi sáng / dải sáng: nổi trên toàn website.
+   - Tất cả ambient layer đều pointer-events:none nên không chặn thao tác.
+   ============================================================================ */
+
+html.midautumn-cuoi-equipped .midautumn-world {
+    z-index: auto !important;
+    isolation: auto !important;
+    opacity: 1 !important;
+    transition: none !important;
+    pointer-events: none !important;
+}
+
+/* Nội dung ứng dụng ở tầng trung tâm. */
+html.midautumn-cuoi-equipped body > .dashboard {
+    position: relative !important;
+    z-index: 10 !important;
+    isolation: isolate;
+}
+
+/* --------------------------------------------------------------------------
+   BACKGROUND LAYER — nằm sau nội dung
+   -------------------------------------------------------------------------- */
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-night,
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-moon,
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-palace,
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-clouds,
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-aurora,
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-mist,
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-branch,
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-waterline,
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-vignette {
+    z-index: 1 !important;
+    pointer-events: none !important;
+}
+
+/* Nền Chú Cuội chỉ nhuộm màu, không tạo màn đen che nội dung. */
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-night {
+    background:
+        radial-gradient(circle at 72% 17%, rgba(236, 222, 158, .18), transparent 25%),
+        radial-gradient(circle at 15% 76%, rgba(91, 143, 105, .12), transparent 31%),
+        linear-gradient(
+            180deg,
+            rgba(7, 20, 13, .16) 0%,
+            rgba(13, 32, 22, .19) 48%,
+            rgba(23, 48, 34, .22) 100%
+        ) !important;
+}
+
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-aurora {
+    opacity: .52 !important;
+}
+
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-mist {
+    opacity: .34 !important;
+}
+
+/* --------------------------------------------------------------------------
+   FOREGROUND AMBIENT LAYER — nổi trên toàn website
+   -------------------------------------------------------------------------- */
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-lanterns,
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-osmanthus,
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-stars,
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-jade-dust,
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-fireflies,
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-lantern-chain,
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-ribbons {
+    z-index: 30 !important;
+    pointer-events: none !important;
+}
+
+/* Làm lớp foreground rõ hơn khi đi qua card/panel nhưng không che chữ. */
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-osmanthus,
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-stars,
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-jade-dust,
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-fireflies {
+    opacity: .92 !important;
+}
+
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-lanterns,
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-lantern-chain {
+    opacity: .84 !important;
+}
+
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-ribbons {
+    opacity: .48 !important;
+}
+
+/* Các phần tử hạt riêng lẻ cũng đảm bảo không bắt chuột. */
+html.midautumn-cuoi-equipped :where(
+    .ma-lantern,
+    .ma-osmanthus,
+    .ma-star,
+    .ma-jade-dust,
+    .ma-firefly
+) {
+    pointer-events: none !important;
+}
+
+/* UI frame vẫn ở lớp trang trí cao nhất như thiết kế gốc. */
+html.midautumn-cuoi-equipped .midautumn-ui-frame {
+    pointer-events: none !important;
+}
+
+/* Click effect / skill / ultimate giữ nguyên ở foreground. */
+html.midautumn-cuoi-equipped .midautumn-page-click,
+html.midautumn-cuoi-equipped .midautumn-dialogue,
+html.midautumn-cuoi-equipped .midautumn-ultimate {
+    pointer-events: none;
+}
+
+/* Modal/toast hệ thống phải cao hơn ambient foreground. */
+html.midautumn-cuoi-equipped body > :where(
+    .modal-overlay,
+    .modal,
+    .popup,
+    .dialog,
+    .swal2-container,
+    #toast-container
+) {
+    z-index: 1000 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html.midautumn-cuoi-equipped .midautumn-world .ma-world-ribbons {
+        opacity: .28 !important;
+    }
+}
+
+/* ============================================================================
+   FINAL OVERRIDE · CHÚ CUỘI — TRĂNG / CUNG ĐIỆN / SƯƠNG / AURORA FOREGROUND
+   - Toàn bộ hiệu ứng cảnh quan quan trọng nổi trên nội dung website.
+   - Chỉ lớp màu nền .ma-world-night được làm gần như trong suốt để không che chữ.
+   - pointer-events:none: không chặn nút / input / thao tác.
+   ============================================================================ */
+
+/* Đưa WORLD lên trên dashboard để các cảnh quan có thể thực sự nổi phía trước. */
+html.midautumn-cuoi-equipped .midautumn-world {
+    z-index: 40 !important;
+    isolation: isolate !important;
+    pointer-events: none !important;
+}
+
+/* Nền toàn màn hình KHÔNG được che web. Chỉ giữ một lớp tint rất nhẹ. */
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-night {
+    z-index: 0 !important;
+    pointer-events: none !important;
+    opacity: .18 !important;
+    background:
+        radial-gradient(circle at 72% 17%, rgba(236, 222, 158, .08), transparent 25%),
+        radial-gradient(circle at 15% 76%, rgba(91, 143, 105, .055), transparent 31%),
+        linear-gradient(
+            180deg,
+            rgba(7, 20, 13, .025) 0%,
+            rgba(13, 32, 22, .035) 48%,
+            rgba(23, 48, 34, .045) 100%
+        ) !important;
+}
+
+/* TRĂNG LỚN — foreground */
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-moon {
+    z-index: 44 !important;
+    opacity: .92 !important;
+    pointer-events: none !important;
+}
+
+/* CUNG ĐIỆN — foreground, tăng độ rõ vừa phải. */
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-palace {
+    z-index: 42 !important;
+    opacity: .24 !important;
+    pointer-events: none !important;
+    filter:
+        drop-shadow(0 0 18px rgba(231, 182, 90, .20))
+        drop-shadow(0 10px 26px rgba(4, 12, 9, .14)) !important;
+}
+
+/* MÂY / SƯƠNG — foreground nhưng trong suốt để chữ vẫn đọc được. */
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-clouds,
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-mist {
+    z-index: 43 !important;
+    pointer-events: none !important;
+}
+
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-mist {
+    opacity: .48 !important;
+}
+
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-clouds .cloud {
+    opacity: .24 !important;
+}
+
+/* AURORA — chạy phía trước toàn web. */
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-aurora {
+    z-index: 41 !important;
+    opacity: .62 !important;
+    pointer-events: none !important;
+    mix-blend-mode: screen;
+}
+
+/* Nhánh / đường nước cũng theo cảnh quan foreground. */
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-branch,
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-waterline {
+    z-index: 41 !important;
+    pointer-events: none !important;
+}
+
+/* Hạt, hoa, sao, đèn vẫn cao hơn lớp cảnh quan. */
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-lanterns,
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-osmanthus,
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-stars,
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-jade-dust,
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-fireflies,
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-lantern-chain,
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-ribbons {
+    z-index: 46 !important;
+    pointer-events: none !important;
+}
+
+/* Vignette chỉ viền màn hình, không phủ tối trung tâm. */
+html.midautumn-cuoi-equipped .midautumn-world .ma-world-vignette {
+    z-index: 47 !important;
+    pointer-events: none !important;
+    box-shadow: inset 0 0 90px rgba(9, 18, 13, .09) !important;
+}
+
+/* Khung trang trí / click / skill / ultimate vẫn là tầng cao nhất. */
+html.midautumn-cuoi-equipped .midautumn-ui-frame {
+    z-index: 2147480500 !important;
+    pointer-events: none !important;
+}
+
+html.midautumn-cuoi-equipped .midautumn-page-click {
+    z-index: 2147481800 !important;
+}
+
+html.midautumn-cuoi-equipped .midautumn-dialogue,
+html.midautumn-cuoi-equipped .midautumn-ultimate {
+    pointer-events: none !important;
+}
+
+/* Popup hệ thống phải luôn nổi trên ambient world. */
+html.midautumn-cuoi-equipped body > :where(
+    .modal-overlay,
+    .modal,
+    .popup,
+    .dialog,
+    .swal2-container,
+    #toast-container
+) {
+    z-index: 2147483000 !important;
+}
+
+
+/* ============================================================================
+   TRUNG THU · TIỂU CHÚ CUỘI — QUẾ ẢNH THỤ QUANG V1
+   - Vật phẩm: pet_trung_thu_chu_cuoi_chibi_2
+   - Card giữ NGUYÊN bố cục store-item-card, chỉ đổi mỹ thuật.
+   - Tag Trung Thu riêng: "Nguyệt Quế Ngọc Phiến".
+   - Pet realm + click effect dùng namespace macc2-* hoàn toàn độc lập.
+   - Không tái sử dụng mafc-* / midautumn-cuoi-* / effect khác.
+   ============================================================================ */
+
+/* === CARD RIÊNG, KHÔNG ĐỔI KÍCH THƯỚC / GRID / DOM === */
+/*
+ * Chỉ đổi skin. Không đặt height/min-height, không đổi grid/flex của card,
+ * không đổi kích thước item-icon-wrapper/item-actions của layout chuẩn.
+ */
+html body .store-item-card.store-card-midautumn-cuoi-chibi,
+html body .store-item-card[data-special-card="midautumn-cuoi-chibi"] {
+    position: relative !important;
+    isolation: isolate !important;
+    overflow: hidden !important;
+    color: #f5f3d7 !important;
+    background:
+        radial-gradient(circle at 82% 12%, rgba(244, 211, 113, .24), transparent 25%),
+        radial-gradient(circle at 14% 80%, rgba(82, 166, 112, .18), transparent 31%),
+        linear-gradient(155deg, #10241d 0%, #15372c 49%, #142a2e 100%) !important;
+    border: 1px solid rgba(211, 181, 91, .58) !important;
+    box-shadow:
+        0 13px 30px rgba(8, 30, 23, .28),
+        0 0 0 1px rgba(255, 240, 185, .09) inset,
+        0 0 24px rgba(93, 171, 112, .09) !important;
+    font-family: "Segoe UI", "Noto Sans", Arial, sans-serif !important;
+}
+
+html body .store-item-card.store-card-midautumn-cuoi-chibi::before,
+html body .store-item-card[data-special-card="midautumn-cuoi-chibi"]::before {
+    content: "" !important;
+    position: absolute !important;
+    inset: 7px !important;
+    pointer-events: none !important;
+    z-index: 0 !important;
+    border: 1px solid rgba(241, 215, 139, .17) !important;
+    border-radius: inherit !important;
+    background:
+        linear-gradient(115deg, transparent 0 47%, rgba(255,255,255,.08) 50%, transparent 53%),
+        radial-gradient(circle at 50% 116%, rgba(90, 153, 91, .20), transparent 42%) !important;
+    opacity: .95 !important;
+}
+
+html body .store-item-card.store-card-midautumn-cuoi-chibi::after,
+html body .store-item-card[data-special-card="midautumn-cuoi-chibi"]::after {
+    content: "桂" !important;
+    position: absolute !important;
+    right: 11px !important;
+    bottom: 8px !important;
+    z-index: 0 !important;
+    pointer-events: none !important;
+    color: rgba(224, 205, 133, .09) !important;
+    font: 700 56px/1 Georgia, serif !important;
+    transform: rotate(-7deg) !important;
+}
+
+html body .store-item-card.store-card-midautumn-cuoi-chibi > *,
+html body .store-item-card[data-special-card="midautumn-cuoi-chibi"] > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Khóa card khỏi màu/font/shape do theme toàn web áp vào. */
+html.midautumn-moon-palace-equipped body .store-item-card.store-card-midautumn-cuoi-chibi,
+html body[class*="theme-"] .store-item-card.store-card-midautumn-cuoi-chibi,
+html body .store-item-card.store-card-midautumn-cuoi-chibi[data-theme-immune="true"] {
+    font-family: "Segoe UI", "Noto Sans", Arial, sans-serif !important;
+}
+
+/* Giữ căn giữa giống card chuẩn, không ép layout chữ sang trái. */
+html body .store-item-card.store-card-midautumn-cuoi-chibi .item-name,
+html body .store-item-card.store-card-midautumn-cuoi-chibi .item-type-label {
+    font-family: "Segoe UI", "Noto Sans", Arial, sans-serif !important;
+    letter-spacing: 0 !important;
+    word-spacing: 0 !important;
+    text-align: center !important;
+    text-align-last: center !important;
+}
+
+html body .store-item-card.store-card-midautumn-cuoi-chibi .item-name {
+    color: #fff1bc !important;
+    text-shadow: 0 1px 0 rgba(0,0,0,.30), 0 0 10px rgba(239, 207, 112, .12) !important;
+}
+
+html body .store-item-card.store-card-midautumn-cuoi-chibi .item-type-label {
+    color: #addbc2 !important;
+}
+
+html body .store-item-card.store-card-midautumn-cuoi-chibi .item-icon-wrapper {
+    background:
+        radial-gradient(circle at 50% 46%, rgba(255, 235, 155, .22), transparent 33%),
+        radial-gradient(circle at 50% 68%, rgba(111, 178, 113, .14), transparent 48%) !important;
+    border-color: rgba(200, 181, 105, .18) !important;
+}
+
+html body .store-item-card.store-card-midautumn-cuoi-chibi .item-icon {
+    filter:
+        drop-shadow(0 10px 13px rgba(5, 22, 15, .34))
+        drop-shadow(0 0 9px rgba(255, 225, 129, .20)) !important;
+}
+
+/* === TAG RIÊNG: NGUYỆT QUẾ NGỌC PHIẾN ===
+ * Dùng class riêng để tuyệt đối không kế thừa ribbon/transform của Tiểu Hằng Nga.
+ */
+html body .store-item-card.store-card-midautumn-cuoi-chibi
+> .item-tag.tag-trung-thu-cuoi-chibi,
+html body .store-item-card[data-special-card="midautumn-cuoi-chibi"]
+> .item-tag.tag-trung-thu-cuoi-chibi {
+    position: absolute !important;
+    top: 12px !important;
+    left: 12px !important;
+    right: auto !important;
+    bottom: auto !important;
+    inset: auto !important;
+
+    transform: none !important;
+    translate: none !important;
+    rotate: 0deg !important;
+    scale: 1 !important;
+
+    width: max-content !important;
+    min-width: 0 !important;
+    max-width: calc(100% - 24px) !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 5px 13px 5px 28px !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    box-sizing: border-box !important;
+
+    white-space: nowrap !important;
+    writing-mode: horizontal-tb !important;
+    text-orientation: mixed !important;
+
+    overflow: visible !important;
+    z-index: 30 !important;
+    pointer-events: none !important;
+    isolation: isolate !important;
+
+    color: #fff4bd !important;
+    background:
+        linear-gradient(135deg, #274a37 0%, #3f7048 52%, #9b7734 100%) !important;
+    border: 1px solid rgba(255, 224, 139, .70) !important;
+    border-radius: 999px 9px 999px 9px !important;
+    box-shadow:
+        0 6px 15px rgba(8, 35, 21, .28),
+        inset 0 1px 0 rgba(255,255,255,.20) !important;
+    text-shadow: 0 1px 2px rgba(7, 25, 14, .72) !important;
+}
+
+html body .store-item-card.store-card-midautumn-cuoi-chibi
+> .item-tag.tag-trung-thu-cuoi-chibi > span,
+html body .store-item-card[data-special-card="midautumn-cuoi-chibi"]
+> .item-tag.tag-trung-thu-cuoi-chibi > span {
+    display: inline-block !important;
+    position: relative !important;
+    transform: none !important;
+    translate: none !important;
+    rotate: 0deg !important;
+    margin: 0 !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    writing-mode: horizontal-tb !important;
+    text-orientation: mixed !important;
+}
+
+html body .store-item-card.store-card-midautumn-cuoi-chibi
+> .item-tag.tag-trung-thu-cuoi-chibi::before {
+    content: "☾" !important;
+    position: absolute !important;
+    left: 8px !important;
+    top: 50% !important;
+    margin: 0 !important;
+    transform: translateY(-53%) rotate(-12deg) !important;
+    color: #ffe8a0 !important;
+    font-size: 16px !important;
+    line-height: 1 !important;
+    text-shadow: 0 0 7px rgba(255, 225, 129, .62) !important;
+}
+
+html body .store-item-card.store-card-midautumn-cuoi-chibi
+> .item-tag.tag-trung-thu-cuoi-chibi::after {
+    content: "❧" !important;
+    position: absolute !important;
+    right: -8px !important;
+    bottom: -7px !important;
+    color: #83b875 !important;
+    font-size: 16px !important;
+    line-height: 1 !important;
+    transform: rotate(22deg) !important;
+    filter: drop-shadow(0 1px 2px rgba(15, 47, 25, .35)) !important;
+}
+
+/* Nút chỉ đổi màu; kích thước/flow vẫn do layout chuẩn của Store quản lý. */
+html body .store-item-card.store-card-midautumn-cuoi-chibi
+.item-actions :where(.btn-buy, .btn-equip, .btn-preview) {
+    font-family: "Segoe UI", "Noto Sans", Arial, sans-serif !important;
+}
+
+html body .store-item-card.store-card-midautumn-cuoi-chibi
+.item-actions .midautumn-coin-buy {
+    color: #fffbea !important;
+    background:
+        linear-gradient(135deg, #31573e, #4f7f50 55%, #ad853c) !important;
+    border-color: rgba(255, 226, 145, .56) !important;
+}
+
+/* === PET REALM CỤC BỘ === */
+#virtual-pet-container.pet-midautumn-cuoi-chibi-stage {
+    overflow: visible !important;
+}
+
+#virtual-pet-container.pet-midautumn-cuoi-chibi-stage
+#virtual-pet-img.macc2-avatar {
+    position: relative !important;
+    z-index: 8 !important;
+    width: 132px !important;
+    height: auto !important;
+    transform-origin: 50% 88% !important;
+    filter:
+        drop-shadow(0 10px 13px rgba(30, 67, 39, .30))
+        drop-shadow(0 0 10px rgba(255, 228, 141, .24)) !important;
+    animation:
+        macc2PetIdle 3.9s ease-in-out infinite !important;
+    cursor: pointer !important;
+}
+
+#virtual-pet-container.pet-midautumn-cuoi-chibi-stage.macc2-awakening
+#virtual-pet-img.macc2-avatar {
+    animation:
+        macc2PetAwaken 1.15s cubic-bezier(.16,.8,.25,1) both,
+        macc2PetIdle 3.9s 1.15s ease-in-out infinite !important;
+}
+
+#virtual-pet-container.pet-midautumn-cuoi-chibi-stage.macc2-casting
+#virtual-pet-img.macc2-avatar {
+    animation:
+        macc2PetCast .76s cubic-bezier(.2,.86,.22,1) both !important;
+}
+
+.macc2-local-realm {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: 250px !important;
+    height: 250px !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 4 !important;
+    pointer-events: none !important;
+    overflow: visible !important;
+    isolation: isolate !important;
+}
+
+.macc2-aura,
+.macc2-moon-disc,
+.macc2-banyan-crown,
+.macc2-ring,
+.macc2-branch,
+.macc2-lantern,
+.macc2-ground-glow,
+.macc2-leaf-field,
+.macc2-firefly-field {
+    position: absolute !important;
+    pointer-events: none !important;
+}
+
+.macc2-aura {
+    inset: 18px !important;
+    border-radius: 50% !important;
+    background:
+        radial-gradient(circle, rgba(255, 238, 164, .33), rgba(102, 170, 106, .14) 44%, transparent 72%) !important;
+    filter: blur(2px) !important;
+    animation: macc2AuraBreath 3.4s ease-in-out infinite !important;
+}
+
+.macc2-moon-disc {
+    width: 104px !important;
+    height: 104px !important;
+    left: 50% !important;
+    top: 20px !important;
+    transform: translateX(-50%) !important;
+    border-radius: 50% !important;
+    background:
+        radial-gradient(circle at 38% 35%, #fffde5 0 14%, #ffe8a4 34%, #e7bd64 68%, rgba(230, 183, 85, .12) 72%) !important;
+    box-shadow:
+        0 0 22px rgba(255, 229, 145, .58),
+        0 0 54px rgba(255, 224, 123, .24) !important;
+    opacity: .72 !important;
+    animation: macc2MoonPulse 4.2s ease-in-out infinite !important;
+}
+
+.macc2-banyan-crown {
+    left: 50% !important;
+    top: 50px !important;
+    width: 162px !important;
+    height: 92px !important;
+    transform: translateX(-50%) !important;
+    opacity: .38 !important;
+    background:
+        radial-gradient(ellipse at 25% 55%, rgba(61, 111, 70, .72) 0 18%, transparent 20%),
+        radial-gradient(ellipse at 45% 40%, rgba(76, 132, 76, .78) 0 22%, transparent 24%),
+        radial-gradient(ellipse at 65% 48%, rgba(57, 110, 63, .76) 0 21%, transparent 23%),
+        radial-gradient(ellipse at 79% 63%, rgba(88, 142, 82, .68) 0 17%, transparent 19%) !important;
+    filter: drop-shadow(0 4px 7px rgba(35, 72, 39, .28)) !important;
+    animation: macc2CrownSway 5.2s ease-in-out infinite !important;
+}
+
+.macc2-ring {
+    left: 50% !important;
+    top: 50% !important;
+    border: 1px solid rgba(229, 194, 103, .44) !important;
+    border-radius: 50% !important;
+    transform: translate(-50%, -50%) !important;
+}
+
+.macc2-ring.ring-a {
+    width: 174px !important;
+    height: 174px !important;
+    animation: macc2RingSpin 10s linear infinite !important;
+}
+
+.macc2-ring.ring-b {
+    width: 210px !important;
+    height: 210px !important;
+    border-style: dashed !important;
+    opacity: .55 !important;
+    animation: macc2RingSpinReverse 14s linear infinite !important;
+}
+
+.macc2-branch {
+    top: 92px !important;
+    width: 86px !important;
+    height: 38px !important;
+    border-top: 3px solid rgba(64, 102, 58, .46) !important;
+    border-radius: 50% !important;
+    opacity: .75 !important;
+}
+
+.macc2-branch::before,
+.macc2-branch::after {
+    content: "" !important;
+    position: absolute !important;
+    width: 13px !important;
+    height: 7px !important;
+    border-radius: 100% 0 100% 0 !important;
+    background: linear-gradient(135deg, #5b9b63, #9abd67) !important;
+}
+
+.macc2-branch::before {
+    left: 18px !important;
+    top: -5px !important;
+    transform: rotate(-24deg) !important;
+}
+
+.macc2-branch::after {
+    right: 18px !important;
+    top: -8px !important;
+    transform: rotate(28deg) scaleX(-1) !important;
+}
+
+.macc2-branch.branch-left {
+    left: 9px !important;
+    transform: rotate(17deg) !important;
+}
+
+.macc2-branch.branch-right {
+    right: 9px !important;
+    transform: scaleX(-1) rotate(17deg) !important;
+}
+
+.macc2-lantern {
+    top: 75px !important;
+    color: #ffe49a !important;
+    font: 700 17px/1 Georgia, serif !important;
+    text-shadow:
+        0 0 6px rgba(255, 219, 116, .9),
+        0 0 14px rgba(255, 219, 116, .55) !important;
+    animation: macc2LanternSwing 2.9s ease-in-out infinite !important;
+}
+
+.macc2-lantern.lantern-left {
+    left: 30px !important;
+}
+
+.macc2-lantern.lantern-right {
+    right: 30px !important;
+    animation-delay: -1.35s !important;
+}
+
+.macc2-leaf-field,
+.macc2-firefly-field {
+    inset: 0 !important;
+}
+
+.macc2-leaf {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: 11px !important;
+    height: 6px !important;
+    margin: -3px 0 0 -5px !important;
+    border-radius: 100% 0 100% 0 !important;
+    background:
+        linear-gradient(135deg, #5b9660, #c9b65a) !important;
+    box-shadow: 0 0 5px rgba(230, 200, 99, .22) !important;
+    transform:
+        rotate(var(--macc2-la))
+        translateX(var(--macc2-lr))
+        rotate(var(--macc2-lab)) !important;
+    opacity: .72 !important;
+    animation:
+        macc2LeafOrbit 4.4s var(--macc2-ld) ease-in-out infinite !important;
+}
+
+.macc2-firefly {
+    position: absolute !important;
+    left: var(--macc2-fx) !important;
+    top: var(--macc2-fy) !important;
+    width: var(--macc2-fs) !important;
+    height: var(--macc2-fs) !important;
+    border-radius: 50% !important;
+    background: #fff2a5 !important;
+    box-shadow:
+        0 0 5px #ffe69a,
+        0 0 10px rgba(255, 227, 135, .68) !important;
+    animation:
+        macc2Firefly 2.6s var(--macc2-fd) ease-in-out infinite !important;
+}
+
+.macc2-ground-glow {
+    left: 50% !important;
+    bottom: 22px !important;
+    width: 138px !important;
+    height: 25px !important;
+    transform: translateX(-50%) !important;
+    border-radius: 50% !important;
+    background:
+        radial-gradient(ellipse, rgba(79, 139, 82, .30), transparent 70%) !important;
+    filter: blur(2px) !important;
+    animation: macc2GroundPulse 3.2s ease-in-out infinite !important;
+}
+
+/* === HIỆU ỨNG NHẤN CỤC BỘ === */
+.macc2-local-click-burst {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: 280px !important;
+    height: 280px !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 12 !important;
+    pointer-events: none !important;
+    overflow: visible !important;
+}
+
+.macc2-click-moon {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: 86px !important;
+    height: 86px !important;
+    margin: -43px 0 0 -43px !important;
+    border-radius: 50% !important;
+    background:
+        radial-gradient(circle, rgba(255,255,231,.96), rgba(255,225,137,.78) 48%, rgba(255,219,117,.08) 70%) !important;
+    animation: macc2ClickMoon .9s ease-out both !important;
+}
+
+.macc2-click-ring {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    border: 2px solid rgba(247, 221, 137, .78) !important;
+    border-radius: 50% !important;
+    transform: translate(-50%, -50%) !important;
+}
+
+.macc2-click-ring.ring-a {
+    width: 94px !important;
+    height: 94px !important;
+    animation: macc2ClickRingA 1.05s ease-out both !important;
+}
+
+.macc2-click-ring.ring-b {
+    width: 132px !important;
+    height: 132px !important;
+    border-style: dashed !important;
+    animation: macc2ClickRingB 1.2s .05s ease-out both !important;
+}
+
+.macc2-click-tree-rune {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    color: #4f7f52 !important;
+    font: 800 34px/1 Georgia, serif !important;
+    text-shadow:
+        0 0 7px rgba(255, 236, 164, .95),
+        0 0 16px rgba(255, 225, 122, .55) !important;
+    animation: macc2RuneBurst 1.1s ease-out both !important;
+}
+
+.macc2-click-ray-field {
+    position: absolute !important;
+    inset: 34px !important;
+    border-radius: 50% !important;
+    background:
+        repeating-conic-gradient(
+            from 8deg,
+            rgba(255, 232, 151, .34) 0 1.5deg,
+            transparent 1.5deg 18deg
+        ) !important;
+    -webkit-mask:
+        radial-gradient(circle, transparent 0 37%, #000 38% 72%, transparent 73%);
+    mask:
+        radial-gradient(circle, transparent 0 37%, #000 38% 72%, transparent 73%);
+    animation: macc2RayBurst 1.15s ease-out both !important;
+}
+
+.macc2-click-leaf-field,
+.macc2-click-firefly-field {
+    position: absolute !important;
+    inset: 0 !important;
+}
+
+.macc2-click-leaf,
+.macc2-click-firefly {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    pointer-events: none !important;
+}
+
+.macc2-click-leaf {
+    width: 13px !important;
+    height: 7px !important;
+    margin: -3px 0 0 -6px !important;
+    border-radius: 100% 0 100% 0 !important;
+    background:
+        linear-gradient(135deg, #5a9961, #d3b95b) !important;
+    opacity: 0 !important;
+    animation:
+        macc2ClickLeaf 1.05s var(--macc2-cdelay) cubic-bezier(.12,.7,.22,1) both !important;
+}
+
+.macc2-click-firefly {
+    width: 5px !important;
+    height: 5px !important;
+    margin: -2px 0 0 -2px !important;
+    border-radius: 50% !important;
+    color: #fff6b4 !important;
+    background: #ffe892 !important;
+    box-shadow:
+        0 0 6px #ffe690,
+        0 0 13px rgba(255, 222, 116, .68) !important;
+    font: 10px/1 Georgia, serif !important;
+    opacity: 0 !important;
+    animation:
+        macc2ClickFirefly 1.15s var(--macc2-sdelay) ease-out both !important;
+}
+
+@keyframes macc2PetIdle {
+    0%, 100% { transform: translateY(0) rotate(-.6deg); }
+    50% { transform: translateY(-7px) rotate(.7deg); }
+}
+
+@keyframes macc2PetAwaken {
+    0% { transform: translateY(18px) scale(.82); opacity: .2; filter: blur(3px); }
+    58% { transform: translateY(-8px) scale(1.06); opacity: 1; filter: blur(0); }
+    100% { transform: translateY(0) scale(1); opacity: 1; filter: blur(0); }
+}
+
+@keyframes macc2PetCast {
+    0% { transform: translateY(0) scale(1) rotate(0); }
+    28% { transform: translateY(-9px) scale(1.06) rotate(-3deg); }
+    58% { transform: translateY(-4px) scale(1.1) rotate(3deg); }
+    100% { transform: translateY(0) scale(1) rotate(0); }
+}
+
+@keyframes macc2AuraBreath {
+    0%, 100% { transform: scale(.94); opacity: .62; }
+    50% { transform: scale(1.08); opacity: .94; }
+}
+
+@keyframes macc2MoonPulse {
+    0%, 100% { transform: translateX(-50%) scale(.95); opacity: .58; }
+    50% { transform: translateX(-50%) scale(1.05); opacity: .82; }
+}
+
+@keyframes macc2CrownSway {
+    0%, 100% { transform: translateX(-50%) rotate(-1.4deg); }
+    50% { transform: translateX(-50%) rotate(1.8deg); }
+}
+
+@keyframes macc2RingSpin {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes macc2RingSpinReverse {
+    to { transform: translate(-50%, -50%) rotate(-360deg); }
+}
+
+@keyframes macc2LanternSwing {
+    0%, 100% { transform: rotate(-6deg) translateY(0); opacity: .72; }
+    50% { transform: rotate(7deg) translateY(-4px); opacity: 1; }
+}
+
+@keyframes macc2LeafOrbit {
+    0%, 100% {
+        opacity: .34;
+        transform:
+            rotate(var(--macc2-la))
+            translateX(calc(var(--macc2-lr) - 6px))
+            rotate(var(--macc2-lab))
+            scale(.82);
+    }
+    50% {
+        opacity: .92;
+        transform:
+            rotate(calc(var(--macc2-la) + 26deg))
+            translateX(calc(var(--macc2-lr) + 8px))
+            rotate(calc(var(--macc2-lab) - 26deg))
+            scale(1.08);
+    }
+}
+
+@keyframes macc2Firefly {
+    0%, 100% { transform: translate(-3px, 4px) scale(.65); opacity: .2; }
+    40% { transform: translate(5px, -7px) scale(1.1); opacity: 1; }
+    72% { transform: translate(10px, 3px) scale(.84); opacity: .55; }
+}
+
+@keyframes macc2GroundPulse {
+    0%, 100% { transform: translateX(-50%) scaleX(.86); opacity: .4; }
+    50% { transform: translateX(-50%) scaleX(1.1); opacity: .72; }
+}
+
+@keyframes macc2ClickMoon {
+    0% { transform: scale(.34); opacity: 0; filter: blur(4px); }
+    34% { transform: scale(1.08); opacity: .92; filter: blur(0); }
+    100% { transform: scale(1.7); opacity: 0; filter: blur(1px); }
+}
+
+@keyframes macc2ClickRingA {
+    0% { transform: translate(-50%, -50%) scale(.4); opacity: 0; }
+    24% { opacity: .92; }
+    100% { transform: translate(-50%, -50%) scale(1.9); opacity: 0; }
+}
+
+@keyframes macc2ClickRingB {
+    0% { transform: translate(-50%, -50%) scale(.45) rotate(0); opacity: 0; }
+    28% { opacity: .75; }
+    100% { transform: translate(-50%, -50%) scale(1.7) rotate(90deg); opacity: 0; }
+}
+
+@keyframes macc2RuneBurst {
+    0% { transform: translate(-50%, -50%) scale(.3) rotate(-16deg); opacity: 0; }
+    32% { transform: translate(-50%, -50%) scale(1.08) rotate(2deg); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1.45) rotate(8deg); opacity: 0; }
+}
+
+@keyframes macc2RayBurst {
+    0% { transform: scale(.42) rotate(-12deg); opacity: 0; }
+    28% { opacity: .68; }
+    100% { transform: scale(1.5) rotate(24deg); opacity: 0; }
+}
+
+@keyframes macc2ClickLeaf {
+    0% {
+        transform:
+            rotate(var(--macc2-ca))
+            translateX(22px)
+            rotate(var(--macc2-cab))
+            scale(.5);
+        opacity: 0;
+    }
+    24% { opacity: 1; }
+    100% {
+        transform:
+            rotate(var(--macc2-ca))
+            translateX(var(--macc2-cd))
+            rotate(calc(var(--macc2-cab) + 110deg))
+            scale(1.06);
+        opacity: 0;
+    }
+}
+
+@keyframes macc2ClickFirefly {
+    0% {
+        transform:
+            rotate(var(--macc2-sca))
+            translateX(12px)
+            rotate(var(--macc2-scab))
+            scale(.5);
+        opacity: 0;
+    }
+    28% { opacity: 1; }
+    100% {
+        transform:
+            rotate(var(--macc2-sca))
+            translateX(var(--macc2-scd))
+            rotate(var(--macc2-scab))
+            scale(1.2);
+        opacity: 0;
+    }
+}
+
+@media (max-width: 768px), (pointer: coarse) {
+    #virtual-pet-container.pet-midautumn-cuoi-chibi-stage
+    #virtual-pet-img.macc2-avatar {
+        width: 118px !important;
+    }
+
+    .macc2-local-realm {
+        width: 224px !important;
+        height: 224px !important;
+    }
+
+    .macc2-local-click-burst {
+        width: 250px !important;
+        height: 250px !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #virtual-pet-container.pet-midautumn-cuoi-chibi-stage
+    #virtual-pet-img.macc2-avatar,
+    .macc2-aura,
+    .macc2-moon-disc,
+    .macc2-banyan-crown,
+    .macc2-ring,
+    .macc2-lantern,
+    .macc2-leaf,
+    .macc2-firefly {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
+/* ============================================================================
+   HOTFIX V2 · TIỂU CHÚ CUỘI
+   1) Giữ chiều cao card đúng card chuẩn, không kéo cả hàng grid.
+   2) Phóng preview nhân vật nhưng KHÔNG thay đổi kích thước layout.
+   3) Bổ sung ultimate toàn web riêng khi nhấn pet.
+   ============================================================================ */
+
+/* --- CARD GEOMETRY: card-glow phải tuyệt đối, không được chiếm chiều cao --- */
+html body .store-item-card.store-card-midautumn-cuoi-chibi,
+html body .store-item-card[data-special-card="midautumn-cuoi-chibi"] {
+    box-sizing: border-box !important;
+    align-self: stretch !important;
+}
+
+html body .store-item-card.store-card-midautumn-cuoi-chibi > .card-glow,
+html body .store-item-card[data-special-card="midautumn-cuoi-chibi"] > .card-glow {
+    position: absolute !important;
+    inset: -38% !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    z-index: 0 !important;
+    pointer-events: none !important;
+    opacity: .72 !important;
+    background:
+        conic-gradient(
+            from 35deg,
+            transparent 0 20%,
+            rgba(247, 215, 120, .14) 24%,
+            transparent 31% 61%,
+            rgba(93, 183, 119, .14) 66%,
+            transparent 72% 100%
+        ) !important;
+    animation: macc2CardGlowSpin 13s linear infinite !important;
+}
+
+/* Chỉ ba khối nội dung này tham gia flow; không cho pseudo/glow làm cao card. */
+html body .store-item-card.store-card-midautumn-cuoi-chibi > .item-icon-wrapper,
+html body .store-item-card.store-card-midautumn-cuoi-chibi > .item-info,
+html body .store-item-card.store-card-midautumn-cuoi-chibi > .item-actions,
+html body .store-item-card[data-special-card="midautumn-cuoi-chibi"] > .item-icon-wrapper,
+html body .store-item-card[data-special-card="midautumn-cuoi-chibi"] > .item-info,
+html body .store-item-card[data-special-card="midautumn-cuoi-chibi"] > .item-actions {
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+/* Preview dùng đúng box của card chuẩn; chỉ scale ảnh bằng transform nên không kéo card. */
+html body .store-item-card.store-card-midautumn-cuoi-chibi .item-icon-wrapper,
+html body .store-item-card[data-special-card="midautumn-cuoi-chibi"] .item-icon-wrapper {
+    overflow: visible !important;
+    isolation: isolate !important;
+}
+
+html body .store-item-card.store-card-midautumn-cuoi-chibi .item-icon,
+html body .store-item-card[data-special-card="midautumn-cuoi-chibi"] .item-icon {
+    transform: translateY(-92px) scale(1.52) !important;
+    transform-origin: 50% 52% !important;
+    transition: transform .28s ease, filter .28s ease !important;
+}
+
+html body .store-item-card.store-card-midautumn-cuoi-chibi:hover .item-icon,
+html body .store-item-card[data-special-card="midautumn-cuoi-chibi"]:hover .item-icon {
+    transform: translateY(-96px) scale(1.58) !important;
+}
+
+/* Không cho tag hoặc glow góp chiều cao cho card. */
+html body .store-item-card.store-card-midautumn-cuoi-chibi > .item-tag,
+html body .store-item-card[data-special-card="midautumn-cuoi-chibi"] > .item-tag {
+    position: absolute !important;
+}
+
+/* --- PET REALM: tăng độ rõ, vẫn chỉ quanh pet --- */
+#virtual-pet-container.pet-midautumn-cuoi-chibi-stage .macc2-local-realm {
+    width: 278px !important;
+    height: 278px !important;
+}
+
+#virtual-pet-container.pet-midautumn-cuoi-chibi-stage .macc2-aura {
+    opacity: .96 !important;
+    filter: blur(1px) saturate(1.16) !important;
+}
+
+#virtual-pet-container.pet-midautumn-cuoi-chibi-stage .macc2-moon-disc {
+    width: 116px !important;
+    height: 116px !important;
+    opacity: .84 !important;
+    box-shadow:
+        0 0 26px rgba(255, 231, 145, .72),
+        0 0 72px rgba(255, 221, 111, .30) !important;
+}
+
+#virtual-pet-container.pet-midautumn-cuoi-chibi-stage .macc2-ring {
+    opacity: .88 !important;
+    box-shadow: 0 0 14px rgba(236, 205, 111, .24) !important;
+}
+
+#virtual-pet-container.pet-midautumn-cuoi-chibi-stage .macc2-firefly {
+    filter: drop-shadow(0 0 5px rgba(255, 229, 132, .86)) !important;
+}
+
+/* ============================================================================
+   ULTIMATE TOÀN WEB RIÊNG · QUẾ ẢNH THỤ QUANG
+   Không dùng bất kỳ class/keyframe mafc-* của Nguyệt Hạ Hoa Đăng.
+   ============================================================================ */
+.macc2-screen-ultimate {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 2147482900 !important;
+    pointer-events: none !important;
+    overflow: hidden !important;
+    isolation: isolate !important;
+    opacity: 0 !important;
+    transition: opacity .34s ease !important;
+}
+
+.macc2-screen-ultimate.is-active {
+    opacity: 1 !important;
+}
+
+.macc2-screen-ultimate.is-leaving {
+    opacity: 0 !important;
+    transition-duration: .72s !important;
+}
+
+.macc2-screen-night {
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 0 !important;
+    background:
+        radial-gradient(circle at 72% 26%, rgba(248, 221, 137, .22), transparent 24%),
+        radial-gradient(circle at 24% 70%, rgba(71, 150, 103, .20), transparent 30%),
+        linear-gradient(145deg, rgba(5, 18, 15, .76), rgba(8, 35, 28, .72) 48%, rgba(9, 20, 29, .78)) !important;
+    backdrop-filter: blur(1.2px) saturate(1.05) !important;
+    animation: macc2ScreenNightIn .7s ease both !important;
+}
+
+.macc2-screen-aurora {
+    position: absolute !important;
+    z-index: 1 !important;
+    width: 66vw !important;
+    height: 18vh !important;
+    border-radius: 50% !important;
+    filter: blur(18px) !important;
+    mix-blend-mode: screen !important;
+    opacity: .5 !important;
+}
+
+.macc2-screen-aurora.aurora-a {
+    left: -8vw !important;
+    top: 18vh !important;
+    transform: rotate(-9deg) !important;
+    background: linear-gradient(90deg, transparent, rgba(75, 185, 116, .34), rgba(239, 209, 111, .28), transparent) !important;
+    animation: macc2ScreenAuroraA 5.4s ease-in-out infinite !important;
+}
+
+.macc2-screen-aurora.aurora-b {
+    right: -10vw !important;
+    bottom: 16vh !important;
+    transform: rotate(8deg) !important;
+    background: linear-gradient(90deg, transparent, rgba(244, 213, 122, .24), rgba(60, 153, 108, .34), transparent) !important;
+    animation: macc2ScreenAuroraB 6.2s -1.8s ease-in-out infinite !important;
+}
+
+.macc2-screen-moon {
+    position: absolute !important;
+    left: 50% !important;
+    top: 38% !important;
+    width: min(48vw, 620px) !important;
+    aspect-ratio: 1 !important;
+    transform: translate(-50%, -50%) scale(.48) !important;
+    z-index: 2 !important;
+    border-radius: 50% !important;
+    opacity: 0 !important;
+    animation: macc2ScreenMoonIn 1.2s .08s cubic-bezier(.16,.8,.22,1) forwards !important;
+}
+
+.macc2-screen-moon .moon-halo,
+.macc2-screen-moon .moon-disc {
+    position: absolute !important;
+    inset: 0 !important;
+    border-radius: 50% !important;
+}
+
+.macc2-screen-moon .moon-halo {
+    inset: -13% !important;
+    background: radial-gradient(circle, rgba(255, 237, 171, .28), rgba(255, 225, 130, .10) 46%, transparent 72%) !important;
+    filter: blur(8px) !important;
+    animation: macc2ScreenHaloPulse 2.4s ease-in-out infinite !important;
+}
+
+.macc2-screen-moon .moon-disc {
+    background:
+        radial-gradient(circle at 36% 30%, #fffce7 0 13%, #f9e7af 23%, #efd18a 53%, #d4a854 78%, #9d742e 100%) !important;
+    box-shadow:
+        0 0 38px rgba(255, 233, 163, .52),
+        0 0 110px rgba(255, 218, 106, .21),
+        inset -28px -20px 45px rgba(138, 95, 34, .20) !important;
+    opacity: .9 !important;
+}
+
+.macc2-screen-moon .moon-rune {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) rotate(-8deg) !important;
+    color: rgba(77, 103, 56, .18) !important;
+    font: 700 min(17vw, 210px)/1 Georgia, serif !important;
+    text-shadow: 0 0 20px rgba(255,255,255,.18) !important;
+}
+
+.macc2-screen-banyan {
+    position: absolute !important;
+    left: 50% !important;
+    bottom: -5vh !important;
+    width: min(78vw, 980px) !important;
+    height: min(43vw, 490px) !important;
+    transform: translateX(-50%) translateY(70px) !important;
+    z-index: 3 !important;
+    opacity: 0 !important;
+    animation: macc2ScreenTreeIn 1.25s .22s cubic-bezier(.16,.8,.22,1) forwards !important;
+}
+
+.macc2-screen-banyan .banyan-crown,
+.macc2-screen-banyan .banyan-trunk,
+.macc2-screen-banyan .banyan-root {
+    position: absolute !important;
+}
+
+.macc2-screen-banyan .banyan-crown {
+    top: 0 !important;
+    width: 64% !important;
+    height: 58% !important;
+    border-radius: 50% !important;
+    background:
+        radial-gradient(ellipse at 30% 55%, rgba(52, 110, 68, .78) 0 24%, transparent 26%),
+        radial-gradient(ellipse at 54% 38%, rgba(70, 131, 78, .86) 0 29%, transparent 31%),
+        radial-gradient(ellipse at 72% 58%, rgba(42, 95, 61, .82) 0 24%, transparent 26%) !important;
+    filter: drop-shadow(0 8px 20px rgba(8, 35, 20, .38)) !important;
+}
+
+.macc2-screen-banyan .crown-a { left: 4% !important; }
+.macc2-screen-banyan .crown-b { right: 3% !important; transform: scaleX(-1) !important; opacity: .84 !important; }
+
+.macc2-screen-banyan .banyan-trunk {
+    left: 50% !important;
+    bottom: 2% !important;
+    width: 12% !important;
+    height: 62% !important;
+    transform: translateX(-50%) !important;
+    border-radius: 48% 52% 22% 24% !important;
+    background: linear-gradient(90deg, rgba(53, 37, 24, .82), rgba(101, 74, 42, .86), rgba(44, 31, 21, .84)) !important;
+    box-shadow: inset 0 0 18px rgba(255, 223, 153, .08) !important;
+}
+
+.macc2-screen-banyan .banyan-root {
+    bottom: 0 !important;
+    width: 34% !important;
+    height: 15% !important;
+    border-top: 5px solid rgba(83, 58, 32, .78) !important;
+    border-radius: 50% !important;
+}
+
+.macc2-screen-banyan .root-a { left: 20% !important; transform: rotate(-10deg) !important; }
+.macc2-screen-banyan .root-b { right: 20% !important; transform: rotate(10deg) !important; }
+
+.macc2-screen-ring {
+    position: absolute !important;
+    left: 50% !important;
+    top: 43% !important;
+    z-index: 4 !important;
+    border-radius: 50% !important;
+    border: 1px solid rgba(245, 214, 126, .42) !important;
+    box-shadow: 0 0 22px rgba(246, 214, 126, .14) !important;
+    opacity: 0 !important;
+}
+
+.macc2-screen-ring.ring-one {
+    width: min(58vw, 730px) !important;
+    aspect-ratio: 1 !important;
+    animation: macc2ScreenRingA 1.5s .18s ease-out forwards !important;
+}
+
+.macc2-screen-ring.ring-two {
+    width: min(70vw, 880px) !important;
+    aspect-ratio: 1 !important;
+    border-style: dashed !important;
+    animation: macc2ScreenRingB 1.7s .28s ease-out forwards !important;
+}
+
+.macc2-screen-ring.ring-three {
+    width: min(82vw, 1040px) !important;
+    aspect-ratio: 1 !important;
+    border-color: rgba(87, 175, 111, .32) !important;
+    animation: macc2ScreenRingC 1.9s .36s ease-out forwards !important;
+}
+
+.macc2-screen-cloud {
+    position: absolute !important;
+    z-index: 5 !important;
+    width: 36vw !important;
+    height: 8vh !important;
+    border-radius: 999px !important;
+    background: linear-gradient(90deg, transparent, rgba(233, 244, 219, .22), rgba(255, 230, 160, .20), transparent) !important;
+    filter: blur(1px) !important;
+    opacity: 0 !important;
+}
+
+.macc2-screen-cloud.cloud-left {
+    left: -9vw !important;
+    top: 52% !important;
+    animation: macc2ScreenCloudLeft 1.2s .38s ease-out forwards !important;
+}
+
+.macc2-screen-cloud.cloud-right {
+    right: -8vw !important;
+    top: 30% !important;
+    animation: macc2ScreenCloudRight 1.25s .45s ease-out forwards !important;
+}
+
+.macc2-screen-leaf-field,
+.macc2-screen-firefly-field,
+.macc2-screen-star-field {
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 6 !important;
+    pointer-events: none !important;
+}
+
+.macc2-screen-leaf {
+    position: absolute !important;
+    left: var(--macc2-slx) !important;
+    top: var(--macc2-sly) !important;
+    width: 9px !important;
+    height: 15px !important;
+    border-radius: 85% 15% 80% 18% !important;
+    background: linear-gradient(135deg, #8fbd6b, #4f8759 58%, #d6b85f) !important;
+    opacity: 0 !important;
+    transform: rotate(var(--macc2-slr)) scale(var(--macc2-sls)) !important;
+    animation: macc2ScreenLeafFall 3.15s var(--macc2-sld) linear both !important;
+}
+
+.macc2-screen-firefly {
+    position: absolute !important;
+    left: var(--macc2-sfx) !important;
+    top: var(--macc2-sfy) !important;
+    width: var(--macc2-sfs) !important;
+    height: var(--macc2-sfs) !important;
+    border-radius: 50% !important;
+    background: #ffe693 !important;
+    color: #fff0ad !important;
+    font-size: 11px !important;
+    line-height: 1 !important;
+    box-shadow: 0 0 8px rgba(255, 230, 143, .88) !important;
+    animation: macc2ScreenFirefly 1.9s var(--macc2-sfd) ease-in-out infinite !important;
+}
+
+.macc2-screen-star {
+    position: absolute !important;
+    left: var(--macc2-ssx) !important;
+    top: var(--macc2-ssy) !important;
+    color: rgba(255, 236, 174, .76) !important;
+    font-size: 14px !important;
+    text-shadow: 0 0 8px rgba(255, 226, 139, .65) !important;
+    animation: macc2ScreenStar 1.6s var(--macc2-ssd) ease-in-out infinite !important;
+}
+
+.macc2-screen-title {
+    position: absolute !important;
+    left: 50% !important;
+    top: 62% !important;
+    z-index: 8 !important;
+    width: min(760px, 88vw) !important;
+    transform: translate(-50%, -44%) scale(.84) !important;
+    text-align: center !important;
+    opacity: 0 !important;
+    filter: blur(5px) !important;
+    animation: macc2ScreenTitleIn 1s .62s cubic-bezier(.16,.8,.22,1) forwards !important;
+}
+
+.macc2-screen-title small,
+.macc2-screen-title strong,
+.macc2-screen-title span {
+    display: block !important;
+    text-align: center !important;
+}
+
+.macc2-screen-title small {
+    color: #9fd09f !important;
+    font: 700 clamp(11px, 1.2vw, 16px)/1.2 "Segoe UI", sans-serif !important;
+    letter-spacing: .26em !important;
+    text-shadow: 0 0 12px rgba(95, 175, 110, .34) !important;
+}
+
+.macc2-screen-title strong {
+    margin-top: 8px !important;
+    color: #fff0b2 !important;
+    font: 700 clamp(30px, 5vw, 72px)/1.02 Georgia, "Times New Roman", serif !important;
+    letter-spacing: .09em !important;
+    text-shadow:
+        0 3px 18px rgba(8, 24, 17, .68),
+        0 0 24px rgba(255, 222, 126, .28) !important;
+}
+
+.macc2-screen-title span {
+    margin-top: 10px !important;
+    color: #dfc470 !important;
+    font: 600 clamp(12px, 1.7vw, 20px)/1.2 Georgia, serif !important;
+    letter-spacing: .22em !important;
+}
+
+@keyframes macc2CardGlowSpin { to { transform: rotate(360deg); } }
+@keyframes macc2ScreenNightIn { from { opacity:0; } to { opacity:1; } }
+@keyframes macc2ScreenAuroraA { 0%,100% { translate:-2vw 0; opacity:.32; } 50% { translate:8vw 2vh; opacity:.58; } }
+@keyframes macc2ScreenAuroraB { 0%,100% { translate:3vw 0; opacity:.28; } 50% { translate:-7vw -2vh; opacity:.52; } }
+@keyframes macc2ScreenMoonIn { 0% { transform:translate(-50%,-50%) scale(.48); opacity:0; filter:blur(9px); } 65% { opacity:1; filter:blur(0); } 100% { transform:translate(-50%,-50%) scale(1); opacity:.94; filter:blur(0); } }
+@keyframes macc2ScreenHaloPulse { 0%,100% { transform:scale(.94); opacity:.58; } 50% { transform:scale(1.08); opacity:.92; } }
+@keyframes macc2ScreenTreeIn { from { transform:translateX(-50%) translateY(70px); opacity:0; } to { transform:translateX(-50%) translateY(0); opacity:.84; } }
+@keyframes macc2ScreenRingA { 0% { transform:translate(-50%,-50%) scale(.35); opacity:0; } 35% { opacity:.72; } 100% { transform:translate(-50%,-50%) scale(1); opacity:.38; } }
+@keyframes macc2ScreenRingB { 0% { transform:translate(-50%,-50%) scale(.28) rotate(-25deg); opacity:0; } 40% { opacity:.64; } 100% { transform:translate(-50%,-50%) scale(1) rotate(18deg); opacity:.28; } }
+@keyframes macc2ScreenRingC { 0% { transform:translate(-50%,-50%) scale(.22); opacity:0; } 45% { opacity:.5; } 100% { transform:translate(-50%,-50%) scale(1); opacity:.22; } }
+@keyframes macc2ScreenCloudLeft { from { transform:translateX(-20vw); opacity:0; } to { transform:translateX(0); opacity:.64; } }
+@keyframes macc2ScreenCloudRight { from { transform:translateX(20vw); opacity:0; } to { transform:translateX(0); opacity:.58; } }
+@keyframes macc2ScreenLeafFall { 0% { translate:0 0; rotate:0deg; opacity:0; } 12% { opacity:.82; } 100% { translate:10vw 118vh; rotate:420deg; opacity:0; } }
+@keyframes macc2ScreenFirefly { 0%,100% { transform:translate(-4px,3px) scale(.65); opacity:.18; } 45% { transform:translate(6px,-8px) scale(1.2); opacity:1; } 72% { transform:translate(10px,2px) scale(.88); opacity:.55; } }
+@keyframes macc2ScreenStar { 0%,100% { transform:scale(.65); opacity:.18; } 50% { transform:scale(1.15); opacity:.86; } }
+@keyframes macc2ScreenTitleIn { from { transform:translate(-50%,-44%) scale(.84); opacity:0; filter:blur(5px); } to { transform:translate(-50%,-50%) scale(1); opacity:1; filter:blur(0); } }
+
+@media (max-width: 768px), (pointer: coarse) {
+    html body .store-item-card.store-card-midautumn-cuoi-chibi .item-icon,
+    html body .store-item-card[data-special-card="midautumn-cuoi-chibi"] .item-icon {
+        transform: translateY(-62px) scale(1.36) !important;
+    }
+
+    .macc2-screen-moon {
+        width: min(76vw, 500px) !important;
+        top: 34% !important;
+    }
+
+    .macc2-screen-banyan {
+        width: 104vw !important;
+        height: 52vw !important;
+    }
+
+    .macc2-screen-title {
+        top: 65% !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .macc2-screen-ultimate *,
+    .store-card-midautumn-cuoi-chibi > .card-glow {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
+/* ============================================================================
+   HOTFIX V3 · TIỂU CHÚ CUỘI — KHÓA PREVIEW TRONG CARD
+   - Không cho ảnh preview tràn ra mép trên / tag / hàng card khác.
+   - Trả kích thước/vị trí về cùng cơ chế card chuẩn như Tiểu Hằng Nga.
+   - Không tác động pet runtime / macc2-* / hiệu ứng nhấn toàn web.
+   ============================================================================ */
+html body .store-item-card.store-card-midautumn-cuoi-chibi .item-icon-wrapper,
+html body .store-item-card[data-special-card="midautumn-cuoi-chibi"] .item-icon-wrapper {
+    overflow: hidden !important;
+    isolation: isolate !important;
+}
+
+html body .store-item-card.store-card-midautumn-cuoi-chibi .item-icon,
+html body .store-item-card[data-special-card="midautumn-cuoi-chibi"] .item-icon {
+    transform: none !important;
+    translate: none !important;
+    rotate: 0deg !important;
+    scale: 1 !important;
+    transform-origin: 50% 50% !important;
+    object-fit: contain !important;
+    object-position: center center !important;
+    transition: transform .28s ease, filter .28s ease !important;
+}
+
+html body .store-item-card.store-card-midautumn-cuoi-chibi:hover .item-icon,
+html body .store-item-card[data-special-card="midautumn-cuoi-chibi"]:hover .item-icon {
+    transform: translateY(-3px) scale(1.035) !important;
+}
+
+
+/* ============================================================================
+   TRUNG THU · QUẢNG HÀN NGUYỆT QUẾ — THEME V1
+   ID: theme_trung_thu_quang_han_nguyet_que
+   Class: body.theme-midautumn-osmanthus-jade
+   Namespace ambient: mtq5-*
+   - Bán 800 Coin thường.
+   - Cùng card/tag với Tiểu Hằng Nga · Nguyệt Đăng.
+   - Không tái sử dụng mttheme2-* hoặc hiệu ứng/theme khác.
+   - Thay đổi toàn bộ palette, font, popup, form, button, slider, scrollbar.
+   ============================================================================ */
+
+html body.theme-midautumn-osmanthus-jade {
+    --mtq5-ink: #172a25;
+    --mtq5-ink-soft: #365249;
+    --mtq5-paper: #f8f5e8;
+    --mtq5-paper-2: #e9eed9;
+    --mtq5-jade: #3f8b72;
+    --mtq5-jade-deep: #23604f;
+    --mtq5-jade-soft: #8fc3a9;
+    --mtq5-gold: #b99243;
+    --mtq5-gold-light: #e7cf87;
+    --mtq5-moon: #fff0bb;
+    --mtq5-wine: #8b5145;
+
+    --primary-color: var(--mtq5-gold) !important;
+    --secondary-color: var(--mtq5-jade) !important;
+    --accent-color: var(--mtq5-wine) !important;
+    --text-color: var(--mtq5-ink) !important;
+    --background-color: var(--mtq5-paper) !important;
+
+    font-family:
+        Candara,
+        "Segoe UI",
+        "Noto Sans",
+        Arial,
+        sans-serif !important;
+
+    color: var(--mtq5-ink) !important;
+
+    background:
+        radial-gradient(circle at 84% 8%, rgba(255, 239, 183, .30), transparent 25%),
+        radial-gradient(circle at 10% 78%, rgba(63, 139, 114, .13), transparent 29%),
+        linear-gradient(145deg, #fbf8eb 0%, #eef2df 48%, #e4ead4 100%) !important;
+
+    background-attachment: fixed !important;
+}
+
+/* Toàn bộ nội dung thật nằm trên ambient mới. */
+html body.theme-midautumn-osmanthus-jade > :not(.mtq5-osmanthus-jade-decor) {
+    position: relative;
+    z-index: 2;
+}
+
+html body.theme-midautumn-osmanthus-jade :where(
+    h1, h2, h3, h4, h5, h6,
+    .title, .page-title, .section-title,
+    .modal-title, .popup-title
+):not(.store-theme-locked *):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    font-family:
+        Cambria,
+        Georgia,
+        "Times New Roman",
+        serif !important;
+    letter-spacing: .035em !important;
+}
+
+/* Header / thanh điều hướng: men ngọc + chỉ vàng. */
+html body.theme-midautumn-osmanthus-jade :where(
+    header, .header, .topbar, .top-bar, .navbar, nav,
+    .app-header, .main-header
+):not(.store-theme-locked *):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    background:
+        linear-gradient(180deg, rgba(248, 246, 232, .96), rgba(231, 237, 215, .93)) !important;
+    border-bottom: 1px solid rgba(118, 104, 60, .32) !important;
+    box-shadow:
+        0 10px 30px rgba(39, 70, 58, .10),
+        inset 0 -1px rgba(255,255,255,.72) !important;
+    backdrop-filter: blur(15px) saturate(1.07);
+}
+
+/* Sidebar khác hẳn Nguyệt Hội Hoa Đăng: xanh ngọc trầm, không xanh đêm. */
+html body.theme-midautumn-osmanthus-jade :where(
+    .sidebar, aside, .side-bar, .navigation-panel, .menu-panel
+):not(.store-theme-locked *):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    background:
+        linear-gradient(180deg, rgba(25, 65, 54, .98), rgba(18, 47, 40, .98)) !important;
+    color: #fff2c6 !important;
+    border-right: 1px solid rgba(218, 190, 111, .30) !important;
+    box-shadow:
+        14px 0 34px rgba(25, 52, 45, .18),
+        inset -1px 0 rgba(255, 243, 203, .08) !important;
+}
+
+html body.theme-midautumn-osmanthus-jade :where(
+    .sidebar a, aside a, .sidebar button, aside button,
+    .nav-item, .menu-item
+):not(.store-theme-locked *):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    border-radius: 7px 22px 7px 22px !important;
+    transition:
+        transform .22s ease,
+        background .22s ease,
+        color .22s ease,
+        box-shadow .22s ease !important;
+}
+
+html body.theme-midautumn-osmanthus-jade :where(
+    .sidebar a, aside a, .sidebar button, aside button,
+    .nav-item, .menu-item
+):not(.store-theme-locked *):not(.ui-theme-immune *):not([data-theme-immune="true"] *):hover {
+    background:
+        linear-gradient(135deg, rgba(231, 207, 135, .19), rgba(100, 171, 143, .17)) !important;
+    color: #fff8dc !important;
+    transform: translateX(3px);
+    box-shadow:
+        inset 3px 0 0 var(--mtq5-gold);
+}
+
+/* Cards/panels: góc "nguyệt song" đối xứng, không dùng hình dáng theme cũ. */
+html body.theme-midautumn-osmanthus-jade :where(
+    .card, .panel, .widget, .content-card, .content-section,
+    .settings-card, .dashboard-card, .subject-card,
+    .store-section, .store-panel
+):not(.store-theme-locked):not(.ui-theme-immune):not([data-theme-immune="true"]):not(.luxury-product-card) {
+    background:
+        radial-gradient(circle at 86% 4%, rgba(255, 239, 183, .22), transparent 27%),
+        linear-gradient(145deg, rgba(251, 248, 235, .95), rgba(232, 239, 218, .93)) !important;
+    border: 1px solid rgba(76, 118, 91, .28) !important;
+    border-radius: 10px 30px 10px 30px !important;
+    box-shadow:
+        0 15px 38px rgba(42, 78, 64, .10),
+        inset 0 1px rgba(255,255,255,.84) !important;
+}
+
+/* Popup/dialog: dạng nguyệt song bát giác mềm. */
+html body.theme-midautumn-osmanthus-jade :where(
+    .modal-content, .popup-content, .dialog-content,
+    .swal2-popup, [role="dialog"],
+    .popover-content
+):not(.store-theme-locked *):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    font-family:
+        Candara,
+        "Segoe UI",
+        "Noto Sans",
+        Arial,
+        sans-serif !important;
+
+    background:
+        radial-gradient(circle at 83% 6%, rgba(255, 238, 179, .28), transparent 26%),
+        linear-gradient(145deg, #fbf8e9, #e7eed5) !important;
+
+    border: 1px solid rgba(85, 126, 94, .40) !important;
+    border-radius: 26px 8px 26px 8px !important;
+
+    clip-path:
+        polygon(
+            18px 0,
+            calc(100% - 18px) 0,
+            100% 18px,
+            100% calc(100% - 18px),
+            calc(100% - 18px) 100%,
+            18px 100%,
+            0 calc(100% - 18px),
+            0 18px
+        ) !important;
+
+    box-shadow:
+        0 28px 72px rgba(28, 57, 48, .24),
+        0 0 0 5px rgba(238, 220, 163, .20),
+        inset 0 1px rgba(255,255,255,.90) !important;
+}
+
+/* Input / textarea / select: "phiến ngọc" cắt góc. */
+html body.theme-midautumn-osmanthus-jade :where(
+    input:not([type="range"]),
+    textarea,
+    select,
+    .form-control,
+    .input,
+    .search-box,
+    .search-input
+):not(.store-theme-locked *):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    font: inherit !important;
+    color: #223b32 !important;
+
+    background:
+        linear-gradient(180deg, rgba(253, 250, 237, .98), rgba(232, 239, 217, .97)) !important;
+
+    border: 1px solid rgba(76, 126, 99, .34) !important;
+    border-radius: 6px 18px 6px 18px !important;
+
+    box-shadow:
+        inset 0 2px 7px rgba(37, 74, 60, .06),
+        0 1px rgba(255,255,255,.78) !important;
+
+    outline: none !important;
+    transition:
+        border-color .20s ease,
+        box-shadow .20s ease,
+        transform .20s ease !important;
+}
+
+html body.theme-midautumn-osmanthus-jade :where(
+    input:not([type="range"]),
+    textarea,
+    select,
+    .form-control,
+    .input,
+    .search-box,
+    .search-input
+):not(.store-theme-locked *):not(.ui-theme-immune *):not([data-theme-immune="true"] *):focus {
+    border-color: var(--mtq5-gold) !important;
+    box-shadow:
+        0 0 0 4px rgba(185, 146, 67, .15),
+        0 9px 24px rgba(49, 92, 73, .10),
+        inset 0 2px 6px rgba(36, 70, 57, .04) !important;
+    transform: translateY(-1px);
+}
+
+/* Buttons: thẻ ngọc khắc nguyệt quế. */
+html body.theme-midautumn-osmanthus-jade :where(
+    button, .button, .btn, .action-button, .primary-button,
+    input[type="button"], input[type="submit"]
+):not(.store-theme-locked *):not(.ui-theme-immune *):not([data-theme-immune="true"] *):not(.midautumn-card-action) {
+    font-family:
+        Candara,
+        "Segoe UI",
+        "Noto Sans",
+        Arial,
+        sans-serif !important;
+
+    border-radius: 6px 18px 6px 18px !important;
+    border: 1px solid rgba(82, 103, 54, .33) !important;
+
+    background:
+        linear-gradient(135deg, #d9c27a 0%, #b99243 46%, #4f977b 100%) !important;
+
+    color: #17362d !important;
+
+    box-shadow:
+        0 8px 22px rgba(55, 83, 60, .18),
+        inset 0 1px rgba(255, 248, 214, .74) !important;
+
+    transition:
+        transform .18s ease,
+        filter .18s ease,
+        box-shadow .18s ease !important;
+}
+
+html body.theme-midautumn-osmanthus-jade :where(
+    button, .button, .btn, .action-button, .primary-button,
+    input[type="button"], input[type="submit"]
+):not(.store-theme-locked *):not(.ui-theme-immune *):not([data-theme-immune="true"] *):not(.midautumn-card-action):hover {
+    transform: translateY(-2px) scale(1.01);
+    filter: brightness(1.045) saturate(1.04);
+    box-shadow:
+        0 13px 28px rgba(54, 83, 61, .23),
+        0 0 0 3px rgba(229, 206, 135, .15) !important;
+}
+
+html body.theme-midautumn-osmanthus-jade :where(
+    .tab, .tab-button, .filter-button, .chip, .badge
+):not(.store-theme-locked *):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    border-radius: 7px 999px 7px 999px !important;
+    border-color: rgba(79, 125, 95, .29) !important;
+}
+
+/* Slider riêng: thân cành nguyệt quế, thumb "lá ngọc". */
+html body.theme-midautumn-osmanthus-jade input[type="range"]:not(.store-theme-locked *) {
+    appearance: none;
+    -webkit-appearance: none;
+    height: 9px;
+    border-radius: 999px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #2f7a62 0%,
+            #79b08e 33%,
+            #d5bf73 66%,
+            #a97638 100%
+        ) !important;
+
+    border: 1px solid rgba(62, 103, 78, .29);
+    box-shadow:
+        inset 0 2px 6px rgba(31, 66, 53, .18),
+        0 1px rgba(255,255,255,.48);
+}
+
+html body.theme-midautumn-osmanthus-jade input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+
+    width: 25px;
+    height: 19px;
+
+    border-radius: 85% 16% 85% 16%;
+    transform: rotate(-28deg);
+
+    background:
+        radial-gradient(circle at 31% 26%, #fff8d9 0 15%, #d9ca80 18% 42%, #5b9a79 46% 100%);
+
+    border: 2px solid #f8ebba;
+
+    box-shadow:
+        0 4px 12px rgba(31, 65, 52, .24),
+        0 0 0 3px rgba(185, 146, 67, .12);
+
+    cursor: pointer;
+}
+
+html body.theme-midautumn-osmanthus-jade input[type="range"]::-moz-range-thumb {
+    width: 22px;
+    height: 17px;
+    border-radius: 85% 16% 85% 16%;
+    background: #5b9a79;
+    border: 2px solid #f8ebba;
+    box-shadow: 0 4px 12px rgba(31, 65, 52, .24);
+    cursor: pointer;
+}
+
+html body.theme-midautumn-osmanthus-jade :where(
+    .progress, progress
+):not(.store-theme-locked *):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    border-radius: 999px !important;
+    overflow: hidden;
+    accent-color: var(--mtq5-jade);
+}
+
+/* Tables */
+html body.theme-midautumn-osmanthus-jade :where(
+    table, .table
+):not(.store-theme-locked *):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    border-radius: 10px 24px 10px 24px !important;
+    overflow: hidden;
+    border-color: rgba(76, 118, 91, .25) !important;
+}
+
+html body.theme-midautumn-osmanthus-jade :where(
+    th, .table-header
+):not(.store-theme-locked *):not(.ui-theme-immune *):not([data-theme-immune="true"] *) {
+    background:
+        linear-gradient(135deg, rgba(63, 139, 114, .17), rgba(185, 146, 67, .18)) !important;
+    color: #28483d !important;
+}
+
+/* Scrollbar */
+html body.theme-midautumn-osmanthus-jade,
+html body.theme-midautumn-osmanthus-jade * {
+    scrollbar-width: thin;
+    scrollbar-color: #5f9a79 rgba(37, 78, 63, .13);
+}
+
+html body.theme-midautumn-osmanthus-jade::-webkit-scrollbar,
+html body.theme-midautumn-osmanthus-jade *::-webkit-scrollbar {
+    width: 11px;
+    height: 11px;
+}
+
+html body.theme-midautumn-osmanthus-jade::-webkit-scrollbar-track,
+html body.theme-midautumn-osmanthus-jade *::-webkit-scrollbar-track {
+    background:
+        linear-gradient(180deg, rgba(47, 101, 80, .11), rgba(185, 146, 67, .07));
+    border-radius: 999px;
+}
+
+html body.theme-midautumn-osmanthus-jade::-webkit-scrollbar-thumb,
+html body.theme-midautumn-osmanthus-jade *::-webkit-scrollbar-thumb {
+    background:
+        linear-gradient(180deg, #d7c27c, #4f9678 58%, #2b6553);
+    border: 2px solid rgba(248, 245, 225, .88);
+    border-radius: 999px 8px 999px 8px;
+}
+
+html body.theme-midautumn-osmanthus-jade ::selection {
+    background: rgba(103, 163, 126, .32);
+    color: #17352c;
+}
+
+/* ============================================================================
+   AMBIENT RIÊNG · MTQ5
+   Hiệu ứng toàn web hoàn toàn mới, không tái sử dụng mttheme2-*.
+   ============================================================================ */
+.mtq5-osmanthus-jade-decor {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .68s ease;
+    isolation: isolate;
+}
+
+.mtq5-osmanthus-jade-decor.is-mounted {
+    opacity: 1;
+}
+
+.mtq5-silk-wash {
+    position: absolute;
+    inset: 0;
+
+    background:
+        radial-gradient(circle at 80% 9%, rgba(255, 239, 184, .16), transparent 25%),
+        radial-gradient(circle at 13% 76%, rgba(63, 139, 114, .10), transparent 29%),
+        linear-gradient(180deg, rgba(245, 246, 230, .01), rgba(46, 90, 72, .055));
+}
+
+.mtq5-moon-window {
+    position: absolute;
+    right: clamp(25px, 6vw, 112px);
+    top: clamp(30px, 7vh, 94px);
+    width: clamp(150px, 18vw, 300px);
+    aspect-ratio: 1;
+    opacity: .36;
+    animation: mtq5MoonWindowFloat 8.4s ease-in-out infinite;
+}
+
+.mtq5-window-disc {
+    position: absolute;
+    inset: 17%;
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 34% 29%,
+            #fffdf0 0 18%,
+            #ffefb7 36%,
+            #d6bd72 68%,
+            rgba(191, 148, 61, .22) 72%
+        );
+
+    box-shadow:
+        0 0 34px rgba(255, 234, 164, .36),
+        inset -14px -12px 26px rgba(117, 85, 37, .13);
+}
+
+.mtq5-window-lattice {
+    position: absolute;
+    inset: 21%;
+    border-radius: 50%;
+    opacity: .26;
+
+    background:
+        linear-gradient(90deg, transparent 47%, #376e59 48% 52%, transparent 53%),
+        linear-gradient(0deg, transparent 47%, #376e59 48% 52%, transparent 53%),
+        linear-gradient(45deg, transparent 48%, #b4944e 49% 51%, transparent 52%),
+        linear-gradient(-45deg, transparent 48%, #b4944e 49% 51%, transparent 52%);
+
+    mask:
+        radial-gradient(circle, #000 0 70%, transparent 72%);
+}
+
+.mtq5-window-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(83, 135, 101, .34);
+}
+
+.mtq5-window-ring.ring-a {
+    inset: 7%;
+    border-style: dashed;
+    animation: mtq5RingSpin 20s linear infinite;
+}
+
+.mtq5-window-ring.ring-b {
+    inset: 0;
+    border-color: rgba(184, 146, 68, .28);
+    animation: mtq5RingSpin 28s linear infinite reverse;
+}
+
+.mtq5-cloud-ribbon {
+    position: absolute;
+    width: clamp(180px, 25vw, 430px);
+    height: clamp(22px, 3vw, 48px);
+    border-radius: 50%;
+    opacity: .16;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 247, 213, .86),
+            rgba(104, 170, 140, .52),
+            rgba(222, 196, 117, .56),
+            transparent
+        );
+
+    filter: blur(2px);
+    animation: mtq5CloudGlide 15s ease-in-out infinite;
+}
+
+.mtq5-cloud-ribbon.ribbon-a {
+    left: -6%;
+    top: 21%;
+}
+
+.mtq5-cloud-ribbon.ribbon-b {
+    right: 8%;
+    top: 52%;
+    transform: scale(.75);
+    animation-delay: -5s;
+}
+
+.mtq5-cloud-ribbon.ribbon-c {
+    left: 25%;
+    bottom: 11%;
+    transform: scale(.88);
+    animation-delay: -9s;
+}
+
+.mtq5-osmanthus-branch {
+    position: absolute;
+    width: clamp(130px, 18vw, 280px);
+    height: clamp(100px, 15vw, 230px);
+    opacity: .17;
+    filter:
+        drop-shadow(0 0 10px rgba(103, 155, 112, .12));
+}
+
+.mtq5-osmanthus-branch::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 3px;
+    height: 110%;
+    border-radius: 999px;
+    background:
+        linear-gradient(
+            180deg,
+            rgba(78, 117, 79, .30),
+            rgba(128, 92, 46, .25)
+        );
+    transform: rotate(27deg);
+}
+
+.mtq5-osmanthus-branch::after {
+    content: "❧  ❧  ✤  ❧  ✤  ❧";
+    position: absolute;
+    inset: 7% 3%;
+    color: rgba(75, 133, 89, .58);
+    font: 700 clamp(16px, 2.2vw, 30px)/2.4 Georgia, serif;
+    letter-spacing: .45em;
+    text-shadow: 0 0 8px rgba(230, 199, 111, .25);
+    transform: rotate(13deg);
+}
+
+.mtq5-osmanthus-branch.branch-left {
+    left: -2%;
+    bottom: 4%;
+    transform: rotate(-10deg);
+}
+
+.mtq5-osmanthus-branch.branch-right {
+    right: -1%;
+    top: 22%;
+    transform: rotate(168deg);
+}
+
+.mtq5-leaf-field,
+.mtq5-glass-field,
+.mtq5-moon-dust-field {
+    position: absolute;
+    inset: 0;
+}
+
+.mtq5-floating-leaf {
+    position: absolute;
+    left: var(--mtq5-lx);
+    top: -4vh;
+    width: 8px;
+    height: 13px;
+
+    border-radius: 80% 14% 80% 14%;
+
+    background:
+        linear-gradient(135deg, #3e8d70, #a8c887 62%, #d7bd69);
+
+    opacity: .30;
+
+    transform:
+        rotate(var(--mtq5-lr))
+        scale(var(--mtq5-ls));
+
+    animation:
+        mtq5LeafFall 11.5s linear var(--mtq5-ld) infinite;
+}
+
+.mtq5-glass-shard {
+    position: absolute;
+    left: var(--mtq5-gx);
+    top: var(--mtq5-gy);
+
+    width: 18px;
+    height: 8px;
+
+    border: 1px solid rgba(206, 225, 190, .30);
+    border-radius: 80% 12% 80% 12%;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255,255,255,.06),
+            rgba(124, 190, 160, .20),
+            rgba(229, 205, 130, .16)
+        );
+
+    box-shadow:
+        0 0 8px rgba(122, 179, 147, .08);
+
+    transform: rotate(var(--mtq5-gr));
+
+    opacity: .22;
+
+    animation:
+        mtq5GlassDrift 7.8s ease-in-out var(--mtq5-gd) infinite;
+}
+
+.mtq5-moon-dust-field i {
+    position: absolute;
+    left: var(--mtq5-dx);
+    top: var(--mtq5-dy);
+
+    width: var(--mtq5-ds);
+    height: var(--mtq5-ds);
+
+    border-radius: 50%;
+
+    background: #f4dda0;
+
+    box-shadow:
+        0 0 7px rgba(239, 211, 137, .62);
+
+    opacity: .26;
+
+    animation:
+        mtq5DustPulse 4.9s ease-in-out var(--mtq5-dd) infinite;
+}
+
+.mtq5-corner {
+    position: absolute;
+    width: 48px;
+    height: 48px;
+
+    display: grid;
+    place-items: center;
+
+    color: rgba(82, 133, 99, .31);
+
+    font:
+        600 17px/1
+        Cambria,
+        Georgia,
+        serif;
+
+    text-shadow:
+        0 0 11px rgba(229, 203, 127, .21);
+}
+
+.mtq5-corner::before,
+.mtq5-corner::after {
+    content: "";
+    position: absolute;
+    border-color: rgba(184, 146, 68, .22);
+    border-style: solid;
+}
+
+.mtq5-corner::before {
+    inset: 3px;
+    border-width: 1px 0 0 1px;
+}
+
+.mtq5-corner::after {
+    inset: 10px;
+    border-width: 1px 0 0 1px;
+}
+
+.mtq5-corner.corner-tl {
+    left: 13px;
+    top: 13px;
+}
+
+.mtq5-corner.corner-tr {
+    right: 13px;
+    top: 13px;
+    transform: rotate(90deg);
+}
+
+.mtq5-corner.corner-bl {
+    left: 13px;
+    bottom: 13px;
+    transform: rotate(-90deg);
+}
+
+.mtq5-corner.corner-br {
+    right: 13px;
+    bottom: 13px;
+    transform: rotate(180deg);
+}
+
+.mtq5-theme-caption {
+    position: absolute;
+    left: 50%;
+    bottom: 13px;
+
+    min-width: min(420px, 76vw);
+
+    transform: translateX(-50%);
+
+    text-align: center;
+
+    color: rgba(78, 115, 82, .35);
+
+    font-family:
+        Cambria,
+        Georgia,
+        serif;
+
+    letter-spacing: .16em;
+}
+
+.mtq5-theme-caption small,
+.mtq5-theme-caption strong {
+    display: block;
+}
+
+.mtq5-theme-caption small {
+    font-size: 7px;
+    letter-spacing: .38em;
+}
+
+.mtq5-theme-caption strong {
+    margin-top: 3px;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+@keyframes mtq5MoonWindowFloat {
+    0%, 100% {
+        transform: translate3d(0, 0, 0) rotate(-1deg);
+    }
+
+    50% {
+        transform: translate3d(0, -9px, 0) rotate(1.2deg);
+    }
+}
+
+@keyframes mtq5RingSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes mtq5CloudGlide {
+    0%, 100% {
+        translate: -8px 0;
+    }
+
+    50% {
+        translate: 16px -5px;
+    }
+}
+
+@keyframes mtq5LeafFall {
+    0% {
+        translate: -2vw 0;
+        rotate: 0deg;
+        opacity: 0;
+    }
+
+    13% {
+        opacity: .36;
+    }
+
+    100% {
+        translate: 10vw 112vh;
+        rotate: 430deg;
+        opacity: 0;
+    }
+}
+
+@keyframes mtq5GlassDrift {
+    0%, 100% {
+        translate: -4px 4px;
+        scale: .82;
+        opacity: .12;
+    }
+
+    50% {
+        translate: 9px -11px;
+        scale: 1.08;
+        opacity: .31;
+    }
+}
+
+@keyframes mtq5DustPulse {
+    0%, 100% {
+        transform: translate3d(-3px, 4px, 0) scale(.7);
+        opacity: .12;
+    }
+
+    50% {
+        transform: translate3d(7px, -8px, 0) scale(1.18);
+        opacity: .56;
+    }
+}
+
+@media (max-width: 768px), (pointer: coarse) {
+    .mtq5-moon-window {
+        width: min(45vw, 210px);
+        right: 18px;
+        top: 52px;
+    }
+
+    .mtq5-osmanthus-branch {
+        opacity: .11;
+    }
+
+    .mtq5-theme-caption {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mtq5-osmanthus-jade-decor * {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
+
+/* ============================================================================
+   TRUNG THU · QUẾ ẢNH PHI DIỆP — EFFECT TOÀN WEB V1
+   ID: effect_trung_thu_que_anh_phi_diep
+   Namespace tuyệt đối riêng: mtefx4-*
+   Không tái sử dụng mtefx3-* / macc2-* / mtq5-* hoặc effect khác.
+   ============================================================================ */
+.mtefx4-osmanthus-shadow-leaves {
+    position: fixed;
+    inset: 0;
+    z-index: 2147480400;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .55s ease;
+    isolation: isolate;
+    font-family: "Segoe UI", "Noto Sans", Arial, sans-serif;
+}
+.mtefx4-osmanthus-shadow-leaves.is-active { opacity: 1; }
+.mtefx4-osmanthus-shadow-leaves.is-leaving { opacity: 0; }
+.mtefx4-osmanthus-shadow-leaves * { pointer-events: none !important; }
+
+.mtefx4-veil {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background:
+        radial-gradient(circle at 78% 15%, rgba(255,224,137,.12), transparent 25%),
+        radial-gradient(circle at 18% 78%, rgba(66,150,104,.10), transparent 28%);
+    mix-blend-mode: screen;
+}
+
+.mtefx4-moon-halo {
+    position: absolute;
+    right: 5vw;
+    top: 5vh;
+    width: clamp(170px, 21vw, 340px);
+    aspect-ratio: 1;
+    z-index: 2;
+    animation: mtefx4MoonFloat 8s ease-in-out infinite;
+}
+.mtefx4-moon-disc {
+    position: absolute;
+    inset: 15%;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 35% 30%, #fff9dc 0 18%, #f5d987 42%, #c99e4d 76%, rgba(114,124,70,.72) 100%);
+    box-shadow: 0 0 42px rgba(245,216,126,.38), inset -18px -14px 30px rgba(81,92,55,.18);
+    opacity: .82;
+}
+.mtefx4-moon-ring {
+    position: absolute;
+    border: 1px solid rgba(232,205,123,.36);
+    border-radius: 50%;
+    inset: 7%;
+    animation: mtefx4RingSpin 22s linear infinite;
+}
+.mtefx4-moon-ring.ring-b { inset: 1%; opacity: .5; animation-duration: 31s; animation-direction: reverse; }
+.mtefx4-moon-halo > b {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: rgba(63,111,75,.34);
+    font: 700 clamp(42px,6vw,88px)/1 Georgia, serif;
+    text-shadow: 0 0 18px rgba(241,218,142,.3);
+}
+
+.mtefx4-banyan-shadow {
+    position: absolute;
+    z-index: 1;
+    width: min(34vw, 520px);
+    height: min(60vh, 620px);
+    bottom: -8vh;
+    opacity: .17;
+    filter: blur(.2px) drop-shadow(0 0 18px rgba(69,126,83,.16));
+}
+.mtefx4-banyan-shadow::before {
+    content: "";
+    position: absolute;
+    left: 44%;
+    bottom: 0;
+    width: 16%;
+    height: 62%;
+    border-radius: 55% 42% 20% 22%;
+    background: linear-gradient(90deg,#153b2e,#28583d,#173526);
+}
+.mtefx4-banyan-shadow::after {
+    content: "";
+    position: absolute;
+    left: 5%;
+    top: 0;
+    width: 90%;
+    height: 48%;
+    border-radius: 48% 52% 42% 58%;
+    background:
+        radial-gradient(ellipse at 26% 52%, #315f3c 0 13%, transparent 14%),
+        radial-gradient(ellipse at 50% 32%, #3b7147 0 18%, transparent 19%),
+        radial-gradient(ellipse at 72% 58%, #2b5f3b 0 16%, transparent 17%),
+        radial-gradient(ellipse at 47% 67%, #326e43 0 20%, transparent 21%);
+}
+.mtefx4-banyan-shadow.shadow-left { left: -8vw; transform: rotate(-4deg); }
+.mtefx4-banyan-shadow.shadow-right { right: -11vw; transform: scaleX(-1) rotate(-3deg); opacity: .11; }
+
+.mtefx4-mist {
+    position: absolute;
+    z-index: 3;
+    height: 12vh;
+    width: 52vw;
+    border-radius: 50%;
+    filter: blur(16px);
+    opacity: .18;
+    background: linear-gradient(90deg, transparent, rgba(137,210,166,.34), rgba(255,229,147,.25), transparent);
+    animation: mtefx4MistDrift 13s ease-in-out infinite;
+}
+.mtefx4-mist.mist-a { left:-10vw; top:24vh; transform:rotate(-7deg); }
+.mtefx4-mist.mist-b { right:-14vw; top:52vh; transform:rotate(6deg); animation-delay:-4s; }
+.mtefx4-mist.mist-c { left:20vw; bottom:8vh; transform:rotate(-2deg) scale(.75); animation-delay:-8s; }
+
+.mtefx4-leaf-field,.mtefx4-firefly-field,.mtefx4-petal-field,.mtefx4-rune-field { position:absolute; inset:0; z-index:4; }
+.mtefx4-leaf {
+    position:absolute;
+    top:-6vh;
+    left:var(--mtefx4-x);
+    width:11px;
+    height:20px;
+    border-radius:90% 10% 80% 18%;
+    background:linear-gradient(145deg,#d9c16d,#6d9e62 52%,#2f6849);
+    box-shadow:0 0 9px rgba(219,198,111,.16);
+    opacity:.62;
+    transform:scale(var(--mtefx4-scale));
+    animation:mtefx4LeafFall var(--mtefx4-dur) linear var(--mtefx4-delay) infinite;
+}
+.mtefx4-firefly {
+    position:absolute;
+    left:var(--mtefx4-fx);
+    top:var(--mtefx4-fy);
+    width:var(--mtefx4-fs);
+    height:var(--mtefx4-fs);
+    border-radius:50%;
+    background:#ffe7a0;
+    box-shadow:0 0 8px #f5d576,0 0 15px rgba(94,182,118,.52);
+    animation:mtefx4Firefly 4.6s ease-in-out var(--mtefx4-fd) infinite;
+}
+.mtefx4-petal {
+    position:absolute;
+    left:var(--mtefx4-px);
+    top:-4vh;
+    width:7px;
+    height:7px;
+    border-radius:70% 20% 70% 20%;
+    background:#efcc72;
+    box-shadow:0 0 7px rgba(239,204,114,.35);
+    opacity:.65;
+    transform:rotate(var(--mtefx4-pr));
+    animation:mtefx4PetalFall 10.8s linear var(--mtefx4-pd) infinite;
+}
+.mtefx4-rune-field span {
+    position:absolute;
+    left:var(--mtefx4-rx);
+    top:var(--mtefx4-ry);
+    color:rgba(239,217,147,.18);
+    font:700 clamp(14px,1.6vw,25px)/1 Georgia,serif;
+    text-shadow:0 0 12px rgba(106,176,121,.16);
+    animation:mtefx4RunePulse 6.2s ease-in-out var(--mtefx4-rd) infinite;
+}
+
+.mtefx4-caption {
+    position:absolute;
+    left:50%;
+    top:18px;
+    z-index:6;
+    transform:translateX(-50%);
+    min-width:min(430px,74vw);
+    padding:8px 28px 9px;
+    text-align:center;
+    color:#f7e8b1;
+    background:linear-gradient(90deg,transparent,rgba(20,58,42,.48) 18%,rgba(64,95,50,.52) 82%,transparent);
+    border-top:1px solid rgba(230,205,128,.25);
+    border-bottom:1px solid rgba(230,205,128,.18);
+    text-shadow:0 1px 2px rgba(6,20,13,.6);
+}
+.mtefx4-caption small,.mtefx4-caption strong,.mtefx4-caption em { display:block; font-style:normal; }
+.mtefx4-caption small { font-size:9px; letter-spacing:.35em; opacity:.72; }
+.mtefx4-caption strong { margin-top:2px; font:700 clamp(12px,1.45vw,18px)/1.1 Georgia,serif; letter-spacing:.18em; }
+.mtefx4-caption em { margin-top:4px; font-size:8px; letter-spacing:.2em; opacity:.58; }
+
+@keyframes mtefx4MoonFloat { 0%,100%{transform:translateY(0) rotate(-1deg)} 50%{transform:translateY(9px) rotate(1deg)} }
+@keyframes mtefx4RingSpin { to{transform:rotate(360deg)} }
+@keyframes mtefx4MistDrift { 0%,100%{translate:-20px 0;opacity:.13} 50%{translate:35px -7px;opacity:.26} }
+@keyframes mtefx4LeafFall {
+    0%{transform:translate3d(0,-8vh,0) rotate(0deg) scale(var(--mtefx4-scale));opacity:0}
+    12%{opacity:.72}
+    100%{transform:translate3d(var(--mtefx4-drift),112vh,0) rotate(680deg) scale(var(--mtefx4-scale));opacity:.16}
+}
+@keyframes mtefx4Firefly { 0%,100%{transform:translate(0,0) scale(.7);opacity:.22} 50%{transform:translate(18px,-22px) scale(1.25);opacity:1} }
+@keyframes mtefx4PetalFall { 0%{translate:0 -5vh;rotate:0deg;opacity:0} 14%{opacity:.7} 100%{translate:35px 110vh;rotate:480deg;opacity:.12} }
+@keyframes mtefx4RunePulse { 0%,100%{opacity:.1;transform:scale(.88)} 50%{opacity:.32;transform:scale(1.08)} }
+
+@media (max-width:768px),(pointer:coarse) {
+    .mtefx4-banyan-shadow { opacity:.1; }
+    .mtefx4-caption { top:10px; padding-inline:16px; }
+    .mtefx4-moon-halo { right:-3vw; top:8vh; width:190px; }
+}
+@media (prefers-reduced-motion:reduce) {
+    .mtefx4-osmanthus-shadow-leaves * { animation-duration:.001ms !important; animation-iteration-count:1 !important; }
+}
+
+
+/* ============================================================================
+   TRUNG THU · CHÚ CUỘI · QUẾ ẢNH CHI HOÀN — FRAME V1
+   ID: frame_trung_thu_chu_cuoi_que_anh_chi_hoan
+   Asset: assets/Premium/Trung thu/cuoi_khung2.png
+
+   VỊ TRÍ:
+   - Dùng đúng hệ tọa độ đã ổn định của Nguyệt Quế · Hoa Đăng Chi Hoàn.
+   - Profile: 60x60, tâm avatar.
+   - Popup: 126x126, offset -2px / +2px theo chuẩn Premium Mùa Xuân.
+
+   CÔ LẬP:
+   - Selector khóa bằng data-avatar-frame-id riêng.
+   - Không sửa .avatar-frame-decoration / aura / spark toàn cục.
+   - Không thay đổi bất kỳ khung/hiệu ứng/theme khác.
+   Namespace animation: maccf5-*
+   ============================================================================ */
+
+.profile-trigger-btn.avatar-frame-profile-host[
+    data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
+] {
+    overflow: visible !important;
+    isolation: isolate !important;
+}
+
+#studentInfoModal
+.avatar-upload-container.avatar-frame-modal-host[
+    data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
+] {
+    position: relative !important;
+    overflow: visible !important;
+    isolation: isolate !important;
+}
+
+.profile-trigger-btn.avatar-frame-profile-host[
+    data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
+] > #avatarImage,
+.profile-trigger-btn.avatar-frame-profile-host[
+    data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
+] > #avatarPlaceholder,
+#studentInfoModal
+.avatar-upload-container.avatar-frame-modal-host[
+    data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
+] > #modalAvatarPreview {
+    position: relative !important;
+    z-index: 3 !important;
+}
+
+/* Profile nhỏ — cùng vị trí chuẩn khung Trung Thu hiện có */
+.profile-trigger-btn.avatar-frame-profile-host[
+    data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
+] > .avatar-frame-decoration {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: 60px !important;
+    height: 60px !important;
+    max-width: none !important;
+    max-height: none !important;
+    object-fit: contain !important;
+    object-position: center !important;
+    margin: 0 !important;
+    transform: translate(-50%, -50%) !important;
+    transform-origin: center center !important;
+    z-index: 6 !important;
+    pointer-events: none !important;
+    user-select: none !important;
+    filter:
+        drop-shadow(0 3px 5px rgba(20, 38, 30, .30))
+        drop-shadow(0 0 6px rgba(245, 211, 112, .44))
+        drop-shadow(0 0 9px rgba(74, 181, 132, .26)) !important;
+    animation: maccf5ProfileFloat 5.8s ease-in-out infinite !important;
+}
+
+.profile-trigger-btn.avatar-frame-profile-host[
+    data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
+] > .avatar-frame-aura {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: 64px !important;
+    height: 64px !important;
+    transform: translate(-50%, -50%) !important;
+    border-radius: 50% !important;
+    z-index: 0 !important;
+    opacity: .46 !important;
+    background:
+        conic-gradient(
+            from 24deg,
+            rgba(250, 220, 126, .08),
+            rgba(73, 170, 121, .30),
+            rgba(255, 210, 104, .26),
+            rgba(49, 119, 86, .17),
+            rgba(250, 220, 126, .08)
+        ) !important;
+    filter: blur(5px) saturate(1.12) !important;
+    animation: maccf5AuraSpin 14s linear infinite !important;
+}
+
+/* Popup hồ sơ — cùng 126x126 + offset chuẩn Premium */
+#studentInfoModal
+.avatar-upload-container.avatar-frame-modal-host[
+    data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
+] > .avatar-frame-decoration {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: 126px !important;
+    height: 126px !important;
+    max-width: none !important;
+    max-height: none !important;
+    object-fit: contain !important;
+    object-position: center !important;
+    margin: 0 !important;
+    transform: translate(calc(-50% - 2px), calc(-50% + 2px)) !important;
+    transform-origin: center center !important;
+    z-index: 6 !important;
+    pointer-events: none !important;
+    user-select: none !important;
+    filter:
+        drop-shadow(0 6px 9px rgba(15, 34, 27, .28))
+        drop-shadow(0 0 9px rgba(247, 213, 113, .44))
+        drop-shadow(0 0 13px rgba(74, 183, 133, .24)) !important;
+    animation: maccf5ModalFloat 6.2s ease-in-out infinite !important;
+}
+
+#studentInfoModal
+.avatar-upload-container.avatar-frame-modal-host[
+    data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
+] > .avatar-frame-aura {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: 132px !important;
+    height: 132px !important;
+    transform: translate(calc(-50% - 2px), calc(-50% + 2px)) !important;
+    border-radius: 50% !important;
+    z-index: 0 !important;
+    opacity: .40 !important;
+    background:
+        radial-gradient(
+            circle,
+            rgba(255, 225, 135, .17),
+            rgba(74, 180, 130, .13) 48%,
+            transparent 72%
+        ) !important;
+    box-shadow: 0 0 20px rgba(242, 203, 91, .17) !important;
+    filter: blur(5px) saturate(1.1) !important;
+    animation: maccf5AuraBreathe 4.8s ease-in-out infinite !important;
+}
+
+/* Tinh quang — chỉ frame Chú Cuội */
+[data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"]
+> .avatar-frame-spark {
+    position: absolute !important;
+    z-index: 8 !important;
+    color: #ffe39a !important;
+    font-family: Georgia, serif !important;
+    text-shadow:
+        0 0 5px rgba(255, 226, 143, .90),
+        0 0 11px rgba(71, 185, 132, .40) !important;
+    pointer-events: none !important;
+    animation: maccf5Spark 2.9s ease-in-out infinite !important;
+}
+
+.profile-trigger-btn[data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"]
+> .avatar-frame-spark.spark-1 { left: -4px !important; top: 3px !important; }
+.profile-trigger-btn[data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"]
+> .avatar-frame-spark.spark-2 { right: -4px !important; top: 8px !important; animation-delay: -.7s !important; }
+.profile-trigger-btn[data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"]
+> .avatar-frame-spark.spark-3 { left: 4px !important; bottom: -3px !important; animation-delay: -1.3s !important; }
+.profile-trigger-btn[data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"]
+> .avatar-frame-spark.spark-4 { right: 2px !important; bottom: 0 !important; animation-delay: -2s !important; }
+
+#studentInfoModal .avatar-upload-container[data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"]
+> .avatar-frame-spark.spark-1 { left: -18px !important; top: -11px !important; }
+#studentInfoModal .avatar-upload-container[data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"]
+> .avatar-frame-spark.spark-2 { right: -17px !important; top: -7px !important; animation-delay: -.7s !important; }
+#studentInfoModal .avatar-upload-container[data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"]
+> .avatar-frame-spark.spark-3 { left: -10px !important; bottom: -17px !important; animation-delay: -1.3s !important; }
+#studentInfoModal .avatar-upload-container[data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"]
+> .avatar-frame-spark.spark-4 { right: -12px !important; bottom: -15px !important; animation-delay: -2s !important; }
+
+/* Card cửa hàng — dùng skin Tiểu Chú Cuội, giữ nguyên bố cục card chuẩn. */
+.store-item-card.store-card-midautumn-cuoi-chibi[
+    data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
+] .item-icon-wrapper {
+    overflow: hidden !important;
+    isolation: isolate !important;
+}
+
+.store-item-card.store-card-midautumn-cuoi-chibi[
+    data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
+] .item-icon {
+    width: 112px !important;
+    height: 112px !important;
+    max-width: 112px !important;
+    max-height: 112px !important;
+    object-fit: contain !important;
+    object-position: center center !important;
+    transform: none !important;
+    filter:
+        drop-shadow(0 8px 12px rgba(8, 28, 19, .31))
+        drop-shadow(0 0 12px rgba(242, 206, 101, .30)) !important;
+    transition: transform .28s ease, filter .28s ease !important;
+}
+
+.store-item-card.store-card-midautumn-cuoi-chibi[
+    data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
+]:hover .item-icon {
+    transform: translateY(-4px) scale(1.045) !important;
+    filter:
+        drop-shadow(0 10px 14px rgba(7, 25, 17, .35))
+        drop-shadow(0 0 15px rgba(244, 210, 107, .43)) !important;
+}
+
+@keyframes maccf5ProfileFloat {
+    0%, 100% { translate: 0 0; }
+    50% { translate: 0 -1.5px; }
+}
+
+@keyframes maccf5ModalFloat {
+    0%, 100% { translate: 0 0; }
+    50% { translate: 0 -2px; }
+}
+
+@keyframes maccf5AuraSpin {
+    to { rotate: 360deg; }
+}
+
+@keyframes maccf5AuraBreathe {
+    0%, 100% { scale: .94; opacity: .34; }
+    50% { scale: 1.06; opacity: .56; }
+}
+
+@keyframes maccf5Spark {
+    0%, 100% { opacity: .30; transform: scale(.78) rotate(0deg); }
+    50% { opacity: .96; transform: scale(1.12) rotate(14deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    [data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"]
+    > .avatar-frame-decoration,
+    [data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"]
+    > .avatar-frame-aura,
+    [data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"]
+    > .avatar-frame-spark {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
+
+/* ============================================================================
+   FINAL HOTFIX · CHÚ CUỘI · QUẾ ẢNH CHI HOÀN — STORE CARD PREVIEW
+   - Chỉ sửa preview trong Cửa hàng của frame này.
+   - Không đổi layout/card height/grid.
+   - Không ảnh hưởng vị trí khung khi trang bị thật (profile/modal).
+   - Tách khỏi transform/overflow chung của card Tiểu Chú Cuội.
+   ============================================================================ */
+
+html body .store-item-card.store-card-midautumn-cuoi-chibi[
+    data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
+] .item-icon-wrapper,
+html body .store-item-card[
+    data-special-card="midautumn-cuoi-chibi"
+][data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"] .item-icon-wrapper {
+    overflow: visible !important;
+    isolation: isolate !important;
+}
+
+html body .store-item-card.store-card-midautumn-cuoi-chibi[
+    data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
+] .item-icon,
+html body .store-item-card[
+    data-special-card="midautumn-cuoi-chibi"
+][data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"] .item-icon {
+    width: 98px !important;
+    height: 98px !important;
+    max-width: 98px !important;
+    max-height: 98px !important;
+    object-fit: contain !important;
+    object-position: center center !important;
+
+    /* Hạ preview xuống để không chạm tag và không bị cảm giác cắt đầu/đáy. */
+    transform: translateY(12px) scale(.96) !important;
+    transform-origin: 50% 50% !important;
+    translate: none !important;
+    rotate: 0deg !important;
+
+    filter:
+        drop-shadow(0 8px 12px rgba(8, 28, 19, .31))
+        drop-shadow(0 0 12px rgba(242, 206, 101, .30)) !important;
+    transition: transform .28s ease, filter .28s ease !important;
+}
+
+html body .store-item-card.store-card-midautumn-cuoi-chibi[
+    data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
+]:hover .item-icon,
+html body .store-item-card[
+    data-special-card="midautumn-cuoi-chibi"
+][data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"]:hover .item-icon {
+    transform: translateY(8px) scale(1.00) !important;
+    filter:
+        drop-shadow(0 10px 14px rgba(7, 25, 17, .35))
+        drop-shadow(0 0 15px rgba(244, 210, 107, .43)) !important;
+}
+
+/* Mobile: vẫn giữ preview trong vùng icon, không chạm tag. */
+@media (max-width: 768px), (pointer: coarse) {
+    html body .store-item-card.store-card-midautumn-cuoi-chibi[
+        data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
+    ] .item-icon,
+    html body .store-item-card[
+        data-special-card="midautumn-cuoi-chibi"
+    ][data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"] .item-icon {
+        width: 94px !important;
+        height: 94px !important;
+        max-width: 94px !important;
+        max-height: 94px !important;
+        transform: translateY(10px) scale(.96) !important;
+    }
+}
+
+
+/* ============================================================================
+   TRUNG THU · CHÚ CUỘI · QUẾ LÂM NGUYỆT DẠ — BACKGROUND V1
+   ID: background_trung_thu_chu_cuoi_que_lam_nguyet_da
+   Asset: assets/Premium/Trung thu/cuoi_nen2.png
+
+   Chỉ trang trí preview card và fallback nền của đúng vật phẩm này.
+   Không sửa selector nền toàn cục, không đổi hiệu ứng/pet/theme/frame khác.
+   Nền thật do WebBackgroundManager áp bằng:
+   cover + center center + no-repeat + fixed.
+   ============================================================================ */
+
+html body .store-item-card.store-card-midautumn-cuoi-chibi[
+    data-item-id="background_trung_thu_chu_cuoi_que_lam_nguyet_da"
+] .item-icon-wrapper {
+    position: relative !important;
+    overflow: hidden !important;
+    isolation: isolate !important;
+    border-radius: 18px !important;
+    background:
+        radial-gradient(circle at 76% 18%, rgba(246, 218, 124, .18), transparent 28%),
+        linear-gradient(145deg, rgba(14, 42, 31, .96), rgba(18, 55, 43, .94)) !important;
+    border-color: rgba(218, 190, 101, .22) !important;
+}
+
+html body .store-item-card.store-card-midautumn-cuoi-chibi[
+    data-item-id="background_trung_thu_chu_cuoi_que_lam_nguyet_da"
+] .item-icon {
+    width: min(100%, 190px) !important;
+    height: 112px !important;
+    max-width: 190px !important;
+    max-height: 112px !important;
+    object-fit: cover !important;
+    object-position: center center !important;
+    transform: none !important;
+    translate: none !important;
+    rotate: 0deg !important;
+    scale: 1 !important;
+    border-radius: 14px !important;
+    filter:
+        saturate(1.08)
+        contrast(1.04)
+        drop-shadow(0 8px 13px rgba(4, 23, 16, .30))
+        drop-shadow(0 0 11px rgba(241, 208, 105, .24)) !important;
+    transition: transform .30s ease, filter .30s ease !important;
+}
+
+html body .store-item-card.store-card-midautumn-cuoi-chibi[
+    data-item-id="background_trung_thu_chu_cuoi_que_lam_nguyet_da"
+] .item-icon-wrapper::after {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 2 !important;
+    pointer-events: none !important;
+    border-radius: inherit !important;
+    background:
+        linear-gradient(180deg, rgba(255, 238, 177, .05), transparent 44%, rgba(3, 24, 17, .20)) !important;
+    box-shadow: inset 0 0 0 1px rgba(241, 211, 119, .16) !important;
+}
+
+html body .store-item-card.store-card-midautumn-cuoi-chibi[
+    data-item-id="background_trung_thu_chu_cuoi_que_lam_nguyet_da"
+]:hover .item-icon {
+    transform: scale(1.035) !important;
+    filter:
+        saturate(1.14)
+        contrast(1.06)
+        brightness(1.03)
+        drop-shadow(0 10px 15px rgba(4, 22, 15, .34))
+        drop-shadow(0 0 14px rgba(244, 212, 111, .34)) !important;
+}
+
+/* Fallback chỉ dành cho nền Chú Cuội; ảnh nền inline !important vẫn do manager quản lý. */
+body.store-background-equipped[
+    data-store-background-id="background_trung_thu_chu_cuoi_que_lam_nguyet_da"
+] {
+    background-color: #0d241b !important;
+}
+
+@media (max-width: 768px) {
+    html body .store-item-card.store-card-midautumn-cuoi-chibi[
+        data-item-id="background_trung_thu_chu_cuoi_que_lam_nguyet_da"
+    ] .item-icon {
+        width: min(100%, 176px) !important;
+        height: 104px !important;
+        max-width: 176px !important;
+        max-height: 104px !important;
+    }
+}

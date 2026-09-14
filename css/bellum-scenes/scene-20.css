@@ -1,0 +1,21 @@
+/* Bellum · Scene 20: BÌNH MINH TẠI EDEVANE */
+#bellumEvent.bellum-scene-20 {
+    --bellum-scene-bg: #1d1711;
+    --bellum-scene-mid: #75512b;
+    --bellum-accent: #f0be72;
+    --bellum-scene-glow: rgba(202,142,65,.42);
+}
+#bellumEvent.bellum-scene-20 .bellum-stage {
+    background-color: var(--bellum-scene-bg);
+    background-image:
+        linear-gradient(180deg, rgba(255,190,112,.14) 0%, rgba(7,8,11,.08) 44%, rgba(12,7,4,.48) 100%),
+        radial-gradient(circle at 72% 28%, var(--bellum-scene-glow), transparent 38%),
+        var(--bellum-scene-image, none);
+    background-size: auto, auto, cover;
+    background-position: center, center, center center;
+    background-repeat: no-repeat, no-repeat, no-repeat;
+}
+#bellumEvent.bellum-scene-20 .bellum-scene-number,
+#bellumEvent.bellum-scene-20 .bellum-speaker-name { color: var(--bellum-accent); }
+#bellumEvent.bellum-scene-20 .bellum-dialogue-box { border-color: color-mix(in srgb, var(--bellum-accent) 34%, transparent); }
+#bellumEvent.bellum-scene-20 .bellum-progress-fill { background: linear-gradient(90deg, var(--bellum-accent), #ffffff); }

@@ -1,0 +1,21 @@
+/* Bellum · Scene 09: CĂN PHÒNG CỦA NHỮNG NGƯỜI BỊ HIẾN TẾ */
+#bellumEvent.bellum-scene-09 {
+    --bellum-scene-bg: #111113;
+    --bellum-scene-mid: #3c3a40;
+    --bellum-accent: #b8b2bd;
+    --bellum-scene-glow: rgba(106,100,114,.42);
+}
+#bellumEvent.bellum-scene-09 .bellum-stage {
+    background-color: var(--bellum-scene-bg);
+    background-image:
+        linear-gradient(180deg, rgba(2,3,7,.28) 0%, rgba(2,3,7,.08) 44%, rgba(0,0,0,.50) 100%),
+        radial-gradient(circle at 72% 28%, var(--bellum-scene-glow), transparent 38%),
+        var(--bellum-scene-image, none);
+    background-size: auto, auto, cover;
+    background-position: center, center, center center;
+    background-repeat: no-repeat, no-repeat, no-repeat;
+}
+#bellumEvent.bellum-scene-09 .bellum-scene-number,
+#bellumEvent.bellum-scene-09 .bellum-speaker-name { color: var(--bellum-accent); }
+#bellumEvent.bellum-scene-09 .bellum-dialogue-box { border-color: color-mix(in srgb, var(--bellum-accent) 34%, transparent); }
+#bellumEvent.bellum-scene-09 .bellum-progress-fill { background: linear-gradient(90deg, var(--bellum-accent), #ffffff); }

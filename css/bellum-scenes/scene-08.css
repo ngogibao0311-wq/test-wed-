@@ -1,0 +1,21 @@
+/* Bellum · Scene 08: LƯỜI BIẾNG – NGÔI NHÀ CỦA NGÀY HÔM QUA */
+#bellumEvent.bellum-scene-08 {
+    --bellum-scene-bg: #0c140c;
+    --bellum-scene-mid: #39452a;
+    --bellum-accent: #9cb47c;
+    --bellum-scene-glow: rgba(93,120,64,.42);
+}
+#bellumEvent.bellum-scene-08 .bellum-stage {
+    background-color: var(--bellum-scene-bg);
+    background-image:
+        linear-gradient(180deg, rgba(2,3,7,.28) 0%, rgba(2,3,7,.08) 44%, rgba(0,0,0,.50) 100%),
+        radial-gradient(circle at 72% 28%, var(--bellum-scene-glow), transparent 38%),
+        var(--bellum-scene-image, none);
+    background-size: auto, auto, cover;
+    background-position: center, center, center center;
+    background-repeat: no-repeat, no-repeat, no-repeat;
+}
+#bellumEvent.bellum-scene-08 .bellum-scene-number,
+#bellumEvent.bellum-scene-08 .bellum-speaker-name { color: var(--bellum-accent); }
+#bellumEvent.bellum-scene-08 .bellum-dialogue-box { border-color: color-mix(in srgb, var(--bellum-accent) 34%, transparent); }
+#bellumEvent.bellum-scene-08 .bellum-progress-fill { background: linear-gradient(90deg, var(--bellum-accent), #ffffff); }

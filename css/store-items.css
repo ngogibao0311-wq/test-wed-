@@ -6869,3 +6869,160 @@ body.theme-saturn-observatory
             1 !important;
     }
 }
+
+/* =========================================================
+   BL · NHẠC NỀN — CARD RIÊNG
+   Item: music_bl_01
+
+   Chủ đích tương thích giao diện:
+   - Chỉ tạo skin riêng cho đúng vật phẩm BL.
+   - KHÔNG dùng !important cho phần skin chính.
+   - KHÔNG dùng .ui-theme-immune / .store-theme-locked.
+   => Giao diện/theme đang trang bị vẫn có thể ảnh hưởng card này thông qua
+      các rule chung có specificity cao hơn hoặc dùng !important.
+========================================================= */
+.store-item-card[data-item-id="music_bl_01"] {
+    --bl-card-pink: #ff7fb5;
+    --bl-card-lilac: #b892ff;
+    --bl-card-blue: #7cc9ff;
+    --bl-card-ink: #2f2941;
+
+    isolation: isolate;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.78);
+    background:
+        radial-gradient(circle at 17% 14%, rgba(255, 255, 255, 0.95), transparent 22%),
+        radial-gradient(circle at 82% 20%, rgba(184, 146, 255, 0.20), transparent 29%),
+        linear-gradient(145deg, rgba(255, 245, 251, 0.94), rgba(239, 245, 255, 0.90));
+    box-shadow:
+        0 16px 34px rgba(113, 83, 145, 0.16),
+        inset 0 1px 0 rgba(255, 255, 255, 0.88);
+}
+
+.store-item-card[data-item-id="music_bl_01"]::before,
+.store-item-card[data-item-id="music_bl_01"]::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+    z-index: -1;
+    border-radius: 999px;
+}
+
+.store-item-card[data-item-id="music_bl_01"]::before {
+    width: 150px;
+    height: 150px;
+    left: -62px;
+    bottom: -66px;
+    background: radial-gradient(circle, rgba(255, 127, 181, 0.24), transparent 68%);
+}
+
+.store-item-card[data-item-id="music_bl_01"]::after {
+    width: 132px;
+    height: 132px;
+    right: -46px;
+    top: -50px;
+    background: radial-gradient(circle, rgba(124, 201, 255, 0.24), transparent 70%);
+}
+
+.store-item-card[data-item-id="music_bl_01"] .card-glow {
+    width: 148px;
+    height: 148px;
+    background:
+        radial-gradient(circle,
+            rgba(255, 127, 181, 0.32) 0%,
+            rgba(184, 146, 255, 0.18) 42%,
+            rgba(124, 201, 255, 0) 73%);
+}
+
+.store-item-card[data-item-id="music_bl_01"] .item-icon-wrapper {
+    position: relative;
+}
+
+.store-item-card[data-item-id="music_bl_01"] .item-icon-wrapper::before,
+.store-item-card[data-item-id="music_bl_01"] .item-icon-wrapper::after {
+    position: absolute;
+    color: rgba(123, 92, 154, 0.48);
+    font-size: 0.95rem;
+    line-height: 1;
+    pointer-events: none;
+}
+
+.store-item-card[data-item-id="music_bl_01"] .item-icon-wrapper::before {
+    content: "♪";
+    left: 24%;
+    top: 12%;
+    transform: rotate(-12deg);
+}
+
+.store-item-card[data-item-id="music_bl_01"] .item-icon-wrapper::after {
+    content: "♡";
+    right: 23%;
+    bottom: 10%;
+    color: rgba(255, 91, 154, 0.54);
+    transform: rotate(10deg);
+}
+
+.store-item-card[data-item-id="music_bl_01"] .item-icon {
+    transform-origin: 50% 55%;
+    filter:
+        drop-shadow(0 7px 11px rgba(95, 70, 130, 0.20))
+        drop-shadow(0 0 12px rgba(255, 127, 181, 0.16));
+}
+
+.store-item-card[data-item-id="music_bl_01"]:hover .item-icon {
+    transform: translateY(-2px) scale(1.14) rotate(-4deg);
+}
+
+.store-item-card[data-item-id="music_bl_01"] .item-name {
+    color: var(--bl-card-ink);
+    letter-spacing: 0.2px;
+}
+
+.store-item-card[data-item-id="music_bl_01"] .item-type-label {
+    color: rgba(75, 62, 94, 0.66);
+}
+
+.store-item-card[data-item-id="music_bl_01"] .item-tag.tag-bl {
+    /*
+     * Tag "BL" chỉ có 2 ký tự nên rule mặc định làm dải ruy-băng quá ngắn.
+     * Ép chiều rộng cố định để hình dạng cân đối như các tag dài (ví dụ "Âm nhạc").
+     */
+    width: 122px;
+    box-sizing: border-box;
+    top: 16px;
+    right: -34px;
+    padding: 6px 0;
+    text-align: center;
+    white-space: nowrap;
+    line-height: 1.2;
+    letter-spacing: 0.7px;
+    transform: rotate(45deg);
+
+    background: linear-gradient(90deg, var(--bl-card-pink), var(--bl-card-lilac), var(--bl-card-blue));
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(165, 103, 179, 0.28);
+    text-shadow: 0 1px 3px rgba(73, 44, 87, 0.28);
+}
+
+.store-item-card[data-item-id="music_bl_01"] .btn-buy {
+    background: linear-gradient(135deg, #ff78ad 0%, #aa83ef 52%, #73bff3 100%);
+    box-shadow: 0 6px 16px rgba(155, 101, 181, 0.23);
+}
+
+.store-item-card[data-item-id="music_bl_01"] .btn-preview {
+    color: #805f9f;
+    border-color: rgba(172, 124, 203, 0.28);
+    background: rgba(255, 255, 255, 0.48);
+}
+
+@media (max-width: 560px) {
+    .store-item-card[data-item-id="music_bl_01"]::before {
+        width: 118px;
+        height: 118px;
+    }
+
+    .store-item-card[data-item-id="music_bl_01"]::after {
+        width: 104px;
+        height: 104px;
+    }
+}

@@ -121,6 +121,7 @@
 #studentInboxModal,
 #studentBagModal,
 #petInteractionInfoModal,
+#springDreamFoodShopModal,
 #royalBallModal,
 #royalRewardsModal {
     z-index: var(--z-modal-normal) !important;
@@ -6708,3 +6709,2028 @@ body.video-summary-resizing
     font-size: .88rem;
     line-height: 1.55;
 }
+\n\n/* =========================================================\n   LAYOUT REFRESH v4.0.3 · STUDENT\n   Chỉ thay đổi bố cục/giao diện. Không thay đổi logic, ID, event.\n   ========================================================= */\n@media (min-width: 769px) {\n    html[data-app-role="student"] body .dashboard {\n        display: grid !important;\n        grid-template-columns: 270px minmax(0, 1fr);\n        gap: 18px;\n        align-items: start !important;\n        padding: 16px;\n        min-height: 100vh;\n        min-height: 100dvh;\n        transition: grid-template-columns .34s cubic-bezier(.2,.8,.2,1);\n    }\n\n    html[data-app-role="student"] body .dashboard.collapsed {\n        grid-template-columns: 88px minmax(0, 1fr);\n    }\n\n    html[data-app-role="student"] body .dashboard > .sidebar {\n        position: sticky !important;\n        top: 16px !important;\n        width: 100% !important;\n        height: calc(100vh - 32px) !important;\n        height: calc(100dvh - 32px) !important;\n        flex: none !important;\n        align-self: start !important;\n        border: 1px solid rgba(255,255,255,.22) !important;\n        border-radius: 28px !important;\n        box-shadow: 0 22px 55px rgba(15,23,42,.20) !important;\n        overflow-x: hidden !important;\n        overflow-y: auto !important;\n    }\n\n    html[data-app-role="student"] body .dashboard > .sidebar > .sidebar-toggle,\n    html[data-app-role="student"] body .dashboard:not(.collapsed) > .sidebar > .sidebar-toggle,\n    html[data-app-role="student"] body .dashboard.collapsed > .sidebar > .sidebar-toggle {\n        position: sticky !important;\n        top: 18px !important;\n        left: auto !important;\n        right: auto !important;\n        float: right;\n        margin: 0 14px -34px 0 !important;\n        width: 34px !important;\n        height: 34px !important;\n        z-index: 8 !important;\n        border-color: rgba(255,255,255,.62) !important;\n        box-shadow: 0 8px 18px rgba(15,23,42,.26) !important;\n    }\n\n    html[data-app-role="student"] body .sidebar-top {\n        padding: 24px 16px 18px !important;\n    }\n\n    html[data-app-role="student"] body .sidebar-bottom {\n        padding: 14px 16px 18px !important;\n    }\n\n    html[data-app-role="student"] body .sidebar-top h3 {\n        margin: 0 42px 20px 2px !important;\n        padding-bottom: 16px !important;\n        font-size: 1.18rem !important;\n    }\n\n    html[data-app-role="student"] body .nav-item {\n        min-height: 48px !important;\n        margin-bottom: 7px !important;\n        padding: 11px 13px !important;\n        border-radius: 14px !important;\n    }\n\n    html[data-app-role="student"] body .dashboard.collapsed .sidebar-top,\n    html[data-app-role="student"] body .dashboard.collapsed .sidebar-bottom {\n        padding-left: 10px !important;\n        padding-right: 10px !important;\n    }\n\n    html[data-app-role="student"] body .dashboard.collapsed .sidebar-top h3 {\n        margin-right: 0 !important;\n    }\n\n    html[data-app-role="student"] body .dashboard > .content {\n        position: relative !important;\n        width: 100% !important;\n        min-width: 0 !important;\n        min-height: calc(100vh - 32px);\n        min-height: calc(100dvh - 32px);\n        padding: 82px clamp(22px, 3vw, 44px) 44px !important;\n        border: 1px solid rgba(255,255,255,.54);\n        border-radius: 30px;\n        background: rgba(248,250,252,.34);\n        box-shadow: 0 22px 55px rgba(15,23,42,.10), inset 0 1px 0 rgba(255,255,255,.72);\n        backdrop-filter: blur(12px) saturate(1.05);\n        -webkit-backdrop-filter: blur(12px) saturate(1.05);\n        overflow-x: clip;\n    }\n\n    html[data-app-role="student"] body .dashboard > .content::before {\n        height: 210px !important;\n        border-radius: 30px 30px 0 0;\n        background: linear-gradient(180deg, rgba(255,255,255,.42), rgba(255,255,255,0)) !important;\n    }\n\n    html[data-app-role="student"] body .content > .profile-trigger-btn,\n    html[data-app-role="student"] body .content > .inbox-trigger-btn,\n    html[data-app-role="student"] body .content > .bag-trigger-btn,\n    html[data-app-role="student"] body .content > .leaderboard-trigger-btn {\n        position: absolute !important;\n        top: 20px !important;\n        bottom: auto !important;\n        width: 44px !important;\n        height: 44px !important;\n        border-radius: 14px !important;\n        background: rgba(255,255,255,.78) !important;\n        border: 1px solid rgba(255,255,255,.92) !important;\n        box-shadow: 0 8px 22px rgba(15,23,42,.10) !important;\n        backdrop-filter: blur(12px);\n        -webkit-backdrop-filter: blur(12px);\n    }\n\n    html[data-app-role="student"] body .content > .profile-trigger-btn { right: 24px !important; }\n    html[data-app-role="student"] body .content > .inbox-trigger-btn { right: 76px !important; }\n    html[data-app-role="student"] body .content > .bag-trigger-btn { right: 128px !important; }\n    html[data-app-role="student"] body .content > .leaderboard-trigger-btn { right: 180px !important; }\n\n    html[data-app-role="student"] body .tab-content {\n        max-width: 1480px;\n        margin: 0 auto;\n    }\n\n    html[data-app-role="student"] body .content h2 {\n        margin-bottom: 22px !important;\n        padding-right: 210px;\n    }\n\n    html[data-app-role="student"] body .card {\n        border-radius: 22px !important;\n        box-shadow: 0 14px 36px rgba(15,23,42,.09), inset 0 1px 0 rgba(255,255,255,.84) !important;\n    }\n}\n\n@media (min-width: 1200px) {\n    html[data-app-role="student"] body .dashboard {\n        grid-template-columns: 286px minmax(0, 1fr);\n        gap: 22px;\n        padding: 18px;\n    }\n    html[data-app-role="student"] body .dashboard.collapsed {\n        grid-template-columns: 92px minmax(0, 1fr);\n    }\n}\n
+/* =========================================================
+   TIỂU HOA MỘNG — TƯƠNG TÁC PREMIUM MÙA XUÂN
+   Namespace riêng: spring-dream-*
+   - Không dùng position: fixed cho hiệu ứng pet.
+   - Không bắt pointer event, không chặn nút/cửa web.
+   - Thanh Mộng lực dùng chung khung sinh tồn hiện có nhưng
+     có class riêng và dữ liệu riêng trong JS.
+   ========================================================= */
+
+/* ---------- Thanh Mộng lực ---------- */
+
+.spring-dream-hunger-bar {
+    border-color:
+        rgba(226, 184, 92, 0.9);
+
+    background:
+        linear-gradient(120deg,
+            rgba(49, 21, 43, 0.95),
+            rgba(111, 18, 61, 0.94),
+            rgba(74, 42, 39, 0.92));
+
+    box-shadow:
+        0 0 12px rgba(226, 184, 92, 0.42),
+        0 0 24px rgba(181, 31, 85, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22);
+
+    animation:
+        springDreamBarBreathe 2.8s ease-in-out infinite;
+}
+
+.spring-dream-hunger-bar .pet-hunger-icon {
+    color: #ffe8a7;
+
+    text-shadow:
+        0 0 5px rgba(255, 255, 255, 0.95),
+        0 0 12px rgba(226, 184, 92, 0.82);
+}
+
+.spring-dream-hunger-bar .pet-hunger-track {
+    background:
+        rgba(255, 248, 235, 0.14);
+}
+
+.spring-dream-hunger-bar.is-low {
+    border-color:
+        rgba(234, 88, 12, 0.86);
+}
+
+.spring-dream-hunger-bar.is-critical {
+    animation:
+        springDreamBarCritical 0.78s ease-in-out infinite alternate;
+}
+
+/* ---------- Trạng thái Mộng lực trên pet ---------- */
+
+#virtual-pet-container.pet-spring-vintage-stage #virtual-pet-img.spring-vintage-goddess-magic.spring-dream-energy-full {
+    filter:
+        drop-shadow(0 12px 12px rgba(76, 21, 68, 0.22))
+        drop-shadow(0 0 12px rgba(255, 232, 167, 0.72))
+        drop-shadow(0 0 24px rgba(181, 31, 85, 0.34)) !important;
+}
+
+#virtual-pet-container.pet-spring-vintage-stage #virtual-pet-img.spring-vintage-goddess-magic.spring-dream-energy-low {
+    filter:
+        saturate(0.78)
+        brightness(0.82)
+        drop-shadow(0 8px 10px rgba(76, 21, 68, 0.2))
+        drop-shadow(0 0 9px rgba(159, 111, 44, 0.32)) !important;
+}
+
+#virtual-pet-container.pet-spring-vintage-stage #virtual-pet-img.spring-vintage-goddess-magic.spring-dream-energy-critical {
+    filter:
+        saturate(0.56)
+        brightness(0.64)
+        drop-shadow(0 6px 8px rgba(76, 21, 68, 0.18))
+        drop-shadow(0 0 8px rgba(194, 65, 93, 0.38)) !important;
+
+    animation:
+        springDreamEnergyCritical 1.4s ease-in-out infinite !important;
+}
+
+/* ---------- Lớp hiệu ứng 3 tương tác ---------- */
+
+.spring-dream-interaction-layer {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 19;
+
+    width: 218px;
+    height: 218px;
+
+    transform:
+        translate(-50%, -50%);
+
+    pointer-events: none;
+    user-select: none;
+    contain: layout paint;
+}
+
+.spring-dream-glass-field,
+.spring-dream-vine-lattice,
+.spring-dream-ruby-jewel,
+.spring-dream-layer-caption {
+    position: absolute;
+    pointer-events: none;
+}
+
+.spring-dream-glass-field {
+    inset: 0;
+}
+
+.spring-dream-glass-shard {
+    position: absolute;
+    left: calc(50% - 8px);
+    top: calc(50% - 17px);
+
+    width: 16px;
+    height: 34px;
+
+    border:
+        1px solid rgba(255, 232, 167, 0.68);
+
+    border-radius:
+        5px 10px 5px 10px;
+
+    background:
+        linear-gradient(145deg,
+            rgba(255, 255, 255, 0.62),
+            rgba(226, 184, 92, 0.18) 45%,
+            rgba(181, 31, 85, 0.13));
+
+    box-shadow:
+        inset 0 0 8px rgba(255, 255, 255, 0.34),
+        0 0 9px rgba(226, 184, 92, 0.22);
+
+    transform-origin:
+        8px 17px;
+
+    opacity: 0;
+}
+
+.spring-dream-vine-lattice {
+    left: 50%;
+    top: 50%;
+
+    width: 150px;
+    height: 112px;
+
+    transform:
+        translate(-50%, -50%)
+        skewX(-8deg);
+
+    border-top:
+        2px solid rgba(140, 174, 55, 0.55);
+
+    border-left:
+        2px solid rgba(84, 116, 31, 0.42);
+
+    border-radius:
+        54% 12% 46% 10%;
+
+    box-shadow:
+        inset 13px 10px 0 -12px rgba(226, 184, 92, 0.36);
+
+    opacity: 0;
+}
+
+.spring-dream-vine-lattice::before,
+.spring-dream-vine-lattice::after {
+    content: "";
+
+    position: absolute;
+
+    width: 27px;
+    height: 12px;
+
+    border-radius:
+        100% 0 100% 0;
+
+    background:
+        linear-gradient(135deg,
+            #8cae37,
+            #54741f);
+
+    box-shadow:
+        0 0 5px rgba(140, 174, 55, 0.22);
+}
+
+.spring-dream-vine-lattice::before {
+    left: 16px;
+    top: -7px;
+    transform: rotate(-24deg);
+}
+
+.spring-dream-vine-lattice::after {
+    right: 21px;
+    top: 8px;
+    transform: rotate(144deg);
+}
+
+.spring-dream-ruby-jewel {
+    left: calc(50% - 9px);
+    top: calc(50% - 9px);
+
+    width: 18px;
+    height: 18px;
+
+    transform:
+        rotate(45deg)
+        scale(0.3);
+
+    border:
+        1px solid rgba(255, 232, 167, 0.82);
+
+    border-radius:
+        4px;
+
+    background:
+        linear-gradient(145deg,
+            #ffb4c7,
+            #b51f55 55%,
+            #6f123d);
+
+    box-shadow:
+        0 0 10px rgba(181, 31, 85, 0.48),
+        0 0 20px rgba(226, 184, 92, 0.24);
+
+    opacity: 0;
+}
+
+.spring-dream-layer-caption {
+    left: 50%;
+    top: 9px;
+
+    min-width: 118px;
+    padding: 5px 10px;
+
+    transform:
+        translateX(-50%)
+        translateY(-5px);
+
+    color: #6f123d;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.07em;
+    text-align: center;
+
+    border:
+        1px solid rgba(226, 184, 92, 0.44);
+
+    border-radius:
+        999px;
+
+    background:
+        rgba(255, 248, 235, 0.9);
+
+    box-shadow:
+        0 6px 18px rgba(89, 24, 78, 0.13);
+
+    opacity: 0;
+}
+
+/* Nhấn một lần — Hoa Tức Lưu Ly */
+
+.spring-dream-interaction-layer.is-whisper
+.spring-dream-glass-shard {
+    animation:
+        springDreamWhisperShard
+        1.18s
+        cubic-bezier(.2, .75, .2, 1)
+        forwards;
+
+    animation-delay:
+        calc(var(--spring-shard-index) * 0.035s);
+}
+
+.spring-dream-interaction-layer.is-whisper
+.spring-dream-ruby-jewel {
+    animation:
+        springDreamJewelPulse
+        1.08s
+        ease-out
+        forwards;
+}
+
+.spring-dream-interaction-layer.is-whisper
+.spring-dream-vine-lattice {
+    animation:
+        springDreamVineReveal
+        1.1s
+        ease-out
+        forwards;
+}
+
+.spring-dream-interaction-layer.is-whisper
+.spring-dream-layer-caption {
+    animation:
+        springDreamCaption
+        1.16s
+        ease-out
+        forwards;
+}
+
+/* Nhấn đúp — Tửu Quang Hồi Vũ */
+
+.spring-dream-interaction-layer.is-dance
+.spring-dream-glass-field {
+    animation:
+        springDreamGlassFieldDance
+        1.65s
+        cubic-bezier(.4, 0, .2, 1)
+        forwards;
+}
+
+.spring-dream-interaction-layer.is-dance
+.spring-dream-glass-shard {
+    animation:
+        springDreamDanceShard
+        1.52s
+        cubic-bezier(.2, .8, .2, 1)
+        forwards;
+
+    animation-delay:
+        calc(var(--spring-shard-index) * 0.045s);
+}
+
+.spring-dream-interaction-layer.is-dance
+.spring-dream-ruby-jewel {
+    animation:
+        springDreamJewelDance
+        1.55s
+        ease-in-out
+        forwards;
+}
+
+.spring-dream-interaction-layer.is-dance
+.spring-dream-vine-lattice {
+    animation:
+        springDreamVineDance
+        1.55s
+        ease-in-out
+        forwards;
+}
+
+.spring-dream-interaction-layer.is-dance
+.spring-dream-layer-caption {
+    animation:
+        springDreamCaption
+        1.5s
+        ease-out
+        forwards;
+}
+
+/* Nhấn giữ — Lưu Ly Hoa Viên */
+
+.spring-dream-interaction-layer.is-sanctuary {
+    width: 248px;
+    height: 238px;
+}
+
+.spring-dream-interaction-layer.is-sanctuary
+.spring-dream-glass-field {
+    border:
+        1px solid rgba(226, 184, 92, 0.16);
+
+    border-radius:
+        24px 8px 28px 10px;
+
+    background:
+        linear-gradient(145deg,
+            rgba(255, 248, 235, 0.2),
+            rgba(181, 31, 85, 0.08),
+            rgba(114, 20, 143, 0.07));
+
+    clip-path:
+        polygon(
+            8% 20%,
+            28% 5%,
+            76% 8%,
+            96% 30%,
+            88% 82%,
+            62% 96%,
+            20% 90%,
+            4% 62%
+        );
+
+    box-shadow:
+        inset 0 0 26px rgba(255, 255, 255, 0.22),
+        0 0 28px rgba(181, 31, 85, 0.12);
+
+    animation:
+        springDreamSanctuaryField
+        2.2s
+        ease-in-out
+        forwards;
+}
+
+.spring-dream-interaction-layer.is-sanctuary
+.spring-dream-glass-shard {
+    animation:
+        springDreamSanctuaryShard
+        2.05s
+        cubic-bezier(.2, .75, .2, 1)
+        forwards;
+
+    animation-delay:
+        calc(var(--spring-shard-index) * 0.05s);
+}
+
+.spring-dream-interaction-layer.is-sanctuary
+.spring-dream-vine-lattice {
+    width: 188px;
+    height: 148px;
+
+    animation:
+        springDreamSanctuaryVine
+        2.08s
+        ease-in-out
+        forwards;
+}
+
+.spring-dream-interaction-layer.is-sanctuary
+.spring-dream-ruby-jewel {
+    animation:
+        springDreamSanctuaryJewel
+        2.05s
+        ease-in-out
+        forwards;
+}
+
+.spring-dream-interaction-layer.is-sanctuary
+.spring-dream-layer-caption {
+    top: 4px;
+
+    animation:
+        springDreamCaption
+        1.9s
+        ease-out
+        forwards;
+}
+
+/* ---------- Chuyển động ảnh pet ---------- */
+
+#virtual-pet-container.pet-spring-vintage-stage #virtual-pet-img.spring-vintage-goddess-magic.spring-dream-whisper-caster {
+    animation:
+        springDreamPetWhisper
+        1.18s
+        cubic-bezier(.2, .75, .2, 1) !important;
+}
+
+#virtual-pet-container.pet-spring-vintage-stage #virtual-pet-img.spring-vintage-goddess-magic.spring-dream-dance-caster {
+    animation:
+        springDreamPetDance
+        1.62s
+        cubic-bezier(.2, .8, .2, 1) !important;
+}
+
+#virtual-pet-container.pet-spring-vintage-stage #virtual-pet-img.spring-vintage-goddess-magic.spring-dream-sanctuary-caster {
+    animation:
+        springDreamPetSanctuary
+        2.15s
+        cubic-bezier(.2, .72, .2, 1) !important;
+}
+
+/* ---------- Thông báo nhỏ quanh pet ---------- */
+
+.spring-dream-status-message {
+    position: absolute;
+    left: 50%;
+    top: -76px;
+    z-index: 35;
+
+    max-width: 230px;
+    padding: 7px 10px;
+
+    transform:
+        translateX(-50%);
+
+    pointer-events: none;
+
+    color: #6f123d;
+    font-size: 11px;
+    font-weight: 900;
+    line-height: 1.35;
+    text-align: center;
+
+    border:
+        1px solid rgba(226, 184, 92, 0.55);
+
+    border-radius:
+        12px;
+
+    background:
+        rgba(255, 248, 235, 0.94);
+
+    box-shadow:
+        0 8px 24px rgba(89, 24, 78, 0.16);
+
+    animation:
+        springDreamStatusMessage
+        1.65s
+        ease-out
+        forwards;
+}
+
+.spring-dream-status-message.is-feeding {
+    top: -68px;
+}
+
+/* ---------- Vườn Dưỡng Mộng ---------- */
+
+.spring-dream-food-content {
+    position: relative;
+    max-width: 400px !important;
+    overflow: hidden;
+
+    color: #5f1739 !important;
+
+    border:
+        1px solid rgba(226, 184, 92, 0.66) !important;
+
+    border-radius:
+        30px 12px 30px 12px !important;
+
+    background:
+        radial-gradient(circle at 50% -8%,
+            rgba(255, 255, 255, 0.92),
+            transparent 30%),
+        linear-gradient(145deg,
+            #fff8eb,
+            #f8e4ea 56%,
+            #eadff1) !important;
+
+    box-shadow:
+        0 25px 80px rgba(45, 13, 43, 0.28),
+        0 0 34px rgba(226, 184, 92, 0.18) !important;
+
+    text-align: center;
+}
+
+.spring-dream-food-content h3 {
+    color: #6f123d !important;
+
+    text-shadow:
+        0 0 12px rgba(226, 184, 92, 0.3);
+}
+
+.spring-dream-food-emblem {
+    width: 58px;
+    height: 58px;
+    margin: 0 auto 8px;
+
+    display: grid;
+    place-items: center;
+
+    color: #fff8eb;
+    font-size: 26px;
+
+    border:
+        1px solid rgba(255, 232, 167, 0.86);
+
+    border-radius:
+        18px 8px 18px 8px;
+
+    background:
+        linear-gradient(145deg,
+            #b51f55,
+            #72148f 62%,
+            #54741f);
+
+    box-shadow:
+        0 0 18px rgba(181, 31, 85, 0.32),
+        0 0 30px rgba(226, 184, 92, 0.22);
+
+    animation:
+        springDreamEmblemFloat
+        3.2s
+        ease-in-out
+        infinite;
+}
+
+.spring-dream-energy-status {
+    color:
+        rgba(95, 23, 57, 0.78);
+}
+
+#springDreamEnergyText {
+    color: #6f123d;
+    font-size: 1.18em;
+
+    text-shadow:
+        0 0 8px rgba(226, 184, 92, 0.36);
+}
+
+.spring-dream-food-list {
+    display: grid;
+    gap: 9px;
+}
+
+.spring-dream-food-btn {
+    width: 100%;
+    min-height: 58px;
+    padding: 9px 13px;
+
+    display: grid;
+    grid-template-columns:
+        36px 1fr;
+    grid-template-rows:
+        auto auto;
+    align-items: center;
+    column-gap: 9px;
+
+    cursor: pointer;
+
+    color: #6f123d;
+
+    border:
+        1px solid rgba(181, 31, 85, 0.24);
+
+    border-radius:
+        14px 7px 14px 7px;
+
+    background:
+        linear-gradient(105deg,
+            rgba(255, 248, 235, 0.88),
+            rgba(243, 207, 224, 0.72));
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.spring-dream-food-btn > span {
+    grid-row: 1 / 3;
+
+    color: #b51f55;
+    font-size: 24px;
+
+    text-shadow:
+        0 0 9px rgba(226, 184, 92, 0.42);
+}
+
+.spring-dream-food-btn strong,
+.spring-dream-food-btn small {
+    text-align: left;
+}
+
+.spring-dream-food-btn small {
+    color:
+        rgba(95, 23, 57, 0.62);
+}
+
+.spring-dream-food-btn:hover {
+    transform:
+        translateY(-2px);
+
+    border-color:
+        rgba(181, 31, 85, 0.5);
+
+    box-shadow:
+        0 8px 20px rgba(89, 24, 78, 0.12);
+}
+
+.spring-dream-food-btn.premium {
+    background:
+        linear-gradient(105deg,
+            rgba(255, 232, 167, 0.74),
+            rgba(243, 207, 224, 0.82));
+}
+
+.spring-dream-food-btn.legendary {
+    border-color:
+        rgba(114, 20, 143, 0.34);
+
+    background:
+        linear-gradient(105deg,
+            rgba(226, 184, 92, 0.56),
+            rgba(179, 59, 209, 0.18),
+            rgba(181, 31, 85, 0.28));
+}
+
+/* ---------- Nghi thức nạp Mộng lực ---------- */
+
+.spring-dream-feeding-ritual {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 23;
+
+    width: 170px;
+    height: 170px;
+
+    transform:
+        translate(-50%, -50%);
+
+    pointer-events: none;
+}
+
+.spring-dream-feeding-glass {
+    position: absolute;
+    inset: 20px;
+
+    border:
+        1px solid rgba(255, 232, 167, 0.62);
+
+    border-radius:
+        24px 8px 24px 8px;
+
+    background:
+        linear-gradient(145deg,
+            rgba(255, 255, 255, 0.24),
+            rgba(181, 31, 85, 0.08));
+
+    clip-path:
+        polygon(
+            16% 0,
+            84% 8%,
+            100% 70%,
+            68% 100%,
+            8% 82%,
+            0 24%
+        );
+
+    animation:
+        springDreamFeedGlass
+        1.95s
+        ease-in-out
+        forwards;
+}
+
+.spring-dream-feeding-core {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+
+    width: 38px;
+    height: 38px;
+
+    display: grid;
+    place-items: center;
+
+    transform:
+        translate(-50%, -50%)
+        rotate(45deg);
+
+    color: #fff8eb;
+    font-size: 20px;
+
+    border:
+        1px solid rgba(255, 232, 167, 0.76);
+
+    border-radius:
+        8px;
+
+    background:
+        linear-gradient(145deg,
+            #b51f55,
+            #72148f);
+
+    box-shadow:
+        0 0 18px rgba(181, 31, 85, 0.46);
+
+    animation:
+        springDreamFeedCore
+        1.8s
+        ease-in-out
+        forwards;
+}
+
+.spring-dream-feeding-core::first-letter {
+    transform:
+        rotate(-45deg);
+}
+
+.spring-dream-feeding-vine {
+    position: absolute;
+    left: 31px;
+    right: 31px;
+    bottom: 28px;
+
+    height: 34px;
+
+    border-top:
+        2px solid rgba(84, 116, 31, 0.68);
+
+    border-radius:
+        50%;
+
+    animation:
+        springDreamFeedVine
+        1.85s
+        ease-in-out
+        forwards;
+}
+
+#virtual-pet-container.pet-spring-vintage-stage #virtual-pet-img.spring-vintage-goddess-magic.spring-dream-feeding-awakened {
+    animation:
+        springDreamPetFeed
+        1.95s
+        ease-in-out !important;
+}
+
+/* ---------- Card trong Trung tâm Tương tác ---------- */
+
+.pet-interaction-card.theme-spring-dream {
+    --pet-card-accent: #b51f55;
+    --pet-card-secondary: #72148f;
+    --pet-card-heading: #6f123d;
+    --pet-card-border: rgba(181, 31, 85, 0.28);
+    --pet-card-glow: rgba(181, 31, 85, 0.22);
+    --pet-card-active: rgba(226, 184, 92, 0.18);
+    --pet-card-badge: rgba(255, 232, 167, 0.58);
+    --pet-avatar-background:
+        linear-gradient(145deg,
+            #fff8eb,
+            #f3cfe0 58%,
+            #e8dcf1);
+    --pet-card-background:
+        radial-gradient(circle at 88% 12%,
+            rgba(226, 184, 92, 0.13),
+            transparent 30%),
+        linear-gradient(145deg,
+            #fffaf1,
+            #fff4f7 58%,
+            #f7f1fb);
+}
+
+.pet-interaction-card.theme-spring-dream
+.pet-card-avatar {
+    border-radius:
+        22px 8px 22px 8px;
+}
+
+/* ---------- Keyframes namespace riêng ---------- */
+
+@keyframes springDreamBarBreathe {
+    0%,
+    100% {
+        box-shadow:
+            0 0 10px rgba(226, 184, 92, 0.34),
+            0 0 20px rgba(181, 31, 85, 0.16),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    50% {
+        box-shadow:
+            0 0 14px rgba(226, 184, 92, 0.56),
+            0 0 28px rgba(181, 31, 85, 0.24),
+            inset 0 1px 0 rgba(255, 255, 255, 0.26);
+    }
+}
+
+@keyframes springDreamBarCritical {
+    from {
+        transform:
+            translateX(-50%)
+            scale(1);
+    }
+
+    to {
+        transform:
+            translateX(-50%)
+            scale(1.035);
+    }
+}
+
+@keyframes springDreamEnergyCritical {
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.72;
+    }
+}
+
+@keyframes springDreamWhisperShard {
+    0% {
+        opacity: 0;
+        transform:
+            rotate(var(--spring-shard-angle))
+            translateY(-24px)
+            scale(0.5)
+            rotate(28deg);
+    }
+
+    42% {
+        opacity: 0.9;
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+            rotate(var(--spring-shard-angle))
+            translateY(-78px)
+            scale(0.9)
+            rotate(48deg);
+    }
+}
+
+@keyframes springDreamDanceShard {
+    0% {
+        opacity: 0;
+        transform:
+            rotate(var(--spring-shard-angle))
+            translateY(-34px)
+            scale(0.45)
+            rotate(18deg);
+    }
+
+    35% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+            rotate(calc(var(--spring-shard-angle) + 110deg))
+            translateY(-88px)
+            scale(1.05)
+            rotate(72deg);
+    }
+}
+
+@keyframes springDreamSanctuaryShard {
+    0% {
+        opacity: 0;
+        transform:
+            rotate(var(--spring-shard-angle))
+            translateY(-30px)
+            scale(0.4)
+            rotate(25deg);
+    }
+
+    28%,
+    72% {
+        opacity: 0.88;
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+            rotate(var(--spring-shard-angle))
+            translateY(-101px)
+            scale(1)
+            rotate(58deg);
+    }
+}
+
+@keyframes springDreamVineReveal {
+    0% {
+        opacity: 0;
+        transform:
+            translate(-50%, -50%)
+            skewX(-8deg)
+            scale(0.72);
+    }
+
+    45% {
+        opacity: 0.86;
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+            translate(-50%, -50%)
+            skewX(-8deg)
+            scale(1.06);
+    }
+}
+
+@keyframes springDreamVineDance {
+    0% {
+        opacity: 0;
+        transform:
+            translate(-50%, -50%)
+            skewX(-8deg)
+            rotate(-8deg)
+            scale(0.72);
+    }
+
+    42% {
+        opacity: 0.92;
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+            translate(-50%, -50%)
+            skewX(-8deg)
+            rotate(12deg)
+            scale(1.08);
+    }
+}
+
+@keyframes springDreamSanctuaryVine {
+    0% {
+        opacity: 0;
+        transform:
+            translate(-50%, -50%)
+            skewX(-8deg)
+            scale(0.6);
+    }
+
+    28%,
+    72% {
+        opacity: 0.9;
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+            translate(-50%, -50%)
+            skewX(-8deg)
+            scale(1.06);
+    }
+}
+
+@keyframes springDreamJewelPulse {
+    0% {
+        opacity: 0;
+        transform:
+            rotate(45deg)
+            scale(0.2);
+    }
+
+    45% {
+        opacity: 1;
+        transform:
+            rotate(45deg)
+            scale(1.12);
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+            rotate(45deg)
+            scale(0.66);
+    }
+}
+
+@keyframes springDreamJewelDance {
+    0% {
+        opacity: 0;
+        transform:
+            rotate(45deg)
+            scale(0.2);
+    }
+
+    38% {
+        opacity: 1;
+        transform:
+            rotate(180deg)
+            scale(1.2);
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+            rotate(320deg)
+            scale(0.5);
+    }
+}
+
+@keyframes springDreamSanctuaryJewel {
+    0% {
+        opacity: 0;
+        transform:
+            rotate(45deg)
+            scale(0.25);
+    }
+
+    30%,
+    72% {
+        opacity: 1;
+        transform:
+            rotate(135deg)
+            scale(1.22);
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+            rotate(225deg)
+            scale(0.5);
+    }
+}
+
+@keyframes springDreamGlassFieldDance {
+    0% {
+        transform:
+            rotate(-8deg)
+            scale(0.78);
+    }
+
+    55% {
+        transform:
+            rotate(12deg)
+            scale(1.04);
+    }
+
+    100% {
+        transform:
+            rotate(24deg)
+            scale(0.9);
+    }
+}
+
+@keyframes springDreamSanctuaryField {
+    0% {
+        opacity: 0;
+        transform:
+            scale(0.72)
+            skewY(-3deg);
+    }
+
+    28%,
+    72% {
+        opacity: 0.86;
+        transform:
+            scale(1)
+            skewY(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+            scale(1.08)
+            skewY(3deg);
+    }
+}
+
+@keyframes springDreamCaption {
+    0% {
+        opacity: 0;
+        transform:
+            translateX(-50%)
+            translateY(-6px);
+    }
+
+    26%,
+    72% {
+        opacity: 1;
+        transform:
+            translateX(-50%)
+            translateY(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+            translateX(-50%)
+            translateY(4px);
+    }
+}
+
+@keyframes springDreamPetWhisper {
+    0%,
+    100% {
+        transform:
+            translateY(0)
+            scale(1);
+    }
+
+    45% {
+        transform:
+            translateY(-9px)
+            scale(1.045);
+    }
+}
+
+@keyframes springDreamPetDance {
+    0%,
+    100% {
+        transform:
+            translateY(0)
+            rotate(0)
+            scale(1);
+    }
+
+    28% {
+        transform:
+            translateY(-11px)
+            rotate(-3deg)
+            scale(1.03);
+    }
+
+    62% {
+        transform:
+            translateY(-7px)
+            rotate(3deg)
+            scale(1.055);
+    }
+}
+
+@keyframes springDreamPetSanctuary {
+    0%,
+    100% {
+        transform:
+            translateY(0)
+            scale(1);
+    }
+
+    32% {
+        transform:
+            translateY(-13px)
+            scale(1.045);
+    }
+
+    67% {
+        transform:
+            translateY(-9px)
+            scale(1.07);
+    }
+}
+
+@keyframes springDreamStatusMessage {
+    0% {
+        opacity: 0;
+        transform:
+            translateX(-50%)
+            translateY(8px)
+            scale(0.94);
+    }
+
+    20%,
+    72% {
+        opacity: 1;
+        transform:
+            translateX(-50%)
+            translateY(0)
+            scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+            translateX(-50%)
+            translateY(-7px)
+            scale(0.98);
+    }
+}
+
+@keyframes springDreamEmblemFloat {
+    0%,
+    100% {
+        transform:
+            translateY(0)
+            rotate(-2deg);
+    }
+
+    50% {
+        transform:
+            translateY(-4px)
+            rotate(2deg);
+    }
+}
+
+@keyframes springDreamFeedGlass {
+    0% {
+        opacity: 0;
+        transform:
+            scale(0.6)
+            rotate(-8deg);
+    }
+
+    30%,
+    70% {
+        opacity: 0.86;
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+            scale(1.08)
+            rotate(9deg);
+    }
+}
+
+@keyframes springDreamFeedCore {
+    0% {
+        opacity: 0;
+        transform:
+            translate(-50%, -50%)
+            rotate(45deg)
+            scale(0.35);
+    }
+
+    45% {
+        opacity: 1;
+        transform:
+            translate(-50%, -50%)
+            rotate(135deg)
+            scale(1.08);
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+            translate(-50%, -50%)
+            rotate(225deg)
+            scale(0.55);
+    }
+}
+
+@keyframes springDreamFeedVine {
+    0% {
+        opacity: 0;
+        transform:
+            scaleX(0.45);
+    }
+
+    42%,
+    72% {
+        opacity: 0.82;
+        transform:
+            scaleX(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+            scaleX(1.08);
+    }
+}
+
+@keyframes springDreamPetFeed {
+    0%,
+    100% {
+        transform:
+            translateY(0)
+            scale(1);
+    }
+
+    48% {
+        transform:
+            translateY(-10px)
+            scale(1.055);
+    }
+}
+
+@media (max-width: 700px) {
+    .spring-dream-interaction-layer {
+        width: 190px;
+        height: 190px;
+    }
+
+    .spring-dream-interaction-layer.is-sanctuary {
+        width: 214px;
+        height: 208px;
+    }
+
+    .spring-dream-status-message {
+        max-width: 190px;
+        font-size: 10px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .spring-dream-hunger-bar,
+    .spring-dream-interaction-layer *,
+    #virtual-pet-img.spring-vintage-goddess-magic[class*="spring-dream-"],
+    .spring-dream-feeding-ritual * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
+
+/* =========================================================
+   TIỂU HOA MỘNG · MỘNG ẤN KỸ NĂNG v2
+   Cơ chế kích hoạt tách hoàn toàn khỏi click trên nhân vật.
+   ========================================================= */
+
+#virtual-pet-container #spring-dream-skill-dock.spring-dream-skill-dock {
+    position: absolute;
+    left: 50%;
+    top: auto;
+    bottom: calc(100% + 52px);
+    z-index: 34;
+
+    width: 236px;
+    box-sizing: border-box;
+
+    transform: translateX(-50%);
+
+    padding: 9px;
+
+    border: 1px solid rgba(226, 184, 92, .64);
+    border-radius: 15px;
+
+    background:
+        linear-gradient(145deg,
+            rgba(38, 17, 34, .94),
+            rgba(94, 22, 58, .93) 56%,
+            rgba(52, 27, 42, .94));
+
+    box-shadow:
+        0 10px 26px rgba(28, 12, 28, .28),
+        inset 0 1px 0 rgba(255, 255, 255, .12);
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    user-select: none;
+    pointer-events: auto;
+
+    animation:
+        springDreamDockEnter .24s ease-out both;
+}
+
+#virtual-pet-container #spring-dream-skill-dock.spring-dream-skill-dock.is-below {
+    top: calc(100% + 10px);
+    bottom: auto;
+}
+
+.spring-dream-skill-dock-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    margin-bottom: 8px;
+    padding: 0 2px;
+
+    color: #fff8eb;
+}
+
+.spring-dream-skill-seal {
+    width: 29px;
+    height: 29px;
+    flex: 0 0 29px;
+
+    display: grid;
+    place-items: center;
+
+    border: 1px solid rgba(255, 232, 167, .48);
+    border-radius: 50%;
+
+    color: #ffe8a7;
+
+    background:
+        radial-gradient(circle,
+            rgba(226, 184, 92, .2),
+            rgba(181, 31, 85, .1) 65%,
+            transparent);
+
+    box-shadow:
+        0 0 11px rgba(226, 184, 92, .2);
+}
+
+.spring-dream-skill-dock-head strong {
+    display: block;
+    font-size: 11px;
+    line-height: 1.2;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+}
+
+.spring-dream-skill-dock-head small {
+    display: block;
+    margin-top: 2px;
+
+    color: rgba(255, 248, 235, .64);
+    font-size: 8px;
+    line-height: 1.25;
+}
+
+.spring-dream-skill-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.spring-dream-skill-btn {
+    min-width: 0;
+    min-height: 54px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+
+    padding: 6px 4px;
+
+    border: 1px solid rgba(255, 232, 167, .25);
+    border-radius: 10px;
+
+    color: #fff8eb;
+
+    background:
+        linear-gradient(155deg,
+            rgba(255, 255, 255, .09),
+            rgba(181, 31, 85, .15));
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .08);
+
+    cursor: pointer;
+
+    transition:
+        transform .16s ease,
+        border-color .16s ease,
+        background .16s ease,
+        opacity .16s ease;
+}
+
+.spring-dream-skill-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+
+    border-color:
+        rgba(255, 232, 167, .64);
+
+    background:
+        linear-gradient(155deg,
+            rgba(226, 184, 92, .19),
+            rgba(181, 31, 85, .25));
+}
+
+.spring-dream-skill-btn:active:not(:disabled) {
+    transform: translateY(0) scale(.97);
+}
+
+.spring-dream-skill-btn:focus-visible {
+    outline: 2px solid rgba(255, 232, 167, .9);
+    outline-offset: 2px;
+}
+
+.spring-dream-skill-btn.is-ultimate {
+    border-color:
+        rgba(179, 59, 209, .34);
+}
+
+.spring-dream-skill-icon {
+    font-size: 15px;
+    line-height: 1;
+    color: #ffe8a7;
+}
+
+.spring-dream-skill-copy {
+    min-width: 0;
+    text-align: center;
+}
+
+.spring-dream-skill-copy b {
+    display: block;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    font-size: 9px;
+    line-height: 1.15;
+}
+
+.spring-dream-skill-copy small {
+    display: block;
+
+    margin-top: 2px;
+
+    color:
+        rgba(255, 232, 167, .72);
+
+    font-size: 7px;
+    line-height: 1.1;
+}
+
+.spring-dream-skill-btn:disabled,
+.spring-dream-skill-btn.is-unavailable {
+    opacity: .38;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.spring-dream-skill-dock.is-busy {
+    pointer-events: none;
+}
+
+.spring-dream-skill-dock.is-busy::after {
+    content: "Đang thi triển…";
+
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: inherit;
+
+    color: rgba(255, 248, 235, .9);
+
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .04em;
+
+    background:
+        rgba(43, 17, 35, .58);
+
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+
+@keyframes springDreamDockEnter {
+    from {
+        opacity: 0;
+        transform:
+            translateX(-50%)
+            translateY(-6px)
+            scale(.97);
+    }
+
+    to {
+        opacity: 1;
+        transform:
+            translateX(-50%)
+            translateY(0)
+            scale(1);
+    }
+}
+
+@media (max-width: 560px), (pointer: coarse) {
+    #virtual-pet-container #spring-dream-skill-dock.spring-dream-skill-dock {
+        width: min(230px, 72vw);
+    }
+
+    #virtual-pet-container #spring-dream-skill-dock.spring-dream-skill-dock.is-below {
+        top: calc(100% + 8px);
+    }
+
+    .spring-dream-skill-btn {
+        min-height: 52px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #virtual-pet-container #spring-dream-skill-dock.spring-dream-skill-dock {
+        animation: none;
+    }
+
+    .spring-dream-skill-btn {
+        transition: none;
+    }
+}
+
+/* =========================================================
+   STUDENT · CÀI ĐẶT TÀI KHOẢN & HỆ THỐNG
+   Bố cục nhóm rõ ràng, giữ nguyên ID/logic JS hiện có.
+   ========================================================= */
+
+#tab-settings.student-settings-page {
+    min-width: 0;
+}
+
+#tab-settings .student-settings-title-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+#tab-settings .student-settings-title-row h2 {
+    margin: 0;
+}
+
+#tab-settings .update-banner {
+    margin-bottom: 24px;
+}
+
+#tab-settings .student-settings-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.18fr) minmax(320px, .82fr);
+    gap: 24px;
+    align-items: start;
+    min-width: 0;
+}
+
+#tab-settings .student-settings-section {
+    min-width: 0;
+}
+
+#tab-settings .student-settings-section-system {
+    grid-column: 1 / -1;
+}
+
+#tab-settings .student-settings-section-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 12px;
+    padding: 0 4px;
+}
+
+#tab-settings .student-settings-section-icon {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(102,126,234,.16), rgba(118,75,162,.12));
+    box-shadow: inset 0 0 0 1px rgba(102,126,234,.08);
+    font-size: 1.22rem;
+}
+
+#tab-settings .student-settings-section-head h3 {
+    margin: 0 0 3px;
+    color: #26355f;
+    font-size: 1.08rem;
+}
+
+#tab-settings .student-settings-section-head p {
+    margin: 0;
+    color: #77839a;
+    font-size: .86rem;
+    line-height: 1.45;
+}
+
+#tab-settings .student-settings-card,
+#tab-settings .student-settings-health-card {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    border-radius: 20px;
+}
+
+#tab-settings .student-settings-card {
+    padding: 20px;
+}
+
+#tab-settings .student-settings-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    min-width: 0;
+    margin-bottom: 14px;
+    padding: 15px 16px;
+    border: 1px solid rgba(102,126,234,.11);
+    border-radius: 15px;
+    background: rgba(255,255,255,.56);
+}
+
+#tab-settings .student-settings-toggle-copy {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+#tab-settings .student-settings-toggle-title {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+#tab-settings .student-settings-toggle-copy strong,
+#tab-settings .student-settings-toggle-title strong {
+    color: #2c3e50;
+}
+
+#tab-settings .student-settings-toggle-copy p {
+    margin: 5px 0 0;
+    color: #667085;
+    font-size: .82rem;
+    line-height: 1.45;
+}
+
+#tab-settings .student-settings-info-btn {
+    width: 23px !important;
+    height: 23px !important;
+    min-width: 23px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: inline-grid !important;
+    place-items: center;
+    border: 0 !important;
+    border-radius: 50% !important;
+    color: #667eea !important;
+    background: rgba(102,126,234,.14) !important;
+    box-shadow: none !important;
+    font-size: .74rem !important;
+    font-weight: 900 !important;
+    cursor: pointer;
+}
+
+/* Các module Effect Quality / Performance chèn động dùng switch chung.
+   Khóa kích thước để không bị ép thành hình tròn trong grid. */
+#tab-settings .switch {
+    box-sizing: border-box;
+    width: 50px !important;
+    min-width: 50px !important;
+    max-width: 50px !important;
+    height: 26px !important;
+    flex: 0 0 50px !important;
+    margin: 0 !important;
+}
+
+#tab-settings .switch input {
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+#tab-settings .student-settings-field-block {
+    min-width: 0;
+    margin-top: 16px;
+}
+
+#tab-settings .student-settings-field-block:first-child {
+    margin-top: 0;
+}
+
+#tab-settings .student-settings-field-block label {
+    display: block;
+    margin-bottom: 7px;
+    color: #2c3e50;
+}
+
+#tab-settings .student-settings-field-block input[type="text"],
+#tab-settings .student-settings-field-block input[type="password"],
+#tab-settings .student-settings-field-block select {
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+}
+
+#tab-settings .student-settings-field-block select {
+    color: #667eea;
+    font-weight: 800;
+}
+
+#tab-settings .student-settings-field-block small {
+    display: block;
+    margin-top: 7px;
+    color: #7b8498;
+    font-size: .76rem;
+    line-height: 1.45;
+}
+
+#tab-settings .student-settings-profile-submit {
+    width: 100% !important;
+    margin: 18px 0 0 !important;
+    padding: 12px 16px !important;
+    border: 0 !important;
+    border-radius: 12px !important;
+    color: #fff !important;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    box-shadow: 0 8px 18px rgba(102,126,234,.20) !important;
+    font-weight: 900 !important;
+}
+
+#tab-settings .student-settings-request-notifications {
+    margin-top: 16px;
+}
+
+#tab-settings .student-settings-health-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 18px 22px;
+    padding: 20px;
+    border-left-color: #3b82f6;
+    background: rgba(59,130,246,.05);
+}
+
+#tab-settings .student-settings-health-copy {
+    min-width: 0;
+}
+
+#tab-settings .student-settings-health-copy h3 {
+    margin: 0 0 7px;
+    padding: 0;
+    border: 0;
+    color: #2c3e50;
+}
+
+#tab-settings .student-settings-health-copy p {
+    margin: 0;
+    color: #596273;
+    font-size: .88rem;
+    line-height: 1.55;
+}
+
+#tab-settings .student-settings-health-button {
+    width: auto !important;
+    min-width: 220px;
+    margin: 0 !important;
+    padding: 12px 18px !important;
+    border: 0 !important;
+    border-radius: 11px !important;
+    color: #fff !important;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    box-shadow: 0 7px 16px rgba(59,130,246,.22) !important;
+    font-weight: 900 !important;
+    white-space: nowrap;
+}
+
+#tab-settings .student-settings-diagnostic-results {
+    grid-column: 1 / -1;
+    box-sizing: border-box;
+    width: 100%;
+    max-height: min(68vh, 760px);
+    overflow-y: auto;
+    margin-top: 2px;
+    padding: 15px;
+    border: 1px solid rgba(0,0,0,.08);
+    border-radius: 12px;
+    background: rgba(255,255,255,.82);
+}
+
+#tab-settings .student-settings-diagnostic-results #diagnosticStatus {
+    margin: 0 0 8px;
+    color: #666;
+    text-align: center;
+}
+
+#tab-settings .student-settings-diagnostic-results #diagnosticList {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: .9em;
+    line-height: 1.6;
+}
+
+/* Hai module này tự chèn vào .form-container đầu tiên.
+   Đồng bộ spacing của chúng với card Trải nghiệm. */
+#tab-settings #effectQualitySettingsRow,
+#tab-settings #webPerformanceOptimizerSettingsRow {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+}
+
+@media (max-width: 1080px) {
+    #tab-settings .student-settings-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #tab-settings .student-settings-section-system {
+        grid-column: auto;
+    }
+}
+
+@media (max-width: 680px) {
+    #tab-settings .student-settings-grid {
+        gap: 19px;
+    }
+
+    #tab-settings .student-settings-section-head {
+        align-items: flex-start;
+    }
+
+    #tab-settings .student-settings-section-icon {
+        width: 40px;
+        height: 40px;
+        flex-basis: 40px;
+        border-radius: 12px;
+    }
+
+    #tab-settings .student-settings-card,
+    #tab-settings .student-settings-health-card {
+        padding: 15px;
+        border-radius: 17px;
+    }
+
+    #tab-settings .student-settings-toggle-row {
+        gap: 12px;
+        padding: 13px;
+    }
+
+    #tab-settings .student-settings-health-card {
+        grid-template-columns: 1fr;
+    }
+
+    #tab-settings .student-settings-health-button {
+        width: 100% !important;
+        min-width: 0;
+    }
+}
+
+@media (max-width: 430px) {
+    #tab-settings .student-settings-toggle-copy p {
+        font-size: .78rem;
+    }
+
+    #tab-settings .student-settings-section-head p {
+        font-size: .80rem;
+    }
+}
+
+/* =========================================================
+   QUYỀN CỬA HÀNG & TRÒ CHƠI THEO TỪNG HỌC SINH
+   Khi giáo viên tắt quyền:
+   - Nút Trò chơi/Cửa hàng vẫn hiển thị.
+   - Nút có trạng thái khóa trực quan.
+   - JavaScript chặn truy cập và hiện thông báo khi nhấn.
+   ========================================================= */
+html.student-store-game-disabled #studentGameNav,
+html.student-store-game-disabled #studentStoreNav,
+html.student-store-game-disabled .nav-item[onclick*="tab-game"],
+html.student-store-game-disabled .nav-item[onclick*="tab-store"],
+.student-feature-access-disabled {
+    display: flex !important;
+    opacity: 0.62;
+    cursor: not-allowed !important;
+    filter: saturate(0.72);
+}
+
+html.student-store-game-disabled #studentGameNav::after,
+html.student-store-game-disabled #studentStoreNav::after,
+html.student-store-game-disabled .nav-item[onclick*="tab-game"]::after,
+html.student-store-game-disabled .nav-item[onclick*="tab-store"]::after,
+.student-feature-access-disabled::after {
+    content: "🔒";
+    margin-left: auto;
+    font-size: 0.82em;
+    line-height: 1;
+}
+
+/* Không dùng pointer-events:none vì cần nhận click để hiện thông báo. */
