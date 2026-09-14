@@ -1,9 +1,9 @@
 /**
  * NEW USER GUIDE — Hướng dẫn người mới cho website học tập
- * Phiên bản: 2.14.0 — đào tạo bắt buộc 1 lần về nộp bài, cập nhật và hiệu năng
+ * Phiên bản: 2.14.1 — đào tạo bắt buộc 1 lần về nộp bài, cập nhật và hiệu năng
  *
  * Cách nạp khuyến nghị (đặt cuối <body>, sau teacher.js hoặc student.js):
- * <script src="js/huong-dan-nguoi-moi.js?v=2.14.0"></script>
+ * <script src="js/huong-dan-nguoi-moi.js?v=2.14.1"></script>
  *
  * API có thể gọi từ nơi khác:
  *   NewUserGuide.open();          // Mở trung tâm hướng dẫn
@@ -17,7 +17,7 @@
 
     if (window.NewUserGuide) return;
 
-    const VERSION = '2.14.0';
+    const VERSION = '2.14.1';
     const REQUIRED_STUDENT_TRAINING_VERSION =
         '2026-09-06-submission-update-effects-v1';
     const REQUIRED_STUDENT_TRAINING_FEATURES = Object.freeze([
@@ -3085,13 +3085,18 @@
 
         const firstCard = settingsTab.querySelector('.card');
 
-        if (firstCard) {
-            settingsTab.insertBefore(
-                settingCard,
-                firstCard
-            );
+        /*
+         * querySelector() có thể trả về một .card nằm sâu trong wrapper/grid,
+         * không phải con trực tiếp của #tab-settings. Node.insertBefore() yêu cầu
+         * referenceNode phải là con trực tiếp của node cha, nên cách cũ có thể
+         * ném NotFoundError sau khi bố cục Cài đặt được tổ chức lại.
+         *
+         * Chèn theo chính parent của card tìm được để luôn hợp lệ với DOM hiện tại.
+         */
+        if (firstCard && firstCard.parentNode) {
+            firstCard.parentNode.insertBefore(settingCard, firstCard);
         } else {
-            settingsTab.appendChild(settingCard);
+            settingsTab.prepend(settingCard);
         }
 
         document.getElementById(
@@ -3464,7 +3469,7 @@
             { featureId: 'settings', tabId: 'tab-settings', selector: '#themeSelector', title: 'Cài đặt tài khoản', description: 'Đổi giao diện, tên hiển thị hoặc mật khẩu rồi bấm Lưu thay đổi tài khoản.', access: 'Để trống mật khẩu nếu không muốn đổi.' },
             { featureId: 'settings', tabId: 'tab-settings', selector: '#toggleConversionTable', title: 'Bật bảng quy đổi', description: 'Quyết định học sinh có được mở bảng quy đổi Coin và tiền tích lũy hay không.', access: 'Tắt chức năng sẽ đóng bảng đang mở ở phía học sinh.' },
             { featureId: 'settings', tabId: 'tab-settings', selector: '#teacherCashRequestsSection', title: 'Yêu cầu lấy tiền mặt', description: 'Xem và xử lý các yêu cầu rút tiền do học sinh gửi.', access: 'Kiểm tra số tiền và trạng thái trước khi duyệt.' },
-            { featureId: 'settings', tabId: 'tab-settings', selector: 'button[onclick*="runSystemDiagnostics"]', title: 'Quét lỗi hệ thống', description: 'Chạy kiểm tra khi website có dấu hiệu lỗi hoặc dữ liệu không tải.', access: 'Đọc kết quả chẩn đoán trước khi sửa.' },
+            { featureId: 'settings', tabId: 'tab-settings', selector: 'button[onclick*="runSystemDiagnostics"]', title: 'System Health Center 2.0', description: 'Quét sức khỏe hệ thống ở chế độ chỉ đọc: Firebase, Service Worker/cache, R2/Cloudinary, module và tải runtime.', access: 'Công cụ không tự sửa dữ liệu; đọc bảng trạng thái để xác định hạng mục đang lỗi.' },
             { featureId: 'settings', tabId: 'tab-settings', selector: '#notificationToggle', title: 'Gửi thông báo toàn trường', description: 'Bật nhóm thông báo, nhập nội dung rồi bấm Gửi thông báo ngay.', access: 'Thông báo nên ngắn, rõ và có thời gian cụ thể.' },
             { featureId: 'settings', tabId: 'tab-settings', selector: '#surveyToggle', title: 'Tạo khảo sát', description: 'Bật khảo sát, nhập tiêu đề, thêm câu trắc nghiệm hoặc câu trả lời chữ rồi phát hành.', access: 'Kiểm tra toàn bộ câu trước khi gửi.' },
             { featureId: 'settings', tabId: 'tab-settings', selector: '#giftToggle', title: 'Gửi thư và quà', description: 'Chọn học sinh, nhập lời nhắn và loại quà. Có thể gửi Coin, vật phẩm hoặc thẻ giảm giá có phạm vi và hạn dùng.', access: 'Khi chọn thẻ giảm giá, kiểm tra phần trăm, vật phẩm áp dụng và ngày hết hạn.' }
@@ -5236,7 +5241,7 @@
             { featureId: 'settings', tabId: 'tab-settings', selector: '#toggleCoinBalanceWidget', title: 'Ẩn hoặc hiện thanh Coin', description: 'Chỉ thay đổi giao diện, không làm mất Coin.', access: 'Có thể bật lại bất cứ lúc nào.' },
             { featureId: 'settings', tabId: 'tab-settings', selector: '#themeSelector', title: 'Chọn giao diện cơ bản', description: 'Chọn màu giao diện tài khoản. Giao diện vật phẩm được trang bị từ cửa hàng hoạt động riêng.', access: 'Thay đổi được áp dụng theo tùy chọn của trang.' },
             { featureId: 'settings', tabId: 'tab-settings', selector: '#settingName', title: 'Gửi yêu cầu đổi thông tin', description: 'Nhập tên mới hoặc mật khẩu mới rồi bấm Gửi yêu cầu thay đổi. Giáo viên sẽ xem và duyệt.', access: 'Để trống phần không muốn đổi.' },
-            { featureId: 'settings', tabId: 'tab-settings', selector: 'button[onclick*="runSystemDiagnostics"]', title: 'Quét lỗi hệ thống', description: 'Dùng khi dữ liệu, bài tập hoặc giao diện không hoạt động đúng.', access: 'Đọc kết quả rồi báo giáo viên nếu lỗi vẫn còn.' }
+            { featureId: 'settings', tabId: 'tab-settings', selector: 'button[onclick*="runSystemDiagnostics"]', title: 'System Health Center 2.0', description: 'Dùng bảng chẩn đoán chỉ đọc khi dữ liệu, bài tập hoặc giao diện không hoạt động đúng.', access: 'Health Center không tự sửa dữ liệu; đọc trạng thái rồi báo giáo viên nếu lỗi vẫn còn.' }
         ];
     }
 

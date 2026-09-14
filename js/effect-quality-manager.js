@@ -1,6 +1,6 @@
 /**
  * EFFECT QUALITY MANAGER — Vật phẩm + Web Animations
- * Phiên bản: 1.2.0
+ * Phiên bản: 2.0.0
  *
  * Mục tiêu:
  * - Chỉ giảm CHUYỂN ĐỘNG / HẠT / LỚP TRANG TRÍ của hiệu ứng vật phẩm, card cửa hàng và Web Animations.
@@ -14,7 +14,7 @@
 
     if (window.EffectQualityManager) return;
 
-    const VERSION = '1.2.0';
+    const VERSION = '2.0.0';
     const STORAGE_PREFIX = 'effectQualityManager:v1';
     const STYLE_ID = 'effect-quality-manager-style';
     const SETTINGS_ROW_ID = 'effectQualitySettingsRow';
@@ -56,7 +56,19 @@
         storeCardCounters: new WeakMap(),
         pendingNodes: new Set(),
         observerFlushHandle: null,
-        lastScanAt: 0
+        lastScanAt: 0,
+
+        // EFFECT BUDGET v2
+        // Một scheduler duy nhất cho các emitter của EffectManager.
+        emitters: new Map(),
+        nextEmitterId: 1,
+        schedulerHandle: null,
+        schedulerRunning: false,
+        visibilityPaused: document.visibilityState === 'hidden',
+        liveParticles: new Set(),
+        reservedParticlesThisFrame: 0,
+        lastParticleSweepAt: 0,
+        effectManagerStopPatched: false
     };
 
     const ROOT_SELECTOR = [
@@ -531,7 +543,11 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
 
     function classifyDecorativeElement(element, root) {
         if (shouldIgnoreDecorativeElement(element, root)) return;
-        if (element.dataset?.fxqWeight) return;
+
+        if (element.dataset?.fxqWeight) {
+            state.liveParticles.add(element);
+            return;
+        }
 
         const token = getTokenText(element);
         let weight = '';
@@ -548,6 +564,8 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
         if (!weight) return;
 
         element.dataset.fxqWeight = weight;
+        state.liveParticles.add(element);
+
         const counter = getRootCounter(root);
         const index = counter[weight]++;
         element.dataset.fxqIndex = String(index);
@@ -776,6 +794,19 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
             mutations.forEach(mutation => {
                 if (mutation.type === 'childList') {
                     mutation.addedNodes.forEach(queueObservedNode);
+
+                    mutation.removedNodes.forEach(node => {
+                        if (!(node instanceof Element)) return;
+
+                        state.liveParticles.delete(node);
+
+                        node
+                            .querySelectorAll?.('[data-fxq-weight]')
+                            .forEach(child => {
+                                state.liveParticles.delete(child);
+                            });
+                    });
+
                     return;
                 }
 
@@ -801,6 +832,401 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
             attributes: true,
             attributeFilter: ['class']
         });
+    }
+
+
+    // ==========================================================
+    // EFFECT BUDGET v2 — SCHEDULER / QUOTA DUY NHẤT
+    // ==========================================================
+    // Không patch setInterval toàn website. Chỉ các timer được tạo
+    // bên trong EffectManager.create...() được chuyển vào scheduler này.
+    // Timer nghiệp vụ/update/Firebase của module khác không bị đụng tới.
+    // ==========================================================
+
+    const PARTICLE_BUDGETS = Object.freeze({
+        high: 280,
+        medium: 140,
+        low: 70
+    });
+
+    const EMITTER_TOKEN_BASE = 1800000000;
+
+    function compactLiveParticles(force = false) {
+        const now = Date.now();
+
+        if (
+            !force &&
+            now - state.lastParticleSweepAt < 700
+        ) {
+            return;
+        }
+
+        state.lastParticleSweepAt = now;
+
+        state.liveParticles.forEach(node => {
+            if (
+                !(node instanceof Element) ||
+                !node.isConnected
+            ) {
+                state.liveParticles.delete(node);
+            }
+        });
+    }
+
+    function getParticleBudget() {
+        const level = getEffectiveLevel();
+
+        return (
+            PARTICLE_BUDGETS[level] ||
+            PARTICLE_BUDGETS.high
+        );
+    }
+
+    function getLiveParticleCount() {
+        compactLiveParticles();
+
+        return state.liveParticles.size;
+    }
+
+    function requestParticleQuota(
+        owner = 'effect',
+        cost = 1
+    ) {
+        if (
+            document.visibilityState === 'hidden' ||
+            state.visibilityPaused
+        ) {
+            return false;
+        }
+
+        const normalizedCost =
+            Math.max(
+                1,
+                Math.ceil(
+                    Number(cost) || 1
+                )
+            );
+
+        compactLiveParticles();
+
+        const projected =
+            state.liveParticles.size +
+            state.reservedParticlesThisFrame +
+            normalizedCost;
+
+        if (projected > getParticleBudget()) {
+            return false;
+        }
+
+        /*
+         * Giữ reservation đến frame scheduler kế tiếp.
+         * MutationObserver sẽ kịp ghi nhận DOM vừa sinh trước frame sau.
+         */
+        state.reservedParticlesThisFrame +=
+            normalizedCost;
+
+        return true;
+    }
+
+    function normalizeEmitterInterval(delay) {
+        const numeric =
+            Number(delay);
+
+        if (
+            !Number.isFinite(numeric) ||
+            numeric <= 0
+        ) {
+            return 16;
+        }
+
+        return Math.max(
+            16,
+            Number(scaleInterval(numeric)) ||
+            numeric
+        );
+    }
+
+    function ensureScheduler() {
+        if (
+            state.schedulerRunning ||
+            state.emitters.size === 0 ||
+            state.visibilityPaused ||
+            document.visibilityState === 'hidden'
+        ) {
+            return;
+        }
+
+        state.schedulerRunning = true;
+
+        const raf =
+            window.requestAnimationFrame ||
+            (callback =>
+                setTimeout(
+                    () => callback(performance.now()),
+                    16
+                ));
+
+        const tick = now => {
+            if (
+                state.visibilityPaused ||
+                document.visibilityState === 'hidden'
+            ) {
+                state.schedulerRunning = false;
+                state.schedulerHandle = null;
+                return;
+            }
+
+            state.reservedParticlesThisFrame = 0;
+            compactLiveParticles();
+
+            for (const emitter of state.emitters.values()) {
+                if (
+                    !emitter ||
+                    emitter.cancelled
+                ) {
+                    continue;
+                }
+
+                if (now < emitter.nextAt) {
+                    continue;
+                }
+
+                const interval =
+                    normalizeEmitterInterval(
+                        emitter.delay
+                    );
+
+                /*
+                 * Không catch-up sau lag/ẩn tab.
+                 * Mỗi emitter chỉ có tối đa một lần sinh ở frame hiện tại.
+                 */
+                emitter.nextAt =
+                    now + interval;
+
+                if (
+                    !requestParticleQuota(
+                        emitter.owner,
+                        emitter.cost
+                    )
+                ) {
+                    emitter.skipped += 1;
+                    continue;
+                }
+
+                try {
+                    emitter.handler(
+                        ...emitter.args
+                    );
+
+                    emitter.executed += 1;
+                } catch (error) {
+                    console.error(
+                        '[EffectQualityManager] Emitter lỗi:',
+                        emitter.owner,
+                        error
+                    );
+                }
+            }
+
+            if (
+                state.emitters.size > 0 &&
+                !state.visibilityPaused
+            ) {
+                state.schedulerHandle =
+                    raf(tick);
+            } else {
+                state.schedulerRunning = false;
+                state.schedulerHandle = null;
+            }
+        };
+
+        state.schedulerHandle =
+            raf(tick);
+    }
+
+    function scheduleEmitter(
+        owner,
+        handler,
+        delay,
+        options = {}
+    ) {
+        if (typeof handler !== 'function') {
+            throw new TypeError(
+                '[EffectQualityManager] emitter handler phải là function.'
+            );
+        }
+
+        const emitterId =
+            state.nextEmitterId++;
+
+        const token =
+            EMITTER_TOKEN_BASE +
+            emitterId;
+
+        const interval =
+            normalizeEmitterInterval(
+                delay
+            );
+
+        const now =
+            typeof performance !== 'undefined'
+                ? performance.now()
+                : Date.now();
+
+        state.emitters.set(
+            token,
+            {
+                token,
+                owner:
+                    String(
+                        owner ||
+                        'effect'
+                    ),
+                handler,
+                args:
+                    Array.isArray(
+                        options.args
+                    )
+                        ? options.args
+                        : [],
+                delay:
+                    Number(delay) || 16,
+                cost:
+                    Math.max(
+                        1,
+                        Math.ceil(
+                            Number(
+                                options.cost
+                            ) || 1
+                        )
+                    ),
+                nextAt:
+                    now + interval,
+                executed: 0,
+                skipped: 0,
+                cancelled: false
+            }
+        );
+
+        ensureScheduler();
+
+        return token;
+    }
+
+    function cancelEmitter(token) {
+        const emitter =
+            state.emitters.get(token);
+
+        if (!emitter) {
+            return false;
+        }
+
+        emitter.cancelled = true;
+        state.emitters.delete(token);
+
+        return true;
+    }
+
+    function cancelScope(scopePrefix = '') {
+        const prefix =
+            String(scopePrefix || '');
+
+        let count = 0;
+
+        for (
+            const [token, emitter]
+            of state.emitters.entries()
+        ) {
+            if (
+                !prefix ||
+                String(
+                    emitter.owner || ''
+                ).startsWith(prefix)
+            ) {
+                emitter.cancelled = true;
+                state.emitters.delete(token);
+                count += 1;
+            }
+        }
+
+        return count;
+    }
+
+    function pauseEffectBudget() {
+        state.visibilityPaused = true;
+
+        if (
+            state.schedulerHandle !== null &&
+            typeof cancelAnimationFrame === 'function'
+        ) {
+            try {
+                cancelAnimationFrame(
+                    state.schedulerHandle
+                );
+            } catch (_) {}
+        }
+
+        state.schedulerHandle = null;
+        state.schedulerRunning = false;
+    }
+
+    function resumeEffectBudget() {
+        state.visibilityPaused = false;
+
+        const now =
+            typeof performance !== 'undefined'
+                ? performance.now()
+                : Date.now();
+
+        /*
+         * Reset nextAt để không sinh bù một loạt hạt sau khi tab visible.
+         */
+        state.emitters.forEach(emitter => {
+            emitter.nextAt =
+                now +
+                normalizeEmitterInterval(
+                    emitter.delay
+                );
+        });
+
+        ensureScheduler();
+    }
+
+    function getBudgetStats() {
+        compactLiveParticles(true);
+
+        const emitters =
+            [...state.emitters.values()];
+
+        return {
+            budget:
+                getParticleBudget(),
+            liveParticles:
+                state.liveParticles.size,
+            emitters:
+                emitters.length,
+            paused:
+                state.visibilityPaused ||
+                document.visibilityState === 'hidden',
+            executed:
+                emitters.reduce(
+                    (sum, item) =>
+                        sum +
+                        Number(
+                            item.executed || 0
+                        ),
+                    0
+                ),
+            skipped:
+                emitters.reduce(
+                    (sum, item) =>
+                        sum +
+                        Number(
+                            item.skipped || 0
+                        ),
+                    0
+                )
+        };
     }
 
     function getEffectiveLevel() {
@@ -830,66 +1256,212 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
         return window.EffectManager || null;
     }
 
-    function runWithScaledVisualIntervals(fn, thisArg, args) {
-        if (!state.enabled || state.level === 'high' || state.timerPatchDepth > 0) {
+    function runWithCentralEffectBudget(
+        owner,
+        fn,
+        thisArg,
+        args
+    ) {
+        /*
+         * Nếu create... gọi lồng create... khác, wrapper ngoài đã patch timer.
+         * Không patch chồng để tránh mất owner/scheduler.
+         */
+        if (state.timerPatchDepth > 0) {
             return fn.apply(thisArg, args);
         }
 
-        const nativeSetInterval = window.setInterval;
+        const nativeSetInterval =
+            window.setInterval;
+
         state.timerPatchDepth += 1;
 
-        window.setInterval = function (handler, delay, ...rest) {
-            return nativeSetInterval.call(
-                window,
+        window.setInterval =
+            function (
                 handler,
-                scaleInterval(delay),
+                delay,
                 ...rest
-            );
-        };
+            ) {
+                if (
+                    typeof handler !==
+                    'function'
+                ) {
+                    /*
+                     * Effect hiện tại đều dùng callback function.
+                     * Trường hợp lạ thì fallback native để không phá code.
+                     */
+                    return nativeSetInterval.call(
+                        window,
+                        handler,
+                        scaleInterval(delay),
+                        ...rest
+                    );
+                }
+
+                return scheduleEmitter(
+                    owner,
+                    handler,
+                    delay,
+                    {
+                        args: rest,
+                        cost: 1
+                    }
+                );
+            };
 
         try {
-            return fn.apply(thisArg, args);
+            return fn.apply(
+                thisArg,
+                args
+            );
         } finally {
-            window.setInterval = nativeSetInterval;
-            state.timerPatchDepth = Math.max(0, state.timerPatchDepth - 1);
+            window.setInterval =
+                nativeSetInterval;
+
+            state.timerPatchDepth =
+                Math.max(
+                    0,
+                    state.timerPatchDepth - 1
+                );
         }
     }
 
     function patchEffectManager() {
-        const manager = getEffectManagerReference();
-        if (!manager) return false;
+        const manager =
+            getEffectManagerReference();
+
+        if (!manager) {
+            return false;
+        }
 
         let patchedAny = false;
 
-        Object.getOwnPropertyNames(manager).forEach(name => {
-            if (!/^create[A-Z]/.test(name)) return;
+        /*
+         * stopIntervals() là điểm dọn effect chuẩn của hệ thống.
+         * Hủy toàn bộ emitter EffectManager ở budget scheduler trước,
+         * sau đó vẫn chạy hàm gốc để giữ nguyên cleanup hiện tại.
+         */
+        if (
+            !state.effectManagerStopPatched &&
+            typeof manager.stopIntervals ===
+                'function'
+        ) {
+            const originalStop =
+                manager.stopIntervals;
 
-            const original = manager[name];
-            if (typeof original !== 'function') return;
-            if (original.__fxqWrapped === true) return;
+            const wrappedStop =
+                function (...args) {
+                    cancelScope(
+                        'EffectManager.'
+                    );
 
-            const wrapped = function (...args) {
-                return runWithScaledVisualIntervals(original, this, args);
-            };
+                    return originalStop.apply(
+                        this,
+                        args
+                    );
+                };
 
-            Object.defineProperty(wrapped, '__fxqWrapped', {
-                value: true,
-                configurable: false
-            });
+            Object.defineProperty(
+                wrappedStop,
+                '__fxqBudgetWrapped',
+                {
+                    value: true,
+                    configurable: false
+                }
+            );
 
-            Object.defineProperty(wrapped, '__fxqOriginal', {
-                value: original,
-                configurable: false
-            });
+            Object.defineProperty(
+                wrappedStop,
+                '__fxqOriginal',
+                {
+                    value: originalStop,
+                    configurable: false
+                }
+            );
 
             try {
-                manager[name] = wrapped;
-                patchedAny = true;
-            } catch (_) {}
-        });
+                manager.stopIntervals =
+                    wrappedStop;
 
-        state.effectManagerPatched = state.effectManagerPatched || patchedAny;
-        return patchedAny;
+                state.effectManagerStopPatched =
+                    true;
+            } catch (_) {}
+        }
+
+        Object
+            .getOwnPropertyNames(manager)
+            .forEach(name => {
+                if (
+                    !/^create[A-Z]/.test(
+                        name
+                    )
+                ) {
+                    return;
+                }
+
+                const original =
+                    manager[name];
+
+                if (
+                    typeof original !==
+                    'function'
+                ) {
+                    return;
+                }
+
+                if (
+                    original.__fxqBudgetWrapped ===
+                    true
+                ) {
+                    return;
+                }
+
+                const owner =
+                    `EffectManager.${name}`;
+
+                const wrapped =
+                    function (...args) {
+                        return runWithCentralEffectBudget(
+                            owner,
+                            original,
+                            this,
+                            args
+                        );
+                    };
+
+                Object.defineProperty(
+                    wrapped,
+                    '__fxqBudgetWrapped',
+                    {
+                        value: true,
+                        configurable: false
+                    }
+                );
+
+                Object.defineProperty(
+                    wrapped,
+                    '__fxqOriginal',
+                    {
+                        value: original,
+                        configurable: false
+                    }
+                );
+
+                try {
+                    manager[name] =
+                        wrapped;
+
+                    patchedAny = true;
+                } catch (_) {}
+            });
+
+        state.effectManagerPatched =
+            state.effectManagerPatched ||
+            patchedAny;
+
+        return (
+            patchedAny ||
+            state.effectManagerStopPatched
+        );
     }
 
     function restartActiveGlobalEffect() {
@@ -1140,6 +1712,34 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
         scanExistingEffects();
         applyState({ restartEffect: false });
 
+        document.addEventListener(
+            'visibilitychange',
+            () => {
+                if (
+                    document.visibilityState ===
+                    'hidden'
+                ) {
+                    pauseEffectBudget();
+                } else {
+                    resumeEffectBudget();
+                }
+            }
+        );
+
+        /*
+         * effect-items.js có thể được lazy-load sau EffectQualityManager.
+         * Khi loader báo nhóm tính năng đã sẵn sàng, patch EffectManager
+         * trước khi vật phẩm đang trang bị được apply.
+         */
+        window.addEventListener(
+            'student-feature-loaded',
+            () => {
+                patchEffectManager();
+                scanExistingEffects();
+                ensureScheduler();
+            }
+        );
+
         // Một số trang render tab Cài đặt sau; thử lại nhẹ, không tạo timer lặp vô hạn.
         if (!document.getElementById(SETTINGS_ROW_ID)) {
             setTimeout(injectSettingsControl, 500);
@@ -1209,6 +1809,18 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
             processStoreCard(element);
             return true;
         },
+
+        // API ngân sách chung cho effect hiện tại và module mới trong tương lai.
+        requestParticleQuota,
+        scheduleEmitter,
+        cancelEmitter,
+        cancelScope,
+        pause: pauseEffectBudget,
+        resume: resumeEffectBudget,
+        getBudgetStats,
+        getParticleBudget,
+        getLiveParticleCount,
+
         getRecommendedCount(baseCount) {
             const base = Math.max(0, Number(baseCount) || 0);
             const level = getEffectiveLevel();

@@ -6,6 +6,31 @@ const StoreConfig = {
         { id: 'effect_snow', name: 'Tuyết Mùa Đông', type: 'effect', price: 200, isNonCoin: false, tag: 'Hiệu ứng' },
         { id: 'pet_shiba', name: 'Chó Shiba', type: 'pet', price: 300, isNonCoin: false, tag: 'Thú cưng', value: '🐕', isIcon: true },
         {
+            id: 'pet_citlalin_pillow',
+            name: 'Gối Citlalin',
+            type: 'pet',
+            price: 300,
+            isNonCoin: false,
+            tag: 'Thú cưng',
+            value: 'assets/pet/pet.png',
+            isIcon: false,
+            disableClickEffect: true
+        },
+        {
+            id: 'background_doisong_bau_troi_mong_mo',
+            name: 'Bầu Trời Sao Mộng Mơ',
+            type: 'background',
+            price: 70,
+            isNonCoin: false,
+            tag: 'Đời sống',
+            value: 'assets/pet/nền.jpg',
+            isIcon: false,
+            backgroundFit: 'cover',
+            backgroundPosition: 'center center',
+            backgroundRepeat: 'no-repeat',
+            backgroundAttachment: 'fixed'
+        },
+        {
             id: 'pet_cat_wizard',
             name: 'Mèo Phù Thủy',
             type: 'pet',
@@ -363,7 +388,41 @@ const StoreConfig = {
             customIcon: '🎧',
             musicUrl: 'https://youtu.be/TWX6Eq8v46M?si=xOz5ZQcJmbKI1Paa',
             volume: 0.35,
-            loop: true
+            loop: true,
+            hideFromMediaControls: true
+        },
+        {
+            id: 'music_nga_01',
+            name: 'Nhạc Nga',
+            type: 'music',
+            price: 250,
+            isNonCoin: false,
+            tag: 'Âm nhạc',
+            customIcon: '🎼',
+            musicUrl: 'https://youtu.be/ujA0Hlg5-_g?si=Al3qxeIzjAx6oo6Y',
+            volume: 0.35,
+            loop: true,
+            hideFromMediaControls: true
+        },
+        {
+            id: 'music_bl_01',
+            name: 'Thiếu Niên Hoa Hồng',
+            type: 'music',
+            price: 350,
+            isNonCoin: false,
+            tag: 'BL',
+            customIcon: '🎧',
+            musicUrl: 'https://youtu.be/h7Z9ftlqoPQ?si=Cz-i6SWb-Q3AVhZg',
+            volume: 0.35,
+            loop: true,
+            hideFromMediaControls: true,
+
+            /*
+             * Card BL có thiết kế riêng nhưng KHÔNG khóa giao diện.
+             * Không gắn ui-theme-immune / store-theme-locked nên các theme
+             * đang trang bị vẫn có thể ảnh hưởng màu, font, nút... theo CSS chung.
+             */
+            storeCardVariant: 'bl-music-card-v1'
         },
         {
             id: 'pet_truyenthuyet_nyx',
@@ -1652,6 +1711,50 @@ const StoreConfig = {
                 'midautumn-chibi-lantern-v1'
         },
         {
+            id: 'pet_trung_thu_chu_cuoi_chibi_2',
+
+            name: 'Tiểu Chú Cuội · Quế Ảnh',
+
+            type: 'pet',
+
+            price: 1,
+            isNonCoin: true,
+
+            currency: 'mid_autumn_coin',
+            midAutumnCoinCost: 1,
+            disableTrial: true,
+
+            tag: 'Trung thu',
+            tags: [
+                'Trung thu',
+                'Chú Cuội',
+                'Chibi'
+            ],
+
+            value:
+                'assets/Premium/Trung thu/cuoi_chibi2.png',
+
+            asset:
+                'assets/Premium/Trung thu/cuoi_chibi2.png',
+
+            isIcon: false,
+
+            /*
+             * Chú Cuội Chibi dùng hiệu ứng HOÀN TOÀN RIÊNG.
+             * Namespace runtime/CSS: macc2-*.
+             * Chỉ tạo thần vực quanh pet + hiệu ứng nhấn cục bộ.
+             * Không gọi ThemeManager / EffectManager và không tái sử dụng
+             * mafc-* của Tiểu Hằng Nga hay midautumn-cuoi-* của Chú Cuội Luxury.
+             */
+            petEffect:
+                'midautumn-cuoi-chibi-banyan-magic',
+
+            disableClickEffect: true,
+
+            premiumCard:
+                'midautumn-cuoi-chibi-banyan-v1'
+        },
+        {
             id: 'theme_trung_thu_nguyet_hoi_hoa_dang',
 
             name: 'Nguyệt Hội Hoa Đăng',
@@ -1684,6 +1787,75 @@ const StoreConfig = {
 
             premiumCard:
                 'midautumn-chibi-lantern-v1'
+        },
+
+        {
+            id: 'theme_trung_thu_quang_han_nguyet_que',
+
+            name: 'Quảng Hàn Nguyệt Quế',
+
+            type: 'theme',
+
+            price: 1,
+            isNonCoin: true,
+
+            currency: 'mid_autumn_coin',
+            midAutumnCoinCost: 1,
+            disableTrial: true,
+
+            tag: 'Trung thu',
+            tags: ['Trung thu', 'Chú Cuội', 'Nguyệt Quế'],
+
+            value:
+                'theme-midautumn-osmanthus-jade',
+
+            customIcon: '🌿',
+
+            /*
+             * Giao diện Trung Thu đổi bằng 1 Xu Trung Thu.
+             * - namespace mtq5-* hoàn toàn độc lập;
+             * - cùng tag + cùng card với Tiểu Chú Cuội · Quế Ảnh;
+             * - card khóa khỏi mọi giao diện toàn web khác.
+             */
+            themeEffectSuite:
+                'mtq5-osmanthus-jade-v1',
+
+            premiumCard:
+                'midautumn-cuoi-chibi-banyan-v1'
+        },
+        {
+            id: 'effect_trung_thu_que_anh_phi_diep',
+
+            name: 'Quế Ảnh Phi Diệp',
+
+            type: 'effect',
+
+            price: 1,
+            isNonCoin: true,
+
+            currency: 'mid_autumn_coin',
+            midAutumnCoinCost: 1,
+            disableTrial: true,
+
+            tag: 'Trung thu',
+            tags: ['Trung thu', 'Chú Cuội', 'Nguyệt Quế'],
+
+            value:
+                'effect_trung_thu_que_anh_phi_diep',
+
+            customIcon: '🍃',
+
+            /*
+             * Hiệu ứng toàn web MỚI HOÀN TOÀN.
+             * Namespace duy nhất: mtefx4-*.
+             * Không gọi/tái sử dụng mtefx3-*, macc2-* hoặc effect khác.
+             * Cùng tag + cùng card với Tiểu Chú Cuội · Quế Ảnh.
+             */
+            effectSuite:
+                'mtefx4-osmanthus-shadow-leaves-v1',
+
+            premiumCard:
+                'midautumn-cuoi-chibi-banyan-v1'
         },
         {
             id: 'effect_trung_thu_nguyet_trieu_luu_quang',
@@ -1719,6 +1891,82 @@ const StoreConfig = {
 
             premiumCard:
                 'midautumn-chibi-lantern-v1'
+        },
+        {
+            id: 'frame_trung_thu_chu_cuoi_que_anh_chi_hoan',
+
+            name: 'Chú Cuội · Quế Ảnh Chi Hoàn',
+
+            type: 'frame',
+
+            price: 1,
+            isNonCoin: true,
+
+            currency: 'mid_autumn_coin',
+            midAutumnCoinCost: 1,
+            disableTrial: true,
+
+            tag: 'Trung thu',
+            tags: ['Trung thu', 'Chú Cuội', 'Khung viền'],
+
+            value:
+                'assets/Premium/Trung thu/cuoi_khung2.png',
+
+            isIcon: false,
+
+            frameEffect:
+                'midautumn-cuoi-osmanthus-shadow-ring',
+
+            /*
+             * Khung Chú Cuội Trung Thu nhận bằng 1 Xu Trung Thu.
+             * - dùng AvatarFrameManager chuẩn đang có;
+             * - vị trí profile/popup bám đúng chuẩn của
+             *   Nguyệt Quế · Hoa Đăng Chi Hoàn và Premium Mùa Xuân;
+             * - CSS chỉ khóa theo data-avatar-frame-id riêng;
+             * - card dùng skin Tiểu Chú Cuội và miễn mọi theme khác.
+             */
+            premiumCard:
+                'midautumn-cuoi-chibi-banyan-v1'
+        },
+        {
+            id: 'background_trung_thu_chu_cuoi_que_lam_nguyet_da',
+
+            name: 'Chú Cuội · Quế Lâm Nguyệt Dạ',
+
+            type: 'background',
+
+            price: 1,
+            isNonCoin: true,
+
+            currency: 'mid_autumn_coin',
+            midAutumnCoinCost: 1,
+            disableTrial: true,
+
+            tag: 'Trung thu',
+            tags: ['Trung thu', 'Chú Cuội', 'Nền'],
+
+            value:
+                'assets/Premium/Trung thu/cuoi_nen2.png',
+
+            isIcon: false,
+
+            /*
+             * Nền Chú Cuội Trung Thu độc lập:
+             * - nhận bằng 1 Xu Trung Thu;
+             * - WebBackgroundManager dùng cover để lấp đầy viewport, không kéo méo ảnh;
+             * - cấu hình fit/position nằm trên chính item nên không tác động nền khác;
+             * - card dùng skin Tiểu Chú Cuội và được khóa khỏi theme/giao diện khác.
+             */
+            backgroundFit: 'cover',
+            backgroundPosition: 'center center',
+            backgroundRepeat: 'no-repeat',
+            backgroundAttachment: 'fixed',
+
+            premiumSuite:
+                'midautumn-cuoi-osmanthus-night-background-v1',
+
+            premiumCard:
+                'midautumn-cuoi-chibi-banyan-v1'
         },
         {
             id: 'frame_trung_thu_nguyet_que_hoa_hoan',
@@ -1794,6 +2042,191 @@ const StoreConfig = {
 
             premiumCard:
                 'midautumn-chibi-lantern-v1'
+        },
+
+        {
+            id: 'pet_linkclick_cheng_xiaoshi_chibi_1',
+
+            name: 'Cheng Xiaoshi · Tiểu Thời Ảnh',
+
+            type: 'pet',
+
+            price: 900,
+            isNonCoin: false,
+
+            tag: 'Link Click',
+            tags: [
+                'Link Click',
+                'Cheng Xiaoshi',
+                'Chibi'
+            ],
+
+            value:
+                'assets/Premium/Lock/Cheng Xiaoshi -chibi1.png',
+
+            asset:
+                'assets/Premium/Lock/Cheng Xiaoshi -chibi1.png',
+
+            isIcon: false,
+
+            /*
+             * Hiệu ứng RIÊNG hoàn toàn cho pet Chibi Link Click.
+             * Namespace: lcc1-* / linkclick-chibi-*.
+             * Không gọi lại / sửa / tái sử dụng effect Cheng Xiaoshi Premium cũ.
+             * Chỉ có realm quanh pet + hiệu ứng nhấn cục bộ.
+             */
+            petEffect:
+                'linkclick-chibi-memory-snap-magic',
+
+            disableClickEffect: true,
+
+            premiumCard:
+                'linkclick-chibi-memory-card-v1'
+        },
+
+        {
+            id: 'theme_linkclick_fragmented_memory',
+
+            name: 'Link Click · Ký Ức Phân Mảnh',
+
+            type: 'theme',
+
+            price: 800,
+            isNonCoin: false,
+
+            tag: 'Link Click',
+            tags: [
+                'Link Click',
+                'Ký ức',
+                'Giao diện'
+            ],
+
+            value:
+                'theme-linkclick-fragmented-memory',
+
+            customIcon:
+                '▦',
+
+            /*
+             * Cùng tag + cùng card với Cheng Xiaoshi · Tiểu Thời Ảnh.
+             * Theme runtime riêng: lct3-*.
+             * Không gọi/tái sử dụng lcx-* (Luxury) hoặc lcc2-* (pet 900 Coin).
+             */
+            premiumCard:
+                'linkclick-chibi-memory-card-v1'
+        },
+
+        {
+            id: 'effect_linkclick_echo_corridor',
+
+            name: 'Link Click · Hành Lang Dư Ảnh',
+
+            type: 'effect',
+
+            price: 850,
+            isNonCoin: false,
+
+            tag: 'Link Click',
+            tags: [
+                'Link Click',
+                'Dư ảnh',
+                'Hiệu ứng'
+            ],
+
+            value:
+                'effect_linkclick_echo_corridor',
+
+            customIcon:
+                '▥',
+
+            /*
+             * Hiệu ứng toàn web độc lập: namespace lce4-*.
+             * Không dùng lại lcx-* / lcc2-* / lct3-*.
+             * Root tự gắn ui-theme-immune + data-theme-immune.
+             */
+            premiumCard:
+                'linkclick-chibi-memory-card-v1'
+        },
+
+        {
+            id: 'frame_linkclick_cheng_xiaoshi_time_window',
+
+            name: 'Cheng Xiaoshi · Thời Ảnh Chi Hoàn',
+
+            type: 'frame',
+
+            price: 250,
+            isNonCoin: false,
+
+            tag: 'Link Click',
+            tags: [
+                'Link Click',
+                'Cheng Xiaoshi',
+                'Khung viền'
+            ],
+
+            value:
+                'assets/Premium/Lock/Cheng Xiaoshi-khung1.png',
+
+            isIcon: false,
+
+            frameEffect:
+                'linkclick-time-window-frame',
+
+            /*
+             * Dùng AvatarFrameManager chuẩn hiện có.
+             * Vị trí CSS tham chiếu khung Premium Mùa Xuân:
+             * - avatar góc phải: 60x60, center/center;
+             * - popup hồ sơ: 145x145, center/center.
+             * CSS chỉ scope theo data-avatar-frame-id của item này.
+             */
+            premiumCard:
+                'linkclick-chibi-memory-card-v1'
+        },
+
+        {
+            id: 'background_linkclick_cheng_xiaoshi_sunset_studio',
+
+            name: 'Cheng Xiaoshi · Hoàng Hôn Quang Ảnh',
+
+            type: 'background',
+
+            price: 150,
+            isNonCoin: false,
+
+            tag: 'Link Click',
+            tags: [
+                'Link Click',
+                'Cheng Xiaoshi',
+                'Nền'
+            ],
+
+            value:
+                'assets/Premium/Lock/Cheng Xiaoshi-nen1.png',
+
+            isIcon: false,
+
+            /*
+             * Nền Link Click độc lập:
+             * - cover: phủ kín viewport nhưng không kéo méo tỉ lệ ảnh;
+             * - center center: giữ vùng hoàng hôn/thành phố ở trọng tâm;
+             * - no-repeat + fixed: đúng kiểu nền PC toàn màn hình;
+             * - các thuộc tính nằm trên chính item nên không sửa nền khác.
+             */
+            backgroundFit:
+                'cover',
+
+            backgroundPosition:
+                'center center',
+
+            backgroundRepeat:
+                'no-repeat',
+
+            backgroundAttachment:
+                'fixed',
+
+            premiumCard:
+                'linkclick-chibi-memory-card-v1'
         },
     ]
 };
@@ -2169,6 +2602,8 @@ class StoreManager {
             '2/9': 'tag-quoc-khanh-2-9',
             'Cầm Mộng': 'tag-cam-mong-chibi',
             'Trung thu': 'tag-trung-thu-chibi',
+            'Link Click': 'tag-link-click-chibi',
+            'BL': 'tag-bl',
         };
 
         let tagClass = tagClassMap[item.tag] || 'tag-normal';
@@ -2608,6 +3043,31 @@ class StoreManager {
             'background_trung_thu_nguyet_cung_hoa_dang_da'
         ]);
 
+        /*
+         * TRUNG THU · TIỂU CHÚ CUỘI
+         * Thẻ riêng về mỹ thuật nhưng vẫn dùng nguyên DOM/bố cục store-item-card.
+         * Không nhập vào nhóm Tiểu Hằng Nga để tag/card có thiết kế riêng.
+         */
+        const midAutumnCuoiChibiIds = new Set([
+            'pet_trung_thu_chu_cuoi_chibi_2',
+            'theme_trung_thu_quang_han_nguyet_que',
+            'effect_trung_thu_que_anh_phi_diep',
+            'frame_trung_thu_chu_cuoi_que_anh_chi_hoan',
+            'background_trung_thu_chu_cuoi_que_lam_nguyet_da'
+        ]);
+
+        /*
+         * LINK CLICK · CHENG XIAOSHI CHIBI
+         * Card riêng về mỹ thuật nhưng giữ NGUYÊN DOM / bố cục chuẩn.
+         */
+        const linkClickChibiIds = new Set([
+            'pet_linkclick_cheng_xiaoshi_chibi_1',
+            'theme_linkclick_fragmented_memory',
+            'effect_linkclick_echo_corridor',
+            'frame_linkclick_cheng_xiaoshi_time_window',
+            'background_linkclick_cheng_xiaoshi_sunset_studio'
+        ]);
+
         const acediaCardVariantMap = Object.freeze({
             pet_thatdaitoi_luoibieng_1: 'familiar',
             theme_thatdaitoi_acedia_dream: 'palace',
@@ -2870,6 +3330,43 @@ class StoreManager {
             );
 
             specialCardGroup = 'midautumn-chibi';
+            isThemeImmune = true;
+        }
+
+        /*
+         * TRUNG THU · TIỂU CHÚ CUỘI
+         * Giữ nguyên layout card chuẩn; chỉ thêm skin/tag riêng và theme immunity.
+         */
+        if (midAutumnCuoiChibiIds.has(item.id)) {
+            cardClasses.push(
+                'store-card-midautumn-cuoi-chibi',
+                'store-theme-locked',
+                'ui-theme-immune'
+            );
+
+            /*
+             * Tag riêng cho Tiểu Chú Cuội. Không dùng tag-trung-thu-chibi
+             * của Tiểu Hằng Nga để tránh kế thừa transform/ribbon chéo.
+             */
+            tagClass = 'tag-trung-thu-cuoi-chibi';
+
+            specialCardGroup = 'midautumn-cuoi-chibi';
+            isThemeImmune = true;
+        }
+
+        /*
+         * LINK CLICK · CHENG XIAOSHI CHIBI
+         * Thẻ vẫn dùng cấu trúc store-item-card chuẩn phía dưới.
+         * Chỉ thêm skin riêng + theme immune.
+         */
+        if (linkClickChibiIds.has(item.id)) {
+            cardClasses.push(
+                'store-card-linkclick-chibi',
+                'store-theme-locked',
+                'ui-theme-immune'
+            );
+
+            specialCardGroup = 'linkclick-chibi';
             isThemeImmune = true;
         }
 

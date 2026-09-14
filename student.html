@@ -1,41 +1,24 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" data-app-role="student">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="application-version" content="4.0.1">
+    <meta name="application-version" content="4.0.2">
     <title>Trang Học Sinh</title>
     <!-- Kết nối sớm tới CDN lõi; không tải thêm tài nguyên và không đổi chức năng -->
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="icon" type="image/png" href="assets/icon.png">
-    <link rel="stylesheet" href="css/common.css?v=3.8">
-    <link rel="stylesheet" href="css/student.css?v=20260905.redo-scope-v1">
-    <link rel="stylesheet" href="css/mobile.css?v=3.8">
+    <link rel="stylesheet" href="css/common.css?v=4.0.4-login-layout4">
+    <link rel="stylesheet" href="css/student.css?v=4.0.7-store-game-access-notice">
+    <link rel="stylesheet" href="css/mobile.css?v=4.0.3-layout">
     <link rel="stylesheet" href="css/web-animations.css?v=1.0">
-    <link rel="stylesheet" href="css/store-items.css?v=3.8">
-    <link rel="stylesheet" href="css/effects-pets.css?v=3.8">
-    <link rel="stylesheet" href="css/royal-ball.css?v=3.8">
-    <link rel="stylesheet" href="css/daily-login.css?v=3.8">
-    <link rel="stylesheet" href="css/lord-of-mysteries.css?v=3.3">
-    <link rel="stylesheet" href="css/legendery.css?v=3.8">
-    <link rel="stylesheet" href="css/leaderboard.css?v=20260905.redo-scope-v1">
-    <link rel="stylesheet" href="css/painting.css?v=3.8">
-    <link rel="stylesheet" href="css/doraemon.css?v=3.8">
-    <link rel="stylesheet" href="css/hoi-hoa.css?v=3.8">
-    <link rel="stylesheet" href="css/that-dai-toi.css?v=3.8">
-    <link rel="stylesheet" href="css/pet-sinh-nhat.css?v=3.8">
-    <link rel="stylesheet" href="css/thoi-tiet.css?v=3.8">
-    <link rel="stylesheet" href="css/store-collections.css?v=20260908.four-seasons-lock-v1">
-    <link rel="stylesheet" href="css/luxury-store.css?v=3.8">
-    <link rel="stylesheet" href="css/premium-mua-xuan.css?v=20260907.summer-frame-r2">
-    <link rel="stylesheet" href="css/lich-su-hao-hung.css?v=20260831.1">
-    <link rel="stylesheet" href="css/quoc-khanh-pet.css?v=3.8">
     <link rel="stylesheet" href="css/update-manager.css?v=1.0.0">
-    <link rel="stylesheet" href="css/nyx-than-thoai.css?v=3.8">
-    <link rel="stylesheet" href="css/tamon-b-side.css?v=3.8">
+    <link id="linkclick-cheng-premium-style" rel="stylesheet" href="css/link-click-cheng-xiaoshi.css?v=20260911.2-fullweb">
+    <!-- Core-first loader: CSS/module đặc biệt chỉ tải khi cần -->
+    <script src="js/student-feature-loader.js?v=2.0.12-lotm-klein-path-fix"></script>
     <script>
         MathJax = {
             tex: {
@@ -241,6 +224,16 @@
             }
         }
     </style>
+
+    <style id="studentStoreSystemAccessStyles">
+        #tab-store.store-system-locked > :not(h2):not(#storeLockedView) {
+            display: none !important;
+        }
+
+        #tab-store.store-system-locked #storeLockedView {
+            display: block !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -262,7 +255,8 @@
                 <span id="appStartupNetworkText">Đang kiểm tra mạng</span>
             </div>
 
-            <div id="appStartupDetails">Hệ thống sẽ chỉ mở giao diện sau khi các dữ liệu bắt buộc đã phản hồi. Đang kiểm tra cấu hình tối ưu hiệu năng...</div>
+            <div id="appStartupDetails">Hệ thống sẽ chỉ mở giao diện sau khi các dữ liệu bắt buộc đã phản hồi. Đang kiểm
+                tra cấu hình tối ưu hiệu năng...</div>
 
             <div id="appStartupError" hidden>
                 <strong>Không thể hoàn tất khởi động</strong>
@@ -677,9 +671,9 @@
                         học tập</span></button>
                 <button class="nav-item" onclick="switchTab('tab-roadmap', this)">🗺️ <span class="nav-text">Lộ
                         trình & Lịch</span></button>
-                <button class="nav-item" onclick="switchTab('tab-game', this)">🎮 <span class="nav-text">Trò
+                <button id="studentGameNav" class="nav-item" onclick="switchTab('tab-game', this)">🎮 <span class="nav-text">Trò
                         chơi</span></button>
-                <button class="nav-item" onclick="switchTab('tab-store', this)">🛒 <span class="nav-text">Cửa
+                <button id="studentStoreNav" class="nav-item" onclick="switchTab('tab-store', this)">🛒 <span class="nav-text">Cửa
                         hàng</span></button>
                 <button class="nav-item" id="btnSettingsNav" onclick="switchTab('tab-settings', this)">⚙️ <span
                         class="nav-text">Cài đặt</span></button>
@@ -702,7 +696,7 @@
                 🎒
             </button>
             <button class="profile-trigger-btn ui-theme-immune" onclick="openStudentInfoModal()" title="Hồ sơ cá nhân">
-                <img id="avatarImage" src=""
+                <img id="avatarImage" src="" alt="Ảnh hồ sơ" loading="eager" decoding="async" fetchpriority="high"
                     style="display: none; width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
 
                 <span id="avatarPlaceholder" style="font-size: 1.5em;">👤</span>
@@ -716,8 +710,8 @@
 
             <div id="tab-grades" class="tab-content">
                 <h2>Kết quả học tập</h2>
-                <input type="text" id="searchStudentGrades" class="search-bar" placeholder="🔍 Tìm kiếm bài đã nộp, điểm số..."
-                    oninput="filterItems('gradesList', this.value)">
+                <input type="text" id="searchStudentGrades" class="search-bar"
+                    placeholder="🔍 Tìm kiếm bài đã nộp, điểm số..." oninput="filterItems('gradesList', this.value)">
                 <div id="gradesList"></div>
             </div>
 
@@ -861,105 +855,159 @@
                             style="background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%); color: white; padding: 12px 25px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 8, 68, 0.4);">Tham
                             gia ngay ➡️</button>
                     </div>
+
+                    <!-- SỰ KIỆN MỚI · THẤT ĐẠI TỘI: TU VIỆN BELLUM -->
+                    <div id="bellumEventCard" class="card bellum-event-card ui-theme-immune">
+                        <div class="bellum-card-copy">
+                            <div class="bellum-card-eyebrow">⛪ SỰ KIỆN · TIỂU THUYẾT TRỰC QUAN</div>
+                            <h3>THẤT ĐẠI TỘI: TU VIỆN BELLUM</h3>
+                            <p>Khám phá bí ẩn ẩn sâu trong Tu viện Bellum và đối mặt với Thất Đại Tội.</p>
+                        </div>
+                        <div class="bellum-card-actions">
+                            <button class="bellum-card-button bellum-card-button-info" type="button" onclick="BellumEvent.showIntroduction()">📖 Giới thiệu cốt truyện &amp; nhân vật</button>
+                            <button class="bellum-card-button" type="button" onclick="BellumEvent.open()">Bước vào Bellum ➡️</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div id="tab-settings" class="tab-content">
-                <h2>Cài đặt tài khoản</h2>
+            <div id="tab-settings" class="tab-content student-settings-page">
+                <div class="student-settings-title-row">
+                    <h2>Cài đặt tài khoản &amp; Hệ thống</h2>
+                </div>
+
                 <div id="updateBannerArea" class="update-banner">
                     <div>
                         <h4 style="margin: 0; font-size: 1.2em;">🚀 Có phiên bản hệ thống mới!</h4>
                         <p style="margin: 5px 0 0 0; font-size: 0.95em;">Nhấn nút bên cạnh để tải lại toàn bộ tài
-                            nguyên
-                            web mới nhất.</p>
+                            nguyên web mới nhất.</p>
                     </div>
                     <button class="btn-do-update" onclick="applySystemUpdate()">Cập nhật ngay</button>
                 </div>
-                <div class="card form-container">
-                    <div
-                        style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; border: 1px solid rgba(0,0,0,0.05);">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <strong style="color: #2c3e50;">🐾 Tương tác thú cưng</strong>
-                            <button onclick="PetInteractionManager.showInfo()"
-                                style="background: rgba(102, 126, 234, 0.15); color: #667eea; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 12px;">?</button>
-                        </div>
-                        <label class="switch">
-                            <input type="checkbox" id="togglePetInteractions"
-                                onchange="PetInteractionManager.toggle(this.checked)">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
 
-                    <div style="background: rgba(255,255,255,0.5);
-    padding: 15px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-    margin-bottom: 20px;
-    border: 1px solid rgba(0,0,0,0.05);">
-
-                        <div>
-                            <strong style="color: #2c3e50;">
-                                🪙 Hiển thị thanh số dư Coin
-                            </strong>
-
-                            <p style="margin: 4px 0 0;
-            color: #666;
-            font-size: 0.85em;
-            line-height: 1.4;">
-                                Chỉ ẩn hoặc hiện thanh Coin trên màn hình,
-                                không ảnh hưởng số dư và các chức năng khác.
-                            </p>
+                <div class="student-settings-grid">
+                    <!-- =====================================================
+                         NHÓM 1 · TRẢI NGHIỆM & HIỂN THỊ
+                         Đây là .form-container đầu tiên để các module
+                         Effect Quality / Performance hiện có tiếp tục tự chèn
+                         đúng vị trí mà không cần sửa JS.
+                         ===================================================== -->
+                    <section class="student-settings-section student-settings-section-experience">
+                        <div class="student-settings-section-head">
+                            <span class="student-settings-section-icon" aria-hidden="true">🎨</span>
+                            <div>
+                                <h3>Trải nghiệm &amp; hiển thị</h3>
+                                <p>Điều chỉnh hiệu ứng, tối ưu, thú cưng, Coin và giao diện cá nhân.</p>
+                            </div>
                         </div>
 
-                        <label class="switch" title="Ẩn hoặc hiện thanh số dư Coin">
-                            <input type="checkbox" id="toggleCoinBalanceWidget"
-                                onchange="toggleCoinBalanceWidget(this.checked)" checked>
-                            <span class="slider"></span>
-                        </label>
-                    </div>
+                        <div class="card form-container student-settings-card student-settings-experience-card">
+                            <div class="student-settings-toggle-row">
+                                <div class="student-settings-toggle-copy">
+                                    <div class="student-settings-toggle-title">
+                                        <strong>🐾 Tương tác thú cưng</strong>
+                                        <button type="button"
+                                            class="student-settings-info-btn"
+                                            onclick="PetInteractionManager.showInfo()"
+                                            aria-label="Xem thông tin tương tác thú cưng"
+                                            title="Thông tin">?</button>
+                                    </div>
+                                    <p>Bật hoặc tắt các thao tác tương tác trực tiếp với thú cưng.</p>
+                                </div>
 
-                    <label><strong>🎨 Giao diện hiển thị:</strong></label>
-                    <select id="themeSelector" onchange="changeTheme(this.value)"
-                        style="margin-bottom: 20px; font-weight: bold; color: #667eea;">
-                        <option value="default">✨ Mặc định (Tím mộng mơ)</option>
-                        <option value="blue">🌊 Xanh biển (Tươi mát)</option>
-                        <option value="green">🌿 Xanh lá (Yên bình)</option>
-                        <option value="pink">🌸 Hồng (Ngọt ngào)</option>
-                    </select>
-                    <label><strong>Tên hiển thị của bạn:</strong></label>
-                    <input type="text" id="settingName" placeholder="Nhập tên hiển thị mới...">
+                                <label class="switch" title="Bật hoặc tắt tương tác thú cưng">
+                                    <input type="checkbox" id="togglePetInteractions"
+                                        onchange="PetInteractionManager.toggle(this.checked)">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
 
-                    <label><strong>Mật khẩu mới (để trống nếu không muốn đổi):</strong></label>
-                    <input type="password" id="settingPass" placeholder="Nhập mật khẩu mới...">
+                            <div class="student-settings-toggle-row">
+                                <div class="student-settings-toggle-copy">
+                                    <strong>🪙 Hiển thị thanh số dư Coin</strong>
+                                    <p>Chỉ ẩn hoặc hiện thanh Coin trên màn hình, không ảnh hưởng số dư và các chức năng khác.</p>
+                                </div>
 
-                    <button onclick="updateProfile()"
-                        style="margin-top: 15px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: #fff;">Gửi
-                        yêu cầu thay đổi</button>
+                                <label class="switch" title="Ẩn hoặc hiện thanh số dư Coin">
+                                    <input type="checkbox" id="toggleCoinBalanceWidget"
+                                        onchange="toggleCoinBalanceWidget(this.checked)" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
 
-                    <div id="requestNotifications" style="margin-top: 25px;"></div>
-                </div>
-                <div class="glass-alert"
-                    style="margin-top: 30px; border-left-color: #3b82f6; background: rgba(59, 130, 246, 0.05);">
-                    <h3
-                        style="color: #2c3e50; margin-bottom: 10px; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 5px;">
-                        🔍 Trình Quét Lỗi Hệ Thống</h3>
-                    <p style="font-size: 0.9em; color: #555; margin-bottom: 15px;">Công cụ này sẽ rà soát toàn bộ tệp
-                        tin, hình ảnh, biến môi trường và luồng dữ liệu hiện tại để phát hiện các nguy cơ tiềm ẩn gây
-                        sập web hoặc lỗi chức năng.</p>
-                    <button onclick="runSystemDiagnostics()"
-                        style="width: 100%; padding: 12px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);">🚀
-                        Bắt đầu quét hệ thống</button>
+                            <div class="student-settings-field-block">
+                                <label for="themeSelector"><strong>🎨 Giao diện hiển thị:</strong></label>
+                                <select id="themeSelector" onchange="changeTheme(this.value)">
+                                    <option value="default">✨ Mặc định (Tím mộng mơ)</option>
+                                    <option value="blue">🌊 Xanh biển (Tươi mát)</option>
+                                    <option value="green">🌿 Xanh lá (Yên bình)</option>
+                                    <option value="pink">🌸 Hồng (Ngọt ngào)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </section>
 
-                    <div id="diagnosticResults"
-                        style="display: none; margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.8); border-radius: 8px; max-height: 300px; overflow-y: auto; border: 1px solid rgba(0,0,0,0.1);">
-                        <p style="text-align: center; color: #666;" id="diagnosticStatus">Đang chờ quét...</p>
-                        <ul id="diagnosticList"
-                            style="list-style-type: none; padding: 0; margin: 0; font-size: 0.9em; line-height: 1.6;">
-                        </ul>
-                    </div>
+                    <!-- NHÓM 2 · TÀI KHOẢN CÁ NHÂN -->
+                    <section class="student-settings-section student-settings-section-account">
+                        <div class="student-settings-section-head">
+                            <span class="student-settings-section-icon" aria-hidden="true">👤</span>
+                            <div>
+                                <h3>Tài khoản cá nhân</h3>
+                                <p>Gửi yêu cầu đổi tên hiển thị hoặc cập nhật mật khẩu.</p>
+                            </div>
+                        </div>
+
+                        <div class="card form-container student-settings-card student-settings-account-card">
+                            <div class="student-settings-field-block">
+                                <label for="settingName"><strong>Tên hiển thị của bạn:</strong></label>
+                                <input type="text" id="settingName" placeholder="Nhập tên hiển thị mới...">
+                            </div>
+
+                            <div class="student-settings-field-block">
+                                <label for="settingPass"><strong>Mật khẩu mới:</strong></label>
+                                <input type="password" id="settingPass"
+                                    placeholder="Để trống nếu không muốn đổi...">
+                                <small>Yêu cầu thay đổi sẽ được gửi theo cơ chế tài khoản hiện tại của hệ thống.</small>
+                            </div>
+
+                            <button type="button" class="student-settings-profile-submit" onclick="updateProfile()">
+                                💾 Gửi yêu cầu thay đổi
+                            </button>
+
+                            <div id="requestNotifications" class="student-settings-request-notifications"></div>
+                        </div>
+                    </section>
+
+                    <!-- NHÓM 3 · HỆ THỐNG -->
+                    <section class="student-settings-section student-settings-section-system">
+                        <div class="student-settings-section-head">
+                            <span class="student-settings-section-icon" aria-hidden="true">🩺</span>
+                            <div>
+                                <h3>Hệ thống &amp; chẩn đoán</h3>
+                                <p>Kiểm tra tình trạng kết nối và các thành phần vận hành của website.</p>
+                            </div>
+                        </div>
+
+                        <div class="glass-alert student-settings-health-card">
+                            <div class="student-settings-health-copy">
+                                <h3>🩺 System Health Center 2.0</h3>
+                                <p>Bảng chẩn đoán chỉ đọc: kiểm tra Firebase Auth/RTDB, Service Worker và cache/build,
+                                    R2/Cloudinary, module runtime, listener/timer và mật độ hiệu ứng DOM.
+                                    Không tự sửa dữ liệu.</p>
+                            </div>
+
+                            <button type="button" class="student-settings-health-button"
+                                onclick="runSystemDiagnostics()">
+                                🩺 Quét sức khỏe hệ thống
+                            </button>
+
+                            <div id="diagnosticResults" class="student-settings-diagnostic-results"
+                                style="display: none;">
+                                <p id="diagnosticStatus">Đang chờ quét...</p>
+                                <ul id="diagnosticList"></ul>
+                            </div>
+                        </div>
+                    </section>
                 </div>
             </div>
             <div id="tab-store" class="tab-content">
@@ -967,9 +1015,8 @@
                 <div id="storeLockedView" style="display: none;">
                     <div class="glass-alert danger"
                         style="padding: 25px; text-align: center; border-left: 6px solid #e11d48; background: rgba(225, 29, 72, 0.08); border-radius: 16px;">
-                        <h3 style="color: #e11d48; margin-bottom: 12px;">🔒 Cửa hàng đã bị đóng</h3>
-                        <p style="font-size: 1.1em; font-weight: bold; color: #b91c1c;">Giáo viên đang tạm khóa cửa
-                            hàng, vui lòng quay lại sau!</p>
+                        <h3 style="color: #e11d48; margin-bottom: 12px;">🔒 Toàn bộ Cửa hàng đang tạm đóng</h3>
+                        <p style="font-size: 1.1em; font-weight: bold; color: #b91c1c;">Giáo viên đang tạm khóa toàn bộ khu vực Cửa hàng.</p>
                     </div>
                 </div>
 
@@ -1115,7 +1162,8 @@
                     <div class="wheel-text" style="transform: rotate(38.5deg);">Mất lượt 2</div>
                     <div class="wheel-text" data-wheel-base-coin="70" style="transform: rotate(89.9deg);">70 Coin</div>
                     <div class="wheel-text" style="transform: rotate(141.3deg);">Mất lượt 3</div>
-                    <div class="wheel-text" data-wheel-base-coin="200" style="transform: rotate(192.7deg);">200 Coin</div>
+                    <div class="wheel-text" data-wheel-base-coin="200" style="transform: rotate(192.7deg);">200 Coin
+                    </div>
                     <div class="wheel-text" style="transform: rotate(244.1deg);">🎁 Bí ẩn</div>
                 </div>
 
@@ -1492,7 +1540,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <!-- 2. Khởi tạo Firebase -->
-    <script src="js/firebase-config.js?v=3.8"></script>
+    <script src="js/firebase-config.js?v=20260909.singleflight-v1"></script>
     <script src="js/cloudinary-storage.js?v=3.8"></script>
 
     <script>
@@ -1513,41 +1561,29 @@
     <script>
         // Phiên bản thực sự của bộ HTML/JS đang chạy.
         // common.js cũ đọc appVersion từ localStorage, nên đồng bộ trước khi nạp common.js.
-        window.APP_VERSION = '4.0.1';
+        window.APP_VERSION = '4.0.2';
         try {
             localStorage.setItem('appVersion', window.APP_VERSION);
-        } catch (_) {}
+        } catch (_) { }
     </script>
-    <script src="js/common.js?v=4.0.1"></script>
-    <script src="js/update-manager.js?v=1.0.1"></script>
+    
+    <script src="js/common.js?v=4.0.4-login-layout4"></script>
+    <script src="js/history-retention.js?v=1.0.0-2month-safe"></script>
+    <script src="js/update-manager.js?v=1.0.3-release-sections"></script>
     <script src="js/web-animations.js?v=1.0"></script>
     <!-- Tối ưu hiệu năng: mặc định tắt; dùng trạng thái đã lưu trong Cài đặt. Phát hiện mobile/thiết bị yếu chỉ áp dụng sau khi tính năng đã được bật. -->
     <script src="js/web-performance-optimizer.js?v=2.0.0"></script>
-    <script src="js/transaction-history.js?v=3.8"></script>
+    <script src="js/transaction-history.js?v=4.0.1-retention-2months"></script>
 
-    <!-- 4. Các module tính năng -->
-    <script src="js/daily-login.js?v=3.8"></script>
-    <script src="js/royal-ball.js?v=3.8"></script>
-    <script src="js/theme-items.js?v=4.2"></script>
-    <script src="js/effect-items.js?v=4.2"></script>
-    <script src="js/pet-items.js?v=4.2"></script>
+    <!-- 4. EffectQualityManager là core; các module tính năng khác do StudentFeatureLoader lazy-load -->
     <!-- Điều chỉnh riêng mức hiệu ứng vật phẩm + Web Animations; không đụng theme/logic -->
-    <script src="js/effect-quality-manager.js?v=1.0.0"></script>
-    <script src="js/pet-interactions.js?v=3.8"></script>
-    <script src="js/music-manager.js?v=3.8"></script>
-    <script src="js/store-manager.js?v=20260907.summer-frame-r2"></script>
-    <script src="js/leaderboard.js?v=20260907.strong-violation-penalty-v1"></script>
-    <script src="js/painting.js?v=20260908.round-query-v1"></script>
-    <script src="js/luxury-store.js?v=4.2.4-lockfix-ui-isolation-r2"></script>
+    <script src="js/effect-quality-manager.js?v=2.0.0-budget"></script>
 
     <!-- YouTube API không phụ thuộc Firebase -->
     <script src="https://www.youtube.com/iframe_api"></script>
 
     <!-- 5. Logic chính của trang học sinh luôn đặt cuối -->
-    <script src="js/student.js?v=20260908.collection-lock-v1"></script>
-    <script src="js/lich-su-hao-hung.js?v=20260831.1"></script>
-    <script src="js/huong-dan-nguoi-moi.js?v=2.14.0"></script>
-    <script src="js/store-collections.js?v=20260908.four-seasons-lock-v1"></script>
+    <script src="js/student.js?v=20260914.lotm-klein-path-fix"></script>
 
 </body>
 

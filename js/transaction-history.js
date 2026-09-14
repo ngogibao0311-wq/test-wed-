@@ -1354,72 +1354,45 @@
             'Duyệt đổi thông tin'
     }[type] || type || 'Khác');
 
-    function getCurrentMonthStartTimestamp() {
-        const now = new Date();
+    function getHistoryRetentionStartTimestamp() {
+        if (
+            window.HistoryRetention &&
+            typeof window.HistoryRetention.getCutoffTimestamp === 'function'
+        ) {
+            return window.HistoryRetention.getCutoffTimestamp();
+        }
 
-        return new Date(
-            now.getFullYear(),
-            now.getMonth(),
-            1,
-            0,
-            0,
-            0,
+        // Fallback an toàn nếu manager chưa nạp: lùi đúng 2 tháng theo lịch.
+        const now = new Date();
+        const target = new Date(now.getTime());
+        const originalDay = target.getDate();
+        target.setDate(1);
+        target.setMonth(target.getMonth() - 2);
+        const lastDay = new Date(
+            target.getFullYear(),
+            target.getMonth() + 1,
             0
-        ).getTime();
+        ).getDate();
+        target.setDate(Math.min(originalDay, lastDay));
+        return target.getTime();
     }
 
     /*
-     * Xóa toàn bộ nhật ký thuộc các tháng trước.
-     *
-     * Ví dụ:
-     * - Sang ngày 01/08/2026
-     * - Toàn bộ log trước 01/08/2026 sẽ bị xóa.
-     *
-     * Các giao dịch mới tạo trong ngày 01 vẫn được giữ.
+     * Chỉ xóa nhật ký giao dịch đã quá 2 tháng.
+     * Không chạm các node trạng thái/khóa chống nhận thưởng trùng.
      */
     async function cleanupOldTransactionLogs() {
+        if (actor().role !== 'teacher') return 0;
+
         if (
-            actor().role !==
-            'teacher'
+            window.HistoryRetention &&
+            typeof window.HistoryRetention.cleanupCollection === 'function'
         ) {
-            return 0;
+            return window.HistoryRetention.cleanupCollection(ROOT);
         }
 
-        const cutoff =
-            getCurrentMonthStartTimestamp() - 1;
-
-        const snapshot =
-            await db
-                .ref(ROOT)
-                .orderByChild(
-                    'createdAtClient'
-                )
-                .endAt(cutoff)
-                .once('value');
-
-        const updates = {};
-        let removedCount = 0;
-
-        snapshot.forEach(child => {
-            updates[
-                `${ROOT}/${child.key}`
-            ] = null;
-
-            removedCount++;
-        });
-
-        if (removedCount > 0) {
-            await db.ref().update(
-                updates
-            );
-
-            console.info(
-                `[TransactionHistory] Đã xóa ` +
-                `${removedCount} nhật ký của tháng cũ.`
-            );
-        }
-
-        return removedCount;
+        // Fail-safe: manager chưa nạp thì KHÔNG tự xóa dữ liệu.
+        return 0;
     }
 
     function getTeacherLogFilterState() {
@@ -1553,7 +1526,7 @@
             state.firebaseCursor = null;
             state.firebaseHasMore = true;
             state.logMonthStart =
-                getCurrentMonthStartTimestamp();
+                getHistoryRetentionStartTimestamp();
         }
 
         if (!state.firebaseHasMore) {
@@ -1562,7 +1535,7 @@
 
         if (!state.logMonthStart) {
             state.logMonthStart =
-                getCurrentMonthStartTimestamp();
+                getHistoryRetentionStartTimestamp();
         }
 
         let query =
@@ -2002,7 +1975,7 @@
         ">
             Đã hiển thị toàn bộ
             ${visibleLogs.length}
-            giao dịch phù hợp của tháng này.
+            giao dịch phù hợp trong 2 tháng gần nhất.
         </p>
       `
             );
@@ -2086,13 +2059,13 @@
 
         try {
             /*
-             * Xóa nhật ký các tháng trước
+             * Xóa nhật ký đã quá 2 tháng
              * trước khi tải dữ liệu.
              */
             await cleanupOldTransactionLogs();
 
             /*
-             * Chỉ tải batch mới nhất của tháng từ Firebase.
+             * Chỉ tải dữ liệu còn trong thời hạn 2 tháng từ Firebase.
              * Không còn .once('value') toàn bộ transaction_logs.
              */
             await fetchTeacherLogBatch({

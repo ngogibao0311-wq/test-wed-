@@ -802,6 +802,22 @@ class DailyLoginManager {
             }
 
             /*
+             * Daily Login được lazy-load sau khi trang đã mở.
+             * Chỉ item/discount mới cần StoreConfig; nạp visual runtime
+             * đúng lúc người dùng bấm nhận, không bắt startup phải tải Store.
+             */
+            if (
+                (reward.type === 'item' ||
+                    reward.type === 'discount') &&
+                window.StudentFeatureLoader &&
+                typeof window.StudentFeatureLoader.ensure === 'function'
+            ) {
+                await window.StudentFeatureLoader.ensure(
+                    'visual-runtime'
+                );
+            }
+
+            /*
              * Chuẩn bị dữ liệu trước khi đánh dấu đã nhận.
              * Như vậy lỗi StoreConfig sẽ không làm mất lượt.
              */
@@ -1249,6 +1265,21 @@ class DailyLoginManager {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+function initDailyLoginWhenReady() {
+    if (window.__dailyLoginManagerInitialized) {
+        return;
+    }
+
+    window.__dailyLoginManagerInitialized = true;
     DailyLoginManager.init();
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener(
+        'DOMContentLoaded',
+        initDailyLoginWhenReady,
+        { once: true }
+    );
+} else {
+    initDailyLoginWhenReady();
+}

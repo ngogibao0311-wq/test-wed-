@@ -1559,8 +1559,20 @@ let lockoutInterval = null;
         'system_settings/loginPageLayout';
 
     function normalizeLayout(value) {
-        return String(value || '').trim() === 'centered'
-            ? 'centered'
+        const normalized =
+            String(value || '')
+                .trim()
+                .toLowerCase();
+
+        const allowedLayouts = new Set([
+            'split',
+            'centered',
+            'reversed',
+            'cinematic'
+        ]);
+
+        return allowedLayouts.has(normalized)
+            ? normalized
             : 'split';
     }
 
@@ -1569,13 +1581,13 @@ let lockoutInterval = null;
 
         document.body.classList.remove(
             'login-layout-split',
-            'login-layout-centered'
+            'login-layout-centered',
+            'login-layout-reversed',
+            'login-layout-cinematic'
         );
 
         document.body.classList.add(
-            layout === 'centered'
-                ? 'login-layout-centered'
-                : 'login-layout-split'
+            'login-layout-' + layout
         );
 
         document.body.dataset.loginLayout =
@@ -2306,139 +2318,1756 @@ window.filterItems = function (containerId, keyword) {
 };
 
 // =====================================================================
-// HỆ THỐNG QUÉT LỖI VÀ CHẨN ĐOÁN WEBSITE (DIAGNOSTICS SCANNER)
+// SYSTEM HEALTH CENTER 2.0 — CHẨN ĐOÁN CHỈ ĐỌC
+// - Không tự sửa localStorage/Firebase/R2/Cloudinary.
+// - Không gửi báo cáo tự động và không đánh dấu trạng thái dữ liệu.
+// - Kiểm tra Auth, RTDB, Service Worker, cache/build, R2, Cloudinary,
+//   module, listener/timer runtime và số DOM effect/animation đang hoạt động.
 // =====================================================================
+(() => {
+    'use strict';
 
-window.runSystemDiagnostics = async function () {
-    const resultBox = document.getElementById('diagnosticResults');
-    const statusText = document.getElementById('diagnosticStatus');
-    const list = document.getElementById('diagnosticList');
+    const VERSION = '2.0.0';
+    const R2_PROBE_TIMEOUT_MS = 3500;
+    const SW_PING_TIMEOUT_MS = 1800;
 
-    if (!resultBox || !statusText || !list) return alert("Lỗi: Không tìm thấy khung hiển thị kết quả HTML!");
+    const nativeTimers = Object.freeze({
+        setTimeout: window.setTimeout.bind(window),
+        clearTimeout: window.clearTimeout.bind(window),
+        setInterval: window.setInterval.bind(window),
+        clearInterval: window.clearInterval.bind(window),
+        requestAnimationFrame:
+            typeof window.requestAnimationFrame === 'function'
+                ? window.requestAnimationFrame.bind(window)
+                : null,
+        cancelAnimationFrame:
+            typeof window.cancelAnimationFrame === 'function'
+                ? window.cancelAnimationFrame.bind(window)
+                : null
+    });
 
-    // Khởi tạo giao diện
-    resultBox.style.display = 'block';
-    list.innerHTML = '';
-    statusText.innerHTML = '<span style="color: #d35400; font-weight: bold;">⏳ Đang tiến hành rà soát hệ thống... Vui lòng đợi!</span>';
-
-    let errors = [];
-    let warnings = [];
-    let passes = 0;
-
-    // Hàm tiện ích in log ra giao diện
-    const addLog = (msg, type) => {
-        let color = type === 'error' ? '#e11d48' : (type === 'warn' ? '#f59e0b' : '#059669');
-        let icon = type === 'error' ? '❌' : (type === 'warn' ? '⚠️' : '✅');
-        let li = document.createElement('li');
-        li.style.cssText = `color: ${color}; border-bottom: 1px dashed rgba(0,0,0,0.05); padding: 5px 0;`;
-        li.innerHTML = `<strong>${icon}</strong> ${msg}`;
-        list.appendChild(li);
+    const state = {
+        running: false,
+        lastResult: null
     };
 
-    // Tạo độ trễ ảo để quét từng phần (tránh đơ trình duyệt)
-    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-    try {
-        await sleep(500); // ----------------------------------------------------
-        // 1. KIỂM TRA BỘ NHỚ LƯU TRỮ VÀ PHIÊN ĐĂNG NHẬP
-        const user = JSON.parse(localStorage.getItem('currentUser'));
-        if (!user) {
-            errors.push("Mất dữ liệu phiên đăng nhập (currentUser null).");
-        } else {
-            passes++;
-            if (!user.username || !user.role) errors.push("Dữ liệu người dùng bị hỏng (Thiếu username/role).");
+    function installRuntimeTelemetry() {
+        if (window.__SystemHealthRuntimeTelemetry) {
+            return window.__SystemHealthRuntimeTelemetry;
         }
 
-        await sleep(500); // ----------------------------------------------------
-        // 2. KIỂM TRA ĐƯỜNG TRUYỀN FIREBASE REALTIME DATABASE
-        if (typeof db === 'undefined') {
-            errors.push("Không tìm thấy kết nối Firebase Database.");
-        } else {
-            try {
-                // Ping nhẹ lên node users (Giới hạn 1 để không kéo data nặng)
-                await db.ref('users').limitToFirst(1).once('value');
-                passes++;
-            } catch (e) {
-                errors.push("Mất kết nối mạng hoặc sai cấu hình Firebase config.js.");
+        const telemetry = {
+            startedAt: Date.now(),
+            listeners: {
+                activeEstimate: 0,
+                added: 0,
+                removed: 0,
+                onceRegistrations: 0,
+                byType: new Map()
+            },
+            timeouts: new Map(),
+            intervals: new Map(),
+            rafs: new Set()
+        };
+
+        const listenerRegistry = new WeakMap();
+        const eventTargetPrototype =
+            typeof EventTarget !== 'undefined'
+                ? EventTarget.prototype
+                : null;
+
+        const nativeAdd = eventTargetPrototype?.addEventListener;
+        const nativeRemove = eventTargetPrototype?.removeEventListener;
+
+        function getCapture(options) {
+            return typeof options === 'boolean'
+                ? options
+                : Boolean(options?.capture);
+        }
+
+        function trackListenerAdd(target, type, listener, options) {
+            if (!target || !listener) return;
+
+            let targetMap = listenerRegistry.get(target);
+            if (!targetMap) {
+                targetMap = new Map();
+                listenerRegistry.set(target, targetMap);
+            }
+
+            const normalizedType = String(type || 'unknown');
+            let typeMap = targetMap.get(normalizedType);
+            if (!typeMap) {
+                typeMap = new Map();
+                targetMap.set(normalizedType, typeMap);
+            }
+
+            let captures = typeMap.get(listener);
+            if (!captures) {
+                captures = new Set();
+                typeMap.set(listener, captures);
+            }
+
+            const capture = getCapture(options);
+            if (captures.has(capture)) return;
+
+            captures.add(capture);
+            telemetry.listeners.activeEstimate++;
+            telemetry.listeners.added++;
+            telemetry.listeners.byType.set(
+                normalizedType,
+                (telemetry.listeners.byType.get(normalizedType) || 0) + 1
+            );
+
+            if (
+                options &&
+                typeof options === 'object' &&
+                options.once === true
+            ) {
+                telemetry.listeners.onceRegistrations++;
+            }
+
+            const signal =
+                options && typeof options === 'object'
+                    ? options.signal
+                    : null;
+
+            if (
+                signal &&
+                typeof nativeAdd === 'function' &&
+                typeof signal.addEventListener === 'function'
+            ) {
+                try {
+                    nativeAdd.call(
+                        signal,
+                        'abort',
+                        () => {
+                            trackListenerRemove(
+                                target,
+                                normalizedType,
+                                listener,
+                                options
+                            );
+                        },
+                        { once: true }
+                    );
+                } catch (_) {}
             }
         }
 
-        await sleep(500); // ----------------------------------------------------
-        // 3. QUÉT TOÀN BỘ HÌNH ẢNH TRÊN DOM (Phát hiện link chết, lỗi Base64)
-        const images = document.querySelectorAll('img');
-        let brokenImages = 0;
-        images.forEach(img => {
-            if (!img.complete || img.naturalWidth === 0) {
-                brokenImages++;
-                let shortSrc = img.src.length > 50 ? img.src.substring(0, 50) + '...' : img.src;
-                warnings.push(`Phát hiện ảnh lỗi hoặc không thể tải: ${shortSrc}`);
+        function trackListenerRemove(target, type, listener, options) {
+            if (!target || !listener) return;
+
+            const normalizedType = String(type || 'unknown');
+            const targetMap = listenerRegistry.get(target);
+            const typeMap = targetMap?.get(normalizedType);
+            const captures = typeMap?.get(listener);
+            const capture = getCapture(options);
+
+            if (!captures?.has(capture)) return;
+
+            captures.delete(capture);
+            telemetry.listeners.activeEstimate = Math.max(
+                0,
+                telemetry.listeners.activeEstimate - 1
+            );
+            telemetry.listeners.removed++;
+
+            const nextTypeCount = Math.max(
+                0,
+                (telemetry.listeners.byType.get(normalizedType) || 0) - 1
+            );
+
+            if (nextTypeCount) {
+                telemetry.listeners.byType.set(
+                    normalizedType,
+                    nextTypeCount
+                );
+            } else {
+                telemetry.listeners.byType.delete(normalizedType);
+            }
+
+            if (captures.size === 0) {
+                typeMap.delete(listener);
+            }
+            if (typeMap.size === 0) {
+                targetMap.delete(normalizedType);
+            }
+        }
+
+        if (
+            eventTargetPrototype &&
+            typeof nativeAdd === 'function' &&
+            typeof nativeRemove === 'function'
+        ) {
+            try {
+                eventTargetPrototype.addEventListener = function (
+                    type,
+                    listener,
+                    options
+                ) {
+                    const result = nativeAdd.call(
+                        this,
+                        type,
+                        listener,
+                        options
+                    );
+
+                    trackListenerAdd(
+                        this,
+                        type,
+                        listener,
+                        options
+                    );
+
+                    return result;
+                };
+
+                eventTargetPrototype.removeEventListener = function (
+                    type,
+                    listener,
+                    options
+                ) {
+                    const result = nativeRemove.call(
+                        this,
+                        type,
+                        listener,
+                        options
+                    );
+
+                    trackListenerRemove(
+                        this,
+                        type,
+                        listener,
+                        options
+                    );
+
+                    return result;
+                };
+            } catch (error) {
+                console.warn(
+                    '[SystemHealth] Không thể bật listener telemetry:',
+                    error
+                );
+            }
+        }
+
+        try {
+            window.setTimeout = function (handler, delay, ...args) {
+                let timerId;
+
+                if (typeof handler === 'function') {
+                    const wrapped = function (...callbackArgs) {
+                        telemetry.timeouts.delete(timerId);
+                        return handler.apply(this, callbackArgs);
+                    };
+
+                    timerId = nativeTimers.setTimeout(
+                        wrapped,
+                        delay,
+                        ...args
+                    );
+                } else {
+                    timerId = nativeTimers.setTimeout(
+                        handler,
+                        delay,
+                        ...args
+                    );
+                }
+
+                telemetry.timeouts.set(timerId, {
+                    delay: Number(delay) || 0,
+                    createdAt: Date.now()
+                });
+
+                return timerId;
+            };
+
+            window.clearTimeout = function (timerId) {
+                telemetry.timeouts.delete(timerId);
+                telemetry.intervals.delete(timerId);
+                return nativeTimers.clearTimeout(timerId);
+            };
+
+            window.setInterval = function (handler, delay, ...args) {
+                const timerId = nativeTimers.setInterval(
+                    handler,
+                    delay,
+                    ...args
+                );
+
+                telemetry.intervals.set(timerId, {
+                    delay: Number(delay) || 0,
+                    createdAt: Date.now()
+                });
+
+                return timerId;
+            };
+
+            window.clearInterval = function (timerId) {
+                telemetry.intervals.delete(timerId);
+                telemetry.timeouts.delete(timerId);
+                return nativeTimers.clearInterval(timerId);
+            };
+
+            if (
+                nativeTimers.requestAnimationFrame &&
+                nativeTimers.cancelAnimationFrame
+            ) {
+                window.requestAnimationFrame = function (callback) {
+                    let frameId;
+                    frameId = nativeTimers.requestAnimationFrame(
+                        timestamp => {
+                            telemetry.rafs.delete(frameId);
+                            callback(timestamp);
+                        }
+                    );
+                    telemetry.rafs.add(frameId);
+                    return frameId;
+                };
+
+                window.cancelAnimationFrame = function (frameId) {
+                    telemetry.rafs.delete(frameId);
+                    return nativeTimers.cancelAnimationFrame(frameId);
+                };
+            }
+        } catch (error) {
+            console.warn(
+                '[SystemHealth] Không thể bật timer telemetry:',
+                error
+            );
+        }
+
+        const api = Object.freeze({
+            version: VERSION,
+            getSnapshot() {
+                const byType = [...telemetry.listeners.byType.entries()]
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 12)
+                    .map(([type, count]) => ({ type, count }));
+
+                return {
+                    startedAt: telemetry.startedAt,
+                    uptimeMs: Date.now() - telemetry.startedAt,
+                    listeners: {
+                        activeEstimate:
+                            telemetry.listeners.activeEstimate,
+                        added: telemetry.listeners.added,
+                        removed: telemetry.listeners.removed,
+                        onceRegistrations:
+                            telemetry.listeners.onceRegistrations,
+                        byType
+                    },
+                    timers: {
+                        timeouts: telemetry.timeouts.size,
+                        intervals: telemetry.intervals.size,
+                        animationFrames: telemetry.rafs.size,
+                        total:
+                            telemetry.timeouts.size +
+                            telemetry.intervals.size +
+                            telemetry.rafs.size
+                    }
+                };
             }
         });
-        if (brokenImages === 0) passes++;
 
-        await sleep(500); // ----------------------------------------------------
-        // 4. KIỂM TRA CẤU TRÚC CỬA HÀNG (StoreConfig)
-        if (typeof StoreConfig !== 'undefined' && StoreConfig.items) {
-            passes++;
-            StoreConfig.items.forEach(item => {
-                if (!item.id || !item.type || !item.name) {
-                    errors.push(`Vật phẩm cửa hàng bị lỗi cấu trúc: Mất định danh ID hoặc Tên.`);
-                }
-                if (item.isNonCoin && item.price === undefined) {
-                    warnings.push(`Vật phẩm [${item.name}] là hàng phi lợi nhuận nhưng chưa set giá = 0, có thể gây lỗi undefined.`);
-                }
-            });
-        } else {
-            warnings.push("Hệ thống cửa hàng chưa được tải (StoreConfig undefined).");
-        }
-
-        await sleep(500); // ----------------------------------------------------
-        // 5. KIỂM TRA XUNG ĐỘT QUẢN LÝ TỆP (DataTransfer)
-        if (user && user.role === 'student' && typeof window.studentSubmitDTs === 'undefined') {
-            errors.push("Biến quản lý file cộng dồn của học sinh (studentSubmitDTs) bị hỏng hoặc chưa khởi tạo.");
-        } else if (user && user.role === 'teacher' && typeof window.teacherGradeDTs === 'undefined') {
-            errors.push("Biến quản lý file chấm bài của giáo viên (teacherGradeDTs) bị hỏng.");
-        } else {
-            passes++;
-        }
-
-        await sleep(500); // ----------------------------------------------------
-        // 6. KIỂM TRA CÁC BIẾN TOÀN CỤC HOẠT ĐỘNG (ĐỒNG BỘ TRÒ CHƠI)
-        if (typeof window.wheelProbs === 'undefined') {
-            warnings.push("Cấu hình tỉ lệ vòng quay đang trống, game sẽ dùng mặc định cứng.");
-        }
-
-        // Tiến hành kiểm tra động: Nếu chưa có biến, thử đợi Firebase phản hồi trong 1 giây trước khi báo lỗi
-        if (typeof window.isGameEnabled === 'undefined') {
-            let retryCount = 0;
-            while (retryCount < 5 && typeof window.isGameEnabled === 'undefined') {
-                await sleep(200); // Đợi thêm 200ms mỗi lần để Firebase kịp kéo data
-                retryCount++;
-            }
-        }
-
-        // Sau khi đã đợi mà vẫn không có dữ liệu thì mới xác nhận là mất đồng bộ dữ liệu hoặc lỗi kết nối
-        if (typeof window.isGameEnabled === 'undefined') {
-            warnings.push("Hệ thống chưa nhận được trạng thái Trò chơi (isGameEnabled undefined). Vui lòng kiểm tra lại cấu hình node 'game_settings' trên Firebase.");
-        } else {
-            passes++;
-        }
-        // === KẾT LUẬN VÀ IN BÁO CÁO ===
-        statusText.innerHTML = `<span style="color: #2c3e50; font-weight: bold;">Hoàn tất quét hệ thống!</span>`;
-
-        if (errors.length === 0 && warnings.length === 0) {
-            addLog(`Hệ thống đang hoạt động hoàn hảo. (Vượt qua ${passes}/5 bài test lõi)`, 'success');
-        } else {
-            addLog(`Vượt qua ${passes} bài kiểm tra an toàn.`, 'success');
-            warnings.forEach(w => addLog(w, 'warn'));
-            errors.forEach(e => addLog(e, 'error'));
-        }
-
-    } catch (criticalError) {
-        statusText.innerHTML = `<span style="color: #e11d48; font-weight: bold;">Lỗi nghiêm trọng khi đang quét hệ thống!</span>`;
-        addLog(`Crashed: ${criticalError.message}`, 'error');
+        window.__SystemHealthRuntimeTelemetry = api;
+        return api;
     }
-};
+
+    const telemetry = installRuntimeTelemetry();
+
+    function wait(ms) {
+        return new Promise(resolve => {
+            nativeTimers.setTimeout(resolve, ms);
+        });
+    }
+
+    function resolvePageRole() {
+        const explicitRole = String(
+            window.__APP_PAGE_ROLE__ ||
+            document.documentElement?.dataset?.appRole ||
+            document.body?.dataset?.appRole ||
+            ''
+        ).trim().toLowerCase();
+
+        if (
+            explicitRole === 'teacher' ||
+            explicitRole === 'student'
+        ) {
+            return explicitRole;
+        }
+
+        const title = String(document.title || '').toLowerCase();
+
+        if (
+            title.includes('giáo viên') ||
+            document.querySelector('#teacherGameMainNav') ||
+            document.querySelector('#tab-manage-students')
+        ) {
+            return 'teacher';
+        }
+
+        if (
+            title.includes('học sinh') ||
+            document.querySelector('#studentName') ||
+            document.querySelector('#tab-game')
+        ) {
+            return 'student';
+        }
+
+        return 'unknown';
+    }
+
+    function getDatabase() {
+        try {
+            if (
+                typeof db !== 'undefined' &&
+                db &&
+                typeof db.ref === 'function'
+            ) {
+                return db;
+            }
+        } catch (_) {}
+
+        return (
+            window.db &&
+            typeof window.db.ref === 'function'
+        )
+            ? window.db
+            : null;
+    }
+
+    function getAuthUser() {
+        try {
+            if (
+                typeof firebase !== 'undefined' &&
+                typeof firebase.auth === 'function'
+            ) {
+                return firebase.auth().currentUser || null;
+            }
+        } catch (_) {}
+
+        return null;
+    }
+
+    function appVersion() {
+        return String(
+            document
+                .querySelector('meta[name="application-version"]')
+                ?.getAttribute('content') ||
+            window.APP_VERSION ||
+            ''
+        ).trim();
+    }
+
+    function row(id, title, status, summary, details = [], meta = {}) {
+        const allowed = new Set(['pass', 'warn', 'error', 'info']);
+        return {
+            id,
+            title,
+            status: allowed.has(status) ? status : 'info',
+            summary: String(summary || ''),
+            details: (Array.isArray(details) ? details : [details])
+                .filter(Boolean)
+                .map(value => String(value)),
+            meta
+        };
+    }
+
+    async function checkAuth() {
+        if (
+            typeof firebase === 'undefined' ||
+            typeof firebase.auth !== 'function'
+        ) {
+            return row(
+                'firebase-auth',
+                'Firebase Auth',
+                'error',
+                'Firebase Authentication SDK chưa sẵn sàng.'
+            );
+        }
+
+        let user = getAuthUser();
+
+        if (!user) {
+            await wait(180);
+            user = getAuthUser();
+        }
+
+        if (!user?.uid) {
+            return row(
+                'firebase-auth',
+                'Firebase Auth',
+                'error',
+                'Không có phiên Firebase Auth đang đăng nhập.'
+            );
+        }
+
+        return row(
+            'firebase-auth',
+            'Firebase Auth',
+            'pass',
+            'Phiên đăng nhập Firebase đang hoạt động.',
+            [
+                `UID: ${user.uid}`,
+                user.email ? `Email: ${user.email}` : ''
+            ],
+            { uid: user.uid }
+        );
+    }
+
+    async function checkRTDB() {
+        const database = getDatabase();
+        const authUser = getAuthUser();
+
+        if (!database) {
+            return row(
+                'firebase-rtdb',
+                'Firebase RTDB',
+                'error',
+                'Không tìm thấy kết nối Realtime Database.'
+            );
+        }
+
+        try {
+            const startedAt = performance.now();
+            const connectedSnapshot = await database
+                .ref('.info/connected')
+                .once('value');
+            const latencyMs = Math.max(
+                0,
+                Math.round(performance.now() - startedAt)
+            );
+            const connected = connectedSnapshot.val() === true;
+
+            const details = [
+                `Đọc .info/connected: ${latencyMs} ms`,
+                `Trạng thái realtime: ${connected ? 'connected' : 'disconnected'}`
+            ];
+
+            if (authUser?.uid) {
+                try {
+                    const userStartedAt = performance.now();
+                    const userSnapshot = await database
+                        .ref(`users/${authUser.uid}`)
+                        .once('value');
+                    const userLatencyMs = Math.max(
+                        0,
+                        Math.round(performance.now() - userStartedAt)
+                    );
+
+                    details.push(
+                        `Đọc users/<uid>: ${userLatencyMs} ms · ${
+                            userSnapshot.exists()
+                                ? 'có hồ sơ'
+                                : 'không có hồ sơ'
+                        }`
+                    );
+
+                    if (!userSnapshot.exists()) {
+                        return row(
+                            'firebase-rtdb',
+                            'Firebase RTDB',
+                            'error',
+                            'RTDB đọc được nhưng hồ sơ users/<uid> không tồn tại.',
+                            details,
+                            { connected, latencyMs }
+                        );
+                    }
+                } catch (error) {
+                    details.push(
+                        `Không đọc được users/<uid>: ${error?.message || error}`
+                    );
+                    return row(
+                        'firebase-rtdb',
+                        'Firebase RTDB',
+                        'warn',
+                        'RTDB lõi phản hồi nhưng không xác minh được hồ sơ người dùng.',
+                        details,
+                        { connected, latencyMs }
+                    );
+                }
+            }
+
+            return row(
+                'firebase-rtdb',
+                'Firebase RTDB',
+                connected ? 'pass' : 'warn',
+                connected
+                    ? 'Realtime Database đang kết nối.'
+                    : 'RTDB đọc được nhưng client đang báo disconnected.',
+                details,
+                { connected, latencyMs }
+            );
+        } catch (error) {
+            return row(
+                'firebase-rtdb',
+                'Firebase RTDB',
+                'error',
+                'Không thể đọc Realtime Database.',
+                [error?.message || String(error)]
+            );
+        }
+    }
+
+    async function pingServiceWorker(worker) {
+        if (!worker || typeof MessageChannel === 'undefined') {
+            return null;
+        }
+
+        return new Promise(resolve => {
+            const channel = new MessageChannel();
+            let settled = false;
+
+            const finish = value => {
+                if (settled) return;
+                settled = true;
+                nativeTimers.clearTimeout(timeoutId);
+                try {
+                    channel.port1.close();
+                    channel.port2.close();
+                } catch (_) {}
+                resolve(value || null);
+            };
+
+            const timeoutId = nativeTimers.setTimeout(
+                () => finish(null),
+                SW_PING_TIMEOUT_MS
+            );
+
+            channel.port1.onmessage = event => {
+                const data = event?.data;
+                if (data?.type === 'PONG') {
+                    finish(data);
+                }
+            };
+
+            try {
+                worker.postMessage(
+                    {
+                        type: 'PING',
+                        requestId:
+                            `health-${Date.now()}-${Math.random()
+                                .toString(36)
+                                .slice(2)}`
+                    },
+                    [channel.port2]
+                );
+            } catch (_) {
+                finish(null);
+            }
+        });
+    }
+
+    async function checkServiceWorker() {
+        if (!('serviceWorker' in navigator)) {
+            return {
+                healthRow: row(
+                    'service-worker',
+                    'Service Worker',
+                    'warn',
+                    'Trình duyệt không hỗ trợ Service Worker.'
+                ),
+                pong: null
+            };
+        }
+
+        if (!/^https?:$/.test(location.protocol)) {
+            return {
+                healthRow: row(
+                    'service-worker',
+                    'Service Worker',
+                    'warn',
+                    'Service Worker không hoạt động trên giao thức hiện tại.',
+                    [`Protocol: ${location.protocol}`]
+                ),
+                pong: null
+            };
+        }
+
+        try {
+            const registration =
+                await navigator.serviceWorker.getRegistration();
+
+            if (!registration) {
+                return {
+                    healthRow: row(
+                        'service-worker',
+                        'Service Worker',
+                        'warn',
+                        'Chưa có Service Worker registration cho trang hiện tại.'
+                    ),
+                    pong: null
+                };
+            }
+
+            const worker =
+                registration.active ||
+                registration.waiting ||
+                registration.installing ||
+                navigator.serviceWorker.controller;
+            const pong = await pingServiceWorker(worker);
+
+            const details = [
+                `Scope: ${registration.scope || '(không rõ)'}`,
+                `Worker state: ${worker?.state || 'unknown'}`,
+                `Controller: ${navigator.serviceWorker.controller ? 'có' : 'chưa có'}`
+            ];
+
+            if (pong) {
+                details.push(
+                    `SW appVersion: ${pong.appVersion || '(trống)'}`,
+                    `SW build: ${pong.build || '(trống)'}`,
+                    `SW cacheVersion: ${pong.cacheVersion || '(trống)'}`
+                );
+            }
+
+            const expectedAppVersion = appVersion();
+            const versionMismatch = Boolean(
+                pong?.appVersion &&
+                expectedAppVersion &&
+                String(pong.appVersion) !== expectedAppVersion
+            );
+
+            return {
+                healthRow: row(
+                    'service-worker',
+                    'Service Worker',
+                    versionMismatch
+                        ? 'warn'
+                        : pong
+                            ? 'pass'
+                            : 'warn',
+                    versionMismatch
+                        ? `Service Worker đang dùng appVersion ${pong.appVersion}, khác trang ${expectedAppVersion}.`
+                        : pong
+                            ? 'Service Worker phản hồi PING bình thường.'
+                            : 'Service Worker đã đăng ký nhưng chưa phản hồi PING Health Center.',
+                    details,
+                    {
+                        cacheVersion: pong?.cacheVersion || '',
+                        build: pong?.build || '',
+                        appVersion: pong?.appVersion || ''
+                    }
+                ),
+                pong
+            };
+        } catch (error) {
+            return {
+                healthRow: row(
+                    'service-worker',
+                    'Service Worker',
+                    'error',
+                    'Không đọc được trạng thái Service Worker.',
+                    [error?.message || String(error)]
+                ),
+                pong: null
+            };
+        }
+    }
+
+    async function checkCache(swPong) {
+        if (!('caches' in window)) {
+            return row(
+                'cache-version',
+                'Cache / Build',
+                'warn',
+                'Trình duyệt không cung cấp Cache Storage API.'
+            );
+        }
+
+        try {
+            const names = await caches.keys();
+            const studyCaches = names.filter(name =>
+                String(name).startsWith('study-')
+            );
+            const expectedCache =
+                String(swPong?.cacheVersion || '').trim();
+            const matching = expectedCache
+                ? studyCaches.includes(expectedCache) ||
+                    studyCaches.includes(`${expectedCache}-offline`) ||
+                    studyCaches.includes(`${expectedCache}-runtime`)
+                : false;
+
+            const updateState =
+                window.SystemUpdateManager?.getState?.() || null;
+            const installedVersion = String(
+                updateState?.installedVersion || appVersion() || ''
+            );
+
+            const details = [
+                `Trang appVersion: ${appVersion() || '(trống)'}`,
+                `Update Manager installedVersion: ${installedVersion || '(trống)'}`,
+                `Cache study-* hiện có: ${studyCaches.length}`,
+                ...studyCaches.slice(0, 6).map(name => `• ${name}`)
+            ];
+
+            if (expectedCache) {
+                details.unshift(
+                    `Cache version SW mong đợi: ${expectedCache}`
+                );
+            }
+
+            if (!studyCaches.length) {
+                return row(
+                    'cache-version',
+                    'Cache / Build',
+                    'warn',
+                    'Chưa thấy cache study-* trong Cache Storage.',
+                    details
+                );
+            }
+
+            if (expectedCache && !matching) {
+                return row(
+                    'cache-version',
+                    'Cache / Build',
+                    'warn',
+                    'Cache hiện tại chưa khớp cacheVersion của Service Worker.',
+                    details,
+                    { expectedCache, studyCaches }
+                );
+            }
+
+            return row(
+                'cache-version',
+                'Cache / Build',
+                'pass',
+                expectedCache
+                    ? 'Cache và Service Worker đang dùng cùng build.'
+                    : 'Cache Storage đang hoạt động; chưa có metadata PING để đối chiếu build.',
+                details,
+                { expectedCache, studyCaches }
+            );
+        } catch (error) {
+            return row(
+                'cache-version',
+                'Cache / Build',
+                'warn',
+                'Không đọc được danh sách Cache Storage.',
+                [error?.message || String(error)]
+            );
+        }
+    }
+
+    async function checkR2() {
+        const storage = window.CloudflareR2Storage;
+
+        if (!storage) {
+            return row(
+                'cloudflare-r2',
+                'Cloudflare R2',
+                'error',
+                'Module CloudflareR2Storage bị thiếu.'
+            );
+        }
+
+        const configured =
+            typeof storage.isConfigured === 'function'
+                ? storage.isConfigured()
+                : Boolean(storage.config?.workerUrl);
+        const workerUrl = String(
+            storage.config?.workerUrl || ''
+        ).replace(/\/+$/, '');
+
+        if (!configured || !workerUrl) {
+            return row(
+                'cloudflare-r2',
+                'Cloudflare R2',
+                'error',
+                'R2 module có mặt nhưng Worker URL chưa được cấu hình.'
+            );
+        }
+
+        const controller =
+            typeof AbortController !== 'undefined'
+                ? new AbortController()
+                : null;
+        const timeoutId = nativeTimers.setTimeout(
+            () => controller?.abort(),
+            R2_PROBE_TIMEOUT_MS
+        );
+
+        try {
+            const startedAt = performance.now();
+            const response = await fetch(workerUrl, {
+                method: 'GET',
+                cache: 'no-store',
+                credentials: 'omit',
+                signal: controller?.signal
+            });
+            const latencyMs = Math.max(
+                0,
+                Math.round(performance.now() - startedAt)
+            );
+
+            const reachable = response.status < 500;
+            const protectedStatus = [401, 403].includes(response.status);
+            const routeNotExposed = [404, 405].includes(response.status);
+
+            return row(
+                'cloudflare-r2',
+                'Cloudflare R2',
+                reachable ? 'pass' : 'warn',
+                reachable
+                    ? protectedStatus
+                        ? 'R2 Worker có phản hồi và đang yêu cầu xác thực.'
+                        : routeNotExposed
+                            ? 'R2 Worker có phản hồi; route gốc không công khai health endpoint.'
+                            : 'R2 Worker có phản hồi bình thường.'
+                    : `R2 Worker phản hồi HTTP ${response.status}.`,
+                [
+                    `Worker: ${workerUrl}`,
+                    `HTTP: ${response.status}`,
+                    `Thời gian: ${latencyMs} ms`,
+                    'Probe chỉ dùng GET; không upload/xóa file.'
+                ],
+                { status: response.status, latencyMs }
+            );
+        } catch (error) {
+            return row(
+                'cloudflare-r2',
+                'Cloudflare R2',
+                'warn',
+                'R2 đã cấu hình nhưng Health Center không probe được Worker từ trình duyệt.',
+                [
+                    `Worker: ${workerUrl}`,
+                    error?.name === 'AbortError'
+                        ? `Probe quá ${R2_PROBE_TIMEOUT_MS} ms.`
+                        : (error?.message || String(error)),
+                    'Không có thao tác ghi nào được thực hiện.'
+                ]
+            );
+        } finally {
+            nativeTimers.clearTimeout(timeoutId);
+        }
+    }
+
+    function checkCloudinary() {
+        const storage = window.CloudinaryStorage;
+
+        if (!storage) {
+            return row(
+                'cloudinary',
+                'Cloudinary',
+                'error',
+                'Module CloudinaryStorage bị thiếu.'
+            );
+        }
+
+        const provider = String(
+            storage.config?.provider || ''
+        ).trim();
+        const compatibilityMode =
+            storage.config?.compatibilityMode === true;
+        const uploadApiPresent =
+            typeof storage.uploadFile === 'function' &&
+            typeof storage.uploadFiles === 'function';
+
+        if (!uploadApiPresent) {
+            return row(
+                'cloudinary',
+                'Cloudinary',
+                'error',
+                'CloudinaryStorage có mặt nhưng API tương thích bị thiếu.'
+            );
+        }
+
+        if (
+            compatibilityMode &&
+            provider === 'cloudflare-r2'
+        ) {
+            return row(
+                'cloudinary',
+                'Cloudinary',
+                'pass',
+                'Cloudinary đang ở compatibility mode và chuyển lưu trữ mới sang R2.',
+                [
+                    'Không còn dùng unsigned Cloudinary upload trực tiếp.',
+                    'Health Center chỉ kiểm tra cấu hình/runtime; không upload thử.'
+                ],
+                { provider, compatibilityMode }
+            );
+        }
+
+        return row(
+            'cloudinary',
+            'Cloudinary',
+            'info',
+            'CloudinaryStorage runtime đang hoạt động.',
+            [
+                `Provider: ${provider || '(không khai báo)'}`,
+                `Compatibility mode: ${compatibilityMode ? 'bật' : 'tắt'}`
+            ],
+            { provider, compatibilityMode }
+        );
+    }
+
+    function scriptBasenames() {
+        return new Set(
+            [...document.scripts]
+                .map(script => {
+                    const src = String(script.src || '');
+                    if (!src) return '';
+                    try {
+                        return new URL(src, document.baseURI)
+                            .pathname
+                            .split('/')
+                            .pop();
+                    } catch (_) {
+                        return src.split(/[/?#]/).filter(Boolean).pop() || '';
+                    }
+                })
+                .filter(Boolean)
+        );
+    }
+
+    function checkModules() {
+        const role = resolvePageRole();
+        const scripts = scriptBasenames();
+
+        const checks = [
+            {
+                name: 'firebase-config.js',
+                required: true,
+                ready: () =>
+                    typeof firebase !== 'undefined' &&
+                    typeof firebase.auth === 'function' &&
+                    typeof firebase.database === 'function'
+            },
+            {
+                name: 'cloudinary-storage.js',
+                required: true,
+                ready: () => Boolean(window.CloudinaryStorage)
+            },
+            {
+                name: 'cloudflare-r2-storage.js',
+                required: true,
+                ready: () => Boolean(window.CloudflareR2Storage)
+            },
+            {
+                name: 'update-manager.js',
+                required: true,
+                ready: () => Boolean(window.SystemUpdateManager)
+            },
+            {
+                name: 'web-animations.js',
+                required: true,
+                ready: () => Boolean(window.WebAnimationSystem)
+            },
+            {
+                name: 'web-performance-optimizer.js',
+                required: true,
+                ready: () => Boolean(window.WebPerformanceOptimizer)
+            },
+            {
+                name: 'transaction-history.js',
+                required: true,
+                ready: () => Boolean(window.TransactionHistory)
+            },
+            {
+                name: 'effect-quality-manager.js',
+                required: true,
+                ready: () => Boolean(window.EffectQualityManager)
+            },
+            {
+                name: 'student-feature-loader.js',
+                required: role === 'student',
+                ready: () => Boolean(window.StudentFeatureLoader)
+            },
+            {
+                name: 'daily-login.js',
+                required: role === 'teacher',
+                ready: () => typeof DailyLoginManager !== 'undefined'
+            },
+            {
+                name: 'theme-items.js',
+                required: role === 'teacher',
+                ready: () => typeof ThemeManager !== 'undefined'
+            },
+            {
+                name: 'effect-items.js',
+                required: role === 'teacher',
+                ready: () => typeof EffectManager !== 'undefined'
+            },
+            {
+                name: 'pet-items.js',
+                required: role === 'teacher',
+                ready: () => typeof PetManager !== 'undefined'
+            },
+            {
+                name: 'royal-ball.js',
+                required: role === 'teacher',
+                ready: () => typeof RoyalBallEvent !== 'undefined'
+            },
+            {
+                name: 'music-manager.js',
+                required: role === 'teacher',
+                ready: () => Boolean(window.MusicManager)
+            },
+            {
+                name: 'store-manager.js',
+                required: role === 'teacher',
+                ready: () =>
+                    typeof StoreManager !== 'undefined' &&
+                    typeof StoreConfig !== 'undefined'
+            },
+            {
+                name: 'painting.js',
+                required: role === 'teacher',
+                ready: () => Boolean(window.HoiHoaSystem)
+            },
+            {
+                name: 'luxury-store.js',
+                required: role === 'teacher',
+                ready: () => Boolean(window.LuxuryStore)
+            }
+        ];
+
+        const relevant = checks.filter(check => check.required);
+        const missing = [];
+        const healthy = [];
+
+        relevant.forEach(check => {
+            const declared = scripts.has(check.name);
+            let ready = false;
+
+            try {
+                ready = Boolean(check.ready());
+            } catch (_) {
+                ready = false;
+            }
+
+            if (!declared || !ready) {
+                missing.push(
+                    `${check.name}: ${
+                        !declared
+                            ? 'thiếu <script>'
+                            : 'script có nhưng runtime chưa sẵn sàng'
+                    }`
+                );
+            } else {
+                healthy.push(check.name);
+            }
+        });
+
+        const lazyState =
+            role === 'student'
+                ? window.StudentFeatureLoader?.getState?.()
+                : null;
+
+        const details = [
+            `Đã xác minh: ${healthy.length}/${relevant.length} module bắt buộc.`,
+            ...missing.map(value => `Thiếu: ${value}`)
+        ];
+
+        if (lazyState) {
+            details.push(
+                `Student lazy groups đã yêu cầu: ${
+                    Array.isArray(lazyState.loadedGroups)
+                        ? lazyState.loadedGroups.join(', ') || '(chưa có)'
+                        : '(không rõ)'
+                }`
+            );
+        }
+
+        return row(
+            'modules',
+            'Module runtime',
+            missing.length ? 'error' : 'pass',
+            missing.length
+                ? `Phát hiện ${missing.length} module bắt buộc bị thiếu/chưa khởi tạo.`
+                : 'Các module bắt buộc của trang hiện tại đều sẵn sàng.',
+            details,
+            { missing, healthy }
+        );
+    }
+
+    function checkListeners() {
+        const snapshot = telemetry?.getSnapshot?.();
+        const listenerState = snapshot?.listeners;
+
+        if (!listenerState) {
+            return row(
+                'listeners',
+                'Event Listener',
+                'info',
+                'Không có runtime telemetry cho listener.'
+            );
+        }
+
+        const topTypes = listenerState.byType || [];
+        const details = [
+            `Đang theo dõi (ước tính): ${listenerState.activeEstimate}`,
+            `Đã add: ${listenerState.added} · đã remove: ${listenerState.removed}`,
+            `Listener once đã đăng ký: ${listenerState.onceRegistrations}`,
+            ...topTypes.map(item =>
+                `${item.type}: ${item.count}`
+            ),
+            'Số liệu bắt đầu từ lúc common.js nạp Health Center; browser không cung cấp API chuẩn để liệt kê toàn bộ listener đã tồn tại trước đó.'
+        ];
+
+        return row(
+            'listeners',
+            'Event Listener',
+            'info',
+            `${listenerState.activeEstimate} listener đang được telemetry theo dõi.`,
+            details,
+            listenerState
+        );
+    }
+
+    function checkTimers() {
+        const snapshot = telemetry?.getSnapshot?.();
+        const timerState = snapshot?.timers;
+
+        if (!timerState) {
+            return row(
+                'timers',
+                'Timer / RAF',
+                'info',
+                'Không có runtime telemetry cho timer.'
+            );
+        }
+
+        const status =
+            timerState.total > 120
+                ? 'warn'
+                : 'info';
+
+        return row(
+            'timers',
+            'Timer / RAF',
+            status,
+            `${timerState.total} timer/animation frame đang được theo dõi.`,
+            [
+                `setTimeout đang chờ: ${timerState.timeouts}`,
+                `setInterval đang chạy: ${timerState.intervals}`,
+                `requestAnimationFrame đang chờ: ${timerState.animationFrames}`,
+                status === 'warn'
+                    ? 'Số timer cao; nên xem module nào tạo timer lặp nếu máy có dấu hiệu chậm.'
+                    : 'Mức này chỉ là telemetry runtime, không thay đổi hay hủy timer.'
+            ],
+            timerState
+        );
+    }
+
+    function checkDomEffects() {
+        const nodes = new Set();
+
+        const selectors = [
+            '#global-effect-container *',
+            '#wfx-web-animation-layer *',
+            '[class^="effect-particle"]',
+            '[class*=" effect-particle"]',
+            '[class*="-particle"]',
+            '[class*=" spark"]',
+            '[class^="spark"]',
+            '[class*=" confetti"]',
+            '[class^="confetti"]'
+        ];
+
+        selectors.forEach(selector => {
+            try {
+                document
+                    .querySelectorAll(selector)
+                    .forEach(node => nodes.add(node));
+            } catch (_) {}
+        });
+
+        let runningAnimations = 0;
+        let totalAnimations = 0;
+
+        try {
+            const animations = document.getAnimations
+                ? document.getAnimations()
+                : [];
+            totalAnimations = animations.length;
+            runningAnimations = animations.filter(animation =>
+                animation.playState === 'running' ||
+                animation.playState === 'pending'
+            ).length;
+        } catch (_) {}
+
+        const globalEffectChildren =
+            document.querySelector('#global-effect-container')
+                ?.childElementCount || 0;
+        const webAnimationChildren =
+            document.querySelector('#wfx-web-animation-layer')
+                ?.childElementCount || 0;
+
+        const status =
+            nodes.size > 300 || runningAnimations > 180
+                ? 'warn'
+                : 'info';
+
+        return row(
+            'dom-effects',
+            'DOM Effect',
+            status,
+            `${nodes.size} node hiệu ứng · ${runningAnimations} animation đang chạy/chờ.`,
+            [
+                `#global-effect-container: ${globalEffectChildren} phần tử con trực tiếp`,
+                `#wfx-web-animation-layer: ${webAnimationChildren} phần tử con trực tiếp`,
+                `DOM effect selectors (unique): ${nodes.size}`,
+                `Web/CSS animations: ${runningAnimations}/${totalAnimations} đang chạy hoặc pending`,
+                status === 'warn'
+                    ? 'Mật độ hiệu ứng đang cao; đây là cảnh báo hiệu năng, không phải lỗi dữ liệu.'
+                    : 'Health Center chỉ đếm DOM/animation, không dừng hay xóa hiệu ứng.'
+            ],
+            {
+                effectNodes: nodes.size,
+                runningAnimations,
+                totalAnimations,
+                globalEffectChildren,
+                webAnimationChildren
+            }
+        );
+    }
+
+    function ensureStyles() {
+        if (document.getElementById('systemHealthCenterStyles')) {
+            return;
+        }
+
+        const style = document.createElement('style');
+        style.id = 'systemHealthCenterStyles';
+        style.textContent = `
+            #diagnosticResults.health-center-v2 {
+                max-height: min(68vh, 760px) !important;
+                padding: 14px !important;
+                background: rgba(248,250,252,.96) !important;
+                border: 1px solid rgba(59,130,246,.20) !important;
+                overflow: auto !important;
+            }
+            #systemHealthDashboard {
+                margin-top: 10px;
+                color: #0f172a;
+                font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            }
+            #systemHealthDashboard .shc-banner {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 8px;
+                margin-bottom: 12px;
+            }
+            #systemHealthDashboard .shc-stat {
+                padding: 10px 12px;
+                border-radius: 12px;
+                background: #fff;
+                border: 1px solid #e2e8f0;
+                text-align: center;
+            }
+            #systemHealthDashboard .shc-stat strong {
+                display: block;
+                font-size: 1.15rem;
+                color: #0f172a;
+            }
+            #systemHealthDashboard .shc-stat small {
+                color: #64748b;
+            }
+            #systemHealthDashboard .shc-note {
+                margin: 0 0 12px;
+                padding: 10px 12px;
+                border-radius: 10px;
+                background: #eff6ff;
+                color: #1e40af;
+                font-size: .82rem;
+                line-height: 1.5;
+                border: 1px solid #bfdbfe;
+            }
+            #systemHealthDashboard .shc-table-wrap {
+                overflow: auto;
+                border: 1px solid #e2e8f0;
+                border-radius: 12px;
+                background: #fff;
+            }
+            #systemHealthDashboard table {
+                width: 100%;
+                min-width: 720px;
+                border-collapse: collapse;
+                font-size: .84rem;
+            }
+            #systemHealthDashboard th,
+            #systemHealthDashboard td {
+                padding: 10px 12px;
+                border-bottom: 1px solid #eef2f7;
+                vertical-align: top;
+                text-align: left;
+            }
+            #systemHealthDashboard th {
+                position: sticky;
+                top: 0;
+                z-index: 1;
+                background: #f8fafc;
+                color: #334155;
+                font-size: .78rem;
+                text-transform: uppercase;
+                letter-spacing: .04em;
+            }
+            #systemHealthDashboard tr:last-child td {
+                border-bottom: 0;
+            }
+            #systemHealthDashboard .shc-status {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                padding: 4px 8px;
+                border-radius: 999px;
+                font-weight: 800;
+                white-space: nowrap;
+            }
+            #systemHealthDashboard .shc-pass {
+                color: #047857;
+                background: #ecfdf5;
+            }
+            #systemHealthDashboard .shc-warn {
+                color: #b45309;
+                background: #fffbeb;
+            }
+            #systemHealthDashboard .shc-error {
+                color: #b91c1c;
+                background: #fef2f2;
+            }
+            #systemHealthDashboard .shc-info {
+                color: #1d4ed8;
+                background: #eff6ff;
+            }
+            #systemHealthDashboard details {
+                margin-top: 5px;
+            }
+            #systemHealthDashboard summary {
+                cursor: pointer;
+                color: #475569;
+                font-weight: 700;
+            }
+            #systemHealthDashboard .shc-detail-list {
+                margin: 6px 0 0;
+                padding-left: 18px;
+                color: #64748b;
+                line-height: 1.45;
+            }
+            @media (max-width: 760px) {
+                #systemHealthDashboard .shc-banner {
+                    grid-template-columns: 1fr;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    function statusLabel(status) {
+        if (status === 'pass') return ['✅', 'Tốt'];
+        if (status === 'warn') return ['⚠️', 'Cảnh báo'];
+        if (status === 'error') return ['❌', 'Lỗi'];
+        return ['ℹ️', 'Thông tin'];
+    }
+
+    function renderDashboard(resultBox, rows, scannedAt) {
+        ensureStyles();
+
+        resultBox.classList.add('health-center-v2');
+
+        let dashboard = document.getElementById(
+            'systemHealthDashboard'
+        );
+
+        if (!dashboard) {
+            dashboard = document.createElement('section');
+            dashboard.id = 'systemHealthDashboard';
+            resultBox.appendChild(dashboard);
+        }
+
+        dashboard.innerHTML = '';
+
+        const errorCount = rows.filter(item =>
+            item.status === 'error'
+        ).length;
+        const warningCount = rows.filter(item =>
+            item.status === 'warn'
+        ).length;
+        const passCount = rows.filter(item =>
+            item.status === 'pass'
+        ).length;
+
+        const banner = document.createElement('div');
+        banner.className = 'shc-banner';
+
+        [
+            ['✅', passCount, 'Hạng mục tốt'],
+            ['⚠️', warningCount, 'Cảnh báo'],
+            ['❌', errorCount, 'Lỗi']
+        ].forEach(([icon, value, label]) => {
+            const card = document.createElement('div');
+            card.className = 'shc-stat';
+            const strong = document.createElement('strong');
+            strong.textContent = `${icon} ${value}`;
+            const small = document.createElement('small');
+            small.textContent = label;
+            card.append(strong, small);
+            banner.appendChild(card);
+        });
+
+        const note = document.createElement('p');
+        note.className = 'shc-note';
+        note.textContent =
+            '🔒 Chế độ chỉ đọc: lần quét này không set/update/remove Firebase, không sửa localStorage, không upload/xóa R2/Cloudinary và không tự dừng listener/timer/effect.';
+
+        const wrap = document.createElement('div');
+        wrap.className = 'shc-table-wrap';
+
+        const table = document.createElement('table');
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+
+        ['Hạng mục', 'Trạng thái', 'Kết quả', 'Chi tiết'].forEach(text => {
+            const th = document.createElement('th');
+            th.textContent = text;
+            headerRow.appendChild(th);
+        });
+
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
+
+        rows.forEach(item => {
+            const tr = document.createElement('tr');
+
+            const nameCell = document.createElement('td');
+            const nameStrong = document.createElement('strong');
+            nameStrong.textContent = item.title;
+            nameCell.appendChild(nameStrong);
+
+            const statusCell = document.createElement('td');
+            const [icon, label] = statusLabel(item.status);
+            const badge = document.createElement('span');
+            badge.className = `shc-status shc-${item.status}`;
+            badge.textContent = `${icon} ${label}`;
+            statusCell.appendChild(badge);
+
+            const summaryCell = document.createElement('td');
+            summaryCell.textContent = item.summary;
+
+            const detailCell = document.createElement('td');
+            if (item.details.length) {
+                const details = document.createElement('details');
+                const summary = document.createElement('summary');
+                summary.textContent = 'Xem chi tiết';
+                const list = document.createElement('ul');
+                list.className = 'shc-detail-list';
+
+                item.details.forEach(detail => {
+                    const li = document.createElement('li');
+                    li.textContent = detail;
+                    list.appendChild(li);
+                });
+
+                details.append(summary, list);
+                detailCell.appendChild(details);
+            } else {
+                detailCell.textContent = '—';
+            }
+
+            tr.append(
+                nameCell,
+                statusCell,
+                summaryCell,
+                detailCell
+            );
+            tbody.appendChild(tr);
+        });
+
+        table.appendChild(tbody);
+        wrap.appendChild(table);
+
+        const footer = document.createElement('p');
+        footer.style.cssText =
+            'margin:10px 2px 0;color:#64748b;font-size:.78rem;line-height:1.45;';
+        footer.textContent =
+            `System Health Center v${VERSION} · Quét lúc ${
+                new Date(scannedAt).toLocaleString('vi-VN')
+            } · ${resolvePageRole()}`;
+
+        dashboard.append(banner, note, wrap, footer);
+
+        return { errorCount, warningCount, passCount };
+    }
+
+    function updateScannerCardCopy() {
+        const button = document.querySelector(
+            'button[onclick*="runSystemDiagnostics"]'
+        );
+        const card = button?.closest('.glass-alert');
+
+        if (!card) return;
+
+        const heading = card.querySelector('h3');
+        const paragraph = card.querySelector('p');
+
+        if (heading) {
+            heading.textContent = '🩺 System Health Center 2.0';
+        }
+
+        if (paragraph) {
+            paragraph.textContent =
+                'Bảng chẩn đoán chỉ đọc: kiểm tra Firebase, Service Worker/cache, R2/Cloudinary, module runtime, listener/timer và mật độ hiệu ứng DOM. Không tự sửa dữ liệu.';
+        }
+
+        button.textContent = '🩺 Quét sức khỏe hệ thống';
+        button.title =
+            'Chỉ đọc trạng thái hệ thống; không sửa hoặc xóa dữ liệu.';
+    }
+
+    async function run() {
+        if (state.running) {
+            return state.lastResult;
+        }
+
+        const resultBox = document.getElementById(
+            'diagnosticResults'
+        );
+        const statusText = document.getElementById(
+            'diagnosticStatus'
+        );
+        const legacyList = document.getElementById(
+            'diagnosticList'
+        );
+
+        if (!resultBox || !statusText) {
+            alert(
+                'Không tìm thấy vùng hiển thị System Health Center.'
+            );
+            return null;
+        }
+
+        state.running = true;
+        resultBox.style.display = 'block';
+        statusText.textContent =
+            '⏳ Đang quét sức khỏe hệ thống ở chế độ chỉ đọc...';
+        statusText.style.color = '#1d4ed8';
+        statusText.style.fontWeight = '800';
+
+        if (legacyList) {
+            legacyList.innerHTML = '';
+            legacyList.style.display = 'none';
+        }
+
+        document.getElementById('diagnosticActions')?.remove();
+        document.getElementById('teacherDiagnosticReports')?.remove();
+
+        try {
+            const [
+                authRow,
+                rtdbRow,
+                swResult,
+                r2Row
+            ] = await Promise.all([
+                checkAuth(),
+                checkRTDB(),
+                checkServiceWorker(),
+                checkR2()
+            ]);
+
+            const rows = [
+                authRow,
+                rtdbRow,
+                swResult.healthRow,
+                await checkCache(swResult.pong),
+                r2Row,
+                checkCloudinary(),
+                checkModules(),
+                checkListeners(),
+                checkTimers(),
+                checkDomEffects()
+            ];
+
+            const scannedAt = Date.now();
+            const counts = renderDashboard(
+                resultBox,
+                rows,
+                scannedAt
+            );
+
+            statusText.textContent =
+                counts.errorCount > 0
+                    ? `Hoàn tất: ${counts.errorCount} lỗi, ${counts.warningCount} cảnh báo.`
+                    : counts.warningCount > 0
+                        ? `Hoàn tất: không có lỗi nghiêm trọng, ${counts.warningCount} cảnh báo.`
+                        : 'Hoàn tất: các hạng mục chính đang ổn định.';
+            statusText.style.color =
+                counts.errorCount > 0
+                    ? '#b91c1c'
+                    : counts.warningCount > 0
+                        ? '#b45309'
+                        : '#047857';
+
+            const result = {
+                version: VERSION,
+                role: resolvePageRole(),
+                readOnly: true,
+                rows,
+                ...counts,
+                scannedAt
+            };
+
+            state.lastResult = result;
+            return result;
+        } catch (error) {
+            console.error(
+                '[SystemHealth] Health Center crashed:',
+                error
+            );
+            statusText.textContent =
+                '❌ Health Center gặp lỗi khi đang quét.';
+            statusText.style.color = '#b91c1c';
+
+            const fallback = row(
+                'health-center',
+                'System Health Center',
+                'error',
+                'Bộ chẩn đoán gặp lỗi ngoài dự kiến.',
+                [error?.message || String(error)]
+            );
+            renderDashboard(
+                resultBox,
+                [fallback],
+                Date.now()
+            );
+            return null;
+        } finally {
+            state.running = false;
+        }
+    }
+
+    function boot() {
+        updateScannerCardCopy();
+    }
+
+    window.SystemDiagnostics = Object.freeze({
+        version: VERSION,
+        name: 'System Health Center 2.0',
+        readOnly: true,
+        run,
+        resolvePageRole,
+        getLastResult: () => state.lastResult,
+        getRuntimeTelemetry: () =>
+            telemetry?.getSnapshot?.() || null
+    });
+
+    window.SystemHealthCenter = window.SystemDiagnostics;
+    window.runSystemDiagnostics = () => run();
+
+    if (document.readyState === 'loading') {
+        document.addEventListener(
+            'DOMContentLoaded',
+            boot,
+            { once: true }
+        );
+    } else {
+        boot();
+    }
+})();
 
 // ==============================================================
 // MODAL MANAGER - ĐÓNG MODAL AN TOÀN, KHÔNG BỎ QUA CLEANUP

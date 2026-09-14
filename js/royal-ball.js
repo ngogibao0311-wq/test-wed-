@@ -1583,8 +1583,14 @@ const RoyalBallEvent = {
     }
 };
 
-// Đăng ký sự kiện DOM
-document.addEventListener('DOMContentLoaded', () => {
+// Đăng ký sự kiện DOM — tương thích cả eager-load và lazy-load
+function initRoyalBallDOM() {
+    if (window.__royalBallDomInitialized) {
+        return;
+    }
+
+    window.__royalBallDomInitialized = true;
+
     RoyalBallEvent.enhanceUI();
     const probItemInp = document.getElementById('probRoyalItem');
     const probCoinInp = document.getElementById('probRoyalCoin');
@@ -1618,4 +1624,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-});
+
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener(
+        'DOMContentLoaded',
+        initRoyalBallDOM,
+        { once: true }
+    );
+} else {
+    initRoyalBallDOM();
+}

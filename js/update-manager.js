@@ -193,6 +193,26 @@
             .filter(Boolean);
     }
 
+    // Release notes mở rộng v4.0.2: vẫn tương thích changes/releaseNotes cũ.
+    function getReleaseList(info, key) {
+        if (!info || !Array.isArray(info[key])) return [];
+
+        return info[key]
+            .map(item => String(item || '').trim())
+            .filter(Boolean);
+    }
+
+    function renderReleaseSection(title, items) {
+        if (!items.length) return '';
+
+        return `
+            <div class="system-update-modal-section">
+                <h4>${escapeHTML(title)}</h4>
+                <ul>${items.map(item => `<li>${escapeHTML(item)}</li>`).join('')}</ul>
+            </div>
+        `;
+    }
+
     function isMandatory(info) {
         if (!info) return false;
 
@@ -232,6 +252,16 @@
                 description:
                     state.progressText ||
                     'Đang chuẩn bị tài nguyên mới...'
+            };
+        }
+
+        if (state.status === 'local-file') {
+            return {
+                icon: '🗂️',
+                badge: 'CHẾ ĐỘ FILE CỤC BỘ',
+                title: 'Tự kiểm tra cập nhật đang tạm tắt',
+                description:
+                    'Trang đang mở bằng file:// nên trình duyệt không cho fetch version.json. Chạy bằng http://localhost hoặc máy chủ HTTPS để bật kiểm tra cập nhật.'
             };
         }
 
@@ -479,6 +509,9 @@
         const body = modal.querySelector('#systemUpdateModalBody');
         const info = state.latest;
         const changes = getChanges(info);
+        const resolvedIssues = getReleaseList(info, 'resolvedIssues');
+        const knownIssues = getReleaseList(info, 'knownIssues');
+        const plannedImprovements = getReleaseList(info, 'plannedImprovements');
         const mandatory = isMandatory(info);
         const updating = Boolean(options?.updating || state.updating);
 
@@ -522,6 +555,10 @@
                         : '<p>Phiên bản này chưa cung cấp ghi chú thay đổi chi tiết.</p>'
                 }
             </div>
+
+            ${renderReleaseSection('✅ Đã xử lý từ đợt kiểm toán', resolvedIssues)}
+            ${renderReleaseSection('⚠️ Đang theo dõi / chưa đưa vào bản sửa', knownIssues)}
+            ${renderReleaseSection('🧭 Hướng nâng cấp tiếp theo', plannedImprovements)}
 
             ${updating ? `
                 <div class="system-update-modal-section">
@@ -595,6 +632,12 @@
     }
 
     async function fetchVersionInfo() {
+        if (window.location.protocol === 'file:') {
+            throw new Error(
+                'LOCAL_FILE_PROTOCOL: fetch version.json không được hỗ trợ khi chạy bằng file://.'
+            );
+        }
+
         const url = new URL(config.versionUrl, document.baseURI);
         url.searchParams.set('_updateCheck', Date.now().toString());
 
@@ -637,6 +680,22 @@
         }
 
         const manual = options?.manual === true;
+
+        if (window.location.protocol === 'file:') {
+            state.status = 'local-file';
+            state.error = '';
+            state.checking = false;
+            renderBanner();
+
+            if (manual) {
+                notify(
+                    'Không thể kiểm tra version.json khi mở bằng file://. Hãy chạy website bằng http://localhost hoặc HTTPS.',
+                    'warning'
+                );
+            }
+
+            return null;
+        }
 
         if (!navigator.onLine) {
             state.status = 'offline';
@@ -1045,6 +1104,11 @@
     function scheduleChecks() {
         clearInterval(state.periodicTimer);
 
+        if (window.location.protocol === 'file:') {
+            state.periodicTimer = null;
+            return;
+        }
+
         state.periodicTimer = setInterval(() => {
             if (
                 document.visibilityState === 'visible' &&
@@ -1075,6 +1139,14 @@
         }
 
         ensureModal();
+
+        if (window.location.protocol === 'file:') {
+            state.status = 'local-file';
+            state.error = '';
+            renderBanner();
+            return;
+        }
+
         renderBanner();
         checkPostUpdateResult();
         scheduleChecks();

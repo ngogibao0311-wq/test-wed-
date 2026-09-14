@@ -199,6 +199,31 @@ class ThemeManager {
             background: '#0b1430',
             className: 'theme-midautumn-lantern-festival'
         },
+
+
+        // =========================================================
+        // TRUNG THU · QUẢNG HÀN NGUYỆT QUẾ
+        // Theme độc lập hoàn toàn: mtq5-*
+        // Concept: lưu ly ngọc bích + nguyệt quế + nguyệt song.
+        // =========================================================
+        'theme_trung_thu_quang_han_nguyet_que': {
+            primary: '#b99243',
+            secondary: '#3f8b72',
+            background: '#edf1df',
+            className: 'theme-midautumn-osmanthus-jade'
+        },
+
+        // =========================================================
+        // LINK CLICK · KÝ ỨC PHÂN MẢNH
+        // Theme độc lập hoàn toàn: lct3-*
+        // Không dùng lcx-* của Luxury và không dùng lcc2-* của pet.
+        // =========================================================
+        'theme_linkclick_fragmented_memory': {
+            primary: '#35d9c5',
+            secondary: '#ef5b9d',
+            background: '#07131a',
+            className: 'theme-linkclick-fragmented-memory'
+        },
     };
 
     // Những popup phải giữ giao diện riêng,
@@ -340,6 +365,24 @@ class ThemeManager {
                 'store-card-tamon-bside-chibi'
         }),
 
+
+        /* =========================================================
+           LORD OF THE MYSTERIES · KLEIN EVENT PREMIUM
+           Card giữ nguyên bố cục Luxury và miễn tuyệt đối skin từ theme khác.
+           CSS riêng được đẩy xuống cuối <head> sau mỗi lần áp theme.
+           ========================================================= */
+        'lotm-klein-event-premium': Object.freeze({
+            itemIds: Object.freeze([
+                'pet_lotm_klein_event_1'
+            ]),
+
+            className:
+                'store-card-lotm-klein-event',
+
+            styleId:
+                'lotm-klein-premium-style'
+        }),
+
         /* =========================================================
            CẦM MỘNG · THANH HUYỀN
            Pet + theme dùng chung card/tag, miễn mọi theme khác.
@@ -395,6 +438,19 @@ class ThemeManager {
         }),
 
         /* =========================================================
+           TRUNG THU · CHÚ CUỘI PREMIUM
+           Card riêng, cùng tag Trung Thu nhưng khóa skin độc lập.
+           ========================================================= */
+        'midautumn-cuoi-premium': Object.freeze({
+            itemIds: Object.freeze([
+                'pet_trung_thu_chu_cuoi_2'
+            ]),
+
+            className:
+                'store-card-midautumn-cuoi'
+        }),
+
+        /* =========================================================
    BỘ VIỆT DIỆU 2/9
    Giữ card riêng, không bị theme toàn web ghi đè
    ========================================================= */
@@ -410,6 +466,35 @@ class ThemeManager {
 
             className:
                 'store-card-midautumn-chibi'
+        }),
+
+        /* =========================================================
+           TRUNG THU · TIỂU CHÚ CUỘI + QUẢNG HÀN + QUẾ ẢNH PHI DIỆP
+           Cùng tag/card; miễn tuyệt đối skin từ theme toàn web khác.
+           ========================================================= */
+        'midautumn-cuoi-chibi': Object.freeze({
+            itemIds: Object.freeze([
+                'pet_trung_thu_chu_cuoi_chibi_2',
+                'theme_trung_thu_quang_han_nguyet_que',
+                'effect_trung_thu_que_anh_phi_diep'
+            ]),
+
+            className:
+                'store-card-midautumn-cuoi-chibi'
+        }),
+
+        /* =========================================================
+           LINK CLICK · CHENG XIAOSHI + KÝ ỨC PHÂN MẢNH
+           Cùng tag, cùng thẻ; card miễn mọi theme toàn web khác.
+           ========================================================= */
+        'linkclick-chibi-pair': Object.freeze({
+            itemIds: Object.freeze([
+                'pet_linkclick_cheng_xiaoshi_chibi_1',
+                'theme_linkclick_fragmented_memory'
+            ]),
+
+            className:
+                'store-card-linkclick-chibi'
         }),
 
         'national-day-2-9': Object.freeze({
@@ -1362,6 +1447,177 @@ class ThemeManager {
         });
     }
 
+
+    // =========================================================
+    // TRUNG THU · QUẢNG HÀN NGUYỆT QUẾ
+    // Ambient/effect HOÀN TOÀN MỚI: mtq5-*
+    // Không dùng mttheme2-* và không sửa runtime theme/effect khác.
+    // =========================================================
+    static clearMidAutumnOsmanthusJadeDecor() {
+        document
+            .getElementById(
+                'mtq5-osmanthus-jade-decor'
+            )
+            ?.remove();
+
+        document.documentElement.classList.remove(
+            'mtq5-osmanthus-jade-mounted'
+        );
+    }
+
+    static createMidAutumnOsmanthusJadeDecor() {
+        this.clearMidAutumnOsmanthusJadeDecor();
+
+        if (!document.body) return;
+
+        const decor = document.createElement('div');
+
+        decor.id = 'mtq5-osmanthus-jade-decor';
+        decor.className = 'mtq5-osmanthus-jade-decor';
+        decor.setAttribute('aria-hidden', 'true');
+
+        decor.innerHTML = `
+            <div class="mtq5-silk-wash"></div>
+
+            <div class="mtq5-moon-window">
+                <span class="mtq5-window-disc"></span>
+                <span class="mtq5-window-lattice"></span>
+                <i class="mtq5-window-ring ring-a"></i>
+                <i class="mtq5-window-ring ring-b"></i>
+            </div>
+
+            <div class="mtq5-cloud-ribbon ribbon-a"></div>
+            <div class="mtq5-cloud-ribbon ribbon-b"></div>
+            <div class="mtq5-cloud-ribbon ribbon-c"></div>
+
+            <div class="mtq5-osmanthus-branch branch-left"></div>
+            <div class="mtq5-osmanthus-branch branch-right"></div>
+
+            <div class="mtq5-leaf-field"></div>
+            <div class="mtq5-glass-field"></div>
+            <div class="mtq5-moon-dust-field"></div>
+
+            <div class="mtq5-corner corner-tl">桂</div>
+            <div class="mtq5-corner corner-tr">月</div>
+            <div class="mtq5-corner corner-bl">玉</div>
+            <div class="mtq5-corner corner-br">光</div>
+
+            <div class="mtq5-theme-caption">
+                <small>中 秋 · 桂 影 · 玉 光</small>
+                <strong>QUẢNG HÀN NGUYỆT QUẾ</strong>
+            </div>
+        `;
+
+        const leafField =
+            decor.querySelector('.mtq5-leaf-field');
+
+        const glassField =
+            decor.querySelector('.mtq5-glass-field');
+
+        const dustField =
+            decor.querySelector('.mtq5-moon-dust-field');
+
+        const reduced =
+            window.matchMedia?.(
+                '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+            ).matches;
+
+        const leafCount = reduced ? 10 : 26;
+        const glassCount = reduced ? 7 : 16;
+        const dustCount = reduced ? 15 : 38;
+
+        for (let index = 0; index < leafCount; index++) {
+            const leaf = document.createElement('i');
+            leaf.className = 'mtq5-floating-leaf';
+
+            leaf.style.setProperty(
+                '--mtq5-lx',
+                `${(index * 43 + 5) % 98}%`
+            );
+
+            leaf.style.setProperty(
+                '--mtq5-ld',
+                `${-(index % 12) * .58}s`
+            );
+
+            leaf.style.setProperty(
+                '--mtq5-lr',
+                `${(index * 31) % 180}deg`
+            );
+
+            leaf.style.setProperty(
+                '--mtq5-ls',
+                `${.72 + (index % 5) * .11}`
+            );
+
+            leafField?.appendChild(leaf);
+        }
+
+        for (let index = 0; index < glassCount; index++) {
+            const shard = document.createElement('i');
+            shard.className = 'mtq5-glass-shard';
+
+            shard.style.setProperty(
+                '--mtq5-gx',
+                `${(index * 61 + 8) % 96}%`
+            );
+
+            shard.style.setProperty(
+                '--mtq5-gy',
+                `${(index * 37 + 13) % 90}%`
+            );
+
+            shard.style.setProperty(
+                '--mtq5-gd',
+                `${-(index % 9) * .74}s`
+            );
+
+            shard.style.setProperty(
+                '--mtq5-gr',
+                `${(index * 27) % 160 - 80}deg`
+            );
+
+            glassField?.appendChild(shard);
+        }
+
+        for (let index = 0; index < dustCount; index++) {
+            const dust = document.createElement('i');
+
+            dust.style.setProperty(
+                '--mtq5-dx',
+                `${(index * 37 + 4) % 99}%`
+            );
+
+            dust.style.setProperty(
+                '--mtq5-dy',
+                `${(index * 59 + 9) % 94}%`
+            );
+
+            dust.style.setProperty(
+                '--mtq5-dd',
+                `${-(index % 14) * .46}s`
+            );
+
+            dust.style.setProperty(
+                '--mtq5-ds',
+                `${1.5 + (index % 4) * .75}px`
+            );
+
+            dustField?.appendChild(dust);
+        }
+
+        document.body.prepend(decor);
+
+        document.documentElement.classList.add(
+            'mtq5-osmanthus-jade-mounted'
+        );
+
+        requestAnimationFrame(() => {
+            decor.classList.add('is-mounted');
+        });
+    }
+
+
     // =========================================================
     // MÙA HẠ · HẠ QUANG LƯU LY — AMBIENT RIÊNG
     // Namespace: ha2theme-* (không dùng ha2l-* / summer-solstice-*).
@@ -1447,6 +1703,7 @@ class ThemeManager {
         this.clearTamonBsideBackstageDecor();
         this.clearCamMongThanhHuyenDecor();
         this.clearMidAutumnLanternFestivalDecor();
+        this.clearMidAutumnOsmanthusJadeDecor();
         this.clearSummerPrismaticGardenDecor();
         const theme = this.themes[themeId] || this.themes['default'];
         const root = document.documentElement;
@@ -1494,6 +1751,13 @@ class ThemeManager {
             'theme_trung_thu_nguyet_hoi_hoa_dang'
         ) {
             this.createMidAutumnLanternFestivalDecor();
+        }
+
+        if (
+            themeId ===
+            'theme_trung_thu_quang_han_nguyet_que'
+        ) {
+            this.createMidAutumnOsmanthusJadeDecor();
         }
 
         if (

@@ -1049,6 +1049,14 @@ class PetManager {
             )
             .forEach(node => node.remove());
 
+        // Dọn riêng Trung Thu · Tiểu Chú Cuội.
+        // Namespace macc2-* độc lập, không đụng bất kỳ hiệu ứng Trung Thu khác.
+        document
+            .querySelectorAll(
+                '.macc2-local-click-burst, .macc2-screen-ultimate'
+            )
+            .forEach(node => node.remove());
+
         // Dọn toàn bộ tương tác và vòng lặp của thú cưng trước
         if (
             typeof PetInteractionManager !== 'undefined' &&
@@ -1102,6 +1110,13 @@ class PetManager {
             'pet-midautumn-hangnga-chibi-stage',
             'mafc-awakening',
             'mafc-casting',
+            'pet-midautumn-cuoi-chibi-stage',
+            'macc2-awakening',
+            'macc2-casting',
+            'pet-linkclick-chibi-memory-stage',
+            'lcc1-casting',
+            'pet-linkclick-chibi-time-dive-stage',
+            'lcc2-casting',
             'pet-summer-solstice-stage',
             'summer-solstice-awakening',
             'summer-solstice-casting',
@@ -1120,6 +1135,18 @@ class PetManager {
 
         document.documentElement.classList.remove(
             'summer-solstice-skill-active'
+        );
+
+        // LINK CLICK CHIBI V2: dọn fullscreen Time Dive nếu đổi/tháo pet giữa animation.
+        document
+            .querySelectorAll(
+                '.lcc2-screen-dive,' +
+                '.lcc2-screen-caption'
+            )
+            .forEach(node => node.remove());
+
+        document.documentElement.classList.remove(
+            'linkclick-chibi-dive-active'
         );
 
         // Dọn lớp Nyx toàn màn hình nếu người dùng đổi pet khi kỹ năng đang chạy.
@@ -1765,6 +1792,410 @@ class PetManager {
                 window.setTimeout(() => {
                     mafcClickLocked = false;
                 }, 4100);
+            });
+        }
+
+        // =========================================================
+        // TRUNG THU · TIỂU CHÚ CUỘI — QUẾ ẢNH THỤ QUANG
+        // HIỆU ỨNG MỚI HOÀN TOÀN, chỉ quanh pet + hiệu ứng nhấn.
+        // Namespace duy nhất: macc2-*.
+        // KHÔNG dùng mafc-* / midautumn-cuoi-* / EffectManager / ThemeManager.
+        // =========================================================
+        if (
+            petData.id === 'pet_trung_thu_chu_cuoi_chibi_2' ||
+            petData.petEffect ===
+                'midautumn-cuoi-chibi-banyan-magic'
+        ) {
+            petElement.setAttribute('draggable', 'false');
+            petElement.classList.add('macc2-avatar');
+
+            this.container.classList.add(
+                'pet-midautumn-cuoi-chibi-stage',
+                'macc2-awakening'
+            );
+
+            const localRealm = document.createElement('div');
+            localRealm.className = 'macc2-local-realm';
+            localRealm.setAttribute('aria-hidden', 'true');
+            localRealm.innerHTML = `
+                <span class="macc2-aura"></span>
+                <span class="macc2-moon-disc"></span>
+                <span class="macc2-banyan-crown"></span>
+
+                <span class="macc2-ring ring-a"></span>
+                <span class="macc2-ring ring-b"></span>
+
+                <span class="macc2-branch branch-left"></span>
+                <span class="macc2-branch branch-right"></span>
+
+                <span class="macc2-lantern lantern-left">◆</span>
+                <span class="macc2-lantern lantern-right">◆</span>
+
+                <div class="macc2-leaf-field"></div>
+                <div class="macc2-firefly-field"></div>
+
+                <span class="macc2-ground-glow"></span>
+            `;
+
+            const reducedMotion = window.matchMedia?.(
+                '(max-width: 768px), (pointer: coarse), ' +
+                '(prefers-reduced-motion: reduce)'
+            ).matches;
+
+            const leafField = localRealm.querySelector(
+                '.macc2-leaf-field'
+            );
+            const leafCount = this.getQualityCount(
+                reducedMotion ? 8 : 18
+            );
+
+            for (let index = 0; index < leafCount; index++) {
+                const leaf = document.createElement('i');
+                leaf.className = 'macc2-leaf';
+                leaf.style.setProperty(
+                    '--macc2-la',
+                    `${index * (360 / leafCount)}deg`
+                );
+                leaf.style.setProperty(
+                    '--macc2-lab',
+                    `${index * -(360 / leafCount)}deg`
+                );
+                leaf.style.setProperty(
+                    '--macc2-lr',
+                    `${54 + (index % 6) * 11}px`
+                );
+                leaf.style.setProperty(
+                    '--macc2-ld',
+                    `${-(index % 9) * .24}s`
+                );
+                leafField?.appendChild(leaf);
+            }
+
+            const fireflyField = localRealm.querySelector(
+                '.macc2-firefly-field'
+            );
+            const fireflyCount = this.getQualityCount(
+                reducedMotion ? 10 : 24
+            );
+
+            for (let index = 0; index < fireflyCount; index++) {
+                const firefly = document.createElement('i');
+                firefly.className = 'macc2-firefly';
+                firefly.style.setProperty(
+                    '--macc2-fx',
+                    `${8 + ((index * 43) % 84)}%`
+                );
+                firefly.style.setProperty(
+                    '--macc2-fy',
+                    `${10 + ((index * 61) % 76)}%`
+                );
+                firefly.style.setProperty(
+                    '--macc2-fd',
+                    `${-(index % 10) * .29}s`
+                );
+                firefly.style.setProperty(
+                    '--macc2-fs',
+                    `${2 + (index % 4) * .7}px`
+                );
+                fireflyField?.appendChild(firefly);
+            }
+
+            this.container.appendChild(localRealm);
+
+            window.setTimeout(() => {
+                this.container?.classList.remove(
+                    'macc2-awakening'
+                );
+            }, 1250);
+
+            let macc2ClickLocked = false;
+
+            petElement.addEventListener('click', event => {
+                if (macc2ClickLocked) return;
+
+                if (
+                    typeof PetInteractionManager !== 'undefined' &&
+                    PetInteractionManager.isPetDragging
+                ) {
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+                event.stopImmediatePropagation();
+
+                macc2ClickLocked = true;
+
+                this.container.classList.remove(
+                    'macc2-casting'
+                );
+                void this.container.offsetWidth;
+                this.container.classList.add(
+                    'macc2-casting'
+                );
+
+                const burst = document.createElement('div');
+                burst.className = 'macc2-local-click-burst';
+                burst.setAttribute('aria-hidden', 'true');
+                burst.innerHTML = `
+                    <span class="macc2-click-moon"></span>
+                    <span class="macc2-click-ring ring-a"></span>
+                    <span class="macc2-click-ring ring-b"></span>
+                    <span class="macc2-click-tree-rune">桂</span>
+                    <div class="macc2-click-ray-field"></div>
+                    <div class="macc2-click-leaf-field"></div>
+                    <div class="macc2-click-firefly-field"></div>
+                `;
+
+                const clickLeafField = burst.querySelector(
+                    '.macc2-click-leaf-field'
+                );
+                const clickLeafCount = this.getQualityCount(
+                    reducedMotion ? 10 : 22
+                );
+
+                for (
+                    let index = 0;
+                    index < clickLeafCount;
+                    index++
+                ) {
+                    const leaf = document.createElement('i');
+                    leaf.className = 'macc2-click-leaf';
+                    leaf.style.setProperty(
+                        '--macc2-ca',
+                        `${index * (360 / clickLeafCount)}deg`
+                    );
+                    leaf.style.setProperty(
+                        '--macc2-cab',
+                        `${index * -(360 / clickLeafCount)}deg`
+                    );
+                    leaf.style.setProperty(
+                        '--macc2-cd',
+                        `${62 + (index % 6) * 17}px`
+                    );
+                    leaf.style.setProperty(
+                        '--macc2-cdelay',
+                        `${(index % 6) * .025}s`
+                    );
+                    clickLeafField?.appendChild(leaf);
+                }
+
+                const clickFireflyField = burst.querySelector(
+                    '.macc2-click-firefly-field'
+                );
+                const clickFireflyCount = this.getQualityCount(
+                    reducedMotion ? 8 : 16
+                );
+
+                for (
+                    let index = 0;
+                    index < clickFireflyCount;
+                    index++
+                ) {
+                    const spark = document.createElement('i');
+                    spark.className = 'macc2-click-firefly';
+                    spark.textContent =
+                        index % 4 === 0
+                            ? '✦'
+                            : '';
+                    spark.style.setProperty(
+                        '--macc2-sca',
+                        `${index * (360 / clickFireflyCount)}deg`
+                    );
+                    spark.style.setProperty(
+                        '--macc2-scab',
+                        `${index * -(360 / clickFireflyCount)}deg`
+                    );
+                    spark.style.setProperty(
+                        '--macc2-scd',
+                        `${76 + (index % 5) * 16}px`
+                    );
+                    spark.style.setProperty(
+                        '--macc2-sdelay',
+                        `${(index % 5) * .03}s`
+                    );
+                    clickFireflyField?.appendChild(spark);
+                }
+
+                this.container.appendChild(burst);
+
+                // -----------------------------
+                // ULTIMATE TOÀN WEB RIÊNG · QUẾ ẢNH THỤ QUANG
+                // Namespace macc2-* hoàn toàn độc lập.
+                // Không tái sử dụng mafc-* / Nguyệt Hạ Hoa Đăng.
+                // -----------------------------
+                document
+                    .querySelectorAll('.macc2-screen-ultimate')
+                    .forEach(node => node.remove());
+
+                const ultimate = document.createElement('div');
+                ultimate.className = 'macc2-screen-ultimate';
+                ultimate.setAttribute('aria-hidden', 'true');
+                ultimate.innerHTML = `
+                    <div class="macc2-screen-night"></div>
+                    <div class="macc2-screen-aurora aurora-a"></div>
+                    <div class="macc2-screen-aurora aurora-b"></div>
+
+                    <div class="macc2-screen-moon">
+                        <span class="moon-halo"></span>
+                        <span class="moon-disc"></span>
+                        <span class="moon-rune">桂</span>
+                    </div>
+
+                    <div class="macc2-screen-banyan">
+                        <span class="banyan-crown crown-a"></span>
+                        <span class="banyan-crown crown-b"></span>
+                        <span class="banyan-trunk"></span>
+                        <span class="banyan-root root-a"></span>
+                        <span class="banyan-root root-b"></span>
+                    </div>
+
+                    <span class="macc2-screen-ring ring-one"></span>
+                    <span class="macc2-screen-ring ring-two"></span>
+                    <span class="macc2-screen-ring ring-three"></span>
+
+                    <div class="macc2-screen-cloud cloud-left"></div>
+                    <div class="macc2-screen-cloud cloud-right"></div>
+
+                    <div class="macc2-screen-leaf-field"></div>
+                    <div class="macc2-screen-firefly-field"></div>
+                    <div class="macc2-screen-star-field"></div>
+
+                    <div class="macc2-screen-title">
+                        <small>TRUNG THU · TIỂU CHÚ CUỘI</small>
+                        <strong>QUẾ ẢNH THỤ QUANG</strong>
+                        <span>✦ 桂影月華 ✦</span>
+                    </div>
+                `;
+
+                const screenLeafField = ultimate.querySelector(
+                    '.macc2-screen-leaf-field'
+                );
+                const screenLeafCount = this.getQualityCount(
+                    reducedMotion ? 14 : 34
+                );
+
+                for (
+                    let index = 0;
+                    index < screenLeafCount;
+                    index++
+                ) {
+                    const leaf = document.createElement('i');
+                    leaf.className = 'macc2-screen-leaf';
+                    leaf.style.setProperty(
+                        '--macc2-slx',
+                        `${(index * 37 + 5) % 100}%`
+                    );
+                    leaf.style.setProperty(
+                        '--macc2-sly',
+                        `${-10 - (index % 9) * 6}vh`
+                    );
+                    leaf.style.setProperty(
+                        '--macc2-sld',
+                        `${-(index % 12) * .19}s`
+                    );
+                    leaf.style.setProperty(
+                        '--macc2-slr',
+                        `${-34 + (index % 8) * 11}deg`
+                    );
+                    leaf.style.setProperty(
+                        '--macc2-sls',
+                        `${.72 + (index % 5) * .12}`
+                    );
+                    screenLeafField?.appendChild(leaf);
+                }
+
+                const screenFireflyField = ultimate.querySelector(
+                    '.macc2-screen-firefly-field'
+                );
+                const screenFireflyCount = this.getQualityCount(
+                    reducedMotion ? 16 : 42
+                );
+
+                for (
+                    let index = 0;
+                    index < screenFireflyCount;
+                    index++
+                ) {
+                    const firefly = document.createElement('i');
+                    firefly.className = 'macc2-screen-firefly';
+                    firefly.textContent =
+                        index % 7 === 0
+                            ? '✦'
+                            : '';
+                    firefly.style.setProperty(
+                        '--macc2-sfx',
+                        `${(index * 43 + 9) % 100}%`
+                    );
+                    firefly.style.setProperty(
+                        '--macc2-sfy',
+                        `${(index * 61 + 13) % 100}%`
+                    );
+                    firefly.style.setProperty(
+                        '--macc2-sfd',
+                        `${-(index % 11) * .17}s`
+                    );
+                    firefly.style.setProperty(
+                        '--macc2-sfs',
+                        `${2 + (index % 4) * .7}px`
+                    );
+                    screenFireflyField?.appendChild(firefly);
+                }
+
+                const screenStarField = ultimate.querySelector(
+                    '.macc2-screen-star-field'
+                );
+                const screenStarCount = this.getQualityCount(
+                    reducedMotion ? 12 : 30
+                );
+
+                for (
+                    let index = 0;
+                    index < screenStarCount;
+                    index++
+                ) {
+                    const star = document.createElement('i');
+                    star.className = 'macc2-screen-star';
+                    star.textContent = index % 5 === 0 ? '✧' : '·';
+                    star.style.setProperty(
+                        '--macc2-ssx',
+                        `${(index * 47 + 3) % 100}%`
+                    );
+                    star.style.setProperty(
+                        '--macc2-ssy',
+                        `${(index * 71 + 7) % 100}%`
+                    );
+                    star.style.setProperty(
+                        '--macc2-ssd',
+                        `${-(index % 10) * .14}s`
+                    );
+                    screenStarField?.appendChild(star);
+                }
+
+                document.body.appendChild(ultimate);
+
+                requestAnimationFrame(() => {
+                    ultimate.classList.add('is-active');
+                });
+
+                window.setTimeout(() => {
+                    ultimate.classList.add('is-leaving');
+                }, 2700);
+
+                window.setTimeout(() => {
+                    ultimate.remove();
+                }, 3600);
+
+                window.setTimeout(() => {
+                    burst.remove();
+                    this.container?.classList.remove(
+                        'macc2-casting'
+                    );
+                }, 1450);
+
+                window.setTimeout(() => {
+                    macc2ClickLocked = false;
+                }, 3900);
             });
         }
 
@@ -3377,6 +3808,455 @@ class PetManager {
             });
         }
 
+
+        // =========================================================
+        // LINK CLICK · CHENG XIAOSHI CHIBI — TIME DIVE V2
+        // Concept RIÊNG hoàn toàn so với Cheng Xiaoshi Luxury:
+        // - Không đồng hồ vòng tròn
+        // - Không focus frame camera
+        // - Không film strip
+        // - Không polaroid
+        // - Realm: glitch plate + echo màu + data tile + scan slice
+        // - Click: fullscreen Memory Glitch / Time Dive toàn website
+        // Namespace mới: lcc2-* / linkclick-chibi-time-dive-*.
+        // =========================================================
+        if (
+            petData.id ===
+                'pet_linkclick_cheng_xiaoshi_chibi_1' ||
+            petData.petEffect ===
+                'linkclick-chibi-memory-snap-magic'
+        ) {
+            petElement.setAttribute('draggable', 'false');
+
+            petElement.classList.remove(
+                'linkclick-chibi-memory-avatar'
+            );
+
+            petElement.classList.add(
+                'linkclick-chibi-time-dive-avatar'
+            );
+
+            this.container.classList.remove(
+                'pet-linkclick-chibi-memory-stage',
+                'lcc1-casting'
+            );
+
+            this.container.classList.add(
+                'pet-linkclick-chibi-time-dive-stage'
+            );
+
+            // ---------------------------------------------
+            // REALM V2 — DATA GLITCH / CHROMATIC ECHO
+            // ---------------------------------------------
+            const realm =
+                document.createElement('div');
+
+            realm.className =
+                'lcc2-realm';
+
+            realm.setAttribute(
+                'aria-hidden',
+                'true'
+            );
+
+            realm.innerHTML = `
+                <span class="lcc2-backplate plate-a"></span>
+                <span class="lcc2-backplate plate-b"></span>
+
+                <img
+                    class="lcc2-echo echo-cyan"
+                    src="assets/Lock/Tu tiên/Cheng Xiaoshi -chibi1.png"
+                    alt=""
+                    draggable="false"
+                >
+
+                <img
+                    class="lcc2-echo echo-magenta"
+                    src="assets/Lock/Tu tiên/Cheng Xiaoshi -chibi1.png"
+                    alt=""
+                    draggable="false"
+                >
+
+                <span class="lcc2-scan-slice slice-a"></span>
+                <span class="lcc2-scan-slice slice-b"></span>
+                <span class="lcc2-scan-slice slice-c"></span>
+
+                <span class="lcc2-memory-tile tile-a">
+                    <i>05</i><b>12</b>
+                </span>
+
+                <span class="lcc2-memory-tile tile-b">
+                    <i>F03</i><b>LINK</b>
+                </span>
+
+                <span class="lcc2-memory-tile tile-c">
+                    <i>ΔT</i><b>-08</b>
+                </span>
+
+                <span class="lcc2-data-ribbon">
+                    <small>MEMORY</small>
+                    <strong>TIME DIVE</strong>
+                </span>
+
+                <span class="lcc2-pixel-field"></span>
+            `;
+
+            const pixelField =
+                realm.querySelector(
+                    '.lcc2-pixel-field'
+                );
+
+            const reduced =
+                window.matchMedia?.(
+                    '(max-width: 768px), ' +
+                    '(pointer: coarse), ' +
+                    '(prefers-reduced-motion: reduce)'
+                ).matches;
+
+            const pixelCount =
+                this.getQualityCount(
+                    reduced ? 10 : 24
+                );
+
+            for (
+                let index = 0;
+                index < pixelCount;
+                index++
+            ) {
+                const pixel =
+                    document.createElement('i');
+
+                pixel.className =
+                    index % 5 === 0
+                        ? 'lcc2-pixel is-hot'
+                        : index % 3 === 0
+                            ? 'lcc2-pixel is-cold'
+                            : 'lcc2-pixel';
+
+                pixel.style.setProperty(
+                    '--lcc2-px',
+                    `${4 + ((index * 41) % 92)}%`
+                );
+
+                pixel.style.setProperty(
+                    '--lcc2-py',
+                    `${5 + ((index * 59) % 90)}%`
+                );
+
+                pixel.style.setProperty(
+                    '--lcc2-psize',
+                    `${2 + (index % 4) * 2}px`
+                );
+
+                pixel.style.setProperty(
+                    '--lcc2-pdelay',
+                    `${-(index % 11) * 0.31}s`
+                );
+
+                pixelField?.appendChild(
+                    pixel
+                );
+            }
+
+            this.container.appendChild(
+                realm
+            );
+
+            let clickLocked = false;
+
+            petElement.addEventListener(
+                'click',
+                event => {
+                    if (clickLocked) {
+                        return;
+                    }
+
+                    if (
+                        typeof PetInteractionManager !==
+                            'undefined' &&
+                        PetInteractionManager.isPetDragging
+                    ) {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    // Không cho click effect chung / Luxury cùng chạy trên cùng click.
+                    if (
+                        typeof event.stopImmediatePropagation ===
+                        'function'
+                    ) {
+                        event.stopImmediatePropagation();
+                    }
+
+                    clickLocked = true;
+
+                    const petRect =
+                        petElement.getBoundingClientRect();
+
+                    const originX =
+                        Number.isFinite(event.clientX) &&
+                        event.clientX > 0
+                            ? event.clientX
+                            : petRect.left +
+                              petRect.width / 2;
+
+                    const originY =
+                        Number.isFinite(event.clientY) &&
+                        event.clientY > 0
+                            ? event.clientY
+                            : petRect.top +
+                              petRect.height / 2;
+
+                    this.container.classList.remove(
+                        'lcc2-casting'
+                    );
+
+                    void this.container.offsetWidth;
+
+                    this.container.classList.add(
+                        'lcc2-casting'
+                    );
+
+                    document
+                        .querySelectorAll(
+                            '.lcc2-screen-dive,' +
+                            '.lcc2-screen-caption'
+                        )
+                        .forEach(node => node.remove());
+
+                    document.documentElement
+                        .classList
+                        .remove(
+                            'linkclick-chibi-dive-active'
+                        );
+
+                    const screen =
+                        document.createElement('div');
+
+                    screen.className =
+                        'lcc2-screen-dive';
+
+                    screen.setAttribute(
+                        'aria-hidden',
+                        'true'
+                    );
+
+                    screen.style.setProperty(
+                        '--lcc2-origin-x',
+                        `${originX}px`
+                    );
+
+                    screen.style.setProperty(
+                        '--lcc2-origin-y',
+                        `${originY}px`
+                    );
+
+                    screen.innerHTML = `
+                        <div class="lcc2-screen-flash"></div>
+                        <div class="lcc2-screen-noise"></div>
+                        <div class="lcc2-screen-scan"></div>
+
+                        <div class="lcc2-screen-splits">
+                            <i class="split-1"></i>
+                            <i class="split-2"></i>
+                            <i class="split-3"></i>
+                            <i class="split-4"></i>
+                        </div>
+
+                        <div class="lcc2-screen-slashes">
+                            <i class="slash-a"></i>
+                            <i class="slash-b"></i>
+                            <i class="slash-c"></i>
+                        </div>
+
+                        <div class="lcc2-screen-window">
+                            <span>05 : 12</span>
+                            <b>MEMORY CHANNEL</b>
+                            <em>SYNC_03</em>
+                        </div>
+
+                        <div class="lcc2-screen-tiles"></div>
+                        <div class="lcc2-screen-code"></div>
+
+                        <div class="lcc2-screen-title">
+                            <small>LINK CLICK // MEMORY ACCESS</small>
+                            <strong>TIME DIVE</strong>
+                            <span>FRAME 05:12 · REWRITE IN PROGRESS</span>
+                        </div>
+                    `;
+
+                    const tileField =
+                        screen.querySelector(
+                            '.lcc2-screen-tiles'
+                        );
+
+                    const tileCount =
+                        this.getQualityCount(
+                            reduced ? 14 : 32
+                        );
+
+                    for (
+                        let index = 0;
+                        index < tileCount;
+                        index++
+                    ) {
+                        const tile =
+                            document.createElement('i');
+
+                        tile.className =
+                            index % 4 === 0
+                                ? 'is-magenta'
+                                : index % 3 === 0
+                                    ? 'is-white'
+                                    : 'is-cyan';
+
+                        const angle =
+                            index *
+                            (360 / tileCount);
+
+                        const distance =
+                            110 +
+                            (index % 8) * 42;
+
+                        tile.style.setProperty(
+                            '--lcc2-angle',
+                            `${angle}deg`
+                        );
+
+                        tile.style.setProperty(
+                            '--lcc2-distance',
+                            `${distance}px`
+                        );
+
+                        tile.style.setProperty(
+                            '--lcc2-delay',
+                            `${(index % 7) *
+                                0.035}s`
+                        );
+
+                        tile.style.setProperty(
+                            '--lcc2-w',
+                            `${12 + (index % 5) * 9}px`
+                        );
+
+                        tile.style.setProperty(
+                            '--lcc2-h',
+                            `${5 + (index % 4) * 4}px`
+                        );
+
+                        tileField?.appendChild(
+                            tile
+                        );
+                    }
+
+                    const codeField =
+                        screen.querySelector(
+                            '.lcc2-screen-code'
+                        );
+
+                    const codeText = [
+                        '05:12',
+                        'FRAME_03',
+                        'MEM_021',
+                        'SYNC',
+                        'ΔT-08',
+                        'LINK',
+                        'DIVE',
+                        'REWRITE'
+                    ];
+
+                    const codeCount =
+                        this.getQualityCount(
+                            reduced ? 8 : 18
+                        );
+
+                    for (
+                        let index = 0;
+                        index < codeCount;
+                        index++
+                    ) {
+                        const code =
+                            document.createElement('span');
+
+                        code.textContent =
+                            codeText[
+                                index %
+                                codeText.length
+                            ];
+
+                        code.style.setProperty(
+                            '--lcc2-cx',
+                            `${5 +
+                                ((index * 47) %
+                                    90)}%`
+                        );
+
+                        code.style.setProperty(
+                            '--lcc2-cy',
+                            `${8 +
+                                ((index * 61) %
+                                    82)}%`
+                        );
+
+                        code.style.setProperty(
+                            '--lcc2-cdelay',
+                            `${(index % 6) *
+                                0.05}s`
+                        );
+
+                        codeField?.appendChild(
+                            code
+                        );
+                    }
+
+                    document.body.appendChild(
+                        screen
+                    );
+
+                    document.documentElement
+                        .classList
+                        .add(
+                            'linkclick-chibi-dive-active'
+                        );
+
+                    requestAnimationFrame(() => {
+                        screen.classList.add(
+                            'is-active'
+                        );
+                    });
+
+                    window.setTimeout(() => {
+                        screen.classList.add(
+                            'is-ending'
+                        );
+                    }, 2050);
+
+                    window.setTimeout(() => {
+                        screen.remove();
+
+                        document.documentElement
+                            .classList
+                            .remove(
+                                'linkclick-chibi-dive-active'
+                            );
+
+                        this.container
+                            ?.classList
+                            .remove(
+                                'lcc2-casting'
+                            );
+                    }, 2650);
+
+                    window.setTimeout(() => {
+                        clickLocked = false;
+                    }, 2950);
+                },
+                true
+            );
+        }
+
         this.container.appendChild(petElement);
 
         // =========================================================
@@ -4514,19 +5394,40 @@ class PetManager {
             }
         }
 
-        // Chỉ gắn hiệu ứng tương tác nếu vật phẩm cho phép
+        /*
+         * Hệ Tương tác thú cưng:
+         * - Pet thường: giữ cơ chế cũ, chỉ gắn khi không disableClickEffect.
+         * - Premium có click riêng (Tiểu Hoa Mộng): vẫn gọi manager để dựng
+         *   UI Mộng Ấn, nhưng PetInteractionManager sẽ KHÔNG gắn sự kiện
+         *   pointer/click lên chính nhân vật.
+         */
         if (
-            !petData.disableClickEffect &&
             typeof PetInteractionManager !== 'undefined'
         ) {
-            const petImg =
-                document.getElementById('virtual-pet-img');
+            const usesExternalActivation =
+                typeof PetInteractionManager
+                    .usesExternalActivation ===
+                    'function' &&
+                PetInteractionManager
+                    .usesExternalActivation(
+                        petData.id
+                    );
 
-            if (petImg) {
-                PetInteractionManager.attachEvents(
-                    petImg,
-                    petData
-                );
+            if (
+                !petData.disableClickEffect ||
+                usesExternalActivation
+            ) {
+                const petImg =
+                    document.getElementById(
+                        'virtual-pet-img'
+                    );
+
+                if (petImg) {
+                    PetInteractionManager.attachEvents(
+                        petImg,
+                        petData
+                    );
+                }
             }
         }
     }

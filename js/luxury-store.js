@@ -34,10 +34,13 @@
         'pet_luxury_mua_ha',
         'pet_quoc_khanh_1',
         'pet_mythic_nyx_1',
+        'pet_lotm_klein_event_1',
         'pet_cam_co_cam_mong_1',
         'pet_tamon_b_side_1',
         'pet_tamon_b_side_2',
-        'pet_trung_thu_nguyet_cung_tien_tu'
+        'pet_trung_thu_nguyet_cung_tien_tu',
+        'pet_trung_thu_chu_cuoi_2',
+        'pet_linkclick_cheng_xiaoshi_1'
     ];
 
     // ========================================================
@@ -1492,6 +1495,8 @@
         },
 
         createPetRealm() {
+            const variant = this.getVariantConfig();
+
             const container =
                 document.getElementById('virtual-pet-container');
             const pet = this.getPet();
@@ -2611,6 +2616,57 @@
 
 
 
+
+    // ========================================================
+    // LORD OF THE MYSTERIES · KLEIN MORETTI — EVENT PREMIUM PET
+    // - KHÔNG bán bằng Coin.
+    // - Chỉ nhận từ sự kiện Lord of the Mysteries.
+    // - Tag: assets/Premium/quy bi/tag1.png
+    // - Nhân vật: assets/Premium/quy bi/klain_nha-vat.png
+    // - Card riêng nhưng GIỮ NGUYÊN bố cục Luxury Store.
+    // - Full suite độc lập; không ghi đè active_theme / active_effect.
+    // - MỘT CSS: css/lord-of-mysteries-klein.css
+    // ========================================================
+    const LOTM_KLEIN_EVENT_PET = {
+        id: 'pet_lotm_klein_event_1',
+        name: 'Klein Moretti · Quỷ Bí Chi Chủ',
+        type: 'pet',
+        price: 0,
+        isNonCoin: true,
+        luxuryOnly: true,
+        eventOnly: true,
+
+        eventId: 'lord_of_the_mysteries_event',
+        eventRewardTier: 'premium',
+
+        tag: 'Lord of the Mysteries',
+        tags: [
+            'Lord of the Mysteries',
+            'Quỷ Bí Chi Chủ',
+            'Klein Moretti',
+            'Premium',
+            'Sự kiện'
+        ],
+
+        image: 'assets/Premium/quy bi/klain_nha-vat.png',
+        asset: 'assets/Premium/quy bi/klain_nha-vat.png',
+        value: 'assets/Premium/quy bi/klain_nha-vat.png',
+        luxuryTagImage: 'assets/Premium/quy bi/tag1.png',
+        isIcon: false,
+
+        petEffect: 'lotm-klein-mystery-magic',
+        premiumSuite: 'lotm-klein-sefirah-castle-v1',
+        premiumLayers: [
+            'world-effect',
+            'interface',
+            'pet-realm',
+            'global-click',
+            'ultimate'
+        ],
+        disableClickEffect: true
+    };
+
+
     // ========================================================
     // CẦM CƠ · CẦM MỘNG — TU TIÊN PREMIUM
     // - Bán 12.000 Coin
@@ -2802,6 +2858,107 @@
 
 
     // ========================================================
+    // TRUNG THU · CHÚ CUỘI — PREMIUM PET #2
+    // - Đổi bằng 2 Xu Trung Thu đúng ngày Trung Thu.
+    // - Nhân vật: assets/Premium/Trung thu/cuoi_nhan_vat2.png
+    // - Dùng CHUNG ảnh tag Trung Thu với Nguyệt Cung Tiên Tử.
+    // - Card riêng nhưng giữ nguyên bố cục Luxury Store.
+    // - Full suite dùng runtime Trung Thu độc lập, có biến thể Cuội;
+    //   KHÔNG chiếm active_theme / active_effect.
+    // ========================================================
+    const MID_AUTUMN_CUOI_PET = {
+        id: 'pet_trung_thu_chu_cuoi_2',
+        name: 'Chú Cuội · Nguyệt Quế Tiên Đồng',
+        type: 'pet',
+        price: 0,
+        isNonCoin: true,
+        midAutumnCoinPrice: 2,
+        currency: 'mid_autumn_coin',
+        luxuryOnly: true,
+        eventOnly: true,
+
+        tag: 'Trung thu',
+        tags: [
+            'Trung thu',
+            'Chú Cuội',
+            'Nguyệt quế',
+            'Premium'
+        ],
+
+        image: 'assets/Premium/Trung thu/cuoi_nhan_vat2.png',
+        asset: 'assets/Premium/Trung thu/cuoi_nhan_vat2.png',
+        value: 'assets/Premium/Trung thu/cuoi_nhan_vat2.png',
+
+        // CÙNG TAG với Nguyệt Cung Tiên Tử.
+        luxuryTagImage: 'assets/Premium/Trung thu/tag1.png',
+        isIcon: false,
+
+        petEffect: 'midautumn-cuoi-moonwood-magic',
+        premiumSuite: 'midautumn-cuoi-moonwood-fairytale-v1',
+        premiumLayers: [
+            'world-effect',
+            'interface',
+            'pet-realm',
+            'global-click',
+            'pet-skill',
+            'ultimate'
+        ],
+
+        disableClickEffect: true
+    };
+
+
+
+    // ========================================================
+    // LINK CLICK · CHENG XIAOSHI — PREMIUM PET
+    // - Bán 12.000 Coin.
+    // - Tag ảnh: assets/Premium/Lock/tag1.png
+    // - Nhân vật: assets/Premium/Lock/Cheng Xiaoshi-nhan-vat1.png
+    // - Card riêng nhưng giữ nguyên cấu trúc/bố cục Luxury Store.
+    // - Full suite độc lập; KHÔNG ghi đè active_theme / active_effect.
+    // ========================================================
+    const LINKCLICK_CHENG_XIAOSHI_PET = {
+        id: 'pet_linkclick_cheng_xiaoshi_1',
+        name: 'Cheng Xiaoshi · Thời Quang Ảnh Giới',
+        type: 'pet',
+        price: 12000,
+        isNonCoin: false,
+        luxuryOnly: true,
+        eventOnly: false,
+
+        tag: 'Link Click',
+        tags: [
+            'Link Click',
+            'Cheng Xiaoshi',
+            'Thời Quang',
+            'Premium'
+        ],
+
+        image: 'assets/Premium/Lock/Cheng Xiaoshi-nhan-vat1.png',
+        asset: 'assets/Premium/Lock/Cheng Xiaoshi-nhan-vat1.png',
+        value: 'assets/Premium/Lock/Cheng Xiaoshi-nhan-vat1.png',
+        luxuryTagImage: 'assets/Premium/Lock/tag1.png',
+        isIcon: false,
+
+        petEffect: 'linkclick-cheng-timeframe-magic',
+        premiumSuite: 'linkclick-cheng-timeframe-v2-cinematic',
+        premiumLayers: [
+            'world-effect',
+            'interface',
+            'cinematic-hud',
+            'time-memory-world',
+            'pet-realm',
+            'global-click',
+            'pet-skill',
+            'ultimate'
+        ],
+
+        // Click pet do LuxuryLinkClickChengRuntime quản lý.
+        disableClickEffect: true
+    };
+
+
+    // ========================================================
     // TRUNG THU · NGUYỆT CUNG — CSS LOADER
     // CHỈ MỘT file CSS đảm nhiệm toàn bộ:
     // card + pet realm + full-web skin + popup/input/slider/scrollbar
@@ -2869,6 +3026,74 @@
         observer: null,
         skillLocked: false,
         timers: new Set(),
+        variant: 'moon',
+
+        detectVariant() {
+            const activePetId =
+                String(localStorage.getItem('active_pet') || '');
+
+            const pet =
+                document.querySelector(
+                    '#virtual-pet-container #virtual-pet-img'
+                );
+
+            const src =
+                String(pet?.getAttribute('src') || '');
+
+            if (
+                activePetId === MID_AUTUMN_CUOI_PET.id ||
+                pet?.classList.contains('midautumn-cuoi-moonwood-magic') ||
+                src.includes('/Trung thu/cuoi_nhan_vat2.png')
+            ) {
+                return 'cuoi';
+            }
+
+            return 'moon';
+        },
+
+        getVariantConfig() {
+            if (this.variant === 'cuoi') {
+                return {
+                    rootClass: 'midautumn-cuoi-equipped',
+                    bodyClass: 'theme-midautumn-cuoi',
+                    stageClass: 'pet-midautumn-cuoi-stage',
+                    petClass: 'midautumn-cuoi-pet',
+                    image: 'assets/Premium/Trung thu/cuoi_nhan_vat2.png',
+                    sealSmall: '中 秋 · 桂 影',
+                    sealTitle: 'NGUYỆT QUẾ',
+                    sealSubtitle: 'TRĂNG RẰM · CÂY QUẾ · CỔ TÍCH',
+                    bottomTitle: 'CHÚ CUỘI · NGUYỆT QUẾ TIÊN ĐỒNG',
+                    clickSeal: '桂',
+                    glyphs: ['桂', '月', '童'],
+                    ultimateSmall: '桂 影 入 梦 · 月 满 人 间',
+                    ultimateTitle: 'NGUYỆT QUẾ TIÊN CẢNH',
+                    ultimateSubtitle: 'CUỘI KHAI QUẾ ẢNH · VẠN ĐĂNG ĐỒNG MINH',
+                    dialogueSmall: 'TRUNG THU · NGUYỆT QUẾ KHAI CẢNH',
+                    dialogueTitle: 'CHÚ CUỘI · NGUYỆT QUẾ TIÊN ĐỒNG',
+                    dialogueSubtitle: 'QUẾ ẢNH PHÙ QUANG · TRĂNG RẰM ĐOÀN VIÊN'
+                };
+            }
+
+            return {
+                rootClass: '',
+                bodyClass: '',
+                stageClass: 'pet-midautumn-moon-palace-stage',
+                petClass: 'midautumn-moon-palace-pet',
+                image: 'assets/Premium/Trung thu/hang_nhan_vat1.png',
+                sealSmall: '中 秋 · 月 宫',
+                sealTitle: 'NGUYỆT CUNG',
+                sealSubtitle: 'TRĂNG RẰM · CỔ TÍCH · ĐOÀN VIÊN',
+                bottomTitle: 'NGUYỆT CUNG TIÊN TỬ',
+                clickSeal: '月',
+                glyphs: ['桂', '宫', '兔'],
+                ultimateSmall: '桂 香 入 梦 · 月 满 人 间',
+                ultimateTitle: 'NGUYỆT CUNG TIÊN CẢNH',
+                ultimateSubtitle: 'TRĂNG RẰM KHAI CẢNH · VẠN ĐĂNG ĐỒNG MINH',
+                dialogueSmall: 'TRUNG THU · NGUYỆT CUNG KHAI CẢNH',
+                dialogueTitle: 'NGUYỆT CUNG TIÊN TỬ',
+                dialogueSubtitle: 'QUẾ HƯƠNG NHẬP MỘNG · VẠN ĐĂNG ĐOÀN VIÊN'
+            };
+        },
 
         setTimer(callback, delay) {
             const timer = window.setTimeout(() => {
@@ -2886,7 +3111,8 @@
 
         getPet() {
             return document.querySelector(
-                '#virtual-pet-container #virtual-pet-img.midautumn-moon-palace-pet'
+                '#virtual-pet-container #virtual-pet-img.midautumn-moon-palace-pet,' +
+                '#virtual-pet-container #virtual-pet-img.midautumn-cuoi-pet'
             );
         },
 
@@ -2919,10 +3145,12 @@
 
             document.documentElement.classList.remove(
                 'midautumn-moon-palace-equipped',
-                'midautumn-moon-palace-skill-active'
+                'midautumn-moon-palace-skill-active',
+                'midautumn-cuoi-equipped'
             );
             document.body?.classList.remove(
-                'theme-midautumn-moon-palace'
+                'theme-midautumn-moon-palace',
+                'theme-midautumn-cuoi'
             );
 
             document
@@ -2940,6 +3168,7 @@
 
             container?.classList.remove(
                 'pet-midautumn-moon-palace-stage',
+                'pet-midautumn-cuoi-stage',
                 'midautumn-pet-casting'
             );
 
@@ -2949,7 +3178,10 @@
 
             container
                 ?.querySelector('#virtual-pet-img')
-                ?.classList.remove('midautumn-moon-palace-pet');
+                ?.classList.remove(
+                    'midautumn-moon-palace-pet',
+                    'midautumn-cuoi-pet'
+                );
         },
 
         createWorld() {
@@ -3078,6 +3310,8 @@
         },
 
         createInterface() {
+            const variant = this.getVariantConfig();
+
             document
                 .querySelectorAll('.midautumn-ui-frame')
                 .forEach(element => element.remove());
@@ -3092,9 +3326,9 @@
                     <i></i>
                     <span class="ma-ui-cloud left"></span>
                     <div class="ma-ui-seal">
-                        <small>中 秋 · 月 宫</small>
-                        <strong>NGUYỆT CUNG</strong>
-                        <span>TRĂNG RẰM · CỔ TÍCH · ĐOÀN VIÊN</span>
+                        <small>${variant.sealSmall}</small>
+                        <strong>${variant.sealTitle}</strong>
+                        <span>${variant.sealSubtitle}</span>
                     </div>
                     <span class="ma-ui-cloud right"></span>
                     <i></i>
@@ -3112,7 +3346,7 @@
 
                 <div class="ma-ui-bottom">
                     <span>❀</span><i></i>
-                    <strong>NGUYỆT CUNG TIÊN TỬ</strong>
+                    <strong>${variant.bottomTitle}</strong>
                     <i></i><span>☾</span>
                 </div>
             `;
@@ -3122,6 +3356,8 @@
         },
 
         createPetRealm() {
+            const variant = this.getVariantConfig();
+
             const container =
                 document.getElementById('virtual-pet-container');
             const pet =
@@ -3129,8 +3365,8 @@
 
             if (!container || !pet) return;
 
-            container.classList.add('pet-midautumn-moon-palace-stage');
-            pet.classList.add('midautumn-moon-palace-pet');
+            container.classList.add(variant.stageClass);
+            pet.classList.add(variant.petClass);
             pet.setAttribute('draggable', 'false');
 
             container
@@ -3288,6 +3524,7 @@
         },
 
         createPageClick(x, y, strong = false) {
+            const variant = this.getVariantConfig();
             const burst = document.createElement('div');
             burst.className = 'midautumn-page-click' + (strong ? ' is-strong' : '');
             burst.style.setProperty('--ma-click-x', `${x}px`);
@@ -3300,7 +3537,7 @@
                 <i class="ring ring-b"></i>
                 <i class="ring ring-c"></i>
                 <i class="ring ring-d"></i>
-                <span class="click-seal"><i>月</i></span>
+                <span class="click-seal"><i>${variant.clickSeal}</i></span>
                 <span class="moon">☾</span>
                 <span class="flower flower-a">❀</span>
                 <span class="flower flower-b">✦</span>
@@ -3310,9 +3547,9 @@
                 <span class="cloud cloud-a"></span>
                 <span class="cloud cloud-b"></span>
                 <span class="click-lantern"><i></i></span>
-                <span class="click-glyph glyph-a">桂</span>
-                <span class="click-glyph glyph-b">宫</span>
-                <span class="click-glyph glyph-c">兔</span>
+                <span class="click-glyph glyph-a">${variant.glyphs[0]}</span>
+                <span class="click-glyph glyph-b">${variant.glyphs[1]}</span>
+                <span class="click-glyph glyph-c">${variant.glyphs[2]}</span>
                 <b class="ray ray-a"></b>
                 <b class="ray ray-b"></b>
                 <b class="ray ray-c"></b>
@@ -3327,6 +3564,8 @@
         },
 
         createUltimate(x, y) {
+            const variant = this.getVariantConfig();
+
             document
                 .querySelectorAll('.midautumn-ultimate, .midautumn-dialogue')
                 .forEach(element => element.remove());
@@ -3346,7 +3585,7 @@
                 <div class="ma-ult-moon-gate"><i></i><b></b><em></em></div>
                 <div class="ma-ult-moon"><i></i><b></b><em>月</em></div>
                 <div class="ma-ult-rabbit"></div>
-                <img class="ma-ult-character" src="assets/Premium/Trung thu/hang_nhan_vat1.png" alt="" draggable="false">
+                <img class="ma-ult-character" src="${variant.image}" alt="" draggable="false">
 
                 <div class="ma-ult-palace">
                     <i class="roof"></i>
@@ -3371,9 +3610,9 @@
                 <div class="ma-ult-curtain curtain-right"></div>
 
                 <div class="ma-ult-title">
-                    <small>桂 香 入 梦 · 月 满 人 间</small>
-                    <strong>NGUYỆT CUNG TIÊN CẢNH</strong>
-                    <span>TRĂNG RẰM KHAI CẢNH · VẠN ĐĂNG ĐỒNG MINH</span>
+                    <small>${variant.ultimateSmall}</small>
+                    <strong>${variant.ultimateTitle}</strong>
+                    <span>${variant.ultimateSubtitle}</span>
                 </div>
             `;
 
@@ -3433,9 +3672,9 @@
             dialogue.className = 'midautumn-dialogue';
             dialogue.innerHTML = `
                 <i>❀</i>
-                <small>TRUNG THU · NGUYỆT CUNG KHAI CẢNH</small>
-                <strong>NGUYỆT CUNG TIÊN TỬ</strong>
-                <span>QUẾ HƯƠNG NHẬP MỘNG · VẠN ĐĂNG ĐOÀN VIÊN</span>
+                <small>${variant.dialogueSmall}</small>
+                <strong>${variant.dialogueTitle}</strong>
+                <span>${variant.dialogueSubtitle}</span>
                 <i>☾</i>
             `;
 
@@ -3490,15 +3729,34 @@
         },
 
         mount() {
+            const nextVariant = this.detectVariant();
+
             this.clear();
+            this.variant = nextVariant;
             ensureMidAutumnStylesheet();
+
+            const variant =
+                this.getVariantConfig();
 
             document.documentElement.classList.add(
                 'midautumn-moon-palace-equipped'
             );
+
+            if (variant.rootClass) {
+                document.documentElement.classList.add(
+                    variant.rootClass
+                );
+            }
+
             document.body?.classList.add(
                 'theme-midautumn-moon-palace'
             );
+
+            if (variant.bodyClass) {
+                document.body?.classList.add(
+                    variant.bodyClass
+                );
+            }
 
             this.createWorld();
             this.createInterface();
@@ -3540,8 +3798,11 @@
 
             const looksActive =
                 activePetId === MID_AUTUMN_MOON_PET.id ||
+                activePetId === MID_AUTUMN_CUOI_PET.id ||
                 pet?.classList.contains('midautumn-moon-palace-pet-magic') ||
-                String(pet?.getAttribute('src') || '').includes('/Trung thu/hang_nhan_vat1.png');
+                pet?.classList.contains('midautumn-cuoi-moonwood-magic') ||
+                String(pet?.getAttribute('src') || '').includes('/Trung thu/hang_nhan_vat1.png') ||
+                String(pet?.getAttribute('src') || '').includes('/Trung thu/cuoi_nhan_vat2.png');
 
             if (!looksActive) {
                 return false;
@@ -3557,6 +3818,1380 @@
             }
 
             return false;
+        }
+    };
+
+
+
+    // ========================================================
+    // LINK CLICK · CHENG XIAOSHI — CSS LOADER
+    // MỘT file CSS đảm nhiệm: card + full-web skin + popup/form/
+    // slider/scrollbar + pet realm + click + ultimate.
+    // ========================================================
+    function ensureLinkClickChengStylesheet() {
+        const existing = Array.from(
+            document.querySelectorAll('link[rel="stylesheet"]')
+        ).find(link =>
+            /(?:^|\/)link-click-cheng-xiaoshi(?:\(\d+\))?\.css(?:[?#].*)?$/i
+                .test(link.href || '')
+        );
+
+        if (existing) {
+            existing.id = existing.id || 'linkclick-cheng-premium-style';
+            return;
+        }
+
+        if (document.getElementById('linkclick-cheng-premium-style')) {
+            return;
+        }
+
+        let href = '';
+
+        if (window.LINKCLICK_CHENG_CSS_PATH) {
+            href = String(window.LINKCLICK_CHENG_CSS_PATH).trim();
+        }
+
+        if (!href) {
+            const scripts = Array.from(document.scripts || []);
+            const ownScript = scripts
+                .slice()
+                .reverse()
+                .find(script => /(?:^|\/)luxury-store(?:[^\/]*)?\.js(?:[?#].*)?$/i.test(script.src || ''));
+
+            if (ownScript?.src) {
+                try {
+                    href = new URL(
+                        '../css/link-click-cheng-xiaoshi.css?v=20260911.3-cinematic',
+                        ownScript.src
+                    ).href;
+                } catch (_) {
+                    href = '';
+                }
+            }
+        }
+
+        if (!href) {
+            href = new URL(
+                'css/link-click-cheng-xiaoshi.css?v=20260911.3-cinematic',
+                document.baseURI
+            ).href;
+        }
+
+        const link = document.createElement('link');
+        link.id = 'linkclick-cheng-premium-style';
+        link.rel = 'stylesheet';
+        link.href = href;
+        link.dataset.linkClickCheng = 'true';
+
+        link.addEventListener('error', () => {
+            console.error(
+                '[Link Click] Không tải được CSS:',
+                link.href,
+                'Hãy đặt file tại css/link-click-cheng-xiaoshi.css hoặc gán window.LINKCLICK_CHENG_CSS_PATH trước khi nạp luxury-store.js.'
+            );
+        }, { once: true });
+
+        document.head.appendChild(link);
+    }
+
+
+    // ========================================================
+    // LINK CLICK · CHENG XIAOSHI — FULL PREMIUM RUNTIME V2 · CINEMATIC
+    // Namespace độc lập: lcx-* / linkclick-cheng-*
+    // KHÔNG gọi ThemeManager / EffectManager.
+    // ========================================================
+    const LuxuryLinkClickChengRuntime = {
+        activePetElement: null,
+        petClickHandler: null,
+        documentClickHandler: null,
+        pointerMoveHandler: null,
+        observer: null,
+        skillLocked: false,
+        timers: new Set(),
+
+        setTimer(callback, delay) {
+            const timer = window.setTimeout(() => {
+                this.timers.delete(timer);
+                callback();
+            }, delay);
+            this.timers.add(timer);
+            return timer;
+        },
+
+        clearTimers() {
+            this.timers.forEach(timer => window.clearTimeout(timer));
+            this.timers.clear();
+        },
+
+        getPet() {
+            return document.querySelector(
+                '#virtual-pet-container #virtual-pet-img.lcx-cheng-pet'
+            );
+        },
+
+        clear() {
+            if (this.activePetElement && this.petClickHandler) {
+                this.activePetElement.removeEventListener(
+                    'click',
+                    this.petClickHandler
+                );
+            }
+
+            if (this.documentClickHandler) {
+                document.removeEventListener(
+                    'pointerdown',
+                    this.documentClickHandler,
+                    true
+                );
+            }
+
+            if (this.pointerMoveHandler) {
+                document.removeEventListener(
+                    'pointermove',
+                    this.pointerMoveHandler,
+                    true
+                );
+            }
+
+            if (this.observer) {
+                this.observer.disconnect();
+                this.observer = null;
+            }
+
+            this.clearTimers();
+            this.activePetElement = null;
+            this.petClickHandler = null;
+            this.documentClickHandler = null;
+            this.pointerMoveHandler = null;
+            this.skillLocked = false;
+
+            document.documentElement.classList.remove(
+                'linkclick-cheng-equipped',
+                'linkclick-cheng-skill-active'
+            );
+
+            document.body?.classList.remove(
+                'theme-linkclick-cheng'
+            );
+
+            document
+                .querySelectorAll(
+                    '.lcx-world,' +
+                    '.lcx-ui-frame,' +
+                    '.lcx-page-click,' +
+                    '.lcx-ultimate,' +
+                    '.lcx-dialogue'
+                )
+                .forEach(element => element.remove());
+
+            const container =
+                document.getElementById('virtual-pet-container');
+
+            container?.classList.remove(
+                'pet-linkclick-cheng-stage',
+                'linkclick-cheng-casting'
+            );
+
+            container
+                ?.querySelectorAll('.lcx-pet-realm')
+                .forEach(element => element.remove());
+
+            container
+                ?.querySelector('#virtual-pet-img')
+                ?.classList.remove('lcx-cheng-pet');
+        },
+
+        createWorld() {
+            document
+                .querySelectorAll('.lcx-world')
+                .forEach(element => element.remove());
+
+            const world = document.createElement('div');
+            world.className = 'lcx-world';
+            world.setAttribute('aria-hidden', 'true');
+            world.innerHTML = `
+                <div class="lcx-world__wash"></div>
+                <div class="lcx-world__vignette"></div>
+                <div class="lcx-world__grain"></div>
+                <div class="lcx-world__grid"></div>
+                <div class="lcx-world__light-beam beam-a"></div>
+                <div class="lcx-world__light-beam beam-b"></div>
+
+                <div class="lcx-world__clock">
+                    <span class="ring ring-a"></span>
+                    <span class="ring ring-b"></span>
+                    <span class="ring ring-c"></span>
+                    <i class="hand hand-hour"></i>
+                    <i class="hand hand-minute"></i>
+                    <b class="clock-core"></b>
+                </div>
+
+                <div class="lcx-world__memory memory-a">
+                    <i></i><span>05:12</span>
+                </div>
+                <div class="lcx-world__memory memory-b">
+                    <i></i><span>PHOTO</span>
+                </div>
+                <div class="lcx-world__memory memory-c">
+                    <i></i><span>TIME</span>
+                </div>
+
+                <div class="lcx-world__film-rail rail-left">
+                    ${'<i></i>'.repeat(9)}
+                </div>
+                <div class="lcx-world__film-rail rail-right">
+                    ${'<i></i>'.repeat(9)}
+                </div>
+
+                <div class="lcx-world__timeline">
+                    <span>00</span><i></i><i></i><i></i>
+                    <strong>05:12</strong>
+                    <i></i><i></i><i></i><span>24</span>
+                </div>
+
+                <div class="lcx-world__timecode">
+                    <small>FRAME</small>
+                    <strong>00:05:12:00</strong>
+                </div>
+
+                <div class="lcx-world__film film-a"></div>
+                <div class="lcx-world__film film-b"></div>
+                <div class="lcx-world__focus focus-a"></div>
+                <div class="lcx-world__focus focus-b"></div>
+                <div class="lcx-world__particles"></div>
+            `;
+
+            const particleField =
+                world.querySelector('.lcx-world__particles');
+
+            const reduced = window.matchMedia?.(
+                '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+            ).matches;
+
+            const count = getLuxuryQualityCount(reduced ? 16 : 42);
+
+            for (let index = 0; index < count; index++) {
+                const particle = document.createElement('i');
+                particle.className =
+                    index % 7 === 0
+                        ? 'lcx-particle lcx-particle--frame'
+                        : index % 5 === 0
+                            ? 'lcx-particle lcx-particle--red'
+                            : 'lcx-particle';
+
+                particle.style.setProperty(
+                    '--lcx-x',
+                    `${(index * 37 + 9) % 98}%`
+                );
+                particle.style.setProperty(
+                    '--lcx-y',
+                    `${(index * 61 + 7) % 92}%`
+                );
+                particle.style.setProperty(
+                    '--lcx-delay',
+                    `${-(index % 15) * .39}s`
+                );
+                particle.style.setProperty(
+                    '--lcx-size',
+                    `${2 + (index % 5) * 1.05}px`
+                );
+                particleField?.appendChild(particle);
+            }
+
+            document.body.appendChild(world);
+            requestAnimationFrame(() => world.classList.add('is-mounted'));
+        },
+
+        createInterface() {
+            document
+                .querySelectorAll('.lcx-ui-frame')
+                .forEach(element => element.remove());
+
+            const frame = document.createElement('div');
+            frame.className = 'lcx-ui-frame';
+            frame.setAttribute('aria-hidden', 'true');
+            frame.innerHTML = `
+                <span class="lcx-corner corner-tl"></span>
+                <span class="lcx-corner corner-tr"></span>
+                <span class="lcx-corner corner-bl"></span>
+                <span class="lcx-corner corner-br"></span>
+
+                <div class="lcx-ui-topbar">
+                    <span class="lcx-ui-rec"><i></i> REC</span>
+                    <span class="lcx-ui-mode">TIME PHOTO · 24 FPS</span>
+                    <span class="lcx-ui-counter">05:12 / 24</span>
+                </div>
+
+                <div class="lcx-ui-left-rail">
+                    <span>ISO 400</span>
+                    <i></i><i></i><i></i><i></i><i></i>
+                    <span>F 2.8</span>
+                </div>
+
+                <div class="lcx-ui-right-rail">
+                    <span>MEM</span>
+                    <i></i><i></i><i></i><i></i><i></i>
+                    <span>∞</span>
+                </div>
+
+                <span class="lcx-ui-date">TIME PHOTO STUDIO · LINK CLICK</span>
+                <span class="lcx-ui-focus"></span>
+                <span class="lcx-ui-crosshair"></span>
+                <span class="lcx-cursor-reticle"><i></i><b></b></span>
+
+                <div class="lcx-ui-bottom-film">
+                    ${'<i></i>'.repeat(18)}
+                </div>
+            `;
+            document.body.appendChild(frame);
+        },
+
+        createPetRealm() {
+            const container =
+                document.getElementById('virtual-pet-container');
+            const pet =
+                container?.querySelector('#virtual-pet-img');
+
+            if (!container || !pet) return false;
+
+            container
+                .querySelectorAll('.lcx-pet-realm')
+                .forEach(element => element.remove());
+
+            pet.classList.add('lcx-cheng-pet');
+            pet.setAttribute('draggable', 'false');
+            container.classList.add('pet-linkclick-cheng-stage');
+
+            const realm = document.createElement('div');
+            realm.className = 'lcx-pet-realm';
+            realm.setAttribute('aria-hidden', 'true');
+            realm.innerHTML = `
+                <span class="lcx-pet-aura"></span>
+                <span class="lcx-pet-clock clock-a"></span>
+                <span class="lcx-pet-clock clock-b"></span>
+                <span class="lcx-pet-focus"></span>
+                <span class="lcx-pet-polaroid polaroid-a"></span>
+                <span class="lcx-pet-polaroid polaroid-b"></span>
+                <span class="lcx-pet-shadow"></span>
+                <div class="lcx-pet-sparks"></div>
+            `;
+
+            const sparks = realm.querySelector('.lcx-pet-sparks');
+            const count = getLuxuryQualityCount(16);
+            for (let index = 0; index < count; index++) {
+                const spark = document.createElement('i');
+                spark.style.setProperty(
+                    '--lcx-pa',
+                    `${index * (360 / count)}deg`
+                );
+                spark.style.setProperty(
+                    '--lcx-pr',
+                    `${62 + (index % 5) * 11}px`
+                );
+                spark.style.setProperty(
+                    '--lcx-pd',
+                    `${-(index % 8) * .21}s`
+                );
+                sparks?.appendChild(spark);
+            }
+
+            container.appendChild(realm);
+
+            if (this.activePetElement && this.petClickHandler) {
+                this.activePetElement.removeEventListener(
+                    'click',
+                    this.petClickHandler
+                );
+            }
+
+            this.activePetElement = pet;
+            this.petClickHandler = event => {
+                event.stopPropagation();
+                if (this.skillLocked) return;
+
+                this.skillLocked = true;
+                container.classList.add('linkclick-cheng-casting');
+                document.documentElement.classList.add(
+                    'linkclick-cheng-skill-active'
+                );
+
+                const rect = pet.getBoundingClientRect();
+                this.createUltimate(
+                    rect.left + rect.width / 2,
+                    rect.top + rect.height / 2
+                );
+
+                this.setTimer(() => {
+                    container.classList.remove('linkclick-cheng-casting');
+                    document.documentElement.classList.remove(
+                        'linkclick-cheng-skill-active'
+                    );
+                    this.skillLocked = false;
+                }, 4300);
+            };
+
+            pet.addEventListener('click', this.petClickHandler);
+            return true;
+        },
+
+        installGlobalClick() {
+            if (this.documentClickHandler) {
+                document.removeEventListener(
+                    'pointerdown',
+                    this.documentClickHandler,
+                    true
+                );
+            }
+
+            if (this.pointerMoveHandler) {
+                document.removeEventListener(
+                    'pointermove',
+                    this.pointerMoveHandler,
+                    true
+                );
+            }
+
+            this.documentClickHandler = event => {
+                if (
+                    !document.documentElement.classList.contains(
+                        'linkclick-cheng-equipped'
+                    )
+                ) return;
+
+                if (event.target?.closest?.('#virtual-pet-container')) {
+                    return;
+                }
+
+                const burst = document.createElement('span');
+                burst.className = 'lcx-page-click';
+                burst.style.setProperty('--lcx-click-x', `${event.clientX}px`);
+                burst.style.setProperty('--lcx-click-y', `${event.clientY}px`);
+                burst.innerHTML = `
+                    <i></i><b></b><em></em>
+                    <span class="lcx-click-ring ring-a"></span>
+                    <span class="lcx-click-ring ring-b"></span>
+                    <span class="lcx-click-label">FOCUS</span>
+                `;
+                document.body.appendChild(burst);
+                this.setTimer(() => burst.remove(), 1050);
+            };
+
+            let pointerFrame = 0;
+            let pointerIdleTimer = 0;
+
+            this.pointerMoveHandler = event => {
+                if (
+                    !document.documentElement.classList.contains(
+                        'linkclick-cheng-equipped'
+                    ) ||
+                    window.matchMedia?.('(pointer: coarse)').matches
+                ) return;
+
+                if (pointerFrame) return;
+
+                pointerFrame = requestAnimationFrame(() => {
+                    pointerFrame = 0;
+
+                    const reticle = document.querySelector(
+                        '.lcx-ui-frame .lcx-cursor-reticle'
+                    );
+                    if (!reticle) return;
+
+                    reticle.style.setProperty(
+                        '--lcx-pointer-x',
+                        `${event.clientX}px`
+                    );
+                    reticle.style.setProperty(
+                        '--lcx-pointer-y',
+                        `${event.clientY}px`
+                    );
+                    reticle.classList.add('is-moving');
+
+                    window.clearTimeout(pointerIdleTimer);
+                    pointerIdleTimer = window.setTimeout(() => {
+                        reticle.classList.remove('is-moving');
+                    }, 150);
+                });
+            };
+
+            document.addEventListener(
+                'pointerdown',
+                this.documentClickHandler,
+                true
+            );
+
+            document.addEventListener(
+                'pointermove',
+                this.pointerMoveHandler,
+                {
+                    capture: true,
+                    passive: true
+                }
+            );
+        },
+
+        createUltimate(x, y) {
+            document
+                .querySelectorAll('.lcx-ultimate, .lcx-dialogue')
+                .forEach(element => element.remove());
+
+            const ultimate = document.createElement('div');
+            ultimate.className = 'lcx-ultimate';
+            ultimate.style.setProperty('--lcx-origin-x', `${x}px`);
+            ultimate.style.setProperty('--lcx-origin-y', `${y}px`);
+            ultimate.innerHTML = `
+                <div class="lcx-ultimate__flash"></div>
+                <div class="lcx-ultimate__shutter">
+                    ${'<i></i>'.repeat(8)}
+                </div>
+                <div class="lcx-ultimate__clock">
+                    <b></b><i></i><span>12</span><em>06</em>
+                </div>
+                <div class="lcx-ultimate__photos">
+                    <i class="photo-a"></i>
+                    <i class="photo-b"></i>
+                    <i class="photo-c"></i>
+                    <i class="photo-d"></i>
+                </div>
+                <div class="lcx-ultimate__lines"></div>
+            `;
+
+            const dialogue = document.createElement('div');
+            dialogue.className = 'lcx-dialogue';
+            dialogue.innerHTML = `
+                <small>LINK CLICK · TIME PHOTO STUDIO</small>
+                <strong>CHENG XIAOSHI</strong>
+                <span>Khoảnh khắc đã chụp · thời gian bắt đầu chuyển động</span>
+            `;
+
+            document.body.append(ultimate, dialogue);
+
+            requestAnimationFrame(() => {
+                ultimate.classList.add('is-active');
+                dialogue.classList.add('is-active');
+            });
+
+            this.setTimer(() => ultimate.classList.add('is-climax'), 700);
+            this.setTimer(() => dialogue.classList.add('is-visible'), 820);
+            this.setTimer(() => {
+                ultimate.classList.add('is-ending');
+                dialogue.classList.add('is-ending');
+            }, 3100);
+            this.setTimer(() => {
+                ultimate.remove();
+                dialogue.remove();
+            }, 4050);
+        },
+
+        installObserver() {
+            if (this.observer) {
+                this.observer.disconnect();
+            }
+
+            const container =
+                document.getElementById('virtual-pet-container');
+            if (!container) return;
+
+            this.observer = new MutationObserver(() => {
+                if (
+                    !document.documentElement.classList.contains(
+                        'linkclick-cheng-equipped'
+                    )
+                ) return;
+
+                const pet = this.getPet();
+                const style = window.getComputedStyle(container);
+                const visible =
+                    style.display !== 'none' &&
+                    style.visibility !== 'hidden';
+
+                if (!pet || !visible) {
+                    this.clear();
+                }
+            });
+
+            this.observer.observe(container, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                attributeFilter: ['class', 'style']
+            });
+        },
+
+        mount() {
+            this.clear();
+            ensureLinkClickChengStylesheet();
+
+            document.documentElement.classList.add(
+                'linkclick-cheng-equipped'
+            );
+            document.body?.classList.add(
+                'theme-linkclick-cheng'
+            );
+
+            this.createWorld();
+            this.createInterface();
+            this.createPetRealm();
+            this.installGlobalClick();
+            this.installObserver();
+
+            const repairMount = () => {
+                if (
+                    !document.documentElement.classList.contains(
+                        'linkclick-cheng-equipped'
+                    )
+                ) return;
+
+                if (!document.querySelector('.lcx-world')) {
+                    this.createWorld();
+                }
+                if (!document.querySelector('.lcx-ui-frame')) {
+                    this.createInterface();
+                }
+                if (
+                    document.querySelector('#virtual-pet-container #virtual-pet-img') &&
+                    !document.querySelector('#virtual-pet-container .lcx-pet-realm')
+                ) {
+                    this.createPetRealm();
+                }
+            };
+
+            this.setTimer(repairMount, 120);
+            this.setTimer(repairMount, 520);
+            this.setTimer(repairMount, 1200);
+        },
+
+        restore(attempt = 0) {
+            ensureLinkClickChengStylesheet();
+
+            const activePetId =
+                String(localStorage.getItem('active_pet') || '');
+            const pet =
+                document.querySelector('#virtual-pet-container #virtual-pet-img');
+
+            const looksActive =
+                activePetId === LINKCLICK_CHENG_XIAOSHI_PET.id ||
+                pet?.classList.contains('linkclick-cheng-timeframe-magic') ||
+                String(pet?.getAttribute('src') || '').includes(
+                    '/Premium/Lock/Cheng Xiaoshi-nhan-vat1.png'
+                );
+
+            if (!looksActive) {
+                return false;
+            }
+
+            if (pet) {
+                this.mount();
+                return true;
+            }
+
+            if (attempt < 8) {
+                this.setTimer(
+                    () => this.restore(attempt + 1),
+                    180 + attempt * 70
+                );
+            }
+
+            return false;
+        }
+    };
+
+
+    // ========================================================
+    // LINK CLICK · CHENG XIAOSHI — AUTO MOUNT / SELF-HEAL V1.1
+    // Bắt cả trường hợp pet được spawn trước khi luxury-store.js cài hook,
+    // hoặc reload trang mà active_pet chưa kịp đồng bộ vào localStorage.
+    // ========================================================
+    let linkClickChengAutoObserver = null;
+    let linkClickChengAutoRetryTimer = null;
+
+    function isLinkClickChengPetElement(pet) {
+        if (!pet) return false;
+
+        if (
+            pet.classList?.contains('linkclick-cheng-timeframe-magic') ||
+            pet.classList?.contains('lcx-cheng-pet')
+        ) {
+            return true;
+        }
+
+        let source = String(
+            pet.getAttribute?.('src') ||
+            pet.src ||
+            ''
+        );
+
+        try {
+            source = decodeURIComponent(source);
+        } catch (_) {}
+
+        source = source
+            .replace(/\\/g, '/')
+            .toLowerCase();
+
+        return (
+            source.includes(
+                '/premium/lock/cheng xiaoshi-nhan-vat1.png'
+            ) ||
+            source.endsWith(
+                'assets/premium/lock/cheng xiaoshi-nhan-vat1.png'
+            )
+        );
+    }
+
+    function syncLinkClickChengRuntimeFromDom() {
+        const container =
+            document.getElementById('virtual-pet-container');
+
+        const pet =
+            container?.querySelector('#virtual-pet-img');
+
+        const shouldBeActive =
+            isLinkClickChengPetElement(pet);
+
+        const htmlRoot =
+            document.documentElement;
+
+        if (shouldBeActive) {
+            const healthy =
+                htmlRoot.classList.contains(
+                    'linkclick-cheng-equipped'
+                ) &&
+                Boolean(
+                    document.querySelector('.lcx-world')
+                ) &&
+                Boolean(
+                    document.querySelector('.lcx-ui-frame')
+                ) &&
+                Boolean(
+                    container?.querySelector('.lcx-pet-realm')
+                );
+
+            if (!healthy) {
+                try {
+                    LuxuryLinkClickChengRuntime.mount();
+                } catch (error) {
+                    console.error(
+                        '[Link Click] Auto-mount Cheng Xiaoshi thất bại:',
+                        error
+                    );
+                }
+            }
+
+            return true;
+        }
+
+        if (
+            htmlRoot.classList.contains(
+                'linkclick-cheng-equipped'
+            )
+        ) {
+            LuxuryLinkClickChengRuntime.clear();
+        }
+
+        return false;
+    }
+
+    function installLinkClickChengAutoMountObserver(
+        attempt = 0
+    ) {
+        const container =
+            document.getElementById('virtual-pet-container');
+
+        if (!container) {
+            if (attempt < 80) {
+                window.clearTimeout(
+                    linkClickChengAutoRetryTimer
+                );
+
+                linkClickChengAutoRetryTimer =
+                    window.setTimeout(
+                        () =>
+                            installLinkClickChengAutoMountObserver(
+                                attempt + 1
+                            ),
+                        100
+                    );
+            }
+            return;
+        }
+
+        if (linkClickChengAutoObserver) {
+            linkClickChengAutoObserver.disconnect();
+        }
+
+        let syncQueued = false;
+
+        const queueSync = () => {
+            if (syncQueued) return;
+            syncQueued = true;
+
+            queueMicrotask(() => {
+                syncQueued = false;
+                syncLinkClickChengRuntimeFromDom();
+            });
+        };
+
+        linkClickChengAutoObserver =
+            new MutationObserver(queueSync);
+
+        linkClickChengAutoObserver.observe(
+            container,
+            {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                attributeFilter: [
+                    'src',
+                    'class',
+                    'style'
+                ]
+            }
+        );
+
+        syncLinkClickChengRuntimeFromDom();
+
+        window.setTimeout(
+            syncLinkClickChengRuntimeFromDom,
+            180
+        );
+
+        window.setTimeout(
+            syncLinkClickChengRuntimeFromDom,
+            650
+        );
+
+        window.setTimeout(
+            syncLinkClickChengRuntimeFromDom,
+            1600
+        );
+    }
+
+
+
+    // ========================================================
+    // LORD OF THE MYSTERIES · KLEIN · CSS LOADER
+    // MỘT file CSS duy nhất đảm nhiệm:
+    // card + pet realm + full-web skin + popup/form/slider/scrollbar
+    // + click toàn trang + ultimate khi nhấn nhân vật.
+    // ========================================================
+    function ensureLotmKleinStylesheet() {
+        if (document.getElementById('lotm-klein-premium-style')) {
+            return;
+        }
+
+        let href = '';
+
+        if (window.LOTM_KLEIN_CSS_PATH) {
+            href = String(window.LOTM_KLEIN_CSS_PATH).trim();
+        }
+
+        if (!href) {
+            const scripts = Array.from(document.scripts || []);
+            const ownScript = scripts
+                .slice()
+                .reverse()
+                .find(script => /(?:^|\/)luxury-store(?:[^\/]*)?\.js(?:[?#].*)?$/i.test(script.src || ''));
+
+            if (ownScript?.src) {
+                try {
+                    href = new URL('../css/lord-of-mysteries-klein.css', ownScript.src).href;
+                } catch (error) {
+                    href = '';
+                }
+            }
+        }
+
+        if (!href) {
+            href = new URL('css/lord-of-mysteries-klein.css', document.baseURI).href;
+        }
+
+        const link = document.createElement('link');
+        link.id = 'lotm-klein-premium-style';
+        link.rel = 'stylesheet';
+        link.href = href;
+        link.dataset.lotmKlein = 'true';
+
+        link.addEventListener('error', () => {
+            console.error(
+                '[LOTM Klein] Không tải được CSS:',
+                link.href,
+                'Hãy đặt file tại css/lord-of-mysteries-klein.css hoặc gán window.LOTM_KLEIN_CSS_PATH trước khi nạp luxury-store.js.'
+            );
+        }, { once: true });
+
+        document.head.appendChild(link);
+    }
+
+
+    // ========================================================
+    // LORD OF THE MYSTERIES · KLEIN · FULL PREMIUM RUNTIME V1
+    // Namespace: lotm-klein-* / lotmk-*
+    // Không gọi ThemeManager / EffectManager và không thay active_theme.
+    // ========================================================
+    const LuxuryLotmKleinRuntime = {
+        activePetElement: null,
+        petClickHandler: null,
+        documentClickHandler: null,
+        skillLocked: false,
+        timers: new Set(),
+
+        setTimer(callback, delay) {
+            const timer = window.setTimeout(() => {
+                this.timers.delete(timer);
+                callback();
+            }, delay);
+
+            this.timers.add(timer);
+            return timer;
+        },
+
+        clearTimers() {
+            this.timers.forEach(timer => window.clearTimeout(timer));
+            this.timers.clear();
+        },
+
+        getPet() {
+            return document.querySelector(
+                '#virtual-pet-container #virtual-pet-img.lotm-klein-mystery-magic, ' +
+                '#virtual-pet-container #virtual-pet-img.lotm-klein-pet'
+            );
+        },
+
+        clear() {
+            if (this.activePetElement && this.petClickHandler) {
+                this.activePetElement.removeEventListener(
+                    'click',
+                    this.petClickHandler
+                );
+            }
+
+            if (this.documentClickHandler) {
+                document.removeEventListener(
+                    'click',
+                    this.documentClickHandler,
+                    true
+                );
+            }
+
+            this.clearTimers();
+
+            this.activePetElement = null;
+            this.petClickHandler = null;
+            this.documentClickHandler = null;
+            this.skillLocked = false;
+
+            document.documentElement.classList.remove(
+                'lotm-klein-equipped',
+                'lotm-klein-skill-active'
+            );
+
+            document.body?.classList.remove(
+                'theme-lotm-klein-premium'
+            );
+
+            document
+                .querySelectorAll(
+                    '.lotm-klein-world,' +
+                    '.lotm-klein-ui-frame,' +
+                    '.lotm-klein-page-click,' +
+                    '.lotm-klein-ultimate'
+                )
+                .forEach(element => element.remove());
+
+            const container =
+                document.getElementById('virtual-pet-container');
+
+            container?.classList.remove(
+                'pet-lotm-klein-stage',
+                'lotm-klein-casting'
+            );
+
+            container
+                ?.querySelectorAll('.lotm-klein-pet-realm')
+                .forEach(element => element.remove());
+
+            container
+                ?.querySelector('#virtual-pet-img')
+                ?.classList.remove('lotm-klein-pet');
+        },
+
+        createWorld() {
+            document
+                .querySelectorAll('.lotm-klein-world')
+                .forEach(element => element.remove());
+
+            const world = document.createElement('div');
+            world.className = 'lotm-klein-world';
+            world.setAttribute('aria-hidden', 'true');
+            world.setAttribute('data-effect-quality-root', '1');
+
+            world.innerHTML = `
+                <div class="lotm-klein-world-vignette"></div>
+                <div class="lotm-klein-world-fog fog-a"></div>
+                <div class="lotm-klein-world-fog fog-b"></div>
+                <div class="lotm-klein-world-sigil"></div>
+                <div class="lotm-klein-world-clock"></div>
+                <div class="lotm-klein-world-cards"></div>
+                <div class="lotm-klein-world-motes"></div>
+            `;
+
+            const mobile =
+                window.matchMedia?.(
+                    '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+                ).matches;
+
+            const cardField =
+                world.querySelector('.lotm-klein-world-cards');
+
+            const cardCount =
+                getLuxuryQualityCount(mobile ? 5 : 10);
+
+            for (let index = 0; index < cardCount; index++) {
+                const card = document.createElement('span');
+                card.className = 'lotm-klein-world-card';
+
+                card.style.left =
+                    `${4 + ((index * 31 + 7) % 90)}%`;
+
+                card.style.top =
+                    `${8 + ((index * 47 + 13) % 78)}%`;
+
+                card.style.setProperty(
+                    '--lotmk-duration',
+                    `${10 + (index % 5) * 1.8}s`
+                );
+
+                card.style.setProperty(
+                    '--lotmk-delay',
+                    `${-(index % 7) * .83}s`
+                );
+
+                card.style.setProperty(
+                    '--lotmk-rot',
+                    `${-18 + (index % 9) * 5}deg`
+                );
+
+                card.style.setProperty(
+                    '--lotmk-dx',
+                    `${-12 + (index % 6) * 6}px`
+                );
+
+                cardField?.appendChild(card);
+            }
+
+            const moteField =
+                world.querySelector('.lotm-klein-world-motes');
+
+            const moteCount =
+                getLuxuryQualityCount(mobile ? 12 : 28);
+
+            for (let index = 0; index < moteCount; index++) {
+                const mote = document.createElement('span');
+                mote.className = 'lotm-klein-world-mote';
+
+                mote.style.setProperty(
+                    '--lotmk-x',
+                    `${(index * 43 + 9) % 100}%`
+                );
+
+                mote.style.setProperty(
+                    '--lotmk-y',
+                    `${(index * 67 + 11) % 100}%`
+                );
+
+                mote.style.setProperty(
+                    '--lotmk-size',
+                    `${1 + (index % 3)}px`
+                );
+
+                mote.style.setProperty(
+                    '--lotmk-duration',
+                    `${5 + (index % 6) * .9}s`
+                );
+
+                mote.style.setProperty(
+                    '--lotmk-delay',
+                    `${-(index % 8) * .47}s`
+                );
+
+                moteField?.appendChild(mote);
+            }
+
+            document.body.appendChild(world);
+
+            requestAnimationFrame(() => {
+                world.classList.add('is-active');
+            });
+        },
+
+        createInterface() {
+            document
+                .querySelectorAll('.lotm-klein-ui-frame')
+                .forEach(element => element.remove());
+
+            const frame = document.createElement('div');
+            frame.className = 'lotm-klein-ui-frame';
+            frame.setAttribute('aria-hidden', 'true');
+            frame.dataset.themeImmune = 'true';
+
+            frame.innerHTML = `
+                <span class="lotm-klein-ui-corner tl"></span>
+                <span class="lotm-klein-ui-corner tr"></span>
+                <span class="lotm-klein-ui-corner bl"></span>
+                <span class="lotm-klein-ui-corner br"></span>
+                <div class="lotm-klein-ui-crest">
+                    LORD OF THE MYSTERIES · SEFIRAH
+                </div>
+            `;
+
+            document.body.appendChild(frame);
+
+            requestAnimationFrame(() => {
+                frame.classList.add('is-active');
+            });
+        },
+
+        createPetRealm() {
+            const container =
+                document.getElementById('virtual-pet-container');
+
+            const pet =
+                container?.querySelector('#virtual-pet-img');
+
+            if (!container || !pet) {
+                return false;
+            }
+
+            container
+                .querySelectorAll('.lotm-klein-pet-realm')
+                .forEach(element => element.remove());
+
+            container.classList.add(
+                'pet-lotm-klein-stage'
+            );
+
+            pet.classList.add(
+                'lotm-klein-pet'
+            );
+
+            pet.setAttribute('draggable', 'false');
+
+            const realm = document.createElement('div');
+            realm.className = 'lotm-klein-pet-realm';
+            realm.setAttribute('aria-hidden', 'true');
+
+            realm.innerHTML = `
+                <span class="lotm-klein-pet-halo"></span>
+                <span class="lotm-klein-pet-ring ring-a"></span>
+                <span class="lotm-klein-pet-ring ring-b"></span>
+                <span class="lotm-klein-pet-eye"></span>
+                <span class="lotm-klein-pet-fog"></span>
+            `;
+
+            container.insertBefore(
+                realm,
+                pet
+            );
+
+            this.activePetElement = pet;
+            return true;
+        },
+
+        createPageClick(x, y) {
+            const click = document.createElement('span');
+            click.className = 'lotm-klein-page-click';
+            click.style.setProperty('--lotmk-click-x', `${x}px`);
+            click.style.setProperty('--lotmk-click-y', `${y}px`);
+
+            for (let index = 0; index < 8; index++) {
+                const shard = document.createElement('i');
+                shard.className = 'lotm-klein-click-shard';
+                shard.style.setProperty(
+                    '--lotmk-angle',
+                    `${index * 45}deg`
+                );
+                click.appendChild(shard);
+            }
+
+            document.body.appendChild(click);
+
+            this.setTimer(
+                () => click.remove(),
+                850
+            );
+        },
+
+        installGlobalClick() {
+            if (this.documentClickHandler) {
+                document.removeEventListener(
+                    'click',
+                    this.documentClickHandler,
+                    true
+                );
+            }
+
+            this.documentClickHandler = event => {
+                if (
+                    !document.documentElement.classList.contains(
+                        'lotm-klein-equipped'
+                    )
+                ) {
+                    return;
+                }
+
+                const target = event.target;
+
+                if (
+                    target instanceof Element &&
+                    target.closest(
+                        '.ui-theme-immune, [data-theme-immune="true"], ' +
+                        '.lotm-klein-ultimate, .lotm-klein-ui-frame'
+                    )
+                ) {
+                    return;
+                }
+
+                this.createPageClick(
+                    event.clientX,
+                    event.clientY
+                );
+            };
+
+            document.addEventListener(
+                'click',
+                this.documentClickHandler,
+                true
+            );
+        },
+
+        createUltimate(x, y) {
+            if (this.skillLocked) {
+                return false;
+            }
+
+            this.skillLocked = true;
+
+            document
+                .querySelectorAll('.lotm-klein-ultimate')
+                .forEach(element => element.remove());
+
+            const ultimate = document.createElement('div');
+            ultimate.className = 'lotm-klein-ultimate';
+            ultimate.setAttribute('aria-hidden', 'true');
+
+            const ux =
+                `${Math.max(8, Math.min(92, x / Math.max(1, window.innerWidth) * 100))}%`;
+
+            const uy =
+                `${Math.max(10, Math.min(88, y / Math.max(1, window.innerHeight) * 100))}%`;
+
+            ultimate.style.setProperty('--lotmk-ux', ux);
+            ultimate.style.setProperty('--lotmk-uy', uy);
+
+            ultimate.innerHTML = `
+                <div class="lotm-klein-ultimate-fog fog-a"></div>
+                <div class="lotm-klein-ultimate-fog fog-b"></div>
+                <div class="lotm-klein-ultimate-sigil"></div>
+                <div class="lotm-klein-ultimate-eye"></div>
+                <div class="lotm-klein-ultimate-title">
+                    <small>SEFIRAH CASTLE · MYSTERY DESCENDS</small>
+                    <strong>LORD OF THE MYSTERIES</strong>
+                </div>
+            `;
+
+            document.body.appendChild(ultimate);
+
+            document.documentElement.classList.add(
+                'lotm-klein-skill-active'
+            );
+
+            document
+                .getElementById('virtual-pet-container')
+                ?.classList.add('lotm-klein-casting');
+
+            this.setTimer(() => {
+                ultimate.remove();
+
+                document.documentElement.classList.remove(
+                    'lotm-klein-skill-active'
+                );
+
+                document
+                    .getElementById('virtual-pet-container')
+                    ?.classList.remove('lotm-klein-casting');
+
+                this.skillLocked = false;
+            }, 1850);
+
+            return true;
+        },
+
+        installPetSkill() {
+            const pet =
+                this.getPet() ||
+                document.querySelector(
+                    '#virtual-pet-container #virtual-pet-img'
+                );
+
+            if (!pet) {
+                return false;
+            }
+
+            if (this.activePetElement && this.petClickHandler) {
+                this.activePetElement.removeEventListener(
+                    'click',
+                    this.petClickHandler
+                );
+            }
+
+            this.activePetElement = pet;
+
+            this.petClickHandler = event => {
+                if (
+                    typeof PetInteractionManager !== 'undefined' &&
+                    PetInteractionManager.isPetDragging
+                ) {
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+
+                const rect =
+                    pet.getBoundingClientRect();
+
+                this.createUltimate(
+                    rect.left + rect.width / 2,
+                    rect.top + rect.height / 2
+                );
+            };
+
+            pet.addEventListener(
+                'click',
+                this.petClickHandler
+            );
+
+            return true;
+        },
+
+        mount() {
+            ensureLotmKleinStylesheet();
+            this.clear();
+
+            document.documentElement.classList.add(
+                'lotm-klein-equipped'
+            );
+
+            document.body?.classList.add(
+                'theme-lotm-klein-premium'
+            );
+
+            this.createWorld();
+            this.createInterface();
+            this.createPetRealm();
+            this.installGlobalClick();
+            this.installPetSkill();
         }
     };
 
@@ -7925,6 +9560,15 @@
                 }
 
                 try {
+                    LuxuryLotmKleinRuntime.clear();
+                } catch (error) {
+                    console.warn(
+                        '[LuxuryStore] Không thể dọn runtime LOTM Klein:',
+                        error
+                    );
+                }
+
+                try {
                     LuxuryCamCoCamMongRuntime.clear();
                 } catch (error) {
                     console.warn(
@@ -7960,6 +9604,15 @@
                     );
                 }
 
+                try {
+                    LuxuryLinkClickChengRuntime.clear();
+                } catch (error) {
+                    console.warn(
+                        '[LuxuryStore] Không thể dọn runtime Link Click:',
+                        error
+                    );
+                }
+
 // Render pet gốc trước.
                 originalSpawnPet(
                     petData
@@ -7990,6 +9643,12 @@
                     petData?.petEffect ===
                     'mythic-nyx-night-magic';
 
+                const isLotmKlein =
+                    petData?.id ===
+                    'pet_lotm_klein_event_1' ||
+                    petData?.petEffect ===
+                    'lotm-klein-mystery-magic';
+
                 const isCamCoCamMong =
                     petData?.id ===
                     'pet_cam_co_cam_mong_1' ||
@@ -8011,8 +9670,18 @@
                 const isMidAutumnMoonPalace =
                     petData?.id ===
                     'pet_trung_thu_nguyet_cung_tien_tu' ||
+                    petData?.id ===
+                    'pet_trung_thu_chu_cuoi_2' ||
                     petData?.petEffect ===
-                    'midautumn-moon-palace-pet-magic';
+                    'midautumn-moon-palace-pet-magic' ||
+                    petData?.petEffect ===
+                    'midautumn-cuoi-moonwood-magic';
+
+                const isLinkClickCheng =
+                    petData?.id ===
+                    'pet_linkclick_cheng_xiaoshi_1' ||
+                    petData?.petEffect ===
+                    'linkclick-cheng-timeframe-magic';
 /*
                  * XUÂN THẦN:
                  * phải mount lại đủ Pet Realm + World + Interface.
@@ -8050,6 +9719,29 @@
                             } catch (error) {
                                 console.error(
                                     '[LuxuryStore] Lỗi mount Hạ Thần:',
+                                    error
+                                );
+                            }
+                        }
+                    );
+
+                    return;
+                }
+
+
+                /*
+                 * LORD OF THE MYSTERIES · KLEIN:
+                 * Full suite riêng: world + interface + pet realm
+                 * + global click + ultimate. Không chiếm active_theme/effect.
+                 */
+                if (isLotmKlein) {
+                    requestAnimationFrame(
+                        () => {
+                            try {
+                                LuxuryLotmKleinRuntime.mount();
+                            } catch (error) {
+                                console.error(
+                                    '[LuxuryStore] Lỗi mount LOTM Klein:',
                                     error
                                 );
                             }
@@ -8141,6 +9833,28 @@
                             } catch (error) {
                                 console.error(
                                     '[LuxuryStore] Lỗi mount Nguyệt Cung Tiên Tử:',
+                                    error
+                                );
+                            }
+                        }
+                    );
+
+                    return;
+                }
+
+                /*
+                 * LINK CLICK · CHENG XIAOSHI:
+                 * Full suite riêng: world + interface + pet realm
+                 * + click toàn web + ultimate khi nhấn nhân vật.
+                 */
+                if (isLinkClickCheng) {
+                    requestAnimationFrame(
+                        () => {
+                            try {
+                                LuxuryLinkClickChengRuntime.mount();
+                            } catch (error) {
+                                console.error(
+                                    '[LuxuryStore] Lỗi mount Cheng Xiaoshi:',
                                     error
                                 );
                             }
@@ -8260,6 +9974,10 @@
                     String(itemId) ===
                     'pet_mythic_nyx_1';
 
+                const isLotmKlein =
+                    String(itemId) ===
+                    'pet_lotm_klein_event_1';
+
                 const isCamCoCamMong =
                     String(itemId) ===
                     'pet_cam_co_cam_mong_1';
@@ -8274,7 +9992,13 @@
 
                 const isMidAutumnMoonPalace =
                     String(itemId) ===
-                    'pet_trung_thu_nguyet_cung_tien_tu';
+                    'pet_trung_thu_nguyet_cung_tien_tu' ||
+                    String(itemId) ===
+                    'pet_trung_thu_chu_cuoi_2';
+
+                const isLinkClickCheng =
+                    String(itemId) ===
+                    'pet_linkclick_cheng_xiaoshi_1';
 /*
                  * DỌN NGAY trước khi Firebase cập nhật.
                  */
@@ -8288,6 +10012,10 @@
 
                 if (isMythicNyx) {
                     LuxuryNyxRuntime.clear();
+                }
+
+                if (isLotmKlein) {
+                    LuxuryLotmKleinRuntime.clear();
                 }
 
                 if (isCamCoCamMong) {
@@ -8304,6 +10032,10 @@
 
                 if (isMidAutumnMoonPalace) {
                     LuxuryMidAutumnRuntime.clear();
+                }
+
+                if (isLinkClickCheng) {
+                    LuxuryLinkClickChengRuntime.clear();
                 }
 
 if (isNationalDay) {
@@ -8450,6 +10182,35 @@ if (isNationalDay) {
                             .forEach(element => element.remove());
                     }
 
+                    if (isLotmKlein) {
+                        LuxuryLotmKleinRuntime.clear();
+
+                        const container =
+                            document.getElementById('virtual-pet-container');
+
+                        container?.classList.remove(
+                            'pet-lotm-klein-stage',
+                            'lotm-klein-casting'
+                        );
+
+                        container
+                            ?.querySelectorAll('.lotm-klein-pet-realm')
+                            .forEach(element => element.remove());
+
+                        container
+                            ?.querySelector('#virtual-pet-img')
+                            ?.classList.remove('lotm-klein-pet');
+
+                        document.documentElement.classList.remove(
+                            'lotm-klein-equipped',
+                            'lotm-klein-skill-active'
+                        );
+
+                        document.body?.classList.remove(
+                            'theme-lotm-klein-premium'
+                        );
+                    }
+
                     if (isCamCoCamMong) {
                         LuxuryCamCoCamMongRuntime.clear();
 
@@ -8554,6 +10315,7 @@ if (isNationalDay) {
 
                         container?.classList.remove(
                             'pet-midautumn-moon-palace-stage',
+                            'pet-midautumn-cuoi-stage',
                             'midautumn-pet-casting'
                         );
 
@@ -8564,17 +10326,24 @@ if (isNationalDay) {
                         container
                             ?.querySelector('#virtual-pet-img')
                             ?.classList.remove(
-                                'midautumn-moon-palace-pet'
+                                'midautumn-moon-palace-pet',
+                                'midautumn-cuoi-pet'
                             );
 
                         document.documentElement.classList.remove(
                             'midautumn-moon-palace-equipped',
-                            'midautumn-moon-palace-skill-active'
+                            'midautumn-moon-palace-skill-active',
+                            'midautumn-cuoi-equipped'
                         );
 
                         document.body?.classList.remove(
-                            'theme-midautumn-moon-palace'
+                            'theme-midautumn-moon-palace',
+                            'theme-midautumn-cuoi'
                         );
+                    }
+
+                    if (isLinkClickCheng) {
+                        LuxuryLinkClickChengRuntime.clear();
                     }
 
                     if (isNationalDay) {
@@ -9268,10 +11037,13 @@ if (isNationalDay) {
             SUMMER_PREMIUM_PET,
             NATIONAL_DAY_PREMIUM_PET,
             MYTHIC_NYX_PET,
+            LOTM_KLEIN_EVENT_PET,
             CAM_CO_CAM_MONG_PET,
             TAMON_BSIDE_PET,
             TAMON_PINKSTATIC_PET,
-            MID_AUTUMN_MOON_PET
+            MID_AUTUMN_MOON_PET,
+            MID_AUTUMN_CUOI_PET,
+            LINKCLICK_CHENG_XIAOSHI_PET
         ].forEach(itemDefinition => {
             const existing = StoreConfig.items.find(
                 item =>
@@ -9294,13 +11066,19 @@ if (isNationalDay) {
                 itemDefinition.id ===
                 NATIONAL_DAY_PREMIUM_PET.id ||
                 itemDefinition.id ===
+                LOTM_KLEIN_EVENT_PET.id ||
+                itemDefinition.id ===
                 CAM_CO_CAM_MONG_PET.id ||
                 itemDefinition.id ===
                 TAMON_BSIDE_PET.id ||
                 itemDefinition.id ===
                 TAMON_PINKSTATIC_PET.id ||
                 itemDefinition.id ===
-                MID_AUTUMN_MOON_PET.id
+                MID_AUTUMN_MOON_PET.id ||
+                itemDefinition.id ===
+                MID_AUTUMN_CUOI_PET.id ||
+                itemDefinition.id ===
+                LINKCLICK_CHENG_XIAOSHI_PET.id
             ) {
                 Object.assign(
                     existing,
@@ -9462,6 +11240,20 @@ if (isNationalDay) {
                     LuxuryNyxRuntime.clear();
                 }
 
+                const equippedLotmKlein =
+                    Object
+                        .values(luxuryInventoryState || {})
+                        .find(
+                            item =>
+                                String(item?.id) ===
+                                'pet_lotm_klein_event_1' &&
+                                item?.isEquipped === true
+                        );
+
+                if (!equippedLotmKlein) {
+                    LuxuryLotmKleinRuntime.clear();
+                }
+
                 const equippedCamCoCamMong =
                     Object
                         .values(luxuryInventoryState || {})
@@ -9481,13 +11273,31 @@ if (isNationalDay) {
                         .values(luxuryInventoryState || {})
                         .find(
                             item =>
-                                String(item?.id) ===
-                                'pet_trung_thu_nguyet_cung_tien_tu' &&
+                                (
+                                    String(item?.id) ===
+                                        'pet_trung_thu_nguyet_cung_tien_tu' ||
+                                    String(item?.id) ===
+                                        'pet_trung_thu_chu_cuoi_2'
+                                ) &&
                                 item?.isEquipped === true
                         );
 
                 if (!equippedMidAutumnMoonPalace) {
                     LuxuryMidAutumnRuntime.clear();
+                }
+
+                const equippedLinkClickCheng =
+                    Object
+                        .values(luxuryInventoryState || {})
+                        .find(
+                            item =>
+                                String(item?.id) ===
+                                'pet_linkclick_cheng_xiaoshi_1' &&
+                                item?.isEquipped === true
+                        );
+
+                if (!equippedLinkClickCheng) {
+                    LuxuryLinkClickChengRuntime.clear();
                 }
 /*
                  * Khi Firebase thay đổi:
@@ -9761,6 +11571,108 @@ if (isNationalDay) {
             </div>
         </article>
     `;
+        }
+
+
+
+        // ====================================================
+        // CARD LORD OF THE MYSTERIES · KLEIN
+        // Giữ nguyên bố cục chuẩn Luxury:
+        // visual -> info -> label -> title -> price/source -> action.
+        // Chỉ skin riêng bằng CSS, không đổi flow/kích thước của grid.
+        // ====================================================
+        if (item.id === 'pet_lotm_klein_event_1') {
+            const tagImage = escapeHTML(
+                item.luxuryTagImage ||
+                'assets/Premium/quy bi/tag1.png'
+            );
+
+            let actionHTML = '';
+
+            if (!isOwned) {
+                actionHTML = `
+                    <button
+                        type="button"
+                        class="lotm-klein-card-action"
+                        disabled
+                        aria-disabled="true"
+                        title="Vật phẩm này chỉ nhận từ sự kiện Lord of the Mysteries"
+                    >
+                        🎁 Nhận từ sự kiện
+                    </button>
+                `;
+            } else if (isEquipped) {
+                actionHTML = `
+                    <button
+                        type="button"
+                        class="lotm-klein-card-action is-equipped"
+                        onclick="StoreManager.unapplyItem('${id}')"
+                    >
+                        ✕ Gỡ
+                    </button>
+                `;
+            } else {
+                actionHTML = `
+                    <button
+                        type="button"
+                        class="lotm-klein-card-action"
+                        onclick="StoreManager.applyItem('${id}')"
+                    >
+                        ◈ Sử dụng
+                    </button>
+                `;
+            }
+
+            return `
+                <article
+                    class="luxury-product-card lotm-klein-card store-theme-locked ui-theme-immune"
+                    data-item-id="${id}"
+                    data-special-card="lotm-klein-event-premium"
+                    data-theme-immune="true"
+                    data-luxury-style="lotm-klein-event"
+                    tabindex="0"
+                >
+                    <div class="luxury-product-visual lotm-klein-card-visual">
+                        <div class="luxury-product-shape lotm-klein-card-shape"></div>
+                        <div class="lotm-klein-card-fog" aria-hidden="true"></div>
+                        <div class="lotm-klein-card-clock" aria-hidden="true"></div>
+                        <div class="lotm-klein-card-eye" aria-hidden="true"></div>
+
+                        <div
+                            class="lotm-klein-card-tag"
+                            aria-label="Lord of the Mysteries"
+                        >
+                            <img
+                                src="${tagImage}"
+                                alt="Lord of the Mysteries"
+                                class="lotm-klein-card-tag-art"
+                                draggable="false"
+                            >
+                        </div>
+
+                        <img
+                            src="${image}"
+                            alt="${name}"
+                            class="luxury-product-image lotm-klein-card-character"
+                            draggable="false"
+                        >
+                    </div>
+
+                    <div class="luxury-product-info lotm-klein-card-info">
+                        <span class="luxury-product-label lotm-klein-card-label">
+                            LORD OF THE MYSTERIES
+                        </span>
+
+                        <h3>${name}</h3>
+
+                        <div class="luxury-product-price lotm-klein-card-price">
+                            🎁 Phần thưởng sự kiện
+                        </div>
+
+                        ${actionHTML}
+                    </div>
+                </article>
+            `;
         }
 
 
@@ -10172,17 +12084,153 @@ if (isNationalDay) {
         }
 
 
+
+        // ====================================================
+        // CARD RIÊNG LINK CLICK · CHENG XIAOSHI
+        // Giữ nguyên bố cục card chuẩn: visual -> info -> action.
+        // Chỉ đổi skin/thành phần trang trí bên trong card này.
+        // ====================================================
+        if (item.id === 'pet_linkclick_cheng_xiaoshi_1') {
+            const tagImage = escapeHTML(
+                item.luxuryTagImage ||
+                'assets/Premium/Lock/tag1.png'
+            );
+
+            const formattedPrice =
+                Number(item.price || 12000)
+                    .toLocaleString('vi-VN');
+
+            let actionHTML = '';
+
+            if (!isOwned) {
+                actionHTML = `
+                    <button
+                        type="button"
+                        class="linkclick-card-action linkclick-card-buy"
+                        onclick="window.buyItem('${id}')"
+                    >
+                        🪙 Mua ${formattedPrice} Coin
+                    </button>
+                `;
+            } else if (isEquipped) {
+                actionHTML = `
+                    <button
+                        type="button"
+                        class="linkclick-card-action is-equipped"
+                        onclick="StoreManager.unapplyItem('${id}')"
+                    >
+                        ✕ Gỡ
+                    </button>
+                `;
+            } else {
+                actionHTML = `
+                    <button
+                        type="button"
+                        class="linkclick-card-action"
+                        onclick="StoreManager.applyItem('${id}')"
+                    >
+                        ▶ Sử dụng
+                    </button>
+                `;
+            }
+
+            return `
+                <article
+                    class="luxury-product-card linkclick-premium-card store-theme-locked ui-theme-immune"
+                    data-item-id="${id}"
+                    data-special-card="linkclick-cheng-xiaoshi"
+                    data-theme-immune="true"
+                    data-luxury-style="linkclick"
+                    tabindex="0"
+                >
+                    <div class="luxury-product-visual linkclick-card-visual">
+                        <div class="luxury-product-shape linkclick-card-shape"></div>
+                        <div class="linkclick-card-grid" aria-hidden="true"></div>
+                        <div class="linkclick-card-focus" aria-hidden="true"></div>
+                        <div class="linkclick-card-film film-a" aria-hidden="true"></div>
+                        <div class="linkclick-card-film film-b" aria-hidden="true"></div>
+
+                        <div class="linkclick-card-tag" aria-label="Link Click">
+                            <img
+                                src="${tagImage}"
+                                alt="Link Click"
+                                class="linkclick-card-tag-art"
+                                draggable="false"
+                            >
+                        </div>
+
+                        <img
+                            src="${image}"
+                            alt="${name}"
+                            class="luxury-product-image linkclick-card-character"
+                            draggable="false"
+                        >
+                    </div>
+
+                    <div class="luxury-product-info linkclick-card-info">
+                        <span class="luxury-product-label linkclick-card-label">
+                            LINK CLICK · PREMIUM PET
+                        </span>
+
+                        <h3>${name}</h3>
+
+                        <p class="linkclick-card-description">
+                            Hiệu ứng Thời Quang Ảnh Quán: khung ảnh, màn trập,
+                            timecode và chuyển động thời gian phủ toàn website.
+                        </p>
+
+                        <div class="luxury-product-price linkclick-card-price">
+                            🪙 ${formattedPrice} Coin
+                        </div>
+
+                        ${actionHTML}
+                    </div>
+                </article>
+            `;
+        }
+
+
         // ====================================================
         // CARD RIÊNG TRUNG THU · NGUYỆT CUNG TIÊN TỬ — V3
         // Đồng bộ flow với card TAMON'S B-SIDE:
         // visual -> info panel -> label -> title -> price -> action.
         // Không dùng details gradient phủ toàn chiều ngang nhân vật nữa.
         // ====================================================
-        if (item.id === 'pet_trung_thu_nguyet_cung_tien_tu') {
+        if (
+            item.id === 'pet_trung_thu_nguyet_cung_tien_tu' ||
+            item.id === 'pet_trung_thu_chu_cuoi_2'
+        ) {
+            const isCuoi =
+                item.id === 'pet_trung_thu_chu_cuoi_2';
             const tagImage = escapeHTML(
                 item.luxuryTagImage ||
                 'assets/Premium/Trung thu/tag1.png'
             );
+
+            const specialCardKey =
+                isCuoi
+                    ? 'midautumn-cuoi-premium'
+                    : 'midautumn-moon-palace-premium';
+
+            const cardVariantClass =
+                isCuoi
+                    ? 'midautumn-cuoi-premium-card'
+                    : '';
+
+            const cardStyleKey =
+                isCuoi
+                    ? 'midautumn-cuoi'
+                    : 'midautumn-moon-palace';
+
+            const cardLabel =
+                isCuoi
+                    ? 'TRUNG THU · NGUYỆT QUẾ'
+                    : 'TRUNG THU · NGUYỆT CUNG';
+
+            const cardIntro =
+                isCuoi
+                    ? 'Chú Cuội dưới bóng nguyệt quế, gọi trăng rằm và hoa đăng về khắp nhân gian.'
+                    : 'Tiên tử Nguyệt Cung, mang ánh trăng đoàn viên xuống nhân gian.';
 
             const midAutumnCoinPrice =
                 Number(item.midAutumnCoinPrice || 2);
@@ -10228,11 +12276,11 @@ if (isNationalDay) {
 
             return `
                 <article
-                    class="luxury-product-card midautumn-premium-card store-theme-locked ui-theme-immune"
+                    class="luxury-product-card midautumn-premium-card ${cardVariantClass} store-theme-locked ui-theme-immune"
                     data-item-id="${id}"
-                    data-special-card="midautumn-moon-palace-premium"
+                    data-special-card="${specialCardKey}"
                     data-theme-immune="true"
-                    data-luxury-style="midautumn-moon-palace"
+                    data-luxury-style="${cardStyleKey}"
                     tabindex="0"
                 >
                     <div class="luxury-product-visual midautumn-card-visual">
@@ -10274,13 +12322,13 @@ if (isNationalDay) {
 
                     <div class="luxury-product-info midautumn-card-info">
                         <span class="luxury-product-label midautumn-card-label">
-                            TRUNG THU · NGUYỆT CUNG
+                            ${cardLabel}
                         </span>
 
                         <h3>${name}</h3>
 
                         <p class="midautumn-card-intro">
-                            Tiên tử Nguyệt Cung, mang ánh trăng đoàn viên xuống nhân gian.
+                            ${cardIntro}
                         </p>
 
                         <div class="luxury-product-price midautumn-card-price">
@@ -11090,12 +13138,115 @@ if (isNationalDay) {
 
 
     // ========================================================
+    // EQUIPPED LUXURY REHYDRATE BRIDGE
+    // ========================================================
+    // luxury-store.js có thể được lazy-load SAU khi Firebase inventory đã về.
+    // Khi đó applyEquippedItems() trước đó không biết các item Luxury vì chúng
+    // chưa được đăng ký vào StoreConfig. Bridge này cho phép tự áp lại ngay sau
+    // khi module Luxury vừa boot, không cần người dùng bấm tab Cửa hàng.
+    let luxuryRehydrateTimer = null;
+    let luxuryRehydratePromise = null;
+
+    function getEquippedLuxuryInventoryItem() {
+        const inventory =
+            Array.isArray(window.myInventory)
+                ? window.myInventory
+                : [];
+
+        return inventory.find(invItem =>
+            invItem &&
+            invItem.isEquipped === true &&
+            LUXURY_ITEM_IDS.includes(
+                String(invItem.id || '')
+            )
+        ) || null;
+    }
+
+    async function rehydrateEquippedLuxuryRuntime(
+        reason = 'manual'
+    ) {
+        const equipped =
+            getEquippedLuxuryInventoryItem();
+
+        if (!equipped) {
+            return false;
+        }
+
+        if (
+            typeof window.applyEquippedItems !==
+            'function'
+        ) {
+            return false;
+        }
+
+        if (luxuryRehydratePromise) {
+            return luxuryRehydratePromise;
+        }
+
+        luxuryRehydratePromise =
+            (async () => {
+                await Promise.resolve(
+                    window.applyEquippedItems()
+                );
+
+                console.debug(
+                    '[LuxuryStore] Rehydrated equipped item:',
+                    equipped.id,
+                    reason
+                );
+
+                return true;
+            })();
+
+        try {
+            return await luxuryRehydratePromise;
+        } finally {
+            luxuryRehydratePromise = null;
+        }
+    }
+
+    function scheduleEquippedLuxuryRehydrate(
+        reason = 'boot',
+        delay = 80
+    ) {
+        if (luxuryRehydrateTimer) {
+            clearTimeout(luxuryRehydrateTimer);
+        }
+
+        luxuryRehydrateTimer =
+            window.setTimeout(
+                () => {
+                    luxuryRehydrateTimer = null;
+
+                    rehydrateEquippedLuxuryRuntime(
+                        reason
+                    ).catch(error => {
+                        console.warn(
+                            '[LuxuryStore] Không thể tự khôi phục Luxury runtime:',
+                            error
+                        );
+                    });
+                },
+                Math.max(
+                    0,
+                    Number(delay) || 0
+                )
+            );
+    }
+
+
+    // ========================================================
     // API
     // ========================================================
     window.LuxuryStore = {
         open: openLuxuryStore,
         close: closeLuxuryStore,
         refresh: renderLuxuryStore,
+        rehydrateEquipped:
+            reason =>
+                rehydrateEquippedLuxuryRuntime(
+                    reason || 'api'
+                ),
 
         getItems:
             () => getLuxuryItems(),
@@ -11154,6 +13305,22 @@ if (isNationalDay) {
                 rect.top + rect.height / 2
             );
             return true;
+        },
+
+        // Test nhanh Lord of the Mysteries · Klein — không cấp quyền sở hữu.
+        previewLotmKlein: () => {
+            if (
+                typeof PetManager !== 'undefined' &&
+                typeof PetManager.spawnPet === 'function'
+            ) {
+                PetManager.spawnPet(
+                    LOTM_KLEIN_EVENT_PET
+                );
+            }
+        },
+
+        clearLotmKlein: () => {
+            LuxuryLotmKleinRuntime.clear();
         },
 
         // Test nhanh Cầm Cơ · Cầm Mộng — FULL SUITE V1.
@@ -11236,6 +13403,27 @@ if (isNationalDay) {
             LuxuryTamonPinkStaticRuntime.clear();
         },
 
+        previewLinkClickCheng: () => {
+            if (
+                typeof PetManager !== 'undefined' &&
+                typeof PetManager.spawnPet === 'function'
+            ) {
+                PetManager.spawnPet(
+                    LINKCLICK_CHENG_XIAOSHI_PET
+                );
+            }
+        },
+
+        clearLinkClickCheng: () => {
+            LuxuryLinkClickChengRuntime.clear();
+        },
+
+        // Chẩn đoán/sửa nhanh full-web Link Click theo pet đang hiển thị.
+        repairLinkClickCheng: () => {
+            ensureLinkClickChengStylesheet();
+            return syncLinkClickChengRuntimeFromDom();
+        },
+
         previewMidAutumn: () => {
             if (
                 typeof PetManager !== 'undefined' &&
@@ -11243,6 +13431,17 @@ if (isNationalDay) {
             ) {
                 PetManager.spawnPet(
                     MID_AUTUMN_MOON_PET
+                );
+            }
+        },
+
+        previewMidAutumnCuoi: () => {
+            if (
+                typeof PetManager !== 'undefined' &&
+                typeof PetManager.spawnPet === 'function'
+            ) {
+                PetManager.spawnPet(
+                    MID_AUTUMN_CUOI_PET
                 );
             }
         },
@@ -11272,16 +13471,26 @@ if (isNationalDay) {
     // ========================================================
     function bootLuxuryStore() {
 
+        ensureLotmKleinStylesheet();
         ensureCamCoCamMongStylesheet();
         ensureTamonBSideStylesheet();
         ensureMidAutumnStylesheet();
+        ensureLinkClickChengStylesheet();
 
         installLuxurySpringPetHook();
+        installLinkClickChengAutoMountObserver();
 
         // Rehydrate Summer V2 even when active_pet was restored before
         // luxury-store.js finished installing its spawn hook.
         LuxurySummerRuntime.restore();
         LuxuryMidAutumnRuntime.restore();
+        LuxuryLinkClickChengRuntime.restore();
+
+        // Tự sửa thêm một nhịp sau khi DOM/pet đã ổn định.
+        window.setTimeout(
+            syncLinkClickChengRuntimeFromDom,
+            320
+        );
 
         installLuxurySpringUnapplyHook();
 
@@ -11291,6 +13500,16 @@ if (isNationalDay) {
         buildLuxuryStoreUI();
 
         installLuxuryInventoryListener();
+
+        /*
+         * Quan trọng cho lazy-load:
+         * inventory có thể đã được đọc trước khi luxury-store.js tồn tại.
+         * Sau khi đăng ký item + hook xong, tự áp lại pet Luxury đang mặc.
+         */
+        scheduleEquippedLuxuryRehydrate(
+            'luxury-module-boot',
+            90
+        );
     }
 
     if (

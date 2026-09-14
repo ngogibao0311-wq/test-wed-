@@ -136,6 +136,24 @@ class EffectManager {
 
 
         /*
+         * LINK CLICK · HÀNH LANG DƯ ẢNH
+         * Root mount trực tiếp vào body để phủ toàn web.
+         * Chỉ dọn namespace lce4-* của effect mới này.
+         * Không chỉnh sửa DOM/runtime của bất kỳ effect nào khác.
+         */
+        document
+            .querySelectorAll(
+                '.lce4-echo-corridor[data-lce4-portal="1"]'
+            )
+            .forEach(node => {
+                node.classList.add('is-leaving');
+
+                window.setTimeout(() => {
+                    node.remove();
+                }, 260);
+            });
+
+        /*
          * PREMIUM MÙA HẠ · PHONG LINH HẠ NHẬT
          * Root được mount trực tiếp vào <body> để phủ toàn web.
          * Chỉ dọn namespace ha2efx-* của chính effect này;
@@ -146,6 +164,20 @@ class EffectManager {
                 '.ha2efx-summer-windchime[data-ha2efx-portal="1"]'
             )
             .forEach(node => node.remove());
+
+        /*
+         * TRUNG THU · QUẾ ẢNH PHI DIỆP
+         * Root mount trực tiếp vào body; namespace mtefx4-* độc lập.
+         * Chỉ dọn đúng effect này, không chạm effect khác.
+         */
+        document
+            .querySelectorAll(
+                '.mtefx4-osmanthus-shadow-leaves[data-mtefx4-portal="1"]'
+            )
+            .forEach(node => {
+                node.classList.add('is-leaving');
+                window.setTimeout(() => node.remove(), 260);
+            });
 
         /*
          * TRUNG THU · NGUYỆT TRIỀU LƯU QUANG
@@ -306,9 +338,19 @@ class EffectManager {
                 this.createCamMongWanQinRadianceEffect();
                 break;
 
+            // TRUNG THU · QUẾ ẢNH PHI DIỆP — effect toàn web độc lập
+            case 'effect_trung_thu_que_anh_phi_diep':
+                this.createMidAutumnOsmanthusShadowLeavesEffect();
+                break;
+
             // TRUNG THU · NGUYỆT TRIỀU LƯU QUANG
             case 'effect_trung_thu_nguyet_trieu_luu_quang':
                 this.createMidAutumnMoonTideRadianceEffect();
+                break;
+
+            // LINK CLICK · HÀNH LANG DƯ ẢNH
+            case 'effect_linkclick_echo_corridor':
+                this.createLinkClickEchoCorridorEffect();
                 break;
         }
         localStorage.setItem('active_effect', effectId);
@@ -4778,6 +4820,450 @@ class EffectManager {
             root.classList.add('is-active');
         });
 
+        return root;
+    }
+
+
+    // =========================================================
+    // LINK CLICK · HÀNH LANG DƯ ẢNH
+    // Namespace riêng: lce4-*
+    // Concept: hành lang chiều sâu + kính ký ức + vệt quang.
+    // Không clock / film / polaroid / focus / Time Dive glitch.
+    // =========================================================
+    static createLinkClickEchoCorridorEffect() {
+        this.stopIntervals();
+
+        document
+            .querySelectorAll(
+                '.lce4-echo-corridor[data-lce4-portal="1"]'
+            )
+            .forEach(node => node.remove());
+
+        if (!document.body) {
+            return;
+        }
+
+        const root =
+            document.createElement('div');
+
+        root.className =
+            'lce4-echo-corridor ui-theme-immune';
+
+        root.dataset.lce4Portal =
+            '1';
+
+        root.dataset.themeImmune =
+            'true';
+
+        root.setAttribute(
+            'aria-hidden',
+            'true'
+        );
+
+        root.innerHTML = `
+            <div class="lce4-veil"></div>
+
+            <div class="lce4-depth-vignette"></div>
+
+            <div class="lce4-corridor">
+                <div class="lce4-gate-field"></div>
+            </div>
+
+            <div class="lce4-pane-field"></div>
+            <div class="lce4-thread-field"></div>
+            <div class="lce4-fragment-field"></div>
+            <div class="lce4-coordinate-field"></div>
+
+            <div class="lce4-refraction refraction-left"></div>
+            <div class="lce4-refraction refraction-right"></div>
+
+            <div class="lce4-edge-line edge-top"></div>
+            <div class="lce4-edge-line edge-bottom"></div>
+
+            <div class="lce4-signature">
+                <small>LINK CLICK · ECHO CHANNEL</small>
+                <strong>HÀNH LANG DƯ ẢNH</strong>
+                <span>MEMORY DEPTH / 05:12</span>
+            </div>
+        `;
+
+        const reduced =
+            window.matchMedia?.(
+                '(max-width: 768px), ' +
+                '(pointer: coarse), ' +
+                '(prefers-reduced-motion: reduce)'
+            ).matches;
+
+        const gateField =
+            root.querySelector(
+                '.lce4-gate-field'
+            );
+
+        const paneField =
+            root.querySelector(
+                '.lce4-pane-field'
+            );
+
+        const threadField =
+            root.querySelector(
+                '.lce4-thread-field'
+            );
+
+        const fragmentField =
+            root.querySelector(
+                '.lce4-fragment-field'
+            );
+
+        const coordinateField =
+            root.querySelector(
+                '.lce4-coordinate-field'
+            );
+
+        const gateCount =
+            this.getQualityCount(
+                reduced ? 7 : 13
+            );
+
+        const paneCount =
+            this.getQualityCount(
+                reduced ? 8 : 18
+            );
+
+        const threadCount =
+            this.getQualityCount(
+                reduced ? 10 : 24
+            );
+
+        const fragmentCount =
+            this.getQualityCount(
+                reduced ? 20 : 54
+            );
+
+        const coordinateCount =
+            this.getQualityCount(
+                reduced ? 7 : 16
+            );
+
+        for (
+            let index = 0;
+            index < gateCount;
+            index++
+        ) {
+            const gate =
+                document.createElement('i');
+
+            gate.className =
+                index % 3 === 0
+                    ? 'lce4-gate is-rose'
+                    : 'lce4-gate';
+
+            gate.style.setProperty(
+                '--lce4-gate-index',
+                index
+            );
+
+            gate.style.setProperty(
+                '--lce4-gate-delay',
+                `${-index * .64}s`
+            );
+
+            gateField?.appendChild(
+                gate
+            );
+        }
+
+        for (
+            let index = 0;
+            index < paneCount;
+            index++
+        ) {
+            const pane =
+                document.createElement('i');
+
+            pane.className =
+                index % 4 === 0
+                    ? 'lce4-pane is-rose'
+                    : (
+                        index % 3 === 0
+                            ? 'lce4-pane is-white'
+                            : 'lce4-pane'
+                    );
+
+            pane.style.setProperty(
+                '--lce4-pane-x',
+                `${3 + ((index * 47) % 94)}%`
+            );
+
+            pane.style.setProperty(
+                '--lce4-pane-y',
+                `${7 + ((index * 61) % 84)}%`
+            );
+
+            pane.style.setProperty(
+                '--lce4-pane-w',
+                `${44 + (index % 5) * 17}px`
+            );
+
+            pane.style.setProperty(
+                '--lce4-pane-h',
+                `${56 + (index % 6) * 19}px`
+            );
+
+            pane.style.setProperty(
+                '--lce4-pane-delay',
+                `${-(index % 9) * .73}s`
+            );
+
+            pane.style.setProperty(
+                '--lce4-pane-rot',
+                `${-10 + (index % 7) * 3}deg`
+            );
+
+            paneField?.appendChild(
+                pane
+            );
+        }
+
+        for (
+            let index = 0;
+            index < threadCount;
+            index++
+        ) {
+            const thread =
+                document.createElement('i');
+
+            thread.className =
+                index % 4 === 0
+                    ? 'lce4-thread is-rose'
+                    : 'lce4-thread';
+
+            thread.style.setProperty(
+                '--lce4-thread-y',
+                `${4 + ((index * 37) % 92)}%`
+            );
+
+            thread.style.setProperty(
+                '--lce4-thread-delay',
+                `${-(index % 8) * .58}s`
+            );
+
+            thread.style.setProperty(
+                '--lce4-thread-width',
+                `${18 + (index % 6) * 9}vw`
+            );
+
+            threadField?.appendChild(
+                thread
+            );
+        }
+
+        for (
+            let index = 0;
+            index < fragmentCount;
+            index++
+        ) {
+            const fragment =
+                document.createElement('b');
+
+            fragment.className =
+                index % 7 === 0
+                    ? 'lce4-fragment is-rose'
+                    : (
+                        index % 5 === 0
+                            ? 'lce4-fragment is-white'
+                            : 'lce4-fragment'
+                    );
+
+            fragment.style.setProperty(
+                '--lce4-fragment-x',
+                `${2 + ((index * 43) % 96)}%`
+            );
+
+            fragment.style.setProperty(
+                '--lce4-fragment-y',
+                `${5 + ((index * 71) % 90)}%`
+            );
+
+            fragment.style.setProperty(
+                '--lce4-fragment-delay',
+                `${-(index % 13) * .41}s`
+            );
+
+            fragment.style.setProperty(
+                '--lce4-fragment-size',
+                `${2 + (index % 4) * 1.25}px`
+            );
+
+            fragmentField?.appendChild(
+                fragment
+            );
+        }
+
+        const labels = [
+            '05:12',
+            'MEM_03',
+            'ECHO',
+            'FRAME',
+            'DEPTH',
+            'LINK',
+            'TRACE',
+            '08:24'
+        ];
+
+        for (
+            let index = 0;
+            index < coordinateCount;
+            index++
+        ) {
+            const label =
+                document.createElement('span');
+
+            label.textContent =
+                labels[
+                    index %
+                    labels.length
+                ];
+
+            label.style.setProperty(
+                '--lce4-label-x',
+                `${4 + ((index * 53) % 90)}%`
+            );
+
+            label.style.setProperty(
+                '--lce4-label-y',
+                `${8 + ((index * 67) % 82)}%`
+            );
+
+            label.style.setProperty(
+                '--lce4-label-delay',
+                `${-(index % 7) * .87}s`
+            );
+
+            coordinateField?.appendChild(
+                label
+            );
+        }
+
+        document.body.appendChild(
+            root
+        );
+
+        requestAnimationFrame(() => {
+            root.classList.add(
+                'is-active'
+            );
+        });
+
+        return root;
+    }
+
+    // =========================================================
+    // TRUNG THU · QUẾ ẢNH PHI DIỆP
+    // Hiệu ứng toàn web độc lập hoàn toàn — namespace mtefx4-*.
+    // Không gọi/tái sử dụng bất kỳ effect runtime nào khác.
+    // =========================================================
+    static createMidAutumnOsmanthusShadowLeavesEffect() {
+        this.stopIntervals();
+
+        document
+            .querySelectorAll(
+                '.mtefx4-osmanthus-shadow-leaves[data-mtefx4-portal="1"]'
+            )
+            .forEach(node => node.remove());
+
+        if (!document.body) return;
+
+        const root = document.createElement('div');
+        root.className =
+            'mtefx4-osmanthus-shadow-leaves ui-theme-immune';
+        root.dataset.themeImmune = 'true';
+        root.dataset.mtefx4Portal = '1';
+        root.setAttribute('aria-hidden', 'true');
+
+        root.innerHTML = `
+            <div class="mtefx4-veil"></div>
+            <div class="mtefx4-moon-halo">
+                <span class="mtefx4-moon-disc"></span>
+                <span class="mtefx4-moon-ring ring-a"></span>
+                <span class="mtefx4-moon-ring ring-b"></span>
+                <b>桂</b>
+            </div>
+
+            <div class="mtefx4-banyan-shadow shadow-left"></div>
+            <div class="mtefx4-banyan-shadow shadow-right"></div>
+
+            <div class="mtefx4-mist mist-a"></div>
+            <div class="mtefx4-mist mist-b"></div>
+            <div class="mtefx4-mist mist-c"></div>
+
+            <div class="mtefx4-leaf-field"></div>
+            <div class="mtefx4-firefly-field"></div>
+            <div class="mtefx4-petal-field"></div>
+            <div class="mtefx4-rune-field"></div>
+
+            <div class="mtefx4-caption">
+                <small>桂 影 · 飛 葉</small>
+                <strong>QUẾ ẢNH PHI DIỆP</strong>
+                <em>TRUNG THU · DƯỚI BÓNG NGUYỆT QUẾ</em>
+            </div>
+        `;
+
+        const reduced = window.matchMedia?.(
+            '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+        ).matches;
+
+        const leafField = root.querySelector('.mtefx4-leaf-field');
+        const fireflyField = root.querySelector('.mtefx4-firefly-field');
+        const petalField = root.querySelector('.mtefx4-petal-field');
+        const runeField = root.querySelector('.mtefx4-rune-field');
+
+        const leafCount = this.getQualityCount(reduced ? 16 : 42);
+        const fireflyCount = this.getQualityCount(reduced ? 10 : 26);
+        const petalCount = this.getQualityCount(reduced ? 9 : 22);
+        const runeCount = this.getQualityCount(reduced ? 5 : 10);
+
+        for (let i = 0; i < leafCount; i++) {
+            const leaf = document.createElement('i');
+            leaf.className = 'mtefx4-leaf';
+            leaf.style.setProperty('--mtefx4-x', `${(i * 37 + 3) % 100}%`);
+            leaf.style.setProperty('--mtefx4-delay', `${-(i % 15) * .63}s`);
+            leaf.style.setProperty('--mtefx4-dur', `${8.5 + (i % 8) * .72}s`);
+            leaf.style.setProperty('--mtefx4-scale', `${.58 + (i % 6) * .11}`);
+            leaf.style.setProperty('--mtefx4-drift', `${-90 + (i % 9) * 23}px`);
+            leafField?.appendChild(leaf);
+        }
+
+        for (let i = 0; i < fireflyCount; i++) {
+            const mote = document.createElement('i');
+            mote.className = 'mtefx4-firefly';
+            mote.style.setProperty('--mtefx4-fx', `${4 + (i * 43) % 92}%`);
+            mote.style.setProperty('--mtefx4-fy', `${8 + (i * 67) % 84}%`);
+            mote.style.setProperty('--mtefx4-fd', `${-(i % 11) * .48}s`);
+            mote.style.setProperty('--mtefx4-fs', `${2 + (i % 4)}px`);
+            fireflyField?.appendChild(mote);
+        }
+
+        for (let i = 0; i < petalCount; i++) {
+            const petal = document.createElement('i');
+            petal.className = 'mtefx4-petal';
+            petal.style.setProperty('--mtefx4-px', `${2 + (i * 53) % 96}%`);
+            petal.style.setProperty('--mtefx4-pd', `${-(i % 13) * .71}s`);
+            petal.style.setProperty('--mtefx4-pr', `${(i * 41) % 180}deg`);
+            petalField?.appendChild(petal);
+        }
+
+        const runes = ['桂', '月', '☾', '✦', '葉', '中秋', '❧', '月'];
+        for (let i = 0; i < runeCount; i++) {
+            const rune = document.createElement('span');
+            rune.textContent = runes[i % runes.length];
+            rune.style.setProperty('--mtefx4-rx', `${8 + (i * 31) % 84}%`);
+            rune.style.setProperty('--mtefx4-ry', `${12 + (i * 47) % 74}%`);
+            rune.style.setProperty('--mtefx4-rd', `${-(i % 7) * .9}s`);
+            runeField?.appendChild(rune);
+        }
+
+        document.body.appendChild(root);
+        requestAnimationFrame(() => root.classList.add('is-active'));
         return root;
     }
 

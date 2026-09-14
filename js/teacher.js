@@ -3406,6 +3406,16 @@ window.onload = async function () {
         'verified',
         'Firebase Auth + UID + role Giáo viên đã xác minh thành công.'
     );
+
+    // Chạy dọn lịch sử ở nền sau khi quyền Giáo viên đã được Firebase xác minh.
+    // Không await để không làm chậm màn hình khởi động.
+    if (
+        window.HistoryRetention &&
+        typeof window.HistoryRetention.scheduleTeacherCleanup === 'function'
+    ) {
+        window.HistoryRetention.scheduleTeacherCleanup();
+    }
+
     await issueTodayBirthdayRewardsByTeacher();
     if (startupLoader) startupLoader.markReady('teacher-birthday-rewards');
     if (document.getElementById('settingName')) document.getElementById('settingName').value = currentUser.name;
@@ -5947,6 +5957,29 @@ function mergeTeacherRedoViolationHistory(submission) {
     };
 }
 
+function hasTeacherHistoricalViolation(submission) {
+    const history = getTeacherRedoViolationHistory(submission);
+
+    return !!(
+        history.essayMissing ||
+        history.late ||
+        history.autoSubmitted ||
+        history.cheat
+    );
+}
+
+function hasTeacherCurrentViolation(submission) {
+    return !!(
+        submission &&
+        (
+            submission.isEssayMissing ||
+            submission.isLateFail ||
+            submission.isAutoSubmitted ||
+            submission.isCheatFail
+        )
+    );
+}
+
 
 // ======================================================
 // HUY HIỆU "NỘP TRỄ" CHO BÀI TỰ THU ĐÃ LÀM ĐỦ
@@ -6950,6 +6983,16 @@ async function loadSubmissions(isLoadMore = false) {
         const redoViolationHistory =
             getTeacherRedoViolationHistory(sub);
 
+        if (!sub.isCheatFail && redoViolationHistory.cheat) {
+            violationHTML += `<div style="background: rgba(59, 130, 246, 0.08); border-left: 4px solid #3b82f6; padding: 10px; margin-top: 10px; margin-bottom: 10px; border-radius: 8px;"><strong style="color:#1d4ed8;">🚨 ĐÃ TỪNG VI PHẠM QUY CHẾ THI:</strong><br><span style="color:#1e40af; font-size:0.9em;">Học sinh đã làm lại, nhưng lỗi ở lần trước vẫn được lưu cho đến khi giáo viên bấm Tha lỗi.</span></div>`;
+        }
+        if (!sub.isLateFail && redoViolationHistory.late) {
+            violationHTML += `<div style="background: rgba(59, 130, 246, 0.08); border-left: 4px solid #3b82f6; padding: 10px; margin-top: 10px; margin-bottom: 10px; border-radius: 8px;"><strong style="color:#1d4ed8;">⏰ ĐÃ TỪNG NỘP TRỄ / KHÔNG NỘP KỊP:</strong><br><span style="color:#1e40af; font-size:0.9em;">Lịch sử quá hạn của bài này vẫn còn hiệu lực sau khi làm lại.</span></div>`;
+        }
+        if (!sub.isAutoSubmitted && redoViolationHistory.autoSubmitted) {
+            violationHTML += `<div style="background: rgba(59, 130, 246, 0.08); border-left: 4px solid #3b82f6; padding: 10px; margin-top: 10px; margin-bottom: 10px; border-radius: 8px;"><strong style="color:#1d4ed8;">⌛ ĐÃ TỪNG BỊ HỆ THỐNG TỰ THU:</strong><br><span style="color:#1e40af; font-size:0.9em;">Lỗi tự thu/không nộp kịp của lần trước không bị xóa bởi thao tác Cho làm lại.</span></div>`;
+        }
+
         let lateSubmissionBadge = '';
 
         if (
@@ -6959,6 +7002,22 @@ async function loadSubmissions(isLoadMore = false) {
             )
         ) {
             lateSubmissionBadge = '<span style="background: rgba(244, 63, 94, 0.10); color: #e11d48; border: 1px solid rgba(244, 63, 94, 0.55); padding: 2px 7px; border-radius: 5px; font-size: 0.8em; margin-left: 8px; font-weight: 800; vertical-align: middle; white-space: nowrap;">⏰ Nộp trễ</span>';
+        } else if (sub.isLateFail) {
+            lateSubmissionBadge += '<span style="background: rgba(244, 63, 94, 0.10); color: #e11d48; border: 1px solid rgba(244, 63, 94, 0.55); padding: 2px 7px; border-radius: 5px; font-size: 0.8em; margin-left: 8px; font-weight: 800; vertical-align: middle; white-space: nowrap;">⏰ Quá hạn</span>';
+        } else if (redoViolationHistory.late) {
+            lateSubmissionBadge += '<span style="background: rgba(59, 130, 246, 0.10); color: #1d4ed8; border: 1px solid rgba(59, 130, 246, 0.55); padding: 2px 7px; border-radius: 5px; font-size: 0.8em; margin-left: 8px; font-weight: 800; vertical-align: middle; white-space: nowrap;">⏰ Đã từng quá hạn</span>';
+        }
+
+        if (sub.isAutoSubmitted && !sub.isCheatFail) {
+            lateSubmissionBadge += '<span style="background: rgba(244, 63, 94, 0.10); color: #be123c; border: 1px solid rgba(244, 63, 94, 0.55); padding: 2px 7px; border-radius: 5px; font-size: 0.8em; margin-left: 8px; font-weight: 800; vertical-align: middle; white-space: nowrap;">⌛ Bị tự thu</span>';
+        } else if (redoViolationHistory.autoSubmitted) {
+            lateSubmissionBadge += '<span style="background: rgba(59, 130, 246, 0.10); color: #1d4ed8; border: 1px solid rgba(59, 130, 246, 0.55); padding: 2px 7px; border-radius: 5px; font-size: 0.8em; margin-left: 8px; font-weight: 800; vertical-align: middle; white-space: nowrap;">⌛ Đã từng bị tự thu</span>';
+        }
+
+        if (sub.isCheatFail) {
+            lateSubmissionBadge += '<span style="background: rgba(225, 29, 72, 0.10); color: #be123c; border: 1px solid rgba(225, 29, 72, 0.55); padding: 2px 7px; border-radius: 5px; font-size: 0.8em; margin-left: 8px; font-weight: 800; vertical-align: middle; white-space: nowrap;">🚨 Vi phạm quy chế</span>';
+        } else if (redoViolationHistory.cheat) {
+            lateSubmissionBadge += '<span style="background: rgba(59, 130, 246, 0.10); color: #1d4ed8; border: 1px solid rgba(59, 130, 246, 0.55); padding: 2px 7px; border-radius: 5px; font-size: 0.8em; margin-left: 8px; font-weight: 800; vertical-align: middle; white-space: nowrap;">🚨 Đã từng vi phạm quy chế</span>';
         }
 
         let missingEssayBadge = '';
@@ -6966,7 +7025,7 @@ async function loadSubmissions(isLoadMore = false) {
         if (sub.isEssayMissing) {
             missingEssayBadge = '<span style="background: rgba(245, 158, 11, 0.15); color: #d97706; border: 1px solid #f59e0b; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; margin-left: 8px; font-weight: bold; vertical-align: middle;">⚠️ Thiếu tự luận</span>';
         } else if (redoViolationHistory.essayMissing) {
-            missingEssayBadge = '<span style="background: rgba(59, 130, 246, 0.12); color: #1d4ed8; border: 1px solid rgba(59, 130, 246, 0.55); padding: 2px 6px; border-radius: 4px; font-size: 0.8em; margin-left: 8px; font-weight: bold; vertical-align: middle;">⚠️ Từng thiếu tự luận</span>';
+            missingEssayBadge = '<span style="background: rgba(59, 130, 246, 0.12); color: #1d4ed8; border: 1px solid rgba(59, 130, 246, 0.55); padding: 2px 6px; border-radius: 4px; font-size: 0.8em; margin-left: 8px; font-weight: bold; vertical-align: middle;">⚠️ Đã từng thiếu tự luận</span>';
         }
 
         const uniqueId = `teacher-sub-${sub.id}`;
@@ -7706,6 +7765,10 @@ async function loadStudentsList() {
         // Đọc trạng thái tham gia lộ trình (Mặc định là true nếu chưa có dữ liệu)
         let participateChecked = st.isParticipatingRoadmap !== false ? 'checked' : '';
 
+        // Quyền truy cập Cửa hàng & Trò chơi theo từng học sinh.
+        // Tài khoản cũ chưa có trường này được hiểu là ĐANG MỞ.
+        let storeGameAccessChecked = st.storeGameAccessEnabled !== false ? 'checked' : '';
+
         // LẤY SỐ COIN TƯƠNG ỨNG VỚI USERNAME (Mặc định là 0 nếu chưa có)
         let studentCoins = coinData[st.username] || 0;
 
@@ -7719,10 +7782,14 @@ async function loadStudentsList() {
             <td style="padding:12px;">
                 <strong>${st.name}</strong> <br>
                 <span style="font-size: 0.85em; color: #666;">Lớp: ${st.classInfo || '---'}</span>${statusText}
-                <div style="margin-top: 8px;">
-                    <label style="cursor: pointer; font-size: 0.85em; color: #059669; font-weight: bold; display: flex; align-items: center; gap: 5px;">
-                        <input type="checkbox" ${participateChecked} onchange="toggleParticipateRoadmap('${st._fbKey}', this.checked)" style="margin: 0; width: 16px; height: 16px;">
-                        Tham gia lộ trình
+                <div class="student-account-preferences" style="display:flex !important; flex-direction:column !important; align-items:flex-start !important; gap:7px !important; width:auto !important; margin-top:9px !important;">
+                    <label class="student-account-checkbox student-account-checkbox--roadmap" style="display:inline-flex !important; flex-direction:row !important; align-items:center !important; gap:7px !important; width:auto !important; margin:0 !important; color:#059669; font-size:.85em; font-weight:800; white-space:nowrap; cursor:pointer;">
+                        <input type="checkbox" ${participateChecked} onchange="toggleParticipateRoadmap('${st._fbKey}', this.checked)" style="appearance:auto !important; -webkit-appearance:checkbox !important; display:inline-block !important; position:static !important; flex:0 0 17px !important; width:17px !important; min-width:17px !important; max-width:17px !important; height:17px !important; min-height:17px !important; max-height:17px !important; margin:0 !important; padding:0 !important; accent-color:#059669 !important; transform:none !important;">
+                        <span style="display:inline !important; width:auto !important; margin:0 !important; padding:0 !important;">Tham gia lộ trình</span>
+                    </label>
+                    <label class="student-account-checkbox student-account-checkbox--store-game" title="Tắt để ẩn Cửa hàng và Trò chơi ở tài khoản học sinh này" style="display:inline-flex !important; flex-direction:row !important; align-items:center !important; gap:7px !important; width:auto !important; margin:0 !important; color:#6d28d9; font-size:.85em; font-weight:800; white-space:nowrap; cursor:pointer;">
+                        <input type="checkbox" ${storeGameAccessChecked} onchange="toggleStudentStoreGameAccess('${st._fbKey}', this.checked, this)" style="appearance:auto !important; -webkit-appearance:checkbox !important; display:inline-block !important; position:static !important; flex:0 0 17px !important; width:17px !important; min-width:17px !important; max-width:17px !important; height:17px !important; min-height:17px !important; max-height:17px !important; margin:0 !important; padding:0 !important; accent-color:#7c3aed !important; transform:none !important;">
+                        <span style="display:inline !important; width:auto !important; margin:0 !important; padding:0 !important;">🛒🎮 Cửa hàng &amp; Trò chơi</span>
                     </label>
                 </div>
             </td>
@@ -8009,6 +8076,8 @@ async function createStudent() {
             name,
             role: 'student',
             isLocked: false,
+            // Mặc định cho phép học sinh sử dụng Cửa hàng và Trò chơi.
+            storeGameAccessEnabled: true,
             classInfo,
             hobbies,
             motto
@@ -8364,10 +8433,10 @@ async function handleRequest(reqKey, isApprove, username, newName, newPass) {
             if (newPass) updateData.password = newPass;
             await updateDB('users', userRecord._fbKey, updateData);
         }
-        await updateDB('profile_requests', reqKey, { status: 'approved' });
+        await updateDB('profile_requests', reqKey, { status: 'approved', resolvedAt: Date.now() });
         alert("✅ Đã phê duyệt yêu cầu và đổi mật khẩu thành công!");
     } else {
-        await updateDB('profile_requests', reqKey, { status: 'rejected' });
+        await updateDB('profile_requests', reqKey, { status: 'rejected', resolvedAt: Date.now() });
         alert("❌ Đã từ chối yêu cầu!");
     }
 
@@ -8804,8 +8873,16 @@ function switchTab(tabId, btnElement) {
 // ======================================================
 
 function normalizeLoginPageLayout(value) {
-    return String(value || '').trim() === 'centered'
-        ? 'centered'
+    const normalized = String(value || '').trim().toLowerCase();
+    const allowedLayouts = new Set([
+        'split',
+        'centered',
+        'reversed',
+        'cinematic'
+    ]);
+
+    return allowedLayouts.has(normalized)
+        ? normalized
         : 'split';
 }
 
@@ -8842,47 +8919,71 @@ window.updateLoginLayoutNotice = function (value) {
 
     if (!warning) return;
 
-    if (layout === 'centered') {
-        warning.innerHTML = `
-        <strong>
-            ⚠️ Kích thước ảnh cho bố cục phủ toàn bộ khung đăng nhập
-        </strong>
-
-        <span>
-            Nên dùng ảnh ngang <b>16:10</b>,
-            tối thiểu <b>1920 × 1200 px</b>;
-            đẹp hơn ở <b>2560 × 1600 px</b>.
-
-            <br><br>
-
-            Ảnh chỉ phủ chiếc khung lớn bo góc,
-            không phủ toàn bộ màn hình trình duyệt.
-
-            <br><br>
-
-            Trên điện thoại, hai cạnh trái và phải của ảnh
-            có thể bị cắt. Hãy đặt nhân vật, chữ và nội dung
-            quan trọng trong vùng trung tâm của ảnh.
-        </span>
-    `;
-    } else {
-        warning.innerHTML = `
+    const notices = {
+        split: `
             <strong>
                 ⚠️ Kích thước ảnh cho bố cục hai cột
             </strong>
-
             <span>
                 Nên dùng ảnh dọc <b>4:5</b>,
                 khoảng <b>1600 × 2000 px</b> hoặc
                 <b>2000 × 2500 px</b>.
-
                 <br><br>
-
+                Ảnh nằm bên trái trên máy tính.
                 Trên điện thoại, phần ảnh được ẩn để ưu tiên
                 không gian nhập tài khoản.
             </span>
-        `;
-    }
+        `,
+        centered: `
+            <strong>
+                ⚠️ Kích thước ảnh cho bố cục phủ toàn bộ khung đăng nhập
+            </strong>
+            <span>
+                Nên dùng ảnh ngang <b>16:10</b>,
+                tối thiểu <b>1920 × 1200 px</b>;
+                đẹp hơn ở <b>2560 × 1600 px</b>.
+                <br><br>
+                Ảnh chỉ phủ chiếc khung lớn bo góc,
+                không phủ toàn bộ màn hình trình duyệt.
+                <br><br>
+                Trên điện thoại, hai cạnh trái và phải của ảnh
+                có thể bị cắt. Hãy đặt nội dung quan trọng ở vùng trung tâm.
+            </span>
+        `,
+        reversed: `
+            <strong>
+                ⚠️ Kích thước ảnh cho bố cục đảo chiều hai cột
+            </strong>
+            <span>
+                Nên dùng ảnh dọc <b>4:5</b>,
+                khoảng <b>1600 × 2000 px</b> hoặc
+                <b>2000 × 2500 px</b>.
+                <br><br>
+                Form nằm bên trái, ảnh hoặc video nằm bên phải trên máy tính.
+                Trên điện thoại, phần ảnh được ẩn để form dễ thao tác.
+            </span>
+        `,
+        cinematic: `
+            <strong>
+                ⚠️ Kích thước ảnh cho bố cục nền toàn màn hình
+            </strong>
+            <span>
+                Nên dùng ảnh ngang <b>16:9</b>,
+                tối thiểu <b>1920 × 1080 px</b>;
+                đẹp hơn ở <b>2560 × 1440 px</b>.
+                <br><br>
+                Ảnh hoặc video phủ toàn bộ màn hình trình duyệt.
+                Trên máy tính, form nằm nổi bên phải; trên điện thoại,
+                form chuyển vào giữa.
+                <br><br>
+                Hãy chừa vùng bên phải tương đối sạch để chữ trong form dễ đọc.
+            </span>
+        `
+    };
+
+    warning.innerHTML =
+        notices[layout] ||
+        notices.split;
 };
 
 function setLoginLayoutSettingControls(value) {
@@ -8944,10 +9045,16 @@ window.saveLoginLayoutSetting = async function () {
             );
         }
 
+        const successMessages = {
+            split: '✅ Đã dùng bố cục hiện tại: ảnh bên trái, đăng nhập bên phải.',
+            centered: '✅ Đã dùng bố cục ảnh phủ toàn bộ khung đăng nhập, form nằm ở giữa.',
+            reversed: '✅ Đã dùng bố cục đảo chiều: đăng nhập bên trái, ảnh bên phải.',
+            cinematic: '✅ Đã dùng bố cục ảnh nền toàn màn hình, form nổi bên phải.'
+        };
+
         alert(
-            layout === 'centered'
-                ? '✅ Đã dùng bố cục ảnh phủ toàn bộ khung đăng nhập, form nằm ở giữa.'
-                : '✅ Đã dùng bố cục hiện tại: ảnh bên trái, đăng nhập bên phải.'
+            successMessages[layout] ||
+            successMessages.split
         );
     } catch (error) {
         console.error(
@@ -9634,22 +9741,29 @@ async function renderTeacherRoadmap() {
                 selectedStudent
             );
             if (sub) {
-                // TRƯỜNG HỢP 1: GIÁO VIÊN ĐÃ ẤN NÚT THA ĐIỂM THẤP (FORCE PASS)
-                if (sub.forcePass) {
-                    statusText = 'Đạt (Được tha)';
-                    statusClass = 'status-done';
-                    cellBgStyle = 'background: rgba(16, 185, 129, 0.25) !important; color: #047857; font-weight: bold; border-radius: 8px;';
-                    studentScore = (sub.grade !== null && sub.grade !== undefined && sub.grade !== '') ? parseFloat(sub.grade) : '0';
-                    pardonBtnHTML = `<br><button onclick="pardonRoadmap('${sub._fbKey}', 'unpardon')" style="margin-top:6px; padding:3px 8px; font-size:0.8em; background:#6b7280; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold; width:100%;">Hủy Tha</button>`;
-                }
-                // TRƯỜNG HỢP 2: BỊ HỆ THỐNG TỰ THU, NỘP TRỄ HOẶC VI PHẠM
-                else if (sub.isAutoSubmitted || sub.isLateFail || sub.isCheatFail) {
-                    statusText = sub.isCheatFail ? 'Loại (Vi phạm)' : 'Loại';
+                // Lỗi hiện tại hoặc lỗi lịch sử đều giữ trạng thái Loại và 0đ.
+                // Cho làm lại/Tha điểm không tự xóa lịch sử; chỉ nút Tha lỗi mới khôi phục quyền cộng tiền.
+                if (isTeacherCashSubmissionFailed(sub)) {
+                    const hasOnlyHistoricalViolation =
+                        hasTeacherHistoricalViolation(sub) &&
+                        !hasTeacherCurrentViolation(sub);
+
+                    statusText = hasOnlyHistoricalViolation
+                        ? 'Loại (Đã từng vi phạm)'
+                        : (sub.isCheatFail ? 'Loại (Vi phạm)' : 'Loại');
                     statusClass = 'status-pending';
                     cellBgStyle = 'background: rgba(225, 29, 72, 0.2) !important; color: #b91c1c; font-weight: bold; border-radius: 8px;';
                     studentScore = (sub.grade !== null && sub.grade !== undefined && sub.grade !== '') ? parseFloat(sub.grade) : '0';
                     moneyInputHTML = `<strong style="color: #e11d48; font-size: 1.1em;">0 đ</strong> <span style="font-size:0.75em; color:#666; display:block;">(Bị loại)</span>`;
                     pardonBtnHTML = `<br><button onclick="pardonRoadmap('${sub._fbKey}', 'late')" style="margin-top:6px; padding:3px 8px; font-size:0.8em; background:#10b981; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold; width:100%;">✨ Tha lỗi</button>`;
+                }
+                // Tha điểm chỉ có hiệu lực nếu bài không còn lỗi vi phạm.
+                else if (sub.forcePass) {
+                    statusText = 'Đạt (Được tha)';
+                    statusClass = 'status-done';
+                    cellBgStyle = 'background: rgba(16, 185, 129, 0.25) !important; color: #047857; font-weight: bold; border-radius: 8px;';
+                    studentScore = (sub.grade !== null && sub.grade !== undefined && sub.grade !== '') ? parseFloat(sub.grade) : '0';
+                    pardonBtnHTML = `<br><button onclick="pardonRoadmap('${sub._fbKey}', 'unpardon')" style="margin-top:6px; padding:3px 8px; font-size:0.8em; background:#6b7280; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold; width:100%;">Hủy Tha</button>`;
                 }
                 else if (sub.isRegrading) {
                     statusText = 'Chấm lại';
@@ -9765,7 +9879,7 @@ window.updateAssignmentRoadmap = async function (fbKey, field, value) {
 // ================= HÀM THA LỖI TRÊN GIAO DIỆN LỘ TRÌNH =================
 window.pardonRoadmap = async function (subKey, mode) {
     if (mode === 'late') {
-        if (confirm("Xác nhận tha lỗi nộp trễ / vi phạm cho học sinh?\n\nHệ thống sẽ gỡ bỏ án phạt, bài làm sẽ quay về tính trạng thái theo điểm số thực tế.")) {
+        if (confirm("Xác nhận tha lỗi nộp trễ / vi phạm cho học sinh?\n\nHệ thống sẽ gỡ bỏ án phạt và lịch sử vi phạm; từ thời điểm này bài mới được xét lại tiền lộ trình theo điểm số thực tế.")) {
             await updateDB('submissions', subKey, {
                 isLateFail: false,
                 isAutoSubmitted: false,
@@ -10642,6 +10756,9 @@ window.openAssignmentStatusModal = async function (assignId) {
 
         if (sub) {
             // === KIỂM TRA CÁC ĐIỀU KIỆN LOGIC CỦA BÀI NỘP ===
+            const violationHistory =
+                getTeacherRedoViolationHistory(sub);
+
             if (sub.isCheatFail) {
                 statusText = '🚨 Vi phạm quy chế thi';
                 statusBg = '#fef2f2';
@@ -10667,6 +10784,26 @@ window.openAssignmentStatusModal = async function (assignId) {
                 statusText = '⚠️ Nộp trễ quá hạn';
                 statusBg = '#fff1f2';
                 statusColor = '#f43f5e';
+            } else if (sub.isEssayMissing) {
+                statusText = '⚠️ Thiếu tự luận';
+                statusBg = '#fffbeb';
+                statusColor = '#d97706';
+            } else if (violationHistory.cheat) {
+                statusText = '🚨 Đã từng vi phạm quy chế';
+                statusBg = '#eff6ff';
+                statusColor = '#1d4ed8';
+            } else if (violationHistory.late) {
+                statusText = '⏰ Đã từng quá hạn / không nộp kịp';
+                statusBg = '#eff6ff';
+                statusColor = '#1d4ed8';
+            } else if (violationHistory.autoSubmitted) {
+                statusText = '⌛ Đã từng bị hệ thống tự thu';
+                statusBg = '#eff6ff';
+                statusColor = '#1d4ed8';
+            } else if (violationHistory.essayMissing) {
+                statusText = '⚠️ Đã từng thiếu tự luận';
+                statusBg = '#eff6ff';
+                statusColor = '#1d4ed8';
             } else if (sub.grade !== null && sub.grade !== undefined && sub.grade !== '') {
                 // Phân định trạng thái chấm điểm và chấm lại
                 if (sub.isRegrading) {
@@ -11435,7 +11572,13 @@ window.saveLuckyWheelGoldenHourSettings = async function () {
 };
 
 window.loadSpinHistory = async function () {
-    const history = await getDB('spin_history');
+    let history = await getDB('spin_history');
+    if (
+        window.HistoryRetention &&
+        typeof window.HistoryRetention.filterRecent === 'function'
+    ) {
+        history = window.HistoryRetention.filterRecent(history, 'spin_history');
+    }
     const tbody = document.getElementById('spinHistoryBody');
     if (!tbody) return;
     tbody.innerHTML = '';
@@ -12218,8 +12361,18 @@ window.openNotificationHistory = async function () {
     listContainer.textContent =
         'Đang tải dữ liệu...';
 
-    const notifications =
+    let notifications =
         await getDB('global_notifications');
+
+    if (
+        window.HistoryRetention &&
+        typeof window.HistoryRetention.filterRecent === 'function'
+    ) {
+        notifications = window.HistoryRetention.filterRecent(
+            notifications,
+            'global_notifications'
+        );
+    }
 
     const users =
         await getDB('users');
@@ -12613,7 +12766,17 @@ window.openSurveyHistory = async function () {
     const container = document.getElementById('surveyHistoryList');
     container.innerHTML = '<p style="text-align: center;">Đang tải...</p>';
 
-    const surveys = await getDB('global_surveys');
+    let surveys = await getDB('global_surveys');
+    if (
+        window.HistoryRetention &&
+        typeof window.HistoryRetention.filterRecent === 'function'
+    ) {
+        surveys = window.HistoryRetention.filterRecent(
+            surveys,
+            'global_surveys'
+        );
+    }
+
     if (surveys.length === 0) {
         container.innerHTML = '<p style="text-align: center; color: #666;">Chưa có khảo sát nào.</p>';
         return;
@@ -14266,10 +14429,19 @@ function getTeacherCashRoadmapMoney(assign) {
 }
 
 function isTeacherCashSubmissionFailed(sub) {
+    if (!sub) return false;
+
+    const history = getTeacherRedoViolationHistory(sub);
+
     return !!(
-        sub &&
-        !sub.forcePass &&
-        (sub.isAutoSubmitted || sub.isLateFail || sub.isCheatFail)
+        sub.isAutoSubmitted ||
+        sub.isLateFail ||
+        sub.isCheatFail ||
+        sub.isEssayMissing ||
+        history.autoSubmitted ||
+        history.late ||
+        history.cheat ||
+        history.essayMissing
     );
 }
 
@@ -14309,17 +14481,17 @@ function getTeacherCashBestSubmission(assign, submissions, username) {
     if (!matched.length) return null;
 
     function priority(sub) {
-        if (sub.forcePass) return 50;
-
         const grade = teacherCashNumber(sub.grade, NaN);
         const failed = isTeacherCashSubmissionFailed(sub);
 
-        if (!failed && !sub.isRegrading && Number.isFinite(grade) && grade >= passingGrade) {
+        if (failed) return 10;
+        if (sub.forcePass) return 50;
+
+        if (!sub.isRegrading && Number.isFinite(grade) && grade >= passingGrade) {
             return 40;
         }
-        if (!failed && !sub.isRegrading && Number.isFinite(grade)) return 30;
+        if (!sub.isRegrading && Number.isFinite(grade)) return 30;
         if (sub.isRegrading) return 20;
-        if (failed) return 10;
         return 0;
     }
 
@@ -14348,8 +14520,8 @@ function calculateTeacherCashBaseMoney(assignments, submissions, username) {
 
         const sub = getTeacherCashBestSubmission(assign, submissions, username);
         if (!sub) return total;
-        if (sub.forcePass) return total + getTeacherCashRoadmapMoney(assign);
         if (sub.isRegrading || isTeacherCashSubmissionFailed(sub)) return total;
+        if (sub.forcePass) return total + getTeacherCashRoadmapMoney(assign);
 
         const grade = teacherCashNumber(sub.grade, NaN);
         if (Number.isFinite(grade) && grade >= getTeacherCashPassingGrade(assign)) {
@@ -14416,22 +14588,18 @@ window.loadTeacherCashRequests = async function () {
 
     try {
         let requests = await getDB('cash_requests');
-        const now = Date.now();
-        const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
-        const validRequests = [];
 
-        for (const req of (requests || [])) {
-            if (req.status === 'completed' || req.status === 'rejected') {
-                const checkTime = Number(req.resolvedAt || req.timestamp || 0);
-                if (checkTime && now - checkTime > TWO_DAYS_MS) {
-                    await removeDB('cash_requests', req._fbKey);
-                    continue;
-                }
-            }
-            validRequests.push(req);
+        // Chỉ ẩn/xóa bản ghi đã hoàn tất hoặc từ chối sau 2 tháng.
+        // Pending/processing/transferring không bao giờ bị retention xóa.
+        if (
+            window.HistoryRetention &&
+            typeof window.HistoryRetention.filterRecent === 'function'
+        ) {
+            requests = window.HistoryRetention.filterRecent(
+                requests || [],
+                'cash_requests'
+            );
         }
-
-        requests = validRequests;
 
         if (!requests.length) {
             container.innerHTML = '<p style="color: #64748b; font-size: 0.95em; text-align: center; padding: 20px; margin: 0;">Hiện tại chưa có yêu cầu nhận tiền mặt nào.</p>';
@@ -15053,6 +15221,46 @@ function confirmCustomStudentSelect() {
 
 window.toggleParticipateRoadmap = async function (userKey, isParticipating) {
     await updateDB('users', userKey, { isParticipatingRoadmap: isParticipating });
+};
+
+// Bật/tắt riêng Cửa hàng & Trò chơi cho từng học sinh.
+// Dữ liệu nằm ngay trong users/<uid> để phía Học sinh nhận realtime từ listener sẵn có.
+window.toggleStudentStoreGameAccess = async function (userKey, isEnabled, checkboxElement = null) {
+    const enabled = isEnabled !== false;
+
+    if (checkboxElement) {
+        checkboxElement.disabled = true;
+    }
+
+    try {
+        await updateDB('users', userKey, {
+            storeGameAccessEnabled: enabled
+        });
+
+        if (typeof window.showToast === 'function') {
+            window.showToast(
+                enabled
+                    ? 'Đã mở Cửa hàng & Trò chơi cho học sinh.'
+                    : 'Đã tắt Cửa hàng & Trò chơi của học sinh.',
+                'success'
+            );
+        }
+    } catch (error) {
+        console.error('Không thể cập nhật quyền Cửa hàng & Trò chơi:', error);
+
+        if (checkboxElement) {
+            checkboxElement.checked = !enabled;
+        }
+
+        alert(
+            '❌ Không thể cập nhật quyền Cửa hàng & Trò chơi: ' +
+            (error?.message || error)
+        );
+    } finally {
+        if (checkboxElement) {
+            checkboxElement.disabled = false;
+        }
+    }
 };
 
 window.downloadRoadmapPDF = async function () {
