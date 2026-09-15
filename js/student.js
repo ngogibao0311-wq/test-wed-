@@ -105,20 +105,22 @@ async function ensureStudentEquippedLuxuryRuntime(items) {
     }
 
     /*
-     * store-ui nạp luxury-store.js; chính file này mới đăng ký các item
-     * Luxury vào StoreConfig và gắn runtime vào PetManager.spawnPet().
+     * Luxury phải đi qua router theo ID để:
+     * 1) preload đúng CSS riêng của item,
+     * 2) nạp luxury-runtime,
+     * 3) để luxury-store.js mount toàn bộ full-suite gắn với ID đó.
      */
-    if (typeof loader.ensure === 'function') {
-        await loader.ensure('store-ui');
-        return true;
+    if (typeof loader.ensureForEquippedItems === 'function') {
+        await loader.ensureForEquippedItems(items);
+        return Boolean(window.LuxuryStore);
     }
 
     /*
      * Fallback cho loader cũ hơn.
      */
-    if (typeof loader.ensureForEquippedItems === 'function') {
-        await loader.ensureForEquippedItems(items);
-        return Boolean(window.LuxuryStore);
+    if (typeof loader.ensure === 'function') {
+        await loader.ensure('luxury-runtime');
+        return true;
     }
 
     return false;
@@ -1662,13 +1664,14 @@ window.MidAutumnCoinManager = (() => {
                 .MidAutumnCalendar
                 .getFestivalInfo(year);
 
+        const calendarRef =
+            db.ref(
+                `mid_autumn_calendar/${year}`
+            );
+
         try {
             const snapshot =
-                await db
-                    .ref(
-                        `mid_autumn_calendar/${year}`
-                    )
-                    .once('value');
+                await calendarRef.once('value');
 
             const remote =
                 snapshot.val();
@@ -1691,6 +1694,104 @@ window.MidAutumnCoinManager = (() => {
                             year
                         )
                 };
+            }
+
+            /*
+             * AUTO BOOTSTRAP LỊCH TRUNG THU THEO TỪNG NĂM
+             * --------------------------------------------------
+             * Trung Thu là 15/8 âm lịch nên ngày dương thay đổi mỗi năm.
+             * MidAutumnCalendar đã tự đổi âm -> dương ở phía client.
+             *
+             * Từ D-5 đến hết ngày Trung Thu, nếu Firebase chưa có
+             * mid_autumn_calendar/{year}, học sinh đầu tiên mở web sẽ thử
+             * tạo bản ghi lịch từ kết quả tính cục bộ. Firebase Rules chỉ
+             * cho tạo MỘT LẦN và kiểm tra cấu trúc D-5 -> ngày Trung Thu.
+             *
+             * Nhờ đó cơ chế tự phát 1 Xu Trung Thu không cần nhập ngày
+             * thủ công cho từng năm.
+             */
+            const t = getNow();
+            const canBootstrap =
+                t >= Number(localInfo.autoGrantStartAt) &&
+                t <= Number(localInfo.autoGrantEndAt);
+
+            if (canBootstrap) {
+                try {
+                    const tx =
+                        await calendarRef.transaction(
+                            current => {
+                                if (
+                                    current &&
+                                    typeof current === 'object'
+                                ) {
+                                    return current;
+                                }
+
+                                return {
+                                    year:
+                                        String(year),
+
+                                    festivalDateKey:
+                                        String(
+                                            localInfo.festivalDateKey
+                                        ),
+
+                                    festivalStartAt:
+                                        Number(
+                                            localInfo.festivalStartAt
+                                        ),
+
+                                    festivalEndAt:
+                                        Number(
+                                            localInfo.festivalEndAt
+                                        ),
+
+                                    autoGrantStartAt:
+                                        Number(
+                                            localInfo.autoGrantStartAt
+                                        ),
+
+                                    autoGrantEndAt:
+                                        Number(
+                                            localInfo.autoGrantEndAt
+                                        ),
+
+                                    updatedAt:
+                                        t
+                                };
+                            },
+                            undefined,
+                            false
+                        );
+
+                    const synced =
+                        tx.snapshot?.val();
+
+                    if (
+                        synced &&
+                        Number(
+                            synced.festivalStartAt
+                        ) > 0 &&
+                        Number(
+                            synced.festivalEndAt
+                        ) > 0
+                    ) {
+                        return {
+                            ...localInfo,
+                            ...synced,
+                            year:
+                                Number(
+                                    synced.year ||
+                                    year
+                                )
+                        };
+                    }
+                } catch (bootstrapError) {
+                    console.warn(
+                        '[Xu Trung Thu] Chưa thể tự đồng bộ lịch năm hiện tại lên Firebase:',
+                        bootstrapError
+                    );
+                }
             }
         } catch (error) {
             console.warn(
@@ -15809,6 +15910,21 @@ window.trialItem = async function (itemId) {
     if (currentCoins < trialPrice) return alert(`❌ Không đủ Coin! Phí dùng thử yêu cầu ${trialPrice} Coin.`);
 
     if (confirm(`Bạn sẽ dùng ${trialPrice} Coin để trải nghiệm [ ${item.name} ] trong 24 giờ?\nĐồng ý kích hoạt?`)) {
+        try {
+            await window.StudentFeatureLoader
+                ?.ensureForItem?.(itemId);
+        } catch (error) {
+            console.error(
+                '[Store Trial] Không chuẩn bị được runtime:',
+                itemId,
+                error
+            );
+            return window.showToast?.(
+                'Không tải được hiệu ứng vật phẩm để dùng thử.',
+                'error'
+            );
+        }
+
         await coinRef.set(currentCoins - trialPrice);
 
         const trialExpiry = Date.now() + (24 * 60 * 60 * 1000);
@@ -16368,6 +16484,32 @@ function installStudentStoreManagerOverrides() {
     StoreManager.applyItem = async function (itemId) {
         const item = StoreManager.getItemById(itemId);
         if (!item) return;
+
+        /*
+         * ITEM RUNTIME ROUTER v3.3
+         * - Cửa hàng thường: nạp đúng runtime theo type Theme/Effect/Pet.
+         * - Cửa hàng Sang trọng: nạp full-suite theo ID Luxury trước khi Firebase
+         *   phát trạng thái isEquipped, tránh mount nửa chừng / thiếu CSS.
+         */
+        try {
+            if (
+                window.StudentFeatureLoader &&
+                typeof window.StudentFeatureLoader.ensureForItem === 'function'
+            ) {
+                await window.StudentFeatureLoader.ensureForItem(itemId);
+            }
+        } catch (error) {
+            console.error(
+                '[Store Runtime] Không chuẩn bị được runtime cho item:',
+                itemId,
+                error
+            );
+            window.showToast?.(
+                'Không tải được hiệu ứng vật phẩm. Vui lòng thử lại.',
+                'error'
+            );
+            return false;
+        }
 
         // Lưu trạng thái lên Firebase (Hàm on('value') sẽ tự động gọi applyEquippedItems bên dưới để tạo hiệu ứng)
         const invSnap = await db.ref(`student_inventory/${currentUser.username}`).once('value');

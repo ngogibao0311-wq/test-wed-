@@ -365,24 +365,6 @@ class ThemeManager {
                 'store-card-tamon-bside-chibi'
         }),
 
-
-        /* =========================================================
-           LORD OF THE MYSTERIES · KLEIN EVENT PREMIUM
-           Card giữ nguyên bố cục Luxury và miễn tuyệt đối skin từ theme khác.
-           CSS riêng được đẩy xuống cuối <head> sau mỗi lần áp theme.
-           ========================================================= */
-        'lotm-klein-event-premium': Object.freeze({
-            itemIds: Object.freeze([
-                'pet_lotm_klein_event_1'
-            ]),
-
-            className:
-                'store-card-lotm-klein-event',
-
-            styleId:
-                'lotm-klein-premium-style'
-        }),
-
         /* =========================================================
            CẦM MỘNG · THANH HUYỀN
            Pet + theme dùng chung card/tag, miễn mọi theme khác.

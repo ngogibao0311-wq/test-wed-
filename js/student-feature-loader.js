@@ -46,11 +46,16 @@
 
     if (window.StudentFeatureLoader) return;
 
-    const VERSION = '2.0.12-lotm-klein-path-fix';
+    const VERSION = '3.3.0-store-card-full-luxury-id-suite';
 
     const cssPromises = new Map();
     const scriptPromises = new Map();
     const groupPromises = new Map();
+
+    // Khi người dùng đã mở khu vực Cửa hàng, CSS của THẺ vật phẩm
+    // được giữ đầy đủ cho cả Cửa hàng thường và Cửa hàng Sang trọng.
+    // Cờ này chỉ ghim CSS card; runtime Theme/Effect/Pet vẫn selective.
+    let storeCardCssPinned = false;
 
     const CSS = Object.freeze({
         storeBase: 'css/store-items.css?v=3.8',
@@ -62,12 +67,15 @@
         painting: 'css/painting.css?v=3.8',
         history: 'css/lich-su-hao-hung.css?v=20260831.1',
         bellum: 'css/bellum-event.css?v=20260912.4',
+        midAutumnFestival: 'css/mid-autumn-festival.css?v=20260914.4-balanced-games',
 
         collections: 'css/store-collections.css?v=20260908.four-seasons-lock-v1',
         luxury: 'css/luxury-store.css?v=3.8',
+        camMong: 'css/cam-co-cam-mong.css?v=20260915.store-card-full-v1',
+        midAutumnMoon: 'css/trung-thu-nguyet-cung.css?v=20260915.store-card-full-v1',
 
         lotm: 'css/lord-of-mysteries.css?v=3.3',
-        lotmKlein: 'css/lord-of-mysteries-klein.css?v=20260914.4-path-fix',
+        lotmKlein: 'css/lord-of-mysteries-klein.css?v=20260914.5-event-restore',
         legendary: 'css/legendery.css?v=3.8',
         doraemon: 'css/doraemon.css?v=3.8',
         paintingItems: 'css/hoi-hoa.css?v=3.8',
@@ -76,7 +84,7 @@
         weather: 'css/thoi-tiet.css?v=3.8',
         seasons: 'css/premium-mua-xuan.css?v=20260907.summer-frame-r2',
         nationalDay: 'css/quoc-khanh-pet.css?v=3.8',
-        nyx: 'css/nyx-than-thoai.css?v=3.8',
+        nyx: 'css/nyx-than-thoai.css?v=20260915.nyx-card-guard-v1',
         tamon: 'css/tamon-b-side.css?v=3.8',
         linkClickCheng: 'css/link-click-cheng-xiaoshi.css?v=20260911.5-card-description-hide-fix'
     });
@@ -89,7 +97,7 @@
         musicManager: 'js/music-manager.js?v=20260910.music-reliability-v3',
         storeManager: 'js/store-manager.js?v=20260910.music-library-v2',
 
-        luxuryStore: 'js/luxury-store.js?v=4.2.8-lotm-klein-path-fix',
+        luxuryStore: 'js/luxury-store.js?v=4.2.11-nyx-card-guard',
         collections: 'js/store-collections.js?v=20260908.four-seasons-lock-v1',
 
         royalBall: 'js/royal-ball.js?v=20260908.lazy-v1',
@@ -97,12 +105,15 @@
         painting: 'js/painting.js?v=20260908.round-query-v1',
         history: 'js/lich-su-hao-hung.js?v=20260831.1',
         bellum: 'js/bellum-event.js?v=20260912.4',
+        midAutumnFestival: 'js/mid-autumn-festival.js?v=20260914.4-balanced-games',
 
         dailyLogin: 'js/daily-login.js?v=20260908.lazy-v1',
         guide: 'js/huong-dan-nguoi-moi.js?v=2.14.0'
     });
 
     const ALL_SPECIAL_STORE_CSS = Object.freeze([
+        CSS.camMong,
+        CSS.midAutumnMoon,
         CSS.lotm,
         CSS.lotmKlein,
         CSS.legendary,
@@ -284,6 +295,14 @@
             result.add(CSS.legendary);
         }
 
+        if (/(cam_mong|cam-mong|cam_co|cam-co|camco)/.test(id)) {
+            result.add(CSS.camMong);
+        }
+
+        if (/(trung_thu|trung-thu|midautumn|mid_autumn|nguyet_cung|chu_cuoi)/.test(id)) {
+            result.add(CSS.midAutumnMoon);
+        }
+
         if (/tamon/.test(id)) {
             result.add(CSS.tamon);
         }
@@ -319,6 +338,69 @@
         await Promise.all(
             [...urls].map(loadCss)
         );
+    }
+
+
+    async function preloadAllStoreCardCss() {
+        /*
+         * STORE CARD FULL MODE v3.3
+         * Khi vào Cửa hàng, hiệu ứng/skin của THẺ phải đầy đủ ở CẢ HAI cửa hàng.
+         * Chỉ tải CSS hiển thị card; không tự kích hoạt runtime vật phẩm.
+         */
+        storeCardCssPinned = true;
+
+        try {
+            await Promise.all([
+                loadCss(CSS.storeBase),
+                loadCss(CSS.luxury),
+                loadCss(CSS.collections)
+            ]);
+
+            await Promise.all(
+                ALL_SPECIAL_STORE_CSS.map(loadCss)
+            );
+
+            document.documentElement.dataset.storeCardCssReady = 'true';
+            return true;
+        } catch (error) {
+            storeCardCssPinned = false;
+            delete document.documentElement.dataset.storeCardCssReady;
+            throw error;
+        }
+    }
+
+    function releaseUnusedSpecialCss(items) {
+        /*
+         * Khi Cửa hàng đã mở, không được tháo CSS card vì sẽ làm thẻ trắng/vỡ.
+         * Runtime vật phẩm vẫn được dọn bởi Manager riêng; CSS card không chạy
+         * world/pet/effect nếu class kích hoạt tương ứng không tồn tại.
+         */
+        if (storeCardCssPinned) {
+            return;
+        }
+
+        const list = Array.isArray(items) ? items : [];
+        const keep = new Set();
+
+        list.forEach(item => {
+            const id = typeof item === 'string' ? item : item?.id;
+            getSpecialCssForItemId(id).forEach(url =>
+                keep.add(normalizeResourceUrl(url))
+            );
+        });
+
+        const special = new Set(
+            ALL_SPECIAL_STORE_CSS.map(normalizeResourceUrl)
+        );
+
+        document
+            .querySelectorAll('link[data-student-lazy-css="1"]')
+            .forEach(link => {
+                const key = normalizeResourceUrl(link.href);
+                if (!special.has(key) || keep.has(key)) return;
+                link.remove();
+                cssPromises.delete(key);
+            });
     }
 
     function preloadFromLocalStorage() {
@@ -366,29 +448,83 @@
             ]);
         },
 
-        async 'visual-runtime'() {
-            await Promise.all([
-                loadCss(CSS.storeBase),
-                loadCss(CSS.effectsBase)
-            ]);
-
+        /*
+         * SELECTIVE ITEM RUNTIME v3
+         * Mỗi nhóm chỉ nạp code thật sự cần cho loại vật phẩm đang trang bị.
+         * Mức High/Medium/Low KHÔNG làm thay đổi quy tắc selective-load;
+         * EffectQualityManager chỉ quyết định mật độ/chi phí hiệu ứng sau khi runtime đã nạp.
+         */
+        async 'theme-runtime'() {
+            await loadCss(CSS.storeBase);
             await loadScriptsSequentially([
                 SCRIPT.themeItems,
-                SCRIPT.effectItems,
-                SCRIPT.petItems,
-                SCRIPT.petInteractions,
-                SCRIPT.musicManager,
                 SCRIPT.storeManager
             ]);
         },
 
-        async 'store-ui'() {
-            await ensure('visual-runtime');
-
+        async 'effect-runtime'() {
             await Promise.all([
-                loadCss(CSS.collections),
-                loadCss(CSS.luxury),
-                ...ALL_SPECIAL_STORE_CSS.map(loadCss)
+                loadCss(CSS.storeBase),
+                loadCss(CSS.effectsBase)
+            ]);
+            await loadScriptsSequentially([
+                SCRIPT.effectItems,
+                SCRIPT.storeManager
+            ]);
+        },
+
+        async 'pet-runtime'() {
+            await Promise.all([
+                loadCss(CSS.storeBase),
+                loadCss(CSS.effectsBase)
+            ]);
+            await loadScriptsSequentially([
+                SCRIPT.petItems,
+                SCRIPT.petInteractions,
+                SCRIPT.storeManager
+            ]);
+        },
+
+        async 'frame-background-runtime'() {
+            await loadCss(CSS.storeBase);
+            await loadScript(SCRIPT.storeManager);
+        },
+
+        async 'luxury-runtime'() {
+            /* Luxury hiện tại là pet runtime + bộ đăng ký/runtime riêng. */
+            await ensure('pet-runtime');
+            await loadCss(CSS.luxury);
+            await loadScript(SCRIPT.luxuryStore);
+        },
+
+        async 'visual-runtime'() {
+            /*
+             * Compatibility path: chỉ dùng cho màn hình cần toàn bộ catalog/runtime
+             * (Cửa hàng, một số game cũ). Startup vật phẩm KHÔNG đi qua nhánh này nữa.
+             */
+            await Promise.all([
+                ensure('theme-runtime'),
+                ensure('effect-runtime'),
+                ensure('pet-runtime'),
+                ensure('music-runtime')
+            ]);
+        },
+
+        async 'store-ui'() {
+            /*
+             * Hai cửa hàng luôn hiển thị đầy đủ hiệu ứng THẺ.
+             * Card CSS được nạp toàn bộ khi bước vào Cửa hàng, nhưng runtime vật phẩm
+             * vẫn phân loại riêng:
+             * - Cửa hàng thường: Theme / Effect / Pet dùng đúng manager của loại đó.
+             * - Cửa hàng Sang trọng: 1 item kích hoạt full-suite theo ID của item.
+             *
+             * pet-runtime được nạp trước luxury-store.js để hook full-suite Luxury
+             * luôn được cài ngay, kể cả khi người dùng trang bị trực tiếp từ store.
+             */
+            await Promise.all([
+                ensure('pet-runtime'),
+                ensure('frame-background-runtime'),
+                preloadAllStoreCardCss()
             ]);
 
             await loadScriptsSequentially([
@@ -436,6 +572,13 @@
             // khi người chơi bước vào từng cảnh, đúng cấu trúc 1 JS + 1 CSS / cảnh.
             await loadCss(CSS.bellum);
             await loadScript(SCRIPT.bellum);
+        },
+
+        async 'mid-autumn-festival'() {
+            // Đại Hội Trung Thu tự chèn card/modal vào tab Trò chơi.
+            // Chỉ cần 1 JS + 1 CSS; dùng MidAutumnCalendar/MidAutumnCoinManager có sẵn trong student.js.
+            await loadCss(CSS.midAutumnFestival);
+            await loadScript(SCRIPT.midAutumnFestival);
         },
 
         async 'daily-login'() {
@@ -505,7 +648,8 @@
             await Promise.all([
                 ensure('game'),
                 ensure('history-event'),
-                ensure('bellum-event')
+                ensure('bellum-event'),
+                ensure('mid-autumn-festival')
             ]);
             return;
         }
@@ -517,6 +661,69 @@
              */
             await ensure('visual-runtime');
         }
+    }
+
+    const LUXURY_ITEM_IDS = new Set([
+        'pet_luxury_mua_xuan',
+        'pet_luxury_mua_ha',
+        'pet_quoc_khanh_1',
+        'pet_mythic_nyx_1',
+        'pet_lotm_klein_event_1',
+        'pet_cam_co_cam_mong_1',
+        'pet_tamon_b_side_1',
+        'pet_tamon_b_side_2',
+        'pet_trung_thu_nguyet_cung_tien_tu',
+        'pet_trung_thu_chu_cuoi_2',
+        'pet_linkclick_cheng_xiaoshi_1'
+    ]);
+
+    function getCatalogItemById(itemId) {
+        const id = String(itemId || '').trim();
+        if (!id) return null;
+
+        try {
+            if (
+                typeof StoreConfig !== 'undefined' &&
+                Array.isArray(StoreConfig?.items)
+            ) {
+                return StoreConfig.items.find(item =>
+                    String(item?.id || '') === id
+                ) || null;
+            }
+        } catch (_) {}
+
+        return null;
+    }
+
+    function inferNormalRuntimeGroup(itemId, itemDef = null) {
+        /*
+         * CỬA HÀNG THƯỜNG:
+         * quyết định runtime theo TYPE thật của StoreConfig trước,
+         * không gộp Theme/Effect/Pet vào cùng một runtime.
+         */
+        const type = String(itemDef?.type || '')
+            .trim()
+            .toLowerCase();
+
+        if (type === 'theme') return 'theme-runtime';
+        if (type === 'effect') return 'effect-runtime';
+        if (type === 'pet') return 'pet-runtime';
+        if (type === 'music') return 'music-runtime';
+        if (type === 'frame' || type === 'background') {
+            return 'frame-background-runtime';
+        }
+
+        // Fallback cho dữ liệu cũ khi catalog chưa có type.
+        const id = String(itemId || '').trim().toLowerCase();
+        if (/^theme(?:_|-)/.test(id)) return 'theme-runtime';
+        if (/^effect(?:_|-)/.test(id)) return 'effect-runtime';
+        if (/^pet(?:_|-)/.test(id)) return 'pet-runtime';
+        if (/^music(?:_|-)/.test(id)) return 'music-runtime';
+        if (/^(frame|background)(?:_|-)/.test(id)) {
+            return 'frame-background-runtime';
+        }
+
+        return 'visual-runtime';
     }
 
     async function ensureForEquippedItems(items) {
@@ -531,47 +738,82 @@
             return false;
         }
 
-        const hasOnlyMusic = equipped.every(item =>
-            /^music(?:_|-)/i.test(String(item?.id || ''))
-        );
-
-        if (hasOnlyMusic) {
-            await ensure('music-runtime');
-            return true;
-        }
+        /*
+         * Nạp catalog nhẹ trước để phân biệt chính xác item thường/Luxury
+         * và lấy type thật của item thường.
+         */
+        await ensure('frame-background-runtime');
 
         /*
-         * CSS phải xong trước runtime + applyEquippedItems.
-         * Startup inventory listener await hàm này trước khi markReady,
-         * nên loader không biến mất khi skin đang trang bị chưa có CSS.
+         * CSS runtime của item đang trang bị phải sẵn sàng trước khi mount.
+         * Nếu Store UI đã mở thì CSS card đã được ghim và hàm release sẽ không gỡ.
          */
         await preloadEquippedCss(equipped);
+        releaseUnusedSpecialCss(equipped);
 
-        const needsLuxuryRuntime = equipped.some(item => {
-            const id = String(item?.id || '');
-            return (
-                id === 'pet_linkclick_cheng_xiaoshi_1' ||
-                id === 'pet_lotm_klein_event_1'
-            );
-        });
+        const needs = new Set();
 
-        if (needsLuxuryRuntime) {
+        for (const inventoryItem of equipped) {
+            const rawId = String(inventoryItem?.id || '').trim();
+            const id = rawId.toLowerCase();
+            if (!id) continue;
+
+            const itemDef = getCatalogItemById(rawId);
+
             /*
-             * Vật phẩm Cheng Xiaoshi đăng ký/runtime trong luxury-store.js.
-             * Tải store-ui ngay khi pet này đang trang bị để reload trang vẫn
-             * khôi phục world/interface/pet realm trước khi startup hoàn tất.
+             * CỬA HÀNG SANG TRỌNG:
+             * chỉ cần 1 item Luxury được trang bị -> nạp luxury runtime.
+             * luxury-store.js sẽ mount TOÀN BỘ premiumLayers/full-suite được
+             * gắn với đúng ID đó (world + interface + pet realm + skill/...).
              */
-            await ensure('store-ui');
-            return true;
+            if (
+                LUXURY_ITEM_IDS.has(id) ||
+                itemDef?.luxuryOnly === true
+            ) {
+                needs.add('luxury-runtime');
+                continue;
+            }
+
+            /*
+             * CỬA HÀNG THƯỜNG:
+             * chỉ nạp manager đúng loại Theme / Effect / Pet của item.
+             */
+            needs.add(
+                inferNormalRuntimeGroup(rawId, itemDef)
+            );
         }
 
-        await ensure('visual-runtime');
+        if (!needs.size) return false;
+
+        await Promise.all(
+            [...needs].map(ensure)
+        );
 
         return true;
     }
 
+
     async function ensureForBag() {
-        await ensure('visual-runtime');
+        /*
+         * Túi đồ chỉ cần catalog/StoreConfig để render. Runtime Theme/Effect/Pet
+         * sẽ được inventory listener nạp đúng loại sau khi người dùng trang bị.
+         */
+        await ensure('frame-background-runtime');
+    }
+
+
+    async function ensureForItem(itemId) {
+        const id = String(itemId || '').trim();
+        if (!id) return false;
+
+        /*
+         * Dùng cùng bộ phân loại với startup:
+         * - item thường -> runtime theo type
+         * - item Luxury -> full-suite theo ID
+         */
+        return ensureForEquippedItems([
+            { id, isEquipped: true }
+        ]);
     }
 
     function schedulePostCore() {
@@ -641,8 +883,11 @@
             ensure,
             ensureForTab,
             ensureForEquippedItems,
+            ensureForItem,
             ensureForBag,
             preloadEquippedCss,
+            preloadAllStoreCardCss,
+            releaseUnusedSpecialCss,
             getSpecialCssForItemId,
             schedulePostCore,
             getState

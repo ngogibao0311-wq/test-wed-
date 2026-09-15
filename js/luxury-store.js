@@ -1495,8 +1495,6 @@
         },
 
         createPetRealm() {
-            const variant = this.getVariantConfig();
-
             const container =
                 document.getElementById('virtual-pet-container');
             const pet = this.getPet();
@@ -2621,8 +2619,8 @@
     // LORD OF THE MYSTERIES · KLEIN MORETTI — EVENT PREMIUM PET
     // - KHÔNG bán bằng Coin.
     // - Chỉ nhận từ sự kiện Lord of the Mysteries.
-    // - Tag: assets/Premium/quy bi/tag1.png
-    // - Nhân vật: assets/Premium/quy bi/klain_nha-vat.png
+    // - Tag: assets/Premium/quỷ bí/tag1.png
+    // - Nhân vật: assets/Premium/quỷ bí/klain_nha-vat.png
     // - Card riêng nhưng GIỮ NGUYÊN bố cục Luxury Store.
     // - Full suite độc lập; không ghi đè active_theme / active_effect.
     // - MỘT CSS: css/lord-of-mysteries-klein.css
@@ -2648,10 +2646,10 @@
             'Sự kiện'
         ],
 
-        image: 'assets/Premium/quy bi/klain_nha-vat.png',
-        asset: 'assets/Premium/quy bi/klain_nha-vat.png',
-        value: 'assets/Premium/quy bi/klain_nha-vat.png',
-        luxuryTagImage: 'assets/Premium/quy bi/tag1.png',
+        image: 'assets/Premium/quỷ bí/klain_nha-vat.png',
+        asset: 'assets/Premium/quỷ bí/klain_nha-vat.png',
+        value: 'assets/Premium/quỷ bí/klain_nha-vat.png',
+        luxuryTagImage: 'assets/Premium/quỷ bí/tag1.png',
         isIcon: false,
 
         petEffect: 'lotm-klein-mystery-magic',
@@ -4706,6 +4704,15 @@
             href = new URL('css/lord-of-mysteries-klein.css', document.baseURI).href;
         }
 
+        // Ép trình duyệt lấy bản CSS Klein mới thay vì cache bản cũ.
+        // Nếu dự án gán LOTM_KLEIN_CSS_PATH thì vẫn giữ nguyên đường dẫn đó,
+        // chỉ thêm version query an toàn.
+        try {
+            const cssUrl = new URL(href, document.baseURI);
+            cssUrl.searchParams.set('lotmk', '20260914-v2');
+            href = cssUrl.href;
+        } catch (_) {}
+
         const link = document.createElement('link');
         link.id = 'lotm-klein-premium-style';
         link.rel = 'stylesheet';
@@ -4733,6 +4740,8 @@
         activePetElement: null,
         petClickHandler: null,
         documentClickHandler: null,
+        observer: null,
+        repairQueued: false,
         skillLocked: false,
         timers: new Set(),
 
@@ -4762,7 +4771,8 @@
             if (this.activePetElement && this.petClickHandler) {
                 this.activePetElement.removeEventListener(
                     'click',
-                    this.petClickHandler
+                    this.petClickHandler,
+                    true
                 );
             }
 
@@ -4774,6 +4784,12 @@
                 );
             }
 
+            if (this.observer) {
+                this.observer.disconnect();
+                this.observer = null;
+            }
+
+            this.repairQueued = false;
             this.clearTimers();
 
             this.activePetElement = null;
@@ -4822,17 +4838,31 @@
                 .forEach(element => element.remove());
 
             const world = document.createElement('div');
-            world.className = 'lotm-klein-world';
+            world.className = 'lotm-klein-world lotm-klein-world-v2';
             world.setAttribute('aria-hidden', 'true');
             world.setAttribute('data-effect-quality-root', '1');
 
             world.innerHTML = `
+                <div class="lotm-klein-world-veil"></div>
                 <div class="lotm-klein-world-vignette"></div>
+                <div class="lotm-klein-world-aurora aurora-a"></div>
+                <div class="lotm-klein-world-aurora aurora-b"></div>
                 <div class="lotm-klein-world-fog fog-a"></div>
                 <div class="lotm-klein-world-fog fog-b"></div>
-                <div class="lotm-klein-world-sigil"></div>
+
+                <div class="lotm-klein-world-sigil sigil-main"></div>
+                <div class="lotm-klein-world-sigil sigil-left"></div>
+                <div class="lotm-klein-world-sigil sigil-right"></div>
+
+                <div class="lotm-klein-world-eye">
+                    <i></i><b></b><em></em>
+                </div>
+
                 <div class="lotm-klein-world-clock"></div>
+                <div class="lotm-klein-world-cathedral"></div>
+                <div class="lotm-klein-world-rays"></div>
                 <div class="lotm-klein-world-cards"></div>
+                <div class="lotm-klein-world-runes"></div>
                 <div class="lotm-klein-world-motes"></div>
             `;
 
@@ -4845,46 +4875,80 @@
                 world.querySelector('.lotm-klein-world-cards');
 
             const cardCount =
-                getLuxuryQualityCount(mobile ? 5 : 10);
+                getLuxuryQualityCount(mobile ? 7 : 18);
 
             for (let index = 0; index < cardCount; index++) {
                 const card = document.createElement('span');
                 card.className = 'lotm-klein-world-card';
 
                 card.style.left =
-                    `${4 + ((index * 31 + 7) % 90)}%`;
+                    `${3 + ((index * 31 + 7) % 92)}%`;
 
                 card.style.top =
-                    `${8 + ((index * 47 + 13) % 78)}%`;
+                    `${6 + ((index * 47 + 13) % 84)}%`;
 
                 card.style.setProperty(
                     '--lotmk-duration',
-                    `${10 + (index % 5) * 1.8}s`
+                    `${9 + (index % 7) * 1.35}s`
                 );
 
                 card.style.setProperty(
                     '--lotmk-delay',
-                    `${-(index % 7) * .83}s`
+                    `${-(index % 9) * .73}s`
                 );
 
                 card.style.setProperty(
                     '--lotmk-rot',
-                    `${-18 + (index % 9) * 5}deg`
+                    `${-24 + (index % 11) * 5}deg`
                 );
 
                 card.style.setProperty(
                     '--lotmk-dx',
-                    `${-12 + (index % 6) * 6}px`
+                    `${-20 + (index % 8) * 6}px`
                 );
 
                 cardField?.appendChild(card);
+            }
+
+            const runeField =
+                world.querySelector('.lotm-klein-world-runes');
+
+            const runeGlyphs = [
+                '✦', '✧', '◇', '◈', '☽', 'Ⅰ', 'Ⅱ', 'Ⅲ',
+                'Ⅳ', 'Ⅴ', 'Ⅵ', 'Ⅶ', 'Ⅷ', 'Ⅸ', 'Ⅹ', '✶'
+            ];
+
+            const runeCount =
+                getLuxuryQualityCount(mobile ? 8 : 24);
+
+            for (let index = 0; index < runeCount; index++) {
+                const rune = document.createElement('span');
+                rune.className = 'lotm-klein-world-rune';
+                rune.textContent = runeGlyphs[index % runeGlyphs.length];
+                rune.style.setProperty(
+                    '--lotmk-rx',
+                    `${4 + ((index * 37 + 11) % 92)}%`
+                );
+                rune.style.setProperty(
+                    '--lotmk-ry',
+                    `${7 + ((index * 59 + 17) % 82)}%`
+                );
+                rune.style.setProperty(
+                    '--lotmk-rd',
+                    `${-(index % 10) * .53}s`
+                );
+                rune.style.setProperty(
+                    '--lotmk-rs',
+                    `${.72 + (index % 5) * .14}`
+                );
+                runeField?.appendChild(rune);
             }
 
             const moteField =
                 world.querySelector('.lotm-klein-world-motes');
 
             const moteCount =
-                getLuxuryQualityCount(mobile ? 12 : 28);
+                getLuxuryQualityCount(mobile ? 18 : 52);
 
             for (let index = 0; index < moteCount; index++) {
                 const mote = document.createElement('span');
@@ -4902,17 +4966,17 @@
 
                 mote.style.setProperty(
                     '--lotmk-size',
-                    `${1 + (index % 3)}px`
+                    `${1 + (index % 4)}px`
                 );
 
                 mote.style.setProperty(
                     '--lotmk-duration',
-                    `${5 + (index % 6) * .9}s`
+                    `${4.5 + (index % 8) * .72}s`
                 );
 
                 mote.style.setProperty(
                     '--lotmk-delay',
-                    `${-(index % 8) * .47}s`
+                    `${-(index % 11) * .39}s`
                 );
 
                 moteField?.appendChild(mote);
@@ -4931,7 +4995,7 @@
                 .forEach(element => element.remove());
 
             const frame = document.createElement('div');
-            frame.className = 'lotm-klein-ui-frame';
+            frame.className = 'lotm-klein-ui-frame lotm-klein-ui-frame-v2';
             frame.setAttribute('aria-hidden', 'true');
             frame.dataset.themeImmune = 'true';
 
@@ -4940,8 +5004,19 @@
                 <span class="lotm-klein-ui-corner tr"></span>
                 <span class="lotm-klein-ui-corner bl"></span>
                 <span class="lotm-klein-ui-corner br"></span>
+
+                <span class="lotm-klein-ui-rail rail-left">
+                    <i></i><b>✦</b><i></i>
+                </span>
+                <span class="lotm-klein-ui-rail rail-right">
+                    <i></i><b>✦</b><i></i>
+                </span>
+
                 <div class="lotm-klein-ui-crest">
-                    LORD OF THE MYSTERIES · SEFIRAH
+                    LORD OF THE MYSTERIES · SEFIRAH CASTLE
+                </div>
+                <div class="lotm-klein-ui-bottom-seal">
+                    <i></i><span>THE FOOL · MYSTERY · DESTINY</span><i></i>
                 </div>
             `;
 
@@ -4978,16 +5053,67 @@
             pet.setAttribute('draggable', 'false');
 
             const realm = document.createElement('div');
-            realm.className = 'lotm-klein-pet-realm';
+            realm.className = 'lotm-klein-pet-realm lotm-klein-pet-realm-v2';
             realm.setAttribute('aria-hidden', 'true');
 
             realm.innerHTML = `
+                <span class="lotm-klein-pet-aura aura-outer"></span>
+                <span class="lotm-klein-pet-aura aura-inner"></span>
                 <span class="lotm-klein-pet-halo"></span>
                 <span class="lotm-klein-pet-ring ring-a"></span>
                 <span class="lotm-klein-pet-ring ring-b"></span>
+                <span class="lotm-klein-pet-ring ring-c"></span>
+                <span class="lotm-klein-pet-ring ring-d"></span>
+                <span class="lotm-klein-pet-arcana-wheel"></span>
+                <span class="lotm-klein-pet-crown"></span>
                 <span class="lotm-klein-pet-eye"></span>
-                <span class="lotm-klein-pet-fog"></span>
+                <span class="lotm-klein-pet-throne"></span>
+                <span class="lotm-klein-pet-floor"></span>
+                <span class="lotm-klein-pet-fog fog-a"></span>
+                <span class="lotm-klein-pet-fog fog-b"></span>
+                <span class="lotm-klein-pet-card-field"></span>
+                <span class="lotm-klein-pet-spark-field"></span>
             `;
+
+            const localCards =
+                realm.querySelector('.lotm-klein-pet-card-field');
+
+            for (let index = 0; index < 10; index++) {
+                const card = document.createElement('i');
+                card.className = 'lotm-klein-pet-card';
+                card.style.setProperty('--lotmk-pca', `${index * 36}deg`);
+                card.style.setProperty('--lotmk-pcd', `${-index * .31}s`);
+                card.style.setProperty('--lotmk-pcr', `${-(98 + (index % 3) * 18)}px`);
+                localCards?.appendChild(card);
+            }
+
+            const sparkField =
+                realm.querySelector('.lotm-klein-pet-spark-field');
+
+            const localSparkCount =
+                getLuxuryQualityCount(28, 10);
+
+            for (let index = 0; index < localSparkCount; index++) {
+                const spark = document.createElement('i');
+                spark.className = 'lotm-klein-pet-spark';
+                spark.style.setProperty(
+                    '--lotmk-psx',
+                    `${8 + ((index * 37) % 84)}%`
+                );
+                spark.style.setProperty(
+                    '--lotmk-psy',
+                    `${10 + ((index * 53) % 78)}%`
+                );
+                spark.style.setProperty(
+                    '--lotmk-psd',
+                    `${-(index % 9) * .34}s`
+                );
+                spark.style.setProperty(
+                    '--lotmk-pss',
+                    `${2 + (index % 4)}px`
+                );
+                sparkField?.appendChild(spark);
+            }
 
             container.insertBefore(
                 realm,
@@ -5004,12 +5130,12 @@
             click.style.setProperty('--lotmk-click-x', `${x}px`);
             click.style.setProperty('--lotmk-click-y', `${y}px`);
 
-            for (let index = 0; index < 8; index++) {
+            for (let index = 0; index < 12; index++) {
                 const shard = document.createElement('i');
                 shard.className = 'lotm-klein-click-shard';
                 shard.style.setProperty(
                     '--lotmk-angle',
-                    `${index * 45}deg`
+                    `${index * 30}deg`
                 );
                 click.appendChild(shard);
             }
@@ -5018,7 +5144,7 @@
 
             this.setTimer(
                 () => click.remove(),
-                850
+                900
             );
         },
 
@@ -5077,7 +5203,7 @@
                 .forEach(element => element.remove());
 
             const ultimate = document.createElement('div');
-            ultimate.className = 'lotm-klein-ultimate';
+            ultimate.className = 'lotm-klein-ultimate lotm-klein-ultimate-v2';
             ultimate.setAttribute('aria-hidden', 'true');
 
             const ux =
@@ -5090,15 +5216,72 @@
             ultimate.style.setProperty('--lotmk-uy', uy);
 
             ultimate.innerHTML = `
+                <div class="lotm-klein-ultimate-blackout"></div>
+                <div class="lotm-klein-ultimate-flash"></div>
                 <div class="lotm-klein-ultimate-fog fog-a"></div>
                 <div class="lotm-klein-ultimate-fog fog-b"></div>
-                <div class="lotm-klein-ultimate-sigil"></div>
+                <div class="lotm-klein-ultimate-rays"></div>
+
+                <div class="lotm-klein-ultimate-castle">
+                    <span class="tower tower-a"></span>
+                    <span class="tower tower-b"></span>
+                    <span class="tower tower-c"></span>
+                </div>
+
+                <div class="lotm-klein-ultimate-sigil sigil-a"></div>
+                <div class="lotm-klein-ultimate-sigil sigil-b"></div>
+                <div class="lotm-klein-ultimate-sigil sigil-c"></div>
                 <div class="lotm-klein-ultimate-eye"></div>
+                <div class="lotm-klein-ultimate-cardstorm"></div>
+                <div class="lotm-klein-ultimate-glyphs"></div>
+
                 <div class="lotm-klein-ultimate-title">
                     <small>SEFIRAH CASTLE · MYSTERY DESCENDS</small>
                     <strong>LORD OF THE MYSTERIES</strong>
+                    <em>THE FOOL ABOVE THE GRAY FOG</em>
                 </div>
             `;
+
+            const cardStorm =
+                ultimate.querySelector('.lotm-klein-ultimate-cardstorm');
+
+            const ultimateCards =
+                getLuxuryQualityCount(28, 10);
+
+            for (let index = 0; index < ultimateCards; index++) {
+                const card = document.createElement('i');
+                card.className = 'lotm-klein-ultimate-card';
+                card.style.setProperty(
+                    '--lotmk-ucx',
+                    `${2 + ((index * 37 + 9) % 96)}%`
+                );
+                card.style.setProperty(
+                    '--lotmk-ucy',
+                    `${-18 - (index % 6) * 8}%`
+                );
+                card.style.setProperty(
+                    '--lotmk-ucd',
+                    `${index * .045}s`
+                );
+                card.style.setProperty(
+                    '--lotmk-ucr',
+                    `${-34 + (index % 13) * 6}deg`
+                );
+                cardStorm?.appendChild(card);
+            }
+
+            const glyphField =
+                ultimate.querySelector('.lotm-klein-ultimate-glyphs');
+
+            ['Ⅰ','Ⅱ','Ⅲ','Ⅳ','Ⅴ','Ⅵ','Ⅶ','Ⅷ','Ⅸ','Ⅹ','☽','✦'].forEach(
+                (glyph, index) => {
+                    const mark = document.createElement('b');
+                    mark.textContent = glyph;
+                    mark.style.setProperty('--lotmk-uga', `${index * 30}deg`);
+                    mark.style.setProperty('--lotmk-ugd', `${index * .035}s`);
+                    glyphField?.appendChild(mark);
+                }
+            );
 
             document.body.appendChild(ultimate);
 
@@ -5122,7 +5305,7 @@
                     ?.classList.remove('lotm-klein-casting');
 
                 this.skillLocked = false;
-            }, 1850);
+            }, 3250);
 
             return true;
         },
@@ -5141,13 +5324,22 @@
             if (this.activePetElement && this.petClickHandler) {
                 this.activePetElement.removeEventListener(
                     'click',
-                    this.petClickHandler
+                    this.petClickHandler,
+                    true
                 );
             }
 
             this.activePetElement = pet;
 
             this.petClickHandler = event => {
+                if (
+                    !document.documentElement.classList.contains(
+                        'lotm-klein-equipped'
+                    )
+                ) {
+                    return;
+                }
+
                 if (
                     typeof PetInteractionManager !== 'undefined' &&
                     PetInteractionManager.isPetDragging
@@ -5167,9 +5359,111 @@
                 );
             };
 
+            // Capture phase để kỹ năng Klein không bị listener kéo/thả hoặc
+            // listener pet mặc định chặn trước khi tới handler Premium.
             pet.addEventListener(
                 'click',
-                this.petClickHandler
+                this.petClickHandler,
+                true
+            );
+
+            return true;
+        },
+
+        repair() {
+            if (
+                !document.documentElement.classList.contains(
+                    'lotm-klein-equipped'
+                )
+            ) {
+                return false;
+            }
+
+            ensureLotmKleinStylesheet();
+
+            document.body?.classList.add(
+                'theme-lotm-klein-premium'
+            );
+
+            if (!document.querySelector('.lotm-klein-world')) {
+                this.createWorld();
+            }
+
+            if (!document.querySelector('.lotm-klein-ui-frame')) {
+                this.createInterface();
+            }
+
+            const container =
+                document.getElementById('virtual-pet-container');
+
+            const pet =
+                container?.querySelector('#virtual-pet-img');
+
+            if (container && pet) {
+                if (
+                    !pet.classList.contains('lotm-klein-pet') ||
+                    !container.querySelector('.lotm-klein-pet-realm')
+                ) {
+                    this.createPetRealm();
+                }
+
+                if (
+                    this.activePetElement !== pet ||
+                    !this.petClickHandler
+                ) {
+                    this.installPetSkill();
+                }
+            }
+
+            if (!this.documentClickHandler) {
+                this.installGlobalClick();
+            }
+
+            return true;
+        },
+
+        installObserver() {
+            const container =
+                document.getElementById('virtual-pet-container');
+
+            if (!container) {
+                return false;
+            }
+
+            if (this.observer) {
+                this.observer.disconnect();
+            }
+
+            this.observer = new MutationObserver(() => {
+                if (
+                    !document.documentElement.classList.contains(
+                        'lotm-klein-equipped'
+                    ) ||
+                    this.repairQueued
+                ) {
+                    return;
+                }
+
+                this.repairQueued = true;
+
+                queueMicrotask(() => {
+                    this.repairQueued = false;
+                    this.repair();
+                });
+            });
+
+            this.observer.observe(
+                container,
+                {
+                    childList: true,
+                    subtree: true,
+                    attributes: true,
+                    attributeFilter: [
+                        'src',
+                        'class',
+                        'style'
+                    ]
+                }
             );
 
             return true;
@@ -5192,8 +5486,127 @@
             this.createPetRealm();
             this.installGlobalClick();
             this.installPetSkill();
+            this.installObserver();
+
+            [100, 320, 720, 1400, 2600].forEach(delay => {
+                this.setTimer(() => {
+                    this.repair();
+                }, delay);
+            });
+
+            return true;
+        },
+
+        restore(attempt = 0) {
+            ensureLotmKleinStylesheet();
+
+            const pet = this.getPet();
+            const activePetId = localStorage.getItem('active_pet');
+
+            if (
+                activePetId !== 'pet_lotm_klein_event_1' &&
+                !pet
+            ) {
+                return false;
+            }
+
+            if (pet) {
+                this.mount();
+                return true;
+            }
+
+            if (attempt < 28) {
+                this.setTimer(
+                    () => this.restore(attempt + 1),
+                    140 + attempt * 30
+                );
+            }
+
+            return false;
         }
     };
+
+
+    // ========================================================
+    // LORD OF THE MYSTERIES · KLEIN · AUTO-MOUNT BRIDGE
+    // Nếu PetManager render trước/sau LuxuryStore hoặc DOM pet bị dựng lại,
+    // runtime vẫn tự phục hồi world + UI + realm + kỹ năng nhấn.
+    // ========================================================
+    let lotmKleinAutoObserver = null;
+    let lotmKleinAutoRetryTimer = null;
+    let lotmKleinAutoSyncQueued = false;
+
+    function syncLotmKleinRuntimeFromDom() {
+        const pet = document.querySelector(
+            '#virtual-pet-container #virtual-pet-img.lotm-klein-mystery-magic, ' +
+            '#virtual-pet-container #virtual-pet-img.lotm-klein-pet'
+        );
+
+        if (!pet) {
+            return;
+        }
+
+        const needsMount =
+            !document.documentElement.classList.contains('lotm-klein-equipped') ||
+            !document.querySelector('.lotm-klein-world') ||
+            !document.querySelector('.lotm-klein-ui-frame') ||
+            !document.querySelector('#virtual-pet-container .lotm-klein-pet-realm');
+
+        if (needsMount) {
+            LuxuryLotmKleinRuntime.mount();
+        } else {
+            LuxuryLotmKleinRuntime.repair();
+        }
+    }
+
+    function installLotmKleinAutoMountObserver(attempt = 0) {
+        const container =
+            document.getElementById('virtual-pet-container');
+
+        if (!container) {
+            if (attempt < 80) {
+                window.clearTimeout(lotmKleinAutoRetryTimer);
+                lotmKleinAutoRetryTimer = window.setTimeout(
+                    () => installLotmKleinAutoMountObserver(attempt + 1),
+                    100
+                );
+            }
+            return;
+        }
+
+        lotmKleinAutoObserver?.disconnect();
+
+        const queueSync = () => {
+            if (lotmKleinAutoSyncQueued) return;
+            lotmKleinAutoSyncQueued = true;
+
+            queueMicrotask(() => {
+                lotmKleinAutoSyncQueued = false;
+                syncLotmKleinRuntimeFromDom();
+            });
+        };
+
+        lotmKleinAutoObserver =
+            new MutationObserver(queueSync);
+
+        lotmKleinAutoObserver.observe(
+            container,
+            {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                attributeFilter: ['src', 'class', 'style']
+            }
+        );
+
+        syncLotmKleinRuntimeFromDom();
+
+        [180, 650, 1600].forEach(delay => {
+            window.setTimeout(syncLotmKleinRuntimeFromDom, delay);
+        });
+    }
+
+    installLotmKleinAutoMountObserver();
 
 
     // ========================================================
@@ -7282,6 +7695,83 @@
 
 
     // ========================================================
+    // NYX · CSS LAZY GUARD
+    // - Không tải ở startup nếu NYX không cần.
+    // - Chỉ tải khi card NYX cần hiển thị hoặc NYX được mount.
+    // - Tránh card rơi về nền trắng khi selective loader đã bỏ
+    //   ALL_SPECIAL_STORE_CSS khỏi store-ui.
+    // ========================================================
+    function ensureNyxStylesheet() {
+        const existing = Array.from(
+            document.querySelectorAll('link[rel="stylesheet"]')
+        ).find(link =>
+            /(?:^|\/)nyx-than-thoai(?:\(\d+\))?\.css(?:[?#].*)?$/i
+                .test(link.href || '')
+        );
+
+        if (existing) {
+            existing.id = existing.id || 'nyx-mythic-premium-style';
+            return existing;
+        }
+
+        if (document.getElementById('nyx-mythic-premium-style')) {
+            return document.getElementById('nyx-mythic-premium-style');
+        }
+
+        let href = '';
+
+        if (window.NYX_MYTHIC_CSS_PATH) {
+            href = String(window.NYX_MYTHIC_CSS_PATH).trim();
+        }
+
+        if (!href) {
+            const scripts = Array.from(document.scripts || []);
+            const ownScript = scripts
+                .slice()
+                .reverse()
+                .find(script =>
+                    /(?:^|\/)luxury-store(?:[^\/]*)?\.js(?:[?#].*)?$/i
+                        .test(script.src || '')
+                );
+
+            if (ownScript?.src) {
+                try {
+                    href = new URL(
+                        '../css/nyx-than-thoai.css?v=20260915.nyx-card-guard-v1',
+                        ownScript.src
+                    ).href;
+                } catch (_) {
+                    href = '';
+                }
+            }
+        }
+
+        if (!href) {
+            href = new URL(
+                'css/nyx-than-thoai.css?v=20260915.nyx-card-guard-v1',
+                document.baseURI
+            ).href;
+        }
+
+        const link = document.createElement('link');
+        link.id = 'nyx-mythic-premium-style';
+        link.rel = 'stylesheet';
+        link.href = href;
+        link.dataset.nyxMythic = 'true';
+
+        link.addEventListener('error', () => {
+            console.error(
+                '[NYX] Không tải được CSS:',
+                link.href,
+                'Hãy đặt file tại css/nyx-than-thoai.css hoặc gán window.NYX_MYTHIC_CSS_PATH trước khi nạp luxury-store.js.'
+            );
+        }, { once: true });
+
+        document.head.appendChild(link);
+        return link;
+    }
+
+    // ========================================================
     // NYX · HẮC DẠ NGUYÊN SƠ — FULL PREMIUM SUITE V2
     // WORLD + INTERFACE + GLOBAL CLICK + SCREEN SKILL
     // Pet Realm + ultimate gốc vẫn do PetManager quản lý.
@@ -7742,6 +8232,7 @@
 
         mount() {
             this.clear();
+            ensureNyxStylesheet();
 
             document.documentElement.classList.add(
                 'nyx-first-night-equipped'
@@ -11584,7 +12075,7 @@ if (isNationalDay) {
         if (item.id === 'pet_lotm_klein_event_1') {
             const tagImage = escapeHTML(
                 item.luxuryTagImage ||
-                'assets/Premium/quy bi/tag1.png'
+                'assets/Premium/quỷ bí/tag1.png'
             );
 
             let actionHTML = '';
@@ -11983,6 +12474,8 @@ if (isNationalDay) {
         // Không dùng class card của Mùa Xuân / Quốc khánh.
         // ====================================================
         if (item.id === 'pet_mythic_nyx_1') {
+
+            ensureNyxStylesheet();
 
             const tagImage = escapeHTML(
                 item.luxuryTagImage ||
@@ -13321,6 +13814,26 @@ if (isNationalDay) {
 
         clearLotmKlein: () => {
             LuxuryLotmKleinRuntime.clear();
+        },
+
+        // Khôi phục toàn bộ full-web suite Klein sau reload/lazy-load.
+        restoreLotmKlein: () => {
+            return LuxuryLotmKleinRuntime.restore();
+        },
+
+        // Test riêng ultimate toàn màn hình.
+        lotmKleinUltimateTest: () => {
+            const pet =
+                LuxuryLotmKleinRuntime.getPet() ||
+                document.querySelector('#virtual-pet-container #virtual-pet-img');
+
+            if (!pet) return false;
+
+            const rect = pet.getBoundingClientRect();
+            return LuxuryLotmKleinRuntime.createUltimate(
+                rect.left + rect.width / 2,
+                rect.top + rect.height / 2
+            );
         },
 
         // Test nhanh Cầm Cơ · Cầm Mộng — FULL SUITE V1.
