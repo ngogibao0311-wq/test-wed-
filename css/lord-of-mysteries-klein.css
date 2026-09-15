@@ -1282,3 +1282,1284 @@ html.lotm-klein-equipped::-webkit-scrollbar-thumb:hover {
     30%, 72% { opacity: .36; }
     to { transform: translateX(-16vw) scaleX(1.16); opacity: 0; }
 }
+
+/* ============================================================================
+   16) FIX V2 · ĐỒNG BỘ BỐ CỤC CARD KLEIN VỚI CÁC THẺ LUXURY KHÁC
+   - Desktop: 430px như Cầm Mộng / các Premium cùng hàng.
+   - Visual phủ toàn bộ card.
+   - Nhân vật nằm giữa, không bị panel thông tin đẩy lên.
+   - Panel thông tin ẩn mặc định, trượt lên khi hover/focus.
+   - Chỉ tác động pet_lotm_klein_event_1.
+   ============================================================================ */
+
+.luxury-product-card.lotm-klein-card,
+.luxury-product-card[data-item-id="pet_lotm_klein_event_1"],
+.luxury-product-card[data-special-card="lotm-klein-event-premium"] {
+    height: 430px !important;
+    min-height: 430px !important;
+    max-height: 430px !important;
+    border-radius: 20px !important;
+    transform-style: flat !important;
+}
+
+.lotm-klein-card .lotm-klein-card-visual,
+.luxury-product-card[data-item-id="pet_lotm_klein_event_1"] .lotm-klein-card-visual {
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 1 !important;
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    border-radius: inherit !important;
+}
+
+.lotm-klein-card .lotm-klein-card-shape,
+.luxury-product-card[data-item-id="pet_lotm_klein_event_1"] .lotm-klein-card-shape {
+    position: absolute !important;
+    left: 50% !important;
+    top: 47% !important;
+    z-index: 1 !important;
+    width: 220px !important;
+    height: 220px !important;
+    margin: 0 !important;
+    transform: translate(-50%, -50%) rotate(0deg) !important;
+    transform-origin: 50% 50% !important;
+    animation: lotmkCardSigilCentered 15s linear infinite !important;
+}
+
+.lotm-klein-card .lotm-klein-card-character,
+.luxury-product-card[data-item-id="pet_lotm_klein_event_1"] .lotm-klein-card-character {
+    position: absolute !important;
+    left: 50% !important;
+    bottom: 14px !important;
+    top: auto !important;
+    z-index: 5 !important;
+    width: min(84%, 224px) !important;
+    height: auto !important;
+    max-width: none !important;
+    max-height: 350px !important;
+    object-fit: contain !important;
+    object-position: center bottom !important;
+    margin: 0 !important;
+    transform: translateX(-50%) !important;
+    transform-origin: center bottom !important;
+}
+
+.lotm-klein-card:hover .lotm-klein-card-character,
+.lotm-klein-card:focus .lotm-klein-card-character,
+.lotm-klein-card:focus-within .lotm-klein-card-character {
+    transform: translateX(-50%) translateY(-9px) scale(1.035) !important;
+}
+
+.lotm-klein-card .lotm-klein-card-tag {
+    top: 10px !important;
+    left: 10px !important;
+    width: 160px !important;
+    max-width: 52% !important;
+    z-index: 25 !important;
+}
+
+/* Panel overlay: cùng cơ chế Cầm Mộng / các card Premium cùng hàng. */
+.lotm-klein-card .lotm-klein-card-info,
+.luxury-product-card[data-item-id="pet_lotm_klein_event_1"] .lotm-klein-card-info {
+    position: absolute !important;
+    left: 12px !important;
+    right: 12px !important;
+    bottom: 12px !important;
+    top: auto !important;
+    z-index: 30 !important;
+    width: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 15px 16px 16px !important;
+    box-sizing: border-box !important;
+    border: 1px solid rgba(201, 175, 114, .30) !important;
+    border-radius: 18px !important;
+    background:
+        radial-gradient(circle at 100% 0%, rgba(108,35,48,.13), transparent 30%),
+        linear-gradient(145deg, rgba(22,25,33,.965), rgba(7,8,12,.975)) !important;
+    box-shadow:
+        0 16px 35px rgba(0,0,0,.42),
+        inset 0 1px 0 rgba(255,255,255,.045) !important;
+    backdrop-filter: blur(12px) saturate(1.06) !important;
+    -webkit-backdrop-filter: blur(12px) saturate(1.06) !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transform: translateY(calc(100% + 20px)) !important;
+    transition:
+        transform .38s cubic-bezier(.2,.75,.25,1),
+        opacity .28s ease,
+        visibility .28s ease !important;
+}
+
+.lotm-klein-card:hover .lotm-klein-card-info,
+.lotm-klein-card:focus .lotm-klein-card-info,
+.lotm-klein-card:focus-within .lotm-klein-card-info {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    transform: translateY(0) !important;
+}
+
+.lotm-klein-card .lotm-klein-card-label {
+    display: inline-flex !important;
+    align-items: center !important;
+    width: fit-content !important;
+    max-width: 100% !important;
+    margin: 0 0 8px !important;
+    padding: 6px 10px !important;
+    border: 1px solid rgba(194,164,105,.28) !important;
+    border-radius: 999px !important;
+    font: 800 10px/1.1 var(--lotmk-font-ui) !important;
+    white-space: nowrap !important;
+}
+
+.lotm-klein-card .lotm-klein-card-info h3 {
+    margin: 0 0 8px !important;
+    font-size: 18px !important;
+    line-height: 1.28 !important;
+}
+
+.lotm-klein-card .lotm-klein-card-price {
+    margin: 0 !important;
+    font: 700 12px/1.35 var(--lotmk-font-ui) !important;
+}
+
+.lotm-klein-card .lotm-klein-card-action {
+    min-height: 38px !important;
+    margin-top: 10px !important;
+}
+
+@keyframes lotmkCardSigilCentered {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+    .luxury-product-card.lotm-klein-card,
+    .luxury-product-card[data-item-id="pet_lotm_klein_event_1"] {
+        height: 305px !important;
+        min-height: 305px !important;
+        max-height: 305px !important;
+    }
+
+    .lotm-klein-card .lotm-klein-card-visual {
+        height: 100% !important;
+        min-height: 0 !important;
+    }
+
+    .lotm-klein-card .lotm-klein-card-character {
+        bottom: 8px !important;
+        width: min(82%, 165px) !important;
+        max-height: 250px !important;
+    }
+
+    .lotm-klein-card .lotm-klein-card-info {
+        left: 7px !important;
+        right: 7px !important;
+        bottom: 7px !important;
+        padding: 11px !important;
+    }
+
+    .lotm-klein-card .lotm-klein-card-tag {
+        top: 8px !important;
+        left: 8px !important;
+        width: 132px !important;
+        max-width: 47% !important;
+    }
+
+    .lotm-klein-card .lotm-klein-card-info h3 {
+        font-size: 15px !important;
+    }
+}
+
+@media (hover: none), (pointer: coarse) {
+    .lotm-klein-card:focus .lotm-klein-card-info,
+    .lotm-klein-card:focus-within .lotm-klein-card-info {
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+        transform: translateY(0) !important;
+    }
+}
+
+
+/* ============================================================================
+   16) LOTM KLEIN · GRAND MYSTERY V2 OVERRIDES
+   Mục tiêu:
+   - full-web effect phải nhìn thấy rõ trên toàn trang
+   - pet bên phải lớn hơn
+   - realm quanh pet nhiều tầng, sáng và lộng lẫy hơn
+   - ultimate khi nhấn pet phủ toàn màn hình và kéo dài đủ để nhìn thấy
+   - vẫn chỉ kích hoạt khi html.lotm-klein-equipped
+   ============================================================================ */
+
+/* ---- Full web: nâng world lên trên UI nền nhưng vẫn không chặn tương tác ---- */
+.lotm-klein-world.lotm-klein-world-v2 {
+    z-index: 2147480000 !important;
+    opacity: 0 !important;
+    background: transparent !important;
+    mix-blend-mode: normal !important;
+}
+
+.lotm-klein-world.lotm-klein-world-v2.is-active {
+    opacity: 1 !important;
+}
+
+.lotm-klein-world-v2 .lotm-klein-world-veil {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 52% 38%, transparent 0 18%, rgba(7,8,13,.10) 48%, rgba(3,4,8,.30) 100%),
+        linear-gradient(115deg, rgba(67,29,91,.10), transparent 28% 72%, rgba(139,93,45,.08));
+    backdrop-filter: saturate(.86) contrast(1.03);
+    -webkit-backdrop-filter: saturate(.86) contrast(1.03);
+}
+
+.lotm-klein-world-v2 .lotm-klein-world-vignette {
+    background:
+        radial-gradient(circle at 50% 44%, transparent 8%, rgba(7,7,13,.08) 42%, rgba(3,4,8,.36) 100%),
+        linear-gradient(90deg, rgba(72,31,92,.15), transparent 23% 77%, rgba(72,31,92,.15)) !important;
+}
+
+.lotm-klein-world-aurora {
+    position: absolute;
+    width: 74vw;
+    height: 32vh;
+    border-radius: 50%;
+    filter: blur(42px);
+    opacity: .34;
+    background:
+        radial-gradient(ellipse, rgba(129,84,171,.34), rgba(194,164,105,.15) 44%, transparent 72%);
+    mix-blend-mode: screen;
+}
+
+.lotm-klein-world-aurora.aurora-a {
+    left: -18vw;
+    top: 3vh;
+    transform: rotate(-8deg);
+    animation: lotmkV2AuroraA 11s ease-in-out infinite alternate;
+}
+
+.lotm-klein-world-aurora.aurora-b {
+    right: -22vw;
+    bottom: 3vh;
+    transform: rotate(12deg);
+    animation: lotmkV2AuroraB 13s ease-in-out infinite alternate;
+}
+
+.lotm-klein-world-v2 .lotm-klein-world-fog {
+    opacity: .42 !important;
+    filter: blur(34px) !important;
+    background:
+        radial-gradient(ellipse, rgba(205,211,225,.35), rgba(111,91,137,.13) 50%, transparent 74%) !important;
+}
+
+.lotm-klein-world-v2 .lotm-klein-world-sigil {
+    box-shadow:
+        0 0 100px rgba(205,176,112,.12),
+        inset 0 0 80px rgba(111,57,137,.10) !important;
+}
+
+.lotm-klein-world-v2 .lotm-klein-world-sigil.sigil-main {
+    left: 50%;
+    top: 49%;
+    width: min(76vw, 920px);
+    opacity: .24;
+    border: 1px solid rgba(235,211,156,.68);
+    background:
+        repeating-conic-gradient(from 0deg, rgba(235,211,156,.52) 0 1deg, transparent 1deg 10deg),
+        radial-gradient(circle,
+            transparent 0 28%,
+            rgba(194,164,105,.28) 28.2% 28.5%,
+            transparent 28.7% 43%,
+            rgba(164,119,194,.23) 43.2% 43.6%,
+            transparent 43.8% 59%,
+            rgba(194,164,105,.20) 59.2% 59.5%,
+            transparent 59.7% 73%,
+            rgba(229,207,152,.16) 73.2% 73.5%,
+            transparent 73.7%);
+    animation: lotmkV2MainSigil 58s linear infinite;
+}
+
+.lotm-klein-world-v2 .lotm-klein-world-sigil.sigil-left,
+.lotm-klein-world-v2 .lotm-klein-world-sigil.sigil-right {
+    width: min(31vw, 360px);
+    opacity: .20;
+    border-color: rgba(181,139,207,.62);
+    background:
+        repeating-conic-gradient(from 15deg, rgba(200,174,232,.42) 0 1deg, transparent 1deg 18deg),
+        radial-gradient(circle, transparent 0 39%, rgba(229,207,152,.23) 39.4% 40%, transparent 40.4%);
+}
+
+.lotm-klein-world-v2 .lotm-klein-world-sigil.sigil-left {
+    left: 12vw;
+    top: 60vh;
+    animation: lotmkV2SideSigil 35s linear infinite reverse;
+}
+
+.lotm-klein-world-v2 .lotm-klein-world-sigil.sigil-right {
+    left: auto;
+    right: -3vw;
+    top: 24vh;
+    transform: translate(0,-50%);
+    animation: lotmkV2SideSigilRight 42s linear infinite;
+}
+
+.lotm-klein-world-eye {
+    position: absolute;
+    left: 50%;
+    top: 47%;
+    width: min(36vw, 430px);
+    height: min(18vw, 215px);
+    transform: translate(-50%,-50%) rotate(45deg);
+    border: 1px solid rgba(229,207,152,.27);
+    border-radius: 72% 0 72% 0;
+    opacity: .21;
+    box-shadow:
+        0 0 55px rgba(207,174,108,.14),
+        inset 0 0 42px rgba(126,71,157,.09);
+    animation: lotmkV2WorldEye 7s ease-in-out infinite;
+}
+
+.lotm-klein-world-eye i,
+.lotm-klein-world-eye b,
+.lotm-klein-world-eye em {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    border-radius: 50%;
+    transform: translate(-50%,-50%);
+}
+
+.lotm-klein-world-eye i {
+    width: 76px;
+    height: 76px;
+    background: radial-gradient(circle, #f2dfad 0 8%, #a2814d 10% 22%, #63304f 24% 53%, #18101f 55% 68%, transparent 70%);
+    box-shadow: 0 0 44px rgba(226,197,132,.28);
+}
+
+.lotm-klein-world-eye b {
+    width: 116px;
+    height: 116px;
+    border: 1px dashed rgba(226,197,132,.35);
+    animation: lotmkV2Spin 16s linear infinite;
+}
+
+.lotm-klein-world-eye em {
+    width: 154px;
+    height: 154px;
+    border: 1px solid rgba(170,120,195,.20);
+    animation: lotmkV2Spin 24s linear infinite reverse;
+}
+
+.lotm-klein-world-cathedral {
+    position: absolute;
+    left: 50%;
+    bottom: -5vh;
+    width: min(70vw, 900px);
+    height: 34vh;
+    transform: translateX(-50%);
+    opacity: .20;
+    background:
+        linear-gradient(90deg, transparent 0 8%, rgba(206,176,112,.20) 8.2% 8.5%, transparent 8.7% 91%, rgba(206,176,112,.20) 91.2% 91.5%, transparent 91.7%),
+        repeating-linear-gradient(90deg, transparent 0 8%, rgba(174,139,205,.14) 8.3% 8.6%, transparent 8.9% 16%),
+        linear-gradient(180deg, transparent 0 34%, rgba(15,13,23,.62) 34% 100%);
+    clip-path: polygon(0 100%, 8% 42%, 16% 100%, 23% 30%, 31% 100%, 40% 20%, 50% 100%, 60% 20%, 69% 100%, 77% 30%, 84% 100%, 92% 42%, 100% 100%);
+    filter: drop-shadow(0 -10px 30px rgba(177,133,205,.13));
+}
+
+.lotm-klein-world-rays {
+    position: absolute;
+    inset: -30%;
+    left: 50%;
+    top: 48%;
+    transform: translate(-50%,-50%);
+    background:
+        repeating-conic-gradient(from 0deg, transparent 0 7deg, rgba(229,207,152,.045) 8deg 9deg, transparent 10deg 18deg);
+    animation: lotmkV2Rays 40s linear infinite;
+}
+
+.lotm-klein-world-v2 .lotm-klein-world-card {
+    width: 38px;
+    height: 58px;
+    opacity: .28;
+    border-color: rgba(229,207,152,.40);
+    background:
+        radial-gradient(circle at 50% 46%, rgba(229,207,152,.38) 0 4%, transparent 5%),
+        linear-gradient(145deg, rgba(102,46,123,.38), rgba(12,14,22,.80));
+    box-shadow:
+        inset 0 0 0 3px rgba(229,207,152,.045),
+        0 0 16px rgba(181,133,210,.09);
+}
+
+.lotm-klein-world-runes {
+    position: absolute;
+    inset: 0;
+}
+
+.lotm-klein-world-rune {
+    position: absolute;
+    left: var(--lotmk-rx);
+    top: var(--lotmk-ry);
+    color: rgba(232,211,165,.48);
+    font: 700 14px/1 Georgia, serif;
+    text-shadow: 0 0 12px rgba(202,173,114,.30);
+    opacity: .20;
+    transform: scale(var(--lotmk-rs));
+    animation: lotmkV2Rune 5.4s ease-in-out var(--lotmk-rd) infinite;
+}
+
+.lotm-klein-world-v2 .lotm-klein-world-mote {
+    opacity: .46;
+    background: #ead5a2;
+    box-shadow:
+        0 0 7px rgba(234,213,162,.72),
+        0 0 16px rgba(171,122,199,.24);
+}
+
+/* ---- Web skin: tăng độ nhận diện, đổi hình khối rõ hơn ---- */
+html.lotm-klein-equipped body {
+    background:
+        radial-gradient(circle at 82% 4%, rgba(104,55,126,.20), transparent 27%),
+        radial-gradient(circle at 12% 18%, rgba(194,164,105,.13), transparent 31%),
+        linear-gradient(148deg, #12131b 0%, #0b0c12 47%, #06070b 100%) fixed !important;
+}
+
+html.lotm-klein-equipped body :where(
+    main, .main-content, .content-wrapper, .page-content,
+    .student-main, .dashboard-main, .app-content
+):not(.ui-theme-immune):not([data-theme-immune="true"]) {
+    border-color: rgba(205,177,116,.14) !important;
+    background:
+        radial-gradient(circle at 78% 8%, rgba(119,70,146,.075), transparent 27%),
+        linear-gradient(145deg, rgba(16,18,26,.90), rgba(8,9,14,.92)) !important;
+}
+
+html.lotm-klein-equipped body :where(
+    .card, .panel, .content-card, .dashboard-card, .widget,
+    .box, .section-card, .settings-card, .profile-card,
+    .assignment-card, .home-card, .feature-card
+):not(.luxury-product-card):not(.store-item-card):not(.ui-theme-immune):not([data-theme-immune="true"]) {
+    border: 1px solid rgba(208,179,116,.24) !important;
+    border-radius: 4px 20px 4px 20px !important;
+    clip-path: polygon(0 14px,14px 0,calc(100% - 18px) 0,100% 18px,100% calc(100% - 14px),calc(100% - 14px) 100%,18px 100%,0 calc(100% - 18px));
+    background:
+        radial-gradient(circle at 100% 0%, rgba(117,68,143,.10), transparent 25%),
+        linear-gradient(145deg, rgba(22,24,34,.95), rgba(9,10,16,.95)) !important;
+    box-shadow:
+        0 18px 40px rgba(0,0,0,.28),
+        inset 0 0 30px rgba(179,137,206,.03),
+        inset 0 0 0 1px rgba(235,211,156,.025) !important;
+}
+
+html.lotm-klein-equipped body :where(
+    .modal-content, .popup-content, .modal-container, .popup-container,
+    .modal-card, .student-modal-box, .notification-popup, .settings-popup,
+    .dialog-content, .dialog-box, .swal2-popup, .dropdown-menu,
+    .context-menu, .menu-popup, .popover, [role="dialog"]
+):not(.ui-theme-immune):not([data-theme-immune="true"]) {
+    border: 1px solid rgba(222,193,129,.42) !important;
+    border-radius: 3px 24px 3px 24px !important;
+    clip-path: polygon(0 18px,18px 0,calc(100% - 24px) 0,100% 24px,100% calc(100% - 18px),calc(100% - 18px) 100%,24px 100%,0 calc(100% - 24px));
+    background:
+        radial-gradient(circle at 92% 6%, rgba(135,78,163,.13), transparent 24%),
+        radial-gradient(circle at 8% 92%, rgba(194,164,105,.10), transparent 22%),
+        linear-gradient(155deg, rgba(24,25,36,.985), rgba(7,8,13,.99)) !important;
+    box-shadow:
+        0 32px 90px rgba(0,0,0,.60),
+        0 0 0 1px rgba(198,157,222,.05),
+        inset 0 0 55px rgba(119,67,145,.045) !important;
+}
+
+html.lotm-klein-equipped body :where(button, .btn, .button):not(.ui-theme-immune):not([data-theme-immune="true"]):not(.lotm-klein-card-action) {
+    border-radius: 4px 13px 4px 13px !important;
+    background:
+        linear-gradient(135deg, rgba(100,57,123,.44), rgba(66,43,38,.35) 46%, rgba(18,20,29,.95)) !important;
+    box-shadow:
+        inset 0 0 0 1px rgba(238,215,166,.035),
+        0 6px 18px rgba(0,0,0,.20) !important;
+}
+
+html.lotm-klein-equipped body :where(
+    input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
+    textarea, select, .input, .search-bar, .search-input
+):not(.ui-theme-immune):not([data-theme-immune="true"]) {
+    border-radius: 3px 14px 3px 14px !important;
+    background:
+        linear-gradient(145deg, rgba(9,10,16,.88), rgba(18,16,25,.88)) !important;
+}
+
+/* ---- UI frame v2 ---- */
+.lotm-klein-ui-frame-v2 {
+    z-index: 2147481000 !important;
+}
+
+.lotm-klein-ui-frame-v2 .lotm-klein-ui-corner {
+    width: 96px;
+    height: 96px;
+    opacity: .82;
+    filter: drop-shadow(0 0 8px rgba(225,197,134,.18));
+}
+
+.lotm-klein-ui-frame-v2 .lotm-klein-ui-corner::before { width: 96px; }
+.lotm-klein-ui-frame-v2 .lotm-klein-ui-corner::after { height: 96px; }
+
+.lotm-klein-ui-rail {
+    position: absolute;
+    top: 18%;
+    bottom: 14%;
+    display: grid;
+    grid-template-rows: 1fr auto 1fr;
+    align-items: center;
+    width: 18px;
+    opacity: .62;
+}
+
+.lotm-klein-ui-rail.rail-left { left: 10px; }
+.lotm-klein-ui-rail.rail-right { right: 10px; }
+
+.lotm-klein-ui-rail i {
+    justify-self: center;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(transparent, rgba(217,187,122,.52), transparent);
+}
+
+.lotm-klein-ui-rail b {
+    color: rgba(232,207,151,.78);
+    font-size: 15px;
+    text-shadow: 0 0 14px rgba(215,182,116,.33);
+    animation: lotmkV2RailPulse 2.8s ease-in-out infinite;
+}
+
+.lotm-klein-ui-bottom-seal {
+    position: absolute;
+    left: 50%;
+    bottom: 9px;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 72vw;
+    color: rgba(229,207,152,.56);
+    font: 700 7px/1 var(--lotmk-font-ui);
+    letter-spacing: .26em;
+    white-space: nowrap;
+}
+
+.lotm-klein-ui-bottom-seal i {
+    width: 70px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(194,164,105,.45));
+}
+
+.lotm-klein-ui-bottom-seal i:last-child { transform: scaleX(-1); }
+
+/* ---- Floating pet bên phải: to hơn và ưu tiên nằm trên world ---- */
+html.lotm-klein-equipped #virtual-pet-container.pet-lotm-klein-stage {
+    z-index: 2147481800 !important;
+    width: 285px !important;
+    min-width: 285px !important;
+    height: 390px !important;
+    min-height: 390px !important;
+    overflow: visible !important;
+    isolation: isolate !important;
+}
+
+html.lotm-klein-equipped #virtual-pet-container.pet-lotm-klein-stage #virtual-pet-img.lotm-klein-pet {
+    position: absolute !important;
+    left: 50% !important;
+    bottom: 4px !important;
+    width: 258px !important;
+    max-width: none !important;
+    max-height: 375px !important;
+    height: auto !important;
+    transform: translateX(-50%) !important;
+    transform-origin: 50% 84% !important;
+    filter:
+        drop-shadow(0 20px 19px rgba(0,0,0,.62))
+        drop-shadow(0 0 19px rgba(233,210,157,.32))
+        drop-shadow(0 0 32px rgba(136,78,164,.26)) !important;
+    animation: lotmkV2PetIdle 4.1s cubic-bezier(.4,0,.2,1) infinite !important;
+}
+
+html.lotm-klein-equipped #virtual-pet-container.pet-lotm-klein-stage #virtual-pet-img.lotm-klein-pet:hover {
+    filter:
+        drop-shadow(0 23px 22px rgba(0,0,0,.68))
+        drop-shadow(0 0 25px rgba(239,218,170,.48))
+        drop-shadow(0 0 48px rgba(149,86,180,.36)) !important;
+}
+
+html.lotm-klein-skill-active #virtual-pet-container.pet-lotm-klein-stage #virtual-pet-img.lotm-klein-pet,
+#virtual-pet-container.pet-lotm-klein-stage.lotm-klein-casting #virtual-pet-img.lotm-klein-pet {
+    animation: lotmkV2PetCast 1.1s cubic-bezier(.2,.8,.2,1) both !important;
+}
+
+/* ---- Realm quanh pet V2 ---- */
+.lotm-klein-pet-realm-v2 {
+    inset: -62px -55px -48px -55px !important;
+    z-index: 4 !important;
+    filter: drop-shadow(0 0 20px rgba(153,91,183,.12));
+}
+
+.lotm-klein-pet-aura {
+    position: absolute;
+    left: 50%;
+    top: 49%;
+    border-radius: 50%;
+    transform: translate(-50%,-50%);
+    pointer-events: none;
+}
+
+.lotm-klein-pet-aura.aura-outer {
+    width: 320px;
+    height: 320px;
+    opacity: .72;
+    background:
+        radial-gradient(circle, transparent 0 45%, rgba(126,72,154,.12) 57%, transparent 72%),
+        conic-gradient(from 0deg, transparent, rgba(224,196,133,.20), transparent 19%, rgba(139,84,169,.20), transparent 42%, rgba(224,196,133,.18), transparent 66%, rgba(139,84,169,.18), transparent);
+    filter: blur(2px);
+    animation: lotmkV2AuraOuter 10s linear infinite;
+}
+
+.lotm-klein-pet-aura.aura-inner {
+    width: 252px;
+    height: 252px;
+    opacity: .80;
+    background: radial-gradient(circle, rgba(233,210,157,.13), rgba(119,67,145,.10) 43%, transparent 69%);
+    box-shadow: 0 0 48px rgba(228,201,141,.15);
+    animation: lotmkV2AuraInner 3.8s ease-in-out infinite alternate;
+}
+
+.lotm-klein-pet-realm-v2 .lotm-klein-pet-halo {
+    width: 270px !important;
+    height: 270px !important;
+    opacity: .92;
+    border-color: rgba(234,211,157,.58) !important;
+    background:
+        repeating-conic-gradient(from 0deg, rgba(234,211,157,.38) 0 1deg, transparent 1deg 12deg),
+        radial-gradient(circle, rgba(229,207,152,.16), rgba(119,67,145,.13) 42%, transparent 68%) !important;
+    box-shadow:
+        0 0 46px rgba(230,204,143,.17),
+        inset 0 0 44px rgba(131,73,160,.12) !important;
+}
+
+.lotm-klein-pet-realm-v2 .lotm-klein-pet-ring {
+    border-color: rgba(234,211,157,.52) !important;
+    box-shadow: 0 0 15px rgba(218,185,116,.09);
+}
+
+.lotm-klein-pet-realm-v2 .lotm-klein-pet-ring.ring-a {
+    width: 232px !important;
+    height: 232px !important;
+    border-style: solid !important;
+    animation: lotmkV2PetRingA 14s linear infinite !important;
+}
+
+.lotm-klein-pet-realm-v2 .lotm-klein-pet-ring.ring-b {
+    width: 194px !important;
+    height: 194px !important;
+    border-color: rgba(185,131,211,.45) !important;
+    animation: lotmkV2PetRingB 10s linear infinite reverse !important;
+}
+
+.lotm-klein-pet-realm-v2 .lotm-klein-pet-ring.ring-c {
+    width: 154px;
+    height: 154px;
+    border-style: dotted;
+    transform: translate(-50%,-50%) rotate(20deg);
+    animation: lotmkV2PetRingC 7s linear infinite;
+}
+
+.lotm-klein-pet-realm-v2 .lotm-klein-pet-ring.ring-d {
+    width: 292px;
+    height: 292px;
+    border-style: dashed;
+    border-color: rgba(216,186,122,.29) !important;
+    animation: lotmkV2PetRingD 19s linear infinite reverse;
+}
+
+.lotm-klein-pet-arcana-wheel {
+    position: absolute;
+    left: 50%;
+    top: 49%;
+    width: 304px;
+    height: 304px;
+    transform: translate(-50%,-50%);
+    border-radius: 50%;
+    opacity: .48;
+    background:
+        repeating-conic-gradient(from 0deg, transparent 0 13deg, rgba(229,207,152,.26) 13.5deg 14deg, transparent 14.5deg 29deg),
+        radial-gradient(circle, transparent 0 72%, rgba(142,86,169,.18) 72.5% 73%, transparent 73.5%);
+    animation: lotmkV2Spin 32s linear infinite;
+}
+
+.lotm-klein-pet-crown {
+    position: absolute;
+    left: 50%;
+    top: 8px;
+    width: 146px;
+    height: 48px;
+    transform: translateX(-50%);
+    opacity: .86;
+    background:
+        linear-gradient(135deg, transparent 0 24%, rgba(229,207,152,.72) 25% 26%, transparent 27% 48%, rgba(185,131,211,.62) 49% 50%, transparent 51% 73%, rgba(229,207,152,.72) 74% 75%, transparent 76%),
+        linear-gradient(180deg, transparent 0 70%, rgba(229,207,152,.40) 71% 73%, transparent 74%);
+    clip-path: polygon(0 100%, 10% 48%, 22% 82%, 35% 18%, 50% 72%, 65% 18%, 78% 82%, 90% 48%, 100% 100%);
+    filter: drop-shadow(0 0 12px rgba(229,207,152,.23));
+    animation: lotmkV2Crown 3.2s ease-in-out infinite alternate;
+}
+
+.lotm-klein-pet-realm-v2 .lotm-klein-pet-eye {
+    top: 46% !important;
+    width: 96px !important;
+    height: 48px !important;
+    opacity: .72 !important;
+    border-color: rgba(238,218,169,.58) !important;
+    box-shadow:
+        0 0 26px rgba(229,207,152,.18),
+        inset 0 0 18px rgba(141,82,169,.10);
+    animation: lotmkV2PetEye 4s ease-in-out infinite;
+}
+
+.lotm-klein-pet-realm-v2 .lotm-klein-pet-eye::after {
+    width: 20px !important;
+    height: 20px !important;
+    background: radial-gradient(circle, #fff1c9 0 12%, #c7a967 13% 28%, #7a3658 30% 61%, #211126 63% 72%, transparent 74%) !important;
+    box-shadow: 0 0 22px rgba(234,211,157,.44) !important;
+}
+
+.lotm-klein-pet-throne {
+    position: absolute;
+    left: 50%;
+    bottom: 30px;
+    width: 176px;
+    height: 150px;
+    transform: translateX(-50%);
+    opacity: .30;
+    border: 1px solid rgba(228,201,141,.28);
+    border-bottom: 0;
+    border-radius: 90px 90px 16px 16px;
+    background:
+        radial-gradient(circle at 50% 28%, rgba(142,86,169,.20), transparent 35%),
+        linear-gradient(180deg, rgba(228,201,141,.07), rgba(34,19,42,.12));
+    box-shadow: inset 0 0 35px rgba(135,77,164,.12);
+}
+
+.lotm-klein-pet-floor {
+    position: absolute;
+    left: 50%;
+    bottom: 6px;
+    width: 250px;
+    height: 58px;
+    transform: translateX(-50%) perspective(210px) rotateX(62deg);
+    border-radius: 50%;
+    border: 1px solid rgba(232,207,151,.42);
+    background:
+        repeating-conic-gradient(from 0deg, transparent 0 19deg, rgba(232,207,151,.28) 20deg 21deg, transparent 22deg 44deg),
+        radial-gradient(ellipse, rgba(137,79,165,.18), transparent 66%);
+    box-shadow: 0 0 35px rgba(222,191,126,.13);
+    animation: lotmkV2Floor 7s linear infinite;
+}
+
+.lotm-klein-pet-realm-v2 .lotm-klein-pet-fog {
+    width: 250px !important;
+    height: 76px !important;
+    opacity: .58;
+    background: radial-gradient(ellipse, rgba(206,213,226,.36), rgba(126,76,151,.16) 50%, transparent 72%) !important;
+    filter: blur(10px) !important;
+}
+
+.lotm-klein-pet-realm-v2 .lotm-klein-pet-fog.fog-a {
+    bottom: 10px;
+    animation: lotmkV2LocalFogA 4.5s ease-in-out infinite alternate;
+}
+
+.lotm-klein-pet-realm-v2 .lotm-klein-pet-fog.fog-b {
+    bottom: 68px;
+    width: 205px !important;
+    opacity: .35;
+    animation: lotmkV2LocalFogB 5.8s ease-in-out infinite alternate-reverse;
+}
+
+.lotm-klein-pet-card-field,
+.lotm-klein-pet-spark-field {
+    position: absolute;
+    inset: 0;
+}
+
+.lotm-klein-pet-card {
+    position: absolute;
+    left: 50%;
+    top: 49%;
+    width: 22px;
+    height: 34px;
+    margin: -17px -11px;
+    border: 1px solid rgba(231,207,153,.62);
+    border-radius: 2px;
+    background:
+        radial-gradient(circle at 50% 48%, rgba(233,210,157,.45) 0 4%, transparent 5%),
+        linear-gradient(145deg, rgba(112,62,136,.60), rgba(16,14,23,.84));
+    box-shadow: 0 0 12px rgba(214,180,113,.15);
+    opacity: .72;
+    transform: rotate(var(--lotmk-pca)) translateY(var(--lotmk-pcr));
+    animation: lotmkV2PetCardOrbit 7.6s linear var(--lotmk-pcd) infinite;
+}
+
+.lotm-klein-pet-spark {
+    position: absolute;
+    left: var(--lotmk-psx);
+    top: var(--lotmk-psy);
+    width: var(--lotmk-pss);
+    height: var(--lotmk-pss);
+    border-radius: 50%;
+    background: #f0dca8;
+    box-shadow:
+        0 0 8px rgba(240,220,168,.78),
+        0 0 18px rgba(164,100,193,.38);
+    opacity: .58;
+    animation: lotmkV2PetSpark 2.8s ease-in-out var(--lotmk-psd) infinite;
+}
+
+/* Cũng làm nhân vật trên card Luxury lớn hơn một chút. */
+.lotm-klein-card .lotm-klein-card-character,
+.luxury-product-card[data-item-id="pet_lotm_klein_event_1"] .lotm-klein-card-character {
+    width: min(92%, 252px) !important;
+    max-height: 388px !important;
+    bottom: 6px !important;
+}
+
+/* ---- Ultimate V2: toàn màn hình, rõ và nhiều tầng ---- */
+.lotm-klein-ultimate-v2 {
+    z-index: 2147483640 !important;
+    background:
+        radial-gradient(circle at var(--lotmk-ux,50%) var(--lotmk-uy,50%), rgba(229,207,152,.27), transparent 17%),
+        radial-gradient(circle at 50% 50%, rgba(103,55,126,.26), transparent 54%),
+        rgba(2,3,7,.80) !important;
+    backdrop-filter: blur(5px) saturate(.85) !important;
+    -webkit-backdrop-filter: blur(5px) saturate(.85) !important;
+    animation: lotmkV2UltimateScreen 3.10s ease forwards !important;
+}
+
+.lotm-klein-ultimate-blackout,
+.lotm-klein-ultimate-flash,
+.lotm-klein-ultimate-rays,
+.lotm-klein-ultimate-cardstorm,
+.lotm-klein-ultimate-glyphs {
+    position: absolute;
+    inset: 0;
+}
+
+.lotm-klein-ultimate-blackout {
+    background:
+        radial-gradient(circle at 50% 45%, transparent 0 22%, rgba(0,0,0,.25) 63%, rgba(0,0,0,.70) 100%);
+    animation: lotmkV2UltimateBlackout 3.05s ease forwards;
+}
+
+.lotm-klein-ultimate-flash {
+    opacity: 0;
+    background:
+        radial-gradient(circle at var(--lotmk-ux) var(--lotmk-uy), rgba(255,239,200,.95), rgba(229,207,152,.24) 14%, transparent 34%);
+    mix-blend-mode: screen;
+    animation: lotmkV2UltimateFlash 1.05s ease-out forwards;
+}
+
+.lotm-klein-ultimate-rays {
+    left: 50%;
+    top: 50%;
+    width: 150vmax;
+    height: 150vmax;
+    transform: translate(-50%,-50%);
+    background:
+        repeating-conic-gradient(from 0deg, transparent 0 5deg, rgba(236,214,164,.10) 6deg 7deg, transparent 8deg 15deg);
+    opacity: 0;
+    animation: lotmkV2UltimateRays 2.8s .10s cubic-bezier(.2,.75,.2,1) forwards;
+}
+
+.lotm-klein-ultimate-v2 .lotm-klein-ultimate-sigil {
+    left: 50% !important;
+    top: 48% !important;
+    border-color: rgba(244,223,174,.78) !important;
+    box-shadow:
+        0 0 100px rgba(229,207,152,.25),
+        0 0 180px rgba(132,74,158,.17),
+        inset 0 0 100px rgba(108,35,48,.12) !important;
+}
+
+.lotm-klein-ultimate-v2 .lotm-klein-ultimate-sigil.sigil-a {
+    width: min(82vw, 840px) !important;
+    animation: lotmkV2UltimateSigilA 2.65s cubic-bezier(.2,.75,.2,1) forwards !important;
+}
+
+.lotm-klein-ultimate-v2 .lotm-klein-ultimate-sigil.sigil-b {
+    width: min(62vw, 620px) !important;
+    border-style: dashed;
+    background:
+        repeating-conic-gradient(from 11deg, rgba(183,132,211,.48) 0 1deg, transparent 1deg 13deg),
+        radial-gradient(circle, transparent 0 47%, rgba(232,208,155,.28) 47.2% 47.7%, transparent 48%);
+    animation: lotmkV2UltimateSigilB 2.45s .08s cubic-bezier(.2,.75,.2,1) forwards !important;
+}
+
+.lotm-klein-ultimate-v2 .lotm-klein-ultimate-sigil.sigil-c {
+    width: min(43vw, 430px) !important;
+    border-style: dotted;
+    background:
+        repeating-conic-gradient(from 0deg, transparent 0 20deg, rgba(236,214,164,.58) 21deg 22deg, transparent 23deg 44deg);
+    animation: lotmkV2UltimateSigilC 2.25s .14s cubic-bezier(.2,.75,.2,1) forwards !important;
+}
+
+.lotm-klein-ultimate-v2 .lotm-klein-ultimate-eye {
+    left: 50% !important;
+    top: 47% !important;
+    width: min(30vw, 300px) !important;
+    height: min(15vw, 150px) !important;
+    border-width: 2px !important;
+    border-color: rgba(250,231,186,.90) !important;
+    box-shadow:
+        0 0 80px rgba(235,211,156,.28),
+        inset 0 0 50px rgba(137,78,164,.16);
+    animation: lotmkV2UltimateEye 2.3s .18s ease forwards !important;
+}
+
+.lotm-klein-ultimate-v2 .lotm-klein-ultimate-eye::after {
+    width: 54px !important;
+    height: 54px !important;
+    background: radial-gradient(circle, #fff4d2 0 10%, #d3b574 11% 27%, #783950 29% 57%, #211025 59% 70%, transparent 72%) !important;
+    box-shadow:
+        0 0 34px rgba(244,223,174,.64),
+        0 0 80px rgba(151,91,179,.28) !important;
+}
+
+.lotm-klein-ultimate-castle {
+    position: absolute;
+    left: 50%;
+    bottom: -2vh;
+    width: min(86vw, 1100px);
+    height: 54vh;
+    transform: translateX(-50%);
+    opacity: 0;
+    filter: drop-shadow(0 -18px 48px rgba(160,101,188,.18));
+    animation: lotmkV2Castle 2.8s .12s ease forwards;
+}
+
+.lotm-klein-ultimate-castle::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(180deg, transparent 0 34%, rgba(9,8,15,.86) 34% 100%),
+        repeating-linear-gradient(90deg, transparent 0 9%, rgba(229,207,152,.18) 9.2% 9.5%, transparent 9.7% 18%);
+    clip-path: polygon(0 100%, 7% 47%, 14% 100%, 22% 30%, 31% 100%, 40% 12%, 50% 100%, 60% 12%, 69% 100%, 78% 30%, 86% 100%, 93% 47%, 100% 100%);
+}
+
+.lotm-klein-ultimate-castle .tower {
+    position: absolute;
+    bottom: 0;
+    width: 2px;
+    height: 68%;
+    background: linear-gradient(transparent, rgba(238,216,167,.54));
+    box-shadow: 0 0 18px rgba(223,190,124,.18);
+}
+
+.lotm-klein-ultimate-castle .tower-a { left: 28%; }
+.lotm-klein-ultimate-castle .tower-b { left: 50%; height: 82%; }
+.lotm-klein-ultimate-castle .tower-c { right: 28%; }
+
+.lotm-klein-ultimate-card {
+    position: absolute;
+    left: var(--lotmk-ucx);
+    top: var(--lotmk-ucy);
+    width: 42px;
+    height: 66px;
+    border: 1px solid rgba(240,218,167,.70);
+    border-radius: 3px;
+    background:
+        radial-gradient(circle at 50% 48%, rgba(238,216,165,.58) 0 4%, transparent 5%),
+        linear-gradient(145deg, rgba(116,66,141,.75), rgba(12,12,19,.95));
+    box-shadow:
+        inset 0 0 0 4px rgba(232,207,153,.055),
+        0 0 20px rgba(214,177,110,.13);
+    opacity: 0;
+    transform: rotate(var(--lotmk-ucr));
+    animation: lotmkV2UltimateCard 2.4s var(--lotmk-ucd) cubic-bezier(.2,.65,.2,1) forwards;
+}
+
+.lotm-klein-ultimate-glyphs {
+    left: 50%;
+    top: 48%;
+    width: min(74vw, 760px);
+    height: min(74vw, 760px);
+    transform: translate(-50%,-50%);
+}
+
+.lotm-klein-ultimate-glyphs b {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    color: rgba(244,220,169,.78);
+    font: 700 18px/1 Georgia, serif;
+    text-shadow: 0 0 18px rgba(229,207,152,.45);
+    opacity: 0;
+    transform: rotate(var(--lotmk-uga)) translateY(-330px);
+    animation: lotmkV2UltimateGlyph 2.5s var(--lotmk-ugd) ease forwards;
+}
+
+.lotm-klein-ultimate-v2 .lotm-klein-ultimate-title {
+    bottom: 7vh !important;
+    width: min(86vw, 900px);
+    opacity: 0;
+    animation: lotmkV2UltimateTitle 2.6s .35s ease forwards !important;
+}
+
+.lotm-klein-ultimate-v2 .lotm-klein-ultimate-title small {
+    color: #dbc28a !important;
+    font-size: 10px !important;
+    letter-spacing: .42em !important;
+}
+
+.lotm-klein-ultimate-v2 .lotm-klein-ultimate-title strong {
+    font-size: clamp(28px, 4.6vw, 68px) !important;
+    color: #fff0ca !important;
+    text-shadow:
+        0 8px 26px rgba(0,0,0,.90),
+        0 0 32px rgba(229,207,152,.25),
+        0 0 52px rgba(137,78,164,.20) !important;
+}
+
+.lotm-klein-ultimate-v2 .lotm-klein-ultimate-title em {
+    display: block;
+    margin-top: 11px;
+    color: rgba(215,191,139,.82);
+    font: 600 10px/1.2 var(--lotmk-font-ui);
+    letter-spacing: .28em;
+    font-style: normal;
+}
+
+.lotm-klein-ultimate-v2 .lotm-klein-ultimate-fog {
+    height: 30vh !important;
+    opacity: .75;
+    filter: blur(34px) !important;
+    background: radial-gradient(ellipse, rgba(204,213,230,.38), rgba(124,74,149,.15) 50%, transparent 72%) !important;
+}
+
+/* ---- New V2 keyframes ---- */
+@keyframes lotmkV2AuroraA {
+    from { transform: translate3d(-4%, -2%, 0) rotate(-8deg) scale(1); opacity: .22; }
+    to   { transform: translate3d(12%, 9%, 0) rotate(-2deg) scale(1.16); opacity: .42; }
+}
+
+@keyframes lotmkV2AuroraB {
+    from { transform: translate3d(5%, 5%, 0) rotate(12deg) scale(1.05); opacity: .20; }
+    to   { transform: translate3d(-13%, -8%, 0) rotate(5deg) scale(1.18); opacity: .40; }
+}
+
+@keyframes lotmkV2MainSigil {
+    from { transform: translate(-50%,-50%) rotate(0deg); }
+    to   { transform: translate(-50%,-50%) rotate(360deg); }
+}
+
+@keyframes lotmkV2SideSigil {
+    from { transform: translate(-50%,-50%) rotate(0deg); }
+    to   { transform: translate(-50%,-50%) rotate(360deg); }
+}
+
+@keyframes lotmkV2SideSigilRight {
+    from { transform: translate(0,-50%) rotate(0deg); }
+    to   { transform: translate(0,-50%) rotate(-360deg); }
+}
+
+@keyframes lotmkV2WorldEye {
+    0%,100% { opacity: .13; filter: blur(.2px); }
+    45% { opacity: .27; filter: blur(0); }
+    50% { opacity: .34; }
+    55% { opacity: .18; }
+}
+
+@keyframes lotmkV2Spin { to { transform: translate(-50%,-50%) rotate(360deg); } }
+
+@keyframes lotmkV2Rays { to { transform: translate(-50%,-50%) rotate(360deg); } }
+
+@keyframes lotmkV2Rune {
+    0%,100% { opacity: .12; transform: translateY(4px) scale(var(--lotmk-rs)); }
+    50% { opacity: .55; transform: translateY(-6px) scale(var(--lotmk-rs)); }
+}
+
+@keyframes lotmkV2RailPulse {
+    0%,100% { opacity: .46; transform: scale(.88); }
+    50% { opacity: 1; transform: scale(1.14); }
+}
+
+@keyframes lotmkV2PetIdle {
+    0%,100% { transform: translateX(-50%) translateY(0) scale(1); }
+    50% { transform: translateX(-50%) translateY(-9px) scale(1.025); }
+}
+
+@keyframes lotmkV2PetCast {
+    0% { transform: translateX(-50%) scale(1); filter: brightness(1); }
+    38% { transform: translateX(-50%) translateY(-8px) scale(1.08); filter: brightness(1.35); }
+    62% { transform: translateX(-50%) translateY(-3px) scale(1.04); filter: brightness(1.15); }
+    100% { transform: translateX(-50%) scale(1); filter: brightness(1); }
+}
+
+@keyframes lotmkV2AuraOuter { to { transform: translate(-50%,-50%) rotate(360deg); } }
+
+@keyframes lotmkV2AuraInner {
+    from { transform: translate(-50%,-50%) scale(.94); opacity: .52; }
+    to { transform: translate(-50%,-50%) scale(1.08); opacity: .92; }
+}
+
+@keyframes lotmkV2PetRingA { to { transform: translate(-50%,-50%) rotate(360deg); } }
+@keyframes lotmkV2PetRingB { to { transform: translate(-50%,-50%) rotate(-360deg); } }
+@keyframes lotmkV2PetRingC { to { transform: translate(-50%,-50%) rotate(380deg); } }
+@keyframes lotmkV2PetRingD { to { transform: translate(-50%,-50%) rotate(-360deg); } }
+
+@keyframes lotmkV2Crown {
+    from { transform: translateX(-50%) translateY(0) scale(.96); opacity: .58; }
+    to { transform: translateX(-50%) translateY(-5px) scale(1.05); opacity: .96; }
+}
+
+@keyframes lotmkV2PetEye {
+    0%,100% { opacity: .46; transform: translate(-50%,-50%) rotate(45deg) scale(.93); }
+    48% { opacity: .82; transform: translate(-50%,-50%) rotate(45deg) scale(1.05); }
+    52% { opacity: .96; transform: translate(-50%,-50%) rotate(45deg) scale(1.10); }
+}
+
+@keyframes lotmkV2Floor { to { transform: translateX(-50%) perspective(210px) rotateX(62deg) rotateZ(360deg); } }
+
+@keyframes lotmkV2LocalFogA {
+    from { transform: translateX(-54%) scale(.92); opacity: .30; }
+    to { transform: translateX(-46%) scale(1.12); opacity: .68; }
+}
+
+@keyframes lotmkV2LocalFogB {
+    from { transform: translateX(-48%) scale(.95); opacity: .22; }
+    to { transform: translateX(-52%) scale(1.08); opacity: .48; }
+}
+
+@keyframes lotmkV2PetCardOrbit {
+    from { opacity: .45; filter: brightness(.85); }
+    50% { opacity: .95; filter: brightness(1.3); }
+    to { transform: rotate(calc(var(--lotmk-pca) + 360deg)) translateY(var(--lotmk-pcr)); opacity: .45; }
+}
+
+@keyframes lotmkV2PetSpark {
+    0%,100% { opacity: .18; transform: translateY(8px) scale(.72); }
+    50% { opacity: .95; transform: translateY(-8px) scale(1.28); }
+}
+
+@keyframes lotmkV2UltimateScreen {
+    0% { opacity: 0; }
+    8% { opacity: 1; }
+    82% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes lotmkV2UltimateBlackout {
+    0% { opacity: 0; }
+    12% { opacity: 1; }
+    84% { opacity: .92; }
+    100% { opacity: 0; }
+}
+
+@keyframes lotmkV2UltimateFlash {
+    0% { opacity: 0; transform: scale(.30); }
+    18% { opacity: 1; transform: scale(1.15); }
+    60% { opacity: .25; transform: scale(1.8); }
+    100% { opacity: 0; transform: scale(2.3); }
+}
+
+@keyframes lotmkV2UltimateRays {
+    0% { opacity: 0; transform: translate(-50%,-50%) scale(.55) rotate(-12deg); }
+    25% { opacity: .72; }
+    82% { opacity: .36; }
+    100% { opacity: 0; transform: translate(-50%,-50%) scale(1.15) rotate(24deg); }
+}
+
+@keyframes lotmkV2UltimateSigilA {
+    0% { opacity: 0; transform: translate(-50%,-50%) scale(.12) rotate(-28deg); }
+    22% { opacity: 1; }
+    78% { opacity: .92; }
+    100% { opacity: 0; transform: translate(-50%,-50%) scale(1.16) rotate(22deg); }
+}
+
+@keyframes lotmkV2UltimateSigilB {
+    0% { opacity: 0; transform: translate(-50%,-50%) scale(.20) rotate(35deg); }
+    24% { opacity: .92; }
+    78% { opacity: .72; }
+    100% { opacity: 0; transform: translate(-50%,-50%) scale(1.08) rotate(-42deg); }
+}
+
+@keyframes lotmkV2UltimateSigilC {
+    0% { opacity: 0; transform: translate(-50%,-50%) scale(.18) rotate(-45deg); }
+    26% { opacity: .88; }
+    82% { opacity: .66; }
+    100% { opacity: 0; transform: translate(-50%,-50%) scale(1.06) rotate(58deg); }
+}
+
+@keyframes lotmkV2UltimateEye {
+    0% { opacity: 0; transform: translate(-50%,-50%) rotate(45deg) scale(.15); }
+    26% { opacity: 1; transform: translate(-50%,-50%) rotate(45deg) scale(1.08); }
+    72% { opacity: .96; transform: translate(-50%,-50%) rotate(45deg) scale(.98); }
+    100% { opacity: 0; transform: translate(-50%,-50%) rotate(45deg) scale(1.22); }
+}
+
+@keyframes lotmkV2Castle {
+    0% { opacity: 0; transform: translateX(-50%) translateY(80px) scale(.90); }
+    24% { opacity: .72; transform: translateX(-50%) translateY(0) scale(1); }
+    82% { opacity: .58; }
+    100% { opacity: 0; transform: translateX(-50%) translateY(24px) scale(1.04); }
+}
+
+@keyframes lotmkV2UltimateCard {
+    0% { opacity: 0; transform: translateY(-10vh) rotate(var(--lotmk-ucr)) scale(.6); }
+    18% { opacity: .88; }
+    82% { opacity: .78; }
+    100% { opacity: 0; transform: translateY(122vh) rotate(calc(var(--lotmk-ucr) + 210deg)) scale(1.18); }
+}
+
+@keyframes lotmkV2UltimateGlyph {
+    0% { opacity: 0; transform: rotate(var(--lotmk-uga)) translateY(-80px) scale(.4); }
+    28% { opacity: .95; }
+    78% { opacity: .70; }
+    100% { opacity: 0; transform: rotate(calc(var(--lotmk-uga) + 55deg)) translateY(-330px) scale(1.15); }
+}
+
+@keyframes lotmkV2UltimateTitle {
+    0% { opacity: 0; transform: translateX(-50%) translateY(25px) scale(.94); }
+    20% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+    78% { opacity: 1; }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-8px) scale(1.025); }
+}
+
+/* Mobile: vẫn lớn hơn bản cũ nhưng không che quá nhiều màn hình. */
+@media (max-width: 768px), (pointer: coarse) {
+    html.lotm-klein-equipped #virtual-pet-container.pet-lotm-klein-stage {
+        width: 215px !important;
+        min-width: 215px !important;
+        height: 300px !important;
+        min-height: 300px !important;
+    }
+
+    html.lotm-klein-equipped #virtual-pet-container.pet-lotm-klein-stage #virtual-pet-img.lotm-klein-pet {
+        width: 195px !important;
+        max-height: 288px !important;
+    }
+
+    .lotm-klein-pet-realm-v2 {
+        transform: scale(.80);
+    }
+
+    .lotm-klein-world-v2 .lotm-klein-world-sigil.sigil-left,
+    .lotm-klein-world-v2 .lotm-klein-world-sigil.sigil-right {
+        opacity: .11;
+    }
+
+    .lotm-klein-ultimate-glyphs b {
+        transform: rotate(var(--lotmk-uga)) translateY(-190px);
+    }
+}
+

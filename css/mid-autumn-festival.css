@@ -1,0 +1,266 @@
+/* =========================================================
+   ĐẠI HỘI TRUNG THU · MID-AUTUMN FESTIVAL v1.3.0
+   Namespace: maf-*
+   ========================================================= */
+
+.maf-card,
+.maf-modal {
+    --maf-night: #07152d;
+    --maf-night-2: #102552;
+    --maf-gold: #ffd166;
+    --maf-gold-2: #f6a723;
+    --maf-cream: #fff8dc;
+    --maf-jade: #34d399;
+    --maf-rose: #fb7185;
+    --maf-text: #fff9e8;
+    --maf-muted: rgba(255, 249, 232, .76);
+}
+
+.maf-card {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 22px;
+    margin-top: 20px;
+    min-height: 190px;
+    padding: 26px !important;
+    border: 1px solid rgba(255, 209, 102, .38) !important;
+    background:
+        radial-gradient(circle at 86% 18%, rgba(255, 225, 132, .26), transparent 20%),
+        radial-gradient(circle at 10% 90%, rgba(52, 211, 153, .13), transparent 29%),
+        linear-gradient(135deg, #07152d 0%, #102552 58%, #4a2c69 100%) !important;
+    color: var(--maf-text) !important;
+    box-shadow: 0 20px 48px rgba(7, 21, 45, .24), inset 0 0 0 1px rgba(255, 255, 255, .05) !important;
+}
+
+.maf-card::before,
+.maf-card::after {
+    content: '';
+    position: absolute;
+    pointer-events: none;
+}
+
+.maf-card::before {
+    inset: 0;
+    opacity: .55;
+    background-image:
+        radial-gradient(circle, rgba(255,255,255,.75) 0 1px, transparent 1.6px),
+        radial-gradient(circle, rgba(255,209,102,.75) 0 1px, transparent 1.6px);
+    background-size: 48px 48px, 73px 73px;
+    background-position: 0 0, 20px 11px;
+}
+
+.maf-card::after {
+    width: 150px;
+    height: 150px;
+    right: -45px;
+    bottom: -65px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 209, 102, .16);
+    box-shadow: 0 0 0 25px rgba(255, 209, 102, .05), 0 0 0 52px rgba(255, 209, 102, .025);
+}
+
+.maf-card > * { position: relative; z-index: 1; }
+
+.maf-card-moon {
+    flex: 0 0 92px;
+    width: 92px;
+    height: 92px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    font-size: 3.8rem;
+    background: radial-gradient(circle, #fff7c2 0%, #ffd166 58%, #f59e0b 100%);
+    box-shadow: 0 0 34px rgba(255, 209, 102, .46), 0 0 80px rgba(255, 209, 102, .16);
+    animation: mafMoonFloat 4s ease-in-out infinite;
+}
+
+.maf-card-copy { flex: 1 1 420px; min-width: 220px; }
+.maf-eyebrow { font-size: .76rem; letter-spacing: .14em; font-weight: 900; color: var(--maf-gold); text-transform: uppercase; }
+.maf-card h3 { margin: 7px 0 8px !important; color: #fff8d3 !important; font-size: clamp(1.35rem, 2.4vw, 2rem) !important; letter-spacing: .03em; }
+.maf-card p { margin: 0; color: var(--maf-muted) !important; line-height: 1.6; }
+.maf-card-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 13px; }
+.maf-card-meta span { padding: 6px 10px; border: 1px solid rgba(255,255,255,.12); border-radius: 999px; background: rgba(255,255,255,.07); color: #fff; font-size: .8rem; font-weight: 750; }
+.maf-card-actions { display: flex; flex: 0 0 auto; flex-direction: column; gap: 9px; min-width: 170px; }
+
+.maf-btn,
+.maf-icon-btn,
+.maf-choice,
+.maf-memory-card,
+.maf-find-cell,
+.maf-claim-btn,
+.maf-falling-mooncake {
+    font: inherit;
+}
+
+.maf-btn {
+    min-height: 42px;
+    padding: 10px 17px;
+    border: 0;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 900;
+    transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+}
+.maf-btn:hover:not(:disabled) { transform: translateY(-2px); }
+.maf-btn:disabled { opacity: .48; cursor: not-allowed; }
+.maf-btn-primary { color: #3b2500; background: linear-gradient(135deg, #ffe29a, #ffd166 55%, #f3a61f); box-shadow: 0 10px 25px rgba(246, 167, 35, .22); }
+.maf-btn-ghost { color: #fff4c8; background: rgba(255,255,255,.08); border: 1px solid rgba(255,209,102,.22); }
+.maf-btn-ticket { color: #17324d; background: linear-gradient(135deg, #a7f3d0, #fde68a); min-width: min(100%, 270px); }
+.maf-btn-game { width: 100%; color: #2b1b00; background: linear-gradient(135deg, #fff1b8, #ffd166); }
+
+body.maf-modal-open { overflow: hidden; }
+.maf-modal { position: fixed; inset: 0; z-index: 2147482500; display: none; color: var(--maf-text); }
+.maf-modal.active { display: block; }
+.maf-modal-backdrop { position: absolute; inset: 0; background: rgba(2, 8, 23, .78); backdrop-filter: blur(11px); -webkit-backdrop-filter: blur(11px); }
+.maf-shell { position: relative; width: min(1120px, calc(100vw - 28px)); max-height: calc(100vh - 28px); margin: 14px auto; overflow: hidden; border: 1px solid rgba(255, 209, 102, .28); border-radius: 26px; background: linear-gradient(160deg, #07152d 0%, #0b1b3b 58%, #21163a 100%); box-shadow: 0 35px 100px rgba(0,0,0,.52); }
+.maf-shell::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 84% 4%, rgba(255,209,102,.18), transparent 25%), radial-gradient(circle at 4% 92%, rgba(52,211,153,.10), transparent 28%); }
+.maf-header { position: relative; z-index: 1; display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; padding: 23px 25px 18px; border-bottom: 1px solid rgba(255,255,255,.09); }
+.maf-header h2 { margin: 5px 0 4px; color: #fff6ce; font-size: clamp(1.65rem, 3vw, 2.35rem); }
+.maf-header p { margin: 0; color: var(--maf-muted); }
+.maf-icon-btn { width: 43px; height: 43px; border: 1px solid rgba(255,255,255,.14); border-radius: 50%; cursor: pointer; color: #fff; background: rgba(255,255,255,.08); font-size: 1.15rem; }
+.maf-body { position: relative; z-index: 1; max-height: calc(100vh - 130px); overflow: auto; padding: 22px 25px 28px; }
+
+.maf-locked { margin-bottom: 18px; padding: 17px 18px; border: 1px solid rgba(251,191,36,.28); border-radius: 15px; color: #fff4cb; background: rgba(120,53,15,.20); }
+.maf-locked strong { display: block; margin-bottom: 6px; font-size: 1.05rem; }
+.maf-locked p { margin: 0; line-height: 1.55; color: rgba(255,255,255,.78); }
+.maf-is-preview .maf-ticket-shop,
+.maf-is-preview .maf-game-grid { opacity: .48; pointer-events: none; }
+
+.maf-stat-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.maf-stat { min-height: 92px; display: flex; flex-direction: column; justify-content: center; padding: 15px 17px; border: 1px solid rgba(255,255,255,.10); border-radius: 17px; background: rgba(255,255,255,.055); }
+.maf-stat span { color: var(--maf-muted); font-size: .82rem; font-weight: 750; }
+.maf-stat strong { margin-top: 5px; color: #fff7d6; font-size: 1.55rem; }
+
+.maf-progress-panel { margin-top: 16px; padding: 18px; border: 1px solid rgba(255,209,102,.18); border-radius: 18px; background: rgba(255,255,255,.045); }
+.maf-progress-head { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.maf-progress-head span { color: var(--maf-gold); font-weight: 900; }
+.maf-progress-track { height: 13px; overflow: hidden; border-radius: 999px; background: rgba(255,255,255,.09); box-shadow: inset 0 0 0 1px rgba(255,255,255,.04); }
+.maf-progress-track i { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #34d399 0%, #ffd166 62%, #fb7185 100%); transition: width .42s ease; box-shadow: 0 0 18px rgba(255,209,102,.25); }
+.maf-milestones { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 9px; margin-top: 14px; }
+.maf-milestone { min-height: 128px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 10px 7px; text-align: center; border: 1px solid rgba(255,255,255,.09); border-radius: 14px; background: rgba(255,255,255,.04); transition: .2s ease; }
+.maf-milestone-icon { font-size: 1.55rem; }
+.maf-milestone strong { color: #fff5c5; font-size: .83rem; }
+.maf-milestone > span:not(.maf-reward-state) { color: rgba(255,255,255,.67); font-size: .72rem; line-height: 1.28; }
+.maf-milestone.maf-available { border-color: rgba(255,209,102,.52); background: rgba(255,209,102,.11); box-shadow: 0 0 22px rgba(255,209,102,.08); }
+.maf-milestone.maf-completed { border-color: rgba(52,211,153,.35); background: rgba(52,211,153,.08); }
+.maf-milestone.maf-locked { filter: saturate(.55); }
+.maf-claim-btn { margin-top: 4px; padding: 6px 10px; border: 0; border-radius: 9px; cursor: pointer; color: #3a2600; background: var(--maf-gold); font-size: .72rem; font-weight: 900; }
+.maf-claim-retry { background: #fecdd3; color: #881337; }
+.maf-reward-state { margin-top: 3px; color: #86efac; font-size: .72rem; font-weight: 850; }
+
+.maf-ticket-shop { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-top: 16px; padding: 16px 18px; border: 1px solid rgba(52,211,153,.20); border-radius: 17px; background: linear-gradient(135deg, rgba(16,185,129,.08), rgba(255,209,102,.06)); }
+.maf-ticket-shop strong { color: #e9fff4; }
+.maf-ticket-shop p { margin: 5px 0 0; color: var(--maf-muted); font-size: .82rem; line-height: 1.45; }
+.maf-section-title { margin: 22px 0 12px; }
+.maf-section-title > div { display: flex; align-items: center; gap: 10px; }
+.maf-section-title > div > span { font-size: 1.45rem; }
+.maf-section-title strong { display: block; color: #fff6d1; font-size: 1.03rem; }
+.maf-section-title small { display: block; margin-top: 2px; color: var(--maf-muted); }
+.maf-game-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.maf-game-card { display: flex; flex-direction: column; min-height: 225px; padding: 17px 14px; border: 1px solid rgba(255,255,255,.09); border-radius: 17px; background: rgba(255,255,255,.05); transition: transform .18s ease, border-color .18s ease, background .18s ease; }
+.maf-game-card:hover { transform: translateY(-3px); border-color: rgba(255,209,102,.28); background: rgba(255,255,255,.075); }
+.maf-game-icon { width: 55px; height: 55px; display: grid; place-items: center; margin-bottom: 10px; border-radius: 16px; background: rgba(255,209,102,.11); font-size: 2rem; }
+.maf-game-card h4 { margin: 0 0 6px; color: #fff4c2; font-size: .97rem; }
+.maf-game-card p { flex: 1; margin: 0 0 14px; color: var(--maf-muted); font-size: .78rem; line-height: 1.45; }
+
+.maf-game-stage { margin-top: 17px; padding: 18px; border: 1px solid rgba(255,209,102,.18); border-radius: 19px; background: rgba(255,255,255,.045); }
+.maf-stage-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.maf-stage-head small { color: var(--maf-gold); font-weight: 800; }
+.maf-stage-head h3 { margin: 3px 0 0; color: #fff6d3; }
+.maf-stage-content { min-height: 300px; }
+.maf-mini-intro { margin-bottom: 14px; padding: 11px 13px; border-radius: 12px; color: #eaf6ff; background: rgba(59,130,246,.10); font-size: .85rem; line-height: 1.45; }
+.maf-round-label { margin-bottom: 5px; color: var(--maf-gold); font-size: .78rem; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
+.maf-mini-score { margin-top: 13px; color: #86efac; font-weight: 900; }
+
+.maf-baking-box,
+.maf-quiz-card { max-width: 760px; margin: 0 auto; padding: 19px; border: 1px solid rgba(255,255,255,.08); border-radius: 16px; background: rgba(5,15,35,.34); }
+.maf-recipe { margin: 8px 0 15px; font-size: 1.12rem; color: #fff; }
+.maf-quiz-card h4 { margin: 8px 0 15px; color: #fff7dc; font-size: 1.08rem; line-height: 1.45; }
+.maf-choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.maf-choice-grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.maf-mini-hud { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; color: var(--maf-gold); font-size: .82rem; font-weight: 900; }
+.maf-mini-hud strong { min-width: 58px; padding: 6px 9px; text-align: center; border: 1px solid rgba(255,209,102,.24); border-radius: 999px; background: rgba(255,209,102,.08); color: #fff1b9; }
+.maf-mini-hud strong.is-urgent, .maf-catch-hud .is-urgent { border-color: rgba(251,113,133,.55); color: #fecdd3; animation: mafTimerPulse .75s ease-in-out infinite alternate; }
+.maf-choice { min-height: 50px; padding: 10px 12px; border: 1px solid rgba(255,255,255,.11); border-radius: 12px; cursor: pointer; color: #fff; background: rgba(255,255,255,.07); font-weight: 760; }
+.maf-choice:hover { border-color: rgba(255,209,102,.38); background: rgba(255,209,102,.10); }
+.maf-choice.is-correct { border-color: rgba(52,211,153,.65); background: rgba(16,185,129,.22); }
+.maf-choice.is-wrong { border-color: rgba(251,113,133,.65); background: rgba(244,63,94,.18); }
+
+.maf-memory-grid { display: grid; grid-template-columns: repeat(6, minmax(48px, 1fr)); gap: 10px; max-width: 760px; margin: 0 auto; }
+.maf-memory-grid-30 { grid-template-columns: repeat(6, minmax(42px, 1fr)); gap: 8px; }
+.maf-memory-card { aspect-ratio: 1/1; min-height: 58px; border: 1px solid rgba(255,209,102,.20); border-radius: 14px; cursor: pointer; color: #ffe8a3; background: linear-gradient(145deg, rgba(24,40,80,.92), rgba(57,33,88,.92)); font-size: clamp(1.25rem, 3vw, 2rem); font-weight: 900; transform-style: preserve-3d; transition: transform .18s ease, background .18s ease; }
+.maf-memory-card.open { transform: rotateY(8deg) scale(1.03); background: rgba(255,209,102,.13); }
+.maf-memory-card.matched { border-color: rgba(52,211,153,.46); background: rgba(16,185,129,.16); opacity: .74; }
+
+.maf-catch-hud { display: flex; justify-content: space-between; gap: 12px; max-width: 760px; margin: 0 auto 9px; color: #fff1b9; }
+.maf-catch-arena { position: relative; width: min(100%, 760px); height: 360px; margin: 0 auto; overflow: hidden; border: 1px solid rgba(255,209,102,.18); border-radius: 20px; background: radial-gradient(circle at 50% 0%, rgba(255,209,102,.12), transparent 28%), linear-gradient(#07152d, #0e2750 68%, #162f47); }
+.maf-catch-arena::after { content: '☁️　　☁️　　　　☁️'; position: absolute; left: 4%; right: 4%; bottom: 12px; color: rgba(255,255,255,.20); font-size: 2.1rem; letter-spacing: 1rem; pointer-events: none; }
+.maf-falling-mooncake { position: absolute; left: 45%; top: 35%; width: 68px; height: 68px; display: grid; place-items: center; border: 0; border-radius: 50%; cursor: pointer; background: rgba(255,209,102,.10); font-size: 2.55rem; transition: left .16s ease, top .16s ease, transform .15s ease; touch-action: manipulation; user-select: none; -webkit-user-select: none; z-index: 2; }
+.maf-falling-mooncake:hover { transform: scale(1.1); }
+.maf-falling-mooncake-easy { width: 78px; height: 78px; font-size: 3rem; background: rgba(255,209,102,.16); box-shadow: 0 0 0 10px rgba(255,209,102,.05); }
+.maf-falling-mooncake:disabled { opacity: .88; cursor: default; }
+.maf-falling-mooncake.is-caught { animation: mafCatchPop .24s ease; }
+
+.maf-find-target { margin-bottom: 12px; text-align: center; color: #fff4c8; font-size: 1.02rem; }
+.maf-find-target strong { display: inline-grid; place-items: center; width: 44px; height: 44px; margin-left: 6px; border-radius: 12px; background: rgba(255,209,102,.12); font-size: 1.65rem; }
+.maf-find-grid { display: grid; grid-template-columns: repeat(8, minmax(44px, 1fr)); gap: 8px; max-width: 760px; margin: 0 auto; }
+.maf-find-grid-48 { grid-template-columns: repeat(8, minmax(42px, 1fr)); gap: 7px; }
+.maf-find-grid.is-locked { opacity: .72; pointer-events: none; filter: saturate(.72); }
+.maf-find-cell { aspect-ratio: 1/1; border: 1px solid rgba(255,255,255,.08); border-radius: 11px; cursor: pointer; color: #fff; background: rgba(255,255,255,.055); font-size: clamp(1.2rem, 2.6vw, 1.75rem); transition: transform .15s ease, background .15s ease; }
+.maf-find-cell:hover { transform: scale(1.05); background: rgba(255,209,102,.10); }
+.maf-find-cell.is-found { background: rgba(16,185,129,.25); transform: scale(.92); }
+.maf-find-cell.is-wrong { background: rgba(244,63,94,.24); animation: mafShake .24s ease; }
+
+@keyframes mafMoonFloat { 0%,100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-7px) rotate(2deg); } }
+@keyframes mafCatchPop { 0% { transform: scale(1); } 45% { transform: scale(1.35); } 100% { transform: scale(1); } }
+@keyframes mafTimerPulse { from { transform: scale(1); } to { transform: scale(1.06); } }
+@keyframes mafShake { 0%,100% { transform: translateX(0); } 35% { transform: translateX(-5px); } 70% { transform: translateX(5px); } }
+
+@media (max-width: 980px) {
+    .maf-game-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .maf-milestones { grid-template-columns: repeat(5, minmax(115px, 1fr)); overflow-x: auto; padding-bottom: 5px; }
+    .maf-find-grid { grid-template-columns: repeat(6, minmax(42px, 1fr)); }
+}
+
+@media (max-width: 720px) {
+    .maf-card { align-items: flex-start; padding: 20px !important; }
+    .maf-card-moon { width: 68px; height: 68px; flex-basis: 68px; font-size: 2.8rem; }
+    .maf-card-actions { width: 100%; flex-basis: 100%; flex-direction: row; }
+    .maf-card-actions .maf-btn { flex: 1; }
+    .maf-shell { width: calc(100vw - 14px); max-height: calc(100vh - 14px); margin: 7px auto; border-radius: 19px; }
+    .maf-header { padding: 18px 16px 14px; }
+    .maf-body { max-height: calc(100vh - 107px); padding: 15px 14px 20px; }
+    .maf-stat-row { grid-template-columns: 1fr; }
+    .maf-stat { min-height: 74px; }
+    .maf-ticket-shop { align-items: stretch; flex-direction: column; }
+    .maf-btn-ticket { width: 100%; }
+    .maf-game-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .maf-stage-head { align-items: stretch; flex-direction: column; }
+    .maf-choice-grid { grid-template-columns: 1fr; }
+    .maf-choice-grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .maf-memory-grid { grid-template-columns: repeat(5, minmax(42px, 1fr)); }
+    .maf-catch-arena { height: 330px; }
+    .maf-find-grid { grid-template-columns: repeat(6, minmax(38px, 1fr)); }
+}
+
+@media (max-width: 470px) {
+    .maf-card { display: block; }
+    .maf-card-moon { margin-bottom: 14px; }
+    .maf-card-actions { margin-top: 15px; }
+    .maf-game-grid { grid-template-columns: 1fr; }
+    .maf-game-card { min-height: 188px; }
+    .maf-memory-grid { grid-template-columns: repeat(5, minmax(38px, 1fr)); gap: 6px; }
+    .maf-find-grid { grid-template-columns: repeat(6, minmax(34px, 1fr)); gap: 5px; }
+    .maf-choice-grid-3 { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .maf-card-moon,
+    .maf-falling-mooncake,
+    .maf-find-cell,
+    .maf-btn,
+    .maf-game-card { animation: none !important; transition: none !important; }
+}
