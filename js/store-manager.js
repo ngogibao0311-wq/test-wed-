@@ -1551,6 +1551,8 @@ const StoreConfig = {
 
             // Khung avatar riêng của bộ Tamon's B-Side.
             // Vị trí/size lấy theo chuẩn khung Premium Mùa Xuân.
+            // Tự khai báo CSS runtime để không phụ thuộc việc mở Cửa hàng.
+            runtimeCss: 'css/tamon-b-side.css?v=20260917.bmask-frame-selfcontained-v1',
             frameEffect: 'tamon-bside-signal-ring'
         },
         {
@@ -2376,6 +2378,58 @@ const StoreConfig = {
         },
     ]
 };
+
+/*
+ * FRAME RUNTIME CSS METADATA v1
+ * ------------------------------------------------------------
+ * Mỗi khung tự khai báo stylesheet runtime của chính nó.
+ * StudentFeatureLoader đọc metadata này sau khi store-manager.js được nạp,
+ * vì vậy khung đang mặc không còn phụ thuộc vào việc mở tab Cửa hàng.
+ */
+const FRAME_RUNTIME_CSS_BY_ITEM_ID = Object.freeze({
+    frame_lotm_klein_gray_fog_ring_event: Object.freeze([
+        'css/lord-of-mysteries-klein.css?v=20260917.frame-runtime-barrier-v1'
+    ]),
+    frame_mua_ha_nhat_diep_chi_hoan: Object.freeze([
+        'css/premium-mua-xuan.css?v=20260917.frame-runtime-barrier-v1'
+    ]),
+    frame_premium_mua_xuan_hoa_mong: Object.freeze([
+        'css/premium-mua-xuan.css?v=20260917.frame-runtime-barrier-v1'
+    ]),
+    frame_quoc_khanh_viet_dieu_quoc_an: Object.freeze([
+        'css/quoc-khanh-pet.css?v=20260917.frame-runtime-barrier-v1'
+    ]),
+    frame_tamon_bside_signal_ring: Object.freeze([
+        'css/tamon-b-side.css?v=20260917.bmask-frame-selfcontained-v1'
+    ]),
+    frame_truyenthuyet_nyx_hac_nguyet_chi_hoan: Object.freeze([
+        'css/nyx-than-thoai.css?v=20260917.frame-runtime-barrier-v1',
+        'css/legendery.css?v=20260917.frame-runtime-barrier-v1'
+    ]),
+    frame_cam_mong_thanh_huyen_chi_hoan: Object.freeze([
+        'css/cam-co-cam-mong.css?v=20260917.frame-runtime-barrier-v1'
+    ]),
+    frame_trung_thu_chu_cuoi_que_anh_chi_hoan: Object.freeze([
+        'css/trung-thu-nguyet-cung.css?v=20260917.frame-runtime-barrier-v1'
+    ]),
+    frame_trung_thu_nguyet_que_hoa_hoan: Object.freeze([
+        'css/trung-thu-nguyet-cung.css?v=20260917.frame-runtime-barrier-v1'
+    ]),
+    frame_linkclick_cheng_xiaoshi_time_window: Object.freeze([
+        'css/link-click-cheng-xiaoshi.css?v=20260917.frame-runtime-barrier-v1'
+    ])
+});
+
+StoreConfig.items.forEach(item => {
+    const runtimeCss =
+        FRAME_RUNTIME_CSS_BY_ITEM_ID[
+            String(item?.id || '')
+        ];
+
+    if (runtimeCss) {
+        item.runtimeCss = runtimeCss;
+    }
+});
 
 class StoreManager {
     static getItemsByType(type) {

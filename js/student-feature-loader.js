@@ -46,7 +46,7 @@
 
     if (window.StudentFeatureLoader) return;
 
-    const VERSION = '3.3.3-action-frame-first-paint';
+    const VERSION = '3.4.9-bmask-frame-selfcontained-v1';
 
     const cssPromises = new Map();
     const scriptPromises = new Map();
@@ -58,8 +58,8 @@
     let storeCardCssPinned = false;
 
     const CSS = Object.freeze({
-        storeBase: 'css/store-items.css?v=3.8',
-        effectsBase: 'css/effects-pets.css?v=3.8',
+        storeBase: 'css/store-items.css?v=20260917.frame-runtime-barrier-v1',
+        effectsBase: 'css/effects-pets.css?v=20260917.frame-runtime-barrier-v1',
 
         royalBall: 'css/royal-ball.css?v=3.8',
         dailyLogin: 'css/daily-login.css?v=3.8',
@@ -71,22 +71,22 @@
 
         collections: 'css/store-collections.css?v=20260908.four-seasons-lock-v1',
         luxury: 'css/luxury-store.css?v=3.8',
-        camMong: 'css/cam-co-cam-mong.css?v=20260915.store-card-full-v1',
-        midAutumnMoon: 'css/trung-thu-nguyet-cung.css?v=20260915.store-card-full-v1',
+        camMong: 'css/cam-co-cam-mong.css?v=20260917.frame-runtime-barrier-v1',
+        midAutumnMoon: 'css/trung-thu-nguyet-cung.css?v=20260917.frame-runtime-barrier-v1',
 
         lotm: 'css/lord-of-mysteries.css?v=3.3',
-        lotmKlein: 'css/lord-of-mysteries-klein.css?v=20260914.5-event-restore',
-        legendary: 'css/legendery.css?v=3.8',
+        lotmKlein: 'css/lord-of-mysteries-klein.css?v=20260917.frame-runtime-barrier-v1',
+        legendary: 'css/legendery.css?v=20260917.frame-runtime-barrier-v1',
         doraemon: 'css/doraemon.css?v=3.8',
         paintingItems: 'css/hoi-hoa.css?v=3.8',
         sevenSins: 'css/that-dai-toi.css?v=3.8',
         birthday: 'css/pet-sinh-nhat.css?v=3.8',
         weather: 'css/thoi-tiet.css?v=3.8',
-        seasons: 'css/premium-mua-xuan.css?v=20260907.summer-frame-r2',
-        nationalDay: 'css/quoc-khanh-pet.css?v=3.8',
-        nyx: 'css/nyx-than-thoai.css?v=20260915.nyx-card-guard-v1',
-        tamon: 'css/tamon-b-side.css?v=3.8',
-        linkClickCheng: 'css/link-click-cheng-xiaoshi.css?v=20260911.5-card-description-hide-fix'
+        seasons: 'css/premium-mua-xuan.css?v=20260917.frame-runtime-barrier-v1',
+        nationalDay: 'css/quoc-khanh-pet.css?v=20260917.frame-runtime-barrier-v1',
+        nyx: 'css/nyx-than-thoai.css?v=20260917.frame-runtime-barrier-v1',
+        tamon: 'css/tamon-b-side.css?v=20260917.bmask-frame-selfcontained-v1',
+        linkClickCheng: 'css/link-click-cheng-xiaoshi.css?v=20260917.frame-runtime-barrier-v1'
     });
 
     const SCRIPT = Object.freeze({
@@ -95,7 +95,7 @@
         petItems: 'js/pet-items.js?v=4.2',
         petInteractions: 'js/pet-interactions.js?v=3.8',
         musicManager: 'js/music-manager.js?v=20260910.music-reliability-v3',
-        storeManager: 'js/store-manager.js?v=20260910.music-library-v2',
+        storeManager: 'js/store-manager.js?v=20260917.bmask-frame-selfcontained-v1',
 
         luxuryStore: 'js/luxury-store.js?v=4.2.12-store-view-isolation',
         collections: 'js/store-collections.js?v=20260908.four-seasons-lock-v1',
@@ -110,6 +110,41 @@
         dailyLogin: 'js/daily-login.js?v=20260908.lazy-v1',
         guide: 'js/huong-dan-nguoi-moi.js?v=2.14.0'
     });
+
+    /*
+     * EXACT FRAME CSS ROUTER v1
+     * Khung avatar không được phụ thuộc vào việc mở Cửa hàng.
+     */
+    const FRAME_RUNTIME_CSS_BY_ID = Object.freeze({
+        frame_lotm_klein_gray_fog_ring_event: Object.freeze([CSS.lotmKlein]),
+        frame_mua_ha_nhat_diep_chi_hoan: Object.freeze([CSS.seasons]),
+        frame_premium_mua_xuan_hoa_mong: Object.freeze([CSS.seasons]),
+        frame_quoc_khanh_viet_dieu_quoc_an: Object.freeze([CSS.nationalDay]),
+        frame_tamon_bside_signal_ring: Object.freeze([CSS.tamon]),
+        frame_truyenthuyet_nyx_hac_nguyet_chi_hoan: Object.freeze([
+            CSS.nyx,
+            CSS.legendary
+        ]),
+        frame_cam_mong_thanh_huyen_chi_hoan: Object.freeze([CSS.camMong]),
+        frame_trung_thu_chu_cuoi_que_anh_chi_hoan: Object.freeze([CSS.midAutumnMoon]),
+        frame_trung_thu_nguyet_que_hoa_hoan: Object.freeze([CSS.midAutumnMoon]),
+        frame_linkclick_cheng_xiaoshi_time_window: Object.freeze([CSS.linkClickCheng])
+    });
+
+    /*
+     * Fallback chỉ gồm CSS có runtime khung, không phải toàn bộ Cửa hàng.
+     */
+    const FRAME_RUNTIME_CSS_FALLBACK = Object.freeze([
+        CSS.lotmKlein,
+        CSS.seasons,
+        CSS.nationalDay,
+        CSS.tamon,
+        CSS.nyx,
+        CSS.legendary,
+        CSS.camMong,
+        CSS.midAutumnMoon,
+        CSS.linkClickCheng
+    ]);
 
     const ALL_SPECIAL_STORE_CSS = Object.freeze([
         CSS.camMong,
@@ -217,7 +252,7 @@
     // bằng inline !important để chống CSS theme/mobile tải sau.
     function installCriticalStudentActionCss() {
         const STYLE_ID =
-            'student-top-actions-critical-first-paint-v3';
+            'student-top-actions-critical-first-paint-v10-fixed-v5';
 
         if (document.getElementById(STYLE_ID)) {
             return;
@@ -228,20 +263,50 @@
 
         style.id = STYLE_ID;
         style.textContent = `
+html[data-app-role="student"] body .dashboard > .content {
+    position: relative !important;
+}
+
 #studentTopActionsFlow.student-top-actions-flow {
-    position: static !important;
-    inset: auto !important;
+    position: fixed !important;
+    top: 24px !important;
+    right: 28px !important;
+    bottom: auto !important;
+    left: auto !important;
     display: flex !important;
     align-items: center !important;
     justify-content: flex-end !important;
-    gap: 8px !important;
-    width: 100% !important;
+    gap: 9px !important;
+    width: max-content !important;
+    max-width: calc(100vw - 56px) !important;
     min-height: 44px !important;
     height: auto !important;
-    margin: -62px 0 18px !important;
+    margin: 0 !important;
     padding: 0 !important;
     overflow: visible !important;
     pointer-events: none !important;
+    z-index: 500 !important;
+}
+
+/*
+ * Trước khi student.js kịp chuẩn hóa 4 nút,
+ * vô hiệu hóa CSS legacy đặt vị trí riêng cho từng nút. Vị trí của cụm
+ * thuộc về #studentTopActionsFlow bên trong .content; mỗi nút chỉ relative.
+ */
+html[data-app-role="student"] body .dashboard > .content > :is(
+    .leaderboard-trigger-btn,
+    #btnLeaderboard,
+    .bag-trigger-btn,
+    .inbox-trigger-btn,
+    .profile-trigger-btn
+) {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    inset: auto !important;
+    float: none !important;
     transform: none !important;
 }
 
@@ -277,6 +342,47 @@
     place-items: center !important;
 }
 
+/*
+ * Trạng thái KHÔNG đeo khung.
+ * Hồ sơ là avatar TRÒN riêng, không dùng hình vuông bo 14px của Túi/Hộp thư.
+ * Kích thước ảnh dùng px tuyệt đối theo host 40/44px để tránh percentage/grid
+ * làm ảnh bị co ngang thành oval trên một số trình duyệt/DPI.
+ */
+#studentTopActionsFlow.student-top-actions-flow
+> .profile-trigger-btn:not(.avatar-frame-equipped):not([data-avatar-frame-id]):not([data-avatar-frame-effect]) {
+    overflow: hidden !important;
+    border-radius: 50% !important;
+    background: rgba(255,255,255,.78) !important;
+    border: 1px solid rgba(255,255,255,.92) !important;
+    box-shadow: 0 8px 22px rgba(15,23,42,.10) !important;
+    isolation: isolate !important;
+    z-index: 1 !important;
+    aspect-ratio: 1 / 1 !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+}
+
+#studentTopActionsFlow.student-top-actions-flow
+> .profile-trigger-btn:not(.avatar-frame-equipped):not([data-avatar-frame-id]):not([data-avatar-frame-effect])
+> #avatarImage {
+    display: block !important;
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    min-height: 42px !important;
+    max-width: 42px !important;
+    max-height: 42px !important;
+    flex: 0 0 42px !important;
+    aspect-ratio: 1 / 1 !important;
+    box-sizing: border-box !important;
+    object-fit: cover !important;
+    object-position: center center !important;
+    border-radius: 50% !important;
+    position: relative !important;
+    inset: auto !important;
+    transform: none !important;
+}
+
 #studentTopActionsFlow.student-top-actions-flow
 > .profile-trigger-btn:is(
     .avatar-frame-equipped,
@@ -310,11 +416,35 @@
     position: absolute !important;
     pointer-events: none !important;
 }
+#studentTopActionsFlow.student-top-actions-flow
+> :is(.bag-trigger-btn, .inbox-trigger-btn) {
+    display: grid !important;
+    place-items: center !important;
+    border: 1px solid rgba(255,255,255,.92) !important;
+    border-radius: 14px !important;
+    background: rgba(255,255,255,.84) !important;
+    font-size: 1.2rem !important;
+    line-height: 1 !important;
+    box-shadow: 0 12px 28px rgba(15,23,42,.16), 0 2px 8px rgba(15,23,42,.08) !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+#studentTopActionsFlow.student-top-actions-flow
+> :is(.leaderboard-trigger-btn, #btnLeaderboard, .profile-trigger-btn) {
+    visibility: visible !important;
+    opacity: 1 !important;
+}
 
 @media (max-width: 768px) {
     #studentTopActionsFlow.student-top-actions-flow {
-        min-height: 40px !important;
-        margin: 0 0 14px !important;
+        position: fixed !important;
+        top: calc(12px + env(safe-area-inset-top, 0px)) !important;
+        right: calc(10px + env(safe-area-inset-right, 0px)) !important;
+        left: auto !important;
+        max-width: calc(100vw - 78px) !important;
+        min-height: 38px !important;
+        margin: 0 !important;
         gap: 7px !important;
     }
 
@@ -325,13 +455,25 @@
         .inbox-trigger-btn,
         .profile-trigger-btn
     ) {
-        width: 40px !important;
-        min-width: 40px !important;
-        max-width: 40px !important;
-        height: 40px !important;
-        min-height: 40px !important;
-        max-height: 40px !important;
-        flex-basis: 40px !important;
+        width: 38px !important;
+        min-width: 38px !important;
+        max-width: 38px !important;
+        height: 38px !important;
+        min-height: 38px !important;
+        max-height: 38px !important;
+        flex-basis: 38px !important;
+    }
+
+    #studentTopActionsFlow.student-top-actions-flow
+    > .profile-trigger-btn:not(.avatar-frame-equipped):not([data-avatar-frame-id]):not([data-avatar-frame-effect])
+    > #avatarImage {
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+        min-height: 38px !important;
+        max-width: 38px !important;
+        max-height: 38px !important;
+        flex-basis: 38px !important;
     }
 }
         `;
@@ -383,6 +525,62 @@
         }
     }
 
+    function addRuntimeCssValue(target, value) {
+        if (!value) return;
+
+        const values =
+            Array.isArray(value)
+                ? value
+                : [value];
+
+        values.forEach(url => {
+            const normalized =
+                String(url || '').trim();
+
+            if (normalized) {
+                target.add(normalized);
+            }
+        });
+    }
+
+    function getSpecialCssForItemDefinition(itemDef) {
+        const result = new Set();
+
+        if (!itemDef || typeof itemDef !== 'object') {
+            return [];
+        }
+
+        addRuntimeCssValue(
+            result,
+            itemDef.runtimeCss
+        );
+
+        const id =
+            String(itemDef.id || '')
+                .trim()
+                .toLowerCase();
+
+        const exact =
+            FRAME_RUNTIME_CSS_BY_ID[id];
+
+        if (exact) {
+            exact.forEach(url => result.add(url));
+        }
+
+        getSpecialCssForItemId(id)
+            .forEach(url => result.add(url));
+
+        if (
+            String(itemDef.type || '').toLowerCase() === 'frame' &&
+            result.size === 0
+        ) {
+            FRAME_RUNTIME_CSS_FALLBACK
+                .forEach(url => result.add(url));
+        }
+
+        return [...result];
+    }
+
     function getSpecialCssForItemId(itemId) {
         const id =
             String(itemId || '')
@@ -392,6 +590,15 @@
         if (!id) return [];
 
         const result = new Set();
+
+        const exactFrameCss =
+            FRAME_RUNTIME_CSS_BY_ID[id];
+
+        if (exactFrameCss) {
+            exactFrameCss.forEach(url =>
+                result.add(url)
+            );
+        }
 
         /*
          * LORD OF THE MYSTERIES · KLEIN EVENT SUITE
@@ -485,15 +692,53 @@
                     ? item
                     : item?.id;
 
-            getSpecialCssForItemId(itemId)
-                .forEach(url => urls.add(url));
+            const itemDef =
+                (
+                    item &&
+                    typeof item === 'object' &&
+                    String(item.type || '')
+                )
+                    ? item
+                    : getCatalogItemById(itemId);
+
+            const cssList =
+                itemDef
+                    ? getSpecialCssForItemDefinition(itemDef)
+                    : getSpecialCssForItemId(itemId);
+
+            cssList.forEach(url =>
+                urls.add(url)
+            );
         });
 
         await Promise.all(
             [...urls].map(loadCss)
         );
-    }
 
+        const ids =
+            list
+                .map(item =>
+                    typeof item === 'string'
+                        ? item
+                        : item?.id
+                )
+                .filter(Boolean)
+                .map(String);
+
+        window.dispatchEvent(
+            new CustomEvent(
+                'student-equipped-css-ready',
+                {
+                    detail: {
+                        ids,
+                        version: VERSION
+                    }
+                }
+            )
+        );
+
+        return true;
+    }
 
     async function preloadAllStoreCardCss() {
         /*
@@ -537,9 +782,29 @@
         const keep = new Set();
 
         list.forEach(item => {
-            const id = typeof item === 'string' ? item : item?.id;
-            getSpecialCssForItemId(id).forEach(url =>
-                keep.add(normalizeStylesheetIdentity(url))
+            const id =
+                typeof item === 'string'
+                    ? item
+                    : item?.id;
+
+            const itemDef =
+                (
+                    item &&
+                    typeof item === 'object' &&
+                    item.type
+                )
+                    ? item
+                    : getCatalogItemById(id);
+
+            const cssList =
+                itemDef
+                    ? getSpecialCssForItemDefinition(itemDef)
+                    : getSpecialCssForItemId(id);
+
+            cssList.forEach(url =>
+                keep.add(
+                    normalizeStylesheetIdentity(url)
+                )
             );
         });
 
@@ -902,8 +1167,22 @@
          * CSS runtime của item đang trang bị phải sẵn sàng trước khi mount.
          * Nếu Store UI đã mở thì CSS card đã được ghim và hàm release sẽ không gỡ.
          */
-        await preloadEquippedCss(equipped);
-        releaseUnusedSpecialCss(equipped);
+        const equippedDefinitions =
+            equipped.map(inventoryItem => {
+                const itemDef =
+                    getCatalogItemById(
+                        inventoryItem?.id
+                    );
+
+                return itemDef || inventoryItem;
+            });
+
+        await preloadEquippedCss(
+            equippedDefinitions
+        );
+        releaseUnusedSpecialCss(
+            equippedDefinitions
+        );
 
         const needs = new Set();
 
@@ -942,6 +1221,40 @@
         await Promise.all(
             [...needs].map(ensure)
         );
+
+        return true;
+    }
+
+
+    async function ensureForFrameItem(itemOrId) {
+        const id =
+            typeof itemOrId === 'string'
+                ? String(itemOrId).trim()
+                : String(itemOrId?.id || '').trim();
+
+        if (!id) return false;
+
+        await ensure('frame-background-runtime');
+
+        const itemDef =
+            (
+                itemOrId &&
+                typeof itemOrId === 'object' &&
+                String(itemOrId.type || '').toLowerCase() === 'frame'
+            )
+                ? itemOrId
+                : getCatalogItemById(id);
+
+        if (
+            !itemDef ||
+            String(itemDef.type || '').toLowerCase() !== 'frame'
+        ) {
+            return ensureForItem(id);
+        }
+
+        await preloadEquippedCss([
+            itemDef
+        ]);
 
         return true;
     }
@@ -1038,8 +1351,10 @@
             ensureForTab,
             ensureForEquippedItems,
             ensureForItem,
+            ensureForFrameItem,
             ensureForBag,
             preloadEquippedCss,
+            getSpecialCssForItemDefinition,
             preloadAllStoreCardCss,
             releaseUnusedSpecialCss,
             getSpecialCssForItemId,

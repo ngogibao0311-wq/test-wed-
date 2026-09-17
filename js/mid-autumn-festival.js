@@ -3,7 +3,7 @@
 
     if (window.MidAutumnFestival) return;
 
-    const VERSION = '1.3.2-timing-balance';
+    const VERSION = '1.3.3-accessibility-focus-fix';
     const EVENT_ID = 'dai_hoi_trung_thu';
 
     const CONFIG = Object.freeze({
@@ -151,6 +151,56 @@
         testMode: false,
         activeAttempt: null
     };
+
+    // Accessibility: remember the control that opened the modal so focus can
+    // be restored BEFORE the modal is hidden from assistive technologies.
+    let lastFocusedBeforeOpen = null;
+
+    function isUsableFocusTarget(element) {
+        return Boolean(
+            element &&
+            element.isConnected &&
+            typeof element.focus === 'function' &&
+            !element.disabled &&
+            element.getAttribute?.('aria-hidden') !== 'true'
+        );
+    }
+
+    function restoreFocusOutsideModal(modal) {
+        const active = document.activeElement;
+        if (!modal || !active || !modal.contains(active)) return;
+
+        const preferred =
+            isUsableFocusTarget(lastFocusedBeforeOpen) &&
+            !modal.contains(lastFocusedBeforeOpen)
+                ? lastFocusedBeforeOpen
+                : null;
+
+        const fallback =
+            document.getElementById('mafOpenBtn') ||
+            document.getElementById('studentGameNav');
+
+        const target =
+            preferred ||
+            (
+                isUsableFocusTarget(fallback) &&
+                !modal.contains(fallback)
+                    ? fallback
+                    : null
+            );
+
+        if (target) {
+            try {
+                target.focus({ preventScroll: true });
+                return;
+            } catch (_) { }
+        }
+
+        // Last resort: make sure focus no longer remains inside the modal.
+        try {
+            active.blur();
+        } catch (_) { }
+    }
 
     function getDatabase() {
         try {
@@ -668,6 +718,7 @@
         modal.id = 'midAutumnFestivalModal';
         modal.className = 'maf-modal ui-theme-immune';
         modal.setAttribute('aria-hidden', 'true');
+        modal.inert = true;
         modal.innerHTML = `
             <div class="maf-modal-backdrop" data-maf-action="close"></div>
             <section class="maf-shell" role="dialog" aria-modal="true" aria-labelledby="mafTitle">
@@ -1796,6 +1847,17 @@
 
     async function open() {
         if (state.open || state.busy) return;
+
+        // Capture the opener before focus is moved into the dialog.
+        const currentFocus = document.activeElement;
+        if (
+            currentFocus &&
+            currentFocus !== document.body &&
+            !document.getElementById('midAutumnFestivalModal')?.contains(currentFocus)
+        ) {
+            lastFocusedBeforeOpen = currentFocus;
+        }
+
         state.busy = true;
         try {
             await syncServerTime();
@@ -1811,11 +1873,35 @@
             }
 
             const modal = document.getElementById('midAutumnFestivalModal');
-            modal.classList.add('active');
+            if (!modal) return;
+
+            // IMPORTANT: make the modal interactive/accessibility-visible
+            // before moving keyboard focus into it.
+            modal.inert = false;
+            modal.removeAttribute('inert');
             modal.setAttribute('aria-hidden', 'false');
+            modal.classList.add('active');
+
             document.body.classList.add('maf-modal-open');
             state.open = true;
             renderDashboard(status);
+
+            // Move focus into the dialog after it becomes visible.
+            requestAnimationFrame(() => {
+                const closeButton =
+                    modal.querySelector('.maf-icon-btn[data-maf-action="close"]') ||
+                    modal.querySelector(
+                        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+                    );
+
+                if (isUsableFocusTarget(closeButton)) {
+                    try {
+                        closeButton.focus({ preventScroll: true });
+                    } catch (_) {
+                        closeButton.focus();
+                    }
+                }
+            });
         } catch (error) {
             console.error('[Đại Hội Trung Thu] Không mở được:', error);
             if (error.message === 'MID_AUTUMN_REMOTE_CALENDAR_REQUIRED') {
@@ -1833,10 +1919,24 @@
 
         clearActiveGame();
         const modal = document.getElementById('midAutumnFestivalModal');
+
         if (modal) {
+            /*
+             * Accessibility order matters:
+             * 1) Move focus OUT of the modal.
+             * 2) Disable interaction with inert.
+             * 3) Only then hide it from the accessibility tree.
+             *
+             * This prevents Chrome's:
+             * "Blocked aria-hidden ... descendant retained focus" warning.
+             */
+            restoreFocusOutsideModal(modal);
+
+            modal.inert = true;
             modal.classList.remove('active');
             modal.setAttribute('aria-hidden', 'true');
         }
+
         document.body.classList.remove('maf-modal-open');
         state.open = false;
 

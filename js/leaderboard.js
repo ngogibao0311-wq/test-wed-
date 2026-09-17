@@ -291,7 +291,7 @@ function initLeaderboardSystem() {
 
         triggerHost.insertBefore(lbBtn, bagBtn);
 
-        // Đảm bảo nút BXH mới chèn cũng thuộc normal flow, không bị theme ghim vào viewport.
+        // Đảm bảo nút BXH mới chèn cũng được gom vào floating dock giống nút Hướng dẫn.
         if (typeof window.refreshStudentTopActionPositions === "function") {
             window.refreshStudentTopActionPositions();
         }

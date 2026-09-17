@@ -5274,6 +5274,49 @@ window.onload = async function () {
             const hasEquippedItem =
                 equippedItems.length > 0;
 
+            /*
+             * Ghi cache ID ngay khi Firebase inventory về, TRƯỚC khi nạp runtime.
+             * Nếu người dùng F5 trong lúc runtime đang tải, lần mở kế tiếp loader
+             * vẫn biết chính xác CSS của frame/background nào cần preload.
+             */
+            try {
+                const equippedFrame =
+                    equippedItems.find(item =>
+                        /^frame(?:_|-)/i.test(
+                            String(item?.id || '')
+                        )
+                    );
+
+                const equippedBackground =
+                    equippedItems.find(item =>
+                        /^background(?:_|-)/i.test(
+                            String(item?.id || '')
+                        )
+                    );
+
+                if (equippedFrame?.id) {
+                    localStorage.setItem(
+                        'active_frame',
+                        String(equippedFrame.id)
+                    );
+                } else {
+                    localStorage.removeItem(
+                        'active_frame'
+                    );
+                }
+
+                if (equippedBackground?.id) {
+                    localStorage.setItem(
+                        'active_background',
+                        String(equippedBackground.id)
+                    );
+                } else {
+                    localStorage.removeItem(
+                        'active_background'
+                    );
+                }
+            } catch (_) {}
+
             const hasOnlyEquippedMusic =
                 hasEquippedItem &&
                 equippedItems.every(item =>
@@ -5340,6 +5383,14 @@ window.onload = async function () {
                     await window
                         .syncStudentLazyStoreRuntime();
                 }
+
+                /*
+                 * Frame đã được apply sau khi CSS/runtime hoàn tất.
+                 * Chuẩn hóa lại host Hồ sơ ngay, không chờ người dùng mở Cửa hàng.
+                 */
+                window
+                    .refreshStudentTopActionPositions
+                    ?.();
             } catch (error) {
                 console.error(
                     '[Student Lazy Runtime] Không tải được vật phẩm đang trang bị:',
@@ -12984,6 +13035,148 @@ window.closeStudentInfoModal = function () {
 // ==============================================================
 
 // 1. Hàm hiển thị ảnh đại diện lên góc màn hình ngay khi đăng nhập
+function studentProfileButtonHasFrame(triggerBtn) {
+    if (!triggerBtn) return false;
+
+    return (
+        triggerBtn.classList.contains('avatar-frame-equipped') ||
+        triggerBtn.hasAttribute('data-avatar-frame-id') ||
+        triggerBtn.hasAttribute('data-avatar-frame-effect')
+    );
+}
+
+function applyStudentProfileButtonBaseVisual(triggerBtn) {
+    if (!triggerBtn || studentProfileButtonHasFrame(triggerBtn)) return false;
+
+    /*
+     * PROFILE CIRCLE FIX v2
+     * Nút Hồ sơ vốn là avatar tròn, KHÔNG phải một action-card vuông bo 14px.
+     * Giữ host là hình vuông 1:1 để ảnh không bao giờ bị ép thành oval,
+     * còn kích thước 40/44px vẫn do top-actions quyết định để không tái phát
+     * lỗi nút kéo dài toàn hàng.
+     */
+    [
+        ['overflow', 'hidden'],
+        ['border-radius', '50%'],
+        ['background', 'rgba(255,255,255,.78)'],
+        ['border', '1px solid rgba(255,255,255,.92)'],
+        ['box-shadow', '0 8px 22px rgba(15,23,42,.10)'],
+        ['isolation', 'isolate'],
+        ['z-index', '1'],
+        ['display', 'grid'],
+        ['place-items', 'center'],
+        ['aspect-ratio', '1 / 1']
+    ].forEach(([property, value]) => {
+        triggerBtn.style.setProperty(property, value, 'important');
+    });
+
+    triggerBtn.style.setProperty('backdrop-filter', 'blur(12px)');
+    triggerBtn.style.setProperty('-webkit-backdrop-filter', 'blur(12px)');
+
+    const avatarImg = triggerBtn.querySelector('#avatarImage');
+    if (avatarImg) {
+        const size = window.matchMedia('(max-width: 768px)').matches
+            ? '38px'
+            : '42px';
+
+        [
+            ['display', 'block'],
+            ['width', size],
+            ['height', size],
+            ['min-width', size],
+            ['min-height', size],
+            ['max-width', size],
+            ['max-height', size],
+            ['flex', `0 0 ${size}`],
+            ['aspect-ratio', '1 / 1'],
+            ['box-sizing', 'border-box'],
+            ['object-fit', 'cover'],
+            ['object-position', 'center center'],
+            ['border-radius', '50%'],
+            ['position', 'relative'],
+            ['inset', 'auto'],
+            ['transform', 'none']
+        ].forEach(([property, value]) => {
+            avatarImg.style.setProperty(property, value, 'important');
+        });
+    }
+
+    const avatarPlaceholder = triggerBtn.querySelector('#avatarPlaceholder');
+    if (avatarPlaceholder) {
+        avatarPlaceholder.style.setProperty('border-radius', '50%', 'important');
+        avatarPlaceholder.style.setProperty('place-items', 'center', 'important');
+    }
+
+    return true;
+}
+
+function releaseStudentProfileButtonBaseVisualForFrame(triggerBtn) {
+    if (!triggerBtn) return;
+
+    // Khi bắt đầu đeo khung, trả quyền kích thước avatar về CSS riêng của frame.
+    const avatarImg = triggerBtn.querySelector('#avatarImage');
+    if (avatarImg) {
+        [
+            'width',
+            'height',
+            'min-width',
+            'min-height',
+            'max-width',
+            'max-height',
+            'position',
+            'inset',
+            'transform'
+        ].forEach(property => {
+            avatarImg.style.removeProperty(property);
+        });
+
+        // Fallback giống HTML gốc; CSS riêng của frame dùng !important vẫn có
+        // thể ghi đè kích thước này khi cần.
+        avatarImg.style.setProperty('width', '100%');
+        avatarImg.style.setProperty('height', '100%');
+        avatarImg.style.setProperty('object-fit', 'cover');
+        avatarImg.style.setProperty('border-radius', '50%');
+    }
+
+    triggerBtn.style.setProperty('background', 'transparent', 'important');
+    triggerBtn.style.setProperty('border', '0 solid transparent', 'important');
+    triggerBtn.style.setProperty('box-shadow', 'none', 'important');
+    triggerBtn.style.setProperty('overflow', 'visible', 'important');
+    triggerBtn.style.setProperty('border-radius', '50%', 'important');
+    triggerBtn.style.setProperty('isolation', 'isolate', 'important');
+    triggerBtn.style.setProperty('z-index', '4', 'important');
+}
+
+function clearStudentProfileButtonFrameResidue(triggerBtn) {
+    if (!triggerBtn) return;
+
+    triggerBtn.removeAttribute('data-avatar-frame-id');
+    triggerBtn.removeAttribute('data-avatar-frame-effect');
+
+    Array.from(triggerBtn.classList).forEach(className => {
+        if (
+            className === 'avatar-frame-equipped' ||
+            className === 'avatar-frame-profile-host' ||
+            className === 'avatar-frame-viet-dieu-host' ||
+            /(?:^|-)frame-host$/.test(className)
+        ) {
+            triggerBtn.classList.remove(className);
+        }
+    });
+
+    triggerBtn.querySelectorAll(
+        ':scope > .avatar-frame-decoration,' +
+        ':scope > .avatar-frame-aura,' +
+        ':scope > .avatar-frame-spark,' +
+        ':scope > [class*="-frame-decoration"],' +
+        ':scope > [class*="-frame-aura"],' +
+        ':scope > [class*="-frame-rune"],' +
+        ':scope > [class*="-frame-glint"]'
+    ).forEach(node => node.remove());
+
+    applyStudentProfileButtonBaseVisual(triggerBtn);
+}
+
 function updateAvatarDisplay(avatarData) {
     const avatarImg = document.getElementById('avatarImage');
     const avatarPlaceholder = document.getElementById('avatarPlaceholder');
@@ -13013,9 +13206,11 @@ function updateAvatarDisplay(avatarData) {
     const showPlaceholder = () => {
         avatarImg.style.display = 'none';
         avatarPlaceholder.style.display = 'flex';
-        triggerBtn.style.background = 'rgba(255,255,255,0.7)';
-        triggerBtn.style.border = '2px solid rgba(255,255,255,0.9)';
         triggerBtn.classList.remove('avatar-ready');
+
+        if (!studentProfileButtonHasFrame(triggerBtn)) {
+            applyStudentProfileButtonBaseVisual(triggerBtn);
+        }
     };
 
     const showAvatar = () => {
@@ -13024,9 +13219,15 @@ function updateAvatarDisplay(avatarData) {
 
         avatarImg.style.display = 'block';
         avatarPlaceholder.style.display = 'none';
-        triggerBtn.style.background = 'transparent';
-        triggerBtn.style.border = 'none';
         triggerBtn.classList.add('avatar-ready');
+
+        /*
+         * Không còn biến nút Hồ sơ thành transparent chỉ vì có avatar.
+         * Transparent chỉ dành cho trạng thái đang đeo KHUNG.
+         */
+        if (!studentProfileButtonHasFrame(triggerBtn)) {
+            applyStudentProfileButtonBaseVisual(triggerBtn);
+        }
     };
 
     // Quan trọng: nút hồ sơ + biểu tượng 👤 luôn hiện NGAY. Chỉ thay bằng ảnh
@@ -15406,25 +15607,51 @@ window.AvatarFrameManager = {
             '.avatar-frame-spark'
         ).forEach(node => node.remove());
 
-        document
-            .querySelectorAll('.avatar-frame-equipped')
-            .forEach(host => {
+        const hosts = new Set();
 
-                host.classList.remove(
-                    'avatar-frame-equipped',
-                    'avatar-frame-profile-host',
-                    'avatar-frame-modal-host',
-                );
+        document.querySelectorAll(
+            '.avatar-frame-equipped,' +
+            '.avatar-frame-profile-host,' +
+            '.avatar-frame-modal-host'
+        ).forEach(host => hosts.add(host));
 
-                host.removeAttribute(
-                    'data-avatar-frame-effect'
-                );
+        // Luôn đưa 2 host chuẩn vào danh sách để dọn cả trạng thái frame bị kẹt
+        // (ví dụ class đã mất nhưng inline style/attribute cũ vẫn còn).
+        const profileButton =
+            document.querySelector('.profile-trigger-btn');
+        const modalAvatarHost =
+            document.querySelector('#studentInfoModal .avatar-upload-container');
 
-                host.removeAttribute(
-                    'data-avatar-frame-id'
-                );
+        if (profileButton) hosts.add(profileButton);
+        if (modalAvatarHost) hosts.add(modalAvatarHost);
 
-            });
+        hosts.forEach(host => {
+            host.querySelectorAll(
+                ':scope > .avatar-frame-decoration,' +
+                ':scope > .avatar-frame-aura,' +
+                ':scope > .avatar-frame-spark,' +
+                ':scope > [class*="-frame-decoration"],' +
+                ':scope > [class*="-frame-aura"],' +
+                ':scope > [class*="-frame-rune"],' +
+                ':scope > [class*="-frame-glint"]'
+            ).forEach(node => node.remove());
+
+            host.classList.remove(
+                'avatar-frame-equipped',
+                'avatar-frame-profile-host',
+                'avatar-frame-modal-host',
+                'avatar-frame-viet-dieu-host',
+                'ha2f-frame-host',
+                'lotmf1-frame-host'
+            );
+
+            host.removeAttribute('data-avatar-frame-effect');
+            host.removeAttribute('data-avatar-frame-id');
+
+            if (host.matches?.('.profile-trigger-btn')) {
+                clearStudentProfileButtonFrameResidue(host);
+            }
+        });
 
         this.activeItemId = '';
     },
@@ -15449,24 +15676,10 @@ window.AvatarFrameManager = {
          * ép khung vào ô vuông trước khi tab Cửa hàng được mở.
          */
         if (variant === 'profile') {
+            releaseStudentProfileButtonBaseVisualForFrame(host);
             host.style.setProperty(
                 'position',
                 'relative',
-                'important'
-            );
-            host.style.setProperty(
-                'overflow',
-                'visible',
-                'important'
-            );
-            host.style.setProperty(
-                'border-radius',
-                '50%',
-                'important'
-            );
-            host.style.setProperty(
-                'isolation',
-                'isolate',
                 'important'
             );
         }
@@ -16650,6 +16863,24 @@ function installStudentStoreManagerOverrides() {
             );
             return false;
         }
+
+        /*
+         * Cache startup được ghi ngay sau khi runtime của item đã sẵn sàng.
+         * Firebase vẫn là nguồn sự thật; listener inventory sẽ xác nhận lại.
+         */
+        try {
+            if (item.type === 'frame') {
+                localStorage.setItem(
+                    'active_frame',
+                    String(item.id || '')
+                );
+            } else if (item.type === 'background') {
+                localStorage.setItem(
+                    'active_background',
+                    String(item.id || '')
+                );
+            }
+        } catch (_) {}
 
         // Lưu trạng thái lên Firebase (Hàm on('value') sẽ tự động gọi applyEquippedItems bên dưới để tạo hiệu ứng)
         const invSnap = await db.ref(`student_inventory/${currentUser.username}`).once('value');
@@ -28787,10 +29018,13 @@ window.downloadStudentRoadmapPDF = async function () {
         .save();
 };
 // ============================================================
-// FINAL FIX · 4 NÚT GÓC PHẢI NẰM TRONG LUỒNG NỘI DUNG
-// - Không dùng fixed / sticky / absolute cho từng nút.
-// - Nút nằm trong #studentTopActionsFlow và cuộn cùng .content.
-// - Leaderboard được thêm động cũng tự được chuẩn hóa.
+// FLOATING ACTIONS v7 · RESPONSIVE FIXED VIEWPORT TOOLBAR
+// - BXH / Túi đồ / Hộp thư / Hồ sơ là một cụm nút nổi theo MÀN HÌNH.
+// - Dùng position:fixed và đưa dock ra trực tiếp dưới <body> để không bị
+//   transform/overflow của .content hoặc theme biến fixed thành absolute.
+// - Người dùng cuộn trang: cụm nút vẫn giữ nguyên ở góc trên bên phải.
+// - Leaderboard được thêm động vẫn tự được gom vào cụm.
+// - Host Hồ sơ vẫn relative để khung avatar không bị ép/méo.
 // ============================================================
 (function installStudentTopActionsFlow() {
     'use strict';
@@ -28809,12 +29043,6 @@ window.downloadStudentRoadmapPDF = async function () {
     let scheduled = false;
 
     function ensureActionBar() {
-        const content =
-            document.querySelector('.dashboard > .content') ||
-            document.querySelector('.content');
-
-        if (!content) return null;
-
         let bar =
             document.getElementById('studentTopActionsFlow');
 
@@ -28822,30 +29050,93 @@ window.downloadStudentRoadmapPDF = async function () {
             bar = document.createElement('div');
             bar.id = 'studentTopActionsFlow';
             bar.className =
-                'student-top-actions-flow ui-theme-immune';
+                'student-top-actions-flow student-floating-actions-dock ui-theme-immune';
             bar.setAttribute(
                 'aria-label',
                 'Hành động nhanh'
             );
+        }
 
-            const firstTab =
-                content.querySelector('.tab-content');
+        bar.classList.add('student-floating-actions-dock');
+        bar.dataset.flowMode = 'floating';
+        bar.dataset.dockMode = 'viewport-fixed';
 
-            content.insertBefore(
-                bar,
-                firstTab || content.firstChild
-            );
+        /*
+         * BẮT BUỘC đặt dock trực tiếp dưới body.
+         * Nếu fixed nằm trong một ancestor có transform/filter/perspective,
+         * trình duyệt có thể lấy ancestor đó làm containing block và dock sẽ
+         * cuộn theo .content. Đưa ra body loại bỏ lỗi này.
+         */
+        const host = document.body || document.documentElement;
+        if (host && bar.parentElement !== host) {
+            host.appendChild(bar);
         }
 
         return bar;
     }
 
     function getTopActionSize() {
-        return window.matchMedia(
-            '(max-width: 768px)'
-        ).matches
-            ? 40
-            : 44;
+        const width = Math.max(
+            0,
+            Number(window.innerWidth) ||
+            document.documentElement.clientWidth ||
+            0
+        );
+
+        if (width <= 360) return 32;
+        if (width <= 520) return 34;
+        if (width <= 768) return 38;
+        return 44;
+    }
+
+    function getTopActionGap() {
+        const width = Math.max(
+            0,
+            Number(window.innerWidth) ||
+            document.documentElement.clientWidth ||
+            0
+        );
+
+        if (width <= 360) return 3;
+        if (width <= 520) return 4;
+        if (width <= 768) return 6;
+        return 9;
+    }
+
+    function placeActionBarAtViewportRight(
+        bar,
+        isMobile
+    ) {
+        if (!bar) return;
+
+        const topGap = isMobile ? 12 : 24;
+        const rightGap = isMobile ? 10 : 28;
+
+        bar.style.setProperty(
+            'position',
+            'fixed',
+            'important'
+        );
+        bar.style.setProperty(
+            'top',
+            `calc(${topGap}px + env(safe-area-inset-top, 0px))`,
+            'important'
+        );
+        bar.style.setProperty(
+            'right',
+            `calc(${rightGap}px + env(safe-area-inset-right, 0px))`,
+            'important'
+        );
+        bar.style.setProperty(
+            'bottom',
+            'auto',
+            'important'
+        );
+        bar.style.setProperty(
+            'left',
+            'auto',
+            'important'
+        );
     }
 
     function applyCriticalActionGeometry(
@@ -28857,10 +29148,8 @@ window.downloadStudentRoadmapPDF = async function () {
             getTopActionSize();
 
         /*
-         * Khóa geometry trực tiếp trên element.
-         * Đây là phần sửa lỗi thanh tím kéo dài toàn chiều ngang:
-         * các CSS theme/store/mobile dù tải sau cũng không thể đổi nút
-         * 40/44px thành width:100%.
+         * Từng nút chỉ relative BÊN TRONG fixed dock.
+         * Không cho CSS legacy đặt fixed/absolute riêng cho từng nút.
          */
         [
             ['position', 'relative'],
@@ -28868,7 +29157,6 @@ window.downloadStudentRoadmapPDF = async function () {
             ['right', 'auto'],
             ['bottom', 'auto'],
             ['left', 'auto'],
-            ['inset', 'auto'],
             ['width', `${size}px`],
             ['min-width', `${size}px`],
             ['max-width', `${size}px`],
@@ -28879,8 +29167,7 @@ window.downloadStudentRoadmapPDF = async function () {
             ['margin', '0'],
             ['padding', '0'],
             ['float', 'none'],
-            ['pointer-events', 'auto'],
-            ['transform', 'none']
+            ['pointer-events', 'auto']
         ].forEach(([property, value]) => {
             button.style.setProperty(
                 property,
@@ -28891,6 +29178,8 @@ window.downloadStudentRoadmapPDF = async function () {
 
         const classList =
             button.classList;
+
+        classList.add('student-floating-action-btn');
 
         let order = index + 1;
 
@@ -28943,30 +29232,17 @@ window.downloadStudentRoadmapPDF = async function () {
                 )
             )
         ) {
-            button.style.setProperty(
-                'overflow',
-                'visible',
-                'important'
-            );
-            button.style.setProperty(
-                'border-radius',
-                '50%',
-                'important'
-            );
-            button.style.setProperty(
-                'isolation',
-                'isolate',
-                'important'
-            );
-            button.style.setProperty(
-                'z-index',
-                '4',
-                'important'
-            );
+            releaseStudentProfileButtonBaseVisualForFrame(button);
+        } else if (
+            classList.contains(
+                'profile-trigger-btn'
+            )
+        ) {
+            applyStudentProfileButtonBaseVisual(button);
         }
     }
 
-    function repairEquippedProfileFrame(bar) {
+    async function repairEquippedProfileFrame(bar) {
         if (!bar) return;
 
         const profileButton =
@@ -29023,16 +29299,51 @@ window.downloadStudentRoadmapPDF = async function () {
         }
 
         if (!frameDef) {
-            /*
-             * Không còn khung được mặc: xóa cache cũ để lần F5 kế tiếp
-             * loader không preload nhầm CSS của khung cũ.
-             */
+            if (
+                window.AvatarFrameManager &&
+                typeof window.AvatarFrameManager.clearFrame === 'function'
+            ) {
+                window.AvatarFrameManager.clearFrame();
+            } else {
+                clearStudentProfileButtonFrameResidue(profileButton);
+            }
+
             try {
                 localStorage.removeItem(
                     'active_frame'
                 );
             } catch (_) {}
 
+            applyStudentProfileButtonBaseVisual(profileButton);
+            return;
+        }
+
+        try {
+            if (
+                window.StudentFeatureLoader &&
+                typeof window.StudentFeatureLoader
+                    .ensureForFrameItem === 'function'
+            ) {
+                await window.StudentFeatureLoader
+                    .ensureForFrameItem(
+                        frameDef
+                    );
+            } else if (
+                window.StudentFeatureLoader &&
+                typeof window.StudentFeatureLoader
+                    .ensureForItem === 'function'
+            ) {
+                await window.StudentFeatureLoader
+                    .ensureForItem(
+                        frameDef.id
+                    );
+            }
+        } catch (error) {
+            console.warn(
+                '[AvatarFrame] Không chuẩn bị được CSS runtime:',
+                frameDef.id,
+                error
+            );
             return;
         }
 
@@ -29055,12 +29366,6 @@ window.downloadStudentRoadmapPDF = async function () {
             return;
         }
 
-        /*
-         * Race startup quan trọng:
-         * inventory có thể được áp trước khi nút Hồ sơ được tạo/đưa vào action bar.
-         * Khi đó applyFrame() trước đây không có host để mount; mở Cửa hàng mới
-         * vô tình gọi đồng bộ lần nữa nên khung mới xuất hiện.
-         */
         window.AvatarFrameManager.applyFrame(
             frameDef
         );
@@ -29083,27 +29388,37 @@ window.downloadStudentRoadmapPDF = async function () {
                 '(max-width: 768px)'
             ).matches;
 
-        // Khóa thanh hành động về normal document flow.
+        const actionSize = getTopActionSize();
+        const actionGap = getTopActionGap();
+
         [
-            ['position', 'static'],
-            ['top', 'auto'],
-            ['right', 'auto'],
+            ['position', 'fixed'],
+            ['top', isMobile
+                ? 'calc(12px + env(safe-area-inset-top, 0px))'
+                : '24px'],
+            ['right', isMobile
+                ? 'calc(12px + env(safe-area-inset-right, 0px))'
+                : '28px'],
             ['bottom', 'auto'],
             ['left', 'auto'],
             ['inset', 'auto'],
             ['display', 'flex'],
             ['align-items', 'center'],
             ['justify-content', 'flex-end'],
-            ['gap', isMobile ? '7px' : '8px'],
-            ['width', '100%'],
-            ['min-height', isMobile ? '40px' : '44px'],
+            ['gap', `${actionGap}px`],
+            ['width', 'max-content'],
+            ['max-width', isMobile
+                ? 'calc(100vw - 78px)'
+                : 'calc(100vw - 56px)'],
+            ['min-height', `${actionSize}px`],
             ['height', 'auto'],
-            ['margin', isMobile ? '0 0 14px' : '-62px 0 18px'],
+            ['margin', '0'],
             ['padding', '0'],
             ['overflow', 'visible'],
             ['pointer-events', 'none'],
+            ['float', 'none'],
             ['transform', 'none'],
-            ['float', 'none']
+            ['z-index', '9986']
         ].forEach(([property, value]) => {
             bar.style.setProperty(
                 property,
@@ -29131,12 +29446,24 @@ window.downloadStudentRoadmapPDF = async function () {
             );
         });
 
-        /*
-         * Chờ đúng 1 frame sau khi các nút đã ở vị trí cuối cùng,
-         * rồi sửa race khung Hồ sơ nếu startup trước đó chưa có host.
-         */
+        placeActionBarAtViewportRight(
+            bar,
+            isMobile
+        );
+
         requestAnimationFrame(() => {
-            repairEquippedProfileFrame(bar);
+            placeActionBarAtViewportRight(
+                bar,
+                isMobile
+            );
+
+            repairEquippedProfileFrame(bar)
+                .catch(error => {
+                    console.warn(
+                        '[AvatarFrame] Rehydrate profile frame lỗi:',
+                        error
+                    );
+                });
         });
     }
 
@@ -29161,6 +29488,11 @@ window.downloadStudentRoadmapPDF = async function () {
 
     window.addEventListener(
         'student-feature-loaded',
+        scheduleNormalize
+    );
+
+    window.addEventListener(
+        'student-equipped-css-ready',
         scheduleNormalize
     );
 
