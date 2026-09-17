@@ -19325,6 +19325,49 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
             const rewardScore = Number(
                 msgData.gradeRewardScore
             );
+            const submissionKey = String(
+                msgData.submissionKey || ''
+            ).trim();
+            const rewardRevision = Number(
+                msgData.gradeRewardRevision || 1
+            );
+
+            if (!submissionKey) {
+                throw new Error('INVALID_GRADE_REWARD_SUBMISSION_KEY');
+            }
+
+            // Xác minh thư còn là revision hiện hành của bài.
+            // Nếu giáo viên đã chấm lại/xóa bài thì thư cũ không được nhận nữa.
+            const eventRef = db.ref(
+                `grade_reward_events/${currentUser.username}/${submissionKey}`
+            );
+            const eventSnap = await eventRef.once('value');
+            const eventData = eventSnap.val();
+
+            const eventMatchesMessage = Boolean(
+                eventData &&
+                String(eventData.status || '') === 'pending_claim' &&
+                String(eventData.messageId || '') === String(msgKey) &&
+                Number(eventData.revision || 1) === rewardRevision &&
+                Number(eventData.ticketDelta || 0) === rewardTickets &&
+                Number(eventData.coinReward || 0) === rewardCoins
+            );
+
+            if (!eventMatchesMessage) {
+                await db
+                    .ref(`inbox_messages/${currentUser.username}/${msgKey}`)
+                    .remove()
+                    .catch(() => {});
+
+                alert(
+                    'ℹ️ Phần thưởng này đã bị thu hồi hoặc thay thế do giáo viên chấm lại/xóa kết quả.'
+                );
+
+                if (typeof renderStudentInbox === 'function') {
+                    renderStudentInbox();
+                }
+                return;
+            }
 
             if (
                 !Number.isInteger(rewardTickets) ||
@@ -19356,10 +19399,12 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
                 }
 
                 return {
-                    version: 2,
+                    version: Number(msgData.rewardVersion || 3),
                     status: 'processing',
                     username: String(currentUser.username),
                     messageId: String(msgKey),
+                    submissionKey,
+                    rewardRevision,
                     tickets: rewardTickets,
                     coins: rewardCoins,
                     grade: Number.isFinite(rewardScore)
@@ -19422,6 +19467,20 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
                     coinApplied = true;
                 }
 
+                // Kiểm tra lần cuối trước khi chốt claim. Giáo viên sẽ không thể
+                // rollback khi claim đang processing, nên revision phải còn nguyên.
+                const latestEventSnap = await eventRef.once('value');
+                const latestEvent = latestEventSnap.val();
+
+                if (
+                    !latestEvent ||
+                    String(latestEvent.status || '') !== 'pending_claim' ||
+                    String(latestEvent.messageId || '') !== String(msgKey) ||
+                    Number(latestEvent.revision || 1) !== rewardRevision
+                ) {
+                    throw new Error('GRADE_REWARD_REVOKED_DURING_CLAIM');
+                }
+
                 await claimRef.update({
                     status: 'claimed',
                     claimedAt: firebase.database.ServerValue.TIMESTAMP
@@ -19430,7 +19489,7 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
                 // Hoàn tác tốt nhất có thể nếu một nửa gói thưởng bị lỗi.
                 if (coinApplied && rewardCoins > 0) {
                     await coinRef.transaction(current =>
-                        Math.max(0, Number(current || 0) - rewardCoins)
+                        Number(current || 0) - rewardCoins
                     ).catch(() => {});
                 }
 
@@ -19459,7 +19518,7 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
                 grade: Number.isFinite(rewardScore)
                     ? rewardScore
                     : null,
-                rewardVersion: 2
+                rewardVersion: Number(msgData.rewardVersion || 3)
             };
 
             alert(
