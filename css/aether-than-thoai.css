@@ -1,0 +1,5276 @@
+/* ============================================================================
+   AETHER · THIÊN QUANG NGUYÊN SƠ — THẦN THOẠI
+   Dành riêng cho: pet_mythic_aether_1
+
+   MỘT FILE CSS đảm nhận toàn bộ phần nhìn:
+   1) Card Luxury riêng nhưng giữ nguyên bố cục card chuẩn
+   2) Tag THẦN THOẠI bằng ảnh aether-tag2.png
+   3) Pet realm góc phải
+   4) Skin toàn web: màu, font, sidebar, card, popup, form, table
+   5) Scrollbar + range slider
+   6) Global click effect
+   7) Full-screen skill khi nhấn Aether
+
+   Kích hoạt full-web suite bằng: html.aether-luminous-equipped
+   Namespace riêng: aether-mythic-* / aetherLuminous*
+   ============================================================================ */
+
+:root {
+    --aether-ink: #0a1730;
+    --aether-deep: #102b4d;
+    --aether-blue: #1d5f91;
+    --aether-sky: #58bfe7;
+    --aether-cyan: #9be7f7;
+    --aether-pale: #dff8ff;
+    --aether-white: #fbfeff;
+    --aether-gold: #f4d37b;
+    --aether-gold-soft: #ffe9aa;
+    --aether-line: rgba(123, 213, 241, .30);
+    --aether-glass: rgba(11, 36, 64, .76);
+    --aether-glass-soft: rgba(20, 61, 95, .58);
+    --aether-shadow: rgba(4, 23, 45, .38);
+    --aether-font-body: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
+    --aether-font-title: Georgia, "Times New Roman", serif;
+}
+
+/* ============================================================================
+   1) CARD RIÊNG — GIỮ BỐ CỤC CHUẨN LUXURY
+   ============================================================================ */
+
+.luxury-product-card.aether-mythic-card,
+.luxury-product-card[data-item-id="pet_mythic_aether_1"],
+.luxury-product-card[data-special-card="mythic-aether"] {
+    position: relative !important;
+    isolation: isolate !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(133, 220, 244, .52) !important;
+    border-radius: 22px !important;
+    background:
+        linear-gradient(180deg, rgba(229, 249, 255, .98), rgba(206, 239, 250, .96)) !important;
+    color: #12324d !important;
+    box-shadow:
+        0 18px 42px rgba(28, 92, 126, .20),
+        inset 0 0 0 1px rgba(255, 255, 255, .64) !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    transform-style: flat !important;
+}
+
+.luxury-product-card.aether-mythic-card::before,
+.luxury-product-card.aether-mythic-card::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.luxury-product-card.aether-mythic-card::before {
+    inset: -35% -10% auto;
+    height: 58%;
+    background:
+        radial-gradient(circle at 50% 55%, rgba(255,255,255,.95), transparent 21%),
+        radial-gradient(circle at 50% 55%, rgba(244,211,123,.38), transparent 38%);
+    filter: blur(1px);
+}
+
+.luxury-product-card.aether-mythic-card::after {
+    left: 8%;
+    right: 8%;
+    bottom: 112px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(39,146,190,.40), transparent);
+}
+
+.aether-mythic-card .aether-mythic-visual {
+    position: relative !important;
+    min-height: 310px !important;
+    overflow: hidden !important;
+    background:
+        radial-gradient(circle at 50% 19%, rgba(255,255,255,.94) 0 4%, rgba(255,228,157,.30) 5% 14%, transparent 34%),
+        linear-gradient(180deg, #c9f1fb 0%, #8bd7ef 42%, #5bb9dd 100%) !important;
+}
+
+.aether-mythic-card .aether-card-shape {
+    position: absolute !important;
+    inset: 0 !important;
+    border-radius: 0 !important;
+    background:
+        linear-gradient(122deg, transparent 0 29%, rgba(255,255,255,.20) 30% 34%, transparent 35% 100%),
+        radial-gradient(ellipse at 50% 108%, rgba(13,64,100,.24), transparent 48%) !important;
+    opacity: 1 !important;
+}
+
+.aether-card-sun {
+    position: absolute;
+    left: 50%;
+    top: 30%;
+    width: 164px;
+    height: 164px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1;
+    background:
+        radial-gradient(circle, rgba(255,255,255,.96) 0 13%, rgba(255,230,163,.90) 14% 23%, rgba(255,218,117,.36) 24% 40%, transparent 62%);
+    filter: drop-shadow(0 0 18px rgba(255,239,184,.72));
+}
+
+.aether-card-sun .ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,.66);
+    box-shadow: 0 0 12px rgba(255,255,255,.34);
+}
+
+.aether-card-sun .ring-a { inset: 18px; animation: aetherCardOrbit 10s linear infinite; }
+.aether-card-sun .ring-b { inset: 3px; border-color: rgba(244,211,123,.58); animation: aetherCardOrbitReverse 14s linear infinite; }
+.aether-card-sun .ring-c { inset: -15px; border-style: dashed; border-color: rgba(255,255,255,.34); animation: aetherCardOrbit 18s linear infinite; }
+
+.aether-card-stars {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.aether-card-stars i {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.92);
+    box-shadow: 0 0 8px rgba(255,255,255,.95);
+    animation: aetherCardStar 2.8s ease-in-out infinite alternate;
+}
+
+.aether-card-stars i:nth-child(1) { left: 11%; top: 17%; animation-delay: -.2s; }
+.aether-card-stars i:nth-child(2) { left: 24%; top: 32%; animation-delay: -.9s; }
+.aether-card-stars i:nth-child(3) { left: 79%; top: 22%; animation-delay: -1.2s; }
+.aether-card-stars i:nth-child(4) { left: 89%; top: 43%; animation-delay: -.6s; }
+.aether-card-stars i:nth-child(5) { left: 13%; top: 58%; animation-delay: -1.7s; }
+.aether-card-stars i:nth-child(6) { left: 72%; top: 62%; animation-delay: -.4s; }
+.aether-card-stars i:nth-child(7) { left: 38%; top: 13%; animation-delay: -1.1s; }
+.aether-card-stars i:nth-child(8) { left: 61%; top: 12%; animation-delay: -2s; }
+.aether-card-stars i:nth-child(9) { left: 33%; top: 68%; animation-delay: -.7s; }
+.aether-card-stars i:nth-child(10) { left: 84%; top: 72%; animation-delay: -1.5s; }
+.aether-card-stars i:nth-child(11) { left: 7%; top: 76%; animation-delay: -1.9s; }
+.aether-card-stars i:nth-child(12) { left: 56%; top: 55%; animation-delay: -.35s; }
+
+.aether-mythic-tag-art {
+    position: absolute !important;
+    top: 11px !important;
+    left: 11px !important;
+    z-index: 16 !important;
+    width: 126px !important;
+    height: auto !important;
+    object-fit: contain !important;
+    pointer-events: none !important;
+    filter:
+        drop-shadow(0 4px 7px rgba(6,44,67,.30))
+        drop-shadow(0 0 8px rgba(255,246,196,.30)) !important;
+    animation: aetherTagFloat 4.4s ease-in-out infinite;
+}
+
+.aether-mythic-card .aether-mythic-character {
+    position: absolute !important;
+    z-index: 8 !important;
+    left: 50% !important;
+    bottom: 0 !important;
+    width: min(80%, 232px) !important;
+    max-width: none !important;
+    max-height: 300px !important;
+    height: auto !important;
+    object-fit: contain !important;
+    transform: translateX(-50%) scale(1.02) !important;
+    transform-origin: 50% 100% !important;
+    filter:
+        drop-shadow(0 14px 20px rgba(14,65,94,.28))
+        drop-shadow(0 0 14px rgba(234,252,255,.72)) !important;
+    transition: transform .42s cubic-bezier(.2,.8,.2,1), filter .42s ease !important;
+}
+
+.aether-mythic-card:hover .aether-mythic-character,
+.aether-mythic-card:focus-within .aether-mythic-character {
+    transform: translateX(-50%) translateY(-8px) scale(1.065) !important;
+    filter:
+        drop-shadow(0 18px 26px rgba(14,65,94,.32))
+        drop-shadow(0 0 20px rgba(255,247,199,.78)) !important;
+}
+
+.aether-mythic-card .aether-mythic-info {
+    position: relative !important;
+    z-index: 4 !important;
+    background:
+        linear-gradient(180deg, rgba(249,254,255,.98), rgba(232,248,252,.98)) !important;
+    color: #17364f !important;
+}
+
+.aether-mythic-card .aether-mythic-label {
+    color: #1b6f9a !important;
+    border: 1px solid rgba(47,157,199,.26) !important;
+    background: rgba(190,237,249,.48) !important;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.72) !important;
+}
+
+.aether-mythic-card .aether-mythic-info h3 {
+    color: #123754 !important;
+    font-family: var(--aether-font-title) !important;
+    letter-spacing: .02em !important;
+}
+
+.aether-mythic-card .aether-mythic-price {
+    color: #7a5a12 !important;
+    font-weight: 800 !important;
+}
+
+.aether-mythic-action {
+    width: 100% !important;
+    min-height: 42px !important;
+    margin-top: 12px !important;
+    padding: 10px 14px !important;
+    border: 1px solid rgba(63,170,207,.38) !important;
+    border-radius: 12px !important;
+    color: #0e3650 !important;
+    background:
+        linear-gradient(135deg, rgba(244,253,255,.98), rgba(179,230,246,.95)) !important;
+    box-shadow:
+        0 8px 18px rgba(25,105,141,.16),
+        inset 0 1px 0 rgba(255,255,255,.95) !important;
+    font-weight: 900 !important;
+    letter-spacing: .03em !important;
+    cursor: pointer !important;
+    transition: transform .18s ease, box-shadow .18s ease, filter .18s ease !important;
+}
+
+.aether-mythic-action:hover {
+    transform: translateY(-2px) !important;
+    box-shadow:
+        0 12px 24px rgba(25,105,141,.22),
+        0 0 18px rgba(255,231,158,.28) !important;
+}
+
+.aether-mythic-action:active {
+    transform: translateY(1px) scale(.985) !important;
+}
+
+.aether-mythic-action.is-equipped {
+    color: #70520b !important;
+    border-color: rgba(202,159,45,.40) !important;
+    background:
+        linear-gradient(135deg, #fff9df, #f2d88f) !important;
+}
+
+/* ============================================================================
+   2) PET REALM — GÓC PHẢI
+   ============================================================================ */
+
+#virtual-pet-container.pet-aether-mythic-stage {
+    z-index: 2147482000 !important;
+    width: 220px !important;
+    min-height: 245px !important;
+    overflow: visible !important;
+    isolation: isolate !important;
+}
+
+#virtual-pet-container.pet-aether-mythic-stage #virtual-pet-img.mythic-aether-luminous-magic,
+#virtual-pet-container.pet-aether-mythic-stage #virtual-pet-img.aether-mythic-avatar {
+    position: relative !important;
+    z-index: 8 !important;
+    width: 182px !important;
+    max-width: none !important;
+    height: auto !important;
+    scale: 1.14 !important;
+    transform-origin: 50% 92% !important;
+    filter:
+        drop-shadow(0 16px 18px rgba(8,52,82,.38))
+        drop-shadow(0 0 14px rgba(185,239,255,.52)) !important;
+    animation: aetherPetIdle 4.6s ease-in-out infinite !important;
+}
+
+.aether-mythic-pet-realm {
+    position: absolute;
+    z-index: 1;
+    left: 50%;
+    bottom: 4px;
+    width: 250px;
+    height: 250px;
+    transform: translateX(-50%);
+    pointer-events: none;
+    overflow: visible;
+}
+
+.aether-local-aura {
+    position: absolute;
+    inset: 35px;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle, rgba(255,255,255,.26), rgba(107,207,238,.16) 42%, transparent 70%);
+    filter: blur(10px);
+    animation: aetherAuraPulse 3.1s ease-in-out infinite;
+}
+
+.aether-local-halo {
+    position: absolute;
+    left: 50%;
+    top: 36px;
+    width: 102px;
+    height: 30px;
+    transform: translateX(-50%) rotate(-4deg);
+    border-radius: 50%;
+    border: 2px solid rgba(255,240,174,.86);
+    box-shadow:
+        0 0 8px rgba(255,239,167,.95),
+        0 0 20px rgba(135,220,245,.45);
+    animation: aetherHaloFloat 3.7s ease-in-out infinite;
+}
+
+.aether-local-ring {
+    position: absolute;
+    left: 50%;
+    top: 52%;
+    border-radius: 50%;
+    border: 1px solid rgba(178,233,250,.42);
+    transform: translate(-50%, -50%);
+}
+
+.aether-local-ring.ring-a { width: 170px; height: 170px; animation: aetherLocalOrbit 10s linear infinite; }
+.aether-local-ring.ring-b { width: 205px; height: 112px; border-color: rgba(255,229,145,.42); animation: aetherLocalOrbitReverse 13s linear infinite; }
+.aether-local-ring.ring-c { width: 226px; height: 196px; border-style: dashed; opacity: .54; animation: aetherLocalOrbit 18s linear infinite; }
+
+.aether-local-wing {
+    position: absolute;
+    top: 90px;
+    width: 84px;
+    height: 82px;
+    opacity: .38;
+    filter: blur(.2px) drop-shadow(0 0 10px rgba(202,245,255,.42));
+}
+
+.aether-local-wing::before,
+.aether-local-wing::after {
+    content: "";
+    position: absolute;
+    width: 70px;
+    height: 20px;
+    border-radius: 100% 0 100% 0;
+    border-top: 2px solid rgba(225,250,255,.80);
+    transform-origin: 0 50%;
+}
+
+.aether-local-wing.wing-left { left: 3px; transform: scaleX(-1) rotate(-10deg); animation: aetherWingBreath 3.3s ease-in-out infinite; }
+.aether-local-wing.wing-right { right: 3px; transform: rotate(-10deg); animation: aetherWingBreath 3.3s ease-in-out infinite reverse; }
+.aether-local-wing::after { top: 19px; transform: rotate(12deg) scale(.82); opacity: .72; }
+
+.aether-local-stars {
+    position: absolute;
+    inset: 0;
+    animation: aetherLocalOrbit 16s linear infinite;
+}
+
+.aether-local-stars i {
+    --aether-radius: 105px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    color: rgba(238,253,255,.92);
+    font-style: normal;
+    font-size: 11px;
+    text-shadow: 0 0 7px rgba(178,238,255,.94);
+    transform:
+        translate(-50%, -50%)
+        rotate(var(--aether-local-angle))
+        translateX(var(--aether-radius))
+        rotate(calc(var(--aether-local-angle) * -1));
+    animation: aetherLocalStar 2.2s ease-in-out var(--aether-local-delay) infinite alternate;
+}
+
+.aether-local-ground {
+    position: absolute;
+    left: 50%;
+    bottom: 14px;
+    width: 170px;
+    height: 36px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    border: 1px solid rgba(255,233,156,.42);
+    background: radial-gradient(ellipse, rgba(108,211,240,.18), transparent 66%);
+    box-shadow: 0 0 18px rgba(108,211,240,.20);
+}
+
+#virtual-pet-container.pet-aether-mythic-stage.aether-mythic-awakening .aether-mythic-pet-realm {
+    animation: aetherRealmAwaken 1.25s cubic-bezier(.2,.8,.2,1) both;
+}
+
+#virtual-pet-container.pet-aether-mythic-stage.aether-mythic-casting .aether-local-aura {
+    animation: aetherAuraCast 1.4s ease-in-out infinite;
+}
+
+#virtual-pet-container.pet-aether-mythic-stage.aether-mythic-casting .aether-local-ring {
+    border-color: rgba(255,239,174,.85);
+    box-shadow: 0 0 16px rgba(255,236,157,.42);
+}
+
+/* ============================================================================
+   3) FULL WEB SKIN
+   ============================================================================ */
+
+html.aether-luminous-equipped {
+    color-scheme: light;
+    scrollbar-color: #75cbe7 rgba(9,41,67,.14);
+    scrollbar-width: thin;
+}
+
+html.aether-luminous-equipped body {
+    font-family: var(--aether-font-body) !important;
+    color: #153650 !important;
+    background:
+        radial-gradient(circle at 50% -10%, rgba(255,247,197,.90), transparent 33%),
+        radial-gradient(circle at 85% 18%, rgba(149,226,247,.30), transparent 30%),
+        linear-gradient(145deg, #e9faff 0%, #cceef8 48%, #a9dcee 100%) !important;
+    background-attachment: fixed !important;
+}
+
+html.aether-luminous-equipped ::selection {
+    color: #0b2d46;
+    background: rgba(255,223,125,.68);
+}
+
+html.aether-luminous-equipped :where(h1,h2,h3,h4,.page-title,.modal-title,.section-title) {
+    font-family: var(--aether-font-title) !important;
+    letter-spacing: .015em;
+}
+
+/* Sidebar / navigation */
+html.aether-luminous-equipped :where(.sidebar,.student-sidebar,#sidebar,.side-menu) {
+    color: #12364e !important;
+    background:
+        linear-gradient(180deg, rgba(235,251,255,.92), rgba(186,229,242,.82)) !important;
+    border-color: rgba(73,167,202,.26) !important;
+    box-shadow:
+        12px 0 38px rgba(22,91,122,.12),
+        inset -1px 0 0 rgba(255,255,255,.64) !important;
+    backdrop-filter: blur(18px) saturate(1.08) !important;
+    -webkit-backdrop-filter: blur(18px) saturate(1.08) !important;
+}
+
+html.aether-luminous-equipped :where(.nav-item,.sidebar button,.sidebar a,.menu-item) {
+    color: #17445f !important;
+    border-color: transparent !important;
+    border-radius: 14px 6px 14px 6px !important;
+    transition: transform .18s ease, background .18s ease, box-shadow .18s ease !important;
+}
+
+html.aether-luminous-equipped :where(.nav-item,.sidebar button,.sidebar a,.menu-item):hover {
+    background: rgba(255,255,255,.62) !important;
+    box-shadow: 0 8px 20px rgba(37,121,154,.12) !important;
+    transform: translateX(4px) !important;
+}
+
+html.aether-luminous-equipped :where(.nav-item.active,.sidebar .active,.menu-item.active) {
+    color: #0f587d !important;
+    background:
+        linear-gradient(135deg, rgba(255,255,255,.92), rgba(204,240,250,.88)) !important;
+    border-left-color: #e1b94c !important;
+    box-shadow:
+        0 10px 24px rgba(30,106,137,.14),
+        inset 0 0 0 1px rgba(255,255,255,.76) !important;
+}
+
+/* Top bars / toolbars */
+html.aether-luminous-equipped :where(.topbar,.toolbar,.header,.dashboard-header,.store-toolbar,.luxury-store-toolbar) {
+    color: #143a54 !important;
+    background: rgba(240,252,255,.74) !important;
+    border-color: rgba(74,169,203,.24) !important;
+    box-shadow: 0 12px 34px rgba(17,84,116,.10) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+}
+
+/* Cards / panels — loại trừ chính card Aether để card tự skin */
+html.aether-luminous-equipped :where(
+    .card,
+    .panel,
+    .content-card,
+    .dashboard-card,
+    .student-card,
+    .settings-card,
+    .store-card,
+    .assignment-card,
+    .quiz-card,
+    .leaderboard-card
+):not(.aether-mythic-card) {
+    color: #153c57 !important;
+    border-color: rgba(69,168,203,.26) !important;
+    border-radius: 20px 8px 20px 8px !important;
+    background:
+        linear-gradient(145deg, rgba(250,254,255,.88), rgba(218,243,250,.80)) !important;
+    box-shadow:
+        0 14px 36px rgba(21,94,126,.12),
+        inset 0 0 0 1px rgba(255,255,255,.62) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+}
+
+/* Popup / modal: đổi hình dạng rõ ràng */
+html.aether-luminous-equipped :where(
+    .modal-content,
+    .popup-content,
+    .student-modal-box,
+    .swal2-popup,
+    .dialog-content,
+    .settings-modal-content,
+    .store-modal-content,
+    .announcement-modal-content
+) {
+    color: #143a54 !important;
+    border: 1px solid rgba(83,184,217,.34) !important;
+    border-radius: 10px 30px 10px 30px !important;
+    background:
+        radial-gradient(circle at 90% 0%, rgba(255,237,175,.28), transparent 28%),
+        linear-gradient(150deg, rgba(250,254,255,.97), rgba(211,241,249,.95)) !important;
+    box-shadow:
+        0 28px 75px rgba(13,74,104,.26),
+        inset 0 0 0 1px rgba(255,255,255,.74) !important;
+    backdrop-filter: blur(22px) !important;
+    -webkit-backdrop-filter: blur(22px) !important;
+}
+
+html.aether-luminous-equipped :where(.modal,.popup,.swal2-container,.overlay,.dialog-overlay) {
+    backdrop-filter: blur(8px) saturate(1.08) !important;
+    -webkit-backdrop-filter: blur(8px) saturate(1.08) !important;
+}
+
+/* Form controls */
+html.aether-luminous-equipped :where(input,textarea,select,.input,.select,.search-input) {
+    color: #133c57 !important;
+    caret-color: #1e83ad !important;
+    border: 1px solid rgba(74,171,205,.34) !important;
+    border-radius: 14px 6px 14px 6px !important;
+    background: rgba(246,253,255,.84) !important;
+    box-shadow:
+        inset 0 1px 3px rgba(21,85,112,.08),
+        0 0 0 0 rgba(78,188,225,0) !important;
+}
+
+html.aether-luminous-equipped :where(input,textarea,select,.input,.select,.search-input):focus {
+    border-color: rgba(34,154,198,.72) !important;
+    background: rgba(255,255,255,.96) !important;
+    box-shadow:
+        0 0 0 4px rgba(88,191,231,.18),
+        0 0 18px rgba(255,222,119,.16) !important;
+}
+
+html.aether-luminous-equipped :where(input,textarea)::placeholder {
+    color: rgba(44,91,115,.55) !important;
+}
+
+/* Buttons — không phá các button skin immune */
+html.aether-luminous-equipped :where(button,.btn):not(.ui-theme-immune):not([data-theme-immune="true"]):not(.aether-mythic-action) {
+    border-radius: 13px 6px 13px 6px !important;
+    border-color: rgba(57,159,198,.30) !important;
+    transition:
+        transform .16s ease,
+        box-shadow .16s ease,
+        filter .16s ease !important;
+}
+
+html.aether-luminous-equipped :where(button,.btn):not(.ui-theme-immune):not([data-theme-immune="true"]):hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 10px 24px rgba(23,104,138,.18) !important;
+}
+
+html.aether-luminous-equipped :where(button,.btn):not(.ui-theme-immune):not([data-theme-immune="true"]):active {
+    transform: translateY(1px) scale(.985) !important;
+}
+
+/* Tables */
+html.aether-luminous-equipped :where(table,.table) {
+    border-color: rgba(60,158,194,.22) !important;
+    color: #173e58 !important;
+}
+
+html.aether-luminous-equipped :where(th,.table-header) {
+    color: #0d577d !important;
+    background: rgba(185,232,245,.54) !important;
+}
+
+html.aether-luminous-equipped :where(td,tr) {
+    border-color: rgba(65,157,192,.16) !important;
+}
+
+html.aether-luminous-equipped tbody tr:hover {
+    background: rgba(221,246,252,.56) !important;
+}
+
+/* Scrollbar */
+html.aether-luminous-equipped ::-webkit-scrollbar {
+    width: 11px;
+    height: 11px;
+}
+
+html.aether-luminous-equipped ::-webkit-scrollbar-track {
+    background: rgba(20,83,111,.10);
+    border-radius: 999px;
+}
+
+html.aether-luminous-equipped ::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background:
+        linear-gradient(180deg, #78d2eb, #2d91ba) padding-box;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.38);
+}
+
+html.aether-luminous-equipped ::-webkit-scrollbar-thumb:hover {
+    background:
+        linear-gradient(180deg, #9de6f7, #3ca4ca) padding-box;
+}
+
+/* Range slider */
+html.aether-luminous-equipped input[type="range"] {
+    appearance: none;
+    -webkit-appearance: none;
+    height: 8px !important;
+    border: 0 !important;
+    border-radius: 999px !important;
+    background:
+        linear-gradient(90deg, rgba(244,211,123,.92), rgba(83,190,226,.90)) !important;
+    box-shadow: inset 0 1px 3px rgba(23,87,114,.18) !important;
+}
+
+html.aether-luminous-equipped input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,.90);
+    background: radial-gradient(circle at 35% 30%, #fff, #f7d66f 38%, #4fb7dd 72%);
+    box-shadow: 0 4px 12px rgba(21,97,129,.24), 0 0 0 4px rgba(92,195,229,.15);
+}
+
+html.aether-luminous-equipped input[type="range"]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,.90);
+    background: radial-gradient(circle at 35% 30%, #fff, #f7d66f 38%, #4fb7dd 72%);
+    box-shadow: 0 4px 12px rgba(21,97,129,.24), 0 0 0 4px rgba(92,195,229,.15);
+}
+
+/* Switches / badges */
+html.aether-luminous-equipped :where(.badge,.tag,.chip,.status-badge) {
+    border-color: rgba(47,153,193,.24) !important;
+    background: rgba(219,246,252,.74) !important;
+    color: #146183 !important;
+}
+
+/* Giữ card Aether tuyệt đối độc lập trước các skin full-web khác */
+html.aether-luminous-equipped .aether-mythic-card,
+html[class] .aether-mythic-card[data-theme-immune="true"] {
+    font-family: var(--aether-font-body) !important;
+}
+
+/* ============================================================================
+   4) WORLD EFFECT TOÀN WEB
+   ============================================================================ */
+
+.aether-mythic-world {
+    position: fixed;
+    inset: 0;
+    z-index: 2147480500;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: .34;
+    mix-blend-mode: screen;
+}
+
+.aether-world-wash {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(180deg, rgba(164,230,249,.14), transparent 48%, rgba(255,225,139,.08));
+}
+
+.aether-world-sun {
+    position: absolute;
+    left: 50%;
+    top: -80px;
+    width: min(46vw, 560px);
+    aspect-ratio: 1;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    filter: blur(.2px) drop-shadow(0 0 35px rgba(255,232,151,.40));
+    animation: aetherWorldSunPulse 8s ease-in-out infinite;
+}
+
+.aether-world-sun-core {
+    position: absolute;
+    inset: 30%;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff 0 20%, rgba(255,241,183,.94) 21% 48%, rgba(255,217,107,.36) 49% 74%, transparent 75%);
+}
+
+.aether-world-sun-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(255,244,198,.58);
+}
+
+.aether-world-sun-ring.ring-a { inset: 21%; animation: aetherWorldOrbit 17s linear infinite; }
+.aether-world-sun-ring.ring-b { inset: 12%; border-style: dashed; animation: aetherWorldOrbitReverse 23s linear infinite; }
+.aether-world-sun-ring.ring-c { inset: 3%; opacity: .44; animation: aetherWorldOrbit 31s linear infinite; }
+
+.aether-world-aurora {
+    position: absolute;
+    width: 82vw;
+    height: 22vh;
+    border-radius: 50%;
+    filter: blur(28px);
+    opacity: .42;
+    background: linear-gradient(90deg, transparent, rgba(111,216,244,.70), rgba(255,231,157,.40), transparent);
+}
+
+.aether-world-aurora.aurora-a { left: -12vw; top: 20vh; transform: rotate(-10deg); animation: aetherAurora 13s ease-in-out infinite alternate; }
+.aether-world-aurora.aurora-b { right: -18vw; top: 42vh; transform: rotate(12deg); animation: aetherAurora 17s ease-in-out infinite alternate-reverse; }
+
+.aether-world-rays {
+    position: absolute;
+    left: 50%;
+    top: -8vh;
+    width: 110vw;
+    height: 82vh;
+    transform: translateX(-50%);
+    background:
+        repeating-conic-gradient(
+            from 180deg at 50% 0%,
+            transparent 0 7deg,
+            rgba(255,255,255,.18) 8deg 10deg,
+            transparent 11deg 21deg
+        );
+    mask-image: linear-gradient(180deg, #000 0%, rgba(0,0,0,.52) 60%, transparent 100%);
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, rgba(0,0,0,.52) 60%, transparent 100%);
+    animation: aetherRayBreathe 7s ease-in-out infinite;
+}
+
+.aether-world-particles {
+    position: absolute;
+    inset: 0;
+}
+
+.aether-world-particle {
+    position: absolute;
+    left: var(--aether-x);
+    top: var(--aether-y);
+    width: var(--aether-size);
+    height: var(--aether-size);
+    border-radius: 50%;
+    background: rgba(224,249,255,.92);
+    box-shadow: 0 0 8px rgba(181,237,251,.76);
+    animation: aetherWorldFloat 7.4s ease-in-out var(--aether-delay) infinite alternate;
+}
+
+.aether-world-particle.is-star {
+    width: auto;
+    height: auto;
+    color: rgba(255,242,188,.92);
+    background: transparent;
+    font-size: calc(var(--aether-size) * 2.1);
+    text-shadow: 0 0 10px rgba(255,231,144,.72);
+}
+
+.aether-world-horizon {
+    position: absolute;
+    left: -5vw;
+    right: -5vw;
+    bottom: -11vh;
+    height: 24vh;
+    border-radius: 50% 50% 0 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(92,197,228,.25), transparent 62%);
+    border-top: 1px solid rgba(255,235,164,.22);
+}
+
+/* ============================================================================
+   5) UI FRAME TOÀN WEB
+   ============================================================================ */
+
+.aether-mythic-ui-frame {
+    position: fixed;
+    inset: 0;
+    z-index: 2147480600;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .5s ease;
+}
+
+.aether-mythic-ui-frame.is-mounted { opacity: 1; }
+
+.aether-ui-corner {
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    opacity: .52;
+}
+
+.aether-ui-corner::before,
+.aether-ui-corner::after {
+    content: "";
+    position: absolute;
+    background: linear-gradient(90deg, rgba(255,226,133,.72), rgba(89,193,228,.30));
+}
+
+.aether-ui-corner::before { width: 82px; height: 1px; }
+.aether-ui-corner::after { width: 1px; height: 82px; }
+.aether-ui-corner.corner-tl { left: 14px; top: 14px; }
+.aether-ui-corner.corner-tr { right: 14px; top: 14px; transform: scaleX(-1); }
+.aether-ui-corner.corner-bl { left: 14px; bottom: 14px; transform: scaleY(-1); }
+.aether-ui-corner.corner-br { right: 14px; bottom: 14px; transform: scale(-1); }
+
+.aether-ui-top-sigil {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: rgba(27,104,139,.58);
+    font-family: var(--aether-font-title);
+    font-size: 11px;
+    letter-spacing: .28em;
+    text-shadow: 0 0 9px rgba(255,242,188,.50);
+}
+
+.aether-ui-top-sigil i {
+    display: block;
+    width: 78px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(238,193,78,.58));
+}
+
+.aether-ui-top-sigil i:last-child { transform: scaleX(-1); }
+
+.aether-ui-bottom-line {
+    position: absolute;
+    left: 18%;
+    right: 18%;
+    bottom: 9px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(63,173,213,.38), rgba(255,220,120,.48), rgba(63,173,213,.38), transparent);
+}
+
+/* ============================================================================
+   6) CLICK EFFECT TOÀN WEB
+   ============================================================================ */
+
+.aether-mythic-page-click {
+    position: fixed;
+    left: var(--aether-click-x);
+    top: var(--aether-click-y);
+    width: 10px;
+    height: 10px;
+    z-index: 2147482500;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.aether-click-core,
+.aether-click-ring,
+.aether-click-cross {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.aether-click-core {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 10px #fff, 0 0 20px rgba(255,224,126,.90), 0 0 30px rgba(88,191,231,.62);
+    opacity: 0;
+}
+
+.aether-click-ring {
+    border-radius: 50%;
+    border: 1px solid rgba(255,224,126,.88);
+    opacity: 0;
+}
+
+.aether-click-ring.ring-a { width: 20px; height: 20px; }
+.aether-click-ring.ring-b { width: 38px; height: 38px; border-color: rgba(104,210,242,.72); }
+
+.aether-click-cross::before,
+.aether-click-cross::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.94), transparent);
+    transform: translate(-50%, -50%);
+}
+
+.aether-click-cross::before { width: 46px; height: 1px; }
+.aether-click-cross::after { width: 1px; height: 46px; }
+.aether-click-cross.cross-b { transform: translate(-50%, -50%) rotate(45deg); opacity: .58; }
+
+.aether-click-sparks i {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 3px;
+    height: 12px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #fff, rgba(255,220,117,.82), transparent);
+    transform-origin: 50% 42px;
+    opacity: 0;
+    transform: translate(-50%, -42px) rotate(var(--aether-click-angle));
+}
+
+.aether-mythic-page-click.is-active .aether-click-core { animation: aetherClickCore .58s ease-out both; }
+.aether-mythic-page-click.is-active .aether-click-ring.ring-a { animation: aetherClickRing .66s ease-out both; }
+.aether-mythic-page-click.is-active .aether-click-ring.ring-b { animation: aetherClickRing .78s .04s ease-out both; }
+.aether-mythic-page-click.is-active .aether-click-cross { animation: aetherClickCross .58s ease-out both; }
+.aether-mythic-page-click.is-active .aether-click-sparks i { animation: aetherClickSpark .72s ease-out both; }
+.aether-mythic-page-click.is-strong { scale: 1.45; }
+
+/* ============================================================================
+   7) FULL-SCREEN ULTIMATE
+   ============================================================================ */
+
+.aether-mythic-screen-burst {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483200;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0;
+}
+
+.aether-mythic-screen-burst.is-active {
+    opacity: 1;
+}
+
+.aether-skill-whiteout {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 50% 42%, rgba(255,255,255,.92), rgba(222,248,255,.58) 24%, rgba(48,142,184,.16) 55%, rgba(4,24,42,.68) 100%);
+    opacity: 0;
+}
+
+.aether-mythic-screen-burst.is-active .aether-skill-whiteout {
+    animation: aetherSkillWhiteout 3.4s ease both;
+}
+
+.aether-skill-heaven-core {
+    position: absolute;
+    left: var(--aether-skill-x);
+    top: var(--aether-skill-y);
+    width: min(58vw, 620px);
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%) scale(.15);
+    opacity: 0;
+}
+
+.aether-mythic-screen-burst.is-active .aether-skill-heaven-core {
+    animation: aetherSkillCore 3.25s cubic-bezier(.15,.8,.2,1) both;
+}
+
+.aether-skill-sun {
+    position: absolute;
+    inset: 28%;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff 0 21%, #fff1b6 22% 45%, rgba(255,211,95,.44) 46% 66%, transparent 67%);
+    box-shadow:
+        0 0 30px rgba(255,255,255,.94),
+        0 0 75px rgba(255,225,127,.70),
+        0 0 130px rgba(88,191,231,.42);
+}
+
+.aether-skill-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(255,241,183,.82);
+    box-shadow: 0 0 18px rgba(255,239,175,.28);
+}
+
+.aether-skill-ring.ring-a { inset: 19%; animation: aetherSkillOrbit 4.2s linear infinite; }
+.aether-skill-ring.ring-b { inset: 10%; border-style: dashed; animation: aetherSkillOrbitReverse 5.4s linear infinite; }
+.aether-skill-ring.ring-c { inset: 1%; opacity: .58; animation: aetherSkillOrbit 7s linear infinite; }
+
+.aether-skill-rays {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 150vmax;
+    height: 150vmax;
+    transform: translate(-50%, -50%);
+    background:
+        repeating-conic-gradient(
+            transparent 0 8deg,
+            rgba(255,251,227,.24) 9deg 11deg,
+            transparent 12deg 23deg
+        );
+    opacity: 0;
+}
+
+.aether-mythic-screen-burst.is-active .aether-skill-rays {
+    animation: aetherSkillRays 3.1s ease both;
+}
+
+.aether-skill-feathers,
+.aether-skill-stars {
+    position: absolute;
+    inset: 0;
+}
+
+.aether-skill-feathers i {
+    position: absolute;
+    left: var(--aether-skill-x);
+    top: var(--aether-skill-y);
+    width: 9px;
+    height: 29px;
+    border-radius: 100% 0 100% 0;
+    border-left: 2px solid rgba(255,255,255,.88);
+    background: linear-gradient(180deg, rgba(255,255,255,.70), rgba(117,218,246,.12));
+    opacity: 0;
+    transform:
+        translate(-50%, -50%)
+        rotate(var(--aether-feather-angle))
+        translateY(-20px)
+        scale(.5);
+}
+
+.aether-mythic-screen-burst.is-active .aether-skill-feathers i {
+    animation: aetherSkillFeather 2.55s var(--aether-feather-delay) cubic-bezier(.16,.75,.2,1) both;
+}
+
+.aether-skill-stars i {
+    position: absolute;
+    left: var(--aether-star-x);
+    top: var(--aether-star-y);
+    color: rgba(255,249,218,.92);
+    font-style: normal;
+    font-size: 14px;
+    text-shadow: 0 0 10px rgba(255,235,164,.78);
+    opacity: 0;
+}
+
+.aether-mythic-screen-burst.is-active .aether-skill-stars i {
+    animation: aetherSkillStar 2.6s var(--aether-star-delay) ease-in-out both;
+}
+
+.aether-skill-horizon {
+    position: absolute;
+    left: -10vw;
+    right: -10vw;
+    bottom: -18vh;
+    height: 38vh;
+    border-radius: 50% 50% 0 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(184,240,255,.42), rgba(37,121,159,.14) 44%, transparent 68%);
+    border-top: 1px solid rgba(255,235,164,.42);
+    opacity: 0;
+}
+
+.aether-mythic-screen-burst.is-climax .aether-skill-horizon {
+    animation: aetherSkillHorizon 1.8s ease both;
+}
+
+.aether-mythic-screen-burst.is-ending {
+    animation: aetherSkillFade .85s ease forwards;
+}
+
+.aether-mythic-screen-dialogue {
+    position: fixed;
+    left: 50%;
+    top: 73%;
+    z-index: 2147483250;
+    width: min(92vw, 680px);
+    transform: translate(-50%, 28px) scale(.96);
+    opacity: 0;
+    pointer-events: none;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 18px;
+    padding: 15px 22px;
+    border: 1px solid rgba(255,235,165,.48);
+    border-radius: 8px 26px 8px 26px;
+    color: #fff;
+    background:
+        linear-gradient(135deg, rgba(9,43,67,.86), rgba(18,87,119,.78));
+    box-shadow:
+        0 22px 62px rgba(0,19,34,.38),
+        inset 0 0 0 1px rgba(255,255,255,.10);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    text-align: center;
+}
+
+.aether-mythic-screen-dialogue.is-active {
+    animation: aetherDialogueIn .65s .66s cubic-bezier(.2,.8,.2,1) forwards;
+}
+
+.aether-mythic-screen-dialogue > span {
+    color: #ffe9a0;
+    font-size: 22px;
+    text-shadow: 0 0 12px rgba(255,229,143,.72);
+}
+
+.aether-mythic-screen-dialogue small {
+    display: block;
+    color: rgba(201,241,252,.84);
+    font-family: var(--aether-font-body);
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .22em;
+}
+
+.aether-mythic-screen-dialogue strong {
+    display: block;
+    margin-top: 3px;
+    color: #fff7d3;
+    font-family: var(--aether-font-title);
+    font-size: clamp(21px, 4vw, 36px);
+    letter-spacing: .09em;
+    text-shadow: 0 0 16px rgba(255,228,139,.38);
+}
+
+.aether-mythic-screen-dialogue em {
+    display: block;
+    margin-top: 4px;
+    color: rgba(227,249,255,.88);
+    font-size: 12px;
+    font-style: normal;
+    letter-spacing: .03em;
+}
+
+.aether-mythic-screen-dialogue.is-ending {
+    animation: aetherDialogueOut .62s ease forwards;
+}
+
+/* Skill active: tăng sáng nhẹ giao diện nhưng không block thao tác */
+html.aether-luminous-skill-active body > :not(.aether-mythic-screen-burst):not(.aether-mythic-screen-dialogue) {
+    filter: saturate(1.05) brightness(1.02);
+}
+
+/* ============================================================================
+   8) RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 768px), (pointer: coarse) {
+    .aether-mythic-world { opacity: .26; }
+
+    .aether-ui-corner {
+        width: 58px;
+        height: 58px;
+    }
+
+    .aether-ui-corner::before { width: 52px; }
+    .aether-ui-corner::after { height: 52px; }
+    .aether-ui-top-sigil i { width: 40px; }
+
+    #virtual-pet-container.pet-aether-mythic-stage {
+        width: 195px !important;
+        min-height: 218px !important;
+    }
+
+    #virtual-pet-container.pet-aether-mythic-stage #virtual-pet-img.mythic-aether-luminous-magic,
+    #virtual-pet-container.pet-aether-mythic-stage #virtual-pet-img.aether-mythic-avatar {
+        width: 168px !important;
+        scale: 1.10 !important;
+    }
+
+    .aether-mythic-pet-realm {
+        width: 220px;
+        height: 220px;
+        scale: .92;
+        transform-origin: 50% 100%;
+    }
+
+    .aether-mythic-screen-dialogue {
+        top: auto;
+        bottom: 9vh;
+        width: min(94vw, 600px);
+        gap: 10px;
+        padding: 12px 15px;
+    }
+
+    .aether-mythic-screen-dialogue strong {
+        font-size: clamp(18px, 6vw, 28px);
+    }
+}
+
+@media (max-width: 600px) {
+    .aether-mythic-card .aether-mythic-visual {
+        min-height: 270px !important;
+    }
+
+    .aether-mythic-card .aether-mythic-character {
+        width: min(76%, 190px) !important;
+        max-height: 260px !important;
+    }
+
+    .aether-mythic-tag-art {
+        width: 105px !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .aether-mythic-card *,
+    .aether-mythic-pet-realm *,
+    .aether-mythic-world *,
+    .aether-mythic-ui-frame *,
+    .aether-mythic-page-click *,
+    .aether-mythic-screen-burst *,
+    .aether-mythic-screen-dialogue * {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ============================================================================
+   9) KEYFRAMES — AETHER ONLY
+   ============================================================================ */
+
+@keyframes aetherCardOrbit {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes aetherCardOrbitReverse {
+    to { transform: rotate(-360deg); }
+}
+
+@keyframes aetherCardStar {
+    from { opacity: .28; scale: .72; }
+    to { opacity: 1; scale: 1.25; }
+}
+
+@keyframes aetherTagFloat {
+    0%, 100% { transform: translateY(0) rotate(-1deg); }
+    50% { transform: translateY(-5px) rotate(1deg); }
+}
+
+@keyframes aetherPetIdle {
+    0%, 100% { transform: translateY(0) rotate(-.4deg); }
+    50% { transform: translateY(-7px) rotate(.6deg); }
+}
+
+@keyframes aetherAuraPulse {
+    0%, 100% { opacity: .52; scale: .92; }
+    50% { opacity: .92; scale: 1.08; }
+}
+
+@keyframes aetherHaloFloat {
+    0%, 100% { transform: translateX(-50%) translateY(0) rotate(-4deg); }
+    50% { transform: translateX(-50%) translateY(-5px) rotate(4deg); }
+}
+
+@keyframes aetherLocalOrbit {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes aetherLocalOrbitReverse {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(-360deg); }
+}
+
+@keyframes aetherWingBreath {
+    0%, 100% { opacity: .28; filter: blur(.2px) drop-shadow(0 0 8px rgba(202,245,255,.32)); }
+    50% { opacity: .58; filter: blur(.2px) drop-shadow(0 0 15px rgba(202,245,255,.58)); }
+}
+
+@keyframes aetherLocalStar {
+    from { opacity: .28; scale: .72; }
+    to { opacity: 1; scale: 1.22; }
+}
+
+@keyframes aetherRealmAwaken {
+    from { opacity: 0; scale: .62; filter: blur(10px); }
+    to { opacity: 1; scale: 1; filter: blur(0); }
+}
+
+@keyframes aetherAuraCast {
+    0%, 100% { opacity: .62; scale: .95; }
+    50% { opacity: 1; scale: 1.22; }
+}
+
+@keyframes aetherWorldSunPulse {
+    0%, 100% { opacity: .66; scale: .96; }
+    50% { opacity: 1; scale: 1.04; }
+}
+
+@keyframes aetherWorldOrbit {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes aetherWorldOrbitReverse {
+    to { transform: rotate(-360deg); }
+}
+
+@keyframes aetherAurora {
+    from { translate: -4% -3%; scale: .94; opacity: .24; }
+    to { translate: 7% 5%; scale: 1.08; opacity: .54; }
+}
+
+@keyframes aetherRayBreathe {
+    0%, 100% { opacity: .42; transform: translateX(-50%) scaleX(.96); }
+    50% { opacity: .72; transform: translateX(-50%) scaleX(1.05); }
+}
+
+@keyframes aetherWorldFloat {
+    from { translate: -8px 8px; opacity: .25; }
+    to { translate: 12px -18px; opacity: .95; }
+}
+
+@keyframes aetherClickCore {
+    0% { opacity: 0; scale: .35; }
+    22% { opacity: 1; scale: 1.4; }
+    100% { opacity: 0; scale: 2.2; }
+}
+
+@keyframes aetherClickRing {
+    0% { opacity: 0; scale: .35; }
+    24% { opacity: .96; }
+    100% { opacity: 0; scale: 2.9; }
+}
+
+@keyframes aetherClickCross {
+    0% { opacity: 0; scale: .45; }
+    35% { opacity: .85; }
+    100% { opacity: 0; scale: 1.7; }
+}
+
+@keyframes aetherClickSpark {
+    0% { opacity: 0; translate: 0 8px; scale: .5; }
+    30% { opacity: 1; }
+    100% { opacity: 0; translate: 0 -34px; scale: 1; }
+}
+
+@keyframes aetherSkillWhiteout {
+    0% { opacity: 0; }
+    12% { opacity: .96; }
+    40% { opacity: .72; }
+    78% { opacity: .62; }
+    100% { opacity: 0; }
+}
+
+@keyframes aetherSkillCore {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(.15) rotate(-18deg); }
+    18% { opacity: 1; transform: translate(-50%, -50%) scale(.72) rotate(0deg); }
+    58% { opacity: 1; transform: translate(-50%, -50%) scale(1.04) rotate(7deg); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.32) rotate(14deg); }
+}
+
+@keyframes aetherSkillOrbit {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes aetherSkillOrbitReverse {
+    to { transform: rotate(-360deg); }
+}
+
+@keyframes aetherSkillRays {
+    0% { opacity: 0; scale: .3; rotate: -12deg; }
+    26% { opacity: .92; }
+    100% { opacity: 0; scale: 1.08; rotate: 9deg; }
+}
+
+@keyframes aetherSkillFeather {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(var(--aether-feather-angle)) translateY(-30px) scale(.4);
+    }
+    28% { opacity: .94; }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(var(--aether-feather-angle)) translateY(calc(var(--aether-feather-distance) * -1)) scale(1.15) rotate(80deg);
+    }
+}
+
+@keyframes aetherSkillStar {
+    0% { opacity: 0; scale: .3; }
+    34% { opacity: 1; scale: 1.2; }
+    100% { opacity: 0; translate: 0 -24px; scale: .7; }
+}
+
+@keyframes aetherSkillHorizon {
+    from { opacity: 0; transform: translateY(80px) scaleX(.7); }
+    to { opacity: .9; transform: translateY(0) scaleX(1); }
+}
+
+@keyframes aetherSkillFade {
+    to { opacity: 0; filter: blur(7px); }
+}
+
+@keyframes aetherDialogueIn {
+    from { opacity: 0; transform: translate(-50%, 28px) scale(.96); }
+    to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+
+@keyframes aetherDialogueOut {
+    to { opacity: 0; transform: translate(-50%, -20px) scale(.98); filter: blur(5px); }
+}
+
+/* ============================================================================
+   AETHER · THIÊN QUANG NGUYÊN SƠ — V2 LUXURY REWORK
+   2026-09-17
+   - Card cùng chiều cao / flow full-art với các Premium card lân cận.
+   - Full-web đổi từ nền sáng sang Thiên Lam Huyền Dạ để chữ trắng luôn rõ.
+   - Pet realm nhiều tầng: thánh vực, thiên luân, phù văn, lông vũ, quỹ đạo.
+   - Click effect rõ, có phản hồi ngay khi pointerdown.
+   - Ultimate 5 giây nhiều tầng, vẫn pointer-events:none.
+   - Chỉ kích hoạt dưới namespace Aether, không nhuộm card theme-immune khác.
+   ============================================================================ */
+
+:root {
+    --aether-v2-night-1000: #020817;
+    --aether-v2-night-950: #061126;
+    --aether-v2-night-900: #091b35;
+    --aether-v2-night-850: #0d2745;
+    --aether-v2-blue: #2b86b8;
+    --aether-v2-cyan: #70d8f4;
+    --aether-v2-ice: #d9f8ff;
+    --aether-v2-gold: #f2cc6d;
+    --aether-v2-gold-bright: #ffe9a6;
+    --aether-v2-text: #edfaff;
+    --aether-v2-muted: #b7d5e6;
+    --aether-v2-glass: rgba(5, 20, 40, .84);
+    --aether-v2-glass-soft: rgba(10, 36, 62, .72);
+    --aether-v2-line: rgba(126, 218, 244, .28);
+}
+
+/* --------------------------------------------------------------------------
+   CARD V2 — full art, không kéo dài thêm một khối info bên dưới.
+   Outer card giữ đúng 365px như các Premium full-art đang đứng cạnh Aether.
+   -------------------------------------------------------------------------- */
+.luxury-product-card.aether-mythic-card,
+.luxury-product-card[data-item-id="pet_mythic_aether_1"],
+.luxury-product-card[data-special-card="mythic-aether"] {
+    min-height: 430px !important;
+    height: 430px !important;
+    padding: 0 !important;
+    display: block !important;
+    overflow: hidden !important;
+    border-radius: 20px !important;
+    border: 1px solid rgba(105, 196, 229, .36) !important;
+    background:
+        radial-gradient(circle at 50% 9%, rgba(255, 232, 160, .22), transparent 24%),
+        linear-gradient(165deg, #0b2441 0%, #07162c 48%, #030916 100%) !important;
+    color: var(--aether-v2-text) !important;
+    box-shadow:
+        0 20px 46px rgba(0, 15, 31, .34),
+        inset 0 0 0 1px rgba(255,255,255,.035) !important;
+}
+
+.luxury-product-card.aether-mythic-card::before {
+    inset: -22% -14% auto !important;
+    height: 55% !important;
+    background:
+        radial-gradient(circle at 50% 55%, rgba(255, 247, 213, .32), transparent 20%),
+        radial-gradient(circle at 50% 55%, rgba(102, 211, 244, .17), transparent 42%) !important;
+    filter: blur(2px) !important;
+}
+
+.luxury-product-card.aether-mythic-card::after {
+    left: 9% !important;
+    right: 9% !important;
+    bottom: 8px !important;
+    height: 1px !important;
+    background: linear-gradient(90deg, transparent, rgba(242,204,109,.52), rgba(112,216,244,.55), transparent) !important;
+}
+
+.aether-mythic-card .aether-mythic-visual {
+    position: relative !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 430px !important;
+    overflow: hidden !important;
+    border-radius: inherit !important;
+    background:
+        radial-gradient(circle at 50% 19%, rgba(250,240,196,.20), transparent 20%),
+        radial-gradient(circle at 75% 30%, rgba(69,175,221,.15), transparent 30%),
+        linear-gradient(180deg, #102d4d 0%, #07172d 55%, #030813 100%) !important;
+}
+
+.aether-mythic-card .aether-card-shape {
+    position: absolute !important;
+    inset: 0 !important;
+    border-radius: 0 !important;
+    background:
+        linear-gradient(118deg, transparent 0 32%, rgba(255,255,255,.035) 33% 37%, transparent 38%),
+        repeating-linear-gradient(145deg, transparent 0 26px, rgba(112,216,244,.018) 27px 28px),
+        radial-gradient(ellipse at 50% 112%, rgba(45,145,188,.22), transparent 52%) !important;
+}
+
+.aether-card-sun {
+    top: 27% !important;
+    width: 188px !important;
+    height: 188px !important;
+    opacity: .92 !important;
+    background:
+        radial-gradient(circle, rgba(255,251,232,.92) 0 9%, rgba(255,220,130,.58) 10% 19%, rgba(79,189,229,.12) 20% 42%, transparent 63%) !important;
+    filter: drop-shadow(0 0 20px rgba(242,204,109,.30)) !important;
+}
+
+.aether-card-sun .ring {
+    border-color: rgba(132,220,245,.36) !important;
+    box-shadow: 0 0 14px rgba(91,199,233,.10) !important;
+}
+
+.aether-card-sun .ring-b {
+    border-color: rgba(242,204,109,.40) !important;
+}
+
+.aether-card-stars i {
+    background: rgba(218,248,255,.92) !important;
+    box-shadow: 0 0 9px rgba(112,216,244,.88) !important;
+}
+
+.aether-card-veil {
+    position: absolute;
+    inset: auto 0 0;
+    z-index: 7;
+    height: 54%;
+    pointer-events: none;
+    background: linear-gradient(180deg, transparent, rgba(3,9,22,.18) 26%, rgba(2,7,18,.88) 100%);
+}
+
+.aether-mythic-tag-art {
+    top: 10px !important;
+    left: 50% !important;
+    width: min(55%, 152px) !important;
+    transform: translateX(-50%) !important;
+    filter:
+        drop-shadow(0 5px 9px rgba(0,0,0,.55))
+        drop-shadow(0 0 8px rgba(112,216,244,.26))
+        drop-shadow(0 0 5px rgba(242,204,109,.22)) !important;
+}
+
+.aether-mythic-card .aether-mythic-character {
+    left: 50% !important;
+    bottom: 4px !important;
+    width: min(87%, 246px) !important;
+    max-height: 414px !important;
+    transform: translateX(-50%) scale(1.02) !important;
+    filter:
+        drop-shadow(0 14px 20px rgba(0,0,0,.42))
+        drop-shadow(0 0 16px rgba(112,216,244,.26))
+        drop-shadow(0 0 8px rgba(242,204,109,.18)) !important;
+}
+
+.aether-mythic-card:hover .aether-mythic-character,
+.aether-mythic-card:focus-within .aether-mythic-character {
+    transform: translateX(-50%) translateY(-7px) scale(1.045) !important;
+    filter:
+        drop-shadow(0 18px 28px rgba(0,0,0,.50))
+        drop-shadow(0 0 23px rgba(112,216,244,.40))
+        drop-shadow(0 0 14px rgba(242,204,109,.25)) !important;
+}
+
+.aether-mythic-card .aether-mythic-info {
+    position: absolute !important;
+    z-index: 30 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    padding: 50px 16px 14px !important;
+    color: var(--aether-v2-text) !important;
+    background:
+        linear-gradient(180deg, transparent 0%, rgba(4,16,33,.72) 27%, rgba(3,12,26,.97) 62%, rgba(2,9,20,.99) 100%) !important;
+    transform: translateY(calc(100% - 8px)) !important;
+    opacity: .08 !important;
+    transition: transform .36s cubic-bezier(.2,.8,.2,1), opacity .28s ease !important;
+    pointer-events: none;
+}
+
+.aether-mythic-card:hover .aether-mythic-info,
+.aether-mythic-card:focus-within .aether-mythic-info {
+    transform: translateY(0) !important;
+    opacity: 1 !important;
+    pointer-events: auto;
+}
+
+.aether-mythic-card .aether-mythic-label {
+    display: inline-flex !important;
+    align-items: center !important;
+    width: auto !important;
+    padding: 5px 9px !important;
+    border: 1px solid rgba(112,216,244,.28) !important;
+    border-radius: 999px !important;
+    color: #c8f3ff !important;
+    background: rgba(14,58,88,.62) !important;
+    font-size: 10px !important;
+    font-weight: 900 !important;
+    letter-spacing: .11em !important;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.035) !important;
+}
+
+.aether-mythic-card .aether-mythic-info h3 {
+    margin: 8px 0 5px !important;
+    color: #fff6d5 !important;
+    font-family: var(--aether-font-title) !important;
+    font-size: 18px !important;
+    line-height: 1.25 !important;
+    text-shadow: 0 0 12px rgba(242,204,109,.18) !important;
+}
+
+.aether-mythic-card .aether-mythic-description {
+    margin: 0 0 8px !important;
+    color: #d7edf7 !important;
+    font-size: 11.5px !important;
+    font-weight: 650 !important;
+    line-height: 1.45 !important;
+    letter-spacing: .01em !important;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, .42) !important;
+}
+
+.aether-mythic-card .aether-mythic-price {
+    color: #ffd979 !important;
+    font-size: 13px !important;
+    font-weight: 900 !important;
+}
+
+.aether-mythic-action {
+    min-height: 38px !important;
+    margin-top: 10px !important;
+    padding: 8px 12px !important;
+    border: 1px solid rgba(112,216,244,.34) !important;
+    border-radius: 11px !important;
+    color: #f4fbff !important;
+    background:
+        linear-gradient(135deg, rgba(18,86,122,.94), rgba(8,48,80,.96)) !important;
+    box-shadow:
+        0 9px 20px rgba(0,0,0,.24),
+        inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+
+.aether-mythic-action:hover {
+    box-shadow:
+        0 12px 25px rgba(0,0,0,.32),
+        0 0 20px rgba(112,216,244,.18),
+        inset 0 1px 0 rgba(255,255,255,.10) !important;
+}
+
+.aether-mythic-action.is-equipped {
+    color: #1a2331 !important;
+    border-color: rgba(255,222,130,.56) !important;
+    background: linear-gradient(135deg, #fff0b9, #dcae44) !important;
+}
+
+@media (max-width: 600px), (pointer: coarse) {
+    .luxury-product-card.aether-mythic-card,
+    .luxury-product-card[data-item-id="pet_mythic_aether_1"] {
+        min-height: 365px !important;
+        height: 365px !important;
+    }
+
+    .aether-mythic-card .aether-mythic-info {
+        transform: translateY(calc(100% - 42px)) !important;
+        opacity: .92 !important;
+        pointer-events: auto;
+    }
+
+    .aether-mythic-card .aether-mythic-info:focus-within,
+    .aether-mythic-card:focus .aether-mythic-info {
+        transform: translateY(0) !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   FULL WEB V2 — Huyền dạ, không còn nền trắng/xanh nhạt làm mất chữ trắng.
+   -------------------------------------------------------------------------- */
+html.aether-luminous-equipped {
+    color-scheme: dark !important;
+    scrollbar-color: #3e9fc7 #061426 !important;
+}
+
+html.aether-luminous-equipped body {
+    color: var(--aether-v2-text) !important;
+    background:
+        radial-gradient(circle at 50% -12%, rgba(87,177,218,.18), transparent 32%),
+        radial-gradient(circle at 90% 14%, rgba(242,204,109,.08), transparent 24%),
+        radial-gradient(circle at 8% 82%, rgba(39,114,164,.13), transparent 28%),
+        linear-gradient(145deg, #020817 0%, #07162a 46%, #061a31 100%) !important;
+    background-attachment: fixed !important;
+}
+
+html.aether-luminous-equipped body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        linear-gradient(rgba(112,216,244,.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(112,216,244,.018) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(circle at 50% 35%, #000, transparent 78%);
+    -webkit-mask-image: radial-gradient(circle at 50% 35%, #000, transparent 78%);
+}
+
+html.aether-luminous-equipped ::selection {
+    color: #071426 !important;
+    background: #ffe29a !important;
+}
+
+html.aether-luminous-equipped :where(h1,h2,h3,h4,h5,h6,.page-title,.modal-title,.section-title):not(.store-theme-locked *):not(.ui-theme-immune *) {
+    color: #f2fbff !important;
+    text-shadow: 0 1px 0 rgba(0,0,0,.32) !important;
+}
+
+html.aether-luminous-equipped :where(p,small,label,.muted,.subtitle,.description,.card-description,.help-text):not(.store-theme-locked *):not(.ui-theme-immune *) {
+    color: var(--aether-v2-muted) !important;
+}
+
+html.aether-luminous-equipped :where(.content,.main-content,.dashboard-content,.page-content,#content) {
+    color: var(--aether-v2-text) !important;
+}
+
+html.aether-luminous-equipped :where(.sidebar,.student-sidebar,#sidebar,.side-menu) {
+    color: #eaf9ff !important;
+    background:
+        radial-gradient(circle at 50% 0%, rgba(69,164,205,.13), transparent 28%),
+        linear-gradient(180deg, rgba(7,24,45,.96), rgba(3,14,29,.95)) !important;
+    border-color: rgba(112,216,244,.16) !important;
+    box-shadow:
+        13px 0 38px rgba(0,0,0,.26),
+        inset -1px 0 0 rgba(112,216,244,.06) !important;
+    backdrop-filter: blur(18px) saturate(1.1) !important;
+    -webkit-backdrop-filter: blur(18px) saturate(1.1) !important;
+}
+
+html.aether-luminous-equipped :where(.nav-item,.sidebar button,.sidebar a,.menu-item) {
+    color: #d9f5ff !important;
+    border-radius: 14px 6px 14px 6px !important;
+}
+
+html.aether-luminous-equipped :where(.nav-item,.sidebar button,.sidebar a,.menu-item):hover {
+    color: #fff5d5 !important;
+    background: rgba(36,103,138,.28) !important;
+    box-shadow: 0 9px 22px rgba(0,0,0,.22), inset 0 0 0 1px rgba(112,216,244,.08) !important;
+}
+
+html.aether-luminous-equipped :where(.nav-item.active,.sidebar .active,.menu-item.active) {
+    color: #fff4c9 !important;
+    background:
+        linear-gradient(135deg, rgba(32,111,151,.52), rgba(10,46,76,.86)) !important;
+    border-left-color: var(--aether-v2-gold) !important;
+    box-shadow:
+        0 10px 24px rgba(0,0,0,.26),
+        inset 0 0 0 1px rgba(112,216,244,.10) !important;
+}
+
+html.aether-luminous-equipped :where(.topbar,.toolbar,.header,.dashboard-header,.store-toolbar,.luxury-store-toolbar) {
+    color: #eefbff !important;
+    background:
+        linear-gradient(180deg, rgba(8,30,54,.90), rgba(5,20,40,.84)) !important;
+    border-color: rgba(112,216,244,.16) !important;
+    box-shadow: 0 12px 34px rgba(0,0,0,.22) !important;
+    backdrop-filter: blur(18px) !important;
+    -webkit-backdrop-filter: blur(18px) !important;
+}
+
+html.aether-luminous-equipped :where(
+    .card,.panel,.content-card,.dashboard-card,.student-card,.settings-card,
+    .store-card,.assignment-card,.quiz-card,.leaderboard-card
+):not(.aether-mythic-card):not(.store-theme-locked):not(.ui-theme-immune) {
+    color: #e9f8ff !important;
+    border-color: rgba(112,216,244,.16) !important;
+    border-radius: 20px 8px 20px 8px !important;
+    background:
+        radial-gradient(circle at 100% 0%, rgba(242,204,109,.055), transparent 26%),
+        linear-gradient(145deg, rgba(9,32,57,.88), rgba(4,19,37,.91)) !important;
+    box-shadow:
+        0 15px 38px rgba(0,0,0,.24),
+        inset 0 0 0 1px rgba(255,255,255,.025) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+}
+
+html.aether-luminous-equipped :where(
+    .modal-content,.popup-content,.student-modal-box,.swal2-popup,.dialog-content,
+    .settings-modal-content,.store-modal-content,.announcement-modal-content
+) {
+    color: #eefbff !important;
+    border: 1px solid rgba(112,216,244,.23) !important;
+    border-radius: 10px 30px 10px 30px !important;
+    background:
+        radial-gradient(circle at 93% 0%, rgba(242,204,109,.09), transparent 26%),
+        linear-gradient(150deg, rgba(8,31,55,.98), rgba(3,15,31,.985)) !important;
+    box-shadow:
+        0 30px 82px rgba(0,0,0,.52),
+        inset 0 0 0 1px rgba(255,255,255,.035) !important;
+    backdrop-filter: blur(24px) saturate(1.08) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(1.08) !important;
+}
+
+html.aether-luminous-equipped :where(.modal,.popup,.swal2-container,.overlay,.dialog-overlay) {
+    background-color: rgba(0,6,18,.28) !important;
+    backdrop-filter: blur(9px) saturate(1.05) !important;
+    -webkit-backdrop-filter: blur(9px) saturate(1.05) !important;
+}
+
+html.aether-luminous-equipped :where(input,textarea,select,.input,.select,.search-input) {
+    color: #edfaff !important;
+    caret-color: #88e4fb !important;
+    border: 1px solid rgba(112,216,244,.22) !important;
+    border-radius: 14px 6px 14px 6px !important;
+    background: rgba(4,22,42,.86) !important;
+    box-shadow: inset 0 1px 4px rgba(0,0,0,.32) !important;
+}
+
+html.aether-luminous-equipped :where(input,textarea,select,.input,.select,.search-input):focus {
+    border-color: rgba(112,216,244,.65) !important;
+    background: rgba(6,31,56,.96) !important;
+    box-shadow:
+        0 0 0 4px rgba(87,187,223,.12),
+        0 0 24px rgba(112,216,244,.08) !important;
+}
+
+html.aether-luminous-equipped :where(input,textarea)::placeholder {
+    color: rgba(183,213,230,.56) !important;
+}
+
+html.aether-luminous-equipped :where(button,.btn):not(.ui-theme-immune):not([data-theme-immune="true"]):not(.aether-mythic-action) {
+    color: #eefbff !important;
+    border-color: rgba(112,216,244,.18) !important;
+    border-radius: 13px 6px 13px 6px !important;
+    background: linear-gradient(135deg, rgba(26,91,126,.90), rgba(8,42,71,.95)) !important;
+    box-shadow: 0 8px 20px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.04) !important;
+}
+
+html.aether-luminous-equipped :where(button,.btn):not(.ui-theme-immune):not([data-theme-immune="true"]):hover {
+    color: #fff5d7 !important;
+    background: linear-gradient(135deg, rgba(39,123,162,.96), rgba(10,55,89,.98)) !important;
+    box-shadow: 0 12px 28px rgba(0,0,0,.28), 0 0 18px rgba(112,216,244,.09) !important;
+}
+
+html.aether-luminous-equipped :where(table,.table) {
+    color: #e7f8ff !important;
+    border-color: rgba(112,216,244,.14) !important;
+    background: rgba(4,19,36,.54) !important;
+}
+
+html.aether-luminous-equipped :where(th,.table-header) {
+    color: #fff0bf !important;
+    background: rgba(19,66,94,.76) !important;
+}
+
+html.aether-luminous-equipped :where(td,tr) {
+    color: #dff5ff !important;
+    border-color: rgba(112,216,244,.10) !important;
+}
+
+html.aether-luminous-equipped tbody tr:hover {
+    background: rgba(32,100,134,.25) !important;
+}
+
+html.aether-luminous-equipped :where(.badge,.tag,.chip,.status-badge):not(.store-theme-locked *) {
+    color: #dff8ff !important;
+    border-color: rgba(112,216,244,.18) !important;
+    background: rgba(14,59,86,.72) !important;
+}
+
+html.aether-luminous-equipped ::-webkit-scrollbar-track {
+    background: rgba(1,9,20,.70) !important;
+}
+
+html.aether-luminous-equipped ::-webkit-scrollbar-thumb {
+    border: 2px solid transparent !important;
+    background: linear-gradient(180deg, #3aa4cd, #175b83) padding-box !important;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.08) !important;
+}
+
+html.aether-luminous-equipped ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #64cde9, #2476a1) padding-box !important;
+}
+
+html.aether-luminous-equipped input[type="range"] {
+    background: linear-gradient(90deg, #1c668e, #58c4e6 52%, #e2b950) !important;
+    box-shadow: inset 0 1px 4px rgba(0,0,0,.38), 0 0 10px rgba(112,216,244,.06) !important;
+}
+
+html.aether-luminous-equipped input[type="range"]::-webkit-slider-thumb {
+    border-color: #f7e9b4 !important;
+    background: radial-gradient(circle at 35% 30%, #fff, #f2cc6d 32%, #3197c4 70%, #0a2744 100%) !important;
+    box-shadow: 0 4px 14px rgba(0,0,0,.38), 0 0 0 4px rgba(112,216,244,.11), 0 0 18px rgba(242,204,109,.12) !important;
+}
+
+html.aether-luminous-equipped input[type="range"]::-moz-range-thumb {
+    border-color: #f7e9b4 !important;
+    background: radial-gradient(circle at 35% 30%, #fff, #f2cc6d 32%, #3197c4 70%, #0a2744 100%) !important;
+    box-shadow: 0 4px 14px rgba(0,0,0,.38), 0 0 0 4px rgba(112,216,244,.11), 0 0 18px rgba(242,204,109,.12) !important;
+}
+
+/* --------------------------------------------------------------------------
+   WORLD V2 — đậm vừa phải, không phủ sáng chữ.
+   -------------------------------------------------------------------------- */
+.aether-mythic-world {
+    z-index: 2147480500 !important;
+    opacity: .64 !important;
+    mix-blend-mode: screen !important;
+}
+
+.aether-world-wash {
+    background:
+        radial-gradient(circle at 50% 5%, rgba(87,188,226,.10), transparent 36%),
+        linear-gradient(180deg, rgba(37,115,160,.06), transparent 50%, rgba(242,204,109,.025)) !important;
+}
+
+.aether-world-nebula {
+    position: absolute;
+    width: 66vw;
+    height: 38vh;
+    border-radius: 50%;
+    filter: blur(58px);
+    opacity: .18;
+    background: radial-gradient(ellipse, rgba(66,185,229,.58), rgba(18,79,121,.16) 52%, transparent 72%);
+    animation: aetherV2Nebula 18s ease-in-out infinite alternate;
+}
+
+.aether-world-nebula.nebula-a { left: -18vw; top: 12vh; }
+.aether-world-nebula.nebula-b { right: -20vw; bottom: 4vh; animation-delay: -8s; }
+
+.aether-world-sun {
+    top: -210px !important;
+    opacity: .55 !important;
+}
+
+.aether-world-sun-core {
+    background: radial-gradient(circle, rgba(255,249,220,.90) 0 15%, rgba(242,204,109,.52) 16% 39%, rgba(58,164,208,.13) 40% 68%, transparent 69%) !important;
+}
+
+.aether-world-sun-ring.ring-d {
+    position: absolute;
+    inset: -7%;
+    border-radius: 50%;
+    border: 1px dotted rgba(112,216,244,.23);
+    animation: aetherWorldOrbitReverse 36s linear infinite;
+}
+
+.aether-world-aurora {
+    opacity: .22 !important;
+    background: linear-gradient(90deg, transparent, rgba(50,169,214,.45), rgba(242,204,109,.15), transparent) !important;
+}
+
+.aether-world-rays {
+    opacity: .36;
+}
+
+.aether-world-constellation,
+.aether-world-meteors {
+    position: absolute;
+    inset: 0;
+}
+
+.aether-world-constellation i {
+    position: absolute;
+    left: var(--aether-cx);
+    top: var(--aether-cy);
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: #d9f8ff;
+    box-shadow: 0 0 8px rgba(112,216,244,.72), 0 0 17px rgba(112,216,244,.16);
+    animation: aetherV2Constellation 3.2s var(--aether-cdelay) ease-in-out infinite alternate;
+}
+
+.aether-world-constellation i::after {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 1px;
+    width: 42px;
+    height: 1px;
+    transform-origin: 0 50%;
+    transform: rotate(22deg);
+    background: linear-gradient(90deg, rgba(112,216,244,.16), transparent);
+}
+
+.aether-world-meteors i {
+    position: absolute;
+    left: var(--aether-mx);
+    top: var(--aether-my);
+    width: 78px;
+    height: 1px;
+    transform: rotate(-32deg);
+    transform-origin: 0 50%;
+    background: linear-gradient(90deg, rgba(255,238,178,.80), rgba(112,216,244,.35), transparent);
+    filter: drop-shadow(0 0 6px rgba(112,216,244,.30));
+    opacity: 0;
+    animation: aetherV2Meteor 6.8s var(--aether-mdelay) ease-in-out infinite;
+}
+
+/* --------------------------------------------------------------------------
+   PET REALM V2 — nhiều tầng, rõ quanh nhân vật.
+   -------------------------------------------------------------------------- */
+#virtual-pet-container.pet-aether-mythic-stage {
+    width: 250px !important;
+    min-height: 275px !important;
+    overflow: visible !important;
+    isolation: isolate !important;
+}
+
+#virtual-pet-container.pet-aether-mythic-stage #virtual-pet-img.mythic-aether-luminous-magic,
+#virtual-pet-container.pet-aether-mythic-stage #virtual-pet-img.aether-mythic-avatar {
+    z-index: 20 !important;
+    width: 192px !important;
+    scale: 1.17 !important;
+    cursor: pointer !important;
+    outline: none !important;
+    filter:
+        drop-shadow(0 18px 22px rgba(0,0,0,.42))
+        drop-shadow(0 0 17px rgba(112,216,244,.48))
+        drop-shadow(0 0 10px rgba(242,204,109,.22)) !important;
+    transition: filter .2s ease, scale .2s ease !important;
+}
+
+#virtual-pet-container.pet-aether-mythic-stage.aether-mythic-pressed #virtual-pet-img {
+    scale: 1.11 !important;
+    filter:
+        drop-shadow(0 12px 18px rgba(0,0,0,.48))
+        drop-shadow(0 0 32px rgba(112,216,244,.72))
+        drop-shadow(0 0 20px rgba(242,204,109,.42)) !important;
+}
+
+.aether-mythic-pet-realm {
+    z-index: 5 !important;
+    left: 50% !important;
+    bottom: -2px !important;
+    width: 310px !important;
+    height: 310px !important;
+    transform: translateX(-50%) !important;
+    overflow: visible !important;
+    filter: drop-shadow(0 0 16px rgba(54,163,205,.16));
+}
+
+.aether-local-sanctum {
+    position: absolute;
+    inset: 36px;
+    border-radius: 50%;
+    background:
+        repeating-conic-gradient(from 10deg, rgba(112,216,244,.0) 0 9deg, rgba(112,216,244,.16) 10deg 11deg, transparent 12deg 22deg),
+        radial-gradient(circle, rgba(112,216,244,.14), rgba(38,113,157,.06) 42%, transparent 67%);
+    mask-image: radial-gradient(circle, transparent 0 22%, #000 23% 100%);
+    -webkit-mask-image: radial-gradient(circle, transparent 0 22%, #000 23% 100%);
+    opacity: .65;
+    animation: aetherV2Sanctum 18s linear infinite;
+}
+
+.aether-local-aura {
+    position: absolute !important;
+    border-radius: 50% !important;
+    pointer-events: none;
+}
+
+.aether-local-aura.aura-back {
+    inset: 44px !important;
+    background: radial-gradient(circle, rgba(112,216,244,.22), rgba(44,135,181,.10) 44%, transparent 72%) !important;
+    filter: blur(14px) !important;
+    animation: aetherV2AuraBack 3.6s ease-in-out infinite !important;
+}
+
+.aether-local-aura.aura-front {
+    inset: 78px !important;
+    background: radial-gradient(circle, rgba(255,236,173,.16), transparent 65%) !important;
+    filter: blur(8px) !important;
+    animation: aetherV2AuraFront 2.8s ease-in-out infinite !important;
+}
+
+.aether-local-halo {
+    top: 34px !important;
+    width: 124px !important;
+    height: 34px !important;
+    border: 2px solid rgba(255,229,143,.86) !important;
+    box-shadow:
+        0 0 8px rgba(255,229,143,.90),
+        0 0 22px rgba(255,213,98,.34),
+        0 0 38px rgba(112,216,244,.20) !important;
+}
+
+.aether-local-halo::before,
+.aether-local-halo::after {
+    content: "";
+    position: absolute;
+    inset: -9px;
+    border-radius: 50%;
+    border: 1px dashed rgba(112,216,244,.38);
+    animation: aetherV2HaloOrbit 7s linear infinite;
+}
+
+.aether-local-halo::after {
+    inset: -18px;
+    border-style: dotted;
+    border-color: rgba(242,204,109,.24);
+    animation-direction: reverse;
+    animation-duration: 10s;
+}
+
+.aether-local-crown {
+    position: absolute;
+    left: 50%;
+    top: 9px;
+    z-index: 4;
+    transform: translateX(-50%);
+    color: #ffe49a;
+    font-size: 20px;
+    text-shadow: 0 0 8px #ffe49a, 0 0 20px rgba(112,216,244,.42);
+    animation: aetherV2Crown 2.4s ease-in-out infinite;
+}
+
+.aether-local-ring {
+    box-shadow: 0 0 14px rgba(112,216,244,.10), inset 0 0 14px rgba(112,216,244,.035) !important;
+}
+
+.aether-local-ring.ring-a { width: 198px !important; height: 198px !important; border-color: rgba(112,216,244,.48) !important; animation-duration: 9s !important; }
+.aether-local-ring.ring-b { width: 238px !important; height: 130px !important; border-color: rgba(242,204,109,.44) !important; animation-duration: 12s !important; }
+.aether-local-ring.ring-c { width: 268px !important; height: 230px !important; border-style: dashed !important; border-color: rgba(112,216,244,.28) !important; animation-duration: 17s !important; }
+.aether-local-ring.ring-d { width: 286px !important; height: 168px !important; border-style: dotted !important; border-color: rgba(255,235,177,.20) !important; animation: aetherLocalOrbitReverse 21s linear infinite !important; }
+
+.aether-local-sigil {
+    position: absolute;
+    left: 50%;
+    top: 52%;
+    width: 214px;
+    height: 214px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    opacity: .25;
+    background:
+        linear-gradient(45deg, transparent 49.6%, rgba(112,216,244,.72) 50%, transparent 50.4%),
+        linear-gradient(-45deg, transparent 49.6%, rgba(112,216,244,.72) 50%, transparent 50.4%);
+    clip-path: polygon(50% 0%, 61% 34%, 98% 38%, 68% 58%, 79% 95%, 50% 73%, 21% 95%, 32% 58%, 2% 38%, 39% 34%);
+    animation: aetherV2Sigil 14s linear infinite;
+}
+
+.aether-local-sigil.sigil-b {
+    width: 162px;
+    height: 162px;
+    opacity: .20;
+    transform: translate(-50%, -50%) rotate(18deg);
+    animation-direction: reverse;
+    animation-duration: 11s;
+}
+
+.aether-local-wing {
+    top: 91px !important;
+    width: 110px !important;
+    height: 112px !important;
+    opacity: .58 !important;
+    filter: drop-shadow(0 0 14px rgba(112,216,244,.36)) !important;
+}
+
+.aether-local-wing::before,
+.aether-local-wing::after {
+    width: 98px !important;
+    height: 28px !important;
+    border-top: 2px solid rgba(218,248,255,.78) !important;
+    box-shadow: 0 -1px 8px rgba(112,216,244,.15);
+}
+
+.aether-local-wing.wing-left { left: -7px !important; }
+.aether-local-wing.wing-right { right: -7px !important; }
+
+.aether-local-ribbon {
+    position: absolute;
+    left: 50%;
+    top: 52%;
+    width: 280px;
+    height: 82px;
+    border-radius: 50%;
+    border-top: 1px solid rgba(112,216,244,.32);
+    border-bottom: 1px solid rgba(242,204,109,.20);
+    opacity: .38;
+    filter: drop-shadow(0 0 7px rgba(112,216,244,.18));
+}
+
+.aether-local-ribbon.ribbon-a { transform: translate(-50%,-50%) rotate(-16deg); animation: aetherV2Ribbon 7s ease-in-out infinite; }
+.aether-local-ribbon.ribbon-b { transform: translate(-50%,-50%) rotate(21deg); animation: aetherV2Ribbon 8.5s -2s ease-in-out infinite reverse; }
+
+.aether-local-runes,
+.aether-local-feathers,
+.aether-local-stars {
+    position: absolute;
+    inset: 0;
+}
+
+.aether-local-runes { animation: aetherV2RuneOrbit 19s linear infinite; }
+
+.aether-local-runes i {
+    position: absolute;
+    left: 50%;
+    top: 52%;
+    color: rgba(255,232,159,.72);
+    font-style: normal;
+    font-size: 11px;
+    text-shadow: 0 0 8px rgba(242,204,109,.45);
+    transform:
+        translate(-50%,-50%)
+        rotate(var(--aether-rune-angle))
+        translateX(134px)
+        rotate(calc(var(--aether-rune-angle) * -1));
+    animation: aetherV2RunePulse 2.8s var(--aether-rune-delay) ease-in-out infinite alternate;
+}
+
+.aether-local-stars {
+    animation: aetherLocalOrbit 14s linear infinite !important;
+}
+
+.aether-local-stars i {
+    --aether-radius: var(--aether-local-radius, 112px) !important;
+    font-size: 12px !important;
+    text-shadow: 0 0 9px rgba(112,216,244,.92), 0 0 16px rgba(112,216,244,.24) !important;
+}
+
+.aether-local-feathers i {
+    position: absolute;
+    left: 50%;
+    top: 52%;
+    width: 7px;
+    height: 21px;
+    border-radius: 100% 0 100% 0;
+    border-left: 1px solid rgba(226,250,255,.72);
+    background: linear-gradient(180deg, rgba(226,250,255,.48), rgba(112,216,244,.02));
+    transform:
+        translate(-50%,-50%)
+        rotate(var(--aether-local-feather-angle))
+        translateX(118px)
+        rotate(22deg);
+    opacity: .45;
+    animation: aetherV2LocalFeather 4.4s var(--aether-local-feather-delay) ease-in-out infinite;
+}
+
+.aether-local-ground {
+    bottom: 15px !important;
+    width: 206px !important;
+    height: 42px !important;
+    border-color: rgba(242,204,109,.44) !important;
+    background: radial-gradient(ellipse, rgba(57,174,218,.20), rgba(26,89,126,.05) 48%, transparent 69%) !important;
+    box-shadow: 0 0 25px rgba(112,216,244,.18), inset 0 0 18px rgba(242,204,109,.07) !important;
+}
+
+.aether-local-ground-ring {
+    position: absolute;
+    left: 50%;
+    bottom: 17px;
+    width: 235px;
+    height: 50px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    border: 1px dashed rgba(112,216,244,.28);
+}
+
+.aether-local-ground-ring.ground-a { animation: aetherV2GroundSpin 11s linear infinite; }
+.aether-local-ground-ring.ground-b { width: 270px; height: 62px; opacity: .35; border-color: rgba(242,204,109,.26); animation: aetherV2GroundSpin 17s linear infinite reverse; }
+
+#virtual-pet-container.pet-aether-mythic-stage.aether-mythic-casting .aether-local-sanctum,
+#virtual-pet-container.pet-aether-mythic-stage.aether-mythic-casting .aether-local-sigil {
+    filter: drop-shadow(0 0 20px rgba(112,216,244,.45));
+    opacity: .9;
+}
+
+#virtual-pet-container.pet-aether-mythic-stage.aether-mythic-casting .aether-local-ring {
+    border-color: rgba(255,235,164,.84) !important;
+    box-shadow: 0 0 24px rgba(242,204,109,.26), 0 0 44px rgba(112,216,244,.20) !important;
+}
+
+/* --------------------------------------------------------------------------
+   CLICK V2 — rõ ở mọi lần nhấn.
+   -------------------------------------------------------------------------- */
+.aether-mythic-page-click {
+    z-index: 2147483450 !important;
+    width: 1px !important;
+    height: 1px !important;
+    filter: drop-shadow(0 0 8px rgba(112,216,244,.25));
+}
+
+.aether-click-flash,
+.aether-click-core,
+.aether-click-ring,
+.aether-click-cross,
+.aether-click-glyph,
+.aether-click-starburst,
+.aether-click-orbit-nodes,
+.aether-click-sparks {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+}
+
+.aether-click-flash {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #fff8da;
+    box-shadow: 0 0 18px #fff, 0 0 38px rgba(242,204,109,.80), 0 0 62px rgba(112,216,244,.60);
+    opacity: 0;
+}
+
+.aether-click-core {
+    width: 12px !important;
+    height: 12px !important;
+    background: radial-gradient(circle, #fff 0 30%, #ffe39a 31% 58%, #64cce9 59% 100%) !important;
+    box-shadow: 0 0 12px #fff, 0 0 28px rgba(242,204,109,.80), 0 0 46px rgba(112,216,244,.65) !important;
+}
+
+.aether-click-ring {
+    border-width: 2px !important;
+    box-shadow: 0 0 12px rgba(112,216,244,.14), inset 0 0 10px rgba(242,204,109,.07);
+}
+
+.aether-click-ring.ring-a { width: 26px !important; height: 26px !important; border-color: rgba(255,234,165,.95) !important; }
+.aether-click-ring.ring-b { width: 48px !important; height: 48px !important; border-color: rgba(112,216,244,.90) !important; }
+.aether-click-ring.ring-c { width: 72px !important; height: 72px !important; border: 1px dashed rgba(255,226,145,.62) !important; opacity: 0; }
+.aether-click-ring.ring-d { width: 98px !important; height: 60px !important; border: 1px dotted rgba(112,216,244,.54) !important; opacity: 0; }
+
+.aether-click-cross::before { width: 88px !important; height: 1px !important; }
+.aether-click-cross::after { width: 1px !important; height: 88px !important; }
+.aether-click-cross.cross-b { opacity: .72 !important; }
+
+.aether-click-glyph {
+    color: #fff1ba;
+    font-size: 21px;
+    line-height: 1;
+    text-shadow: 0 0 8px #fff4cf, 0 0 20px rgba(242,204,109,.58), 0 0 35px rgba(112,216,244,.48);
+    opacity: 0;
+}
+
+.aether-click-starburst {
+    width: 112px;
+    height: 112px;
+    border-radius: 50%;
+    background: repeating-conic-gradient(transparent 0 12deg, rgba(222,249,255,.76) 13deg 14deg, transparent 15deg 30deg);
+    mask-image: radial-gradient(circle, transparent 0 25%, #000 26% 63%, transparent 64%);
+    -webkit-mask-image: radial-gradient(circle, transparent 0 25%, #000 26% 63%, transparent 64%);
+    opacity: 0;
+}
+
+.aether-click-orbit-nodes {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+}
+
+.aether-click-orbit-nodes i {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #dffaff;
+    box-shadow: 0 0 8px rgba(112,216,244,.92);
+    opacity: 0;
+    transform: translate(-50%,-50%) rotate(var(--aether-node-angle)) translateX(40px);
+}
+
+.aether-click-sparks {
+    width: 1px;
+    height: 1px;
+}
+
+.aether-click-sparks i {
+    width: 4px !important;
+    height: 18px !important;
+    background: linear-gradient(180deg, #fff, #ffe49b 34%, rgba(112,216,244,.72) 70%, transparent) !important;
+    transform-origin: 50% var(--aether-click-distance, 60px) !important;
+    transform: translate(-50%, calc(var(--aether-click-distance, 60px) * -1)) rotate(var(--aether-click-angle)) !important;
+}
+
+.aether-mythic-page-click.is-active .aether-click-flash { animation: aetherV2ClickFlash .68s ease-out both; }
+.aether-mythic-page-click.is-active .aether-click-core { animation: aetherV2ClickCore .82s ease-out both !important; }
+.aether-mythic-page-click.is-active .aether-click-ring.ring-a { animation: aetherV2ClickRing .78s ease-out both !important; }
+.aether-mythic-page-click.is-active .aether-click-ring.ring-b { animation: aetherV2ClickRing 1s .04s ease-out both !important; }
+.aether-mythic-page-click.is-active .aether-click-ring.ring-c { animation: aetherV2ClickRing 1.08s .08s ease-out both !important; }
+.aether-mythic-page-click.is-active .aether-click-ring.ring-d { animation: aetherV2ClickEllipse 1.18s .10s ease-out both !important; }
+.aether-mythic-page-click.is-active .aether-click-cross { animation: aetherV2ClickCross .85s ease-out both !important; }
+.aether-mythic-page-click.is-active .aether-click-glyph { animation: aetherV2ClickGlyph .86s ease-out both; }
+.aether-mythic-page-click.is-active .aether-click-starburst { animation: aetherV2ClickStarburst 1.05s ease-out both; }
+.aether-mythic-page-click.is-active .aether-click-orbit-nodes { animation: aetherV2ClickOrbit 1.1s ease-out both; }
+.aether-mythic-page-click.is-active .aether-click-orbit-nodes i { animation: aetherV2ClickNode .92s ease-out both; }
+.aether-mythic-page-click.is-active .aether-click-sparks i { animation: aetherV2ClickSpark 1.02s var(--aether-click-delay,0s) ease-out both !important; }
+
+.aether-mythic-page-click.is-strong {
+    scale: 1.52 !important;
+}
+
+.aether-mythic-page-click.is-strong .aether-click-starburst {
+    width: 146px;
+    height: 146px;
+}
+
+/* --------------------------------------------------------------------------
+   ULTIMATE V2 — nhiều lớp, tối nền trước rồi mới bùng thiên quang.
+   -------------------------------------------------------------------------- */
+.aether-mythic-screen-burst {
+    z-index: 2147483600 !important;
+    background: rgba(0,4,13,.08);
+}
+
+.aether-skill-veil {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at var(--aether-skill-x) var(--aether-skill-y), rgba(42,154,201,.14), transparent 26%),
+        linear-gradient(180deg, rgba(0,5,16,.94), rgba(2,13,29,.86) 54%, rgba(0,5,15,.96));
+    opacity: 0;
+}
+
+.aether-mythic-screen-burst.is-active .aether-skill-veil {
+    animation: aetherV2SkillVeil 4.8s ease both;
+}
+
+.aether-skill-whiteout {
+    background:
+        radial-gradient(circle at var(--aether-skill-x) var(--aether-skill-y), rgba(255,251,232,.92), rgba(242,204,109,.30) 13%, rgba(112,216,244,.18) 31%, rgba(5,28,50,.08) 53%, transparent 70%) !important;
+}
+
+.aether-mythic-screen-burst.is-active .aether-skill-whiteout {
+    animation: aetherV2SkillWhiteout 4.5s ease both !important;
+}
+
+.aether-skill-mandala {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(82vmin, 760px);
+    aspect-ratio: 1;
+    transform: translate(-50%,-50%) scale(.25) rotate(-24deg);
+    opacity: 0;
+}
+
+.aether-skill-mandala::before,
+.aether-skill-mandala::after {
+    content: "";
+    position: absolute;
+    inset: 13%;
+    border-radius: 50%;
+    background:
+        repeating-conic-gradient(from 0deg, transparent 0 10deg, rgba(112,216,244,.46) 11deg 12deg, transparent 13deg 24deg);
+    mask-image: radial-gradient(circle, transparent 0 42%, #000 43% 47%, transparent 48% 100%);
+    -webkit-mask-image: radial-gradient(circle, transparent 0 42%, #000 43% 47%, transparent 48% 100%);
+}
+
+.aether-skill-mandala::after {
+    inset: 2%;
+    opacity: .48;
+    transform: rotate(15deg);
+}
+
+.aether-mythic-screen-burst.is-active .aether-skill-mandala {
+    animation: aetherV2MandalaIn 4.35s cubic-bezier(.14,.78,.18,1) both;
+}
+
+.mandala-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(112,216,244,.42);
+    box-shadow: 0 0 20px rgba(112,216,244,.09), inset 0 0 24px rgba(112,216,244,.04);
+}
+
+.mandala-ring.ring-a { inset: 18%; animation: aetherSkillOrbit 7s linear infinite; }
+.mandala-ring.ring-b { inset: 8%; border-color: rgba(242,204,109,.38); border-style: dashed; animation: aetherSkillOrbitReverse 9s linear infinite; }
+.mandala-ring.ring-c { inset: -2%; border-color: rgba(112,216,244,.20); border-style: dotted; animation: aetherSkillOrbit 13s linear infinite; }
+
+.mandala-star {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+    color: rgba(255,238,179,.72);
+    font-size: clamp(72px, 16vmin, 150px);
+    text-shadow: 0 0 24px rgba(242,204,109,.30), 0 0 48px rgba(112,216,244,.20);
+}
+
+.aether-skill-heaven-core {
+    width: min(66vw, 720px) !important;
+}
+
+.aether-skill-ring.ring-d {
+    position: absolute;
+    inset: -8%;
+    border-radius: 50%;
+    border: 1px dotted rgba(112,216,244,.30);
+    animation: aetherSkillOrbitReverse 9.5s linear infinite;
+}
+
+.aether-skill-wings {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(44vw, 520px);
+    height: min(35vw, 360px);
+    opacity: 0;
+    border-radius: 85% 12% 90% 18%;
+    border-top: 2px solid rgba(221,249,255,.64);
+    border-left: 1px solid rgba(112,216,244,.22);
+    box-shadow: -22px -9px 38px rgba(112,216,244,.10);
+    transform-origin: 100% 50%;
+}
+
+.aether-skill-wings::before,
+.aether-skill-wings::after {
+    content: "";
+    position: absolute;
+    width: 85%;
+    height: 30%;
+    border-radius: 100% 0 100% 0;
+    border-top: 1px solid rgba(224,249,255,.48);
+}
+
+.aether-skill-wings::before { left: 7%; top: 27%; transform: rotate(-12deg); }
+.aether-skill-wings::after { left: 15%; top: 52%; transform: rotate(-23deg) scale(.82); opacity: .72; }
+.aether-skill-wings.wing-left { transform: translate(-100%,-50%) rotate(-12deg); }
+.aether-skill-wings.wing-right { transform: translate(0,-50%) scaleX(-1) rotate(-12deg); }
+
+.aether-mythic-screen-burst.is-active .aether-skill-wings.wing-left { animation: aetherV2SkillWingLeft 3.9s .35s cubic-bezier(.16,.75,.2,1) both; }
+.aether-mythic-screen-burst.is-active .aether-skill-wings.wing-right { animation: aetherV2SkillWingRight 3.9s .35s cubic-bezier(.16,.75,.2,1) both; }
+
+.aether-skill-orbit {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(78vmin, 700px);
+    aspect-ratio: 1;
+    transform: translate(-50%,-50%);
+    border-radius: 50%;
+    animation: aetherV2SkillOrbitNodes 10s linear infinite;
+}
+
+.aether-skill-orbit i {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    color: rgba(255,235,171,.82);
+    font-style: normal;
+    font-size: 17px;
+    text-shadow: 0 0 9px rgba(242,204,109,.62), 0 0 18px rgba(112,216,244,.28);
+    opacity: 0;
+    transform: translate(-50%,-50%) rotate(var(--aether-skill-node-angle)) translateX(min(36vmin, 325px)) rotate(calc(var(--aether-skill-node-angle) * -1));
+}
+
+.aether-mythic-screen-burst.is-active .aether-skill-orbit i {
+    animation: aetherV2SkillNode 3.3s .45s ease-in-out both;
+}
+
+.aether-skill-comets,
+.aether-skill-shards {
+    position: absolute;
+    inset: 0;
+}
+
+.aether-skill-comets i {
+    position: absolute;
+    left: var(--aether-comet-x);
+    top: var(--aether-comet-y);
+    width: 150px;
+    height: 2px;
+    transform: rotate(-35deg) translateX(-80px);
+    background: linear-gradient(90deg, rgba(255,241,193,.95), rgba(112,216,244,.60), transparent);
+    filter: drop-shadow(0 0 7px rgba(112,216,244,.48));
+    opacity: 0;
+}
+
+.aether-mythic-screen-burst.is-active .aether-skill-comets i {
+    animation: aetherV2SkillComet 2.8s var(--aether-comet-delay) ease-out both;
+}
+
+.aether-skill-shards i {
+    position: absolute;
+    left: var(--aether-skill-x);
+    top: var(--aether-skill-y);
+    width: 7px;
+    height: 18px;
+    clip-path: polygon(50% 0, 100% 30%, 64% 100%, 0 72%);
+    background: linear-gradient(180deg, #fff4c7, #6ed8f4 58%, rgba(30,100,142,.08));
+    box-shadow: 0 0 8px rgba(112,216,244,.45);
+    opacity: 0;
+    transform: translate(-50%,-50%) rotate(var(--aether-shard-angle));
+}
+
+.aether-mythic-screen-burst.is-climax .aether-skill-shards i {
+    animation: aetherV2SkillShard 2.35s var(--aether-shard-delay) cubic-bezier(.16,.75,.2,1) both;
+}
+
+.aether-skill-crown {
+    position: absolute;
+    left: 50%;
+    top: 13%;
+    transform: translate(-50%,-24px);
+    color: rgba(255,237,179,.92);
+    font-family: var(--aether-font-title);
+    font-size: clamp(13px, 2.2vw, 24px);
+    font-weight: 700;
+    letter-spacing: .34em;
+    text-shadow: 0 0 11px rgba(242,204,109,.54), 0 0 28px rgba(112,216,244,.30);
+    opacity: 0;
+}
+
+.aether-mythic-screen-burst.is-apex .aether-skill-crown {
+    animation: aetherV2SkillCrown 2.2s ease both;
+}
+
+.aether-mythic-screen-dialogue {
+    z-index: 2147483650 !important;
+    color: #eefbff !important;
+    background:
+        radial-gradient(circle at 50% 0%, rgba(242,204,109,.09), transparent 34%),
+        linear-gradient(135deg, rgba(4,22,42,.94), rgba(6,47,73,.90)) !important;
+    border-color: rgba(255,228,153,.44) !important;
+    box-shadow: 0 25px 72px rgba(0,0,0,.58), 0 0 34px rgba(112,216,244,.08), inset 0 0 0 1px rgba(255,255,255,.035) !important;
+}
+
+html.aether-luminous-skill-active body > :not(.aether-mythic-screen-burst):not(.aether-mythic-screen-dialogue) {
+    filter: saturate(.88) brightness(.72) !important;
+    transition: filter .28s ease !important;
+}
+
+/* --------------------------------------------------------------------------
+   V2 KEYFRAMES
+   -------------------------------------------------------------------------- */
+@keyframes aetherV2Nebula {
+    from { transform: translate(-4%,-3%) scale(.94) rotate(-4deg); opacity: .12; }
+    to { transform: translate(7%,5%) scale(1.08) rotate(5deg); opacity: .24; }
+}
+
+@keyframes aetherV2Constellation {
+    from { opacity: .25; scale: .75; }
+    to { opacity: 1; scale: 1.35; }
+}
+
+@keyframes aetherV2Meteor {
+    0%, 68%, 100% { opacity: 0; translate: -120px 70px; }
+    74% { opacity: .9; }
+    88% { opacity: 0; translate: 180px -110px; }
+}
+
+@keyframes aetherV2Sanctum {
+    to { rotate: 360deg; }
+}
+
+@keyframes aetherV2AuraBack {
+    0%,100% { opacity: .46; scale: .90; }
+    50% { opacity: .92; scale: 1.10; }
+}
+
+@keyframes aetherV2AuraFront {
+    0%,100% { opacity: .34; scale: .82; }
+    50% { opacity: .86; scale: 1.16; }
+}
+
+@keyframes aetherV2HaloOrbit {
+    to { rotate: 360deg; }
+}
+
+@keyframes aetherV2Crown {
+    0%,100% { translate: 0 2px; scale: .82; opacity: .55; }
+    50% { translate: 0 -5px; scale: 1.18; opacity: 1; }
+}
+
+@keyframes aetherV2Sigil {
+    to { transform: translate(-50%,-50%) rotate(360deg); }
+}
+
+@keyframes aetherV2Ribbon {
+    0%,100% { opacity: .22; scale: .94 1; }
+    50% { opacity: .60; scale: 1.08 .92; }
+}
+
+@keyframes aetherV2RuneOrbit {
+    to { rotate: -360deg; }
+}
+
+@keyframes aetherV2RunePulse {
+    from { opacity: .20; scale: .76; }
+    to { opacity: .92; scale: 1.20; }
+}
+
+@keyframes aetherV2LocalFeather {
+    0%,100% { opacity: .12; translate: 0 6px; rotate: -10deg; }
+    50% { opacity: .65; translate: 0 -14px; rotate: 18deg; }
+}
+
+@keyframes aetherV2GroundSpin {
+    to { rotate: 360deg; }
+}
+
+@keyframes aetherV2ClickFlash {
+    0% { opacity: 0; scale: .25; }
+    18% { opacity: 1; scale: 1.6; }
+    100% { opacity: 0; scale: 3.8; }
+}
+
+@keyframes aetherV2ClickCore {
+    0% { opacity: 0; scale: .28; }
+    24% { opacity: 1; scale: 1.55; }
+    100% { opacity: 0; scale: 2.8; }
+}
+
+@keyframes aetherV2ClickRing {
+    0% { opacity: 0; scale: .22; }
+    25% { opacity: 1; }
+    100% { opacity: 0; scale: 3.15; rotate: 28deg; }
+}
+
+@keyframes aetherV2ClickEllipse {
+    0% { opacity: 0; scale: .25; rotate: -35deg; }
+    28% { opacity: .92; }
+    100% { opacity: 0; scale: 3.0; rotate: 42deg; }
+}
+
+@keyframes aetherV2ClickCross {
+    0% { opacity: 0; scale: .28; rotate: -18deg; }
+    32% { opacity: .92; }
+    100% { opacity: 0; scale: 2.25; rotate: 34deg; }
+}
+
+@keyframes aetherV2ClickGlyph {
+    0% { opacity: 0; scale: .35; rotate: -30deg; }
+    32% { opacity: 1; scale: 1.45; }
+    100% { opacity: 0; scale: 2.15; rotate: 60deg; }
+}
+
+@keyframes aetherV2ClickStarburst {
+    0% { opacity: 0; scale: .22; rotate: -25deg; }
+    30% { opacity: .86; }
+    100% { opacity: 0; scale: 2.0; rotate: 40deg; }
+}
+
+@keyframes aetherV2ClickOrbit {
+    from { rotate: -32deg; scale: .4; }
+    to { rotate: 84deg; scale: 1.9; }
+}
+
+@keyframes aetherV2ClickNode {
+    0% { opacity: 0; scale: .3; }
+    35% { opacity: 1; scale: 1.3; }
+    100% { opacity: 0; scale: .5; }
+}
+
+@keyframes aetherV2ClickSpark {
+    0% { opacity: 0; translate: 0 12px; scale: .42; }
+    24% { opacity: 1; }
+    100% { opacity: 0; translate: 0 calc(var(--aether-click-distance,60px) * -.55); scale: 1.12; }
+}
+
+@keyframes aetherV2SkillVeil {
+    0% { opacity: 0; }
+    10% { opacity: .90; }
+    78% { opacity: .88; }
+    100% { opacity: 0; }
+}
+
+@keyframes aetherV2SkillWhiteout {
+    0% { opacity: 0; scale: .45; }
+    14% { opacity: .88; scale: .78; }
+    40% { opacity: .62; scale: 1.05; }
+    72% { opacity: .42; scale: 1.30; }
+    100% { opacity: 0; scale: 1.65; }
+}
+
+@keyframes aetherV2MandalaIn {
+    0% { opacity: 0; transform: translate(-50%,-50%) scale(.20) rotate(-38deg); filter: blur(9px); }
+    20% { opacity: .92; filter: blur(0); }
+    62% { opacity: .82; transform: translate(-50%,-50%) scale(.92) rotate(8deg); }
+    100% { opacity: 0; transform: translate(-50%,-50%) scale(1.26) rotate(30deg); filter: blur(5px); }
+}
+
+@keyframes aetherV2SkillWingLeft {
+    0% { opacity: 0; transform: translate(-88%,-48%) scale(.45) rotate(16deg); filter: blur(8px); }
+    28% { opacity: .72; filter: blur(0); }
+    70% { opacity: .58; transform: translate(-102%,-50%) scale(1.04) rotate(-10deg); }
+    100% { opacity: 0; transform: translate(-108%,-54%) scale(1.18) rotate(-20deg); filter: blur(5px); }
+}
+
+@keyframes aetherV2SkillWingRight {
+    0% { opacity: 0; transform: translate(-12%,-48%) scaleX(-1) scale(.45) rotate(16deg); filter: blur(8px); }
+    28% { opacity: .72; filter: blur(0); }
+    70% { opacity: .58; transform: translate(2%,-50%) scaleX(-1) scale(1.04) rotate(-10deg); }
+    100% { opacity: 0; transform: translate(8%,-54%) scaleX(-1) scale(1.18) rotate(-20deg); filter: blur(5px); }
+}
+
+@keyframes aetherV2SkillOrbitNodes {
+    to { rotate: 360deg; }
+}
+
+@keyframes aetherV2SkillNode {
+    0% { opacity: 0; scale: .3; }
+    28%,70% { opacity: .95; scale: 1.1; }
+    100% { opacity: 0; scale: .45; }
+}
+
+@keyframes aetherV2SkillComet {
+    0% { opacity: 0; translate: -180px 110px; }
+    24% { opacity: 1; }
+    100% { opacity: 0; translate: 280px -170px; }
+}
+
+@keyframes aetherV2SkillShard {
+    0% { opacity: 0; transform: translate(-50%,-50%) rotate(var(--aether-shard-angle)) translateY(-30px) scale(.35); }
+    24% { opacity: .95; }
+    100% { opacity: 0; transform: translate(-50%,-50%) rotate(var(--aether-shard-angle)) translateY(calc(var(--aether-shard-distance) * -1)) scale(1.05) rotate(140deg); }
+}
+
+@keyframes aetherV2SkillCrown {
+    0% { opacity: 0; transform: translate(-50%,-24px) scale(.75); }
+    30%,70% { opacity: 1; transform: translate(-50%,0) scale(1); }
+    100% { opacity: 0; transform: translate(-50%,-20px) scale(1.08); }
+}
+
+@media (max-width: 768px), (pointer: coarse) {
+    #virtual-pet-container.pet-aether-mythic-stage {
+        width: 220px !important;
+        min-height: 240px !important;
+    }
+
+    #virtual-pet-container.pet-aether-mythic-stage #virtual-pet-img.mythic-aether-luminous-magic,
+    #virtual-pet-container.pet-aether-mythic-stage #virtual-pet-img.aether-mythic-avatar {
+        width: 176px !important;
+        scale: 1.13 !important;
+    }
+
+    .aether-mythic-pet-realm {
+        width: 270px !important;
+        height: 270px !important;
+        scale: .90 !important;
+        transform-origin: 50% 100% !important;
+    }
+
+    .aether-skill-wings {
+        width: min(58vw, 380px);
+        height: min(44vw, 290px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .aether-world-nebula,
+    .aether-world-constellation *,
+    .aether-world-meteors *,
+    .aether-local-sanctum,
+    .aether-local-runes,
+    .aether-local-feathers *,
+    .aether-click-starburst,
+    .aether-click-orbit-nodes,
+    .aether-skill-mandala,
+    .aether-skill-wings,
+    .aether-skill-orbit,
+    .aether-skill-comets *,
+    .aether-skill-shards * {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
+
+/* ============================================================================
+   AETHER CHIBI · TIỂU THIÊN QUANG — AETLC V1
+   Dành riêng cho: pet_truyenthuyet_aether_chibi_2
+   ----------------------------------------------------------------------------
+   QUY TẮC CÔ LẬP:
+   - Không sửa bất kỳ selector/keyframe Aether Luxury ở phía trên.
+   - Không dùng class/keyframe của NYX · Tiểu Dạ Tinh Linh.
+   - Card vẫn dùng DOM chuẩn store-item-card; chỉ thêm skin riêng.
+   - Pet effect chỉ chạy khi container có .pet-aether-little-sky-stage.
+   ============================================================================ */
+
+:root {
+    --aetlc-night: #071526;
+    --aetlc-deep: #0b2741;
+    --aetlc-blue: #1e6f9c;
+    --aetlc-cyan: #7ddff4;
+    --aetlc-ice: #dffaff;
+    --aetlc-gold: #f5d888;
+    --aetlc-gold-soft: #fff0bd;
+}
+
+/* ---------------------------------------------------------------------------
+   1) CARD CỬA HÀNG THƯỜNG — GIỮ NGUYÊN BỐ CỤC
+   Không thay display/grid/min-height/padding/gap của store-item-card chuẩn.
+   --------------------------------------------------------------------------- */
+html body .store-item-card.store-card-aether-little-spirit[data-theme-immune="true"] {
+    position: relative !important;
+    isolation: isolate !important;
+    overflow: hidden !important;
+    color: #eafaff !important;
+    border-color: rgba(119, 222, 245, .48) !important;
+    background:
+        radial-gradient(circle at 76% 12%, rgba(245, 216, 136, .18), transparent 24%),
+        radial-gradient(circle at 20% 30%, rgba(64, 177, 220, .18), transparent 32%),
+        linear-gradient(155deg, #061321 0%, #0a2943 55%, #0d3551 100%) !important;
+    box-shadow:
+        0 18px 38px rgba(3, 17, 31, .34),
+        inset 0 0 0 1px rgba(231, 251, 255, .05) !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+html body .store-item-card.store-card-aether-little-spirit[data-theme-immune="true"]::before,
+html body .store-item-card.store-card-aether-little-spirit[data-theme-immune="true"]::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+    z-index: 0;
+}
+
+html body .store-item-card.store-card-aether-little-spirit[data-theme-immune="true"]::before {
+    width: 178px;
+    height: 178px;
+    right: -58px;
+    top: -62px;
+    border-radius: 50%;
+    border: 1px solid rgba(245, 216, 136, .24);
+    box-shadow:
+        0 0 0 18px rgba(125, 223, 244, .035),
+        0 0 0 38px rgba(245, 216, 136, .025),
+        0 0 46px rgba(101, 210, 239, .10);
+}
+
+html body .store-item-card.store-card-aether-little-spirit[data-theme-immune="true"]::after {
+    left: -25%;
+    right: -25%;
+    bottom: 18%;
+    height: 1px;
+    transform: rotate(-11deg);
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(125, 223, 244, .12),
+        rgba(245, 216, 136, .42),
+        rgba(125, 223, 244, .12),
+        transparent
+    );
+}
+
+html body .store-item-card.store-card-aether-little-spirit[data-theme-immune="true"] > * {
+    position: relative;
+    z-index: 2;
+}
+
+html body .store-item-card.store-card-aether-little-spirit[data-theme-immune="true"] .card-glow {
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 1 !important;
+    pointer-events: none !important;
+    opacity: .78 !important;
+    background:
+        linear-gradient(110deg, transparent 0 36%, rgba(219, 249, 255, .08) 44%, transparent 53%),
+        radial-gradient(circle at 50% 48%, rgba(93, 202, 233, .12), transparent 38%) !important;
+    animation: aetlcCardSheen 5.8s ease-in-out infinite !important;
+}
+
+html body .store-item-card.store-card-aether-little-spirit[data-theme-immune="true"] .item-icon-wrapper {
+    background:
+        radial-gradient(circle, rgba(125, 223, 244, .14), transparent 65%) !important;
+    border-color: rgba(151, 231, 248, .22) !important;
+    box-shadow:
+        0 0 24px rgba(90, 197, 228, .13),
+        inset 0 0 18px rgba(245, 216, 136, .05) !important;
+}
+
+html body .store-item-card.store-card-aether-little-spirit[data-theme-immune="true"] .item-icon {
+    filter:
+        drop-shadow(0 8px 14px rgba(0, 0, 0, .28))
+        drop-shadow(0 0 9px rgba(125, 223, 244, .28)) !important;
+    transition: transform .28s ease, filter .28s ease !important;
+}
+
+html body .store-item-card.store-card-aether-little-spirit[data-theme-immune="true"]:hover .item-icon {
+    transform: translateY(-3px) scale(1.04) !important;
+    filter:
+        drop-shadow(0 11px 16px rgba(0, 0, 0, .30))
+        drop-shadow(0 0 14px rgba(245, 216, 136, .34)) !important;
+}
+
+html body .store-item-card.store-card-aether-little-spirit[data-theme-immune="true"] .item-name {
+    color: #f5fcff !important;
+    text-shadow: 0 0 12px rgba(125, 223, 244, .14) !important;
+}
+
+html body .store-item-card.store-card-aether-little-spirit[data-theme-immune="true"] .item-type-label {
+    color: rgba(205, 244, 252, .78) !important;
+}
+
+html body .store-item-card.store-card-aether-little-spirit[data-theme-immune="true"] :where(.btn-buy,.btn-preview) {
+    border-color: rgba(125, 223, 244, .28) !important;
+    color: #eafaff !important;
+    background:
+        linear-gradient(135deg, rgba(18, 74, 108, .94), rgba(11, 47, 76, .96)) !important;
+    box-shadow:
+        0 8px 18px rgba(0, 14, 27, .24),
+        inset 0 1px 0 rgba(255, 255, 255, .06) !important;
+}
+
+html body .store-item-card.store-card-aether-little-spirit[data-theme-immune="true"] :where(.btn-buy,.btn-preview):hover:not(:disabled) {
+    border-color: rgba(245, 216, 136, .50) !important;
+    background:
+        linear-gradient(135deg, rgba(27, 101, 139, .98), rgba(13, 58, 89, .98)) !important;
+    box-shadow:
+        0 10px 22px rgba(0, 18, 32, .28),
+        0 0 16px rgba(125, 223, 244, .12) !important;
+}
+
+/* ---------------------------------------------------------------------------
+   2) PET GÓC PHẢI — REALM RIÊNG AETLC
+   --------------------------------------------------------------------------- */
+#virtual-pet-container.pet-aether-little-sky-stage {
+    isolation: isolate !important;
+    overflow: visible !important;
+    min-width: 170px !important;
+    min-height: 190px !important;
+}
+
+#virtual-pet-container.pet-aether-little-sky-stage #virtual-pet-img.aether-little-daystar-magic,
+#virtual-pet-container.pet-aether-little-sky-stage #virtual-pet-img.aetlc-avatar {
+    position: relative !important;
+    z-index: 10 !important;
+    width: 148px !important;
+    max-width: none !important;
+    height: auto !important;
+    transform-origin: 50% 90% !important;
+    filter:
+        drop-shadow(0 12px 15px rgba(2, 20, 35, .34))
+        drop-shadow(0 0 10px rgba(125, 223, 244, .38)) !important;
+    animation: aetlcPetFloat 4.1s ease-in-out infinite !important;
+    transition: filter .22s ease, scale .22s ease !important;
+}
+
+#virtual-pet-container.pet-aether-little-sky-stage.aetlc-casting #virtual-pet-img.aether-little-daystar-magic,
+#virtual-pet-container.pet-aether-little-sky-stage.aetlc-casting #virtual-pet-img.aetlc-avatar {
+    scale: 1.06 !important;
+    filter:
+        brightness(1.12)
+        drop-shadow(0 13px 16px rgba(2, 20, 35, .30))
+        drop-shadow(0 0 18px rgba(245, 216, 136, .65))
+        drop-shadow(0 0 28px rgba(125, 223, 244, .34)) !important;
+}
+
+.aetlc-realm {
+    position: absolute;
+    left: 50%;
+    bottom: -3px;
+    z-index: 2;
+    width: 230px;
+    height: 230px;
+    transform: translateX(-50%);
+    pointer-events: none;
+    overflow: visible;
+}
+
+.aetlc-backglow {
+    position: absolute;
+    left: 50%;
+    top: 48%;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.aetlc-backglow.glow-a {
+    width: 148px;
+    height: 148px;
+    background: radial-gradient(circle, rgba(125, 223, 244, .23), rgba(50, 141, 184, .08) 46%, transparent 72%);
+    filter: blur(8px);
+    animation: aetlcAuraPulse 3.3s ease-in-out infinite;
+}
+
+.aetlc-backglow.glow-b {
+    width: 102px;
+    height: 102px;
+    background: radial-gradient(circle, rgba(245, 216, 136, .22), transparent 68%);
+    filter: blur(4px);
+    animation: aetlcAuraPulse 2.7s .3s ease-in-out infinite reverse;
+}
+
+.aetlc-sky-compass {
+    position: absolute;
+    left: 50%;
+    top: 47%;
+    width: 164px;
+    height: 164px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 1px solid rgba(125, 223, 244, .22);
+    box-shadow: 0 0 18px rgba(125, 223, 244, .10);
+    animation: aetlcCompassBreath 4.8s ease-in-out infinite;
+}
+
+.aetlc-compass-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(219, 249, 255, .24);
+}
+
+.aetlc-compass-ring.ring-a {
+    inset: 15px;
+    border-style: dashed;
+    animation: aetlcSpin 15s linear infinite;
+}
+
+.aetlc-compass-ring.ring-b {
+    inset: 31px;
+    border-color: rgba(245, 216, 136, .30);
+    animation: aetlcSpinReverse 11s linear infinite;
+}
+
+.aetlc-compass-axis {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 126px;
+    height: 1px;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(90deg, transparent, rgba(125, 223, 244, .42), transparent);
+}
+
+.aetlc-compass-axis.axis-b {
+    transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.aetlc-compass-core {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--aetlc-gold-soft);
+    font-size: 18px;
+    text-shadow: 0 0 11px rgba(245, 216, 136, .72);
+    animation: aetlcCoreBlink 2.1s ease-in-out infinite;
+}
+
+.aetlc-prism-orbit {
+    position: absolute;
+    left: 50%;
+    top: 49%;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) rotate(-12deg);
+    border: 1px solid rgba(125, 223, 244, .20);
+}
+
+.aetlc-prism-orbit.orbit-a {
+    width: 190px;
+    height: 92px;
+    animation: aetlcOrbitTilt 8.2s linear infinite;
+}
+
+.aetlc-prism-orbit.orbit-b {
+    width: 208px;
+    height: 128px;
+    transform: translate(-50%, -50%) rotate(23deg);
+    border-color: rgba(245, 216, 136, .19);
+    animation: aetlcOrbitTiltReverse 10.7s linear infinite;
+}
+
+.aetlc-wing-trace {
+    position: absolute;
+    top: 92px;
+    width: 70px;
+    height: 48px;
+    opacity: .35;
+    border-top: 2px solid rgba(219, 249, 255, .60);
+    border-radius: 70% 10% 80% 20%;
+    filter: drop-shadow(0 0 7px rgba(125, 223, 244, .40));
+}
+
+.aetlc-wing-trace.wing-left {
+    left: 3px;
+    transform: rotate(-18deg) scaleX(-1);
+    animation: aetlcWingTrace 3.4s ease-in-out infinite;
+}
+
+.aetlc-wing-trace.wing-right {
+    right: 3px;
+    transform: rotate(-18deg);
+    animation: aetlcWingTrace 3.4s ease-in-out infinite reverse;
+}
+
+.aetlc-prism-field,
+.aetlc-mote-field {
+    position: absolute;
+    inset: 0;
+}
+
+.aetlc-prism-field {
+    animation: aetlcSpin 18s linear infinite;
+}
+
+.aetlc-prism {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 7px;
+    height: 13px;
+    clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+    background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(125,223,244,.62) 55%, rgba(245,216,136,.56));
+    box-shadow: 0 0 8px rgba(125, 223, 244, .38);
+    transform:
+        translate(-50%, -50%)
+        rotate(var(--aetlc-prism-angle))
+        translateX(var(--aetlc-prism-radius))
+        rotate(var(--aetlc-prism-angle-back));
+    animation: aetlcPrismTwinkle 2.7s var(--aetlc-prism-delay) ease-in-out infinite;
+}
+
+.aetlc-mote {
+    position: absolute;
+    left: var(--aetlc-mote-x);
+    top: var(--aetlc-mote-y);
+    width: var(--aetlc-mote-size);
+    height: var(--aetlc-mote-size);
+    border-radius: 50%;
+    background: rgba(220, 250, 255, .86);
+    box-shadow: 0 0 7px rgba(125, 223, 244, .65);
+    animation: aetlcMoteFloat 3.7s var(--aetlc-mote-delay) ease-in-out infinite alternate;
+}
+
+.aetlc-mote.is-star {
+    width: auto;
+    height: auto;
+    color: rgba(255, 238, 181, .92);
+    background: transparent;
+    font-style: normal;
+    font-size: 10px;
+    text-shadow: 0 0 7px rgba(245, 216, 136, .62);
+}
+
+.aetlc-floor-disc {
+    position: absolute;
+    left: 50%;
+    bottom: 18px;
+    width: 152px;
+    height: 31px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    border: 1px solid rgba(125, 223, 244, .26);
+    background: radial-gradient(ellipse, rgba(64, 169, 209, .13), transparent 68%);
+    box-shadow: 0 0 15px rgba(125, 223, 244, .10);
+}
+
+.aetlc-floor-line {
+    position: absolute;
+    left: 50%;
+    bottom: 32px;
+    width: 104px;
+    height: 1px;
+    transform: translateX(-50%);
+    background: linear-gradient(90deg, transparent, rgba(245,216,136,.58), transparent);
+}
+
+#virtual-pet-container.pet-aether-little-sky-stage.aetlc-awakening .aetlc-realm {
+    animation: aetlcRealmAwaken 1.25s cubic-bezier(.16,.8,.2,1) both;
+}
+
+#virtual-pet-container.pet-aether-little-sky-stage.aetlc-casting .aetlc-sky-compass {
+    border-color: rgba(245, 216, 136, .52);
+    box-shadow:
+        0 0 20px rgba(245, 216, 136, .20),
+        0 0 34px rgba(125, 223, 244, .14);
+}
+
+/* ---------------------------------------------------------------------------
+   3) CLICK SKILL CỤC BỘ — QUANG LĂNG KHAI ẤN
+   --------------------------------------------------------------------------- */
+.aetlc-click-bloom {
+    position: absolute;
+    left: 50%;
+    top: 46%;
+    z-index: 18;
+    width: 12px;
+    height: 12px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    opacity: 0;
+}
+
+.aetlc-click-bloom.is-active {
+    opacity: 1;
+}
+
+.aetlc-click-flash,
+.aetlc-click-core,
+.aetlc-click-ring,
+.aetlc-click-diamond,
+.aetlc-click-wing,
+.aetlc-click-seal,
+.aetlc-click-rays,
+.aetlc-click-glints {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+}
+
+.aetlc-click-flash {
+    width: 26px;
+    height: 26px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: #fff;
+    box-shadow:
+        0 0 18px rgba(255,255,255,.95),
+        0 0 40px rgba(245,216,136,.78),
+        0 0 68px rgba(125,223,244,.48);
+    opacity: 0;
+}
+
+.aetlc-click-core {
+    transform: translate(-50%, -50%);
+    color: #fff4c9;
+    font-size: 32px;
+    line-height: 1;
+    text-shadow:
+        0 0 8px #fff,
+        0 0 20px rgba(245,216,136,.88),
+        0 0 34px rgba(125,223,244,.46);
+    opacity: 0;
+}
+
+.aetlc-click-ring {
+    transform: translate(-50%, -50%) scale(.2);
+    border-radius: 50%;
+    border: 1px solid rgba(125, 223, 244, .78);
+    opacity: 0;
+}
+
+.aetlc-click-ring.ring-a { width: 68px; height: 68px; }
+.aetlc-click-ring.ring-b { width: 116px; height: 74px; border-color: rgba(245,216,136,.76); }
+.aetlc-click-ring.ring-c { width: 150px; height: 150px; border-style: dashed; border-color: rgba(219,249,255,.42); }
+
+.aetlc-click-diamond {
+    width: 116px;
+    height: 116px;
+    transform: translate(-50%, -50%) rotate(45deg) scale(.18);
+    border: 1px solid rgba(245, 216, 136, .34);
+    opacity: 0;
+}
+
+.aetlc-click-diamond.diamond-b {
+    width: 152px;
+    height: 152px;
+    transform: translate(-50%, -50%) rotate(22.5deg) scale(.18);
+    border-color: rgba(125, 223, 244, .26);
+}
+
+.aetlc-click-wing {
+    width: 92px;
+    height: 42px;
+    border-top: 3px solid rgba(233, 252, 255, .84);
+    border-radius: 80% 10% 100% 10%;
+    opacity: 0;
+    filter: drop-shadow(0 0 8px rgba(125,223,244,.58));
+}
+
+.aetlc-click-wing.wing-left {
+    transform: translate(-96%, -50%) rotate(-14deg) scaleX(-1) scale(.4);
+}
+
+.aetlc-click-wing.wing-right {
+    transform: translate(-4%, -50%) rotate(-14deg) scale(.4);
+}
+
+.aetlc-click-rays,
+.aetlc-click-glints {
+    width: 1px;
+    height: 1px;
+    transform: translate(-50%, -50%);
+}
+
+.aetlc-click-rays i {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 3px;
+    height: 22px;
+    border-radius: 999px;
+    transform-origin: 50% 0;
+    transform:
+        rotate(var(--aetlc-ray-angle))
+        translateY(-20px)
+        scaleY(.25);
+    background: linear-gradient(180deg, #fff, rgba(245,216,136,.78), rgba(125,223,244,.20), transparent);
+    opacity: 0;
+}
+
+.aetlc-click-glints i {
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: rgba(238, 253, 255, .95);
+    font-style: normal;
+    font-size: 12px;
+    text-shadow: 0 0 7px rgba(125, 223, 244, .84);
+    transform:
+        rotate(var(--aetlc-glint-angle))
+        translateX(16px)
+        rotate(calc(var(--aetlc-glint-angle) * -1));
+    opacity: 0;
+}
+
+.aetlc-click-seal {
+    transform: translate(-50%, 52px) scale(.82);
+    color: rgba(255, 239, 190, .96);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .28em;
+    text-indent: .28em;
+    text-shadow: 0 0 8px rgba(245,216,136,.54);
+    opacity: 0;
+    white-space: nowrap;
+}
+
+.aetlc-click-bloom.is-active .aetlc-click-flash {
+    animation: aetlcClickFlash .72s ease-out both;
+}
+
+.aetlc-click-bloom.is-active .aetlc-click-core {
+    animation: aetlcClickCore 1.28s ease-out both;
+}
+
+.aetlc-click-bloom.is-active .aetlc-click-ring.ring-a {
+    animation: aetlcClickRing 1.14s .02s cubic-bezier(.16,.78,.2,1) both;
+}
+
+.aetlc-click-bloom.is-active .aetlc-click-ring.ring-b {
+    animation: aetlcClickRingWide 1.32s .05s cubic-bezier(.16,.78,.2,1) both;
+}
+
+.aetlc-click-bloom.is-active .aetlc-click-ring.ring-c {
+    animation: aetlcClickRing 1.46s .08s cubic-bezier(.16,.78,.2,1) both;
+}
+
+.aetlc-click-bloom.is-active .aetlc-click-diamond.diamond-a {
+    animation: aetlcClickDiamond 1.42s .04s ease-out both;
+}
+
+.aetlc-click-bloom.is-active .aetlc-click-diamond.diamond-b {
+    animation: aetlcClickDiamondReverse 1.52s .08s ease-out both;
+}
+
+.aetlc-click-bloom.is-active .aetlc-click-wing.wing-left {
+    animation: aetlcClickWingLeft 1.18s .10s ease-out both;
+}
+
+.aetlc-click-bloom.is-active .aetlc-click-wing.wing-right {
+    animation: aetlcClickWingRight 1.18s .10s ease-out both;
+}
+
+.aetlc-click-bloom.is-active .aetlc-click-rays i {
+    animation: aetlcClickRay 1.16s var(--aetlc-ray-delay) ease-out both;
+}
+
+.aetlc-click-bloom.is-active .aetlc-click-glints i {
+    animation: aetlcClickGlint 1.36s var(--aetlc-glint-delay) ease-out both;
+}
+
+.aetlc-click-bloom.is-active .aetlc-click-seal {
+    animation: aetlcClickSeal 1.40s .16s ease-out both;
+}
+
+.aetlc-click-bloom.is-ending {
+    animation: aetlcClickFade .55s ease forwards;
+}
+
+/* ---------------------------------------------------------------------------
+   4) AETLC KEYFRAMES — RIÊNG HOÀN TOÀN
+   --------------------------------------------------------------------------- */
+@keyframes aetlcCardSheen {
+    0%,100% { opacity: .55; filter: brightness(.95); }
+    50% { opacity: .92; filter: brightness(1.14); }
+}
+
+@keyframes aetlcPetFloat {
+    0%,100% { transform: translateY(0) rotate(-.7deg); }
+    50% { transform: translateY(-7px) rotate(.7deg); }
+}
+
+@keyframes aetlcAuraPulse {
+    0%,100% { opacity: .55; scale: .92; }
+    50% { opacity: .95; scale: 1.08; }
+}
+
+@keyframes aetlcCompassBreath {
+    0%,100% { opacity: .48; scale: .97; }
+    50% { opacity: .80; scale: 1.03; }
+}
+
+@keyframes aetlcSpin { to { rotate: 360deg; } }
+@keyframes aetlcSpinReverse { to { rotate: -360deg; } }
+
+@keyframes aetlcCoreBlink {
+    0%,100% { opacity: .55; scale: .88; }
+    48% { opacity: 1; scale: 1.15; }
+}
+
+@keyframes aetlcOrbitTilt {
+    to { transform: translate(-50%, -50%) rotate(348deg); }
+}
+
+@keyframes aetlcOrbitTiltReverse {
+    to { transform: translate(-50%, -50%) rotate(-337deg); }
+}
+
+@keyframes aetlcWingTrace {
+    0%,100% { opacity: .20; scale: .92; }
+    50% { opacity: .50; scale: 1.06; }
+}
+
+@keyframes aetlcPrismTwinkle {
+    0%,100% { opacity: .28; scale: .72; filter: hue-rotate(0deg); }
+    50% { opacity: .95; scale: 1.14; filter: hue-rotate(22deg); }
+}
+
+@keyframes aetlcMoteFloat {
+    0% { opacity: .22; translate: -4px 8px; }
+    100% { opacity: .92; translate: 6px -10px; }
+}
+
+@keyframes aetlcRealmAwaken {
+    0% { opacity: 0; scale: .72; filter: blur(8px); }
+    65% { opacity: 1; scale: 1.04; filter: blur(0); }
+    100% { opacity: 1; scale: 1; }
+}
+
+@keyframes aetlcClickFlash {
+    0% { opacity: 0; scale: .18; }
+    22% { opacity: 1; scale: 1.05; }
+    100% { opacity: 0; scale: 3.3; }
+}
+
+@keyframes aetlcClickCore {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(.25) rotate(-45deg); }
+    28% { opacity: 1; transform: translate(-50%, -50%) scale(1.15) rotate(0deg); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(.70) rotate(90deg); }
+}
+
+@keyframes aetlcClickRing {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(.15) rotate(-18deg); }
+    28% { opacity: .95; }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.62) rotate(24deg); }
+}
+
+@keyframes aetlcClickRingWide {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(.15) rotate(18deg); }
+    28% { opacity: .92; }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.72) rotate(-28deg); }
+}
+
+@keyframes aetlcClickDiamond {
+    0% { opacity: 0; transform: translate(-50%, -50%) rotate(15deg) scale(.18); }
+    30% { opacity: .68; }
+    100% { opacity: 0; transform: translate(-50%, -50%) rotate(118deg) scale(1.28); }
+}
+
+@keyframes aetlcClickDiamondReverse {
+    0% { opacity: 0; transform: translate(-50%, -50%) rotate(72deg) scale(.18); }
+    30% { opacity: .58; }
+    100% { opacity: 0; transform: translate(-50%, -50%) rotate(-72deg) scale(1.18); }
+}
+
+@keyframes aetlcClickWingLeft {
+    0% { opacity: 0; transform: translate(-78%, -50%) rotate(8deg) scaleX(-1) scale(.35); }
+    35% { opacity: .86; }
+    100% { opacity: 0; transform: translate(-112%, -58%) rotate(-24deg) scaleX(-1) scale(1.18); }
+}
+
+@keyframes aetlcClickWingRight {
+    0% { opacity: 0; transform: translate(-22%, -50%) rotate(8deg) scale(.35); }
+    35% { opacity: .86; }
+    100% { opacity: 0; transform: translate(12%, -58%) rotate(-24deg) scale(1.18); }
+}
+
+@keyframes aetlcClickRay {
+    0% {
+        opacity: 0;
+        transform: rotate(var(--aetlc-ray-angle)) translateY(-16px) scaleY(.18);
+    }
+    32% { opacity: 1; }
+    100% {
+        opacity: 0;
+        transform: rotate(var(--aetlc-ray-angle)) translateY(calc(var(--aetlc-ray-distance) * -1)) scaleY(1.18);
+    }
+}
+
+@keyframes aetlcClickGlint {
+    0% {
+        opacity: 0;
+        transform: rotate(var(--aetlc-glint-angle)) translateX(12px) rotate(calc(var(--aetlc-glint-angle) * -1)) scale(.3);
+    }
+    32% { opacity: 1; }
+    100% {
+        opacity: 0;
+        transform: rotate(var(--aetlc-glint-angle)) translateX(var(--aetlc-glint-radius)) rotate(calc(var(--aetlc-glint-angle) * -1)) scale(1.18);
+    }
+}
+
+@keyframes aetlcClickSeal {
+    0% { opacity: 0; transform: translate(-50%, 34px) scale(.72); }
+    34%,68% { opacity: 1; transform: translate(-50%, 52px) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, 64px) scale(1.05); }
+}
+
+@keyframes aetlcClickFade {
+    to { opacity: 0; filter: blur(3px); }
+}
+
+
+/* ---------------------------------------------------------------------------
+   5) FULL-SCREEN ULTIMATE — QUANG LĂNG KHAI ẤN
+   Namespace riêng aetlc-screen-* cho Aether chibi.
+   --------------------------------------------------------------------------- */
+html.aetlc-screen-casting,
+html.aetlc-screen-casting body {
+    cursor: default;
+}
+
+.aetlc-screen-ultimate {
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+    pointer-events: none;
+    overflow: hidden;
+    opacity: 0;
+    --aetlc-screen-center-x: 50%;
+    --aetlc-screen-center-y: 50%;
+}
+
+.aetlc-screen-ultimate.is-active {
+    opacity: 1;
+}
+
+.aetlc-screen-veil,
+.aetlc-screen-origin-burst,
+.aetlc-screen-solaris,
+.aetlc-screen-mandala,
+.aetlc-screen-rune-circle,
+.aetlc-screen-beam-field,
+.aetlc-screen-starfield,
+.aetlc-screen-feather-field,
+.aetlc-screen-wing,
+.aetlc-screen-title,
+.aetlc-screen-crown {
+    position: absolute;
+}
+
+.aetlc-screen-veil {
+    inset: 0;
+    background:
+        radial-gradient(circle at var(--aetlc-origin-x) var(--aetlc-origin-y), rgba(255,255,255,.30), rgba(125,223,244,.14) 10%, rgba(11,39,65,.10) 22%, rgba(4,11,22,.82) 58%, rgba(3,7,16,.94) 100%),
+        linear-gradient(180deg, rgba(9,26,47,.12), rgba(2,8,18,.92));
+    backdrop-filter: blur(6px) saturate(120%);
+    opacity: 0;
+}
+
+.aetlc-screen-origin-burst {
+    left: var(--aetlc-origin-x);
+    top: var(--aetlc-origin-y);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(255,255,255,.98) 0%, rgba(255,240,189,.95) 20%, rgba(125,223,244,.72) 48%, rgba(125,223,244,0) 72%);
+    box-shadow:
+        0 0 26px rgba(255,255,255,.92),
+        0 0 56px rgba(245,216,136,.65),
+        0 0 120px rgba(125,223,244,.45);
+    opacity: 0;
+}
+
+.aetlc-screen-solaris,
+.aetlc-screen-mandala,
+.aetlc-screen-rune-circle,
+.aetlc-screen-beam-field,
+.aetlc-screen-feather-field,
+.aetlc-screen-crown {
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.aetlc-screen-solaris {
+    width: min(38vmin, 420px);
+    height: min(38vmin, 420px);
+}
+
+.aetlc-screen-core,
+.aetlc-screen-halo,
+.aetlc-screen-cross,
+.aetlc-screen-mandala-ring,
+.aetlc-screen-mandala-diamond {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+}
+
+.aetlc-screen-core {
+    width: min(16vmin, 170px);
+    height: min(16vmin, 170px);
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background:
+        radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,248,223,.96) 22%, rgba(245,216,136,.86) 42%, rgba(125,223,244,.42) 67%, rgba(125,223,244,0) 78%);
+    box-shadow:
+        0 0 34px rgba(255,255,255,.95),
+        0 0 96px rgba(245,216,136,.56),
+        0 0 180px rgba(125,223,244,.36);
+    opacity: 0;
+}
+
+.aetlc-screen-halo {
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(.35);
+    opacity: 0;
+}
+
+.aetlc-screen-halo.halo-a {
+    width: min(30vmin, 330px);
+    height: min(30vmin, 330px);
+    border: 2px solid rgba(223,250,255,.86);
+    box-shadow: 0 0 20px rgba(125,223,244,.26), inset 0 0 20px rgba(255,255,255,.10);
+}
+
+.aetlc-screen-halo.halo-b {
+    width: min(40vmin, 450px);
+    height: min(26vmin, 290px);
+    border: 2px solid rgba(245,216,136,.74);
+}
+
+.aetlc-screen-halo.halo-c {
+    width: min(49vmin, 540px);
+    height: min(49vmin, 540px);
+    border: 1px dashed rgba(219,249,255,.45);
+}
+
+.aetlc-screen-cross {
+    width: min(3px, 3px);
+    height: min(28vmin, 300px);
+    transform: translate(-50%, -50%);
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,.95) 18%, rgba(245,216,136,.76) 50%, rgba(125,223,244,.22) 82%, rgba(125,223,244,0));
+    box-shadow: 0 0 14px rgba(255,255,255,.46);
+    opacity: 0;
+}
+
+.aetlc-screen-cross.cross-b {
+    transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.aetlc-screen-mandala {
+    width: min(58vmin, 660px);
+    height: min(58vmin, 660px);
+}
+
+.aetlc-screen-mandala-ring {
+    border-radius: 50%;
+    opacity: 0;
+}
+
+.aetlc-screen-mandala-ring.ring-a {
+    width: min(44vmin, 500px);
+    height: min(44vmin, 500px);
+    transform: translate(-50%, -50%) scale(.38) rotate(-10deg);
+    border: 1px solid rgba(245,216,136,.38);
+    box-shadow: inset 0 0 24px rgba(255,255,255,.10);
+}
+
+.aetlc-screen-mandala-ring.ring-b {
+    width: min(56vmin, 620px);
+    height: min(56vmin, 620px);
+    transform: translate(-50%, -50%) scale(.38) rotate(20deg);
+    border: 1px solid rgba(125,223,244,.28);
+}
+
+.aetlc-screen-mandala-diamond {
+    opacity: 0;
+}
+
+.aetlc-screen-mandala-diamond.diamond-a {
+    width: min(34vmin, 380px);
+    height: min(34vmin, 380px);
+    transform: translate(-50%, -50%) rotate(45deg) scale(.28);
+    border: 1px solid rgba(245,216,136,.42);
+}
+
+.aetlc-screen-mandala-diamond.diamond-b {
+    width: min(48vmin, 520px);
+    height: min(48vmin, 520px);
+    transform: translate(-50%, -50%) rotate(22.5deg) scale(.28);
+    border: 1px solid rgba(219,249,255,.28);
+}
+
+.aetlc-screen-rune-circle {
+    width: min(46vmin, 500px);
+    height: min(46vmin, 500px);
+    animation: aetlcScreenSlowSpin 12s linear infinite;
+}
+
+.aetlc-screen-rune-circle span {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(12px, 1.45vmin, 18px);
+    font-weight: 700;
+    color: rgba(255,244,206,.92);
+    text-shadow: 0 0 10px rgba(245,216,136,.54), 0 0 18px rgba(125,223,244,.32);
+    transform:
+        translate(-50%, -50%)
+        rotate(var(--aetlc-screen-rune-angle))
+        translateY(-20vmin)
+        rotate(var(--aetlc-screen-rune-angle-back));
+    opacity: 0;
+}
+
+.aetlc-screen-beam-field {
+    width: 1px;
+    height: 1px;
+}
+
+.aetlc-screen-beam-field i {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: clamp(2px, .28vmin, 4px);
+    height: min(18vmin, 190px);
+    border-radius: 999px;
+    transform-origin: 50% 0;
+    transform:
+        rotate(var(--aetlc-screen-beam-angle))
+        translateY(-2vmin)
+        scaleY(.18);
+    background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(245,216,136,.84) 24%, rgba(125,223,244,.38) 72%, transparent);
+    filter: drop-shadow(0 0 10px rgba(255,255,255,.22));
+    opacity: 0;
+}
+
+.aetlc-screen-starfield {
+    inset: 0;
+}
+
+.aetlc-screen-starfield span {
+    position: absolute;
+    left: var(--aetlc-screen-star-x);
+    top: var(--aetlc-screen-star-y);
+    font-size: var(--aetlc-screen-star-size);
+    line-height: 1;
+    color: rgba(238,253,255,.92);
+    text-shadow: 0 0 8px rgba(125,223,244,.78), 0 0 18px rgba(255,255,255,.28);
+    opacity: 0;
+}
+
+.aetlc-screen-feather-field {
+    width: 1px;
+    height: 1px;
+}
+
+.aetlc-screen-feather-field i {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-style: normal;
+    font-size: clamp(13px, 1.6vmin, 20px);
+    color: rgba(255,246,214,.95);
+    text-shadow: 0 0 10px rgba(245,216,136,.66), 0 0 24px rgba(125,223,244,.34);
+    transform:
+        rotate(var(--aetlc-screen-feather-angle))
+        translateY(-6vmin)
+        rotate(var(--aetlc-screen-feather-angle-back))
+        scale(.25);
+    opacity: 0;
+}
+
+.aetlc-screen-wing {
+    left: 50%;
+    top: 50%;
+    width: min(40vmin, 450px);
+    height: min(23vmin, 250px);
+    border-top: 4px solid rgba(238,253,255,.86);
+    border-radius: 85% 12% 100% 10%;
+    filter: drop-shadow(0 0 16px rgba(125,223,244,.48));
+    opacity: 0;
+}
+
+.aetlc-screen-wing.wing-left {
+    transform: translate(calc(-100% - 2vmin), -44%) scaleX(-1) scale(.45) rotate(-16deg);
+}
+
+.aetlc-screen-wing.wing-right {
+    transform: translate(2vmin, -44%) scale(.45) rotate(-16deg);
+}
+
+.aetlc-screen-crown {
+    font-size: clamp(28px, 3.8vmin, 52px);
+    line-height: 1;
+    color: rgba(255,245,205,.98);
+    text-shadow: 0 0 14px rgba(245,216,136,.74), 0 0 36px rgba(125,223,244,.46);
+    opacity: 0;
+}
+
+.aetlc-screen-title {
+    left: 50%;
+    bottom: clamp(32px, 8vh, 90px);
+    transform: translateX(-50%);
+    width: min(88vw, 760px);
+    text-align: center;
+    color: #eefcff;
+    text-shadow: 0 0 16px rgba(0,0,0,.34), 0 0 24px rgba(125,223,244,.18);
+    opacity: 0;
+}
+
+.aetlc-screen-title small,
+.aetlc-screen-title strong,
+.aetlc-screen-title em {
+    display: block;
+}
+
+.aetlc-screen-title small {
+    margin-bottom: 10px;
+    font-size: clamp(12px, 1.4vmin, 16px);
+    letter-spacing: .48em;
+    text-indent: .48em;
+    color: rgba(255,243,206,.95);
+}
+
+.aetlc-screen-title strong {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(24px, 4vmin, 54px);
+    font-weight: 800;
+    letter-spacing: .08em;
+    color: #ffffff;
+}
+
+.aetlc-screen-title em {
+    margin-top: 10px;
+    font-style: normal;
+    font-size: clamp(12px, 1.55vmin, 18px);
+    color: rgba(224,245,255,.92);
+    letter-spacing: .08em;
+}
+
+.aetlc-screen-ultimate.is-active .aetlc-screen-veil {
+    animation: aetlcScreenVeil 4.2s ease both;
+}
+
+.aetlc-screen-ultimate.is-active .aetlc-screen-origin-burst {
+    animation: aetlcScreenOriginBurst 1.4s ease-out both;
+}
+
+.aetlc-screen-ultimate.is-active .aetlc-screen-core {
+    animation: aetlcScreenCore 3.3s ease-out both;
+}
+
+.aetlc-screen-ultimate.is-active .aetlc-screen-halo.halo-a {
+    animation: aetlcScreenHalo 3.1s .04s cubic-bezier(.16,.78,.2,1) both;
+}
+
+.aetlc-screen-ultimate.is-active .aetlc-screen-halo.halo-b {
+    animation: aetlcScreenHaloWide 3.35s .08s cubic-bezier(.16,.78,.2,1) both;
+}
+
+.aetlc-screen-ultimate.is-active .aetlc-screen-halo.halo-c {
+    animation: aetlcScreenHalo 3.5s .1s cubic-bezier(.16,.78,.2,1) both;
+}
+
+.aetlc-screen-ultimate.is-active .aetlc-screen-cross {
+    animation: aetlcScreenCross 2.6s .10s ease-out both;
+}
+
+.aetlc-screen-ultimate.is-active .aetlc-screen-mandala-ring.ring-a {
+    animation: aetlcScreenMandalaRing 3.0s .06s ease-out both;
+}
+
+.aetlc-screen-ultimate.is-active .aetlc-screen-mandala-ring.ring-b {
+    animation: aetlcScreenMandalaRingWide 3.3s .10s ease-out both;
+}
+
+.aetlc-screen-ultimate.is-active .aetlc-screen-mandala-diamond.diamond-a {
+    animation: aetlcScreenDiamond 3.0s .08s ease-out both;
+}
+
+.aetlc-screen-ultimate.is-active .aetlc-screen-mandala-diamond.diamond-b {
+    animation: aetlcScreenDiamondReverse 3.2s .12s ease-out both;
+}
+
+.aetlc-screen-ultimate.is-active .aetlc-screen-rune-circle span {
+    animation: aetlcScreenRune 2.6s var(--aetlc-screen-rune-delay) ease-out both;
+}
+
+.aetlc-screen-ultimate.is-active .aetlc-screen-beam-field i {
+    animation: aetlcScreenBeam 1.9s var(--aetlc-screen-beam-delay) ease-out both;
+}
+
+.aetlc-screen-ultimate.is-active .aetlc-screen-starfield span {
+    animation: aetlcScreenStar 2.8s var(--aetlc-screen-star-delay) ease-out both;
+}
+
+.aetlc-screen-ultimate.is-active .aetlc-screen-feather-field i {
+    animation: aetlcScreenFeather 2.2s var(--aetlc-screen-feather-delay) ease-out both;
+}
+
+.aetlc-screen-ultimate.is-active .aetlc-screen-wing.wing-left {
+    animation: aetlcScreenWingLeft 2.4s .14s ease-out both;
+}
+
+.aetlc-screen-ultimate.is-active .aetlc-screen-wing.wing-right {
+    animation: aetlcScreenWingRight 2.4s .14s ease-out both;
+}
+
+.aetlc-screen-ultimate.is-active .aetlc-screen-crown {
+    animation: aetlcScreenCrown 2.3s .15s ease-out both;
+}
+
+.aetlc-screen-ultimate.is-active .aetlc-screen-title {
+    animation: aetlcScreenTitle 3.0s .24s ease-out both;
+}
+
+.aetlc-screen-ultimate.is-ending {
+    animation: aetlcScreenFadeOut .7s ease forwards;
+}
+
+@keyframes aetlcScreenVeil {
+    0% { opacity: 0; }
+    12% { opacity: 1; }
+    72% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes aetlcScreenOriginBurst {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(.16); }
+    24% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+    100% { opacity: 0; transform: translate(calc(-50% + 50vw - var(--aetlc-origin-x)), calc(-50% + 50vh - var(--aetlc-origin-y))) scale(1.45); }
+}
+
+@keyframes aetlcScreenCore {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(.22); }
+    22% { opacity: 1; transform: translate(-50%, -50%) scale(1.02); }
+    68% { opacity: .96; transform: translate(-50%, -50%) scale(1.1); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.35); }
+}
+
+@keyframes aetlcScreenHalo {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(.18) rotate(-20deg); }
+    24% { opacity: .95; }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.04) rotate(18deg); }
+}
+
+@keyframes aetlcScreenHaloWide {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(.18) rotate(18deg); }
+    24% { opacity: .9; }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.08) rotate(-24deg); }
+}
+
+@keyframes aetlcScreenCross {
+    0% { opacity: 0; transform: translate(-50%, -50%) scaleY(.2); }
+    28% { opacity: .9; }
+    100% { opacity: 0; transform: translate(-50%, -50%) scaleY(1.25); }
+}
+
+@keyframes aetlcScreenMandalaRing {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(.22) rotate(-28deg); }
+    28% { opacity: .82; }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.04) rotate(28deg); }
+}
+
+@keyframes aetlcScreenMandalaRingWide {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(.22) rotate(20deg); }
+    28% { opacity: .72; }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.08) rotate(-24deg); }
+}
+
+@keyframes aetlcScreenDiamond {
+    0% { opacity: 0; transform: translate(-50%, -50%) rotate(18deg) scale(.22); }
+    30% { opacity: .74; }
+    100% { opacity: 0; transform: translate(-50%, -50%) rotate(132deg) scale(1.1); }
+}
+
+@keyframes aetlcScreenDiamondReverse {
+    0% { opacity: 0; transform: translate(-50%, -50%) rotate(72deg) scale(.22); }
+    30% { opacity: .62; }
+    100% { opacity: 0; transform: translate(-50%, -50%) rotate(-92deg) scale(1.08); }
+}
+
+@keyframes aetlcScreenRune {
+    0% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--aetlc-screen-rune-angle)) translateY(-12vmin) rotate(var(--aetlc-screen-rune-angle-back)) scale(.25); }
+    34% { opacity: 1; }
+    100% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--aetlc-screen-rune-angle)) translateY(-24vmin) rotate(var(--aetlc-screen-rune-angle-back)) scale(1.1); }
+}
+
+@keyframes aetlcScreenBeam {
+    0% { opacity: 0; transform: rotate(var(--aetlc-screen-beam-angle)) translateY(-2vmin) scaleY(.16); }
+    24% { opacity: 1; }
+    100% { opacity: 0; transform: rotate(var(--aetlc-screen-beam-angle)) translateY(calc(var(--aetlc-screen-beam-length) * -1)) scaleY(1.25); }
+}
+
+@keyframes aetlcScreenStar {
+    0% { opacity: 0; transform: scale(.35); }
+    24%,72% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1.18); }
+}
+
+@keyframes aetlcScreenFeather {
+    0% { opacity: 0; transform: rotate(var(--aetlc-screen-feather-angle)) translateY(-5vmin) rotate(var(--aetlc-screen-feather-angle-back)) scale(.25); }
+    30% { opacity: 1; }
+    100% { opacity: 0; transform: rotate(var(--aetlc-screen-feather-angle)) translateY(calc(var(--aetlc-screen-feather-distance) * -1)) rotate(var(--aetlc-screen-feather-angle-back)) scale(1.1); }
+}
+
+@keyframes aetlcScreenWingLeft {
+    0% { opacity: 0; transform: translate(calc(-100% - 1vmin), -44%) scaleX(-1) scale(.22) rotate(12deg); }
+    32% { opacity: .92; }
+    100% { opacity: 0; transform: translate(calc(-100% - 5vmin), -56%) scaleX(-1) scale(1.06) rotate(-24deg); }
+}
+
+@keyframes aetlcScreenWingRight {
+    0% { opacity: 0; transform: translate(1vmin, -44%) scale(.22) rotate(12deg); }
+    32% { opacity: .92; }
+    100% { opacity: 0; transform: translate(5vmin, -56%) scale(1.06) rotate(-24deg); }
+}
+
+@keyframes aetlcScreenCrown {
+    0% { opacity: 0; transform: translate(-50%, -50%) translateY(-8vmin) scale(.25); }
+    30% { opacity: 1; }
+    100% { opacity: 0; transform: translate(-50%, -50%) translateY(-13vmin) scale(1.2); }
+}
+
+@keyframes aetlcScreenTitle {
+    0% { opacity: 0; transform: translateX(-50%) translateY(14px) scale(.96); }
+    20% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+    78% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(10px) scale(.98); }
+}
+
+@keyframes aetlcScreenFadeOut {
+    to { opacity: 0; filter: blur(5px); }
+}
+
+@keyframes aetlcScreenSlowSpin {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@media (max-width: 768px), (pointer: coarse) {
+    #virtual-pet-container.pet-aether-little-sky-stage {
+        min-width: 158px !important;
+        min-height: 176px !important;
+    }
+
+    #virtual-pet-container.pet-aether-little-sky-stage #virtual-pet-img.aether-little-daystar-magic,
+    #virtual-pet-container.pet-aether-little-sky-stage #virtual-pet-img.aetlc-avatar {
+        width: 138px !important;
+    }
+
+    .aetlc-realm {
+        width: 212px;
+        height: 212px;
+        scale: .92;
+        transform-origin: 50% 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .aetlc-realm *,
+    .aetlc-click-bloom *,
+    #virtual-pet-container.pet-aether-little-sky-stage #virtual-pet-img.aetlc-avatar {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
+
+/* ============================================================================
+   AETHER THEME · THIÊN QUANG THÁNH VỰC — AETTHEME V2
+   Dành riêng cho: theme_truyenthuyet_aether_thien_quang_thanh_vuc
+   Body class: theme-aether-luminous-sanctum
+   Decor namespace: aettheme2-*
+   ----------------------------------------------------------------------------
+   V2 nâng cấp toàn diện nhưng KHÔNG sửa Aether Luxury/AETLC/NYX/effect cũ.
+   ============================================================================ */
+
+:root {
+    --aettheme-void: #020813;
+    --aettheme-night: #030d1b;
+    --aettheme-royal: #071e35;
+    --aettheme-azure: #0f4568;
+    --aettheme-cyan: #8cecff;
+    --aettheme-cyan-soft: #d0f7ff;
+    --aettheme-gold: #f2d580;
+    --aettheme-gold-soft: #fff1be;
+    --aettheme-pearl: #f4fcff;
+    --aettheme-text: #e8f8ff;
+    --aettheme-muted: #a7c9d7;
+    --aettheme-line: rgba(140,236,255,.26);
+    --aettheme-line-gold: rgba(242,213,128,.30);
+    --aettheme-shadow: rgba(0,5,14,.48);
+    --aettheme-font-body: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
+    --aettheme-font-title: "Palatino Linotype", "Book Antiqua", Georgia, serif;
+}
+
+body.theme-aether-luminous-sanctum {
+    position: relative !important;
+    color: var(--aettheme-text) !important;
+    font-family: var(--aettheme-font-body) !important;
+    background:
+        radial-gradient(circle at 13% -8%, rgba(95,213,244,.17), transparent 31%),
+        radial-gradient(circle at 88% 0%, rgba(242,213,128,.12), transparent 28%),
+        radial-gradient(ellipse at 50% 118%, rgba(34,131,178,.20), transparent 46%),
+        linear-gradient(145deg, #020713 0%, #041224 38%, #071e35 72%, #03101f 100%) !important;
+    background-attachment: fixed !important;
+    background-size: 135% 135%, 130% 130%, 140% 140%, 100% 100% !important;
+    animation: aettheme2SkyDrift 24s ease-in-out infinite alternate !important;
+}
+
+body.theme-aether-luminous-sanctum::before,
+body.theme-aether-luminous-sanctum::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+}
+
+body.theme-aether-luminous-sanctum::before {
+    z-index: 0;
+    opacity: .23;
+    background-image:
+        linear-gradient(rgba(140,236,255,.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(140,236,255,.055) 1px, transparent 1px);
+    background-size: 76px 76px;
+    mask-image: radial-gradient(circle at 50% 44%, #000 0 32%, transparent 78%);
+}
+
+body.theme-aether-luminous-sanctum::after {
+    z-index: 0;
+    background:
+        radial-gradient(circle at 50% 45%, transparent 0 44%, rgba(0,5,13,.26) 76%, rgba(0,4,11,.52) 100%);
+}
+
+body.theme-aether-luminous-sanctum ::selection {
+    color: #04111f;
+    background: rgba(242,213,128,.92);
+}
+
+/* ===== Decor toàn web của theme ===== */
+.aettheme2-sanctum-decor {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity .55s ease;
+}
+
+.aettheme2-sanctum-decor.is-mounted { opacity: 1; }
+.aettheme2-sanctum-decor.is-leaving { opacity: 0; }
+
+.aettheme2-aurora,
+.aettheme2-celestial-grid,
+.aettheme2-star-field,
+.aettheme2-lance-field,
+.aettheme2-sigil-field {
+    position: absolute;
+    inset: 0;
+}
+
+.aettheme2-aurora {
+    filter: blur(38px);
+    opacity: .28;
+    mix-blend-mode: screen;
+}
+
+.aettheme2-aurora.aurora-a {
+    background: conic-gradient(from 210deg at 24% 38%, transparent, rgba(80,211,245,.34), transparent 26%, rgba(242,213,128,.18), transparent 53%);
+    animation: aettheme2AuroraA 18s ease-in-out infinite alternate;
+}
+
+.aettheme2-aurora.aurora-b {
+    background: conic-gradient(from 35deg at 78% 46%, transparent, rgba(242,213,128,.18), transparent 25%, rgba(76,190,232,.26), transparent 56%);
+    animation: aettheme2AuroraB 22s ease-in-out infinite alternate;
+}
+
+.aettheme2-celestial-grid {
+    inset: 8% 6%;
+    opacity: .14;
+    border: 1px solid rgba(140,236,255,.18);
+    border-radius: 42% 58% 54% 46% / 46% 44% 56% 54%;
+    box-shadow:
+        inset 0 0 0 28px rgba(140,236,255,.012),
+        inset 0 0 0 56px rgba(242,213,128,.009);
+    animation: aettheme2GridBreath 9s ease-in-out infinite;
+}
+
+.aettheme2-astrolabe {
+    position: absolute;
+    left: 50%;
+    top: 46%;
+    width: min(58vmin, 680px);
+    height: min(58vmin, 680px);
+    transform: translate(-50%, -50%);
+    opacity: .24;
+}
+
+.aettheme2-astro-ring,
+.aettheme2-astro-diamond,
+.aettheme2-astro-core {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+}
+
+.aettheme2-astro-ring {
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.aettheme2-astro-ring.ring-a {
+    width: 64%; height: 64%;
+    border: 1px solid rgba(140,236,255,.50);
+    box-shadow: 0 0 26px rgba(94,205,238,.10);
+    animation: aettheme2Spin 26s linear infinite;
+}
+.aettheme2-astro-ring.ring-b {
+    width: 82%; height: 52%;
+    border: 1px solid rgba(242,213,128,.38);
+    animation: aettheme2SpinReverse 31s linear infinite;
+}
+.aettheme2-astro-ring.ring-c {
+    width: 96%; height: 96%;
+    border: 1px dashed rgba(207,246,255,.24);
+    animation: aettheme2Spin 48s linear infinite;
+}
+
+.aettheme2-astro-diamond {
+    border: 1px solid rgba(242,213,128,.30);
+}
+.aettheme2-astro-diamond.diamond-a {
+    width: 48%; height: 48%;
+    transform: translate(-50%, -50%) rotate(45deg);
+    animation: aettheme2Diamond 18s linear infinite;
+}
+.aettheme2-astro-diamond.diamond-b {
+    width: 67%; height: 67%;
+    transform: translate(-50%, -50%) rotate(22.5deg);
+    border-color: rgba(140,236,255,.20);
+    animation: aettheme2DiamondReverse 24s linear infinite;
+}
+
+.aettheme2-astro-core {
+    transform: translate(-50%, -50%);
+    color: rgba(255,241,190,.82);
+    font: 800 clamp(10px,1.3vmin,15px)/1 Georgia,serif;
+    letter-spacing: .42em;
+    text-indent: .42em;
+    text-shadow: 0 0 18px rgba(242,213,128,.36);
+}
+
+.aettheme2-wing-arc {
+    position: absolute;
+    top: 42%;
+    width: min(32vw, 430px);
+    height: min(20vw, 260px);
+    border-top: 2px solid rgba(218,249,255,.22);
+    border-radius: 88% 12% 100% 10%;
+    filter: drop-shadow(0 0 15px rgba(96,211,242,.14));
+}
+.aettheme2-wing-arc.wing-left { left: -5vw; transform: rotate(15deg) scaleX(-1); }
+.aettheme2-wing-arc.wing-right { right: -5vw; transform: rotate(15deg); }
+
+.aettheme2-star-field i {
+    position: absolute;
+    left: var(--aettheme2-x);
+    top: var(--aettheme2-y);
+    width: var(--aettheme2-size);
+    height: var(--aettheme2-size);
+    border-radius: 50%;
+    color: rgba(255,241,190,.72);
+    background: rgba(210,248,255,.68);
+    box-shadow: 0 0 8px rgba(140,236,255,.52);
+    font-style: normal;
+    font-size: 9px;
+    line-height: 1;
+    animation: aettheme2Star var(--aettheme2-dur) var(--aettheme2-delay) ease-in-out infinite;
+}
+
+.aettheme2-lance-field i {
+    position: absolute;
+    left: var(--aettheme2-lance-x);
+    top: -24vh;
+    width: 1px;
+    height: 28vh;
+    transform: rotate(var(--aettheme2-lance-rot));
+    background: linear-gradient(180deg, transparent, rgba(216,249,255,.18), rgba(242,213,128,.12), transparent);
+    filter: drop-shadow(0 0 7px rgba(140,236,255,.12));
+    animation: aettheme2Lance var(--aettheme2-lance-dur) var(--aettheme2-lance-delay) linear infinite;
+}
+
+.aettheme2-sigil-field {
+    left: 50%; top: 46%; right: auto; bottom: auto;
+    width: min(54vmin, 620px);
+    height: min(54vmin, 620px);
+    transform: translate(-50%, -50%);
+    animation: aettheme2Spin 38s linear infinite;
+}
+
+.aettheme2-sigil-field span {
+    position: absolute;
+    left: 50%; top: 50%;
+    color: rgba(255,241,190,.42);
+    font: 700 clamp(10px,1.3vmin,16px)/1 Georgia,serif;
+    text-shadow: 0 0 10px rgba(242,213,128,.18);
+    transform:
+        translate(-50%,-50%)
+        rotate(var(--aettheme2-sigil-angle))
+        translateY(-24vmin)
+        rotate(var(--aettheme2-sigil-angle-back));
+    animation: aettheme2Sigil 5.6s var(--aettheme2-sigil-delay) ease-in-out infinite;
+}
+
+/* ===== Typography ===== */
+body.theme-aether-luminous-sanctum :where(h1,h2,h3,h4,.page-title,.section-title,.modal-title,.popup-title,.card-title):not(.store-theme-locked *):not([data-theme-immune="true"] *) {
+    color: var(--aettheme-pearl) !important;
+    font-family: var(--aettheme-font-title) !important;
+    letter-spacing: .035em !important;
+    text-shadow: 0 0 18px rgba(140,236,255,.14), 0 0 34px rgba(242,213,128,.05) !important;
+}
+
+body.theme-aether-luminous-sanctum :where(p,span,small,label,li):not(.store-theme-locked *):not([data-theme-immune="true"] *) {
+    border-color: rgba(140,236,255,.16);
+}
+
+/* ===== Header / toolbar: dạng thiên môn ===== */
+body.theme-aether-luminous-sanctum :where(.topbar,.toolbar,.header,.dashboard-header,.student-header,.store-toolbar,.page-header):not(.store-theme-locked):not([data-theme-immune="true"]) {
+    color: var(--aettheme-text) !important;
+    border: 1px solid rgba(140,236,255,.22) !important;
+    border-top-color: rgba(242,213,128,.28) !important;
+    border-radius: 8px 8px 30px 30px !important;
+    background:
+        linear-gradient(90deg, rgba(242,213,128,.06), transparent 18%, transparent 82%, rgba(140,236,255,.06)),
+        linear-gradient(145deg, rgba(3,17,31,.96), rgba(8,42,68,.92)) !important;
+    box-shadow:
+        0 18px 48px rgba(0,5,14,.35),
+        inset 0 -1px 0 rgba(140,236,255,.10),
+        inset 0 1px 0 rgba(242,213,128,.12) !important;
+    backdrop-filter: blur(20px) saturate(1.16) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(1.16) !important;
+}
+
+/* ===== Sidebar ===== */
+body.theme-aether-luminous-sanctum :where(.sidebar,.student-sidebar,#sidebar,.side-menu,.nav-panel):not(.store-theme-locked):not([data-theme-immune="true"]) {
+    color: var(--aettheme-text) !important;
+    border: 1px solid rgba(140,236,255,.20) !important;
+    border-left: 0 !important;
+    border-radius: 0 34px 12px 0 !important;
+    background:
+        radial-gradient(circle at 18% 7%, rgba(242,213,128,.10), transparent 24%),
+        linear-gradient(180deg, rgba(2,13,25,.97), rgba(7,38,62,.94)) !important;
+    box-shadow: 16px 0 46px rgba(0,5,14,.32), inset -1px 0 0 rgba(140,236,255,.10) !important;
+}
+
+body.theme-aether-luminous-sanctum :where(.nav-item,.menu-item,.sidebar > a,.sidebar > button,.student-sidebar a,.student-sidebar button):not(.store-theme-locked *):not([data-theme-immune="true"] *) {
+    color: #caeaf4 !important;
+    border: 1px solid transparent !important;
+    border-radius: 18px 6px 18px 6px !important;
+    background: linear-gradient(90deg, transparent, rgba(140,236,255,.018)) !important;
+    transition: transform .18s ease, color .18s ease, background .18s ease, box-shadow .18s ease, border-color .18s ease !important;
+}
+
+body.theme-aether-luminous-sanctum :where(.nav-item,.menu-item,.sidebar > a,.sidebar > button,.student-sidebar a,.student-sidebar button):not(.store-theme-locked *):not([data-theme-immune="true"] *):hover {
+    color: #fff !important;
+    border-color: rgba(140,236,255,.18) !important;
+    background: linear-gradient(135deg, rgba(21,85,119,.72), rgba(8,35,58,.70)) !important;
+    box-shadow: 0 8px 24px rgba(0,8,20,.24), inset 4px 0 0 rgba(140,236,255,.55) !important;
+    transform: translateX(5px) !important;
+}
+
+body.theme-aether-luminous-sanctum :where(.nav-item.active,.menu-item.active,.sidebar .active,.student-sidebar .active):not(.store-theme-locked *):not([data-theme-immune="true"] *) {
+    color: #fff2bf !important;
+    border-color: rgba(242,213,128,.34) !important;
+    background: linear-gradient(135deg, rgba(26,96,130,.86), rgba(9,43,70,.90)) !important;
+    box-shadow: 0 10px 28px rgba(0,9,22,.28), inset 5px 0 0 rgba(242,213,128,.90), 0 0 20px rgba(140,236,255,.05) !important;
+}
+
+/* ===== Cards/panels: thẻ lưu ly bất đối xứng ===== */
+body.theme-aether-luminous-sanctum :where(.card,.panel,.content-card,.dashboard-card,.student-card,.settings-card,.assignment-card,.quiz-card,.leaderboard-card,.profile-card,.stat-card,.widget-card):not(.store-theme-locked):not([data-theme-immune="true"]):not(.store-theme-locked *) {
+    color: var(--aettheme-text) !important;
+    border: 1px solid rgba(140,236,255,.20) !important;
+    border-top-color: rgba(242,213,128,.18) !important;
+    border-radius: 30px 8px 30px 8px !important;
+    background:
+        linear-gradient(128deg, rgba(242,213,128,.055), transparent 22%),
+        radial-gradient(circle at 92% 0%, rgba(140,236,255,.075), transparent 30%),
+        linear-gradient(145deg, rgba(4,22,39,.93), rgba(9,45,70,.84)) !important;
+    box-shadow:
+        0 18px 46px rgba(0,5,14,.30),
+        inset 0 0 0 1px rgba(232,251,255,.035),
+        inset 14px 0 32px rgba(140,236,255,.018) !important;
+    backdrop-filter: blur(16px) saturate(1.10) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(1.10) !important;
+    transition: border-color .24s ease, box-shadow .24s ease, transform .24s ease !important;
+}
+
+body.theme-aether-luminous-sanctum :where(.card,.panel,.content-card,.dashboard-card,.student-card,.settings-card,.assignment-card,.quiz-card,.leaderboard-card,.profile-card,.stat-card,.widget-card):not(.store-theme-locked):not([data-theme-immune="true"]):not(.store-theme-locked *):hover {
+    border-color: rgba(140,236,255,.34) !important;
+    box-shadow: 0 22px 54px rgba(0,5,14,.34), 0 0 28px rgba(140,236,255,.055), inset 0 0 0 1px rgba(242,213,128,.05) !important;
+}
+
+/* ===== Popup/modal: thiên môn hai cánh ===== */
+body.theme-aether-luminous-sanctum :where(.modal-content,.popup-content,.student-modal-box,.swal2-popup,.dialog-content,.settings-modal-content,.store-modal-content,.announcement-modal-content,.profile-modal-content):not([data-theme-immune="true"]):not(.ui-theme-immune):not(.store-theme-locked *) {
+    color: var(--aettheme-text) !important;
+    border: 1px solid rgba(140,236,255,.38) !important;
+    border-top-color: rgba(242,213,128,.48) !important;
+    border-bottom-color: rgba(140,236,255,.24) !important;
+    border-radius: 10px 42px 10px 42px !important;
+    outline: 1px solid rgba(242,213,128,.06) !important;
+    outline-offset: 5px !important;
+    background:
+        linear-gradient(120deg, rgba(242,213,128,.07), transparent 20%, transparent 80%, rgba(140,236,255,.06)),
+        radial-gradient(circle at 85% 0%, rgba(140,236,255,.11), transparent 30%),
+        linear-gradient(155deg, rgba(2,15,28,.985), rgba(8,43,68,.975)) !important;
+    box-shadow:
+        0 36px 110px rgba(0,3,10,.60),
+        0 0 44px rgba(140,236,255,.075),
+        inset 0 0 0 1px rgba(255,255,255,.035) !important;
+    backdrop-filter: blur(26px) saturate(1.18) !important;
+    -webkit-backdrop-filter: blur(26px) saturate(1.18) !important;
+}
+
+body.theme-aether-luminous-sanctum :where(.modal,.popup,.swal2-container,.overlay,.dialog-overlay):not([data-theme-immune="true"]):not(.store-theme-locked *) {
+    backdrop-filter: blur(10px) saturate(1.10) !important;
+    -webkit-backdrop-filter: blur(10px) saturate(1.10) !important;
+}
+
+/* ===== Form controls ===== */
+body.theme-aether-luminous-sanctum :where(input,textarea,select,.input,.select,.search-input,.form-control):not(.store-theme-locked *):not([data-theme-immune="true"] *) {
+    color: #e9f9ff !important;
+    caret-color: var(--aettheme-gold) !important;
+    border: 1px solid rgba(140,236,255,.30) !important;
+    border-radius: 7px 20px 7px 20px !important;
+    background: linear-gradient(145deg, rgba(3,21,37,.92), rgba(7,37,58,.88)) !important;
+    box-shadow: inset 0 1px 5px rgba(0,0,0,.34), inset 4px 0 0 rgba(140,236,255,.05) !important;
+    transition: border-color .18s ease, box-shadow .18s ease, background .18s ease, transform .18s ease !important;
+}
+
+body.theme-aether-luminous-sanctum :where(input,textarea,select,.input,.select,.search-input,.form-control):not(.store-theme-locked *):not([data-theme-immune="true"] *):focus {
+    border-color: rgba(242,213,128,.72) !important;
+    background: linear-gradient(145deg, rgba(5,28,47,.98), rgba(9,49,73,.96)) !important;
+    box-shadow: 0 0 0 4px rgba(140,236,255,.105), 0 0 26px rgba(242,213,128,.08), inset 0 1px 4px rgba(0,0,0,.22) !important;
+    transform: translateY(-1px) !important;
+    outline: none !important;
+}
+body.theme-aether-luminous-sanctum :where(input,textarea)::placeholder { color: rgba(167,201,215,.58) !important; }
+
+/* ===== Buttons ===== */
+body.theme-aether-luminous-sanctum :where(button,.btn):not(.store-theme-locked *):not([data-theme-immune="true"] *):not(.ui-theme-immune):not(.btn-buy):not(.btn-preview) {
+    color: #ecfbff !important;
+    border: 1px solid rgba(140,236,255,.26) !important;
+    border-top-color: rgba(242,213,128,.24) !important;
+    border-radius: 8px 20px 8px 20px !important;
+    background:
+        linear-gradient(120deg, rgba(242,213,128,.07), transparent 30%),
+        linear-gradient(135deg, rgba(18,81,113,.94), rgba(5,31,53,.97)) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 8px 22px rgba(0,6,16,.25) !important;
+    transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease, filter .16s ease !important;
+}
+
+body.theme-aether-luminous-sanctum :where(button,.btn):not(.store-theme-locked *):not([data-theme-immune="true"] *):not(.ui-theme-immune):not(.btn-buy):not(.btn-preview):hover {
+    border-color: rgba(242,213,128,.52) !important;
+    box-shadow: 0 11px 28px rgba(0,7,18,.30), 0 0 20px rgba(140,236,255,.09), inset 0 1px 0 rgba(255,255,255,.08) !important;
+    transform: translateY(-2px) !important;
+    filter: brightness(1.07) !important;
+}
+body.theme-aether-luminous-sanctum :where(button,.btn):not(.store-theme-locked *):not([data-theme-immune="true"] *):not(.ui-theme-immune):not(.btn-buy):not(.btn-preview):active {
+    transform: translateY(1px) scale(.982) !important;
+}
+
+/* ===== Tabs / pills / badges ===== */
+body.theme-aether-luminous-sanctum :where(.tab,.tab-btn,.filter-tab,.settings-tab,.chip,.badge,.pill,.tag):not(.store-theme-locked *):not([data-theme-immune="true"] *) {
+    color: #e9f9ff !important;
+    border-color: rgba(140,236,255,.22) !important;
+    border-radius: 999px 8px 999px 8px !important;
+    background: linear-gradient(135deg, rgba(16,67,94,.72), rgba(5,31,51,.76)) !important;
+}
+
+/* ===== Table ===== */
+body.theme-aether-luminous-sanctum :where(table,.table):not(.store-theme-locked *) {
+    color: #dff6fb !important;
+    border-color: rgba(140,236,255,.18) !important;
+    border-radius: 18px 7px 18px 7px !important;
+    background: rgba(3,18,32,.50) !important;
+    overflow: hidden !important;
+}
+body.theme-aether-luminous-sanctum :where(th,.table-header):not(.store-theme-locked *) {
+    color: #fff0bb !important;
+    border-color: rgba(140,236,255,.19) !important;
+    background: linear-gradient(135deg, rgba(23,85,115,.70), rgba(8,42,66,.76)) !important;
+}
+body.theme-aether-luminous-sanctum :where(td,tr):not(.store-theme-locked *) { border-color: rgba(140,236,255,.12) !important; }
+body.theme-aether-luminous-sanctum tbody tr:not(.store-theme-locked *):hover { background: rgba(42,119,151,.22) !important; }
+
+/* ===== Progress / meters ===== */
+body.theme-aether-luminous-sanctum :where(progress,.progress,.progress-bar,.meter):not(.store-theme-locked *) {
+    border-radius: 999px 7px 999px 7px !important;
+    accent-color: var(--aettheme-cyan) !important;
+    box-shadow: inset 0 0 8px rgba(0,0,0,.28), 0 0 12px rgba(140,236,255,.06) !important;
+}
+
+/* ===== Range slider ===== */
+body.theme-aether-luminous-sanctum input[type="range"]:not(.store-theme-locked *) {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    accent-color: var(--aettheme-cyan) !important;
+    height: 8px !important;
+    border: 1px solid rgba(140,236,255,.16) !important;
+    border-radius: 999px !important;
+    background:
+        linear-gradient(90deg, rgba(74,192,227,.72), rgba(140,236,255,.84) 42%, rgba(242,213,128,.78)) !important;
+    box-shadow: inset 0 1px 5px rgba(0,0,0,.42), 0 0 15px rgba(140,236,255,.08) !important;
+}
+body.theme-aether-luminous-sanctum input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px; height: 22px;
+    border-radius: 5px 13px 5px 13px;
+    border: 1px solid rgba(255,243,199,.94);
+    background: linear-gradient(135deg, #fff2bd 0 26%, #8cecff 54%, #247ca4 100%);
+    box-shadow: 0 0 0 4px rgba(140,236,255,.10), 0 0 18px rgba(242,213,128,.24);
+}
+body.theme-aether-luminous-sanctum input[type="range"]::-moz-range-thumb {
+    width: 22px; height: 22px;
+    border-radius: 5px 13px 5px 13px;
+    border: 1px solid rgba(255,243,199,.94);
+    background: linear-gradient(135deg, #fff2bd 0 26%, #8cecff 54%, #247ca4 100%);
+    box-shadow: 0 0 0 4px rgba(140,236,255,.10), 0 0 18px rgba(242,213,128,.24);
+}
+
+/* ===== Scrollbar ===== */
+body.theme-aether-luminous-sanctum,
+body.theme-aether-luminous-sanctum * {
+    scrollbar-color: #4aa9cb rgba(2,12,23,.78);
+    scrollbar-width: thin;
+}
+body.theme-aether-luminous-sanctum ::-webkit-scrollbar { width: 12px; height: 12px; }
+body.theme-aether-luminous-sanctum ::-webkit-scrollbar-track {
+    background: linear-gradient(180deg, rgba(2,12,23,.86), rgba(5,28,44,.78));
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 1px rgba(140,236,255,.06);
+}
+body.theme-aether-luminous-sanctum ::-webkit-scrollbar-thumb {
+    border: 3px solid transparent;
+    border-radius: 999px 7px 999px 7px;
+    background: linear-gradient(180deg, #8cecff, #2e8db2 55%, #d6b75f) padding-box;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.05), 0 0 12px rgba(140,236,255,.08);
+}
+body.theme-aether-luminous-sanctum ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #fff0b9, #69d8ef 58%, #317f9e) padding-box;
+}
+
+body.theme-aether-luminous-sanctum :where(a,.link):not(.store-theme-locked *):not([data-theme-immune="true"] *) {
+    color: #9deeff !important;
+    text-decoration-color: rgba(242,213,128,.35) !important;
+}
+
+@keyframes aettheme2SkyDrift {
+    0% { background-position: 0% 0%, 100% 0%, 50% 100%, 50% 50%; }
+    100% { background-position: 12% 8%, 88% 12%, 53% 91%, 50% 50%; }
+}
+@keyframes aettheme2AuroraA {
+    0% { transform: translate3d(-7%,-3%,0) rotate(-4deg) scale(1.05); opacity: .18; }
+    100% { transform: translate3d(8%,5%,0) rotate(7deg) scale(1.16); opacity: .34; }
+}
+@keyframes aettheme2AuroraB {
+    0% { transform: translate3d(8%,4%,0) rotate(6deg) scale(1.08); opacity: .16; }
+    100% { transform: translate3d(-9%,-4%,0) rotate(-7deg) scale(1.18); opacity: .30; }
+}
+@keyframes aettheme2GridBreath {
+    0%,100% { opacity: .09; transform: scale(.985) rotate(-1deg); }
+    50% { opacity: .17; transform: scale(1.015) rotate(1deg); }
+}
+@keyframes aettheme2Spin { to { transform: translate(-50%,-50%) rotate(360deg); } }
+@keyframes aettheme2SpinReverse { to { transform: translate(-50%,-50%) rotate(-360deg); } }
+@keyframes aettheme2Diamond { to { transform: translate(-50%,-50%) rotate(405deg); } }
+@keyframes aettheme2DiamondReverse { to { transform: translate(-50%,-50%) rotate(-337.5deg); } }
+@keyframes aettheme2Star {
+    0%,100% { opacity: .18; transform: translateY(4px) scale(.72); }
+    50% { opacity: .90; transform: translateY(-6px) scale(1.15); }
+}
+@keyframes aettheme2Lance {
+    0% { opacity: 0; transform: translateY(-18vh) rotate(var(--aettheme2-lance-rot)); }
+    18% { opacity: .42; }
+    76% { opacity: .18; }
+    100% { opacity: 0; transform: translateY(142vh) rotate(var(--aettheme2-lance-rot)); }
+}
+@keyframes aettheme2Sigil {
+    0%,100% { opacity: .18; scale: .8; }
+    50% { opacity: .58; scale: 1.08; }
+}
+
+/* ============================================================================
+   AETHER EFFECT · THIÊN MÔN QUANG TRIỀU — AETFX2 V1
+   Dành riêng cho effect_truyenthuyet_aether_thien_quang_thien_mon
+   Hoàn toàn độc lập với theme và pet click effect.
+   ============================================================================ */
+.aetfx2-heavenly-aureole {
+    position: fixed;
+    inset: 0;
+    z-index: 2147482400;
+    pointer-events: none;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity .58s ease;
+    isolation: isolate;
+}
+.aetfx2-heavenly-aureole.is-active { opacity: 1; }
+.aetfx2-heavenly-aureole.is-leaving { opacity: 0; }
+
+.aetfx2-celestial-haze,
+.aetfx2-ribbon-field,
+.aetfx2-ray-field,
+.aetfx2-star-field,
+.aetfx2-sigil-field,
+.aetfx2-comet-field {
+    position: absolute;
+    inset: 0;
+}
+
+.aetfx2-celestial-haze {
+    z-index: 0;
+    opacity: .34;
+    background:
+        radial-gradient(circle at 50% -8%, rgba(255,244,201,.32), transparent 24%),
+        radial-gradient(circle at 12% 38%, rgba(109,225,250,.18), transparent 32%),
+        radial-gradient(circle at 88% 52%, rgba(242,213,128,.15), transparent 34%);
+    filter: blur(18px);
+    animation: aetfx2Haze 12s ease-in-out infinite alternate;
+}
+
+.aetfx2-gate {
+    position: absolute;
+    top: 4vh;
+    bottom: 4vh;
+    width: min(22vw, 300px);
+    opacity: .33;
+    filter: drop-shadow(0 0 18px rgba(140,236,255,.18));
+}
+.aetfx2-gate.gate-left { left: -5vw; }
+.aetfx2-gate.gate-right { right: -5vw; transform: scaleX(-1); }
+.aetfx2-gate::before,
+.aetfx2-gate::after,
+.aetfx2-gate span,
+.aetfx2-gate i {
+    content: "";
+    position: absolute;
+    border: 1px solid rgba(180,243,255,.34);
+    border-radius: 50% 50% 14% 14% / 35% 35% 8% 8%;
+}
+.aetfx2-gate::before { inset: 5% 14%; border-color: rgba(242,213,128,.34); }
+.aetfx2-gate::after { inset: 11% 25%; border-style: dashed; }
+.aetfx2-gate span { inset: 19% 35%; border-color: rgba(140,236,255,.20); }
+.aetfx2-gate i { inset: 29% 44%; border-color: rgba(255,245,207,.18); }
+
+.aetfx2-zenith {
+    position: absolute;
+    left: 50%;
+    top: 31%;
+    width: min(42vmin, 470px);
+    height: min(42vmin, 470px);
+    transform: translate(-50%,-50%);
+    z-index: 2;
+    opacity: .62;
+}
+.aetfx2-zenith-ring,
+.aetfx2-zenith-diamond,
+.aetfx2-zenith-core {
+    position: absolute;
+    left: 50%; top: 50%;
+}
+.aetfx2-zenith-ring {
+    border-radius: 50%;
+    transform: translate(-50%,-50%);
+}
+.aetfx2-zenith-ring.ring-a { width: 54%; height: 54%; border: 1px solid rgba(225,250,255,.64); animation: aetfx2Spin 13s linear infinite; }
+.aetfx2-zenith-ring.ring-b { width: 78%; height: 42%; border: 1px solid rgba(242,213,128,.55); animation: aetfx2SpinReverse 17s linear infinite; }
+.aetfx2-zenith-ring.ring-c { width: 96%; height: 96%; border: 1px dashed rgba(140,236,255,.36); animation: aetfx2Spin 29s linear infinite; }
+.aetfx2-zenith-diamond { border: 1px solid rgba(242,213,128,.38); }
+.aetfx2-zenith-diamond.diamond-a { width: 46%; height: 46%; transform: translate(-50%,-50%) rotate(45deg); animation: aetfx2Diamond 16s linear infinite; }
+.aetfx2-zenith-diamond.diamond-b { width: 67%; height: 67%; transform: translate(-50%,-50%) rotate(22.5deg); border-color: rgba(140,236,255,.24); animation: aetfx2DiamondReverse 21s linear infinite; }
+.aetfx2-zenith-core {
+    transform: translate(-50%,-50%);
+    color: #fff1b9;
+    font-size: clamp(22px,3.2vmin,42px);
+    text-shadow: 0 0 12px #fff, 0 0 30px rgba(242,213,128,.72), 0 0 52px rgba(140,236,255,.34);
+    animation: aetfx2Core 3.3s ease-in-out infinite;
+}
+
+.aetfx2-ribbon-field i {
+    position: absolute;
+    left: -20vw;
+    top: var(--aetfx2-ribbon-y);
+    width: 140vw;
+    height: clamp(28px,5vh,64px);
+    transform: rotate(var(--aetfx2-ribbon-rot));
+    border-radius: 50%;
+    border-top: 1px solid rgba(208,248,255,.22);
+    background: linear-gradient(90deg, transparent, rgba(88,205,238,.035) 22%, rgba(242,213,128,.07) 50%, rgba(91,211,243,.035) 76%, transparent);
+    filter: blur(.4px) drop-shadow(0 0 10px rgba(140,236,255,.08));
+    animation: aetfx2Ribbon var(--aetfx2-ribbon-dur) var(--aetfx2-ribbon-delay) ease-in-out infinite alternate;
+}
+
+.aetfx2-ray-field i {
+    position: absolute;
+    left: var(--aetfx2-ray-x);
+    top: -25vh;
+    width: 2px;
+    height: 34vh;
+    transform: rotate(var(--aetfx2-ray-rot));
+    border-radius: 999px;
+    background: linear-gradient(180deg, transparent, rgba(255,255,255,.74) 22%, rgba(242,213,128,.40) 52%, rgba(140,236,255,.18) 78%, transparent);
+    box-shadow: 0 0 9px rgba(140,236,255,.18);
+    opacity: 0;
+    animation: aetfx2Ray var(--aetfx2-ray-dur) var(--aetfx2-ray-delay) linear infinite;
+}
+
+.aetfx2-star-field i {
+    position: absolute;
+    left: var(--aetfx2-star-x);
+    top: var(--aetfx2-star-y);
+    width: var(--aetfx2-star-size);
+    height: var(--aetfx2-star-size);
+    border-radius: 50%;
+    color: rgba(255,243,197,.95);
+    background: rgba(220,250,255,.88);
+    box-shadow: 0 0 8px rgba(140,236,255,.80), 0 0 15px rgba(242,213,128,.16);
+    font-style: normal;
+    font-size: 11px;
+    line-height: 1;
+    animation: aetfx2Star var(--aetfx2-star-dur) var(--aetfx2-star-delay) ease-in-out infinite;
+}
+
+.aetfx2-sigil-field {
+    left: 50%; top: 31%; right: auto; bottom: auto;
+    width: min(46vmin,520px);
+    height: min(46vmin,520px);
+    transform: translate(-50%,-50%);
+    animation: aetfx2Spin 24s linear infinite;
+}
+.aetfx2-sigil-field span {
+    position: absolute;
+    left: 50%; top: 50%;
+    color: rgba(255,241,190,.76);
+    font: 700 clamp(11px,1.5vmin,18px)/1 Georgia,serif;
+    text-shadow: 0 0 11px rgba(242,213,128,.48), 0 0 20px rgba(140,236,255,.20);
+    transform:
+        translate(-50%,-50%)
+        rotate(var(--aetfx2-sigil-angle))
+        translateY(-20vmin)
+        rotate(var(--aetfx2-sigil-angle-back));
+    animation: aetfx2Sigil 4.8s var(--aetfx2-sigil-delay) ease-in-out infinite;
+}
+
+.aetfx2-comet-field i {
+    position: absolute;
+    left: -18vw;
+    top: var(--aetfx2-comet-y);
+    width: 110px;
+    height: 2px;
+    border-radius: 999px;
+    transform: rotate(-18deg);
+    background: linear-gradient(90deg, transparent, rgba(140,236,255,.36), rgba(255,255,255,.98));
+    box-shadow: 0 0 10px rgba(140,236,255,.38);
+    animation: aetfx2Comet var(--aetfx2-comet-dur) var(--aetfx2-comet-delay) linear infinite;
+}
+
+.aetfx2-lower-seal {
+    position: absolute;
+    left: 50%;
+    bottom: 5vh;
+    width: min(60vw,620px);
+    height: 90px;
+    transform: translateX(-50%);
+    opacity: .42;
+    text-align: center;
+}
+.aetfx2-lower-seal::before,
+.aetfx2-lower-seal::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 48%;
+    width: 70%;
+    height: 34px;
+    transform: translate(-50%,-50%);
+    border: 1px solid rgba(140,236,255,.30);
+    border-radius: 50%;
+}
+.aetfx2-lower-seal::after { width: 48%; height: 48px; border-color: rgba(242,213,128,.24); }
+.aetfx2-lower-seal span {
+    position: relative;
+    z-index: 2;
+    color: rgba(255,241,190,.84);
+    font: 800 clamp(10px,1.4vmin,16px)/90px Georgia,serif;
+    letter-spacing: .60em;
+    text-indent: .60em;
+    text-shadow: 0 0 12px rgba(242,213,128,.42);
+}
+.aetfx2-lower-seal i {
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 10px; height: 10px;
+    transform: translate(-50%,-50%) rotate(45deg);
+    border: 1px solid rgba(255,247,215,.78);
+    box-shadow: 0 0 16px rgba(140,236,255,.32);
+}
+
+@keyframes aetfx2Haze {
+    0% { transform: translate3d(-4%,-2%,0) scale(1.04); opacity: .24; }
+    100% { transform: translate3d(5%,4%,0) scale(1.12); opacity: .42; }
+}
+@keyframes aetfx2Spin { to { transform: translate(-50%,-50%) rotate(360deg); } }
+@keyframes aetfx2SpinReverse { to { transform: translate(-50%,-50%) rotate(-360deg); } }
+@keyframes aetfx2Diamond { to { transform: translate(-50%,-50%) rotate(405deg); } }
+@keyframes aetfx2DiamondReverse { to { transform: translate(-50%,-50%) rotate(-337.5deg); } }
+@keyframes aetfx2Core {
+    0%,100% { opacity: .66; scale: .86; }
+    50% { opacity: 1; scale: 1.15; }
+}
+@keyframes aetfx2Ribbon {
+    0% { translate: -3vw -6px; opacity: .18; scale: 1 .82; }
+    100% { translate: 4vw 8px; opacity: .52; scale: 1 1.12; }
+}
+@keyframes aetfx2Ray {
+    0% { opacity: 0; translate: -12vw -18vh; }
+    18% { opacity: .78; }
+    74% { opacity: .25; }
+    100% { opacity: 0; translate: 18vw 148vh; }
+}
+@keyframes aetfx2Star {
+    0%,100% { opacity: .16; transform: translateY(5px) scale(.65); }
+    50% { opacity: .96; transform: translateY(-7px) scale(1.2); }
+}
+@keyframes aetfx2Sigil {
+    0%,100% { opacity: .26; scale: .76; }
+    50% { opacity: .92; scale: 1.12; }
+}
+@keyframes aetfx2Comet {
+    0% { opacity: 0; transform: translateX(-18vw) rotate(-18deg) scaleX(.35); }
+    16% { opacity: .86; }
+    55% { opacity: .38; }
+    100% { opacity: 0; transform: translateX(140vw) rotate(-18deg) scaleX(1.1); }
+}
+
+@media (max-width: 768px), (pointer: coarse) {
+    body.theme-aether-luminous-sanctum { background-size: 155% 155%, 150% 150%, 150% 150%, 100% 100% !important; }
+    body.theme-aether-luminous-sanctum :where(.modal-content,.popup-content,.student-modal-box,.swal2-popup,.dialog-content):not([data-theme-immune="true"]):not(.store-theme-locked *) {
+        border-radius: 8px 28px 8px 28px !important;
+        outline-offset: 3px !important;
+    }
+    .aettheme2-astrolabe { width: 82vmin; height: 82vmin; opacity: .18; }
+    .aettheme2-sigil-field { width: 74vmin; height: 74vmin; }
+    .aettheme2-sigil-field span { transform: translate(-50%,-50%) rotate(var(--aettheme2-sigil-angle)) translateY(-32vmin) rotate(var(--aettheme2-sigil-angle-back)); }
+    .aetfx2-zenith { width: 58vmin; height: 58vmin; }
+    .aetfx2-sigil-field { width: 62vmin; height: 62vmin; }
+    .aetfx2-gate { opacity: .22; width: 34vw; }
+    .aetfx2-lower-seal { width: 82vw; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.theme-aether-luminous-sanctum { animation: none !important; }
+    .aettheme2-sanctum-decor *,
+    .aetfx2-heavenly-aureole * {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
+
+/* ============================================================================
+   AETHER · THIÊN QUANG CHI HOÀN — KHUNG VIỀN AETFR3 V1
+   Dành riêng cho: frame_truyenthuyet_aether_thien_quang_chi_hoan
+   ----------------------------------------------------------------------------
+   CÔ LẬP TUYỆT ĐỐI:
+   - Chỉ chạy khi host có data-avatar-frame-id đúng ID Aether này.
+   - Không sửa selector/keyframe của NYX, Mùa Hạ, Klein, Tamon... phía trên.
+   - Không đổi layout nút Hồ sơ; ảnh khung luôn giữ object-fit:contain.
+   - Specificity + !important giúp theme đang mặc không ép/méo/nhuộm khung.
+   ============================================================================ */
+
+/* Host Hồ sơ nhỏ */
+html[data-app-role="student"] body
+.profile-trigger-btn[data-avatar-frame-id="frame_truyenthuyet_aether_thien_quang_chi_hoan"] {
+    position: relative !important;
+    overflow: visible !important;
+    isolation: isolate !important;
+    border-radius: 50% !important;
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Host avatar trong popup Hồ sơ */
+html[data-app-role="student"] body
+#studentInfoModal .avatar-upload-container[data-avatar-frame-id="frame_truyenthuyet_aether_thien_quang_chi_hoan"] {
+    position: relative !important;
+    overflow: visible !important;
+    isolation: isolate !important;
+}
+
+/* Ảnh khung thật — giữ nguyên tỷ lệ PNG, không bao giờ bị ép thành hình vuông méo. */
+html[data-app-role="student"] body
+.profile-trigger-btn[data-avatar-frame-id="frame_truyenthuyet_aether_thien_quang_chi_hoan"]
+> .avatar-frame-decoration {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: 76px !important;
+    height: 76px !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: translate(-50%, -50%) !important;
+    transform-origin: 50% 50% !important;
+    object-fit: contain !important;
+    object-position: center !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    filter:
+        drop-shadow(0 4px 6px rgba(2, 18, 34, .34))
+        drop-shadow(0 0 7px rgba(116, 224, 247, .46))
+        drop-shadow(0 0 11px rgba(245, 216, 136, .30)) !important;
+    opacity: 1 !important;
+    z-index: 8 !important;
+    pointer-events: none !important;
+    animation: aetfr3FrameBreath 4.8s ease-in-out infinite !important;
+}
+
+html[data-app-role="student"] body
+#studentInfoModal .avatar-upload-container[data-avatar-frame-id="frame_truyenthuyet_aether_thien_quang_chi_hoan"]
+> .avatar-frame-decoration {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: 150px !important;
+    height: 150px !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: translate(-50%, -50%) !important;
+    transform-origin: 50% 50% !important;
+    object-fit: contain !important;
+    object-position: center !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    filter:
+        drop-shadow(0 8px 13px rgba(2, 18, 34, .30))
+        drop-shadow(0 0 10px rgba(116, 224, 247, .48))
+        drop-shadow(0 0 16px rgba(245, 216, 136, .28)) !important;
+    opacity: 1 !important;
+    z-index: 8 !important;
+    pointer-events: none !important;
+    animation: aetfr3FrameBreath 4.8s ease-in-out infinite !important;
+}
+
+/* Hào quang riêng phía sau khung. */
+html[data-app-role="student"] body
+.profile-trigger-btn[data-avatar-frame-id="frame_truyenthuyet_aether_thien_quang_chi_hoan"]
+> .avatar-frame-aura {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: 82px !important;
+    height: 82px !important;
+    transform: translate(-50%, -50%) !important;
+    border-radius: 50% !important;
+    border: 1px solid rgba(128, 228, 248, .26) !important;
+    background:
+        radial-gradient(circle, rgba(255,255,255,.14) 0 18%, rgba(106,214,241,.15) 36%, rgba(245,216,136,.09) 52%, transparent 72%) !important;
+    box-shadow:
+        0 0 15px rgba(112, 220, 246, .24),
+        0 0 28px rgba(245, 216, 136, .10),
+        inset 0 0 16px rgba(224, 249, 255, .10) !important;
+    filter: none !important;
+    opacity: .82 !important;
+    z-index: 1 !important;
+    pointer-events: none !important;
+    animation: aetfr3AuraPulse 3.6s ease-in-out infinite !important;
+}
+
+html[data-app-role="student"] body
+#studentInfoModal .avatar-upload-container[data-avatar-frame-id="frame_truyenthuyet_aether_thien_quang_chi_hoan"]
+> .avatar-frame-aura {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: 158px !important;
+    height: 158px !important;
+    transform: translate(-50%, -50%) !important;
+    border-radius: 50% !important;
+    border: 1px solid rgba(128, 228, 248, .26) !important;
+    background:
+        radial-gradient(circle, rgba(255,255,255,.12) 0 18%, rgba(106,214,241,.13) 38%, rgba(245,216,136,.08) 54%, transparent 74%) !important;
+    box-shadow:
+        0 0 24px rgba(112, 220, 246, .23),
+        0 0 44px rgba(245, 216, 136, .10),
+        inset 0 0 22px rgba(224, 249, 255, .09) !important;
+    opacity: .86 !important;
+    z-index: 1 !important;
+    pointer-events: none !important;
+    animation: aetfr3AuraPulse 3.6s ease-in-out infinite !important;
+}
+
+/* Bốn tinh quang do AvatarFrameManager tạo — chỉ style cho Aether. */
+html[data-app-role="student"] body
+[data-avatar-frame-id="frame_truyenthuyet_aether_thien_quang_chi_hoan"]
+> .avatar-frame-spark {
+    position: absolute !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: #fff2b7 !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    font-family: Georgia, "Times New Roman", serif !important;
+    font-weight: 400 !important;
+    line-height: 1 !important;
+    text-shadow:
+        0 0 5px rgba(255,255,255,.96),
+        0 0 10px rgba(245,216,136,.82),
+        0 0 15px rgba(111,221,247,.52) !important;
+    filter: none !important;
+    opacity: 0 !important;
+    z-index: 10 !important;
+    pointer-events: none !important;
+    animation: aetfr3Spark 2.7s ease-in-out infinite !important;
+}
+
+html[data-app-role="student"] body
+.profile-trigger-btn[data-avatar-frame-id="frame_truyenthuyet_aether_thien_quang_chi_hoan"]
+> .avatar-frame-spark {
+    font-size: 9px !important;
+}
+
+html[data-app-role="student"] body
+#studentInfoModal .avatar-upload-container[data-avatar-frame-id="frame_truyenthuyet_aether_thien_quang_chi_hoan"]
+> .avatar-frame-spark {
+    font-size: 13px !important;
+}
+
+html[data-app-role="student"] body
+[data-avatar-frame-id="frame_truyenthuyet_aether_thien_quang_chi_hoan"] > .avatar-frame-spark.spark-1 {
+    left: 5% !important;
+    top: 14% !important;
+    animation-delay: -.15s !important;
+}
+
+html[data-app-role="student"] body
+[data-avatar-frame-id="frame_truyenthuyet_aether_thien_quang_chi_hoan"] > .avatar-frame-spark.spark-2 {
+    right: 4% !important;
+    top: 24% !important;
+    left: auto !important;
+    animation-delay: -.85s !important;
+}
+
+html[data-app-role="student"] body
+[data-avatar-frame-id="frame_truyenthuyet_aether_thien_quang_chi_hoan"] > .avatar-frame-spark.spark-3 {
+    left: 13% !important;
+    bottom: 6% !important;
+    top: auto !important;
+    animation-delay: -1.55s !important;
+}
+
+html[data-app-role="student"] body
+[data-avatar-frame-id="frame_truyenthuyet_aether_thien_quang_chi_hoan"] > .avatar-frame-spark.spark-4 {
+    right: 9% !important;
+    bottom: 9% !important;
+    left: auto !important;
+    top: auto !important;
+    animation-delay: -2.05s !important;
+}
+
+/* Avatar + bút chì luôn nằm đúng lớp, không bị khung nuốt tương tác. */
+html[data-app-role="student"] body
+.profile-trigger-btn[data-avatar-frame-id="frame_truyenthuyet_aether_thien_quang_chi_hoan"]
+> :is(#avatarImage, #avatarPlaceholder) {
+    position: relative !important;
+    z-index: 4 !important;
+    border-radius: 50% !important;
+}
+
+html[data-app-role="student"] body
+#studentInfoModal .avatar-upload-container[data-avatar-frame-id="frame_truyenthuyet_aether_thien_quang_chi_hoan"]
+> #modalAvatarPreview {
+    position: relative !important;
+    z-index: 4 !important;
+    border-radius: 50% !important;
+}
+
+html[data-app-role="student"] body
+#studentInfoModal .avatar-upload-container[data-avatar-frame-id="frame_truyenthuyet_aether_thien_quang_chi_hoan"]
+> span {
+    z-index: 12 !important;
+}
+
+@keyframes aetfr3FrameBreath {
+    0%, 100% {
+        filter:
+            drop-shadow(0 4px 6px rgba(2, 18, 34, .34))
+            drop-shadow(0 0 7px rgba(116, 224, 247, .38))
+            drop-shadow(0 0 11px rgba(245, 216, 136, .24));
+    }
+    50% {
+        filter:
+            drop-shadow(0 5px 7px rgba(2, 18, 34, .30))
+            drop-shadow(0 0 11px rgba(116, 224, 247, .62))
+            drop-shadow(0 0 17px rgba(245, 216, 136, .40));
+    }
+}
+
+@keyframes aetfr3AuraPulse {
+    0%, 100% { opacity: .62; scale: .94; }
+    50% { opacity: .94; scale: 1.045; }
+}
+
+@keyframes aetfr3Spark {
+    0%, 100% { opacity: 0; transform: scale(.55) rotate(-18deg); }
+    24% { opacity: .96; transform: scale(1.08) rotate(0deg); }
+    52% { opacity: .48; transform: scale(.82) rotate(16deg); }
+    76% { opacity: .92; transform: scale(1.02) rotate(28deg); }
+}
+
+@media (max-width: 768px), (pointer: coarse) {
+    html[data-app-role="student"] body
+    .profile-trigger-btn[data-avatar-frame-id="frame_truyenthuyet_aether_thien_quang_chi_hoan"]
+    > .avatar-frame-decoration {
+        width: 70px !important;
+        height: 70px !important;
+    }
+
+    html[data-app-role="student"] body
+    .profile-trigger-btn[data-avatar-frame-id="frame_truyenthuyet_aether_thien_quang_chi_hoan"]
+    > .avatar-frame-aura {
+        width: 76px !important;
+        height: 76px !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html[data-app-role="student"] body
+    [data-avatar-frame-id="frame_truyenthuyet_aether_thien_quang_chi_hoan"]
+    > :is(.avatar-frame-decoration, .avatar-frame-aura, .avatar-frame-spark) {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}

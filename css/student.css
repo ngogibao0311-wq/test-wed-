@@ -10000,3 +10000,111 @@ html[data-app-role="student"] body
         z-index: 9986 !important;
     }
 }
+
+/* =========================================================
+   STUDENT · BẬT/TẮT LỚP KÍNH MỜ NỘI DUNG
+   - Mặc định bật: không có class student-content-glass-disabled.
+   - Khi tắt chỉ bỏ tấm kính lớn .dashboard > .content + lớp sáng ::before.
+   - Không đụng blur của card, popup, sidebar, thú cưng hay vật phẩm giao diện.
+   ========================================================= */
+#tab-settings .student-settings-content-glass-button {
+    position: relative;
+    isolation: isolate;
+    width: 100%;
+    min-height: 56px;
+    margin-top: 14px;
+    padding: 13px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: 1px solid rgba(99, 102, 241, .28);
+    border-radius: 16px;
+    color: #ffffff;
+    background:
+        linear-gradient(135deg, #6376e8 0%, #7356c4 100%);
+    box-shadow:
+        0 10px 24px rgba(79, 70, 229, .20),
+        inset 0 1px 0 rgba(255,255,255,.24);
+    font: inherit;
+    font-weight: 850;
+    letter-spacing: .01em;
+    cursor: pointer;
+    overflow: hidden;
+    transition:
+        transform .18s ease,
+        box-shadow .18s ease,
+        filter .18s ease,
+        background .18s ease;
+}
+
+#tab-settings .student-settings-content-glass-button::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 16% 20%, rgba(255,255,255,.22), transparent 28%),
+        linear-gradient(115deg, transparent 26%, rgba(255,255,255,.12) 42%, transparent 58%);
+}
+
+#tab-settings .student-settings-content-glass-button:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 14px 30px rgba(79, 70, 229, .26),
+        inset 0 1px 0 rgba(255,255,255,.28);
+    filter: brightness(1.04);
+}
+
+#tab-settings .student-settings-content-glass-button:active {
+    transform: translateY(0) scale(.992);
+}
+
+#tab-settings .student-settings-content-glass-button.is-disabled {
+    color: #334155;
+    border-color: rgba(100,116,139,.24);
+    background:
+        linear-gradient(135deg, rgba(248,250,252,.96), rgba(226,232,240,.94));
+    box-shadow:
+        0 8px 20px rgba(15,23,42,.10),
+        inset 0 1px 0 rgba(255,255,255,.86);
+}
+
+#tab-settings .student-settings-content-glass-button-icon {
+    flex: 0 0 auto;
+    font-size: 1.05rem;
+    line-height: 1;
+}
+
+#tab-settings .student-settings-content-glass-button-label {
+    min-width: 0;
+}
+
+html[data-app-role="student"] body.student-content-glass-disabled .dashboard > .content {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+    border-color: transparent !important;
+}
+
+html[data-app-role="student"] body.student-content-glass-disabled .dashboard > .content::before {
+    display: none !important;
+    content: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+@media (max-width: 560px) {
+    #tab-settings .student-settings-content-glass-button {
+        min-height: 52px;
+        margin-top: 12px;
+        padding: 12px 14px;
+        border-radius: 14px;
+        font-size: .9rem;
+    }
+}
+
