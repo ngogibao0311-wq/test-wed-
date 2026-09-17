@@ -46,7 +46,7 @@
 
     if (window.StudentFeatureLoader) return;
 
-    const VERSION = '3.4.9-bmask-frame-selfcontained-v1';
+    const VERSION = '3.4.5-floating-actions-v2';
 
     const cssPromises = new Map();
     const scriptPromises = new Map();
@@ -85,7 +85,7 @@
         seasons: 'css/premium-mua-xuan.css?v=20260917.frame-runtime-barrier-v1',
         nationalDay: 'css/quoc-khanh-pet.css?v=20260917.frame-runtime-barrier-v1',
         nyx: 'css/nyx-than-thoai.css?v=20260917.frame-runtime-barrier-v1',
-        tamon: 'css/tamon-b-side.css?v=20260917.bmask-frame-selfcontained-v1',
+        tamon: 'css/tamon-b-side.css?v=20260917.frame-runtime-barrier-v1',
         linkClickCheng: 'css/link-click-cheng-xiaoshi.css?v=20260917.frame-runtime-barrier-v1'
     });
 
@@ -95,7 +95,7 @@
         petItems: 'js/pet-items.js?v=4.2',
         petInteractions: 'js/pet-interactions.js?v=3.8',
         musicManager: 'js/music-manager.js?v=20260910.music-reliability-v3',
-        storeManager: 'js/store-manager.js?v=20260917.bmask-frame-selfcontained-v1',
+        storeManager: 'js/store-manager.js?v=20260917.frame-runtime-barrier-v1',
 
         luxuryStore: 'js/luxury-store.js?v=4.2.12-store-view-isolation',
         collections: 'js/store-collections.js?v=20260908.four-seasons-lock-v1',
@@ -105,7 +105,7 @@
         painting: 'js/painting.js?v=20260908.round-query-v1',
         history: 'js/lich-su-hao-hung.js?v=20260831.1',
         bellum: 'js/bellum-event.js?v=20260912.4',
-        midAutumnFestival: 'js/mid-autumn-festival.js?v=20260914.4-balanced-games',
+        midAutumnFestival: 'js/mid-autumn-festival.js?v=20260917.1-accessibility-focus-fix',
 
         dailyLogin: 'js/daily-login.js?v=20260908.lazy-v1',
         guide: 'js/huong-dan-nguoi-moi.js?v=2.14.0'
@@ -252,7 +252,7 @@
     // bằng inline !important để chống CSS theme/mobile tải sau.
     function installCriticalStudentActionCss() {
         const STYLE_ID =
-            'student-top-actions-critical-first-paint-v10-fixed-v5';
+            'student-top-actions-critical-first-paint-v9-floating-v3';
 
         if (document.getElementById(STYLE_ID)) {
             return;
@@ -267,18 +267,19 @@ html[data-app-role="student"] body .dashboard > .content {
     position: relative !important;
 }
 
-#studentTopActionsFlow.student-top-actions-flow {
-    position: fixed !important;
-    top: 24px !important;
-    right: 28px !important;
+.dashboard > .content > #studentTopActionsFlow.student-top-actions-flow {
+    position: absolute !important;
+    top: 20px !important;
+    right: auto !important;
     bottom: auto !important;
-    left: auto !important;
+    left: calc(100% - 231px) !important;
+    inset: auto !important;
     display: flex !important;
     align-items: center !important;
     justify-content: flex-end !important;
     gap: 9px !important;
     width: max-content !important;
-    max-width: calc(100vw - 56px) !important;
+    max-width: calc(100% - 48px) !important;
     min-height: 44px !important;
     height: auto !important;
     margin: 0 !important;
@@ -437,13 +438,13 @@ html[data-app-role="student"] body .dashboard > .content > :is(
 }
 
 @media (max-width: 768px) {
-    #studentTopActionsFlow.student-top-actions-flow {
-        position: fixed !important;
-        top: calc(12px + env(safe-area-inset-top, 0px)) !important;
-        right: calc(10px + env(safe-area-inset-right, 0px)) !important;
-        left: auto !important;
-        max-width: calc(100vw - 78px) !important;
-        min-height: 38px !important;
+    .dashboard > .content > #studentTopActionsFlow.student-top-actions-flow {
+        position: absolute !important;
+        top: 15px !important;
+        right: auto !important;
+        left: calc(100% - 196px) !important;
+        max-width: none !important;
+        min-height: 40px !important;
         margin: 0 !important;
         gap: 7px !important;
     }
@@ -455,13 +456,13 @@ html[data-app-role="student"] body .dashboard > .content > :is(
         .inbox-trigger-btn,
         .profile-trigger-btn
     ) {
-        width: 38px !important;
-        min-width: 38px !important;
-        max-width: 38px !important;
-        height: 38px !important;
-        min-height: 38px !important;
-        max-height: 38px !important;
-        flex-basis: 38px !important;
+        width: 40px !important;
+        min-width: 40px !important;
+        max-width: 40px !important;
+        height: 40px !important;
+        min-height: 40px !important;
+        max-height: 40px !important;
+        flex-basis: 40px !important;
     }
 
     #studentTopActionsFlow.student-top-actions-flow

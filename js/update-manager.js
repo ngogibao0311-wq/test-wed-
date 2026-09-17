@@ -193,7 +193,7 @@
             .filter(Boolean);
     }
 
-    // Release notes mở rộng v4.0.2: vẫn tương thích changes/releaseNotes cũ.
+    // Release notes mở rộng v4.0.3: vẫn tương thích changes/releaseNotes cũ.
     function getReleaseList(info, key) {
         if (!info || !Array.isArray(info[key])) return [];
 

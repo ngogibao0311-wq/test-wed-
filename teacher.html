@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="application-version" content="4.0.2">
+    <meta name="application-version" content="4.0.3">
     <title>Trang Giáo Viên</title>
     <!-- Kết nối sớm tới CDN lõi; không tải thêm tài nguyên và không đổi chức năng -->
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="stylesheet" href="css/common.css?v=4.0.4-login-layout4">
-    <link rel="stylesheet" href="css/teacher.css?v=4.0.7-leaderboard-admin-v2">
+    <link rel="stylesheet" href="css/teacher.css?v=4.0.8-leaderboard-admin-v3-state-cachefix">
     <link rel="stylesheet" href="css/mobile.css?v=4.0.3-layout">
     <link rel="stylesheet" href="css/web-animations.css?v=1.0">
     <link rel="stylesheet" href="css/store-items.css?v=4.0.0">
@@ -3703,14 +3703,14 @@
     <script>
         // Phiên bản thực sự của bộ HTML/JS đang chạy.
         // common.js cũ đọc appVersion từ localStorage, nên đồng bộ trước khi nạp common.js.
-        window.APP_VERSION = '4.0.2';
+        window.APP_VERSION = '4.0.3';
         try {
             localStorage.setItem('appVersion', window.APP_VERSION);
         } catch (_) {}
     </script>
     <script src="js/common.js?v=4.0.4-login-layout4"></script>
     <script src="js/history-retention.js?v=1.0.0-2month-safe"></script>
-    <script src="js/update-manager.js?v=1.0.3-release-sections"></script>
+    <script src="js/update-manager.js?v=1.0.4-release-v4.0.3"></script>
     <script src="js/web-animations.js?v=1.0"></script>
     <!-- Tối ưu hiệu năng: mặc định tắt; dùng trạng thái đã lưu trong Cài đặt. Phát hiện mobile/thiết bị yếu chỉ áp dụng sau khi tính năng đã được bật. -->
     <script src="js/web-performance-optimizer.js?v=2.0.0"></script>
@@ -3740,7 +3740,7 @@
     <!-- Hotfix: xác nhận cài đặt lộ trình trước khi teacher.js chờ loader -->
     <script src="js/roadmap-startup-fix.js?v=1.0"></script>
 
-    <script src="js/teacher.js?v=4.0.7-leaderboard-admin-v2"></script>
+    <script src="js/teacher.js?v=4.0.8-leaderboard-admin-v3-state-cachefix"></script>
     <script src="js/huong-dan-nguoi-moi.js?v=2.14.0"></script>
 </body>
 

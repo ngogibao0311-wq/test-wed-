@@ -1,31 +1,25 @@
 {
-  "version": "4.0.2",
-  "build": "2026.09.10.3-system-hardening-audit",
+  "version": "4.0.3",
+  "build": "2026.09.17.1-floating-toolbar-midautumn-a11y",
   "channel": "stable",
-  "releasedAt": "2026-09-10T09:45:00+07:00",
-  "title": "Bản cập nhật hệ thống v4.0.2 · Ổn định & tối ưu",
-  "summary": "Bổ sung Nhạc Nga và cải thiện nhạc nền; đồng thời củng cố Firebase, bảo mật, cập nhật, lưu trữ, nhật ký, Hội họa, Service Worker và hiệu năng. Chi tiết cập nhật nay tách rõ hạng mục đã xử lý, rủi ro đang theo dõi và kế hoạch nâng cấp tiếp theo.",
+  "releasedAt": "2026-09-17T14:38:00+07:00",
+  "title": "Bản cập nhật hệ thống v4.0.3 · Giao diện nổi & trợ năng",
+  "summary": "Hoàn thiện cụm 4 nút hành động nổi của học sinh trên desktop/mobile, tối ưu giao diện khi cửa sổ hẹp và sửa lỗi focus/aria-hidden của Đại Hội Trung Thu. Đồng thời đồng bộ phiên bản ứng dụng với Service Worker để người dùng nhận đúng tài nguyên mới.",
   "mandatory": false,
   "minSupportedVersion": "3.0.0",
   "changes": [
-    "Bổ sung vật phẩm Nhạc Nga dùng nguồn YouTube mới và tiếp tục cải thiện độ ổn định của nhạc nền trên Chrome, Android, Safari và WebView.",
-    "Hạn chế Media Session/Media Control Center đối với nhạc nền theo cơ chế best-effort; không can thiệp luồng video bài tập.",
-    "Tách music runtime/lazy-load để nhạc và các module đặc biệt không làm chậm quá trình mở trang khi không cần thiết.",
-    "Bổ sung System Health Center 2.0 dạng chỉ đọc để kiểm tra Auth/RTDB, Service Worker/cache, R2/Cloudinary, module runtime, listener/timer và mật độ DOM hiệu ứng.",
-    "Chuẩn hóa cache Service Worker theo appVersion + build để giảm nguy cơ tiếp tục dùng runtime cache của bản cũ.",
-    "EffectQualityManager dùng ngân sách hiệu ứng tập trung, quota hạt và tự tạm dừng sinh hiệu ứng khi tab bị ẩn."
+    "Cụm BXH – Túi đồ – Hộp thư – Hồ sơ tiếp tục dùng floating dock bám viewport; cuộn trang không làm các nút bị kéo đi.",
+    "Tối ưu kích thước/khoảng cách cụm nút trên cửa sổ hẹp để giảm chồng lấn với nút mở menu và tiêu đề nội dung.",
+    "Sửa modal Đại Hội Trung Thu: quản lý focus đúng thứ tự, dùng inert trước khi aria-hidden để tương thích tốt hơn với công nghệ hỗ trợ.",
+    "Tăng cache-busting cho StudentFeatureLoader và Update Manager để trình duyệt lấy đúng hotfix mới.",
+    "Đồng bộ APP_VERSION/build giữa HTML, version.json và Service Worker; worker mới tự loại cache study-* của bản cũ khi activate."
   ],
   "resolvedIssues": [
-    "🔴 Rất cao — Firebase critical read: bổ sung getDBStrict() cho dữ liệu bắt buộc; lỗi đọc không còn bị biến thành [] rồi bị hiểu nhầm là node rỗng. Request Single-Flight chia sẻ cùng Promise đọc trong cửa sổ ngắn để giảm request trùng.",
-    "🔴 Cao — Hợp nhất hệ thống cập nhật: common.js không còn tự xóa cache/reload độc lập; applySystemUpdate cũ chỉ làm wrapper gọi SystemUpdateManager để giữ tương thích.",
-    "🔴 Cao — Security teacher-safe: bỏ debugger loop nặng; trạng thái pending/verified của giáo viên được tách rõ để tránh đá nhầm giáo viên hợp lệ trong lúc Firebase Auth/role đang xác minh.",
-    "🟠 Trung-cao — Khóa quà sinh nhật: trạng thái issuing được coi là lock thật và có TTL để invocation khác không cùng cấp quà; lock chết có thể được thu hồi an toàn.",
-    "🟠 Trung-cao — Upload: API Cloudinary cũ chỉ còn lớp tương thích; upload mới chuyển qua Cloudflare R2 có Firebase ID token trong Authorization: Bearer.",
-    "🟡 Trung bình — Nhật ký giao dịch: đọc Firebase theo batch bằng limitToLast + cursor thay vì tải toàn bộ lịch sử tháng rồi chỉ phân trang ở UI.",
-    "🟡 Trung bình — Hội họa: phần thống kê/quản lý vòng không còn đọc toàn bộ hoihoa_submissions; submission được query theo khóa/round phù hợp.",
-    "🟡 Trung bình — Service Worker: tên cache hiện gắn trực tiếp với APP_VERSION và APP_BUILD; cache cũ được loại khi worker mới activate.",
-    "🟡 Nhẹ — Ghi chú Performance Optimizer đã đồng bộ với logic thật: mặc định TẮT và chỉ tối ưu sau khi người dùng chủ động bật.",
-    "⚙️ Hiệu năng — Effect Budget v2 gom emitter EffectManager vào scheduler/quota tập trung, giới hạn số DOM hạt và pause/resume theo visibility."
+    "🟠 Giao diện — 4 nút hành động học sinh không còn cuộn mất theo nội dung khi dùng cơ chế floating dock.",
+    "🟠 Responsive — giảm tình trạng cụm hành động chen vào nút ☰/tiêu đề khi cửa sổ desktop bị thu hẹp.",
+    "🟡 Accessibility — loại cảnh báo Chrome “Blocked aria-hidden ... descendant retained focus” khi đóng Đại Hội Trung Thu.",
+    "🟡 Cache — đổi build Service Worker để tách cache v4.0.3 khỏi cache v4.0.2.",
+    "🟡 Cập nhật — đồng bộ application-version và window.APP_VERSION trên các trang chính, trang trạng thái và trang đăng nhập."
   ],
   "knownIssues": [
     "🟠 Cao — CSS Tamon: đã phát hiện một khối CSS rất lớn bị lặp; cần xóa phần trùng sau khi đối chiếu chính xác file đang deploy để không đổi giao diện.",
