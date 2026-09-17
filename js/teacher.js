@@ -7356,6 +7356,8 @@ function escapeHTMLForMath(value) {
 //   student_coins có thể âm để bảo toàn sổ cái và chặn việc lợi dụng chấm lại.
 // ==============================================================
 const GRADE_REWARD_V2_VERSION = 3;
+window.__GRADE_REWARD_GUARD_BUILD = '20260917.v3.1-reconcile-fallback';
+console.info('[Grade Reward Guard]', window.__GRADE_REWARD_GUARD_BUILD);
 const GRADE_REWARD_MUTATION_LOCK_MS = 120000;
 
 function getTeacherGradeRewardV2ViolationReasons(submission) {
@@ -7491,6 +7493,79 @@ function getTeacherGradeRewardUsername(submission) {
     ).trim();
 }
 
+// ======================================================
+// GRADE REWARD V3.1 · LEGACY / MISSING EVENT FALLBACK
+// Một số bài đã phát thưởng ở bản V2/V3 cũ có metadata nằm trong
+// submission nhưng grade_reward_events chưa tồn tại hoặc bị thiếu.
+// Tạo event tạm từ metadata để thao tác Chấm lại/Lưu điểm vẫn
+// thu hồi đúng quà đã nhận hoặc xóa thư chưa nhận.
+// ======================================================
+function getTeacherGradeRewardFallbackEvent(submission) {
+    if (!submission) return null;
+
+    const version = Number(submission.gradeRewardV2Version || 0);
+    const messageId = String(
+        submission.gradeRewardV2MessageId || ''
+    ).trim();
+    const ticketDelta = Number(
+        submission.gradeRewardV2Tickets || 0
+    ) || 0;
+    const coinReward = Number(
+        submission.gradeRewardV2Coins || 0
+    ) || 0;
+    const storedStatus = String(
+        submission.gradeRewardV2Status || ''
+    ).trim();
+    const revision = Math.max(
+        1,
+        Number(submission.gradeRewardV2Revision || 1) || 1
+    );
+
+    const hasFootprint = Boolean(
+        version >= 2 ||
+        messageId ||
+        ticketDelta !== 0 ||
+        coinReward !== 0 ||
+        storedStatus
+    );
+
+    if (!hasFootprint) return null;
+
+    // Phạt được áp dụng trực tiếp ngay khi chấm, vì vậy metadata âm
+    // phải được xem là penalty_applied kể cả status cũ bị thiếu/sai.
+    // Với thưởng dương, messageId là khóa để dò claim đã nhận.
+    let status = storedStatus;
+
+    if (ticketDelta < 0) {
+        status = 'penalty_applied';
+    } else if (messageId && !['claimed'].includes(status)) {
+        status = 'pending_claim';
+    } else if (!status) {
+        status = ticketDelta > 0 ? 'pending_claim' : 'processing';
+    }
+
+    return {
+        version: version || 2,
+        revision,
+        status,
+        username: getTeacherGradeRewardUsername(submission),
+        submissionKey: getTeacherGradeRewardSubmissionKey(submission),
+        assignmentId: String(submission.assignmentId || ''),
+        score: Number(submission.grade || 0),
+        ticketDelta,
+        coinReward,
+        specialPenalty: Boolean(submission.gradeRewardV2SpecialPenalty),
+        reason: String(submission.gradeRewardV2Reason || ''),
+        messageId,
+        gradedAt: Number(submission.gradedAt || 0),
+        legacyFallback: true
+    };
+}
+
+function hasTeacherGradeRewardFootprint(submission) {
+    return Boolean(getTeacherGradeRewardFallbackEvent(submission));
+}
+
 function getTeacherGradeRewardHistoryEntry(eventData) {
     const source = eventData || {};
 
@@ -7543,7 +7618,9 @@ async function inspectTeacherGradeRewardState(submission) {
         .ref(`grade_reward_events/${username}/${submissionKey}`)
         .once('value');
 
-    const event = eventSnap.val() || null;
+    const storedEvent = eventSnap.val() || null;
+    const fallbackEvent = getTeacherGradeRewardFallbackEvent(submission);
+    const event = storedEvent || fallbackEvent || null;
     const claim = event
         ? await getTeacherGradeRewardClaimState(username, event)
         : null;
@@ -7552,6 +7629,8 @@ async function inspectTeacherGradeRewardState(submission) {
         username,
         submissionKey,
         event,
+        storedEvent,
+        fallbackEvent,
         claim
     };
 }
@@ -7632,16 +7711,21 @@ async function rollbackTeacherGradeRewardV3(
         `grade_reward_events/${username}/${submissionKey}`
     );
 
+    const fallbackEvent = getTeacherGradeRewardFallbackEvent(submission);
     const now = Date.now();
     const mutationId =
         `${now}_${Math.random().toString(36).slice(2, 10)}`;
 
     const lockTx = await eventRef.transaction(current => {
-        if (!current) {
+        // Nếu event bị thiếu nhưng submission vẫn còn dấu vết thưởng/phạt,
+        // dựng lại event từ metadata để có thể thu hồi an toàn.
+        const source = current || fallbackEvent;
+
+        if (!source) {
             return;
         }
 
-        const status = String(current.status || '');
+        const status = String(source.status || '');
 
         if (
             ['regrading', 'deleted', 'superseded', 'rolled_back'].includes(status)
@@ -7658,11 +7742,13 @@ async function rollbackTeacherGradeRewardV3(
         }
 
         return {
-            ...current,
+            ...source,
             status: 'mutating',
             mutationId,
             mutationStartedAt: now,
-            mutationPreviousStatus: status
+            mutationPreviousStatus: status,
+            recoveredFromSubmissionMetadata:
+                !current && Boolean(fallbackEvent)
         };
     });
 
@@ -7735,12 +7821,19 @@ async function rollbackTeacherGradeRewardV3(
             appliedCoins = Number(
                 claim.coins ?? lockedEvent.coinReward ?? 0
             ) || 0;
-        } else if (previousStatus === 'penalty_applied') {
+        } else if (
+            previousStatus === 'penalty_applied' ||
+            Number(lockedEvent.ticketDelta || 0) < 0
+        ) {
+            // Phạt luôn có hiệu lực ngay, kể cả event cũ bị mất status.
             appliedTickets = Number(
                 lockedEvent.ticketDelta || 0
             ) || 0;
             appliedCoins = 0;
-        } else if (previousStatus === 'claimed') {
+        } else if (
+            previousStatus === 'claimed' ||
+            String(submission?.gradeRewardV2Status || '') === 'claimed'
+        ) {
             appliedTickets = Number(
                 lockedEvent.ticketDelta || 0
             ) || 0;
@@ -8223,11 +8316,12 @@ async function gradeSubmission(subId) {
         const rewardState = await inspectTeacherGradeRewardState(sub);
 
         if (
-            rewardState.event &&
-            !['regrading', 'deleted', 'superseded', 'rolled_back', 'retry']
-                .includes(String(rewardState.event.status || '')) &&
+            (rewardState.event || hasTeacherGradeRewardFootprint(sub)) &&
+            !['deleted', 'rolled_back']
+                .includes(String(rewardState.event?.status || '')) &&
             !isTeacherGradeRewardOutcomeSame(
-                rewardState.event,
+                rewardState.event ||
+                    getTeacherGradeRewardFallbackEvent(sub),
                 nextOutcome
             )
         ) {
@@ -8480,8 +8574,9 @@ window.requestRegrade = async function (subKey) {
         alert(
             '✅ Đã kích hoạt chấm lại. Kết quả phía học sinh đã được ẩn.' +
             (reversedText.length
-                ? `\nĐã đối soát kết quả cũ: ${reversedText.join(' + ')}.`
-                : '\nPhần thưởng cũ chưa nhận (nếu có) đã được thu hồi.')
+                ? `\nĐã đối soát số dư NGAY LẬP TỨC: ${reversedText.join(' + ')}.`
+                : '\nKhông có tài sản đã nhận để trừ/hoàn. Thư thưởng cũ chưa nhận (nếu có) đã được thu hồi.') +
+            `\nTrạng thái đối soát: ${rollbackResult?.status || 'no_event'}.`
         );
 
         await loadSubmissions();

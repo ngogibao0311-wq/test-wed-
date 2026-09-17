@@ -5316,6 +5316,38 @@ window.onload = async function () {
         if (startupLoader) startupLoader.markReady('student-coins');
     });
 
+
+    // Grade Reward Guard v3.1: cập nhật số Vé trên vòng quay ngay khi
+    // giáo viên thu hồi thưởng / hoàn án phạt, không cần F5 hoặc đóng mở game.
+    listenFirebase(
+        db.ref('student_bonus_tickets/' + currentUser.username),
+        'value',
+        () => {
+            window.setTimeout(async () => {
+                if (typeof window.calculateTotalTickets !== 'function') {
+                    return;
+                }
+
+                try {
+                    const ticketData = await window.calculateTotalTickets();
+                    const titleWheel = document.querySelector('#luckyWheelModal h3');
+
+                    if (titleWheel) {
+                        titleWheel.innerHTML =
+                            `🎡 Vòng Quay Nhân Phẩm<br>` +
+                            `<span style="font-size: 0.5em; color: #ffd700; text-transform: none;">` +
+                            `🎫 Vé hiện có: ${ticketData.remaining}</span>`;
+                    }
+                } catch (error) {
+                    console.warn(
+                        '[Grade Reward Guard] Không làm mới được số Vé realtime:',
+                        error
+                    );
+                }
+            }, 0);
+        }
+    );
+
     // === LẮNG NGHE HỆ THỐNG CỬA HÀNG (REAL-TIME PHÍA HỌC SINH) ===
     listenFirebase(
         db.ref('store_settings'),
