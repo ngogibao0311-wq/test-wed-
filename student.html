@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="stylesheet" href="css/common.css?v=4.0.4-login-layout4">
-    <link rel="stylesheet" href="css/student.css?v=4.0.15-floating-actions-v5-fixed">
+    <link rel="stylesheet" href="css/student.css?v=20260917.content-glass-toggle-v2-button">
     <link rel="stylesheet" href="css/mobile.css?v=4.0.9-floating-actions-v7-responsive-toolbar">
     <link rel="stylesheet" href="css/web-animations.css?v=1.0">
     <link rel="stylesheet" href="css/update-manager.css?v=1.0.0">
@@ -975,6 +975,17 @@
 
                             <div id="requestNotifications" class="student-settings-request-notifications"></div>
                         </div>
+
+                        <!-- NÚT RIÊNG: không nằm trong card Tài khoản cá nhân -->
+                        <button type="button"
+                            id="toggleStudentContentGlassButton"
+                            class="student-settings-content-glass-button is-enabled"
+                            onclick="toggleStudentContentGlassButton()"
+                            aria-pressed="true"
+                            title="Bật hoặc tắt lớp kính mờ lớn phía sau khu vực nội dung">
+                            <span class="student-settings-content-glass-button-icon" aria-hidden="true">🪟</span>
+                            <span class="student-settings-content-glass-button-label">Tắt lớp kính mờ nội dung</span>
+                        </button>
                     </section>
 
                     <!-- NHÓM 3 · HỆ THỐNG -->
@@ -1581,7 +1592,7 @@
     <script src="https://www.youtube.com/iframe_api"></script>
 
     <!-- 5. Logic chính của trang học sinh luôn đặt cuối -->
-    <script src="js/student.js?v=20260917.floating-actions-v7-responsive-toolbar"></script>
+    <script src="js/student.js?v=20260917.content-glass-toggle-v2-button"></script>
 
 </body>
 

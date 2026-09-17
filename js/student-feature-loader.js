@@ -85,6 +85,7 @@
         seasons: 'css/premium-mua-xuan.css?v=20260917.frame-runtime-barrier-v1',
         nationalDay: 'css/quoc-khanh-pet.css?v=20260917.frame-runtime-barrier-v1',
         nyx: 'css/nyx-than-thoai.css?v=20260917.frame-runtime-barrier-v1',
+        aether: 'css/aether-than-thoai.css?v=20260917.aether-frame-v1',
         tamon: 'css/tamon-b-side.css?v=20260917.frame-runtime-barrier-v1',
         linkClickCheng: 'css/link-click-cheng-xiaoshi.css?v=20260917.frame-runtime-barrier-v1'
     });
@@ -125,6 +126,9 @@
             CSS.nyx,
             CSS.legendary
         ]),
+        frame_truyenthuyet_aether_thien_quang_chi_hoan: Object.freeze([
+            CSS.aether
+        ]),
         frame_cam_mong_thanh_huyen_chi_hoan: Object.freeze([CSS.camMong]),
         frame_trung_thu_chu_cuoi_que_anh_chi_hoan: Object.freeze([CSS.midAutumnMoon]),
         frame_trung_thu_nguyet_que_hoa_hoan: Object.freeze([CSS.midAutumnMoon]),
@@ -160,6 +164,7 @@
         CSS.seasons,
         CSS.nationalDay,
         CSS.nyx,
+        CSS.aether,
         CSS.tamon,
         CSS.linkClickCheng
     ]);

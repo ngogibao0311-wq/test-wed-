@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="stylesheet" href="css/common.css?v=4.0.4-login-layout4">
-    <link rel="stylesheet" href="css/teacher.css?v=4.0.8-leaderboard-admin-v3-state-cachefix">
+    <link rel="stylesheet" href="css/teacher.css?v=4.0.10-sidebar-toggle-right">
     <link rel="stylesheet" href="css/mobile.css?v=4.0.3-layout">
     <link rel="stylesheet" href="css/web-animations.css?v=1.0">
     <link rel="stylesheet" href="css/store-items.css?v=4.0.0">
@@ -21,6 +21,68 @@
     <link rel="stylesheet" href="css/painting.css?v=4.0.0">
     <link rel="stylesheet" href="css/luxury-store.css?v=4.2">
     <link rel="stylesheet" href="css/update-manager.css?v=1.0.0">
+    <style id="teacherSidebarToggleFinalGuard">
+        /*
+         * Guard đặt trong teacher.html để thắng các CSS dùng chung/mobile
+         * được tải sau hoặc cache cũ. Logic chính vẫn nằm trong teacher.css.
+         */
+        @media screen and (min-width: 769px) {
+            html[data-app-role="teacher"] body .dashboard > .sidebar > .sidebar-toggle {
+                position: absolute !important;
+                top: 18px !important;
+                right: 16px !important;
+                left: auto !important;
+                bottom: auto !important;
+                float: none !important;
+                margin: 0 !important;
+                width: 38px !important;
+                min-width: 38px !important;
+                max-width: 38px !important;
+                height: 38px !important;
+                min-height: 38px !important;
+                max-height: 38px !important;
+                padding: 0 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                z-index: 1000 !important;
+                transform: none !important;
+            }
+
+            html[data-app-role="teacher"] body
+            .dashboard:not(.collapsed) > .sidebar > .sidebar-top h3 {
+                max-width: calc(100% - 58px) !important;
+                margin: 0 58px 20px 2px !important;
+                min-height: 38px !important;
+                display: flex !important;
+                align-items: center !important;
+                white-space: nowrap !important;
+            }
+
+            html[data-app-role="teacher"] body
+            .dashboard:not(.collapsed) > .sidebar > .sidebar-top h3 + br {
+                display: none !important;
+            }
+
+            html[data-app-role="teacher"] body
+            .dashboard.collapsed > .sidebar > .sidebar-toggle {
+                left: 50% !important;
+                right: auto !important;
+                transform: translateX(-50%) rotate(180deg) !important;
+            }
+
+            html[data-app-role="teacher"] body
+            .dashboard.collapsed > .sidebar > .sidebar-top h3,
+            html[data-app-role="teacher"] body
+            .dashboard.collapsed > .sidebar > .sidebar-top h3::before,
+            html[data-app-role="teacher"] body
+            .dashboard.collapsed > .sidebar > .sidebar-top h3::after,
+            html[data-app-role="teacher"] body
+            .dashboard.collapsed > .sidebar > .sidebar-top h3 + br {
+                display: none !important;
+            }
+        }
+    </style>
     <script>
         MathJax = {
             tex: {
@@ -381,6 +443,45 @@
             .app-startup-cloud-icon { width: 50px; height: 50px; flex-basis: 50px; }
         }
     </style>
+
+    <style id="teacherSidebarToggleRightGuardV2">
+        /* FINAL: đặt nút thu gọn sang mép PHẢI của sidebar trên desktop. */
+        @media screen and (min-width: 769px) {
+            html[data-app-role="teacher"] body .dashboard:not(.collapsed) > .sidebar > .sidebar-toggle {
+                position: absolute !important;
+                top: 18px !important;
+                right: 14px !important;
+                left: auto !important;
+                bottom: auto !important;
+                margin: 0 !important;
+                float: none !important;
+                transform: none !important;
+                z-index: 2147480 !important;
+            }
+
+            html[data-app-role="teacher"] body .dashboard:not(.collapsed) > .sidebar > .sidebar-top h3 {
+                box-sizing: border-box !important;
+                width: auto !important;
+                max-width: calc(100% - 68px) !important;
+                margin: 0 68px 20px 2px !important;
+                padding-right: 0 !important;
+                white-space: nowrap !important;
+            }
+
+            html[data-app-role="teacher"] body .dashboard:not(.collapsed) > .sidebar > .sidebar-top h3 + br {
+                display: none !important;
+            }
+
+            /* Khi thu gọn vẫn giữ nút ở giữa như cơ chế cũ. */
+            html[data-app-role="teacher"] body .dashboard.collapsed > .sidebar > .sidebar-toggle {
+                top: 18px !important;
+                left: 50% !important;
+                right: auto !important;
+                transform: translateX(-50%) rotate(180deg) !important;
+            }
+        }
+    </style>
+
 </head>
 
 <body>
