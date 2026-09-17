@@ -3332,7 +3332,7 @@ body.theme-fairy-tale .submit-box>label {
 .stellar-interaction-layer {
     position: fixed;
     inset: 0;
-    z-index: 9984;
+    z-index: 9986;
     overflow: hidden;
     pointer-events: none;
     background:
@@ -6626,7 +6626,7 @@ body.video-summary-resizing
     .content > .inbox-trigger-btn,
     .content > .bag-trigger-btn,
     .content > .leaderboard-trigger-btn {
-        position: fixed !important;
+        position: absolute !important;
         top: 20px !important;
 
         left: auto !important;
@@ -6709,7 +6709,172 @@ body.video-summary-resizing
     font-size: .88rem;
     line-height: 1.55;
 }
-\n\n/* =========================================================\n   LAYOUT REFRESH v4.0.3 · STUDENT\n   Chỉ thay đổi bố cục/giao diện. Không thay đổi logic, ID, event.\n   ========================================================= */\n@media (min-width: 769px) {\n    html[data-app-role="student"] body .dashboard {\n        display: grid !important;\n        grid-template-columns: 270px minmax(0, 1fr);\n        gap: 18px;\n        align-items: start !important;\n        padding: 16px;\n        min-height: 100vh;\n        min-height: 100dvh;\n        transition: grid-template-columns .34s cubic-bezier(.2,.8,.2,1);\n    }\n\n    html[data-app-role="student"] body .dashboard.collapsed {\n        grid-template-columns: 88px minmax(0, 1fr);\n    }\n\n    html[data-app-role="student"] body .dashboard > .sidebar {\n        position: sticky !important;\n        top: 16px !important;\n        width: 100% !important;\n        height: calc(100vh - 32px) !important;\n        height: calc(100dvh - 32px) !important;\n        flex: none !important;\n        align-self: start !important;\n        border: 1px solid rgba(255,255,255,.22) !important;\n        border-radius: 28px !important;\n        box-shadow: 0 22px 55px rgba(15,23,42,.20) !important;\n        overflow-x: hidden !important;\n        overflow-y: auto !important;\n    }\n\n    html[data-app-role="student"] body .dashboard > .sidebar > .sidebar-toggle,\n    html[data-app-role="student"] body .dashboard:not(.collapsed) > .sidebar > .sidebar-toggle,\n    html[data-app-role="student"] body .dashboard.collapsed > .sidebar > .sidebar-toggle {\n        position: sticky !important;\n        top: 18px !important;\n        left: auto !important;\n        right: auto !important;\n        float: right;\n        margin: 0 14px -34px 0 !important;\n        width: 34px !important;\n        height: 34px !important;\n        z-index: 8 !important;\n        border-color: rgba(255,255,255,.62) !important;\n        box-shadow: 0 8px 18px rgba(15,23,42,.26) !important;\n    }\n\n    html[data-app-role="student"] body .sidebar-top {\n        padding: 24px 16px 18px !important;\n    }\n\n    html[data-app-role="student"] body .sidebar-bottom {\n        padding: 14px 16px 18px !important;\n    }\n\n    html[data-app-role="student"] body .sidebar-top h3 {\n        margin: 0 42px 20px 2px !important;\n        padding-bottom: 16px !important;\n        font-size: 1.18rem !important;\n    }\n\n    html[data-app-role="student"] body .nav-item {\n        min-height: 48px !important;\n        margin-bottom: 7px !important;\n        padding: 11px 13px !important;\n        border-radius: 14px !important;\n    }\n\n    html[data-app-role="student"] body .dashboard.collapsed .sidebar-top,\n    html[data-app-role="student"] body .dashboard.collapsed .sidebar-bottom {\n        padding-left: 10px !important;\n        padding-right: 10px !important;\n    }\n\n    html[data-app-role="student"] body .dashboard.collapsed .sidebar-top h3 {\n        margin-right: 0 !important;\n    }\n\n    html[data-app-role="student"] body .dashboard > .content {\n        position: relative !important;\n        width: 100% !important;\n        min-width: 0 !important;\n        min-height: calc(100vh - 32px);\n        min-height: calc(100dvh - 32px);\n        padding: 82px clamp(22px, 3vw, 44px) 44px !important;\n        border: 1px solid rgba(255,255,255,.54);\n        border-radius: 30px;\n        background: rgba(248,250,252,.34);\n        box-shadow: 0 22px 55px rgba(15,23,42,.10), inset 0 1px 0 rgba(255,255,255,.72);\n        backdrop-filter: blur(12px) saturate(1.05);\n        -webkit-backdrop-filter: blur(12px) saturate(1.05);\n        overflow-x: clip;\n    }\n\n    html[data-app-role="student"] body .dashboard > .content::before {\n        height: 210px !important;\n        border-radius: 30px 30px 0 0;\n        background: linear-gradient(180deg, rgba(255,255,255,.42), rgba(255,255,255,0)) !important;\n    }\n\n    html[data-app-role="student"] body .content > .profile-trigger-btn,\n    html[data-app-role="student"] body .content > .inbox-trigger-btn,\n    html[data-app-role="student"] body .content > .bag-trigger-btn,\n    html[data-app-role="student"] body .content > .leaderboard-trigger-btn {\n        position: absolute !important;\n        top: 20px !important;\n        bottom: auto !important;\n        width: 44px !important;\n        height: 44px !important;\n        border-radius: 14px !important;\n        background: rgba(255,255,255,.78) !important;\n        border: 1px solid rgba(255,255,255,.92) !important;\n        box-shadow: 0 8px 22px rgba(15,23,42,.10) !important;\n        backdrop-filter: blur(12px);\n        -webkit-backdrop-filter: blur(12px);\n    }\n\n    html[data-app-role="student"] body .content > .profile-trigger-btn { right: 24px !important; }\n    html[data-app-role="student"] body .content > .inbox-trigger-btn { right: 76px !important; }\n    html[data-app-role="student"] body .content > .bag-trigger-btn { right: 128px !important; }\n    html[data-app-role="student"] body .content > .leaderboard-trigger-btn { right: 180px !important; }\n\n    html[data-app-role="student"] body .tab-content {\n        max-width: 1480px;\n        margin: 0 auto;\n    }\n\n    html[data-app-role="student"] body .content h2 {\n        margin-bottom: 22px !important;\n        padding-right: 210px;\n    }\n\n    html[data-app-role="student"] body .card {\n        border-radius: 22px !important;\n        box-shadow: 0 14px 36px rgba(15,23,42,.09), inset 0 1px 0 rgba(255,255,255,.84) !important;\n    }\n}\n\n@media (min-width: 1200px) {\n    html[data-app-role="student"] body .dashboard {\n        grid-template-columns: 286px minmax(0, 1fr);\n        gap: 22px;\n        padding: 18px;\n    }\n    html[data-app-role="student"] body .dashboard.collapsed {\n        grid-template-columns: 92px minmax(0, 1fr);\n    }\n}\n
+
+
+/* =========================================================
+   LAYOUT REFRESH v4.0.3 · STUDENT
+   Chỉ thay đổi bố cục/giao diện. Không thay đổi logic, ID, event.
+   ========================================================= */
+@media (min-width: 769px) {
+    html[data-app-role="student"] body .dashboard {
+        display: grid !important;
+        grid-template-columns: 270px minmax(0, 1fr);
+        gap: 18px;
+        align-items: start !important;
+        padding: 16px;
+        min-height: 100vh;
+        min-height: 100dvh;
+        transition: grid-template-columns .34s cubic-bezier(.2,.8,.2,1);
+    }
+
+    html[data-app-role="student"] body .dashboard.collapsed {
+        grid-template-columns: 88px minmax(0, 1fr);
+    }
+
+    html[data-app-role="student"] body .dashboard > .sidebar {
+        position: sticky !important;
+        top: 16px !important;
+        width: 100% !important;
+        height: calc(100vh - 32px) !important;
+        height: calc(100dvh - 32px) !important;
+        flex: none !important;
+        align-self: start !important;
+        border: 1px solid rgba(255,255,255,.22) !important;
+        border-radius: 28px !important;
+        box-shadow: 0 22px 55px rgba(15,23,42,.20) !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+    }
+
+    html[data-app-role="student"] body .dashboard > .sidebar > .sidebar-toggle,
+    html[data-app-role="student"] body .dashboard:not(.collapsed) > .sidebar > .sidebar-toggle,
+    html[data-app-role="student"] body .dashboard.collapsed > .sidebar > .sidebar-toggle {
+        position: sticky !important;
+        top: 18px !important;
+        left: auto !important;
+        right: auto !important;
+        float: right;
+        margin: 0 14px -34px 0 !important;
+        width: 34px !important;
+        height: 34px !important;
+        z-index: 8 !important;
+        border-color: rgba(255,255,255,.62) !important;
+        box-shadow: 0 8px 18px rgba(15,23,42,.26) !important;
+    }
+
+    html[data-app-role="student"] body .sidebar-top {
+        padding: 24px 16px 18px !important;
+    }
+
+    html[data-app-role="student"] body .sidebar-bottom {
+        padding: 14px 16px 18px !important;
+    }
+
+    html[data-app-role="student"] body .sidebar-top h3 {
+        margin: 0 42px 20px 2px !important;
+        padding-bottom: 16px !important;
+        font-size: 1.18rem !important;
+    }
+
+    html[data-app-role="student"] body .nav-item {
+        min-height: 48px !important;
+        margin-bottom: 7px !important;
+        padding: 11px 13px !important;
+        border-radius: 14px !important;
+    }
+
+    html[data-app-role="student"] body .dashboard.collapsed .sidebar-top,
+    html[data-app-role="student"] body .dashboard.collapsed .sidebar-bottom {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+    html[data-app-role="student"] body .dashboard.collapsed .sidebar-top h3 {
+        margin: 0 0 20px !important;
+        padding: 0 0 16px !important;
+        font-size: 0 !important;
+        line-height: 1 !important;
+        text-align: center !important;
+    }
+
+    html[data-app-role="student"] body .dashboard.collapsed .sidebar-top h3::before {
+        display: block !important;
+        font-size: 1.55rem !important;
+        line-height: 1 !important;
+        text-align: center !important;
+    }
+
+    html[data-app-role="student"] body .dashboard > .content {
+        position: relative !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        min-height: calc(100vh - 32px);
+        min-height: calc(100dvh - 32px);
+        padding: 82px clamp(22px, 3vw, 44px) 44px !important;
+        border: 1px solid rgba(255,255,255,.54);
+        border-radius: 30px;
+        background: rgba(248,250,252,.34);
+        box-shadow: 0 22px 55px rgba(15,23,42,.10), inset 0 1px 0 rgba(255,255,255,.72);
+        backdrop-filter: blur(12px) saturate(1.05);
+        -webkit-backdrop-filter: blur(12px) saturate(1.05);
+        overflow-x: clip;
+    }
+
+    html[data-app-role="student"] body .dashboard > .content::before {
+        height: 210px !important;
+        border-radius: 30px 30px 0 0;
+        background: linear-gradient(180deg, rgba(255,255,255,.42), rgba(255,255,255,0)) !important;
+    }
+
+    html[data-app-role="student"] body .content > .profile-trigger-btn,
+    html[data-app-role="student"] body .content > .inbox-trigger-btn,
+    html[data-app-role="student"] body .content > .bag-trigger-btn,
+    html[data-app-role="student"] body .content > .leaderboard-trigger-btn {
+        position: absolute !important;
+        top: 20px !important;
+        bottom: auto !important;
+        width: 44px !important;
+        height: 44px !important;
+        border-radius: 14px !important;
+        background: rgba(255,255,255,.78) !important;
+        border: 1px solid rgba(255,255,255,.92) !important;
+        box-shadow: 0 8px 22px rgba(15,23,42,.10) !important;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+
+    html[data-app-role="student"] body .content > .profile-trigger-btn { right: 24px !important; }
+    html[data-app-role="student"] body .content > .inbox-trigger-btn { right: 76px !important; }
+    html[data-app-role="student"] body .content > .bag-trigger-btn { right: 128px !important; }
+    html[data-app-role="student"] body .content > .leaderboard-trigger-btn { right: 180px !important; }
+
+    html[data-app-role="student"] body .tab-content {
+        max-width: 1480px;
+        margin: 0 auto;
+    }
+
+    html[data-app-role="student"] body .content h2 {
+        margin-bottom: 22px !important;
+        padding-right: 210px;
+    }
+
+    html[data-app-role="student"] body .card {
+        border-radius: 22px !important;
+        box-shadow: 0 14px 36px rgba(15,23,42,.09), inset 0 1px 0 rgba(255,255,255,.84) !important;
+    }
+}
+
+@media (min-width: 1200px) {
+    html[data-app-role="student"] body .dashboard {
+        grid-template-columns: 286px minmax(0, 1fr);
+        gap: 22px;
+        padding: 18px;
+    }
+    html[data-app-role="student"] body .dashboard.collapsed {
+        grid-template-columns: 92px minmax(0, 1fr);
+    }
+}
+
 /* =========================================================
    TIỂU HOA MỘNG — TƯƠNG TÁC PREMIUM MÙA XUÂN
    Namespace riêng: spring-dream-*
@@ -8734,3 +8899,1104 @@ html.student-store-game-disabled .nav-item[onclick*="tab-store"]::after,
 }
 
 /* Không dùng pointer-events:none vì cần nhận click để hiện thông báo. */
+
+/* =========================================================
+   FIX DESKTOP · SIDEBAR TOGGLE STABLE POSITION v2
+   - Expanded: nút nằm trong góc phải, không đè tên học sinh.
+   - Collapsed: nút nằm giữa phía trên, không tạo icon giả.
+   - Không dùng sticky/float/right âm nên không bị trôi/cắt theo tab.
+   ========================================================= */
+@media (min-width: 769px) {
+    html[data-app-role="student"] body .dashboard > .sidebar {
+        position: sticky !important;
+    }
+
+    html[data-app-role="student"] body
+    .dashboard > .sidebar > .sidebar-toggle,
+    html[data-app-role="student"] body
+    .dashboard:not(.collapsed) > .sidebar > .sidebar-toggle {
+        position: absolute !important;
+        top: 20px !important;
+        right: 14px !important;
+        bottom: auto !important;
+        left: auto !important;
+        float: none !important;
+        margin: 0 !important;
+
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
+        min-height: 34px !important;
+        padding: 0 !important;
+        z-index: 30 !important;
+        transform: none !important;
+    }
+
+    html[data-app-role="student"] body
+    .dashboard:not(.collapsed) > .sidebar > .sidebar-toggle:hover {
+        transform: scale(1.08) !important;
+    }
+
+    /* Chừa đủ chỗ cho nút ở bên phải tên học sinh. */
+    html[data-app-role="student"] body
+    .dashboard:not(.collapsed) .sidebar-top h3 {
+        margin: 0 54px 20px 2px !important;
+        min-height: 34px !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    /* Thu gọn: nút ở giữa, không còn bị cắt mép. */
+    html[data-app-role="student"] body
+    .dashboard.collapsed > .sidebar > .sidebar-toggle {
+        position: absolute !important;
+        top: 18px !important;
+        left: 50% !important;
+        right: auto !important;
+        bottom: auto !important;
+        float: none !important;
+        margin: 0 !important;
+        transform: translateX(-50%) rotate(180deg) !important;
+    }
+
+    html[data-app-role="student"] body
+    .dashboard.collapsed > .sidebar > .sidebar-toggle:hover {
+        transform: translateX(-50%) rotate(180deg) scale(1.08) !important;
+    }
+
+    /* Xóa icon ✦/👤 giả do common.css tạo khi collapsed. */
+    html[data-app-role="student"] body
+    .dashboard.collapsed .sidebar-top h3 {
+        display: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        width: 0 !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+    }
+
+    html[data-app-role="student"] body
+    .dashboard.collapsed .sidebar-top h3::before,
+    html[data-app-role="student"] body
+    .dashboard.collapsed .sidebar-top h3::after {
+        content: none !important;
+        display: none !important;
+    }
+
+    /* Nút absolute nên cần dành khoảng trống phía trên cho menu. */
+    html[data-app-role="student"] body
+    .dashboard.collapsed .sidebar-top {
+        padding-top: 64px !important;
+    }
+}
+
+/* =========================================================
+   FINAL FIX · 4 NÚT GÓC PHẢI CUỘN CÙNG TRANG
+   JS cũng khóa inline !important để thắng CSS theme/mobile tải sau.
+   ========================================================= */
+@media (min-width: 721px) {
+    html[data-app-role="student"] body .content > .profile-trigger-btn,
+    html[data-app-role="student"] body .content > .inbox-trigger-btn,
+    html[data-app-role="student"] body .content > .bag-trigger-btn,
+    html[data-app-role="student"] body .content > .leaderboard-trigger-btn,
+    html[data-app-role="student"] body .content > #btnLeaderboard {
+        position: absolute !important;
+        top: 20px !important;
+        bottom: auto !important;
+        left: auto !important;
+        margin: 0 !important;
+    }
+
+    html[data-app-role="student"] body .content > .profile-trigger-btn {
+        right: 24px !important;
+    }
+
+    html[data-app-role="student"] body .content > .inbox-trigger-btn {
+        right: 76px !important;
+    }
+
+    html[data-app-role="student"] body .content > .bag-trigger-btn {
+        right: 128px !important;
+    }
+
+    html[data-app-role="student"] body .content > .leaderboard-trigger-btn,
+    html[data-app-role="student"] body .content > #btnLeaderboard {
+        right: 180px !important;
+    }
+}
+
+/* =========================================================
+   FINAL FIX v2 · TOP ACTIONS THUỘC NORMAL FLOW
+   - Thanh nằm trong .content, KHÔNG fixed/sticky/absolute.
+   - Dùng khoảng trống 82px đầu content để giữ vị trí giao diện cũ.
+   - Khi cuộn window hoặc .content, thanh cuộn cùng nội dung.
+   ========================================================= */
+@media (min-width: 769px) {
+    html[data-app-role="student"] body
+    .content > .student-top-actions-flow {
+        position: relative !important;
+        top: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        left: auto !important;
+
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+        gap: 8px !important;
+
+        width: 100% !important;
+        height: 44px !important;
+        min-height: 44px !important;
+
+        /* Content đang có padding-top:82px.
+           Kéo thanh lên 62px -> mép trên khoảng 20px như giao diện cũ. */
+        margin: -62px 0 18px !important;
+        padding: 0 !important;
+
+        z-index: 100 !important;
+        pointer-events: none !important;
+        overflow: visible !important;
+
+        transform: none !important;
+        float: none !important;
+    }
+
+    html[data-app-role="student"] body
+    .student-top-actions-flow > :is(
+        .leaderboard-trigger-btn,
+        #btnLeaderboard,
+        .bag-trigger-btn,
+        .inbox-trigger-btn,
+        .profile-trigger-btn
+    ) {
+        position: relative !important;
+        top: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        left: auto !important;
+
+        width: 44px !important;
+        min-width: 44px !important;
+        max-width: 44px !important;
+        height: 44px !important;
+        min-height: 44px !important;
+        max-height: 44px !important;
+
+        flex: 0 0 44px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+
+        border-radius: 14px !important;
+        pointer-events: auto !important;
+        z-index: 1 !important;
+        float: none !important;
+    }
+
+    /* Thứ tự trái -> phải giống giao diện hiện tại:
+       🏆  🎒  💌  Avatar */
+    html[data-app-role="student"] body
+    .student-top-actions-flow > :is(
+        .leaderboard-trigger-btn,
+        #btnLeaderboard
+    ) {
+        order: 1 !important;
+    }
+
+    html[data-app-role="student"] body
+    .student-top-actions-flow > .bag-trigger-btn {
+        order: 2 !important;
+    }
+
+    html[data-app-role="student"] body
+    .student-top-actions-flow > .inbox-trigger-btn {
+        order: 3 !important;
+    }
+
+    html[data-app-role="student"] body
+    .student-top-actions-flow > .profile-trigger-btn {
+        order: 4 !important;
+    }
+
+    /* Không cần chừa 210px cho heading nữa vì thanh là một dòng flow riêng. */
+    html[data-app-role="student"] body .content h2 {
+        padding-right: 0 !important;
+    }
+}
+
+/* =========================================================
+   TOP ACTIONS FLOW v3 · KHÔNG CỐ ĐỊNH THEO MÀN HÌNH
+   - 4 nút BXH / Túi đồ / Hộp thư / Hồ sơ thuộc normal document flow.
+   - Không fixed, không sticky, không absolute cho thanh hành động.
+   - Khi cuộn trang, cả cụm sẽ cuộn lên cùng nội dung.
+   ========================================================= */
+html[data-app-role="student"] body
+.dashboard > .content > #studentTopActionsFlow.student-top-actions-flow {
+    position: static !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    inset: auto !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 8px !important;
+
+    width: 100% !important;
+    min-height: 44px !important;
+    height: auto !important;
+    padding: 0 !important;
+
+    pointer-events: none !important;
+    overflow: visible !important;
+    transform: none !important;
+    float: none !important;
+}
+
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow > :is(
+    .leaderboard-trigger-btn,
+    #btnLeaderboard,
+    .bag-trigger-btn,
+    .inbox-trigger-btn,
+    .profile-trigger-btn
+) {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    inset: auto !important;
+
+    width: 44px !important;
+    min-width: 44px !important;
+    max-width: 44px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+
+    flex: 0 0 44px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    float: none !important;
+    z-index: 1 !important;
+    pointer-events: auto !important;
+}
+
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow > :is(
+    .bag-trigger-btn,
+    .inbox-trigger-btn,
+    .profile-trigger-btn
+) {
+    display: grid !important;
+    place-items: center !important;
+    border: 1px solid rgba(255,255,255,.92) !important;
+    border-radius: 14px !important;
+    background: rgba(255,255,255,.78) !important;
+    box-shadow: 0 8px 22px rgba(15,23,42,.10) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow > .profile-trigger-btn {
+    overflow: hidden !important;
+}
+
+/* Thứ tự trái -> phải: BXH, Túi đồ, Hộp thư, Hồ sơ. */
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow > :is(.leaderboard-trigger-btn, #btnLeaderboard) {
+    order: 1 !important;
+}
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow > .bag-trigger-btn {
+    order: 2 !important;
+}
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow > .inbox-trigger-btn {
+    order: 3 !important;
+}
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow > .profile-trigger-btn {
+    order: 4 !important;
+}
+
+/* Desktop: giữ vị trí nhìn gần giống cũ nhưng vẫn là normal flow. */
+@media (min-width: 769px) {
+    html[data-app-role="student"] body
+    .dashboard > .content > #studentTopActionsFlow.student-top-actions-flow {
+        margin: -62px 0 18px !important;
+    }
+
+    html[data-app-role="student"] body .content h2 {
+        padding-right: 0 !important;
+    }
+}
+
+/* Mobile/tablet: không ghim vào viewport; đặt thành một hàng bình thường trên nội dung. */
+@media (max-width: 768px) {
+    html[data-app-role="student"] body
+    .dashboard > .content > #studentTopActionsFlow.student-top-actions-flow {
+        margin: 0 0 14px !important;
+    }
+}
+
+/* =========================================================
+   FINAL FIX v4 · KHUNG AVATAR TRONG NÚT HỒ SƠ
+   - Top Actions vẫn giữ kích thước/layout 44x44 (mobile theo responsive).
+   - Khi có khung trang bị, cho lớp trang trí tràn ra ngoài nút thay vì bị
+     cắt theo ô vuông/bo 14px của nút hành động.
+   - Khôi phục host avatar thành hình tròn khi có frame để đúng thiết kế
+     của các bộ khung Premium/Luxury hiện tại.
+   - Không ép width/height của ảnh khung: từng bộ khung vẫn tự quyết định
+     60x60, 62x62, 56x56... nên không làm méo tỉ lệ thiết kế riêng.
+   ========================================================= */
+html[data-app-role="student"] body
+.profile-trigger-btn:is(
+    .avatar-frame-equipped,
+    [data-avatar-frame-id],
+    [data-avatar-frame-effect]
+) {
+    overflow: visible !important;
+    border-radius: 50% !important;
+    isolation: isolate !important;
+}
+
+/*
+ * Selector này cố ý có #studentTopActionsFlow để thắng rule TOP ACTIONS
+ * đang đặt overflow:hidden !important cho nút Hồ sơ.
+ */
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow
+> .profile-trigger-btn:is(
+    .avatar-frame-equipped,
+    [data-avatar-frame-id],
+    [data-avatar-frame-effect]
+) {
+    overflow: visible !important;
+    border-radius: 50% !important;
+    isolation: isolate !important;
+    z-index: 4 !important;
+}
+
+/*
+ * Ảnh khung/hào quang chỉ là lớp trang trí: không được mở rộng vùng click
+ * và không được chặn thao tác với các nút bên cạnh.
+ */
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow
+> .profile-trigger-btn:is(
+    .avatar-frame-equipped,
+    [data-avatar-frame-id],
+    [data-avatar-frame-effect]
+)
+> :is(
+    .avatar-frame-decoration,
+    .avatar-frame-aura,
+    .avatar-frame-spark,
+    [class*="-frame-decoration"],
+    [class*="-frame-aura"],
+    [class*="-frame-rune"],
+    [class*="-frame-glint"]
+) {
+    pointer-events: none !important;
+}
+
+
+/* =========================================================
+   HOTFIX v5 · KHUNG ĐEO LÊN HỒ SƠ THEO KIỂU CŨ
+   - Khung phải ôm/chồng lên avatar, không bị ép theo nút action vuông.
+   - Chỉ tác động khi nút Hồ sơ đang có avatar frame.
+   - Giữ nguyên layout của cả thanh top-actions.
+   ========================================================= */
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow > .profile-trigger-btn:is(
+    .avatar-frame-equipped,
+    [data-avatar-frame-id],
+    [data-avatar-frame-effect]
+),
+html[data-app-role="student"] body
+.content > .profile-trigger-btn:is(
+    .avatar-frame-equipped,
+    [data-avatar-frame-id],
+    [data-avatar-frame-effect]
+) {
+    position: relative !important;
+    overflow: visible !important;
+    border-radius: 50% !important;
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    isolation: isolate !important;
+}
+
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow > .profile-trigger-btn:is(
+    .avatar-frame-equipped,
+    [data-avatar-frame-id],
+    [data-avatar-frame-effect]
+) > #avatarImage,
+html[data-app-role="student"] body
+.content > .profile-trigger-btn:is(
+    .avatar-frame-equipped,
+    [data-avatar-frame-id],
+    [data-avatar-frame-effect]
+) > #avatarImage,
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow > .profile-trigger-btn:is(
+    .avatar-frame-equipped,
+    [data-avatar-frame-id],
+    [data-avatar-frame-effect]
+) > #avatarPlaceholder,
+html[data-app-role="student"] body
+.content > .profile-trigger-btn:is(
+    .avatar-frame-equipped,
+    [data-avatar-frame-id],
+    [data-avatar-frame-effect]
+) > #avatarPlaceholder {
+    position: relative !important;
+    z-index: 3 !important;
+    border-radius: 50% !important;
+}
+
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow > .profile-trigger-btn:is(
+    .avatar-frame-equipped,
+    [data-avatar-frame-id],
+    [data-avatar-frame-effect]
+) > :is(
+    .avatar-frame-decoration,
+    .avatar-frame-aura,
+    .avatar-frame-spark,
+    [class*="-frame-decoration"],
+    [class*="-frame-aura"],
+    [class*="-frame-rune"],
+    [class*="-frame-glint"]
+),
+html[data-app-role="student"] body
+.content > .profile-trigger-btn:is(
+    .avatar-frame-equipped,
+    [data-avatar-frame-id],
+    [data-avatar-frame-effect]
+) > :is(
+    .avatar-frame-decoration,
+    .avatar-frame-aura,
+    .avatar-frame-spark,
+    [class*="-frame-decoration"],
+    [class*="-frame-aura"],
+    [class*="-frame-rune"],
+    [class*="-frame-glint"]
+) {
+    position: absolute !important;
+    pointer-events: none !important;
+}
+
+
+/* ============================================================================
+   FINAL OVERRIDE 2026-09-17 · TOP ACTIONS KHÔNG CỐ ĐỊNH
+   - BXH / Túi đồ / Hộp thư / Hồ sơ luôn thuộc normal document flow.
+   - Không fixed, không sticky, không absolute cho 4 nút.
+   - Giữ host Hồ sơ position:relative để khung avatar absolute bám đúng tâm.
+   ============================================================================ */
+html[data-app-role="student"] body
+.dashboard > .content > #studentTopActionsFlow.student-top-actions-flow,
+html[data-app-role="student"] body
+.dashboard > .content > .student-top-actions-flow[data-flow-mode="normal"] {
+    position: static !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    inset: auto !important;
+    transform: none !important;
+    float: none !important;
+}
+
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow > :is(
+    .leaderboard-trigger-btn,
+    #btnLeaderboard,
+    .bag-trigger-btn,
+    .inbox-trigger-btn,
+    .profile-trigger-btn
+),
+html[data-app-role="student"] body
+.dashboard > .content > :is(
+    .leaderboard-trigger-btn,
+    #btnLeaderboard,
+    .bag-trigger-btn,
+    .inbox-trigger-btn,
+    .profile-trigger-btn
+) {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    inset: auto !important;
+    float: none !important;
+    transform: none !important;
+}
+
+/* Không phá cơ chế khung: decoration vẫn absolute bên trong host relative. */
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow > .profile-trigger-btn:is(
+    .avatar-frame-equipped,
+    [data-avatar-frame-id],
+    [data-avatar-frame-effect]
+) > :is(
+    .avatar-frame-decoration,
+    .avatar-frame-aura,
+    .avatar-frame-spark,
+    [class*="-frame-decoration"],
+    [class*="-frame-aura"],
+    [class*="-frame-rune"],
+    [class*="-frame-glint"]
+) {
+    position: absolute !important;
+}
+
+/* ============================================================================
+   FLOATING ACTIONS DOCK v1 · 2026-09-17
+   - 4 nút BXH / Túi đồ / Hộp thư / Hồ sơ nổi độc lập trên viewport.
+   - Không chiếm document flow, không tạo thanh kéo dài ngang nội dung.
+   - Cách mép màn hình để tạo cảm giác floating thay vì “dính” vào header.
+   - Hồ sơ vẫn là host relative/tròn để avatar frame được phép tràn ra ngoài.
+   ============================================================================ */
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow {
+    position: fixed !important;
+    top: 20px !important;
+    right: 24px !important;
+    bottom: auto !important;
+    left: auto !important;
+    inset: auto !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 9px !important;
+
+    width: max-content !important;
+    max-width: calc(100vw - 48px) !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 44px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    overflow: visible !important;
+    pointer-events: none !important;
+    float: none !important;
+    transform: none !important;
+    z-index: 9986 !important;
+    isolation: isolate !important;
+}
+
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow > :is(
+    .leaderboard-trigger-btn,
+    #btnLeaderboard,
+    .bag-trigger-btn,
+    .inbox-trigger-btn,
+    .profile-trigger-btn
+) {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    inset: auto !important;
+
+    width: 44px !important;
+    min-width: 44px !important;
+    max-width: 44px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+    flex: 0 0 44px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+    float: none !important;
+    pointer-events: auto !important;
+
+    box-sizing: border-box !important;
+    will-change: transform, box-shadow;
+    transition:
+        transform .2s cubic-bezier(.2,.8,.2,1),
+        box-shadow .2s ease,
+        filter .2s ease !important;
+}
+
+/* Tăng cảm giác “nổi” nhưng vẫn giữ màu/gradient riêng của từng nút. */
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow > :is(
+    .leaderboard-trigger-btn,
+    #btnLeaderboard,
+    .bag-trigger-btn,
+    .inbox-trigger-btn
+),
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow
+> .profile-trigger-btn:not(.avatar-frame-equipped):not([data-avatar-frame-id]):not([data-avatar-frame-effect]) {
+    box-shadow:
+        0 12px 28px rgba(15, 23, 42, .16),
+        0 2px 8px rgba(15, 23, 42, .08) !important;
+}
+
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow > :is(
+    .leaderboard-trigger-btn,
+    #btnLeaderboard,
+    .bag-trigger-btn,
+    .inbox-trigger-btn,
+    .profile-trigger-btn
+):hover {
+    transform: translateY(-4px) scale(1.035) !important;
+    filter: brightness(1.03) saturate(1.04) !important;
+}
+
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow > :is(
+    .leaderboard-trigger-btn,
+    #btnLeaderboard,
+    .bag-trigger-btn,
+    .inbox-trigger-btn,
+    .profile-trigger-btn
+):active {
+    transform: translateY(-1px) scale(.97) !important;
+}
+
+/* Avatar frame vẫn được phép lớn hơn nút 44px và không bị ép thành hình vuông. */
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow
+> .profile-trigger-btn:is(
+    .avatar-frame-equipped,
+    [data-avatar-frame-id],
+    [data-avatar-frame-effect]
+) {
+    position: relative !important;
+    overflow: visible !important;
+    border-radius: 50% !important;
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    isolation: isolate !important;
+    z-index: 4 !important;
+}
+
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow
+> .profile-trigger-btn:is(
+    .avatar-frame-equipped,
+    [data-avatar-frame-id],
+    [data-avatar-frame-effect]
+) > :is(
+    .avatar-frame-decoration,
+    .avatar-frame-aura,
+    .avatar-frame-spark,
+    [class*="-frame-decoration"],
+    [class*="-frame-aura"],
+    [class*="-frame-rune"],
+    [class*="-frame-glint"]
+) {
+    position: absolute !important;
+    pointer-events: none !important;
+}
+
+@media (max-width: 768px) {
+    html[data-app-role="student"] body
+    #studentTopActionsFlow.student-top-actions-flow {
+        top: calc(12px + env(safe-area-inset-top, 0px)) !important;
+        right: calc(12px + env(safe-area-inset-right, 0px)) !important;
+        gap: 7px !important;
+        max-width: calc(100vw - 24px) !important;
+        min-height: 40px !important;
+    }
+
+    html[data-app-role="student"] body
+    #studentTopActionsFlow.student-top-actions-flow > :is(
+        .leaderboard-trigger-btn,
+        #btnLeaderboard,
+        .bag-trigger-btn,
+        .inbox-trigger-btn,
+        .profile-trigger-btn
+    ) {
+        width: 40px !important;
+        min-width: 40px !important;
+        max-width: 40px !important;
+        height: 40px !important;
+        min-height: 40px !important;
+        max-height: 40px !important;
+        flex-basis: 40px !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html[data-app-role="student"] body
+    #studentTopActionsFlow.student-top-actions-flow > :is(
+        .leaderboard-trigger-btn,
+        #btnLeaderboard,
+        .bag-trigger-btn,
+        .inbox-trigger-btn,
+        .profile-trigger-btn
+    ) {
+        transition: none !important;
+    }
+}
+
+
+/* ============================================================================
+   FLOATING ACTIONS v2 · NỔI TRONG .content, KHÔNG BÁM VIEWPORT
+   - Sửa bản v1 bị mất nút khi dock được chuyển ra body.
+   - Cụm nằm góc phải vùng nội dung bằng absolute.
+   - Cuộn trang => cụm cuộn theo, vì KHÔNG dùng fixed/sticky.
+   ============================================================================ */
+html[data-app-role="student"] body .dashboard > .content {
+    position: relative !important;
+}
+
+html[data-app-role="student"] body
+.dashboard > .content > #studentTopActionsFlow.student-top-actions-flow {
+    position: absolute !important;
+    top: 20px !important;
+    right: 24px !important;
+    bottom: auto !important;
+    left: auto !important;
+    inset: auto !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 9px !important;
+
+    width: max-content !important;
+    max-width: calc(100% - 48px) !important;
+    min-width: 0 !important;
+    height: 44px !important;
+    min-height: 44px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    pointer-events: none !important;
+    transform: none !important;
+    float: none !important;
+    z-index: 500 !important;
+}
+
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow > :is(
+    .leaderboard-trigger-btn,
+    #btnLeaderboard,
+    .bag-trigger-btn,
+    .inbox-trigger-btn,
+    .profile-trigger-btn
+) {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    inset: auto !important;
+
+    width: 44px !important;
+    min-width: 44px !important;
+    max-width: 44px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+    flex: 0 0 44px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    pointer-events: auto !important;
+    float: none !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Túi đồ + Hộp thư luôn có hình dạng nút nổi kể cả khi CSS theme tải khác thứ tự. */
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow > :is(
+    .bag-trigger-btn,
+    .inbox-trigger-btn
+) {
+    display: grid !important;
+    place-items: center !important;
+    border: 1px solid rgba(255,255,255,.92) !important;
+    border-radius: 14px !important;
+    background: rgba(255,255,255,.84) !important;
+    color: #27315f !important;
+    font: inherit !important;
+    font-size: 1.2rem !important;
+    line-height: 1 !important;
+    cursor: pointer !important;
+    box-shadow:
+        0 12px 28px rgba(15,23,42,.16),
+        0 2px 8px rgba(15,23,42,.08) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+}
+
+/* Leaderboard vẫn giữ thiết kế riêng của leaderboard.css nhưng luôn phải hiện. */
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow > :is(
+    .leaderboard-trigger-btn,
+    #btnLeaderboard
+) {
+    display: grid !important;
+    place-items: center !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Hồ sơ thường: nút tròn. */
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow
+> .profile-trigger-btn:not(.avatar-frame-equipped):not([data-avatar-frame-id]):not([data-avatar-frame-effect]) {
+    display: grid !important;
+    place-items: center !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(255,255,255,.92) !important;
+    border-radius: 50% !important;
+    background: rgba(255,255,255,.84) !important;
+    cursor: pointer !important;
+    box-shadow:
+        0 12px 28px rgba(15,23,42,.16),
+        0 2px 8px rgba(15,23,42,.08) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+}
+
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow
+> .profile-trigger-btn:not(.avatar-frame-equipped):not([data-avatar-frame-id]):not([data-avatar-frame-effect])
+> #avatarImage {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    min-height: 42px !important;
+    max-width: 42px !important;
+    max-height: 42px !important;
+    flex: 0 0 42px !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    border-radius: 50% !important;
+}
+
+/* Khi có khung avatar: chỉ host 44x44, artwork khung được phép tràn ra ngoài. */
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow
+> .profile-trigger-btn:is(.avatar-frame-equipped,[data-avatar-frame-id],[data-avatar-frame-effect]) {
+    display: grid !important;
+    place-items: center !important;
+    position: relative !important;
+    overflow: visible !important;
+    border-radius: 50% !important;
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    isolation: isolate !important;
+    z-index: 4 !important;
+}
+
+@media (max-width: 768px) {
+    html[data-app-role="student"] body
+    .dashboard > .content > #studentTopActionsFlow.student-top-actions-flow {
+        position: absolute !important;
+        top: 15px !important;
+        right: 15px !important;
+        gap: 7px !important;
+        width: max-content !important;
+        max-width: calc(100% - 30px) !important;
+        height: 40px !important;
+        min-height: 40px !important;
+    }
+
+    html[data-app-role="student"] body
+    #studentTopActionsFlow.student-top-actions-flow > :is(
+        .leaderboard-trigger-btn,
+        #btnLeaderboard,
+        .bag-trigger-btn,
+        .inbox-trigger-btn,
+        .profile-trigger-btn
+    ) {
+        width: 40px !important;
+        min-width: 40px !important;
+        max-width: 40px !important;
+        height: 40px !important;
+        min-height: 40px !important;
+        max-height: 40px !important;
+        flex-basis: 40px !important;
+    }
+
+    html[data-app-role="student"] body
+    #studentTopActionsFlow.student-top-actions-flow
+    > .profile-trigger-btn:not(.avatar-frame-equipped):not([data-avatar-frame-id]):not([data-avatar-frame-effect])
+    > #avatarImage {
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+        min-height: 38px !important;
+        max-width: 38px !important;
+        max-height: 38px !important;
+        flex-basis: 38px !important;
+    }
+}
+
+
+/* ============================================================================
+   FLOATING ACTIONS v3 · ÉP ĐÚNG MÉP PHẢI VÙNG NỘI DUNG
+   - Fallback trước khi JS đo kích thước thật.
+   - Không dùng right để tránh theme/layout kéo dock về bên trái.
+   - JS student.js sẽ thay left bằng số px chính xác sau khi render.
+   ============================================================================ */
+html[data-app-role="student"] body
+.dashboard > .content > #studentTopActionsFlow.student-top-actions-flow {
+    position: absolute !important;
+    top: 20px !important;
+    right: auto !important;
+    left: calc(100% - 231px) !important;
+    bottom: auto !important;
+    inset: auto !important;
+    width: max-content !important;
+    max-width: none !important;
+    margin: 0 !important;
+    transform: none !important;
+    z-index: 700 !important;
+}
+
+/* Chừa phần bên phải cho dock để tiêu đề dài cũng không chui xuống dưới nút. */
+@media (min-width: 769px) {
+    html[data-app-role="student"] body .dashboard > .content > h2:first-of-type {
+        padding-right: 245px !important;
+        box-sizing: border-box !important;
+    }
+}
+
+@media (max-width: 768px) {
+    html[data-app-role="student"] body
+    .dashboard > .content > #studentTopActionsFlow.student-top-actions-flow {
+        top: 15px !important;
+        right: auto !important;
+        left: calc(100% - 196px) !important;
+        width: max-content !important;
+        max-width: none !important;
+    }
+}
+
+/* ============================================================================
+   COMPACT TOP AREA v4 · TẬN DỤNG KHOẢNG TRỐNG PHÍA TRÊN
+   - Kéo tiêu đề / tìm kiếm / nội dung đầu trang lên cao hơn.
+   - Dock 4 nút vẫn ở góc phải cùng hàng với tiêu đề.
+   ============================================================================ */
+@media (min-width: 769px) {
+    html[data-app-role="student"] body .dashboard > .content {
+        padding-top: 30px !important;
+    }
+
+    html[data-app-role="student"] body
+    .dashboard > .content > #studentTopActionsFlow.student-top-actions-flow {
+        top: 24px !important;
+    }
+
+    html[data-app-role="student"] body
+    .dashboard > .content > .tab-content.active > h2:first-child {
+        margin-top: 0 !important;
+        padding-right: 245px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    html[data-app-role="student"] body .dashboard > .content {
+        padding-top: 18px !important;
+    }
+
+    html[data-app-role="student"] body
+    .dashboard > .content > #studentTopActionsFlow.student-top-actions-flow {
+        top: 14px !important;
+    }
+}
+
+
+/* ============================================================================
+   FINAL OVERRIDE v5 · 4 NÚT NỔI CỐ ĐỊNH THEO VIEWPORT
+   - Người dùng cuộn trang thì dock vẫn đứng nguyên ở góc trên bên phải.
+   - student.js đưa dock trực tiếp xuống body để tránh ancestor transform.
+   ============================================================================ */
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow,
+html[data-app-role="student"] body
+> #studentTopActionsFlow.student-top-actions-flow {
+    position: fixed !important;
+    top: 24px !important;
+    right: 28px !important;
+    bottom: auto !important;
+    left: auto !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 9px !important;
+
+    width: max-content !important;
+    max-width: calc(100vw - 56px) !important;
+    min-width: 0 !important;
+    min-height: 44px !important;
+    height: auto !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    pointer-events: none !important;
+    float: none !important;
+    transform: none !important;
+    z-index: 9986 !important;
+    isolation: isolate !important;
+}
+
+html[data-app-role="student"] body
+#studentTopActionsFlow.student-top-actions-flow > :is(
+    .leaderboard-trigger-btn,
+    #btnLeaderboard,
+    .bag-trigger-btn,
+    .inbox-trigger-btn,
+    .profile-trigger-btn
+) {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    pointer-events: auto !important;
+}
+
+@media (max-width: 768px) {
+    html[data-app-role="student"] body
+    #studentTopActionsFlow.student-top-actions-flow,
+    html[data-app-role="student"] body
+    > #studentTopActionsFlow.student-top-actions-flow {
+        position: fixed !important;
+        top: calc(12px + env(safe-area-inset-top, 0px)) !important;
+        right: calc(12px + env(safe-area-inset-right, 0px)) !important;
+        bottom: auto !important;
+        left: auto !important;
+        gap: 7px !important;
+        max-width: calc(100vw - 24px) !important;
+        min-height: 40px !important;
+        z-index: 9986 !important;
+    }
+}

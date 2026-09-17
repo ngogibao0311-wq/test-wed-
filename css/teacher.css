@@ -1084,7 +1084,149 @@ table td {
     }
 }
 
-\n\n/* =========================================================\n   LAYOUT REFRESH v4.0.3 · TEACHER\n   Chỉ thay đổi bố cục/giao diện. Không thay đổi logic, ID, event.\n   ========================================================= */\n@media (min-width: 769px) {\n    html[data-app-role="teacher"] body .dashboard {\n        display: grid !important;\n        grid-template-columns: 282px minmax(0, 1fr);\n        gap: 18px;\n        align-items: start !important;\n        padding: 16px;\n        min-height: 100vh;\n        min-height: 100dvh;\n        transition: grid-template-columns .34s cubic-bezier(.2,.8,.2,1);\n    }\n\n    html[data-app-role="teacher"] body .dashboard.collapsed {\n        grid-template-columns: 90px minmax(0, 1fr);\n    }\n\n    html[data-app-role="teacher"] body .dashboard > .sidebar {\n        position: sticky !important;\n        top: 16px !important;\n        width: 100% !important;\n        height: calc(100vh - 32px) !important;\n        height: calc(100dvh - 32px) !important;\n        flex: none !important;\n        align-self: start !important;\n        border: 1px solid rgba(255,255,255,.22) !important;\n        border-radius: 28px !important;\n        box-shadow: 0 22px 55px rgba(15,23,42,.20) !important;\n        overflow-x: hidden !important;\n        overflow-y: auto !important;\n    }\n\n    html[data-app-role="teacher"] body .dashboard > .sidebar > .sidebar-toggle,\n    html[data-app-role="teacher"] body .dashboard:not(.collapsed) > .sidebar > .sidebar-toggle,\n    html[data-app-role="teacher"] body .dashboard.collapsed > .sidebar > .sidebar-toggle {\n        position: sticky !important;\n        top: 18px !important;\n        left: auto !important;\n        right: auto !important;\n        float: right;\n        margin: 0 14px -34px 0 !important;\n        width: 34px !important;\n        height: 34px !important;\n        z-index: 8 !important;\n        border-color: rgba(255,255,255,.62) !important;\n        box-shadow: 0 8px 18px rgba(15,23,42,.26) !important;\n    }\n\n    html[data-app-role="teacher"] body .sidebar-top {\n        padding: 24px 16px 18px !important;\n    }\n\n    html[data-app-role="teacher"] body .sidebar-bottom {\n        padding: 14px 16px 18px !important;\n    }\n\n    html[data-app-role="teacher"] body .sidebar-top h3 {\n        margin: 0 42px 20px 2px !important;\n        padding-bottom: 16px !important;\n        font-size: 1.18rem !important;\n    }\n\n    html[data-app-role="teacher"] body .nav-item {\n        min-height: 48px !important;\n        margin-bottom: 7px !important;\n        padding: 11px 13px !important;\n        border-radius: 14px !important;\n    }\n\n    html[data-app-role="teacher"] body .dashboard.collapsed .sidebar-top,\n    html[data-app-role="teacher"] body .dashboard.collapsed .sidebar-bottom {\n        padding-left: 10px !important;\n        padding-right: 10px !important;\n    }\n\n    html[data-app-role="teacher"] body .dashboard.collapsed .sidebar-top h3 {\n        margin-right: 0 !important;\n    }\n\n    html[data-app-role="teacher"] body .dashboard > .content {\n        position: relative !important;\n        width: 100% !important;\n        min-width: 0 !important;\n        min-height: calc(100vh - 32px);\n        min-height: calc(100dvh - 32px);\n        padding: clamp(28px, 3vw, 46px) !important;\n        border: 1px solid rgba(255,255,255,.54);\n        border-radius: 30px;\n        background: rgba(248,250,252,.34);\n        box-shadow: 0 22px 55px rgba(15,23,42,.10), inset 0 1px 0 rgba(255,255,255,.72);\n        backdrop-filter: blur(12px) saturate(1.05);\n        -webkit-backdrop-filter: blur(12px) saturate(1.05);\n        overflow-x: clip;\n    }\n\n    html[data-app-role="teacher"] body .dashboard > .content::before {\n        height: 220px !important;\n        border-radius: 30px 30px 0 0;\n        background: linear-gradient(180deg, rgba(255,255,255,.42), rgba(255,255,255,0)) !important;\n    }\n\n    html[data-app-role="teacher"] body .tab-content {\n        max-width: 1540px;\n        margin: 0 auto;\n    }\n\n    html[data-app-role="teacher"] body .teacher-assignment-heading-row {\n        margin-bottom: 20px !important;\n        padding: 4px 0;\n    }\n\n    html[data-app-role="teacher"] body .teacher-question-bank-entry {\n        max-width: none !important;\n        border-radius: 20px !important;\n        margin-bottom: 20px !important;\n    }\n\n    html[data-app-role="teacher"] body .card {\n        border-radius: 22px !important;\n        box-shadow: 0 14px 36px rgba(15,23,42,.09), inset 0 1px 0 rgba(255,255,255,.84) !important;\n    }\n\n    html[data-app-role="teacher"] body .form-row {\n        gap: 18px !important;\n    }\n}\n\n@media (min-width: 1200px) {\n    html[data-app-role="teacher"] body .dashboard {\n        grid-template-columns: 300px minmax(0, 1fr);\n        gap: 22px;\n        padding: 18px;\n    }\n    html[data-app-role="teacher"] body .dashboard.collapsed {\n        grid-template-columns: 94px minmax(0, 1fr);\n    }\n}\n
+
+
+/* =========================================================
+   LAYOUT REFRESH v4.0.3 · TEACHER
+   Chỉ thay đổi bố cục/giao diện. Không thay đổi logic, ID, event.
+   ========================================================= */
+@media (min-width: 769px) {
+    html[data-app-role="teacher"] body .dashboard {
+        display: grid !important;
+        grid-template-columns: 282px minmax(0, 1fr);
+        gap: 18px;
+        align-items: start !important;
+        padding: 16px;
+        min-height: 100vh;
+        min-height: 100dvh;
+        transition: grid-template-columns .34s cubic-bezier(.2,.8,.2,1);
+    }
+
+    html[data-app-role="teacher"] body .dashboard.collapsed {
+        grid-template-columns: 90px minmax(0, 1fr);
+    }
+
+    html[data-app-role="teacher"] body .dashboard > .sidebar {
+        position: sticky !important;
+        top: 16px !important;
+        width: 100% !important;
+        height: calc(100vh - 32px) !important;
+        height: calc(100dvh - 32px) !important;
+        flex: none !important;
+        align-self: start !important;
+        border: 1px solid rgba(255,255,255,.22) !important;
+        border-radius: 28px !important;
+        box-shadow: 0 22px 55px rgba(15,23,42,.20) !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+    }
+
+    html[data-app-role="teacher"] body .dashboard > .sidebar > .sidebar-toggle,
+    html[data-app-role="teacher"] body .dashboard:not(.collapsed) > .sidebar > .sidebar-toggle,
+    html[data-app-role="teacher"] body .dashboard.collapsed > .sidebar > .sidebar-toggle {
+        position: sticky !important;
+        top: 18px !important;
+        left: auto !important;
+        right: auto !important;
+        float: right;
+        margin: 0 14px -34px 0 !important;
+        width: 34px !important;
+        height: 34px !important;
+        z-index: 8 !important;
+        border-color: rgba(255,255,255,.62) !important;
+        box-shadow: 0 8px 18px rgba(15,23,42,.26) !important;
+    }
+
+    html[data-app-role="teacher"] body .sidebar-top {
+        padding: 24px 16px 18px !important;
+    }
+
+    html[data-app-role="teacher"] body .sidebar-bottom {
+        padding: 14px 16px 18px !important;
+    }
+
+    html[data-app-role="teacher"] body .sidebar-top h3 {
+        margin: 0 42px 20px 2px !important;
+        padding-bottom: 16px !important;
+        font-size: 1.18rem !important;
+    }
+
+    html[data-app-role="teacher"] body .nav-item {
+        min-height: 48px !important;
+        margin-bottom: 7px !important;
+        padding: 11px 13px !important;
+        border-radius: 14px !important;
+    }
+
+    html[data-app-role="teacher"] body .dashboard.collapsed .sidebar-top,
+    html[data-app-role="teacher"] body .dashboard.collapsed .sidebar-bottom {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+    html[data-app-role="teacher"] body .dashboard.collapsed .sidebar-top h3 {
+        margin-right: 0 !important;
+    }
+
+    html[data-app-role="teacher"] body .dashboard > .content {
+        position: relative !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        min-height: calc(100vh - 32px);
+        min-height: calc(100dvh - 32px);
+        padding: clamp(28px, 3vw, 46px) !important;
+        border: 1px solid rgba(255,255,255,.54);
+        border-radius: 30px;
+        background: rgba(248,250,252,.34);
+        box-shadow: 0 22px 55px rgba(15,23,42,.10), inset 0 1px 0 rgba(255,255,255,.72);
+        backdrop-filter: blur(12px) saturate(1.05);
+        -webkit-backdrop-filter: blur(12px) saturate(1.05);
+        overflow-x: clip;
+    }
+
+    html[data-app-role="teacher"] body .dashboard > .content::before {
+        height: 220px !important;
+        border-radius: 30px 30px 0 0;
+        background: linear-gradient(180deg, rgba(255,255,255,.42), rgba(255,255,255,0)) !important;
+    }
+
+    html[data-app-role="teacher"] body .tab-content {
+        max-width: 1540px;
+        margin: 0 auto;
+    }
+
+    html[data-app-role="teacher"] body .teacher-assignment-heading-row {
+        margin-bottom: 20px !important;
+        padding: 4px 0;
+    }
+
+    html[data-app-role="teacher"] body .teacher-question-bank-entry {
+        max-width: none !important;
+        border-radius: 20px !important;
+        margin-bottom: 20px !important;
+    }
+
+    html[data-app-role="teacher"] body .card {
+        border-radius: 22px !important;
+        box-shadow: 0 14px 36px rgba(15,23,42,.09), inset 0 1px 0 rgba(255,255,255,.84) !important;
+    }
+
+    html[data-app-role="teacher"] body .form-row {
+        gap: 18px !important;
+    }
+}
+
+@media (min-width: 1200px) {
+    html[data-app-role="teacher"] body .dashboard {
+        grid-template-columns: 300px minmax(0, 1fr);
+        gap: 22px;
+        padding: 18px;
+    }
+    html[data-app-role="teacher"] body .dashboard.collapsed {
+        grid-template-columns: 94px minmax(0, 1fr);
+    }
+}
+
 
 /* =========================================================
    CÀI ĐẶT GIÁO VIÊN · BỐ CỤC TRUNG TÂM CÀI ĐẶT
@@ -1569,5 +1711,1139 @@ table td {
 @media (max-width: 760px) {
     #studentsListContainer .student-account-checkbox {
         white-space: normal !important;
+    }
+}
+
+/* =========================================================
+   TEACHER · LEADERBOARD ADMIN CENTER v2
+   Đồng bộ giao diện quản lý với cơ chế BXH phía học sinh.
+   ========================================================= */
+.teacher-lb-admin-card {
+    overflow: hidden;
+    border: 1px solid rgba(245, 158, 11, .20) !important;
+    background:
+        radial-gradient(circle at 92% 0%, rgba(251, 191, 36, .12), transparent 30%),
+        rgba(255, 255, 255, .72) !important;
+}
+
+.teacher-lb-admin-accordion-head {
+    gap: 18px;
+    padding: 18px 20px !important;
+}
+
+.teacher-lb-admin-heading {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.teacher-lb-admin-heading-icon {
+    width: 52px;
+    height: 52px;
+    flex: 0 0 52px;
+    display: grid;
+    place-items: center;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #fff7cc, #ffe29a);
+    box-shadow: inset 0 0 0 1px rgba(217, 119, 6, .16), 0 9px 20px rgba(217, 119, 6, .12);
+    font-size: 1.55rem;
+}
+
+.teacher-lb-admin-heading h3 {
+    margin: 2px 0 3px;
+    color: #26355f;
+    font-size: 1.08rem;
+}
+
+.teacher-lb-admin-heading p {
+    margin: 0;
+    color: #7b86a8;
+    font-size: .82rem;
+    font-weight: 650;
+    line-height: 1.45;
+}
+
+.teacher-lb-admin-kicker,
+.teacher-lb-admin-eyebrow,
+.teacher-lb-panel-kicker {
+    display: block;
+    color: #b45309;
+    font-size: .69rem;
+    font-weight: 900;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.teacher-lb-admin-head-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.teacher-lb-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 32px;
+    padding: 6px 11px;
+    border-radius: 999px;
+    font-size: .76rem;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+.teacher-lb-status-pill.is-open {
+    color: #047857;
+    background: rgba(16, 185, 129, .12);
+    border: 1px solid rgba(16, 185, 129, .18);
+}
+
+.teacher-lb-status-pill.is-closed {
+    color: #be123c;
+    background: rgba(244, 63, 94, .10);
+    border: 1px solid rgba(244, 63, 94, .16);
+}
+
+.teacher-lb-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 0 4px color-mix(in srgb, currentColor 14%, transparent);
+}
+
+.teacher-lb-admin-content {
+    padding: 0 18px 20px !important;
+}
+
+.teacher-lb-admin-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 300px);
+    gap: 18px;
+    align-items: stretch;
+    margin-top: 4px;
+    padding: 22px;
+    border: 1px solid rgba(255, 255, 255, .68);
+    border-radius: 22px;
+    background:
+        radial-gradient(circle at 8% 12%, rgba(251, 191, 36, .24), transparent 28%),
+        linear-gradient(135deg, rgba(37, 99, 235, .94), rgba(99, 102, 241, .94) 52%, rgba(124, 58, 237, .94));
+    box-shadow: 0 18px 40px rgba(79, 70, 229, .18);
+    color: #fff;
+}
+
+.teacher-lb-admin-hero .teacher-lb-admin-eyebrow {
+    color: #fde68a;
+}
+
+.teacher-lb-admin-hero h4 {
+    margin: 6px 0 8px;
+    color: #fff;
+    font-size: clamp(1.25rem, 2vw, 1.7rem);
+}
+
+.teacher-lb-admin-hero p {
+    max-width: 760px;
+    margin: 0;
+    color: rgba(255, 255, 255, .82);
+    font-size: .91rem;
+    font-weight: 650;
+    line-height: 1.55;
+}
+
+.teacher-lb-admin-hero-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-top: 16px;
+}
+
+.teacher-lb-info-chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 34px;
+    padding: 7px 11px;
+    border: 1px solid rgba(255, 255, 255, .18);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .13);
+    color: #fff;
+    font-size: .79rem;
+    font-weight: 850;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.teacher-lb-info-chip.muted {
+    color: rgba(255, 255, 255, .82);
+}
+
+.teacher-lb-admin-master-switch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 150px;
+    padding: 18px;
+    border: 1px solid rgba(255, 255, 255, .20);
+    border-radius: 18px;
+    background: rgba(15, 23, 42, .18);
+    text-align: center;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.teacher-lb-admin-switch-label {
+    margin-bottom: 10px;
+    color: rgba(255, 255, 255, .74);
+    font-size: .75rem;
+    font-weight: 900;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+.teacher-lb-switch {
+    position: relative;
+    width: 64px;
+    height: 34px;
+    margin-bottom: 9px;
+    cursor: pointer;
+}
+
+.teacher-lb-switch input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.teacher-lb-switch-track {
+    position: absolute;
+    inset: 0;
+    border: 1px solid rgba(255, 255, 255, .26);
+    border-radius: 999px;
+    background: rgba(15, 23, 42, .42);
+    transition: .22s ease;
+}
+
+.teacher-lb-switch-thumb {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 4px 10px rgba(15, 23, 42, .25);
+    transition: .22s cubic-bezier(.2, .8, .2, 1);
+}
+
+.teacher-lb-switch input:checked + .teacher-lb-switch-track {
+    background: #10b981;
+    border-color: rgba(255, 255, 255, .42);
+}
+
+.teacher-lb-switch input:checked + .teacher-lb-switch-track .teacher-lb-switch-thumb {
+    transform: translateX(30px);
+}
+
+.teacher-lb-switch input:focus-visible + .teacher-lb-switch-track {
+    outline: 3px solid rgba(255, 255, 255, .42);
+    outline-offset: 3px;
+}
+
+.teacher-lb-admin-master-switch strong {
+    color: #fff;
+    font-size: .95rem;
+}
+
+.teacher-lb-admin-master-switch small {
+    margin-top: 3px;
+    color: rgba(255, 255, 255, .68);
+    font-size: .72rem;
+    line-height: 1.35;
+}
+
+.teacher-lb-admin-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+}
+
+.teacher-lb-stat-card {
+    min-width: 0;
+    padding: 15px;
+    border: 1px solid rgba(99, 102, 241, .10);
+    border-radius: 17px;
+    background: rgba(255, 255, 255, .76);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, .055);
+}
+
+.teacher-lb-stat-icon {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 1.25rem;
+}
+
+.teacher-lb-stat-label {
+    display: block;
+    margin-bottom: 3px;
+    color: #7b86a8;
+    font-size: .73rem;
+    font-weight: 850;
+}
+
+.teacher-lb-stat-card strong {
+    display: block;
+    color: #26355f;
+    font-size: 1rem;
+}
+
+.teacher-lb-stat-card small {
+    display: block;
+    margin-top: 4px;
+    color: #96a0bc;
+    font-size: .69rem;
+    line-height: 1.35;
+}
+
+.teacher-lb-admin-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 14px;
+}
+
+.teacher-lb-admin-panel {
+    padding: 19px;
+    border: 1px solid rgba(99, 102, 241, .11);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, .78);
+    box-shadow: 0 10px 28px rgba(15, 23, 42, .06);
+}
+
+.teacher-lb-panel-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 15px;
+}
+
+.teacher-lb-panel-head h4,
+.teacher-lb-panel-head h5 {
+    margin: 4px 0 0;
+    color: #26355f;
+    font-size: 1rem;
+}
+
+.teacher-lb-panel-icon {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: rgba(99, 102, 241, .08);
+    font-size: 1.15rem;
+}
+
+.teacher-lb-season-summary {
+    padding: 14px;
+    border-radius: 14px;
+    background: rgba(59, 130, 246, .055);
+    border: 1px solid rgba(59, 130, 246, .10);
+}
+
+.teacher-lb-season-summary > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+}
+
+.teacher-lb-season-summary span {
+    color: #7b86a8;
+    font-size: .78rem;
+    font-weight: 800;
+}
+
+.teacher-lb-season-summary strong {
+    color: #2563eb;
+    font-size: .9rem;
+}
+
+.teacher-lb-season-summary p {
+    margin: 8px 0 0;
+    color: #77819f;
+    font-size: .76rem;
+    line-height: 1.45;
+}
+
+.teacher-lb-schedule-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.teacher-lb-schedule-fields label > span,
+.teacher-lb-rate-grid label > span {
+    display: block;
+    margin-bottom: 6px;
+    color: #53617f;
+    font-size: .75rem;
+    font-weight: 850;
+}
+
+.teacher-lb-schedule-fields select,
+.teacher-lb-schedule-fields input,
+.teacher-lb-reward-card input,
+.teacher-lb-rate-grid input {
+    width: 100%;
+    min-height: 42px;
+    margin: 0 !important;
+    padding: 9px 11px;
+    border: 1px solid #dfe4ef;
+    border-radius: 11px;
+    background: #fff;
+    color: #26355f;
+    font-weight: 800;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.teacher-lb-schedule-fields select:focus,
+.teacher-lb-schedule-fields input:focus,
+.teacher-lb-reward-card input:focus,
+.teacher-lb-rate-grid input:focus {
+    border-color: #818cf8;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, .10);
+}
+
+.teacher-lb-action-row {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr .8fr;
+    gap: 8px;
+    margin-top: 13px;
+}
+
+.teacher-lb-btn {
+    min-height: 42px;
+    margin: 0 !important;
+    padding: 10px 13px !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border: 0 !important;
+    border-radius: 11px !important;
+    font-size: .77rem !important;
+    font-weight: 900 !important;
+    cursor: pointer;
+    transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+}
+
+.teacher-lb-btn:hover {
+    transform: translateY(-1px);
+}
+
+.teacher-lb-btn.primary {
+    background: linear-gradient(135deg, #4f46e5, #2563eb) !important;
+    color: #fff !important;
+    box-shadow: 0 7px 16px rgba(79, 70, 229, .17) !important;
+}
+
+.teacher-lb-btn.secondary {
+    background: #eef2ff !important;
+    color: #4f46e5 !important;
+}
+
+.teacher-lb-btn.danger {
+    background: #fff1f2 !important;
+    color: #be123c !important;
+}
+
+.teacher-lb-btn.save {
+    min-width: 220px;
+    background: linear-gradient(135deg, #f59e0b, #ea580c) !important;
+    color: #fff !important;
+    box-shadow: 0 8px 18px rgba(234, 88, 12, .16) !important;
+}
+
+.teacher-lb-formula {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 13px 14px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(79, 70, 229, .07), rgba(37, 99, 235, .05));
+    border: 1px solid rgba(79, 70, 229, .09);
+}
+
+.teacher-lb-formula strong {
+    color: #4338ca;
+    font-size: .85rem;
+}
+
+.teacher-lb-formula span {
+    color: #5d6784;
+    font-size: .76rem;
+    font-weight: 750;
+}
+
+.teacher-lb-rule-list {
+    display: grid;
+    gap: 8px;
+    margin-top: 11px;
+}
+
+.teacher-lb-rule-list > div {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr);
+    gap: 10px;
+    align-items: center;
+    padding: 9px 10px;
+    border-radius: 12px;
+    background: #fafbff;
+}
+
+.teacher-lb-rule-badge {
+    display: inline-grid;
+    place-items: center;
+    min-height: 32px;
+    border-radius: 10px;
+    font-size: .75rem;
+    font-weight: 950;
+}
+
+.teacher-lb-rule-badge.late { color: #b45309; background: #fff7ed; }
+.teacher-lb-rule-badge.essay { color: #7c3aed; background: #f5f3ff; }
+.teacher-lb-rule-badge.cheat { color: #be123c; background: #fff1f2; }
+
+.teacher-lb-rule-list p {
+    margin: 0;
+    color: #3f4b68;
+    font-size: .78rem;
+}
+
+.teacher-lb-rule-list small {
+    display: block;
+    margin-top: 2px;
+    color: #8b95af;
+    font-size: .69rem;
+    line-height: 1.35;
+}
+
+.teacher-lb-note {
+    display: flex;
+    gap: 9px;
+    margin-top: 11px;
+    padding: 10px 11px;
+    border-radius: 12px;
+    background: rgba(14, 165, 233, .07);
+    color: #53617f;
+}
+
+.teacher-lb-note p {
+    margin: 0;
+    font-size: .73rem;
+    line-height: 1.45;
+}
+
+.teacher-lb-reward-panel {
+    margin-top: 14px;
+}
+
+.teacher-lb-reward-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.teacher-lb-reward-card {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr);
+    gap: 10px;
+    min-width: 0;
+    padding: 13px;
+    border-radius: 15px;
+    border: 1px solid rgba(15, 23, 42, .07);
+    background: #fbfcff;
+}
+
+.teacher-lb-reward-card.rank-1 { background: linear-gradient(135deg, #fffdf0, #fff7d6); border-color: rgba(217, 119, 6, .14); }
+.teacher-lb-reward-card.rank-2 { background: linear-gradient(135deg, #fbfdff, #eef2f7); border-color: rgba(100, 116, 139, .13); }
+.teacher-lb-reward-card.rank-3 { background: linear-gradient(135deg, #fff9f4, #ffeddc); border-color: rgba(194, 65, 12, .12); }
+.teacher-lb-reward-card.rank-4 { background: linear-gradient(135deg, #f8faff, #eef2ff); border-color: rgba(79, 70, 229, .11); }
+
+.teacher-lb-rank-medal {
+    font-size: 1.55rem;
+}
+
+.teacher-lb-reward-card > div > span {
+    display: block;
+    color: #7b86a8;
+    font-size: .69rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.teacher-lb-reward-card strong {
+    display: block;
+    margin-top: 2px;
+    color: #26355f;
+    font-size: .84rem;
+    line-height: 1.35;
+}
+
+.teacher-lb-reward-card small {
+    display: block;
+    margin-top: 4px;
+    color: #8f99b2;
+    font-size: .67rem;
+    line-height: 1.35;
+}
+
+.teacher-lb-reward-card label,
+.teacher-lb-rate-grid label > div {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+.teacher-lb-reward-card label input {
+    min-height: 36px;
+    padding-right: 44px;
+}
+
+.teacher-lb-reward-card label em,
+.teacher-lb-rate-grid label em {
+    position: absolute;
+    right: 10px;
+    color: #9aa3b8;
+    font-size: .69rem;
+    font-style: normal;
+    font-weight: 900;
+    pointer-events: none;
+}
+
+.teacher-lb-chest-box {
+    margin-top: 14px;
+    padding: 15px;
+    border: 1px solid rgba(245, 158, 11, .12);
+    border-radius: 17px;
+    background: rgba(255, 251, 235, .58);
+}
+
+.teacher-lb-chest-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.teacher-lb-chest-head h5 {
+    margin: 3px 0 0;
+    color: #26355f;
+    font-size: .92rem;
+}
+
+.teacher-lb-rate-total {
+    min-width: 58px;
+    padding: 7px 10px;
+    border-radius: 999px;
+    text-align: center;
+    font-size: .78rem;
+    font-weight: 950;
+}
+
+.teacher-lb-rate-total.is-valid {
+    color: #047857;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+}
+
+.teacher-lb-rate-total.is-invalid {
+    color: #be123c;
+    background: #fff1f2;
+    border: 1px solid #fecdd3;
+}
+
+.teacher-lb-rate-bar {
+    width: 100%;
+    height: 10px;
+    display: flex;
+    overflow: hidden;
+    margin: 12px 0;
+    border-radius: 999px;
+    background: #e9edf5;
+}
+
+.teacher-lb-rate-bar span {
+    height: 100%;
+    transition: width .22s ease;
+}
+
+.teacher-lb-rate-bar .dup { background: #f59e0b; }
+.teacher-lb-rate-bar .norm { background: #3b82f6; }
+.teacher-lb-rate-bar .leg { background: #8b5cf6; }
+
+.teacher-lb-rate-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.teacher-lb-rate-grid label {
+    min-width: 0;
+    padding: 11px;
+    border-radius: 13px;
+    background: rgba(255, 255, 255, .82);
+    border: 1px solid rgba(15, 23, 42, .06);
+}
+
+.teacher-lb-rate-grid label > span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.teacher-lb-rate-grid label > span i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.teacher-lb-rate-grid label.dup > span i { background: #f59e0b; }
+.teacher-lb-rate-grid label.norm > span i { background: #3b82f6; }
+.teacher-lb-rate-grid label.leg > span i { background: #8b5cf6; }
+
+.teacher-lb-rate-grid input {
+    text-align: center;
+    padding-right: 28px;
+}
+
+.teacher-lb-rate-grid small {
+    display: block;
+    margin-top: 6px;
+    color: #939cb2;
+    font-size: .65rem;
+    line-height: 1.35;
+}
+
+.teacher-lb-error {
+    margin: 10px 0 0;
+    padding: 9px 11px;
+    border: 1px solid #fecdd3;
+    border-radius: 10px;
+    background: #fff1f2;
+    color: #be123c;
+    font-size: .72rem;
+    font-weight: 850;
+}
+
+.teacher-lb-error[hidden] {
+    display: none !important;
+}
+
+.teacher-lb-save-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed rgba(100, 116, 139, .20);
+}
+
+.teacher-lb-save-row strong {
+    display: block;
+    color: #4b5875;
+    font-size: .78rem;
+}
+
+.teacher-lb-save-row small {
+    display: block;
+    margin-top: 3px;
+    color: #929cb4;
+    font-size: .68rem;
+}
+
+@media (max-width: 1100px) {
+    .teacher-lb-admin-stat-grid,
+    .teacher-lb-reward-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .teacher-lb-admin-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 760px) {
+    .teacher-lb-admin-accordion-head {
+        align-items: flex-start !important;
+    }
+
+    .teacher-lb-admin-heading p,
+    .teacher-lb-status-pill {
+        display: none;
+    }
+
+    .teacher-lb-admin-content {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+    .teacher-lb-admin-hero {
+        grid-template-columns: 1fr;
+        padding: 17px;
+    }
+
+    .teacher-lb-admin-master-switch {
+        min-height: 120px;
+    }
+
+    .teacher-lb-admin-stat-grid,
+    .teacher-lb-reward-grid,
+    .teacher-lb-rate-grid,
+    .teacher-lb-schedule-fields {
+        grid-template-columns: 1fr;
+    }
+
+    .teacher-lb-action-row {
+        grid-template-columns: 1fr;
+    }
+
+    .teacher-lb-save-row {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .teacher-lb-btn.save {
+        width: 100%;
+        min-width: 0;
+    }
+}
+
+/* =========================================================
+   FINAL FIX · TEACHER SIDEBAR TOP / COLLAPSED
+   - Mở rộng: toggle nằm bên trong góc phải, không đè tiêu đề.
+   - Thu gọn: chỉ còn 1 toggle ở giữa phía trên.
+   - Ẩn "Bảng điều khiển" + icon giả từ common.css.
+   ========================================================= */
+@media screen and (min-width: 769px) {
+    html[data-app-role="teacher"] body
+    .dashboard > .sidebar {
+        position: sticky !important;
+        overflow-x: hidden !important;
+    }
+
+    html[data-app-role="teacher"] body
+    .dashboard > .sidebar > .sidebar-toggle {
+        position: absolute !important;
+        top: 18px !important;
+        right: 14px !important;
+        left: auto !important;
+        bottom: auto !important;
+
+        float: none !important;
+        margin: 0 !important;
+
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
+        min-height: 34px !important;
+
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+
+        z-index: 30 !important;
+        transform: none !important;
+    }
+
+    html[data-app-role="teacher"] body
+    .dashboard:not(.collapsed) > .sidebar > .sidebar-toggle:hover {
+        transform: scale(1.08) !important;
+    }
+
+    /* Chừa chỗ cho nút khi sidebar đang mở. */
+    html[data-app-role="teacher"] body
+    .dashboard:not(.collapsed) .sidebar-top h3 {
+        margin-right: 46px !important;
+    }
+
+    /* Sidebar thu gọn: nút duy nhất nằm chính giữa. */
+    html[data-app-role="teacher"] body
+    .dashboard.collapsed > .sidebar > .sidebar-toggle {
+        top: 18px !important;
+        left: 50% !important;
+        right: auto !important;
+        margin: 0 !important;
+
+        transform: translateX(-50%) rotate(180deg) !important;
+    }
+
+    html[data-app-role="teacher"] body
+    .dashboard.collapsed > .sidebar > .sidebar-toggle:hover {
+        transform: translateX(-50%) rotate(180deg) scale(1.08) !important;
+    }
+
+    /*
+     * teacher.css có font-size:1.18rem !important ở layout refresh,
+     * nên phải khóa collapsed bằng !important để chữ không hiện lại.
+     */
+    html[data-app-role="teacher"] body
+    .dashboard.collapsed .sidebar-top h3 {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        min-height: 0 !important;
+
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+
+        font-size: 0 !important;
+        line-height: 0 !important;
+
+        overflow: hidden !important;
+    }
+
+    /* Hủy cả 👤/✦ được common.css tạo bằng pseudo-element. */
+    html[data-app-role="teacher"] body
+    .dashboard.collapsed .sidebar-top h3::before,
+    html[data-app-role="teacher"] body
+    .dashboard.collapsed .sidebar-top h3::after {
+        content: none !important;
+        display: none !important;
+    }
+
+    /* teacher.html có <br> ngay sau h3; bỏ khoảng trắng này khi collapsed. */
+    html[data-app-role="teacher"] body
+    .dashboard.collapsed .sidebar-top h3 + br {
+        display: none !important;
+    }
+
+    /* Đẩy menu xuống dưới toggle, tránh nút đầu tiên đè lên toggle. */
+    html[data-app-role="teacher"] body
+    .dashboard.collapsed .sidebar-top {
+        padding-top: 68px !important;
+    }
+}
+
+
+/* =========================================================
+   HOTFIX 2026-09-17 · TEACHER SIDEBAR TOGGLE OVERLAP
+   - Sửa nút đóng/mở sidebar bị dạt sang mép trái và đè lên
+     tiêu đề "Bảng điều khiển".
+   - Không phụ thuộc sidebar-toggle có phải direct child hay không.
+   - Desktop >= 769px; không thay đổi giao diện mobile.
+   ========================================================= */
+@media screen and (min-width: 769px) {
+    html[data-app-role="teacher"] body .dashboard .sidebar {
+        position: sticky !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Bắt mọi vị trí DOM của nút toggle, kể cả khi nằm trong sidebar-top. */
+    html[data-app-role="teacher"] body .dashboard .sidebar .sidebar-toggle {
+        position: absolute !important;
+        top: 18px !important;
+        right: 14px !important;
+        left: auto !important;
+        bottom: auto !important;
+        float: none !important;
+        margin: 0 !important;
+
+        width: 34px !important;
+        min-width: 34px !important;
+        max-width: 34px !important;
+        height: 34px !important;
+        min-height: 34px !important;
+        max-height: 34px !important;
+        padding: 0 !important;
+
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 100 !important;
+        transform: none !important;
+    }
+
+    /* Chừa hẳn vùng cho toggle ở góc phải, không cho tiêu đề chạm nút. */
+    html[data-app-role="teacher"] body
+    .dashboard:not(.collapsed) .sidebar .sidebar-top h3 {
+        margin: 0 54px 20px 2px !important;
+        min-height: 34px !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    html[data-app-role="teacher"] body
+    .dashboard:not(.collapsed) .sidebar .sidebar-toggle:hover {
+        transform: scale(1.08) !important;
+    }
+
+    /* Khi thu gọn: đặt nút chính giữa sidebar và ẩn tiêu đề. */
+    html[data-app-role="teacher"] body
+    .dashboard.collapsed .sidebar .sidebar-toggle {
+        top: 18px !important;
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%) rotate(180deg) !important;
+    }
+
+    html[data-app-role="teacher"] body
+    .dashboard.collapsed .sidebar .sidebar-toggle:hover {
+        transform: translateX(-50%) rotate(180deg) scale(1.08) !important;
+    }
+
+    html[data-app-role="teacher"] body
+    .dashboard.collapsed .sidebar .sidebar-top h3 {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        font-size: 0 !important;
+        line-height: 0 !important;
+        overflow: hidden !important;
+    }
+
+    html[data-app-role="teacher"] body
+    .dashboard.collapsed .sidebar .sidebar-top h3::before,
+    html[data-app-role="teacher"] body
+    .dashboard.collapsed .sidebar .sidebar-top h3::after {
+        content: none !important;
+        display: none !important;
+    }
+
+    html[data-app-role="teacher"] body
+    .dashboard.collapsed .sidebar .sidebar-top h3 + br {
+        display: none !important;
+    }
+
+    html[data-app-role="teacher"] body
+    .dashboard.collapsed .sidebar .sidebar-top {
+        padding-top: 68px !important;
+    }
+}
+
+
+/* ============================================================================
+   TEACHER · LEADERBOARD ADMIN CENTER v3 · CACHE/CONFLICT GUARD
+   Bảo đảm giao diện quản lý BXH không bị CSS form/mobile cũ kéo về checkbox thô.
+   ============================================================================ */
+html[data-app-role="teacher"] #teacherLeaderboardAdminCard .teacher-lb-admin-hero {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 300px) !important;
+    gap: 18px !important;
+    align-items: stretch !important;
+    padding: 22px !important;
+    border: 1px solid rgba(255,255,255,.68) !important;
+    border-radius: 22px !important;
+    background:
+        radial-gradient(circle at 8% 12%, rgba(251,191,36,.24), transparent 28%),
+        linear-gradient(135deg, rgba(37,99,235,.94), rgba(99,102,241,.94) 52%, rgba(124,58,237,.94)) !important;
+    color: #fff !important;
+    box-shadow: 0 18px 40px rgba(79,70,229,.18) !important;
+}
+
+html[data-app-role="teacher"] #teacherLeaderboardAdminCard .teacher-lb-admin-master-switch {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 150px !important;
+    padding: 18px !important;
+    border: 1px solid rgba(255,255,255,.20) !important;
+    border-radius: 18px !important;
+    background: rgba(15,23,42,.18) !important;
+    color: #fff !important;
+}
+
+html[data-app-role="teacher"] #teacherLeaderboardAdminCard label.teacher-lb-switch {
+    position: relative !important;
+    display: block !important;
+    width: 64px !important;
+    min-width: 64px !important;
+    max-width: 64px !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    max-height: 34px !important;
+    margin: 0 0 9px !important;
+    padding: 0 !important;
+    cursor: pointer !important;
+}
+
+html[data-app-role="teacher"] #teacherLeaderboardAdminCard label.teacher-lb-switch > input#lbToggle {
+    position: absolute !important;
+    width: 1px !important;
+    min-width: 1px !important;
+    max-width: 1px !important;
+    height: 1px !important;
+    min-height: 1px !important;
+    max-height: 1px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+html[data-app-role="teacher"] #teacherLeaderboardAdminCard .teacher-lb-switch-track {
+    position: absolute !important;
+    inset: 0 !important;
+    display: block !important;
+    border: 1px solid rgba(255,255,255,.26) !important;
+    border-radius: 999px !important;
+    background: rgba(15,23,42,.42) !important;
+}
+
+html[data-app-role="teacher"] #teacherLeaderboardAdminCard .teacher-lb-switch-thumb {
+    position: absolute !important;
+    top: 4px !important;
+    left: 4px !important;
+    width: 24px !important;
+    height: 24px !important;
+    border-radius: 50% !important;
+    background: #fff !important;
+    box-shadow: 0 4px 10px rgba(15,23,42,.25) !important;
+    transition: transform .22s cubic-bezier(.2,.8,.2,1) !important;
+}
+
+html[data-app-role="teacher"] #teacherLeaderboardAdminCard label.teacher-lb-switch > input#lbToggle:checked + .teacher-lb-switch-track {
+    background: #10b981 !important;
+    border-color: rgba(255,255,255,.42) !important;
+}
+
+html[data-app-role="teacher"] #teacherLeaderboardAdminCard label.teacher-lb-switch > input#lbToggle:checked + .teacher-lb-switch-track .teacher-lb-switch-thumb {
+    transform: translateX(30px) !important;
+}
+
+html[data-app-role="teacher"] #teacherLeaderboardAdminCard .teacher-lb-admin-hero h4,
+html[data-app-role="teacher"] #teacherLeaderboardAdminCard .teacher-lb-admin-master-switch strong {
+    color: #fff !important;
+}
+
+html[data-app-role="teacher"] #teacherLeaderboardAdminCard .teacher-lb-admin-hero p,
+html[data-app-role="teacher"] #teacherLeaderboardAdminCard .teacher-lb-admin-switch-label,
+html[data-app-role="teacher"] #teacherLeaderboardAdminCard .teacher-lb-admin-master-switch small {
+    color: rgba(255,255,255,.80) !important;
+}
+
+@media (max-width: 900px) {
+    html[data-app-role="teacher"] #teacherLeaderboardAdminCard .teacher-lb-admin-hero {
+        grid-template-columns: 1fr !important;
+        padding: 17px !important;
+    }
+
+    html[data-app-role="teacher"] #teacherLeaderboardAdminCard .teacher-lb-admin-master-switch {
+        min-height: 120px !important;
     }
 }

@@ -6100,7 +6100,7 @@ body.store-background-equipped[
     data-store-background-id="background_linkclick_cheng_xiaoshi_sunset_studio"
 ] {
     background-image:
-        url("assets/Premium/Lock/Cheng Xiaoshi-nen1.png")
+        url("../assets/Premium/Lock/Cheng Xiaoshi-nen1.png")
         !important;
 
     background-size:
@@ -6128,7 +6128,7 @@ html body[class*="theme-"].store-background-equipped[
     data-store-background-id="background_linkclick_cheng_xiaoshi_sunset_studio"
 ] {
     background-image:
-        url("assets/Premium/Lock/Cheng Xiaoshi-nen1.png")
+        url("../assets/Premium/Lock/Cheng Xiaoshi-nen1.png")
         !important;
 
     background-size:

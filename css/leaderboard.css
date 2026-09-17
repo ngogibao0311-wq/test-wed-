@@ -31,9 +31,9 @@ body.leaderboard-open {
 
 /* ---------- Nút mở bảng xếp hạng ---------- */
 .leaderboard-trigger-btn {
-    position: fixed;
-    top: 20px;
-    right: 195px;
+    position: relative;
+    top: auto;
+    right: auto;
     width: 48px;
     height: 48px;
     padding: 0;
@@ -1601,11 +1601,25 @@ body.theme-fairy-sea-dream
     transform: translateY(-2px) !important;
     background: rgba(255,255,255,.24) !important;
 }
-/* Máy tính: nút nằm theo nội dung, không đi theo khi cuộn */
+/* Máy tính: nút thuộc normal flow trong thanh hành động. */
 @media screen and (min-width: 769px) {
-    .leaderboard-trigger-btn {
-        position: absolute !important;
-        top: 20px !important;
-        right: 195px !important;
+    html[data-app-role="student"] body
+    .student-top-actions-flow > .leaderboard-trigger-btn {
+        position: relative !important;
+        top: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        left: auto !important;
+        margin: 0 !important;
     }
+}
+
+/* Floating dock của trang học sinh: container fixed, riêng nút BXH vẫn relative. */
+html[data-app-role="student"] body > #studentTopActionsFlow.student-top-actions-flow[data-flow-mode="floating-guide"] > .leaderboard-trigger-btn {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    margin: 0 !important;
 }

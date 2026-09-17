@@ -22,12 +22,17 @@
     gap: 7px;
     width: fit-content;
     max-width: 100%;
+    margin: 0 0 22px;
 }
 
-/* Giữ nguyên gạch trang trí ::after của tiêu đề ở dưới chữ. */
+/* Giữ nguyên gạch trang trí ::after của tiêu đề ở dưới chữ.
+   Khóa padding/margin để layout desktop của student.css không đẩy nút mũi tên ra giữa trang. */
 #tab-store > .store-collection-title-row > h2 {
     min-width: 0;
     flex: 0 1 auto;
+    width: auto !important;
+    margin: 0 !important;
+    padding-right: 0 !important;
 }
 
 #tab-store .store-collection-arrow {

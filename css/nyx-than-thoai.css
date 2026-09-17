@@ -239,10 +239,10 @@
     background-position: 180% 50%;
 
     -webkit-mask:
-        url("assets/Premium/Thần thoại/nyx-tag1.png") center / contain no-repeat;
+        url("../assets/Premium/Thần thoại/nyx-tag1.png") center / contain no-repeat;
 
     mask:
-        url("assets/Premium/Thần thoại/nyx-tag1.png") center / contain no-repeat;
+        url("../assets/Premium/Thần thoại/nyx-tag1.png") center / contain no-repeat;
 
     opacity: 0;
 

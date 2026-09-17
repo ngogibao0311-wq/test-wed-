@@ -223,9 +223,9 @@
     background-size: 270% 100%;
     background-position: 180% 50%;
     -webkit-mask:
-        url("assets/Premium/Tamon/tamon-tag1.png") center / contain no-repeat;
+        url("../assets/Premium/Tamon/tamon-tag1.png") center / contain no-repeat;
     mask:
-        url("assets/Premium/Tamon/tamon-tag1.png") center / contain no-repeat;
+        url("../assets/Premium/Tamon/tamon-tag1.png") center / contain no-repeat;
     opacity: 0;
     animation: tamonBsideTagSweep 5.3s ease-in-out infinite;
 }
@@ -6390,6 +6390,269 @@ html body.store-background-equipped[
     html body
     .store-item-card[data-item-id="background_tamon_bside_stage_signal"]
     .item-icon-wrapper::before {
+        animation: none !important;
+    }
+}
+
+
+/* ============================================================================
+   B-MASK · NEON HEART — AVATAR FRAME RUNTIME SELF-CONTAINED v1
+   ----------------------------------------------------------------------------
+   Fix startup/F5:
+   - Khung này trước đây chỉ có metadata nhưng tamon-b-side.css không hề có
+     geometry cho .avatar-frame-decoration.
+   - Khi mở Cửa hàng, các stylesheet đặc biệt khác được nạp và một rule khung
+     dùng chung vô tình cấp width/height, nên B-Mask mới trở lại đúng.
+   - Từ bản này B-Mask tự định nghĩa toàn bộ geometry cần thiết của chính nó.
+   - Selector khóa theo data-avatar-frame-id để không ảnh hưởng khung khác.
+   ============================================================================ */
+
+html[data-app-role="student"] body
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_tamon_bside_signal_ring"],
+html[data-app-role="student"] body
+#studentInfoModal .avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_tamon_bside_signal_ring"] {
+    position: relative !important;
+    overflow: visible !important;
+    isolation: isolate !important;
+}
+
+/* Avatar nhỏ ở dock Hồ sơ: giữ đúng hình tròn 42x42. */
+html[data-app-role="student"] body
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_tamon_bside_signal_ring"] > #avatarImage {
+    display: block !important;
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    min-height: 42px !important;
+    max-width: 42px !important;
+    max-height: 42px !important;
+    object-fit: cover !important;
+    object-position: center center !important;
+    border-radius: 50% !important;
+    position: relative !important;
+    z-index: 3 !important;
+}
+
+html[data-app-role="student"] body
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_tamon_bside_signal_ring"] > #avatarPlaceholder {
+    position: relative !important;
+    z-index: 3 !important;
+    border-radius: 50% !important;
+    font-size: 1.05rem !important;
+    line-height: 1 !important;
+}
+
+/* Artwork B-Mask: kích thước chuẩn khung Premium Mùa Xuân, không lấy natural size. */
+html[data-app-role="student"] body
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_tamon_bside_signal_ring"] > .avatar-frame-decoration {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: 60px !important;
+    height: 60px !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    max-height: none !important;
+    object-fit: contain !important;
+    object-position: center center !important;
+    transform: translate(-50%, -50%) !important;
+    transform-origin: 50% 50% !important;
+    z-index: 6 !important;
+    pointer-events: none !important;
+    user-select: none !important;
+    -webkit-user-drag: none !important;
+    filter:
+        drop-shadow(0 3px 6px rgba(8, 11, 20, .28))
+        drop-shadow(0 0 5px rgba(255, 127, 182, .24))
+        drop-shadow(0 0 5px rgba(146, 183, 255, .24)) !important;
+    animation: tamonBsideAvatarFrameFloat 5.8s ease-in-out infinite !important;
+}
+
+/* Aura riêng của B-Mask, không mượn aura từ Premium Mùa Xuân. */
+html[data-app-role="student"] body
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_tamon_bside_signal_ring"] > .avatar-frame-aura {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: 64px !important;
+    height: 64px !important;
+    border-radius: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 0 !important;
+    pointer-events: none !important;
+    opacity: .30 !important;
+    filter: blur(5px) saturate(1.08) !important;
+    background:
+        conic-gradient(
+            from 0deg,
+            rgba(146, 183, 255, .10),
+            rgba(255, 127, 182, .28),
+            rgba(199, 173, 255, .18),
+            rgba(146, 183, 255, .24),
+            rgba(146, 183, 255, .10)
+        ) !important;
+    animation: tamonBsideAvatarFrameAura 10s linear infinite !important;
+}
+
+/* Spark do AvatarFrameManager tạo: giới hạn tuyệt đối để không nở theo theme khác. */
+html[data-app-role="student"] body
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_tamon_bside_signal_ring"] > .avatar-frame-spark {
+    position: absolute !important;
+    z-index: 7 !important;
+    width: auto !important;
+    height: auto !important;
+    max-width: none !important;
+    max-height: none !important;
+    pointer-events: none !important;
+    color: #ffc1db !important;
+    font-size: 8px !important;
+    line-height: 1 !important;
+    text-shadow:
+        0 0 4px rgba(255,255,255,.95),
+        0 0 8px rgba(255,127,182,.62),
+        0 0 10px rgba(146,183,255,.48) !important;
+}
+
+html[data-app-role="student"] body
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_tamon_bside_signal_ring"] > .avatar-frame-spark.spark-1 {
+    left: -5px !important;
+    top: 2px !important;
+}
+html[data-app-role="student"] body
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_tamon_bside_signal_ring"] > .avatar-frame-spark.spark-2 {
+    right: -5px !important;
+    top: 7px !important;
+}
+html[data-app-role="student"] body
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_tamon_bside_signal_ring"] > .avatar-frame-spark.spark-3 {
+    left: 3px !important;
+    bottom: -3px !important;
+}
+html[data-app-role="student"] body
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_tamon_bside_signal_ring"] > .avatar-frame-spark.spark-4 {
+    right: 2px !important;
+    bottom: -4px !important;
+}
+
+/* Popup Hồ sơ: frame vẫn dùng tâm host, không được lấy kích thước ảnh gốc. */
+html[data-app-role="student"] body
+#studentInfoModal .avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_tamon_bside_signal_ring"] > .avatar-frame-decoration {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: 145px !important;
+    height: 145px !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    max-height: none !important;
+    object-fit: contain !important;
+    object-position: center center !important;
+    transform: translate(-50%, -50%) !important;
+    transform-origin: 50% 50% !important;
+    z-index: 6 !important;
+    pointer-events: none !important;
+    user-select: none !important;
+    -webkit-user-drag: none !important;
+    filter:
+        drop-shadow(0 7px 10px rgba(8, 11, 20, .20))
+        drop-shadow(0 0 8px rgba(255, 127, 182, .22))
+        drop-shadow(0 0 8px rgba(146, 183, 255, .22)) !important;
+    animation: tamonBsideAvatarFrameFloat 5.8s ease-in-out infinite !important;
+}
+
+html[data-app-role="student"] body
+#studentInfoModal .avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_tamon_bside_signal_ring"] > .avatar-frame-aura {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: 150px !important;
+    height: 150px !important;
+    border-radius: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 0 !important;
+    pointer-events: none !important;
+    opacity: .26 !important;
+    filter: blur(7px) saturate(1.08) !important;
+    background:
+        conic-gradient(
+            from 0deg,
+            rgba(146, 183, 255, .08),
+            rgba(255, 127, 182, .22),
+            rgba(199, 173, 255, .16),
+            rgba(146, 183, 255, .20),
+            rgba(146, 183, 255, .08)
+        ) !important;
+    animation: tamonBsideAvatarFrameAura 10s linear infinite !important;
+}
+
+html[data-app-role="student"] body
+#studentInfoModal .avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_tamon_bside_signal_ring"] > .avatar-frame-spark {
+    display: none !important;
+}
+
+@media (max-width: 768px) {
+    html[data-app-role="student"] body
+    .profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_tamon_bside_signal_ring"] > #avatarImage {
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+        min-height: 38px !important;
+        max-width: 38px !important;
+        max-height: 38px !important;
+    }
+
+    html[data-app-role="student"] body
+    .profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_tamon_bside_signal_ring"] > .avatar-frame-decoration {
+        width: 56px !important;
+        height: 56px !important;
+    }
+
+    html[data-app-role="student"] body
+    .profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_tamon_bside_signal_ring"] > .avatar-frame-aura {
+        width: 60px !important;
+        height: 60px !important;
+    }
+
+    html[data-app-role="student"] body
+    #studentInfoModal .avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_tamon_bside_signal_ring"] > .avatar-frame-decoration {
+        width: 136px !important;
+        height: 136px !important;
+    }
+
+    html[data-app-role="student"] body
+    #studentInfoModal .avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_tamon_bside_signal_ring"] > .avatar-frame-aura {
+        width: 140px !important;
+        height: 140px !important;
+    }
+}
+
+@keyframes tamonBsideAvatarFrameFloat {
+    0%, 100% {
+        transform: translate(-50%, -50%) translateY(0) scale(1);
+    }
+    50% {
+        transform: translate(-50%, -50%) translateY(-1.5px) scale(1.015);
+    }
+}
+
+@keyframes tamonBsideAvatarFrameAura {
+    from {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html[data-app-role="student"] body
+    [data-avatar-frame-id="frame_tamon_bside_signal_ring"] > :is(
+        .avatar-frame-decoration,
+        .avatar-frame-aura,
+        .avatar-frame-spark
+    ) {
         animation: none !important;
     }
 }
