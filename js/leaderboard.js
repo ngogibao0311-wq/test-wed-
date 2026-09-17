@@ -283,7 +283,18 @@ function initLeaderboardSystem() {
 
         lbBtn.addEventListener("click", openLeaderboardModal);
 
-        bagBtn.parentNode.insertBefore(lbBtn, bagBtn);
+        const actionBar =
+            document.getElementById("studentTopActionsFlow");
+
+        const triggerHost =
+            actionBar || bagBtn.parentNode;
+
+        triggerHost.insertBefore(lbBtn, bagBtn);
+
+        // Đảm bảo nút BXH mới chèn cũng thuộc normal flow, không bị theme ghim vào viewport.
+        if (typeof window.refreshStudentTopActionPositions === "function") {
+            window.refreshStudentTopActionPositions();
+        }
     }
 
     const modalHTML = `

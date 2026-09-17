@@ -15636,181 +15636,362 @@ window.modifyStudentTickets = async function (action) {
     }
 };
 
-// --- QUẢN LÝ BẢNG XẾP HẠNG THI ĐUA (CẬP NHẬT) ---
+// --- QUẢN LÝ BẢNG XẾP HẠNG THI ĐUA · ADMIN CENTER v2 ---
 
-listenFirebase(db.ref('leaderboard_settings'), 'value', (snapshot) => {
-    const settings = snapshot.val() || {};
+window.__teacherLeaderboardSettings =
+    window.__teacherLeaderboardSettings || {};
 
-    // Đảm bảo luôn có giá trị mặc định chạy ngầm nếu Firebase trống
-    const isOpen = settings.isOpen !== undefined ? settings.isOpen : false;
-    const targetMonth = settings.targetMonth || (new Date().getMonth() + 1);
-    const targetYear = settings.targetYear || new Date().getFullYear();
-    const rewardRank3 = settings.rewardRank3 !== undefined ? settings.rewardRank3 : 100;
-    const rewardRank4 = settings.rewardRank4 !== undefined ? settings.rewardRank4 : 50;
-    const chestDup = settings.chestDup !== undefined ? settings.chestDup : 95;
-    const chestNorm = settings.chestNorm !== undefined ? settings.chestNorm : 4;
-    const chestLeg = settings.chestLeg !== undefined ? settings.chestLeg : 1;
+function getTeacherLeaderboardNowInfo(now = new Date()) {
+    const month = now.getMonth() + 1;
+    const year = now.getFullYear();
+    return {
+        month,
+        year,
+        label: `Tháng ${month}/${year}`,
+        seasonKey: `${year}-${String(month).padStart(2, '0')}`
+    };
+}
 
-    /*
-     * FIX LỊCH MÙA GIẢI:
-     * Chỉ phía giáo viên mới có quyền ghi leaderboard_settings.
-     * Khi dashboard giáo viên đang mở và đã tới tháng hẹn,
-     * chuẩn hóa lịch thành isOpen=true rồi xóa mốc hẹn.
-     *
-     * Phía học sinh cũng có fallback chỉ-đọc, nên dù giáo viên
-     * chưa mở dashboard đúng thời điểm thì BXH vẫn không bị lỗi quyền.
-     */
-    if (
-        !isOpen &&
-        settings.targetMonth &&
-        settings.targetYear
-    ) {
-        const now = new Date();
+function getTeacherLeaderboardNextMonthInfo(now = new Date()) {
+    const date = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    return {
+        month: date.getMonth() + 1,
+        year: date.getFullYear(),
+        label: `Tháng ${date.getMonth() + 1}/${date.getFullYear()}`
+    };
+}
 
-        const currentMonth =
-            now.getMonth() + 1;
+function setTeacherLeaderboardText(id, value) {
+    const element = document.getElementById(id);
+    if (element) element.textContent = String(value ?? '');
+}
 
-        const currentYear =
-            now.getFullYear();
+function clampTeacherLeaderboardRate(value) {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) return 0;
+    return Math.max(0, Math.min(100, numeric));
+}
 
-        const reachedTarget =
-            currentYear >
-                Number(settings.targetYear) ||
-            (
-                currentYear ===
-                    Number(settings.targetYear) &&
-                currentMonth >=
-                    Number(settings.targetMonth)
-            );
+window.updateTeacherLeaderboardChestRateUI = function () {
+    const dupInput = document.getElementById('lbChestDup');
+    const normInput = document.getElementById('lbChestNorm');
+    const legInput = document.getElementById('lbChestLeg');
 
-        if (
-            reachedTarget &&
-            !window.__leaderboardScheduleOpening
-        ) {
-            window.__leaderboardScheduleOpening = true;
+    const dup = clampTeacherLeaderboardRate(dupInput?.value);
+    const norm = clampTeacherLeaderboardRate(normInput?.value);
+    const leg = clampTeacherLeaderboardRate(legInput?.value);
+    const total = dup + norm + leg;
 
-            db.ref('leaderboard_settings')
-                .update({
-                    isOpen: true,
-                    targetMonth: null,
-                    targetYear: null,
-                    autoOpenedAt:
-                        firebase.database
-                            .ServerValue
-                            .TIMESTAMP
-                })
-                .catch(error => {
-                    console.error(
-                        'Lỗi tự mở mùa giải BXH:',
-                        error
-                    );
-                })
-                .finally(() => {
-                    window.__leaderboardScheduleOpening =
-                        false;
-                });
-        }
+    const totalNode = document.getElementById('lbChestRateTotal');
+    if (totalNode) {
+        totalNode.textContent = `${total}%`;
+        totalNode.classList.toggle('is-valid', total === 100);
+        totalNode.classList.toggle('is-invalid', total !== 100);
     }
 
-    // Cập nhật giao diện an toàn theo từng ID riêng biệt để tránh lỗi DOM sập luồng
-    const toggleInput = document.getElementById('lbToggle');
-    if (toggleInput) toggleInput.checked = !!isOpen;
+    const normalizedTotal = total > 0 ? total : 100;
+    const widthFor = value => `${Math.max(0, (value / normalizedTotal) * 100)}%`;
 
-    const seasonDisplay = document.getElementById('currentSeasonDisplay');
-    if (seasonDisplay) {
-        if (settings.targetMonth && settings.targetYear) {
-            seasonDisplay.innerText = `Tháng ${settings.targetMonth}/${settings.targetYear}`;
-            seasonDisplay.style.color = '#3b82f6';
-        } else {
-            seasonDisplay.innerText = `Chưa có lịch`;
-            seasonDisplay.style.color = '#e11d48';
-        }
-    }
+    const dupBar = document.getElementById('lbChestRateDupBar');
+    const normBar = document.getElementById('lbChestRateNormBar');
+    const legBar = document.getElementById('lbChestRateLegBar');
+    if (dupBar) dupBar.style.width = widthFor(dup);
+    if (normBar) normBar.style.width = widthFor(norm);
+    if (legBar) legBar.style.width = widthFor(leg);
 
-    const elR3 = document.getElementById('lbRewardRank3');
-    if (elR3) elR3.value = rewardRank3;
-
-    const elR4 = document.getElementById('lbRewardRank4');
-    if (elR4) elR4.value = rewardRank4;
-
-    // Đổ dữ liệu tỷ lệ phần trăm ra các ô input công khai
-    const elDup = document.getElementById('lbChestDup');
-    if (elDup) elDup.value = chestDup;
-
-    const elNorm = document.getElementById('lbChestNorm');
-    if (elNorm) elNorm.value = chestNorm;
-
-    const elLeg = document.getElementById('lbChestLeg');
-    if (elLeg) elLeg.value = chestLeg;
-});
-
-// Tắt/Mở BXH thủ công
-window.toggleLeaderboardStatus = async function (isOpen) {
-    await db.ref('leaderboard_settings').update({ isOpen: isOpen });
-};
-
-// Đặt lịch mùa giải tự động cho tháng sau
-window.setNextMonthSeason = async function () {
-    const now = new Date();
-    let targetMonth = now.getMonth() + 2; // Đẩy tiến sang tháng tiếp theo
-    let targetYear = now.getFullYear();
-
-    if (targetMonth > 12) {
-        targetMonth = 1;
-        targetYear += 1;
-    }
-
-    if (confirm(`Bạn có muốn thiết lập lịch hẹn mùa giải mới bắt đầu vào Tháng ${targetMonth}/${targetYear}?`)) {
-        await db.ref('leaderboard_settings').update({
-            targetMonth: targetMonth,
-            targetYear: targetYear,
-            scheduledAt:
-                firebase.database
-                    .ServerValue
-                    .TIMESTAMP
-        });
-        alert(`✅ Đã đặt lịch hẹn! Khi đến tháng ${targetMonth}/${targetYear}, hệ thống sẽ tự động kích hoạt lại bảng xếp hạng.`);
-    }
-};
-
-// Lưu cấu hình phần thưởng và kiểm tra tổng tỷ lệ 100%
-window.saveLeaderboardSettings = async function () {
-    const r3 = parseInt(document.getElementById('lbRewardRank3').value) || 0;
-    const r4 = parseInt(document.getElementById('lbRewardRank4').value) || 0;
-
-    const dup = parseInt(document.getElementById('lbChestDup').value) || 0;
-    const norm = parseInt(document.getElementById('lbChestNorm').value) || 0;
-    const leg = parseInt(document.getElementById('lbChestLeg').value) || 0;
-
-    const totalRate = dup + norm + leg;
     const errorMsg = document.getElementById('lbErrorMsg');
+    if (errorMsg) {
+        errorMsg.hidden = total === 100;
+        errorMsg.textContent = total === 100
+            ? ''
+            : `Tổng tỉ lệ hiện là ${total}%. Cần đúng 100% trước khi lưu.`;
+    }
 
-    if (totalRate !== 100) {
-        errorMsg.innerText = `❌ LỖI: Tổng tỉ lệ Rương đang là ${totalRate}%. Phải thiết lập tổng đúng bằng 100%!`;
-        errorMsg.style.display = 'block';
+    return { dup, norm, leg, total };
+};
+
+function renderTeacherLeaderboardAdmin(settings = {}) {
+    window.__teacherLeaderboardSettings = settings || {};
+
+    const nowInfo = getTeacherLeaderboardNowInfo();
+    const isOpen = settings.isOpen === true;
+    const hasSchedule = Boolean(settings.targetMonth && settings.targetYear);
+    const scheduleMonth = hasSchedule
+        ? Number(settings.targetMonth)
+        : getTeacherLeaderboardNextMonthInfo().month;
+    const scheduleYear = hasSchedule
+        ? Number(settings.targetYear)
+        : getTeacherLeaderboardNextMonthInfo().year;
+
+    const rewardRank3 = settings.rewardRank3 !== undefined
+        ? Number(settings.rewardRank3)
+        : 100;
+    const rewardRank4 = settings.rewardRank4 !== undefined
+        ? Number(settings.rewardRank4)
+        : 50;
+    const chestDup = settings.chestDup !== undefined
+        ? Number(settings.chestDup)
+        : 95;
+    const chestNorm = settings.chestNorm !== undefined
+        ? Number(settings.chestNorm)
+        : 4;
+    const chestLeg = settings.chestLeg !== undefined
+        ? Number(settings.chestLeg)
+        : 1;
+
+    const toggleInput = document.getElementById('lbToggle');
+    if (toggleInput) toggleInput.checked = isOpen;
+
+    const headerStatus = document.getElementById('lbAdminHeaderStatus');
+    if (headerStatus) {
+        headerStatus.classList.toggle('is-open', isOpen);
+        headerStatus.classList.toggle('is-closed', !isOpen);
+        const label = headerStatus.querySelector('span:last-child');
+        if (label) label.textContent = isOpen ? 'Đang mở' : 'Đang đóng';
+    }
+
+    setTeacherLeaderboardText('lbAdminToggleText', isOpen ? 'Đang mở' : 'Đang đóng');
+    setTeacherLeaderboardText(
+        'lbAdminToggleHint',
+        isOpen
+            ? 'Học sinh có thể mở và xem Bảng Xếp Hạng.'
+            : 'Học sinh chưa thể mở Bảng Xếp Hạng.'
+    );
+    setTeacherLeaderboardText('lbAdminCurrentSeasonChip', `📅 Mùa thi đua · ${nowInfo.label}`);
+    setTeacherLeaderboardText('lbAdminCurrentSeasonStat', nowInfo.label);
+
+    const scheduleLabel = hasSchedule
+        ? `Tháng ${Number(settings.targetMonth)}/${Number(settings.targetYear)}`
+        : 'Chưa có lịch';
+
+    setTeacherLeaderboardText('currentSeasonDisplay', scheduleLabel);
+    setTeacherLeaderboardText(
+        'lbAdminScheduleChip',
+        hasSchedule ? `⏱️ Tự mở · ${scheduleLabel}` : '⏱️ Chưa có lịch hẹn'
+    );
+    setTeacherLeaderboardText(
+        'lbAdminScheduleDescription',
+        hasSchedule
+            ? `Hệ thống sẽ tự chuyển sang trạng thái mở khi tới ${scheduleLabel}.`
+            : 'Bạn có thể hẹn tháng tương lai hoặc mở ngay bằng công tắc phía trên.'
+    );
+    setTeacherLeaderboardText(
+        'lbAdminHeroDescription',
+        isOpen
+            ? `Mùa ${nowInfo.label} đang hiển thị cho học sinh. Thay đổi cấu hình thưởng sẽ áp dụng theo dữ liệu Firebase hiện tại.`
+            : hasSchedule
+                ? `Bảng xếp hạng đang đóng và đã hẹn tự mở vào ${scheduleLabel}.`
+                : 'Bảng xếp hạng đang đóng và chưa có lịch tự mở.'
+    );
+
+    const monthSelect = document.getElementById('lbScheduleMonth');
+    const yearInput = document.getElementById('lbScheduleYear');
+    if (monthSelect) monthSelect.value = String(scheduleMonth);
+    if (yearInput) yearInput.value = String(scheduleYear);
+
+    const rank3Input = document.getElementById('lbRewardRank3');
+    const rank4Input = document.getElementById('lbRewardRank4');
+    const dupInput = document.getElementById('lbChestDup');
+    const normInput = document.getElementById('lbChestNorm');
+    const legInput = document.getElementById('lbChestLeg');
+
+    if (rank3Input && document.activeElement !== rank3Input) rank3Input.value = rewardRank3;
+    if (rank4Input && document.activeElement !== rank4Input) rank4Input.value = rewardRank4;
+    if (dupInput && document.activeElement !== dupInput) dupInput.value = chestDup;
+    if (normInput && document.activeElement !== normInput) normInput.value = chestNorm;
+    if (legInput && document.activeElement !== legInput) legInput.value = chestLeg;
+
+    window.updateTeacherLeaderboardChestRateUI();
+}
+
+async function autoOpenScheduledTeacherLeaderboard(settings = {}) {
+    if (
+        settings.isOpen === true ||
+        !settings.targetMonth ||
+        !settings.targetYear ||
+        window.__leaderboardScheduleOpening
+    ) {
         return;
     }
 
-    errorMsg.style.display = 'none';
-    await db.ref('leaderboard_settings').update({
-        rewardRank3: r3,
-        rewardRank4: r4,
-        chestDup: dup,
-        chestNorm: norm,
-        chestLeg: leg
-    });
-    alert('✅ Đã lưu cấu hình phần thưởng và tỷ lệ rương thành công!');
+    const now = new Date();
+    const targetMonth = Number(settings.targetMonth);
+    const targetYear = Number(settings.targetYear);
+    const reachedTarget =
+        now.getFullYear() > targetYear ||
+        (
+            now.getFullYear() === targetYear &&
+            now.getMonth() + 1 >= targetMonth
+        );
+
+    if (!reachedTarget) return;
+
+    window.__leaderboardScheduleOpening = true;
+    try {
+        await db.ref('leaderboard_settings').update({
+            isOpen: true,
+            targetMonth: null,
+            targetYear: null,
+            autoOpenedAt: firebase.database.ServerValue.TIMESTAMP
+        });
+    } catch (error) {
+        console.error('Lỗi tự mở mùa giải BXH:', error);
+    } finally {
+        window.__leaderboardScheduleOpening = false;
+    }
+}
+
+listenFirebase(db.ref('leaderboard_settings'), 'value', snapshot => {
+    const settings = snapshot.val() || {};
+    renderTeacherLeaderboardAdmin(settings);
+    autoOpenScheduledTeacherLeaderboard(settings);
+});
+
+window.refreshTeacherLeaderboardAdmin = async function () {
+    try {
+        const snapshot = await db.ref('leaderboard_settings').once('value');
+        renderTeacherLeaderboardAdmin(snapshot.val() || {});
+    } catch (error) {
+        console.error('Không thể làm mới cấu hình BXH:', error);
+        alert('❌ Không thể làm mới cấu hình Bảng Xếp Hạng.');
+    }
+};
+
+// Tắt/Mở BXH thủ công.
+window.toggleLeaderboardStatus = async function (isOpen) {
+    const toggleInput = document.getElementById('lbToggle');
+    if (toggleInput) toggleInput.disabled = true;
+
+    try {
+        await db.ref('leaderboard_settings').update({
+            isOpen: Boolean(isOpen),
+            manualStatusChangedAt: firebase.database.ServerValue.TIMESTAMP
+        });
+    } catch (error) {
+        console.error('Lỗi đổi trạng thái BXH:', error);
+        if (toggleInput) toggleInput.checked = !isOpen;
+        alert('❌ Không thể đổi trạng thái Bảng Xếp Hạng.');
+    } finally {
+        if (toggleInput) toggleInput.disabled = false;
+    }
+};
+
+window.saveLeaderboardSchedule = async function () {
+    const month = Number(document.getElementById('lbScheduleMonth')?.value);
+    const year = Number(document.getElementById('lbScheduleYear')?.value);
+
+    if (!Number.isInteger(month) || month < 1 || month > 12) {
+        return alert('⚠️ Tháng mùa giải không hợp lệ.');
+    }
+    if (!Number.isInteger(year) || year < 2024 || year > 2100) {
+        return alert('⚠️ Năm mùa giải không hợp lệ.');
+    }
+
+    const now = new Date();
+    const currentMonthIndex = now.getFullYear() * 12 + now.getMonth();
+    const targetMonthIndex = year * 12 + (month - 1);
+
+    if (targetMonthIndex <= currentMonthIndex) {
+        const shouldOpen = confirm(
+            `Tháng ${month}/${year} đã tới hoặc đang diễn ra.\n\n` +
+            'Bạn có muốn MỞ Bảng Xếp Hạng ngay bây giờ thay vì lưu lịch hẹn không?'
+        );
+        if (!shouldOpen) return;
+
+        await db.ref('leaderboard_settings').update({
+            isOpen: true,
+            targetMonth: null,
+            targetYear: null,
+            manualOpenedAt: firebase.database.ServerValue.TIMESTAMP
+        });
+        return;
+    }
+
+    if (!confirm(`Lưu lịch tự mở Bảng Xếp Hạng vào Tháng ${month}/${year}?`)) return;
+
+    try {
+        await db.ref('leaderboard_settings').update({
+            targetMonth: month,
+            targetYear: year,
+            scheduledAt: firebase.database.ServerValue.TIMESTAMP
+        });
+        alert(`✅ Đã hẹn tự mở vào Tháng ${month}/${year}.`);
+    } catch (error) {
+        console.error('Lỗi lưu lịch BXH:', error);
+        alert('❌ Không thể lưu lịch mùa giải.');
+    }
+};
+
+// Nút nhanh: đặt lịch tháng sau.
+window.setNextMonthSeason = async function () {
+    const next = getTeacherLeaderboardNextMonthInfo();
+    const monthSelect = document.getElementById('lbScheduleMonth');
+    const yearInput = document.getElementById('lbScheduleYear');
+    if (monthSelect) monthSelect.value = String(next.month);
+    if (yearInput) yearInput.value = String(next.year);
+
+    if (!confirm(`Đặt lịch tự mở mùa giải vào ${next.label}?`)) return;
+
+    try {
+        await db.ref('leaderboard_settings').update({
+            targetMonth: next.month,
+            targetYear: next.year,
+            scheduledAt: firebase.database.ServerValue.TIMESTAMP
+        });
+        alert(`✅ Đã đặt lịch ${next.label}.`);
+    } catch (error) {
+        console.error('Lỗi đặt lịch BXH:', error);
+        alert('❌ Không thể đặt lịch mùa giải.');
+    }
+};
+
+window.saveLeaderboardSettings = async function () {
+    const r3 = Math.max(0, Math.trunc(Number(document.getElementById('lbRewardRank3')?.value) || 0));
+    const r4 = Math.max(0, Math.trunc(Number(document.getElementById('lbRewardRank4')?.value) || 0));
+    const rate = window.updateTeacherLeaderboardChestRateUI();
+    const errorMsg = document.getElementById('lbErrorMsg');
+
+    if (rate.total !== 100) {
+        if (errorMsg) {
+            errorMsg.hidden = false;
+            errorMsg.textContent = `Tổng tỉ lệ Rương đang là ${rate.total}%. Phải đúng 100% trước khi lưu.`;
+        }
+        return;
+    }
+
+    try {
+        await db.ref('leaderboard_settings').update({
+            rewardRank3: r3,
+            rewardRank4: r4,
+            chestDup: rate.dup,
+            chestNorm: rate.norm,
+            chestLeg: rate.leg,
+            rewardSettingsUpdatedAt: firebase.database.ServerValue.TIMESTAMP
+        });
+        alert('✅ Đã lưu cấu hình phần thưởng và tỉ lệ Rương.');
+    } catch (error) {
+        console.error('Lỗi lưu cấu hình BXH:', error);
+        alert('❌ Không thể lưu cấu hình phần thưởng.');
+    }
 };
 
 window.deleteCurrentSeason = async function () {
-    if (confirm("⚠️ Bạn có chắc chắn muốn XÓA lịch mùa giải hiện tại không?\nHành động này sẽ xóa ngày hẹn và Bảng xếp hạng sẽ đóng cho đến khi bạn thiết lập lại.")) {
-        // Cập nhật Firebase: set targetMonth và targetYear thành null, đồng thời tắt luôn BXH cho an toàn
+    if (!confirm(
+        '⚠️ Xóa lịch mùa giải đang hẹn?\n\n' +
+        'Bảng Xếp Hạng cũng sẽ chuyển sang ĐÓNG. Dữ liệu bài làm và lịch sử thi đua không bị xóa.'
+    )) return;
+
+    try {
         await db.ref('leaderboard_settings').update({
             isOpen: false,
             targetMonth: null,
-            targetYear: null
+            targetYear: null,
+            scheduleClearedAt: firebase.database.ServerValue.TIMESTAMP
         });
-        alert(`🗑️ Đã xóa lịch mùa giải thành công!`);
+        alert('🗑️ Đã xóa lịch và đóng Bảng Xếp Hạng.');
+    } catch (error) {
+        console.error('Lỗi xóa lịch BXH:', error);
+        alert('❌ Không thể xóa lịch mùa giải.');
     }
 };
 

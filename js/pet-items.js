@@ -1042,6 +1042,21 @@ class PetManager {
             )
             .forEach(node => node.remove());
 
+        // Dọn hiệu ứng riêng Klein Chibi EVENT (cửa hàng thường).
+        // Namespace lotme-* độc lập với Luxury Klein.
+        document
+            .querySelectorAll(
+                '.lotme-klein-click-burst, ' +
+                '.lotme-klein-right-ritual, ' +
+                '.lotme-klein-screen-ultimate'
+            )
+            .forEach(node => node.remove());
+
+        if (this.container?.dataset) {
+            delete this.container.dataset.lotmeKleinClickLocked;
+            delete this.container.dataset.lotmeKleinRightLocked;
+        }
+
         // Dọn riêng Trung Thu · Tiểu Hằng Nga nếu đổi/tháo pet khi ultimate còn chạy.
         document
             .querySelectorAll(
@@ -1107,6 +1122,9 @@ class PetManager {
             'tamon-pinkstatic-casting',
             'pet-cam-mong-chibi-stage',
             'cam-mong-chibi-casting',
+            'pet-lotm-event-klein-stage',
+            'lotme-klein-click-casting',
+            'lotme-klein-right-casting',
             'pet-midautumn-hangnga-chibi-stage',
             'mafc-awakening',
             'mafc-casting',
@@ -1199,6 +1217,124 @@ class PetManager {
         if (petData.petEffect) {
             petElement.classList.add(petData.petEffect);
             petElement.style.filter = '';
+        }
+
+
+        // =========================================================
+        // LORD OF THE MYSTERIES · KLEIN CHIBI EVENT — V2
+        // PET CỬA HÀNG THƯỜNG.
+        // Idle realm chỉ quanh pet; CLICK tạo ultimate toàn màn hình.
+        // Namespace lotme-* hoàn toàn riêng, không gọi Luxury Klein.
+        // =========================================================
+        if (
+            petData.id === 'pet_lotm_klein_chibi_event_1' ||
+            petData.petEffect === 'lotm-event-klein-chibi-magic'
+        ) {
+            petElement.setAttribute('draggable', 'false');
+            petElement.classList.add('lotme-klein-chibi-avatar');
+
+            this.container.classList.add(
+                'pet-lotm-event-klein-stage'
+            );
+
+            const realm = document.createElement('div');
+            realm.className = 'lotme-klein-realm';
+            realm.setAttribute('aria-hidden', 'true');
+
+            realm.innerHTML = `
+                <span class="lotme-klein-backglow"></span>
+
+                <span class="lotme-klein-fog fog-a"></span>
+                <span class="lotme-klein-fog fog-b"></span>
+
+                <span class="lotme-klein-seal">
+                    <i class="lotme-klein-seal-ring ring-a"></i>
+                    <i class="lotme-klein-seal-ring ring-b"></i>
+                    <i class="lotme-klein-seal-ring ring-c"></i>
+                    <i class="lotme-klein-seal-eye"></i>
+                </span>
+
+                <span class="lotme-klein-thread thread-a"></span>
+                <span class="lotme-klein-thread thread-b"></span>
+                <span class="lotme-klein-thread thread-c"></span>
+
+                <span class="lotme-klein-card card-a">0</span>
+                <span class="lotme-klein-card card-b">I</span>
+                <span class="lotme-klein-card card-c">XXI</span>
+
+                <span class="lotme-klein-runes"></span>
+                <span class="lotme-klein-mote-field"></span>
+                <span class="lotme-klein-title-mark">THE FOOL</span>
+            `;
+
+            const runeField =
+                realm.querySelector('.lotme-klein-runes');
+
+            const idleRunes = [
+                '✦', '◇', 'Ⅰ', 'Ⅶ', 'Ⅹ', '0', '☽', '✧'
+            ];
+
+            const runeCount = this.getQualityCount(16, 8);
+
+            for (let index = 0; index < runeCount; index++) {
+                const rune = document.createElement('i');
+                const angle = index * (360 / runeCount);
+
+                rune.textContent = idleRunes[index % idleRunes.length];
+                rune.style.setProperty(
+                    '--lotme-rune-angle',
+                    `${angle}deg`
+                );
+                rune.style.setProperty(
+                    '--lotme-rune-angle-inverse',
+                    `${-angle}deg`
+                );
+                rune.style.setProperty(
+                    '--lotme-rune-radius',
+                    `${98 + (index % 3) * 15}px`
+                );
+                rune.style.setProperty(
+                    '--lotme-rune-delay',
+                    `${-(index % 7) * 0.31}s`
+                );
+
+                runeField?.appendChild(rune);
+            }
+
+            const moteField =
+                realm.querySelector('.lotme-klein-mote-field');
+
+            const moteCount = this.getQualityCount(26, 10);
+
+            for (let index = 0; index < moteCount; index++) {
+                const mote = document.createElement('i');
+
+                mote.className = 'lotme-klein-mote';
+
+                mote.style.setProperty(
+                    '--lotme-mote-angle',
+                    `${(index * 137.5) % 360}deg`
+                );
+
+                mote.style.setProperty(
+                    '--lotme-mote-radius',
+                    `${68 + (index % 6) * 14}px`
+                );
+
+                mote.style.setProperty(
+                    '--lotme-mote-delay',
+                    `${-(index % 10) * 0.27}s`
+                );
+
+                mote.style.setProperty(
+                    '--lotme-mote-size',
+                    `${3 + (index % 4)}px`
+                );
+
+                moteField?.appendChild(mote);
+            }
+
+            this.container.appendChild(realm);
         }
 
 
@@ -5762,11 +5898,441 @@ class PetManager {
             this.container.classList.add('pet-idle');
         }, { signal });
 
+        // =========================================================
+        // KLEIN CHIBI EVENT — CHUỘT PHẢI: NGHI THỨC SƯƠNG XÁM
+        // Chỉ bắt contextmenu trên đúng pet này; không ảnh hưởng phần tử khác.
+        // =========================================================
+        document.addEventListener('contextmenu', (e) => {
+            const target = e.target;
+
+            if (
+                !(target instanceof Element) ||
+                target.id !== 'virtual-pet-img' ||
+                !target.classList.contains(
+                    'lotm-event-klein-chibi-magic'
+                )
+            ) {
+                return;
+            }
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (didDrag) {
+                didDrag = false;
+                return;
+            }
+
+            const container =
+                document.getElementById(
+                    'virtual-pet-container'
+                );
+
+            if (
+                !container ||
+                container.dataset.lotmeKleinRightLocked === '1'
+            ) {
+                return;
+            }
+
+            container.dataset.lotmeKleinRightLocked = '1';
+            container.classList.remove(
+                'lotme-klein-right-casting'
+            );
+
+            void container.offsetWidth;
+
+            container.classList.add(
+                'lotme-klein-right-casting'
+            );
+
+            document
+                .querySelectorAll(
+                    '.lotme-klein-right-ritual'
+                )
+                .forEach(node => node.remove());
+
+            const rect =
+                target.getBoundingClientRect();
+
+            const ritual =
+                document.createElement('div');
+
+            ritual.className =
+                'lotme-klein-right-ritual';
+
+            ritual.setAttribute(
+                'aria-hidden',
+                'true'
+            );
+
+            ritual.style.setProperty(
+                '--lotme-origin-x',
+                `${rect.left + rect.width / 2}px`
+            );
+
+            ritual.style.setProperty(
+                '--lotme-origin-y',
+                `${rect.top + rect.height / 2}px`
+            );
+
+            ritual.innerHTML = `
+                <span class="lotme-ritual-vignette"></span>
+                <span class="lotme-ritual-ring ring-a"></span>
+                <span class="lotme-ritual-ring ring-b"></span>
+                <span class="lotme-ritual-ring ring-c"></span>
+                <span class="lotme-ritual-eye"></span>
+                <span class="lotme-ritual-title">
+                    <small>ABOVE THE GRAY FOG</small>
+                    <strong>THE FOOL</strong>
+                </span>
+                <span class="lotme-ritual-symbols"></span>
+            `;
+
+            const symbolField =
+                ritual.querySelector(
+                    '.lotme-ritual-symbols'
+                );
+
+            const symbolCount =
+                PetManager.getQualityCount(24, 8);
+
+            const symbols = [
+                '✦',
+                '◇',
+                '0',
+                'I',
+                'VII',
+                'XXI'
+            ];
+
+            for (
+                let index = 0;
+                index < symbolCount;
+                index++
+            ) {
+                const symbol =
+                    document.createElement('i');
+
+                symbol.textContent =
+                    symbols[index % symbols.length];
+
+                const symbolAngle =
+                    index * (360 / symbolCount);
+
+                symbol.style.setProperty(
+                    '--lotme-symbol-angle',
+                    `${symbolAngle}deg`
+                );
+
+                symbol.style.setProperty(
+                    '--lotme-symbol-angle-inverse',
+                    `${-symbolAngle}deg`
+                );
+
+                symbol.style.setProperty(
+                    '--lotme-symbol-radius',
+                    `${105 + (index % 4) * 24}px`
+                );
+
+                symbol.style.setProperty(
+                    '--lotme-symbol-delay',
+                    `${(index % 8) * 0.035}s`
+                );
+
+                symbolField?.appendChild(symbol);
+            }
+
+            document.body.appendChild(ritual);
+
+            window.setTimeout(() => {
+                ritual.classList.add('is-ending');
+            }, 1450);
+
+            window.setTimeout(() => {
+                ritual.remove();
+
+                container.classList.remove(
+                    'lotme-klein-right-casting'
+                );
+
+                delete container.dataset
+                    .lotmeKleinRightLocked;
+            }, 2250);
+        }, { signal });
+
         // Lắng nghe sự kiện click trên toàn trang
         document.addEventListener('click', (e) => {
             // Sau khi kéo thì không vô tình kích hoạt kỹ năng
             if (didDrag) {
                 didDrag = false;
+                return;
+            }
+
+
+            // =========================================================
+            // KLEIN CHIBI EVENT — CLICK V2: "ABOVE THE GRAY FOG"
+            // Mỗi lần nhấn trực tiếp vào pet ở góc màn hình sẽ tạo
+            // một ultimate TOÀN MÀN HÌNH độc lập với Luxury Klein.
+            // =========================================================
+            if (
+                e.target &&
+                e.target.id === 'virtual-pet-img' &&
+                e.target.classList.contains(
+                    'lotm-event-klein-chibi-magic'
+                )
+            ) {
+                const petImg = e.target;
+
+                const container =
+                    document.getElementById(
+                        'virtual-pet-container'
+                    );
+
+                if (
+                    !container ||
+                    container.dataset.lotmeKleinClickLocked === '1'
+                ) {
+                    return;
+                }
+
+                if (
+                    typeof PetInteractionManager !== 'undefined' &&
+                    PetInteractionManager.isPetDragging
+                ) {
+                    return;
+                }
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                container.dataset.lotmeKleinClickLocked = '1';
+
+                container.classList.remove(
+                    'lotme-klein-click-casting'
+                );
+
+                void container.offsetWidth;
+
+                container.classList.add(
+                    'lotme-klein-click-casting'
+                );
+
+                const rect = petImg.getBoundingClientRect();
+
+                const originX =
+                    Number.isFinite(e.clientX) && e.clientX > 0
+                        ? e.clientX
+                        : rect.left + rect.width / 2;
+
+                const originY =
+                    Number.isFinite(e.clientY) && e.clientY > 0
+                        ? e.clientY
+                        : rect.top + rect.height / 2;
+
+                document
+                    .querySelectorAll(
+                        '.lotme-klein-screen-ultimate, ' +
+                        '.lotme-klein-click-burst'
+                    )
+                    .forEach(node => node.remove());
+
+                const ultimate = document.createElement('div');
+                ultimate.className = 'lotme-klein-screen-ultimate';
+                ultimate.setAttribute('aria-hidden', 'true');
+
+                ultimate.style.setProperty(
+                    '--lotme-origin-x',
+                    `${originX}px`
+                );
+
+                ultimate.style.setProperty(
+                    '--lotme-origin-y',
+                    `${originY}px`
+                );
+
+                ultimate.innerHTML = `
+                    <span class="lotme-screen-blackout"></span>
+                    <span class="lotme-screen-vignette"></span>
+                    <span class="lotme-screen-fog-layer"></span>
+                    <span class="lotme-screen-flash"></span>
+
+                    <span class="lotme-screen-origin-flare"></span>
+                    <span class="lotme-screen-beams"></span>
+
+                    <span class="lotme-screen-sigil">
+                        <i class="lotme-screen-ring ring-a"></i>
+                        <i class="lotme-screen-ring ring-b"></i>
+                        <i class="lotme-screen-ring ring-c"></i>
+                        <i class="lotme-screen-eye"></i>
+                        <span class="lotme-screen-tarot"></span>
+                    </span>
+
+                    <span class="lotme-screen-runes"></span>
+                    <span class="lotme-screen-stars"></span>
+                    <span class="lotme-screen-shards"></span>
+
+                    <span class="lotme-screen-title">
+                        <small>ABOVE THE GRAY FOG</small>
+                        <strong>THE FOOL</strong>
+                        <em>KLEIN MORETTI · LORD OF THE MYSTERIES</em>
+                    </span>
+                `;
+
+                const beamField =
+                    ultimate.querySelector('.lotme-screen-beams');
+
+                for (let index = 0; index < 7; index++) {
+                    const beam = document.createElement('i');
+                    beam.className = 'lotme-screen-beam';
+                    beam.style.setProperty(
+                        '--lotme-beam-angle',
+                        `${-152 + index * 16}deg`
+                    );
+                    beam.style.setProperty(
+                        '--lotme-beam-delay',
+                        `${0.04 + index * 0.045}s`
+                    );
+                    beamField?.appendChild(beam);
+                }
+
+                const tarotField =
+                    ultimate.querySelector('.lotme-screen-tarot');
+
+                const tarotLabels = [
+                    '0', 'Ⅰ', 'Ⅱ', 'Ⅲ', 'Ⅶ', 'Ⅹ', 'ⅩⅢ', 'ⅩⅩⅠ'
+                ];
+
+                tarotLabels.forEach((label, index) => {
+                    const card = document.createElement('i');
+                    const angle = -110 + index * (220 / (tarotLabels.length - 1));
+
+                    card.textContent = label;
+                    card.style.setProperty(
+                        '--lotme-card-angle',
+                        `${angle}deg`
+                    );
+                    card.style.setProperty(
+                        '--lotme-card-angle-inverse',
+                        `${-angle}deg`
+                    );
+                    card.style.setProperty(
+                        '--lotme-card-radius',
+                        `${26 + (index % 2) * 4}vmin`
+                    );
+                    card.style.setProperty(
+                        '--lotme-card-delay',
+                        `${index * 0.045}s`
+                    );
+
+                    tarotField?.appendChild(card);
+                });
+
+                const runeField =
+                    ultimate.querySelector('.lotme-screen-runes');
+
+                const runes = [
+                    '✦', '◇', '0', 'Ⅰ', 'Ⅲ', 'Ⅶ', 'Ⅹ', 'ⅩⅢ',
+                    'ⅩⅩⅠ', '☽', '✧', '⌛'
+                ];
+
+                const runeCount =
+                    PetManager.getQualityCount(42, 18);
+
+                for (let index = 0; index < runeCount; index++) {
+                    const rune = document.createElement('i');
+                    const angle = index * (360 / runeCount);
+
+                    rune.textContent = runes[index % runes.length];
+                    rune.style.setProperty(
+                        '--lotme-screen-rune-angle',
+                        `${angle}deg`
+                    );
+                    rune.style.setProperty(
+                        '--lotme-screen-rune-angle-inverse',
+                        `${-angle}deg`
+                    );
+                    rune.style.setProperty(
+                        '--lotme-screen-rune-radius',
+                        `${30 + (index % 5) * 4.5}vmin`
+                    );
+                    rune.style.setProperty(
+                        '--lotme-screen-rune-delay',
+                        `${0.46 + (index % 12) * 0.035}s`
+                    );
+
+                    runeField?.appendChild(rune);
+                }
+
+                const starField =
+                    ultimate.querySelector('.lotme-screen-stars');
+
+                const starCount =
+                    PetManager.getQualityCount(58, 24);
+
+                for (let index = 0; index < starCount; index++) {
+                    const star = document.createElement('i');
+
+                    star.style.setProperty(
+                        '--lotme-star-x',
+                        `${3 + ((index * 37) % 94)}%`
+                    );
+                    star.style.setProperty(
+                        '--lotme-star-y',
+                        `${4 + ((index * 61) % 90)}%`
+                    );
+                    star.style.setProperty(
+                        '--lotme-star-size',
+                        `${2 + (index % 4)}px`
+                    );
+                    star.style.setProperty(
+                        '--lotme-star-delay',
+                        `${0.18 + (index % 14) * 0.045}s`
+                    );
+
+                    starField?.appendChild(star);
+                }
+
+                const shardField =
+                    ultimate.querySelector('.lotme-screen-shards');
+
+                const shardCount =
+                    PetManager.getQualityCount(28, 12);
+
+                for (let index = 0; index < shardCount; index++) {
+                    const shard = document.createElement('i');
+                    shard.style.setProperty(
+                        '--lotme-screen-shard-angle',
+                        `${index * (360 / shardCount)}deg`
+                    );
+                    shard.style.setProperty(
+                        '--lotme-shard-length',
+                        `${20 + (index % 5) * 9}px`
+                    );
+                    shard.style.setProperty(
+                        '--lotme-screen-shard-delay',
+                        `${0.55 + (index % 9) * 0.035}s`
+                    );
+                    shardField?.appendChild(shard);
+                }
+
+                document.body.appendChild(ultimate);
+
+                window.setTimeout(() => {
+                    ultimate.classList.add('is-ending');
+                }, 4050);
+
+                window.setTimeout(() => {
+                    ultimate.remove();
+
+                    container.classList.remove(
+                        'lotme-klein-click-casting'
+                    );
+
+                    delete container.dataset
+                        .lotmeKleinClickLocked;
+                }, 4680);
+
                 return;
             }
 

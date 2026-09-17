@@ -136,6 +136,25 @@ class EffectManager {
 
 
         /*
+         * LORD OF THE MYSTERIES · KHẢI HUYỀN SƯƠNG XÁM
+         * Root mount trực tiếp vào body để phủ toàn web.
+         * Chỉ dọn namespace lotmefx1-* của effect này.
+         * Không truy cập / sửa DOM hoặc runtime của bất kỳ effect nào khác.
+         */
+        document
+            .querySelectorAll(
+                '.lotmefx1-gray-fog-revelation[data-lotmefx1-portal="1"]'
+            )
+            .forEach(node => {
+                node.classList.add('is-leaving');
+
+                window.setTimeout(() => {
+                    node.remove();
+                }, 320);
+            });
+
+
+        /*
          * LINK CLICK · HÀNH LANG DƯ ẢNH
          * Root mount trực tiếp vào body để phủ toàn web.
          * Chỉ dọn namespace lce4-* của effect mới này.
@@ -287,6 +306,9 @@ class EffectManager {
                 break;
             case 'effect_lotm_amon':
                 this.createAmonTimeEffect();
+                break;
+            case 'effect_lotm_gray_fog_revelation_event':
+                this.createLotmGrayFogRevelationEffect();
                 break;
             case 'effect_truyenthuyet_nyx_domain':
                 this.createNyxDomainEffect();
@@ -5264,6 +5286,230 @@ class EffectManager {
 
         document.body.appendChild(root);
         requestAnimationFrame(() => root.classList.add('is-active'));
+        return root;
+    }
+
+
+    // =========================================================
+    // LORD OF THE MYSTERIES · KHẢI HUYỀN SƯƠNG XÁM
+    // Effect sự kiện toàn web độc lập: lotmefx1-*.
+    // Không dùng lại DOM/class/keyframe của Amon, Klein hay effect khác.
+    // =========================================================
+    static createLotmGrayFogRevelationEffect() {
+        this.stopIntervals();
+
+        if (!document.body) {
+            return null;
+        }
+
+        document
+            .querySelectorAll(
+                '.lotmefx1-gray-fog-revelation[data-lotmefx1-portal="1"]'
+            )
+            .forEach(node => node.remove());
+
+        const root = document.createElement('div');
+
+        root.className =
+            'lotmefx1-gray-fog-revelation ui-theme-immune';
+        root.dataset.themeImmune = 'true';
+        root.dataset.lotmefx1Portal = '1';
+        root.setAttribute('aria-hidden', 'true');
+
+        root.innerHTML = `
+            <div class="lotmefx1-black-veil"></div>
+            <div class="lotmefx1-fog fog-a"></div>
+            <div class="lotmefx1-fog fog-b"></div>
+            <div class="lotmefx1-fog fog-c"></div>
+
+            <div class="lotmefx1-grand-sigil">
+                <span class="lotmefx1-sigil-ring ring-a"></span>
+                <span class="lotmefx1-sigil-ring ring-b"></span>
+                <span class="lotmefx1-sigil-ring ring-c"></span>
+                <span class="lotmefx1-sigil-eye"></span>
+                <b>Ⅰ</b>
+            </div>
+
+            <div class="lotmefx1-tarot-field"></div>
+            <div class="lotmefx1-thread-field"></div>
+            <div class="lotmefx1-rune-field"></div>
+            <div class="lotmefx1-mote-field"></div>
+
+            <div class="lotmefx1-horizon"></div>
+            <div class="lotmefx1-vignette"></div>
+
+            <div class="lotmefx1-caption">
+                <small>LORD OF THE MYSTERIES · EVENT EFFECT</small>
+                <strong>KHẢI HUYỀN SƯƠNG XÁM</strong>
+            </div>
+        `;
+
+        const reduced =
+            window.matchMedia?.(
+                '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+            ).matches;
+
+        const tarotField =
+            root.querySelector('.lotmefx1-tarot-field');
+
+        const threadField =
+            root.querySelector('.lotmefx1-thread-field');
+
+        const runeField =
+            root.querySelector('.lotmefx1-rune-field');
+
+        const moteField =
+            root.querySelector('.lotmefx1-mote-field');
+
+        const tarotGlyphs = [
+            'Ⅰ', 'Ⅱ', 'Ⅲ', 'Ⅳ', 'Ⅴ', 'Ⅵ',
+            'Ⅶ', 'Ⅷ', 'Ⅸ', 'Ⅹ', 'Ⅺ', 'Ⅻ'
+        ];
+
+        const runeGlyphs = [
+            '✦', '☾', '◈', '⌁', '∴', '⊙',
+            'Ⅰ', 'Ⅲ', 'Ⅶ', 'Ⅸ', '☿', '♜'
+        ];
+
+        const tarotCount =
+            this.getQualityCount(reduced ? 6 : 12);
+
+        const threadCount =
+            this.getQualityCount(reduced ? 7 : 16);
+
+        const runeCount =
+            this.getQualityCount(reduced ? 9 : 22);
+
+        const moteCount =
+            this.getQualityCount(reduced ? 18 : 48);
+
+        for (let i = 0; i < tarotCount; i++) {
+            const card = document.createElement('i');
+
+            card.className = 'lotmefx1-tarot';
+            card.textContent =
+                tarotGlyphs[i % tarotGlyphs.length];
+
+            card.style.setProperty(
+                '--lotmefx1-x',
+                `${4 + (i * 47) % 92}%`
+            );
+
+            card.style.setProperty(
+                '--lotmefx1-y',
+                `${8 + (i * 61) % 78}%`
+            );
+
+            card.style.setProperty(
+                '--lotmefx1-rot',
+                `${-18 + (i * 37) % 36}deg`
+            );
+
+            card.style.setProperty(
+                '--lotmefx1-delay',
+                `${-(i % 9) * .73}s`
+            );
+
+            card.style.setProperty(
+                '--lotmefx1-dur',
+                `${10 + (i % 6) * 1.35}s`
+            );
+
+            tarotField?.appendChild(card);
+        }
+
+        for (let i = 0; i < threadCount; i++) {
+            const thread = document.createElement('i');
+
+            thread.className = 'lotmefx1-thread';
+
+            thread.style.setProperty(
+                '--lotmefx1-tx',
+                `${(i * 43 + 5) % 100}%`
+            );
+
+            thread.style.setProperty(
+                '--lotmefx1-ty',
+                `${(i * 67 + 11) % 100}%`
+            );
+
+            thread.style.setProperty(
+                '--lotmefx1-ta',
+                `${(i * 29) % 180}deg`
+            );
+
+            thread.style.setProperty(
+                '--lotmefx1-td',
+                `${-(i % 8) * .54}s`
+            );
+
+            threadField?.appendChild(thread);
+        }
+
+        for (let i = 0; i < runeCount; i++) {
+            const rune = document.createElement('span');
+
+            rune.className = 'lotmefx1-rune';
+            rune.textContent =
+                runeGlyphs[i % runeGlyphs.length];
+
+            rune.style.setProperty(
+                '--lotmefx1-rx',
+                `${5 + (i * 41) % 90}%`
+            );
+
+            rune.style.setProperty(
+                '--lotmefx1-ry',
+                `${7 + (i * 59) % 84}%`
+            );
+
+            rune.style.setProperty(
+                '--lotmefx1-rd',
+                `${-(i % 12) * .41}s`
+            );
+
+            rune.style.setProperty(
+                '--lotmefx1-rs',
+                `${.62 + (i % 5) * .12}`
+            );
+
+            runeField?.appendChild(rune);
+        }
+
+        for (let i = 0; i < moteCount; i++) {
+            const mote = document.createElement('i');
+
+            mote.className = 'lotmefx1-mote';
+
+            mote.style.setProperty(
+                '--lotmefx1-mx',
+                `${(i * 31 + 7) % 100}%`
+            );
+
+            mote.style.setProperty(
+                '--lotmefx1-my',
+                `${(i * 73 + 3) % 100}%`
+            );
+
+            mote.style.setProperty(
+                '--lotmefx1-md',
+                `${-(i % 16) * .36}s`
+            );
+
+            mote.style.setProperty(
+                '--lotmefx1-ms',
+                `${2 + (i % 4)}px`
+            );
+
+            moteField?.appendChild(mote);
+        }
+
+        document.body.appendChild(root);
+
+        requestAnimationFrame(() => {
+            root.classList.add('is-active');
+        });
+
         return root;
     }
 

@@ -925,6 +925,64 @@ window.guardStudentStoreModuleMethods =
         );
     };
 
+window.getStudentStoreSubviewState =
+    function () {
+
+        const tabStore =
+            document.getElementById(
+                'tab-store'
+            );
+
+        const luxuryPage =
+            document.getElementById(
+                'luxuryStorePage'
+            );
+
+        const collectionPage =
+            document.getElementById(
+                'storeCollectionPage'
+            );
+
+        /*
+         * Dùng cả class lẫn hidden=false:
+         * trong 200 ms fade-out, page vẫn chưa hidden nên normal store phải tiếp
+         * tục ẩn. Nhờ vậy không thể xuất hiện hai view cùng lúc.
+         */
+        const luxuryOpen =
+            Boolean(
+                tabStore?.classList.contains(
+                    'luxury-store-view-active'
+                ) ||
+                (
+                    luxuryPage &&
+                    luxuryPage.hidden === false
+                )
+            );
+
+        const collectionOpen =
+            Boolean(
+                tabStore?.classList.contains(
+                    'store-collection-view-active'
+                ) ||
+                (
+                    collectionPage &&
+                    collectionPage.hidden === false &&
+                    collectionPage.classList.contains(
+                        'is-visible'
+                    )
+                )
+            );
+
+        return {
+            luxuryOpen,
+            collectionOpen,
+            auxiliaryOpen:
+                luxuryOpen ||
+                collectionOpen
+        };
+    };
+
+
 window.applyStudentStoreSystemAccessState =
     function (rawIsOpen) {
         ensureStudentStoreSystemAccessStyles();
@@ -955,6 +1013,9 @@ window.applyStudentStoreSystemAccessState =
                 'storeLockedView'
             );
 
+        const subviewState =
+            window.getStudentStoreSubviewState();
+
         if (tabStore) {
             tabStore.classList.toggle(
                 'store-system-locked',
@@ -965,14 +1026,27 @@ window.applyStudentStoreSystemAccessState =
                 isOpen ? 'true' : 'false';
         }
 
+        /*
+         * QUAN TRỌNG:
+         * Không được ép storeActiveView = block khi Luxury/Sưu tầm đang mở.
+         * Trước đây mọi event "student-feature-loaded" đều chạy lại hàm này,
+         * khiến Cửa hàng thường bật lên phía trên trang Luxury.
+         */
         if (activeView) {
             activeView.style.display =
-                isOpen ? 'block' : 'none';
+                (
+                    isOpen &&
+                    !subviewState.auxiliaryOpen
+                )
+                    ? 'block'
+                    : 'none';
         }
 
         if (lockedView) {
             lockedView.style.display =
-                isOpen ? 'none' : 'block';
+                isOpen
+                    ? 'none'
+                    : 'block';
         }
 
         window.guardStudentStoreModuleMethods();
@@ -980,7 +1054,9 @@ window.applyStudentStoreSystemAccessState =
         if (!isOpen) {
             // Nếu GV khóa trong lúc HS đang mở module phụ thì đóng ngay.
             try {
-                window.LuxuryStore?.close?.();
+                window.LuxuryStore?.close?.({
+                    immediate: true
+                });
             } catch (error) {
                 console.warn(
                     '[Store Access] Không đóng được LuxuryStore:',
@@ -1001,10 +1077,24 @@ window.applyStudentStoreSystemAccessState =
         return isOpen;
     };
 
-// Module Cửa hàng được lazy-load, vì vậy gắn lại guard ngay sau khi module xuất hiện.
+// Module Cửa hàng được lazy-load, vì vậy gắn lại guard khi runtime Cửa hàng xuất hiện.
+// Không chạy lại cho leaderboard/daily-login/guide... vì các module nền đó không được
+// phép thay đổi view đang mở của Cửa hàng.
 window.addEventListener(
     'student-feature-loaded',
-    () => {
+    event => {
+        const group =
+            String(
+                event.detail?.group || ''
+            );
+
+        if (
+            group !== 'store-ui' &&
+            group !== 'luxury-runtime'
+        ) {
+            return;
+        }
+
         requestAnimationFrame(() => {
             window.applyStudentStoreSystemAccessState(
                 window.__studentStoreSystemOpen
@@ -28597,4 +28687,184 @@ window.downloadStudentRoadmapPDF = async function () {
         .from(tempDiv)
         .save();
 };
+// ============================================================
+// FINAL FIX · 4 NÚT GÓC PHẢI NẰM TRONG LUỒNG NỘI DUNG
+// - Không dùng fixed / sticky / absolute cho từng nút.
+// - Nút nằm trong #studentTopActionsFlow và cuộn cùng .content.
+// - Leaderboard được thêm động cũng tự được chuẩn hóa.
+// ============================================================
+(function installStudentTopActionsFlow() {
+    'use strict';
 
+    if (window.__studentTopActionsFlowInstalled) return;
+    window.__studentTopActionsFlowInstalled = true;
+
+    const BUTTON_SELECTOR = [
+        '.leaderboard-trigger-btn',
+        '#btnLeaderboard',
+        '.bag-trigger-btn',
+        '.inbox-trigger-btn',
+        '.profile-trigger-btn'
+    ].join(',');
+
+    let scheduled = false;
+
+    function ensureActionBar() {
+        const content =
+            document.querySelector('.dashboard > .content') ||
+            document.querySelector('.content');
+
+        if (!content) return null;
+
+        let bar =
+            document.getElementById('studentTopActionsFlow');
+
+        if (!bar) {
+            bar = document.createElement('div');
+            bar.id = 'studentTopActionsFlow';
+            bar.className =
+                'student-top-actions-flow ui-theme-immune';
+            bar.setAttribute(
+                'aria-label',
+                'Hành động nhanh'
+            );
+
+            const firstTab =
+                content.querySelector('.tab-content');
+
+            content.insertBefore(
+                bar,
+                firstTab || content.firstChild
+            );
+        }
+
+        return bar;
+    }
+
+    function normalizeTopActionFlow() {
+        scheduled = false;
+
+        const bar = ensureActionBar();
+        if (!bar) return;
+
+        // Khóa chính thanh hành động về normal flow.
+        // Dùng inline !important để không bị CSS theme/mobile tải sau ghim lại.
+        bar.style.setProperty('position', 'static', 'important');
+        bar.style.setProperty('top', 'auto', 'important');
+        bar.style.setProperty('right', 'auto', 'important');
+        bar.style.setProperty('bottom', 'auto', 'important');
+        bar.style.setProperty('left', 'auto', 'important');
+        bar.style.setProperty('inset', 'auto', 'important');
+        bar.style.setProperty('transform', 'none', 'important');
+
+        const buttons =
+            Array.from(
+                document.querySelectorAll(
+                    BUTTON_SELECTOR
+                )
+            );
+
+        buttons.forEach(button => {
+            if (button.parentElement !== bar) {
+                bar.appendChild(button);
+            }
+
+            /*
+             * position:relative vẫn nằm trong normal flow,
+             * nên nút cuộn theo nội dung nhưng các badge / pseudo
+             * absolute vẫn bám đúng chính nút đó.
+             *
+             * Inline !important dùng để thắng mobile.css/theme CSS
+             * nếu chúng được lazy-load sau.
+             */
+            button.style.setProperty(
+                'position',
+                'relative',
+                'important'
+            );
+            button.style.setProperty(
+                'top',
+                'auto',
+                'important'
+            );
+            button.style.setProperty(
+                'right',
+                'auto',
+                'important'
+            );
+            button.style.setProperty(
+                'bottom',
+                'auto',
+                'important'
+            );
+            button.style.setProperty(
+                'left',
+                'auto',
+                'important'
+            );
+            button.style.setProperty(
+                'margin',
+                '0',
+                'important'
+            );
+        });
+    }
+
+    function scheduleNormalize() {
+        if (scheduled) return;
+        scheduled = true;
+        requestAnimationFrame(
+            normalizeTopActionFlow
+        );
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener(
+            'DOMContentLoaded',
+            scheduleNormalize,
+            { once: true }
+        );
+    } else {
+        scheduleNormalize();
+    }
+
+    window.addEventListener(
+        'student-feature-loaded',
+        scheduleNormalize
+    );
+
+    window.addEventListener(
+        'pageshow',
+        scheduleNormalize
+    );
+
+    const observer =
+        new MutationObserver(records => {
+            for (const record of records) {
+                for (const node of record.addedNodes) {
+                    if (!(node instanceof Element)) {
+                        continue;
+                    }
+
+                    if (
+                        node.matches?.(BUTTON_SELECTOR) ||
+                        node.querySelector?.(BUTTON_SELECTOR)
+                    ) {
+                        scheduleNormalize();
+                        return;
+                    }
+                }
+            }
+        });
+
+    observer.observe(
+        document.documentElement,
+        {
+            childList: true,
+            subtree: true
+        }
+    );
+
+    window.refreshStudentTopActionPositions =
+        normalizeTopActionFlow;
+})();

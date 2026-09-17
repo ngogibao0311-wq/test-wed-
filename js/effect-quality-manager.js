@@ -369,47 +369,57 @@ html.fxq-enabled.fxq-low [data-fxq-root="1"]::after {
 
 /* =========================================================
    CARD CỬA HÀNG THƯỜNG + SANG TRỌNG
-   Chỉ giảm lớp trang trí/animation; tuyệt đối không ẩn card,
-   ảnh chính, tag, giá, nút mua/dùng thử/trang bị hay phần info.
+   SAFE MODE:
+   - chỉ giảm chuyển động
+   - KHÔNG thay opacity
+   - KHÔNG ẩn thành phần card
+   - KHÔNG xóa filter / shadow thiết kế
    ========================================================= */
-html.fxq-enabled.fxq-medium [data-fxq-store-card="1"] [data-fxq-card-weight="secondary"][data-fxq-card-skip-medium="1"] {
-    display: none !important;
+
+/* MEDIUM */
+html.fxq-enabled.fxq-medium
+[data-fxq-store-card="1"]
+[data-fxq-card-weight="secondary"],
+
+html.fxq-enabled.fxq-medium
+[data-fxq-store-card="1"]
+[data-fxq-card-weight="ambient"] {
+    animation-play-state: paused !important;
 }
 
-html.fxq-enabled.fxq-medium [data-fxq-store-card="1"] [data-fxq-card-weight="ambient"] {
-    opacity: .56 !important;
-    filter: none !important;
-    box-shadow: none !important;
-}
-
-/* Pseudo-element thường là vòng sáng/shine của card. Ở Medium chỉ dừng lớp ::after. */
+/* Pseudo-element của card chỉ dừng animation */
+html.fxq-enabled.fxq-medium [data-fxq-store-card="1"]::before,
 html.fxq-enabled.fxq-medium [data-fxq-store-card="1"]::after,
+html.fxq-enabled.fxq-medium [data-fxq-store-card="1"] .item-icon-wrapper::before,
 html.fxq-enabled.fxq-medium [data-fxq-store-card="1"] .item-icon-wrapper::after,
+html.fxq-enabled.fxq-medium [data-fxq-store-card="1"] [class*="visual"]::before,
 html.fxq-enabled.fxq-medium [data-fxq-store-card="1"] [class*="visual"]::after,
+html.fxq-enabled.fxq-medium [data-fxq-store-card="1"] [class*="shape"]::before,
 html.fxq-enabled.fxq-medium [data-fxq-store-card="1"] [class*="shape"]::after {
     animation-play-state: paused !important;
-    opacity: .52 !important;
 }
 
-html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [data-fxq-card-weight="secondary"] {
-    display: none !important;
-}
+/* LOW */
+html.fxq-enabled.fxq-low
+[data-fxq-store-card="1"]
+[data-fxq-card-weight="secondary"],
 
-html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [data-fxq-card-weight="ambient"] {
+html.fxq-enabled.fxq-low
+[data-fxq-store-card="1"]
+[data-fxq-card-weight="ambient"] {
     animation: none !important;
     transition: none !important;
-    filter: none !important;
-    box-shadow: none !important;
-    opacity: .22 !important;
 }
 
-/* Ảnh/nhân vật chính vẫn hiện, chỉ bỏ animation liên tục ở mức Thấp. */
-html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [data-fxq-card-primary="1"] {
+/* Ảnh/nhân vật chính giữ nguyên hình ảnh */
+html.fxq-enabled.fxq-low
+[data-fxq-store-card="1"]
+[data-fxq-card-primary="1"] {
     animation: none !important;
-    filter: none !important;
+    transition: none !important;
 }
 
-/* Dừng các pseudo-element trang trí ở mức Thấp, nhưng không thay kích thước/layout card. */
+/* Pseudo-element giữ nguyên giao diện, chỉ ngừng chuyển động */
 html.fxq-enabled.fxq-low [data-fxq-store-card="1"]::before,
 html.fxq-enabled.fxq-low [data-fxq-store-card="1"]::after,
 html.fxq-enabled.fxq-low [data-fxq-store-card="1"] .item-icon-wrapper::before,
@@ -420,8 +430,6 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::before,
 html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
     animation: none !important;
     transition: none !important;
-    filter: none !important;
-    box-shadow: none !important;
 }
 
 @media (max-width: 640px) {

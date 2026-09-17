@@ -70,6 +70,17 @@ class ThemeManager {
             background: '#07090d',
             className: 'theme-lotm-mysteries'
         },
+        // =========================================================
+        // LORD OF THE MYSTERIES · HỘI TAROT · NGHỊ ĐIỆN HUYỀN BÍ
+        // Theme sự kiện độc lập hoàn toàn: lotmevt-*.
+        // Không dùng lại CSS/animation của theme_lotm_mysteries hay Klein/Amon.
+        // =========================================================
+        'theme_lotm_tarot_council_event': {
+            primary: '#c7a76a',
+            secondary: '#768497',
+            background: '#080a10',
+            className: 'theme-lotm-tarot-council-event'
+        },
         'theme_truyenthuyet_celestial': {
             primary: '#ffd700',       // Màu Vàng Thần Thánh (Divine Gold)
             secondary: '#e5e4e2',     // Màu Bạch Kim (Platinum)
@@ -253,6 +264,21 @@ class ThemeManager {
 
             styleId:
                 'amon-trinity-card-style'
+        }),
+
+        /*
+         * LORD OF THE MYSTERIES · KLEIN CHIBI EVENT PAIR
+         * Pet Klein + giao diện Hội Tarot dùng cùng skin/card Klein.
+         * Chỉ tag Lord of the Mysteries là dùng chung với Amon.
+         */
+        'lotm-klein-chibi-event': Object.freeze({
+            itemIds: Object.freeze([
+                'pet_lotm_klein_chibi_event_1',
+                'theme_lotm_tarot_council_event'
+            ]),
+
+            className:
+                'store-card-lotm-klein-chibi-event'
         }),
 
         'shizuka-trinity': Object.freeze({

@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="stylesheet" href="css/common.css?v=4.0.4-login-layout4">
-    <link rel="stylesheet" href="css/teacher.css?v=4.0.6-store-game-access-ui-fix">
+    <link rel="stylesheet" href="css/teacher.css?v=4.0.7-leaderboard-admin-v2">
     <link rel="stylesheet" href="css/mobile.css?v=4.0.3-layout">
     <link rel="stylesheet" href="css/web-animations.css?v=1.0">
     <link rel="stylesheet" href="css/store-items.css?v=4.0.0">
@@ -2109,108 +2109,238 @@
                     </div>
                 </div>
 
-                <div class="card accordion-card" style="margin-top: 20px;">
-                    <div class="accordion-header" onclick="toggleAccordion('leaderboardManageView', this)">
-                        <div class="accordion-title">
-                            <h3 style="color: #f39c12; margin: 0; display: flex; align-items: center; gap: 8px;">
-                                🏆
-                                Quản
-                                lý Bảng Xếp Hạng Thi Đua</h3>
+                <div id="teacherLeaderboardAdminCard" class="card accordion-card teacher-lb-admin-card" style="margin-top: 20px;">
+                    <div class="accordion-header teacher-lb-admin-accordion-head"
+                        onclick="toggleAccordion('leaderboardManageView', this)">
+                        <div class="accordion-title teacher-lb-admin-heading">
+                            <span class="teacher-lb-admin-heading-icon" aria-hidden="true">🏆</span>
+                            <div>
+                                <span class="teacher-lb-admin-kicker">TRUNG TÂM THI ĐUA</span>
+                                <h3>Quản lý Bảng Xếp Hạng Thi Đua</h3>
+                                <p>Đồng bộ cơ chế mùa, điểm và phần thưởng đang hiển thị bên học sinh.</p>
+                            </div>
                         </div>
-                        <div class="accordion-meta"><span class="toggle-icon">▼</span></div>
+                        <div class="accordion-meta teacher-lb-admin-head-meta">
+                            <span id="lbAdminHeaderStatus" class="teacher-lb-status-pill is-closed">
+                                <span class="teacher-lb-status-dot"></span>
+                                <span>Đang đóng</span>
+                            </span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
                     </div>
 
-                    <div id="leaderboardManageView" class="accordion-content">
-                        <!-- 1. Tắt/Mở Bảng Xếp Hạng -->
-                        <label
-                            style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 15px; background: rgba(255,255,255,0.4); padding: 12px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.05);">
-                            <input type="checkbox" id="lbToggle" onchange="toggleLeaderboardStatus(this.checked)"
-                                style="width: 22px; height: 22px; margin: 0; cursor: pointer;">
-                            <strong style="color: #2c3e50; font-size: 0.95em;">Mở Bảng Xếp Hạng cho học
-                                sinh</strong>
-                        </label>
-
-                        <!-- 2. Đặt lịch mở mùa giải -->
-                        <div
-                            style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; border: 1px dashed #3b82f6; margin-bottom: 20px;">
-                            <h4 style="color: #3b82f6; margin-top: 0; margin-bottom: 10px;">📅 Đặt lịch mùa giải
-                            </h4>
-                            <p style="font-size: 0.9em; color: #666; margin-bottom: 10px;">Hệ thống sẽ tự động
-                                cấu
-                                hình
-                                mùa giải cho tháng tiếp theo nếu bạn đang ở giữa tháng hiện tại.</p>
-                            <p>Mùa giải đang xét: <strong id="currentSeasonDisplay" style="color: #e11d48;">Chưa
-                                    cấu
-                                    hình</strong></p>
-
-                            <div style="display: flex; gap: 10px; margin-top: 15px;">
-                                <button onclick="setNextMonthSeason()"
-                                    style="flex: 2; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer;">📅
-                                    Tự động đặt lịch</button>
-                                <button onclick="deleteCurrentSeason()"
-                                    style="flex: 1; background: linear-gradient(135deg, #e11d48 0%, #ff4d4d 100%); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer;">🗑️
-                                    Xóa lịch</button>
+                    <div id="leaderboardManageView" class="accordion-content teacher-lb-admin-content">
+                        <section class="teacher-lb-admin-hero" aria-labelledby="teacherLbAdminTitle">
+                            <div class="teacher-lb-admin-hero-copy">
+                                <span class="teacher-lb-admin-eyebrow">MÙA THI ĐUA HIỆN TẠI</span>
+                                <h4 id="teacherLbAdminTitle">Bảng điều khiển mùa giải</h4>
+                                <p id="lbAdminHeroDescription">
+                                    Theo dõi trạng thái và cấu hình mùa thi đua từ một khu vực duy nhất.
+                                </p>
+                                <div class="teacher-lb-admin-hero-chips">
+                                    <span id="lbAdminCurrentSeasonChip" class="teacher-lb-info-chip">📅 Đang tải mùa…</span>
+                                    <span id="lbAdminScheduleChip" class="teacher-lb-info-chip muted">⏱️ Chưa có lịch hẹn</span>
+                                </div>
                             </div>
+
+                            <div class="teacher-lb-admin-master-switch">
+                                <span class="teacher-lb-admin-switch-label">Hiển thị cho học sinh</span>
+                                <label class="teacher-lb-switch" for="lbToggle">
+                                    <input type="checkbox" id="lbToggle" onchange="toggleLeaderboardStatus(this.checked)">
+                                    <span class="teacher-lb-switch-track"><span class="teacher-lb-switch-thumb"></span></span>
+                                </label>
+                                <strong id="lbAdminToggleText">Đang đóng</strong>
+                                <small id="lbAdminToggleHint">Học sinh chưa thể mở Bảng Xếp Hạng.</small>
+                            </div>
+                        </section>
+
+                        <div class="teacher-lb-admin-stat-grid">
+                            <article class="teacher-lb-stat-card">
+                                <span class="teacher-lb-stat-icon">🗓️</span>
+                                <span class="teacher-lb-stat-label">Mùa đang tính</span>
+                                <strong id="lbAdminCurrentSeasonStat">--</strong>
+                                <small>Tự đổi theo tháng hiện tại.</small>
+                            </article>
+                            <article class="teacher-lb-stat-card">
+                                <span class="teacher-lb-stat-icon">↩️</span>
+                                <span class="teacher-lb-stat-label">Lịch sử học sinh xem</span>
+                                <strong>3 tháng trước</strong>
+                                <small>Giữ đúng cơ chế phía học sinh.</small>
+                            </article>
+                            <article class="teacher-lb-stat-card">
+                                <span class="teacher-lb-stat-icon">🎬</span>
+                                <span class="teacher-lb-stat-label">Thưởng video tối đa</span>
+                                <strong>+5,0 điểm</strong>
+                                <small>Cộng theo tiến độ xem video.</small>
+                            </article>
+                            <article class="teacher-lb-stat-card">
+                                <span class="teacher-lb-stat-icon">✨</span>
+                                <span class="teacher-lb-stat-label">Thưởng sạch cuối mùa</span>
+                                <strong>+1,0 điểm</strong>
+                                <small>Áp dụng trong 5 ngày cuối nếu không vi phạm.</small>
+                            </article>
                         </div>
 
-                        <!-- 3. Điều chỉnh phần thưởng & Rương -->
-                        <div
-                            style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; border: 1px dashed #f39c12; margin-bottom: 20px;">
-                            <h4 style="color: #f39c12; margin-top: 0; margin-bottom: 10px;">🎁 Điều chỉnh phần
-                                thưởng &
-                                Tỉ lệ Rương</h4>
+                        <div class="teacher-lb-admin-grid">
+                            <section class="teacher-lb-admin-panel teacher-lb-season-panel">
+                                <div class="teacher-lb-panel-head">
+                                    <div>
+                                        <span class="teacher-lb-panel-kicker">01 · MÙA GIẢI</span>
+                                        <h4>Trạng thái & lịch tự mở</h4>
+                                    </div>
+                                    <span class="teacher-lb-panel-icon">📅</span>
+                                </div>
 
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                                <div>
-                                    <label style="font-size: 0.9em; font-weight: bold;">Thưởng Hạng 3
-                                        (Coin):</label>
-                                    <input type="number" id="lbRewardRank3" min="0"
-                                        style="width: 100%; padding: 8px; margin-top: 5px;">
+                                <div class="teacher-lb-season-summary">
+                                    <div>
+                                        <span>Lịch đang lưu</span>
+                                        <strong id="currentSeasonDisplay">Chưa có lịch</strong>
+                                    </div>
+                                    <p id="lbAdminScheduleDescription">
+                                        Bạn có thể hẹn tháng tương lai hoặc mở ngay bằng công tắc phía trên.
+                                    </p>
                                 </div>
-                                <div>
-                                    <label style="font-size: 0.9em; font-weight: bold;">Thưởng Hạng 4+
-                                        (Coin):</label>
-                                    <input type="number" id="lbRewardRank4" min="0"
-                                        style="width: 100%; padding: 8px; margin-top: 5px;">
-                                </div>
-                            </div>
 
-                            <hr style="border: 0; border-top: 1px dashed #ccc; margin: 15px 0;">
-                            <h5 style="color: #c0392b; margin: 0 0 10px 0;">📦 Tỉ lệ Rương Hạng 1 (Khi chọn mở
-                                Vật
-                                phẩm)
-                            </h5>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
-                                <div>
-                                    <label style="font-size: 0.8em; font-weight: bold; color: #888;">Trùng lặp
-                                        (%)</label>
-                                    <input type="number" id="lbChestDup" min="0" max="100"
-                                        style="padding: 8px; width: 100%; text-align: center;">
+                                <div class="teacher-lb-schedule-fields">
+                                    <label>
+                                        <span>Tháng bắt đầu</span>
+                                        <select id="lbScheduleMonth" aria-label="Tháng bắt đầu mùa thi đua">
+                                            <option value="1">Tháng 1</option><option value="2">Tháng 2</option>
+                                            <option value="3">Tháng 3</option><option value="4">Tháng 4</option>
+                                            <option value="5">Tháng 5</option><option value="6">Tháng 6</option>
+                                            <option value="7">Tháng 7</option><option value="8">Tháng 8</option>
+                                            <option value="9">Tháng 9</option><option value="10">Tháng 10</option>
+                                            <option value="11">Tháng 11</option><option value="12">Tháng 12</option>
+                                        </select>
+                                    </label>
+                                    <label>
+                                        <span>Năm</span>
+                                        <input type="number" id="lbScheduleYear" min="2024" max="2100" step="1">
+                                    </label>
                                 </div>
-                                <div>
-                                    <label style="font-size: 0.8em; font-weight: bold; color: #2980b9;">VP
-                                        Thường
-                                        (%)</label>
-                                    <input type="number" id="lbChestNorm" min="0" max="100"
-                                        style="padding: 8px; width: 100%; text-align: center;">
-                                </div>
-                                <div>
-                                    <label style="font-size: 0.8em; font-weight: bold; color: #e11d48;">VP
-                                        Truyền
-                                        Thuyết
-                                        (%)</label>
-                                    <input type="number" id="lbChestLeg" min="0" max="100"
-                                        style="padding: 8px; width: 100%; text-align: center;">
-                                </div>
-                            </div>
-                            <p id="lbErrorMsg"
-                                style="color: #e11d48; font-weight: bold; font-size: 0.85em; display: none; margin-top: 5px;">
-                            </p>
 
-                            <button onclick="saveLeaderboardSettings()"
-                                style="margin-top: 15px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white; border: none; font-weight: bold; width: 100%; padding: 10px; border-radius: 8px;">💾
-                                Lưu cấu hình Phần thưởng</button>
+                                <div class="teacher-lb-action-row">
+                                    <button type="button" class="teacher-lb-btn primary" onclick="saveLeaderboardSchedule()">
+                                        <span>💾</span> Lưu lịch đã chọn
+                                    </button>
+                                    <button type="button" class="teacher-lb-btn secondary" onclick="setNextMonthSeason()">
+                                        <span>⏭️</span> Hẹn tháng sau
+                                    </button>
+                                    <button type="button" class="teacher-lb-btn danger" onclick="deleteCurrentSeason()">
+                                        <span>🗑️</span> Xóa lịch
+                                    </button>
+                                </div>
+                            </section>
+
+                            <section class="teacher-lb-admin-panel teacher-lb-rules-panel">
+                                <div class="teacher-lb-panel-head">
+                                    <div>
+                                        <span class="teacher-lb-panel-kicker">02 · CÁCH TÍNH ĐIỂM</span>
+                                        <h4>Quy tắc đang áp dụng bên học sinh</h4>
+                                    </div>
+                                    <span class="teacher-lb-panel-icon">📊</span>
+                                </div>
+
+                                <div class="teacher-lb-formula">
+                                    <strong>Điểm xếp hạng</strong>
+                                    <span>= ĐTB + thưởng video + thưởng sạch − điểm phạt</span>
+                                </div>
+
+                                <div class="teacher-lb-rule-list">
+                                    <div><span class="teacher-lb-rule-badge late">−1,5</span><p><strong>Nộp trễ / tự thu</strong><small>Không tính điểm bài hiện tại nếu chưa được force pass.</small></p></div>
+                                    <div><span class="teacher-lb-rule-badge essay">−1,0</span><p><strong>Thiếu tự luận</strong><small>Ghi nhận một lỗi riêng trong mùa.</small></p></div>
+                                    <div><span class="teacher-lb-rule-badge cheat">−3,0</span><p><strong>Vi phạm thi</strong><small>Mức phạt mạnh nhất, ảnh hưởng trực tiếp thứ hạng.</small></p></div>
+                                </div>
+
+                                <div class="teacher-lb-note">
+                                    <span>ℹ️</span>
+                                    <p>Ưu tiên xếp hạng: <strong>điểm cao hơn → nhiều điểm 10 hơn → ít vi phạm hơn</strong>.</p>
+                                </div>
+                            </section>
                         </div>
+
+                        <section class="teacher-lb-admin-panel teacher-lb-reward-panel">
+                            <div class="teacher-lb-panel-head">
+                                <div>
+                                    <span class="teacher-lb-panel-kicker">03 · PHẦN THƯỞNG CUỐI MÙA</span>
+                                    <h4>Phần thưởng theo thứ hạng</h4>
+                                </div>
+                                <span class="teacher-lb-panel-icon">🎁</span>
+                            </div>
+
+                            <div class="teacher-lb-reward-grid">
+                                <article class="teacher-lb-reward-card rank-1">
+                                    <span class="teacher-lb-rank-medal">🥇</span>
+                                    <div><span>Hạng 1</span><strong>1 Rương Kho Báu</strong><small>Chọn Coin ngẫu nhiên hoặc vật phẩm.</small></div>
+                                </article>
+                                <article class="teacher-lb-reward-card rank-2">
+                                    <span class="teacher-lb-rank-medal">🥈</span>
+                                    <div><span>Hạng 2</span><strong>Thẻ giảm giá ngẫu nhiên</strong><small>10% · 15% · 20% · 25% · 30%</small></div>
+                                </article>
+                                <article class="teacher-lb-reward-card rank-3 editable">
+                                    <span class="teacher-lb-rank-medal">🥉</span>
+                                    <div>
+                                        <span>Hạng 3</span>
+                                        <label><input type="number" id="lbRewardRank3" min="0" step="1"><em>Coin</em></label>
+                                        <small>Có thể điều chỉnh.</small>
+                                    </div>
+                                </article>
+                                <article class="teacher-lb-reward-card rank-4 editable">
+                                    <span class="teacher-lb-rank-medal">🎖️</span>
+                                    <div>
+                                        <span>Hạng 4+</span>
+                                        <label><input type="number" id="lbRewardRank4" min="0" step="1"><em>Coin</em></label>
+                                        <small>Thưởng khích lệ.</small>
+                                    </div>
+                                </article>
+                            </div>
+
+                            <div class="teacher-lb-chest-box">
+                                <div class="teacher-lb-chest-head">
+                                    <div>
+                                        <span class="teacher-lb-panel-kicker">TỈ LỆ RƯƠNG HẠNG 1 · NHÁNH VẬT PHẨM</span>
+                                        <h5>Phân bổ xác suất</h5>
+                                    </div>
+                                    <span id="lbChestRateTotal" class="teacher-lb-rate-total is-valid">100%</span>
+                                </div>
+
+                                <div class="teacher-lb-rate-bar" aria-hidden="true">
+                                    <span id="lbChestRateDupBar" class="dup" style="width:95%"></span>
+                                    <span id="lbChestRateNormBar" class="norm" style="width:4%"></span>
+                                    <span id="lbChestRateLegBar" class="leg" style="width:1%"></span>
+                                </div>
+
+                                <div class="teacher-lb-rate-grid">
+                                    <label class="dup">
+                                        <span><i></i>Trùng vật phẩm</span>
+                                        <div><input type="number" id="lbChestDup" min="0" max="100" step="1" oninput="updateTeacherLeaderboardChestRateUI()"><em>%</em></div>
+                                        <small>Nhận Coin bù theo cơ chế rương.</small>
+                                    </label>
+                                    <label class="norm">
+                                        <span><i></i>Vật phẩm thường</span>
+                                        <div><input type="number" id="lbChestNorm" min="0" max="100" step="1" oninput="updateTeacherLeaderboardChestRateUI()"><em>%</em></div>
+                                        <small>Nhóm vật phẩm hợp lệ thông thường.</small>
+                                    </label>
+                                    <label class="leg">
+                                        <span><i></i>Vật phẩm hiếm</span>
+                                        <div><input type="number" id="lbChestLeg" min="0" max="100" step="1" oninput="updateTeacherLeaderboardChestRateUI()"><em>%</em></div>
+                                        <small>Nhóm hiếm / truyền thuyết hợp lệ.</small>
+                                    </label>
+                                </div>
+
+                                <p id="lbErrorMsg" class="teacher-lb-error" hidden></p>
+                            </div>
+
+                            <div class="teacher-lb-save-row">
+                                <div>
+                                    <strong>Thay đổi chỉ được ghi khi tổng tỉ lệ Rương = 100%.</strong>
+                                    <small>Giữ tương thích với cơ chế nhận thưởng hiện tại của học sinh.</small>
+                                </div>
+                                <button type="button" class="teacher-lb-btn save" onclick="saveLeaderboardSettings()">
+                                    💾 Lưu cấu hình phần thưởng
+                                </button>
+                            </div>
+                        </section>
                     </div>
                 </div>
 
@@ -3610,7 +3740,7 @@
     <!-- Hotfix: xác nhận cài đặt lộ trình trước khi teacher.js chờ loader -->
     <script src="js/roadmap-startup-fix.js?v=1.0"></script>
 
-    <script src="js/teacher.js?v=4.0.6-store-game-access-ui-fix"></script>
+    <script src="js/teacher.js?v=4.0.7-leaderboard-admin-v2"></script>
     <script src="js/huong-dan-nguoi-moi.js?v=2.14.0"></script>
 </body>
 

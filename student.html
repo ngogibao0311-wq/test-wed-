@@ -12,13 +12,13 @@
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="stylesheet" href="css/common.css?v=4.0.4-login-layout4">
-    <link rel="stylesheet" href="css/student.css?v=4.0.7-store-game-access-notice">
+    <link rel="stylesheet" href="css/student.css?v=4.0.9-avatar-frame-flow-fix">
     <link rel="stylesheet" href="css/mobile.css?v=4.0.3-layout">
     <link rel="stylesheet" href="css/web-animations.css?v=1.0">
     <link rel="stylesheet" href="css/update-manager.css?v=1.0.0">
     <link id="linkclick-cheng-premium-style" rel="stylesheet" href="css/link-click-cheng-xiaoshi.css?v=20260911.2-fullweb">
     <!-- Core-first loader: CSS/module đặc biệt chỉ tải khi cần -->
-    <script src="js/student-feature-loader.js?v=3.3.0-store-card-full-luxury-id-suite"></script>
+    <script src="js/student-feature-loader.js?v=3.3.2-equipped-frame-css-startup"></script>
     <script>
         MathJax = {
             tex: {
@@ -684,23 +684,23 @@
         </div>
 
         <div class="content">
-            <button class="inbox-trigger-btn ui-theme-immune" onclick="openStudentInbox()" title="Hộp thư đến"
-                style="position: absolute; top: 20px; right: 85px; width: 45px; height: 45px; border-radius: 50%; background: rgba(255,255,255,0.7); border: 2px solid rgba(255,255,255,0.9); font-size: 1.5em; cursor: pointer; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; justify-content: center; align-items: center;">
-                💌
-                <span id="inboxBadge"
-                    style="display: none; position: absolute; top: -5px; right: -5px; background: #e11d48; color: white; font-size: 0.65em; font-weight: bold; padding: 3px 6px; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">0</span>
-            </button>
+            <div id="studentTopActionsFlow" class="student-top-actions-flow ui-theme-immune" aria-label="Hành động nhanh">
+                <button class="inbox-trigger-btn ui-theme-immune" onclick="openStudentInbox()" title="Hộp thư đến">
+                    💌
+                    <span id="inboxBadge"
+                        style="display: none; position: absolute; top: -5px; right: -5px; background: #e11d48; color: white; font-size: 0.65em; font-weight: bold; padding: 3px 6px; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">0</span>
+                </button>
 
-            <button class="bag-trigger-btn ui-theme-immune" onclick="openStudentBag()" title="Túi đồ của tôi"
-                style="position: absolute; top: 20px; right: 140px; width: 45px; height: 45px; border-radius: 50%; background: rgba(255,255,255,0.7); border: 2px solid rgba(255,255,255,0.9); font-size: 1.5em; cursor: pointer; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; justify-content: center; align-items: center; transition: 0.2s;">
-                🎒
-            </button>
-            <button class="profile-trigger-btn ui-theme-immune" onclick="openStudentInfoModal()" title="Hồ sơ cá nhân">
-                <img id="avatarImage" src="" alt="Ảnh hồ sơ" loading="eager" decoding="async" fetchpriority="high"
-                    style="display: none; width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                <button class="bag-trigger-btn ui-theme-immune" onclick="openStudentBag()" title="Túi đồ của tôi">
+                    🎒
+                </button>
+                <button class="profile-trigger-btn ui-theme-immune" onclick="openStudentInfoModal()" title="Hồ sơ cá nhân">
+                    <img id="avatarImage" src="" alt="Ảnh hồ sơ" loading="eager" decoding="async" fetchpriority="high"
+                        style="display: none; width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
 
-                <span id="avatarPlaceholder" style="font-size: 1.5em;">👤</span>
-            </button>
+                    <span id="avatarPlaceholder" style="font-size: 1.5em;">👤</span>
+                </button>
+            </div>
             <div id="tab-todo" class="tab-content active">
                 <h2>Bài tập cần làm</h2>
                 <input type="text" id="searchStudentTodo" class="search-bar" placeholder="🔍 Tìm kiếm bài tập..."
@@ -848,8 +848,7 @@
                             </h3>
                             <p id="royalEventDesc" style="color: #ddd; font-size: 0.9em; margin: 0;">
                                 Đang kiểm tra trạng thái Dạ Hội Hoàng Gia...
-                            </p>Sự kiện giới hạn! Khiêu vũ để nhận đồ
-                            Truyền thuyết hoặc lượng lớn Coin. (Chỉ mở 29/07 - 01/08)</p>
+                            </p>
                         </div>
                         <button id="btnRoyalJoin" onclick="RoyalBallEvent.openModal()"
                             style="background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%); color: white; padding: 12px 25px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 8, 68, 0.4);">Tham
@@ -1039,7 +1038,6 @@
                 </div>
             </div>
         </div>
-    </div>
     </div>
 
     <div id="studentInfoModal" class="modal-overlay ui-theme-immune">
@@ -1583,7 +1581,7 @@
     <script src="https://www.youtube.com/iframe_api"></script>
 
     <!-- 5. Logic chính của trang học sinh luôn đặt cuối -->
-    <script src="js/student.js?v=20260915.store-runtime-router-v3.3"></script>
+    <script src="js/student.js?v=20260917.top-actions-flow-v3"></script>
 
 </body>
 

@@ -4767,6 +4767,40 @@
             );
         },
 
+        ensurePetInteractivity(pet = this.getPet()) {
+            const container =
+                document.getElementById('virtual-pet-container');
+
+            if (!container || !pet) {
+                return false;
+            }
+
+            if (container.style.pointerEvents !== 'auto') {
+                container.style.pointerEvents = 'auto';
+            }
+
+            if (container.style.visibility !== 'visible') {
+                container.style.visibility = 'visible';
+            }
+
+            if (container.style.opacity !== '1') {
+                container.style.opacity = '1';
+            }
+
+            if (pet.style.pointerEvents !== 'auto') {
+                pet.style.pointerEvents = 'auto';
+            }
+
+            if (pet.style.cursor !== 'pointer') {
+                pet.style.cursor = 'pointer';
+            }
+
+            pet.setAttribute('draggable', 'false');
+            pet.dataset.lotmKleinPremiumInteractive = 'true';
+
+            return true;
+        },
+
         clear() {
             if (this.activePetElement && this.petClickHandler) {
                 this.activePetElement.removeEventListener(
@@ -4818,6 +4852,19 @@
             const container =
                 document.getElementById('virtual-pet-container');
 
+            if (
+                container &&
+                container.__lotmKleinPremiumClickFallback
+            ) {
+                container.removeEventListener(
+                    'click',
+                    container.__lotmKleinPremiumClickFallback,
+                    true
+                );
+
+                delete container.__lotmKleinPremiumClickFallback;
+            }
+
             container?.classList.remove(
                 'pet-lotm-klein-stage',
                 'lotm-klein-casting'
@@ -4827,9 +4874,14 @@
                 ?.querySelectorAll('.lotm-klein-pet-realm')
                 .forEach(element => element.remove());
 
-            container
-                ?.querySelector('#virtual-pet-img')
-                ?.classList.remove('lotm-klein-pet');
+            const activePet =
+                container?.querySelector('#virtual-pet-img');
+
+            activePet?.classList.remove('lotm-klein-pet');
+
+            if (activePet?.dataset) {
+                delete activePet.dataset.lotmKleinPremiumInteractive;
+            }
         },
 
         createWorld() {
@@ -5051,6 +5103,7 @@
             );
 
             pet.setAttribute('draggable', 'false');
+            this.ensurePetInteractivity(pet);
 
             const realm = document.createElement('div');
             realm.className = 'lotm-klein-pet-realm lotm-klein-pet-realm-v2';
@@ -5321,6 +5374,8 @@
                 return false;
             }
 
+            this.ensurePetInteractivity(pet);
+
             if (this.activePetElement && this.petClickHandler) {
                 this.activePetElement.removeEventListener(
                     'click',
@@ -5349,6 +5404,7 @@
 
                 event.preventDefault();
                 event.stopPropagation();
+                event.__lotmKleinPremiumHandled = true;
 
                 const rect =
                     pet.getBoundingClientRect();
@@ -5366,6 +5422,68 @@
                 this.petClickHandler,
                 true
             );
+
+            /*
+             * Fallback ở container:
+             * nếu một lớp CSS/runtime khác khiến target click không đi đúng
+             * listener ảnh nhưng click vẫn nằm trong vùng Klein, ultimate vẫn chạy.
+             */
+            const container =
+                document.getElementById('virtual-pet-container');
+
+            if (container && !container.__lotmKleinPremiumClickFallback) {
+                container.__lotmKleinPremiumClickFallback = event => {
+                    if (
+                        event.__lotmKleinPremiumHandled ||
+                        !document.documentElement.classList.contains(
+                            'lotm-klein-equipped'
+                        )
+                    ) {
+                        return;
+                    }
+
+                    const currentPet = this.getPet();
+
+                    if (!currentPet) {
+                        return;
+                    }
+
+                    const target = event.target;
+
+                    if (
+                        target !== currentPet &&
+                        !(target instanceof Element &&
+                          target.closest('#virtual-pet-img') === currentPet)
+                    ) {
+                        return;
+                    }
+
+                    if (
+                        typeof PetInteractionManager !== 'undefined' &&
+                        PetInteractionManager.isPetDragging
+                    ) {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    event.stopPropagation();
+                    event.__lotmKleinPremiumHandled = true;
+
+                    const rect =
+                        currentPet.getBoundingClientRect();
+
+                    this.createUltimate(
+                        rect.left + rect.width / 2,
+                        rect.top + rect.height / 2
+                    );
+                };
+
+                container.addEventListener(
+                    'click',
+                    container.__lotmKleinPremiumClickFallback,
+                    true
+                );
+            }
 
             return true;
         },
@@ -5407,12 +5525,15 @@
                     this.createPetRealm();
                 }
 
-                if (
-                    this.activePetElement !== pet ||
-                    !this.petClickHandler
-                ) {
-                    this.installPetSkill();
-                }
+                this.ensurePetInteractivity(pet);
+
+                /*
+                 * Rebind mỗi lần repair:
+                 * removeEventListener + addEventListener trong installPetSkill()
+                 * là idempotent và giúp khôi phục click nếu DOM/runtime khác
+                 * đã làm mất listener mà reference cũ vẫn còn.
+                 */
+                this.installPetSkill();
             }
 
             if (!this.documentClickHandler) {
@@ -11620,15 +11741,157 @@ if (isNationalDay) {
     let luxuryInventoryState = {};
 
 
+    function findInventoryItemById(
+        inventory,
+        itemId
+    ) {
+        const wantedId = String(itemId ?? '');
+
+        if (!wantedId) {
+            return null;
+        }
+
+        if (Array.isArray(inventory)) {
+            return inventory.find(
+                inv =>
+                    String(inv?.id ?? '') ===
+                    wantedId
+            ) || null;
+        }
+
+        if (
+            inventory &&
+            typeof inventory === 'object'
+        ) {
+            return Object
+                .values(inventory)
+                .find(
+                    inv =>
+                        String(inv?.id ?? '') ===
+                        wantedId
+                ) || null;
+        }
+
+        return null;
+    }
+
+
     function getLuxuryInventoryItem(itemId) {
 
-        return Object
-            .values(luxuryInventoryState || {})
-            .find(
-                inv =>
-                    String(inv?.id) ===
-                    String(itemId)
-            ) || null;
+        /*
+         * Nguồn chính của trang học sinh là window.myInventory.
+         * Luxury Store vẫn giữ listener riêng để render tức thời,
+         * nhưng không được coi biến local là nguồn duy nhất.
+         *
+         * Điều này tránh trường hợp module Luxury được lazy-load/reload
+         * sau khi inventory chính đã về: card không được phép hiện
+         * "Mua" cho món thực tế vẫn còn trong Firebase.
+         */
+        const mainInventoryItem =
+            findInventoryItemById(
+                window.myInventory,
+                itemId
+            );
+
+        if (mainInventoryItem) {
+            return mainInventoryItem;
+        }
+
+        const bridgeInventoryItem =
+            findInventoryItemById(
+                window.__luxuryInventoryBridgeState
+                    ?.inventory,
+                itemId
+            );
+
+        if (bridgeInventoryItem) {
+            return bridgeInventoryItem;
+        }
+
+        return findInventoryItemById(
+            luxuryInventoryState,
+            itemId
+        );
+    }
+
+
+    async function buyLuxuryItemSafely(itemId) {
+        const user = JSON.parse(
+            localStorage.getItem('currentUser') || 'null'
+        );
+
+        /*
+         * Chốt chống mua lại:
+         * trước khi gọi luồng thanh toán chung, kiểm tra trực tiếp Firebase.
+         * Nếu item đã tồn tại thì chỉ đồng bộ UI, tuyệt đối không trừ Coin lần nữa.
+         */
+        if (
+            typeof db !== 'undefined' &&
+            user?.username
+        ) {
+            try {
+                const itemRef =
+                    db.ref(
+                        `student_inventory/${user.username}/${itemId}`
+                    );
+
+                const snapshot =
+                    await itemRef.once('value');
+
+                const existingItem =
+                    snapshot.val();
+
+                if (
+                    existingItem &&
+                    String(existingItem.id ?? '') ===
+                        String(itemId)
+                ) {
+                    luxuryInventoryState = {
+                        ...(luxuryInventoryState || {}),
+                        [String(itemId)]: existingItem
+                    };
+
+                    window.__luxuryInventoryBridgeState = {
+                        username:
+                            String(user.username),
+                        inventory: {
+                            ...(
+                                window.__luxuryInventoryBridgeState
+                                    ?.inventory || {}
+                            ),
+                            [String(itemId)]:
+                                existingItem
+                        }
+                    };
+
+                    renderLuxuryStore();
+
+                    alert(
+                        '✅ Vật phẩm này vẫn đang có trong kho của bạn. ' +
+                        'Hệ thống đã đồng bộ lại trạng thái sở hữu.'
+                    );
+
+                    return false;
+                }
+            } catch (error) {
+                console.warn(
+                    '[LuxuryStore] Không thể kiểm tra quyền sở hữu trước khi mua:',
+                    error
+                );
+            }
+        }
+
+        if (
+            typeof window.buyItem === 'function'
+        ) {
+            return window.buyItem(itemId);
+        }
+
+        console.error(
+            '[LuxuryStore] Không tìm thấy hàm buyItem().'
+        );
+
+        return false;
     }
 
 
@@ -11655,21 +11918,51 @@ if (isNationalDay) {
         }
 
 
-        if (window.__luxuryInventoryListening) {
+        const username =
+            String(user.username);
+
+        const bridgeState =
+            window.__luxuryInventoryBridgeState;
+
+        /*
+         * Bản cũ chỉ dùng một boolean global. Nếu luxury-store.js bị nạp lại,
+         * module mới có luxuryInventoryState = {} nhưng lại không được gắn
+         * listener mới => toàn bộ card bị hiểu nhầm là chưa mua.
+         *
+         * Bản mới chỉ tái sử dụng listener khi đã có bridge state đúng user.
+         * Nếu gặp cờ boolean cũ mà không có bridge dữ liệu, cho phép gắn lại.
+         */
+        if (
+            window.__luxuryInventoryListeningUser ===
+                username &&
+            bridgeState?.username === username
+        ) {
+            luxuryInventoryState =
+                bridgeState.inventory || {};
+
             return;
         }
 
-        window.__luxuryInventoryListening = true;
+        window.__luxuryInventoryListeningUser =
+            username;
 
+        const inventoryRef =
+            db.ref(
+                `student_inventory/${username}`
+            );
 
-        db.ref(
-            `student_inventory/${user.username}`
-        ).on(
+        inventoryRef.on(
             'value',
             snapshot => {
 
                 luxuryInventoryState =
                     snapshot.val() || {};
+
+                window.__luxuryInventoryBridgeState = {
+                    username,
+                    inventory:
+                        luxuryInventoryState
+                };
 
                 // ====================================================
                 // Nếu Xuân Thần đã được gỡ trên Firebase
@@ -11805,6 +12098,25 @@ if (isNationalDay) {
                 ) {
                     renderLuxuryStore();
                 }
+            },
+            error => {
+                console.error(
+                    '[LuxuryStore] Lỗi listener kho Luxury:',
+                    error
+                );
+
+                if (
+                    window.__luxuryInventoryListeningUser ===
+                    username
+                ) {
+                    delete window
+                        .__luxuryInventoryListeningUser;
+                }
+
+                window.setTimeout(
+                    installLuxuryInventoryListener,
+                    700
+                );
             }
         );
     }
@@ -12190,7 +12502,7 @@ if (isNationalDay) {
                     <button
                         type="button"
                         class="cam-co-cam-mong-action cam-co-cam-mong-buy"
-                        onclick="window.buyItem('${id}')"
+                        onclick="window.LuxuryStore.buyItemSafely('${id}')"
                     >
                         🪙 Mua ${formattedPrice} Coin
                     </button>
@@ -12296,7 +12608,7 @@ if (isNationalDay) {
                     <button
                         type="button"
                         class="tamon-bside-card-action tamon-bside-buy"
-                        onclick="window.buyItem('${id}')"
+                        onclick="window.LuxuryStore.buyItemSafely('${id}')"
                     >
                         🪙 Mua ${formattedPrice} Coin
                     </button>
@@ -12489,7 +12801,7 @@ if (isNationalDay) {
                     <button
                         type="button"
                         class="nyx-mythic-action nyx-mythic-buy"
-                        onclick="window.buyItem('${id}')"
+                        onclick="window.LuxuryStore.buyItemSafely('${id}')"
                     >
                         🪙 Mua 12.000 Coin
                     </button>
@@ -12600,7 +12912,7 @@ if (isNationalDay) {
                     <button
                         type="button"
                         class="linkclick-card-action linkclick-card-buy"
-                        onclick="window.buyItem('${id}')"
+                        onclick="window.LuxuryStore.buyItemSafely('${id}')"
                     >
                         🪙 Mua ${formattedPrice} Coin
                     </button>
@@ -12740,7 +13052,7 @@ if (isNationalDay) {
                     <button
                         type="button"
                         class="midautumn-card-action midautumn-card-buy"
-                        onclick="window.buyItem('${id}')"
+                        onclick="window.LuxuryStore.buyItemSafely('${id}')"
                     >
                         🌕 Đổi ${midAutumnCoinPrice} Xu Trung Thu
                     </button>
@@ -12863,7 +13175,7 @@ if (isNationalDay) {
                     <button
                         type="button"
                         class="summer-premium-card-action"
-                        onclick="window.buyItem('${id}')"
+                        onclick="window.LuxuryStore.buyItemSafely('${id}')"
                     >
                         🪙 Mua ${formattedPrice} Coin
                     </button>
@@ -12995,7 +13307,7 @@ if (isNationalDay) {
             type="button"
             class="spring-premium-use-button spring-premium-buy-button"
             onclick="
-    window.buyItem(
+    window.LuxuryStore.buyItemSafely(
         '${id}'
     )
 "
@@ -13281,21 +13593,273 @@ if (isNationalDay) {
     // ========================================================
     function closeCollectionPage() {
 
+        const storeTab =
+            document.getElementById(
+                'tab-store'
+            );
+
+        const collectionPage =
+            document.getElementById(
+                'storeCollectionPage'
+            );
+
+        /*
+         * Đóng popup "cách nhận" của Sưu tầm trước.
+         * Nếu API chưa tồn tại thì vẫn có DOM fallback bên dưới.
+         */
+        try {
+            if (
+                window.StoreCollectionPage &&
+                typeof window
+                    .StoreCollectionPage
+                    .closeAcquisitionWays ===
+                    'function'
+            ) {
+                window
+                    .StoreCollectionPage
+                    .closeAcquisitionWays();
+            }
+        } catch (_) {}
+
+        /*
+         * Gọi API chuẩn nếu có.
+         */
+        try {
+            if (
+                window.StoreCollectionPage &&
+                typeof window
+                    .StoreCollectionPage
+                    .close === 'function'
+            ) {
+                window
+                    .StoreCollectionPage
+                    .close();
+            }
+        } catch (_) {}
+
+        /*
+         * DOM fallback bắt buộc:
+         * không phụ thuộc animation/timer của store-collections.js.
+         * Mở Luxury là Sưu tầm phải biến mất ngay trong cùng frame.
+         */
+        storeTab?.classList.remove(
+            'store-collection-view-active'
+        );
+
         if (
-            window.StoreCollectionPage &&
-            typeof window
-                .StoreCollectionPage
-                .close === 'function'
+            storeTab?.dataset.storeView ===
+            'collection'
         ) {
-            window
-                .StoreCollectionPage
-                .close();
+            storeTab.dataset.storeView =
+                'normal';
         }
+
+        if (collectionPage) {
+            collectionPage.classList.remove(
+                'is-visible'
+            );
+
+            collectionPage.hidden = true;
+            collectionPage.inert = true;
+
+            collectionPage.setAttribute(
+                'inert',
+                ''
+            );
+
+            collectionPage.setAttribute(
+                'aria-hidden',
+                'true'
+            );
+        }
+
+        const acquisitionModal =
+            document.getElementById(
+                'storeCollectionAcquisitionModal'
+            );
+
+        if (acquisitionModal) {
+            acquisitionModal.classList.remove(
+                'is-open'
+            );
+
+            acquisitionModal.hidden = true;
+            acquisitionModal.inert = true;
+
+            acquisitionModal.setAttribute(
+                'inert',
+                ''
+            );
+
+            acquisitionModal.setAttribute(
+                'aria-hidden',
+                'true'
+            );
+        }
+
+        document.body?.classList.remove(
+            'store-collection-acquisition-open'
+        );
+
+        /*
+         * Vì click Luxury sẽ stopPropagation(), handler dropdown của
+         * Sưu tầm không còn cơ hội tự đóng menu. Ta đóng nó tại đây.
+         */
+        const collectionArrow =
+            document.getElementById(
+                'storeCollectionArrow'
+            );
+
+        const collectionDropdown =
+            document.getElementById(
+                'storeCollectionDropdown'
+            );
+
+        collectionArrow?.classList.remove(
+            'is-open'
+        );
+
+        collectionArrow?.setAttribute(
+            'aria-expanded',
+            'false'
+        );
+
+        collectionDropdown?.classList.remove(
+            'is-open'
+        );
+
+        collectionDropdown?.setAttribute(
+            'aria-hidden',
+            'true'
+        );
     }
 
 
     // ========================================================
-    // 7. ẨN CỬA HÀNG THƯỜNG
+    // 7. CÔ LẬP VIEW CỬA HÀNG SANG TRỌNG
+    // ========================================================
+    // Không chỉ dựa vào inline style. student.js/Firebase/lazy-loader có thể
+    // đồng bộ quyền truy cập sau đó và ghi lại display:block cho storeActiveView.
+    // Class này là "nguồn sự thật" cho view đang mở và CSS !important đảm bảo
+    // Cửa hàng thường không thể ló ra phía trên Cửa hàng Sang trọng.
+    let luxuryStoreCloseTimer = null;
+
+    function ensureLuxuryStoreViewIsolationStyles() {
+
+        if (
+            document.getElementById(
+                'luxuryStoreViewIsolationStyles'
+            )
+        ) {
+            return;
+        }
+
+        const style =
+            document.createElement('style');
+
+        style.id =
+            'luxuryStoreViewIsolationStyles';
+
+        style.textContent = `
+            /*
+             * STRICT STORE VIEW ISOLATION v2
+             * Normal / Sưu tầm / Luxury là 3 view loại trừ nhau.
+             */
+
+            #tab-store.luxury-store-view-active > #storeActiveView,
+            #tab-store.luxury-store-view-active > #storeLockedView,
+            #tab-store.luxury-store-view-active > #storeCollectionPage {
+                display: none !important;
+            }
+
+            #tab-store.luxury-store-view-active > #luxuryStorePage[hidden] {
+                display: none !important;
+            }
+
+            #tab-store.luxury-store-view-active > #luxuryStorePage:not([hidden]) {
+                display: block !important;
+            }
+
+            /*
+             * Chiều ngược lại: khi Sưu tầm đang mở, Luxury tuyệt đối không
+             * được xuất hiện dù timer/fade cũ hoặc module lazy-load vừa chạy.
+             */
+            #tab-store.store-collection-view-active > #luxuryStorePage {
+                display: none !important;
+            }
+        `;
+
+        (document.head || document.documentElement)
+            .appendChild(style);
+    }
+
+
+    function setLuxuryStoreViewActive(active) {
+
+        const storeTab =
+            document.getElementById(
+                'tab-store'
+            );
+
+        if (!storeTab) return;
+
+        const isActive =
+            Boolean(active);
+
+        storeTab.classList.toggle(
+            'luxury-store-view-active',
+            isActive
+        );
+
+        if (isActive) {
+            /*
+             * Một tab chỉ được có đúng một view đặc biệt.
+             */
+            storeTab.classList.remove(
+                'store-collection-view-active'
+            );
+
+            storeTab.dataset.storeView =
+                'luxury';
+        } else if (
+            storeTab.dataset.storeView ===
+            'luxury'
+        ) {
+            storeTab.dataset.storeView =
+                'normal';
+        }
+    }
+
+
+    function isLuxuryStoreOpen() {
+
+        const page =
+            document.getElementById(
+                IDS.page
+            );
+
+        const storeTab =
+            document.getElementById(
+                'tab-store'
+            );
+
+        return Boolean(
+            page &&
+            page.hidden === false &&
+            (
+                storeTab?.classList.contains(
+                    'luxury-store-view-active'
+                ) ||
+                page.classList.contains(
+                    'is-visible'
+                )
+            )
+        );
+    }
+
+
+    // ========================================================
+    // 8. ẨN CỬA HÀNG THƯỜNG
     // ========================================================
     function hideNormalStore() {
 
@@ -13322,7 +13886,7 @@ if (isNationalDay) {
 
 
     // ========================================================
-    // 8. KHÔI PHỤC CỬA HÀNG THƯỜNG
+    // 9. KHÔI PHỤC CỬA HÀNG THƯỜNG
     // ========================================================
     function restoreNormalStore() {
 
@@ -13336,34 +13900,77 @@ if (isNationalDay) {
                 'storeLockedView'
             );
 
-        const storeLocked =
-            window.storeLocked === true ||
-            window.isStoreLocked === true;
+        const storeTab =
+            document.getElementById(
+                'tab-store'
+            );
+
+        const collectionOpen =
+            Boolean(
+                storeTab?.classList.contains(
+                    'store-collection-view-active'
+                )
+            );
+
+        let storeOpen = true;
+
+        try {
+            if (
+                typeof window
+                    .isStudentStoreSystemOpen ===
+                'function'
+            ) {
+                storeOpen =
+                    window
+                        .isStudentStoreSystemOpen();
+            } else {
+                storeOpen = !(
+                    window.storeLocked === true ||
+                    window.isStoreLocked === true
+                );
+            }
+        } catch (_) {
+            storeOpen = !(
+                window.storeLocked === true ||
+                window.isStoreLocked === true
+            );
+        }
 
         if (lockedView) {
             lockedView.style.display =
-                storeLocked
-                    ? 'block'
-                    : 'none';
+                storeOpen
+                    ? 'none'
+                    : 'block';
         }
 
         if (activeView) {
             activeView.style.display =
-                storeLocked
-                    ? 'none'
-                    : 'block';
+                (
+                    storeOpen &&
+                    !collectionOpen
+                )
+                    ? 'block'
+                    : 'none';
         }
     }
 
 
     // ========================================================
-    // 9. MỞ CỬA HÀNG SANG TRỌNG
+    // 10. MỞ CỬA HÀNG SANG TRỌNG
     // ========================================================
     function openLuxuryStore() {
 
-        closeCollectionPage();
+        ensureLuxuryStoreViewIsolationStyles();
 
-        hideNormalStore();
+        if (luxuryStoreCloseTimer) {
+            window.clearTimeout(
+                luxuryStoreCloseTimer
+            );
+
+            luxuryStoreCloseTimer = null;
+        }
+
+        closeCollectionPage();
 
         const page =
             document.getElementById(
@@ -13372,12 +13979,37 @@ if (isNationalDay) {
 
         if (!page) return;
 
+        /*
+         * Đánh dấu view trước khi hiện page để không có một frame nào
+         * Cửa hàng thường và Cửa hàng Sang trọng cùng xuất hiện.
+         */
+        setLuxuryStoreViewActive(true);
+        hideNormalStore();
+
         page.hidden = false;
+        page.inert = false;
+        page.removeAttribute('inert');
+        page.setAttribute(
+            'aria-hidden',
+            'false'
+        );
 
         requestAnimationFrame(() => {
-            page.classList.add(
-                'is-visible'
-            );
+            /*
+             * Nếu close() được gọi ngay trước frame này thì không bật lại.
+             */
+            if (
+                page.hidden === false &&
+                document
+                    .getElementById('tab-store')
+                    ?.classList.contains(
+                        'luxury-store-view-active'
+                    )
+            ) {
+                page.classList.add(
+                    'is-visible'
+                );
+            }
         });
 
         const heading =
@@ -13398,48 +14030,334 @@ if (isNationalDay) {
 
 
     // ========================================================
-    // 10. ĐÓNG CỬA HÀNG SANG TRỌNG
+    // 11. ĐÓNG CỬA HÀNG SANG TRỌNG
     // ========================================================
-    function closeLuxuryStore() {
+    function closeLuxuryStore(options = {}) {
+
+        const immediate =
+            options === true ||
+            options?.immediate === true;
+
+        const restoreNormal =
+            options === true ||
+            options?.restoreNormal !== false;
+
+        const resetHeading =
+            options === true ||
+            options?.resetHeading !== false;
 
         const page =
             document.getElementById(
                 IDS.page
             );
 
-        if (page) {
-            page.classList.remove(
-                'is-visible'
-            );
+        const finishClose = () => {
 
-            window.setTimeout(() => {
+            if (
+                page &&
+                page.classList.contains(
+                    'is-visible'
+                )
+            ) {
+                /*
+                 * Trang đã được mở lại trong lúc timer close cũ đang chờ.
+                 * Không được ẩn page mới.
+                 */
+                return;
+            }
+
+            if (page) {
                 page.hidden = true;
-            }, 200);
-        }
+                page.inert = true;
+                page.setAttribute(
+                    'inert',
+                    ''
+                );
+                page.setAttribute(
+                    'aria-hidden',
+                    'true'
+                );
+            }
 
-        const heading =
-            document.querySelector(
-                '#tab-store .store-collection-title-row h2'
-            ) ||
-            document.querySelector(
-                '#tab-store > h2'
+            setLuxuryStoreViewActive(false);
+
+            const heading =
+                document.querySelector(
+                    '#tab-store .store-collection-title-row h2'
+                ) ||
+                document.querySelector(
+                    '#tab-store > h2'
+                );
+
+            if (
+                resetHeading &&
+                heading
+            ) {
+                heading.textContent =
+                    'Cửa hàng Vật phẩm';
+            }
+
+            if (restoreNormal) {
+                restoreNormalStore();
+            }
+        };
+
+        if (luxuryStoreCloseTimer) {
+            window.clearTimeout(
+                luxuryStoreCloseTimer
             );
 
-        if (heading) {
-            heading.textContent =
-                'Cửa hàng Vật phẩm';
+            luxuryStoreCloseTimer = null;
         }
 
-        restoreNormalStore();
+        if (!page) {
+            finishClose();
+            return;
+        }
+
+        page.classList.remove(
+            'is-visible'
+        );
+
+        page.setAttribute(
+            'aria-hidden',
+            'true'
+        );
+
+        /*
+         * Trong 200 ms fade-out, class luxury-store-view-active vẫn được giữ.
+         * Vì vậy storeActiveView KHÔNG được hiện sớm và không còn cảnh 2 cửa hàng
+         * chồng/lẫn vào nhau.
+         */
+        if (immediate) {
+            finishClose();
+            return;
+        }
+
+        luxuryStoreCloseTimer =
+            window.setTimeout(
+                () => {
+                    luxuryStoreCloseTimer =
+                        null;
+
+                    finishClose();
+                },
+                200
+            );
     }
 
 
     // ========================================================
-    // 11. TẠO GIAO DIỆN
+    // 11B. MUTUAL EXCLUSION · SƯU TẦM ↔ LUXURY
+    // ========================================================
+    let collectionLuxuryBridgeTimer = null;
+    let collectionLuxuryViewObserver = null;
+    let collectionLuxuryBridgeInstalled = false;
+    let collectionLuxuryClickBridgeTarget = null;
+    let collectionLuxuryClickBridgeHandler = null;
+
+    function closeLuxuryForCollection() {
+        const storeTab =
+            document.getElementById(
+                'tab-store'
+            );
+
+        const page =
+            document.getElementById(
+                IDS.page
+            );
+
+        const luxuryLooksActive =
+            Boolean(
+                storeTab?.classList.contains(
+                    'luxury-store-view-active'
+                ) ||
+                (
+                    page &&
+                    (
+                        page.hidden === false ||
+                        page.classList.contains(
+                            'is-visible'
+                        )
+                    )
+                )
+            );
+
+        if (!luxuryLooksActive) {
+            return;
+        }
+
+        /*
+         * Chuyển thẳng sang Sưu tầm:
+         * - đóng Luxury ngay;
+         * - không bật store normal ở giữa;
+         * - không reset heading vì Collection sẽ tự đặt tiêu đề của nó.
+         */
+        closeLuxuryStore({
+            immediate: true,
+            restoreNormal: false,
+            resetHeading: false
+        });
+    }
+
+    function installCollectionLuxuryMutualExclusionBridge(
+        attempt = 0
+    ) {
+        const api =
+            window.StoreCollectionPage;
+
+        if (
+            !api ||
+            typeof api.open !==
+                'function'
+        ) {
+            if (attempt < 120) {
+                window.setTimeout(
+                    () =>
+                        installCollectionLuxuryMutualExclusionBridge(
+                            attempt + 1
+                        ),
+                    100
+                );
+            }
+
+            return false;
+        }
+
+        if (collectionLuxuryBridgeInstalled) {
+            return true;
+        }
+
+        /*
+         * StoreCollectionPage được store-collections.js export bằng
+         * Object.freeze(...), vì vậy KHÔNG được gán lại api.open hoặc
+         * thêm cờ trực tiếp lên object API. Việc ghi đè sẽ ném:
+         * "Cannot assign to read only property 'open'" trong strict mode.
+         *
+         * Thay vào đó:
+         * 1) bắt click mở Sưu tầm ở capture phase để đóng Luxury trước;
+         * 2) MutationObserver bên dưới vẫn xử lý mọi lần open() bằng code.
+         */
+        const storeTab =
+            document.getElementById(
+                'tab-store'
+            );
+
+        if (storeTab) {
+            collectionLuxuryClickBridgeTarget =
+                storeTab;
+
+            collectionLuxuryClickBridgeHandler =
+                event => {
+                    const target =
+                        event.target instanceof Element
+                            ? event.target.closest(
+                                '#storeCollectionOpenButton'
+                            )
+                            : null;
+
+                    if (!target) {
+                        return;
+                    }
+
+                    closeLuxuryForCollection();
+                };
+
+            storeTab.addEventListener(
+                'click',
+                collectionLuxuryClickBridgeHandler,
+                true
+            );
+        }
+
+        collectionLuxuryBridgeInstalled = true;
+
+        return true;
+    }
+
+    function installCollectionLuxuryViewObserver() {
+        const storeTab =
+            document.getElementById(
+                'tab-store'
+            );
+
+        if (
+            !storeTab ||
+            collectionLuxuryViewObserver
+        ) {
+            return;
+        }
+
+        collectionLuxuryViewObserver =
+            new MutationObserver(() => {
+                if (
+                    storeTab.classList.contains(
+                        'store-collection-view-active'
+                    )
+                ) {
+                    closeLuxuryForCollection();
+                }
+
+                /*
+                 * Nếu Luxury đang active thì Collection page không được
+                 * tự bật lại bởi timer cũ.
+                 */
+                if (
+                    storeTab.classList.contains(
+                        'luxury-store-view-active'
+                    )
+                ) {
+                    const collectionPage =
+                        document.getElementById(
+                            'storeCollectionPage'
+                        );
+
+                    if (
+                        collectionPage &&
+                        (
+                            collectionPage.hidden === false ||
+                            collectionPage.classList.contains(
+                                'is-visible'
+                            )
+                        )
+                    ) {
+                        closeCollectionPage();
+                    }
+                }
+            });
+
+        collectionLuxuryViewObserver.observe(
+            storeTab,
+            {
+                attributes: true,
+                attributeFilter: [
+                    'class',
+                    'data-store-view'
+                ],
+                childList: true,
+                subtree: true
+            }
+        );
+    }
+
+
+    // ========================================================
+    // 12. TẠO GIAO DIỆN
     // ========================================================
     function buildLuxuryStoreUI(
         attempt = 0
     ) {
+
+        /*
+         * Trang giáo viên vẫn nạp module này để dùng dữ liệu/quản lý Luxury,
+         * nhưng không có #tab-store. Không chạy vòng retry dựng UI học sinh.
+         */
+        if (
+            document.documentElement?.dataset?.appRole ===
+            'teacher'
+        ) {
+            return;
+        }
 
         const storeTab =
             document.getElementById(
@@ -13610,7 +14528,16 @@ if (isNationalDay) {
         // CLICK MỞ
         button.addEventListener(
             'click',
-            () => {
+            event => {
+                /*
+                 * QUAN TRỌNG:
+                 * button dùng cùng class visual với item Sưu tầm.
+                 * Chặn bubbling để click này không lọt vào event delegation
+                 * của #storeCollectionDropdown và mở Sưu tầm cùng lúc.
+                 */
+                event.preventDefault();
+                event.stopPropagation();
+
                 openLuxuryStore();
             }
         );
@@ -13627,6 +14554,13 @@ if (isNationalDay) {
                     closeLuxuryStore();
                 }
             );
+
+        /*
+         * store-collections.js đã tạo dropdown/page trước khi buildLuxuryStoreUI
+         * thành công, nên đây là thời điểm tốt nhất để khóa 2 view với nhau.
+         */
+        installCollectionLuxuryMutualExclusionBridge();
+        installCollectionLuxuryViewObserver();
     }
 
 
@@ -13734,7 +14668,11 @@ if (isNationalDay) {
     window.LuxuryStore = {
         open: openLuxuryStore,
         close: closeLuxuryStore,
+        isOpen: isLuxuryStoreOpen,
         refresh: renderLuxuryStore,
+        buyItemSafely:
+            itemId =>
+                buyLuxuryItemSafely(itemId),
         rehydrateEquipped:
             reason =>
                 rehydrateEquippedLuxuryRuntime(
@@ -13984,6 +14922,7 @@ if (isNationalDay) {
     // ========================================================
     function bootLuxuryStore() {
 
+        ensureLuxuryStoreViewIsolationStyles();
         ensureLotmKleinStylesheet();
         ensureCamCoCamMongStylesheet();
         ensureTamonBSideStylesheet();
@@ -14011,6 +14950,9 @@ if (isNationalDay) {
         installStoreBoundaryEquipGuard();
 
         buildLuxuryStoreUI();
+
+        installCollectionLuxuryMutualExclusionBridge();
+        installCollectionLuxuryViewObserver();
 
         installLuxuryInventoryListener();
 

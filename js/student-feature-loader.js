@@ -46,7 +46,7 @@
 
     if (window.StudentFeatureLoader) return;
 
-    const VERSION = '3.3.0-store-card-full-luxury-id-suite';
+    const VERSION = '3.3.2-equipped-frame-css-startup';
 
     const cssPromises = new Map();
     const scriptPromises = new Map();
@@ -97,7 +97,7 @@
         musicManager: 'js/music-manager.js?v=20260910.music-reliability-v3',
         storeManager: 'js/store-manager.js?v=20260910.music-library-v2',
 
-        luxuryStore: 'js/luxury-store.js?v=4.2.11-nyx-card-guard',
+        luxuryStore: 'js/luxury-store.js?v=4.2.12-store-view-isolation',
         collections: 'js/store-collections.js?v=20260908.four-seasons-lock-v1',
 
         royalBall: 'js/royal-ball.js?v=20260908.lazy-v1',
@@ -137,12 +137,25 @@
         }
     }
 
+    function normalizeStylesheetIdentity(url) {
+        try {
+            const parsed = new URL(url, document.baseURI);
+            parsed.search = '';
+            parsed.hash = '';
+            return parsed.href;
+        } catch (_) {
+            return String(url || '')
+                .split('#', 1)[0]
+                .split('?', 1)[0];
+        }
+    }
+
     function hasStylesheet(url) {
-        const wanted = normalizeResourceUrl(url);
+        const wanted = normalizeStylesheetIdentity(url);
 
         return [...document.querySelectorAll('link[rel="stylesheet"]')]
             .some(link =>
-                normalizeResourceUrl(link.href) === wanted
+                normalizeStylesheetIdentity(link.href) === wanted
             );
     }
 
@@ -159,7 +172,8 @@
     function loadCss(url) {
         if (!url) return Promise.resolve();
 
-        const key = normalizeResourceUrl(url);
+        // CSS cùng pathname chỉ được nạp một lần; ?v= chỉ dùng cache-busting.
+        const key = normalizeStylesheetIdentity(url);
 
         if (hasStylesheet(url)) {
             return Promise.resolve(key);
@@ -247,10 +261,18 @@
 
         const result = new Set();
 
-        const isLotmKleinEvent = id === 'pet_lotm_klein_event_1';
+        /*
+         * LORD OF THE MYSTERIES · KLEIN EVENT SUITE
+         * Tất cả item có namespace lotm_klein (pet/chibi/frame/background)
+         * dùng lord-of-mysteries-klein.css. Trước đây chỉ pet chính được nhận
+         * diện, nên frame/background bị rơi sang lord-of-mysteries.css và chỉ
+         * hiển thị đúng sau khi mở Cửa hàng (store-ui tải toàn bộ special CSS).
+         */
+        const isLotmKleinEvent =
+            id === 'pet_lotm_klein_event_1' ||
+            id.includes('lotm_klein');
 
         if (isLotmKleinEvent) {
-            // Klein event dùng đúng 1 CSS riêng, không phụ thuộc skin LOTM cũ.
             result.add(CSS.lotmKlein);
         } else if (/(lotm|amon|klein|audrey|susie)/.test(id)) {
             result.add(CSS.lotm);
@@ -385,18 +407,18 @@
         list.forEach(item => {
             const id = typeof item === 'string' ? item : item?.id;
             getSpecialCssForItemId(id).forEach(url =>
-                keep.add(normalizeResourceUrl(url))
+                keep.add(normalizeStylesheetIdentity(url))
             );
         });
 
         const special = new Set(
-            ALL_SPECIAL_STORE_CSS.map(normalizeResourceUrl)
+            ALL_SPECIAL_STORE_CSS.map(normalizeStylesheetIdentity)
         );
 
         document
             .querySelectorAll('link[data-student-lazy-css="1"]')
             .forEach(link => {
-                const key = normalizeResourceUrl(link.href);
+                const key = normalizeStylesheetIdentity(link.href);
                 if (!special.has(key) || keep.has(key)) return;
                 link.remove();
                 cssPromises.delete(key);
@@ -419,7 +441,7 @@
                     localStorage.getItem(key);
 
                 if (value) ids.push(value);
-            } catch (_) {}
+            } catch (_) { }
         });
 
         if (!ids.length) return;
@@ -528,8 +550,8 @@
             ]);
 
             await loadScriptsSequentially([
-                SCRIPT.luxuryStore,
-                SCRIPT.collections
+                SCRIPT.collections,
+                SCRIPT.luxuryStore
             ]);
         },
 
@@ -690,7 +712,7 @@
                     String(item?.id || '') === id
                 ) || null;
             }
-        } catch (_) {}
+        } catch (_) { }
 
         return null;
     }
