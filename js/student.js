@@ -74,6 +74,7 @@ const STUDENT_LUXURY_RUNTIME_ITEM_IDS = new Set([
     'pet_luxury_mua_ha',
     'pet_quoc_khanh_1',
     'pet_mythic_nyx_1',
+    'pet_mythic_aether_1',
     'pet_lotm_klein_event_1',
     'pet_cam_co_cam_mong_1',
     'pet_tamon_b_side_1',
@@ -112,6 +113,19 @@ async function ensureStudentEquippedLuxuryRuntime(items) {
      */
     if (typeof loader.ensureForEquippedItems === 'function') {
         await loader.ensureForEquippedItems(items);
+
+        /*
+         * Loader cũ có thể chưa biết ID Luxury mới.
+         * Nếu mapping ID chưa nạp được runtime, ép nạp bundle Luxury chung.
+         * Cách này không ảnh hưởng item khác và giúp Aether tự khôi phục sau reload.
+         */
+        if (
+            !window.LuxuryStore &&
+            typeof loader.ensure === 'function'
+        ) {
+            await loader.ensure('luxury-runtime');
+        }
+
         return Boolean(window.LuxuryStore);
     }
 
@@ -3507,6 +3521,123 @@ if (document.readyState === 'loading') {
 }
 
 // ======================================================
+// CÀI ĐẶT RIÊNG: BẬT / TẮT LỚP KÍNH MỜ NỘI DUNG
+// Mặc định BẬT. Chỉ tác động tấm kính lớn .dashboard > .content.
+// Không tắt blur/card/popup/vật phẩm khác trên website.
+// ======================================================
+function getStudentContentGlassStorageKey() {
+    const username = String(
+        currentUser?.username || 'guest'
+    ).trim();
+
+    return `student_content_glass_enabled:${username}`;
+}
+
+function getSavedStudentContentGlassEnabled() {
+    return localStorage.getItem(
+        getStudentContentGlassStorageKey()
+    ) !== 'false';
+}
+
+window.applyStudentContentGlass = function (
+    isEnabled,
+    shouldPersist = true
+) {
+    const enabled = isEnabled !== false;
+    const body = document.body;
+    const button = document.getElementById(
+        'toggleStudentContentGlassButton'
+    );
+
+    if (body) {
+        body.classList.toggle(
+            'student-content-glass-disabled',
+            !enabled
+        );
+
+        body.dataset.contentGlass = enabled
+            ? 'on'
+            : 'off';
+    }
+
+    if (button) {
+        button.classList.toggle('is-enabled', enabled);
+        button.classList.toggle('is-disabled', !enabled);
+        button.setAttribute('aria-pressed', String(enabled));
+        button.title = enabled
+            ? 'Nhấn để tắt lớp kính mờ lớn phía sau khu vực nội dung'
+            : 'Nhấn để bật lại lớp kính mờ lớn phía sau khu vực nội dung';
+
+        const label = button.querySelector(
+            '.student-settings-content-glass-button-label'
+        );
+
+        if (label) {
+            label.textContent = enabled
+                ? 'Tắt lớp kính mờ nội dung'
+                : 'Bật lớp kính mờ nội dung';
+        }
+    }
+
+    if (shouldPersist) {
+        localStorage.setItem(
+            getStudentContentGlassStorageKey(),
+            String(enabled)
+        );
+    }
+};
+
+/*
+ * API cũ vẫn được giữ để tránh ảnh hưởng code khác nếu có gọi trực tiếp.
+ */
+window.toggleStudentContentGlass = function (isEnabled) {
+    const enabled = Boolean(isEnabled);
+
+    window.applyStudentContentGlass(
+        enabled,
+        true
+    );
+
+    if (typeof window.showToast === 'function') {
+        window.showToast(
+            enabled
+                ? 'Đã bật lớp kính mờ nội dung.'
+                : 'Đã tắt lớp kính mờ nội dung.',
+            'success'
+        );
+    }
+};
+
+/* Nút độc lập: bấm một lần để đảo trạng thái hiện tại. */
+window.toggleStudentContentGlassButton = function () {
+    const currentlyEnabled =
+        !document.body?.classList.contains(
+            'student-content-glass-disabled'
+        );
+
+    window.toggleStudentContentGlass(
+        !currentlyEnabled
+    );
+};
+
+function initializeStudentContentGlassSetting() {
+    window.applyStudentContentGlass(
+        getSavedStudentContentGlassEnabled(),
+        false
+    );
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener(
+        'DOMContentLoaded',
+        initializeStudentContentGlassSetting,
+        { once: true }
+    );
+} else {
+    initializeStudentContentGlassSetting();
+}
+
+// ======================================================
 // TƯƠNG THÍCH BÀI TẬP/BÀI NỘP CŨ PHÍA HỌC SINH
 // ======================================================
 function studentCompatText(value) {
@@ -6106,6 +6237,22 @@ window.onload = async function () {
             return {
                 emoji: '🎫',
                 label: `${Number(msg.giftValue || 0).toLocaleString('vi-VN')} Vé quay may mắn`
+            };
+        }
+
+        if (type === 'grade_reward') {
+            const tickets = Number(msg.gradeRewardTickets ?? msg.giftValue ?? 0);
+            const coins = Number(msg.gradeRewardCoins || 0);
+            return {
+                emoji: '🎓',
+                label: `${tickets} Vé${coins > 0 ? ` + ${coins} Coin` : ''}`
+            };
+        }
+
+        if (type === 'grade_penalty') {
+            return {
+                emoji: '⚠️',
+                label: `${Number(msg.giftValue || 0)} Vé`
             };
         }
 
@@ -14332,182 +14479,90 @@ async function rollbackLuckyWheelSpinUsage(amount) {
         });
 }
 
-// HÀM DÙNG CHUNG: Tính vé chính xác (Vé từ điểm + Vé quà tặng - Số lần đã quay)
+// HÀM DÙNG CHUNG V2:
+// Vé hiện có = vé cũ đã "đóng băng" trước V2 + vé thưởng/quà/phạt + vé mua - số lượt đã quay.
+// Các bài được chấm bằng Grade Reward V2 KHÔNG còn tự cộng vé trực tiếp từ submission.
+function getStudentLegacyGradeTicketValueV1(submission) {
+    if (!submission) return 0;
+
+    if (Number(submission.gradeRewardV2Version || 0) >= 2) {
+        return 0;
+    }
+
+    const score = Number(submission.grade);
+    if (!Number.isFinite(score)) return 0;
+
+    let tickets = 0;
+    if (score === 10) tickets = 3;
+    else if (score > 7) tickets = 2;
+    else if (score > 5) tickets = 1;
+
+    if (submission.hasRedone && tickets > 0) {
+        tickets -= 1;
+    }
+
+    return tickets;
+}
+
 window.calculateTotalTickets = async function () {
     const submissions = await getDB('submissions');
-    const mySubs = submissions.filter(sub =>
+
+    const myLegacySubs = submissions.filter(sub =>
         getStudentCompatSubmissionUsername(sub) ===
-        String(currentUser.username).trim() &&
+            String(currentUser.username).trim() &&
         sub.grade !== null &&
         sub.grade !== undefined &&
-        sub.grade !== ''
+        sub.grade !== '' &&
+        Number(sub.gradeRewardV2Version || 0) < 2
     );
 
-    let currentGradeTickets = 0;
-    // 1. Tính vé cơ bản theo điểm
-    mySubs.forEach(sub => {
-        let score = parseFloat(sub.grade);
-        let subTickets = 0;
-        if (score === 10) subTickets = 3;
-        else if (score > 7) subTickets = 2;
-        else if (score > 5) subTickets = 1;
+    const computedLegacyTickets = myLegacySubs.reduce(
+        (sum, sub) =>
+            sum + getStudentLegacyGradeTicketValueV1(sub),
+        0
+    );
 
-        if (sub.hasRedone && subTickets > 0) subTickets -= 1;
-        currentGradeTickets += subTickets;
-    });
+    const historicalRef = db.ref(
+        'historical_grade_tickets/' + currentUser.username
+    );
 
-    // --- BẮT ĐẦU FIX LỖI GIÁO VIÊN XÓA BÀI LÀM MẤT VÉ ---
-    const histSnap = await db.ref('historical_grade_tickets/' + currentUser.username).once('value');
-    let historicalGradeTickets = parseInt(histSnap.val()) || 0;
+    const historicalSnap = await historicalRef.once('value');
+    const historicalGradeTickets =
+        Number(historicalSnap.val()) || 0;
 
-    const bonusRef = db.ref('student_bonus_tickets/' + currentUser.username);
-    const bonusSnap = await bonusRef.once('value');
-    let bonusTickets = parseInt(bonusSnap.val()) || 0;
+    // Giữ lại toàn bộ vé điểm cũ đã từng có trước V2.
+    const legacyBase = Math.max(
+        historicalGradeTickets,
+        computedLegacyTickets
+    );
 
-    if (
-        currentGradeTickets >
-        historicalGradeTickets
-    ) {
-        /*
-         * Chỉ ghi số vé tăng thêm,
-         * không ghi lại toàn bộ mỗi lần mở game.
-         */
-        const earnedTickets =
-            currentGradeTickets -
-            historicalGradeTickets;
-
-        await db
-            .ref(
-                'historical_grade_tickets/' +
-                currentUser.username
-            )
-            .set(
-                currentGradeTickets
-            );
-
-        if (
-            earnedTickets > 0 &&
-            window.TransactionHistory
-        ) {
-            await window
-                .TransactionHistory
-                .recordSafe({
-                    type:
-                        'grade_ticket_reward',
-
-                    summary:
-                        `Nhận thêm ${earnedTickets} ` +
-                        `Vé quay từ điểm bài tập`,
-
-                    source:
-                        'grade_score',
-
-                    targetUsername:
-                        currentUser.username,
-
-                    targetName:
-                        currentUser.name ||
-                        currentUser.username,
-
-                    amount:
-                        earnedTickets,
-
-                    unit:
-                        'Vé',
-
-                    reversible:
-                        false,
-
-                    nonReversibleReason:
-                        'Vé được tự động tính từ điểm bài tập.',
-
-                    details: {
-                        previousGradeTickets:
-                            historicalGradeTickets,
-
-                        currentGradeTickets:
-                            currentGradeTickets,
-
-                        earnedTickets:
-                            earnedTickets,
-
-                        qualifyingSubmissionCount:
-                            mySubs.length
-                    }
-                });
-        }
-    } else if (currentGradeTickets < historicalGradeTickets) {
-        // CÓ BÀI BỊ XÓA -> Tổng vé bị sụt giảm
-        // Bù đắp số vé bị mất này thẳng vào Bonus Tickets để giữ nguyên tổng số vé
-        let lostTickets = historicalGradeTickets - currentGradeTickets;
-        bonusTickets += lostTickets;
-        await bonusRef.set(bonusTickets);
-
-        if (
-            lostTickets > 0 &&
-            window.TransactionHistory
-        ) {
-            await window
-                .TransactionHistory
-                .recordSafe({
-                    type:
-                        'grade_ticket_reward',
-
-                    summary:
-                        `Nhận bù ${lostTickets} Vé ` +
-                        `do dữ liệu bài nộp bị giảm`,
-
-                    source:
-                        'deleted_submission_compensation',
-
-                    targetUsername:
-                        currentUser.username,
-
-                    targetName:
-                        currentUser.name ||
-                        currentUser.username,
-
-                    amount:
-                        lostTickets,
-
-                    unit:
-                        'Vé',
-
-                    reversible:
-                        false,
-
-                    nonReversibleReason:
-                        'Đây là vé bù để bảo toàn tổng vé đã nhận.',
-
-                    details: {
-                        previousGradeTickets:
-                            historicalGradeTickets,
-
-                        currentGradeTickets:
-                            currentGradeTickets,
-
-                        lostTickets:
-                            lostTickets
-                    }
-                });
-        }
-
-        // Reset lại mốc lịch sử xuống bằng hiện tại để không bị cộng bù lần 2
-        await db.ref('historical_grade_tickets/' + currentUser.username).set(currentGradeTickets);
+    if (legacyBase > historicalGradeTickets) {
+        await historicalRef.set(legacyBase);
     }
-    // --- KẾT THÚC FIX LỖI ---
 
-    let totalTickets = currentGradeTickets + bonusTickets;
+    const bonusRef = db.ref(
+        'student_bonus_tickets/' + currentUser.username
+    );
 
-    // 3. Trừ đi số lần đã quay
-    const countSnapshot = await db.ref('spin_counts/' + currentUser.username).once('value');
-    let spinTracking = countSnapshot.val() || { count: 0 };
-    let usedSpins = parseInt(spinTracking.count) || 0;
+    const bonusSnap = await bonusRef.once('value');
+    // Có thể âm do cơ chế phạt điểm mới.
+    const bonusTickets = Number(bonusSnap.val()) || 0;
+
+    const totalTickets = legacyBase + bonusTickets;
+
+    const countSnapshot = await db
+        .ref('spin_counts/' + currentUser.username)
+        .once('value');
+
+    const spinTracking = countSnapshot.val() || { count: 0 };
+    const usedSpins = Number(spinTracking.count) || 0;
 
     return {
         remaining: totalTickets - usedSpins,
         used: usedSpins,
-        spinTracking: spinTracking
+        spinTracking,
+        legacyBase,
+        bonus: bonusTickets
     };
 };
 
@@ -19031,6 +19086,32 @@ window.renderStudentInbox = function () {
                     `</span>`;
             }
             else if (msg.giftType === 'ticket') giftDisplay = `🎫 ${parseInt(msg.giftValue).toLocaleString('vi-VN')} Vé quay may mắn`;
+            else if (msg.giftType === 'grade_reward') {
+                const rewardTickets = Number(msg.gradeRewardTickets ?? msg.giftValue ?? 0);
+                const rewardCoins = Number(msg.gradeRewardCoins || 0);
+                const rewardScore = Number(msg.gradeRewardScore);
+
+                giftDisplay =
+                    `🎓 ${rewardTickets} Vé quay may mắn` +
+                    (rewardCoins > 0
+                        ? ` + 🪙 ${rewardCoins.toLocaleString('vi-VN')} Coin`
+                        : '') +
+                    `<br><span style="font-size:.82em;color:#1d4ed8;font-weight:700;">` +
+                    `Điểm ${Number.isFinite(rewardScore) ? rewardScore.toLocaleString('vi-VN') : '-'} / 10 · ` +
+                    `Nhấn nhận để cộng phần thưởng vào tài khoản.` +
+                    `</span>`;
+            }
+            else if (msg.giftType === 'grade_penalty') {
+                const penalty = Math.abs(Number(msg.gradePenaltyTickets ?? msg.giftValue ?? 0));
+                const penaltyScore = Number(msg.gradeRewardScore);
+
+                giftDisplay =
+                    `⚠️ Trừ ${penalty} Vé quay may mắn` +
+                    `<br><span style="font-size:.82em;color:#b91c1c;font-weight:700;">` +
+                    `Điểm ${Number.isFinite(penaltyScore) ? penaltyScore.toLocaleString('vi-VN') : '-'} / 10 · ` +
+                    `Án phạt đã được áp dụng ngay và tổng vé có thể âm.` +
+                    `</span>`;
+            }
             else if (msg.giftType === 'discount') {
                 let expStr = msg.discountExpiry ? `\n(HSD: ${new Date(msg.discountExpiry).toLocaleString('vi-VN')})` : ' (Vĩnh viễn)';
 
@@ -19119,10 +19200,15 @@ window.renderStudentInbox = function () {
                 giftDisplay = itemDef ? `📦 ${itemDef.name} (${itemDef.type})` : '📦 Vật phẩm bí ẩn';
             }
 
-            giftHTML = `<div style="background: rgba(246, 211, 101, 0.2); border: 1px dashed #d35400; padding: 10px; border-radius: 8px; margin: 10px 0;">
-                <strong style="color: #d35400;">🎁 Đính kèm quà tặng:</strong><br>
-                <span style="font-size: 1.1em; font-weight: bold; color: #2c3e50;">${giftDisplay}</span>
-            </div>`;
+            giftHTML = msg.giftType === 'grade_penalty'
+                ? `<div style="background:rgba(254,226,226,.72);border:1px dashed #dc2626;padding:10px;border-radius:8px;margin:10px 0;">
+                    <strong style="color:#b91c1c;">⚠️ Án phạt điểm số:</strong><br>
+                    <span style="font-size:1.05em;font-weight:800;color:#7f1d1d;">${giftDisplay}</span>
+                   </div>`
+                : `<div style="background: rgba(246, 211, 101, 0.2); border: 1px dashed #d35400; padding: 10px; border-radius: 8px; margin: 10px 0;">
+                    <strong style="color: #d35400;">🎁 Đính kèm quà tặng:</strong><br>
+                    <span style="font-size: 1.1em; font-weight: bold; color: #2c3e50;">${giftDisplay}</span>
+                   </div>`;
 
             if (isExpiredDiscountInInbox) {
                 btnHTML = `<button onclick="deleteMessage('${msg._fbKey}')" style="background: rgba(225, 29, 72, 0.1); color: #e11d48; width: 100%; padding: 10px; border-radius: 8px; font-weight: bold; border: 1px solid #e11d48; cursor: pointer;">🗑️ Thẻ đã hết hạn (Xóa thư)</button>`;
@@ -19131,21 +19217,26 @@ window.renderStudentInbox = function () {
                 msg.giftCredited === true
             ) {
                 btnHTML = `<button onclick="deleteMessage('${msg._fbKey}')" style="background: linear-gradient(135deg,#f7d774,#d6a438); color:#47320d; width:100%; padding:10px; border-radius:8px; font-weight:900; border:none; cursor:pointer;">🌕 Đã nhận Xu Trung Thu · Xóa thư</button>`;
+            } else if (msg.giftType === 'grade_penalty') {
+                btnHTML = `<button onclick="deleteMessage('${msg._fbKey}')" style="background:rgba(225,29,72,.10);color:#be123c;width:100%;padding:10px;border-radius:8px;font-weight:800;border:1px solid rgba(225,29,72,.35);cursor:pointer;">🗑️ Đã xem · Xóa thông báo phạt</button>`;
             } else {
                 const claimButtonText =
-                    msg.giftType ===
-                        'mid_autumn_coin'
-                        ? '🌕 Nhận Xu Trung Thu vào ví'
+                    msg.giftType === 'grade_reward'
+                        ? '🎓 Nhận thưởng điểm số'
 
                         : msg.giftType ===
-                            'birthday_coin'
-                            ? '🎂 Nhận Xu Sinh Nhật vào túi'
+                            'mid_autumn_coin'
+                            ? '🌕 Nhận Xu Trung Thu vào ví'
 
                             : msg.giftType ===
-                                'special_birthday_coin'
-                                ? '✨ Nhận Xu Đặc Biệt vào túi'
+                                'birthday_coin'
+                                ? '🎂 Nhận Xu Sinh Nhật vào túi'
 
-                                : '🧧 Mở quà & Nhận vào túi';
+                                : msg.giftType ===
+                                    'special_birthday_coin'
+                                    ? '✨ Nhận Xu Đặc Biệt vào túi'
+
+                                    : '🧧 Mở quà & Nhận vào túi';
                 btnHTML = `
     <button
         onclick="
@@ -19224,7 +19315,161 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
         }
 
         // 4. TIẾN HÀNH TRAO QUÀ DỰA TRÊN DỮ LIỆU AN TOÀN
-        if (giftType === 'coin') {
+        if (giftType === 'grade_reward') {
+            const rewardTickets = Number(
+                msgData.gradeRewardTickets ?? giftValue
+            );
+            const rewardCoins = Number(
+                msgData.gradeRewardCoins || 0
+            );
+            const rewardScore = Number(
+                msgData.gradeRewardScore
+            );
+
+            if (
+                !Number.isInteger(rewardTickets) ||
+                rewardTickets < 1 ||
+                rewardTickets > 7 ||
+                !Number.isFinite(rewardCoins) ||
+                rewardCoins < 0 ||
+                rewardCoins > 100
+            ) {
+                throw new Error('INVALID_GRADE_REWARD_PAYLOAD');
+            }
+
+            const claimRef = db.ref(
+                `grade_reward_claims/${currentUser.username}/${msgKey}`
+            );
+
+            const claimStartedAt = Date.now();
+
+            const claimTx = await claimRef.transaction(current => {
+                if (current?.status === 'claimed') {
+                    return;
+                }
+
+                if (
+                    current?.status === 'processing' &&
+                    claimStartedAt - Number(current.startedAt || 0) < 120000
+                ) {
+                    return;
+                }
+
+                return {
+                    version: 2,
+                    status: 'processing',
+                    username: String(currentUser.username),
+                    messageId: String(msgKey),
+                    tickets: rewardTickets,
+                    coins: rewardCoins,
+                    grade: Number.isFinite(rewardScore)
+                        ? rewardScore
+                        : null,
+                    startedAt: claimStartedAt
+                };
+            });
+
+            if (!claimTx.committed) {
+                const existingClaim = claimTx.snapshot.val();
+
+                if (existingClaim?.status === 'claimed') {
+                    await db
+                        .ref(`inbox_messages/${currentUser.username}/${msgKey}`)
+                        .remove()
+                        .catch(() => {});
+
+                    alert('ℹ️ Phần thưởng điểm số này đã được nhận trước đó.');
+                    if (typeof renderStudentInbox === 'function') {
+                        renderStudentInbox();
+                    }
+                    return;
+                }
+
+                alert('⏳ Phần thưởng này đang được xử lý. Vui lòng thử lại sau ít giây.');
+                return;
+            }
+
+            const ticketRef = db.ref(
+                'student_bonus_tickets/' + currentUser.username
+            );
+            const coinRef = db.ref(
+                'student_coins/' + currentUser.username
+            );
+
+            let ticketApplied = false;
+            let coinApplied = false;
+
+            try {
+                const ticketTx = await ticketRef.transaction(current =>
+                    Number(current || 0) + rewardTickets
+                );
+
+                if (!ticketTx.committed) {
+                    throw new Error('GRADE_REWARD_TICKET_ABORTED');
+                }
+
+                ticketApplied = true;
+
+                if (rewardCoins > 0) {
+                    const coinTx = await coinRef.transaction(current =>
+                        Number(current || 0) + rewardCoins
+                    );
+
+                    if (!coinTx.committed) {
+                        throw new Error('GRADE_REWARD_COIN_ABORTED');
+                    }
+
+                    coinApplied = true;
+                }
+
+                await claimRef.update({
+                    status: 'claimed',
+                    claimedAt: firebase.database.ServerValue.TIMESTAMP
+                });
+            } catch (rewardClaimError) {
+                // Hoàn tác tốt nhất có thể nếu một nửa gói thưởng bị lỗi.
+                if (coinApplied && rewardCoins > 0) {
+                    await coinRef.transaction(current =>
+                        Math.max(0, Number(current || 0) - rewardCoins)
+                    ).catch(() => {});
+                }
+
+                if (ticketApplied) {
+                    await ticketRef.transaction(current =>
+                        Number(current || 0) - rewardTickets
+                    ).catch(() => {});
+                }
+
+                await claimRef.update({
+                    status: 'retry',
+                    failedAt: firebase.database.ServerValue.TIMESTAMP
+                }).catch(() => {});
+
+                throw rewardClaimError;
+            }
+
+            claimSucceeded = true;
+            claimedPath =
+                `student_bonus_tickets/${currentUser.username} + ` +
+                `student_coins/${currentUser.username}`;
+
+            claimedExtra = {
+                tickets: rewardTickets,
+                coins: rewardCoins,
+                grade: Number.isFinite(rewardScore)
+                    ? rewardScore
+                    : null,
+                rewardVersion: 2
+            };
+
+            alert(
+                `🎓 Bạn đã nhận ${rewardTickets} Vé quay may mắn` +
+                (rewardCoins > 0
+                    ? ` và ${rewardCoins.toLocaleString('vi-VN')} Coin!`
+                    : '!')
+            );
+
+        } else if (giftType === 'coin') {
             const coinRef = db.ref('student_coins/' + currentUser.username);
             const snap = await coinRef.once('value');
             await coinRef.set(
@@ -19688,7 +19933,19 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
 
             let logUnit = '';
 
-            if (giftType === 'coin') {
+            if (giftType === 'grade_reward') {
+                const rewardTickets = Number(msgData.gradeRewardTickets ?? giftValue ?? 0);
+                const rewardCoins = Number(msgData.gradeRewardCoins || 0);
+
+                logAmount = rewardTickets;
+                logUnit = 'Vé + Coin';
+                giftDescription =
+                    `${rewardTickets} Vé quay may mắn` +
+                    (rewardCoins > 0
+                        ? ` + ${rewardCoins.toLocaleString('vi-VN')} Coin`
+                        : '');
+
+            } else if (giftType === 'coin') {
                 logAmount =
                     Number(giftValue);
 

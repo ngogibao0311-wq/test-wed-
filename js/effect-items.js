@@ -136,6 +136,20 @@ class EffectManager {
 
 
         /*
+         * AETHER · THIÊN MÔN QUANG TRIỀU
+         * Effect toàn web độc lập, root mount trực tiếp vào body.
+         * Chỉ dọn namespace aetfx2-*; không chạm DOM/effect khác.
+         */
+        document
+            .querySelectorAll(
+                '.aetfx2-heavenly-aureole[data-aetfx2-portal="1"]'
+            )
+            .forEach(node => {
+                node.classList.add('is-leaving');
+                window.setTimeout(() => node.remove(), 420);
+            });
+
+        /*
          * LORD OF THE MYSTERIES · KHẢI HUYỀN SƯƠNG XÁM
          * Root mount trực tiếp vào body để phủ toàn web.
          * Chỉ dọn namespace lotmefx1-* của effect này.
@@ -309,6 +323,9 @@ class EffectManager {
                 break;
             case 'effect_lotm_gray_fog_revelation_event':
                 this.createLotmGrayFogRevelationEffect();
+                break;
+            case 'effect_truyenthuyet_aether_thien_quang_thien_mon':
+                this.createAetherHeavenGateRadianceEffect();
                 break;
             case 'effect_truyenthuyet_nyx_domain':
                 this.createNyxDomainEffect();
@@ -5510,6 +5527,150 @@ class EffectManager {
             root.classList.add('is-active');
         });
 
+        return root;
+    }
+
+
+    // =========================================================
+    // AETHER · THIÊN MÔN QUANG TRIỀU — AETFX2
+    // Effect toàn web hoàn toàn mới, không tái dùng hiệu ứng Aether/NYX cũ.
+    // =========================================================
+    static ensureAetherHeavenGateStylesheet() {
+        if (typeof document === 'undefined' || !document.head) return null;
+
+        const existing = Array.from(
+            document.querySelectorAll('link[rel="stylesheet"][href]')
+        ).find(link =>
+            /(?:^|\/)aether-than-thoai(?:\(\d+\))?\.css(?:[?#].*)?$/i
+                .test(link.href || '')
+        );
+
+        if (existing) return existing;
+
+        const old = document.getElementById('aetfx2-heaven-gate-runtime-style');
+        if (old) return old;
+
+        const link = document.createElement('link');
+        link.id = 'aetfx2-heaven-gate-runtime-style';
+        link.rel = 'stylesheet';
+        link.href =
+            'css/aether-than-thoai.css?v=20260917.aether-heaven-gate-effect-v1';
+        link.dataset.aetfx2 = 'heaven-gate';
+
+        link.addEventListener('error', () => {
+            console.error(
+                '[AETHER EFFECT] Không tải được css/aether-than-thoai.css'
+            );
+        }, { once: true });
+
+        document.head.appendChild(link);
+        return link;
+    }
+
+    static createAetherHeavenGateRadianceEffect() {
+        this.ensureAetherHeavenGateStylesheet();
+
+        document
+            .querySelectorAll(
+                '.aetfx2-heavenly-aureole[data-aetfx2-portal="1"]'
+            )
+            .forEach(node => node.remove());
+
+        if (!document.body) return null;
+
+        const reduced = window.matchMedia?.(
+            '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+        ).matches;
+
+        const root = document.createElement('div');
+        root.className = 'aetfx2-heavenly-aureole';
+        root.dataset.aetfx2Portal = '1';
+        root.setAttribute('aria-hidden', 'true');
+        root.innerHTML = `
+            <div class="aetfx2-celestial-haze"></div>
+            <div class="aetfx2-gate gate-left"><span></span><i></i></div>
+            <div class="aetfx2-gate gate-right"><span></span><i></i></div>
+
+            <div class="aetfx2-zenith">
+                <span class="aetfx2-zenith-ring ring-a"></span>
+                <span class="aetfx2-zenith-ring ring-b"></span>
+                <span class="aetfx2-zenith-ring ring-c"></span>
+                <span class="aetfx2-zenith-diamond diamond-a"></span>
+                <span class="aetfx2-zenith-diamond diamond-b"></span>
+                <b class="aetfx2-zenith-core">✦</b>
+            </div>
+
+            <div class="aetfx2-ribbon-field"></div>
+            <div class="aetfx2-ray-field"></div>
+            <div class="aetfx2-star-field"></div>
+            <div class="aetfx2-sigil-field"></div>
+            <div class="aetfx2-comet-field"></div>
+
+            <div class="aetfx2-lower-seal">
+                <span>ΑΙΘΗΡ</span>
+                <i></i>
+            </div>
+        `;
+
+        const ribbonField = root.querySelector('.aetfx2-ribbon-field');
+        const ribbonCount = reduced ? 3 : 6;
+        for (let index = 0; index < ribbonCount; index++) {
+            const ribbon = document.createElement('i');
+            ribbon.style.setProperty('--aetfx2-ribbon-y', `${12 + index * 13}%`);
+            ribbon.style.setProperty('--aetfx2-ribbon-rot', `${-8 + index * 3.2}deg`);
+            ribbon.style.setProperty('--aetfx2-ribbon-delay', `${-index * 1.7}s`);
+            ribbon.style.setProperty('--aetfx2-ribbon-dur', `${11 + index * 1.35}s`);
+            ribbonField?.appendChild(ribbon);
+        }
+
+        const rayField = root.querySelector('.aetfx2-ray-field');
+        const rayCount = this.getQualityCount(reduced ? 8 : 18, reduced ? 6 : 10);
+        for (let index = 0; index < rayCount; index++) {
+            const ray = document.createElement('i');
+            ray.style.setProperty('--aetfx2-ray-x', `${3 + (index * 17) % 94}%`);
+            ray.style.setProperty('--aetfx2-ray-rot', `${-26 + (index % 9) * 6.5}deg`);
+            ray.style.setProperty('--aetfx2-ray-delay', `${-(index % 10) * .82}s`);
+            ray.style.setProperty('--aetfx2-ray-dur', `${6.5 + (index % 7) * .7}s`);
+            rayField?.appendChild(ray);
+        }
+
+        const starField = root.querySelector('.aetfx2-star-field');
+        const starCount = this.getQualityCount(reduced ? 24 : 58, reduced ? 18 : 36);
+        for (let index = 0; index < starCount; index++) {
+            const star = document.createElement('i');
+            star.textContent = index % 8 === 0 ? '✦' : '';
+            star.style.setProperty('--aetfx2-star-x', `${(index * 41 + 5) % 100}%`);
+            star.style.setProperty('--aetfx2-star-y', `${(index * 67 + 11) % 100}%`);
+            star.style.setProperty('--aetfx2-star-size', `${2 + (index % 5)}px`);
+            star.style.setProperty('--aetfx2-star-delay', `${-(index % 17) * .37}s`);
+            star.style.setProperty('--aetfx2-star-dur', `${3.8 + (index % 6) * .62}s`);
+            starField?.appendChild(star);
+        }
+
+        const sigilField = root.querySelector('.aetfx2-sigil-field');
+        const glyphs = ['☼','✦','◇','✥','✧','⋄','✦','☼','◇','✥'];
+        const sigilCount = reduced ? 6 : glyphs.length;
+        for (let index = 0; index < sigilCount; index++) {
+            const sigil = document.createElement('span');
+            sigil.textContent = glyphs[index];
+            sigil.style.setProperty('--aetfx2-sigil-angle', `${index * (360 / sigilCount)}deg`);
+            sigil.style.setProperty('--aetfx2-sigil-angle-back', `${-index * (360 / sigilCount)}deg`);
+            sigil.style.setProperty('--aetfx2-sigil-delay', `${-index * .58}s`);
+            sigilField?.appendChild(sigil);
+        }
+
+        const cometField = root.querySelector('.aetfx2-comet-field');
+        const cometCount = reduced ? 2 : 5;
+        for (let index = 0; index < cometCount; index++) {
+            const comet = document.createElement('i');
+            comet.style.setProperty('--aetfx2-comet-y', `${8 + index * 17}%`);
+            comet.style.setProperty('--aetfx2-comet-delay', `${-index * 2.4}s`);
+            comet.style.setProperty('--aetfx2-comet-dur', `${7.5 + index * .8}s`);
+            cometField?.appendChild(comet);
+        }
+
+        document.body.appendChild(root);
+        requestAnimationFrame(() => root.classList.add('is-active'));
         return root;
     }
 

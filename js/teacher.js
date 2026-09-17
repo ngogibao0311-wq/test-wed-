@@ -7326,131 +7326,527 @@ function escapeHTMLForMath(value) {
         .replace(/'/g, '&#039;');
 }
 
+// ==============================================================
+// CHẤM ĐIỂM · THƯỞNG / PHẠT VÉ VÒNG QUAY V2
+// - Mỗi bài nộp chỉ phát sinh 1 kết quả thưởng/phạt V2.
+// - Thưởng KHÔNG cộng trực tiếp: gửi Hộp thư để học sinh tự nhận.
+// - Phạt áp dụng ngay để học sinh không thể né bằng cách không mở thư.
+// - Vé phạt được phép làm tổng vé âm.
+// ==============================================================
+const GRADE_REWARD_V2_VERSION = 2;
+
+function getTeacherGradeRewardV2ViolationReasons(submission) {
+    const history =
+        typeof getTeacherRedoViolationHistory === 'function'
+            ? getTeacherRedoViolationHistory(submission)
+            : {};
+
+    const reasons = [];
+
+    if (submission?.isCheatFail || history.cheat) {
+        reasons.push('vi phạm quy chế thi');
+    }
+    if (submission?.isEssayMissing || history.essayMissing) {
+        reasons.push('không nộp/thiếu phần tự luận');
+    }
+    if (submission?.isLateFail || history.late) {
+        reasons.push('nộp trễ/quá hạn');
+    }
+    if (submission?.isAutoSubmitted || history.autoSubmitted) {
+        reasons.push('bị hệ thống tự thu bài');
+    }
+
+    return [...new Set(reasons)];
+}
+
+function getTeacherGradeRewardV2Outcome(rawGrade, submission) {
+    const score = Number(rawGrade);
+
+    if (!Number.isFinite(score) || score < 0 || score > 10) {
+        throw new Error('INVALID_GRADE_REWARD_SCORE');
+    }
+
+    const violationReasons =
+        getTeacherGradeRewardV2ViolationReasons(submission);
+
+    // 0 điểm do các cờ phạt/vi phạm hiện có trên website => -4 vé.
+    if (score === 0 && violationReasons.length > 0) {
+        return {
+            kind: 'penalty',
+            ticketDelta: -4,
+            coinReward: 0,
+            score,
+            reason: violationReasons.join(', '),
+            specialPenalty: true
+        };
+    }
+
+    if (score >= 10) {
+        return {
+            kind: 'reward',
+            ticketDelta: 7,
+            coinReward: 100,
+            score,
+            reason: 'Đạt 10 điểm',
+            specialPenalty: false
+        };
+    }
+
+    if (score >= 7) {
+        return {
+            kind: 'reward',
+            ticketDelta: 6,
+            coinReward: 50,
+            score,
+            reason: 'Đạt từ 7 đến dưới 10 điểm',
+            specialPenalty: false
+        };
+    }
+
+    if (score >= 5) {
+        return {
+            kind: 'reward',
+            ticketDelta: 5,
+            coinReward: 20,
+            score,
+            reason: 'Đạt từ 5 đến dưới 7 điểm',
+            specialPenalty: false
+        };
+    }
+
+    if (score >= 4) {
+        return {
+            kind: 'penalty',
+            ticketDelta: -1,
+            coinReward: 0,
+            score,
+            reason: 'Điểm dưới 5',
+            specialPenalty: false
+        };
+    }
+
+    if (score >= 2) {
+        return {
+            kind: 'penalty',
+            ticketDelta: -2,
+            coinReward: 0,
+            score,
+            reason: 'Điểm từ 2 đến dưới 4',
+            specialPenalty: false
+        };
+    }
+
+    return {
+        kind: 'penalty',
+        ticketDelta: -3,
+        coinReward: 0,
+        score,
+        reason: 'Điểm từ 0 đến dưới 2',
+        specialPenalty: false
+    };
+}
+
+async function issueTeacherGradeRewardV2(submission, rawGrade, gradedAt) {
+    const username = String(
+        getCompatSubmissionUsername(submission) || ''
+    ).trim();
+
+    const submissionKey = String(
+        submission?._fbKey || submission?.id || ''
+    ).trim();
+
+    if (!username || !submissionKey) {
+        throw new Error('MISSING_GRADE_REWARD_TARGET');
+    }
+
+    const outcome =
+        getTeacherGradeRewardV2Outcome(rawGrade, submission);
+
+    const eventRef = db.ref(
+        `grade_reward_events/${username}/${submissionKey}`
+    );
+
+    const startedAt = Date.now();
+
+    // Khóa theo bài nộp để bấm Lưu điểm nhiều lần không phát quà/phạt trùng.
+    const reserveTx = await eventRef.transaction(current => {
+        if (
+            current &&
+            ['pending_claim', 'penalty_applied', 'claimed'].includes(
+                String(current.status || '')
+            )
+        ) {
+            return;
+        }
+
+        if (
+            current?.status === 'processing' &&
+            startedAt - Number(current.startedAt || 0) < 120000
+        ) {
+            return;
+        }
+
+        return {
+            version: GRADE_REWARD_V2_VERSION,
+            status: 'processing',
+            username,
+            submissionKey,
+            assignmentId: String(submission?.assignmentId || ''),
+            score: outcome.score,
+            ticketDelta: outcome.ticketDelta,
+            coinReward: outcome.coinReward,
+            specialPenalty: outcome.specialPenalty === true,
+            reason: outcome.reason,
+            startedAt,
+            gradedAt: Number(gradedAt || startedAt)
+        };
+    });
+
+    if (!reserveTx.committed) {
+        return reserveTx.snapshot.val() || {
+            status: 'already_issued',
+            ticketDelta: outcome.ticketDelta,
+            coinReward: outcome.coinReward,
+            score: outcome.score
+        };
+    }
+
+    const scoreLabel = Number(outcome.score).toLocaleString('vi-VN', {
+        maximumFractionDigits: 2
+    });
+
+    try {
+        if (outcome.kind === 'reward') {
+            const messageRef = db.ref(
+                `inbox_messages/${username}`
+            ).push();
+
+            const messageId = messageRef.key;
+
+            await messageRef.set({
+                message:
+                    `🎓 Bài của bạn đã được giáo viên chấm ${scoreLabel}/10. ` +
+                    `Bạn nhận thưởng ${outcome.ticketDelta} Vé quay may mắn` +
+                    (outcome.coinReward > 0
+                        ? ` và ${outcome.coinReward} Coin.`
+                        : '.'),
+                giftType: 'grade_reward',
+                giftValue: outcome.ticketDelta,
+                gradeRewardTickets: outcome.ticketDelta,
+                gradeRewardCoins: outcome.coinReward,
+                gradeRewardScore: outcome.score,
+                assignmentId: String(submission?.assignmentId || ''),
+                submissionKey,
+                rewardVersion: GRADE_REWARD_V2_VERSION,
+                source: 'grade_reward_v2',
+                expiry: null,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                timeString: new Date(startedAt).toLocaleString('vi-VN')
+            });
+
+            await eventRef.update({
+                status: 'pending_claim',
+                messageId,
+                issuedAt: firebase.database.ServerValue.TIMESTAMP
+            });
+
+            return {
+                status: 'pending_claim',
+                messageId,
+                ...outcome
+            };
+        }
+
+        const ticketRef = db.ref(
+            `student_bonus_tickets/${username}`
+        );
+
+        let penaltyApplied = false;
+
+        try {
+            const penaltyTx = await ticketRef.transaction(current => {
+                const value = Number(current || 0);
+                return value + outcome.ticketDelta;
+            });
+
+            if (!penaltyTx.committed) {
+                throw new Error('GRADE_PENALTY_TRANSACTION_ABORTED');
+            }
+
+            penaltyApplied = true;
+
+            const messageRef = db.ref(
+                `inbox_messages/${username}`
+            ).push();
+
+            const messageId = messageRef.key;
+            const absolutePenalty = Math.abs(outcome.ticketDelta);
+
+            await messageRef.set({
+                message:
+                    `⚠️ Bài của bạn được chấm ${scoreLabel}/10. ` +
+                    `Hệ thống đã trừ ${absolutePenalty} Vé quay may mắn` +
+                    (outcome.specialPenalty
+                        ? ` do ${outcome.reason}.`
+                        : ` theo mốc điểm hiện tại.`),
+                giftType: 'grade_penalty',
+                giftValue: outcome.ticketDelta,
+                gradePenaltyTickets: outcome.ticketDelta,
+                gradeRewardScore: outcome.score,
+                gradePenaltyReason: outcome.reason,
+                specialPenalty: outcome.specialPenalty === true,
+                penaltyApplied: true,
+                assignmentId: String(submission?.assignmentId || ''),
+                submissionKey,
+                rewardVersion: GRADE_REWARD_V2_VERSION,
+                source: 'grade_reward_v2',
+                expiry: null,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                timeString: new Date(startedAt).toLocaleString('vi-VN')
+            });
+
+            await eventRef.update({
+                status: 'penalty_applied',
+                messageId,
+                appliedAt: firebase.database.ServerValue.TIMESTAMP
+            });
+
+            return {
+                status: 'penalty_applied',
+                messageId,
+                ...outcome
+            };
+        } catch (penaltyError) {
+            // Nếu đã trừ vé nhưng tạo thư thất bại thì hoàn vé để không phạt âm thầm.
+            if (penaltyApplied) {
+                await ticketRef.transaction(current => {
+                    const value = Number(current || 0);
+                    return value - outcome.ticketDelta;
+                }).catch(() => {});
+            }
+
+            throw penaltyError;
+        }
+    } catch (error) {
+        await eventRef.update({
+            status: 'retry',
+            failedAt: firebase.database.ServerValue.TIMESTAMP,
+            error: String(error?.message || error).slice(0, 300)
+        }).catch(() => {});
+
+        throw error;
+    }
+}
+
 async function gradeSubmission(subId) {
-    const grade = document.getElementById(`grade-${subId}`).value; if (!grade) return alert("Vui lòng nhập điểm!");
+    const gradeInput = document.getElementById(`grade-${subId}`);
+    const rawGrade = String(gradeInput?.value ?? '').trim();
+
+    if (rawGrade === '') {
+        return alert('Vui lòng nhập điểm!');
+    }
+
+    const grade = Number(rawGrade);
+
+    if (!Number.isFinite(grade) || grade < 0 || grade > 10) {
+        return alert('⚠️ Điểm phải là số từ 0 đến 10.');
+    }
+
     const commentInput = document.getElementById(`teacherComment-${subId}`);
     const commentVal = commentInput ? commentInput.value : '';
-
     const fileInput = document.getElementById(`teacherFile-${subId}`);
 
     const processGrading = async (fileDataArray) => {
-        const submissions = await getDB('submissions'); const sub = submissions.find(s => s.id === subId);
-        if (sub) {
-            const gradeBefore = {
-                grade: sub.grade ?? null,
-                teacherComment: sub.teacherComment ?? null,
-                isRegrading: sub.isRegrading ?? false,
-                gradedAt: sub.gradedAt ?? null
-            };
+        const submissions = await getDB('submissions');
+        const sub = submissions.find(s => s.id === subId);
 
-            const gradedAt = Date.now();
+        if (!sub) {
+            alert('❌ Không tìm thấy bài nộp để chấm.');
+            return;
+        }
 
-            const updateObj = {
-                grade: grade,
-                teacherComment: commentVal,
-                isRegrading: false,
-                gradedAt: gradedAt
-            };
-            if (fileDataArray) updateObj.teacherFile = fileDataArray;
+        const gradeBefore = {
+            grade: sub.grade ?? null,
+            teacherComment: sub.teacherComment ?? null,
+            isRegrading: sub.isRegrading ?? false,
+            gradedAt: sub.gradedAt ?? null
+        };
+
+        const gradedAt = Date.now();
+
+        // Nếu đây là bài đã được chấm từ cơ chế cũ rồi mới đem chấm lại,
+        // đóng băng số vé cũ trước khi gắn cờ V2 để học sinh không mất vé đã có.
+        if (
+            sub.grade !== null &&
+            sub.grade !== undefined &&
+            sub.grade !== '' &&
+            Number(sub.gradeRewardV2Version || 0) < GRADE_REWARD_V2_VERSION
+        ) {
+            await getTeacherLegacyGradeTicketBase(
+                getCompatSubmissionUsername(sub),
+                submissions
+            );
+        }
+
+        const updateObj = {
+            grade,
+            teacherComment: commentVal,
+            isRegrading: false,
+            gradedAt,
+            gradeRewardV2Version: GRADE_REWARD_V2_VERSION,
+            gradeRewardV2Status: 'processing'
+        };
+
+        if (fileDataArray) {
+            updateObj.teacherFile = fileDataArray;
+        }
+
+        await updateDB(
+            'submissions',
+            sub._fbKey,
+            updateObj
+        );
+
+        let rewardResult = null;
+        let rewardError = null;
+
+        try {
+            rewardResult = await issueTeacherGradeRewardV2(
+                sub,
+                grade,
+                gradedAt
+            );
+
             await updateDB(
                 'submissions',
                 sub._fbKey,
-                updateObj
+                {
+                    gradeRewardV2Version: GRADE_REWARD_V2_VERSION,
+                    gradeRewardV2Status:
+                        rewardResult?.status || 'issued',
+                    gradeRewardV2MessageId:
+                        rewardResult?.messageId || null,
+                    gradeRewardV2Tickets:
+                        Number(rewardResult?.ticketDelta || 0),
+                    gradeRewardV2Coins:
+                        Number(rewardResult?.coinReward || 0),
+                    gradeRewardV2ProcessedAt: Date.now()
+                }
+            );
+        } catch (error) {
+            rewardError = error;
+            console.error(
+                '[Grade Reward V2] Không xử lý được thưởng/phạt:',
+                error
             );
 
-            if (window.TransactionHistory) {
-                await window.TransactionHistory.recordSafe({
-                    type: 'grade_change',
+            await updateDB(
+                'submissions',
+                sub._fbKey,
+                {
+                    gradeRewardV2Version: GRADE_REWARD_V2_VERSION,
+                    gradeRewardV2Status: 'retry',
+                    gradeRewardV2ProcessedAt: Date.now()
+                }
+            ).catch(() => {});
+        }
 
-                    summary:
-                        `Đổi điểm từ ` +
-                        `${gradeBefore.grade ?? 'chưa chấm'} ` +
-                        `thành ${grade}`,
-
-                    source: 'teacher_grading',
-
-                    targetUsername:
-                        getCompatSubmissionUsername(sub),
-
-                    targetName:
-                        sub.studentName ||
-                        sub.name ||
-                        getCompatSubmissionUsername(sub),
-
-                    before: gradeBefore.grade,
-                    after: grade,
-
-                    reversible: true,
-
-                    details: {
-                        submissionPath:
-                            `submissions/${sub._fbKey}`,
-
-                        before: gradeBefore,
-
-                        after: {
-                            grade: grade,
-                            teacherComment: commentVal,
-                            isRegrading: false,
-                            gradedAt: gradedAt
+        if (window.TransactionHistory) {
+            await window.TransactionHistory.recordSafe({
+                type: 'grade_change',
+                summary:
+                    `Đổi điểm từ ` +
+                    `${gradeBefore.grade ?? 'chưa chấm'} ` +
+                    `thành ${grade}`,
+                source: 'teacher_grading',
+                targetUsername:
+                    getCompatSubmissionUsername(sub),
+                targetName:
+                    sub.studentName ||
+                    sub.name ||
+                    getCompatSubmissionUsername(sub),
+                before: gradeBefore.grade,
+                after: grade,
+                reversible: true,
+                details: {
+                    submissionPath:
+                        `submissions/${sub._fbKey}`,
+                    before: gradeBefore,
+                    after: {
+                        grade,
+                        teacherComment: commentVal,
+                        isRegrading: false,
+                        gradedAt
+                    },
+                    gradeRewardV2: rewardResult
+                        ? {
+                            status: rewardResult.status,
+                            tickets: rewardResult.ticketDelta,
+                            coins: rewardResult.coinReward,
+                            messageId: rewardResult.messageId || null
                         }
-                    }
-                });
-            }
+                        : null
+                }
+            });
+        }
 
-            // Xóa bộ đệm file sau khi lưu thành công
-            if (
-                window.teacherGradeDTs[subId]
-            ) {
-                delete window
-                    .teacherGradeDTs[subId];
-            }
+        if (window.teacherGradeDTs[subId]) {
+            delete window.teacherGradeDTs[subId];
+        }
 
-            if (fileInput) {
-                fileInput.value = '';
-            }
+        if (fileInput) {
+            fileInput.value = '';
+        }
 
-            window
-                .renderTeacherGradePendingFiles(
-                    subId
-                );
+        window.renderTeacherGradePendingFiles(subId);
 
+        if (rewardError) {
             alert(
-                "Đã chấm điểm và lưu nhận xét thành công!"
+                '⚠️ Điểm đã được lưu, nhưng Hộp thư thưởng/phạt chưa xử lý xong. ' +
+                'Hãy bấm Lưu điểm lại để hệ thống thử lại.'
             );
+        } else if (rewardResult?.status === 'pending_claim') {
+            alert(
+                '✅ Đã chấm điểm thành công! Phần thưởng đã được gửi ngay vào Hộp thư học sinh.'
+            );
+        } else if (rewardResult?.status === 'penalty_applied') {
+            alert(
+                `✅ Đã chấm điểm thành công! Hệ thống đã trừ ` +
+                `${Math.abs(Number(rewardResult.ticketDelta || 0))} vé và gửi thông báo vào Hộp thư.`
+            );
+        } else {
+            alert(
+                '✅ Đã chấm điểm thành công! Thưởng/phạt của bài này đã được xử lý trước đó nên không phát sinh lần hai.'
+            );
+        }
 
-            await loadSubmissions();
+        await loadSubmissions();
 
-            if (typeof renderTeacherRoadmap === 'function') {
-                renderTeacherRoadmap();
-            }
+        if (typeof renderTeacherRoadmap === 'function') {
+            renderTeacherRoadmap();
+        }
 
-            // Tự cập nhật số vé nếu giáo viên đang xem đúng học sinh vừa chấm
-            const ticketStudentSelect =
-                document.getElementById('ticketStudentSelect');
+        const ticketStudentSelect =
+            document.getElementById('ticketStudentSelect');
 
-            const submissionUsername =
-                getCompatSubmissionUsername(sub);
+        const submissionUsername =
+            getCompatSubmissionUsername(sub);
 
-            if (
-                ticketStudentSelect &&
-                ticketStudentSelect.value === submissionUsername &&
-                typeof window.onTicketStudentChange === 'function'
-            ) {
-                await window.onTicketStudentChange();
-            }
+        if (
+            ticketStudentSelect &&
+            ticketStudentSelect.value === submissionUsername &&
+            typeof window.onTicketStudentChange === 'function'
+        ) {
+            await window.onTicketStudentChange();
         }
     };
 
     if (fileInput && fileInput.files.length > 0) {
-        const filesArray =
-            await readMultipleFiles(
-                fileInput.files,
-                {
-                    folder: 'teacher-feedback'
-                }
-            );
-        // Thêm dòng này để chặn chấm bài
+        const filesArray = await readMultipleFiles(
+            fileInput.files,
+            { folder: 'teacher-feedback' }
+        );
+
         if (filesArray.length === 0) return;
         await processGrading(filesArray);
     } else {
@@ -8344,6 +8740,8 @@ window.deleteStudent = async function (uid) {
         updates[`student_daily_login/${username}`] = null;
         updates[`inbox_messages/${username}`] = null;
         updates[`historical_grade_tickets/${username}`] = null;
+        updates[`grade_reward_events/${username}`] = null;
+        updates[`grade_reward_claims/${username}`] = null;
 
         await db.ref().update(updates);
 
@@ -15543,38 +15941,90 @@ window.validateEditConditionInput = function () {
 // HỆ THỐNG QUẢN LÝ VÉ MAY MẮN CHO TỪNG HỌC SINH (GIÁO VIÊN)
 // ==============================================================
 
-async function getStudentTicketInfo(username) {
-    const submissions = await getDB('submissions');
-    const mySubs = submissions.filter(sub =>
-        getCompatSubmissionUsername(sub) === String(username).trim() &&
-        sub.grade !== null &&
-        sub.grade !== undefined &&
-        sub.grade !== ''
+function getLegacyGradeTicketValueV1(submission) {
+    if (!submission) return 0;
+
+    // Bài đã được chấm bởi cơ chế V2 không còn cộng vé trực tiếp từ điểm.
+    if (
+        Number(submission.gradeRewardV2Version || 0) >=
+        GRADE_REWARD_V2_VERSION
+    ) {
+        return 0;
+    }
+
+    const score = Number(submission.grade);
+    if (!Number.isFinite(score)) return 0;
+
+    let tickets = 0;
+    if (score === 10) tickets = 3;
+    else if (score > 7) tickets = 2;
+    else if (score > 5) tickets = 1;
+
+    if (submission.hasRedone && tickets > 0) {
+        tickets -= 1;
+    }
+
+    return tickets;
+}
+
+async function getTeacherLegacyGradeTicketBase(username, submissions) {
+    const normalizedUsername = String(username || '').trim();
+
+    const computedLegacy = (submissions || [])
+        .filter(sub =>
+            getCompatSubmissionUsername(sub) === normalizedUsername &&
+            sub.grade !== null &&
+            sub.grade !== undefined &&
+            sub.grade !== ''
+        )
+        .reduce(
+            (sum, sub) => sum + getLegacyGradeTicketValueV1(sub),
+            0
+        );
+
+    const historicalRef = db.ref(
+        `historical_grade_tickets/${normalizedUsername}`
     );
 
-    let totalTickets = 0;
-    mySubs.forEach(sub => {
-        let score = parseFloat(sub.grade);
-        let subTickets = 0;
-        if (score === 10) subTickets = 3;
-        else if (score > 7) subTickets = 2;
-        else if (score > 5) subTickets = 1;
+    const historicalSnap = await historicalRef.once('value');
+    const historical = Number(historicalSnap.val()) || 0;
+    const frozenBase = Math.max(historical, computedLegacy);
 
-        if (sub.hasRedone && subTickets > 0) subTickets -= 1;
-        totalTickets += subTickets;
-    });
+    // Chỉ tăng mốc cũ; không hạ để tránh mất vé đã có trước khi nâng cấp V2.
+    if (frozenBase > historical) {
+        await historicalRef.set(frozenBase);
+    }
 
-    const bonusSnap = await db.ref('student_bonus_tickets/' + username).once('value');
-    const bonusTickets = parseInt(bonusSnap.val()) || 0;
-    totalTickets += bonusTickets;
+    return frozenBase;
+}
 
-    const countSnapshot = await db.ref('spin_counts/' + username).once('value');
-    let spinTracking = countSnapshot.val() || { count: 0 };
-    let usedSpins = parseInt(spinTracking.count) || 0;
+async function getStudentTicketInfo(username) {
+    const submissions = await getDB('submissions');
+
+    const legacyBase = await getTeacherLegacyGradeTicketBase(
+        username,
+        submissions
+    );
+
+    const bonusSnap = await db
+        .ref('student_bonus_tickets/' + username)
+        .once('value');
+
+    const bonusTickets = Number(bonusSnap.val()) || 0;
+    const totalTickets = legacyBase + bonusTickets;
+
+    const countSnapshot = await db
+        .ref('spin_counts/' + username)
+        .once('value');
+
+    const spinTracking = countSnapshot.val() || { count: 0 };
+    const usedSpins = Number(spinTracking.count) || 0;
 
     return {
         remaining: totalTickets - usedSpins,
-        bonus: bonusTickets
+        bonus: bonusTickets,
+        legacyBase,
+        used: usedSpins
     };
 }
 

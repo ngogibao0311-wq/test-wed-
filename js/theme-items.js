@@ -180,6 +180,16 @@ class ThemeManager {
             background: '#030814',
             className: 'theme-nyx-moon-sanctum'
         },
+        // =========================================================
+        // AETHER · THIÊN QUANG THÁNH VỰC
+        // Theme riêng hoàn toàn: aettheme-*.
+        // =========================================================
+        'theme_truyenthuyet_aether_thien_quang_thanh_vuc': {
+            primary: '#8cecff',
+            secondary: '#f2d580',
+            background: '#030b18',
+            className: 'theme-aether-luminous-sanctum'
+        },
         // TAMON'S B-SIDE · HẬU TRƯỜNG NHIỄU SÓNG
         // Theme độc lập, không dùng class/effect của các theme Tamon cũ.
         'theme_tamon_bside_backstage': {
@@ -375,6 +385,21 @@ class ThemeManager {
 
             tagImage:
                 'assets/Premium/quốc khánh/tag.png'
+        }),
+
+        /* =========================================================
+           AETHER · TIỂU THIÊN QUANG + THÁNH VỰC + THIÊN MÔN QUANG TRIỀU
+           Cùng tag, cùng thẻ Aether Chibi; miễn mọi theme khác.
+           ========================================================= */
+        'aether-little-spirit': Object.freeze({
+            itemIds: Object.freeze([
+                'pet_truyenthuyet_aether_chibi_2',
+                'theme_truyenthuyet_aether_thien_quang_thanh_vuc',
+                'effect_truyenthuyet_aether_thien_quang_thien_mon'
+            ]),
+
+            className:
+                'store-card-aether-little-spirit'
         }),
 
         /* =========================================================
@@ -1705,6 +1730,137 @@ class ThemeManager {
         });
     }
 
+    // =========================================================
+    // AETHER · THIÊN QUANG THÁNH VỰC V2 — DECOR TOÀN WEB
+    // Namespace aettheme2-* hoàn toàn riêng, không dùng decor của theme khác.
+    // =========================================================
+    static clearAetherLuminousSanctumDecor() {
+        document.documentElement.classList.remove('aettheme2-mounted');
+
+        document
+            .querySelectorAll(
+                '.aettheme2-sanctum-decor[data-aettheme2-decor="1"]'
+            )
+            .forEach(node => {
+                node.classList.add('is-leaving');
+                window.setTimeout(() => node.remove(), 360);
+            });
+    }
+
+    static createAetherLuminousSanctumDecor() {
+        this.clearAetherLuminousSanctumDecor();
+        this.ensureAetherLuminousSanctumStylesheet();
+
+        if (!document.body) return null;
+
+        const reduced = window.matchMedia?.(
+            '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+        ).matches;
+
+        const decor = document.createElement('div');
+        decor.className = 'aettheme2-sanctum-decor';
+        decor.dataset.aettheme2Decor = '1';
+        decor.setAttribute('aria-hidden', 'true');
+        decor.innerHTML = `
+            <div class="aettheme2-aurora aurora-a"></div>
+            <div class="aettheme2-aurora aurora-b"></div>
+            <div class="aettheme2-celestial-grid"></div>
+
+            <div class="aettheme2-astrolabe">
+                <span class="aettheme2-astro-ring ring-a"></span>
+                <span class="aettheme2-astro-ring ring-b"></span>
+                <span class="aettheme2-astro-ring ring-c"></span>
+                <span class="aettheme2-astro-diamond diamond-a"></span>
+                <span class="aettheme2-astro-diamond diamond-b"></span>
+                <b class="aettheme2-astro-core">ΑΙΘΗΡ</b>
+            </div>
+
+            <span class="aettheme2-wing-arc wing-left"></span>
+            <span class="aettheme2-wing-arc wing-right"></span>
+
+            <div class="aettheme2-star-field"></div>
+            <div class="aettheme2-lance-field"></div>
+            <div class="aettheme2-sigil-field"></div>
+        `;
+
+        const starField = decor.querySelector('.aettheme2-star-field');
+        const starCount = reduced ? 18 : 38;
+        for (let index = 0; index < starCount; index++) {
+            const star = document.createElement('i');
+            star.textContent = index % 7 === 0 ? '✦' : '';
+            star.style.setProperty('--aettheme2-x', `${(index * 37 + 7) % 100}%`);
+            star.style.setProperty('--aettheme2-y', `${(index * 61 + 13) % 100}%`);
+            star.style.setProperty('--aettheme2-size', `${2 + (index % 4)}px`);
+            star.style.setProperty('--aettheme2-delay', `${-(index % 13) * .47}s`);
+            star.style.setProperty('--aettheme2-dur', `${4.6 + (index % 6) * .75}s`);
+            starField?.appendChild(star);
+        }
+
+        const lanceField = decor.querySelector('.aettheme2-lance-field');
+        const lanceCount = reduced ? 5 : 11;
+        for (let index = 0; index < lanceCount; index++) {
+            const lance = document.createElement('i');
+            lance.style.setProperty('--aettheme2-lance-x', `${5 + (index * 19) % 90}%`);
+            lance.style.setProperty('--aettheme2-lance-rot', `${-28 + (index % 7) * 9}deg`);
+            lance.style.setProperty('--aettheme2-lance-delay', `${-(index % 8) * 1.1}s`);
+            lance.style.setProperty('--aettheme2-lance-dur', `${10 + (index % 5) * 1.4}s`);
+            lanceField?.appendChild(lance);
+        }
+
+        const sigilField = decor.querySelector('.aettheme2-sigil-field');
+        const glyphs = ['✦','☼','◇','✧','✥','⋄','✦','☼'];
+        glyphs.forEach((glyph, index) => {
+            const sigil = document.createElement('span');
+            sigil.textContent = glyph;
+            sigil.style.setProperty('--aettheme2-sigil-angle', `${index * 45}deg`);
+            sigil.style.setProperty('--aettheme2-sigil-angle-back', `${index * -45}deg`);
+            sigil.style.setProperty('--aettheme2-sigil-delay', `${-index * .63}s`);
+            sigilField?.appendChild(sigil);
+        });
+
+        document.body.prepend(decor);
+        document.documentElement.classList.add('aettheme2-mounted');
+
+        requestAnimationFrame(() => decor.classList.add('is-mounted'));
+        return decor;
+    }
+
+    static ensureAetherLuminousSanctumStylesheet() {
+        if (typeof document === 'undefined' || !document.head) {
+            return null;
+        }
+
+        const existing = Array.from(
+            document.querySelectorAll('link[rel="stylesheet"][href]')
+        ).find(link =>
+            /(?:^|\/)aether-than-thoai(?:\(\d+\))?\.css(?:[?#].*)?$/i
+                .test(link.href || '')
+        );
+
+        if (existing) return existing;
+
+        const old = document.getElementById(
+            'aether-luminous-sanctum-runtime-style'
+        );
+        if (old) return old;
+
+        const link = document.createElement('link');
+        link.id = 'aether-luminous-sanctum-runtime-style';
+        link.rel = 'stylesheet';
+        link.href =
+            'css/aether-than-thoai.css?v=20260917.aether-theme-sanctum-v2';
+        link.dataset.aetherTheme = 'luminous-sanctum';
+
+        link.addEventListener('error', () => {
+            console.error(
+                '[AETHER THEME] Không tải được css/aether-than-thoai.css'
+            );
+        }, { once: true });
+
+        document.head.appendChild(link);
+        return link;
+    }
+
     static applyTheme(themeId) {
         this.initThemePopupIsolation();
         this.clearAcediaPalaceDecor();
@@ -1713,6 +1869,15 @@ class ThemeManager {
         this.clearMidAutumnLanternFestivalDecor();
         this.clearMidAutumnOsmanthusJadeDecor();
         this.clearSummerPrismaticGardenDecor();
+        this.clearAetherLuminousSanctumDecor();
+
+        if (
+            themeId ===
+            'theme_truyenthuyet_aether_thien_quang_thanh_vuc'
+        ) {
+            this.ensureAetherLuminousSanctumStylesheet();
+        }
+
         const theme = this.themes[themeId] || this.themes['default'];
         const root = document.documentElement;
 
@@ -1731,6 +1896,14 @@ class ThemeManager {
         // 2. Tiêm class mới vào body nếu theme đó có yêu cầu thay đổi hình dáng
         if (theme.className) {
             document.body.classList.add(theme.className);
+        }
+
+
+        if (
+            themeId ===
+            'theme_truyenthuyet_aether_thien_quang_thanh_vuc'
+        ) {
+            this.createAetherLuminousSanctumDecor();
         }
 
         if (

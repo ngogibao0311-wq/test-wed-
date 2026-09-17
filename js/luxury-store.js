@@ -34,6 +34,7 @@
         'pet_luxury_mua_ha',
         'pet_quoc_khanh_1',
         'pet_mythic_nyx_1',
+        'pet_mythic_aether_1',
         'pet_lotm_klein_event_1',
         'pet_cam_co_cam_mong_1',
         'pet_tamon_b_side_1',
@@ -2609,6 +2610,55 @@
             'global-click',
             'ultimate'
         ],
+        disableClickEffect: true
+    };
+
+
+
+    // ========================================================
+    // AETHER · THIÊN QUANG NGUYÊN SƠ — THẦN THOẠI
+    // - Bán 15.000 Coin
+    // - Card riêng nhưng giữ nguyên bố cục Luxury chuẩn
+    // - Tag ảnh: assets/Premium/Thần thoại/aether-tag2.png
+    // - Full suite độc lập, không ghi đè active_theme / active_effect
+    // - MỘT CSS: css/aether-than-thoai.css
+    // ========================================================
+    const MYTHIC_AETHER_PET = {
+        id: 'pet_mythic_aether_1',
+        name: 'AETHER · Thiên Quang Nguyên Sơ',
+        type: 'pet',
+        price: 15000,
+        isNonCoin: false,
+        luxuryOnly: true,
+        eventOnly: false,
+
+        tag: 'Thần thoại',
+        tags: [
+            'Thần thoại',
+            'Aether',
+            'Thiên quang',
+            'Premium'
+        ],
+
+        image: 'assets/Premium/Thần thoại/aether-nhan-vat2.png',
+        asset: 'assets/Premium/Thần thoại/aether-nhan-vat2.png',
+        value: 'assets/Premium/Thần thoại/aether-nhan-vat2.png',
+        luxuryTagImage:
+            'assets/Premium/Thần thoại/aether-tag2.png',
+        isIcon: false,
+
+        // Chỉ dùng class riêng của Aether; PetManager generic sẽ gắn class này.
+        petEffect: 'mythic-aether-luminous-magic',
+        premiumSuite: 'aether-luminous-heaven-v1',
+        premiumLayers: [
+            'world-effect',
+            'interface',
+            'pet-realm',
+            'global-click',
+            'ultimate'
+        ],
+
+        // Click được LuxuryAetherRuntime quản lý hoàn toàn.
         disableClickEffect: true
     };
 
@@ -7815,6 +7865,749 @@
     };
 
 
+
+    // ========================================================
+    // AETHER · CSS LAZY GUARD
+    // Một CSS duy nhất cho card + pet + full-web suite.
+    // ========================================================
+    function ensureAetherStylesheet() {
+        const existing = Array.from(
+            document.querySelectorAll('link[rel="stylesheet"]')
+        ).find(link =>
+            /(?:^|\/)aether-than-thoai(?:\(\d+\))?\.css(?:[?#].*)?$/i
+                .test(link.href || '')
+        );
+
+        if (existing) {
+            existing.id = existing.id || 'aether-mythic-premium-style';
+            return existing;
+        }
+
+        const byId = document.getElementById(
+            'aether-mythic-premium-style'
+        );
+        if (byId) return byId;
+
+        let href = '';
+
+        if (window.AETHER_MYTHIC_CSS_PATH) {
+            href = String(window.AETHER_MYTHIC_CSS_PATH).trim();
+        }
+
+        if (!href) {
+            const scripts = Array.from(document.scripts || []);
+            const ownScript = scripts
+                .slice()
+                .reverse()
+                .find(script =>
+                    /(?:^|\/)luxury-store(?:[^\/]*)?\.js(?:[?#].*)?$/i
+                        .test(script.src || '')
+                );
+
+            if (ownScript?.src) {
+                try {
+                    href = new URL(
+                        '../css/aether-than-thoai.css?v=20260917.aether-v1',
+                        ownScript.src
+                    ).href;
+                } catch (_) {
+                    href = '';
+                }
+            }
+        }
+
+        if (!href) {
+            href = new URL(
+                'css/aether-than-thoai.css?v=20260917.aether-v1',
+                document.baseURI
+            ).href;
+        }
+
+        const link = document.createElement('link');
+        link.id = 'aether-mythic-premium-style';
+        link.rel = 'stylesheet';
+        link.href = href;
+        link.dataset.aetherMythic = 'true';
+
+        link.addEventListener('error', () => {
+            console.error(
+                '[AETHER] Không tải được CSS:',
+                link.href,
+                'Hãy đặt file tại css/aether-than-thoai.css hoặc gán window.AETHER_MYTHIC_CSS_PATH trước khi nạp luxury-store.js.'
+            );
+        }, { once: true });
+
+        document.head.appendChild(link);
+        return link;
+    }
+
+    // ========================================================
+    // AETHER · THIÊN QUANG NGUYÊN SƠ — FULL PREMIUM SUITE V1
+    // JS chỉ dựng DOM/lifecycle. Toàn bộ giao diện nằm trong 1 CSS.
+    // Namespace độc lập: aether-mythic-* / aetherLuminous*
+    // ========================================================
+    const LuxuryAetherRuntime = {
+        activePetElement: null,
+        petClickHandler: null,
+        petPointerDownHandler: null,
+        petPointerUpHandler: null,
+        petKeyHandler: null,
+        petPointerState: null,
+        documentPointerHandler: null,
+        timers: new Set(),
+        skillLocked: false,
+
+        setTimer(callback, delay) {
+            const timer = window.setTimeout(() => {
+                this.timers.delete(timer);
+                callback();
+            }, delay);
+            this.timers.add(timer);
+            return timer;
+        },
+
+        clearTimers() {
+            this.timers.forEach(timer => window.clearTimeout(timer));
+            this.timers.clear();
+        },
+
+        getPet() {
+            return document.querySelector(
+                '#virtual-pet-container #virtual-pet-img.mythic-aether-luminous-magic, ' +
+                '#virtual-pet-container #virtual-pet-img.aether-mythic-avatar'
+            );
+        },
+
+        clear() {
+            const oldPet = this.activePetElement;
+            if (oldPet) {
+                if (this.petClickHandler) {
+                    oldPet.removeEventListener('click', this.petClickHandler);
+                }
+                if (this.petPointerDownHandler) {
+                    oldPet.removeEventListener('pointerdown', this.petPointerDownHandler);
+                }
+                if (this.petPointerUpHandler) {
+                    oldPet.removeEventListener('pointerup', this.petPointerUpHandler);
+                }
+                if (this.petKeyHandler) {
+                    oldPet.removeEventListener('keydown', this.petKeyHandler);
+                }
+            }
+
+            if (this.documentPointerHandler) {
+                document.removeEventListener(
+                    'pointerdown',
+                    this.documentPointerHandler,
+                    true
+                );
+            }
+
+            this.clearTimers();
+            this.activePetElement = null;
+            this.petClickHandler = null;
+            this.petPointerDownHandler = null;
+            this.petPointerUpHandler = null;
+            this.petKeyHandler = null;
+            this.petPointerState = null;
+            this.documentPointerHandler = null;
+            this.skillLocked = false;
+
+            document.documentElement.classList.remove(
+                'aether-luminous-equipped',
+                'aether-luminous-skill-active'
+            );
+            document.body?.classList.remove(
+                'theme-aether-luminous-stage'
+            );
+
+            document
+                .querySelectorAll(
+                    '.aether-mythic-world,' +
+                    '.aether-mythic-ui-frame,' +
+                    '.aether-mythic-page-click,' +
+                    '.aether-mythic-screen-burst,' +
+                    '.aether-mythic-screen-dialogue'
+                )
+                .forEach(node => node.remove());
+
+            const container = document.getElementById(
+                'virtual-pet-container'
+            );
+
+            container?.classList.remove(
+                'pet-aether-mythic-stage',
+                'aether-mythic-awakening',
+                'aether-mythic-casting',
+                'aether-mythic-pressed'
+            );
+
+            container
+                ?.querySelectorAll('.aether-mythic-pet-realm')
+                .forEach(node => node.remove());
+
+            container
+                ?.querySelector('#virtual-pet-img')
+                ?.classList.remove('aether-mythic-avatar');
+        },
+
+        createWorld() {
+            document
+                .querySelectorAll('.aether-mythic-world')
+                .forEach(node => node.remove());
+
+            const world = document.createElement('div');
+            world.className = 'aether-mythic-world';
+            world.setAttribute('aria-hidden', 'true');
+            world.innerHTML = `
+                <div class="aether-world-wash"></div>
+                <div class="aether-world-nebula nebula-a"></div>
+                <div class="aether-world-nebula nebula-b"></div>
+                <div class="aether-world-sun">
+                    <span class="aether-world-sun-core"></span>
+                    <span class="aether-world-sun-ring ring-a"></span>
+                    <span class="aether-world-sun-ring ring-b"></span>
+                    <span class="aether-world-sun-ring ring-c"></span>
+                    <span class="aether-world-sun-ring ring-d"></span>
+                </div>
+                <div class="aether-world-aurora aurora-a"></div>
+                <div class="aether-world-aurora aurora-b"></div>
+                <div class="aether-world-rays"></div>
+                <div class="aether-world-constellation"></div>
+                <div class="aether-world-meteors"></div>
+                <div class="aether-world-particles"></div>
+                <div class="aether-world-horizon"></div>
+            `;
+
+            const reduced = window.matchMedia?.(
+                '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+            ).matches;
+
+            const particleField = world.querySelector('.aether-world-particles');
+            const particleCount = getLuxuryQualityCount(reduced ? 18 : 52);
+            for (let index = 0; index < particleCount; index++) {
+                const particle = document.createElement('i');
+                particle.className =
+                    index % 6 === 0
+                        ? 'aether-world-particle is-star'
+                        : 'aether-world-particle';
+                particle.textContent = index % 6 === 0 ? '✦' : '';
+                particle.style.setProperty('--aether-x', `${(index * 37 + 11) % 100}%`);
+                particle.style.setProperty('--aether-y', `${(index * 61 + 7) % 100}%`);
+                particle.style.setProperty('--aether-size', `${2 + (index % 5)}px`);
+                particle.style.setProperty('--aether-delay', `${-(index % 17) * .37}s`);
+                particleField?.appendChild(particle);
+            }
+
+            const constellation = world.querySelector('.aether-world-constellation');
+            const constellationCount = getLuxuryQualityCount(reduced ? 9 : 20);
+            for (let index = 0; index < constellationCount; index++) {
+                const node = document.createElement('i');
+                node.style.setProperty('--aether-cx', `${7 + ((index * 29) % 86)}%`);
+                node.style.setProperty('--aether-cy', `${8 + ((index * 47) % 74)}%`);
+                node.style.setProperty('--aether-cdelay', `${-index * .31}s`);
+                constellation?.appendChild(node);
+            }
+
+            const meteors = world.querySelector('.aether-world-meteors');
+            const meteorCount = getLuxuryQualityCount(reduced ? 3 : 7);
+            for (let index = 0; index < meteorCount; index++) {
+                const meteor = document.createElement('i');
+                meteor.style.setProperty('--aether-mx', `${10 + ((index * 17) % 78)}%`);
+                meteor.style.setProperty('--aether-my', `${4 + ((index * 23) % 48)}%`);
+                meteor.style.setProperty('--aether-mdelay', `${-index * 1.7}s`);
+                meteors?.appendChild(meteor);
+            }
+
+            document.body.appendChild(world);
+        },
+
+        createInterface() {
+            document
+                .querySelectorAll('.aether-mythic-ui-frame')
+                .forEach(node => node.remove());
+
+            const frame = document.createElement('div');
+            frame.className = 'aether-mythic-ui-frame';
+            frame.setAttribute('aria-hidden', 'true');
+            frame.innerHTML = `
+                <span class="aether-ui-corner corner-tl"></span>
+                <span class="aether-ui-corner corner-tr"></span>
+                <span class="aether-ui-corner corner-bl"></span>
+                <span class="aether-ui-corner corner-br"></span>
+                <div class="aether-ui-top-sigil"><i></i><b>ΑΙΘΗΡ</b><i></i></div>
+                <div class="aether-ui-bottom-line"></div>
+            `;
+            document.body.appendChild(frame);
+            requestAnimationFrame(() => frame.classList.add('is-mounted'));
+        },
+
+        createPetRealm() {
+            const container = document.getElementById(
+                'virtual-pet-container'
+            );
+            const pet = this.getPet() || container?.querySelector(
+                '#virtual-pet-img'
+            );
+
+            if (!container || !pet) return false;
+
+            container
+                .querySelectorAll('.aether-mythic-pet-realm')
+                .forEach(node => node.remove());
+
+            pet.classList.add('aether-mythic-avatar');
+            pet.setAttribute('draggable', 'false');
+            pet.setAttribute('tabindex', '0');
+            pet.setAttribute('role', 'button');
+            pet.setAttribute('aria-label', 'Kích hoạt Thiên Quang Nguyên Sơ');
+            container.classList.add(
+                'pet-aether-mythic-stage',
+                'aether-mythic-awakening'
+            );
+
+            const realm = document.createElement('div');
+            realm.className = 'aether-mythic-pet-realm';
+            realm.setAttribute('aria-hidden', 'true');
+            realm.innerHTML = `
+                <span class="aether-local-sanctum"></span>
+                <span class="aether-local-aura aura-back"></span>
+                <span class="aether-local-aura aura-front"></span>
+                <span class="aether-local-halo"></span>
+                <span class="aether-local-crown">✦</span>
+                <span class="aether-local-ring ring-a"></span>
+                <span class="aether-local-ring ring-b"></span>
+                <span class="aether-local-ring ring-c"></span>
+                <span class="aether-local-ring ring-d"></span>
+                <span class="aether-local-sigil sigil-a"></span>
+                <span class="aether-local-sigil sigil-b"></span>
+                <span class="aether-local-wing wing-left"></span>
+                <span class="aether-local-wing wing-right"></span>
+                <span class="aether-local-ribbon ribbon-a"></span>
+                <span class="aether-local-ribbon ribbon-b"></span>
+                <div class="aether-local-runes"></div>
+                <div class="aether-local-feathers"></div>
+                <div class="aether-local-stars"></div>
+                <span class="aether-local-ground"></span>
+                <span class="aether-local-ground-ring ground-a"></span>
+                <span class="aether-local-ground-ring ground-b"></span>
+            `;
+
+            const stars = realm.querySelector('.aether-local-stars');
+            const starCount = getLuxuryQualityCount(24);
+            for (let index = 0; index < starCount; index++) {
+                const star = document.createElement('i');
+                star.textContent = index % 4 === 0 ? '✦' : '·';
+                star.style.setProperty('--aether-local-angle', `${index * (360 / starCount)}deg`);
+                star.style.setProperty('--aether-local-delay', `${-index * .13}s`);
+                star.style.setProperty('--aether-local-radius', `${92 + (index % 4) * 14}px`);
+                stars?.appendChild(star);
+            }
+
+            const runes = realm.querySelector('.aether-local-runes');
+            const runeChars = ['✦', '✧', '◇', '⋆', '✶', '✷', '✹', '✺', '✦', '◇'];
+            runeChars.forEach((char, index) => {
+                const rune = document.createElement('i');
+                rune.textContent = char;
+                rune.style.setProperty('--aether-rune-angle', `${index * 36}deg`);
+                rune.style.setProperty('--aether-rune-delay', `${-index * .21}s`);
+                runes?.appendChild(rune);
+            });
+
+            const feathers = realm.querySelector('.aether-local-feathers');
+            const featherCount = getLuxuryQualityCount(12);
+            for (let index = 0; index < featherCount; index++) {
+                const feather = document.createElement('i');
+                feather.style.setProperty('--aether-local-feather-angle', `${index * (360 / featherCount)}deg`);
+                feather.style.setProperty('--aether-local-feather-delay', `${-index * .17}s`);
+                feathers?.appendChild(feather);
+            }
+
+            container.insertBefore(realm, pet);
+            return true;
+        },
+
+        createPageClick(x, y, strong = false) {
+            if (!document.documentElement.classList.contains(
+                'aether-luminous-equipped'
+            )) return;
+
+            const click = document.createElement('div');
+            click.className =
+                'aether-mythic-page-click' +
+                (strong ? ' is-strong' : '');
+            click.style.setProperty('--aether-click-x', `${x}px`);
+            click.style.setProperty('--aether-click-y', `${y}px`);
+            click.setAttribute('aria-hidden', 'true');
+            click.innerHTML = `
+                <span class="aether-click-flash"></span>
+                <span class="aether-click-core"></span>
+                <span class="aether-click-ring ring-a"></span>
+                <span class="aether-click-ring ring-b"></span>
+                <span class="aether-click-ring ring-c"></span>
+                <span class="aether-click-ring ring-d"></span>
+                <span class="aether-click-cross cross-a"></span>
+                <span class="aether-click-cross cross-b"></span>
+                <span class="aether-click-glyph">✦</span>
+                <span class="aether-click-starburst"></span>
+                <div class="aether-click-orbit-nodes"></div>
+                <div class="aether-click-sparks"></div>
+            `;
+
+            const sparks = click.querySelector('.aether-click-sparks');
+            const sparkCount = getLuxuryQualityCount(strong ? 24 : 16);
+            for (let index = 0; index < sparkCount; index++) {
+                const spark = document.createElement('i');
+                spark.style.setProperty('--aether-click-angle', `${index * (360 / sparkCount)}deg`);
+                spark.style.setProperty('--aether-click-distance', `${strong ? 70 + (index % 5) * 10 : 46 + (index % 4) * 8}px`);
+                spark.style.setProperty('--aether-click-delay', `${(index % 5) * .018}s`);
+                sparks?.appendChild(spark);
+            }
+
+            const nodes = click.querySelector('.aether-click-orbit-nodes');
+            for (let index = 0; index < 8; index++) {
+                const node = document.createElement('i');
+                node.style.setProperty('--aether-node-angle', `${index * 45}deg`);
+                nodes?.appendChild(node);
+            }
+
+            document.body.appendChild(click);
+            requestAnimationFrame(() => click.classList.add('is-active'));
+            this.setTimer(() => click.remove(), strong ? 1500 : 1050);
+        },
+
+        installGlobalClick() {
+            this.documentPointerHandler = event => {
+                if (
+                    event.button !== undefined &&
+                    event.button !== 0
+                ) return;
+
+                if (!document.documentElement.classList.contains(
+                    'aether-luminous-equipped'
+                )) return;
+
+                const target = event.target;
+                if (
+                    target?.closest?.(
+                        '.aether-mythic-screen-burst,' +
+                        '.aether-mythic-screen-dialogue,' +
+                        '.aether-mythic-page-click,' +
+                        '#virtual-pet-container'
+                    )
+                ) return;
+
+                this.createPageClick(
+                    Number(event.clientX) || window.innerWidth / 2,
+                    Number(event.clientY) || window.innerHeight / 2,
+                    false
+                );
+            };
+
+            document.addEventListener(
+                'pointerdown',
+                this.documentPointerHandler,
+                true
+            );
+        },
+
+        triggerUltimate(x, y) {
+            if (this.skillLocked) return false;
+            this.skillLocked = true;
+
+            document.documentElement.classList.add(
+                'aether-luminous-skill-active'
+            );
+
+            document
+                .querySelectorAll(
+                    '.aether-mythic-screen-burst,' +
+                    '.aether-mythic-screen-dialogue'
+                )
+                .forEach(node => node.remove());
+
+            const burst = document.createElement('div');
+            burst.className = 'aether-mythic-screen-burst';
+            burst.style.setProperty('--aether-skill-x', `${x}px`);
+            burst.style.setProperty('--aether-skill-y', `${y}px`);
+            burst.setAttribute('aria-hidden', 'true');
+            burst.innerHTML = `
+                <div class="aether-skill-veil"></div>
+                <div class="aether-skill-whiteout"></div>
+                <div class="aether-skill-rays"></div>
+                <div class="aether-skill-mandala">
+                    <span class="mandala-ring ring-a"></span>
+                    <span class="mandala-ring ring-b"></span>
+                    <span class="mandala-ring ring-c"></span>
+                    <span class="mandala-star">✦</span>
+                </div>
+                <div class="aether-skill-heaven-core">
+                    <span class="aether-skill-sun"></span>
+                    <span class="aether-skill-ring ring-a"></span>
+                    <span class="aether-skill-ring ring-b"></span>
+                    <span class="aether-skill-ring ring-c"></span>
+                    <span class="aether-skill-ring ring-d"></span>
+                </div>
+                <div class="aether-skill-wings wing-left"></div>
+                <div class="aether-skill-wings wing-right"></div>
+                <div class="aether-skill-orbit"></div>
+                <div class="aether-skill-feathers"></div>
+                <div class="aether-skill-comets"></div>
+                <div class="aether-skill-shards"></div>
+                <div class="aether-skill-stars"></div>
+                <div class="aether-skill-horizon"></div>
+                <div class="aether-skill-crown">✦ AETHER ✦</div>
+            `;
+
+            const feathers = burst.querySelector('.aether-skill-feathers');
+            const featherCount = getLuxuryQualityCount(34);
+            for (let index = 0; index < featherCount; index++) {
+                const feather = document.createElement('i');
+                feather.style.setProperty('--aether-feather-angle', `${index * (360 / featherCount)}deg`);
+                feather.style.setProperty('--aether-feather-distance', `${150 + (index % 7) * 48}px`);
+                feather.style.setProperty('--aether-feather-delay', `${index * .016}s`);
+                feathers?.appendChild(feather);
+            }
+
+            const stars = burst.querySelector('.aether-skill-stars');
+            const starCount = getLuxuryQualityCount(52);
+            for (let index = 0; index < starCount; index++) {
+                const star = document.createElement('i');
+                star.textContent = index % 5 === 0 ? '✦' : '·';
+                star.style.setProperty('--aether-star-x', `${(index * 43 + 7) % 100}%`);
+                star.style.setProperty('--aether-star-y', `${(index * 71 + 13) % 100}%`);
+                star.style.setProperty('--aether-star-delay', `${index * .012}s`);
+                stars?.appendChild(star);
+            }
+
+            const comets = burst.querySelector('.aether-skill-comets');
+            const cometCount = getLuxuryQualityCount(10);
+            for (let index = 0; index < cometCount; index++) {
+                const comet = document.createElement('i');
+                comet.style.setProperty('--aether-comet-x', `${8 + ((index * 17) % 86)}%`);
+                comet.style.setProperty('--aether-comet-y', `${5 + ((index * 31) % 55)}%`);
+                comet.style.setProperty('--aether-comet-delay', `${index * .12}s`);
+                comets?.appendChild(comet);
+            }
+
+            const shards = burst.querySelector('.aether-skill-shards');
+            const shardCount = getLuxuryQualityCount(28);
+            for (let index = 0; index < shardCount; index++) {
+                const shard = document.createElement('i');
+                shard.style.setProperty('--aether-shard-angle', `${index * (360 / shardCount)}deg`);
+                shard.style.setProperty('--aether-shard-distance', `${90 + (index % 6) * 44}px`);
+                shard.style.setProperty('--aether-shard-delay', `${index * .018}s`);
+                shards?.appendChild(shard);
+            }
+
+            const orbit = burst.querySelector('.aether-skill-orbit');
+            for (let index = 0; index < 12; index++) {
+                const node = document.createElement('i');
+                node.textContent = index % 3 === 0 ? '✦' : '◇';
+                node.style.setProperty('--aether-skill-node-angle', `${index * 30}deg`);
+                orbit?.appendChild(node);
+            }
+
+            const dialogue = document.createElement('div');
+            dialogue.className = 'aether-mythic-screen-dialogue';
+            dialogue.innerHTML = `
+                <span>✦</span>
+                <div>
+                    <small>AETHER · THẦN THOẠI</small>
+                    <strong>THIÊN QUANG NGUYÊN SƠ</strong>
+                    <em>Thiên quang giáng thế · tinh giới khai môn.</em>
+                </div>
+                <span>✧</span>
+            `;
+
+            document.body.append(burst, dialogue);
+            requestAnimationFrame(() => {
+                burst.classList.add('is-active');
+                dialogue.classList.add('is-active');
+            });
+
+            this.setTimer(() => burst.classList.add('is-climax'), 520);
+            this.setTimer(() => burst.classList.add('is-apex'), 1180);
+            this.setTimer(() => {
+                burst.classList.add('is-ending');
+                dialogue.classList.add('is-ending');
+            }, 3900);
+            this.setTimer(() => {
+                burst.remove();
+                dialogue.remove();
+                document.documentElement.classList.remove(
+                    'aether-luminous-skill-active'
+                );
+                this.skillLocked = false;
+            }, 5000);
+
+            return true;
+        },
+
+        installPetSkill() {
+            const pet = this.getPet();
+            const container = document.getElementById(
+                'virtual-pet-container'
+            );
+            if (!pet || !container) return false;
+
+            if (this.activePetElement && this.activePetElement !== pet) {
+                const oldPet = this.activePetElement;
+                if (this.petClickHandler) oldPet.removeEventListener('click', this.petClickHandler);
+                if (this.petPointerDownHandler) oldPet.removeEventListener('pointerdown', this.petPointerDownHandler);
+                if (this.petPointerUpHandler) oldPet.removeEventListener('pointerup', this.petPointerUpHandler);
+                if (this.petKeyHandler) oldPet.removeEventListener('keydown', this.petKeyHandler);
+            }
+
+            this.activePetElement = pet;
+            let lastPointerUltimateAt = 0;
+
+            const activateAt = (x, y) => {
+                if (this.skillLocked) return false;
+                container.classList.remove('aether-mythic-casting');
+                void container.offsetWidth;
+                container.classList.add('aether-mythic-casting');
+                this.createPageClick(x, y, true);
+                const started = this.triggerUltimate(x, y);
+                if (started) {
+                    this.setTimer(() => {
+                        container.classList.remove('aether-mythic-casting');
+                    }, 2300);
+                }
+                return started;
+            };
+
+            this.petPointerDownHandler = event => {
+                if (event.button !== undefined && event.button !== 0) return;
+                const rect = pet.getBoundingClientRect();
+                const x = Number.isFinite(event.clientX) ? event.clientX : rect.left + rect.width / 2;
+                const y = Number.isFinite(event.clientY) ? event.clientY : rect.top + rect.height / 2;
+                this.petPointerState = {
+                    id: event.pointerId,
+                    x,
+                    y,
+                    time: performance.now()
+                };
+                container.classList.add('aether-mythic-pressed');
+                this.createPageClick(x, y, true);
+            };
+
+            this.petPointerUpHandler = event => {
+                container.classList.remove('aether-mythic-pressed');
+                const state = this.petPointerState;
+                this.petPointerState = null;
+                if (!state) return;
+                if (state.id !== undefined && event.pointerId !== undefined && state.id !== event.pointerId) return;
+
+                if (
+                    typeof PetInteractionManager !== 'undefined' &&
+                    PetInteractionManager.isPetDragging
+                ) return;
+
+                const x = Number.isFinite(event.clientX) ? event.clientX : state.x;
+                const y = Number.isFinite(event.clientY) ? event.clientY : state.y;
+                const distance = Math.hypot(x - state.x, y - state.y);
+                const duration = performance.now() - state.time;
+                if (distance > 18 || duration > 900) return;
+
+                event.preventDefault();
+                event.stopPropagation();
+                lastPointerUltimateAt = performance.now();
+                activateAt(x, y);
+            };
+
+            this.petClickHandler = event => {
+                if (performance.now() - lastPointerUltimateAt < 500) return;
+                if (
+                    typeof PetInteractionManager !== 'undefined' &&
+                    PetInteractionManager.isPetDragging
+                ) return;
+
+                event.preventDefault();
+                event.stopPropagation();
+                const rect = pet.getBoundingClientRect();
+                const x = Number.isFinite(event.clientX) && event.clientX > 0
+                    ? event.clientX
+                    : rect.left + rect.width / 2;
+                const y = Number.isFinite(event.clientY) && event.clientY > 0
+                    ? event.clientY
+                    : rect.top + rect.height / 2;
+                activateAt(x, y);
+            };
+
+            this.petKeyHandler = event => {
+                if (event.key !== 'Enter' && event.key !== ' ') return;
+                event.preventDefault();
+                const rect = pet.getBoundingClientRect();
+                activateAt(rect.left + rect.width / 2, rect.top + rect.height / 2);
+            };
+
+            pet.addEventListener('pointerdown', this.petPointerDownHandler);
+            pet.addEventListener('pointerup', this.petPointerUpHandler);
+            pet.addEventListener('click', this.petClickHandler);
+            pet.addEventListener('keydown', this.petKeyHandler);
+            return true;
+        },
+
+        repair() {
+            if (!document.documentElement.classList.contains(
+                'aether-luminous-equipped'
+            )) return;
+
+            if (!document.querySelector('.aether-mythic-world')) {
+                this.createWorld();
+            }
+            if (!document.querySelector('.aether-mythic-ui-frame')) {
+                this.createInterface();
+            }
+            if (
+                !document.querySelector(
+                    '#virtual-pet-container .aether-mythic-pet-realm'
+                )
+            ) {
+                this.createPetRealm();
+            }
+            if (!this.activePetElement || !this.activePetElement.isConnected) {
+                if (this.activePetElement && this.petClickHandler) {
+                    this.activePetElement.removeEventListener('click', this.petClickHandler);
+                    if (this.petPointerDownHandler) this.activePetElement.removeEventListener('pointerdown', this.petPointerDownHandler);
+                    if (this.petPointerUpHandler) this.activePetElement.removeEventListener('pointerup', this.petPointerUpHandler);
+                    if (this.petKeyHandler) this.activePetElement.removeEventListener('keydown', this.petKeyHandler);
+                }
+                this.activePetElement = null;
+                this.petClickHandler = null;
+                this.petPointerDownHandler = null;
+                this.petPointerUpHandler = null;
+                this.petKeyHandler = null;
+                this.installPetSkill();
+            }
+        },
+
+        mount() {
+            this.clear();
+            ensureAetherStylesheet();
+
+            document.documentElement.classList.add(
+                'aether-luminous-equipped'
+            );
+            document.body?.classList.add(
+                'theme-aether-luminous-stage'
+            );
+
+            this.createWorld();
+            this.createInterface();
+            this.createPetRealm();
+            this.installGlobalClick();
+            this.installPetSkill();
+
+            [120, 420, 900, 1600].forEach(delay => {
+                this.setTimer(() => this.repair(), delay);
+            });
+
+            return true;
+        }
+    };
+
     // ========================================================
     // NYX · CSS LAZY GUARD
     // - Không tải ở startup nếu NYX không cần.
@@ -10171,6 +10964,16 @@
                     );
                 }
 
+
+                try {
+                    LuxuryAetherRuntime.clear();
+                } catch (error) {
+                    console.warn(
+                        '[LuxuryStore] Không thể dọn runtime Aether:',
+                        error
+                    );
+                }
+
                 try {
                     LuxuryLotmKleinRuntime.clear();
                 } catch (error) {
@@ -10254,6 +11057,13 @@
                     'pet_mythic_nyx_1' ||
                     petData?.petEffect ===
                     'mythic-nyx-night-magic';
+
+
+                const isMythicAether =
+                    petData?.id ===
+                    'pet_mythic_aether_1' ||
+                    petData?.petEffect ===
+                    'mythic-aether-luminous-magic';
 
                 const isLotmKlein =
                     petData?.id ===
@@ -10478,6 +11288,29 @@
 
 
                 /*
+                 * AETHER THẦN THOẠI:
+                 * Runtime riêng dựng world + interface + pet realm
+                 * + click toàn web + ultimate khi nhấn nhân vật.
+                 */
+                if (isMythicAether) {
+                    requestAnimationFrame(
+                        () => {
+                            try {
+                                LuxuryAetherRuntime.mount();
+                            } catch (error) {
+                                console.error(
+                                    '[LuxuryStore] Lỗi mount Aether:',
+                                    error
+                                );
+                            }
+                        }
+                    );
+
+                    return;
+                }
+
+
+                /*
                  * NYX THẦN THOẠI:
                  * PetManager dựng pet realm + ultimate gốc.
                  * Runtime V2 bổ sung World + Interface + global click
@@ -10586,6 +11419,11 @@
                     String(itemId) ===
                     'pet_mythic_nyx_1';
 
+
+                const isMythicAether =
+                    String(itemId) ===
+                    'pet_mythic_aether_1';
+
                 const isLotmKlein =
                     String(itemId) ===
                     'pet_lotm_klein_event_1';
@@ -10624,6 +11462,11 @@
 
                 if (isMythicNyx) {
                     LuxuryNyxRuntime.clear();
+                }
+
+
+                if (isMythicAether) {
+                    LuxuryAetherRuntime.clear();
                 }
 
                 if (isLotmKlein) {
@@ -10792,6 +11635,36 @@ if (isNationalDay) {
                                 '.nyx-mythic-screen-dialogue-v2'
                             )
                             .forEach(element => element.remove());
+                    }
+
+                    if (isMythicAether) {
+                        LuxuryAetherRuntime.clear();
+
+                        const container =
+                            document.getElementById(
+                                'virtual-pet-container'
+                            );
+
+                        container?.classList.remove(
+                            'pet-aether-mythic-stage',
+                            'aether-mythic-awakening',
+                            'aether-mythic-casting'
+                        );
+
+                        container
+                            ?.querySelectorAll(
+                                '.aether-mythic-pet-realm'
+                            )
+                            .forEach(element => element.remove());
+
+                        document.documentElement.classList.remove(
+                            'aether-luminous-equipped',
+                            'aether-luminous-skill-active'
+                        );
+
+                        document.body?.classList.remove(
+                            'theme-aether-luminous-stage'
+                        );
                     }
 
                     if (isLotmKlein) {
@@ -11098,6 +11971,7 @@ if (isNationalDay) {
             LuxurySummerRuntime,
             LuxuryNationalDayRuntime,
             LuxuryNyxRuntime,
+            LuxuryAetherRuntime,
             LuxuryTamonBSideRuntime,
             LuxuryTamonPinkStaticRuntime
         ].forEach(runtime => {
@@ -11649,6 +12523,7 @@ if (isNationalDay) {
             SUMMER_PREMIUM_PET,
             NATIONAL_DAY_PREMIUM_PET,
             MYTHIC_NYX_PET,
+            MYTHIC_AETHER_PET,
             LOTM_KLEIN_EVENT_PET,
             CAM_CO_CAM_MONG_PET,
             TAMON_BSIDE_PET,
@@ -12022,6 +12897,23 @@ if (isNationalDay) {
 
                 if (!equippedMythicNyx) {
                     LuxuryNyxRuntime.clear();
+                }
+
+
+                const equippedMythicAether =
+                    Object
+                        .values(
+                            luxuryInventoryState || {}
+                        )
+                        .find(
+                            item =>
+                                String(item?.id) ===
+                                'pet_mythic_aether_1' &&
+                                item?.isEquipped === true
+                        );
+
+                if (!equippedMythicAether) {
+                    LuxuryAetherRuntime.clear();
                 }
 
                 const equippedLotmKlein =
@@ -12774,6 +13666,112 @@ if (isNationalDay) {
                             🎁 Phần thưởng sự kiện
                         </div>
                         ${actionHTML}
+                    </div>
+                </article>
+            `;
+        }
+
+
+        // ====================================================
+        // CARD RIÊNG AETHER · THẦN THOẠI
+        // Đồng bộ bố cục Premium full-art đang đứng cạnh Aether:
+        // article -> visual toàn thẻ -> tag/nhân vật -> details overlay.
+        // Details trượt lên khi hover/focus; outer card không cao hơn các thẻ khác.
+        // ====================================================
+        if (item.id === 'pet_mythic_aether_1') {
+            ensureAetherStylesheet();
+
+            const tagImage = escapeHTML(
+                item.luxuryTagImage ||
+                'assets/Premium/Thần thoại/aether-tag2.png'
+            );
+            const formattedPrice =
+                Number(item.price || 15000)
+                    .toLocaleString('vi-VN');
+
+            let actionHTML = '';
+
+            if (!isOwned) {
+                actionHTML = `
+                    <button
+                        type="button"
+                        class="aether-mythic-action aether-mythic-buy"
+                        onclick="window.LuxuryStore.buyItemSafely('${id}')"
+                    >
+                        🪙 Mua ${formattedPrice} Coin
+                    </button>
+                `;
+            } else if (isEquipped) {
+                actionHTML = `
+                    <button
+                        type="button"
+                        class="aether-mythic-action is-equipped"
+                        onclick="StoreManager.unapplyItem('${id}')"
+                    >
+                        ✕ Gỡ
+                    </button>
+                `;
+            } else {
+                actionHTML = `
+                    <button
+                        type="button"
+                        class="aether-mythic-action"
+                        onclick="StoreManager.applyItem('${id}')"
+                    >
+                        ✦ Sử dụng
+                    </button>
+                `;
+            }
+
+            return `
+                <article
+                    class="luxury-product-card aether-mythic-card store-theme-locked ui-theme-immune"
+                    data-item-id="${id}"
+                    data-special-card="mythic-aether"
+                    data-theme-immune="true"
+                    data-luxury-style="mythic-aether"
+                    tabindex="0"
+                >
+                    <div class="aether-mythic-visual">
+                        <div class="aether-card-shape"></div>
+                        <div class="aether-card-sun" aria-hidden="true">
+                            <i class="ring ring-a"></i>
+                            <i class="ring ring-b"></i>
+                            <i class="ring ring-c"></i>
+                        </div>
+                        <div class="aether-card-stars" aria-hidden="true">
+                            <i></i><i></i><i></i><i></i><i></i><i></i>
+                            <i></i><i></i><i></i><i></i><i></i><i></i>
+                        </div>
+                        <div class="aether-card-veil" aria-hidden="true"></div>
+
+                        <img
+                            src="${tagImage}"
+                            alt="Thần thoại"
+                            class="aether-mythic-tag-art"
+                            draggable="false"
+                        >
+
+                        <img
+                            src="${image}"
+                            alt="${name}"
+                            class="aether-mythic-character"
+                            draggable="false"
+                        >
+
+                        <div class="aether-mythic-info">
+                            <span class="aether-mythic-label">
+                                ✦ THÚ CƯNG PREMIUM · THẦN THOẠI
+                            </span>
+                            <h3>${name}</h3>
+                            <p class="aether-mythic-description">
+                                Thần bầu trời sáng, kết tinh của thiên quang nguyên sơ; khi đồng hành sẽ mở ra Thánh Vực Thiên Quang rực rỡ trên toàn website.
+                            </p>
+                            <div class="aether-mythic-price">
+                                🪙 Giá bán: ${formattedPrice} Coin
+                            </div>
+                            ${actionHTML}
+                        </div>
                     </div>
                 </article>
             `;
@@ -14822,6 +15820,19 @@ if (isNationalDay) {
             }
         },
 
+
+        // Test nhanh Aether Thần thoại — FULL SUITE V1.
+        previewAether: () => {
+            if (
+                typeof PetManager !== 'undefined' &&
+                typeof PetManager.spawnPet === 'function'
+            ) {
+                PetManager.spawnPet(
+                    MYTHIC_AETHER_PET
+                );
+            }
+        },
+
         // Test nhanh thú cưng Quốc khánh (không cấp quyền sở hữu).
         previewNationalDay: () => {
             if (
@@ -14840,6 +15851,11 @@ if (isNationalDay) {
 
         clearNyx: () => {
             LuxuryNyxRuntime.clear();
+        },
+
+
+        clearAether: () => {
+            LuxuryAetherRuntime.clear();
         },
 
         clearCamCoCamMong: () => {

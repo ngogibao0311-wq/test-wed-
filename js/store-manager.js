@@ -1575,6 +1575,183 @@ const StoreConfig = {
             backgroundPosition: 'center center'
         },
         {
+            id: 'pet_truyenthuyet_aether_chibi_2',
+
+            name: 'AETHER · Tiểu Thiên Quang',
+
+            type: 'pet',
+
+            price: 900,
+            isNonCoin: false,
+
+            /*
+             * Dùng CHÍNH XÁC tag hiển thị của NYX · Tiểu Dạ Tinh Linh.
+             * tags bổ sung chỉ phục vụ tìm kiếm/phân loại, không đổi tag trên card.
+             */
+            tag: 'Truyền thuyết',
+            tags: [
+                'Truyền thuyết',
+                'Thần thoại',
+                'Aether'
+            ],
+
+            value:
+                'assets/Premium/Thần thoại/aether-chibi2.png',
+
+            asset:
+                'assets/Premium/Thần thoại/aether-chibi2.png',
+
+            isIcon: false,
+
+            /*
+             * CSS tự chứa card + realm + click skill Aether Chibi.
+             * Namespace aetlc-* hoàn toàn tách khỏi Aether Luxury/NYX.
+             */
+            runtimeCss:
+                'css/aether-than-thoai.css?v=20260917.aether-little-spirit-v1',
+
+            petEffect:
+                'aether-little-daystar-magic',
+
+            /*
+             * Không chạy hiệu ứng click mặc định; pet có click skill riêng.
+             */
+            disableClickEffect: true
+        },
+        {
+            id: 'theme_truyenthuyet_aether_thien_quang_thanh_vuc',
+
+            name: 'AETHER · Thiên Quang Thánh Vực',
+            type: 'theme',
+
+            price: 920,
+            isNonCoin: false,
+
+            // Cùng tag hiển thị và cùng card với AETHER · Tiểu Thiên Quang.
+            tag: 'Truyền thuyết',
+            tags: [
+                'Truyền thuyết',
+                'Thần thoại',
+                'Aether'
+            ],
+
+            value: 'theme-aether-luminous-sanctum',
+            customIcon: '✦',
+
+            // V2: giao diện Thánh Vực cao cấp hơn, vẫn dùng namespace riêng aettheme2-*.
+            runtimeCss:
+                'css/aether-than-thoai.css?v=20260917.aether-theme-sanctum-v2'
+        },
+        {
+            id: 'effect_truyenthuyet_aether_thien_quang_thien_mon',
+
+            name: 'AETHER · Thiên Môn Quang Triều',
+            type: 'effect',
+
+            price: 950,
+            isNonCoin: false,
+
+            // Cùng tag + cùng card với Tiểu Thiên Quang và Thiên Quang Thánh Vực.
+            tag: 'Truyền thuyết',
+            tags: [
+                'Truyền thuyết',
+                'Thần thoại',
+                'Aether'
+            ],
+
+            value: 'effect_truyenthuyet_aether_thien_quang_thien_mon',
+            customIcon: '☼',
+
+            // Effect toàn web độc lập: namespace aetfx2-*.
+            runtimeCss:
+                'css/aether-than-thoai.css?v=20260917.aether-heaven-gate-effect-v1',
+            effectNamespace: 'aetfx2-heavenly-aureole'
+        },
+        {
+            id: 'frame_truyenthuyet_aether_thien_quang_chi_hoan',
+
+            name: 'AETHER · Thiên Quang Chi Hoàn',
+            type: 'frame',
+
+            price: 250,
+            isNonCoin: false,
+
+            // Cùng tag + cùng card với AETHER · Tiểu Thiên Quang.
+            tag: 'Truyền thuyết',
+            tags: [
+                'Truyền thuyết',
+                'Thần thoại',
+                'Aether'
+            ],
+
+            value:
+                'assets/Premium/Thần thoại/aether-khung2.png',
+
+            asset:
+                'assets/Premium/Thần thoại/aether-khung2.png',
+
+            isIcon: false,
+
+            /*
+             * Khung Aether V2 dùng namespace CSS aetfr3-* riêng.
+             * Không dùng selector/keyframe của NYX hay các khung khác.
+             */
+            frameEffect:
+                'aether-thien-quang-chi-hoan',
+
+            // Tự nạp đúng CSS khung sau F5, không phụ thuộc việc mở Cửa hàng.
+            runtimeCss:
+                'css/aether-than-thoai.css?v=20260917.aether-frame-v1'
+        },
+        {
+            id: 'background_truyenthuyet_aether_thien_khung_luu_quang',
+
+            name: 'AETHER · Thiên Khung Lưu Quang',
+            type: 'background',
+
+            price: 150,
+            isNonCoin: false,
+
+            // Cùng tag + cùng card với AETHER · Tiểu Thiên Quang.
+            tag: 'Truyền thuyết',
+            tags: [
+                'Truyền thuyết',
+                'Thần thoại',
+                'Aether',
+                'Nền'
+            ],
+
+            value:
+                'assets/Premium/Thần thoại/aether-nen2.png',
+
+            asset:
+                'assets/Premium/Thần thoại/aether-nen2.png',
+
+            isIcon: false,
+
+            /*
+             * NỀN AETHER RIÊNG — chỉ cấu hình trên chính item này.
+             * - cover: phủ kín màn hình nhưng giữ đúng tỉ lệ ảnh;
+             * - center center: ưu tiên trọng tâm ảnh ở giữa viewport;
+             * - no-repeat + fixed: không lặp và không trượt nền khi cuộn;
+             * - không sửa WebBackgroundManager và không tác động nền khác.
+             */
+            backgroundFit:
+                'cover',
+
+            backgroundPosition:
+                'center center',
+
+            backgroundRepeat:
+                'no-repeat',
+
+            backgroundAttachment:
+                'fixed',
+
+            premiumSuite:
+                'aetbg4-heaven-sky-radiance-background-v1'
+        },
+        {
             id: 'pet_truyenthuyet_nyx_chibi_1',
 
             name: 'NYX · Tiểu Dạ Tinh Linh',
@@ -2406,6 +2583,9 @@ const FRAME_RUNTIME_CSS_BY_ITEM_ID = Object.freeze({
         'css/nyx-than-thoai.css?v=20260917.frame-runtime-barrier-v1',
         'css/legendery.css?v=20260917.frame-runtime-barrier-v1'
     ]),
+    frame_truyenthuyet_aether_thien_quang_chi_hoan: Object.freeze([
+        'css/aether-than-thoai.css?v=20260917.aether-frame-v1'
+    ]),
     frame_cam_mong_thanh_huyen_chi_hoan: Object.freeze([
         'css/cam-co-cam-mong.css?v=20260917.frame-runtime-barrier-v1'
     ]),
@@ -2430,6 +2610,47 @@ StoreConfig.items.forEach(item => {
         item.runtimeCss = runtimeCss;
     }
 });
+
+
+// =========================================================
+// AETHER · TIỂU THIÊN QUANG — CSS RUNTIME GUARD
+// Dùng chung đúng file aether-than-thoai.css đã có; không sửa/ghi đè
+// các hiệu ứng Aether Luxury khác. Chỉ bảo đảm card cửa hàng thường
+// có skin riêng ngay cả khi tab Luxury chưa từng được mở.
+// =========================================================
+function ensureAetherLittleSpiritStylesheet() {
+    if (typeof document === 'undefined' || !document.head) return null;
+
+    const existing = Array.from(
+        document.querySelectorAll('link[rel="stylesheet"][href]')
+    ).find(link =>
+        /(?:^|\/)aether-than-thoai(?:\(\d+\))?\.css(?:[?#].*)?$/i
+            .test(link.href || '')
+    );
+
+    if (existing) return existing;
+
+    const byId = document.getElementById(
+        'aether-little-spirit-runtime-style'
+    );
+    if (byId) return byId;
+
+    const link = document.createElement('link');
+    link.id = 'aether-little-spirit-runtime-style';
+    link.rel = 'stylesheet';
+    link.href =
+        'css/aether-than-thoai.css?v=20260917.aether-little-spirit-theme-v2';
+    link.dataset.aetherLittleSpirit = 'true';
+
+    link.addEventListener('error', () => {
+        console.error(
+            '[AETHER CHIBI] Không tải được css/aether-than-thoai.css'
+        );
+    }, { once: true });
+
+    document.head.appendChild(link);
+    return link;
+}
 
 class StoreManager {
     static getItemsByType(type) {
@@ -3155,6 +3376,18 @@ class StoreManager {
         ]);
 
         /*
+         * AETHER · TIỂU THIÊN QUANG
+         * Card mỹ thuật riêng nhưng GIỮ NGUYÊN DOM/bố cục store-item-card.
+         */
+        const aetherLittleSpiritIds = new Set([
+            'pet_truyenthuyet_aether_chibi_2',
+            'theme_truyenthuyet_aether_thien_quang_thanh_vuc',
+            'effect_truyenthuyet_aether_thien_quang_thien_mon',
+            'frame_truyenthuyet_aether_thien_quang_chi_hoan',
+            'background_truyenthuyet_aether_thien_khung_luu_quang'
+        ]);
+
+        /*
  * BỘ NGUYỆT DẠ NYX
  * Card giữ nguyên thiết kế riêng,
  * không cho giao diện khác ghi đè.
@@ -3467,6 +3700,28 @@ class StoreManager {
 
             specialCardGroup =
                 'nyx-little-spirit';
+
+            isThemeImmune = true;
+        }
+
+
+        /* =============================================
+           AETHER · TIỂU THIÊN QUANG
+           - Card riêng về mỹ thuật
+           - Không thay DOM/bố cục card chuẩn
+           - Miễn nhiễm theme/giao diện đang trang bị
+           ============================================= */
+        if (aetherLittleSpiritIds.has(item.id)) {
+            ensureAetherLittleSpiritStylesheet();
+
+            cardClasses.push(
+                'store-card-aether-little-spirit',
+                'store-theme-locked',
+                'ui-theme-immune'
+            );
+
+            specialCardGroup =
+                'aether-little-spirit';
 
             isThemeImmune = true;
         }

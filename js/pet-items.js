@@ -1,5 +1,38 @@
 // js/pet-items.js
 
+
+// =========================================================
+// AETHER · TIỂU THIÊN QUANG — CSS RUNTIME GUARD
+// Chỉ bảo đảm CSS namespace aetlc-* có mặt khi pet được khôi phục
+// trực tiếp sau reload. Không thay đổi hiệu ứng Aether/NYX hiện có.
+// =========================================================
+function ensureAetherLittleSpiritPetStylesheet() {
+    if (typeof document === 'undefined' || !document.head) return null;
+
+    const existing = Array.from(
+        document.querySelectorAll('link[rel="stylesheet"][href]')
+    ).find(link =>
+        /(?:^|\/)aether-than-thoai(?:\(\d+\))?\.css(?:[?#].*)?$/i
+            .test(link.href || '')
+    );
+
+    if (existing) return existing;
+
+    const byId = document.getElementById(
+        'aether-little-spirit-runtime-style'
+    );
+    if (byId) return byId;
+
+    const link = document.createElement('link');
+    link.id = 'aether-little-spirit-runtime-style';
+    link.rel = 'stylesheet';
+    link.href =
+        'css/aether-than-thoai.css?v=20260917.aether-little-spirit-v1';
+    link.dataset.aetherLittleSpirit = 'true';
+    document.head.appendChild(link);
+    return link;
+}
+
 class PetManager {
     static container = document.getElementById('virtual-pet-container');
     // EFFECT QUALITY MANAGER v1.2.0
@@ -1114,6 +1147,9 @@ class PetManager {
             'nyx-mythic-casting',
             'pet-nyx-little-night-stage',
             'nyx-little-night-casting',
+            'pet-aether-little-sky-stage',
+            'aetlc-awakening',
+            'aetlc-casting',
             'pet-tamon-bside-stage',
             'tamon-bside-pet-casting',
             'pet-tamon-bside-chibi-stage',
@@ -2996,6 +3032,115 @@ class PetManager {
         }
 
         // =========================================================
+        // AETHER · TIỂU THIÊN QUANG — AETLC V1
+        // Concept RIÊNG: la bàn thiên không + lăng kính bình minh + nhật tinh.
+        // Chỉ tạo hiệu ứng quanh pet; KHÔNG gọi/đụng Aether Luxury, NYX,
+        // ThemeManager hay EffectManager.
+        // =========================================================
+        if (
+            petData.id === 'pet_truyenthuyet_aether_chibi_2' ||
+            petData.petEffect === 'aether-little-daystar-magic'
+        ) {
+            ensureAetherLittleSpiritPetStylesheet();
+
+            petElement.setAttribute('draggable', 'false');
+            petElement.classList.add('aetlc-avatar');
+
+            this.container.classList.add(
+                'pet-aether-little-sky-stage',
+                'aetlc-awakening'
+            );
+
+            const realm = document.createElement('div');
+            realm.className = 'aetlc-realm';
+            realm.setAttribute('aria-hidden', 'true');
+            realm.innerHTML = `
+                <span class="aetlc-backglow glow-a"></span>
+                <span class="aetlc-backglow glow-b"></span>
+
+                <span class="aetlc-sky-compass">
+                    <i class="aetlc-compass-ring ring-a"></i>
+                    <i class="aetlc-compass-ring ring-b"></i>
+                    <i class="aetlc-compass-axis axis-a"></i>
+                    <i class="aetlc-compass-axis axis-b"></i>
+                    <b class="aetlc-compass-core">✦</b>
+                </span>
+
+                <span class="aetlc-prism-orbit orbit-a"></span>
+                <span class="aetlc-prism-orbit orbit-b"></span>
+
+                <span class="aetlc-wing-trace wing-left"></span>
+                <span class="aetlc-wing-trace wing-right"></span>
+
+                <div class="aetlc-prism-field"></div>
+                <div class="aetlc-mote-field"></div>
+
+                <span class="aetlc-floor-disc"></span>
+                <span class="aetlc-floor-line"></span>
+            `;
+
+            const prismField = realm.querySelector('.aetlc-prism-field');
+            const prismCount = this.getQualityCount(8, 5);
+
+            for (let index = 0; index < prismCount; index++) {
+                const prism = document.createElement('i');
+                prism.className = 'aetlc-prism';
+                prism.style.setProperty(
+                    '--aetlc-prism-angle',
+                    `${index * (360 / prismCount)}deg`
+                );
+                prism.style.setProperty(
+                    '--aetlc-prism-angle-back',
+                    `${-index * (360 / prismCount)}deg`
+                );
+                prism.style.setProperty(
+                    '--aetlc-prism-radius',
+                    `${72 + (index % 3) * 13}px`
+                );
+                prism.style.setProperty(
+                    '--aetlc-prism-delay',
+                    `${-index * .37}s`
+                );
+                prismField?.appendChild(prism);
+            }
+
+            const moteField = realm.querySelector('.aetlc-mote-field');
+            const moteCount = this.getQualityCount(20, 10);
+
+            for (let index = 0; index < moteCount; index++) {
+                const mote = document.createElement('i');
+                mote.className =
+                    index % 5 === 0
+                        ? 'aetlc-mote is-star'
+                        : 'aetlc-mote';
+                mote.textContent = index % 5 === 0 ? '✧' : '';
+                mote.style.setProperty(
+                    '--aetlc-mote-x',
+                    `${8 + (index * 37) % 84}%`
+                );
+                mote.style.setProperty(
+                    '--aetlc-mote-y',
+                    `${10 + (index * 53) % 76}%`
+                );
+                mote.style.setProperty(
+                    '--aetlc-mote-delay',
+                    `${-(index % 9) * .29}s`
+                );
+                mote.style.setProperty(
+                    '--aetlc-mote-size',
+                    `${2 + (index % 4)}px`
+                );
+                moteField?.appendChild(mote);
+            }
+
+            this.container.appendChild(realm);
+
+            window.setTimeout(() => {
+                this.container?.classList.remove('aetlc-awakening');
+            }, 1350);
+        }
+
+        // =========================================================
         // NYX · TIỂU DẠ TINH LINH
         // Concept: tinh linh đêm + trăng non + bụi sao.
         // KHÔNG dùng realm / class / animation Hắc Dạ Nguyên Sơ.
@@ -4501,6 +4646,223 @@ class PetManager {
         // Khôi phục kéo-thả + lưu pet hiện tại như cơ chế cũ.
         this.makePetDraggable();
         localStorage.setItem('active_pet', petData.id);
+
+        // =========================================================
+        // AETHER · TIỂU THIÊN QUANG — CLICK ULTIMATE TOÀN MÀN HÌNH
+        // "QUANG LĂNG KHAI ẤN"
+        // Khi nhấn vào pet ở góc phải sẽ tạo một hiệu ứng full-screen
+        // hoàn toàn riêng bằng namespace aetlc-screen-*.
+        // Không dùng lại DOM/class/keyframe của Aether Luxury hay NYX.
+        // =========================================================
+        if (
+            petData.id === 'pet_truyenthuyet_aether_chibi_2' ||
+            petData.petEffect === 'aether-little-daystar-magic'
+        ) {
+            let aetherLittleClickLocked = false;
+
+            petElement.addEventListener('click', event => {
+                if (aetherLittleClickLocked) return;
+
+                if (
+                    typeof PetInteractionManager !== 'undefined' &&
+                    PetInteractionManager.isPetDragging
+                ) {
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+                event.stopImmediatePropagation?.();
+
+                aetherLittleClickLocked = true;
+
+                const rect = petElement.getBoundingClientRect();
+                const originX = event.clientX > 0
+                    ? event.clientX
+                    : rect.left + rect.width / 2;
+                const originY = event.clientY > 0
+                    ? event.clientY
+                    : rect.top + rect.height / 2;
+
+                document
+                    .querySelectorAll('.aetlc-screen-ultimate')
+                    .forEach(node => node.remove());
+
+                this.container?.classList.remove('aetlc-casting');
+                if (this.container) void this.container.offsetWidth;
+                this.container?.classList.add('aetlc-casting');
+
+                document.documentElement.classList.remove(
+                    'aetlc-screen-casting'
+                );
+                void document.documentElement.offsetWidth;
+                document.documentElement.classList.add(
+                    'aetlc-screen-casting'
+                );
+
+                const ultimate = document.createElement('div');
+                ultimate.className = 'aetlc-screen-ultimate';
+                ultimate.setAttribute('aria-hidden', 'true');
+                ultimate.style.setProperty(
+                    '--aetlc-origin-x',
+                    `${originX}px`
+                );
+                ultimate.style.setProperty(
+                    '--aetlc-origin-y',
+                    `${originY}px`
+                );
+
+                ultimate.innerHTML = `
+                    <div class="aetlc-screen-veil"></div>
+                    <div class="aetlc-screen-origin-burst"></div>
+
+                    <div class="aetlc-screen-solaris">
+                        <span class="aetlc-screen-core"></span>
+                        <span class="aetlc-screen-halo halo-a"></span>
+                        <span class="aetlc-screen-halo halo-b"></span>
+                        <span class="aetlc-screen-halo halo-c"></span>
+                        <span class="aetlc-screen-cross cross-a"></span>
+                        <span class="aetlc-screen-cross cross-b"></span>
+                    </div>
+
+                    <div class="aetlc-screen-mandala">
+                        <span class="aetlc-screen-mandala-ring ring-a"></span>
+                        <span class="aetlc-screen-mandala-ring ring-b"></span>
+                        <span class="aetlc-screen-mandala-diamond diamond-a"></span>
+                        <span class="aetlc-screen-mandala-diamond diamond-b"></span>
+                    </div>
+
+                    <div class="aetlc-screen-rune-circle"></div>
+                    <div class="aetlc-screen-beam-field"></div>
+                    <div class="aetlc-screen-starfield"></div>
+                    <div class="aetlc-screen-feather-field"></div>
+
+                    <span class="aetlc-screen-wing wing-left"></span>
+                    <span class="aetlc-screen-wing wing-right"></span>
+                    <span class="aetlc-screen-crown">✦</span>
+
+                    <div class="aetlc-screen-title">
+                        <small>AETHER · TIỂU THIÊN QUANG</small>
+                        <strong>QUANG LĂNG KHAI ẤN</strong>
+                        <em>Ánh thiên quang mở lối trên toàn cõi màn đêm</em>
+                    </div>
+                `;
+
+                const reducedMotion = window.matchMedia?.(
+                    '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+                ).matches;
+
+                const beamField = ultimate.querySelector('.aetlc-screen-beam-field');
+                const beamCount = this.getQualityCount(reducedMotion ? 18 : 28, reducedMotion ? 12 : 18);
+                for (let index = 0; index < beamCount; index++) {
+                    const beam = document.createElement('i');
+                    beam.style.setProperty(
+                        '--aetlc-screen-beam-angle',
+                        `${index * (360 / beamCount)}deg`
+                    );
+                    beam.style.setProperty(
+                        '--aetlc-screen-beam-length',
+                        `${24 + (index % 6) * 2}vmin`
+                    );
+                    beam.style.setProperty(
+                        '--aetlc-screen-beam-delay',
+                        `${(index % 9) * .025}s`
+                    );
+                    beamField?.appendChild(beam);
+                }
+
+                const runeCircle = ultimate.querySelector('.aetlc-screen-rune-circle');
+                const runes = ['ΑΙ', 'Θ', 'Η', 'Ρ', '✦', '☼', '✧', '✦'];
+                runes.forEach((symbol, index) => {
+                    const rune = document.createElement('span');
+                    const angle = index * (360 / runes.length);
+                    rune.textContent = symbol;
+                    rune.style.setProperty(
+                        '--aetlc-screen-rune-angle',
+                        `${angle}deg`
+                    );
+                    rune.style.setProperty(
+                        '--aetlc-screen-rune-angle-back',
+                        `${-angle}deg`
+                    );
+                    rune.style.setProperty(
+                        '--aetlc-screen-rune-delay',
+                        `${index * .08}s`
+                    );
+                    runeCircle?.appendChild(rune);
+                });
+
+                const starField = ultimate.querySelector('.aetlc-screen-starfield');
+                const starCount = this.getQualityCount(reducedMotion ? 34 : 54, reducedMotion ? 24 : 36);
+                for (let index = 0; index < starCount; index++) {
+                    const star = document.createElement('span');
+                    star.textContent = index % 5 === 0 ? '✦' : (index % 3 === 0 ? '·' : '✧');
+                    star.style.setProperty(
+                        '--aetlc-screen-star-x',
+                        `${(index * 37 + 9) % 100}%`
+                    );
+                    star.style.setProperty(
+                        '--aetlc-screen-star-y',
+                        `${(index * 53 + 17) % 100}%`
+                    );
+                    star.style.setProperty(
+                        '--aetlc-screen-star-size',
+                        `${10 + (index % 7) * 2}px`
+                    );
+                    star.style.setProperty(
+                        '--aetlc-screen-star-delay',
+                        `${(index % 12) * .07}s`
+                    );
+                    starField?.appendChild(star);
+                }
+
+                const featherField = ultimate.querySelector('.aetlc-screen-feather-field');
+                const featherCount = this.getQualityCount(reducedMotion ? 10 : 16, reducedMotion ? 8 : 12);
+                for (let index = 0; index < featherCount; index++) {
+                    const feather = document.createElement('i');
+                    feather.textContent = index % 4 === 0 ? '✦' : '❈';
+                    feather.style.setProperty(
+                        '--aetlc-screen-feather-angle',
+                        `${index * (360 / featherCount)}deg`
+                    );
+                    feather.style.setProperty(
+                        '--aetlc-screen-feather-angle-back',
+                        `${-index * (360 / featherCount)}deg`
+                    );
+                    feather.style.setProperty(
+                        '--aetlc-screen-feather-distance',
+                        `${18 + (index % 5) * 4}vmin`
+                    );
+                    feather.style.setProperty(
+                        '--aetlc-screen-feather-delay',
+                        `${index * .06}s`
+                    );
+                    featherField?.appendChild(feather);
+                }
+
+                document.body.appendChild(ultimate);
+
+                requestAnimationFrame(() => {
+                    ultimate.classList.add('is-active');
+                });
+
+                window.setTimeout(() => {
+                    ultimate.classList.add('is-ending');
+                }, 3600);
+
+                window.setTimeout(() => {
+                    ultimate.remove();
+                    document.documentElement.classList.remove(
+                        'aetlc-screen-casting'
+                    );
+                    this.container?.classList.remove('aetlc-casting');
+                }, 4450);
+
+                window.setTimeout(() => {
+                    aetherLittleClickLocked = false;
+                }, 4550);
+            });
+        }
 
         // =========================================================
         // NYX · TIỂU DẠ TINH LINH
