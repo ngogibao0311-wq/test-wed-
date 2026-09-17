@@ -15710,18 +15710,54 @@ window.updateTeacherLeaderboardChestRateUI = function () {
     return { dup, norm, leg, total };
 };
 
+function getTeacherLeaderboardScheduleState(settings = {}, now = new Date()) {
+    const isOpen = settings.isOpen === true;
+    const month = Number(settings.targetMonth);
+    const year = Number(settings.targetYear);
+    const hasRawSchedule = Boolean(settings.targetMonth && settings.targetYear);
+    const validDate = (
+        hasRawSchedule &&
+        Number.isInteger(month) &&
+        month >= 1 &&
+        month <= 12 &&
+        Number.isInteger(year) &&
+        year >= 2024 &&
+        year <= 2100
+    );
+
+    const currentMonthIndex = now.getFullYear() * 12 + now.getMonth();
+    const targetMonthIndex = validDate
+        ? year * 12 + (month - 1)
+        : null;
+
+    return {
+        isOpen,
+        month,
+        year,
+        hasRawSchedule,
+        validDate,
+        isFuture: validDate && targetMonthIndex > currentMonthIndex,
+        isDue: validDate && targetMonthIndex <= currentMonthIndex,
+        // Khi BXH đã mở, lịch tự mở cũ không còn ý nghĩa và không được hiển thị.
+        hasSchedule: !isOpen && validDate && targetMonthIndex > currentMonthIndex,
+        needsCleanup: isOpen && hasRawSchedule
+    };
+}
+
 function renderTeacherLeaderboardAdmin(settings = {}) {
     window.__teacherLeaderboardSettings = settings || {};
 
     const nowInfo = getTeacherLeaderboardNowInfo();
-    const isOpen = settings.isOpen === true;
-    const hasSchedule = Boolean(settings.targetMonth && settings.targetYear);
+    const scheduleState = getTeacherLeaderboardScheduleState(settings);
+    const isOpen = scheduleState.isOpen;
+    const hasSchedule = scheduleState.hasSchedule;
+    const nextMonthInfo = getTeacherLeaderboardNextMonthInfo();
     const scheduleMonth = hasSchedule
-        ? Number(settings.targetMonth)
-        : getTeacherLeaderboardNextMonthInfo().month;
+        ? scheduleState.month
+        : nextMonthInfo.month;
     const scheduleYear = hasSchedule
-        ? Number(settings.targetYear)
-        : getTeacherLeaderboardNextMonthInfo().year;
+        ? scheduleState.year
+        : nextMonthInfo.year;
 
     const rewardRank3 = settings.rewardRank3 !== undefined
         ? Number(settings.rewardRank3)
@@ -15761,19 +15797,26 @@ function renderTeacherLeaderboardAdmin(settings = {}) {
     setTeacherLeaderboardText('lbAdminCurrentSeasonStat', nowInfo.label);
 
     const scheduleLabel = hasSchedule
-        ? `Tháng ${Number(settings.targetMonth)}/${Number(settings.targetYear)}`
+        ? `Tháng ${scheduleState.month}/${scheduleState.year}`
         : 'Chưa có lịch';
 
-    setTeacherLeaderboardText('currentSeasonDisplay', scheduleLabel);
+    setTeacherLeaderboardText(
+        'currentSeasonDisplay',
+        isOpen ? 'Đang mở · không cần lịch hẹn' : scheduleLabel
+    );
     setTeacherLeaderboardText(
         'lbAdminScheduleChip',
-        hasSchedule ? `⏱️ Tự mở · ${scheduleLabel}` : '⏱️ Chưa có lịch hẹn'
+        isOpen
+            ? '✅ Đang mở · không có lịch chờ'
+            : (hasSchedule ? `⏱️ Tự mở · ${scheduleLabel}` : '⏱️ Chưa có lịch hẹn')
     );
     setTeacherLeaderboardText(
         'lbAdminScheduleDescription',
-        hasSchedule
-            ? `Hệ thống sẽ tự chuyển sang trạng thái mở khi tới ${scheduleLabel}.`
-            : 'Bạn có thể hẹn tháng tương lai hoặc mở ngay bằng công tắc phía trên.'
+        isOpen
+            ? 'Bảng Xếp Hạng đang mở. Lịch tự mở cũ (nếu có) sẽ được dọn tự động để tránh hiển thị sai.'
+            : (hasSchedule
+                ? `Hệ thống sẽ tự chuyển sang trạng thái mở khi tới ${scheduleLabel}.`
+                : 'Bạn có thể hẹn tháng tương lai hoặc mở ngay bằng công tắc phía trên.')
     );
     setTeacherLeaderboardText(
         'lbAdminHeroDescription',
@@ -15841,9 +15884,47 @@ async function autoOpenScheduledTeacherLeaderboard(settings = {}) {
     }
 }
 
+window.__teacherLeaderboardScheduleCleanupPromise =
+    window.__teacherLeaderboardScheduleCleanupPromise || null;
+
+async function cleanupTeacherLeaderboardScheduleIfOpen(settings = {}) {
+    const state = getTeacherLeaderboardScheduleState(settings);
+
+    if (!state.needsCleanup) {
+        return false;
+    }
+
+    if (window.__teacherLeaderboardScheduleCleanupPromise) {
+        return window.__teacherLeaderboardScheduleCleanupPromise;
+    }
+
+    window.__teacherLeaderboardScheduleCleanupPromise = (async () => {
+        try {
+            await db.ref('leaderboard_settings').update({
+                targetMonth: null,
+                targetYear: null,
+                scheduledAt: null,
+                scheduleClearedAt: firebase.database.ServerValue.TIMESTAMP
+            });
+            return true;
+        } catch (error) {
+            console.warn('Không thể dọn lịch BXH cũ khi trạng thái đang mở:', error);
+            return false;
+        } finally {
+            window.__teacherLeaderboardScheduleCleanupPromise = null;
+        }
+    })();
+
+    return window.__teacherLeaderboardScheduleCleanupPromise;
+}
+
 listenFirebase(db.ref('leaderboard_settings'), 'value', snapshot => {
     const settings = snapshot.val() || {};
     renderTeacherLeaderboardAdmin(settings);
+
+    // Dữ liệu cũ từng có thể giữ targetMonth/targetYear dù BXH đã mở.
+    // Dọn tự động để không còn kiểu "Đang mở" nhưng vẫn "Tự mở · Tháng 12/2100".
+    cleanupTeacherLeaderboardScheduleIfOpen(settings);
     autoOpenScheduledTeacherLeaderboard(settings);
 });
 
@@ -15863,10 +15944,21 @@ window.toggleLeaderboardStatus = async function (isOpen) {
     if (toggleInput) toggleInput.disabled = true;
 
     try {
-        await db.ref('leaderboard_settings').update({
+        const updates = {
             isOpen: Boolean(isOpen),
             manualStatusChangedAt: firebase.database.ServerValue.TIMESTAMP
-        });
+        };
+
+        // Mở thủ công => lịch tự mở đã hoàn thành/không còn ý nghĩa.
+        // Xóa ngay để Firebase và giao diện luôn cùng một trạng thái.
+        if (isOpen) {
+            updates.targetMonth = null;
+            updates.targetYear = null;
+            updates.scheduledAt = null;
+            updates.scheduleClearedAt = firebase.database.ServerValue.TIMESTAMP;
+        }
+
+        await db.ref('leaderboard_settings').update(updates);
     } catch (error) {
         console.error('Lỗi đổi trạng thái BXH:', error);
         if (toggleInput) toggleInput.checked = !isOpen;
@@ -15911,6 +16003,7 @@ window.saveLeaderboardSchedule = async function () {
 
     try {
         await db.ref('leaderboard_settings').update({
+            isOpen: false,
             targetMonth: month,
             targetYear: year,
             scheduledAt: firebase.database.ServerValue.TIMESTAMP
@@ -15934,6 +16027,7 @@ window.setNextMonthSeason = async function () {
 
     try {
         await db.ref('leaderboard_settings').update({
+            isOpen: false,
             targetMonth: next.month,
             targetYear: next.year,
             scheduledAt: firebase.database.ServerValue.TIMESTAMP
