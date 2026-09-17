@@ -46,7 +46,7 @@
 
     if (window.StudentFeatureLoader) return;
 
-    const VERSION = '3.3.2-equipped-frame-css-startup';
+    const VERSION = '3.3.3-action-frame-first-paint';
 
     const cssPromises = new Map();
     const scriptPromises = new Map();
@@ -205,6 +205,138 @@
 
         cssPromises.set(key, promise);
         return promise;
+    }
+
+
+    // ======================================================
+    // FIRST-PAINT HOTFIX · TOP ACTIONS + AVATAR FRAME
+    // ======================================================
+    // Cửa hàng đang lazy-load. Vì vậy các nút hành động và host khung avatar
+    // không được phụ thuộc vào việc người dùng đã mở tab Cửa hàng hay chưa.
+    // CSS tối thiểu này được gắn ngay từ <head>; student.js vẫn khóa geometry
+    // bằng inline !important để chống CSS theme/mobile tải sau.
+    function installCriticalStudentActionCss() {
+        const STYLE_ID =
+            'student-top-actions-critical-first-paint-v3';
+
+        if (document.getElementById(STYLE_ID)) {
+            return;
+        }
+
+        const style =
+            document.createElement('style');
+
+        style.id = STYLE_ID;
+        style.textContent = `
+#studentTopActionsFlow.student-top-actions-flow {
+    position: static !important;
+    inset: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 8px !important;
+    width: 100% !important;
+    min-height: 44px !important;
+    height: auto !important;
+    margin: -62px 0 18px !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    pointer-events: none !important;
+    transform: none !important;
+}
+
+#studentTopActionsFlow.student-top-actions-flow > :is(
+    .leaderboard-trigger-btn,
+    #btnLeaderboard,
+    .bag-trigger-btn,
+    .inbox-trigger-btn,
+    .profile-trigger-btn
+) {
+    position: relative !important;
+    inset: auto !important;
+    width: 44px !important;
+    min-width: 44px !important;
+    max-width: 44px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+    flex: 0 0 44px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    float: none !important;
+    pointer-events: auto !important;
+    transform: none !important;
+}
+
+#studentTopActionsFlow.student-top-actions-flow > :is(
+    .bag-trigger-btn,
+    .inbox-trigger-btn,
+    .profile-trigger-btn
+) {
+    display: grid !important;
+    place-items: center !important;
+}
+
+#studentTopActionsFlow.student-top-actions-flow
+> .profile-trigger-btn:is(
+    .avatar-frame-equipped,
+    [data-avatar-frame-id],
+    [data-avatar-frame-effect]
+) {
+    overflow: visible !important;
+    border-radius: 50% !important;
+    isolation: isolate !important;
+    z-index: 4 !important;
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
+#studentTopActionsFlow.student-top-actions-flow
+> .profile-trigger-btn:is(
+    .avatar-frame-equipped,
+    [data-avatar-frame-id],
+    [data-avatar-frame-effect]
+)
+> :is(
+    .avatar-frame-decoration,
+    .avatar-frame-aura,
+    .avatar-frame-spark,
+    [class*="-frame-decoration"],
+    [class*="-frame-aura"],
+    [class*="-frame-rune"],
+    [class*="-frame-glint"]
+) {
+    position: absolute !important;
+    pointer-events: none !important;
+}
+
+@media (max-width: 768px) {
+    #studentTopActionsFlow.student-top-actions-flow {
+        min-height: 40px !important;
+        margin: 0 0 14px !important;
+        gap: 7px !important;
+    }
+
+    #studentTopActionsFlow.student-top-actions-flow > :is(
+        .leaderboard-trigger-btn,
+        #btnLeaderboard,
+        .bag-trigger-btn,
+        .inbox-trigger-btn,
+        .profile-trigger-btn
+    ) {
+        width: 40px !important;
+        min-width: 40px !important;
+        max-width: 40px !important;
+        height: 40px !important;
+        min-height: 40px !important;
+        max-height: 40px !important;
+        flex-basis: 40px !important;
+    }
+}
+        `;
+
+        document.head.appendChild(style);
     }
 
     function loadScript(url) {
@@ -914,6 +1046,20 @@
             schedulePostCore,
             getState
         });
+
+    /*
+     * Khung avatar + nút Hồ sơ phải đúng ngay khi mở trang.
+     * store-items.css là CSS nền nhỏ cho frame/background, không kích hoạt Store UI
+     * và không kéo toàn bộ runtime Cửa hàng.
+     */
+    installCriticalStudentActionCss();
+
+    loadCss(CSS.storeBase).catch(error => {
+        console.warn(
+            '[StudentFeatureLoader] Không preload được CSS khung/avatar:',
+            error
+        );
+    });
 
     preloadFromLocalStorage();
 })();

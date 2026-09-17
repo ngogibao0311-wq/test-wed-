@@ -15443,6 +15443,34 @@ window.AvatarFrameManager = {
                 : 'avatar-frame-modal-host'
         );
 
+        /*
+         * Host Hồ sơ phải cho phép khung tràn ra ngoài nút.
+         * Dùng inline !important để không bị CSS theme/mobile/lazy Store
+         * ép khung vào ô vuông trước khi tab Cửa hàng được mở.
+         */
+        if (variant === 'profile') {
+            host.style.setProperty(
+                'position',
+                'relative',
+                'important'
+            );
+            host.style.setProperty(
+                'overflow',
+                'visible',
+                'important'
+            );
+            host.style.setProperty(
+                'border-radius',
+                '50%',
+                'important'
+            );
+            host.style.setProperty(
+                'isolation',
+                'isolate',
+                'important'
+            );
+        }
+
         host.setAttribute(
             'data-avatar-frame-effect',
             String(
@@ -15597,6 +15625,19 @@ window.AvatarFrameManager = {
 
         this.activeItemId =
             item.id || '';
+
+        /*
+         * Cho loader ở <head> biết khung nào đang mặc ở lần tải kế tiếp.
+         * Firebase inventory vẫn là nguồn xác nhận cuối cùng.
+         */
+        try {
+            if (this.activeItemId) {
+                localStorage.setItem(
+                    'active_frame',
+                    this.activeItemId
+                );
+            }
+        } catch (_) {}
     }
 };
 
@@ -15757,6 +15798,15 @@ window.WebBackgroundManager = {
 
         this.activeItemId =
             item.id || '';
+
+        try {
+            if (this.activeItemId) {
+                localStorage.setItem(
+                    'active_background',
+                    this.activeItemId
+                );
+            }
+        } catch (_) {}
     }
 };
 
@@ -16775,6 +16825,12 @@ function installStudentStoreManagerOverrides() {
             window.AvatarFrameManager
         ) {
             window.AvatarFrameManager.clearFrame();
+
+            try {
+                localStorage.removeItem(
+                    'active_frame'
+                );
+            } catch (_) {}
         }
 
         if (
@@ -16782,6 +16838,12 @@ function installStudentStoreManagerOverrides() {
             window.WebBackgroundManager
         ) {
             window.WebBackgroundManager.clearBackground();
+
+            try {
+                localStorage.removeItem(
+                    'active_background'
+                );
+            } catch (_) {}
         }
 
         // 2. Lưu trạng thái "Đã tháo" lên Firebase
@@ -16984,6 +17046,8 @@ window.applyEquippedItems = function () {
     }
 
     let equippedMusic = null;
+    let equippedFrameId = '';
+    let equippedBackgroundId = '';
 
     myInventory.forEach(invItem => {
         if (!invItem.isEquipped) return;
@@ -17032,6 +17096,9 @@ window.applyEquippedItems = function () {
                     itemDef
                 );
 
+                equippedFrameId =
+                    itemDef.id || '';
+
             }
 
             return;
@@ -17045,6 +17112,9 @@ window.applyEquippedItems = function () {
                 window.WebBackgroundManager.applyBackground(
                     itemDef
                 );
+
+                equippedBackgroundId =
+                    itemDef.id || '';
 
             }
 
@@ -17061,6 +17131,35 @@ window.applyEquippedItems = function () {
             PetManager.spawnPet(itemDef);
         }
     });
+
+    /*
+     * Đồng bộ cache startup cho frame/background.
+     * Nhờ vậy lần F5 sau, StudentFeatureLoader có thể preload đúng CSS
+     * trước khi Firebase trả inventory; nếu không còn trang bị thì xóa cache cũ.
+     */
+    try {
+        if (equippedFrameId) {
+            localStorage.setItem(
+                'active_frame',
+                equippedFrameId
+            );
+        } else {
+            localStorage.removeItem(
+                'active_frame'
+            );
+        }
+
+        if (equippedBackgroundId) {
+            localStorage.setItem(
+                'active_background',
+                equippedBackgroundId
+            );
+        } else {
+            localStorage.removeItem(
+                'active_background'
+            );
+        }
+    } catch (_) {}
 
     if (typeof MusicManager !== 'undefined') {
         if (equippedMusic) {
@@ -28741,21 +28840,277 @@ window.downloadStudentRoadmapPDF = async function () {
         return bar;
     }
 
+    function getTopActionSize() {
+        return window.matchMedia(
+            '(max-width: 768px)'
+        ).matches
+            ? 40
+            : 44;
+    }
+
+    function applyCriticalActionGeometry(
+        bar,
+        button,
+        index
+    ) {
+        const size =
+            getTopActionSize();
+
+        /*
+         * Khóa geometry trực tiếp trên element.
+         * Đây là phần sửa lỗi thanh tím kéo dài toàn chiều ngang:
+         * các CSS theme/store/mobile dù tải sau cũng không thể đổi nút
+         * 40/44px thành width:100%.
+         */
+        [
+            ['position', 'relative'],
+            ['top', 'auto'],
+            ['right', 'auto'],
+            ['bottom', 'auto'],
+            ['left', 'auto'],
+            ['inset', 'auto'],
+            ['width', `${size}px`],
+            ['min-width', `${size}px`],
+            ['max-width', `${size}px`],
+            ['height', `${size}px`],
+            ['min-height', `${size}px`],
+            ['max-height', `${size}px`],
+            ['flex', `0 0 ${size}px`],
+            ['margin', '0'],
+            ['padding', '0'],
+            ['float', 'none'],
+            ['pointer-events', 'auto'],
+            ['transform', 'none']
+        ].forEach(([property, value]) => {
+            button.style.setProperty(
+                property,
+                value,
+                'important'
+            );
+        });
+
+        const classList =
+            button.classList;
+
+        let order = index + 1;
+
+        if (
+            classList.contains(
+                'leaderboard-trigger-btn'
+            ) ||
+            button.id === 'btnLeaderboard'
+        ) {
+            order = 1;
+        } else if (
+            classList.contains(
+                'bag-trigger-btn'
+            )
+        ) {
+            order = 2;
+        } else if (
+            classList.contains(
+                'inbox-trigger-btn'
+            )
+        ) {
+            order = 3;
+        } else if (
+            classList.contains(
+                'profile-trigger-btn'
+            )
+        ) {
+            order = 4;
+        }
+
+        button.style.setProperty(
+            'order',
+            String(order),
+            'important'
+        );
+
+        if (
+            classList.contains(
+                'profile-trigger-btn'
+            ) &&
+            (
+                classList.contains(
+                    'avatar-frame-equipped'
+                ) ||
+                button.hasAttribute(
+                    'data-avatar-frame-id'
+                ) ||
+                button.hasAttribute(
+                    'data-avatar-frame-effect'
+                )
+            )
+        ) {
+            button.style.setProperty(
+                'overflow',
+                'visible',
+                'important'
+            );
+            button.style.setProperty(
+                'border-radius',
+                '50%',
+                'important'
+            );
+            button.style.setProperty(
+                'isolation',
+                'isolate',
+                'important'
+            );
+            button.style.setProperty(
+                'z-index',
+                '4',
+                'important'
+            );
+        }
+    }
+
+    function repairEquippedProfileFrame(bar) {
+        if (!bar) return;
+
+        const profileButton =
+            bar.querySelector(
+                '.profile-trigger-btn'
+            );
+
+        if (!profileButton) return;
+
+        if (
+            !window.AvatarFrameManager ||
+            typeof StoreConfig === 'undefined' ||
+            !StoreConfig ||
+            !Array.isArray(StoreConfig.items)
+        ) {
+            return;
+        }
+
+        const inventory =
+            (
+                typeof myInventory !== 'undefined' &&
+                Array.isArray(myInventory)
+            )
+                ? myInventory
+                : [];
+
+        if (!inventory.length) return;
+
+        let frameDef = null;
+
+        for (const invItem of inventory) {
+            if (
+                !invItem ||
+                invItem.isEquipped !== true
+            ) {
+                continue;
+            }
+
+            const candidate =
+                StoreConfig.items.find(
+                    item =>
+                        item &&
+                        item.id === invItem.id &&
+                        item.type === 'frame'
+                );
+
+            if (
+                candidate &&
+                candidate.isLocked !== true
+            ) {
+                frameDef = candidate;
+                break;
+            }
+        }
+
+        if (!frameDef) {
+            /*
+             * Không còn khung được mặc: xóa cache cũ để lần F5 kế tiếp
+             * loader không preload nhầm CSS của khung cũ.
+             */
+            try {
+                localStorage.removeItem(
+                    'active_frame'
+                );
+            } catch (_) {}
+
+            return;
+        }
+
+        const currentId =
+            profileButton.getAttribute(
+                'data-avatar-frame-id'
+            ) || '';
+
+        const hasDecoration =
+            Boolean(
+                profileButton.querySelector(
+                    ':scope > .avatar-frame-decoration'
+                )
+            );
+
+        if (
+            currentId === String(frameDef.id || '') &&
+            hasDecoration
+        ) {
+            return;
+        }
+
+        /*
+         * Race startup quan trọng:
+         * inventory có thể được áp trước khi nút Hồ sơ được tạo/đưa vào action bar.
+         * Khi đó applyFrame() trước đây không có host để mount; mở Cửa hàng mới
+         * vô tình gọi đồng bộ lần nữa nên khung mới xuất hiện.
+         */
+        window.AvatarFrameManager.applyFrame(
+            frameDef
+        );
+
+        applyCriticalActionGeometry(
+            bar,
+            profileButton,
+            3
+        );
+    }
+
     function normalizeTopActionFlow() {
         scheduled = false;
 
         const bar = ensureActionBar();
         if (!bar) return;
 
-        // Khóa chính thanh hành động về normal flow.
-        // Dùng inline !important để không bị CSS theme/mobile tải sau ghim lại.
-        bar.style.setProperty('position', 'static', 'important');
-        bar.style.setProperty('top', 'auto', 'important');
-        bar.style.setProperty('right', 'auto', 'important');
-        bar.style.setProperty('bottom', 'auto', 'important');
-        bar.style.setProperty('left', 'auto', 'important');
-        bar.style.setProperty('inset', 'auto', 'important');
-        bar.style.setProperty('transform', 'none', 'important');
+        const isMobile =
+            window.matchMedia(
+                '(max-width: 768px)'
+            ).matches;
+
+        // Khóa thanh hành động về normal document flow.
+        [
+            ['position', 'static'],
+            ['top', 'auto'],
+            ['right', 'auto'],
+            ['bottom', 'auto'],
+            ['left', 'auto'],
+            ['inset', 'auto'],
+            ['display', 'flex'],
+            ['align-items', 'center'],
+            ['justify-content', 'flex-end'],
+            ['gap', isMobile ? '7px' : '8px'],
+            ['width', '100%'],
+            ['min-height', isMobile ? '40px' : '44px'],
+            ['height', 'auto'],
+            ['margin', isMobile ? '0 0 14px' : '-62px 0 18px'],
+            ['padding', '0'],
+            ['overflow', 'visible'],
+            ['pointer-events', 'none'],
+            ['transform', 'none'],
+            ['float', 'none']
+        ].forEach(([property, value]) => {
+            bar.style.setProperty(
+                property,
+                value,
+                'important'
+            );
+        });
 
         const buttons =
             Array.from(
@@ -28764,55 +29119,31 @@ window.downloadStudentRoadmapPDF = async function () {
                 )
             );
 
-        buttons.forEach(button => {
+        buttons.forEach((button, index) => {
             if (button.parentElement !== bar) {
                 bar.appendChild(button);
             }
 
-            /*
-             * position:relative vẫn nằm trong normal flow,
-             * nên nút cuộn theo nội dung nhưng các badge / pseudo
-             * absolute vẫn bám đúng chính nút đó.
-             *
-             * Inline !important dùng để thắng mobile.css/theme CSS
-             * nếu chúng được lazy-load sau.
-             */
-            button.style.setProperty(
-                'position',
-                'relative',
-                'important'
+            applyCriticalActionGeometry(
+                bar,
+                button,
+                index
             );
-            button.style.setProperty(
-                'top',
-                'auto',
-                'important'
-            );
-            button.style.setProperty(
-                'right',
-                'auto',
-                'important'
-            );
-            button.style.setProperty(
-                'bottom',
-                'auto',
-                'important'
-            );
-            button.style.setProperty(
-                'left',
-                'auto',
-                'important'
-            );
-            button.style.setProperty(
-                'margin',
-                '0',
-                'important'
-            );
+        });
+
+        /*
+         * Chờ đúng 1 frame sau khi các nút đã ở vị trí cuối cùng,
+         * rồi sửa race khung Hồ sơ nếu startup trước đó chưa có host.
+         */
+        requestAnimationFrame(() => {
+            repairEquippedProfileFrame(bar);
         });
     }
 
     function scheduleNormalize() {
         if (scheduled) return;
         scheduled = true;
+
         requestAnimationFrame(
             normalizeTopActionFlow
         );
@@ -28836,6 +29167,12 @@ window.downloadStudentRoadmapPDF = async function () {
     window.addEventListener(
         'pageshow',
         scheduleNormalize
+    );
+
+    window.addEventListener(
+        'resize',
+        scheduleNormalize,
+        { passive: true }
     );
 
     const observer =
