@@ -7355,8 +7355,8 @@ function escapeHTMLForMath(value) {
 // - Coin đã nhận có thể bị thu hồi khi chấm lại/xóa; nếu học sinh đã tiêu hết,
 //   student_coins có thể âm để bảo toàn sổ cái và chặn việc lợi dụng chấm lại.
 // ==============================================================
-const GRADE_REWARD_V2_VERSION = 3;
-window.__GRADE_REWARD_GUARD_BUILD = '20260917.v3.1-reconcile-fallback';
+const GRADE_REWARD_V2_VERSION = 4;
+window.__GRADE_REWARD_GUARD_BUILD = '20260917.v4-regrade-hold-reconcile';
 console.info('[Grade Reward Guard]', window.__GRADE_REWARD_GUARD_BUILD);
 const GRADE_REWARD_MUTATION_LOCK_MS = 120000;
 
@@ -7675,7 +7675,7 @@ async function sendTeacherGradeReconciliationNotice(
             message: text,
             giftType: 'none',
             giftValue: 0,
-            source: 'grade_reward_reconcile_v3',
+            source: 'grade_reward_reconcile_v4',
             gradeReconciliation: true,
             gradeReconciliationReason: String(reasonCode || ''),
             submissionKey: String(submissionKey || ''),
@@ -7974,7 +7974,7 @@ async function rollbackTeacherGradeRewardV3(
                             ? 'xóa bài'
                             : 'chấm lại'
                     }`,
-                source: 'grade_reward_reconcile_v3',
+                source: 'grade_reward_reconcile_v4',
                 targetUsername: username,
                 targetName:
                     submission?.studentName ||
@@ -8024,6 +8024,888 @@ async function rollbackTeacherGradeRewardV3(
         throw error;
     }
 }
+
+
+// ======================================================
+// GRADE REWARD V4 · RE-GRADE HOLD / EXACT RECONCILIATION
+//
+// Mục tiêu:
+// 1) Bấm "Chấm lại" KHÔNG xóa ngay thư thưởng chưa nhận.
+//    Thư được đặt HOLD và không thể nhận trong lúc giáo viên chấm lại.
+// 2) Nếu lưu lại ĐÚNG CÙNG ĐIỂM + CÙNG MỐC thưởng:
+//    thư cũ chưa nhận được mở khóa lại, không tạo thư mới.
+// 3) Nếu điểm mới cao/thấp hơn:
+//    thư cũ bị hủy và tạo kết quả mới.
+// 4) Nếu quà cũ ĐÃ NHẬN:
+//    bấm Chấm lại thu hồi trực tiếp Vé + Coin cũ ngay lập tức.
+//    Sau đó điểm mới tiếp tục thưởng/phạt từ đầu.
+// 5) Nếu kết quả cũ là phạt:
+//    bấm Chấm lại hoàn án phạt cũ trước; chấm xong mới áp dụng phạt mới.
+// 6) Có thể tự phục hồi các event V3 bị kẹt ở regrading/superseded.
+// ======================================================
+
+function getTeacherGradeRewardV4Snapshot(eventData, submission) {
+    const source = eventData || {};
+    const fallback = getTeacherGradeRewardFallbackEvent(submission) || {};
+
+    const pickNumber = (primary, secondary, defaultValue = 0) => {
+        const first = Number(primary);
+        if (Number.isFinite(first)) return first;
+        const second = Number(secondary);
+        return Number.isFinite(second) ? second : defaultValue;
+    };
+
+    return {
+        score: pickNumber(
+            source.holdScore ?? source.score,
+            fallback.score,
+            Number(submission?.grade || 0)
+        ),
+        ticketDelta: pickNumber(
+            source.holdTicketDelta ?? source.ticketDelta,
+            fallback.ticketDelta,
+            0
+        ),
+        coinReward: pickNumber(
+            source.holdCoinReward ?? source.coinReward,
+            fallback.coinReward,
+            0
+        ),
+        specialPenalty: Boolean(
+            source.holdSpecialPenalty ??
+            source.specialPenalty ??
+            fallback.specialPenalty
+        ),
+        reason: String(
+            source.holdReason ??
+            source.reason ??
+            fallback.reason ??
+            ''
+        ),
+        messageId: String(
+            source.holdMessageId ??
+            source.messageId ??
+            fallback.messageId ??
+            ''
+        ).trim(),
+        revision: Math.max(
+            1,
+            pickNumber(
+                source.holdRevision ?? source.revision,
+                fallback.revision,
+                1
+            )
+        )
+    };
+}
+
+function isTeacherGradeRewardV4ExactSame(snapshot, outcome) {
+    if (!snapshot || !outcome) return false;
+
+    return (
+        Number(snapshot.score) === Number(outcome.score) &&
+        Number(snapshot.ticketDelta || 0) === Number(outcome.ticketDelta || 0) &&
+        Number(snapshot.coinReward || 0) === Number(outcome.coinReward || 0) &&
+        Boolean(snapshot.specialPenalty) === Boolean(outcome.specialPenalty)
+    );
+}
+
+
+async function reconcileTeacherGradeRewardHistoryDebtV4(
+    username,
+    sourceEvent,
+    reasonCode = 'reconcile_history'
+) {
+    const history =
+        sourceEvent?.history &&
+        typeof sourceEvent.history === 'object'
+            ? { ...sourceEvent.history }
+            : {};
+
+    let reclaimedRewardTickets = 0;
+    let reclaimedCoins = 0;
+    let refundedPenaltyTickets = 0;
+
+    const ticketRef = db.ref(
+        `student_bonus_tickets/${username}`
+    );
+    const coinRef = db.ref(
+        `student_coins/${username}`
+    );
+
+    for (const [revisionKey, rawEntry] of Object.entries(history)) {
+        const entry =
+            rawEntry && typeof rawEntry === 'object'
+                ? { ...rawEntry }
+                : null;
+
+        if (!entry) continue;
+
+        const ticketDelta = Number(entry.ticketDelta || 0) || 0;
+        const coinReward = Number(entry.coinReward || 0) || 0;
+        const messageId = String(entry.messageId || '').trim();
+
+        const alreadyReversed = Boolean(
+            entry.reconciledV4 === true ||
+            (
+                Number(entry.rolledBackAt || 0) > 0 &&
+                Number(entry.rolledBackTickets || 0) === ticketDelta &&
+                Number(entry.rolledBackCoins || 0) ===
+                    (ticketDelta > 0 ? coinReward : 0)
+            )
+        );
+
+        if (alreadyReversed) {
+            continue;
+        }
+
+        let claim = null;
+
+        if (messageId) {
+            claim = await getTeacherGradeRewardClaimState(
+                username,
+                { messageId }
+            );
+        }
+
+        // Lịch sử thưởng dương đã nhận nhưng chưa từng thu hồi.
+        if (ticketDelta > 0) {
+            const claimedButNotReversed = Boolean(
+                claim?.status === 'claimed' ||
+                String(entry.status || '') === 'claimed'
+            );
+
+            const claimAlreadyReversed =
+                claim?.status === 'reversed';
+
+            if (
+                claimedButNotReversed &&
+                !claimAlreadyReversed
+            ) {
+                const ticketsToReclaim = Number(
+                    claim?.tickets ?? ticketDelta
+                ) || 0;
+                const coinsToReclaim = Number(
+                    claim?.coins ?? coinReward
+                ) || 0;
+
+                let ticketCommitted = false;
+
+                if (ticketsToReclaim !== 0) {
+                    const ticketTx =
+                        await ticketRef.transaction(current =>
+                            Number(current || 0) -
+                            ticketsToReclaim
+                        );
+
+                    if (!ticketTx.committed) {
+                        throw new Error(
+                            'GRADE_HISTORY_TICKET_RECLAIM_ABORTED'
+                        );
+                    }
+
+                    ticketCommitted = true;
+                }
+
+                try {
+                    if (coinsToReclaim !== 0) {
+                        const coinTx =
+                            await coinRef.transaction(current =>
+                                Number(current || 0) -
+                                coinsToReclaim
+                            );
+
+                        if (!coinTx.committed) {
+                            throw new Error(
+                                'GRADE_HISTORY_COIN_RECLAIM_ABORTED'
+                            );
+                        }
+                    }
+                } catch (error) {
+                    if (
+                        ticketCommitted &&
+                        ticketsToReclaim !== 0
+                    ) {
+                        await ticketRef.transaction(current =>
+                            Number(current || 0) +
+                            ticketsToReclaim
+                        ).catch(() => {});
+                    }
+
+                    throw error;
+                }
+
+                reclaimedRewardTickets +=
+                    ticketsToReclaim;
+                reclaimedCoins +=
+                    coinsToReclaim;
+
+                if (messageId) {
+                    await db
+                        .ref(
+                            `grade_reward_claims/${username}/${messageId}`
+                        )
+                        .update({
+                            status: 'reversed',
+                            reversedAt:
+                                firebase.database.ServerValue.TIMESTAMP,
+                            reverseReason:
+                                `history_${reasonCode}`
+                        })
+                        .catch(() => {});
+                }
+
+                entry.rolledBackTickets =
+                    ticketsToReclaim;
+                entry.rolledBackCoins =
+                    coinsToReclaim;
+            }
+
+            // Thư của revision lịch sử không còn được phép tồn tại.
+            if (messageId) {
+                await db
+                    .ref(
+                        `inbox_messages/${username}/${messageId}`
+                    )
+                    .remove()
+                    .catch(() => {});
+            }
+
+            entry.reconciledV4 = true;
+            entry.reconciledAt = Date.now();
+            entry.reconcileReason = String(reasonCode);
+            entry.status =
+                claimedButNotReversed
+                    ? 'reversed_history'
+                    : 'cancelled_history';
+        }
+
+        // Lịch sử án phạt âm chưa được hoàn khi revision mới đã sinh ra.
+        else if (ticketDelta < 0) {
+            const penaltyWasAlreadyReversed = Boolean(
+                Number(entry.rolledBackAt || 0) > 0 &&
+                Number(entry.rolledBackTickets || 0) ===
+                    ticketDelta
+            );
+
+            if (!penaltyWasAlreadyReversed) {
+                const penaltyTx =
+                    await ticketRef.transaction(current =>
+                        Number(current || 0) -
+                        ticketDelta
+                    );
+
+                if (!penaltyTx.committed) {
+                    throw new Error(
+                        'GRADE_HISTORY_PENALTY_REFUND_ABORTED'
+                    );
+                }
+
+                refundedPenaltyTickets +=
+                    Math.abs(ticketDelta);
+
+                entry.rolledBackTickets =
+                    ticketDelta;
+                entry.rolledBackCoins = 0;
+            }
+
+            if (messageId) {
+                await db
+                    .ref(
+                        `inbox_messages/${username}/${messageId}`
+                    )
+                    .remove()
+                    .catch(() => {});
+            }
+
+            entry.reconciledV4 = true;
+            entry.reconciledAt = Date.now();
+            entry.reconcileReason = String(reasonCode);
+            entry.status = 'reversed_history';
+        }
+
+        history[revisionKey] = entry;
+    }
+
+    return {
+        history,
+        reclaimedRewardTickets,
+        reclaimedCoins,
+        refundedPenaltyTickets
+    };
+}
+
+async function holdTeacherGradeRewardForRegradeV4(
+    submission,
+    reasonCode = 'request_regrade'
+) {
+    const username = getTeacherGradeRewardUsername(submission);
+    const submissionKey = getTeacherGradeRewardSubmissionKey(submission);
+
+    if (!username || !submissionKey) {
+        return { status: 'no_target' };
+    }
+
+    const eventRef = db.ref(
+        `grade_reward_events/${username}/${submissionKey}`
+    );
+
+    const eventSnap = await eventRef.once('value');
+    const storedEvent = eventSnap.val() || null;
+    const fallbackEvent = getTeacherGradeRewardFallbackEvent(submission);
+    const source = storedEvent || fallbackEvent;
+
+    if (!source) {
+        return {
+            status: 'no_event',
+            reversedTickets: 0,
+            reversedCoins: 0,
+            reclaimedRewardTickets: 0,
+            refundedPenaltyTickets: 0,
+            reclaimedCoins: 0,
+            heldMessageId: null,
+            holdWasClaimed: false
+        };
+    }
+
+    // Tự sửa nợ lịch sử do các bản V3/V3.1 trước có thể đã tạo
+    // revision mới nhưng chưa thu hồi revision cũ.
+    const historyReconcile =
+        await reconcileTeacherGradeRewardHistoryDebtV4(
+            username,
+            source,
+            reasonCode
+        );
+
+    const snapshot = getTeacherGradeRewardV4Snapshot(
+        source,
+        submission
+    );
+
+    const messageId = String(snapshot.messageId || '').trim();
+    const claim = messageId
+        ? await getTeacherGradeRewardClaimState(
+            username,
+            { messageId }
+        )
+        : null;
+
+    const now = Date.now();
+
+    if (
+        claim?.status === 'processing' &&
+        now - Number(claim.startedAt || 0) <
+            GRADE_REWARD_MUTATION_LOCK_MS
+    ) {
+        throw new Error('GRADE_REWARD_CLAIM_IN_PROGRESS');
+    }
+
+    const previousStatus = String(
+        source.holdOriginalStatus ||
+        source.mutationPreviousStatus ||
+        source.previousStatus ||
+        source.status ||
+        ''
+    );
+
+    const wasClaimed = Boolean(
+        claim?.status === 'claimed' ||
+        source.holdWasClaimed === true ||
+        source.wasClaimed === true
+    );
+
+    const wasPenaltyApplied = Boolean(
+        snapshot.ticketDelta < 0 &&
+        (
+            ['penalty_applied', 'regrading', 'regrade_hold', 'superseded']
+                .includes(String(source.status || '')) ||
+            String(previousStatus) === 'penalty_applied' ||
+            source.holdWasPenaltyApplied === true
+        )
+    );
+
+    // Không dựa riêng vào status "regrading" hay "rolledBackAt":
+    // các bản V3 cũ có thể đã ghi status nhưng chưa thực sự trừ tài sản.
+    const claimedAlreadyReversed = Boolean(
+        claim?.status === 'reversed' ||
+        (
+            source.holdClaimedRewardReversed === true &&
+            Number(source.holdReversedTickets || 0) ===
+                Number(snapshot.ticketDelta || 0) &&
+            Number(source.holdReversedCoins || 0) ===
+                Number(snapshot.coinReward || 0)
+        ) ||
+        (
+            wasClaimed &&
+            Number(source.rolledBackTickets || 0) ===
+                Number(snapshot.ticketDelta || 0) &&
+            Number(source.rolledBackCoins || 0) ===
+                Number(snapshot.coinReward || 0) &&
+            Number(source.rolledBackAt || 0) > 0
+        )
+    );
+
+    const penaltyAlreadyReversed = Boolean(
+        source.holdPenaltyReversed === true ||
+        (
+            wasPenaltyApplied &&
+            Number(source.rolledBackTickets || 0) ===
+                Number(snapshot.ticketDelta || 0) &&
+            Number(source.rolledBackAt || 0) > 0
+        )
+    );
+
+    let reversedTickets = 0;
+    let reversedCoins = 0;
+
+    // A. Quà đã nhận -> thu hồi trực tiếp.
+    if (
+        snapshot.ticketDelta > 0 &&
+        wasClaimed &&
+        !claimedAlreadyReversed
+    ) {
+        reversedTickets = Number(
+            claim?.tickets ?? snapshot.ticketDelta
+        ) || 0;
+        reversedCoins = Number(
+            claim?.coins ?? snapshot.coinReward
+        ) || 0;
+
+        const ticketRef = db.ref(
+            `student_bonus_tickets/${username}`
+        );
+        const coinRef = db.ref(
+            `student_coins/${username}`
+        );
+
+        let ticketCommitted = false;
+
+        if (reversedTickets !== 0) {
+            const ticketTx = await ticketRef.transaction(current =>
+                Number(current || 0) - reversedTickets
+            );
+
+            if (!ticketTx.committed) {
+                throw new Error(
+                    'GRADE_REWARD_TICKET_ROLLBACK_ABORTED'
+                );
+            }
+
+            ticketCommitted = true;
+        }
+
+        try {
+            if (reversedCoins !== 0) {
+                const coinTx = await coinRef.transaction(current =>
+                    Number(current || 0) - reversedCoins
+                );
+
+                if (!coinTx.committed) {
+                    throw new Error(
+                        'GRADE_REWARD_COIN_ROLLBACK_ABORTED'
+                    );
+                }
+            }
+        } catch (error) {
+            if (ticketCommitted && reversedTickets !== 0) {
+                await ticketRef.transaction(current =>
+                    Number(current || 0) + reversedTickets
+                ).catch(() => {});
+            }
+            throw error;
+        }
+
+        if (messageId) {
+            await db
+                .ref(`grade_reward_claims/${username}/${messageId}`)
+                .update({
+                    status: 'reversed',
+                    reversedAt:
+                        firebase.database.ServerValue.TIMESTAMP,
+                    reverseReason: String(
+                        reasonCode || 'request_regrade'
+                    )
+                })
+                .catch(() => {});
+        }
+    }
+
+    // B. Án phạt cũ -> hoàn lại trước khi chấm lại.
+    if (
+        snapshot.ticketDelta < 0 &&
+        wasPenaltyApplied &&
+        !penaltyAlreadyReversed
+    ) {
+        reversedTickets = Number(snapshot.ticketDelta) || 0;
+        reversedCoins = 0;
+
+        const ticketTx = await db
+            .ref(`student_bonus_tickets/${username}`)
+            .transaction(current =>
+                Number(current || 0) - reversedTickets
+            );
+
+        if (!ticketTx.committed) {
+            throw new Error(
+                'GRADE_PENALTY_ROLLBACK_ABORTED'
+            );
+        }
+    }
+
+    // Chỉ giữ lại thư thưởng DƯƠNG chưa nhận.
+    // Thư phạt chỉ là thông báo nên xóa luôn khi án phạt được hoàn.
+    let heldMessageId = null;
+
+    if (
+        snapshot.ticketDelta > 0 &&
+        messageId &&
+        !wasClaimed
+    ) {
+        const heldMessageRef = db.ref(
+            `inbox_messages/${username}/${messageId}`
+        );
+        const heldMessageSnap = await heldMessageRef.once('value');
+
+        if (heldMessageSnap.exists()) {
+            heldMessageId = messageId;
+
+            await heldMessageRef.update({
+                gradeRewardOnHold: true,
+                gradeRewardHoldReason: String(
+                    reasonCode || 'request_regrade'
+                ),
+                gradeRewardHoldAt:
+                    firebase.database.ServerValue.TIMESTAMP
+            });
+        }
+    } else if (messageId) {
+        await db
+            .ref(`inbox_messages/${username}/${messageId}`)
+            .remove()
+            .catch(() => {});
+    }
+
+    const holdWasClaimed = Boolean(
+        wasClaimed ||
+        claim?.status === 'reversed'
+    );
+
+    await eventRef.set({
+        ...source,
+        history: historyReconcile.history,
+        version: GRADE_REWARD_V2_VERSION,
+        status: 'regrade_hold',
+
+        holdOriginalStatus: previousStatus ||
+            String(source.status || ''),
+        holdReasonCode: String(
+            reasonCode || 'request_regrade'
+        ),
+        holdStartedAt:
+            firebase.database.ServerValue.TIMESTAMP,
+
+        holdScore: snapshot.score,
+        holdTicketDelta: snapshot.ticketDelta,
+        holdCoinReward: snapshot.coinReward,
+        holdSpecialPenalty:
+            snapshot.specialPenalty === true,
+        holdReason: snapshot.reason,
+        holdMessageId: heldMessageId || messageId || null,
+        holdRevision: snapshot.revision,
+
+        holdWasClaimed,
+        holdWasPenaltyApplied: wasPenaltyApplied,
+
+        holdClaimedRewardReversed:
+            snapshot.ticketDelta > 0
+                ? (
+                    holdWasClaimed &&
+                    (
+                        claimedAlreadyReversed ||
+                        reversedTickets !== 0 ||
+                        reversedCoins !== 0
+                    )
+                )
+                : false,
+
+        holdPenaltyReversed:
+            snapshot.ticketDelta < 0
+                ? (
+                    penaltyAlreadyReversed ||
+                    reversedTickets !== 0
+                )
+                : false,
+
+        holdReversedTickets:
+            reversedTickets !== 0
+                ? reversedTickets
+                : Number(source.holdReversedTickets || 0),
+
+        holdReversedCoins:
+            reversedCoins !== 0
+                ? reversedCoins
+                : Number(source.holdReversedCoins || 0),
+
+        // Giữ messageId hiện hành để student claim guard biết đúng thư nào
+        // đang bị khóa. Nếu thư cũ không còn thì vẫn giữ lịch sử ở holdMessageId.
+        messageId: heldMessageId || messageId || null,
+
+        mutationId: null,
+        mutationStartedAt: null,
+        mutationPreviousStatus: null
+    });
+
+    return {
+        status: 'regrade_hold',
+        previousStatus,
+
+        // reversedTickets/reversedCoins giữ tương thích code cũ;
+        // tổng này bao gồm cả khoản nợ lịch sử được tự sửa.
+        reversedTickets:
+            reversedTickets +
+            Number(
+                historyReconcile.reclaimedRewardTickets || 0
+            ) -
+            Number(
+                historyReconcile.refundedPenaltyTickets || 0
+            ),
+
+        reversedCoins:
+            reversedCoins +
+            Number(historyReconcile.reclaimedCoins || 0),
+
+        reclaimedRewardTickets:
+            Number(
+                historyReconcile.reclaimedRewardTickets || 0
+            ) +
+            (
+                reversedTickets > 0
+                    ? reversedTickets
+                    : 0
+            ),
+
+        refundedPenaltyTickets:
+            Number(
+                historyReconcile.refundedPenaltyTickets || 0
+            ) +
+            (
+                reversedTickets < 0
+                    ? Math.abs(reversedTickets)
+                    : 0
+            ),
+
+        reclaimedCoins:
+            Number(historyReconcile.reclaimedCoins || 0) +
+            (
+                reversedCoins > 0
+                    ? reversedCoins
+                    : 0
+            ),
+
+        heldMessageId,
+        holdWasClaimed,
+        holdWasPenaltyApplied: wasPenaltyApplied,
+        score: snapshot.score,
+        ticketDelta: snapshot.ticketDelta,
+        coinReward: snapshot.coinReward,
+        revision: snapshot.revision
+    };
+}
+
+async function resolveTeacherGradeRewardHoldV4(
+    submission,
+    rawGrade
+) {
+    const username = getTeacherGradeRewardUsername(submission);
+    const submissionKey = getTeacherGradeRewardSubmissionKey(submission);
+
+    if (!username || !submissionKey) {
+        return {
+            status: 'no_target',
+            reusedHeldReward: false
+        };
+    }
+
+    const eventRef = db.ref(
+        `grade_reward_events/${username}/${submissionKey}`
+    );
+
+    let eventSnap = await eventRef.once('value');
+    let eventData = eventSnap.val() || null;
+
+    // Phục hồi event bị kẹt ở trạng thái regrading của V3.
+    if (
+        eventData &&
+        ['regrading', 'superseded'].includes(
+            String(eventData.status || '')
+        ) &&
+        String(submission?.isRegrading) === 'true'
+    ) {
+        await holdTeacherGradeRewardForRegradeV4(
+            submission,
+            'recover_regrade'
+        );
+        eventSnap = await eventRef.once('value');
+        eventData = eventSnap.val() || null;
+    }
+
+    if (
+        !eventData ||
+        String(eventData.status || '') !== 'regrade_hold'
+    ) {
+        return {
+            status: String(
+                eventData?.status || 'no_hold'
+            ),
+            reusedHeldReward: false,
+            event: eventData
+        };
+    }
+
+    const oldSnapshot = getTeacherGradeRewardV4Snapshot(
+        eventData,
+        submission
+    );
+    const newOutcome = getTeacherGradeRewardV2Outcome(
+        rawGrade,
+        submission
+    );
+
+    const exactSame =
+        isTeacherGradeRewardV4ExactSame(
+            oldSnapshot,
+            newOutcome
+        );
+
+    const heldMessageId = String(
+        eventData.holdMessageId ||
+        eventData.messageId ||
+        ''
+    ).trim();
+
+    const holdWasClaimed =
+        eventData.holdWasClaimed === true;
+
+    // Chỉ thư thưởng chưa nhận mới được mở khóa lại.
+    if (
+        exactSame &&
+        oldSnapshot.ticketDelta > 0 &&
+        heldMessageId &&
+        !holdWasClaimed
+    ) {
+        const messageRef = db.ref(
+            `inbox_messages/${username}/${heldMessageId}`
+        );
+        const messageSnap = await messageRef.once('value');
+
+        if (messageSnap.exists()) {
+            await messageRef.update({
+                gradeRewardOnHold: false,
+                gradeRewardHoldReason: null,
+                gradeRewardHoldAt: null,
+                gradeRewardReactivatedAt:
+                    firebase.database.ServerValue.TIMESTAMP
+            });
+
+            await eventRef.update({
+                status: 'pending_claim',
+                score: newOutcome.score,
+                ticketDelta: newOutcome.ticketDelta,
+                coinReward: newOutcome.coinReward,
+                specialPenalty:
+                    newOutcome.specialPenalty === true,
+                reason: newOutcome.reason,
+                messageId: heldMessageId,
+                reactivatedAt:
+                    firebase.database.ServerValue.TIMESTAMP,
+                holdResolvedAt:
+                    firebase.database.ServerValue.TIMESTAMP,
+                holdResolution:
+                    'same_score_reactivated'
+            });
+
+            return {
+                status: 'pending_claim',
+                reusedHeldReward: true,
+                messageId: heldMessageId,
+                revision: Number(
+                    eventData.holdRevision ||
+                    eventData.revision ||
+                    1
+                ),
+                ticketDelta: newOutcome.ticketDelta,
+                coinReward: newOutcome.coinReward,
+                score: newOutcome.score,
+                reason: newOutcome.reason,
+                specialPenalty:
+                    newOutcome.specialPenalty === true
+            };
+        }
+    }
+
+    // Điểm cao/thấp hơn, hoặc thư cũ đã nhận:
+    // thư cũ bị hủy; revision cũ chuyển sang superseded.
+    if (heldMessageId) {
+        await db
+            .ref(`inbox_messages/${username}/${heldMessageId}`)
+            .remove()
+            .catch(() => {});
+    }
+
+    await eventRef.update({
+        status: 'superseded',
+        supersededAt:
+            firebase.database.ServerValue.TIMESTAMP,
+        holdResolvedAt:
+            firebase.database.ServerValue.TIMESTAMP,
+        holdResolution:
+            exactSame
+                ? 'same_score_but_old_reward_already_claimed'
+                : 'score_changed',
+        messageId: null
+    });
+
+    return {
+        status: 'superseded',
+        reusedHeldReward: false,
+        exactSame,
+        cancelledMessageId: heldMessageId || null,
+        previousScore: oldSnapshot.score,
+        newScore: newOutcome.score
+    };
+}
+
+function getTeacherGradeRewardExistingResultV4(
+    eventData,
+    submission,
+    outcome
+) {
+    const source = eventData || {};
+
+    return {
+        status: String(source.status || 'already_issued'),
+        messageId: String(source.messageId || '') || null,
+        revision: Number(source.revision || 1),
+        ticketDelta: Number(
+            source.ticketDelta ?? outcome?.ticketDelta ?? 0
+        ),
+        coinReward: Number(
+            source.coinReward ?? outcome?.coinReward ?? 0
+        ),
+        score: Number(
+            source.score ?? outcome?.score ?? submission?.grade ?? 0
+        ),
+        reason: String(
+            source.reason ?? outcome?.reason ?? ''
+        ),
+        specialPenalty: Boolean(
+            source.specialPenalty ??
+            outcome?.specialPenalty
+        ),
+        reusedExistingReward: true
+    };
+}
+
 
 async function issueTeacherGradeRewardV2(submission, rawGrade, gradedAt) {
     const username = getTeacherGradeRewardUsername(submission);
@@ -8159,7 +9041,7 @@ async function issueTeacherGradeRewardV2(submission, rawGrade, gradedAt) {
                 assignmentId: String(submission?.assignmentId || ''),
                 submissionKey,
                 rewardVersion: GRADE_REWARD_V2_VERSION,
-                source: 'grade_reward_v3',
+                source: 'grade_reward_v4',
                 expiry: null,
                 timestamp: firebase.database.ServerValue.TIMESTAMP,
                 timeString: new Date(startedAt).toLocaleString('vi-VN')
@@ -8222,7 +9104,7 @@ async function issueTeacherGradeRewardV2(submission, rawGrade, gradedAt) {
                 assignmentId: String(submission?.assignmentId || ''),
                 submissionKey,
                 rewardVersion: GRADE_REWARD_V2_VERSION,
-                source: 'grade_reward_v3',
+                source: 'grade_reward_v4',
                 expiry: null,
                 timestamp: firebase.database.ServerValue.TIMESTAMP,
                 timeString: new Date(startedAt).toLocaleString('vi-VN')
@@ -8314,36 +9196,104 @@ async function gradeSubmission(subId) {
         }
 
         const rewardState = await inspectTeacherGradeRewardState(sub);
+        let rewardResult = null;
+        let shouldIssueNewReward = true;
 
-        if (
-            (rewardState.event || hasTeacherGradeRewardFootprint(sub)) &&
-            !['deleted', 'rolled_back']
-                .includes(String(rewardState.event?.status || '')) &&
-            !isTeacherGradeRewardOutcomeSame(
+        try {
+            const currentEvent =
                 rewardState.event ||
-                    getTeacherGradeRewardFallbackEvent(sub),
-                nextOutcome
-            )
-        ) {
-            try {
-                await rollbackTeacherGradeRewardV3(
-                    sub,
-                    'score_changed',
-                    { notify: true }
-                );
-            } catch (error) {
-                if (
-                    error?.message === 'GRADE_REWARD_CLAIM_IN_PROGRESS' ||
-                    error?.message === 'GRADE_REWARD_MUTATION_IN_PROGRESS'
-                ) {
-                    alert(
-                        '⏳ Học sinh đang nhận phần thưởng hoặc hệ thống đang đối soát bài này. ' +
-                        'Vui lòng đợi vài giây rồi chấm lại để tránh cộng/trừ trùng.'
+                getTeacherGradeRewardFallbackEvent(sub);
+
+            const currentStatus = String(
+                currentEvent?.status || ''
+            );
+
+            // A. Bài đang ở trạng thái Chấm lại/HOLD:
+            //    - cùng đúng điểm cũ + cùng outcome => mở lại thư cũ chưa nhận;
+            //    - khác điểm => hủy thư cũ và chuẩn bị revision mới.
+            if (
+                currentEvent &&
+                (
+                    currentStatus === 'regrade_hold' ||
+                    currentStatus === 'regrading' ||
+                    sub.isRegrading === true
+                )
+            ) {
+                // Đảm bảo các event V3 bị kẹt cũng được thu hồi tài sản
+                // trước khi xử lý điểm mới.
+                if (currentStatus !== 'regrade_hold') {
+                    await holdTeacherGradeRewardForRegradeV4(
+                        sub,
+                        'recover_regrade'
                     );
-                    return;
                 }
-                throw error;
+
+                const holdResolution =
+                    await resolveTeacherGradeRewardHoldV4(
+                        sub,
+                        grade
+                    );
+
+                if (holdResolution.reusedHeldReward) {
+                    rewardResult = holdResolution;
+                    shouldIssueNewReward = false;
+                }
             }
+
+            // B. Giáo viên sửa điểm trực tiếp mà không bấm "Chấm lại".
+            else if (currentEvent) {
+                const exactSame =
+                    isTeacherGradeRewardV4ExactSame(
+                        getTeacherGradeRewardV4Snapshot(
+                            currentEvent,
+                            sub
+                        ),
+                        nextOutcome
+                    );
+
+                if (exactSame) {
+                    // Điểm thực sự không đổi -> giữ nguyên kết quả cũ.
+                    rewardResult =
+                        getTeacherGradeRewardExistingResultV4(
+                            currentEvent,
+                            sub,
+                            nextOutcome
+                        );
+
+                    if (
+                        rewardState.claim?.status === 'claimed'
+                    ) {
+                        rewardResult.status = 'claimed';
+                    }
+
+                    shouldIssueNewReward = false;
+                } else {
+                    // Điểm thay đổi -> HOLD/thu hồi kết quả cũ rồi hủy
+                    // thư chưa nhận; sau đó phát revision mới.
+                    await holdTeacherGradeRewardForRegradeV4(
+                        sub,
+                        'score_changed'
+                    );
+
+                    await resolveTeacherGradeRewardHoldV4(
+                        sub,
+                        grade
+                    );
+                }
+            }
+        } catch (error) {
+            if (
+                error?.message === 'GRADE_REWARD_CLAIM_IN_PROGRESS' ||
+                error?.message === 'GRADE_REWARD_MUTATION_IN_PROGRESS'
+            ) {
+                alert(
+                    '⏳ Học sinh đang nhận phần thưởng hoặc hệ thống đang đối soát bài này. ' +
+                    'Vui lòng đợi vài giây rồi lưu điểm lại để tránh cộng/trừ trùng.'
+                );
+                return;
+            }
+
+            throw error;
         }
 
         const updateObj = {
@@ -8352,7 +9302,9 @@ async function gradeSubmission(subId) {
             isRegrading: false,
             gradedAt,
             gradeRewardV2Version: GRADE_REWARD_V2_VERSION,
-            gradeRewardV2Status: 'processing'
+            gradeRewardV2Status:
+                rewardResult?.status ||
+                (shouldIssueNewReward ? 'processing' : 'issued')
         };
 
         if (fileDataArray) {
@@ -8365,15 +9317,16 @@ async function gradeSubmission(subId) {
             updateObj
         );
 
-        let rewardResult = null;
         let rewardError = null;
 
         try {
-            rewardResult = await issueTeacherGradeRewardV2(
-                sub,
-                grade,
-                gradedAt
-            );
+            if (shouldIssueNewReward) {
+                rewardResult = await issueTeacherGradeRewardV2(
+                    sub,
+                    grade,
+                    gradedAt
+                );
+            }
 
             await updateDB(
                 'submissions',
@@ -8396,7 +9349,7 @@ async function gradeSubmission(subId) {
         } catch (error) {
             rewardError = error;
             console.error(
-                '[Grade Reward V3] Không xử lý được thưởng/phạt:',
+                '[Grade Reward V4] Không xử lý được thưởng/phạt:',
                 error
             );
 
@@ -8523,7 +9476,10 @@ window.requestRegrade = async function (subKey) {
     if (
         !confirm(
             'Bạn có chắc chắn muốn tiến hành chấm lại bài này?\n\n' +
-            'Hệ thống sẽ khóa/thu hồi phần thưởng hoặc hoàn lại án phạt của kết quả cũ trước khi mở chấm lại.'
+            '• Thư thưởng CHƯA NHẬN sẽ bị khóa tạm thời, học sinh chưa thể nhận.\n' +
+            '• Nếu học sinh ĐÃ NHẬN, hệ thống thu hồi trực tiếp Vé + Coin cũ ngay.\n' +
+            '• Nếu chấm lại đúng cùng điểm cũ, thư chưa nhận sẽ được mở lại.\n' +
+            '• Nếu điểm mới cao/thấp hơn, thư cũ bị hủy và hệ thống phát kết quả mới.'
         )
     ) {
         return;
@@ -8543,52 +9499,132 @@ window.requestRegrade = async function (subKey) {
             ...(subSnap.val() || {})
         };
 
-        await assertTeacherGradeRewardMutationReady(sub);
-        const rollbackResult = await rollbackTeacherGradeRewardV3(
-            sub,
-            'request_regrade',
-            { notify: true }
-        );
+        const holdResult =
+            await holdTeacherGradeRewardForRegradeV4(
+                sub,
+                'request_regrade'
+            );
 
         await updateDB('submissions', subKey, {
             grade: null,
             isRegrading: true,
             gradeRewardV2Version: GRADE_REWARD_V2_VERSION,
-            gradeRewardV2Status: 'regrading',
-            gradeRewardV2MessageId: null,
+            gradeRewardV2Status: 'regrade_hold',
+
+            // KHÔNG xóa metadata cũ: cần giữ để khôi phục thư nếu
+            // giáo viên chấm lại đúng cùng điểm.
+            gradeRewardV2MessageId:
+                holdResult?.heldMessageId ||
+                sub.gradeRewardV2MessageId ||
+                null,
+            gradeRewardV2Revision:
+                Number(
+                    holdResult?.revision ||
+                    sub.gradeRewardV2Revision ||
+                    1
+                ),
+            gradeRewardV2Tickets:
+                Number(
+                    holdResult?.ticketDelta ??
+                    sub.gradeRewardV2Tickets ??
+                    0
+                ),
+            gradeRewardV2Coins:
+                Number(
+                    holdResult?.coinReward ??
+                    sub.gradeRewardV2Coins ??
+                    0
+                ),
+            gradeRewardV2HeldScore:
+                Number(
+                    holdResult?.score ??
+                    sub.grade ??
+                    0
+                ),
+            gradeRewardV2HoldStartedAt: Date.now(),
             gradeRewardV2ProcessedAt: Date.now()
         });
 
-        const reversedText = [];
-        if (Number(rollbackResult?.reversedTickets || 0) !== 0) {
-            reversedText.push(
-                `${Math.abs(Number(rollbackResult.reversedTickets))} Vé`
+        const changes = [];
+
+        if (
+            Number(
+                holdResult?.reclaimedRewardTickets || 0
+            ) > 0
+        ) {
+            changes.push(
+                `thu hồi ${Number(
+                    holdResult.reclaimedRewardTickets
+                )} Vé thưởng`
             );
         }
-        if (Number(rollbackResult?.reversedCoins || 0) !== 0) {
-            reversedText.push(
-                `${Math.abs(Number(rollbackResult.reversedCoins)).toLocaleString('vi-VN')} Coin`
+
+        if (
+            Number(
+                holdResult?.refundedPenaltyTickets || 0
+            ) > 0
+        ) {
+            changes.push(
+                `hoàn lại ${Number(
+                    holdResult.refundedPenaltyTickets
+                )} Vé phạt cũ`
             );
+        }
+
+        if (
+            Number(holdResult?.reclaimedCoins || 0) > 0
+        ) {
+            changes.push(
+                `thu hồi ${Number(
+                    holdResult.reclaimedCoins
+                ).toLocaleString('vi-VN')} Coin`
+            );
+        }
+
+        let mailText = '';
+
+        if (holdResult?.heldMessageId) {
+            mailText =
+                '\n📨 Thư thưởng cũ vẫn được giữ nhưng đang KHÓA, học sinh chưa thể nhận.';
+        } else if (holdResult?.holdWasClaimed) {
+            mailText =
+                '\n✅ Phần thưởng cũ đã nhận được thu hồi trực tiếp khỏi số dư.';
         }
 
         alert(
-            '✅ Đã kích hoạt chấm lại. Kết quả phía học sinh đã được ẩn.' +
-            (reversedText.length
-                ? `\nĐã đối soát số dư NGAY LẬP TỨC: ${reversedText.join(' + ')}.`
-                : '\nKhông có tài sản đã nhận để trừ/hoàn. Thư thưởng cũ chưa nhận (nếu có) đã được thu hồi.') +
-            `\nTrạng thái đối soát: ${rollbackResult?.status || 'no_event'}.`
+            '✅ Đã mở chế độ CHẤM LẠI.' +
+            (changes.length
+                ? `\nĐối soát ngay: ${changes.join(' + ')}.`
+                : '\nChưa có tài sản đã nhận cần thu hồi.') +
+            mailText +
+            '\nKhi lưu điểm mới, hệ thống sẽ tự so sánh với điểm cũ.'
         );
 
         await loadSubmissions();
+
+        const ticketStudentSelect =
+            document.getElementById('ticketStudentSelect');
+
+        if (
+            ticketStudentSelect &&
+            ticketStudentSelect.value ===
+                getCompatSubmissionUsername(sub) &&
+            typeof window.onTicketStudentChange === 'function'
+        ) {
+            await window.onTicketStudentChange();
+        }
     } catch (error) {
-        console.error('[Grade Reward V3] Không thể mở chấm lại:', error);
+        console.error(
+            '[Grade Reward V4] Không thể mở chấm lại:',
+            error
+        );
 
         if (
             error?.message === 'GRADE_REWARD_CLAIM_IN_PROGRESS' ||
             error?.message === 'GRADE_REWARD_MUTATION_IN_PROGRESS'
         ) {
             alert(
-                '⏳ Học sinh đang nhận phần thưởng hoặc hệ thống đang đối soát. ' +
+                '⏳ Học sinh đang nhận phần thưởng. ' +
                 'Hãy đợi vài giây rồi bấm Chấm lại lần nữa.'
             );
             return;

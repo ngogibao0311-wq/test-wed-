@@ -35,6 +35,9 @@ window.showToast = function (message, type = 'error') {
 
 const currentUser = JSON.parse(localStorage.getItem('currentUser'));
 
+window.__GRADE_REWARD_STUDENT_BUILD = '20260917.v4-regrade-hold-reconcile';
+console.info('[Grade Reward Student]', window.__GRADE_REWARD_STUDENT_BUILD);
+
 
 // ======================================================
 // STUDENT LAZY FEATURE RUNTIME v2
@@ -19122,15 +19125,20 @@ window.renderStudentInbox = function () {
                 const rewardTickets = Number(msg.gradeRewardTickets ?? msg.giftValue ?? 0);
                 const rewardCoins = Number(msg.gradeRewardCoins || 0);
                 const rewardScore = Number(msg.gradeRewardScore);
+                const rewardOnHold =
+                    msg.gradeRewardOnHold === true;
 
                 giftDisplay =
                     `🎓 ${rewardTickets} Vé quay may mắn` +
                     (rewardCoins > 0
                         ? ` + 🪙 ${rewardCoins.toLocaleString('vi-VN')} Coin`
                         : '') +
-                    `<br><span style="font-size:.82em;color:#1d4ed8;font-weight:700;">` +
-                    `Điểm ${Number.isFinite(rewardScore) ? rewardScore.toLocaleString('vi-VN') : '-'} / 10 · ` +
-                    `Nhấn nhận để cộng phần thưởng vào tài khoản.` +
+                    `<br><span style="font-size:.82em;color:${rewardOnHold ? '#b45309' : '#1d4ed8'};font-weight:700;">` +
+                    (
+                        rewardOnHold
+                            ? `⏸️ Giáo viên đang chấm lại · thư tạm khóa, chưa thể nhận.`
+                            : `Điểm ${Number.isFinite(rewardScore) ? rewardScore.toLocaleString('vi-VN') : '-'} / 10 · Nhấn nhận để cộng phần thưởng vào tài khoản.`
+                    ) +
                     `</span>`;
             }
             else if (msg.giftType === 'grade_penalty') {
@@ -19251,6 +19259,29 @@ window.renderStudentInbox = function () {
                 btnHTML = `<button onclick="deleteMessage('${msg._fbKey}')" style="background: linear-gradient(135deg,#f7d774,#d6a438); color:#47320d; width:100%; padding:10px; border-radius:8px; font-weight:900; border:none; cursor:pointer;">🌕 Đã nhận Xu Trung Thu · Xóa thư</button>`;
             } else if (msg.giftType === 'grade_penalty') {
                 btnHTML = `<button onclick="deleteMessage('${msg._fbKey}')" style="background:rgba(225,29,72,.10);color:#be123c;width:100%;padding:10px;border-radius:8px;font-weight:800;border:1px solid rgba(225,29,72,.35);cursor:pointer;">🗑️ Đã xem · Xóa thông báo phạt</button>`;
+            } else if (
+                msg.giftType === 'grade_reward' &&
+                msg.gradeRewardOnHold === true
+            ) {
+                btnHTML = `
+                    <button
+                        type="button"
+                        disabled
+                        style="
+                            width:100%;
+                            padding:10px;
+                            border-radius:8px;
+                            font-weight:800;
+                            border:1px solid rgba(180,83,9,.28);
+                            color:#92400e;
+                            background:rgba(251,191,36,.18);
+                            cursor:not-allowed;
+                            opacity:.9;
+                        "
+                    >
+                        ⏸️ Đang chấm lại · Tạm khóa nhận thưởng
+                    </button>
+                `;
             } else {
                 const claimButtonText =
                     msg.giftType === 'grade_reward'
@@ -19376,13 +19407,46 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
             const eventSnap = await eventRef.once('value');
             const eventData = eventSnap.val();
 
-            const eventMatchesMessage = Boolean(
+            const eventStatus = String(
+                eventData?.status || ''
+            );
+
+            const sameRewardIdentity = Boolean(
                 eventData &&
-                String(eventData.status || '') === 'pending_claim' &&
                 String(eventData.messageId || '') === String(msgKey) &&
                 Number(eventData.revision || 1) === rewardRevision &&
                 Number(eventData.ticketDelta || 0) === rewardTickets &&
                 Number(eventData.coinReward || 0) === rewardCoins
+            );
+
+            // V4: giáo viên vừa bấm "Chấm lại".
+            // Thư cũ vẫn tồn tại nhưng bị khóa, KHÔNG được xóa vì nếu
+            // giáo viên lưu lại đúng cùng điểm thì thư này sẽ mở lại.
+            const rewardIsOnHold = Boolean(
+                sameRewardIdentity &&
+                (
+                    eventStatus === 'regrade_hold' ||
+                    eventStatus === 'regrading' ||
+                    eventStatus === 'mutating'
+                )
+            );
+
+            if (rewardIsOnHold) {
+                alert(
+                    '⏸️ Giáo viên đang chấm lại bài này. ' +
+                    'Phần thưởng cũ đang bị khóa tạm thời và chưa thể nhận. ' +
+                    'Nếu điểm mới giữ nguyên, thư sẽ tự mở lại.'
+                );
+
+                if (typeof renderStudentInbox === 'function') {
+                    renderStudentInbox();
+                }
+                return;
+            }
+
+            const eventMatchesMessage = Boolean(
+                sameRewardIdentity &&
+                eventStatus === 'pending_claim'
             );
 
             if (!eventMatchesMessage) {
@@ -19392,7 +19456,7 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
                     .catch(() => {});
 
                 alert(
-                    'ℹ️ Phần thưởng này đã bị thu hồi hoặc thay thế do giáo viên chấm lại/xóa kết quả.'
+                    'ℹ️ Phần thưởng này đã bị hủy hoặc thay thế do điểm số đã thay đổi.'
                 );
 
                 if (typeof renderStudentInbox === 'function') {
