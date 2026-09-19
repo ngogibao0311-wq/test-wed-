@@ -1,5 +1,5 @@
 const APP_VERSION = '4.0.3';
-const APP_BUILD = '2026.09.17.1-floating-toolbar-midautumn-a11y';
+const APP_BUILD = '2026.09.18.1-security-hotfix';
 const CACHE_VERSION = `study-shell-v${APP_VERSION}-${APP_BUILD}`;
 const OFFLINE_CACHE = `${CACHE_VERSION}-offline`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
