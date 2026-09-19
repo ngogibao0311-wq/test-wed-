@@ -10,6 +10,8 @@
 (() => {
     'use strict';
 
+    window.__LUXURY_STORE_GUARD_BUILD = '20260917.v1-D1-D8';
+
 
     // EFFECT QUALITY MANAGER v1.2.0
     // Dùng chung cho toàn bộ runtime Luxury/Premium, kể cả vật phẩm thêm sau này.
@@ -12690,10 +12692,27 @@ if (isNationalDay) {
     }
 
 
+    const luxuryPurchasesInFlight = new Set();
     async function buyLuxuryItemSafely(itemId) {
-        const user = JSON.parse(
-            localStorage.getItem('currentUser') || 'null'
-        );
+        const key = String(itemId);
+        if (luxuryPurchasesInFlight.has(key)) return false;
+        luxuryPurchasesInFlight.add(key);
+        try {
+            return await buyLuxuryItemChecked(key);
+        } finally {
+            luxuryPurchasesInFlight.delete(key);
+        }
+    }
+
+    async function buyLuxuryItemChecked(itemId) {
+        let user;
+        try { user = JSON.parse(localStorage.getItem('currentUser') || 'null'); }
+        catch (_) { user = null; }
+        if (typeof db === 'undefined' || !user?.username) {
+            alert('Chưa xác định được tài khoản. Vui lòng đăng nhập lại.');
+            return false;
+        }
+        let upgradingFromTrial = false;
 
         /*
          * Chốt chống mua lại:
@@ -12716,8 +12735,15 @@ if (isNationalDay) {
                 const existingItem =
                     snapshot.val();
 
+                if (existingItem?.isTrial === true) {
+                    if (Number(existingItem.trialExpiry || 0) <= Date.now()) {
+                        alert('Lượt dùng thử đã hết hạn. Vui lòng chờ kho cập nhật rồi thử lại.');
+                        return false;
+                    }
+                    upgradingFromTrial = true;
+                }
                 if (
-                    existingItem &&
+                    existingItem && existingItem.isTrial !== true &&
                     String(existingItem.id ?? '') ===
                         String(itemId)
                 ) {
@@ -12753,13 +12779,15 @@ if (isNationalDay) {
                     '[LuxuryStore] Không thể kiểm tra quyền sở hữu trước khi mua:',
                     error
                 );
+                alert('Không kiểm tra được kho vật phẩm. Vui lòng thử lại khi kết nối ổn định.');
+                return false;
             }
         }
 
         if (
             typeof window.buyItem === 'function'
         ) {
-            return window.buyItem(itemId);
+            return window.buyItem(itemId, upgradingFromTrial);
         }
 
         console.error(
@@ -13112,11 +13140,11 @@ if (isNationalDay) {
         const inventoryItem =
             getLuxuryInventoryItem(item.id);
 
-        const isOwned =
-            Boolean(inventoryItem);
+        const isOwned = Boolean(inventoryItem) &&
+            (inventoryItem.isTrial !== true || Number(inventoryItem.trialExpiry || 0) > Date.now());
 
         const isEquipped =
-            inventoryItem?.isEquipped === true;
+            isOwned && inventoryItem?.isEquipped === true;
 
         // ====================================================
         // CARD RIÊNG QUỐC KHÁNH
@@ -14575,6 +14603,26 @@ if (isNationalDay) {
                 .map(renderCard)
                 .join('');
 
+        // A trial is not permanent ownership. Offer the existing upgrade flow.
+        grid.querySelectorAll('[data-item-id]').forEach(card => {
+            const id = card.dataset.itemId;
+            const inventory = getLuxuryInventoryItem(id);
+            const item = items.find(candidate => String(candidate.id) === id);
+            if (!item || item.isLocked || item.eventOnly || item.isNonCoin ||
+                inventory?.isTrial !== true || Number(inventory.trialExpiry || 0) <= Date.now()) return;
+            const upgrade = document.createElement('button');
+            upgrade.type = 'button';
+            upgrade.className = 'btn-approve luxury-trial-upgrade';
+            upgrade.textContent = 'Nâng cấp vĩnh viễn';
+            upgrade.addEventListener('click', async () => {
+                upgrade.disabled = true;
+                try { await buyLuxuryItemSafely(id); }
+                catch (error) { console.error('[LuxuryStore] Upgrade failed:', error); }
+                finally { upgrade.disabled = false; }
+            });
+            card.appendChild(upgrade);
+        });
+
         /*
          * HOTFIX v4.0.1:
          * renderCard() đã tạo placeholder riêng cho vật phẩm bị khóa.
@@ -15664,6 +15712,7 @@ if (isNationalDay) {
     // API
     // ========================================================
     window.LuxuryStore = {
+        ensureUI: buildLuxuryStoreUI,
         open: openLuxuryStore,
         close: closeLuxuryStore,
         isOpen: isLuxuryStoreOpen,
@@ -15937,6 +15986,9 @@ if (isNationalDay) {
     // KHỞI ĐỘNG
     // ========================================================
     function bootLuxuryStore() {
+
+        // Mount navigation before optional pet/effect recovery can fail.
+        buildLuxuryStoreUI();
 
         ensureLuxuryStoreViewIsolationStyles();
         ensureLotmKleinStylesheet();

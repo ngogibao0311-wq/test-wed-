@@ -14,7 +14,7 @@
 
     if (window.EffectQualityManager) return;
 
-    const VERSION = '2.0.0';
+    const VERSION = '2.1.0';
     const STORAGE_PREFIX = 'effectQualityManager:v1';
     const STYLE_ID = 'effect-quality-manager-style';
     const SETTINGS_ROW_ID = 'effectQualitySettingsRow';
@@ -47,6 +47,8 @@
         enabled: false,
         level: 'high',
         observer: null,
+        cardVisibilityObserver: null,
+        observedCards: new Set(),
         effectManagerPatched: false,
         timerPatchDepth: 0,
         forcedWebAnimationPause: false,
@@ -63,6 +65,8 @@
         emitters: new Map(),
         nextEmitterId: 1,
         schedulerHandle: null,
+        schedulerWakeHandle: null,
+        lastDetectionUIAt: -Infinity,
         schedulerRunning: false,
         visibilityPaused: document.visibilityState === 'hidden',
         liveParticles: new Set(),
@@ -202,6 +206,15 @@
         const style = document.createElement('style');
         style.id = STYLE_ID;
         style.textContent = `
+[data-fxq-card-visible="0"],
+[data-fxq-card-visible="0"]::before,
+[data-fxq-card-visible="0"]::after,
+[data-fxq-card-visible="0"] *,
+[data-fxq-card-visible="0"] *::before,
+[data-fxq-card-visible="0"] *::after {
+    animation-play-state: paused !important;
+}
+
 /* =========================================================
    EFFECT QUALITY MANAGER
    Chỉ đụng lớp hiệu ứng. Không selector theme/sidebar/card UI.
@@ -683,9 +696,38 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
         }
     }
 
+    function observeStoreCardVisibility(card) {
+        if (typeof window.IntersectionObserver !== 'function' || state.observedCards.has(card)) return;
+        if (!state.cardVisibilityObserver) {
+            state.cardVisibilityObserver = new window.IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (!entry.target.isConnected) {
+                        state.cardVisibilityObserver.unobserve(entry.target);
+                        state.observedCards.delete(entry.target);
+                        return;
+                    }
+                    entry.target.dataset.fxqCardVisible = entry.isIntersecting ? '1' : '0';
+                });
+            }, { rootMargin: '100px' });
+        }
+        state.observedCards.add(card);
+        state.cardVisibilityObserver.observe(card);
+    }
+
+    function releaseRemovedStoreCards(node) {
+        const release = card => {
+            // Moving a card within the document is not destruction.
+            if (card.isConnected || !state.observedCards.delete(card)) return;
+            state.cardVisibilityObserver?.unobserve(card);
+        };
+        release(node);
+        node.querySelectorAll?.('[data-fxq-store-card="1"]').forEach(release);
+    }
+
     function processStoreCard(card) {
         if (!(card instanceof Element)) return;
         card.dataset.fxqStoreCard = '1';
+        observeStoreCardVisibility(card);
 
         const itemId = String(card.getAttribute('data-item-id') || '').trim();
         if (itemId) card.dataset.fxqItemId = itemId;
@@ -718,18 +760,23 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
         const el = document.getElementById(DETECTION_ID);
         if (!el) return;
 
+        // Stats are informational; do not query the whole page every particle frame.
+        const now = Date.now();
+        if (now - state.lastDetectionUIAt < 1000) return;
+        state.lastDetectionUIAt = now;
         const stats = getDetectionStats();
         el.textContent =
             `Tự nhận diện: ${stats.customRuntimes} runtime vật phẩm mới • ` +
             `${stats.storeCards} card • ${stats.decorations} lớp trang trí.`;
     }
 
-    function processAddedNode(node) {
+    function processAddedNode(node, processedCards = new Set()) {
         if (!(node instanceof Element)) return;
 
         // Card cửa hàng được render động bằng innerHTML; quét ngay khi xuất hiện.
         const storeCard = findStoreCardForNode(node);
-        if (storeCard) {
+        if (storeCard && !processedCards.has(storeCard)) {
+            processedCards.add(storeCard);
             processStoreCard(storeCard);
         }
         scanStoreCards(node);
@@ -781,7 +828,16 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
         const nodes = [...state.pendingNodes];
         state.pendingNodes.clear();
 
-        nodes.forEach(processAddedNode);
+        // A queued ancestor already covers its descendants. Ignore removed nodes.
+        const queued = new Set(nodes);
+        const cards = new Set();
+        nodes.forEach(node => {
+            if (!node.isConnected) return;
+            for (let parent = node.parentElement; parent; parent = parent.parentElement) {
+                if (queued.has(parent)) return;
+            }
+            processAddedNode(node, cards);
+        });
         updateDetectionUI();
     }
 
@@ -806,6 +862,7 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
                     mutation.removedNodes.forEach(node => {
                         if (!(node instanceof Element)) return;
 
+                        releaseRemovedStoreCards(node);
                         state.liveParticles.delete(node);
 
                         node
@@ -974,7 +1031,25 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
                     16
                 ));
 
+        const queueTick = now => {
+            if (state.schedulerWakeHandle !== null || state.schedulerHandle !== null) return;
+            let nextAt = Infinity;
+            for (const emitter of state.emitters.values()) {
+                if (!emitter.cancelled) nextAt = Math.min(nextAt, emitter.nextAt);
+            }
+            if (!Number.isFinite(nextAt)) { state.schedulerRunning = false; return; }
+            state.schedulerWakeHandle = window.setTimeout(() => {
+                state.schedulerWakeHandle = null;
+                if (state.visibilityPaused || document.visibilityState === 'hidden') {
+                    state.schedulerRunning = false;
+                    return;
+                }
+                state.schedulerHandle = raf(tick);
+            }, Math.max(0, nextAt - now));
+        };
+
         const tick = now => {
+            state.schedulerHandle = null;
             if (
                 state.visibilityPaused ||
                 document.visibilityState === 'hidden'
@@ -1040,16 +1115,14 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
                 state.emitters.size > 0 &&
                 !state.visibilityPaused
             ) {
-                state.schedulerHandle =
-                    raf(tick);
+                queueTick(now);
             } else {
                 state.schedulerRunning = false;
                 state.schedulerHandle = null;
             }
         };
 
-        state.schedulerHandle =
-            raf(tick);
+        queueTick(performance.now());
     }
 
     function scheduleEmitter(
@@ -1116,6 +1189,12 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
             }
         );
 
+        // A newly registered emitter may be due before the currently scheduled wake.
+        if (state.schedulerWakeHandle !== null) {
+            window.clearTimeout(state.schedulerWakeHandle);
+            state.schedulerWakeHandle = null;
+            state.schedulerRunning = false;
+        }
         ensureScheduler();
 
         return token;
@@ -1131,6 +1210,7 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
 
         emitter.cancelled = true;
         state.emitters.delete(token);
+        if (state.emitters.size === 0) stopEmitterScheduler();
 
         return true;
     }
@@ -1157,11 +1237,24 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
             }
         }
 
+        if (state.emitters.size === 0) stopEmitterScheduler();
         return count;
+    }
+
+    function stopEmitterScheduler() {
+        if (state.schedulerWakeHandle !== null) window.clearTimeout(state.schedulerWakeHandle);
+        if (state.schedulerHandle !== null) {
+            if (window.requestAnimationFrame) window.cancelAnimationFrame(state.schedulerHandle);
+            else window.clearTimeout(state.schedulerHandle);
+        }
+        state.schedulerWakeHandle = null;
+        state.schedulerHandle = null;
+        state.schedulerRunning = false;
     }
 
     function pauseEffectBudget() {
         state.visibilityPaused = true;
+        stopEmitterScheduler();
 
         if (
             state.schedulerHandle !== null &&

@@ -1135,8 +1135,20 @@
         if (claim.rewardType === 'coin') {
             const amount = Number(claim.amount || 0);
             if (amount <= 0) throw new Error('INVALID_COIN_REWARD');
-            await getDatabase().ref(`student_coins/${username()}`).transaction(current => Number(current || 0) + amount);
-            await completeClaim(year, milestone);
+            // One atomic update: the terminal claim rule rejects concurrent/replayed grants.
+            const completed = { ...claim, status: 'completed', completedAt: now() };
+            const updates = {
+                [`student_coins/${username()}`]: firebase.database.ServerValue.increment(amount),
+                [`student_event_rewards/${username()}/mid_autumn/${year}/${milestone}`]: completed
+            };
+            try {
+                await getDatabase().ref().update(updates);
+                state.claims[String(milestone)] = completed;
+            } catch (error) {
+                const latest = await claimRef(year, milestone).once('value');
+                if (latest.child('status').val() !== 'completed') throw error;
+                state.claims[String(milestone)] = latest.val();
+            }
             showToast(`🎉 Đã nhận ${amount} Coin từ Đại Hội Trung Thu!`, 'success');
             return;
         }

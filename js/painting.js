@@ -17,7 +17,7 @@
         historyLimit: 30,
         autosaveMs: 8000,
         recentRounds: 8,
-        maxImageBytes: 9 * 1024 * 1024
+        maxImageBytes: 5 * 1024 * 1024
     });
 
     const TOOL_LABELS = Object.freeze({
@@ -6355,7 +6355,7 @@ ${this.toolButton(
                     DEFAULTS.maxImageBytes
                 ) {
                     throw new Error(
-                        'Ảnh vượt giới hạn 9 MB. ' +
+                        'Ảnh vượt giới hạn 5 MB. ' +
                         'Hãy giảm kích thước vòng thi hoặc nét vẽ.'
                     );
                 }

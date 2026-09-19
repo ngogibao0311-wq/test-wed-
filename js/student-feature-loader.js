@@ -46,7 +46,7 @@
 
     if (window.StudentFeatureLoader) return;
 
-    const VERSION = '3.4.5-floating-actions-v2';
+    const VERSION = '3.4.6-security-k2-firebase-owned-css';
 
     const cssPromises = new Map();
     const scriptPromises = new Map();
@@ -98,7 +98,7 @@
         musicManager: 'js/music-manager.js?v=20260910.music-reliability-v3',
         storeManager: 'js/store-manager.js?v=20260917.frame-runtime-barrier-v1',
 
-        luxuryStore: 'js/luxury-store.js?v=4.2.12-store-view-isolation',
+        luxuryStore: 'js/luxury-store.js?v=20260918.fx-store-v2',
         collections: 'js/store-collections.js?v=20260908.four-seasons-lock-v1',
 
         royalBall: 'js/royal-ball.js?v=20260908.lazy-v1',
@@ -829,36 +829,24 @@ html[data-app-role="student"] body .dashboard > .content > :is(
     }
 
     function preloadFromLocalStorage() {
-        const ids = [];
-
+        /*
+         * K2: localStorage visual keys là dữ liệu do người dùng sửa được.
+         * Không preload CSS/runtime từ chúng. Firebase inventory sau Auth mới quyết định
+         * item nào thực sự cần ensureForEquippedItems()/preloadEquippedCss().
+         */
         [
             'active_theme',
             'active_effect',
             'active_pet',
-            // Nhạc không cần CSS; tránh kéo Store/Effect CSS chỉ vì active_music.
             'active_frame',
             'active_background'
         ].forEach(key => {
             try {
-                const value =
-                    localStorage.getItem(key);
-
-                if (value) ids.push(value);
-            } catch (_) { }
+                localStorage.removeItem(key);
+            } catch (_) {}
         });
 
-        if (!ids.length) return;
-
-        /*
-         * Bắt đầu tải CSS ngay khi <head> đang parse.
-         * Firebase inventory vẫn là nguồn xác nhận cuối cùng ở startup.
-         */
-        preloadEquippedCss(ids).catch(error => {
-            console.warn(
-                '[StudentFeatureLoader] Preload CSS localStorage lỗi:',
-                error
-            );
-        });
+        return false;
     }
 
     const groupLoaders = {

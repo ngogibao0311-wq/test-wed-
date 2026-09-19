@@ -1,6 +1,63 @@
 const currentUser = JSON.parse(localStorage.getItem('currentUser')) || {};
 
 // ======================================================
+// SECURITY GUARD K · DANGEROUS ACTION REAUTH + PASSWORD POLICY
+// ======================================================
+window.__SECURITY_GUARD_TEACHER_BUILD = '20260918.v1-K6-K7';
+console.info('[Security Guard Teacher]', window.__SECURITY_GUARD_TEACHER_BUILD);
+
+function getTeacherManagedPasswordPolicyError(password, username = '') {
+    const value = String(password ?? '');
+    const normalizedUsername = String(username || '').trim().toLowerCase();
+
+    if (value.length < 10) return 'Mật khẩu phải có ít nhất 10 ký tự.';
+    if (value.length > 128) return 'Mật khẩu tối đa 128 ký tự.';
+    if (/\\s/.test(value)) return 'Mật khẩu không được chứa khoảng trắng.';
+    if (!/[a-z]/.test(value)) return 'Mật khẩu phải có ít nhất 1 chữ thường.';
+    if (!/[A-Z]/.test(value)) return 'Mật khẩu phải có ít nhất 1 chữ hoa.';
+    if (!/\\d/.test(value)) return 'Mật khẩu phải có ít nhất 1 chữ số.';
+    if (!/[^A-Za-z0-9]/.test(value)) return 'Mật khẩu phải có ít nhất 1 ký tự đặc biệt.';
+    if (normalizedUsername.length >= 3 && value.toLowerCase().includes(normalizedUsername)) {
+        return 'Mật khẩu không được chứa tên đăng nhập.';
+    }
+
+    return '';
+}
+
+async function reauthenticateTeacherForDangerousAction(actionLabel) {
+    const authUser = firebase.auth().currentUser;
+    if (!authUser) {
+        throw new Error('Không tìm thấy phiên Firebase Auth của Giáo viên.');
+    }
+
+    const roleSnap = await db.ref(`users/${authUser.uid}/role`).once('value');
+    if (roleSnap.val() !== 'teacher') {
+        throw new Error('Tài khoản hiện tại không còn quyền Giáo viên.');
+    }
+
+    const enteredPassword = window.prompt(
+        `🔐 Xác nhận ${String(actionLabel || 'thao tác nhạy cảm')}\n` +
+        'Nhập lại MẬT KHẨU GIÁO VIÊN hiện tại:'
+    );
+
+    if (enteredPassword === null) return false;
+    if (!enteredPassword) throw new Error('Bạn chưa nhập mật khẩu Giáo viên.');
+
+    const email = authUser.email || `${String(currentUser.username || '').trim()}@hethong.edu.vn`;
+    if (!email) throw new Error('Không xác định được email Firebase Auth của Giáo viên.');
+
+    const credential = firebase.auth.EmailAuthProvider.credential(email, enteredPassword);
+    await authUser.reauthenticateWithCredential(credential);
+    return true;
+}
+
+// ======================================================
+// PROFILE REQUEST GUARD V1 · SERIAL APPROVAL + AUTH CONFLICT
+// ======================================================
+window.__PROFILE_REQUEST_GUARD_TEACHER_BUILD = '20260917.v1-serial-approval-auth-conflict';
+console.info('[Profile Request Guard Teacher]', window.__PROFILE_REQUEST_GUARD_TEACHER_BUILD);
+
+// ======================================================
 // SECURITY GUARD · TRẠNG THÁI XÁC THỰC GIÁO VIÊN
 // ======================================================
 // security.js được nạp trước teacher.js. Trạng thái này giúp security.js phân biệt
@@ -33,6 +90,10 @@ window.setTeacherSecurityVerificationState =
     };
 
 window.setTeacherSecurityVerificationState('pending');
+
+window.__EXAM_GUARD_TEACHER_BUILD =
+    '20260917.v5-firebase-authority-multitab';
+
 
 
 // ======================================================
@@ -2690,7 +2751,7 @@ window.buildAttachmentPreviewHTML = function (
     }
 
     const audioURL =
-        getAttachmentURL(fileData);
+        window.securityHotfix.remoteURL(getAttachmentURL(fileData));
 
     /*
      * File cũ không có URL hợp lệ:
@@ -4551,7 +4612,7 @@ async function createAssignment() {
         mcWeight = parseFloat(document.getElementById('mcWeight').value) || 0;
         essayWeight = parseFloat(document.getElementById('essayWeight').value) || 0;
 
-        if (type === 'ket_hop' && (mcWeight + essayWeight !== 10)) {
+        if (!Number.isFinite(mcWeight) || !Number.isFinite(essayWeight) || mcWeight < 0 || essayWeight < 0 || Math.abs(mcWeight + essayWeight - 10) > 0.000001) {
             return alert("Tổng điểm Trắc nghiệm và Tự luận trong loại hình Kết hợp phải đúng bằng 10!");
         }
         if (type === 'thi' && mcWeight === 0 && essayWeight === 0) {
@@ -5044,7 +5105,7 @@ async function loadAssignedList(isLoadMore = false) {
 
         let typeText = '';
         if (assign.assessmentType === 'trac_nghiem') typeText = 'Trắc nghiệm';
-        else if (assign.assessmentType === 'ket_hop') typeText = `Kết hợp (TN: ${assign.mcWeight || 5}đ - TL: ${assign.essayWeight || 5}đ)`;
+        else if (assign.assessmentType === 'ket_hop') typeText = `Kết hợp (TN: ${assign.mcWeight ?? 5}đ - TL: ${assign.essayWeight ?? 5}đ)`;
         else if (assign.assessmentType === 'thi') {
             const mc = assign.mcWeight || 0;
             const tl = assign.essayWeight || 0;
@@ -5772,17 +5833,7 @@ window.deleteAssignment =
                 }
             );
 
-            /*
-             * Xóa file thật trước.
-             * File lỗi thì giữ nguyên Firebase.
-             */
-            await deleteStoredFilesBeforeFirebase(
-                storageFiles,
-                'bài tập và bài nộp'
-            );
-
-            // Sau khi file thật đã xóa thành công, hoàn tác toàn bộ kết quả
-            // thưởng/phạt V3 của các bài nộp trước khi xóa Firebase.
+            // Preserve remote files until the database update succeeds.
             for (const submission of relatedSubmissions) {
                 await rollbackTeacherGradeRewardV3(
                     submission,
@@ -5814,6 +5865,15 @@ window.deleteAssignment =
                 updates
             );
 
+            let storageCleanupFailed = false;
+            try {
+                await deleteStoredFilesBeforeFirebase(storageFiles, 'bài tập và bài nộp');
+            } catch (cleanupError) {
+                storageCleanupFailed = true;
+                console.error('Database deletion committed; storage cleanup requires retry.', cleanupError);
+            }
+
+
             const element =
                 document.getElementById(
                     `assignment-card-${assignId}`
@@ -5826,7 +5886,7 @@ window.deleteAssignment =
             alert(
                 'Đã xóa bài tập, ' +
                 `${relatedSubmissions.length} bài nộp ` +
-                'và toàn bộ file liên quan!'
+                (storageCleanupFailed ? 'trên cơ sở dữ liệu. Một số tệp chưa xóa được; cần kiểm tra kho tệp.' : 'và toàn bộ file liên quan!')
             );
 
             if (
@@ -5937,8 +5997,9 @@ function normalizeSubmissionValue(value) {
 
 // ======================================================
 // LỊCH SỬ VI PHẠM KHI HỌC SINH LÀM LẠI
-// - Làm lại chỉ cho phép sửa bài, KHÔNG tự tha lỗi cũ.
-// - Lỗi cũ chỉ biến mất khi giáo viên bấm "Tha lỗi".
+// - Lịch sử cũ vẫn được giữ để audit/hiển thị.
+// - Sau khi học sinh nộp lại thành công, history được đánh dấu đã xử lý
+//   và không tiếp tục khóa thưởng/lộ trình. Vi phạm MỚI vẫn có hiệu lực.
 // ======================================================
 function getTeacherRedoViolationHistory(submission) {
     const raw =
@@ -5954,6 +6015,26 @@ function getTeacherRedoViolationHistory(submission) {
         autoSubmitted: !!raw.autoSubmitted,
         cheat: !!raw.cheat
     };
+}
+
+function isTeacherRedoViolationHistoryActive(submission) {
+    // B4.4: history được giữ để audit/hiển thị, nhưng không mặc định tiếp tục
+    // phạt sau khi học sinh đã nộp lại thành công.
+    if (!submission) return false;
+    if (submission.redoViolationHistoryActive === false) return false;
+    if (submission.redoViolationResolvedAt) return false;
+    return true;
+}
+
+function getTeacherActiveRedoViolationHistory(submission) {
+    return isTeacherRedoViolationHistoryActive(submission)
+        ? getTeacherRedoViolationHistory(submission)
+        : {
+            essayMissing: false,
+            late: false,
+            autoSubmitted: false,
+            cheat: false
+        };
 }
 
 function mergeTeacherRedoViolationHistory(submission) {
@@ -6264,8 +6345,8 @@ function chooseTeacherRedoScope(assignment, submission) {
                 </div>
 
                 <div class="teacher-redo-scope-warning">
-                    <strong>⚠️ Làm lại không tự tha lỗi cũ.</strong>
-                    Nếu bài trước từng vi phạm (ví dụ thiếu tự luận), lỗi vẫn được tính trong Bảng Xếp Hạng Thi Đua cho đến khi giáo viên bấm <strong>Tha lỗi</strong>.
+                    <strong>ℹ️ Lịch sử lỗi được lưu để đối soát.</strong>
+                    Sau khi học sinh nộp lại thành công, lỗi cũ sẽ chuyển sang trạng thái đã xử lý và không tiếp tục khóa thưởng/lộ trình; vi phạm mới vẫn được tính bình thường.
                 </div>
 
                 <div class="teacher-redo-scope-options">
@@ -6862,7 +6943,7 @@ async function loadSubmissions(isLoadMore = false) {
 
                 studentFileHTML += `
             <div
-                id="student-submission-file-${submissionFirebaseKey}-${fileIndex}"
+                id="student-submission-file-${window.escapeHTML(String(submissionFirebaseKey))}-${fileIndex}"
                 style="
                     position: relative;
                     background: rgba(124, 58, 237, 0.06);
@@ -6887,9 +6968,9 @@ async function loadSubmissions(isLoadMore = false) {
                 ">
                     <button
                         type="button"
-                        id="delete-student-file-${submissionFirebaseKey}-${fileIndex}"
-                        onclick="event.stopPropagation(); deleteStudentSubmissionFile('${submissionFirebaseKey}', ${fileIndex})"
-                        title="Xóa vĩnh viễn ${fileName.replace(/"/g, '&quot;')}"
+                        id="delete-student-file-${window.escapeHTML(String(submissionFirebaseKey))}-${fileIndex}"
+                        onclick="event.stopPropagation(); deleteStudentSubmissionFile(${window.securityHotfix.inline(submissionFirebaseKey)}, ${fileIndex})"
+                        title="Xóa vĩnh viễn ${window.escapeHTML(String(fileName))}"
                         style="
                             width: auto;
                             margin: 0;
@@ -6965,7 +7046,7 @@ async function loadSubmissions(isLoadMore = false) {
 
         let pardonHTML = '';
         if (hasTeacherPardonableViolation(sub)) {
-            pardonHTML = `<button class="btn-approve" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; margin-left: 5px; border: 2px solid #059669;" onclick="pardonSubmission('${sub._fbKey}')">✨ Tha lỗi (Xóa vi phạm)</button>`;
+            pardonHTML = `<button class="btn-approve" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; margin-left: 5px; border: 2px solid #059669;" onclick="pardonSubmission(${window.securityHotfix.inline(sub._fbKey)})">✨ Tha lỗi (Xóa vi phạm)</button>`;
         }
 
         if (sub.isRedoing) {
@@ -6974,21 +7055,21 @@ async function loadSubmissions(isLoadMore = false) {
             const endTime = assign.endDate ? new Date(assign.endDate.replace(" ", "T")) : new Date(8640000000000000);
 
             if (now > endTime) {
-                actionHTML = `<button class="btn-reject" style="width: 100%; padding: 10px;" onclick="forceSubmitRedo('${sub._fbKey}')">🔒 Khóa bài (Thu bài ngay)</button>`;
+                actionHTML = `<button class="btn-reject" style="width: 100%; padding: 10px;" onclick="forceSubmitRedo(${window.securityHotfix.inline(sub._fbKey)})">🔒 Khóa bài (Thu bài ngay)</button>`;
             } else {
                 actionHTML = `<span style="color:#666; font-size:0.9em; font-style:italic;">⏳ Đang đợi học sinh nộp lại...</span>`;
             }
             actionHTML += pardonHTML;
         } else {
             let regradeStatusText = sub.isRegrading ? " (Đang chấm lại)" : "";
-            gradeStatus = hasGrade ? `<span class="status-done">Đã chấm: ${sub.grade} điểm${regradeStatusText}</span>` : `<span class="status-pending">Chưa chấm${regradeStatusText}</span>`;
+            gradeStatus = hasGrade ? `<span class="status-done">Đã chấm: ${window.escapeHTML(String(sub.grade))} điểm${regradeStatusText}</span>` : `<span class="status-pending">Chưa chấm${regradeStatusText}</span>`;
 
-            actionHTML = `<input type="number" id="grade-${sub.id}" placeholder="Điểm" max="10" min="0" style="margin: 0; width: 90px; text-align: center; font-weight: bold;" value="${hasGrade ? sub.grade : ''}">
-                          <button class="btn-approve" onclick="gradeSubmission('${sub.id}')">Lưu điểm</button>
-                          <button class="btn-reject" onclick="requestRedo('${sub._fbKey}')">Cho làm lại</button>`;
+            actionHTML = `<input type="number" id="grade-${window.escapeHTML(String(sub.id))}" placeholder="Điểm" max="10" min="0" style="margin: 0; width: 90px; text-align: center; font-weight: bold;" value="${hasGrade ? window.escapeHTML(String(sub.grade)) : ''}">
+                          <button class="btn-approve" onclick="gradeSubmission(${window.securityHotfix.inline(sub.id)})">Lưu điểm</button>
+                          <button class="btn-reject" onclick="requestRedo(${window.securityHotfix.inline(sub._fbKey)})">Cho làm lại</button>`;
 
             if (hasGrade && !sub.isRegrading) {
-                actionHTML += `<button class="btn-reject" style="background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%); color: white; margin-left: 5px;" onclick="requestRegrade('${sub._fbKey}')">Chấm lại</button>`;
+                actionHTML += `<button class="btn-reject" style="background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%); color: white; margin-left: 5px;" onclick="requestRegrade(${window.securityHotfix.inline(sub._fbKey)})">Chấm lại</button>`;
             }
             actionHTML += pardonHTML;
         }
@@ -7002,7 +7083,7 @@ async function loadSubmissions(isLoadMore = false) {
             getTeacherRedoViolationHistory(sub);
 
         if (!sub.isCheatFail && redoViolationHistory.cheat) {
-            violationHTML += `<div style="background: rgba(59, 130, 246, 0.08); border-left: 4px solid #3b82f6; padding: 10px; margin-top: 10px; margin-bottom: 10px; border-radius: 8px;"><strong style="color:#1d4ed8;">🚨 ĐÃ TỪNG VI PHẠM QUY CHẾ THI:</strong><br><span style="color:#1e40af; font-size:0.9em;">Học sinh đã làm lại, nhưng lỗi ở lần trước vẫn được lưu cho đến khi giáo viên bấm Tha lỗi.</span></div>`;
+            violationHTML += `<div style="background: rgba(59, 130, 246, 0.08); border-left: 4px solid #3b82f6; padding: 10px; margin-top: 10px; margin-bottom: 10px; border-radius: 8px;"><strong style="color:#1d4ed8;">🚨 ĐÃ TỪNG VI PHẠM QUY CHẾ THI:</strong><br><span style="color:#1e40af; font-size:0.9em;">Lỗi ở lần trước vẫn được lưu trong lịch sử để đối soát. Sau khi lần làm lại hoàn tất, lỗi cũ không còn khóa thưởng/lộ trình.</span></div>`;
         }
         if (!sub.isLateFail && redoViolationHistory.late) {
             violationHTML += `<div style="background: rgba(59, 130, 246, 0.08); border-left: 4px solid #3b82f6; padding: 10px; margin-top: 10px; margin-bottom: 10px; border-radius: 8px;"><strong style="color:#1d4ed8;">⏰ ĐÃ TỪNG NỘP TRỄ / KHÔNG NỘP KỊP:</strong><br><span style="color:#1e40af; font-size:0.9em;">Lịch sử quá hạn của bài này vẫn còn hiệu lực sau khi làm lại.</span></div>`;
@@ -7262,11 +7343,11 @@ style="
 </div>`
                 : '';
 
-        div.innerHTML = `<div class="accordion-header" onclick="toggleAccordion('${uniqueId}', this)">
-    <div class="accordion-title"><h4>${assign.title}</h4><span>HS: <strong>${sub.studentName}</strong> ${lateSubmissionBadge} ${missingEssayBadge}</span></div>
+        div.innerHTML = `<div class="accordion-header" onclick="toggleAccordion(${window.securityHotfix.inline(uniqueId)}, this)">
+    <div class="accordion-title"><h4>${window.escapeHTML(String(assign.title ?? ""))}</h4><span>HS: <strong>${window.escapeHTML(String(sub.studentName ?? ""))}</strong> ${lateSubmissionBadge} ${missingEssayBadge}</span></div>
     <div class="accordion-meta"><span>${gradeStatus}</span><span class="toggle-icon">▼</span></div>
 </div>
-            <div id="${uniqueId}" class="accordion-content">${violationHTML}<span style="color: #888; font-size: 0.85em; display: block; margin-bottom: 10px;">🕒 Lần nộp cuối: ${sub.submitTime || 'Chưa rõ'}</span>
+            <div id="${window.escapeHTML(String(uniqueId))}" class="accordion-content">${violationHTML}<span style="color: #888; font-size: 0.85em; display: block; margin-bottom: 10px;">🕒 Lần nộp cuối: ${window.escapeHTML(String(sub.submitTime || 'Chưa rõ'))}</span>
     ${watchStatusHTML}
     ${videoHTML}
                 <div style="
@@ -7299,10 +7380,10 @@ style="
                     <div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed rgba(0,0,0,0.1);">
                         ${previousTeacherFile}
                         <label style="font-size: 0.9em; display: block; margin-bottom: 8px; font-weight: 700;">Gửi file chữa bài:</label>
-                        <input type="file" id="teacherFile-${sub.id}" accept=".docx, .pdf, image/*" multiple onchange="handleTeacherFileAccumulate(this, '${sub.id}')" style="padding: 10px; width: 100%; background: rgba(255,255,255,0.5);">
+                        <input type="file" id="teacherFile-${window.escapeHTML(String(sub.id))}" accept=".docx, .pdf, image/*" multiple onchange="handleTeacherFileAccumulate(this, ${window.securityHotfix.inline(sub.id)})" style="padding: 10px; width: 100%; background: rgba(255,255,255,0.5);">
                         
                         <label style="font-size: 0.9em; display: block; margin-top: 10px; margin-bottom: 8px; font-weight: 700;">Lời nhận xét của giáo viên:</label>
-                        <textarea id="teacherComment-${sub.id}" placeholder="Nhập lời nhận xét cho học sinh..." rows="3" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.5);">${sub.teacherComment || ''}</textarea>
+                        <textarea id="teacherComment-${window.escapeHTML(String(sub.id))}" placeholder="Nhập lời nhận xét cho học sinh..." rows="3" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.5);">${window.escapeHTML(String(sub.teacherComment || ''))}</textarea>
                     </div>` : ''}
                 </div>
             </div>`;
@@ -7356,14 +7437,40 @@ function escapeHTMLForMath(value) {
 //   student_coins có thể âm để bảo toàn sổ cái và chặn việc lợi dụng chấm lại.
 // ==============================================================
 const GRADE_REWARD_V2_VERSION = 4;
-window.__GRADE_REWARD_GUARD_BUILD = '20260917.v4.1-regrade-hold-reconcile';
+window.__GRADE_REWARD_GUARD_BUILD = '20260917.v4.4-redo-scope-resolution';
 console.info('[Grade Reward Guard]', window.__GRADE_REWARD_GUARD_BUILD);
-const GRADE_REWARD_MUTATION_LOCK_MS = 120000;
+const GRADE_REWARD_MUTATION_LOCK_MS = 10 * 60 * 1000;
+const GRADE_REWARD_CLAIM_STALE_MS = 30 * 60 * 1000;
+const GRADE_REWARD_CLAIM_ABSOLUTE_MAX_MS = 6 * 60 * 60 * 1000;
+
+function isTeacherGradeRewardClaimProcessingActive(
+    claim,
+    now = Date.now()
+) {
+    if (String(claim?.status || '') !== 'processing') {
+        return false;
+    }
+
+    const startedAt = Number(claim?.startedAt || 0);
+    const activityAt = Math.max(
+        Number(claim?.heartbeatAt || 0),
+        startedAt
+    );
+
+    if (!startedAt || !activityAt) {
+        return false;
+    }
+
+    return (
+        now - activityAt < GRADE_REWARD_CLAIM_STALE_MS &&
+        now - startedAt < GRADE_REWARD_CLAIM_ABSOLUTE_MAX_MS
+    );
+}
 
 function getTeacherGradeRewardV2ViolationReasons(submission) {
     const history =
-        typeof getTeacherRedoViolationHistory === 'function'
-            ? getTeacherRedoViolationHistory(submission)
+        typeof getTeacherActiveRedoViolationHistory === 'function'
+            ? getTeacherActiveRedoViolationHistory(submission)
             : {};
 
     const reasons = [];
@@ -7385,11 +7492,31 @@ function getTeacherGradeRewardV2ViolationReasons(submission) {
 }
 
 function getTeacherGradeRewardV2Outcome(rawGrade, submission) {
-    const score = Number(rawGrade);
+    const enteredScore = Number(rawGrade);
 
-    if (!Number.isFinite(score) || score < 0 || score > 10) {
+    if (!Number.isFinite(enteredScore) || enteredScore < 0 || enteredScore > 10) {
         throw new Error('INVALID_GRADE_REWARD_SCORE');
     }
+
+    // B1 V4.4: Với redo một phần (essay/mc), sai khác <= 0.1 điểm được xem
+    // là sai số làm tròn cho MỤC ĐÍCH KINH TẾ. Điểm học tập vẫn lưu đúng số
+    // giáo viên nhập; chỉ mốc thưởng/phạt dùng redoBaseGrade để tránh nhảy mốc
+    // vì 6.9 -> 7.0 hoặc tương tự.
+    const redoScope = String(
+        submission?.lastRedoScope ||
+        submission?.redoScope ||
+        ''
+    ).toLowerCase();
+    const redoBaseGrade = Number(submission?.redoBaseGrade);
+    const isPartialRedo = redoScope === 'essay' || redoScope === 'mc';
+    const useRedoBaseForReward = Boolean(
+        isPartialRedo &&
+        Number.isFinite(redoBaseGrade) &&
+        Math.abs(enteredScore - redoBaseGrade) <= 0.1000001
+    );
+    const score = useRedoBaseForReward
+        ? redoBaseGrade
+        : enteredScore;
 
     const violationReasons =
         getTeacherGradeRewardV2ViolationReasons(submission);
@@ -7401,7 +7528,12 @@ function getTeacherGradeRewardV2Outcome(rawGrade, submission) {
             coinReward: 0,
             score,
             reason: violationReasons.join(', '),
-            specialPenalty: true
+            specialPenalty: true,
+            enteredScore,
+            rewardScore: score,
+            redoScope: isPartialRedo ? redoScope : null,
+            redoBaseGrade: Number.isFinite(redoBaseGrade) ? redoBaseGrade : null,
+            redoEconomicallyNormalized: useRedoBaseForReward
         };
     }
 
@@ -7412,7 +7544,12 @@ function getTeacherGradeRewardV2Outcome(rawGrade, submission) {
             coinReward: 100,
             score,
             reason: 'Đạt 10 điểm',
-            specialPenalty: false
+            specialPenalty: false,
+            enteredScore,
+            rewardScore: score,
+            redoScope: isPartialRedo ? redoScope : null,
+            redoBaseGrade: Number.isFinite(redoBaseGrade) ? redoBaseGrade : null,
+            redoEconomicallyNormalized: useRedoBaseForReward
         };
     }
 
@@ -7423,7 +7560,12 @@ function getTeacherGradeRewardV2Outcome(rawGrade, submission) {
             coinReward: 50,
             score,
             reason: 'Đạt từ 7 đến dưới 10 điểm',
-            specialPenalty: false
+            specialPenalty: false,
+            enteredScore,
+            rewardScore: score,
+            redoScope: isPartialRedo ? redoScope : null,
+            redoBaseGrade: Number.isFinite(redoBaseGrade) ? redoBaseGrade : null,
+            redoEconomicallyNormalized: useRedoBaseForReward
         };
     }
 
@@ -7434,7 +7576,12 @@ function getTeacherGradeRewardV2Outcome(rawGrade, submission) {
             coinReward: 20,
             score,
             reason: 'Đạt từ 5 đến dưới 7 điểm',
-            specialPenalty: false
+            specialPenalty: false,
+            enteredScore,
+            rewardScore: score,
+            redoScope: isPartialRedo ? redoScope : null,
+            redoBaseGrade: Number.isFinite(redoBaseGrade) ? redoBaseGrade : null,
+            redoEconomicallyNormalized: useRedoBaseForReward
         };
     }
 
@@ -7445,7 +7592,12 @@ function getTeacherGradeRewardV2Outcome(rawGrade, submission) {
             coinReward: 0,
             score,
             reason: 'Điểm từ 4 đến dưới 5',
-            specialPenalty: false
+            specialPenalty: false,
+            enteredScore,
+            rewardScore: score,
+            redoScope: isPartialRedo ? redoScope : null,
+            redoBaseGrade: Number.isFinite(redoBaseGrade) ? redoBaseGrade : null,
+            redoEconomicallyNormalized: useRedoBaseForReward
         };
     }
 
@@ -7456,7 +7608,12 @@ function getTeacherGradeRewardV2Outcome(rawGrade, submission) {
             coinReward: 0,
             score,
             reason: 'Điểm từ 2 đến dưới 4',
-            specialPenalty: false
+            specialPenalty: false,
+            enteredScore,
+            rewardScore: score,
+            redoScope: isPartialRedo ? redoScope : null,
+            redoBaseGrade: Number.isFinite(redoBaseGrade) ? redoBaseGrade : null,
+            redoEconomicallyNormalized: useRedoBaseForReward
         };
     }
 
@@ -7587,6 +7744,297 @@ function getTeacherGradeRewardHistoryEntry(eventData) {
     };
 }
 
+async function archiveTeacherGradeRewardRevisionV43(
+    username,
+    submissionKey,
+    rawEntry
+) {
+    const entry = rawEntry && typeof rawEntry === 'object'
+        ? rawEntry
+        : null;
+
+    const revision = Number(entry?.revision || 0);
+
+    if (!username || !submissionKey || revision < 1 || !entry) {
+        return false;
+    }
+
+    const archiveRef = db.ref(
+        `grade_reward_revision_archive/${username}/${submissionKey}/${revision}`
+    );
+
+    const existing = await archiveRef.once('value');
+    if (existing.exists()) {
+        return true;
+    }
+
+    await archiveRef.set({
+        version: GRADE_REWARD_V2_VERSION,
+        revision,
+        username: String(username),
+        submissionKey: String(submissionKey),
+        assignmentId: String(entry.assignmentId || ''),
+        status: String(entry.status || ''),
+        statusAtArchive: String(entry.status || ''),
+        score: Number(entry.score || 0),
+        ticketDelta: Number(entry.ticketDelta || 0),
+        coinReward: Number(entry.coinReward || 0),
+        specialPenalty: entry.specialPenalty === true,
+        reason: String(entry.reason || ''),
+        messageId: String(entry.messageId || ''),
+        gradedAt: Number(entry.gradedAt || 0),
+        issuedAt: Number(entry.issuedAt || 0),
+        appliedAt: Number(entry.appliedAt || 0),
+        archivedAt:
+            firebase.database.ServerValue.TIMESTAMP
+    });
+
+    return true;
+}
+
+async function archiveTeacherGradeRewardKnownRevisionsV43(
+    username,
+    submissionKey,
+    eventData
+) {
+    if (!username || !submissionKey || !eventData) return;
+
+    const history =
+        eventData.history &&
+        typeof eventData.history === 'object'
+            ? eventData.history
+            : {};
+
+    for (const rawEntry of Object.values(history)) {
+        await archiveTeacherGradeRewardRevisionV43(
+            username,
+            submissionKey,
+            rawEntry
+        ).catch(() => {});
+    }
+
+    await archiveTeacherGradeRewardRevisionV43(
+        username,
+        submissionKey,
+        eventData
+    ).catch(() => {});
+}
+
+async function setTeacherGradeRewardRevisionStateV43(
+    username,
+    submissionKey,
+    revision,
+    patch
+) {
+    const normalizedRevision = Number(revision || 0);
+    if (
+        !username ||
+        !submissionKey ||
+        normalizedRevision < 1
+    ) {
+        return;
+    }
+
+    const stateRef = db.ref(
+        `grade_reward_revision_state/${username}/${submissionKey}/${normalizedRevision}`
+    );
+
+    await stateRef.transaction(current => ({
+        ...(current || {}),
+        revision: normalizedRevision,
+        ...(patch || {}),
+        updatedAt: Date.now()
+    }));
+}
+
+async function reclaimGradeRewardFundedStorePurchasesV43(
+    username,
+    messageId,
+    claim,
+    reasonCode = 'grade_reward_reversal'
+) {
+    if (!username || !messageId) {
+        return {
+            reclaimedItems: [],
+            refundedCoins: 0
+        };
+    }
+
+    const coinRef = db.ref(
+        `student_coins/${username}`
+    );
+
+    const coinSnap = await coinRef.once('value');
+    let balance = Number(coinSnap.val() || 0);
+
+    if (balance >= 0) {
+        return {
+            reclaimedItems: [],
+            refundedCoins: 0
+        };
+    }
+
+    const claimTime = Number(
+        claim?.claimedAt ||
+        claim?.startedAt ||
+        0
+    );
+
+    const inventoryRef = db.ref(
+        `student_inventory/${username}`
+    );
+    const inventorySnap = await inventoryRef.once('value');
+
+    const candidates = [];
+
+    inventorySnap.forEach(child => {
+        const item = child.val() || {};
+        const exposure =
+            item.gradeRewardClaimExposure &&
+            typeof item.gradeRewardClaimExposure === 'object'
+                ? item.gradeRewardClaimExposure
+                : {};
+
+        const purchaseTime =
+            Number(item.purchaseTime || 0);
+        const purchasePrice =
+            Number(item.purchasePrice || 0);
+
+        if (
+            item.source === 'store_purchase' &&
+            item.purchaseCurrency === 'coin' &&
+            purchasePrice > 0 &&
+            exposure[messageId] &&
+            (
+                !claimTime ||
+                purchaseTime >= claimTime
+            )
+        ) {
+            candidates.push({
+                key: child.key,
+                ...item,
+                purchaseTime,
+                purchasePrice
+            });
+        }
+    });
+
+    candidates.sort(
+        (a, b) =>
+            Number(b.purchaseTime || 0) -
+            Number(a.purchaseTime || 0)
+    );
+
+    const reclaimedItems = [];
+    let refundedCoins = 0;
+
+    for (const item of candidates) {
+        if (balance >= 0) break;
+
+        const itemRef = inventoryRef.child(item.key);
+        let removed = false;
+
+        const itemTx = await itemRef.transaction(current => {
+            if (!current || current.id !== item.id) {
+                return;
+            }
+
+            const exposure =
+                current.gradeRewardClaimExposure &&
+                typeof current.gradeRewardClaimExposure === 'object'
+                    ? current.gradeRewardClaimExposure
+                    : {};
+
+            if (!exposure[messageId]) {
+                return;
+            }
+
+            removed = true;
+            return null;
+        });
+
+        if (!itemTx.committed || !removed) {
+            continue;
+        }
+
+        const refundTx = await coinRef.transaction(current =>
+            Number(current || 0) +
+            Number(item.purchasePrice || 0)
+        );
+
+        if (!refundTx.committed) {
+            // Không để mất vật phẩm nếu hoàn Coin thất bại.
+            await itemRef.set(item).catch(() => {});
+            continue;
+        }
+
+        const refund = Number(item.purchasePrice || 0);
+        refundedCoins += refund;
+        balance = Number(refundTx.snapshot.val() || 0);
+
+        if (
+            item.purchaseDiscountPath &&
+            item.auditTransactionId
+        ) {
+            const discountRef = db.ref(
+                String(item.purchaseDiscountPath)
+            );
+            const discountSnap =
+                await discountRef.once('value');
+            const discount = discountSnap.val() || null;
+
+            if (
+                discount &&
+                String(discount.usedTransactionId || '') ===
+                    String(item.auditTransactionId)
+            ) {
+                await discountRef.update({
+                    isUsed: false,
+                    usedAt: null,
+                    usedForItem: null,
+                    usedTransactionId: null
+                }).catch(() => {});
+            }
+        }
+
+        reclaimedItems.push({
+            itemId: String(item.id || item.key),
+            purchasePrice: refund,
+            purchaseTime:
+                Number(item.purchaseTime || 0)
+        });
+    }
+
+    if (
+        reclaimedItems.length &&
+        window.TransactionHistory
+    ) {
+        await window.TransactionHistory.recordSafe({
+            type: 'grade_reward_purchase_reclaim',
+            summary:
+                'Thu hồi vật phẩm đã mua bằng Coin thưởng bị hủy',
+            source: 'grade_reward_reconcile_v43',
+            targetUsername: username,
+            targetName: username,
+            amount: refundedCoins,
+            unit: 'Coin',
+            reversible: false,
+            nonReversibleReason:
+                'Đối soát tự động khi Coin thưởng điểm số bị thu hồi.',
+            details: {
+                messageId,
+                reasonCode,
+                reclaimedItems
+            }
+        }).catch(() => {});
+    }
+
+    return {
+        reclaimedItems,
+        refundedCoins
+    };
+}
+
 async function getTeacherGradeRewardClaimState(username, eventData) {
     const messageId = String(eventData?.messageId || '').trim();
 
@@ -7648,9 +8096,7 @@ async function assertTeacherGradeRewardMutationReady(submission) {
     }
 
     if (
-        state.claim?.status === 'processing' &&
-        now - Number(state.claim.startedAt || 0) <
-            GRADE_REWARD_MUTATION_LOCK_MS
+        isTeacherGradeRewardClaimProcessingActive(state.claim, now)
     ) {
         throw new Error('GRADE_REWARD_CLAIM_IN_PROGRESS');
     }
@@ -7787,9 +8233,7 @@ async function rollbackTeacherGradeRewardV3(
         );
 
         if (
-            claim?.status === 'processing' &&
-            now - Number(claim.startedAt || 0) <
-                GRADE_REWARD_MUTATION_LOCK_MS
+            isTeacherGradeRewardClaimProcessingActive(claim, now)
         ) {
             await eventRef.transaction(current => {
                 if (!current || current.mutationId !== mutationId) {
@@ -7901,6 +8345,30 @@ async function rollbackTeacherGradeRewardV3(
                     reverseReason: String(reasonCode || 'reconcile')
                 })
                 .catch(() => {});
+
+            await setTeacherGradeRewardRevisionStateV43(
+                username,
+                submissionKey,
+                Number(lockedEvent.revision || 1),
+                {
+                    reversed: true,
+                    reversedAt: Date.now(),
+                    reverseReason:
+                        String(reasonCode || 'reconcile')
+                }
+            ).catch(() => {});
+
+            if (
+                appliedCoins > 0 &&
+                reasonCode === 'deleted'
+            ) {
+                await reclaimGradeRewardFundedStorePurchasesV43(
+                    username,
+                    messageId,
+                    claim,
+                    reasonCode
+                ).catch(() => {});
+            }
         }
 
         const finalStatus =
@@ -8122,6 +8590,69 @@ async function reconcileTeacherGradeRewardHistoryDebtV4(
             ? { ...sourceEvent.history }
             : {};
 
+    const submissionKey = String(
+        sourceEvent?.submissionKey || ''
+    ).trim();
+    const currentRevision = Number(
+        sourceEvent?.revision || 0
+    );
+
+    if (submissionKey) {
+        await archiveTeacherGradeRewardKnownRevisionsV43(
+            username,
+            submissionKey,
+            sourceEvent
+        ).catch(() => {});
+
+        const [archiveSnap, stateSnap] =
+            await Promise.all([
+                db.ref(
+                    `grade_reward_revision_archive/${username}/${submissionKey}`
+                ).once('value'),
+                db.ref(
+                    `grade_reward_revision_state/${username}/${submissionKey}`
+                ).once('value')
+            ]);
+
+        const archive =
+            archiveSnap.val() || {};
+        const revisionState =
+            stateSnap.val() || {};
+
+        for (
+            const [revisionKey, archivedEntry]
+            of Object.entries(archive)
+        ) {
+            const revision =
+                Number(revisionKey || 0);
+
+            // Revision hiện hành sẽ được xử lý riêng bởi HOLD,
+            // không được coi là "nợ lịch sử".
+            if (
+                revision < 1 ||
+                revision === currentRevision ||
+                history[revisionKey]
+            ) {
+                continue;
+            }
+
+            history[revisionKey] = {
+                ...(archivedEntry || {}),
+                revision
+            };
+        }
+
+        Object.defineProperty(
+            history,
+            '__revisionStateV43',
+            {
+                value: revisionState,
+                enumerable: false,
+                configurable: true
+            }
+        );
+    }
+
     let reclaimedRewardTickets = 0;
     let reclaimedCoins = 0;
     let refundedPenaltyTickets = 0;
@@ -8145,7 +8676,11 @@ async function reconcileTeacherGradeRewardHistoryDebtV4(
         const coinReward = Number(entry.coinReward || 0) || 0;
         const messageId = String(entry.messageId || '').trim();
 
+        const revisionStateV43 =
+            history.__revisionStateV43?.[revisionKey] || {};
+
         const alreadyReversed = Boolean(
+            revisionStateV43.reversed === true ||
             entry.reconciledV4 === true ||
             (
                 Number(entry.rolledBackAt || 0) > 0 &&
@@ -8253,6 +8788,27 @@ async function reconcileTeacherGradeRewardHistoryDebtV4(
                                 `history_${reasonCode}`
                         })
                         .catch(() => {});
+
+                    await reclaimGradeRewardFundedStorePurchasesV43(
+                        username,
+                        messageId,
+                        claim,
+                        `history_${reasonCode}`
+                    ).catch(() => {});
+                }
+
+                if (submissionKey) {
+                    await setTeacherGradeRewardRevisionStateV43(
+                        username,
+                        submissionKey,
+                        Number(entry.revision || revisionKey),
+                        {
+                            reversed: true,
+                            reversedAt: Date.now(),
+                            reverseReason:
+                                `history_${reasonCode}`
+                        }
+                    ).catch(() => {});
                 }
 
                 entry.rolledBackTickets =
@@ -8318,6 +8874,20 @@ async function reconcileTeacherGradeRewardHistoryDebtV4(
                     .catch(() => {});
             }
 
+            if (submissionKey) {
+                await setTeacherGradeRewardRevisionStateV43(
+                    username,
+                    submissionKey,
+                    Number(entry.revision || revisionKey),
+                    {
+                        reversed: true,
+                        reversedAt: Date.now(),
+                        reverseReason:
+                            `history_${reasonCode}`
+                    }
+                ).catch(() => {});
+            }
+
             entry.reconciledV4 = true;
             entry.reconciledAt = Date.now();
             entry.reconcileReason = String(reasonCode);
@@ -8333,6 +8903,21 @@ async function reconcileTeacherGradeRewardHistoryDebtV4(
         reclaimedCoins,
         refundedPenaltyTickets
     };
+}
+
+// V4.4: Keep the event in the SDK cache through the compare-and-set.
+// A one-shot read does not keep a listener alive for a later transaction.
+async function runTeacherGradeRewardLiveTransactionV44(ref, updater) {
+    let listener;
+    try {
+        await new Promise((resolve, reject) => {
+            listener = () => resolve();
+            ref.on('value', listener, reject);
+        });
+        return await ref.transaction(updater, undefined, false);
+    } finally {
+        if (listener) ref.off('value', listener);
+    }
 }
 
 async function holdTeacherGradeRewardForRegradeV4(
@@ -8353,7 +8938,7 @@ async function holdTeacherGradeRewardForRegradeV4(
     const eventSnap = await eventRef.once('value');
     const storedEvent = eventSnap.val() || null;
     const fallbackEvent = getTeacherGradeRewardFallbackEvent(submission);
-    const source = storedEvent || fallbackEvent;
+    let source = storedEvent || fallbackEvent;
 
     if (!source) {
         return {
@@ -8367,6 +8952,47 @@ async function holdTeacherGradeRewardForRegradeV4(
             holdWasClaimed: false
         };
     }
+
+    // V4.3 · EVENT MUTATION LEASE
+    // Khóa chính event TRƯỚC khi đọc claim/động vào số dư. Nhờ vậy claim mới
+    // không thể bắt đầu/finalize trong khoảng HOLD đang đối soát.
+    const holdLockNow = Date.now();
+    const holdMutationId =
+        `hold_${holdLockNow}_${Math.random().toString(36).slice(2, 10)}`;
+
+    const holdLockTx = await eventRef.transaction(current => {
+        const base = current || source;
+        if (!base) return;
+
+        const status = String(base.status || '');
+
+        if (
+            status === 'mutating' &&
+            holdLockNow -
+                Number(base.mutationStartedAt || 0) <
+                GRADE_REWARD_MUTATION_LOCK_MS
+        ) {
+            return;
+        }
+
+        return {
+            ...base,
+            status: 'mutating',
+            mutationId: holdMutationId,
+            mutationStartedAt: holdLockNow,
+            mutationPreviousStatus:
+                base.mutationPreviousStatus ||
+                status
+        };
+    });
+
+    if (!holdLockTx.committed) {
+        throw new Error(
+            'GRADE_REWARD_MUTATION_IN_PROGRESS'
+        );
+    }
+
+    source = holdLockTx.snapshot.val() || source;
 
     // Tự sửa nợ lịch sử do các bản V3/V3.1 trước có thể đã tạo
     // revision mới nhưng chưa thu hồi revision cũ.
@@ -8393,10 +9019,31 @@ async function holdTeacherGradeRewardForRegradeV4(
     const now = Date.now();
 
     if (
-        claim?.status === 'processing' &&
-        now - Number(claim.startedAt || 0) <
-            GRADE_REWARD_MUTATION_LOCK_MS
+        isTeacherGradeRewardClaimProcessingActive(claim, now)
     ) {
+        await eventRef.transaction(current => {
+            if (
+                !current ||
+                current.mutationId !== holdMutationId
+            ) {
+                return current;
+            }
+
+            const restored = {
+                ...current,
+                status: String(
+                    current.mutationPreviousStatus ||
+                    'pending_claim'
+                )
+            };
+
+            delete restored.mutationId;
+            delete restored.mutationStartedAt;
+            delete restored.mutationPreviousStatus;
+
+            return restored;
+        }).catch(() => {});
+
         throw new Error('GRADE_REWARD_CLAIM_IN_PROGRESS');
     }
 
@@ -8528,6 +9175,19 @@ async function holdTeacherGradeRewardForRegradeV4(
                 })
                 .catch(() => {});
         }
+
+        await setTeacherGradeRewardRevisionStateV43(
+            username,
+            submissionKey,
+            snapshot.revision,
+            {
+                reversed: true,
+                reversedAt: Date.now(),
+                reverseReason: String(
+                    reasonCode || 'request_regrade'
+                )
+            }
+        ).catch(() => {});
     }
 
     // B. Án phạt cũ -> hoàn lại trước khi chấm lại.
@@ -8550,6 +9210,19 @@ async function holdTeacherGradeRewardForRegradeV4(
                 'GRADE_PENALTY_ROLLBACK_ABORTED'
             );
         }
+
+        await setTeacherGradeRewardRevisionStateV43(
+            username,
+            submissionKey,
+            snapshot.revision,
+            {
+                reversed: true,
+                reversedAt: Date.now(),
+                reverseReason: String(
+                    reasonCode || 'request_regrade'
+                )
+            }
+        ).catch(() => {});
     }
 
     // Chỉ giữ lại thư thưởng DƯƠNG chưa nhận.
@@ -8590,8 +9263,16 @@ async function holdTeacherGradeRewardForRegradeV4(
         claim?.status === 'reversed'
     );
 
-    await eventRef.set({
-        ...source,
+    const holdFinalizeTx = await runTeacherGradeRewardLiveTransactionV44(eventRef, current => {
+        if (
+            !current ||
+            current.mutationId !== holdMutationId
+        ) {
+            return;
+        }
+
+        return {
+        ...current,
         history: historyReconcile.history,
         version: GRADE_REWARD_V2_VERSION,
         status: 'regrade_hold',
@@ -8661,7 +9342,14 @@ async function holdTeacherGradeRewardForRegradeV4(
         mutationId: null,
         mutationStartedAt: null,
         mutationPreviousStatus: null
+        };
     });
+
+    if (!holdFinalizeTx.committed) {
+        throw new Error(
+            'GRADE_REWARD_HOLD_FINALIZE_CONFLICT'
+        );
+    }
 
     const currentReclaimedRewardTickets =
         reversedTickets > 0 ? reversedTickets : 0;
@@ -8693,12 +9381,23 @@ async function holdTeacherGradeRewardForRegradeV4(
     }
 
     const holdNotice =
-        '🔄 Bài của bạn đang được giáo viên chấm lại. ' +
-        (noticeParts.length
-            ? `Kết quả thưởng/phạt cũ (${noticeParts.join(', ')}) đã được đối soát tạm thời.`
-            : (heldMessageId
-                ? 'Phần thưởng cũ chưa nhận đang được khóa tạm thời. Nếu điểm mới giữ nguyên, thư sẽ tự mở lại.'
-                : 'Kết quả thưởng/phạt cũ đang được khóa để chờ điểm mới.'));
+        reasonCode === 'request_redo'
+            ? (
+                '🔁 Giáo viên đã cho bạn làm lại bài. ' +
+                (noticeParts.length
+                    ? `Kết quả thưởng/phạt của lần chấm cũ (${noticeParts.join(', ')}) đã được hoàn tác. Thư thưởng cũ không còn hiệu lực.`
+                    : (heldMessageId
+                        ? 'Phần thưởng của lần chấm cũ đã bị khóa và sẽ được hủy vì bài đang được làm lại.'
+                        : 'Kết quả thưởng/phạt của lần chấm cũ đã được vô hiệu hóa trước khi làm lại.'))
+            )
+            : (
+                '🔄 Bài của bạn đang được giáo viên chấm lại. ' +
+                (noticeParts.length
+                    ? `Kết quả thưởng/phạt cũ (${noticeParts.join(', ')}) đã được đối soát tạm thời.`
+                    : (heldMessageId
+                        ? 'Phần thưởng cũ chưa nhận đang được khóa tạm thời. Nếu điểm mới giữ nguyên, thư sẽ tự mở lại.'
+                        : 'Kết quả thưởng/phạt cũ đang được khóa để chờ điểm mới.'))
+            );
 
     await sendTeacherGradeReconciliationNotice(
         username,
@@ -8711,7 +9410,9 @@ async function holdTeacherGradeRewardForRegradeV4(
     if (window.TransactionHistory) {
         await window.TransactionHistory.recordSafe({
             type: 'grade_reward_reconcile',
-            summary: 'Đưa thưởng/phạt điểm số vào trạng thái chờ chấm lại',
+            summary: reasonCode === 'request_redo'
+                ? 'Hủy thưởng/phạt điểm số cũ trước khi cho làm lại'
+                : 'Đưa thưởng/phạt điểm số vào trạng thái chờ chấm lại',
             source: 'grade_reward_reconcile_v4',
             targetUsername: username,
             targetName:
@@ -8724,7 +9425,9 @@ async function holdTeacherGradeRewardForRegradeV4(
             unit: 'Vé',
             reversible: false,
             nonReversibleReason:
-                'Đây là thao tác đối soát tự động khi giáo viên chấm lại.',
+                reasonCode === 'request_redo'
+                    ? 'Đây là thao tác đối soát tự động khi giáo viên cho học sinh làm lại.'
+                    : 'Đây là thao tác đối soát tự động khi giáo viên chấm lại.',
             details: {
                 submissionKey,
                 reasonCode,
@@ -8793,6 +9496,136 @@ async function holdTeacherGradeRewardForRegradeV4(
         ticketDelta: snapshot.ticketDelta,
         coinReward: snapshot.coinReward,
         revision: snapshot.revision
+    };
+}
+
+
+// ======================================================
+// GRADE REWARD V4.2 · REDO INVALIDATION GUARD
+// "Cho làm lại" khác "Chấm lại": kết quả kinh tế cũ bị hủy HẲN.
+// - Quà đã nhận: thu hồi.
+// - Phạt cũ: hoàn lại.
+// - Thư chưa nhận: khóa tức thời rồi xóa.
+// - Event giữ lại để audit nhưng chuyển superseded.
+// ======================================================
+async function invalidateTeacherGradeRewardForRedoV4(submission) {
+    const username = getTeacherGradeRewardUsername(submission);
+    const submissionKey = getTeacherGradeRewardSubmissionKey(submission);
+
+    if (!username || !submissionKey) {
+        return { status: 'no_target', hadRewardEvent: false };
+    }
+
+    // Chặn nếu HS đang ở giữa transaction nhận quà.
+    await assertTeacherGradeRewardMutationReady(submission);
+
+    // Dùng cùng bộ máy V4 để thu hồi quà đã nhận / hoàn phạt / sửa nợ
+    // lịch sử. HOLD chỉ tồn tại trong một khoảng rất ngắn và student.js
+    // sẽ chặn claim khi event chuyển regrade_hold.
+    const holdResult = await holdTeacherGradeRewardForRegradeV4(
+        submission,
+        'request_redo'
+    );
+
+    if (
+        holdResult?.status === 'no_event' ||
+        holdResult?.status === 'no_target'
+    ) {
+        return {
+            ...holdResult,
+            hadRewardEvent: false
+        };
+    }
+
+    const eventRef = db.ref(
+        `grade_reward_events/${username}/${submissionKey}`
+    );
+    const latestSnap = await eventRef.once('value');
+    const latestEvent = latestSnap.val() || null;
+
+    if (!latestEvent) {
+        return {
+            ...holdResult,
+            status: 'no_event',
+            hadRewardEvent: false
+        };
+    }
+
+    const messageIds = [
+        latestEvent.messageId,
+        latestEvent.holdMessageId,
+        holdResult?.heldMessageId,
+        submission?.gradeRewardV2MessageId
+    ]
+        .map(value => String(value || '').trim())
+        .filter(Boolean);
+
+    for (const messageId of [...new Set(messageIds)]) {
+        await db
+            .ref(`inbox_messages/${username}/${messageId}`)
+            .remove()
+            .catch(() => {});
+    }
+
+    const revision = Math.max(
+        1,
+        Number(
+            latestEvent.holdRevision ||
+            latestEvent.revision ||
+            submission?.gradeRewardV2Revision ||
+            1
+        ) || 1
+    );
+
+    await eventRef.update({
+        status: 'superseded',
+        supersededAt: firebase.database.ServerValue.TIMESTAMP,
+        supersedeReason: 'request_redo',
+        redoInvalidatedAt: firebase.database.ServerValue.TIMESTAMP,
+        redoInvalidatedRevision: revision,
+        messageRevoked: messageIds.length > 0,
+
+        // Không để messageId cũ có cơ hội được client coi là reward hiện hành.
+        messageId: null,
+        holdMessageId: null,
+        holdEndedAt: firebase.database.ServerValue.TIMESTAMP,
+
+        mutationId: null,
+        mutationStartedAt: null,
+        mutationPreviousStatus: null
+    });
+
+    const originalMessageId = String(
+        latestEvent.holdMessageId ||
+        holdResult?.heldMessageId ||
+        submission?.gradeRewardV2MessageId ||
+        ''
+    ).trim();
+
+    if (
+        originalMessageId &&
+        Number(latestEvent.holdCoinReward || latestEvent.coinReward || 0) > 0
+    ) {
+        const oldClaim =
+            (await db
+                .ref(`grade_reward_claims/${username}/${originalMessageId}`)
+                .once('value')).val() || null;
+
+        await reclaimGradeRewardFundedStorePurchasesV43(
+            username,
+            originalMessageId,
+            oldClaim,
+            'request_redo'
+        ).catch(() => {});
+    }
+
+    return {
+        ...holdResult,
+        status: 'superseded',
+        hadRewardEvent: true,
+        revision,
+        messageId: null,
+        revokedMessageIds: [...new Set(messageIds)]
     };
 }
 
@@ -8943,25 +9776,71 @@ async function resolveTeacherGradeRewardHoldV4(
                 .once('value')).val()
             : null;
 
-        const reversedThisHold = Boolean(
-            eventData.holdClaimedRewardReversedThisHold === true ||
+        const holdStartedAt = Number(
+            eventData.holdStartedAt || 0
+        );
+        const claimReversedAt = Number(
+            heldClaim?.reversedAt || 0
+        );
+        const claimReverseReason = String(
+            heldClaim?.reverseReason || ''
+        );
+
+        const claimWasReversedByThisHold = Boolean(
+            heldClaim?.status === 'reversed' &&
+            claimReversedAt > 0 &&
             (
-                heldClaim?.status === 'reversed' &&
-                Number(eventData.holdReversedTickets || 0) > 0
+                !holdStartedAt ||
+                claimReversedAt >= holdStartedAt - 5000
+            ) &&
+            ![
+                'request_redo',
+                'deleted'
+            ].includes(claimReverseReason)
+        );
+
+        const claimIndicatesRewardCurrentlyReversed = Boolean(
+            heldClaim?.status === 'reversed' &&
+            ![
+                'request_redo',
+                'deleted'
+            ].includes(claimReverseReason)
+        );
+
+        const eventIndicatesRewardCurrentlyReversed = Boolean(
+            eventData.holdClaimedRewardReversed === true ||
+            (
+                Number(eventData.rolledBackAt || 0) > 0 &&
+                Number(eventData.rolledBackTickets || 0) ===
+                    Number(oldSnapshot.ticketDelta || 0) &&
+                Number(eventData.rolledBackCoins || 0) ===
+                    Number(oldSnapshot.coinReward || 0)
             )
         );
 
+        // A5 FIX: nếu điểm vẫn giữ nguyên thì quyền lợi cuối cùng phải giống
+        // trước khi bấm Chấm lại. Không phụ thuộc duy nhất vào hai field HOLD
+        // vốn có thể bị thiếu ở dữ liệu V4.0/V4.1.
+        const reversedThisHold = Boolean(
+            eventData.holdClaimedRewardReversedThisHold === true ||
+            claimWasReversedByThisHold ||
+            claimIndicatesRewardCurrentlyReversed ||
+            eventIndicatesRewardCurrentlyReversed
+        );
+
         if (reversedThisHold) {
+            // Không phụ thuộc holdReversedTickets/Coins vì các bản cũ có thể
+            // ghi thiếu hai field này. Claim là nguồn audit bền hơn.
             const ticketsToRestore = Number(
-                eventData.holdReversedTickets ||
-                heldClaim?.tickets ||
-                oldSnapshot.ticketDelta ||
+                heldClaim?.tickets ??
+                eventData.holdReversedTickets ??
+                oldSnapshot.ticketDelta ??
                 0
             ) || 0;
             const coinsToRestore = Number(
-                eventData.holdReversedCoins ||
-                heldClaim?.coins ||
-                oldSnapshot.coinReward ||
+                heldClaim?.coins ??
+                eventData.holdReversedCoins ??
+                oldSnapshot.coinReward ??
                 0
             ) || 0;
 
@@ -9021,6 +9900,18 @@ async function resolveTeacherGradeRewardHoldV4(
                     })
                     .catch(() => {});
             }
+
+            await setTeacherGradeRewardRevisionStateV43(
+                username,
+                submissionKey,
+                oldSnapshot.revision,
+                {
+                    reversed: false,
+                    restoredAt: Date.now(),
+                    restoreReason:
+                        'same_score_but_old_reward_already_claimed'
+                }
+            ).catch(() => {});
 
             if (window.TransactionHistory) {
                 await window.TransactionHistory.recordSafe({
@@ -9091,7 +9982,27 @@ async function resolveTeacherGradeRewardHoldV4(
     }
 
     // Điểm cao/thấp hơn, hoặc thư cũ đã nhận nhưng outcome không còn giống:
-    // thư cũ bị hủy; revision cũ chuyển sang superseded.
+    // kết quả cũ bị hủy thật sự. Nếu Coin đã bị tiêu làm số dư âm,
+    // thu hồi các vật phẩm mua bằng claim cũ trước khi phát revision mới.
+    if (
+        !exactSame &&
+        holdWasClaimed &&
+        oldSnapshot.coinReward > 0 &&
+        heldMessageId
+    ) {
+        const oldClaim =
+            (await db
+                .ref(`grade_reward_claims/${username}/${heldMessageId}`)
+                .once('value')).val() || null;
+
+        await reclaimGradeRewardFundedStorePurchasesV43(
+            username,
+            heldMessageId,
+            oldClaim,
+            'score_changed'
+        ).catch(() => {});
+    }
+
     if (heldMessageId) {
         await db
             .ref(`inbox_messages/${username}/${heldMessageId}`)
@@ -9300,6 +10211,30 @@ async function issueTeacherGradeRewardV2(submission, rawGrade, gradedAt) {
                 issuedAt: firebase.database.ServerValue.TIMESTAMP
             });
 
+            const archivedRewardEvent = {
+                ...reservedEvent,
+                status: 'pending_claim',
+                messageId,
+                issuedAt: Date.now()
+            };
+
+            await archiveTeacherGradeRewardRevisionV43(
+                username,
+                submissionKey,
+                archivedRewardEvent
+            ).catch(() => {});
+
+            await setTeacherGradeRewardRevisionStateV43(
+                username,
+                submissionKey,
+                revision,
+                {
+                    reversed: false,
+                    active: true,
+                    activatedAt: Date.now()
+                }
+            ).catch(() => {});
+
             return {
                 status: 'pending_claim',
                 messageId,
@@ -9362,6 +10297,30 @@ async function issueTeacherGradeRewardV2(submission, rawGrade, gradedAt) {
                 messageId,
                 appliedAt: firebase.database.ServerValue.TIMESTAMP
             });
+
+            const archivedPenaltyEvent = {
+                ...reservedEvent,
+                status: 'penalty_applied',
+                messageId,
+                appliedAt: Date.now()
+            };
+
+            await archiveTeacherGradeRewardRevisionV43(
+                username,
+                submissionKey,
+                archivedPenaltyEvent
+            ).catch(() => {});
+
+            await setTeacherGradeRewardRevisionStateV43(
+                username,
+                submissionKey,
+                revision,
+                {
+                    reversed: false,
+                    active: true,
+                    activatedAt: Date.now()
+                }
+            ).catch(() => {});
 
             return {
                 status: 'penalty_applied',
@@ -9491,7 +10450,18 @@ async function gradeSubmission(subId) {
             }
 
             // B. Giáo viên sửa điểm trực tiếp mà không bấm "Chấm lại".
-            else if (currentEvent) {
+            // Event đã superseded/deleted/rolled_back/retry KHÔNG còn là
+            // kết quả hiện hành. Đặc biệt sau "Cho làm lại", dù điểm mới
+            // trùng điểm cũ vẫn phải phát revision mới.
+            else if (
+                currentEvent &&
+                ![
+                    'superseded',
+                    'deleted',
+                    'rolled_back',
+                    'retry'
+                ].includes(currentStatus)
+            ) {
                 const exactSame =
                     isTeacherGradeRewardV4ExactSame(
                         getTeacherGradeRewardV4Snapshot(
@@ -10367,11 +11337,12 @@ async function createStudent() {
         );
     }
 
-    // Kiểm tra mật khẩu
-    if (password.length < 6) {
-        return alert(
-            '🔒 Mật khẩu quá ngắn! Cần ít nhất 6 ký tự.'
-        );
+    // K7: chính sách mật khẩu mạnh cho tài khoản mới.
+    const passwordPolicyError =
+        getTeacherManagedPasswordPolicyError(password, username);
+
+    if (passwordPolicyError) {
+        return alert('🔒 ' + passwordPolicyError);
     }
 
     // Kiểm tra họ tên
@@ -10692,6 +11663,14 @@ window.deleteStudent = async function (uid) {
 
         if (!confirmed) return;
 
+        // K6: xác thực lại chính Giáo viên trước thao tác phá hủy.
+        const teacherReauthenticated =
+            await reauthenticateTeacherForDangerousAction(
+                `xóa học sinh [${username}]`
+            );
+
+        if (!teacherReauthenticated) return;
+
         // 2. Lấy dữ liệu bài tập và bài nộp CẦN XÓA trước
         const [assignmentsSnap, submissionsSnap] = await Promise.all([
             db.ref('assignments').once('value'),
@@ -10699,32 +11678,36 @@ window.deleteStudent = async function (uid) {
         ]);
 
         let authDeleteSuccess = false;
-        let authDeleteErrorMsg = "";
 
-        // 3. THỬ XÓA AUTH (Được bọc trong Try-Catch riêng để không chặn quá trình xóa DB)
-        try {
-            if (password) {
-                const secondaryAuth = secondaryApp.auth();
-                await secondaryAuth.signOut().catch(() => { });
-
-                const credential = await secondaryAuth.signInWithEmailAndPassword(email, password);
-
-                if (credential.user.uid === uid) {
-                    await credential.user.delete();
-                    authDeleteSuccess = true;
-                } else {
-                    await secondaryAuth.signOut().catch(() => { });
-                    authDeleteErrorMsg = "UID tài khoản Auth không khớp.";
-                }
-            } else {
-                authDeleteErrorMsg = "Không có mật khẩu để xác thực Auth.";
-            }
-        } catch (authError) {
-            console.warn("Không thể xóa tài khoản Firebase Auth:", authError);
-            authDeleteErrorMsg = authError.message;
+        // 3. Xóa Auth trước. Nếu thất bại thì hủy toàn bộ bước xóa Database.
+        if (!password) {
+            throw new Error(
+                'Không có mật khẩu học sinh trong dữ liệu legacy để xác thực Auth. Dữ liệu chưa bị xóa.'
+            );
         }
 
-        // 4. TIẾN HÀNH XÓA DATABASE (Bất kể Auth xóa thành công hay thất bại, Database phải được làm sạch)
+        try {
+            const secondaryAuth = secondaryApp.auth();
+            await secondaryAuth.signOut().catch(() => {});
+
+            const credential = await secondaryAuth.signInWithEmailAndPassword(email, password);
+            if (!credential.user || credential.user.uid !== uid) {
+                await secondaryAuth.signOut().catch(() => {});
+                throw new Error('UID tài khoản Auth không khớp.');
+            }
+
+            await credential.user.delete();
+            authDeleteSuccess = true;
+        } catch (authError) {
+            await secondaryApp.auth().signOut().catch(() => {});
+            console.error('Không thể xóa Firebase Auth; hủy xóa Database:', authError);
+            throw new Error(
+                'Không thể xóa tài khoản đăng nhập Firebase Auth. Database CHƯA bị xóa. Chi tiết: ' +
+                String(authError?.message || authError)
+            );
+        }
+
+        // 4. Chỉ xóa Database sau khi Auth học sinh đã bị xóa thành công.
         const updates = {};
         let changedAssignmentCount = 0;
         let privateAssignmentCount = 0;
@@ -10764,6 +11747,7 @@ window.deleteStudent = async function (uid) {
         updates[`spin_counts/${username}`] = null;
         updates[`student_daily_login/${username}`] = null;
         updates[`inbox_messages/${username}`] = null;
+        updates[`inbox_gift_claims/${username}`] = null;
         updates[`historical_grade_tickets/${username}`] = null;
         updates[`grade_reward_events/${username}`] = null;
         updates[`grade_reward_claims/${username}`] = null;
@@ -10805,9 +11789,9 @@ window.deleteStudent = async function (uid) {
             ? `\n• Đã xóa ${deletedSubmissionCount} bài đã nộp của học sinh.`
             : '\n• Học sinh chưa có bài nộp cần xóa.';
 
-        let authNotice = authDeleteSuccess
-            ? "\n• Đã xóa triệt để tài khoản đăng nhập (Auth)."
-            : `\n⚠️ Lưu ý: Chỉ xóa dữ liệu hệ thống. Tài khoản đăng nhập (Auth) giữ nguyên do lỗi xác thực mật khẩu.`;
+        const authNotice = authDeleteSuccess
+            ? "\n• Đã xác thực lại Giáo viên và xóa tài khoản đăng nhập (Auth)."
+            : '';
 
         alert(`✅ Đã xóa dữ liệu học sinh [${username}].` + assignmentNotice + submissionNotice + authNotice);
 
@@ -10821,51 +11805,434 @@ window.deleteStudent = async function (uid) {
     }
 };
 
+function escapeTeacherProfileRequestHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
 async function loadProfileRequests() {
-    const requests = await getDB('profile_requests'); const pendingReqs = requests.filter(r => r.status === 'pending'); const card = document.getElementById('requestsCard'); const container = document.getElementById('requestsListContainer');
-    if (pendingReqs.length === 0) { card.style.display = 'none'; return; } card.style.display = 'block'; let html = '';
-    pendingReqs.forEach(req => { let passInfo = req.newPass ? `<span style="color: #ff0844; font-weight:bold;">Mật khẩu mới: ${req.newPass}</span>` : 'Không đổi'; html += `<div style="background: rgba(255,255,255,0.5); padding: 15px; margin-bottom: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.8);"><p><strong>Học sinh:</strong> ${req.currentName} (<i>${req.username}</i>)</p><p><strong>Đổi tên thành:</strong> <span style="color: #667eea; font-weight:800;">${req.newName}</span></p><p><strong>Mật khẩu:</strong> ${passInfo}</p><div style="margin-top: 15px; display: flex; gap: 10px;"><button onclick="handleRequest('${req._fbKey}', true, '${req.username}', '${(req.newName || '').replace(/'/g, "\\'")}', '${(req.newPass || '').replace(/'/g, "\\'")}')" class="btn-approve">✅ Cho phép</button><button onclick="handleRequest('${req._fbKey}', false, '', '', '')" class="btn-reject">❌ Từ chối</button></div></div>`; });
+    const requests = await getDB('profile_requests');
+    const pendingReqs = requests
+        .filter(r => r.status === 'pending' || r.status === 'processing')
+        .sort((a, b) => Number(b.timestamp || 0) - Number(a.timestamp || 0));
+
+    const card = document.getElementById('requestsCard');
+    const container = document.getElementById('requestsListContainer');
+
+    if (!card || !container) return;
+
+    if (pendingReqs.length === 0) {
+        card.style.display = 'none';
+        container.innerHTML = '';
+        return;
+    }
+
+    card.style.display = 'block';
+    let html = '';
+
+    pendingReqs.forEach(req => {
+        const safeReqKey = escapeTeacherProfileRequestHtml(req._fbKey || '');
+        const safeName = escapeTeacherProfileRequestHtml(req.currentName || '');
+        const safeUsername = escapeTeacherProfileRequestHtml(req.username || '');
+        const safeNewName = escapeTeacherProfileRequestHtml(req.newName || '');
+        const hasPasswordChange = req.hasPasswordChange === true || Boolean(req.newPass);
+        const processing = req.status === 'processing';
+
+        const passInfo = hasPasswordChange
+            ? '<span style="color:#ff0844;font-weight:bold;">Có yêu cầu đổi mật khẩu</span>'
+            : 'Không đổi';
+
+        html += `
+            <div style="background:rgba(255,255,255,.5);padding:15px;margin-bottom:10px;border-radius:12px;border:1px solid rgba(255,255,255,.8);">
+                <p><strong>Học sinh:</strong> ${safeName} (<i>${safeUsername}</i>)</p>
+                <p><strong>Đổi tên thành:</strong> <span style="color:#667eea;font-weight:800;">${safeNewName}</span></p>
+                <p><strong>Mật khẩu:</strong> ${passInfo}</p>
+                ${processing ? '<p style="color:#2563eb;font-weight:700;">⚙️ Request đang được một phiên Giáo viên xử lý.</p>' : ''}
+                <div style="margin-top:15px;display:flex;gap:10px;">
+                    <button onclick="handleRequest('${safeReqKey}', true)" class="btn-approve" ${processing ? 'disabled' : ''}>✅ Cho phép</button>
+                    <button onclick="handleRequest('${safeReqKey}', false)" class="btn-reject" ${processing ? 'disabled' : ''}>❌ Từ chối</button>
+                </div>
+            </div>`;
+    });
+
     container.innerHTML = html;
 }
-async function handleRequest(reqKey, isApprove, username, newName, newPass) {
-    if (isApprove) {
-        const users = await getDB('users');
-        const userRecord = users.find(u => u.username === username);
 
-        if (userRecord) {
-            // NẾU HỌC SINH CÓ YÊU CẦU ĐỔI MẬT KHẨU
-            if (newPass) {
-                try {
-                    const fakeEmail = username + "@hethong.edu.vn";
-                    const oldPass = userRecord.password; // Mật khẩu cũ vẫn đang nằm trong DB
+async function getTeacherProfileUserRecord(username) {
+    const snapshot = await db
+        .ref('users')
+        .orderByChild('username')
+        .equalTo(String(username || ''))
+        .once('value');
 
-                    // Dùng app phụ đăng nhập ngầm vào tài khoản học sinh
-                    const userCredential = await secondaryApp.auth().signInWithEmailAndPassword(fakeEmail, oldPass);
-                    // Đổi sang mật khẩu mới
-                    await userCredential.user.updatePassword(newPass);
-                    // Đăng xuất app phụ ngay lập tức
-                    await secondaryApp.auth().signOut();
-                } catch (error) {
-                    console.error("Lỗi đổi pass Auth phụ:", error);
-                    return alert("❌ Lỗi hệ thống Auth khi duyệt mật khẩu học sinh: " + error.message);
+    let record = null;
+    snapshot.forEach(child => {
+        if (!record) {
+            record = {
+                ...(child.val() || {}),
+                _fbKey: child.key
+            };
+        }
+    });
+
+    return record;
+}
+
+async function releaseTeacherProfileMutation(username, operationId) {
+    const ref = db.ref(`profile_request_mutations/${username}`);
+    await ref.transaction(current => {
+        if (!current) return current;
+        if (String(current.operationId || '') !== String(operationId || '')) {
+            return;
+        }
+        return null;
+    }).catch(() => {});
+}
+
+async function resolveTeacherProfileActiveLock(username, requestId, status) {
+    const ref = db.ref(`profile_request_active/${username}`);
+    await ref.transaction(current => {
+        if (!current) return current;
+        if (String(current.requestId || '') !== String(requestId || '')) {
+            return current;
+        }
+        return {
+            ...current,
+            status: String(status || 'resolved'),
+            resolvedAt: Date.now(),
+            updatedAt: Date.now()
+        };
+    }).catch(() => {});
+}
+
+async function supersedeOtherPendingProfileRequests(username, approvedRequestId) {
+    const snapshot = await db
+        .ref('profile_requests')
+        .orderByChild('username')
+        .equalTo(String(username || ''))
+        .once('value');
+
+    const updates = {};
+    const now = Date.now();
+
+    snapshot.forEach(child => {
+        if (String(child.key) === String(approvedRequestId)) return;
+        const value = child.val() || {};
+        if (value.status === 'pending') {
+            updates[`profile_requests/${child.key}/status`] = 'superseded';
+            updates[`profile_requests/${child.key}/resolvedAt`] = now;
+            updates[`profile_requests/${child.key}/supersededBy`] = String(approvedRequestId);
+            updates[`profile_requests/${child.key}/newPass`] = null;
+            updates[`profile_request_secrets/${child.key}`] = null;
+        }
+    });
+
+    if (Object.keys(updates).length) {
+        await db.ref().update(updates);
+    }
+}
+
+async function changeStudentPasswordWithCurrentCredential(username, newPass) {
+    let record = await getTeacherProfileUserRecord(username);
+    if (!record) throw new Error('PROFILE_USER_NOT_FOUND');
+
+    const fakeEmail = `${username}@hethong.edu.vn`;
+    let attemptedPassword = String(record.password || '');
+
+    if (!attemptedPassword) {
+        const error = new Error('PROFILE_CURRENT_PASSWORD_MISSING');
+        error.code = 'profile/current-password-missing';
+        throw error;
+    }
+
+    const tryChange = async oldPass => {
+        await secondaryApp.auth().signOut().catch(() => {});
+        const credential = await secondaryApp.auth()
+            .signInWithEmailAndPassword(fakeEmail, oldPass);
+        try {
+            await credential.user.updatePassword(newPass);
+        } finally {
+            await secondaryApp.auth().signOut().catch(() => {});
+        }
+        return oldPass;
+    };
+
+    try {
+        const oldPassword = await tryChange(attemptedPassword);
+        return { oldPassword, userRecord: record };
+    } catch (firstError) {
+        const retryCodes = new Set([
+            'auth/wrong-password',
+            'auth/invalid-credential',
+            'auth/user-mismatch'
+        ]);
+
+        if (!retryCodes.has(String(firstError?.code || ''))) {
+            throw firstError;
+        }
+
+        // Có thể một request cũ vừa đổi Auth/DB. Đọc lại record MỚI NHẤT
+        // rồi thử đúng một lần nữa.
+        const refreshed = await getTeacherProfileUserRecord(username);
+        const refreshedPassword = String(refreshed?.password || '');
+
+        if (!refreshed || !refreshedPassword || refreshedPassword === attemptedPassword) {
+            throw firstError;
+        }
+
+        const oldPassword = await tryChange(refreshedPassword);
+        return { oldPassword, userRecord: refreshed };
+    }
+}
+
+async function rollbackStudentAuthPassword(username, newPass, oldPass) {
+    if (!newPass || !oldPass) return false;
+    const fakeEmail = `${username}@hethong.edu.vn`;
+
+    try {
+        await secondaryApp.auth().signOut().catch(() => {});
+        const credential = await secondaryApp.auth()
+            .signInWithEmailAndPassword(fakeEmail, newPass);
+        await credential.user.updatePassword(oldPass);
+        await secondaryApp.auth().signOut().catch(() => {});
+        return true;
+    } catch (error) {
+        console.error('[Profile Request Guard] Không rollback được Auth:', error);
+        await secondaryApp.auth().signOut().catch(() => {});
+        return false;
+    }
+}
+
+async function handleRequest(reqKey, isApprove) {
+    const requestRef = db.ref(`profile_requests/${reqKey}`);
+    const initialSnap = await requestRef.once('value');
+    const initial = initialSnap.val();
+
+    if (!initial) {
+        return alert('❌ Yêu cầu không còn tồn tại.');
+    }
+
+    if (initial.status !== 'pending') {
+        return alert('ℹ️ Yêu cầu này đã được xử lý hoặc đang được phiên khác xử lý.');
+    }
+
+    const username = String(initial.username || '').trim();
+    if (!username) return alert('❌ Request thiếu username.');
+
+    const operationId =
+        `profile_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+    const mutationRef = db.ref(`profile_request_mutations/${username}`);
+    const now = Date.now();
+
+    const mutationTx = await mutationRef.transaction(current => {
+        if (
+            current?.status === 'processing' &&
+            Number(current.leaseUntil || 0) > now
+        ) {
+            return;
+        }
+
+        return {
+            username,
+            requestId: String(reqKey),
+            operationId,
+            status: 'processing',
+            startedAt: now,
+            leaseUntil: now + 120000
+        };
+    });
+
+    if (!mutationTx.committed) {
+        return alert('⏳ Một yêu cầu hồ sơ của học sinh này đang được xử lý ở phiên khác.');
+    }
+
+    let requestClaimed = false;
+
+    try {
+        // Nếu request mới theo Guard V1 thì active lock phải trỏ đúng request.
+        // Request legacy không có lock vẫn được phép xử lý.
+        const activeLockSnap = await db
+            .ref(`profile_request_active/${username}`)
+            .once('value');
+        const activeLock = activeLockSnap.val();
+
+        if (
+            activeLock &&
+            (activeLock.status === 'pending' || activeLock.status === 'processing') &&
+            String(activeLock.requestId || '') !== String(reqKey)
+        ) {
+            await requestRef.update({
+                status: 'superseded',
+                resolvedAt: Date.now(),
+                supersededBy: String(activeLock.requestId || ''),
+                newPass: null
+            });
+            await db.ref(`profile_request_secrets/${reqKey}`).remove().catch(() => {});
+            return alert('ℹ️ Request này đã cũ; một request khác đang là request hiện hành của học sinh.');
+        }
+
+        const claimTx = await requestRef.transaction(current => {
+            if (!current || current.status !== 'pending') return;
+            return {
+                ...current,
+                status: 'processing',
+                processingAt: Date.now(),
+                processingOperationId: operationId
+            };
+        });
+
+        if (!claimTx.committed) {
+            return alert('ℹ️ Yêu cầu đã được phiên khác xử lý trước.');
+        }
+        requestClaimed = true;
+
+        const request = claimTx.snapshot.val() || {};
+
+        if (!isApprove) {
+            await requestRef.update({
+                status: 'rejected',
+                resolvedAt: Date.now(),
+                processingOperationId: null,
+                newPass: null
+            });
+            await db.ref(`profile_request_secrets/${reqKey}`).remove().catch(() => {});
+            await resolveTeacherProfileActiveLock(username, reqKey, 'rejected');
+            alert('❌ Đã từ chối yêu cầu!');
+            return;
+        }
+
+        const secretSnap = await db
+            .ref(`profile_request_secrets/${reqKey}`)
+            .once('value');
+        const secret = secretSnap.val() || {};
+
+        // Tương thích request legacy: nếu chưa có secret thì đọc newPass cũ.
+        const newPass = String(
+            secret.newPass || request.newPass || ''
+        );
+        const newName = String(request.newName || '').trim();
+
+        if (!newName) throw new Error('PROFILE_NEW_NAME_EMPTY');
+        if (newPass) {
+            const passwordPolicyError =
+                getTeacherManagedPasswordPolicyError(newPass, username);
+            if (passwordPolicyError) {
+                throw new Error('PROFILE_NEW_PASSWORD_WEAK: ' + passwordPolicyError);
+            }
+        }
+
+        let latestUser = await getTeacherProfileUserRecord(username);
+        if (!latestUser) throw new Error('PROFILE_USER_NOT_FOUND');
+
+        let authChanged = false;
+        let authOldPassword = '';
+
+        if (newPass) {
+            try {
+                const authResult = await changeStudentPasswordWithCurrentCredential(
+                    username,
+                    newPass
+                );
+                authChanged = true;
+                authOldPassword = authResult.oldPassword;
+                latestUser = authResult.userRecord;
+            } catch (authError) {
+                console.error('[Profile Request Guard] Auth conflict:', authError);
+
+                await requestRef.update({
+                    status: 'auth_conflict',
+                    resolvedAt: Date.now(),
+                    processingOperationId: null,
+                    authErrorCode: String(authError?.code || authError?.message || 'AUTH_CONFLICT'),
+                    newPass: null
+                }).catch(() => {});
+                await db.ref(`profile_request_secrets/${reqKey}`).remove().catch(() => {});
+                await resolveTeacherProfileActiveLock(username, reqKey, 'auth_conflict');
+
+                return alert(
+                    '⚠️ Mật khẩu Auth hiện tại không còn khớp dữ liệu hệ thống. ' +
+                    'Request đã được đánh dấu xung đột; học sinh cần đăng nhập lại và gửi yêu cầu mới.'
+                );
+            }
+        }
+
+        try {
+            const updateData = { name: newName };
+            if (newPass) updateData.password = newPass;
+
+            await db.ref(`users/${latestUser._fbKey}`).update(updateData);
+        } catch (dbError) {
+            if (authChanged) {
+                const rolledBack = await rollbackStudentAuthPassword(
+                    username,
+                    newPass,
+                    authOldPassword
+                );
+
+                if (!rolledBack) {
+                    await requestRef.update({
+                        status: 'auth_conflict',
+                        resolvedAt: Date.now(),
+                        authErrorCode: 'AUTH_DB_DIVERGED',
+                        processingOperationId: null,
+                        newPass: null
+                    }).catch(() => {});
+                    await db.ref(`profile_request_secrets/${reqKey}`).remove().catch(() => {});
+                    await resolveTeacherProfileActiveLock(username, reqKey, 'auth_conflict');
+                    throw new Error('AUTH_DB_DIVERGED');
                 }
             }
 
-            // Ghi nhận Database
-            const updateData = { name: newName };
-            if (newPass) updateData.password = newPass;
-            await updateDB('users', userRecord._fbKey, updateData);
+            throw dbError;
         }
-        await updateDB('profile_requests', reqKey, { status: 'approved', resolvedAt: Date.now() });
-        alert("✅ Đã phê duyệt yêu cầu và đổi mật khẩu thành công!");
-    } else {
-        await updateDB('profile_requests', reqKey, { status: 'rejected', resolvedAt: Date.now() });
-        alert("❌ Đã từ chối yêu cầu!");
-    }
 
-    // Tự động load lại danh sách sau khi duyệt
-    if (typeof loadProfileRequests === 'function') loadProfileRequests();
+        await requestRef.update({
+            status: 'approved',
+            resolvedAt: Date.now(),
+            processingOperationId: null,
+            newPass: null
+        });
+        await db.ref(`profile_request_secrets/${reqKey}`).remove().catch(() => {});
+
+        // Request cũ trùng username không được phép tiếp tục duyệt sau khi
+        // một request đã thành công.
+        await supersedeOtherPendingProfileRequests(username, reqKey);
+        await resolveTeacherProfileActiveLock(username, reqKey, 'approved');
+
+        alert('✅ Đã phê duyệt yêu cầu và cập nhật thông tin thành công!');
+    } catch (error) {
+        console.error('[Profile Request Guard] Lỗi xử lý request:', error);
+
+        if (requestClaimed) {
+            // Lỗi mạng/tạm thời: trả về pending nếu request vẫn thuộc operation này.
+            await requestRef.transaction(current => {
+                if (
+                    current?.status === 'processing' &&
+                    String(current.processingOperationId || '') === operationId
+                ) {
+                    const next = { ...current };
+                    next.status = 'pending';
+                    next.processingAt = null;
+                    next.processingOperationId = null;
+                    return next;
+                }
+                return current;
+            }).catch(() => {});
+        }
+
+        alert(`❌ Không xử lý được yêu cầu: ${error.message || error}`);
+    } finally {
+        await releaseTeacherProfileMutation(username, operationId);
+        if (typeof loadProfileRequests === 'function') {
+            loadProfileRequests();
+        }
+    }
 }
+
 async function updateProfile() {
     const newName = document.getElementById('settingName').value.trim();
     const newPass = document.getElementById('settingPass').value.trim();
@@ -11548,21 +12915,136 @@ window.requestRedo = async function (subKey) {
                 submission
             );
 
-        await updateDB('submissions', subKey, {
+        // V4.2: BẮT BUỘC vô hiệu hóa kết quả thưởng/phạt cũ TRƯỚC khi
+        // mở quyền làm lại. Nếu HS đang bấm nhận quà, thao tác này sẽ bị
+        // chặn thay vì để isRedoing=true nhưng ledger vẫn còn pending_claim.
+        const rewardInvalidation =
+            await invalidateTeacherGradeRewardForRedoV4(
+                submission
+            );
+
+        const redoStartedAt = Date.now();
+        const previousGrade = Number(submission.grade);
+        const submissionUpdate = {
             isRedoing: true,
+            isRegrading: false,
             grade: null,
+
+            // B3: hasRedone chỉ là trạng thái "đang trong chu kỳ làm lại".
+            // Sau khi nộp lại thành công student.js sẽ reset false.
             hasRedone: true,
+            everRedone: true,
+            redoCount: Math.max(0, Number(submission.redoCount || 0)) + 1,
+
             redoScope,
-            redoStartedAt: Date.now(),
+            redoStartedAt,
+            redoBaseGrade:
+                Number.isFinite(previousGrade)
+                    ? previousGrade
+                    : null,
+            redoBaseGradedAt:
+                Number(submission.gradedAt || 0) || null,
+
+            // B2: lịch sử vẫn giữ để audit, nhưng đánh dấu đang còn hiệu lực
+            // chỉ trong lúc chu kỳ redo chưa hoàn tất.
             redoViolationHistory:
-                violationHistory
-        });
+                violationHistory,
+            redoViolationHistoryActive: true,
+            redoViolationResolvedAt: null
+        };
+
+        if (
+            rewardInvalidation?.hadRewardEvent ||
+            hasTeacherGradeRewardFootprint(submission)
+        ) {
+            Object.assign(submissionUpdate, {
+                gradeRewardV2Version:
+                    GRADE_REWARD_V2_VERSION,
+                gradeRewardV2Status: 'superseded',
+                gradeRewardV2MessageId: null,
+                gradeRewardV2Revision: Number(
+                    rewardInvalidation?.revision ||
+                    submission.gradeRewardV2Revision ||
+                    1
+                ),
+                gradeRewardV2Tickets: 0,
+                gradeRewardV2Coins: 0,
+                gradeRewardV2SpecialPenalty: false,
+                gradeRewardV2Reason: 'request_redo',
+                gradeRewardV2ProcessedAt: redoStartedAt,
+                gradeRewardRedoInvalidatedAt: redoStartedAt
+            });
+        }
+
+        await updateDB(
+            'submissions',
+            subKey,
+            submissionUpdate
+        );
+
+        /*
+         * EXAM GUARD V5:
+         * Nếu đây là bài thi, mở một chu kỳ session mới ở Firebase.
+         * student.js chỉ được bắt đầu lại khi nhìn thấy redo_authorized,
+         * nhờ vậy không tái sử dụng startedAt/sessionId của lần thi cũ.
+         */
+        if (
+            assignment.assessmentType === 'thi'
+        ) {
+            const redoUsername = String(
+                getCompatSubmissionUsername(
+                    submission
+                ) || ''
+            ).trim();
+
+            if (redoUsername) {
+                await db
+                    .ref(
+                        `exam_sessions/${redoUsername}/${assignmentId}`
+                    )
+                    .update({
+                        version: 5,
+                        username:
+                            redoUsername,
+                        assignmentId:
+                            String(assignmentId),
+                        assignmentKey:
+                            String(
+                                assignment._fbKey ||
+                                assignment.id ||
+                                assignmentId
+                            ),
+                        status:
+                            'redo_authorized',
+                        redoAuthorizedAt:
+                            firebase.database
+                                .ServerValue
+                                .TIMESTAMP,
+                        ownerTabId: null,
+                        ownerLeaseUntil: 0,
+                        finalizeOwnerTabId: null,
+                        finalizeId: null,
+                        finalizeLeaseUntil: null,
+                        finalizeReason: null,
+                        heartbeatAt:
+                            firebase.database
+                                .ServerValue
+                                .TIMESTAMP,
+                        updatedAt:
+                            firebase.database
+                                .ServerValue
+                                .TIMESTAMP
+                    });
+            }
+        }
 
         alert(
             '✅ Đã cho học sinh làm lại: ' +
             getTeacherRedoScopeLabel(redoScope) +
             '.\n\n' +
-            'Lưu ý: lỗi cũ vẫn được giữ trong Bảng Xếp Hạng Thi Đua cho đến khi giáo viên bấm Tha lỗi.'
+            'Phần thưởng/phạt của lần chấm cũ đã được thu hồi hoặc hủy. ' +
+            'Học sinh không thể nhận lại thư thưởng cũ.\n\n' +
+            'Lưu ý: lịch sử lỗi cũ vẫn được giữ để đối soát; sau khi học sinh nộp lại thành công, lỗi cũ sẽ tự chuyển sang đã xử lý.'
         );
 
         await loadSubmissions();
@@ -11571,6 +13053,16 @@ window.requestRedo = async function (subKey) {
             'Không thể cấp quyền làm lại:',
             error
         );
+
+        if (
+            error?.message === 'GRADE_REWARD_CLAIM_IN_PROGRESS' ||
+            error?.message === 'GRADE_REWARD_MUTATION_IN_PROGRESS'
+        ) {
+            return alert(
+                '⏳ Học sinh đang nhận phần thưởng hoặc hệ thống đang đối soát bài này. ' +
+                'Chưa thể cho làm lại lúc này. Vui lòng thử lại sau ít giây.'
+            );
+        }
 
         alert(
             '❌ Không thể cấp quyền làm lại: ' +
@@ -12094,7 +13586,37 @@ async function updatePassingGrade(val) {
 }
 
 // Render dữ liệu bảng lộ trình học tập của Giáo viên
+// ======================================================
+// UI/UX ROADMAP GUARD L4 · SERIALIZED TEACHER RENDER
+// ======================================================
+window.__TEACHER_ROADMAP_RENDER_GUARD_BUILD = '20260918.v1-L4-serialized-rerender';
+
+let teacherRoadmapRenderPromise = null;
+let teacherRoadmapRenderQueued = false;
+
 async function renderTeacherRoadmap() {
+    if (teacherRoadmapRenderPromise) {
+        // Có thay đổi mới trong lúc đang render: không chạy song song,
+        // nhưng bảo đảm render lại ngay sau lượt hiện tại.
+        teacherRoadmapRenderQueued = true;
+        return teacherRoadmapRenderPromise;
+    }
+
+    teacherRoadmapRenderPromise = (async () => {
+        try {
+            do {
+                teacherRoadmapRenderQueued = false;
+                await renderTeacherRoadmapCore();
+            } while (teacherRoadmapRenderQueued);
+        } finally {
+            teacherRoadmapRenderPromise = null;
+        }
+    })();
+
+    return teacherRoadmapRenderPromise;
+}
+
+async function renderTeacherRoadmapCore() {
     const body = document.getElementById('teacherRoadmapBody');
     if (!body) return;
     body.innerHTML = '';
@@ -12164,8 +13686,8 @@ async function renderTeacherRoadmap() {
                 selectedStudent
             );
             if (sub) {
-                // Lỗi hiện tại hoặc lỗi lịch sử đều giữ trạng thái Loại và 0đ.
-                // Cho làm lại/Tha điểm không tự xóa lịch sử; chỉ nút Tha lỗi mới khôi phục quyền cộng tiền.
+                // Chỉ lỗi hiện tại hoặc history CÒN HIỆU LỰC mới giữ trạng thái Loại.
+                // History đã resolve sau khi nộp lại thành công chỉ còn phục vụ audit.
                 if (isTeacherCashSubmissionFailed(sub)) {
                     const hasOnlyHistoricalViolation =
                         hasTeacherHistoricalViolation(sub) &&
@@ -12899,7 +14421,7 @@ window.saveAssignmentEdit = async function () {
         const mcWeight = parseFloat(document.getElementById('editMcWeight').value) || 0;
         const essayWeight = parseFloat(document.getElementById('editEssayWeight').value) || 0;
 
-        if (assign.assessmentType === 'ket_hop' && (mcWeight + essayWeight !== 10)) {
+        if (!Number.isFinite(mcWeight) || !Number.isFinite(essayWeight) || mcWeight < 0 || essayWeight < 0 || Math.abs(mcWeight + essayWeight - 10) > 0.000001) {
             return alert("Tổng điểm tối đa của Trắc nghiệm và Tự luận phải bằng 10!");
         }
         if (assign.assessmentType === 'thi' && mcWeight === 0 && essayWeight === 0) {
@@ -16854,7 +18376,7 @@ function getTeacherCashRoadmapMoney(assign) {
 function isTeacherCashSubmissionFailed(sub) {
     if (!sub) return false;
 
-    const history = getTeacherRedoViolationHistory(sub);
+    const history = getTeacherActiveRedoViolationHistory(sub);
 
     return !!(
         sub.isAutoSubmitted ||
@@ -17984,7 +19506,11 @@ function getLegacyGradeTicketValueV1(submission) {
     else if (score > 7) tickets = 2;
     else if (score > 5) tickets = 1;
 
-    if (submission.hasRedone && tickets > 0) {
+    if (
+        submission.hasRedone === true &&
+        !submission.redoCompletedAt &&
+        tickets > 0
+    ) {
         tickets -= 1;
     }
 
@@ -18567,8 +20093,16 @@ window.changeTeacherPassword = async function () {
     const newPassword = document.getElementById('newPasswordInput').value.trim();
     const confirmPassword = document.getElementById('confirmPasswordInput').value.trim();
 
-    if (!newPassword || newPassword.length < 6) {
-        return alert("⚠️ Mật khẩu mới phải có ít nhất 6 ký tự!");
+    const passwordPolicyError =
+        getTeacherManagedPasswordPolicyError(
+            newPassword,
+            currentUser.username || ''
+        );
+
+    if (!newPassword || passwordPolicyError) {
+        return alert(
+            '⚠️ ' + (passwordPolicyError || 'Vui lòng nhập mật khẩu mới.')
+        );
     }
     if (newPassword !== confirmPassword) {
         return alert("❌ Mật khẩu xác nhận không khớp!");

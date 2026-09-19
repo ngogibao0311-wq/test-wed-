@@ -165,7 +165,7 @@
                         data.details || {},
 
                     reversible:
-                        data.reversible === true,
+                        data.reversible === true && actor().role === 'teacher' && data.type !== 'grade_change',
 
                     nonReversibleReason:
                         data.nonReversibleReason ||
@@ -257,6 +257,16 @@
 
             const initialLog =
                 initialSnapshot.val() || {};
+
+            // Student-authored history is not an authorization to mutate teacher data.
+            if (initialLog.actor?.role !== 'teacher' || !initialLog.actor?.uid) {
+                throw new Error('Nhật ký học sinh chỉ dùng đối soát, không cho phép hoàn tác tự động.');
+            }
+            const author = await db.ref(`users/${initialLog.actor.uid}/role`).once('value');
+            if (author.val() !== 'teacher') throw new Error('Không xác minh được người tạo nhật ký.');
+            if (initialLog.type === 'grade_change') {
+                throw new Error('Hãy dùng Chấm lại trong Bài nộp để đối soát cả điểm và phần thưởng.');
+            }
 
             if (
                 initialLog.status ===
@@ -1220,12 +1230,14 @@
          * hoàn tác phía sau gặp lỗi.
          */
         let lockAcquired = false;
+        let mutationStarted = false;
 
         try {
             const log =
                 await lock(logId);
 
             lockAcquired = true;
+            mutationStarted = true;
 
             if (
                 [
@@ -1285,7 +1297,7 @@
              * Nếu không, giao dịch đã hoàn tác có thể
              * bị đổi nhầm về active.
              */
-            if (lockAcquired) {
+            if (lockAcquired && !mutationStarted) {
                 await activeAgain(
                     logId,
                     error

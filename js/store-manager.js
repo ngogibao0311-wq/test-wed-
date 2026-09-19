@@ -1,5 +1,9 @@
 // js/store-manager.js
 
+// STORE GUARD companion build (logic bảo vệ giao dịch nằm ở student.js + Firebase Rules)
+window.__STORE_MANAGER_GUARD_BUILD = '20260918.v2-K2-K3-ownership';
+
+
 const StoreConfig = {
     items: [
         { id: 'theme_ocean', name: 'Đại Dương Xanh', type: 'theme', price: 150, isNonCoin: false, tag: 'Giao diện' },
@@ -2953,7 +2957,16 @@ class StoreManager {
 
     static applyItem(itemId) {
         const item = this.getItemById(itemId);
-        if (!item) return;
+        if (!item) return false;
+
+        // K2/K3: runtime cơ sở cũng tôn trọng quyền sở hữu do student.js cung cấp.
+        if (
+            typeof window.studentStoreCanUseItemSync === 'function' &&
+            window.studentStoreCanUseItemSync(itemId) !== true
+        ) {
+            window.alert('⛔ Bạn chưa sở hữu vật phẩm này.');
+            return false;
+        }
 
         // Chặn trang bị từ mọi đường dẫn khi Giáo viên đã khóa vật phẩm.
         // Không ảnh hưởng thao tác Gỡ vật phẩm đang mặc.

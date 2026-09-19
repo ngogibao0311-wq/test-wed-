@@ -1,15 +1,4 @@
 // 1. DÁN ĐOẠN CODE BẠN LẤY ĐƯỢC TỪ FIREBASE VÀO ĐÂY
-// ---- DỰ ÁN THẬT
-//const firebaseConfig = {
-//    apiKey: "AIzaSyAnxiZEjEFUNoXnPFZR2GJh9mJ9KKYsPqI",
-//    authDomain: "quan-ly-bai-tap-online.firebaseapp.com",
-//    databaseURL: "https://quan-ly-bai-tap-online-default-rtdb.asia-southeast1.firebasedatabase.app",
-//    projectId: "quan-ly-bai-tap-online",
-//    storageBucket: "quan-ly-bai-tap-online.firebasestorage.app",
-//    messagingSenderId: "1045476145868",
-//    appId: "1:1045476145868:web:2019476c328a8b52e1e069",
-//    measurementId: "G-8MJZ8D9EK1"
-//};
 // ---- DỰ ÁN NHÁP
 const firebaseConfig = {
   apiKey: "AIzaSyDb4pnn0E16MY-aJ1UXD8p59X5vXkcRT_w",
@@ -219,21 +208,21 @@ function mapFirebaseCollectionSnapshot(snapshot) {
         const item = data[key];
 
         if (typeof item === 'object' && item !== null) {
-            return { _fbKey: key, ...item };
+            return { ...item, _fbKey: key };
         }
 
         return { _fbKey: key, value: item };
     });
 }
 
-// 1. Lấy dữ liệu — lỗi đọc vẫn trả [] như hành vi cũ.
+// 1. Lỗi đọc phải được báo cho caller, không được coi là collection rỗng.
 async function getDB(path) {
     try {
         const snapshot = await DBReadSingleFlight.read(path);
         return mapFirebaseCollectionSnapshot(snapshot);
     } catch (error) {
         console.error(`❌ [Lỗi GetDB] tại '${path}':`, error);
-        return [];
+        throw error;
     }
 }
 
