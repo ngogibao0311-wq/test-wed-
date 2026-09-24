@@ -1336,6 +1336,35 @@ class PetManager {
             'theme-summer-solstice-stage'
         );
 
+
+        // Dọn namespace Mùa Thu Premium nếu PetManager được gọi trực tiếp
+        // trước/sau khi LuxuryStore hook thay đổi thứ tự tải module.
+        document
+            .querySelectorAll(
+                '.autumn-equinox-world,' +
+                '.autumn-equinox-ui-frame,' +
+                '.autumn-equinox-ultimate,' +
+                '.autumn-equinox-click-burst,' +
+                '.autumn-equinox-dialogue,' +
+                '.autumn-equinox-pet-realm'
+            )
+            .forEach(node => node.remove());
+
+        document.documentElement.classList.remove(
+            'autumn-equinox-equipped',
+            'autumn-equinox-skill-active'
+        );
+
+        document.body?.classList.remove(
+            'theme-autumn-equinox-stage'
+        );
+
+        this.container?.classList.remove(
+            'pet-autumn-equinox-stage',
+            'autumn-equinox-awakening',
+            'autumn-equinox-casting'
+        );
+
         let petElement;
 
         // Xử lý tạo phần tử hiển thị: Nếu là Icon thì tạo Div text, nếu là File thì tạo Img

@@ -46,7 +46,7 @@
 
     if (window.StudentFeatureLoader) return;
 
-    const VERSION = '3.4.8-guide-readiness-v1';
+    const VERSION = '3.4.9-autumn-premium-v1';
 
     const cssPromises = new Map();
     const scriptPromises = new Map();
@@ -82,7 +82,7 @@
         sevenSins: 'css/that-dai-toi.css?v=3.8',
         birthday: 'css/pet-sinh-nhat.css?v=3.8',
         weather: 'css/thoi-tiet.css?v=3.8',
-        seasons: 'css/premium-mua-xuan.css?v=20260917.frame-runtime-barrier-v1',
+        seasons: 'css/premium-mua-xuan.css?v=20260924.autumn-premium-v1',
         nationalDay: 'css/quoc-khanh-pet.css?v=20260917.frame-runtime-barrier-v1',
         nyx: 'css/nyx-than-thoai.css?v=20260917.frame-runtime-barrier-v1',
         aether: 'css/aether-than-thoai.css?v=20260917.aether-frame-v1',
@@ -93,12 +93,12 @@
     const SCRIPT = Object.freeze({
         themeItems: 'js/theme-items.js?v=20260924.decor-pet-integrity-v1',
         effectItems: 'js/effect-items.js?v=4.2',
-        petItems: 'js/pet-items.js?v=20260919.partial-fix1',
+        petItems: 'js/pet-items.js?v=20260924.autumn-premium-v1',
         petInteractions: 'js/pet-interactions.js?v=20260924.decor-pet-integrity-v1',
         musicManager: 'js/music-manager.js?v=20260910.music-reliability-v3',
         storeManager: 'js/store-manager.js?v=20260923.store-integrity-v1',
 
-        luxuryStore: 'js/luxury-store.js?v=20260923.luxury-integrity-v1',
+        luxuryStore: 'js/luxury-store.js?v=20260924.autumn-premium-v1',
         collections: 'js/store-collections.js?v=20260923.store-integrity-v1',
 
         royalBall: 'js/royal-ball.js?v=20260924.event-integrity-v1',
@@ -652,7 +652,7 @@ html[data-app-role="student"] body .dashboard > .content > :is(
             result.add(CSS.weather);
         }
 
-        if (/(premium_mua_xuan|mua_xuan|mua_ha|summer|spring)/.test(id)) {
+        if (/(premium_mua_xuan|mua_xuan|mua_ha|premium_mua_thu|mua_thu|autumn|summer|spring)/.test(id)) {
             result.add(CSS.seasons);
         }
 
@@ -1082,6 +1082,7 @@ html[data-app-role="student"] body .dashboard > .content > :is(
     const LUXURY_ITEM_IDS = new Set([
         'pet_luxury_mua_xuan',
         'pet_luxury_mua_ha',
+        'pet_luxury_mua_thu',
         'pet_quoc_khanh_1',
         'pet_mythic_nyx_1',
         'pet_mythic_aether_1',

@@ -34,6 +34,7 @@
     const LUXURY_ITEM_IDS = [
         'pet_luxury_mua_xuan',
         'pet_luxury_mua_ha',
+        'pet_luxury_mua_thu',
         'pet_quoc_khanh_1',
         'pet_mythic_nyx_1',
         'pet_mythic_aether_1',
@@ -1036,6 +1037,55 @@
         ],
 
         // Kỹ năng click do LuxurySummerRuntime tự quản lý.
+        disableClickEffect: true
+    };
+
+
+    // ========================================================
+    // PREMIUM MÙA THU · XÍCH DIỆP HOÀNG HÔN
+    // - Bán 14.000 Coin.
+    // - Tag ảnh: assets/Premium/Bốn mùa/tag3.png
+    // - Nhân vật: assets/Premium/Bốn mùa/thu_nhan_vat3.png
+    // - Card riêng nhưng GIỮ NGUYÊN BỐ CỤC Luxury Store.
+    // - Full suite độc lập; KHÔNG ghi active_theme / active_effect.
+    // ========================================================
+    const AUTUMN_PREMIUM_PET = {
+        id: 'pet_luxury_mua_thu',
+        name: 'Thu Thần · Xích Diệp Hoàng Hôn',
+        type: 'pet',
+        price: 14000,
+        isNonCoin: false,
+        luxuryOnly: true,
+        eventOnly: false,
+
+        tag: 'Mùa thu',
+        tags: [
+            'Mùa thu',
+            'Bốn mùa',
+            'Premium'
+        ],
+
+        image: 'assets/Premium/Bốn mùa/thu_nhan_vat3.png',
+        asset: 'assets/Premium/Bốn mùa/thu_nhan_vat3.png',
+        value: 'assets/Premium/Bốn mùa/thu_nhan_vat3.png',
+
+        luxuryTagImage:
+            'assets/Premium/Bốn mùa/tag3.png',
+
+        isIcon: false,
+
+        petEffect: 'premium-autumn-equinox-magic',
+        premiumSuite: 'autumn-equinox-amber-court-v1',
+        premiumLayers: [
+            'world-effect',
+            'interface',
+            'pet-realm',
+            'global-click',
+            'pet-skill',
+            'ultimate'
+        ],
+
+        // Toàn bộ click/ultimate do LuxuryAutumnRuntime quản lý.
         disableClickEffect: true
     };
 
@@ -2571,6 +2621,540 @@
         }
     };
 
+
+
+    // ========================================================
+    // MÙA THU · XÍCH DIỆP HOÀNG HÔN — FULL WEB RUNTIME
+    // Namespace chỉ dùng autumn-equinox-* / aev1-*.
+    // Không gọi ThemeManager / EffectManager, không ghi active_theme/effect.
+    // Khi gỡ pet, theme/effect đang có bên dưới tự hiện lại bình thường.
+    // ========================================================
+    const LuxuryAutumnRuntime = {
+        activePetElement: null,
+        petClickHandler: null,
+        globalClickHandler: null,
+        observer: null,
+        observerTimer: null,
+        timers: new Set(),
+        skillLocked: false,
+
+        setTimer(callback, delay) {
+            const timer = window.setTimeout(() => {
+                this.timers.delete(timer);
+                callback();
+            }, delay);
+            this.timers.add(timer);
+            return timer;
+        },
+
+        clearTimers() {
+            this.timers.forEach(timer => window.clearTimeout(timer));
+            this.timers.clear();
+            if (this.observerTimer) {
+                window.clearTimeout(this.observerTimer);
+                this.observerTimer = null;
+            }
+        },
+
+        getPet() {
+            return document.querySelector(
+                '#virtual-pet-container #virtual-pet-img.premium-autumn-equinox-magic'
+            );
+        },
+
+        clear() {
+            this.clearTimers();
+
+            if (this.activePetElement && this.petClickHandler) {
+                this.activePetElement.removeEventListener(
+                    'click',
+                    this.petClickHandler
+                );
+            }
+
+            if (this.globalClickHandler) {
+                document.removeEventListener(
+                    'click',
+                    this.globalClickHandler,
+                    true
+                );
+            }
+
+            if (this.observer) {
+                this.observer.disconnect();
+                this.observer = null;
+            }
+
+            this.activePetElement = null;
+            this.petClickHandler = null;
+            this.globalClickHandler = null;
+            this.skillLocked = false;
+
+            document.documentElement.classList.remove(
+                'autumn-equinox-equipped',
+                'autumn-equinox-skill-active'
+            );
+
+            document.body?.classList.remove(
+                'theme-autumn-equinox-stage'
+            );
+
+            const container =
+                document.getElementById('virtual-pet-container');
+
+            container?.classList.remove(
+                'pet-autumn-equinox-stage',
+                'autumn-equinox-awakening',
+                'autumn-equinox-casting'
+            );
+
+            document
+                .querySelectorAll(
+                    '.autumn-equinox-world,' +
+                    '.autumn-equinox-ui-frame,' +
+                    '.autumn-equinox-ultimate,' +
+                    '.autumn-equinox-click-burst,' +
+                    '.autumn-equinox-dialogue,' +
+                    '.autumn-equinox-pet-realm'
+                )
+                .forEach(node => node.remove());
+        },
+
+        promoteStylesheetPriority() {
+            const head = document.head;
+            if (!head) return;
+
+            document
+                .querySelectorAll('link[rel="stylesheet"], style')
+                .forEach(node => {
+                    const href =
+                        node instanceof HTMLLinkElement
+                            ? String(node.href || '')
+                            : '';
+
+                    const isSeasonStylesheet =
+                        /premium-mua-xuan|premium-bon-mua/i.test(href) ||
+                        (
+                            node instanceof HTMLStyleElement &&
+                            String(node.textContent || '').includes(
+                                '.autumn-equinox-equipped'
+                            )
+                        );
+
+                    if (isSeasonStylesheet && node.parentNode === head) {
+                        head.appendChild(node);
+                    }
+                });
+        },
+
+        createWorld() {
+            document
+                .querySelectorAll('.autumn-equinox-world')
+                .forEach(node => node.remove());
+
+            const world = document.createElement('div');
+            world.className = 'autumn-equinox-world';
+            world.setAttribute('aria-hidden', 'true');
+            world.innerHTML = `
+                <div class="aev1-world-wash"></div>
+                <div class="aev1-moon-disc"><i></i></div>
+                <div class="aev1-horizon"></div>
+                <div class="aev1-mist mist-a"></div>
+                <div class="aev1-mist mist-b"></div>
+                <div class="aev1-leaf-field"></div>
+                <div class="aev1-ember-field"></div>
+            `;
+
+            const leafField = world.querySelector('.aev1-leaf-field');
+            const emberField = world.querySelector('.aev1-ember-field');
+            const reduced = window.matchMedia?.(
+                '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+            ).matches;
+
+            const leafCount = getLuxuryQualityCount(reduced ? 14 : 34);
+            const leafGlyphs = ['◆', '◇', '✦', '❖'];
+
+            for (let index = 0; index < leafCount; index++) {
+                const leaf = document.createElement('span');
+                leaf.className = 'aev1-world-leaf';
+                leaf.textContent = leafGlyphs[index % leafGlyphs.length];
+                leaf.style.setProperty('--aev1-x', `${(index * 37 + 9) % 101}%`);
+                leaf.style.setProperty('--aev1-delay', `${-(index % 17) * .64}s`);
+                leaf.style.setProperty('--aev1-duration', `${8 + (index % 7) * 1.05}s`);
+                leaf.style.setProperty('--aev1-size', `${7 + (index % 6) * 2}px`);
+                leaf.style.setProperty('--aev1-drift', `${-46 + (index % 9) * 12}px`);
+                leafField?.appendChild(leaf);
+            }
+
+            const emberCount = getLuxuryQualityCount(reduced ? 10 : 24);
+            for (let index = 0; index < emberCount; index++) {
+                const ember = document.createElement('i');
+                ember.className = 'aev1-world-ember';
+                ember.style.setProperty('--aev1-ex', `${(index * 53 + 5) % 98}%`);
+                ember.style.setProperty('--aev1-ey', `${(index * 71 + 13) % 93}%`);
+                ember.style.setProperty('--aev1-edelay', `${-(index % 11) * .43}s`);
+                emberField?.appendChild(ember);
+            }
+
+            document.body.appendChild(world);
+            requestAnimationFrame(() => world.classList.add('is-active'));
+        },
+
+        createInterface() {
+            document
+                .querySelectorAll('.autumn-equinox-ui-frame')
+                .forEach(node => node.remove());
+
+            const frame = document.createElement('div');
+            frame.className = 'autumn-equinox-ui-frame';
+            frame.setAttribute('aria-hidden', 'true');
+            frame.innerHTML = `
+                <div class="aev1-ui-corner corner-tl">❖</div>
+                <div class="aev1-ui-corner corner-tr">❖</div>
+                <div class="aev1-ui-corner corner-bl">❖</div>
+                <div class="aev1-ui-corner corner-br">❖</div>
+                <div class="aev1-ui-rail rail-left"><i></i><b>◆</b><i></i></div>
+                <div class="aev1-ui-rail rail-right"><i></i><b>◆</b><i></i></div>
+                <div class="aev1-ui-seal">
+                    <small>AUTUMN EQUINOX</small>
+                    <strong>XÍCH DIỆP · HOÀNG HÔN</strong>
+                </div>
+            `;
+            document.body.appendChild(frame);
+            requestAnimationFrame(() => frame.classList.add('is-mounted'));
+        },
+
+        createPetRealm() {
+            const container =
+                document.getElementById('virtual-pet-container');
+            const pet = this.getPet();
+
+            if (!container || !pet) return false;
+
+            container
+                .querySelectorAll('.autumn-equinox-pet-realm')
+                .forEach(node => node.remove());
+
+            container.classList.add(
+                'pet-autumn-equinox-stage',
+                'autumn-equinox-awakening'
+            );
+
+            pet.setAttribute('draggable', 'false');
+
+            const realm = document.createElement('div');
+            realm.className = 'autumn-equinox-pet-realm';
+            realm.setAttribute('aria-hidden', 'true');
+            realm.innerHTML = `
+                <span class="aev1-pet-backglow"></span>
+                <span class="aev1-pet-ring ring-a"></span>
+                <span class="aev1-pet-ring ring-b"></span>
+                <span class="aev1-pet-branch branch-a"></span>
+                <span class="aev1-pet-branch branch-b"></span>
+                <span class="aev1-pet-leaves"></span>
+                <span class="aev1-pet-ground"></span>
+            `;
+
+            const leafHost = realm.querySelector('.aev1-pet-leaves');
+            for (let index = 0; index < 14; index++) {
+                const leaf = document.createElement('i');
+                leaf.style.setProperty('--i', String(index));
+                leafHost?.appendChild(leaf);
+            }
+
+            container.insertBefore(realm, pet);
+
+            this.setTimer(() => {
+                container.classList.remove('autumn-equinox-awakening');
+            }, 1500);
+
+            return true;
+        },
+
+        createClickBurst(x, y) {
+            const burst = document.createElement('div');
+            burst.className = 'autumn-equinox-click-burst';
+            burst.style.left = `${x}px`;
+            burst.style.top = `${y}px`;
+            burst.setAttribute('aria-hidden', 'true');
+
+            for (let index = 0; index < 9; index++) {
+                const leaf = document.createElement('i');
+                leaf.style.setProperty('--i', String(index));
+                burst.appendChild(leaf);
+            }
+
+            document.body.appendChild(burst);
+            this.setTimer(() => burst.remove(), 950);
+        },
+
+        installGlobalClick() {
+            if (this.globalClickHandler) {
+                document.removeEventListener(
+                    'click',
+                    this.globalClickHandler,
+                    true
+                );
+            }
+
+            this.globalClickHandler = event => {
+                if (
+                    !document.documentElement.classList.contains(
+                        'autumn-equinox-equipped'
+                    )
+                ) {
+                    return;
+                }
+
+                const target = event.target;
+                if (
+                    target instanceof Element &&
+                    target.closest(
+                        '.autumn-equinox-ultimate, #virtual-pet-img.premium-autumn-equinox-magic'
+                    )
+                ) {
+                    return;
+                }
+
+                this.createClickBurst(event.clientX, event.clientY);
+            };
+
+            document.addEventListener(
+                'click',
+                this.globalClickHandler,
+                true
+            );
+        },
+
+        createUltimate(originX = window.innerWidth / 2, originY = window.innerHeight / 2) {
+            document
+                .querySelectorAll('.autumn-equinox-ultimate')
+                .forEach(node => node.remove());
+
+            const ultimate = document.createElement('div');
+            ultimate.className = 'autumn-equinox-ultimate';
+            ultimate.style.setProperty('--aev1-ox', `${originX}px`);
+            ultimate.style.setProperty('--aev1-oy', `${originY}px`);
+            ultimate.setAttribute('aria-hidden', 'true');
+            ultimate.innerHTML = `
+                <div class="aev1-ult-flash"></div>
+                <div class="aev1-ult-vignette"></div>
+                <div class="aev1-ult-moon"><i></i><b></b></div>
+                <div class="aev1-ult-vortex"></div>
+                <div class="aev1-ult-leaves"></div>
+                <div class="aev1-ult-title">
+                    <small>THU PHÂN · EQUINOX AWAKENING</small>
+                    <strong>XÍCH DIỆP HOÀNG HÔN</strong>
+                    <em>Vạn diệp quy phong · kim thu nhập mộng</em>
+                </div>
+            `;
+
+            const leafHost = ultimate.querySelector('.aev1-ult-leaves');
+            for (let index = 0; index < 36; index++) {
+                const leaf = document.createElement('i');
+                leaf.style.setProperty('--i', String(index));
+                leafHost?.appendChild(leaf);
+            }
+
+            document.body.appendChild(ultimate);
+            document.documentElement.classList.add(
+                'autumn-equinox-skill-active'
+            );
+
+            requestAnimationFrame(() => ultimate.classList.add('is-active'));
+
+            this.setTimer(() => ultimate.classList.add('is-climax'), 900);
+            this.setTimer(() => ultimate.classList.add('is-ending'), 3600);
+            this.setTimer(() => {
+                ultimate.remove();
+                document.documentElement.classList.remove(
+                    'autumn-equinox-skill-active'
+                );
+            }, 5000);
+        },
+
+        installPetSkill() {
+            const pet = this.getPet();
+            const container =
+                document.getElementById('virtual-pet-container');
+
+            if (!pet || !container) return false;
+
+            if (this.activePetElement && this.petClickHandler) {
+                this.activePetElement.removeEventListener(
+                    'click',
+                    this.petClickHandler
+                );
+            }
+
+            this.activePetElement = pet;
+            this.petClickHandler = event => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (this.skillLocked) return;
+                this.skillLocked = true;
+
+                const rect = pet.getBoundingClientRect();
+                const originX = rect.left + rect.width / 2;
+                const originY = rect.top + rect.height / 2;
+
+                container.classList.add('autumn-equinox-casting');
+
+                const dialogue = document.createElement('div');
+                dialogue.className = 'autumn-equinox-dialogue ui-theme-immune';
+                dialogue.dataset.themeImmune = 'true';
+                dialogue.innerHTML = `
+                    <small>◆ THU PHÂN THỨC TỈNH ◆</small>
+                    <strong>XÍCH DIỆP · HOÀNG HÔN</strong>
+                `;
+                container.appendChild(dialogue);
+
+                this.createUltimate(originX, originY);
+
+                this.setTimer(() => {
+                    container.classList.remove('autumn-equinox-casting');
+                    dialogue.remove();
+                }, 4200);
+
+                this.setTimer(() => {
+                    this.skillLocked = false;
+                }, 5200);
+            };
+
+            pet.addEventListener('click', this.petClickHandler);
+            return true;
+        },
+
+        repair() {
+            if (
+                !document.documentElement.classList.contains(
+                    'autumn-equinox-equipped'
+                )
+            ) {
+                return false;
+            }
+
+            const pet = this.getPet();
+            if (!pet) return false;
+
+            this.promoteStylesheetPriority();
+
+            if (!document.querySelector('.autumn-equinox-world')) {
+                this.createWorld();
+            }
+
+            if (!document.querySelector('.autumn-equinox-ui-frame')) {
+                this.createInterface();
+            }
+
+            if (
+                !document.querySelector(
+                    '#virtual-pet-container .autumn-equinox-pet-realm'
+                )
+            ) {
+                this.createPetRealm();
+            }
+
+            if (this.activePetElement !== pet || !this.petClickHandler) {
+                this.installPetSkill();
+            }
+
+            if (!this.globalClickHandler) {
+                this.installGlobalClick();
+            }
+
+            return true;
+        },
+
+        installObserver() {
+            const container =
+                document.getElementById('virtual-pet-container');
+            if (!container) return;
+
+            if (this.observer) this.observer.disconnect();
+
+            this.observer = new MutationObserver(() => {
+                if (this.observerTimer) {
+                    window.clearTimeout(this.observerTimer);
+                }
+
+                this.observerTimer = window.setTimeout(() => {
+                    this.observerTimer = null;
+                    const pet = this.getPet();
+                    const activePetId = localStorage.getItem('active_pet');
+
+                    if (
+                        !pet &&
+                        activePetId !== 'pet_luxury_mua_thu'
+                    ) {
+                        this.clear();
+                        return;
+                    }
+
+                    if (pet) this.repair();
+                }, 140);
+            });
+
+            this.observer.observe(container, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                attributeFilter: ['class', 'style']
+            });
+        },
+
+        mount() {
+            this.clear();
+
+            const pet = this.getPet();
+            if (!pet) return false;
+
+            document.documentElement.classList.add(
+                'autumn-equinox-equipped'
+            );
+            document.body?.classList.add(
+                'theme-autumn-equinox-stage'
+            );
+
+            this.promoteStylesheetPriority();
+            this.createWorld();
+            this.createInterface();
+            this.createPetRealm();
+            this.installGlobalClick();
+            this.installPetSkill();
+            this.installObserver();
+
+            [120, 420, 900, 1600].forEach(delay => {
+                this.setTimer(() => this.repair(), delay);
+            });
+
+            return true;
+        },
+
+        restore(attempt = 0) {
+            const activePetId = localStorage.getItem('active_pet');
+            const hasAutumnPet = !!this.getPet();
+
+            if (
+                activePetId !== 'pet_luxury_mua_thu' &&
+                !hasAutumnPet
+            ) {
+                return false;
+            }
+
+            if (this.mount()) return true;
+
+            if (attempt < 24) {
+                this.setTimer(
+                    () => this.restore(attempt + 1),
+                    160 + attempt * 35
+                );
+            }
+
+            return false;
+        }
+    };
 
 
     // ========================================================
@@ -11644,6 +12228,15 @@
                 }
 
                 try {
+                    LuxuryAutumnRuntime.clear();
+                } catch (error) {
+                    console.warn(
+                        '[LuxuryStore] Không thể dọn runtime Thu Thần:',
+                        error
+                    );
+                }
+
+                try {
                     LuxuryNationalDayRuntime.clear();
                 } catch (error) {
                     console.warn(
@@ -11752,6 +12345,13 @@
                     petData?.petEffect ===
                     'premium-summer-solstice-magic';
 
+
+                const isLuxuryAutumn =
+                    petData?.id ===
+                    'pet_luxury_mua_thu' ||
+                    petData?.petEffect ===
+                    'premium-autumn-equinox-magic';
+
                 const isNationalDay =
                     petData?.id ===
                     'pet_quoc_khanh_1' ||
@@ -11853,6 +12453,29 @@
                             } catch (error) {
                                 console.error(
                                     '[LuxuryStore] Lỗi mount Hạ Thần:',
+                                    error
+                                );
+                            }
+                        }
+                    );
+
+                    return;
+                }
+
+
+                /*
+                 * THU THẦN · XÍCH DIỆP HOÀNG HÔN:
+                 * Full suite riêng: world + interface + pet realm
+                 * + global click + pet skill + fullscreen ultimate.
+                 */
+                if (isLuxuryAutumn) {
+                    requestAnimationFrame(
+                        () => {
+                            try {
+                                LuxuryAutumnRuntime.mount();
+                            } catch (error) {
+                                console.error(
+                                    '[LuxuryStore] Lỗi mount Thu Thần:',
                                     error
                                 );
                             }
@@ -12146,6 +12769,11 @@
                     String(itemId) ===
                     'pet_luxury_mua_ha';
 
+
+                const isLuxuryAutumn =
+                    String(itemId) ===
+                    'pet_luxury_mua_thu';
+
                 const isNationalDay =
                     String(itemId) ===
                     'pet_quoc_khanh_1';
@@ -12197,6 +12825,11 @@
 
                 if (isLuxurySummer) {
                     LuxurySummerRuntime.clear();
+                }
+
+
+                if (isLuxuryAutumn) {
+                    LuxuryAutumnRuntime.clear();
                 }
 
                 if (isMythicNyx) {
@@ -12716,6 +13349,7 @@ if (isNationalDay) {
         [
             LuxurySpringRuntime,
             LuxurySummerRuntime,
+            LuxuryAutumnRuntime,
             LuxuryNationalDayRuntime,
             LuxuryNyxRuntime,
             LuxuryAetherRuntime,
@@ -13303,6 +13937,7 @@ if (isNationalDay) {
         [
             SPRING_PREMIUM_PET,
             SUMMER_PREMIUM_PET,
+            AUTUMN_PREMIUM_PET,
             NATIONAL_DAY_PREMIUM_PET,
             MYTHIC_NYX_PET,
             MYTHIC_AETHER_PET,
@@ -13692,6 +14327,23 @@ if (isNationalDay) {
 
                 if (!equippedLuxurySummer) {
                     LuxurySummerRuntime.clear();
+                }
+
+
+                const equippedLuxuryAutumn =
+                    Object
+                        .values(
+                            luxuryInventoryState || {}
+                        )
+                        .find(
+                            item =>
+                                String(item?.id) ===
+                                'pet_luxury_mua_thu' &&
+                                item?.isEquipped === true
+                        );
+
+                if (!equippedLuxuryAutumn) {
+                    LuxuryAutumnRuntime.clear();
                 }
 
                 const equippedMythicNyx =
@@ -15072,6 +15724,132 @@ if (isNationalDay) {
                         </div>
 
                         ${actionHTML}
+                    </div>
+                </article>
+            `;
+        }
+
+
+        // ====================================================
+        // CARD RIÊNG MÙA THU · V1
+        // Giữ đúng layout Luxury: article 275x430 -> visual full card
+        // -> tag + nhân vật -> details overlay khi hover/focus.
+        // ====================================================
+        if (item.id === 'pet_luxury_mua_thu') {
+            const tagImage = escapeHTML(
+                item.luxuryTagImage ||
+                'assets/Premium/Bốn mùa/tag3.png'
+            );
+
+            const formattedPrice =
+                Number(item.price || 14000)
+                    .toLocaleString('vi-VN');
+
+            let actionHTML = '';
+
+            if (!isOwned) {
+                actionHTML = `
+                    <button
+                        type="button"
+                        class="autumn-premium-card-action"
+                        onclick="window.LuxuryStore.buyItemSafely('${id}')"
+                    >
+                        🪙 Mua ${formattedPrice} Coin
+                    </button>
+                `;
+            } else if (isEquipped) {
+                actionHTML = `
+                    <button
+                        type="button"
+                        class="autumn-premium-card-action is-equipped"
+                        onclick="StoreManager.unapplyItem('${id}')"
+                    >
+                        ✕ Gỡ
+                    </button>
+                `;
+            } else {
+                actionHTML = `
+                    <button
+                        type="button"
+                        class="autumn-premium-card-action"
+                        onclick="StoreManager.applyItem('${id}')"
+                    >
+                        🍁 Sử dụng
+                    </button>
+                `;
+            }
+
+            return `
+                <article
+                    class="
+                        luxury-product-card
+                        autumn-premium-card
+                        store-theme-locked
+                        ui-theme-immune
+                    "
+                    data-item-id="${id}"
+                    data-special-card="autumn-premium-pet"
+                    data-theme-immune="true"
+                    data-luxury-style="autumn"
+                    tabindex="0"
+                >
+                    <div class="autumn-premium-card__visual">
+                        <div class="autumn-card-sky"></div>
+                        <div class="autumn-card-moon"><i></i></div>
+                        <div class="autumn-card-horizon"></div>
+                        <div class="autumn-card-mist mist-a"></div>
+                        <div class="autumn-card-mist mist-b"></div>
+                        <div class="autumn-card-branch branch-a"></div>
+                        <div class="autumn-card-branch branch-b"></div>
+
+                        <div class="autumn-card-leaf-field" aria-hidden="true">
+                            <i style="--i:0"></i><i style="--i:1"></i>
+                            <i style="--i:2"></i><i style="--i:3"></i>
+                            <i style="--i:4"></i><i style="--i:5"></i>
+                            <i style="--i:6"></i><i style="--i:7"></i>
+                            <i style="--i:8"></i><i style="--i:9"></i>
+                            <i style="--i:10"></i><i style="--i:11"></i>
+                        </div>
+
+                        <div
+                            class="autumn-premium-card-tag-shell"
+                            aria-hidden="true"
+                        >
+                            <span class="autumn-card-tag-halo"></span>
+                            <img
+                                src="${tagImage}"
+                                alt="Mùa thu"
+                                class="autumn-premium-card-tag-art"
+                                draggable="false"
+                            >
+                            <span class="autumn-card-tag-glint"></span>
+                        </div>
+
+                        <img
+                            src="${image}"
+                            alt="${name}"
+                            class="autumn-premium-card-character"
+                            draggable="false"
+                        >
+
+                        <div class="autumn-premium-details">
+                            <div class="autumn-premium-type">
+                                🍁 THÚ CƯNG PREMIUM · MÙA THU
+                            </div>
+
+                            <h3>${name}</h3>
+
+                            <p class="autumn-premium-description">
+                                Thần vực thu phân với xích diệp,
+                                ánh hổ phách, sương chiều và nguyệt kim.
+                            </p>
+
+                            <div class="autumn-premium-price">
+                                🪙 Giá bán: ${formattedPrice} Coin
+                            </div>
+
+                            ${actionHTML}
+                        </div>
                     </div>
                 </article>
             `;
@@ -16688,6 +17466,32 @@ if (isNationalDay) {
             return true;
         },
 
+
+        // Test nhanh Mùa Thu — không cấp quyền sở hữu.
+        previewAutumn: () => {
+            if (
+                typeof PetManager !== 'undefined' &&
+                typeof PetManager.spawnPet === 'function'
+            ) {
+                PetManager.spawnPet(AUTUMN_PREMIUM_PET);
+            }
+        },
+
+        restoreAutumn: () => {
+            return LuxuryAutumnRuntime.restore();
+        },
+
+        autumnUltimateTest: () => {
+            const pet = LuxuryAutumnRuntime.getPet();
+            if (!pet) return false;
+            const rect = pet.getBoundingClientRect();
+            LuxuryAutumnRuntime.createUltimate(
+                rect.left + rect.width / 2,
+                rect.top + rect.height / 2
+            );
+            return true;
+        },
+
         // Test nhanh Lord of the Mysteries · Klein — không cấp quyền sở hữu.
         previewLotmKlein: () => {
             if (
@@ -16831,6 +17635,10 @@ if (isNationalDay) {
             LuxurySummerRuntime.clear();
         },
 
+        clearAutumn: () => {
+            LuxuryAutumnRuntime.clear();
+        },
+
         clearNyx: () => {
             LuxuryNyxRuntime.clear();
         },
@@ -16918,7 +17726,7 @@ if (isNationalDay) {
     // ========================================================
     // KHỞI ĐỘNG
     // ========================================================
-    [LuxurySpringRuntime, LuxurySummerRuntime, LuxuryNationalDayRuntime,
+    [LuxurySpringRuntime, LuxurySummerRuntime, LuxuryAutumnRuntime, LuxuryNationalDayRuntime,
         LuxuryNyxRuntime, LuxuryAetherRuntime, LuxuryTamonBSideRuntime,
         LuxuryTamonPinkStaticRuntime, LuxuryLotmKleinRuntime, LuxuryCamCoCamMongRuntime,
         LuxuryMidAutumnRuntime, LuxuryLinkClickChengRuntime,
@@ -16952,6 +17760,7 @@ if (isNationalDay) {
         // Rehydrate Summer V2 even when active_pet was restored before
         // luxury-store.js finished installing its spawn hook.
         LuxurySummerRuntime.restore();
+        LuxuryAutumnRuntime.restore();
         LuxuryMidAutumnRuntime.restore();
         LuxuryLinkClickChengRuntime.restore();
         LuxuryStarryNightRuntime.restore();
