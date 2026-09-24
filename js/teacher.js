@@ -3546,7 +3546,6 @@ window.onload = async function () {
         // Chỉ cập nhật giao diện nhỏ của Lộ trình học tập (Roadmap) nếu đang mở
         if (document.getElementById('studentRoadmapBody')) renderStudentRoadmap();
         if (document.getElementById('teacherRoadmapBody')) renderTeacherRoadmap();
-        if (startupLoader) startupLoader.markReady('teacher-roadmap-settings');
     });
 
     // 2. Chỉ lắng nghe khi bài tập có sự thay đổi cấu hình
@@ -3585,6 +3584,7 @@ window.onload = async function () {
         if (document.getElementById('passingGradeSetting')) document.getElementById('passingGradeSetting').value = val;
         window.currentPassingGrade = parseFloat(val);
         if (document.getElementById('teacherRoadmapBody')) renderTeacherRoadmap();
+        if (startupLoader) startupLoader.markReady('teacher-roadmap-settings');
     });
 
     listenFirebase(db.ref('game_settings'), 'value', (snapshot) => {
