@@ -37,6 +37,7 @@
         'pet_quoc_khanh_1',
         'pet_mythic_nyx_1',
         'pet_mythic_aether_1',
+        'pet_dem_day_sao_1',
         'pet_lotm_klein_event_1',
         'pet_cam_co_cam_mong_1',
         'pet_tamon_b_side_1',
@@ -2668,6 +2669,52 @@
 
 
     // ========================================================
+    // ĐÊM ĐẦY SAO · VAN GOGH INSPIRED — PREMIUM PET
+    // - Bán 15.000 Coin
+    // - Tag ảnh: assets/Premium/đêm đầy sao/tag.png
+    // - Nhân vật: assets/Premium/đêm đầy sao/nam_nham_vat1.png
+    // - Card riêng nhưng GIỮ NGUYÊN bố cục Luxury chuẩn
+    // - Full-web suite độc lập; không ghi đè active_theme / active_effect
+    // - MỘT CSS: css/dem-day-sao.css
+    // ========================================================
+    const STARRY_NIGHT_PREMIUM_PET = {
+        id: 'pet_dem_day_sao_1',
+        name: 'Tinh Dạ · Lữ Khách Đêm Sao',
+        type: 'pet',
+        price: 15000,
+        isNonCoin: false,
+        luxuryOnly: true,
+        eventOnly: false,
+
+        tag: 'Đêm đầy sao',
+        tags: [
+            'Đêm đầy sao',
+            'Van Gogh',
+            'Tinh dạ',
+            'Premium'
+        ],
+
+        image: 'assets/Premium/đêm đầy sao/nam_nham_vat1.png',
+        asset: 'assets/Premium/đêm đầy sao/nam_nham_vat1.png',
+        value: 'assets/Premium/đêm đầy sao/nam_nham_vat1.png',
+        luxuryTagImage: 'assets/Premium/đêm đầy sao/tag.png',
+        isIcon: false,
+
+        petEffect: 'starry-night-van-gogh-magic',
+        premiumSuite: 'starry-night-canvas-v1',
+        premiumLayers: [
+            'world-effect',
+            'interface',
+            'pet-realm',
+            'global-click',
+            'ultimate'
+        ],
+        disableClickEffect: true
+    };
+
+
+
+    // ========================================================
     // LORD OF THE MYSTERIES · KLEIN MORETTI — EVENT PREMIUM PET
     // - KHÔNG bán bằng Coin.
     // - Chỉ nhận từ sự kiện Lord of the Mysteries.
@@ -4590,6 +4637,7 @@
     }
 
     function syncLinkClickChengRuntimeFromDom() {
+        if (window.isStudentStoreGameAccessEnabled?.() === false) return null;
         const container =
             document.getElementById('virtual-pet-container');
 
@@ -5710,6 +5758,7 @@
     let lotmKleinAutoSyncQueued = false;
 
     function syncLotmKleinRuntimeFromDom() {
+        if (window.isStudentStoreGameAccessEnabled?.() === false) return null;
         const pet = document.querySelector(
             '#virtual-pet-container #virtual-pet-img.lotm-klein-mystery-magic, ' +
             '#virtual-pet-container #virtual-pet-img.lotm-klein-pet'
@@ -9164,6 +9213,651 @@
         }
     };
 
+
+    // ========================================================
+    // ĐÊM ĐẦY SAO · ONE-CSS RUNTIME GUARD
+    // ========================================================
+    function ensureStarryNightStylesheet() {
+        const existing = Array.from(
+            document.querySelectorAll('link[rel="stylesheet"][href]')
+        ).find(link =>
+            /(?:^|\/)dem-day-sao(?:\(\d+\))?\.css(?:[?#].*)?$/i
+                .test(link.href || '')
+        );
+
+        if (existing) {
+            existing.id = existing.id || 'starry-night-premium-style';
+            return existing;
+        }
+
+        const byId = document.getElementById('starry-night-premium-style');
+        if (byId) return byId;
+
+        let href = '';
+
+        if (window.STARRY_NIGHT_CSS_PATH) {
+            href = String(window.STARRY_NIGHT_CSS_PATH).trim();
+        }
+
+        if (!href) {
+            const scripts = Array.from(document.scripts || []);
+            const ownScript = scripts
+                .slice()
+                .reverse()
+                .find(script =>
+                    /(?:^|\/)luxury-store(?:[^\/]*)?\.js(?:[?#].*)?$/i
+                        .test(script.src || '')
+                );
+
+            if (ownScript?.src) {
+                try {
+                    href = new URL(
+                        '../css/dem-day-sao.css?v=20260921.starry-night-v3',
+                        ownScript.src
+                    ).href;
+                } catch (_) {
+                    href = '';
+                }
+            }
+        }
+
+        if (!href) {
+            href = new URL(
+                'css/dem-day-sao.css?v=20260921.starry-night-v3',
+                document.baseURI
+            ).href;
+        }
+
+        const link = document.createElement('link');
+        link.id = 'starry-night-premium-style';
+        link.rel = 'stylesheet';
+        link.href = href;
+        link.dataset.starryNight = 'true';
+
+        link.addEventListener('error', () => {
+            console.error(
+                '[StarryNight] Không tải được CSS:',
+                link.href,
+                'Hãy đặt file tại css/dem-day-sao.css hoặc gán window.STARRY_NIGHT_CSS_PATH trước khi nạp luxury-store.js.'
+            );
+        }, { once: true });
+
+        document.head.appendChild(link);
+        return link;
+    }
+
+
+    // ========================================================
+    // ĐÊM ĐẦY SAO · FULL PREMIUM SUITE V1
+    // WORLD + INTERFACE + PET REALM + GLOBAL CLICK + ULTIMATE
+    // Không dùng ThemeManager/EffectManager, không ghi active_theme/effect.
+    // ========================================================
+    const LuxuryStarryNightRuntime = {
+        activePetElement: null,
+        petClickHandler: null,
+        documentPointerHandler: null,
+        observer: null,
+        skillLocked: false,
+        timers: new Set(),
+
+        setTimer(callback, delay) {
+            const timer = window.setTimeout(() => {
+                this.timers.delete(timer);
+                callback();
+            }, delay);
+            this.timers.add(timer);
+            return timer;
+        },
+
+        clearTimers() {
+            this.timers.forEach(timer => window.clearTimeout(timer));
+            this.timers.clear();
+        },
+
+        getPet() {
+            return document.querySelector(
+                '#virtual-pet-container #virtual-pet-img.starry-night-van-gogh-magic,' +
+                '#virtual-pet-container #virtual-pet-img.starry-night-avatar'
+            );
+        },
+
+        promoteStylesheetPriority() {
+            const link = ensureStarryNightStylesheet();
+            if (link?.parentNode === document.head) {
+                document.head.appendChild(link);
+            }
+            return link;
+        },
+
+        clear() {
+            this.clearTimers();
+
+            if (this.activePetElement && this.petClickHandler) {
+                this.activePetElement.removeEventListener(
+                    'click',
+                    this.petClickHandler
+                );
+            }
+
+            if (this.documentPointerHandler) {
+                document.removeEventListener(
+                    'pointerdown',
+                    this.documentPointerHandler,
+                    true
+                );
+            }
+
+            if (this.observer) {
+                this.observer.disconnect();
+                this.observer = null;
+            }
+
+            this.activePetElement = null;
+            this.petClickHandler = null;
+            this.documentPointerHandler = null;
+            this.skillLocked = false;
+
+            document.documentElement.classList.remove(
+                'starry-night-equipped',
+                'starry-night-skill-active'
+            );
+
+            document.body?.classList.remove(
+                'theme-starry-night-canvas'
+            );
+
+            const container = document.getElementById(
+                'virtual-pet-container'
+            );
+
+            container?.classList.remove(
+                'pet-starry-night-stage',
+                'starry-night-casting'
+            );
+
+            if (container?.dataset) {
+                delete container.dataset.starryNightClickLocked;
+            }
+
+            container
+                ?.querySelector('#virtual-pet-img')
+                ?.classList.remove('starry-night-avatar');
+
+            document
+                .querySelectorAll(
+                    '.snv-world,' +
+                    '.snv-ui-frame,' +
+                    '.snv-pet-realm,' +
+                    '.snv-page-click,' +
+                    '.snv-ultimate,' +
+                    '.snv-dialogue'
+                )
+                .forEach(element => element.remove());
+        },
+
+        createWorld() {
+            document
+                .querySelectorAll('.snv-world')
+                .forEach(element => element.remove());
+
+            const world = document.createElement('div');
+            world.className = 'snv-world';
+            world.setAttribute('aria-hidden', 'true');
+            world.innerHTML = `
+                <div class="snv-world-wash"></div>
+                <div class="snv-world-moon"></div>
+                <div class="snv-world-swirl swirl-a"></div>
+                <div class="snv-world-swirl swirl-b"></div>
+                <div class="snv-world-swirl swirl-c"></div>
+                <div class="snv-world-swirl swirl-d"></div>
+                <div class="snv-world-swirl swirl-e"></div>
+                <div class="snv-world-stars"></div>
+                <div class="snv-world-brushes"></div>
+                <div class="snv-world-ribbons"></div>
+                <div class="snv-world-cypress"></div>
+                <div class="snv-world-horizon"></div>
+            `;
+
+            const reduced = window.matchMedia?.(
+                '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+            ).matches;
+
+            const starField = world.querySelector('.snv-world-stars');
+            const brushField = world.querySelector('.snv-world-brushes');
+            const ribbonField = world.querySelector('.snv-world-ribbons');
+            const starCount = getLuxuryQualityCount(reduced ? 34 : 92);
+            const brushCount = getLuxuryQualityCount(reduced ? 16 : 34);
+            const ribbonCount = getLuxuryQualityCount(reduced ? 7 : 16);
+
+            for (let index = 0; index < starCount; index++) {
+                const star = document.createElement('span');
+                star.className = index % 9 === 0
+                    ? 'snv-world-star is-cross'
+                    : 'snv-world-star';
+                star.textContent = index % 9 === 0 ? '✦' : '';
+                star.style.setProperty('--snv-wx', `${(index * 47 + 7) % 98}%`);
+                star.style.setProperty('--snv-wy', `${(index * 71 + 11) % 92}%`);
+                star.style.setProperty('--snv-ws', `${1.2 + (index % 5) * .8}px`);
+                star.style.setProperty('--snv-wd', `${-(index % 13) * .31}s`);
+                star.style.setProperty('--snv-wt', `${3.6 + (index % 7) * .52}s`);
+                starField?.appendChild(star);
+            }
+
+            for (let index = 0; index < brushCount; index++) {
+                const brush = document.createElement('span');
+                brush.className = 'snv-world-brush';
+                brush.style.setProperty('--snv-bx', `${(index * 59 + 3) % 94}%`);
+                brush.style.setProperty('--snv-by', `${(index * 37 + 15) % 88}%`);
+                brush.style.setProperty('--snv-bw', `${110 + (index % 6) * 44}px`);
+                brush.style.setProperty('--snv-br', `${-24 + (index % 8) * 7}deg`);
+                brush.style.setProperty('--snv-bd', `${-(index % 7) * .4}s`);
+                brush.style.setProperty('--snv-bt', `${6 + (index % 5) * 1.1}s`);
+                brushField?.appendChild(brush);
+            }
+
+            for (let index = 0; index < ribbonCount; index++) {
+                const ribbon = document.createElement('span');
+                ribbon.className = 'snv-world-ribbon';
+                ribbon.style.setProperty('--snv-rx', `${(index * 33 + 12) % 92}%`);
+                ribbon.style.setProperty('--snv-ry', `${(index * 41 + 8) % 86}%`);
+                ribbon.style.setProperty('--snv-rw', `${180 + (index % 6) * 54}px`);
+                ribbon.style.setProperty('--snv-rr', `${-18 + (index % 7) * 6}deg`);
+                ribbon.style.setProperty('--snv-rd', `${-(index % 6) * .55}s`);
+                ribbon.style.setProperty('--snv-rt', `${8 + (index % 4) * 1.4}s`);
+                ribbonField?.appendChild(ribbon);
+            }
+
+            document.body.appendChild(world);
+            requestAnimationFrame(() => world.classList.add('is-mounted'));
+        },
+
+        createInterface() {
+            document
+                .querySelectorAll('.snv-ui-frame')
+                .forEach(element => element.remove());
+
+            const frame = document.createElement('div');
+            frame.className = 'snv-ui-frame';
+            frame.setAttribute('aria-hidden', 'true');
+            frame.innerHTML = `
+                <div class="snv-ui-title">
+                    <i>✦</i><span>ĐÊM ĐẦY SAO · STARRY NIGHT</span><i>✦</i>
+                </div>
+                <div class="snv-ui-side-rail left"></div>
+                <div class="snv-ui-side-rail right"></div>
+                <div class="snv-ui-bottom-seal"><i></i><span>VINCENT · STARRY NIGHT · TINH DẠ KHAI HỌA</span><i></i></div>
+                <span class="snv-ui-corner tl"></span>
+                <span class="snv-ui-corner tr"></span>
+                <span class="snv-ui-corner bl"></span>
+                <span class="snv-ui-corner br"></span>
+            `;
+
+            document.body.appendChild(frame);
+            requestAnimationFrame(() => frame.classList.add('is-mounted'));
+        },
+
+        createPetRealm() {
+            const container = document.getElementById('virtual-pet-container');
+            const pet = this.getPet();
+
+            if (!container || !pet) return false;
+
+            container
+                .querySelectorAll('.snv-pet-realm')
+                .forEach(element => element.remove());
+
+            container.classList.add('pet-starry-night-stage');
+            pet.classList.add('starry-night-avatar');
+            pet.setAttribute('draggable', 'false');
+
+            const realm = document.createElement('div');
+            realm.className = 'snv-pet-realm';
+            realm.setAttribute('aria-hidden', 'true');
+            realm.innerHTML = `
+                <span class="snv-pet-halo-outer"></span>
+                <span class="snv-pet-halo"></span>
+                <span class="snv-pet-swirl"></span>
+                <span class="snv-pet-swirl-b"></span>
+                <span class="snv-pet-moon"></span>
+                <span class="snv-pet-cypress"></span>
+                <div class="snv-pet-star-field"></div>
+                <span class="snv-pet-ground"></span>
+            `;
+
+            const starField = realm.querySelector('.snv-pet-star-field');
+            const starCount = getLuxuryQualityCount(30);
+
+            for (let index = 0; index < starCount; index++) {
+                const star = document.createElement('i');
+                star.className = 'snv-pet-star';
+                star.style.setProperty('--snv-psx', `${(index * 43 + 7) % 92}%`);
+                star.style.setProperty('--snv-psy', `${(index * 61 + 3) % 80}%`);
+                star.style.setProperty('--snv-pss', `${2 + (index % 4) * 1.2}px`);
+                star.style.setProperty('--snv-psd', `${-(index % 9) * .28}s`);
+                starField?.appendChild(star);
+            }
+
+            container.insertBefore(realm, pet);
+            return true;
+        },
+
+        createPageClick(x, y) {
+            if (!document.documentElement.classList.contains('starry-night-equipped')) {
+                return;
+            }
+
+            const click = document.createElement('div');
+            click.className = 'snv-page-click';
+            click.style.setProperty('--snv-click-x', `${x}px`);
+            click.style.setProperty('--snv-click-y', `${y}px`);
+            click.setAttribute('aria-hidden', 'true');
+            click.innerHTML = `
+                <span class="snv-page-click-core"></span>
+                <span class="snv-page-click-ring ring-a"></span>
+                <span class="snv-page-click-ring ring-b"></span>
+                <span class="snv-page-click-ring ring-c"></span>
+                <div class="snv-page-click-rays"></div>
+            `;
+
+            const rayField = click.querySelector('.snv-page-click-rays');
+            const rayCount = getLuxuryQualityCount(16);
+
+            for (let index = 0; index < rayCount; index++) {
+                const ray = document.createElement('i');
+                ray.style.setProperty(
+                    '--snv-click-angle',
+                    `${index * (360 / Math.max(1, rayCount))}deg`
+                );
+                ray.style.setProperty(
+                    '--snv-click-distance',
+                    `${38 + (index % 4) * 9}px`
+                );
+                rayField?.appendChild(ray);
+            }
+
+            document.body.appendChild(click);
+            requestAnimationFrame(() => click.classList.add('is-active'));
+            this.setTimer(() => click.remove(), 1280);
+        },
+
+        installGlobalClick() {
+            this.documentPointerHandler = event => {
+                if (event.button !== undefined && event.button !== 0) return;
+
+                const target = event.target;
+                if (
+                    target?.closest?.(
+                        '#virtual-pet-container,' +
+                        '.snv-page-click,' +
+                        '.snv-ultimate,' +
+                        '.snv-dialogue'
+                    )
+                ) {
+                    return;
+                }
+
+                this.createPageClick(
+                    Number(event.clientX) || 0,
+                    Number(event.clientY) || 0
+                );
+            };
+
+            document.addEventListener(
+                'pointerdown',
+                this.documentPointerHandler,
+                true
+            );
+        },
+
+        createUltimate(x, y) {
+            if (this.skillLocked) return false;
+            this.skillLocked = true;
+
+            document
+                .querySelectorAll('.snv-ultimate, .snv-dialogue')
+                .forEach(element => element.remove());
+
+            document.documentElement.classList.add('starry-night-skill-active');
+
+            const ultimate = document.createElement('div');
+            ultimate.className = 'snv-ultimate';
+            ultimate.style.setProperty('--snv-skill-x', `${x}px`);
+            ultimate.style.setProperty('--snv-skill-y', `${y}px`);
+            ultimate.setAttribute('aria-hidden', 'true');
+            ultimate.innerHTML = `
+                <div class="snv-ultimate-flash"></div>
+                <div class="snv-ultimate-sky"></div>
+                <div class="snv-ultimate-moon"></div>
+                <div class="snv-ultimate-rings"></div>
+                <div class="snv-ultimate-vortex"></div>
+                <div class="snv-ultimate-stars"></div>
+                <div class="snv-ultimate-strokes"></div>
+                <div class="snv-ultimate-cypress"></div>
+            `;
+
+            const starField = ultimate.querySelector('.snv-ultimate-stars');
+            const strokeField = ultimate.querySelector('.snv-ultimate-strokes');
+            const reduced = window.matchMedia?.(
+                '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+            ).matches;
+            const starCount = getLuxuryQualityCount(reduced ? 42 : 88);
+            const strokeCount = getLuxuryQualityCount(reduced ? 20 : 46);
+
+            for (let index = 0; index < starCount; index++) {
+                const star = document.createElement('i');
+                star.className = 'snv-ultimate-star';
+                star.textContent = index % 4 === 0 ? '✦' : '•';
+                star.style.setProperty('--snv-usx', `${(index * 47 + 5) % 96}%`);
+                star.style.setProperty('--snv-usy', `${(index * 67 + 7) % 88}%`);
+                star.style.setProperty('--snv-uss', `${9 + (index % 8) * 3.4}px`);
+                star.style.setProperty('--snv-usd', `${index * .018}s`);
+                starField?.appendChild(star);
+            }
+
+            for (let index = 0; index < strokeCount; index++) {
+                const stroke = document.createElement('i');
+                stroke.className = 'snv-ultimate-stroke';
+                stroke.style.setProperty('--snv-ubx', `${(index * 53 + 4) % 90}%`);
+                stroke.style.setProperty('--snv-uby', `${(index * 41 + 9) % 82}%`);
+                stroke.style.setProperty('--snv-ubw', `${150 + (index % 6) * 56}px`);
+                stroke.style.setProperty('--snv-ubr', `${-28 + (index % 10) * 7}deg`);
+                stroke.style.setProperty('--snv-ubd', `${index * .026}s`);
+                strokeField?.appendChild(stroke);
+            }
+
+            const dialogue = document.createElement('div');
+            dialogue.className = 'snv-dialogue';
+            dialogue.innerHTML = `
+                <small>ĐÊM ĐẦY SAO · TINH DẠ KHAI HỌA</small>
+                <strong>“Bầu trời đêm không im lặng — nó đang xoáy chuyển thành những vệt sáng sống động.”</strong>
+            `;
+
+            document.body.append(ultimate, dialogue);
+
+            requestAnimationFrame(() => {
+                ultimate.classList.add('is-active');
+                dialogue.classList.add('is-active');
+            });
+
+            this.setTimer(() => {
+                ultimate.classList.add('is-climax');
+            }, 820);
+
+            this.setTimer(() => {
+                ultimate.classList.add('is-ending');
+                dialogue.classList.add('is-ending');
+            }, 3400);
+
+            this.setTimer(() => {
+                ultimate.remove();
+                dialogue.remove();
+                document.documentElement.classList.remove('starry-night-skill-active');
+                this.skillLocked = false;
+            }, 4550);
+
+            return true;
+        },
+
+        installPetSkill() {
+            const container = document.getElementById('virtual-pet-container');
+            const pet = this.getPet();
+
+            if (!container || !pet) return false;
+
+            if (this.activePetElement && this.petClickHandler) {
+                this.activePetElement.removeEventListener(
+                    'click',
+                    this.petClickHandler
+                );
+            }
+
+            this.activePetElement = pet;
+            this.petClickHandler = event => {
+                if (this.skillLocked) return;
+
+                if (
+                    typeof PetInteractionManager !== 'undefined' &&
+                    PetInteractionManager.isPetDragging
+                ) {
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+                event.stopImmediatePropagation?.();
+
+                const rect = pet.getBoundingClientRect();
+                const x = Number.isFinite(event.clientX) && event.clientX > 0
+                    ? event.clientX
+                    : rect.left + rect.width / 2;
+                const y = Number.isFinite(event.clientY) && event.clientY > 0
+                    ? event.clientY
+                    : rect.top + rect.height / 2;
+
+                container.classList.remove('starry-night-casting');
+                void container.offsetWidth;
+                container.classList.add('starry-night-casting');
+
+                this.createUltimate(x, y);
+                this.setTimer(
+                    () => container.classList.remove('starry-night-casting'),
+                    1600
+                );
+            };
+
+            pet.addEventListener('click', this.petClickHandler);
+            return true;
+        },
+
+        installObserver() {
+            const container = document.getElementById('virtual-pet-container');
+            if (!container) return;
+
+            if (this.observer) this.observer.disconnect();
+
+            this.observer = new MutationObserver(() => {
+                if (!document.documentElement.classList.contains('starry-night-equipped')) {
+                    return;
+                }
+
+                const activePetId = String(localStorage.getItem('active_pet') || '');
+                if (activePetId && activePetId !== STARRY_NIGHT_PREMIUM_PET.id) {
+                    this.clear();
+                    return;
+                }
+
+                if (!this.getPet()) {
+                    this.clear();
+                }
+            });
+
+            this.observer.observe(container, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                attributeFilter: ['class', 'style', 'src']
+            });
+        },
+
+        repair() {
+            if (!document.documentElement.classList.contains('starry-night-equipped')) {
+                return false;
+            }
+
+            this.promoteStylesheetPriority();
+
+            if (!document.querySelector('.snv-world')) {
+                this.createWorld();
+            }
+
+            if (!document.querySelector('.snv-ui-frame')) {
+                this.createInterface();
+            }
+
+            if (this.getPet()) {
+                if (!document.querySelector('#virtual-pet-container .snv-pet-realm')) {
+                    this.createPetRealm();
+                }
+
+                if (this.activePetElement !== this.getPet()) {
+                    this.installPetSkill();
+                }
+            }
+
+            return true;
+        },
+
+        mount() {
+            this.clear();
+            this.promoteStylesheetPriority();
+
+            document.documentElement.classList.add('starry-night-equipped');
+            document.body?.classList.add('theme-starry-night-canvas');
+
+            this.createWorld();
+            this.createInterface();
+            this.createPetRealm();
+            this.installGlobalClick();
+            this.installPetSkill();
+            this.installObserver();
+
+            [140, 520, 1200].forEach(delay => {
+                this.setTimer(() => this.repair(), delay);
+            });
+
+            return true;
+        },
+
+        restore(attempt = 0) {
+            ensureStarryNightStylesheet();
+
+            const activePetId = String(localStorage.getItem('active_pet') || '');
+            const pet = document.querySelector('#virtual-pet-container #virtual-pet-img');
+            const source = String(pet?.getAttribute('src') || '');
+
+            const looksActive =
+                activePetId === STARRY_NIGHT_PREMIUM_PET.id ||
+                pet?.classList.contains('starry-night-van-gogh-magic') ||
+                source.includes('/Premium/đêm đầy sao/nam_nham_vat1.png');
+
+            if (!looksActive) return false;
+
+            if (pet) {
+                this.mount();
+                return true;
+            }
+
+            if (attempt < 10) {
+                this.setTimer(
+                    () => this.restore(attempt + 1),
+                    180 + attempt * 60
+                );
+            }
+
+            return false;
+        }
+    };
+
     // ========================================================
     // XUÂN THẦN · VẠN SINH HOA MỘNG
     // RUNTIME HIỆU ỨNG LUXURY V3
@@ -10924,6 +11618,7 @@
 
         PetManager.spawnPet =
             function (petData) {
+                if (window.isStudentStoreGameAccessEnabled?.() === false) return false;
 
                 /*
                  * Mỗi lần đổi pet dọn toàn bộ runtime Luxury đang hoạt động.
@@ -11030,6 +11725,15 @@
                     );
                 }
 
+                try {
+                    LuxuryStarryNightRuntime.clear();
+                } catch (error) {
+                    console.warn(
+                        '[LuxuryStore] Không thể dọn runtime Đêm đầy sao:',
+                        error
+                    );
+                }
+
 // Render pet gốc trước.
                 originalSpawnPet(
                     petData
@@ -11106,6 +11810,12 @@
                     'pet_linkclick_cheng_xiaoshi_1' ||
                     petData?.petEffect ===
                     'linkclick-cheng-timeframe-magic';
+
+                const isStarryNight =
+                    petData?.id ===
+                    'pet_dem_day_sao_1' ||
+                    petData?.petEffect ===
+                    'starry-night-van-gogh-magic';
 /*
                  * XUÂN THẦN:
                  * phải mount lại đủ Pet Realm + World + Interface.
@@ -11290,6 +12000,29 @@
 
 
                 /*
+                 * ĐÊM ĐẦY SAO:
+                 * Full suite riêng: world + interface + pet realm
+                 * + global click + ultimate. Không chiếm active_theme/effect.
+                 */
+                if (isStarryNight) {
+                    requestAnimationFrame(
+                        () => {
+                            try {
+                                LuxuryStarryNightRuntime.mount();
+                            } catch (error) {
+                                console.error(
+                                    '[LuxuryStore] Lỗi mount Đêm đầy sao:',
+                                    error
+                                );
+                            }
+                        }
+                    );
+
+                    return;
+                }
+
+
+                /*
                  * AETHER THẦN THOẠI:
                  * Runtime riêng dựng world + interface + pet realm
                  * + click toàn web + ultimate khi nhấn nhân vật.
@@ -11451,6 +12184,10 @@
                 const isLinkClickCheng =
                     String(itemId) ===
                     'pet_linkclick_cheng_xiaoshi_1';
+
+                const isStarryNight =
+                    String(itemId) ===
+                    'pet_dem_day_sao_1';
 /*
                  * DỌN NGAY trước khi Firebase cập nhật.
                  */
@@ -11493,6 +12230,10 @@
 
                 if (isLinkClickCheng) {
                     LuxuryLinkClickChengRuntime.clear();
+                }
+
+                if (isStarryNight) {
+                    LuxuryStarryNightRuntime.clear();
                 }
 
 if (isNationalDay) {
@@ -11833,6 +12574,10 @@ if (isNationalDay) {
                         LuxuryLinkClickChengRuntime.clear();
                     }
 
+                    if (isStarryNight) {
+                        LuxuryStarryNightRuntime.clear();
+                    }
+
                     if (isNationalDay) {
 
                         LuxuryNationalDayRuntime.clear();
@@ -11975,7 +12720,12 @@ if (isNationalDay) {
             LuxuryNyxRuntime,
             LuxuryAetherRuntime,
             LuxuryTamonBSideRuntime,
-            LuxuryTamonPinkStaticRuntime
+            LuxuryTamonPinkStaticRuntime,
+            LuxuryLotmKleinRuntime,
+            LuxuryCamCoCamMongRuntime,
+            LuxuryMidAutumnRuntime,
+            LuxuryLinkClickChengRuntime,
+            LuxuryStarryNightRuntime
         ].forEach(runtime => {
             try {
                 runtime?.clear?.();
@@ -11992,6 +12742,7 @@ if (isNationalDay) {
                 'clearSlothDreamRealm',
                 'clearBirthday2026Realm',
                 'clearPremiumSpringRealm',
+                'clearSummerLimitedHa2Realm',
                 'clearNationalDayRealm'
             ].forEach(methodName => {
                 try {
@@ -12470,40 +13221,69 @@ if (isNationalDay) {
         StoreManager.applyItem =
             async function (itemId) {
 
-                try {
-                    const allowed =
-                        await prepareStoreBoundaryEquip(
-                            itemId
-                        );
-
-                    /*
-                     * Người dùng chọn Hủy.
-                     */
-                    if (!allowed) {
+                const executeBoundaryEquip = async () => {
+                    if (window.isStudentStoreSystemOpen?.() === false) {
+                        window.showStudentStoreSystemLocked?.();
                         return false;
                     }
 
-                    /*
-                     * Không xung đột hoặc
-                     * người dùng đã đồng ý.
-                     */
-                    return await originalApplyItem(
-                        itemId
-                    );
+                    if (
+                        typeof window.assertStudentStoreLiveAccessAllowed === 'function' &&
+                        !await window.assertStudentStoreLiveAccessAllowed(
+                            itemId,
+                            'trang bị vật phẩm'
+                        )
+                    ) {
+                        return false;
+                    }
 
-                } catch (error) {
-                    console.error(
-                        '[LuxuryStore] Lỗi kiểm tra trang bị:',
-                        error
-                    );
+                    try {
+                        const allowed =
+                            await prepareStoreBoundaryEquip(
+                                itemId
+                            );
 
-                    alert(
-                        '❌ Không thể kiểm tra trạng thái trang bị. ' +
-                        'Vui lòng thử lại.'
-                    );
+                        /*
+                         * Người dùng chọn Hủy.
+                         */
+                        if (!allowed || window.isStudentStoreSystemOpen?.() === false) {
+                            return false;
+                        }
 
-                    return false;
+                        /*
+                         * Không xung đột hoặc người dùng đã đồng ý.
+                         * originalApplyItem dùng cùng equip lease do student.js giữ.
+                         */
+                        return await originalApplyItem(
+                            itemId
+                        );
+
+                    } catch (error) {
+                        console.error(
+                            '[LuxuryStore] Lỗi kiểm tra trang bị:',
+                            error
+                        );
+
+                        alert(
+                            '❌ Không thể kiểm tra trạng thái trang bị. ' +
+                            'Vui lòng thử lại.'
+                        );
+
+                        return false;
+                    }
+                };
+
+                if (
+                    typeof window.withStudentStoreEquipLock === 'function' &&
+                    !window.isStudentStoreEquipLockHeldFor?.(itemId)
+                ) {
+                    return window.withStudentStoreEquipLock(
+                        itemId,
+                        executeBoundaryEquip
+                    );
                 }
+
+                return executeBoundaryEquip();
             };
 
         StoreManager
@@ -12526,6 +13306,7 @@ if (isNationalDay) {
             NATIONAL_DAY_PREMIUM_PET,
             MYTHIC_NYX_PET,
             MYTHIC_AETHER_PET,
+            STARRY_NIGHT_PREMIUM_PET,
             LOTM_KLEIN_EVENT_PET,
             CAM_CO_CAM_MONG_PET,
             TAMON_BSIDE_PET,
@@ -12558,6 +13339,8 @@ if (isNationalDay) {
                 LOTM_KLEIN_EVENT_PET.id ||
                 itemDefinition.id ===
                 CAM_CO_CAM_MONG_PET.id ||
+                itemDefinition.id ===
+                STARRY_NIGHT_PREMIUM_PET.id ||
                 itemDefinition.id ===
                 TAMON_BSIDE_PET.id ||
                 itemDefinition.id ===
@@ -12787,7 +13570,7 @@ if (isNationalDay) {
         if (
             typeof window.buyItem === 'function'
         ) {
-            return window.buyItem(itemId, upgradingFromTrial);
+            return window.buyItem(itemId, upgradingFromTrial, 'luxury');
         }
 
         console.error(
@@ -12988,6 +13771,20 @@ if (isNationalDay) {
 
                 if (!equippedMidAutumnMoonPalace) {
                     LuxuryMidAutumnRuntime.clear();
+                }
+
+                const equippedStarryNight =
+                    Object
+                        .values(luxuryInventoryState || {})
+                        .find(
+                            item =>
+                                String(item?.id) ===
+                                'pet_dem_day_sao_1' &&
+                                item?.isEquipped === true
+                        );
+
+                if (!equippedStarryNight) {
+                    LuxuryStarryNightRuntime.clear();
                 }
 
                 const equippedLinkClickCheng =
@@ -13807,6 +14604,109 @@ if (isNationalDay) {
 
 
         // ====================================================
+        // CARD RIÊNG · ĐÊM ĐẦY SAO
+        // Vẫn dùng cấu trúc chuẩn: article -> visual -> info -> action.
+        // Card tự khóa theme để không bị skin giao diện khác nhuộm màu.
+        // ====================================================
+        if (item.id === 'pet_dem_day_sao_1') {
+            ensureStarryNightStylesheet();
+
+            const tagImage = escapeHTML(
+                item.luxuryTagImage ||
+                'assets/Premium/đêm đầy sao/tag.png'
+            );
+
+            const formattedPrice =
+                Number(item.price || 12000)
+                    .toLocaleString('vi-VN');
+
+            let actionHTML = '';
+
+            if (!isOwned) {
+                actionHTML = `
+                    <button
+                        type="button"
+                        class="starry-night-card-action starry-night-card-buy"
+                        onclick="window.LuxuryStore.buyItemSafely('${id}')"
+                    >
+                        🪙 Mua ${formattedPrice} Coin
+                    </button>
+                `;
+            } else if (isEquipped) {
+                actionHTML = `
+                    <button
+                        type="button"
+                        class="starry-night-card-action is-equipped"
+                        onclick="StoreManager.unapplyItem('${id}')"
+                    >
+                        ✕ Gỡ
+                    </button>
+                `;
+            } else {
+                actionHTML = `
+                    <button
+                        type="button"
+                        class="starry-night-card-action"
+                        onclick="StoreManager.applyItem('${id}')"
+                    >
+                        ✦ Sử dụng
+                    </button>
+                `;
+            }
+
+            return `
+                <article
+                    class="luxury-product-card starry-night-card store-theme-locked ui-theme-immune"
+                    data-item-id="${id}"
+                    data-special-card="starry-night-premium"
+                    data-theme-immune="true"
+                    data-luxury-style="starry-night"
+                    tabindex="0"
+                >
+                    <div class="luxury-product-visual starry-night-card-visual">
+                        <div class="luxury-product-shape starry-night-card-shape"></div>
+                        <div class="starry-night-card-swirls" aria-hidden="true"></div>
+                        <div class="starry-night-card-stars" aria-hidden="true">
+                            <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                        </div>
+                        <div class="starry-night-card-hills" aria-hidden="true"></div>
+
+                        <div class="starry-night-card-tag" aria-label="Đêm đầy sao">
+                            <img
+                                src="${tagImage}"
+                                alt="Đêm đầy sao"
+                                class="starry-night-card-tag-art"
+                                draggable="false"
+                            >
+                        </div>
+
+                        <img
+                            src="${image}"
+                            alt="${name}"
+                            class="luxury-product-image starry-night-card-character"
+                            draggable="false"
+                        >
+                    </div>
+
+                    <div class="luxury-product-info starry-night-card-info">
+                        <span class="luxury-product-label starry-night-card-label">
+                            ✦ THÚ CƯNG PREMIUM · ĐÊM ĐẦY SAO
+                        </span>
+                        <h3>${name}</h3>
+                        <p class="starry-night-card-description">
+                            Bầu trời xoáy sắc cobalt và vàng kim, lấy cảm hứng từ nhịp cọ giàu chuyển động của “Đêm đầy sao”.
+                        </p>
+                        <div class="luxury-product-price starry-night-card-price">
+                            🪙 Giá bán: ${formattedPrice} Coin
+                        </div>
+                        ${actionHTML}
+                    </div>
+                </article>
+            `;
+        }
+
+
+        // ====================================================
         // CARD RIÊNG NYX · THẦN THOẠI
         // Namespace riêng: nyx-mythic-*
         // Không dùng class card của Mùa Xuân / Quốc khánh.
@@ -14385,6 +15285,7 @@ if (isNationalDay) {
                 luxury-product-card
                 spring-premium-card
             "
+            data-item-id="${id}"
             data-luxury-style="spring"
             tabindex="0"
         >
@@ -15621,6 +16522,7 @@ if (isNationalDay) {
     let luxuryRehydratePromise = null;
 
     function getEquippedLuxuryInventoryItem() {
+        if (window.isStudentStoreGameAccessEnabled?.() === false) return null;
         const inventory =
             Array.isArray(window.myInventory)
                 ? window.myInventory
@@ -15712,6 +16614,7 @@ if (isNationalDay) {
     // API
     // ========================================================
     window.LuxuryStore = {
+        clearEquippedRuntime: hardClearBoundaryPetRuntime,
         ensureUI: buildLuxuryStoreUI,
         open: openLuxuryStore,
         close: closeLuxuryStore,
@@ -15857,6 +16760,36 @@ if (isNationalDay) {
             }
         },
 
+        // Test nhanh Đêm đầy sao — FULL SUITE V1.
+        previewStarryNight: () => {
+            if (
+                typeof PetManager !== 'undefined' &&
+                typeof PetManager.spawnPet === 'function'
+            ) {
+                PetManager.spawnPet(
+                    STARRY_NIGHT_PREMIUM_PET
+                );
+            }
+        },
+
+        restoreStarryNight: () => {
+            return LuxuryStarryNightRuntime.restore();
+        },
+
+        starryNightUltimateTest: () => {
+            const pet = LuxuryStarryNightRuntime.getPet();
+            if (!pet) return false;
+            const rect = pet.getBoundingClientRect();
+            return LuxuryStarryNightRuntime.createUltimate(
+                rect.left + rect.width / 2,
+                rect.top + rect.height / 2
+            );
+        },
+
+        clearStarryNight: () => {
+            LuxuryStarryNightRuntime.clear();
+        },
+
         // Test nhanh Nyx Thần thoại — kích hoạt FULL SUITE V2.
         previewNyx: () => {
             if (
@@ -15985,6 +16918,21 @@ if (isNationalDay) {
     // ========================================================
     // KHỞI ĐỘNG
     // ========================================================
+    [LuxurySpringRuntime, LuxurySummerRuntime, LuxuryNationalDayRuntime,
+        LuxuryNyxRuntime, LuxuryAetherRuntime, LuxuryTamonBSideRuntime,
+        LuxuryTamonPinkStaticRuntime, LuxuryLotmKleinRuntime, LuxuryCamCoCamMongRuntime,
+        LuxuryMidAutumnRuntime, LuxuryLinkClickChengRuntime,
+        LuxuryStarryNightRuntime].forEach(runtime => {
+        ['mount', 'restore', 'repair', 'createUltimate'].forEach(method => {
+            const original = runtime[method];
+            if (typeof original !== 'function') return;
+            runtime[method] = function (...args) {
+                if (window.isStudentStoreGameAccessEnabled?.() === false) return false;
+                return original.apply(this, args);
+            };
+        });
+    });
+
     function bootLuxuryStore() {
 
         // Mount navigation before optional pet/effect recovery can fail.
@@ -15996,6 +16944,7 @@ if (isNationalDay) {
         ensureTamonBSideStylesheet();
         ensureMidAutumnStylesheet();
         ensureLinkClickChengStylesheet();
+        ensureStarryNightStylesheet();
 
         installLuxurySpringPetHook();
         installLinkClickChengAutoMountObserver();
@@ -16005,6 +16954,7 @@ if (isNationalDay) {
         LuxurySummerRuntime.restore();
         LuxuryMidAutumnRuntime.restore();
         LuxuryLinkClickChengRuntime.restore();
+        LuxuryStarryNightRuntime.restore();
 
         // Tự sửa thêm một nhịp sau khi DOM/pet đã ổn định.
         window.setTimeout(

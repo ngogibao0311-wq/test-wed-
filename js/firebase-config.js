@@ -1,4 +1,5 @@
 // 1. DÁN ĐOẠN CODE BẠN LẤY ĐƯỢC TỪ FIREBASE VÀO ĐÂY
+
 // ---- DỰ ÁN NHÁP
 const firebaseConfig = {
   apiKey: "AIzaSyDb4pnn0E16MY-aJ1UXD8p59X5vXkcRT_w",

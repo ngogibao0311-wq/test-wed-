@@ -1,15 +1,15 @@
 /**
  * NEW USER GUIDE — Hướng dẫn người mới cho website học tập
- * Phiên bản: 2.14.1 — đào tạo bắt buộc 1 lần về nộp bài, cập nhật và hiệu năng
+ * Phiên bản: 2.14.2 — await lazy-tab readiness + mandatory feature coverage
  *
  * Cách nạp khuyến nghị (đặt cuối <body>, sau teacher.js hoặc student.js):
- * <script src="js/huong-dan-nguoi-moi.js?v=2.14.1"></script>
+ * <script src="js/huong-dan-nguoi-moi.js?v=2.14.2"></script>
  *
  * API có thể gọi từ nơi khác:
  *   NewUserGuide.open();          // Mở trung tâm hướng dẫn
  *   NewUserGuide.start();         // Chạy toàn bộ hướng dẫn từng bước
  *   NewUserGuide.startFeature('store'); // Chỉ hướng dẫn riêng một mục
- *   NewUserGuide.reset();         // Cho phép tự hiện lại như người dùng mới
+ *   NewUserGuide.reset();         // Xóa trạng thái/cache cục bộ; Firebase vẫn là authority
  *   NewUserGuide.goTo('store');   // Đi tới một chức năng theo ID
  */
 (() => {
@@ -17,7 +17,7 @@
 
     if (window.NewUserGuide) return;
 
-    const VERSION = '2.14.1';
+    const VERSION = '2.14.2';
     const REQUIRED_STUDENT_TRAINING_VERSION =
         '2026-09-06-submission-update-effects-v1';
     const REQUIRED_STUDENT_TRAINING_FEATURES = Object.freeze([
@@ -53,6 +53,7 @@
         mandatoryGateQuietSince: 0,
         mandatoryGateObserver: null,
         mandatoryGatePoller: null,
+        mandatoryFeatureCoverage: new Set(),
         launcherVisible: true,
         reviewPracticeGuideMode: null,
         reviewPracticeRealAssignmentId: '',
@@ -607,6 +608,36 @@
         );
     }
 
+    function getTrainingCoverageStorageKey() {
+        return (
+            'new_user_guide_required_training_coverage:' +
+            `${REQUIRED_STUDENT_TRAINING_VERSION}:` +
+            `${state.role}:${getGuideUsername()}`
+        );
+    }
+
+    function readTrainingCoverageLocally() {
+        try {
+            const parsed = JSON.parse(
+                localStorage.getItem(getTrainingCoverageStorageKey()) || '[]'
+            );
+            return Array.isArray(parsed)
+                ? parsed.filter(featureId =>
+                    REQUIRED_STUDENT_TRAINING_FEATURES.includes(featureId)
+                )
+                : [];
+        } catch (_) {
+            return [];
+        }
+    }
+
+    function cacheTrainingCoverageLocally() {
+        localStorage.setItem(
+            getTrainingCoverageStorageKey(),
+            JSON.stringify([...state.mandatoryFeatureCoverage])
+        );
+    }
+
     function hasRequiredTrainingCompletedLocally() {
         return (
             localStorage.getItem(
@@ -622,6 +653,9 @@
         );
         localStorage.removeItem(
             getTrainingProgressStorageKey()
+        );
+        localStorage.removeItem(
+            getTrainingCoverageStorageKey()
         );
     }
 
@@ -5355,6 +5389,12 @@
         state.mandatoryTourCompleted = false;
         state.mandatoryStartPending = false;
         state.mandatoryGateQuietSince = 0;
+        state.mandatoryFeatureCoverage.clear();
+        if (mandatory) {
+            readTrainingCoverageLocally().forEach(featureId => {
+                state.mandatoryFeatureCoverage.add(featureId);
+            });
+        }
         syncMandatoryLauncherVisibility();
 
         if (mandatory) {
@@ -5454,15 +5494,22 @@
             if (previousStep && typeof previousStep.after === 'function') {
                 try {
                     await previousStep.after();
-                } catch (_) {
-                    // Không để lỗi dọn giao diện chặn hướng dẫn.
+                } catch (error) {
+                    // Cleanup vẫn best-effort, nhưng không nuốt mất dấu vết integration failure.
+                    console.warn('[NewUserGuide] Step after() failed:', {
+                        featureId: previousStep.featureId || '',
+                        title: previousStep.title || '',
+                        error
+                    });
                 }
             }
 
             if (index < 0) index = 0;
             if (index >= state.tourSteps.length) {
-                endTour(true, { completed: true });
-                showToast('Hoàn thành hướng dẫn. Bấm dấu “?” để xem lại khi cần.');
+                const didEnd = endTour(true, { completed: true });
+                if (didEnd) {
+                    showToast('Hoàn thành hướng dẫn. Bấm dấu “?” để xem lại khi cần.');
+                }
                 return;
             }
 
@@ -5483,6 +5530,15 @@
                 return;
             }
 
+            if (
+                state.mandatoryMode &&
+                target &&
+                REQUIRED_STUDENT_TRAINING_FEATURES.includes(step.featureId)
+            ) {
+                state.mandatoryFeatureCoverage.add(step.featureId);
+                cacheTrainingCoverageLocally();
+            }
+
             state.currentStep = candidateIndex;
             saveMandatoryProgress(candidateIndex);
             state.activeTarget = target || document.querySelector('.dashboard') || document.body;
@@ -5491,6 +5547,34 @@
         } finally {
             state.transitionLocked = false;
         }
+    }
+
+    async function activateGuideTabAndWait(tabId, navButton) {
+        const tab = document.getElementById(tabId);
+        if (!tab) return false;
+
+        if (tab.classList.contains('active')) {
+            return true;
+        }
+
+        /*
+         * Student switchTab() là async vì phải await StudentFeatureLoader.ensureForTab().
+         * HTMLElement.click() không truyền Promise của onclick ra ngoài, nên guide phải gọi
+         * API chuyển tab trực tiếp và await kết quả thay vì tăng fixed timeout.
+         * Teacher switchTab() hiện sync; Promise.resolve vẫn tương thích.
+         */
+        if (typeof window.switchTab === 'function') {
+            await Promise.resolve(
+                window.switchTab(tabId, navButton || null)
+            );
+        } else if (navButton) {
+            navButton.click();
+        } else {
+            activateTabFallback(tabId, null);
+        }
+
+        await waitForLayout();
+        return tab.classList.contains('active');
     }
 
     async function prepareStep(step) {
@@ -5512,22 +5596,40 @@
 
         if (step.tabId) {
             const navButton = getNavButton(step.tabId);
-            const tab = document.getElementById(step.tabId);
 
-            if (navButton && tab && !tab.classList.contains('active')) {
-                try {
-                    navButton.click();
-                } catch (_) {
-                    activateTabFallback(step.tabId, navButton);
+            try {
+                const ready = await activateGuideTabAndWait(
+                    step.tabId,
+                    navButton
+                );
+
+                if (!ready) {
+                    console.warn('[NewUserGuide] Tab was not activated after switch:', {
+                        tabId: step.tabId,
+                        featureId: step.featureId || '',
+                        title: step.title || ''
+                    });
                 }
+            } catch (error) {
+                console.warn('[NewUserGuide] Tab readiness failed:', {
+                    tabId: step.tabId,
+                    featureId: step.featureId || '',
+                    title: step.title || '',
+                    error
+                });
             }
         }
 
         if (typeof step.before === 'function') {
             try {
                 await step.before();
-            } catch (_) {
-                // Bỏ qua lỗi của thao tác chuẩn bị và tiếp tục tìm mục tiêu.
+            } catch (error) {
+                // Không khóa toàn guide, nhưng phải để lại dấu vết integration failure.
+                console.warn('[NewUserGuide] Step before() failed:', {
+                    featureId: step.featureId || '',
+                    title: step.title || '',
+                    error
+                });
             }
         }
 
@@ -5866,6 +5968,28 @@
             return false;
         }
 
+        if (state.mandatoryMode && completed) {
+            const missingRequiredFeatures = REQUIRED_STUDENT_TRAINING_FEATURES
+                .filter(featureId => !state.mandatoryFeatureCoverage.has(featureId));
+
+            if (missingRequiredFeatures.length) {
+                const firstMissing = missingRequiredFeatures[0];
+                const retryIndex = state.tourSteps.findIndex(step =>
+                    step.featureId === firstMissing
+                );
+
+                console.warn('[NewUserGuide] Mandatory completion blocked: required feature never rendered.', {
+                    missingRequiredFeatures
+                });
+                showToast('Một phần hướng dẫn bắt buộc chưa tải xong. Hệ thống sẽ thử mở lại mục đó.');
+
+                if (retryIndex >= 0) {
+                    setTimeout(() => showTourStep(retryIndex), 0);
+                }
+                return false;
+            }
+        }
+
         const wasMandatory = state.mandatoryMode;
         const completedMandatoryScope =
             state.mandatoryScope;
@@ -5877,7 +6001,15 @@
 
         const currentStep = state.tourSteps[state.currentStep];
         if (currentStep && typeof currentStep.after === 'function') {
-            try { currentStep.after(); } catch (_) { /* Dọn giao diện tốt nhất có thể. */ }
+            try {
+                currentStep.after();
+            } catch (error) {
+                console.warn('[NewUserGuide] Final step after() cleanup failed:', {
+                    featureId: currentStep.featureId || '',
+                    title: currentStep.title || '',
+                    error
+                });
+            }
         }
 
         removeDemoCheckout();
@@ -5951,10 +6083,23 @@
             const dashboard = document.querySelector('.dashboard');
 
             const navButton = getNavButton(feature.tabId);
-            if (navButton) {
-                navButton.click();
-            } else {
-                activateTabFallback(feature.tabId, null);
+            try {
+                const ready = await activateGuideTabAndWait(
+                    feature.tabId,
+                    navButton
+                );
+                if (!ready) {
+                    showToast(`Không thể mở: ${feature.title}`);
+                    return false;
+                }
+            } catch (error) {
+                console.warn('[NewUserGuide] goTo tab readiness failed:', {
+                    tabId: feature.tabId,
+                    featureId: feature.id,
+                    error
+                });
+                showToast(`Không thể mở: ${feature.title}`);
+                return false;
             }
 
             /* Sau khi chọn mục trên điện thoại, đóng menu để hiện trọn nội dung tab. */
@@ -6063,6 +6208,10 @@
         localStorage.removeItem(
             getTrainingProgressStorageKey()
         );
+        localStorage.removeItem(
+            getTrainingCoverageStorageKey()
+        );
+        state.mandatoryFeatureCoverage.clear();
         state.remoteGuideCompleted = false;
         state.remoteTrainingCompleted = false;
         state.remoteGuideStatus = 'unknown';

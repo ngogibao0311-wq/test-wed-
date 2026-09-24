@@ -10,6 +10,16 @@
     // Firebase đọc theo batch lớn hơn UI để giảm số request.
     // UI vẫn chỉ mở thêm 5 giao dịch mỗi lần như trước.
     const FIREBASE_LOG_BATCH_SIZE = 50;
+    const UNDO_LOCK_TIMEOUT_MS = 2 * 60 * 1000;
+
+    async function getApproxServerNow() {
+        const snap = await db.ref('.info/serverTimeOffset').once('value');
+        const offset = Number(snap.val());
+        if (!Number.isFinite(offset)) {
+            throw new Error('Không lấy được thời gian Firebase.');
+        }
+        return Date.now() + offset;
+    }
 
     const state = {
         logs: [],
@@ -217,237 +227,85 @@
     }
 
     async function lock(logId) {
-        const normalizedLogId =
-            String(logId || '').trim();
-
+        const normalizedLogId = String(logId || '').trim();
         if (!normalizedLogId) {
-            throw new Error(
-                'Mã nhật ký không hợp lệ.'
-            );
+            throw new Error('Mã nhật ký không hợp lệ.');
         }
 
-        const logRef =
-            db.ref(
-                `${ROOT}/${normalizedLogId}`
-            );
-
-        const statusRef =
-            logRef.child('status');
-
-        /*
-         * Firebase có thể trả null ở lần chạy transaction đầu tiên
-         * khi cache chưa được đồng bộ. Vì vậy thử tối đa 3 lần.
-         */
-        for (
-            let attempt = 1;
-            attempt <= 3;
-            attempt++
-        ) {
-            const initialSnapshot =
-                await logRef.once('value');
-
-            if (!initialSnapshot.exists()) {
-                await loadTeacherLogs()
-                    .catch(console.error);
-
-                throw new Error(
-                    'Nhật ký giao dịch không còn tồn tại.'
-                );
-            }
-
-            const initialLog =
-                initialSnapshot.val() || {};
-
-            // Student-authored history is not an authorization to mutate teacher data.
-            if (initialLog.actor?.role !== 'teacher' || !initialLog.actor?.uid) {
-                throw new Error('Nhật ký học sinh chỉ dùng đối soát, không cho phép hoàn tác tự động.');
-            }
-            const author = await db.ref(`users/${initialLog.actor.uid}/role`).once('value');
-            if (author.val() !== 'teacher') throw new Error('Không xác minh được người tạo nhật ký.');
-            if (initialLog.type === 'grade_change') {
-                throw new Error('Hãy dùng Chấm lại trong Bài nộp để đối soát cả điểm và phần thưởng.');
-            }
-
-            if (
-                initialLog.status ===
-                'undone'
-            ) {
-                throw new Error(
-                    'Giao dịch này đã được hoàn tác trước đó.'
-                );
-            }
-
-            if (
-                initialLog.status ===
-                'undoing'
-            ) {
-                throw new Error(
-                    'Giao dịch đang được hoàn tác ở tab hoặc thiết bị khác.'
-                );
-            }
-
-            if (
-                initialLog.status !==
-                'active'
-            ) {
-                throw new Error(
-                    `Trạng thái giao dịch không hợp lệ: ` +
-                    `${initialLog.status || 'không rõ'}.`
-                );
-            }
-
-            if (
-                initialLog.reversible !==
-                true
-            ) {
-                throw new Error(
-                    'Giao dịch này chỉ được xem, không hỗ trợ hoàn tác.'
-                );
-            }
-
-            let receivedTemporaryNull =
-                false;
-
-            let transactionError =
-                'Giao dịch đã thay đổi trước khi hoàn tác.';
-
-            /*
-             * Chỉ khóa trường status.
-             * Không transaction toàn bộ bản ghi nữa.
-             */
-            const tx =
-                await statusRef.transaction(
-                    currentStatus => {
-                        if (
-                            currentStatus === null ||
-                            currentStatus === undefined
-                        ) {
-                            // SỬA Ở ĐÂY: Trả về 'undoing' thay vì return;
-                            // Việc này ép Firebase SDK gửi request lên server để đồng bộ giá trị thật.
-                            // Server sẽ không tạo bản ghi rác vì Firebase Rules của bạn đã chặn việc tạo log thiếu dữ liệu.
-                            return 'undoing';
-                        }
-
-                        if (
-                            currentStatus ===
-                            'undone'
-                        ) {
-                            transactionError =
-                                'Giao dịch này đã được hoàn tác trước đó.';
-
-                            return;
-                        }
-
-                        if (
-                            currentStatus ===
-                            'undoing'
-                        ) {
-                            transactionError =
-                                'Giao dịch đang được hoàn tác ở nơi khác.';
-
-                            return;
-                        }
-
-                        if (
-                            currentStatus !==
-                            'active'
-                        ) {
-                            transactionError =
-                                `Trạng thái giao dịch không hợp lệ: ` +
-                                `${currentStatus}.`;
-
-                            return;
-                        }
-
-                        return 'undoing';
-                    }
-                );
-
-            if (tx.committed) {
-                await logRef.update({
-                    undoStartedAt:
-                        firebase.database
-                            .ServerValue
-                            .TIMESTAMP,
-
-                    undoStartedBy:
-                        actor()
-                });
-
-                const lockedSnapshot =
-                    await logRef.once('value');
-
-                return {
-                    ...(
-                        lockedSnapshot.val() ||
-                        initialLog
-                    ),
-
-                    id:
-                        normalizedLogId,
-
-                    firebaseKey:
-                        normalizedLogId
-                };
-            }
-
-            /*
-             * Nếu callback chỉ nhận null tạm thời,
-             * chờ một chút rồi đọc và thử lại.
-             */
-            if (
-                receivedTemporaryNull &&
-                attempt < 3
-            ) {
-                await new Promise(resolve =>
-                    setTimeout(
-                        resolve,
-                        attempt * 150
-                    )
-                );
-
-                continue;
-            }
-
-            const latestSnapshot =
-                await logRef.once('value');
-
-            if (!latestSnapshot.exists()) {
-                throw new Error(
-                    'Nhật ký giao dịch đã bị xóa.'
-                );
-            }
-
-            const latestStatus =
-                latestSnapshot
-                    .child('status')
-                    .val();
-
-            if (latestStatus === 'undone') {
-                throw new Error(
-                    'Giao dịch này đã được hoàn tác trước đó.'
-                );
-            }
-
-            if (latestStatus === 'undoing') {
-                throw new Error(
-                    'Giao dịch đang được hoàn tác ở nơi khác.'
-                );
-            }
-
-            throw new Error(
-                transactionError
-            );
+        const logRef = db.ref(`${ROOT}/${normalizedLogId}`);
+        const initialSnapshot = await logRef.once('value');
+        if (!initialSnapshot.exists()) {
+            throw new Error('Nhật ký giao dịch không còn tồn tại.');
         }
 
-        throw new Error(
-            'Không thể khóa giao dịch sau nhiều lần thử.'
-        );
+        const initialLog = initialSnapshot.val() || {};
+        if (initialLog.actor?.role !== 'teacher' || !initialLog.actor?.uid) {
+            throw new Error('Nhật ký học sinh chỉ dùng đối soát, không cho phép hoàn tác tự động.');
+        }
+        const author = await db.ref(`users/${initialLog.actor.uid}/role`).once('value');
+        if (author.val() !== 'teacher') {
+            throw new Error('Không xác minh được người tạo nhật ký.');
+        }
+        if (initialLog.type === 'grade_change') {
+            throw new Error('Hãy dùng Chấm lại trong Bài nộp để đối soát cả điểm và phần thưởng.');
+        }
+        if (initialLog.reversible !== true) {
+            throw new Error('Giao dịch này chỉ được xem, không hỗ trợ hoàn tác.');
+        }
+
+        const serverNow = Math.trunc(await getApproxServerNow());
+        const undoToken =
+            `${serverNow}_${Math.random().toString(36).slice(2, 12)}`;
+
+        const tx = await logRef.transaction(current => {
+            if (!current || current.id !== normalizedLogId) return;
+
+            if (current.status === 'undone') return;
+
+            if (current.status === 'undoing') {
+                const startedAt = Number(current.undoStartedAt || 0);
+                const stale =
+                    !Number.isFinite(startedAt) ||
+                    startedAt <= 0 ||
+                    serverNow - startedAt >= UNDO_LOCK_TIMEOUT_MS;
+
+                if (!stale) return;
+            } else if (current.status !== 'active') {
+                return;
+            }
+
+            return {
+                ...current,
+                status: 'undoing',
+                undoStartedAt: serverNow,
+                undoStartedBy: actor(),
+                undoToken,
+                recoveredStaleUndo: current.status === 'undoing'
+            };
+        });
+
+        if (!tx.committed) {
+            const latest = tx.snapshot.val() || {};
+            if (latest.status === 'undone') {
+                throw new Error('Giao dịch này đã được hoàn tác trước đó.');
+            }
+            if (latest.status === 'undoing') {
+                throw new Error('Giao dịch đang được hoàn tác ở tab hoặc thiết bị khác.');
+            }
+            throw new Error('Giao dịch đã thay đổi trước khi hoàn tác.');
+        }
+
+        return {
+            ...(tx.snapshot.val() || initialLog),
+            id: normalizedLogId,
+            firebaseKey: normalizedLogId
+        };
     }
 
     async function activeAgain(
         logId,
-        error
+        error,
+        undoToken = ''
     ) {
         const normalizedLogId =
             String(logId || '').trim();
@@ -472,50 +330,39 @@
              * Chỉ trả về active khi log thực sự
              * đang ở trạng thái undoing.
              */
+            if (statusSnapshot.val() !== 'undoing') {
+                return;
+            }
+
+            const logSnapshot = await logRef.once('value');
             if (
-                statusSnapshot.val() !==
-                'undoing'
+                undoToken &&
+                String(logSnapshot.val()?.undoToken || '') !== String(undoToken)
             ) {
                 return;
             }
 
-            const tx =
-                await statusRef.transaction(
-                    currentStatus => {
-                        if (
-                            currentStatus !==
-                            'undoing'
-                        ) {
-                            return;
-                        }
+            const tx = await logRef.transaction(current => {
+                if (!current || current.status !== 'undoing') return;
+                if (
+                    undoToken &&
+                    String(current.undoToken || '') !== String(undoToken)
+                ) return;
 
-                        return 'active';
-                    }
-                );
+                return {
+                    ...current,
+                    status: 'active',
+                    undoStartedAt: null,
+                    undoStartedBy: null,
+                    undoToken: null,
+                    lastUndoError: String(error?.message || error || 'Không rõ lỗi'),
+                    lastUndoErrorAt: firebase.database.ServerValue.TIMESTAMP
+                };
+            });
 
             if (!tx.committed) {
                 return;
             }
-
-            await logRef.update({
-                undoStartedAt:
-                    null,
-
-                undoStartedBy:
-                    null,
-
-                lastUndoError:
-                    String(
-                        error?.message ||
-                        error ||
-                        'Không rõ lỗi'
-                    ),
-
-                lastUndoErrorAt:
-                    firebase.database
-                        .ServerValue
-                        .TIMESTAMP
-            });
 
         } catch (restoreError) {
             console.error(
@@ -536,6 +383,9 @@
                     status:
                         'undone',
 
+                    undoToken:
+                        null,
+
                     undoneAt:
                         firebase.database
                             .ServerValue
@@ -550,61 +400,30 @@
     }
 
     async function undoCoin(log) {
-        const path = String(
-            log.details?.coinPath ||
-            ''
-        );
+        const path = String(log.details?.coinPath || '');
+        const delta = Number(log.details?.delta);
 
-        const delta = Number(
-            log.details?.delta
-        );
-
-        if (
-            !path ||
-            !Number.isFinite(delta) ||
-            delta === 0
-        ) {
-            throw new Error(
-                'Log Coin thiếu dữ liệu.'
-            );
+        if (!path || !Number.isFinite(delta) || delta === 0) {
+            throw new Error('Log Coin thiếu dữ liệu.');
         }
 
-        let beforeUndo = 0;
-        let afterUndo = 0;
+        const updates = {};
+        updates[path] = firebase.database.ServerValue.increment(-delta);
+        updates[`${ROOT}/${log.id}/status`] = 'undone';
+        updates[`${ROOT}/${log.id}/undoToken`] = null;
+        updates[`${ROOT}/${log.id}/undoneAt`] =
+            firebase.database.ServerValue.TIMESTAMP;
+        updates[`${ROOT}/${log.id}/undoneBy`] = actor();
+        updates[`${ROOT}/${log.id}/undoResult`] = {
+            reversedDelta: -delta
+        };
 
-        const tx = await db
-            .ref(path)
-            .transaction(current => {
-                beforeUndo =
-                    Number(current) || 0;
-
-                afterUndo =
-                    beforeUndo - delta;
-
-                if (afterUndo < 0) {
-                    return;
-                }
-
-                return afterUndo;
-            });
-
-        if (!tx.committed) {
-            throw new Error(
-                'Số dư Coin hiện tại không đủ để hoàn tác.'
-            );
-        }
-
-        await markUndone(
-            log.id,
-            {
-                undoResult: {
-                    beforeUndo,
-                    afterUndo,
-                    reversedDelta:
-                        -delta
-                }
-            }
-        );
+        /*
+         * Coin + trạng thái log cùng một root update. Rules chịu trách nhiệm
+         * chặn số dư âm, vì vậy không còn cửa sổ "Coin đã đổi nhưng log
+         * vẫn undoing".
+         */
+        await db.ref().update(updates);
     }
 
     async function undoGrade(log) {
@@ -821,6 +640,10 @@
             `${ROOT}/${log.id}/status`
         ] =
             'undone';
+
+        updates[
+            `${ROOT}/${log.id}/undoToken`
+        ] = null;
 
         updates[
             `${ROOT}/${log.id}/undoneAt`
@@ -1230,14 +1053,14 @@
          * hoàn tác phía sau gặp lỗi.
          */
         let lockAcquired = false;
-        let mutationStarted = false;
+        let lockedUndoToken = '';
 
         try {
             const log =
                 await lock(logId);
 
             lockAcquired = true;
-            mutationStarted = true;
+            lockedUndoToken = String(log.undoToken || '');
 
             if (
                 [
@@ -1297,10 +1120,11 @@
              * Nếu không, giao dịch đã hoàn tác có thể
              * bị đổi nhầm về active.
              */
-            if (lockAcquired && !mutationStarted) {
+            if (lockAcquired) {
                 await activeAgain(
                     logId,
-                    error
+                    error,
+                    lockedUndoToken
                 );
             }
 
@@ -2348,7 +2172,7 @@
                 );
 
             } catch (logError) {
-                await db
+                const rollback = await db
                     .ref(coinPath)
                     .transaction(current =>
                         Number(current) === after
@@ -2356,8 +2180,14 @@
                             : undefined
                     );
 
+                if (rollback.committed) {
+                    throw new Error(
+                        'Không ghi được nhật ký nên thay đổi Coin đã được rollback.'
+                    );
+                }
+
                 throw new Error(
-                    'Không ghi được nhật ký nên thay đổi Coin đã bị hủy.'
+                    'Không ghi được nhật ký và không thể rollback vì số dư đã thay đổi tiếp. Thay đổi Coin vẫn còn hiệu lực; cần đối soát thủ công.'
                 );
             }
 

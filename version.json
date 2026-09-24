@@ -1,18 +1,19 @@
 {
-  "version": "4.0.3",
-  "build": "2026.09.18.1-security-hotfix",
+  "version": "4.0.4",
+  "build": "2026.09.24.5-rules-integrity",
   "channel": "stable",
-  "releasedAt": "2026-09-17T14:38:00+07:00",
-  "title": "Bản cập nhật hệ thống v4.0.3 · Giao diện nổi & trợ năng",
-  "summary": "Hoàn thiện cụm 4 nút hành động nổi của học sinh trên desktop/mobile, tối ưu giao diện khi cửa sổ hẹp và sửa lỗi focus/aria-hidden của Đại Hội Trung Thu. Đồng thời đồng bộ phiên bản ứng dụng với Service Worker để người dùng nhận đúng tài nguyên mới.",
+  "releasedAt": "2026-09-24T13:19:00+07:00",
+  "title": "Bản cập nhật hệ thống v4.0.4 · Firebase Rules integrity hardening",
+  "summary": "Siết các quyền Rules đã xác minh mà không phá state-machine client; lịch Trung Thu chuyển sang teacher-authoritative.",
   "mandatory": false,
   "minSupportedVersion": "3.0.0",
   "changes": [
-    "Cụm BXH – Túi đồ – Hộp thư – Hồ sơ tiếp tục dùng floating dock bám viewport; cuộn trang không làm các nút bị kéo đi.",
-    "Tối ưu kích thước/khoảng cách cụm nút trên cửa sổ hẹp để giảm chồng lấn với nút mở menu và tiêu đề nội dung.",
-    "Sửa modal Đại Hội Trung Thu: quản lý focus đúng thứ tự, dùng inert trước khi aria-hidden để tương thích tốt hơn với công nghệ hỗ trợ.",
-    "Tăng cache-busting cho StudentFeatureLoader và Update Manager để trình duyệt lấy đúng hotfix mới.",
-    "Đồng bộ APP_VERSION/build giữa HTML, version.json và Service Worker; worker mới tự loại cache study-* của bản cũ khi activate."
+    "Mid-Autumn calendar chỉ Giáo viên được seed; Student dùng local lunar calendar cho preview nhưng không tự ghi authority.",
+    "Daily Login chỉ học sinh đọc record của chính mình; giáo viên vẫn đọc toàn node.",
+    "Historical grade tickets bỏ quyền student-write không được client sử dụng.",
+    "Discount creation chỉ chấp nhận các source có cross-node proof; khóa các field kinh tế cốt lõi sau khi cấp.",
+    "Inventory giá mua phải khớp store_purchase_ops; Hội Họa bắt tổng teacherWeight + voteWeight = 100 khi cả hai có mặt.",
+    "Whitelist transaction log game_reward cho Lucky Wheel đúng callsite hiện tại."
   ],
   "resolvedIssues": [
     "🟠 Giao diện — 4 nút hành động học sinh không còn cuộn mất theo nội dung khi dùng cơ chế floating dock.",
@@ -25,7 +26,13 @@
     "🟠 Cao — CSS Tamon: đã phát hiện một khối CSS rất lớn bị lặp; cần xóa phần trùng sau khi đối chiếu chính xác file đang deploy để không đổi giao diện.",
     "🟠 Cao — CSS thú cưng Hội họa: đã phát hiện một khối CSS/keyframe lặp; cần dọn bản lặp sau khi xác minh file production hiện tại.",
     "🟡 Trung bình — Modal fallback: trường hợp không tìm thấy nút đóng vẫn có thể force-hide modal và bỏ qua cleanup riêng của module; cần lifecycle/close hook chung.",
-    "🟡 Trung bình — Giờ Vàng: cần tiếp tục kiểm tra cơ chế realtime + polling 15 giây để chỉ bật polling dự phòng khi realtime lỗi/mất kết nối."
+    "🟡 Trung bình — Giờ Vàng: cần tiếp tục kiểm tra cơ chế realtime + polling 15 giây để chỉ bật polling dự phòng khi realtime lỗi/mất kết nối.",
+    "🔴 Integrity — student_coins/student_money_offset/vé vẫn có write authority phía client để phục vụ các flow hiện tại; cần backend/ledger authority trước khi có thể siết mà không phá conversion/reward/game.",
+    "🟠 Store — store_purchase_ops/store_trial_claims là state do client ghi; cần server-side economic mutation để biến paid/debited thành authority đáng tin cậy.",
+    "🟠 Exam — Exam Guard dùng Date.now() trong khi Rules dùng server now; lệch clock thiết bị có thể gây permission-denied, cần chuyển toàn bộ exam timing sang server clock trong một patch riêng.",
+    "🟠 Privacy — submissions vẫn có parent read rộng vì leaderboard hiện đọc toàn submissions; cần public projection/refactor trước khi siết Rules.",
+    "🔴 Integrity — student_coins/student_money_offset/student_bonus_tickets vẫn có client self-write để phục vụ nhiều flow hợp lệ; Rules scalar hiện không thể chứng minh mọi delta. Cần backend/ledger authority để khóa triệt để.",
+    "🟠 Privacy — submissions/video_tracking vẫn cần đọc cross-student cho leaderboard client-side; cần projection an toàn trước khi thu hẹp read."
   ],
   "plannedImprovements": [
     "Module Lifecycle Registry: chuẩn hóa init() / pause() / resume() / destroy() để dọn timer, MutationObserver, event listener và audio khi đóng modal hoặc đổi vật phẩm.",

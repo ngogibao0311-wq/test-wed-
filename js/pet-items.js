@@ -33,6 +33,72 @@ function ensureAetherLittleSpiritPetStylesheet() {
     return link;
 }
 
+// =========================================================
+// TAMON'S B-SIDE · CHIBI II — CSS RUNTIME GUARD
+// Chỉ bảo đảm namespace tbc2-* có mặt khi pet được khôi phục trực tiếp sau F5.
+// Không bật theme/effect Tamon khác và không thay đổi stylesheet hiện có.
+// =========================================================
+function ensureTamonBsideChibi2Stylesheet() {
+    if (typeof document === 'undefined' || !document.head) return null;
+
+    const existing = Array.from(
+        document.querySelectorAll('link[rel="stylesheet"][href]')
+    ).find(link =>
+        /(?:^|\/)tamon-b-side(?:\(\d+\))?\.css(?:[?#].*)?$/i
+            .test(link.href || '')
+    );
+
+    if (existing) return existing;
+
+    const byId = document.getElementById(
+        'tamon-bside-chibi2-runtime-style'
+    );
+    if (byId) return byId;
+
+    const link = document.createElement('link');
+    link.id = 'tamon-bside-chibi2-runtime-style';
+    link.rel = 'stylesheet';
+    link.href =
+        'css/tamon-b-side.css?v=20260920.tbc2-eclipse-v1';
+    link.dataset.tamonBsideChibi2 = 'true';
+    document.head.appendChild(link);
+    return link;
+}
+
+
+// =========================================================
+// ĐÊM ĐẦY SAO · CHIBI — CSS RUNTIME GUARD
+// Dùng một file CSS riêng cho pet + card cửa hàng thường.
+// Không đụng đến runtime Đêm Đầy Sao Premium/Luxury.
+// =========================================================
+function ensureStarryNightChibiPetStylesheet() {
+    if (typeof document === 'undefined' || !document.head) return null;
+
+    // CHUNG 1 CSS với Premium Đêm Đầy Sao.
+    const existing = Array.from(
+        document.querySelectorAll('link[rel="stylesheet"][href]')
+    ).find(link =>
+        /(?:^|\/)dem-day-sao(?:\(\d+\))?\.css(?:[?#].*)?$/i
+            .test(link.href || '')
+    );
+
+    if (existing) {
+        existing.id = existing.id || 'starry-night-premium-style';
+        return existing;
+    }
+
+    const byId = document.getElementById('starry-night-premium-style');
+    if (byId) return byId;
+
+    const link = document.createElement('link');
+    link.id = 'starry-night-premium-style';
+    link.rel = 'stylesheet';
+    link.href = 'css/dem-day-sao.css?v=20260921.starry-night-merged-v4';
+    link.dataset.starryNight = 'true';
+    document.head.appendChild(link);
+    return link;
+}
+
 class PetManager {
     static container = document.getElementById('virtual-pet-container');
     // EFFECT QUALITY MANAGER v1.2.0
@@ -1068,6 +1134,10 @@ class PetManager {
         document
             .querySelectorAll('.tbc1-fullscreen-ultimate')
             .forEach(node => node.remove());
+        // Dọn riêng Tamon B-Side Chibi II; namespace tbc2-* không đụng Tamon #1.
+        document
+            .querySelectorAll('.tbc2-fullscreen-ultimate, .tbc2-click-burst')
+            .forEach(node => node.remove());
         // Dọn ultimate toàn màn hình Cầm Mộng Chibi nếu đổi / tháo pet khi đang chạy.
         document
             .querySelectorAll(
@@ -1154,6 +1224,8 @@ class PetManager {
             'tamon-bside-pet-casting',
             'pet-tamon-bside-chibi-stage',
             'tamon-bside-chibi-casting',
+            'pet-tamon-bside-chibi2-stage',
+            'tbc2-casting',
             'pet-tamon-pinkstatic-stage',
             'tamon-pinkstatic-casting',
             'pet-cam-mong-chibi-stage',
@@ -1171,6 +1243,11 @@ class PetManager {
             'lcc1-casting',
             'pet-linkclick-chibi-time-dive-stage',
             'lcc2-casting',
+            'pet-starry-night-stage',
+            'starry-night-casting',
+            'pet-starry-night-chibi-stage',
+            'snch-awakening',
+            'snch-casting',
             'pet-summer-solstice-stage',
             'summer-solstice-awakening',
             'summer-solstice-casting',
@@ -1201,6 +1278,33 @@ class PetManager {
 
         document.documentElement.classList.remove(
             'linkclick-chibi-dive-active'
+        );
+
+        // ĐÊM ĐẦY SAO: phòng vệ nếu Luxury runtime bị ngắt giữa lúc đổi pet.
+        document
+            .querySelectorAll(
+                '.snv-world,' +
+                '.snv-ui-frame,' +
+                '.snv-pet-realm,' +
+                '.snv-page-click,' +
+                '.snv-ultimate,' +
+                '.snv-dialogue,' +
+                '.snch-local-click-burst,' +
+                '.snch-screen-ultimate,' +
+                '.snch-dialogue'
+            )
+            .forEach(node => node.remove());
+
+        document.documentElement.classList.remove(
+            'starry-night-equipped',
+            'starry-night-skill-active',
+            'starry-night-chibi-equipped',
+            'starry-night-chibi-skill-active'
+        );
+
+        document.body?.classList.remove(
+            'theme-starry-night-canvas',
+            'theme-starry-night-chibi-stage'
         );
 
         // Dọn lớp Nyx toàn màn hình nếu người dùng đổi pet khi kỹ năng đang chạy.
@@ -1245,7 +1349,13 @@ class PetManager {
         } else {
             petElement = document.createElement('img');
             petElement.id = 'virtual-pet-img';
-            petElement.src = petData.asset || petData.value || 'assets/default_pet.png';
+            const fallbackPetAsset = 'assets/pet/robot.png';
+            petElement.addEventListener('error', () => {
+                if (petElement.getAttribute('src') !== fallbackPetAsset) {
+                    petElement.src = fallbackPetAsset;
+                }
+            }, { once: true });
+            petElement.src = petData.asset || petData.value || fallbackPetAsset;
             petElement.style.width = '130px';
             petElement.style.height = 'auto';
             petElement.style.filter = 'drop-shadow(0 5px 15px rgba(0,0,0,0.3))';
@@ -2533,6 +2643,176 @@ class PetManager {
                     this.container?.classList.remove('tamon-bside-chibi-casting');
                     tamonBsideChibiClickLocked = false;
                 }, 1150);
+            });
+        }
+
+
+        // =========================================================
+        // TAMON'S B-SIDE · CHIBI II — ECLIPSE ENCORE
+        // Vật phẩm mới hoàn toàn, namespace tbc2-*.
+        // Không dùng DOM/class/keyframe của tbc1, Pink Static hay Tamon Luxury.
+        // Chỉ tạo realm quanh pet + ultimate khi nhấn chính pet này.
+        // =========================================================
+        if (
+            petData.id === 'pet_tamon_bside_chibi_2' ||
+            petData.petEffect === 'tamon-bside-chibi2-eclipse-magic'
+        ) {
+            ensureTamonBsideChibi2Stylesheet();
+
+            petElement.setAttribute('draggable', 'false');
+            petElement.classList.add('tamon-bside-chibi2-avatar');
+            this.container.classList.add('pet-tamon-bside-chibi2-stage');
+
+            const realm = document.createElement('div');
+            realm.className = 'tbc2-realm';
+            realm.setAttribute('aria-hidden', 'true');
+            realm.innerHTML = `
+                <span class="tbc2-eclipse-disc"></span>
+                <span class="tbc2-orbit orbit-a"></span>
+                <span class="tbc2-orbit orbit-b"></span>
+                <span class="tbc2-ribbon ribbon-a"></span>
+                <span class="tbc2-ribbon ribbon-b"></span>
+                <div class="tbc2-mote-field"></div>
+            `;
+
+            const moteField = realm.querySelector('.tbc2-mote-field');
+            const reducedMotion = window.matchMedia?.(
+                '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+            ).matches;
+            const moteCount = this.getQualityCount(reducedMotion ? 7 : 15);
+
+            for (let index = 0; index < moteCount; index++) {
+                const mote = document.createElement('i');
+                mote.className = index % 4 === 0
+                    ? 'tbc2-mote is-star'
+                    : 'tbc2-mote';
+                mote.textContent = index % 4 === 0 ? '✦' : '';
+                mote.style.setProperty(
+                    '--tbc2-angle',
+                    `${index * (360 / Math.max(1, moteCount))}deg`
+                );
+                mote.style.setProperty(
+                    '--tbc2-radius',
+                    `${58 + (index % 5) * 10}px`
+                );
+                mote.style.setProperty(
+                    '--tbc2-delay',
+                    `${-index * 0.21}s`
+                );
+                moteField?.appendChild(mote);
+            }
+
+            this.container.appendChild(realm);
+
+            let tbc2ClickLocked = false;
+
+            petElement.addEventListener('click', event => {
+                if (tbc2ClickLocked) return;
+                if (
+                    typeof PetInteractionManager !== 'undefined' &&
+                    PetInteractionManager.isPetDragging
+                ) return;
+
+                event.preventDefault();
+                event.stopPropagation();
+                event.stopImmediatePropagation?.();
+
+                tbc2ClickLocked = true;
+
+                this.container.classList.remove('tbc2-casting');
+                void this.container.offsetWidth;
+                this.container.classList.add('tbc2-casting');
+
+                const localBurst = document.createElement('div');
+                localBurst.className = 'tbc2-click-burst';
+                localBurst.setAttribute('aria-hidden', 'true');
+                localBurst.innerHTML = `
+                    <span class="tbc2-click-crescent crescent-a"></span>
+                    <span class="tbc2-click-crescent crescent-b"></span>
+                    <div class="tbc2-click-stars"></div>
+                `;
+
+                const clickStars = localBurst.querySelector('.tbc2-click-stars');
+                const clickStarCount = this.getQualityCount(reducedMotion ? 8 : 16);
+                for (let index = 0; index < clickStarCount; index++) {
+                    const star = document.createElement('i');
+                    star.className = 'tbc2-click-star';
+                    star.style.setProperty(
+                        '--tbc2-click-angle',
+                        `${index * (360 / Math.max(1, clickStarCount))}deg`
+                    );
+                    star.style.setProperty(
+                        '--tbc2-click-distance',
+                        `${72 + (index % 4) * 14}px`
+                    );
+                    clickStars?.appendChild(star);
+                }
+                this.container.appendChild(localBurst);
+
+                document
+                    .querySelectorAll('.tbc2-fullscreen-ultimate')
+                    .forEach(node => node.remove());
+
+                const ultimate = document.createElement('div');
+                ultimate.className = 'tbc2-fullscreen-ultimate';
+                ultimate.setAttribute('aria-hidden', 'true');
+                ultimate.innerHTML = `
+                    <div class="tbc2-screen-night"></div>
+                    <div class="tbc2-screen-flash"></div>
+                    <div class="tbc2-screen-eclipse">
+                        <span class="tbc2-screen-moon"></span>
+                        <span class="tbc2-screen-corona"></span>
+                    </div>
+                    <span class="tbc2-screen-arc arc-a"></span>
+                    <span class="tbc2-screen-arc arc-b"></span>
+                    <div class="tbc2-screen-ribbons">
+                        <i class="ribbon-a"></i>
+                        <i class="ribbon-b"></i>
+                        <i class="ribbon-c"></i>
+                    </div>
+                    <div class="tbc2-screen-starfield"></div>
+                    <div class="tbc2-screen-title">
+                        <small>TAMON'S B-SIDE</small>
+                        <strong>ECLIPSE ENCORE</strong>
+                    </div>
+                `;
+
+                const starField = ultimate.querySelector('.tbc2-screen-starfield');
+                const screenStarCount = this.getQualityCount(reducedMotion ? 14 : 34);
+                for (let index = 0; index < screenStarCount; index++) {
+                    const star = document.createElement('i');
+                    star.className = index % 5 === 0
+                        ? 'tbc2-screen-star is-hot'
+                        : 'tbc2-screen-star';
+                    star.style.setProperty('--tbc2-sx', `${(index * 37 + 11) % 100}%`);
+                    star.style.setProperty('--tbc2-sy', `${(index * 61 + 7) % 100}%`);
+                    star.style.setProperty('--tbc2-sdelay', `${-(index % 11) * 0.08}s`);
+                    star.style.setProperty('--tbc2-sscale', `${0.55 + (index % 5) * 0.16}`);
+                    starField?.appendChild(star);
+                }
+
+                document.body.appendChild(ultimate);
+
+                requestAnimationFrame(() => {
+                    ultimate.classList.add('is-active');
+                });
+
+                window.setTimeout(() => {
+                    ultimate.classList.add('is-leaving');
+                }, 2550);
+
+                window.setTimeout(() => {
+                    ultimate.remove();
+                }, 3300);
+
+                window.setTimeout(() => {
+                    localBurst.remove();
+                    this.container?.classList.remove('tbc2-casting');
+                }, 1200);
+
+                window.setTimeout(() => {
+                    tbc2ClickLocked = false;
+                }, 3500);
             });
         }
 
@@ -4146,14 +4426,14 @@ class PetManager {
 
                 <img
                     class="lcc2-echo echo-cyan"
-                    src="assets/Lock/Tu tiên/Cheng Xiaoshi -chibi1.png"
+                    src="assets/Premium/Lock/Cheng Xiaoshi -chibi1.png"
                     alt=""
                     draggable="false"
                 >
 
                 <img
                     class="lcc2-echo echo-magenta"
-                    src="assets/Lock/Tu tiên/Cheng Xiaoshi -chibi1.png"
+                    src="assets/Premium/Lock/Cheng Xiaoshi -chibi1.png"
                     alt=""
                     draggable="false"
                 >
@@ -4536,6 +4816,210 @@ class PetManager {
                 },
                 true
             );
+        }
+
+
+        // =========================================================
+        // ĐÊM ĐẦY SAO · CHIBI — TIỂU LỮ KHÁCH
+        // Chỉ có realm quanh pet + click burst + ultimate riêng.
+        // Namespace snch-* độc lập, không đụng hiệu ứng Premium/Luxury.
+        // =========================================================
+        if (
+            petData.id === 'pet_dem_day_sao_chibi_1' ||
+            petData.petEffect === 'starry-night-chibi-wanderer-magic'
+        ) {
+            ensureStarryNightChibiPetStylesheet();
+
+            petElement.setAttribute('draggable', 'false');
+            petElement.classList.add('starry-night-chibi-avatar');
+
+            this.container.classList.add(
+                'pet-starry-night-chibi-stage',
+                'snch-awakening'
+            );
+
+            document.documentElement.classList.add(
+                'starry-night-chibi-equipped'
+            );
+            document.body?.classList.add('theme-starry-night-chibi-stage');
+
+            const realm = document.createElement('div');
+            realm.className = 'snch-local-realm';
+            realm.setAttribute('aria-hidden', 'true');
+            realm.innerHTML = `
+                <span class="snch-aura"></span>
+                <span class="snch-aura aura-b"></span>
+                <span class="snch-moon"></span>
+                <span class="snch-swirl swirl-a"></span>
+                <span class="snch-swirl swirl-b"></span>
+                <span class="snch-cypress"></span>
+                <span class="snch-ground"></span>
+                <div class="snch-star-field"></div>
+                <div class="snch-dust-field"></div>
+            `;
+
+            const reducedMotion = window.matchMedia?.(
+                '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+            ).matches;
+
+            const starField = realm.querySelector('.snch-star-field');
+            const starCount = this.getQualityCount(reducedMotion ? 12 : 26);
+
+            for (let index = 0; index < starCount; index++) {
+                const star = document.createElement('i');
+                star.className = 'snch-star';
+                star.textContent = index % 5 === 0 ? '✦' : '•';
+                star.style.setProperty('--snch-sx', `${8 + ((index * 41) % 82)}%`);
+                star.style.setProperty('--snch-sy', `${6 + ((index * 53) % 84)}%`);
+                star.style.setProperty('--snch-sd', `${-(index % 10) * 0.24}s`);
+                star.style.setProperty('--snch-ss', `${0.74 + (index % 4) * 0.12}`);
+                starField?.appendChild(star);
+            }
+
+            const dustField = realm.querySelector('.snch-dust-field');
+            const dustCount = this.getQualityCount(reducedMotion ? 8 : 18);
+            for (let index = 0; index < dustCount; index++) {
+                const dust = document.createElement('i');
+                dust.className = 'snch-dust';
+                dust.style.setProperty('--snch-dx', `${10 + ((index * 37) % 80)}%`);
+                dust.style.setProperty('--snch-dy', `${14 + ((index * 29) % 74)}%`);
+                dust.style.setProperty('--snch-dd', `${-(index % 8) * 0.3}s`);
+                dust.style.setProperty('--snch-dr', `${48 + (index % 5) * 12}px`);
+                dustField?.appendChild(dust);
+            }
+
+            this.container.appendChild(realm);
+
+            window.setTimeout(() => {
+                this.container?.classList.remove('snch-awakening');
+            }, 1300);
+
+            let clickLocked = false;
+
+            petElement.addEventListener('click', event => {
+                if (clickLocked) return;
+
+                if (
+                    typeof PetInteractionManager !== 'undefined' &&
+                    PetInteractionManager.isPetDragging
+                ) {
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+                event.stopImmediatePropagation();
+
+                clickLocked = true;
+
+                this.container.classList.remove('snch-casting');
+                void this.container.offsetWidth;
+                this.container.classList.add('snch-casting');
+
+                const burst = document.createElement('div');
+                burst.className = 'snch-local-click-burst';
+                burst.setAttribute('aria-hidden', 'true');
+                burst.innerHTML = `
+                    <span class="snch-burst-core"></span>
+                    <span class="snch-burst-ring ring-a"></span>
+                    <span class="snch-burst-ring ring-b"></span>
+                    <span class="snch-burst-ring ring-c"></span>
+                    <div class="snch-burst-rays"></div>
+                `;
+
+                const rayField = burst.querySelector('.snch-burst-rays');
+                const rayCount = this.getQualityCount(reducedMotion ? 10 : 20);
+                for (let index = 0; index < rayCount; index++) {
+                    const ray = document.createElement('i');
+                    ray.className = 'snch-burst-ray';
+                    ray.style.setProperty('--snch-ra', `${index * (360 / rayCount)}deg`);
+                    ray.style.setProperty('--snch-rd', `${72 + (index % 5) * 16}px`);
+                    ray.style.setProperty('--snch-rdelay', `${(index % 5) * 0.03}s`);
+                    rayField?.appendChild(ray);
+                }
+                this.container.appendChild(burst);
+
+                document.querySelectorAll('.snch-screen-ultimate, .snch-dialogue')
+                    .forEach(node => node.remove());
+
+                const ultimate = document.createElement('div');
+                ultimate.className = 'snch-screen-ultimate';
+                ultimate.setAttribute('aria-hidden', 'true');
+                ultimate.innerHTML = `
+                    <div class="snch-screen-wash"></div>
+                    <div class="snch-screen-vortex vortex-a"></div>
+                    <div class="snch-screen-vortex vortex-b"></div>
+                    <div class="snch-screen-moon"></div>
+                    <div class="snch-screen-horizon"></div>
+                    <div class="snch-screen-cypress"></div>
+                    <div class="snch-screen-stars"></div>
+                    <div class="snch-screen-brushes"></div>
+                    <div class="snch-screen-title">
+                        <small>ĐÊM ĐẦY SAO · TINH DẠ</small>
+                        <strong>MỘNG DU DẠ HỌA</strong>
+                        <span>✦ Starry Chibi Bloom ✦</span>
+                    </div>
+                `;
+
+                const screenStars = ultimate.querySelector('.snch-screen-stars');
+                const screenStarCount = this.getQualityCount(reducedMotion ? 18 : 42);
+                for (let index = 0; index < screenStarCount; index++) {
+                    const star = document.createElement('i');
+                    star.className = 'snch-screen-star';
+                    star.textContent = index % 6 === 0 ? '✦' : '·';
+                    star.style.setProperty('--snch-ux', `${(index * 43 + 7) % 100}%`);
+                    star.style.setProperty('--snch-uy', `${(index * 59 + 11) % 100}%`);
+                    star.style.setProperty('--snch-ud', `${-(index % 8) * 0.16}s`);
+                    screenStars?.appendChild(star);
+                }
+
+                const screenBrushes = ultimate.querySelector('.snch-screen-brushes');
+                const brushCount = this.getQualityCount(reducedMotion ? 8 : 18);
+                for (let index = 0; index < brushCount; index++) {
+                    const brush = document.createElement('i');
+                    brush.className = 'snch-screen-brush';
+                    brush.style.setProperty('--snch-bx', `${6 + ((index * 47) % 90)}%`);
+                    brush.style.setProperty('--snch-by', `${12 + ((index * 31) % 74)}%`);
+                    brush.style.setProperty('--snch-bw', `${140 + (index % 5) * 42}px`);
+                    brush.style.setProperty('--snch-br', `${-24 + (index % 8) * 8}deg`);
+                    brush.style.setProperty('--snch-bdelay', `${(index % 6) * 0.04}s`);
+                    screenBrushes?.appendChild(brush);
+                }
+
+                const dialogue = document.createElement('div');
+                dialogue.className = 'snch-dialogue';
+                dialogue.setAttribute('aria-hidden', 'true');
+                dialogue.innerHTML = `
+                    <small>TINH DẠ · TIỂU LỮ KHÁCH</small>
+                    <strong>“Đêm nay, những vì sao sẽ nở thành vệt cọ.”</strong>
+                `;
+
+                document.body.appendChild(ultimate);
+                document.body.appendChild(dialogue);
+                document.documentElement.classList.add(
+                    'starry-night-chibi-skill-active'
+                );
+
+                requestAnimationFrame(() => {
+                    burst.classList.add('is-active');
+                    ultimate.classList.add('is-active');
+                    dialogue.classList.add('is-active');
+                });
+
+                window.setTimeout(() => burst.remove(), 980);
+                window.setTimeout(() => ultimate.classList.add('is-ending'), 2350);
+                window.setTimeout(() => dialogue.classList.add('is-ending'), 2500);
+
+                window.setTimeout(() => {
+                    ultimate.remove();
+                    dialogue.remove();
+                    document.documentElement.classList.remove(
+                        'starry-night-chibi-skill-active'
+                    );
+                    this.container?.classList.remove('snch-casting');
+                    clickLocked = false;
+                }, 3350);
+            }, true);
         }
 
         this.container.appendChild(petElement);

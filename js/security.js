@@ -1,5 +1,5 @@
 // =========================================================================
-// SECURITY GUARD — STUDENT DEVTOOLS GUARD / TEACHER-SAFE v4.2.0
+// SECURITY GUARD — STUDENT DEVTOOLS GUARD / TEACHER-SAFE v4.2.1
 // =========================================================================
 // Mục tiêu:
 // - Học sinh: chặn chuột phải, F12, Ctrl+Shift+I/J/C, Ctrl+U.
@@ -16,7 +16,7 @@
 (function () {
     'use strict';
 
-    const VERSION = '4.2.0-devtools-guard';
+    const VERSION = '4.2.1-page-scope';
 
     if (window.SecurityGuard?.version === VERSION) {
         return;
@@ -148,8 +148,9 @@
             return false;
         }
 
-        // DevTools detector mới chỉ cưỡng chế trên trang Học sinh.
-        if (reason.startsWith('devtools-') && !shouldStrictlyProtectStudent()) {
+        // Mọi cưỡng chế thoát trang chỉ áp dụng cho Học sinh.
+        // Login/404/offline/role unknown không được xóa DOM hoặc đá sang about:blank.
+        if (!shouldStrictlyProtectStudent()) {
             return false;
         }
 
@@ -256,13 +257,19 @@
         }, CONFIG.resizeProbeDelayMs);
     }
 
-    // Chuột phải: Giáo viên đã xác minh được dùng bình thường.
+    // Chuột phải: chỉ Học sinh và Giáo viên đang chờ xác minh bị chặn.
+    // Login/404/offline/role unknown không thuộc phạm vi SecurityGuard.
     document.addEventListener('contextmenu', function (event) {
         if (isVerifiedTeacher()) {
             return;
         }
 
-        event.preventDefault();
+        if (
+            isTeacherVerificationInProgress() ||
+            shouldStrictlyProtectStudent()
+        ) {
+            event.preventDefault();
+        }
     }, true);
 
     // Phím tắt DevTools/source.
@@ -286,25 +293,33 @@
             return false;
         }
 
+        // Trang không phải Học sinh: không chặn shortcut và tuyệt đối không cưỡng chế thoát.
+        if (!shouldStrictlyProtectStudent()) {
+            return;
+        }
+
         event.preventDefault();
         event.stopImmediatePropagation();
         kickUser('keyboard-shortcut');
         return false;
     }, true);
 
-    // Phát hiện DevTools dock mở bằng menu / đã mở trước khi vào trang Học sinh.
-    window.addEventListener('resize', scheduleResizeProbe, { passive: true });
-    window.addEventListener('focus', () => probeDevTools('focus'), { passive: true });
-    document.addEventListener('visibilitychange', function () {
-        if (!document.hidden) {
-            setTimeout(() => probeDevTools('visibility'), 120);
-        }
-    });
+    // Detector kích thước chỉ có ý nghĩa trên trang Học sinh.
+    // Không tạo interval 280ms vô ích ở login/404/offline/Teacher.
+    if (isStudentPage()) {
+        window.addEventListener('resize', scheduleResizeProbe, { passive: true });
+        window.addEventListener('focus', () => probeDevTools('focus'), { passive: true });
+        document.addEventListener('visibilitychange', function () {
+            if (!document.hidden) {
+                setTimeout(() => probeDevTools('visibility'), 120);
+            }
+        });
 
-    state.intervalId = window.setInterval(
-        () => probeDevTools('interval'),
-        CONFIG.probeIntervalMs
-    );
+        state.intervalId = window.setInterval(
+            () => probeDevTools('interval'),
+            CONFIG.probeIntervalMs
+        );
+    }
 
     // Khi teacher.js xác minh xong, detector tự trở thành no-op nhờ isVerifiedTeacher().
     window.addEventListener('teacher-security-state-change', function () {

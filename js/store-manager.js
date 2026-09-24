@@ -700,6 +700,80 @@ const StoreConfig = {
             customIcon: '🖌️'
         },
         {
+            id: 'pet_dem_day_sao_chibi_1',
+            name: 'Tinh Dạ · Tiểu Lữ Khách Đêm Sao',
+            type: 'pet',
+            price: 850,
+            isNonCoin: false,
+            tag: 'Đêm đầy sao',
+            value: 'assets/Premium/đêm đầy sao/nam_chibi1.png',
+            isIcon: false,
+            petEffect: 'starry-night-chibi-wanderer-magic',
+            disableClickEffect: true,
+            runtimeCss: 'css/dem-day-sao.css?v=20260921.starry-night-distinct-v2'
+        },
+        {
+            id: 'theme_dem_day_sao_hoa_gioi',
+            name: 'Tinh Dạ · Họa Giới Đêm Sao',
+            type: 'theme',
+            price: 800,
+            isNonCoin: false,
+            tag: 'Đêm đầy sao',
+            value: 'theme-starry-night-painted-gallery',
+            customIcon: '🌌',
+            runtimeCss: 'css/dem-day-sao.css?v=20260921.starry-night-distinct-v2'
+        },
+        {
+            id: 'effect_dem_day_sao_tinh_hoa_luu_van',
+            name: 'Tinh Dạ · Tinh Hoa Lưu Vân',
+            type: 'effect',
+            price: 900,
+            isNonCoin: false,
+            tag: 'Đêm đầy sao',
+            value: 'effect_dem_day_sao_tinh_hoa_luu_van',
+            customIcon: '✦',
+            runtimeCss: 'css/dem-day-sao.css?v=20260921.starry-night-distinct-v2'
+        },
+        {
+            id: 'frame_dem_day_sao_tinh_da_chi_hoan',
+            name: 'Tinh Dạ · Tinh Họa Chi Hoàn',
+            type: 'frame',
+            price: 250,
+            isNonCoin: false,
+            tag: 'Đêm đầy sao',
+            tags: ['Đêm đầy sao'],
+            value: 'assets/Premium/đêm đầy sao/nam_khung1.png',
+            isIcon: false,
+            frameEffect: 'sndf1-starry-night-painted-frame',
+            runtimeCss: 'css/dem-day-sao.css?v=20260921.starry-night-frame-v1'
+        },
+        {
+            id: 'background_dem_day_sao_mong_canh_1',
+            name: 'Tinh Dạ · Mộng Cảnh Đêm Sao',
+            type: 'background',
+            price: 150,
+            isNonCoin: false,
+            tag: 'Đêm đầy sao',
+            tags: ['Đêm đầy sao'],
+            value: 'assets/Premium/đêm đầy sao/nam_nen1.png',
+            isIcon: false,
+
+            /*
+             * NỀN ĐÊM ĐẦY SAO · ĐỘC LẬP
+             * FIX: không dùng cover vì cover sẽ cắt ảnh khi tỉ lệ ảnh khác viewport.
+             * - 100vw 100vh: ép toàn bộ ảnh vừa đúng khung màn hình, không mất phần nào;
+             * - center center: giữ ảnh nằm giữa viewport;
+             * - no-repeat + fixed: nền ổn định khi cuộn;
+             * - chỉ áp dụng cho item này, không thay đổi nền khác;
+             * - card vẫn khóa giao diện qua starryNightChibiIds bên dưới.
+             */
+            backgroundFit: '100vw 100vh',
+            backgroundPosition: 'center center',
+            backgroundRepeat: 'no-repeat',
+            backgroundAttachment: 'fixed',
+            runtimeCss: 'css/dem-day-sao.css?v=20260921.starry-night-background-v2'
+        },
+        {
             id: 'pet_thatdaitoi_luoibieng_1',
             name: 'Acedia - Linh Thú Lười Biếng',
             type: 'pet',
@@ -1504,6 +1578,121 @@ const StoreConfig = {
             // Hiệu ứng RIÊNG của vật phẩm mới, không tái dùng effect Tamon cũ.
             petEffect: 'tamon-bside-chibi-signal-magic',
             disableClickEffect: true
+        },
+        {
+            id: 'pet_tamon_bside_chibi_2',
+            name: 'Tamon · Nụ Cười Mèo Đen',
+            type: 'pet',
+
+            price: 900,
+            isNonCoin: false,
+
+            tag: "Tamon's B-Side",
+            tags: ["Tamon's B-Side"],
+
+            value: 'assets/Premium/Tamon/tamon-chibi2.png',
+            asset: 'assets/Premium/Tamon/tamon-chibi2.png',
+            isIcon: false,
+
+            // Pet mới dùng runtime/namespace riêng tbc2-*; không tái dùng Tamon cũ.
+            petEffect: 'tamon-bside-chibi2-eclipse-magic',
+            disableClickEffect: true
+        },
+        {
+            id: 'theme_tamon_bside_black_cat_nocturne',
+            name: 'Tamon · Hắc Miêu Dạ Khúc',
+            type: 'theme',
+
+            price: 800,
+            isNonCoin: false,
+
+            tag: "Tamon's B-Side",
+            tags: ["Tamon's B-Side"],
+
+            value: 'theme-tamon-bside-black-cat-nocturne',
+            customIcon: '☾',
+
+            /*
+             * Theme hoàn toàn mới cho Tamon · Nụ Cười Mèo Đen.
+             * Namespace giao diện riêng tbcat1-*; không dùng effect/runtime Tamon cũ.
+             */
+            themeSuite: 'tamon-black-cat-nocturne-v1'
+        },
+        {
+            id: 'effect_tamon_bside_black_cat_eclipse',
+            name: 'Tamon · Hắc Miêu Nguyệt Thực',
+            type: 'effect',
+
+            price: 850,
+            isNonCoin: false,
+
+            tag: "Tamon's B-Side",
+            tags: ["Tamon's B-Side"],
+
+            value: 'effect_tamon_bside_black_cat_eclipse',
+            customIcon: '◉',
+
+            /*
+             * Hiệu ứng toàn web RIÊNG cho bộ Tamon 2.
+             * Namespace tuyệt đối riêng tbcatfx2-*.
+             * Không tái dùng tbfx1-* / tbc1-* / tbc2-* hay effect khác.
+             */
+            effectNamespace: 'tbcatfx2-black-cat-eclipse'
+        },
+        {
+            id: 'frame_tamon_bside_black_cat_moon_ring',
+            name: 'Tamon · Hắc Miêu Nguyệt Hoàn',
+            type: 'frame',
+
+            price: 250,
+            isNonCoin: false,
+
+            tag: "Tamon's B-Side",
+            tags: ["Tamon's B-Side"],
+
+            value: 'assets/Premium/Tamon/tamon-khung2.png',
+            asset: 'assets/Premium/Tamon/tamon-khung2.png',
+            isIcon: false,
+
+            /*
+             * KHUNG TAMON 2 · HẮC MIÊU
+             * - Dùng AvatarFrameManager chuẩn hiện có.
+             * - Geometry lấy theo FINAL FIX của Premium Mùa Xuân:
+             *   profile 60x60, popup 126x126, popup offset -2px/+2px.
+             * - CSS khóa theo data-avatar-frame-id; không ảnh hưởng khung khác.
+             */
+            frameEffect: 'tamon-black-cat-moon-ring',
+            runtimeCss: 'css/tamon-b-side.css?v=20260920.tamon2-black-cat-frame-v1'
+        },
+        {
+            id: 'background_tamon_bside_black_cat_nocturne',
+            name: 'Tamon · Hắc Miêu Dạ Cảnh',
+            type: 'background',
+
+            price: 150,
+            isNonCoin: false,
+
+            tag: "Tamon's B-Side",
+            tags: ["Tamon's B-Side"],
+
+            value: 'assets/Premium/Tamon/tamon-nen2.png',
+            asset: 'assets/Premium/Tamon/tamon-nen2.png',
+            isIcon: false,
+
+            /*
+             * NỀN TAMON 2 · HẮC MIÊU
+             * - cover: phủ kín viewport, giữ nguyên tỉ lệ ảnh, không kéo méo;
+             * - center center: cắt cân hai bên khi tỉ lệ màn hình khác ảnh;
+             * - no-repeat + fixed: không lặp và ổn định khi cuộn;
+             * - cấu hình nằm trên chính item này, không sửa nền khác;
+             * - card thuộc nhóm Tamon 2 và ui-theme-immune.
+             */
+            backgroundFit: 'cover',
+            backgroundPosition: 'center center',
+            backgroundRepeat: 'no-repeat',
+            backgroundAttachment: 'fixed',
+
+            premiumSuite: 'tamon-black-cat-nocturne-background-v1'
         },
         {
             id: 'theme_tamon_bside_backstage',
@@ -2583,6 +2772,9 @@ const FRAME_RUNTIME_CSS_BY_ITEM_ID = Object.freeze({
     frame_tamon_bside_signal_ring: Object.freeze([
         'css/tamon-b-side.css?v=20260917.bmask-frame-selfcontained-v1'
     ]),
+    frame_tamon_bside_black_cat_moon_ring: Object.freeze([
+        'css/tamon-b-side.css?v=20260920.tamon2-black-cat-frame-v1'
+    ]),
     frame_truyenthuyet_nyx_hac_nguyet_chi_hoan: Object.freeze([
         'css/nyx-than-thoai.css?v=20260917.frame-runtime-barrier-v1',
         'css/legendery.css?v=20260917.frame-runtime-barrier-v1'
@@ -2649,6 +2841,51 @@ function ensureAetherLittleSpiritStylesheet() {
     link.addEventListener('error', () => {
         console.error(
             '[AETHER CHIBI] Không tải được css/aether-than-thoai.css'
+        );
+    }, { once: true });
+
+    document.head.appendChild(link);
+    return link;
+}
+
+
+// =========================================================
+// ĐÊM ĐẦY SAO · CHIBI — CSS RUNTIME GUARD
+// Dùng một file CSS riêng cho card cửa hàng thường + hiệu ứng pet.
+// Không chạm vào stylesheet Đêm Đầy Sao Luxury đã có.
+// =========================================================
+function ensureStarryNightChibiStylesheet() {
+    if (typeof document === 'undefined' || !document.head) return null;
+
+    // CHUNG 1 CSS với Premium Đêm Đầy Sao.
+    const existing = Array.from(
+        document.querySelectorAll('link[rel="stylesheet"][href]')
+    ).find(link =>
+        /(?:^|\/)dem-day-sao(?:\(\d+\))?\.css(?:[?#].*)?$/i
+            .test(link.href || '')
+    );
+
+    if (existing) {
+        existing.id = existing.id || 'starry-night-premium-style';
+        const targetHref = 'css/dem-day-sao.css?v=20260921.starry-night-distinct-v2';
+        if (!String(existing.getAttribute('href') || '').includes('20260921.starry-night-distinct-v2')) {
+            existing.setAttribute('href', targetHref);
+        }
+        return existing;
+    }
+
+    const byId = document.getElementById('starry-night-premium-style');
+    if (byId) return byId;
+
+    const link = document.createElement('link');
+    link.id = 'starry-night-premium-style';
+    link.rel = 'stylesheet';
+    link.href = 'css/dem-day-sao.css?v=20260921.starry-night-distinct-v2';
+    link.dataset.starryNight = 'true';
+
+    link.addEventListener('error', () => {
+        console.error(
+            '[STARRY NIGHT] Không tải được css/dem-day-sao.css'
         );
     }, { once: true });
 
@@ -2842,7 +3079,7 @@ class StoreManager {
      * Cổng mua vật phẩm.
      * Ngăn giao diện giới hạn bị mua ngoài ngày mở bán.
      */
-    static buyItemSafely(itemId, isUpgrade = false) {
+    static async buyItemSafely(itemId, isUpgrade = false) {
         const item = this.getItemById(itemId);
 
         if (!item) {
@@ -2857,6 +3094,14 @@ class StoreManager {
                 `🔒 ${item.name} đang bị Giáo viên khóa.`
             );
             return;
+        }
+
+        // Store thường tuyệt đối không được đi vòng qua gateway để mua Luxury.
+        if (item.luxuryOnly === true) {
+            window.alert(
+                '⛔ Vật phẩm Sang trọng chỉ được mua trong Cửa hàng Sang trọng.'
+            );
+            return false;
         }
 
         /*
@@ -2897,13 +3142,13 @@ class StoreManager {
             return;
         }
 
-        purchaseHandler(itemId, isUpgrade);
+        return await purchaseHandler(itemId, isUpgrade, 'regular');
     }
 
     /*
      * Dùng thử cũng chỉ hoạt động trong thời gian mở bán.
      */
-    static trialItemSafely(itemId) {
+    static async trialItemSafely(itemId) {
         const item = this.getItemById(itemId);
 
         if (!item) {
@@ -2918,6 +3163,14 @@ class StoreManager {
                 `🔒 ${item.name} đang bị Giáo viên khóa.`
             );
             return;
+        }
+
+        // Luxury Store hiện không có luồng trial riêng; chặn gọi vòng API Store thường.
+        if (item.luxuryOnly === true) {
+            window.alert(
+                '⛔ Vật phẩm Sang trọng không thể dùng thử qua Cửa hàng thường.'
+            );
+            return false;
         }
 
         const saleState =
@@ -2952,10 +3205,11 @@ class StoreManager {
             return;
         }
 
-        trialHandler(itemId);
+        return await trialHandler(itemId);
     }
 
     static applyItem(itemId) {
+        if (window.isStudentStoreGameAccessEnabled?.() === false) return false;
         const item = this.getItemById(itemId);
         if (!item) return false;
 
@@ -3037,6 +3291,7 @@ class StoreManager {
             'Cầm Mộng': 'tag-cam-mong-chibi',
             'Trung thu': 'tag-trung-thu-chibi',
             'Link Click': 'tag-link-click-chibi',
+            'Đêm đầy sao': 'tag-starry-night-chibi',
             'BL': 'tag-bl',
         };
 
@@ -3421,6 +3676,20 @@ class StoreManager {
         ]);
 
         /*
+         * TAMON'S B-SIDE · CHIBI II
+         * Card Tamon 2 hoàn toàn riêng về mỹ thuật, nhưng DOM/bố cục vẫn là store-item-card chuẩn.
+         * Pet + theme + effect + frame + background Hắc Miêu dùng chung card Tamon 2.
+         * Chỉ dùng chung SKIN TAG Tamon's B-Side với Tamon 1; KHÔNG dùng chung card/style/effect.
+         */
+        const tamonBsideChibi2Ids = new Set([
+            'pet_tamon_bside_chibi_2',
+            'theme_tamon_bside_black_cat_nocturne',
+            'effect_tamon_bside_black_cat_eclipse',
+            'frame_tamon_bside_black_cat_moon_ring',
+            'background_tamon_bside_black_cat_nocturne'
+        ]);
+
+        /*
          * THANH HUYỀN · CẦM MỘNG
          * Pet + theme + effect + frame + background dùng CHUNG card Cầm Mộng
          * nhưng GIỮ NGUYÊN DOM / bố cục chuẩn.
@@ -3553,6 +3822,20 @@ class StoreManager {
             'background_linkclick_cheng_xiaoshi_sunset_studio'
         ]);
 
+
+        /*
+         * ĐÊM ĐẦY SAO · CHIBI
+         * Thẻ riêng cho cửa hàng thường, giữ nguyên DOM/bố cục store-item-card.
+         * Miễn nhiễm giao diện khác và dùng CSS riêng, tách biệt Premium Luxury.
+         */
+        const starryNightChibiIds = new Set([
+            'pet_dem_day_sao_chibi_1',
+            'theme_dem_day_sao_hoa_gioi',
+            'effect_dem_day_sao_tinh_hoa_luu_van',
+            'frame_dem_day_sao_tinh_da_chi_hoan',
+            'background_dem_day_sao_mong_canh_1'
+        ]);
+
         const acediaCardVariantMap = Object.freeze({
             pet_thatdaitoi_luoibieng_1: 'familiar',
             theme_thatdaitoi_acedia_dream: 'palace',
@@ -3642,6 +3925,18 @@ class StoreManager {
             );
 
             specialCardGroup = 'tamon-bside-chibi';
+            isThemeImmune = true;
+        }
+
+        /* TAMON'S B-SIDE · CHIBI II — card riêng, tuyệt đối không đổi layout */
+        if (tamonBsideChibi2Ids.has(item.id)) {
+            cardClasses.push(
+                'store-card-tamon-bside-chibi2',
+                'store-theme-locked',
+                'ui-theme-immune'
+            );
+
+            specialCardGroup = 'tamon-bside-chibi2';
             isThemeImmune = true;
         }
 
@@ -3934,6 +4229,24 @@ class StoreManager {
             );
 
             specialCardGroup = 'linkclick-chibi';
+            isThemeImmune = true;
+        }
+
+        /*
+         * ĐÊM ĐẦY SAO · CHIBI
+         * Tag/card riêng nhưng vẫn dùng nguyên bố cục thẻ chuẩn.
+         */
+        if (starryNightChibiIds.has(item.id)) {
+            ensureStarryNightChibiStylesheet();
+
+            cardClasses.push(
+                'store-card-starry-night-chibi',
+                'store-theme-locked',
+                'ui-theme-immune'
+            );
+
+            tagClass = 'tag-starry-night-chibi';
+            specialCardGroup = 'starry-night-chibi';
             isThemeImmune = true;
         }
 
@@ -4866,6 +5179,7 @@ class StoreManager {
     }
 
     function repairFrame(itemOrId) {
+        if (window.isStudentStoreGameAccessEnabled?.() === false) return false;
         const item = getItem(itemOrId);
 
         if (!isTarget(item)) {
@@ -5023,6 +5337,7 @@ class StoreManager {
                         await originalApply(
                             itemId
                         );
+                    if (result === false || window.isStudentStoreGameAccessEnabled?.() === false) return false;
 
                     if (isTarget(itemId)) {
                         const item =
@@ -5386,6 +5701,7 @@ class StoreManager {
     }
 
     function repairFrame(itemOrId) {
+        if (window.isStudentStoreGameAccessEnabled?.() === false) return false;
         const item = getItem(itemOrId);
         if (!isTarget(item)) return false;
 
@@ -5468,6 +5784,7 @@ class StoreManager {
         if (originalApply) {
             StoreManager.applyItem = async function (itemId) {
                 const result = await originalApply(itemId);
+                if (result === false || window.isStudentStoreGameAccessEnabled?.() === false) return false;
                 if (isTarget(itemId)) {
                     const item = getItem(itemId);
                     if (
@@ -5828,6 +6145,7 @@ class StoreManager {
     }
 
     function repairFrame(itemOrId) {
+        if (window.isStudentStoreGameAccessEnabled?.() === false) return false;
         const item = getItem(itemOrId);
 
         if (!isTarget(item)) {
@@ -5955,6 +6273,7 @@ class StoreManager {
                 async function (itemId) {
                     const result =
                         await originalApply(itemId);
+                    if (result === false || window.isStudentStoreGameAccessEnabled?.() === false) return false;
 
                     if (isTarget(itemId)) {
                         const item = getItem(itemId);
@@ -6086,6 +6405,345 @@ class StoreManager {
             startObserver,
             { once: true }
         );
+    } else {
+        startObserver();
+    }
+})();
+
+/* ============================================================================
+   ĐÊM ĐẦY SAO · TINH HỌA CHI HOÀN — SNDF1 FRAME BRIDGE
+   - Chỉ dành cho frame_dem_day_sao_tinh_da_chi_hoan.
+   - Dùng vị trí profile/popup chuẩn đã kiểm chứng ở Premium Mùa Xuân.
+   - Namespace độc lập sndf1-*; không sửa runtime/DOM của frame khác.
+   ============================================================================ */
+(function installStarryNightPaintedFrameBridge() {
+    'use strict';
+
+    const ITEM_ID = 'frame_dem_day_sao_tinh_da_chi_hoan';
+    const FRAME_EFFECT = 'sndf1-starry-night-painted-frame';
+    const FRAME_ASSET = 'assets/Premium/đêm đầy sao/nam_khung1.png';
+    let installed = false;
+
+    function getItem(itemOrId) {
+        if (itemOrId && typeof itemOrId === 'object') return itemOrId;
+        if (
+            typeof StoreManager === 'undefined' ||
+            typeof StoreManager.getItemById !== 'function'
+        ) return null;
+        return StoreManager.getItemById(String(itemOrId || ''));
+    }
+
+    function isTarget(itemOrId) {
+        const item = getItem(itemOrId);
+        return !!(
+            item &&
+            item.id === ITEM_ID &&
+            item.type === 'frame'
+        );
+    }
+
+    function isOwnHost(host) {
+        if (!host || host.nodeType !== 1) return false;
+        return (
+            host.classList.contains('sndf1-frame-host') ||
+            host.getAttribute('data-avatar-frame-id') === ITEM_ID ||
+            host.getAttribute('data-avatar-frame-effect') === FRAME_EFFECT ||
+            !!host.querySelector(
+                ':scope > .sndf1-frame-decoration,' +
+                ':scope > .sndf1-frame-aura,' +
+                ':scope > .sndf1-frame-glint,' +
+                ':scope > img.avatar-frame-decoration[src*="nam_khung1.png"]'
+            )
+        );
+    }
+
+    function removeOwnLayers(host) {
+        if (!host) return;
+        host.querySelectorAll(
+            ':scope > .sndf1-frame-decoration,' +
+            ':scope > .sndf1-frame-aura,' +
+            ':scope > .sndf1-frame-glint,' +
+            ':scope > img.avatar-frame-decoration[data-sndf1-frame="1"],' +
+            ':scope > img.avatar-frame-decoration[src*="nam_khung1.png"]'
+        ).forEach(node => node.remove());
+    }
+
+    function clearTargetHost(host) {
+        if (!isOwnHost(host)) return;
+
+        const currentId = host.getAttribute('data-avatar-frame-id') || '';
+        const currentEffect = host.getAttribute('data-avatar-frame-effect') || '';
+        const anotherFrameIsActive =
+            (currentId && currentId !== ITEM_ID) ||
+            (currentEffect && currentEffect !== FRAME_EFFECT);
+
+        removeOwnLayers(host);
+        host.classList.remove('sndf1-frame-host');
+
+        if (!anotherFrameIsActive) {
+            host.classList.remove(
+                'avatar-frame-equipped',
+                'avatar-frame-profile-host',
+                'avatar-frame-modal-host'
+            );
+
+            if (currentId === ITEM_ID || !currentId) {
+                host.removeAttribute('data-avatar-frame-id');
+            }
+            if (currentEffect === FRAME_EFFECT || !currentEffect) {
+                host.removeAttribute('data-avatar-frame-effect');
+            }
+        }
+
+        if (host.dataset.sndf1ThemeImmune === '1') {
+            host.removeAttribute('data-theme-immune');
+            delete host.dataset.sndf1ThemeImmune;
+        }
+    }
+
+    function clearOnlyTargetFrame() {
+        const hosts = new Set();
+
+        document.querySelectorAll(
+            '.sndf1-frame-host,' +
+            '[data-avatar-frame-id="' + ITEM_ID + '"],' +
+            '[data-avatar-frame-effect="' + FRAME_EFFECT + '"]'
+        ).forEach(host => hosts.add(host));
+
+        document.querySelectorAll(
+            '.sndf1-frame-decoration,' +
+            '.sndf1-frame-aura,' +
+            '.sndf1-frame-glint,' +
+            'img.avatar-frame-decoration[data-sndf1-frame="1"],' +
+            'img.avatar-frame-decoration[src*="nam_khung1.png"]'
+        ).forEach(node => {
+            if (node.parentElement) hosts.add(node.parentElement);
+        });
+
+        hosts.forEach(clearTargetHost);
+
+        document.querySelectorAll(
+            '.sndf1-frame-decoration,' +
+            '.sndf1-frame-aura,' +
+            '.sndf1-frame-glint,' +
+            'img.avatar-frame-decoration[data-sndf1-frame="1"]'
+        ).forEach(node => node.remove());
+    }
+
+    function ensureLayer(host, item, variant) {
+        if (!host || !item) return;
+
+        host.classList.add(
+            'avatar-frame-equipped',
+            'sndf1-frame-host',
+            variant === 'profile'
+                ? 'avatar-frame-profile-host'
+                : 'avatar-frame-modal-host'
+        );
+
+        host.setAttribute('data-avatar-frame-id', ITEM_ID);
+        host.setAttribute('data-avatar-frame-effect', FRAME_EFFECT);
+
+        if (!host.hasAttribute('data-theme-immune')) {
+            host.setAttribute('data-theme-immune', 'true');
+            host.dataset.sndf1ThemeImmune = '1';
+        }
+
+        let frame = host.querySelector(':scope > .avatar-frame-decoration');
+        const currentSrc = frame?.getAttribute('src') || '';
+
+        if (!frame || !currentSrc.includes('nam_khung1.png')) {
+            if (frame) frame.remove();
+            frame = document.createElement('img');
+            frame.className = 'avatar-frame-decoration sndf1-frame-decoration';
+            frame.src = item.value || FRAME_ASSET;
+            frame.alt = '';
+            frame.draggable = false;
+            frame.setAttribute('aria-hidden', 'true');
+            host.appendChild(frame);
+        } else {
+            frame.classList.add('sndf1-frame-decoration');
+        }
+
+        frame.dataset.sndf1Frame = '1';
+        frame.style.removeProperty('display');
+        frame.style.removeProperty('visibility');
+        frame.style.removeProperty('opacity');
+
+        let aura = host.querySelector(':scope > .sndf1-frame-aura');
+        if (!aura) {
+            aura = document.createElement('span');
+            aura.className = 'sndf1-frame-aura';
+            aura.setAttribute('aria-hidden', 'true');
+            host.appendChild(aura);
+        }
+
+        if (variant === 'profile') {
+            for (let index = 1; index <= 4; index++) {
+                const className = 'glint-' + index;
+                if (host.querySelector(':scope > .sndf1-frame-glint.' + className)) {
+                    continue;
+                }
+                const glint = document.createElement('span');
+                glint.className = 'sndf1-frame-glint ' + className;
+                glint.textContent = '✦';
+                glint.setAttribute('aria-hidden', 'true');
+                host.appendChild(glint);
+            }
+        } else {
+            host.querySelectorAll(':scope > .sndf1-frame-glint')
+                .forEach(node => node.remove());
+        }
+    }
+
+    function repairFrame(itemOrId) {
+        if (window.isStudentStoreGameAccessEnabled?.() === false) return false;
+        const item = getItem(itemOrId);
+        if (!isTarget(item)) return false;
+
+        ensureLayer(
+            document.querySelector('.profile-trigger-btn'),
+            item,
+            'profile'
+        );
+
+        ensureLayer(
+            document.querySelector(
+                '#studentInfoModal .avatar-upload-container'
+            ),
+            item,
+            'modal'
+        );
+
+        return true;
+    }
+
+    function wrapAvatarFrameManager() {
+        const manager = window.AvatarFrameManager;
+        if (!manager || manager.__sndf1StarryFrameBridge) return !!manager;
+
+        const originalApply =
+            typeof manager.applyFrame === 'function'
+                ? manager.applyFrame.bind(manager)
+                : null;
+        const originalClear =
+            typeof manager.clearFrame === 'function'
+                ? manager.clearFrame.bind(manager)
+                : null;
+
+        if (originalApply) {
+            manager.applyFrame = function (itemOrId) {
+                if (!isTarget(itemOrId)) clearOnlyTargetFrame();
+                const result = originalApply(itemOrId);
+                if (isTarget(itemOrId)) {
+                    repairFrame(itemOrId);
+                    requestAnimationFrame(() => repairFrame(itemOrId));
+                }
+                return result;
+            };
+        }
+
+        if (originalClear) {
+            manager.clearFrame = function (...args) {
+                clearOnlyTargetFrame();
+                const result = originalClear(...args);
+                clearOnlyTargetFrame();
+                return result;
+            };
+        }
+
+        manager.__sndf1StarryFrameBridge = true;
+        return true;
+    }
+
+    function wrapStoreManager() {
+        if (
+            typeof StoreManager === 'undefined' ||
+            StoreManager.__sndf1StarryFrameStoreBridge
+        ) return typeof StoreManager !== 'undefined';
+
+        const originalApply =
+            typeof StoreManager.applyItem === 'function'
+                ? StoreManager.applyItem.bind(StoreManager)
+                : null;
+        const originalUnapply =
+            typeof StoreManager.unapplyItem === 'function'
+                ? StoreManager.unapplyItem.bind(StoreManager)
+                : null;
+
+        if (originalApply) {
+            StoreManager.applyItem = async function (itemId) {
+                const result = await originalApply(itemId);
+                if (
+                    result === false ||
+                    window.isStudentStoreGameAccessEnabled?.() === false
+                ) return false;
+
+                if (isTarget(itemId)) {
+                    const item = getItem(itemId);
+                    if (
+                        window.AvatarFrameManager &&
+                        typeof window.AvatarFrameManager.applyFrame === 'function'
+                    ) {
+                        window.AvatarFrameManager.applyFrame(item);
+                    } else {
+                        repairFrame(item);
+                    }
+                    setTimeout(() => repairFrame(item), 80);
+                    setTimeout(() => repairFrame(item), 350);
+                }
+
+                return result;
+            };
+        }
+
+        if (originalUnapply) {
+            StoreManager.unapplyItem = async function (itemId) {
+                if (isTarget(itemId)) clearOnlyTargetFrame();
+                const result = await originalUnapply(itemId);
+                if (isTarget(itemId)) {
+                    clearOnlyTargetFrame();
+                    requestAnimationFrame(clearOnlyTargetFrame);
+                    setTimeout(clearOnlyTargetFrame, 80);
+                }
+                return result;
+            };
+        }
+
+        StoreManager.__sndf1StarryFrameStoreBridge = true;
+        return true;
+    }
+
+    function install() {
+        if (installed) return;
+        installed = wrapAvatarFrameManager() && wrapStoreManager();
+    }
+
+    setTimeout(install, 0);
+
+    let tries = 0;
+    const retryTimer = setInterval(() => {
+        tries += 1;
+        install();
+        if (installed || tries >= 80) clearInterval(retryTimer);
+    }, 100);
+
+    const observer = new MutationObserver(() => {
+        const activeHost = document.querySelector(
+            '[data-avatar-frame-id="' + ITEM_ID + '"]'
+        );
+        if (!activeHost) return;
+        const item = getItem(ITEM_ID);
+        if (item) repairFrame(item);
+    });
+
+    const startObserver = () => {
+        if (!document.body) return;
+        observer.observe(document.body, { childList: true, subtree: true });
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', startObserver, { once: true });
     } else {
         startObserver();
     }

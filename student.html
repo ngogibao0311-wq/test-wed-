@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="application-version" content="4.0.3">
+    <meta name="application-build" content="2026.09.23.4-luxury-integrity-fix">
     <title>Trang Học Sinh</title>
     <!-- Kết nối sớm tới CDN lõi; không tải thêm tài nguyên và không đổi chức năng -->
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
@@ -18,7 +19,7 @@
     <link rel="stylesheet" href="css/update-manager.css?v=1.0.0">
     <link id="linkclick-cheng-premium-style" rel="stylesheet" href="css/link-click-cheng-xiaoshi.css?v=20260917.frame-runtime-barrier-v1">
     <!-- Core-first loader: CSS/module đặc biệt chỉ tải khi cần -->
-    <script src="js/student-feature-loader.js?v=20260918.fx-store-v2"></script>
+    <script src="js/student-feature-loader.js?v=20260924.rules-integrity-v1"></script>
     <script>
         MathJax = {
             tex: {
@@ -452,6 +453,14 @@
                         }
 
                         try {
+                            if (
+                                window.AppServiceWorker &&
+                                typeof window.AppServiceWorker.ensureRegistered === 'function'
+                            ) {
+                                await window.AppServiceWorker.ensureRegistered();
+                                return true;
+                            }
+
                             const registration = await navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' });
                             registration.update().catch(() => { });
                             return true;
@@ -1550,7 +1559,7 @@
 
     <!-- 2. Khởi tạo Firebase -->
     <script src="js/firebase-config.js?v=20260909.singleflight-v1"></script>
-    <script src="js/cloudinary-storage.js?v=3.8"></script>
+    <script src="js/cloudinary-storage.js?v=20260923.luxury-integrity-v1"></script>
 
     <script>
         window.APP_STORAGE_CONFIG = Object.freeze({
@@ -1558,7 +1567,7 @@
         });
     </script>
 
-    <script src="js/cloudflare-r2-storage.js?v=3.8"></script>
+    <script src="js/cloudflare-r2-storage.js?v=20260923.luxury-integrity-v1"></script>
 
     <!-- 3. Thư viện đọc file DOCX -->
     <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
@@ -1571,18 +1580,19 @@
         // Phiên bản thực sự của bộ HTML/JS đang chạy.
         // common.js cũ đọc appVersion từ localStorage, nên đồng bộ trước khi nạp common.js.
         window.APP_VERSION = '4.0.3';
+        window.APP_BUILD = '2026.09.23.4-luxury-integrity-fix';
         try {
             localStorage.setItem('appVersion', window.APP_VERSION);
         } catch (_) { }
     </script>
     
-    <script src="js/common.js?v=4.0.4-login-layout4"></script>
+    <script src="js/common.js?v=4.0.5-infra-integrity-fix"></script>
     <script src="js/history-retention.js?v=1.0.0-2month-safe"></script>
-    <script src="js/update-manager.js?v=1.0.4-release-v4.0.3"></script>
+    <script src="js/update-manager.js?v=1.1.0-build-aware"></script>
     <script src="js/web-animations.js?v=1.0"></script>
     <!-- Tối ưu hiệu năng: mặc định tắt; dùng trạng thái đã lưu trong Cài đặt. Phát hiện mobile/thiết bị yếu chỉ áp dụng sau khi tính năng đã được bật. -->
     <script src="js/web-performance-optimizer.js?v=2.0.0"></script>
-    <script src="js/transaction-history.js?v=4.0.1-retention-2months"></script>
+    <script src="js/transaction-history.js?v=20260924.reward-integrity-v1"></script>
 
     <!-- 4. EffectQualityManager là core; các module tính năng khác do StudentFeatureLoader lazy-load -->
     <!-- Điều chỉnh riêng mức hiệu ứng vật phẩm + Web Animations; không đụng theme/logic -->
@@ -1592,7 +1602,7 @@
     <script src="https://www.youtube.com/iframe_api"></script>
 
     <!-- 5. Logic chính của trang học sinh luôn đặt cuối -->
-    <script src="js/student.js?v=20260918.menu-mount-fix"></script>
+    <script src="js/student.js?v=20260924.rules-integrity-v1"></script>
 
 </body>
 

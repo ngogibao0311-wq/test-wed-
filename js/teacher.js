@@ -1126,6 +1126,11 @@ function initializeTeacherMidAutumnSystem() {
     const start = () => {
         attempts += 1;
 
+        // Không chạy mutation nền trước khi Auth UID + role=teacher được xác minh.
+        if (window.isVerifiedTeacher !== true) {
+            return;
+        }
+
         if (
             typeof db ===
             'undefined'
@@ -1178,20 +1183,7 @@ function initializeTeacherMidAutumnSystem() {
     start();
 }
 
-if (
-    document.readyState ===
-    'loading'
-) {
-    document.addEventListener(
-        'DOMContentLoaded',
-        initializeTeacherMidAutumnSystem,
-        {
-            once: true
-        }
-    );
-} else {
-    initializeTeacherMidAutumnSystem();
-}
+// Khởi tạo Xu Trung Thu được thực hiện sau khi Firebase xác minh teacher authority.
 
 // Đã xóa lệnh chuyển hướng. Việc chặn quyền sẽ do Firebase đảm nhận ở bên dưới.
 
@@ -3467,6 +3459,9 @@ window.onload = async function () {
         'verified',
         'Firebase Auth + UID + role Giáo viên đã xác minh thành công.'
     );
+
+    // Chỉ từ thời điểm này mới cho phép job Xu Trung Thu chạy nền.
+    initializeTeacherMidAutumnSystem();
 
     // Chạy dọn lịch sử ở nền sau khi quyền Giáo viên đã được Firebase xác minh.
     // Không await để không làm chậm màn hình khởi động.
@@ -11185,7 +11180,7 @@ async function loadStudentsList() {
                 </div>
             </td>
             <td style="padding:12px;">${st.username}</td>
-            <td style="padding:12px;">${st.password}</td>
+            <td style="padding:12px;"><span title="Mật khẩu được ẩn vì lý do bảo mật">••••••••</span></td>
 
             <td style="
     padding:12px;
@@ -11672,10 +11667,27 @@ window.deleteStudent = async function (uid) {
         if (!teacherReauthenticated) return;
 
         // 2. Lấy dữ liệu bài tập và bài nộp CẦN XÓA trước
-        const [assignmentsSnap, submissionsSnap] = await Promise.all([
+        const [assignmentsSnap, submissionsSnap, profileRequestsSnap, cashRequestsSnap] = await Promise.all([
             db.ref('assignments').once('value'),
-            db.ref('submissions').orderByChild('studentUsername').equalTo(username).once('value')
+            db.ref('submissions').orderByChild('studentUsername').equalTo(username).once('value'),
+            db.ref('profile_requests').orderByChild('username').equalTo(username).once('value'),
+            db.ref('cash_requests').orderByChild('studentUsername').equalTo(username).once('value')
         ]);
+
+        const blockingCashRequests = [];
+        cashRequestsSnap.forEach(child => {
+            const req = child.val() || {};
+            if (req.status === 'processing' || req.status === 'transferring') {
+                blockingCashRequests.push(child.key);
+            }
+        });
+
+        if (blockingCashRequests.length > 0) {
+            throw new Error(
+                'Học sinh đang có yêu cầu rút tiền ở trạng thái processing/transferring. ' +
+                'Hãy hoàn tất hoặc khôi phục giao dịch tiền mặt trước khi xóa tài khoản.'
+            );
+        }
 
         let authDeleteSuccess = false;
 
@@ -11751,6 +11763,46 @@ window.deleteStudent = async function (uid) {
         updates[`historical_grade_tickets/${username}`] = null;
         updates[`grade_reward_events/${username}`] = null;
         updates[`grade_reward_claims/${username}`] = null;
+
+        // Live/session state phải xóa cùng account để tránh orphan khi username được dùng lại.
+        updates[`exam_sessions/${username}`] = null;
+        updates[`exam_active_locks/${username}`] = null;
+        updates[`profile_request_active/${username}`] = null;
+        updates[`profile_request_mutations/${username}`] = null;
+
+        // video_tracking có cấu trúc assignmentId/username.
+        const videoTrackingSnap = await db.ref('video_tracking').once('value');
+        videoTrackingSnap.forEach(assignmentSnap => {
+            if (assignmentSnap.child(username).exists()) {
+                updates[`video_tracking/${assignmentSnap.key}/${username}`] = null;
+            }
+        });
+
+        // Không xóa lịch sử profile/cash ngay: chuyển request chưa kết thúc sang trạng thái terminal
+        // để retention 2 tháng xử lý, đồng thời xóa secret mật khẩu và lock sống.
+        profileRequestsSnap.forEach(child => {
+            const req = child.val() || {};
+            if (req.status === 'pending' || req.status === 'processing') {
+                updates[`profile_requests/${child.key}/status`] = 'rejected';
+                updates[`profile_requests/${child.key}/resolvedAt`] = firebase.database.ServerValue.TIMESTAMP;
+                updates[`profile_requests/${child.key}/resolutionReason`] = 'account_deleted';
+            }
+            updates[`profile_requests/${child.key}/newPass`] = null;
+            updates[`profile_request_secrets/${child.key}`] = null;
+        });
+
+        cashRequestsSnap.forEach(child => {
+            const req = child.val() || {};
+            if (req.status === 'pending') {
+                updates[`cash_requests/${child.key}/status`] = 'rejected';
+                updates[`cash_requests/${child.key}/rejectedAt`] = firebase.database.ServerValue.TIMESTAMP;
+                updates[`cash_requests/${child.key}/resolvedAt`] = firebase.database.ServerValue.TIMESTAMP;
+                updates[`cash_requests/${child.key}/resolutionReason`] = 'account_deleted';
+            }
+        });
+
+        // birthday_* và mid_autumn_wallets KHÔNG xóa ở đây: HistoryRetention đánh dấu
+        // chúng là protected state chống nhận thưởng lặp. Chính sách purge/reuse username cần quyết định riêng.
 
         await db.ref().update(updates);
 
@@ -14840,93 +14892,92 @@ window.saveStudentEdit = async function () {
     const name = document.getElementById('editStudentName').value.trim();
     const password = document.getElementById('editStudentPassword').value.trim();
     const classInfo = document.getElementById('editStudentClass').value.trim();
-    const birthDate = document
-        .getElementById('editStudentBirthDate')
-        .value.trim();
+    const birthDate = document.getElementById('editStudentBirthDate').value.trim();
     const hobbies = document.getElementById('editStudentHobbies').value.trim();
     const motto = document.getElementById('editStudentMotto').value.trim();
 
     if (!name) return alert('Họ tên không được để trống!');
 
-    if (
-        birthDate &&
-        !isValidStudentBirthDate(birthDate)
-    ) {
-        return alert(
-            '🎂 Ngày sinh không hợp lệ, nằm trong tương lai hoặc trước năm 1900!'
-        );
+    if (birthDate && !isValidStudentBirthDate(birthDate)) {
+        return alert('🎂 Ngày sinh không hợp lệ, nằm trong tương lai hoặc trước năm 1900!');
     }
 
     const users = await getDB('users');
+    const st = users.find(user => user._fbKey === fbKey);
 
-    const st = users.find(
-        user => user._fbKey === fbKey
-    );
+    if (!st) return alert('Không tìm thấy tài khoản học sinh!');
 
-    if (!st) {
-        return alert(
-            'Không tìm thấy tài khoản học sinh!'
-        );
+    if (password) {
+        const passwordPolicyError =
+            getTeacherManagedPasswordPolicyError(password, st.username || '');
+        if (passwordPolicyError) {
+            return alert('🔒 ' + passwordPolicyError);
+        }
     }
 
     const updateObj = { name, classInfo, hobbies, motto };
 
     if (birthDate) {
-        const oldProfile =
-            st.birthdayProfile || {};
-
+        const oldProfile = st.birthdayProfile || {};
         updateObj.birthdayProfile = {
             date: birthDate,
-
-            enteredBy:
-                oldProfile.enteredBy ||
-                'teacher',
-
-            enteredAt:
-                oldProfile.enteredAt ||
-                firebase.database.ServerValue.TIMESTAMP,
-
+            enteredBy: oldProfile.enteredBy || 'teacher',
+            enteredAt: oldProfile.enteredAt || firebase.database.ServerValue.TIMESTAMP,
             updatedBy: 'teacher',
-
-            updatedAt:
-                firebase.database.ServerValue.TIMESTAMP
+            updatedAt: firebase.database.ServerValue.TIMESTAMP
         };
-
-        // Xóa trường ngày sinh kiểu cũ.
         updateObj.birthDate = null;
     } else {
         updateObj.birthdayProfile = null;
         updateObj.birthDate = null;
     }
 
-    // NẾU GIÁO VIÊN CÓ NHẬP MẬT KHẨU MỚI
+    let authChange = null;
+
     if (password) {
         try {
-            const users = await getDB('users');
-            const st = users.find(u => u._fbKey === fbKey);
-
-            if (st) {
-                const fakeEmail = st.username + "@hethong.edu.vn";
-                const oldPass = st.password;
-
-                // Đăng nhập ngầm và đổi pass
-                const userCredential = await secondaryApp.auth().signInWithEmailAndPassword(fakeEmail, oldPass);
-                await userCredential.user.updatePassword(password);
-                await secondaryApp.auth().signOut();
-
-                updateObj.password = password;
-            }
+            const authResult = await changeStudentPasswordWithCurrentCredential(
+                st.username,
+                password
+            );
+            authChange = {
+                username: st.username,
+                newPassword: password,
+                oldPassword: authResult.oldPassword
+            };
+            updateObj.password = password;
         } catch (error) {
-            console.error("Lỗi Auth phụ khi sửa HS:", error);
-            return alert("❌ Lỗi khi đổi mật khẩu trên hệ thống Auth: " + error.message);
+            console.error('Lỗi Auth phụ khi sửa HS:', error);
+            return alert('❌ Lỗi khi đổi mật khẩu trên hệ thống Auth: ' + (error.message || error));
         }
     }
 
-    await updateDB('users', fbKey, updateObj);
+    try {
+        await updateDB('users', fbKey, updateObj);
+    } catch (dbError) {
+        if (authChange) {
+            const rolledBack = await rollbackStudentAuthPassword(
+                authChange.username,
+                authChange.newPassword,
+                authChange.oldPassword
+            );
+
+            if (!rolledBack) {
+                console.error('AUTH_DB_DIVERGED khi sửa trực tiếp học sinh:', dbError);
+                alert(
+                    '⚠️ Firebase Auth đã đổi mật khẩu nhưng Database ghi thất bại và rollback Auth cũng thất bại. ' +
+                    'Không tiếp tục ghi dữ liệu khác; cần xử lý xung đột tài khoản trước khi thử lại.'
+                );
+                return;
+            }
+        }
+
+        console.error('Không thể cập nhật dữ liệu học sinh:', dbError);
+        return alert('❌ Cập nhật học sinh thất bại: ' + (dbError.message || dbError));
+    }
+
     closeEditStudentModal();
     alert('✅ Cập nhật thông tin học sinh thành công!');
-
-    // Load lại danh sách học sinh
     if (typeof loadStudentsList === 'function') loadStudentsList();
 };
 
@@ -15154,6 +15205,20 @@ const TEACHER_LUCKY_WHEEL_GOLDEN_DEFAULTS = Object.freeze({
 window.teacherLuckyWheelGoldenConfig = null;
 window.teacherLuckyWheelServerTimeOffset = 0;
 let teacherLuckyWheelGoldenPreviewTimer = null;
+
+function cleanupTeacherBackgroundTimers() {
+    if (window.teacherMidAutumnHourlyTimer) {
+        clearInterval(window.teacherMidAutumnHourlyTimer);
+        window.teacherMidAutumnHourlyTimer = null;
+    }
+
+    if (teacherLuckyWheelGoldenPreviewTimer) {
+        clearInterval(teacherLuckyWheelGoldenPreviewTimer);
+        teacherLuckyWheelGoldenPreviewTimer = null;
+    }
+}
+
+window.addEventListener('beforeunload', cleanupTeacherBackgroundTimers, { once: true });
 
 function normalizeTeacherLuckyWheelGoldenSettings(raw) {
     const source = raw && typeof raw === 'object' ? raw : {};
@@ -15537,7 +15602,8 @@ window.loadSpinHistory = async function () {
     const sortedHistory = [...history].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
     sortedHistory.forEach((record, index) => {
-        let isWin = record.reward.includes('Coin') || record.reward.includes('Quà');
+        const rewardText = String(record.reward ?? '');
+        let isWin = rewardText.includes('Coin') || rewardText.includes('Quà');
         let rewardColor = isWin ? '#059669' : '#888';
         let rewardBg = isWin ? 'rgba(16, 185, 129, 0.15)' : 'transparent';
 
@@ -15550,18 +15616,41 @@ window.loadSpinHistory = async function () {
             tr.style.display = 'none';
         }
 
-        tr.innerHTML = `
-            <td style="padding:12px; font-weight:bold; color:#2c3e50;">${record.studentName}</td>
-            <td style="padding:12px; text-align: center; color:#666; font-size: 0.9em;">${record.time}</td>
-            <td style="padding:12px;">
-                <span style="color: ${rewardColor}; background: ${rewardBg}; padding: 6px 12px; border-radius: 20px; font-weight: bold;">
-                    ${record.reward}
-                </span>
-            </td>
-            <td style="padding:12px; text-align: center;">
-                <button class="btn-reject" style="padding: 5px 12px; font-size: 0.85em;" onclick="deleteSpinRecord('${record._fbKey}')">Xóa</button>
-            </td>
-        `;
+        // Lịch sử có dữ liệu do học sinh ghi. Hiển thị dưới dạng chữ;
+        // không nội suy nội dung hoặc khóa Firebase vào HTML/inline JS.
+        const nameCell = document.createElement('td');
+        nameCell.style.cssText = 'padding:12px; font-weight:bold; color:#2c3e50;';
+        nameCell.textContent = String(record.studentName ?? '');
+
+        const timeCell = document.createElement('td');
+        timeCell.style.cssText = 'padding:12px; text-align:center; color:#666; font-size:0.9em;';
+        timeCell.textContent = String(record.time ?? '');
+
+        const rewardCell = document.createElement('td');
+        rewardCell.style.padding = '12px';
+        const rewardLabel = document.createElement('span');
+        rewardLabel.style.cssText = `color:${rewardColor}; background:${rewardBg}; padding:6px 12px; border-radius:20px; font-weight:bold;`;
+        rewardLabel.textContent = rewardText;
+        rewardCell.appendChild(rewardLabel);
+
+        const actionCell = document.createElement('td');
+        actionCell.style.cssText = 'padding:12px; text-align:center;';
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.className = 'btn-reject';
+        deleteButton.style.cssText = 'padding:5px 12px; font-size:0.85em;';
+        deleteButton.textContent = 'Xóa';
+        const recordKey = String(record._fbKey ?? '');
+        deleteButton.disabled = !recordKey;
+        deleteButton.addEventListener('click', () => {
+            if (recordKey) window.deleteSpinRecord(recordKey);
+        });
+        actionCell.appendChild(deleteButton);
+
+        tr.appendChild(nameCell);
+        tr.appendChild(timeCell);
+        tr.appendChild(rewardCell);
+        tr.appendChild(actionCell);
         tbody.appendChild(tr);
     });
 
@@ -15638,29 +15727,8 @@ window.toggleStoreStatus = async function (isOpen) {
     await db.ref('store_settings').update({ isOpen: isOpen });
 };
 
-window.addStoreItem = async function () {
-    const name = document.getElementById('newItemName').value.trim();
-    const type = document.getElementById('newItemType').value;
-    const price = parseInt(document.getElementById('newItemPrice').value);
-    const image = document.getElementById('newItemImage').value.trim();
-    const startDate = document.getElementById('newItemStartDate').value;
-    const endDate = document.getElementById('newItemEndDate').value;
-    const value = document.getElementById('newItemValue').value.trim();
-
-    if (!name || !startDate || !endDate || !value) return alert("Vui lòng điền đầy đủ thông tin bắt buộc!");
-
-    await pushDB('store_items', {
-        id: Date.now().toString(),
-        name, type, price, image, value,
-        startDate: startDate.replace("T", " "),
-        endDate: endDate.replace("T", " ")
-    });
-
-    document.getElementById('newItemName').value = '';
-    document.getElementById('newItemValue').value = '';
-    alert("Thêm vật phẩm vào cửa hàng thành công!");
-};
-
+// Legacy Store client-side functions đã được loại bỏ sau khi grep toàn ZIP xác nhận không có callsite.
+// Teacher chỉ giữ các API quản trị Store hiện hành (update/lock/status/Luxury).
 // 3. Hàm lưu dữ liệu chỉnh sửa lên Firebase
 window.updateStoreItem = async function () {
     const selectEl = document.getElementById('editStoreItemId');
@@ -15708,209 +15776,6 @@ window.updateStoreItem = async function () {
         }
     }
 };
-
-// Bộ lắng nghe tự động cập nhật bảng quản lý của giáo viên khi database có thay đổi
-listenFirebase(db.ref('store_settings'), 'value', (snapshot) => {
-    const settings = snapshot.val();
-
-    StoreConfig.items.forEach(item => {
-        const itemSettings =
-            settings &&
-            settings[item.id] &&
-            typeof settings[item.id] === 'object'
-                ? settings[item.id]
-                : null;
-
-        if (itemSettings) {
-            if (itemSettings.price !== undefined) item.price = itemSettings.price;
-            if (itemSettings.startDate !== undefined) item.startDate = itemSettings.startDate;
-            if (itemSettings.endDate !== undefined) item.endDate = itemSettings.endDate;
-        }
-
-        item.isLocked =
-            window.normalizeStoreItemLockState(
-                itemSettings?.isLocked
-            );
-    });
-
-    if (typeof initTeacherStoreManagement === 'function') {
-        initTeacherStoreManagement();
-    }
-    if (typeof initTeacherLuxuryStoreManagement === 'function') {
-        initTeacherLuxuryStoreManagement();
-    }
-});
-
-window.deleteStoreItem = async function (fbKey) {
-    if (confirm("Chắc chắn muốn xóa vật phẩm này khỏi cửa hàng?")) {
-        await removeDB('store_items', fbKey);
-    }
-};
-
-let myInventory = [];
-let storeItemsGlobal = [];
-let currentFilter = 'all';
-
-window.checkStoreStatus = function (settings) {
-    const isOpen = settings ? settings.isOpen : true;
-    document.getElementById('storeActiveView').style.display = isOpen ? 'block' : 'none';
-    document.getElementById('storeLockedView').style.display = isOpen ? 'none' : 'block';
-};
-
-window.filterStore = function (type) {
-    currentFilter = type;
-    loadStoreItems();
-};
-
-window.loadStoreItems = async function () {
-    const items = await getDB('store_items');
-    storeItemsGlobal = items;
-    const container = document.getElementById('storeItemsContainer');
-    if (!container) return;
-    container.innerHTML = '';
-
-    const now = new Date();
-
-    items.forEach(item => {
-        // Kiểm tra thời hạn mở bán
-        const start = new Date(item.startDate.replace(" ", "T"));
-        const end = new Date(item.endDate.replace(" ", "T"));
-
-        if (now < start || now > end) return; // Chỉ hiển thị hàng đang mở bán
-        if (currentFilter !== 'all' && item.type !== currentFilter) return;
-
-        const isOwned = myInventory.find(i => i.id === item.id);
-        const isEquipped = isOwned && isOwned.isEquipped;
-
-        let btnHtml = '';
-        if (isOwned) {
-            if (isEquipped) {
-                btnHtml = `<button onclick="equipItem('${item.id}', false)" style="width:100%; padding: 8px; background: #95a5a6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Hủy trang bị</button>`;
-            } else {
-                btnHtml = `<button onclick="equipItem('${item.id}', true)" style="width:100%; padding: 8px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Sử dụng</button>`;
-            }
-        } else {
-            btnHtml = `<button onclick="buyStoreItem('${item.id}', ${item.price})" style="width:100%; padding: 8px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Mua: ${item.price} 🪙</button>`;
-        }
-
-        const div = document.createElement('div');
-        div.style.cssText = 'background: rgba(255,255,255,0.6); border-radius: 12px; padding: 15px; text-align: center; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 4px 10px rgba(0,0,0,0.05);';
-
-        let typeIcon = item.type === 'theme' ? '🎨' : (item.type === 'effect' ? '✨' : '🐾');
-
-        div.innerHTML = `
-            ${item.image ? `<img src="${item.image}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 12px; margin-bottom: 10px;">` : `<div style="font-size: 3em; margin-bottom: 10px;">📦</div>`}
-            <h4 style="margin: 0 0 5px 0; color: #2c3e50;">${item.name}</h4>
-            <p style="font-size: 0.85em; color: #666; margin-bottom: 15px;">${typeIcon} ${item.type === 'theme' ? 'Giao diện' : (item.type === 'effect' ? 'Hiệu ứng' : 'Thú cưng')}</p>
-            ${btnHtml}
-        `;
-        container.appendChild(div);
-    });
-};
-
-window.buyStoreItem = async function (itemId, price) {
-    const coinRef = db.ref('student_coins/' + currentUser.username);
-    const snap = await coinRef.once('value');
-    const currentCoins = snap.val() || 0;
-
-    if (currentCoins < price) {
-        return alert("Bạn không đủ Coin để mua vật phẩm này!");
-    }
-
-    if (confirm(`Xác nhận mua vật phẩm này với giá ${price} Coin?`)) {
-        // Trừ tiền
-        await coinRef.set(currentCoins - price);
-        // Lưu vào kho
-        await pushDB(`student_inventory/${currentUser.username}`, {
-            id: itemId,
-            purchaseTime: new Date().getTime(),
-            isEquipped: false
-        });
-        alert("Mua thành công! Vật phẩm đã được thêm vào kho của bạn.");
-    }
-};
-
-window.equipItem = async function (itemId, equipState) {
-    const itemInfo = storeItemsGlobal.find(i => i.id === itemId);
-    if (!itemInfo) return;
-
-    // Lấy toàn bộ kho đồ của User
-    const invSnap = await db.ref(`student_inventory/${currentUser.username}`).once('value');
-    const inventory = invSnap.val();
-
-    if (inventory) {
-        let updates = {};
-        for (let key in inventory) {
-            let invItem = inventory[key];
-
-            // Logic: Chỉ được trang bị 1 item cho 1 loại (1 thú cưng, 1 hiệu ứng, 1 theme cùng lúc)
-            if (equipState) {
-                const checkTypeItem = storeItemsGlobal.find(i => i.id === invItem.id);
-                if (checkTypeItem && checkTypeItem.type === itemInfo.type) {
-                    updates[`${key}/isEquipped`] = false; // Gỡ các item cùng loại
-                }
-            }
-
-            if (invItem.id === itemId) {
-                updates[`${key}/isEquipped`] = equipState;
-            }
-        }
-        await db.ref(`student_inventory/${currentUser.username}`).update(updates);
-    }
-};
-
-window.applyEquippedItems = function () {
-    // Reset hiệu ứng và thú cưng
-    document.getElementById('global-effect-container').innerHTML = '';
-    const petContainer = document.getElementById('virtual-pet-container');
-    petContainer.style.display = 'none';
-
-    myInventory.forEach(invItem => {
-        if (invItem.isEquipped) {
-            const itemDef = storeItemsGlobal.find(i => i.id === invItem.id);
-            if (itemDef) {
-                if (itemDef.type === 'theme') {
-                    document.body.style.background = itemDef.value; // Ví dụ: giá trị là mã màu hoặc link ảnh url(...)
-                } else if (itemDef.type === 'pet') {
-                    petContainer.style.display = 'block';
-                    document.getElementById('virtual-pet-img').src = itemDef.value; // Link ảnh gif thú cưng
-                } else if (itemDef.type === 'effect') {
-                    renderGlobalEffect(itemDef.value);
-                }
-            }
-        }
-    });
-};
-
-window.renderGlobalEffect = function (effectType) {
-    const container = document.getElementById('global-effect-container');
-    if (effectType === 'snow') {
-        for (let i = 0; i < 30; i++) {
-            let flake = document.createElement('div');
-            flake.style.cssText = `position: absolute; width: 8px; height: 8px; background: white; border-radius: 50%; opacity: ${Math.random()}; top: -10px; left: ${Math.random() * 100}vw; animation: fall ${Math.random() * 3 + 2}s linear infinite;`;
-            container.appendChild(flake);
-        }
-    } else if (effectType === 'sparkle') {
-        for (let i = 0; i < 20; i++) {
-            let spark = document.createElement('div');
-            spark.style.cssText = `position: absolute; width: 4px; height: 4px; background: #ffd700; border-radius: 50%; box-shadow: 0 0 10px #ffd700; top: ${Math.random() * 100}vh; left: ${Math.random() * 100}vw; animation: blink ${Math.random() * 2 + 1}s infinite alternate;`;
-            container.appendChild(spark);
-        }
-    }
-};
-
-// Cấu hình CSS Animations cho Hiệu ứng bằng JS
-const styleSheet = document.createElement("style");
-styleSheet.innerText = `
-@keyframes fall {
-    to { transform: translateY(100vh); }
-}
-@keyframes blink {
-    0% { opacity: 0; transform: scale(0.5); }
-    100% { opacity: 1; transform: scale(1.5); }
-}
-`;
-document.head.appendChild(styleSheet);
 
 // ====== LOGIC KẾT NỐI QUẢN LÝ CỬA HÀNG (GIÁO VIÊN) ======
 
@@ -19178,15 +19043,41 @@ window.toggleStudentStoreGameAccess = async function (userKey, isEnabled, checkb
     }
 
     try {
-        await updateDB('users', userKey, {
-            storeGameAccessEnabled: enabled
-        });
+        // Một lần ghi nhiều vị trí: khóa quyền và tháo kho cùng thành công/thất bại.
+        // Đọc trực tiếp Firebase, không dùng danh sách học sinh đang cache trên UI.
+        const userSnapshot = await db.ref(`users/${userKey}`).once('value');
+        const student = userSnapshot.val();
+        if (!student || student.role !== 'student' || !student.username) {
+            throw new Error('Không tìm thấy tài khoản học sinh hợp lệ.');
+        }
+        const updates = {
+            [`users/${userKey}/storeGameAccessEnabled`]: enabled
+        };
+        // Mở lại tài khoản cũ đã khóa cũng dọn cờ trang bị còn sót.
+        if (!enabled || student.storeGameAccessEnabled === false) {
+            const inventorySnapshot = await db
+                .ref(`student_inventory/${student.username}`).once('value');
+            inventorySnapshot.forEach(child => {
+                if (child.val()?.isEquipped === true) {
+                    updates[`student_inventory/${student.username}/${child.key}/isEquipped`] = false;
+                }
+            });
+        }
+        await db.ref().update(updates);
+        try {
+            if (typeof DBReadSingleFlight !== 'undefined') {
+                DBReadSingleFlight.invalidate(`users/${userKey}`);
+                DBReadSingleFlight.invalidate(`student_inventory/${student.username}`);
+            }
+        } catch (cacheError) {
+            console.warn('[Store Access] Đã lưu; không làm mới được cache:', cacheError);
+        }
 
         if (typeof window.showToast === 'function') {
             window.showToast(
                 enabled
                     ? 'Đã mở Cửa hàng & Trò chơi cho học sinh.'
-                    : 'Đã tắt Cửa hàng & Trò chơi của học sinh.',
+                    : 'Đã tắt Cửa hàng & Trò chơi và tháo toàn bộ vật phẩm của học sinh.',
                 'success'
             );
         }
@@ -19949,14 +19840,13 @@ window.toggleLeaderboardStatus = async function (isOpen) {
             manualStatusChangedAt: firebase.database.ServerValue.TIMESTAMP
         };
 
-        // Mở thủ công => lịch tự mở đã hoàn thành/không còn ý nghĩa.
-        // Xóa ngay để Firebase và giao diện luôn cùng một trạng thái.
-        if (isOpen) {
-            updates.targetMonth = null;
-            updates.targetYear = null;
-            updates.scheduledAt = null;
-            updates.scheduleClearedAt = firebase.database.ServerValue.TIMESTAMP;
-        }
+        // Thay đổi thủ công luôn có quyền ưu tiên cao nhất.
+        // Dọn lịch hẹn cũ ở cả lúc MỞ và ĐÓNG để phía học sinh
+        // không thể tự coi BXH là mở lại từ targetMonth/targetYear cũ.
+        updates.targetMonth = null;
+        updates.targetYear = null;
+        updates.scheduledAt = null;
+        updates.scheduleClearedAt = firebase.database.ServerValue.TIMESTAMP;
 
         await db.ref('leaderboard_settings').update(updates);
     } catch (error) {

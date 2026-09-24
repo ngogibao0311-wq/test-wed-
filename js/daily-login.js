@@ -13,27 +13,42 @@ class DailyLoginManager {
         'item': { name: '📦 Vật phẩm cửa hàng', icon: '🎁' }
     };
 
-    static getLocalDateString(d = new Date()) {
-        const year = d.getFullYear();
-        const month = (d.getMonth() + 1).toString().padStart(2, '0');
-        const date = d.getDate().toString().padStart(2, '0');
-        return `${year}-${month}-${date}`;
+    static getVietnamDateString(d = new Date()) {
+        const parts = new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'Asia/Ho_Chi_Minh', year: 'numeric', month: '2-digit', day: '2-digit'
+        }).formatToParts(d);
+        const map = Object.fromEntries(parts.map(part => [part.type, part.value]));
+        return `${map.year}-${map.month}-${map.day}`;
     }
 
-    // NÂNG CẤP: Truyền ngày bất kỳ vào, hệ thống tự lấy đúng Thứ 2 của tuần đó
+    static getLocalDateString(d = new Date()) {
+        // Compatibility alias: Daily Login uses Vietnam calendar dates, not browser-local dates.
+        return this.getVietnamDateString(d);
+    }
+
+    // Resolve Monday using calendar arithmetic in UTC so browser timezone cannot shift weekId.
     static getWeekId(dateInput = null) {
-        const d = dateInput ? new Date(dateInput) : new Date();
-        const day = d.getDay();
-        const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-        const monday = new Date(d.getFullYear(), d.getMonth(), diff);
-        return this.getLocalDateString(monday);
+        let dateString = null;
+        if (typeof dateInput === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
+            dateString = dateInput;
+        } else if (dateInput instanceof Date && Number.isFinite(dateInput.getTime())) {
+            dateString = this.getVietnamDateString(dateInput);
+        } else {
+            dateString = this.getVietnamDateString(new Date());
+        }
+        const [year, month, dayOfMonth] = dateString.split('-').map(Number);
+        const d = new Date(Date.UTC(year, month - 1, dayOfMonth));
+        const weekday = d.getUTCDay();
+        const diff = weekday === 0 ? -6 : 1 - weekday;
+        d.setUTCDate(d.getUTCDate() + diff);
+        return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
     }
 
     static getTodayInfo() {
-        const d = new Date();
-        let dayOfWeek = d.getDay();
+        const dateString = this.getVietnamDateString(new Date());
+        const [year, month, dayOfMonth] = dateString.split('-').map(Number);
+        let dayOfWeek = new Date(Date.UTC(year, month - 1, dayOfMonth)).getUTCDay();
         if (dayOfWeek === 0) dayOfWeek = 7;
-        const dateString = this.getLocalDateString(d);
         return { dayOfWeek, dateString };
     }
 
@@ -165,9 +180,18 @@ class DailyLoginManager {
 
         let itemOptions = '<option value="">-- Chọn vật phẩm --</option>';
         if (typeof StoreConfig !== 'undefined') {
-            StoreConfig.items.forEach(item => {
-                itemOptions += `<option value="${item.id}">[${item.type.toUpperCase()}] ${item.name}</option>`;
-            });
+            StoreConfig.items
+                .filter(item =>
+                    item &&
+                    item.luxuryOnly !== true &&
+                    item.eventOnly !== true &&
+                    item.isNonCoin !== true &&
+                    !item.currency &&
+                    Number(item.price) >= 0
+                )
+                .forEach(item => {
+                    itemOptions += `<option value="${item.id}">[${item.type.toUpperCase()}] ${item.name}</option>`;
+                });
         }
 
         let rowsHtml = '';
@@ -237,7 +261,7 @@ class DailyLoginManager {
             dateInput.disabled = false;
 
             // Tự động tải dữ liệu của tuần vừa chọn (nếu có trên Firebase)
-            const targetWeekId = this.getWeekId(new Date(dateInput.value));
+            const targetWeekId = this.getWeekId(dateInput.value);
             const snap = await db.ref(`game_settings/daily_login_weeks/${targetWeekId}`).once('value');
             config = snap.val() || {};
         }
@@ -246,7 +270,7 @@ class DailyLoginManager {
 
         // Logic Khóa các ngày đã qua
         const currentWeekId = this.getWeekId();
-        const selectedWeekId = weekId || this.getWeekId(new Date(dateInput.value));
+        const selectedWeekId = weekId || this.getWeekId(dateInput.value);
         const todayInfo = this.getTodayInfo();
 
         // Gắn sự kiện thay đổi ngày để load lại logic khóa nếu giáo viên đổi lịch
@@ -326,8 +350,8 @@ class DailyLoginManager {
         const dateVal = document.getElementById('dl-week-start-date').value;
         if (!dateVal) return alert("Vui lòng chọn ngày để hệ thống định vị Tuần đăng nhập!");
 
-        const selectedDate = new Date(dateVal);
-        const weekId = this.getWeekId(selectedDate); // Tự động quy về Thứ 2
+        const selectedDate = new Date(`${dateVal}T00:00:00+07:00`);
+        const weekId = this.getWeekId(dateVal); // Tự động quy về Thứ 2
 
         const config = { weekId: weekId, isTestMode: document.getElementById('dlTestModeToggle').checked };
 
@@ -341,6 +365,23 @@ class DailyLoginManager {
                 if (type === 'discount' && (value < 10 || value > 50)) return alert(`Lỗi ${day.name}: Giảm giá chỉ được từ 10% đến 50%!`);
                 if (type !== 'item' && (!value || value <= 0)) return alert(`Lỗi ${day.name}: Vui lòng nhập số lượng hợp lệ!`);
                 if (type === 'item' && !value) return alert(`Lỗi ${day.name}: Vui lòng chọn một vật phẩm!`);
+                if (type === 'item') {
+                    const selectedItem =
+                        typeof StoreConfig !== 'undefined' &&
+                        Array.isArray(StoreConfig.items)
+                            ? StoreConfig.items.find(item => item.id === value)
+                            : null;
+
+                    if (
+                        !selectedItem ||
+                        selectedItem.luxuryOnly === true ||
+                        selectedItem.eventOnly === true ||
+                        selectedItem.isNonCoin === true ||
+                        selectedItem.currency
+                    ) {
+                        return alert(`Lỗi ${day.name}: Daily Login chỉ được cấu hình vật phẩm Store thường, không phải Luxury/Event/Currency đặc biệt.`);
+                    }
+                }
             }
 
             config[`day_${day.id}`] = { type, value };
@@ -369,9 +410,10 @@ class DailyLoginManager {
         const today = this.getTodayInfo();
         const currentWeekId = this.getWeekId();
 
-        if (localStorage.getItem(`hide_dl_popup_${username}_${today.dateString}`)) {
-            return; // Đã tick thì thoát luôn, không tải dữ liệu và không hiện popup
-        }
+        const hideTodayRequested =
+            localStorage.getItem(
+                `hide_dl_popup_${username}_${today.dateString}`
+            ) === 'true';
 
         // 1. Tải TOÀN BỘ cấu hình các tuần thay vì chỉ tuần hiện tại
         const weeksSnap = await db.ref(`game_settings/daily_login_weeks`).once('value');
@@ -400,6 +442,15 @@ class DailyLoginManager {
 
         const historySnap = await db.ref(`student_daily_login/${username}`).once('value');
         let history = historySnap.val() || { lastClaimDate: '', weekId: '' };
+
+        if (
+            hideTodayRequested &&
+            targetWeekId === currentWeekId &&
+            history.weekId === currentWeekId &&
+            history[`claimed_day_${today.dayOfWeek}`] === true
+        ) {
+            return;
+        }
 
         if (history.weekId !== targetWeekId) {
             history = { lastClaimDate: '', weekId: targetWeekId };
@@ -531,6 +582,8 @@ class DailyLoginManager {
         let loginRef = null;
         let claimCommitted = false;
         let rewardGranted = false;
+        let claimToken = '';
+        let operationId = '';
 
         let serverDateString = '';
         let serverWeekId = '';
@@ -640,26 +693,20 @@ class DailyLoginManager {
                     const claimKey =
                         `${CLAIM_PREFIX}${serverDayId}`;
 
-                    if (currentData[claimKey] !== true) {
+                    const meta =
+                        currentData.rewardMeta?.[`day_${serverDayId}`];
+
+                    if (
+                        currentData[claimKey] === true ||
+                        !meta ||
+                        meta.status !== 'processing' ||
+                        meta.claimToken !== claimToken ||
+                        meta.operationId !== operationId
+                    ) {
                         return currentData;
                     }
 
-                    delete currentData[claimKey];
-
-                    if (
-                        currentData.lastClaimDate === serverDateString
-                    ) {
-                        currentData.lastClaimDate = '';
-                    }
-
-                    if (
-                        currentData.rewardMeta &&
-                        currentData.rewardMeta[`day_${serverDayId}`]
-                    ) {
-                        delete currentData.rewardMeta[
-                            `day_${serverDayId}`
-                        ];
-                    }
+                    delete currentData.rewardMeta[`day_${serverDayId}`];
 
                     return currentData;
                 });
@@ -870,7 +917,11 @@ class DailyLoginManager {
                 discountTargets = StoreConfig.items
                     .filter(item =>
                         typeof item.price === 'number' &&
-                        item.price <= 500
+                        item.price <= 500 &&
+                        item.luxuryOnly !== true &&
+                        item.eventOnly !== true &&
+                        item.isNonCoin !== true &&
+                        !item.currency
                     )
                     .map(item => item.id);
 
@@ -896,12 +947,29 @@ class DailyLoginManager {
                     throw new Error('STORE_CONFIG_NOT_READY');
                 }
 
-                const itemExists = StoreConfig.items.some(
+                const rewardItem = StoreConfig.items.find(
                     item => item.id === preparedRewardValue
                 );
 
-                if (!itemExists) {
+                if (!rewardItem) {
                     throw new Error('STORE_ITEM_NOT_FOUND');
+                }
+
+                if (
+                    rewardItem.luxuryOnly === true ||
+                    rewardItem.eventOnly === true ||
+                    rewardItem.isNonCoin === true ||
+                    rewardItem.currency
+                ) {
+                    throw new Error('DAILY_LOGIN_ITEM_POLICY_DENIED');
+                }
+
+                const ownedSnapshot = await db
+                    .ref(`student_inventory/${username}/${preparedRewardValue}`)
+                    .once('value');
+
+                if (ownedSnapshot.exists()) {
+                    throw new Error('DAILY_LOGIN_ITEM_ALREADY_OWNED');
                 }
             }
 
@@ -918,47 +986,56 @@ class DailyLoginManager {
             const claimKey =
                 `${CLAIM_PREFIX}${serverDayId}`;
 
+            operationId =
+                `daily_${serverWeekId}_${serverDayId}`;
+            claimToken =
+                `${Math.trunc(serverTimestamp)}_` +
+                `${Math.random().toString(36).slice(2)}`;
+
+            const CLAIM_LEASE_MS = 90 * 1000;
+
             const claimResult =
                 await loginRef.transaction(currentData => {
                     let updatedData =
-                        currentData &&
-                            typeof currentData === 'object'
+                        currentData && typeof currentData === 'object'
                             ? { ...currentData }
                             : {};
 
-                    /*
-                     * Sang tuần mới thì reset lịch sử tuần cũ.
-                     */
-                    if (
-                        updatedData.weekId !== serverWeekId
-                    ) {
-                        updatedData = {
-                            weekId: serverWeekId
-                        };
+                    if (updatedData.weekId !== serverWeekId) {
+                        updatedData = { weekId: serverWeekId };
                     }
 
-                    /*
-                     * Đã nhận rồi thì abort transaction.
-                     */
                     if (updatedData[claimKey] === true) {
                         return;
                     }
 
-                    updatedData.weekId = serverWeekId;
-                    updatedData.lastClaimDate =
-                        serverDateString;
-                    updatedData[claimKey] = true;
+                    const existingMeta =
+                        updatedData.rewardMeta?.[`day_${serverDayId}`];
+                    const existingStartedAt =
+                        Number(existingMeta?.startedAt || 0);
 
+                    if (
+                        existingMeta?.status === 'processing' &&
+                        existingMeta?.claimToken &&
+                        existingMeta.claimToken !== claimToken &&
+                        Number.isFinite(existingStartedAt) &&
+                        existingStartedAt > 0 &&
+                        serverTimestamp - existingStartedAt < CLAIM_LEASE_MS
+                    ) {
+                        return;
+                    }
+
+                    updatedData.weekId = serverWeekId;
                     updatedData.rewardMeta = {
                         ...(updatedData.rewardMeta || {}),
                         [`day_${serverDayId}`]: {
                             type: reward.type,
                             value: preparedRewardValue,
                             status: 'processing',
+                            operationId,
+                            claimToken,
                             claimDate: serverDateString,
-                            startedAt:
-                                firebase.database.ServerValue
-                                    .TIMESTAMP
+                            startedAt: Math.trunc(serverTimestamp)
                         }
                     };
 
@@ -966,140 +1043,81 @@ class DailyLoginManager {
                 });
 
             if (!claimResult.committed) {
-                throw new Error('REWARD_ALREADY_CLAIMED');
+                throw new Error('REWARD_ALREADY_CLAIMED_OR_PROCESSING');
+            }
+
+            const reservedMeta =
+                claimResult.snapshot.val()?.rewardMeta?.[`day_${serverDayId}`];
+
+            if (
+                reservedMeta?.claimToken !== claimToken ||
+                reservedMeta?.operationId !== operationId ||
+                reservedMeta?.status !== 'processing'
+            ) {
+                throw new Error('DAILY_LOGIN_RESERVATION_LOST');
             }
 
             claimCommitted = true;
 
             /* =====================================================
-               5. TRAO QUÀ TRỰC TIẾP
+               5. TRAO QUÀ + HOÀN TẤT CLAIM ATOMIC
                ===================================================== */
 
             btn.innerHTML = '🎁 Đang trao phần thưởng...';
 
+            const rootUpdates = {};
+            const baseHistoryPath =
+                `student_daily_login/${username}`;
+
             switch (reward.type) {
-                case 'coin': {
-                    const coinRef = db.ref(
-                        `student_coins/${username}`
-                    );
-
-                    const result =
-                        await coinRef.transaction(currentValue => {
-                            return (
-                                (Number(currentValue) || 0) +
-                                preparedRewardValue
-                            );
-                        });
-
-                    if (!result.committed) {
-                        throw new Error(
-                            'COIN_TRANSACTION_FAILED'
-                        );
-                    }
-
+                case 'coin':
+                    rootUpdates[`student_coins/${username}`] =
+                        firebase.database.ServerValue.increment(preparedRewardValue);
                     break;
-                }
 
-                case 'ticket': {
-                    const ticketRef = db.ref(
-                        `student_bonus_tickets/${username}`
-                    );
-
-                    const result =
-                        await ticketRef.transaction(
-                            currentValue => {
-                                const newValue =
-                                    (Number(currentValue) || 0) +
-                                    preparedRewardValue;
-
-                                /*
-                                 * Rules của bạn giới hạn tối đa 999 vé.
-                                 */
-                                if (newValue > 999) {
-                                    return;
-                                }
-
-                                return newValue;
-                            }
-                        );
-
-                    if (!result.committed) {
-                        throw new Error(
-                            'TICKET_LIMIT_OR_TRANSACTION_FAILED'
-                        );
-                    }
-
+                case 'ticket':
+                    rootUpdates[`student_bonus_tickets/${username}`] =
+                        firebase.database.ServerValue.increment(preparedRewardValue);
                     break;
-                }
 
-                case 'money': {
-                    const moneyRef = db.ref(
-                        `student_money_offset/${username}`
-                    );
-
-                    const result =
-                        await moneyRef.transaction(
-                            currentValue => {
-                                const newValue =
-                                    (Number(currentValue) || 0) +
-                                    preparedRewardValue;
-
-                                if (newValue > 9999999) {
-                                    return;
-                                }
-
-                                return newValue;
-                            }
-                        );
-
-                    if (!result.committed) {
-                        throw new Error(
-                            'MONEY_LIMIT_OR_TRANSACTION_FAILED'
-                        );
-                    }
-
+                case 'money':
+                    rootUpdates[`student_money_offset/${username}`] =
+                        firebase.database.ServerValue.increment(preparedRewardValue);
                     break;
-                }
 
-                case 'item': {
-                    await db
-                        .ref(
-                            `student_inventory/${username}/${preparedRewardValue}`
-                        )
-                        .update({
-                            id: preparedRewardValue,
-                            purchaseTime:
-                                firebase.database.ServerValue
-                                    .TIMESTAMP,
-                            source: 'daily_login',
-                            isTrial: null,
-                            trialExpiry: null,
-                            isEquipped: false
-                        });
-
+                case 'item':
+                    rootUpdates[`student_inventory/${username}/${preparedRewardValue}`] = {
+                        id: preparedRewardValue,
+                        purchaseTime: firebase.database.ServerValue.TIMESTAMP,
+                        source: 'daily_login',
+                        dailyLoginWeekId: serverWeekId,
+                        dailyLoginDayId: serverDayId,
+                        dailyLoginOperationId: operationId,
+                        dailyLoginClaimToken: claimToken,
+                        isTrial: null,
+                        trialExpiry: null,
+                        isEquipped: false
+                    };
                     break;
-                }
 
                 case 'discount': {
                     const expiryTimestamp =
-                        serverTimestamp +
-                        7 * 24 * 60 * 60 * 1000;
+                        serverTimestamp + 7 * 24 * 60 * 60 * 1000;
+                    const discountKey =
+                        `daily_${serverWeekId.replace(/-/g, '_')}_${serverDayId}`;
 
-                    await db
-                        .ref(`student_discounts/${username}`)
-                        .push({
-                            percent: preparedRewardValue,
-                            dateAcquired:
-                                firebase.database.ServerValue
-                                    .TIMESTAMP,
-                            isUsed: false,
-                            expiry: expiryTimestamp,
-                            targetItem: discountTargets,
-                            source: 'daily_login',
-                            weekId: serverWeekId,
-                            dayId: serverDayId
-                        });
-
+                    rootUpdates[`student_discounts/${username}/${discountKey}`] = {
+                        percent: preparedRewardValue,
+                        dateAcquired: firebase.database.ServerValue.TIMESTAMP,
+                        isUsed: false,
+                        expiry: expiryTimestamp,
+                        targetItem: discountTargets,
+                        source: 'daily_login',
+                        weekId: serverWeekId,
+                        dayId: serverDayId,
+                        operationId,
+                        claimToken
+                    };
                     break;
                 }
 
@@ -1107,30 +1125,64 @@ class DailyLoginManager {
                     throw new Error('UNSUPPORTED_REWARD_TYPE');
             }
 
-            rewardGranted = true;
+            rootUpdates[`${baseHistoryPath}/weekId`] = serverWeekId;
+            rootUpdates[`${baseHistoryPath}/${claimKey}`] = true;
+            rootUpdates[`${baseHistoryPath}/lastClaimDate`] = serverDateString;
+            rootUpdates[`${baseHistoryPath}/rewardMeta/day_${serverDayId}`] = {
+                type: reward.type,
+                value: preparedRewardValue,
+                status: 'completed',
+                operationId,
+                claimToken,
+                claimDate: serverDateString,
+                startedAt: Math.trunc(serverTimestamp),
+                completedAt: firebase.database.ServerValue.TIMESTAMP
+            };
 
-            /* =====================================================
-               6. CẬP NHẬT TRẠNG THÁI HOÀN THÀNH
-               ===================================================== */
-
-            try {
-                await loginRef.update({
-                    [`rewardMeta/day_${serverDayId}/status`]:
-                        'completed',
-
-                    [`rewardMeta/day_${serverDayId}/completedAt`]:
-                        firebase.database.ServerValue.TIMESTAMP
-                });
-            } catch (metaError) {
-                /*
-                 * Phần thưởng đã trao thành công rồi.
-                 * Lỗi metadata không được rollback quà.
-                 */
-                console.warn(
-                    '⚠️ Quà đã trao nhưng không cập nhật được metadata:',
-                    metaError
-                );
+            const logId = db.ref('transaction_logs').push().key;
+            if (!logId) {
+                throw new Error('DAILY_LOGIN_HISTORY_ID_FAILED');
             }
+
+            rootUpdates[`transaction_logs/${logId}`] = {
+                id: logId,
+                type: 'daily_login_reward',
+                summary: `Nhận quà điểm danh ngày ${serverDayId} tuần ${serverWeekId}`,
+                source: 'daily_login',
+                targetUsername: username,
+                targetName: String(localUser.name || username),
+                amount: reward.type === 'item' ? null : preparedRewardValue,
+                unit: reward.type === 'coin' ? 'Coin' : reward.type === 'ticket' ? 'vé' : reward.type === 'money' ? 'đồng' : reward.type === 'discount' ? '%' : '',
+                before: null,
+                after: null,
+                details: {
+                    weekId: serverWeekId,
+                    dayId: serverDayId,
+                    rewardType: reward.type,
+                    rewardValue: preparedRewardValue,
+                    operationId
+                },
+                reversible: false,
+                nonReversibleReason: 'Phần thưởng điểm danh.',
+                status: 'active',
+                actor: {
+                    uid: authUser.uid,
+                    username,
+                    name: String(localUser.name || username),
+                    role: 'student'
+                },
+                createdAt: firebase.database.ServerValue.TIMESTAMP,
+                createdAtClient: Math.trunc(serverTimestamp)
+            };
+
+            /*
+             * Một update duy nhất: asset + claim completed + audit log.
+             * Nếu mạng trả lỗi mơ hồ, retry sẽ thấy claimed_day_X=true
+             * và không thể cấp lại tài sản.
+             */
+            await db.ref().update(rootUpdates);
+
+            rewardGranted = true;
 
             document
                 .getElementById('dl-student-modal')
@@ -1227,6 +1279,18 @@ class DailyLoginManager {
 
                 REWARD_ALREADY_CLAIMED:
                     'Bạn đã nhận phần thưởng hôm nay rồi.',
+
+                REWARD_ALREADY_CLAIMED_OR_PROCESSING:
+                    'Phần thưởng hôm nay đã được nhận hoặc đang được xử lý ở tab khác.',
+
+                DAILY_LOGIN_RESERVATION_LOST:
+                    'Quyền xử lý điểm danh đã thay đổi. Hãy thử lại sau.',
+
+                DAILY_LOGIN_ITEM_POLICY_DENIED:
+                    'Vật phẩm này không được phép dùng làm quà Daily Login.',
+
+                DAILY_LOGIN_ITEM_ALREADY_OWNED:
+                    'Bạn đã sở hữu vật phẩm quà hôm nay. Hệ thống không ghi đè tài sản hiện có; hãy báo giáo viên đổi cấu hình quà.',
 
                 TICKET_LIMIT_OR_TRANSACTION_FAILED:
                     'Không thể cộng vé vì số vé sẽ vượt giới hạn 999.',

@@ -46,7 +46,7 @@
 
     if (window.StudentFeatureLoader) return;
 
-    const VERSION = '3.4.6-security-k2-firebase-owned-css';
+    const VERSION = '3.4.8-guide-readiness-v1';
 
     const cssPromises = new Map();
     const scriptPromises = new Map();
@@ -91,25 +91,25 @@
     });
 
     const SCRIPT = Object.freeze({
-        themeItems: 'js/theme-items.js?v=4.2.1-lotm-klein',
+        themeItems: 'js/theme-items.js?v=20260924.decor-pet-integrity-v1',
         effectItems: 'js/effect-items.js?v=4.2',
-        petItems: 'js/pet-items.js?v=4.2',
-        petInteractions: 'js/pet-interactions.js?v=3.8',
+        petItems: 'js/pet-items.js?v=20260919.partial-fix1',
+        petInteractions: 'js/pet-interactions.js?v=20260924.decor-pet-integrity-v1',
         musicManager: 'js/music-manager.js?v=20260910.music-reliability-v3',
-        storeManager: 'js/store-manager.js?v=20260917.frame-runtime-barrier-v1',
+        storeManager: 'js/store-manager.js?v=20260923.store-integrity-v1',
 
-        luxuryStore: 'js/luxury-store.js?v=20260918.fx-store-v2',
-        collections: 'js/store-collections.js?v=20260908.four-seasons-lock-v1',
+        luxuryStore: 'js/luxury-store.js?v=20260923.luxury-integrity-v1',
+        collections: 'js/store-collections.js?v=20260923.store-integrity-v1',
 
-        royalBall: 'js/royal-ball.js?v=20260908.lazy-v1',
-        leaderboard: 'js/leaderboard.js?v=20260910.trigger-autoload-v1',
-        painting: 'js/painting.js?v=20260908.round-query-v1',
-        history: 'js/lich-su-hao-hung.js?v=20260831.1',
-        bellum: 'js/bellum-event.js?v=20260912.4',
-        midAutumnFestival: 'js/mid-autumn-festival.js?v=20260917.1-accessibility-focus-fix',
+        royalBall: 'js/royal-ball.js?v=20260924.event-integrity-v1',
+        leaderboard: 'js/leaderboard.js?v=20260924.reward-integrity-v1',
+        painting: 'js/painting.js?v=20260924.event-integrity-v1',
+        history: 'js/lich-su-hao-hung.js?v=20260924.event-integrity-v1',
+        bellum: 'js/bellum-event.js?v=20260924.event-integrity-v1',
+        midAutumnFestival: 'js/mid-autumn-festival.js?v=20260924.1-rules-authority-fix',
 
-        dailyLogin: 'js/daily-login.js?v=20260908.lazy-v1',
-        guide: 'js/huong-dan-nguoi-moi.js?v=2.14.0'
+        dailyLogin: 'js/daily-login.js?v=20260924.reward-integrity-v1',
+        guide: 'js/huong-dan-nguoi-moi.js?v=2.14.2'
     });
 
     /*
@@ -215,12 +215,14 @@
         // CSS cùng pathname chỉ được nạp một lần; ?v= chỉ dùng cache-busting.
         const key = normalizeStylesheetIdentity(url);
 
-        if (hasStylesheet(url)) {
-            return Promise.resolve(key);
-        }
-
+        // Thẻ đã có trong DOM vẫn có thể đang tải. Các caller phải cùng
+        // chờ Promise của lần nạp đầu tiên, kể cả khi khác query version.
         if (cssPromises.has(key)) {
             return cssPromises.get(key);
+        }
+
+        if (hasStylesheet(url)) {
+            return Promise.resolve(key);
         }
 
         const promise = new Promise((resolve, reject) => {
@@ -492,12 +494,13 @@ html[data-app-role="student"] body .dashboard > .content > :is(
 
         const key = normalizeResourceUrl(url);
 
-        if (hasScript(url)) {
-            return Promise.resolve(key);
-        }
-
+        // Không coi script đã append là script đã thực thi xong.
         if (scriptPromises.has(key)) {
             return scriptPromises.get(key);
+        }
+
+        if (hasScript(url)) {
+            return Promise.resolve(key);
         }
 
         const promise = new Promise((resolve, reject) => {
@@ -1081,6 +1084,8 @@ html[data-app-role="student"] body .dashboard > .content > :is(
         'pet_luxury_mua_ha',
         'pet_quoc_khanh_1',
         'pet_mythic_nyx_1',
+        'pet_mythic_aether_1',
+        'pet_dem_day_sao_1',
         'pet_lotm_klein_event_1',
         'pet_cam_co_cam_mong_1',
         'pet_tamon_b_side_1',
@@ -1179,6 +1184,7 @@ html[data-app-role="student"] body .dashboard > .content > :is(
         );
 
         const needs = new Set();
+        const unresolvedEquippedIds = [];
 
         for (const inventoryItem of equipped) {
             const rawId = String(inventoryItem?.id || '').trim();
@@ -1189,15 +1195,22 @@ html[data-app-role="student"] body .dashboard > .content > :is(
 
             /*
              * CỬA HÀNG SANG TRỌNG:
-             * chỉ cần 1 item Luxury được trang bị -> nạp luxury runtime.
-             * luxury-store.js sẽ mount TOÀN BỘ premiumLayers/full-suite được
-             * gắn với đúng ID đó (world + interface + pet realm + skill/...).
+             * - Fast path: ID Luxury đã biết hoặc catalog đã đánh dấu luxuryOnly.
+             * - Fallback an toàn: nếu Firebase nói item đang trang bị nhưng catalog
+             *   Cửa hàng thường không có ID đó, thử nạp Luxury runtime. Đây chính
+             *   là tình huống xảy ra với item Luxury mới sau F5: definition chỉ
+             *   được đăng ký khi luxury-store.js chạy.
              */
             if (
                 LUXURY_ITEM_IDS.has(id) ||
                 itemDef?.luxuryOnly === true
             ) {
                 needs.add('luxury-runtime');
+                continue;
+            }
+
+            if (!itemDef) {
+                unresolvedEquippedIds.push(rawId);
                 continue;
             }
 
@@ -1210,11 +1223,37 @@ html[data-app-role="student"] body .dashboard > .content > :is(
             );
         }
 
+        /*
+         * Không yêu cầu người dùng mở tab Cửa hàng để luxury-store.js được load.
+         * Chỉ kích hoạt fallback khi có item đang trang bị mà StoreConfig thường
+         * chưa nhận diện được. Item rác/cũ nếu có cũng chỉ làm nạp Luxury bundle
+         * một lần; applyEquippedItems() vẫn bỏ qua vì không có definition hợp lệ.
+         */
+        if (unresolvedEquippedIds.length) {
+            needs.add('luxury-runtime');
+        }
+
         if (!needs.size) return false;
 
         await Promise.all(
             [...needs].map(ensure)
         );
+
+        /*
+         * Luxury runtime vừa đăng ký thêm item vào StoreConfig. Preload lại CSS
+         * của đúng các item đã trang bị để runtime mới có style trước khi apply.
+         */
+        if (unresolvedEquippedIds.length) {
+            const resolvedAfterLuxuryLoad =
+                unresolvedEquippedIds
+                    .map(id => getCatalogItemById(id))
+                    .filter(Boolean);
+
+            if (resolvedAfterLuxuryLoad.length) {
+                await preloadEquippedCss(resolvedAfterLuxuryLoad);
+                releaseUnusedSpecialCss(resolvedAfterLuxuryLoad);
+            }
+        }
 
         return true;
     }

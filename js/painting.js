@@ -6791,15 +6791,27 @@ ${this.toolButton(
 
         async syncVoteUsage(existingIds, maxVotes) {
             if (!this.currentRound || !this.user) return;
-            const ref = db.ref(`hoihoa_vote_usage/${this.currentRound.id}/${this.user.username}`);
+            const ref = db.ref(`hoihoa_vote_slots/${this.currentRound.id}/${this.user.username}`);
             try {
                 await ref.transaction(current => {
                     const next = current && typeof current === 'object' ? { ...current } : {};
-                    existingIds.slice(0, maxVotes).forEach(id => { next[id] = true; });
+                    const currentValues = new Set(Object.values(next).map(String));
+                    existingIds.slice(0, maxVotes).forEach(id => {
+                        const sid = String(id);
+                        if (currentValues.has(sid)) return;
+                        for (let slot = 1; slot <= maxVotes; slot++) {
+                            const key = String(slot);
+                            if (!next[key]) {
+                                next[key] = sid;
+                                currentValues.add(sid);
+                                break;
+                            }
+                        }
+                    });
                     return next;
-                });
+                }, undefined, false);
             } catch (error) {
-                console.warn('Không đồng bộ được bộ đếm phiếu:', error);
+                console.warn('Không đồng bộ được slot phiếu:', error);
             }
         },
 
@@ -6815,37 +6827,73 @@ ${this.toolButton(
             if (submission.studentUsername === this.user.username) return this.toast('Bạn không thể bình chọn cho chính mình.', 'warning');
             if (submission.voters && submission.voters[this.user.username]) return this.toast('Bạn đã bình chọn tác phẩm này.', 'warning');
 
-            const usageRef = db.ref(`hoihoa_vote_usage/${this.currentRound.id}/${this.user.username}`);
-            let reserved = false;
+            const slotsRef = db.ref(`hoihoa_vote_slots/${this.currentRound.id}/${this.user.username}`);
+            let reservedSlot = '';
+            let alreadyReserved = false;
             try {
-                const usageResult = await usageRef.transaction(current => {
+                const slotResult = await slotsRef.transaction(current => {
                     const next = current && typeof current === 'object' ? { ...current } : {};
-                    if (next[submissionId]) return;
-                    if (Object.keys(next).filter(key => next[key]).length >= config.maxVotes) return;
-                    next[submissionId] = true;
-                    reserved = true;
-                    return next;
-                });
-                if (!usageResult.committed || !reserved) throw new Error('Đã hết lượt hoặc phiếu đã tồn tại.');
+                    for (let slot = 1; slot <= config.maxVotes; slot++) {
+                        const key = String(slot);
+                        if (String(next[key] || '') === String(submissionId)) {
+                            reservedSlot = key;
+                            alreadyReserved = true;
+                            return next;
+                        }
+                    }
+                    for (let slot = 1; slot <= config.maxVotes; slot++) {
+                        const key = String(slot);
+                        if (!next[key]) {
+                            next[key] = String(submissionId);
+                            reservedSlot = key;
+                            return next;
+                        }
+                    }
+                    return;
+                }, undefined, false);
+                if (!slotResult.committed || !reservedSlot) throw new Error('Đã hết lượt hoặc phiếu đang được xử lý ở phiên khác.');
 
                 await subRef.child(`voters/${this.user.username}`).set(true);
                 this.myVotesCount++;
                 const countEl = document.getElementById('hh-vote-count');
                 if (countEl) countEl.textContent = this.myVotesCount;
                 const btn = document.getElementById(`vote-btn-${submissionId}`);
-                if (btn) {
-                    btn.classList.add('voted');
-                    btn.disabled = true;
-                    btn.textContent = '✓ Đã bình chọn';
-                }
+                if (btn) { btn.classList.add('voted'); btn.disabled = true; btn.textContent = '✓ Đã bình chọn'; }
                 const voteVal = document.getElementById(`vote-val-${submissionId}`);
                 if (voteVal) voteVal.textContent = String(Number(voteVal.textContent || 0) + 1);
                 this.toast('Đã ghi nhận bình chọn.', 'success');
             } catch (error) {
-                if (reserved) {
-                    try { await usageRef.child(submissionId).remove(); } catch (_) { /* bỏ qua rollback phụ */ }
+                let serverAlreadyRecordedVote = false;
+                let voteStateAmbiguous = false;
+                if (reservedSlot) {
+                    try {
+                        const voterSnap = await subRef.child(`voters/${this.user.username}`).once('value');
+                        serverAlreadyRecordedVote = voterSnap.val() === true;
+                        if (!serverAlreadyRecordedVote) {
+                            await slotsRef.child(reservedSlot).remove();
+                        }
+                    } catch (_) {
+                        // Không biết write voter đã tới server hay chưa: giữ slot để retry cùng submission
+                        // nhưng không báo thành công giả và không tăng bộ đếm UI.
+                        voteStateAmbiguous = true;
+                    }
+                }
+                if (serverAlreadyRecordedVote) {
+                    this.myVotesCount++;
+                    const countEl = document.getElementById('hh-vote-count');
+                    if (countEl) countEl.textContent = this.myVotesCount;
+                    const btn = document.getElementById(`vote-btn-${submissionId}`);
+                    if (btn) { btn.classList.add('voted'); btn.disabled = true; btn.textContent = '✓ Đã bình chọn'; }
+                    const voteVal = document.getElementById(`vote-val-${submissionId}`);
+                    if (voteVal) voteVal.textContent = String(Number(voteVal.textContent || 0) + 1);
+                    this.toast('Phiếu đã được máy chủ ghi nhận.', 'success');
+                    return;
                 }
                 console.error(error);
+                if (voteStateAmbiguous) {
+                    this.toast('Kết nối bị gián đoạn khi xác minh phiếu. Slot quota được giữ an toàn; hãy kết nối lại và bấm đúng tác phẩm này để hệ thống xác nhận, không tạo thêm lượt.', 'warning');
+                    return;
+                }
                 this.toast(error.message || 'Không thể bình chọn.', 'error');
             }
         },
@@ -7320,11 +7368,10 @@ ${this.toolButton(
 
                 if (effectiveRoundId) {
                     try {
-                        await db
-                            .ref(
-                                `hoihoa_vote_usage/${effectiveRoundId}`
-                            )
-                            .remove();
+                        await Promise.all([
+                            db.ref(`hoihoa_vote_usage/${effectiveRoundId}`).remove(),
+                            db.ref(`hoihoa_vote_slots/${effectiveRoundId}`).remove()
+                        ]);
                     } catch (voteCleanupError) {
                         console.warn(
                             'Đã xóa vòng nhưng chưa dọn được dữ liệu lượt bình chọn:',
@@ -7934,17 +7981,26 @@ ${this.toolButton(
 
                 // Xóa dấu vết phiếu của tác phẩm khỏi bộ đếm
                 if (effectiveRoundId) {
-                    const usageSnap = await db
-                        .ref(
-                            `hoihoa_vote_usage/${effectiveRoundId}`
-                        )
-                        .once('value');
+                    const [usageSnap, slotsSnap] = await Promise.all([
+                        db.ref(`hoihoa_vote_usage/${effectiveRoundId}`).once('value'),
+                        db.ref(`hoihoa_vote_slots/${effectiveRoundId}`).once('value')
+                    ]);
 
                     usageSnap.forEach(userSnap => {
                         submissionIds.forEach(id => {
                             if (userSnap.child(id).exists()) {
                                 updates[
                                     `hoihoa_vote_usage/${effectiveRoundId}/${userSnap.key}/${id}`
+                                ] = null;
+                            }
+                        });
+                    });
+
+                    slotsSnap.forEach(userSnap => {
+                        userSnap.forEach(slotSnap => {
+                            if (submissionIds.has(String(slotSnap.val() || ''))) {
+                                updates[
+                                    `hoihoa_vote_slots/${effectiveRoundId}/${userSnap.key}/${slotSnap.key}`
                                 ] = null;
                             }
                         });
@@ -8090,285 +8146,206 @@ ${this.toolButton(
             const seasonRoundIds = seasonRounds.map(r => r.id);
             const finalRound = seasonRounds[4];
             const seasonId = `SEASON_${finalRound.id}`;
+            const lockRef = db.ref(`hoihoa_reward_logs/${seasonId}`);
+            const offsetSnap = await db.ref('.info/serverTimeOffset').once('value');
+            const serverNow = Date.now() + (Number(offsetSnap.val()) || 0);
+            const lockTtl = 120000;
+            const processingToken = `hh_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 12)}`;
             let lockOwned = false;
-            const lock = await db.ref(`hoihoa_reward_logs/${seasonId}`).transaction(current => {
-                if (current) return;
+
+            const lock = await lockRef.transaction(current => {
+                if (current?.status === 'completed') return;
+                if (current) {
+                    const status = String(current.status || '');
+                    if ((status === 'processing' || status === 'ranked') && current.processingToken) {
+                        if (Number(current.startedAt || 0) > serverNow - lockTtl) return;
+                    } else if (status !== 'error') {
+                        // Legacy processing/ranked record without token: do not guess whether rewards already mutated.
+                        return;
+                    }
+                }
                 lockOwned = true;
-                return { status: 'processing', createdAt: Date.now(), roundIds: seasonRoundIds };
-            });
+                return {
+                    ...(current || {}),
+                    status: 'processing',
+                    processingToken,
+                    startedAt: serverNow,
+                    updatedAt: serverNow,
+                    roundIds: seasonRoundIds
+                };
+            }, undefined, false);
             if (!lock.committed || !lockOwned) return false;
 
             try {
-                /*
-                 * Chỉ tải submission của đúng 5 vòng trong mùa.
-                 * Không còn quét toàn bộ lịch sử Hội họa nhiều năm.
-                 */
-                const seasonSubmissionGroups =
-                    await Promise.all(
-                        seasonRoundIds.map(
-                            roundId =>
-                                this
-                                    .getSubmissionsForRound(
-                                        roundId
-                                    )
-                        )
-                    );
-
+                const seasonSubmissionGroups = await Promise.all(
+                    seasonRoundIds.map(roundId => this.getSubmissionsForRound(roundId))
+                );
                 const aggregated = {};
+                seasonSubmissionGroups.flat().forEach(sub => {
+                    const subRoundId = String(sub.roundId ?? '');
+                    let finalScore = Number(sub.finalScore || 0);
+                    if (subRoundId === String(currentRoundId)) {
+                        const current = currentSubmissions.find(item => String(item.id) === String(sub.id));
+                        if (current) finalScore = Number(current.finalScore || finalScore);
+                    }
+                    if (!aggregated[sub.studentUsername]) {
+                        aggregated[sub.studentUsername] = {
+                            studentUsername: sub.studentUsername,
+                            studentName: sub.studentName,
+                            totalScore: 0,
+                            roundsJoined: 0
+                        };
+                    }
+                    aggregated[sub.studentUsername].totalScore += finalScore;
+                    aggregated[sub.studentUsername].roundsJoined += 1;
+                });
 
-                seasonSubmissionGroups
-                    .flat()
-                    .forEach(sub => {
-                        const subRoundId =
-                            String(
-                                sub.roundId ??
-                                ''
-                            );
-
-                        let finalScore =
-                            Number(
-                                sub.finalScore || 0
-                            );
-
-                        if (
-                            subRoundId ===
-                            String(
-                                currentRoundId
-                            )
-                        ) {
-                            const current =
-                                currentSubmissions.find(
-                                    item =>
-                                        String(
-                                            item.id
-                                        ) ===
-                                        String(
-                                            sub.id
-                                        )
-                                );
-
-                            if (current) {
-                                finalScore =
-                                    Number(
-                                        current.finalScore ||
-                                        finalScore
-                                    );
-                            }
-                        }
-
-                        if (
-                            !aggregated[
-                                sub.studentUsername
-                            ]
-                        ) {
-                            aggregated[
-                                sub.studentUsername
-                            ] = {
-                                studentUsername:
-                                    sub.studentUsername,
-
-                                studentName:
-                                    sub.studentName,
-
-                                totalScore: 0,
-                                roundsJoined: 0
-                            };
-                        }
-
-                        aggregated[
-                            sub.studentUsername
-                        ].totalScore +=
-                            finalScore;
-
-                        aggregated[
-                            sub.studentUsername
-                        ].roundsJoined += 1;
-                    });
                 const rankings = Object.values(aggregated).sort((a, b) => b.totalScore - a.totalScore);
-                const updates = {};
+                const rankUpdates = {};
                 rankings.forEach((student, index) => {
-                    const rank = index + 1;
-                    updates[`season_rankings/${finalRound.id}/${student.studentUsername}`] = {
-                        rank,
+                    rankUpdates[`season_rankings/${finalRound.id}/${student.studentUsername}`] = {
+                        rank: index + 1,
                         totalScore: student.totalScore,
                         roundsJoined: student.roundsJoined,
                         studentName: student.studentName,
                         seasonId
                     };
                 });
-                seasonRounds.forEach(round => {
-                    updates[`hoihoa_rounds/${round._fbKey}/isSeasonRewarded`] = true;
-                    updates[`hoihoa_rounds/${round._fbKey}/seasonId`] = seasonId;
-                });
-                updates[`hoihoa_reward_logs/${seasonId}/status`] = 'ranked';
-                updates[`hoihoa_reward_logs/${seasonId}/finalRoundId`] = finalRound.id;
-                updates[`hoihoa_reward_logs/${seasonId}/rankingCount`] = rankings.length;
-                await db.ref().update(updates);
+                rankUpdates[`hoihoa_reward_logs/${seasonId}/status`] = 'ranked';
+                rankUpdates[`hoihoa_reward_logs/${seasonId}/processingToken`] = processingToken;
+                rankUpdates[`hoihoa_reward_logs/${seasonId}/startedAt`] = serverNow;
+                rankUpdates[`hoihoa_reward_logs/${seasonId}/finalRoundId`] = finalRound.id;
+                rankUpdates[`hoihoa_reward_logs/${seasonId}/rankingCount`] = rankings.length;
+                rankUpdates[`hoihoa_reward_logs/${seasonId}/updatedAt`] = firebase.database.ServerValue.TIMESTAMP;
+                await db.ref().update(rankUpdates);
+
                 await this.rewardSeasonStudents(seasonId, finalRound.id, rankings);
-                await db.ref(`hoihoa_reward_logs/${seasonId}`).update({ status: 'completed', completedAt: firebase.database.ServerValue.TIMESTAMP });
+
+                const live = (await lockRef.once('value')).val() || {};
+                if (live.processingToken !== processingToken || !['processing', 'ranked'].includes(String(live.status || ''))) {
+                    throw new Error('HOIHOA_STALE_SEASON_TOKEN');
+                }
+
+                const doneUpdates = {};
+                seasonRounds.forEach(round => {
+                    doneUpdates[`hoihoa_rounds/${round._fbKey}/isSeasonRewarded`] = true;
+                    doneUpdates[`hoihoa_rounds/${round._fbKey}/seasonId`] = seasonId;
+                });
+                doneUpdates[`hoihoa_reward_logs/${seasonId}/status`] = 'completed';
+                doneUpdates[`hoihoa_reward_logs/${seasonId}/processingToken`] = processingToken;
+                doneUpdates[`hoihoa_reward_logs/${seasonId}/completedAt`] = firebase.database.ServerValue.TIMESTAMP;
+                doneUpdates[`hoihoa_reward_logs/${seasonId}/updatedAt`] = firebase.database.ServerValue.TIMESTAMP;
+                await db.ref().update(doneUpdates);
                 return true;
             } catch (error) {
-                await db.ref(`hoihoa_reward_logs/${seasonId}`).update({ status: 'error', error: String(error.message || error), failedAt: firebase.database.ServerValue.TIMESTAMP });
+                await lockRef.transaction(current => {
+                    if (!current || current.processingToken !== processingToken || current.status === 'completed') return current;
+                    return {
+                        ...current,
+                        status: 'error',
+                        error: String(error.message || error),
+                        failedAt: Date.now() + (Number(offsetSnap.val()) || 0),
+                        updatedAt: Date.now() + (Number(offsetSnap.val()) || 0)
+                    };
+                }, undefined, false).catch(() => {});
                 throw error;
             }
         },
 
         async rewardSeasonStudents(seasonId, finalRoundId, rankings) {
+            const offsetSnap = await db.ref('.info/serverTimeOffset').once('value');
+            const offset = Number(offsetSnap.val()) || 0;
+            const claimTtl = 120000;
+
             for (let i = 0; i < rankings.length; i++) {
                 const student = rankings[i];
                 const rank = i + 1;
-                const reward =
-                    rank === 1
-                        ? {
-                            coins: 500,
-                            label: 'Quán quân',
-                            badge: [
-                                'badge_hoasi',
-                                '🎨',
-                                'Họa sĩ tài năng',
-                                'talent',
-                                'Biểu tượng bảng màu tỏa sáng dành cho Quán quân.'
-                            ],
-                            chest: true
-                        }
-                        : rank === 2
-                            ? {
-                                coins: 300,
-                                label: 'Á quân',
-                                badge: [
-                                    'badge_butve',
-                                    '🖌️',
-                                    'Bút vẽ vàng',
-                                    'golden-brush',
-                                    'Chiếc bút vàng trên khiên xanh dành cho Á quân.'
-                                ],
-                                discount: 20
-                            }
-                            : rank === 3
-                                ? {
-                                    coins: 200,
-                                    label: 'Hạng ba',
-                                    badge: [
-                                        'badge_mausac',
-                                        '🌈',
-                                        'Màu sắc rực rỡ',
-                                        'vibrant-color',
-                                        'Huy chương cầu vồng dành cho tác phẩm giàu sắc màu.'
-                                    ]
-                                }
-                                : rank <= 10
-                                    ? {
-                                        coins: 100,
-                                        label: `Top ${rank}`
-                                    }
-                                    : {
-                                        coins: 0,
-                                        label: `Hạng ${rank}`
-                                    };
+                const reward = rank === 1
+                    ? { coins: 500, label: 'Quán quân', badge: ['badge_hoasi','🎨','Họa sĩ tài năng','talent','Biểu tượng bảng màu tỏa sáng dành cho Quán quân.'], chest: true }
+                    : rank === 2
+                        ? { coins: 300, label: 'Á quân', badge: ['badge_butve','🖌️','Bút vẽ vàng','golden-brush','Chiếc bút vàng trên khiên xanh dành cho Á quân.'], discount: 20 }
+                        : rank === 3
+                            ? { coins: 200, label: 'Hạng ba', badge: ['badge_mausac','🌈','Màu sắc rực rỡ','vibrant-color','Huy chương cầu vồng dành cho tác phẩm giàu sắc màu.'] }
+                            : rank <= 10 ? { coins: 100, label: `Top ${rank}` } : { coins: 0, label: `Hạng ${rank}` };
 
-                const userLogRef = db.ref(`hoihoa_reward_logs/${seasonId}/students/${student.studentUsername}`);
+                const userLogPath = `hoihoa_reward_logs/${seasonId}/students/${student.studentUsername}`;
+                const userLogRef = db.ref(userLogPath);
+                const claimToken = `hhr_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 12)}_${i}`;
+                const now = Date.now() + offset;
                 let shouldReward = false;
+                let legacyBlocked = false;
+
                 const claim = await userLogRef.transaction(current => {
-                    if (current?.status === 'done' || current?.status === 'processing') return;
+                    if (current?.status === 'done') return;
+                    if (current?.status === 'processing') {
+                        if (!current.claimToken) {
+                            legacyBlocked = true;
+                            return;
+                        }
+                        if (Number(current.startedAt || 0) > now - claimTtl) return;
+                    }
                     shouldReward = true;
-                    return { status: 'processing', rank, startedAt: Date.now() };
-                });
-                if (!claim.committed || !shouldReward) continue;
+                    return { status: 'processing', rank, claimToken, startedAt: now, updatedAt: now };
+                }, undefined, false);
 
-                if (reward.coins > 0) {
-                    await db.ref(`student_coins/${student.studentUsername}`).transaction(current => Number(current || 0) + reward.coins);
+                if (!claim.committed || !shouldReward) {
+                    if (legacyBlocked) console.warn('[Hội Họa] Legacy processing reward cần đối soát thủ công:', seasonId, student.studentUsername);
+                    continue;
                 }
+
                 const updates = {};
+                if (reward.coins > 0) {
+                    updates[`student_coins/${student.studentUsername}`] = firebase.database.ServerValue.increment(reward.coins);
+                }
                 if (reward.badge) {
-                    const [
-                        badgeId,
-                        badgeIcon,
-                        badgeName,
-                        badgeStyle,
-                        badgeDescription
-                    ] = reward.badge;
-
-                    updates[
-                        `student_inventory/${student.studentUsername}/${badgeId}`
-                    ] = {
-                        id: badgeId,
-                        type: 'badge',
-                        name: badgeName,
-                        icon: badgeIcon,
-
-                        badgeStyle,
-
-                        rarity:
-                            rank === 1
-                                ? 'legendary'
-                                : rank === 2
-                                    ? 'epic'
-                                    : 'rare',
-
-                        visualVersion: 2,
-
-                        isEquipped: false,
-                        purchaseTime: Date.now(),
-
-                        source: 'hoihoa_season',
-                        seasonId,
-                        rank,
-
-                        description:
-                            badgeDescription ||
-                            (
-                                `Huy hiệu ${reward.label} ` +
-                                `mùa giải Hội Họa.`
-                            )
+                    const [badgeId, badgeIcon, badgeName, badgeStyle, badgeDescription] = reward.badge;
+                    updates[`student_inventory/${student.studentUsername}/${badgeId}`] = {
+                        id: badgeId, type: 'badge', name: badgeName, icon: badgeIcon, badgeStyle,
+                        rarity: rank === 1 ? 'legendary' : rank === 2 ? 'epic' : 'rare',
+                        visualVersion: 2, isEquipped: false,
+                        purchaseTime: firebase.database.ServerValue.TIMESTAMP,
+                        source: 'hoihoa_season', seasonId, rank,
+                        description: badgeDescription || `Huy hiệu ${reward.label} mùa giải Hội Họa.`
                     };
                 }
                 if (reward.chest) {
-                    updates[`student_inventory/${student.studentUsername}/chest_hh_${seasonId}`] = { id: 'chest_hoihoa', type: 'chest', name: 'Rương Kho Báu Hội Họa', icon: '🎁', isEquipped: false, purchaseTime: Date.now(), description: 'Phần thưởng Quán quân mùa giải Hội Họa.' };
+                    updates[`student_inventory/${student.studentUsername}/chest_hh_${seasonId}`] = {
+                        id: 'chest_hoihoa', type: 'chest', name: 'Rương Kho Báu Hội Họa', icon: '🎁', isEquipped: false,
+                        purchaseTime: firebase.database.ServerValue.TIMESTAMP,
+                        description: 'Phần thưởng Quán quân mùa giải Hội Họa.'
+                    };
                 }
                 if (reward.discount) {
-                    const discountCreatedAt = Date.now();
-
-                    updates[
-                        `student_discounts/${student.studentUsername}/hh_discount_${seasonId}`
-                    ] = {
-                        percent: reward.discount,
-                        isUsed: false,
-                        targetItem: ['all'],
-
-                        // Thẻ chỉ dùng một lần.
-                        usageLimit: 1,
-
-                        createdAt: discountCreatedAt,
-
-                        expiry:
-                            discountCreatedAt +
-                            30 * 24 * 60 * 60 * 1000,
-
-                        source: 'hoihoa_runner_up',
-                        rewardType: 'season_runner_up',
-
-                        maxEligiblePriceExclusive: 600,
-                        excludesEventItems: true,
-
-                        excludedTags: [
-                            'Doraemon',
-                            'Truyền thuyết'
-                        ]
+                    const createdAt = now;
+                    updates[`student_discounts/${student.studentUsername}/hh_discount_${seasonId}`] = {
+                        percent: reward.discount, isUsed: false, targetItem: ['all'], usageLimit: 1,
+                        createdAt, expiry: createdAt + 30 * 24 * 60 * 60 * 1000,
+                        source: 'hoihoa_runner_up', rewardType: 'season_runner_up',
+                        maxEligiblePriceExclusive: 600, excludesEventItems: true,
+                        excludedTags: ['Doraemon', 'Truyền thuyết']
                     };
                 }
                 updates[`inbox_messages/${student.studentUsername}/hh_season_${seasonId}`] = {
                     title: '🏆 Tổng kết mùa giải Hội Họa',
                     message: `Bạn đạt ${reward.label} với tổng ${student.totalScore.toFixed(2)} điểm qua ${student.roundsJoined} vòng. Phần thưởng: ${reward.coins} Coin${reward.badge ? `, huy hiệu “${reward.badge[2]}”` : ''}${reward.chest ? ', Rương Kho Báu' : ''}${reward.discount ? `, thẻ giảm ${reward.discount}% dùng 1 lần, hạn 30 ngày, chỉ áp dụng cho vật phẩm bán bằng Coin dưới 600 Coin; không áp dụng cho vật phẩm sự kiện, Doraemon và Truyền thuyết` : ''}.`,
-                    time: Date.now() + i,
-                    timestamp: Date.now() + i,
-                    timeString: new Date().toLocaleString('vi-VN'),
-                    read: false,
-                    giftType: 'none', giftValue: ''
+                    time: firebase.database.ServerValue.TIMESTAMP,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    timeString: new Date(now).toLocaleString('vi-VN'), read: false, giftType: 'none', giftValue: ''
                 };
-                updates[`hoihoa_reward_logs/${seasonId}/students/${student.studentUsername}/status`] = 'done';
-                updates[`hoihoa_reward_logs/${seasonId}/students/${student.studentUsername}/coins`] = reward.coins;
-                updates[`hoihoa_reward_logs/${seasonId}/students/${student.studentUsername}/completedAt`] = firebase.database.ServerValue.TIMESTAMP;
-                await db.ref().update(updates);
+                updates[userLogPath] = {
+                    status: 'done', rank, coins: reward.coins, claimToken,
+                    startedAt: now,
+                    completedAt: firebase.database.ServerValue.TIMESTAMP,
+                    updatedAt: firebase.database.ServerValue.TIMESTAMP
+                };
+
+                try {
+                    await db.ref().update(updates);
+                } catch (error) {
+                    const live = (await userLogRef.once('value').catch(() => null))?.val?.();
+                    if (live?.status === 'done' && live?.claimToken === claimToken) continue;
+                    throw error;
+                }
             }
         },
 

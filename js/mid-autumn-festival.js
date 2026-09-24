@@ -315,67 +315,9 @@
             }
         }
 
-        /*
-         * Không hard-code ngày dương. Nếu lịch năm nay chưa tồn tại trên
-         * Firebase, dùng chính kết quả 15/8 âm lịch do MidAutumnCalendar tính.
-         * Từ D-5 đến hết ngày Trung Thu, thử đồng bộ bản ghi năm hiện tại để
-         * cả Đại Hội và cơ chế tự tặng Xu dùng chung một lịch server.
-         */
-        if (database && localInfo) {
-            const t = now();
-            const canBootstrap =
-                t >= Number(localInfo.autoGrantStartAt) &&
-                t <= Number(localInfo.autoGrantEndAt);
-
-            if (canBootstrap) {
-                try {
-                    const calendarRef =
-                        database.ref(`mid_autumn_calendar/${year}`);
-
-                    const tx =
-                        await calendarRef.transaction(
-                            current => {
-                                if (current && typeof current === 'object') {
-                                    return current;
-                                }
-
-                                return {
-                                    year: String(year),
-                                    festivalDateKey: String(localInfo.festivalDateKey || ''),
-                                    festivalStartAt: Number(localInfo.festivalStartAt),
-                                    festivalEndAt: Number(localInfo.festivalEndAt),
-                                    autoGrantStartAt: Number(localInfo.autoGrantStartAt),
-                                    autoGrantEndAt: Number(localInfo.autoGrantEndAt),
-                                    updatedAt: t
-                                };
-                            },
-                            undefined,
-                            false
-                        );
-
-                    const synced = tx.snapshot?.val();
-                    if (
-                        synced &&
-                        Number(synced.festivalStartAt) > 0 &&
-                        Number(synced.festivalEndAt) > 0
-                    ) {
-                        state.calendar = {
-                            ...localInfo,
-                            ...synced,
-                            year: Number(synced.year || year),
-                            remoteConfigured: true
-                        };
-                        return state.calendar;
-                    }
-                } catch (error) {
-                    console.warn(
-                        '[Đại Hội Trung Thu] Chưa thể tự đồng bộ lịch năm hiện tại:',
-                        error
-                    );
-                }
-            }
-        }
-
+        /* SECURITY 2026-09-24: lịch Firebase là authority do Giáo viên seed.
+         * Client học sinh chỉ dùng MidAutumnCalendar để preview; không tự tạo
+         * mid_autumn_calendar vì timestamp/dateKey client không phải authority. */
         state.calendar = localInfo ? { ...localInfo, remoteConfigured: false } : null;
         return state.calendar;
     }

@@ -561,7 +561,9 @@ const RoyalBallEvent = {
     },
 
     isEventActive: function () {
-        const now = new Date();
+        const timestamp = Date.now() + Number(this.serverTimeOffset || 0);
+        if (this.currentSettings) return this.isEventActiveAt(this.currentSettings, timestamp);
+        const now = new Date(timestamp);
 
         // LUỒNG 1: Nếu giáo viên bật thời gian tùy chỉnh
         if (this.currentSettings && this.currentSettings.useCustomDates && this.currentSettings.startDate && this.currentSettings.endDate) {
@@ -669,6 +671,8 @@ const RoyalBallEvent = {
         }
 
         try {
+            const clockSnap = await db.ref('.info/serverTimeOffset').once('value');
+            this.serverTimeOffset = Number(clockSnap.val()) || 0;
             const snap = await db.ref('game_settings/royal_ball').once('value');
             const settings = snap.exists() ? snap.val() : this.defaultSettings;
             this.currentSettings = settings;
@@ -727,154 +731,306 @@ const RoyalBallEvent = {
         this.resetDanceUI();
     },
 
+    serverTimeOffset: 0,
+    ROYAL_OPERATION_VERSION: 2,
+    ROYAL_PAYMENT_LEASE_MS: 120000,
+
+    getRoyalServerNow: async function () {
+        const snap = await db.ref('.info/serverTimeOffset').once('value');
+        const offset = Number(snap.val()) || 0;
+        this.serverTimeOffset = offset;
+        return { offset, now: Date.now() + offset };
+    },
+
+    isEventActiveAt: function (settings, timestamp) {
+        const safe = { ...this.defaultSettings, ...(settings || {}) };
+        const now = new Date(Number(timestamp));
+        if (safe.useCustomDates && safe.startDate && safe.endDate) {
+            const start = new Date(`${safe.startDate}T00:00:00+07:00`);
+            const end = new Date(`${safe.endDate}T23:59:59.999+07:00`);
+            return now.getTime() >= start.getTime() && now.getTime() <= end.getTime();
+        }
+        const parts = new Intl.DateTimeFormat('en-US', {
+            timeZone: 'Asia/Ho_Chi_Minh', month: '2-digit', day: '2-digit'
+        }).formatToParts(now).reduce((acc, part) => {
+            if (part.type === 'month' || part.type === 'day') acc[part.type] = Number(part.value);
+            return acc;
+        }, {});
+        return (parts.month === 7 && parts.day >= 29) || (parts.month === 8 && parts.day === 1);
+    },
+
+    validateRoyalProbabilities: function (settings) {
+        const item = Number(settings?.probItem);
+        const coin = Number(settings?.probCoin);
+        if (!Number.isFinite(item) || !Number.isFinite(coin) || item < 0 || coin < 0 || item > 100 || coin > 100 || Math.abs((item + coin) - 100) > 1e-9) {
+            throw new Error('ROYAL_INVALID_PROBABILITY_CONFIG');
+        }
+        return { probItem: item, probCoin: coin };
+    },
+
+    secureRandomUnit: function () {
+        try {
+            if (window.crypto && typeof window.crypto.getRandomValues === 'function') {
+                const value = new Uint32Array(1);
+                window.crypto.getRandomValues(value);
+                return Number(value[0]) / 4294967296;
+            }
+        } catch (_) {}
+        return Math.random();
+    },
+
+    makeRoyalOperationId: function () {
+        try {
+            if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+                return `royal_${window.crypto.randomUUID()}`;
+            }
+        } catch (_) {}
+        return `royal_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 12)}`;
+    },
+
+    reserveRoyalOperation: async function (today, serverNow, settings) {
+        const username = String(currentUser?.username || '').trim();
+        if (!username) throw new Error('ROYAL_NO_USERNAME');
+        const ref = db.ref(`royal_ball_limits/${username}`);
+        const candidateId = this.makeRoyalOperationId();
+        let blocked = false;
+        let resumable = false;
+        const tx = await ref.transaction(current => {
+            if (current && current.lastDate === today) {
+                const status = String(current.status || 'legacy_claimed');
+                if (['reserved', 'paying', 'paid', 'reward_reserved'].includes(status) && current.operationId) {
+                    resumable = true;
+                    return;
+                }
+                blocked = true;
+                return;
+            }
+            return {
+                version: this.ROYAL_OPERATION_VERSION,
+                lastDate: today,
+                operationId: candidateId,
+                status: 'reserved',
+                startedAt: serverNow,
+                updatedAt: serverNow,
+                probItem: Number(settings?.probItem),
+                probCoin: Number(settings?.probCoin)
+            };
+        }, undefined, false);
+        if (!tx.committed) {
+            const remote = tx.snapshot.val();
+            if (resumable && remote?.operationId) return { ref, operation: remote };
+            if (blocked) throw new Error('ROYAL_ALREADY_JOINED_TODAY');
+            throw new Error('ROYAL_RESERVE_FAILED');
+        }
+        return { ref, operation: tx.snapshot.val() };
+    },
+
+    ensureRoyalPayment: async function (limitRef, operation, serverNow) {
+        const username = String(currentUser?.username || '').trim();
+        const fee = 5;
+        let latest = operation || {};
+        if (['paid', 'reward_reserved', 'claimed'].includes(String(latest.status || ''))) return latest;
+
+        const paymentToken = this.makeRoyalOperationId();
+        let ownsPayment = false;
+        const lockTx = await limitRef.transaction(current => {
+            if (!current || current.operationId !== latest.operationId) return;
+            const status = String(current.status || '');
+            if (['paid', 'reward_reserved', 'claimed'].includes(status)) return;
+            if (status === 'reserved' || (status === 'paying' && Number(current.paymentStartedAt || 0) <= serverNow - this.ROYAL_PAYMENT_LEASE_MS)) {
+                ownsPayment = true;
+                return {
+                    ...current,
+                    status: 'paying',
+                    paymentToken,
+                    paymentStartedAt: serverNow,
+                    updatedAt: serverNow
+                };
+            }
+            return;
+        }, undefined, false);
+        latest = lockTx.snapshot.val() || latest;
+        if (!ownsPayment) {
+            if (['paid', 'reward_reserved', 'claimed'].includes(String(latest.status || ''))) return latest;
+            throw new Error('ROYAL_PAYMENT_IN_PROGRESS');
+        }
+
+        const rootUpdates = {};
+        rootUpdates[`student_coins/${username}`] = firebase.database.ServerValue.increment(-fee);
+        rootUpdates[`royal_ball_limits/${username}/status`] = 'paid';
+        rootUpdates[`royal_ball_limits/${username}/paidAt`] = firebase.database.ServerValue.TIMESTAMP;
+        rootUpdates[`royal_ball_limits/${username}/updatedAt`] = firebase.database.ServerValue.TIMESTAMP;
+
+        try {
+            await db.ref().update(rootUpdates);
+        } catch (error) {
+            const latestSnap = await limitRef.once('value').catch(() => null);
+            const remote = latestSnap?.val?.() || null;
+            if (remote && remote.operationId === latest.operationId && ['paid', 'reward_reserved', 'claimed'].includes(String(remote.status || ''))) {
+                return remote;
+            }
+            const coinSnap = await db.ref(`student_coins/${username}`).once('value').catch(() => null);
+            const balance = Number(coinSnap?.val?.());
+            if (Number.isFinite(balance) && balance < fee) {
+                await limitRef.transaction(current => {
+                    if (current && current.operationId === latest.operationId && current.status === 'paying' && current.paymentToken === paymentToken) return null;
+                    return current;
+                }, undefined, false).catch(() => {});
+                const noFunds = new Error('ROYAL_INSUFFICIENT_COINS');
+                noFunds.balance = balance;
+                throw noFunds;
+            }
+            throw error;
+        }
+        const paidSnap = await limitRef.once('value');
+        return paidSnap.val();
+    },
+
+    reserveRoyalReward: async function (limitRef, settings) {
+        let current = (await limitRef.once('value')).val() || {};
+        if (current.status === 'claimed' || current.status === 'reward_reserved') return current;
+        if (current.status !== 'paid') throw new Error('ROYAL_REWARD_NOT_PAID');
+        const probabilities = this.validateRoyalProbabilities({
+            probItem: current.probItem,
+            probCoin: current.probCoin
+        });
+        const username = String(currentUser?.username || '').trim();
+
+        let outcome;
+        if (this.secureRandomUnit() * 100 < probabilities.probItem) {
+            const legendaryItems = (typeof StoreConfig !== 'undefined' && Array.isArray(StoreConfig.items))
+                ? StoreConfig.items.filter(item => item && item.id && item.luxuryOnly !== true && String(item.tag || '').toLowerCase().trim() === 'truyền thuyết')
+                : [];
+            if (legendaryItems.length) {
+                const randomItem = legendaryItems[Math.floor(this.secureRandomUnit() * legendaryItems.length)];
+                const ownedSnap = await db.ref(`student_inventory/${username}/${randomItem.id}`).once('value');
+                if (ownedSnap.exists()) {
+                    outcome = { rewardType: 'coin', rewardCoins: 500, rewardItemId: String(randomItem.id), rewardItemName: String(randomItem.name || randomItem.id), rewardReason: 'duplicate' };
+                } else {
+                    outcome = { rewardType: 'item', rewardCoins: 0, rewardItemId: String(randomItem.id), rewardItemName: String(randomItem.name || randomItem.id), rewardReason: 'legendary_item' };
+                }
+            } else {
+                outcome = { rewardType: 'coin', rewardCoins: 500, rewardItemId: '', rewardItemName: '', rewardReason: 'empty_pool' };
+            }
+        } else {
+            outcome = { rewardType: 'coin', rewardCoins: Math.floor(this.secureRandomUnit() * 901) + 100, rewardItemId: '', rewardItemName: '', rewardReason: 'coin' };
+        }
+
+        let won = false;
+        const tx = await limitRef.transaction(value => {
+            if (!value || value.operationId !== current.operationId) return;
+            if (value.status === 'reward_reserved' || value.status === 'claimed') return;
+            if (value.status !== 'paid') return;
+            won = true;
+            return {
+                ...value,
+                status: 'reward_reserved',
+                rewardType: outcome.rewardType,
+                rewardCoins: outcome.rewardCoins,
+                rewardItemId: outcome.rewardItemId,
+                rewardItemName: outcome.rewardItemName,
+                rewardReason: outcome.rewardReason,
+                rewardReservedAt: Date.now() + Number(this.serverTimeOffset || 0),
+                updatedAt: Date.now() + Number(this.serverTimeOffset || 0)
+            };
+        }, undefined, false);
+        current = tx.snapshot.val() || current;
+        if (!won && current.status !== 'reward_reserved' && current.status !== 'claimed') throw new Error('ROYAL_REWARD_RESERVE_FAILED');
+        return current;
+    },
+
+    finalizeRoyalReward: async function (limitRef, operation) {
+        const username = String(currentUser?.username || '').trim();
+        let current = operation || (await limitRef.once('value')).val() || {};
+        if (current.status === 'claimed') return current;
+        if (current.status !== 'reward_reserved') throw new Error('ROYAL_REWARD_NOT_RESERVED');
+
+        if (current.rewardType === 'item' && current.rewardItemId) {
+            const itemRef = db.ref(`student_inventory/${username}/${current.rewardItemId}`);
+            const exists = (await itemRef.once('value')).exists();
+            if (exists) {
+                const convertTx = await limitRef.transaction(value => {
+                    if (!value || value.operationId !== current.operationId || value.status !== 'reward_reserved' || value.rewardType !== 'item' || value.rewardItemId !== current.rewardItemId) return;
+                    return { ...value, rewardType: 'coin', rewardCoins: 500, rewardReason: 'duplicate_after_reserve', updatedAt: Date.now() + Number(this.serverTimeOffset || 0) };
+                }, undefined, false);
+                current = convertTx.snapshot.val() || current;
+            }
+        }
+
+        const historyId = String(current.operationId);
+        const recordNow = new Date(Date.now() + Number(this.serverTimeOffset || 0));
+        const rewardText = current.rewardType === 'item'
+            ? `Truyền thuyết: ${current.rewardItemName || current.rewardItemId}`
+            : `${Number(current.rewardCoins || 0)} Coin (Dạ hội${String(current.rewardReason || '').includes('duplicate') ? ' - bù trùng' : ''})`;
+        const updates = {};
+        if (current.rewardType === 'item') {
+            updates[`student_inventory/${username}/${current.rewardItemId}`] = {
+                id: current.rewardItemId,
+                purchaseTime: firebase.database.ServerValue.TIMESTAMP,
+                isEquipped: false,
+                source: 'royal_ball',
+                royalBallOperationId: current.operationId
+            };
+        } else {
+            updates[`student_coins/${username}`] = firebase.database.ServerValue.increment(Number(current.rewardCoins || 0));
+        }
+        updates[`spin_history/${historyId}`] = {
+            studentName: currentUser.name,
+            username,
+            reward: rewardText,
+            time: recordNow.toLocaleTimeString('vi-VN') + ' ' + recordNow.toLocaleDateString('vi-VN'),
+            timestamp: firebase.database.ServerValue.TIMESTAMP,
+            source: 'royal_ball',
+            operationId: historyId
+        };
+        updates[`royal_ball_limits/${username}/status`] = 'claimed';
+        updates[`royal_ball_limits/${username}/claimedAt`] = firebase.database.ServerValue.TIMESTAMP;
+        updates[`royal_ball_limits/${username}/updatedAt`] = firebase.database.ServerValue.TIMESTAMP;
+
+        try {
+            await db.ref().update(updates);
+        } catch (error) {
+            const remote = (await limitRef.once('value').catch(() => null))?.val?.();
+            if (remote && remote.operationId === current.operationId && remote.status === 'claimed') return remote;
+            throw error;
+        }
+        return (await limitRef.once('value')).val() || { ...current, status: 'claimed' };
+    },
+
     startDance: async function () {
         if (this.isDancing) return;
 
-        // --- BẮT ĐẦU: LOGIC KIỂM TRA GIỚI HẠN 1 LẦN / NGÀY ---
-        const serverOffsetSnap = await db
-            .ref('.info/serverTimeOffset')
-            .once('value');
-
-        const serverOffset = Number(serverOffsetSnap.val()) || 0;
-        const serverNow = Date.now() + serverOffset;
-
-        const today = new Intl.DateTimeFormat('en-CA', {
-            timeZone: 'Asia/Ho_Chi_Minh',
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
-        }).format(new Date(serverNow));
-
-        const limitRef = db.ref(
-            `royal_ball_limits/${currentUser.username}`
-        );
-
+        let royalContext;
+        let limitRef;
         try {
-            let alreadyJoined = false;
-
-            const result = await limitRef.transaction(currentData => {
-                if (
-                    currentData &&
-                    currentData.lastDate === today
-                ) {
-                    alreadyJoined = true;
-                    return;
-                }
-
-                return {
-                    lastDate: today,
-                    lastPlayedAt:
-                        firebase.database.ServerValue.TIMESTAMP
-                };
-            });
-
-            if (!result.committed) {
-                if (alreadyJoined) {
-                    alert(
-                        '⏳ Bạn đã tham gia khiêu vũ hôm nay rồi! ' +
-                        'Hãy quay lại vào ngày mai nhé.'
-                    );
-                } else {
-                    alert(
-                        '❌ Không thể ghi nhận lượt tham gia. ' +
-                        'Vui lòng thử lại.'
-                    );
-                }
-
-                return;
+            const clock = await this.getRoyalServerNow();
+            const settingsSnap = await db.ref('game_settings/royal_ball').once('value');
+            const settings = settingsSnap.exists() ? { ...this.defaultSettings, ...settingsSnap.val() } : { ...this.defaultSettings };
+            this.currentSettings = settings;
+            this.validateRoyalProbabilities(settings);
+            if (settings.isEnabled === false || (typeof window.isGameEnabled !== 'undefined' && window.isGameEnabled === false)) {
+                throw new Error('ROYAL_EVENT_DISABLED');
             }
+            if (!this.isEventActiveAt(settings, clock.now)) {
+                throw new Error('ROYAL_EVENT_OUTSIDE_WINDOW');
+            }
+            const today = new Intl.DateTimeFormat('en-CA', {
+                timeZone: 'Asia/Ho_Chi_Minh', year: 'numeric', month: '2-digit', day: '2-digit'
+            }).format(new Date(clock.now));
+            const reservation = await this.reserveRoyalOperation(today, clock.now, settings);
+            limitRef = reservation.ref;
+            royalContext = await this.ensureRoyalPayment(limitRef, reservation.operation, clock.now);
         } catch (error) {
-            console.error('Lỗi kiểm tra ngày:', error);
-
-            if (
-                error.code === 'PERMISSION_DENIED' ||
-                error.code === 'permission_denied'
-            ) {
-                alert(
-                    '❌ Firebase Rules chưa cấp quyền cho royal_ball_limits.'
-                );
-            } else {
-                alert(
-                    '❌ Lỗi kiểm tra dữ liệu máy chủ, vui lòng thử lại sau!'
-                );
-            }
-
-            return;
+            console.error('[RoyalBall] Không thể bắt đầu operation:', error);
+            const code = String(error?.message || '');
+            if (code === 'ROYAL_ALREADY_JOINED_TODAY') return alert('⏳ Bạn đã tham gia khiêu vũ hôm nay rồi! Hãy quay lại vào ngày mai nhé.');
+            if (code === 'ROYAL_INSUFFICIENT_COINS') return alert(`🪙 Bạn cần 5 Coin để khiêu vũ.\nSố dư hiện tại: ${Number(error.balance || 0)} Coin.`);
+            if (code === 'ROYAL_EVENT_DISABLED') return alert('🔒 Dạ Hội Hoàng Gia đang bị khóa.');
+            if (code === 'ROYAL_EVENT_OUTSIDE_WINDOW') return alert('⚠️ Hiện tại không nằm trong thời gian Dạ Hội Hoàng Gia.');
+            if (code === 'ROYAL_INVALID_PROBABILITY_CONFIG') return alert('❌ Cấu hình tỷ lệ Dạ hội không hợp lệ. Giáo viên cần lưu lại tổng xác suất = 100%.');
+            if (code === 'ROYAL_PAYMENT_IN_PROGRESS') return alert('⏳ Lượt Dạ hội đang được xử lý ở một phiên khác.');
+            return alert('❌ Không thể bắt đầu Dạ hội. Dữ liệu operation đã được giữ để retry an toàn nếu cần.');
         }
-        // --- KẾT THÚC: LOGIC KIỂM TRA ---
-
-        // =====================================================
-        // PHÍ KHIÊU VŨ: 5 COIN / 1 LẦN
-        // =====================================================
-        const DANCE_ENTRY_FEE = 5;
-
-        const danceCoinRef = db.ref(
-            `student_coins/${currentUser.username}`
-        );
-
-        let currentDanceCoins = 0;
-
-        try {
-            const feeTransaction =
-                await danceCoinRef.transaction(currentValue => {
-                    currentDanceCoins =
-                        Number(currentValue) || 0;
-
-                    // Không đủ Coin thì hủy transaction.
-                    if (
-                        currentDanceCoins <
-                        DANCE_ENTRY_FEE
-                    ) {
-                        return;
-                    }
-
-                    return (
-                        currentDanceCoins -
-                        DANCE_ENTRY_FEE
-                    );
-                });
-
-            if (!feeTransaction.committed) {
-                /*
-                 * Đã giữ lượt trong ngày nhưng không đủ Coin,
-                 * vì vậy phải xóa lượt để học sinh có thể
-                 * quay lại sau khi kiếm đủ Coin.
-                 */
-                await limitRef.remove();
-
-                alert(
-                    `🪙 Bạn cần ${DANCE_ENTRY_FEE} Coin để khiêu vũ.\n` +
-                    `Số dư hiện tại: ${currentDanceCoins} Coin.`
-                );
-
-                return;
-            }
-        } catch (error) {
-            console.error(
-                'Lỗi trừ phí khiêu vũ:',
-                error
-            );
-
-            /*
-             * Trừ Coin lỗi thì hoàn lại lượt trong ngày.
-             */
-            try {
-                await limitRef.remove();
-            } catch (rollbackError) {
-                console.error(
-                    'Không thể hoàn lại lượt Dạ hội:',
-                    rollbackError
-                );
-            }
-
-            alert(
-                '❌ Không thể thanh toán phí khiêu vũ. ' +
-                'Vui lòng thử lại!'
-            );
-
-            return;
-        }
-
 
         this.enhanceUI();
         this.isDancing = true;
@@ -894,19 +1050,9 @@ const RoyalBallEvent = {
         if (!btn || !floor || !status) {
             this.isDancing = false;
 
-            // Hoàn lại lượt trong ngày.
-            await limitRef.remove();
-
-            // Hoàn lại 5 Coin.
-            await danceCoinRef.transaction(
-                currentValue =>
-                    (Number(currentValue) || 0) +
-                    DANCE_ENTRY_FEE
-            );
-
             return alert(
                 '❌ Giao diện Dạ hội chưa tải đầy đủ. ' +
-                'Hệ thống đã hoàn lại 5 Coin.'
+                'Operation đã thanh toán được giữ lại; mở lại Dạ hội để tiếp tục nhận đúng phần thưởng, không bị trừ Coin lần hai.'
             );
         }
 
@@ -1008,29 +1154,17 @@ const RoyalBallEvent = {
                     error
                 );
 
-                try {
-                    await limitRef.remove();
-                    await danceCoinRef.transaction(
-                        currentValue =>
-                            (Number(currentValue) || 0) +
-                            DANCE_ENTRY_FEE
-                    );
-                } catch (rollbackError) {
-                    console.error(
-                        'Không thể hoàn lại lượt Dạ hội:',
-                        rollbackError
-                    );
-                }
+                // Không hoàn phí và không mở lượt sau khi payment đã commit.
+                // Operation durable sẽ được resume ở lần mở tiếp theo.
 
                 this.setDanceProgress(
                     0,
                     10,
-                    'Trao thưởng lỗi — lượt đã được hoàn lại'
+                    'Trao thưởng tạm gián đoạn — operation được giữ để retry'
                 );
 
                 alert(
-                    '❌ Trao thưởng thất bại. ' +
-                    'Hệ thống đã mở lại lượt để bạn thử lại.'
+                    '❌ Trao thưởng chưa hoàn tất. Mở lại Dạ hội để hệ thống tiếp tục đúng operation hiện tại; không bị trừ phí hay cấp quà hai lần.'
                 );
             } finally {
                 this.isDancing = false;
@@ -1040,291 +1174,36 @@ const RoyalBallEvent = {
     },
 
     calculateReward: async function () {
-        const resultBox =
-            document.getElementById('royalBallResult');
-
-        if (!resultBox) {
-            throw new Error(
-                'Không tìm thấy royalBallResult'
-            );
-        }
-
-        const escapeHTML = value => {
-            return String(value ?? '').replace(
-                /[&<>"']/g,
-                character => ({
-                    '&': '&amp;',
-                    '<': '&lt;',
-                    '>': '&gt;',
-                    '"': '&quot;',
-                    "'": '&#039;'
-                })[character]
-            );
-        };
-
+        const resultBox = document.getElementById('royalBallResult');
+        if (!resultBox) throw new Error('Không tìm thấy royalBallResult');
+        const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[character]);
         resultBox.style.display = 'block';
         resultBox.className = 'royal-reward-result';
+        resultBox.innerHTML = `<div class="royal-reward-loading"><div class="royal-loading-rays"></div><div class="royal-loading-crown">♛</div><div class="royal-loading-chest"><div class="royal-loading-chest-lid"></div><div class="royal-loading-chest-body"><span>R</span></div></div><div class="royal-loading-title">Đang mở rương Hoàng gia</div><div class="royal-loading-subtitle">Đang tiếp tục operation phần thưởng an toàn...</div><div class="royal-loading-dots"><span></span><span></span><span></span></div></div>`;
+        await new Promise(resolve => setTimeout(resolve, 850));
 
-        /*
-         * Hiển thị rương đang được mở.
-         */
-        resultBox.innerHTML = `
-        <div class="royal-reward-loading">
-            <div class="royal-loading-rays"></div>
-
-            <div class="royal-loading-crown">
-                ♛
-            </div>
-
-            <div class="royal-loading-chest">
-                <div class="royal-loading-chest-lid"></div>
-                <div class="royal-loading-chest-body">
-                    <span>R</span>
-                </div>
-            </div>
-
-            <div class="royal-loading-title">
-                Đang mở rương Hoàng gia
-            </div>
-
-            <div class="royal-loading-subtitle">
-                Vận may đang chọn phần thưởng dành cho bạn...
-            </div>
-
-            <div class="royal-loading-dots">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        </div>
-    `;
-
-        /*
-         * Khoảng nghỉ nhỏ để hiệu ứng mở rương được nhìn thấy.
-         */
-        await new Promise(resolve =>
-            setTimeout(resolve, 850)
-        );
-
-        const probabilityItem =
-            this.currentSettings
-                ? parseFloat(
-                    this.currentSettings.probItem
-                )
-                : this.defaultSettings.probItem;
-
-        const randomNumber = Math.random() * 100;
-
-        let rewardType =
-            randomNumber <= probabilityItem
-                ? 'item'
-                : 'coin';
+        const username = String(currentUser?.username || '').trim();
+        const limitRef = db.ref(`royal_ball_limits/${username}`);
+        await this.getRoyalServerNow();
+        let operation = await this.reserveRoyalReward(limitRef, null);
+        operation = await this.finalizeRoyalReward(limitRef, operation);
 
         let rewardTheme = 'coin';
         let rewardIcon = '🪙';
         let rewardLabel = 'Kho báu Hoàng gia';
-        let rewardTitle = '';
-        let rewardDetail = '';
-        let rewardValueText = '';
-
-        let wonCoins = 0;
-        let actualRewardRecord = '';
-
-        if (rewardType === 'item') {
-            const legendaryItems =
-                typeof StoreConfig !== 'undefined' &&
-                    Array.isArray(StoreConfig.items)
-                    ? StoreConfig.items.filter(item =>
-                        item.tag &&
-                        item.tag
-                            .toLowerCase()
-                            .trim() === 'truyền thuyết'
-                    )
-                    : [];
-
-            if (legendaryItems.length > 0) {
-                const inventorySnapshot =
-                    await db.ref(
-                        `student_inventory/${currentUser.username}`
-                    ).once('value');
-
-                const currentOwned = new Set();
-
-                inventorySnapshot.forEach(child => {
-                    const inventoryItem =
-                        child.val() || {};
-
-                    if (child.key) {
-                        currentOwned.add(
-                            String(child.key)
-                        );
-                    }
-
-                    if (inventoryItem.id) {
-                        currentOwned.add(
-                            String(inventoryItem.id)
-                        );
-                    }
-                });
-
-                const randomItem =
-                    legendaryItems[
-                    Math.floor(
-                        Math.random() *
-                        legendaryItems.length
-                    )
-                    ];
-
-                const itemId = String(randomItem.id);
-
-                if (currentOwned.has(itemId)) {
-                    /*
-                     * Vật phẩm bị trùng:
-                     * chuyển thành 500 Coin.
-                     */
-                    wonCoins = 500;
-
-                    rewardTheme = 'duplicate';
-                    rewardIcon = '♻️';
-                    rewardLabel =
-                        'Quà trùng được quy đổi';
-
-                    rewardTitle =
-                        'Bạn đã sở hữu vật phẩm này';
-
-                    rewardValueText =
-                        '+500 Coin';
-
-                    rewardDetail =
-                        `"${randomItem.name}" đã có trong kho. ` +
-                        `Hoàng gia đã đổi món quà thành Coin.`;
-
-                    actualRewardRecord =
-                        `Trùng Truyền thuyết: ` +
-                        `${randomItem.name} (+500 Coin)`;
-                } else {
-                    /*
-                     * Trao vật phẩm trước khi hiển thị thành công.
-                     */
-                    await db.ref(
-                        `student_inventory/` +
-                        `${currentUser.username}/` +
-                        `${randomItem.id}`
-                    ).update({
-                        id: randomItem.id,
-                        purchaseTime:
-                            firebase.database
-                                .ServerValue.TIMESTAMP,
-                        isEquipped: false,
-                        source: 'royal_ball'
-                    });
-
-                    rewardTheme = 'item';
-                    rewardIcon = '💎';
-                    rewardLabel =
-                        'Vật phẩm Truyền thuyết';
-
-                    rewardTitle =
-                        randomItem.name;
-
-                    rewardValueText =
-                        'TRUYỀN THUYẾT';
-
-                    rewardDetail =
-                        'Vật phẩm đã được đưa vào kho đồ của bạn.';
-
-                    actualRewardRecord =
-                        `Truyền thuyết: ${randomItem.name}`;
-                }
-            } else {
-                /*
-                 * Không tìm thấy vật phẩm Truyền thuyết.
-                 */
-                wonCoins = 500;
-
-                rewardTheme = 'compensation';
-                rewardIcon = '🎁';
-                rewardLabel =
-                    'Quà bù Hoàng gia';
-
-                rewardTitle =
-                    'Kho báu bí ẩn';
-
-                rewardValueText =
-                    '+500 Coin';
-
-                rewardDetail =
-                    'Danh sách vật phẩm Truyền thuyết đang được cập nhật.';
-
-                actualRewardRecord =
-                    '500 Coin bù vật phẩm Dạ hội';
-            }
-        } else {
-            wonCoins =
-                Math.floor(
-                    Math.random() *
-                    (1000 - 100 + 1)
-                ) + 100;
-
-            rewardTheme = 'coin';
-            rewardIcon = '🪙';
-            rewardLabel =
-                'Kho báu Hoàng gia';
-
-            rewardTitle =
-                'Coin Dạ Hội';
-
-            rewardValueText =
-                `+${wonCoins.toLocaleString('vi-VN')} Coin`;
-
-            rewardDetail =
-                'Phần thưởng đã được cộng vào số dư của bạn.';
-
-            actualRewardRecord =
-                `${wonCoins} Coin (Dạ hội)`;
+        let rewardTitle = 'Coin Dạ Hội';
+        let rewardDetail = 'Phần thưởng đã được ghi nhận atomically cùng lịch sử operation.';
+        let rewardValueText = `+${Number(operation.rewardCoins || 0).toLocaleString('vi-VN')} Coin`;
+        if (operation.rewardType === 'item') {
+            rewardTheme = 'item'; rewardIcon = '💎'; rewardLabel = 'Vật phẩm Truyền thuyết';
+            rewardTitle = operation.rewardItemName || operation.rewardItemId || 'Vật phẩm Truyền thuyết';
+            rewardValueText = 'TRUYỀN THUYẾT'; rewardDetail = 'Vật phẩm đã được đưa vào kho đồ của bạn.';
+        } else if (String(operation.rewardReason || '').includes('duplicate')) {
+            rewardTheme = 'duplicate'; rewardIcon = '♻️'; rewardLabel = 'Quà trùng được quy đổi';
+            rewardTitle = 'Vật phẩm đã có trong kho'; rewardDetail = 'Hoàng gia đã đổi món quà thành 500 Coin.';
+        } else if (operation.rewardReason === 'empty_pool') {
+            rewardTheme = 'compensation'; rewardIcon = '🎁'; rewardLabel = 'Quà bù Hoàng gia'; rewardTitle = 'Kho báu bí ẩn';
         }
-
-        /*
-         * Cộng Coin trước khi hiển thị thông báo thành công.
-         */
-        if (wonCoins > 0) {
-            const coinReference =
-                db.ref(
-                    `student_coins/${currentUser.username}`
-                );
-
-            const coinTransaction =
-                await coinReference.transaction(
-                    currentValue =>
-                        (Number(currentValue) || 0) +
-                        wonCoins
-                );
-
-            if (!coinTransaction.committed) {
-                throw new Error(
-                    'Không thể cộng Coin Dạ hội'
-                );
-            }
-        }
-
-        /*
-         * Ghi lịch sử.
-         */
-        const recordNow = new Date();
-
-        await pushDB('spin_history', {
-            studentName: currentUser.name,
-            username: currentUser.username,
-            reward: actualRewardRecord,
-            time:
-                recordNow.toLocaleTimeString('vi-VN') +
-                ' ' +
-                recordNow.toLocaleDateString('vi-VN'),
-            timestamp:
-                firebase.database
-                    .ServerValue.TIMESTAMP,
-            source: 'royal_ball'
-        });
 
         const burstParticles =
             Array.from(

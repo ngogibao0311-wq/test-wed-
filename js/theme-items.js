@@ -200,6 +200,18 @@ class ThemeManager {
         },
 
         // =========================================================
+        // TAMON'S B-SIDE · HẮC MIÊU DẠ KHÚC
+        // Theme riêng cho Tamon · Nụ Cười Mèo Đen.
+        // Namespace CSS độc lập tbcat1-*; không tái dùng tbtheme1-/tbc1-/tbc2-*.
+        // =========================================================
+        'theme_tamon_bside_black_cat_nocturne': {
+            primary: '#c89cff',
+            secondary: '#ff8fbd',
+            background: '#090711',
+            className: 'theme-tamon-bside-black-cat-nocturne'
+        },
+
+        // =========================================================
         // CẦM MỘNG · THANH HUYỀN TIÊN CÁC
         // Theme hoàn toàn mới: cmtheme1-*
         // =========================================================
@@ -232,6 +244,18 @@ class ThemeManager {
             secondary: '#3f8b72',
             background: '#edf1df',
             className: 'theme-midautumn-osmanthus-jade'
+        },
+
+        // =========================================================
+        // ĐÊM ĐẦY SAO · HỌA GIỚI ĐÊM SAO
+        // Theme riêng hoàn toàn: sndtheme-* / theme-starry-night-painted-gallery.
+        // Không tái sử dụng runtime/animation của pet Premium hoặc chibi.
+        // =========================================================
+        'theme_dem_day_sao_hoa_gioi': {
+            primary: '#36558d',
+            secondary: '#b7863f',
+            background: '#eadfbd',
+            className: 'theme-starry-night-painted-gallery'
         },
 
         // =========================================================
@@ -417,6 +441,21 @@ class ThemeManager {
         }),
 
         /* =========================================================
+           TAMON'S B-SIDE · NỤ CƯỜI MÈO ĐEN + HẮC MIÊU DẠ KHÚC
+           Pet 2 + theme dùng chung card CHIBI2 riêng; chỉ tag dùng chung với Tamon 1.
+           Card CHIBI2 không dùng card Tamon 1 và khóa khỏi mọi theme toàn web khác.
+           ========================================================= */
+        'tamon-bside-chibi2-pair': Object.freeze({
+            itemIds: Object.freeze([
+                'pet_tamon_bside_chibi_2',
+                'theme_tamon_bside_black_cat_nocturne'
+            ]),
+
+            className:
+                'store-card-tamon-bside-chibi2'
+        }),
+
+        /* =========================================================
            CẦM MỘNG · THANH HUYỀN
            Pet + theme dùng chung card/tag, miễn mọi theme khác.
            ========================================================= */
@@ -528,6 +567,20 @@ class ThemeManager {
 
             className:
                 'store-card-linkclick-chibi'
+        }),
+
+        /* =========================================================
+           ĐÊM ĐẦY SAO · TIỂU LỮ KHÁCH + HỌA GIỚI ĐÊM SAO
+           Cùng tag, cùng thẻ; card miễn mọi giao diện toàn web khác.
+           ========================================================= */
+        'starry-night-chibi-pair': Object.freeze({
+            itemIds: Object.freeze([
+                'pet_dem_day_sao_chibi_1',
+                'theme_dem_day_sao_hoa_gioi'
+            ]),
+
+            className:
+                'store-card-starry-night-chibi'
         }),
 
         'national-day-2-9': Object.freeze({
@@ -1861,6 +1914,45 @@ class ThemeManager {
         return link;
     }
 
+    // =========================================================
+    // ĐÊM ĐẦY SAO · HỌA GIỚI — CSS RUNTIME GUARD
+    // Dùng chung dem-day-sao.css nhưng namespace theme riêng sndtheme-*.
+    // Không sửa/khởi chạy hiệu ứng snv-* hoặc snch-*.
+    // =========================================================
+    static ensureStarryNightPaintedGalleryStylesheet() {
+        if (typeof document === 'undefined' || !document.head) return null;
+
+        const targetHref = 'css/dem-day-sao.css?v=20260921.starry-night-distinct-v2';
+        const existing = Array.from(
+            document.querySelectorAll('link[rel="stylesheet"][href]')
+        ).find(link =>
+            /(?:^|\/)dem-day-sao(?:\(\d+\))?\.css(?:[?#].*)?$/i
+                .test(link.href || '')
+        );
+
+        if (existing) {
+            existing.id = existing.id || 'starry-night-premium-style';
+            if (!String(existing.getAttribute('href') || '').includes('20260921.starry-night-distinct-v2')) {
+                existing.setAttribute('href', targetHref);
+            }
+            return existing;
+        }
+
+        const byId = document.getElementById('starry-night-premium-style');
+        if (byId) {
+            byId.setAttribute('href', targetHref);
+            return byId;
+        }
+
+        const link = document.createElement('link');
+        link.id = 'starry-night-premium-style';
+        link.rel = 'stylesheet';
+        link.href = targetHref;
+        link.dataset.starryNightTheme = 'painted-gallery';
+        document.head.appendChild(link);
+        return link;
+    }
+
     static applyTheme(themeId) {
         this.initThemePopupIsolation();
         this.clearAcediaPalaceDecor();
@@ -1878,6 +1970,10 @@ class ThemeManager {
             this.ensureAetherLuminousSanctumStylesheet();
         }
 
+        if (themeId === 'theme_dem_day_sao_hoa_gioi') {
+            this.ensureStarryNightPaintedGalleryStylesheet();
+        }
+
         const theme = this.themes[themeId] || this.themes['default'];
         const root = document.documentElement;
 
@@ -1886,8 +1982,15 @@ class ThemeManager {
         root.style.setProperty('--secondary-color', theme.secondary);
         root.style.setProperty('--bg-color', theme.background);
 
-        // 1. Xóa động TẤT CẢ các class theme cũ một cách tối ưu
+        // 1. Xóa class của VẬT PHẨM theme, nhưng giữ theme giao diện tài khoản
+        // (common.js dùng theme-blue/theme-green/theme-pink độc lập với Store theme).
+        const appAppearanceClasses = new Set([
+            'theme-blue',
+            'theme-green',
+            'theme-pink'
+        ]);
         Array.from(document.body.classList).forEach(className => {
+            if (appAppearanceClasses.has(className)) return;
             if (className.startsWith('theme-') || className.startsWith('theme_')) {
                 document.body.classList.remove(className);
             }

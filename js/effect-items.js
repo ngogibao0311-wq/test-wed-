@@ -250,6 +250,20 @@ class EffectManager {
                 }, 260);
             });
 
+        /*
+         * ĐÊM ĐẦY SAO · TINH HOA LƯU VÂN
+         * Root mount thẳng vào body với namespace sndfx1-* riêng.
+         * Chỉ dọn đúng effect này, không chạm DOM/runtime của effect khác.
+         */
+        document
+            .querySelectorAll(
+                '.sndfx1-starry-flow[data-sndfx1-portal="1"]'
+            )
+            .forEach(node => {
+                node.classList.add('is-leaving');
+                window.setTimeout(() => node.remove(), 320);
+            });
+
         if (this.container) {
             const children = Array.from(
                 this.container.children
@@ -367,6 +381,11 @@ class EffectManager {
                 this.createTamonBsideSpectrumBreakEffect();
                 break;
 
+            // TAMON 2 · HẮC MIÊU NGUYỆT THỰ — effect toàn web độc lập
+            case 'effect_tamon_bside_black_cat_eclipse':
+                this.createTamonBlackCatEclipseEffect();
+                break;
+
             // PREMIUM MÙA HẠ · PHONG LINH HẠ NHẬT
             case 'effect_mua_ha_phong_linh_ha_nhat':
                 this.createSummerWindChimeEffect();
@@ -385,6 +404,11 @@ class EffectManager {
             // TRUNG THU · NGUYỆT TRIỀU LƯU QUANG
             case 'effect_trung_thu_nguyet_trieu_luu_quang':
                 this.createMidAutumnMoonTideRadianceEffect();
+                break;
+
+            // ĐÊM ĐẦY SAO · TINH HOA LƯU VÂN
+            case 'effect_dem_day_sao_tinh_hoa_luu_van':
+                this.createStarryNightEssenceDriftEffect();
                 break;
 
             // LINK CLICK · HÀNH LANG DƯ ẢNH
@@ -3567,6 +3591,197 @@ class EffectManager {
         return realm;
     }
 
+
+    /* =========================================================
+       TAMON 2 · HẮC MIÊU NGUYỆT THỰ
+       ID: effect_tamon_bside_black_cat_eclipse
+       Namespace tuyệt đối riêng: tbcatfx2-*
+       - Hiệu ứng phủ toàn viewport.
+       - Root nằm trong #global-effect-container để clearEffects()
+         hiện có tự dọn đúng lifecycle chuẩn.
+       - Không gọi/tái sử dụng method, class hoặc keyframe của
+         tbfx1-*, tbc1-*, tbc2-* hay effect khác.
+       ========================================================= */
+    static createTamonBlackCatEclipseEffect() {
+        this.stopIntervals();
+        if (!this.container) return;
+
+        const reducedMotion =
+            window.matchMedia?.(
+                '(prefers-reduced-motion: reduce)'
+            ).matches;
+
+        const compact =
+            IS_MOBILE_EFFECT || reducedMotion;
+
+        const root = document.createElement('div');
+        root.className =
+            'tbcatfx2-black-cat-eclipse ui-theme-immune';
+        root.dataset.themeImmune = 'true';
+        root.setAttribute('aria-hidden', 'true');
+
+        root.innerHTML = `
+            <div class="tbcatfx2-night-wash"></div>
+            <div class="tbcatfx2-vignette"></div>
+
+            <div class="tbcatfx2-eclipse eclipse-a"></div>
+            <div class="tbcatfx2-eclipse eclipse-b"></div>
+
+            <div class="tbcatfx2-cat-eye">
+                <span class="tbcatfx2-eye-halo"></span>
+                <span class="tbcatfx2-eye-iris"></span>
+                <span class="tbcatfx2-eye-pupil"></span>
+            </div>
+
+            <div class="tbcatfx2-crescent crescent-left"></div>
+            <div class="tbcatfx2-crescent crescent-right"></div>
+
+            <div class="tbcatfx2-whisker-field whisker-left">
+                <i></i><i></i><i></i>
+            </div>
+            <div class="tbcatfx2-whisker-field whisker-right">
+                <i></i><i></i><i></i>
+            </div>
+
+            <div class="tbcatfx2-orbit orbit-a"></div>
+            <div class="tbcatfx2-orbit orbit-b"></div>
+
+            <div class="tbcatfx2-mote-field"></div>
+            <div class="tbcatfx2-rune-field"></div>
+            <div class="tbcatfx2-claw-field"></div>
+
+            <div class="tbcatfx2-signature">
+                <small>TAMON'S B-SIDE</small>
+                <strong>BLACK CAT ECLIPSE</strong>
+                <span>NOCTURNE // SIDE B</span>
+            </div>
+        `;
+
+        const moteField =
+            root.querySelector('.tbcatfx2-mote-field');
+
+        const moteCount =
+            this.getQualityCount(compact ? 16 : 42);
+
+        for (let index = 0; index < moteCount; index++) {
+            const mote = document.createElement('span');
+
+            mote.className =
+                index % 7 === 0
+                    ? 'tbcatfx2-mote is-gold'
+                    : 'tbcatfx2-mote';
+
+            mote.style.setProperty(
+                '--tbcatfx2-x',
+                `${(index * 43 + 7) % 100}%`
+            );
+
+            mote.style.setProperty(
+                '--tbcatfx2-y',
+                `${(index * 67 + 13) % 100}%`
+            );
+
+            mote.style.setProperty(
+                '--tbcatfx2-size',
+                `${2 + (index % 4)}px`
+            );
+
+            mote.style.setProperty(
+                '--tbcatfx2-delay',
+                `${-(index % 15) * 0.31}s`
+            );
+
+            mote.style.setProperty(
+                '--tbcatfx2-duration',
+                `${5.2 + (index % 8) * 0.58}s`
+            );
+
+            moteField?.appendChild(mote);
+        }
+
+        const runeField =
+            root.querySelector('.tbcatfx2-rune-field');
+
+        const runeCount =
+            this.getQualityCount(compact ? 5 : 11);
+
+        const glyphs = ['☾', '✦', '◇', '⋆', '◈'];
+
+        for (let index = 0; index < runeCount; index++) {
+            const rune = document.createElement('span');
+            rune.className = 'tbcatfx2-rune';
+            rune.textContent = glyphs[index % glyphs.length];
+
+            rune.style.setProperty(
+                '--tbcatfx2-rune-x',
+                `${(index * 71 + 11) % 94 + 3}%`
+            );
+
+            rune.style.setProperty(
+                '--tbcatfx2-rune-y',
+                `${(index * 47 + 9) % 88 + 6}%`
+            );
+
+            rune.style.setProperty(
+                '--tbcatfx2-rune-delay',
+                `${-(index % 8) * 0.52}s`
+            );
+
+            rune.style.setProperty(
+                '--tbcatfx2-rune-scale',
+                `${0.66 + (index % 5) * 0.13}`
+            );
+
+            runeField?.appendChild(rune);
+        }
+
+        this.container.appendChild(root);
+
+        requestAnimationFrame(() => {
+            root.classList.add('is-active');
+        });
+
+        /*
+         * Vệt móng vuốt xuất hiện theo nhịp chậm.
+         * Chỉ sinh node tbcatfx2-* bên trong root của effect này.
+         */
+        this.currentInterval = setInterval(() => {
+            if (!root.isConnected) return;
+
+            const clawField =
+                root.querySelector('.tbcatfx2-claw-field');
+
+            if (!clawField) return;
+
+            const claw = document.createElement('span');
+            claw.className = 'tbcatfx2-claw';
+
+            claw.style.setProperty(
+                '--tbcatfx2-claw-x',
+                `${Math.round(Math.random() * 78 + 8)}vw`
+            );
+
+            claw.style.setProperty(
+                '--tbcatfx2-claw-y',
+                `${Math.round(Math.random() * 70 + 12)}vh`
+            );
+
+            claw.style.setProperty(
+                '--tbcatfx2-claw-rot',
+                `${Math.round(Math.random() * 38 - 19)}deg`
+            );
+
+            claw.innerHTML = '<i></i><i></i><i></i>';
+            clawField.appendChild(claw);
+
+            window.setTimeout(() => {
+                claw.remove();
+            }, 2100);
+        }, compact ? 1800 : 1050);
+
+        return root;
+    }
+
     /* =========================================================
        TAMON'S B-SIDE · PHỔ NHIỄU B-SIDE
        ID: effect_tamon_bside_spectrum_break
@@ -5674,6 +5889,147 @@ class EffectManager {
         return root;
     }
 
+
+    // =========================================================
+    // ĐÊM ĐẦY SAO · TINH HOA LƯU VÂN — SNDFX1
+    // Effect toàn web độc lập hoàn toàn. Không tái dùng hiệu ứng khác.
+    // =========================================================
+    static ensureStarryNightEffectStylesheet() {
+        if (typeof document === 'undefined' || !document.head) return null;
+
+        const existing = Array.from(
+            document.querySelectorAll('link[rel="stylesheet"][href]')
+        ).find(link =>
+            /(?:^|\/)dem-day-sao(?:\(\d+\))?\.css(?:[?#].*)?$/i
+                .test(link.href || '')
+        );
+
+        if (existing) return existing;
+
+        const old = document.getElementById('sndfx1-starry-night-runtime-style');
+        if (old) return old;
+
+        const link = document.createElement('link');
+        link.id = 'sndfx1-starry-night-runtime-style';
+        link.rel = 'stylesheet';
+        link.href =
+            'css/dem-day-sao.css?v=20260921.starry-night-distinct-v2';
+        link.dataset.sndfx1 = 'starry-night-effect';
+
+        link.addEventListener('error', () => {
+            console.error(
+                '[STARRY NIGHT EFFECT] Không tải được css/dem-day-sao.css'
+            );
+        }, { once: true });
+
+        document.head.appendChild(link);
+        return link;
+    }
+
+    static createStarryNightEssenceDriftEffect() {
+        this.ensureStarryNightEffectStylesheet();
+
+        document
+            .querySelectorAll(
+                '.sndfx1-starry-flow[data-sndfx1-portal="1"]'
+            )
+            .forEach(node => node.remove());
+
+        if (!document.body) return null;
+
+        const reduced = window.matchMedia?.(
+            '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+        ).matches;
+
+        const root = document.createElement('div');
+        root.className = 'sndfx1-starry-flow';
+        root.dataset.sndfx1Portal = '1';
+        root.setAttribute('aria-hidden', 'true');
+        root.innerHTML = `
+            <div class="sndfx1-veil"></div>
+            <div class="sndfx1-grain"></div>
+            <div class="sndfx1-stroke-field"></div>
+            <div class="sndfx1-bloom-field"></div>
+            <div class="sndfx1-fleck-field"></div>
+        `;
+
+        const strokePalette = [
+            ['rgba(54,93,159,.82)', 'rgba(105,82,132,.22)'],
+            ['rgba(183,134,63,.72)', 'rgba(213,177,94,.18)'],
+            ['rgba(43,69,126,.78)', 'rgba(72,115,184,.20)'],
+            ['rgba(102,76,119,.64)', 'rgba(47,78,139,.16)']
+        ];
+
+        const strokeField = root.querySelector('.sndfx1-stroke-field');
+        const strokeCount = this.getQualityCount(reduced ? 10 : 24, reduced ? 8 : 14);
+        for (let index = 0; index < strokeCount; index++) {
+            const stroke = document.createElement('i');
+            const palette = strokePalette[index % strokePalette.length];
+            stroke.className = 'sndfx1-stroke';
+            stroke.style.setProperty('--sndfx1-sx', `${-8 + ((index * 43) % 108)}%`);
+            stroke.style.setProperty('--sndfx1-sy', `${5 + ((index * 37) % 90)}%`);
+            stroke.style.setProperty('--sndfx1-sw', `${150 + (index % 7) * 48}px`);
+            stroke.style.setProperty('--sndfx1-sh', `${5 + (index % 4) * 2}px`);
+            stroke.style.setProperty('--sndfx1-srot', `${-18 + (index % 9) * 5}deg`);
+            stroke.style.setProperty('--sndfx1-sdelay', `${-(index % 10) * .58}s`);
+            stroke.style.setProperty('--sndfx1-sdur', `${7.2 + (index % 6) * .75}s`);
+            stroke.style.setProperty('--sndfx1-sc1', palette[0]);
+            stroke.style.setProperty('--sndfx1-sc2', palette[1]);
+            strokeField?.appendChild(stroke);
+        }
+
+        const bloomColors = [
+            'rgba(51,82,145,.34)',
+            'rgba(106,78,126,.26)',
+            'rgba(183,134,63,.24)',
+            'rgba(52,89,151,.24)'
+        ];
+
+        const bloomField = root.querySelector('.sndfx1-bloom-field');
+        const bloomCount = this.getQualityCount(reduced ? 6 : 14, reduced ? 4 : 8);
+        for (let index = 0; index < bloomCount; index++) {
+            const bloom = document.createElement('i');
+            bloom.className = 'sndfx1-bloom';
+            bloom.style.setProperty('--sndfx1-bx', `${8 + ((index * 61) % 84)}%`);
+            bloom.style.setProperty('--sndfx1-by', `${10 + ((index * 47) % 80)}%`);
+            bloom.style.setProperty('--sndfx1-bs', `${70 + (index % 5) * 34}px`);
+            bloom.style.setProperty('--sndfx1-brot', `${-25 + (index % 7) * 9}deg`);
+            bloom.style.setProperty('--sndfx1-bc', bloomColors[index % bloomColors.length]);
+            bloom.style.setProperty('--sndfx1-blur', `${3 + (index % 3) * 2}px`);
+            bloom.style.setProperty('--sndfx1-bdelay', `${-(index % 7) * .72}s`);
+            bloom.style.setProperty('--sndfx1-bdur', `${6.8 + (index % 5) * .8}s`);
+            bloomField?.appendChild(bloom);
+        }
+
+        const fleckColors = [
+            '#d6b15f',
+            '#456aa5',
+            '#71577f',
+            '#355b8f',
+            '#c18e46'
+        ];
+
+        const fleckField = root.querySelector('.sndfx1-fleck-field');
+        const fleckCount = this.getQualityCount(reduced ? 22 : 52, reduced ? 16 : 30);
+        for (let index = 0; index < fleckCount; index++) {
+            const fleck = document.createElement('i');
+            fleck.className = 'sndfx1-fleck';
+            fleck.style.setProperty('--sndfx1-fx', `${(index * 37 + 11) % 100}%`);
+            fleck.style.setProperty('--sndfx1-fy', `${(index * 59 + 17) % 100}%`);
+            fleck.style.setProperty('--sndfx1-fw', `${3 + (index % 4) * 2}px`);
+            fleck.style.setProperty('--sndfx1-fh', `${2 + (index % 5)}px`);
+            fleck.style.setProperty('--sndfx1-frot', `${(index * 31) % 180}deg`);
+            fleck.style.setProperty('--sndfx1-fdx', `${18 + (index % 7) * 9}px`);
+            fleck.style.setProperty('--sndfx1-fc', fleckColors[index % fleckColors.length]);
+            fleck.style.setProperty('--sndfx1-fdelay', `${-(index % 13) * .27}s`);
+            fleck.style.setProperty('--sndfx1-fdur', `${5.8 + (index % 7) * .64}s`);
+            fleckField?.appendChild(fleck);
+        }
+
+        document.body.appendChild(root);
+        requestAnimationFrame(() => root.classList.add('is-active'));
+        return root;
+    }
 }
 
 

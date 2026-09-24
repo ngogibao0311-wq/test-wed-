@@ -71,6 +71,7 @@ window.getStudentPasswordPolicyError = getStudentPasswordPolicyError;
 
 // Hook UI/runtime. Firebase inventory vẫn là authority thật.
 window.studentStoreCanUseItemSync = function (itemId) {
+    if (window.isStudentStoreGameAccessEnabled?.() === false) return false;
     const id = String(itemId || '');
     if (!id) return false;
 
@@ -306,6 +307,7 @@ const STUDENT_LUXURY_RUNTIME_ITEM_IDS = new Set([
     'pet_quoc_khanh_1',
     'pet_mythic_nyx_1',
     'pet_mythic_aether_1',
+    'pet_dem_day_sao_1',
     'pet_lotm_klein_event_1',
     'pet_cam_co_cam_mong_1',
     'pet_tamon_b_side_1',
@@ -316,13 +318,36 @@ const STUDENT_LUXURY_RUNTIME_ITEM_IDS = new Set([
 ]);
 
 function studentInventoryHasEquippedLuxury(items) {
-    return (Array.isArray(items) ? items : []).some(item =>
-        item &&
-        item.isEquipped === true &&
-        STUDENT_LUXURY_RUNTIME_ITEM_IDS.has(
-            String(item.id || '')
-        )
-    );
+    return (Array.isArray(items) ? items : []).some(item => {
+        if (!item || item.isEquipped !== true) {
+            return false;
+        }
+
+        const id = String(item.id || '');
+
+        if (STUDENT_LUXURY_RUNTIME_ITEM_IDS.has(id)) {
+            return true;
+        }
+
+        /*
+         * Sau khi Luxury runtime đã được nạp, StoreConfig là nguồn nhận diện
+         * đáng tin cậy hơn danh sách hard-code. Nhờ vậy Luxury mới vẫn được
+         * rehydrate khi pageshow/focus/visibilitychange mà không cần thêm ID ở đây.
+         */
+        try {
+            const itemDef =
+                typeof StoreConfig !== 'undefined' &&
+                Array.isArray(StoreConfig?.items)
+                    ? StoreConfig.items.find(entry =>
+                        String(entry?.id || '') === id
+                    )
+                    : null;
+
+            return itemDef?.luxuryOnly === true;
+        } catch (_) {
+            return false;
+        }
+    });
 }
 
 async function ensureStudentEquippedLuxuryRuntime(items) {
@@ -958,6 +983,91 @@ window.isStudentStoreGameAccessEnabled =
         return window.__studentStoreGameAccessEnabled !== false;
     };
 
+// Các manager được lazy-load: gắn lại guard khi module xuất hiện hoặc được bọc lại.
+function installStudentEquipmentAccessGuards() {
+    const targets = [
+        [typeof ThemeManager !== 'undefined' ? ThemeManager : null, 'applyTheme', true],
+        [typeof EffectManager !== 'undefined' ? EffectManager : null, 'applyEffect'],
+        [typeof PetManager !== 'undefined' ? PetManager : null, 'spawnPet'],
+        [typeof MusicManager !== 'undefined' ? MusicManager : null, 'applyMusic'],
+        [window.AvatarFrameManager, 'applyFrame'],
+        [window.WebBackgroundManager, 'applyBackground']
+    ];
+    targets.forEach(([manager, method, allowDefault]) => {
+        const original = manager?.[method];
+        if (typeof original !== 'function' || original.__studentAccessGuard) return;
+        const guarded = function (...args) {
+            if (!window.isStudentStoreGameAccessEnabled() &&
+                !(allowDefault && args[0] === 'default')) return false;
+            return original.apply(this, args);
+        };
+        guarded.__studentAccessGuard = true;
+        manager[method] = guarded;
+    });
+}
+
+window.clearStudentStoreEquipmentRuntime = function () {
+    // Một manager lỗi không được ngăn các manager còn lại dọn hiệu ứng.
+    const safely = action => {
+        try { action(); } catch (error) {
+            console.warn('[Store Access] Không dọn được một lớp vật phẩm:', error);
+        }
+    };
+    window.__studentDeferredMusicInventory = null;
+    // Xóa cờ hiển thị cục bộ để callback tải chậm không dùng snapshot cũ.
+    // Chỉ đổi cờ trang bị, giữ nguyên mọi dữ liệu sở hữu/thời hạn trong kho.
+    if (!window.isStudentStoreGameAccessEnabled() && typeof myInventory !== 'undefined' &&
+        Array.isArray(myInventory)) {
+        myInventory = myInventory.map(item => item && item.isEquipped === true
+            ? { ...item, isEquipped: false } : item);
+        window.myInventory = myInventory;
+    }
+    safely(() => window.LuxuryStore?.clearEquippedRuntime?.());
+    if (typeof PetManager !== 'undefined') {
+        ['clearSlothDreamRealm', 'clearBirthday2026Realm', 'clearPremiumSpringRealm',
+            'clearSummerLimitedHa2Realm', 'clearNationalDayRealm'].forEach(method => {
+            safely(() => PetManager[method]?.());
+        });
+        safely(() => {
+            PetManager.interactionAbortController?.abort();
+            PetManager.interactionAbortController = null;
+        });
+    }
+    safely(() => {
+        if (typeof PetInteractionManager !== 'undefined') {
+            PetInteractionManager.detachEvents?.({ keepLoop: false, removeHungerBar: true });
+        }
+    });
+    safely(() => { if (typeof EffectManager !== 'undefined') EffectManager.clearEffects(true); });
+    safely(() => { if (typeof ThemeManager !== 'undefined') ThemeManager.applyTheme('default'); });
+    safely(() => { if (typeof MusicManager !== 'undefined') MusicManager.stopMusic(); });
+    safely(() => window.AvatarFrameManager?.clearFrame?.());
+    safely(() => window.WebBackgroundManager?.clearBackground?.());
+    ['virtual-pet-container', 'global-effect-container'].forEach(id => safely(() => {
+        const container = document.getElementById(id);
+        if (container) {
+            container.replaceChildren();
+            container.style.display = 'none';
+        }
+    }));
+    safely(() => document.getElementById('birthday-2026-realm')?.remove());
+    safely(() => document.documentElement.classList.remove('birthday-2026-equipped'));
+    safely(() => document.querySelectorAll(
+        '.nd29-independence-flash, .nd29-pet-dialogue, .nyx-mythic-ultimate, ' +
+        '.tbc1-fullscreen-ultimate, .cam-mong-chibi-screen-ultimate-v2, ' +
+        '.lotme-klein-click-burst, .lotme-klein-right-ritual, .lotme-klein-screen-ultimate, ' +
+        '.mafc-screen-ultimate, .mafc-local-click-burst, .macc2-local-click-burst, .macc2-screen-ultimate'
+    ).forEach(node => node.remove()));
+    ['active_theme', 'active_effect', 'active_pet', 'active_frame', 'active_background'].forEach(key => {
+        safely(() => localStorage.removeItem(key));
+    });
+};
+
+window.addEventListener('student-feature-loaded', () => {
+    installStudentEquipmentAccessGuards();
+    if (!window.isStudentStoreGameAccessEnabled()) window.clearStudentStoreEquipmentRuntime();
+});
+
 function forceStudentLearningTabAfterAccessDisabled() {
     const gameTab = document.getElementById('tab-game');
     const storeTab = document.getElementById('tab-store');
@@ -992,7 +1102,12 @@ window.applyStudentStoreGameAccessState =
                 rawEnabled
             );
 
+        if (!enabled && window.__studentStoreGameAccessEnabled !== false) {
+            window.__studentEquipmentAccessEpoch = (window.__studentEquipmentAccessEpoch || 0) + 1;
+        }
         window.__studentStoreGameAccessEnabled = enabled;
+        installStudentEquipmentAccessGuards();
+        if (!enabled) window.clearStudentStoreEquipmentRuntime();
 
         document.documentElement.classList.toggle(
             'student-store-game-disabled',
@@ -2603,6 +2718,16 @@ window.MidAutumnCoinManager = (() => {
         }
 
         if (
+            typeof window.assertStudentStoreLiveAccessAllowed === 'function' &&
+            !await window.assertStudentStoreLiveAccessAllowed(
+                config.itemId,
+                'đổi vật phẩm Trung Thu'
+            )
+        ) {
+            return true;
+        }
+
+        if (
             window.isOffline ||
             !navigator.onLine
         ) {
@@ -2891,7 +3016,7 @@ window.MidAutumnCoinManager = (() => {
                                 null,
 
                             isEquipped:
-                                true
+                                false
                         };
                     },
                     undefined,
@@ -5259,6 +5384,8 @@ window.onload = async function () {
 
     Object.assign(currentUser, realUser);
 
+    window.applyStudentStoreGameAccessState(realUser.storeGameAccessEnabled);
+
     // K1: Firebase Auth UID + users/<uid> là authority; password không cần ở client Học sinh.
     if (Object.prototype.hasOwnProperty.call(currentUser, 'password')) {
         delete currentUser.password;
@@ -5728,6 +5855,12 @@ window.onload = async function () {
             window.myInventory =
                 myInventory;
 
+            if (!window.isStudentStoreGameAccessEnabled()) {
+                window.clearStudentStoreEquipmentRuntime();
+                startupLoader?.markReady('student-inventory');
+                return;
+            }
+
             const equippedItems =
                 myInventory.filter(
                     item =>
@@ -5817,29 +5950,16 @@ window.onload = async function () {
                     window.StudentFeatureLoader
                 ) {
                     /*
-                     * Luxury pet bắt buộc phải nạp store-ui vì item definition +
-                     * full runtime nằm trong luxury-store.js. Nếu chỉ nạp
-                     * visual-runtime thì applyEquippedItems() không tìm thấy
-                     * itemDef => phải bấm Cửa hàng mới thấy hiệu ứng.
+                     * Một đường khởi động duy nhất cho mọi vật phẩm đang trang bị.
+                     * StudentFeatureLoader tự phân loại item thường/Luxury và có
+                     * fallback cho Luxury mới chưa có trong StoreConfig thường.
+                     * Vì vậy F5 không còn phụ thuộc thao tác mở tab Cửa hàng.
                      */
-                    if (
-                        studentInventoryHasEquippedLuxury(
-                            myInventory
-                        )
-                    ) {
-                        await ensureStudentEquippedLuxuryRuntime(
+                    await window
+                        .StudentFeatureLoader
+                        .ensureForEquippedItems(
                             myInventory
                         );
-                    } else {
-                        /*
-                         * Vật phẩm thường giữ nguyên đường lazy-load cũ.
-                         */
-                        await window
-                            .StudentFeatureLoader
-                            .ensureForEquippedItems(
-                                myInventory
-                            );
-                    }
                 }
 
                 if (
@@ -7216,6 +7336,7 @@ window.onload = async function () {
 
         myInventory.forEach(item => {
             if (
+                item &&
                 item.isTrial &&
                 item.trialExpiry &&
                 now > item.trialExpiry
@@ -7236,7 +7357,7 @@ window.onload = async function () {
                         MusicManager.stopMusic();
                     }
                     if (
-                        itemDef.type === 'frame' &&
+                        itemDef?.type === 'frame' &&
                         window.AvatarFrameManager
                     ) {
                         window.AvatarFrameManager.clearFrame();
@@ -7251,8 +7372,14 @@ window.onload = async function () {
         });
 
         if (hasExpired) {
-            await db.ref().update(updates);
-            alert("⏰ Hệ thống ghi nhận có vật phẩm dùng thử của bạn đã hết hạn 24 giờ và vừa bị thu hồi!");
+            try {
+                await db.ref().update(updates);
+                alert("⏰ Hệ thống ghi nhận có vật phẩm dùng thử của bạn đã hết hạn 24 giờ và vừa bị thu hồi!");
+            } catch (error) {
+                // Giữ nguyên kho cục bộ để lần quét sau có thể thử lại.
+                // Không báo thu hồi thành công khi Firebase chưa xác nhận.
+                console.warn('[Trial Cleanup] Chưa thể thu hồi vật phẩm hết hạn:', error);
+            }
             // Hàm db.ref('student_inventory/').on('value') có sẵn của bạn sẽ tự động chạy lại để gỡ trang bị ngay lập tức
         }
     }, 60000);
@@ -7296,15 +7423,20 @@ window.onload = async function () {
     });
 
     // 2. Lắng nghe trạng thái duyệt/từ chối rút tiền mặt từ Giáo viên
-    listenFirebase(db.ref('cash_requests'), 'value', async () => {
-        // Khi trạng thái yêu cầu đổi, cập nhật cả lịch sử lẫn số tiền còn có thể yêu cầu.
-        if (typeof window.initCashWithdrawInterface === 'function' && document.getElementById('displayRouteMoney')) {
-            await window.initCashWithdrawInterface();
-        } else if (typeof renderCashRequestHistory === 'function' && document.getElementById('cashRequestHistoryContainer')) {
-            await renderCashRequestHistory();
+    listenFirebase(
+        getStudentCashRequestsQuery('studentUsername'),
+        'value',
+        async () => {
+            // Khi trạng thái yêu cầu của chính tài khoản này đổi, cập nhật lịch sử
+            // và số tiền còn có thể yêu cầu. Không subscribe toàn collection.
+            if (typeof window.initCashWithdrawInterface === 'function' && document.getElementById('displayRouteMoney')) {
+                await window.initCashWithdrawInterface();
+            } else if (typeof renderCashRequestHistory === 'function' && document.getElementById('cashRequestHistoryContainer')) {
+                await renderCashRequestHistory();
+            }
+            if (startupLoader) startupLoader.markReady('student-cash-requests');
         }
-        if (startupLoader) startupLoader.markReady('student-cash-requests');
-    });
+    );
 
     await LimitedEventAnnouncementManager.init();
     if (startupLoader) startupLoader.markReady('student-limited-event');
@@ -9486,6 +9618,9 @@ async function loadAssignments() {
                         let mcText = '';
                         let autoScore = 0;
                         let finalCalculatedGrade = null;
+                        // Giữ riêng điểm MC theo trọng số để nếu phần tự luận vi phạm,
+                        // chỉ phần tự luận nhận 0 thay vì làm mất điểm MC đã chấm.
+                        let weightedMultipleChoiceGrade = null;
 
                         let autoExamSet = {
                             questions: [],
@@ -9522,6 +9657,7 @@ async function loadAssignments() {
                                 } else if (assign.assessmentType === 'ket_hop' || assign.assessmentType === 'thi') {
                                     let weight = assign.mcWeight ?? 5;
                                     let weightedScore = Math.round(((autoScore / autoQuestions.length) * weight) * 100) / 100;
+                                    weightedMultipleChoiceGrade = weightedScore;
                                     mcText += `\n=> 🎯 CHẤM TỰ ĐỘNG PHẦN TRẮC NGHIỆM: ${autoScore} / ${autoQuestions.length} (Đạt ${weightedScore} / ${weight} điểm)`;
                                     if (assign.assessmentType === 'thi' && (assign.essayWeight || 0) === 0) {
                                         finalCalculatedGrade = scale10;
@@ -9579,7 +9715,11 @@ async function loadAssignments() {
                             if (assign.assessmentType === 'tu_luan' || !assign.assessmentType) {
                                 finalCalculatedGrade = 0;
                             } else if (assign.assessmentType === 'ket_hop' || assign.assessmentType === 'thi') {
-                                if (finalCalculatedGrade === null) finalCalculatedGrade = 0;
+                                if (finalCalculatedGrade === null) {
+                                    finalCalculatedGrade = Number.isFinite(weightedMultipleChoiceGrade)
+                                        ? weightedMultipleChoiceGrade
+                                        : 0;
+                                }
                             }
                         }
 
@@ -12206,6 +12346,9 @@ async function submitAssignment(assignId, isAuto = false, isCheat = false) {
     let mcText = '';
     let autoScore = 0;
     let finalCalculatedGrade = null;
+    // Điểm MC theo trọng số chỉ được dùng làm điểm cuối khi phần tự luận
+    // bị xác định là thiếu/không hợp lệ; bình thường vẫn chờ giáo viên chấm essay.
+    let weightedMultipleChoiceGrade = null;
 
     let autoExamSet = {
         questions: [],
@@ -12405,6 +12548,9 @@ async function submitAssignment(assignId, isAuto = false, isCheat = false) {
                         100
                     ) / 100;
 
+                weightedMultipleChoiceGrade =
+                    weightedScore;
+
                 mcText +=
                     `\n=> 🎯 CHẤM TỰ ĐỘNG ` +
                     `PHẦN TRẮC NGHIỆM: ` +
@@ -12551,7 +12697,13 @@ async function submitAssignment(assignId, isAuto = false, isCheat = false) {
             if (assign.assessmentType === 'tu_luan' || !assign.assessmentType) {
                 finalCalculatedGrade = 0;
             } else if (assign.assessmentType === 'ket_hop' || assign.assessmentType === 'thi') {
-                if (finalCalculatedGrade === null) finalCalculatedGrade = 0; // Chỉ tính điểm Trắc nghiệm
+                if (finalCalculatedGrade === null) {
+                    // UI cảnh báo chỉ phần tự luận nhận 0 điểm; giữ lại
+                    // đúng điểm MC theo mcWeight đã chấm ở phía trên.
+                    finalCalculatedGrade = Number.isFinite(weightedMultipleChoiceGrade)
+                        ? weightedMultipleChoiceGrade
+                        : 0;
+                }
             }
         }
     } else if (
@@ -13300,15 +13452,15 @@ async function syncUserData(
         normalizedUser
     );
 
-    localStorage.setItem(
-        'currentUser',
-        JSON.stringify(Object.fromEntries(Object.entries(currentUser).filter(([key]) => !['password', 'newPass', 'oldPass'].includes(key))))
-    );
-
     // Nhận quyền Cửa hàng & Trò chơi theo từng tài khoản ngay khi
     // users/<uid> thay đổi. Trường chưa tồn tại => mặc định mở.
     window.applyStudentStoreGameAccessState?.(
         userRecord.storeGameAccessEnabled
+    );
+
+    localStorage.setItem(
+        'currentUser',
+        JSON.stringify(Object.fromEntries(Object.entries(currentUser).filter(([key]) => !['password', 'newPass', 'oldPass'].includes(key))))
     );
 
     const studentNameEl =
@@ -17573,6 +17725,8 @@ window.loadStoreItems = async function () {
 
     installStudentStoreManagerOverrides();
 
+    await window.recoverStudentStoreEconomicOperations?.();
+
     studentOwnedItems = ['theme_default'];
     studentEquippedItems = {
         theme: 'default',
@@ -17787,26 +17941,12 @@ window.assertStudentStoreEconomicActionAllowed =
             return false;
         }
 
-        try {
-            if (
-                await getLiveStudentAccountLockState()
-            ) {
-                alert(
-                    '🔒 Tài khoản đang bị khóa. ' +
-                    `Bạn không thể ${actionLabel}.`
-                );
-                return false;
-            }
-        } catch (error) {
-            console.warn(
-                '[Store Guard] Không xác minh được trạng thái tài khoản:',
-                error
-            );
-
-            alert(
-                '⚠️ Không xác minh được trạng thái tài khoản. ' +
-                'Vui lòng kiểm tra mạng và thử lại.'
-            );
+        if (
+            !await window.assertStudentStoreLiveAccessAllowed(
+                '',
+                actionLabel
+            )
+        ) {
             return false;
         }
 
@@ -17841,9 +17981,326 @@ window.assertStudentStoreEconomicActionAllowed =
         return true;
     };
 
+
+window.__studentStoreServerTimeOffset =
+    Number(window.__studentStoreServerTimeOffset || 0);
+
+window.getStudentStoreApproxServerNow = function () {
+    return Date.now() +
+        Number(window.__studentStoreServerTimeOffset || 0);
+};
+
+async function refreshStudentStoreServerTimeOffset() {
+    try {
+        const snap = await db
+            .ref('.info/serverTimeOffset')
+            .once('value');
+
+        window.__studentStoreServerTimeOffset =
+            Number(snap.val() || 0);
+    } catch (error) {
+        console.warn(
+            '[Store Guard] Không đọc được serverTimeOffset:',
+            error
+        );
+    }
+
+    return window.getStudentStoreApproxServerNow();
+}
+
+function getStudentStoreType(item) {
+    return isLuxuryStoreItem(item)
+        ? 'luxury'
+        : 'regular';
+}
+
+
+/*
+ * STORE AUTHORITY V2 · live gate + cross-tab equipment lease.
+ * Không dùng cache UI làm authority cho mutation cuối.
+ */
+async function getLiveStudentStoreMutationAuthority(itemId = '') {
+    const uid =
+        firebase.auth().currentUser?.uid ||
+        currentUser?._fbKey ||
+        '';
+
+    if (!uid) {
+        throw new Error('STORE_GUARD_USER_NOT_RESOLVED');
+    }
+
+    const refs = [
+        db.ref(`users/${uid}/isLocked`).once('value'),
+        db.ref(`users/${uid}/storeGameAccessEnabled`).once('value'),
+        db.ref('store_settings/isOpen').once('value')
+    ];
+
+    const normalizedItemId = String(itemId || '').trim();
+    if (normalizedItemId) {
+        refs.push(
+            db.ref(`store_settings/${normalizedItemId}`).once('value')
+        );
+    }
+
+    const snapshots = await Promise.all(refs);
+    const accountLocked = snapshots[0].val() === true;
+    const storeGameAccessEnabled =
+        window.normalizeStudentStoreGameAccessEnabled(
+            snapshots[1].val()
+        );
+    const storeOpen = snapshots[2].val() !== false;
+    const itemSettings = normalizedItemId
+        ? (snapshots[3]?.val() || {})
+        : {};
+    const itemLocked = normalizedItemId
+        ? window.normalizeStoreItemLockState(itemSettings.isLocked) === true
+        : false;
+
+    if (accountLocked) throw new Error('ACCOUNT_LOCKED');
+    if (!storeGameAccessEnabled) throw new Error('STORE_USER_ACCESS_DISABLED');
+    if (!storeOpen) throw new Error('STORE_GLOBAL_LOCKED');
+    if (itemLocked) throw new Error('ITEM_LOCKED');
+
+    return {
+        uid,
+        storeOpen,
+        storeGameAccessEnabled,
+        itemLocked,
+        itemSettings
+    };
+}
+
+function mergeLiveStudentStoreItemSettings(item, itemSettings = {}) {
+    if (!item) return item;
+
+    const merged = { ...item };
+    ['price', 'startDate', 'endDate', 'isLocked'].forEach(key => {
+        if (Object.prototype.hasOwnProperty.call(itemSettings, key)) {
+            merged[key] = itemSettings[key];
+        }
+    });
+
+    if (Object.prototype.hasOwnProperty.call(itemSettings, 'isLocked')) {
+        merged.isLocked =
+            window.normalizeStoreItemLockState(itemSettings.isLocked);
+    }
+
+    return merged;
+}
+
+async function resolveLiveStudentStoreItem(item) {
+    if (!item?.id) throw new Error('ITEM_NOT_FOUND');
+    const authority =
+        await getLiveStudentStoreMutationAuthority(item.id);
+    return mergeLiveStudentStoreItemSettings(
+        item,
+        authority.itemSettings
+    );
+}
+
+window.assertStudentStoreLiveAccessAllowed =
+    async function (itemId = '', actionLabel = 'thực hiện thao tác') {
+        try {
+            await getLiveStudentStoreMutationAuthority(itemId);
+            return true;
+        } catch (error) {
+            const code = String(error?.message || '');
+            if (code === 'ACCOUNT_LOCKED') {
+                alert(`🔒 Tài khoản đang bị khóa. Không thể ${actionLabel}.`);
+            } else if (code === 'STORE_USER_ACCESS_DISABLED') {
+                alert(`🔒 Quyền Cửa hàng & Trò chơi của tài khoản đang bị tắt. Không thể ${actionLabel}.`);
+            } else if (code === 'STORE_GLOBAL_LOCKED') {
+                window.showStudentStoreSystemLocked?.();
+            } else if (code === 'ITEM_LOCKED') {
+                alert('🔒 Vật phẩm này hiện đang bị Giáo viên khóa.');
+            } else {
+                console.warn('[Store Authority] Không xác minh được authority:', error);
+                alert('⚠️ Không xác minh được trạng thái Cửa hàng. Vui lòng kiểm tra mạng và thử lại.');
+            }
+            return false;
+        }
+    };
+
+const STORE_EQUIP_LOCK_LEASE_MS = 120000;
+window.__studentStoreEquipLockContext =
+    window.__studentStoreEquipLockContext || null;
+
+window.isStudentStoreEquipLockHeldFor = function (itemId) {
+    return Boolean(
+        window.__studentStoreEquipLockContext &&
+        String(window.__studentStoreEquipLockContext.itemId) === String(itemId)
+    );
+};
+
+async function acquireStudentStoreEquipLock(itemId) {
+    const username = String(currentUser?.username || '').trim();
+    if (!username) throw new Error('STORE_EQUIP_USER_NOT_RESOLVED');
+
+    const token = createStudentStoreOperationId('equip');
+    const serverNow = await refreshStudentStoreServerTimeOffset();
+    const ref = db.ref(`store_equip_locks/${username}`);
+
+    const tx = await ref.transaction(current => {
+        const leaseUntil = Number(current?.leaseUntil || 0);
+        if (current && leaseUntil > serverNow) return;
+        return {
+            version: 1,
+            username,
+            token,
+            targetItemId: String(itemId),
+            storeType: getStudentStoreType(StoreManager.getItemById(itemId)),
+            acquiredAt: serverNow,
+            leaseUntil: serverNow + STORE_EQUIP_LOCK_LEASE_MS,
+            updatedAt: serverNow
+        };
+    }, undefined, false);
+
+    if (!tx.committed) throw new Error('STORE_EQUIP_BUSY');
+    return { ref, token, itemId: String(itemId) };
+}
+
+async function releaseStudentStoreEquipLock(lock) {
+    if (!lock?.ref || !lock?.token) return;
+    try {
+        await lock.ref.transaction(current => {
+            if (!current || current.token !== lock.token) return;
+            return null;
+        }, undefined, false);
+    } catch (error) {
+        console.warn('[Store Equip Lock] Không giải phóng được lease ngay:', error);
+    }
+}
+
+window.withStudentStoreEquipLock = async function (itemId, task) {
+    if (window.isStudentStoreEquipLockHeldFor(itemId)) {
+        return task();
+    }
+
+    let lock;
+    try {
+        lock = await acquireStudentStoreEquipLock(itemId);
+    } catch (error) {
+        if (String(error?.message || '') === 'STORE_EQUIP_BUSY') {
+            window.showToast?.('⏳ Một tab khác đang thay đổi trang bị. Vui lòng thử lại.', 'warning');
+            return false;
+        }
+        throw error;
+    }
+
+    const previous = window.__studentStoreEquipLockContext;
+    window.__studentStoreEquipLockContext = {
+        itemId: String(itemId),
+        token: lock.token
+    };
+
+    try {
+        return await task();
+    } finally {
+        window.__studentStoreEquipLockContext = previous;
+        await releaseStudentStoreEquipLock(lock);
+    }
+};
+
+async function assertStudentStoreSaleWindow(
+    item,
+    expectedStoreType = 'regular'
+) {
+    if (!item) {
+        throw new Error('ITEM_NOT_FOUND');
+    }
+
+    const actualStoreType =
+        getStudentStoreType(item);
+
+    if (
+        expectedStoreType === 'regular' &&
+        actualStoreType === 'luxury'
+    ) {
+        throw new Error(
+            'LUXURY_ITEM_REQUIRES_LUXURY_STORE'
+        );
+    }
+
+    if (
+        expectedStoreType === 'luxury' &&
+        actualStoreType !== 'luxury'
+    ) {
+        throw new Error(
+            'REGULAR_ITEM_REQUIRES_REGULAR_STORE'
+        );
+    }
+
+    const serverNow =
+        await refreshStudentStoreServerTimeOffset();
+
+    if (
+        item.startDate ||
+        item.endDate
+    ) {
+        const startAt = item.startDate
+            ? new Date(
+                String(item.startDate)
+                    .replace(' ', 'T')
+            ).getTime()
+            : 0;
+
+        const endAt = item.endDate
+            ? new Date(
+                String(item.endDate)
+                    .replace(' ', 'T')
+            ).getTime()
+            : Number.POSITIVE_INFINITY;
+
+        if (
+            Number.isFinite(startAt) &&
+            serverNow < startAt
+        ) {
+            throw new Error(
+                'STORE_ITEM_NOT_STARTED'
+            );
+        }
+
+        if (
+            Number.isFinite(endAt) &&
+            serverNow > endAt
+        ) {
+            throw new Error(
+                'STORE_ITEM_ENDED'
+            );
+        }
+    }
+
+    if (
+        typeof StoreManager !== 'undefined' &&
+        typeof StoreManager.getAnnualSaleState ===
+            'function'
+    ) {
+        const saleState =
+            StoreManager.getAnnualSaleState(
+                item,
+                new Date(serverNow)
+            );
+
+        if (
+            saleState?.hasAnnualSale &&
+            !saleState.isOpen
+        ) {
+            throw new Error(
+                'STORE_ANNUAL_SALE_CLOSED'
+            );
+        }
+    }
+
+    return {
+        serverNow,
+        storeType: actualStoreType
+    };
+}
+
 async function reserveStudentStoreTrial(
     item,
-    trialPrice
+    trialPrice,
+    startedAtOverride = null
 ) {
     const username =
         String(currentUser.username);
@@ -17857,7 +18314,8 @@ async function reserveStudentStoreTrial(
         );
 
     const startedAt =
-        Date.now();
+        Number(startedAtOverride) ||
+        window.getStudentStoreApproxServerNow();
 
     const expiresAt =
         startedAt +
@@ -17896,6 +18354,7 @@ async function reserveStudentStoreTrial(
                 itemId,
                 operationId,
                 status: 'reserved',
+                storeType: 'regular',
                 trialPrice:
                     Number(trialPrice),
                 startedAt,
@@ -17922,7 +18381,9 @@ async function reserveStudentStoreTrial(
 
 async function reserveStudentStorePurchase(
     itemId,
-    isUpgrade
+    isUpgrade,
+    storeType = 'regular',
+    startedAtOverride = null
 ) {
     const username =
         String(currentUser.username);
@@ -17933,7 +18394,8 @@ async function reserveStudentStorePurchase(
         );
 
     const startedAt =
-        Date.now();
+        Number(startedAtOverride) ||
+        window.getStudentStoreApproxServerNow();
 
     const expiresAt =
         startedAt +
@@ -17996,6 +18458,8 @@ async function reserveStudentStorePurchase(
                 status: 'reserved',
                 isUpgrade:
                     Boolean(isUpgrade),
+                storeType:
+                    String(storeType || 'regular'),
                 startedAt,
                 expiresAt,
                 updatedAt:
@@ -18017,6 +18481,521 @@ async function reserveStudentStorePurchase(
         expiresAt
     };
 }
+
+
+async function rollbackStudentStoreDiscountForOperation(
+    operationId
+) {
+    if (!operationId) return false;
+
+    const discountsRef = db.ref(
+        `student_discounts/${currentUser.username}`
+    );
+    const snap = await discountsRef.once('value');
+    const tasks = [];
+
+    snap.forEach(child => {
+        const value = child.val() || {};
+        if (
+            value.isUsed === true &&
+            String(value.usedTransactionId || '') ===
+                String(operationId)
+        ) {
+            tasks.push(
+                child.ref.transaction(current => {
+                    if (
+                        !current ||
+                        current.isUsed !== true ||
+                        String(current.usedTransactionId || '') !==
+                            String(operationId)
+                    ) {
+                        return;
+                    }
+
+                    return {
+                        ...current,
+                        isUsed: false,
+                        usedAt: null,
+                        usedForItem: null,
+                        usedTransactionId: null
+                    };
+                })
+            );
+        }
+        return false;
+    });
+
+    if (tasks.length) {
+        await Promise.allSettled(tasks);
+    }
+
+    return tasks.length > 0;
+}
+
+
+async function refundStudentStorePurchaseOperation(
+    itemId,
+    amount,
+    reason = 'purchase_failed'
+) {
+    const username = String(currentUser?.username || '');
+    const refundAmount = Math.max(0, Number(amount || 0));
+    if (!username || !itemId || refundAmount <= 0) return false;
+
+    const opRef = db.ref(
+        `store_purchase_ops/${username}/${itemId}`
+    );
+    const serverNow = await refreshStudentStoreServerTimeOffset();
+
+    const pendingTx = await opRef.transaction(current => {
+        if (!current) return;
+
+        if (current.status === 'failed_refunded') {
+            return;
+        }
+
+        if (current.status === 'refund_pending') {
+            return current;
+        }
+
+        if (current.status !== 'paid') {
+            return;
+        }
+
+        return {
+            ...current,
+            status: 'refund_pending',
+            refundPending: true,
+            refundAmount,
+            refundReason: String(reason || 'purchase_failed'),
+            refundPendingAt: serverNow,
+            updatedAt: serverNow
+        };
+    });
+
+    const pending = pendingTx.snapshot?.val?.() || null;
+    if (!pending || pending.status !== 'refund_pending') {
+        const latest = (await opRef.once('value')).val();
+        return latest?.status === 'failed_refunded';
+    }
+
+    const effectiveAmount = Math.max(
+        0,
+        Number(pending.refundAmount || refundAmount)
+    );
+    if (effectiveAmount <= 0) return false;
+
+    const finalizedAt = await refreshStudentStoreServerTimeOffset();
+    const updates = {};
+    updates[`student_coins/${username}`] =
+        firebase.database.ServerValue.increment(effectiveAmount);
+    updates[`store_purchase_ops/${username}/${itemId}/status`] =
+        'failed_refunded';
+    updates[`store_purchase_ops/${username}/${itemId}/refundPending`] = false;
+    updates[`store_purchase_ops/${username}/${itemId}/coinDebited`] = false;
+    updates[`store_purchase_ops/${username}/${itemId}/refundedAt`] = finalizedAt;
+    updates[`store_purchase_ops/${username}/${itemId}/updatedAt`] = finalizedAt;
+
+    try {
+        await db.ref().update(updates);
+        return true;
+    } catch (error) {
+        const latest = (await opRef.once('value')).val();
+        if (latest?.status === 'failed_refunded') {
+            return true;
+        }
+        throw error;
+    }
+}
+
+async function refundStudentStoreTrialOperation(
+    itemId,
+    amount,
+    reason = 'trial_failed'
+) {
+    const username = String(currentUser?.username || '');
+    const refundAmount = Math.max(0, Number(amount || 0));
+    if (!username || !itemId || refundAmount <= 0) return false;
+
+    const claimRef = db.ref(
+        `store_trial_claims/${username}/${itemId}`
+    );
+    const serverNow = await refreshStudentStoreServerTimeOffset();
+
+    const pendingTx = await claimRef.transaction(current => {
+        if (!current) return;
+
+        if (current.status === 'cancelled_refunded') {
+            return;
+        }
+
+        if (current.status === 'refund_pending') {
+            return current;
+        }
+
+        if (current.status !== 'debited') {
+            return;
+        }
+
+        return {
+            ...current,
+            status: 'refund_pending',
+            refundAmount,
+            refundReason: String(reason || 'trial_failed'),
+            refundPendingAt: serverNow,
+            updatedAt: serverNow
+        };
+    });
+
+    const pending = pendingTx.snapshot?.val?.() || null;
+    if (!pending || pending.status !== 'refund_pending') {
+        const latest = (await claimRef.once('value')).val();
+        return latest?.status === 'cancelled_refunded';
+    }
+
+    const effectiveAmount = Math.max(
+        0,
+        Number(pending.refundAmount || refundAmount)
+    );
+    if (effectiveAmount <= 0) return false;
+
+    const finalizedAt = await refreshStudentStoreServerTimeOffset();
+    const updates = {};
+    updates[`student_coins/${username}`] =
+        firebase.database.ServerValue.increment(effectiveAmount);
+    updates[`store_trial_claims/${username}/${itemId}/status`] =
+        'cancelled_refunded';
+    updates[`store_trial_claims/${username}/${itemId}/coinDebited`] = false;
+    updates[`store_trial_claims/${username}/${itemId}/refundedAt`] = finalizedAt;
+    updates[`store_trial_claims/${username}/${itemId}/updatedAt`] = finalizedAt;
+
+    try {
+        await db.ref().update(updates);
+        return true;
+    } catch (error) {
+        const latest = (await claimRef.once('value')).val();
+        if (latest?.status === 'cancelled_refunded') {
+            return true;
+        }
+        throw error;
+    }
+}
+
+async function recoverStudentStorePurchaseForItem(
+    itemId
+) {
+    const username = String(currentUser?.username || '');
+    if (!username || !itemId) return false;
+
+    const opRef = db.ref(
+        `store_purchase_ops/${username}/${itemId}`
+    );
+    const opSnap = await opRef.once('value');
+    const op = opSnap.val();
+    if (!op) return false;
+
+    const status = String(op.status || '');
+    const serverNow = await refreshStudentStoreServerTimeOffset();
+
+    /*
+     * Sau bản vá atomic debit: debit_pending đồng nghĩa Coin CHƯA bị trừ.
+     * Nếu lease đã hết, đóng operation và trả lại discount (nếu có).
+     */
+    if (
+        status === 'debit_pending' &&
+        Number(op.expiresAt || 0) > 0 &&
+        Number(op.expiresAt || 0) <= serverNow
+    ) {
+        const closeTx = await opRef.transaction(current => {
+            if (
+                !current ||
+                current.status !== 'debit_pending' ||
+                Number(current.expiresAt || 0) > serverNow
+            ) {
+                return;
+            }
+
+            return {
+                ...current,
+                status: 'failed_refunded',
+                recoveryReason: 'stale_debit_pending_no_coin_debit',
+                failedAt: serverNow,
+                updatedAt: serverNow
+            };
+        });
+
+        if (closeTx.committed) {
+            await rollbackStudentStoreDiscountForOperation(
+                op.operationId
+            );
+        }
+        return false;
+    }
+
+    if (status === 'refund_pending') {
+        const refunded = await refundStudentStorePurchaseOperation(
+            itemId,
+            Number(op.refundAmount || op.finalPrice || 0),
+            op.refundReason || 'recovery_refund_pending'
+        );
+        if (refunded) {
+            await rollbackStudentStoreDiscountForOperation(
+                op.operationId
+            );
+        }
+        return refunded;
+    }
+
+    if (status !== 'paid') {
+        return false;
+    }
+
+    const item =
+        typeof StoreManager !== 'undefined'
+            ? StoreManager.getItemById(itemId)
+            : null;
+
+    // Luxury runtime có thể chưa được lazy-load; sẽ retry khi item được mở lại.
+    if (!item) return false;
+
+    const inventoryRef = db.ref(
+        `student_inventory/${username}/${itemId}`
+    );
+
+    let abortReason = '';
+    const inventoryTx = await inventoryRef.transaction(current => {
+        if (current?.id) {
+            if (
+                current.isTrial !== true &&
+                String(current.purchaseOperationId || '') ===
+                    String(op.operationId || '')
+            ) {
+                return current;
+            }
+
+            if (
+                op.isUpgrade === true &&
+                current.isTrial === true
+            ) {
+                // Operation đã PAID khi trial còn hợp lệ; hoàn tất nâng cấp idempotently.
+            } else {
+                abortReason = 'RECOVERY_INVENTORY_CONFLICT';
+                return;
+            }
+        }
+
+        const recovered = {
+            ...(current && typeof current === 'object'
+                ? current
+                : {}),
+            id: String(itemId),
+            purchaseTime:
+                Number(op.paidAt || op.startedAt || serverNow),
+            source: 'store_purchase',
+            purchaseCurrency: 'coin',
+            purchaseBasePrice: Number(op.basePrice || 0),
+            purchasePrice: Number(op.finalPrice || 0),
+            purchaseDiscountKey: op.discountKey || null,
+            purchaseDiscountPath: op.discountPath || null,
+            purchaseOperationId: String(op.operationId || ''),
+            purchaseStoreType:
+                String(op.storeType || getStudentStoreType(item)),
+            upgradedFromTrial: op.isUpgrade === true,
+            upgradedAt:
+                op.isUpgrade === true
+                    ? Number(op.paidAt || serverNow)
+                    : null,
+            isTrial: null,
+            trialExpiry: null,
+            isEquipped: false
+        };
+
+        return recovered;
+    });
+
+    if (!inventoryTx.committed) {
+        console.warn(
+            '[Store Recovery] Không thể khôi phục purchase:',
+            itemId,
+            abortReason
+        );
+        return false;
+    }
+
+    await opRef.update({
+        status: 'completed',
+        itemGranted: true,
+        recoveredAfterInterruption: true,
+        completedAt: serverNow,
+        updatedAt: serverNow
+    });
+
+    return true;
+}
+
+async function recoverStudentStoreTrialForItem(
+    itemId
+) {
+    const username = String(currentUser?.username || '');
+    if (!username || !itemId) return false;
+
+    const claimRef = db.ref(
+        `store_trial_claims/${username}/${itemId}`
+    );
+    const claimSnap = await claimRef.once('value');
+    const claim = claimSnap.val();
+    if (!claim) return false;
+
+    const serverNow = await refreshStudentStoreServerTimeOffset();
+    const status = String(claim.status || '');
+
+    // debit_pending sau bản vá chưa hề trừ Coin; có thể đóng an toàn khi stale.
+    if (
+        status === 'debit_pending' &&
+        Number(claim.updatedAt || 0) + 120000 <= serverNow
+    ) {
+        await claimRef.transaction(current => {
+            if (
+                !current ||
+                current.status !== 'debit_pending' ||
+                Number(current.updatedAt || 0) + 120000 > serverNow
+            ) {
+                return;
+            }
+
+            return {
+                ...current,
+                status: 'cancelled_refunded',
+                recoveryReason: 'stale_debit_pending_no_coin_debit',
+                updatedAt: serverNow
+            };
+        });
+        return false;
+    }
+
+    if (status === 'refund_pending') {
+        return refundStudentStoreTrialOperation(
+            itemId,
+            Number(claim.refundAmount || claim.trialPrice || 0),
+            claim.refundReason || 'recovery_refund_pending'
+        );
+    }
+
+    if (status !== 'debited') {
+        return false;
+    }
+
+    if (Number(claim.expiresAt || 0) <= serverNow) {
+        return refundStudentStoreTrialOperation(
+            itemId,
+            Number(claim.trialPrice || 0),
+            'trial_expired_before_inventory_recovery'
+        );
+    }
+
+    const item =
+        typeof StoreManager !== 'undefined'
+            ? StoreManager.getItemById(itemId)
+            : null;
+
+    if (!item || isLuxuryStoreItem(item)) {
+        return false;
+    }
+
+    const inventoryRef = db.ref(
+        `student_inventory/${username}/${itemId}`
+    );
+
+    const tx = await inventoryRef.transaction(current => {
+        if (current?.id) {
+            if (
+                current.isTrial === true &&
+                String(current.trialOperationId || '') ===
+                    String(claim.operationId || '')
+            ) {
+                return current;
+            }
+            return;
+        }
+
+        return {
+            id: String(itemId),
+            purchaseTime: Number(claim.debitedAt || claim.startedAt || serverNow),
+            source: 'store_trial',
+            trialOperationId: String(claim.operationId || ''),
+            trialPrice: Number(claim.trialPrice || 0),
+            isEquipped: false,
+            isTrial: true,
+            trialExpiry: Number(claim.expiresAt || 0)
+        };
+    });
+
+    if (!tx.committed) return false;
+
+    await claimRef.update({
+        status: 'active',
+        inventoryCreated: true,
+        recoveredAfterInterruption: true,
+        activatedAt: serverNow,
+        updatedAt: serverNow
+    });
+
+    return true;
+}
+
+window.__studentStoreRecoveryPromise =
+    window.__studentStoreRecoveryPromise || null;
+
+window.recoverStudentStoreEconomicOperations =
+    function () {
+        if (
+            !currentUser?.username ||
+            !isStudentStoreRuntimeReady()
+        ) {
+            return Promise.resolve(false);
+        }
+
+        if (window.__studentStoreRecoveryPromise) {
+            return window.__studentStoreRecoveryPromise;
+        }
+
+        window.__studentStoreRecoveryPromise =
+            (async () => {
+                const username = String(currentUser.username);
+                const [purchaseSnap, trialSnap] = await Promise.all([
+                    db.ref(`store_purchase_ops/${username}`).once('value'),
+                    db.ref(`store_trial_claims/${username}`).once('value')
+                ]);
+
+                const purchaseIds = [];
+                purchaseSnap.forEach(child => {
+                    purchaseIds.push(child.key);
+                    return false;
+                });
+
+                const trialIds = [];
+                trialSnap.forEach(child => {
+                    trialIds.push(child.key);
+                    return false;
+                });
+
+                for (const id of purchaseIds) {
+                    await recoverStudentStorePurchaseForItem(id)
+                        .catch(error => console.warn('[Store Recovery] purchase', id, error));
+                }
+
+                for (const id of trialIds) {
+                    await recoverStudentStoreTrialForItem(id)
+                        .catch(error => console.warn('[Store Recovery] trial', id, error));
+                }
+
+                return true;
+            })().finally(() => {
+                window.__studentStoreRecoveryPromise = null;
+            });
+
+        return window.__studentStoreRecoveryPromise;
+    };
 
 
 // 3. Logic kích hoạt dùng thử 1 Ngày (Nửa giá)
@@ -18057,12 +19036,14 @@ window.trialItem = async function (itemId) {
             return;
         }
 
-        const item =
+        let item =
             StoreManager.getItemById(
                 itemId
             );
 
         if (!item) return;
+
+        item = await resolveLiveStudentStoreItem(item);
 
         if (item.isLocked === true) {
             return alert(
@@ -18082,6 +19063,20 @@ window.trialItem = async function (itemId) {
                 '🚫 Vật phẩm sự kiện không hỗ trợ dùng thử!'
             );
         }
+
+        if (isLuxuryStoreItem(item)) {
+            return alert(
+                '⛔ Vật phẩm Sang trọng không thể dùng thử qua Cửa hàng thường.'
+            );
+        }
+
+        const trialWindow =
+            await assertStudentStoreSaleWindow(
+                item,
+                'regular'
+            );
+
+        await recoverStudentStoreTrialForItem(item.id);
 
         const inventoryRef =
             db.ref(
@@ -18159,7 +19154,8 @@ window.trialItem = async function (itemId) {
         trialReservation =
             await reserveStudentStoreTrial(
                 item,
-                trialPrice
+                trialPrice,
+                trialWindow.serverNow
             );
 
         try {
@@ -18177,24 +19173,33 @@ window.trialItem = async function (itemId) {
             status:
                 'debit_pending',
             updatedAt:
-                Date.now()
+                window.getStudentStoreApproxServerNow()
         });
 
-        await decrementNumberTx(
-            `student_coins/${currentUser.username}`,
-            trialPrice
-        );
+        /*
+         * Debit Coin + đánh dấu claim đã debit trong CÙNG một multi-location
+         * update. Nếu request thất bại thì cả hai thay đổi cùng thất bại;
+         * không còn cửa sổ "Coin đã trừ nhưng operation vẫn debit_pending".
+         */
+        const trialDebitAt =
+            window.getStudentStoreApproxServerNow();
+
+        await db.ref().update({
+            [`student_coins/${currentUser.username}`]:
+                firebase.database.ServerValue.increment(
+                    -Number(trialPrice)
+                ),
+            [`store_trial_claims/${currentUser.username}/${item.id}/status`]:
+                'debited',
+            [`store_trial_claims/${currentUser.username}/${item.id}/coinDebited`]:
+                true,
+            [`store_trial_claims/${currentUser.username}/${item.id}/debitedAt`]:
+                trialDebitAt,
+            [`store_trial_claims/${currentUser.username}/${item.id}/updatedAt`]:
+                trialDebitAt
+        });
 
         coinDebited = true;
-
-        await trialReservation.ref.update({
-            status: 'debited',
-            coinDebited: true,
-            debitedAt:
-                Date.now(),
-            updatedAt:
-                Date.now()
-        });
 
         let inventoryAbortReason =
             'TRIAL_ITEM_EXISTS';
@@ -18224,7 +19229,7 @@ window.trialItem = async function (itemId) {
                                 .operationId,
                         trialPrice,
                         isEquipped:
-                            true,
+                            false,
                         isTrial:
                             true,
                         trialExpiry:
@@ -18309,6 +19314,10 @@ window.trialItem = async function (itemId) {
             }
         }
 
+        if (typeof StoreManager.applyItem === 'function') {
+            await StoreManager.applyItem(item.id);
+        }
+
         alert(
             `⏳ Bắt đầu dùng thử [ ${item.name} ]! ` +
             '(Thời hạn: 24 giờ, mỗi vật phẩm 1 lần)'
@@ -18325,53 +19334,38 @@ window.trialItem = async function (itemId) {
             !trialCreated
         ) {
             try {
-                await incrementNumberTx(
-                    `student_coins/${currentUser.username}`,
-                    Number(trialPrice || 0)
+                await refundStudentStoreTrialOperation(
+                    itemId,
+                    Number(trialPrice || 0),
+                    'trial_inventory_create_failed'
                 );
-
-                await trialReservation
-                    ?.ref
-                    ?.update({
-                        status:
-                            'cancelled_refunded',
-                        coinDebited:
-                            false,
-                        refundedAt:
-                            Date.now(),
-                        updatedAt:
-                            Date.now()
-                    });
-            } catch (
-                refundError
-            ) {
+            } catch (refundError) {
                 console.error(
-                    '[Store Trial Guard] Hoàn Coin thất bại:',
+                    '[Store Trial Guard] Hoàn Coin chưa hoàn tất; giữ refund_pending để recovery:',
                     refundError
                 );
-
-                await trialReservation
-                    ?.ref
-                    ?.update({
-                        status:
-                            'refund_pending',
-                        refundPendingAt:
-                            Date.now(),
-                        updatedAt:
-                            Date.now()
-                    })
-                    .catch(() => {});
             }
         } else if (
             trialReservation &&
             !trialCreated
         ) {
+            const now = await refreshStudentStoreServerTimeOffset();
             await trialReservation.ref
-                .update({
-                    status:
-                        'cancelled_refunded',
-                    updatedAt:
-                        Date.now()
+                .transaction(current => {
+                    if (
+                        !current ||
+                        current.operationId !== trialReservation.operationId ||
+                        (current.status !== 'reserved' &&
+                         current.status !== 'debit_pending')
+                    ) {
+                        return;
+                    }
+                    return {
+                        ...current,
+                        status: 'cancelled_refunded',
+                        recoveryReason: 'cancelled_before_coin_debit',
+                        updatedAt: now
+                    };
                 })
                 .catch(() => {});
         }
@@ -18422,7 +19416,7 @@ window.trialItem = async function (itemId) {
 };
 
 // 4. Logic Mua đứt và Bảng Thanh Toán (Có áp dụng Mã giảm giá)
-window.buyItem = async function (itemId, isUpgradingFromTrial = false) {
+window.buyItem = async function (itemId, isUpgradingFromTrial = false, purchaseContext = 'regular') {
     if (!window.isStudentStoreSystemOpen()) {
         return window.showStudentStoreSystemLocked();
     }
@@ -18436,9 +19430,46 @@ window.buyItem = async function (itemId, isUpgradingFromTrial = false) {
         return;
     }
 
-    const item = StoreManager.getItemById(itemId);
+    let item = StoreManager.getItemById(itemId);
     if (!item) return;
+
+    try {
+        item = await resolveLiveStudentStoreItem(item);
+    } catch (error) {
+        await window.assertStudentStoreLiveAccessAllowed(itemId, 'mua vật phẩm');
+        return;
+    }
+
     if (item.isLocked) return alert("🔒 Vật phẩm này hiện đang bị Giáo viên khóa!");
+
+    const normalizedPurchaseContext =
+        String(purchaseContext || 'regular') === 'luxury'
+            ? 'luxury'
+            : 'regular';
+
+    try {
+        await assertStudentStoreSaleWindow(
+            item,
+            normalizedPurchaseContext
+        );
+    } catch (error) {
+        const code = String(error?.message || error);
+        const messages = {
+            LUXURY_ITEM_REQUIRES_LUXURY_STORE:
+                '⛔ Vật phẩm Sang trọng chỉ được mua trong Cửa hàng Sang trọng.',
+            REGULAR_ITEM_REQUIRES_REGULAR_STORE:
+                '⛔ Vật phẩm thường không được mua qua API Cửa hàng Sang trọng.',
+            STORE_ITEM_NOT_STARTED:
+                '⏳ Vật phẩm chưa đến thời gian mở bán.',
+            STORE_ITEM_ENDED:
+                '⌛ Đợt mở bán của vật phẩm đã kết thúc.',
+            STORE_ANNUAL_SALE_CLOSED:
+                '🗓️ Vật phẩm hiện nằm ngoài đợt mở bán hằng năm.'
+        };
+        return alert(messages[code] || '❌ Vật phẩm hiện chưa thể mua.');
+    }
+
+    await recoverStudentStorePurchaseForItem(item.id);
 
     const latestInventorySnap = await db
         .ref(
@@ -18540,11 +19571,11 @@ window.buyItem = async function (itemId, isUpgradingFromTrial = false) {
         });
     }
 
-    openPaymentModal(item, finalPrice, currentCoins, discounts, isUpgrade);
+    openPaymentModal(item, finalPrice, currentCoins, discounts, isUpgrade, normalizedPurchaseContext);
 };
 
 // HÀM HIỂN THỊ GIAO DIỆN BẢNG THANH TOÁN
-window.openPaymentModal = function (item, basePrice, currentCoins, discounts, isUpgrade) {
+window.openPaymentModal = function (item, basePrice, currentCoins, discounts, isUpgrade, purchaseContext = 'regular') {
     const oldModal = document.getElementById('checkoutModal');
     if (oldModal) oldModal.remove();
 
@@ -18636,7 +19667,7 @@ window.openPaymentModal = function (item, basePrice, currentCoins, discounts, is
                 </div>
             </div>
 
-            <button id="btnConfirmCheckout" onclick="processPayment('${item.id}', ${basePrice}, ${currentCoins}, ${isUpgrade ? 'true' : 'false'})" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white; border: none; border-radius: 12px; font-weight: 900; font-size: 1.1em; cursor: pointer; box-shadow: 0 4px 15px rgba(246, 211, 101, 0.4); text-transform: uppercase; transition: all 0.2s;">💳 Xác nhận mua</button>
+            <button id="btnConfirmCheckout" onclick="processPayment('${item.id}', ${basePrice}, ${currentCoins}, ${isUpgrade ? 'true' : 'false'}, '${String(purchaseContext || 'regular') === 'luxury' ? 'luxury' : 'regular'}')" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white; border: none; border-radius: 12px; font-weight: 900; font-size: 1.1em; cursor: pointer; box-shadow: 0 4px 15px rgba(246, 211, 101, 0.4); text-transform: uppercase; transition: all 0.2s;">💳 Xác nhận mua</button>
         </div>
     </div>
     `;
@@ -18685,7 +19716,8 @@ window.processPayment = async function (
     itemId,
     clientBasePrice,
     currentCoins,
-    isUpgrade = false
+    isUpgrade = false,
+    purchaseContext = 'regular'
 ) {
     if (
         window.isOffline ||
@@ -18734,10 +19766,15 @@ window.processPayment = async function (
             'Đang xử lý giao dịch...';
     }
 
-    const paymentItem =
+    let paymentItem =
         StoreManager.getItemById(
             itemId
         );
+
+    const normalizedPurchaseContext =
+        String(purchaseContext || 'regular') === 'luxury'
+            ? 'luxury'
+            : 'regular';
 
     let purchaseOperation = null;
     let discountKey = null;
@@ -18756,6 +19793,8 @@ window.processPayment = async function (
             );
         }
 
+        paymentItem = await resolveLiveStudentStoreItem(paymentItem);
+
         if (
             paymentItem.isLocked ===
             true
@@ -18764,6 +19803,12 @@ window.processPayment = async function (
                 'ITEM_LOCKED'
             );
         }
+
+        const saleAuthority =
+            await assertStudentStoreSaleWindow(
+                paymentItem,
+                normalizedPurchaseContext
+            );
 
         const inventoryRef =
             db.ref(
@@ -18819,7 +19864,9 @@ window.processPayment = async function (
         purchaseOperation =
             await reserveStudentStorePurchase(
                 String(itemId),
-                Boolean(isUpgrade)
+                Boolean(isUpgrade),
+                normalizedPurchaseContext,
+                saleAuthority.serverNow
             );
 
         const catalogPrice =
@@ -18942,44 +19989,9 @@ window.processPayment = async function (
                 );
             }
 
-            const usedRef =
-                discountRef.child(
-                    'isUsed'
-                );
-
-            const usedTx =
-                await usedRef.transaction(
-                    currentUsed => {
-                        if (
-                            currentUsed ===
-                            true
-                        ) {
-                            return;
-                        }
-
-                        return true;
-                    },
-                    undefined,
-                    false
-                );
-
-            if (!usedTx.committed) {
-                throw new Error(
-                    'DISCOUNT_ALREADY_USED'
-                );
-            }
-
-            discountMarked = true;
-
-            await discountRef.update({
-                usedAt:
-                    Date.now(),
-                usedForItem:
-                    itemId,
-                usedTransactionId:
-                    purchaseOperation
-                        .operationId
-            });
+            // SECURITY: chỉ đọc/validate discount ở đây. Việc đánh dấu sử dụng
+            // được thực hiện sau khi store_purchase_ops đã ở debit_pending để
+            // Firebase Rules có cross-node proof theo operationId.
         }
 
         finalPrice =
@@ -19001,6 +20013,9 @@ window.processPayment = async function (
                 );
         }
 
+        const paymentPreparedAt =
+            window.getStudentStoreApproxServerNow();
+
         await purchaseOperation.ref
             .update({
                 status:
@@ -19011,29 +20026,82 @@ window.processPayment = async function (
                     Number(finalPrice),
                 discountKey:
                     discountKey || null,
+                discountPath:
+                    discountPath || null,
+                storeType:
+                    normalizedPurchaseContext,
+                trialExpiryAtPayment:
+                    isUpgrade
+                        ? Number(inventoryBefore?.trialExpiry || 0)
+                        : 0,
                 updatedAt:
-                    Date.now()
+                    paymentPreparedAt
             });
 
-        if (finalPrice > 0) {
-            await decrementNumberTx(
-                `student_coins/${currentUser.username}`,
-                finalPrice
-            );
+        if (discountKey && discountPath) {
+            const discountRef = db.ref(discountPath);
+            let markResult = null;
+            try {
+                markResult = await discountRef.transaction(current => {
+                    if (!current || current.isUsed === true) return;
+                    return {
+                        ...current,
+                        isUsed: true,
+                        usedAt: paymentPreparedAt,
+                        usedForItem: itemId,
+                        usedTransactionId: purchaseOperation.operationId
+                    };
+                }, undefined, false);
+            } catch (markError) {
+                // Ambiguous network result: re-read before deciding rollback.
+                const latest = (await discountRef.once('value')).val();
+                if (
+                    latest?.isUsed === true &&
+                    String(latest?.usedTransactionId || '') ===
+                        String(purchaseOperation.operationId)
+                ) {
+                    markResult = { committed: true };
+                } else {
+                    throw markError;
+                }
+            }
 
-            coinDebited = true;
+            if (!markResult?.committed) {
+                throw new Error('DISCOUNT_ALREADY_USED');
+            }
+            discountMarked = true;
         }
 
-        await purchaseOperation.ref
-            .update({
-                status: 'paid',
-                coinDebited:
-                    coinDebited,
-                paidAt:
-                    Date.now(),
-                updatedAt:
-                    Date.now()
-            });
+        /*
+         * Coin debit và trạng thái PAID được commit trong CÙNG một root update.
+         * - Nếu update bị Firebase/Rules/mạng từ chối: Coin không đổi, op không PAID.
+         * - Nếu update thành công nhưng tab chết trước khi ghi inventory: op PAID
+         *   là bằng chứng bền vững để recovery cấp item đúng một lần.
+         */
+        const paymentPaidAt =
+            window.getStudentStoreApproxServerNow();
+
+        const debitUpdates = {
+            [`store_purchase_ops/${currentUser.username}/${itemId}/status`]:
+                'paid',
+            [`store_purchase_ops/${currentUser.username}/${itemId}/coinDebited`]:
+                finalPrice > 0,
+            [`store_purchase_ops/${currentUser.username}/${itemId}/paidAt`]:
+                paymentPaidAt,
+            [`store_purchase_ops/${currentUser.username}/${itemId}/updatedAt`]:
+                paymentPaidAt
+        };
+
+        if (finalPrice > 0) {
+            debitUpdates[
+                `student_coins/${currentUser.username}`
+            ] = firebase.database.ServerValue.increment(
+                -Number(finalPrice)
+            );
+        }
+
+        await db.ref().update(debitUpdates);
+        coinDebited = finalPrice > 0;
 
         let itemAbortReason =
             'ITEM_ADD_FAILED';
@@ -19089,7 +20157,7 @@ window.processPayment = async function (
                                 trialExpiry:
                                     null,
                                 isEquipped:
-                                    true
+                                    false
                             };
                         }
 
@@ -19140,7 +20208,7 @@ window.processPayment = async function (
                         trialExpiry:
                             null,
                         isEquipped:
-                            true
+                            false
                     };
                 },
                 undefined,
@@ -19248,8 +20316,7 @@ window.processPayment = async function (
             error
         );
 
-        let refundSucceeded =
-            false;
+        let refundSucceeded = false;
 
         if (
             coinDebited &&
@@ -19257,70 +20324,56 @@ window.processPayment = async function (
             finalPrice > 0
         ) {
             try {
-                await incrementNumberTx(
-                    `student_coins/${currentUser.username}`,
-                    finalPrice
-                );
-
                 refundSucceeded =
-                    true;
-            } catch (
-                refundError
-            ) {
+                    await refundStudentStorePurchaseOperation(
+                        itemId,
+                        finalPrice,
+                        'purchase_inventory_create_failed'
+                    );
+            } catch (refundError) {
                 console.error(
-                    '[Store Purchase Guard] Hoàn Coin thất bại:',
+                    '[Store Purchase Guard] Hoàn Coin chưa hoàn tất; giữ refund_pending để recovery:',
                     refundError
                 );
             }
+        } else if (
+            purchaseOperation &&
+            !itemAdded &&
+            !coinDebited
+        ) {
+            const now = await refreshStudentStoreServerTimeOffset();
+            await purchaseOperation.ref.transaction(current => {
+                if (
+                    !current ||
+                    current.operationId !== purchaseOperation.operationId ||
+                    (current.status !== 'reserved' &&
+                     current.status !== 'debit_pending')
+                ) {
+                    return;
+                }
+                return {
+                    ...current,
+                    status: 'failed_refunded',
+                    recoveryReason: 'failed_before_coin_debit',
+                    failedAt: now,
+                    updatedAt: now
+                };
+            }).catch(() => {});
         }
 
         if (
             discountMarked &&
             !itemAdded &&
-            discountPath
+            purchaseOperation?.operationId
         ) {
-            await db
-                .ref(discountPath)
-                .update({
-                    isUsed:
-                        false,
-                    usedAt:
-                        null,
-                    usedForItem:
-                        null,
-                    usedTransactionId:
-                        null
-                })
-                .catch(
-                    rollbackError => {
-                        console.error(
-                            '[Store Purchase Guard] Hoàn thẻ giảm giá thất bại:',
-                            rollbackError
-                        );
-                    }
+            await rollbackStudentStoreDiscountForOperation(
+                purchaseOperation.operationId
+            ).catch(rollbackError => {
+                console.error(
+                    '[Store Purchase Guard] Hoàn thẻ giảm giá thất bại:',
+                    rollbackError
                 );
-        }
-
-        if (
-            purchaseOperation &&
-            !itemAdded
-        ) {
-            await purchaseOperation.ref
-                .update({
-                    status:
-                        coinDebited &&
-                        !refundSucceeded
-                            ? 'refund_pending'
-                            : 'failed_refunded',
-                    refundPending:
-                        coinDebited &&
-                        !refundSucceeded,
-                    failedAt:
-                        Date.now(),
-                    updatedAt:
-                        Date.now()
-                })
-                .catch(() => {});
+            });
         }
 
         const message =
@@ -19350,6 +20403,16 @@ window.processPayment = async function (
                 '❌ Không tìm thấy vật phẩm trong cấu hình cửa hàng.',
             ITEM_LOCKED:
                 '🔒 Vật phẩm vừa bị Giáo viên khóa.',
+            LUXURY_ITEM_REQUIRES_LUXURY_STORE:
+                '⛔ Vật phẩm Sang trọng chỉ được mua trong Cửa hàng Sang trọng.',
+            REGULAR_ITEM_REQUIRES_REGULAR_STORE:
+                '⛔ Vật phẩm thường không được mua qua API Cửa hàng Sang trọng.',
+            STORE_ITEM_NOT_STARTED:
+                '⏳ Vật phẩm chưa đến thời gian mở bán.',
+            STORE_ITEM_ENDED:
+                '⌛ Đợt mở bán của vật phẩm đã kết thúc.',
+            STORE_ANNUAL_SALE_CLOSED:
+                '🗓️ Vật phẩm hiện nằm ngoài đợt mở bán hằng năm.',
             TRIAL_UPGRADE_NOT_AVAILABLE:
                 '❌ Lượt trial không còn hợp lệ để nâng cấp.',
             TRIAL_ACTIVE_USE_UPGRADE:
@@ -19397,6 +20460,26 @@ function installStudentStoreManagerOverrides() {
     }
 
     StoreManager.applyItem = async function (itemId) {
+        if (!window.isStudentStoreEquipLockHeldFor?.(itemId)) {
+            return window.withStudentStoreEquipLock(
+                itemId,
+                () => StoreManager.applyItem(itemId)
+            );
+        }
+
+        if (
+            !await window.assertStudentStoreLiveAccessAllowed(
+                itemId,
+                'trang bị vật phẩm'
+            )
+        ) {
+            return false;
+        }
+
+        const accessEpoch = window.__studentEquipmentAccessEpoch || 0;
+        const canFinishEquip = () => window.isStudentStoreSystemOpen() &&
+            accessEpoch === (window.__studentEquipmentAccessEpoch || 0);
+        if (!canFinishEquip()) return false;
         const item = StoreManager.getItemById(itemId);
         if (!item) return false;
 
@@ -19411,6 +20494,7 @@ function installStudentStoreManagerOverrides() {
         );
         const ownedItemSnap = await ownedItemRef.once('value');
         const ownedItem = ownedItemSnap.val();
+        if (!canFinishEquip()) return false;
 
         if (!ownedItem || String(ownedItem.id || '') !== String(itemId)) {
             window.showToast?.('⛔ Bạn chưa sở hữu vật phẩm này.', 'error');
@@ -19452,9 +20536,12 @@ function installStudentStoreManagerOverrides() {
             return false;
         }
 
+        if (!canFinishEquip()) return false;
+
         // Chỉ ghi trạng thái trang bị sau khi quyền sở hữu Firebase đã được xác nhận.
         const invSnap = await db.ref(`student_inventory/${currentUser.username}`).once('value');
         const inventory = invSnap.val();
+        if (!canFinishEquip()) return false;
         if (inventory) {
             let updates = {};
             for (let key in inventory) {
@@ -19470,6 +20557,16 @@ function installStudentStoreManagerOverrides() {
             }
 
             await db.ref(`student_inventory/${currentUser.username}`).update(updates);
+
+            // Quyền có thể đổi trong lúc Firebase đang xác nhận lần ghi.
+            if (!canFinishEquip()) {
+                await ownedItemRef.transaction(value => {
+                    if (!value || value.isEquipped !== true) return;
+                    return { ...value, isEquipped: false };
+                }, undefined, false);
+                if (!window.isStudentStoreGameAccessEnabled()) window.clearStudentStoreEquipmentRuntime();
+                return false;
+            }
 
             // Cache visual chỉ ghi SAU KHI Firebase chấp nhận equip.
             try {
@@ -19771,7 +20868,24 @@ window.restoreExamVisualItems = function () {
 };
 
 // Áp dụng các vật phẩm đang trang bị
+function getStudentRenderableEquippedInventory(inventory, now = Date.now()) {
+    if (!window.isStudentStoreGameAccessEnabled() || !Array.isArray(inventory)) return [];
+
+    return inventory.filter(item => {
+        if (!item || item.isEquipped !== true) return false;
+        if (item.isTrial !== true) return true;
+
+        const expiry = Number(item.trialExpiry);
+        return Number.isFinite(expiry) && expiry > now;
+    });
+}
+
 window.applyEquippedItems = function () {
+    installStudentEquipmentAccessGuards();
+    if (!window.isStudentStoreGameAccessEnabled()) {
+        window.clearStudentStoreEquipmentRuntime();
+        return false;
+    }
     if (!isStudentStoreRuntimeReady()) {
         return false;
     }
@@ -19855,7 +20969,9 @@ window.applyEquippedItems = function () {
      * Xóa trạng thái cũ.
      * PetManager.spawnPet() sẽ ghi lại nếu kho vẫn có pet được trang bị.
      */
-    localStorage.removeItem('active_pet');
+    try {
+        localStorage.removeItem('active_pet');
+    } catch (_) {}
 
     if (
         typeof myInventory === 'undefined' ||
@@ -19868,8 +20984,26 @@ window.applyEquippedItems = function () {
     let equippedFrameId = '';
     let equippedBackgroundId = '';
 
-    myInventory.forEach(invItem => {
-        if (!invItem.isEquipped) return;
+    // Chỉ dựng vật phẩm đang dùng được; không chờ lượt quét thu hồi 60 giây.
+    // Đây là bộ lọc hiển thị, quyền sở hữu/thời hạn vẫn cần bảo vệ ở server.
+    const renderableInventory =
+        getStudentRenderableEquippedInventory(myInventory);
+
+    const hasRenderableTheme = renderableInventory.some(invItem => {
+        const itemDef = StoreConfig.items.find(item => item.id === invItem.id);
+        return itemDef?.type === 'theme' && itemDef.isLocked !== true;
+    });
+
+    // Reset trước khi mount pet Luxury để không xóa lớp theme do pet vừa tạo.
+    if (
+        !hasRenderableTheme &&
+        typeof ThemeManager !== 'undefined' &&
+        typeof ThemeManager.applyTheme === 'function'
+    ) {
+        ThemeManager.applyTheme('default');
+    }
+
+    renderableInventory.forEach(invItem => {
 
         const itemDef = StoreConfig.items.find(
             item => item.id === invItem.id
@@ -19888,10 +21022,6 @@ window.applyEquippedItems = function () {
          * trạng thái trang bị cũ có thể hoạt động lại.
          */
         if (itemDef.isLocked === true) {
-            if (itemDef.type === 'theme') {
-                ThemeManager.applyTheme('default');
-            }
-
             return;
         }
 
@@ -21487,7 +22617,7 @@ async function executeConversionCore() {
             getDB('assignments'),
             getDB('submissions'),
             db.ref(offsetPath).once('value'),
-            getDB('cash_requests'),
+            getStudentOwnCashRequests(),
             getStudentConversionServerNow()
         ]);
 
@@ -30780,13 +31910,54 @@ window.renderStudentBag = async function () {
 function isCashRequestOwnedByCurrentStudent(req) {
     if (!req) return false;
 
-    // Dữ liệu mới: luôn ưu tiên username vì tên hiển thị có thể trùng/đổi.
+    // Dữ liệu mới: studentUsername là identity snapshot chính.
     if (req.studentUsername) {
         return String(req.studentUsername) === String(currentUser.username);
     }
 
-    // Tương thích dữ liệu cũ chưa có studentUsername.
+    // Một số bản V2 trung gian có username nhưng chưa có studentUsername.
+    if (req.username) {
+        return String(req.username) === String(currentUser.username);
+    }
+
+    // Legacy rất cũ chỉ có studentName được giữ để render dữ liệu đã có trong RAM,
+    // nhưng không dùng tên hiển thị làm điều kiện cấp quyền đọc Firebase.
     return String(req.studentName || '') === String(currentUser.name || '');
+}
+
+function getStudentCashRequestsQuery(identityField = 'studentUsername') {
+    const field = identityField === 'username'
+        ? 'username'
+        : 'studentUsername';
+
+    return db.ref('cash_requests')
+        .orderByChild(field)
+        .equalTo(String(currentUser.username));
+}
+
+async function getStudentOwnCashRequests() {
+    // Hai query đều bị Rules ràng buộc equalTo username của Auth user.
+    // Merge theo Firebase key để dữ liệu V2 có cả hai field không bị nhân đôi.
+    const snapshots = await Promise.all([
+        getStudentCashRequestsQuery('studentUsername').once('value'),
+        getStudentCashRequestsQuery('username').once('value')
+    ]);
+
+    const byKey = new Map();
+
+    snapshots.forEach(snapshot => {
+        snapshot.forEach(child => {
+            const value = child.val() || {};
+            byKey.set(child.key, {
+                ...value,
+                _fbKey: child.key,
+                id: value.id || child.key
+            });
+        });
+    });
+
+    return [...byKey.values()]
+        .filter(isCashRequestOwnedByCurrentStudent);
 }
 
 function getCashRequestAmount(req) {
@@ -30835,7 +32006,7 @@ async function getCurrentRoadmapMoneyState() {
         getDB('assignments'),
         getDB('submissions'),
         db.ref('student_money_offset/' + currentUser.username).once('value'),
-        getDB('cash_requests')
+        getStudentOwnCashRequests()
     ]);
 
     const baseMoney = calculateRoadmapBaseMoney(
@@ -30871,7 +32042,7 @@ async function renderCashRequestHistory() {
     if (!container) return;
 
     try {
-        const allRequests = await getDB('cash_requests');
+        const allRequests = await getStudentOwnCashRequests();
 
         const myRequests = (allRequests || [])
             .filter(isCashRequestOwnedByCurrentStudent)
@@ -35667,6 +36838,8 @@ window.downloadStudentRoadmapPDF = async function () {
     }
 
     async function repairEquippedProfileFrame(bar) {
+        if (!window.isStudentStoreGameAccessEnabled()) return;
+        const accessEpoch = window.__studentEquipmentAccessEpoch || 0;
         if (!bar) return;
 
         const profileButton =
@@ -35771,6 +36944,8 @@ window.downloadStudentRoadmapPDF = async function () {
             return;
         }
 
+        if (!window.isStudentStoreGameAccessEnabled() ||
+            accessEpoch !== (window.__studentEquipmentAccessEpoch || 0)) return;
         const currentId =
             profileButton.getAttribute(
                 'data-avatar-frame-id'
