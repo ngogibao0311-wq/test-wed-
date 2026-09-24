@@ -2981,3 +2981,319 @@ html[data-app-role="teacher"] #teacherLeaderboardAdminCard .teacher-lb-admin-mas
         transform: translateX(-50%) rotate(180deg) !important;
     }
 }
+
+/* ============================================================================
+   FIX 2026-09-20 · CUSTOM STUDENT SELECT MODAL UI GUARD
+   Mục đích:
+   - Chặn CSS chung/mobile ghi đè ô tìm kiếm và 2 nút trong popup chọn học sinh.
+   - Chỉ tác động #customStudentModal, không ảnh hưởng các popup/nút khác.
+   - Không dùng !important cho display của overlay để JS vẫn mở/đóng bằng style.display.
+   ============================================================================ */
+
+html[data-app-role="teacher"] body #customStudentModal {
+    position: fixed !important;
+    inset: 0 !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    padding: 20px !important;
+    overflow: auto !important;
+    background: rgba(15, 23, 42, 0.48) !important;
+    z-index: 10000050 !important;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+}
+
+html[data-app-role="teacher"] body #customStudentModal .student-modal-box {
+    box-sizing: border-box !important;
+    width: min(90vw, 420px) !important;
+    max-width: 420px !important;
+    max-height: min(82vh, 680px) !important;
+    margin: auto !important;
+    padding: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(226, 232, 240, 0.95) !important;
+    border-radius: 16px !important;
+    background: #ffffff !important;
+    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.24) !important;
+    color: #1f2937 !important;
+}
+
+html[data-app-role="teacher"] body #customStudentModal .student-modal-header {
+    flex: 0 0 auto !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 24px 24px 16px !important;
+    background: #ffffff !important;
+}
+
+html[data-app-role="teacher"] body #customStudentModal .student-search-box {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-height: 52px !important;
+    margin: 0 !important;
+    padding: 12px 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    border: 1px solid transparent !important;
+    border-radius: 12px !important;
+    background: #f4f5f7 !important;
+    box-shadow: none !important;
+}
+
+html[data-app-role="teacher"] body #customStudentModal .student-search-box:focus-within {
+    border-color: rgba(59, 130, 246, 0.42) !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.10) !important;
+}
+
+html[data-app-role="teacher"] body #customStudentModal #customStudentSearch {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    outline: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: #1f2937 !important;
+    font: inherit !important;
+    font-size: 15px !important;
+    line-height: 1.45 !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+}
+
+html[data-app-role="teacher"] body #customStudentModal #customStudentSearch::placeholder {
+    color: #9ca3af !important;
+    opacity: 1 !important;
+}
+
+html[data-app-role="teacher"] body #customStudentModal .student-modal-list {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    max-height: min(280px, 46vh) !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 24px !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    background: #ffffff !important;
+}
+
+html[data-app-role="teacher"] body #customStudentModal .student-item {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-height: 56px !important;
+    margin: 0 !important;
+    padding: 10px 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0 !important;
+    border: 0 !important;
+    border-radius: 8px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    cursor: pointer !important;
+}
+
+html[data-app-role="teacher"] body #customStudentModal .student-item:hover {
+    background: #f8fafc !important;
+}
+
+html[data-app-role="teacher"] body #customStudentModal .student-item input.student-cb[type="checkbox"] {
+    flex: 0 0 18px !important;
+    width: 18px !important;
+    min-width: 18px !important;
+    max-width: 18px !important;
+    height: 18px !important;
+    min-height: 18px !important;
+    max-height: 18px !important;
+    margin: 0 16px 0 0 !important;
+    padding: 0 !important;
+    border-radius: 3px !important;
+    box-shadow: none !important;
+    cursor: pointer !important;
+    accent-color: #3b82f6 !important;
+}
+
+html[data-app-role="teacher"] body #customStudentModal .student-avatar {
+    box-sizing: border-box !important;
+    flex: 0 0 36px !important;
+    width: 36px !important;
+    min-width: 36px !important;
+    max-width: 36px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    max-height: 36px !important;
+    margin: 0 12px 0 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: 0 !important;
+    border-radius: 50% !important;
+    box-shadow: none !important;
+    line-height: 1 !important;
+}
+
+html[data-app-role="teacher"] body #customStudentModal .student-modal-footer {
+    flex: 0 0 auto !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 20px 24px 24px !important;
+    display: flex !important;
+    align-items: stretch !important;
+    justify-content: space-between !important;
+    gap: 16px !important;
+    background: #ffffff !important;
+}
+
+html[data-app-role="teacher"] body #customStudentModal .student-modal-footer > button.btn-cancel,
+html[data-app-role="teacher"] body #customStudentModal .student-modal-footer > button.btn-confirm {
+    box-sizing: border-box !important;
+    flex: 1 1 0 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    min-height: 46px !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 12px 16px !important;
+    border-radius: 9px !important;
+    font-family: inherit !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    line-height: 1.25 !important;
+    text-align: center !important;
+    text-decoration: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+    cursor: pointer !important;
+}
+
+html[data-app-role="teacher"] body #customStudentModal .student-modal-footer > button.btn-cancel {
+    border: 1px solid #dbe2ea !important;
+    background: #ffffff !important;
+    color: #475569 !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+}
+
+html[data-app-role="teacher"] body #customStudentModal .student-modal-footer > button.btn-cancel:hover {
+    border-color: #cbd5e1 !important;
+    background: #f8fafc !important;
+    color: #334155 !important;
+    transform: none !important;
+}
+
+html[data-app-role="teacher"] body #customStudentModal .student-modal-footer > button.btn-confirm {
+    border: 1px solid #3b82f6 !important;
+    background: #3b82f6 !important;
+    color: #ffffff !important;
+    box-shadow: 0 5px 14px rgba(59, 130, 246, 0.24) !important;
+}
+
+html[data-app-role="teacher"] body #customStudentModal .student-modal-footer > button.btn-confirm:hover {
+    border-color: #2563eb !important;
+    background: #2563eb !important;
+    color: #ffffff !important;
+    transform: none !important;
+}
+
+html[data-app-role="teacher"] body #customStudentModal .student-modal-footer > button:focus-visible,
+html[data-app-role="teacher"] body #customStudentModal #customStudentSearch:focus-visible {
+    outline: 3px solid rgba(59, 130, 246, 0.22) !important;
+    outline-offset: 2px !important;
+}
+
+@media (max-width: 520px) {
+    html[data-app-role="teacher"] body #customStudentModal {
+        padding: 12px !important;
+    }
+
+    html[data-app-role="teacher"] body #customStudentModal .student-modal-box {
+        width: 100% !important;
+        max-width: 100% !important;
+        max-height: calc(100dvh - 24px) !important;
+        border-radius: 14px !important;
+    }
+
+    html[data-app-role="teacher"] body #customStudentModal .student-modal-header {
+        padding: 16px 16px 12px !important;
+    }
+
+    html[data-app-role="teacher"] body #customStudentModal .student-modal-list {
+        padding: 0 16px !important;
+        max-height: 52vh !important;
+    }
+
+    html[data-app-role="teacher"] body #customStudentModal .student-modal-footer {
+        padding: 16px !important;
+        gap: 10px !important;
+    }
+}
+
+
+
+/* =========================================================
+   HOTFIX 2026-09-23 · TEACHER MODAL VIEWPORT PORTAL
+   - Các modal chính của giáo viên đã được đưa ra khỏi .content và đặt
+     trực tiếp dưới <body> trong teacher.html.
+   - Lý do: .content dùng backdrop-filter, tạo containing block cho
+     position: fixed ở Chromium. Modal con vì thế chỉ phủ vùng nội dung,
+     không phủ sidebar và bị căn giữa lệch sang phải.
+   - Guard này khóa overlay theo đúng viewport mà không thay đổi logic
+     mở/đóng, ID, dữ liệu hay sự kiện của các modal.
+   ========================================================= */
+html[data-app-role="teacher"] body > :is(
+    #materialModal,
+    #editMaterialModal,
+    #scheduleModal,
+    #studentModal,
+    #editStudentModal,
+    #editAssignmentModal,
+    #assignmentStatusModal,
+    #notificationHistoryModal,
+    #surveyHistoryModal,
+    #surveyResultsModal
+) {
+    position: fixed !important;
+    inset: 0 !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    z-index: 9990;
+}
+
+html[data-app-role="teacher"] body > :is(
+    #materialModal,
+    #editMaterialModal,
+    #scheduleModal,
+    #studentModal,
+    #editStudentModal,
+    #editAssignmentModal,
+    #assignmentStatusModal,
+    #notificationHistoryModal,
+    #surveyHistoryModal,
+    #surveyResultsModal
+).active {
+    display: flex;
+}
+
+/* Modal kết quả khảo sát vốn cần nằm trên modal lịch sử khảo sát. */
+html[data-app-role="teacher"] body > #surveyResultsModal {
+    z-index: 100000 !important;
+}

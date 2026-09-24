@@ -4436,3 +4436,19 @@ body.login-page.login-layout-cinematic .login-mobile-brand {
     }
 }
 
+
+
+/* =========================================================
+   IMAGE PROTECTION CORE v2 · DESKTOP + MOBILE
+   - Không dùng pointer-events:none để không phá click/drag pet/UI.
+   - -webkit-touch-callout:none chặn menu Save/Copy khi nhấn giữ
+     trên Safari iPhone/iPad; contextmenu JS xử lý Chrome/Android/desktop.
+   ========================================================= */
+html img,
+body img,
+img[data-site-image-protected="true"] {
+    -webkit-user-drag: none !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+    -webkit-touch-callout: none !important;
+}
