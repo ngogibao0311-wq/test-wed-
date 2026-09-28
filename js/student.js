@@ -111,6 +111,9 @@ console.info('[Conversion Guard]', window.__CONVERSION_GUARD_BUILD);
 window.__GRADE_REWARD_STUDENT_BUILD = '20260917.v4.4-redo-scope-resolution';
 console.info('[Grade Reward Student]', window.__GRADE_REWARD_STUDENT_BUILD);
 
+window.__STUDENT_SUBMISSION_BUILD = '20260929.mc-authority-v7';
+console.info('[Student Submission]', window.__STUDENT_SUBMISSION_BUILD);
+
 
 // ======================================================
 // EXAM GUARD V5 · FIREBASE AUTHORITY + MULTI-TAB LEASE
@@ -12452,24 +12455,134 @@ async function saveStudentSubmissionAtomic(assignment, previous, payload) {
 
         if (
             mcWorkspaceRequired &&
-            Array.isArray(
-                assignment.questions
-            ) &&
-            assignment.questions.length &&
-            window.MCWorkspace
-                ?.assertOwner
+            Array.isArray(assignment.questions) &&
+            assignment.questions.length
         ) {
-            patch.mcWorkspaceOwner =
-                await window.MCWorkspace
-                    .assertOwner(
+            /*
+             * MC AUTHORITY V7
+             * Manual submission của trac_nghiem/ket_hop/thi phải trỏ tới
+             * đúng mc_workspace_sessions đã FINALIZED. Auto-submit vẫn giữ
+             * cơ chế cứu dữ liệu cũ và được Rules cho phép không cần owner.
+             */
+            const mcRuntime = window.MCWorkspace;
+            const isAutomaticSubmission =
+                payload.isAutoSubmitted === true;
+
+            if (!isAutomaticSubmission) {
+                if (
+                    !mcRuntime ||
+                    typeof mcRuntime.assertOwner !== 'function' ||
+                    typeof mcRuntime.getFinalizedState !== 'function'
+                ) {
+                    const runtimeError =
+                        new Error('MC_WORKSPACE_RUNTIME_OUTDATED');
+                    runtimeError.code =
+                        'MC_WORKSPACE_RUNTIME_OUTDATED';
+                    throw runtimeError;
+                }
+
+                const authorityBeforeWrite =
+                    await mcRuntime.getFinalizedState(
                         assignment,
-                        {
-                            allowDraft:
-                                payload
-                                    .isAutoSubmitted ===
-                                true
-                        }
+                        { requireServer: true }
                     );
+
+                const authoritySession =
+                    authorityBeforeWrite?.session || null;
+
+                if (!authoritySession) {
+                    const authorityError =
+                        new Error('MC_WORKSPACE_SESSION_MISSING');
+                    authorityError.code =
+                        'MC_WORKSPACE_SESSION_MISSING';
+                    throw authorityError;
+                }
+
+                /*
+                 * Với lần ghi submission mới, Rules chỉ chấp nhận status=finalized.
+                 * status=submitted nghĩa là session khẳng định đã có submission cũ;
+                 * nếu guard phía trên không tìm thấy record đó thì đây là trạng thái
+                 * lệch dữ liệu, không được thử ghi mù để rồi nhận permission_denied.
+                 */
+                if (String(authoritySession.status || '') !== 'finalized') {
+                    const statusError = new Error(
+                        String(authoritySession.status || '') === 'submitted'
+                            ? 'MC_WORKSPACE_SESSION_ALREADY_SUBMITTED'
+                            : 'MC_WORKSPACE_NOT_FINALIZED'
+                    );
+                    statusError.code = statusError.message;
+                    throw statusError;
+                }
+
+                const sessionAnswers = {};
+                Object.entries(authoritySession.answers || {})
+                    .forEach(([index, answer]) => {
+                        const normalized =
+                            String(answer || '').toUpperCase();
+                        if (/^[ABCD]$/.test(normalized)) {
+                            sessionAnswers[String(index)] = normalized;
+                        }
+                    });
+
+                const payloadAnswers = {};
+                Object.entries(patch.mcAnswers || {})
+                    .forEach(([index, answer]) => {
+                        const normalized =
+                            String(answer || '').toUpperCase();
+                        if (/^[ABCD]$/.test(normalized)) {
+                            payloadAnswers[String(index)] = normalized;
+                        }
+                    });
+
+                if (
+                    studentSubmissionCanonical(sessionAnswers) !==
+                    studentSubmissionCanonical(payloadAnswers)
+                ) {
+                    const answersError =
+                        new Error('MC_WORKSPACE_ANSWERS_CHANGED');
+                    answersError.code =
+                        'MC_WORKSPACE_ANSWERS_CHANGED';
+                    throw answersError;
+                }
+
+                patch.mcWorkspaceOwner =
+                    await mcRuntime.assertOwner(
+                        assignment,
+                        { allowDraft: false }
+                    );
+
+                if (
+                    typeof patch.mcWorkspaceOwner !== 'string' ||
+                    patch.mcWorkspaceOwner.length < 8
+                ) {
+                    const ownerError =
+                        new Error('MC_WORKSPACE_OWNER_INVALID');
+                    ownerError.code =
+                        'MC_WORKSPACE_OWNER_INVALID';
+                    throw ownerError;
+                }
+            } else if (
+                mcRuntime &&
+                typeof mcRuntime.assertOwner === 'function'
+            ) {
+                /*
+                 * Auto-submit không phụ thuộc owner theo Rules. Nếu runtime có sẵn,
+                 * giữ metadata owner để audit; lỗi owner không được làm mất auto-submit.
+                 */
+                try {
+                    patch.mcWorkspaceOwner =
+                        await mcRuntime.assertOwner(
+                            assignment,
+                            { allowDraft: true }
+                        );
+                } catch (mcAutoAuthorityError) {
+                    console.warn(
+                        '[Submission Guard V7] Auto-submit không lấy được MC owner; tiếp tục theo Rules auto-submit:',
+                        mcAutoAuthorityError
+                    );
+                    delete patch.mcWorkspaceOwner;
+                }
+            }
         }
 
         /*
@@ -13162,7 +13275,11 @@ async function submitAssignmentCore(assignId, isAuto = false, isCheat = false) {
             __mcWorkspaceRequired:
                 redoAllowsMultipleChoice &&
                 activeQuestions.length > 0 &&
-                !!window.MCWorkspace?.hasMultipleChoice?.(assign)
+                (
+                    assign.assessmentType === 'trac_nghiem' ||
+                    assign.assessmentType === 'ket_hop' ||
+                    assign.assessmentType === 'thi'
+                )
         };
 
         if (isCurrentlyRedoing) {
