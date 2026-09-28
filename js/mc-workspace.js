@@ -1,6 +1,6 @@
 /*
  * MC Workspace V2 · Fullscreen quiz workspace + authoritative owner lease
- * Build: 2026-09-29.fullscreen-finalize-v4-draft-recover
+ * Build: 2026-09-29.fullscreen-finalize-v5-null-seed
  *
  * Semantics:
  * - The green button inside the fullscreen workspace finalizes ONLY the MC section to the website.
@@ -12,7 +12,7 @@
 (function () {
     'use strict';
 
-    const BUILD = '20260929.fullscreen-finalize-v4-draft-recover';
+    const BUILD = '20260929.fullscreen-finalize-v5-null-seed';
     const LEASE_MS = 90 * 1000;
     const HEARTBEAT_MS = 15 * 1000;
     const LOCAL_PREFIX = 'mc_workspace_v2_local_';
@@ -207,6 +207,39 @@
         return Date.now();
     }
 
+    /*
+     * Firebase RTDB transaction callbacks may be invoked first with a local
+     * `null` before the authoritative server value has been merged. Returning
+     * `undefined` at that point aborts the transaction immediately, which was
+     * the root cause of the false MC_WORKSPACE_*_CONFLICT_missing errors.
+     *
+     * Instead, seed a valid ACTIVE record. If the server already has a record,
+     * Firebase reruns the callback with that authoritative value; the normal
+     * owner/lease checks below then decide whether this tab may continue.
+     */
+    function buildActiveSessionSeed(assignment, answers = {}, base = null, at = serverTimestampNow()) {
+        const username = getUsername();
+        const assignId = text(assignment?.id || assignment?._fbKey);
+        const assignmentKey = getAssignmentKey(assignment);
+        const examSet = getExamSet(assignment);
+        return {
+            version: SESSION_VERSION,
+            username,
+            assignmentId: assignId,
+            assignmentKey,
+            status: 'active',
+            ownerId: getOwnerId(),
+            ownerLeaseUntil: at + LEASE_MS,
+            heartbeatAt: at,
+            startedAt: Number(base?.startedAt || at),
+            updatedAt: at,
+            answers: normalizeAnswers(answers),
+            questionCount: examSet.questions.length,
+            examVersionCode: text(base?.examVersionCode || examSet.versionCode || 'Gốc'),
+            examVersionIndex: Number(base?.examVersionIndex ?? examSet.versionIndex ?? 0)
+        };
+    }
+
     function normalizeAnswers(value) {
         const result = {};
         if (!value || typeof value !== 'object') return result;
@@ -380,7 +413,17 @@
         const ref = ensureDb().ref(sessionPath(assignId, live?.username));
         let conflict = '';
         const result = await ref.transaction(current => {
-            if (!current) { conflict = 'missing'; return; }
+            if (!current) {
+                // Never abort on the transaction's provisional local null.
+                // Seed ACTIVE; if a server record exists Firebase reruns here
+                // with that record and the owner check below still protects it.
+                return buildActiveSessionSeed(
+                    assignment,
+                    readLocalState(assignId).answers,
+                    live,
+                    now
+                );
+            }
             if (text(current.status) === 'submitted') return current;
             if (text(current.ownerId) !== ownerId) { conflict = 'owner'; return; }
             return {
@@ -575,7 +618,16 @@
             let conflict = '';
 
             const result = await ref.transaction(current => {
-                if (!current) { conflict = 'missing'; return; }
+                if (!current) {
+                    // A first callback with local null is normal in RTDB.
+                    // Create/seed ACTIVE rather than aborting the transaction.
+                    return buildActiveSessionSeed(
+                        assignment,
+                        normalized,
+                        prepared,
+                        now
+                    );
+                }
 
                 const status = text(current.status);
                 if (status === 'finalized' || status === 'submitted') {
@@ -797,15 +849,29 @@
                 throw new Error('MC_WORKSPACE_FINALIZE_CONFLICT_submitted');
             }
 
-            // One recovery retry is allowed for a session that vanished or whose
-            // lease expired between the preflight read and the transaction.
-            for (let attempt = 0; attempt < 2; attempt++) {
+            /*
+             * Up to three passes:
+             * 1) a provisional local null may seed ACTIVE,
+             * 2) the next pass finalizes it,
+             * 3) one extra lease-recovery pass handles a reconnect edge.
+             *
+             * A live different owner still wins because Firebase reruns the
+             * transaction against the authoritative server record.
+             */
+            for (let attempt = 0; attempt < 3; attempt++) {
                 conflict = '';
                 const now = serverTimestampNow();
                 const ref = ensureDb().ref(sessionPath(assignId, prepared?.username));
 
                 result = await ref.transaction(current => {
-                    if (!current) { conflict = 'missing'; return; }
+                    if (!current) {
+                        return buildActiveSessionSeed(
+                            assignment,
+                            normalizedAnswers,
+                            prepared,
+                            now
+                        );
+                    }
                     if (text(current.ownerId) !== ownerId) { conflict = 'owner'; return; }
                     if (text(current.status) === 'submitted') { conflict = 'submitted'; return; }
                     if (text(current.status) === 'finalized') return current;
@@ -822,15 +888,35 @@
                     };
                 }, undefined, false);
 
-                if (result.committed) break;
-                if (attempt === 0 && (conflict === 'missing' || conflict === 'lease')) {
-                    await acquireOwner(assignment, { allowRedo: isRedoActive(assignId) });
+                if (result.committed) {
+                    const committedSession = result.snapshot.val() || null;
+                    state.sessions[assignId] = committedSession;
+                    if (committedSession?.username) {
+                        state.sessionUsers[assignId] = text(committedSession.username);
+                    }
+                    const committedStatus = text(committedSession?.status);
+                    if (committedStatus === 'finalized') break;
+                    if (committedStatus === 'submitted') {
+                        conflict = 'submitted';
+                        break;
+                    }
+                    // A null seed legitimately commits ACTIVE when the server
+                    // record was truly absent. Run one more transaction to
+                    // transition ACTIVE -> FINALIZED.
+                    if (committedStatus === 'active') {
+                        prepared = committedSession;
+                        continue;
+                    }
+                }
+
+                if (!result?.committed && conflict === 'lease' && attempt < 2) {
+                    prepared = await acquireOwner(assignment, { allowRedo: isRedoActive(assignId) });
                     continue;
                 }
                 break;
             }
 
-            if (!result?.committed) {
+            if (!result?.committed || text(result.snapshot?.val()?.status) !== 'finalized') {
                 lockOpenWorkspace(assignId, 'Không thể xác nhận quyền nộp trắc nghiệm vì phiên làm bài đã thay đổi ở nơi khác.');
                 throw new Error(`MC_WORKSPACE_FINALIZE_CONFLICT_${conflict || 'UNKNOWN'}`);
             }
