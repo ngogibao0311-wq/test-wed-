@@ -12202,70 +12202,443 @@ function studentSubmissionCanonical(value) {
 }
 async function saveStudentSubmissionAtomic(assignment, previous, payload) {
     const authUser = firebase.auth().currentUser;
-    if (!authUser || payload.studentUsername !== currentUser.username) throw new Error('SUBMISSION_AUTH_REQUIRED');
-    const assignmentKey = String(assignment._fbKey || assignment.id || '');
-    const stableKey = `student_${authUser.uid.length}_${authUser.uid}_${assignmentKey}`;
-    if (!assignmentKey || /[.#$\[\]/]/.test(stableKey) || new TextEncoder().encode(stableKey).length > 768) {
+
+    if (
+        !authUser ||
+        payload.studentUsername !== currentUser.username
+    ) {
+        throw new Error('SUBMISSION_AUTH_REQUIRED');
+    }
+
+    const assignmentKey =
+        String(
+            assignment._fbKey ||
+            assignment.id ||
+            ''
+        );
+
+    const stableKey =
+        `student_${authUser.uid.length}_${authUser.uid}_${assignmentKey}`;
+
+    if (
+        !assignmentKey ||
+        /[.#$\[\]/]/.test(stableKey) ||
+        new TextEncoder().encode(stableKey).length > 768
+    ) {
         throw new Error('INVALID_SUBMISSION_KEY');
     }
-    const conflict = () => {
-        window.showToast?.('Bài nộp đã thay đổi ở phiên khác. Hãy tải lại danh sách để kiểm tra trước khi nộp tiếp.', 'error');
-        return new Error('SUBMISSION_CHANGED_ELSEWHERE');
+
+    const conflict = (
+        message =
+            'Bài nộp đã thay đổi ở phiên khác. Hãy tải lại danh sách để kiểm tra trước khi nộp tiếp.'
+    ) => {
+        window.showToast?.(
+            message,
+            'error'
+        );
+
+        return new Error(
+            'SUBMISSION_CHANGED_ELSEWHERE'
+        );
     };
-    // Bypass the collection cache, including legacy submissions created with push IDs.
-    const live = await db.ref('submissions').orderByChild('studentUsername')
-        .equalTo(currentUser.username).once('value');
-    const liveRows = live.val() || {};
-    const matching = Object.entries(liveRows).filter(([, value]) =>
-        String(value.assignmentId) === String(payload.assignmentId));
-    if (!previous && matching.length) throw conflict();
-    const key = previous?._fbKey || stableKey;
-    const expected = previous ? { ...previous } : null;
-    if (expected) delete expected._fbKey;
-    const expectedVersion = studentSubmissionCanonical(expected);
-    const ref = db.ref(`submissions/${key}`);
-    let listener;
-    try {
-        const snapshot = await new Promise((resolve, reject) => {
-            listener = resolve;
-            ref.on('value', listener, reject);
-        });
-        if (studentSubmissionCanonical(snapshot.val()) !== expectedVersion) throw conflict();
-        const patch = { ...payload };
-        const mcWorkspaceRequired = patch.__mcWorkspaceRequired === true;
-        delete patch.__mcWorkspaceRequired;
+
+    /*
+     * SUBMISSION GUARD V6 · IDEMPOTENT RETRY
+     * ------------------------------------------------------------
+     * Rules hiện tại cố ý khóa các field cốt lõi sau lần ghi đầu
+     * (answer/mcAnswers/questionSnapshot/questionResults/grade/
+     * studentName/submitTime...) trừ khi Giáo viên bật isRedoing.
+     *
+     * Vì vậy một lần nộp trước đã commit Firebase nhưng bước cleanup
+     * sau đó lỗi mạng/quyền thì lần bấm lại KHÔNG được ghi đè một
+     * submitTime/submittedAt mới. Làm vậy sẽ bị Rules từ chối bằng
+     * permission_denied dù bài thực tế đã tồn tại.
+     *
+     * Luồng mới:
+     * 1) đọc trực tiếp Firebase, không tin cache;
+     * 2) nếu đã có submission hoàn chỉnh và KHÔNG ở redo => coi retry
+     *    là idempotent, trả lại key cũ, không ghi lần hai;
+     * 3) chỉ transaction cập nhật bản ghi cũ khi caller + Firebase đều
+     *    xác nhận isRedoing === true;
+     * 4) nếu trạng thái caller/Firebase lệch nhau => dừng bằng conflict,
+     *    không ghi mù.
+     */
+    const liveSnapshot =
+        await db
+            .ref('submissions')
+            .orderByChild('studentUsername')
+            .equalTo(currentUser.username)
+            .once('value');
+
+    const liveRows =
+        liveSnapshot.val() || {};
+
+    const matching =
+        Object.entries(liveRows)
+            .filter(
+                ([, value]) =>
+                    String(
+                        value?.assignmentId ||
+                        ''
+                    ) ===
+                    String(
+                        payload.assignmentId ||
+                        ''
+                    )
+            );
+
+    const previousKey =
+        String(
+            previous?._fbKey ||
+            ''
+        );
+
+    let key =
+        previousKey ||
+        stableKey;
+
+    let livePrevious = null;
+
+    if (previousKey) {
+        const exactLive =
+            liveRows[previousKey];
+
+        if (!exactLive) {
+            throw conflict();
+        }
+
+        livePrevious = {
+            ...exactLive,
+            _fbKey: previousKey
+        };
+    } else if (matching.length === 1) {
+        const [
+            existingKey,
+            existingValue
+        ] = matching[0];
+
+        key =
+            String(existingKey);
+
+        livePrevious = {
+            ...existingValue,
+            _fbKey: key
+        };
+    } else if (matching.length > 1) {
+        /*
+         * Không tự chọn một trong nhiều legacy record cùng assignment.
+         * Đây là trạng thái dữ liệu cần người dùng reload/đối chiếu,
+         * nếu tự chọn có thể ghi nhầm bản submission.
+         */
+        throw conflict(
+            'Phát hiện nhiều bản ghi bài nộp cho cùng bài tập. Hệ thống đã dừng để tránh ghi nhầm dữ liệu.'
+        );
+    }
+
+    const callerIsRedoing =
+        previous?.isRedoing === true;
+
+    if (livePrevious) {
+        const liveIsRedoing =
+            livePrevious.isRedoing === true;
+
+        /*
+         * Caller tưởng là bài bình thường nhưng Firebase vừa được GV
+         * chuyển sang redo, hoặc ngược lại => cache đã lỗi thời.
+         */
         if (
-            mcWorkspaceRequired &&
-            Array.isArray(assignment.questions) &&
-            assignment.questions.length &&
-            window.MCWorkspace?.assertOwner
+            callerIsRedoing !==
+            liveIsRedoing
         ) {
-            patch.mcWorkspaceOwner = await window.MCWorkspace.assertOwner(
-                assignment,
-                { allowDraft: payload.isAutoSubmitted === true }
+            throw conflict(
+                'Trạng thái bài nộp vừa thay đổi. Hãy tải lại danh sách bài tập trước khi tiếp tục.'
             );
         }
-        // These fields are teacher-owned. Preserve the live record, including absent fields.
-        for (const field of ['teacherComment', 'forcePass', 'gradedAt',
-            'isRegrading', 'redoCount', 'redoBaseGrade', 'redoBaseGradedAt',
-            'redoViolationHistory', 'redoViolationHistoryActive', 'redoViolationResolvedAt',
-            'violationAudit', 'violationPardonedAt', 'rewardForfeited',
-            'gradeRewardRedoInvalidatedAt']) delete patch[field];
-        for (const field of Object.keys(patch)) {
-            if (field.startsWith('gradeRewardV2')) delete patch[field];
+
+        /*
+         * Bản ghi bình thường đã tồn tại:
+         * Rules không cho Học sinh đổi submitTime/grade/answer...
+         * Nên retry chỉ xác nhận record cũ thay vì transaction lần hai.
+         */
+        if (!liveIsRedoing) {
+            const looksCommitted =
+                Number(
+                    livePrevious.submittedAt ||
+                    0
+                ) > 0 ||
+                String(
+                    livePrevious.submitTime ||
+                    ''
+                ).trim() !== '';
+
+            if (!looksCommitted) {
+                throw conflict(
+                    'Bản ghi bài nộp hiện có chưa hoàn chỉnh. Hệ thống dừng để tránh ghi đè dữ liệu bất thường.'
+                );
+            }
+
+            console.info(
+                '[Submission Guard V6] Phát hiện lần nộp lặp; dùng lại submission đã commit:',
+                key
+            );
+
+            if (
+                typeof DBReadSingleFlight !==
+                'undefined'
+            ) {
+                DBReadSingleFlight
+                    .invalidate('submissions');
+            }
+
+            return key;
         }
-        if (!previous) patch.id = key;
-        const result = await ref.transaction(value => {
-            if (studentSubmissionCanonical(value) !== expectedVersion) return;
-            const next = { ...(value || {}), ...patch };
-            Object.keys(next).forEach(k => { if (next[k] === null) delete next[k]; });
-            return next;
-        }, undefined, false);
-        if (!result.committed) throw conflict();
-        if (typeof DBReadSingleFlight !== 'undefined') DBReadSingleFlight.invalidate('submissions');
+    }
+
+    const expected =
+        livePrevious
+            ? {
+                ...livePrevious
+            }
+            : null;
+
+    if (expected) {
+        delete expected._fbKey;
+    }
+
+    const expectedVersion =
+        studentSubmissionCanonical(
+            expected
+        );
+
+    const ref =
+        db.ref(
+            `submissions/${key}`
+        );
+
+    let listener;
+
+    try {
+        const snapshot =
+            await new Promise(
+                (resolve, reject) => {
+                    listener = resolve;
+
+                    ref.on(
+                        'value',
+                        listener,
+                        reject
+                    );
+                }
+            );
+
+        if (
+            studentSubmissionCanonical(
+                snapshot.val()
+            ) !==
+            expectedVersion
+        ) {
+            throw conflict();
+        }
+
+        const patch = {
+            ...payload
+        };
+
+        const mcWorkspaceRequired =
+            patch.__mcWorkspaceRequired ===
+            true;
+
+        delete patch.__mcWorkspaceRequired;
+
+        if (
+            mcWorkspaceRequired &&
+            Array.isArray(
+                assignment.questions
+            ) &&
+            assignment.questions.length &&
+            window.MCWorkspace
+                ?.assertOwner
+        ) {
+            patch.mcWorkspaceOwner =
+                await window.MCWorkspace
+                    .assertOwner(
+                        assignment,
+                        {
+                            allowDraft:
+                                payload
+                                    .isAutoSubmitted ===
+                                true
+                        }
+                    );
+        }
+
+        /*
+         * Teacher-owned fields luôn phải giữ nguyên.
+         * teacherFile trước đây bị bỏ sót khỏi danh sách này; payload
+         * teacherFile:null có thể vô tình xóa file phản hồi của GV khi
+         * Học sinh retry/redo.
+         */
+        for (
+            const field of [
+                'teacherComment',
+                'teacherFile',
+                'forcePass',
+                'gradedAt',
+                'isRegrading',
+                'redoCount',
+                'redoBaseGrade',
+                'redoBaseGradedAt',
+                'redoViolationHistory',
+                'redoViolationHistoryActive',
+                'redoViolationResolvedAt',
+                'violationAudit',
+                'violationPardonedAt',
+                'rewardForfeited',
+                'gradeRewardRedoInvalidatedAt'
+            ]
+        ) {
+            delete patch[field];
+        }
+
+        for (
+            const field of
+            Object.keys(patch)
+        ) {
+            if (
+                field.startsWith(
+                    'gradeRewardV2'
+                )
+            ) {
+                delete patch[field];
+            }
+        }
+
+        if (!livePrevious) {
+            patch.id = key;
+        }
+
+        let result;
+
+        try {
+            result =
+                await ref.transaction(
+                    value => {
+                        if (
+                            studentSubmissionCanonical(
+                                value
+                            ) !==
+                            expectedVersion
+                        ) {
+                            return;
+                        }
+
+                        const next = {
+                            ...(value || {}),
+                            ...patch
+                        };
+
+                        Object.keys(next)
+                            .forEach(
+                                field => {
+                                    if (
+                                        next[field] ===
+                                        null
+                                    ) {
+                                        delete next[field];
+                                    }
+                                }
+                            );
+
+                        return next;
+                    },
+                    undefined,
+                    false
+                );
+        } catch (error) {
+            const code =
+                String(
+                    error?.code ||
+                    error?.message ||
+                    ''
+                )
+                    .toLowerCase();
+
+            if (
+                code.includes(
+                    'permission_denied'
+                ) ||
+                code.includes(
+                    'permission denied'
+                )
+            ) {
+                console.error(
+                    '[Submission Guard V6] Firebase Rules từ chối transaction:',
+                    {
+                        path:
+                            `submissions/${key}`,
+                        assignmentId:
+                            payload.assignmentId,
+                        assignmentKey,
+                        assessmentType:
+                            assignment
+                                ?.assessmentType,
+                        isNew:
+                            !livePrevious,
+                        isRedoing:
+                            livePrevious
+                                ?.isRedoing ===
+                            true,
+                        hasMcWorkspaceOwner:
+                            Boolean(
+                                patch
+                                    .mcWorkspaceOwner
+                            ),
+                        fields:
+                            Object.keys(
+                                patch
+                            )
+                    }
+                );
+
+                const wrapped =
+                    new Error(
+                        'SUBMISSION_PERMISSION_DENIED'
+                    );
+
+                wrapped.cause =
+                    error;
+
+                wrapped.code =
+                    'SUBMISSION_PERMISSION_DENIED';
+
+                throw wrapped;
+            }
+
+            throw error;
+        }
+
+        if (!result.committed) {
+            throw conflict();
+        }
+
+        if (
+            typeof DBReadSingleFlight !==
+            'undefined'
+        ) {
+            DBReadSingleFlight
+                .invalidate(
+                    'submissions'
+                );
+        }
+
         return key;
     } finally {
-        if (listener) ref.off('value', listener);
+        if (listener) {
+            ref.off(
+                'value',
+                listener
+            );
+        }
     }
 }
 
