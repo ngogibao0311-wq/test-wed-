@@ -1,6 +1,6 @@
 /*
  * MC Workspace V2 · Fullscreen quiz workspace + authoritative owner lease
- * Build: 2026-09-29.fullscreen-finalize-v3-recover
+ * Build: 2026-09-29.fullscreen-finalize-v4-draft-recover
  *
  * Semantics:
  * - The green button inside the fullscreen workspace finalizes ONLY the MC section to the website.
@@ -12,7 +12,7 @@
 (function () {
     'use strict';
 
-    const BUILD = '20260929.fullscreen-finalize-v3-recover';
+    const BUILD = '20260929.fullscreen-finalize-v4-draft-recover';
     const LEASE_MS = 90 * 1000;
     const HEARTBEAT_MS = 15 * 1000;
     const LOCAL_PREFIX = 'mc_workspace_v2_local_';
@@ -30,7 +30,8 @@
         reviewCounter: 0,
         zoom: 1,
         sessionUsers: Object.create(null),
-        finalizing: Object.create(null)
+        finalizing: Object.create(null),
+        remoteSaveChains: Object.create(null)
     };
 
     function text(value) {
@@ -339,16 +340,49 @@
         if (!assignment || !isMC(assignment)) return false;
         const assignId = text(assignment.id || assignment._fbKey);
         const ownerId = getOwnerId();
-        const now = serverTimestampNow();
-        const ref = ensureDb().ref(sessionPath(assignId));
-        let lost = false;
 
-        const result = await ref.transaction(current => {
-            if (!current || text(current.ownerId) !== ownerId) {
-                lost = true;
-                return;
+        // Do not interpret a transaction's first locally-cached null as proof
+        // that ownership was lost. Read authoritative state first.
+        let live = null;
+        try { live = await readSession(assignId); } catch (error) {
+            if (navigator.onLine === false) throw error;
+        }
+
+        if (text(live?.status) === 'submitted') {
+            stopHeartbeat(assignId);
+            return true;
+        }
+
+        const otherOwnerLive = Boolean(
+            live &&
+            text(live.ownerId) &&
+            text(live.ownerId) !== ownerId &&
+            Number(live.ownerLeaseUntil || 0) > serverTimestampNow()
+        );
+        if (otherOwnerLive) {
+            lockOpenWorkspace(assignId, 'Phiên làm bài đã được tiếp quản ở nơi khác. Tab này đã bị khóa để tránh hai nơi cùng làm một bài.');
+            return false;
+        }
+
+        if (!live || text(live.ownerId) !== ownerId || Number(live.ownerLeaseUntil || 0) <= serverTimestampNow()) {
+            try {
+                live = await acquireOwner(assignment, { allowRedo: isRedoActive(assignId) });
+            } catch (error) {
+                if (error?.message === 'MC_WORKSPACE_OWNER_CONFLICT') {
+                    lockOpenWorkspace(assignId, 'Phiên làm bài đã được tiếp quản ở nơi khác. Tab này đã bị khóa để tránh hai nơi cùng làm một bài.');
+                    return false;
+                }
+                throw error;
             }
-            if (text(current.status) === 'submitted') return;
+        }
+
+        const now = serverTimestampNow();
+        const ref = ensureDb().ref(sessionPath(assignId, live?.username));
+        let conflict = '';
+        const result = await ref.transaction(current => {
+            if (!current) { conflict = 'missing'; return; }
+            if (text(current.status) === 'submitted') return current;
+            if (text(current.ownerId) !== ownerId) { conflict = 'owner'; return; }
             return {
                 ...current,
                 ownerLeaseUntil: now + LEASE_MS,
@@ -357,12 +391,24 @@
             };
         }, undefined, false);
 
-        if (!result.committed && lost) {
-            lockOpenWorkspace(assignId, 'Phiên làm bài đã được tiếp quản ở nơi khác. Tab này đã bị khóa để tránh hai nơi cùng làm một bài.');
-            return false;
+        if (result.committed) {
+            state.sessions[assignId] = result.snapshot.val();
+            return true;
         }
-        if (result.committed) state.sessions[assignId] = result.snapshot.val();
-        return result.committed;
+
+        // Confirm remotely before locking. Missing/expired state can be repaired
+        // by the next heartbeat/autosave and is not itself evidence of a 2nd tab.
+        try { live = await readSession(assignId); } catch (_) { live = null; }
+        const confirmedOtherOwner = Boolean(
+            live &&
+            text(live.ownerId) &&
+            text(live.ownerId) !== ownerId &&
+            Number(live.ownerLeaseUntil || 0) > serverTimestampNow()
+        );
+        if (confirmedOtherOwner || conflict === 'owner') {
+            lockOpenWorkspace(assignId, 'Phiên làm bài đã được tiếp quản ở nơi khác. Tab này đã bị khóa để tránh hai nơi cùng làm một bài.');
+        }
+        return false;
     }
 
     function startHeartbeat(assignment) {
@@ -443,63 +489,162 @@
         }
     }
 
+    function enqueueRemoteSave(assignment, answers) {
+        const assignId = text(assignment.id || assignment._fbKey);
+        const previousSave = state.remoteSaveChains[assignId] || Promise.resolve();
+        const task = previousSave
+            .catch(() => {})
+            .then(() => saveRemoteDraft(assignment, answers));
+
+        state.remoteSaveChains[assignId] = task;
+        task.finally(() => {
+            if (state.remoteSaveChains[assignId] === task) {
+                delete state.remoteSaveChains[assignId];
+            }
+        }).catch(() => {});
+        return task;
+    }
+
     function scheduleRemoteSave(assignment, answers) {
         const assignId = text(assignment.id || assignment._fbKey);
+        if (state.finalizing[assignId]) return;
         if (state.pendingSaves[assignId]) clearTimeout(state.pendingSaves[assignId]);
         setSaveStatus(assignId, 'saving', 'Đang lưu…');
         state.pendingSaves[assignId] = setTimeout(() => {
             delete state.pendingSaves[assignId];
-            saveRemoteDraft(assignment, answers).catch(error => {
+            enqueueRemoteSave(assignment, answers).catch(error => {
+                const code = text(error?.code || error?.message || '');
+                if (code === 'MC_WORKSPACE_DRAFT_TERMINAL') return;
                 console.warn('[MC Workspace] remote draft save failed:', error);
-                setSaveStatus(assignId, 'offline', 'Chưa đồng bộ · bản nháp vẫn an toàn trên máy');
+                if (!code.includes('OWNER_CONFLICT')) {
+                    setSaveStatus(assignId, 'offline', 'Chưa đồng bộ · bản nháp vẫn an toàn trên máy');
+                }
             });
         }, 450);
+    }
+
+    async function prepareDraftSession(assignment) {
+        const assignId = text(assignment.id || assignment._fbKey);
+        const ownerId = getOwnerId();
+        let session = null;
+
+        // Firebase transaction callbacks can see a locally cached null before the
+        // authoritative value is available. Pre-read first so a transient local
+        // null is never misclassified as a second-tab conflict.
+        try {
+            session = await readSession(assignId);
+        } catch (error) {
+            if (navigator.onLine === false) throw error;
+            console.warn('[MC Workspace] Không đọc được session trước autosave; thử xác lập lại lease:', error);
+        }
+
+        const status = text(session?.status);
+        if (status === 'finalized' || status === 'submitted') {
+            return session;
+        }
+
+        const sameOwner = session && text(session.ownerId) === ownerId;
+        const leaseLive = session && Number(session.ownerLeaseUntil || 0) > serverTimestampNow();
+        if (sameOwner && status === 'active' && leaseLive) return session;
+
+        // Missing/expired own session is repaired through the normal owner
+        // transaction. acquireOwner still refuses a live lease held elsewhere.
+        return acquireOwner(assignment, { allowRedo: isRedoActive(assignId) });
     }
 
     async function saveRemoteDraft(assignment, answers) {
         const assignId = text(assignment.id || assignment._fbKey);
         const ownerId = getOwnerId();
-        const now = serverTimestampNow();
         const normalized = normalizeAnswers(answers);
-        const ref = ensureDb().ref(sessionPath(assignId));
-        let conflict = false;
 
-        const result = await ref.transaction(current => {
-            if (!current || text(current.ownerId) !== ownerId) {
-                conflict = true;
-                return;
-            }
-            const status = text(current.status);
-            // A delayed autosave may arrive just after Finalize. Treat the
-            // finalized/submitted server snapshot as authoritative instead of
-            // incorrectly locking the workspace as a multi-tab conflict.
-            if (status === 'finalized' || status === 'submitted') {
-                return current;
-            }
-            if (status !== 'active') {
-                conflict = true;
-                return;
-            }
-            return {
-                ...current,
-                answers: normalized,
-                ownerLeaseUntil: now + LEASE_MS,
-                heartbeatAt: now,
-                updatedAt: now
-            };
-        }, undefined, false);
+        if (state.finalizing[assignId]) {
+            return state.sessions[assignId] || null;
+        }
 
-        if (!result.committed) {
-            if (conflict) lockOpenWorkspace(assignId, 'Quyền làm bài không còn thuộc tab này. Bản nháp cục bộ được giữ lại để đối chiếu.');
-            throw new Error('MC_WORKSPACE_DRAFT_CONFLICT');
+        let prepared = await prepareDraftSession(assignment);
+        if (text(prepared?.status) === 'finalized' || text(prepared?.status) === 'submitted') {
+            state.sessions[assignId] = prepared;
+            setSaveStatus(assignId, 'saved', 'Phần Trắc nghiệm đã được chốt trên hệ thống');
+            return prepared;
         }
-        const saved = result.snapshot.val();
-        state.sessions[assignId] = saved;
-        if (saved?.username) state.sessionUsers[assignId] = text(saved.username);
-        if (text(saved?.status) === 'active') {
-            setSaveStatus(assignId, 'saved', 'Đã lưu');
+
+        let lastConflict = '';
+        for (let attempt = 0; attempt < 2; attempt++) {
+            const now = serverTimestampNow();
+            const ref = ensureDb().ref(sessionPath(assignId, prepared?.username));
+            let conflict = '';
+
+            const result = await ref.transaction(current => {
+                if (!current) { conflict = 'missing'; return; }
+
+                const status = text(current.status);
+                if (status === 'finalized' || status === 'submitted') {
+                    return current;
+                }
+                if (text(current.ownerId) !== ownerId) { conflict = 'owner'; return; }
+                if (status !== 'active') { conflict = 'status'; return; }
+                if (Number(current.ownerLeaseUntil || 0) <= now) { conflict = 'lease'; return; }
+
+                return {
+                    ...current,
+                    answers: normalized,
+                    ownerLeaseUntil: now + LEASE_MS,
+                    heartbeatAt: now,
+                    updatedAt: now
+                };
+            }, undefined, false);
+
+            if (result.committed) {
+                const saved = result.snapshot.val();
+                state.sessions[assignId] = saved;
+                if (saved?.username) state.sessionUsers[assignId] = text(saved.username);
+                const status = text(saved?.status);
+                if (status === 'active') setSaveStatus(assignId, 'saved', 'Đã lưu');
+                else setSaveStatus(assignId, 'saved', 'Phần Trắc nghiệm đã được chốt trên hệ thống');
+                return saved;
+            }
+
+            lastConflict = conflict || 'unknown';
+
+            // Do not lock immediately on missing/expired local state. Re-read and
+            // repair once. A genuine live owner on another tab/device is still
+            // rejected by acquireOwner/readSession below.
+            if (attempt === 0 && (lastConflict === 'missing' || lastConflict === 'lease')) {
+                prepared = await prepareDraftSession(assignment);
+                if (text(prepared?.status) === 'finalized' || text(prepared?.status) === 'submitted') {
+                    state.sessions[assignId] = prepared;
+                    setSaveStatus(assignId, 'saved', 'Phần Trắc nghiệm đã được chốt trên hệ thống');
+                    return prepared;
+                }
+                continue;
+            }
+
+            let live = null;
+            try { live = await readSession(assignId); } catch (_) {}
+            const liveStatus = text(live?.status);
+            if (liveStatus === 'finalized' || liveStatus === 'submitted') {
+                state.sessions[assignId] = live;
+                setSaveStatus(assignId, 'saved', 'Phần Trắc nghiệm đã được chốt trên hệ thống');
+                return live;
+            }
+
+            const otherOwnerLive = Boolean(
+                live &&
+                text(live.ownerId) &&
+                text(live.ownerId) !== ownerId &&
+                Number(live.ownerLeaseUntil || 0) > serverTimestampNow()
+            );
+            if (otherOwnerLive || lastConflict === 'owner') {
+                lockOpenWorkspace(assignId, 'Phiên làm bài đang được giữ bởi tab/thiết bị khác. Bản nháp cục bộ vẫn được giữ để đối chiếu.');
+                const error = new Error('MC_WORKSPACE_DRAFT_OWNER_CONFLICT');
+                error.code = 'MC_WORKSPACE_DRAFT_OWNER_CONFLICT';
+                throw error;
+            }
         }
-        return saved;
+
+        const error = new Error(`MC_WORKSPACE_DRAFT_RETRY_${lastConflict || 'unknown'}`);
+        error.code = 'MC_WORKSPACE_DRAFT_RETRY';
+        throw error;
     }
 
     function getAnswersFromWorkspace(assignId) {
@@ -1230,8 +1375,13 @@
                 return saveRemoteDraft(assignment, answers);
             })
             .catch(error => {
-                console.warn('[MC Workspace] Không thể giành lại lease sau reconnect:', error);
-                lockOpenWorkspace(state.currentAssignId, 'Sau khi kết nối lại, hệ thống phát hiện một phiên khác đang giữ quyền làm bài.');
+                console.warn('[MC Workspace] Không thể đồng bộ lại lease sau reconnect:', error);
+                const code = text(error?.code || error?.message || '');
+                if (code.includes('OWNER_CONFLICT')) {
+                    lockOpenWorkspace(state.currentAssignId, 'Sau khi kết nối lại, hệ thống xác minh một phiên khác đang giữ quyền làm bài.');
+                } else {
+                    setSaveStatus(state.currentAssignId, 'offline', 'Kết nối đã trở lại nhưng chưa đồng bộ được · bản nháp vẫn an toàn trên máy');
+                }
             });
     });
     window.addEventListener('offline', () => {
