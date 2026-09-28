@@ -122,6 +122,7 @@ const DBReadSingleFlight = (() => {
             () => {
                 entry.pending = false;
                 stats.failed++;
+                if (entries.get(normalizedPath) === entry) entries.delete(normalizedPath);
                 scheduleCleanup();
             }
         );
@@ -138,7 +139,7 @@ const DBReadSingleFlight = (() => {
                 key === normalizedPath ||
                 key.startsWith(`${normalizedPath}/`) ||
                 normalizedPath.startsWith(`${key}/`) ||
-                normalizedPath === '';
+                normalizedPath === '' || key === '';
 
             if (related) {
                 entries.delete(key);
@@ -188,6 +189,11 @@ const DBReadSingleFlight = (() => {
         getStats
     });
 })();
+
+// Do not reuse a previous account's one-shot snapshots.
+if (typeof firebase.auth === 'function') {
+    firebase.auth().onAuthStateChanged(() => DBReadSingleFlight.invalidate());
+}
 
 // API chỉ đọc cho Chẩn đoán/Developer. Không cho module ngoài sửa Map nội bộ.
 window.FirebaseReadSingleFlight = Object.freeze({
@@ -278,46 +284,25 @@ async function removeDB(path, fbKey) {
 
 // Hàm lấy dữ liệu phân trang (Load More)
 async function getPaginatedDB(path, limit, lastKey = null) {
+    if (!Number.isInteger(limit) || limit < 1) throw new Error('INVALID_PAGE_SIZE');
+    const cursor = lastKey == null ? null : String(lastKey);
     try {
         let query = db.ref(path).orderByKey();
-
-        if (lastKey) {
-            // Lấy dư 1 phần tử (limit + 1) để trừ hao phần tử mốc bị trùng lặp
-            query = query.endAt(lastKey).limitToLast(limit + 1);
-        } else {
-            // Tải lần đầu tiên
-            query = query.limitToLast(limit);
-        }
-
-        const snapshot = await query.once('value');
-        const data = snapshot.val();
-
-        if (!data) return { items: [], nextKey: null };
-
-        // Chuyển Object thành Array
-        let items = Object.keys(data).map(key => {
-            const item = data[key];
-            if (typeof item === 'object' && item !== null) {
-                return { _fbKey: key, ...item };
-            }
-            return { _fbKey: key, value: item };
+        if (cursor !== null) query = query.endAt(cursor);
+        const snapshot = await query.limitToLast(limit + 1).once('value');
+        const rows = [];
+        // forEach preserves Firebase key order, including integer-like keys.
+        snapshot.forEach(child => {
+            if (child.key === cursor) return;
+            const item = child.val();
+            rows.push(item && typeof item === 'object'
+                ? { ...item, _fbKey: child.key }
+                : { value: item, _fbKey: child.key });
         });
-
-        // Firebase trả về theo thứ tự key tăng dần (cũ -> mới).
-        // Nếu không phải lần tải đầu, ta loại bỏ phần tử cuối cùng (vì nó chính là lastKey của đợt trước)
-        if (lastKey && items.length > 0) {
-            items.pop(); 
-        }
-
-        let nextKey = null;
-        if (items.length >= limit) {
-            // Key nhỏ nhất (phần tử đầu tiên) sẽ làm mốc cho lần tải tiếp theo
-            nextKey = items[0]._fbKey; 
-        }
-
-        return { items, nextKey };
+        const items = rows.slice(-limit);
+        return { items, nextKey: items.length === limit ? items[0]._fbKey : null };
     } catch (error) {
-        console.error(`❌ [Lỗi getPaginatedDB] tại '${path}':`, error);
-        return { items: [], nextKey: null };
+        console.error('[getPaginatedDB]', path, error);
+        throw error;
     }
 }

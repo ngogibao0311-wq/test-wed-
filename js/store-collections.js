@@ -270,9 +270,8 @@
              * vĩnh viễn đều được tính, dù mua bằng Coin hay nhận từ sự kiện,
              * hộp thư, vòng quay hoặc Xu Sinh Nhật.
              */
-            const isTrial =
-                rawEntry.isTrial === true ||
-                String(rawEntry.source || '') === 'store_trial';
+            const isTrial = rawEntry.isTrial === true ||
+                Number(rawEntry.trialExpiry || 0) > 0;
 
             if (!isTrial) nextIds.add(itemId);
         });
@@ -358,10 +357,7 @@
         );
         const claimRef = database.ref(claimPath);
         const claimToken = createClaimToken();
-        const now =
-            typeof window.getStudentStoreApproxServerNow === 'function'
-                ? Number(window.getStudentStoreApproxServerNow())
-                : Date.now();
+        const now = Date.now();
         const messageKey = buildRewardMessageKey(
             collection.id,
             milestone.count
@@ -381,10 +377,8 @@
                 if (age >= 0 && age < 15000) return;
 
                 /*
-                 * Nếu lease cũ quá 15 giây, tab mới được takeover bằng token mới.
-                 * reservedAt phải được làm mới để tạo một lease 15 giây MỚI;
-                 * nếu giữ timestamp cũ thì tab thứ ba có thể takeover ngay lập tức.
-                 * Firebase Rules kiểm lại tuổi lease bằng server `now`.
+                 * Nếu lần trước dừng giữa chừng, cho phép tiếp quản. Giữ nguyên
+                 * các trường bất biến để phù hợp Firebase Rules hiện tại.
                  */
                 return {
                     ...current,
@@ -394,7 +388,7 @@
                     milestone: current.milestone,
                     milestoneKey: current.milestoneKey,
                     rewardCoins: current.rewardCoins,
-                    reservedAt: now,
+                    reservedAt: current.reservedAt,
                     messageKey: current.messageKey,
                     rewardVersion: current.rewardVersion,
                     claimToken
@@ -663,15 +657,10 @@
         'pet_luxury_mua_ha',
         'pet_quoc_khanh_1',
         'pet_mythic_nyx_1',
-        'pet_mythic_aether_1',
-        'pet_dem_day_sao_1',
-        'pet_lotm_klein_event_1',
         'pet_cam_co_cam_mong_1',
         'pet_tamon_b_side_1',
         'pet_tamon_b_side_2',
-        'pet_trung_thu_nguyet_cung_tien_tu',
-        'pet_trung_thu_chu_cuoi_2',
-        'pet_linkclick_cheng_xiaoshi_1'
+        'pet_trung_thu_nguyet_cung_tien_tu'
     ]);
 
     function isLuxuryCollectionItem(itemOrId) {
@@ -1003,7 +992,6 @@
                 delete baseItem.startDate;
                 delete baseItem.endDate;
                 delete baseItem.annualSale;
-                delete baseItem.annualSaleWindows;
 
                 const baseMarkup = manager.renderStoreItem(
                     baseItem,

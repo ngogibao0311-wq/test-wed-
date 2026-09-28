@@ -1547,17 +1547,12 @@ let lockoutInterval = null;
      * với Firebase.
      */
     try {
-        const networkDatabase =
-            typeof db !== 'undefined' && db
-                ? db
-                : window.db;
-
         if (
-            networkDatabase &&
-            typeof networkDatabase.ref ===
+            window.db &&
+            typeof window.db.ref ===
             'function'
         ) {
-            networkDatabase
+            window.db
                 .ref('.info/connected')
                 .on(
                     'value',
@@ -1652,8 +1647,7 @@ let lockoutInterval = null;
     }
 
     /*
-     * Đăng ký trang offline theo single-flight.
-     * Student/Teacher loader dùng chung Promise này để không gọi register/update trùng.
+     * Đăng ký trang offline.
      */
     if (
         'serviceWorker' in navigator &&
@@ -1666,40 +1660,18 @@ let lockoutInterval = null;
             '127.0.0.1'
         )
     ) {
-        if (!window.AppServiceWorker) {
-            let registrationPromise = null;
-
-            window.AppServiceWorker = Object.freeze({
-                ensureRegistered: function () {
-                    if (registrationPromise) {
-                        return registrationPromise;
-                    }
-
-                    registrationPromise = navigator
-                        .serviceWorker
-                        .register(
-                            './sw.js',
-                            {
-                                scope: './',
-                                updateViaCache: 'none'
-                            }
-                        )
-                        .catch(function (error) {
-                            // Cho phép lần thử sau chạy lại nếu lần hiện tại thất bại.
-                            registrationPromise = null;
-                            throw error;
-                        });
-
-                    return registrationPromise;
-                }
-            });
-        }
-
         window.addEventListener(
             'load',
             function () {
-                window.AppServiceWorker
-                    .ensureRegistered()
+
+                navigator
+                    .serviceWorker
+                    .register(
+                        './sw.js',
+                        {
+                            scope: './'
+                        }
+                    )
                     .catch(
                         function (error) {
                             console.warn(
@@ -1708,8 +1680,7 @@ let lockoutInterval = null;
                             );
                         }
                     );
-            },
-            { once: true }
+            }
         );
     }
 
@@ -2142,15 +2113,9 @@ async function clearAllLockouts() {
         '_sys_dl=; max-age=0; path=/';
 }
 
-let loginSubmitInFlight = false;
-
 if (loginForm) {
     loginForm.addEventListener('submit', async function (e) {
         e.preventDefault();
-
-        if (loginSubmitInFlight) {
-            return;
-        }
         const usernameInput = document.getElementById('username');
         const passwordInput = document.getElementById('password');
         const errorMsg = document.getElementById('errorMsg');
@@ -2202,13 +2167,6 @@ if (loginForm) {
 
         errorMsg.innerHTML = 'Đang xác thực...';
         const fakeEmail = userVal + "@hethong.edu.vn";
-        const submitButton = loginForm.querySelector('[type="submit"]');
-
-        loginSubmitInFlight = true;
-        if (submitButton) {
-            submitButton.disabled = true;
-            submitButton.setAttribute('aria-busy', 'true');
-        }
 
         try {
             const userCredential = await firebase.auth().signInWithEmailAndPassword(fakeEmail, passVal);
@@ -2218,18 +2176,6 @@ if (loginForm) {
             const user = snapshot.val();
 
             if (!user) {
-                // Firebase Auth đã thành công nhưng hồ sơ RTDB không tồn tại:
-                // fail closed để không giữ một Auth session mồ côi.
-                try {
-                    await firebase.auth().signOut();
-                } catch (signOutError) {
-                    console.warn(
-                        'Không thể signOut phiên Auth không có hồ sơ RTDB:',
-                        signOutError
-                    );
-                }
-
-                localStorage.removeItem('currentUser');
                 errorMsg.innerHTML = '❌ Tài khoản không tồn tại dữ liệu trên máy chủ!';
                 errorMsg.style.color = 'red';
                 return;
@@ -2242,24 +2188,6 @@ if (loginForm) {
                 return;
             }
 
-            if (user.role !== 'teacher' && user.role !== 'student') {
-                // Chỉ hai role hợp lệ mới được tạo phiên local/điều hướng.
-                // Không fallback role lạ sang student.html.
-                try {
-                    await firebase.auth().signOut();
-                } catch (signOutError) {
-                    console.warn(
-                        'Không thể signOut tài khoản có role không hợp lệ:',
-                        signOutError
-                    );
-                }
-
-                localStorage.removeItem('currentUser');
-                errorMsg.innerHTML = '⛔ Tài khoản có quyền truy cập không hợp lệ. Vui lòng liên hệ Giáo viên.';
-                errorMsg.style.color = 'red';
-                return;
-            }
-
             // Đăng nhập thành công -> Gỡ bỏ hoàn toàn mọi án phạt
             await clearAllLockouts();
 
@@ -2268,7 +2196,7 @@ if (loginForm) {
 
             if (user.role === 'teacher') {
                 window.location.href = 'teacher.html';
-            } else if (user.role === 'student') {
+            } else {
                 window.location.href = 'student.html';
             }
 
@@ -2427,13 +2355,6 @@ if (loginForm) {
                 `<b>${5 - currentFails}</b> lần thử.`;
 
             errorMsg.style.color = 'red';
-        } finally {
-            loginSubmitInFlight = false;
-
-            if (submitButton) {
-                submitButton.disabled = false;
-                submitButton.removeAttribute('aria-busy');
-            }
         }
     });
 }

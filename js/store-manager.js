@@ -1010,6 +1010,143 @@ const StoreConfig = {
             customIcon: '🌧️'
         },
         {
+            id: 'pet_premium_mua_thu_chibi_3',
+            name: 'Tiểu Phong Diệp',
+            type: 'pet',
+            price: 850,
+            isNonCoin: false,
+            tag: 'Mùa thu',
+            value: 'assets/Premium/Bốn mùa/thu_chibi3.png',
+            isIcon: false,
+            petEffect: 'autreg5-maple-chibi-magic',
+            disableClickEffect: true,
+            runtimeCss: 'css/premium-mua-thu.css?v=20260927.autumn-four-effects-restored-v1',
+
+            // ==========================================
+            // MỞ BÁN GIỚI HẠN · MÙA THU
+            // Chỉ ngày 01 → 05 của tháng 09, 10 và 11
+            // ==========================================
+            annualSaleIcon: '🍁',
+            annualSaleTitle:
+                'Chỉ mở bán ngày 01–05 của tháng 09, 10 và 11 hằng năm',
+            annualSaleWindows: [
+                {
+                    startMonth: 9,
+                    startDay: 1,
+                    endMonth: 9,
+                    endDay: 5
+                },
+                {
+                    startMonth: 10,
+                    startDay: 1,
+                    endMonth: 10,
+                    endDay: 5
+                },
+                {
+                    startMonth: 11,
+                    startDay: 1,
+                    endMonth: 11,
+                    endDay: 5
+                }
+            ]
+        },
+        {
+            id: 'theme_mua_thu_phong_diep_kinh_suong',
+            name: 'Phong Diệp Kính Sương',
+            type: 'theme',
+            price: 800,
+            isNonCoin: false,
+            tag: 'Mùa thu',
+            value: 'theme-autumn-frosted-grove',
+            customIcon: '🍁',
+            runtimeCss: 'css/premium-mua-thu.css?v=20260927.autumn-four-effects-restored-v1',
+
+            // MỞ BÁN GIỚI HẠN · 01–05 THÁNG 09, 10, 11
+            annualSaleIcon: '🍁',
+            annualSaleTitle:
+                'Chỉ mở bán ngày 01–05 của tháng 09, 10 và 11 hằng năm',
+            annualSaleWindows: [
+                { startMonth: 9, startDay: 1, endMonth: 9, endDay: 5 },
+                { startMonth: 10, startDay: 1, endMonth: 10, endDay: 5 },
+                { startMonth: 11, startDay: 1, endMonth: 11, endDay: 5 }
+            ]
+        },
+        {
+            id: 'effect_mua_thu_phong_diep_quang_trieu',
+            name: 'Phong Diệp Quang Triều',
+            type: 'effect',
+            price: 900,
+            isNonCoin: false,
+            tag: 'Mùa thu',
+            value: 'effect_mua_thu_phong_diep_quang_trieu',
+            customIcon: '🍂',
+            runtimeCss: 'css/premium-mua-thu.css?v=20260927.autumn-four-effects-restored-v1',
+
+            // MỞ BÁN GIỚI HẠN · 01–05 THÁNG 09, 10, 11
+            annualSaleIcon: '🍁',
+            annualSaleTitle:
+                'Chỉ mở bán ngày 01–05 của tháng 09, 10 và 11 hằng năm',
+            annualSaleWindows: [
+                { startMonth: 9, startDay: 1, endMonth: 9, endDay: 5 },
+                { startMonth: 10, startDay: 1, endMonth: 10, endDay: 5 },
+                { startMonth: 11, startDay: 1, endMonth: 11, endDay: 5 }
+            ]
+        },
+        {
+            id: 'frame_mua_thu_phong_diep_chi_hoan',
+            name: 'Phong Diệp · Lưu Ly Chi Hoàn',
+            type: 'frame',
+            price: 250,
+            isNonCoin: false,
+            tag: 'Mùa thu',
+            value: 'assets/Premium/Bốn mùa/thu_khung3.png',
+            isIcon: false,
+            frameEffect: 'autf1-autumn-maple-ring',
+            runtimeCss: 'css/premium-mua-thu.css?v=20260927.autumn-four-effects-restored-v1',
+
+            // Chỉ mở bán ngày 01–05 tháng 09, 10 và 11 hằng năm
+            annualSaleIcon: '🍁',
+            annualSaleTitle:
+                'Chỉ mở bán ngày 01–05 của tháng 09, 10 và 11 hằng năm',
+            annualSaleWindows: [
+                { startMonth: 9, startDay: 1, endMonth: 9, endDay: 5 },
+                { startMonth: 10, startDay: 1, endMonth: 10, endDay: 5 },
+                { startMonth: 11, startDay: 1, endMonth: 11, endDay: 5 }
+            ]
+        },
+        {
+            id: 'background_mua_thu_phong_lam_mong_canh',
+            name: 'Phong Diệp · Thu Lâm Mộng Cảnh',
+            type: 'background',
+            price: 150,
+            isNonCoin: false,
+            tag: 'Mùa thu',
+            value: 'assets/Premium/Bốn mùa/thu_nen3.png',
+            isIcon: false,
+
+            // Chỉ mở bán ngày 01–05 tháng 09, 10 và 11 hằng năm.
+            annualSaleIcon: '🍁',
+            annualSaleTitle:
+                'Chỉ mở bán ngày 01–05 của tháng 09, 10 và 11 hằng năm',
+            annualSaleWindows: [
+                { startMonth: 9, startDay: 1, endMonth: 9, endDay: 5 },
+                { startMonth: 10, startDay: 1, endMonth: 10, endDay: 5 },
+                { startMonth: 11, startDay: 1, endMonth: 11, endDay: 5 }
+            ],
+
+            /*
+             * NỀN MÙA THU RIÊNG — cấu hình chỉ thuộc item này.
+             * 100vw 100vh: toàn bộ ảnh vừa đúng màn hình, không bị cắt bởi cover.
+             * Không sửa WebBackgroundManager và không thay đổi backgroundFit của nền khác.
+             */
+            backgroundFit: '100vw 100vh',
+            backgroundPosition: 'center center',
+            backgroundRepeat: 'no-repeat',
+            backgroundAttachment: 'fixed',
+            runtimeCss: 'css/premium-mua-thu.css?v=20260927.autumn-four-effects-restored-v1',
+            premiumSuite: 'autbg1-autumn-maple-background-v1'
+        },
+        {
             id: 'pet_premium_mua_xuan',
             name: 'Tiểu Hoa Mộng',
             type: 'pet',
@@ -3079,7 +3216,7 @@ class StoreManager {
      * Cổng mua vật phẩm.
      * Ngăn giao diện giới hạn bị mua ngoài ngày mở bán.
      */
-    static async buyItemSafely(itemId, isUpgrade = false) {
+    static buyItemSafely(itemId, isUpgrade = false) {
         const item = this.getItemById(itemId);
 
         if (!item) {
@@ -3094,14 +3231,6 @@ class StoreManager {
                 `🔒 ${item.name} đang bị Giáo viên khóa.`
             );
             return;
-        }
-
-        // Store thường tuyệt đối không được đi vòng qua gateway để mua Luxury.
-        if (item.luxuryOnly === true) {
-            window.alert(
-                '⛔ Vật phẩm Sang trọng chỉ được mua trong Cửa hàng Sang trọng.'
-            );
-            return false;
         }
 
         /*
@@ -3142,13 +3271,13 @@ class StoreManager {
             return;
         }
 
-        return await purchaseHandler(itemId, isUpgrade, 'regular');
+        return purchaseHandler(itemId, isUpgrade);
     }
 
     /*
      * Dùng thử cũng chỉ hoạt động trong thời gian mở bán.
      */
-    static async trialItemSafely(itemId) {
+    static trialItemSafely(itemId) {
         const item = this.getItemById(itemId);
 
         if (!item) {
@@ -3163,14 +3292,6 @@ class StoreManager {
                 `🔒 ${item.name} đang bị Giáo viên khóa.`
             );
             return;
-        }
-
-        // Luxury Store hiện không có luồng trial riêng; chặn gọi vòng API Store thường.
-        if (item.luxuryOnly === true) {
-            window.alert(
-                '⛔ Vật phẩm Sang trọng không thể dùng thử qua Cửa hàng thường.'
-            );
-            return false;
         }
 
         const saleState =
@@ -3205,7 +3326,7 @@ class StoreManager {
             return;
         }
 
-        return await trialHandler(itemId);
+        return trialHandler(itemId);
     }
 
     static applyItem(itemId) {
@@ -3286,6 +3407,7 @@ class StoreManager {
             'Sinh nhật 2026': 'tag-sinh-nhat-2026',
             'Cơn mưa': 'tag-con-mua',
             'Mùa xuân': 'tag-mua-xuan',
+            'Mùa thu': 'tag-mua-thu-regular',
             'Mùa Hạ': 'tag-mua-ha-limited',
             '2/9': 'tag-quoc-khanh-2-9',
             'Cầm Mộng': 'tag-cam-mong-chibi',
@@ -3710,6 +3832,16 @@ class StoreManager {
             'background_premium_mua_xuan_hoa_mong'
         ]);
 
+        // MÙA THU · CỬA HÀNG THƯỜNG — card riêng, DOM/bố cục vẫn dùng store-item-card chuẩn.
+        // Namespace/card group này KHÔNG dùng chung với pet_luxury_mua_thu.
+        const premiumAutumnRegularIds = new Set([
+            'pet_premium_mua_thu_chibi_3',
+            'theme_mua_thu_phong_diep_kinh_suong',
+            'effect_mua_thu_phong_diep_quang_trieu',
+            'frame_mua_thu_phong_diep_chi_hoan',
+            'background_mua_thu_phong_lam_mong_canh'
+        ]);
+
         const premiumSummerLimitedIds = new Set([
             'pet_premium_mua_ha_chibi_2',
             'theme_mua_ha_ha_quang_luu_ly',
@@ -3964,6 +4096,18 @@ class StoreManager {
             );
 
             specialCardGroup = 'premium-spring';
+            isThemeImmune = true;
+        }
+
+        /* MÙA THU · CỬA HÀNG THƯỜNG — skin riêng, tuyệt đối không đổi DOM/bố cục card. */
+        if (premiumAutumnRegularIds.has(item.id)) {
+            cardClasses.push(
+                'store-card-autumn-regular',
+                'store-theme-locked',
+                'ui-theme-immune'
+            );
+
+            specialCardGroup = 'autumn-regular';
             isThemeImmune = true;
         }
 
@@ -5181,6 +5325,9 @@ class StoreManager {
     function repairFrame(itemOrId) {
         if (window.isStudentStoreGameAccessEnabled?.() === false) return false;
         const item = getItem(itemOrId);
+        if (item && typeof myInventory !== 'undefined' && Array.isArray(myInventory) &&
+            !myInventory.some(entry => String(entry?.id) === String(item.id) && entry.isEquipped === true &&
+                !(entry.isTrial === true && Number(entry.trialExpiry || 0) <= Date.now()))) return false;
 
         if (!isTarget(item)) {
             return false;
@@ -5703,6 +5850,9 @@ class StoreManager {
     function repairFrame(itemOrId) {
         if (window.isStudentStoreGameAccessEnabled?.() === false) return false;
         const item = getItem(itemOrId);
+        if (item && typeof myInventory !== 'undefined' && Array.isArray(myInventory) &&
+            !myInventory.some(entry => String(entry?.id) === String(item.id) && entry.isEquipped === true &&
+                !(entry.isTrial === true && Number(entry.trialExpiry || 0) <= Date.now()))) return false;
         if (!isTarget(item)) return false;
 
         ensureLayer(
@@ -6147,6 +6297,9 @@ class StoreManager {
     function repairFrame(itemOrId) {
         if (window.isStudentStoreGameAccessEnabled?.() === false) return false;
         const item = getItem(itemOrId);
+        if (item && typeof myInventory !== 'undefined' && Array.isArray(myInventory) &&
+            !myInventory.some(entry => String(entry?.id) === String(item.id) && entry.isEquipped === true &&
+                !(entry.isTrial === true && Number(entry.trialExpiry || 0) <= Date.now()))) return false;
 
         if (!isTarget(item)) {
             return false;
@@ -6599,6 +6752,9 @@ class StoreManager {
     function repairFrame(itemOrId) {
         if (window.isStudentStoreGameAccessEnabled?.() === false) return false;
         const item = getItem(itemOrId);
+        if (item && typeof myInventory !== 'undefined' && Array.isArray(myInventory) &&
+            !myInventory.some(entry => String(entry?.id) === String(item.id) && entry.isEquipped === true &&
+                !(entry.isTrial === true && Number(entry.trialExpiry || 0) <= Date.now()))) return false;
         if (!isTarget(item)) return false;
 
         ensureLayer(
@@ -6749,3 +6905,80 @@ class StoreManager {
     }
 })();
 
+
+
+// STORE_CONCURRENCY_V2: shared by student.js and teacher.js.
+// The matching database.rules.json is required; denied writes fail closed.
+window.StoreConcurrency = (() => {
+    const validKey = value => typeof value === 'string' && value.length > 0 &&
+        !/[.#$\[\]\/]/.test(value);
+    function online() {
+        if (window.isOffline || navigator.onLine === false) throw new Error('STORE_OFFLINE');
+    }
+    async function charge(username, itemId, operation, kind, amount, patch, coupon = null) {
+        online();
+        if (!validKey(username) || !validKey(String(itemId)) || !validKey(operation.operationId) ||
+            !Number.isFinite(amount) || amount < 0 || amount > 999999) throw new Error('INVALID_AMOUNT');
+        const table = kind === 'trial' ? 'store_trial_claims' : 'store_purchase_ops';
+        const updates = {};
+        for (const [key, value] of Object.entries(patch)) updates[`${table}/${username}/${itemId}/${key}`] = value;
+        updates[`store_charge_receipts/${username}/${operation.operationId}`] = {
+            version: 1, itemId: String(itemId), kind, amount, createdAt: Date.now(),
+            ...(coupon ? { discountKey: coupon.key, percent: coupon.percent } : {})
+        };
+        if (amount > 0) updates[`student_coins/${username}`] = firebase.database.ServerValue.increment(-amount);
+        if (coupon) {
+            const prefix = `student_discounts/${username}/${coupon.key}`;
+            updates[`${prefix}/isUsed`] = true;
+            updates[`${prefix}/usedAt`] = Date.now();
+            updates[`${prefix}/usedForItem`] = String(itemId);
+            updates[`${prefix}/usedTransactionId`] = operation.operationId;
+        }
+        // Never retry this increment. On reconnect, recover the saved item grant instead.
+        await db.ref().update(updates);
+    }
+    async function equipment(username, itemId, equip, lookup, canContinue = () => true) {
+        online();
+        if (!validKey(username) || !validKey(String(itemId))) throw new Error('INVALID_ITEM');
+        const revisionRef = db.ref(`store_equipment_revisions/${username}`);
+        const inventoryRef = db.ref(`student_inventory/${username}`);
+        const exempt = item => ['frame', 'background'].includes(String(item?.type || ''));
+        for (let attempt = 0; attempt < 6; attempt++) {
+            // Read revision FIRST: any later concurrent equipment commit invalidates this snapshot.
+            const revision = Number((await revisionRef.once('value')).val() || 0);
+            if (!Number.isSafeInteger(revision) || revision < 0) throw new Error('INVALID_EQUIPMENT_REVISION');
+            const inventory = (await inventoryRef.once('value')).val() || {};
+            if (!canContinue()) return false;
+            const target = lookup(itemId);
+            if (!target || (equip && target.isLocked === true)) return false;
+            const matches = Object.entries(inventory).filter(([, entry]) => String(entry?.id) === String(itemId));
+            const usable = matches.filter(([, entry]) => entry.isTrial !== true ||
+                (Number.isFinite(Number(entry.trialExpiry)) && Number(entry.trialExpiry) > Date.now()));
+            if (!matches.length || (equip && !usable.length)) return false;
+            const chosenKey = (usable.find(([key]) => key === String(itemId)) || usable[0])?.[0];
+            const updates = { [`store_equipment_revisions/${username}`]: revision + 1 };
+            for (const [key, entry] of Object.entries(inventory)) {
+                if (!entry) continue;
+                const definition = lookup(entry.id);
+                const sameId = String(entry.id) === String(itemId);
+                const conflict = equip && definition && (definition.type === target.type ||
+                    (!exempt(definition) && !exempt(target) &&
+                        Boolean(definition.luxuryOnly) !== Boolean(target.luxuryOnly)));
+                if (!sameId && !conflict) continue;
+                const next = sameId && equip && key === chosenKey;
+                if (entry.isEquipped !== next) updates[`student_inventory/${username}/${key}/isEquipped`] = next;
+            }
+            if (!canContinue()) return false;
+            try {
+                await db.ref().update(updates);
+                return true;
+            } catch (error) {
+                if (!/permission.denied/i.test(String(error.code || error.message))) throw error;
+                const latestRevision = Number((await revisionRef.once('value')).val() || 0);
+                if (latestRevision === revision) throw error; // Rules/auth error, not a race.
+            }
+        }
+        throw new Error('EQUIPMENT_BUSY');
+    }
+    return { charge, equipment };
+})();

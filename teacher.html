@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="application-version" content="4.0.3">
-    <meta name="application-build" content="2026.09.23.4-luxury-integrity-fix">
     <title>Trang Giáo Viên</title>
     <!-- Kết nối sớm tới CDN lõi; không tải thêm tài nguyên và không đổi chức năng -->
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
@@ -13,7 +12,7 @@
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="stylesheet" href="css/common.css?v=4.0.4-login-layout4">
-    <link rel="stylesheet" href="css/teacher.css?v=4.0.12-teacher-modal-viewport-fix">
+
     <link rel="stylesheet" href="css/mobile.css?v=4.0.3-layout">
     <link rel="stylesheet" href="css/web-animations.css?v=1.0">
     <link rel="stylesheet" href="css/store-items.css?v=4.0.0">
@@ -483,9 +482,12 @@
         }
     </style>
 
+    
+<link rel="stylesheet" href="css/teacher.css?v=20260927.teacher-settings">
+<link rel="stylesheet" href="css/mc-workspace.css?v=20260929.fullscreen-finalize-v3-recover">
 </head>
 
-<body>
+<body class="teacher-workspace-refresh campus-modern">
     <div id="appStartupLoader" role="status" aria-live="polite" aria-busy="true">
         <div class="app-startup-loader-card">
             <div class="app-startup-loader-head">
@@ -1545,6 +1547,10 @@
 
                             <option value="coin_conversion">
                                 Quy đổi Coin/Tiền
+                            </option>
+
+                            <option value="teacher_penalty">
+                                Trừng phạt học sinh
                             </option>
 
                             <option value="profile_request_decision">
@@ -3024,7 +3030,7 @@
                  Tương tác với học sinh
                 </h3>
                 <p>
-                 Gửi thông báo, khảo sát và quà tặng từ cùng một khu vực quản lý.
+                 Gửi thông báo, khảo sát, quà tặng và áp dụng trừng phạt từ cùng một khu vực quản lý.
                 </p>
                </div>
               </div>
@@ -3101,7 +3107,7 @@
                  </button>
                 </div>
                </div>
-               <div class="card form-container teacher-settings-card teacher-settings-gift-card" style="margin-top: 20px; position: relative; background: linear-gradient(135deg, rgba(161, 140, 209, 0.15) 0%, rgba(251, 194, 235, 0.15) 100%);">
+               <div class="card form-container teacher-settings-card teacher-settings-gift-card" style="grid-column: auto !important; margin-top: 20px; position: relative; background: linear-gradient(135deg, rgba(161, 140, 209, 0.15) 0%, rgba(251, 194, 235, 0.15) 100%);">
                 <h3 style="color: #764ba2; margin-bottom: 15px; border-bottom: 2px solid rgba(118, 75, 162, 0.2); padding-bottom: 10px;">
                  🎁 Gửi Quà &amp; Lời Nhắn
                 </h3>
@@ -3225,6 +3231,53 @@
                  </button>
                 </div>
                </div>
+               <div class="card form-container teacher-settings-card teacher-settings-penalty-card" style="grid-column: auto !important; margin-top: 20px; position: relative; background: linear-gradient(135deg, rgba(254, 226, 226, 0.68) 0%, rgba(255, 247, 237, 0.78) 100%); border-color: rgba(220, 38, 38, 0.24) !important;">
+                <h3 style="color: #b91c1c; margin-bottom: 15px; border-bottom: 2px solid rgba(185, 28, 28, 0.16); padding-bottom: 10px;">
+                 ⚠️ Trừng phạt
+                </h3>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 15px; background: rgba(255,255,255,0.72); padding: 12px; border-radius: 10px; border: 1px solid rgba(185,28,28,0.12);">
+                 <input id="penaltyToggle" onchange="togglePenaltyArea(this.checked)" style="width: 22px; height: 22px; margin: 0; cursor: pointer; accent-color: #dc2626;" type="checkbox"/>
+                 <strong style="color: #7f1d1d; font-size: 0.95em;">
+                  Bật công cụ trừ tài sản học sinh
+                 </strong>
+                </label>
+                <div id="penaltyInputArea" style="display: none; animation: fadeInUp 0.4s ease;">
+                 <label><strong>Áp dụng cho:</strong></label>
+                 <div class="custom-student-select">
+                  <div class="css-select-trigger" onclick="openCustomStudentSelect('penaltyTargetStudent')">
+                   <span id="penaltyTargetStudent_displayText">Tất cả học sinh</span>
+                   <span style="color: #9ca3af; font-size: 12px;">▼</span>
+                  </div>
+                  <select id="penaltyTargetStudent" multiple="" style="display: none;">
+                   <option selected="" value="all">Tất cả học sinh</option>
+                  </select>
+                 </div>
+                 <p style="margin: 0 0 15px 0; font-size: 0.85em; color: #b45309;">
+                  💡 Có thể chọn một, nhiều hoặc tất cả học sinh.
+                 </p>
+
+                 <label><strong>Loại tài sản bị trừ:</strong></label>
+                 <select id="penaltyType" style="background: white; margin-bottom: 15px; font-weight: bold; color: #b91c1c;">
+                  <option value="coin">🪙 Coin</option>
+                  <option value="ticket">🎫 Vé quay may mắn</option>
+                  <option value="money">💵 Tiền tích lũy / Tiền lộ trình</option>
+                 </select>
+
+                 <label><strong>Số lượng cần trừ:</strong></label>
+                 <input id="penaltyAmount" min="1" step="1" type="number" placeholder="Nhập số nguyên lớn hơn 0..." style="background: white; margin-bottom: 15px; font-weight: bold;"/>
+
+                 <label><strong>Lý do trừng phạt:</strong></label>
+                 <textarea id="penaltyReason" maxlength="500" rows="3" placeholder="Nhập lý do để ghi nhật ký và thông báo cho học sinh..." style="background: white; margin-bottom: 15px;"></textarea>
+
+                 <div style="margin-bottom: 15px; padding: 11px 12px; border-radius: 10px; background: rgba(255,255,255,0.72); border: 1px dashed rgba(185,28,28,0.24); color: #7f1d1d; font-size: 0.85em; line-height: 1.55;">
+                  🔐 Thao tác yêu cầu xác thực lại mật khẩu Giáo viên. Coin, Vé quay may mắn và Tiền lộ trình đều có thể xuống số âm trong giới hạn hệ thống. Học sinh sẽ nhận THƯ PHẠT trong Hộp thư; thư phạt không chạy hiệu ứng đóng thư/bay vào Hộp thư.
+                 </div>
+
+                 <button id="penaltySubmitButton" onclick="applyTeacherPenalty()" style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: white; width: 100%; padding: 12px; font-size: 1.05em; box-shadow: 0 7px 18px rgba(153,27,27,0.22);">
+                  ⚠️ Xác nhận trừ tài sản
+                 </button>
+                </div>
+               </div>
               </div>
              </section>
             </div>
@@ -3241,7 +3294,7 @@
       nằm bên trong .content thì position: fixed bị giới hạn theo khung nội dung:
       overlay không phủ sidebar và popup bị lệch sang phải.
     -->
-    <div id="materialModal" class="modal-overlay">
+    <div id="materialModal" class="modal-overlay teacher-viewport-modal">
         <div class="modal-content form-container"
             style="max-height: 90vh; display: flex; flex-direction: column; position: relative;">
             <button class="close-btn" onclick="closeMaterialModal()">✖</button>
@@ -3288,7 +3341,7 @@
         </div>
     </div>
 
-    <div id="editMaterialModal" class="modal-overlay">
+    <div id="editMaterialModal" class="modal-overlay teacher-viewport-modal">
         <div class="modal-content form-container"
             style="max-height: 90vh; display: flex; flex-direction: column; position: relative;">
             <button class="close-btn" onclick="closeEditMaterialModal()">✖</button>
@@ -3337,7 +3390,7 @@
         </div>
     </div>
 
-    <div id="scheduleModal" class="modal-overlay">
+    <div id="scheduleModal" class="modal-overlay teacher-viewport-modal">
         <div class="modal-content form-container"
             style="max-height: 90vh; display: flex; flex-direction: column; position: relative;">
             <button class="close-btn" onclick="closeScheduleModal()">✖</button>
@@ -3386,7 +3439,7 @@
         </div>
     </div>
 
-    <div id="studentModal" class="modal-overlay">
+    <div id="studentModal" class="modal-overlay teacher-viewport-modal">
         <div class="modal-content form-container"
             style="max-height: 90vh; display: flex; flex-direction: column; position: relative;">
             <button class="close-btn" onclick="closeStudentModal()">✖</button>
@@ -3434,7 +3487,7 @@
         </div>
     </div>
 
-    <div id="editStudentModal" class="modal-overlay">
+    <div id="editStudentModal" class="modal-overlay teacher-viewport-modal">
         <div class="modal-content form-container"
             style="max-height: 90vh; display: flex; flex-direction: column; position: relative;">
             <button class="close-btn" onclick="closeEditStudentModal()">✖</button>
@@ -3478,7 +3531,7 @@
     </div>
 
     <!-- [source: 1] -->
-    <div id="editAssignmentModal" class="modal-overlay">
+    <div id="editAssignmentModal" class="modal-overlay teacher-viewport-modal">
         <div class="modal-content form-container" style="width: 94vw; max-width: 840px; padding: 25px;
     max-height: 90vh; display: flex; flex-direction: column;
     position: relative; box-sizing: border-box;">
@@ -3724,7 +3777,7 @@
         </div>
     </div>
 
-    <div id="assignmentStatusModal" class="modal-overlay">
+    <div id="assignmentStatusModal" class="modal-overlay teacher-viewport-modal">
         <div class="modal-content form-container">
             <button class="close-btn" onclick="closeAssignmentStatusModal()">✖</button>
             <h3
@@ -3736,7 +3789,7 @@
         </div>
     </div>
 
-    <div id="notificationHistoryModal" class="modal-overlay">
+    <div id="notificationHistoryModal" class="modal-overlay teacher-viewport-modal">
         <div class="modal-content form-container" style="max-width: 650px;">
             <button class="close-btn" onclick="closeNotificationHistory()">✖</button>
             <h3
@@ -3747,7 +3800,7 @@
         </div>
     </div>
 
-    <div id="surveyHistoryModal" class="modal-overlay">
+    <div id="surveyHistoryModal" class="modal-overlay teacher-viewport-modal">
         <div class="modal-content form-container" style="max-width: 650px;">
             <button class="close-btn" onclick="closeSurveyHistory()">✖</button>
             <h3
@@ -3758,7 +3811,7 @@
         </div>
     </div>
 
-    <div id="surveyResultsModal" class="modal-overlay" style="z-index: 100000;">
+    <div id="surveyResultsModal" class="modal-overlay teacher-viewport-modal" style="z-index: 100000;">
         <div class="modal-content form-container" style="max-width: 700px;">
             <button class="close-btn" onclick="closeSurveyResults()">✖</button>
             <h3 id="surveyResultTitle"
@@ -3798,8 +3851,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <!-- 2. Khởi tạo Firebase -->
-    <script src="js/firebase-config.js?v=20260909.singleflight-v1"></script>
-    <script src="js/cloudinary-storage.js?v=20260923.luxury-integrity-v1"></script>
+    <script src="js/firebase-config.js?v=20260928.read-fix"></script>
+    <script src="js/cloudinary-storage.js?v=4.0.0"></script>
 
     <script>
         window.APP_STORAGE_CONFIG = Object.freeze({
@@ -3807,7 +3860,7 @@
         });
     </script>
 
-    <script src="js/cloudflare-r2-storage.js?v=20260923.luxury-integrity-v1"></script>
+    <script src="js/cloudflare-r2-storage.js?v=4.0.0"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.7/dist/purify.min.js">
     </script>
@@ -3818,42 +3871,46 @@
         // Phiên bản thực sự của bộ HTML/JS đang chạy.
         // common.js cũ đọc appVersion từ localStorage, nên đồng bộ trước khi nạp common.js.
         window.APP_VERSION = '4.0.3';
-        window.APP_BUILD = '2026.09.23.4-luxury-integrity-fix';
         try {
             localStorage.setItem('appVersion', window.APP_VERSION);
         } catch (_) {}
     </script>
-    <script src="js/common.js?v=4.0.5-infra-integrity-fix"></script>
+    <script src="js/common.js?v=4.0.4-login-layout4"></script>
     <script src="js/history-retention.js?v=1.0.0-2month-safe"></script>
-    <script src="js/update-manager.js?v=1.1.0-build-aware"></script>
+    <script src="js/update-manager.js?v=1.0.4-release-v4.0.3"></script>
     <script src="js/web-animations.js?v=1.0"></script>
     <!-- Tối ưu hiệu năng: mặc định tắt; dùng trạng thái đã lưu trong Cài đặt. Phát hiện mobile/thiết bị yếu chỉ áp dụng sau khi tính năng đã được bật. -->
     <script src="js/web-performance-optimizer.js?v=2.0.0"></script>
-    <script src="js/transaction-history.js?v=20260924.reward-integrity-v1"></script>
+    <script src="js/transaction-history.js?v=20260926.penalty-v2"></script>
     <script>
         // security.js nạp trước teacher.js: đánh dấu rõ đây là trang Giáo viên đang chờ xác thực.
         window.__APP_PAGE_ROLE__ = 'teacher';
         window.__teacherSecurityVerificationState =
             window.__teacherSecurityVerificationState || 'pending';
     </script>
-    <script src="js/security.js?v=4.2.1-page-scope"></script>
+    <script src="js/security.js?v=4.2.0-devtools-guard"></script>
 
     <!-- 4. Các module tính năng -->
-    <script src="js/daily-login.js?v=20260924.reward-integrity-v1"></script>
-    <script src="js/theme-items.js?v=20260924.decor-pet-integrity-v1"></script>
+    <script src="js/daily-login.js?v=4.0.0"></script>
+    <script src="js/theme-items.js?v=4.2"></script>
     <script src="js/effect-items.js?v=4.2"></script>
     <script src="js/pet-items.js?v=20260919.partial-fix1"></script>
     <!-- Điều chỉnh riêng mức hiệu ứng vật phẩm + Web Animations; không đụng theme/logic -->
     <script src="js/effect-quality-manager.js?v=20260918.fx-store-v2"></script>
-    <script src="js/royal-ball.js?v=20260924.event-integrity-v1"></script>
+    <script src="js/royal-ball.js?v=4.0.0"></script>
     <script src="js/music-manager.js?v=4.0.0"></script>
-    <script src="js/store-manager.js?v=20260923.luxury-integrity-v1"></script>
-    <script src="js/painting.js?v=20260924.event-integrity-v1"></script>
-    <script src="js/luxury-store.js?v=20260923.luxury-integrity-v1"></script>
+    <script src="js/store-manager.js?v=20260919.store-access-unequip-v1"></script>
+    <script src="js/painting.js?v=20260908.round-query-v1"></script>
+    <script src="js/luxury-store.js?v=20260919.store-access-unequip-v1"></script>
 
     <!-- 5. Logic chính của trang giáo viên luôn đặt cuối -->
-    <script src="js/teacher.js?v=20260924.post-audit-v1"></script>
-    <script src="js/huong-dan-nguoi-moi.js?v=2.14.2"></script>
+    <!-- Hotfix: xác nhận cài đặt lộ trình trước khi teacher.js chờ loader -->
+    <script src="js/roadmap-startup-fix.js?v=1.0"></script>
+
+    <script src="js/assignment-appeals.js?v=20260928.2"></script>
+    <script src="js/mc-workspace.js?v=20260929.fullscreen-finalize-v3-recover"></script>
+<script src="js/teacher.js?v=20260929.mc-workspace2"></script>
+    <script src="js/huong-dan-nguoi-moi.js?v=2.14.0"></script>
 </body>
 
 </html>

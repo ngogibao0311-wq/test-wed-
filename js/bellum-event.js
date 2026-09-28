@@ -1354,11 +1354,6 @@
         }
 
         try {
-            const liveClaim = (await rewardRef.once('value')).val();
-            if (!liveClaim || liveClaim.status !== 'claiming' || liveClaim.token !== claimToken) {
-                throw new Error('BELLUM_STALE_CLAIM_TOKEN');
-            }
-
             const inventorySnapshot =
                 await database
                     .ref(
@@ -1436,18 +1431,12 @@
                 sourceEvent:
                     'that_dai_toi_tu_vien_bellum',
                 sourceYear:
-                    status.year,
-                bellumSeasonKey:
-                    String(status.year),
-                bellumClaimToken:
-                    claimToken
+                    status.year
             };
 
             updates[rewardPath] = {
                 claimed: true,
                 status: 'claimed',
-                token: claimToken,
-                startedAt: Number(liveClaim.startedAt || now),
                 itemId: rewardItem.id,
                 itemName: rewardItem.name || rewardItem.id,
                 itemType: rewardItem.type || '',

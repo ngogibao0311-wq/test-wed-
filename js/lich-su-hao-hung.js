@@ -1885,11 +1885,9 @@
                         return {
                                 id: item.id,
                                 purchaseTime: now(),
-                                source: 'lich_su_hao_hung',
+                                source: `lich_su_hao_hung_${state.currentYear}`,
                                 eventId: CONFIG.id,
                                 eventYear: state.currentYear,
-                                historyRewardYearKey: String(state.currentYear),
-                                historyRewardTier: tier,
                                 isTrial: null,
                                 trialExpiry: null,
                                 isEquipped: false

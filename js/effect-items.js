@@ -134,6 +134,20 @@ class EffectManager {
     static clearEffects(removeSavedEffect = false) {
         this.stopIntervals();
 
+        /*
+         * MÙA THU · PHONG DIỆP QUANG TRIỀU
+         * Root mount thẳng vào body. Chỉ dọn namespace autfx9-* của effect này,
+         * không truy cập hoặc thay đổi DOM/runtime của bất kỳ effect nào khác.
+         */
+        document
+            .querySelectorAll(
+                '.autfx9-maple-current[data-autfx9-portal="1"]'
+            )
+            .forEach(node => {
+                node.classList.add('is-leaving');
+                window.setTimeout(() => node.remove(), 440);
+            });
+
 
         /*
          * AETHER · THIÊN MÔN QUANG TRIỀU
@@ -409,6 +423,11 @@ class EffectManager {
             // ĐÊM ĐẦY SAO · TINH HOA LƯU VÂN
             case 'effect_dem_day_sao_tinh_hoa_luu_van':
                 this.createStarryNightEssenceDriftEffect();
+                break;
+
+            // MÙA THU · PHONG DIỆP QUANG TRIỀU — effect toàn web độc lập
+            case 'effect_mua_thu_phong_diep_quang_trieu':
+                this.createAutumnMapleLuminousTideEffect();
                 break;
 
             // LINK CLICK · HÀNH LANG DƯ ẢNH
@@ -6024,6 +6043,184 @@ class EffectManager {
             fleck.style.setProperty('--sndfx1-fdelay', `${-(index % 13) * .27}s`);
             fleck.style.setProperty('--sndfx1-fdur', `${5.8 + (index % 7) * .64}s`);
             fleckField?.appendChild(fleck);
+        }
+
+        document.body.appendChild(root);
+        requestAnimationFrame(() => root.classList.add('is-active'));
+        return root;
+    }
+
+    // =========================================================
+    // MÙA THU · PHONG DIỆP QUANG TRIỀU — AUTFX9
+    // Effect toàn web riêng hoàn toàn; không tái dùng runtime Mùa Thu cũ.
+    // =========================================================
+    static ensureAutumnMapleLuminousTideStylesheet() {
+        if (typeof document === 'undefined' || !document.head) return null;
+
+        const existing = Array.from(
+            document.querySelectorAll('link[rel="stylesheet"][href]')
+        ).find(link =>
+            /(?:^|\/)premium-mua-thu(?:\(\d+\))?\.css(?:[?#].*)?$/i
+                .test(link.href || '')
+        );
+
+        if (existing) return existing;
+
+        const old = document.getElementById('autfx9-autumn-runtime-style');
+        if (old) return old;
+
+        const link = document.createElement('link');
+        link.id = 'autfx9-autumn-runtime-style';
+        link.rel = 'stylesheet';
+        link.href = 'css/premium-mua-thu.css?v=20260927.autumn-four-effects-restored-v1';
+        link.dataset.autfx9 = 'maple-luminous-tide';
+
+        link.addEventListener('error', () => {
+            console.error(
+                '[AUTUMN EFFECT] Không tải được css/premium-mua-thu.css'
+            );
+        }, { once: true });
+
+        document.head.appendChild(link);
+        return link;
+    }
+
+    static createAutumnMapleLuminousTideEffect() {
+        this.ensureAutumnMapleLuminousTideStylesheet();
+
+        document
+            .querySelectorAll(
+                '.autfx9-maple-current[data-autfx9-portal="1"]'
+            )
+            .forEach(node => node.remove());
+
+        if (!document.body) return null;
+
+        const reduced = window.matchMedia?.(
+            '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
+        ).matches;
+
+        const root = document.createElement('div');
+        root.className = 'autfx9-maple-current';
+        root.dataset.autfx9Portal = '1';
+        root.setAttribute('aria-hidden', 'true');
+        root.innerHTML = `
+            <div class="autfx9-aurora"></div>
+            <div class="autfx9-haze"></div>
+            <div class="autfx9-leaf-field"></div>
+            <div class="autfx9-mote-field"></div>
+            <div class="autfx9-front-glow"></div>
+        `;
+
+        const leafField = root.querySelector('.autfx9-leaf-field');
+        const leafPalette = [
+            ['#f4b34e', '#bd5427'],
+            ['#e78232', '#9f3f27'],
+            ['#d1632e', '#7d3e2a'],
+            ['#efc06a', '#b86d32'],
+            ['#c9803f', '#6f5740']
+        ];
+
+        const baseLeafCount = reduced ? 14 : 34;
+        const leafCount = this.getQualityCount(
+            baseLeafCount,
+            reduced ? 9 : 18
+        );
+
+        for (let index = 0; index < leafCount; index++) {
+            const leaf = document.createElement('i');
+            const palette = leafPalette[index % leafPalette.length];
+            const lane = (index * 37 + 7) % 104;
+            const size = 13 + (index % 7) * 3;
+            const driftSign = index % 2 === 0 ? 1 : -1;
+
+            leaf.className = 'autfx9-leaf';
+            leaf.style.setProperty('--autfx9-x', `${-4 + lane}%`);
+            leaf.style.setProperty('--autfx9-size', `${size}px`);
+            leaf.style.setProperty('--autfx9-c1', palette[0]);
+            leaf.style.setProperty('--autfx9-c2', palette[1]);
+            leaf.style.setProperty(
+                '--autfx9-opacity',
+                `${0.34 + (index % 6) * 0.085}`
+            );
+            leaf.style.setProperty(
+                '--autfx9-duration',
+                `${9.4 + (index % 8) * 1.12}s`
+            );
+            leaf.style.setProperty(
+                '--autfx9-delay',
+                `${-(index % 17) * 0.72}s`
+            );
+            leaf.style.setProperty(
+                '--autfx9-r0',
+                `${-42 + (index * 29) % 86}deg`
+            );
+            leaf.style.setProperty(
+                '--autfx9-scale',
+                `${0.76 + (index % 5) * 0.09}`
+            );
+            leaf.style.setProperty(
+                '--autfx9-d1',
+                `${driftSign * (12 + (index % 5) * 8)}px`
+            );
+            leaf.style.setProperty(
+                '--autfx9-d2',
+                `${-driftSign * (18 + (index % 7) * 7)}px`
+            );
+            leaf.style.setProperty(
+                '--autfx9-d3',
+                `${driftSign * (26 + (index % 6) * 9)}px`
+            );
+
+            leafField?.appendChild(leaf);
+        }
+
+        const moteField = root.querySelector('.autfx9-mote-field');
+        const motePalette = [
+            'rgba(255,224,151,.92)',
+            'rgba(248,176,77,.78)',
+            'rgba(217,105,49,.62)',
+            'rgba(231,218,172,.72)'
+        ];
+        const baseMoteCount = reduced ? 12 : 30;
+        const moteCount = this.getQualityCount(
+            baseMoteCount,
+            reduced ? 8 : 16
+        );
+
+        for (let index = 0; index < moteCount; index++) {
+            const mote = document.createElement('i');
+            mote.className = 'autfx9-mote';
+            mote.style.setProperty(
+                '--autfx9-mx',
+                `${(index * 47 + 13) % 100}%`
+            );
+            mote.style.setProperty(
+                '--autfx9-my',
+                `${(index * 61 + 9) % 100}%`
+            );
+            mote.style.setProperty(
+                '--autfx9-ms',
+                `${2 + (index % 4)}px`
+            );
+            mote.style.setProperty(
+                '--autfx9-mc',
+                motePalette[index % motePalette.length]
+            );
+            mote.style.setProperty(
+                '--autfx9-md',
+                `${5.8 + (index % 7) * .84}s`
+            );
+            mote.style.setProperty(
+                '--autfx9-mdelay',
+                `${-(index % 11) * .43}s`
+            );
+            mote.style.setProperty(
+                '--autfx9-mdx',
+                `${-18 + (index % 6) * 7}px`
+            );
+
+            moteField?.appendChild(mote);
         }
 
         document.body.appendChild(root);

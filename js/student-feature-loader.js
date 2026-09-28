@@ -46,7 +46,7 @@
 
     if (window.StudentFeatureLoader) return;
 
-    const VERSION = '3.4.9-autumn-premium-v1';
+    const VERSION = '3.6.0-autumn-four-effects-restored-v1';
 
     const cssPromises = new Map();
     const scriptPromises = new Map();
@@ -70,46 +70,48 @@
         midAutumnFestival: 'css/mid-autumn-festival.css?v=20260914.4-balanced-games',
 
         collections: 'css/store-collections.css?v=20260908.four-seasons-lock-v1',
-        luxury: 'css/luxury-store.css?v=3.8',
-        camMong: 'css/cam-co-cam-mong.css?v=20260917.frame-runtime-barrier-v1',
-        midAutumnMoon: 'css/trung-thu-nguyet-cung.css?v=20260917.frame-runtime-barrier-v1',
+        luxury: 'css/luxury-store.css?v=20260926.hacmong-v1',
+        camMong: 'css/cam-co-cam-mong.css?v=20260927.realms10',
+        midAutumnMoon: 'css/trung-thu-nguyet-cung.css?v=20260927.realms10',
 
         lotm: 'css/lord-of-mysteries.css?v=3.3',
-        lotmKlein: 'css/lord-of-mysteries-klein.css?v=20260917.frame-runtime-barrier-v1',
+        lotmKlein: 'css/lord-of-mysteries-klein.css?v=20260927.realms10',
         legendary: 'css/legendery.css?v=20260917.frame-runtime-barrier-v1',
         doraemon: 'css/doraemon.css?v=3.8',
         paintingItems: 'css/hoi-hoa.css?v=3.8',
         sevenSins: 'css/that-dai-toi.css?v=3.8',
         birthday: 'css/pet-sinh-nhat.css?v=3.8',
         weather: 'css/thoi-tiet.css?v=3.8',
-        seasons: 'css/premium-mua-xuan.css?v=20260924.autumn-premium-v1',
-        nationalDay: 'css/quoc-khanh-pet.css?v=20260917.frame-runtime-barrier-v1',
-        nyx: 'css/nyx-than-thoai.css?v=20260917.frame-runtime-barrier-v1',
-        aether: 'css/aether-than-thoai.css?v=20260917.aether-frame-v1',
-        tamon: 'css/tamon-b-side.css?v=20260917.frame-runtime-barrier-v1',
-        linkClickCheng: 'css/link-click-cheng-xiaoshi.css?v=20260917.frame-runtime-barrier-v1'
+        hacmong: 'css/premium-hac-mong.css?v=20260927.realms10',
+        autumn: 'css/premium-mua-thu.css?v=20260927.realms10',
+        seasons: 'css/premium-mua-xuan.css?v=20260927.summer-national14',
+        nationalDay: 'css/quoc-khanh-pet.css?v=20260927.summer-national14',
+        nyx: 'css/nyx-than-thoai.css?v=20260927.realms10',
+        aether: 'css/aether-than-thoai.css?v=20260927.realms10',
+        tamon: 'css/tamon-b-side.css?v=20260927.realms10',
+        linkClickCheng: 'css/link-click-cheng-xiaoshi.css?v=20260927.realms10'
     });
 
     const SCRIPT = Object.freeze({
-        themeItems: 'js/theme-items.js?v=20260924.decor-pet-integrity-v1',
-        effectItems: 'js/effect-items.js?v=4.2',
-        petItems: 'js/pet-items.js?v=20260924.autumn-premium-v1',
-        petInteractions: 'js/pet-interactions.js?v=20260924.decor-pet-integrity-v1',
+        themeItems: 'js/theme-items.js?v=20260927.autumn-four-effects-restored-v1',
+        effectItems: 'js/effect-items.js?v=20260927.autumn-four-effects-restored-v1',
+        petItems: 'js/pet-items.js?v=20260926.autumn-sale-tag-v3',
+        petInteractions: 'js/pet-interactions.js?v=3.8',
         musicManager: 'js/music-manager.js?v=20260910.music-reliability-v3',
-        storeManager: 'js/store-manager.js?v=20260923.store-integrity-v1',
+        storeManager: 'js/store-manager.js?v=20260927.autumn-four-effects-restored-v1',
 
-        luxuryStore: 'js/luxury-store.js?v=20260924.autumn-premium-v1',
-        collections: 'js/store-collections.js?v=20260923.store-integrity-v1',
+        luxuryStore: 'js/luxury-store.js?v=20260927.tap15',
+        collections: 'js/store-collections.js?v=20260908.four-seasons-lock-v1',
 
-        royalBall: 'js/royal-ball.js?v=20260924.event-integrity-v1',
-        leaderboard: 'js/leaderboard.js?v=20260924.reward-integrity-v1',
-        painting: 'js/painting.js?v=20260924.event-integrity-v1',
-        history: 'js/lich-su-hao-hung.js?v=20260924.event-integrity-v1',
-        bellum: 'js/bellum-event.js?v=20260924.event-integrity-v1',
-        midAutumnFestival: 'js/mid-autumn-festival.js?v=20260924.1-rules-authority-fix',
+        royalBall: 'js/royal-ball.js?v=20260908.lazy-v1',
+        leaderboard: 'js/leaderboard.js?v=20260910.trigger-autoload-v1',
+        painting: 'js/painting.js?v=20260908.round-query-v1',
+        history: 'js/lich-su-hao-hung.js?v=20260831.1',
+        bellum: 'js/bellum-event.js?v=20260912.4',
+        midAutumnFestival: 'js/mid-autumn-festival.js?v=20260917.1-accessibility-focus-fix',
 
-        dailyLogin: 'js/daily-login.js?v=20260924.reward-integrity-v1',
-        guide: 'js/huong-dan-nguoi-moi.js?v=2.14.2'
+        dailyLogin: 'js/daily-login.js?v=20260908.lazy-v1',
+        guide: 'js/huong-dan-nguoi-moi.js?v=2.14.0'
     });
 
     /*
@@ -120,6 +122,7 @@
         frame_lotm_klein_gray_fog_ring_event: Object.freeze([CSS.lotmKlein]),
         frame_mua_ha_nhat_diep_chi_hoan: Object.freeze([CSS.seasons]),
         frame_premium_mua_xuan_hoa_mong: Object.freeze([CSS.seasons]),
+        frame_mua_thu_phong_diep_chi_hoan: Object.freeze([CSS.autumn]),
         frame_quoc_khanh_viet_dieu_quoc_an: Object.freeze([CSS.nationalDay]),
         frame_tamon_bside_signal_ring: Object.freeze([CSS.tamon]),
         frame_truyenthuyet_nyx_hac_nguyet_chi_hoan: Object.freeze([
@@ -151,6 +154,8 @@
     ]);
 
     const ALL_SPECIAL_STORE_CSS = Object.freeze([
+        CSS.autumn,
+        CSS.hacmong,
         CSS.camMong,
         CSS.midAutumnMoon,
         CSS.lotm,
@@ -652,7 +657,15 @@ html[data-app-role="student"] body .dashboard > .content > :is(
             result.add(CSS.weather);
         }
 
-        if (/(premium_mua_xuan|mua_xuan|mua_ha|premium_mua_thu|mua_thu|autumn|summer|spring)/.test(id)) {
+        if (id === 'pet_hac_mong_2') result.add(CSS.hacmong);
+        if (id === 'pet_luxury_mua_thu') result.add(CSS.autumn);
+        if (id === 'pet_premium_mua_thu_chibi_3') result.add(CSS.autumn);
+        if (id === 'theme_mua_thu_phong_diep_kinh_suong') result.add(CSS.autumn);
+        if (id === 'effect_mua_thu_phong_diep_quang_trieu') result.add(CSS.autumn);
+        if (id === 'frame_mua_thu_phong_diep_chi_hoan') result.add(CSS.autumn);
+        if (id === 'background_mua_thu_phong_lam_mong_canh') result.add(CSS.autumn);
+
+        if (/(premium_mua_xuan|mua_xuan|mua_ha|summer|spring)/.test(id)) {
             result.add(CSS.seasons);
         }
 
@@ -1082,7 +1095,8 @@ html[data-app-role="student"] body .dashboard > .content > :is(
     const LUXURY_ITEM_IDS = new Set([
         'pet_luxury_mua_xuan',
         'pet_luxury_mua_ha',
-        'pet_luxury_mua_thu',
+    'pet_luxury_mua_thu',
+        'pet_hac_mong_2',
         'pet_quoc_khanh_1',
         'pet_mythic_nyx_1',
         'pet_mythic_aether_1',

@@ -14,7 +14,7 @@
 
     if (window.EffectQualityManager) return;
 
-    const VERSION = '2.1.0';
+    const VERSION = '2.2.0-luxury';
     const STORAGE_PREFIX = 'effectQualityManager:v1';
     const STYLE_ID = 'effect-quality-manager-style';
     const SETTINGS_ROW_ID = 'effectQualitySettingsRow';
@@ -200,12 +200,50 @@
         } catch (_) {}
     }
 
+
+    // Only layers explicitly owned by luxury-store opt into this policy.
+    const LUXURY_SELECTOR13='[data-luxury-quality-layer],[data-scene10],[data-five-realm],[data-autumn3-runtime],[data-hacmong2-runtime],[data-gesture10]';
+    function getLuxuryPolicy() {
+        const level=resolveRole()==='student'?getEffectiveLevel():'high';
+        return {level, pointerEnabled:level!=='low', countScale:level==='low'?.12:level==='medium'?.5:1,
+            trailInterval:level==='medium'?160:70, trailLimit:level==='medium'?4:10, tapCount:level==='medium'?4:7};
+    }
+    function processLuxuryLayers13(scope) {
+        if(!(scope instanceof Element)&&scope!==document)return;
+        const roots=[];if(scope.matches?.(LUXURY_SELECTOR13))roots.push(scope);
+        scope.querySelectorAll(LUXURY_SELECTOR13).forEach(n=>roots.push(n));
+        const level=getLuxuryPolicy().level;
+        for(const root of roots){
+            if(root.closest(STORE_CARD_SELECTOR)||root.id==='virtual-pet-container'||root.id==='virtual-pet-img')continue;
+            root.dataset.luxuryQualityLayer='1';
+            if(root.hasAttribute('data-gesture10')){if(level==='low')root.remove();continue;}
+            // Limit SVG primitives, not the main pet, labels, controls or UI layout.
+            root.querySelectorAll('svg').forEach(svg=>{
+                svg.querySelectorAll('path,rect,circle,ellipse,line,polyline,polygon,use').forEach((n,i)=>{
+                    if(n.closest('defs,clipPath,mask,pattern,marker'))return;
+                    n.dataset.luxuryDetail13=i%2?'medium':i%8?'low':'base';
+                });
+            });
+        }
+    }
+
     function injectStyles() {
         if (document.getElementById(STYLE_ID)) return;
 
         const style = document.createElement('style');
         style.id = STYLE_ID;
         style.textContent = `
+/* Student luxury-only policy; normal store rules below are unchanged. */
+html.fxq-luxury-medium [data-luxury-detail13="medium"]{display:none!important}
+html.fxq-luxury-medium [data-luxury-quality-layer] *{filter:none!important;text-shadow:none!important}
+html.fxq-luxury-medium [data-luxury-quality-layer] svg>g:nth-child(even){animation-play-state:paused!important}
+html.fxq-luxury-low [data-gesture10]{display:none!important}
+html.fxq-luxury-low [data-luxury-quality-layer][class*="click"],html.fxq-luxury-low [data-luxury-quality-layer][class*="trail"]{display:none!important}
+html.fxq-luxury-low [data-luxury-detail13="medium"],html.fxq-luxury-low [data-luxury-detail13="low"]{display:none!important}
+html.fxq-luxury-low [data-luxury-quality-layer],html.fxq-luxury-low [data-luxury-quality-layer] *,html.fxq-luxury-low [data-luxury-quality-layer]::before,html.fxq-luxury-low [data-luxury-quality-layer]::after{animation:none!important;transition:none!important;filter:none!important;box-shadow:none!important;text-shadow:none!important}
+html.fxq-luxury-low [data-luxury-quality-layer] svg>g:nth-child(n+3){display:none!important}
+html.fxq-luxury-low [data-luxury-quality-layer] [data-fxq-weight="secondary"]{display:none!important}
+
 [data-fxq-card-visible="0"],
 [data-fxq-card-visible="0"]::before,
 [data-fxq-card-visible="0"]::after,
@@ -771,6 +809,7 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
     }
 
     function processAddedNode(node, processedCards = new Set()) {
+        processLuxuryLayers13(node);
         if (!(node instanceof Element)) return;
 
         // Card cửa hàng được render động bằng innerHTML; quét ngay khi xuất hiện.
@@ -808,6 +847,7 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
     }
 
     function scanExistingEffects() {
+        processLuxuryLayers13(document);
         document.querySelectorAll('#global-effect-container, #virtual-pet-container, [data-effect-quality-root="1"], [data-fxq-root="1"]').forEach(processRoot);
         scanStoreCards(document);
 
@@ -1632,6 +1672,8 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
 
         root.classList.remove('fxq-enabled', 'fxq-high', 'fxq-medium', 'fxq-low');
         root.removeAttribute('data-effect-quality');
+        root.classList.remove('fxq-luxury-medium','fxq-luxury-low');
+        if(resolveRole()==='student'&&state.enabled&&state.level!=='high')root.classList.add('fxq-luxury-'+state.level);
 
         if (!state.enabled) return;
 
@@ -1664,9 +1706,9 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
         if (state.level === 'high') {
             status.textContent = 'Cao • Đầy đủ hiệu ứng, không giảm chất lượng';
         } else if (state.level === 'medium') {
-            status.textContent = 'Trung bình • Giảm hạt/lớp phụ, hiệu ứng card và tần suất sinh hiệu ứng';
+            status.textContent = 'Trung bình • Sang trọng: giảm hiệu ứng vật phẩm, ultimate, nhấn/chạm và di chuột. Cửa hàng thường giữ cơ chế cũ';
         } else {
-            status.textContent = 'Thấp • Giảm tối đa hiệu ứng vật phẩm/card/web, ưu tiên độ ổn định của máy';
+            status.textContent = 'Thấp • Sang trọng: tắt nhấn/chạm, di chuột; hiệu ứng và ultimate tối thiểu. Cửa hàng thường giữ cơ chế cũ';
         }
     }
 
@@ -1757,11 +1799,11 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
                 </button>
                 <button type="button" class="fxq-level-btn" data-fxq-level="medium" aria-pressed="false">
                     <strong>⚖️ Trung bình</strong>
-                    <small>Giảm một phần hiệu ứng</small>
+                    <small>Giảm lớp, ultimate và tương tác</small>
                 </button>
                 <button type="button" class="fxq-level-btn" data-fxq-level="low" aria-pressed="false">
                     <strong>🛡️ Thấp</strong>
-                    <small>Ưu tiên máy ổn định</small>
+                    <small>Sang trọng: tối thiểu, tắt nhấn/rê</small>
                 </button>
             </div>
         `;
@@ -1882,6 +1924,7 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
         isEnabled: () => state.enabled,
         getLevel: () => state.level,
         getEffectiveLevel,
+        getLuxuryPolicy,
         getIntervalMultiplier,
         scaleInterval,
         setEnabled: enabled => setEnabled(enabled, { persist: true }),

@@ -20,7 +20,8 @@
         try {
             const manager = window.EffectQualityManager;
             if (manager && typeof manager.getRecommendedCount === 'function') {
-                const next = manager.getRecommendedCount(base);
+                const policy = manager.getLuxuryPolicy?.();
+                const next = policy ? Math.ceil(base * policy.countScale) : manager.getRecommendedCount(base);
                 return base > 0 ? Math.max(minimum, next) : 0;
             }
         } catch (_) {}
@@ -35,6 +36,7 @@
         'pet_luxury_mua_xuan',
         'pet_luxury_mua_ha',
         'pet_luxury_mua_thu',
+        'pet_hac_mong_2',
         'pet_quoc_khanh_1',
         'pet_mythic_nyx_1',
         'pet_mythic_aether_1',
@@ -58,6 +60,580 @@
     // - Không mua / không dùng thử bằng Coin.
     // - Vật phẩm Luxury 10/10.
     // ========================================================
+    // MÙA THU · HỔ PHÁCH PHONG DIỆP — full suite owned only by this pet.
+    const AUTUMN_PREMIUM_PET = {
+        id: 'pet_luxury_mua_thu', name: 'Thu Thần · Hổ Phách Phong Diệp',
+        type: 'pet', price: 14000, isNonCoin: false, luxuryOnly: true, eventOnly: false,
+        tag: 'Mùa thu', tags: ['Mùa thu', 'Bốn mùa', 'Premium'],
+        image: 'assets/Premium/Bốn mùa/thu_nhan_vat3.png',
+        asset: 'assets/Premium/Bốn mùa/thu_nhan_vat3.png',
+        value: 'assets/Premium/Bốn mùa/thu_nhan_vat3.png',
+        luxuryTagImage: 'assets/Premium/Bốn mùa/tag3.png', isIcon: false,
+        petEffect: 'autumn3-pet-magic', premiumSuite: 'autumn3-amber-sanctuary',
+        premiumLayers: ['world-effect', 'interface', 'pet-realm', 'global-click', 'ultimate'],
+        disableClickEffect: true
+    };
+
+    function ensureAutumnStylesheet() {
+        let link = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+            .find(node => /\/premium-mua-thu\.css(?:[?#]|$)/.test(node.href));
+        if (!link) {
+            link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'css/premium-mua-thu.css?v=20260927.realms10';
+            document.head.appendChild(link);
+        }
+        link.id = 'autumn3-premium-style';
+        return link;
+    }
+
+    const LUX_ART10 = {"rose":"<svg viewBox=\"0 0 1600 900\" preserveAspectRatio=\"xMidYMid slice\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><g class=\"r10-rig\" fill=\"none\"><path d=\"M70 700V70H1530V700\"/><path d=\"M130 700V95H1470V700\"/><path d=\"M190 700V120H1410V700\"/><path d=\"M250 700V145H1350V700\"/><path d=\"M310 700V170H1290V700\"/><path d=\"M100 75l26 45 26-45\"/><path d=\"M152 75l26 45 26-45\"/><path d=\"M204 75l26 45 26-45\"/><path d=\"M256 75l26 45 26-45\"/><path d=\"M308 75l26 45 26-45\"/><path d=\"M360 75l26 45 26-45\"/><path d=\"M412 75l26 45 26-45\"/><path d=\"M464 75l26 45 26-45\"/><path d=\"M516 75l26 45 26-45\"/><path d=\"M568 75l26 45 26-45\"/><path d=\"M620 75l26 45 26-45\"/><path d=\"M672 75l26 45 26-45\"/><path d=\"M724 75l26 45 26-45\"/><path d=\"M776 75l26 45 26-45\"/><path d=\"M828 75l26 45 26-45\"/><path d=\"M880 75l26 45 26-45\"/><path d=\"M932 75l26 45 26-45\"/><path d=\"M984 75l26 45 26-45\"/><path d=\"M1036 75l26 45 26-45\"/><path d=\"M1088 75l26 45 26-45\"/><path d=\"M1140 75l26 45 26-45\"/><path d=\"M1192 75l26 45 26-45\"/><path d=\"M1244 75l26 45 26-45\"/><path d=\"M1296 75l26 45 26-45\"/><path d=\"M1348 75l26 45 26-45\"/><path d=\"M1400 75l26 45 26-45\"/><path d=\"M1452 75l26 45 26-45\"/><path d=\"M1504 75l26 45 26-45\"/></g><g class=\"r10-beams\"><path style=\"--i:0\" d=\"M100 95L-260 850H220Z\"/><path style=\"--i:1\" d=\"M225 95L-120 850H350Z\"/><path style=\"--i:2\" d=\"M350 95L20 850H480Z\"/><path style=\"--i:3\" d=\"M475 95L160 850H610Z\"/><path style=\"--i:4\" d=\"M600 95L300 850H740Z\"/><path style=\"--i:5\" d=\"M725 95L440 850H870Z\"/><path style=\"--i:6\" d=\"M850 95L580 850H1000Z\"/><path style=\"--i:7\" d=\"M975 95L720 850H1130Z\"/><path style=\"--i:8\" d=\"M1100 95L860 850H1260Z\"/><path style=\"--i:9\" d=\"M1225 95L1000 850H1390Z\"/><path style=\"--i:10\" d=\"M1350 95L1140 850H1520Z\"/><path style=\"--i:11\" d=\"M1475 95L1280 850H1650Z\"/></g><g class=\"r10-speakers\"><g transform=\"translate(65 180)\"><rect width=\"80\" height=\"110\" rx=\"14\"/><circle cx=\"40\" cy=\"60\" r=\"28\"/><circle cx=\"40\" cy=\"60\" r=\"10\"/></g><g transform=\"translate(65 303)\"><rect width=\"80\" height=\"110\" rx=\"14\"/><circle cx=\"40\" cy=\"60\" r=\"28\"/><circle cx=\"40\" cy=\"60\" r=\"10\"/></g><g transform=\"translate(65 426)\"><rect width=\"80\" height=\"110\" rx=\"14\"/><circle cx=\"40\" cy=\"60\" r=\"28\"/><circle cx=\"40\" cy=\"60\" r=\"10\"/></g><g transform=\"translate(65 549)\"><rect width=\"80\" height=\"110\" rx=\"14\"/><circle cx=\"40\" cy=\"60\" r=\"28\"/><circle cx=\"40\" cy=\"60\" r=\"10\"/></g><g transform=\"translate(1455 180)\"><rect width=\"80\" height=\"110\" rx=\"14\"/><circle cx=\"40\" cy=\"60\" r=\"28\"/><circle cx=\"40\" cy=\"60\" r=\"10\"/></g><g transform=\"translate(1455 303)\"><rect width=\"80\" height=\"110\" rx=\"14\"/><circle cx=\"40\" cy=\"60\" r=\"28\"/><circle cx=\"40\" cy=\"60\" r=\"10\"/></g><g transform=\"translate(1455 426)\"><rect width=\"80\" height=\"110\" rx=\"14\"/><circle cx=\"40\" cy=\"60\" r=\"28\"/><circle cx=\"40\" cy=\"60\" r=\"10\"/></g><g transform=\"translate(1455 549)\"><rect width=\"80\" height=\"110\" rx=\"14\"/><circle cx=\"40\" cy=\"60\" r=\"28\"/><circle cx=\"40\" cy=\"60\" r=\"10\"/></g></g><g class=\"r10-runway\"><path d=\"M640 470H960L1400 900H200Z\"/><path class=\"\" d=\"M640 470H960\"/><path class=\"\" d=\"M610 502H990\"/><path class=\"\" d=\"M580 534H1020\"/><path class=\"\" d=\"M550 566H1050\"/><path class=\"\" d=\"M520 598H1080\"/><path class=\"\" d=\"M490 630H1110\"/><path class=\"\" d=\"M460 662H1140\"/><path class=\"\" d=\"M430 694H1170\"/><path class=\"\" d=\"M400 726H1200\"/><path class=\"\" d=\"M370 758H1230\"/><path class=\"\" d=\"M340 790H1260\"/><path class=\"\" d=\"M310 822H1290\"/><path class=\"\" d=\"M280 854H1320\"/><path class=\"\" d=\"M250 886H1350\"/><path class=\"\" d=\"M640 470L200 900\"/><path class=\"\" d=\"M680 470L350 900\"/><path class=\"\" d=\"M720 470L500 900\"/><path class=\"\" d=\"M760 470L650 900\"/><path class=\"\" d=\"M800 470L800 900\"/><path class=\"\" d=\"M840 470L950 900\"/><path class=\"\" d=\"M880 470L1100 900\"/><path class=\"\" d=\"M920 470L1250 900\"/><path class=\"\" d=\"M960 470L1400 900\"/></g><g class=\"r10-rose\"><path transform=\"rotate(0 800 345)\" d=\"M800 345C530 70 760 70 800 160C860 60 1080 130 800 345Z\"/><path transform=\"rotate(22.5 800 345)\" d=\"M800 345C530 70 760 70 800 160C860 60 1080 130 800 345Z\"/><path transform=\"rotate(45 800 345)\" d=\"M800 345C530 70 760 70 800 160C860 60 1080 130 800 345Z\"/><path transform=\"rotate(67.5 800 345)\" d=\"M800 345C530 70 760 70 800 160C860 60 1080 130 800 345Z\"/><path transform=\"rotate(90 800 345)\" d=\"M800 345C530 70 760 70 800 160C860 60 1080 130 800 345Z\"/><path transform=\"rotate(112.5 800 345)\" d=\"M800 345C530 70 760 70 800 160C860 60 1080 130 800 345Z\"/><path transform=\"rotate(135 800 345)\" d=\"M800 345C530 70 760 70 800 160C860 60 1080 130 800 345Z\"/><path transform=\"rotate(157.5 800 345)\" d=\"M800 345C530 70 760 70 800 160C860 60 1080 130 800 345Z\"/><path transform=\"rotate(180 800 345)\" d=\"M800 345C530 70 760 70 800 160C860 60 1080 130 800 345Z\"/><path transform=\"rotate(202.5 800 345)\" d=\"M800 345C530 70 760 70 800 160C860 60 1080 130 800 345Z\"/><path transform=\"rotate(225 800 345)\" d=\"M800 345C530 70 760 70 800 160C860 60 1080 130 800 345Z\"/><path transform=\"rotate(247.5 800 345)\" d=\"M800 345C530 70 760 70 800 160C860 60 1080 130 800 345Z\"/><path transform=\"rotate(270 800 345)\" d=\"M800 345C530 70 760 70 800 160C860 60 1080 130 800 345Z\"/><path transform=\"rotate(292.5 800 345)\" d=\"M800 345C530 70 760 70 800 160C860 60 1080 130 800 345Z\"/><path transform=\"rotate(315 800 345)\" d=\"M800 345C530 70 760 70 800 160C860 60 1080 130 800 345Z\"/><path transform=\"rotate(337.5 800 345)\" d=\"M800 345C530 70 760 70 800 160C860 60 1080 130 800 345Z\"/><circle cx=\"800\" cy=\"345\" r=\"45\"/></g><g class=\"r10-eq\"><rect style=\"--i:0\" x=\"220\" y=\"640\" width=\"8\" height=\"30\"/><rect style=\"--i:1\" x=\"238\" y=\"626\" width=\"8\" height=\"44\"/><rect style=\"--i:2\" x=\"256\" y=\"612\" width=\"8\" height=\"58\"/><rect style=\"--i:3\" x=\"274\" y=\"598\" width=\"8\" height=\"72\"/><rect style=\"--i:4\" x=\"292\" y=\"584\" width=\"8\" height=\"86\"/><rect style=\"--i:5\" x=\"310\" y=\"570\" width=\"8\" height=\"100\"/><rect style=\"--i:6\" x=\"328\" y=\"556\" width=\"8\" height=\"114\"/><rect style=\"--i:7\" x=\"346\" y=\"542\" width=\"8\" height=\"128\"/><rect style=\"--i:8\" x=\"364\" y=\"528\" width=\"8\" height=\"142\"/><rect style=\"--i:9\" x=\"382\" y=\"640\" width=\"8\" height=\"30\"/><rect style=\"--i:10\" x=\"400\" y=\"626\" width=\"8\" height=\"44\"/><rect style=\"--i:11\" x=\"418\" y=\"612\" width=\"8\" height=\"58\"/><rect style=\"--i:12\" x=\"436\" y=\"598\" width=\"8\" height=\"72\"/><rect style=\"--i:13\" x=\"454\" y=\"584\" width=\"8\" height=\"86\"/><rect style=\"--i:14\" x=\"472\" y=\"570\" width=\"8\" height=\"100\"/><rect style=\"--i:15\" x=\"490\" y=\"556\" width=\"8\" height=\"114\"/><rect style=\"--i:16\" x=\"508\" y=\"542\" width=\"8\" height=\"128\"/><rect style=\"--i:17\" x=\"526\" y=\"528\" width=\"8\" height=\"142\"/><rect style=\"--i:18\" x=\"544\" y=\"640\" width=\"8\" height=\"30\"/><rect style=\"--i:19\" x=\"562\" y=\"626\" width=\"8\" height=\"44\"/><rect style=\"--i:20\" x=\"580\" y=\"612\" width=\"8\" height=\"58\"/><rect style=\"--i:21\" x=\"598\" y=\"598\" width=\"8\" height=\"72\"/><rect style=\"--i:22\" x=\"616\" y=\"584\" width=\"8\" height=\"86\"/><rect style=\"--i:23\" x=\"634\" y=\"570\" width=\"8\" height=\"100\"/><rect style=\"--i:24\" x=\"652\" y=\"556\" width=\"8\" height=\"114\"/><rect style=\"--i:25\" x=\"670\" y=\"542\" width=\"8\" height=\"128\"/><rect style=\"--i:26\" x=\"688\" y=\"528\" width=\"8\" height=\"142\"/><rect style=\"--i:27\" x=\"706\" y=\"640\" width=\"8\" height=\"30\"/><rect style=\"--i:28\" x=\"724\" y=\"626\" width=\"8\" height=\"44\"/><rect style=\"--i:29\" x=\"742\" y=\"612\" width=\"8\" height=\"58\"/><rect style=\"--i:30\" x=\"760\" y=\"598\" width=\"8\" height=\"72\"/><rect style=\"--i:31\" x=\"778\" y=\"584\" width=\"8\" height=\"86\"/><rect style=\"--i:32\" x=\"796\" y=\"570\" width=\"8\" height=\"100\"/><rect style=\"--i:33\" x=\"814\" y=\"556\" width=\"8\" height=\"114\"/><rect style=\"--i:34\" x=\"832\" y=\"542\" width=\"8\" height=\"128\"/><rect style=\"--i:35\" x=\"850\" y=\"528\" width=\"8\" height=\"142\"/><rect style=\"--i:36\" x=\"868\" y=\"640\" width=\"8\" height=\"30\"/><rect style=\"--i:37\" x=\"886\" y=\"626\" width=\"8\" height=\"44\"/><rect style=\"--i:38\" x=\"904\" y=\"612\" width=\"8\" height=\"58\"/><rect style=\"--i:39\" x=\"922\" y=\"598\" width=\"8\" height=\"72\"/><rect style=\"--i:40\" x=\"940\" y=\"584\" width=\"8\" height=\"86\"/><rect style=\"--i:41\" x=\"958\" y=\"570\" width=\"8\" height=\"100\"/><rect style=\"--i:42\" x=\"976\" y=\"556\" width=\"8\" height=\"114\"/><rect style=\"--i:43\" x=\"994\" y=\"542\" width=\"8\" height=\"128\"/><rect style=\"--i:44\" x=\"1012\" y=\"528\" width=\"8\" height=\"142\"/><rect style=\"--i:45\" x=\"1030\" y=\"640\" width=\"8\" height=\"30\"/><rect style=\"--i:46\" x=\"1048\" y=\"626\" width=\"8\" height=\"44\"/><rect style=\"--i:47\" x=\"1066\" y=\"612\" width=\"8\" height=\"58\"/><rect style=\"--i:48\" x=\"1084\" y=\"598\" width=\"8\" height=\"72\"/><rect style=\"--i:49\" x=\"1102\" y=\"584\" width=\"8\" height=\"86\"/><rect style=\"--i:50\" x=\"1120\" y=\"570\" width=\"8\" height=\"100\"/><rect style=\"--i:51\" x=\"1138\" y=\"556\" width=\"8\" height=\"114\"/><rect style=\"--i:52\" x=\"1156\" y=\"542\" width=\"8\" height=\"128\"/><rect style=\"--i:53\" x=\"1174\" y=\"528\" width=\"8\" height=\"142\"/><rect style=\"--i:54\" x=\"1192\" y=\"640\" width=\"8\" height=\"30\"/><rect style=\"--i:55\" x=\"1210\" y=\"626\" width=\"8\" height=\"44\"/><rect style=\"--i:56\" x=\"1228\" y=\"612\" width=\"8\" height=\"58\"/><rect style=\"--i:57\" x=\"1246\" y=\"598\" width=\"8\" height=\"72\"/><rect style=\"--i:58\" x=\"1264\" y=\"584\" width=\"8\" height=\"86\"/><rect style=\"--i:59\" x=\"1282\" y=\"570\" width=\"8\" height=\"100\"/><rect style=\"--i:60\" x=\"1300\" y=\"556\" width=\"8\" height=\"114\"/><rect style=\"--i:61\" x=\"1318\" y=\"542\" width=\"8\" height=\"128\"/><rect style=\"--i:62\" x=\"1336\" y=\"528\" width=\"8\" height=\"142\"/><rect style=\"--i:63\" x=\"1354\" y=\"640\" width=\"8\" height=\"30\"/></g><g class=\"r10-confetti\"><path style=\"--i:0\" transform=\"translate(0 0) rotate(0)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:1\" transform=\"translate(197 113) rotate(37)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:2\" transform=\"translate(394 226) rotate(74)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:3\" transform=\"translate(591 339) rotate(111)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:4\" transform=\"translate(788 452) rotate(148)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:5\" transform=\"translate(985 565) rotate(185)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:6\" transform=\"translate(1182 678) rotate(222)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:7\" transform=\"translate(1379 91) rotate(259)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:8\" transform=\"translate(1576 204) rotate(296)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:9\" transform=\"translate(173 317) rotate(333)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:10\" transform=\"translate(370 430) rotate(370)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:11\" transform=\"translate(567 543) rotate(407)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:12\" transform=\"translate(764 656) rotate(444)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:13\" transform=\"translate(961 69) rotate(481)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:14\" transform=\"translate(1158 182) rotate(518)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:15\" transform=\"translate(1355 295) rotate(555)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:16\" transform=\"translate(1552 408) rotate(592)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:17\" transform=\"translate(149 521) rotate(629)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:18\" transform=\"translate(346 634) rotate(666)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:19\" transform=\"translate(543 47) rotate(703)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:20\" transform=\"translate(740 160) rotate(740)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:21\" transform=\"translate(937 273) rotate(777)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:22\" transform=\"translate(1134 386) rotate(814)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:23\" transform=\"translate(1331 499) rotate(851)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:24\" transform=\"translate(1528 612) rotate(888)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:25\" transform=\"translate(125 25) rotate(925)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:26\" transform=\"translate(322 138) rotate(962)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:27\" transform=\"translate(519 251) rotate(999)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:28\" transform=\"translate(716 364) rotate(1036)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:29\" transform=\"translate(913 477) rotate(1073)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:30\" transform=\"translate(1110 590) rotate(1110)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:31\" transform=\"translate(1307 3) rotate(1147)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:32\" transform=\"translate(1504 116) rotate(1184)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:33\" transform=\"translate(101 229) rotate(1221)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:34\" transform=\"translate(298 342) rotate(1258)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:35\" transform=\"translate(495 455) rotate(1295)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:36\" transform=\"translate(692 568) rotate(1332)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:37\" transform=\"translate(889 681) rotate(1369)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:38\" transform=\"translate(1086 94) rotate(1406)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:39\" transform=\"translate(1283 207) rotate(1443)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:40\" transform=\"translate(1480 320) rotate(1480)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:41\" transform=\"translate(77 433) rotate(1517)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:42\" transform=\"translate(274 546) rotate(1554)\" d=\"M0 0l12 8-5 20-11-7Z\"/><path style=\"--i:43\" transform=\"translate(471 659) rotate(1591)\" d=\"M0 0l12 8-5 20-11-7Z\"/></g></svg>","cat":"<svg viewBox=\"0 0 1600 900\" preserveAspectRatio=\"xMidYMid slice\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><g class=\"c10-cables\" fill=\"none\"><path class=\"\" d=\"M-50 70Q800 5001650 80\"/><path class=\"\" d=\"M-50 96Q800 5221650 110\"/><path class=\"\" d=\"M-50 122Q800 5441650 140\"/><path class=\"\" d=\"M-50 148Q800 5661650 170\"/><path class=\"\" d=\"M-50 174Q800 5881650 200\"/><path class=\"\" d=\"M-50 200Q800 6101650 230\"/><path class=\"\" d=\"M-50 226Q800 6321650 260\"/></g><g class=\"c10-city\"><g transform=\"translate(-40 340)\"><path d=\"M0 350V50L30 10 60 50V350Z\"/><rect x=\"8\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"196\" width=\"8\" height=\"19\"/></g><g transform=\"translate(28 411)\"><path d=\"M0 350V50L30 10 60 50V350Z\"/><rect x=\"8\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"196\" width=\"8\" height=\"19\"/></g><g transform=\"translate(96 482)\"><path d=\"M0 350V50L30 10 60 50V350Z\"/><rect x=\"8\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"196\" width=\"8\" height=\"19\"/></g><g transform=\"translate(164 553)\"><path d=\"M0 350V50L30 10 60 50V350Z\"/><rect x=\"8\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"196\" width=\"8\" height=\"19\"/></g><g transform=\"translate(232 404)\"><path d=\"M0 350V50L30 10 60 50V350Z\"/><rect x=\"8\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"196\" width=\"8\" height=\"19\"/></g><g transform=\"translate(300 475)\"><path d=\"M0 350V50L30 10 60 50V350Z\"/><rect x=\"8\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"196\" width=\"8\" height=\"19\"/></g><g transform=\"translate(368 546)\"><path d=\"M0 350V50L30 10 60 50V350Z\"/><rect x=\"8\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"196\" width=\"8\" height=\"19\"/></g><g transform=\"translate(436 397)\"><path d=\"M0 350V50L30 10 60 50V350Z\"/><rect x=\"8\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"196\" width=\"8\" height=\"19\"/></g><g transform=\"translate(504 468)\"><path d=\"M0 350V50L30 10 60 50V350Z\"/><rect x=\"8\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"196\" width=\"8\" height=\"19\"/></g><g transform=\"translate(572 539)\"><path d=\"M0 350V50L30 10 60 50V350Z\"/><rect x=\"8\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"196\" width=\"8\" height=\"19\"/></g><g transform=\"translate(640 390)\"><path d=\"M0 350V50L30 10 60 50V350Z\"/><rect x=\"8\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"196\" width=\"8\" height=\"19\"/></g><g transform=\"translate(708 461)\"><path d=\"M0 350V50L30 10 60 50V350Z\"/><rect x=\"8\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"196\" width=\"8\" height=\"19\"/></g><g transform=\"translate(776 532)\"><path d=\"M0 350V50L30 10 60 50V350Z\"/><rect x=\"8\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"196\" width=\"8\" height=\"19\"/></g><g transform=\"translate(844 383)\"><path d=\"M0 350V50L30 10 60 50V350Z\"/><rect x=\"8\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"196\" width=\"8\" height=\"19\"/></g><g transform=\"translate(912 454)\"><path d=\"M0 350V50L30 10 60 50V350Z\"/><rect x=\"8\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"196\" width=\"8\" height=\"19\"/></g><g transform=\"translate(980 525)\"><path d=\"M0 350V50L30 10 60 50V350Z\"/><rect x=\"8\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"196\" width=\"8\" height=\"19\"/></g><g transform=\"translate(1048 376)\"><path d=\"M0 350V50L30 10 60 50V350Z\"/><rect x=\"8\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"196\" width=\"8\" height=\"19\"/></g><g transform=\"translate(1116 447)\"><path d=\"M0 350V50L30 10 60 50V350Z\"/><rect x=\"8\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"196\" width=\"8\" height=\"19\"/></g><g transform=\"translate(1184 518)\"><path d=\"M0 350V50L30 10 60 50V350Z\"/><rect x=\"8\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"196\" width=\"8\" height=\"19\"/></g><g transform=\"translate(1252 369)\"><path d=\"M0 350V50L30 10 60 50V350Z\"/><rect x=\"8\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"196\" width=\"8\" height=\"19\"/></g><g transform=\"translate(1320 440)\"><path d=\"M0 350V50L30 10 60 50V350Z\"/><rect x=\"8\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"196\" width=\"8\" height=\"19\"/></g><g transform=\"translate(1388 511)\"><path d=\"M0 350V50L30 10 60 50V350Z\"/><rect x=\"8\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"196\" width=\"8\" height=\"19\"/></g><g transform=\"translate(1456 362)\"><path d=\"M0 350V50L30 10 60 50V350Z\"/><rect x=\"8\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"196\" width=\"8\" height=\"19\"/></g><g transform=\"translate(1524 433)\"><path d=\"M0 350V50L30 10 60 50V350Z\"/><rect x=\"8\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"196\" width=\"8\" height=\"19\"/></g><g transform=\"translate(1592 504)\"><path d=\"M0 350V50L30 10 60 50V350Z\"/><rect x=\"8\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"70\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"112\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"154\" width=\"8\" height=\"19\"/><rect x=\"8\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"26\" y=\"196\" width=\"8\" height=\"19\"/><rect x=\"44\" y=\"196\" width=\"8\" height=\"19\"/></g></g><g class=\"c10-signs\"><g style=\"--i:0\" transform=\"translate(110 130) rotate(-8)\"><rect width=\"95\" height=\"145\" rx=\"12\"/><path d=\"M20 80V35l20 20h18l18-20v45q-28 35-56 0Z\"/><path d=\"M29 76l10 4m18 0 10-4M35 101h25\"/></g><g style=\"--i:1\" transform=\"translate(300 220) rotate(8)\"><rect width=\"95\" height=\"145\" rx=\"12\"/><path d=\"M20 80V35l20 20h18l18-20v45q-28 35-56 0Z\"/><path d=\"M29 76l10 4m18 0 10-4M35 101h25\"/></g><g style=\"--i:2\" transform=\"translate(490 310) rotate(-8)\"><rect width=\"95\" height=\"145\" rx=\"12\"/><path d=\"M20 80V35l20 20h18l18-20v45q-28 35-56 0Z\"/><path d=\"M29 76l10 4m18 0 10-4M35 101h25\"/></g><g style=\"--i:3\" transform=\"translate(680 130) rotate(8)\"><rect width=\"95\" height=\"145\" rx=\"12\"/><path d=\"M20 80V35l20 20h18l18-20v45q-28 35-56 0Z\"/><path d=\"M29 76l10 4m18 0 10-4M35 101h25\"/></g><g style=\"--i:4\" transform=\"translate(870 220) rotate(-8)\"><rect width=\"95\" height=\"145\" rx=\"12\"/><path d=\"M20 80V35l20 20h18l18-20v45q-28 35-56 0Z\"/><path d=\"M29 76l10 4m18 0 10-4M35 101h25\"/></g><g style=\"--i:5\" transform=\"translate(1060 310) rotate(8)\"><rect width=\"95\" height=\"145\" rx=\"12\"/><path d=\"M20 80V35l20 20h18l18-20v45q-28 35-56 0Z\"/><path d=\"M29 76l10 4m18 0 10-4M35 101h25\"/></g><g style=\"--i:6\" transform=\"translate(1250 130) rotate(-8)\"><rect width=\"95\" height=\"145\" rx=\"12\"/><path d=\"M20 80V35l20 20h18l18-20v45q-28 35-56 0Z\"/><path d=\"M29 76l10 4m18 0 10-4M35 101h25\"/></g><g style=\"--i:7\" transform=\"translate(1440 220) rotate(8)\"><rect width=\"95\" height=\"145\" rx=\"12\"/><path d=\"M20 80V35l20 20h18l18-20v45q-28 35-56 0Z\"/><path d=\"M29 76l10 4m18 0 10-4M35 101h25\"/></g></g><g class=\"c10-cat\"><path d=\"M610 470Q595 390 615 300L705 350Q800 325 895 350L980 290Q1020 430 970 495Q880 595 710 570Q570 540 595 685Q645 790 970 745\"/><path class=\"c10-eyes\" d=\"M678 420q55-45 105 15-60 22-105-15m140 15q58-60 115-20-40 40-115 20\"/><path d=\"M770 485l30 17 30-17M800 502v20m-130-46-150-30m150 50-160 10m420-35 150-30m-150 52 165 8\"/></g><g class=\"c10-roof\"><path d=\"M-100 875L800 680 1700 875M0 900L800 720 1600 900\"/><path class=\"\" d=\"M800 700L-100 900\"/><path class=\"\" d=\"M800 700L0 900\"/><path class=\"\" d=\"M800 700L100 900\"/><path class=\"\" d=\"M800 700L200 900\"/><path class=\"\" d=\"M800 700L300 900\"/><path class=\"\" d=\"M800 700L400 900\"/><path class=\"\" d=\"M800 700L500 900\"/><path class=\"\" d=\"M800 700L600 900\"/><path class=\"\" d=\"M800 700L700 900\"/><path class=\"\" d=\"M800 700L800 900\"/><path class=\"\" d=\"M800 700L900 900\"/><path class=\"\" d=\"M800 700L1000 900\"/><path class=\"\" d=\"M800 700L1100 900\"/><path class=\"\" d=\"M800 700L1200 900\"/><path class=\"\" d=\"M800 700L1300 900\"/><path class=\"\" d=\"M800 700L1400 900\"/><path class=\"\" d=\"M800 700L1500 900\"/><path class=\"\" d=\"M800 700L1600 900\"/></g><g class=\"c10-rain\"><path class=\"\" d=\"M0 0l-18 60\"/><path class=\"\" d=\"M73 137l-18 60\"/><path class=\"\" d=\"M146 274l-18 60\"/><path class=\"\" d=\"M219 411l-18 60\"/><path class=\"\" d=\"M292 548l-18 60\"/><path class=\"\" d=\"M365 685l-18 60\"/><path class=\"\" d=\"M438 822l-18 60\"/><path class=\"\" d=\"M511 109l-18 60\"/><path class=\"\" d=\"M584 246l-18 60\"/><path class=\"\" d=\"M657 383l-18 60\"/><path class=\"\" d=\"M730 520l-18 60\"/><path class=\"\" d=\"M803 657l-18 60\"/><path class=\"\" d=\"M876 794l-18 60\"/><path class=\"\" d=\"M949 81l-18 60\"/><path class=\"\" d=\"M1022 218l-18 60\"/><path class=\"\" d=\"M1095 355l-18 60\"/><path class=\"\" d=\"M1168 492l-18 60\"/><path class=\"\" d=\"M1241 629l-18 60\"/><path class=\"\" d=\"M1314 766l-18 60\"/><path class=\"\" d=\"M1387 53l-18 60\"/><path class=\"\" d=\"M1460 190l-18 60\"/><path class=\"\" d=\"M1533 327l-18 60\"/><path class=\"\" d=\"M1606 464l-18 60\"/><path class=\"\" d=\"M29 601l-18 60\"/><path class=\"\" d=\"M102 738l-18 60\"/><path class=\"\" d=\"M175 25l-18 60\"/><path class=\"\" d=\"M248 162l-18 60\"/><path class=\"\" d=\"M321 299l-18 60\"/><path class=\"\" d=\"M394 436l-18 60\"/><path class=\"\" d=\"M467 573l-18 60\"/><path class=\"\" d=\"M540 710l-18 60\"/><path class=\"\" d=\"M613 847l-18 60\"/><path class=\"\" d=\"M686 134l-18 60\"/><path class=\"\" d=\"M759 271l-18 60\"/><path class=\"\" d=\"M832 408l-18 60\"/><path class=\"\" d=\"M905 545l-18 60\"/><path class=\"\" d=\"M978 682l-18 60\"/><path class=\"\" d=\"M1051 819l-18 60\"/><path class=\"\" d=\"M1124 106l-18 60\"/><path class=\"\" d=\"M1197 243l-18 60\"/><path class=\"\" d=\"M1270 380l-18 60\"/><path class=\"\" d=\"M1343 517l-18 60\"/><path class=\"\" d=\"M1416 654l-18 60\"/><path class=\"\" d=\"M1489 791l-18 60\"/><path class=\"\" d=\"M1562 78l-18 60\"/><path class=\"\" d=\"M1635 215l-18 60\"/><path class=\"\" d=\"M58 352l-18 60\"/><path class=\"\" d=\"M131 489l-18 60\"/><path class=\"\" d=\"M204 626l-18 60\"/><path class=\"\" d=\"M277 763l-18 60\"/><path class=\"\" d=\"M350 50l-18 60\"/><path class=\"\" d=\"M423 187l-18 60\"/><path class=\"\" d=\"M496 324l-18 60\"/><path class=\"\" d=\"M569 461l-18 60\"/><path class=\"\" d=\"M642 598l-18 60\"/><path class=\"\" d=\"M715 735l-18 60\"/><path class=\"\" d=\"M788 22l-18 60\"/><path class=\"\" d=\"M861 159l-18 60\"/><path class=\"\" d=\"M934 296l-18 60\"/><path class=\"\" d=\"M1007 433l-18 60\"/><path class=\"\" d=\"M1080 570l-18 60\"/><path class=\"\" d=\"M1153 707l-18 60\"/><path class=\"\" d=\"M1226 844l-18 60\"/><path class=\"\" d=\"M1299 131l-18 60\"/><path class=\"\" d=\"M1372 268l-18 60\"/></g></svg>","moon":"<svg viewBox=\"0 0 1600 900\" preserveAspectRatio=\"xMidYMid slice\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><g class=\"m10-orrery\" fill=\"none\"><ellipse cx=\"800\" cy=\"350\" rx=\"180\" ry=\"90\" transform=\"rotate(0 800 350)\"/><ellipse cx=\"800\" cy=\"350\" rx=\"237\" ry=\"132\" transform=\"rotate(26 800 350)\"/><ellipse cx=\"800\" cy=\"350\" rx=\"294\" ry=\"174\" transform=\"rotate(52 800 350)\"/><ellipse cx=\"800\" cy=\"350\" rx=\"351\" ry=\"216\" transform=\"rotate(78 800 350)\"/><ellipse cx=\"800\" cy=\"350\" rx=\"408\" ry=\"258\" transform=\"rotate(104 800 350)\"/><ellipse cx=\"800\" cy=\"350\" rx=\"465\" ry=\"300\" transform=\"rotate(130 800 350)\"/><ellipse cx=\"800\" cy=\"350\" rx=\"522\" ry=\"342\" transform=\"rotate(156 800 350)\"/><path transform=\"rotate(0 800 350)\" d=\"M800 22v28\"/><path transform=\"rotate(6 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(12 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(18 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(24 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(30 800 350)\" d=\"M800 22v28\"/><path transform=\"rotate(36 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(42 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(48 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(54 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(60 800 350)\" d=\"M800 22v28\"/><path transform=\"rotate(66 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(72 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(78 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(84 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(90 800 350)\" d=\"M800 22v28\"/><path transform=\"rotate(96 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(102 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(108 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(114 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(120 800 350)\" d=\"M800 22v28\"/><path transform=\"rotate(126 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(132 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(138 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(144 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(150 800 350)\" d=\"M800 22v28\"/><path transform=\"rotate(156 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(162 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(168 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(174 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(180 800 350)\" d=\"M800 22v28\"/><path transform=\"rotate(186 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(192 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(198 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(204 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(210 800 350)\" d=\"M800 22v28\"/><path transform=\"rotate(216 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(222 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(228 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(234 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(240 800 350)\" d=\"M800 22v28\"/><path transform=\"rotate(246 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(252 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(258 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(264 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(270 800 350)\" d=\"M800 22v28\"/><path transform=\"rotate(276 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(282 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(288 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(294 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(300 800 350)\" d=\"M800 22v28\"/><path transform=\"rotate(306 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(312 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(318 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(324 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(330 800 350)\" d=\"M800 22v28\"/><path transform=\"rotate(336 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(342 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(348 800 350)\" d=\"M800 22v12\"/><path transform=\"rotate(354 800 350)\" d=\"M800 22v12\"/></g><g class=\"m10-crescent\"><path d=\"M915 120A255 255 0 1 0 930 560A220 220 0 0 1 915 120Z\"/></g><g class=\"m10-palace\"><g transform=\"translate(420 440)\"><path d=\"M-35 10Q55-15 70-55Q90-10 155 10L115 22H0Z\"/><path d=\"M5 22V170H110V22M25 45V160M55 35V160M85 45V160\"/><path d=\"M-5 170H120v20H-5Z\"/></g><g transform=\"translate(530 367.5)\"><path d=\"M-35 10Q55-15 70-55Q90-10 155 10L115 22H0Z\"/><path d=\"M5 22V170H110V22M25 45V160M55 35V160M85 45V160\"/><path d=\"M-5 170H120v20H-5Z\"/></g><g transform=\"translate(640 314.4263164512564)\"><path d=\"M-35 10Q55-15 70-55Q90-10 155 10L115 22H0Z\"/><path d=\"M5 22V170H110V22M25 45V160M55 35V160M85 45V160\"/><path d=\"M-5 170H120v20H-5Z\"/></g><g transform=\"translate(750 295)\"><path d=\"M-35 10Q55-15 70-55Q90-10 155 10L115 22H0Z\"/><path d=\"M5 22V170H110V22M25 45V160M55 35V160M85 45V160\"/><path d=\"M-5 170H120v20H-5Z\"/></g><g transform=\"translate(860 314.4263164512564)\"><path d=\"M-35 10Q55-15 70-55Q90-10 155 10L115 22H0Z\"/><path d=\"M5 22V170H110V22M25 45V160M55 35V160M85 45V160\"/><path d=\"M-5 170H120v20H-5Z\"/></g><g transform=\"translate(970 367.5)\"><path d=\"M-35 10Q55-15 70-55Q90-10 155 10L115 22H0Z\"/><path d=\"M5 22V170H110V22M25 45V160M55 35V160M85 45V160\"/><path d=\"M-5 170H120v20H-5Z\"/></g><g transform=\"translate(1080 440)\"><path d=\"M-35 10Q55-15 70-55Q90-10 155 10L115 22H0Z\"/><path d=\"M5 22V170H110V22M25 45V160M55 35V160M85 45V160\"/><path d=\"M-5 170H120v20H-5Z\"/></g></g><g class=\"m10-bridge\" fill=\"none\"><path d=\"M-80 740Q800 340 1680 740M-80 770Q800 370 1680 770\"/><path class=\"\" d=\"M-20 742v40\"/><path class=\"\" d=\"M22 726.3090191002384v40\"/><path class=\"\" d=\"M64 710.7198002327367v40\"/><path class=\"\" d=\"M106 695.3334454639262v40\"/><path class=\"\" d=\"M148 680.2497412087129v40\"/><path class=\"\" d=\"M190 665.5665110772853v40\"/><path class=\"\" d=\"M232 651.3789814514652v40\"/><path class=\"\" d=\"M274 637.7791639050788v40\"/><path class=\"\" d=\"M316 624.8552584735942v40\"/><path class=\"\" d=\"M358 612.691081643045v40\"/><path class=\"\" d=\"M400 601.3655227679562v40\"/><path class=\"\" d=\"M442 590.9520324436073v40\"/><path class=\"\" d=\"M484 581.518146150737v40\"/><path class=\"\" d=\"M526 573.1250462620345v40\"/><path class=\"\" d=\"M568 565.8271652509754v40\"/><path class=\"\" d=\"M610 559.6718326763441v40\"/><path class=\"\" d=\"M652 554.6989682318824v40\"/><path class=\"\" d=\"M694 550.9408228517578v40\"/><path class=\"\" d=\"M736 548.4217695508795v40\"/><path class=\"\" d=\"M778 547.158145356544v40\"/><path class=\"\" d=\"M820 547.1581453565439v40\"/><path class=\"\" d=\"M862 548.4217695508795v40\"/><path class=\"\" d=\"M904 550.9408228517578v40\"/><path class=\"\" d=\"M946 554.6989682318824v40\"/><path class=\"\" d=\"M988 559.6718326763441v40\"/><path class=\"\" d=\"M1030 565.8271652509754v40\"/><path class=\"\" d=\"M1072 573.1250462620344v40\"/><path class=\"\" d=\"M1114 581.518146150737v40\"/><path class=\"\" d=\"M1156 590.9520324436073v40\"/><path class=\"\" d=\"M1198 601.3655227679561v40\"/><path class=\"\" d=\"M1240 612.691081643045v40\"/><path class=\"\" d=\"M1282 624.8552584735941v40\"/><path class=\"\" d=\"M1324 637.7791639050788v40\"/><path class=\"\" d=\"M1366 651.378981451465v40\"/><path class=\"\" d=\"M1408 665.5665110772853v40\"/><path class=\"\" d=\"M1450 680.2497412087129v40\"/><path class=\"\" d=\"M1492 695.3334454639263v40\"/><path class=\"\" d=\"M1534 710.7198002327367v40\"/><path class=\"\" d=\"M1576 726.3090191002384v40\"/><path class=\"\" d=\"M1618 742v40\"/></g><g class=\"m10-water\" fill=\"none\"><ellipse cx=\"800\" cy=\"700\" rx=\"160\" ry=\"12\"/><ellipse cx=\"800\" cy=\"708\" rx=\"194\" ry=\"15\"/><ellipse cx=\"800\" cy=\"716\" rx=\"228\" ry=\"18\"/><ellipse cx=\"800\" cy=\"724\" rx=\"262\" ry=\"21\"/><ellipse cx=\"800\" cy=\"732\" rx=\"296\" ry=\"24\"/><ellipse cx=\"800\" cy=\"740\" rx=\"330\" ry=\"27\"/><ellipse cx=\"800\" cy=\"748\" rx=\"364\" ry=\"30\"/><ellipse cx=\"800\" cy=\"756\" rx=\"398\" ry=\"33\"/><ellipse cx=\"800\" cy=\"764\" rx=\"432\" ry=\"36\"/><ellipse cx=\"800\" cy=\"772\" rx=\"466\" ry=\"39\"/><ellipse cx=\"800\" cy=\"780\" rx=\"500\" ry=\"42\"/><ellipse cx=\"800\" cy=\"788\" rx=\"534\" ry=\"45\"/><ellipse cx=\"800\" cy=\"796\" rx=\"568\" ry=\"48\"/><ellipse cx=\"800\" cy=\"804\" rx=\"602\" ry=\"51\"/><ellipse cx=\"800\" cy=\"812\" rx=\"636\" ry=\"54\"/><ellipse cx=\"800\" cy=\"820\" rx=\"670\" ry=\"57\"/><ellipse cx=\"800\" cy=\"828\" rx=\"704\" ry=\"60\"/><ellipse cx=\"800\" cy=\"836\" rx=\"738\" ry=\"63\"/><ellipse cx=\"800\" cy=\"844\" rx=\"772\" ry=\"66\"/><ellipse cx=\"800\" cy=\"852\" rx=\"806\" ry=\"69\"/><ellipse cx=\"800\" cy=\"860\" rx=\"840\" ry=\"72\"/><ellipse cx=\"800\" cy=\"868\" rx=\"874\" ry=\"75\"/><ellipse cx=\"800\" cy=\"876\" rx=\"908\" ry=\"78\"/><ellipse cx=\"800\" cy=\"884\" rx=\"942\" ry=\"81\"/></g><g class=\"m10-jade\"><path style=\"--i:0\" transform=\"translate(0 0)\" d=\"M0-12L6 0 0 35-6 0Z\"/><path style=\"--i:1\" transform=\"translate(239 109)\" d=\"M0-12L6 0 0 35-6 0Z\"/><path style=\"--i:2\" transform=\"translate(478 218)\" d=\"M0-12L6 0 0 35-6 0Z\"/><path style=\"--i:3\" transform=\"translate(717 327)\" d=\"M0-12L6 0 0 35-6 0Z\"/><path style=\"--i:4\" transform=\"translate(956 436)\" d=\"M0-12L6 0 0 35-6 0Z\"/><path style=\"--i:5\" transform=\"translate(1195 545)\" d=\"M0-12L6 0 0 35-6 0Z\"/><path style=\"--i:6\" transform=\"translate(1434 54)\" d=\"M0-12L6 0 0 35-6 0Z\"/><path style=\"--i:7\" transform=\"translate(93 163)\" d=\"M0-12L6 0 0 35-6 0Z\"/><path style=\"--i:8\" transform=\"translate(332 272)\" d=\"M0-12L6 0 0 35-6 0Z\"/><path style=\"--i:9\" transform=\"translate(571 381)\" d=\"M0-12L6 0 0 35-6 0Z\"/><path style=\"--i:10\" transform=\"translate(810 490)\" d=\"M0-12L6 0 0 35-6 0Z\"/><path style=\"--i:11\" transform=\"translate(1049 599)\" d=\"M0-12L6 0 0 35-6 0Z\"/><path style=\"--i:12\" transform=\"translate(1288 108)\" d=\"M0-12L6 0 0 35-6 0Z\"/><path style=\"--i:13\" transform=\"translate(1527 217)\" d=\"M0-12L6 0 0 35-6 0Z\"/><path style=\"--i:14\" transform=\"translate(186 326)\" d=\"M0-12L6 0 0 35-6 0Z\"/><path style=\"--i:15\" transform=\"translate(425 435)\" d=\"M0-12L6 0 0 35-6 0Z\"/><path style=\"--i:16\" transform=\"translate(664 544)\" d=\"M0-12L6 0 0 35-6 0Z\"/><path style=\"--i:17\" transform=\"translate(903 53)\" d=\"M0-12L6 0 0 35-6 0Z\"/><path style=\"--i:18\" transform=\"translate(1142 162)\" d=\"M0-12L6 0 0 35-6 0Z\"/><path style=\"--i:19\" transform=\"translate(1381 271)\" d=\"M0-12L6 0 0 35-6 0Z\"/></g></svg>","cuoi":"<svg viewBox=\"0 0 1600 900\" preserveAspectRatio=\"xMidYMid slice\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><g class=\"u10-roots\" fill=\"none\"><path class=\"\" d=\"M800 460Q650 610 150 760T-50 910\"/><path class=\"\" d=\"M800 460Q670 610 230 760T55 910\"/><path class=\"\" d=\"M800 460Q690 610 310 760T160 910\"/><path class=\"\" d=\"M800 460Q710 610 390 760T265 910\"/><path class=\"\" d=\"M800 460Q730 610 470 760T370 910\"/><path class=\"\" d=\"M800 460Q750 610 550 760T475 910\"/><path class=\"\" d=\"M800 460Q770 610 630 760T580 910\"/><path class=\"\" d=\"M800 460Q790 610 710 760T685 910\"/><path class=\"\" d=\"M800 460Q810 610 790 760T790 910\"/><path class=\"\" d=\"M800 460Q830 610 870 760T895 910\"/><path class=\"\" d=\"M800 460Q850 610 950 760T1000 910\"/><path class=\"\" d=\"M800 460Q870 610 1030 760T1105 910\"/><path class=\"\" d=\"M800 460Q890 610 1110 760T1210 910\"/><path class=\"\" d=\"M800 460Q910 610 1190 760T1315 910\"/><path class=\"\" d=\"M800 460Q930 610 1270 760T1420 910\"/><path class=\"\" d=\"M800 460Q950 610 1350 760T1525 910\"/><path class=\"\" d=\"M800 460Q970 610 1430 760T1630 910\"/></g><g class=\"u10-islands\"><path transform=\"translate(-50 680)\" d=\"M-100 0Q0-40 100 0L35 90 0 45-35 70Z\"/><path transform=\"translate(200 620)\" d=\"M-100 0Q0-40 100 0L35 90 0 45-35 70Z\"/><path transform=\"translate(450 560)\" d=\"M-100 0Q0-40 100 0L35 90 0 45-35 70Z\"/><path transform=\"translate(700 680)\" d=\"M-100 0Q0-40 100 0L35 90 0 45-35 70Z\"/><path transform=\"translate(950 620)\" d=\"M-100 0Q0-40 100 0L35 90 0 45-35 70Z\"/><path transform=\"translate(1200 560)\" d=\"M-100 0Q0-40 100 0L35 90 0 45-35 70Z\"/><path transform=\"translate(1450 680)\" d=\"M-100 0Q0-40 100 0L35 90 0 45-35 70Z\"/></g><g class=\"u10-tree\"><path d=\"M700 740Q810 520 680 350Q630 310 450 230Q665 255 760 370Q795 280 690 170Q790 200 825 350Q880 230 1090 150Q880 300 890 430Q905 580 960 740Z\"/><path style=\"--i:0\" transform=\"translate(410 100) rotate(0)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/><path style=\"--i:1\" transform=\"translate(567 171) rotate(37)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/><path style=\"--i:2\" transform=\"translate(724 242) rotate(74)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/><path style=\"--i:3\" transform=\"translate(881 313) rotate(111)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/><path style=\"--i:4\" transform=\"translate(1038 124) rotate(148)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/><path style=\"--i:5\" transform=\"translate(415 195) rotate(185)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/><path style=\"--i:6\" transform=\"translate(572 266) rotate(222)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/><path style=\"--i:7\" transform=\"translate(729 337) rotate(259)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/><path style=\"--i:8\" transform=\"translate(886 148) rotate(296)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/><path style=\"--i:9\" transform=\"translate(1043 219) rotate(333)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/><path style=\"--i:10\" transform=\"translate(420 290) rotate(370)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/><path style=\"--i:11\" transform=\"translate(577 101) rotate(407)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/><path style=\"--i:12\" transform=\"translate(734 172) rotate(444)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/><path style=\"--i:13\" transform=\"translate(891 243) rotate(481)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/><path style=\"--i:14\" transform=\"translate(1048 314) rotate(518)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/><path style=\"--i:15\" transform=\"translate(425 125) rotate(555)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/><path style=\"--i:16\" transform=\"translate(582 196) rotate(592)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/><path style=\"--i:17\" transform=\"translate(739 267) rotate(629)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/><path style=\"--i:18\" transform=\"translate(896 338) rotate(666)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/><path style=\"--i:19\" transform=\"translate(1053 149) rotate(703)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/><path style=\"--i:20\" transform=\"translate(430 220) rotate(740)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/><path style=\"--i:21\" transform=\"translate(587 291) rotate(777)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/><path style=\"--i:22\" transform=\"translate(744 102) rotate(814)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/><path style=\"--i:23\" transform=\"translate(901 173) rotate(851)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/><path style=\"--i:24\" transform=\"translate(1058 244) rotate(888)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/><path style=\"--i:25\" transform=\"translate(435 315) rotate(925)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/><path style=\"--i:26\" transform=\"translate(592 126) rotate(962)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/><path style=\"--i:27\" transform=\"translate(749 197) rotate(999)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/><path style=\"--i:28\" transform=\"translate(906 268) rotate(1036)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/><path style=\"--i:29\" transform=\"translate(1063 339) rotate(1073)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/><path style=\"--i:30\" transform=\"translate(440 150) rotate(1110)\" d=\"M-95 0Q0-85 95 0Q0 85-95 0Z\"/></g><g class=\"u10-lanterns\"><g style=\"--i:0\" transform=\"translate(90 170)\"><path d=\"M0-140V-20\"/><path d=\"M-19-20H19L30 0 19 30H-19L-30 0Z\"/><path d=\"M-8-18V28M8-18V28M0 30V64\"/></g><g style=\"--i:1\" transform=\"translate(175 260)\"><path d=\"M0-140V-20\"/><path d=\"M-19-20H19L30 0 19 30H-19L-30 0Z\"/><path d=\"M-8-18V28M8-18V28M0 30V64\"/></g><g style=\"--i:2\" transform=\"translate(260 350)\"><path d=\"M0-140V-20\"/><path d=\"M-19-20H19L30 0 19 30H-19L-30 0Z\"/><path d=\"M-8-18V28M8-18V28M0 30V64\"/></g><g style=\"--i:3\" transform=\"translate(345 440)\"><path d=\"M0-140V-20\"/><path d=\"M-19-20H19L30 0 19 30H-19L-30 0Z\"/><path d=\"M-8-18V28M8-18V28M0 30V64\"/></g><g style=\"--i:4\" transform=\"translate(430 530)\"><path d=\"M0-140V-20\"/><path d=\"M-19-20H19L30 0 19 30H-19L-30 0Z\"/><path d=\"M-8-18V28M8-18V28M0 30V64\"/></g><g style=\"--i:5\" transform=\"translate(515 170)\"><path d=\"M0-140V-20\"/><path d=\"M-19-20H19L30 0 19 30H-19L-30 0Z\"/><path d=\"M-8-18V28M8-18V28M0 30V64\"/></g><g style=\"--i:6\" transform=\"translate(600 260)\"><path d=\"M0-140V-20\"/><path d=\"M-19-20H19L30 0 19 30H-19L-30 0Z\"/><path d=\"M-8-18V28M8-18V28M0 30V64\"/></g><g style=\"--i:7\" transform=\"translate(685 350)\"><path d=\"M0-140V-20\"/><path d=\"M-19-20H19L30 0 19 30H-19L-30 0Z\"/><path d=\"M-8-18V28M8-18V28M0 30V64\"/></g><g style=\"--i:8\" transform=\"translate(770 440)\"><path d=\"M0-140V-20\"/><path d=\"M-19-20H19L30 0 19 30H-19L-30 0Z\"/><path d=\"M-8-18V28M8-18V28M0 30V64\"/></g><g style=\"--i:9\" transform=\"translate(855 530)\"><path d=\"M0-140V-20\"/><path d=\"M-19-20H19L30 0 19 30H-19L-30 0Z\"/><path d=\"M-8-18V28M8-18V28M0 30V64\"/></g><g style=\"--i:10\" transform=\"translate(940 170)\"><path d=\"M0-140V-20\"/><path d=\"M-19-20H19L30 0 19 30H-19L-30 0Z\"/><path d=\"M-8-18V28M8-18V28M0 30V64\"/></g><g style=\"--i:11\" transform=\"translate(1025 260)\"><path d=\"M0-140V-20\"/><path d=\"M-19-20H19L30 0 19 30H-19L-30 0Z\"/><path d=\"M-8-18V28M8-18V28M0 30V64\"/></g><g style=\"--i:12\" transform=\"translate(1110 350)\"><path d=\"M0-140V-20\"/><path d=\"M-19-20H19L30 0 19 30H-19L-30 0Z\"/><path d=\"M-8-18V28M8-18V28M0 30V64\"/></g><g style=\"--i:13\" transform=\"translate(1195 440)\"><path d=\"M0-140V-20\"/><path d=\"M-19-20H19L30 0 19 30H-19L-30 0Z\"/><path d=\"M-8-18V28M8-18V28M0 30V64\"/></g><g style=\"--i:14\" transform=\"translate(1280 530)\"><path d=\"M0-140V-20\"/><path d=\"M-19-20H19L30 0 19 30H-19L-30 0Z\"/><path d=\"M-8-18V28M8-18V28M0 30V64\"/></g><g style=\"--i:15\" transform=\"translate(1365 170)\"><path d=\"M0-140V-20\"/><path d=\"M-19-20H19L30 0 19 30H-19L-30 0Z\"/><path d=\"M-8-18V28M8-18V28M0 30V64\"/></g><g style=\"--i:16\" transform=\"translate(1450 260)\"><path d=\"M0-140V-20\"/><path d=\"M-19-20H19L30 0 19 30H-19L-30 0Z\"/><path d=\"M-8-18V28M8-18V28M0 30V64\"/></g><g style=\"--i:17\" transform=\"translate(1535 350)\"><path d=\"M0-140V-20\"/><path d=\"M-19-20H19L30 0 19 30H-19L-30 0Z\"/><path d=\"M-8-18V28M8-18V28M0 30V64\"/></g></g><g class=\"u10-path\" fill=\"none\"><path class=\"\" d=\"M350 825q50-30 100 0\"/><path class=\"\" d=\"M383 819q50-30 100 0\"/><path class=\"\" d=\"M416 813q50-30 100 0\"/><path class=\"\" d=\"M449 807q50-30 100 0\"/><path class=\"\" d=\"M482 801q50-30 100 0\"/><path class=\"\" d=\"M515 795q50-30 100 0\"/><path class=\"\" d=\"M548 789q50-30 100 0\"/><path class=\"\" d=\"M581 783q50-30 100 0\"/><path class=\"\" d=\"M614 777q50-30 100 0\"/><path class=\"\" d=\"M647 771q50-30 100 0\"/><path class=\"\" d=\"M680 765q50-30 100 0\"/><path class=\"\" d=\"M713 759q50-30 100 0\"/><path class=\"\" d=\"M746 753q50-30 100 0\"/><path class=\"\" d=\"M779 747q50-30 100 0\"/><path class=\"\" d=\"M812 741q50-30 100 0\"/></g><g class=\"u10-seeds\"><path style=\"--i:0\" transform=\"translate(0 0) rotate(0)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:1\" transform=\"translate(197 137) rotate(31)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:2\" transform=\"translate(394 274) rotate(62)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:3\" transform=\"translate(591 411) rotate(93)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:4\" transform=\"translate(788 548) rotate(124)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:5\" transform=\"translate(985 685) rotate(155)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:6\" transform=\"translate(1182 822) rotate(186)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:7\" transform=\"translate(1379 109) rotate(217)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:8\" transform=\"translate(1576 246) rotate(248)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:9\" transform=\"translate(173 383) rotate(279)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:10\" transform=\"translate(370 520) rotate(310)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:11\" transform=\"translate(567 657) rotate(341)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:12\" transform=\"translate(764 794) rotate(372)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:13\" transform=\"translate(961 81) rotate(403)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:14\" transform=\"translate(1158 218) rotate(434)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:15\" transform=\"translate(1355 355) rotate(465)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:16\" transform=\"translate(1552 492) rotate(496)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:17\" transform=\"translate(149 629) rotate(527)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:18\" transform=\"translate(346 766) rotate(558)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:19\" transform=\"translate(543 53) rotate(589)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:20\" transform=\"translate(740 190) rotate(620)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:21\" transform=\"translate(937 327) rotate(651)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:22\" transform=\"translate(1134 464) rotate(682)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:23\" transform=\"translate(1331 601) rotate(713)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:24\" transform=\"translate(1528 738) rotate(744)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:25\" transform=\"translate(125 25) rotate(775)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:26\" transform=\"translate(322 162) rotate(806)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:27\" transform=\"translate(519 299) rotate(837)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:28\" transform=\"translate(716 436) rotate(868)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:29\" transform=\"translate(913 573) rotate(899)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:30\" transform=\"translate(1110 710) rotate(930)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:31\" transform=\"translate(1307 847) rotate(961)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:32\" transform=\"translate(1504 134) rotate(992)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:33\" transform=\"translate(101 271) rotate(1023)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:34\" transform=\"translate(298 408) rotate(1054)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:35\" transform=\"translate(495 545) rotate(1085)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:36\" transform=\"translate(692 682) rotate(1116)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:37\" transform=\"translate(889 819) rotate(1147)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:38\" transform=\"translate(1086 106) rotate(1178)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:39\" transform=\"translate(1283 243) rotate(1209)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:40\" transform=\"translate(1480 380) rotate(1240)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:41\" transform=\"translate(77 517) rotate(1271)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:42\" transform=\"translate(274 654) rotate(1302)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:43\" transform=\"translate(471 791) rotate(1333)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/><path style=\"--i:44\" transform=\"translate(668 78) rotate(1364)\" d=\"M0 0Q-22-32 12-25Q20-12 0 0L8 15\"/></g></svg>","cheng":"<svg viewBox=\"0 0 1600 900\" preserveAspectRatio=\"xMidYMid slice\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><g class=\"x10-contact\"><g style=\"--i:0\" transform=\"translate(-80 80) rotate(-8)\"><rect width=\"220\" height=\"155\"/><path d=\"M15 120L70 45 130 90 190 20v110H15Z\"/><rect x=\"4\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"4\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"29\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"29\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"54\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"54\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"79\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"79\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"104\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"104\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"129\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"129\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"154\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"154\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"179\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"179\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"204\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"204\" y=\"162\" width=\"13\" height=\"8\"/><text x=\"12\" y=\"148\">FRAME 01</text></g><g style=\"--i:1\" transform=\"translate(180 80) rotate(-8)\"><rect width=\"220\" height=\"155\"/><path d=\"M15 120L70 45 130 90 190 20v110H15Z\"/><rect x=\"4\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"4\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"29\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"29\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"54\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"54\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"79\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"79\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"104\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"104\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"129\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"129\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"154\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"154\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"179\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"179\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"204\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"204\" y=\"162\" width=\"13\" height=\"8\"/><text x=\"12\" y=\"148\">FRAME 02</text></g><g style=\"--i:2\" transform=\"translate(440 80) rotate(-8)\"><rect width=\"220\" height=\"155\"/><path d=\"M15 120L70 45 130 90 190 20v110H15Z\"/><rect x=\"4\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"4\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"29\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"29\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"54\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"54\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"79\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"79\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"104\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"104\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"129\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"129\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"154\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"154\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"179\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"179\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"204\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"204\" y=\"162\" width=\"13\" height=\"8\"/><text x=\"12\" y=\"148\">FRAME 03</text></g><g style=\"--i:3\" transform=\"translate(700 80) rotate(-8)\"><rect width=\"220\" height=\"155\"/><path d=\"M15 120L70 45 130 90 190 20v110H15Z\"/><rect x=\"4\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"4\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"29\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"29\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"54\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"54\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"79\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"79\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"104\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"104\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"129\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"129\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"154\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"154\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"179\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"179\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"204\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"204\" y=\"162\" width=\"13\" height=\"8\"/><text x=\"12\" y=\"148\">FRAME 04</text></g><g style=\"--i:4\" transform=\"translate(960 80) rotate(-8)\"><rect width=\"220\" height=\"155\"/><path d=\"M15 120L70 45 130 90 190 20v110H15Z\"/><rect x=\"4\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"4\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"29\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"29\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"54\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"54\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"79\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"79\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"104\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"104\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"129\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"129\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"154\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"154\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"179\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"179\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"204\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"204\" y=\"162\" width=\"13\" height=\"8\"/><text x=\"12\" y=\"148\">FRAME 05</text></g><g style=\"--i:5\" transform=\"translate(1220 80) rotate(-8)\"><rect width=\"220\" height=\"155\"/><path d=\"M15 120L70 45 130 90 190 20v110H15Z\"/><rect x=\"4\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"4\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"29\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"29\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"54\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"54\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"79\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"79\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"104\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"104\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"129\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"129\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"154\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"154\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"179\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"179\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"204\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"204\" y=\"162\" width=\"13\" height=\"8\"/><text x=\"12\" y=\"148\">FRAME 06</text></g><g style=\"--i:6\" transform=\"translate(1480 80) rotate(-8)\"><rect width=\"220\" height=\"155\"/><path d=\"M15 120L70 45 130 90 190 20v110H15Z\"/><rect x=\"4\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"4\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"29\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"29\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"54\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"54\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"79\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"79\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"104\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"104\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"129\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"129\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"154\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"154\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"179\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"179\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"204\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"204\" y=\"162\" width=\"13\" height=\"8\"/><text x=\"12\" y=\"148\">FRAME 07</text></g><g style=\"--i:7\" transform=\"translate(-80 610) rotate(8)\"><rect width=\"220\" height=\"155\"/><path d=\"M15 120L70 45 130 90 190 20v110H15Z\"/><rect x=\"4\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"4\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"29\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"29\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"54\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"54\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"79\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"79\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"104\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"104\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"129\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"129\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"154\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"154\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"179\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"179\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"204\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"204\" y=\"162\" width=\"13\" height=\"8\"/><text x=\"12\" y=\"148\">FRAME 08</text></g><g style=\"--i:8\" transform=\"translate(180 610) rotate(8)\"><rect width=\"220\" height=\"155\"/><path d=\"M15 120L70 45 130 90 190 20v110H15Z\"/><rect x=\"4\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"4\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"29\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"29\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"54\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"54\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"79\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"79\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"104\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"104\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"129\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"129\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"154\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"154\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"179\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"179\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"204\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"204\" y=\"162\" width=\"13\" height=\"8\"/><text x=\"12\" y=\"148\">FRAME 09</text></g><g style=\"--i:9\" transform=\"translate(440 610) rotate(8)\"><rect width=\"220\" height=\"155\"/><path d=\"M15 120L70 45 130 90 190 20v110H15Z\"/><rect x=\"4\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"4\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"29\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"29\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"54\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"54\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"79\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"79\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"104\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"104\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"129\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"129\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"154\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"154\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"179\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"179\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"204\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"204\" y=\"162\" width=\"13\" height=\"8\"/><text x=\"12\" y=\"148\">FRAME 10</text></g><g style=\"--i:10\" transform=\"translate(700 610) rotate(8)\"><rect width=\"220\" height=\"155\"/><path d=\"M15 120L70 45 130 90 190 20v110H15Z\"/><rect x=\"4\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"4\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"29\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"29\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"54\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"54\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"79\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"79\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"104\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"104\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"129\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"129\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"154\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"154\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"179\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"179\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"204\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"204\" y=\"162\" width=\"13\" height=\"8\"/><text x=\"12\" y=\"148\">FRAME 11</text></g><g style=\"--i:11\" transform=\"translate(960 610) rotate(8)\"><rect width=\"220\" height=\"155\"/><path d=\"M15 120L70 45 130 90 190 20v110H15Z\"/><rect x=\"4\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"4\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"29\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"29\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"54\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"54\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"79\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"79\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"104\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"104\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"129\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"129\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"154\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"154\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"179\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"179\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"204\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"204\" y=\"162\" width=\"13\" height=\"8\"/><text x=\"12\" y=\"148\">FRAME 12</text></g><g style=\"--i:12\" transform=\"translate(1220 610) rotate(8)\"><rect width=\"220\" height=\"155\"/><path d=\"M15 120L70 45 130 90 190 20v110H15Z\"/><rect x=\"4\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"4\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"29\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"29\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"54\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"54\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"79\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"79\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"104\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"104\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"129\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"129\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"154\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"154\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"179\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"179\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"204\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"204\" y=\"162\" width=\"13\" height=\"8\"/><text x=\"12\" y=\"148\">FRAME 13</text></g><g style=\"--i:13\" transform=\"translate(1480 610) rotate(8)\"><rect width=\"220\" height=\"155\"/><path d=\"M15 120L70 45 130 90 190 20v110H15Z\"/><rect x=\"4\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"4\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"29\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"29\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"54\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"54\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"79\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"79\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"104\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"104\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"129\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"129\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"154\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"154\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"179\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"179\" y=\"162\" width=\"13\" height=\"8\"/><rect x=\"204\" y=\"-14\" width=\"13\" height=\"8\"/><rect x=\"204\" y=\"162\" width=\"13\" height=\"8\"/><text x=\"12\" y=\"148\">FRAME 14</text></g></g><g class=\"x10-perspective\" fill=\"none\"><rect x=\"80\" y=\"40\" width=\"1440\" height=\"820\"/><rect x=\"150\" y=\"76\" width=\"1300\" height=\"748\"/><rect x=\"220\" y=\"112\" width=\"1160\" height=\"676\"/><rect x=\"290\" y=\"148\" width=\"1020\" height=\"604\"/><rect x=\"360\" y=\"184\" width=\"880\" height=\"532\"/><rect x=\"430\" y=\"220\" width=\"740\" height=\"460\"/><rect x=\"500\" y=\"256\" width=\"600\" height=\"388\"/><rect x=\"570\" y=\"292\" width=\"460\" height=\"316\"/><rect x=\"640\" y=\"328\" width=\"320\" height=\"244\"/><path class=\"\" d=\"M800 450L0 0\"/><path class=\"\" d=\"M800 450L0 300\"/><path class=\"\" d=\"M800 450L0 600\"/><path class=\"\" d=\"M800 450L0 900\"/><path class=\"\" d=\"M800 450L1600 0\"/><path class=\"\" d=\"M800 450L1600 300\"/><path class=\"\" d=\"M800 450L1600 600\"/><path class=\"\" d=\"M800 450L1600 900\"/></g><g class=\"x10-shutter\"><path transform=\"rotate(0 800 450)\" d=\"M800 185L1040 350 845 430 690 260Z\"/><path transform=\"rotate(45 800 450)\" d=\"M800 185L1040 350 845 430 690 260Z\"/><path transform=\"rotate(90 800 450)\" d=\"M800 185L1040 350 845 430 690 260Z\"/><path transform=\"rotate(135 800 450)\" d=\"M800 185L1040 350 845 430 690 260Z\"/><path transform=\"rotate(180 800 450)\" d=\"M800 185L1040 350 845 430 690 260Z\"/><path transform=\"rotate(225 800 450)\" d=\"M800 185L1040 350 845 430 690 260Z\"/><path transform=\"rotate(270 800 450)\" d=\"M800 185L1040 350 845 430 690 260Z\"/><path transform=\"rotate(315 800 450)\" d=\"M800 185L1040 350 845 430 690 260Z\"/><circle cx=\"800\" cy=\"450\" r=\"115\"/><path d=\"M670 450h260M800 320v260\"/></g><g class=\"x10-fractures\" fill=\"none\"><path class=\"\" d=\"M800 450L0 900l-80 -90\"/><path class=\"\" d=\"M800 450L137 0l80 90\"/><path class=\"\" d=\"M800 450L274 900l-80 -90\"/><path class=\"\" d=\"M800 450L411 0l80 90\"/><path class=\"\" d=\"M800 450L548 900l-80 -90\"/><path class=\"\" d=\"M800 450L685 0l80 90\"/><path class=\"\" d=\"M800 450L822 900l-80 -90\"/><path class=\"\" d=\"M800 450L959 0l80 90\"/><path class=\"\" d=\"M800 450L1096 900l-80 -90\"/><path class=\"\" d=\"M800 450L1233 0l80 90\"/><path class=\"\" d=\"M800 450L1370 900l-80 -90\"/><path class=\"\" d=\"M800 450L1507 0l80 90\"/></g><g class=\"x10-time\"><path d=\"M0 520H1600M0 530H1600\"/><path class=\"\" d=\"M0 520v28\"/><path class=\"\" d=\"M20 520v12\"/><path class=\"\" d=\"M40 520v12\"/><path class=\"\" d=\"M60 520v12\"/><path class=\"\" d=\"M80 520v12\"/><path class=\"\" d=\"M100 520v28\"/><path class=\"\" d=\"M120 520v12\"/><path class=\"\" d=\"M140 520v12\"/><path class=\"\" d=\"M160 520v12\"/><path class=\"\" d=\"M180 520v12\"/><path class=\"\" d=\"M200 520v28\"/><path class=\"\" d=\"M220 520v12\"/><path class=\"\" d=\"M240 520v12\"/><path class=\"\" d=\"M260 520v12\"/><path class=\"\" d=\"M280 520v12\"/><path class=\"\" d=\"M300 520v28\"/><path class=\"\" d=\"M320 520v12\"/><path class=\"\" d=\"M340 520v12\"/><path class=\"\" d=\"M360 520v12\"/><path class=\"\" d=\"M380 520v12\"/><path class=\"\" d=\"M400 520v28\"/><path class=\"\" d=\"M420 520v12\"/><path class=\"\" d=\"M440 520v12\"/><path class=\"\" d=\"M460 520v12\"/><path class=\"\" d=\"M480 520v12\"/><path class=\"\" d=\"M500 520v28\"/><path class=\"\" d=\"M520 520v12\"/><path class=\"\" d=\"M540 520v12\"/><path class=\"\" d=\"M560 520v12\"/><path class=\"\" d=\"M580 520v12\"/><path class=\"\" d=\"M600 520v28\"/><path class=\"\" d=\"M620 520v12\"/><path class=\"\" d=\"M640 520v12\"/><path class=\"\" d=\"M660 520v12\"/><path class=\"\" d=\"M680 520v12\"/><path class=\"\" d=\"M700 520v28\"/><path class=\"\" d=\"M720 520v12\"/><path class=\"\" d=\"M740 520v12\"/><path class=\"\" d=\"M760 520v12\"/><path class=\"\" d=\"M780 520v12\"/><path class=\"\" d=\"M800 520v28\"/><path class=\"\" d=\"M820 520v12\"/><path class=\"\" d=\"M840 520v12\"/><path class=\"\" d=\"M860 520v12\"/><path class=\"\" d=\"M880 520v12\"/><path class=\"\" d=\"M900 520v28\"/><path class=\"\" d=\"M920 520v12\"/><path class=\"\" d=\"M940 520v12\"/><path class=\"\" d=\"M960 520v12\"/><path class=\"\" d=\"M980 520v12\"/><path class=\"\" d=\"M1000 520v28\"/><path class=\"\" d=\"M1020 520v12\"/><path class=\"\" d=\"M1040 520v12\"/><path class=\"\" d=\"M1060 520v12\"/><path class=\"\" d=\"M1080 520v12\"/><path class=\"\" d=\"M1100 520v28\"/><path class=\"\" d=\"M1120 520v12\"/><path class=\"\" d=\"M1140 520v12\"/><path class=\"\" d=\"M1160 520v12\"/><path class=\"\" d=\"M1180 520v12\"/><path class=\"\" d=\"M1200 520v28\"/><path class=\"\" d=\"M1220 520v12\"/><path class=\"\" d=\"M1240 520v12\"/><path class=\"\" d=\"M1260 520v12\"/><path class=\"\" d=\"M1280 520v12\"/><path class=\"\" d=\"M1300 520v28\"/><path class=\"\" d=\"M1320 520v12\"/><path class=\"\" d=\"M1340 520v12\"/><path class=\"\" d=\"M1360 520v12\"/><path class=\"\" d=\"M1380 520v12\"/><path class=\"\" d=\"M1400 520v28\"/><path class=\"\" d=\"M1420 520v12\"/><path class=\"\" d=\"M1440 520v12\"/><path class=\"\" d=\"M1460 520v12\"/><path class=\"\" d=\"M1480 520v12\"/><path class=\"\" d=\"M1500 520v28\"/><path class=\"\" d=\"M1520 520v12\"/><path class=\"\" d=\"M1540 520v12\"/><path class=\"\" d=\"M1560 520v12\"/><path class=\"\" d=\"M1580 520v12\"/><text x=\"100\" y=\"505\">00:00:01 • REWIND</text><text x=\"1160\" y=\"505\">EXPOSURE / MEMORY</text></g></svg>"};
+    const LUX_GLYPHS10 = {"rose":"<svg viewBox=\"0 0 104 64\"><path d=\"M0 28H24V5h8v42h8V16h8v26h8V8h8v40h8V23h28\"/><path d=\"M0 54H100\"/></svg>","cat":"<svg viewBox=\"0 0 104 64\"><path d=\"M6 45V10l19 14h28L72 5v40q-34 28-66 0m67-5q40-20 20-35\"/><path d=\"M20 38h10m17 0h10\"/></svg>","moon":"<svg viewBox=\"0 0 104 64\"><path d=\"M58 4a26 26 0 1 0 0 50A22 22 0 0 1 58 4Z\"/><ellipse cx=\"48\" cy=\"34\" rx=\"45\" ry=\"15\"/></svg>","cuoi":"<svg viewBox=\"0 0 104 64\"><path d=\"M5 55Q30 8 90 10M32 32Q5 5 37 9l-5 23m18-11Q48-4 68 4L50 21m-6 10Q78 23 72 44L44 31\"/></svg>","cheng":"<svg viewBox=\"0 0 104 64\"><path d=\"M4 4H96V56H4ZM10 10H90V45H10M36 4v52m28-52v52\"/><path d=\"M18 48h10m16 0h10m16 0h10\"/></svg>","klein":"<svg viewBox=\"0 0 104 64\"><path d=\"M4 10H30V50H4ZM38 4H64V44H38ZM72 12H98V52H72Z\"/><path d=\"M10 30l7-9 7 9-7 9Zm34-5 7-10 7 10-7 9Zm34 7 7-9 7 9-7 9Z\"/></svg>","aether":"<svg viewBox=\"0 0 104 64\"><path d=\"M4 48L32 5 49 47 69 8 96 48ZM32 5V48M69 8V48M4 48h92\"/></svg>","cam":"<svg viewBox=\"0 0 104 64\"><path d=\"M0 50Q22-40 45 38Q65-15 98 10M0 56Q25 5 49 42Q70 7 100 20M3 60Q50 29 99 34\"/></svg>","nyx":"<svg viewBox=\"0 0 104 64\"><path d=\"M0 36L20 5 44 42 71 3 100 35M20 5L71 3 44 42 0 36 100 35 71 3\"/><circle cx=\"20\" cy=\"5\" r=\"4\"/><circle cx=\"71\" cy=\"3\" r=\"3\"/></svg>","starry":"<svg viewBox=\"0 0 104 64\"><path d=\"M0 46Q44-18 69 20T26 46Q12 20 50 16T98 3M0 56Q45 4 72 29T100 12\"/></svg>","autumn":"<svg viewBox=\"0 0 104 64\"><path d=\"M0 58L90 4M28 40L8 23 30 25 27 5 45 19 57 0 60 22 88 15 76 36 99 47 65 49 63 60 46 48Z\"/></svg>","hacmong":"<svg viewBox=\"0 0 104 64\"><path d=\"M0 42Q25 9 50 30Q70 4 100 16Q73 13 57 35L91 48 53 41 33 58 41 39Q20 18 0 42Z\"/></svg>"};
+    const LUX_CONFIG10 = {"rose":{"id":"rose","runtime":"TamonBSide","root":"tamon-bside-equipped","world":"tamon-bside-world","ui":"tamon-bside-ui-frame","realm":"tamon-bside-pet-realm","pet":"tamon-bside-pet","stage":"pet-tamon-bside-stage","ult":"createUltimate","css":"tamon-b-side","kicker":"TAMON / ENCORE","title":"Bóng Hồng · Đại Sân Khấu","subtitle":"Đèn sân khấu mở · Vạn nhịp cùng ngân","color":"#ff70b5","bg":"#281121","font":"Arial, sans-serif","radius":"24px 4px 24px 4px"},"cat":{"id":"cat","runtime":"TamonPinkStatic","root":"tamon-pinkstatic-equipped","world":"tamon-pinkstatic-world","ui":"tamon-pinkstatic-ui","realm":"tamon-pinkstatic-realm","pet":"tamon-pinkstatic-pet","stage":"pet-tamon-pinkstatic-stage","ult":"triggerUltimate","css":"tamon-b-side","kicker":"TAMON / AFTER HOURS","title":"Hắc Miêu · Thành Phố Không Ngủ","subtitle":"Bước qua mái phố · Đánh thức ánh đèn","color":"#89ffce","bg":"#101d28","font":"Consolas, monospace","radius":"3px 22px 3px 22px"},"moon":{"id":"moon","runtime":"MidAutumn","root":"midautumn-moon-palace-equipped","world":"midautumn-world","ui":"midautumn-ui-frame","realm":"midautumn-pet-realm","pet":"midautumn-moon-palace-pet","stage":"pet-midautumn-moon-palace-stage","ult":"createUltimate","css":"trung-thu-nguyet-cung","kicker":"NGUYỆT CUNG / KÍNH HỒ","title":"Thiên Nguyệt · Thủy Kính Cung","subtitle":"Bảy quỹ đạo giao hòa · Ngân kiều soi bóng","color":"#b8d8ff","bg":"#17233e","font":"Georgia, serif","radius":"40px 40px 10px 10px"},"cuoi":{"id":"cuoi","runtime":"MidAutumn","root":"midautumn-cuoi-equipped","world":"midautumn-world","ui":"midautumn-ui-frame","realm":"midautumn-pet-realm","pet":"midautumn-cuoi-pet","stage":"pet-midautumn-cuoi-stage","ult":"createUltimate","css":"trung-thu-nguyet-cung","kicker":"CHÚ CUỘI / CỔ TÍCH","title":"Nguyệt Quế · Thiên Đăng Cổ Thụ","subtitle":"Rễ nối trời xa · Ngàn đèn dẫn lối","color":"#e4c579","bg":"#23351e","font":"Palatino Linotype, Georgia, serif","radius":"5px 36px 8px 28px"},"cheng":{"id":"cheng","runtime":"LinkClickCheng","root":"linkclick-cheng-equipped","world":"lcx-world","ui":"lcx-ui-frame","realm":"lcx-pet-realm","pet":"lcx-cheng-pet","stage":"pet-linkclick-cheng-stage","ult":"createUltimate","css":"link-click-cheng-xiaoshi","kicker":"CHENG XIAOSHI / EXPOSURE","title":"Thời Quang · Vạn Ảnh Nghịch Lưu","subtitle":"Một khung hình · Muôn ngả ký ức","color":"#ffcc79","bg":"#142632","font":"Consolas, monospace","radius":"2px"}};
+    // Pointer gestures own their listeners and decorations; scrolling never fires a tap.
+
+    Object.assign(LUX_ART10,{"summer":"<svg viewBox=\"0 0 1600 900\" preserveAspectRatio=\"xMidYMid slice\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"s14sea\"><stop stop-color=\"#29bfc1\"/><stop offset=\"1\" stop-color=\"#062e58\"/></linearGradient></defs><g class=\"s14-sky\"><path d=\"M-100 60Q400 -100800 80T1700 80\"/><path d=\"M-100 77Q400 -81800 96T1700 98\"/><path d=\"M-100 94Q400 -62800 112T1700 116\"/><path d=\"M-100 111Q400 -43800 128T1700 134\"/><path d=\"M-100 128Q400 -24800 144T1700 152\"/><path d=\"M-100 145Q400 -5800 160T1700 170\"/><path d=\"M-100 162Q400 14800 176T1700 188\"/><path d=\"M-100 179Q400 33800 192T1700 206\"/><path d=\"M-100 196Q400 52800 208T1700 224\"/><path d=\"M-100 213Q400 71800 224T1700 242\"/><path d=\"M-100 230Q400 90800 240T1700 260\"/><path d=\"M-100 247Q400 109800 256T1700 278\"/><path d=\"M-100 264Q400 128800 272T1700 296\"/><path d=\"M-100 281Q400 147800 288T1700 314\"/><path d=\"M-100 298Q400 166800 304T1700 332\"/><path d=\"M-100 315Q400 185800 320T1700 350\"/><path d=\"M-100 332Q400 204800 336T1700 368\"/><path d=\"M-100 349Q400 223800 352T1700 386\"/></g><g class=\"s14-sun\"><circle cx=\"800\" cy=\"300\" r=\"115\"/><path transform=\"rotate(0 800 300)\" d=\"M793 150L800 30807 150Z\"/><path transform=\"rotate(10 800 300)\" d=\"M793 150L800 70807 150Z\"/><path transform=\"rotate(20 800 300)\" d=\"M793 150L800 30807 150Z\"/><path transform=\"rotate(30 800 300)\" d=\"M793 150L800 70807 150Z\"/><path transform=\"rotate(40 800 300)\" d=\"M793 150L800 30807 150Z\"/><path transform=\"rotate(50 800 300)\" d=\"M793 150L800 70807 150Z\"/><path transform=\"rotate(60 800 300)\" d=\"M793 150L800 30807 150Z\"/><path transform=\"rotate(70 800 300)\" d=\"M793 150L800 70807 150Z\"/><path transform=\"rotate(80 800 300)\" d=\"M793 150L800 30807 150Z\"/><path transform=\"rotate(90 800 300)\" d=\"M793 150L800 70807 150Z\"/><path transform=\"rotate(100 800 300)\" d=\"M793 150L800 30807 150Z\"/><path transform=\"rotate(110 800 300)\" d=\"M793 150L800 70807 150Z\"/><path transform=\"rotate(120 800 300)\" d=\"M793 150L800 30807 150Z\"/><path transform=\"rotate(130 800 300)\" d=\"M793 150L800 70807 150Z\"/><path transform=\"rotate(140 800 300)\" d=\"M793 150L800 30807 150Z\"/><path transform=\"rotate(150 800 300)\" d=\"M793 150L800 70807 150Z\"/><path transform=\"rotate(160 800 300)\" d=\"M793 150L800 30807 150Z\"/><path transform=\"rotate(170 800 300)\" d=\"M793 150L800 70807 150Z\"/><path transform=\"rotate(180 800 300)\" d=\"M793 150L800 30807 150Z\"/><path transform=\"rotate(190 800 300)\" d=\"M793 150L800 70807 150Z\"/><path transform=\"rotate(200 800 300)\" d=\"M793 150L800 30807 150Z\"/><path transform=\"rotate(210 800 300)\" d=\"M793 150L800 70807 150Z\"/><path transform=\"rotate(220 800 300)\" d=\"M793 150L800 30807 150Z\"/><path transform=\"rotate(230 800 300)\" d=\"M793 150L800 70807 150Z\"/><path transform=\"rotate(240 800 300)\" d=\"M793 150L800 30807 150Z\"/><path transform=\"rotate(250 800 300)\" d=\"M793 150L800 70807 150Z\"/><path transform=\"rotate(260 800 300)\" d=\"M793 150L800 30807 150Z\"/><path transform=\"rotate(270 800 300)\" d=\"M793 150L800 70807 150Z\"/><path transform=\"rotate(280 800 300)\" d=\"M793 150L800 30807 150Z\"/><path transform=\"rotate(290 800 300)\" d=\"M793 150L800 70807 150Z\"/><path transform=\"rotate(300 800 300)\" d=\"M793 150L800 30807 150Z\"/><path transform=\"rotate(310 800 300)\" d=\"M793 150L800 70807 150Z\"/><path transform=\"rotate(320 800 300)\" d=\"M793 150L800 30807 150Z\"/><path transform=\"rotate(330 800 300)\" d=\"M793 150L800 70807 150Z\"/><path transform=\"rotate(340 800 300)\" d=\"M793 150L800 30807 150Z\"/><path transform=\"rotate(350 800 300)\" d=\"M793 150L800 70807 150Z\"/></g><g class=\"s14-terraces\"><path d=\"M300 560Q800 350 1300 560L1300 580Q800 385 300 580Z\"/><path d=\"M235 592Q800 382 1365 592L1365 612Q800 417 235 612Z\"/><path d=\"M170 624Q800 414 1430 624L1430 644Q800 449 170 644Z\"/><path d=\"M105 656Q800 446 1495 656L1495 676Q800 481 105 676Z\"/><path d=\"M40 688Q800 478 1560 688L1560 708Q800 513 40 708Z\"/><path d=\"M-25 720Q800 510 1625 720L1625 740Q800 545 -25 740Z\"/><path d=\"M-90 752Q800 542 1690 752L1690 772Q800 577 -90 772Z\"/><path d=\"M-155 784Q800 574 1755 784L1755 804Q800 609 -155 804Z\"/></g><g class=\"s14-sails\"><g transform=\"translate(160 546)\"><path d=\"M0 0V-180Q95-85 80-20Z\"/><path d=\"M-8-160Q-70-90-90-10L-8-20Z\"/><path d=\"M-95 0H95L65 22H-60Z\"/></g><g transform=\"translate(365 509)\"><path d=\"M0 0V-180Q95-85 80-20Z\"/><path d=\"M-8-160Q-70-90-90-10L-8-20Z\"/><path d=\"M-95 0H95L65 22H-60Z\"/></g><g transform=\"translate(570 472)\"><path d=\"M0 0V-180Q95-85 80-20Z\"/><path d=\"M-8-160Q-70-90-90-10L-8-20Z\"/><path d=\"M-95 0H95L65 22H-60Z\"/></g><g transform=\"translate(775 435)\"><path d=\"M0 0V-180Q95-85 80-20Z\"/><path d=\"M-8-160Q-70-90-90-10L-8-20Z\"/><path d=\"M-95 0H95L65 22H-60Z\"/></g><g transform=\"translate(980 472)\"><path d=\"M0 0V-180Q95-85 80-20Z\"/><path d=\"M-8-160Q-70-90-90-10L-8-20Z\"/><path d=\"M-95 0H95L65 22H-60Z\"/></g><g transform=\"translate(1185 509)\"><path d=\"M0 0V-180Q95-85 80-20Z\"/><path d=\"M-8-160Q-70-90-90-10L-8-20Z\"/><path d=\"M-95 0H95L65 22H-60Z\"/></g><g transform=\"translate(1390 546)\"><path d=\"M0 0V-180Q95-85 80-20Z\"/><path d=\"M-8-160Q-70-90-90-10L-8-20Z\"/><path d=\"M-95 0H95L65 22H-60Z\"/></g></g><g class=\"s14-waves\"><path d=\"M-100 665Q100 625300 665T700 665T1100 665T1700 665\"/><path d=\"M-100 677Q100 637300 677T700 677T1100 677T1700 677\"/><path d=\"M-100 689Q100 649300 689T700 689T1100 689T1700 689\"/><path d=\"M-100 701Q100 661300 701T700 701T1100 701T1700 701\"/><path d=\"M-100 713Q100 673300 713T700 713T1100 713T1700 713\"/><path d=\"M-100 725Q100 685300 725T700 725T1100 725T1700 725\"/><path d=\"M-100 737Q100 697300 737T700 737T1100 737T1700 737\"/><path d=\"M-100 749Q100 709300 749T700 749T1100 749T1700 749\"/><path d=\"M-100 761Q100 721300 761T700 761T1100 761T1700 761\"/><path d=\"M-100 773Q100 733300 773T700 773T1100 773T1700 773\"/><path d=\"M-100 785Q100 745300 785T700 785T1100 785T1700 785\"/><path d=\"M-100 797Q100 757300 797T700 797T1100 797T1700 797\"/><path d=\"M-100 809Q100 769300 809T700 809T1100 809T1700 809\"/><path d=\"M-100 821Q100 781300 821T700 821T1100 821T1700 821\"/><path d=\"M-100 833Q100 793300 833T700 833T1100 833T1700 833\"/><path d=\"M-100 845Q100 805300 845T700 845T1100 845T1700 845\"/><path d=\"M-100 857Q100 817300 857T700 857T1100 857T1700 857\"/><path d=\"M-100 869Q100 829300 869T700 869T1100 869T1700 869\"/><path d=\"M-100 881Q100 841300 881T700 881T1100 881T1700 881\"/><path d=\"M-100 893Q100 853300 893T700 893T1100 893T1700 893\"/><path d=\"M-100 905Q100 865300 905T700 905T1100 905T1700 905\"/><path d=\"M-100 917Q100 877300 917T700 917T1100 917T1700 917\"/></g><g class=\"s14-flowers\"><g transform=\"translate(-40 760)\"><ellipse transform=\"rotate(0)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(30)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(60)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(90)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(120)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(150)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(180)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(210)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(240)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(270)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(300)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(330)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><circle r=\"23\"/></g><g transform=\"translate(170 800)\"><ellipse transform=\"rotate(0)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(30)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(60)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(90)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(120)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(150)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(180)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(210)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(240)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(270)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(300)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(330)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><circle r=\"23\"/></g><g transform=\"translate(380 760)\"><ellipse transform=\"rotate(0)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(30)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(60)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(90)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(120)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(150)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(180)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(210)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(240)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(270)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(300)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(330)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><circle r=\"23\"/></g><g transform=\"translate(590 800)\"><ellipse transform=\"rotate(0)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(30)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(60)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(90)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(120)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(150)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(180)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(210)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(240)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(270)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(300)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(330)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><circle r=\"23\"/></g><g transform=\"translate(800 760)\"><ellipse transform=\"rotate(0)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(30)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(60)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(90)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(120)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(150)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(180)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(210)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(240)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(270)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(300)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(330)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><circle r=\"23\"/></g><g transform=\"translate(1010 800)\"><ellipse transform=\"rotate(0)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(30)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(60)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(90)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(120)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(150)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(180)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(210)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(240)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(270)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(300)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(330)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><circle r=\"23\"/></g><g transform=\"translate(1220 760)\"><ellipse transform=\"rotate(0)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(30)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(60)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(90)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(120)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(150)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(180)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(210)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(240)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(270)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(300)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(330)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><circle r=\"23\"/></g><g transform=\"translate(1430 800)\"><ellipse transform=\"rotate(0)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(30)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(60)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(90)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(120)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(150)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(180)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(210)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(240)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(270)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(300)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(330)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><circle r=\"23\"/></g><g transform=\"translate(1640 760)\"><ellipse transform=\"rotate(0)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(30)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(60)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(90)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(120)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(150)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(180)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(210)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(240)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(270)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(300)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><ellipse transform=\"rotate(330)\" cx=\"0\" cy=\"-45\" rx=\"12\" ry=\"31\"/><circle r=\"23\"/></g></g><g class=\"s14-gulls\"><path style=\"--i:0\" d=\"M0 100q18-22 35 0q18-22 35 0\"/><path style=\"--i:1\" d=\"M127 150q18-22 35 0q18-22 35 0\"/><path style=\"--i:2\" d=\"M254 200q18-22 35 0q18-22 35 0\"/><path style=\"--i:3\" d=\"M381 250q18-22 35 0q18-22 35 0\"/><path style=\"--i:4\" d=\"M508 300q18-22 35 0q18-22 35 0\"/><path style=\"--i:5\" d=\"M635 100q18-22 35 0q18-22 35 0\"/><path style=\"--i:6\" d=\"M762 150q18-22 35 0q18-22 35 0\"/><path style=\"--i:7\" d=\"M889 200q18-22 35 0q18-22 35 0\"/><path style=\"--i:8\" d=\"M1016 250q18-22 35 0q18-22 35 0\"/><path style=\"--i:9\" d=\"M1143 300q18-22 35 0q18-22 35 0\"/><path style=\"--i:10\" d=\"M1270 100q18-22 35 0q18-22 35 0\"/><path style=\"--i:11\" d=\"M1397 150q18-22 35 0q18-22 35 0\"/><path style=\"--i:12\" d=\"M24 200q18-22 35 0q18-22 35 0\"/><path style=\"--i:13\" d=\"M151 250q18-22 35 0q18-22 35 0\"/><path style=\"--i:14\" d=\"M278 300q18-22 35 0q18-22 35 0\"/><path style=\"--i:15\" d=\"M405 100q18-22 35 0q18-22 35 0\"/></g><g class=\"s14-spray\"><circle cx=\"0\" cy=\"550\" r=\"1\"/><circle cx=\"173\" cy=\"633\" r=\"2\"/><circle cx=\"346\" cy=\"716\" r=\"3\"/><circle cx=\"519\" cy=\"799\" r=\"1\"/><circle cx=\"692\" cy=\"562\" r=\"2\"/><circle cx=\"865\" cy=\"645\" r=\"3\"/><circle cx=\"1038\" cy=\"728\" r=\"1\"/><circle cx=\"1211\" cy=\"811\" r=\"2\"/><circle cx=\"1384\" cy=\"574\" r=\"3\"/><circle cx=\"1557\" cy=\"657\" r=\"1\"/><circle cx=\"130\" cy=\"740\" r=\"2\"/><circle cx=\"303\" cy=\"823\" r=\"3\"/><circle cx=\"476\" cy=\"586\" r=\"1\"/><circle cx=\"649\" cy=\"669\" r=\"2\"/><circle cx=\"822\" cy=\"752\" r=\"3\"/><circle cx=\"995\" cy=\"835\" r=\"1\"/><circle cx=\"1168\" cy=\"598\" r=\"2\"/><circle cx=\"1341\" cy=\"681\" r=\"3\"/><circle cx=\"1514\" cy=\"764\" r=\"1\"/><circle cx=\"87\" cy=\"847\" r=\"2\"/><circle cx=\"260\" cy=\"610\" r=\"3\"/><circle cx=\"433\" cy=\"693\" r=\"1\"/><circle cx=\"606\" cy=\"776\" r=\"2\"/><circle cx=\"779\" cy=\"859\" r=\"3\"/><circle cx=\"952\" cy=\"622\" r=\"1\"/><circle cx=\"1125\" cy=\"705\" r=\"2\"/><circle cx=\"1298\" cy=\"788\" r=\"3\"/><circle cx=\"1471\" cy=\"551\" r=\"1\"/><circle cx=\"44\" cy=\"634\" r=\"2\"/><circle cx=\"217\" cy=\"717\" r=\"3\"/><circle cx=\"390\" cy=\"800\" r=\"1\"/><circle cx=\"563\" cy=\"563\" r=\"2\"/><circle cx=\"736\" cy=\"646\" r=\"3\"/><circle cx=\"909\" cy=\"729\" r=\"1\"/><circle cx=\"1082\" cy=\"812\" r=\"2\"/><circle cx=\"1255\" cy=\"575\" r=\"3\"/><circle cx=\"1428\" cy=\"658\" r=\"1\"/><circle cx=\"1\" cy=\"741\" r=\"2\"/><circle cx=\"174\" cy=\"824\" r=\"3\"/><circle cx=\"347\" cy=\"587\" r=\"1\"/><circle cx=\"520\" cy=\"670\" r=\"2\"/><circle cx=\"693\" cy=\"753\" r=\"3\"/><circle cx=\"866\" cy=\"836\" r=\"1\"/><circle cx=\"1039\" cy=\"599\" r=\"2\"/><circle cx=\"1212\" cy=\"682\" r=\"3\"/><circle cx=\"1385\" cy=\"765\" r=\"1\"/><circle cx=\"1558\" cy=\"848\" r=\"2\"/><circle cx=\"131\" cy=\"611\" r=\"3\"/><circle cx=\"304\" cy=\"694\" r=\"1\"/><circle cx=\"477\" cy=\"777\" r=\"2\"/><circle cx=\"650\" cy=\"860\" r=\"3\"/><circle cx=\"823\" cy=\"623\" r=\"1\"/></g></svg>","viet":"<svg viewBox=\"0 0 1600 900\" preserveAspectRatio=\"xMidYMid slice\" xmlns=\"http://www.w3.org/2000/svg\"><g class=\"v14-silk\"><path d=\"M-100 130Q350-80 800 150T1700 120V270Q1150 180 800 310T-100 270Z\"/><path d=\"M-100 230Q350 10 800 245T1700 210V295Q1100 250 800 355T-100 320Z\"/></g><g class=\"v14-star\"><polygon points=\"800,118 826.3327793027028,193.75603865200236 906.5183298250572,195.3900966300059 842.6073319300228,243.84396134799763 865.831948256757,320.60990336999413 800,274.8 734.168051743243,320.60990336999413 757.3926680699772,243.84396134799766 693.4816701749428,195.3900966300059 773.6672206972972,193.75603865200236 \"/></g><g class=\"v14-drum\"><ellipse cx=\"800\" cy=\"655\" rx=\"650\" ry=\"170\"/><ellipse cx=\"800\" cy=\"655\" rx=\"190\" ry=\"50\"/><ellipse cx=\"800\" cy=\"655\" rx=\"275\" ry=\"72\"/><ellipse cx=\"800\" cy=\"655\" rx=\"360\" ry=\"94\"/><ellipse cx=\"800\" cy=\"655\" rx=\"445\" ry=\"116\"/><ellipse cx=\"800\" cy=\"655\" rx=\"530\" ry=\"138\"/><ellipse cx=\"800\" cy=\"655\" rx=\"615\" ry=\"160\"/><path d=\"M1335 655l55 0\"/><path d=\"M1330.4230008349887 673.1431407185871l54.52946737555957 1.827366691080722\"/><path d=\"M1316.7703170646514 690.9758472692504l53.12592044589876 3.6234666314352904\"/><path d=\"M1294.2755498935385 708.1929970987475l50.81337428812077 5.357568053111257\"/><path d=\"M1263.3235910246747 724.5l47.63139720814413 6.999999999999999\"/><path d=\"M1224.444037055811 739.6178386322122l43.63443371601793 8.52266000612209\"/><path d=\"M1178.302127934803 753.2878425849301l38.890872965260115 9.899494936611664\"/><path d=\"M1125.6873645196656 765.2761143004817l33.481878595479635 11.106946764077293\"/><path d=\"M1067.5 775.377531126037l27.500000000000007 12.12435565298214\"/><path d=\"M1004.7356363153231 783.4192550190688l21.04758878007994 12.934313455158014\"/><path d=\"M938.4681891298486 789.2636898541805l14.235047480638642 13.522961568046956\"/><path d=\"M869.8315128377277 792.8108357309596l7.178940572102844 13.880228059233346\"/><path d=\"M800 794l3.3677786976552213e-15 14\"/><path d=\"M730.1684871622724 792.8108357309596l-7.178940572102838 13.880228059233346\"/><path d=\"M661.5318108701515 789.2636898541805l-14.235047480638634 13.522961568046956\"/><path d=\"M595.2643636846772 783.4192550190689l-21.047588780079924 12.934313455158016\"/><path d=\"M532.5000000000001 775.377531126037l-27.49999999999999 12.124355652982143\"/><path d=\"M474.31263548033445 765.2761143004817l-33.481878595479635 11.106946764077293\"/><path d=\"M421.6978720651971 753.2878425849301l-38.89087296526011 9.899494936611665\"/><path d=\"M375.5559629441892 739.6178386322122l-43.63443371601793 8.522660006122091\"/><path d=\"M336.6764089753253 724.5l-47.63139720814413 6.999999999999999\"/><path d=\"M305.7244501064616 708.1929970987475l-50.81337428812077 5.357568053111258\"/><path d=\"M283.2296829353485 690.9758472692504l-53.12592044589875 3.6234666314352943\"/><path d=\"M269.57699916501144 673.1431407185872l-54.52946737555957 1.8273666910807278\"/><path d=\"M265 655l-55 1.7145055188062944e-15\"/><path d=\"M269.57699916501144 636.8568592814128l-54.52946737555957 -1.8273666910807247\"/><path d=\"M283.2296829353485 619.0241527307496l-53.12592044589876 -3.6234666314352912\"/><path d=\"M305.7244501064615 601.8070029012525l-50.81337428812078 -5.3575680531112555\"/><path d=\"M336.6764089753252 585.5l-47.631397208144136 -6.9999999999999964\"/><path d=\"M375.55596294418916 570.3821613677878l-43.63443371601793 -8.52266000612209\"/><path d=\"M421.69787206519686 556.7121574150699l-38.89087296526014 -9.89949493661166\"/><path d=\"M474.31263548033434 544.7238856995184l-33.48187859547965 -11.10694676407729\"/><path d=\"M532.4999999999998 534.622468873963l-27.500000000000025 -12.124355652982139\"/><path d=\"M595.2643636846772 526.5807449809311l-21.047588780079924 -12.934313455158016\"/><path d=\"M661.5318108701515 520.7363101458195l-14.235047480638634 -13.522961568046956\"/><path d=\"M730.1684871622724 517.1891642690404l-7.17894057210284 -13.880228059233346\"/><path d=\"M799.9999999999999 516l-1.0103336092965664e-14 -14\"/><path d=\"M869.8315128377275 517.1891642690404l7.17894057210282 -13.880228059233346\"/><path d=\"M938.4681891298484 520.7363101458195l14.235047480638617 -13.522961568046957\"/><path d=\"M1004.7356363153227 526.5807449809311l21.047588780079906 -12.934313455158017\"/><path d=\"M1067.5 534.622468873963l27.500000000000007 -12.12435565298214\"/><path d=\"M1125.6873645196652 544.7238856995182l33.48187859547959 -11.1069467640773\"/><path d=\"M1178.302127934803 556.7121574150699l38.8908729652601 -9.899494936611667\"/><path d=\"M1224.4440370558107 570.3821613677878l43.634433716017924 -8.522660006122091\"/><path d=\"M1263.3235910246744 585.5l47.63139720814411 -7.000000000000006\"/><path d=\"M1294.2755498935385 601.8070029012525l50.81337428812078 -5.357568053111254\"/><path d=\"M1316.7703170646514 619.0241527307495l53.12592044589874 -3.623466631435302\"/><path d=\"M1330.4230008349887 636.8568592814128l54.52946737555957 -1.8273666910807236\"/><polygon points=\"800,525 830.5648331192086,612.9311162925028 923.6373471183699,614.8277907312569 849.454938847348,671.0688837074972 876.4120827980215,760.1722092687431 800,707 723.5879172019785,760.1722092687431 750.545061152652,671.0688837074973 676.3626528816301,614.8277907312569 769.4351668807914,612.9311162925028 \" transform=\"translate(0 491.25) scale(1 .25)\"/></g><g class=\"v14-landmarks\"><path d=\"M260 570V455H390V570M248 455H402L365 420H287ZM277 448V388H375V448M268 388H385L354 355H301Z\"/><path d=\"M670 570V430H940V570M655 430H955L930 400H680ZM700 450V555M742 450V555M784 450V555M826 450V555M868 450V555M910 450V555\"/><path d=\"M1130 570V415H1250V570M1120 415H1260L1220 365H1160ZM1155 415V340H1225V415M1145 340H1235L1190 305Z\"/></g><g class=\"v14-bamboo\"><g transform=\"translate(35 0)\"><path d=\"M0 900Q-20 540 15 330\"/><path d=\"M5 380q-85-80 -65-125q5550 65125\"/><path d=\"M0 445q85-80 65-125q-5550 -65125\"/><path d=\"M5 510q-85-80 -65-125q5550 65125\"/><path d=\"M0 575q85-80 65-125q-5550 -65125\"/><path d=\"M5 640q-85-80 -65-125q5550 65125\"/><path d=\"M0 705q85-80 65-125q-5550 -65125\"/><path d=\"M5 770q-85-80 -65-125q5550 65125\"/></g><g transform=\"translate(58 0)\"><path d=\"M0 900Q-20 540 15 330\"/><path d=\"M5 380q-85-80 -65-125q5550 65125\"/><path d=\"M0 445q85-80 65-125q-5550 -65125\"/><path d=\"M5 510q-85-80 -65-125q5550 65125\"/><path d=\"M0 575q85-80 65-125q-5550 -65125\"/><path d=\"M5 640q-85-80 -65-125q5550 65125\"/><path d=\"M0 705q85-80 65-125q-5550 -65125\"/><path d=\"M5 770q-85-80 -65-125q5550 65125\"/></g><g transform=\"translate(81 0)\"><path d=\"M0 900Q-20 540 15 330\"/><path d=\"M5 380q-85-80 -65-125q5550 65125\"/><path d=\"M0 445q85-80 65-125q-5550 -65125\"/><path d=\"M5 510q-85-80 -65-125q5550 65125\"/><path d=\"M0 575q85-80 65-125q-5550 -65125\"/><path d=\"M5 640q-85-80 -65-125q5550 65125\"/><path d=\"M0 705q85-80 65-125q-5550 -65125\"/><path d=\"M5 770q-85-80 -65-125q5550 65125\"/></g><g transform=\"translate(104 0)\"><path d=\"M0 900Q-20 540 15 330\"/><path d=\"M5 380q-85-80 -65-125q5550 65125\"/><path d=\"M0 445q85-80 65-125q-5550 -65125\"/><path d=\"M5 510q-85-80 -65-125q5550 65125\"/><path d=\"M0 575q85-80 65-125q-5550 -65125\"/><path d=\"M5 640q-85-80 -65-125q5550 65125\"/><path d=\"M0 705q85-80 65-125q-5550 -65125\"/><path d=\"M5 770q-85-80 -65-125q5550 65125\"/></g><g transform=\"translate(127 0)\"><path d=\"M0 900Q-20 540 15 330\"/><path d=\"M5 380q-85-80 -65-125q5550 65125\"/><path d=\"M0 445q85-80 65-125q-5550 -65125\"/><path d=\"M5 510q-85-80 -65-125q5550 65125\"/><path d=\"M0 575q85-80 65-125q-5550 -65125\"/><path d=\"M5 640q-85-80 -65-125q5550 65125\"/><path d=\"M0 705q85-80 65-125q-5550 -65125\"/><path d=\"M5 770q-85-80 -65-125q5550 65125\"/></g><g transform=\"translate(150 0)\"><path d=\"M0 900Q-20 540 15 330\"/><path d=\"M5 380q-85-80 -65-125q5550 65125\"/><path d=\"M0 445q85-80 65-125q-5550 -65125\"/><path d=\"M5 510q-85-80 -65-125q5550 65125\"/><path d=\"M0 575q85-80 65-125q-5550 -65125\"/><path d=\"M5 640q-85-80 -65-125q5550 65125\"/><path d=\"M0 705q85-80 65-125q-5550 -65125\"/><path d=\"M5 770q-85-80 -65-125q5550 65125\"/></g><g transform=\"translate(1435 0)\"><path d=\"M0 900Q-20 540 15 330\"/><path d=\"M5 380q-85-80 -65-125q5550 65125\"/><path d=\"M0 445q85-80 65-125q-5550 -65125\"/><path d=\"M5 510q-85-80 -65-125q5550 65125\"/><path d=\"M0 575q85-80 65-125q-5550 -65125\"/><path d=\"M5 640q-85-80 -65-125q5550 65125\"/><path d=\"M0 705q85-80 65-125q-5550 -65125\"/><path d=\"M5 770q-85-80 -65-125q5550 65125\"/></g><g transform=\"translate(1458 0)\"><path d=\"M0 900Q-20 540 15 330\"/><path d=\"M5 380q-85-80 -65-125q5550 65125\"/><path d=\"M0 445q85-80 65-125q-5550 -65125\"/><path d=\"M5 510q-85-80 -65-125q5550 65125\"/><path d=\"M0 575q85-80 65-125q-5550 -65125\"/><path d=\"M5 640q-85-80 -65-125q5550 65125\"/><path d=\"M0 705q85-80 65-125q-5550 -65125\"/><path d=\"M5 770q-85-80 -65-125q5550 65125\"/></g><g transform=\"translate(1481 0)\"><path d=\"M0 900Q-20 540 15 330\"/><path d=\"M5 380q-85-80 -65-125q5550 65125\"/><path d=\"M0 445q85-80 65-125q-5550 -65125\"/><path d=\"M5 510q-85-80 -65-125q5550 65125\"/><path d=\"M0 575q85-80 65-125q-5550 -65125\"/><path d=\"M5 640q-85-80 -65-125q5550 65125\"/><path d=\"M0 705q85-80 65-125q-5550 -65125\"/><path d=\"M5 770q-85-80 -65-125q5550 65125\"/></g><g transform=\"translate(1504 0)\"><path d=\"M0 900Q-20 540 15 330\"/><path d=\"M5 380q-85-80 -65-125q5550 65125\"/><path d=\"M0 445q85-80 65-125q-5550 -65125\"/><path d=\"M5 510q-85-80 -65-125q5550 65125\"/><path d=\"M0 575q85-80 65-125q-5550 -65125\"/><path d=\"M5 640q-85-80 -65-125q5550 65125\"/><path d=\"M0 705q85-80 65-125q-5550 -65125\"/><path d=\"M5 770q-85-80 -65-125q5550 65125\"/></g><g transform=\"translate(1527 0)\"><path d=\"M0 900Q-20 540 15 330\"/><path d=\"M5 380q-85-80 -65-125q5550 65125\"/><path d=\"M0 445q85-80 65-125q-5550 -65125\"/><path d=\"M5 510q-85-80 -65-125q5550 65125\"/><path d=\"M0 575q85-80 65-125q-5550 -65125\"/><path d=\"M5 640q-85-80 -65-125q5550 65125\"/><path d=\"M0 705q85-80 65-125q-5550 -65125\"/><path d=\"M5 770q-85-80 -65-125q5550 65125\"/></g><g transform=\"translate(1550 0)\"><path d=\"M0 900Q-20 540 15 330\"/><path d=\"M5 380q-85-80 -65-125q5550 65125\"/><path d=\"M0 445q85-80 65-125q-5550 -65125\"/><path d=\"M5 510q-85-80 -65-125q5550 65125\"/><path d=\"M0 575q85-80 65-125q-5550 -65125\"/><path d=\"M5 640q-85-80 -65-125q5550 65125\"/><path d=\"M0 705q85-80 65-125q-5550 -65125\"/><path d=\"M5 770q-85-80 -65-125q5550 65125\"/></g></g><g class=\"v14-birds\"><path transform=\"translate(-20 500) scale(.65)\" d=\"M0 0l35-17 25-45 5 37 55-8-42 25 15 20-34-9-32 30 12-28Z\"/><path transform=\"translate(100 538) scale(.65)\" d=\"M0 0l35-17 25-45 5 37 55-8-42 25 15 20-34-9-32 30 12-28Z\"/><path transform=\"translate(220 576) scale(.65)\" d=\"M0 0l35-17 25-45 5 37 55-8-42 25 15 20-34-9-32 30 12-28Z\"/><path transform=\"translate(340 500) scale(.65)\" d=\"M0 0l35-17 25-45 5 37 55-8-42 25 15 20-34-9-32 30 12-28Z\"/><path transform=\"translate(460 538) scale(.65)\" d=\"M0 0l35-17 25-45 5 37 55-8-42 25 15 20-34-9-32 30 12-28Z\"/><path transform=\"translate(580 576) scale(.65)\" d=\"M0 0l35-17 25-45 5 37 55-8-42 25 15 20-34-9-32 30 12-28Z\"/><path transform=\"translate(700 500) scale(.65)\" d=\"M0 0l35-17 25-45 5 37 55-8-42 25 15 20-34-9-32 30 12-28Z\"/><path transform=\"translate(820 538) scale(.65)\" d=\"M0 0l35-17 25-45 5 37 55-8-42 25 15 20-34-9-32 30 12-28Z\"/><path transform=\"translate(940 576) scale(.65)\" d=\"M0 0l35-17 25-45 5 37 55-8-42 25 15 20-34-9-32 30 12-28Z\"/><path transform=\"translate(1060 500) scale(.65)\" d=\"M0 0l35-17 25-45 5 37 55-8-42 25 15 20-34-9-32 30 12-28Z\"/><path transform=\"translate(1180 538) scale(.65)\" d=\"M0 0l35-17 25-45 5 37 55-8-42 25 15 20-34-9-32 30 12-28Z\"/><path transform=\"translate(1300 576) scale(.65)\" d=\"M0 0l35-17 25-45 5 37 55-8-42 25 15 20-34-9-32 30 12-28Z\"/><path transform=\"translate(1420 500) scale(.65)\" d=\"M0 0l35-17 25-45 5 37 55-8-42 25 15 20-34-9-32 30 12-28Z\"/><path transform=\"translate(1540 538) scale(.65)\" d=\"M0 0l35-17 25-45 5 37 55-8-42 25 15 20-34-9-32 30 12-28Z\"/></g><g class=\"v14-parade\"><path transform=\"translate(-40 810)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(8 825)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(56 810)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(104 825)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(152 810)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(200 825)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(248 810)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(296 825)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(344 810)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(392 825)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(440 810)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(488 825)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(536 810)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(584 825)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(632 810)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(680 825)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(728 810)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(776 825)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(824 810)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(872 825)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(920 810)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(968 825)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(1016 810)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(1064 825)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(1112 810)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(1160 825)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(1208 810)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(1256 825)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(1304 810)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(1352 825)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(1400 810)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(1448 825)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(1496 810)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(1544 825)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(1592 810)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/><path transform=\"translate(1640 825)\" d=\"M0 0V-65m0 3q24-15 40 0v32q-24-15-40 0\"/></g><g class=\"v14-lotus\"><path transform=\"translate(0 850)\" d=\"M0 0Q-75-25-60-65Q-20-65 0-15Q-30-70 0-105Q30-70 0-15Q20-65 60-65Q75-25 0 0Z\"/><path transform=\"translate(160 850)\" d=\"M0 0Q-75-25-60-65Q-20-65 0-15Q-30-70 0-105Q30-70 0-15Q20-65 60-65Q75-25 0 0Z\"/><path transform=\"translate(320 850)\" d=\"M0 0Q-75-25-60-65Q-20-65 0-15Q-30-70 0-105Q30-70 0-15Q20-65 60-65Q75-25 0 0Z\"/><path transform=\"translate(480 850)\" d=\"M0 0Q-75-25-60-65Q-20-65 0-15Q-30-70 0-105Q30-70 0-15Q20-65 60-65Q75-25 0 0Z\"/><path transform=\"translate(640 850)\" d=\"M0 0Q-75-25-60-65Q-20-65 0-15Q-30-70 0-105Q30-70 0-15Q20-65 60-65Q75-25 0 0Z\"/><path transform=\"translate(800 850)\" d=\"M0 0Q-75-25-60-65Q-20-65 0-15Q-30-70 0-105Q30-70 0-15Q20-65 60-65Q75-25 0 0Z\"/><path transform=\"translate(960 850)\" d=\"M0 0Q-75-25-60-65Q-20-65 0-15Q-30-70 0-105Q30-70 0-15Q20-65 60-65Q75-25 0 0Z\"/><path transform=\"translate(1120 850)\" d=\"M0 0Q-75-25-60-65Q-20-65 0-15Q-30-70 0-105Q30-70 0-15Q20-65 60-65Q75-25 0 0Z\"/><path transform=\"translate(1280 850)\" d=\"M0 0Q-75-25-60-65Q-20-65 0-15Q-30-70 0-105Q30-70 0-15Q20-65 60-65Q75-25 0 0Z\"/><path transform=\"translate(1440 850)\" d=\"M0 0Q-75-25-60-65Q-20-65 0-15Q-30-70 0-105Q30-70 0-15Q20-65 60-65Q75-25 0 0Z\"/><path transform=\"translate(1600 850)\" d=\"M0 0Q-75-25-60-65Q-20-65 0-15Q-30-70 0-105Q30-70 0-15Q20-65 60-65Q75-25 0 0Z\"/></g></svg>"});
+    Object.assign(LUX_CONFIG10,{"summer":{"id":"summer","runtime":"Summer","root":"summer-solstice-equipped","world":"summer-solstice-world","ui":"summer-solstice-ui-frame","realm":"summer-solstice-pet-realm","pet":"summer-solstice-pet","effect":"premium-summer-solstice-magic","stage":"pet-summer-solstice-stage","css":"premium-mua-xuan","color":"#ffdd83","bg":"#063443","font":"Palatino Linotype, Georgia, serif","radius":"32px 7px 32px 7px","kicker":"HẠ THẦN / NHẬT DIỆU","title":"Lưu Kim · Hải Nhật Thiên Đài","subtitle":"Buồm đón bình minh · Sóng vàng dâng bậc trời"},"viet":{"id":"viet","runtime":"NationalDay","root":"national-day-luxury-equipped","world":"national-day-world-v4","ui":"national-day-interface-v4","realm":"national-day-realm-v14","pet":"national-day-pet-v14","effect":"national-day-chibi-star-magic","stage":"pet-national-day-stage-v14","css":"quoc-khanh-pet","color":"#ffe1a1","bg":"#531c25","font":"Georgia, serif","radius":"5px 5px 20px 20px","kicker":"VIỆT DIỆU / HỒN THIÊNG","title":"Độc Lập · Sơn Hà Rạng Rỡ","subtitle":"Dải lụa đỏ · Nhịp trống đồng · Sen nở quê hương"}});
+    Object.assign(LUX_GLYPHS10,{summer:'<svg viewBox="0 0 104 64"><path d="M8 45Q50 8 96 45M8 54H96M50 5V20M15 15L25 28M85 15L75 28"/><circle cx="50" cy="36" r="14"/></svg>',viet:'<svg viewBox="0 0 104 64"><path d="M52 3L61 25H86L66 39 74 61 52 47 30 61 38 39 18 25H43Z"/></svg>'});
+    function luxuryPolicy13(){return window.EffectQualityManager?.getLuxuryPolicy?.()||{level:'high',pointerEnabled:true,countScale:1,trailInterval:70,trailLimit:10,tapCount:7};}
+    function installLuxuryGestures10(runtime, id, root, tap) {
+        runtime.gesture10?.abort();runtime.gesture10Id=id;
+        const controller = runtime.gesture10 = new AbortController(), {signal}=controller;
+        let press=null, last=null, lastTime=0;
+        const valid=()=>!document.hidden&&luxuryPolicy13().pointerEnabled&&document.documentElement.classList.contains(root);
+        const blocked=e=>e.target?.closest?.('#virtual-pet-container,input,textarea,select,[contenteditable="true"],input[type="range"]');
+        document.addEventListener('pointerdown',e=>{
+            if(!valid()||e.button!==0||e.isPrimary===false||blocked(e)){press=null;return;}
+            press={id:e.pointerId,x:e.clientX,y:e.clientY,moved:false};
+        },{signal,passive:true,capture:true});
+        document.addEventListener('pointermove',e=>{
+            if(press&&press.id===e.pointerId&&Math.hypot(e.clientX-press.x,e.clientY-press.y)>10)press.moved=true;
+            if(!valid()||blocked(e)||e.isPrimary===false||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+            if(e.pointerType==='touch'&&!press)return;
+            const now=performance.now(),x=e.clientX,y=e.clientY;
+            if(now-lastTime<luxuryPolicy13().trailInterval||last&&Math.hypot(x-last.x,y-last.y)<18)return;
+            lastTime=now;
+            const old=document.querySelectorAll('[data-gesture10="'+id+'"]');if(old.length>=luxuryPolicy13().trailLimit)old[0].remove();
+            const n=document.createElement('div');n.className='lux-pointer10 lp10-'+id;n.dataset.gesture10=id;n.setAttribute('aria-hidden','true');
+            n.style.cssText='--px:'+x+'px;--py:'+y+'px;--turn:'+Math.atan2(y-(last?.y??y),x-(last?.x??x))*180/Math.PI+'deg';
+            n.innerHTML=LUX_GLYPHS10[id];document.body.appendChild(n);last={x,y};
+            const later=runtime.realmLater||runtime.later||runtime.setTimer;later.call(runtime,()=>n.remove(),1100);
+        },{signal,passive:true,capture:true});
+        document.addEventListener('pointerup',e=>{
+            const p=press;press=null;if(!valid()||!p||p.id!==e.pointerId||p.moved||blocked(e)||Math.hypot(e.clientX-p.x,e.clientY-p.y)>10)return;
+            tap(e.clientX,e.clientY);
+        },{signal,passive:true,capture:true});
+        for(const type of ['pointercancel','scroll','visibilitychange'])document.addEventListener(type,()=>{press=null;last=null;},{signal,passive:true,capture:true});
+        window.addEventListener('blur',()=>{press=null;last=null;},{signal});
+    }
+    function luxuryTapBloom11(runtime,id,x,y){
+        const policy= luxuryPolicy13();if(!policy.pointerEnabled)return;
+        const now=performance.now();if(document.hidden||now-(runtime.lastSmallTap12??-1000)<80)return;runtime.lastSmallTap12=now;
+        const colors={summer:'#ffe39b',viet:'#ffdc76',rose:'#ff8ec5',cat:'#89ffce',moon:'#c9e3ff',cuoi:'#e6d18a',cheng:'#ffcc79',klein:'#c8a3ff',aether:'#fff0ad',cam:'#76e4d4',nyx:'#c5a8ff',starry:'#ffe273',autumn:'#ffc66e',hacmong:'#b0ffe9'};
+        const old=document.querySelectorAll('[data-gesture10="'+id+'"]');if(old.length>=5)old[0].remove();
+        const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const n=document.createElement('div');n.dataset.gesture10=id;n.className='lux-tap-bloom11';n.setAttribute('aria-hidden','true');
+        n.style.cssText='position:fixed!important;left:'+x+'px!important;top:'+y+'px!important;width:0!important;height:0!important;pointer-events:none!important;z-index:2147483000!important;color:'+colors[id]+';';
+        const glyph=LUX_GLYPHS10[id].replace('<svg ','<svg style="width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:2;overflow:visible;pointer-events:none" ');
+        for(let i=0;i<policy.tapCount;i++){
+            const p=document.createElement('span'),center=i===0,angle=(i-1)*Math.PI*2/(policy.tapCount-1);
+            p.style.cssText='position:absolute;pointer-events:none;width:'+(center?36:16)+'px;height:'+(center?24:11)+'px;left:'+(center?-18:-8)+'px;top:'+(center?-12:-5.5)+'px;filter:drop-shadow(0 0 3px currentColor)';
+            p.innerHTML=glyph;n.appendChild(p);
+            const dx=center?0:Math.cos(angle)*39,dy=center?0:Math.sin(angle)*39;
+            p.animate(reduced?[{opacity:.7},{opacity:0}]:[{transform:'translate(0,0) scale(.15)',opacity:0},{offset:.2,opacity:1},{transform:'translate('+dx+'px,'+dy+'px) scale('+(center?1.25:.6)+')',opacity:0}],{duration:reduced?250:650,easing:'cubic-bezier(.15,.65,.3,1)',fill:'forwards'});
+        }
+        document.body.appendChild(n);const later=runtime.realmLater||runtime.later||runtime.setTimer;later.call(runtime,()=>n.remove(),reduced?280:700);
+    }
+
+    function clearLuxuryGestures10(runtime){runtime.gesture10?.abort();runtime.gesture10=null;if(runtime.gesture10Id)document.querySelectorAll('[data-gesture10="'+runtime.gesture10Id+'"]').forEach(n=>n.remove());}
+    function luxuryScene10(runtime,mode,x=innerWidth/2,y=innerHeight/2){
+        const c=runtime.design10();const n=document.createElement('div');n.className='lux10 lux10-'+c.id+' lux10-'+mode;n.dataset.scene10=c.id;n.setAttribute('aria-hidden','true');
+        n.style.setProperty('--impact-x',x+'px');n.style.setProperty('--impact-y',y+'px');
+        n.innerHTML=LUX_ART10[c.id]+(mode==='ultimate'?'<div class="lux10-caption"><small>'+c.kicker+'</small><strong>'+c.title+'</strong><span>'+c.subtitle+'</span></div>':'');
+        document.body.appendChild(n);return n;
+    }
+    function luxuryUltimate10(runtime,x,y){
+        const c=runtime.design10(),pet=document.getElementById('virtual-pet-img'),box=pet?.closest('#virtual-pet-container');
+        if(runtime.sceneLocked10||document.hidden||!document.documentElement.classList.contains(c.root)||!pet||box?.hidden||box?.style.display==='none'||box?.dataset.petDragged==='1')return false;
+        runtime.sceneLocked10=true;const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches,n=luxuryScene10(runtime,'ultimate',x,y);
+        runtime.setTimer(()=>n.remove(),reduced?1300:8400);runtime.setTimer(()=>runtime.sceneLocked10=false,reduced?1600:8800);return true;
+    }
+    function luxuryPet10(runtime){
+        const c=runtime.design10(),pet=document.getElementById('virtual-pet-img'),box=pet?.closest('#virtual-pet-container');if(!pet||!box)return false;
+        if(runtime.pet10===pet){if(!box.querySelector('.'+c.realm)){const n=luxuryScene10(runtime,'realm');n.classList.add(c.realm);box.prepend(n);}return true;}
+        for(const [k,v]of Object.entries(runtime.attrs10||{})){if(v===null)runtime.pet10?.removeAttribute(k);else runtime.pet10?.setAttribute(k,v);}
+        runtime.sceneObserver10?.disconnect();document.querySelectorAll('.lux10-'+c.id+'.lux10-realm').forEach(n=>n.remove());
+        runtime.petAbort10?.abort();runtime.petAbort10=new AbortController();const {signal}=runtime.petAbort10;
+        runtime.pet10=pet;runtime.attrs10=Object.fromEntries(['tabindex','role','aria-label'].map(k=>[k,pet.getAttribute(k)]));
+        pet.tabIndex=0;pet.setAttribute('role','button');pet.setAttribute('aria-label',c.title);pet.classList.add(c.pet);box.classList.add(c.stage);
+        const n=luxuryScene10(runtime,'realm');n.classList.add(c.realm);box.prepend(n);
+        const cast=e=>{if(box.dataset.petDragged==='1'||window.PetInteractionManager?.isPetDragging)return;e.preventDefault();e.stopImmediatePropagation();const r=pet.getBoundingClientRect();luxuryUltimate10(runtime,r.x+r.width/2,r.y+r.height/2);};
+        pet.addEventListener('click',cast,{capture:true,signal});pet.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){box.dataset.petDragged='0';cast(e);}},{signal});
+        runtime.sceneObserver10=new MutationObserver(()=>{if(!pet.isConnected||box.hidden||box.style.display==='none'||box.style.visibility==='hidden')runtime.clear();});
+        runtime.sceneObserver10.observe(box.parentNode,{subtree:true,childList:true,attributes:true,attributeFilter:['style','hidden']});
+        document.addEventListener('visibilitychange',()=>document.querySelectorAll('[data-scene10="'+c.id+'"]').forEach(n=>n.classList.toggle('lux10-paused',document.hidden)),{signal});
+        return true;
+    }
+    function clearLuxuryScene10(runtime){
+        clearLuxuryGestures10(runtime);runtime.petAbort10?.abort();runtime.sceneObserver10?.disconnect();runtime.sceneLocked10=false;runtime.lastTap10=-1000;
+        for(const [k,v]of Object.entries(runtime.attrs10||{})){if(v===null)runtime.pet10?.removeAttribute(k);else runtime.pet10?.setAttribute(k,v);}
+        runtime.pet10=null;runtime.attrs10=null;const c=runtime.design10();document.querySelectorAll('[data-scene10="'+c.id+'"]').forEach(n=>n.remove());document.documentElement.classList.remove('lux10-'+c.id+'-equipped');
+    }
+
+    const LuxuryAutumnRuntime = {
+        controller: null, observer: null, pet: null, container: null,
+        timers: new Set(), locked: false, lastClick: 0,
+        reduced() { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; },
+        later(callback, delay) {
+            const timer = window.setTimeout(() => {
+                this.timers.delete(timer);
+                callback();
+            }, delay);
+            this.timers.add(timer);
+            return timer;
+        },
+        clear() {
+            this.lastSmallTap12=-1000;
+            clearLuxuryGestures10(this);
+            this.controller?.abort();
+            this.observer?.disconnect();
+            this.timers.forEach(timer => window.clearTimeout(timer));
+            this.timers.clear();
+            document.querySelectorAll('[data-autumn3-runtime]').forEach(node => node.remove());
+            document.documentElement.classList.remove('autumn3-equipped', 'autumn3-paused');
+            this.container?.classList.remove('autumn3-pet-stage', 'autumn3-casting');
+            if (this.pet) {
+                for (const [name, value] of Object.entries(this.originalAttributes || {})) {
+                    if (value === null) this.pet.removeAttribute(name);
+                    else this.pet.setAttribute(name, value);
+                }
+            }
+            this.controller = this.observer = this.pet = this.container = null;
+            this.locked = false;
+            this.lastClick = 0;
+        },
+        // Luxury-only ornaments share the existing runtime cleanup and reduced-motion policy.
+        panoramaMarkup(kind) {
+            return '<div class="autumn3-v8 v8-' + kind + '"><div class="v8-sky"></div><div class="v8-dawn"></div><svg class="v8-landscape" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g class="v8-distance"><path class="v8-ridge ridge-0" d="M-100 500L90 170L180 340L290 210L430 430L600 300L780 460L960 320L1100 430L1250 200L1350 330L1490 140L1700 530V1000H-100Z"/><path class="v8-ridge ridge-1" d="M-100 570L90 265L180 378L290 272L430 465L600 365L780 500L960 385L1100 470L1250 265L1350 375L1490 220L1700 590V1000H-100Z"/><path class="v8-ridge ridge-2" d="M-100 640L90 360L180 416L290 334L430 500L600 430L780 540L960 450L1100 510L1250 330L1350 420L1490 300L1700 650V1000H-100Z"/></g><g class="v8-road"><path class="v8-stone" d="M725 540H875L1320 950H280Z"/><path class="v8-step" d="M710 570H890l20 10H690Z"/><path class="v8-step" d="M706 572.1H894l20 10H686Z"/><path class="v8-step" d="M694 578.4H906l20 10H674Z"/><path class="v8-step" d="M674 588.9H926l20 10H654Z"/><path class="v8-step" d="M646 603.6H954l20 10H626Z"/><path class="v8-step" d="M610 622.5H990l20 10H590Z"/><path class="v8-step" d="M566 645.6H1034l20 10H546Z"/><path class="v8-step" d="M514 672.9H1086l20 10H494Z"/><path class="v8-step" d="M454 704.4H1146l20 10H434Z"/><path class="v8-step" d="M386 740.1H1214l20 10H366Z"/><path class="v8-step" d="M310 780H1290l20 10H290Z"/><path class="v8-step" d="M226 824.1H1374l20 10H206Z"/><path class="v8-trim" d="M720 545L235 930M880 545L1365 930M705 545L180 930M895 545L1420 930"/></g><g class="v8-palace"><g class="v8-gate" style="--depth:0" transform="translate(800 410) scale(0.32)"><path class="v8-stone" d="M-180 310V-70H-145V310ZM145 310V-70H180V310Z"/><path class="v8-trim" d="M-172 310V-65M172 310V-65M-155 310V-65M155 310V-65"/><path class="v8-roof" d="M-235-80Q-175-92-150-125H150Q175-92 235-80L200-62H-200Z"/><path class="v8-roof" d="M-190-132Q-128-145-103-178H103Q128-145 190-132L158-115H-158Z"/><path class="v8-trim" d="M-235-80Q0-62 235-80M-190-132Q0-113 190-132M-145-46H145M-145-25H145"/><path class="v8-stone" d="M-57-59H57V-9H-57Z"/><path class="v8-trim" d="M-46-50H46V-18H-46Z"/><text x="0" y="-28" text-anchor="middle" class="v8-sign">PHONG DIỆP</text><path class="v8-trim" d="M-200-62V25M200-62V25"/><g class="v8-lantern"><path d="M-210 22H-190L-186 48L-200 68L-214 48ZM190 22H210L214 48L200 68L186 48Z"/><path class="v8-trim" d="M-200 68V95M200 68V95"/></g><path class="v8-trim" d="M-180 -79l8 -28M-180 -60v18l8 8l8 -8v-18 M-157.5 -79l8 -28M-157.5 -60v18l8 8l8 -8v-18 M-135 -79l8 -28M-135 -60v18l8 8l8 -8v-18 M-112.5 -79l8 -28M-112.5 -60v18l8 8l8 -8v-18 M-90 -79l8 -28M-90 -60v18l8 8l8 -8v-18 M-67.5 -79l8 -28M-67.5 -60v18l8 8l8 -8v-18 M-45 -79l8 -28M-45 -60v18l8 8l8 -8v-18 M-22.5 -79l8 -28M-22.5 -60v18l8 8l8 -8v-18 M0 -79l8 -28M0 -60v18l8 8l8 -8v-18 M22.5 -79l8 -28M22.5 -60v18l8 8l8 -8v-18 M45 -79l8 -28M45 -60v18l8 8l8 -8v-18 M67.5 -79l8 -28M67.5 -60v18l8 8l8 -8v-18 M90 -79l8 -28M90 -60v18l8 8l8 -8v-18 M112.5 -79l8 -28M112.5 -60v18l8 8l8 -8v-18 M135 -79l8 -28M135 -60v18l8 8l8 -8v-18 M157.5 -79l8 -28M157.5 -60v18l8 8l8 -8v-18 M180 -79l8 -28M180 -60v18l8 8l8 -8v-18"/><path class="v8-trim" d="M-163 10l8 14l-8 14l-8 -14Z M-163 58l8 14l-8 14l-8 -14Z M-163 106l8 14l-8 14l-8 -14Z M-163 154l8 14l-8 14l-8 -14Z M-163 202l8 14l-8 14l-8 -14Z M-163 250l8 14l-8 14l-8 -14Z M163 10l8 14l-8 14l-8 -14Z M163 58l8 14l-8 14l-8 -14Z M163 106l8 14l-8 14l-8 -14Z M163 154l8 14l-8 14l-8 -14Z M163 202l8 14l-8 14l-8 -14Z M163 250l8 14l-8 14l-8 -14Z"/><path class="v8-trim" d="M-193 310H-127M127 310H193M-196 322H-124M124 322H196"/></g><g class="v8-gate" style="--depth:1" transform="translate(800 430) scale(0.62)"><path class="v8-stone" d="M-180 310V-70H-145V310ZM145 310V-70H180V310Z"/><path class="v8-trim" d="M-172 310V-65M172 310V-65M-155 310V-65M155 310V-65"/><path class="v8-roof" d="M-235-80Q-175-92-150-125H150Q175-92 235-80L200-62H-200Z"/><path class="v8-roof" d="M-190-132Q-128-145-103-178H103Q128-145 190-132L158-115H-158Z"/><path class="v8-trim" d="M-235-80Q0-62 235-80M-190-132Q0-113 190-132M-145-46H145M-145-25H145"/><path class="v8-stone" d="M-57-59H57V-9H-57Z"/><path class="v8-trim" d="M-46-50H46V-18H-46Z"/><text x="0" y="-28" text-anchor="middle" class="v8-sign">PHONG DIỆP</text><path class="v8-trim" d="M-200-62V25M200-62V25"/><g class="v8-lantern"><path d="M-210 22H-190L-186 48L-200 68L-214 48ZM190 22H210L214 48L200 68L186 48Z"/><path class="v8-trim" d="M-200 68V95M200 68V95"/></g><path class="v8-trim" d="M-180 -79l8 -28M-180 -60v18l8 8l8 -8v-18 M-157.5 -79l8 -28M-157.5 -60v18l8 8l8 -8v-18 M-135 -79l8 -28M-135 -60v18l8 8l8 -8v-18 M-112.5 -79l8 -28M-112.5 -60v18l8 8l8 -8v-18 M-90 -79l8 -28M-90 -60v18l8 8l8 -8v-18 M-67.5 -79l8 -28M-67.5 -60v18l8 8l8 -8v-18 M-45 -79l8 -28M-45 -60v18l8 8l8 -8v-18 M-22.5 -79l8 -28M-22.5 -60v18l8 8l8 -8v-18 M0 -79l8 -28M0 -60v18l8 8l8 -8v-18 M22.5 -79l8 -28M22.5 -60v18l8 8l8 -8v-18 M45 -79l8 -28M45 -60v18l8 8l8 -8v-18 M67.5 -79l8 -28M67.5 -60v18l8 8l8 -8v-18 M90 -79l8 -28M90 -60v18l8 8l8 -8v-18 M112.5 -79l8 -28M112.5 -60v18l8 8l8 -8v-18 M135 -79l8 -28M135 -60v18l8 8l8 -8v-18 M157.5 -79l8 -28M157.5 -60v18l8 8l8 -8v-18 M180 -79l8 -28M180 -60v18l8 8l8 -8v-18"/><path class="v8-trim" d="M-163 10l8 14l-8 14l-8 -14Z M-163 58l8 14l-8 14l-8 -14Z M-163 106l8 14l-8 14l-8 -14Z M-163 154l8 14l-8 14l-8 -14Z M-163 202l8 14l-8 14l-8 -14Z M-163 250l8 14l-8 14l-8 -14Z M163 10l8 14l-8 14l-8 -14Z M163 58l8 14l-8 14l-8 -14Z M163 106l8 14l-8 14l-8 -14Z M163 154l8 14l-8 14l-8 -14Z M163 202l8 14l-8 14l-8 -14Z M163 250l8 14l-8 14l-8 -14Z"/><path class="v8-trim" d="M-193 310H-127M127 310H193M-196 322H-124M124 322H196"/></g><g class="v8-gate" style="--depth:2" transform="translate(800 435) scale(1)"><path class="v8-stone" d="M-180 310V-70H-145V310ZM145 310V-70H180V310Z"/><path class="v8-trim" d="M-172 310V-65M172 310V-65M-155 310V-65M155 310V-65"/><path class="v8-roof" d="M-235-80Q-175-92-150-125H150Q175-92 235-80L200-62H-200Z"/><path class="v8-roof" d="M-190-132Q-128-145-103-178H103Q128-145 190-132L158-115H-158Z"/><path class="v8-trim" d="M-235-80Q0-62 235-80M-190-132Q0-113 190-132M-145-46H145M-145-25H145"/><path class="v8-stone" d="M-57-59H57V-9H-57Z"/><path class="v8-trim" d="M-46-50H46V-18H-46Z"/><text x="0" y="-28" text-anchor="middle" class="v8-sign">PHONG DIỆP</text><path class="v8-trim" d="M-200-62V25M200-62V25"/><g class="v8-lantern"><path d="M-210 22H-190L-186 48L-200 68L-214 48ZM190 22H210L214 48L200 68L186 48Z"/><path class="v8-trim" d="M-200 68V95M200 68V95"/></g><path class="v8-trim" d="M-180 -79l8 -28M-180 -60v18l8 8l8 -8v-18 M-157.5 -79l8 -28M-157.5 -60v18l8 8l8 -8v-18 M-135 -79l8 -28M-135 -60v18l8 8l8 -8v-18 M-112.5 -79l8 -28M-112.5 -60v18l8 8l8 -8v-18 M-90 -79l8 -28M-90 -60v18l8 8l8 -8v-18 M-67.5 -79l8 -28M-67.5 -60v18l8 8l8 -8v-18 M-45 -79l8 -28M-45 -60v18l8 8l8 -8v-18 M-22.5 -79l8 -28M-22.5 -60v18l8 8l8 -8v-18 M0 -79l8 -28M0 -60v18l8 8l8 -8v-18 M22.5 -79l8 -28M22.5 -60v18l8 8l8 -8v-18 M45 -79l8 -28M45 -60v18l8 8l8 -8v-18 M67.5 -79l8 -28M67.5 -60v18l8 8l8 -8v-18 M90 -79l8 -28M90 -60v18l8 8l8 -8v-18 M112.5 -79l8 -28M112.5 -60v18l8 8l8 -8v-18 M135 -79l8 -28M135 -60v18l8 8l8 -8v-18 M157.5 -79l8 -28M157.5 -60v18l8 8l8 -8v-18 M180 -79l8 -28M180 -60v18l8 8l8 -8v-18"/><path class="v8-trim" d="M-163 10l8 14l-8 14l-8 -14Z M-163 58l8 14l-8 14l-8 -14Z M-163 106l8 14l-8 14l-8 -14Z M-163 154l8 14l-8 14l-8 -14Z M-163 202l8 14l-8 14l-8 -14Z M-163 250l8 14l-8 14l-8 -14Z M163 10l8 14l-8 14l-8 -14Z M163 58l8 14l-8 14l-8 -14Z M163 106l8 14l-8 14l-8 -14Z M163 154l8 14l-8 14l-8 -14Z M163 202l8 14l-8 14l-8 -14Z M163 250l8 14l-8 14l-8 -14Z"/><path class="v8-trim" d="M-193 310H-127M127 310H193M-196 322H-124M124 322H196"/></g><g class="v8-gate" style="--depth:3" transform="translate(800 455) scale(1.6)"><path class="v8-stone" d="M-180 310V-70H-145V310ZM145 310V-70H180V310Z"/><path class="v8-trim" d="M-172 310V-65M172 310V-65M-155 310V-65M155 310V-65"/><path class="v8-roof" d="M-235-80Q-175-92-150-125H150Q175-92 235-80L200-62H-200Z"/><path class="v8-roof" d="M-190-132Q-128-145-103-178H103Q128-145 190-132L158-115H-158Z"/><path class="v8-trim" d="M-235-80Q0-62 235-80M-190-132Q0-113 190-132M-145-46H145M-145-25H145"/><path class="v8-stone" d="M-57-59H57V-9H-57Z"/><path class="v8-trim" d="M-46-50H46V-18H-46Z"/><text x="0" y="-28" text-anchor="middle" class="v8-sign">PHONG DIỆP</text><path class="v8-trim" d="M-200-62V25M200-62V25"/><g class="v8-lantern"><path d="M-210 22H-190L-186 48L-200 68L-214 48ZM190 22H210L214 48L200 68L186 48Z"/><path class="v8-trim" d="M-200 68V95M200 68V95"/></g><path class="v8-trim" d="M-180 -79l8 -28M-180 -60v18l8 8l8 -8v-18 M-157.5 -79l8 -28M-157.5 -60v18l8 8l8 -8v-18 M-135 -79l8 -28M-135 -60v18l8 8l8 -8v-18 M-112.5 -79l8 -28M-112.5 -60v18l8 8l8 -8v-18 M-90 -79l8 -28M-90 -60v18l8 8l8 -8v-18 M-67.5 -79l8 -28M-67.5 -60v18l8 8l8 -8v-18 M-45 -79l8 -28M-45 -60v18l8 8l8 -8v-18 M-22.5 -79l8 -28M-22.5 -60v18l8 8l8 -8v-18 M0 -79l8 -28M0 -60v18l8 8l8 -8v-18 M22.5 -79l8 -28M22.5 -60v18l8 8l8 -8v-18 M45 -79l8 -28M45 -60v18l8 8l8 -8v-18 M67.5 -79l8 -28M67.5 -60v18l8 8l8 -8v-18 M90 -79l8 -28M90 -60v18l8 8l8 -8v-18 M112.5 -79l8 -28M112.5 -60v18l8 8l8 -8v-18 M135 -79l8 -28M135 -60v18l8 8l8 -8v-18 M157.5 -79l8 -28M157.5 -60v18l8 8l8 -8v-18 M180 -79l8 -28M180 -60v18l8 8l8 -8v-18"/><path class="v8-trim" d="M-163 10l8 14l-8 14l-8 -14Z M-163 58l8 14l-8 14l-8 -14Z M-163 106l8 14l-8 14l-8 -14Z M-163 154l8 14l-8 14l-8 -14Z M-163 202l8 14l-8 14l-8 -14Z M-163 250l8 14l-8 14l-8 -14Z M163 10l8 14l-8 14l-8 -14Z M163 58l8 14l-8 14l-8 -14Z M163 106l8 14l-8 14l-8 -14Z M163 154l8 14l-8 14l-8 -14Z M163 202l8 14l-8 14l-8 -14Z M163 250l8 14l-8 14l-8 -14Z"/><path class="v8-trim" d="M-193 310H-127M127 310H193M-196 322H-124M124 322H196"/></g></g><g class="v8-tree" style="--depth:0" transform="translate(80 680) scale(1 1)"><path class="v8-bark" d="M0 90Q35-80 12-320L30-328Q62-184 39-95Q78-163 150-184L156-174Q75-122 32-14L24 90ZM27-220Q-30-298-91-313L-89-325Q-17-321 35-260Z"/><g transform="translate(0 -323) rotate(0)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(97.01956845835082 -284.8450913870556) rotate(27)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(-114.19224886674193 -205.45981256658717) rotate(54)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(37.38496362160544 -157.83062278216303) rotate(81)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(70.1900631470114 -185.74757946832023) rotate(108)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(-119.99882478608441 -263.5439613934478) rotate(135)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(71.04882176486694 -319.6941337919804) rotate(162)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(36.37420280948407 -302.5738871104943) rotate(189)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(-113.86133975017488 -227.92349719388508) rotate(216)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(97.64084850085264 -164.3761882635718) rotate(243)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g></g><g class="v8-tree" style="--depth:1" transform="translate(1520 680) scale(-1 1)"><path class="v8-bark" d="M0 90Q35-80 12-320L30-328Q62-184 39-95Q78-163 150-184L156-174Q75-122 32-14L24 90ZM27-220Q-30-298-91-313L-89-325Q-17-321 35-260Z"/><g transform="translate(0 -323) rotate(0)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(97.01956845835082 -284.8450913870556) rotate(27)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(-114.19224886674193 -205.45981256658717) rotate(54)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(37.38496362160544 -157.83062278216303) rotate(81)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(70.1900631470114 -185.74757946832023) rotate(108)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(-119.99882478608441 -263.5439613934478) rotate(135)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(71.04882176486694 -319.6941337919804) rotate(162)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(36.37420280948407 -302.5738871104943) rotate(189)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(-113.86133975017488 -227.92349719388508) rotate(216)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(97.64084850085264 -164.3761882635718) rotate(243)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g></g><g class="v8-flight"><g transform="translate(-100 390) rotate(0) scale(.35)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(0 505.9591837027844) rotate(33) scale(.35)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(100 567.3809513979228) rotate(66) scale(.35)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(200 545.3776859967973) rotate(99) scale(.35)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(300 450.2978670280629) rotate(132) scale(.35)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(400 326.8590190158684) rotate(165) scale(.35)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(500 233.1163609655542) rotate(198) scale(.35)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(600 213.15852972762013) rotate(231) scale(.35)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(700 276.3720051829821) rotate(264) scale(.35)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(800 393.02650208718296) rotate(297) scale(.35)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(900 508.25758776938204) rotate(330) scale(.35)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(1000 567.87028209786) rotate(363) scale(.35)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(1100 543.8278034558907) rotate(396) scale(.35)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(1200 447.4377052228834) rotate(429) scale(.35)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(1300 324.0337567346532) rotate(462) scale(.35)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(1400 231.65476320509939) rotate(495) scale(.35)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(1500 213.74800875276287) rotate(528) scale(.35)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g><g transform="translate(1600 278.7353197973338) rotate(561) scale(.35)"><path class="v8-foliage" d="M0-60L13-28L40-42L32-12L62-3L29 17L36 46L9 36L0 63L-9 36L-36 46L-29 17L-62-3L-32-12L-40-42L-13-28Z"/><path class="v8-trim" d="M0-43V42M-35-3L0 15L35-3"/></g></g><g class="v8-river"><path class="v8-current current-0" style="--i:0" d="M-200 570C200 70 520 960 890 490S1420 150 1810 410"/><path class="v8-current current-1" style="--i:1" d="M-200 586C200 102 520 943 890 502S1420 174 1810 430"/><path class="v8-current current-2" style="--i:2" d="M-200 602C200 134 520 926 890 514S1420 198 1810 450"/><path class="v8-current current-3" style="--i:3" d="M-200 618C200 166 520 909 890 526S1420 222 1810 470"/><path class="v8-current current-4" style="--i:4" d="M-200 634C200 198 520 892 890 538S1420 246 1810 490"/></g><g class="v8-rain"><path style="--i:0" d="M-70 -90l-28 120"/><path style="--i:1" d="M3 -90l-28 120"/><path style="--i:2" d="M76 -90l-28 120"/><path style="--i:3" d="M149 -90l-28 120"/><path style="--i:4" d="M222 -90l-28 120"/><path style="--i:5" d="M295 -90l-28 120"/><path style="--i:6" d="M368 -90l-28 120"/><path style="--i:7" d="M441 -90l-28 120"/><path style="--i:8" d="M514 -90l-28 120"/><path style="--i:9" d="M587 -90l-28 120"/><path style="--i:10" d="M660 -90l-28 120"/><path style="--i:11" d="M733 -90l-28 120"/><path style="--i:12" d="M806 -90l-28 120"/><path style="--i:13" d="M879 -90l-28 120"/><path style="--i:14" d="M952 -90l-28 120"/><path style="--i:15" d="M1025 -90l-28 120"/><path style="--i:16" d="M1098 -90l-28 120"/><path style="--i:17" d="M1171 -90l-28 120"/><path style="--i:18" d="M1244 -90l-28 120"/><path style="--i:19" d="M1317 -90l-28 120"/><path style="--i:20" d="M1390 -90l-28 120"/><path style="--i:21" d="M1463 -90l-28 120"/><path style="--i:22" d="M1536 -90l-28 120"/><path style="--i:23" d="M1609 -90l-28 120"/></g></svg><div class="v8-mist mist-one"></div><div class="v8-mist mist-two"></div><div class="v8-letterbox"></div></div>';
+        },
+        coutureMarkup(kind) {
+            const ring = '<svg class="autumn3-v7-wheel" viewBox="0 0 400 400" fill="none" aria-hidden="true"><circle cx="200" cy="200" r="186"/><circle cx="200" cy="200" r="175" stroke-dasharray="1 8"/><circle cx="200" cy="200" r="150"/><path d="M200 14L361 293H39Z M200 386L39 107H361Z"/>' +
+                Array.from({length:12},(_,i)=>'<g transform="rotate('+i*30+' 200 200)"><path d="M200 20L208 38L200 56L192 38Z"/><path d="M200 58V76"/></g>').join('')+'</svg>';
+            const petals=Array.from({length: 9},(_,i)=>'<i style="--n:'+i+';--a:'+i*40+'deg"></i>').join('');
+            return '<div class="autumn3-v7 '+kind+'"><div class="v7-mandala">'+ring+'</div><div class="v7-crown">'+petals+'</div><div class="v7-ribbon ribbon-one"></div><div class="v7-ribbon ribbon-two"></div><div class="v7-stars">'+Array.from({length:12},(_,i)=>'<i style="--n:'+i+';--a:'+i*30+'deg;--r:'+(90+(i%3)*35)+'px"></i>').join('')+'</div><div class="v7-floor"></div></div>';
+        },
+        layer(className, markup, parent = document.body) {
+            const node = document.createElement('div');
+            node.className = className;
+            node.dataset.autumn3Runtime = 'true';
+            node.setAttribute('aria-hidden', 'true');
+            node.innerHTML = markup;
+            const kind = className.includes('autumn3-world') ? 'v7-world' :
+                className.includes('autumn3-realm') ? 'v7-realm' :
+                className === 'autumn3-click' ? 'v7-click' : className === 'autumn3-ultimate' ? 'v7-ultimate' : '';
+            if (kind) {
+                node.insertAdjacentHTML('beforeend', this.coutureMarkup(kind));
+                if (kind !== 'v7-realm') node.insertAdjacentHTML('beforeend', this.panoramaMarkup(kind.slice(3)));
+                if (kind === 'v7-ultimate' && this.pet) {
+                    const portrait = document.createElement('img');
+                    portrait.className = 'autumn3-v7-portrait';
+                    portrait.src = this.pet.currentSrc || this.pet.src;
+                    portrait.alt = ''; portrait.decoding = 'async';
+                    node.appendChild(portrait);
+                }
+            }
+            parent.appendChild(node);
+            return node;
+        },
+        leaves(parent, count, burst = false) {
+            const total = this.reduced() ? 0 : Math.min(64, getLuxuryQualityCount(count));
+            for (let i = 0; i < total; i++) {
+                const leaf = document.createElement('i');
+                leaf.className = 'autumn3-leaf';
+                const angle = i / total * Math.PI * 2;
+                const radius = 55 + Math.random() * (burst ? 220 : 100);
+                leaf.style.cssText = `--x:${Math.random() * 100}%;--size:${8 + Math.random() * 14}px;` +
+                    `--duration:${12 + Math.random() * 16}s;--delay:${-Math.random() * 28}s;` +
+                    `--drift:${Math.random() * 200 - 100}px;--turn:${Math.random() * 360}deg;` +
+                    `--dx:${Math.cos(angle) * radius}px;--dy:${Math.sin(angle) * radius}px;` +
+                    `--leaf-color:${['#d87821', '#a93620', '#f4bf62', '#b65123'][i % 4]};`;
+                parent.appendChild(leaf);
+            }
+        },
+        // Decorative geometry is generated once per mount; CSS animates the layers.
+        branchMarkup() {
+            const leaves = Array.from({ length: 9 }, (_, i) => {
+                const x = 30 + i * 28, y = 110 - i * 9;
+                return `<g transform="translate(${x} ${y}) rotate(-18)">
+                    <path opacity=".85" d="M0 0C-12-4-21-17-16-29C-3-26 4-12 0 0Z"/>
+                    <path opacity=".65" d="M0 0C10 2 22-3 25-15C12-19 2-10 0 0Z"/>
+                    <path d="M-13-24L0 0L21-12" fill="none" stroke="#ffe5a8" stroke-width=".8" opacity=".8"/></g>`;
+            }).join('');
+            return `<svg viewBox="0 0 300 150" fill="currentColor" aria-hidden="true"><path d="M5 119Q150 78 285 28" fill="none" stroke="currentColor" stroke-width="1.5"/>${leaves}</svg>`;
+        },
+        motes(parent, count, orbit = false) {
+            const total = this.reduced() ? 0 : Math.min(40, getLuxuryQualityCount(count));
+            for (let i = 0; i < total; i++) {
+                const mote = document.createElement('i');
+                mote.className = orbit ? 'autumn4-orbit-mote' : 'autumn4-mote';
+                mote.style.cssText = `--mx:${Math.random() * 100}%;--my:${Math.random() * 100}%;` +
+                    `--angle:${i * 360 / total}deg;--speed:${8 + Math.random() * 12}s;` +
+                    `--wait:${-Math.random() * 20}s;--radius:${65 + Math.random() * 30}px;`;
+                parent.appendChild(mote);
+            }
+        },
+        createWorld() {
+            const world = this.layer('autumn3-world autumn4-world', `
+                <div class="autumn3-horizon"></div><div class="autumn3-rays"></div>
+                <div class="autumn4-sun-disc"><i></i><i></i></div>
+                <div class="autumn4-silk silk-a"></div><div class="autumn4-silk silk-b"></div>
+                <div class="autumn4-canopy canopy-left">${this.branchMarkup()}</div>
+                <div class="autumn4-canopy canopy-right">${this.branchMarkup()}</div>
+                <div class="autumn4-fall fall-far"></div><div class="autumn4-fall fall-near"></div>
+                <div class="autumn4-fireflies"></div><div class="autumn4-ground-glow"></div>`);
+            const mobile = window.innerWidth < 600;
+            this.leaves(world.querySelector('.fall-far'), mobile ? 9 : 18);
+            this.leaves(world.querySelector('.fall-near'), mobile ? 7 : 14);
+            this.motes(world.querySelector('.autumn4-fireflies'), mobile ? 12 : 28);
+            this.layer('autumn3-frame autumn4-frame', `<i></i><i></i><i></i><span class="autumn4-border-vine vine-left">${this.branchMarkup()}</span><span class="autumn4-border-vine vine-right">${this.branchMarkup()}</span>`);
+        },
+        createRealm(container) {
+            const realm = this.layer('autumn3-realm autumn4-realm', `
+                <span class="autumn3-pet-halo"></span>
+                <div class="autumn4-astrolabe"><i class="ring-outer"></i><i class="ring-inner"></i>
+                    <span class="autumn4-runes">✧ · ◇ · ✦ · ◇ · ✧</span></div>
+                <div class="autumn4-laurel laurel-left">${this.branchMarkup()}</div>
+                <div class="autumn4-laurel laurel-right">${this.branchMarkup()}</div>
+                <div class="autumn4-pendants"><i></i><i></i><i></i><i></i></div>
+                <div class="autumn4-orbit-field"></div>
+                <div class="autumn4-pet-dust"></div>
+                <div class="autumn4-pedestal"><i></i><i></i><i></i></div>
+                <span class="autumn3-pet-sigil">✧</span>`, container);
+            this.motes(realm.querySelector('.autumn4-orbit-field'), 12, true);
+            this.motes(realm.querySelector('.autumn4-pet-dust'), 14);
+            const front = this.layer('autumn4-realm-front', '<div class="autumn4-foot-leaves"></div><span class="autumn4-comet"></span>', container);
+            this.leaves(front.querySelector('.autumn4-foot-leaves'), 8);
+        },
+
+        clickBurst(x,y) {if(!document.documentElement.classList.contains('autumn3-equipped'))return;return luxuryTapBloom11(this,'autumn',x,y);
+        },
+        createUltimate() {
+            if (!this.pet?.isConnected || this.locked || document.hidden ||
+                this.container?.dataset.petDragged === '1') return;
+            this.locked = true;
+            this.container.classList.add('autumn3-casting');
+            const ultimate = this.layer('autumn3-ultimate', `
+                <div class="autumn3-veil"></div><div class="autumn3-aurora"></div>
+                <div class="autumn3-equinox"><i></i><i></i><i></i><span>✦</span></div>
+                <div class="autumn3-ultimate-leaves"></div>
+                <div class="autumn4-ultimate-wreath wreath-left">${this.branchMarkup()}</div>
+                <div class="autumn4-ultimate-wreath wreath-right">${this.branchMarkup()}</div>
+                <div class="autumn4-ultimate-halo"><i></i><i></i></div>
+                <div class="autumn4-ultimate-dust"></div>
+                <div class="autumn3-caption"><small>THU THẦN THỨC TỈNH</small>
+                    <strong>Vạn Diệp Quy Thu</strong><span>Ngàn lá phong · Một mùa rực rỡ</span></div>`);
+            this.leaves(ultimate.querySelector('.autumn3-ultimate-leaves'), 48, true);
+            this.motes(ultimate.querySelector('.autumn4-ultimate-dust'), 32);
+            const duration = this.reduced() ? 1100 : 8200;
+            this.later(() => ultimate.classList.add('is-ending'), duration - 600);
+            this.later(() => {
+                ultimate.remove();
+                this.container?.classList.remove('autumn3-casting');
+            }, duration);
+            this.later(() => { this.locked = false; }, this.reduced() ? 1800 : 9200);
+        },
+        mount() {
+            const pet = document.querySelector('#virtual-pet-img.autumn3-pet-magic');
+            const container = pet?.closest('#virtual-pet-container');
+            if (!pet || !container || container.hidden || container.style.display === 'none') return;
+            this.clear();
+            ensureAutumnStylesheet();
+            this.pet = pet;
+            this.container = container;
+            this.controller = new AbortController();
+            const { signal } = this.controller;
+            document.documentElement.classList.add('autumn3-equipped');
+            container.classList.add('autumn3-pet-stage');
+            this.createWorld();
+            this.createRealm(container);
+            this.originalAttributes = Object.fromEntries(['tabindex', 'role', 'aria-label', 'title'].map(name => [name, pet.getAttribute(name)]));
+            pet.setAttribute('tabindex', '0');
+            pet.setAttribute('role', 'button');
+            pet.setAttribute('aria-label', 'Thu Thần: kích hoạt Vạn Diệp Quy Thu');
+            pet.title = 'Nhấn để thi triển Vạn Diệp Quy Thu';
+            pet.addEventListener('click', () => this.createUltimate(), { signal });
+            pet.addEventListener('keydown', event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    container.dataset.petDragged = '0';
+                    this.createUltimate();
+                }
+            }, { signal });
+            installLuxuryGestures10(this,'autumn','autumn3-equipped',(x,y)=>this.clickBurst(x,y));;
+            document.addEventListener('visibilitychange', () => {
+                document.documentElement.classList.toggle('autumn3-paused', document.hidden);
+            }, { signal });
+            // Local observation catches close, unequip, replacement and remote inventory removal.
+            this.observer = new MutationObserver(() => {
+                if (!pet.isConnected || !pet.classList.contains('autumn3-pet-magic') ||
+                    container.hidden || container.style.display === 'none' ||
+                    container.style.visibility === 'hidden') this.clear();
+            });
+            this.observer.observe(container, { childList: true, attributes: true, attributeFilter: ['style', 'hidden', 'class'] });
+            this.observer.observe(pet, { attributes: true, attributeFilter: ['class'] });
+        },
+        restore() {
+            if (document.querySelector('#virtual-pet-img.autumn3-pet-magic')) this.mount();
+        }
+    };
+
+
+    // HẠC MỘNG · VÂN TIÊU TIÊN VŨ — full suite owned only by this pet.
+    const HAC_MONG_PREMIUM_PET = {
+        id: 'pet_hac_mong_2', name: 'Hạc Mộng · Vân Tiêu Tiên Vũ',
+        type: 'pet', price: 13000, isNonCoin: false, luxuryOnly: true, eventOnly: false,
+        tag: 'Hạc Mộng', tags: ['Hạc Mộng', 'Tu tiên', 'Premium'],
+        image: 'assets/Premium/Tu tiên/hac_mong_nhan_vat2.png',
+        asset: 'assets/Premium/Tu tiên/hac_mong_nhan_vat2.png',
+        value: 'assets/Premium/Tu tiên/hac_mong_nhan_vat2.png',
+        luxuryTagImage: 'assets/Premium/Tu tiên/hac_mong_tag2.png', isIcon: false,
+        petEffect: 'hacmong2-pet-magic', premiumSuite: 'hacmong2-jade-cloud-sanctuary',
+        premiumLayers: ['world-effect', 'interface', 'pet-realm', 'global-click', 'ultimate'],
+        disableClickEffect: true
+    };
+
+    function ensureHacMongStylesheet() {
+        let link = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+            .find(node => /\/premium-hac-mong\.css(?:[?#]|$)/.test(node.href));
+        if (!link) {
+            link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'css/premium-hac-mong.css?v=20260927.realms10';
+            document.head.appendChild(link);
+        }
+        link.id = 'hacmong2-premium-style';
+        return link;
+    }
+
+    const LuxuryHacMongRuntime = {
+        controller: null, observer: null, pet: null, container: null,
+        timers: new Set(), locked: false, lastClick: 0,
+        reduced() { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; },
+        later(callback, delay) {
+            const timer = window.setTimeout(() => {
+                this.timers.delete(timer);
+                callback();
+            }, delay);
+            this.timers.add(timer);
+            return timer;
+        },
+        clear() {
+            this.lastSmallTap12=-1000;
+            clearLuxuryGestures10(this);
+            this.controller?.abort();
+            this.observer?.disconnect();
+            this.timers.forEach(timer => window.clearTimeout(timer));
+            this.timers.clear();
+            document.querySelectorAll('[data-hacmong2-runtime]').forEach(node => node.remove());
+            document.documentElement.classList.remove('hacmong2-equipped', 'hacmong2-paused');
+            this.container?.classList.remove('hacmong2-pet-stage', 'hacmong2-casting');
+            if (this.pet) {
+                for (const [name, value] of Object.entries(this.originalAttributes || {})) {
+                    if (value === null) this.pet.removeAttribute(name);
+                    else this.pet.setAttribute(name, value);
+                }
+            }
+            this.controller = this.observer = this.pet = this.container = null;
+            this.locked = false;
+            this.lastClick = 0;
+        },
+        // Luxury-only ornaments share the existing runtime cleanup and reduced-motion policy.
+        panoramaMarkup(kind) {
+            return '<div class="hacmong2-v8 v8-' + kind + '"><div class="v8-sky"></div><div class="v8-dawn"></div><svg class="v8-landscape" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g class="v8-distance"><path class="v8-ridge ridge-0" d="M-100 500L90 170L180 340L290 210L430 430L600 300L780 460L960 320L1100 430L1250 200L1350 330L1490 140L1700 530V1000H-100Z"/><path class="v8-ridge ridge-1" d="M-100 570L90 265L180 378L290 272L430 465L600 365L780 500L960 385L1100 470L1250 265L1350 375L1490 220L1700 590V1000H-100Z"/><path class="v8-ridge ridge-2" d="M-100 640L90 360L180 416L290 334L430 500L600 430L780 540L960 450L1100 510L1250 330L1350 420L1490 300L1700 650V1000H-100Z"/></g><g class="v8-road"><path class="v8-stone" d="M725 540H875L1320 950H280Z"/><path class="v8-step" d="M710 570H890l20 10H690Z"/><path class="v8-step" d="M706 572.1H894l20 10H686Z"/><path class="v8-step" d="M694 578.4H906l20 10H674Z"/><path class="v8-step" d="M674 588.9H926l20 10H654Z"/><path class="v8-step" d="M646 603.6H954l20 10H626Z"/><path class="v8-step" d="M610 622.5H990l20 10H590Z"/><path class="v8-step" d="M566 645.6H1034l20 10H546Z"/><path class="v8-step" d="M514 672.9H1086l20 10H494Z"/><path class="v8-step" d="M454 704.4H1146l20 10H434Z"/><path class="v8-step" d="M386 740.1H1214l20 10H366Z"/><path class="v8-step" d="M310 780H1290l20 10H290Z"/><path class="v8-step" d="M226 824.1H1374l20 10H206Z"/><path class="v8-trim" d="M720 545L235 930M880 545L1365 930M705 545L180 930M895 545L1420 930"/></g><g class="v8-palace"><g class="v8-gate" style="--depth:0" transform="translate(800 410) scale(0.32)"><path class="v8-stone" d="M-180 310V-70H-145V310ZM145 310V-70H180V310Z"/><path class="v8-trim" d="M-172 310V-65M172 310V-65M-155 310V-65M155 310V-65"/><path class="v8-roof" d="M-235-80Q-175-92-150-125H150Q175-92 235-80L200-62H-200Z"/><path class="v8-roof" d="M-190-132Q-128-145-103-178H103Q128-145 190-132L158-115H-158Z"/><path class="v8-trim" d="M-235-80Q0-62 235-80M-190-132Q0-113 190-132M-145-46H145M-145-25H145"/><path class="v8-stone" d="M-57-59H57V-9H-57Z"/><path class="v8-trim" d="M-46-50H46V-18H-46Z"/><text x="0" y="-28" text-anchor="middle" class="v8-sign">VÂN TIÊU</text><path class="v8-trim" d="M-200-62V25M200-62V25"/><g class="v8-lantern"><path d="M-210 22H-190L-186 48L-200 68L-214 48ZM190 22H210L214 48L200 68L186 48Z"/><path class="v8-trim" d="M-200 68V95M200 68V95"/></g><path class="v8-trim" d="M-180 -79l8 -28M-180 -60v18l8 8l8 -8v-18 M-157.5 -79l8 -28M-157.5 -60v18l8 8l8 -8v-18 M-135 -79l8 -28M-135 -60v18l8 8l8 -8v-18 M-112.5 -79l8 -28M-112.5 -60v18l8 8l8 -8v-18 M-90 -79l8 -28M-90 -60v18l8 8l8 -8v-18 M-67.5 -79l8 -28M-67.5 -60v18l8 8l8 -8v-18 M-45 -79l8 -28M-45 -60v18l8 8l8 -8v-18 M-22.5 -79l8 -28M-22.5 -60v18l8 8l8 -8v-18 M0 -79l8 -28M0 -60v18l8 8l8 -8v-18 M22.5 -79l8 -28M22.5 -60v18l8 8l8 -8v-18 M45 -79l8 -28M45 -60v18l8 8l8 -8v-18 M67.5 -79l8 -28M67.5 -60v18l8 8l8 -8v-18 M90 -79l8 -28M90 -60v18l8 8l8 -8v-18 M112.5 -79l8 -28M112.5 -60v18l8 8l8 -8v-18 M135 -79l8 -28M135 -60v18l8 8l8 -8v-18 M157.5 -79l8 -28M157.5 -60v18l8 8l8 -8v-18 M180 -79l8 -28M180 -60v18l8 8l8 -8v-18"/><path class="v8-trim" d="M-163 10l8 14l-8 14l-8 -14Z M-163 58l8 14l-8 14l-8 -14Z M-163 106l8 14l-8 14l-8 -14Z M-163 154l8 14l-8 14l-8 -14Z M-163 202l8 14l-8 14l-8 -14Z M-163 250l8 14l-8 14l-8 -14Z M163 10l8 14l-8 14l-8 -14Z M163 58l8 14l-8 14l-8 -14Z M163 106l8 14l-8 14l-8 -14Z M163 154l8 14l-8 14l-8 -14Z M163 202l8 14l-8 14l-8 -14Z M163 250l8 14l-8 14l-8 -14Z"/><path class="v8-trim" d="M-193 310H-127M127 310H193M-196 322H-124M124 322H196"/></g><g class="v8-gate" style="--depth:1" transform="translate(800 430) scale(0.62)"><path class="v8-stone" d="M-180 310V-70H-145V310ZM145 310V-70H180V310Z"/><path class="v8-trim" d="M-172 310V-65M172 310V-65M-155 310V-65M155 310V-65"/><path class="v8-roof" d="M-235-80Q-175-92-150-125H150Q175-92 235-80L200-62H-200Z"/><path class="v8-roof" d="M-190-132Q-128-145-103-178H103Q128-145 190-132L158-115H-158Z"/><path class="v8-trim" d="M-235-80Q0-62 235-80M-190-132Q0-113 190-132M-145-46H145M-145-25H145"/><path class="v8-stone" d="M-57-59H57V-9H-57Z"/><path class="v8-trim" d="M-46-50H46V-18H-46Z"/><text x="0" y="-28" text-anchor="middle" class="v8-sign">VÂN TIÊU</text><path class="v8-trim" d="M-200-62V25M200-62V25"/><g class="v8-lantern"><path d="M-210 22H-190L-186 48L-200 68L-214 48ZM190 22H210L214 48L200 68L186 48Z"/><path class="v8-trim" d="M-200 68V95M200 68V95"/></g><path class="v8-trim" d="M-180 -79l8 -28M-180 -60v18l8 8l8 -8v-18 M-157.5 -79l8 -28M-157.5 -60v18l8 8l8 -8v-18 M-135 -79l8 -28M-135 -60v18l8 8l8 -8v-18 M-112.5 -79l8 -28M-112.5 -60v18l8 8l8 -8v-18 M-90 -79l8 -28M-90 -60v18l8 8l8 -8v-18 M-67.5 -79l8 -28M-67.5 -60v18l8 8l8 -8v-18 M-45 -79l8 -28M-45 -60v18l8 8l8 -8v-18 M-22.5 -79l8 -28M-22.5 -60v18l8 8l8 -8v-18 M0 -79l8 -28M0 -60v18l8 8l8 -8v-18 M22.5 -79l8 -28M22.5 -60v18l8 8l8 -8v-18 M45 -79l8 -28M45 -60v18l8 8l8 -8v-18 M67.5 -79l8 -28M67.5 -60v18l8 8l8 -8v-18 M90 -79l8 -28M90 -60v18l8 8l8 -8v-18 M112.5 -79l8 -28M112.5 -60v18l8 8l8 -8v-18 M135 -79l8 -28M135 -60v18l8 8l8 -8v-18 M157.5 -79l8 -28M157.5 -60v18l8 8l8 -8v-18 M180 -79l8 -28M180 -60v18l8 8l8 -8v-18"/><path class="v8-trim" d="M-163 10l8 14l-8 14l-8 -14Z M-163 58l8 14l-8 14l-8 -14Z M-163 106l8 14l-8 14l-8 -14Z M-163 154l8 14l-8 14l-8 -14Z M-163 202l8 14l-8 14l-8 -14Z M-163 250l8 14l-8 14l-8 -14Z M163 10l8 14l-8 14l-8 -14Z M163 58l8 14l-8 14l-8 -14Z M163 106l8 14l-8 14l-8 -14Z M163 154l8 14l-8 14l-8 -14Z M163 202l8 14l-8 14l-8 -14Z M163 250l8 14l-8 14l-8 -14Z"/><path class="v8-trim" d="M-193 310H-127M127 310H193M-196 322H-124M124 322H196"/></g><g class="v8-gate" style="--depth:2" transform="translate(800 435) scale(1)"><path class="v8-stone" d="M-180 310V-70H-145V310ZM145 310V-70H180V310Z"/><path class="v8-trim" d="M-172 310V-65M172 310V-65M-155 310V-65M155 310V-65"/><path class="v8-roof" d="M-235-80Q-175-92-150-125H150Q175-92 235-80L200-62H-200Z"/><path class="v8-roof" d="M-190-132Q-128-145-103-178H103Q128-145 190-132L158-115H-158Z"/><path class="v8-trim" d="M-235-80Q0-62 235-80M-190-132Q0-113 190-132M-145-46H145M-145-25H145"/><path class="v8-stone" d="M-57-59H57V-9H-57Z"/><path class="v8-trim" d="M-46-50H46V-18H-46Z"/><text x="0" y="-28" text-anchor="middle" class="v8-sign">VÂN TIÊU</text><path class="v8-trim" d="M-200-62V25M200-62V25"/><g class="v8-lantern"><path d="M-210 22H-190L-186 48L-200 68L-214 48ZM190 22H210L214 48L200 68L186 48Z"/><path class="v8-trim" d="M-200 68V95M200 68V95"/></g><path class="v8-trim" d="M-180 -79l8 -28M-180 -60v18l8 8l8 -8v-18 M-157.5 -79l8 -28M-157.5 -60v18l8 8l8 -8v-18 M-135 -79l8 -28M-135 -60v18l8 8l8 -8v-18 M-112.5 -79l8 -28M-112.5 -60v18l8 8l8 -8v-18 M-90 -79l8 -28M-90 -60v18l8 8l8 -8v-18 M-67.5 -79l8 -28M-67.5 -60v18l8 8l8 -8v-18 M-45 -79l8 -28M-45 -60v18l8 8l8 -8v-18 M-22.5 -79l8 -28M-22.5 -60v18l8 8l8 -8v-18 M0 -79l8 -28M0 -60v18l8 8l8 -8v-18 M22.5 -79l8 -28M22.5 -60v18l8 8l8 -8v-18 M45 -79l8 -28M45 -60v18l8 8l8 -8v-18 M67.5 -79l8 -28M67.5 -60v18l8 8l8 -8v-18 M90 -79l8 -28M90 -60v18l8 8l8 -8v-18 M112.5 -79l8 -28M112.5 -60v18l8 8l8 -8v-18 M135 -79l8 -28M135 -60v18l8 8l8 -8v-18 M157.5 -79l8 -28M157.5 -60v18l8 8l8 -8v-18 M180 -79l8 -28M180 -60v18l8 8l8 -8v-18"/><path class="v8-trim" d="M-163 10l8 14l-8 14l-8 -14Z M-163 58l8 14l-8 14l-8 -14Z M-163 106l8 14l-8 14l-8 -14Z M-163 154l8 14l-8 14l-8 -14Z M-163 202l8 14l-8 14l-8 -14Z M-163 250l8 14l-8 14l-8 -14Z M163 10l8 14l-8 14l-8 -14Z M163 58l8 14l-8 14l-8 -14Z M163 106l8 14l-8 14l-8 -14Z M163 154l8 14l-8 14l-8 -14Z M163 202l8 14l-8 14l-8 -14Z M163 250l8 14l-8 14l-8 -14Z"/><path class="v8-trim" d="M-193 310H-127M127 310H193M-196 322H-124M124 322H196"/></g><g class="v8-gate" style="--depth:3" transform="translate(800 455) scale(1.6)"><path class="v8-stone" d="M-180 310V-70H-145V310ZM145 310V-70H180V310Z"/><path class="v8-trim" d="M-172 310V-65M172 310V-65M-155 310V-65M155 310V-65"/><path class="v8-roof" d="M-235-80Q-175-92-150-125H150Q175-92 235-80L200-62H-200Z"/><path class="v8-roof" d="M-190-132Q-128-145-103-178H103Q128-145 190-132L158-115H-158Z"/><path class="v8-trim" d="M-235-80Q0-62 235-80M-190-132Q0-113 190-132M-145-46H145M-145-25H145"/><path class="v8-stone" d="M-57-59H57V-9H-57Z"/><path class="v8-trim" d="M-46-50H46V-18H-46Z"/><text x="0" y="-28" text-anchor="middle" class="v8-sign">VÂN TIÊU</text><path class="v8-trim" d="M-200-62V25M200-62V25"/><g class="v8-lantern"><path d="M-210 22H-190L-186 48L-200 68L-214 48ZM190 22H210L214 48L200 68L186 48Z"/><path class="v8-trim" d="M-200 68V95M200 68V95"/></g><path class="v8-trim" d="M-180 -79l8 -28M-180 -60v18l8 8l8 -8v-18 M-157.5 -79l8 -28M-157.5 -60v18l8 8l8 -8v-18 M-135 -79l8 -28M-135 -60v18l8 8l8 -8v-18 M-112.5 -79l8 -28M-112.5 -60v18l8 8l8 -8v-18 M-90 -79l8 -28M-90 -60v18l8 8l8 -8v-18 M-67.5 -79l8 -28M-67.5 -60v18l8 8l8 -8v-18 M-45 -79l8 -28M-45 -60v18l8 8l8 -8v-18 M-22.5 -79l8 -28M-22.5 -60v18l8 8l8 -8v-18 M0 -79l8 -28M0 -60v18l8 8l8 -8v-18 M22.5 -79l8 -28M22.5 -60v18l8 8l8 -8v-18 M45 -79l8 -28M45 -60v18l8 8l8 -8v-18 M67.5 -79l8 -28M67.5 -60v18l8 8l8 -8v-18 M90 -79l8 -28M90 -60v18l8 8l8 -8v-18 M112.5 -79l8 -28M112.5 -60v18l8 8l8 -8v-18 M135 -79l8 -28M135 -60v18l8 8l8 -8v-18 M157.5 -79l8 -28M157.5 -60v18l8 8l8 -8v-18 M180 -79l8 -28M180 -60v18l8 8l8 -8v-18"/><path class="v8-trim" d="M-163 10l8 14l-8 14l-8 -14Z M-163 58l8 14l-8 14l-8 -14Z M-163 106l8 14l-8 14l-8 -14Z M-163 154l8 14l-8 14l-8 -14Z M-163 202l8 14l-8 14l-8 -14Z M-163 250l8 14l-8 14l-8 -14Z M163 10l8 14l-8 14l-8 -14Z M163 58l8 14l-8 14l-8 -14Z M163 106l8 14l-8 14l-8 -14Z M163 154l8 14l-8 14l-8 -14Z M163 202l8 14l-8 14l-8 -14Z M163 250l8 14l-8 14l-8 -14Z"/><path class="v8-trim" d="M-193 310H-127M127 310H193M-196 322H-124M124 322H196"/></g></g><g class="v8-flight"><g class="v8-flock" style="--i:0" transform="translate(150 160) scale(0.5)"><path d="M0 0Q-50-75-125-45Q-55-25-12 15L15 14Q65-30 120-70Q53-65 8 0L16-22L32-26L18-34Q0-30 0 0Z"/><path class="v8-trim" d="M-5 13L-50 40M3 14L-22 44"/></g><g class="v8-flock" style="--i:1" transform="translate(355 230) scale(0.62)"><path d="M0 0Q-50-75-125-45Q-55-25-12 15L15 14Q65-30 120-70Q53-65 8 0L16-22L32-26L18-34Q0-30 0 0Z"/><path class="v8-trim" d="M-5 13L-50 40M3 14L-22 44"/></g><g class="v8-flock" style="--i:2" transform="translate(560 300) scale(0.74)"><path d="M0 0Q-50-75-125-45Q-55-25-12 15L15 14Q65-30 120-70Q53-65 8 0L16-22L32-26L18-34Q0-30 0 0Z"/><path class="v8-trim" d="M-5 13L-50 40M3 14L-22 44"/></g><g class="v8-flock" style="--i:3" transform="translate(765 160) scale(0.5)"><path d="M0 0Q-50-75-125-45Q-55-25-12 15L15 14Q65-30 120-70Q53-65 8 0L16-22L32-26L18-34Q0-30 0 0Z"/><path class="v8-trim" d="M-5 13L-50 40M3 14L-22 44"/></g><g class="v8-flock" style="--i:4" transform="translate(970 230) scale(0.62)"><path d="M0 0Q-50-75-125-45Q-55-25-12 15L15 14Q65-30 120-70Q53-65 8 0L16-22L32-26L18-34Q0-30 0 0Z"/><path class="v8-trim" d="M-5 13L-50 40M3 14L-22 44"/></g><g class="v8-flock" style="--i:5" transform="translate(1175 300) scale(0.74)"><path d="M0 0Q-50-75-125-45Q-55-25-12 15L15 14Q65-30 120-70Q53-65 8 0L16-22L32-26L18-34Q0-30 0 0Z"/><path class="v8-trim" d="M-5 13L-50 40M3 14L-22 44"/></g><g class="v8-flock" style="--i:6" transform="translate(1380 160) scale(0.5)"><path d="M0 0Q-50-75-125-45Q-55-25-12 15L15 14Q65-30 120-70Q53-65 8 0L16-22L32-26L18-34Q0-30 0 0Z"/><path class="v8-trim" d="M-5 13L-50 40M3 14L-22 44"/></g></g><g class="v8-river"><path class="v8-current current-0" style="--i:0" d="M-200 570C200 70 520 960 890 490S1420 150 1810 410"/><path class="v8-current current-1" style="--i:1" d="M-200 586C200 102 520 943 890 502S1420 174 1810 430"/><path class="v8-current current-2" style="--i:2" d="M-200 602C200 134 520 926 890 514S1420 198 1810 450"/><path class="v8-current current-3" style="--i:3" d="M-200 618C200 166 520 909 890 526S1420 222 1810 470"/><path class="v8-current current-4" style="--i:4" d="M-200 634C200 198 520 892 890 538S1420 246 1810 490"/></g><g class="v8-rain"><path style="--i:0" d="M-70 -90l-28 120"/><path style="--i:1" d="M3 -90l-28 120"/><path style="--i:2" d="M76 -90l-28 120"/><path style="--i:3" d="M149 -90l-28 120"/><path style="--i:4" d="M222 -90l-28 120"/><path style="--i:5" d="M295 -90l-28 120"/><path style="--i:6" d="M368 -90l-28 120"/><path style="--i:7" d="M441 -90l-28 120"/><path style="--i:8" d="M514 -90l-28 120"/><path style="--i:9" d="M587 -90l-28 120"/><path style="--i:10" d="M660 -90l-28 120"/><path style="--i:11" d="M733 -90l-28 120"/><path style="--i:12" d="M806 -90l-28 120"/><path style="--i:13" d="M879 -90l-28 120"/><path style="--i:14" d="M952 -90l-28 120"/><path style="--i:15" d="M1025 -90l-28 120"/><path style="--i:16" d="M1098 -90l-28 120"/><path style="--i:17" d="M1171 -90l-28 120"/><path style="--i:18" d="M1244 -90l-28 120"/><path style="--i:19" d="M1317 -90l-28 120"/><path style="--i:20" d="M1390 -90l-28 120"/><path style="--i:21" d="M1463 -90l-28 120"/><path style="--i:22" d="M1536 -90l-28 120"/><path style="--i:23" d="M1609 -90l-28 120"/></g></svg><div class="v8-mist mist-one"></div><div class="v8-mist mist-two"></div><div class="v8-letterbox"></div></div>';
+        },
+        coutureMarkup(kind) {
+            const ring = '<svg class="hacmong2-v7-wheel" viewBox="0 0 400 400" fill="none" aria-hidden="true"><circle cx="200" cy="200" r="186"/><circle cx="200" cy="200" r="175" stroke-dasharray="1 8"/><circle cx="200" cy="200" r="150"/><path d="M200 14L361 293H39Z M200 386L39 107H361Z"/>' +
+                Array.from({length:12},(_,i)=>'<g transform="rotate('+i*30+' 200 200)"><path d="M200 20L208 38L200 56L192 38Z"/><path d="M200 58V76"/></g>').join('')+'</svg>';
+            const petals=Array.from({length: 12},(_,i)=>'<i style="--n:'+i+';--a:'+i*30+'deg"></i>').join('');
+            return '<div class="hacmong2-v7 '+kind+'"><div class="v7-mandala">'+ring+'</div><div class="v7-crown">'+petals+'</div><div class="v7-ribbon ribbon-one"></div><div class="v7-ribbon ribbon-two"></div><div class="v7-stars">'+Array.from({length:12},(_,i)=>'<i style="--n:'+i+';--a:'+i*30+'deg;--r:'+(90+(i%3)*35)+'px"></i>').join('')+'</div><div class="v7-floor"></div></div>';
+        },
+        layer(className, markup, parent = document.body) {
+            const node = document.createElement('div');
+            node.className = className;
+            node.dataset.hacmong2Runtime = 'true';
+            node.setAttribute('aria-hidden', 'true');
+            node.innerHTML = markup;
+            const kind = className.includes('hacmong2-world') ? 'v7-world' :
+                className.includes('hacmong2-realm') ? 'v7-realm' :
+                className === 'hacmong2-click' ? 'v7-click' : className === 'hacmong2-ultimate' ? 'v7-ultimate' : '';
+            if (kind) {
+                node.insertAdjacentHTML('beforeend', this.coutureMarkup(kind));
+                if (kind !== 'v7-realm') node.insertAdjacentHTML('beforeend', this.panoramaMarkup(kind.slice(3)));
+                if (kind === 'v7-ultimate' && this.pet) {
+                    const portrait = document.createElement('img');
+                    portrait.className = 'hacmong2-v7-portrait';
+                    portrait.src = this.pet.currentSrc || this.pet.src;
+                    portrait.alt = ''; portrait.decoding = 'async';
+                    node.appendChild(portrait);
+                }
+            }
+            parent.appendChild(node);
+            return node;
+        },
+        leaves(parent, count, burst = false) {
+            const total = this.reduced() ? 0 : Math.min(64, getLuxuryQualityCount(count));
+            for (let i = 0; i < total; i++) {
+                const leaf = document.createElement('i');
+                leaf.className = 'hacmong2-leaf';
+                const angle = i / total * Math.PI * 2;
+                const radius = 55 + Math.random() * (burst ? 220 : 100);
+                leaf.style.cssText = `--x:${Math.random() * 100}%;--size:${8 + Math.random() * 14}px;` +
+                    `--duration:${12 + Math.random() * 16}s;--delay:${-Math.random() * 28}s;` +
+                    `--drift:${Math.random() * 200 - 100}px;--turn:${Math.random() * 360}deg;` +
+                    `--dx:${Math.cos(angle) * radius}px;--dy:${Math.sin(angle) * radius}px;` +
+                    `--leaf-color:${['#b4e4df', '#f4fcfa', '#d6c695', '#6eaaa7'][i % 4]};`;
+                parent.appendChild(leaf);
+            }
+        },
+        // Decorative geometry is generated once per mount; CSS animates the layers.
+        craneMarkup() { return '<svg viewBox="0 0 260 140" aria-hidden="true"><g fill="currentColor"><path d="M127 75C95 58 65 15 4 10C45 28 62 61 109 88C71 78 57 80 37 87C81 109 120 101 143 91C155 82 158 68 153 54C147 38 163 29 177 40L185 42L180 32C156 15 133 31 139 54C143 66 137 72 127 75Z"/><path d="M139 77C170 45 202 18 254 27C216 42 199 74 155 90Z"/></g><path d="M159 88L215 123M149 91L193 135" stroke="currentColor" stroke-width="2" fill="none"/><path d="M167 31L174 34" stroke="#b96752" stroke-width="4"/></svg>'; },
+        branchMarkup() {
+            const leaves = Array.from({ length: 9 }, (_, i) => {
+                const x = 30 + i * 28, y = 110 - i * 9;
+                return `<g transform="translate(${x} ${y}) rotate(-18)">
+                    <path opacity=".85" d="M0 0C-12-4-21-17-16-29C-3-26 4-12 0 0Z"/>
+                    <path opacity=".65" d="M0 0C10 2 22-3 25-15C12-19 2-10 0 0Z"/>
+                    <path d="M-13-24L0 0L21-12" fill="none" stroke="#ffe5a8" stroke-width=".8" opacity=".8"/></g>`;
+            }).join('');
+            return `<svg viewBox="0 0 300 150" fill="currentColor" aria-hidden="true"><path d="M5 119Q150 78 285 28" fill="none" stroke="currentColor" stroke-width="1.5"/>${leaves}</svg>`;
+        },
+        motes(parent, count, orbit = false) {
+            const total = this.reduced() ? 0 : Math.min(40, getLuxuryQualityCount(count));
+            for (let i = 0; i < total; i++) {
+                const mote = document.createElement('i');
+                mote.className = orbit ? 'hacmong2b-orbit-mote' : 'hacmong2b-mote';
+                mote.style.cssText = `--mx:${Math.random() * 100}%;--my:${Math.random() * 100}%;` +
+                    `--angle:${i * 360 / total}deg;--speed:${8 + Math.random() * 12}s;` +
+                    `--wait:${-Math.random() * 20}s;--radius:${65 + Math.random() * 30}px;`;
+                parent.appendChild(mote);
+            }
+        },
+        createWorld() {
+            const world = this.layer('hacmong2-world hacmong2b-world', `
+                <div class="hacmong2-horizon"></div>
+                <div class="hacmong2-mountains"><i></i><i></i><i></i></div>
+                <div class="hacmong2-cloud cloud-one"></div><div class="hacmong2-cloud cloud-two"></div>
+                <div class="hacmong2-cranes"><span>${this.craneMarkup()}</span><span>${this.craneMarkup()}</span><span>${this.craneMarkup()}</span></div><div class="hacmong2-rays"></div>
+                <div class="hacmong2b-sun-disc"><i></i><i></i></div>
+                <div class="hacmong2b-silk silk-a"></div><div class="hacmong2b-silk silk-b"></div>
+                <div class="hacmong2b-canopy canopy-left">${this.branchMarkup()}</div>
+                <div class="hacmong2b-canopy canopy-right">${this.branchMarkup()}</div>
+                <div class="hacmong2b-fall fall-far"></div><div class="hacmong2b-fall fall-near"></div>
+                <div class="hacmong2b-fireflies"></div><div class="hacmong2b-ground-glow"></div>`);
+            const mobile = window.innerWidth < 600;
+            this.leaves(world.querySelector('.fall-far'), mobile ? 9 : 18);
+            this.leaves(world.querySelector('.fall-near'), mobile ? 7 : 14);
+            this.motes(world.querySelector('.hacmong2b-fireflies'), mobile ? 12 : 28);
+            this.layer('hacmong2-frame hacmong2b-frame', `<i></i><i></i><i></i><span class="hacmong2b-border-vine vine-left">${this.branchMarkup()}</span><span class="hacmong2b-border-vine vine-right">${this.branchMarkup()}</span>`);
+        },
+        createRealm(container) {
+            const realm = this.layer('hacmong2-realm hacmong2b-realm', `
+                <span class="hacmong2-pet-halo"></span>
+                <div class="hacmong2b-astrolabe"><i class="ring-outer"></i><i class="ring-inner"></i>
+                    <span class="hacmong2b-runes">✧ · ◇ · ✦ · ◇ · ✧</span></div>
+                <div class="hacmong2b-laurel laurel-left">${this.branchMarkup()}</div>
+                <div class="hacmong2b-laurel laurel-right">${this.branchMarkup()}</div>
+                <div class="hacmong2b-pendants"><i></i><i></i><i></i><i></i></div>
+                <div class="hacmong2b-orbit-field"></div>
+                <div class="hacmong2b-pet-dust"></div>
+                <div class="hacmong2b-pedestal"><i></i><i></i><i></i></div>
+                <span class="hacmong2-pet-sigil">✧</span>`, container);
+            this.motes(realm.querySelector('.hacmong2b-orbit-field'), 12, true);
+            this.motes(realm.querySelector('.hacmong2b-pet-dust'), 14);
+            const front = this.layer('hacmong2b-realm-front', '<div class="hacmong2b-foot-leaves"></div><span class="hacmong2b-comet"></span>', container);
+            this.leaves(front.querySelector('.hacmong2b-foot-leaves'), 8);
+        },
+
+        clickBurst(x,y) {if(!document.documentElement.classList.contains('hacmong2-equipped'))return;return luxuryTapBloom11(this,'hacmong',x,y);
+        },
+        createUltimate() {
+            if (!this.pet?.isConnected || this.locked || document.hidden ||
+                this.container?.dataset.petDragged === '1') return;
+            this.locked = true;
+            this.container.classList.add('hacmong2-casting');
+            const ultimate = this.layer('hacmong2-ultimate', `
+                <div class="hacmong2-veil"></div><div class="hacmong2-aurora"></div>
+                <div class="hacmong2-equinox"><i></i><i></i><i></i><span>✦</span></div>
+                <div class="hacmong2-ultimate-leaves"></div>
+                <div class="hacmong2-heaven-gate"><i></i><i></i><i></i></div>
+                <div class="hacmong2-ultimate-cranes"><span>${this.craneMarkup()}</span><span>${this.craneMarkup()}</span></div>
+                <div class="hacmong2b-ultimate-wreath wreath-left">${this.branchMarkup()}</div>
+                <div class="hacmong2b-ultimate-wreath wreath-right">${this.branchMarkup()}</div>
+                <div class="hacmong2b-ultimate-halo"><i></i><i></i></div>
+                <div class="hacmong2b-ultimate-dust"></div>
+                <div class="hacmong2-caption"><small>HẠC MỘNG THỨC TỈNH</small>
+                    <strong>Thiên Hạc Quy Vân</strong><span>Cánh hạc qua mây · Một thoáng tiên cảnh</span></div>`);
+            this.leaves(ultimate.querySelector('.hacmong2-ultimate-leaves'), 48, true);
+            this.motes(ultimate.querySelector('.hacmong2b-ultimate-dust'), 32);
+            const duration = this.reduced() ? 1100 : 8200;
+            this.later(() => ultimate.classList.add('is-ending'), duration - 600);
+            this.later(() => {
+                ultimate.remove();
+                this.container?.classList.remove('hacmong2-casting');
+            }, duration);
+            this.later(() => { this.locked = false; }, this.reduced() ? 1800 : 9200);
+        },
+        mount() {
+            if (window.isStudentStoreGameAccessEnabled?.() === false || window.isExamVisualItemsSuspended || window.currentActiveExamId) return;
+            if (typeof myInventory !== 'undefined' && Array.isArray(myInventory) && !myInventory.some(i =>
+                i?.id === HAC_MONG_PREMIUM_PET.id && i.isEquipped === true &&
+                (i.isTrial !== true || Number(i.trialExpiry) > Date.now()))) return;
+            const pet = document.querySelector('#virtual-pet-img.hacmong2-pet-magic');
+            const container = pet?.closest('#virtual-pet-container');
+            if (!pet || !container || container.hidden || container.style.display === 'none') return;
+            this.clear();
+            ensureHacMongStylesheet();
+            this.pet = pet;
+            this.container = container;
+            this.controller = new AbortController();
+            const { signal } = this.controller;
+            document.documentElement.classList.add('hacmong2-equipped');
+            container.classList.add('hacmong2-pet-stage');
+            this.createWorld();
+            this.createRealm(container);
+            this.originalAttributes = Object.fromEntries(['tabindex', 'role', 'aria-label', 'title'].map(name => [name, pet.getAttribute(name)]));
+            pet.setAttribute('tabindex', '0');
+            pet.setAttribute('role', 'button');
+            pet.setAttribute('aria-label', 'Hạc Mộng: kích hoạt Thiên Hạc Quy Vân');
+            pet.title = 'Nhấn để thi triển Thiên Hạc Quy Vân';
+            pet.addEventListener('click', () => this.createUltimate(), { signal });
+            pet.addEventListener('keydown', event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    container.dataset.petDragged = '0';
+                    this.createUltimate();
+                }
+            }, { signal });
+            installLuxuryGestures10(this,'hacmong','hacmong2-equipped',(x,y)=>this.clickBurst(x,y));;
+            document.addEventListener('visibilitychange', () => {
+                document.documentElement.classList.toggle('hacmong2-paused', document.hidden);
+            }, { signal });
+            // Local observation catches close, unequip, replacement and remote inventory removal.
+            this.observer = new MutationObserver(() => {
+                if (!pet.isConnected || !pet.classList.contains('hacmong2-pet-magic') ||
+                    container.hidden || container.style.display === 'none' ||
+                    container.style.visibility === 'hidden') this.clear();
+            });
+            this.observer.observe(container, { childList: true, attributes: true, attributeFilter: ['style', 'hidden', 'class'] });
+            this.observer.observe(pet, { attributes: true, attributeFilter: ['class'] });
+        },
+        restore() {
+            if (document.querySelector('#virtual-pet-img.hacmong2-pet-magic')) this.mount();
+        }
+    };
+
+
+
     const NATIONAL_DAY_PREMIUM_PET = {
         id: 'pet_quoc_khanh_1',
 
@@ -122,825 +698,20 @@
     // Pet realm + click skill vẫn do PetManager quản lý.
     // ========================================================
     const LuxuryNationalDayRuntime = {
-        activePetElement: null,
-        petClickHandler: null,
-        skillLocked: false,
-
-
-        clear() {
-
-            if (
-                this.activePetElement &&
-                this.petClickHandler
-            ) {
-                this.activePetElement.removeEventListener(
-                    'click',
-                    this.petClickHandler
-                );
-            }
-
-            this.activePetElement = null;
-            this.petClickHandler = null;
-            this.skillLocked = false;
-
-            document
-                .querySelectorAll(
-                    '.national-day-screen-burst-v4,' +
-                    '.national-day-divine-world-v4,' +
-                    '.national-day-ultimate-dialogue-v4'
-                )
-                .forEach(element => element.remove());
-
-            document.documentElement.classList.remove(
-                'national-day-luxury-equipped'
-            );
-
-            document
-                .querySelectorAll(
-                    '.national-day-world-v2,' +
-                    '.national-day-ui-frame-v2,' +
-                    '.national-day-ui-shell-v3'
-                )
-                .forEach(element => element.remove());
-        },
-
-
-        // ====================================================
-        // WORLD EFFECT
-        // ====================================================
-        createWorld() {
-
-            document
-                .querySelectorAll(
-                    '.national-day-world-v2'
-                )
-                .forEach(element => element.remove());
-
-            const world =
-                document.createElement('div');
-
-            world.className =
-                'national-day-world-v2';
-
-            world.setAttribute(
-                'aria-hidden',
-                'true'
-            );
-
-            world.innerHTML = `
-            <div class="ndv2-red-vignette"></div>
-
-            <div class="ndv2-heaven-sun"></div>
-
-            <div class="ndv2-grand-drum">
-                <span class="ndv2-grand-star">★</span>
-
-                <span class="
-                    ndv2-grand-ring
-                    ring-one
-                "></span>
-
-                <span class="
-                    ndv2-grand-ring
-                    ring-two
-                "></span>
-
-                <span class="
-                    ndv2-grand-ring
-                    ring-three
-                "></span>
-            </div>
-
-
-            <div class="
-                ndv2-flag-silk
-                silk-a
-            "></div>
-
-            <div class="
-                ndv2-flag-silk
-                silk-b
-            "></div>
-
-            <div class="
-                ndv2-flag-silk
-                silk-c
-            "></div>
-
-
-            <div class="ndv2-gold-horizon"></div>
-
-            <div class="ndv2-light-beams"></div>
-
-            <div class="ndv2-ember-field"></div>
-
-            <div class="ndv2-star-field"></div>
-
-            <div class="ndv2-bronze-field"></div>
-        `;
-
-
-            const mobile =
-                window.matchMedia(
-                    '(max-width: 768px), (pointer: coarse)'
-                ).matches;
-
-
-            // ==============================
-            // MƯA ÁNH ĐỒNG
-            // ==============================
-            const emberField =
-                world.querySelector(
-                    '.ndv2-ember-field'
-                );
-
-            const emberCount =
-                getLuxuryQualityCount(mobile ? 18 : 38);
-
-            for (
-                let i = 0;
-                i < emberCount;
-                i++
-            ) {
-                const ember =
-                    document.createElement('span');
-
-                ember.className =
-                    'ndv2-ember';
-
-                ember.style.setProperty(
-                    '--ndv2-x',
-                    `${Math.random() * 100}%`
-                );
-
-                ember.style.setProperty(
-                    '--ndv2-size',
-                    `${2 + Math.random() * 5}px`
-                );
-
-                ember.style.setProperty(
-                    '--ndv2-duration',
-                    `${7 + Math.random() * 9}s`
-                );
-
-                ember.style.setProperty(
-                    '--ndv2-delay',
-                    `${-Math.random() * 14}s`
-                );
-
-                emberField?.appendChild(
-                    ember
-                );
-            }
-
-
-            // ==============================
-            // SAO VÀNG TOÀN MÀN HÌNH
-            // ==============================
-            const starField =
-                world.querySelector(
-                    '.ndv2-star-field'
-                );
-
-            const starCount =
-                getLuxuryQualityCount(mobile ? 8 : 17);
-
-            for (
-                let i = 0;
-                i < starCount;
-                i++
-            ) {
-                const star =
-                    document.createElement('span');
-
-                star.className =
-                    'ndv2-screen-star';
-
-                star.textContent = '★';
-
-                star.style.setProperty(
-                    '--ndv2-sx',
-                    `${5 + Math.random() * 90}%`
-                );
-
-                star.style.setProperty(
-                    '--ndv2-sy',
-                    `${7 + Math.random() * 82}%`
-                );
-
-                star.style.setProperty(
-                    '--ndv2-ssize',
-                    `${7 + Math.random() * 13}px`
-                );
-
-                star.style.setProperty(
-                    '--ndv2-sdelay',
-                    `${-Math.random() * 5}s`
-                );
-
-                starField?.appendChild(
-                    star
-                );
-            }
-
-
-            // ==============================
-            // MẢNH TRỐNG ĐỒNG
-            // ==============================
-            const bronzeField =
-                world.querySelector(
-                    '.ndv2-bronze-field'
-                );
-
-            const bronzeCount =
-                getLuxuryQualityCount(mobile ? 10 : 24);
-
-            for (
-                let i = 0;
-                i < bronzeCount;
-                i++
-            ) {
-                const shard =
-                    document.createElement('span');
-
-                shard.className =
-                    'ndv2-bronze-shard';
-
-                shard.style.setProperty(
-                    '--ndv2-bx',
-                    `${Math.random() * 100}%`
-                );
-
-                shard.style.setProperty(
-                    '--ndv2-by',
-                    `${Math.random() * 100}%`
-                );
-
-                shard.style.setProperty(
-                    '--ndv2-bdelay',
-                    `${-Math.random() * 7}s`
-                );
-
-                bronzeField?.appendChild(
-                    shard
-                );
-            }
-
-
-            document.body.appendChild(
-                world
-            );
-
-            requestAnimationFrame(() => {
-                world.classList.add(
-                    'is-active'
-                );
-            });
-        },
-
-
-        // ====================================================
-        // GIAO DIỆN LUXURY QUỐC KHÁNH
-        // - Frame V2: viền trang trí cố định
-        // - Shell V3: đổi giao diện web + huy hiệu 02/09
-        // ====================================================
-        createInterface() {
-
-            document
-                .querySelectorAll(
-                    '.national-day-ui-frame-v2,' +
-                    '.national-day-ui-shell-v3'
-                )
-                .forEach(element => element.remove());
-
-
-            // -----------------------------------------------
-            // FRAME V2 · VIỀN TRANG TRÍ
-            // -----------------------------------------------
-            const frame =
-                document.createElement('div');
-
-            frame.className =
-                'national-day-ui-frame-v2';
-
-            frame.setAttribute(
-                'aria-hidden',
-                'true'
-            );
-
-            frame.innerHTML = `
-                <div class="ndv2-ui-side side-left">
-                    <i></i><b>★</b><i></i>
-                </div>
-
-                <div class="ndv2-ui-side side-right">
-                    <i></i><b>★</b><i></i>
-                </div>
-
-                <span class="ndv2-ui-corner corner-tl">✦</span>
-                <span class="ndv2-ui-corner corner-tr">✦</span>
-                <span class="ndv2-ui-corner corner-bl">✦</span>
-                <span class="ndv2-ui-corner corner-br">✦</span>
-
-                <div class="ndv2-ui-bottom">
-                    <i></i>
-                    <span>★ ĐỘC LẬP · TỰ DO · HẠNH PHÚC ★</span>
-                    <i></i>
-                </div>
-            `;
-
-
-            // -----------------------------------------------
-            // SHELL V3 · GIAO DIỆN WEB QUỐC KHÁNH
-            // CSS của shell này đổi toolbar/sidebar/card/web.
-            // -----------------------------------------------
-            const shell =
-                document.createElement('div');
-
-            shell.className =
-                'national-day-ui-shell-v3';
-
-            shell.setAttribute(
-                'aria-hidden',
-                'true'
-            );
-
-            shell.innerHTML = `
-                <div class="nd-ui-screen-wash"></div>
-
-                <div class="nd-ui-top-seal">
-                    <span class="nd-ui-top-line"></span>
-
-                    <div class="nd-ui-top-emblem">
-                        <b>★</b>
-                        <strong>02 · 09</strong>
-                        <small>HÀO KHÍ VIỆT NAM</small>
-                    </div>
-
-                    <span class="nd-ui-top-line right"></span>
-                </div>
-
-                <div class="nd-ui-side-rail rail-left">
-                    <i></i><span>★</span><i></i>
-                </div>
-
-                <div class="nd-ui-side-rail rail-right">
-                    <i></i><span>★</span><i></i>
-                </div>
-
-                <span class="nd-ui-corner corner-tl">✦</span>
-                <span class="nd-ui-corner corner-tr">✦</span>
-                <span class="nd-ui-corner corner-bl">✦</span>
-                <span class="nd-ui-corner corner-br">✦</span>
-
-                <div class="nd-ui-bottom-seal">
-                    <i></i>
-                    <span>ĐỘC LẬP · TỰ DO · HẠNH PHÚC</span>
-                    <i></i>
-                </div>
-            `;
-
-
-            document.body.append(
-                frame,
-                shell
-            );
-
-
-            requestAnimationFrame(() => {
-                frame.classList.add(
-                    'is-mounted'
-                );
-
-                shell.classList.add(
-                    'is-mounted'
-                );
-            });
-        },
-
-        // ====================================================
-        // CLICK SKILL · HỒN THIÊNG ĐỘC LẬP
-        // Cấu trúc 3 tầng giống độ hoành tráng của Vạn Sinh Hoa Mộng:
-        // 1) local pet burst do PetManager xử lý
-        // 2) screen burst riêng
-        // 3) ultimate toàn màn hình riêng
-        // ====================================================
-        installPetSkill() {
-
-            const container =
-                document.getElementById(
-                    'virtual-pet-container'
-                );
-
-            const pet =
-                container?.querySelector(
-                    '#virtual-pet-img'
-                );
-
-            if (!container || !pet) {
-                return;
-            }
-
-            this.activePetElement = pet;
-
-            this.petClickHandler = event => {
-
-                if (this.skillLocked) {
-                    return;
-                }
-
-                if (
-                    !document.documentElement.classList.contains(
-                        'national-day-luxury-equipped'
-                    )
-                ) {
-                    return;
-                }
-
-                if (
-                    typeof PetInteractionManager !== 'undefined' &&
-                    PetInteractionManager.isPetDragging
-                ) {
-                    return;
-                }
-
-                const rect =
-                    pet.getBoundingClientRect();
-
-                const x =
-                    Number.isFinite(event.clientX) &&
-                        event.clientX > 0
-                        ? event.clientX
-                        : rect.left + rect.width / 2;
-
-                const y =
-                    Number.isFinite(event.clientY) &&
-                        event.clientY > 0
-                        ? event.clientY
-                        : rect.top + rect.height / 2;
-
-                this.skillLocked = true;
-
-                // Tầng 2: nổ trống đồng / sóng vàng toàn màn hình
-                this.createScreenBurst(
-                    x,
-                    y
-                );
-
-                // Tầng 3: ultimate Hồn Thiêng Độc Lập
-                this.createUltimate(
-                    x,
-                    y,
-                    container
-                );
-
-                window.setTimeout(() => {
-                    this.skillLocked = false;
-                }, 6400);
-            };
-
-            pet.addEventListener(
-                'click',
-                this.petClickHandler
-            );
-        },
-
-
-        // ====================================================
-        // TẦNG 2 · SCREEN BURST
-        // ====================================================
-        createScreenBurst(x, y) {
-
-            document
-                .querySelectorAll(
-                    '.national-day-screen-burst-v4'
-                )
-                .forEach(element => element.remove());
-
-            const burst =
-                document.createElement('div');
-
-            burst.className =
-                'national-day-screen-burst-v4';
-
-            burst.style.setProperty(
-                '--ndu4-x',
-                `${x}px`
-            );
-
-            burst.style.setProperty(
-                '--ndu4-y',
-                `${y}px`
-            );
-
-            burst.innerHTML = `
-                <div class="ndu4-screen-flash"></div>
-
-                <span class="ndu4-screen-wave wave-a"></span>
-                <span class="ndu4-screen-wave wave-b"></span>
-                <span class="ndu4-screen-wave wave-c"></span>
-                <span class="ndu4-screen-wave wave-d"></span>
-
-                <div class="ndu4-screen-drum">
-                    <span class="ndu4-screen-drum-star">★</span>
-                    <span class="ndu4-screen-drum-ring ring-a"></span>
-                    <span class="ndu4-screen-drum-ring ring-b"></span>
-                    <span class="ndu4-screen-drum-ring ring-c"></span>
-                </div>
-
-                <div class="ndu4-screen-rays"></div>
-                <div class="ndu4-screen-stars"></div>
-                <div class="ndu4-screen-shards"></div>
-
-                <div class="ndu4-screen-banner banner-a"></div>
-                <div class="ndu4-screen-banner banner-b"></div>
-
-                <div class="ndu4-screen-title">
-                    <small>02 · 09</small>
-                    <strong>HÀO KHÍ NON SÔNG</strong>
-                </div>
-            `;
-
-            const stars =
-                burst.querySelector(
-                    '.ndu4-screen-stars'
-                );
-
-            for (let i = 0; i < 28; i++) {
-
-                const star =
-                    document.createElement('span');
-
-                star.textContent = '★';
-
-                star.style.setProperty(
-                    '--ndu4-angle',
-                    `${i * (360 / 28)}deg`
-                );
-
-                star.style.setProperty(
-                    '--ndu4-distance',
-                    `${105 + Math.random() * 235}px`
-                );
-
-                star.style.setProperty(
-                    '--ndu4-size',
-                    `${8 + Math.random() * 15}px`
-                );
-
-                star.style.setProperty(
-                    '--ndu4-delay',
-                    `${Math.random() * 0.22}s`
-                );
-
-                stars?.appendChild(star);
-            }
-
-            const shards =
-                burst.querySelector(
-                    '.ndu4-screen-shards'
-                );
-
-            for (let i = 0; i < 34; i++) {
-
-                const shard =
-                    document.createElement('i');
-
-                shard.style.setProperty(
-                    '--ndu4-angle',
-                    `${Math.random() * 360}deg`
-                );
-
-                shard.style.setProperty(
-                    '--ndu4-distance',
-                    `${90 + Math.random() * 280}px`
-                );
-
-                shard.style.setProperty(
-                    '--ndu4-delay',
-                    `${Math.random() * 0.26}s`
-                );
-
-                shard.style.setProperty(
-                    '--ndu4-rotate',
-                    `${Math.random() * 180 - 90}deg`
-                );
-
-                shards?.appendChild(shard);
-            }
-
-            document.body.appendChild(
-                burst
-            );
-
-            requestAnimationFrame(() => {
-                burst.classList.add(
-                    'is-active'
-                );
-            });
-
-            window.setTimeout(
-                () => burst.remove(),
-                2100
-            );
-        },
-
-
-        // ====================================================
-        // TẦNG 3 · ULTIMATE TOÀN MÀN HÌNH
-        // ====================================================
-        createUltimate(x, y, container) {
-
-            document
-                .querySelectorAll(
-                    '.national-day-divine-world-v4,' +
-                    '.national-day-ultimate-dialogue-v4'
-                )
-                .forEach(element => element.remove());
-
-            const world =
-                document.createElement('div');
-
-            world.className =
-                'national-day-divine-world-v4';
-
-            world.style.setProperty(
-                '--ndu4-origin-x',
-                `${x}px`
-            );
-
-            world.style.setProperty(
-                '--ndu4-origin-y',
-                `${y}px`
-            );
-
-            world.innerHTML = `
-                <div class="ndu4-ultimate-red-sky"></div>
-                <div class="ndu4-ultimate-gold-dawn"></div>
-                <div class="ndu4-ultimate-heaven-rays"></div>
-
-                <div class="ndu4-ultimate-flag flag-left"></div>
-                <div class="ndu4-ultimate-flag flag-right"></div>
-
-                <div class="ndu4-ultimate-grand-drum">
-                    <span class="ndu4-ultimate-drum-star">★</span>
-                    <span class="ndu4-ultimate-drum-ring ring-1"></span>
-                    <span class="ndu4-ultimate-drum-ring ring-2"></span>
-                    <span class="ndu4-ultimate-drum-ring ring-3"></span>
-                    <span class="ndu4-ultimate-drum-ring ring-4"></span>
-                </div>
-
-                <div class="ndu4-ultimate-bronze-grid"></div>
-                <div class="ndu4-ultimate-star-field"></div>
-                <div class="ndu4-ultimate-ember-field"></div>
-
-                <div class="ndu4-ultimate-pillars pillar-left"></div>
-                <div class="ndu4-ultimate-pillars pillar-right"></div>
-
-                <div class="ndu4-ultimate-horizon"></div>
-
-                <div class="ndu4-ultimate-title">
-                    <small>VIỆT DIỆU · 02.09</small>
-                    <strong>HỒN THIÊNG ĐỘC LẬP</strong>
-                    <span>ĐỘC LẬP · TỰ DO · HẠNH PHÚC</span>
-                </div>
-            `;
-
-            const starField =
-                world.querySelector(
-                    '.ndu4-ultimate-star-field'
-                );
-
-            const emberField =
-                world.querySelector(
-                    '.ndu4-ultimate-ember-field'
-                );
-
-            const mobile =
-                window.matchMedia(
-                    '(max-width: 768px), (pointer: coarse)'
-                ).matches;
-
-            const starCount =
-                getLuxuryQualityCount(mobile ? 20 : 42);
-
-            const emberCount =
-                getLuxuryQualityCount(mobile ? 28 : 64);
-
-            for (let i = 0; i < starCount; i++) {
-
-                const star =
-                    document.createElement('span');
-
-                star.textContent = '★';
-
-                star.style.setProperty(
-                    '--ndu4-ux',
-                    `${4 + Math.random() * 92}%`
-                );
-
-                star.style.setProperty(
-                    '--ndu4-uy',
-                    `${5 + Math.random() * 86}%`
-                );
-
-                star.style.setProperty(
-                    '--ndu4-usize',
-                    `${6 + Math.random() * 15}px`
-                );
-
-                star.style.setProperty(
-                    '--ndu4-udelay',
-                    `${Math.random() * 0.9}s`
-                );
-
-                starField?.appendChild(star);
-            }
-
-            for (let i = 0; i < emberCount; i++) {
-
-                const ember =
-                    document.createElement('i');
-
-                ember.style.setProperty(
-                    '--ndu4-ex',
-                    `${Math.random() * 100}%`
-                );
-
-                ember.style.setProperty(
-                    '--ndu4-ey',
-                    `${20 + Math.random() * 85}%`
-                );
-
-                ember.style.setProperty(
-                    '--ndu4-esize',
-                    `${2 + Math.random() * 5}px`
-                );
-
-                ember.style.setProperty(
-                    '--ndu4-edelay',
-                    `${Math.random() * 1.2}s`
-                );
-
-                emberField?.appendChild(ember);
-            }
-
-            document.body.appendChild(
-                world
-            );
-
-            const dialogue =
-                document.createElement('div');
-
-            dialogue.className =
-                'national-day-ultimate-dialogue-v4';
-
-            dialogue.innerHTML = `
-                <b>★</b>
-                <span>Hào khí nghìn thu — non sông trường tồn!</span>
-            `;
-
-            container?.appendChild(
-                dialogue
-            );
-
-            requestAnimationFrame(() => {
-                world.classList.add(
-                    'is-active'
-                );
-            });
-
-            window.setTimeout(() => {
-                world.classList.add(
-                    'is-climax'
-                );
-            }, 1250);
-
-            window.setTimeout(() => {
-                world.classList.add(
-                    'is-ending'
-                );
-            }, 4700);
-
-            window.setTimeout(() => {
-                world.remove();
-                dialogue.remove();
-            }, 6000);
-        },
-
-
-        mount() {
-
-            this.clear();
-
-            document.documentElement.classList.add(
-                'national-day-luxury-equipped'
-            );
-
-            this.createWorld();
-            this.createInterface();
-            this.installPetSkill();
-        }
+        timers:new Set(), sceneLocked10:false,
+        design10(){return LUX_CONFIG10.viet;},
+        setTimer(fn,ms){const t=setTimeout(()=>{this.timers.delete(t);fn();},ms);this.timers.add(t);return t;},
+        getPet(){return document.querySelector('#virtual-pet-img.national-day-chibi-star-magic');},
+        clear(){clearLuxuryScene10(this);this.timers.forEach(clearTimeout);this.timers.clear();document.documentElement.classList.remove('national-day-luxury-equipped');this.activePetElement?.classList.remove('national-day-pet-v14');document.getElementById('virtual-pet-container')?.classList.remove('pet-national-day-stage-v14');this.activePetElement=null;},
+        createWorld(){document.querySelectorAll('.national-day-world-v4').forEach(n=>n.remove());document.documentElement.classList.add('lux10-viet-equipped');luxuryScene10(this,'world').classList.add('national-day-world-v4');},
+        createInterface(){const n=document.createElement('div');n.className='lux10-interface lux10-viet national-day-interface-v4';n.dataset.scene10='viet';n.setAttribute('aria-hidden','true');n.innerHTML='<i></i><b></b>';document.body.appendChild(n);},
+        createPetRealm(){return luxuryPet10(this);},
+        installPetSkill(){return luxuryPet10(this);},
+        createScreenBurst(x,y){return this.createPageClick(x,y);},
+        createPageClick(x,y){if(!document.documentElement.classList.contains('national-day-luxury-equipped'))return;return luxuryTapBloom11(this,'viet',x,y);},
+        createUltimate(x,y){return luxuryUltimate10(this,x,y);},
+        mount(){this.clear();const pet=this.getPet(),box=pet?.closest('#virtual-pet-container');if(!pet||box.hidden||box.style.display==='none')return false;this.activePetElement=pet;document.documentElement.classList.add('national-day-luxury-equipped');this.createWorld();this.createInterface();this.createPetRealm();installLuxuryGestures10(this,'viet','national-day-luxury-equipped',(x,y)=>this.createPageClick(x,y));return true;},
+        restore(){if(this.getPet())return this.mount();return false;}
     };
 
     const SPRING_PREMIUM_PET = {
@@ -1042,2119 +813,28 @@
 
 
     // ========================================================
-    // PREMIUM MÙA THU · XÍCH DIỆP HOÀNG HÔN
-    // - Bán 14.000 Coin.
-    // - Tag ảnh: assets/Premium/Bốn mùa/tag3.png
-    // - Nhân vật: assets/Premium/Bốn mùa/thu_nhan_vat3.png
-    // - Card riêng nhưng GIỮ NGUYÊN BỐ CỤC Luxury Store.
-    // - Full suite độc lập; KHÔNG ghi active_theme / active_effect.
-    // ========================================================
-    const AUTUMN_PREMIUM_PET = {
-        id: 'pet_luxury_mua_thu',
-        name: 'Thu Thần · Xích Diệp Hoàng Hôn',
-        type: 'pet',
-        price: 14000,
-        isNonCoin: false,
-        luxuryOnly: true,
-        eventOnly: false,
-
-        tag: 'Mùa thu',
-        tags: [
-            'Mùa thu',
-            'Bốn mùa',
-            'Premium'
-        ],
-
-        image: 'assets/Premium/Bốn mùa/thu_nhan_vat3.png',
-        asset: 'assets/Premium/Bốn mùa/thu_nhan_vat3.png',
-        value: 'assets/Premium/Bốn mùa/thu_nhan_vat3.png',
-
-        luxuryTagImage:
-            'assets/Premium/Bốn mùa/tag3.png',
-
-        isIcon: false,
-
-        petEffect: 'premium-autumn-equinox-magic',
-        premiumSuite: 'autumn-equinox-amber-court-v1',
-        premiumLayers: [
-            'world-effect',
-            'interface',
-            'pet-realm',
-            'global-click',
-            'pet-skill',
-            'ultimate'
-        ],
-
-        // Toàn bộ click/ultimate do LuxuryAutumnRuntime quản lý.
-        disableClickEffect: true
-    };
-
-
-    // ========================================================
     // MÙA HẠ · HẠ NHẬT LƯU KIM — FULL WEB RUNTIME
     // Namespace: summer-solstice-* / ssv2-* / ssv3-*
     // Không gọi ThemeManager / EffectManager nên không chiếm
     // active_theme / active_effect và không xóa vật phẩm khác.
     // ========================================================
     const LuxurySummerRuntime = {
-        activePetElement: null,
-        petClickHandler: null,
-        petPointerDownHandler: null,
-        petPointerMoveHandler: null,
-        petPointerUpHandler: null,
-        globalClickHandler: null,
-        observer: null,
-        observerTimer: null,
-        repairTimers: new Set(),
-        skillLocked: false,
-        dragState: null,
-
-        clearTimerBag() {
-            this.repairTimers.forEach(timer => {
-                window.clearTimeout(timer);
-            });
-            this.repairTimers.clear();
-
-            if (this.observerTimer) {
-                window.clearTimeout(this.observerTimer);
-                this.observerTimer = null;
-            }
-        },
-
-        setRepairTimer(callback, delay) {
-            const timer = window.setTimeout(() => {
-                this.repairTimers.delete(timer);
-                callback();
-            }, delay);
-
-            this.repairTimers.add(timer);
-            return timer;
-        },
-
-        clear() {
-            this.clearTimerBag();
-
-            if (this.activePetElement && this.petClickHandler) {
-                this.activePetElement.removeEventListener(
-                    'click',
-                    this.petClickHandler
-                );
-            }
-
-            if (this.activePetElement && this.petPointerDownHandler) {
-                this.activePetElement.removeEventListener(
-                    'pointerdown',
-                    this.petPointerDownHandler
-                );
-            }
-
-            if (this.petPointerMoveHandler) {
-                document.removeEventListener(
-                    'pointermove',
-                    this.petPointerMoveHandler
-                );
-            }
-
-            if (this.petPointerUpHandler) {
-                document.removeEventListener(
-                    'pointerup',
-                    this.petPointerUpHandler
-                );
-                document.removeEventListener(
-                    'pointercancel',
-                    this.petPointerUpHandler
-                );
-            }
-
-            if (this.globalClickHandler) {
-                document.removeEventListener(
-                    'pointerdown',
-                    this.globalClickHandler,
-                    true
-                );
-            }
-
-            if (this.observer) {
-                this.observer.disconnect();
-                this.observer = null;
-            }
-
-            this.activePetElement = null;
-            this.petClickHandler = null;
-            this.petPointerDownHandler = null;
-            this.petPointerMoveHandler = null;
-            this.petPointerUpHandler = null;
-            this.globalClickHandler = null;
-            this.skillLocked = false;
-            this.dragState = null;
-
-            document.documentElement.classList.remove(
-                'summer-solstice-equipped',
-                'summer-solstice-skill-active',
-                'summer-solstice-v3-equipped'
-            );
-
-            document.body?.classList.remove(
-                'theme-summer-solstice-stage'
-            );
-
-            const container =
-                document.getElementById('virtual-pet-container');
-
-            container?.classList.remove(
-                'pet-summer-solstice-stage',
-                'summer-solstice-awakening',
-                'summer-solstice-casting',
-                'summer-solstice-v3-casting'
-            );
-
-            container
-                ?.querySelector('#virtual-pet-img')
-                ?.classList.remove(
-                    'summer-solstice-avatar',
-                    'summer-solstice-v3-avatar'
-                );
-
-            document
-                .querySelectorAll(
-                    '.summer-solstice-world,' +
-                    '.summer-solstice-ui-frame,' +
-                    '.summer-solstice-pet-realm,' +
-                    '.summer-solstice-click-burst,' +
-                    '.summer-solstice-drag-trail,' +
-                    '.summer-solstice-ultimate,' +
-                    '.summer-solstice-screen-burst-v3,' +
-                    '.summer-solstice-pet-dialogue,' +
-                    '.summer-solstice-local-burst'
-                )
-                .forEach(node => node.remove());
-        },
-
-        getPet() {
-            return document.querySelector(
-                '#virtual-pet-container ' +
-                '#virtual-pet-img.premium-summer-solstice-magic'
-            );
-        },
-
-        createWorld() {
-            document
-                .querySelectorAll('.summer-solstice-world')
-                .forEach(node => node.remove());
-
-            const world = document.createElement('div');
-            world.className =
-                'summer-solstice-world summer-solstice-world-v3 ui-theme-immune';
-            world.dataset.themeImmune = 'true';
-            world.setAttribute('aria-hidden', 'true');
-
-            world.innerHTML = `
-                <div class="ssv2-atmosphere"></div>
-
-                <div class="ssv3-sky-veil"></div>
-                <div class="ssv3-golden-hour-band"></div>
-
-                <div class="ssv2-sun-vault">
-                    <span class="ssv2-sun-core"></span>
-                    <span class="ssv2-sun-ring ring-a"></span>
-                    <span class="ssv2-sun-ring ring-b"></span>
-                    <span class="ssv2-sun-ring ring-c"></span>
-                    <div class="ssv2-sun-spokes">
-                        <i style="--i:0"></i><i style="--i:1"></i>
-                        <i style="--i:2"></i><i style="--i:3"></i>
-                        <i style="--i:4"></i><i style="--i:5"></i>
-                        <i style="--i:6"></i><i style="--i:7"></i>
-                        <i style="--i:8"></i><i style="--i:9"></i>
-                        <i style="--i:10"></i><i style="--i:11"></i>
-                    </div>
-                </div>
-
-                <div class="ssv3-solar-astrolabe">
-                    <span class="ssv3-astro-core">☀</span>
-                    <span class="ssv3-astro-ring ring-a"></span>
-                    <span class="ssv3-astro-ring ring-b"></span>
-                    <span class="ssv3-astro-ring ring-c"></span>
-                    <span class="ssv3-astro-ring ring-d"></span>
-                    <div class="ssv3-astro-spokes">
-                        ${Array.from({ length: 24 }, (_, i) =>
-                            `<i style="--i:${i}"></i>`
-                        ).join('')}
-                    </div>
-                    <div class="ssv3-astro-marks">
-                        ${Array.from({ length: 12 }, (_, i) =>
-                            `<b style="--i:${i}"></b>`
-                        ).join('')}
-                    </div>
-                </div>
-
-                <div class="ssv3-prism-canopy canopy-a"></div>
-                <div class="ssv3-prism-canopy canopy-b"></div>
-                <div class="ssv3-prism-canopy canopy-c"></div>
-
-                <div class="ssv3-heat-mirage mirage-a"></div>
-                <div class="ssv3-heat-mirage mirage-b"></div>
-                <div class="ssv3-heat-mirage mirage-c"></div>
-                <div class="ssv3-heat-mirage mirage-d"></div>
-
-                <div class="ssv2-heat-ribbon ribbon-a"></div>
-                <div class="ssv2-heat-ribbon ribbon-b"></div>
-                <div class="ssv2-heat-ribbon ribbon-c"></div>
-
-                <div class="ssv3-aqua-lens lens-a"></div>
-                <div class="ssv3-aqua-lens lens-b"></div>
-                <div class="ssv3-aqua-lens lens-c"></div>
-
-                <div class="ssv2-horizon-line"></div>
-
-                <div class="ssv3-horizon-mirror">
-                    <span class="wave wave-a"></span>
-                    <span class="wave wave-b"></span>
-                    <span class="wave wave-c"></span>
-                    <span class="wave wave-d"></span>
-                    <span class="wave wave-e"></span>
-                </div>
-
-                <div class="ssv2-caustic-sea">
-                    <i></i><i></i><i></i><i></i><i></i><i></i>
-                </div>
-
-                <div class="ssv3-edge-reed reed-left">
-                    <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-                </div>
-                <div class="ssv3-edge-reed reed-right">
-                    <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-                </div>
-
-                <div class="ssv2-glint-field"></div>
-                <div class="ssv2-pollen-field"></div>
-                <div class="ssv2-streak-field"></div>
-
-                <div class="ssv3-firefly-field"></div>
-                <div class="ssv3-sunseed-field"></div>
-                <div class="ssv3-prism-field"></div>
-                <div class="ssv3-water-spark-field"></div>
-
-                <div class="ssv2-corner-bloom bloom-left"></div>
-                <div class="ssv2-corner-bloom bloom-right"></div>
-            `;
-
-            const reduced = window.matchMedia?.(
-                '(max-width: 768px), (pointer: coarse), ' +
-                '(prefers-reduced-motion: reduce)'
-            ).matches;
-
-            const glintField =
-                world.querySelector('.ssv2-glint-field');
-            const pollenField =
-                world.querySelector('.ssv2-pollen-field');
-            const streakField =
-                world.querySelector('.ssv2-streak-field');
-            const fireflyField =
-                world.querySelector('.ssv3-firefly-field');
-            const sunseedField =
-                world.querySelector('.ssv3-sunseed-field');
-            const prismField =
-                world.querySelector('.ssv3-prism-field');
-            const waterSparkField =
-                world.querySelector('.ssv3-water-spark-field');
-
-            const glintCount = getLuxuryQualityCount(reduced ? 16 : 42);
-            const pollenCount = getLuxuryQualityCount(reduced ? 12 : 30);
-            const streakCount = getLuxuryQualityCount(reduced ? 6 : 14);
-            const fireflyCount = getLuxuryQualityCount(reduced ? 16 : 38);
-            const sunseedCount = getLuxuryQualityCount(reduced ? 14 : 32);
-            const prismCount = getLuxuryQualityCount(reduced ? 8 : 18);
-            const waterSparkCount = getLuxuryQualityCount(reduced ? 10 : 24);
-
-            for (let index = 0; index < glintCount; index++) {
-                const glint = document.createElement('span');
-                glint.className =
-                    index % 5 === 0
-                        ? 'ssv2-glint is-aqua'
-                        : (
-                            index % 3 === 0
-                                ? 'ssv2-glint is-star'
-                                : 'ssv2-glint'
-                        );
-                glint.style.setProperty('--gx', `${(index * 41 + 7) % 97}%`);
-                glint.style.setProperty('--gy', `${(index * 67 + 13) % 91}%`);
-                glint.style.setProperty('--gs', `${2.2 + (index % 5) * 1.15}px`);
-                glint.style.setProperty('--gd', `${4.8 + (index % 7) * .72}s`);
-                glint.style.setProperty('--gdelay', `${-(index % 11) * .51}s`);
-                glintField?.appendChild(glint);
-            }
-
-            for (let index = 0; index < pollenCount; index++) {
-                const mote = document.createElement('span');
-                mote.className =
-                    index % 4 === 0
-                        ? 'ssv2-pollen is-aqua'
-                        : 'ssv2-pollen';
-                mote.style.setProperty('--px', `${(index * 53 + 9) % 100}%`);
-                mote.style.setProperty('--ps', `${3 + (index % 4) * 1.2}px`);
-                mote.style.setProperty('--pd', `${8 + (index % 7) * 1.1}s`);
-                mote.style.setProperty('--pdelay', `${-(index % 13) * .66}s`);
-                mote.style.setProperty('--pdrift', `${-24 + (index % 9) * 7}px`);
-                pollenField?.appendChild(mote);
-            }
-
-            for (let index = 0; index < streakCount; index++) {
-                const streak = document.createElement('span');
-                streak.className = 'ssv2-streak';
-                streak.style.setProperty('--sx', `${(index * 71 + 5) % 96}%`);
-                streak.style.setProperty('--sd', `${5.5 + (index % 5) * 1.1}s`);
-                streak.style.setProperty('--sdelay', `${-(index % 7) * .8}s`);
-                streak.style.setProperty('--stilt', `${-20 + (index % 7) * 6}deg`);
-                streakField?.appendChild(streak);
-            }
-
-            for (let index = 0; index < fireflyCount; index++) {
-                const firefly = document.createElement('span');
-                firefly.className =
-                    index % 7 === 0
-                        ? 'ssv3-firefly is-aqua'
-                        : 'ssv3-firefly';
-                firefly.style.setProperty('--fx', `${3 + (index * 47) % 94}%`);
-                firefly.style.setProperty('--fy', `${6 + (index * 73) % 86}%`);
-                firefly.style.setProperty('--fs', `${2 + (index % 5) * .9}px`);
-                firefly.style.setProperty('--fd', `${5.8 + (index % 8) * .7}s`);
-                firefly.style.setProperty('--fdelay', `${-(index % 15) * .48}s`);
-                firefly.style.setProperty('--fdriftx', `${-34 + (index % 11) * 7}px`);
-                firefly.style.setProperty('--fdrifty', `${-22 + (index % 9) * 6}px`);
-                fireflyField?.appendChild(firefly);
-            }
-
-            for (let index = 0; index < sunseedCount; index++) {
-                const seed = document.createElement('span');
-                seed.className =
-                    index % 6 === 0
-                        ? 'ssv3-sunseed is-coral'
-                        : (
-                            index % 5 === 0
-                                ? 'ssv3-sunseed is-aqua'
-                                : 'ssv3-sunseed'
-                        );
-                seed.style.setProperty('--seedx', `${2 + (index * 59) % 96}%`);
-                seed.style.setProperty('--seeds', `${5 + (index % 5) * 1.4}px`);
-                seed.style.setProperty('--seedd', `${9 + (index % 9) * .8}s`);
-                seed.style.setProperty('--seeddelay', `${-(index % 16) * .72}s`);
-                seed.style.setProperty('--seeddrift', `${-70 + (index % 12) * 13}px`);
-                seed.style.setProperty('--seedrot', `${(index * 31) % 180 - 90}deg`);
-                sunseedField?.appendChild(seed);
-            }
-
-            for (let index = 0; index < prismCount; index++) {
-                const shard = document.createElement('span');
-                shard.className = 'ssv3-prism-shard';
-                shard.style.setProperty('--prx', `${6 + (index * 61) % 88}%`);
-                shard.style.setProperty('--pry', `${8 + (index * 43) % 78}%`);
-                shard.style.setProperty('--prs', `${10 + (index % 5) * 5}px`);
-                shard.style.setProperty('--prd', `${7 + (index % 7) * 1.2}s`);
-                shard.style.setProperty('--prdelay', `${-(index % 9) * .73}s`);
-                shard.style.setProperty('--prrot', `${-35 + (index % 9) * 13}deg`);
-                prismField?.appendChild(shard);
-            }
-
-            for (let index = 0; index < waterSparkCount; index++) {
-                const spark = document.createElement('span');
-                spark.className = 'ssv3-water-spark';
-                spark.style.setProperty('--wsx', `${4 + (index * 37) % 92}%`);
-                spark.style.setProperty('--wsy', `${58 + (index * 19) % 34}%`);
-                spark.style.setProperty('--wsd', `${3.8 + (index % 6) * .62}s`);
-                spark.style.setProperty('--wsdelay', `${-(index % 10) * .42}s`);
-                waterSparkField?.appendChild(spark);
-            }
-
-            document.body.appendChild(world);
-
-            requestAnimationFrame(() => {
-                world.classList.add('is-active');
-            });
-        },
-
-        createInterface() {
-            document
-                .querySelectorAll('.summer-solstice-ui-frame')
-                .forEach(node => node.remove());
-
-            const frame = document.createElement('div');
-            frame.className =
-                'summer-solstice-ui-frame summer-solstice-ui-v3 ui-theme-immune';
-            frame.dataset.themeImmune = 'true';
-            frame.setAttribute('aria-hidden', 'true');
-
-            frame.innerHTML = `
-                <div class="ssv3-ui-crown">
-                    <span class="ssv3-ui-line line-left"></span>
-                    <div class="ssv3-ui-medallion">
-                        <span class="ssv3-ui-medallion-ring ring-a"></span>
-                        <span class="ssv3-ui-medallion-ring ring-b"></span>
-                        <b>☀</b>
-                        <small>HẠ NHẬT</small>
-                    </div>
-                    <span class="ssv3-ui-line line-right"></span>
-                </div>
-
-                <div class="ssv2-ui-top">
-                    <i></i>
-                    <span>HẠ NHẬT · NHẬT DIỆU LƯU KIM</span>
-                    <i></i>
-                </div>
-
-                <div class="ssv3-ui-rail rail-left">
-                    <b></b><i></i><i></i><i></i><i></i><i></i>
-                </div>
-                <div class="ssv3-ui-rail rail-right">
-                    <b></b><i></i><i></i><i></i><i></i><i></i>
-                </div>
-
-                <div class="ssv2-ui-side side-left">
-                    <b></b><i></i><i></i><i></i>
-                </div>
-                <div class="ssv2-ui-side side-right">
-                    <b></b><i></i><i></i><i></i>
-                </div>
-
-                <span class="ssv3-ui-corner corner-tl"><i></i><b>✦</b></span>
-                <span class="ssv3-ui-corner corner-tr"><i></i><b>✦</b></span>
-                <span class="ssv3-ui-corner corner-bl"><i></i><b>≈</b></span>
-                <span class="ssv3-ui-corner corner-br"><i></i><b>≈</b></span>
-
-                <span class="ssv2-ui-corner corner-tl">✦</span>
-                <span class="ssv2-ui-corner corner-tr">✦</span>
-                <span class="ssv2-ui-corner corner-bl">≈</span>
-                <span class="ssv2-ui-corner corner-br">≈</span>
-
-                <div class="ssv3-ui-bottom-seal">
-                    <span></span>
-                    <div>
-                        <small>GOLDEN HOUR · MIRROR WATER</small>
-                        <strong>☀　HẠ GIỚI LƯU QUANG　☀</strong>
-                    </div>
-                    <span></span>
-                </div>
-
-                <div class="ssv2-ui-bottom">
-                    <i></i>
-                    <strong>GOLDEN SUMMER · AQUA SHIMMER</strong>
-                    <i></i>
-                </div>
-            `;
-
-            document.body.appendChild(frame);
-
-            requestAnimationFrame(() => {
-                frame.classList.add('is-mounted');
-            });
-        },
-
-        createPetRealm() {
-            const container =
-                document.getElementById('virtual-pet-container');
-            const pet = this.getPet();
-
-            if (!container || !pet) {
-                return false;
-            }
-
-            container
-                .querySelectorAll('.summer-solstice-pet-realm')
-                .forEach(node => node.remove());
-
-            container.classList.add(
-                'pet-summer-solstice-stage',
-                'summer-solstice-awakening'
-            );
-
-            pet.classList.add(
-                'summer-solstice-avatar',
-                'summer-solstice-v3-avatar'
-            );
-            pet.setAttribute('draggable', 'false');
-
-            const realm = document.createElement('div');
-            realm.className =
-                'summer-solstice-pet-realm summer-solstice-pet-realm-v3 ui-theme-immune';
-            realm.dataset.themeImmune = 'true';
-            realm.setAttribute('aria-hidden', 'true');
-
-            realm.innerHTML = `
-                <!-- V4 · AURA MÙA HẠ — LUÔN HIỆN QUANH NHÂN VẬT -->
-                <span class="ssv4-pet-aura aura-warm"></span>
-                <span class="ssv4-pet-aura aura-aqua"></span>
-                <span class="ssv4-pet-aura aura-coral"></span>
-
-                <span class="ssv4-pet-corona">
-                    ${Array.from({ length: 12 }, (_, i) =>
-                        `<i style="--i:${i}"></i>`
-                    ).join('')}
-                </span>
-
-                <span class="ssv4-pet-ribbon ribbon-a"></span>
-                <span class="ssv4-pet-ribbon ribbon-b"></span>
-                <span class="ssv4-pet-ribbon ribbon-c"></span>
-
-                <span class="ssv4-pet-orb-field"></span>
-                <span class="ssv4-pet-droplet-field"></span>
-
-                <span class="ssv2-pet-halo halo-a"></span>
-                <span class="ssv2-pet-halo halo-b"></span>
-
-                <span class="ssv3-pet-sunwheel">
-                    <i class="ring r1"></i>
-                    <i class="ring r2"></i>
-                    <i class="ring r3"></i>
-                    <i class="ring r4"></i>
-                    <b class="core">☀</b>
-                    <span class="rays">
-                        ${Array.from({ length: 20 }, (_, i) =>
-                            `<u style="--i:${i}"></u>`
-                        ).join('')}
-                    </span>
-                </span>
-
-                <span class="ssv2-pet-mandala">
-                    <i class="ring r1"></i>
-                    <i class="ring r2"></i>
-                    <i class="ring r3"></i>
-                    <b></b>
-                </span>
-
-                <span class="ssv3-pet-glass-wing wing-left"></span>
-                <span class="ssv3-pet-glass-wing wing-right"></span>
-
-                <span class="ssv3-pet-wave wave-a"></span>
-                <span class="ssv3-pet-wave wave-b"></span>
-                <span class="ssv3-pet-wave wave-c"></span>
-
-                <span class="ssv2-pet-orbit orbit-a"></span>
-                <span class="ssv2-pet-orbit orbit-b"></span>
-                <span class="ssv2-pet-caustic caustic-a"></span>
-                <span class="ssv2-pet-caustic caustic-b"></span>
-
-                <span class="ssv3-pet-crown">
-                    <i></i><b>✦</b><i></i>
-                </span>
-
-                <span class="ssv3-pet-pedestal">
-                    <i class="mirror"></i>
-                    <i class="gold-line"></i>
-                </span>
-
-                <span class="ssv2-pet-motes"></span>
-                <span class="ssv3-pet-fireflies"></span>
-                <span class="ssv3-pet-sunseeds"></span>
-            `;
-
-            const moteField = realm.querySelector('.ssv2-pet-motes');
-            const fireflyField = realm.querySelector('.ssv3-pet-fireflies');
-            const seedField = realm.querySelector('.ssv3-pet-sunseeds');
-            const orbField = realm.querySelector('.ssv4-pet-orb-field');
-            const dropletField = realm.querySelector('.ssv4-pet-droplet-field');
-
-            for (let index = 0; index < 16; index++) {
-                const mote = document.createElement('i');
-                mote.className = index % 4 === 0 ? 'is-aqua' : '';
-                mote.style.setProperty('--mi', String(index));
-                mote.style.setProperty('--mx', `${8 + (index * 29) % 85}%`);
-                mote.style.setProperty('--my', `${8 + (index * 47) % 82}%`);
-                moteField?.appendChild(mote);
-            }
-
-            for (let index = 0; index < 18; index++) {
-                const firefly = document.createElement('i');
-                firefly.className = index % 6 === 0 ? 'is-aqua' : '';
-                firefly.style.setProperty('--pfx', `${4 + (index * 37) % 92}%`);
-                firefly.style.setProperty('--pfy', `${7 + (index * 53) % 84}%`);
-                firefly.style.setProperty('--pfd', `${3.6 + (index % 6) * .55}s`);
-                firefly.style.setProperty('--pfdelay', `${-(index % 9) * .47}s`);
-                fireflyField?.appendChild(firefly);
-            }
-
-            for (let index = 0; index < 11; index++) {
-                const seed = document.createElement('i');
-                seed.style.setProperty('--psi', String(index));
-                seed.style.setProperty('--psx', `${8 + (index * 43) % 83}%`);
-                seed.style.setProperty('--psy', `${12 + (index * 31) % 74}%`);
-                seed.style.setProperty('--psdelay', `${-(index % 7) * .5}s`);
-                seedField?.appendChild(seed);
-            }
-
-            // V4 · 16 quang châu chạy quỹ đạo quanh nhân vật.
-            for (let index = 0; index < 16; index++) {
-                const orb = document.createElement('i');
-
-                orb.className =
-                    index % 5 === 0
-                        ? 'is-aqua'
-                        : (
-                            index % 4 === 0
-                                ? 'is-coral'
-                                : 'is-gold'
-                        );
-
-                orb.style.setProperty(
-                    '--ssv4-orb-angle',
-                    `${index * 22.5}deg`
-                );
-                orb.style.setProperty(
-                    '--ssv4-orb-distance',
-                    `${72 + (index % 4) * 14}px`
-                );
-                orb.style.setProperty(
-                    '--ssv4-orb-size',
-                    `${3 + (index % 3) * 1.2}px`
-                );
-                orb.style.setProperty(
-                    '--ssv4-orb-delay',
-                    `${-(index % 8) * .38}s`
-                );
-
-                orbField?.appendChild(orb);
-            }
-
-            // V4 · giọt thủy quang lơ lửng quanh chân và hai bên pet.
-            for (let index = 0; index < 12; index++) {
-                const drop = document.createElement('i');
-
-                drop.className =
-                    index % 4 === 0
-                        ? 'is-gold'
-                        : 'is-aqua';
-
-                drop.style.setProperty(
-                    '--ssv4-drop-x',
-                    `${7 + (index * 41) % 86}%`
-                );
-                drop.style.setProperty(
-                    '--ssv4-drop-y',
-                    `${18 + (index * 37) % 70}%`
-                );
-                drop.style.setProperty(
-                    '--ssv4-drop-delay',
-                    `${-(index % 7) * .46}s`
-                );
-                drop.style.setProperty(
-                    '--ssv4-drop-drift',
-                    `${index % 2 === 0 ? -10 : 10}px`
-                );
-
-                dropletField?.appendChild(drop);
-            }
-
-            container.insertBefore(realm, pet);
-
-            /*
-             * V4 · FOREGROUND SPARKLES:
-             * Realm nền luôn nằm sau pet. Lớp này được đặt SAU ảnh pet
-             * để vài ánh kim/giọt nước thật sự lướt phía trước nhân vật,
-             * tạo cảm giác "bao quanh" thay vì chỉ là vòng tròn ở sau lưng.
-             */
-            const foreground = document.createElement('div');
-            foreground.className =
-                'summer-solstice-pet-realm summer-solstice-pet-foreground-v4 ui-theme-immune';
-            foreground.dataset.themeImmune = 'true';
-            foreground.setAttribute('aria-hidden', 'true');
-
-            foreground.innerHTML = `
-                <span class="ssv4-pet-front-glints"></span>
-                <span class="ssv4-pet-front-drops"></span>
-                <span class="ssv4-pet-front-streak streak-a"></span>
-                <span class="ssv4-pet-front-streak streak-b"></span>
-            `;
-
-            const frontGlints =
-                foreground.querySelector('.ssv4-pet-front-glints');
-
-            const frontDrops =
-                foreground.querySelector('.ssv4-pet-front-drops');
-
-            for (let index = 0; index < 10; index++) {
-                const glint = document.createElement('i');
-
-                glint.style.setProperty(
-                    '--ssv4-fgx',
-                    `${12 + (index * 43) % 77}%`
-                );
-                glint.style.setProperty(
-                    '--ssv4-fgy',
-                    `${15 + (index * 31) % 67}%`
-                );
-                glint.style.setProperty(
-                    '--ssv4-fgdelay',
-                    `${-(index % 6) * .41}s`
-                );
-
-                frontGlints?.appendChild(glint);
-            }
-
-            for (let index = 0; index < 7; index++) {
-                const drop = document.createElement('i');
-
-                drop.style.setProperty(
-                    '--ssv4-fdx',
-                    `${17 + (index * 47) % 69}%`
-                );
-                drop.style.setProperty(
-                    '--ssv4-fdy',
-                    `${25 + (index * 29) % 58}%`
-                );
-                drop.style.setProperty(
-                    '--ssv4-fddelay',
-                    `${-(index % 5) * .52}s`
-                );
-
-                frontDrops?.appendChild(drop);
-            }
-
-            pet.insertAdjacentElement('afterend', foreground);
-
-            window.setTimeout(() => {
-                container?.classList.remove('summer-solstice-awakening');
-            }, 1450);
-
-            return true;
-        },
-
-        createClickBurst(x, y, strong = false) {
-            const burst = document.createElement('span');
-            burst.className =
-                strong
-                    ? 'summer-solstice-click-burst is-strong is-v3 ui-theme-immune'
-                    : 'summer-solstice-click-burst is-v3 ui-theme-immune';
-
-            burst.dataset.themeImmune = 'true';
-            burst.style.left = `${x}px`;
-            burst.style.top = `${y}px`;
-
-            burst.innerHTML = `
-                <b class="ssv3-click-core"></b>
-                <b class="ssv3-click-ring ring-a"></b>
-                <b class="ssv3-click-ring ring-b"></b>
-                <u class="ssv3-click-wave"></u>
-            `;
-
-            const count = strong ? 22 : 12;
-
-            for (let index = 0; index < count; index++) {
-                const spark = document.createElement('i');
-                spark.className =
-                    index % 6 === 0
-                        ? 'is-aqua'
-                        : (
-                            index % 5 === 0
-                                ? 'is-prism'
-                                : ''
-                        );
-
-                spark.style.setProperty(
-                    '--ssv2-click-angle',
-                    `${index * (360 / count)}deg`
-                );
-                spark.style.setProperty(
-                    '--ssv2-click-distance',
-                    `${strong ? 62 + (index % 6) * 12 : 34 + (index % 5) * 7}px`
-                );
-                spark.style.setProperty(
-                    '--ssv2-click-delay',
-                    `${(index % 5) * .022}s`
-                );
-                burst.appendChild(spark);
-            }
-
-            document.body.appendChild(burst);
-
-            window.setTimeout(() => {
-                burst.remove();
-            }, strong ? 1320 : 880);
-        },
-
-        installGlobalClick() {
-            if (this.globalClickHandler) {
-                return;
-            }
-
-            this.globalClickHandler = event => {
-                if (
-                    !document.documentElement.classList.contains(
-                        'summer-solstice-equipped'
-                    )
-                ) {
-                    return;
-                }
-
-                const target =
-                    event.target instanceof Element
-                        ? event.target
-                        : null;
-
-                if (
-                    target?.closest(
-                        '#virtual-pet-img.premium-summer-solstice-magic,' +
-                        '.pet-close-btn'
-                    )
-                ) {
-                    return;
-                }
-
-                this.createClickBurst(
-                    event.clientX,
-                    event.clientY,
-                    false
-                );
-            };
-
-            document.addEventListener(
-                'pointerdown',
-                this.globalClickHandler,
-                true
-            );
-        },
-
-        createDragTrail(x, y) {
-            const trail = document.createElement('span');
-            const roll = Math.random();
-            trail.className =
-                roll < .28
-                    ? 'summer-solstice-drag-trail is-water ui-theme-immune'
-                    : (
-                        roll < .44
-                            ? 'summer-solstice-drag-trail is-prism ui-theme-immune'
-                            : 'summer-solstice-drag-trail ui-theme-immune'
-                    );
-
-            trail.dataset.themeImmune = 'true';
-            trail.style.left = `${x + (Math.random() * 26 - 13)}px`;
-            trail.style.top = `${y + (Math.random() * 22 - 11)}px`;
-            trail.style.setProperty('--ssv2-trail-drift-x', `${Math.random() * 62 - 31}px`);
-            trail.style.setProperty('--ssv2-trail-drift-y', `${18 + Math.random() * 42}px`);
-            trail.style.setProperty('--ssv3-trail-turn', `${Math.random() * 120 - 60}deg`);
-
-            document.body.appendChild(trail);
-
-            window.setTimeout(() => {
-                trail.remove();
-            }, 1280);
-        },
-
-        createScreenBurst(originX, originY) {
-            document
-                .querySelectorAll('.summer-solstice-screen-burst-v3')
-                .forEach(node => node.remove());
-
-            const burst = document.createElement('div');
-            burst.className =
-                'summer-solstice-screen-burst-v3 ui-theme-immune';
-            burst.dataset.themeImmune = 'true';
-            burst.setAttribute('aria-hidden', 'true');
-            burst.style.setProperty('--ssv3-burst-x', `${originX}px`);
-            burst.style.setProperty('--ssv3-burst-y', `${originY}px`);
-
-            burst.innerHTML = `
-                <div class="ssv3-burst-dim"></div>
-                <div class="ssv3-burst-origin">
-                    <span class="core"></span>
-                    <span class="ring ring-a"></span>
-                    <span class="ring ring-b"></span>
-                    <span class="ring ring-c"></span>
-                    <div class="rays">
-                        ${Array.from({ length: 18 }, (_, i) =>
-                            `<i style="--i:${i}"></i>`
-                        ).join('')}
-                    </div>
-                </div>
-                <span class="ssv3-burst-wave wave-a"></span>
-                <span class="ssv3-burst-wave wave-b"></span>
-                <span class="ssv3-burst-wave wave-c"></span>
-                <span class="ssv3-burst-wave wave-d"></span>
-                <div class="ssv3-burst-prism prism-a"></div>
-                <div class="ssv3-burst-prism prism-b"></div>
-                <div class="ssv3-burst-particles"></div>
-                <div class="ssv3-burst-shards"></div>
-                <div class="ssv3-burst-caption">
-                    <small>HẠ NHẬT THỨC TỈNH</small>
-                    <strong>NHẬT QUANG · THỦY KÍNH</strong>
-                </div>
-            `;
-
-            const particles = burst.querySelector('.ssv3-burst-particles');
-            const shards = burst.querySelector('.ssv3-burst-shards');
-            const mobile = window.matchMedia?.(
-                '(max-width: 768px), (pointer: coarse)'
-            ).matches;
-
-            const particleCount = getLuxuryQualityCount(mobile ? 18 : 34);
-            const shardCount = getLuxuryQualityCount(mobile ? 8 : 16);
-
-            for (let index = 0; index < particleCount; index++) {
-                const particle = document.createElement('span');
-                particle.className = index % 6 === 0 ? 'is-aqua' : '';
-                particle.style.setProperty('--ba', `${index * (360 / particleCount)}deg`);
-                particle.style.setProperty('--bd', `${85 + (index % 9) * 24}px`);
-                particle.style.setProperty('--bs', `${3 + (index % 5) * 1.1}px`);
-                particle.style.setProperty('--bdelay', `${(index % 8) * .018}s`);
-                particles?.appendChild(particle);
-            }
-
-            for (let index = 0; index < shardCount; index++) {
-                const shard = document.createElement('i');
-                shard.style.setProperty('--sha', `${index * (360 / shardCount) + 11}deg`);
-                shard.style.setProperty('--shd', `${110 + (index % 6) * 34}px`);
-                shard.style.setProperty('--shdelay', `${(index % 6) * .03}s`);
-                shard.style.setProperty('--shrot', `${-45 + (index % 7) * 18}deg`);
-                shards?.appendChild(shard);
-            }
-
-            document.body.appendChild(burst);
-            requestAnimationFrame(() => burst.classList.add('is-active'));
-
-            this.setRepairTimer(() => {
-                burst.classList.add('is-ending');
-            }, 1700);
-
-            this.setRepairTimer(() => {
-                burst.remove();
-            }, 2250);
-        },
-
-        createUltimate(originX, originY) {
-            document
-                .querySelectorAll('.summer-solstice-ultimate')
-                .forEach(node => node.remove());
-
-            const ultimate = document.createElement('div');
-            ultimate.className =
-                'summer-solstice-ultimate summer-solstice-ultimate-v3 ui-theme-immune';
-            ultimate.dataset.themeImmune = 'true';
-            ultimate.setAttribute('aria-hidden', 'true');
-            ultimate.style.setProperty('--ssv2-origin-x', `${originX}px`);
-            ultimate.style.setProperty('--ssv2-origin-y', `${originY}px`);
-
-            ultimate.innerHTML = `
-                <div class="ssv2-ult-dim"></div>
-                <div class="ssv3-ult-sky"></div>
-                <div class="ssv3-ult-vignette"></div>
-
-                <div class="ssv2-ult-origin">
-                    <span class="ssv2-ult-origin-core"></span>
-                    <span class="ssv2-ult-origin-ring ring-a"></span>
-                    <span class="ssv2-ult-origin-ring ring-b"></span>
-                </div>
-
-                <div class="ssv3-ult-origin-crown">
-                    <span class="core">✦</span>
-                    <span class="ring ring-a"></span>
-                    <span class="ring ring-b"></span>
-                    <span class="ring ring-c"></span>
-                </div>
-
-                <div class="ssv2-ult-sun">
-                    <span class="core"></span>
-                    <i class="ring ring-a"></i>
-                    <i class="ring ring-b"></i>
-                    <i class="ring ring-c"></i>
-                    <div class="spokes">
-                        ${Array.from({ length: 16 }, (_, i) =>
-                            `<b style="--i:${i}"></b>`
-                        ).join('')}
-                    </div>
-                </div>
-
-                <div class="ssv3-ult-astrolabe">
-                    <span class="core"><b>☀</b><i></i></span>
-                    <span class="ring ring-a"></span>
-                    <span class="ring ring-b"></span>
-                    <span class="ring ring-c"></span>
-                    <span class="ring ring-d"></span>
-                    <span class="ring ring-e"></span>
-                    <div class="rays">
-                        ${Array.from({ length: 24 }, (_, i) =>
-                            `<i style="--i:${i}"></i>`
-                        ).join('')}
-                    </div>
-                    <div class="marks">
-                        ${Array.from({ length: 12 }, (_, i) =>
-                            `<b style="--i:${i}"></b>`
-                        ).join('')}
-                    </div>
-                </div>
-
-                <div class="ssv3-ult-light-pillar"></div>
-                <div class="ssv3-ult-halo halo-a"></div>
-                <div class="ssv3-ult-halo halo-b"></div>
-                <div class="ssv3-ult-halo halo-c"></div>
-
-                <div class="ssv3-ult-curtain curtain-a"></div>
-                <div class="ssv3-ult-curtain curtain-b"></div>
-                <div class="ssv3-ult-curtain curtain-c"></div>
-                <div class="ssv3-ult-curtain curtain-d"></div>
-
-                <div class="ssv2-ult-ripple ripple-a"></div>
-                <div class="ssv2-ult-ripple ripple-b"></div>
-                <div class="ssv2-ult-ripple ripple-c"></div>
-
-                <div class="ssv3-ult-wave-ring wave-a"></div>
-                <div class="ssv3-ult-wave-ring wave-b"></div>
-                <div class="ssv3-ult-wave-ring wave-c"></div>
-                <div class="ssv3-ult-wave-ring wave-d"></div>
-
-                <div class="ssv2-ult-ribbon ribbon-a"></div>
-                <div class="ssv2-ult-ribbon ribbon-b"></div>
-                <div class="ssv2-ult-ribbon ribbon-c"></div>
-
-                <div class="ssv3-ult-prism prism-a"></div>
-                <div class="ssv3-ult-prism prism-b"></div>
-                <div class="ssv3-ult-prism prism-c"></div>
-
-                <div class="ssv3-ult-mirror-sea">
-                    <span class="sea-line line-a"></span>
-                    <span class="sea-line line-b"></span>
-                    <span class="sea-line line-c"></span>
-                    <span class="sea-line line-d"></span>
-                    <span class="sea-line line-e"></span>
-                    <span class="reflection"></span>
-                </div>
-
-                <div class="ssv2-ult-caustic"></div>
-                <div class="ssv3-ult-caustic caustic-a"></div>
-                <div class="ssv3-ult-caustic caustic-b"></div>
-
-                <div class="ssv2-ult-starfield"></div>
-                <div class="ssv2-ult-petalfield"></div>
-                <div class="ssv3-ult-fireflies"></div>
-                <div class="ssv3-ult-sunseeds"></div>
-                <div class="ssv3-ult-shards"></div>
-                <div class="ssv3-ult-water-sparks"></div>
-
-                <div class="ssv3-ult-title-frame">
-                    <span class="ornament ornament-left"></span>
-                    <div class="ssv2-ult-title">
-                        <small>HẠ NHẬT THẦN VỰC · GOLDEN SOLSTICE</small>
-                        <strong>NHẬT DIỆU · LƯU KIM</strong>
-                        <em>Kim quang kết hạ · thủy kính lưu huy · vạn điểm tinh quang</em>
-                    </div>
-                    <span class="ornament ornament-right"></span>
-                </div>
-            `;
-
-            const starField = ultimate.querySelector('.ssv2-ult-starfield');
-            const petalField = ultimate.querySelector('.ssv2-ult-petalfield');
-            const fireflyField = ultimate.querySelector('.ssv3-ult-fireflies');
-            const seedField = ultimate.querySelector('.ssv3-ult-sunseeds');
-            const shardField = ultimate.querySelector('.ssv3-ult-shards');
-            const waterField = ultimate.querySelector('.ssv3-ult-water-sparks');
-
-            const mobile = window.matchMedia?.(
-                '(max-width: 768px), (pointer: coarse)'
-            ).matches;
-
-            const starCount = getLuxuryQualityCount(mobile ? 26 : 54);
-            const petalCount = getLuxuryQualityCount(mobile ? 14 : 28);
-            const fireflyCount = getLuxuryQualityCount(mobile ? 20 : 46);
-            const seedCount = getLuxuryQualityCount(mobile ? 18 : 38);
-            const shardCount = getLuxuryQualityCount(mobile ? 10 : 24);
-            const waterCount = getLuxuryQualityCount(mobile ? 14 : 32);
-
-            for (let index = 0; index < starCount; index++) {
-                const star = document.createElement('span');
-                star.className =
-                    index % 6 === 0
-                        ? 'is-aqua'
-                        : (
-                            index % 4 === 0
-                                ? 'is-star'
-                                : ''
-                        );
-                star.style.setProperty('--ua', `${index * (360 / starCount)}deg`);
-                star.style.setProperty('--ud', `${130 + (index % 10) * 30}px`);
-                star.style.setProperty('--us', `${3 + (index % 5) * 1.25}px`);
-                star.style.setProperty('--udel', `${(index % 9) * .022}s`);
-                starField?.appendChild(star);
-            }
-
-            for (let index = 0; index < petalCount; index++) {
-                const petal = document.createElement('span');
-                petal.className = index % 5 === 0 ? 'is-aqua' : '';
-                petal.style.setProperty('--px', `${4 + (index * 43) % 92}%`);
-                petal.style.setProperty('--pdelay', `${(index % 8) * .065}s`);
-                petal.style.setProperty('--prot', `${-45 + (index % 11) * 17}deg`);
-                petal.style.setProperty('--pdrift', `${-80 + (index % 10) * 18}px`);
-                petalField?.appendChild(petal);
-            }
-
-            for (let index = 0; index < fireflyCount; index++) {
-                const firefly = document.createElement('span');
-                firefly.className = index % 8 === 0 ? 'is-aqua' : '';
-                firefly.style.setProperty('--ufx', `${3 + (index * 47) % 94}%`);
-                firefly.style.setProperty('--ufy', `${5 + (index * 61) % 86}%`);
-                firefly.style.setProperty('--ufs', `${2 + (index % 5) * .95}px`);
-                firefly.style.setProperty('--ufd', `${3.4 + (index % 7) * .52}s`);
-                firefly.style.setProperty('--ufdelay', `${(index % 12) * .05}s`);
-                fireflyField?.appendChild(firefly);
-            }
-
-            for (let index = 0; index < seedCount; index++) {
-                const seed = document.createElement('span');
-                seed.className =
-                    index % 6 === 0
-                        ? 'is-coral'
-                        : (
-                            index % 5 === 0
-                                ? 'is-aqua'
-                                : ''
-                        );
-                seed.style.setProperty('--usx', `${2 + (index * 53) % 96}%`);
-                seed.style.setProperty('--usd', `${3.6 + (index % 7) * .42}s`);
-                seed.style.setProperty('--usdelay', `${(index % 11) * .045}s`);
-                seed.style.setProperty('--usdrift', `${-90 + (index % 11) * 18}px`);
-                seed.style.setProperty('--usrot', `${-60 + (index % 13) * 19}deg`);
-                seedField?.appendChild(seed);
-            }
-
-            for (let index = 0; index < shardCount; index++) {
-                const shard = document.createElement('span');
-                shard.style.setProperty('--ushx', `${5 + (index * 67) % 90}%`);
-                shard.style.setProperty('--ushy', `${9 + (index * 41) % 72}%`);
-                shard.style.setProperty('--ushs', `${12 + (index % 6) * 6}px`);
-                shard.style.setProperty('--ushdelay', `${(index % 8) * .05}s`);
-                shard.style.setProperty('--ushrot', `${-40 + (index % 9) * 15}deg`);
-                shardField?.appendChild(shard);
-            }
-
-            for (let index = 0; index < waterCount; index++) {
-                const spark = document.createElement('span');
-                spark.style.setProperty('--uwx', `${3 + (index * 31) % 94}%`);
-                spark.style.setProperty('--uwy', `${61 + (index * 17) % 31}%`);
-                spark.style.setProperty('--uwdelay', `${(index % 10) * .05}s`);
-                spark.style.setProperty('--uws', `${7 + (index % 5) * 3}px`);
-                waterField?.appendChild(spark);
-            }
-
-            document.body.appendChild(ultimate);
-            document.documentElement.classList.add(
-                'summer-solstice-skill-active'
-            );
-
-            requestAnimationFrame(() => {
-                ultimate.classList.add('is-active');
-            });
-
-            this.setRepairTimer(() => {
-                ultimate.classList.add('is-climax');
-            }, 980);
-
-            this.setRepairTimer(() => {
-                ultimate.classList.add('is-second-climax');
-            }, 2050);
-
-            this.setRepairTimer(() => {
-                ultimate.classList.add('is-ending');
-            }, 4550);
-
-            this.setRepairTimer(() => {
-                ultimate.remove();
-                document.documentElement.classList.remove(
-                    'summer-solstice-skill-active'
-                );
-            }, 5650);
-        },
-
-        installPetSkill() {
-            const container =
-                document.getElementById('virtual-pet-container');
-            const pet = this.getPet();
-
-            if (!container || !pet) {
-                return false;
-            }
-
-            if (
-                this.activePetElement === pet &&
-                this.petClickHandler
-            ) {
-                return true;
-            }
-
-            if (this.activePetElement && this.petClickHandler) {
-                this.activePetElement.removeEventListener(
-                    'click',
-                    this.petClickHandler
-                );
-            }
-
-            this.activePetElement = pet;
-
-            this.petPointerDownHandler = event => {
-                this.dragState = {
-                    pointerId: event.pointerId,
-                    startX: event.clientX,
-                    startY: event.clientY,
-                    moved: false,
-                    active: true
-                };
-            };
-
-            this.petPointerMoveHandler = event => {
-                const state = this.dragState;
-
-                if (!state?.active || state.pointerId !== event.pointerId) {
-                    return;
-                }
-
-                const distance =
-                    Math.abs(event.clientX - state.startX) +
-                    Math.abs(event.clientY - state.startY);
-
-                if (distance > 7) {
-                    state.moved = true;
-                }
-
-                if (state.moved && Math.random() < .72) {
-                    this.createDragTrail(event.clientX, event.clientY);
-                }
-            };
-
-            this.petPointerUpHandler = event => {
-                if (this.dragState?.pointerId === event.pointerId) {
-                    const moved = this.dragState.moved;
-                    this.dragState.active = false;
-
-                    if (moved) {
-                        this.setRepairTimer(() => {
-                            if (this.dragState) {
-                                this.dragState.moved = false;
-                            }
-                        }, 80);
-                    }
-                }
-            };
-
-            this.petClickHandler = event => {
-                if (this.dragState?.moved) {
-                    this.dragState.moved = false;
-                    return;
-                }
-
-                if (
-                    this.skillLocked ||
-                    !document.documentElement.classList.contains(
-                        'summer-solstice-equipped'
-                    )
-                ) {
-                    return;
-                }
-
-                if (
-                    typeof PetInteractionManager !== 'undefined' &&
-                    PetInteractionManager.isPetDragging
-                ) {
-                    return;
-                }
-
-                this.skillLocked = true;
-                event.preventDefault();
-                event.stopPropagation();
-
-                const rect = pet.getBoundingClientRect();
-                const originX =
-                    Number.isFinite(event.clientX) && event.clientX > 0
-                        ? event.clientX
-                        : rect.left + rect.width / 2;
-                const originY =
-                    Number.isFinite(event.clientY) && event.clientY > 0
-                        ? event.clientY
-                        : rect.top + rect.height / 2;
-
-                container.classList.remove(
-                    'summer-solstice-casting',
-                    'summer-solstice-v3-casting'
-                );
-                void container.offsetWidth;
-                container.classList.add(
-                    'summer-solstice-casting',
-                    'summer-solstice-v3-casting'
-                );
-
-                this.createClickBurst(originX, originY, true);
-                this.createScreenBurst(originX, originY);
-
-                const realm = container.querySelector(
-                    '.summer-solstice-pet-realm'
-                );
-
-                const localBurst = document.createElement('span');
-                localBurst.className =
-                    'summer-solstice-local-burst summer-solstice-local-burst-v3 ui-theme-immune';
-                localBurst.dataset.themeImmune = 'true';
-                localBurst.innerHTML = `
-                    <b class="ssv3-local-core">☀</b>
-                    <span class="ssv3-local-ring ring-a"></span>
-                    <span class="ssv3-local-ring ring-b"></span>
-                    <span class="ssv3-local-rays">
-                        ${Array.from({ length: 12 }, (_, i) =>
-                            `<i style="--i:${i}"></i>`
-                        ).join('')}
-                    </span>
-                    <span class="ssv3-local-particles"></span>
-                `;
-
-                const localParticles =
-                    localBurst.querySelector('.ssv3-local-particles');
-                for (let index = 0; index < 20; index++) {
-                    const particle = document.createElement('i');
-                    particle.className = index % 5 === 0 ? 'is-aqua' : '';
-                    particle.style.setProperty('--la', `${index * 18}deg`);
-                    particle.style.setProperty('--ld', `${45 + (index % 7) * 13}px`);
-                    particle.style.setProperty('--ldelay', `${(index % 6) * .02}s`);
-                    localParticles?.appendChild(particle);
-                }
-                realm?.appendChild(localBurst);
-
-                const dialogue = document.createElement('div');
-                dialogue.className =
-                    'summer-solstice-pet-dialogue ui-theme-immune';
-                dialogue.dataset.themeImmune = 'true';
-                dialogue.innerHTML = `
-                    <small>☀ HẠ NHẬT THỨC TỈNH · SOLSTICE AWAKENING</small>
-                    <strong>NHẬT DIỆU · LƯU KIM</strong>
-                    <em>Kim quang soi thủy kính · hạ giới vạn điểm lưu huy</em>
-                `;
-                container.appendChild(dialogue);
-
-                this.createUltimate(originX, originY);
-
-                this.setRepairTimer(() => {
-                    container.classList.remove(
-                        'summer-solstice-casting',
-                        'summer-solstice-v3-casting'
-                    );
-                    localBurst.remove();
-                    dialogue.remove();
-                }, 4550);
-
-                this.setRepairTimer(() => {
-                    this.skillLocked = false;
-                }, 5900);
-            };
-
-            pet.addEventListener('pointerdown', this.petPointerDownHandler);
-            document.addEventListener('pointermove', this.petPointerMoveHandler);
-            document.addEventListener('pointerup', this.petPointerUpHandler);
-            document.addEventListener('pointercancel', this.petPointerUpHandler);
-            pet.addEventListener('click', this.petClickHandler);
-
-            return true;
-        },
-
-        installObserver() {
-            const container =
-                document.getElementById('virtual-pet-container');
-
-            if (!container) {
-                return;
-            }
-
-            if (this.observer) {
-                this.observer.disconnect();
-            }
-
-            this.observer = new MutationObserver(() => {
-                if (this.observerTimer) {
-                    window.clearTimeout(this.observerTimer);
-                }
-
-                this.observerTimer = window.setTimeout(() => {
-                    this.observerTimer = null;
-
-                    const activePet = this.getPet();
-                    const activePetId = localStorage.getItem('active_pet');
-
-                    if (
-                        !activePet &&
-                        activePetId !== 'pet_luxury_mua_ha'
-                    ) {
-                        this.clear();
-                        return;
-                    }
-
-                    if (activePet) {
-                        this.repair();
-                    }
-                }, 140);
-            });
-
-            this.observer.observe(
-                container,
-                {
-                    childList: true,
-                    subtree: true,
-                    attributes: true,
-                    attributeFilter: ['class', 'style']
-                }
-            );
-        },
-
-        promoteStylesheetPriority() {
-            const head = document.head;
-
-            if (!head) {
-                return;
-            }
-
-            document
-                .querySelectorAll('link[rel="stylesheet"], style')
-                .forEach(node => {
-                    const href =
-                        node instanceof HTMLLinkElement
-                            ? String(node.href || '')
-                            : '';
-
-                    const isSummerStylesheet =
-                        /premium-mua-xuan|premium-bon-mua-xuan-ha/i.test(href) ||
-                        (
-                            node instanceof HTMLStyleElement &&
-                            String(node.textContent || '').includes(
-                                '.summer-solstice-equipped'
-                            )
-                        );
-
-                    if (isSummerStylesheet && node.parentNode === head) {
-                        head.appendChild(node);
-                    }
-                });
-        },
-
-        repair() {
-            if (
-                !document.documentElement.classList.contains(
-                    'summer-solstice-equipped'
-                )
-            ) {
-                return;
-            }
-
-            const pet = this.getPet();
-
-            if (!pet) {
-                return;
-            }
-
-            if (!document.querySelector('.summer-solstice-world')) {
-                this.createWorld();
-            }
-
-            if (!document.querySelector('.summer-solstice-ui-frame')) {
-                this.createInterface();
-            }
-
-            if (
-                !document.querySelector(
-                    '#virtual-pet-container .summer-solstice-pet-realm'
-                )
-            ) {
-                this.createPetRealm();
-            }
-
-            if (this.activePetElement !== pet || !this.petClickHandler) {
-                this.installPetSkill();
-            }
-
-            if (!this.globalClickHandler) {
-                this.installGlobalClick();
-            }
-        },
-
-        mount() {
-            this.clear();
-
-            const pet = this.getPet();
-
-            if (!pet) {
-                return false;
-            }
-
-            document.documentElement.classList.add(
-                'summer-solstice-equipped',
-                'summer-solstice-v3-equipped'
-            );
-            document.body?.classList.add(
-                'theme-summer-solstice-stage'
-            );
-
-            this.promoteStylesheetPriority();
-            this.createWorld();
-            this.createInterface();
-            this.createPetRealm();
-            this.installGlobalClick();
-            this.installPetSkill();
-            this.installObserver();
-
-            [120, 420, 900, 1600, 2800].forEach(delay => {
-                this.setRepairTimer(() => {
-                    this.repair();
-                }, delay);
-            });
-
-            return true;
-        },
-
-        restore(attempt = 0) {
-            const activePetId = localStorage.getItem('active_pet');
-            const hasSummerPet = !!this.getPet();
-
-            if (
-                activePetId !== 'pet_luxury_mua_ha' &&
-                !hasSummerPet
-            ) {
-                return;
-            }
-
-            if (this.mount()) {
-                return;
-            }
-
-            if (attempt < 24) {
-                this.setRepairTimer(() => {
-                    this.restore(attempt + 1);
-                }, 160 + attempt * 35);
-            }
-        }
+        timers:new Set(), sceneLocked10:false,
+        design10(){return LUX_CONFIG10.summer;},
+        setTimer(fn,ms){const t=setTimeout(()=>{this.timers.delete(t);fn();},ms);this.timers.add(t);return t;},
+        getPet(){return document.querySelector('#virtual-pet-img.premium-summer-solstice-magic');},
+        clear(){clearLuxuryScene10(this);this.timers.forEach(clearTimeout);this.timers.clear();document.documentElement.classList.remove('summer-solstice-equipped');this.activePetElement?.classList.remove('summer-solstice-pet');document.getElementById('virtual-pet-container')?.classList.remove('pet-summer-solstice-stage');this.activePetElement=null;},
+        createWorld(){document.querySelectorAll('.summer-solstice-world').forEach(n=>n.remove());document.documentElement.classList.add('lux10-summer-equipped');luxuryScene10(this,'world').classList.add('summer-solstice-world');},
+        createInterface(){const n=document.createElement('div');n.className='lux10-interface lux10-summer summer-solstice-ui-frame';n.dataset.scene10='summer';n.setAttribute('aria-hidden','true');n.innerHTML='<i></i><b></b>';document.body.appendChild(n);},
+        createPetRealm(){return luxuryPet10(this);},
+        installPetSkill(){return luxuryPet10(this);},
+        createScreenBurst(x,y){return this.createPageClick(x,y);},
+        createPageClick(x,y){if(!document.documentElement.classList.contains('summer-solstice-equipped'))return;return luxuryTapBloom11(this,'summer',x,y);},
+        createUltimate(x,y){return luxuryUltimate10(this,x,y);},
+        mount(){this.clear();const pet=this.getPet(),box=pet?.closest('#virtual-pet-container');if(!pet||box.hidden||box.style.display==='none')return false;this.activePetElement=pet;document.documentElement.classList.add('summer-solstice-equipped');this.createWorld();this.createInterface();this.createPetRealm();installLuxuryGestures10(this,'summer','summer-solstice-equipped',(x,y)=>this.createPageClick(x,y));return true;},
+        restore(){if(this.getPet())return this.mount();return false;}
     };
 
-
-
-    // ========================================================
-    // MÙA THU · XÍCH DIỆP HOÀNG HÔN — FULL WEB RUNTIME
-    // Namespace chỉ dùng autumn-equinox-* / aev1-*.
-    // Không gọi ThemeManager / EffectManager, không ghi active_theme/effect.
-    // Khi gỡ pet, theme/effect đang có bên dưới tự hiện lại bình thường.
-    // ========================================================
-    const LuxuryAutumnRuntime = {
-        activePetElement: null,
-        petClickHandler: null,
-        globalClickHandler: null,
-        observer: null,
-        observerTimer: null,
-        timers: new Set(),
-        skillLocked: false,
-
-        setTimer(callback, delay) {
-            const timer = window.setTimeout(() => {
-                this.timers.delete(timer);
-                callback();
-            }, delay);
-            this.timers.add(timer);
-            return timer;
-        },
-
-        clearTimers() {
-            this.timers.forEach(timer => window.clearTimeout(timer));
-            this.timers.clear();
-            if (this.observerTimer) {
-                window.clearTimeout(this.observerTimer);
-                this.observerTimer = null;
-            }
-        },
-
-        getPet() {
-            return document.querySelector(
-                '#virtual-pet-container #virtual-pet-img.premium-autumn-equinox-magic'
-            );
-        },
-
-        clear() {
-            this.clearTimers();
-
-            if (this.activePetElement && this.petClickHandler) {
-                this.activePetElement.removeEventListener(
-                    'click',
-                    this.petClickHandler
-                );
-            }
-
-            if (this.globalClickHandler) {
-                document.removeEventListener(
-                    'click',
-                    this.globalClickHandler,
-                    true
-                );
-            }
-
-            if (this.observer) {
-                this.observer.disconnect();
-                this.observer = null;
-            }
-
-            this.activePetElement = null;
-            this.petClickHandler = null;
-            this.globalClickHandler = null;
-            this.skillLocked = false;
-
-            document.documentElement.classList.remove(
-                'autumn-equinox-equipped',
-                'autumn-equinox-skill-active'
-            );
-
-            document.body?.classList.remove(
-                'theme-autumn-equinox-stage'
-            );
-
-            const container =
-                document.getElementById('virtual-pet-container');
-
-            container?.classList.remove(
-                'pet-autumn-equinox-stage',
-                'autumn-equinox-awakening',
-                'autumn-equinox-casting'
-            );
-
-            document
-                .querySelectorAll(
-                    '.autumn-equinox-world,' +
-                    '.autumn-equinox-ui-frame,' +
-                    '.autumn-equinox-ultimate,' +
-                    '.autumn-equinox-click-burst,' +
-                    '.autumn-equinox-dialogue,' +
-                    '.autumn-equinox-pet-realm'
-                )
-                .forEach(node => node.remove());
-        },
-
-        promoteStylesheetPriority() {
-            const head = document.head;
-            if (!head) return;
-
-            document
-                .querySelectorAll('link[rel="stylesheet"], style')
-                .forEach(node => {
-                    const href =
-                        node instanceof HTMLLinkElement
-                            ? String(node.href || '')
-                            : '';
-
-                    const isSeasonStylesheet =
-                        /premium-mua-xuan|premium-bon-mua/i.test(href) ||
-                        (
-                            node instanceof HTMLStyleElement &&
-                            String(node.textContent || '').includes(
-                                '.autumn-equinox-equipped'
-                            )
-                        );
-
-                    if (isSeasonStylesheet && node.parentNode === head) {
-                        head.appendChild(node);
-                    }
-                });
-        },
-
-        createWorld() {
-            document
-                .querySelectorAll('.autumn-equinox-world')
-                .forEach(node => node.remove());
-
-            const world = document.createElement('div');
-            world.className = 'autumn-equinox-world';
-            world.setAttribute('aria-hidden', 'true');
-            world.innerHTML = `
-                <div class="aev1-world-wash"></div>
-                <div class="aev1-moon-disc"><i></i></div>
-                <div class="aev1-horizon"></div>
-                <div class="aev1-mist mist-a"></div>
-                <div class="aev1-mist mist-b"></div>
-                <div class="aev1-leaf-field"></div>
-                <div class="aev1-ember-field"></div>
-            `;
-
-            const leafField = world.querySelector('.aev1-leaf-field');
-            const emberField = world.querySelector('.aev1-ember-field');
-            const reduced = window.matchMedia?.(
-                '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
-            ).matches;
-
-            const leafCount = getLuxuryQualityCount(reduced ? 14 : 34);
-            const leafGlyphs = ['◆', '◇', '✦', '❖'];
-
-            for (let index = 0; index < leafCount; index++) {
-                const leaf = document.createElement('span');
-                leaf.className = 'aev1-world-leaf';
-                leaf.textContent = leafGlyphs[index % leafGlyphs.length];
-                leaf.style.setProperty('--aev1-x', `${(index * 37 + 9) % 101}%`);
-                leaf.style.setProperty('--aev1-delay', `${-(index % 17) * .64}s`);
-                leaf.style.setProperty('--aev1-duration', `${8 + (index % 7) * 1.05}s`);
-                leaf.style.setProperty('--aev1-size', `${7 + (index % 6) * 2}px`);
-                leaf.style.setProperty('--aev1-drift', `${-46 + (index % 9) * 12}px`);
-                leafField?.appendChild(leaf);
-            }
-
-            const emberCount = getLuxuryQualityCount(reduced ? 10 : 24);
-            for (let index = 0; index < emberCount; index++) {
-                const ember = document.createElement('i');
-                ember.className = 'aev1-world-ember';
-                ember.style.setProperty('--aev1-ex', `${(index * 53 + 5) % 98}%`);
-                ember.style.setProperty('--aev1-ey', `${(index * 71 + 13) % 93}%`);
-                ember.style.setProperty('--aev1-edelay', `${-(index % 11) * .43}s`);
-                emberField?.appendChild(ember);
-            }
-
-            document.body.appendChild(world);
-            requestAnimationFrame(() => world.classList.add('is-active'));
-        },
-
-        createInterface() {
-            document
-                .querySelectorAll('.autumn-equinox-ui-frame')
-                .forEach(node => node.remove());
-
-            const frame = document.createElement('div');
-            frame.className = 'autumn-equinox-ui-frame';
-            frame.setAttribute('aria-hidden', 'true');
-            frame.innerHTML = `
-                <div class="aev1-ui-corner corner-tl">❖</div>
-                <div class="aev1-ui-corner corner-tr">❖</div>
-                <div class="aev1-ui-corner corner-bl">❖</div>
-                <div class="aev1-ui-corner corner-br">❖</div>
-                <div class="aev1-ui-rail rail-left"><i></i><b>◆</b><i></i></div>
-                <div class="aev1-ui-rail rail-right"><i></i><b>◆</b><i></i></div>
-                <div class="aev1-ui-seal">
-                    <small>AUTUMN EQUINOX</small>
-                    <strong>XÍCH DIỆP · HOÀNG HÔN</strong>
-                </div>
-            `;
-            document.body.appendChild(frame);
-            requestAnimationFrame(() => frame.classList.add('is-mounted'));
-        },
-
-        createPetRealm() {
-            const container =
-                document.getElementById('virtual-pet-container');
-            const pet = this.getPet();
-
-            if (!container || !pet) return false;
-
-            container
-                .querySelectorAll('.autumn-equinox-pet-realm')
-                .forEach(node => node.remove());
-
-            container.classList.add(
-                'pet-autumn-equinox-stage',
-                'autumn-equinox-awakening'
-            );
-
-            pet.setAttribute('draggable', 'false');
-
-            const realm = document.createElement('div');
-            realm.className = 'autumn-equinox-pet-realm';
-            realm.setAttribute('aria-hidden', 'true');
-            realm.innerHTML = `
-                <span class="aev1-pet-backglow"></span>
-                <span class="aev1-pet-ring ring-a"></span>
-                <span class="aev1-pet-ring ring-b"></span>
-                <span class="aev1-pet-branch branch-a"></span>
-                <span class="aev1-pet-branch branch-b"></span>
-                <span class="aev1-pet-leaves"></span>
-                <span class="aev1-pet-ground"></span>
-            `;
-
-            const leafHost = realm.querySelector('.aev1-pet-leaves');
-            for (let index = 0; index < 14; index++) {
-                const leaf = document.createElement('i');
-                leaf.style.setProperty('--i', String(index));
-                leafHost?.appendChild(leaf);
-            }
-
-            container.insertBefore(realm, pet);
-
-            this.setTimer(() => {
-                container.classList.remove('autumn-equinox-awakening');
-            }, 1500);
-
-            return true;
-        },
-
-        createClickBurst(x, y) {
-            const burst = document.createElement('div');
-            burst.className = 'autumn-equinox-click-burst';
-            burst.style.left = `${x}px`;
-            burst.style.top = `${y}px`;
-            burst.setAttribute('aria-hidden', 'true');
-
-            for (let index = 0; index < 9; index++) {
-                const leaf = document.createElement('i');
-                leaf.style.setProperty('--i', String(index));
-                burst.appendChild(leaf);
-            }
-
-            document.body.appendChild(burst);
-            this.setTimer(() => burst.remove(), 950);
-        },
-
-        installGlobalClick() {
-            if (this.globalClickHandler) {
-                document.removeEventListener(
-                    'click',
-                    this.globalClickHandler,
-                    true
-                );
-            }
-
-            this.globalClickHandler = event => {
-                if (
-                    !document.documentElement.classList.contains(
-                        'autumn-equinox-equipped'
-                    )
-                ) {
-                    return;
-                }
-
-                const target = event.target;
-                if (
-                    target instanceof Element &&
-                    target.closest(
-                        '.autumn-equinox-ultimate, #virtual-pet-img.premium-autumn-equinox-magic'
-                    )
-                ) {
-                    return;
-                }
-
-                this.createClickBurst(event.clientX, event.clientY);
-            };
-
-            document.addEventListener(
-                'click',
-                this.globalClickHandler,
-                true
-            );
-        },
-
-        createUltimate(originX = window.innerWidth / 2, originY = window.innerHeight / 2) {
-            document
-                .querySelectorAll('.autumn-equinox-ultimate')
-                .forEach(node => node.remove());
-
-            const ultimate = document.createElement('div');
-            ultimate.className = 'autumn-equinox-ultimate';
-            ultimate.style.setProperty('--aev1-ox', `${originX}px`);
-            ultimate.style.setProperty('--aev1-oy', `${originY}px`);
-            ultimate.setAttribute('aria-hidden', 'true');
-            ultimate.innerHTML = `
-                <div class="aev1-ult-flash"></div>
-                <div class="aev1-ult-vignette"></div>
-                <div class="aev1-ult-moon"><i></i><b></b></div>
-                <div class="aev1-ult-vortex"></div>
-                <div class="aev1-ult-leaves"></div>
-                <div class="aev1-ult-title">
-                    <small>THU PHÂN · EQUINOX AWAKENING</small>
-                    <strong>XÍCH DIỆP HOÀNG HÔN</strong>
-                    <em>Vạn diệp quy phong · kim thu nhập mộng</em>
-                </div>
-            `;
-
-            const leafHost = ultimate.querySelector('.aev1-ult-leaves');
-            for (let index = 0; index < 36; index++) {
-                const leaf = document.createElement('i');
-                leaf.style.setProperty('--i', String(index));
-                leafHost?.appendChild(leaf);
-            }
-
-            document.body.appendChild(ultimate);
-            document.documentElement.classList.add(
-                'autumn-equinox-skill-active'
-            );
-
-            requestAnimationFrame(() => ultimate.classList.add('is-active'));
-
-            this.setTimer(() => ultimate.classList.add('is-climax'), 900);
-            this.setTimer(() => ultimate.classList.add('is-ending'), 3600);
-            this.setTimer(() => {
-                ultimate.remove();
-                document.documentElement.classList.remove(
-                    'autumn-equinox-skill-active'
-                );
-            }, 5000);
-        },
-
-        installPetSkill() {
-            const pet = this.getPet();
-            const container =
-                document.getElementById('virtual-pet-container');
-
-            if (!pet || !container) return false;
-
-            if (this.activePetElement && this.petClickHandler) {
-                this.activePetElement.removeEventListener(
-                    'click',
-                    this.petClickHandler
-                );
-            }
-
-            this.activePetElement = pet;
-            this.petClickHandler = event => {
-                event.preventDefault();
-                event.stopPropagation();
-
-                if (this.skillLocked) return;
-                this.skillLocked = true;
-
-                const rect = pet.getBoundingClientRect();
-                const originX = rect.left + rect.width / 2;
-                const originY = rect.top + rect.height / 2;
-
-                container.classList.add('autumn-equinox-casting');
-
-                const dialogue = document.createElement('div');
-                dialogue.className = 'autumn-equinox-dialogue ui-theme-immune';
-                dialogue.dataset.themeImmune = 'true';
-                dialogue.innerHTML = `
-                    <small>◆ THU PHÂN THỨC TỈNH ◆</small>
-                    <strong>XÍCH DIỆP · HOÀNG HÔN</strong>
-                `;
-                container.appendChild(dialogue);
-
-                this.createUltimate(originX, originY);
-
-                this.setTimer(() => {
-                    container.classList.remove('autumn-equinox-casting');
-                    dialogue.remove();
-                }, 4200);
-
-                this.setTimer(() => {
-                    this.skillLocked = false;
-                }, 5200);
-            };
-
-            pet.addEventListener('click', this.petClickHandler);
-            return true;
-        },
-
-        repair() {
-            if (
-                !document.documentElement.classList.contains(
-                    'autumn-equinox-equipped'
-                )
-            ) {
-                return false;
-            }
-
-            const pet = this.getPet();
-            if (!pet) return false;
-
-            this.promoteStylesheetPriority();
-
-            if (!document.querySelector('.autumn-equinox-world')) {
-                this.createWorld();
-            }
-
-            if (!document.querySelector('.autumn-equinox-ui-frame')) {
-                this.createInterface();
-            }
-
-            if (
-                !document.querySelector(
-                    '#virtual-pet-container .autumn-equinox-pet-realm'
-                )
-            ) {
-                this.createPetRealm();
-            }
-
-            if (this.activePetElement !== pet || !this.petClickHandler) {
-                this.installPetSkill();
-            }
-
-            if (!this.globalClickHandler) {
-                this.installGlobalClick();
-            }
-
-            return true;
-        },
-
-        installObserver() {
-            const container =
-                document.getElementById('virtual-pet-container');
-            if (!container) return;
-
-            if (this.observer) this.observer.disconnect();
-
-            this.observer = new MutationObserver(() => {
-                if (this.observerTimer) {
-                    window.clearTimeout(this.observerTimer);
-                }
-
-                this.observerTimer = window.setTimeout(() => {
-                    this.observerTimer = null;
-                    const pet = this.getPet();
-                    const activePetId = localStorage.getItem('active_pet');
-
-                    if (
-                        !pet &&
-                        activePetId !== 'pet_luxury_mua_thu'
-                    ) {
-                        this.clear();
-                        return;
-                    }
-
-                    if (pet) this.repair();
-                }, 140);
-            });
-
-            this.observer.observe(container, {
-                childList: true,
-                subtree: true,
-                attributes: true,
-                attributeFilter: ['class', 'style']
-            });
-        },
-
-        mount() {
-            this.clear();
-
-            const pet = this.getPet();
-            if (!pet) return false;
-
-            document.documentElement.classList.add(
-                'autumn-equinox-equipped'
-            );
-            document.body?.classList.add(
-                'theme-autumn-equinox-stage'
-            );
-
-            this.promoteStylesheetPriority();
-            this.createWorld();
-            this.createInterface();
-            this.createPetRealm();
-            this.installGlobalClick();
-            this.installPetSkill();
-            this.installObserver();
-
-            [120, 420, 900, 1600].forEach(delay => {
-                this.setTimer(() => this.repair(), delay);
-            });
-
-            return true;
-        },
-
-        restore(attempt = 0) {
-            const activePetId = localStorage.getItem('active_pet');
-            const hasAutumnPet = !!this.getPet();
-
-            if (
-                activePetId !== 'pet_luxury_mua_thu' &&
-                !hasAutumnPet
-            ) {
-                return false;
-            }
-
-            if (this.mount()) return true;
-
-            if (attempt < 24) {
-                this.setTimer(
-                    () => this.restore(attempt + 1),
-                    160 + attempt * 35
-                );
-            }
-
-            return false;
-        }
-    };
 
 
     // ========================================================
@@ -3208,7 +888,7 @@
     // - Card riêng nhưng giữ nguyên bố cục Luxury chuẩn
     // - Tag ảnh: assets/Premium/Thần thoại/aether-tag2.png
     // - Full suite độc lập, không ghi đè active_theme / active_effect
-    // - MỘT CSS: css/aether-than-thoai.css
+    // - MỘT CSS: css/aether-than-thoai.css?v=20260927.five-realms-v9
     // ========================================================
     const MYTHIC_AETHER_PET = {
         id: 'pet_mythic_aether_1',
@@ -3259,7 +939,7 @@
     // - Nhân vật: assets/Premium/đêm đầy sao/nam_nham_vat1.png
     // - Card riêng nhưng GIỮ NGUYÊN bố cục Luxury chuẩn
     // - Full-web suite độc lập; không ghi đè active_theme / active_effect
-    // - MỘT CSS: css/dem-day-sao.css
+    // - MỘT CSS: css/dem-day-sao.css?v=20260927.five-realms-v9
     // ========================================================
     const STARRY_NIGHT_PREMIUM_PET = {
         id: 'pet_dem_day_sao_1',
@@ -3306,7 +986,7 @@
     // - Nhân vật: assets/Premium/quỷ bí/klain_nha-vat.png
     // - Card riêng nhưng GIỮ NGUYÊN bố cục Luxury Store.
     // - Full suite độc lập; không ghi đè active_theme / active_effect.
-    // - MỘT CSS: css/lord-of-mysteries-klein.css
+    // - MỘT CSS: css/lord-of-mysteries-klein.css?v=20260927.five-realms-v9
     // ========================================================
     const LOTM_KLEIN_EVENT_PET = {
         id: 'pet_lotm_klein_event_1',
@@ -3665,7 +1345,7 @@
 
             if (ownScript?.src) {
                 try {
-                    href = new URL('../css/trung-thu-nguyet-cung.css', ownScript.src).href;
+                    href = new URL('../css/trung-thu-nguyet-cung.css?v=20260927.realms10', ownScript.src).href;
                 } catch (_) {
                     href = '';
                 }
@@ -3673,7 +1353,7 @@
         }
 
         if (!href) {
-            href = new URL('css/trung-thu-nguyet-cung.css', document.baseURI).href;
+            href = new URL('css/trung-thu-nguyet-cung.css?v=20260927.realms10', document.baseURI).href;
         }
 
         const link = document.createElement('link');
@@ -3701,6 +1381,8 @@
     // Runtime sống cùng pet; gỡ/đổi pet là dọn sạch toàn bộ.
     // ========================================================
     const LuxuryMidAutumnRuntime = {
+        design10() { return LUX_CONFIG10[this.variant==='cuoi'?'cuoi':'moon']; },
+        sceneLocked10: false, lastTap10: -1000,
         activePetElement: null,
         petClickHandler: null,
         documentClickHandler: null,
@@ -3798,6 +1480,8 @@
         },
 
         clear() {
+            this.lastSmallTap12=-1000;
+            clearLuxuryScene10(this);
             if (this.activePetElement && this.petClickHandler) {
                 this.activePetElement.removeEventListener(
                     'click',
@@ -3865,517 +1549,25 @@
                 );
         },
 
-        createWorld() {
-            document
-                .querySelectorAll('.midautumn-world')
-                .forEach(element => element.remove());
-
-            const world = document.createElement('div');
-            world.className = 'midautumn-world';
-            world.setAttribute('aria-hidden', 'true');
-            world.setAttribute('data-effect-quality-root', '1');
-
-            world.innerHTML = `
-                <div class="ma-world-night"></div>
-                <div class="ma-world-aurora aurora-a"></div>
-                <div class="ma-world-aurora aurora-b"></div>
-                <div class="ma-world-mist mist-a"></div>
-                <div class="ma-world-mist mist-b"></div>
-                <div class="ma-world-branch branch-left"></div>
-                <div class="ma-world-branch branch-right"></div>
-                <div class="ma-world-lantern-chain chain-left"></div>
-                <div class="ma-world-lantern-chain chain-right"></div>
-                <div class="ma-world-waterline"></div>
-                <div class="ma-world-moon">
-                    <i class="moon-glow"></i>
-                    <i class="moon-disc"></i>
-                    <i class="moon-rabbit"></i>
-                    <i class="moon-cloud cloud-a"></i>
-                    <i class="moon-cloud cloud-b"></i>
-                </div>
-
-                <div class="ma-world-palace">
-                    <span class="roof roof-back"></span>
-                    <span class="roof roof-front"></span>
-                    <span class="pillar pillar-a"></span>
-                    <span class="pillar pillar-b"></span>
-                    <span class="gate"></span>
-                </div>
-
-                <div class="ma-world-clouds">
-                    <i class="cloud c1"></i><i class="cloud c2"></i>
-                    <i class="cloud c3"></i><i class="cloud c4"></i>
-                    <i class="cloud c5"></i><i class="cloud c6"></i>
-                </div>
-
-                <div class="ma-world-lanterns"></div>
-                <div class="ma-world-osmanthus"></div>
-                <div class="ma-world-stars"></div>
-                <div class="ma-world-jade-dust"></div>
-                <div class="ma-world-fireflies"></div>
-                <div class="ma-world-ribbons ribbon-a"></div>
-                <div class="ma-world-ribbons ribbon-b"></div>
-                <div class="ma-world-vignette"></div>
-            `;
-
-            const reduced = window.matchMedia?.(
-                '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
-            ).matches;
-
-            const lanternField = world.querySelector('.ma-world-lanterns');
-            const flowerField = world.querySelector('.ma-world-osmanthus');
-            const starField = world.querySelector('.ma-world-stars');
-            const dustField = world.querySelector('.ma-world-jade-dust');
-            const fireflyField = world.querySelector('.ma-world-fireflies');
-
-            const lanternCount = getLuxuryQualityCount(reduced ? 6 : 14);
-            const flowerCount = getLuxuryQualityCount(reduced ? 24 : 68);
-            const starCount = getLuxuryQualityCount(reduced ? 24 : 72);
-            const dustCount = getLuxuryQualityCount(reduced ? 28 : 82);
-            const fireflyCount = getLuxuryQualityCount(reduced ? 8 : 24);
-
-            for (let index = 0; index < lanternCount; index++) {
-                const lantern = document.createElement('i');
-                lantern.className = 'ma-lantern';
-                lantern.innerHTML = '<b></b><span></span><em></em>';
-                lantern.style.setProperty('--ma-lx', `${5 + ((index * 83) % 90)}%`);
-                lantern.style.setProperty('--ma-ly', `${10 + ((index * 47) % 58)}%`);
-                lantern.style.setProperty('--ma-ls', `${0.72 + (index % 4) * 0.11}`);
-                lantern.style.setProperty('--ma-ld', `${-(index % 8) * 0.72}s`);
-                lanternField?.appendChild(lantern);
-            }
-
-            for (let index = 0; index < flowerCount; index++) {
-                const flower = document.createElement('i');
-                flower.className = 'ma-osmanthus';
-                flower.style.setProperty('--ma-fx', `${(index * 37 + 7) % 98}%`);
-                flower.style.setProperty('--ma-fsize', `${5 + (index % 5) * 1.45}px`);
-                flower.style.setProperty('--ma-fdelay', `${-(index % 15) * 0.48}s`);
-                flower.style.setProperty('--ma-fdrift', `${-52 + (index % 10) * 12}px`);
-                flowerField?.appendChild(flower);
-            }
-
-            for (let index = 0; index < starCount; index++) {
-                const star = document.createElement('i');
-                star.className = 'ma-star';
-                star.textContent = index % 9 === 0 ? '✦' : '';
-                star.style.setProperty('--ma-sx', `${(index * 61 + 5) % 97}%`);
-                star.style.setProperty('--ma-sy', `${(index * 43 + 7) % 89}%`);
-                star.style.setProperty('--ma-ss', `${2 + (index % 5) * 0.9}px`);
-                star.style.setProperty('--ma-sd', `${-(index % 12) * 0.36}s`);
-                starField?.appendChild(star);
-            }
-
-            for (let index = 0; index < dustCount; index++) {
-                const dust = document.createElement('i');
-                dust.className = 'ma-jade-dust';
-                dust.style.setProperty('--ma-dx', `${(index * 29 + 3) % 99}%`);
-                dust.style.setProperty('--ma-dy', `${(index * 71 + 11) % 91}%`);
-                dust.style.setProperty('--ma-ds', `${2 + (index % 4) * 0.65}px`);
-                dust.style.setProperty('--ma-dd', `${-(index % 14) * 0.42}s`);
-                dustField?.appendChild(dust);
-            }
-
-            for (let index = 0; index < fireflyCount; index++) {
-                const firefly = document.createElement('i');
-                firefly.className = 'ma-firefly';
-                firefly.style.setProperty('--ma-ffx', `${(index * 41 + 9) % 96}%`);
-                firefly.style.setProperty('--ma-ffy', `${18 + ((index * 59 + 7) % 72)}%`);
-                firefly.style.setProperty('--ma-ffd', `${-(index % 12) * 0.57}s`);
-                firefly.style.setProperty('--ma-ffs', `${2 + (index % 4)}px`);
-                fireflyField?.appendChild(firefly);
-            }
-
-            document.body.appendChild(world);
-            requestAnimationFrame(() => world.classList.add('is-mounted'));
+        createWorld() {const c=this.design10();document.querySelectorAll('.'+c.world).forEach(n=>n.remove());document.documentElement.classList.add('lux10-'+c.id+'-equipped');luxuryScene10(this,'world').classList.add(c.world);
         },
 
-        createInterface() {
-            const variant = this.getVariantConfig();
-
-            document
-                .querySelectorAll('.midautumn-ui-frame')
-                .forEach(element => element.remove());
-
-            const frame = document.createElement('div');
-            frame.className = 'midautumn-ui-frame';
-            frame.setAttribute('aria-hidden', 'true');
-
-            frame.innerHTML = `
-                <div class="ma-ui-moon-crown"><i></i><b>月</b><i></i></div>
-                <div class="ma-ui-top">
-                    <i></i>
-                    <span class="ma-ui-cloud left"></span>
-                    <div class="ma-ui-seal">
-                        <small>${variant.sealSmall}</small>
-                        <strong>${variant.sealTitle}</strong>
-                        <span>${variant.sealSubtitle}</span>
-                    </div>
-                    <span class="ma-ui-cloud right"></span>
-                    <i></i>
-                </div>
-
-                <span class="ma-ui-corner corner-tl">☾</span>
-                <span class="ma-ui-corner corner-tr">✦</span>
-                <span class="ma-ui-corner corner-bl">❀</span>
-                <span class="ma-ui-corner corner-br">☾</span>
-
-                <div class="ma-ui-side side-left"><span>☾</span><i></i><b>月</b><i></i><span>❀</span></div>
-                <div class="ma-ui-side side-right"><span>✦</span><i></i><b>宫</b><i></i><span>☾</span></div>
-                <div class="ma-ui-hanging hanging-left"><i></i><b></b><em></em></div>
-                <div class="ma-ui-hanging hanging-right"><i></i><b></b><em></em></div>
-
-                <div class="ma-ui-bottom">
-                    <span>❀</span><i></i>
-                    <strong>${variant.bottomTitle}</strong>
-                    <i></i><span>☾</span>
-                </div>
-            `;
-
-            document.body.appendChild(frame);
-            requestAnimationFrame(() => frame.classList.add('is-mounted'));
+        createInterface() {const c=this.design10();document.querySelectorAll('.'+c.ui).forEach(n=>n.remove());const n=document.createElement('div');n.className='lux10-interface lux10-'+c.id+' '+c.ui;n.dataset.scene10=c.id;n.setAttribute('aria-hidden','true');n.innerHTML='<i></i><b></b><em></em>';document.body.appendChild(n);
         },
 
-        createPetRealm() {
-            const variant = this.getVariantConfig();
-
-            const container =
-                document.getElementById('virtual-pet-container');
-            const pet =
-                container?.querySelector('#virtual-pet-img');
-
-            if (!container || !pet) return;
-
-            container.classList.add(variant.stageClass);
-            pet.classList.add(variant.petClass);
-            pet.setAttribute('draggable', 'false');
-
-            container
-                .querySelectorAll('.midautumn-pet-realm')
-                .forEach(element => element.remove());
-
-            const realm = document.createElement('div');
-            realm.className = 'midautumn-pet-realm';
-            realm.setAttribute('aria-hidden', 'true');
-            realm.setAttribute('data-effect-quality-root', '1');
-
-            realm.innerHTML = `
-                <span class="ma-pet-aura-backdrop"></span>
-                <span class="ma-pet-moon-gate"><i></i><b></b><em></em></span>
-                <span class="ma-pet-moon"><i></i><b></b></span>
-                <span class="ma-pet-crescent crescent-a"></span>
-                <span class="ma-pet-crescent crescent-b"></span>
-                <span class="ma-pet-halo halo-a"></span>
-                <span class="ma-pet-halo halo-b"></span>
-                <span class="ma-pet-ring ring-a"></span>
-                <span class="ma-pet-ring ring-b"></span>
-                <span class="ma-pet-ring ring-c"></span>
-                <span class="ma-pet-cloud cloud-a"></span>
-                <span class="ma-pet-cloud cloud-b"></span>
-                <span class="ma-pet-cloud cloud-c"></span>
-                <span class="ma-pet-ribbon ribbon-a"></span>
-                <span class="ma-pet-ribbon ribbon-b"></span>
-                <span class="ma-pet-lantern lantern-a"><i></i></span>
-                <span class="ma-pet-lantern lantern-b"><i></i></span>
-                <span class="ma-pet-tassel tassel-a"><i></i></span>
-                <span class="ma-pet-tassel tassel-b"><i></i></span>
-                <span class="ma-pet-lotus-base"><i></i><b></b><em></em></span>
-                <span class="ma-pet-phases"></span>
-                <span class="ma-pet-sigils"></span>
-                <span class="ma-pet-sparks"></span>
-                <span class="ma-pet-flowers"></span>
-            `;
-
-            const sparkField = realm.querySelector('.ma-pet-sparks');
-            const flowerField = realm.querySelector('.ma-pet-flowers');
-            const phaseField = realm.querySelector('.ma-pet-phases');
-            const sigilField = realm.querySelector('.ma-pet-sigils');
-
-            for (let index = 0; index < 24; index++) {
-                const spark = document.createElement('i');
-                spark.style.setProperty('--ma-psa', `${index * 15}deg`);
-                spark.style.setProperty('--ma-psa-neg', `${index * -15}deg`);
-                spark.style.setProperty('--ma-psr-neg', `${-(64 + (index % 6) * 14)}px`);
-                spark.style.setProperty('--ma-psd', `${-(index % 9) * 0.22}s`);
-                sparkField?.appendChild(spark);
-            }
-
-            for (let index = 0; index < 22; index++) {
-                const flower = document.createElement('i');
-                flower.style.setProperty('--ma-pfa', `${index * (360 / 22)}deg`);
-                flower.style.setProperty('--ma-pfa-neg', `${index * -(360 / 22)}deg`);
-                flower.style.setProperty('--ma-pfr-neg', `${-(72 + (index % 6) * 18)}px`);
-                flower.style.setProperty('--ma-pfd', `${-(index % 10) * 0.29}s`);
-                flowerField?.appendChild(flower);
-            }
-
-            for (let index = 0; index < 8; index++) {
-                const phase = document.createElement('i');
-                phase.style.setProperty('--ma-phase-a', `${index * 45}deg`);
-                phase.style.setProperty('--ma-phase-a-neg', `${index * -45}deg`);
-                phase.style.setProperty('--ma-phase-d', `${-(index % 4) * 0.45}s`);
-                phaseField?.appendChild(phase);
-            }
-
-            ['月','桂','兔','宫','秋','圆','云','梦','仙','灯','玉','华'].forEach((symbol, index) => {
-                const sigil = document.createElement('i');
-                sigil.textContent = symbol;
-                sigil.style.setProperty('--ma-sigil-a', `${index * 30}deg`);
-                sigil.style.setProperty('--ma-sigil-a-neg', `${index * -30}deg`);
-                sigil.style.setProperty('--ma-sigil-d', `${-(index % 6) * 0.33}s`);
-                sigilField?.appendChild(sigil);
-            });
-
-            container.insertBefore(realm, pet);
-            this.installPetSkill(pet, container);
+        createPetRealm() {return luxuryPet10(this);
         },
 
-        installPetSkill(pet, container) {
-            if (!pet || !container) return;
-
-            this.activePetElement = pet;
-            this.petClickHandler = event => {
-                if (this.skillLocked) return;
-                if (!document.documentElement.classList.contains('midautumn-moon-palace-equipped')) return;
-                if (
-                    typeof PetInteractionManager !== 'undefined' &&
-                    PetInteractionManager.isPetDragging
-                ) return;
-
-                event.preventDefault();
-                event.stopPropagation();
-
-                const rect = pet.getBoundingClientRect();
-                const x = Number.isFinite(event.clientX) && event.clientX > 0
-                    ? event.clientX
-                    : rect.left + rect.width / 2;
-                const y = Number.isFinite(event.clientY) && event.clientY > 0
-                    ? event.clientY
-                    : rect.top + rect.height / 2;
-
-                this.skillLocked = true;
-                document.documentElement.classList.add(
-                    'midautumn-moon-palace-skill-active'
-                );
-                container.classList.add('midautumn-pet-casting');
-
-                this.createPageClick(x, y, true);
-                this.createUltimate(x, y);
-
-                this.setTimer(() => {
-                    this.skillLocked = false;
-                    document.documentElement.classList.remove(
-                        'midautumn-moon-palace-skill-active'
-                    );
-                    container.classList.remove('midautumn-pet-casting');
-                }, 6800);
-            };
-
-            pet.addEventListener('click', this.petClickHandler);
+        installPetSkill() {return luxuryPet10(this);
         },
 
-        installGlobalClick() {
-            this.documentClickHandler = event => {
-                if (!document.documentElement.classList.contains('midautumn-moon-palace-equipped')) return;
-
-                const target = event.target;
-
-                if (
-                    target instanceof Element &&
-                    target.closest('.ui-theme-immune, [data-theme-immune="true"]')
-                ) return;
-
-                // Pet click được xử lý riêng để tạo fullscreen ultimate.
-                if (
-                    target instanceof Element &&
-                    target.closest('#virtual-pet-container')
-                ) return;
-
-                const x = Number.isFinite(event.clientX)
-                    ? event.clientX
-                    : window.innerWidth / 2;
-                const y = Number.isFinite(event.clientY)
-                    ? event.clientY
-                    : window.innerHeight / 2;
-
-                this.createPageClick(x, y, false);
-            };
-
-            document.addEventListener('click', this.documentClickHandler, true);
+        installGlobalClick() {const c=this.design10();installLuxuryGestures10(this,c.id,c.root,(x,y)=>this.createPageClick(x,y));
         },
 
-        createPageClick(x, y, strong = false) {
-            const variant = this.getVariantConfig();
-            const burst = document.createElement('div');
-            burst.className = 'midautumn-page-click' + (strong ? ' is-strong' : '');
-            burst.style.setProperty('--ma-click-x', `${x}px`);
-            burst.style.setProperty('--ma-click-y', `${y}px`);
-            burst.setAttribute('aria-hidden', 'true');
-            burst.setAttribute('data-effect-quality-root', '1');
-
-            burst.innerHTML = `
-                <i class="ring ring-a"></i>
-                <i class="ring ring-b"></i>
-                <i class="ring ring-c"></i>
-                <i class="ring ring-d"></i>
-                <span class="click-seal"><i>${variant.clickSeal}</i></span>
-                <span class="moon">☾</span>
-                <span class="flower flower-a">❀</span>
-                <span class="flower flower-b">✦</span>
-                <span class="flower flower-c">❀</span>
-                <span class="flower flower-d">✿</span>
-                <span class="flower flower-e">❀</span>
-                <span class="cloud cloud-a"></span>
-                <span class="cloud cloud-b"></span>
-                <span class="click-lantern"><i></i></span>
-                <span class="click-glyph glyph-a">${variant.glyphs[0]}</span>
-                <span class="click-glyph glyph-b">${variant.glyphs[1]}</span>
-                <span class="click-glyph glyph-c">${variant.glyphs[2]}</span>
-                <b class="ray ray-a"></b>
-                <b class="ray ray-b"></b>
-                <b class="ray ray-c"></b>
-                <b class="ray ray-d"></b>
-                <b class="ray ray-e"></b>
-                <b class="ray ray-f"></b>
-            `;
-
-            document.body.appendChild(burst);
-            requestAnimationFrame(() => burst.classList.add('is-active'));
-            this.setTimer(() => burst.remove(), strong ? 1700 : 1100);
+        createPageClick(x,y) {const c=this.design10();if(!document.documentElement.classList.contains(c.root))return;return luxuryTapBloom11(this,c.id,x,y);
         },
 
-        createUltimate(x, y) {
-            const variant = this.getVariantConfig();
-
-            document
-                .querySelectorAll('.midautumn-ultimate, .midautumn-dialogue')
-                .forEach(element => element.remove());
-
-            const ultimate = document.createElement('div');
-            ultimate.className = 'midautumn-ultimate';
-            ultimate.style.setProperty('--ma-ultimate-x', `${x}px`);
-            ultimate.style.setProperty('--ma-ultimate-y', `${y}px`);
-            ultimate.setAttribute('aria-hidden', 'true');
-            ultimate.setAttribute('data-effect-quality-root', '1');
-
-            ultimate.innerHTML = `
-                <div class="ma-ult-flash"></div>
-                <div class="ma-ult-sky"></div>
-                <div class="ma-ult-nebula nebula-a"></div>
-                <div class="ma-ult-nebula nebula-b"></div>
-                <div class="ma-ult-moon-gate"><i></i><b></b><em></em></div>
-                <div class="ma-ult-moon"><i></i><b></b><em>月</em></div>
-                <div class="ma-ult-rabbit"></div>
-                <img class="ma-ult-character" src="${variant.image}" alt="" draggable="false">
-
-                <div class="ma-ult-palace">
-                    <i class="roof"></i>
-                    <i class="pillar left"></i>
-                    <i class="pillar right"></i>
-                    <b class="gate"></b>
-                </div>
-
-                <div class="ma-ult-cloud cloud-a"></div>
-                <div class="ma-ult-cloud cloud-b"></div>
-                <div class="ma-ult-cloud cloud-c"></div>
-                <div class="ma-ult-cloud cloud-d"></div>
-
-                <div class="ma-ult-lanterns"></div>
-                <div class="ma-ult-flowers"></div>
-                <div class="ma-ult-stars"></div>
-                <div class="ma-ult-runes"></div>
-                <div class="ma-ult-rays"></div>
-                <div class="ma-ult-lotus-water"><i></i><b></b><em></em></div>
-                <div class="ma-ult-bridge"></div>
-                <div class="ma-ult-curtain curtain-left"></div>
-                <div class="ma-ult-curtain curtain-right"></div>
-
-                <div class="ma-ult-title">
-                    <small>${variant.ultimateSmall}</small>
-                    <strong>${variant.ultimateTitle}</strong>
-                    <span>${variant.ultimateSubtitle}</span>
-                </div>
-            `;
-
-            const lanterns = ultimate.querySelector('.ma-ult-lanterns');
-            const flowers = ultimate.querySelector('.ma-ult-flowers');
-            const stars = ultimate.querySelector('.ma-ult-stars');
-            const runes = ultimate.querySelector('.ma-ult-runes');
-            const rays = ultimate.querySelector('.ma-ult-rays');
-
-            for (let index = 0; index < 12; index++) {
-                const lantern = document.createElement('i');
-                lantern.innerHTML = '<b></b><span></span>';
-                lantern.style.setProperty('--ma-ulx', `${5 + ((index * 79) % 90)}%`);
-                lantern.style.setProperty('--ma-uly', `${9 + ((index * 41) % 68)}%`);
-                lantern.style.setProperty('--ma-uls', `${0.7 + (index % 4) * 0.13}`);
-                lantern.style.setProperty('--ma-uld', `${index * 0.07}s`);
-                lanterns?.appendChild(lantern);
-            }
-
-            for (let index = 0; index < 76; index++) {
-                const flower = document.createElement('i');
-                flower.style.setProperty('--ma-ufa', `${index * (360 / 76)}deg`);
-                flower.style.setProperty('--ma-ufa-neg', `${index * -(360 / 76)}deg`);
-                const radius = 130 + (index % 10) * 34;
-                flower.style.setProperty('--ma-ufr-neg', `${-radius}px`);
-                flower.style.setProperty('--ma-ufd', `${(index % 12) * 0.034}s`);
-                flowers?.appendChild(flower);
-            }
-
-            for (let index = 0; index < 72; index++) {
-                const star = document.createElement('i');
-                star.style.setProperty('--ma-usx', `${(index * 47 + 5) % 96}%`);
-                star.style.setProperty('--ma-usy', `${(index * 73 + 7) % 90}%`);
-                star.style.setProperty('--ma-uss', `${2 + (index % 6) * 0.9}px`);
-                star.style.setProperty('--ma-usd', `${-(index % 14) * 0.11}s`);
-                stars?.appendChild(star);
-            }
-
-            ['月','宫','桂','兔','秋','圆','梦','仙','灯','华','夜','云','玉','露','霜','心'].forEach((symbol, index) => {
-                const rune = document.createElement('i');
-                rune.textContent = symbol;
-                rune.style.setProperty('--ma-uri', index);
-                rune.style.setProperty('--ma-ura', `${index * 22.5}deg`);
-                rune.style.setProperty('--ma-ura-neg', `${index * -22.5}deg`);
-                rune.style.setProperty('--ma-urd', `${(index % 8) * 0.055}s`);
-                runes?.appendChild(rune);
-            });
-
-            for (let index = 0; index < 16; index++) {
-                const ray = document.createElement('i');
-                ray.style.setProperty('--ma-ray-a', `${index * 22.5}deg`);
-                ray.style.setProperty('--ma-ray-d', `${index * 0.026}s`);
-                rays?.appendChild(ray);
-            }
-
-            const dialogue = document.createElement('div');
-            dialogue.className = 'midautumn-dialogue';
-            dialogue.innerHTML = `
-                <i>❀</i>
-                <small>${variant.dialogueSmall}</small>
-                <strong>${variant.dialogueTitle}</strong>
-                <span>${variant.dialogueSubtitle}</span>
-                <i>☾</i>
-            `;
-
-            document.body.append(ultimate, dialogue);
-
-            requestAnimationFrame(() => {
-                ultimate.classList.add('is-active');
-                dialogue.classList.add('is-active');
-            });
-
-            this.setTimer(() => ultimate.classList.add('is-climax'), 780);
-            this.setTimer(() => dialogue.classList.add('is-visible'), 920);
-            this.setTimer(() => {
-                ultimate.classList.add('is-ending');
-                dialogue.classList.add('is-ending');
-            }, 5150);
-            this.setTimer(() => {
-                ultimate.remove();
-                dialogue.remove();
-            }, 6500);
+        createUltimate(x,y) {return luxuryUltimate10(this,x,y);
         },
 
         installObserver() {
@@ -4542,7 +1734,7 @@
             if (ownScript?.src) {
                 try {
                     href = new URL(
-                        '../css/link-click-cheng-xiaoshi.css?v=20260911.3-cinematic',
+                        '../css/link-click-cheng-xiaoshi.css?v=20260927.realms10',
                         ownScript.src
                     ).href;
                 } catch (_) {
@@ -4553,7 +1745,7 @@
 
         if (!href) {
             href = new URL(
-                'css/link-click-cheng-xiaoshi.css?v=20260911.3-cinematic',
+                'css/link-click-cheng-xiaoshi.css?v=20260927.realms10',
                 document.baseURI
             ).href;
         }
@@ -4582,6 +1774,8 @@
     // KHÔNG gọi ThemeManager / EffectManager.
     // ========================================================
     const LuxuryLinkClickChengRuntime = {
+        design10() { return LUX_CONFIG10["cheng"]; },
+        sceneLocked10: false, lastTap10: -1000,
         activePetElement: null,
         petClickHandler: null,
         documentClickHandler: null,
@@ -4611,6 +1805,8 @@
         },
 
         clear() {
+            this.lastSmallTap12=-1000;
+            clearLuxuryScene10(this);
             if (this.activePetElement && this.petClickHandler) {
                 this.activePetElement.removeEventListener(
                     'click',
@@ -4682,386 +1878,21 @@
                 ?.classList.remove('lcx-cheng-pet');
         },
 
-        createWorld() {
-            document
-                .querySelectorAll('.lcx-world')
-                .forEach(element => element.remove());
-
-            const world = document.createElement('div');
-            world.className = 'lcx-world';
-            world.setAttribute('aria-hidden', 'true');
-            world.innerHTML = `
-                <div class="lcx-world__wash"></div>
-                <div class="lcx-world__vignette"></div>
-                <div class="lcx-world__grain"></div>
-                <div class="lcx-world__grid"></div>
-                <div class="lcx-world__light-beam beam-a"></div>
-                <div class="lcx-world__light-beam beam-b"></div>
-
-                <div class="lcx-world__clock">
-                    <span class="ring ring-a"></span>
-                    <span class="ring ring-b"></span>
-                    <span class="ring ring-c"></span>
-                    <i class="hand hand-hour"></i>
-                    <i class="hand hand-minute"></i>
-                    <b class="clock-core"></b>
-                </div>
-
-                <div class="lcx-world__memory memory-a">
-                    <i></i><span>05:12</span>
-                </div>
-                <div class="lcx-world__memory memory-b">
-                    <i></i><span>PHOTO</span>
-                </div>
-                <div class="lcx-world__memory memory-c">
-                    <i></i><span>TIME</span>
-                </div>
-
-                <div class="lcx-world__film-rail rail-left">
-                    ${'<i></i>'.repeat(9)}
-                </div>
-                <div class="lcx-world__film-rail rail-right">
-                    ${'<i></i>'.repeat(9)}
-                </div>
-
-                <div class="lcx-world__timeline">
-                    <span>00</span><i></i><i></i><i></i>
-                    <strong>05:12</strong>
-                    <i></i><i></i><i></i><span>24</span>
-                </div>
-
-                <div class="lcx-world__timecode">
-                    <small>FRAME</small>
-                    <strong>00:05:12:00</strong>
-                </div>
-
-                <div class="lcx-world__film film-a"></div>
-                <div class="lcx-world__film film-b"></div>
-                <div class="lcx-world__focus focus-a"></div>
-                <div class="lcx-world__focus focus-b"></div>
-                <div class="lcx-world__particles"></div>
-            `;
-
-            const particleField =
-                world.querySelector('.lcx-world__particles');
-
-            const reduced = window.matchMedia?.(
-                '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
-            ).matches;
-
-            const count = getLuxuryQualityCount(reduced ? 16 : 42);
-
-            for (let index = 0; index < count; index++) {
-                const particle = document.createElement('i');
-                particle.className =
-                    index % 7 === 0
-                        ? 'lcx-particle lcx-particle--frame'
-                        : index % 5 === 0
-                            ? 'lcx-particle lcx-particle--red'
-                            : 'lcx-particle';
-
-                particle.style.setProperty(
-                    '--lcx-x',
-                    `${(index * 37 + 9) % 98}%`
-                );
-                particle.style.setProperty(
-                    '--lcx-y',
-                    `${(index * 61 + 7) % 92}%`
-                );
-                particle.style.setProperty(
-                    '--lcx-delay',
-                    `${-(index % 15) * .39}s`
-                );
-                particle.style.setProperty(
-                    '--lcx-size',
-                    `${2 + (index % 5) * 1.05}px`
-                );
-                particleField?.appendChild(particle);
-            }
-
-            document.body.appendChild(world);
-            requestAnimationFrame(() => world.classList.add('is-mounted'));
+        createWorld() {const c=this.design10();document.querySelectorAll('.'+c.world).forEach(n=>n.remove());document.documentElement.classList.add('lux10-'+c.id+'-equipped');luxuryScene10(this,'world').classList.add(c.world);
         },
 
-        createInterface() {
-            document
-                .querySelectorAll('.lcx-ui-frame')
-                .forEach(element => element.remove());
-
-            const frame = document.createElement('div');
-            frame.className = 'lcx-ui-frame';
-            frame.setAttribute('aria-hidden', 'true');
-            frame.innerHTML = `
-                <span class="lcx-corner corner-tl"></span>
-                <span class="lcx-corner corner-tr"></span>
-                <span class="lcx-corner corner-bl"></span>
-                <span class="lcx-corner corner-br"></span>
-
-                <div class="lcx-ui-topbar">
-                    <span class="lcx-ui-rec"><i></i> REC</span>
-                    <span class="lcx-ui-mode">TIME PHOTO · 24 FPS</span>
-                    <span class="lcx-ui-counter">05:12 / 24</span>
-                </div>
-
-                <div class="lcx-ui-left-rail">
-                    <span>ISO 400</span>
-                    <i></i><i></i><i></i><i></i><i></i>
-                    <span>F 2.8</span>
-                </div>
-
-                <div class="lcx-ui-right-rail">
-                    <span>MEM</span>
-                    <i></i><i></i><i></i><i></i><i></i>
-                    <span>∞</span>
-                </div>
-
-                <span class="lcx-ui-date">TIME PHOTO STUDIO · LINK CLICK</span>
-                <span class="lcx-ui-focus"></span>
-                <span class="lcx-ui-crosshair"></span>
-                <span class="lcx-cursor-reticle"><i></i><b></b></span>
-
-                <div class="lcx-ui-bottom-film">
-                    ${'<i></i>'.repeat(18)}
-                </div>
-            `;
-            document.body.appendChild(frame);
+        createInterface() {const c=this.design10();document.querySelectorAll('.'+c.ui).forEach(n=>n.remove());const n=document.createElement('div');n.className='lux10-interface lux10-'+c.id+' '+c.ui;n.dataset.scene10=c.id;n.setAttribute('aria-hidden','true');n.innerHTML='<i></i><b></b><em></em>';document.body.appendChild(n);
         },
 
-        createPetRealm() {
-            const container =
-                document.getElementById('virtual-pet-container');
-            const pet =
-                container?.querySelector('#virtual-pet-img');
-
-            if (!container || !pet) return false;
-
-            container
-                .querySelectorAll('.lcx-pet-realm')
-                .forEach(element => element.remove());
-
-            pet.classList.add('lcx-cheng-pet');
-            pet.setAttribute('draggable', 'false');
-            container.classList.add('pet-linkclick-cheng-stage');
-
-            const realm = document.createElement('div');
-            realm.className = 'lcx-pet-realm';
-            realm.setAttribute('aria-hidden', 'true');
-            realm.innerHTML = `
-                <span class="lcx-pet-aura"></span>
-                <span class="lcx-pet-clock clock-a"></span>
-                <span class="lcx-pet-clock clock-b"></span>
-                <span class="lcx-pet-focus"></span>
-                <span class="lcx-pet-polaroid polaroid-a"></span>
-                <span class="lcx-pet-polaroid polaroid-b"></span>
-                <span class="lcx-pet-shadow"></span>
-                <div class="lcx-pet-sparks"></div>
-            `;
-
-            const sparks = realm.querySelector('.lcx-pet-sparks');
-            const count = getLuxuryQualityCount(16);
-            for (let index = 0; index < count; index++) {
-                const spark = document.createElement('i');
-                spark.style.setProperty(
-                    '--lcx-pa',
-                    `${index * (360 / count)}deg`
-                );
-                spark.style.setProperty(
-                    '--lcx-pr',
-                    `${62 + (index % 5) * 11}px`
-                );
-                spark.style.setProperty(
-                    '--lcx-pd',
-                    `${-(index % 8) * .21}s`
-                );
-                sparks?.appendChild(spark);
-            }
-
-            container.appendChild(realm);
-
-            if (this.activePetElement && this.petClickHandler) {
-                this.activePetElement.removeEventListener(
-                    'click',
-                    this.petClickHandler
-                );
-            }
-
-            this.activePetElement = pet;
-            this.petClickHandler = event => {
-                event.stopPropagation();
-                if (this.skillLocked) return;
-
-                this.skillLocked = true;
-                container.classList.add('linkclick-cheng-casting');
-                document.documentElement.classList.add(
-                    'linkclick-cheng-skill-active'
-                );
-
-                const rect = pet.getBoundingClientRect();
-                this.createUltimate(
-                    rect.left + rect.width / 2,
-                    rect.top + rect.height / 2
-                );
-
-                this.setTimer(() => {
-                    container.classList.remove('linkclick-cheng-casting');
-                    document.documentElement.classList.remove(
-                        'linkclick-cheng-skill-active'
-                    );
-                    this.skillLocked = false;
-                }, 4300);
-            };
-
-            pet.addEventListener('click', this.petClickHandler);
-            return true;
+        createPetRealm() {return luxuryPet10(this);
         },
 
-        installGlobalClick() {
-            if (this.documentClickHandler) {
-                document.removeEventListener(
-                    'pointerdown',
-                    this.documentClickHandler,
-                    true
-                );
-            }
-
-            if (this.pointerMoveHandler) {
-                document.removeEventListener(
-                    'pointermove',
-                    this.pointerMoveHandler,
-                    true
-                );
-            }
-
-            this.documentClickHandler = event => {
-                if (
-                    !document.documentElement.classList.contains(
-                        'linkclick-cheng-equipped'
-                    )
-                ) return;
-
-                if (event.target?.closest?.('#virtual-pet-container')) {
-                    return;
-                }
-
-                const burst = document.createElement('span');
-                burst.className = 'lcx-page-click';
-                burst.style.setProperty('--lcx-click-x', `${event.clientX}px`);
-                burst.style.setProperty('--lcx-click-y', `${event.clientY}px`);
-                burst.innerHTML = `
-                    <i></i><b></b><em></em>
-                    <span class="lcx-click-ring ring-a"></span>
-                    <span class="lcx-click-ring ring-b"></span>
-                    <span class="lcx-click-label">FOCUS</span>
-                `;
-                document.body.appendChild(burst);
-                this.setTimer(() => burst.remove(), 1050);
-            };
-
-            let pointerFrame = 0;
-            let pointerIdleTimer = 0;
-
-            this.pointerMoveHandler = event => {
-                if (
-                    !document.documentElement.classList.contains(
-                        'linkclick-cheng-equipped'
-                    ) ||
-                    window.matchMedia?.('(pointer: coarse)').matches
-                ) return;
-
-                if (pointerFrame) return;
-
-                pointerFrame = requestAnimationFrame(() => {
-                    pointerFrame = 0;
-
-                    const reticle = document.querySelector(
-                        '.lcx-ui-frame .lcx-cursor-reticle'
-                    );
-                    if (!reticle) return;
-
-                    reticle.style.setProperty(
-                        '--lcx-pointer-x',
-                        `${event.clientX}px`
-                    );
-                    reticle.style.setProperty(
-                        '--lcx-pointer-y',
-                        `${event.clientY}px`
-                    );
-                    reticle.classList.add('is-moving');
-
-                    window.clearTimeout(pointerIdleTimer);
-                    pointerIdleTimer = window.setTimeout(() => {
-                        reticle.classList.remove('is-moving');
-                    }, 150);
-                });
-            };
-
-            document.addEventListener(
-                'pointerdown',
-                this.documentClickHandler,
-                true
-            );
-
-            document.addEventListener(
-                'pointermove',
-                this.pointerMoveHandler,
-                {
-                    capture: true,
-                    passive: true
-                }
-            );
+        createPageClick(x,y) {const c=this.design10();if(!document.documentElement.classList.contains(c.root))return;return luxuryTapBloom11(this,c.id,x,y);
+        },
+        installGlobalClick() {const c=this.design10();installLuxuryGestures10(this,c.id,c.root,(x,y)=>this.createPageClick(x,y));
         },
 
-        createUltimate(x, y) {
-            document
-                .querySelectorAll('.lcx-ultimate, .lcx-dialogue')
-                .forEach(element => element.remove());
-
-            const ultimate = document.createElement('div');
-            ultimate.className = 'lcx-ultimate';
-            ultimate.style.setProperty('--lcx-origin-x', `${x}px`);
-            ultimate.style.setProperty('--lcx-origin-y', `${y}px`);
-            ultimate.innerHTML = `
-                <div class="lcx-ultimate__flash"></div>
-                <div class="lcx-ultimate__shutter">
-                    ${'<i></i>'.repeat(8)}
-                </div>
-                <div class="lcx-ultimate__clock">
-                    <b></b><i></i><span>12</span><em>06</em>
-                </div>
-                <div class="lcx-ultimate__photos">
-                    <i class="photo-a"></i>
-                    <i class="photo-b"></i>
-                    <i class="photo-c"></i>
-                    <i class="photo-d"></i>
-                </div>
-                <div class="lcx-ultimate__lines"></div>
-            `;
-
-            const dialogue = document.createElement('div');
-            dialogue.className = 'lcx-dialogue';
-            dialogue.innerHTML = `
-                <small>LINK CLICK · TIME PHOTO STUDIO</small>
-                <strong>CHENG XIAOSHI</strong>
-                <span>Khoảnh khắc đã chụp · thời gian bắt đầu chuyển động</span>
-            `;
-
-            document.body.append(ultimate, dialogue);
-
-            requestAnimationFrame(() => {
-                ultimate.classList.add('is-active');
-                dialogue.classList.add('is-active');
-            });
-
-            this.setTimer(() => ultimate.classList.add('is-climax'), 700);
-            this.setTimer(() => dialogue.classList.add('is-visible'), 820);
-            this.setTimer(() => {
-                ultimate.classList.add('is-ending');
-                dialogue.classList.add('is-ending');
-            }, 3100);
-            this.setTimer(() => {
-                ultimate.remove();
-                dialogue.remove();
-            }, 4050);
+        createUltimate(x,y) {return luxuryUltimate10(this,x,y);
         },
 
         installObserver() {
@@ -5377,7 +2208,7 @@
 
             if (ownScript?.src) {
                 try {
-                    href = new URL('../css/lord-of-mysteries-klein.css', ownScript.src).href;
+                    href = new URL('../css/lord-of-mysteries-klein.css?v=20260927.realms10', ownScript.src).href;
                 } catch (error) {
                     href = '';
                 }
@@ -5385,7 +2216,7 @@
         }
 
         if (!href) {
-            href = new URL('css/lord-of-mysteries-klein.css', document.baseURI).href;
+            href = new URL('css/lord-of-mysteries-klein.css?v=20260927.realms10', document.baseURI).href;
         }
 
         // Ép trình duyệt lấy bản CSS Klein mới thay vì cache bản cũ.
@@ -5407,7 +2238,7 @@
             console.error(
                 '[LOTM Klein] Không tải được CSS:',
                 link.href,
-                'Hãy đặt file tại css/lord-of-mysteries-klein.css hoặc gán window.LOTM_KLEIN_CSS_PATH trước khi nạp luxury-store.js.'
+                'Hãy đặt file tại css/lord-of-mysteries-klein.css?v=20260927.five-realms-v9 hoặc gán window.LOTM_KLEIN_CSS_PATH trước khi nạp luxury-store.js.'
             );
         }, { once: true });
 
@@ -5421,6 +2252,29 @@
     // Không gọi ThemeManager / EffectManager và không thay active_theme.
     // ========================================================
     const LuxuryLotmKleinRuntime = {
+        realmTimers: new Set(), realmLocked: false, realmLastClick: -1000,
+        realmLater(fn,ms) { const timer=setTimeout(()=>{this.realmTimers.delete(timer);fn();},ms);this.realmTimers.add(timer);return timer; },
+        clearRealmScene() {
+            this.realmTimers.forEach(clearTimeout);this.realmTimers.clear();this.realmLocked=false;this.realmLastClick=-1000;
+            this.realmAbort?.abort();this.realmObserver?.disconnect();
+            if(this.realmPet&&this.realmClick){this.realmPet.removeEventListener('click',this.realmClick,true);this.realmPet.removeEventListener('keydown',this.realmKey);}
+            for(const [key,value] of Object.entries(this.realmAttrs||{})){if(value===null)this.realmPet?.removeAttribute(key);else this.realmPet?.setAttribute(key,value);}
+            this.realmPet=null;this.realmAttrs=null;
+            document.querySelectorAll('[data-five-realm="klein"]').forEach(n=>n.remove());
+            document.documentElement.classList.remove('fr9-klein-equipped');
+        },
+        realmScene(mode,x=innerWidth/2,y=innerHeight/2) {
+            const node=document.createElement('div');node.className='fr9-klein fr9-scene fr9-'+mode;node.dataset.fiveRealm='klein';node.setAttribute('aria-hidden','true');
+            node.style.setProperty('--impact-x',x+'px');node.style.setProperty('--impact-y',y+'px');
+            node.innerHTML="<svg viewBox=\"0 0 1600 900\" preserveAspectRatio=\"xMidYMid slice\" aria-hidden=\"true\"><g class=\"kf-vault\"><g style=\"--i:0\" transform=\"translate(800 430) scale(1)\"><path class=\"stone\" d=\"M-650 600V-120Q-650-390 0-400Q650-390 650-120V600H590V-110Q590-320 0-335Q-590-320-590-110V600Z\"/><path class=\"wire\" d=\"M-630 560V-115Q-630-363 0-373Q630-363 630-115V560M-605-80H605M-620 130H-575M575 130H620\"/></g><g style=\"--i:1\" transform=\"translate(800 430) scale(0.922)\"><path class=\"stone\" d=\"M-650 600V-120Q-650-390 0-400Q650-390 650-120V600H590V-110Q590-320 0-335Q-590-320-590-110V600Z\"/><path class=\"wire\" d=\"M-630 560V-115Q-630-363 0-373Q630-363 630-115V560M-605-80H605M-620 130H-575M575 130H620\"/></g><g style=\"--i:2\" transform=\"translate(800 430) scale(0.844)\"><path class=\"stone\" d=\"M-650 600V-120Q-650-390 0-400Q650-390 650-120V600H590V-110Q590-320 0-335Q-590-320-590-110V600Z\"/><path class=\"wire\" d=\"M-630 560V-115Q-630-363 0-373Q630-363 630-115V560M-605-80H605M-620 130H-575M575 130H620\"/></g><g style=\"--i:3\" transform=\"translate(800 430) scale(0.766)\"><path class=\"stone\" d=\"M-650 600V-120Q-650-390 0-400Q650-390 650-120V600H590V-110Q590-320 0-335Q-590-320-590-110V600Z\"/><path class=\"wire\" d=\"M-630 560V-115Q-630-363 0-373Q630-363 630-115V560M-605-80H605M-620 130H-575M575 130H620\"/></g><g style=\"--i:4\" transform=\"translate(800 430) scale(0.688)\"><path class=\"stone\" d=\"M-650 600V-120Q-650-390 0-400Q650-390 650-120V600H590V-110Q590-320 0-335Q-590-320-590-110V600Z\"/><path class=\"wire\" d=\"M-630 560V-115Q-630-363 0-373Q630-363 630-115V560M-605-80H605M-620 130H-575M575 130H620\"/></g><g style=\"--i:5\" transform=\"translate(800 430) scale(0.61)\"><path class=\"stone\" d=\"M-650 600V-120Q-650-390 0-400Q650-390 650-120V600H590V-110Q590-320 0-335Q-590-320-590-110V600Z\"/><path class=\"wire\" d=\"M-630 560V-115Q-630-363 0-373Q630-363 630-115V560M-605-80H605M-620 130H-575M575 130H620\"/></g><g style=\"--i:6\" transform=\"translate(800 430) scale(0.532)\"><path class=\"stone\" d=\"M-650 600V-120Q-650-390 0-400Q650-390 650-120V600H590V-110Q590-320 0-335Q-590-320-590-110V600Z\"/><path class=\"wire\" d=\"M-630 560V-115Q-630-363 0-373Q630-363 630-115V560M-605-80H605M-620 130H-575M575 130H620\"/></g><g style=\"--i:7\" transform=\"translate(800 430) scale(0.45399999999999996)\"><path class=\"stone\" d=\"M-650 600V-120Q-650-390 0-400Q650-390 650-120V600H590V-110Q590-320 0-335Q-590-320-590-110V600Z\"/><path class=\"wire\" d=\"M-630 560V-115Q-630-363 0-373Q630-363 630-115V560M-605-80H605M-620 130H-575M575 130H620\"/></g><g style=\"--i:8\" transform=\"translate(800 430) scale(0.376)\"><path class=\"stone\" d=\"M-650 600V-120Q-650-390 0-400Q650-390 650-120V600H590V-110Q590-320 0-335Q-590-320-590-110V600Z\"/><path class=\"wire\" d=\"M-630 560V-115Q-630-363 0-373Q630-363 630-115V560M-605-80H605M-620 130H-575M575 130H620\"/></g></g><g class=\"kf-doors\"><g transform=\"translate(90 280)\" style=\"--i:0\"><path class=\"stone\" d=\"M-42 400V0Q0-75 42 0V400Z\"/><path class=\"wire\" d=\"M-30 390V6Q0-44 30 6V390M-30 80H30M0 85V370\"/><circle cx=\"18\" cy=\"195\" r=\"3\" class=\"gold\"/></g><g transform=\"translate(235 245)\" style=\"--i:1\"><path class=\"stone\" d=\"M-42 400V0Q0-75 42 0V400Z\"/><path class=\"wire\" d=\"M-30 390V6Q0-44 30 6V390M-30 80H30M0 85V370\"/><circle cx=\"18\" cy=\"195\" r=\"3\" class=\"gold\"/></g><g transform=\"translate(380 210)\" style=\"--i:2\"><path class=\"stone\" d=\"M-42 400V0Q0-75 42 0V400Z\"/><path class=\"wire\" d=\"M-30 390V6Q0-44 30 6V390M-30 80H30M0 85V370\"/><circle cx=\"18\" cy=\"195\" r=\"3\" class=\"gold\"/></g><g transform=\"translate(1510 280)\" style=\"--i:3\"><path class=\"stone\" d=\"M-42 400V0Q0-75 42 0V400Z\"/><path class=\"wire\" d=\"M-30 390V6Q0-44 30 6V390M-30 80H30M0 85V370\"/><circle cx=\"18\" cy=\"195\" r=\"3\" class=\"gold\"/></g><g transform=\"translate(1365 245)\" style=\"--i:4\"><path class=\"stone\" d=\"M-42 400V0Q0-75 42 0V400Z\"/><path class=\"wire\" d=\"M-30 390V6Q0-44 30 6V390M-30 80H30M0 85V370\"/><circle cx=\"18\" cy=\"195\" r=\"3\" class=\"gold\"/></g><g transform=\"translate(1220 210)\" style=\"--i:5\"><path class=\"stone\" d=\"M-42 400V0Q0-75 42 0V400Z\"/><path class=\"wire\" d=\"M-30 390V6Q0-44 30 6V390M-30 80H30M0 85V370\"/><circle cx=\"18\" cy=\"195\" r=\"3\" class=\"gold\"/></g></g><g class=\"kf-table\"><path class=\"table\" d=\"M715 470H885L1260 880H340Z\"/><path class=\"wire\" d=\"M730 490H870L1210 860H390Z\"/><g transform=\"translate(660 555)\"><path class=\"stone\" d=\"M-27 15V-50Q0-80 27-50V15L40 65H-40Z\"/><path class=\"wire\" d=\"M-18 5V-45Q0-65 18-45V5\"/></g><g transform=\"translate(940 555)\"><path class=\"stone\" d=\"M-27 15V-50Q0-80 27-50V15L40 65H-40Z\"/><path class=\"wire\" d=\"M-18 5V-45Q0-65 18-45V5\"/></g><g transform=\"translate(607 619)\"><path class=\"stone\" d=\"M-27 15V-50Q0-80 27-50V15L40 65H-40Z\"/><path class=\"wire\" d=\"M-18 5V-45Q0-65 18-45V5\"/></g><g transform=\"translate(993 619)\"><path class=\"stone\" d=\"M-27 15V-50Q0-80 27-50V15L40 65H-40Z\"/><path class=\"wire\" d=\"M-18 5V-45Q0-65 18-45V5\"/></g><g transform=\"translate(554 683)\"><path class=\"stone\" d=\"M-27 15V-50Q0-80 27-50V15L40 65H-40Z\"/><path class=\"wire\" d=\"M-18 5V-45Q0-65 18-45V5\"/></g><g transform=\"translate(1046 683)\"><path class=\"stone\" d=\"M-27 15V-50Q0-80 27-50V15L40 65H-40Z\"/><path class=\"wire\" d=\"M-18 5V-45Q0-65 18-45V5\"/></g><g transform=\"translate(501 747)\"><path class=\"stone\" d=\"M-27 15V-50Q0-80 27-50V15L40 65H-40Z\"/><path class=\"wire\" d=\"M-18 5V-45Q0-65 18-45V5\"/></g><g transform=\"translate(1099 747)\"><path class=\"stone\" d=\"M-27 15V-50Q0-80 27-50V15L40 65H-40Z\"/><path class=\"wire\" d=\"M-18 5V-45Q0-65 18-45V5\"/></g><g transform=\"translate(448 811)\"><path class=\"stone\" d=\"M-27 15V-50Q0-80 27-50V15L40 65H-40Z\"/><path class=\"wire\" d=\"M-18 5V-45Q0-65 18-45V5\"/></g><g transform=\"translate(1152 811)\"><path class=\"stone\" d=\"M-27 15V-50Q0-80 27-50V15L40 65H-40Z\"/><path class=\"wire\" d=\"M-18 5V-45Q0-65 18-45V5\"/></g></g><g class=\"kf-thread\"><path style=\"--i:0\" d=\"M-10 -50Q800 190 250 710\"/><path style=\"--i:1\" d=\"M105 -50Q811 190 330 710\"/><path style=\"--i:2\" d=\"M220 -50Q822 190 410 710\"/><path style=\"--i:3\" d=\"M335 -50Q833 190 490 710\"/><path style=\"--i:4\" d=\"M450 -50Q844 190 570 710\"/><path style=\"--i:5\" d=\"M565 -50Q855 190 650 710\"/><path style=\"--i:6\" d=\"M680 -50Q866 190 730 710\"/><path style=\"--i:7\" d=\"M795 -50Q877 190 810 710\"/><path style=\"--i:8\" d=\"M910 -50Q888 190 890 710\"/><path style=\"--i:9\" d=\"M1025 -50Q899 190 970 710\"/><path style=\"--i:10\" d=\"M1140 -50Q910 190 1050 710\"/><path style=\"--i:11\" d=\"M1255 -50Q921 190 1130 710\"/><path style=\"--i:12\" d=\"M1370 -50Q932 190 1210 710\"/><path style=\"--i:13\" d=\"M1485 -50Q943 190 1290 710\"/><path style=\"--i:14\" d=\"M1600 -50Q954 190 1370 710\"/></g><g class=\"kf-deck\"><g style=\"--i:0\" transform=\"translate(90 290) rotate(-36)\"><rect class=\"tarot\" x=\"-28\" y=\"-45\" width=\"56\" height=\"90\" rx=\"3\"/><path class=\"wire\" d=\"M-21-38H21V38H-21ZM0-26L14 0L0 26L-14 0Z\"/><text y=\"4\" text-anchor=\"middle\">0</text></g><g style=\"--i:1\" transform=\"translate(207 343.02302821480424) rotate(-30)\"><rect class=\"tarot\" x=\"-28\" y=\"-45\" width=\"56\" height=\"90\" rx=\"3\"/><path class=\"wire\" d=\"M-21-38H21V38H-21ZM0-26L14 0L0 26L-14 0Z\"/><text y=\"4\" text-anchor=\"middle\">I</text></g><g style=\"--i:2\" transform=\"translate(324 375.6881307431464) rotate(-24)\"><rect class=\"tarot\" x=\"-28\" y=\"-45\" width=\"56\" height=\"90\" rx=\"3\"/><path class=\"wire\" d=\"M-21-38H21V38H-21ZM0-26L14 0L0 26L-14 0Z\"/><text y=\"4\" text-anchor=\"middle\">II</text></g><g style=\"--i:3\" transform=\"translate(441 375.45370533781676) rotate(-18)\"><rect class=\"tarot\" x=\"-28\" y=\"-45\" width=\"56\" height=\"90\" rx=\"3\"/><path class=\"wire\" d=\"M-21-38H21V38H-21ZM0-26L14 0L0 26L-14 0Z\"/><text y=\"4\" text-anchor=\"middle\">III</text></g><g style=\"--i:4\" transform=\"translate(558 342.40975845716736) rotate(-12)\"><rect class=\"tarot\" x=\"-28\" y=\"-45\" width=\"56\" height=\"90\" rx=\"3\"/><path class=\"wire\" d=\"M-21-38H21V38H-21ZM0-26L14 0L0 26L-14 0Z\"/><text y=\"4\" text-anchor=\"middle\">IV</text></g><g style=\"--i:5\" transform=\"translate(675 289.24334773695665) rotate(-6)\"><rect class=\"tarot\" x=\"-28\" y=\"-45\" width=\"56\" height=\"90\" rx=\"3\"/><path class=\"wire\" d=\"M-21-38H21V38H-21ZM0-26L14 0L0 26L-14 0Z\"/><text y=\"4\" text-anchor=\"middle\">V</text></g><g style=\"--i:6\" transform=\"translate(792 236.3674498573012) rotate(0)\"><rect class=\"tarot\" x=\"-28\" y=\"-45\" width=\"56\" height=\"90\" rx=\"3\"/><path class=\"wire\" d=\"M-21-38H21V38H-21ZM0-26L14 0L0 26L-14 0Z\"/><text y=\"4\" text-anchor=\"middle\">VI</text></g><g style=\"--i:7\" transform=\"translate(909 204.08350055058054) rotate(6)\"><rect class=\"tarot\" x=\"-28\" y=\"-45\" width=\"56\" height=\"90\" rx=\"3\"/><path class=\"wire\" d=\"M-21-38H21V38H-21ZM0-26L14 0L0 26L-14 0Z\"/><text y=\"4\" text-anchor=\"middle\">VII</text></g><g style=\"--i:8\" transform=\"translate(1026 204.7867601966652) rotate(12)\"><rect class=\"tarot\" x=\"-28\" y=\"-45\" width=\"56\" height=\"90\" rx=\"3\"/><path class=\"wire\" d=\"M-21-38H21V38H-21ZM0-26L14 0L0 26L-14 0Z\"/><text y=\"4\" text-anchor=\"middle\">VIII</text></g><g style=\"--i:9\" transform=\"translate(1143 238.20721578243047) rotate(18)\"><rect class=\"tarot\" x=\"-28\" y=\"-45\" width=\"56\" height=\"90\" rx=\"3\"/><path class=\"wire\" d=\"M-21-38H21V38H-21ZM0-26L14 0L0 26L-14 0Z\"/><text y=\"4\" text-anchor=\"middle\">IX</text></g><g style=\"--i:10\" transform=\"translate(1260 291.5132510435915) rotate(24)\"><rect class=\"tarot\" x=\"-28\" y=\"-45\" width=\"56\" height=\"90\" rx=\"3\"/><path class=\"wire\" d=\"M-21-38H21V38H-21ZM0-26L14 0L0 26L-14 0Z\"/><text y=\"4\" text-anchor=\"middle\">X</text></g><g style=\"--i:11\" transform=\"translate(1377 344.2382811579775) rotate(30)\"><rect class=\"tarot\" x=\"-28\" y=\"-45\" width=\"56\" height=\"90\" rx=\"3\"/><path class=\"wire\" d=\"M-21-38H21V38H-21ZM0-26L14 0L0 26L-14 0Z\"/><text y=\"4\" text-anchor=\"middle\">XI</text></g><g style=\"--i:12\" transform=\"translate(1494 376.1387953148376) rotate(36)\"><rect class=\"tarot\" x=\"-28\" y=\"-45\" width=\"56\" height=\"90\" rx=\"3\"/><path class=\"wire\" d=\"M-21-38H21V38H-21ZM0-26L14 0L0 26L-14 0Z\"/><text y=\"4\" text-anchor=\"middle\">XII</text></g></g></svg>"+(mode==='ultimate'?'<div class="fr9-caption"><small>KLEIN MORETTI</small><strong>Sefirah · Nghị Hội Vận Mệnh</strong><span>Màn sương mở lối · Bàn Tarot chờ người</span></div>':'');
+            document.body.appendChild(node);return node;
+        },
+        realmUltimate(x,y) {
+            if(this.realmLocked||document.hidden||!document.documentElement.classList.contains('lotm-klein-equipped'))return false;
+            this.realmLocked=true;const node=this.realmScene('ultimate',x,y);const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+            this.realmLater(()=>node.remove(),reduced?1400:8600);this.realmLater(()=>{this.realmLocked=false;},reduced?1800:9100);return true;
+        },
+
         activePetElement: null,
         petClickHandler: null,
         documentClickHandler: null,
@@ -5486,6 +2340,9 @@
         },
 
         clear() {
+            this.lastSmallTap12=-1000;
+            clearLuxuryGestures10(this);
+            this.clearRealmScene();
             if (this.activePetElement && this.petClickHandler) {
                 this.activePetElement.removeEventListener(
                     'click',
@@ -5569,198 +2426,15 @@
         },
 
         createWorld() {
-            document
-                .querySelectorAll('.lotm-klein-world')
-                .forEach(element => element.remove());
-
-            const world = document.createElement('div');
-            world.className = 'lotm-klein-world lotm-klein-world-v2';
-            world.setAttribute('aria-hidden', 'true');
-            world.setAttribute('data-effect-quality-root', '1');
-
-            world.innerHTML = `
-                <div class="lotm-klein-world-veil"></div>
-                <div class="lotm-klein-world-vignette"></div>
-                <div class="lotm-klein-world-aurora aurora-a"></div>
-                <div class="lotm-klein-world-aurora aurora-b"></div>
-                <div class="lotm-klein-world-fog fog-a"></div>
-                <div class="lotm-klein-world-fog fog-b"></div>
-
-                <div class="lotm-klein-world-sigil sigil-main"></div>
-                <div class="lotm-klein-world-sigil sigil-left"></div>
-                <div class="lotm-klein-world-sigil sigil-right"></div>
-
-                <div class="lotm-klein-world-eye">
-                    <i></i><b></b><em></em>
-                </div>
-
-                <div class="lotm-klein-world-clock"></div>
-                <div class="lotm-klein-world-cathedral"></div>
-                <div class="lotm-klein-world-rays"></div>
-                <div class="lotm-klein-world-cards"></div>
-                <div class="lotm-klein-world-runes"></div>
-                <div class="lotm-klein-world-motes"></div>
-            `;
-
-            const mobile =
-                window.matchMedia?.(
-                    '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
-                ).matches;
-
-            const cardField =
-                world.querySelector('.lotm-klein-world-cards');
-
-            const cardCount =
-                getLuxuryQualityCount(mobile ? 7 : 18);
-
-            for (let index = 0; index < cardCount; index++) {
-                const card = document.createElement('span');
-                card.className = 'lotm-klein-world-card';
-
-                card.style.left =
-                    `${3 + ((index * 31 + 7) % 92)}%`;
-
-                card.style.top =
-                    `${6 + ((index * 47 + 13) % 84)}%`;
-
-                card.style.setProperty(
-                    '--lotmk-duration',
-                    `${9 + (index % 7) * 1.35}s`
-                );
-
-                card.style.setProperty(
-                    '--lotmk-delay',
-                    `${-(index % 9) * .73}s`
-                );
-
-                card.style.setProperty(
-                    '--lotmk-rot',
-                    `${-24 + (index % 11) * 5}deg`
-                );
-
-                card.style.setProperty(
-                    '--lotmk-dx',
-                    `${-20 + (index % 8) * 6}px`
-                );
-
-                cardField?.appendChild(card);
-            }
-
-            const runeField =
-                world.querySelector('.lotm-klein-world-runes');
-
-            const runeGlyphs = [
-                '✦', '✧', '◇', '◈', '☽', 'Ⅰ', 'Ⅱ', 'Ⅲ',
-                'Ⅳ', 'Ⅴ', 'Ⅵ', 'Ⅶ', 'Ⅷ', 'Ⅸ', 'Ⅹ', '✶'
-            ];
-
-            const runeCount =
-                getLuxuryQualityCount(mobile ? 8 : 24);
-
-            for (let index = 0; index < runeCount; index++) {
-                const rune = document.createElement('span');
-                rune.className = 'lotm-klein-world-rune';
-                rune.textContent = runeGlyphs[index % runeGlyphs.length];
-                rune.style.setProperty(
-                    '--lotmk-rx',
-                    `${4 + ((index * 37 + 11) % 92)}%`
-                );
-                rune.style.setProperty(
-                    '--lotmk-ry',
-                    `${7 + ((index * 59 + 17) % 82)}%`
-                );
-                rune.style.setProperty(
-                    '--lotmk-rd',
-                    `${-(index % 10) * .53}s`
-                );
-                rune.style.setProperty(
-                    '--lotmk-rs',
-                    `${.72 + (index % 5) * .14}`
-                );
-                runeField?.appendChild(rune);
-            }
-
-            const moteField =
-                world.querySelector('.lotm-klein-world-motes');
-
-            const moteCount =
-                getLuxuryQualityCount(mobile ? 18 : 52);
-
-            for (let index = 0; index < moteCount; index++) {
-                const mote = document.createElement('span');
-                mote.className = 'lotm-klein-world-mote';
-
-                mote.style.setProperty(
-                    '--lotmk-x',
-                    `${(index * 43 + 9) % 100}%`
-                );
-
-                mote.style.setProperty(
-                    '--lotmk-y',
-                    `${(index * 67 + 11) % 100}%`
-                );
-
-                mote.style.setProperty(
-                    '--lotmk-size',
-                    `${1 + (index % 4)}px`
-                );
-
-                mote.style.setProperty(
-                    '--lotmk-duration',
-                    `${4.5 + (index % 8) * .72}s`
-                );
-
-                mote.style.setProperty(
-                    '--lotmk-delay',
-                    `${-(index % 11) * .39}s`
-                );
-
-                moteField?.appendChild(mote);
-            }
-
-            document.body.appendChild(world);
-
-            requestAnimationFrame(() => {
-                world.classList.add('is-active');
-            });
+            document.querySelectorAll('.lotm-klein-world').forEach(n=>n.remove());
+            document.documentElement.classList.add('fr9-klein-equipped');
+            this.realmScene('world').classList.add('lotm-klein-world');
         },
 
         createInterface() {
-            document
-                .querySelectorAll('.lotm-klein-ui-frame')
-                .forEach(element => element.remove());
-
-            const frame = document.createElement('div');
-            frame.className = 'lotm-klein-ui-frame lotm-klein-ui-frame-v2';
-            frame.setAttribute('aria-hidden', 'true');
-            frame.dataset.themeImmune = 'true';
-
-            frame.innerHTML = `
-                <span class="lotm-klein-ui-corner tl"></span>
-                <span class="lotm-klein-ui-corner tr"></span>
-                <span class="lotm-klein-ui-corner bl"></span>
-                <span class="lotm-klein-ui-corner br"></span>
-
-                <span class="lotm-klein-ui-rail rail-left">
-                    <i></i><b>✦</b><i></i>
-                </span>
-                <span class="lotm-klein-ui-rail rail-right">
-                    <i></i><b>✦</b><i></i>
-                </span>
-
-                <div class="lotm-klein-ui-crest">
-                    LORD OF THE MYSTERIES · SEFIRAH CASTLE
-                </div>
-                <div class="lotm-klein-ui-bottom-seal">
-                    <i></i><span>THE FOOL · MYSTERY · DESTINY</span><i></i>
-                </div>
-            `;
-
-            document.body.appendChild(frame);
-
-            requestAnimationFrame(() => {
-                frame.classList.add('is-active');
-            });
+            document.querySelectorAll('.lotm-klein-ui-frame').forEach(n=>n.remove());
+            const n=document.createElement('div');n.className='fr9-klein fr9-interface lotm-klein-ui-frame';n.dataset.fiveRealm='klein';n.setAttribute('aria-hidden','true');
+            n.innerHTML='<i></i><i></i><i></i><i></i>';document.body.appendChild(n);
         },
 
         createPetRealm() {
@@ -5792,6 +2466,7 @@
             const realm = document.createElement('div');
             realm.className = 'lotm-klein-pet-realm lotm-klein-pet-realm-v2';
             realm.setAttribute('aria-hidden', 'true');
+            realm.dataset.luxuryQualityLayer="1";
 
             realm.innerHTML = `
                 <span class="lotm-klein-pet-aura aura-outer"></span>
@@ -5861,314 +2536,31 @@
             return true;
         },
 
-        createPageClick(x, y) {
-            const click = document.createElement('span');
-            click.className = 'lotm-klein-page-click';
-            click.style.setProperty('--lotmk-click-x', `${x}px`);
-            click.style.setProperty('--lotmk-click-y', `${y}px`);
-
-            for (let index = 0; index < 12; index++) {
-                const shard = document.createElement('i');
-                shard.className = 'lotm-klein-click-shard';
-                shard.style.setProperty(
-                    '--lotmk-angle',
-                    `${index * 30}deg`
-                );
-                click.appendChild(shard);
-            }
-
-            document.body.appendChild(click);
-
-            this.setTimer(
-                () => click.remove(),
-                900
-            );
+        createPageClick(x,y) {if(!document.documentElement.classList.contains('lotm-klein-equipped'))return;return luxuryTapBloom11(this,'klein',x,y);
         },
 
-        installGlobalClick() {
-            if (this.documentClickHandler) {
-                document.removeEventListener(
-                    'click',
-                    this.documentClickHandler,
-                    true
-                );
-            }
-
-            this.documentClickHandler = event => {
-                if (
-                    !document.documentElement.classList.contains(
-                        'lotm-klein-equipped'
-                    )
-                ) {
-                    return;
-                }
-
-                const target = event.target;
-
-                if (
-                    target instanceof Element &&
-                    target.closest(
-                        '.ui-theme-immune, [data-theme-immune="true"], ' +
-                        '.lotm-klein-ultimate, .lotm-klein-ui-frame'
-                    )
-                ) {
-                    return;
-                }
-
-                this.createPageClick(
-                    event.clientX,
-                    event.clientY
-                );
-            };
-
-            document.addEventListener(
-                'click',
-                this.documentClickHandler,
-                true
-            );
+        installGlobalClick() {installLuxuryGestures10(this,'klein','lotm-klein-equipped',(x,y)=>this.createPageClick(x,y));
         },
 
-        createUltimate(x, y) {
-            if (this.skillLocked) {
-                return false;
-            }
-
-            this.skillLocked = true;
-
-            document
-                .querySelectorAll('.lotm-klein-ultimate')
-                .forEach(element => element.remove());
-
-            const ultimate = document.createElement('div');
-            ultimate.className = 'lotm-klein-ultimate lotm-klein-ultimate-v2';
-            ultimate.setAttribute('aria-hidden', 'true');
-
-            const ux =
-                `${Math.max(8, Math.min(92, x / Math.max(1, window.innerWidth) * 100))}%`;
-
-            const uy =
-                `${Math.max(10, Math.min(88, y / Math.max(1, window.innerHeight) * 100))}%`;
-
-            ultimate.style.setProperty('--lotmk-ux', ux);
-            ultimate.style.setProperty('--lotmk-uy', uy);
-
-            ultimate.innerHTML = `
-                <div class="lotm-klein-ultimate-blackout"></div>
-                <div class="lotm-klein-ultimate-flash"></div>
-                <div class="lotm-klein-ultimate-fog fog-a"></div>
-                <div class="lotm-klein-ultimate-fog fog-b"></div>
-                <div class="lotm-klein-ultimate-rays"></div>
-
-                <div class="lotm-klein-ultimate-castle">
-                    <span class="tower tower-a"></span>
-                    <span class="tower tower-b"></span>
-                    <span class="tower tower-c"></span>
-                </div>
-
-                <div class="lotm-klein-ultimate-sigil sigil-a"></div>
-                <div class="lotm-klein-ultimate-sigil sigil-b"></div>
-                <div class="lotm-klein-ultimate-sigil sigil-c"></div>
-                <div class="lotm-klein-ultimate-eye"></div>
-                <div class="lotm-klein-ultimate-cardstorm"></div>
-                <div class="lotm-klein-ultimate-glyphs"></div>
-
-                <div class="lotm-klein-ultimate-title">
-                    <small>SEFIRAH CASTLE · MYSTERY DESCENDS</small>
-                    <strong>LORD OF THE MYSTERIES</strong>
-                    <em>THE FOOL ABOVE THE GRAY FOG</em>
-                </div>
-            `;
-
-            const cardStorm =
-                ultimate.querySelector('.lotm-klein-ultimate-cardstorm');
-
-            const ultimateCards =
-                getLuxuryQualityCount(28, 10);
-
-            for (let index = 0; index < ultimateCards; index++) {
-                const card = document.createElement('i');
-                card.className = 'lotm-klein-ultimate-card';
-                card.style.setProperty(
-                    '--lotmk-ucx',
-                    `${2 + ((index * 37 + 9) % 96)}%`
-                );
-                card.style.setProperty(
-                    '--lotmk-ucy',
-                    `${-18 - (index % 6) * 8}%`
-                );
-                card.style.setProperty(
-                    '--lotmk-ucd',
-                    `${index * .045}s`
-                );
-                card.style.setProperty(
-                    '--lotmk-ucr',
-                    `${-34 + (index % 13) * 6}deg`
-                );
-                cardStorm?.appendChild(card);
-            }
-
-            const glyphField =
-                ultimate.querySelector('.lotm-klein-ultimate-glyphs');
-
-            ['Ⅰ','Ⅱ','Ⅲ','Ⅳ','Ⅴ','Ⅵ','Ⅶ','Ⅷ','Ⅸ','Ⅹ','☽','✦'].forEach(
-                (glyph, index) => {
-                    const mark = document.createElement('b');
-                    mark.textContent = glyph;
-                    mark.style.setProperty('--lotmk-uga', `${index * 30}deg`);
-                    mark.style.setProperty('--lotmk-ugd', `${index * .035}s`);
-                    glyphField?.appendChild(mark);
-                }
-            );
-
-            document.body.appendChild(ultimate);
-
-            document.documentElement.classList.add(
-                'lotm-klein-skill-active'
-            );
-
-            document
-                .getElementById('virtual-pet-container')
-                ?.classList.add('lotm-klein-casting');
-
-            this.setTimer(() => {
-                ultimate.remove();
-
-                document.documentElement.classList.remove(
-                    'lotm-klein-skill-active'
-                );
-
-                document
-                    .getElementById('virtual-pet-container')
-                    ?.classList.remove('lotm-klein-casting');
-
-                this.skillLocked = false;
-            }, 3250);
-
-            return true;
-        },
+        createUltimate(x,y) { return this.realmUltimate(x,y); },
 
         installPetSkill() {
-            const pet =
-                this.getPet() ||
-                document.querySelector(
-                    '#virtual-pet-container #virtual-pet-img'
-                );
-
-            if (!pet) {
-                return false;
-            }
-
-            this.ensurePetInteractivity(pet);
-
-            if (this.activePetElement && this.petClickHandler) {
-                this.activePetElement.removeEventListener(
-                    'click',
-                    this.petClickHandler,
-                    true
-                );
-            }
-
-            this.activePetElement = pet;
-
-            this.petClickHandler = event => {
-                if (
-                    !document.documentElement.classList.contains(
-                        'lotm-klein-equipped'
-                    )
-                ) {
-                    return;
-                }
-
-                if (
-                    typeof PetInteractionManager !== 'undefined' &&
-                    PetInteractionManager.isPetDragging
-                ) {
-                    return;
-                }
-
-                event.preventDefault();
-                event.stopPropagation();
-                event.__lotmKleinPremiumHandled = true;
-
-                const rect =
-                    pet.getBoundingClientRect();
-
-                this.createUltimate(
-                    rect.left + rect.width / 2,
-                    rect.top + rect.height / 2
-                );
+            const pet=this.getPet?.()||document.querySelector('#virtual-pet-img');const container=pet?.closest('#virtual-pet-container');if(!pet||!container)return false;
+            if(this.realmPet===pet)return true;
+            if(this.realmPet&&this.realmClick){this.realmPet.removeEventListener('click',this.realmClick,true);this.realmPet.removeEventListener('keydown',this.realmKey);}
+            this.realmPet=pet;this.activePetElement=pet;
+            this.realmAttrs=Object.fromEntries(['tabindex','role','aria-label'].map(k=>[k,pet.getAttribute(k)]));pet.tabIndex=0;pet.setAttribute('role','button');pet.setAttribute('aria-label',"Sefirah · Nghị Hội Vận Mệnh");
+            this.realmClick=e=>{
+                if(!document.documentElement.classList.contains('lotm-klein-equipped')||container.dataset.petDragged==='1'||(typeof PetInteractionManager!=='undefined'&&PetInteractionManager.isPetDragging))return;
+                e.preventDefault();e.stopImmediatePropagation();e.__nyxUltimateHandled=true;
+                const rect=pet.getBoundingClientRect();this.realmUltimate(rect.x+rect.width/2,rect.y+rect.height/2);
             };
-
-            // Capture phase để kỹ năng Klein không bị listener kéo/thả hoặc
-            // listener pet mặc định chặn trước khi tới handler Premium.
-            pet.addEventListener(
-                'click',
-                this.petClickHandler,
-                true
-            );
-
-            /*
-             * Fallback ở container:
-             * nếu một lớp CSS/runtime khác khiến target click không đi đúng
-             * listener ảnh nhưng click vẫn nằm trong vùng Klein, ultimate vẫn chạy.
-             */
-            const container =
-                document.getElementById('virtual-pet-container');
-
-            if (container && !container.__lotmKleinPremiumClickFallback) {
-                container.__lotmKleinPremiumClickFallback = event => {
-                    if (
-                        event.__lotmKleinPremiumHandled ||
-                        !document.documentElement.classList.contains(
-                            'lotm-klein-equipped'
-                        )
-                    ) {
-                        return;
-                    }
-
-                    const currentPet = this.getPet();
-
-                    if (!currentPet) {
-                        return;
-                    }
-
-                    const target = event.target;
-
-                    if (
-                        target !== currentPet &&
-                        !(target instanceof Element &&
-                          target.closest('#virtual-pet-img') === currentPet)
-                    ) {
-                        return;
-                    }
-
-                    if (
-                        typeof PetInteractionManager !== 'undefined' &&
-                        PetInteractionManager.isPetDragging
-                    ) {
-                        return;
-                    }
-
-                    event.preventDefault();
-                    event.stopPropagation();
-                    event.__lotmKleinPremiumHandled = true;
-
-                    const rect =
-                        currentPet.getBoundingClientRect();
-
-                    this.createUltimate(
-                        rect.left + rect.width / 2,
-                        rect.top + rect.height / 2
-                    );
-                };
-
-                container.addEventListener(
-                    'click',
-                    container.__lotmKleinPremiumClickFallback,
-                    true
-                );
-            }
-
+            this.realmKey=e=>{if(e.key==='Enter'||e.key===' '){this.realmClick(e);}};
+            pet.addEventListener('click',this.realmClick,true);pet.addEventListener('keydown',this.realmKey);
+            this.realmAbort?.abort();this.realmAbort=new AbortController();
+            document.addEventListener('visibilitychange',()=>document.querySelectorAll('[data-five-realm="klein"]').forEach(n=>n.classList.toggle('fr9-paused',document.hidden)),{signal:this.realmAbort.signal});
+            this.realmObserver?.disconnect();this.realmObserver=new MutationObserver(()=>{if(!pet.isConnected||container.hidden||container.style.display==='none')this.clear();});
+            this.realmObserver.observe(container.parentNode,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden','style']});
             return true;
         },
 
@@ -6440,7 +2832,7 @@
 
             if (ownScript?.src) {
                 try {
-                    href = new URL('../css/cam-co-cam-mong.css', ownScript.src).href;
+                    href = new URL('../css/cam-co-cam-mong.css?v=20260927.realms10', ownScript.src).href;
                 } catch (error) {
                     href = '';
                 }
@@ -6448,7 +2840,7 @@
         }
 
         if (!href) {
-            href = new URL('css/cam-co-cam-mong.css', document.baseURI).href;
+            href = new URL('css/cam-co-cam-mong.css?v=20260927.realms10', document.baseURI).href;
         }
 
         const link = document.createElement('link');
@@ -6461,7 +2853,7 @@
             console.error(
                 '[Cầm Mộng] Không tải được CSS:',
                 link.href,
-                'Hãy đặt file tại css/cam-co-cam-mong.css hoặc gán window.CAM_CO_CAM_MONG_CSS_PATH trước khi nạp luxury-store.js.'
+                'Hãy đặt file tại css/cam-co-cam-mong.css?v=20260927.five-realms-v9 hoặc gán window.CAM_CO_CAM_MONG_CSS_PATH trước khi nạp luxury-store.js.'
             );
         }, { once: true });
 
@@ -6476,6 +2868,29 @@
     // hay active_effect. Runtime chỉ sống theo pet đang được trang bị.
     // ========================================================
     const LuxuryCamCoCamMongRuntime = {
+        realmTimers: new Set(), realmLocked: false, realmLastClick: -1000,
+        realmLater(fn,ms) { const timer=setTimeout(()=>{this.realmTimers.delete(timer);fn();},ms);this.realmTimers.add(timer);return timer; },
+        clearRealmScene() {
+            this.realmTimers.forEach(clearTimeout);this.realmTimers.clear();this.realmLocked=false;this.realmLastClick=-1000;
+            this.realmAbort?.abort();this.realmObserver?.disconnect();
+            if(this.realmPet&&this.realmClick){this.realmPet.removeEventListener('click',this.realmClick,true);this.realmPet.removeEventListener('keydown',this.realmKey);}
+            for(const [key,value] of Object.entries(this.realmAttrs||{})){if(value===null)this.realmPet?.removeAttribute(key);else this.realmPet?.setAttribute(key,value);}
+            this.realmPet=null;this.realmAttrs=null;
+            document.querySelectorAll('[data-five-realm="cam"]').forEach(n=>n.remove());
+            document.documentElement.classList.remove('fr9-cam-equipped');
+        },
+        realmScene(mode,x=innerWidth/2,y=innerHeight/2) {
+            const node=document.createElement('div');node.className='fr9-cam fr9-scene fr9-'+mode;node.dataset.fiveRealm='cam';node.setAttribute('aria-hidden','true');
+            node.style.setProperty('--impact-x',x+'px');node.style.setProperty('--impact-y',y+'px');
+            node.innerHTML="<svg viewBox=\"0 0 1600 900\" preserveAspectRatio=\"xMidYMid slice\" aria-hidden=\"true\"><g class=\"cm-scroll\"><path class=\"paper\" d=\"M90 140Q430 60 800 140T1510 140V620Q1180 535 800 620T90 620Z\"/><path class=\"wire\" d=\"M110 159Q430 79 800 159T1490 159M110 600Q430 515 800 600T1490 600\"/><path class=\"wood\" d=\"M65 120H105V655H65ZM1495 120H1535V655H1495Z\"/></g><g class=\"cm-ink\"><path style=\"--i:0\" d=\"M100 535q35-140 65-220q24 160 62 40q45-175 76 20q24 110 83 160Z\"/><path style=\"--i:1\" d=\"M380 535q35-140 65-220q24 160 62 40q45-175 76 20q24 110 83 160Z\"/><path style=\"--i:2\" d=\"M660 535q35-140 65-220q24 160 62 40q45-175 76 20q24 110 83 160Z\"/><path style=\"--i:3\" d=\"M940 535q35-140 65-220q24 160 62 40q45-175 76 20q24 110 83 160Z\"/><path style=\"--i:4\" d=\"M1220 535q35-140 65-220q24 160 62 40q45-175 76 20q24 110 83 160Z\"/></g><g class=\"cm-water\"><path style=\"--i:0\" d=\"M120 580Q450 550 790 580T1490 580\"/><path style=\"--i:1\" d=\"M110 600Q450 570 790 600T1500 600\"/><path style=\"--i:2\" d=\"M100 620Q450 590 790 620T1510 620\"/><path style=\"--i:3\" d=\"M90 640Q450 610 790 640T1520 640\"/><path style=\"--i:4\" d=\"M80 660Q450 630 790 660T1530 660\"/><path style=\"--i:5\" d=\"M70 680Q450 650 790 680T1540 680\"/><path style=\"--i:6\" d=\"M60 700Q450 670 790 700T1550 700\"/><path style=\"--i:7\" d=\"M50 720Q450 690 790 720T1560 720\"/><path style=\"--i:8\" d=\"M40 740Q450 710 790 740T1570 740\"/><path style=\"--i:9\" d=\"M30 760Q450 730 790 760T1580 760\"/><path style=\"--i:10\" d=\"M20 780Q450 750 790 780T1590 780\"/><path style=\"--i:11\" d=\"M10 800Q450 770 790 800T1600 800\"/><path style=\"--i:12\" d=\"M0 820Q450 790 790 820T1610 820\"/><path style=\"--i:13\" d=\"M-10 840Q450 810 790 840T1620 840\"/></g><g class=\"cm-qin\"><path class=\"wood\" d=\"M120 650Q310 590 470 620L1410 690Q1460 725 1400 760L410 725Q240 770 120 710Z\"/><path class=\"wire\" d=\"M155 658Q310 617 470 635L1400 702M155 704Q300 745 410 708L1400 745\"/><path class=\"string\" style=\"--i:0\" d=\"M150 663Q730 510 1415 707\"/><path class=\"string\" style=\"--i:1\" d=\"M150 669Q730 546 1415 713\"/><path class=\"string\" style=\"--i:2\" d=\"M150 675Q730 582 1415 719\"/><path class=\"string\" style=\"--i:3\" d=\"M150 681Q730 618 1415 725\"/><path class=\"string\" style=\"--i:4\" d=\"M150 687Q730 654 1415 731\"/><path class=\"string\" style=\"--i:5\" d=\"M150 693Q730 690 1415 737\"/><path class=\"string\" style=\"--i:6\" d=\"M150 699Q730 726 1415 743\"/><circle class=\"gold\" cx=\"360\" cy=\"643\" r=\"3\"/><circle class=\"gold\" cx=\"436\" cy=\"648\" r=\"3\"/><circle class=\"gold\" cx=\"512\" cy=\"653\" r=\"3\"/><circle class=\"gold\" cx=\"588\" cy=\"658\" r=\"3\"/><circle class=\"gold\" cx=\"664\" cy=\"663\" r=\"3\"/><circle class=\"gold\" cx=\"740\" cy=\"668\" r=\"3\"/><circle class=\"gold\" cx=\"816\" cy=\"673\" r=\"3\"/><circle class=\"gold\" cx=\"892\" cy=\"678\" r=\"3\"/><circle class=\"gold\" cx=\"968\" cy=\"683\" r=\"3\"/><circle class=\"gold\" cx=\"1044\" cy=\"688\" r=\"3\"/><circle class=\"gold\" cx=\"1120\" cy=\"693\" r=\"3\"/><circle class=\"gold\" cx=\"1196\" cy=\"698\" r=\"3\"/><circle class=\"gold\" cx=\"1272\" cy=\"703\" r=\"3\"/></g><g class=\"cm-petals\"><path style=\"--i:0\" transform=\"translate(0 240) rotate(0)\" d=\"M0 0Q-35-15-12-35Q12-42 0 0Q30-22 33 2Q20 20 0 0Z\"/><path style=\"--i:1\" transform=\"translate(82 349.3912280250265) rotate(28)\" d=\"M0 0Q-35-15-12-35Q12-42 0 0Q30-22 33 2Q20 20 0 0Z\"/><path style=\"--i:2\" transform=\"translate(164 358.20866548733864) rotate(56)\" d=\"M0 0Q-35-15-12-35Q12-42 0 0Q30-22 33 2Q20 20 0 0Z\"/><path style=\"--i:3\" transform=\"translate(246 258.34560104778274) rotate(84)\" d=\"M0 0Q-35-15-12-35Q12-42 0 0Q30-22 33 2Q20 20 0 0Z\"/><path style=\"--i:4\" transform=\"translate(328 141.61567560996934) rotate(112)\" d=\"M0 0Q-35-15-12-35Q12-42 0 0Q30-22 33 2Q20 20 0 0Z\"/><path style=\"--i:5\" transform=\"translate(410 115.339844293792) rotate(140)\" d=\"M0 0Q-35-15-12-35Q12-42 0 0Q30-22 33 2Q20 20 0 0Z\"/><path style=\"--i:6\" transform=\"translate(492 203.67598523413963) rotate(168)\" d=\"M0 0Q-35-15-12-35Q12-42 0 0Q30-22 33 2Q20 20 0 0Z\"/><path style=\"--i:7\" transform=\"translate(574 325.4082578334426) rotate(196)\" d=\"M0 0Q-35-15-12-35Q12-42 0 0Q30-22 33 2Q20 20 0 0Z\"/><path style=\"--i:8\" transform=\"translate(656 368.6165720610396) rotate(224)\" d=\"M0 0Q-35-15-12-35Q12-42 0 0Q30-22 33 2Q20 20 0 0Z\"/><path style=\"--i:9\" transform=\"translate(738 293.57540308142836) rotate(252)\" d=\"M0 0Q-35-15-12-35Q12-42 0 0Q30-22 33 2Q20 20 0 0Z\"/><path style=\"--i:10\" transform=\"translate(820 169.27725558438192) rotate(280)\" d=\"M0 0Q-35-15-12-35Q12-42 0 0Q30-22 33 2Q20 20 0 0Z\"/><path style=\"--i:11\" transform=\"translate(902 110.00127314840856) rotate(308)\" d=\"M0 0Q-35-15-12-35Q12-42 0 0Q30-22 33 2Q20 20 0 0Z\"/><path style=\"--i:12\" transform=\"translate(984 170.24552065994345) rotate(336)\" d=\"M0 0Q-35-15-12-35Q12-42 0 0Q30-22 33 2Q20 20 0 0Z\"/><path style=\"--i:13\" transform=\"translate(1066 294.6217147874633) rotate(364)\" d=\"M0 0Q-35-15-12-35Q12-42 0 0Q30-22 33 2Q20 20 0 0Z\"/><path style=\"--i:14\" transform=\"translate(1148 368.7789562403332) rotate(392)\" d=\"M0 0Q-35-15-12-35Q12-42 0 0Q30-22 33 2Q20 20 0 0Z\"/><path style=\"--i:15\" transform=\"translate(1230 324.5374192204252) rotate(420)\" d=\"M0 0Q-35-15-12-35Q12-42 0 0Q30-22 33 2Q20 20 0 0Z\"/><path style=\"--i:16\" transform=\"translate(1312 202.5725688335415) rotate(448)\" d=\"M0 0Q-35-15-12-35Q12-42 0 0Q30-22 33 2Q20 20 0 0Z\"/><path style=\"--i:17\" transform=\"translate(1394 115.01832605565761) rotate(476)\" d=\"M0 0Q-35-15-12-35Q12-42 0 0Q30-22 33 2Q20 20 0 0Z\"/><path style=\"--i:18\" transform=\"translate(1476 142.3716579196821) rotate(504)\" d=\"M0 0Q-35-15-12-35Q12-42 0 0Q30-22 33 2Q20 20 0 0Z\"/><path style=\"--i:19\" transform=\"translate(1558 259.4840372561838) rotate(532)\" d=\"M0 0Q-35-15-12-35Q12-42 0 0Q30-22 33 2Q20 20 0 0Z\"/></g><g class=\"cm-notes\"><text style=\"--i:0\" x=\"190\" y=\"365\">宮</text><text style=\"--i:1\" x=\"365\" y=\"440.7323886327107\">商</text><text style=\"--i:2\" x=\"540\" y=\"446.83676841431134\">角</text><text style=\"--i:3\" x=\"715\" y=\"377.70080072538804\">徵</text><text style=\"--i:4\" x=\"890\" y=\"296.8877754222865\">羽</text><text style=\"--i:5\" x=\"1065\" y=\"278.69681528031754\">琴</text><text style=\"--i:6\" x=\"1240\" y=\"339.85260516209667\">心</text><text style=\"--i:7\" x=\"1415\" y=\"424.128793884691\">夢</text></g></svg>"+(mode==='ultimate'?'<div class="fr9-caption"><small>LẠC THANH HUYỀN</small><strong>Nhất Khúc · Sơn Hà Nhập Mộng</strong><span>Bảy dây ngân · Thủy mặc hóa tiên cảnh</span></div>':'');
+            document.body.appendChild(node);return node;
+        },
+        realmUltimate(x,y) {
+            if(this.realmLocked||document.hidden||!document.documentElement.classList.contains('cam-co-cam-mong-equipped'))return false;
+            this.realmLocked=true;const node=this.realmScene('ultimate',x,y);const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+            this.realmLater(()=>node.remove(),reduced?1400:8600);this.realmLater(()=>{this.realmLocked=false;},reduced?1800:9100);return true;
+        },
+
         activePetElement: null,
         petClickHandler: null,
         documentClickHandler: null,
@@ -6497,6 +2912,9 @@
         },
 
         clear() {
+            this.lastSmallTap12=-1000;
+            clearLuxuryGestures10(this);
+            this.clearRealmScene();
             if (this.activePetElement && this.petClickHandler) {
                 this.activePetElement.removeEventListener(
                     'click',
@@ -6553,219 +2971,15 @@
         },
 
         createWorld() {
-            document
-                .querySelectorAll('.cam-co-cam-mong-world')
-                .forEach(element => element.remove());
-
-            const world = document.createElement('div');
-            world.className = 'cam-co-cam-mong-world cam-co-ancient-world-v2';
-            world.setAttribute('aria-hidden', 'true');
-            world.setAttribute('data-effect-quality-root', '1');
-
-            world.innerHTML = `
-                <div class="cam-co-world-ink"></div>
-                <div class="cam-co-world-palace-haze"></div>
-
-                <div class="cam-co-world-moon">
-                    <i></i><b></b><span></span>
-                    <em>梦</em>
-                </div>
-
-                <div class="cam-co-world-mountain mountain-a"></div>
-                <div class="cam-co-world-mountain mountain-b"></div>
-                <div class="cam-co-world-mountain mountain-c"></div>
-
-                <div class="cam-co-world-cloud cloud-a"></div>
-                <div class="cam-co-world-cloud cloud-b"></div>
-                <div class="cam-co-world-cloud cloud-c"></div>
-                <div class="cam-co-world-cloud cloud-d"></div>
-                <div class="cam-co-world-cloud cloud-e"></div>
-
-                <div class="cam-co-world-palace-gate gate-left">
-                    <i></i><i></i><i></i><i></i><b></b>
-                </div>
-                <div class="cam-co-world-palace-gate gate-right">
-                    <i></i><i></i><i></i><i></i><b></b>
-                </div>
-
-                <div class="cam-co-world-ribbon ribbon-a"></div>
-                <div class="cam-co-world-ribbon ribbon-b"></div>
-                <div class="cam-co-world-ribbon ribbon-c"></div>
-                <div class="cam-co-world-ribbon ribbon-d"></div>
-
-                <div class="cam-co-world-screen-glow"></div>
-                <div class="cam-co-world-light-sweep"></div>
-                <div class="cam-co-world-cloud-veil"></div>
-                <div class="cam-co-world-bokeh"></div>
-                <div class="cam-co-world-talismans"></div>
-
-                <div class="cam-co-world-lanterns"></div>
-                <div class="cam-co-world-lotus-field"></div>
-                <div class="cam-co-world-qin-lines"></div>
-                <div class="cam-co-world-petals"></div>
-                <div class="cam-co-world-stars"></div>
-                <div class="cam-co-world-jade-dust"></div>
-            `;
-
-            const reduced = window.matchMedia?.(
-                '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
-            ).matches;
-
-            const petalField = world.querySelector('.cam-co-world-petals');
-            const starField = world.querySelector('.cam-co-world-stars');
-            const dustField = world.querySelector('.cam-co-world-jade-dust');
-            const qinLines = world.querySelector('.cam-co-world-qin-lines');
-            const lanternField = world.querySelector('.cam-co-world-lanterns');
-            const lotusField = world.querySelector('.cam-co-world-lotus-field');
-            const bokehField = world.querySelector('.cam-co-world-bokeh');
-            const talismanField = world.querySelector('.cam-co-world-talismans');
-
-            const petalCount = getLuxuryQualityCount(reduced ? 20 : 52);
-            const starCount = getLuxuryQualityCount(reduced ? 18 : 46);
-            const dustCount = getLuxuryQualityCount(reduced ? 22 : 58);
-            const stringCount = getLuxuryQualityCount(reduced ? 7 : 13);
-            const lanternCount = getLuxuryQualityCount(reduced ? 4 : 9);
-            const lotusCount = getLuxuryQualityCount(reduced ? 4 : 8);
-            const bokehCount = getLuxuryQualityCount(reduced ? 10 : 34);
-            const talismanCount = getLuxuryQualityCount(reduced ? 5 : 14);
-
-            for (let index = 0; index < petalCount; index++) {
-                const petal = document.createElement('i');
-                petal.style.setProperty('--cc-x', `${(index * 37 + 7) % 97}%`);
-                petal.style.setProperty('--cc-size', `${6 + (index % 6) * 1.7}px`);
-                petal.style.setProperty('--cc-delay', `${-(index % 15) * .61}s`);
-                petal.style.setProperty('--cc-drift', `${-58 + (index % 11) * 12}px`);
-                petal.style.setProperty('--cc-petal-rot', `${(index * 41) % 180}deg`);
-                petalField?.appendChild(petal);
-            }
-
-            for (let index = 0; index < starCount; index++) {
-                const star = document.createElement('i');
-                star.textContent = index % 7 === 0 ? '✦' : (index % 11 === 0 ? '✧' : '');
-                star.style.setProperty('--cc-sx', `${(index * 53 + 11) % 96}%`);
-                star.style.setProperty('--cc-sy', `${(index * 71 + 5) % 88}%`);
-                star.style.setProperty('--cc-ss', `${2.2 + (index % 5) * 1.1}px`);
-                star.style.setProperty('--cc-sd', `${-(index % 10) * .48}s`);
-                starField?.appendChild(star);
-            }
-
-            for (let index = 0; index < dustCount; index++) {
-                const dust = document.createElement('i');
-                dust.style.setProperty('--cc-dx', `${(index * 29 + 3) % 98}%`);
-                dust.style.setProperty('--cc-dy', `${(index * 47 + 9) % 92}%`);
-                dust.style.setProperty('--cc-ds', `${2 + (index % 5) * .75}px`);
-                dust.style.setProperty('--cc-dd', `${-(index % 13) * .57}s`);
-                dust.style.setProperty('--cc-ddrift', `${-18 + (index % 7) * 7}px`);
-                dustField?.appendChild(dust);
-            }
-
-            for (let index = 0; index < stringCount; index++) {
-                const string = document.createElement('i');
-                string.style.setProperty('--cc-qi', index);
-                string.style.setProperty('--cc-qd', `${-(index % 8) * .17}s`);
-                qinLines?.appendChild(string);
-            }
-
-            for (let index = 0; index < lanternCount; index++) {
-                const lantern = document.createElement('i');
-                lantern.innerHTML = '<b></b><span></span>';
-                lantern.style.setProperty('--cc-lx', `${8 + ((index * 91) % 84)}%`);
-                lantern.style.setProperty('--cc-ly', `${9 + ((index * 41) % 57)}%`);
-                lantern.style.setProperty('--cc-ls', `${.72 + (index % 4) * .12}`);
-                lantern.style.setProperty('--cc-ld', `${-(index % 7) * .8}s`);
-                lanternField?.appendChild(lantern);
-            }
-
-            for (let index = 0; index < lotusCount; index++) {
-                const lotus = document.createElement('i');
-                lotus.innerHTML = '<b></b><b></b><b></b><b></b><b></b><span></span>';
-                lotus.style.setProperty('--cc-lox', `${5 + ((index * 79) % 90)}%`);
-                lotus.style.setProperty('--cc-los', `${.68 + (index % 3) * .17}`);
-                lotus.style.setProperty('--cc-lod', `${-(index % 5) * 1.1}s`);
-                lotusField?.appendChild(lotus);
-            }
-
-            for (let index = 0; index < bokehCount; index++) {
-                const orb = document.createElement('i');
-                orb.style.setProperty('--cc-bx', `${(index * 67 + 9) % 96}%`);
-                orb.style.setProperty('--cc-by', `${(index * 43 + 6) % 90}%`);
-                orb.style.setProperty('--cc-bs', `${18 + (index % 7) * 11}px`);
-                orb.style.setProperty('--cc-bd', `${-(index % 12) * .62}s`);
-                orb.style.setProperty('--cc-bdrift', `${-28 + (index % 9) * 8}px`);
-                bokehField?.appendChild(orb);
-            }
-
-            const talismanSymbols = ['琴','梦','仙','月','云','花','灵'];
-            for (let index = 0; index < talismanCount; index++) {
-                const seal = document.createElement('i');
-                seal.textContent = talismanSymbols[index % talismanSymbols.length];
-                seal.style.setProperty('--cc-tx', `${6 + ((index * 83) % 88)}%`);
-                seal.style.setProperty('--cc-ty', `${10 + ((index * 57) % 74)}%`);
-                seal.style.setProperty('--cc-ts', `${.72 + (index % 5) * .12}`);
-                seal.style.setProperty('--cc-td', `${-(index % 9) * .78}s`);
-                seal.style.setProperty('--cc-tr', `${-10 + (index % 7) * 4}deg`);
-                talismanField?.appendChild(seal);
-            }
-
-            document.body.appendChild(world);
-            requestAnimationFrame(() => world.classList.add('is-mounted'));
+            document.querySelectorAll('.cam-co-cam-mong-world').forEach(n=>n.remove());
+            document.documentElement.classList.add('fr9-cam-equipped');
+            this.realmScene('world').classList.add('cam-co-cam-mong-world');
         },
 
         createInterface() {
-            document
-                .querySelectorAll('.cam-co-cam-mong-ui-frame')
-                .forEach(element => element.remove());
-
-            const frame = document.createElement('div');
-            frame.className = 'cam-co-cam-mong-ui-frame cam-co-ancient-ui-v2';
-            frame.setAttribute('aria-hidden', 'true');
-
-            frame.innerHTML = `
-                <div class="cam-co-ui-top">
-                    <i></i>
-                    <div class="cam-co-ui-tassel tassel-left"><b></b><span></span></div>
-                    <div class="cam-co-ui-seal">
-                        <em class="cam-co-ui-cloud cloud-left"></em>
-                        <small>仙 · 琴 · 梦</small>
-                        <strong>CẦM MỘNG</strong>
-                        <span>NHẤT KHÚC NHẬP TIÊN MÔN</span>
-                        <em class="cam-co-ui-cloud cloud-right"></em>
-                    </div>
-                    <div class="cam-co-ui-tassel tassel-right"><b></b><span></span></div>
-                    <i></i>
-                </div>
-
-                <div class="cam-co-ui-corner-wrap corner-tl">
-                    <span class="cam-co-ui-corner">❀</span><i></i><b></b>
-                </div>
-                <div class="cam-co-ui-corner-wrap corner-tr">
-                    <span class="cam-co-ui-corner">❀</span><i></i><b></b>
-                </div>
-                <div class="cam-co-ui-corner-wrap corner-bl">
-                    <span class="cam-co-ui-corner">☾</span><i></i><b></b>
-                </div>
-                <div class="cam-co-ui-corner-wrap corner-br">
-                    <span class="cam-co-ui-corner">☾</span><i></i><b></b>
-                </div>
-
-                <div class="cam-co-ui-side side-left">
-                    <em>琴</em><b></b><b></b><b></b><b></b><span>❀</span>
-                </div>
-                <div class="cam-co-ui-side side-right">
-                    <em>梦</em><b></b><b></b><b></b><b></b><span>❀</span>
-                </div>
-
-                <div class="cam-co-ui-bottom">
-                    <span>琴</span>
-                    <i></i><i></i><i></i><i></i><i></i>
-                    <strong>LẠC THANH HUYỀN</strong>
-                    <i></i><i></i><i></i><i></i><i></i>
-                    <span>梦</span>
-                </div>
-            `;
-
-            document.body.appendChild(frame);
-            requestAnimationFrame(() => frame.classList.add('is-mounted'));
+            document.querySelectorAll('.cam-co-cam-mong-ui-frame').forEach(n=>n.remove());
+            const n=document.createElement('div');n.className='fr9-cam fr9-interface cam-co-cam-mong-ui-frame';n.dataset.fiveRealm='cam';n.setAttribute('aria-hidden','true');
+            n.innerHTML='<i></i><i></i><i></i><i></i>';document.body.appendChild(n);
         },
 
         createPetRealm() {
@@ -6786,6 +3000,7 @@
             const realm = document.createElement('div');
             realm.className = 'cam-co-cam-mong-pet-realm cam-co-ancient-pet-realm-v2';
             realm.setAttribute('aria-hidden', 'true');
+            realm.dataset.luxuryQualityLayer="1";
             realm.setAttribute('data-effect-quality-root', '1');
 
             realm.innerHTML = `
@@ -6850,240 +3065,33 @@
             this.installPetSkill(pet, container);
         },
 
-        installPetSkill(pet, container) {
-            if (!pet || !container) return;
-
-            this.activePetElement = pet;
-            this.petClickHandler = event => {
-                if (this.skillLocked) return;
-                if (!document.documentElement.classList.contains('cam-co-cam-mong-equipped')) return;
-                if (
-                    typeof PetInteractionManager !== 'undefined' &&
-                    PetInteractionManager.isPetDragging
-                ) return;
-
-                event.stopPropagation();
-
-                const rect = pet.getBoundingClientRect();
-                const x = Number.isFinite(event.clientX) && event.clientX > 0
-                    ? event.clientX
-                    : rect.left + rect.width / 2;
-                const y = Number.isFinite(event.clientY) && event.clientY > 0
-                    ? event.clientY
-                    : rect.top + rect.height / 2;
-
-                this.skillLocked = true;
-                container.classList.add('cam-co-cam-mong-casting');
-                this.createPageClick(x, y, true);
-                this.createUltimate(x, y, container);
-
-                this.setTimer(() => {
-                    this.skillLocked = false;
-                    container.classList.remove('cam-co-cam-mong-casting');
-                }, 6900);
+        installPetSkill() {
+            const pet=this.getPet?.()||document.querySelector('#virtual-pet-img');const container=pet?.closest('#virtual-pet-container');if(!pet||!container)return false;
+            if(this.realmPet===pet)return true;
+            if(this.realmPet&&this.realmClick){this.realmPet.removeEventListener('click',this.realmClick,true);this.realmPet.removeEventListener('keydown',this.realmKey);}
+            this.realmPet=pet;this.activePetElement=pet;
+            this.realmAttrs=Object.fromEntries(['tabindex','role','aria-label'].map(k=>[k,pet.getAttribute(k)]));pet.tabIndex=0;pet.setAttribute('role','button');pet.setAttribute('aria-label',"Nhất Khúc · Sơn Hà Nhập Mộng");
+            this.realmClick=e=>{
+                if(!document.documentElement.classList.contains('cam-co-cam-mong-equipped')||container.dataset.petDragged==='1'||(typeof PetInteractionManager!=='undefined'&&PetInteractionManager.isPetDragging))return;
+                e.preventDefault();e.stopImmediatePropagation();e.__nyxUltimateHandled=true;
+                const rect=pet.getBoundingClientRect();this.realmUltimate(rect.x+rect.width/2,rect.y+rect.height/2);
             };
-
-            pet.addEventListener('click', this.petClickHandler);
+            this.realmKey=e=>{if(e.key==='Enter'||e.key===' '){this.realmClick(e);}};
+            pet.addEventListener('click',this.realmClick,true);pet.addEventListener('keydown',this.realmKey);
+            this.realmAbort?.abort();this.realmAbort=new AbortController();
+            document.addEventListener('visibilitychange',()=>document.querySelectorAll('[data-five-realm="cam"]').forEach(n=>n.classList.toggle('fr9-paused',document.hidden)),{signal:this.realmAbort.signal});
+            this.realmObserver?.disconnect();this.realmObserver=new MutationObserver(()=>{if(!pet.isConnected||container.hidden||container.style.display==='none')this.clear();});
+            this.realmObserver.observe(container.parentNode,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden','style']});
+            return true;
         },
 
-        installGlobalClick() {
-            this.documentClickHandler = event => {
-                if (!document.documentElement.classList.contains('cam-co-cam-mong-equipped')) return;
-
-                const target = event.target;
-                if (target instanceof Element && target.closest('#virtual-pet-container')) {
-                    const pet = target.closest('#virtual-pet-img') ||
-                        document.querySelector('#virtual-pet-container #virtual-pet-img.cam-co-cam-mong-pet');
-                    if (pet && typeof this.petClickHandler === 'function') {
-                        this.petClickHandler(event);
-                    }
-                    return;
-                }
-
-                if (
-                    target instanceof Element &&
-                    target.closest('.ui-theme-immune, [data-theme-immune="true"]')
-                ) return;
-
-                const x = Number.isFinite(event.clientX) ? event.clientX : window.innerWidth / 2;
-                const y = Number.isFinite(event.clientY) ? event.clientY : window.innerHeight / 2;
-                this.createPageClick(x, y, false);
-            };
-
-            document.addEventListener('click', this.documentClickHandler, true);
+        installGlobalClick() {installLuxuryGestures10(this,'cam','cam-co-cam-mong-equipped',(x,y)=>this.createPageClick(x,y));
         },
 
-        createPageClick(x, y, strong = false) {
-            const burst = document.createElement('div');
-            burst.className = 'cam-co-cam-mong-page-click cam-co-ancient-click-v2' + (strong ? ' is-strong' : '');
-            burst.style.setProperty('--cc-click-x', `${x}px`);
-            burst.style.setProperty('--cc-click-y', `${y}px`);
-            burst.setAttribute('aria-hidden', 'true');
-            burst.setAttribute('data-effect-quality-root', '1');
-
-            burst.innerHTML = `
-                <i class="ring ring-a"></i>
-                <i class="ring ring-b"></i>
-                <i class="ring ring-c"></i>
-                <i class="ring ring-d"></i>
-                <span class="seal">琴</span>
-                <span class="seal-outer">梦</span>
-                <b class="note note-a">♪</b>
-                <b class="note note-b">✦</b>
-                <b class="note note-c">❀</b>
-                <b class="note note-d">♫</b>
-                <b class="note note-e">☾</b>
-                <em class="ink ink-a"></em>
-                <em class="ink ink-b"></em>
-                <em class="petal petal-a"></em>
-                <em class="petal petal-b"></em>
-                <em class="petal petal-c"></em>
-                <em class="petal petal-d"></em>
-                <span class="ray ray-a"></span>
-                <span class="ray ray-b"></span>
-                <span class="ray ray-c"></span>
-                <span class="ray ray-d"></span>
-            `;
-
-            document.body.appendChild(burst);
-            requestAnimationFrame(() => burst.classList.add('is-active'));
-            this.setTimer(() => burst.remove(), strong ? 1800 : 1250);
+        createPageClick(x,y) {if(!document.documentElement.classList.contains('cam-co-cam-mong-equipped'))return;return luxuryTapBloom11(this,'cam',x,y);
         },
 
-        createUltimate(x, y, container) {
-            document
-                .querySelectorAll('.cam-co-cam-mong-ultimate, .cam-co-cam-mong-dialogue')
-                .forEach(element => element.remove());
-
-            const ultimate = document.createElement('div');
-            ultimate.className = 'cam-co-cam-mong-ultimate cam-co-ancient-ultimate-v2';
-            ultimate.style.setProperty('--cc-ultimate-x', `${x}px`);
-            ultimate.style.setProperty('--cc-ultimate-y', `${y}px`);
-            ultimate.setAttribute('aria-hidden', 'true');
-            ultimate.setAttribute('data-effect-quality-root', '1');
-
-            ultimate.innerHTML = `
-                <div class="cam-co-ultimate-flash"></div>
-                <div class="cam-co-ultimate-sky"></div>
-
-                <div class="cam-co-ultimate-curtain curtain-left"></div>
-                <div class="cam-co-ultimate-curtain curtain-right"></div>
-
-                <div class="cam-co-ultimate-ink ink-left"></div>
-                <div class="cam-co-ultimate-ink ink-right"></div>
-
-                <div class="cam-co-ultimate-palace">
-                    <i></i><i></i><i></i><i></i><b></b><span></span>
-                </div>
-
-                <div class="cam-co-ultimate-moon">
-                    <i></i><b></b><strong>琴</strong><em>梦</em>
-                </div>
-
-                <div class="cam-co-ultimate-ribbon ribbon-a"></div>
-                <div class="cam-co-ultimate-ribbon ribbon-b"></div>
-                <div class="cam-co-ultimate-ribbon ribbon-c"></div>
-                <div class="cam-co-ultimate-ribbon ribbon-d"></div>
-
-                <div class="cam-co-ultimate-qin"></div>
-                <div class="cam-co-ultimate-petals"></div>
-                <div class="cam-co-ultimate-runes"></div>
-                <div class="cam-co-ultimate-stars"></div>
-                <div class="cam-co-ultimate-lotus-field"></div>
-
-                <div class="cam-co-ultimate-wave wave-a"></div>
-                <div class="cam-co-ultimate-wave wave-b"></div>
-                <div class="cam-co-ultimate-wave wave-c"></div>
-
-                <div class="cam-co-ultimate-title-seal">
-                    <small>九霄仙音</small>
-                    <strong>一曲入梦</strong>
-                    <span>CẦM MỘNG TIÊN CẢNH</span>
-                </div>
-            `;
-
-            const qin = ultimate.querySelector('.cam-co-ultimate-qin');
-            const petals = ultimate.querySelector('.cam-co-ultimate-petals');
-            const runes = ultimate.querySelector('.cam-co-ultimate-runes');
-            const stars = ultimate.querySelector('.cam-co-ultimate-stars');
-            const lotuses = ultimate.querySelector('.cam-co-ultimate-lotus-field');
-
-            for (let index = 0; index < 21; index++) {
-                const string = document.createElement('i');
-                string.style.setProperty('--cc-ui', index);
-                string.style.setProperty('--cc-ud', `${index * .028}s`);
-                qin?.appendChild(string);
-            }
-
-            for (let index = 0; index < 72; index++) {
-                const petal = document.createElement('i');
-                petal.style.setProperty('--cc-ua', `${index * 5}deg`);
-                petal.style.setProperty('--cc-uad', `${index * -5}deg`);
-                const radius = 120 + (index % 10) * 31;
-                petal.style.setProperty('--cc-ur', `${radius}px`);
-                petal.style.setProperty('--cc-ur-neg', `${-radius}px`);
-                petal.style.setProperty('--cc-upd', `${(index % 12) * .036}s`);
-                petals?.appendChild(petal);
-            }
-
-            ['仙','梦','琴','月','灵','心','道','音','云','花','夜','境','玉','霜','弦','华'].forEach((symbol, index) => {
-                const rune = document.createElement('i');
-                rune.textContent = symbol;
-                rune.style.setProperty('--cc-ri', index);
-                rune.style.setProperty('--cc-ra', `${index * 22.5}deg`);
-                rune.style.setProperty('--cc-ra-neg', `${index * -22.5}deg`);
-                rune.style.setProperty('--cc-ra-end', `${index * 22.5 + 18}deg`);
-                rune.style.setProperty('--cc-ra-end-neg', `${index * -22.5 - 18}deg`);
-                rune.style.setProperty('--cc-rd', `${(index % 8) * .065}s`);
-                runes?.appendChild(rune);
-            });
-
-            for (let index = 0; index < 68; index++) {
-                const star = document.createElement('i');
-                star.style.setProperty('--cc-usx', `${(index * 47 + 5) % 96}%`);
-                star.style.setProperty('--cc-usy', `${(index * 73 + 7) % 90}%`);
-                star.style.setProperty('--cc-uss', `${2 + (index % 6) * .9}px`);
-                star.style.setProperty('--cc-usd', `${-(index % 14) * .11}s`);
-                stars?.appendChild(star);
-            }
-
-            for (let index = 0; index < 10; index++) {
-                const lotus = document.createElement('i');
-                lotus.innerHTML = '<b></b><b></b><b></b><b></b><b></b><span></span>';
-                lotus.style.setProperty('--cc-ulx', `${5 + ((index * 83) % 90)}%`);
-                lotus.style.setProperty('--cc-uls', `${.72 + (index % 4) * .14}`);
-                lotus.style.setProperty('--cc-uld', `${(index % 6) * .12}s`);
-                lotuses?.appendChild(lotus);
-            }
-
-            const dialogue = document.createElement('div');
-            dialogue.className = 'cam-co-cam-mong-dialogue cam-co-ancient-dialogue-v2';
-            dialogue.innerHTML = `
-                <i class="ornament ornament-left">❀</i>
-                <small>仙音入梦 · CỔ CẦM KHAI CẢNH</small>
-                <strong>CẦM MỘNG · VẠN HOA TIÊN KHÚC</strong>
-                <span>NHẤT KHÚC MỘNG KHỞI · VẠN NIỆM TỊNH TÂM</span>
-                <i class="ornament ornament-right">❀</i>
-            `;
-
-            document.body.append(ultimate, dialogue);
-            requestAnimationFrame(() => {
-                ultimate.classList.add('is-active');
-                dialogue.classList.add('is-active');
-            });
-
-            this.setTimer(() => ultimate.classList.add('is-climax'), 720);
-            this.setTimer(() => dialogue.classList.add('is-visible'), 860);
-            this.setTimer(() => {
-                ultimate.classList.add('is-ending');
-                dialogue.classList.add('is-ending');
-            }, 5250);
-            this.setTimer(() => {
-                ultimate.remove();
-                dialogue.remove();
-                container?.classList.remove('cam-co-cam-mong-casting');
-            }, 6500);
-        },
+        createUltimate(x,y) { return this.realmUltimate(x,y); },
 
         mount() {
             this.clear();
@@ -7151,7 +3159,7 @@
 
             if (ownScript?.src) {
                 try {
-                    href = new URL('../css/tamon-b-side.css', ownScript.src).href;
+                    href = new URL('../css/tamon-b-side.css?v=20260927.realms10', ownScript.src).href;
                 } catch (error) {
                     href = '';
                 }
@@ -7159,7 +3167,7 @@
         }
 
         if (!href) {
-            href = new URL('css/tamon-b-side.css', document.baseURI).href;
+            href = new URL('css/tamon-b-side.css?v=20260927.realms10', document.baseURI).href;
         }
 
         const link = document.createElement('link');
@@ -7197,6 +3205,8 @@
     // ghi đè dữ liệu giao diện hoặc hiệu ứng khác trong localStorage.
     // ========================================================
     const LuxuryTamonBSideRuntime = {
+        design10() { return LUX_CONFIG10["rose"]; },
+        sceneLocked10: false, lastTap10: -1000,
         activePetElement: null,
         petClickHandler: null,
         documentPointerHandler: null,
@@ -7221,6 +3231,8 @@
         },
 
         clear() {
+            this.lastSmallTap12=-1000;
+            clearLuxuryScene10(this);
             if (
                 this.activePetElement &&
                 this.petClickHandler
@@ -7295,669 +3307,25 @@
             );
         },
 
-        createWorld() {
-            document
-                .querySelectorAll(
-                    '.tamon-bside-world'
-                )
-                .forEach(element => element.remove());
-
-            const world =
-                document.createElement('div');
-
-            world.className =
-                'tamon-bside-world';
-
-            world.setAttribute(
-                'aria-hidden',
-                'true'
-            );
-
-            world.innerHTML = `
-                <div class="tamon-bside-world-wash"></div>
-                <div class="tamon-bside-world-grid"></div>
-
-                <div class="tamon-bside-vinyl vinyl-left">
-                    <i></i><b></b><span></span>
-                </div>
-
-                <div class="tamon-bside-vinyl vinyl-right">
-                    <i></i><b></b><span></span>
-                </div>
-
-                <div class="tamon-bside-world-wave wave-a"></div>
-                <div class="tamon-bside-world-wave wave-b"></div>
-                <div class="tamon-bside-world-wave wave-c"></div>
-
-                <div class="tamon-bside-world-stars"></div>
-                <div class="tamon-bside-world-eq"></div>
-                <div class="tamon-bside-world-glints"></div>
-            `;
-
-            const reduced =
-                window.matchMedia?.(
-                    '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
-                ).matches;
-
-            const starField =
-                world.querySelector(
-                    '.tamon-bside-world-stars'
-                );
-
-            const eqField =
-                world.querySelector(
-                    '.tamon-bside-world-eq'
-                );
-
-            const glintField =
-                world.querySelector(
-                    '.tamon-bside-world-glints'
-                );
-
-            const starCount = getLuxuryQualityCount(reduced ? 18 : 42);
-            const eqCount = getLuxuryQualityCount(reduced ? 14 : 28);
-            const glintCount = getLuxuryQualityCount(reduced ? 7 : 15);
-
-            for (
-                let index = 0;
-                index < starCount;
-                index++
-            ) {
-                const star =
-                    document.createElement('span');
-
-                star.className =
-                    index % 6 === 0
-                        ? 'tamon-bside-world-star is-star'
-                        : 'tamon-bside-world-star';
-
-                star.textContent =
-                    index % 6 === 0
-                        ? '✦'
-                        : '';
-
-                star.style.setProperty(
-                    '--tb-x',
-                    `${(index * 47 + 9) % 97}%`
-                );
-
-                star.style.setProperty(
-                    '--tb-y',
-                    `${(index * 71 + 13) % 93}%`
-                );
-
-                star.style.setProperty(
-                    '--tb-size',
-                    `${1.5 + (index % 5) * .85}px`
-                );
-
-                star.style.setProperty(
-                    '--tb-delay',
-                    `${-(index % 11) * .43}s`
-                );
-
-                starField?.appendChild(star);
-            }
-
-            for (
-                let index = 0;
-                index < eqCount;
-                index++
-            ) {
-                const bar =
-                    document.createElement('i');
-
-                bar.style.setProperty(
-                    '--tb-eq-i',
-                    index
-                );
-
-                bar.style.setProperty(
-                    '--tb-eq-h',
-                    `${24 + ((index * 17) % 72)}px`
-                );
-
-                bar.style.setProperty(
-                    '--tb-eq-delay',
-                    `${-(index % 9) * .16}s`
-                );
-
-                eqField?.appendChild(bar);
-            }
-
-            for (
-                let index = 0;
-                index < glintCount;
-                index++
-            ) {
-                const glint =
-                    document.createElement('span');
-
-                glint.style.setProperty(
-                    '--tb-gx',
-                    `${8 + ((index * 37) % 84)}%`
-                );
-
-                glint.style.setProperty(
-                    '--tb-gy',
-                    `${10 + ((index * 53) % 78)}%`
-                );
-
-                glint.style.setProperty(
-                    '--tb-gd',
-                    `${-(index % 7) * .7}s`
-                );
-
-                glintField?.appendChild(glint);
-            }
-
-            document.body.appendChild(world);
-
-            requestAnimationFrame(() => {
-                world.classList.add('is-mounted');
-            });
+        createWorld() {const c=this.design10();document.querySelectorAll('.'+c.world).forEach(n=>n.remove());document.documentElement.classList.add('lux10-'+c.id+'-equipped');luxuryScene10(this,'world').classList.add(c.world);
         },
 
-        createInterface() {
-            document
-                .querySelectorAll(
-                    '.tamon-bside-ui-frame'
-                )
-                .forEach(element => element.remove());
-
-            const frame =
-                document.createElement('div');
-
-            frame.className =
-                'tamon-bside-ui-frame';
-
-            frame.setAttribute(
-                'aria-hidden',
-                'true'
-            );
-
-            frame.innerHTML = `
-                <div class="tamon-bside-ui-top">
-                    <i></i>
-                    <div class="tamon-bside-ui-badge">
-                        <strong>TAMON</strong>
-                        <span>B-SIDE</span>
-                    </div>
-                    <i></i>
-                </div>
-
-                <span class="tamon-bside-ui-corner corner-tl">✦</span>
-                <span class="tamon-bside-ui-corner corner-tr">✦</span>
-                <span class="tamon-bside-ui-corner corner-bl">✦</span>
-                <span class="tamon-bside-ui-corner corner-br">✦</span>
-
-                <div class="tamon-bside-ui-side side-left">
-                    <b></b><b></b><b></b><b></b><b></b>
-                </div>
-
-                <div class="tamon-bside-ui-side side-right">
-                    <b></b><b></b><b></b><b></b><b></b>
-                </div>
-
-                <div class="tamon-bside-now-playing">
-                    <div class="tamon-bside-now-playing__pulse"></div>
-                    <div class="tamon-bside-now-playing__copy">
-                        <small>NOW PLAYING</small>
-                        <strong>TAMON'S B-SIDE</strong>
-                        <span>TRACK 02 · FLIP THE SIDE</span>
-                    </div>
-                    <div class="tamon-bside-now-playing__eq" aria-hidden="true">
-                        <i></i><i></i><i></i><i></i><i></i>
-                        <i></i><i></i><i></i><i></i>
-                    </div>
-                </div>
-
-                <div class="tamon-bside-ui-bottom">
-                    <span>01</span>
-                    <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-                    <strong>PLAY THE OTHER SIDE</strong>
-                    <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-                    <span>02</span>
-                </div>
-            `;
-
-            document.body.appendChild(frame);
-
-            requestAnimationFrame(() => {
-                frame.classList.add('is-mounted');
-            });
+        createInterface() {const c=this.design10();document.querySelectorAll('.'+c.ui).forEach(n=>n.remove());const n=document.createElement('div');n.className='lux10-interface lux10-'+c.id+' '+c.ui;n.dataset.scene10=c.id;n.setAttribute('aria-hidden','true');n.innerHTML='<i></i><b></b><em></em>';document.body.appendChild(n);
         },
 
-        createPetRealm() {
-            const container =
-                document.getElementById(
-                    'virtual-pet-container'
-                );
-
-            const pet =
-                container?.querySelector(
-                    '#virtual-pet-img'
-                );
-
-            if (!container || !pet) {
-                return;
-            }
-
-            container.classList.add(
-                'pet-tamon-bside-stage'
-            );
-
-            pet.classList.add(
-                'tamon-bside-pet'
-            );
-
-            container
-                .querySelectorAll(
-                    '.tamon-bside-pet-realm'
-                )
-                .forEach(element => element.remove());
-
-            const realm =
-                document.createElement('div');
-
-            realm.className =
-                'tamon-bside-pet-realm';
-
-            realm.setAttribute(
-                'aria-hidden',
-                'true'
-            );
-
-            realm.innerHTML = `
-                <span class="tamon-bside-pet-halo"></span>
-                <span class="tamon-bside-pet-disc disc-a"></span>
-                <span class="tamon-bside-pet-disc disc-b"></span>
-                <span class="tamon-bside-pet-orbit orbit-a"><i>★</i></span>
-                <span class="tamon-bside-pet-orbit orbit-b"><i>✦</i></span>
-                <span class="tamon-bside-pet-wave wave-a"></span>
-                <span class="tamon-bside-pet-wave wave-b"></span>
-                <span class="tamon-bside-pet-eq"></span>
-            `;
-
-            const eq =
-                realm.querySelector(
-                    '.tamon-bside-pet-eq'
-                );
-
-            for (
-                let index = 0;
-                index < 13;
-                index++
-            ) {
-                const bar =
-                    document.createElement('i');
-
-                bar.style.setProperty(
-                    '--tb-pet-i',
-                    index
-                );
-
-                bar.style.setProperty(
-                    '--tb-pet-delay',
-                    `${-(index % 7) * .13}s`
-                );
-
-                eq?.appendChild(bar);
-            }
-
-            container.insertBefore(
-                realm,
-                pet
-            );
-
-            this.installPetSkill(
-                pet,
-                container
-            );
+        createPetRealm() {return luxuryPet10(this);
         },
 
-        installPetSkill(pet, container) {
-            if (!pet || !container) {
-                return;
-            }
-
-            this.activePetElement = pet;
-
-            this.petClickHandler = event => {
-                if (this.skillLocked) {
-                    return;
-                }
-
-                if (
-                    !document.documentElement.classList.contains(
-                        'tamon-bside-equipped'
-                    )
-                ) {
-                    return;
-                }
-
-                if (
-                    typeof PetInteractionManager !== 'undefined' &&
-                    PetInteractionManager.isPetDragging
-                ) {
-                    return;
-                }
-
-                event.stopPropagation();
-
-                const rect =
-                    pet.getBoundingClientRect();
-
-                const x =
-                    Number.isFinite(event.clientX) &&
-                    event.clientX > 0
-                        ? event.clientX
-                        : rect.left + rect.width / 2;
-
-                const y =
-                    Number.isFinite(event.clientY) &&
-                    event.clientY > 0
-                        ? event.clientY
-                        : rect.top + rect.height / 2;
-
-                this.skillLocked = true;
-
-                container.classList.add(
-                    'tamon-bside-pet-casting'
-                );
-
-                this.createPageClick(
-                    x,
-                    y,
-                    true
-                );
-
-                this.createUltimate(
-                    x,
-                    y,
-                    container
-                );
-
-                this.setTimer(() => {
-                    this.skillLocked = false;
-                    container.classList.remove(
-                        'tamon-bside-pet-casting'
-                    );
-                }, 5200);
-            };
-
-            pet.addEventListener(
-                'click',
-                this.petClickHandler
-            );
+        installPetSkill() {return luxuryPet10(this);
         },
 
-        installGlobalClick() {
-            this.documentPointerHandler = event => {
-                if (
-                    !document.documentElement.classList.contains(
-                        'tamon-bside-equipped'
-                    )
-                ) {
-                    return;
-                }
-
-                const target = event.target;
-
-                /*
-                 * Click đúng Tamon:
-                 * chạy skill ngay ở capture phase để không bị drag/click
-                 * handler khác nuốt mất sự kiện. petClickHandler có khóa
-                 * skill nên listener bubble phía sau không thể chạy lặp.
-                 */
-                if (
-                    target instanceof Element &&
-                    target.closest(
-                        '#virtual-pet-container'
-                    )
-                ) {
-                    const pet =
-                        target.closest('#virtual-pet-img') ||
-                        document.querySelector(
-                            '#virtual-pet-container #virtual-pet-img.tamon-bside-pet'
-                        );
-
-                    if (
-                        pet &&
-                        typeof this.petClickHandler === 'function'
-                    ) {
-                        this.petClickHandler(event);
-                    }
-
-                    return;
-                }
-
-                if (
-                    target instanceof Element &&
-                    target.closest(
-                        '.ui-theme-immune, ' +
-                        '[data-theme-immune="true"]'
-                    )
-                ) {
-                    return;
-                }
-
-                const x =
-                    Number.isFinite(event.clientX)
-                        ? event.clientX
-                        : window.innerWidth / 2;
-
-                const y =
-                    Number.isFinite(event.clientY)
-                        ? event.clientY
-                        : window.innerHeight / 2;
-
-                this.createPageClick(x, y, false);
-            };
-
-            document.addEventListener(
-                'click',
-                this.documentPointerHandler,
-                true
-            );
+        installGlobalClick() {const c=this.design10();installLuxuryGestures10(this,c.id,c.root,(x,y)=>this.createPageClick(x,y));
         },
 
-        createPageClick(x, y, strong = false) {
-            const burst =
-                document.createElement('div');
-
-            burst.className =
-                'tamon-bside-page-click' +
-                (strong ? ' is-strong' : '');
-
-            burst.style.setProperty(
-                '--tb-click-x',
-                `${x}px`
-            );
-
-            burst.style.setProperty(
-                '--tb-click-y',
-                `${y}px`
-            );
-
-            burst.innerHTML = `
-                <i class="ring ring-a"></i>
-                <i class="ring ring-b"></i>
-                <b class="spark spark-a">✦</b>
-                <b class="spark spark-b">★</b>
-                <b class="spark spark-c">✦</b>
-                <span class="beat beat-a"></span>
-                <span class="beat beat-b"></span>
-                <span class="beat beat-c"></span>
-            `;
-
-            document.body.appendChild(burst);
-
-            requestAnimationFrame(() => {
-                burst.classList.add('is-active');
-            });
-
-            this.setTimer(() => {
-                burst.remove();
-            }, strong ? 1350 : 900);
+        createPageClick(x,y) {const c=this.design10();if(!document.documentElement.classList.contains(c.root))return;return luxuryTapBloom11(this,c.id,x,y);
         },
 
-        createUltimate(x, y, container) {
-            document
-                .querySelectorAll(
-                    '.tamon-bside-ultimate,' +
-                    '.tamon-bside-screen-dialogue'
-                )
-                .forEach(element => element.remove());
-
-            const ultimate =
-                document.createElement('div');
-
-            ultimate.className =
-                'tamon-bside-ultimate';
-
-            ultimate.style.setProperty(
-                '--tb-ultimate-x',
-                `${x}px`
-            );
-
-            ultimate.style.setProperty(
-                '--tb-ultimate-y',
-                `${y}px`
-            );
-
-            ultimate.setAttribute(
-                'aria-hidden',
-                'true'
-            );
-
-            ultimate.innerHTML = `
-                <div class="tamon-bside-ultimate-flash"></div>
-                <div class="tamon-bside-ultimate-shutter shutter-a"></div>
-                <div class="tamon-bside-ultimate-shutter shutter-b"></div>
-
-                <div class="tamon-bside-ultimate-disc">
-                    <i class="ring ring-a"></i>
-                    <i class="ring ring-b"></i>
-                    <i class="ring ring-c"></i>
-                    <b></b>
-                    <strong>B</strong>
-                </div>
-
-                <div class="tamon-bside-ultimate-spectrum"></div>
-                <div class="tamon-bside-ultimate-stars"></div>
-                <div class="tamon-bside-ultimate-scan"></div>
-            `;
-
-            const spectrum =
-                ultimate.querySelector(
-                    '.tamon-bside-ultimate-spectrum'
-                );
-
-            for (
-                let index = 0;
-                index < 36;
-                index++
-            ) {
-                const bar =
-                    document.createElement('i');
-
-                bar.style.setProperty(
-                    '--tb-u-i',
-                    index
-                );
-
-                bar.style.setProperty(
-                    '--tb-u-delay',
-                    `${-(index % 12) * .07}s`
-                );
-
-                spectrum?.appendChild(bar);
-            }
-
-            const stars =
-                ultimate.querySelector(
-                    '.tamon-bside-ultimate-stars'
-                );
-
-            for (
-                let index = 0;
-                index < 24;
-                index++
-            ) {
-                const star =
-                    document.createElement('i');
-
-                star.textContent =
-                    index % 3 === 0
-                        ? '★'
-                        : '✦';
-
-                star.style.setProperty(
-                    '--tb-u-angle',
-                    `${index * 15}deg`
-                );
-
-                star.style.setProperty(
-                    '--tb-u-angle-neg',
-                    `${index * -15}deg`
-                );
-
-                star.style.setProperty(
-                    '--tb-u-distance',
-                    `${120 + (index % 6) * 28}px`
-                );
-
-                star.style.setProperty(
-                    '--tb-u-delay',
-                    `${(index % 8) * .035}s`
-                );
-
-                stars?.appendChild(star);
-            }
-
-            const dialogue =
-                document.createElement('div');
-
-            dialogue.className =
-                'tamon-bside-screen-dialogue';
-
-            dialogue.innerHTML = `
-                <span>NOW PLAYING</span>
-                <strong>TAMON'S B-SIDE</strong>
-                <small>FLIP THE TRACK · BREAK THE FRAME</small>
-            `;
-
-            document.body.append(
-                ultimate,
-                dialogue
-            );
-
-            requestAnimationFrame(() => {
-                ultimate.classList.add('is-active');
-                dialogue.classList.add('is-active');
-            });
-
-            this.setTimer(() => {
-                ultimate.classList.add('is-climax');
-            }, 700);
-
-            this.setTimer(() => {
-                dialogue.classList.add('is-visible');
-            }, 780);
-
-            this.setTimer(() => {
-                ultimate.classList.add('is-ending');
-                dialogue.classList.add('is-ending');
-            }, 3900);
-
-            this.setTimer(() => {
-                ultimate.remove();
-                dialogue.remove();
-                container?.classList.remove(
-                    'tamon-bside-pet-casting'
-                );
-            }, 5000);
+        createUltimate(x,y) {return luxuryUltimate10(this,x,y);
         },
 
         mount() {
@@ -8029,6 +3397,8 @@
     // Không gọi ThemeManager / EffectManager và không dùng tamon-bside-*.
     // ========================================================
     const LuxuryTamonPinkStaticRuntime = {
+        design10() { return LUX_CONFIG10["cat"]; },
+        sceneLocked10: false, lastTap10: -1000,
         activePetElement: null,
         petClickHandler: null,
         documentClickHandler: null,
@@ -8050,6 +3420,8 @@
         },
 
         clear() {
+            this.lastSmallTap12=-1000;
+            clearLuxuryScene10(this);
             if (this.activePetElement && this.petClickHandler) {
                 this.activePetElement.removeEventListener(
                     'click',
@@ -8106,350 +3478,22 @@
                 ?.classList.remove('tamon-pinkstatic-pet');
         },
 
-        createWorld() {
-            document
-                .querySelectorAll('.tamon-pinkstatic-world')
-                .forEach(node => node.remove());
-
-            const world = document.createElement('div');
-            world.className = 'tamon-pinkstatic-world';
-            world.setAttribute('aria-hidden', 'true');
-            world.innerHTML = `
-                <div class="tamon-pinkstatic-wash"></div>
-                <div class="tamon-pinkstatic-dotgrid"></div>
-                <div class="tamon-pinkstatic-scanlines"></div>
-                <div class="tamon-pinkstatic-tape tape-a"></div>
-                <div class="tamon-pinkstatic-tape tape-b"></div>
-                <div class="tamon-pinkstatic-tape tape-c"></div>
-                <div class="tamon-pinkstatic-cassette-mark">
-                    <span class="reel reel-a"></span>
-                    <span class="reel reel-b"></span>
-                    <i></i>
-                </div>
-                <div class="tamon-pinkstatic-world-particles"></div>
-                <div class="tamon-pinkstatic-world-spectrum"></div>
-            `;
-
-            const reduced = window.matchMedia?.(
-                '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
-            ).matches;
-
-            const particleField = world.querySelector(
-                '.tamon-pinkstatic-world-particles'
-            );
-            const particleCount = getLuxuryQualityCount(reduced ? 18 : 44);
-
-            for (let index = 0; index < particleCount; index++) {
-                const particle = document.createElement('span');
-                particle.className =
-                    index % 7 === 0
-                        ? 'is-sticker'
-                        : index % 3 === 0
-                            ? 'is-dash'
-                            : 'is-dot';
-                particle.textContent =
-                    index % 7 === 0
-                        ? (index % 14 === 0 ? '★' : '✦')
-                        : '';
-                particle.style.setProperty(
-                    '--ps-x',
-                    `${(index * 37 + 9) % 96}%`
-                );
-                particle.style.setProperty(
-                    '--ps-y',
-                    `${(index * 61 + 13) % 92}%`
-                );
-                particle.style.setProperty(
-                    '--ps-delay',
-                    `${-(index % 13) * .43}s`
-                );
-                particle.style.setProperty(
-                    '--ps-drift',
-                    `${22 + (index % 8) * 9}px`
-                );
-                particleField?.appendChild(particle);
-            }
-
-            const spectrum = world.querySelector(
-                '.tamon-pinkstatic-world-spectrum'
-            );
-            const bars = reduced ? 18 : 42;
-            for (let index = 0; index < bars; index++) {
-                const bar = document.createElement('i');
-                bar.style.setProperty(
-                    '--ps-bar-delay',
-                    `${-(index % 11) * .07}s`
-                );
-                bar.style.setProperty(
-                    '--ps-bar-height',
-                    `${18 + (index * 17) % 72}%`
-                );
-                spectrum?.appendChild(bar);
-            }
-
-            document.body.appendChild(world);
-            requestAnimationFrame(() => world.classList.add('is-active'));
+        createWorld() {const c=this.design10();document.querySelectorAll('.'+c.world).forEach(n=>n.remove());document.documentElement.classList.add('lux10-'+c.id+'-equipped');luxuryScene10(this,'world').classList.add(c.world);
         },
 
-        createInterface() {
-            document
-                .querySelectorAll('.tamon-pinkstatic-ui')
-                .forEach(node => node.remove());
-
-            const ui = document.createElement('div');
-            ui.className = 'tamon-pinkstatic-ui';
-            ui.setAttribute('aria-hidden', 'true');
-            ui.innerHTML = `
-                <div class="tamon-pinkstatic-ui-top">
-                    <span>TRACK 03</span>
-                    <i></i>
-                    <strong>TAMON // B-SIDE</strong>
-                    <i></i>
-                    <span>PINK STATIC</span>
-                </div>
-                <div class="tamon-pinkstatic-ui-corner corner-tl">✦</div>
-                <div class="tamon-pinkstatic-ui-corner corner-tr">03</div>
-                <div class="tamon-pinkstatic-ui-corner corner-bl">SIDE B</div>
-                <div class="tamon-pinkstatic-ui-corner corner-br">★</div>
-                <div class="tamon-pinkstatic-nowplaying">
-                    <div class="tamon-pinkstatic-nowplaying-disc">
-                        <i></i>
-                    </div>
-                    <div class="tamon-pinkstatic-nowplaying-copy">
-                        <small>NOW PLAYING</small>
-                        <strong>HẮC PHẤN NGHỊCH NHỊP</strong>
-                        <span>CASSETTE 03 · PINK STATIC</span>
-                    </div>
-                    <div class="tamon-pinkstatic-nowplaying-eq">
-                        <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-                    </div>
-                </div>
-            `;
-
-            document.body.appendChild(ui);
-            requestAnimationFrame(() => ui.classList.add('is-active'));
+        createInterface() {const c=this.design10();document.querySelectorAll('.'+c.ui).forEach(n=>n.remove());const n=document.createElement('div');n.className='lux10-interface lux10-'+c.id+' '+c.ui;n.dataset.scene10=c.id;n.setAttribute('aria-hidden','true');n.innerHTML='<i></i><b></b><em></em>';document.body.appendChild(n);
         },
 
-        createPetRealm() {
-            const container = document.getElementById(
-                'virtual-pet-container'
-            );
-            const pet = container?.querySelector('#virtual-pet-img');
-            if (!container || !pet) return;
-
-            container
-                .querySelectorAll('.tamon-pinkstatic-realm')
-                .forEach(node => node.remove());
-
-            container.classList.add('pet-tamon-pinkstatic-stage');
-            pet.classList.add('tamon-pinkstatic-pet');
-            pet.setAttribute('draggable', 'false');
-
-            const realm = document.createElement('div');
-            realm.className = 'tamon-pinkstatic-realm';
-            realm.setAttribute('aria-hidden', 'true');
-            realm.innerHTML = `
-                <div class="tamon-pinkstatic-realm-glow"></div>
-                <div class="tamon-pinkstatic-realm-cassette">
-                    <span class="reel reel-a"><i></i></span>
-                    <span class="reel reel-b"><i></i></span>
-                    <b>SIDE B</b>
-                </div>
-                <div class="tamon-pinkstatic-realm-orbit orbit-a"><i>★</i></div>
-                <div class="tamon-pinkstatic-realm-orbit orbit-b"><i>✦</i></div>
-                <div class="tamon-pinkstatic-realm-wave wave-a"></div>
-                <div class="tamon-pinkstatic-realm-wave wave-b"></div>
-                <div class="tamon-pinkstatic-realm-eq">
-                    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-                </div>
-                <div class="tamon-pinkstatic-realm-stickers">
-                    <span>★</span><span>03</span><span>✦</span><span>B</span>
-                </div>
-            `;
-
-            container.insertBefore(realm, pet);
-            this.activePetElement = pet;
-
-            this.petClickHandler = event => {
-                if (event?.__tamonPinkStaticHandled) {
-                    return;
-                }
-                if (event) {
-                    event.__tamonPinkStaticHandled = true;
-                }
-                event?.stopPropagation?.();
-                const rect = pet.getBoundingClientRect();
-                const x = Number.isFinite(event?.clientX)
-                    ? event.clientX
-                    : rect.left + rect.width / 2;
-                const y = Number.isFinite(event?.clientY)
-                    ? event.clientY
-                    : rect.top + rect.height / 2;
-
-                this.createPageClick(x, y, true);
-                this.triggerUltimate(x, y);
-            };
-
-            pet.addEventListener('click', this.petClickHandler);
+        createPetRealm() {return luxuryPet10(this);
         },
 
-        installGlobalClick() {
-            this.documentClickHandler = event => {
-                if (!document.documentElement.classList.contains(
-                    'tamon-pinkstatic-equipped'
-                )) {
-                    return;
-                }
-
-                const target = event.target;
-
-                if (
-                    target instanceof Element &&
-                    target.closest('#virtual-pet-container')
-                ) {
-                    const pet = target.closest('#virtual-pet-img') ||
-                        document.querySelector(
-                            '#virtual-pet-container #virtual-pet-img.tamon-pinkstatic-pet'
-                        );
-                    if (pet && typeof this.petClickHandler === 'function') {
-                        this.petClickHandler(event);
-                    }
-                    return;
-                }
-
-                if (
-                    target instanceof Element &&
-                    target.closest(
-                        '.ui-theme-immune, [data-theme-immune="true"]'
-                    )
-                ) {
-                    return;
-                }
-
-                const x = Number.isFinite(event.clientX)
-                    ? event.clientX
-                    : window.innerWidth / 2;
-                const y = Number.isFinite(event.clientY)
-                    ? event.clientY
-                    : window.innerHeight / 2;
-                this.createPageClick(x, y, false);
-            };
-
-            document.addEventListener(
-                'click',
-                this.documentClickHandler,
-                true
-            );
+        installGlobalClick() {const c=this.design10();installLuxuryGestures10(this,c.id,c.root,(x,y)=>this.createPageClick(x,y));
         },
 
-        createPageClick(x, y, strong = false) {
-            const click = document.createElement('div');
-            click.className =
-                'tamon-pinkstatic-click' +
-                (strong ? ' is-strong' : '');
-            click.style.left = `${x}px`;
-            click.style.top = `${y}px`;
-            click.innerHTML = `
-                <i class="ring ring-a"></i>
-                <i class="ring ring-b"></i>
-                <span class="spark spark-a">✦</span>
-                <span class="spark spark-b">★</span>
-                <span class="note">B</span>
-            `;
-            document.body.appendChild(click);
-            this.setTimer(() => click.remove(), strong ? 1050 : 720);
+        createPageClick(x,y) {const c=this.design10();if(!document.documentElement.classList.contains(c.root))return;return luxuryTapBloom11(this,c.id,x,y);
         },
 
-        triggerUltimate(x, y) {
-            if (this.skillLocked) return;
-            this.skillLocked = true;
-
-            document
-                .querySelectorAll(
-                    '.tamon-pinkstatic-ultimate, .tamon-pinkstatic-dialogue'
-                )
-                .forEach(node => node.remove());
-
-            const ultimate = document.createElement('div');
-            ultimate.className = 'tamon-pinkstatic-ultimate';
-            ultimate.setAttribute('aria-hidden', 'true');
-            ultimate.style.setProperty('--ps-ux', `${x}px`);
-            ultimate.style.setProperty('--ps-uy', `${y}px`);
-            ultimate.innerHTML = `
-                <div class="tamon-pinkstatic-ultimate-blackout"></div>
-                <div class="tamon-pinkstatic-ultimate-flash"></div>
-                <div class="tamon-pinkstatic-ultimate-grid"></div>
-                <div class="tamon-pinkstatic-ultimate-cassette">
-                    <span class="reel reel-a"><i></i></span>
-                    <span class="reel reel-b"><i></i></span>
-                    <strong>B</strong>
-                </div>
-                <div class="tamon-pinkstatic-ultimate-rings">
-                    <i></i><i></i><i></i><i></i>
-                </div>
-                <div class="tamon-pinkstatic-ultimate-spectrum"></div>
-                <div class="tamon-pinkstatic-ultimate-stickers"></div>
-            `;
-
-            const spectrum = ultimate.querySelector(
-                '.tamon-pinkstatic-ultimate-spectrum'
-            );
-            for (let index = 0; index < 36; index++) {
-                const bar = document.createElement('i');
-                bar.style.setProperty(
-                    '--ps-u-delay',
-                    `${-(index % 9) * .055}s`
-                );
-                spectrum?.appendChild(bar);
-            }
-
-            const stickers = ultimate.querySelector(
-                '.tamon-pinkstatic-ultimate-stickers'
-            );
-            const glyphs = ['★', '✦', 'B', '03', 'SIDE', 'PLAY', '★', '✧'];
-            for (let index = 0; index < 24; index++) {
-                const sticker = document.createElement('span');
-                sticker.textContent = glyphs[index % glyphs.length];
-                sticker.style.setProperty(
-                    '--ps-u-angle',
-                    `${index * 15}deg`
-                );
-                sticker.style.setProperty(
-                    '--ps-u-distance',
-                    `${105 + (index % 6) * 38}px`
-                );
-                sticker.style.setProperty(
-                    '--ps-u-delay',
-                    `${index * .018}s`
-                );
-                stickers?.appendChild(sticker);
-            }
-
-            const dialogue = document.createElement('div');
-            dialogue.className = 'tamon-pinkstatic-dialogue';
-            dialogue.innerHTML = `
-                <span>BEAT DROP // SIDE B</span>
-                <strong>HẮC PHẤN NGHỊCH NHỊP</strong>
-                <small>FLIP THE TAPE · BREAK THE QUIET</small>
-            `;
-
-            document.body.append(ultimate, dialogue);
-            requestAnimationFrame(() => {
-                ultimate.classList.add('is-active');
-                dialogue.classList.add('is-active');
-            });
-
-            this.setTimer(() => ultimate.classList.add('is-climax'), 620);
-            this.setTimer(() => dialogue.classList.add('is-visible'), 700);
-            this.setTimer(() => {
-                ultimate.classList.add('is-ending');
-                dialogue.classList.add('is-ending');
-            }, 2600);
-            this.setTimer(() => {
-                ultimate.remove();
-                dialogue.remove();
-                this.skillLocked = false;
-            }, 3400);
+        triggerUltimate(x,y) {return luxuryUltimate10(this,x,y);
         },
 
         mount() {
@@ -8542,7 +3586,7 @@
             if (ownScript?.src) {
                 try {
                     href = new URL(
-                        '../css/aether-than-thoai.css?v=20260917.aether-v1',
+                        '../css/aether-than-thoai.css?v=20260927.realms10',
                         ownScript.src
                     ).href;
                 } catch (_) {
@@ -8553,7 +3597,7 @@
 
         if (!href) {
             href = new URL(
-                'css/aether-than-thoai.css?v=20260917.aether-v1',
+                'css/aether-than-thoai.css?v=20260927.realms10',
                 document.baseURI
             ).href;
         }
@@ -8568,7 +3612,7 @@
             console.error(
                 '[AETHER] Không tải được CSS:',
                 link.href,
-                'Hãy đặt file tại css/aether-than-thoai.css hoặc gán window.AETHER_MYTHIC_CSS_PATH trước khi nạp luxury-store.js.'
+                'Hãy đặt file tại css/aether-than-thoai.css?v=20260927.five-realms-v9 hoặc gán window.AETHER_MYTHIC_CSS_PATH trước khi nạp luxury-store.js.'
             );
         }, { once: true });
 
@@ -8582,6 +3626,29 @@
     // Namespace độc lập: aether-mythic-* / aetherLuminous*
     // ========================================================
     const LuxuryAetherRuntime = {
+        realmTimers: new Set(), realmLocked: false, realmLastClick: -1000,
+        realmLater(fn,ms) { const timer=setTimeout(()=>{this.realmTimers.delete(timer);fn();},ms);this.realmTimers.add(timer);return timer; },
+        clearRealmScene() {
+            this.realmTimers.forEach(clearTimeout);this.realmTimers.clear();this.realmLocked=false;this.realmLastClick=-1000;
+            this.realmAbort?.abort();this.realmObserver?.disconnect();
+            if(this.realmPet&&this.realmClick){this.realmPet.removeEventListener('click',this.realmClick,true);this.realmPet.removeEventListener('keydown',this.realmKey);}
+            for(const [key,value] of Object.entries(this.realmAttrs||{})){if(value===null)this.realmPet?.removeAttribute(key);else this.realmPet?.setAttribute(key,value);}
+            this.realmPet=null;this.realmAttrs=null;
+            document.querySelectorAll('[data-five-realm="aether"]').forEach(n=>n.remove());
+            document.documentElement.classList.remove('fr9-aether-equipped');
+        },
+        realmScene(mode,x=innerWidth/2,y=innerHeight/2) {
+            const node=document.createElement('div');node.className='fr9-aether fr9-scene fr9-'+mode;node.dataset.fiveRealm='aether';node.setAttribute('aria-hidden','true');
+            node.style.setProperty('--impact-x',x+'px');node.style.setProperty('--impact-y',y+'px');
+            node.innerHTML="<svg viewBox=\"0 0 1600 900\" preserveAspectRatio=\"xMidYMid slice\" aria-hidden=\"true\"><g class=\"ae-radiator\"><path style=\"--i:0\" transform=\"rotate(0 800 395)\" class=\"beam\" d=\"M790 275L772-200H828L810 275Z\"/><path style=\"--i:1\" transform=\"rotate(15 800 395)\" class=\"beam\" d=\"M790 275L772-200H828L810 275Z\"/><path style=\"--i:2\" transform=\"rotate(30 800 395)\" class=\"beam\" d=\"M790 275L772-200H828L810 275Z\"/><path style=\"--i:3\" transform=\"rotate(45 800 395)\" class=\"beam\" d=\"M790 275L772-200H828L810 275Z\"/><path style=\"--i:4\" transform=\"rotate(60 800 395)\" class=\"beam\" d=\"M790 275L772-200H828L810 275Z\"/><path style=\"--i:5\" transform=\"rotate(75 800 395)\" class=\"beam\" d=\"M790 275L772-200H828L810 275Z\"/><path style=\"--i:6\" transform=\"rotate(90 800 395)\" class=\"beam\" d=\"M790 275L772-200H828L810 275Z\"/><path style=\"--i:7\" transform=\"rotate(105 800 395)\" class=\"beam\" d=\"M790 275L772-200H828L810 275Z\"/><path style=\"--i:8\" transform=\"rotate(120 800 395)\" class=\"beam\" d=\"M790 275L772-200H828L810 275Z\"/><path style=\"--i:9\" transform=\"rotate(135 800 395)\" class=\"beam\" d=\"M790 275L772-200H828L810 275Z\"/><path style=\"--i:10\" transform=\"rotate(150 800 395)\" class=\"beam\" d=\"M790 275L772-200H828L810 275Z\"/><path style=\"--i:11\" transform=\"rotate(165 800 395)\" class=\"beam\" d=\"M790 275L772-200H828L810 275Z\"/><path style=\"--i:12\" transform=\"rotate(180 800 395)\" class=\"beam\" d=\"M790 275L772-200H828L810 275Z\"/><path style=\"--i:13\" transform=\"rotate(195 800 395)\" class=\"beam\" d=\"M790 275L772-200H828L810 275Z\"/><path style=\"--i:14\" transform=\"rotate(210 800 395)\" class=\"beam\" d=\"M790 275L772-200H828L810 275Z\"/><path style=\"--i:15\" transform=\"rotate(225 800 395)\" class=\"beam\" d=\"M790 275L772-200H828L810 275Z\"/><path style=\"--i:16\" transform=\"rotate(240 800 395)\" class=\"beam\" d=\"M790 275L772-200H828L810 275Z\"/><path style=\"--i:17\" transform=\"rotate(255 800 395)\" class=\"beam\" d=\"M790 275L772-200H828L810 275Z\"/><path style=\"--i:18\" transform=\"rotate(270 800 395)\" class=\"beam\" d=\"M790 275L772-200H828L810 275Z\"/><path style=\"--i:19\" transform=\"rotate(285 800 395)\" class=\"beam\" d=\"M790 275L772-200H828L810 275Z\"/><path style=\"--i:20\" transform=\"rotate(300 800 395)\" class=\"beam\" d=\"M790 275L772-200H828L810 275Z\"/><path style=\"--i:21\" transform=\"rotate(315 800 395)\" class=\"beam\" d=\"M790 275L772-200H828L810 275Z\"/><path style=\"--i:22\" transform=\"rotate(330 800 395)\" class=\"beam\" d=\"M790 275L772-200H828L810 275Z\"/><path style=\"--i:23\" transform=\"rotate(345 800 395)\" class=\"beam\" d=\"M790 275L772-200H828L810 275Z\"/></g><g class=\"ae-array\"><g style=\"--i:0\" transform=\"translate(800 390) rotate(0)\"><path class=\"facet\" d=\"M-18-140L-38-270L0-340L38-270L18-140L0-120Z\"/><path class=\"wire\" d=\"M0-340V-120M-38-270H38M-18-140L0-270L18-140\"/></g><g style=\"--i:1\" transform=\"translate(800 390) rotate(30)\"><path class=\"facet\" d=\"M-18-140L-38-270L0-340L38-270L18-140L0-120Z\"/><path class=\"wire\" d=\"M0-340V-120M-38-270H38M-18-140L0-270L18-140\"/></g><g style=\"--i:2\" transform=\"translate(800 390) rotate(60)\"><path class=\"facet\" d=\"M-18-140L-38-270L0-340L38-270L18-140L0-120Z\"/><path class=\"wire\" d=\"M0-340V-120M-38-270H38M-18-140L0-270L18-140\"/></g><g style=\"--i:3\" transform=\"translate(800 390) rotate(90)\"><path class=\"facet\" d=\"M-18-140L-38-270L0-340L38-270L18-140L0-120Z\"/><path class=\"wire\" d=\"M0-340V-120M-38-270H38M-18-140L0-270L18-140\"/></g><g style=\"--i:4\" transform=\"translate(800 390) rotate(120)\"><path class=\"facet\" d=\"M-18-140L-38-270L0-340L38-270L18-140L0-120Z\"/><path class=\"wire\" d=\"M0-340V-120M-38-270H38M-18-140L0-270L18-140\"/></g><g style=\"--i:5\" transform=\"translate(800 390) rotate(150)\"><path class=\"facet\" d=\"M-18-140L-38-270L0-340L38-270L18-140L0-120Z\"/><path class=\"wire\" d=\"M0-340V-120M-38-270H38M-18-140L0-270L18-140\"/></g><g style=\"--i:6\" transform=\"translate(800 390) rotate(180)\"><path class=\"facet\" d=\"M-18-140L-38-270L0-340L38-270L18-140L0-120Z\"/><path class=\"wire\" d=\"M0-340V-120M-38-270H38M-18-140L0-270L18-140\"/></g><g style=\"--i:7\" transform=\"translate(800 390) rotate(210)\"><path class=\"facet\" d=\"M-18-140L-38-270L0-340L38-270L18-140L0-120Z\"/><path class=\"wire\" d=\"M0-340V-120M-38-270H38M-18-140L0-270L18-140\"/></g><g style=\"--i:8\" transform=\"translate(800 390) rotate(240)\"><path class=\"facet\" d=\"M-18-140L-38-270L0-340L38-270L18-140L0-120Z\"/><path class=\"wire\" d=\"M0-340V-120M-38-270H38M-18-140L0-270L18-140\"/></g><g style=\"--i:9\" transform=\"translate(800 390) rotate(270)\"><path class=\"facet\" d=\"M-18-140L-38-270L0-340L38-270L18-140L0-120Z\"/><path class=\"wire\" d=\"M0-340V-120M-38-270H38M-18-140L0-270L18-140\"/></g><g style=\"--i:10\" transform=\"translate(800 390) rotate(300)\"><path class=\"facet\" d=\"M-18-140L-38-270L0-340L38-270L18-140L0-120Z\"/><path class=\"wire\" d=\"M0-340V-120M-38-270H38M-18-140L0-270L18-140\"/></g><g style=\"--i:11\" transform=\"translate(800 390) rotate(330)\"><path class=\"facet\" d=\"M-18-140L-38-270L0-340L38-270L18-140L0-120Z\"/><path class=\"wire\" d=\"M0-340V-120M-38-270H38M-18-140L0-270L18-140\"/></g></g><g class=\"ae-wings\"><path style=\"--i:0\" class=\"facet\" d=\"M740 460L530 400L260 120L490 475Z M860 460L1070 400L1340 120L1110 475Z\"/><path style=\"--i:1\" class=\"facet\" d=\"M719 440L472 362L230 175L442 500Z M881 440L1128 362L1370 175L1158 500Z\"/><path style=\"--i:2\" class=\"facet\" d=\"M698 420L414 324L200 230L394 525Z M902 420L1186 324L1400 230L1206 525Z\"/><path style=\"--i:3\" class=\"facet\" d=\"M677 400L356 286L170 285L346 550Z M923 400L1244 286L1430 285L1254 550Z\"/><path style=\"--i:4\" class=\"facet\" d=\"M656 380L298 248L140 340L298 575Z M944 380L1302 248L1460 340L1302 575Z\"/><path style=\"--i:5\" class=\"facet\" d=\"M635 360L240 210L110 395L250 600Z M965 360L1360 210L1490 395L1350 600Z\"/><path style=\"--i:6\" class=\"facet\" d=\"M614 340L182 172L80 450L202 625Z M986 340L1418 172L1520 450L1398 625Z\"/></g><g class=\"ae-engine\"><path class=\"core\" d=\"M800 180L950 390L800 600L650 390Z\"/><path class=\"wire\" d=\"M800 180V600M650 390H950M800 245L905 390L800 535L695 390Z\"/></g><g class=\"ae-bridge\"><path class=\"facet\" style=\"--i:0\" d=\"M745 570L800 552L855 570L800 591Z\"/><path class=\"facet\" style=\"--i:1\" d=\"M741 597L800 579L859 597L800 618Z\"/><path class=\"facet\" style=\"--i:2\" d=\"M729 624L800 606L871 624L800 645Z\"/><path class=\"facet\" style=\"--i:3\" d=\"M709 651L800 633L891 651L800 672Z\"/><path class=\"facet\" style=\"--i:4\" d=\"M681 678L800 660L919 678L800 699Z\"/><path class=\"facet\" style=\"--i:5\" d=\"M645 705L800 687L955 705L800 726Z\"/><path class=\"facet\" style=\"--i:6\" d=\"M601 732L800 714L999 732L800 753Z\"/><path class=\"facet\" style=\"--i:7\" d=\"M549 759L800 741L1051 759L800 780Z\"/><path class=\"facet\" style=\"--i:8\" d=\"M489 786L800 768L1111 786L800 807Z\"/><path class=\"facet\" style=\"--i:9\" d=\"M421 813L800 795L1179 813L800 834Z\"/><path class=\"facet\" style=\"--i:10\" d=\"M345 840L800 822L1255 840L800 861Z\"/><path class=\"facet\" style=\"--i:11\" d=\"M261 867L800 849L1339 867L800 888Z\"/></g><g class=\"ae-spectrum\"><path style=\"--i:0\" d=\"M-100 680L510 580L800 270L1090 580L1700 120\"/><path style=\"--i:1\" d=\"M-100 690L510 568L800 292L1090 568L1700 165\"/><path style=\"--i:2\" d=\"M-100 700L510 556L800 314L1090 556L1700 210\"/><path style=\"--i:3\" d=\"M-100 710L510 544L800 336L1090 544L1700 255\"/><path style=\"--i:4\" d=\"M-100 720L510 532L800 358L1090 532L1700 300\"/><path style=\"--i:5\" d=\"M-100 730L510 520L800 380L1090 520L1700 345\"/><path style=\"--i:6\" d=\"M-100 740L510 508L800 402L1090 508L1700 390\"/><path style=\"--i:7\" d=\"M-100 750L510 496L800 424L1090 496L1700 435\"/><path style=\"--i:8\" d=\"M-100 760L510 484L800 446L1090 484L1700 480\"/></g></svg>"+(mode==='ultimate'?'<div class="fr9-caption"><small>AETHER</small><strong>Genesis · Khai Thiên Quang Giới</strong><span>Lăng kính thức tỉnh · Bình minh đầu tiên</span></div>':'');
+            document.body.appendChild(node);return node;
+        },
+        realmUltimate(x,y) {
+            if(this.realmLocked||document.hidden||!document.documentElement.classList.contains('aether-luminous-equipped'))return false;
+            this.realmLocked=true;const node=this.realmScene('ultimate',x,y);const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+            this.realmLater(()=>node.remove(),reduced?1400:8600);this.realmLater(()=>{this.realmLocked=false;},reduced?1800:9100);return true;
+        },
+
         activePetElement: null,
         petClickHandler: null,
         petPointerDownHandler: null,
@@ -8614,6 +3681,9 @@
         },
 
         clear() {
+            this.lastSmallTap12=-1000;
+            clearLuxuryGestures10(this);
+            this.clearRealmScene();
             const oldPet = this.activePetElement;
             if (oldPet) {
                 if (this.petClickHandler) {
@@ -8687,94 +3757,15 @@
         },
 
         createWorld() {
-            document
-                .querySelectorAll('.aether-mythic-world')
-                .forEach(node => node.remove());
-
-            const world = document.createElement('div');
-            world.className = 'aether-mythic-world';
-            world.setAttribute('aria-hidden', 'true');
-            world.innerHTML = `
-                <div class="aether-world-wash"></div>
-                <div class="aether-world-nebula nebula-a"></div>
-                <div class="aether-world-nebula nebula-b"></div>
-                <div class="aether-world-sun">
-                    <span class="aether-world-sun-core"></span>
-                    <span class="aether-world-sun-ring ring-a"></span>
-                    <span class="aether-world-sun-ring ring-b"></span>
-                    <span class="aether-world-sun-ring ring-c"></span>
-                    <span class="aether-world-sun-ring ring-d"></span>
-                </div>
-                <div class="aether-world-aurora aurora-a"></div>
-                <div class="aether-world-aurora aurora-b"></div>
-                <div class="aether-world-rays"></div>
-                <div class="aether-world-constellation"></div>
-                <div class="aether-world-meteors"></div>
-                <div class="aether-world-particles"></div>
-                <div class="aether-world-horizon"></div>
-            `;
-
-            const reduced = window.matchMedia?.(
-                '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
-            ).matches;
-
-            const particleField = world.querySelector('.aether-world-particles');
-            const particleCount = getLuxuryQualityCount(reduced ? 18 : 52);
-            for (let index = 0; index < particleCount; index++) {
-                const particle = document.createElement('i');
-                particle.className =
-                    index % 6 === 0
-                        ? 'aether-world-particle is-star'
-                        : 'aether-world-particle';
-                particle.textContent = index % 6 === 0 ? '✦' : '';
-                particle.style.setProperty('--aether-x', `${(index * 37 + 11) % 100}%`);
-                particle.style.setProperty('--aether-y', `${(index * 61 + 7) % 100}%`);
-                particle.style.setProperty('--aether-size', `${2 + (index % 5)}px`);
-                particle.style.setProperty('--aether-delay', `${-(index % 17) * .37}s`);
-                particleField?.appendChild(particle);
-            }
-
-            const constellation = world.querySelector('.aether-world-constellation');
-            const constellationCount = getLuxuryQualityCount(reduced ? 9 : 20);
-            for (let index = 0; index < constellationCount; index++) {
-                const node = document.createElement('i');
-                node.style.setProperty('--aether-cx', `${7 + ((index * 29) % 86)}%`);
-                node.style.setProperty('--aether-cy', `${8 + ((index * 47) % 74)}%`);
-                node.style.setProperty('--aether-cdelay', `${-index * .31}s`);
-                constellation?.appendChild(node);
-            }
-
-            const meteors = world.querySelector('.aether-world-meteors');
-            const meteorCount = getLuxuryQualityCount(reduced ? 3 : 7);
-            for (let index = 0; index < meteorCount; index++) {
-                const meteor = document.createElement('i');
-                meteor.style.setProperty('--aether-mx', `${10 + ((index * 17) % 78)}%`);
-                meteor.style.setProperty('--aether-my', `${4 + ((index * 23) % 48)}%`);
-                meteor.style.setProperty('--aether-mdelay', `${-index * 1.7}s`);
-                meteors?.appendChild(meteor);
-            }
-
-            document.body.appendChild(world);
+            document.querySelectorAll('.aether-mythic-world').forEach(n=>n.remove());
+            document.documentElement.classList.add('fr9-aether-equipped');
+            this.realmScene('world').classList.add('aether-mythic-world');
         },
 
         createInterface() {
-            document
-                .querySelectorAll('.aether-mythic-ui-frame')
-                .forEach(node => node.remove());
-
-            const frame = document.createElement('div');
-            frame.className = 'aether-mythic-ui-frame';
-            frame.setAttribute('aria-hidden', 'true');
-            frame.innerHTML = `
-                <span class="aether-ui-corner corner-tl"></span>
-                <span class="aether-ui-corner corner-tr"></span>
-                <span class="aether-ui-corner corner-bl"></span>
-                <span class="aether-ui-corner corner-br"></span>
-                <div class="aether-ui-top-sigil"><i></i><b>ΑΙΘΗΡ</b><i></i></div>
-                <div class="aether-ui-bottom-line"></div>
-            `;
-            document.body.appendChild(frame);
-            requestAnimationFrame(() => frame.classList.add('is-mounted'));
+            document.querySelectorAll('.aether-mythic-ui-frame').forEach(n=>n.remove());
+            const n=document.createElement('div');n.className='fr9-aether fr9-interface aether-mythic-ui-frame';n.dataset.fiveRealm='aether';n.setAttribute('aria-hidden','true');
+            n.innerHTML='<i></i><i></i><i></i><i></i>';document.body.appendChild(n);
         },
 
         createPetRealm() {
@@ -8804,6 +3795,7 @@
             const realm = document.createElement('div');
             realm.className = 'aether-mythic-pet-realm';
             realm.setAttribute('aria-hidden', 'true');
+            realm.dataset.luxuryQualityLayer="1";
             realm.innerHTML = `
                 <span class="aether-local-sanctum"></span>
                 <span class="aether-local-aura aura-back"></span>
@@ -8862,325 +3854,31 @@
             return true;
         },
 
-        createPageClick(x, y, strong = false) {
-            if (!document.documentElement.classList.contains(
-                'aether-luminous-equipped'
-            )) return;
-
-            const click = document.createElement('div');
-            click.className =
-                'aether-mythic-page-click' +
-                (strong ? ' is-strong' : '');
-            click.style.setProperty('--aether-click-x', `${x}px`);
-            click.style.setProperty('--aether-click-y', `${y}px`);
-            click.setAttribute('aria-hidden', 'true');
-            click.innerHTML = `
-                <span class="aether-click-flash"></span>
-                <span class="aether-click-core"></span>
-                <span class="aether-click-ring ring-a"></span>
-                <span class="aether-click-ring ring-b"></span>
-                <span class="aether-click-ring ring-c"></span>
-                <span class="aether-click-ring ring-d"></span>
-                <span class="aether-click-cross cross-a"></span>
-                <span class="aether-click-cross cross-b"></span>
-                <span class="aether-click-glyph">✦</span>
-                <span class="aether-click-starburst"></span>
-                <div class="aether-click-orbit-nodes"></div>
-                <div class="aether-click-sparks"></div>
-            `;
-
-            const sparks = click.querySelector('.aether-click-sparks');
-            const sparkCount = getLuxuryQualityCount(strong ? 24 : 16);
-            for (let index = 0; index < sparkCount; index++) {
-                const spark = document.createElement('i');
-                spark.style.setProperty('--aether-click-angle', `${index * (360 / sparkCount)}deg`);
-                spark.style.setProperty('--aether-click-distance', `${strong ? 70 + (index % 5) * 10 : 46 + (index % 4) * 8}px`);
-                spark.style.setProperty('--aether-click-delay', `${(index % 5) * .018}s`);
-                sparks?.appendChild(spark);
-            }
-
-            const nodes = click.querySelector('.aether-click-orbit-nodes');
-            for (let index = 0; index < 8; index++) {
-                const node = document.createElement('i');
-                node.style.setProperty('--aether-node-angle', `${index * 45}deg`);
-                nodes?.appendChild(node);
-            }
-
-            document.body.appendChild(click);
-            requestAnimationFrame(() => click.classList.add('is-active'));
-            this.setTimer(() => click.remove(), strong ? 1500 : 1050);
+        createPageClick(x,y) {if(!document.documentElement.classList.contains('aether-luminous-equipped'))return;return luxuryTapBloom11(this,'aether',x,y);
         },
 
-        installGlobalClick() {
-            this.documentPointerHandler = event => {
-                if (
-                    event.button !== undefined &&
-                    event.button !== 0
-                ) return;
-
-                if (!document.documentElement.classList.contains(
-                    'aether-luminous-equipped'
-                )) return;
-
-                const target = event.target;
-                if (
-                    target?.closest?.(
-                        '.aether-mythic-screen-burst,' +
-                        '.aether-mythic-screen-dialogue,' +
-                        '.aether-mythic-page-click,' +
-                        '#virtual-pet-container'
-                    )
-                ) return;
-
-                this.createPageClick(
-                    Number(event.clientX) || window.innerWidth / 2,
-                    Number(event.clientY) || window.innerHeight / 2,
-                    false
-                );
-            };
-
-            document.addEventListener(
-                'pointerdown',
-                this.documentPointerHandler,
-                true
-            );
+        installGlobalClick() {installLuxuryGestures10(this,'aether','aether-luminous-equipped',(x,y)=>this.createPageClick(x,y));
         },
 
-        triggerUltimate(x, y) {
-            if (this.skillLocked) return false;
-            this.skillLocked = true;
-
-            document.documentElement.classList.add(
-                'aether-luminous-skill-active'
-            );
-
-            document
-                .querySelectorAll(
-                    '.aether-mythic-screen-burst,' +
-                    '.aether-mythic-screen-dialogue'
-                )
-                .forEach(node => node.remove());
-
-            const burst = document.createElement('div');
-            burst.className = 'aether-mythic-screen-burst';
-            burst.style.setProperty('--aether-skill-x', `${x}px`);
-            burst.style.setProperty('--aether-skill-y', `${y}px`);
-            burst.setAttribute('aria-hidden', 'true');
-            burst.innerHTML = `
-                <div class="aether-skill-veil"></div>
-                <div class="aether-skill-whiteout"></div>
-                <div class="aether-skill-rays"></div>
-                <div class="aether-skill-mandala">
-                    <span class="mandala-ring ring-a"></span>
-                    <span class="mandala-ring ring-b"></span>
-                    <span class="mandala-ring ring-c"></span>
-                    <span class="mandala-star">✦</span>
-                </div>
-                <div class="aether-skill-heaven-core">
-                    <span class="aether-skill-sun"></span>
-                    <span class="aether-skill-ring ring-a"></span>
-                    <span class="aether-skill-ring ring-b"></span>
-                    <span class="aether-skill-ring ring-c"></span>
-                    <span class="aether-skill-ring ring-d"></span>
-                </div>
-                <div class="aether-skill-wings wing-left"></div>
-                <div class="aether-skill-wings wing-right"></div>
-                <div class="aether-skill-orbit"></div>
-                <div class="aether-skill-feathers"></div>
-                <div class="aether-skill-comets"></div>
-                <div class="aether-skill-shards"></div>
-                <div class="aether-skill-stars"></div>
-                <div class="aether-skill-horizon"></div>
-                <div class="aether-skill-crown">✦ AETHER ✦</div>
-            `;
-
-            const feathers = burst.querySelector('.aether-skill-feathers');
-            const featherCount = getLuxuryQualityCount(34);
-            for (let index = 0; index < featherCount; index++) {
-                const feather = document.createElement('i');
-                feather.style.setProperty('--aether-feather-angle', `${index * (360 / featherCount)}deg`);
-                feather.style.setProperty('--aether-feather-distance', `${150 + (index % 7) * 48}px`);
-                feather.style.setProperty('--aether-feather-delay', `${index * .016}s`);
-                feathers?.appendChild(feather);
-            }
-
-            const stars = burst.querySelector('.aether-skill-stars');
-            const starCount = getLuxuryQualityCount(52);
-            for (let index = 0; index < starCount; index++) {
-                const star = document.createElement('i');
-                star.textContent = index % 5 === 0 ? '✦' : '·';
-                star.style.setProperty('--aether-star-x', `${(index * 43 + 7) % 100}%`);
-                star.style.setProperty('--aether-star-y', `${(index * 71 + 13) % 100}%`);
-                star.style.setProperty('--aether-star-delay', `${index * .012}s`);
-                stars?.appendChild(star);
-            }
-
-            const comets = burst.querySelector('.aether-skill-comets');
-            const cometCount = getLuxuryQualityCount(10);
-            for (let index = 0; index < cometCount; index++) {
-                const comet = document.createElement('i');
-                comet.style.setProperty('--aether-comet-x', `${8 + ((index * 17) % 86)}%`);
-                comet.style.setProperty('--aether-comet-y', `${5 + ((index * 31) % 55)}%`);
-                comet.style.setProperty('--aether-comet-delay', `${index * .12}s`);
-                comets?.appendChild(comet);
-            }
-
-            const shards = burst.querySelector('.aether-skill-shards');
-            const shardCount = getLuxuryQualityCount(28);
-            for (let index = 0; index < shardCount; index++) {
-                const shard = document.createElement('i');
-                shard.style.setProperty('--aether-shard-angle', `${index * (360 / shardCount)}deg`);
-                shard.style.setProperty('--aether-shard-distance', `${90 + (index % 6) * 44}px`);
-                shard.style.setProperty('--aether-shard-delay', `${index * .018}s`);
-                shards?.appendChild(shard);
-            }
-
-            const orbit = burst.querySelector('.aether-skill-orbit');
-            for (let index = 0; index < 12; index++) {
-                const node = document.createElement('i');
-                node.textContent = index % 3 === 0 ? '✦' : '◇';
-                node.style.setProperty('--aether-skill-node-angle', `${index * 30}deg`);
-                orbit?.appendChild(node);
-            }
-
-            const dialogue = document.createElement('div');
-            dialogue.className = 'aether-mythic-screen-dialogue';
-            dialogue.innerHTML = `
-                <span>✦</span>
-                <div>
-                    <small>AETHER · THẦN THOẠI</small>
-                    <strong>THIÊN QUANG NGUYÊN SƠ</strong>
-                    <em>Thiên quang giáng thế · tinh giới khai môn.</em>
-                </div>
-                <span>✧</span>
-            `;
-
-            document.body.append(burst, dialogue);
-            requestAnimationFrame(() => {
-                burst.classList.add('is-active');
-                dialogue.classList.add('is-active');
-            });
-
-            this.setTimer(() => burst.classList.add('is-climax'), 520);
-            this.setTimer(() => burst.classList.add('is-apex'), 1180);
-            this.setTimer(() => {
-                burst.classList.add('is-ending');
-                dialogue.classList.add('is-ending');
-            }, 3900);
-            this.setTimer(() => {
-                burst.remove();
-                dialogue.remove();
-                document.documentElement.classList.remove(
-                    'aether-luminous-skill-active'
-                );
-                this.skillLocked = false;
-            }, 5000);
-
-            return true;
-        },
+        triggerUltimate(x,y) { return this.realmUltimate(x,y); },
 
         installPetSkill() {
-            const pet = this.getPet();
-            const container = document.getElementById(
-                'virtual-pet-container'
-            );
-            if (!pet || !container) return false;
-
-            if (this.activePetElement && this.activePetElement !== pet) {
-                const oldPet = this.activePetElement;
-                if (this.petClickHandler) oldPet.removeEventListener('click', this.petClickHandler);
-                if (this.petPointerDownHandler) oldPet.removeEventListener('pointerdown', this.petPointerDownHandler);
-                if (this.petPointerUpHandler) oldPet.removeEventListener('pointerup', this.petPointerUpHandler);
-                if (this.petKeyHandler) oldPet.removeEventListener('keydown', this.petKeyHandler);
-            }
-
-            this.activePetElement = pet;
-            let lastPointerUltimateAt = 0;
-
-            const activateAt = (x, y) => {
-                if (this.skillLocked) return false;
-                container.classList.remove('aether-mythic-casting');
-                void container.offsetWidth;
-                container.classList.add('aether-mythic-casting');
-                this.createPageClick(x, y, true);
-                const started = this.triggerUltimate(x, y);
-                if (started) {
-                    this.setTimer(() => {
-                        container.classList.remove('aether-mythic-casting');
-                    }, 2300);
-                }
-                return started;
+            const pet=this.getPet?.()||document.querySelector('#virtual-pet-img');const container=pet?.closest('#virtual-pet-container');if(!pet||!container)return false;
+            if(this.realmPet===pet)return true;
+            if(this.realmPet&&this.realmClick){this.realmPet.removeEventListener('click',this.realmClick,true);this.realmPet.removeEventListener('keydown',this.realmKey);}
+            this.realmPet=pet;this.activePetElement=pet;
+            this.realmAttrs=Object.fromEntries(['tabindex','role','aria-label'].map(k=>[k,pet.getAttribute(k)]));pet.tabIndex=0;pet.setAttribute('role','button');pet.setAttribute('aria-label',"Genesis · Khai Thiên Quang Giới");
+            this.realmClick=e=>{
+                if(!document.documentElement.classList.contains('aether-luminous-equipped')||container.dataset.petDragged==='1'||(typeof PetInteractionManager!=='undefined'&&PetInteractionManager.isPetDragging))return;
+                e.preventDefault();e.stopImmediatePropagation();e.__nyxUltimateHandled=true;
+                const rect=pet.getBoundingClientRect();this.realmUltimate(rect.x+rect.width/2,rect.y+rect.height/2);
             };
-
-            this.petPointerDownHandler = event => {
-                if (event.button !== undefined && event.button !== 0) return;
-                const rect = pet.getBoundingClientRect();
-                const x = Number.isFinite(event.clientX) ? event.clientX : rect.left + rect.width / 2;
-                const y = Number.isFinite(event.clientY) ? event.clientY : rect.top + rect.height / 2;
-                this.petPointerState = {
-                    id: event.pointerId,
-                    x,
-                    y,
-                    time: performance.now()
-                };
-                container.classList.add('aether-mythic-pressed');
-                this.createPageClick(x, y, true);
-            };
-
-            this.petPointerUpHandler = event => {
-                container.classList.remove('aether-mythic-pressed');
-                const state = this.petPointerState;
-                this.petPointerState = null;
-                if (!state) return;
-                if (state.id !== undefined && event.pointerId !== undefined && state.id !== event.pointerId) return;
-
-                if (
-                    typeof PetInteractionManager !== 'undefined' &&
-                    PetInteractionManager.isPetDragging
-                ) return;
-
-                const x = Number.isFinite(event.clientX) ? event.clientX : state.x;
-                const y = Number.isFinite(event.clientY) ? event.clientY : state.y;
-                const distance = Math.hypot(x - state.x, y - state.y);
-                const duration = performance.now() - state.time;
-                if (distance > 18 || duration > 900) return;
-
-                event.preventDefault();
-                event.stopPropagation();
-                lastPointerUltimateAt = performance.now();
-                activateAt(x, y);
-            };
-
-            this.petClickHandler = event => {
-                if (performance.now() - lastPointerUltimateAt < 500) return;
-                if (
-                    typeof PetInteractionManager !== 'undefined' &&
-                    PetInteractionManager.isPetDragging
-                ) return;
-
-                event.preventDefault();
-                event.stopPropagation();
-                const rect = pet.getBoundingClientRect();
-                const x = Number.isFinite(event.clientX) && event.clientX > 0
-                    ? event.clientX
-                    : rect.left + rect.width / 2;
-                const y = Number.isFinite(event.clientY) && event.clientY > 0
-                    ? event.clientY
-                    : rect.top + rect.height / 2;
-                activateAt(x, y);
-            };
-
-            this.petKeyHandler = event => {
-                if (event.key !== 'Enter' && event.key !== ' ') return;
-                event.preventDefault();
-                const rect = pet.getBoundingClientRect();
-                activateAt(rect.left + rect.width / 2, rect.top + rect.height / 2);
-            };
-
-            pet.addEventListener('pointerdown', this.petPointerDownHandler);
-            pet.addEventListener('pointerup', this.petPointerUpHandler);
-            pet.addEventListener('click', this.petClickHandler);
-            pet.addEventListener('keydown', this.petKeyHandler);
+            this.realmKey=e=>{if(e.key==='Enter'||e.key===' '){this.realmClick(e);}};
+            pet.addEventListener('click',this.realmClick,true);pet.addEventListener('keydown',this.realmKey);
+            this.realmAbort?.abort();this.realmAbort=new AbortController();
+            document.addEventListener('visibilitychange',()=>document.querySelectorAll('[data-five-realm="aether"]').forEach(n=>n.classList.toggle('fr9-paused',document.hidden)),{signal:this.realmAbort.signal});
+            this.realmObserver?.disconnect();this.realmObserver=new MutationObserver(()=>{if(!pet.isConnected||container.hidden||container.style.display==='none')this.clear();});
+            this.realmObserver.observe(container.parentNode,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden','style']});
             return true;
         },
 
@@ -9286,7 +3984,7 @@
             if (ownScript?.src) {
                 try {
                     href = new URL(
-                        '../css/nyx-than-thoai.css?v=20260915.nyx-card-guard-v1',
+                        '../css/nyx-than-thoai.css?v=20260927.realms10',
                         ownScript.src
                     ).href;
                 } catch (_) {
@@ -9297,7 +3995,7 @@
 
         if (!href) {
             href = new URL(
-                'css/nyx-than-thoai.css?v=20260915.nyx-card-guard-v1',
+                'css/nyx-than-thoai.css?v=20260927.realms10',
                 document.baseURI
             ).href;
         }
@@ -9312,7 +4010,7 @@
             console.error(
                 '[NYX] Không tải được CSS:',
                 link.href,
-                'Hãy đặt file tại css/nyx-than-thoai.css hoặc gán window.NYX_MYTHIC_CSS_PATH trước khi nạp luxury-store.js.'
+                'Hãy đặt file tại css/nyx-than-thoai.css?v=20260927.five-realms-v9 hoặc gán window.NYX_MYTHIC_CSS_PATH trước khi nạp luxury-store.js.'
             );
         }, { once: true });
 
@@ -9327,12 +4025,38 @@
     // Namespace độc lập: nyx-mythic-*
     // ========================================================
     const LuxuryNyxRuntime = {
+        realmTimers: new Set(), realmLocked: false, realmLastClick: -1000,
+        realmLater(fn,ms) { const timer=setTimeout(()=>{this.realmTimers.delete(timer);fn();},ms);this.realmTimers.add(timer);return timer; },
+        clearRealmScene() {
+            this.realmTimers.forEach(clearTimeout);this.realmTimers.clear();this.realmLocked=false;this.realmLastClick=-1000;
+            this.realmAbort?.abort();this.realmObserver?.disconnect();
+            if(this.realmPet&&this.realmClick){this.realmPet.removeEventListener('click',this.realmClick,true);this.realmPet.removeEventListener('keydown',this.realmKey);}
+            for(const [key,value] of Object.entries(this.realmAttrs||{})){if(value===null)this.realmPet?.removeAttribute(key);else this.realmPet?.setAttribute(key,value);}
+            this.realmPet=null;this.realmAttrs=null;
+            document.querySelectorAll('[data-five-realm="nyx"]').forEach(n=>n.remove());
+            document.documentElement.classList.remove('fr9-nyx-equipped');
+        },
+        realmScene(mode,x=innerWidth/2,y=innerHeight/2) {
+            const node=document.createElement('div');node.className='fr9-nyx fr9-scene fr9-'+mode;node.dataset.fiveRealm='nyx';node.setAttribute('aria-hidden','true');
+            node.style.setProperty('--impact-x',x+'px');node.style.setProperty('--impact-y',y+'px');
+            node.innerHTML="<svg viewBox=\"0 0 1600 900\" preserveAspectRatio=\"xMidYMid slice\" aria-hidden=\"true\"><g class=\"nx-curtain\"><path style=\"--i:0\" d=\"M-100-30Q130 240 -60 470T90 990L190 990Q40 650 150 470T30-30Z\"/><path style=\"--i:1\" d=\"M50-30Q280 240 90 470T240 990L340 990Q190 650 300 470T180-30Z\"/><path style=\"--i:2\" d=\"M200-30Q430 240 240 470T390 990L490 990Q340 650 450 470T330-30Z\"/><path style=\"--i:3\" d=\"M350-30Q580 240 390 470T540 990L640 990Q490 650 600 470T480-30Z\"/><path style=\"--i:4\" d=\"M500-30Q730 240 540 470T690 990L790 990Q640 650 750 470T630-30Z\"/><path style=\"--i:5\" d=\"M650-30Q880 240 690 470T840 990L940 990Q790 650 900 470T780-30Z\"/><path style=\"--i:6\" d=\"M800-30Q1030 240 840 470T990 990L1090 990Q940 650 1050 470T930-30Z\"/><path style=\"--i:7\" d=\"M950-30Q1180 240 990 470T1140 990L1240 990Q1090 650 1200 470T1080-30Z\"/><path style=\"--i:8\" d=\"M1100-30Q1330 240 1140 470T1290 990L1390 990Q1240 650 1350 470T1230-30Z\"/><path style=\"--i:9\" d=\"M1250-30Q1480 240 1290 470T1440 990L1540 990Q1390 650 1500 470T1380-30Z\"/><path style=\"--i:10\" d=\"M1400-30Q1630 240 1440 470T1590 990L1690 990Q1540 650 1650 470T1530-30Z\"/><path style=\"--i:11\" d=\"M1550-30Q1780 240 1590 470T1740 990L1840 990Q1690 650 1800 470T1680-30Z\"/></g><g class=\"nx-eclipse\"><circle class=\"corona\" cx=\"800\" cy=\"370\" r=\"260\"/><circle class=\"void\" cx=\"815\" cy=\"354\" r=\"245\"/><path class=\"wire\" d=\"M527 370A273 273 0 1 0 1073 370\"/></g><g class=\"nx-crown\"><path style=\"--i:0\" class=\"obsidian\" d=\"M425 740L410 565L450 380L490 565L475 740Z\"/><path style=\"--i:1\" class=\"obsidian\" d=\"M512.5 740L497.5 515.2511537925384L537.5 330.25115379253833L577.5 515.2511537925384L562.5 740Z\"/><path style=\"--i:2\" class=\"obsidian\" d=\"M600 740L585 473.0761184457488L625 288.0761184457488L665 473.0761184457488L650 740Z\"/><path style=\"--i:3\" class=\"obsidian\" d=\"M687.5 740L672.5 444.8956607735327L712.5 259.8956607735327L752.5 444.8956607735327L737.5 740Z\"/><path style=\"--i:4\" class=\"obsidian\" d=\"M775 740L760 435L800 250L840 435L825 740Z\"/><path style=\"--i:5\" class=\"obsidian\" d=\"M862.5 740L847.5 444.8956607735327L887.5 259.8956607735327L927.5 444.8956607735327L912.5 740Z\"/><path style=\"--i:6\" class=\"obsidian\" d=\"M950 740L935 473.0761184457488L975 288.0761184457488L1015 473.0761184457488L1000 740Z\"/><path style=\"--i:7\" class=\"obsidian\" d=\"M1037.5 740L1022.5 515.2511537925384L1062.5 330.25115379253833L1102.5 515.2511537925384L1087.5 740Z\"/><path style=\"--i:8\" class=\"obsidian\" d=\"M1125 740L1110 565L1150 380L1190 565L1175 740Z\"/></g><g class=\"nx-web\"><path style=\"--i:0\" d=\"M80 0L210 160L90 300L240 450\"/><circle cx=\"210\" cy=\"160\" r=\"3\"/><circle cx=\"90\" cy=\"300\" r=\"2\"/><path style=\"--i:1\" d=\"M234 0L325 160L232 300L343 450\"/><circle cx=\"325\" cy=\"160\" r=\"3\"/><circle cx=\"232\" cy=\"300\" r=\"2\"/><path style=\"--i:2\" d=\"M388 0L440 160L374 300L446 450\"/><circle cx=\"440\" cy=\"160\" r=\"3\"/><circle cx=\"374\" cy=\"300\" r=\"2\"/><path style=\"--i:3\" d=\"M542 0L555 160L516 300L549 450\"/><circle cx=\"555\" cy=\"160\" r=\"3\"/><circle cx=\"516\" cy=\"300\" r=\"2\"/><path style=\"--i:4\" d=\"M696 0L670 160L658 300L652 450\"/><circle cx=\"670\" cy=\"160\" r=\"3\"/><circle cx=\"658\" cy=\"300\" r=\"2\"/><path style=\"--i:5\" d=\"M850 0L785 160L800 300L755 450\"/><circle cx=\"785\" cy=\"160\" r=\"3\"/><circle cx=\"800\" cy=\"300\" r=\"2\"/><path style=\"--i:6\" d=\"M1004 0L900 160L942 300L858 450\"/><circle cx=\"900\" cy=\"160\" r=\"3\"/><circle cx=\"942\" cy=\"300\" r=\"2\"/><path style=\"--i:7\" d=\"M1158 0L1015 160L1084 300L961 450\"/><circle cx=\"1015\" cy=\"160\" r=\"3\"/><circle cx=\"1084\" cy=\"300\" r=\"2\"/><path style=\"--i:8\" d=\"M1312 0L1130 160L1226 300L1064 450\"/><circle cx=\"1130\" cy=\"160\" r=\"3\"/><circle cx=\"1226\" cy=\"300\" r=\"2\"/><path style=\"--i:9\" d=\"M1466 0L1245 160L1368 300L1167 450\"/><circle cx=\"1245\" cy=\"160\" r=\"3\"/><circle cx=\"1368\" cy=\"300\" r=\"2\"/></g><g class=\"nx-tide\"><ellipse style=\"--i:0\" cx=\"800\" cy=\"770\" rx=\"180\" ry=\"12\"/><ellipse style=\"--i:1\" cx=\"800\" cy=\"770\" rx=\"270\" ry=\"27\"/><ellipse style=\"--i:2\" cx=\"800\" cy=\"770\" rx=\"360\" ry=\"42\"/><ellipse style=\"--i:3\" cx=\"800\" cy=\"770\" rx=\"450\" ry=\"57\"/><ellipse style=\"--i:4\" cx=\"800\" cy=\"770\" rx=\"540\" ry=\"72\"/><ellipse style=\"--i:5\" cx=\"800\" cy=\"770\" rx=\"630\" ry=\"87\"/><ellipse style=\"--i:6\" cx=\"800\" cy=\"770\" rx=\"720\" ry=\"102\"/><ellipse style=\"--i:7\" cx=\"800\" cy=\"770\" rx=\"810\" ry=\"117\"/></g><g class=\"nx-rift\"><path d=\"M-90 470Q350 750 800 470T1690 470\"/><path d=\"M-90 490Q350 770 800 490T1690 490\"/></g></svg>"+(mode==='ultimate'?'<div class="fr9-caption"><small>NYX</small><strong>Vĩnh Dạ · Vương Miện Hư Không</strong><span>Tinh tú lặng im · Màn đêm lên ngôi</span></div>':'');
+            document.body.appendChild(node);return node;
+        },
+        realmUltimate(x,y) {
+            if(this.realmLocked||document.hidden||!document.documentElement.classList.contains('nyx-first-night-equipped'))return false;
+            this.realmLocked=true;const node=this.realmScene('ultimate',x,y);const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+            this.realmLater(()=>node.remove(),reduced?1400:8600);this.realmLater(()=>{this.realmLocked=false;},reduced?1800:9100);return true;
+        },
+
         activePetElement: null,
         petClickHandler: null,
         documentPointerHandler: null,
         skillLocked: false,
 
         clear() {
+            this.lastSmallTap12=-1000;
+            clearLuxuryGestures10(this);
+            this.clearRealmScene();
             if (
                 this.activePetElement &&
                 this.petClickHandler
@@ -9376,407 +4100,43 @@
         },
 
         createWorld() {
-            document
-                .querySelectorAll('.nyx-mythic-world-v2')
-                .forEach(element => element.remove());
-
-            const world = document.createElement('div');
-            world.className = 'nyx-mythic-world-v2';
-            world.setAttribute('aria-hidden', 'true');
-
-            world.innerHTML = `
-                <div class="nyx-world-night-wash"></div>
-                <div class="nyx-world-nebula nebula-a"></div>
-                <div class="nyx-world-nebula nebula-b"></div>
-                <div class="nyx-world-nebula nebula-c"></div>
-
-                <div class="nyx-world-eclipse-crown">
-                    <span class="nyx-world-eclipse-core"></span>
-                    <span class="nyx-world-eclipse-orbit orbit-a"></span>
-                    <span class="nyx-world-eclipse-orbit orbit-b"></span>
-                    <span class="nyx-world-eclipse-mark">☾</span>
-                </div>
-
-                <div class="nyx-world-veil veil-a"></div>
-                <div class="nyx-world-veil veil-b"></div>
-                <div class="nyx-world-veil veil-c"></div>
-
-                <div class="nyx-world-star-field"></div>
-                <div class="nyx-world-dust-field"></div>
-                <div class="nyx-world-horizon"></div>
-            `;
-
-            const starField = world.querySelector(
-                '.nyx-world-star-field'
-            );
-            const dustField = world.querySelector(
-                '.nyx-world-dust-field'
-            );
-
-            const reduced = window.matchMedia?.(
-                '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
-            ).matches;
-
-            const starCount = getLuxuryQualityCount(reduced ? 20 : 48);
-            const dustCount = getLuxuryQualityCount(reduced ? 10 : 24);
-
-            for (let index = 0; index < starCount; index++) {
-                const star = document.createElement('span');
-                star.className =
-                    index % 7 === 0
-                        ? 'nyx-world-star is-cross'
-                        : 'nyx-world-star';
-                star.textContent = index % 7 === 0 ? '✦' : '';
-                star.style.setProperty(
-                    '--nyx-wx',
-                    `${(index * 47 + 11) % 98}%`
-                );
-                star.style.setProperty(
-                    '--nyx-wy',
-                    `${(index * 71 + 7) % 94}%`
-                );
-                star.style.setProperty(
-                    '--nyx-ws',
-                    `${1.2 + (index % 5) * .75}px`
-                );
-                star.style.setProperty(
-                    '--nyx-wd',
-                    `${-(index % 13) * .37}s`
-                );
-                star.style.setProperty(
-                    '--nyx-wt',
-                    `${3.8 + (index % 7) * .55}s`
-                );
-                starField?.appendChild(star);
-            }
-
-            for (let index = 0; index < dustCount; index++) {
-                const dust = document.createElement('span');
-                dust.className = 'nyx-world-dust';
-                dust.style.setProperty(
-                    '--nyx-dx',
-                    `${(index * 61 + 5) % 100}%`
-                );
-                dust.style.setProperty(
-                    '--nyx-dy',
-                    `${(index * 43 + 17) % 100}%`
-                );
-                dust.style.setProperty(
-                    '--nyx-ds',
-                    `${8 + (index % 6) * 5}px`
-                );
-                dust.style.setProperty(
-                    '--nyx-dd',
-                    `${-(index % 9) * .54}s`
-                );
-                dustField?.appendChild(dust);
-            }
-
-            document.body.appendChild(world);
-
-            requestAnimationFrame(() => {
-                world.classList.add('is-mounted');
-            });
+            document.querySelectorAll('.nyx-mythic-world-v2').forEach(n=>n.remove());
+            document.documentElement.classList.add('fr9-nyx-equipped');
+            this.realmScene('world').classList.add('nyx-mythic-world-v2');
         },
 
         createInterface() {
-            document
-                .querySelectorAll('.nyx-mythic-ui-frame-v2')
-                .forEach(element => element.remove());
-
-            const frame = document.createElement('div');
-            frame.className = 'nyx-mythic-ui-frame-v2';
-            frame.setAttribute('aria-hidden', 'true');
-
-            frame.innerHTML = `
-                <div class="nyx-ui-top-seal">
-                    <span class="nyx-ui-top-line left"></span>
-                    <div class="nyx-ui-crown">
-                        <i>☾</i>
-                        <strong>NYX</strong>
-                        <small>HẮC DẠ NGUYÊN SƠ</small>
-                    </div>
-                    <span class="nyx-ui-top-line right"></span>
-                </div>
-
-                <div class="nyx-ui-side-rail rail-left">
-                    <i></i><b>✦</b><i></i><b>·</b><i></i>
-                </div>
-                <div class="nyx-ui-side-rail rail-right">
-                    <i></i><b>✦</b><i></i><b>·</b><i></i>
-                </div>
-
-                <span class="nyx-ui-corner corner-tl">⌜✦</span>
-                <span class="nyx-ui-corner corner-tr">✦⌝</span>
-                <span class="nyx-ui-corner corner-bl">⌞☾</span>
-                <span class="nyx-ui-corner corner-br">☾⌟</span>
-
-                <div class="nyx-ui-bottom-seal">
-                    <i></i>
-                    <span>PRIMORDIAL NIGHT · FIRST DARKNESS</span>
-                    <i></i>
-                </div>
-            `;
-
-            document.body.appendChild(frame);
-
-            requestAnimationFrame(() => {
-                frame.classList.add('is-mounted');
-            });
+            document.querySelectorAll('.nyx-mythic-ui-frame-v2').forEach(n=>n.remove());
+            const n=document.createElement('div');n.className='fr9-nyx fr9-interface nyx-mythic-ui-frame-v2';n.dataset.fiveRealm='nyx';n.setAttribute('aria-hidden','true');
+            n.innerHTML='<i></i><i></i><i></i><i></i>';document.body.appendChild(n);
         },
 
-        createPageClick(x, y) {
-            if (
-                !document.documentElement.classList.contains(
-                    'nyx-first-night-equipped'
-                )
-            ) {
-                return;
-            }
-
-            const click = document.createElement('div');
-            click.className = 'nyx-mythic-page-click';
-            click.style.setProperty('--nyx-click-x', `${x}px`);
-            click.style.setProperty('--nyx-click-y', `${y}px`);
-            click.setAttribute('aria-hidden', 'true');
-
-            click.innerHTML = `
-                <span class="nyx-page-click-core"></span>
-                <span class="nyx-page-click-ring ring-a"></span>
-                <span class="nyx-page-click-ring ring-b"></span>
-                <div class="nyx-page-click-shards"></div>
-            `;
-
-            const shardField = click.querySelector(
-                '.nyx-page-click-shards'
-            );
-
-            for (let index = 0; index < 8; index++) {
-                const shard = document.createElement('i');
-                shard.style.setProperty(
-                    '--nyx-click-angle',
-                    `${index * 45}deg`
-                );
-                shardField?.appendChild(shard);
-            }
-
-            document.body.appendChild(click);
-            requestAnimationFrame(() => click.classList.add('is-active'));
-            window.setTimeout(() => click.remove(), 950);
+        createPageClick(x,y) {if(!document.documentElement.classList.contains('nyx-first-night-equipped'))return;return luxuryTapBloom11(this,'nyx',x,y);
         },
 
-        installGlobalClickEffect() {
-            this.documentPointerHandler = event => {
-                if (
-                    event.button !== undefined &&
-                    event.button !== 0
-                ) {
-                    return;
-                }
-
-                const target = event.target;
-
-                if (
-                    target?.closest?.(
-                        '.nyx-mythic-ultimate,' +
-                        '.nyx-mythic-screen-burst-v2,' +
-                        '.nyx-mythic-page-click'
-                    )
-                ) {
-                    return;
-                }
-
-                this.createPageClick(
-                    Number(event.clientX) || 0,
-                    Number(event.clientY) || 0
-                );
-            };
-
-            document.addEventListener(
-                'pointerdown',
-                this.documentPointerHandler,
-                true
-            );
+        installGlobalClickEffect() {installLuxuryGestures10(this,'nyx','nyx-first-night-equipped',(x,y)=>this.createPageClick(x,y));
         },
 
-        createScreenBurst(x, y) {
-            document
-                .querySelectorAll(
-                    '.nyx-mythic-screen-burst-v2,' +
-                    '.nyx-mythic-screen-dialogue-v2'
-                )
-                .forEach(element => element.remove());
-
-            const burst = document.createElement('div');
-            burst.className = 'nyx-mythic-screen-burst-v2';
-            burst.style.setProperty('--nyx-skill-x', `${x}px`);
-            burst.style.setProperty('--nyx-skill-y', `${y}px`);
-            burst.setAttribute('aria-hidden', 'true');
-
-            burst.innerHTML = `
-                <div class="nyx-skill-black-flash"></div>
-                <div class="nyx-skill-eclipse">
-                    <span class="nyx-skill-eclipse-core"></span>
-                    <span class="nyx-skill-eclipse-ring ring-a"></span>
-                    <span class="nyx-skill-eclipse-ring ring-b"></span>
-                </div>
-                <div class="nyx-skill-ray-field"></div>
-                <div class="nyx-skill-star-field"></div>
-                <div class="nyx-skill-fracture fracture-a"></div>
-                <div class="nyx-skill-fracture fracture-b"></div>
-            `;
-
-            const rayField = burst.querySelector(
-                '.nyx-skill-ray-field'
-            );
-            const starField = burst.querySelector(
-                '.nyx-skill-star-field'
-            );
-
-            for (let index = 0; index < 14; index++) {
-                const ray = document.createElement('i');
-                ray.style.setProperty(
-                    '--nyx-skill-angle',
-                    `${index * (360 / 14)}deg`
-                );
-                ray.style.setProperty(
-                    '--nyx-skill-length',
-                    `${110 + (index % 4) * 42}px`
-                );
-                rayField?.appendChild(ray);
-            }
-
-            for (let index = 0; index < 26; index++) {
-                const star = document.createElement('i');
-                star.textContent = index % 5 === 0 ? '✦' : '';
-                star.style.setProperty(
-                    '--nyx-skill-star-x',
-                    `${(index * 41 + 3) % 97}%`
-                );
-                star.style.setProperty(
-                    '--nyx-skill-star-y',
-                    `${(index * 67 + 9) % 91}%`
-                );
-                star.style.setProperty(
-                    '--nyx-skill-star-delay',
-                    `${index * .025}s`
-                );
-                starField?.appendChild(star);
-            }
-
-            const dialogue = document.createElement('div');
-            dialogue.className = 'nyx-mythic-screen-dialogue-v2';
-            dialogue.innerHTML = `
-                <span>☾</span>
-                <div>
-                    <small>NYX · NỮ THẦN MÀN ĐÊM</small>
-                    <strong>“MỌI ÁNH SÁNG ĐỀU SINH RA TỪ ĐÊM.”</strong>
-                </div>
-                <span>✦</span>
-            `;
-
-            document.body.append(burst, dialogue);
-
-            requestAnimationFrame(() => {
-                burst.classList.add('is-active');
-                dialogue.classList.add('is-active');
-            });
-
-            window.setTimeout(() => {
-                burst.classList.add('is-climax');
-            }, 620);
-
-            window.setTimeout(() => {
-                burst.classList.add('is-ending');
-                dialogue.classList.add('is-ending');
-            }, 2450);
-
-            window.setTimeout(() => {
-                burst.remove();
-                dialogue.remove();
-            }, 3400);
-        },
+        createScreenBurst(x,y) { return this.realmUltimate(x,y); },
 
         installPetSkill() {
-            const container = document.getElementById(
-                'virtual-pet-container'
-            );
-            const pet = container?.querySelector(
-                '#virtual-pet-img.mythic-nyx-night-magic, #virtual-pet-img.nyx-mythic-avatar'
-            );
-
-            if (!container || !pet) {
-                return;
-            }
-
-            this.activePetElement = pet;
-
-            this.petClickHandler = event => {
-                if (this.skillLocked) {
-                    return;
-                }
-
-                if (
-                    !document.documentElement.classList.contains(
-                        'nyx-first-night-equipped'
-                    )
-                ) {
-                    return;
-                }
-
-                if (
-                    typeof PetInteractionManager !== 'undefined' &&
-                    PetInteractionManager.isPetDragging
-                ) {
-                    return;
-                }
-
-                this.skillLocked = true;
-
-                const rect = pet.getBoundingClientRect();
-                const x =
-                    Number.isFinite(event.clientX) &&
-                        event.clientX > 0
-                        ? event.clientX
-                        : rect.left + rect.width / 2;
-                const y =
-                    Number.isFinite(event.clientY) &&
-                        event.clientY > 0
-                        ? event.clientY
-                        : rect.top + rect.height / 2;
-
-                // Tầng 2: screen burst của Luxury Runtime.
-                this.createScreenBurst(x, y);
-
-                // Tầng 3: ĐÊM NGUYÊN SƠ V3.
-                // Nếu PetManager listener chạy trước thì cờ Event đã được đặt,
-                // nếu Luxury listener chạy trước thì gọi canonical creator tại đây.
-                container.classList.remove('nyx-mythic-casting');
-                void container.offsetWidth;
-                container.classList.add('nyx-mythic-casting');
-
-                if (
-                    !event.__nyxUltimateHandled &&
-                    typeof PetManager !== 'undefined' &&
-                    typeof PetManager.createNyxPrimordialNightUltimate === 'function'
-                ) {
-                    event.__nyxUltimateHandled = true;
-                    PetManager.createNyxPrimordialNightUltimate(x, y);
-                }
-
-                window.setTimeout(() => {
-                    container.classList.remove('nyx-mythic-casting');
-                }, 1750);
-
-                window.setTimeout(() => {
-                    this.skillLocked = false;
-                }, 5600);
+            const pet=this.getPet?.()||document.querySelector('#virtual-pet-img');const container=pet?.closest('#virtual-pet-container');if(!pet||!container)return false;
+            if(this.realmPet===pet)return true;
+            if(this.realmPet&&this.realmClick){this.realmPet.removeEventListener('click',this.realmClick,true);this.realmPet.removeEventListener('keydown',this.realmKey);}
+            this.realmPet=pet;this.activePetElement=pet;
+            this.realmAttrs=Object.fromEntries(['tabindex','role','aria-label'].map(k=>[k,pet.getAttribute(k)]));pet.tabIndex=0;pet.setAttribute('role','button');pet.setAttribute('aria-label',"Vĩnh Dạ · Vương Miện Hư Không");
+            this.realmClick=e=>{
+                if(!document.documentElement.classList.contains('nyx-first-night-equipped')||container.dataset.petDragged==='1'||(typeof PetInteractionManager!=='undefined'&&PetInteractionManager.isPetDragging))return;
+                e.preventDefault();e.stopImmediatePropagation();e.__nyxUltimateHandled=true;
+                const rect=pet.getBoundingClientRect();this.realmUltimate(rect.x+rect.width/2,rect.y+rect.height/2);
             };
-
-            pet.addEventListener(
-                'click',
-                this.petClickHandler
-            );
+            this.realmKey=e=>{if(e.key==='Enter'||e.key===' '){this.realmClick(e);}};
+            pet.addEventListener('click',this.realmClick,true);pet.addEventListener('keydown',this.realmKey);
+            this.realmAbort?.abort();this.realmAbort=new AbortController();
+            document.addEventListener('visibilitychange',()=>document.querySelectorAll('[data-five-realm="nyx"]').forEach(n=>n.classList.toggle('fr9-paused',document.hidden)),{signal:this.realmAbort.signal});
+            this.realmObserver?.disconnect();this.realmObserver=new MutationObserver(()=>{if(!pet.isConnected||container.hidden||container.style.display==='none')this.clear();});
+            this.realmObserver.observe(container.parentNode,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden','style']});
+            return true;
         },
 
         mount() {
@@ -9836,7 +4196,7 @@
             if (ownScript?.src) {
                 try {
                     href = new URL(
-                        '../css/dem-day-sao.css?v=20260921.starry-night-v3',
+                        '../css/dem-day-sao.css?v=20260927.realms10',
                         ownScript.src
                     ).href;
                 } catch (_) {
@@ -9847,7 +4207,7 @@
 
         if (!href) {
             href = new URL(
-                'css/dem-day-sao.css?v=20260921.starry-night-v3',
+                'css/dem-day-sao.css?v=20260927.realms10',
                 document.baseURI
             ).href;
         }
@@ -9862,7 +4222,7 @@
             console.error(
                 '[StarryNight] Không tải được CSS:',
                 link.href,
-                'Hãy đặt file tại css/dem-day-sao.css hoặc gán window.STARRY_NIGHT_CSS_PATH trước khi nạp luxury-store.js.'
+                'Hãy đặt file tại css/dem-day-sao.css?v=20260927.five-realms-v9 hoặc gán window.STARRY_NIGHT_CSS_PATH trước khi nạp luxury-store.js.'
             );
         }, { once: true });
 
@@ -9877,6 +4237,29 @@
     // Không dùng ThemeManager/EffectManager, không ghi active_theme/effect.
     // ========================================================
     const LuxuryStarryNightRuntime = {
+        realmTimers: new Set(), realmLocked: false, realmLastClick: -1000,
+        realmLater(fn,ms) { const timer=setTimeout(()=>{this.realmTimers.delete(timer);fn();},ms);this.realmTimers.add(timer);return timer; },
+        clearRealmScene() {
+            this.realmTimers.forEach(clearTimeout);this.realmTimers.clear();this.realmLocked=false;this.realmLastClick=-1000;
+            this.realmAbort?.abort();this.realmObserver?.disconnect();
+            if(this.realmPet&&this.realmClick){this.realmPet.removeEventListener('click',this.realmClick,true);this.realmPet.removeEventListener('keydown',this.realmKey);}
+            for(const [key,value] of Object.entries(this.realmAttrs||{})){if(value===null)this.realmPet?.removeAttribute(key);else this.realmPet?.setAttribute(key,value);}
+            this.realmPet=null;this.realmAttrs=null;
+            document.querySelectorAll('[data-five-realm="starry"]').forEach(n=>n.remove());
+            document.documentElement.classList.remove('fr9-starry-equipped');
+        },
+        realmScene(mode,x=innerWidth/2,y=innerHeight/2) {
+            const node=document.createElement('div');node.className='fr9-starry fr9-scene fr9-'+mode;node.dataset.fiveRealm='starry';node.setAttribute('aria-hidden','true');
+            node.style.setProperty('--impact-x',x+'px');node.style.setProperty('--impact-y',y+'px');
+            node.innerHTML="<svg viewBox=\"0 0 1600 900\" preserveAspectRatio=\"xMidYMid slice\" aria-hidden=\"true\"><g class=\"st-sky\"><path style=\"--i:0\" d=\"M-100 120C250 -140 510 630 800 230S1270 -140 1700 180\"/><path style=\"--i:1\" d=\"M-100 135C250 -121 510 618 800 236S1270 -125 1700 194\"/><path style=\"--i:2\" d=\"M-100 150C250 -102 510 606 800 242S1270 -110 1700 208\"/><path style=\"--i:3\" d=\"M-100 165C250 -83 510 594 800 248S1270 -95 1700 222\"/><path style=\"--i:4\" d=\"M-100 180C250 -64 510 582 800 254S1270 -80 1700 236\"/><path style=\"--i:5\" d=\"M-100 195C250 -45 510 570 800 260S1270 -65 1700 250\"/><path style=\"--i:6\" d=\"M-100 210C250 -26 510 558 800 266S1270 -50 1700 264\"/><path style=\"--i:7\" d=\"M-100 225C250 -7 510 546 800 272S1270 -35 1700 278\"/><path style=\"--i:8\" d=\"M-100 240C250 12 510 534 800 278S1270 -20 1700 292\"/><path style=\"--i:9\" d=\"M-100 255C250 31 510 522 800 284S1270 -5 1700 306\"/><path style=\"--i:10\" d=\"M-100 270C250 50 510 510 800 290S1270 10 1700 320\"/><path style=\"--i:11\" d=\"M-100 285C250 69 510 498 800 296S1270 25 1700 334\"/><path style=\"--i:12\" d=\"M-100 300C250 88 510 486 800 302S1270 40 1700 348\"/><path style=\"--i:13\" d=\"M-100 315C250 107 510 474 800 308S1270 55 1700 362\"/><path style=\"--i:14\" d=\"M-100 330C250 126 510 462 800 314S1270 70 1700 376\"/><path style=\"--i:15\" d=\"M-100 345C250 145 510 450 800 320S1270 85 1700 390\"/><path style=\"--i:16\" d=\"M-100 360C250 164 510 438 800 326S1270 100 1700 404\"/><path style=\"--i:17\" d=\"M-100 375C250 183 510 426 800 332S1270 115 1700 418\"/><path style=\"--i:18\" d=\"M-100 390C250 202 510 414 800 338S1270 130 1700 432\"/><path style=\"--i:19\" d=\"M-100 405C250 221 510 402 800 344S1270 145 1700 446\"/><path style=\"--i:20\" d=\"M-100 420C250 240 510 390 800 350S1270 160 1700 460\"/><path style=\"--i:21\" d=\"M-100 435C250 259 510 378 800 356S1270 175 1700 474\"/></g><g class=\"st-stars\"><g style=\"--i:0\" transform=\"translate(80 80)\"><circle r=\"18\"/><path d=\"M-40 0H40M0-40V40M-27-27L27 27M-27 27L27-27\"/></g><g style=\"--i:1\" transform=\"translate(210 180)\"><circle r=\"25\"/><path d=\"M-40 0H40M0-40V40M-27-27L27 27M-27 27L27-27\"/></g><g style=\"--i:2\" transform=\"translate(340 280)\"><circle r=\"32\"/><path d=\"M-40 0H40M0-40V40M-27-27L27 27M-27 27L27-27\"/></g><g style=\"--i:3\" transform=\"translate(470 80)\"><circle r=\"39\"/><path d=\"M-40 0H40M0-40V40M-27-27L27 27M-27 27L27-27\"/></g><g style=\"--i:4\" transform=\"translate(600 180)\"><circle r=\"18\"/><path d=\"M-40 0H40M0-40V40M-27-27L27 27M-27 27L27-27\"/></g><g style=\"--i:5\" transform=\"translate(730 280)\"><circle r=\"25\"/><path d=\"M-40 0H40M0-40V40M-27-27L27 27M-27 27L27-27\"/></g><g style=\"--i:6\" transform=\"translate(860 80)\"><circle r=\"32\"/><path d=\"M-40 0H40M0-40V40M-27-27L27 27M-27 27L27-27\"/></g><g style=\"--i:7\" transform=\"translate(990 180)\"><circle r=\"39\"/><path d=\"M-40 0H40M0-40V40M-27-27L27 27M-27 27L27-27\"/></g><g style=\"--i:8\" transform=\"translate(1120 280)\"><circle r=\"18\"/><path d=\"M-40 0H40M0-40V40M-27-27L27 27M-27 27L27-27\"/></g><g style=\"--i:9\" transform=\"translate(1250 80)\"><circle r=\"25\"/><path d=\"M-40 0H40M0-40V40M-27-27L27 27M-27 27L27-27\"/></g><g style=\"--i:10\" transform=\"translate(1380 180)\"><circle r=\"32\"/><path d=\"M-40 0H40M0-40V40M-27-27L27 27M-27 27L27-27\"/></g><g style=\"--i:11\" transform=\"translate(1510 280)\"><circle r=\"39\"/><path d=\"M-40 0H40M0-40V40M-27-27L27 27M-27 27L27-27\"/></g></g><g class=\"st-hills\"><path d=\"M-100 720Q120 330 360 560Q650 340 840 590Q1170 330 1700 620V1000H-100Z\"/><path d=\"M-100 800Q270 490 540 680Q850 450 1100 680Q1400 490 1700 750V1000H-100Z\"/></g><g class=\"st-town\"><g style=\"--i:0\" transform=\"translate(-50 630)\"><path class=\"house\" d=\"M0 140V0L40-38L85 0V140Z\"/><path class=\"roof\" d=\"M-8 5L40-45L93 5L82 14L40-26L3 14Z\"/><path class=\"window\" d=\"M15 28H30V53H15ZM53 28H68V53H53ZM15 75H30V100H15ZM53 75H68V100H53Z\"/></g><g style=\"--i:1\" transform=\"translate(50 664)\"><path class=\"house\" d=\"M0 140V0L40-38L85 0V140Z\"/><path class=\"roof\" d=\"M-8 5L40-45L93 5L82 14L40-26L3 14Z\"/><path class=\"window\" d=\"M15 28H30V53H15ZM53 28H68V53H53ZM15 75H30V100H15ZM53 75H68V100H53Z\"/></g><g style=\"--i:2\" transform=\"translate(150 698)\"><path class=\"house\" d=\"M0 140V0L40-38L85 0V140Z\"/><path class=\"roof\" d=\"M-8 5L40-45L93 5L82 14L40-26L3 14Z\"/><path class=\"window\" d=\"M15 28H30V53H15ZM53 28H68V53H53ZM15 75H30V100H15ZM53 75H68V100H53Z\"/></g><g style=\"--i:3\" transform=\"translate(250 732)\"><path class=\"house\" d=\"M0 140V0L40-38L85 0V140Z\"/><path class=\"roof\" d=\"M-8 5L40-45L93 5L82 14L40-26L3 14Z\"/><path class=\"window\" d=\"M15 28H30V53H15ZM53 28H68V53H53ZM15 75H30V100H15ZM53 75H68V100H53Z\"/></g><g style=\"--i:4\" transform=\"translate(350 630)\"><path class=\"house\" d=\"M0 140V0L40-38L85 0V140Z\"/><path class=\"roof\" d=\"M-8 5L40-45L93 5L82 14L40-26L3 14Z\"/><path class=\"window\" d=\"M15 28H30V53H15ZM53 28H68V53H53ZM15 75H30V100H15ZM53 75H68V100H53Z\"/></g><g style=\"--i:5\" transform=\"translate(450 664)\"><path class=\"house\" d=\"M0 140V0L40-38L85 0V140Z\"/><path class=\"roof\" d=\"M-8 5L40-45L93 5L82 14L40-26L3 14Z\"/><path class=\"window\" d=\"M15 28H30V53H15ZM53 28H68V53H53ZM15 75H30V100H15ZM53 75H68V100H53Z\"/></g><g style=\"--i:6\" transform=\"translate(550 698)\"><path class=\"house\" d=\"M0 140V0L40-38L85 0V140Z\"/><path class=\"roof\" d=\"M-8 5L40-45L93 5L82 14L40-26L3 14Z\"/><path class=\"window\" d=\"M15 28H30V53H15ZM53 28H68V53H53ZM15 75H30V100H15ZM53 75H68V100H53Z\"/></g><g style=\"--i:7\" transform=\"translate(650 732)\"><path class=\"house\" d=\"M0 140V0L40-38L85 0V140Z\"/><path class=\"roof\" d=\"M-8 5L40-45L93 5L82 14L40-26L3 14Z\"/><path class=\"window\" d=\"M15 28H30V53H15ZM53 28H68V53H53ZM15 75H30V100H15ZM53 75H68V100H53Z\"/></g><g style=\"--i:8\" transform=\"translate(750 630)\"><path class=\"house\" d=\"M0 140V0L40-38L85 0V140Z\"/><path class=\"roof\" d=\"M-8 5L40-45L93 5L82 14L40-26L3 14Z\"/><path class=\"window\" d=\"M15 28H30V53H15ZM53 28H68V53H53ZM15 75H30V100H15ZM53 75H68V100H53Z\"/></g><g style=\"--i:9\" transform=\"translate(850 664)\"><path class=\"house\" d=\"M0 140V0L40-38L85 0V140Z\"/><path class=\"roof\" d=\"M-8 5L40-45L93 5L82 14L40-26L3 14Z\"/><path class=\"window\" d=\"M15 28H30V53H15ZM53 28H68V53H53ZM15 75H30V100H15ZM53 75H68V100H53Z\"/></g><g style=\"--i:10\" transform=\"translate(950 698)\"><path class=\"house\" d=\"M0 140V0L40-38L85 0V140Z\"/><path class=\"roof\" d=\"M-8 5L40-45L93 5L82 14L40-26L3 14Z\"/><path class=\"window\" d=\"M15 28H30V53H15ZM53 28H68V53H53ZM15 75H30V100H15ZM53 75H68V100H53Z\"/></g><g style=\"--i:11\" transform=\"translate(1050 732)\"><path class=\"house\" d=\"M0 140V0L40-38L85 0V140Z\"/><path class=\"roof\" d=\"M-8 5L40-45L93 5L82 14L40-26L3 14Z\"/><path class=\"window\" d=\"M15 28H30V53H15ZM53 28H68V53H53ZM15 75H30V100H15ZM53 75H68V100H53Z\"/></g><g style=\"--i:12\" transform=\"translate(1150 630)\"><path class=\"house\" d=\"M0 140V0L40-38L85 0V140Z\"/><path class=\"roof\" d=\"M-8 5L40-45L93 5L82 14L40-26L3 14Z\"/><path class=\"window\" d=\"M15 28H30V53H15ZM53 28H68V53H53ZM15 75H30V100H15ZM53 75H68V100H53Z\"/></g><g style=\"--i:13\" transform=\"translate(1250 664)\"><path class=\"house\" d=\"M0 140V0L40-38L85 0V140Z\"/><path class=\"roof\" d=\"M-8 5L40-45L93 5L82 14L40-26L3 14Z\"/><path class=\"window\" d=\"M15 28H30V53H15ZM53 28H68V53H53ZM15 75H30V100H15ZM53 75H68V100H53Z\"/></g><g style=\"--i:14\" transform=\"translate(1350 698)\"><path class=\"house\" d=\"M0 140V0L40-38L85 0V140Z\"/><path class=\"roof\" d=\"M-8 5L40-45L93 5L82 14L40-26L3 14Z\"/><path class=\"window\" d=\"M15 28H30V53H15ZM53 28H68V53H53ZM15 75H30V100H15ZM53 75H68V100H53Z\"/></g><g style=\"--i:15\" transform=\"translate(1450 732)\"><path class=\"house\" d=\"M0 140V0L40-38L85 0V140Z\"/><path class=\"roof\" d=\"M-8 5L40-45L93 5L82 14L40-26L3 14Z\"/><path class=\"window\" d=\"M15 28H30V53H15ZM53 28H68V53H53ZM15 75H30V100H15ZM53 75H68V100H53Z\"/></g><g style=\"--i:16\" transform=\"translate(1550 630)\"><path class=\"house\" d=\"M0 140V0L40-38L85 0V140Z\"/><path class=\"roof\" d=\"M-8 5L40-45L93 5L82 14L40-26L3 14Z\"/><path class=\"window\" d=\"M15 28H30V53H15ZM53 28H68V53H53ZM15 75H30V100H15ZM53 75H68V100H53Z\"/></g></g><g class=\"st-tower\"><path class=\"house\" d=\"M1070 800V430H1090V320L1130 160L1170 320V430H1190V800Z\"/><path class=\"roof\" d=\"M1080 330L1130 150L1180 330Z\"/><circle cx=\"1130\" cy=\"460\" r=\"30\"/><path class=\"hand\" d=\"M1130 438V460L1148 470\"/></g><g class=\"st-cypress\"><path d=\"M80 900Q-10 680 95 550Q10 460 130 290Q100 170 180 40Q210 240 190 300Q310 420 230 500Q340 670 270 900Z\"/></g><g class=\"st-brush\"><path style=\"--i:0\" d=\"M-100 760Q500 270 850 610T1740 250\"/><path style=\"--i:1\" d=\"M-100 769Q500 289 850 619T1740 262\"/><path style=\"--i:2\" d=\"M-100 778Q500 308 850 628T1740 274\"/><path style=\"--i:3\" d=\"M-100 787Q500 327 850 637T1740 286\"/><path style=\"--i:4\" d=\"M-100 796Q500 346 850 646T1740 298\"/><path style=\"--i:5\" d=\"M-100 805Q500 365 850 655T1740 310\"/><path style=\"--i:6\" d=\"M-100 814Q500 384 850 664T1740 322\"/><path style=\"--i:7\" d=\"M-100 823Q500 403 850 673T1740 334\"/><path style=\"--i:8\" d=\"M-100 832Q500 422 850 682T1740 346\"/><path style=\"--i:9\" d=\"M-100 841Q500 441 850 691T1740 358\"/><path style=\"--i:10\" d=\"M-100 850Q500 460 850 700T1740 370\"/></g></svg>"+(mode==='ultimate'?'<div class="fr9-caption"><small>TINH DẠ</small><strong>Tinh Dạ · Thành Phố Trong Tranh</strong><span>Một nét cọ · Đánh thức ngàn vì sao</span></div>':'');
+            document.body.appendChild(node);return node;
+        },
+        realmUltimate(x,y) {
+            if(this.realmLocked||document.hidden||!document.documentElement.classList.contains('starry-night-equipped'))return false;
+            this.realmLocked=true;const node=this.realmScene('ultimate',x,y);const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+            this.realmLater(()=>node.remove(),reduced?1400:8600);this.realmLater(()=>{this.realmLocked=false;},reduced?1800:9100);return true;
+        },
+
         activePetElement: null,
         petClickHandler: null,
         documentPointerHandler: null,
@@ -9914,6 +4297,9 @@
         },
 
         clear() {
+            this.lastSmallTap12=-1000;
+            clearLuxuryGestures10(this);
+            this.clearRealmScene();
             this.clearTimers();
 
             if (this.activePetElement && this.petClickHandler) {
@@ -9980,104 +4366,15 @@
         },
 
         createWorld() {
-            document
-                .querySelectorAll('.snv-world')
-                .forEach(element => element.remove());
-
-            const world = document.createElement('div');
-            world.className = 'snv-world';
-            world.setAttribute('aria-hidden', 'true');
-            world.innerHTML = `
-                <div class="snv-world-wash"></div>
-                <div class="snv-world-moon"></div>
-                <div class="snv-world-swirl swirl-a"></div>
-                <div class="snv-world-swirl swirl-b"></div>
-                <div class="snv-world-swirl swirl-c"></div>
-                <div class="snv-world-swirl swirl-d"></div>
-                <div class="snv-world-swirl swirl-e"></div>
-                <div class="snv-world-stars"></div>
-                <div class="snv-world-brushes"></div>
-                <div class="snv-world-ribbons"></div>
-                <div class="snv-world-cypress"></div>
-                <div class="snv-world-horizon"></div>
-            `;
-
-            const reduced = window.matchMedia?.(
-                '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
-            ).matches;
-
-            const starField = world.querySelector('.snv-world-stars');
-            const brushField = world.querySelector('.snv-world-brushes');
-            const ribbonField = world.querySelector('.snv-world-ribbons');
-            const starCount = getLuxuryQualityCount(reduced ? 34 : 92);
-            const brushCount = getLuxuryQualityCount(reduced ? 16 : 34);
-            const ribbonCount = getLuxuryQualityCount(reduced ? 7 : 16);
-
-            for (let index = 0; index < starCount; index++) {
-                const star = document.createElement('span');
-                star.className = index % 9 === 0
-                    ? 'snv-world-star is-cross'
-                    : 'snv-world-star';
-                star.textContent = index % 9 === 0 ? '✦' : '';
-                star.style.setProperty('--snv-wx', `${(index * 47 + 7) % 98}%`);
-                star.style.setProperty('--snv-wy', `${(index * 71 + 11) % 92}%`);
-                star.style.setProperty('--snv-ws', `${1.2 + (index % 5) * .8}px`);
-                star.style.setProperty('--snv-wd', `${-(index % 13) * .31}s`);
-                star.style.setProperty('--snv-wt', `${3.6 + (index % 7) * .52}s`);
-                starField?.appendChild(star);
-            }
-
-            for (let index = 0; index < brushCount; index++) {
-                const brush = document.createElement('span');
-                brush.className = 'snv-world-brush';
-                brush.style.setProperty('--snv-bx', `${(index * 59 + 3) % 94}%`);
-                brush.style.setProperty('--snv-by', `${(index * 37 + 15) % 88}%`);
-                brush.style.setProperty('--snv-bw', `${110 + (index % 6) * 44}px`);
-                brush.style.setProperty('--snv-br', `${-24 + (index % 8) * 7}deg`);
-                brush.style.setProperty('--snv-bd', `${-(index % 7) * .4}s`);
-                brush.style.setProperty('--snv-bt', `${6 + (index % 5) * 1.1}s`);
-                brushField?.appendChild(brush);
-            }
-
-            for (let index = 0; index < ribbonCount; index++) {
-                const ribbon = document.createElement('span');
-                ribbon.className = 'snv-world-ribbon';
-                ribbon.style.setProperty('--snv-rx', `${(index * 33 + 12) % 92}%`);
-                ribbon.style.setProperty('--snv-ry', `${(index * 41 + 8) % 86}%`);
-                ribbon.style.setProperty('--snv-rw', `${180 + (index % 6) * 54}px`);
-                ribbon.style.setProperty('--snv-rr', `${-18 + (index % 7) * 6}deg`);
-                ribbon.style.setProperty('--snv-rd', `${-(index % 6) * .55}s`);
-                ribbon.style.setProperty('--snv-rt', `${8 + (index % 4) * 1.4}s`);
-                ribbonField?.appendChild(ribbon);
-            }
-
-            document.body.appendChild(world);
-            requestAnimationFrame(() => world.classList.add('is-mounted'));
+            document.querySelectorAll('.snv-world').forEach(n=>n.remove());
+            document.documentElement.classList.add('fr9-starry-equipped');
+            this.realmScene('world').classList.add('snv-world');
         },
 
         createInterface() {
-            document
-                .querySelectorAll('.snv-ui-frame')
-                .forEach(element => element.remove());
-
-            const frame = document.createElement('div');
-            frame.className = 'snv-ui-frame';
-            frame.setAttribute('aria-hidden', 'true');
-            frame.innerHTML = `
-                <div class="snv-ui-title">
-                    <i>✦</i><span>ĐÊM ĐẦY SAO · STARRY NIGHT</span><i>✦</i>
-                </div>
-                <div class="snv-ui-side-rail left"></div>
-                <div class="snv-ui-side-rail right"></div>
-                <div class="snv-ui-bottom-seal"><i></i><span>VINCENT · STARRY NIGHT · TINH DẠ KHAI HỌA</span><i></i></div>
-                <span class="snv-ui-corner tl"></span>
-                <span class="snv-ui-corner tr"></span>
-                <span class="snv-ui-corner bl"></span>
-                <span class="snv-ui-corner br"></span>
-            `;
-
-            document.body.appendChild(frame);
-            requestAnimationFrame(() => frame.classList.add('is-mounted'));
+            document.querySelectorAll('.snv-ui-frame').forEach(n=>n.remove());
+            const n=document.createElement('div');n.className='fr9-starry fr9-interface snv-ui-frame';n.dataset.fiveRealm='starry';n.setAttribute('aria-hidden','true');
+            n.innerHTML='<i></i><i></i><i></i><i></i>';document.body.appendChild(n);
         },
 
         createPetRealm() {
@@ -10097,6 +4394,7 @@
             const realm = document.createElement('div');
             realm.className = 'snv-pet-realm';
             realm.setAttribute('aria-hidden', 'true');
+            realm.dataset.luxuryQualityLayer="1";
             realm.innerHTML = `
                 <span class="snv-pet-halo-outer"></span>
                 <span class="snv-pet-halo"></span>
@@ -10125,211 +4423,31 @@
             return true;
         },
 
-        createPageClick(x, y) {
-            if (!document.documentElement.classList.contains('starry-night-equipped')) {
-                return;
-            }
-
-            const click = document.createElement('div');
-            click.className = 'snv-page-click';
-            click.style.setProperty('--snv-click-x', `${x}px`);
-            click.style.setProperty('--snv-click-y', `${y}px`);
-            click.setAttribute('aria-hidden', 'true');
-            click.innerHTML = `
-                <span class="snv-page-click-core"></span>
-                <span class="snv-page-click-ring ring-a"></span>
-                <span class="snv-page-click-ring ring-b"></span>
-                <span class="snv-page-click-ring ring-c"></span>
-                <div class="snv-page-click-rays"></div>
-            `;
-
-            const rayField = click.querySelector('.snv-page-click-rays');
-            const rayCount = getLuxuryQualityCount(16);
-
-            for (let index = 0; index < rayCount; index++) {
-                const ray = document.createElement('i');
-                ray.style.setProperty(
-                    '--snv-click-angle',
-                    `${index * (360 / Math.max(1, rayCount))}deg`
-                );
-                ray.style.setProperty(
-                    '--snv-click-distance',
-                    `${38 + (index % 4) * 9}px`
-                );
-                rayField?.appendChild(ray);
-            }
-
-            document.body.appendChild(click);
-            requestAnimationFrame(() => click.classList.add('is-active'));
-            this.setTimer(() => click.remove(), 1280);
+        createPageClick(x,y) {if(!document.documentElement.classList.contains('starry-night-equipped'))return;return luxuryTapBloom11(this,'starry',x,y);
         },
 
-        installGlobalClick() {
-            this.documentPointerHandler = event => {
-                if (event.button !== undefined && event.button !== 0) return;
-
-                const target = event.target;
-                if (
-                    target?.closest?.(
-                        '#virtual-pet-container,' +
-                        '.snv-page-click,' +
-                        '.snv-ultimate,' +
-                        '.snv-dialogue'
-                    )
-                ) {
-                    return;
-                }
-
-                this.createPageClick(
-                    Number(event.clientX) || 0,
-                    Number(event.clientY) || 0
-                );
-            };
-
-            document.addEventListener(
-                'pointerdown',
-                this.documentPointerHandler,
-                true
-            );
+        installGlobalClick() {installLuxuryGestures10(this,'starry','starry-night-equipped',(x,y)=>this.createPageClick(x,y));
         },
 
-        createUltimate(x, y) {
-            if (this.skillLocked) return false;
-            this.skillLocked = true;
-
-            document
-                .querySelectorAll('.snv-ultimate, .snv-dialogue')
-                .forEach(element => element.remove());
-
-            document.documentElement.classList.add('starry-night-skill-active');
-
-            const ultimate = document.createElement('div');
-            ultimate.className = 'snv-ultimate';
-            ultimate.style.setProperty('--snv-skill-x', `${x}px`);
-            ultimate.style.setProperty('--snv-skill-y', `${y}px`);
-            ultimate.setAttribute('aria-hidden', 'true');
-            ultimate.innerHTML = `
-                <div class="snv-ultimate-flash"></div>
-                <div class="snv-ultimate-sky"></div>
-                <div class="snv-ultimate-moon"></div>
-                <div class="snv-ultimate-rings"></div>
-                <div class="snv-ultimate-vortex"></div>
-                <div class="snv-ultimate-stars"></div>
-                <div class="snv-ultimate-strokes"></div>
-                <div class="snv-ultimate-cypress"></div>
-            `;
-
-            const starField = ultimate.querySelector('.snv-ultimate-stars');
-            const strokeField = ultimate.querySelector('.snv-ultimate-strokes');
-            const reduced = window.matchMedia?.(
-                '(max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce)'
-            ).matches;
-            const starCount = getLuxuryQualityCount(reduced ? 42 : 88);
-            const strokeCount = getLuxuryQualityCount(reduced ? 20 : 46);
-
-            for (let index = 0; index < starCount; index++) {
-                const star = document.createElement('i');
-                star.className = 'snv-ultimate-star';
-                star.textContent = index % 4 === 0 ? '✦' : '•';
-                star.style.setProperty('--snv-usx', `${(index * 47 + 5) % 96}%`);
-                star.style.setProperty('--snv-usy', `${(index * 67 + 7) % 88}%`);
-                star.style.setProperty('--snv-uss', `${9 + (index % 8) * 3.4}px`);
-                star.style.setProperty('--snv-usd', `${index * .018}s`);
-                starField?.appendChild(star);
-            }
-
-            for (let index = 0; index < strokeCount; index++) {
-                const stroke = document.createElement('i');
-                stroke.className = 'snv-ultimate-stroke';
-                stroke.style.setProperty('--snv-ubx', `${(index * 53 + 4) % 90}%`);
-                stroke.style.setProperty('--snv-uby', `${(index * 41 + 9) % 82}%`);
-                stroke.style.setProperty('--snv-ubw', `${150 + (index % 6) * 56}px`);
-                stroke.style.setProperty('--snv-ubr', `${-28 + (index % 10) * 7}deg`);
-                stroke.style.setProperty('--snv-ubd', `${index * .026}s`);
-                strokeField?.appendChild(stroke);
-            }
-
-            const dialogue = document.createElement('div');
-            dialogue.className = 'snv-dialogue';
-            dialogue.innerHTML = `
-                <small>ĐÊM ĐẦY SAO · TINH DẠ KHAI HỌA</small>
-                <strong>“Bầu trời đêm không im lặng — nó đang xoáy chuyển thành những vệt sáng sống động.”</strong>
-            `;
-
-            document.body.append(ultimate, dialogue);
-
-            requestAnimationFrame(() => {
-                ultimate.classList.add('is-active');
-                dialogue.classList.add('is-active');
-            });
-
-            this.setTimer(() => {
-                ultimate.classList.add('is-climax');
-            }, 820);
-
-            this.setTimer(() => {
-                ultimate.classList.add('is-ending');
-                dialogue.classList.add('is-ending');
-            }, 3400);
-
-            this.setTimer(() => {
-                ultimate.remove();
-                dialogue.remove();
-                document.documentElement.classList.remove('starry-night-skill-active');
-                this.skillLocked = false;
-            }, 4550);
-
-            return true;
-        },
+        createUltimate(x,y) { return this.realmUltimate(x,y); },
 
         installPetSkill() {
-            const container = document.getElementById('virtual-pet-container');
-            const pet = this.getPet();
-
-            if (!container || !pet) return false;
-
-            if (this.activePetElement && this.petClickHandler) {
-                this.activePetElement.removeEventListener(
-                    'click',
-                    this.petClickHandler
-                );
-            }
-
-            this.activePetElement = pet;
-            this.petClickHandler = event => {
-                if (this.skillLocked) return;
-
-                if (
-                    typeof PetInteractionManager !== 'undefined' &&
-                    PetInteractionManager.isPetDragging
-                ) {
-                    return;
-                }
-
-                event.preventDefault();
-                event.stopPropagation();
-                event.stopImmediatePropagation?.();
-
-                const rect = pet.getBoundingClientRect();
-                const x = Number.isFinite(event.clientX) && event.clientX > 0
-                    ? event.clientX
-                    : rect.left + rect.width / 2;
-                const y = Number.isFinite(event.clientY) && event.clientY > 0
-                    ? event.clientY
-                    : rect.top + rect.height / 2;
-
-                container.classList.remove('starry-night-casting');
-                void container.offsetWidth;
-                container.classList.add('starry-night-casting');
-
-                this.createUltimate(x, y);
-                this.setTimer(
-                    () => container.classList.remove('starry-night-casting'),
-                    1600
-                );
+            const pet=this.getPet?.()||document.querySelector('#virtual-pet-img');const container=pet?.closest('#virtual-pet-container');if(!pet||!container)return false;
+            if(this.realmPet===pet)return true;
+            if(this.realmPet&&this.realmClick){this.realmPet.removeEventListener('click',this.realmClick,true);this.realmPet.removeEventListener('keydown',this.realmKey);}
+            this.realmPet=pet;this.activePetElement=pet;
+            this.realmAttrs=Object.fromEntries(['tabindex','role','aria-label'].map(k=>[k,pet.getAttribute(k)]));pet.tabIndex=0;pet.setAttribute('role','button');pet.setAttribute('aria-label',"Tinh Dạ · Thành Phố Trong Tranh");
+            this.realmClick=e=>{
+                if(!document.documentElement.classList.contains('starry-night-equipped')||container.dataset.petDragged==='1'||(typeof PetInteractionManager!=='undefined'&&PetInteractionManager.isPetDragging))return;
+                e.preventDefault();e.stopImmediatePropagation();e.__nyxUltimateHandled=true;
+                const rect=pet.getBoundingClientRect();this.realmUltimate(rect.x+rect.width/2,rect.y+rect.height/2);
             };
-
-            pet.addEventListener('click', this.petClickHandler);
+            this.realmKey=e=>{if(e.key==='Enter'||e.key===' '){this.realmClick(e);}};
+            pet.addEventListener('click',this.realmClick,true);pet.addEventListener('keydown',this.realmKey);
+            this.realmAbort?.abort();this.realmAbort=new AbortController();
+            document.addEventListener('visibilitychange',()=>document.querySelectorAll('[data-five-realm="starry"]').forEach(n=>n.classList.toggle('fr9-paused',document.hidden)),{signal:this.realmAbort.signal});
+            this.realmObserver?.disconnect();this.realmObserver=new MutationObserver(()=>{if(!pet.isConnected||container.hidden||container.style.display==='none')this.clear();});
+            this.realmObserver.observe(container.parentNode,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden','style']});
             return true;
         },
 
@@ -12203,6 +6321,8 @@
         PetManager.spawnPet =
             function (petData) {
                 if (window.isStudentStoreGameAccessEnabled?.() === false) return false;
+                LuxuryAutumnRuntime.clear();
+                LuxuryHacMongRuntime.clear();
 
                 /*
                  * Mỗi lần đổi pet dọn toàn bộ runtime Luxury đang hoạt động.
@@ -12223,15 +6343,6 @@
                 } catch (error) {
                     console.warn(
                         '[LuxuryStore] Không thể dọn runtime Hạ Thần:',
-                        error
-                    );
-                }
-
-                try {
-                    LuxuryAutumnRuntime.clear();
-                } catch (error) {
-                    console.warn(
-                        '[LuxuryStore] Không thể dọn runtime Thu Thần:',
                         error
                     );
                 }
@@ -12333,6 +6444,15 @@
                 );
 
 
+                if (petData?.id === HAC_MONG_PREMIUM_PET.id) {
+                    LuxuryHacMongRuntime.mount();
+                    return;
+                }
+                if (petData?.id === AUTUMN_PREMIUM_PET.id) {
+                    LuxuryAutumnRuntime.mount();
+                    return;
+                }
+
                 const isLuxurySpring =
                     petData?.id ===
                     'pet_luxury_mua_xuan' ||
@@ -12344,13 +6464,6 @@
                     'pet_luxury_mua_ha' ||
                     petData?.petEffect ===
                     'premium-summer-solstice-magic';
-
-
-                const isLuxuryAutumn =
-                    petData?.id ===
-                    'pet_luxury_mua_thu' ||
-                    petData?.petEffect ===
-                    'premium-autumn-equinox-magic';
 
                 const isNationalDay =
                     petData?.id ===
@@ -12453,29 +6566,6 @@
                             } catch (error) {
                                 console.error(
                                     '[LuxuryStore] Lỗi mount Hạ Thần:',
-                                    error
-                                );
-                            }
-                        }
-                    );
-
-                    return;
-                }
-
-
-                /*
-                 * THU THẦN · XÍCH DIỆP HOÀNG HÔN:
-                 * Full suite riêng: world + interface + pet realm
-                 * + global click + pet skill + fullscreen ultimate.
-                 */
-                if (isLuxuryAutumn) {
-                    requestAnimationFrame(
-                        () => {
-                            try {
-                                LuxuryAutumnRuntime.mount();
-                            } catch (error) {
-                                console.error(
-                                    '[LuxuryStore] Lỗi mount Thu Thần:',
                                     error
                                 );
                             }
@@ -12760,6 +6850,8 @@
 
         StoreManager.unapplyItem =
             async function (itemId) {
+                if (String(itemId) === HAC_MONG_PREMIUM_PET.id) LuxuryHacMongRuntime.clear();
+                if (String(itemId) === AUTUMN_PREMIUM_PET.id) LuxuryAutumnRuntime.clear();
 
                 const isLuxurySpring =
                     String(itemId) ===
@@ -12768,11 +6860,6 @@
                 const isLuxurySummer =
                     String(itemId) ===
                     'pet_luxury_mua_ha';
-
-
-                const isLuxuryAutumn =
-                    String(itemId) ===
-                    'pet_luxury_mua_thu';
 
                 const isNationalDay =
                     String(itemId) ===
@@ -12825,11 +6912,6 @@
 
                 if (isLuxurySummer) {
                     LuxurySummerRuntime.clear();
-                }
-
-
-                if (isLuxuryAutumn) {
-                    LuxuryAutumnRuntime.clear();
                 }
 
                 if (isMythicNyx) {
@@ -13347,9 +7429,10 @@ if (isNationalDay) {
          * Các hàm này đều nằm trong cùng module luxury-store.js.
          */
         [
+            LuxuryHacMongRuntime,
+            LuxuryAutumnRuntime,
             LuxurySpringRuntime,
             LuxurySummerRuntime,
-            LuxuryAutumnRuntime,
             LuxuryNationalDayRuntime,
             LuxuryNyxRuntime,
             LuxuryAetherRuntime,
@@ -13496,77 +7579,6 @@ if (isNationalDay) {
         }
     }
 
-    async function fullyUnapplyBoundaryConflicts(
-        conflicts,
-        browserConflictItems,
-        inventoryRef,
-        targetIsLuxury
-    ) {
-        /*
-         * 1) Gọi đúng luồng GỠ của website cho TỪNG món.
-         * Đây là phần logic cũ bị thiếu: trước đây chỉ set
-         * isEquipped=false trong Firebase nên DOM/localStorage vẫn còn.
-         */
-        const uniqueIds = Array.from(
-            new Set(
-                [
-                    ...conflicts.map(
-                        conflict => conflict?.item?.id
-                    ),
-                    ...browserConflictItems.map(
-                        item => item?.id
-                    )
-                ]
-                    .filter(Boolean)
-                    .map(String)
-            )
-        );
-
-        for (const conflictItemId of uniqueIds) {
-            try {
-                await StoreManager.unapplyItem(
-                    conflictItemId
-                );
-            } catch (error) {
-                /*
-                 * Không dừng toàn bộ quá trình chỉ vì một món gỡ lỗi.
-                 * Phần fallback phía dưới vẫn tiếp tục dọn runtime
-                 * và ép Firebase về trạng thái đúng.
-                 */
-                console.error(
-                    `[LuxuryStore] Lỗi khi gỡ ${conflictItemId}:`,
-                    error
-                );
-            }
-        }
-
-        /*
-         * 2) Tự chữa trạng thái từng bị kẹt từ phiên bản cũ.
-         * Dựa vào active_pet / active_theme / active_effect hiện tại,
-         * chỉ dọn những gì thuộc cửa hàng đối diện với món sắp mặc.
-         */
-        clearOppositeStoreBrowserRuntime(
-            targetIsLuxury
-        );
-
-        /*
-         * 3) Firebase là lớp chốt cuối cùng.
-         * Dù unapplyItem() đã cập nhật, update lại false là idempotent
-         * và bảo đảm không còn món đối diện nào mang isEquipped=true.
-         */
-        const updates = {};
-
-        conflicts.forEach(conflict => {
-            updates[
-                `${conflict.firebaseKey}/isEquipped`
-            ] = false;
-        });
-
-        if (Object.keys(updates).length) {
-            await inventoryRef.update(updates);
-        }
-    }
-
     async function prepareStoreBoundaryEquip(
         itemId
     ) {
@@ -13589,11 +7601,9 @@ if (isNationalDay) {
             return true;
         }
 
-        const user = JSON.parse(
-            localStorage.getItem(
-                'currentUser'
-            ) || 'null'
-        );
+        let user;
+        try { user = JSON.parse(localStorage.getItem('currentUser') || 'null'); }
+        catch (_) { return false; }
 
         if (
             typeof db === 'undefined' ||
@@ -13771,21 +7781,6 @@ if (isNationalDay) {
              * đưa món mới về chưa trang bị,
              * nhưng KHÔNG xóa khỏi kho.
              */
-            const [
-                targetFirebaseKey,
-                targetInventoryItem
-            ] = targetEntry;
-
-            if (
-                targetInventoryItem
-                    ?.isEquipped === true
-            ) {
-                await inventoryRef
-                    .child(targetFirebaseKey)
-                    .update({
-                        isEquipped: false
-                    });
-            }
 
             return false;
         }
@@ -13795,12 +7790,8 @@ if (isNationalDay) {
          * GỠ THẬT toàn bộ vật phẩm của cửa hàng đối diện.
          * Không chỉ đổi cờ Firebase như logic cũ.
          */
-        await fullyUnapplyBoundaryConflicts(
-            conflicts,
-            browserConflictItems,
-            inventoryRef,
-            targetIsLuxury
-        );
+        // StoreConcurrency.equipment commits both unequip and equip atomically.
+        // Do not mutate DB/runtime here: the user may cancel, lose access, or go offline.
 
         return true;
     }
@@ -13855,69 +7846,41 @@ if (isNationalDay) {
         StoreManager.applyItem =
             async function (itemId) {
 
-                const executeBoundaryEquip = async () => {
-                    if (window.isStudentStoreSystemOpen?.() === false) {
-                        window.showStudentStoreSystemLocked?.();
-                        return false;
-                    }
-
-                    if (
-                        typeof window.assertStudentStoreLiveAccessAllowed === 'function' &&
-                        !await window.assertStudentStoreLiveAccessAllowed(
-                            itemId,
-                            'trang bị vật phẩm'
-                        )
-                    ) {
-                        return false;
-                    }
-
-                    try {
-                        const allowed =
-                            await prepareStoreBoundaryEquip(
-                                itemId
-                            );
-
-                        /*
-                         * Người dùng chọn Hủy.
-                         */
-                        if (!allowed || window.isStudentStoreSystemOpen?.() === false) {
-                            return false;
-                        }
-
-                        /*
-                         * Không xung đột hoặc người dùng đã đồng ý.
-                         * originalApplyItem dùng cùng equip lease do student.js giữ.
-                         */
-                        return await originalApplyItem(
+                if (window.isStudentStoreGameAccessEnabled?.() === false) return false;
+                try {
+                    const allowed =
+                        await prepareStoreBoundaryEquip(
                             itemId
                         );
 
-                    } catch (error) {
-                        console.error(
-                            '[LuxuryStore] Lỗi kiểm tra trang bị:',
-                            error
-                        );
-
-                        alert(
-                            '❌ Không thể kiểm tra trạng thái trang bị. ' +
-                            'Vui lòng thử lại.'
-                        );
-
+                    /*
+                     * Người dùng chọn Hủy.
+                     */
+                    if (!allowed || window.isStudentStoreGameAccessEnabled?.() === false) {
                         return false;
                     }
-                };
 
-                if (
-                    typeof window.withStudentStoreEquipLock === 'function' &&
-                    !window.isStudentStoreEquipLockHeldFor?.(itemId)
-                ) {
-                    return window.withStudentStoreEquipLock(
-                        itemId,
-                        executeBoundaryEquip
+                    /*
+                     * Không xung đột hoặc
+                     * người dùng đã đồng ý.
+                     */
+                    return await originalApplyItem(
+                        itemId
                     );
-                }
 
-                return executeBoundaryEquip();
+                } catch (error) {
+                    console.error(
+                        '[LuxuryStore] Lỗi kiểm tra trang bị:',
+                        error
+                    );
+
+                    alert(
+                        '❌ Không thể kiểm tra trạng thái trang bị. ' +
+                        'Vui lòng thử lại.'
+                    );
+
+                    return false;
+                }
             };
 
         StoreManager
@@ -13938,6 +7901,7 @@ if (isNationalDay) {
             SPRING_PREMIUM_PET,
             SUMMER_PREMIUM_PET,
             AUTUMN_PREMIUM_PET,
+            HAC_MONG_PREMIUM_PET,
             NATIONAL_DAY_PREMIUM_PET,
             MYTHIC_NYX_PET,
             MYTHIC_AETHER_PET,
@@ -13968,6 +7932,10 @@ if (isNationalDay) {
              * Không để cấu hình giá động biến nó thành vật phẩm Coin.
              */
             if (
+                itemDefinition.id ===
+                HAC_MONG_PREMIUM_PET.id ||
+                itemDefinition.id ===
+                AUTUMN_PREMIUM_PET.id ||
                 itemDefinition.id ===
                 NATIONAL_DAY_PREMIUM_PET.id ||
                 itemDefinition.id ===
@@ -14205,7 +8173,7 @@ if (isNationalDay) {
         if (
             typeof window.buyItem === 'function'
         ) {
-            return window.buyItem(itemId, upgradingFromTrial, 'luxury');
+            return window.buyItem(itemId, upgradingFromTrial);
         }
 
         console.error(
@@ -14216,11 +8184,29 @@ if (isNationalDay) {
     }
 
 
+    let localLuxuryInventorySubscription = null;
+    if (window.__luxuryInventoryStorageHandler) {
+        window.removeEventListener('storage', window.__luxuryInventoryStorageHandler);
+    }
+    window.__luxuryInventoryStorageHandler = event => {
+        if (event.key === 'currentUser' || event.key === null) installLuxuryInventoryListener();
+    };
+    window.addEventListener('storage', window.__luxuryInventoryStorageHandler);
+
     function installLuxuryInventoryListener() {
 
-        const user = JSON.parse(
-            localStorage.getItem('currentUser') || 'null'
-        );
+        let user;
+        try { user = JSON.parse(localStorage.getItem('currentUser') || 'null'); }
+        catch (_) { user = null; }
+        const previous = window.__luxuryInventorySubscription;
+        if (previous && previous.username !== String(user?.username || '')) {
+            previous.ref.off('value', previous.callback);
+            window.__luxuryInventorySubscription = null;
+            window.__luxuryInventoryListeningUser = null;
+            window.__luxuryInventoryBridgeState = null;
+            luxuryInventoryState = {};
+            hardClearBoundaryPetRuntime();
+        }
 
         /*
          * Nếu Firebase/chủ tài khoản chưa sẵn sàng
@@ -14256,7 +8242,9 @@ if (isNationalDay) {
         if (
             window.__luxuryInventoryListeningUser ===
                 username &&
-            bridgeState?.username === username
+            bridgeState?.username === username &&
+            localLuxuryInventorySubscription === window.__luxuryInventorySubscription &&
+            localLuxuryInventorySubscription !== null
         ) {
             luxuryInventoryState =
                 bridgeState.inventory || {};
@@ -14272,9 +8260,22 @@ if (isNationalDay) {
                 `student_inventory/${username}`
             );
 
-        inventoryRef.on(
-            'value',
-            snapshot => {
+        const subscription = { username, ref: inventoryRef, callback: null };
+        if (window.__luxuryInventorySubscription) {
+            const old = window.__luxuryInventorySubscription;
+            old.ref.off('value', old.callback);
+        }
+        localLuxuryInventorySubscription = subscription;
+        window.__luxuryInventorySubscription = subscription;
+        const onInventory = snapshot => {
+                if (window.__luxuryInventorySubscription !== subscription) return;
+                let activeUser;
+                try { activeUser = JSON.parse(localStorage.getItem('currentUser') || 'null'); }
+                catch (_) { activeUser = null; }
+                if (String(activeUser?.username || '') !== username) {
+                    installLuxuryInventoryListener();
+                    return;
+                }
 
                 luxuryInventoryState =
                     snapshot.val() || {};
@@ -14289,6 +8290,15 @@ if (isNationalDay) {
                 // Nếu Xuân Thần đã được gỡ trên Firebase
                 // thì tuyệt đối không để Runtime Luxury tồn tại.
                 // ====================================================
+
+                if (!Object.values(luxuryInventoryState || {}).some(item =>
+                    item?.id === AUTUMN_PREMIUM_PET.id && item.isEquipped === true)) {
+                    LuxuryAutumnRuntime.clear();
+                }
+
+                if (!Object.values(luxuryInventoryState || {}).some(item =>
+                    item?.id === HAC_MONG_PREMIUM_PET.id && item.isEquipped === true &&
+                    (item.isTrial !== true || Number(item.trialExpiry) > Date.now()))) LuxuryHacMongRuntime.clear();
 
                 const equippedLuxurySpring =
                     Object
@@ -14327,23 +8337,6 @@ if (isNationalDay) {
 
                 if (!equippedLuxurySummer) {
                     LuxurySummerRuntime.clear();
-                }
-
-
-                const equippedLuxuryAutumn =
-                    Object
-                        .values(
-                            luxuryInventoryState || {}
-                        )
-                        .find(
-                            item =>
-                                String(item?.id) ===
-                                'pet_luxury_mua_thu' &&
-                                item?.isEquipped === true
-                        );
-
-                if (!equippedLuxuryAutumn) {
-                    LuxuryAutumnRuntime.clear();
                 }
 
                 const equippedMythicNyx =
@@ -14467,8 +8460,13 @@ if (isNationalDay) {
                 ) {
                     renderLuxuryStore();
                 }
-            },
+            };
+        subscription.callback = onInventory;
+        inventoryRef.on('value', onInventory,
             error => {
+                if (window.__luxuryInventorySubscription !== subscription) return;
+                inventoryRef.off('value', onInventory);
+                window.__luxuryInventorySubscription = null;
                 console.error(
                     '[LuxuryStore] Lỗi listener kho Luxury:',
                     error
@@ -14527,7 +8525,105 @@ if (isNationalDay) {
     // ========================================================
     // 4. TẠO CARD
     // ========================================================
+    // One full-art layout for the Luxury catalog. The original renderer remains
+    // the source of purchase/equip/event controls, including seasonal currency.
+    const LUXURY_CARD_PRESENTATION = Object.freeze({
+        pet_hac_mong_2: ['#173e43', '#d2e9d8', 'Nương cánh hạc vượt tầng mây, nàng mang ngọc khí và ánh trăng về tiên cảnh. Mỗi bước chân đánh thức một khúc vân ca.'],
+        pet_luxury_mua_xuan: ['#24402b', '#d9edb2', 'Nàng xuân đánh thức muôn hoa, mang sức sống dịu dàng và sắc xanh mơ mộng đến từng ngày học.'],
+        pet_luxury_mua_ha: ['#49320e', '#ffe096', 'Hạ Thần gom nắng vào những dải lưu kim, mở ra một mùa hè rực rỡ giữa gió và hoa.'],
+        pet_luxury_mua_thu: ['#361c10', '#edb96b', 'Thu Thần dệt lá phong và ánh hổ phách thành một miền thu huyền ảo, nơi ngàn chiếc lá cùng tỏa sáng.'],
+        pet_quoc_khanh_1: ['#541718', '#ffdf8c', 'Sắc cờ đỏ hòa cùng ánh sao vàng, gìn giữ niềm tự hào và khí phách của một ngày độc lập.'],
+        pet_mythic_nyx_1: ['#211538', '#cbb3ff', 'Nữ thần màn đêm khoác dải ngân hà, dẫn lối qua miền tinh tú và những bí mật của vĩnh dạ.'],
+        pet_mythic_aether_1: ['#343548', '#ffe4a6', 'Ánh sáng nguyên sơ kết thành hào quang, đưa đôi cánh thiên giới xuyên qua tầng mây rực rỡ.'],
+        pet_dem_day_sao_1: ['#122d45', '#f3d184', 'Lữ khách bước ra từ bức họa đêm sao, mang theo những nét cọ xoáy và giấc mơ xanh thẳm.'],
+        pet_lotm_klein_event_1: ['#28202d', '#dbbd8b', 'Giữa màn sương xám và những lá bài định mệnh, Klein mở cánh cửa dẫn vào thế giới huyền bí.'],
+        pet_cam_co_cam_mong_1: ['#153d32', '#b9e4ce', 'Một tiếng đàn khẽ lay tiên cảnh; Lạc Thanh Huyền đưa mây ngọc và mộng thanh bình về bên bạn.'],
+        pet_tamon_b_side_1: ['#381b30', '#f8b6d6', 'Ánh đèn sân khấu bừng lên theo nhịp nhạc, hé lộ vẻ cuốn hút và một mặt khác của Tamon.'],
+        pet_tamon_b_side_2: ['#291b30', '#ffb4d5', 'Những nhịp sóng hồng và sắc đêm tinh nghịch hòa thành sân khấu riêng của Hắc Miêu Thiếu Niên.'],
+        pet_trung_thu_nguyet_cung_tien_tu: ['#25324c', '#ffe0a2', 'Tiên tử rời Nguyệt Cung, mang ánh trăng trong trẻo và lời chúc đoàn viên xuống nhân gian.'],
+        pet_trung_thu_chu_cuoi_2: ['#243b32', '#e4d29a', 'Dưới bóng nguyệt quế, Chú Cuội gọi trăng rằm và hoa đăng thắp sáng một đêm thu ấm áp.'],
+        pet_linkclick_cheng_xiaoshi_1: ['#172f3a', '#99e7dc', 'Cheng Xiaoshi bước qua khung ảnh, lần theo dấu thời gian và những ký ức còn ngân trong ánh sáng.']
+    });
+
+    // Native vector scenery: stays behind the character and needs no extra image assets.
+    function renderLuxuryBackdrop(itemId) {
+        const ring = (x, y, r) => `<circle cx="${x}" cy="${y}" r="${r}"/>`;
+        const rays = (x, y, count, inner, outer) => Array.from({length:count}, (_,i) => {
+            const a=i*Math.PI*2/count;
+            return `<path d="M${x+Math.cos(a)*inner} ${y+Math.sin(a)*inner}L${x+Math.cos(a)*outer} ${y+Math.sin(a)*outer}"/>`;
+        }).join('');
+        const moon = '<path class="luxury-scene-solid" d="M244 18a61 61 0 1 0 25 107a52 52 0 0 1-25-107Z"/>';
+        const hills = '<path d="M-20 344Q63 248 151 338T327 312M-20 362Q108 288 202 360T331 337M-20 385Q82 327 185 385T324 356"/>';
+        const branches = '<path d="M-5 260Q49 182 20 25M20 122Q66 108 88 49M16 66Q56 67 74 31M6 197Q66 178 99 122M308 281Q239 184 281 8M276 107Q232 97 212 44M289 210Q239 188 214 133"/>';
+        const leaves = Array.from({length:9},(_,i)=>`<path class="luxury-scene-solid" d="M${18+i%2*9} ${40+i*22}q-23-18-12-33q26 5 12 33Zm${254+i%2*9} ${32+i*24}q27-15 24-31q-29 1-24 31Z"/>`).join('');
+        const stars = Array.from({length:25},(_,i)=>`<circle class="luxury-scene-star" cx="${(i*79+19)%292}" cy="${(i*47+23)%380}" r="${i%4===0?2.1:1}"/>`).join('');
+        const arch = '<path d="M28 398V154Q28 32 150 8Q272 32 272 154V398M44 398V156Q44 51 150 26Q256 51 256 156V398M12 398V156M288 398V156M8 156H54M246 156H292"/>';
+        const lanterns = '<path d="M42 0V80M257 0V125"/><g class="luxury-scene-solid"><rect x="26" y="78" width="32" height="44" rx="13"/><rect x="241" y="122" width="32" height="44" rx="13"/></g><path d="M42 83V118M30 89H54M30 111H54M42 124V142M257 127V162M245 133H269M245 155H269M257 168V186"/>';
+        const clock = ring(150,130,111)+ring(150,130,99)+rays(150,130,12,88,97)+'<path d="M150 56V130L206 162"/>';
+        const flowers = Array.from({length:7},(_,i)=>`<g transform="translate(${i%2?270:30} ${55+i*45})"><circle r="8"/><path d="M0-8C-24-33-33 8-8 0C-32 28 12 33 0 8C26 33 36-11 8 0C35-23-12-36 0-8Z"/></g>`).join('');
+        const scenes = {
+            pet_luxury_mua_xuan: ['spring',branches+leaves+flowers+hills],
+            pet_luxury_mua_ha: ['summer',ring(208,78,42)+ring(208,78,55)+rays(208,78,24,61,93)+hills+'<path d="M-20 282Q112 197 321 280M-20 293Q112 208 321 291"/>'],
+            pet_hac_mong_2: ['hacmong',moon+stars+arch+branches+hills],
+            pet_luxury_mua_thu: ['autumn',branches+leaves+ring(170,152,110)+ring(170,152,120)+rays(170,152,32,112,118)+hills],
+            pet_quoc_khanh_1: ['heritage',ring(150,132,105)+ring(150,132,89)+ring(150,132,64)+rays(150,132,24,91,102)+'<path class="luxury-scene-solid" d="M150 60L168 109L220 112L179 144L193 195L150 166L107 195L121 144L80 112L132 109Z"/>'+hills],
+            pet_mythic_nyx_1: ['night',moon+stars+arch+'<path d="M28 65L88 95L53 170L111 215M238 191L270 244L221 280L278 331"/>'],
+            pet_mythic_aether_1: ['heaven',arch+ring(150,84,56)+rays(150,84,32,60,88)+'<path d="M0 312Q45 274 90 309Q148 260 198 306Q248 278 300 307M0 333Q80 299 146 328T300 325"/>'],
+            pet_dem_day_sao_1: ['painting',moon+stars+'<path d="M-10 154C88 45 275 187 193 239C103 292 38 180 125 159C223 135 277 266 322 155M-10 166C76 72 260 185 184 225C117 268 67 190 129 176C214 155 265 275 327 180M-10 178C74 96 240 185 174 210M18 355Q23 248 35 219Q34 293 56 356"/>'+hills],
+            pet_lotm_klein_event_1: ['mystery',clock+arch+'<g transform="rotate(-15 43 302)"><rect x="8" y="248" width="70" height="108" rx="6"/><rect x="15" y="255" width="56" height="94" rx="3"/></g><path d="M26 283L57 318M57 283L26 318M248 257V375M258 246V392M268 264V375"/>'],
+            pet_cam_co_cam_mong_1: ['jade',moon+branches+flowers+'<path d="M-10 270L72 219L142 265L211 220L311 277M10 285L66 250L115 288M14 180Q51 154 92 178T192 168M208 329Q247 303 290 323"/>'+hills],
+            pet_tamon_b_side_1: ['stage',rays(150,-50,14,70,470)+'<path d="M18 399V280M34 399V330M50 399V298M66 399V351M82 399V308M218 399V305M234 399V345M250 399V282M266 399V327M282 399V271"/>'+stars],
+            pet_tamon_b_side_2: ['pink',stars+'<g transform="rotate(-13 150 140)"><rect x="18" y="35" width="264" height="190" rx="24"/><rect x="32" y="49" width="236" height="161" rx="15"/>'+ring(78,127,33)+ring(220,127,33)+'<path d="M77 94H220M77 160H220M95 202L110 174H190L207 202"/></g><path d="M-10 320L32 292L48 341L77 301L95 325M211 305L236 336L253 289L277 329L316 304"/>'],
+            pet_trung_thu_nguyet_cung_tien_tu: ['palace',ring(165,92,69)+ring(165,92,76)+lanterns+'<path d="M53 296V235L150 165L247 235V296M32 237Q151 202 268 237M67 211Q151 178 233 211M107 198V295M194 198V295"/>'+hills],
+            pet_trung_thu_chu_cuoi_2: ['moonwood',moon+branches+leaves+lanterns+hills],
+            pet_linkclick_cheng_xiaoshi_1: ['time',clock+'<g transform="rotate(-10 150 240)"><rect x="-12" y="75" width="324" height="334" rx="7"/><path d="M10 75V409M290 75V409M-12 102H10M-12 134H10M-12 166H10M-12 198H10M-12 230H10M-12 262H10M290 102H312M290 134H312M290 166H312M290 198H312M290 230H312M290 262H312"/></g>']
+        };
+        const [kind, art] = scenes[itemId] || ['night',stars+arch];
+        return `<div class="luxury-scene luxury-scene-${kind}" aria-hidden="true"><span class="luxury-scene-glow"></span><svg viewBox="0 0 300 430" preserveAspectRatio="xMidYMid slice" fill="none" stroke="currentColor" stroke-width="1.2">${art}</svg><span class="luxury-scene-grain"></span></div>`;
+    }
+
     function renderCard(item) {
+        const original = renderLuxuryCardControls(item);
+        // Teacher locks must remain opaque and must not reveal item details.
+        if (item.isLocked === true) return original;
+        const template = document.createElement('template');
+        template.innerHTML = original;
+        const oldCard = template.content.querySelector('article');
+        if (!oldCard) return original;
+        const [shade, accent, introduction] = LUXURY_CARD_PRESENTATION[item.id] ||
+            ['#252338', '#e4c48d', String(item.description || 'Người bạn đồng hành đặc biệt trong bộ sưu tập sang trọng.')];
+        const source = oldCard.querySelector('.luxury-product-price, [class$="-price"], [class$="-source"]');
+        const buttons = Array.from(oldCard.querySelectorAll('button')).map(button => {
+            const equipped = button.classList.contains('is-equipped');
+            button.className = 'luxury-unified-action' + (equipped ? ' is-equipped' : '');
+            button.removeAttribute('style');
+            return button.outerHTML;
+        }).join('');
+        const name = escapeHTML(item.name || 'Vật phẩm');
+        const tag = escapeHTML(item.tag || 'Premium');
+        const image = escapeHTML(item.image || item.asset || item.value || '');
+        const tagImage = escapeHTML(item.luxuryTagImage || '');
+        const id = escapeHTML(item.id);
+        return `<article class="luxury-product-card luxury-unified-card store-theme-locked ui-theme-immune"
+            data-item-id="${id}" data-theme-immune="true" tabindex="0" aria-label="${name}"
+            style="--luxury-card-shade:${shade};--luxury-card-accent:${accent}">
+            <div class="luxury-unified-visual">
+                ${renderLuxuryBackdrop(item.id)}
+                <img class="luxury-unified-character" src="${image}" alt="${name}" draggable="false" loading="lazy">
+                <span class="luxury-unified-frame" aria-hidden="true"></span>
+                ${tagImage ? `<img class="luxury-unified-tag" src="${tagImage}" alt="${tag}" draggable="false" loading="lazy">` : ''}
+                <div class="luxury-unified-info">
+                    <span class="luxury-unified-label">${tag} · PREMIUM</span>
+                    <h3>${name}</h3>
+                    <p class="luxury-unified-intro">${escapeHTML(introduction)}</p>
+                    <div class="luxury-unified-price">${source ? source.innerHTML : 'Vật phẩm đặc biệt'}</div>
+                    <div class="luxury-unified-actions">${buttons}</div>
+                </div>
+            </div>
+        </article>`;
+    }
+
+    function renderLuxuryCardControls(item) {
 
         const name =
             escapeHTML(
@@ -14855,6 +8951,54 @@ if (isNationalDay) {
         // Details ẩn mặc định, trượt lên khi hover/focus giống các thẻ Premium khác.
         // Card khóa theme để không bị vật phẩm giao diện khác nhuộm màu.
         // ====================================================
+        if (item.id === AUTUMN_PREMIUM_PET.id) {
+            ensureAutumnStylesheet();
+            const price = Number(item.price).toLocaleString('vi-VN');
+            const action = !isOwned
+                ? `window.LuxuryStore.buyItemSafely('${id}')`
+                : isEquipped ? `StoreManager.unapplyItem('${id}')` : `StoreManager.applyItem('${id}')`;
+            const label = !isOwned ? `🪙 Mua ${price} Coin` : isEquipped ? '✕ Gỡ' : '✦ Sử dụng';
+            return `<article class="luxury-product-card autumn3-card store-theme-locked ui-theme-immune"
+                data-item-id="${id}" data-special-card="autumn3-premium" data-theme-immune="true"
+                data-luxury-style="autumn3" tabindex="0" aria-label="${name}">
+                <div class="autumn3-card-visual">
+                    <div class="autumn3-card-halo" aria-hidden="true"></div>
+                    <img class="autumn3-card-character" src="${image}" alt="${name}" draggable="false" loading="lazy">
+                    <img class="autumn3-card-tag" src="${escapeHTML(item.luxuryTagImage)}" alt="Mùa thu" draggable="false">
+                    <div class="autumn3-card-leaves" aria-hidden="true"><i>✦</i><i>✧</i><i>✦</i></div>
+                    <div class="autumn3-card-info">
+                        <span class="autumn3-card-label">BỐN MÙA · MÙA THU</span>
+                        <h3>${name}</h3><div class="autumn3-card-price">🪙 ${price} Coin</div>
+                        <button type="button" class="autumn3-card-action${isEquipped ? ' is-equipped' : ''}" onclick="${action}">${label}</button>
+                    </div>
+                </div>
+            </article>`;
+        }
+
+        if (item.id === HAC_MONG_PREMIUM_PET.id) {
+            ensureHacMongStylesheet();
+            const price = Number(item.price).toLocaleString('vi-VN');
+            const action = !isOwned
+                ? `window.LuxuryStore.buyItemSafely('${id}')`
+                : isEquipped ? `StoreManager.unapplyItem('${id}')` : `StoreManager.applyItem('${id}')`;
+            const label = !isOwned ? `🪙 Mua ${price} Coin` : isEquipped ? '✕ Gỡ' : '✦ Sử dụng';
+            return `<article class="luxury-product-card hacmong2-card store-theme-locked ui-theme-immune"
+                data-item-id="${id}" data-special-card="hacmong2-premium" data-theme-immune="true"
+                data-luxury-style="hacmong2" tabindex="0" aria-label="${name}">
+                <div class="hacmong2-card-visual">
+                    <div class="hacmong2-card-halo" aria-hidden="true"></div>
+                    <img class="hacmong2-card-character" src="${image}" alt="${name}" draggable="false" loading="lazy">
+                    <img class="hacmong2-card-tag" src="${escapeHTML(item.luxuryTagImage)}" alt="Hạc Mộng" draggable="false">
+                    <div class="hacmong2-card-leaves" aria-hidden="true"><i>✦</i><i>✧</i><i>✦</i></div>
+                    <div class="hacmong2-card-info">
+                        <span class="hacmong2-card-label">TU TIÊN · HẠC MỘNG</span>
+                        <h3>${name}</h3><div class="hacmong2-card-price">🪙 ${price} Coin</div>
+                        <button type="button" class="hacmong2-card-action${isEquipped ? ' is-equipped' : ''}" onclick="${action}">${label}</button>
+                    </div>
+                </div>
+            </article>`;
+        }
+
         if (item.id === 'pet_cam_co_cam_mong_1') {
             const tagImage = escapeHTML(
                 item.luxuryTagImage ||
@@ -15731,132 +9875,6 @@ if (isNationalDay) {
 
 
         // ====================================================
-        // CARD RIÊNG MÙA THU · V1
-        // Giữ đúng layout Luxury: article 275x430 -> visual full card
-        // -> tag + nhân vật -> details overlay khi hover/focus.
-        // ====================================================
-        if (item.id === 'pet_luxury_mua_thu') {
-            const tagImage = escapeHTML(
-                item.luxuryTagImage ||
-                'assets/Premium/Bốn mùa/tag3.png'
-            );
-
-            const formattedPrice =
-                Number(item.price || 14000)
-                    .toLocaleString('vi-VN');
-
-            let actionHTML = '';
-
-            if (!isOwned) {
-                actionHTML = `
-                    <button
-                        type="button"
-                        class="autumn-premium-card-action"
-                        onclick="window.LuxuryStore.buyItemSafely('${id}')"
-                    >
-                        🪙 Mua ${formattedPrice} Coin
-                    </button>
-                `;
-            } else if (isEquipped) {
-                actionHTML = `
-                    <button
-                        type="button"
-                        class="autumn-premium-card-action is-equipped"
-                        onclick="StoreManager.unapplyItem('${id}')"
-                    >
-                        ✕ Gỡ
-                    </button>
-                `;
-            } else {
-                actionHTML = `
-                    <button
-                        type="button"
-                        class="autumn-premium-card-action"
-                        onclick="StoreManager.applyItem('${id}')"
-                    >
-                        🍁 Sử dụng
-                    </button>
-                `;
-            }
-
-            return `
-                <article
-                    class="
-                        luxury-product-card
-                        autumn-premium-card
-                        store-theme-locked
-                        ui-theme-immune
-                    "
-                    data-item-id="${id}"
-                    data-special-card="autumn-premium-pet"
-                    data-theme-immune="true"
-                    data-luxury-style="autumn"
-                    tabindex="0"
-                >
-                    <div class="autumn-premium-card__visual">
-                        <div class="autumn-card-sky"></div>
-                        <div class="autumn-card-moon"><i></i></div>
-                        <div class="autumn-card-horizon"></div>
-                        <div class="autumn-card-mist mist-a"></div>
-                        <div class="autumn-card-mist mist-b"></div>
-                        <div class="autumn-card-branch branch-a"></div>
-                        <div class="autumn-card-branch branch-b"></div>
-
-                        <div class="autumn-card-leaf-field" aria-hidden="true">
-                            <i style="--i:0"></i><i style="--i:1"></i>
-                            <i style="--i:2"></i><i style="--i:3"></i>
-                            <i style="--i:4"></i><i style="--i:5"></i>
-                            <i style="--i:6"></i><i style="--i:7"></i>
-                            <i style="--i:8"></i><i style="--i:9"></i>
-                            <i style="--i:10"></i><i style="--i:11"></i>
-                        </div>
-
-                        <div
-                            class="autumn-premium-card-tag-shell"
-                            aria-hidden="true"
-                        >
-                            <span class="autumn-card-tag-halo"></span>
-                            <img
-                                src="${tagImage}"
-                                alt="Mùa thu"
-                                class="autumn-premium-card-tag-art"
-                                draggable="false"
-                            >
-                            <span class="autumn-card-tag-glint"></span>
-                        </div>
-
-                        <img
-                            src="${image}"
-                            alt="${name}"
-                            class="autumn-premium-card-character"
-                            draggable="false"
-                        >
-
-                        <div class="autumn-premium-details">
-                            <div class="autumn-premium-type">
-                                🍁 THÚ CƯNG PREMIUM · MÙA THU
-                            </div>
-
-                            <h3>${name}</h3>
-
-                            <p class="autumn-premium-description">
-                                Thần vực thu phân với xích diệp,
-                                ánh hổ phách, sương chiều và nguyệt kim.
-                            </p>
-
-                            <div class="autumn-premium-price">
-                                🪙 Giá bán: ${formattedPrice} Coin
-                            </div>
-
-                            ${actionHTML}
-                        </div>
-                    </div>
-                </article>
-            `;
-        }
-
-
-        // ====================================================
         // CARD RIÊNG MÙA HẠ · V2
         // Đồng bộ bố cục với card Premium đang dùng:
         // article -> visual toàn thẻ -> tag + nhân vật -> details overlay.
@@ -16063,7 +10081,6 @@ if (isNationalDay) {
                 luxury-product-card
                 spring-premium-card
             "
-            data-item-id="${id}"
             data-luxury-style="spring"
             tabindex="0"
         >
@@ -16299,7 +10316,7 @@ if (isNationalDay) {
                 catch (error) { console.error('[LuxuryStore] Upgrade failed:', error); }
                 finally { upgrade.disabled = false; }
             });
-            card.appendChild(upgrade);
+            (card.querySelector('.luxury-unified-actions') || card).appendChild(upgrade);
         });
 
         /*
@@ -17450,7 +11467,9 @@ if (isNationalDay) {
 
         // Khôi phục runtime Mùa Hạ sau reload / khi pet đã spawn trước LuxuryStore.
         restoreSummer: () => {
-            LuxurySummerRuntime.restore();
+            LuxuryHacMongRuntime.restore();
+            LuxuryAutumnRuntime.restore();
+        LuxurySummerRuntime.restore();
         },
 
         // Test riêng ultimate toàn màn hình mà không cần click pet.
@@ -17460,32 +11479,6 @@ if (isNationalDay) {
 
             const rect = pet.getBoundingClientRect();
             LuxurySummerRuntime.createUltimate(
-                rect.left + rect.width / 2,
-                rect.top + rect.height / 2
-            );
-            return true;
-        },
-
-
-        // Test nhanh Mùa Thu — không cấp quyền sở hữu.
-        previewAutumn: () => {
-            if (
-                typeof PetManager !== 'undefined' &&
-                typeof PetManager.spawnPet === 'function'
-            ) {
-                PetManager.spawnPet(AUTUMN_PREMIUM_PET);
-            }
-        },
-
-        restoreAutumn: () => {
-            return LuxuryAutumnRuntime.restore();
-        },
-
-        autumnUltimateTest: () => {
-            const pet = LuxuryAutumnRuntime.getPet();
-            if (!pet) return false;
-            const rect = pet.getBoundingClientRect();
-            LuxuryAutumnRuntime.createUltimate(
                 rect.left + rect.width / 2,
                 rect.top + rect.height / 2
             );
@@ -17635,10 +11628,6 @@ if (isNationalDay) {
             LuxurySummerRuntime.clear();
         },
 
-        clearAutumn: () => {
-            LuxuryAutumnRuntime.clear();
-        },
-
         clearNyx: () => {
             LuxuryNyxRuntime.clear();
         },
@@ -17726,7 +11715,7 @@ if (isNationalDay) {
     // ========================================================
     // KHỞI ĐỘNG
     // ========================================================
-    [LuxurySpringRuntime, LuxurySummerRuntime, LuxuryAutumnRuntime, LuxuryNationalDayRuntime,
+    [LuxuryHacMongRuntime, LuxuryAutumnRuntime, LuxurySpringRuntime, LuxurySummerRuntime, LuxuryNationalDayRuntime,
         LuxuryNyxRuntime, LuxuryAetherRuntime, LuxuryTamonBSideRuntime,
         LuxuryTamonPinkStaticRuntime, LuxuryLotmKleinRuntime, LuxuryCamCoCamMongRuntime,
         LuxuryMidAutumnRuntime, LuxuryLinkClickChengRuntime,
@@ -17747,6 +11736,8 @@ if (isNationalDay) {
         buildLuxuryStoreUI();
 
         ensureLuxuryStoreViewIsolationStyles();
+        ensureAutumnStylesheet();
+        ensureHacMongStylesheet();
         ensureLotmKleinStylesheet();
         ensureCamCoCamMongStylesheet();
         ensureTamonBSideStylesheet();
@@ -17760,7 +11751,6 @@ if (isNationalDay) {
         // Rehydrate Summer V2 even when active_pet was restored before
         // luxury-store.js finished installing its spawn hook.
         LuxurySummerRuntime.restore();
-        LuxuryAutumnRuntime.restore();
         LuxuryMidAutumnRuntime.restore();
         LuxuryLinkClickChengRuntime.restore();
         LuxuryStarryNightRuntime.restore();

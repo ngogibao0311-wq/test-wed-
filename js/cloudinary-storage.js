@@ -63,36 +63,9 @@
             );
         }
 
-        const originalName =
-            options.fileName ||
-            file.name ||
-            `file-${Date.now()}`;
-
-        const audioExtension =
-            String(originalName || '')
-                .split(/[?#]/)[0]
-                .split('.')
-                .pop()
-                .toLowerCase();
-
-        const isAudioFile =
-            String(file.type || '')
-                .toLowerCase()
-                .startsWith('audio/') ||
-            ['mp3','m4a','aac','wav','ogg','oga','opus','webm','flac']
-                .includes(audioExtension);
-
         const maxSizeBytes =
-            isAudioFile
-                ? (
-                    Number(options.audioMaxSizeBytes) ||
-                    Number(options.maxSizeBytes) ||
-                    CLOUDINARY_CONFIG.defaultMaxFileSize
-                )
-                : (
-                    Number(options.maxSizeBytes) ||
-                    CLOUDINARY_CONFIG.defaultMaxFileSize
-                );
+            Number(options.maxSizeBytes) ||
+            CLOUDINARY_CONFIG.defaultMaxFileSize;
 
         if (file.size > maxSizeBytes) {
             const maxMB =
@@ -102,6 +75,11 @@
                 `File vượt giới hạn ${maxMB.toFixed(0)} MB.`
             );
         }
+
+        const originalName =
+            options.fileName ||
+            file.name ||
+            `file-${Date.now()}`;
 
         const storage =
             getSecureStorage();
@@ -184,7 +162,6 @@
             Array.from(fileList || []);
 
         const results = [];
-        const failures = [];
 
         for (const file of files) {
             try {
@@ -202,47 +179,12 @@
                     error
                 );
 
-                failures.push({
-                    name: file?.name || '',
-                    error
-                });
-
                 alert(
                     `⚠️ Không tải được file ` +
                     `"${file?.name || 'không rõ'}": ` +
                     `${error.message}`
                 );
             }
-        }
-
-        if (failures.length > 0) {
-            let cleanupError = null;
-            if (results.length > 0) {
-                try {
-                    const storage = getSecureStorage();
-                    if (typeof storage.deleteAssets === 'function') {
-                        await storage.deleteAssets(results);
-                    }
-                } catch (error) {
-                    cleanupError = error;
-                    console.error(
-                        '[Cloudinary compatibility rollback] Cleanup lỗi:',
-                        error
-                    );
-                }
-            }
-
-            const error = new Error(
-                cleanupError
-                    ? 'Upload compatibility batch lỗi và cleanup chưa hoàn toàn; không commit metadata.'
-                    : 'Upload compatibility batch lỗi; các file thành công đã được rollback.'
-            );
-            error.code = cleanupError
-                ? 'COMPAT_BATCH_CLEANUP_PENDING'
-                : 'COMPAT_BATCH_ROLLED_BACK';
-            error.failures = failures;
-            error.cleanupError = cleanupError;
-            throw error;
         }
 
         return results;

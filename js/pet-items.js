@@ -1175,6 +1175,13 @@ class PetManager {
             )
             .forEach(node => node.remove());
 
+        // Dọn riêng Mùa Thu cửa hàng thường. Namespace autreg5-* KHÔNG dùng với Luxury autumn3-*.
+        document
+            .querySelectorAll(
+                '.autreg5-local-burst, .autreg5-screen-ultimate'
+            )
+            .forEach(node => node.remove());
+
         // Dọn toàn bộ tương tác và vòng lặp của thú cưng trước
         if (
             typeof PetInteractionManager !== 'undefined' &&
@@ -1200,6 +1207,9 @@ class PetManager {
             'pet-spring-vintage-stage',
             'spring-vintage-awakening',
             'spring-vintage-casting',
+            'pet-autreg5-stage',
+            'autreg5-awakening',
+            'autreg5-casting',
             'pet-ha2l-summer-stage',
             'ha2l-awakening',
             'ha2l-casting',
@@ -1334,35 +1344,6 @@ class PetManager {
 
         document.body?.classList.remove(
             'theme-summer-solstice-stage'
-        );
-
-
-        // Dọn namespace Mùa Thu Premium nếu PetManager được gọi trực tiếp
-        // trước/sau khi LuxuryStore hook thay đổi thứ tự tải module.
-        document
-            .querySelectorAll(
-                '.autumn-equinox-world,' +
-                '.autumn-equinox-ui-frame,' +
-                '.autumn-equinox-ultimate,' +
-                '.autumn-equinox-click-burst,' +
-                '.autumn-equinox-dialogue,' +
-                '.autumn-equinox-pet-realm'
-            )
-            .forEach(node => node.remove());
-
-        document.documentElement.classList.remove(
-            'autumn-equinox-equipped',
-            'autumn-equinox-skill-active'
-        );
-
-        document.body?.classList.remove(
-            'theme-autumn-equinox-stage'
-        );
-
-        this.container?.classList.remove(
-            'pet-autumn-equinox-stage',
-            'autumn-equinox-awakening',
-            'autumn-equinox-casting'
         );
 
         let petElement;
@@ -4398,6 +4379,186 @@ class PetManager {
             });
         }
 
+
+        // =========================================================
+        // MÙA THU · TIỂU PHONG DIỆP — CỬA HÀNG THƯỜNG
+        // Namespace RIÊNG: autreg5-*.
+        // Không gọi ThemeManager/EffectManager và không dùng autumn3-* của Luxury.
+        // Idle chỉ nằm quanh pet; click kích hoạt Ultimate tạm thời toàn màn hình.
+        // =========================================================
+        if (
+            petData.id === 'pet_premium_mua_thu_chibi_3' ||
+            petData.petEffect === 'autreg5-maple-chibi-magic'
+        ) {
+            petElement.setAttribute('draggable', 'false');
+            petElement.classList.add('autreg5-maple-avatar');
+
+            this.container.classList.add('pet-autreg5-stage');
+
+            const realm = document.createElement('div');
+            realm.className = 'autreg5-pet-realm';
+            realm.setAttribute('aria-hidden', 'true');
+            realm.innerHTML = `
+                <span class="autreg5-aura autreg5-aura-outer"></span>
+                <span class="autreg5-aura autreg5-aura-inner"></span>
+                <span class="autreg5-maple-ring autreg5-maple-ring-a"></span>
+                <span class="autreg5-maple-ring autreg5-maple-ring-b"></span>
+                <span class="autreg5-ground-glow"></span>
+                <span class="autreg5-sigil">秋</span>
+                <div class="autreg5-leaf-field"></div>
+                <div class="autreg5-ember-field"></div>
+            `;
+
+            const leafField = realm.querySelector('.autreg5-leaf-field');
+            const leafCount = this.getQualityCount(
+                window.matchMedia?.('(max-width: 768px), (pointer: coarse)').matches
+                    ? 12
+                    : 22,
+                8
+            );
+
+            for (let index = 0; index < leafCount; index++) {
+                const leaf = document.createElement('i');
+                leaf.className = 'autreg5-leaf';
+                leaf.textContent = index % 3 === 0 ? '◆' : '✦';
+                leaf.style.setProperty('--a4-angle', `${(index * 137.5) % 360}deg`);
+                leaf.style.setProperty('--a4-radius', `${48 + (index % 6) * 11}px`);
+                leaf.style.setProperty('--a4-delay', `${-(index % 9) * .47}s`);
+                leaf.style.setProperty('--a4-size', `${5 + (index % 4) * 2}px`);
+                leafField?.appendChild(leaf);
+            }
+
+            const emberField = realm.querySelector('.autreg5-ember-field');
+            const emberCount = this.getQualityCount(18, 7);
+            for (let index = 0; index < emberCount; index++) {
+                const ember = document.createElement('i');
+                ember.className = 'autreg5-ember';
+                ember.style.setProperty('--a4-x', `${8 + (index * 37) % 84}%`);
+                ember.style.setProperty('--a4-y', `${12 + (index * 53) % 72}%`);
+                ember.style.setProperty('--a4-delay', `${-(index % 8) * .51}s`);
+                ember.style.setProperty('--a4-drift', `${10 + (index % 5) * 7}px`);
+                realm.querySelector('.autreg5-ember-field')?.appendChild(ember);
+            }
+
+            this.container.appendChild(realm);
+
+            let autreg5CastLocked = false;
+
+            petElement.addEventListener('click', event => {
+                if (autreg5CastLocked) return;
+
+                if (
+                    typeof PetInteractionManager !== 'undefined' &&
+                    PetInteractionManager.isPetDragging
+                ) {
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+                autreg5CastLocked = true;
+
+                this.container.classList.remove('autreg5-casting');
+                void this.container.offsetWidth;
+                this.container.classList.add('autreg5-casting');
+
+                const localBurst = document.createElement('div');
+                localBurst.className = 'autreg5-local-burst';
+                localBurst.setAttribute('aria-hidden', 'true');
+
+                const localCount = this.getQualityCount(20, 10);
+                for (let index = 0; index < localCount; index++) {
+                    const shard = document.createElement('i');
+                    shard.textContent = index % 2 === 0 ? '◆' : '✦';
+                    shard.style.setProperty('--a4-burst-angle', `${index * (360 / localCount)}deg`);
+                    shard.style.setProperty('--a4-burst-distance', `${66 + (index % 5) * 15}px`);
+                    shard.style.setProperty('--a4-burst-delay', `${(index % 4) * .035}s`);
+                    localBurst.appendChild(shard);
+                }
+                this.container.appendChild(localBurst);
+
+                document
+                    .querySelectorAll('.autreg5-screen-ultimate')
+                    .forEach(node => node.remove());
+
+                const ultimate = document.createElement('div');
+                ultimate.className = 'autreg5-screen-ultimate';
+                ultimate.setAttribute('aria-hidden', 'true');
+                ultimate.innerHTML = `
+                    <div class="autreg5-ultimate-vignette"></div>
+                    <div class="autreg5-ultimate-sun"></div>
+                    <div class="autreg5-ultimate-gate gate-left"></div>
+                    <div class="autreg5-ultimate-gate gate-right"></div>
+                    <div class="autreg5-ultimate-river"></div>
+                    <div class="autreg5-ultimate-seal">
+                        <span>秋</span>
+                        <small>PHONG DIỆP · THIÊN GIÁNG</small>
+                    </div>
+                    <div class="autreg5-ultimate-leaves"></div>
+                    <div class="autreg5-ultimate-sparks"></div>
+                `;
+
+                const ultimateLeaves = ultimate.querySelector('.autreg5-ultimate-leaves');
+                const screenLeafCount = this.getQualityCount(
+                    window.matchMedia?.('(max-width: 768px), (pointer: coarse)').matches
+                        ? 26
+                        : 54,
+                    16
+                );
+                for (let index = 0; index < screenLeafCount; index++) {
+                    const leaf = document.createElement('i');
+                    leaf.textContent = index % 4 === 0 ? '◆' : '✦';
+                    leaf.style.setProperty('--a4-u-x', `${(index * 47) % 101}%`);
+                    leaf.style.setProperty('--a4-u-y', `${-12 - (index % 7) * 8}vh`);
+                    leaf.style.setProperty('--a4-u-delay', `${(index % 13) * .055}s`);
+                    leaf.style.setProperty('--a4-u-drift', `${-110 + (index % 11) * 24}px`);
+                    leaf.style.setProperty('--a4-u-spin', `${180 + (index % 8) * 70}deg`);
+                    leaf.style.setProperty('--a4-u-size', `${7 + (index % 5) * 3}px`);
+                    ultimateLeaves?.appendChild(leaf);
+                }
+
+                const sparks = ultimate.querySelector('.autreg5-ultimate-sparks');
+                const sparkCount = this.getQualityCount(34, 12);
+                for (let index = 0; index < sparkCount; index++) {
+                    const spark = document.createElement('i');
+                    spark.style.setProperty('--a4-s-x', `${4 + (index * 61) % 92}%`);
+                    spark.style.setProperty('--a4-s-y', `${12 + (index * 43) % 76}%`);
+                    spark.style.setProperty('--a4-s-delay', `${(index % 10) * .08}s`);
+                    sparks?.appendChild(spark);
+                }
+
+                document.body.appendChild(ultimate);
+
+                requestAnimationFrame(() => {
+                    ultimate.classList.add('is-active');
+                });
+
+                window.setTimeout(() => {
+                    ultimate.classList.add('is-climax');
+                }, 900);
+
+                window.setTimeout(() => {
+                    ultimate.classList.add('is-ending');
+                    this.container?.classList.remove('autreg5-casting');
+                }, 3600);
+
+                window.setTimeout(() => {
+                    localBurst.remove();
+                    ultimate.remove();
+                }, 4700);
+
+                window.setTimeout(() => {
+                    autreg5CastLocked = false;
+                }, 5400);
+            });
+
+            requestAnimationFrame(() => {
+                this.container.classList.add('autreg5-awakening');
+                window.setTimeout(() => {
+                    this.container?.classList.remove('autreg5-awakening');
+                }, 1200);
+            });
+        }
 
         // =========================================================
         // LINK CLICK · CHENG XIAOSHI CHIBI — TIME DIVE V2

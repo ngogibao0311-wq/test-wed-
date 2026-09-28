@@ -7,7 +7,6 @@
 
     const STORAGE_KEYS = Object.freeze({
         installed: 'appVersion',
-        installedBuild: 'appBuild',
         deferred: 'systemUpdateDeferredVersion',
         expected: 'systemUpdateExpectedVersion',
         lastCheck: 'systemUpdateLastCheckAt'
@@ -23,9 +22,6 @@
     const state = {
         installedVersion: normalizeVersion(
             resolveInstalledVersion()
-        ),
-        installedBuild: normalizeBuild(
-            resolveInstalledBuild()
         ),
         latest: null,
         status: 'idle',
@@ -43,47 +39,6 @@
             .trim()
             .replace(/^v/i, '')
             .split('+')[0];
-    }
-
-    function normalizeBuild(value) {
-        return String(value || '').trim();
-    }
-
-    function resolveInstalledBuild() {
-        const metaBuild = document
-            .querySelector('meta[name="application-build"]')
-            ?.getAttribute('content');
-
-        const windowBuild = window.APP_BUILD;
-
-        if (metaBuild && String(metaBuild).trim()) {
-            if (
-                windowBuild &&
-                normalizeBuild(windowBuild) !== normalizeBuild(metaBuild)
-            ) {
-                console.warn(
-                    '[SystemUpdate] APP_BUILD khác meta application-build; ' +
-                    'ưu tiên build khai báo trong HTML:',
-                    metaBuild
-                );
-            }
-
-            return metaBuild;
-        }
-
-        if (windowBuild && String(windowBuild).trim()) {
-            return windowBuild;
-        }
-
-        return localStorage.getItem(STORAGE_KEYS.installedBuild) || '';
-    }
-
-    function releaseIdentity(version, build) {
-        const normalizedVersion = normalizeVersion(version);
-        const normalizedBuild = normalizeBuild(build);
-        return normalizedBuild
-            ? `${normalizedVersion}|${normalizedBuild}`
-            : normalizedVersion;
     }
 
     function resolveInstalledVersion() {
@@ -278,32 +233,13 @@
         return false;
     }
 
-    function compareReleaseToInstalled(info) {
-        if (!info) return 0;
-
-        const versionComparison = compareVersions(
-            info.version,
-            state.installedVersion
-        );
-
-        if (versionComparison !== 0) {
-            return versionComparison;
-        }
-
-        const latestBuild = normalizeBuild(info.build);
-        if (!latestBuild) {
-            return 0;
-        }
-
-        // Build là mã phát hành, không giả định có thứ tự SemVer.
-        // Cùng version nhưng build khác => manifest server là release khác cần đồng bộ.
-        return latestBuild === state.installedBuild ? 0 : 1;
-    }
-
     function hasUpdate() {
         return Boolean(
             state.latest &&
-            compareReleaseToInstalled(state.latest) > 0
+            compareVersions(
+                state.latest.version,
+                state.installedVersion
+            ) > 0
         );
     }
 
@@ -791,21 +727,20 @@
                 state.lastCheckAt.toISOString()
             );
 
-            const comparison = compareReleaseToInstalled(info);
+            const comparison = compareVersions(
+                info.version,
+                state.installedVersion
+            );
 
             if (comparison > 0) {
                 state.status = 'update-available';
 
                 const deferredVersion =
                     localStorage.getItem(STORAGE_KEYS.deferred);
-                const latestIdentity = releaseIdentity(
-                    info.version,
-                    info.build
-                );
 
                 if (
                     isMandatory(info) ||
-                    deferredVersion !== latestIdentity
+                    deferredVersion !== info.version
                 ) {
                     setNavUpdateBadge(true);
                 }
@@ -981,16 +916,8 @@
 
         const names = await caches.keys();
 
-        // Chỉ dọn runtime cache của chính ứng dụng.
-        // Không xóa OFFLINE_CACHE vừa được worker mới precache và không đụng cache app khác cùng origin.
-        const appRuntimeCaches = names.filter(
-            name =>
-                name.startsWith('study-') &&
-                name.endsWith('-runtime')
-        );
-
         const results = await Promise.allSettled(
-            appRuntimeCaches.map(name => caches.delete(name))
+            names.map(name => caches.delete(name))
         );
 
         return results.filter(
@@ -1038,7 +965,12 @@
         try {
             const freshInfo = await fetchVersionInfo();
 
-            if (compareReleaseToInstalled(freshInfo) <= 0) {
+            if (
+                compareVersions(
+                    freshInfo.version,
+                    state.installedVersion
+                ) <= 0
+            ) {
                 state.latest = freshInfo;
                 state.updating = false;
                 state.status = 'up-to-date';
@@ -1075,18 +1007,13 @@
             );
 
             try {
-                const expectedRelease = JSON.stringify({
-                    version: state.latest.version,
-                    build: normalizeBuild(state.latest.build)
-                });
-
                 sessionStorage.setItem(
                     STORAGE_KEYS.expected,
-                    expectedRelease
+                    state.latest.version
                 );
                 localStorage.setItem(
                     STORAGE_KEYS.expected,
-                    expectedRelease
+                    state.latest.version
                 );
             } catch (_) {}
 
@@ -1131,10 +1058,7 @@
 
         localStorage.setItem(
             STORAGE_KEYS.deferred,
-            releaseIdentity(
-                state.latest.version,
-                state.latest.build
-            )
+            state.latest.version
         );
 
         closeModal();
@@ -1146,49 +1070,31 @@
     }
 
     function checkPostUpdateResult() {
-        const expectedRaw =
+        const expected =
             sessionStorage.getItem(STORAGE_KEYS.expected) ||
             localStorage.getItem(STORAGE_KEYS.expected);
 
-        if (!expectedRaw) return;
+        if (!expected) return;
 
-        let expected;
-        try {
-            expected = JSON.parse(expectedRaw);
-        } catch (_) {
-            // Tương thích expected version do Update Manager cũ ghi lại.
-            expected = { version: expectedRaw, build: '' };
-        }
-
-        const expectedVersion = normalizeVersion(expected?.version);
-        const expectedBuild = normalizeBuild(expected?.build);
-        const versionComparison = compareVersions(
-            state.installedVersion,
-            expectedVersion
-        );
-        const releaseReady =
-            versionComparison > 0 ||
-            (
-                versionComparison === 0 &&
-                (!expectedBuild || expectedBuild === state.installedBuild)
-            );
-
-        if (releaseReady) {
+        if (
+            compareVersions(
+                state.installedVersion,
+                expected
+            ) >= 0
+        ) {
             sessionStorage.removeItem(STORAGE_KEYS.expected);
             localStorage.removeItem(STORAGE_KEYS.expected);
 
             setTimeout(() => {
                 notify(
-                    `✅ Cập nhật thành công lên phiên bản ${state.installedVersion}` +
-                    (state.installedBuild ? ` • build ${state.installedBuild}.` : '.'),
+                    `✅ Cập nhật thành công lên phiên bản ${state.installedVersion}.`,
                     'success'
                 );
             }, 900);
         } else {
             setTimeout(() => {
                 notify(
-                    `Trang đã tải lại nhưng release hiện tại vẫn là ${releaseIdentity(state.installedVersion, state.installedBuild)}; ` +
-                    `máy chủ có thể chưa phát hành đủ file của ${releaseIdentity(expectedVersion, expectedBuild)}.`,
+                    `Trang đã tải lại nhưng vẫn đang ở v${state.installedVersion}; máy chủ có thể chưa phát hành đủ file của v${expected}.`,
                     'warning'
                 );
             }, 1200);
@@ -1219,10 +1125,6 @@
             localStorage.setItem(
                 STORAGE_KEYS.installed,
                 state.installedVersion
-            );
-            localStorage.setItem(
-                STORAGE_KEYS.installedBuild,
-                state.installedBuild
             );
         } catch (_) {}
 

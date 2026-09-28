@@ -1736,20 +1736,10 @@ function buildLeaderboardDataForPeriod({
             );
         }
 
-        if (a.violations !== b.violations) {
-            return a.violations - b.violations;
-        }
-
-        /*
-         * Rank có phần thưởng khác nhau nên tie tuyệt đối vẫn phải
-         * deterministic trên mọi tab/thiết bị. Username là khóa ổn định
-         * cuối cùng; không phụ thuộc insertion order của mảng/runtime.
-         */
-        return String(a.username || '')
-            .localeCompare(String(b.username || ''), 'vi', {
-                sensitivity: 'base',
-                numeric: true
-            });
+        return (
+            a.violations -
+            b.violations
+        );
     });
 
     return rankedData;
@@ -1792,53 +1782,6 @@ function getLeaderboardPreviousSeasonInfo(
 const LEADERBOARD_CLAIM_LOCK_TIMEOUT_MS =
     90 * 1000;
 
-async function getLeaderboardApproxServerNow() {
-    const snapshot = await db.ref('.info/serverTimeOffset').once('value');
-    const offset = Number(snapshot.val());
-    if (!Number.isFinite(offset)) {
-        throw new Error('LEADERBOARD_SERVER_TIME_UNAVAILABLE');
-    }
-    return Date.now() + offset;
-}
-
-function appendLeaderboardRewardHistoryUpdate(rootUpdates, payload) {
-    const logId = db.ref('transaction_logs').push().key;
-    if (!logId) {
-        throw new Error('LEADERBOARD_HISTORY_ID_FAILED');
-    }
-
-    const authUser = firebase.auth().currentUser;
-    if (!authUser?.uid || !currentUser?.username) {
-        throw new Error('LEADERBOARD_HISTORY_ACTOR_INVALID');
-    }
-
-    rootUpdates[`transaction_logs/${logId}`] = {
-        id: logId,
-        type: 'leaderboard_reward',
-        summary: String(payload?.summary || 'Phần thưởng Bảng Xếp Hạng'),
-        source: String(payload?.source || 'leaderboard'),
-        targetUsername: String(currentUser.username),
-        targetName: String(currentUser.name || currentUser.username),
-        amount: payload?.amount ?? null,
-        unit: String(payload?.unit || ''),
-        before: null,
-        after: null,
-        details: payload?.details || {},
-        reversible: false,
-        nonReversibleReason: String(payload?.nonReversibleReason || 'Phần thưởng hệ thống.'),
-        status: 'active',
-        actor: {
-            uid: authUser.uid,
-            username: String(currentUser.username),
-            name: String(currentUser.name || currentUser.username),
-            role: 'student'
-        },
-        createdAt: firebase.database.ServerValue.TIMESTAMP,
-        createdAtClient: Date.now()
-    };
-
-    return logId;
-}
 
 function isLeaderboardClaimLockExpired(
     claim,
@@ -2428,11 +2371,8 @@ window.claimPreviousLeaderboardReward =
              * Token giúp callback nhận ra trạng thái processing do
              * CHÍNH transaction hiện tại tạo ra, thay vì tự abort.
              */
-            const claimServerNow =
-                await getLeaderboardApproxServerNow();
-
             const claimLockToken =
-                `${Math.trunc(claimServerNow)}_` +
+                `${Date.now()}_` +
                 `${Math.random().toString(36).slice(2)}`;
 
             lockedClaimToken =
@@ -2478,8 +2418,7 @@ window.claimPreviousLeaderboardReward =
                                         'processing_chest'
                                 ) &&
                                 !isLeaderboardClaimLockExpired(
-                                    current,
-                                    claimServerNow
+                                    current
                                 )
                             ) {
                                 return;
@@ -2498,7 +2437,7 @@ window.claimPreviousLeaderboardReward =
                             processingToken:
                                 claimLockToken,
                             startedAt:
-                                Math.trunc(claimServerNow),
+                                Date.now(),
                             recoveredStaleLock:
                                 Boolean(
                                     current &&
@@ -2607,9 +2546,7 @@ window.claimPreviousLeaderboardReward =
                         'leaderboard_runner_up',
                     seasonKey,
                     rank:
-                        2,
-                    leaderboardClaimToken:
-                        claimLockToken
+                        2
                 };
 
                 rootUpdates[
@@ -2635,31 +2572,41 @@ window.claimPreviousLeaderboardReward =
                             .TIMESTAMP
                 };
 
-                appendLeaderboardRewardHistoryUpdate(
-                    rootUpdates,
-                    {
-                        summary:
-                            `Nhận Thẻ giảm giá ${percent}% ` +
-                            `do xếp hạng 2 BXH ${display}`,
-                        source:
-                            'leaderboard_rank_reward',
-                        amount: null,
-                        unit: '',
-                        nonReversibleReason:
-                            'Phần thưởng xếp hạng mùa thi đua.',
-                        details: {
-                            seasonKey,
-                            rank,
-                            rewardType: 'discount',
-                            percent,
-                            discountKey
-                        }
-                    }
-                );
-
-                await db.ref().update(rootUpdates);
+                await db.ref()
+                    .update(rootUpdates);
 
                 rewardFinalized = true;
+
+                await recordLeaderboardRewardHistory({
+                    type:
+                        'leaderboard_reward',
+                    summary:
+                        `Nhận Thẻ giảm giá ${percent}% ` +
+                        `do xếp hạng 2 BXH ${display}`,
+                    source:
+                        'leaderboard_rank_reward',
+                    targetUsername:
+                        username,
+                    targetName:
+                        currentUser?.name ||
+                        username,
+                    amount:
+                        null,
+                    unit:
+                        '',
+                    reversible:
+                        false,
+                    nonReversibleReason:
+                        'Phần thưởng xếp hạng mùa thi đua.',
+                    details: {
+                        seasonKey,
+                        rank,
+                        rewardType:
+                            'discount',
+                        percent,
+                        discountKey
+                    }
+                });
 
                 alert(
                     `🥈 Chúc mừng! Bạn nhận được ` +
@@ -2722,29 +2669,39 @@ window.claimPreviousLeaderboardReward =
                             .TIMESTAMP
                 };
 
-                appendLeaderboardRewardHistoryUpdate(
-                    rootUpdates,
-                    {
-                        summary:
-                            `Nhận ${amount} Coin ` +
-                            `do xếp hạng #${rank} BXH ${display}`,
-                        source: 'leaderboard_rank_reward',
-                        amount,
-                        unit: 'Coin',
-                        nonReversibleReason:
-                            'Phần thưởng xếp hạng mùa thi đua.',
-                        details: {
-                            seasonKey,
-                            rank,
-                            rewardType: 'coin',
-                            amount
-                        }
-                    }
-                );
-
-                await db.ref().update(rootUpdates);
+                await db.ref()
+                    .update(rootUpdates);
 
                 rewardFinalized = true;
+
+                await recordLeaderboardRewardHistory({
+                    type:
+                        'leaderboard_reward',
+                    summary:
+                        `Nhận ${amount} Coin ` +
+                        `do xếp hạng #${rank} BXH ${display}`,
+                    source:
+                        'leaderboard_rank_reward',
+                    targetUsername:
+                        username,
+                    targetName:
+                        currentUser?.name ||
+                        username,
+                    amount,
+                    unit:
+                        'Coin',
+                    reversible:
+                        false,
+                    nonReversibleReason:
+                        'Phần thưởng xếp hạng mùa thi đua.',
+                    details: {
+                        seasonKey,
+                        rank,
+                        rewardType:
+                            'coin',
+                        amount
+                    }
+                });
 
                 alert(
                     `🏆 Chúc mừng! Hạng #${rank} ` +
@@ -3885,11 +3842,8 @@ window.claimChestReward = async function (
      * Giữ nguyên token trong toàn bộ vòng đời của MỘT lần bấm nhận.
      * Transaction callback có thể bị Firebase gọi lại nhiều lần.
      */
-    const chestServerNow =
-        await getLeaderboardApproxServerNow();
-
     const chestLockToken =
-        `${Math.trunc(chestServerNow)}_` +
+        `${Date.now()}_` +
         `${Math.random().toString(36).slice(2)}`;
 
     try {
@@ -3938,8 +3892,7 @@ window.claimChestReward = async function (
                         status === 'processing'
                     ) &&
                     isLeaderboardClaimLockExpired(
-                        claim,
-                        chestServerNow
+                        claim
                     )
                 );
             };
@@ -4132,7 +4085,7 @@ window.claimChestReward = async function (
                             processingToken:
                                 chestLockToken,
                             processingAt:
-                                Math.trunc(chestServerNow),
+                                Date.now(),
                             recoveredStaleLock:
                                 previousStatus !==
                                     'available_chest'
@@ -4293,25 +4246,16 @@ window.claimChestReward = async function (
                 ) || 0
             ) / 100;
 
-        const normRate = Math.max(
-            0,
-            Number(lbSettings.chestNorm) || 0
-        );
-        const legRate = Math.max(
-            0,
-            Number(lbSettings.chestLeg) || 0
-        );
-        const dupRate = dupThreshold * 100;
-        const rateTotal = dupRate + normRate + legRate;
-
-        if (Math.abs(rateTotal - 100) > 0.0001) {
-            throw new Error('INVALID_CHEST_RATE_CONFIG');
-        }
-
         const normThreshold =
-            dupThreshold + normRate / 100;
-        const legThreshold =
-            normThreshold + legRate / 100;
+            dupThreshold +
+            (
+                Math.max(
+                    0,
+                    Number(
+                        lbSettings.chestNorm
+                    ) || 0
+                ) / 100
+            );
 
         let rewardLabel = '';
         let historyPayload = null;
@@ -4757,7 +4701,7 @@ window.claimChestReward = async function (
                                     unownedItems.length
                                 )
                             ];
-                } else if (rand < legThreshold) {
+                } else {
                     const rareItems =
                         unownedItems.filter(
                             item =>
@@ -4822,8 +4766,6 @@ window.claimChestReward = async function (
                         'leaderboard_chest',
                     leaderboardSeason:
                         seasonKey,
-                    leaderboardClaimToken:
-                        chestLockToken,
                     isTrial:
                         null,
                     trialExpiry:
@@ -4901,16 +4843,16 @@ window.claimChestReward = async function (
                     .TIMESTAMP
         };
 
+        await db.ref()
+            .update(rootUpdates);
+
+        awardCommitted = true;
+
         if (historyPayload) {
-            appendLeaderboardRewardHistoryUpdate(
-                rootUpdates,
+            await recordLeaderboardRewardHistory(
                 historyPayload
             );
         }
-
-        await db.ref().update(rootUpdates);
-
-        awardCommitted = true;
 
         alert(
             `🎉 Nhận thưởng thành công!\n` +

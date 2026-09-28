@@ -1,0 +1,1006 @@
+{
+  "rules": {
+    "users": {
+      ".indexOn": [
+        "username",
+        "role"
+      ],
+      ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'",
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'",
+        "role": {
+          ".validate": "newData.val() === data.val() || !data.exists() || root.child('users').child(auth.uid).child('role').val() === 'teacher'"
+        },
+        "avatar": {
+          ".write": "auth != null && auth.uid === $uid"
+        },
+        "avatarStorage": {
+          ".write": "auth != null && auth.uid === $uid"
+        },
+        "routeMoney": {
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "!newData.exists() || newData.isNumber()"
+        },
+        "birthdayProfile": {
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (auth.uid === $uid && !data.exists() && newData.child('enteredBy').val() === 'student'))",
+          ".validate": "!newData.exists() || (newData.hasChildren(['date','enteredBy','enteredAt']) && newData.child('date').isString() && newData.child('date').val().matches(/^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$/) && newData.child('enteredBy').isString() && (newData.child('enteredBy').val() === 'student' || newData.child('enteredBy').val() === 'teacher') && newData.child('enteredAt').isNumber() && newData.child('enteredAt').val() <= now + 10000 && (!newData.child('updatedBy').exists() || newData.child('updatedBy').val() === 'teacher') && (!newData.child('updatedAt').exists() || (newData.child('updatedAt').isNumber() && newData.child('updatedAt').val() <= now + 10000)))"
+        },
+        "newUserGuide": {
+          ".write": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('role').val() === 'teacher')"
+        },
+        "$other": {
+          ".write": false
+        }
+      }
+    },
+    "assignments": {
+      ".indexOn": [
+        "id"
+      ],
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'"
+    },
+    "questionBank": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'",
+      ".indexOn": [
+        "subject",
+        "grade",
+        "lesson",
+        "difficulty",
+        "updatedAt",
+        "wrongCount"
+      ]
+    },
+    "hoihoa_rounds": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'",
+      ".indexOn": [
+        "status",
+        "startTime",
+        "endTime"
+      ],
+      "$roundId": {
+        ".validate": "!newData.exists() || (newData.child('id').val() === $roundId && newData.child('title').isString() && newData.child('topic').isString() && newData.child('startTime').isNumber() && newData.child('endTime').isNumber() && newData.child('endTime').val() > newData.child('startTime').val() && newData.child('status').isString() && (newData.child('status').val() === 'scheduled' || newData.child('status').val() === 'active' || newData.child('status').val() === 'voting' || newData.child('status').val() === 'closed') && (!newData.child('maxVotes').exists() || (newData.child('maxVotes').isNumber() && newData.child('maxVotes').val() >= 1 && newData.child('maxVotes').val() <= 10)) && (!newData.child('teacherWeight').exists() || (newData.child('teacherWeight').isNumber() && newData.child('teacherWeight').val() >= 0 && newData.child('teacherWeight').val() <= 100)) && (!newData.child('voteWeight').exists() || (newData.child('voteWeight').isNumber() && newData.child('voteWeight').val() >= 0 && newData.child('voteWeight').val() <= 100)) && (!newData.child('isArchived').exists() || newData.child('isArchived').isBoolean()))"
+      }
+    },
+    "hoihoa_submissions": {
+      ".read": "auth != null",
+      ".indexOn": [
+        "roundId",
+        "studentUsername",
+        "submitTime",
+        "finalScore"
+      ],
+      "$submissionId": {
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (!data.exists() && newData.child('id').val() === $submissionId && newData.child('studentUsername').val() === root.child('users').child(auth.uid).child('username').val() && root.child('hoihoa_rounds').child(newData.child('roundId').val()).child('status').val() === 'active' && now >= root.child('hoihoa_rounds').child(newData.child('roundId').val()).child('startTime').val() && now <= root.child('hoihoa_rounds').child(newData.child('roundId').val()).child('endTime').val()))",
+        ".validate": "!newData.exists() || (newData.child('id').val() === $submissionId && newData.child('roundId').isString() && newData.child('studentUsername').isString() && newData.child('studentName').isString() && (((newData.child('imageUrl').isString() && newData.child('imageUrl').val().matches(/^https:\\/\\/res\\.cloudinary\\.com\\/kexe2zqv\\/.+/)) && !newData.child('imageBase64').exists() && !newData.child('imageProvider').exists() && !newData.child('imageKey').exists() && !newData.child('imageStorage').exists()) || ((newData.child('imageUrl').isString() && newData.child('imageUrl').val().matches(/^https:\\/\\/school-r2-files\\.ngogibao0311\\.workers\\.dev\\/.+/)) && !newData.child('imageBase64').exists() && newData.child('imageProvider').val() === 'cloudflare-r2' && newData.child('imageKey').isString() && newData.child('imageKey').val().length > 0 && newData.child('imageKey').val().length <= 1024 && newData.child('imageStorage').exists() && newData.child('imageStorage').child('provider').val() === 'cloudflare-r2' && newData.child('imageStorage').child('url').val() === newData.child('imageUrl').val() && newData.child('imageStorage').child('key').val() === newData.child('imageKey').val()) || (data.child('imageBase64').exists() && newData.child('imageBase64').val() === data.child('imageBase64').val() && !newData.child('imageUrl').exists())) && newData.child('submitTime').isNumber() && (!newData.child('teacherScore').exists() || (newData.child('teacherScore').isNumber() && newData.child('teacherScore').val() >= 0 && newData.child('teacherScore').val() <= 10)) && (!newData.child('votes').exists() || (newData.child('votes').isNumber() && newData.child('votes').val() >= 0)) && (!newData.child('finalScore').exists() || (newData.child('finalScore').isNumber() && newData.child('finalScore').val() >= 0 && newData.child('finalScore').val() <= 10)) && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || data.exists() || ((!newData.child('teacherScore').exists() || newData.child('teacherScore').val() === 0) && (!newData.child('votes').exists() || newData.child('votes').val() === 0) && (!newData.child('finalScore').exists() || newData.child('finalScore').val() === 0) && !newData.child('voters').exists())))",
+        "imageUrl": {
+          ".validate": "newData.isString() && (newData.val().matches(/^https:\\/\\/res\\.cloudinary\\.com\\/kexe2zqv\\/.+/) || newData.val().matches(/^https:\\/\\/school-r2-files\\.ngogibao0311\\.workers\\.dev\\/.+/))"
+        },
+        "imageBase64": {
+          ".validate": "data.exists() && newData.val() === data.val()"
+        },
+        "voters": {
+          "$username": {
+            ".write": "auth != null && root.child('users').child(auth.uid).child('username').val() === $username && !data.exists() && newData.val() === true && root.child('hoihoa_submissions').child($submissionId).child('studentUsername').val() !== $username && root.child('hoihoa_rounds').child(root.child('hoihoa_submissions').child($submissionId).child('roundId').val()).child('status').val() === 'voting'",
+            ".validate": "newData.val() === true"
+          }
+        },
+        "imageProvider": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val() === 'cloudflare-r2')"
+        },
+        "imageKey": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length > 0 && newData.val().length <= 1024)"
+        },
+        "imageStorage": {
+          ".validate": "!newData.exists() || (newData.child('provider').val() === 'cloudflare-r2' && newData.child('url').isString() && newData.child('url').val() === newData.parent().child('imageUrl').val() && newData.child('key').isString() && newData.child('key').val() === newData.parent().child('imageKey').val())",
+          "provider": {
+            ".validate": "newData.val() === 'cloudflare-r2'"
+          },
+          "url": {
+            ".validate": "newData.isString() && newData.val().matches(/^https:\\/\\/school-r2-files\\.ngogibao0311\\.workers\\.dev\\/.+/)"
+          },
+          "secureUrl": {
+            ".validate": "!newData.exists() || (newData.isString() && newData.val() === newData.parent().child('url').val())"
+          },
+          "key": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 1024"
+          },
+          "bucket": {
+            ".validate": "!newData.exists() || newData.isString()"
+          },
+          "etag": {
+            ".validate": "!newData.exists() || newData.isString()"
+          },
+          "name": {
+            ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 500)"
+          },
+          "type": {
+            ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 200)"
+          },
+          "size": {
+            ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 5242880)"
+          },
+          "uploadedBy": {
+            ".validate": "!newData.exists() || newData.isString()"
+          },
+          "uploadedAt": {
+            ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= now + 300000)"
+          },
+          "schemaVersion": {
+            ".validate": "!newData.exists() || newData.val() === 1"
+          },
+          "migratedFrom": {
+            ".validate": "!newData.exists() || newData.val() === 'cloudinary-unsigned-client'"
+          }
+        }
+      }
+    },
+    "hoihoa_vote_usage": {
+      ".read": false,
+      "$roundId": {
+        ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'",
+        "$username": {
+          ".read": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+          "$submissionId": {
+            ".validate": "!newData.exists() || newData.val() === true"
+          }
+        }
+      }
+    },
+    "season_rankings": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'"
+    },
+    "hoihoa_reward_logs": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'"
+    },
+    "schedule": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'"
+    },
+    "submissions": {
+      ".indexOn": [
+        "studentUsername",
+        "assignmentId"
+      ],
+      ".read": "auth != null",
+      "$submissionId": {
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || ((root.child('users').child(auth.uid).child('isLocked').val() !== true) && newData.exists() && (root.child('users').child(auth.uid).child('username').val() === newData.child('studentUsername').val() || root.child('users').child(auth.uid).child('username').val() === data.child('studentUsername').val())))",
+        ".validate": "(!newData.exists() || root.child('users').child(auth.uid).child('role').val() === 'teacher' || (root.child('users').child(auth.uid).child('username').val() === newData.child('studentUsername').val() && newData.child('assignmentId').exists() && ((!data.exists() && !newData.child('teacherComment').exists()) || (data.exists() && newData.child('teacherComment').val() === data.child('teacherComment').val())) && ((!data.exists() && !newData.child('teacherFile').exists()) || (data.exists() && (newData.child('teacherFile').val() === data.child('teacherFile').val() || (data.child('isRedoing').val() === true && !newData.child('teacherFile').exists())))) && ((!data.exists() && !newData.child('forcePass').exists()) || (data.exists() && newData.child('forcePass').val() === data.child('forcePass').val())) && ((!data.exists() && !newData.child('gradedAt').exists()) || (data.exists() && newData.child('gradedAt').val() === data.child('gradedAt').val())) && ((!data.exists() && !newData.child('isRegrading').exists()) || (data.exists() && newData.child('isRegrading').val() === data.child('isRegrading').val())) && (!data.exists() || (newData.child('studentUsername').val() === data.child('studentUsername').val() && newData.child('assignmentId').val() === data.child('assignmentId').val() && newData.child('id').val() === data.child('id').val() && newData.child('gradeRewardV2Version').val() === data.child('gradeRewardV2Version').val() && newData.child('gradeRewardV2Status').val() === data.child('gradeRewardV2Status').val() && newData.child('gradeRewardV2MessageId').val() === data.child('gradeRewardV2MessageId').val() && newData.child('gradeRewardV2Revision').val() === data.child('gradeRewardV2Revision').val() && newData.child('gradeRewardV2Tickets').val() === data.child('gradeRewardV2Tickets').val() && newData.child('gradeRewardV2Coins').val() === data.child('gradeRewardV2Coins').val() && newData.child('gradeRewardV2SpecialPenalty').val() === data.child('gradeRewardV2SpecialPenalty').val() && newData.child('gradeRewardV2Reason').val() === data.child('gradeRewardV2Reason').val() && newData.child('gradeRewardRedoInvalidatedAt').val() === data.child('gradeRewardRedoInvalidatedAt').val() && newData.child('redoBaseGrade').val() === data.child('redoBaseGrade').val() && newData.child('redoBaseGradedAt').val() === data.child('redoBaseGradedAt').val() && newData.child('redoCount').val() === data.child('redoCount').val() && (newData.child('redoViolationHistoryActive').val() === data.child('redoViolationHistoryActive').val() || (data.child('isRedoing').val() === true && newData.child('isRedoing').val() === false && newData.child('redoViolationHistoryActive').val() === false && newData.child('redoViolationResolvedAt').isNumber())))))) && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || !newData.exists() || (root.child('users').child(auth.uid).child('username').val() === newData.child('studentUsername').val() && newData.child('assignmentKey').isString() && newData.child('assignmentKey').val().length > 0 && root.child('assignments').child(newData.child('assignmentKey').val()).exists() && root.child('assignments').child(newData.child('assignmentKey').val()).child('id').val() === newData.child('assignmentId').val() && (!data.exists() || !data.child('examFinalizedAt').exists() || data.child('isRedoing').val() === true) && (root.child('assignments').child(newData.child('assignmentKey').val()).child('assessmentType').val() !== 'thi' || (newData.child('examSessionId').isString() && newData.child('examOwnerTabId').isString() && newData.child('examFinalizeId').isString() && newData.child('examFinalizedAt').isNumber() && newData.child('examFinalizedAt').val() <= now + 10000 && newData.child('examFinalizedAt').val() >= now - 300000 && root.child('exam_sessions').child(newData.child('studentUsername').val()).child(newData.child('assignmentId').val()).child('sessionId').val() === newData.child('examSessionId').val() && root.child('exam_sessions').child(newData.child('studentUsername').val()).child(newData.child('assignmentId').val()).child('assignmentKey').val() === newData.child('assignmentKey').val() && root.child('exam_sessions').child(newData.child('studentUsername').val()).child(newData.child('assignmentId').val()).child('status').val() === 'finalizing' && root.child('exam_sessions').child(newData.child('studentUsername').val()).child(newData.child('assignmentId').val()).child('finalizeOwnerTabId').val() === newData.child('examOwnerTabId').val() && root.child('exam_sessions').child(newData.child('studentUsername').val()).child(newData.child('assignmentId').val()).child('finalizeId').val() === newData.child('examFinalizeId').val() && root.child('exam_sessions').child(newData.child('studentUsername').val()).child(newData.child('assignmentId').val()).child('finalizeLeaseUntil').val() >= now - 10000 && (root.child('exam_sessions').child(newData.child('studentUsername').val()).child(newData.child('assignmentId').val()).child('deadlineAt').val() === 0 || now <= root.child('exam_sessions').child(newData.child('studentUsername').val()).child(newData.child('assignmentId').val()).child('deadlineAt').val() + 60000)))))",
+        "answer": {
+          ".validate": "!newData.exists() || root.child('users').child(auth.uid).child('role').val() === 'teacher' || !data.parent().exists() || data.parent().child('isRedoing').val() === true || newData.val() === data.val()"
+        },
+        "mcAnswers": {
+          ".validate": "!newData.exists() || root.child('users').child(auth.uid).child('role').val() === 'teacher' || !data.parent().exists() || data.parent().child('isRedoing').val() === true || newData.val() === data.val()"
+        },
+        "questionSnapshot": {
+          ".validate": "!newData.exists() || root.child('users').child(auth.uid).child('role').val() === 'teacher' || !data.parent().exists() || data.parent().child('isRedoing').val() === true || newData.val() === data.val()"
+        },
+        "questionResults": {
+          ".validate": "!newData.exists() || root.child('users').child(auth.uid).child('role').val() === 'teacher' || !data.parent().exists() || data.parent().child('isRedoing').val() === true || newData.val() === data.val()"
+        },
+        "grade": {
+          ".validate": "!newData.exists() || root.child('users').child(auth.uid).child('role').val() === 'teacher' || !data.parent().exists() || data.parent().child('isRedoing').val() === true || newData.val() === data.val()"
+        },
+        "studentName": {
+          ".validate": "!newData.exists() || root.child('users').child(auth.uid).child('role').val() === 'teacher' || !data.parent().exists() || data.parent().child('isRedoing').val() === true || newData.val() === data.val()"
+        },
+        "submitTime": {
+          ".validate": "!newData.exists() || root.child('users').child(auth.uid).child('role').val() === 'teacher' || !data.parent().exists() || data.parent().child('isRedoing').val() === true || newData.val() === data.val()"
+        },
+        "teacherComment": {
+          ".validate": "!newData.exists() || root.child('users').child(auth.uid).child('role').val() === 'teacher' || (data.exists() && newData.val() === data.val())"
+        },
+        "teacherFile": {
+          ".validate": "!newData.exists() || root.child('users').child(auth.uid).child('role').val() === 'teacher' || (data.exists() && newData.val() === data.val())"
+        },
+        "forcePass": {
+          ".validate": "!newData.exists() || root.child('users').child(auth.uid).child('role').val() === 'teacher' || (data.exists() && newData.val() === data.val())"
+        },
+        "isRegrading": {
+          ".validate": "!newData.exists() || root.child('users').child(auth.uid).child('role').val() === 'teacher' || (data.exists() && newData.val() === data.val())"
+        }
+      }
+    },
+    "materials": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'"
+    },
+    "video_tracking": {
+      ".read": "auth != null",
+      "$assignmentId": {
+        "$username": {
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')"
+        }
+      }
+    },
+    "student_coins": {
+      ".read": "auth != null",
+      "$username": {
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        ".validate": "newData.isNumber() && newData.val() >= -9999999 && newData.val() <= 999999999 && (newData.val() >= 0 || root.child('users').child(auth.uid).child('role').val() === 'teacher' || (data.isNumber() && data.val() < 0 && newData.val() >= data.val()))"
+      }
+    },
+    "student_collection_rewards": {
+      ".read": false,
+      "$username": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        "$collectionId": {
+          "$milestone": {
+            ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (root.child('users').child(auth.uid).child('username').val() === $username && ($collectionId === 'daily-life' || $collectionId === 'lord-of-the-mysteries' || $collectionId === 'legendary' || $collectionId === 'fairy-tale' || $collectionId === 'universe' || $collectionId === 'birthday' || $collectionId === 'seven-deadly-sins' || $collectionId === 'painting' || $collectionId === 'doraemon' || $collectionId === 'spring' || $collectionId === 'national-day-2-9' || $collectionId === 'tamon-b-side' || $collectionId === 'cam-mong' || $collectionId === 'mid-autumn') && ($milestone === '3' || $milestone === '5' || $milestone === '10' || $milestone === '15' || $milestone === '20') && ((!data.exists() && newData.child('status').val() === 'reserved') || (data.child('status').val() === 'reserved' && (newData.child('status').val() === 'reserved' || newData.child('status').val() === 'sent')))))",
+            ".validate": "!newData.exists() || (newData.hasChildren(['status','collectionId','collectionLabel','milestone','milestoneKey','rewardCoins','reservedAt','messageKey','rewardVersion']) && newData.child('collectionId').val() === $collectionId && newData.child('milestoneKey').val() === $milestone && newData.child('messageKey').val() === 'collection_reward_' + $collectionId + '_' + $milestone && newData.child('rewardVersion').val() === 1 && newData.child('reservedAt').isNumber() && newData.child('reservedAt').val() <= now + 10000 && ((($collectionId === 'spring') && (($milestone === '3' && newData.child('milestone').val() === 3 && newData.child('rewardCoins').val() === 90) || ($milestone === '5' && newData.child('milestone').val() === 5 && newData.child('rewardCoins').val() === 100) || ($milestone === '10' && newData.child('milestone').val() === 10 && newData.child('rewardCoins').val() === 110) || ($milestone === '15' && newData.child('milestone').val() === 15 && newData.child('rewardCoins').val() === 120) || ($milestone === '20' && newData.child('milestone').val() === 20 && newData.child('rewardCoins').val() === 130))) || (($collectionId === 'tamon-b-side' || $collectionId === 'mid-autumn') && (($milestone === '3' && newData.child('milestone').val() === 3 && newData.child('rewardCoins').val() === 70) || ($milestone === '5' && newData.child('milestone').val() === 5 && newData.child('rewardCoins').val() === 80) || ($milestone === '10' && newData.child('milestone').val() === 10 && newData.child('rewardCoins').val() === 90) || ($milestone === '15' && newData.child('milestone').val() === 15 && newData.child('rewardCoins').val() === 100) || ($milestone === '20' && newData.child('milestone').val() === 20 && newData.child('rewardCoins').val() === 110))) || (($collectionId !== 'spring' && $collectionId !== 'tamon-b-side' && $collectionId !== 'mid-autumn') && (($milestone === '3' && newData.child('milestone').val() === 3 && newData.child('rewardCoins').val() === 20) || ($milestone === '5' && newData.child('milestone').val() === 5 && newData.child('rewardCoins').val() === 30) || ($milestone === '10' && newData.child('milestone').val() === 10 && newData.child('rewardCoins').val() === 40) || ($milestone === '15' && newData.child('milestone').val() === 15 && newData.child('rewardCoins').val() === 50) || ($milestone === '20' && newData.child('milestone').val() === 20 && newData.child('rewardCoins').val() === 60)))) && ((newData.child('status').val() === 'reserved' && !newData.child('sentAt').exists()) || (newData.child('status').val() === 'sent' && newData.child('sentAt').isNumber() && newData.child('sentAt').val() <= now + 10000)) && (!data.exists() || (newData.child('collectionId').val() === data.child('collectionId').val() && newData.child('milestone').val() === data.child('milestone').val() && newData.child('milestoneKey').val() === data.child('milestoneKey').val() && newData.child('rewardCoins').val() === data.child('rewardCoins').val() && newData.child('reservedAt').val() === data.child('reservedAt').val() && newData.child('messageKey').val() === data.child('messageKey').val() && newData.child('rewardVersion').val() === data.child('rewardVersion').val())))"
+          }
+        }
+      }
+    },
+    "student_event_rewards": {
+      ".read": false,
+      "$username": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        "bellum": {
+          "$year": {
+            "completion": {
+              ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (root.child('users').child(auth.uid).child('username').val() === $username && $year.matches(/^20\\d{2}$/) && ((!data.exists() && newData.exists() && newData.child('status').val() === 'claiming') || (data.exists() && data.child('status').val() === 'claiming' && (!newData.exists() || (newData.exists() && (newData.child('status').val() === 'claiming' || (newData.child('status').val() === 'claimed' && newData.child('claimed').val() === true))))))))",
+              ".validate": "!newData.exists() || root.child('users').child(auth.uid).child('role').val() === 'teacher' || ((newData.child('status').val() === 'claiming' && newData.hasChildren(['status','token','startedAt','seasonYear']) && newData.child('token').isString() && newData.child('token').val().length >= 8 && newData.child('token').val().length <= 120 && newData.child('startedAt').isNumber() && newData.child('startedAt').val() >= now - 300000 && newData.child('startedAt').val() <= now + 300000 && newData.child('seasonYear').isNumber() && newData.child('seasonYear').val() >= 2026 && newData.child('seasonYear').val() <= 9999) || (data.exists() && data.child('status').val() === 'claiming' && newData.child('status').val() === 'claimed' && newData.child('claimed').val() === true && newData.hasChildren(['claimed','status','itemId','itemName','itemType','tag','claimedAt','seasonYear','sourceStore']) && (newData.child('itemId').val() === 'pet_thatdaitoi_luoibieng_1' || newData.child('itemId').val() === 'theme_thatdaitoi_acedia_dream' || newData.child('itemId').val() === 'effect_thatdaitoi_acedia_domain') && newData.child('itemName').isString() && newData.child('itemType').isString() && (newData.child('itemType').val() === 'pet' || newData.child('itemType').val() === 'theme' || newData.child('itemType').val() === 'effect') && newData.child('tag').val() === 'Thất Đại Tội' && newData.child('claimedAt').isNumber() && newData.child('claimedAt').val() >= now - 300000 && newData.child('claimedAt').val() <= now + 300000 && newData.child('seasonYear').isNumber() && newData.child('seasonYear').val() === data.child('seasonYear').val() && newData.child('sourceStore').val() === 'regular'))"
+            }
+          }
+        },
+        "mid_autumn": {
+          "$year": {
+            "$milestone": {
+              ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (root.child('users').child(auth.uid).child('username').val() === $username && newData.exists()))",
+              ".validate": "newData.exists() && $year.matches(/^20\\d{2}$/) && ($milestone === '10' || $milestone === '40' || $milestone === '60' || $milestone === '80' || $milestone === '100') && newData.hasChildren(['eventId','year','milestone','status','rewardType','amount','source','reservedAt']) && newData.child('eventId').val() === 'dai_hoi_trung_thu' && newData.child('source').val() === 'dai_hoi_trung_thu' && newData.child('year').val() === $year && (($milestone === '10' && newData.child('milestone').val() === 10 && newData.child('rewardType').val() === 'coin' && newData.child('amount').val() === 50 && !newData.child('itemId').exists()) || ($milestone === '40' && newData.child('milestone').val() === 40 && newData.child('rewardType').val() === 'coin' && newData.child('amount').val() === 150 && !newData.child('itemId').exists()) || ($milestone === '60' && newData.child('milestone').val() === 60 && newData.child('rewardType').val() === 'coin' && newData.child('amount').val() === 200 && !newData.child('itemId').exists()) || ($milestone === '80' && newData.child('milestone').val() === 80 && newData.child('rewardType').val() === 'background' && newData.child('amount').val() === 0 && (newData.child('itemId').val() === 'background_trung_thu_nguyet_cung_hoa_dang_da' || newData.child('itemId').val() === 'background_trung_thu_chu_cuoi_que_lam_nguyet_da')) || ($milestone === '100' && newData.child('milestone').val() === 100 && newData.child('rewardType').val() === 'mid_autumn_coin' && newData.child('amount').val() === 1 && !newData.child('itemId').exists())) && (($milestone === '10' && root.child('student_mid_autumn_events').child($username).child($year).child('totalScore').val() >= 10) || ($milestone === '40' && root.child('student_mid_autumn_events').child($username).child($year).child('totalScore').val() >= 40) || ($milestone === '60' && root.child('student_mid_autumn_events').child($username).child($year).child('totalScore').val() >= 60) || ($milestone === '80' && root.child('student_mid_autumn_events').child($username).child($year).child('totalScore').val() >= 80) || ($milestone === '100' && root.child('student_mid_autumn_events').child($username).child($year).child('totalScore').val() >= 100)) && ((!data.exists() && newData.child('status').val() === 'reserved' && newData.child('reservedAt').isNumber() && newData.child('reservedAt').val() >= now - 300000 && newData.child('reservedAt').val() <= now + 300000 && !newData.child('completedAt').exists() && root.child('mid_autumn_calendar').child($year).child('festivalStartAt').val() <= now && root.child('mid_autumn_calendar').child($year).child('festivalEndAt').val() >= now) || (data.exists() && data.child('status').val() === 'reserved' && newData.child('status').val() === 'completed' && newData.child('eventId').val() === data.child('eventId').val() && newData.child('year').val() === data.child('year').val() && newData.child('milestone').val() === data.child('milestone').val() && newData.child('rewardType').val() === data.child('rewardType').val() && newData.child('amount').val() === data.child('amount').val() && newData.child('source').val() === data.child('source').val() && newData.child('reservedAt').val() === data.child('reservedAt').val() && ((!data.child('itemId').exists() && !newData.child('itemId').exists()) || newData.child('itemId').val() === data.child('itemId').val()) && newData.child('completedAt').isNumber() && newData.child('completedAt').val() >= data.child('reservedAt').val() && newData.child('completedAt').val() <= now + 300000))",
+              "eventId": {
+                ".validate": "newData.val() === 'dai_hoi_trung_thu'"
+              },
+              "year": {
+                ".validate": "newData.isString() && newData.val() === $year"
+              },
+              "milestone": {
+                ".validate": "newData.isNumber()"
+              },
+              "status": {
+                ".validate": "newData.val() === 'reserved' || newData.val() === 'completed'"
+              },
+              "rewardType": {
+                ".validate": "newData.isString()"
+              },
+              "amount": {
+                ".validate": "newData.isNumber() && newData.val() >= 0"
+              },
+              "source": {
+                ".validate": "newData.val() === 'dai_hoi_trung_thu'"
+              },
+              "reservedAt": {
+                ".validate": "newData.isNumber()"
+              },
+              "completedAt": {
+                ".validate": "newData.isNumber()"
+              },
+              "itemId": {
+                ".validate": "newData.isString() && (newData.val() === 'background_trung_thu_nguyet_cung_hoa_dang_da' || newData.val() === 'background_trung_thu_chu_cuoi_que_lam_nguyet_da')"
+              },
+              "$other": {
+                ".validate": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "student_inventory": {
+      ".read": "auth != null",
+      "$username": {
+        ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'",
+        "$itemId": {
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (root.child('users').child(auth.uid).child('username').val() === $username && ((!data.exists() && newData.exists() && (newData.child('id').val() === $itemId && newData.child('source').val() === 'store_purchase' && newData.child('purchaseOperationId').isString() && root.child('store_purchase_ops').child($username).child($itemId).child('operationId').val() === newData.child('purchaseOperationId').val() && (root.child('store_purchase_ops').child($username).child($itemId).child('status').val() === 'paid' || root.child('store_purchase_ops').child($username).child($itemId).child('status').val() === 'completed') || newData.child('id').val() === $itemId && newData.child('source').val() === 'store_trial' && newData.child('isTrial').val() === true && newData.child('trialOperationId').isString() && root.child('store_trial_claims').child($username).child($itemId).child('operationId').val() === newData.child('trialOperationId').val() && (root.child('store_trial_claims').child($username).child($itemId).child('status').val() === 'debited' || root.child('store_trial_claims').child($username).child($itemId).child('status').val() === 'active') || newData.child('id').val() === $itemId && newData.child('source').val() === 'teacher_gift' && newData.child('originMessageKey').isString() && root.child('inbox_gift_claims').child($username).child(newData.child('originMessageKey').val()).child('status').val() === 'processing' && root.child('inbox_messages').child($username).child(newData.child('originMessageKey').val()).child('giftType').val() === 'item' && root.child('inbox_messages').child($username).child(newData.child('originMessageKey').val()).child('giftValue').val() === $itemId && (!root.child('inbox_messages').child($username).child(newData.child('originMessageKey').val()).child('expiry').exists() || root.child('inbox_messages').child($username).child(newData.child('originMessageKey').val()).child('expiry').val() > now) || root.child('birthday_item_years').child($itemId).isString() && newData.child('id').val() === $itemId && newData.child('source').val() === 'birthday_coin' && newData.child('birthdayYear').val() === root.child('birthday_item_years').child($itemId).val() && root.child('birthday_coins').child($username).child(root.child('birthday_item_years').child($itemId).val()).child('status').val() === 'redeemed' && root.child('birthday_coins').child($username).child(root.child('birthday_item_years').child($itemId).val()).child('balance').val() === 0 && root.child('birthday_coins').child($username).child(root.child('birthday_item_years').child($itemId).val()).child('itemId').val() === $itemId || root.child('special_birthday_item_catalog').child($itemId).child('enabled').val() === true && newData.child('id').val() === $itemId && newData.child('source').val() === 'special_birthday_coin' && newData.child('purchaseTime').isNumber() && newData.child('purchaseTime').val() <= now + 10000 && newData.child('specialCoinGrantId').isString() && newData.child('specialCoinRedemptionId').isString() && root.child('student_special_birthday_coins').child($username).child(newData.child('specialCoinGrantId').val()).child('redemptions').child(newData.child('specialCoinRedemptionId').val()).child('itemId').val() === $itemId || newData.child('id').val() === $itemId && newData.child('source').val() === 'mid_autumn_coin' && ((($itemId === 'pet_trung_thu_nguyet_cung_tien_tu' || $itemId === 'pet_trung_thu_chu_cuoi_2') && newData.child('midAutumnCoinCost').val() === 2) || (($itemId === 'pet_trung_thu_hang_nga_chibi_1' || $itemId === 'pet_trung_thu_chu_cuoi_chibi_2' || $itemId === 'theme_trung_thu_nguyet_hoi_hoa_dang' || $itemId === 'effect_trung_thu_nguyet_trieu_luu_quang' || $itemId === 'theme_trung_thu_quang_han_nguyet_que' || $itemId === 'effect_trung_thu_que_anh_phi_diep' || $itemId === 'frame_trung_thu_nguyet_que_hoa_hoan' || $itemId === 'frame_trung_thu_chu_cuoi_que_anh_chi_hoan' || $itemId === 'background_trung_thu_nguyet_cung_hoa_dang_da' || $itemId === 'background_trung_thu_chu_cuoi_que_lam_nguyet_da') && newData.child('midAutumnCoinCost').val() === 1)) && newData.child('midAutumnYear').isString() && newData.child('midAutumnRedemptionId').isString() && root.child('mid_autumn_wallets').child($username).child('redemptions').child(newData.child('midAutumnRedemptionId').val()).child('itemId').val() === $itemId && root.child('mid_autumn_wallets').child($username).child('redemptions').child(newData.child('midAutumnRedemptionId').val()).child('amount').val() === newData.child('midAutumnCoinCost').val() && (root.child('mid_autumn_wallets').child($username).child('redemptions').child(newData.child('midAutumnRedemptionId').val()).child('status').val() === 'reserved' || root.child('mid_autumn_wallets').child($username).child('redemptions').child(newData.child('midAutumnRedemptionId').val()).child('status').val() === 'completed') && root.child('mid_autumn_wallets').child($username).child('redemptions').child(newData.child('midAutumnRedemptionId').val()).child('year').val() === newData.child('midAutumnYear').val() || newData.child('id').val() === $itemId && newData.child('source').val() === 'hoihoa_chest' && newData.child('chestOperationId').isString() && root.child('student_hoihoa_chest_limit').child($username).child('operationId').val() === newData.child('chestOperationId').val() && (root.child('student_hoihoa_chest_limit').child($username).child('status').val() === 'reserved' || root.child('student_hoihoa_chest_limit').child($username).child('status').val() === 'claimed') || newData.child('id').val() === $itemId && (newData.child('source').val() === 'lucky_wheel' || newData.child('source').val() === 'lucky_wheel_multi') && ($itemId === 'pet_cotich_1' || $itemId === 'theme_cotich' || $itemId === 'pet_cotich_2' || $itemId === 'effect_cotich' || $itemId === 'theme_cotich_forest' || $itemId === 'effect_cotich_firefly' || $itemId === 'pet_cotich_3' || $itemId === 'effect_cotich_tinhlinh' || $itemId === 'theme_cotich_phale' || $itemId === 'pet_cotich_5' || $itemId === 'theme_cotich_hai_nguyet' || $itemId === 'effect_cotich_bot_ngoc_mong') && newData.child('luckyWheelOperationId').isString() && newData.child('luckyWheelOperationId').val().length >= 8 && newData.child('purchaseTime').isNumber() && newData.child('purchaseTime').val() >= now - 300000 && newData.child('purchaseTime').val() <= now + 10000 && root.child('spin_counts').child($username).child('count').isNumber() && root.child('spin_counts').child($username).child('count').val() >= 1)) || (data.exists() && newData.exists() && data.child('isTrial').val() === true && newData.child('id').val() === $itemId && newData.child('source').val() === 'store_purchase' && newData.child('purchaseOperationId').isString() && root.child('store_purchase_ops').child($username).child($itemId).child('operationId').val() === newData.child('purchaseOperationId').val() && (root.child('store_purchase_ops').child($username).child($itemId).child('status').val() === 'paid' || root.child('store_purchase_ops').child($username).child($itemId).child('status').val() === 'completed')) || (data.exists() && !newData.exists() && data.child('isTrial').val() === true && data.child('trialExpiry').isNumber() && data.child('trialExpiry').val() <= now))))",
+          "isEquipped": {
+            ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (root.child('users').child(auth.uid).child('username').val() === $username && data.parent().exists() && data.parent().child('id').val() === $itemId))",
+            ".validate": "newData.isBoolean() && (newData.val() === false || root.child('users').child(auth.uid).child('role').val() === 'teacher' || (root.child('users').child(auth.uid).child('isLocked').val() !== true && (data.parent().child('isTrial').val() !== true || (data.parent().child('trialExpiry').isNumber() && data.parent().child('trialExpiry').val() > now))))"
+          },
+          "purchaseCurrency": {
+            ".validate": "root.child('users').child(auth.uid).child('role').val() === 'teacher' || (!data.exists() && newData.val() === 'coin') || (data.exists() && newData.val() === data.val())"
+          },
+          "purchaseBasePrice": {
+            ".validate": "root.child('users').child(auth.uid).child('role').val() === 'teacher' || (!data.exists() && newData.isNumber() && newData.val() >= 0) || (data.exists() && newData.val() === data.val())"
+          },
+          "purchasePrice": {
+            ".validate": "root.child('users').child(auth.uid).child('role').val() === 'teacher' || (!data.exists() && newData.isNumber() && newData.val() >= 0) || (data.exists() && newData.val() === data.val())"
+          },
+          "purchaseDiscountKey": {
+            ".validate": "root.child('users').child(auth.uid).child('role').val() === 'teacher' || (!data.exists() && (!newData.exists() || newData.isString())) || (data.exists() && newData.val() === data.val())"
+          },
+          "purchaseDiscountPath": {
+            ".validate": "root.child('users').child(auth.uid).child('role').val() === 'teacher' || (!data.exists() && (!newData.exists() || newData.isString())) || (data.exists() && newData.val() === data.val())"
+          },
+          "gradeRewardClaimExposure": {
+            "$claimId": {
+              ".validate": "root.child('users').child(auth.uid).child('role').val() === 'teacher' || (newData.hasChildren(['coins','claimedAt','rewardRevision','submissionKey']) && root.child('grade_reward_claims').child($username).child($claimId).child('status').val() === 'claimed' && newData.child('coins').val() === root.child('grade_reward_claims').child($username).child($claimId).child('coins').val() && newData.child('rewardRevision').val() === root.child('grade_reward_claims').child($username).child($claimId).child('rewardRevision').val() && newData.child('submissionKey').val() === root.child('grade_reward_claims').child($username).child($claimId).child('submissionKey').val() && (!data.exists() || newData.val() === data.val()))"
+            }
+          },
+          "purchaseOperationId": {
+            ".validate": "root.child('users').child(auth.uid).child('role').val() === 'teacher' || (newData.isString() && newData.val().length >= 8 && newData.val().length <= 200 && root.child('store_purchase_ops').child($username).child($itemId).child('operationId').val() === newData.val() && (root.child('store_purchase_ops').child($username).child($itemId).child('status').val() === 'paid' || root.child('store_purchase_ops').child($username).child($itemId).child('status').val() === 'completed'))"
+          },
+          "trialOperationId": {
+            ".validate": "root.child('users').child(auth.uid).child('role').val() === 'teacher' || (newData.isString() && newData.val().length >= 8 && newData.val().length <= 200 && root.child('store_trial_claims').child($username).child($itemId).child('operationId').val() === newData.val() && (root.child('store_trial_claims').child($username).child($itemId).child('status').val() === 'debited' || root.child('store_trial_claims').child($username).child($itemId).child('status').val() === 'active'))"
+          },
+          "trialPrice": {
+            ".validate": "root.child('users').child(auth.uid).child('role').val() === 'teacher' || (newData.isNumber() && newData.val() > 0 && newData.val() <= 999999 && root.child('store_trial_claims').child($username).child($itemId).child('trialPrice').val() === newData.val())"
+          },
+          "chestOperationId": {
+            ".validate": "root.child('users').child(auth.uid).child('role').val() === 'teacher' || (newData.isString() && newData.val().length >= 8 && newData.val().length <= 200 && root.child('student_hoihoa_chest_limit').child($username).child('operationId').val() === newData.val() && (root.child('student_hoihoa_chest_limit').child($username).child('status').val() === 'reserved' || root.child('student_hoihoa_chest_limit').child($username).child('status').val() === 'claimed'))"
+          },
+          ".validate": "root.child('users').child(auth.uid).child('role').val() === 'teacher' || (!newData.exists() && data.child('isTrial').val() === true && data.child('trialExpiry').isNumber() && data.child('trialExpiry').val() <= now) || (newData.exists() && newData.child('id').val() === $itemId && (!data.exists() || (data.exists() && ((data.child('isTrial').val() === true && newData.child('source').val() === 'store_purchase' && newData.child('purchaseOperationId').isString()) || (newData.child('source').val() === data.child('source').val() && newData.child('purchaseTime').val() === data.child('purchaseTime').val() && newData.child('isTrial').val() === data.child('isTrial').val() && newData.child('trialExpiry').val() === data.child('trialExpiry').val())))))"
+        }
+      }
+    },
+    "student_history_events": {
+      ".read": false,
+      "$username": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        "$year": {
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+          ".validate": "!newData.exists() || (newData.child('eventId').val() === 'lich_su_hao_hung' && newData.child('eventName').val() === 'Lịch sử hào hùng' && newData.child('year').isNumber() && newData.child('year').val() >= 2026 && newData.child('status').isString() && (newData.child('status').val() === 'in_progress' || newData.child('status').val() === 'completed') && newData.child('currentIndex').isNumber() && newData.child('currentIndex').val() >= 0 && newData.child('currentIndex').val() <= 10 && newData.child('score').isNumber() && newData.child('score').val() >= 0 && newData.child('score').val() <= 10 && newData.child('startedAt').isNumber() && newData.child('updatedAt').isNumber() && newData.child('questionIds').exists())"
+        }
+      }
+    },
+    "student_bonus_tickets": {
+      ".read": "auth != null",
+      "$username": {
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        ".validate": "newData.isNumber() && newData.val() >= -9999 && newData.val() <= 9999"
+      }
+    },
+    "spin_counts": {
+      ".read": "auth != null",
+      "$username": {
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (root.child('users').child(auth.uid).child('username').val() === $username && newData.exists() && newData.child('count').isNumber() && ((data.exists() && data.child('count').isNumber() && newData.child('count').val() < data.child('count').val() && data.child('count').val() - newData.child('count').val() >= 1 && data.child('count').val() - newData.child('count').val() <= 50) || (root.child('game_settings').child('isOpen').val() !== false && ((!data.exists() && newData.child('count').val() >= 1 && newData.child('count').val() <= 50) || (data.exists() && data.child('count').isNumber() && newData.child('count').val() > data.child('count').val() && newData.child('count').val() - data.child('count').val() >= 1 && newData.child('count').val() - data.child('count').val() <= 50)) && ((root.child('historical_grade_tickets').child($username).isNumber() && root.child('student_bonus_tickets').child($username).isNumber() && newData.child('count').val() <= root.child('historical_grade_tickets').child($username).val() + root.child('student_bonus_tickets').child($username).val()) || (root.child('historical_grade_tickets').child($username).isNumber() && !root.child('student_bonus_tickets').child($username).isNumber() && newData.child('count').val() <= root.child('historical_grade_tickets').child($username).val()) || (!root.child('historical_grade_tickets').child($username).isNumber() && root.child('student_bonus_tickets').child($username).isNumber() && newData.child('count').val() <= root.child('student_bonus_tickets').child($username).val()))))))",
+        "count": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "spin_history": {
+      ".read": "auth != null",
+      "$historyId": {
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (root.child('users').child(auth.uid).child('username').val() === newData.child('username').val() && !data.exists() && newData.exists()))",
+        ".validate": "!newData.exists() || root.child('users').child(auth.uid).child('role').val() === 'teacher' || (newData.child('username').isString() && newData.child('username').val() === root.child('users').child(auth.uid).child('username').val() && newData.child('reward').isString() && newData.child('timestamp').isNumber() && newData.child('timestamp').val() >= now - 86400000 && newData.child('timestamp').val() <= now + 300000 && (!newData.child('operationId').exists() || (newData.child('operationId').isString() && newData.child('operationId').val() === $historyId)) && (!newData.child('spins').exists() || (newData.child('spins').isNumber() && newData.child('spins').val() >= 1 && newData.child('spins').val() <= 50)))"
+      }
+    },
+    "cash_requests": {
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (((query.orderByChild === 'studentUsername') || (query.orderByChild === 'username')) && query.equalTo === root.child('users').child(auth.uid).child('username').val()))",
+      "$requestId": {
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (!data.exists() && newData.exists() && root.child('users').child(auth.uid).child('isLocked').val() !== true && newData.child('studentUsername').val() === root.child('users').child(auth.uid).child('username').val() && newData.child('username').val() === root.child('users').child(auth.uid).child('username').val() && newData.child('status').val() === 'pending' && newData.child('requestVersion').val() === 2 && newData.child('amount').isNumber() && newData.child('amount').val() >= 1 && newData.child('amount').val() <= 999999999 && newData.child('timestamp').isNumber() && newData.child('timestamp').val() >= now - 300000 && newData.child('timestamp').val() <= now + 300000))",
+        ".validate": "root.child('users').child(auth.uid).child('role').val() === 'teacher' || (!data.exists() && newData.exists() && root.child('users').child(auth.uid).child('isLocked').val() !== true && newData.child('studentUsername').val() === root.child('users').child(auth.uid).child('username').val() && newData.child('username').val() === root.child('users').child(auth.uid).child('username').val() && newData.child('status').val() === 'pending' && newData.child('requestVersion').val() === 2 && newData.child('amount').isNumber() && newData.child('amount').val() >= 1 && newData.child('amount').val() <= 999999999 && newData.child('timestamp').isNumber() && newData.child('timestamp').val() >= now - 300000 && newData.child('timestamp').val() <= now + 300000)"
+      },
+      ".indexOn": [
+        "studentUsername",
+        "username",
+        "status",
+        "timestamp"
+      ]
+    },
+    "student_money_offset": {
+      ".read": "auth != null",
+      "$username": {
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        ".validate": "newData.isNumber() && newData.val() >= -9999999 && newData.val() <= 9999999"
+      }
+    },
+    "student_conversion_usage": {
+      ".read": false,
+      "$username": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        "M2C": {
+          "$periodKey": {
+            "$slot": {
+              ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (root.child('users').child(auth.uid).child('username').val() === $username && (newData.exists() || (data.exists() && data.child('status').val() === 'reserved'))))",
+              ".validate": "!newData.exists() || (($slot === 'slot1' || $slot === 'slot2') && $periodKey.matches(/^20\\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$/) && newData.hasChildren(['used','status','direction','amount','periodKey','periodStartAt','reservationId','createdAt']) && newData.child('used').val() === true && newData.child('direction').val() === 'M2C' && newData.child('periodKey').val() === $periodKey && newData.child('periodStartAt').isNumber() && newData.child('amount').isNumber() && newData.child('amount').val() >= 1 && newData.child('reservationId').isString() && newData.child('reservationId').val().length > 0 && newData.child('reservationId').val().length <= 100 && newData.child('createdAt').isNumber() && ((!data.exists() && root.child('student_conversion_period_guard').child($username).child('M2C').child('periodKey').val() === $periodKey && root.child('student_conversion_period_guard').child($username).child('M2C').child('periodStartAt').val() === newData.child('periodStartAt').val() && root.child('student_conversion_period_guard').child($username).child('M2C').child('periodStartAt').val() <= now && root.child('student_conversion_period_guard').child($username).child('M2C').child('periodEndAt').val() > now && newData.child('status').val() === 'reserved' && !newData.child('completedAt').exists() && newData.child('createdAt').val() >= now - 300000 && newData.child('createdAt').val() <= now + 10000) || (data.exists() && data.child('status').val() === 'reserved' && newData.child('status').val() === 'completed' && newData.child('used').val() === data.child('used').val() && newData.child('direction').val() === data.child('direction').val() && newData.child('amount').val() === data.child('amount').val() && newData.child('periodKey').val() === data.child('periodKey').val() && newData.child('periodStartAt').val() === data.child('periodStartAt').val() && newData.child('reservationId').val() === data.child('reservationId').val() && newData.child('createdAt').val() === data.child('createdAt').val() && newData.child('completedAt').isNumber() && newData.child('completedAt').val() >= newData.child('createdAt').val() && newData.child('completedAt').val() <= now + 10000)))",
+              "used": {
+                ".validate": "newData.val() === true"
+              },
+              "status": {
+                ".validate": "newData.val() === 'reserved' || newData.val() === 'completed'"
+              },
+              "direction": {
+                ".validate": "newData.val() === 'M2C'"
+              },
+              "amount": {
+                ".validate": "newData.isNumber() && newData.val() >= 1"
+              },
+              "periodKey": {
+                ".validate": "newData.val() === $periodKey"
+              },
+              "reservationId": {
+                ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 100"
+              },
+              "createdAt": {
+                ".validate": "newData.isNumber()"
+              },
+              "completedAt": {
+                ".validate": "!newData.exists() || newData.isNumber()"
+              },
+              "$other": {
+                ".validate": false
+              },
+              "periodStartAt": {
+                ".validate": "newData.isNumber()"
+              }
+            }
+          }
+        },
+        "C2M": {
+          "$periodKey": {
+            ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (root.child('users').child(auth.uid).child('username').val() === $username && (newData.exists() || (data.exists() && data.child('status').val() === 'reserved'))))",
+            ".validate": "!newData.exists() || ($periodKey.matches(/^20\\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$/) && newData.hasChildren(['used','status','direction','amount','periodKey','periodStartAt','reservationId','createdAt']) && newData.child('used').val() === true && newData.child('direction').val() === 'C2M' && newData.child('periodKey').val() === $periodKey && newData.child('periodStartAt').isNumber() && newData.child('amount').isNumber() && newData.child('amount').val() >= 1 && newData.child('amount').val() <= 500 && newData.child('reservationId').isString() && newData.child('reservationId').val().length > 0 && newData.child('reservationId').val().length <= 100 && newData.child('createdAt').isNumber() && ((!data.exists() && root.child('student_conversion_period_guard').child($username).child('C2M').child('periodKey').val() === $periodKey && root.child('student_conversion_period_guard').child($username).child('C2M').child('periodStartAt').val() === newData.child('periodStartAt').val() && root.child('student_conversion_period_guard').child($username).child('C2M').child('periodStartAt').val() <= now && root.child('student_conversion_period_guard').child($username).child('C2M').child('periodEndAt').val() > now && newData.child('status').val() === 'reserved' && !newData.child('completedAt').exists() && newData.child('createdAt').val() >= now - 300000 && newData.child('createdAt').val() <= now + 10000) || (data.exists() && data.child('status').val() === 'reserved' && newData.child('status').val() === 'completed' && newData.child('used').val() === data.child('used').val() && newData.child('direction').val() === data.child('direction').val() && newData.child('amount').val() === data.child('amount').val() && newData.child('periodKey').val() === data.child('periodKey').val() && newData.child('periodStartAt').val() === data.child('periodStartAt').val() && newData.child('reservationId').val() === data.child('reservationId').val() && newData.child('createdAt').val() === data.child('createdAt').val() && newData.child('completedAt').isNumber() && newData.child('completedAt').val() >= newData.child('createdAt').val() && newData.child('completedAt').val() <= now + 10000)))",
+            "used": {
+              ".validate": "newData.val() === true"
+            },
+            "status": {
+              ".validate": "newData.val() === 'reserved' || newData.val() === 'completed'"
+            },
+            "direction": {
+              ".validate": "newData.val() === 'C2M'"
+            },
+            "amount": {
+              ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 500"
+            },
+            "periodKey": {
+              ".validate": "newData.val() === $periodKey"
+            },
+            "reservationId": {
+              ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 100"
+            },
+            "createdAt": {
+              ".validate": "newData.isNumber()"
+            },
+            "completedAt": {
+              ".validate": "!newData.exists() || newData.isNumber()"
+            },
+            "$other": {
+              ".validate": false
+            },
+            "periodStartAt": {
+              ".validate": "newData.isNumber()"
+            }
+          }
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "student_daily_login": {
+      ".read": "auth != null",
+      "$username": {
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')"
+      }
+    },
+    "royal_ball_limits": {
+      ".read": false,
+      "$username": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        ".validate": "!newData.exists() || (newData.hasChildren(['lastDate']) && newData.child('lastDate').isString())"
+      }
+    },
+    "inbox_messages": {
+      ".read": false,
+      "$username": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'",
+        "$messageId": {
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (root.child('users').child(auth.uid).child('username').val() === $username && data.exists() && !newData.exists()))",
+          "timestamp": {
+            ".validate": "newData.isNumber()"
+          }
+        }
+      }
+    },
+    "birthday_item_catalog": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'",
+      "$year": {
+        "$itemId": {
+          ".validate": "!newData.exists() || newData.val() === true"
+        }
+      }
+    },
+    "birthday_item_years": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'",
+      "$itemId": {
+        ".validate": "!newData.exists() || (newData.isString() && newData.val().matches(/^20\\d{2}$/))"
+      }
+    },
+    "birthday_reward_logs": {
+      ".read": false,
+      "$username": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'"
+      }
+    },
+    "birthday_coins": {
+      ".read": false,
+      "$username": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        "$year": {
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (root.child('users').child(auth.uid).child('username').val() === $username && ((!data.exists() && newData.child('year').val() === $year && newData.child('balance').val() === 1 && newData.child('status').val() === 'available' && root.child('birthday_reward_logs').child($username).child($year).child('status').val() === 'issued') || (((data.child('balance').val() === 1 && data.child('status').val() === 'available') || data.val() === 1) && newData.child('year').val() === $year && newData.child('balance').val() === 0 && newData.child('status').val() === 'redeemed' && newData.child('itemId').isString() && root.child('birthday_item_catalog').child($year).child(newData.child('itemId').val()).val() === true))))",
+          ".validate": "newData.hasChildren(['year','balance','status','claimedAt']) && newData.child('year').val() === $year && newData.child('balance').isNumber() && (newData.child('balance').val() === 0 || newData.child('balance').val() === 1) && newData.child('status').isString() && newData.child('claimedAt').isNumber() && newData.child('claimedAt').val() <= now + 10000 && (!newData.child('sourceMessageId').exists() || newData.child('sourceMessageId').isString()) && ((newData.child('status').val() === 'available' && newData.child('balance').val() === 1 && !newData.child('itemId').exists() && !newData.child('redeemedAt').exists()) || (newData.child('status').val() === 'redeemed' && newData.child('balance').val() === 0 && newData.child('itemId').isString() && newData.child('redeemedAt').isNumber() && newData.child('redeemedAt').val() <= now + 10000 && root.child('birthday_item_catalog').child($year).child(newData.child('itemId').val()).val() === true))"
+        }
+      }
+    },
+    "global_notifications": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'",
+      "$notiId": {
+        "receivers": {
+          "$username": {
+            ".write": "auth != null && root.child('users').child(auth.uid).child('username').val() === $username"
+          }
+        }
+      }
+    },
+    "global_surveys": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'",
+      "$surveyId": {
+        "answers": {
+          "$username": {
+            ".write": "auth != null && root.child('users').child(auth.uid).child('username').val() === $username"
+          }
+        }
+      }
+    },
+    "game_settings": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'"
+    },
+    "roadmap_settings": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'"
+    },
+    "store_settings": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'"
+    },
+    "system_settings": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'",
+      "loginPageLayout": {
+        ".read": true,
+        ".validate": "newData.isString() && (newData.val() === 'split' || newData.val() === 'centered' || newData.val() === 'reversed' || newData.val() === 'cinematic')"
+      }
+    },
+    "system_diagnostic_reports": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'",
+      ".indexOn": [
+        "updatedAt"
+      ],
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (auth.uid === $uid && newData.exists()))",
+        ".validate": "!newData.exists() || (newData.child('uid').val() === $uid && newData.child('role').val() === 'student' && newData.child('status').isString() && (newData.child('status').val() === 'open' || newData.child('status').val() === 'resolved_by_clean_scan' || newData.child('status').val() === 'resolved_by_teacher') && newData.child('updatedAt').isNumber() && newData.child('issueCount').isNumber() && newData.child('issueCount').val() >= 0 && newData.child('issueCount').val() <= 20 && newData.child('errorCount').isNumber() && newData.child('errorCount').val() >= 0 && newData.child('errorCount').val() <= 20 && newData.child('warningCount').isNumber() && newData.child('warningCount').val() >= 0 && newData.child('warningCount').val() <= 20)"
+      }
+    },
+    "leaderboard_settings": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'"
+    },
+    "leaderboard_reward_claims": {
+      ".read": false,
+      "$seasonKey": {
+        "$username": {
+          ".read": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (root.child('users').child(auth.uid).child('username').val() === $username && ((!data.exists() && newData.exists() && newData.child('status').val() === 'processing') || (data.exists() && newData.exists() && newData.child('seasonKey').val() === data.child('seasonKey').val() && newData.child('username').val() === data.child('username').val() && newData.child('rank').val() === data.child('rank').val() && newData.child('rewardType').val() === data.child('rewardType').val() && ((data.child('status').val() === 'processing' && (newData.child('status').val() === 'processing' || newData.child('status').val() === 'retry' || newData.child('status').val() === 'available_chest' || newData.child('status').val() === 'claimed')) || (data.child('status').val() === 'retry' && newData.child('status').val() === 'processing') || (data.child('status').val() === 'available_chest' && newData.child('status').val() === 'processing_chest') || (data.child('status').val() === 'processing_chest' && (newData.child('status').val() === 'processing_chest' || newData.child('status').val() === 'available_chest' || newData.child('status').val() === 'claimed')))))))",
+          ".validate": "!newData.exists() || ($seasonKey.matches(/^20\\d{2}-(0[1-9]|1[0-2])$/) && newData.hasChildren(['seasonKey','seasonLabel','username','rank','rewardType','status']) && newData.child('seasonKey').val() === $seasonKey && newData.child('username').val() === $username && newData.child('seasonLabel').isString() && newData.child('rank').isNumber() && newData.child('rank').val() >= 1 && ((newData.child('rank').val() === 1 && newData.child('rewardType').val() === 'chest') || (newData.child('rank').val() === 2 && newData.child('rewardType').val() === 'discount') || (newData.child('rank').val() >= 3 && newData.child('rewardType').val() === 'coin')) && (newData.child('status').val() === 'processing' || newData.child('status').val() === 'retry' || newData.child('status').val() === 'available_chest' || newData.child('status').val() === 'processing_chest' || newData.child('status').val() === 'claimed'))"
+        }
+      }
+    },
+    "historical_grade_tickets": {
+      ".read": "auth != null",
+      "$username": {
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')"
+      }
+    },
+    "ticket_purchases": {
+      ".read": "auth != null",
+      "$username": {
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        ".validate": "newData.hasChildren(['count', 'weekStart']) && newData.child('count').isNumber() && newData.child('count').val() >= 0 && newData.child('count').val() <= 5 && newData.child('weekStart').isNumber()"
+      }
+    },
+    "profile_requests": {
+      ".indexOn": [
+        "username",
+        "status"
+      ],
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (query.orderByChild === 'username' && query.equalTo === root.child('users').child(auth.uid).child('username').val()))",
+      "$requestId": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || data.child('username').val() === root.child('users').child(auth.uid).child('username').val())",
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (!data.exists() && newData.exists() && newData.child('username').val() === root.child('users').child(auth.uid).child('username').val() && newData.child('requestId').val() === $requestId && newData.child('status').val() === 'pending' && root.child('profile_request_active').child(newData.child('username').val()).child('requestId').val() === $requestId && root.child('profile_request_active').child(newData.child('username').val()).child('status').val() === 'pending'))",
+        ".validate": "!newData.exists() || root.child('users').child(auth.uid).child('role').val() === 'teacher' || (newData.hasChildren(['requestId','username','currentName','newName','hasPasswordChange','status','timestamp','time']) && newData.child('requestId').val() === $requestId && newData.child('username').isString() && newData.child('username').val() === root.child('users').child(auth.uid).child('username').val() && newData.child('currentName').isString() && newData.child('currentName').val().length <= 100 && newData.child('newName').isString() && newData.child('newName').val().length >= 1 && newData.child('newName').val().length <= 100 && newData.child('hasPasswordChange').isBoolean() && newData.child('status').val() === 'pending' && newData.child('timestamp').isNumber() && newData.child('timestamp').val() >= now - 300000 && newData.child('timestamp').val() <= now + 300000 && newData.child('time').isString() && !newData.child('newPass').exists())"
+      }
+    },
+    "student_discounts": {
+      ".read": "auth != null",
+      "$username": {
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        "$discountId": {
+          ".validate": "root.child('users').child(auth.uid).child('role').val() === 'teacher' || data.exists() || newData.child('source').val() !== 'teacher_gift' || (newData.child('originMessageKey').isString() && root.child('inbox_gift_claims').child($username).child(newData.child('originMessageKey').val()).child('status').val() === 'processing' && root.child('inbox_messages').child($username).child(newData.child('originMessageKey').val()).child('giftType').val() === 'discount' && root.child('inbox_messages').child($username).child(newData.child('originMessageKey').val()).child('giftValue').val() === newData.child('percent').val() && (!root.child('inbox_messages').child($username).child(newData.child('originMessageKey').val()).child('expiry').exists() || root.child('inbox_messages').child($username).child(newData.child('originMessageKey').val()).child('expiry').val() > now))"
+        }
+      }
+    },
+    "store_items": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'"
+    },
+    "limited_events": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'"
+    },
+    "device_locks": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'"
+    },
+    "exam_sessions": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'",
+      "$username": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        "$assignmentId": {
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (root.child('users').child(auth.uid).child('username').val() === $username && newData.exists()))",
+          ".validate": "root.child('users').child(auth.uid).child('role').val() === 'teacher' || (newData.exists() && newData.child('version').val() === 5 && newData.child('username').val() === $username && newData.child('assignmentId').val() === $assignmentId && newData.child('assignmentKey').isString() && newData.child('assignmentKey').val().length > 0 && root.child('assignments').child(newData.child('assignmentKey').val()).exists() && root.child('assignments').child(newData.child('assignmentKey').val()).child('id').val() === $assignmentId && root.child('assignments').child(newData.child('assignmentKey').val()).child('assessmentType').val() === 'thi' && newData.child('sessionId').isString() && newData.child('sessionId').val().length >= 8 && newData.child('sessionId').val().length <= 200 && newData.child('status').isString() && (newData.child('status').val() === 'active' || newData.child('status').val() === 'interrupted' || newData.child('status').val() === 'finalizing' || newData.child('status').val() === 'submitted') && newData.child('startedAt').isNumber() && newData.child('interruptionCount').isNumber() && newData.child('interruptionCount').val() >= 0 && newData.child('resumeCount').isNumber() && newData.child('resumeCount').val() >= 0 && newData.child('ownerTabId').isString() && newData.child('ownerTabId').val().length >= 8 && newData.child('ownerTabId').val().length <= 200 && newData.child('ownerLeaseUntil').isNumber() && newData.child('ownerLeaseUntil').val() >= 0 && newData.child('ownerLeaseUntil').val() <= now + 180000 && newData.child('heartbeatAt').isNumber() && newData.child('heartbeatAt').val() <= now + 10000 && newData.child('heartbeatAt').val() >= now - 300000 && newData.child('updatedAt').isNumber() && newData.child('updatedAt').val() <= now + 10000 && newData.child('updatedAt').val() >= now - 300000 && ((root.child('assignments').child(newData.child('assignmentKey').val()).child('examTimeLimitEnabled').val() === true && root.child('assignments').child(newData.child('assignmentKey').val()).child('examTimeLimitMinutes').isNumber() && root.child('assignments').child(newData.child('assignmentKey').val()).child('examTimeLimitMinutes').val() > 0 && newData.child('deadlineAt').isNumber() && newData.child('deadlineAt').val() === newData.child('startedAt').val() + root.child('assignments').child(newData.child('assignmentKey').val()).child('examTimeLimitMinutes').val() * 60000) || (root.child('assignments').child(newData.child('assignmentKey').val()).child('examTimeLimitEnabled').val() !== true && newData.child('deadlineAt').isNumber() && newData.child('deadlineAt').val() === 0)) && ((!data.exists() && newData.child('status').val() === 'active' && newData.child('startedAt').val() <= now + 10000 && newData.child('startedAt').val() >= now - 300000 && newData.child('interruptionCount').val() === 0 && newData.child('resumeCount').val() <= 1 && newData.child('ownerLeaseUntil').val() >= now - 5000) || (data.exists() && data.child('status').val() === 'redo_authorized' && newData.child('status').val() === 'active' && newData.child('startedAt').val() <= now + 10000 && newData.child('startedAt').val() >= now - 300000 && newData.child('interruptionCount').val() === 0 && newData.child('resumeCount').val() <= 1 && newData.child('ownerLeaseUntil').val() >= now - 5000) || (data.exists() && data.child('version').val() !== 5 && data.child('status').val() !== 'redo_authorized' && data.child('status').val() !== 'submitted' && newData.child('status').val() === 'active' && newData.child('startedAt').val() === data.child('startedAt').val() && newData.child('startedAt').val() <= now + 10000 && newData.child('sessionId').isString() && newData.child('interruptionCount').val() >= data.child('interruptionCount').val() && newData.child('resumeCount').val() >= data.child('resumeCount').val() && newData.child('ownerLeaseUntil').val() >= now - 5000) || (data.exists() && data.child('status').val() !== 'redo_authorized' && newData.child('assignmentKey').val() === data.child('assignmentKey').val() && newData.child('sessionId').val() === data.child('sessionId').val() && newData.child('startedAt').val() === data.child('startedAt').val() && newData.child('deadlineAt').val() === data.child('deadlineAt').val() && newData.child('interruptionCount').val() >= data.child('interruptionCount').val() && newData.child('resumeCount').val() >= data.child('resumeCount').val() && (newData.child('ownerTabId').val() === data.child('ownerTabId').val() || data.child('ownerLeaseUntil').val() <= now || data.child('status').val() === 'interrupted') && (data.child('status').val() !== 'submitted' || newData.child('status').val() === 'submitted') && (data.child('status').val() !== 'finalizing' || data.child('finalizeLeaseUntil').val() <= now || newData.child('finalizeOwnerTabId').val() === data.child('finalizeOwnerTabId').val() || newData.child('status').val() === 'submitted'))) && (newData.child('status').val() !== 'active' || (newData.child('ownerLeaseUntil').val() >= now - 5000 && newData.child('ownerLeaseUntil').val() <= now + 60000)) && (newData.child('status').val() !== 'finalizing' || (newData.child('finalizeOwnerTabId').isString() && newData.child('finalizeOwnerTabId').val() === newData.child('ownerTabId').val() && newData.child('finalizeId').isString() && newData.child('finalizeId').val().length >= 8 && newData.child('finalizeLeaseUntil').isNumber() && newData.child('finalizeLeaseUntil').val() > now && newData.child('finalizeLeaseUntil').val() <= now + 180000)) && (newData.child('status').val() !== 'submitted' || (newData.child('submissionKey').isString() && newData.child('submissionKey').val().length > 0 && root.child('submissions').child(newData.child('submissionKey').val()).child('studentUsername').val() === $username && root.child('submissions').child(newData.child('submissionKey').val()).child('assignmentId').val() === $assignmentId && root.child('submissions').child(newData.child('submissionKey').val()).child('examSessionId').val() === newData.child('sessionId').val() && root.child('submissions').child(newData.child('submissionKey').val()).child('submittedAt').isNumber())))"
+        }
+      }
+    },
+    "student_pet_interactions": {
+      ".read": false,
+      "$username": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        "$petId": {
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (root.child('users').child(auth.uid).child('username').val() === $username && !data.exists() && newData.val() === true))",
+          ".validate": "!newData.exists() || (newData.val() === true && ($petId === 'pet_shiba' || $petId === 'pet_doisong_bandem' || $petId === 'pet_doisong_banngay' || $petId === 'pet_truyenthuyet_1' || $petId === 'pet_premium_mua_xuan'))"
+        }
+      }
+    },
+    "student_pet_status": {
+      ".read": false,
+      "$username": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        ".validate": "!newData.exists() || (((newData.child('hunger').exists() && newData.child('lastUpdate').exists()) || (!newData.child('hunger').exists() && !newData.child('lastUpdate').exists())) && ((newData.child('springDreamEnergy').exists() && newData.child('springDreamLastUpdate').exists()) || (!newData.child('springDreamEnergy').exists() && !newData.child('springDreamLastUpdate').exists())) && (newData.child('hunger').exists() || newData.child('springDreamEnergy').exists()))",
+        "hunger": {
+          ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 100)"
+        },
+        "lastUpdate": {
+          ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= now + 10000)"
+        },
+        "$other": {
+          ".validate": false
+        },
+        "springDreamEnergy": {
+          ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 100)"
+        },
+        "springDreamLastUpdate": {
+          ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= now + 10000)"
+        }
+      }
+    },
+    "special_birthday_item_catalog": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'",
+      "$itemId": {
+        ".validate": "!newData.exists() || (newData.hasChildren(['enabled','tag','updatedAt']) && newData.child('enabled').isBoolean() && newData.child('tag').isString() && newData.child('updatedAt').isNumber() && (!newData.child('birthdayYear').exists() || (newData.child('birthdayYear').isNumber() && newData.child('birthdayYear').val() >= 2026 && newData.child('birthdayYear').val() <= 9999)))"
+      }
+    },
+    "student_special_birthday_coins": {
+      ".read": false,
+      "$username": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        "$grantId": {
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (root.child('users').child(auth.uid).child('username').val() === $username && root.child('users').child(auth.uid).child('isLocked').val() !== true && newData.exists()))",
+          ".validate": "root.child('users').child(auth.uid).child('role').val() === 'teacher' || ((!data.exists() && newData.exists() && root.child('inbox_messages').child($username).child($grantId).child('giftType').val() === 'special_birthday_coin' && root.child('inbox_messages').child($username).child($grantId).child('source').val() === 'teacher_gift' && newData.hasChildren(['id','quantity','remaining','status','claimedAt','expiresAt','source','sourceMessageId']) && newData.child('id').val() === $grantId && newData.child('quantity').isNumber() && newData.child('quantity').val() >= 1 && newData.child('quantity').val() <= 50 && newData.child('quantity').val() === root.child('inbox_messages').child($username).child($grantId).child('giftValue').val() && newData.child('remaining').isNumber() && newData.child('remaining').val() === newData.child('quantity').val() && newData.child('status').val() === 'available' && newData.child('claimedAt').isNumber() && newData.child('claimedAt').val() >= now - 300000 && newData.child('claimedAt').val() <= now + 300000 && newData.child('expiresAt').isNumber() && newData.child('expiresAt').val() === newData.child('claimedAt').val() + 432000000 && newData.child('source').val() === 'teacher_gift' && newData.child('sourceMessageId').val() === $grantId && !newData.child('redemptions').exists() && !newData.child('lastRedemptionId').exists()) || (data.exists() && newData.exists() && newData.hasChildren(['id','quantity','remaining','status','claimedAt','expiresAt','source','sourceMessageId','lastRedemptionId','redemptions']) && data.child('remaining').isNumber() && data.child('remaining').val() > 0 && data.child('expiresAt').isNumber() && data.child('expiresAt').val() > now && newData.child('id').val() === data.child('id').val() && newData.child('quantity').val() === data.child('quantity').val() && newData.child('claimedAt').val() === data.child('claimedAt').val() && newData.child('expiresAt').val() === data.child('expiresAt').val() && newData.child('source').val() === data.child('source').val() && newData.child('sourceMessageId').val() === data.child('sourceMessageId').val() && newData.child('remaining').isNumber() && newData.child('remaining').val() === data.child('remaining').val() - 1 && newData.child('remaining').val() >= 0 && ((newData.child('remaining').val() > 0 && newData.child('status').val() === 'available') || (newData.child('remaining').val() === 0 && newData.child('status').val() === 'depleted')) && newData.child('lastRedemptionId').isString() && !data.child('redemptions').child(newData.child('lastRedemptionId').val()).exists() && newData.child('redemptions').child(newData.child('lastRedemptionId').val()).hasChildren(['itemId','redeemedAt']) && newData.child('redemptions').child(newData.child('lastRedemptionId').val()).child('itemId').isString() && newData.child('redemptions').child(newData.child('lastRedemptionId').val()).child('redeemedAt').isNumber() && newData.child('redemptions').child(newData.child('lastRedemptionId').val()).child('redeemedAt').val() >= now - 60000 && newData.child('redemptions').child(newData.child('lastRedemptionId').val()).child('redeemedAt').val() <= now + 60000 && root.child('special_birthday_item_catalog').child(newData.child('redemptions').child(newData.child('lastRedemptionId').val()).child('itemId').val()).child('enabled').val() === true))",
+          "redemptions": {
+            "$redemptionId": {
+              ".validate": "root.child('users').child(auth.uid).child('role').val() === 'teacher' || (data.exists() ? newData.val() === data.val() : (newData.exists() && $redemptionId === newData.parent().parent().child('lastRedemptionId').val() && newData.hasChildren(['itemId','redeemedAt']) && newData.child('itemId').isString() && newData.child('redeemedAt').isNumber() && newData.child('redeemedAt').val() >= now - 60000 && newData.child('redeemedAt').val() <= now + 60000 && root.child('special_birthday_item_catalog').child(newData.child('itemId').val()).child('enabled').val() === true))"
+            }
+          }
+        }
+      }
+    },
+    "mid_autumn_calendar": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'",
+      "$year": {
+        ".validate": "!newData.exists() || ($year.matches(/^20\\d{2}$/) && newData.hasChildren(['year','festivalDateKey','festivalStartAt','festivalEndAt','autoGrantStartAt','autoGrantEndAt','updatedAt']) && newData.child('year').val() === $year && newData.child('festivalDateKey').isString() && newData.child('festivalDateKey').val().matches(/^20\\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$/) && newData.child('festivalStartAt').isNumber() && newData.child('festivalEndAt').isNumber() && newData.child('festivalEndAt').val() === newData.child('festivalStartAt').val() + 86399999 && newData.child('autoGrantStartAt').isNumber() && newData.child('autoGrantStartAt').val() === newData.child('festivalStartAt').val() - 432000000 && newData.child('autoGrantEndAt').isNumber() && newData.child('autoGrantEndAt').val() === newData.child('festivalEndAt').val() && newData.child('updatedAt').isNumber() && newData.child('updatedAt').val() <= now + 10000 && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (!data.exists() && root.child('users').child(auth.uid).child('role').val() === 'student' && newData.child('updatedAt').val() >= now - 300000 && newData.child('autoGrantStartAt').val() <= now && newData.child('autoGrantEndAt').val() >= now)))",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'"
+      }
+    },
+    "mid_autumn_wallets": {
+      ".read": false,
+      "$username": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        "balance": {
+          ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'",
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 999999"
+        },
+        "autoGrants": {
+          "$year": {
+            ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'",
+            ".validate": "!newData.exists() || (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (data.exists() && newData.child('year').val() === data.child('year').val() && newData.child('amount').val() === data.child('amount').val() && newData.child('source').val() === data.child('source').val() && newData.child('festivalDateKey').val() === data.child('festivalDateKey').val() && newData.child('grantedAt').val() === data.child('grantedAt').val()) || (!data.exists() && $year.matches(/^20\\d{2}$/) && newData.child('year').val() === $year && newData.child('amount').val() === 1 && newData.child('source').val() === 'annual_auto' && newData.child('festivalDateKey').val() === root.child('mid_autumn_calendar').child($year).child('festivalDateKey').val() && newData.child('grantedAt').isNumber() && newData.child('grantedAt').val() >= now - 300000 && newData.child('grantedAt').val() <= now + 300000 && root.child('mid_autumn_calendar').child($year).child('autoGrantStartAt').val() <= now && root.child('mid_autumn_calendar').child($year).child('autoGrantEndAt').val() >= now))"
+          }
+        },
+        "teacherGrants": {
+          "$grantId": {
+            ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'",
+            ".validate": "!newData.exists() || (newData.child('id').val() === $grantId && newData.child('amount').isNumber() && newData.child('amount').val() >= 1 && newData.child('grantedAt').isNumber() && newData.child('source').val() === 'teacher_gift')"
+          }
+        },
+        "teacherClaims": {
+          "$messageId": {
+            ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'",
+            ".validate": "!newData.exists() || (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (data.exists() && newData.child('id').val() === data.child('id').val() && newData.child('amount').val() === data.child('amount').val() && newData.child('source').val() === data.child('source').val()) || (!data.exists() && newData.child('id').val() === $messageId && newData.child('amount').isNumber() && newData.child('amount').val() >= 1 && newData.child('source').val() === 'teacher_gift' && root.child('inbox_messages').child($username).child($messageId).child('giftType').val() === 'mid_autumn_coin' && root.child('inbox_messages').child($username).child($messageId).child('giftValue').val() === newData.child('amount').val()))"
+          }
+        },
+        "redemptions": {
+          "$redemptionId": {
+            ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (root.child('users').child(auth.uid).child('username').val() === $username && data.exists() && newData.exists() && data.child('status').val() === 'reserved' && newData.child('status').val() === 'completed'))",
+            ".validate": "!newData.exists() || (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (newData.child('id').val() === $redemptionId && newData.child('year').isString() && newData.child('festivalDateKey').isString() && newData.child('redeemedAt').isNumber() && ((data.exists() && newData.child('id').val() === data.child('id').val() && newData.child('itemId').val() === data.child('itemId').val() && newData.child('amount').val() === data.child('amount').val() && newData.child('year').val() === data.child('year').val() && newData.child('festivalDateKey').val() === data.child('festivalDateKey').val() && newData.child('redeemedAt').val() === data.child('redeemedAt').val() && newData.child('status').val() === data.child('status').val() && ((data.child('status').val() === 'reserved' && !data.child('completedAt').exists() && !newData.child('completedAt').exists()) || (data.child('status').val() === 'completed' && data.child('completedAt').isNumber() && newData.child('completedAt').val() === data.child('completedAt').val()))) || (!data.exists() && newData.child('status').val() === 'reserved' && newData.child('redeemedAt').val() >= now - 300000 && newData.child('redeemedAt').val() <= now + 300000 && (((newData.child('itemId').val() === 'pet_trung_thu_nguyet_cung_tien_tu' || newData.child('itemId').val() === 'pet_trung_thu_chu_cuoi_2') && newData.child('amount').val() === 2 && newData.child('festivalDateKey').val() === root.child('mid_autumn_calendar').child(newData.child('year').val()).child('festivalDateKey').val() && root.child('mid_autumn_calendar').child(newData.child('year').val()).child('festivalStartAt').val() <= now && root.child('mid_autumn_calendar').child(newData.child('year').val()).child('festivalEndAt').val() >= now) || ((newData.child('itemId').val() === 'pet_trung_thu_hang_nga_chibi_1' || newData.child('itemId').val() === 'pet_trung_thu_chu_cuoi_chibi_2' || newData.child('itemId').val() === 'theme_trung_thu_nguyet_hoi_hoa_dang' || newData.child('itemId').val() === 'effect_trung_thu_nguyet_trieu_luu_quang' || newData.child('itemId').val() === 'theme_trung_thu_quang_han_nguyet_que' || newData.child('itemId').val() === 'effect_trung_thu_que_anh_phi_diep' || newData.child('itemId').val() === 'frame_trung_thu_nguyet_que_hoa_hoan' || newData.child('itemId').val() === 'frame_trung_thu_chu_cuoi_que_anh_chi_hoan' || newData.child('itemId').val() === 'background_trung_thu_nguyet_cung_hoa_dang_da' || newData.child('itemId').val() === 'background_trung_thu_chu_cuoi_que_lam_nguyet_da') && newData.child('amount').val() === 1))) || (data.exists() && data.child('status').val() === 'reserved' && newData.child('status').val() === 'completed' && newData.child('id').val() === data.child('id').val() && newData.child('itemId').val() === data.child('itemId').val() && newData.child('amount').val() === data.child('amount').val() && newData.child('year').val() === data.child('year').val() && newData.child('festivalDateKey').val() === data.child('festivalDateKey').val() && newData.child('redeemedAt').val() === data.child('redeemedAt').val() && newData.child('completedAt').isNumber() && newData.child('completedAt').val() >= data.child('redeemedAt').val() && newData.child('completedAt').val() <= now + 300000))))"
+          }
+        },
+        "lastOperation": {
+          ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'",
+          ".validate": "!newData.exists() || (newData.child('type').isString() && newData.child('operationId').isString() && newData.child('amount').isNumber() && newData.child('amount').val() >= 1 && newData.child('operatedAt').isNumber())"
+        },
+        ".write": "(auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (root.child('users').child(auth.uid).child('username').val() === $username && newData.exists() && newData.child('lastOperation').child('type').isString() && ((newData.child('lastOperation').child('type').val() === 'auto_grant' && newData.child('lastOperation').child('amount').val() === 1 && newData.child('lastOperation').child('year').isString() && newData.child('balance').isNumber() && newData.child('balance').val() === (data.child('balance').exists() ? data.child('balance').val() : 0) + 1 && !data.child('autoGrants').child(newData.child('lastOperation').child('year').val()).exists() && newData.child('autoGrants').child(newData.child('lastOperation').child('year').val()).child('amount').val() === 1 && newData.child('autoGrants').child(newData.child('lastOperation').child('year').val()).child('source').val() === 'annual_auto' && newData.child('autoGrants').child(newData.child('lastOperation').child('year').val()).child('year').val() === newData.child('lastOperation').child('year').val() && root.child('mid_autumn_calendar').child(newData.child('lastOperation').child('year').val()).child('autoGrantStartAt').val() <= now && root.child('mid_autumn_calendar').child(newData.child('lastOperation').child('year').val()).child('autoGrantEndAt').val() >= now) || (newData.child('lastOperation').child('type').val() === 'redeem' && newData.child('lastOperation').child('operationId').isString() && newData.child('lastOperation').child('amount').isNumber() && newData.child('lastOperation').child('year').isString() && newData.child('balance').isNumber() && newData.child('balance').val() === (data.child('balance').exists() ? data.child('balance').val() : 0) - newData.child('lastOperation').child('amount').val() && !data.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).exists() && newData.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('id').val() === newData.child('lastOperation').child('operationId').val() && newData.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('status').val() === 'reserved' && newData.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('amount').val() === newData.child('lastOperation').child('amount').val() && newData.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('year').val() === newData.child('lastOperation').child('year').val() && newData.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('redeemedAt').isNumber() && newData.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('redeemedAt').val() >= now - 300000 && newData.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('redeemedAt').val() <= now + 300000 && (((newData.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('itemId').val() === 'pet_trung_thu_nguyet_cung_tien_tu' || newData.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('itemId').val() === 'pet_trung_thu_chu_cuoi_2') && newData.child('lastOperation').child('amount').val() === 2 && newData.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('festivalDateKey').val() === root.child('mid_autumn_calendar').child(newData.child('lastOperation').child('year').val()).child('festivalDateKey').val() && root.child('mid_autumn_calendar').child(newData.child('lastOperation').child('year').val()).child('festivalStartAt').val() <= now && root.child('mid_autumn_calendar').child(newData.child('lastOperation').child('year').val()).child('festivalEndAt').val() >= now) || ((newData.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('itemId').val() === 'pet_trung_thu_hang_nga_chibi_1' || newData.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('itemId').val() === 'pet_trung_thu_chu_cuoi_chibi_2' || newData.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('itemId').val() === 'theme_trung_thu_nguyet_hoi_hoa_dang' || newData.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('itemId').val() === 'effect_trung_thu_nguyet_trieu_luu_quang' || newData.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('itemId').val() === 'theme_trung_thu_quang_han_nguyet_que' || newData.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('itemId').val() === 'effect_trung_thu_que_anh_phi_diep' || newData.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('itemId').val() === 'frame_trung_thu_nguyet_que_hoa_hoan' || newData.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('itemId').val() === 'frame_trung_thu_chu_cuoi_que_anh_chi_hoan' || newData.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('itemId').val() === 'background_trung_thu_nguyet_cung_hoa_dang_da' || newData.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('itemId').val() === 'background_trung_thu_chu_cuoi_que_lam_nguyet_da') && newData.child('lastOperation').child('amount').val() === 1))) || (newData.child('lastOperation').child('type').val() === 'rollback_redeem' && newData.child('lastOperation').child('operationId').isString() && newData.child('lastOperation').child('amount').isNumber() && data.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).exists() && data.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('status').val() === 'reserved' && data.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('amount').val() === newData.child('lastOperation').child('amount').val() && !newData.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).exists() && newData.child('balance').isNumber() && newData.child('balance').val() === (data.child('balance').exists() ? data.child('balance').val() : 0) + newData.child('lastOperation').child('amount').val() && (((data.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('itemId').val() === 'pet_trung_thu_nguyet_cung_tien_tu' || data.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('itemId').val() === 'pet_trung_thu_chu_cuoi_2') && newData.child('lastOperation').child('amount').val() === 2) || ((data.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('itemId').val() === 'pet_trung_thu_hang_nga_chibi_1' || data.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('itemId').val() === 'pet_trung_thu_chu_cuoi_chibi_2' || data.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('itemId').val() === 'theme_trung_thu_nguyet_hoi_hoa_dang' || data.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('itemId').val() === 'effect_trung_thu_nguyet_trieu_luu_quang' || data.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('itemId').val() === 'theme_trung_thu_quang_han_nguyet_que' || data.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('itemId').val() === 'effect_trung_thu_que_anh_phi_diep' || data.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('itemId').val() === 'frame_trung_thu_nguyet_que_hoa_hoan' || data.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('itemId').val() === 'frame_trung_thu_chu_cuoi_que_anh_chi_hoan' || data.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('itemId').val() === 'background_trung_thu_nguyet_cung_hoa_dang_da' || data.child('redemptions').child(newData.child('lastOperation').child('operationId').val()).child('itemId').val() === 'background_trung_thu_chu_cuoi_que_lam_nguyet_da') && newData.child('lastOperation').child('amount').val() === 1))) || (newData.child('lastOperation').child('type').val() === 'teacher_claim' && newData.child('lastOperation').child('operationId').isString() && newData.child('lastOperation').child('amount').isNumber() && newData.child('lastOperation').child('amount').val() >= 1 && newData.child('balance').isNumber() && newData.child('balance').val() === (data.child('balance').exists() ? data.child('balance').val() : 0) + newData.child('lastOperation').child('amount').val() && !data.child('teacherClaims').child(newData.child('lastOperation').child('operationId').val()).exists() && newData.child('teacherClaims').child(newData.child('lastOperation').child('operationId').val()).child('id').val() === newData.child('lastOperation').child('operationId').val() && newData.child('teacherClaims').child(newData.child('lastOperation').child('operationId').val()).child('amount').val() === newData.child('lastOperation').child('amount').val() && newData.child('teacherClaims').child(newData.child('lastOperation').child('operationId').val()).child('source').val() === 'teacher_gift' && root.child('inbox_messages').child($username).child(newData.child('lastOperation').child('operationId').val()).child('giftType').val() === 'mid_autumn_coin' && root.child('inbox_messages').child($username).child(newData.child('lastOperation').child('operationId').val()).child('giftValue').val() === newData.child('lastOperation').child('amount').val()))))) || (auth != null && root.child('users').child(auth.uid).child('username').val() === $username && newData.exists() && newData.child('lastOperation').child('type').val() === 'event_reward' && newData.child('lastOperation').child('operationId').isString() && newData.child('lastOperation').child('year').isString() && newData.child('lastOperation').child('amount').val() === 1 && newData.child('lastOperation').child('milestone').isNumber() && (newData.child('lastOperation').child('milestone').val() === 80 || newData.child('lastOperation').child('milestone').val() === 100) && newData.child('balance').isNumber() && newData.child('balance').val() === (data.child('balance').exists() ? data.child('balance').val() : 0) + 1 && !data.child('eventRewards').child(newData.child('lastOperation').child('operationId').val()).exists() && newData.child('eventRewards').child(newData.child('lastOperation').child('operationId').val()).child('id').val() === newData.child('lastOperation').child('operationId').val() && newData.child('eventRewards').child(newData.child('lastOperation').child('operationId').val()).child('year').val() === newData.child('lastOperation').child('year').val() && newData.child('eventRewards').child(newData.child('lastOperation').child('operationId').val()).child('milestone').val() === newData.child('lastOperation').child('milestone').val() && newData.child('eventRewards').child(newData.child('lastOperation').child('operationId').val()).child('amount').val() === 1 && newData.child('eventRewards').child(newData.child('lastOperation').child('operationId').val()).child('source').val() === 'dai_hoi_trung_thu' && ((newData.child('lastOperation').child('milestone').val() === 80 && newData.child('lastOperation').child('operationId').val() === newData.child('lastOperation').child('year').val() + '_80' && root.child('student_event_rewards').child($username).child('mid_autumn').child(newData.child('lastOperation').child('year').val()).child('80').child('status').val() === 'reserved') || (newData.child('lastOperation').child('milestone').val() === 100 && newData.child('lastOperation').child('operationId').val() === newData.child('lastOperation').child('year').val() + '_100' && root.child('student_event_rewards').child($username).child('mid_autumn').child(newData.child('lastOperation').child('year').val()).child('100').child('status').val() === 'reserved')))",
+        "eventRewards": {
+          "$rewardId": {
+            ".validate": "!newData.exists() || (newData.hasChildren(['id','year','milestone','amount','source','grantedAt']) && newData.child('id').val() === $rewardId && newData.child('year').isString() && newData.child('year').val().matches(/^20\\d{2}$/) && newData.child('milestone').isNumber() && (newData.child('milestone').val() === 80 || newData.child('milestone').val() === 100) && newData.child('amount').val() === 1 && newData.child('source').val() === 'dai_hoi_trung_thu' && newData.child('grantedAt').isNumber() && (!data.exists() || (newData.child('id').val() === data.child('id').val() && newData.child('year').val() === data.child('year').val() && newData.child('milestone').val() === data.child('milestone').val() && newData.child('amount').val() === data.child('amount').val() && newData.child('source').val() === data.child('source').val() && newData.child('grantedAt').val() === data.child('grantedAt').val())))",
+            "id": {
+              ".validate": "newData.isString() && newData.val() === $rewardId"
+            },
+            "year": {
+              ".validate": "newData.isString()"
+            },
+            "milestone": {
+              ".validate": "newData.isNumber() && (newData.val() === 80 || newData.val() === 100)"
+            },
+            "amount": {
+              ".validate": "newData.val() === 1"
+            },
+            "source": {
+              ".validate": "newData.val() === 'dai_hoi_trung_thu'"
+            },
+            "grantedAt": {
+              ".validate": "newData.isNumber()"
+            },
+            "$other": {
+              ".validate": false
+            }
+          }
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "transaction_logs": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'",
+      ".indexOn": [
+        "createdAtClient",
+        "type",
+        "status",
+        "targetUsername"
+      ],
+      "$logId": {
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (!data.exists() && newData.exists() && newData.child('id').val() === $logId && newData.child('actor').child('uid').val() === auth.uid && newData.child('actor').child('username').val() === root.child('users').child(auth.uid).child('username').val() && newData.child('actor').child('role').val() === root.child('users').child(auth.uid).child('role').val() && newData.child('targetUsername').val() === root.child('users').child(auth.uid).child('username').val() && newData.child('status').val() === 'active' && newData.child('reversible').val() === false && (newData.child('type').val() === 'store_purchase' || newData.child('type').val() === 'coin_conversion' || newData.child('type').val() === 'coin_change' || newData.child('type').val() === 'inventory_grant' || newData.child('type').val() === 'discount_used' || newData.child('type').val() === 'gift_claimed' || newData.child('type').val() === 'daily_login_reward')))",
+        ".validate": "newData.exists() && newData.hasChildren(['id','type','summary','source','targetUsername','actor','reversible','status','createdAt','createdAtClient']) && newData.child('id').val() === $logId && newData.child('id').isString() && newData.child('type').isString() && newData.child('summary').isString() && newData.child('summary').val().length > 0 && newData.child('summary').val().length <= 500 && newData.child('source').isString() && newData.child('targetUsername').isString() && newData.child('reversible').isBoolean() && newData.child('status').isString() && (newData.child('status').val() === 'active' || newData.child('status').val() === 'undoing' || newData.child('status').val() === 'undone') && newData.child('createdAt').isNumber() && newData.child('createdAt').val() <= now + 10000 && newData.child('createdAtClient').isNumber() && newData.child('createdAtClient').val() <= now + 300000 && newData.child('actor').hasChildren(['uid','username','name','role']) && newData.child('actor').child('uid').isString() && newData.child('actor').child('username').isString() && newData.child('actor').child('name').isString() && newData.child('actor').child('role').isString() && (!newData.child('amount').exists() || newData.child('amount').isNumber()) && (!newData.child('unit').exists() || newData.child('unit').isString())"
+      }
+    },
+    "purchase_locks": {
+      ".read": false,
+      ".write": false
+    },
+    "student_mid_autumn_events": {
+      ".read": false,
+      "$username": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        "$year": {
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (root.child('users').child(auth.uid).child('username').val() === $username && root.child('users').child(auth.uid).child('isLocked').val() !== true && newData.exists()))",
+          ".validate": "newData.exists() && $year.matches(/^20\\d{2}$/) && newData.hasChildren(['eventId','year','festivalDateKey','ticketsGranted','ticketsPurchased','ticketsUsed','totalScore','openedAt','updatedAt']) && newData.child('eventId').val() === 'dai_hoi_trung_thu' && newData.child('year').val() === $year && newData.child('festivalDateKey').val() === root.child('mid_autumn_calendar').child($year).child('festivalDateKey').val() && root.child('mid_autumn_calendar').child($year).child('festivalStartAt').val() <= now && root.child('mid_autumn_calendar').child($year).child('festivalEndAt').val() >= now && newData.child('ticketsGranted').val() === 2 && newData.child('ticketsPurchased').isNumber() && newData.child('ticketsPurchased').val() >= 0 && newData.child('ticketsPurchased').val() <= 4 && newData.child('ticketsUsed').isNumber() && newData.child('ticketsUsed').val() >= 0 && newData.child('ticketsUsed').val() <= 6 && newData.child('ticketsUsed').val() <= newData.child('ticketsGranted').val() + newData.child('ticketsPurchased').val() && newData.child('totalScore').isNumber() && newData.child('totalScore').val() >= 0 && newData.child('totalScore').val() <= 100 && newData.child('openedAt').isNumber() && newData.child('openedAt').val() <= now + 300000 && newData.child('updatedAt').isNumber() && newData.child('updatedAt').val() <= now + 300000 && ((!data.exists() && newData.child('ticketsPurchased').val() === 0 && newData.child('ticketsUsed').val() === 0 && newData.child('totalScore').val() === 0 && newData.child('openedAt').val() >= now - 300000) || (data.exists() && newData.child('eventId').val() === data.child('eventId').val() && newData.child('year').val() === data.child('year').val() && newData.child('festivalDateKey').val() === data.child('festivalDateKey').val() && newData.child('ticketsGranted').val() === data.child('ticketsGranted').val() && newData.child('openedAt').val() === data.child('openedAt').val() && ((newData.child('ticketsPurchased').val() === data.child('ticketsPurchased').val() + 1 && newData.child('ticketsUsed').val() === data.child('ticketsUsed').val() && newData.child('totalScore').val() === data.child('totalScore').val()) || (newData.child('ticketsPurchased').val() === data.child('ticketsPurchased').val() && newData.child('ticketsUsed').val() === data.child('ticketsUsed').val() + 1 && newData.child('totalScore').val() >= data.child('totalScore').val() && newData.child('totalScore').val() <= data.child('totalScore').val() + 30) || (newData.child('ticketsPurchased').val() === data.child('ticketsPurchased').val() && newData.child('ticketsUsed').val() === data.child('ticketsUsed').val() && newData.child('totalScore').val() === data.child('totalScore').val()))))",
+          "eventId": {
+            ".validate": "newData.val() === 'dai_hoi_trung_thu'"
+          },
+          "year": {
+            ".validate": "newData.isString() && newData.val() === $year"
+          },
+          "festivalDateKey": {
+            ".validate": "newData.isString() && newData.val() === root.child('mid_autumn_calendar').child($year).child('festivalDateKey').val()"
+          },
+          "ticketsGranted": {
+            ".validate": "newData.val() === 2"
+          },
+          "ticketsPurchased": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 4"
+          },
+          "ticketsUsed": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 6"
+          },
+          "totalScore": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+          },
+          "openedAt": {
+            ".validate": "newData.isNumber()"
+          },
+          "updatedAt": {
+            ".validate": "newData.isNumber()"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    },
+    "grade_reward_events": {
+      ".read": false,
+      "$username": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        "$submissionKey": {
+          ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'"
+        }
+      }
+    },
+    "grade_reward_claims": {
+      ".read": false,
+      "$username": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        "$messageId": {
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (root.child('users').child(auth.uid).child('username').val() === $username && root.child('users').child(auth.uid).child('isLocked').val() !== true && newData.exists()))",
+          ".validate": "!newData.exists() || root.child('users').child(auth.uid).child('role').val() === 'teacher' || (root.child('users').child(auth.uid).child('username').val() === $username && newData.child('username').val() === $username && newData.child('startedAt').isNumber() && newData.child('startedAt').val() <= now + 10000 && newData.child('heartbeatAt').isNumber() && newData.child('heartbeatAt').val() <= now + 10000 && (!data.exists() || newData.child('startedAt').val() === data.child('startedAt').val()) && newData.child('messageId').val() === $messageId && newData.child('submissionKey').isString() && newData.child('submissionKey').val().length > 0 && newData.child('rewardRevision').isNumber() && newData.child('rewardRevision').val() >= 1 && newData.child('tickets').isNumber() && newData.child('tickets').val() >= 1 && newData.child('tickets').val() <= 7 && newData.child('coins').isNumber() && newData.child('coins').val() >= 0 && newData.child('coins').val() <= 100 && (newData.child('status').val() === 'processing' || newData.child('status').val() === 'claimed' || newData.child('status').val() === 'retry') && root.child('grade_reward_events').child($username).child(newData.child('submissionKey').val()).child('status').val() === 'pending_claim' && root.child('grade_reward_events').child($username).child(newData.child('submissionKey').val()).child('messageId').val() === $messageId && root.child('submissions').child(newData.child('submissionKey').val()).child('isRedoing').val() !== true && root.child('submissions').child(newData.child('submissionKey').val()).child('isRegrading').val() !== true && root.child('submissions').child(newData.child('submissionKey').val()).child('grade').isNumber() && root.child('inbox_messages').child($username).child($messageId).exists() && (!root.child('inbox_messages').child($username).child($messageId).child('expiry').exists() || root.child('inbox_messages').child($username).child($messageId).child('expiry').val() > now) && (!root.child('submissions').child(newData.child('submissionKey').val()).child('redoStartedAt').exists() || (root.child('grade_reward_events').child($username).child(newData.child('submissionKey').val()).child('gradedAt').exists() && root.child('grade_reward_events').child($username).child(newData.child('submissionKey').val()).child('gradedAt').val() > root.child('submissions').child(newData.child('submissionKey').val()).child('redoStartedAt').val())) && ((root.child('grade_reward_events').child($username).child(newData.child('submissionKey').val()).child('revision').exists() && root.child('grade_reward_events').child($username).child(newData.child('submissionKey').val()).child('revision').val() === newData.child('rewardRevision').val()) || (!root.child('grade_reward_events').child($username).child(newData.child('submissionKey').val()).child('revision').exists() && newData.child('rewardRevision').val() === 1)))"
+        }
+      }
+    },
+    "grade_reward_revision_archive": {
+      ".read": false,
+      "$username": {
+        ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'",
+        "$submissionKey": {
+          "$revision": {
+            ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher' && !data.exists() && newData.exists()"
+          }
+        }
+      }
+    },
+    "grade_reward_revision_state": {
+      ".read": false,
+      "$username": {
+        ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'",
+        "$submissionKey": {
+          "$revision": {
+            ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher' && newData.exists()"
+          }
+        }
+      }
+    },
+    "exam_active_locks": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'",
+      "$username": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (root.child('users').child(auth.uid).child('username').val() === $username && newData.exists()))",
+        ".validate": "root.child('users').child(auth.uid).child('role').val() === 'teacher' || (newData.exists() && newData.child('version').val() === 5 && newData.child('username').val() === $username && newData.child('assignmentId').isString() && newData.child('assignmentId').val().length > 0 && newData.child('ownerTabId').isString() && newData.child('ownerTabId').val().length >= 8 && newData.child('ownerTabId').val().length <= 200 && newData.child('lockId').isString() && newData.child('lockId').val().length >= 8 && newData.child('lockId').val().length <= 200 && newData.child('status').isString() && (newData.child('status').val() === 'active' || newData.child('status').val() === 'released') && newData.child('leaseUntil').isNumber() && newData.child('leaseUntil').val() >= 0 && newData.child('leaseUntil').val() <= now + 180000 && newData.child('heartbeatAt').isNumber() && newData.child('heartbeatAt').val() <= now + 10000 && newData.child('heartbeatAt').val() >= now - 300000 && newData.child('updatedAt').isNumber() && newData.child('updatedAt').val() <= now + 10000 && newData.child('updatedAt').val() >= now - 300000 && (!data.exists() || data.child('leaseUntil').val() <= now || data.child('status').val() === 'released' || (newData.child('ownerTabId').val() === data.child('ownerTabId').val() && newData.child('assignmentId').val() === data.child('assignmentId').val() && newData.child('lockId').val() === data.child('lockId').val())) && (newData.child('status').val() !== 'active' || newData.child('leaseUntil').val() >= now - 5000) && (newData.child('status').val() !== 'released' || newData.child('leaseUntil').val() === 0))"
+      }
+    },
+    "store_trial_claims": {
+      ".read": false,
+      "$username": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        "$itemId": {
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (root.child('users').child(auth.uid).child('username').val() === $username && root.child('users').child(auth.uid).child('isLocked').val() !== true && newData.exists()))",
+          ".validate": "root.child('users').child(auth.uid).child('role').val() === 'teacher' || (newData.exists() && newData.child('version').val() === 1 && newData.child('username').val() === $username && newData.child('itemId').val() === $itemId && newData.child('operationId').isString() && newData.child('operationId').val().length >= 8 && newData.child('operationId').val().length <= 200 && newData.child('status').isString() && (newData.child('status').val() === 'reserved' || newData.child('status').val() === 'debit_pending' || newData.child('status').val() === 'debited' || newData.child('status').val() === 'active' || newData.child('status').val() === 'cancelled_refunded' || newData.child('status').val() === 'refund_pending') && newData.child('trialPrice').isNumber() && newData.child('trialPrice').val() > 0 && newData.child('trialPrice').val() <= 999999 && newData.child('startedAt').isNumber() && newData.child('expiresAt').isNumber() && newData.child('expiresAt').val() === newData.child('startedAt').val() + 86400000 && newData.child('updatedAt').isNumber() && newData.child('updatedAt').val() <= now + 10000 && newData.child('updatedAt').val() >= now - 600000 && ((!data.exists() && newData.child('status').val() === 'reserved' && newData.child('startedAt').val() >= now - 300000 && newData.child('startedAt').val() <= now + 10000 && root.child('users').child(auth.uid).child('isLocked').val() !== true) || (data.exists() && data.child('status').val() === 'cancelled_refunded' && newData.child('status').val() === 'reserved' && newData.child('operationId').val() !== data.child('operationId').val() && newData.child('startedAt').val() >= now - 300000 && newData.child('startedAt').val() <= now + 10000 && root.child('users').child(auth.uid).child('isLocked').val() !== true) || (data.exists() && newData.child('operationId').val() === data.child('operationId').val() && newData.child('startedAt').val() === data.child('startedAt').val() && newData.child('expiresAt').val() === data.child('expiresAt').val() && newData.child('trialPrice').val() === data.child('trialPrice').val() && ((data.child('status').val() === 'reserved' && (newData.child('status').val() === 'reserved' || newData.child('status').val() === 'debit_pending' || newData.child('status').val() === 'cancelled_refunded')) || (data.child('status').val() === 'debit_pending' && (newData.child('status').val() === 'debit_pending' || newData.child('status').val() === 'debited' || newData.child('status').val() === 'cancelled_refunded' || newData.child('status').val() === 'refund_pending')) || (data.child('status').val() === 'debited' && (newData.child('status').val() === 'debited' || newData.child('status').val() === 'active' || newData.child('status').val() === 'cancelled_refunded' || newData.child('status').val() === 'refund_pending')) || (data.child('status').val() === 'refund_pending' && (newData.child('status').val() === 'refund_pending' || newData.child('status').val() === 'cancelled_refunded')) || (data.child('status').val() === 'active' && newData.child('status').val() === 'active') || (data.child('status').val() === 'cancelled_refunded' && newData.child('status').val() === 'cancelled_refunded')))))"
+        }
+      }
+    },
+    "store_purchase_ops": {
+      ".read": false,
+      "$username": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        "$itemId": {
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (root.child('users').child(auth.uid).child('username').val() === $username && root.child('users').child(auth.uid).child('isLocked').val() !== true && newData.exists()))",
+          ".validate": "root.child('users').child(auth.uid).child('role').val() === 'teacher' || (newData.exists() && newData.child('version').val() === 1 && newData.child('username').val() === $username && newData.child('itemId').val() === $itemId && newData.child('operationId').isString() && newData.child('operationId').val().length >= 8 && newData.child('operationId').val().length <= 200 && newData.child('status').isString() && (newData.child('status').val() === 'reserved' || newData.child('status').val() === 'debit_pending' || newData.child('status').val() === 'paid' || newData.child('status').val() === 'completed' || newData.child('status').val() === 'failed_refunded' || newData.child('status').val() === 'refund_pending') && newData.child('startedAt').isNumber() && newData.child('expiresAt').isNumber() && newData.child('expiresAt').val() === newData.child('startedAt').val() + 600000 && newData.child('updatedAt').isNumber() && newData.child('updatedAt').val() <= now + 10000 && newData.child('updatedAt').val() >= now - 900000 && (!newData.child('basePrice').exists() || (newData.child('basePrice').isNumber() && newData.child('basePrice').val() >= 0 && newData.child('basePrice').val() <= 999999)) && (!newData.child('finalPrice').exists() || (newData.child('finalPrice').isNumber() && newData.child('finalPrice').val() >= 0 && newData.child('finalPrice').val() <= 999999)) && ((!data.exists() && newData.child('status').val() === 'reserved' && newData.child('startedAt').val() >= now - 300000 && newData.child('startedAt').val() <= now + 10000 && root.child('users').child(auth.uid).child('isLocked').val() !== true) || (data.exists() && data.child('status').val() === 'failed_refunded' && newData.child('status').val() === 'reserved' && newData.child('operationId').val() !== data.child('operationId').val() && newData.child('startedAt').val() >= now - 300000 && newData.child('startedAt').val() <= now + 10000 && root.child('users').child(auth.uid).child('isLocked').val() !== true) || (data.exists() && data.child('status').val() === 'reserved' && data.child('expiresAt').val() <= now && newData.child('status').val() === 'reserved' && newData.child('operationId').val() !== data.child('operationId').val() && root.child('users').child(auth.uid).child('isLocked').val() !== true) || (data.exists() && newData.child('operationId').val() === data.child('operationId').val() && newData.child('startedAt').val() === data.child('startedAt').val() && newData.child('expiresAt').val() === data.child('expiresAt').val() && ((data.child('status').val() === 'reserved' && (newData.child('status').val() === 'reserved' || newData.child('status').val() === 'debit_pending' || newData.child('status').val() === 'failed_refunded')) || (data.child('status').val() === 'debit_pending' && (newData.child('status').val() === 'debit_pending' || newData.child('status').val() === 'paid' || newData.child('status').val() === 'failed_refunded' || newData.child('status').val() === 'refund_pending')) || (data.child('status').val() === 'paid' && (newData.child('status').val() === 'paid' || newData.child('status').val() === 'completed' || newData.child('status').val() === 'failed_refunded' || newData.child('status').val() === 'refund_pending')) || (data.child('status').val() === 'refund_pending' && newData.child('status').val() === 'refund_pending') || (data.child('status').val() === 'completed' && newData.child('status').val() === 'completed') || (data.child('status').val() === 'failed_refunded' && newData.child('status').val() === 'failed_refunded')))))"
+        }
+      }
+    },
+    "student_hoihoa_chest_limit": {
+      ".read": false,
+      "$username": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (root.child('users').child(auth.uid).child('username').val() === $username && root.child('users').child(auth.uid).child('isLocked').val() !== true && newData.exists()))",
+        ".validate": "root.child('users').child(auth.uid).child('role').val() === 'teacher' || (newData.exists() && newData.child('version').val() === 1 && newData.child('username').val() === $username && newData.child('operationId').isString() && newData.child('operationId').val().length >= 8 && newData.child('operationId').val().length <= 200 && newData.child('status').isString() && (newData.child('status').val() === 'reserved' || newData.child('status').val() === 'claimed' || newData.child('status').val() === 'retry') && newData.child('openedAt').isNumber() && newData.child('nextAllowedAt').isNumber() && newData.child('updatedAt').isNumber() && newData.child('updatedAt').val() <= now + 10000 && newData.child('updatedAt').val() >= now - 900000 && ((!data.exists() && newData.child('status').val() === 'reserved' && newData.child('openedAt').val() >= now - 300000 && newData.child('openedAt').val() <= now + 10000 && newData.child('nextAllowedAt').val() === newData.child('openedAt').val() + 86400000 && root.child('users').child(auth.uid).child('isLocked').val() !== true) || (data.exists() && ((data.child('status').val() === 'retry' && data.child('nextAllowedAt').val() <= now) || data.child('nextAllowedAt').val() <= now) && newData.child('status').val() === 'reserved' && newData.child('operationId').val() !== data.child('operationId').val() && newData.child('openedAt').val() >= now - 300000 && newData.child('openedAt').val() <= now + 10000 && newData.child('nextAllowedAt').val() === newData.child('openedAt').val() + 86400000 && root.child('users').child(auth.uid).child('isLocked').val() !== true) || (data.exists() && newData.child('operationId').val() === data.child('operationId').val() && newData.child('openedAt').val() === data.child('openedAt').val() && ((data.child('status').val() === 'reserved' && ((newData.child('status').val() === 'claimed' && newData.child('nextAllowedAt').val() === data.child('nextAllowedAt').val()) || (newData.child('status').val() === 'retry' && newData.child('nextAllowedAt').val() === 0) || (newData.child('status').val() === 'reserved' && newData.child('nextAllowedAt').val() === data.child('nextAllowedAt').val()))) || (data.child('status').val() === 'claimed' && newData.child('status').val() === 'claimed' && newData.child('nextAllowedAt').val() === data.child('nextAllowedAt').val()) || (data.child('status').val() === 'retry' && newData.child('status').val() === 'retry' && newData.child('nextAllowedAt').val() === data.child('nextAllowedAt').val())))))"
+      }
+    },
+    "inbox_gift_claims": {
+      ".read": false,
+      "$username": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        "$messageId": {
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (root.child('users').child(auth.uid).child('username').val() === $username && root.child('users').child(auth.uid).child('isLocked').val() !== true && newData.exists()))",
+          ".validate": "!newData.exists() || root.child('users').child(auth.uid).child('role').val() === 'teacher' || (root.child('users').child(auth.uid).child('username').val() === $username && newData.child('version').val() === 1 && newData.child('username').val() === $username && newData.child('messageId').val() === $messageId && newData.child('giftType').isString() && newData.child('giftType').val() !== 'none' && newData.child('giftType').val() !== 'grade_reward' && newData.child('startedAt').isNumber() && newData.child('updatedAt').isNumber() && newData.child('updatedAt').val() <= now + 10000 && newData.child('updatedAt').val() >= now - 3600000 && ((!data.exists() && newData.child('status').val() === 'processing' && newData.child('startedAt').val() <= now + 10000 && newData.child('startedAt').val() >= now - 300000 && root.child('inbox_messages').child($username).child($messageId).exists() && root.child('inbox_messages').child($username).child($messageId).child('giftType').val() === newData.child('giftType').val() && root.child('inbox_messages').child($username).child($messageId).child('giftValue').val() === newData.child('giftValue').val() && (!root.child('inbox_messages').child($username).child($messageId).child('expiry').exists() || root.child('inbox_messages').child($username).child($messageId).child('expiry').val() > now)) || (data.exists() && newData.child('version').val() === data.child('version').val() && newData.child('username').val() === data.child('username').val() && newData.child('messageId').val() === data.child('messageId').val() && newData.child('giftType').val() === data.child('giftType').val() && newData.child('giftValue').val() === data.child('giftValue').val() && newData.child('startedAt').val() === data.child('startedAt').val() && newData.child('updatedAt').val() >= data.child('updatedAt').val() && ((data.child('status').val() === 'processing' && ((newData.child('status').val() === 'claimed' && newData.child('claimedAt').isNumber() && newData.child('claimedAt').val() <= now + 10000 && newData.child('claimedAt').val() >= now - 3600000) || (newData.child('status').val() === 'retry' && newData.child('failedAt').isNumber() && newData.child('failedAt').val() <= now + 10000 && newData.child('failedAt').val() >= now - 3600000))) || (data.child('status').val() === 'retry' && newData.child('status').val() === 'processing' && root.child('inbox_messages').child($username).child($messageId).exists() && root.child('inbox_messages').child($username).child($messageId).child('giftType').val() === newData.child('giftType').val() && root.child('inbox_messages').child($username).child($messageId).child('giftValue').val() === newData.child('giftValue').val() && (!root.child('inbox_messages').child($username).child($messageId).child('expiry').exists() || root.child('inbox_messages').child($username).child($messageId).child('expiry').val() > now))))))"
+        }
+      }
+    },
+    "profile_request_active": {
+      ".read": false,
+      "$username": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || root.child('users').child(auth.uid).child('username').val() === $username)",
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (root.child('users').child(auth.uid).child('username').val() === $username && ((!newData.exists() && data.exists() && (!root.child('profile_requests').child(data.child('requestId').val()).exists() || (root.child('profile_requests').child(data.child('requestId').val()).child('status').val() !== 'pending' && root.child('profile_requests').child(data.child('requestId').val()).child('status').val() !== 'processing'))) || (newData.exists() && newData.child('username').val() === $username && newData.child('status').val() === 'pending' && newData.child('requestId').isString() && newData.child('requestId').val().length > 0 && (!data.exists() || (data.child('status').val() !== 'pending' && data.child('status').val() !== 'processing'))))))",
+        ".validate": "!newData.exists() || root.child('users').child(auth.uid).child('role').val() === 'teacher' || (newData.hasChildren(['version','username','requestId','status','createdAt','updatedAt']) && newData.child('version').val() === 1 && newData.child('username').val() === $username && newData.child('requestId').isString() && newData.child('requestId').val().length > 0 && newData.child('requestId').val().length <= 200 && newData.child('status').val() === 'pending' && newData.child('createdAt').isNumber() && newData.child('createdAt').val() >= now - 300000 && newData.child('createdAt').val() <= now + 300000 && newData.child('updatedAt').isNumber() && newData.child('updatedAt').val() >= now - 300000 && newData.child('updatedAt').val() <= now + 300000)"
+      }
+    },
+    "profile_request_secrets": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'",
+      "$requestId": {
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (!data.exists() && newData.exists() && newData.child('requestId').val() === $requestId && newData.child('username').val() === root.child('users').child(auth.uid).child('username').val() && root.child('profile_request_active').child(newData.child('username').val()).child('requestId').val() === $requestId && root.child('profile_request_active').child(newData.child('username').val()).child('status').val() === 'pending'))",
+        ".validate": "!newData.exists() || root.child('users').child(auth.uid).child('role').val() === 'teacher' || (newData.hasChildren(['requestId','username','newPass','createdAt']) && newData.child('requestId').val() === $requestId && newData.child('username').val() === root.child('users').child(auth.uid).child('username').val() && newData.child('newPass').isString() && newData.child('newPass').val().length >= 10 && newData.child('newPass').val().length <= 128 && newData.child('newPass').val().matches(/.*[a-z].*/) && newData.child('newPass').val().matches(/.*[A-Z].*/) && newData.child('newPass').val().matches(/.*[0-9].*/) && newData.child('newPass').val().matches(/.*[^A-Za-z0-9].*/) && !newData.child('newPass').val().matches(/.*\\s.*/) && newData.child('createdAt').isNumber() && newData.child('createdAt').val() >= now - 300000 && newData.child('createdAt').val() <= now + 300000)"
+      }
+    },
+    "profile_request_mutations": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'teacher'"
+    },
+    "student_conversion_period_guard": {
+      ".read": false,
+      "$username": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        "$direction": {
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || (root.child('users').child(auth.uid).child('username').val() === $username && root.child('users').child(auth.uid).child('isLocked').val() !== true && newData.exists()))",
+          ".validate": "root.child('users').child(auth.uid).child('role').val() === 'teacher' || (newData.exists() && ($direction === 'M2C' || $direction === 'C2M') && newData.hasChildren(['version','username','direction','periodKey','periodStartAt','periodEndAt','updatedAt']) && newData.child('version').val() === 2 && newData.child('username').val() === $username && newData.child('direction').val() === $direction && newData.child('periodKey').isString() && newData.child('periodKey').val().matches(/^20\\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$/) && newData.child('periodStartAt').isNumber() && newData.child('periodEndAt').isNumber() && newData.child('updatedAt').isNumber() && newData.child('updatedAt').val() >= now - 300000 && newData.child('updatedAt').val() <= now + 10000 && newData.child('periodStartAt').val() <= now && newData.child('periodEndAt').val() > now && (($direction === 'M2C' && newData.child('periodEndAt').val() === newData.child('periodStartAt').val() + 86400000 && ((newData.child('periodStartAt').val() + 25200000) % 86400000) === 0) || ($direction === 'C2M' && newData.child('periodEndAt').val() === newData.child('periodStartAt').val() + 604800000 && ((newData.child('periodStartAt').val() + 25200000 - 345600000) % 604800000) === 0)) && (!data.exists() || data.child('periodEndAt').val() <= now || newData.val() === data.val()))"
+        }
+      }
+    },
+    "student_conversion_mutation_locks": {
+      ".read": false,
+      "$username": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || root.child('users').child(auth.uid).child('username').val() === $username)",
+        ".validate": "!newData.exists() || root.child('users').child(auth.uid).child('role').val() === 'teacher' || (newData.hasChildren(['version','username','operationId','acquiredAt','expiresAt']) && newData.child('version').val() === 1 && newData.child('username').val() === $username && newData.child('operationId').isString() && newData.child('operationId').val().length >= 8 && newData.child('operationId').val().length <= 200 && newData.child('acquiredAt').isNumber() && newData.child('acquiredAt').val() >= now - 300000 && newData.child('acquiredAt').val() <= now + 10000 && newData.child('expiresAt').isNumber() && newData.child('expiresAt').val() > now && newData.child('expiresAt').val() <= now + 180000 && (!data.exists() || data.child('expiresAt').val() <= now || newData.child('operationId').val() === data.child('operationId').val()))"
+      }
+    },
+    "store_charge_receipts": {
+      ".read": false,
+      "$username": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        "$operationId": {
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher') && !data.exists() && newData.exists() && root.child('users').child(auth.uid).child('isLocked').val() !== true",
+          ".validate": "newData.hasChildren(['version','kind','itemId','amount','createdAt']) && newData.child('version').val() === 1 && newData.child('itemId').isString() && newData.child('amount').isNumber() && newData.child('amount').val() >= 0 && newData.child('amount').val() <= 999999 && newData.child('createdAt').isNumber() && newData.child('createdAt').val() >= now - 300000 && newData.child('createdAt').val() <= now + 10000 && (root.child('student_coins').child($username).isNumber() ? root.child('student_coins').child($username).val() : 0) >= newData.child('amount').val() && (newData.parent().parent().parent().child('student_coins').child($username).isNumber() ? newData.parent().parent().parent().child('student_coins').child($username).val() : 0) === (root.child('student_coins').child($username).isNumber() ? root.child('student_coins').child($username).val() : 0) - newData.child('amount').val() && ((newData.child('kind').val() === 'purchase' && root.child('store_purchase_ops').child($username).child(newData.child('itemId').val()).child('operationId').val() === $operationId && root.child('store_purchase_ops').child($username).child(newData.child('itemId').val()).child('status').val() === 'debit_pending' && root.child('store_purchase_ops').child($username).child(newData.child('itemId').val()).child('finalPrice').val() === newData.child('amount').val() && newData.parent().parent().parent().child('store_purchase_ops').child($username).child(newData.child('itemId').val()).child('operationId').val() === $operationId && newData.parent().parent().parent().child('store_purchase_ops').child($username).child(newData.child('itemId').val()).child('status').val() === 'paid' && newData.parent().parent().parent().child('store_purchase_ops').child($username).child(newData.child('itemId').val()).child('atomicCharge').val() === true) || (newData.child('kind').val() === 'trial' && root.child('store_trial_claims').child($username).child(newData.child('itemId').val()).child('operationId').val() === $operationId && root.child('store_trial_claims').child($username).child(newData.child('itemId').val()).child('status').val() === 'debit_pending' && root.child('store_trial_claims').child($username).child(newData.child('itemId').val()).child('trialPrice').val() === newData.child('amount').val() && newData.parent().parent().parent().child('store_trial_claims').child($username).child(newData.child('itemId').val()).child('operationId').val() === $operationId && newData.parent().parent().parent().child('store_trial_claims').child($username).child(newData.child('itemId').val()).child('status').val() === 'debited' && newData.parent().parent().parent().child('store_trial_claims').child($username).child(newData.child('itemId').val()).child('atomicCharge').val() === true)) && (!newData.child('discountKey').exists() || (newData.child('kind').val() === 'purchase' && newData.child('discountKey').isString() && root.child('student_discounts').child($username).child(newData.child('discountKey').val()).exists() && root.child('student_discounts').child($username).child(newData.child('discountKey').val()).child('isUsed').val() !== true && (!root.child('student_discounts').child($username).child(newData.child('discountKey').val()).child('expiry').exists() || root.child('student_discounts').child($username).child(newData.child('discountKey').val()).child('expiry').val() === 0 || root.child('student_discounts').child($username).child(newData.child('discountKey').val()).child('expiry').val() > now) && newData.child('percent').isNumber() && root.child('student_discounts').child($username).child(newData.child('discountKey').val()).child('percent').val() === newData.child('percent').val() && newData.parent().parent().parent().child('student_discounts').child($username).child(newData.child('discountKey').val()).child('isUsed').val() === true && newData.parent().parent().parent().child('student_discounts').child($username).child(newData.child('discountKey').val()).child('usedTransactionId').val() === $operationId))"
+        }
+      }
+    },
+    "discount_sale_receipts": {
+      ".read": false,
+      "$username": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        "$discountKey": {
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher') && root.child('users').child(auth.uid).child('isLocked').val() !== true && !data.exists() && newData.exists()",
+          ".validate": "newData.hasChildren(['version','amount','percent','soldAt']) && newData.child('version').val() === 1 && root.child('student_discounts').child($username).child($discountKey).exists() && root.child('student_discounts').child($username).child($discountKey).child('isUsed').val() !== true && root.child('student_discounts').child($username).child($discountKey).child('expiry').isNumber() && root.child('student_discounts').child($username).child($discountKey).child('expiry').val() > 0 && root.child('student_discounts').child($username).child($discountKey).child('expiry').val() < now && root.child('student_discounts').child($username).child($discountKey).child('percent').isNumber() && root.child('student_discounts').child($username).child($discountKey).child('percent').val() >= 0 && root.child('student_discounts').child($username).child($discountKey).child('percent').val() <= 100 && newData.child('percent').val() === root.child('student_discounts').child($username).child($discountKey).child('percent').val() && newData.child('amount').val() === (root.child('student_discounts').child($username).child($discountKey).child('percent').val() < 10 ? 1 : ((root.child('student_discounts').child($username).child($discountKey).child('percent').val() / 10) - ((root.child('student_discounts').child($username).child($discountKey).child('percent').val() / 10) % 1))) && newData.child('soldAt').isNumber() && newData.child('soldAt').val() >= now - 300000 && newData.child('soldAt').val() <= now + 10000 && !newData.parent().parent().parent().child('student_discounts').child($username).child($discountKey).exists() && (newData.parent().parent().parent().child('student_coins').child($username).isNumber() ? newData.parent().parent().parent().child('student_coins').child($username).val() : 0) === (root.child('student_coins').child($username).isNumber() ? root.child('student_coins').child($username).val() : 0) + newData.child('amount').val()"
+        }
+      }
+    },
+    "store_equipment_revisions": {
+      ".read": false,
+      "$username": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher')",
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('username').val() === $username || root.child('users').child(auth.uid).child('role').val() === 'teacher') && newData.exists()",
+        ".validate": "newData.isNumber() && newData.val() <= 9007199254740991 && ((!data.exists() && newData.val() === 1) || (data.isNumber() && newData.val() === data.val() + 1))"
+      }
+    }
+  }
+}

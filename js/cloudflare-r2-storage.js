@@ -143,47 +143,6 @@
         );
     }
 
-    async function fetchWithTimeout(
-        url,
-        options = {},
-        timeoutMs = 30000
-    ) {
-        const controller =
-            typeof AbortController !== 'undefined'
-                ? new AbortController()
-                : null;
-
-        const timer = controller
-            ? setTimeout(
-                () => controller.abort(),
-                Math.max(1000, Number(timeoutMs) || 30000)
-            )
-            : null;
-
-        try {
-            return await fetch(
-                url,
-                controller
-                    ? {
-                        ...options,
-                        signal: controller.signal
-                    }
-                    : options
-            );
-        } catch (error) {
-            if (error?.name === 'AbortError') {
-                const timeoutError = new Error(
-                    'Yêu cầu lưu trữ quá thời gian chờ. Trạng thái phía Worker chưa xác định; không tự retry để tránh tạo file trùng.'
-                );
-                timeoutError.code = 'STORAGE_TIMEOUT_UNKNOWN_OUTCOME';
-                throw timeoutError;
-            }
-            throw error;
-        } finally {
-            if (timer) clearTimeout(timer);
-        }
-    }
-
     async function uploadFile(
         file,
         options = {}
@@ -295,7 +254,7 @@
             normalizeFolder(options.folder)
         );
 
-        const response = await fetchWithTimeout(
+        const response = await fetch(
             `${R2_CONFIG.workerUrl}/upload`,
             {
                 method: 'POST',
@@ -304,8 +263,7 @@
                         `Bearer ${token}`
                 },
                 body: formData
-            },
-            Number(options.timeoutMs) || 30000
+            }
         );
 
         const result = await response
@@ -375,7 +333,6 @@
             Array.from(fileList || []);
 
         const results = [];
-        const failures = [];
 
         for (const file of files) {
             try {
@@ -392,46 +349,12 @@
                     error
                 );
 
-                failures.push({
-                    name: file?.name || '',
-                    error
-                });
-
                 alert(
                     `⚠️ Không tải được file ` +
                     `"${file?.name || 'không rõ'}": ` +
                     `${error.message}`
                 );
             }
-        }
-
-        if (failures.length > 0) {
-            let cleanupError = null;
-
-            if (results.length > 0) {
-                try {
-                    await deleteAssets(results);
-                } catch (error) {
-                    cleanupError = error;
-                    console.error(
-                        '[R2 batch rollback] Không xóa hết file đã upload:',
-                        error
-                    );
-                }
-            }
-
-            const error = new Error(
-                cleanupError
-                    ? 'Upload batch không hoàn tất và cleanup chưa hoàn toàn. Không commit metadata; cần đối soát orphan storage.'
-                    : 'Upload batch không hoàn tất. Các file đã upload trong batch đã được rollback; không commit metadata.'
-            );
-
-            error.code = cleanupError
-                ? 'BATCH_UPLOAD_FAILED_CLEANUP_PENDING'
-                : 'BATCH_UPLOAD_ROLLED_BACK';
-            error.failures = failures;
-            error.cleanupError = cleanupError;
-            throw error;
         }
 
         return results;
@@ -816,7 +739,7 @@
         let response;
 
         try {
-            response = await fetchWithTimeout(
+            response = await fetch(
                 `${R2_CONFIG.workerUrl}/delete-assets`,
                 {
                     method:
@@ -834,8 +757,7 @@
                         JSON.stringify({
                             assets
                         })
-                },
-                30000
+                }
             );
         } catch (originalError) {
             const error =

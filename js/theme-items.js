@@ -163,6 +163,18 @@ class ThemeManager {
             background: '#f7f2d8',
             className: 'theme-summer-prismatic-garden'
         },
+
+        // =========================================================
+        // MÙA THU · PHONG DIỆP KÍNH SƯƠNG
+        // Runtime riêng hoàn toàn: auttheme8-*
+        // Không dùng autumn3-*, autumn4-*, autreg5-* của các vật phẩm cũ.
+        // =========================================================
+        'theme_mua_thu_phong_diep_kinh_suong': {
+            primary: '#d36a32',
+            secondary: '#496a5d',
+            background: '#e9eee8',
+            className: 'theme-autumn-frosted-grove'
+        },
         // =========================================================
         // QUỐC KHÁNH 2/9
         // VIỆT DIỆU · HỒNG KỲ TÂN CHƯƠNG
@@ -286,6 +298,21 @@ class ThemeManager {
    ========================================================= */
 
     static specialStoreCardGroups = Object.freeze({
+        'hacmong2-premium': Object.freeze({ itemIds: Object.freeze(['pet_hac_mong_2']), className: 'hacmong2-card' }),
+        'autumn3-premium': Object.freeze({
+            itemIds: Object.freeze(['pet_luxury_mua_thu']),
+            className: 'autumn3-card'
+        }),
+        'autumn-regular': Object.freeze({
+            itemIds: Object.freeze([
+                'pet_premium_mua_thu_chibi_3',
+                'theme_mua_thu_phong_diep_kinh_suong',
+                'effect_mua_thu_phong_diep_quang_trieu',
+                'frame_mua_thu_phong_diep_chi_hoan',
+                'background_mua_thu_phong_lam_mong_canh'
+            ]),
+            className: 'store-card-autumn-regular'
+        }),
         'amon-trinity': Object.freeze({
             itemIds: Object.freeze([
                 'pet_lotm_amon',
@@ -1974,23 +2001,24 @@ class ThemeManager {
             this.ensureStarryNightPaintedGalleryStylesheet();
         }
 
-        const theme = this.themes[themeId] || this.themes['default'];
+        const resolvedThemeId =
+            Object.prototype.hasOwnProperty.call(this.themes, themeId)
+                ? themeId
+                : 'default';
+        const theme = this.themes[resolvedThemeId];
         const root = document.documentElement;
+
+        // Marker duy nhất cho giao diện đang hoạt động.
+        // Không đụng các class runtime của pet/effect; chỉ cô lập skin giao diện.
+        root.dataset.activeThemeId = resolvedThemeId;
 
         // Áp dụng biến màu sắc CSS
         root.style.setProperty('--primary-color', theme.primary);
         root.style.setProperty('--secondary-color', theme.secondary);
         root.style.setProperty('--bg-color', theme.background);
 
-        // 1. Xóa class của VẬT PHẨM theme, nhưng giữ theme giao diện tài khoản
-        // (common.js dùng theme-blue/theme-green/theme-pink độc lập với Store theme).
-        const appAppearanceClasses = new Set([
-            'theme-blue',
-            'theme-green',
-            'theme-pink'
-        ]);
+        // 1. Xóa động TẤT CẢ các class theme cũ một cách tối ưu
         Array.from(document.body.classList).forEach(className => {
-            if (appAppearanceClasses.has(className)) return;
             if (className.startsWith('theme-') || className.startsWith('theme_')) {
                 document.body.classList.remove(className);
             }
@@ -2052,7 +2080,7 @@ class ThemeManager {
         }
 
         // Lưu lựa chọn vào bộ nhớ trình duyệt
-        localStorage.setItem('active_theme', themeId);
+        localStorage.setItem('active_theme', resolvedThemeId);
         requestAnimationFrame(() => {
             this.preserveSpecialStoreCards(
                 document
