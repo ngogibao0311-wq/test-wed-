@@ -3297,3 +3297,203 @@ html[data-app-role="teacher"] body > :is(
 html[data-app-role="teacher"] body > #surveyResultsModal {
     z-index: 100000 !important;
 }
+
+
+/* Keep teacher dialogs inside the visible screen, including mobile browser chrome. */
+html[data-app-role="teacher"] body > .teacher-viewport-modal {
+    padding: 16px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: auto;
+    overscroll-behavior: contain;
+}
+
+html[data-app-role="teacher"] body > .teacher-viewport-modal > .modal-content {
+    box-sizing: border-box;
+    min-width: 0;
+    width: 100% !important;
+    max-width: min(550px, 100%);
+    max-height: calc(100vh - 32px) !important;
+    max-height: calc(100dvh - 32px) !important;
+    margin: 0 !important;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+html[data-app-role="teacher"] body > .teacher-viewport-modal > .modal-content > h3 {
+    flex-shrink: 0;
+    padding-right: 40px;
+    overflow-wrap: anywhere;
+}
+
+/* Flex form bodies must shrink so their own scrollbars remain reachable. */
+html[data-app-role="teacher"] body > .teacher-viewport-modal > .modal-content > div {
+    min-height: 0;
+    min-width: 0;
+}
+
+html[data-app-role="teacher"] body:has(> .teacher-viewport-modal.active) {
+    overflow: hidden;
+}
+
+@media (max-width: 600px) {
+    html[data-app-role="teacher"] body > .teacher-viewport-modal > .modal-content {
+        padding: 20px 16px !important;
+        max-width: 100% !important;
+    }
+}
+
+/* Teacher workspace refresh: presentation only, no visibility or interaction rules. */
+html[data-app-role="teacher"] body.teacher-workspace-refresh{font-family:"Segoe UI",Arial,sans-serif;line-height:1.55}
+html[data-app-role="teacher"] .teacher-workspace-refresh .dashboard{min-height:100dvh;align-items:flex-start}
+html[data-app-role="teacher"] .teacher-workspace-refresh .dashboard>.content{min-width:0;box-sizing:border-box;padding:40px clamp(24px,3.5vw,64px);backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+html[data-app-role="teacher"] .teacher-workspace-refresh .content>.tab-content{max-width:1280px;margin-inline:auto}
+html[data-app-role="teacher"] .teacher-workspace-refresh .content h2{font-size:clamp(24px,2.1vw,32px);font-weight:700;letter-spacing:-.7px;line-height:1.3;text-shadow:none;margin-bottom:24px}
+html[data-app-role="teacher"] .teacher-workspace-refresh .content h2::after{display:none}
+html[data-app-role="teacher"] .teacher-workspace-refresh .content h3{font-size:18px;line-height:1.4;letter-spacing:-.2px}
+html[data-app-role="teacher"] .teacher-workspace-refresh .content :is(.card,.form-container){box-sizing:border-box;border-radius:16px;padding:clamp(18px,2.2vw,32px);margin-bottom:24px;backdrop-filter:none;-webkit-backdrop-filter:none}
+html[data-app-role="teacher"] .teacher-workspace-refresh .content .card .card{padding:20px;margin-block:16px;box-shadow:none}
+html[data-app-role="teacher"] .teacher-workspace-refresh .content :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),select,textarea){box-sizing:border-box;max-width:100%;border-radius:9px;padding:11px 13px;font-family:inherit;font-size:14px;line-height:1.45;box-shadow:none}
+html[data-app-role="teacher"] .teacher-workspace-refresh .content label{font-size:14px;line-height:1.5}
+html[data-app-role="teacher"] .teacher-workspace-refresh .content button{font-family:inherit;line-height:1.4;letter-spacing:0;box-shadow:none;border-radius:9px;transition:background-color .15s,border-color .15s}
+html[data-app-role="teacher"] .teacher-workspace-refresh :is(button,input,select,textarea):focus-visible{outline:3px solid #299dbe88;outline-offset:3px}
+html[data-app-role="teacher"] .teacher-workspace-refresh .content .search-bar{min-height:46px;margin:0 0 16px;padding-left:16px}
+html[data-app-role="teacher"] .teacher-workspace-refresh :is(#assignedStudentFilterContainer,#submittedStudentFilterContainer,#materialsStudentFilterContainer){gap:8px!important;padding:0 0 12px!important;margin-bottom:16px!important;scrollbar-width:thin}
+html[data-app-role="teacher"] .teacher-workspace-refresh .btn-student-filter{border-radius:8px;padding:9px 14px;font-size:13px;box-shadow:none}
+html[data-app-role="teacher"] .teacher-workspace-refresh .teacher-question-bank-entry{max-width:none;margin-bottom:24px!important;padding:18px 22px!important;border-radius:12px!important;box-shadow:none!important}
+html[data-app-role="teacher"] .teacher-workspace-refresh .teacher-assignment-heading-row{justify-content:space-between;margin-bottom:20px}
+html[data-app-role="teacher"] .teacher-workspace-refresh .teacher-assignment-heading-row h2{margin:0}
+html[data-app-role="teacher"] .teacher-workspace-refresh :is(.teacher-question-bank-heading-row,.teacher-game-heading-row){gap:16px;flex-wrap:wrap}
+html[data-app-role="teacher"] .teacher-workspace-refresh .content table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px;margin-block:16px}
+html[data-app-role="teacher"] .teacher-workspace-refresh .content :is(th,td){padding:14px 16px;text-align:left;border-radius:0;vertical-align:middle}
+html[data-app-role="teacher"] .teacher-workspace-refresh .content th{font-size:12px;font-weight:700;letter-spacing:.35px}
+html[data-app-role="teacher"] .teacher-workspace-refresh .content td button{padding:7px 10px;margin:3px;white-space:nowrap}
+html[data-app-role="teacher"] .teacher-workspace-refresh .ql-toolbar{border-radius:10px 10px 0 0}
+html[data-app-role="teacher"] .teacher-workspace-refresh .ql-container{border-radius:0 0 10px 10px;min-height:160px}
+html[data-app-role="teacher"] .teacher-workspace-refresh :is(.modal-content,.student-modal-content){border-radius:18px;box-shadow:0 24px 80px #1022382b}
+/* Palette only for the default appearance; other purchased/custom themes keep their colors. */
+html[data-app-role="teacher"] body.teacher-workspace-refresh:is(:not([class*="theme-"]),.theme-blue){background:#f3f6fa!important;color:#26384b}
+html[data-app-role="teacher"] body.teacher-workspace-refresh:is(:not([class*="theme-"]),.theme-blue) .dashboard>.content{background:transparent!important;box-shadow:none!important;border:0!important}
+html[data-app-role="teacher"] body.teacher-workspace-refresh:is(:not([class*="theme-"]),.theme-blue) .content h2{color:#142d45!important}
+html[data-app-role="teacher"] body.teacher-workspace-refresh:is(:not([class*="theme-"]),.theme-blue) .content :is(.card,.form-container){background:#fff!important;border:1px solid #dfe7ef!important;box-shadow:0 4px 20px #132d4510!important}
+html[data-app-role="teacher"] body.teacher-workspace-refresh:is(:not([class*="theme-"]),.theme-blue) .content :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),select,textarea){background:#fbfcfe;border:1px solid #cdd8e3;color:#24384d}
+html[data-app-role="teacher"] body.teacher-workspace-refresh:is(:not([class*="theme-"]),.theme-blue) .content :is(input,textarea)::placeholder{color:#8493a3}
+html[data-app-role="teacher"] body.teacher-workspace-refresh:is(:not([class*="theme-"]),.theme-blue) .content th{background:#edf3f8!important;color:#4a6278;border-bottom:1px solid #dce5ed}
+html[data-app-role="teacher"] body.teacher-workspace-refresh:is(:not([class*="theme-"]),.theme-blue) .content td{border-bottom:1px solid #e8eef4;color:#32485c}
+html[data-app-role="teacher"] body.teacher-workspace-refresh:is(:not([class*="theme-"]),.theme-blue) .content tbody tr:hover{background:#f6fafc}
+html[data-app-role="teacher"] body.teacher-workspace-refresh:is(:not([class*="theme-"]),.theme-blue) .teacher-question-bank-entry{background:#edf7f8!important;border:1px solid #cce6e9!important;color:#1a626f!important}
+html[data-app-role="teacher"] body.teacher-workspace-refresh:is(:not([class*="theme-"]),.theme-blue) .teacher-question-bank-shortcut-toggle{background:#19748a!important;box-shadow:none!important}
+html[data-app-role="teacher"] body.teacher-workspace-refresh:is(:not([class*="theme-"]),.theme-blue) .btn-student-filter{border-color:#ccd9e5;color:#4a6177;background:#fff}
+html[data-app-role="teacher"] body.teacher-workspace-refresh:is(:not([class*="theme-"]),.theme-blue) .btn-student-filter.active{background:#196e83;color:#fff;border-color:#196e83}
+@media(min-width:769px){
+html[data-app-role="teacher"] .teacher-workspace-refresh .dashboard>.sidebar{width:256px!important;min-width:256px;position:sticky;top:0;height:100dvh;box-sizing:border-box;border-radius:0;border:0;box-shadow:none}
+html[data-app-role="teacher"] .teacher-workspace-refresh .dashboard>.content{width:calc(100% - 256px);margin-left:0!important}
+html[data-app-role="teacher"] .teacher-workspace-refresh .sidebar-top{padding:24px 16px!important}
+html[data-app-role="teacher"] .teacher-workspace-refresh .sidebar-bottom{padding:16px!important;border-top:1px solid #ffffff14}
+html[data-app-role="teacher"] .teacher-workspace-refresh .sidebar-top h3{font-size:15px!important;letter-spacing:.1px;padding-bottom:12px;border:0!important}
+html[data-app-role="teacher"] .teacher-workspace-refresh .sidebar .nav-item{min-height:46px;padding:12px 13px;margin:5px 0;border-radius:9px;font-size:13px;font-weight:600;white-space:normal;line-height:1.5;border:1px solid transparent;transform:none!important}
+html[data-app-role="teacher"] .teacher-workspace-refresh .dashboard.collapsed>.sidebar{width:80px!important;min-width:80px}
+html[data-app-role="teacher"] .teacher-workspace-refresh .dashboard.collapsed>.content{width:calc(100% - 80px)}
+html[data-app-role="teacher"] .teacher-workspace-refresh .dashboard.collapsed .sidebar .nav-item{padding:12px 0;text-align:center;font-size:19px}
+html[data-app-role="teacher"] body.teacher-workspace-refresh:is(:not([class*="theme-"]),.theme-blue) .dashboard>.sidebar{background:#142d45!important;color:#e8f0f7;backdrop-filter:none!important}
+html[data-app-role="teacher"] body.teacher-workspace-refresh:is(:not([class*="theme-"]),.theme-blue) .sidebar-top h3{color:#f0f6fc!important}
+html[data-app-role="teacher"] body.teacher-workspace-refresh:is(:not([class*="theme-"]),.theme-blue) .sidebar .nav-item{color:#bdcddd!important;background:transparent!important;box-shadow:none!important}
+html[data-app-role="teacher"] body.teacher-workspace-refresh:is(:not([class*="theme-"]),.theme-blue) .sidebar .nav-item:hover{background:#ffffff0d!important;color:#fff!important}
+html[data-app-role="teacher"] body.teacher-workspace-refresh:is(:not([class*="theme-"]),.theme-blue) .sidebar .nav-item.active{background:#24526b!important;border-color:#35728c!important;color:#fff!important;border-left:3px solid #69d4d0!important}
+html[data-app-role="teacher"] body.teacher-workspace-refresh:is(:not([class*="theme-"]),.theme-blue) .sidebar .btn-logout{background:#ffffff09;color:#d3e0ed;border:1px solid #ffffff1a;font-size:13px;padding:12px;box-shadow:none}
+html[data-app-role="teacher"] body.teacher-workspace-refresh:is(:not([class*="theme-"]),.theme-blue) .sidebar-toggle{background:#24445f!important;color:#d4e6f5!important;box-shadow:none!important;border:1px solid #ffffff1c!important;border-radius:9px}
+}
+@media(max-width:768px){
+html[data-app-role="teacher"] .teacher-workspace-refresh .dashboard>.content{padding:78px 16px 24px!important;min-width:0}
+html[data-app-role="teacher"] .teacher-workspace-refresh .content h2{font-size:24px}
+html[data-app-role="teacher"] .teacher-workspace-refresh .content :is(.card,.form-container){padding:18px!important;border-radius:12px}
+html[data-app-role="teacher"] .teacher-workspace-refresh .teacher-question-bank-entry{padding:14px!important;gap:12px}
+html[data-app-role="teacher"] .teacher-workspace-refresh .content :is(th,td){padding:10px 12px}
+html[data-app-role="teacher"] .teacher-workspace-refresh .content table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+}
+
+
+/* Default campus presentation. Existing web animation engine and settings stay in control. */
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue):where(:not(.ui-theme-immune):not(.ui-theme-immune *)){--wfx-primary-rgb:32,151,179;--wfx-secondary-rgb:92,113,214;--wfx-accent-rgb:223,171,82;--wfx-particle-opacity:.36;--wfx-scene-opacity:.6;background:radial-gradient(ellipse at 90% 0%,#e2edf9 0,transparent 45%),#f4f7fb!important;color:#263c51;font-family:"Segoe UI",Arial,sans-serif;line-height:1.55}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .dashboard>.content:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){background:#ffffff35!important;border:1px solid #ffffffa8!important;box-shadow:0 8px 40px #23476806!important;border-radius:24px!important;min-width:0;box-sizing:border-box;padding:36px clamp(22px,3vw,48px)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .content>.tab-content:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){max-width:1280px;margin-inline:auto}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .content h2:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){color:#183a52!important;font-size:clamp(24px,2.3vw,34px)!important;font-weight:750;letter-spacing:-.8px;text-shadow:none!important;line-height:1.3;margin-bottom:26px}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .content h2:where(:not(.ui-theme-immune):not(.ui-theme-immune *))::after{display:none}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .content h3:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){color:#29475e;font-size:18px;line-height:1.45}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .content :is(.card,.form-container):not(.store-theme-locked):not(.store-item-card):not(.luxury-product-card):not(.store-theme-locked *):where(:not(.ui-theme-immune):not(.ui-theme-immune *)){background:#ffffffef!important;border:1px solid #dfe8f1!important;border-radius:16px!important;box-shadow:0 5px 22px #213c5208!important;backdrop-filter:none;padding:24px;box-sizing:border-box;margin-bottom:22px}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .content :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),select,textarea):where(:not(.ui-theme-immune):not(.ui-theme-immune *)){font-family:inherit;font-size:14px;box-sizing:border-box;max-width:100%;border-radius:10px;padding:12px 14px;border:1px solid #d1dde8;background:#fbfdff;color:#294259;box-shadow:none}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .content .search-bar:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){min-height:48px;margin:0 0 24px!important;background:#fff!important;border-color:#d7e2ed!important;box-shadow:0 3px 12px #23476805!important}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .content button:not(.store-item-card *):not(.luxury-product-card *):where(:not(.ui-theme-immune):not(.ui-theme-immune *)){font-family:inherit;letter-spacing:0;border-radius:10px;box-shadow:none;transition:background-color .18s,border-color .18s,box-shadow .18s}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) :is(input,button,select,textarea):focus-visible:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){outline:3px solid #3eaabe88;outline-offset:3px}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .content table:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){width:100%;font-size:14px;border-spacing:0;border-collapse:separate}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .content :is(th,td):where(:not(.ui-theme-immune):not(.ui-theme-immune *)){padding:14px 16px;border-radius:0;text-align:left;vertical-align:middle}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .content th:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){background:#edf4f9!important;color:#45617a;border-bottom:1px solid #dbe6ee;font-size:12px;letter-spacing:.3px}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .content td:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){border-bottom:1px solid #e7edf3;color:#314d65}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .content tbody tr:hover:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){background:#f7fbfd}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) :is(.modal-content,.student-modal-content):where(:not(.ui-theme-immune):not(.ui-theme-immune *)){border-radius:18px;box-shadow:0 24px 70px #18354b30}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) :is(.teacher-question-bank-entry,.teacher-game-entry):where(:not(.ui-theme-immune):not(.ui-theme-immune *)){background:linear-gradient(115deg,#edf8f8,#f3f5ff)!important;border:1px solid #d0e7ec!important;box-shadow:none!important}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .content .btn-student-filter:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){border-radius:9px;border-color:#cbdce7;color:#42637a;background:#fff}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .content .btn-student-filter.active:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){background:#197d91;border-color:#197d91;color:#fff}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .content :is(#assignedStudentFilterContainer,#submittedStudentFilterContainer,#materialsStudentFilterContainer):where(:not(.ui-theme-immune):not(.ui-theme-immune *)){gap:8px!important;margin-bottom:18px!important}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .content :is(.card,.form-container):where(:not(.ui-theme-immune):not(.ui-theme-immune *)){transition:border-color .2s,box-shadow .2s}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .content :is(.card,.form-container):hover:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){border-color:#c6dbe8!important}
+@media(min-width:769px){
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .dashboard:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){gap:20px;padding:18px;box-sizing:border-box;align-items:flex-start}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .dashboard>.sidebar:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){width:244px!important;min-width:244px;box-sizing:border-box;position:sticky!important;top:18px!important;height:calc(100dvh - 36px)!important;border-radius:22px!important;background:linear-gradient(165deg,#173b54,#10283c)!important;color:#dceaf4;border:1px solid #274b63!important;box-shadow:0 12px 35px #16334b12!important;backdrop-filter:none!important}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .dashboard>.content:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){flex:1;width:calc(100% - 264px)!important;margin:0!important;min-height:calc(100dvh - 36px)}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .sidebar-top:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){padding:24px 15px!important}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .sidebar-top h3:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){font-size:15px!important;color:#f2f7fc!important;border:0!important;letter-spacing:.2px}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .sidebar .nav-item:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){font-size:13px!important;line-height:1.5;padding:12px!important;margin:5px 0!important;min-height:46px;white-space:normal;border:1px solid transparent!important;border-radius:10px!important;color:#bdcede!important;background:transparent!important;box-shadow:none!important;transform:none!important}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .sidebar .nav-item:hover:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){background:#ffffff0c!important;color:#fff!important}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .sidebar .nav-item.active:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){background:#28566f!important;border-color:#42748b!important;color:#fff!important;box-shadow:inset 3px 0 #73d5d2!important}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .sidebar-bottom:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){padding:16px!important;border-top:1px solid #ffffff12}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .sidebar .btn-logout:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){background:#ffffff09!important;border:1px solid #ffffff1c;color:#d3e2ed!important;font-size:13px;box-shadow:none;padding:12px}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .sidebar-toggle:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){background:#2a506a!important;color:#dcecf8!important;border:1px solid #ffffff24;box-shadow:none!important;border-radius:9px}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .dashboard.collapsed>.sidebar:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){width:80px!important;min-width:80px}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .dashboard.collapsed>.content:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){width:calc(100% - 100px)!important}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .dashboard.collapsed .nav-item:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){font-size:19px!important;text-align:center;padding:12px 0!important}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) #studentName:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){max-width:calc(100% - 46px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-top:4px}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .content>#studentTopActionsFlow{position:relative!important;inset:auto!important;transform:none!important;margin:0 0 22px auto!important;width:max-content!important;max-width:100%;float:none!important;display:flex;gap:9px;justify-content:flex-end}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .content>#studentTopActionsFlow button{width:44px!important;height:44px!important;border-radius:13px!important;box-shadow:0 3px 10px #2746600c!important;background:#fff!important;border:1px solid #d9e5ee!important;color:#24495f}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .content>.tab-content.active>h2:first-child:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){padding-right:0!important}
+}
+@media(max-width:768px){
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .dashboard>.content:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){padding:78px 16px 28px!important;border-radius:0!important;border:0!important;margin:0!important;min-width:0}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .content :is(.card,.form-container):not(.store-item-card):not(.luxury-product-card):where(:not(.ui-theme-immune):not(.ui-theme-immune *)){padding:18px!important;border-radius:13px!important}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .content table:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .content :is(th,td):where(:not(.ui-theme-immune):not(.ui-theme-immune *)){padding:10px 12px}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .content h2:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){font-size:25px!important}
+}
+@media(prefers-reduced-motion:reduce){html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .content :is(.card,.form-container,button):where(:not(.ui-theme-immune):not(.ui-theme-immune *)){transition:none}}
+
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue).student-content-glass-disabled .dashboard>.content:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){background:transparent!important;border-color:transparent!important;box-shadow:none!important}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue).student-content-glass-disabled .dashboard>.content:where(:not(.ui-theme-immune):not(.ui-theme-immune *))::before{display:none!important}
+
+@media(min-width:769px){
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .dashboard:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){grid-template-columns:244px minmax(0,1fr)!important}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .dashboard.collapsed:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){grid-template-columns:80px minmax(0,1fr)!important}
+html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .dashboard>.content:where(:not(.ui-theme-immune):not(.ui-theme-immune *)),html[data-app-role="teacher"]:not([class*="equipped"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) .dashboard.collapsed>.content:where(:not(.ui-theme-immune):not(.ui-theme-immune *)){width:100%!important}
+}
+
+/* Teacher settings: compact sections and consistent form surfaces. */
+html[data-app-role="teacher"] body.campus-modern #tab-settings{max-width:1200px}
+html[data-app-role="teacher"] body.campus-modern #tab-settings .teacher-settings-hero{padding:0 0 24px!important;margin:0 0 28px!important;border:0!important;border-bottom:1px solid #dce5ed!important;border-radius:0!important;background:none!important;box-shadow:none!important}
+html[data-app-role="teacher"] body.campus-modern #tab-settings .teacher-settings-kicker{display:block!important;font-size:11px;letter-spacing:1.5px;color:#237b89;margin-bottom:9px}
+html[data-app-role="teacher"] body.campus-modern #tab-settings .teacher-settings-hero h2{margin:0 0 10px!important;font-size:30px!important}
+html[data-app-role="teacher"] body.campus-modern #tab-settings .teacher-settings-hero-copy>p{display:block!important;font-size:14px;max-width:650px;color:#687d8d}
+html[data-app-role="teacher"] body.campus-modern #tab-settings .teacher-settings-section{display:grid;grid-template-columns:190px minmax(0,1fr);gap:24px;margin:0 0 30px;padding-bottom:30px;border-bottom:1px solid #dce5ed;align-items:start}
+html[data-app-role="teacher"] body.campus-modern #tab-settings .teacher-settings-section-heading{align-items:flex-start;gap:10px;margin:6px 0 0}
+html[data-app-role="teacher"] body.campus-modern #tab-settings .teacher-settings-section-icon{width:32px;height:32px;flex-basis:32px;font-size:16px;border-radius:9px;background:#e4f1f3}
+html[data-app-role="teacher"] body.campus-modern #tab-settings .teacher-settings-section-copy h3{font-size:16px!important;margin:0 0 7px;line-height:1.4}
+html[data-app-role="teacher"] body.campus-modern #tab-settings .teacher-settings-section-copy p{font-size:12px;line-height:1.65;color:#728292}
+html[data-app-role="teacher"] body.campus-modern #tab-settings .teacher-settings-grid{grid-template-columns:minmax(0,1fr)!important;gap:18px;margin:0;min-width:0}
+html[data-app-role="teacher"] body.campus-modern #tab-settings .teacher-settings-card{margin:0!important;padding:24px!important;border:1px solid #dce5ed!important;border-radius:14px!important;background:#fff!important;box-shadow:0 4px 16px #29475e05!important;min-width:0;grid-column:auto!important}
+html[data-app-role="teacher"] body.campus-modern #tab-settings .teacher-settings-card h3{font-size:18px!important;line-height:1.5;margin-top:0}
+html[data-app-role="teacher"] body.campus-modern #tab-settings .teacher-settings-card-heading{margin-bottom:22px;padding-bottom:16px;border-bottom:1px solid #edf1f5}
+html[data-app-role="teacher"] body.campus-modern #tab-settings .teacher-settings-cash-card{grid-column:2!important}
+html[data-app-role="teacher"] body.campus-modern #tab-settings .teacher-settings-health-card{border-left:3px solid #4b99b0!important}
+html[data-app-role="teacher"] body.campus-modern #tab-settings .teacher-settings-penalty-card{border-top:3px solid #db8e74!important}
+html[data-app-role="teacher"] body.campus-modern #tab-settings :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),select,textarea){max-width:100%;box-sizing:border-box}
+@media(min-width:1500px){html[data-app-role="teacher"] body.campus-modern #tab-settings .teacher-settings-grid-account,html[data-app-role="teacher"] body.campus-modern #tab-settings .teacher-settings-grid-engagement{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:1000px){html[data-app-role="teacher"] body.campus-modern #tab-settings .teacher-settings-section{grid-template-columns:minmax(0,1fr);gap:16px}html[data-app-role="teacher"] body.campus-modern #tab-settings .teacher-settings-cash-card{grid-column:1!important}}
+@media(max-width:600px){html[data-app-role="teacher"] body.campus-modern #tab-settings .teacher-settings-card{padding:18px!important}html[data-app-role="teacher"] body.campus-modern #tab-settings .teacher-settings-hero h2{font-size:25px!important}}

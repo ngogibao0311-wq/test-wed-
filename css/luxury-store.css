@@ -4097,3 +4097,150 @@ html.premium-spring-sanctuary-equipped :where(
         justify-self: center !important;
     }
 }
+
+/* LUXURY FULL-ART V5 — shared layout; individual world/pet styles stay independent. */
+html body #luxuryStoreGrid > article.luxury-unified-card[data-item-id] {
+    position: relative !important; isolation: isolate !important; overflow: hidden !important;
+    display: block !important; width: 100% !important; min-width: 0 !important; max-width: none !important;
+    height: 430px !important; min-height: 430px !important; max-height: 430px !important;
+    box-sizing: border-box !important; padding: 0 !important; margin: 0 !important;
+    border: 1px solid var(--luxury-card-accent, #d4a66b) !important; border-radius: 20px !important;
+    background: var(--luxury-card-shade, #2c180e) !important; color: #fff3dc !important;
+    box-shadow: 0 14px 32px #19122026, inset 0 0 0 1px #ffffff20 !important;
+    filter: none !important; backdrop-filter: none !important; mix-blend-mode: normal !important;
+    font-family: "Segoe UI", Arial, sans-serif !important; text-shadow: none !important;
+    transform: none !important; animation: none !important; transition: box-shadow .25s ease !important;
+}
+html body #luxuryStoreGrid > .luxury-unified-card[data-item-id]::before,
+html body #luxuryStoreGrid > .luxury-unified-card[data-item-id]::after { content: none !important; }
+html body #luxuryStoreGrid > .luxury-unified-card[data-item-id] * {
+    box-sizing: border-box !important; font-family: "Segoe UI", Arial, sans-serif !important;
+    mix-blend-mode: normal !important; text-shadow: none !important;
+}
+html body #luxuryStoreGrid > .luxury-unified-card .luxury-unified-visual {
+    position: relative !important; width: 100% !important; height: 100% !important; overflow: hidden !important;
+    padding: 0 !important; background: radial-gradient(ellipse at 50% 25%, #ffffff26, transparent 65%), var(--luxury-card-shade) !important;
+}
+html body #luxuryStoreGrid > .luxury-unified-card .luxury-unified-character {
+    position: absolute !important; inset: 0 !important; display: block !important;
+    width: 100% !important; height: 100% !important; min-width: 0 !important; min-height: 0 !important;
+    max-width: none !important; max-height: none !important; object-fit: cover !important; object-position: center 25% !important;
+    padding: 0 !important; margin: 0 !important; border: 0 !important; border-radius: 0 !important;
+    background: transparent !important; filter: none !important; opacity: 1 !important;
+    transform: none !important; animation: none !important; transition: transform .7s ease !important;
+}
+html body #luxuryStoreGrid > .luxury-unified-card:is(:hover, :focus, :focus-within) .luxury-unified-character { transform: scale(1.055) !important; }
+html body #luxuryStoreGrid > .luxury-unified-card .luxury-unified-frame {
+    position: absolute !important; inset: 10px !important; z-index: 2 !important;
+    border: 1px solid #ffffff40 !important; border-radius: 13px !important; pointer-events: none !important;
+}
+html body #luxuryStoreGrid > .luxury-unified-card .luxury-unified-tag {
+    position: absolute !important; z-index: 3 !important; top: auto !important; left: auto !important;
+    right: 10px !important; bottom: 10px !important; width: 62% !important; height: 72px !important;
+    max-width: 176px !important; max-height: none !important; min-width: 0 !important;
+    object-fit: contain !important; object-position: right bottom !important;
+    margin: 0 !important; padding: 0 !important; background: transparent !important; border: 0 !important;
+    border-radius: 0 !important; transform: none !important; animation: none !important;
+    filter: drop-shadow(0 3px 6px #160d2399) !important; pointer-events: none !important;
+}
+html body #luxuryStoreGrid > .luxury-unified-card[data-item-id="pet_luxury_mua_thu"] .luxury-unified-tag {
+    width: 70% !important; max-width: 196px !important; height: 82px !important;
+}
+html body #luxuryStoreGrid > .luxury-unified-card .luxury-unified-info {
+    position: absolute !important; z-index: 4 !important; inset: auto 0 0 !important;
+    display: flex !important; flex-direction: column !important; gap: 9px !important;
+    max-height: calc(100% - 20px) !important; overflow-y: auto !important;
+    padding: 20px 18px 18px !important; margin: 0 !important; border: 0 !important;
+    border-radius: 18px 18px 0 0 !important; color: #fff3dc !important;
+    background: linear-gradient(#00000015, #00000045), var(--luxury-card-shade) !important;
+    opacity: 0 !important; visibility: hidden !important; transform: translateY(100%) !important;
+    transition: transform .3s ease, opacity .3s ease, visibility .3s ease !important;
+    scrollbar-width: thin; scrollbar-color: var(--luxury-card-accent) transparent;
+}
+html body #luxuryStoreGrid > .luxury-unified-card:is(:hover, :focus, :focus-within) .luxury-unified-info {
+    opacity: 1 !important; visibility: visible !important; transform: translateY(0) !important;
+}
+html body #luxuryStoreGrid > .luxury-unified-card .luxury-unified-label {
+    color: var(--luxury-card-accent) !important; font-size: 10px !important; line-height: 1.4 !important;
+    letter-spacing: .12em !important; text-transform: uppercase; font-weight: 800 !important;
+}
+html body #luxuryStoreGrid > .luxury-unified-card h3 {
+    margin: 0 !important; padding: 0 !important; color: #fff3dc !important;
+    font-size: 18px !important; line-height: 1.35 !important; font-weight: 700 !important;
+    background: none !important; -webkit-text-fill-color: #fff3dc !important;
+}
+html body #luxuryStoreGrid > .luxury-unified-card .luxury-unified-intro {
+    display: block !important; margin: 0 !important; padding: 0 !important;
+    color: #f0e8de !important; font-size: 12px !important; font-weight: 400 !important; line-height: 1.55 !important;
+    background: none !important; -webkit-text-fill-color: #f0e8de !important;
+}
+html body #luxuryStoreGrid > .luxury-unified-card .luxury-unified-price {
+    color: var(--luxury-card-accent) !important; font-size: 13px !important; font-weight: 700 !important; line-height: 1.5 !important;
+}
+html body #luxuryStoreGrid > .luxury-unified-card .luxury-unified-actions { display: grid !important; gap: 7px !important; }
+html body #luxuryStoreGrid > .luxury-unified-card :is(.luxury-unified-action, .luxury-trial-upgrade) {
+    display: block !important; width: 100% !important; min-height: 44px !important; padding: 10px 12px !important;
+    margin: 0 !important; color: #241c23 !important; background: var(--luxury-card-accent) !important;
+    border: 1px solid #ffffff40 !important; border-radius: 11px !important; font-size: 13px !important;
+    line-height: 1.4 !important; font-weight: 800 !important; white-space: normal !important;
+    box-shadow: none !important; transform: none !important; cursor: pointer;
+}
+html body #luxuryStoreGrid > .luxury-unified-card .luxury-unified-action:is(.is-equipped, :disabled) {
+    color: #fff3dc !important; background: #ffffff15 !important; border-color: #ffffff40 !important;
+}
+html body #luxuryStoreGrid > .luxury-unified-card .luxury-unified-action:disabled { cursor: default; }
+html body #luxuryStoreGrid > .luxury-unified-card:focus-visible,
+html body #luxuryStoreGrid > .luxury-unified-card button:focus-visible { outline: 3px solid var(--luxury-card-accent) !important; outline-offset: -4px !important; }
+/* ThemeManager may insert a second image tag for the National Day group. */
+html body #luxuryStoreGrid > .luxury-unified-card > .special-card-tag-image { display: none !important; }
+@media(max-width:768px) {
+    html body #luxuryStoreGrid > article.luxury-unified-card[data-item-id] {
+        height: 305px !important; min-height: 305px !important; max-height: 305px !important;
+    }
+    html body #luxuryStoreGrid > .luxury-unified-card .luxury-unified-info { padding: 12px !important; gap: 7px !important; }
+    html body #luxuryStoreGrid > .luxury-unified-card h3 { font-size: 15px !important; }
+    html body #luxuryStoreGrid > .luxury-unified-card .luxury-unified-tag { height: 58px !important; }
+    html body #luxuryStoreGrid > .luxury-unified-card[data-item-id="pet_luxury_mua_thu"] .luxury-unified-tag { height: 66px !important; }
+}
+@media(hover:none), (pointer:coarse) {
+    html body #luxuryStoreGrid > .luxury-unified-card .luxury-unified-info { opacity: 1 !important; visibility: visible !important; transform: none !important; }
+}
+@media(prefers-reduced-motion:reduce) {
+    html body #luxuryStoreGrid > .luxury-unified-card * { animation: none !important; transition: none !important; }
+}
+
+/* V6 — illustrated scenery beneath the full-art character layer. */
+html body #luxuryStoreGrid > .luxury-unified-card .luxury-scene {
+    position: absolute !important; inset: 0 !important; z-index: 0 !important;
+    overflow: hidden !important; pointer-events: none !important; color: var(--luxury-card-accent) !important;
+    background: radial-gradient(ellipse at 65% 20%, var(--scene-light,#776384), transparent 64%), linear-gradient(155deg,var(--scene-deep,#26203b),var(--luxury-card-shade)) !important;
+}
+html body #luxuryStoreGrid > .luxury-unified-card .luxury-scene svg {
+    position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important;
+    opacity: .54 !important; filter: none !important; transform: none !important;
+}
+html body #luxuryStoreGrid > .luxury-unified-card .luxury-scene-solid { fill: currentColor; fill-opacity: .28; stroke-opacity: .8; }
+html body #luxuryStoreGrid > .luxury-unified-card .luxury-scene-star { fill: currentColor; fill-opacity: .9; stroke: none; }
+html body #luxuryStoreGrid > .luxury-unified-card .luxury-scene-glow {
+    position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 45%,#ffedbb24,transparent 60%),linear-gradient(0deg,#0c0b172b,transparent 45%);
+}
+html body #luxuryStoreGrid > .luxury-unified-card .luxury-scene-grain {
+    position: absolute; inset: 0; opacity: .25;
+    background-image: radial-gradient(#ffffff6b .6px,transparent .9px); background-size: 7px 7px;
+    mask-image: linear-gradient(#000,transparent 70%);
+}
+html body #luxuryStoreGrid > .luxury-unified-card .luxury-unified-character { z-index: 1 !important; }
+#luxuryStoreGrid .luxury-scene-spring { --scene-light:#89a37b; --scene-deep:#34533e; }
+#luxuryStoreGrid .luxury-scene-summer { --scene-light:#d7a447; --scene-deep:#77521b; }
+#luxuryStoreGrid .luxury-scene-autumn { --scene-light:#b87535; --scene-deep:#5c2817; }
+#luxuryStoreGrid .luxury-scene-heritage { --scene-light:#b84029; --scene-deep:#711c25; }
+#luxuryStoreGrid .luxury-scene-night { --scene-light:#73559c; --scene-deep:#211235; }
+#luxuryStoreGrid .luxury-scene-heaven { --scene-light:#d0b585; --scene-deep:#555877; }
+#luxuryStoreGrid .luxury-scene-painting { --scene-light:#347ca5; --scene-deep:#112f62; }
+#luxuryStoreGrid .luxury-scene-mystery { --scene-light:#826551; --scene-deep:#34273e; }
+#luxuryStoreGrid .luxury-scene-jade { --scene-light:#559c84; --scene-deep:#123c38; }
+#luxuryStoreGrid .luxury-scene-stage { --scene-light:#a45683; --scene-deep:#401736; }
+#luxuryStoreGrid .luxury-scene-pink { --scene-light:#9b5180; --scene-deep:#311c47; }
+#luxuryStoreGrid .luxury-scene-palace { --scene-light:#82739f; --scene-deep:#243660; }
+#luxuryStoreGrid .luxury-scene-moonwood { --scene-light:#739585; --scene-deep:#173a3c; }
+#luxuryStoreGrid .luxury-scene-time { --scene-light:#377d83; --scene-deep:#142740; }
