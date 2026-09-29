@@ -9612,11 +9612,7 @@ async function loadAssignments() {
                     ${videoHTML}
                     <div style="background: rgba(255,255,255,0.6); padding: 15px; border-radius: 12px; margin-top: 20px; margin-bottom: 15px; border: 1px solid rgba(0,0,0,0.05);">
                         <p style="margin: 0 0 10px 0; font-weight: bold; color: #2c3e50; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 8px;">📝 Nội dung bài làm của bạn:</p>
-<div style="background: rgba(0,0,0,0.02); padding: 15px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.03);">
-    <div class="ql-editor" style="margin: 0; color: ${mySub.isAutoSubmitted ? '#e74c3c' : '#444'}; line-height: 1.6; padding: 0;">${mySub.answer
-                    ? window.sanitizeRichHTML(mySub.answer)
-                    : '<i>(Không có)</i>'}
-</div>
+${window.getSubmissionEssayDisplay(mySub, assign).trim() ? `<div class="ql-editor submission-essay-only">${window.sanitizeRichHTML(window.getSubmissionEssayDisplay(mySub, assign))}</div>` : ''}
                         ${myFileHTML}
                     </div>
                     ${teacherFileHTML}

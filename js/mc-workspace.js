@@ -12,7 +12,7 @@
 (function () {
     'use strict';
 
-    const BUILD = '20260929.fullscreen-finalize-v5-null-seed';
+    const BUILD = '20260929.workspace-v6-owner';
     const LEASE_MS = 90 * 1000;
     const HEARTBEAT_MS = 15 * 1000;
     const LOCAL_PREFIX = 'mc_workspace_v2_local_';
@@ -76,19 +76,9 @@
         return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 12)}`;
     }
 
-    function getOwnerId() {
-        try {
-            let id = sessionStorage.getItem(OWNER_KEY);
-            if (!id) {
-                id = randomId('mcowner');
-                sessionStorage.setItem(OWNER_KEY, id);
-            }
-            return id;
-        } catch (_) {
-            window.__mcWorkspaceFallbackOwner = window.__mcWorkspaceFallbackOwner || randomId('mcowner');
-            return window.__mcWorkspaceFallbackOwner;
-        }
-    }
+    // A duplicated tab copies sessionStorage. Keep ownership unique to this document.
+    const documentOwnerId = randomId('mcowner');
+    function getOwnerId() { return documentOwnerId; }
 
     function getAssignment(assignOrId) {
         if (assignOrId && typeof assignOrId === 'object') return assignOrId;

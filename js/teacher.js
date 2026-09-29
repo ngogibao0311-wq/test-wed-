@@ -7276,11 +7276,7 @@ async function loadSubmissions(isLoadMore = false) {
         ].filter(Boolean).join('\n\n');
 
         // Ưu tiên answer đã lưu; nếu không có thì dùng nội dung dựng lại
-        const writtenAnswer =
-            typeof sub.answer === 'string' &&
-                sub.answer.trim() !== ''
-                ? sub.answer
-                : reconstructedAnswer;
+        const writtenAnswer = window.getSubmissionEssayDisplay(sub, assign);
 
         const hasWrittenAnswer =
             writtenAnswer.trim() !== '';
@@ -7297,7 +7293,7 @@ async function loadSubmissions(isLoadMore = false) {
 
         const mcWorkspaceReviewHTML = window.MCWorkspace.reviewButton(sub, assign);
         const studentWrittenAnswerHTML =
-            !isFileOnlySubmission
+            !isFileOnlySubmission && hasWrittenAnswer
                 ? `
 <div style="
     background: rgba(0,0,0,0.02);

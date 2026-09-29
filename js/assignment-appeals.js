@@ -1,3 +1,17 @@
+// Presentation only: never change stored answers or grading inputs.
+window.getSubmissionEssayDisplay = function (submission, assignment) {
+    const answer = typeof submission?.answer === 'string' ? submission.answer : '';
+    const hasMC = ['trac_nghiem', 'ket_hop', 'thi'].includes(assignment?.assessmentType) &&
+        ((assignment?.questions?.length || submission?.questionSnapshot?.length) || submission?.mcAnswers);
+    if (!hasMC) return answer || (typeof submission?.rawEssay === 'string' ? submission.rawEssay : '');
+    if (typeof submission.rawEssay === 'string') return submission.rawEssay;
+    const marker = '[PHẦN TỰ LUẬN]';
+    if (/^\s*(?:📝\s*)?\[?PHẦN TRẮC NGHIỆM\]?/u.test(answer)) {
+        const index = answer.indexOf(marker);
+        return index >= 0 ? answer.slice(index + marker.length).trim() : '';
+    }
+    return answer;
+};
 /* Appeals record decisions separately from economic settlement. */
 (() => {
     'use strict';
@@ -11,7 +25,7 @@
         if (!key) return '';
         if (s.isRedoing && s.violationAudit && typeof s.violationAudit === 'object' && /teacher\.html/i.test(location.pathname)) return '<button type="button" class="btn-approve" data-repair-redo="'+escape(key)+'">Khôi phục quyền nộp lại</button>';
         if (!eligible(s) && !records[key]) return '';
-        return `<button type="button" class="btn-reject" data-appeal-key="${escape(key)}">⚖️ <span data-appeal-label="${escape(key)}">${escape(labels[records[key]?.status] || 'Kháng cáo')}</span></button>`;
+        return `<button type="button" class="appeal-launch-button" data-appeal-key="${escape(key)}">⚖️ <span data-appeal-label="${escape(key)}">${escape(labels[records[key]?.status] || 'Kháng cáo')}</span></button>`;
     }
     function updateLabels() {
         document.querySelectorAll('[data-appeal-label]').forEach(el => {
@@ -21,20 +35,41 @@
         if (profile?.role !== 'teacher') { button?.remove(); return; }
         if (!button) {
             button = document.createElement('button'); button.id = 'appeals-notification';
-            button.className = 'btn-approve'; button.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:1000;max-width:90vw';
+            button.className = 'appeal-inbox-button';
             button.onclick = showList; document.body.appendChild(button);
         }
         button.textContent = `⚖️ Kháng cáo (${Object.values(records).filter(r => r.status !== 'completed').length} chưa hoàn tất)`;
     }
     function modal(title) {
-        const dialog = document.createElement('dialog');
-        dialog.style.cssText = 'width:min(620px,90vw);max-height:85vh;overflow:auto;border:1px solid #ccd4e1;border-radius:18px;padding:24px;color:#17243b;background:#fff';
-        const heading = document.createElement('h2'); heading.textContent = title;
-        const close = document.createElement('button'); close.textContent = 'Đóng'; close.onclick = () => dialog.close();
-        dialog.append(heading, close); document.body.appendChild(dialog);
-        dialog.addEventListener('close', () => dialog.remove(), {once:true}); dialog.showModal(); return dialog;
+        const dialog = document.createElement('dialog'); dialog.className='appeal-dialog';
+        const header=document.createElement('header');header.className='appeal-header';
+        const caption=document.createElement('div');
+        const eyebrow=document.createElement('span');eyebrow.className='appeal-eyebrow';eyebrow.textContent='HỖ TRỢ HỌC TẬP';
+        const heading=document.createElement('h2');heading.textContent=title;
+        caption.append(eyebrow,heading);
+        const close=document.createElement('button');close.className='appeal-close';close.textContent='×';close.setAttribute('aria-label','Đóng kháng cáo');close.onclick=()=>dialog.close();
+        header.append(caption,close);
+        const body=document.createElement('div');body.className='appeal-body';body.close=()=>dialog.close();
+        dialog.append(header,body);document.body.appendChild(dialog);
+        dialog.addEventListener('close',()=>dialog.remove(),{once:true});dialog.showModal();return body;
     }
-    function text(parent, value) { const p = document.createElement('p'); p.textContent = value; p.style.whiteSpace = 'pre-wrap'; parent.appendChild(p); return p; }
+    function text(parent,value) {
+        const content=String(value??'');
+        if(content.startsWith('Bằng chứng trạng thái:') || content.startsWith('Bản ghi thưởng/phạt để kiểm tra:') || content.startsWith('Nội dung bài (văn bản nguồn):')) {
+            const details=document.createElement('details');details.className='appeal-evidence';
+            const summary=document.createElement('summary');const split=content.indexOf(':');summary.textContent=content.slice(0,split);
+            const pre=document.createElement('pre');pre.textContent=content.slice(split+1).trim();details.append(summary,pre);parent.appendChild(details);return pre;
+        }
+        const p=document.createElement('p');p.textContent=content;p.className='appeal-note';
+        if(content.startsWith('Lý do:') || content.startsWith('Đồng ý') || content.startsWith('Từ chối'))p.classList.add('appeal-reason');
+        if(content.startsWith('Trạng thái:'))p.classList.add('appeal-status');
+        parent.appendChild(p);return p;
+    }
+    function progress(parent,status) {
+        const list=document.createElement('ol');list.className='appeal-progress';
+        const statuses=['sent','reviewing','completed'];const current=statuses.indexOf(status);
+        statuses.forEach((key,index)=>{const item=document.createElement('li');item.textContent=labels[key];if(index<=current)item.className='is-reached';if(index===current)item.setAttribute('aria-current','step');list.appendChild(item);});parent.appendChild(list);
+    }
     async function transaction(ref, updater) {
         let callback;
         try { await new Promise((resolve,reject) => {callback=()=>resolve();ref.on('value',callback,reject);}); return await ref.transaction(updater,undefined,false); }
@@ -50,7 +85,8 @@
         }
         const submission = (await db.ref('submissions/' + key).once('value')).val();
         if (!submission) throw new Error('Bài nộp không còn tồn tại.');
-        const panel = modal('Kháng cáo bài nộp');
+        const panel = modal(profile.role==='teacher' ? 'Xem xét kháng cáo' : 'Kháng cáo bài nộp');
+        progress(panel,appeal?.status);
         text(panel, 'Mã bài: ' + (submission.assignmentId || key));
         text(panel, 'Học sinh: ' + submission.studentUsername + ' · Điểm: ' + submission.grade);
         if (!appeal) {
@@ -58,7 +94,7 @@
             if (!eligible(submission)) {text(panel,'Chỉ kháng cáo bài vi phạm đã được giáo viên chấm xong.');return;}
             const reason = document.createElement('textarea'); reason.rows=5; reason.maxLength=2000;
             reason.placeholder='Nhập lý do và thông tin để giáo viên kiểm tra (10–2000 ký tự)'; reason.setAttribute('aria-label','Lý do kháng cáo'); reason.style.width='100%';panel.appendChild(reason);
-            const send=document.createElement('button');send.textContent='Gửi kháng cáo';panel.appendChild(send);
+            const send=document.createElement('button');send.textContent='Gửi kháng cáo';send.className='appeal-primary';panel.appendChild(send);
             send.onclick=async()=>{
                 const value=reason.value.trim(); if(value.length<10)return text(panel,'Vui lòng nhập lý do ít nhất 10 ký tự.');
                 send.disabled=true;
@@ -85,7 +121,7 @@
         const reason=document.createElement('textarea');reason.rows=4;reason.maxLength=2000;reason.placeholder='Kết quả kiểm tra và lý do quyết định (ít nhất 10 ký tự)';reason.style.width='100%';panel.appendChild(reason);
         const buttons=[];
         for(const [decision,label] of [['approved','Đồng ý'],['rejected','Từ chối']]){
-            const button=document.createElement('button');button.textContent=label;buttons.push(button);panel.appendChild(button);
+            const button=document.createElement('button');button.textContent=label;button.className=decision==='approved'?'appeal-approve':'appeal-reject';buttons.push(button);panel.appendChild(button);
             button.onclick=async()=>{
                 if(reason.value.trim().length<10)return text(panel,'Vui lòng ghi kết quả kiểm tra ít nhất 10 ký tự.');
                 buttons.forEach(b=>b.disabled=true);
@@ -113,7 +149,7 @@
             inputs[name]=input;row.appendChild(input);panel.appendChild(row);
         }
         const reason=document.createElement('textarea');reason.placeholder='Ghi căn cứ khoản hoàn và cách tính phần thưởng còn thiếu';reason.rows=3;reason.maxLength=2000;reason.style.width='100%';panel.appendChild(reason);
-        const save=document.createElement('button');save.textContent='Xác nhận đối soát quyền lợi';panel.appendChild(save);
+        const save=document.createElement('button');save.textContent='Xác nhận đối soát quyền lợi';save.className='appeal-primary';panel.appendChild(save);
         save.onclick=async()=>{
             const amounts=Object.fromEntries(Object.entries(inputs).map(([name,input])=>[name,Number(input.value)]));
             if(Object.entries(amounts).some(([name,n])=>!Number.isSafeInteger(n)||n<0||n>(name.includes('Coins')?999999:9999)))return text(panel,'Nhập số nguyên không âm trong giới hạn.');
