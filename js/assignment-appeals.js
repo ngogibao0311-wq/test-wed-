@@ -126,7 +126,12 @@ window.getSubmissionEssayDisplay = function (submission, assignment) {
                 if(reason.value.trim().length<10)return text(panel,'Vui lòng ghi kết quả kiểm tra ít nhất 10 ký tự.');
                 buttons.forEach(b=>b.disabled=true);
                 try {
-                    await transaction(ref,current=>current?.status==='reviewing' ? {...current,status:'completed',decision,decisionReason:reason.value.trim(),decisionBasis:decision==='approved'?basis.value:'rejected',decidedBy:firebase.auth().currentUser.uid,decidedAt:firebase.database.ServerValue.TIMESTAMP,settlementStatus:decision==='approved'?'pending_review':'not_applicable'} : undefined);
+                    // Decision and its notification commit together; deterministic key prevents duplicate mail.
+                    const current=(await ref.once('value')).val();
+                    if(current?.status!=='reviewing'){panel.close();await open(key);return;}
+                    const completed={...current,status:'completed',decision,decisionReason:reason.value.trim(),decisionBasis:decision==='approved'?basis.value:'rejected',decidedBy:firebase.auth().currentUser.uid,decidedAt:firebase.database.ServerValue.TIMESTAMP,settlementStatus:decision==='approved'?'pending_review':'not_applicable'};
+                    const message={message:'Kháng cáo bài '+String(submission.assignmentId||key)+' đã hoàn tất. Kết quả: '+(decision==='approved'?'Đồng ý':'Từ chối')+'.\nLý do: '+reason.value.trim()+(decision==='approved'?'\nQuyền lợi đang chờ giáo viên xác minh và đối soát.':''),giftType:'none',giftValue:0,source:'submission_appeal_completed',submissionKey:key,skipInboxGiftAnimation:true,suppressInboxArrivalAnimation:true,timestamp:firebase.database.ServerValue.TIMESTAMP,timeString:new Date().toLocaleString('vi-VN')};
+                    await db.ref().update({['submission_appeals/'+key]:completed,['inbox_messages/'+current.studentUsername+'/appeal_completed_'+key]:message});
                     panel.close();await open(key);
                 }catch(error){text(panel,'Chưa xác nhận quyết định đã lưu. Đóng rồi mở lại để kiểm tra. '+error.message);buttons.forEach(b=>b.disabled=false);}
             };
