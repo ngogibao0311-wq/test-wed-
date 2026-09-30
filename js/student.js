@@ -14212,7 +14212,7 @@ window.switchTab = async function (tabId, btnElement) {
     // Giáo viên có thể tắt riêng Cửa hàng & Trò chơi cho tài khoản này.
     // Chặn cả trường hợp code khác cố mở tab trực tiếp khi nút đã bị ẩn.
     if (
-        (tabId === 'tab-game' || tabId === 'tab-store') &&
+        (tabId === 'tab-game' || tabId === 'tab-store' || tabId === 'tab-collection-rewards') &&
         !window.isStudentStoreGameAccessEnabled()
     ) {
         return false;
@@ -14256,7 +14256,7 @@ window.switchTab = async function (tabId, btnElement) {
 
     // A slower module must not overwrite a newer navigation or bypass a newly started exam.
     if (requestSequence !== studentTabRequestSequence || window.currentActiveExamId) return false;
-    if ((tabId === 'tab-game' || tabId === 'tab-store') && !window.isStudentStoreGameAccessEnabled()) return false;
+    if ((tabId === 'tab-game' || tabId === 'tab-store' || tabId === 'tab-collection-rewards') && !window.isStudentStoreGameAccessEnabled()) return false;
 
     // 1. Reset trạng thái active của các tab
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -18128,7 +18128,7 @@ window.filterStore = function (type) {
         htmlContent += StoreManager.renderStoreItem(item, isOwned, isEquipped, isTrial, isUpcoming);
     });
 
-    container.innerHTML = htmlContent || '<p style="text-align:center; color:#666; grid-column: 1/-1;">Chưa có vật phẩm nào trong danh mục này.</p>';
+    container.innerHTML = (window.ListMediaPerformance?.prepareHTML(htmlContent) ?? htmlContent) || '<p style="text-align:center; color:#666; grid-column: 1/-1;">Chưa có vật phẩm nào trong danh mục này.</p>';
 
     // Khóa thao tác copy/lưu đối với mọi ảnh vừa render trong Cửa hàng.
     window.StoreImageProtection?.protectSubtree(container);
@@ -18260,7 +18260,7 @@ window.loadStoreItems = async function () {
                 if (!studentOwnedItems.includes(item.id)) studentOwnedItems.push(item.id);
                 if (item.isTrial) trialItemsList.push(item.id);
                 if (item.isEquipped) {
-                    const itemDef = StoreConfig.items.find(i => i.id === item.id);
+                    const itemDef = StoreManager.getItemById(item.id);
                     if (itemDef) studentEquippedItems[itemDef.type] = item.id;
                 }
             }
@@ -20273,9 +20273,7 @@ window.applyEquippedItems = function () {
 
     renderableInventory.forEach(invItem => {
 
-        const itemDef = StoreConfig.items.find(
-            item => item.id === invItem.id
-        );
+        const itemDef = StoreManager.getItemById(invItem.id);
 
         if (!itemDef) return;
 

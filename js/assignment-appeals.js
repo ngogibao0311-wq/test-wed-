@@ -16,19 +16,39 @@ window.getSubmissionEssayDisplay = function (submission, assignment) {
 (() => {
     'use strict';
     let profile = null, records = {}, listening = null, listener = null;
+
+    const RETENTION_MS=7*24*60*60*1000;
+    let cleanupRunning=false;
+    async function cleanupCompletedAppeals(){
+        if(profile?.role!=='teacher'||cleanupRunning)return;
+        cleanupRunning=true;
+        try{
+            for(const [key,record] of Object.entries(records)){
+                if(record.archived===true||record.status!=='completed'||!Number.isFinite(record.decidedAt)||Date.now()-record.decidedAt<RETENTION_MS)continue;
+                if(record.decision==='approved' && !(await db.ref('submission_appeal_settlements/'+key).once('value')).exists())continue;
+                await transaction(db.ref('submission_appeals/'+key),current=>{
+                    if(!current||current.archived||current.status!=='completed'||current.decidedAt!==record.decidedAt)return;
+                    return {...current,reason:'[Đã dọn sau 7 ngày]',decisionReason:'[Đã dọn sau 7 ngày]',archived:true,archivedAt:firebase.database.ServerValue.TIMESTAMP};
+                });
+            }
+        }catch(error){console.warn('[Appeals cleanup]',error.code||error.message);}
+        finally{cleanupRunning=false;}
+    }
+    setInterval(()=>{cleanupCompletedAppeals();},60000);
     const labels = { sent: 'Đã gửi', reviewing: 'Đang tiếp nhận', completed: 'Đã hoàn tất' };
     const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const violated = s => s && (s.rewardForfeited === true || ['isLateFail','isAutoSubmitted','isCheatFail','isEssayMissing'].some(k => s[k] === true) || Object.values(s.redoViolationHistory || {}).some(v => v === true));
     const eligible = s => s && typeof s.grade === 'number' && typeof s.gradedAt === 'number' && (!s.redoCompletedAt || s.gradedAt >= s.redoCompletedAt) && !s.isRedoing && !s.isRegrading && violated(s);
     function card(s) {
         const key = s?._fbKey;
-        if (!key) return '';
+        if (!key || records[key]?.archived === true) return '';
         if (s.isRedoing && s.violationAudit && typeof s.violationAudit === 'object' && /teacher\.html/i.test(location.pathname)) return '<button type="button" class="btn-approve" data-repair-redo="'+escape(key)+'">Khôi phục quyền nộp lại</button>';
         if (!eligible(s) && !records[key]) return '';
         return `<button type="button" class="appeal-launch-button" data-appeal-key="${escape(key)}">⚖️ <span data-appeal-label="${escape(key)}">${escape(labels[records[key]?.status] || 'Kháng cáo')}</span></button>`;
     }
     function updateLabels() {
         document.querySelectorAll('[data-appeal-label]').forEach(el => {
+            el.closest('[data-appeal-key]')?.toggleAttribute('hidden', records[el.dataset.appealLabel]?.archived === true);
             el.textContent = labels[records[el.dataset.appealLabel]?.status] || 'Kháng cáo';
         });
         let button = document.getElementById('appeals-notification');
@@ -38,7 +58,11 @@ window.getSubmissionEssayDisplay = function (submission, assignment) {
             button.className = 'appeal-inbox-button';
             button.onclick = showList; document.body.appendChild(button);
         }
-        button.textContent = `⚖️ Kháng cáo (${Object.values(records).filter(r => r.status !== 'completed').length} chưa hoàn tất)`;
+        const pending = Object.values(records).filter(r => r.status !== 'completed').length;
+        button.textContent = `⚖️ Kháng cáo · ${pending}`;
+        button.title = `${pending} kháng cáo chưa hoàn tất`;
+        button.setAttribute('aria-label', `Mở kháng cáo, ${pending} chưa hoàn tất`);
+        button.type = 'button';
     }
     function modal(title) {
         const dialog = document.createElement('dialog'); dialog.className='appeal-dialog';
@@ -79,6 +103,7 @@ window.getSubmissionEssayDisplay = function (submission, assignment) {
         if (!profile) throw new Error('Vui lòng đăng nhập lại.');
         const ref = db.ref('submission_appeals/' + key);
         let appeal = (await ref.once('value')).val();
+        if(appeal?.archived===true){alert('Kháng cáo đã hoàn tất và được dọn sau 7 ngày.');return;}
         if (profile.role === 'teacher' && appeal?.status === 'sent') {
             const tx = await transaction(ref, current => current?.status === 'sent' ? {...current,status:'reviewing',reviewerUid:firebase.auth().currentUser.uid,reviewedAt:firebase.database.ServerValue.TIMESTAMP} : undefined);
             appeal = tx.snapshot.val();
@@ -178,7 +203,7 @@ window.getSubmissionEssayDisplay = function (submission, assignment) {
         };
     }
 
-    function showList(){const panel=modal('Danh sách kháng cáo');for(const [key,record] of Object.entries(records).sort((a,b)=>b[1].createdAt-a[1].createdAt)){const button=document.createElement('button');button.textContent=record.studentUsername+' — '+labels[record.status];button.style.display='block';button.onclick=()=>{panel.close();open(key).catch(e=>alert(e.message));};panel.appendChild(button);}}
+    function showList(){const panel=modal('Danh sách kháng cáo');for(const [key,record] of Object.entries(records).filter(([,record])=>record.archived!==true).sort((a,b)=>b[1].createdAt-a[1].createdAt)){const button=document.createElement('button');button.textContent=record.studentUsername+' — '+labels[record.status];button.style.display='block';button.onclick=()=>{panel.close();open(key).catch(e=>alert(e.message));};panel.appendChild(button);}}
     document.addEventListener('click',event=>{const button=event.target.closest('[data-appeal-key]');if(button)open(button.dataset.appealKey).catch(error=>alert(error.message));});
     document.addEventListener('click',async event=>{
         const button=event.target.closest('[data-repair-redo]');if(!button || profile?.role!=='teacher')return;
@@ -196,7 +221,7 @@ window.getSubmissionEssayDisplay = function (submission, assignment) {
         try {
             const value=(await db.ref('users/'+user.uid).once('value')).val();if(firebase.auth().currentUser?.uid!==user.uid)return;profile=value;
             listening=profile.role==='teacher'?db.ref('submission_appeals'):db.ref('submission_appeals').orderByChild('studentUid').equalTo(user.uid);
-            listener=snapshot=>{records=snapshot.val()||{};updateLabels();};listening.on('value',listener,error=>console.error('[Appeals]',error.code));
+            listener=snapshot=>{records=snapshot.val()||{};updateLabels();cleanupCompletedAppeals();};listening.on('value',listener,error=>console.error('[Appeals]',error.code));
         }catch(error){console.error('[Appeals]',error.code);}
     });
 })();

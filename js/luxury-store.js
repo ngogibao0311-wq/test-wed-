@@ -10296,7 +10296,10 @@ if (isNationalDay) {
 
         grid.innerHTML =
             items
-                .map(renderCard)
+                .map(item => {
+                    const html = renderCard(item);
+                    return window.ListMediaPerformance?.prepareHTML(html) ?? html;
+                })
                 .join('');
 
         // A trial is not permanent ownership. Offer the existing upgrade flow.

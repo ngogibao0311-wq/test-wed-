@@ -379,7 +379,8 @@ body.perf-balanced .quill-student-editor[data-perf-quill-pending="1"] {
             <div class="perf-setting-copy">
                 <strong>⚡ Tối ưu hiệu năng</strong>
                 <p>
-                    Giảm nền/blur và tối ưu bài tập nặng, video, trình soạn thảo khi cần.
+                    Tải ảnh và video khi gần vùng xem; giảm tải danh sách bài tập, kết quả,
+                    tài liệu, cửa hàng, lộ trình và lịch. Âm thanh tải khi bấm phát.
                     Không thay đổi logic trò chơi, điểm, dữ liệu hay vật phẩm.
                 </p>
                 <span id="${STATUS_ID}">Đang tắt • Mặc định</span>

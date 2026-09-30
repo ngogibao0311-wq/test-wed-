@@ -3037,7 +3037,7 @@ class StoreManager {
     }
 
     static getItemById(id) {
-        return StoreConfig.items.find(item => item.id === id);
+        return window.CollectionRewards?.getItem(id) || StoreConfig.items.find(item => item.id === id);
     }
 
     static getAnnualSaleState(item, now = new Date()) {

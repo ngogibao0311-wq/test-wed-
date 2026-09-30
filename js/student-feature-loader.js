@@ -98,9 +98,9 @@
         petItems: 'js/pet-items.js?v=20260926.autumn-sale-tag-v3',
         petInteractions: 'js/pet-interactions.js?v=3.8',
         musicManager: 'js/music-manager.js?v=20260910.music-reliability-v3',
-        storeManager: 'js/store-manager.js?v=20260927.autumn-four-effects-restored-v1',
+        storeManager: 'js/store-manager.js?v=20260930.rewards-v2',
 
-        luxuryStore: 'js/luxury-store.js?v=20260927.tap15',
+        luxuryStore: 'js/luxury-store.js?v=20260930.media-v2',
         collections: 'js/store-collections.js?v=20260908.four-seasons-lock-v1',
 
         royalBall: 'js/royal-ball.js?v=20260908.lazy-v1',
@@ -111,7 +111,7 @@
         midAutumnFestival: 'js/mid-autumn-festival.js?v=20260917.1-accessibility-focus-fix',
 
         dailyLogin: 'js/daily-login.js?v=20260908.lazy-v1',
-        guide: 'js/huong-dan-nguoi-moi.js?v=2.14.0'
+        guide: 'js/huong-dan-nguoi-moi.js?v=2.15.2'
     });
 
     /*

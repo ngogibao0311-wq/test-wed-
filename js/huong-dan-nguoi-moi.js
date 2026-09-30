@@ -1,9 +1,9 @@
 /**
  * NEW USER GUIDE — Hướng dẫn người mới cho website học tập
- * Phiên bản: 2.14.1 — đào tạo bắt buộc 1 lần về nộp bài, cập nhật và hiệu năng
+ * Phiên bản: 2.15.2 — đào tạo bắt buộc 1 lần về nộp bài, cập nhật và hiệu năng
  *
  * Cách nạp khuyến nghị (đặt cuối <body>, sau teacher.js hoặc student.js):
- * <script src="js/huong-dan-nguoi-moi.js?v=2.14.1"></script>
+ * <script src="js/huong-dan-nguoi-moi.js?v=2.15.2"></script>
  *
  * API có thể gọi từ nơi khác:
  *   NewUserGuide.open();          // Mở trung tâm hướng dẫn
@@ -17,13 +17,11 @@
 
     if (window.NewUserGuide) return;
 
-    const VERSION = '2.14.1';
+    const VERSION = '2.15.2';
     const REQUIRED_STUDENT_TRAINING_VERSION =
-        '2026-09-06-submission-update-effects-v1';
+        '2026-09-30-new-features-v1';
     const REQUIRED_STUDENT_TRAINING_FEATURES = Object.freeze([
-        'submission-guide',
-        'system-update',
-        'effects-performance'
+        'mc-workspace-new', 'appeals-new', 'collection-rewards-new', 'list-performance-new'
     ]);
     const ROOT_ID = 'nug-root';
     const STYLE_ID = 'nug-style';
@@ -361,6 +359,154 @@
         }
     };
 
+
+    // September 2026: guides only; preserve completed mandatory training.
+    const recentFeatureGuides = {
+    "teacher": [
+        {
+            "id": "mc-review-new",
+            "icon": "📝",
+            "title": "Xem bài trắc nghiệm mới",
+            "tabId": "tab-list",
+            "selector": "#submissionsList",
+            "access": "Danh sách bài đã nộp → mở bài → Xem đáp án.",
+            "description": "Nút Xem đáp án mở cửa sổ trắc nghiệm toàn trang; Điểm TN nằm ngay cạnh nút. Viền xanh thể hiện đáp án đúng, viền đỏ thể hiện lựa chọn sai của học sinh.",
+            "details": [
+                "Nút Xem đáp án mở cửa sổ trắc nghiệm toàn trang; Điểm TN nằm ngay cạnh nút. Viền xanh thể hiện đáp án đúng, viền đỏ thể hiện lựa chọn sai của học sinh.",
+                "Phần tóm tắt đáp án dạng chữ bị lặp đã được bỏ. Tự luận và tệp đính kèm vẫn được giữ trong bài nộp.",
+                "Học sinh xác nhận trắc nghiệm bên trong cửa sổ chưa phải là gửi toàn bài cho giáo viên. Các em vẫn phải bấm Nộp bài bên ngoài.",
+                "Giới hạn thời gian làm bài của bài thi áp dụng cho toàn bài; cho làm lại không tự tha lỗi hoặc hoàn phạt."
+            ]
+        },
+        {
+            "id": "appeals-new",
+            "icon": "⚖️",
+            "title": "Tiếp nhận và xử lý kháng cáo",
+            "tabId": "tab-list",
+            "selector": "#appeals-notification",
+            "access": "Nút nổi Kháng cáo ở góc dưới bên phải.",
+            "description": "Số trên nút là kháng cáo chưa hoàn tất. Mở danh sách và chọn kháng cáo; mở bản Đã gửi sẽ chuyển thành Đang tiếp nhận.",
+            "details": [
+                "Số trên nút là kháng cáo chưa hoàn tất. Mở danh sách và chọn kháng cáo; mở bản Đã gửi sẽ chuyển thành Đang tiếp nhận.",
+                "Đọc lý do học sinh, bài làm và bằng chứng trạng thái. Đối chiếu hạn nộp, lần làm lại và khoản phạt thực tế trước khi quyết định.",
+                "Ghi lý do quyết định ít nhất 10 ký tự rồi chọn Đồng ý hoặc Từ chối. Quyết định hoàn tất và thư thông báo được lưu cùng lúc; thư không chạy hiệu ứng.",
+                "Phạt nhầm: có thể hoàn khoản phạt đã xác minh và xét lại thưởng. Vi phạm nhẹ: chỉ duyệt xét thưởng lại, không hoàn khoản phạt cũ.",
+                "Khi đồng ý, đối soát chỉ phần thưởng còn thiếu và khoản phạt chưa hoàn. Không nhập lại toàn bộ thưởng đã nhận. Biên nhận đối soát chỉ được ghi một lần.",
+                "Mất mạng khi xác nhận: đóng và mở lại để kiểm tra quyết định/biên nhận. Lỗi mạng không chứng minh giao dịch thất bại, không cộng thủ công lần nữa.",
+                "Hoàn tất quá 7 ngày được rút gọn và ẩn khi giáo viên mở web; hệ thống kiểm tra định kỳ khi trang đang mở. Bản đồng ý chưa đối soát được giữ lại. Dấu xác nhận và biên nhận không bị xóa."
+            ]
+        },
+        {
+            "id": "collection-rewards-new",
+            "icon": "🎁",
+            "title": "Cấu hình phần thưởng bộ sưu tập",
+            "tabId": "tab-game-manage",
+            "selector": "#teacherCollectionRewardCard",
+            "access": "Quản lý trò chơi → dưới Quản lý Cửa hàng Sang trọng → Quản lý Phần thưởng.",
+            "description": "Mở Quản lý Phần thưởng để cấu hình bộ vật phẩm học sinh cần thu thập và nền đặc biệt được nhận.",
+            "details": [
+                "Mở Quản lý Phần thưởng để cấu hình bộ vật phẩm học sinh cần thu thập và nền đặc biệt được nhận.",
+                "Danh mục nền được đồng bộ khi công bố bộ. Nếu danh sách trống, cần người quản lý website bổ sung nền trong collection-reward-catalog.js trước.",
+                "Nhập tên tag/bộ. Dùng bộ lọc tag rồi tích chọn 1–24 vật phẩm phải mua đủ và 1–8 nền thưởng. Các món đã tích vẫn được giữ khi đổi bộ lọc.",
+                "Chọn một nền để tự mở khi học sinh đủ bộ; chọn nhiều nền để học sinh chọn một. Kiểm tra rồi bấm Công bố bộ thưởng.",
+                "Bộ đã công bố và nền đã đồng bộ được giữ cố định, không sửa hoặc xóa ở giao diện. Muốn đổi điều kiện, tạo bộ mới sau khi kiểm tra ảnh hưởng đến người đã nhận.",
+                "Chỉ đồ mua vĩnh viễn có biên nhận khớp mới tính; đồ dùng thử, quà tặng, phần thưởng sự kiện không tính. Món cũ thiếu biên nhận cần đối soát, không tự coi là đã mua.",
+                "Nhận thưởng ghi kho và dấu xác nhận cùng lúc. Mỗi bộ chỉ nhận một lần; nền đã sở hữu từ bộ khác không bị ghi đè. Không cấp thêm chỉ vì học sinh báo lỗi mạng.",
+                "Khi mất mạng, giữ nguyên trang và thử lại sau khi kết nối. Nút công bố khóa trong lúc gửi; thử lại trên cùng biểu mẫu kiểm tra cùng bộ đã lưu."
+            ]
+        },
+        {
+            "id": "list-performance-new",
+            "icon": "⚡",
+            "title": "Tải tài liệu và danh sách nhẹ hơn",
+            "tabId": "tab-settings",
+            "selector": "#webPerformanceOptimizerSettingsRow",
+            "access": "Cài đặt → Tối ưu hiệu năng.",
+            "description": "Bật Tối ưu hiệu năng để giảm tải Bài tập đã giao, Danh sách bài đã nộp, Tài liệu học tập, Lộ trình và Lịch.",
+            "details": [
+                "Bật Tối ưu hiệu năng để giảm tải Bài tập đã giao, Danh sách bài đã nộp, Tài liệu học tập, Lộ trình và Lịch.",
+                "Ảnh/video tải khi gần vùng xem; âm thanh chờ bấm phát. Dòng và thẻ ngoài vùng xem được giảm công việc hiển thị khi trình duyệt hỗ trợ.",
+                "Xem trực tiếp chỉ tải tài liệu bạn mở. Bấm lặp khi DOCX đang tải dùng chung một lượt xử lý; mở tài liệu khác không bị kết quả cũ ghi đè. Mất mạng thì mở lại khi kết nối ổn định.",
+                "Tùy chọn không thay dữ liệu, quyền truy cập, chấm điểm hoặc thời hạn; không làm giảm dung lượng gốc của tệp tài liệu."
+            ]
+        }
+    ],
+    "student": [
+        {
+            "id": "mc-workspace-new",
+            "icon": "📝",
+            "title": "Trắc nghiệm toàn màn hình",
+            "tabId": "tab-todo",
+            "selector": "#assignmentsList",
+            "access": "Bài tập cần làm → mở bài → Làm trắc nghiệm.",
+            "description": "Bấm Làm trắc nghiệm để mở cửa sổ toàn trang; phần tự luận vẫn ở bài tập bên ngoài.",
+            "details": [
+                "Bấm Làm trắc nghiệm để mở cửa sổ toàn trang; phần tự luận vẫn ở bài tập bên ngoài.",
+                "Chọn đáp án và dùng danh sách số câu để chuyển nhanh giữa các câu. Kiểm tra các câu còn bỏ trống trước khi hoàn tất.",
+                "Nút nộp trong cửa sổ trắc nghiệm chỉ xác nhận phần trắc nghiệm với website. Muốn gửi toàn bài cho giáo viên, đóng cửa sổ và bấm Nộp bài ở bài tập bên ngoài.",
+                "Bài trắc nghiệm/kết hợp hiển thị hạn nộp. Bài thi chỉ có bộ đếm khi giáo viên bật Giới hạn thời gian làm bài; đó là thời gian thu toàn bài, không phải riêng phần trắc nghiệm.",
+                "Mất mạng hoặc tải lại: mở lại đúng tài khoản và bài để kiểm tra bản nháp. Đừng xóa dữ liệu trình duyệt khi chưa gửi được bài; chỉ coi là đã nộp khi website xác nhận.",
+                "Chỉ làm trên một tab hoặc thiết bị. Nếu bài đang do phiên khác giữ, phiên mở sau bị khóa; quay lại phiên đang làm, không cố gửi song song.",
+                "Sau khi nộp cho giáo viên, vào Kết quả học tập → Xem đáp án. Điểm TN nằm cạnh nút; đáp án đúng có viền xanh, đáp án đã chọn sai có viền đỏ."
+            ]
+        },
+        {
+            "id": "appeals-new",
+            "icon": "⚖️",
+            "title": "Kháng cáo bài vi phạm",
+            "tabId": "tab-grades",
+            "selector": "#gradesList",
+            "access": "Kết quả học tập → mở bài vi phạm đã được chấm → Kháng cáo.",
+            "description": "Chỉ bài vi phạm đã được giáo viên chấm xong mới có thể gửi kháng cáo. Nhập lý do từ 10–2000 ký tự, nêu rõ vấn đề và bằng chứng cần kiểm tra.",
+            "details": [
+                "Chỉ bài vi phạm đã được giáo viên chấm xong mới có thể gửi kháng cáo. Nhập lý do từ 10–2000 ký tự, nêu rõ vấn đề và bằng chứng cần kiểm tra.",
+                "Trạng thái lần lượt là Đã gửi → Đang tiếp nhận khi giáo viên mở xem → Đã hoàn tất khi có quyết định.",
+                "Hoàn tất có thể là Đồng ý hoặc Từ chối. Hộp thư sẽ nhận kết quả và lý do, không có hiệu ứng thư bay.",
+                "Đồng ý chưa đồng nghĩa tiền/vé đã được cộng. Giáo viên cần kiểm tra và đối soát; phạt nhầm có thể được hoàn phạt, vi phạm nhẹ chỉ được xét thưởng lại.",
+                "Cho làm lại không phải tha lỗi. Làm lại và nhận điểm mới không tự xóa vi phạm, hoàn phạt hoặc cấp thưởng.",
+                "Nếu mạng gián đoạn, mở lại kháng cáo để đọc trạng thái đã lưu trước khi thử lại; không gửi một kháng cáo khác cho cùng bài.",
+                "Sau 7 ngày, kháng cáo hoàn tất được ẩn và rút gọn nội dung khi giáo viên mở web. Kháng cáo đồng ý còn chờ đối soát được giữ lại; dấu xác nhận đã xử lý vẫn được lưu."
+            ]
+        },
+        {
+            "id": "collection-rewards-new",
+            "icon": "🎁",
+            "title": "Phần thưởng bộ sưu tập",
+            "tabId": "tab-store",
+            "selector": "#storeCollectionArrow",
+            "access": "Cửa hàng → mũi tên cạnh tiêu đề → Phần thưởng.",
+            "description": "Đây là danh mục nền đặc biệt không bán. Nền chưa mở hiện tối đen, chỉ giữ tag; không có nút mua.",
+            "details": [
+                "Đây là danh mục nền đặc biệt không bán. Nền chưa mở hiện tối đen, chỉ giữ tag; không có nút mua.",
+                "Mở Xem vật phẩm cần thu thập để biết món nào còn thiếu. Chỉ tính vật phẩm mua vĩnh viễn có biên nhận hợp lệ; đồ dùng thử, quà tặng và đồ nhận sự kiện không tính.",
+                "Bộ có một nền thưởng sẽ tự mở khi đủ điều kiện và bạn đang đăng nhập, có mạng. Bộ có nhiều nền cho chọn một; kiểm tra kỹ trước khi xác nhận vì không đổi lựa chọn sau khi nhận.",
+                "Nền đã mở có nút Sử dụng nền. Nhận thưởng không trừ Coin và không tự trang bị nền.",
+                "Mỗi bộ chỉ nhận một lần kể cả mở nhiều tab. Nếu mất mạng, lựa chọn được giữ trên trình duyệt; kết nối lại để đối soát, hoặc bấm Kiểm tra / thử lại. Không đổi nền khi yêu cầu cũ chưa xác nhận.",
+                "Món mua từ bản cũ thiếu biên nhận có thể chưa được tính. Liên hệ giáo viên để đối soát, không mua lại chỉ để thử sửa tiến độ."
+            ]
+        },
+        {
+            "id": "list-performance-new",
+            "icon": "⚡",
+            "title": "Tải tài liệu và danh sách nhẹ hơn",
+            "tabId": "tab-settings",
+            "selector": "#webPerformanceOptimizerSettingsRow",
+            "access": "Cài đặt → Tối ưu hiệu năng.",
+            "description": "Bật Tối ưu hiệu năng khi danh sách dài hoặc máy chậm. Các mục Bài tập cần làm, Kết quả học tập, Tài liệu học tập và hai cửa hàng được giảm tải hiển thị ngoài vùng xem.",
+            "details": [
+                "Bật Tối ưu hiệu năng khi danh sách dài hoặc máy chậm. Các mục Bài tập cần làm, Kết quả học tập, Tài liệu học tập và hai cửa hàng được giảm tải hiển thị ngoài vùng xem.",
+                "Ảnh/video tải khi gần vùng xem; âm thanh chờ bấm phát. Tệp tài liệu vẫn mở bằng nút xem/tải hiện có. Bấm lặp khi DOCX đang tải dùng chung một lượt xử lý.",
+                "Tùy chọn này không thay điểm, hạn nộp, bộ đếm bài thi, tiền hoặc phần thưởng. Không làm giảm dung lượng của chính tệp tài liệu.",
+                "Ảnh đã tải trước khi bật không bị tải lại. Có thể tắt tối ưu trong Cài đặt nếu muốn trở về cách hiển thị cũ."
+            ]
+        }
+    ]
+};
+    for (const role of ['teacher','student']) roleData[role].features.push(...recentFeatureGuides[role]);
+    function recentFeatureSteps(role) {
+        return recentFeatureGuides[role].flatMap(feature => feature.details.map((description,index) => ({featureId:feature.id,tabId:feature.tabId,selector:feature.selector,title:feature.title+' · '+(index+1),description,access:feature.access})));
+    }
+
     function readCurrentUser() {
         try {
             return JSON.parse(localStorage.getItem('currentUser')) || {};
@@ -580,6 +726,7 @@
     }
 
     function normalizeRemoteTrainingProgress(value) {
+        if (value?.requiredTrainingVersion !== REQUIRED_STUDENT_TRAINING_VERSION) return 0;
         const progress = Number(
             value?.requiredTrainingCurrentStep ??
             value?.trainingStep ??
@@ -5248,8 +5395,8 @@
     function buildTourSteps(featureId = null) {
         const data = roleData[state.role];
         const detailSteps = state.role === 'teacher'
-            ? teacherTourSteps()
-            : studentTourSteps();
+            ? [...teacherTourSteps(), ...recentFeatureSteps('teacher')]
+            : [...studentTourSteps(), ...recentFeatureSteps('student')];
 
         const selectedSteps = featureId
             ? detailSteps.filter(step => step.featureId === featureId)
@@ -5296,7 +5443,7 @@
     }
 
     function buildRequiredTrainingTourSteps() {
-        const detailSteps = studentTourSteps()
+        const detailSteps = [...studentTourSteps(), ...recentFeatureSteps('student')]
             .filter(step =>
                 REQUIRED_STUDENT_TRAINING_FEATURES
                     .includes(step.featureId)
@@ -5305,9 +5452,9 @@
         return [
             {
                 id: 'required-training-welcome',
-                title: 'Hướng dẫn bắt buộc: Nộp bài, cập nhật & hiệu năng',
+                title: 'Hướng dẫn bắt buộc: Các chức năng mới',
                 description:
-                    'Website có một số chức năng quan trọng em cần biết: cách nộp bài và xử lý lỗi, kiểm tra cập nhật, mức hiệu ứng vật phẩm & web và tối ưu hiệu năng. Mỗi học sinh chỉ phải hoàn thành mô-đun này một lần.',
+                    'Em cần xem hướng dẫn trắc nghiệm toàn màn hình, kháng cáo, phần thưởng bộ sưu tập và tối ưu tải tài liệu. Đợt hướng dẫn mới này chỉ cần hoàn thành một lần.',
                 access:
                     'Hướng dẫn có mô phỏng an toàn; không gửi bài giả, không đổi điểm, Coin, vật phẩm hoặc dữ liệu tài khoản.',
                 selector: '.dashboard'
@@ -5317,7 +5464,7 @@
                 id: 'required-training-finish',
                 title: 'Đã hoàn thành hướng dẫn bắt buộc',
                 description:
-                    'Em đã xem xong cách nộp bài, nhận biết các lỗi thường gặp, kiểm tra cập nhật và điều chỉnh hiệu ứng/hiệu năng. Từ lần sau hệ thống không bắt xem lại mô-đun này.',
+                    'Em đã xem xong bốn chức năng mới. Bấm Hoàn tất để lưu; từ lần sau hệ thống không bắt xem lại đợt hướng dẫn này.',
                 access:
                     'Bấm Hoàn tất. Khi cần, em vẫn có thể mở nút dấu hỏi và xem lại từng mục.',
                 selector: '.dashboard'

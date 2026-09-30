@@ -4638,6 +4638,30 @@ window.clearAutoSave = function (storageKey) {
         window.__filePreviewRegistry || {};
 
     let previewCounter = 0;
+    let previewGeneration = 0;
+    let previewPendingKey = null;
+    // Only retain in-flight document work. Large/private documents are not cached on disk.
+    const docxWork = new Map();
+    function loadDocx(item) {
+        if (docxWork.has(item.url)) return docxWork.get(item.url);
+        const work = (async () => {
+            let buffer;
+            if (item.url.startsWith('data:')) buffer = dataUrlToArrayBuffer(item.url);
+            else {
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 30000);
+                try {
+                    const response = await fetch(item.url, {signal: controller.signal});
+                    if (!response.ok) throw Error('Không tải được DOCX');
+                    buffer = await response.arrayBuffer();
+                } finally { clearTimeout(timeout); }
+            }
+            return window.mammoth.convertToHtml({arrayBuffer: buffer});
+        })();
+        docxWork.set(item.url, work);
+        work.then(() => docxWork.delete(item.url), () => docxWork.delete(item.url));
+        return work;
+    }
 
     // Chống chèn mã HTML vào giao diện
     function escapeHTML(value) {
@@ -5176,6 +5200,9 @@ window.clearAutoSave = function (storageKey) {
             return;
         }
 
+        if (previewPendingKey === key) return;
+        const generation = ++previewGeneration;
+        previewPendingKey = key;
         const modal = ensureModal();
 
         window.__activePreviewKey = key;
@@ -5282,39 +5309,8 @@ window.clearAutoSave = function (storageKey) {
                 // Ưu tiên dùng Mammoth.js
                 if (window.mammoth) {
                     try {
-                        let arrayBuffer;
-
-                        // DOCX được lưu Base64 trong Firebase
-                        if (
-                            item.url.startsWith(
-                                'data:'
-                            )
-                        ) {
-                            arrayBuffer =
-                                dataUrlToArrayBuffer(
-                                    item.url
-                                );
-                        } else {
-                            // DOCX dạng link công khai
-                            const response =
-                                await fetch(item.url);
-
-                            if (!response.ok) {
-                                throw new Error(
-                                    'Không tải được DOCX'
-                                );
-                            }
-
-                            arrayBuffer =
-                                await response.arrayBuffer();
-                        }
-
-                        const result =
-                            await window.mammoth
-                                .convertToHtml({
-                                    arrayBuffer:
-                                        arrayBuffer
-                                });
+                        const result = await loadDocx(item);
+                        if (generation !== previewGeneration) return;
 
                         const article =
                             document.createElement(
@@ -5342,6 +5338,7 @@ window.clearAutoSave = function (storageKey) {
 
                         return;
                     } catch (docxError) {
+                        if (generation !== previewGeneration) return;
                         console.warn(
                             'Không thể đọc DOCX trực tiếp bằng Mammoth:',
                             docxError
@@ -5458,6 +5455,8 @@ window.clearAutoSave = function (storageKey) {
                     Không thể tải nội dung tài liệu.
                 </div>
             `;
+        } finally {
+            if (generation === previewGeneration) previewPendingKey = null;
         }
     };
 
@@ -5502,6 +5501,8 @@ window.clearAutoSave = function (storageKey) {
 
     // Đóng cửa sổ xem file
     window.closeFilePreview = function () {
+        previewGeneration++;
+        previewPendingKey = null;
         const modal =
             document.getElementById(
                 'universalFilePreviewModal'
