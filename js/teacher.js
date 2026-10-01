@@ -41,10 +41,10 @@ async function reauthenticateTeacherForDangerousAction(actionLabel) {
         throw new Error('Tài khoản hiện tại không còn quyền Giáo viên.');
     }
 
-    const enteredPassword = window.prompt(
+    const enteredPassword = (await AppDialog.prompt(
         `🔐 Xác nhận ${String(actionLabel || 'thao tác nhạy cảm')}\n` +
-        'Nhập lại MẬT KHẨU GIÁO VIÊN hiện tại:'
-    );
+        'Nhập lại MẬT KHẨU GIÁO VIÊN hiện tại:', '', { password: true, title: 'Xác thực giáo viên', inputLabel: 'Mật khẩu giáo viên' }
+    ));
 
     if (enteredPassword === null) return false;
     if (!enteredPassword) throw new Error('Bạn chưa nhập mật khẩu Giáo viên.');
@@ -3015,7 +3015,7 @@ window.handleTeacherFileAccumulate = function (input, subId) {
         // Chỉ nâng file âm thanh lên 30MB; file thường giữ nguyên 5MB.
         if (currentFile.size > maxSizeBytes) {
             const maxMB = maxSizeBytes / (1024 * 1024);
-            alert(`⚠️ File "${currentFile.name}" quá lớn (${(currentFile.size / (1024 * 1024)).toFixed(2)}MB). Hệ thống chỉ cho phép tối đa ${maxMB.toFixed(0)}MB/file và đã tự động loại bỏ file này!`);
+            AppDialog.notify(`⚠️ File "${currentFile.name}" quá lớn (${(currentFile.size / (1024 * 1024)).toFixed(2)}MB). Hệ thống chỉ cho phép tối đa ${maxMB.toFixed(0)}MB/file và đã tự động loại bỏ file này!`);
             hasOversize = true;
             continue;
         }
@@ -3170,7 +3170,7 @@ window.showTeacherQuestionError = function (
             '0 0 0 5px rgba(225, 29, 72, 0.15)';
     }
 
-    alert(
+    AppDialog.notify(
         `⚠️ Câu ${questionNumber} còn thiếu:\n` +
         missingItems
             .map(item => `• ${item}`)
@@ -3423,7 +3423,7 @@ window.onload = async function () {
     } catch (error) {
         console.error('[Auth initialization]', error);
         if (startupLoader) startupLoader.fail('Không xác thực được phiên đăng nhập.', 'Kiểm tra kết nối rồi tải lại trang để thử lại.', 'auth');
-        else alert('Không xác thực được phiên đăng nhập. Kiểm tra kết nối rồi tải lại trang.');
+        else (await AppDialog.alert('Không xác thực được phiên đăng nhập. Kiểm tra kết nối rồi tải lại trang.'));
         return;
     }
 
@@ -3435,7 +3435,7 @@ window.onload = async function () {
             'Không tìm thấy phiên Firebase Auth hợp lệ.'
         );
         if (startupLoader) startupLoader.fail('Không tìm thấy phiên đăng nhập hợp lệ.', 'Hãy đăng nhập lại để tiếp tục.', 'auth');
-        alert("⛔ Lỗi: Không tìm thấy phiên đăng nhập hợp lệ!");
+        (await AppDialog.alert("⛔ Lỗi: Không tìm thấy phiên đăng nhập hợp lệ!"));
         localStorage.removeItem('currentUser');
         window.location.href = 'index.html';
         return;
@@ -3464,10 +3464,10 @@ window.onload = async function () {
             );
         }
 
-        alert(
+        (await AppDialog.alert(
             '⚠️ Chưa thể xác minh quyền giáo viên do lỗi kết nối hoặc Firebase.\n' +
             'Vui lòng kiểm tra mạng rồi tải lại trang. Tài khoản không bị đăng xuất vì lỗi này.'
-        );
+        ));
 
         return;
     }
@@ -3481,7 +3481,7 @@ window.onload = async function () {
             'denied',
             'UID/role không khớp dữ liệu Giáo viên trên Firebase.'
         );
-        alert("⛔ Phát hiện can thiệp dữ liệu phân quyền! Buộc đăng xuất.");
+        (await AppDialog.alert("⛔ Phát hiện can thiệp dữ liệu phân quyền! Buộc đăng xuất."));
         firebase.auth().signOut();
         localStorage.removeItem('currentUser');
         window.location.href = 'index.html';
@@ -4287,7 +4287,7 @@ window.handleVideoSummaryToggle =
                 mode
             );
 
-            alert(
+            AppDialog.notify(
                 '⚠️ Vui lòng dán link video ' +
                 'trước khi bật Tóm tắt.'
             );
@@ -4310,7 +4310,7 @@ window.openVideoSummaryEditor =
                 videoInput?.value || ''
             ).trim()
         ) {
-            alert(
+            AppDialog.notify(
                 '⚠️ Vui lòng dán link video trước.'
             );
 
@@ -4414,7 +4414,7 @@ window.saveVideoSummaryEditor =
             ).trim();
 
         if (!value) {
-            alert(
+            AppDialog.notify(
                 '⚠️ Vui lòng nhập nội dung ' +
                 'tóm tắt trước khi lưu.'
             );
@@ -4469,14 +4469,14 @@ async function createAssignment() {
     // ==========================================
     // Chỉ bắt buộc tiêu đề, thời gian được phép để trống.
     if (!title) {
-        return alert("⚠️ Vui lòng nhập Tiêu đề bài tập!");
+        return (await AppDialog.alert("⚠️ Vui lòng nhập Tiêu đề bài tập!"));
     }
 
     if (title.length < 5) {
-        return alert(
+        return (await AppDialog.alert(
             "⚠️ Tiêu đề bài tập quá ngắn " +
             "(yêu cầu ít nhất 5 ký tự)!"
-        );
+        ));
     }
 
     // ==================================================
@@ -4513,11 +4513,11 @@ async function createAssignment() {
 
             renderAssignmentDuplicateHint([], { error: true });
 
-            return alert(
+            return (await AppDialog.alert(
                 '⚠️ Chưa thể kiểm tra bài đã giao trên Firebase. ' +
                 'Để tránh tạo bài trùng, hệ thống tạm dừng phát hành. ' +
                 'Vui lòng kiểm tra kết nối và thử lại.'
-            );
+            ));
         } finally {
             if (publishButton) {
                 publishButton.disabled = false;
@@ -4533,12 +4533,12 @@ async function createAssignment() {
 
             document.getElementById('title')?.focus();
 
-            return alert(
+            return (await AppDialog.alert(
                 '⛔ Phát hiện bài có khả năng đã được giao trước đó.\n\n' +
                 `Bài cũ: ${duplicateMatches[0].assignment?.title || ''}\n` +
                 'Hệ thống đã dừng phát hành để tránh tạo bài trùng.\n\n' +
                 'Nếu đây thực sự là lần giao mới có chủ đích, hãy bấm “Vẫn giao 1 lần” bên dưới ô Tiêu đề rồi phát hành lại.'
-            );
+            ));
         }
     }
 
@@ -4553,23 +4553,23 @@ async function createAssignment() {
 
     // Kiểm tra dữ liệu ngày không hợp lệ.
     if (start && Number.isNaN(start.getTime())) {
-        return alert(
+        return (await AppDialog.alert(
             "⚠️ Thời gian bắt đầu không hợp lệ!"
-        );
+        ));
     }
 
     if (end && Number.isNaN(end.getTime())) {
-        return alert(
+        return (await AppDialog.alert(
             "⚠️ Hạn nộp bài không hợp lệ!"
-        );
+        ));
     }
 
     // Chỉ so sánh khi giáo viên nhập cả hai mốc thời gian.
     if (start && end && start >= end) {
-        return alert(
+        return (await AppDialog.alert(
             "⏳ Hạn nộp bài phải diễn ra sau " +
             "thời gian bắt đầu!"
-        );
+        ));
     }
 
     // Kiểm tra định dạng link YouTube (Nếu có nhập)
@@ -4580,14 +4580,11 @@ async function createAssignment() {
     videoLink = rawVideoLink;
 
     if (rawVideoLink) {
-        const ytRegex =
-            /^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/;
-
-        if (!ytRegex.test(rawVideoLink)) {
-            return alert(
+        if (!window.VideoDuration.videoId(rawVideoLink)) {
+            return (await AppDialog.alert(
                 "🔗 Lỗi: Đường dẫn video không hợp lệ! " +
                 "Hệ thống hiện chỉ hỗ trợ link từ YouTube."
-            );
+            ));
         }
     }
 
@@ -4614,9 +4611,9 @@ async function createAssignment() {
         videoSummaryEnabled &&
         !rawVideoLink
     ) {
-        return alert(
+        return (await AppDialog.alert(
             '⚠️ Tóm tắt chỉ hoạt động khi bài có link video.'
-        );
+        ));
     }
 
     // Đã tick nhưng chưa nhập hoặc chưa lưu nội dung
@@ -4628,9 +4625,9 @@ async function createAssignment() {
             'create'
         );
 
-        return alert(
+        return (await AppDialog.alert(
             '⚠️ Vui lòng nhập và lưu nội dung tóm tắt.'
-        );
+        ));
     }
 
     // BƯỚC 1: XỬ LÝ ĐIỂM SỐ TRƯỚC (Gỡ bỏ bắt buộc bằng 10 cho hệ thi)
@@ -4639,10 +4636,10 @@ async function createAssignment() {
         essayWeight = parseFloat(document.getElementById('essayWeight').value) || 0;
 
         if (!Number.isFinite(mcWeight) || !Number.isFinite(essayWeight) || mcWeight < 0 || essayWeight < 0 || Math.abs(mcWeight + essayWeight - 10) > 0.000001) {
-            return alert("Tổng điểm Trắc nghiệm và Tự luận trong loại hình Kết hợp phải đúng bằng 10!");
+            return (await AppDialog.alert("Tổng điểm Trắc nghiệm và Tự luận trong loại hình Kết hợp phải đúng bằng 10!"));
         }
         if (type === 'thi' && mcWeight === 0 && essayWeight === 0) {
-            return alert("Vui lòng nhập điểm tối đa cho phần Trắc nghiệm hoặc Tự luận!");
+            return (await AppDialog.alert("Vui lòng nhập điểm tối đa cho phần Trắc nghiệm hoặc Tự luận!"));
         }
     }
 
@@ -4665,9 +4662,9 @@ async function createAssignment() {
                 examTimeLimitMinutes <= 0 ||
                 !Number.isInteger(examTimeLimitMinutes)
             ) {
-                return alert(
+                return (await AppDialog.alert(
                     '⚠️ Thời gian làm bài phải là số phút nguyên lớn hơn 0!'
-                );
+                ));
             }
         }
     }
@@ -4745,9 +4742,9 @@ async function createAssignment() {
             });
         });
         if (questions.length === 0) {
-            return alert(
+            return (await AppDialog.alert(
                 'Vui lòng thêm ít nhất 1 câu hỏi trắc nghiệm!'
-            );
+            ));
         }
 
         const createQuestionBlocks =
@@ -4841,6 +4838,10 @@ async function createAssignment() {
         }
     }
 
+    if (!assignmentVideoDuration.canSave('cond', rawVideoLink)) {
+        return (await AppDialog.alert('Vui lòng chờ đọc xong thời lượng video; nếu có lỗi hãy dán lại link để thử lại.'));
+    }
+    assignmentVideoDuration.validate('cond');
     let watchCondition = 0;
     if (rawVideoLink) {
         const d = parseInt(document.getElementById('condDay').value) || 0;
@@ -4857,8 +4858,12 @@ async function createAssignment() {
         )
         : window.getDisabledRandomExamConfig();
 
+    if (randomExamConfig.enabled && !randomExamConfig.error) {
+        try { window.RandomExamEngine.versions(questions, randomExamConfig); }
+        catch (error) { return await AppDialog.alert(error.message); }
+    }
     if (randomExamConfig.error) {
-        return alert(randomExamConfig.error);
+        return (await AppDialog.alert(randomExamConfig.error));
     }
 
     await pushDB('assignments', {
@@ -4907,6 +4912,7 @@ async function createAssignment() {
     document.getElementById('title').value = ''; document.getElementById('desc').value = '';
     document.getElementById('startDate').value = ''; document.getElementById('endDate').value = '';
     document.getElementById('videoLink').value = ''; document.getElementById('fileInput').value = '';
+    assignmentVideoDuration.update('cond', '');
     document.getElementById('questionsContainer').innerHTML = ''; questionCount = 0;
     window.resetRandomExamConfigForm(false);
     if (document.getElementById('hideEssayText')) document.getElementById('hideEssayText').checked = false; // Reset checkbox
@@ -4965,7 +4971,7 @@ async function createAssignment() {
         'assignments'
     );
 
-    alert("Giao bài tập thành công!");
+    (await AppDialog.alert("Giao bài tập thành công!"));
 }
 
 async function loadAssignedList(isLoadMore = false) {
@@ -5261,23 +5267,7 @@ async function loadAssignedList(isLoadMore = false) {
         let quizHTML = '';
         const hasMC = assign.assessmentType === 'trac_nghiem' || assign.assessmentType === 'ket_hop' || (assign.assessmentType === 'thi' && (assign.mcWeight || 0) > 0);
         if (hasMC && assign.questions) {
-            quizHTML = `<div style="background: rgba(255,255,255,0.5); padding: 10px; border-radius: 8px; margin-top: 10px; margin-bottom: 15px;"><strong>Trắc nghiệm:</strong><ul style="margin-left: 20px;">`;
-            assign.questions.forEach((q, idx) => {
-                const safeQuestion =
-                    escapeHTMLForMath(q.qText);
-
-                const safeCorrect =
-                    escapeHTMLForMath(q.correct);
-
-                quizHTML += `
-        <li>
-            Câu ${idx + 1}:
-            ${safeQuestion}
-            <strong>(${safeCorrect})</strong>
-        </li>
-    `;
-            });
-            quizHTML += '</ul></div>';
+            quizHTML = '<div class="assigned-quiz-actions"><strong>Trắc nghiệm · ' + assign.questions.length + ' câu</strong> <button type="button" data-edit-assigned-quiz="' + escapeHTMLForMath(assign._fbKey || assign.id) + '">✎ Sửa trắc nghiệm</button></div>';
         }
 
         const hasEssay =
@@ -5422,7 +5412,7 @@ function initMaterialFileListener() {
                 file.size >
                 maxSizeBytes
             ) {
-                alert(
+                AppDialog.notify(
                     `⚠️ File "${file.name}" ` +
                     `vượt giới hạn ${(
                         maxSizeBytes / (1024 * 1024)
@@ -5475,9 +5465,9 @@ async function createMaterial() {
         );
 
     if (!title) {
-        return alert(
+        return (await AppDialog.alert(
             'Vui lòng nhập tiêu đề tài liệu!'
-        );
+        ));
     }
 
     /*
@@ -5489,10 +5479,10 @@ async function createMaterial() {
         !docLink &&
         !attachedMaterialFileData
     ) {
-        return alert(
+        return (await AppDialog.alert(
             'Vui lòng đính kèm video, ' +
             'link hoặc file tài liệu!'
-        );
+        ));
     }
 
     let uploadedFile = null;
@@ -5502,9 +5492,9 @@ async function createMaterial() {
             !window.CloudflareR2Storage ||
             typeof window.CloudflareR2Storage.uploadFile !== 'function'
         ) {
-            return alert(
+            return (await AppDialog.alert(
                 'Không tìm thấy cloudflare-r2-storage.js!'
-            );
+            ));
         }
 
         try {
@@ -5523,9 +5513,9 @@ async function createMaterial() {
         } catch (error) {
             console.error(error);
 
-            return alert(
+            return (await AppDialog.alert(
                 `❌ Không tải được tài liệu: ${error.message}`
-            );
+            ));
         }
     }
 
@@ -5594,9 +5584,9 @@ async function createMaterial() {
 
     closeMaterialModal();
 
-    alert(
+    (await AppDialog.alert(
         'Đăng tải tài liệu học tập thành công!'
-    );
+    ));
 }
 
 async function loadMaterialsListTeacher() {
@@ -5737,9 +5727,9 @@ async function deleteStoredFilesBeforeFirebase(
 window.deleteMaterial =
     async function (fbKey) {
         if (
-            !confirm(
+            !(await AppDialog.confirm(
                 'Bạn có chắc chắn muốn xóa tài liệu học tập này không?'
-            )
+            ))
         ) {
             return;
         }
@@ -5756,9 +5746,9 @@ window.deleteMaterial =
                 );
 
             if (!snapshot.exists()) {
-                return alert(
+                return (await AppDialog.alert(
                     'Tài liệu không còn tồn tại.'
-                );
+                ));
             }
 
             const material =
@@ -5775,26 +5765,26 @@ window.deleteMaterial =
 
             await materialRef.remove();
 
-            alert(
+            (await AppDialog.alert(
                 'Đã xóa tài liệu và file đính kèm!'
-            );
+            ));
         } catch (error) {
             console.error(error);
 
-            alert(
+            (await AppDialog.alert(
                 'Không thể xóa tài liệu: ' +
                 error.message
-            );
+            ));
         }
     };
 
 window.deleteAssignment =
     async function (assignId) {
         if (
-            !confirm(
+            !(await AppDialog.confirm(
                 'Bạn có chắc chắn muốn xóa bài tập này?\n' +
                 'Tất cả bài học sinh đã nộp cho bài này cũng sẽ bị xóa.'
-            )
+            ))
         ) {
             return;
         }
@@ -5811,9 +5801,9 @@ window.deleteAssignment =
                 );
 
             if (!snapshot.exists()) {
-                return alert(
+                return (await AppDialog.alert(
                     'Bài tập không còn tồn tại.'
-                );
+                ));
             }
 
             const assignment = {
@@ -5909,11 +5899,11 @@ window.deleteAssignment =
                 element.remove();
             }
 
-            alert(
+            (await AppDialog.alert(
                 'Đã xóa bài tập, ' +
                 `${relatedSubmissions.length} bài nộp ` +
                 (storageCleanupFailed ? 'trên cơ sở dữ liệu. Một số tệp chưa xóa được; cần kiểm tra kho tệp.' : 'và toàn bộ file liên quan!')
-            );
+            ));
 
             if (
                 typeof loadSubmissions ===
@@ -5926,10 +5916,10 @@ window.deleteAssignment =
         } catch (error) {
             console.error(error);
 
-            alert(
+            (await AppDialog.alert(
                 'Không thể xóa bài tập: ' +
                 error.message
-            );
+            ));
         }
     };
 
@@ -5965,7 +5955,7 @@ function initFileListener() {
             // Chỉ nâng file âm thanh lên 30MB; file thường giữ nguyên 5MB.
             if (currentFile.size > maxSizeBytes) {
                 const maxMB = maxSizeBytes / (1024 * 1024);
-                alert(`⚠️ File "${currentFile.name}" quá lớn (${(currentFile.size / (1024 * 1024)).toFixed(2)}MB). Hệ thống chỉ cho phép tối đa ${maxMB.toFixed(0)}MB/file và đã tự động loại bỏ file này để bảo vệ máy chủ!`);
+                AppDialog.notify(`⚠️ File "${currentFile.name}" quá lớn (${(currentFile.size / (1024 * 1024)).toFixed(2)}MB). Hệ thống chỉ cho phép tối đa ${maxMB.toFixed(0)}MB/file và đã tự động loại bỏ file này để bảo vệ máy chủ!`);
                 hasOversize = true;
                 continue; // Bỏ qua, không đưa vào danh sách cộng dồn
             }
@@ -6620,14 +6610,14 @@ window.deleteStudentSubmissionFile = async function (
     fileIndex
 ) {
     if (deletingStudentSubmissionFile) {
-        alert('⏳ Hệ thống đang xử lý một file khác.');
+        (await AppDialog.alert('⏳ Hệ thống đang xử lý một file khác.'));
         return;
     }
 
-    const confirmed = confirm(
+    const confirmed = (await AppDialog.confirm(
         'Bạn có chắc chắn muốn xóa file học sinh đã nộp không?\n\n' +
         'File sẽ bị xóa vĩnh viễn khỏi Cloudflare và không thể khôi phục.'
-    );
+    ));
 
     if (!confirmed) {
         return;
@@ -6722,9 +6712,9 @@ window.deleteStudentSubmissionFile = async function (
                 .set(currentFiles);
         }
 
-        alert(
+        (await AppDialog.alert(
             '✅ Đã xóa file học sinh khỏi Cloudflare và bài nộp.'
-        );
+        ));
 
         /*
          * Tải lại danh sách, không ảnh hưởng điểm,
@@ -6739,10 +6729,10 @@ window.deleteStudentSubmissionFile = async function (
             error
         );
 
-        alert(
+        (await AppDialog.alert(
             '❌ Không thể xóa file học sinh: ' +
             error.message
-        );
+        ));
 
         if (button) {
             button.disabled = false;
@@ -10413,13 +10403,13 @@ async function gradeSubmissionCore(subId) {
     const rawGrade = String(gradeInput?.value ?? '').trim();
 
     if (rawGrade === '') {
-        return alert('Vui lòng nhập điểm!');
+        return (await AppDialog.alert('Vui lòng nhập điểm!'));
     }
 
     const grade = Number(rawGrade);
 
     if (!Number.isFinite(grade) || grade < 0 || grade > 10) {
-        return alert('⚠️ Điểm phải là số từ 0 đến 10.');
+        return (await AppDialog.alert('⚠️ Điểm phải là số từ 0 đến 10.'));
     }
 
     const commentInput = document.getElementById(`teacherComment-${subId}`);
@@ -10431,7 +10421,7 @@ async function gradeSubmissionCore(subId) {
         const sub = submissions.find(s => s.id === subId);
 
         if (!sub) {
-            alert('❌ Không tìm thấy bài nộp để chấm.');
+            (await AppDialog.alert('❌ Không tìm thấy bài nộp để chấm.'));
             return;
         }
 
@@ -10565,10 +10555,10 @@ async function gradeSubmissionCore(subId) {
                 error?.message === 'GRADE_REWARD_CLAIM_IN_PROGRESS' ||
                 error?.message === 'GRADE_REWARD_MUTATION_IN_PROGRESS'
             ) {
-                alert(
+                (await AppDialog.alert(
                     '⏳ Học sinh đang nhận phần thưởng hoặc hệ thống đang đối soát bài này. ' +
                     'Vui lòng đợi vài giây rồi lưu điểm lại để tránh cộng/trừ trùng.'
-                );
+                ));
                 return;
             }
 
@@ -10695,27 +10685,27 @@ async function gradeSubmissionCore(subId) {
         window.renderTeacherGradePendingFiles(subId);
 
         if (rewardError) {
-            alert(
+            (await AppDialog.alert(
                 '⚠️ Điểm đã được lưu, nhưng Hộp thư thưởng/phạt chưa xử lý xong. ' +
                 'Hãy bấm Lưu điểm lại để hệ thống thử lại.'
-            );
+            ));
         } else if (rewardResult?.status === 'pending_claim') {
-            alert(
+            (await AppDialog.alert(
                 '✅ Đã chấm điểm thành công! Phần thưởng mới đã được gửi ngay vào Hộp thư học sinh.'
-            );
+            ));
         } else if (rewardResult?.status === 'penalty_applied') {
-            alert(
+            (await AppDialog.alert(
                 `✅ Đã chấm điểm thành công! Hệ thống đã trừ ` +
                 `${Math.abs(Number(rewardResult.ticketDelta || 0))} vé và gửi thông báo vào Hộp thư.`
-            );
+            ));
         } else if (rewardResult?.status === 'claimed') {
-            alert(
+            (await AppDialog.alert(
                 '✅ Điểm được lưu. Phần thưởng của đúng mốc điểm này đã được học sinh nhận trước đó nên không cộng lần hai.'
-            );
+            ));
         } else {
-            alert(
+            (await AppDialog.alert(
                 '✅ Đã chấm điểm thành công! Thưởng/phạt của đúng mốc này đã được xử lý trước đó nên không phát sinh lần hai.'
-            );
+            ));
         }
 
         await loadSubmissions();
@@ -10754,13 +10744,13 @@ async function gradeSubmissionCore(subId) {
 
 window.requestRegrade = async function (subKey) {
     if (
-        !confirm(
+        !(await AppDialog.confirm(
             'Bạn có chắc chắn muốn tiến hành chấm lại bài này?\n\n' +
             '• Thư thưởng CHƯA NHẬN sẽ bị khóa tạm thời, học sinh chưa thể nhận.\n' +
             '• Nếu học sinh ĐÃ NHẬN, hệ thống thu hồi trực tiếp Vé + Coin cũ ngay.\n' +
             '• Nếu chấm lại đúng cùng điểm cũ, thư chưa nhận sẽ được mở lại.\n' +
             '• Nếu điểm mới cao/thấp hơn, thư cũ bị hủy và hệ thống phát kết quả mới.'
-        )
+        ))
     ) {
         return;
     }
@@ -10771,7 +10761,7 @@ window.requestRegrade = async function (subKey) {
             .once('value');
 
         if (!subSnap.exists()) {
-            return alert('❌ Bài nộp không còn tồn tại.');
+            return (await AppDialog.alert('❌ Bài nộp không còn tồn tại.'));
         }
 
         const sub = {
@@ -10871,14 +10861,14 @@ window.requestRegrade = async function (subKey) {
                 '\n✅ Phần thưởng cũ đã nhận được thu hồi trực tiếp khỏi số dư.';
         }
 
-        alert(
+        (await AppDialog.alert(
             '✅ Đã mở chế độ CHẤM LẠI.' +
             (changes.length
                 ? `\nĐối soát ngay: ${changes.join(' + ')}.`
                 : '\nChưa có tài sản đã nhận cần thu hồi.') +
             mailText +
             '\nKhi lưu điểm mới, hệ thống sẽ tự so sánh với điểm cũ.'
-        );
+        ));
 
         await loadSubmissions();
 
@@ -10903,17 +10893,17 @@ window.requestRegrade = async function (subKey) {
             error?.message === 'GRADE_REWARD_CLAIM_IN_PROGRESS' ||
             error?.message === 'GRADE_REWARD_MUTATION_IN_PROGRESS'
         ) {
-            alert(
+            (await AppDialog.alert(
                 '⏳ Học sinh đang nhận phần thưởng. ' +
                 'Hãy đợi vài giây rồi bấm Chấm lại lần nữa.'
-            );
+            ));
             return;
         }
 
-        alert(
+        (await AppDialog.alert(
             '❌ Không thể mở chấm lại an toàn: ' +
             (error?.message || error)
-        );
+        ));
     }
 };
 
@@ -11182,6 +11172,7 @@ async function loadStudentsList() {
     const users = await getDB('users');
     const container = document.getElementById('studentsListContainer');
     if (!container) return;
+    window.StudentDeletionClient?.recovery();
 
     const students = users.filter(u => u.role === 'student');
     renderStudentFilterButtons(students);
@@ -11211,7 +11202,7 @@ async function loadStudentsList() {
     students.forEach(st => {
         let lockBtnText = st.isLocked ? '🔓 Mở khóa' : '🔒 Khóa';
         let lockBtnStyle = st.isLocked ? 'background: #10b981; color: white;' : 'background: #f59e0b; color: white;';
-        let statusText = st.isLocked ? '<br><span style="color: #e11d48; font-size: 0.85em; font-weight: bold;">(Đang bị khóa)</span>' : '';
+        let statusText = st.deletionPending ? '<br><strong style="color:#b91c1c">Đang xóa dữ liệu và tệp cloud — bấm Xóa để tiếp tục</strong>' : st.isLocked ? '<br><span style="color: #e11d48; font-size: 0.85em; font-weight: bold;">(Đang bị khóa)</span>' : '';
 
         // Đọc trạng thái tham gia lộ trình (Mặc định là true nếu chưa có dữ liệu)
         let participateChecked = st.isParticipatingRoadmap !== false ? 'checked' : '';
@@ -11271,8 +11262,10 @@ async function loadStudentsList() {
 }
 
 window.toggleLockStudent = async function (userKey, isCurrentlyLocked) {
-    const actionText = isCurrentlyLocked ? "MỞ KHÓA" : "KHÓA TẠM THỜI"; if (!confirm(`Bạn có chắc chắn muốn ${actionText} tài khoản này không?`)) return;
-    await updateDB('users', userKey, { isLocked: !isCurrentlyLocked }); alert(`✅ Đã ${actionText.toLowerCase()} tài khoản thành công!`);
+    const profile = (await db.ref('users/' + userKey).once('value')).val();
+    if (profile?.deletionPending) return (await AppDialog.alert('Học sinh đang được xóa. Hãy dùng Kiểm tra / tiếp tục xóa.'));
+    const actionText = isCurrentlyLocked ? "MỞ KHÓA" : "KHÓA TẠM THỜI"; if (!(await AppDialog.confirm(`Bạn có chắc chắn muốn ${actionText} tài khoản này không?`))) return;
+    await updateDB('users', userKey, { isLocked: !isCurrentlyLocked }); (await AppDialog.alert(`✅ Đã ${actionText.toLowerCase()} tài khoản thành công!`));
 }
 
 async function tryDeleteGhostStudentAuth(
@@ -11375,26 +11368,26 @@ async function createStudent() {
     // ==========================================
 
     if (!username || !password || !name) {
-        return alert(
+        return (await AppDialog.alert(
             '⚠️ Vui lòng điền đủ Tên đăng nhập, Mật khẩu và Họ tên!'
-        );
+        ));
     }
 
     // Kiểm tra tên đăng nhập
     const usernameRegex = /^[a-zA-Z0-9_]+$/;
 
     if (!usernameRegex.test(username)) {
-        return alert(
+        return (await AppDialog.alert(
             '❌ Tên đăng nhập không hợp lệ! ' +
             'Không được chứa khoảng trắng, dấu Tiếng Việt ' +
             'hoặc ký tự đặc biệt. Chỉ chấp nhận a-z, 0-9 và _.'
-        );
+        ));
     }
 
     if (username.length < 2) {
-        return alert(
+        return (await AppDialog.alert(
             '⚠️ Tên đăng nhập phải có ít nhất 2 ký tự!'
-        );
+        ));
     }
 
     // K7: chính sách mật khẩu mạnh cho tài khoản mới.
@@ -11402,16 +11395,16 @@ async function createStudent() {
         getTeacherManagedPasswordPolicyError(password, username);
 
     if (passwordPolicyError) {
-        return alert('🔒 ' + passwordPolicyError);
+        return (await AppDialog.alert('🔒 ' + passwordPolicyError));
     }
 
     // Kiểm tra họ tên
     const nameHasNumbers = /\d/.test(name);
 
     if (nameHasNumbers) {
-        return alert(
+        return (await AppDialog.alert(
             '⚠️ Họ tên học sinh không được chứa chữ số!'
-        );
+        ));
     }
 
     // Kiểm tra ngày sinh nếu giáo viên có nhập
@@ -11419,9 +11412,9 @@ async function createStudent() {
         birthDate &&
         !isValidStudentBirthDate(birthDate)
     ) {
-        return alert(
+        return (await AppDialog.alert(
             '🎂 Ngày sinh không hợp lệ, nằm trong tương lai hoặc trước năm 1900!'
-        );
+        ));
     }
 
     const fakeEmail =
@@ -11436,9 +11429,9 @@ async function createStudent() {
             .once('value');
 
     if (existingStudentSnap.exists()) {
-        return alert(
+        return (await AppDialog.alert(
             '❌ Tên đăng nhập này đã tồn tại trong danh sách học sinh!'
-        );
+        ));
     }
 
     try {
@@ -11642,9 +11635,9 @@ async function createStudent() {
 
         closeStudentModal();
 
-        alert(
+        (await AppDialog.alert(
             '✅ Đã tạo tài khoản học sinh thành công!'
-        );
+        ));
 
         // Tải lại danh sách học sinh
         if (
@@ -11676,192 +11669,28 @@ async function createStudent() {
             error.code ===
             'auth/email-already-in-use'
         ) {
-            alert(
+            (await AppDialog.alert(
                 '❌ Tên đăng nhập này đã tồn tại trên hệ thống! ' +
                 'Vui lòng chọn tên khác.'
-            );
+            ));
         } else {
-            alert(
+            (await AppDialog.alert(
                 '❌ Lỗi tạo tài khoản: ' +
                 error.message
-            );
+            ));
         }
     }
 }
 
-let isProcessingDelete = false;
-
-window.deleteStudent = async function (uid) {
-    if (isProcessingDelete) {
-        alert("⏳ Hệ thống đang xử lý một học sinh khác!");
-        return;
-    }
-
-    isProcessingDelete = true;
-
-    try {
-        // 1. Lấy thông tin học sinh
-        const studentSnap = await db.ref(`users/${uid}`).once('value');
-
-        if (!studentSnap.exists()) {
-            throw new Error("Không tìm thấy dữ liệu học sinh trên hệ thống.");
-        }
-
-        const student = studentSnap.val();
-        const username = student.username;
-        const password = student.password;
-        const email = `${username}@hethong.edu.vn`;
-
-        if (!username) {
-            throw new Error("Dữ liệu học sinh bị lỗi (Thiếu tên đăng nhập).");
-        }
-
-        const confirmed = confirm(
-            `⚠️ Bạn có chắc chắn muốn xóa TẬN GỐC học sinh [${username}] không?\n` +
-            `Hành động này không thể hoàn tác.`
-        );
-
-        if (!confirmed) return;
-
-        // K6: xác thực lại chính Giáo viên trước thao tác phá hủy.
-        const teacherReauthenticated =
-            await reauthenticateTeacherForDangerousAction(
-                `xóa học sinh [${username}]`
-            );
-
-        if (!teacherReauthenticated) return;
-
-        // 2. Lấy dữ liệu bài tập và bài nộp CẦN XÓA trước
-        const [assignmentsSnap, submissionsSnap] = await Promise.all([
-            db.ref('assignments').once('value'),
-            db.ref('submissions').orderByChild('studentUsername').equalTo(username).once('value')
-        ]);
-
-        let authDeleteSuccess = false;
-
-        // 3. Xóa Auth trước. Nếu thất bại thì hủy toàn bộ bước xóa Database.
-        if (!password) {
-            throw new Error(
-                'Không có mật khẩu học sinh trong dữ liệu legacy để xác thực Auth. Dữ liệu chưa bị xóa.'
-            );
-        }
-
-        try {
-            const secondaryAuth = secondaryApp.auth();
-            await secondaryAuth.signOut().catch(() => {});
-
-            const credential = await secondaryAuth.signInWithEmailAndPassword(email, password);
-            if (!credential.user || credential.user.uid !== uid) {
-                await secondaryAuth.signOut().catch(() => {});
-                throw new Error('UID tài khoản Auth không khớp.');
-            }
-
-            await credential.user.delete();
-            authDeleteSuccess = true;
-        } catch (authError) {
-            await secondaryApp.auth().signOut().catch(() => {});
-            console.error('Không thể xóa Firebase Auth; hủy xóa Database:', authError);
-            throw new Error(
-                'Không thể xóa tài khoản đăng nhập Firebase Auth. Database CHƯA bị xóa. Chi tiết: ' +
-                String(authError?.message || authError)
-            );
-        }
-
-        // 4. Chỉ xóa Database sau khi Auth học sinh đã bị xóa thành công.
-        const updates = {};
-        let changedAssignmentCount = 0;
-        let privateAssignmentCount = 0;
-        let deletedSubmissionCount = 0;
-
-        assignmentsSnap.forEach(child => {
-            const assignment = child.val() || {};
-            const targets = normalizeAssignmentTargets(assignment.targetStudent);
-
-            if (targets.includes('all') || targets.includes(PRIVATE_ASSIGNMENT_TARGET) || !targets.includes(username)) {
-                return;
-            }
-
-            const remainingTargets = targets.filter(target => target !== username);
-            const nextTargets = remainingTargets.length > 0 ? remainingTargets : [PRIVATE_ASSIGNMENT_TARGET];
-
-            updates[`assignments/${child.key}/targetStudent`] = nextTargets;
-            changedAssignmentCount++;
-
-            if (nextTargets.includes(PRIVATE_ASSIGNMENT_TARGET)) {
-                privateAssignmentCount++;
-            }
-        });
-
-        submissionsSnap.forEach(child => {
-            updates[`submissions/${child.key}`] = null;
-            deletedSubmissionCount++;
-        });
-
-        // Xóa các node dữ liệu liên quan đến học sinh
-        updates[`users/${uid}`] = null;
-        updates[`student_coins/${username}`] = null;
-        updates[`student_bonus_tickets/${username}`] = null;
-        updates[`student_money_offset/${username}`] = null;
-        updates[`student_inventory/${username}`] = null;
-        updates[`student_discounts/${username}`] = null;
-        updates[`spin_counts/${username}`] = null;
-        updates[`student_daily_login/${username}`] = null;
-        updates[`inbox_messages/${username}`] = null;
-        updates[`inbox_gift_claims/${username}`] = null;
-        updates[`historical_grade_tickets/${username}`] = null;
-        updates[`grade_reward_events/${username}`] = null;
-        updates[`grade_reward_claims/${username}`] = null;
-
-        await db.ref().update(updates);
-
-        // 5. Cập nhật lại giao diện bộ nhớ đệm
-        if (Array.isArray(window.cachedSubmissions)) {
-            window.cachedSubmissions = window.cachedSubmissions.filter(
-                submission => submission.studentUsername !== username
-            );
-        }
-
-        if (typeof loadSubmissions === 'function') {
-            await loadSubmissions(false);
-        }
-
-        if (document.getElementById('studentRoadmapBody') && typeof renderStudentRoadmap === 'function') {
-            renderStudentRoadmap();
-        }
-
-        if (document.getElementById('teacherRoadmapBody') && typeof renderTeacherRoadmap === 'function') {
-            renderTeacherRoadmap();
-        }
-
-        // Làm mới lại bảng danh sách học sinh
-        if (typeof loadStudentsList === 'function') {
-            loadStudentsList();
-        }
-
-        // 6. Thông báo kết quả linh hoạt
-        let assignmentNotice = '';
-        if (changedAssignmentCount > 0) {
-            assignmentNotice = `\n• Đã thu hồi khỏi ${changedAssignmentCount} bài giao đích danh.` +
-                (privateAssignmentCount > 0 ? `\n• ${privateAssignmentCount} bài đã chuyển sang Riêng tư.` : '');
-        }
-
-        const submissionNotice = deletedSubmissionCount > 0
-            ? `\n• Đã xóa ${deletedSubmissionCount} bài đã nộp của học sinh.`
-            : '\n• Học sinh chưa có bài nộp cần xóa.';
-
-        const authNotice = authDeleteSuccess
-            ? "\n• Đã xác thực lại Giáo viên và xóa tài khoản đăng nhập (Auth)."
-            : '';
-
-        alert(`✅ Đã xóa dữ liệu học sinh [${username}].` + assignmentNotice + submissionNotice + authNotice);
-
-    } catch (error) {
-        console.error("Lỗi xóa học sinh:", error);
-        alert(`❌ Xóa học sinh thất bại: ${error.message}`);
-    } finally {
-        setTimeout(() => {
-            isProcessingDelete = false;
-        }, 1500);
+// Server owns the deletion job, cloud cleanup and resumable progress.
+window.deleteStudent = async function(uid) {
+    const done = await window.StudentDeletionClient.run(uid, {
+        db, reauthenticate: reauthenticateTeacherForDangerousAction
+    });
+    if (done) {
+        window.cachedSubmissions = [];
+        await loadStudentsList();
+        if (typeof loadSubmissions === 'function') await loadSubmissions(false);
     }
 };
 
@@ -12073,15 +11902,15 @@ async function handleRequest(reqKey, isApprove) {
     const initial = initialSnap.val();
 
     if (!initial) {
-        return alert('❌ Yêu cầu không còn tồn tại.');
+        return (await AppDialog.alert('❌ Yêu cầu không còn tồn tại.'));
     }
 
     if (initial.status !== 'pending') {
-        return alert('ℹ️ Yêu cầu này đã được xử lý hoặc đang được phiên khác xử lý.');
+        return (await AppDialog.alert('ℹ️ Yêu cầu này đã được xử lý hoặc đang được phiên khác xử lý.'));
     }
 
     const username = String(initial.username || '').trim();
-    if (!username) return alert('❌ Request thiếu username.');
+    if (!username) return (await AppDialog.alert('❌ Request thiếu username.'));
 
     const operationId =
         `profile_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
@@ -12107,7 +11936,7 @@ async function handleRequest(reqKey, isApprove) {
     });
 
     if (!mutationTx.committed) {
-        return alert('⏳ Một yêu cầu hồ sơ của học sinh này đang được xử lý ở phiên khác.');
+        return (await AppDialog.alert('⏳ Một yêu cầu hồ sơ của học sinh này đang được xử lý ở phiên khác.'));
     }
 
     let requestClaimed = false;
@@ -12132,7 +11961,7 @@ async function handleRequest(reqKey, isApprove) {
                 newPass: null
             });
             await db.ref(`profile_request_secrets/${reqKey}`).remove().catch(() => {});
-            return alert('ℹ️ Request này đã cũ; một request khác đang là request hiện hành của học sinh.');
+            return (await AppDialog.alert('ℹ️ Request này đã cũ; một request khác đang là request hiện hành của học sinh.'));
         }
 
         const claimTx = await requestRef.transaction(current => {
@@ -12146,7 +11975,7 @@ async function handleRequest(reqKey, isApprove) {
         });
 
         if (!claimTx.committed) {
-            return alert('ℹ️ Yêu cầu đã được phiên khác xử lý trước.');
+            return (await AppDialog.alert('ℹ️ Yêu cầu đã được phiên khác xử lý trước.'));
         }
         requestClaimed = true;
 
@@ -12161,7 +11990,7 @@ async function handleRequest(reqKey, isApprove) {
             });
             await db.ref(`profile_request_secrets/${reqKey}`).remove().catch(() => {});
             await resolveTeacherProfileActiveLock(username, reqKey, 'rejected');
-            alert('❌ Đã từ chối yêu cầu!');
+            (await AppDialog.alert('❌ Đã từ chối yêu cầu!'));
             return;
         }
 
@@ -12213,10 +12042,10 @@ async function handleRequest(reqKey, isApprove) {
                 await db.ref(`profile_request_secrets/${reqKey}`).remove().catch(() => {});
                 await resolveTeacherProfileActiveLock(username, reqKey, 'auth_conflict');
 
-                return alert(
+                return (await AppDialog.alert(
                     '⚠️ Mật khẩu Auth hiện tại không còn khớp dữ liệu hệ thống. ' +
                     'Request đã được đánh dấu xung đột; học sinh cần đăng nhập lại và gửi yêu cầu mới.'
-                );
+                ));
             }
         }
 
@@ -12263,7 +12092,7 @@ async function handleRequest(reqKey, isApprove) {
         await supersedeOtherPendingProfileRequests(username, reqKey);
         await resolveTeacherProfileActiveLock(username, reqKey, 'approved');
 
-        alert('✅ Đã phê duyệt yêu cầu và cập nhật thông tin thành công!');
+        (await AppDialog.alert('✅ Đã phê duyệt yêu cầu và cập nhật thông tin thành công!'));
     } catch (error) {
         console.error('[Profile Request Guard] Lỗi xử lý request:', error);
 
@@ -12284,7 +12113,7 @@ async function handleRequest(reqKey, isApprove) {
             }).catch(() => {});
         }
 
-        alert(`❌ Không xử lý được yêu cầu: ${error.message || error}`);
+        (await AppDialog.alert(`❌ Không xử lý được yêu cầu: ${error.message || error}`));
     } finally {
         await releaseTeacherProfileMutation(username, operationId);
         if (typeof loadProfileRequests === 'function') {
@@ -12296,7 +12125,7 @@ async function handleRequest(reqKey, isApprove) {
 async function updateProfile() {
     const newName = document.getElementById('settingName').value.trim();
     const newPass = document.getElementById('settingPass').value.trim();
-    if (!newName) return alert("Tên hiển thị không được để trống!");
+    if (!newName) return (await AppDialog.alert("Tên hiển thị không được để trống!"));
 
     const users = await getDB('users');
     const userRecord = users.find(u => u.username === currentUser.username);
@@ -12309,14 +12138,14 @@ async function updateProfile() {
                 if (userAuth) {
                     await userAuth.updatePassword(newPass);
                 } else {
-                    return alert("❌ Lỗi: Không tìm thấy phiên xác thực để đổi mật khẩu!");
+                    return (await AppDialog.alert("❌ Lỗi: Không tìm thấy phiên xác thực để đổi mật khẩu!"));
                 }
             } catch (error) {
                 // Firebase có quy định nếu đăng nhập quá lâu sẽ không cho đổi pass trực tiếp
                 if (error.code === 'auth/requires-recent-login') {
-                    return alert("⚠️ Bảo mật Firebase yêu cầu: Bạn cần đăng xuất và đăng nhập lại trước khi đổi mật khẩu!");
+                    return (await AppDialog.alert("⚠️ Bảo mật Firebase yêu cầu: Bạn cần đăng xuất và đăng nhập lại trước khi đổi mật khẩu!"));
                 }
-                return alert("❌ Lỗi cập nhật Auth: " + error.message);
+                return (await AppDialog.alert("❌ Lỗi cập nhật Auth: " + error.message));
             }
         }
 
@@ -12329,7 +12158,7 @@ async function updateProfile() {
         if (newPass) currentUser.password = newPass;
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
-        alert("✅ Cập nhật thông tin thành công!");
+        (await AppDialog.alert("✅ Cập nhật thông tin thành công!"));
         document.getElementById('settingPass').value = '';
     }
 }
@@ -12856,9 +12685,9 @@ function setLoginLayoutSettingControls(value) {
 window.saveLoginLayoutSetting = async function () {
     // Giữ đúng quyền giáo viên.
     if (!window.isVerifiedTeacher) {
-        alert(
+        (await AppDialog.alert(
             '⛔ Chỉ giáo viên đã xác thực mới được đổi bố cục đăng nhập.'
-        );
+        ));
         return;
     }
 
@@ -12904,24 +12733,24 @@ window.saveLoginLayoutSetting = async function () {
             cinematic: '✅ Đã dùng bố cục ảnh nền toàn màn hình, form nổi bên phải.'
         };
 
-        alert(
+        (await AppDialog.alert(
             successMessages[layout] ||
             successMessages.split
-        );
+        ));
     } catch (error) {
         console.error(
             'Không thể lưu bố cục đăng nhập:',
             error
         );
 
-        alert(
+        (await AppDialog.alert(
             '❌ Không thể lưu bố cục đăng nhập: ' +
             (
                 error && error.message
                     ? error.message
                     : 'Lỗi không xác định'
             )
-        );
+        ));
     } finally {
         if (button) {
             button.disabled = false;
@@ -12940,7 +12769,7 @@ window.requestRedo = async function (subKey) {
             .once('value');
 
         if (!submissionSnapshot.exists()) {
-            return alert('❌ Bài nộp không còn tồn tại.');
+            return (await AppDialog.alert('❌ Bài nộp không còn tồn tại.'));
         }
 
         const submission = {
@@ -12960,9 +12789,9 @@ window.requestRedo = async function (subKey) {
         );
 
         if (!assignment) {
-            return alert(
+            return (await AppDialog.alert(
                 '❌ Không tìm thấy bài tập gốc để xác định phần được làm lại.'
-            );
+            ));
         }
 
         const redoScope = await chooseTeacherRedoScope(
@@ -13103,14 +12932,14 @@ window.requestRedo = async function (subKey) {
             }
         }
 
-        alert(
+        (await AppDialog.alert(
             '✅ Đã cho học sinh làm lại: ' +
             getTeacherRedoScopeLabel(redoScope) +
             '.\n\n' +
             'Phần thưởng/phạt của lần chấm cũ đã được thu hồi hoặc hủy. ' +
             'Học sinh không thể nhận lại thư thưởng cũ.\n\n' +
             'Lưu ý: làm lại không xóa vi phạm. Lỗi cũ vẫn được tính khi xét thưởng/lộ trình cho đến khi giáo viên bấm Tha lỗi.'
-        );
+        ));
 
         await loadSubmissions();
     } catch (error) {
@@ -13123,16 +12952,16 @@ window.requestRedo = async function (subKey) {
             error?.message === 'GRADE_REWARD_CLAIM_IN_PROGRESS' ||
             error?.message === 'GRADE_REWARD_MUTATION_IN_PROGRESS'
         ) {
-            return alert(
+            return (await AppDialog.alert(
                 '⏳ Học sinh đang nhận phần thưởng hoặc hệ thống đang đối soát bài này. ' +
                 'Chưa thể cho làm lại lúc này. Vui lòng thử lại sau ít giây.'
-            );
+            ));
         }
 
-        alert(
+        (await AppDialog.alert(
             '❌ Không thể cấp quyền làm lại: ' +
             (error?.message || 'Lỗi không xác định')
-        );
+        ));
     }
 };
 
@@ -13175,16 +13004,16 @@ async function pardonTeacherSubmissionWithAudit(subKey) {
 
 window.pardonSubmission = async function (subKey) {
     if (
-        confirm(
+        (await AppDialog.confirm(
             'Bạn có chắc chắn muốn tha toàn bộ lỗi thi đua của bài này?\n\n' +
             'Các lỗi hiện tại và lỗi đã lưu từ lần làm trước (nộp trễ, tự thu, vi phạm thi, thiếu tự luận) sẽ được xóa khỏi Bảng Xếp Hạng Thi Đua.'
-        )
+        ))
     ) {
         await pardonTeacherSubmissionWithAudit(subKey);
 
-        alert(
+        (await AppDialog.alert(
             '✨ Đã tha lỗi thành công! Các lỗi thi đua của bài này đã được xóa.'
-        );
+        ));
 
         await loadSubmissions();
 
@@ -13198,12 +13027,12 @@ window.pardonSubmission = async function (subKey) {
 };
 
 window.forceSubmitRedo = async function (subKey) {
-    if (confirm("Bạn muốn khóa bài ngay lập tức?...")) {
+    if ((await AppDialog.confirm("Bạn muốn khóa bài ngay lập tức?..."))) {
         await updateDB('submissions', subKey, {
             isRedoing: false,
             redoScope: null
         });
-        alert("Đã khóa bài làm lại!");
+        (await AppDialog.alert("Đã khóa bài làm lại!"));
         await loadSubmissions();
     }
 };
@@ -13564,7 +13393,7 @@ window.importQuestions = function () {
         return;
     }
     if (!container) {
-        alert('Không tìm thấy khu vực chứa câu hỏi. Vui lòng tải lại trang.');
+        AppDialog.notify('Không tìm thấy khu vực chứa câu hỏi. Vui lòng tải lại trang.');
         return;
     }
 
@@ -13911,28 +13740,28 @@ window.updateAssignmentRoadmap = async function (fbKey, field, value) {
         });
     } catch (error) {
         console.error('Lỗi cập nhật lộ trình:', error);
-        alert('❌ Không thể lưu thay đổi. Vui lòng thử lại!');
+        (await AppDialog.alert('❌ Không thể lưu thay đổi. Vui lòng thử lại!'));
     }
 };
 
 // ================= HÀM THA LỖI TRÊN GIAO DIỆN LỘ TRÌNH =================
 window.pardonRoadmap = async function (subKey, mode) {
     if (mode === 'late') {
-        if (confirm("Xác nhận tha lỗi nộp trễ / vi phạm cho học sinh?\n\nHệ thống sẽ tha lỗi thi đua và lưu lại lịch sử xử lý; từ thời điểm này bài mới được xét lại tiền lộ trình theo điểm số thực tế.")) {
+        if ((await AppDialog.confirm("Xác nhận tha lỗi nộp trễ / vi phạm cho học sinh?\n\nHệ thống sẽ tha lỗi thi đua và lưu lại lịch sử xử lý; từ thời điểm này bài mới được xét lại tiền lộ trình theo điểm số thực tế."))) {
             await pardonTeacherSubmissionWithAudit(subKey);
-            alert("✨ Đã tha lỗi thành công!");
+            (await AppDialog.alert("✨ Đã tha lỗi thành công!"));
         }
     }
     else if (mode === 'score') {
-        if (confirm("Xác nhận tha lỗi điểm thấp cho học sinh?\n\nHệ thống sẽ ép trạng thái bài học này thành 'Đạt' để tính lộ trình cộng tiền bình thường.")) {
+        if ((await AppDialog.confirm("Xác nhận tha lỗi điểm thấp cho học sinh?\n\nHệ thống sẽ ép trạng thái bài học này thành 'Đạt' để tính lộ trình cộng tiền bình thường."))) {
             await updateDB('submissions', subKey, { forcePass: true });
-            alert("✨ Đã tha lỗi điểm thấp thành công!");
+            (await AppDialog.alert("✨ Đã tha lỗi điểm thấp thành công!"));
         }
     }
     else if (mode === 'unpardon') {
-        if (confirm("Bạn muốn hủy trạng thái tha lỗi điểm thấp cho bài này?")) {
+        if ((await AppDialog.confirm("Bạn muốn hủy trạng thái tha lỗi điểm thấp cho bài này?"))) {
             await updateDB('submissions', subKey, { forcePass: false });
-            alert("Đã hủy bỏ trạng thái tha lỗi.");
+            (await AppDialog.alert("Đã hủy bỏ trạng thái tha lỗi."));
         }
     }
 };
@@ -13947,7 +13776,7 @@ window.openEditAssignmentModal = async function (fbKey) {
         currentEditingAssignmentKey = fbKey;
         const assignments = await getDB('assignments');
         const assign = assignments.find(a => a._fbKey === fbKey);
-        if (!assign) return alert("Không tìm thấy thông tin bài tập này!");
+        if (!assign) return (await AppDialog.alert("Không tìm thấy thông tin bài tập này!"));
 
         // 1. Đổ dữ liệu Thông tin chung
         document.getElementById('editTitle').value = assign.title || '';
@@ -14157,10 +13986,12 @@ window.openEditAssignmentModal = async function (fbKey) {
             editSec.disabled = false;
         }
 
+        assignmentVideoDuration.update('editCond', editVideoInput?.value || '', { preserve: true });
+        document.getElementById('editTracNghiemSection').hidden = true;
         document.getElementById('editAssignmentModal').classList.add('active');
     } catch (err) {
         console.log("Lỗi tải popup:", err);
-        alert("Có lỗi khi mở cửa sổ chỉnh sửa!");
+        (await AppDialog.alert("Có lỗi khi mở cửa sổ chỉnh sửa!"));
     }
 };
 
@@ -14246,6 +14077,7 @@ window.removeEditQuestion = function (btnElement) {
 window.closeEditAssignmentModal = function () {
     document.getElementById('editAssignmentModal').classList.remove('active');
     currentEditingAssignmentKey = null;
+    assignmentVideoDuration.update('editCond', '');
 };
 
 // LƯU TOÀN BỘ THAY ĐỔI
@@ -14263,9 +14095,9 @@ window.saveAssignmentEdit = async function () {
         );
 
     if (!title) {
-        return alert(
+        return (await AppDialog.alert(
             "⚠️ Vui lòng nhập Tiêu đề bài tập!"
-        );
+        ));
     }
 
     const editStart = startDate
@@ -14280,18 +14112,18 @@ window.saveAssignmentEdit = async function () {
         editStart &&
         Number.isNaN(editStart.getTime())
     ) {
-        return alert(
+        return (await AppDialog.alert(
             "⚠️ Thời gian bắt đầu không hợp lệ!"
-        );
+        ));
     }
 
     if (
         editEnd &&
         Number.isNaN(editEnd.getTime())
     ) {
-        return alert(
+        return (await AppDialog.alert(
             "⚠️ Hạn nộp bài không hợp lệ!"
-        );
+        ));
     }
 
     if (
@@ -14299,10 +14131,10 @@ window.saveAssignmentEdit = async function () {
         editEnd &&
         editStart >= editEnd
     ) {
-        return alert(
+        return (await AppDialog.alert(
             "⏳ Hạn nộp bài phải diễn ra sau " +
             "thời gian bắt đầu!"
-        );
+        ));
     }
 
     const assignments = await getDB('assignments');
@@ -14317,17 +14149,18 @@ window.saveAssignmentEdit = async function () {
 
     // Kiểm tra link YouTube nếu giáo viên có nhập
     if (editVideoLink) {
-        const ytRegex =
-            /^(https?:\/\/)?((www|m)\.)?(youtube\.com|youtu\.be)\/.+$/i;
-
-        if (!ytRegex.test(editVideoLink)) {
-            return alert(
+        if (!window.VideoDuration.videoId(editVideoLink)) {
+            return (await AppDialog.alert(
                 "🔗 Link video không hợp lệ. " +
                 "Vui lòng sử dụng link YouTube."
-            );
+            ));
         }
     }
 
+    if (!assignmentVideoDuration.canSave('editCond', editVideoLink)) {
+        return (await AppDialog.alert('Vui lòng chờ đọc xong thời lượng video; nếu có lỗi hãy dán lại link để thử lại.'));
+    }
+    assignmentVideoDuration.validate('editCond');
     let watchCondition = 0;
 
     if (editVideoLink) {
@@ -14375,10 +14208,10 @@ window.saveAssignmentEdit = async function () {
         editVideoSummaryEnabled &&
         !editVideoLink
     ) {
-        return alert(
+        return (await AppDialog.alert(
             '⚠️ Tóm tắt chỉ hoạt động ' +
             'khi bài có link video.'
-        );
+        ));
     }
 
     if (
@@ -14389,10 +14222,10 @@ window.saveAssignmentEdit = async function () {
             'edit'
         );
 
-        return alert(
+        return (await AppDialog.alert(
             '⚠️ Vui lòng nhập và lưu ' +
             'nội dung tóm tắt.'
-        );
+        ));
     }
 
     const previousVideoLink =
@@ -14482,9 +14315,9 @@ window.saveAssignmentEdit = async function () {
                 timeLimitMinutes <= 0 ||
                 !Number.isInteger(timeLimitMinutes)
             ) {
-                return alert(
+                return (await AppDialog.alert(
                     '⚠️ Thời gian làm bài phải là số phút nguyên lớn hơn 0!'
-                );
+                ));
             }
         }
 
@@ -14509,10 +14342,10 @@ window.saveAssignmentEdit = async function () {
         const essayWeight = parseFloat(document.getElementById('editEssayWeight').value) || 0;
 
         if (!Number.isFinite(mcWeight) || !Number.isFinite(essayWeight) || mcWeight < 0 || essayWeight < 0 || Math.abs(mcWeight + essayWeight - 10) > 0.000001) {
-            return alert("Tổng điểm tối đa của Trắc nghiệm và Tự luận phải bằng 10!");
+            return (await AppDialog.alert("Tổng điểm tối đa của Trắc nghiệm và Tự luận phải bằng 10!"));
         }
         if (assign.assessmentType === 'thi' && mcWeight === 0 && essayWeight === 0) {
-            return alert("Vui lòng nhập điểm cho ít nhất Trắc nghiệm hoặc Tự luận!");
+            return (await AppDialog.alert("Vui lòng nhập điểm cho ít nhất Trắc nghiệm hoặc Tự luận!"));
         }
         updateObj.mcWeight = mcWeight;
         updateObj.essayWeight = essayWeight;
@@ -14528,158 +14361,7 @@ window.saveAssignmentEdit = async function () {
         updateObj.hideEssayText = false;
     }
 
-    // Thu thập dữ liệu Trắc Nghiệm
-    const hasMC = assign.assessmentType === 'trac_nghiem' || assign.assessmentType === 'ket_hop' || (assign.assessmentType === 'thi' && updateObj.mcWeight > 0);
-    if (hasMC) {
-        const editedQuestions = [];
-        document.querySelectorAll('.edit-question-block').forEach((block) => {
-            const correctRadio = block.querySelector('.eq-correct-radio:checked');
-            const oldCorrectSelect = block.querySelector('.eq-correct');
-            const correctVal = correctRadio ? correctRadio.value : (oldCorrectSelect ? oldCorrectSelect.value : '');
-
-            editedQuestions.push({
-                questionId:
-                    block.dataset.questionId ||
-                    `q_${Date.now()}_${editedQuestions.length}`,
-
-                bankQuestionId:
-                    block.dataset.bankQuestionId || '',
-
-                subject:
-                    block.dataset.subject || '',
-
-                grade:
-                    block.dataset.grade || '',
-
-                lesson:
-                    block.dataset.lesson || '',
-
-                difficulty:
-                    block.dataset.difficulty || 'Nhận biết',
-
-                qText: block.querySelector('.eq-text').value.trim(),
-                A: block.querySelector('.eq-optA').value.trim(),
-                B: block.querySelector('.eq-optB').value.trim(),
-                C: block.querySelector('.eq-optC').value.trim(),
-                D: block.querySelector('.eq-optD').value.trim(),
-                correct: correctVal
-            });
-        });
-
-        if (editedQuestions.length === 0) {
-            return alert(
-                'Vui lòng để lại ít nhất 1 câu hỏi trắc nghiệm!'
-            );
-        }
-
-        const editQuestionBlocks =
-            document.querySelectorAll(
-                '.edit-question-block'
-            );
-
-        for (
-            let questionIndex = 0;
-            questionIndex < editedQuestions.length;
-            questionIndex++
-        ) {
-            const question =
-                editedQuestions[questionIndex];
-
-            const missingItems = [];
-
-            let focusSelector = '';
-
-            if (!question.qText) {
-                missingItems.push(
-                    'Nội dung câu hỏi'
-                );
-
-                focusSelector = '.eq-text';
-            }
-
-            if (!question.A) {
-                missingItems.push(
-                    'Đáp án A'
-                );
-
-                if (!focusSelector) {
-                    focusSelector = '.eq-optA';
-                }
-            }
-
-            if (!question.B) {
-                missingItems.push(
-                    'Đáp án B'
-                );
-
-                if (!focusSelector) {
-                    focusSelector = '.eq-optB';
-                }
-            }
-
-            if (!question.C) {
-                missingItems.push(
-                    'Đáp án C'
-                );
-
-                if (!focusSelector) {
-                    focusSelector = '.eq-optC';
-                }
-            }
-
-            if (!question.D) {
-                missingItems.push(
-                    'Đáp án D'
-                );
-
-                if (!focusSelector) {
-                    focusSelector = '.eq-optD';
-                }
-            }
-
-            if (!question.correct) {
-                missingItems.push(
-                    'Chưa chọn đáp án đúng'
-                );
-
-                if (!focusSelector) {
-                    focusSelector =
-                        '.eq-correct-radio';
-                }
-            }
-
-            if (missingItems.length > 0) {
-                window.showTeacherQuestionError(
-                    editQuestionBlocks[
-                    questionIndex
-                    ],
-                    questionIndex + 1,
-                    missingItems,
-                    focusSelector
-                );
-
-                return;
-            }
-        }
-        updateObj.questions = editedQuestions;
-        const editedRandomConfig =
-            window.collectRandomExamConfig(
-                true,
-                editedQuestions.length
-            );
-
-        if (editedRandomConfig.error) {
-            return alert(editedRandomConfig.error);
-        }
-
-        updateObj.randomExamConfig =
-            editedRandomConfig;
-    } else if (assign.assessmentType === 'thi') {
-        updateObj.questions = [];
-        updateObj.randomExamConfig =
-            window.getDisabledRandomExamConfig();
-    }
-
+    // Questions and random versions are edited only in the dedicated quiz workspace.
     // Đẩy lên Firebase
     await updateDB(
         'assignments',
@@ -14707,19 +14389,19 @@ window.saveAssignmentEdit = async function () {
                 error
             );
 
-            alert(
+            (await AppDialog.alert(
                 '⚠️ Bài đã lưu nhưng Firebase chưa xóa được tiến độ video cũ. ' +
                 'Hãy kiểm tra quyền ghi/xóa video_tracking.'
-            );
+            ));
         }
     }
 
     closeEditAssignmentModal();
-    alert(
+    (await AppDialog.alert(
         shouldResetVideoTracking
             ? "Đã cập nhật bài và đặt lại tiến độ xem video cho học sinh!"
             : "Đã cập nhật toàn bộ nội dung bài tập thành công!"
-    );
+    ));
 
     // Ép render lại danh sách
     loadAssignedList();
@@ -14933,15 +14615,15 @@ window.saveStudentEdit = async function () {
     const hobbies = document.getElementById('editStudentHobbies').value.trim();
     const motto = document.getElementById('editStudentMotto').value.trim();
 
-    if (!name) return alert('Họ tên không được để trống!');
+    if (!name) return (await AppDialog.alert('Họ tên không được để trống!'));
 
     if (
         birthDate &&
         !isValidStudentBirthDate(birthDate)
     ) {
-        return alert(
+        return (await AppDialog.alert(
             '🎂 Ngày sinh không hợp lệ, nằm trong tương lai hoặc trước năm 1900!'
-        );
+        ));
     }
 
     const users = await getDB('users');
@@ -14951,9 +14633,9 @@ window.saveStudentEdit = async function () {
     );
 
     if (!st) {
-        return alert(
+        return (await AppDialog.alert(
             'Không tìm thấy tài khoản học sinh!'
-        );
+        ));
     }
 
     const updateObj = { name, classInfo, hobbies, motto };
@@ -15005,13 +14687,13 @@ window.saveStudentEdit = async function () {
             }
         } catch (error) {
             console.error("Lỗi Auth phụ khi sửa HS:", error);
-            return alert("❌ Lỗi khi đổi mật khẩu trên hệ thống Auth: " + error.message);
+            return (await AppDialog.alert("❌ Lỗi khi đổi mật khẩu trên hệ thống Auth: " + error.message));
         }
     }
 
     await updateDB('users', fbKey, updateObj);
     closeEditStudentModal();
-    alert('✅ Cập nhật thông tin học sinh thành công!');
+    (await AppDialog.alert('✅ Cập nhật thông tin học sinh thành công!'));
 
     // Load lại danh sách học sinh
     if (typeof loadStudentsList === 'function') loadStudentsList();
@@ -15077,25 +14759,25 @@ window.saveSchedule = async function () {
     const note = document.getElementById('scheduleNote').value.trim();
     const targetStudent = document.getElementById('scheduleTargetStudent') ? window.getMultiSelectValues('scheduleTargetStudent') : ['all']; // Đọc thông tin học sinh
 
-    if (!day || !time || !subject) return alert('Vui lòng nhập đầy đủ: Thứ, Thời gian và Nội dung!');
+    if (!day || !time || !subject) return (await AppDialog.alert('Vui lòng nhập đầy đủ: Thứ, Thời gian và Nội dung!'));
 
     const payload = { day, time, subject, note, targetStudent }; // Đẩy kèm thông tin đích danh lên Database
 
     if (fbKey) {
         await updateDB('schedule', fbKey, payload);
-        alert('Cập nhật lịch học thành công!');
+        (await AppDialog.alert('Cập nhật lịch học thành công!'));
     } else {
         payload.id = Date.now().toString();
         await pushDB('schedule', payload);
-        alert('Đã thêm lịch học mới thành công!');
+        (await AppDialog.alert('Đã thêm lịch học mới thành công!'));
     }
     closeScheduleModal();
 };
 
 window.deleteSchedule = async function (fbKey) {
-    if (confirm('Bạn có chắc chắn muốn xóa mục lịch học này khỏi thời khóa biểu?')) {
+    if ((await AppDialog.confirm('Bạn có chắc chắn muốn xóa mục lịch học này khỏi thời khóa biểu?'))) {
         await removeDB('schedule', fbKey);
-        alert('Xóa thành công!');
+        (await AppDialog.alert('Xóa thành công!'));
     }
 };
 
@@ -15137,7 +14819,7 @@ window.loadScheduleTeacher = async function () {
 window.openEditMaterialModal = async function (fbKey) {
     const materials = await getDB('materials');
     const mat = materials.find(m => m._fbKey === fbKey);
-    if (!mat) return alert("Không tìm thấy thông tin tài liệu!");
+    if (!mat) return (await AppDialog.alert("Không tìm thấy thông tin tài liệu!"));
 
     // Đổ toàn bộ dữ liệu cũ của tài liệu vào form sửa
     document.getElementById('editMaterialKey').value = fbKey;
@@ -15165,7 +14847,7 @@ window.saveMaterialEdit = async function () {
     const newDocLink = document.getElementById('editMaterialLinkInput') ? document.getElementById('editMaterialLinkInput').value.trim() : '';
     const newTargetStudent = document.getElementById('editMaterialTargetStudent') ? window.getMultiSelectValues('editMaterialTargetStudent') : ['all'];
 
-    if (!newTitle) return alert("Vui lòng nhập tên tài liệu mới!");
+    if (!newTitle) return (await AppDialog.alert("Vui lòng nhập tên tài liệu mới!"));
 
     // Cập nhật TOÀN BỘ thông tin lên Firebase thay vì chỉ mỗi title
     await updateDB('materials', fbKey, {
@@ -15176,7 +14858,7 @@ window.saveMaterialEdit = async function () {
     });
 
     closeEditMaterialModal();
-    alert("Đã cập nhật thông tin tài liệu thành công!");
+    (await AppDialog.alert("Đã cập nhật thông tin tài liệu thành công!"));
 
     // Yêu cầu tải lại danh sách tài liệu
     if (typeof loadMaterialsListTeacher === 'function') {
@@ -15192,9 +14874,9 @@ async function readMultipleFiles(
         !window.CloudflareR2Storage ||
         typeof window.CloudflareR2Storage.uploadFiles !== 'function'
     ) {
-        alert(
+        (await AppDialog.alert(
             'Không tìm thấy cloudflare-r2-storage.js!'
-        );
+        ));
 
         return [];
     }
@@ -15218,10 +14900,10 @@ window.toggleGameStatus = async function (isOpen) {
 
 window.saveGameLockMessage = async function () {
     const msg = document.getElementById('gameLockMessage').value.trim();
-    if (!msg) return alert("Vui lòng nhập nội dung thông báo khóa mục trò chơi!");
+    if (!msg) return (await AppDialog.alert("Vui lòng nhập nội dung thông báo khóa mục trò chơi!"));
 
     await db.ref('game_settings').update({ lockMessage: msg });
-    alert("🔒 Đã khóa mục trò chơi học sinh và gửi thông báo thành công!");
+    (await AppDialog.alert("🔒 Đã khóa mục trò chơi học sinh và gửi thông báo thành công!"));
 };
 
 // ================= QUẢN LÝ VÒNG QUAY MAY MẮN =================
@@ -15567,9 +15249,9 @@ async function (enabled) {
                 !nextEnabled;
         }
 
-        alert(
+        (await AppDialog.alert(
             '❌ Không thể cập nhật trạng thái Giờ Vàng lên Firebase.'
-        );
+        ));
     }
 };
 
@@ -15579,7 +15261,7 @@ window.saveLuckyWheelGoldenHourSettings = async function () {
     try {
         config = readTeacherLuckyWheelGoldenForm();
     } catch (error) {
-        alert(`❌ ${error.message}`);
+        (await AppDialog.alert(`❌ ${error.message}`));
         return;
     }
 
@@ -15596,11 +15278,11 @@ window.saveLuckyWheelGoldenHourSettings = async function () {
             updatedAt: serverTimestamp
         });
 
-    alert(
+    (await AppDialog.alert(
         config.enabled
             ? `✅ Đã lưu Giờ Vàng: +${config.bonusCoin} Coin cho mỗi lượt trúng Coin.`
             : '✅ Đã tắt Giờ Vàng vòng quay.'
-    );
+    ));
 };
 
 window.loadSpinHistory = async function () {
@@ -15716,7 +15398,7 @@ window.toggleSpinHistoryRows = function () {
 };
 
 window.deleteSpinRecord = async function (fbKey) {
-    if (confirm("Xóa lịch sử quay này?")) {
+    if ((await AppDialog.confirm("Xóa lịch sử quay này?"))) {
         await removeDB('spin_history', fbKey);
     }
 };
@@ -15741,7 +15423,7 @@ window.saveWheelProbabilities = async function () {
     await db.ref('game_settings/wheel_probabilities').set({
         miss: miss, c100: c100, c150: c150, c500: c500, gift: gift
     });
-    alert('✅ Đã áp dụng tỉ lệ Vòng quay mới cho toàn bộ học sinh!');
+    (await AppDialog.alert('✅ Đã áp dụng tỉ lệ Vòng quay mới cho toàn bộ học sinh!'));
 };
 
 // Quản lý trạng thái mở/đóng cửa hàng
@@ -15758,7 +15440,7 @@ window.addStoreItem = async function () {
     const endDate = document.getElementById('newItemEndDate').value;
     const value = document.getElementById('newItemValue').value.trim();
 
-    if (!name || !startDate || !endDate || !value) return alert("Vui lòng điền đầy đủ thông tin bắt buộc!");
+    if (!name || !startDate || !endDate || !value) return (await AppDialog.alert("Vui lòng điền đầy đủ thông tin bắt buộc!"));
 
     await pushDB('store_items', {
         id: Date.now().toString(),
@@ -15769,7 +15451,7 @@ window.addStoreItem = async function () {
 
     document.getElementById('newItemName').value = '';
     document.getElementById('newItemValue').value = '';
-    alert("Thêm vật phẩm vào cửa hàng thành công!");
+    (await AppDialog.alert("Thêm vật phẩm vào cửa hàng thành công!"));
 };
 
 // 3. Hàm lưu dữ liệu chỉnh sửa lên Firebase
@@ -15780,7 +15462,7 @@ window.updateStoreItem = async function () {
     const endInput = document.getElementById('editStoreItemEnd');
 
     if (!selectEl || !selectEl.value) {
-        alert('⚠️ Vui lòng chọn một mặt hàng cụ thể cần chỉnh sửa từ danh sách.');
+        (await AppDialog.alert('⚠️ Vui lòng chọn một mặt hàng cụ thể cần chỉnh sửa từ danh sách.'));
         return;
     }
 
@@ -15788,7 +15470,7 @@ window.updateStoreItem = async function () {
     const newPrice = parseInt(priceInput.value);
 
     if (isNaN(newPrice) || newPrice < 0) {
-        alert('❌ Giá bán (Coin) phải là một con số hợp lệ và lớn hơn hoặc bằng 0.');
+        (await AppDialog.alert('❌ Giá bán (Coin) phải là một con số hợp lệ và lớn hơn hoặc bằng 0.'));
         return;
     }
 
@@ -15807,7 +15489,7 @@ window.updateStoreItem = async function () {
                 endDate: endInput.value
             });
 
-            alert(`✅ Đã lưu và đồng bộ thành công thiết lập cho vật phẩm [ ${StoreConfig.items[itemIndex].name} ] sang hệ thống học sinh!`);
+            (await AppDialog.alert(`✅ Đã lưu và đồng bộ thành công thiết lập cho vật phẩm [ ${StoreConfig.items[itemIndex].name} ] sang hệ thống học sinh!`));
 
             // Xóa thông tin trống biểu mẫu sau khi lưu thành công
             selectEl.value = '';
@@ -15815,7 +15497,7 @@ window.updateStoreItem = async function () {
             initTeacherStoreManagement();
         } catch (error) {
             console.error("Lỗi đồng bộ Firebase:", error);
-            alert("❌ Đã xảy ra lỗi khi kết nối dữ liệu Firebase. Vui lòng kiểm tra lại mạng!");
+            (await AppDialog.alert("❌ Đã xảy ra lỗi khi kết nối dữ liệu Firebase. Vui lòng kiểm tra lại mạng!"));
         }
     }
 };
@@ -15853,7 +15535,7 @@ listenFirebase(db.ref('store_settings'), 'value', (snapshot) => {
 });
 
 window.deleteStoreItem = async function (fbKey) {
-    if (confirm("Chắc chắn muốn xóa vật phẩm này khỏi cửa hàng?")) {
+    if ((await AppDialog.confirm("Chắc chắn muốn xóa vật phẩm này khỏi cửa hàng?"))) {
         await removeDB('store_items', fbKey);
     }
 };
@@ -15924,8 +15606,8 @@ window.buyStoreItem = async function (itemId, _clientPrice) {
     const item = storeItemsGlobal.find(candidate => String(candidate.id) === String(itemId));
     const price = Number(item?.price);
     if (!username || !item || item.isLocked === true || !Number.isFinite(price) || price < 0 || price > 999999 ||
-        item.currency === 'mid_autumn_coin' || (item.isNonCoin && price <= 0)) return alert('Vật phẩm không thể mua bằng Coin.');
-    if (!navigator.onLine || window.isOffline) return alert('Mất kết nối. Vui lòng thử lại khi có mạng.');
+        item.currency === 'mid_autumn_coin' || (item.isNonCoin && price <= 0)) return (await AppDialog.alert('Vật phẩm không thể mua bằng Coin.'));
+    if (!navigator.onLine || window.isOffline) return (await AppDialog.alert('Mất kết nối. Vui lòng thử lại khi có mạng.'));
     const opRef = db.ref(`store_purchase_ops/${username}/${itemId}`);
     const inventoryRef = db.ref(`student_inventory/${username}/${itemId}`);
     let operation = null;
@@ -15950,16 +15632,16 @@ window.buyStoreItem = async function (itemId, _clientPrice) {
         }
         if (previous?.atomicCharge === true && previous.status === 'paid') {
             await finishGrant(previous);
-            return alert('Đã khôi phục vật phẩm từ biên nhận, không trừ Coin lần nữa.');
+            return (await AppDialog.alert('Đã khôi phục vật phẩm từ biên nhận, không trừ Coin lần nữa.'));
         }
         const inventory = (await db.ref(`student_inventory/${username}`).once('value')).val() || {};
-        if (Object.values(inventory).some(entry => String(entry?.id) === String(itemId))) return alert('Bạn đã sở hữu vật phẩm này.');
+        if (Object.values(inventory).some(entry => String(entry?.id) === String(itemId))) return (await AppDialog.alert('Bạn đã sở hữu vật phẩm này.'));
         const now = Date.now();
         const start = item.startDate ? new Date(String(item.startDate).replace(' ', 'T')).getTime() : null;
         const end = item.endDate ? new Date(String(item.endDate).replace(' ', 'T')).getTime() : null;
         if ((start !== null && (!Number.isFinite(start) || now < start)) ||
-            (end !== null && (!Number.isFinite(end) || now > end))) return alert('Vật phẩm không trong thời gian mở bán.');
-        if (!confirm(`Xác nhận mua với giá ${price} Coin?`)) return;
+            (end !== null && (!Number.isFinite(end) || now > end))) return (await AppDialog.alert('Vật phẩm không trong thời gian mở bán.'));
+        if (!(await AppDialog.confirm(`Xác nhận mua với giá ${price} Coin?`))) return;
         const operationId = db.ref('store_purchase_ops').push().key;
         const reservation = await opRef.transaction(current => {
             if (current && current.status !== 'failed_refunded' &&
@@ -15967,7 +15649,7 @@ window.buyStoreItem = async function (itemId, _clientPrice) {
             return { version: 1, protocolVersion: 2, username, itemId: String(itemId), operationId, status: 'reserved',
                 startedAt: now, expiresAt: now + 600000, updatedAt: now, basePrice: price, finalPrice: price };
         }, undefined, false);
-        if (!reservation.committed) return alert('Vật phẩm đang có giao dịch ở máy khác. Hãy mở lại sau.');
+        if (!reservation.committed) return (await AppDialog.alert('Vật phẩm đang có giao dịch ở máy khác. Hãy mở lại sau.'));
         operation = reservation.snapshot.val();
         const pending = await opRef.transaction(current => {
             if (current?.operationId !== operationId || current.status !== 'reserved') return;
@@ -15980,12 +15662,12 @@ window.buyStoreItem = async function (itemId, _clientPrice) {
                 purchasePrice: price, purchaseBasePrice: price, purchaseOperationId: operationId, isEquipped: false } };
         await window.StoreConcurrency.charge(username, String(itemId), operation, 'purchase', price, paid);
         await finishGrant(paid);
-        alert('Mua thành công! Vật phẩm đã vào kho.');
+        (await AppDialog.alert('Mua thành công! Vật phẩm đã vào kho.'));
     } catch (error) {
         console.error('[Teacher Store]', error);
         const latest = await opRef.once('value').then(s => s.val()).catch(() => null);
         if (latest?.atomicCharge && ['paid','completed'].includes(latest.status)) {
-            return alert('Thanh toán đã được lưu. Mở lại vật phẩm để khôi phục, không thanh toán lại.');
+            return (await AppDialog.alert('Thanh toán đã được lưu. Mở lại vật phẩm để khôi phục, không thanh toán lại.'));
         }
         if (operation && latest?.operationId === operation.operationId && latest.status === 'debit_pending') {
             await opRef.transaction(current => {
@@ -15993,7 +15675,7 @@ window.buyStoreItem = async function (itemId, _clientPrice) {
                 return { ...current, status: 'failed_refunded', updatedAt: Date.now() };
             }, undefined, false).catch(() => {});
         }
-        alert('Chưa hoàn tất giao dịch. Kiểm tra số dư, kết nối và Firebase Rules rồi thử lại.');
+        (await AppDialog.alert('Chưa hoàn tất giao dịch. Kiểm tra số dư, kết nối và Firebase Rules rồi thử lại.'));
     }
 };
 
@@ -16003,7 +15685,7 @@ window.equipItem = async function (itemId, equipState) {
             id => storeItemsGlobal.find(item => String(item.id) === String(id)) || StoreManager.getItemById(id));
     } catch (error) {
         console.error('[Teacher Equipment]', error);
-        alert('Chưa lưu được trang bị. Hãy kiểm tra kết nối và thử lại.');
+        (await AppDialog.alert('Chưa lưu được trang bị. Hãy kiểm tra kết nối và thử lại.'));
         return false;
     }
 };
@@ -16219,21 +15901,21 @@ function loadStoreItemDetails() {
 // BỔ SUNG: Hàm xử lý Khóa / Mở khóa vật phẩm từ phía Giáo viên
 window.toggleLockStoreItem = async function (itemId, isCurrentlyLocked) {
     const actionText = isCurrentlyLocked ? "MỞ KHÓA" : "KHÓA TẠM THỜI";
-    if (!confirm(
+    if (!(await AppDialog.confirm(
         `Bạn có chắc chắn muốn ${actionText} vật phẩm này không?\n\n` +
         `Khi khóa, vật phẩm phía học sinh sẽ chuyển thành thẻ ẩn, ` +
         `không thể mua, dùng thử hoặc sử dụng. Nếu đang được trang bị, ` +
         `vật phẩm sẽ tạm ngừng hiển thị cho đến khi được mở khóa.`
-    )) return;
+    ))) return;
 
     try {
         await db.ref('store_settings/' + itemId).update({
             isLocked: !isCurrentlyLocked
         });
-        alert(`✅ Đã thực hiện ${actionText.toLowerCase()} vật phẩm thành công!`);
+        (await AppDialog.alert(`✅ Đã thực hiện ${actionText.toLowerCase()} vật phẩm thành công!`));
     } catch (error) {
         console.error(error);
-        alert("❌ Đã xảy ra lỗi khi cập nhật trạng thái khóa.");
+        (await AppDialog.alert("❌ Đã xảy ra lỗi khi cập nhật trạng thái khóa."));
     }
 };
 
@@ -16407,7 +16089,7 @@ window.sendGlobalNotification = async function (customMsg = null) {
     const msgInput = document.getElementById('globalNotificationMessage');
     const message = customMsg || (msgInput ? msgInput.value.trim() : '');
 
-    if (!message) return alert("Vui lòng nhập nội dung thông báo!");
+    if (!message) return (await AppDialog.alert("Vui lòng nhập nội dung thông báo!"));
 
     const payload = {
         id: Date.now().toString(),
@@ -16428,7 +16110,7 @@ window.sendGlobalNotification = async function (customMsg = null) {
         toggleNotificationArea(false);
     }
 
-    alert("✅ Đã phát thông báo đến toàn bộ học sinh!");
+    (await AppDialog.alert("✅ Đã phát thông báo đến toàn bộ học sinh!"));
 };
 
 
@@ -16741,7 +16423,7 @@ window.closeNotificationHistory = function () {
 };
 
 window.deleteNotification = async function (fbKey) {
-    if (confirm('Chắc chắn xóa thông báo này khỏi lịch sử?')) {
+    if ((await AppDialog.confirm('Chắc chắn xóa thông báo này khỏi lịch sử?'))) {
         await removeDB('global_notifications', fbKey);
         openNotificationHistory(); // Render lại danh sách
     }
@@ -16807,10 +16489,10 @@ window.removeSurveyQuestion = function (btnElement) {
 
 window.sendGlobalSurvey = async function () {
     const title = document.getElementById('surveyTitle').value.trim();
-    if (!title) return alert("Vui lòng nhập Tiêu đề khảo sát!");
+    if (!title) return (await AppDialog.alert("Vui lòng nhập Tiêu đề khảo sát!"));
 
     const qBlocks = document.querySelectorAll('.survey-q-block');
-    if (qBlocks.length === 0) return alert("Vui lòng thêm ít nhất 1 câu hỏi khảo sát!");
+    if (qBlocks.length === 0) return (await AppDialog.alert("Vui lòng thêm ít nhất 1 câu hỏi khảo sát!"));
 
     let questions = [];
     let isValid = true;
@@ -16833,7 +16515,7 @@ window.sendGlobalSurvey = async function () {
         questions.push(qData);
     });
 
-    if (!isValid) return alert("Vui lòng điền đầy đủ nội dung câu hỏi và ít nhất 2 lựa chọn cho câu trắc nghiệm!");
+    if (!isValid) return (await AppDialog.alert("Vui lòng điền đầy đủ nội dung câu hỏi và ít nhất 2 lựa chọn cho câu trắc nghiệm!"));
 
     const payload = {
         id: Date.now().toString(),
@@ -16853,7 +16535,7 @@ window.sendGlobalSurvey = async function () {
     document.getElementById('surveyToggle').checked = false;
     toggleSurveyArea(false);
 
-    alert("🚀 Đã phát hành Khảo sát đến toàn bộ học sinh!");
+    (await AppDialog.alert("🚀 Đã phát hành Khảo sát đến toàn bộ học sinh!"));
 };
 
 window.openSurveyHistory = async function () {
@@ -16933,7 +16615,7 @@ window.viewSurveyResults = async function (fbKey) {
 
 window.closeSurveyResults = function () { document.getElementById('surveyResultsModal').classList.remove('active'); };
 window.deleteSurvey = async function (fbKey) {
-    if (confirm('Chắc chắn xóa Khảo sát này khỏi hệ thống?')) {
+    if ((await AppDialog.confirm('Chắc chắn xóa Khảo sát này khỏi hệ thống?'))) {
         await removeDB('global_surveys', fbKey);
         openSurveyHistory(); // Render lại danh sách
     }
@@ -17865,7 +17547,7 @@ window.sendGiftMessage = async function () {
         }
 
         if (recipients.length === 0) {
-            alert('⚠️ Chưa chọn học sinh nhận quà!');
+            (await AppDialog.alert('⚠️ Chưa chọn học sinh nhận quà!'));
             return;
         }
 
@@ -17883,9 +17565,9 @@ window.sendGiftMessage = async function () {
             );
 
             if (!Number.isFinite(value) || value <= 0) {
-                alert(
+                (await AppDialog.alert(
                     'Vui lòng nhập số lượng hợp lệ lớn hơn 0!'
-                );
+                ));
                 return;
             }
             if (
@@ -17893,18 +17575,18 @@ window.sendGiftMessage = async function () {
                 'special_birthday_coin' &&
                 value > 50
             ) {
-                alert(
+                (await AppDialog.alert(
                     '✨ Mỗi lần chỉ được tặng tối đa 50 Xu Đặc Biệt!'
-                );
+                ));
 
                 return;
             }
 
             if (type === 'discount') {
                 if (value < 10 || value > 100) {
-                    alert(
+                    (await AppDialog.alert(
                         'Phần trăm giảm giá phải từ 10 đến 100!'
-                    );
+                    ));
                     return;
                 }
 
@@ -17949,10 +17631,10 @@ window.sendGiftMessage = async function () {
                             );
 
                         if (invalidTargets.length > 0) {
-                            alert(
+                            (await AppDialog.alert(
                                 '❌ Có vật phẩm không bán bằng Coin ' +
                                 'trong phạm vi áp dụng. Vui lòng chọn lại!'
-                            );
+                            ));
 
                             return;
                         }
@@ -17962,10 +17644,10 @@ window.sendGiftMessage = async function () {
                         ];
 
                         if (discountTargetItems.length === 0) {
-                            alert(
+                            (await AppDialog.alert(
                                 '⚠️ Vui lòng chọn ít nhất một ' +
                                 'vật phẩm mua bằng Coin!'
-                            );
+                            ));
 
                             return;
                         }
@@ -17979,7 +17661,7 @@ window.sendGiftMessage = async function () {
                 ).value;
 
             if (!value) {
-                alert('⚠️ Vui lòng chọn một vật phẩm hợp lệ!');
+                (await AppDialog.alert('⚠️ Vui lòng chọn một vật phẩm hợp lệ!'));
                 return;
             }
 
@@ -17989,9 +17671,9 @@ window.sendGiftMessage = async function () {
                 );
 
             if (!selectedItem) {
-                alert(
+                (await AppDialog.alert(
                     '❌ Vật phẩm không tồn tại trong cửa hàng!'
-                );
+                ));
                 return;
             }
 
@@ -18045,11 +17727,11 @@ window.sendGiftMessage = async function () {
                     )
                     .join('\n');
 
-                alert(
+                (await AppDialog.alert(
                     `❌ Không gửi được "${selectedItem.name}".\n\n` +
                     `Tất cả học sinh được chọn đã có món này ` +
                     `hoặc đang chờ nhận:\n${detail}`
-                );
+                ));
 
                 await window.updateGiftItemDropdown();
                 return;
@@ -18062,13 +17744,13 @@ window.sendGiftMessage = async function () {
                     )
                     .join('\n');
 
-                const continueSending = confirm(
+                const continueSending = (await AppDialog.confirm(
                     `⚠️ Có ${skippedRecipients.length} học sinh ` +
                     `sẽ bị bỏ qua để tránh tặng trùng:\n\n` +
                     `${detail}\n\n` +
                     `Tiếp tục gửi cho ` +
                     `${eligibleRecipients.length} học sinh còn lại?`
-                );
+                ));
 
                 if (!continueSending) {
                     return;
@@ -18079,9 +17761,9 @@ window.sendGiftMessage = async function () {
         }
 
         if (type === 'none' && !message) {
-            alert(
+            (await AppDialog.alert(
                 'Bạn phải nhập lời nhắn nếu không đính kèm quà!'
-            );
+            ));
             return;
         }
 
@@ -18396,10 +18078,10 @@ window.sendGiftMessage = async function () {
             }
         }
 
-        alert(
+        (await AppDialog.alert(
             `💌 Đã gửi thư thành công cho ` +
             `${recipients.length} học sinh!`
-        );
+        ));
 
         document.getElementById('giftMessage').value = '';
         document.getElementById('giftValueNumber').value = '';
@@ -18431,10 +18113,10 @@ window.sendGiftMessage = async function () {
     } catch (error) {
         console.error('Lỗi gửi quà và lời nhắn:', error);
 
-        alert(
+        (await AppDialog.alert(
             `❌ Không gửi được quà: ` +
             `${error.message || error.code || 'Lỗi không xác định'}`
-        );
+        ));
     } finally {
         if (sendButton) {
             sendButton.disabled = false;
@@ -18647,22 +18329,22 @@ window.applyTeacherPenalty = async function () {
         ).trim();
 
         if (!meta) {
-            alert('⚠️ Vui lòng chọn loại tài sản cần trừ.');
+            (await AppDialog.alert('⚠️ Vui lòng chọn loại tài sản cần trừ.'));
             return;
         }
 
         if (!Number.isSafeInteger(amount) || amount <= 0) {
-            alert('⚠️ Số lượng trừng phạt phải là số nguyên lớn hơn 0.');
+            (await AppDialog.alert('⚠️ Số lượng trừng phạt phải là số nguyên lớn hơn 0.'));
             return;
         }
 
         if (!reason) {
-            alert('⚠️ Vui lòng nhập lý do trừng phạt.');
+            (await AppDialog.alert('⚠️ Vui lòng nhập lý do trừng phạt.'));
             return;
         }
 
         if (reason.length > 500) {
-            alert('⚠️ Lý do trừng phạt tối đa 500 ký tự.');
+            (await AppDialog.alert('⚠️ Lý do trừng phạt tối đa 500 ký tự.'));
             return;
         }
 
@@ -18682,7 +18364,7 @@ window.applyTeacherPenalty = async function () {
                 .filter(username => studentMap.has(username));
 
         if (recipients.length === 0) {
-            alert('⚠️ Chưa chọn học sinh để áp dụng trừng phạt.');
+            (await AppDialog.alert('⚠️ Chưa chọn học sinh để áp dụng trừng phạt.'));
             return;
         }
 
@@ -18691,14 +18373,14 @@ window.applyTeacherPenalty = async function () {
             ? `${studentMap.get(recipients[0])?.name || recipients[0]} (${recipients[0]})`
             : `${recipients.length} học sinh`;
 
-        const confirmed = confirm(
+        const confirmed = (await AppDialog.confirm(
             `⚠️ XÁC NHẬN TRỪNG PHẠT\n\n` +
             `Đối tượng: ${targetDescription}\n` +
             `Trừ: ${formattedAmount} ${meta.unit === 'đ' ? 'đ' : meta.label}\n` +
             `Lý do: ${reason}\n\n` +
             `Coin, Vé và Tiền lộ trình CÓ THỂ xuống số âm.\n` +
             `Thao tác sẽ thay đổi số dư Firebase ngay lập tức và gửi THƯ PHẠT vào Hộp thư học sinh (không chạy animation thư bay).`
-        );
+        ));
 
         if (!confirmed) return;
 
@@ -18877,10 +18559,10 @@ window.applyTeacherPenalty = async function () {
         }
 
         if (failures.length === 0) {
-            alert(
+            (await AppDialog.alert(
                 `✅ Đã áp dụng trừng phạt cho ${successes.length} học sinh.\n` +
                 `Mỗi thay đổi đã được ghi nhật ký và gửi thông báo.`
-            );
+            ));
 
             const toggle = document.getElementById('penaltyToggle');
             if (toggle) toggle.checked = false;
@@ -18891,7 +18573,7 @@ window.applyTeacherPenalty = async function () {
                 .map(item => `• ${item.name}: ${item.error}`)
                 .join('\n');
 
-            alert(
+            (await AppDialog.alert(
                 `⚠️ Hoàn tất một phần.\n` +
                 `Thành công: ${successes.length}\n` +
                 `Thất bại: ${failures.length}\n\n` +
@@ -18899,14 +18581,14 @@ window.applyTeacherPenalty = async function () {
                 (failures.length > 10
                     ? `\n... và ${failures.length - 10} lỗi khác.`
                     : '')
-            );
+            ));
         }
     } catch (error) {
         console.error('[Teacher Penalty] Lỗi:', error);
-        alert(
+        (await AppDialog.alert(
             `❌ Không thể áp dụng trừng phạt: ` +
             `${error?.message || error || 'Lỗi không xác định'}`
-        );
+        ));
     } finally {
         if (submitButton) {
             submitButton.disabled = false;
@@ -18927,7 +18609,7 @@ window.toggleGiftArea = function (isOpen) {
 // Hàm bật tắt Bảng quy đổi
 window.toggleConversionSettings = async function (isChecked) {
     await db.ref('system_settings').update({ conversionTableEnabled: isChecked });
-    alert("Đã " + (isChecked ? "MỞ" : "ĐÓNG") + " chức năng Bảng quy đổi tiền của học sinh!");
+    (await AppDialog.alert("Đã " + (isChecked ? "MỞ" : "ĐÓNG") + " chức năng Bảng quy đổi tiền của học sinh!"));
 };
 
 // Tương thích hàm cũ: chỉ chuyển tiếp sang luồng kiểm duyệt an toàn hiện tại.
@@ -18953,7 +18635,7 @@ async function updateRequestStatus(requestId, newStatus) {
 
     if (typeof window.handleTeacherProcessCash !== 'function') {
         console.error('Luồng kiểm duyệt tiền mặt an toàn chưa sẵn sàng.');
-        alert('❌ Chức năng kiểm duyệt tiền mặt chưa sẵn sàng. Vui lòng tải lại trang.');
+        (await AppDialog.alert('❌ Chức năng kiểm duyệt tiền mặt chưa sẵn sàng. Vui lòng tải lại trang.'));
         return;
     }
 
@@ -18966,7 +18648,7 @@ async function updateRequestStatus(requestId, newStatus) {
 window.openCoinConversionModal = function () {
     // THÊM ĐOẠN CHẶN NÀY
     if (window.isConversionEnabled === false) {
-        alert("🔒 Chức năng Bảng quy đổi hiện đang bị Giáo viên tạm khóa!");
+        AppDialog.notify("🔒 Chức năng Bảng quy đổi hiện đang bị Giáo viên tạm khóa!");
         return;
     }
 
@@ -19272,23 +18954,23 @@ window.handleTeacherProcessCash = async function (reqFbKey, action) {
         let reqData = reqSnapshot.val();
 
         if (!reqData) {
-            alert('⚠️ Yêu cầu kiểm duyệt không tồn tại trên hệ thống!');
+            (await AppDialog.alert('⚠️ Yêu cầu kiểm duyệt không tồn tại trên hệ thống!'));
             return;
         }
 
         const amount = teacherCashAmount(reqData.amount);
         if (!amount) {
-            alert('❌ Yêu cầu có số tiền không hợp lệ. Không thể xử lý.');
+            (await AppDialog.alert('❌ Yêu cầu có số tiền không hợp lệ. Không thể xử lý.'));
             return;
         }
 
         if (action === 'approve') {
             if (reqData.status !== 'pending') {
-                alert('⚠️ Yêu cầu này không còn ở trạng thái chờ duyệt. Hãy tải lại danh sách.');
+                (await AppDialog.alert('⚠️ Yêu cầu này không còn ở trạng thái chờ duyệt. Hãy tải lại danh sách.'));
                 return;
             }
 
-            if (!confirm(`Bạn có đồng ý duyệt yêu cầu lấy tiền mặt trị giá ${amount.toLocaleString('vi-VN')} VNĐ của học sinh "${reqData.studentName || reqData.studentUsername}" không?`)) {
+            if (!(await AppDialog.confirm(`Bạn có đồng ý duyệt yêu cầu lấy tiền mặt trị giá ${amount.toLocaleString('vi-VN')} VNĐ của học sinh "${reqData.studentName || reqData.studentUsername}" không?`))) {
                 return;
             }
 
@@ -19306,7 +18988,7 @@ window.handleTeacherProcessCash = async function (reqFbKey, action) {
             });
 
             if (!claimResult.committed) {
-                alert('⚠️ Yêu cầu đã được xử lý ở nơi khác hoặc trạng thái vừa thay đổi.');
+                (await AppDialog.alert('⚠️ Yêu cầu đã được xử lý ở nơi khác hoặc trạng thái vừa thay đổi.'));
                 return;
             }
 
@@ -19336,7 +19018,7 @@ window.handleTeacherProcessCash = async function (reqFbKey, action) {
 
                 if (currentRouteMoney < amount) {
                     await resetCashRequestToPending(reqRef, 'insufficient_balance');
-                    alert(`❌ KHÔNG THỂ DUYỆT! Số dư lộ trình hiện tại chỉ còn ${currentRouteMoney.toLocaleString('vi-VN')} VNĐ, không đủ để rút ${amount.toLocaleString('vi-VN')} VNĐ.`);
+                    (await AppDialog.alert(`❌ KHÔNG THỂ DUYỆT! Số dư lộ trình hiện tại chỉ còn ${currentRouteMoney.toLocaleString('vi-VN')} VNĐ, không đủ để rút ${amount.toLocaleString('vi-VN')} VNĐ.`));
                     return;
                 }
 
@@ -19364,7 +19046,7 @@ window.handleTeacherProcessCash = async function (reqFbKey, action) {
 
                 if (!debitResult.committed) {
                     await resetCashRequestToPending(reqRef, 'offset_changed');
-                    alert('⚠️ Số dư vừa thay đổi bởi một thao tác khác. Không có tiền nào bị trừ; hãy duyệt lại yêu cầu.');
+                    (await AppDialog.alert('⚠️ Số dư vừa thay đổi bởi một thao tác khác. Không có tiền nào bị trừ; hãy duyệt lại yêu cầu.'));
                     return;
                 }
 
@@ -19381,7 +19063,7 @@ window.handleTeacherProcessCash = async function (reqFbKey, action) {
                     processingError: null
                 });
 
-                alert('✅ Duyệt thành công! Tiền lộ trình đã được trừ bằng transaction và yêu cầu chuyển sang Đang chuyển.');
+                (await AppDialog.alert('✅ Duyệt thành công! Tiền lộ trình đã được trừ bằng transaction và yêu cầu chuyển sang Đang chuyển.'));
             } catch (approveError) {
                 // Không tự đưa về pending ở đây vì có thể transaction tiền đã
                 // commit nhưng phản hồi cuối bị mất. Giữ processing để tránh trừ lần hai.
@@ -19393,20 +19075,20 @@ window.handleTeacherProcessCash = async function (reqFbKey, action) {
                     });
                 } catch (_) { }
 
-                alert('❌ Quá trình duyệt bị gián đoạn. Yêu cầu đã được khóa ở trạng thái Đang xử lý để tránh trừ tiền lặp. Hãy dùng nút "Khôi phục trạng thái".');
+                (await AppDialog.alert('❌ Quá trình duyệt bị gián đoạn. Yêu cầu đã được khóa ở trạng thái Đang xử lý để tránh trừ tiền lặp. Hãy dùng nút "Khôi phục trạng thái".'));
                 return;
             }
         }
 
         else if (action === 'recover') {
             if (reqData.status !== 'processing') {
-                alert('ℹ️ Yêu cầu này không cần khôi phục.');
+                (await AppDialog.alert('ℹ️ Yêu cầu này không cần khôi phục.'));
                 return;
             }
 
             const studentUsername = await resolveCashRequestStudentUsername(reqData);
             if (!studentUsername) {
-                alert('❌ Không xác định được username của học sinh. Không thể tự khôi phục an toàn.');
+                (await AppDialog.alert('❌ Không xác định được username của học sinh. Không thể tự khôi phục an toàn.'));
                 return;
             }
 
@@ -19414,7 +19096,7 @@ window.handleTeacherProcessCash = async function (reqFbKey, action) {
             const after = Number(reqData.processingOffsetAfter);
 
             if (!Number.isFinite(before) || !Number.isFinite(after)) {
-                alert('⚠️ Yêu cầu không có đủ dữ liệu kiểm tra trước/sau. Cần kiểm tra thủ công, hệ thống sẽ không tự trừ thêm tiền.');
+                (await AppDialog.alert('⚠️ Yêu cầu không có đủ dữ liệu kiểm tra trước/sau. Cần kiểm tra thủ công, hệ thống sẽ không tự trừ thêm tiền.'));
                 return;
             }
 
@@ -19434,26 +19116,26 @@ window.handleTeacherProcessCash = async function (reqFbKey, action) {
                     recoveredAt: Date.now(),
                     processingError: null
                 });
-                alert('✅ Khôi phục thành công: hệ thống xác nhận tiền ĐÃ được trừ trước đó và chỉ sửa trạng thái sang Đang chuyển.');
+                (await AppDialog.alert('✅ Khôi phục thành công: hệ thống xác nhận tiền ĐÃ được trừ trước đó và chỉ sửa trạng thái sang Đang chuyển.'));
             } else if (currentOffset === before) {
                 // Tiền chưa trừ, trả lại pending. Không thực hiện debit tại recovery.
                 await resetCashRequestToPending(reqRef, 'recovered_not_debited');
-                alert('✅ Khôi phục thành công: tiền CHƯA bị trừ. Yêu cầu đã trở lại Chờ duyệt.');
+                (await AppDialog.alert('✅ Khôi phục thành công: tiền CHƯA bị trừ. Yêu cầu đã trở lại Chờ duyệt.'));
             } else {
-                alert(
+                (await AppDialog.alert(
                     '⚠️ Offset hiện tại đã khác cả giá trị trước và sau dự kiến. ' +
                     'Có thể đã phát sinh giao dịch khác. Hệ thống không tự trừ hoặc hoàn tiền để tránh sai số; cần kiểm tra thủ công.'
-                );
+                ));
             }
         }
 
         else if (action === 'reject') {
             if (reqData.status !== 'pending') {
-                alert('⚠️ Chỉ có thể từ chối yêu cầu đang Chờ duyệt.');
+                (await AppDialog.alert('⚠️ Chỉ có thể từ chối yêu cầu đang Chờ duyệt.'));
                 return;
             }
 
-            if (!confirm(`Bạn có chắc muốn TỪ CHỐI yêu cầu rút ${amount.toLocaleString('vi-VN')} VNĐ của học sinh "${reqData.studentName || reqData.studentUsername}"?`)) {
+            if (!(await AppDialog.confirm(`Bạn có chắc muốn TỪ CHỐI yêu cầu rút ${amount.toLocaleString('vi-VN')} VNĐ của học sinh "${reqData.studentName || reqData.studentUsername}"?`))) {
                 return;
             }
 
@@ -19467,20 +19149,20 @@ window.handleTeacherProcessCash = async function (reqFbKey, action) {
             });
 
             if (!rejectResult.committed) {
-                alert('⚠️ Trạng thái yêu cầu vừa thay đổi. Không thực hiện từ chối.');
+                (await AppDialog.alert('⚠️ Trạng thái yêu cầu vừa thay đổi. Không thực hiện từ chối.'));
                 return;
             }
 
-            alert('❌ Đã từ chối yêu cầu.');
+            (await AppDialog.alert('❌ Đã từ chối yêu cầu.'));
         }
 
         else if (action === 'complete') {
             if (reqData.status !== 'transferring') {
-                alert('⚠️ Chỉ có thể hoàn tất yêu cầu đang ở trạng thái Đang chuyển.');
+                (await AppDialog.alert('⚠️ Chỉ có thể hoàn tất yêu cầu đang ở trạng thái Đang chuyển.'));
                 return;
             }
 
-            if (!confirm(`Xác nhận bạn ĐÃ thực hiện chuyển/giao tiền mặt thành công cho học sinh "${reqData.studentName || reqData.studentUsername}"?`)) {
+            if (!(await AppDialog.confirm(`Xác nhận bạn ĐÃ thực hiện chuyển/giao tiền mặt thành công cho học sinh "${reqData.studentName || reqData.studentUsername}"?`))) {
                 return;
             }
 
@@ -19494,18 +19176,18 @@ window.handleTeacherProcessCash = async function (reqFbKey, action) {
             });
 
             if (!completeResult.committed) {
-                alert('⚠️ Trạng thái yêu cầu vừa thay đổi. Không thể đánh dấu hoàn tất.');
+                (await AppDialog.alert('⚠️ Trạng thái yêu cầu vừa thay đổi. Không thể đánh dấu hoàn tất.'));
                 return;
             }
 
-            alert('🎉 Quy trình hoàn tất!');
+            (await AppDialog.alert('🎉 Quy trình hoàn tất!'));
         }
 
         await window.loadTeacherCashRequests();
 
     } catch (error) {
         console.error('Lỗi khi xử lý phê duyệt tiền mặt:', error);
-        alert('❌ Lỗi thao tác Firebase. Không thực hiện thêm thay đổi để tránh sai số tiền.');
+        (await AppDialog.alert('❌ Lỗi thao tác Firebase. Không thực hiện thêm thay đổi để tránh sai số tiền.'));
     }
 };
 
@@ -19865,10 +19547,10 @@ window.toggleStudentStoreGameAccess = async function (userKey, isEnabled, checkb
             checkboxElement.checked = !enabled;
         }
 
-        alert(
+        (await AppDialog.alert(
             '❌ Không thể cập nhật quyền Cửa hàng & Trò chơi: ' +
             (error?.message || error)
-        );
+        ));
     } finally {
         if (checkboxElement) {
             checkboxElement.disabled = false;
@@ -19881,7 +19563,7 @@ window.downloadRoadmapPDF = async function () {
 
     // Điều kiện: Phải chọn học sinh mới được tải
     if (!selectedStudent || selectedStudent === "") {
-        alert("⚠️ Vui lòng chọn một học sinh trong danh sách (ở mục Số điểm) trước khi tải bảng điểm!");
+        (await AppDialog.alert("⚠️ Vui lòng chọn một học sinh trong danh sách (ở mục Số điểm) trước khi tải bảng điểm!"));
         return;
     }
 
@@ -19895,7 +19577,7 @@ window.downloadRoadmapPDF = async function () {
     let htmlContent = `
         <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
             <h2 style="text-align: center; color: #2c3e50; text-transform: uppercase;">BẢNG ĐIỂM HỌC TẬP</h2>
-            <p style="font-size: 16px;"><strong>Họ và tên học sinh:</strong> ${stName}</p>
+            <p style="font-size: 16px;"><strong>Họ và tên học sinh:</strong> ${escapeHTMLForMath(stName)}</p>
             <p style="font-size: 16px;"><strong>Ngày xuất:</strong> ${new Date().toLocaleDateString('vi-VN')}</p>
             <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
                 <thead>
@@ -19934,9 +19616,9 @@ window.downloadRoadmapPDF = async function () {
 
         htmlContent += `
             <tr>
-                <td style="border: 1px solid #cbd5e1; padding: 12px;">${assign.title}</td>
-                <td style="border: 1px solid #cbd5e1; padding: 12px; text-align: center; font-weight: bold; color: #e11d48;">${studentScore}</td>
-                <td style="border: 1px solid #cbd5e1; padding: 12px; text-align: center; color: #64748b;">${assign.endDate || 'Không giới hạn'}</td>
+                <td style="border: 1px solid #cbd5e1; padding: 12px;">${escapeHTMLForMath(assign.title)}</td>
+                <td style="border: 1px solid #cbd5e1; padding: 12px; text-align: center; font-weight: bold; color: #e11d48;">${escapeHTMLForMath(studentScore)}</td>
+                <td style="border: 1px solid #cbd5e1; padding: 12px; text-align: center; color: #64748b;">${escapeHTMLForMath(assign.endDate || 'Không giới hạn')}</td>
             </tr>
         `;
     });
@@ -19955,202 +19637,22 @@ window.downloadRoadmapPDF = async function () {
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = htmlContent;
-    html2pdf().set(opt).from(tempDiv).save();
+    await window.CampusPDF.exportHTML(htmlContent, opt);
 };
 
-window.currentVideoDuration = 0; // Biến lưu tổng số giây của video hiện tại để validate
-
-// 1. Hàm tự động tải API Youtube và bóc tách thời lượng chuẩn xác (ĐÃ FIX LỖI)
-function getYoutubeDurationCorrectly(url, callback) {
-    let videoId = '';
-    if (url.includes('watch?v=')) videoId = url.split('v=')[1].split('&')[0];
-    else if (url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1].split('?')[0];
-    else if (url.includes('shorts/')) videoId = url.split('shorts/')[1].split('?')[0];
-    else if (url.includes('embed/')) videoId = url.split('embed/')[1].split('?')[0];
-
-    if (!videoId) return callback(0);
-
-    let tempDiv = document.createElement('div');
-    tempDiv.id = 'yt-temp-' + Date.now();
-
-    // FIX LỖI Ở ĐÂY: Không dùng display none. Đẩy Iframe ra ngoài vùng nhìn thấy của màn hình.
-    tempDiv.style.position = 'absolute';
-    tempDiv.style.left = '-9999px';
-    tempDiv.style.top = '-9999px';
-    tempDiv.style.width = '10px';
-    tempDiv.style.height = '10px';
-    document.body.appendChild(tempDiv);
-
-    const loadPlayer = () => {
-        let player = new YT.Player(tempDiv.id, {
-            height: '10', // Kích thước phải lớn hơn 0 để trình duyệt chịu render
-            width: '10',
-            videoId: videoId,
-            playerVars: {
-                'autoplay': 0,
-                'controls': 0
-            },
-            events: {
-                'onReady': function (event) {
-                    let totalSeconds = Math.floor(event.target.getDuration());
-                    callback(totalSeconds);
-                    // Tăng delay lên 1000ms để Youtube xử lý xong postMessage trước khi đóng
-                    setTimeout(() => {
-                        try { player.destroy(); } catch (e) { }
-                        if (document.body.contains(tempDiv)) document.body.removeChild(tempDiv);
-                    }, 1000);
-                },
-                'onError': function (event) {
-                    callback(0);
-                    setTimeout(() => {
-                        try { player.destroy(); } catch (e) { }
-                        if (document.body.contains(tempDiv)) document.body.removeChild(tempDiv);
-                    }, 1000);
-                }
-            }
-        });
-    };
-
-    if (typeof YT !== 'undefined' && YT.Player) {
-        loadPlayer();
-    } else {
-        let tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        document.head.appendChild(tag);
-        window.onYouTubeIframeAPIReady = loadPlayer;
-    }
-}
-
-// 2. Hàm xử lý chung để tái sử dụng cho cả Giao bài và Sửa bài
-function handleVideoLinkInput(e, displayId, prefix) {
-    const url = e.target.value.trim();
-    const display = document.getElementById(displayId);
-    const inputs = [
-        document.getElementById(prefix + 'Day'),
-        document.getElementById(prefix + 'Hour'),
-        document.getElementById(prefix + 'Min'),
-        document.getElementById(prefix + 'Sec')
-    ];
-
-    if (!url) {
-        if (display) display.innerText = "(Chưa có video)";
-        inputs.forEach(inp => { if (inp) { inp.value = ''; inp.disabled = true; } });
-        window.currentVideoDuration = 0;
-        return;
-    }
-
-    if (display) display.innerText = '⏳ Đang phân tích thời lượng...';
-
-    getYoutubeDurationCorrectly(url, function (durationInSeconds) {
-        if (durationInSeconds === 0) {
-            if (display) display.innerText = '(Không đọc được thời lượng, vui lòng kiểm tra lại link)';
-            inputs.forEach(inp => { if (inp) { inp.value = ''; inp.disabled = true; } });
-            return;
-        }
-
-        window.currentVideoDuration = durationInSeconds; // Lưu để validate không nhập quá số lượng
-
-        let d = Math.floor(durationInSeconds / 86400);
-        let h = Math.floor((durationInSeconds % 86400) / 3600);
-        let m = Math.floor((durationInSeconds % 3600) / 60);
-        let s = durationInSeconds % 60;
-
-        if (inputs[0]) { inputs[0].value = d; inputs[0].disabled = false; }
-        if (inputs[1]) { inputs[1].value = h; inputs[1].disabled = false; }
-        if (inputs[2]) { inputs[2].value = m; inputs[2].disabled = false; }
-        if (inputs[3]) { inputs[3].value = s; inputs[3].disabled = false; }
-
-        if (display) display.innerText = `(Độ dài gốc: ${d > 0 ? d + ' ngày ' : ''}${h}g ${m}p ${s}s)`;
+// Mỗi form giữ một yêu cầu riêng; phản hồi link cũ không ghi đè link mới.
+const assignmentVideoDuration = window.VideoDuration.createController();
+for (const [id, prefix, mode] of [['videoLink','cond','create'], ['editVideoLink','editCond','edit']]) {
+    const input = document.getElementById(id);
+    if (!input) continue;
+    input.addEventListener('input', () => {
+        assignmentVideoDuration.update(prefix, input.value);
+        window.syncVideoSummaryAvailability(mode);
     });
+    window.syncVideoSummaryAvailability(mode);
 }
-
-// 3. Gắn sự kiện cho Form Giao Bài
-const videoLinkInput =
-    document.getElementById(
-        'videoLink'
-    );
-
-if (videoLinkInput) {
-    videoLinkInput.addEventListener(
-        'input',
-        function (e) {
-            handleVideoLinkInput(
-                e,
-                'videoTotalTimeDisplay',
-                'cond'
-            );
-
-            window
-                .syncVideoSummaryAvailability(
-                    'create'
-                );
-        }
-    );
-
-    window
-        .syncVideoSummaryAvailability(
-            'create'
-        );
-}
-
-// 4. Gắn sự kiện cho Form Sửa Bài
-const editVideoLinkInput =
-    document.getElementById(
-        'editVideoLink'
-    );
-
-if (editVideoLinkInput) {
-    editVideoLinkInput.addEventListener(
-        'input',
-        function (e) {
-            handleVideoLinkInput(
-                e,
-                'editVideoTotalTimeDisplay',
-                'editCond'
-            );
-
-            window
-                .syncVideoSummaryAvailability(
-                    'edit'
-                );
-        }
-    );
-
-    window
-        .syncVideoSummaryAvailability(
-            'edit'
-        );
-}
-
-// 5. Ràng buộc không cho nhập điều kiện quá tổng độ dài video (Giao bài)
-window.validateConditionInput = function () {
-    const d = parseInt(document.getElementById('condDay').value) || 0;
-    const h = parseInt(document.getElementById('condHour').value) || 0;
-    const m = parseInt(document.getElementById('condMin').value) || 0;
-    const s = parseInt(document.getElementById('condSec').value) || 0;
-
-    const totalInputSec = d * 86400 + h * 3600 + m * 60 + s;
-    if (totalInputSec > window.currentVideoDuration && window.currentVideoDuration > 0) {
-        alert("⚠️ Điều kiện thời gian không được vượt quá tổng độ dài video!");
-        document.getElementById('condSec').value = 0;
-    }
-};
-
-// 6. Ràng buộc không cho nhập điều kiện quá tổng độ dài video (Sửa bài)
-window.validateEditConditionInput = function () {
-    const d = parseInt(document.getElementById('editCondDay').value) || 0;
-    const h = parseInt(document.getElementById('editCondHour').value) || 0;
-    const m = parseInt(document.getElementById('editCondMin').value) || 0;
-    const s = parseInt(document.getElementById('editCondSec').value) || 0;
-
-    const totalInputSec = d * 86400 + h * 3600 + m * 60 + s;
-    if (totalInputSec > window.currentVideoDuration && window.currentVideoDuration > 0) {
-        alert("⚠️ Điều kiện thời gian không được vượt quá tổng độ dài video!");
-        document.getElementById('editCondSec').value = 0;
-    }
-};
+window.validateConditionInput = () => assignmentVideoDuration.validate('cond');
+window.validateEditConditionInput = () => assignmentVideoDuration.validate('editCond');
 
 // ==============================================================
 // HỆ THỐNG QUẢN LÝ VÉ MAY MẮN CHO TỪNG HỌC SINH (GIÁO VIÊN)
@@ -20276,31 +19778,31 @@ window.modifyStudentTickets = async function (action) {
     const amountStr = document.getElementById('ticketModifyAmount').value;
     const amount = parseInt(amountStr);
 
-    if (!username) return alert("⚠️ Vui lòng chọn một học sinh trước!");
-    if (isNaN(amount) || amount <= 0) return alert("⚠️ Vui lòng nhập số lượng vé hợp lệ (lớn hơn 0)!");
+    if (!username) return (await AppDialog.alert("⚠️ Vui lòng chọn một học sinh trước!"));
+    if (isNaN(amount) || amount <= 0) return (await AppDialog.alert("⚠️ Vui lòng nhập số lượng vé hợp lệ (lớn hơn 0)!"));
 
     const info = await getStudentTicketInfo(username);
     let newBonus = info.bonus;
 
     if (action === 'add') {
-        if (!confirm(`Bạn có chắc chắn muốn CỘNG THÊM ${amount} vé cho học sinh này?`)) return;
+        if (!(await AppDialog.confirm(`Bạn có chắc chắn muốn CỘNG THÊM ${amount} vé cho học sinh này?`))) return;
         newBonus += amount;
     } else if (action === 'sub') {
         if (info.remaining < amount) {
-            return alert(`❌ Học sinh này hiện chỉ có ${info.remaining} vé, không đủ để trừ!`);
+            return (await AppDialog.alert(`❌ Học sinh này hiện chỉ có ${info.remaining} vé, không đủ để trừ!`));
         }
-        if (!confirm(`Bạn có chắc chắn muốn TRỪ ĐI ${amount} vé của học sinh này?`)) return;
+        if (!(await AppDialog.confirm(`Bạn có chắc chắn muốn TRỪ ĐI ${amount} vé của học sinh này?`))) return;
         newBonus -= amount;
     }
 
     try {
         await db.ref('student_bonus_tickets/' + username).set(newBonus);
-        alert(`✅ Đã ${action === 'add' ? 'CỘNG' : 'TRỪ'} ${amount} vé thành công!`);
+        (await AppDialog.alert(`✅ Đã ${action === 'add' ? 'CỘNG' : 'TRỪ'} ${amount} vé thành công!`));
         document.getElementById('ticketModifyAmount').value = '';
         window.onTicketStudentChange();
     } catch (e) {
         console.error("Lỗi cập nhật vé:", e);
-        alert("❌ Đã xảy ra lỗi khi kết nối dữ liệu.");
+        (await AppDialog.alert("❌ Đã xảy ra lỗi khi kết nối dữ liệu."));
     }
 };
 
@@ -20602,7 +20104,7 @@ window.refreshTeacherLeaderboardAdmin = async function () {
         renderTeacherLeaderboardAdmin(snapshot.val() || {});
     } catch (error) {
         console.error('Không thể làm mới cấu hình BXH:', error);
-        alert('❌ Không thể làm mới cấu hình Bảng Xếp Hạng.');
+        (await AppDialog.alert('❌ Không thể làm mới cấu hình Bảng Xếp Hạng.'));
     }
 };
 
@@ -20629,7 +20131,7 @@ window.toggleLeaderboardStatus = async function (isOpen) {
     } catch (error) {
         console.error('Lỗi đổi trạng thái BXH:', error);
         if (toggleInput) toggleInput.checked = !isOpen;
-        alert('❌ Không thể đổi trạng thái Bảng Xếp Hạng.');
+        (await AppDialog.alert('❌ Không thể đổi trạng thái Bảng Xếp Hạng.'));
     } finally {
         if (toggleInput) toggleInput.disabled = false;
     }
@@ -20640,10 +20142,10 @@ window.saveLeaderboardSchedule = async function () {
     const year = Number(document.getElementById('lbScheduleYear')?.value);
 
     if (!Number.isInteger(month) || month < 1 || month > 12) {
-        return alert('⚠️ Tháng mùa giải không hợp lệ.');
+        return (await AppDialog.alert('⚠️ Tháng mùa giải không hợp lệ.'));
     }
     if (!Number.isInteger(year) || year < 2024 || year > 2100) {
-        return alert('⚠️ Năm mùa giải không hợp lệ.');
+        return (await AppDialog.alert('⚠️ Năm mùa giải không hợp lệ.'));
     }
 
     const now = new Date();
@@ -20651,10 +20153,10 @@ window.saveLeaderboardSchedule = async function () {
     const targetMonthIndex = year * 12 + (month - 1);
 
     if (targetMonthIndex <= currentMonthIndex) {
-        const shouldOpen = confirm(
+        const shouldOpen = (await AppDialog.confirm(
             `Tháng ${month}/${year} đã tới hoặc đang diễn ra.\n\n` +
             'Bạn có muốn MỞ Bảng Xếp Hạng ngay bây giờ thay vì lưu lịch hẹn không?'
-        );
+        ));
         if (!shouldOpen) return;
 
         await db.ref('leaderboard_settings').update({
@@ -20666,7 +20168,7 @@ window.saveLeaderboardSchedule = async function () {
         return;
     }
 
-    if (!confirm(`Lưu lịch tự mở Bảng Xếp Hạng vào Tháng ${month}/${year}?`)) return;
+    if (!(await AppDialog.confirm(`Lưu lịch tự mở Bảng Xếp Hạng vào Tháng ${month}/${year}?`))) return;
 
     try {
         await db.ref('leaderboard_settings').update({
@@ -20675,10 +20177,10 @@ window.saveLeaderboardSchedule = async function () {
             targetYear: year,
             scheduledAt: firebase.database.ServerValue.TIMESTAMP
         });
-        alert(`✅ Đã hẹn tự mở vào Tháng ${month}/${year}.`);
+        (await AppDialog.alert(`✅ Đã hẹn tự mở vào Tháng ${month}/${year}.`));
     } catch (error) {
         console.error('Lỗi lưu lịch BXH:', error);
-        alert('❌ Không thể lưu lịch mùa giải.');
+        (await AppDialog.alert('❌ Không thể lưu lịch mùa giải.'));
     }
 };
 
@@ -20690,7 +20192,7 @@ window.setNextMonthSeason = async function () {
     if (monthSelect) monthSelect.value = String(next.month);
     if (yearInput) yearInput.value = String(next.year);
 
-    if (!confirm(`Đặt lịch tự mở mùa giải vào ${next.label}?`)) return;
+    if (!(await AppDialog.confirm(`Đặt lịch tự mở mùa giải vào ${next.label}?`))) return;
 
     try {
         await db.ref('leaderboard_settings').update({
@@ -20699,10 +20201,10 @@ window.setNextMonthSeason = async function () {
             targetYear: next.year,
             scheduledAt: firebase.database.ServerValue.TIMESTAMP
         });
-        alert(`✅ Đã đặt lịch ${next.label}.`);
+        (await AppDialog.alert(`✅ Đã đặt lịch ${next.label}.`));
     } catch (error) {
         console.error('Lỗi đặt lịch BXH:', error);
-        alert('❌ Không thể đặt lịch mùa giải.');
+        (await AppDialog.alert('❌ Không thể đặt lịch mùa giải.'));
     }
 };
 
@@ -20729,18 +20231,18 @@ window.saveLeaderboardSettings = async function () {
             chestLeg: rate.leg,
             rewardSettingsUpdatedAt: firebase.database.ServerValue.TIMESTAMP
         });
-        alert('✅ Đã lưu cấu hình phần thưởng và tỉ lệ Rương.');
+        (await AppDialog.alert('✅ Đã lưu cấu hình phần thưởng và tỉ lệ Rương.'));
     } catch (error) {
         console.error('Lỗi lưu cấu hình BXH:', error);
-        alert('❌ Không thể lưu cấu hình phần thưởng.');
+        (await AppDialog.alert('❌ Không thể lưu cấu hình phần thưởng.'));
     }
 };
 
 window.deleteCurrentSeason = async function () {
-    if (!confirm(
+    if (!(await AppDialog.confirm(
         '⚠️ Xóa lịch mùa giải đang hẹn?\n\n' +
         'Bảng Xếp Hạng cũng sẽ chuyển sang ĐÓNG. Dữ liệu bài làm và lịch sử thi đua không bị xóa.'
-    )) return;
+    ))) return;
 
     try {
         await db.ref('leaderboard_settings').update({
@@ -20749,10 +20251,10 @@ window.deleteCurrentSeason = async function () {
             targetYear: null,
             scheduleClearedAt: firebase.database.ServerValue.TIMESTAMP
         });
-        alert('🗑️ Đã xóa lịch và đóng Bảng Xếp Hạng.');
+        (await AppDialog.alert('🗑️ Đã xóa lịch và đóng Bảng Xếp Hạng.'));
     } catch (error) {
         console.error('Lỗi xóa lịch BXH:', error);
-        alert('❌ Không thể xóa lịch mùa giải.');
+        (await AppDialog.alert('❌ Không thể xóa lịch mùa giải.'));
     }
 };
 
@@ -20767,12 +20269,12 @@ window.changeTeacherPassword = async function () {
         );
 
     if (!newPassword || passwordPolicyError) {
-        return alert(
+        return (await AppDialog.alert(
             '⚠️ ' + (passwordPolicyError || 'Vui lòng nhập mật khẩu mới.')
-        );
+        ));
     }
     if (newPassword !== confirmPassword) {
-        return alert("❌ Mật khẩu xác nhận không khớp!");
+        return (await AppDialog.alert("❌ Mật khẩu xác nhận không khớp!"));
     }
 
     try {
@@ -20790,18 +20292,18 @@ window.changeTeacherPassword = async function () {
             currentUser.password = newPassword;
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
-            alert("✅ Đổi mật khẩu thành công! Hãy nhớ mật khẩu mới của bạn.");
+            (await AppDialog.alert("✅ Đổi mật khẩu thành công! Hãy nhớ mật khẩu mới của bạn."));
             // Reset ô nhập
             document.getElementById('newPasswordInput').value = '';
             document.getElementById('confirmPasswordInput').value = '';
         } else {
-            alert("❌ Không tìm thấy thông tin đăng nhập. Vui lòng đăng nhập lại!");
+            (await AppDialog.alert("❌ Không tìm thấy thông tin đăng nhập. Vui lòng đăng nhập lại!"));
         }
     } catch (error) {
         if (error.code === 'auth/requires-recent-login') {
-            alert("⚠️ Bảo mật Firebase: Bạn cần đăng xuất và đăng nhập lại để xác thực quyền đổi mật khẩu!");
+            (await AppDialog.alert("⚠️ Bảo mật Firebase: Bạn cần đăng xuất và đăng nhập lại để xác thực quyền đổi mật khẩu!"));
         } else {
-            alert("❌ Lỗi: " + error.message);
+            (await AppDialog.alert("❌ Lỗi: " + error.message));
         }
     }
 };
@@ -21284,7 +20786,7 @@ window.changeTeacherPassword = async function () {
                 validateQuestion(item);
 
             if (error) {
-                return alert('⚠️ ' + error);
+                return (await AppDialog.alert('⚠️ ' + error));
             }
 
             const editingKey = text(
@@ -21304,9 +20806,9 @@ window.changeTeacherPassword = async function () {
                 );
 
             if (duplicate) {
-                return alert(
+                return (await AppDialog.alert(
                     '⚠️ Câu hỏi này đã có trong ngân hàng.'
-                );
+                ));
             }
 
             const oldItem =
@@ -21372,11 +20874,11 @@ window.changeTeacherPassword = async function () {
                 true
             );
 
-            alert(
+            (await AppDialog.alert(
                 editingKey
                     ? '✅ Đã cập nhật câu hỏi.'
                     : '✅ Đã lưu câu hỏi vào ngân hàng.'
-            );
+            ));
         };
 
     window.loadQuestionBank =
@@ -21963,10 +21465,10 @@ window.changeTeacherPassword = async function () {
             }
 
             if (
-                !confirm(
+                !(await AppDialog.confirm(
                     `Xóa câu hỏi “${q.qText}”? ` +
                     'Bài tập đã tạo trước đó không bị ảnh hưởng.'
-                )
+                ))
             ) {
                 return;
             }
@@ -22058,7 +21560,7 @@ window.changeTeacherPassword = async function () {
                 );
 
             if (!q) {
-                return alert(
+                return AppDialog.notify(
                     'Không tìm thấy câu hỏi.'
                 );
             }
@@ -22132,9 +21634,9 @@ window.changeTeacherPassword = async function () {
             ];
 
             if (blocks.length === 0) {
-                return alert(
+                return (await AppDialog.alert(
                     'Chưa có câu hỏi nào đang soạn.'
-                );
+                ));
             }
 
             const subject = text(
@@ -22167,10 +21669,10 @@ window.changeTeacherPassword = async function () {
                 !grade ||
                 !lesson
             ) {
-                return alert(
+                return (await AppDialog.alert(
                     'Vui lòng nhập Môn, Lớp ' +
                     'và Bài/chủ đề trước khi lưu.'
-                );
+                ));
             }
 
             await window.loadQuestionBank();
@@ -22294,19 +21796,19 @@ window.changeTeacherPassword = async function () {
                 true
             );
 
-            alert(
+            (await AppDialog.alert(
                 `✅ Đã thêm ${added} câu mới; ` +
                 'câu trùng hoặc thiếu dữ liệu được bỏ qua.'
-            );
+            ));
         };
 
     window.importQuestionsFromAssignmentsToBank =
         async function () {
             if (
-                !confirm(
+                !(await AppDialog.confirm(
                     'Quét toàn bộ bài tập cũ và đưa ' +
                     'các câu chưa có vào ngân hàng?'
-                )
+                ))
             ) {
                 return;
             }
@@ -22444,10 +21946,10 @@ window.changeTeacherPassword = async function () {
                 true
             );
 
-            alert(
+            (await AppDialog.alert(
                 `✅ Đã nhập ${added} câu hỏi ` +
                 'mới từ các bài cũ.'
-            );
+            ));
         };
 
     window.getDisabledRandomExamConfig =
@@ -22491,11 +21993,7 @@ window.changeTeacherPassword = async function () {
                 )?.value
             );
 
-            const questionCount =
-                Number.isInteger(rawCount) &&
-                    rawCount > 0
-                    ? rawCount
-                    : totalQuestions;
+            const questionCount = rawCount === 0 ? totalQuestions : rawCount;
 
             const versionCount = Number(
                 document.getElementById(
@@ -22537,6 +22035,8 @@ window.changeTeacherPassword = async function () {
 
             return {
                 enabled: true,
+                engineVersion: 2,
+                seed: "campus-exam-v2",
                 questionCount,
                 versionCount,
 
@@ -22814,93 +22314,7 @@ window.changeTeacherPassword = async function () {
             : `A${index + 1}`;
     }
 
-    function makePreviewVersion(
-        questions,
-        config,
-        versionIndex
-    ) {
-        const base = questions.map(
-            (q, index) => ({
-                ...q,
-                _sourceIndex: index
-            })
-        );
 
-        const selected =
-            config.questionCount < base.length
-                ? shuffle(
-                    base,
-                    `preview|${versionIndex}|select`
-                ).slice(
-                    0,
-                    config.questionCount
-                )
-                : base;
-
-        const ordered =
-            config.shuffleQuestions
-                ? shuffle(
-                    selected,
-                    `preview|${versionIndex}|questions`
-                )
-                : selected
-                    .slice()
-                    .sort(
-                        (a, b) =>
-                            a._sourceIndex -
-                            b._sourceIndex
-                    );
-
-        return ordered.map(
-            (q, index) => {
-                if (
-                    !config.shuffleAnswers
-                ) {
-                    return q;
-                }
-
-                const options =
-                    LETTERS.map(letter => ({
-                        letter,
-                        text: q[letter]
-                    }));
-
-                const shuffled =
-                    shuffle(
-                        options,
-                        `preview|${versionIndex}|answer|` +
-                        `${q.questionId || q.qText}|${index}`
-                    );
-
-                const output = {
-                    ...q
-                };
-
-                shuffled.forEach(
-                    (
-                        option,
-                        optionIndex
-                    ) => {
-                        output[
-                            LETTERS[optionIndex]
-                        ] = option.text;
-
-                        if (
-                            option.letter ===
-                            q.correct
-                        ) {
-                            output.correct =
-                                LETTERS[
-                                optionIndex
-                                ];
-                        }
-                    }
-                );
-
-                return output;
-            }
-        );
-    }
 
     window.previewRandomExamVersions =
         function () {
@@ -22963,11 +22377,11 @@ window.changeTeacherPassword = async function () {
                 );
 
             if (config.error) {
-                return alert(config.error);
+                return AppDialog.notify(config.error);
             }
 
             if (!config.enabled) {
-                return alert(
+                return AppDialog.notify(
                     'Hãy bật “Tạo nhiều mã đề ngẫu nhiên”.'
                 );
             }
@@ -22983,12 +22397,14 @@ window.changeTeacherPassword = async function () {
                         !q.correct
                 )
             ) {
-                return alert(
+                return AppDialog.notify(
                     'Vui lòng hoàn thiện các câu hỏi ' +
                     'trước khi xem thử.'
                 );
             }
 
+            let previewVersions;
+            try { previewVersions = window.RandomExamEngine.versions(questions, config); } catch(error) { return AppDialog.notify(error.message); }
             let modal =
                 document.getElementById(
                     'randomExamPreviewModal'
@@ -23023,11 +22439,7 @@ window.changeTeacherPassword = async function () {
                     },
                     (_, versionIndex) => {
                         const version =
-                            makePreviewVersion(
-                                questions,
-                                config,
-                                versionIndex
-                            );
+                            previewVersions[versionIndex];
 
                         return `
                             <section style="
@@ -23406,9 +22818,9 @@ window.changeTeacherPassword = async function () {
             window.renderQuestionBank();
 
             if (showMessage) {
-                alert(
+                (await AppDialog.alert(
                     '✅ Đã cập nhật thống kê câu hỏi.'
-                );
+                ));
             }
         };
 })();

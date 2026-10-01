@@ -1198,9 +1198,9 @@
             actor().role !==
             'teacher'
         ) {
-            alert(
+            (await AppDialog.alert(
                 '⛔ Chỉ giáo viên được hoàn tác.'
-            );
+            ));
             return;
         }
 
@@ -1213,9 +1213,9 @@
         }
 
         if (
-            !confirm(
+            !(await AppDialog.confirm(
                 'Bạn chắc chắn muốn hoàn tác giao dịch này?'
-            )
+            ))
         ) {
             return;
         }
@@ -1283,9 +1283,9 @@
                 );
             }
 
-            alert(
+            (await AppDialog.alert(
                 '✅ Hoàn tác thành công.'
-            );
+            ));
 
             await loadTeacherLogs();
 
@@ -1311,9 +1311,9 @@
             await loadTeacherLogs()
                 .catch(console.error);
 
-            alert(
+            (await AppDialog.alert(
                 `❌ Không thể hoàn tác: ${error.message}`
-            );
+            ));
 
         } finally {
             state.undoing.delete(
@@ -2045,10 +2045,10 @@
                 error
             );
 
-            alert(
+            (await AppDialog.alert(
                 'Không tải được giao dịch cũ hơn. ' +
                 'Vui lòng kiểm tra kết nối rồi thử lại.'
-            );
+            ));
         } finally {
             state.loadingLogs = false;
             renderTeacherLogs();
@@ -2194,9 +2194,9 @@
             actor().role !==
             'teacher'
         ) {
-            alert(
+            (await AppDialog.alert(
                 '⛔ Chỉ giáo viên được điều chỉnh Coin.'
-            );
+            ));
             return;
         }
 
@@ -2238,9 +2238,9 @@
             username;
 
         if (!username) {
-            alert(
+            (await AppDialog.alert(
                 'Vui lòng chọn học sinh.'
-            );
+            ));
             return;
         }
 
@@ -2248,26 +2248,26 @@
             !Number.isInteger(delta) ||
             delta === 0
         ) {
-            alert(
+            (await AppDialog.alert(
                 'Nhập số nguyên khác 0, ví dụ 50 hoặc -20.'
-            );
+            ));
             return;
         }
 
         if (!reason) {
-            alert(
+            (await AppDialog.alert(
                 'Vui lòng nhập lý do.'
-            );
+            ));
             return;
         }
 
         if (
-            !confirm(
+            !(await AppDialog.confirm(
                 `${delta > 0
                     ? 'Cộng'
                     : 'Trừ'
                 } ${Math.abs(delta)} Coin cho ${targetName}?`
-            )
+            ))
         ) {
             return;
         }
@@ -2367,19 +2367,19 @@
             deltaInput.value = '';
             reasonInput.value = '';
 
-            alert(
+            (await AppDialog.alert(
                 `✅ Số dư mới: ` +
                 `${after.toLocaleString('vi-VN')} Coin.`
-            );
+            ));
 
             await loadTeacherLogs();
 
         } catch (error) {
             console.error(error);
 
-            alert(
+            (await AppDialog.alert(
                 `❌ Thất bại: ${error.message}`
-            );
+            ));
         }
     }
 

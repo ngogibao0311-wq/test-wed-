@@ -69,7 +69,7 @@
         bellum: 'css/bellum-event.css?v=20260912.4',
         midAutumnFestival: 'css/mid-autumn-festival.css?v=20260914.4-balanced-games',
 
-        collections: 'css/store-collections.css?v=20260908.four-seasons-lock-v1',
+        collections: 'css/store-collections.css?v=20261001.scroll1',
         luxury: 'css/luxury-store.css?v=20260926.hacmong-v1',
         camMong: 'css/cam-co-cam-mong.css?v=20260927.realms10',
         midAutumnMoon: 'css/trung-thu-nguyet-cung.css?v=20260927.realms10',
@@ -93,25 +93,25 @@
     });
 
     const SCRIPT = Object.freeze({
-        themeItems: 'js/theme-items.js?v=20260927.autumn-four-effects-restored-v1',
+        themeItems: 'js/theme-items.js?v=20261001.design2',
         effectItems: 'js/effect-items.js?v=20260927.autumn-four-effects-restored-v1',
         petItems: 'js/pet-items.js?v=20260926.autumn-sale-tag-v3',
-        petInteractions: 'js/pet-interactions.js?v=3.8',
-        musicManager: 'js/music-manager.js?v=20260910.music-reliability-v3',
-        storeManager: 'js/store-manager.js?v=20260930.rewards-v2',
+        petInteractions: 'js/pet-interactions.js?v=20261001.dialog1',
+        musicManager: 'js/music-manager.js?v=20261001.dialog1',
+        storeManager: 'js/store-manager.js?v=20261001.dialog1',
 
-        luxuryStore: 'js/luxury-store.js?v=20260930.media-v2',
-        collections: 'js/store-collections.js?v=20260908.four-seasons-lock-v1',
+        luxuryStore: 'js/luxury-store.js?v=20261001.dialog1',
+        collections: 'js/store-collections.js?v=20261001.scroll1',
 
-        royalBall: 'js/royal-ball.js?v=20260908.lazy-v1',
-        leaderboard: 'js/leaderboard.js?v=20260910.trigger-autoload-v1',
-        painting: 'js/painting.js?v=20260908.round-query-v1',
-        history: 'js/lich-su-hao-hung.js?v=20260831.1',
-        bellum: 'js/bellum-event.js?v=20260912.4',
-        midAutumnFestival: 'js/mid-autumn-festival.js?v=20260917.1-accessibility-focus-fix',
+        royalBall: 'js/royal-ball.js?v=20261001.dialog1',
+        leaderboard: 'js/leaderboard.js?v=20261001.dialog1',
+        painting: 'js/painting.js?v=20261001.dialog1',
+        history: 'js/lich-su-hao-hung.js?v=20261001.dialog1',
+        bellum: 'js/bellum-event.js?v=20261001.dialog1',
+        midAutumnFestival: 'js/mid-autumn-festival.js?v=20261001.dialog1',
 
-        dailyLogin: 'js/daily-login.js?v=20260908.lazy-v1',
-        guide: 'js/huong-dan-nguoi-moi.js?v=2.15.2'
+        dailyLogin: 'js/daily-login.js?v=20261001.dialog1',
+        guide: 'js/huong-dan-nguoi-moi.js?v=20261001.dialog1'
     });
 
     /*

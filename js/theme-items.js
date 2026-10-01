@@ -2,7 +2,7 @@
 
 class ThemeManager {
     static themes = {
-        'default': { primary: '#667eea', secondary: '#764ba2', background: '#f4f7f6', className: '' },
+        'default': { primary: '#5865d8', secondary: '#5865d8', background: '#f4f6fb', className: '' },
         'theme_ocean': { primary: '#4facfe', secondary: '#00f2fe', background: '#e0f7fa', className: '' },
         'theme_cotich': {
             primary: '#d4af37',     // Vàng hoàng gia

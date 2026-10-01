@@ -1480,11 +1480,11 @@
                 );
             }
 
-            window.alert(
+            (await AppDialog.alert(
                 `🎁 PHẦN THƯỞNG BELLUM\n\n` +
                 `Bạn nhận được:\n${rewardItem.name}\n\n` +
                 `Tag: ${COMPLETION_REWARD_TAG}`
-            );
+            ));
 
             return true;
         } catch (error) {
@@ -1801,12 +1801,12 @@
             .querySelector('[data-action="start"]')
             ?.addEventListener(
                 'click',
-                () => {
+                async () => {
                     if (
                         hasProgress &&
-                        !confirm(
+                        !(await AppDialog.confirm(
                             'Bắt đầu lại từ Cảnh 1? Tiến độ hiện tại vẫn có thể được mở lại từ danh sách cảnh đã mở.'
-                        )
+                        ))
                     ) {
                         return;
                     }

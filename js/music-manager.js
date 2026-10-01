@@ -121,9 +121,9 @@
             const musicUrl = this.getUrl(item);
 
             if (!musicUrl) {
-                alert(
+                (await AppDialog.alert(
                     `⚠️ Nhạc nền "${item.name}" chưa được cấu hình musicUrl.`
-                );
+                ));
                 return false;
             }
 
@@ -212,9 +212,9 @@
                 this.destroyPlayer();
                 this.shouldPlay = false;
 
-                alert(
+                (await AppDialog.alert(
                     '❌ Không phát được nhạc. Kiểm tra link và quyền chia sẻ.'
-                );
+                ));
 
                 return false;
             }

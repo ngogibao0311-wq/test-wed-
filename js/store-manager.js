@@ -3227,7 +3227,7 @@ class StoreManager {
         }
 
         if (item.isLocked === true) {
-            window.alert(
+            AppDialog.notify(
                 `🔒 ${item.name} đang bị Giáo viên khóa.`
             );
             return;
@@ -3246,7 +3246,7 @@ class StoreManager {
             saleState.hasAnnualSale &&
             !saleState.isOpen
         ) {
-            window.alert(
+            AppDialog.notify(
                 `${item.name} chỉ mở bán từ ` +
                 `${saleState.windowLabel} hằng năm.\n\n` +
                 `Đợt mở bán tiếp theo: ${saleState.nextOpenLabel}.`
@@ -3288,7 +3288,7 @@ class StoreManager {
         }
 
         if (item.isLocked === true) {
-            window.alert(
+            AppDialog.notify(
                 `🔒 ${item.name} đang bị Giáo viên khóa.`
             );
             return;
@@ -3301,7 +3301,7 @@ class StoreManager {
             saleState.hasAnnualSale &&
             !saleState.isOpen
         ) {
-            window.alert(
+            AppDialog.notify(
                 `${item.name} hiện chưa mở bán.\n\n` +
                 `Thời gian: ${saleState.windowLabel} hằng năm.\n` +
                 `Mở lại: ${saleState.nextOpenLabel}.`
@@ -3339,14 +3339,14 @@ class StoreManager {
             typeof window.studentStoreCanUseItemSync === 'function' &&
             window.studentStoreCanUseItemSync(itemId) !== true
         ) {
-            window.alert('⛔ Bạn chưa sở hữu vật phẩm này.');
+            AppDialog.notify('⛔ Bạn chưa sở hữu vật phẩm này.');
             return false;
         }
 
         // Chặn trang bị từ mọi đường dẫn khi Giáo viên đã khóa vật phẩm.
         // Không ảnh hưởng thao tác Gỡ vật phẩm đang mặc.
         if (item.isLocked === true) {
-            window.alert(
+            AppDialog.notify(
                 `🔒 ${item.name} đang bị Giáo viên khóa, không thể sử dụng.`
             );
             return false;
@@ -6951,6 +6951,18 @@ window.StoreConcurrency = (() => {
             if (!canContinue()) return false;
             const target = lookup(itemId);
             if (!target || (equip && target.isLocked === true)) return false;
+            const specialBackground = entry => entry?.source === 'collection_reward' &&
+                String(entry.id || '').startsWith('reward_bg_') && entry.isTrial !== true;
+            const targetSpecial = Object.values(inventory).some(entry => String(entry?.id) === String(itemId) && specialBackground(entry));
+            const activeSpecial = Object.values(inventory).find(entry => specialBackground(entry) && entry.isEquipped === true);
+            // Never silently remove an active special background when equipping a shop item.
+            // Re-evaluate after every revision conflict, including changes from other tabs.
+            if (equip && activeSpecial && String(activeSpecial.id) !== String(itemId) &&
+                (target.type === 'background' || target.luxuryOnly === true)) {
+                const message = 'Hãy vào Phần thưởng và bấm Tháo nền đặc biệt trước khi mặc nền khác hoặc vật phẩm cửa hàng sang trọng.';
+                if (typeof window.showToast === 'function') window.showToast(message, 'error'); else (await AppDialog.alert(message));
+                return false;
+            }
             const matches = Object.entries(inventory).filter(([, entry]) => String(entry?.id) === String(itemId));
             const usable = matches.filter(([, entry]) => entry.isTrial !== true ||
                 (Number.isFinite(Number(entry.trialExpiry)) && Number(entry.trialExpiry) > Date.now()));
@@ -6961,9 +6973,9 @@ window.StoreConcurrency = (() => {
                 if (!entry) continue;
                 const definition = lookup(entry.id);
                 const sameId = String(entry.id) === String(itemId);
-                const conflict = equip && definition && (definition.type === target.type ||
+                const conflict = equip && ((targetSpecial && (definition?.luxuryOnly === true || definition?.type === 'background' || entry.type === 'background')) || (definition && (definition.type === target.type ||
                     (!exempt(definition) && !exempt(target) &&
-                        Boolean(definition.luxuryOnly) !== Boolean(target.luxuryOnly)));
+                        Boolean(definition.luxuryOnly) !== Boolean(target.luxuryOnly)))));
                 if (!sameId && !conflict) continue;
                 const next = sameId && equip && key === chosenKey;
                 if (entry.isEquipped !== next) updates[`student_inventory/${username}/${key}/isEquipped`] = next;

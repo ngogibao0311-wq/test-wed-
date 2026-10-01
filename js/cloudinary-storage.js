@@ -179,11 +179,11 @@
                     error
                 );
 
-                alert(
+                (await AppDialog.alert(
                     `⚠️ Không tải được file ` +
                     `"${file?.name || 'không rõ'}": ` +
                     `${error.message}`
-                );
+                ));
             }
         }
 

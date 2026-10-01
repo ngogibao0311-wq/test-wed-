@@ -324,7 +324,7 @@ class DailyLoginManager {
 
     static async saveConfig() {
         const dateVal = document.getElementById('dl-week-start-date').value;
-        if (!dateVal) return alert("Vui lòng chọn ngày để hệ thống định vị Tuần đăng nhập!");
+        if (!dateVal) return (await AppDialog.alert("Vui lòng chọn ngày để hệ thống định vị Tuần đăng nhập!"));
 
         const selectedDate = new Date(dateVal);
         const weekId = this.getWeekId(selectedDate); // Tự động quy về Thứ 2
@@ -338,9 +338,9 @@ class DailyLoginManager {
 
             // Chỉ xác thực giá trị nếu thẻ không bị khóa (những ngày chưa qua)
             if (!typeSelect.disabled) {
-                if (type === 'discount' && (value < 10 || value > 50)) return alert(`Lỗi ${day.name}: Giảm giá chỉ được từ 10% đến 50%!`);
-                if (type !== 'item' && (!value || value <= 0)) return alert(`Lỗi ${day.name}: Vui lòng nhập số lượng hợp lệ!`);
-                if (type === 'item' && !value) return alert(`Lỗi ${day.name}: Vui lòng chọn một vật phẩm!`);
+                if (type === 'discount' && (value < 10 || value > 50)) return (await AppDialog.alert(`Lỗi ${day.name}: Giảm giá chỉ được từ 10% đến 50%!`));
+                if (type !== 'item' && (!value || value <= 0)) return (await AppDialog.alert(`Lỗi ${day.name}: Vui lòng nhập số lượng hợp lệ!`));
+                if (type === 'item' && !value) return (await AppDialog.alert(`Lỗi ${day.name}: Vui lòng chọn một vật phẩm!`));
             }
 
             config[`day_${day.id}`] = { type, value };
@@ -350,15 +350,15 @@ class DailyLoginManager {
 
         this.closeTeacherModal();
         this.loadAndRenderTeacherDisplay();
-        alert(`✅ Đã lưu cấu hình cho Tuần [${weekId}] thành công!`);
+        (await AppDialog.alert(`✅ Đã lưu cấu hình cho Tuần [${weekId}] thành công!`));
     }
 
     static async deleteConfig(weekId) {
-        if (!confirm(`Bạn có chắc chắn muốn xóa sự kiện Đăng Nhập của tuần [${weekId}] không?`)) return;
+        if (!(await AppDialog.confirm(`Bạn có chắc chắn muốn xóa sự kiện Đăng Nhập của tuần [${weekId}] không?`))) return;
 
         await db.ref(`game_settings/daily_login_weeks/${weekId}`).remove();
         this.loadAndRenderTeacherDisplay();
-        alert('🗑 Đã xóa sự kiện thành công!');
+        (await AppDialog.alert('🗑 Đã xóa sự kiện thành công!'));
     }
 
     /* =========================================================
@@ -770,9 +770,9 @@ class DailyLoginManager {
                     .getElementById('dl-student-modal')
                     ?.remove();
 
-                alert(
+                (await AppDialog.alert(
                     '🛠️ Chế độ thử nghiệm: hệ thống không ghi nhận và không trao quà thật.'
-                );
+                ));
 
                 return;
             }
@@ -1176,9 +1176,9 @@ class DailyLoginManager {
                 }
             }
 
-            alert(
+            (await AppDialog.alert(
                 `🎉 Điểm danh thành công!\nBạn đã nhận được ${rewardText}.`
-            );
+            ));
         } catch (error) {
             console.error('❌ Daily Login Error:', {
                 code: error.code,
@@ -1243,7 +1243,7 @@ class DailyLoginManager {
                 errorMessages[error.message] ||
                 `Có lỗi xảy ra: ${errorCode}`;
 
-            alert(`❌ ${displayMessage}`);
+            (await AppDialog.alert(`❌ ${displayMessage}`));
 
             if (
                 btn &&

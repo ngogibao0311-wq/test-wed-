@@ -2,6 +2,8 @@
 <html lang="vi" data-app-role="teacher">
 
 <head>
+    <link rel="stylesheet" href="css/app-dialog.css?v=20261001.design2">
+    <script src="js/app-dialog.js?v=20261001.design2"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="application-version" content="4.0.3">
@@ -11,10 +13,10 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="icon" type="image/png" href="assets/icon.png">
-    <link rel="stylesheet" href="css/common.css?v=4.0.4-login-layout4">
+    <link rel="stylesheet" href="css/common.css?v=20261001.revision4">
 
     <link rel="stylesheet" href="css/mobile.css?v=4.0.3-layout">
-    <link rel="stylesheet" href="css/web-animations.css?v=1.0">
+    <link rel="stylesheet" href="css/web-animations.css?v=20261001.revision4">
     <link rel="stylesheet" href="css/store-items.css?v=4.0.0">
     <link rel="stylesheet" href="css/effects-pets.css?v=4.0.0">
     <link rel="stylesheet" href="css/daily-login.css?v=4.0.0">
@@ -483,9 +485,10 @@
     </style>
 
     
-<link rel="stylesheet" href="css/teacher.css?v=20260927.teacher-settings">
-<link rel="stylesheet" href="css/mc-workspace.css?v=20260929.fullscreen-finalize-v4-draft-recover">
+<link rel="stylesheet" href="css/teacher.css?v=20261001.revision4">
+<link rel="stylesheet" href="css/mc-workspace.css?v=20261001.revision4">
 <link rel="stylesheet" href="css/assignment-appeals.css?v=20260929.loaderfix1">
+<link rel="stylesheet" href="css/dashboard-refresh.css?v=20261001.4">
 </head>
 
 <body class="teacher-workspace-refresh campus-modern">
@@ -957,11 +960,9 @@
             });
         })();
     </script>
-    <div class="dashboard">
-        <div class="sidebar">
-            <div class="sidebar-toggle" onclick="toggleSidebar()">
-                <span class="toggle-icon">◀</span>
-            </div>
+    <div class="dashboard" id="teacherDashboard">
+        <div class="sidebar" id="teacherSidebar">
+            <button type="button" class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Đóng hoặc mở menu" title="Đóng hoặc mở menu"><span class="toggle-icon">◀</span></button>
 
             <div class="sidebar-top">
                 <h3>Bảng điều khiển</h3><br>
@@ -1030,6 +1031,7 @@
                 </div>
 
                 <div class="card form-container">
+                    <div class="authoring-section-title"><span>01</span><div><h3>Thông tin bài tập</h3><p>Chọn hình thức, tên bài và thang điểm.</p></div></div>
                     <label for="assessmentType"><strong>Loại hình kiểm tra:</strong></label>
                     <select id="assessmentType" onchange="toggleAssessmentFields()">
                         <option value="tu_luan">Chỉ Tự luận </option>
@@ -1064,6 +1066,7 @@
                         style="margin:-6px 0 14px; padding:11px 12px; border:1px solid rgba(239,68,68,.35); border-radius:10px; background:rgba(254,242,242,.92); color:#991b1b; line-height:1.45;">
                     </div>
 
+                    <div class="authoring-section-title"><span>02</span><div><h3>Lịch giao và điều kiện</h3><p>Chọn thời gian và học sinh được làm bài.</p></div></div>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="startDate">
@@ -1135,6 +1138,7 @@
                         </div>
                     </div>
 
+                    <div class="authoring-section-title"><span>03</span><div><h3>Nội dung và tài liệu</h3><p>Soạn câu hỏi, đính kèm đề và kiểm tra trước khi giao.</p></div></div>
                     <div id="tracNghiemFields"
                         style="display: none; background: rgba(255,255,255,0.4); padding: 15px; border-radius: 12px; margin-top: 15px; border: 1px solid rgba(255,255,255,0.8);">
                         <h3 style="margin-bottom: 10px; color: #764ba2; font-size: 1.1em;">Phần Trắc Nghiệm</h3>
@@ -2840,7 +2844,7 @@
                 </label>
                 <select id="themeSelector" onchange="changeTheme(this.value)" style="margin-bottom: 20px; font-weight: bold; color: #667eea;">
                  <option value="default">
-                  ✨ Mặc định (Tím mộng mơ)
+                  ✨ Mặc định (Xanh chàm)
                  </option>
                  <option value="blue">
                   🌊 Xanh biển (Tươi mát)
@@ -2852,6 +2856,7 @@
                   🌸 Hồng (Ngọt ngào)
                  </option>
                 </select>
+                <div data-campus-motion-slot></div>
                 <label>
                  <strong>
                   Tên hiển thị của bạn:
@@ -2995,7 +3000,7 @@
                </div>
                <div class="glass-alert teacher-settings-card teacher-settings-health-card" style="margin-top: 30px; border-left-color: #3b82f6; background: rgba(59, 130, 246, 0.05);">
                 <h3 style="color: #2c3e50; margin-bottom: 10px; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 5px;">
-                 🩺 System Health Center 2.0
+                 🩺 System Health Center 2.1
                 </h3>
                 <p style="font-size: 0.9em; color: #555; margin-bottom: 15px;">
                  Bảng chẩn đoán chỉ đọc: kiểm tra Firebase Auth/RTDB, Service Worker và cache/build, R2/Cloudinary, module runtime, listener/timer và mật độ hiệu ứng DOM. Không tự sửa dữ liệu.
@@ -3853,7 +3858,7 @@
 
     <!-- 2. Khởi tạo Firebase -->
     <script src="js/firebase-config.js?v=20260928.read-fix"></script>
-    <script src="js/cloudinary-storage.js?v=4.0.0"></script>
+    <script src="js/cloudinary-storage.js?v=20261001.dialog1"></script>
 
     <script>
         window.APP_STORAGE_CONFIG = Object.freeze({
@@ -3861,7 +3866,7 @@
         });
     </script>
 
-    <script src="js/cloudflare-r2-storage.js?v=4.0.0"></script>
+    <script src="js/cloudflare-r2-storage.js?v=20261001.dialog1"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.7/dist/purify.min.js">
     </script>
@@ -3876,13 +3881,15 @@
             localStorage.setItem('appVersion', window.APP_VERSION);
         } catch (_) {}
     </script>
-    <script src="js/common.js?v=20260930.preview-v2"></script>
+    <script src="js/random-exam-engine.js?v=20261001.1"></script>
+<script src="js/campus-pdf.js?v=20261001.1"></script>
+<script src="js/common.js?v=20261001.revision4"></script>
     <script src="js/history-retention.js?v=1.0.0-2month-safe"></script>
     <script src="js/update-manager.js?v=1.0.4-release-v4.0.3"></script>
-    <script src="js/web-animations.js?v=1.0"></script>
+    <script src="js/web-animations.js?v=20261001.revision4"></script>
     <!-- Tối ưu hiệu năng: mặc định tắt; dùng trạng thái đã lưu trong Cài đặt. Phát hiện mobile/thiết bị yếu chỉ áp dụng sau khi tính năng đã được bật. -->
     <script src="js/web-performance-optimizer.js?v=20260930.media-v2"></script>
-    <script src="js/transaction-history.js?v=20260926.penalty-v2"></script>
+    <script src="js/transaction-history.js?v=20261001.dialog1"></script>
     <script>
         // security.js nạp trước teacher.js: đánh dấu rõ đây là trang Giáo viên đang chờ xác thực.
         window.__APP_PAGE_ROLE__ = 'teacher';
@@ -3892,31 +3899,37 @@
     <script src="js/security.js?v=4.2.0-devtools-guard"></script>
 
     <!-- 4. Các module tính năng -->
-    <script src="js/daily-login.js?v=4.0.0"></script>
-    <script src="js/theme-items.js?v=4.2"></script>
+    <script src="js/daily-login.js?v=20261001.dialog1"></script>
+    <script src="js/theme-items.js?v=20261001.design2"></script>
     <script src="js/effect-items.js?v=4.2"></script>
     <script src="js/pet-items.js?v=20260919.partial-fix1"></script>
     <!-- Điều chỉnh riêng mức hiệu ứng vật phẩm + Web Animations; không đụng theme/logic -->
-    <script src="js/effect-quality-manager.js?v=20260918.fx-store-v2"></script>
-    <script src="js/royal-ball.js?v=4.0.0"></script>
-    <script src="js/music-manager.js?v=4.0.0"></script>
-    <script src="js/store-manager.js?v=20260930.rewards-v2"></script>
-    <script src="js/painting.js?v=20260908.round-query-v1"></script>
-    <script src="js/luxury-store.js?v=20260930.media-v2"></script>
+    <script src="js/effect-quality-manager.js?v=20261001.design2"></script>
+    <script src="js/royal-ball.js?v=20261001.dialog1"></script>
+    <script src="js/music-manager.js?v=20261001.dialog1"></script>
+    <script src="js/store-manager.js?v=20261001.dialog1"></script>
+    <script src="js/painting.js?v=20261001.dialog1"></script>
+    <script src="js/luxury-store.js?v=20261001.dialog1"></script>
 
     <!-- 5. Logic chính của trang giáo viên luôn đặt cuối -->
     <!-- Hotfix: xác nhận cài đặt lộ trình trước khi teacher.js chờ loader -->
     <script src="js/roadmap-startup-fix.js?v=1.0"></script>
 
-    <script src="js/assignment-appeals.js?v=20260929.retention1"></script>
-    <script src="js/mc-workspace.js?v=20260929.workspace-v6-owner"></script>
-<script src="js/teacher.js?v=20260929.appeals-ui1"></script>
-    <script src="js/huong-dan-nguoi-moi.js?v=2.15.2"></script>
+    <script src="js/assignment-appeals.js?v=20261001.dialog1"></script>
+    <script src="js/mc-workspace.js?v=20261001.revision4"></script>
+<script src="js/video-duration.js?v=20261001.1"></script>
+<script src="js/student-deletion-client.js?v=20261001.dialog1"></script>
+<script src="js/teacher.js?v=20261001.revision4"></script>
+    <script src="js/huong-dan-nguoi-moi.js?v=20261001.revision4"></script>
 
-<link rel="stylesheet" href="css/collection-rewards.css?v=20260930.rewards-v2">
-<script src="js/collection-reward-catalog.js?v=20260930.spring1"></script>
-<script src="js/collection-rewards.js?v=20260930.spring-publish-v3"></script>
+<link rel="stylesheet" href="css/collection-rewards.css?v=20260930.reward-scroll-v9">
+<script src="js/collection-reward-catalog.js?v=20260930.poster-pack3"></script>
+<script src="js/collection-rewards.js?v=20261001.dialog1"></script>
 <script src="js/list-media-performance.js?v=20260930.media-v2"></script>
+<link rel="stylesheet" href="css/campus-design.css?v=20261001.4">
+<script src="js/campus-design.js?v=20261001.mobile-nav1"></script>
+<script src="js/teacher-quiz-editor.js?v=20261001.1"></script>
+<link rel="stylesheet" href="css/teacher-workspace-refresh.css?v=20261001.1">
 </body>
 
 </html>

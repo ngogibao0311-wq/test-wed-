@@ -1064,21 +1064,21 @@ class PetInteractionManager {
         const user = JSON.parse(localStorage.getItem('currentUser'));
         if (!user) return;
 
-        if (this.hunger >= 100) return alert("Thú cưng đang no căng bụng rồi! Không ăn thêm được đâu.");
+        if (this.hunger >= 100) return (await AppDialog.alert("Thú cưng đang no căng bụng rồi! Không ăn thêm được đâu."));
 
         const coinRef = db.ref(`student_coins/${user.username}`);
         const snap = await coinRef.once('value');
         let currentCoins = snap.val() || 0;
 
-        if (currentCoins < price) return alert(`❌ Không đủ Coin! Bạn còn thiếu ${price - currentCoins} 🪙.`);
+        if (currentCoins < price) return (await AppDialog.alert(`❌ Không đủ Coin! Bạn còn thiếu ${price - currentCoins} 🪙.`));
 
-        if (confirm(`Thanh toán ${price} Coin để mua món này?`)) {
+        if ((await AppDialog.confirm(`Thanh toán ${price} Coin để mua món này?`))) {
             await coinRef.set(currentCoins - price);
             this.hunger = Math.min(100, this.hunger + hungerGain);
             this.saveHungerToDB();
             this.updateHungerUI();
             this.resetIdle();
-            alert(`Ăn ngon quá! Đã hồi phục năng lượng.`);
+            (await AppDialog.alert(`Ăn ngon quá! Đã hồi phục năng lượng.`));
 
             if (this.hunger > 50) {
                 const container = document.getElementById('virtual-pet-container');
@@ -1181,25 +1181,25 @@ class PetInteractionManager {
             !user?.username ||
             typeof db === 'undefined'
         ) {
-            alert(
+            (await AppDialog.alert(
                 '❌ Không tìm thấy tài khoản.'
-            );
+            ));
 
             return;
         }
 
         if (this.hunger >= 100) {
-            alert(
+            (await AppDialog.alert(
                 'Kỳ Lân đang tràn đầy Tinh lực.'
-            );
+            ));
 
             return;
         }
 
         const accepted =
-            confirm(
+            (await AppDialog.confirm(
                 `Dùng ${price} Coin để mua ${itemName}?`
-            );
+            ));
 
         if (!accepted) return;
 
@@ -1232,9 +1232,9 @@ class PetInteractionManager {
                 );
 
             if (!result.committed) {
-                alert(
+                (await AppDialog.alert(
                     '❌ Bạn không đủ Coin.'
-                );
+                ));
 
                 return;
             }
@@ -1272,9 +1272,9 @@ class PetInteractionManager {
                 error
             );
 
-            alert(
+            (await AppDialog.alert(
                 '❌ Không thể tiếp Tinh lực.'
-            );
+            ));
         }
     }
 
@@ -2221,17 +2221,17 @@ class PetInteractionManager {
             typeof db === 'undefined' ||
             !this.isSupported(petId)
         ) {
-            alert(
+            (await AppDialog.alert(
                 '❌ Không xác định được tài khoản hoặc thú cưng.'
-            );
+            ));
 
             return;
         }
 
         if (this.isUnlocked(petId)) {
-            alert(
+            (await AppDialog.alert(
                 '✅ Tương tác này đã được mở khóa.'
-            );
+            ));
 
             return;
         }
@@ -2241,9 +2241,9 @@ class PetInteractionManager {
             Math.round(Number(price) || 0)
         );
 
-        const accepted = confirm(
+        const accepted = (await AppDialog.confirm(
             `Dùng ${safePrice} Coin để mở khóa vĩnh viễn tương tác?`
-        );
+        ));
 
         if (!accepted) return;
 
@@ -2303,7 +2303,7 @@ class PetInteractionManager {
                 );
 
             if (!coinTransaction.committed) {
-                alert('❌ Bạn không đủ Coin.');
+                (await AppDialog.alert('❌ Bạn không đủ Coin.'));
                 return;
             }
 
@@ -2352,9 +2352,9 @@ class PetInteractionManager {
                 }
             }
 
-            alert(
+            (await AppDialog.alert(
                 '🎉 Đã mở khóa tương tác thú cưng!'
-            );
+            ));
         } catch (error) {
             console.error(
                 'Lỗi mua tương tác thú cưng:',
@@ -2387,13 +2387,13 @@ class PetInteractionManager {
                     'PERMISSION_DENIED'
                 )
             ) {
-                alert(
+                (await AppDialog.alert(
                     '❌ Firebase Rules chưa cho phép ghi dữ liệu tương tác pet.'
-                );
+                ));
             } else {
-                alert(
+                (await AppDialog.alert(
                     '❌ Không thể mở khóa tương tác.'
-                );
+                ));
             }
         } finally {
             this.purchaseInProgress = false;
@@ -3742,17 +3742,17 @@ class PetInteractionManager {
             ) !==
             'pet_premium_mua_xuan'
         ) {
-            alert(
+            (await AppDialog.alert(
                 '❌ Tiểu Hoa Mộng hiện không hoạt động.'
-            );
+            ));
 
             return;
         }
 
         if (this.hunger >= 100) {
-            alert(
+            (await AppDialog.alert(
                 'Tiểu Hoa Mộng đang tràn đầy Mộng lực.'
-            );
+            ));
 
             return;
         }
@@ -3766,9 +3766,9 @@ class PetInteractionManager {
             );
 
         const accepted =
-            confirm(
+            (await AppDialog.confirm(
                 `Dùng ${safePrice} Coin để mua ${itemName}?`
-            );
+            ));
 
         if (!accepted) return;
 
@@ -3801,9 +3801,9 @@ class PetInteractionManager {
                 );
 
             if (!result.committed) {
-                alert(
+                (await AppDialog.alert(
                     '❌ Bạn không đủ Coin.'
-                );
+                ));
 
                 return;
             }
@@ -3841,9 +3841,9 @@ class PetInteractionManager {
                 error
             );
 
-            alert(
+            (await AppDialog.alert(
                 '❌ Không thể dưỡng Mộng lực.'
-            );
+            ));
         }
     }
 

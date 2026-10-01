@@ -988,7 +988,7 @@
                 if (typeof window.showToast === 'function') {
                         window.showToast(message, type);
                 } else {
-                        alert(message);
+                        AppDialog.notify(message);
                 }
         }
 
@@ -1138,9 +1138,9 @@
                 document.body.classList.add('history-hero-modal-open');
         }
 
-        function closeModal() {
+        async function closeModal() {
                 if (isGameInProgress()) {
-                        const ok = confirm('Đồng hồ vẫn tiếp tục chạy. Bạn có chắc muốn đóng cửa sổ sự kiện?');
+                        const ok = (await AppDialog.confirm('Đồng hồ vẫn tiếp tục chạy. Bạn có chắc muốn đóng cửa sổ sự kiện?'));
                         if (!ok) return;
                 }
                 document.getElementById('historyHeroOverlay')?.classList.remove('active');

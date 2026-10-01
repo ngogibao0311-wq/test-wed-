@@ -1637,33 +1637,9 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
     }
 
     function applyWebAnimationPolicy() {
-        const api = window.WebAnimationSystem;
-        if (!api) return;
-
-        const shouldForcePause = state.enabled && state.level === 'low';
-
-        if (shouldForcePause && !state.forcedWebAnimationPause) {
-            const current = getWebAnimationState();
-            state.webAnimationWasEnabled = current?.enabled !== false;
-
-            if (state.webAnimationWasEnabled) {
-                try {
-                    api.disable?.();
-                    state.forcedWebAnimationPause = true;
-                } catch (_) {}
-            }
-            return;
-        }
-
-        if (!shouldForcePause && state.forcedWebAnimationPause) {
-            if (state.webAnimationWasEnabled) {
-                try {
-                    api.enable?.();
-                } catch (_) {}
-            }
-
-            state.forcedWebAnimationPause = false;
-        }
+        // Item quality only reduces ambient decoration. Keep the user's UI
+        // motion preference independent; never silently disable all feedback.
+        window.WebAnimationSystem?.refresh?.();
     }
 
     function applyRootClasses() {

@@ -7755,7 +7755,7 @@ if (isNationalDay) {
                 .join('\n');
 
         const agreed =
-            confirm(
+            (await AppDialog.confirm(
                 `⚠️ Bạn đang trang bị vật phẩm từ ${oldStore}:\n\n` +
                 `${equippedNames}\n\n` +
 
@@ -7768,7 +7768,7 @@ if (isNationalDay) {
                 `Nền và Khung viền sẽ KHÔNG bị gỡ.\n\n` +
 
                 `Bạn có đồng ý không?`
-            );
+            ));
 
         if (!agreed) {
 
@@ -7874,10 +7874,10 @@ if (isNationalDay) {
                         error
                     );
 
-                    alert(
+                    (await AppDialog.alert(
                         '❌ Không thể kiểm tra trạng thái trang bị. ' +
                         'Vui lòng thử lại.'
-                    );
+                    ));
 
                     return false;
                 }
@@ -8095,7 +8095,7 @@ if (isNationalDay) {
         try { user = JSON.parse(localStorage.getItem('currentUser') || 'null'); }
         catch (_) { user = null; }
         if (typeof db === 'undefined' || !user?.username) {
-            alert('Chưa xác định được tài khoản. Vui lòng đăng nhập lại.');
+            (await AppDialog.alert('Chưa xác định được tài khoản. Vui lòng đăng nhập lại.'));
             return false;
         }
         let upgradingFromTrial = false;
@@ -8123,7 +8123,7 @@ if (isNationalDay) {
 
                 if (existingItem?.isTrial === true) {
                     if (Number(existingItem.trialExpiry || 0) <= Date.now()) {
-                        alert('Lượt dùng thử đã hết hạn. Vui lòng chờ kho cập nhật rồi thử lại.');
+                        (await AppDialog.alert('Lượt dùng thử đã hết hạn. Vui lòng chờ kho cập nhật rồi thử lại.'));
                         return false;
                     }
                     upgradingFromTrial = true;
@@ -8153,10 +8153,10 @@ if (isNationalDay) {
 
                     renderLuxuryStore();
 
-                    alert(
+                    (await AppDialog.alert(
                         '✅ Vật phẩm này vẫn đang có trong kho của bạn. ' +
                         'Hệ thống đã đồng bộ lại trạng thái sở hữu.'
-                    );
+                    ));
 
                     return false;
                 }
@@ -8165,7 +8165,7 @@ if (isNationalDay) {
                     '[LuxuryStore] Không thể kiểm tra quyền sở hữu trước khi mua:',
                     error
                 );
-                alert('Không kiểm tra được kho vật phẩm. Vui lòng thử lại khi kết nối ổn định.');
+                (await AppDialog.alert('Không kiểm tra được kho vật phẩm. Vui lòng thử lại khi kết nối ổn định.'));
                 return false;
             }
         }

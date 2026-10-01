@@ -665,7 +665,7 @@ const RoyalBallEvent = {
     // ==========================================
     openModal: async function () {
         if (typeof window.isGameEnabled !== 'undefined' && window.isGameEnabled === false) {
-            return alert("🔒 Khu vực giải trí đang bị Giáo viên tạm khóa chung!");
+            return (await AppDialog.alert("🔒 Khu vực giải trí đang bị Giáo viên tạm khóa chung!"));
         }
 
         try {
@@ -675,21 +675,21 @@ const RoyalBallEvent = {
 
             // 1. Kiểm tra lệnh Khóa/Mở thủ công của giáo viên (Nút đỏ/xanh)
             if (settings.isEnabled === false) {
-                return alert("🔒 Sự kiện Dạ Hội Hoàng Gia hiện đã bị Giáo viên ĐÓNG. Học sinh tạm thời không thể truy cập lúc này!");
+                return (await AppDialog.alert("🔒 Sự kiện Dạ Hội Hoàng Gia hiện đã bị Giáo viên ĐÓNG. Học sinh tạm thời không thể truy cập lúc này!"));
             }
 
             // 2. Kiểm tra điều kiện thời gian
             if (!this.isEventActive()) {
                 if (settings.useCustomDates) {
-                    return alert(`⚠️ Sự kiện đang trong chế độ Lịch Tùy Chỉnh nhưng hiện tại không nằm trong thời gian cho phép.\n(Mở từ: ${settings.startDate} đến ${settings.endDate})`);
+                    return (await AppDialog.alert(`⚠️ Sự kiện đang trong chế độ Lịch Tùy Chỉnh nhưng hiện tại không nằm trong thời gian cho phép.\n(Mở từ: ${settings.startDate} đến ${settings.endDate})`));
                 } else {
-                    return alert("⚠️ Sự kiện Dạ Hội Hoàng Gia chỉ mở cửa từ ngày 29/07 đến 01/08 hằng năm. Hẹn gặp lại bạn sau nhé!");
+                    return (await AppDialog.alert("⚠️ Sự kiện Dạ Hội Hoàng Gia chỉ mở cửa từ ngày 29/07 đến 01/08 hằng năm. Hẹn gặp lại bạn sau nhé!"));
                 }
             }
 
             // Mở Modal nếu pass hết điều kiện
             const modal = document.getElementById('royalBallModal');
-            if (!modal) return alert("❌ Lỗi HTML: Không tìm thấy khung giao diện sự kiện (royalBallModal)!");
+            if (!modal) return (await AppDialog.alert("❌ Lỗi HTML: Không tìm thấy khung giao diện sự kiện (royalBallModal)!"));
 
             this.enhanceUI();
             this.updateEventSchedule(settings);
@@ -706,7 +706,7 @@ const RoyalBallEvent = {
             ).style.display = 'inline-flex';
 
         } catch (error) {
-            alert("❌ Lỗi kết nối Firebase khi tải cấu hình sự kiện: " + error.message);
+            (await AppDialog.alert("❌ Lỗi kết nối Firebase khi tải cấu hình sự kiện: " + error.message));
         }
     },
 
@@ -770,15 +770,15 @@ const RoyalBallEvent = {
 
             if (!result.committed) {
                 if (alreadyJoined) {
-                    alert(
+                    (await AppDialog.alert(
                         '⏳ Bạn đã tham gia khiêu vũ hôm nay rồi! ' +
                         'Hãy quay lại vào ngày mai nhé.'
-                    );
+                    ));
                 } else {
-                    alert(
+                    (await AppDialog.alert(
                         '❌ Không thể ghi nhận lượt tham gia. ' +
                         'Vui lòng thử lại.'
-                    );
+                    ));
                 }
 
                 return;
@@ -790,13 +790,13 @@ const RoyalBallEvent = {
                 error.code === 'PERMISSION_DENIED' ||
                 error.code === 'permission_denied'
             ) {
-                alert(
+                (await AppDialog.alert(
                     '❌ Firebase Rules chưa cấp quyền cho royal_ball_limits.'
-                );
+                ));
             } else {
-                alert(
+                (await AppDialog.alert(
                     '❌ Lỗi kiểm tra dữ liệu máy chủ, vui lòng thử lại sau!'
-                );
+                ));
             }
 
             return;
@@ -842,10 +842,10 @@ const RoyalBallEvent = {
                  */
                 await limitRef.remove();
 
-                alert(
+                (await AppDialog.alert(
                     `🪙 Bạn cần ${DANCE_ENTRY_FEE} Coin để khiêu vũ.\n` +
                     `Số dư hiện tại: ${currentDanceCoins} Coin.`
-                );
+                ));
 
                 return;
             }
@@ -867,10 +867,10 @@ const RoyalBallEvent = {
                 );
             }
 
-            alert(
+            (await AppDialog.alert(
                 '❌ Không thể thanh toán phí khiêu vũ. ' +
                 'Vui lòng thử lại!'
-            );
+            ));
 
             return;
         }
@@ -904,10 +904,10 @@ const RoyalBallEvent = {
                     DANCE_ENTRY_FEE
             );
 
-            return alert(
+            return (await AppDialog.alert(
                 '❌ Giao diện Dạ hội chưa tải đầy đủ. ' +
                 'Hệ thống đã hoàn lại 5 Coin.'
-            );
+            ));
         }
 
         if (modal) {
@@ -1028,10 +1028,10 @@ const RoyalBallEvent = {
                     'Trao thưởng lỗi — lượt đã được hoàn lại'
                 );
 
-                alert(
+                (await AppDialog.alert(
                     '❌ Trao thưởng thất bại. ' +
                     'Hệ thống đã mở lại lượt để bạn thử lại.'
-                );
+                ));
             } finally {
                 this.isDancing = false;
                 btn.disabled = false;
@@ -1486,7 +1486,7 @@ const RoyalBallEvent = {
 
     toggleStatusByTeacher: async function () {
         const statusBtn = document.getElementById('btnToggleRoyalStatus');
-        if (!statusBtn) return alert("❌ Lỗi: Không tìm thấy nút Trạng thái trên giao diện!");
+        if (!statusBtn) return (await AppDialog.alert("❌ Lỗi: Không tìm thấy nút Trạng thái trên giao diện!"));
 
         const currentStatus = statusBtn.dataset.status;
         const newEnabledState = (currentStatus === "closed");
@@ -1506,9 +1506,9 @@ const RoyalBallEvent = {
                         currentData
                     )
             });
-            alert(`🔒 Hệ thống phản hồi: Đã chuyển trạng thái sự kiện thành [${newEnabledState ? "MỞ TRUY CẬP" : "KHÓA TRUY CẬP"}] thành công!`);
+            (await AppDialog.alert(`🔒 Hệ thống phản hồi: Đã chuyển trạng thái sự kiện thành [${newEnabledState ? "MỞ TRUY CẬP" : "KHÓA TRUY CẬP"}] thành công!`));
         } catch (error) {
-            alert("❌ Lỗi kết nối Firebase: " + error.message);
+            (await AppDialog.alert("❌ Lỗi kết nối Firebase: " + error.message));
         }
     },
 
@@ -1516,7 +1516,7 @@ const RoyalBallEvent = {
         // Lấy Element cực kỳ cẩn thận để tránh crash ngầm
         const errorMsg = document.getElementById('royalErrorMsg');
         if (!errorMsg) {
-            alert("❌ Lỗi: Thiếu thẻ thông báo lỗi (id: royalErrorMsg) trong HTML!");
+            (await AppDialog.alert("❌ Lỗi: Thiếu thẻ thông báo lỗi (id: royalErrorMsg) trong HTML!"));
             return;
         }
 
@@ -1576,9 +1576,9 @@ const RoyalBallEvent = {
                         savedSettings
                     )
             });
-            alert('✅ Đã lưu cấu hình Dạ Hội Hoàng Gia thành công!');
+            (await AppDialog.alert('✅ Đã lưu cấu hình Dạ Hội Hoàng Gia thành công!'));
         } catch (error) {
-            alert('❌ Lỗi lưu Firebase: ' + error.message);
+            (await AppDialog.alert('❌ Lỗi lưu Firebase: ' + error.message));
         }
     }
 };

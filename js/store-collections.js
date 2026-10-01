@@ -93,7 +93,13 @@
             id: 'painting',
             label: 'Hội họa',
             icon: '🎨',
-            tags: ['Hội họa']
+            tags: ['Hội họa', 'Đêm đầy sao']
+        },
+        {
+            id: 'link-click',
+            label: 'Link Click',
+            icon: '📸',
+            tags: ['Link Click']
         },
         {
             id: 'doraemon',
@@ -1631,6 +1637,7 @@
 
     function renderCollection(collectionId = activeCollectionId) {
         const collection = getCollection(collectionId);
+        const categoryChanged = collection.id !== activeCollectionId;
         activeCollectionId = collection.id;
 
         const tabs = document.getElementById(IDS.tabs);
@@ -1648,11 +1655,16 @@
             if (isActive) activeButton = button;
         });
 
-        activeButton?.scrollIntoView({
-            behavior: 'smooth',
-            block: 'nearest',
-            inline: 'center'
-        });
+        // Background inventory/reward updates must never scroll the document.
+        // When changing category, reveal its button only inside the horizontal rail.
+        if (categoryChanged && activeButton && tabs.clientWidth > 0) {
+            const rail = tabs.getBoundingClientRect();
+            const button = activeButton.getBoundingClientRect();
+            tabs.scrollBy({
+                left: button.left - rail.left - (rail.width - button.width) / 2,
+                behavior: 'smooth'
+            });
+        }
 
         const items = getCollectionItems(activeCollectionId);
         const collectedCount = items.reduce(

@@ -1047,7 +1047,7 @@ Truyền thuyết.
             const titleEl = document.getElementById('hhConfirmTitle');
             const messageEl = document.getElementById('hhConfirmMessage');
             const accept = document.getElementById('hhConfirmAccept');
-            if (!modal || !titleEl || !messageEl || !accept) return window.confirm(message);
+            if (!modal || !titleEl || !messageEl || !accept) return (await AppDialog.confirm(message));
 
             titleEl.textContent = title;
             messageEl.textContent = message;
@@ -4580,11 +4580,11 @@ ${this.toolButton(
             }
         },
 
-        insertText(point) {
+        async insertText(point) {
             const text =
-                window.prompt(
+                (await AppDialog.prompt(
                     'Nhập nội dung cần chèn:'
-                );
+                ));
 
             if (!text) return;
 

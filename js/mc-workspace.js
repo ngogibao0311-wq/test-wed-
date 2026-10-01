@@ -1,6 +1,6 @@
 /*
  * MC Workspace V2 · Fullscreen quiz workspace + authoritative owner lease
- * Build: 2026-09-29.fullscreen-finalize-v5-null-seed
+ * Build: 2026-10-01.workspace-v7-resume
  *
  * Semantics:
  * - The green button inside the fullscreen workspace finalizes ONLY the MC section to the website.
@@ -12,7 +12,8 @@
 (function () {
     'use strict';
 
-    const BUILD = '20260929.workspace-v6-owner';
+    const BUILD = '20261001.workspace-v7-resume';
+    if (window.MCWorkspace?.__build === BUILD) return;
     const LEASE_MS = 90 * 1000;
     const HEARTBEAT_MS = 15 * 1000;
     const LOCAL_PREFIX = 'mc_workspace_v2_local_';
@@ -296,7 +297,10 @@
         }
 
         const ref = ensureDb().ref(sessionPath(assignId));
+        // Refresh the cached session before reacquiring after an interrupted exam.
+        await ref.once('value');
         const result = await ref.transaction(current => {
+            denial = '';
             const old = current && typeof current === 'object' ? current : null;
             const oldOwner = text(old?.ownerId || '');
             const oldStatus = text(old?.status || '');
@@ -342,6 +346,19 @@
         }, undefined, false);
 
         if (!result.committed) {
+            const live = result.snapshot?.val?.();
+            if (live && text(live.ownerId) === ownerId &&
+                ['active', 'finalized'].includes(text(live.status)) &&
+                Number(live.ownerLeaseUntil || 0) > serverTimestampNow()) {
+                state.sessions[assignId] = live;
+                startHeartbeat(assignment);
+                return live;
+            }
+            if (!denial) {
+                const error = new Error('MC_WORKSPACE_SESSION_RETRY');
+                error.code = 'MC_WORKSPACE_SESSION_RETRY';
+                throw error;
+            }
             const error = new Error('MC_WORKSPACE_OWNER_CONFLICT');
             error.code = denial || 'owner-conflict';
             throw error;
@@ -749,10 +766,10 @@
         if (!assignment || !isMC(assignment)) return '';
         const allowDraft = options.allowDraft === true;
         const assignId = text(assignment.id || assignment._fbKey);
-        let session = state.sessions[assignId] || null;
-        if (!session) session = await readSession(assignId);
+        // Resume may outlive the cached lease. Verify the server, not stale memory.
+        let session = await readSession(assignId);
 
-        const now = Date.now();
+        const now = serverTimestampNow();
         if (!session || text(session.ownerId) !== getOwnerId() || Number(session.ownerLeaseUntil || 0) <= now) {
             session = await acquireOwner(assignment, { allowRedo: isRedoActive(assignId) });
         }
@@ -815,12 +832,12 @@
             const first = missing[0];
             root?.querySelector(`[data-mcw2-question="${first}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
             root?.querySelector(`input[data-mcw2-index="${first}"]`)?.focus();
-            alert(`⚠️ Bạn chưa làm ${missing.length} câu: ${missing.map(i => `Câu ${i + 1}`).join(', ')}.\n\nHệ thống chưa nộp phần Trắc nghiệm. Hãy hoàn thành các câu còn thiếu.`);
+            (await AppDialog.alert(`⚠️ Bạn chưa làm ${missing.length} câu: ${missing.map(i => `Câu ${i + 1}`).join(', ')}.\n\nHệ thống chưa nộp phần Trắc nghiệm. Hãy hoàn thành các câu còn thiếu.`));
             return false;
         }
 
         if (navigator.onLine === false) {
-            alert('⚠️ Hiện đang mất mạng. Bản nháp vẫn được giữ trên máy nhưng chưa thể nộp phần Trắc nghiệm cho hệ thống. Hãy kết nối lại rồi bấm Nộp trắc nghiệm.');
+            (await AppDialog.alert('⚠️ Hiện đang mất mạng. Bản nháp vẫn được giữ trên máy nhưng chưa thể nộp phần Trắc nghiệm cho hệ thống. Hãy kết nối lại rồi bấm Nộp trắc nghiệm.'));
             setSaveStatus(assignId, 'offline', 'Ngoại tuyến · bản nháp vẫn lưu trên máy');
             return false;
         }
@@ -1184,11 +1201,11 @@
                     }
                     const message = text(error?.message || '');
                     if (message.includes('OWNER_CONFLICT') || message.includes('CONFLICT_owner')) {
-                        alert('🔒 Không thể nộp từ tab này vì một tab/thiết bị khác đang giữ phiên làm bài. Bản nháp trên máy này vẫn được giữ.');
+                        (await AppDialog.alert('🔒 Không thể nộp từ tab này vì một tab/thiết bị khác đang giữ phiên làm bài. Bản nháp trên máy này vẫn được giữ.'));
                     } else if (message.includes('CONFLICT_submitted')) {
-                        alert('ℹ️ Phần Trắc nghiệm/bài này đã được nộp trước đó. Hệ thống không tạo lần nộp trùng.');
+                        (await AppDialog.alert('ℹ️ Phần Trắc nghiệm/bài này đã được nộp trước đó. Hệ thống không tạo lần nộp trùng.'));
                     } else {
-                        alert('⚠️ Không thể nộp phần Trắc nghiệm cho hệ thống lúc này. Bản nháp vẫn được giữ. Hệ thống đã thử khôi phục phiên một lần; hãy kiểm tra kết nối rồi thử lại.');
+                        (await AppDialog.alert('⚠️ Không thể nộp phần Trắc nghiệm cho hệ thống lúc này. Bản nháp vẫn được giữ. Hệ thống đã thử khôi phục phiên một lần; hãy kiểm tra kết nối rồi thử lại.'));
                     }
                 }
             });
@@ -1229,12 +1246,16 @@
         const assignId = text(assignment.id || assignment._fbKey);
 
         if (assignment.assessmentType === 'thi' && text(window.currentActiveExamId || '') !== assignId) {
-            alert('⚠️ Đây là bài thi. Hãy bấm “Bắt đầu bài thi” trước; giới hạn thời gian áp dụng cho toàn bộ bài, không chỉ phần Trắc nghiệm.');
+            (await AppDialog.alert('⚠️ Đây là bài thi. Hãy bấm “Bắt đầu bài thi” trước; giới hạn thời gian áp dụng cho toàn bộ bài, không chỉ phần Trắc nghiệm.'));
             return;
         }
 
         closeAllWorkspaces();
         let session;
+        if (assignment.assessmentType === 'thi' && !document.fullscreenElement) {
+            await window.handleExamInterruption?.('fullscreen');
+            return;
+        }
         try {
             session = await acquireOwner(assignment, { allowRedo: isRedoActive(assignId) });
         } catch (error) {
@@ -1243,13 +1264,15 @@
                 return;
             }
             if (navigator.onLine === false) {
-                alert('📴 Không thể mở một phiên làm Trắc nghiệm mới khi đang ngoại tuyến vì hệ thống không thể xác minh khóa một-tab/một-thiết-bị. Nếu bạn đã làm dở trước đó, bản nháp vẫn được giữ và sẽ khôi phục khi kết nối lại.');
+                (await AppDialog.alert('📴 Không thể mở một phiên làm Trắc nghiệm mới khi đang ngoại tuyến vì hệ thống không thể xác minh khóa một-tab/một-thiết-bị. Nếu bạn đã làm dở trước đó, bản nháp vẫn được giữ và sẽ khôi phục khi kết nối lại.'));
                 return;
             }
             throw error;
         }
 
         const local = readLocalState(assignId);
+        if (assignment.assessmentType === 'thi' &&
+            (!document.fullscreenElement || text(window.currentActiveExamId || '') !== assignId)) return;
         const examSet = getExamSet(assignment);
         const answers = mergeAnswers(session?.answers, local.answers, local.updatedAt, session?.updatedAt);
         const finalized = text(session?.status) === 'finalized';
@@ -1422,7 +1445,7 @@
             event.preventDefault();
             openStudent(launcher.dataset.mcw2Launcher).catch(error => {
                 console.error('[MC Workspace] open failed:', error);
-                alert('⚠️ Không thể mở phần Trắc nghiệm lúc này. Vui lòng tải lại trang và thử lại.');
+                AppDialog.notify('⚠️ Không thể mở phần Trắc nghiệm lúc này. Vui lòng tải lại trang và thử lại.');
             });
             return;
         }

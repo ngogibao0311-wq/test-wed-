@@ -1,36 +1,5 @@
 // === HỆ THỐNG THÔNG BÁO NỔI (TOAST) ===
-window.showToast = function (message, type = 'error') {
-    let toastContainer = document.getElementById('toast-container');
-    if (!toastContainer) {
-        toastContainer = document.createElement('div');
-        toastContainer.id = 'toast-container';
-        toastContainer.style.cssText = 'position: fixed; bottom: 20px; right: 20px; z-index: 9999999; display: flex; flex-direction: column; gap: 10px; pointer-events: none;';
-        document.body.appendChild(toastContainer);
-    }
-
-    const toast = document.createElement('div');
-    const bgColor = type === 'error' ? '#e11d48' : (type === 'success' ? '#059669' : '#f59e0b');
-    const icon = type === 'error' ? '❌' : (type === 'success' ? '✅' : '⚠️');
-
-    toast.style.cssText = `background: ${bgColor}; color: white; padding: 12px 20px; border-radius: 8px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transform: translateX(120%); transition: transform 0.3s ease-out; display: flex; align-items: center; gap: 10px; font-size: 0.95em; pointer-events: auto;`;
-    const iconElement = document.createElement('span');
-    iconElement.textContent = icon;
-
-    const messageElement = document.createElement('span');
-    messageElement.textContent = String(message ?? '');
-
-    toast.append(
-        iconElement,
-        messageElement
-    );
-    toastContainer.appendChild(toast);
-
-    requestAnimationFrame(() => { toast.style.transform = 'translateX(0)'; });
-    setTimeout(() => {
-        toast.style.transform = 'translateX(120%)';
-        setTimeout(() => toast.remove(), 300);
-    }, 4000);
-};
+window.showToast = window.AppDialog.toast;
 // ======================================
 
 // Browser storage is only a UI cache; malformed/unavailable storage must not abort this script.
@@ -2731,9 +2700,9 @@ window.MidAutumnCoinManager = (() => {
             window.isOffline ||
             !navigator.onLine
         ) {
-            alert(
+            (await AppDialog.alert(
                 '❌ Mất kết nối mạng. Không thể đổi Xu Trung Thu lúc này.'
-            );
+            ));
             return true;
         }
 
@@ -2741,9 +2710,9 @@ window.MidAutumnCoinManager = (() => {
             getUsername();
 
         if (!username) {
-            alert(
+            (await AppDialog.alert(
                 '❌ Không xác định được tài khoản học sinh.'
-            );
+            ));
             return true;
         }
 
@@ -2772,12 +2741,12 @@ window.MidAutumnCoinManager = (() => {
                     );
 
             if (!festivalNow) {
-                alert(
+                (await AppDialog.alert(
                     `🌕 ${config.itemName} chỉ đổi được đúng ngày Trung Thu.\n` +
                     `Trung Thu ${year}: ${calendar.festivalDateKey}.\n\n` +
                     `Xu Trung Thu không hết hạn sử dụng và được giữ lại cho các năm sau.\n` +
                     `Khi đổi ${config.itemName}, hệ thống sẽ trừ ${config.cost} Xu khỏi số dư.`
-                );
+                ));
 
                 return true;
             }
@@ -2794,9 +2763,9 @@ window.MidAutumnCoinManager = (() => {
             );
 
         if (existing.exists()) {
-            alert(
+            (await AppDialog.alert(
                 `✅ Bạn đã sở hữu ${config.itemName}.`
-            );
+            ));
 
             return true;
         }
@@ -2805,9 +2774,9 @@ window.MidAutumnCoinManager = (() => {
             getWalletRef();
 
         if (!walletRef) {
-            alert(
+            (await AppDialog.alert(
                 '❌ Ví Xu Trung Thu chưa sẵn sàng.'
-            );
+            ));
             return true;
         }
 
@@ -2937,7 +2906,7 @@ window.MidAutumnCoinManager = (() => {
                         'permission_denied'
                     );
 
-            alert(
+            (await AppDialog.alert(
                 denied
                     ? (
                         '❌ Firebase Rules đang chặn giao dịch Xu Trung Thu.\n' +
@@ -2947,7 +2916,7 @@ window.MidAutumnCoinManager = (() => {
                     : (
                         '❌ Không thể xử lý giao dịch Xu Trung Thu lúc này.'
                     )
-            );
+            ));
 
             return true;
         }
@@ -2964,14 +2933,14 @@ window.MidAutumnCoinManager = (() => {
                 ) <
                 config.cost
             ) {
-                alert(
+                (await AppDialog.alert(
                     `❌ Bạn cần ${config.cost} Xu Trung Thu để đổi ${config.itemName}.\n` +
                     `Hiện có: ${Number(latest.balance || 0)} Xu.`
-                );
+                ));
             } else {
-                alert(
+                (await AppDialog.alert(
                     '⚠️ Giao dịch này đã được xử lý ở một tab khác.'
-                );
+                ));
             }
 
             return true;
@@ -3134,11 +3103,11 @@ window.MidAutumnCoinManager = (() => {
                     )
                 );
 
-            alert(
+            (await AppDialog.alert(
                 `🎉 Đổi thành công ${config.itemName}!\n` +
                 `Đã trừ ${config.cost} Xu Trung Thu.\n` +
                 `Số dư còn lại: ${remainingMidAutumnCoins} Xu.`
-            );
+            ));
 
             if (
                 window.LuxuryStore &&
@@ -3184,12 +3153,12 @@ window.MidAutumnCoinManager = (() => {
                 }
             }
 
-            alert(
+            (await AppDialog.alert(
                 error.message ===
                     'MID_AUTUMN_ITEM_ALREADY_OWNED'
                     ? `✅ Bạn đã sở hữu ${config.itemName}. Xu đã được hoàn lại.`
                     : '❌ Không thể đổi vật phẩm. Hệ thống đã cố gắng hoàn lại Xu Trung Thu.'
-            );
+            ));
         }
 
         return true;
@@ -3792,9 +3761,7 @@ function getCoinWidgetVisibilityStorageKey() {
 }
 
 function getSavedCoinWidgetVisibility() {
-    return localStorage.getItem(
-        getCoinWidgetVisibilityStorageKey()
-    ) !== 'false';
+    return true;
 }
 
 window.applyCoinBalanceWidgetVisibility = function (
@@ -3878,7 +3845,7 @@ if (document.readyState === 'loading') {
 
 // ======================================================
 // CÀI ĐẶT RIÊNG: BẬT / TẮT LỚP KÍNH MỜ NỘI DUNG
-// Mặc định BẬT. Chỉ tác động tấm kính lớn .dashboard > .content.
+// Mặc định BẬT. Tác động tấm kính lớn .dashboard > .content; Phần thưởng dùng chung lớp này.
 // Không tắt blur/card/popup/vật phẩm khác trên website.
 // ======================================================
 function getStudentContentGlassStorageKey() {
@@ -5209,7 +5176,7 @@ window.handleStudentFileAccumulate = function (input, assignId) {
         // Chỉ nâng file âm thanh lên 30MB; file thường giữ nguyên giới hạn cũ.
         if (currentFile.size > maxSizeBytes) {
             const maxMB = maxSizeBytes / (1024 * 1024);
-            alert(`⚠️ File "${currentFile.name}" quá lớn (${(currentFile.size / (1024 * 1024)).toFixed(2)}MB). Hệ thống chỉ cho phép tối đa ${maxMB.toFixed(0)}MB/file và đã tự động loại bỏ file này!`);
+            AppDialog.notify(`⚠️ File "${currentFile.name}" quá lớn (${(currentFile.size / (1024 * 1024)).toFixed(2)}MB). Hệ thống chỉ cho phép tối đa ${maxMB.toFixed(0)}MB/file và đã tự động loại bỏ file này!`);
             hasOversize = true;
             continue;
         }
@@ -5354,7 +5321,7 @@ window.onload = async function () {
     } catch (error) {
         console.error('[Auth initialization]', error);
         if (startupLoader) startupLoader.fail('Không xác thực được phiên đăng nhập.', 'Kiểm tra kết nối rồi tải lại trang để thử lại.', 'auth');
-        else alert('Không xác thực được phiên đăng nhập. Kiểm tra kết nối rồi tải lại trang.');
+        else (await AppDialog.alert('Không xác thực được phiên đăng nhập. Kiểm tra kết nối rồi tải lại trang.'));
         return;
     }
 
@@ -5364,7 +5331,7 @@ window.onload = async function () {
 
     if (!authUser) {
         if (startupLoader) startupLoader.fail('Không tìm thấy phiên đăng nhập hợp lệ.', 'Hãy đăng nhập lại để tiếp tục.', 'auth');
-        alert("⛔ Lỗi: Không tìm thấy phiên đăng nhập hợp lệ!");
+        (await AppDialog.alert("⛔ Lỗi: Không tìm thấy phiên đăng nhập hợp lệ!"));
         localStorage.removeItem('currentUser');
         window.location.href = 'index.html';
         return;
@@ -5391,10 +5358,10 @@ window.onload = async function () {
         realUser.role !== 'student' ||
         realUser.username !== currentUser.username
     ) {
-        alert(
+        (await AppDialog.alert(
             '⛔ Phát hiện phiên đăng nhập không hợp lệ! ' +
             'Hệ thống sẽ đăng xuất.'
-        );
+        ));
 
         await firebase.auth().signOut();
 
@@ -7409,7 +7376,7 @@ window.onload = async function () {
         if (hasExpired) {
             try {
                 const removed = await cleanupStudentExpiredTrials(updates);
-                if (removed) alert("⏰ Hệ thống ghi nhận có vật phẩm dùng thử của bạn đã hết hạn 24 giờ và vừa bị thu hồi!");
+                if (removed) (await AppDialog.alert("⏰ Hệ thống ghi nhận có vật phẩm dùng thử của bạn đã hết hạn 24 giờ và vừa bị thu hồi!"));
             } catch (error) {
                 // Giữ nguyên kho cục bộ để lần quét sau có thể thử lại.
                 // Không báo thu hồi thành công khi Firebase chưa xác nhận.
@@ -7435,7 +7402,7 @@ window.onload = async function () {
         const coinModal = document.getElementById('coinConversionModal');
         if (!isEnabled && coinModal && coinModal.classList.contains('active')) {
             closeCoinConversionModal();
-            alert("🔒 Giáo viên vừa tạm khóa chức năng Bảng quy đổi!");
+            AppDialog.notify("🔒 Giáo viên vừa tạm khóa chức năng Bảng quy đổi!");
         }
         if (startupLoader) startupLoader.markReady('student-conversion-settings');
     });
@@ -11113,10 +11080,10 @@ window.viewAssignmentQuestions = async function (assignId) {
     );
 
     if (!assign) {
-        alert(
+        (await AppDialog.alert(
             'Không tìm thấy bài tập này. ' +
             'Vui lòng tải lại trang!'
-        );
+        ));
 
         return;
     }
@@ -11987,7 +11954,7 @@ window.submitPracticeRedo = function () {
                 block: 'center'
             });
 
-        alert(
+        AppDialog.notify(
             `Còn ${unanswered.length} ` +
             `câu chưa chọn đáp án.`
         );
@@ -12752,7 +12719,7 @@ async function saveStudentSubmissionAtomic(assignment, previous, payload) {
 }
 
 async function submitAssignmentCore(assignId, isAuto = false, isCheat = false) {
-    if (currentUser.isLocked && !isAuto) return alert("🔒 LỖI: Tài khoản đang bị khóa tạm thời!");
+    if (currentUser.isLocked && !isAuto) return (await AppDialog.alert("🔒 LỖI: Tài khoản đang bị khóa tạm thời!"));
 
     const assignments = await getDB('assignments');
 
@@ -12779,7 +12746,7 @@ async function submitAssignmentCore(assignId, isAuto = false, isCheat = false) {
     const startTime = assign.startDate ? new Date(assign.startDate.replace(" ", "T")) : new Date(0);
     const endTime = assign.endDate ? new Date(assign.endDate.replace(" ", "T")) : new Date("2100-01-01");
 
-    if (now < startTime) return alert("⚠️ Lỗi: Chưa đến thời gian làm bài!");
+    if (now < startTime) return (await AppDialog.alert("⚠️ Lỗi: Chưa đến thời gian làm bài!"));
 
     // Ép kiểu boolean tuyệt đối để tránh xung đột
     const isCurrentlyRedoing = mySub ? !!mySub.isRedoing : false;
@@ -12810,12 +12777,12 @@ async function submitAssignmentCore(assignId, isAuto = false, isCheat = false) {
     // CHỈ ÁP DỤNG KHÓA 15 GIÂY VÀ KHÓA QUÁ HẠN NẾU KHÔNG PHẢI LÀM LẠI
     if (!isAuto && isCurrentlyRedoing === false) {
         if (timeRemaining <= 15000 && timeRemaining > 0) {
-            alert("⚠️ Lỗi: Chỉ còn dưới 15 giây là hết hạn! Hệ thống đã khóa tính năng nộp bài để chuẩn bị đồng bộ dữ liệu tự động.");
+            (await AppDialog.alert("⚠️ Lỗi: Chỉ còn dưới 15 giây là hết hạn! Hệ thống đã khóa tính năng nộp bài để chuẩn bị đồng bộ dữ liệu tự động."));
             loadAssignments(); // Tải lại để ép ẩn đi nút nộp
             return;
         }
         if (now > endTime) {
-            alert("⚠️ Lỗi: Đã quá thời gian nộp bài! Hệ thống lập tức khóa chức năng nộp.");
+            (await AppDialog.alert("⚠️ Lỗi: Đã quá thời gian nộp bài! Hệ thống lập tức khóa chức năng nộp."));
             loadAssignments();
             return;
         }
@@ -12879,10 +12846,10 @@ async function submitAssignmentCore(assignId, isAuto = false, isCheat = false) {
                 } catch (workspaceError) {
                     if (!isAuto && !isCheat) {
                         if (workspaceError?.code === 'MC_WORKSPACE_NOT_FINALIZED' || workspaceError?.message === 'MC_WORKSPACE_NOT_FINALIZED') {
-                            alert('⚠️ Bạn chưa bấm “Nộp trắc nghiệm” trong cửa sổ Trắc nghiệm. Hãy hoàn tất phần Trắc nghiệm cho hệ thống trước, sau đó quay lại bấm “Nộp bài tập ngay” để gửi bài cho Giáo viên.');
+                            (await AppDialog.alert('⚠️ Bạn chưa bấm “Nộp trắc nghiệm” trong cửa sổ Trắc nghiệm. Hãy hoàn tất phần Trắc nghiệm cho hệ thống trước, sau đó quay lại bấm “Nộp bài tập ngay” để gửi bài cho Giáo viên.'));
                             window.MCWorkspace.openStudent?.(assign.id).catch(console.error);
                         } else {
-                            alert('⚠️ Không thể xác minh phần Trắc nghiệm với hệ thống lúc này. Bản nháp vẫn được giữ; vui lòng kiểm tra kết nối rồi thử lại.');
+                            (await AppDialog.alert('⚠️ Không thể xác minh phần Trắc nghiệm với hệ thống lúc này. Bản nháp vẫn được giữ; vui lòng kiểm tra kết nối rồi thử lại.'));
                         }
                         return;
                     }
@@ -12951,13 +12918,13 @@ async function submitAssignmentCore(assignId, isAuto = false, isCheat = false) {
                         index => index + 1
                     );
 
-                alert(
+                (await AppDialog.alert(
                     '⚠️ Phần Trắc nghiệm còn câu chưa làm: ' +
                     questionNumbers
                         .map(number => `Câu ${number}`)
                         .join(', ') +
                     '. Hệ thống chưa gửi bài cho Giáo viên.'
-                );
+                ));
 
                 if (window.MCWorkspace?.openStudent) {
                     window.MCWorkspace.openStudent(assign.id).catch(console.error);
@@ -13140,7 +13107,7 @@ async function submitAssignmentCore(assignId, isAuto = false, isCheat = false) {
                 ? "⚠️ CẢNH BÁO QUY CHẾ: Bạn chưa đính kèm tệp bài làm!\nTheo quy định, phần tự luận sẽ không được công nhận và nhận 0 điểm. Bạn có chắc chắn muốn nộp bài?"
                 : `⚠️ CẢNH BÁO QUY CHẾ: Bài làm của bạn chỉ có ${wordCount} từ (yêu cầu ≥ 25 từ) và không đính kèm file!\nTheo quy định, phần tự luận sẽ không được công nhận và nhận 0 điểm. Bạn có chắc chắn muốn nộp bài?`;
 
-            if (!confirm(confirmMsg)) {
+            if (!(await AppDialog.confirm(confirmMsg))) {
                 // Mở khóa lại nút bấm để học sinh có thể làm tiếp
                 const btn = document.getElementById(`btn-submit-${assignId}`);
                 if (btn) {
@@ -13309,9 +13276,9 @@ async function submitAssignmentCore(assignId, isAuto = false, isCheat = false) {
 
         if (window[saveLockKey]) {
             if (!isAuto) {
-                alert(
+                (await AppDialog.alert(
                     "⏳ Bài đang được lưu, vui lòng không bấm nộp nhiều lần!"
-                );
+                ));
             }
 
             return;
@@ -13758,19 +13725,19 @@ async function submitAssignmentCore(assignId, isAuto = false, isCheat = false) {
 
         if (!isAuto) {
             if (oldFileCleanupWarning) {
-                alert(
+                (await AppDialog.alert(
                     '✅ Bài mới đã được lưu thành công.\n\n' +
                     '⚠️ Tuy nhiên file cũ chưa xóa được khỏi ' +
                     'Cloudflare R2:\n' +
                     oldFileCleanupWarning
-                );
+                ));
             } else {
-                alert(
+                (await AppDialog.alert(
                     hasNewUploadedFiles &&
                         replacedOldFiles
                         ? 'Nộp bài thành công và đã xóa file cũ trên Cloudflare R2!'
                         : 'Nộp bài tập thành công!'
-                );
+                ));
             }
         }
 
@@ -13880,9 +13847,9 @@ async function syncUserData(
     }
 
     if (userRecord.isLocked) {
-        alert(
+        (await AppDialog.alert(
             '🔒 Tài khoản của bạn đang bị khóa!'
-        );
+        ));
 
         await firebase.auth().signOut();
         localStorage.removeItem('currentUser');
@@ -13985,26 +13952,26 @@ async function cleanupStudentStaleProfileRequestLock() {
 
 async function updateProfile() {
     if (currentUser.isLocked) {
-        return alert('🔒 Tài khoản đang bị khóa!');
+        return (await AppDialog.alert('🔒 Tài khoản đang bị khóa!'));
     }
 
     const username = String(currentUser.username || '').trim();
     const newName = document.getElementById('settingName').value.trim();
     const newPass = document.getElementById('settingPass').value.trim();
 
-    if (!username) return alert('❌ Không xác định được tài khoản học sinh.');
-    if (!newName) return alert('Tên hiển thị trống!');
-    if (newName.length > 100) return alert('Tên hiển thị tối đa 100 ký tự.');
+    if (!username) return (await AppDialog.alert('❌ Không xác định được tài khoản học sinh.'));
+    if (!newName) return (await AppDialog.alert('Tên hiển thị trống!'));
+    if (newName.length > 100) return (await AppDialog.alert('Tên hiển thị tối đa 100 ký tự.'));
     if (newPass) {
         const passwordPolicyError =
             getStudentPasswordPolicyError(newPass, username);
 
         if (passwordPolicyError) {
-            return alert('🔒 ' + passwordPolicyError);
+            return (await AppDialog.alert('🔒 ' + passwordPolicyError));
         }
     }
     if (newName === currentUser.name && !newPass) {
-        return alert('Chưa đổi thông tin!');
+        return (await AppDialog.alert('Chưa đổi thông tin!'));
     }
 
     await cleanupStudentStaleProfileRequestLock();
@@ -14013,7 +13980,7 @@ async function updateProfile() {
     // nếu bản cũ đang chờ Giáo viên xử lý.
     const before = await getStudentOwnProfileRequests();
     if (before.some(req => req.status === 'pending' || req.status === 'processing')) {
-        return alert('Yêu cầu trước đang chờ duyệt!');
+        return (await AppDialog.alert('Yêu cầu trước đang chờ duyệt!'));
     }
 
     const requestRef = db.ref('profile_requests').push();
@@ -14040,7 +14007,7 @@ async function updateProfile() {
     });
 
     if (!lockTx.committed) {
-        return alert('⏳ Yêu cầu trước đang được gửi hoặc đang chờ duyệt.');
+        return (await AppDialog.alert('⏳ Yêu cầu trước đang được gửi hoặc đang chờ duyệt.'));
     }
 
     try {
@@ -14060,7 +14027,7 @@ async function updateProfile() {
                 return;
             }).catch(() => {});
 
-            return alert('Yêu cầu trước đang chờ duyệt!');
+            return (await AppDialog.alert('Yêu cầu trước đang chờ duyệt!'));
         }
 
         const requestData = {
@@ -14096,7 +14063,7 @@ async function updateProfile() {
         await db.ref().update(updates);
 
         document.getElementById('settingPass').value = '';
-        alert('Đã gửi yêu cầu thay đổi!');
+        (await AppDialog.alert('Đã gửi yêu cầu thay đổi!'));
     } catch (error) {
         // Nếu request chưa được tạo, trả lock để học sinh có thể thử lại.
         await lockRef.transaction(current => {
@@ -14107,7 +14074,7 @@ async function updateProfile() {
         }).catch(() => {});
 
         console.error('[Profile Request Guard] Không gửi được yêu cầu:', error);
-        alert('❌ Không gửi được yêu cầu thay đổi. Vui lòng thử lại.');
+        (await AppDialog.alert('❌ Không gửi được yêu cầu thay đổi. Vui lòng thử lại.'));
     }
 }
 
@@ -14433,9 +14400,9 @@ window.renderStudentBirthdayProfile =
 window.saveStudentBirthDateOnce =
     async function () {
         if (currentUser.isLocked) {
-            return alert(
+            return (await AppDialog.alert(
                 '🔒 Tài khoản đang bị khóa!'
-            );
+            ));
         }
 
         if (
@@ -14444,10 +14411,10 @@ window.saveStudentBirthDateOnce =
             window
                 .renderStudentBirthdayProfile();
 
-            return alert(
+            return (await AppDialog.alert(
                 '🎂 Ngày sinh đã được lưu trước đó. ' +
                 'Học sinh không thể sửa lại.'
-            );
+            ));
         }
 
         const input =
@@ -14468,21 +14435,21 @@ window.saveStudentBirthDateOnce =
                 birthDate
             )
         ) {
-            return alert(
+            return (await AppDialog.alert(
                 '🎂 Ngày sinh không hợp lệ, ' +
                 'nằm trong tương lai hoặc trước năm 1900!'
-            );
+            ));
         }
 
         const formatted =
             formatBirthdayDateVN(birthDate);
 
         if (
-            !confirm(
+            !(await AppDialog.confirm(
                 `Bạn xác nhận ngày sinh là ${formatted}?\n\n` +
                 'Học sinh chỉ được tự nhập đúng 1 lần ' +
                 'và không thể sửa lại.'
-            )
+            ))
         ) {
             return;
         }
@@ -14548,11 +14515,11 @@ window.saveStudentBirthDateOnce =
             window
                 .renderStudentBirthdayProfile();
 
-            alert(
+            (await AppDialog.alert(
                 `✅ Đã lưu ngày sinh ${formatted}.\n` +
                 'Đến đúng ngày sinh, hệ thống sẽ gửi ' +
                 '1 Xu Sinh Nhật của năm đó qua Hộp thư.'
-            );
+            ));
         } catch (error) {
             console.error(
                 'Lỗi lưu ngày sinh:',
@@ -14565,18 +14532,18 @@ window.saveStudentBirthDateOnce =
                 error.code ===
                 'PERMISSION_DENIED'
             ) {
-                alert(
+                (await AppDialog.alert(
                     '🎂 Ngày sinh đã được lưu trước đó ' +
                     'hoặc tài khoản không còn quyền tự sửa.'
-                );
+                ));
             } else {
-                alert(
+                (await AppDialog.alert(
                     '❌ Không lưu được ngày sinh: ' +
                     (
                         error.message ||
                         'lỗi không xác định'
                     )
-                );
+                ));
             }
         } finally {
             if (
@@ -15006,7 +14973,7 @@ window.previewAvatar = function (input) {
             'image/'
         )
     ) {
-        alert(
+        AppDialog.notify(
             'Vui lòng chọn đúng file ảnh!'
         );
 
@@ -15019,7 +14986,7 @@ window.previewAvatar = function (input) {
         file.size >
         1024 * 1024
     ) {
-        alert(
+        AppDialog.notify(
             'Ảnh quá lớn! ' +
             'Vui lòng chọn ảnh nhỏ hơn 1 MB.'
         );
@@ -15159,16 +15126,16 @@ window.saveNewAvatar = async function () {
                 '';
         }
 
-        alert(
+        (await AppDialog.alert(
             'Đã cập nhật ảnh đại diện thành công! 🎉'
-        );
+        ));
     } catch (error) {
         console.error(error);
 
-        alert(
+        (await AppDialog.alert(
             `❌ Không tải được ảnh đại diện: ` +
             `${error.message}`
-        );
+        ));
     } finally {
         if (cornerImg) {
             cornerImg.classList.remove(
@@ -15248,9 +15215,9 @@ async function readMultipleFiles(
         !window.CloudflareR2Storage ||
         typeof window.CloudflareR2Storage.uploadFiles !== 'function'
     ) {
-        alert(
+        (await AppDialog.alert(
             'Không tìm thấy cloudflare-r2-storage.js!'
-        );
+        ));
 
         return [];
     }
@@ -16452,11 +16419,11 @@ window.renderBuyTicketButton = async function () {
 // Logic xử lý trừ tiền và cộng vé
 window.buyLuckyTicket = async function () {
     if (window.isOffline || !navigator.onLine) {
-        alert("❌ Mất kết nối mạng! Vui lòng kiểm tra lại đường truyền internet trước khi thực hiện giao dịch.");
+        (await AppDialog.alert("❌ Mất kết nối mạng! Vui lòng kiểm tra lại đường truyền internet trước khi thực hiện giao dịch."));
         return;
     }
 
-    if (!confirm("Bạn có chắc chắn muốn dùng 4 Coin để mua 1 Vé quay may mắn không?")) return;
+    if (!(await AppDialog.confirm("Bạn có chắc chắn muốn dùng 4 Coin để mua 1 Vé quay may mắn không?"))) return;
 
     const username = currentUser.username;
     const startOfWeek = getTicketStartOfWeek();
@@ -16489,7 +16456,7 @@ window.buyLuckyTicket = async function () {
         });
 
         if (!purchaseTx.committed) {
-            return alert("⚠️ Bạn đã mua tối đa 5 vé trong tuần này. Hãy quay lại vào tuần sau nhé!");
+            return (await AppDialog.alert("⚠️ Bạn đã mua tối đa 5 vé trong tuần này. Hãy quay lại vào tuần sau nhé!"));
         }
 
         purchaseCountCommitted = true;
@@ -16505,7 +16472,7 @@ window.buyLuckyTicket = async function () {
         if (typeof window.showToast === 'function') {
             window.showToast("🎉 Mua vé thành công! Đã trừ 4 Coin.", "success");
         } else {
-            alert("🎉 Mua vé thành công! Đã trừ 4 Coin.");
+            (await AppDialog.alert("🎉 Mua vé thành công! Đã trừ 4 Coin."));
         }
 
         await renderBuyTicketButton();
@@ -16540,9 +16507,9 @@ window.buyLuckyTicket = async function () {
         }
 
         if (e.message === 'INSUFFICIENT_BALANCE') {
-            alert("❌ Bạn không đủ Coin! Cần 4 Coin để mua 1 vé.");
+            (await AppDialog.alert("❌ Bạn không đủ Coin! Cần 4 Coin để mua 1 vé."));
         } else {
-            alert("❌ Giao dịch thất bại. Hệ thống đã cố gắng hoàn tác thao tác.");
+            (await AppDialog.alert("❌ Giao dịch thất bại. Hệ thống đã cố gắng hoàn tác thao tác."));
         }
     }
 };
@@ -16552,7 +16519,7 @@ window.openLuckyWheel = async function () {
     flushLuckyWheelPendingHistory().catch(() => {});
 
     if (window.isGameEnabled === false) {
-        alert("🔒 Trò chơi hiện đang bị Giáo viên tạm khóa!");
+        (await AppDialog.alert("🔒 Trò chơi hiện đang bị Giáo viên tạm khóa!"));
         return;
     }
 
@@ -16589,7 +16556,7 @@ window.openLuckyWheel = async function () {
 
 window.spinWheel = async function () {
     if (window.isGameEnabled === false) {
-        alert("🔒 Trò chơi hiện đang bị Giáo viên tạm khóa!");
+        (await AppDialog.alert("🔒 Trò chơi hiện đang bị Giáo viên tạm khóa!"));
         closeLuckyWheel();
         return;
     }
@@ -16610,13 +16577,13 @@ window.spinWheel = async function () {
         reservation = await reserveLuckyWheelSpinsAtomic(1);
     } catch (error) {
         if (error.message === 'GAME_DISABLED') {
-            alert('🔒 Giáo viên vừa khóa trò chơi. Lượt quay chưa bị trừ.');
+            (await AppDialog.alert('🔒 Giáo viên vừa khóa trò chơi. Lượt quay chưa bị trừ.'));
             closeLuckyWheel();
         } else if (error.message === 'INSUFFICIENT_TICKETS') {
-            alert('⚠️ Vé của bạn vừa thay đổi ở tab khác. Không đủ vé để quay.');
+            (await AppDialog.alert('⚠️ Vé của bạn vừa thay đổi ở tab khác. Không đủ vé để quay.'));
         } else {
             console.error('[Lucky Wheel Guard] Không giữ được vé:', error);
-            alert('❌ Không thể giữ vé quay trên Firebase. Vui lòng thử lại.');
+            (await AppDialog.alert('❌ Không thể giữ vé quay trên Firebase. Vui lòng thử lại.'));
         }
 
         return;
@@ -17005,7 +16972,7 @@ window.closeLuckyWheel = function () {
 // ================= HỆ THỐNG QUAY NHIỀU LẦN (GACHA x10, x50) =================
 window.spinMultipleWheel = async function () {
     if (window.isGameEnabled === false) {
-        alert("🔒 Trò chơi hiện đang bị Giáo viên tạm khóa!");
+        (await AppDialog.alert("🔒 Trò chơi hiện đang bị Giáo viên tạm khóa!"));
         return;
     }
 
@@ -17020,10 +16987,10 @@ window.spinMultipleWheel = async function () {
         await window.calculateTotalTickets();
 
     if (previewTickets.remaining < 2) {
-        alert(
+        (await AppDialog.alert(
             `⚠️ Bạn cần ít nhất 2 vé để dùng tính năng Quay Nhanh! ` +
             `(Hiện có: ${previewTickets.remaining} vé)`
-        );
+        ));
         return;
     }
 
@@ -17032,12 +16999,12 @@ window.spinMultipleWheel = async function () {
         50
     );
 
-    const inputStr = prompt(
+    const inputStr = (await AppDialog.prompt(
         `⚡ NHẬP SỐ LẦN QUAY NHANH:\n` +
         `(Bạn đang có ${previewTickets.remaining} vé. ` +
         `Có thể quay nhanh tối đa ${maxSpins} lần)`,
         maxSpins
-    );
+    ));
 
     if (inputStr === null) return;
 
@@ -17048,10 +17015,10 @@ window.spinMultipleWheel = async function () {
         spinsToDo < 2 ||
         spinsToDo > maxSpins
     ) {
-        alert(
+        (await AppDialog.alert(
             `❌ Số lượng không hợp lệ! ` +
             `Vui lòng nhập số từ 2 đến ${maxSpins}.`
-        );
+        ));
         return;
     }
 
@@ -17067,18 +17034,18 @@ window.spinMultipleWheel = async function () {
             await reserveLuckyWheelSpinsAtomic(spinsToDo);
     } catch (error) {
         if (error.message === 'GAME_DISABLED') {
-            alert('🔒 Giáo viên vừa khóa trò chơi. Không vé nào bị trừ.');
+            (await AppDialog.alert('🔒 Giáo viên vừa khóa trò chơi. Không vé nào bị trừ.'));
         } else if (error.message === 'INSUFFICIENT_TICKETS') {
-            alert(
+            (await AppDialog.alert(
                 '⚠️ Số vé vừa thay đổi ở tab khác. ' +
                 'Không đủ vé cho số lượt quay đã chọn.'
-            );
+            ));
         } else {
             console.error(
                 '[Lucky Wheel Guard] Không giữ được vé quay nhanh:',
                 error
             );
-            alert('❌ Không thể giữ vé quay nhanh trên Firebase.');
+            (await AppDialog.alert('❌ Không thể giữ vé quay nhanh trên Firebase.'));
         }
         return;
     } finally {
@@ -17518,6 +17485,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleDragStart(e) {
+        if (coinWidget.dataset.campusDocked === 'true') return;
         if (e.type === 'touchstart' && e.touches.length !== 1) {
             return;
         }
@@ -18269,7 +18237,7 @@ window.loadStoreItems = async function () {
 
     if (hasExpiredTrials) {
         const removed = await cleanupStudentExpiredTrials(updates);
-        if (removed) alert("⏰ Một số vật phẩm dùng thử của bạn đã hết thời gian 24 giờ và bị thu hồi!");
+        if (removed) (await AppDialog.alert("⏰ Một số vật phẩm dùng thử của bạn đã hết thời gian 24 giờ và bị thu hồi!"));
     }
 
     window.filterStore(window.currentStoreFilterType);
@@ -18402,10 +18370,10 @@ window.assertStudentStoreEconomicActionAllowed =
             window.isOffline ||
             !navigator.onLine
         ) {
-            alert(
+            (await AppDialog.alert(
                 '❌ Mất kết nối mạng. ' +
                 `Không thể ${actionLabel}.`
-            );
+            ));
             return false;
         }
 
@@ -18413,10 +18381,10 @@ window.assertStudentStoreEconomicActionAllowed =
             if (
                 await getLiveStudentAccountLockState()
             ) {
-                alert(
+                (await AppDialog.alert(
                     '🔒 Tài khoản đang bị khóa. ' +
                     `Bạn không thể ${actionLabel}.`
-                );
+                ));
                 return false;
             }
         } catch (error) {
@@ -18425,10 +18393,10 @@ window.assertStudentStoreEconomicActionAllowed =
                 error
             );
 
-            alert(
+            (await AppDialog.alert(
                 '⚠️ Không xác minh được trạng thái tài khoản. ' +
                 'Vui lòng kiểm tra mạng và thử lại.'
-            );
+            ));
             return false;
         }
 
@@ -18439,11 +18407,11 @@ window.assertStudentStoreEconomicActionAllowed =
                 if (
                     await hasStudentActiveRegradeForStore()
                 ) {
-                    alert(
+                    (await AppDialog.alert(
                         '⏸️ Bạn đang có bài được giáo viên chấm lại. ' +
                         'Giao dịch bằng Coin tạm khóa cho đến khi ' +
                         'kết quả chấm lại được hoàn tất.'
-                    );
+                    ));
                     return false;
                 }
             } catch (error) {
@@ -18452,10 +18420,10 @@ window.assertStudentStoreEconomicActionAllowed =
                     error
                 );
 
-                alert(
+                (await AppDialog.alert(
                     '⚠️ Chưa xác minh được trạng thái điểm số. ' +
                     'Giao dịch tạm thời bị khóa để tránh sai lệch Coin.'
-                );
+                ));
                 return false;
             }
         }
@@ -18566,7 +18534,7 @@ async function recoverStudentPaidPurchase(itemId, username = String(currentUser.
     await updateStudentStoreOperation({ ref, operationId: operation.operationId }, {
         status: 'completed', itemGranted: true, completedAt: Date.now(), updatedAt: Date.now()
     });
-    alert('✅ Đã khôi phục vật phẩm từ giao dịch đã thanh toán. Không trừ thêm Coin.');
+    (await AppDialog.alert('✅ Đã khôi phục vật phẩm từ giao dịch đã thanh toán. Không trừ thêm Coin.'));
     return true;
 }
 async function grantStudentPaidTrial(username, itemId, operation) {
@@ -18603,7 +18571,7 @@ async function recoverStudentPaidTrial(itemId, username = String(currentUser.use
     await updateStudentStoreOperation({ ref, operationId: operation.operationId }, {
         status: 'active', inventoryCreated: true, activatedAt: Date.now(), updatedAt: Date.now()
     });
-    alert('✅ Đã khôi phục vật phẩm dùng thử đã trả Coin. Không trừ thêm; thời hạn giữ theo lần kích hoạt ban đầu.');
+    (await AppDialog.alert('✅ Đã khôi phục vật phẩm dùng thử đã trả Coin. Không trừ thêm; thời hạn giữ theo lần kích hoạt ban đầu.'));
     return true;
 }
 
@@ -18801,9 +18769,9 @@ window.trialItem = async function (itemId) {
             busyKey
         ]
     ) {
-        return alert(
+        return (await AppDialog.alert(
             '⏳ Vật phẩm này đang được xử lý.'
-        );
+        ));
     }
 
     window.__studentStoreEconomicBusy[
@@ -18834,15 +18802,15 @@ window.trialItem = async function (itemId) {
             );
 
         if (!item) return;
-        if (item.currency === 'mid_autumn_coin') return alert('Vật phẩm này không dùng thử bằng Coin thường.');
+        if (item.currency === 'mid_autumn_coin') return (await AppDialog.alert('Vật phẩm này không dùng thử bằng Coin thường.'));
         const sale = StoreManager.getAnnualSaleState?.(item);
-        if (sale?.hasAnnualSale && !sale.isOpen) return alert('Vật phẩm đang ngoài thời gian mở bán.');
+        if (sale?.hasAnnualSale && !sale.isOpen) return (await AppDialog.alert('Vật phẩm đang ngoài thời gian mở bán.'));
 
         if (item.isLocked === true) {
-            return alert(
+            return (await AppDialog.alert(
                 '🔒 Vật phẩm này hiện đang bị Giáo viên khóa, ' +
                 'không thể dùng thử!'
-            );
+            ));
         }
 
         if (
@@ -18852,9 +18820,9 @@ window.trialItem = async function (itemId) {
                 Number(item.price) <= 0
             )
         ) {
-            return alert(
+            return (await AppDialog.alert(
                 '🚫 Vật phẩm sự kiện không hỗ trợ dùng thử!'
-            );
+            ));
         }
 
         const inventoryRef =
@@ -18880,16 +18848,16 @@ window.trialItem = async function (itemId) {
                 existingItem.isTrial ===
                 true
             ) {
-                return alert(
+                return (await AppDialog.alert(
                     '⏳ Bạn đã dùng thử vật phẩm này. ' +
                     'Không thể mua thêm một lượt trial.'
-                );
+                ));
             }
 
-            return alert(
+            return (await AppDialog.alert(
                 '✅ Bạn đã sở hữu vật phẩm này vĩnh viễn, ' +
                 'không cần dùng thử.'
-            );
+            ));
         }
 
         if (
@@ -18900,9 +18868,9 @@ window.trialItem = async function (itemId) {
                 item.id
             )
         ) {
-            return alert(
+            return (await AppDialog.alert(
                 '✅ Vật phẩm đã có trong kho của bạn.'
-            );
+            ));
         }
 
         trialPrice =
@@ -18914,18 +18882,18 @@ window.trialItem = async function (itemId) {
             ) ||
             trialPrice <= 0
         ) {
-            return alert(
+            return (await AppDialog.alert(
                 '❌ Giá dùng thử không hợp lệ.'
-            );
+            ));
         }
 
         if (
-            !confirm(
+            !(await AppDialog.confirm(
                 `Bạn sẽ dùng ${trialPrice} Coin để trải nghiệm ` +
                 `[ ${item.name} ] trong 24 giờ?\n` +
                 'Mỗi vật phẩm chỉ được dùng thử 1 lần.\n\n' +
                 'Đồng ý kích hoạt?'
-            )
+            ))
         ) {
             return;
         }
@@ -18982,15 +18950,15 @@ window.trialItem = async function (itemId) {
 
         if (String(currentUser.username) === String(operationUser.username)) await StoreManager.applyItem(itemId);
 
-        alert(
+        (await AppDialog.alert(
             `⏳ Bắt đầu dùng thử [ ${item.name} ]! ` +
             '(Thời hạn: 24 giờ, mỗi vật phẩm 1 lần)'
-        );
+        ));
 
     } catch (error) {
         if (trialCreated) {
             console.warn('[Store] Lượt thử đã được cấp; cần đồng bộ lại giao diện:', error);
-            alert('✅ Lượt dùng thử đã vào kho. Hãy tải lại trang để đồng bộ giao diện; không cần trả Coin lần nữa.');
+            (await AppDialog.alert('✅ Lượt dùng thử đã vào kho. Hãy tải lại trang để đồng bộ giao diện; không cần trả Coin lần nữa.'));
             return;
         }
         if (!coinDebited && trialReservation) {
@@ -19000,7 +18968,7 @@ window.trialItem = async function (itemId) {
         }
         if (coinDebited) {
             console.warn('[Store Trial] Đã lưu biên nhận, chờ cấp vật phẩm:', error);
-            alert('Đã ghi nhận Coin dùng thử. Mở lại dùng thử để nhận tiếp, không trả thêm Coin. Nếu đã quá thời hạn, cần giáo viên đối soát.');
+            (await AppDialog.alert('Đã ghi nhận Coin dùng thử. Mở lại dùng thử để nhận tiếp, không trả thêm Coin. Nếu đã quá thời hạn, cần giáo viên đối soát.'));
             return;
         }
         console.error(
@@ -19071,30 +19039,30 @@ window.trialItem = async function (itemId) {
             message ===
                 'TRIAL_OPERATION_PENDING'
         ) {
-            alert(
+            (await AppDialog.alert(
                 '⛔ Vật phẩm này đã được dùng thử hoặc ' +
                 'đang có một lượt trial được xử lý ở tab khác.'
-            );
+            ));
         } else if (
             message ===
                 'ITEM_ALREADY_OWNED'
         ) {
-            alert(
+            (await AppDialog.alert(
                 '✅ Bạn đã sở hữu vật phẩm này.'
-            );
+            ));
         } else if (
             message ===
                 'INSUFFICIENT_BALANCE'
         ) {
-            alert(
+            (await AppDialog.alert(
                 '❌ Không đủ Coin để dùng thử vật phẩm.'
-            );
+            ));
         } else {
-            alert(
+            (await AppDialog.alert(
                 '❌ Không thể kích hoạt dùng thử. ' +
                 'Nếu Coin đã bị trừ nhưng chưa được hoàn, ' +
                 'hệ thống đã đánh dấu giao dịch để đối soát.'
-            );
+            ));
         }
     } finally {
         delete window
@@ -19121,13 +19089,13 @@ window.buyItem = async function (itemId, isUpgradingFromTrial = false) {
 
     const item = StoreManager.getItemById(itemId);
     if (!item) return;
-    if (item.isLocked) return alert("🔒 Vật phẩm này hiện đang bị Giáo viên khóa!");
+    if (item.isLocked) return (await AppDialog.alert("🔒 Vật phẩm này hiện đang bị Giáo viên khóa!"));
 
     try {
         if (await recoverStudentPaidPurchase(itemId)) return;
     } catch (error) {
         console.warn('[Store Recovery]', error);
-        return alert('Chưa khôi phục được giao dịch trước. Vui lòng thử lại khi có mạng; nếu vẫn lỗi, cần giáo viên đối soát.');
+        return (await AppDialog.alert('Chưa khôi phục được giao dịch trước. Vui lòng thử lại khi có mạng; nếu vẫn lỗi, cần giáo viên đối soát.'));
     }
 
     const latestInventorySnap = await db
@@ -19144,9 +19112,9 @@ window.buyItem = async function (itemId, isUpgradingFromTrial = false) {
         latestInventoryItem.id &&
         latestInventoryItem.isTrial !== true
     ) {
-        return alert(
+        return (await AppDialog.alert(
             '✅ Bạn đã sở hữu vật phẩm này. Hệ thống không trừ Coin lần nữa.'
-        );
+        ));
     }
 
     if (
@@ -19157,18 +19125,18 @@ window.buyItem = async function (itemId, isUpgradingFromTrial = false) {
             Number(latestInventoryItem.trialExpiry || 0) <= Date.now()
         )
     ) {
-        return alert(
+        return (await AppDialog.alert(
             '❌ Không còn lượt dùng thử hợp lệ để nâng cấp.'
-        );
+        ));
     }
 
     if (
         !isUpgradingFromTrial &&
         latestInventoryItem?.isTrial === true
     ) {
-        return alert(
+        return (await AppDialog.alert(
             '⏳ Vật phẩm đang ở trạng thái dùng thử. Hãy dùng nút Nâng cấp vĩnh viễn.'
-        );
+        ));
     }
 
     if (
@@ -19182,7 +19150,7 @@ window.buyItem = async function (itemId, isUpgradingFromTrial = false) {
             .redeem(itemId);
     }
 
-    if (item.isNonCoin && (!item.price || item.price <= 0)) return alert(`🎁 Vật phẩm sự kiện!`);
+    if (item.isNonCoin && (!item.price || item.price <= 0)) return (await AppDialog.alert(`🎁 Vật phẩm sự kiện!`));
 
     const coinRef = db.ref('student_coins/' + currentUser.username);
     const snap = await coinRef.once('value');
@@ -19381,9 +19349,9 @@ window.processPayment = async function (
         window.isOffline ||
         !navigator.onLine
     ) {
-        alert(
+        (await AppDialog.alert(
             '❌ Mất kết nối mạng! Vui lòng kiểm tra lại đường truyền internet trước khi thực hiện giao dịch.'
-        );
+        ));
         return;
     }
 
@@ -19404,9 +19372,9 @@ window.processPayment = async function (
             busyKey
         ]
     ) {
-        return alert(
+        return (await AppDialog.alert(
             '⏳ Vật phẩm này đang được thanh toán.'
-        );
+        ));
     }
 
     window.__studentStoreEconomicBusy[
@@ -19785,15 +19753,15 @@ window.processPayment = async function (
             modal.remove();
         }
 
-        alert(
+        (await AppDialog.alert(
             `🎉 Mua thành công! Bạn đã thanh toán ${finalPrice} 🪙.`
-        );
+        ));
 
     } catch (error) {
         if (itemAdded) {
             console.warn('[Store] Đã mua thành công; bước đồng bộ sau mua cần thử lại:', error);
             document.getElementById('checkoutModal')?.remove();
-            alert('✅ Vật phẩm đã vào kho. Đồng bộ giao diện chưa hoàn tất; hãy tải lại trang. Không mua lại.');
+            (await AppDialog.alert('✅ Vật phẩm đã vào kho. Đồng bộ giao diện chưa hoàn tất; hãy tải lại trang. Không mua lại.'));
             return;
         }
         if (!coinDebited && purchaseOperation) {
@@ -19803,7 +19771,7 @@ window.processPayment = async function (
         }
         if (coinDebited) {
             console.warn('[Store] Biên nhận đã lưu, chờ cấp vật phẩm:', error);
-            alert('Thanh toán đã được ghi nhận. Hãy mở lại vật phẩm để tiếp tục nhận; hệ thống không trừ Coin lần nữa.');
+            (await AppDialog.alert('Thanh toán đã được ghi nhận. Hãy mở lại vật phẩm để tiếp tục nhận; hệ thống không trừ Coin lần nữa.'));
             return;
         }
         console.error(
@@ -19913,7 +19881,7 @@ window.processPayment = async function (
                 '⏳ Vật phẩm đang dùng thử. Hãy chọn Nâng cấp vĩnh viễn.'
         };
 
-        alert(
+        (await AppDialog.alert(
             knownMessages[
                 message
             ] ||
@@ -19923,7 +19891,7 @@ window.processPayment = async function (
                     ? '⚠️ Thanh toán lỗi và Coin chưa hoàn được. Giao dịch đã được đánh dấu refund_pending để giáo viên đối soát.'
                     : '❌ Thanh toán thất bại. Hệ thống đã hoàn tác các bước đã thực hiện.'
             )
-        );
+        ));
 
         if (btn) {
             btn.disabled =
@@ -21085,7 +21053,7 @@ async function ensureStudentConversionPeriodGuard(
 
             /*
              * Guard đang còn hiệu lực: không được tự chọn periodKey khác.
-             * Trả nguyên record hiện có; Firebase Rules cũng khóa mutation này.
+             * Hủy ghi khi kỳ còn hiệu lực; giữ snapshot hiện có, không làm mới lượt.
              */
             if (
                 current &&
@@ -21096,7 +21064,7 @@ async function ensureStudentConversionPeriodGuard(
                 String(current.direction || '') ===
                     descriptor.direction
             ) {
-                return current;
+                return; // Abort the no-op transaction; an old updatedAt must not be written again.
             }
 
             return {
@@ -21442,7 +21410,7 @@ window.currentConvertDir = 'M2C';
 
 window.openCoinConversionModal = function () {
     if (window.isConversionEnabled === false) {
-        alert(
+        AppDialog.notify(
             '🔒 Chức năng Bảng quy đổi hiện đang bị Giáo viên tạm khóa!'
         );
         return;
@@ -21775,9 +21743,9 @@ async function runWithStudentMoneyMutationLock(task) {
                     error?.message ===
                         'CONVERSION_OPERATION_IN_PROGRESS'
                 ) {
-                    alert(
+                    (await AppDialog.alert(
                         '⏳ Một giao dịch quy đổi khác của tài khoản này đang được xử lý ở tab khác. Vui lòng hoàn tất giao dịch đó trước.'
-                    );
+                    ));
                     return;
                 }
 
@@ -21785,9 +21753,9 @@ async function runWithStudentMoneyMutationLock(task) {
                     error?.message ===
                     'CONVERSION_SERVER_TIME_UNAVAILABLE'
                 ) {
-                    alert(
+                    (await AppDialog.alert(
                         '❌ Không xác minh được thời gian Firebase. Quy đổi tạm khóa để tránh sai lượt/ngày.'
-                    );
+                    ));
                     return;
                 }
 
@@ -21841,9 +21809,9 @@ async function executeConversionCore() {
         !Number.isInteger(amount) ||
         amount <= 0
     ) {
-        alert(
+        (await AppDialog.alert(
             '⚠️ Vui lòng nhập số nguyên dương hợp lệ!'
-        );
+        ));
         return;
     }
 
@@ -21851,9 +21819,9 @@ async function executeConversionCore() {
         Number.isFinite(rule.maxAmount) &&
         amount > rule.maxAmount
     ) {
-        alert(
+        (await AppDialog.alert(
             '❌ Mỗi tuần chỉ được đổi tối đa 500 Coin sang Tiền lộ trình.'
-        );
+        ));
         return;
     }
 
@@ -21920,11 +21888,11 @@ async function executeConversionCore() {
             direction === 'M2C' &&
             amount > currentAvailableMoney
         ) {
-            alert(
+            (await AppDialog.alert(
                 `❌ Không đủ tiền lộ trình khả dụng! ` +
                 `Bạn còn có thể dùng ${currentAvailableMoney.toLocaleString('vi-VN')}đ ` +
                 `sau khi trừ các yêu cầu tiền mặt đang chờ/đang xử lý.`
-            );
+            ));
             return;
         }
 
@@ -21932,7 +21900,7 @@ async function executeConversionCore() {
             direction === 'C2M' &&
             amount > currentCoins
         ) {
-            alert('❌ Không đủ Coin!');
+            (await AppDialog.alert('❌ Không đủ Coin!'));
             return;
         }
 
@@ -22111,7 +22079,7 @@ async function executeConversionCore() {
             }
         }
 
-        alert(successMessage);
+        (await AppDialog.alert(successMessage));
 
         closeCoinConversionModal();
 
@@ -22145,25 +22113,25 @@ async function executeConversionCore() {
             error.message ===
             'CONVERSION_LIMIT_ALREADY_USED'
         ) {
-            alert(
+            (await AppDialog.alert(
                 getStudentConversionUsedMessage(
                     direction
                 )
-            );
+            ));
         } else if (
             error.message ===
             'INSUFFICIENT_ROADMAP_MONEY'
         ) {
-            alert(
+            (await AppDialog.alert(
                 '❌ Không đủ tiền lộ trình! Số dư có thể đã thay đổi ở tab khác.'
-            );
+            ));
         } else if (
             error.message ===
             'INSUFFICIENT_BALANCE'
         ) {
-            alert(
+            (await AppDialog.alert(
                 '❌ Không đủ Coin! Số dư có thể đã thay đổi ở tab khác.'
-            );
+            ));
         } else if (
             error.message ===
                 'CONVERSION_SERVER_TIME_UNAVAILABLE' ||
@@ -22172,16 +22140,16 @@ async function executeConversionCore() {
             error.message ===
                 'INVALID_CONVERSION_SERVER_TIME'
         ) {
-            alert(
+            (await AppDialog.alert(
                 '❌ Không xác minh được kỳ quy đổi theo thời gian Firebase. ' +
                 'Giao dịch đã bị hủy để tránh reset lượt sai.'
-            );
+            ));
         } else if (!mayReleaseReservation) {
-            alert(
+            (await AppDialog.alert(
                 '❌ Giao dịch gặp lỗi nghiêm trọng khi hoàn tác. ' +
                 'Lượt quy đổi đã được khóa để tránh cộng hoặc trừ lặp. ' +
                 'Hãy báo giáo viên kiểm tra nhật ký.'
-            );
+            ));
         } else if (
             String(error.code || '').includes(
                 'PERMISSION_DENIED'
@@ -22190,14 +22158,14 @@ async function executeConversionCore() {
                 'PERMISSION_DENIED'
             )
         ) {
-            alert(
+            (await AppDialog.alert(
                 '❌ Firebase Rules chưa cho phép truy cập student_conversion_usage.'
-            );
+            ));
         } else {
-            alert(
+            (await AppDialog.alert(
                 '❌ Giao dịch bị hủy do lỗi kết nối hoặc lỗi Firebase. ' +
                 'Số dư đã được hoàn tác tốt nhất có thể.'
-            );
+            ));
         }
 
         window
@@ -22748,7 +22716,7 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
 
         // 2. KIỂM TRA BẢO MẬT: Bức thư có thực sự tồn tại không?
         if (!msgData) {
-            alert("❌ Thư này không tồn tại hoặc đã bị thu hồi!");
+            (await AppDialog.alert("❌ Thư này không tồn tại hoặc đã bị thu hồi!"));
             return;
         }
 
@@ -22780,7 +22748,7 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
                 String(giftType)
             )
         ) {
-            alert("❌ Bức thư này không chứa quà tặng hợp lệ!");
+            (await AppDialog.alert("❌ Bức thư này không chứa quà tặng hợp lệ!"));
             return;
         }
 
@@ -22805,9 +22773,9 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
                 .remove()
                 .catch(() => {});
 
-            alert(
+            (await AppDialog.alert(
                 '⌛ Thư này đã hết hạn và không thể nhận quà.'
-            );
+            ));
             return;
         }
 
@@ -22836,13 +22804,13 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
                         .remove()
                         .catch(() => {});
 
-                    alert(
+                    (await AppDialog.alert(
                         'ℹ️ Quà trong thư này đã được nhận trước đó.'
-                    );
+                    ));
                 } else {
-                    alert(
+                    (await AppDialog.alert(
                         '⏳ Quà này đang được xử lý ở một tab/phiên khác.'
-                    );
+                    ));
                 }
 
                 return;
@@ -22895,7 +22863,7 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
             const liveSubmission = submissionSnap.val() || null;
 
             if (liveSubmission.rewardForfeited === true || isRoadmapSubmissionFailed(liveSubmission)) {
-                alert('Bài này vẫn còn vi phạm chưa được giáo viên tha lỗi nên không thể nhận thưởng điểm số.');
+                (await AppDialog.alert('Bài này vẫn còn vi phạm chưa được giáo viên tha lỗi nên không thể nhận thưởng điểm số.'));
                 return;
             }
 
@@ -22924,10 +22892,10 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
                 !liveSubmissionHasGrade ||
                 liveSubmission?.isRegrading === true
             ) {
-                alert(
+                (await AppDialog.alert(
                     '⏸️ Bài này chưa có điểm hợp lệ hoặc đang được chấm lại. ' +
                     'Phần thưởng chưa thể nhận.'
-                );
+                ));
                 return;
             }
 
@@ -22956,11 +22924,11 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
                     .remove()
                     .catch(() => {});
 
-                alert(
+                (await AppDialog.alert(
                     submissionIsRedoing
                         ? '🔁 Giáo viên đã cho bạn làm lại bài này. Phần thưởng của lần chấm cũ đã bị hủy và không thể nhận.'
                         : 'ℹ️ Đây là phần thưởng của lần chấm trước khi bạn được cho làm lại. Thư cũ đã bị hủy.'
-                );
+                ));
 
                 if (typeof renderStudentInbox === 'function') {
                     renderStudentInbox();
@@ -22989,11 +22957,11 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
             );
 
             if (rewardIsOnHold) {
-                alert(
+                (await AppDialog.alert(
                     '⏸️ Giáo viên đang chấm lại bài này. ' +
                     'Phần thưởng cũ đang bị khóa tạm thời và chưa thể nhận. ' +
                     'Nếu điểm mới giữ nguyên, thư sẽ tự mở lại.'
-                );
+                ));
 
                 if (typeof renderStudentInbox === 'function') {
                     renderStudentInbox();
@@ -23012,9 +22980,9 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
                     .remove()
                     .catch(() => {});
 
-                alert(
+                (await AppDialog.alert(
                     'ℹ️ Phần thưởng này đã bị hủy hoặc thay thế do điểm số đã thay đổi.'
-                );
+                ));
 
                 if (typeof renderStudentInbox === 'function') {
                     renderStudentInbox();
@@ -23079,14 +23047,14 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
                         .remove()
                         .catch(() => {});
 
-                    alert('ℹ️ Phần thưởng điểm số này đã được nhận trước đó.');
+                    (await AppDialog.alert('ℹ️ Phần thưởng điểm số này đã được nhận trước đó.'));
                     if (typeof renderStudentInbox === 'function') {
                         renderStudentInbox();
                     }
                     return;
                 }
 
-                alert('⏳ Phần thưởng này đang được xử lý. Vui lòng thử lại sau ít giây.');
+                (await AppDialog.alert('⏳ Phần thưởng này đang được xử lý. Vui lòng thử lại sau ít giây.'));
                 return;
             }
 
@@ -23244,12 +23212,12 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
                 rewardVersion: Number(msgData.rewardVersion || 3)
             };
 
-            alert(
+            (await AppDialog.alert(
                 `🎓 Bạn đã nhận ${rewardTickets} Vé quay may mắn` +
                 (rewardCoins > 0
                     ? ` và ${rewardCoins.toLocaleString('vi-VN')} Coin!`
                     : '!')
-            );
+            ));
 
         } else if (giftType === 'coin') {
             const amount =
@@ -23293,10 +23261,10 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
             claimedPath =
                 `student_coins/${currentUser.username}`;
 
-            alert(
+            (await AppDialog.alert(
                 `🎉 Bạn đã nhận được ` +
                 `${amount.toLocaleString('vi-VN')} Coin!`
-            );
+            ));
 
         } else if (
             giftType === 'mid_autumn_coin'
@@ -23374,9 +23342,9 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
                             msgKey
                     };
 
-                    alert(
+                    (await AppDialog.alert(
                         '🌕 Xu Trung Thu trong thư này đã được nhận trước đó.'
-                    );
+                    ));
                 } else {
                     if (inboxClaimGuard) {
                         inboxClaimGuard.effectApplied =
@@ -23396,11 +23364,11 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
                             msgKey
                     };
 
-                    alert(
+                    (await AppDialog.alert(
                         `🌕 Bạn đã nhận ${quantity} Xu Trung Thu!\n` +
                         `Xu không hết hạn. Hiện có: ` +
                         `${window.MidAutumnCoinManager.getBalance()} Xu.`
-                    );
+                    ));
                 }
             }
         } else if (
@@ -23479,10 +23447,10 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
                         msgKey
                 };
 
-                alert(
+                (await AppDialog.alert(
                     `🎂 Xu Sinh Nhật ${birthdayYear} ` +
                     'đã được nhận trước đó.'
-                );
+                ));
             } else {
                 if (inboxClaimGuard) {
                     inboxClaimGuard.effectApplied =
@@ -23516,11 +23484,11 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
                     String(birthdayYear)
                 ] = 1;
 
-                alert(
+                (await AppDialog.alert(
                     `🎉 Bạn đã nhận 1 Xu Sinh Nhật ${birthdayYear}!\n` +
                     'Xu đã được lưu trong Túi đồ và chỉ đổi được ' +
                     `vật phẩm Sinh nhật ${birthdayYear}.`
-                );
+                ));
             }
         } else if (
             giftType ===
@@ -23610,9 +23578,9 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
                         msgKey
                 };
 
-                alert(
+                (await AppDialog.alert(
                     '✨ Xu Đặc Biệt trong thư này đã được nhận trước đó.'
-                );
+                ));
             } else {
                 if (inboxClaimGuard) {
                     inboxClaimGuard.effectApplied =
@@ -23657,12 +23625,12 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
                             .studentSpecialBirthdayCoinGrants
                     );
 
-                alert(
+                (await AppDialog.alert(
                     `✨ Bạn đã nhận ${quantity} Xu Đặc Biệt!\n` +
                     `Hạn dùng đến: ` +
                     `${new Date(expiresAt).toLocaleString('vi-VN')}\n` +
                     `Có thể đổi vật phẩm tag Sinh nhật không phân biệt năm.`
-                );
+                ));
             }
         } else if (giftType === 'money') {
             const amount =
@@ -23706,10 +23674,10 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
             claimedPath =
                 `student_money_offset/${currentUser.username}`;
 
-            alert(
+            (await AppDialog.alert(
                 `🎉 Bạn đã nhận được ` +
                 `${amount.toLocaleString('vi-VN')} đ vào Tiền Lộ trình!`
-            );
+            ));
 
             if (
                 typeof renderStudentRoadmap ===
@@ -23760,10 +23728,10 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
             claimedPath =
                 `student_bonus_tickets/${currentUser.username}`;
 
-            alert(
+            (await AppDialog.alert(
                 `🎉 Bạn đã nhận được ` +
                 `${amount} Vé quay may mắn!`
-            );
+            ));
 
         } else if (giftType === 'item') {
             const giftItemPath =
@@ -23856,14 +23824,14 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
             };
 
             if (itemAlreadyOwned) {
-                alert(
+                (await AppDialog.alert(
                     'ℹ️ Bạn đã sở hữu vật phẩm này. ' +
                     'Hệ thống giữ nguyên trạng thái trang bị hiện tại và không ghi đè vật phẩm.'
-                );
+                ));
             } else {
-                alert(
+                (await AppDialog.alert(
                     `🎉 Vật phẩm đã được thêm vào Túi đồ của bạn!`
-                );
+                ));
             }
 
         } else if (giftType === 'discount') {
@@ -23894,9 +23862,9 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
                 expiry &&
                 inboxServerNow >= expiry
             ) {
-                alert(
+                (await AppDialog.alert(
                     "❌ Thẻ giảm giá này đã quá hạn sử dụng, hệ thống không thể thêm vào túi đồ!"
-                );
+                ));
 
                 await db
                     .ref(
@@ -24005,13 +23973,13 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
             };
 
             if (discountAlreadyExists) {
-                alert(
+                (await AppDialog.alert(
                     'ℹ️ Thẻ giảm giá của thư này đã được tạo trước đó. Không tạo thêm thẻ trùng.'
-                );
+                ));
             } else {
-                alert(
+                (await AppDialog.alert(
                     `🎉 Bạn đã nhận được Thẻ giảm giá ${giftValue}%!`
-                );
+                ));
             }
         }
 
@@ -24256,10 +24224,10 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
             inboxClaimGuard?.effectApplied &&
             !inboxClaimGuard?.finalized
         ) {
-            alert(
+            (await AppDialog.alert(
                 '⚠️ Quà đã được áp dụng nhưng trạng thái xác nhận chưa đồng bộ. ' +
                 'Hệ thống đã khóa thư này để tránh nhận trùng; vui lòng tải lại trang sau khi mạng ổn định.'
-            );
+            ));
             return;
         }
 
@@ -24267,14 +24235,14 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
             error.message ===
             'INVALID_BIRTHDAY_YEAR'
         ) {
-            alert(
+            (await AppDialog.alert(
                 '❌ Thư Xu Sinh Nhật có mã năm không hợp lệ.'
-            );
+            ));
         } else {
-            alert(
+            (await AppDialog.alert(
                 '❌ Có lỗi xảy ra khi nhận quà. ' +
                 'Vui lòng thử lại mạng!'
-            );
+            ));
         }
     }
 };
@@ -24845,6 +24813,8 @@ window.examRecoveryManager = {
                 this.globalLockPath()
             );
 
+        await ref.once('value');
+
         const tx =
             await ref.transaction(
                 current => {
@@ -24938,6 +24908,9 @@ window.examRecoveryManager = {
             db.ref(
                 this.globalLockPath()
             );
+
+        // Prime Firebase's local cache; a first null is not an ownership conflict.
+        await ref.once('value');
 
         const tx =
             await ref.transaction(
@@ -25883,6 +25856,10 @@ window.examRecoveryManager = {
         const ref =
             db.ref(this.firebasePath(key));
 
+        // Firebase may invoke a transaction with an uninitialized local null.
+        // Read first so missing cache is not mistaken for another tab's lock.
+        await ref.once('value');
+
         const tx =
             await ref.transaction(
                 current => {
@@ -25927,6 +25904,9 @@ window.examRecoveryManager = {
                         return;
                     }
 
+                    // One interrupted session is counted once until it resumes.
+                    if (current.status === 'interrupted' && owner === tabId) return;
+
                     return {
                         ...current,
                         mcAnswers:
@@ -25956,27 +25936,23 @@ window.examRecoveryManager = {
                 false
             );
 
-        if (!tx.committed) {
-            const current =
-                tx.snapshot?.val?.();
-
-            if (current) {
-                this.cacheSession(
-                    key,
-                    current
-                );
-            }
-
-            throw new Error(
-                'EXAM_INTERRUPTION_LOCK_CONFLICT'
-            );
+        const live = tx.snapshot?.val?.();
+        if (live) this.cacheSession(key, live);
+        const alreadyInterrupted = live?.status === 'interrupted' &&
+            String(live.ownerTabId || '') === tabId;
+        if (!tx.committed && !alreadyInterrupted) {
+            const status = String(live?.status || '');
+            const otherOwner = String(live?.ownerTabId || '');
+            const code = !live ? 'EXAM_SESSION_MISSING'
+                : status === 'submitted' ? 'EXAM_ALREADY_SUBMITTED'
+                : status === 'finalizing' ? 'EXAM_FINALIZING'
+                : otherOwner && otherOwner !== tabId && Number(live.ownerLeaseUntil || 0) > Date.now()
+                    ? 'EXAM_INTERRUPTION_LOCK_CONFLICT' : 'EXAM_INTERRUPTION_RETRY';
+            const error = new Error(code);
+            error.code = code;
+            throw error;
         }
-
-        const session =
-            this.cacheSession(
-                key,
-                tx.snapshot.val() || {}
-            );
+        const session = live;
 
         this.stopHeartbeat(key);
 
@@ -26003,25 +25979,12 @@ window.examRecoveryManager = {
     ) {
         const key = String(assignId || '');
 
-        const existingLocal =
-            this.finalizeLeases[key];
-
-        if (
-            existingLocal &&
-            Number(
-                existingLocal.expiresAt || 0
-            ) > Date.now()
-        ) {
-            return existingLocal;
-        }
-
         let globalLock =
             await this
                 .renewGlobalLock(
                     key,
                     EXAM_FINALIZE_LEASE_MS
-                )
-                .catch(() => null);
+                );
 
         if (!globalLock) {
             globalLock =
@@ -26029,13 +25992,10 @@ window.examRecoveryManager = {
                     .acquireGlobalLock(
                         key,
                         EXAM_FINALIZE_LEASE_MS
-                    )
-                    .catch(() => null);
+                    );
         }
 
-        if (!globalLock) {
-            return null;
-        }
+        if (!globalLock) throw new Error('EXAM_GLOBAL_LOCK_CONFLICT');
 
         const tabId =
             String(window.__studentExamTabId);
@@ -26047,6 +26007,9 @@ window.examRecoveryManager = {
 
         const ref =
             db.ref(this.firebasePath(key));
+
+        // Prime Firebase's local cache; a first null is not an ownership conflict.
+        await ref.once('value');
 
         const tx =
             await ref.transaction(
@@ -26102,7 +26065,9 @@ window.examRecoveryManager = {
                             now +
                             EXAM_FINALIZE_LEASE_MS,
                         finalizeOwnerTabId: tabId,
-                        finalizeId,
+                        finalizeId: status === 'finalizing' &&
+                            current.finalizeOwnerTabId === tabId && current.finalizeId
+                            ? current.finalizeId : finalizeId,
                         finalizeLeaseUntil:
                             now +
                             EXAM_FINALIZE_LEASE_MS,
@@ -26134,7 +26099,10 @@ window.examRecoveryManager = {
                 )
                 .catch(() => {});
 
-            return null;
+            const code = !current ? 'EXAM_SESSION_MISSING'
+                : current.status === 'submitted' ? 'EXAM_ALREADY_SUBMITTED'
+                : 'EXAM_FINALIZE_LEASE_CONFLICT';
+            throw new Error(code);
         }
 
         const session =
@@ -27122,7 +27090,15 @@ window.handleManualExamSubmissionError =
             typeof window.showToast === 'function'
         ) {
             window.showToast(
-                'Nộp bài chưa thành công. Bài làm và file đã chọn vẫn được giữ; hãy thử lại.',
+                (() => {
+                    const code=String(error?.code || error?.message || '');
+                    const detail=/permission.denied/i.test(code) ? 'Firebase từ chối quyền ghi phiên thi. Cần kiểm tra Rules của exam_active_locks và exam_sessions.'
+                        : code==='EXAM_SESSION_MISSING' ? 'Không tìm thấy phiên thi trên máy chủ.'
+                        : code==='EXAM_ALREADY_SUBMITTED' ? 'Phiên thi đã được ghi nhận nộp trên máy chủ. Hãy kiểm tra kết quả trước khi nộp lại.'
+                        : /LOCK_CONFLICT|LEASE_CONFLICT/.test(code) ? 'Máy chủ chưa cấp quyền nộp cho tab này. Kiểm tra tab hoặc thiết bị khác đang mở bài.'
+                        : 'Chưa xác nhận được với máy chủ; hãy kiểm tra kết nối và thử lại.';
+                    return detail+' Bài làm và file đã chọn vẫn được giữ.';
+                })(),
                 'error'
             );
         }
@@ -27625,10 +27601,10 @@ window.startExamFullscreen = async function (
             : null;
 
     if (!assignment) {
-        alert(
+        (await AppDialog.alert(
             "❌ Không tìm thấy dữ liệu bài thi. " +
             "Vui lòng tải lại trang rồi thử lại."
-        );
+        ));
 
         closeExamWarning();
         return;
@@ -27664,11 +27640,11 @@ window.startExamFullscreen = async function (
                     assignId
                 );
 
-            alert(
+            (await AppDialog.alert(
                 hasGrade
                     ? '🔒 Bài thi này đã được chấm điểm trên Firebase nên không thể tiếp tục hoặc nộp đè.'
                     : '🔒 Bài thi này đã có bài nộp hoàn tất trên Firebase nên không thể mở lại.'
-            );
+            ));
 
             closeExamWarning();
             return;
@@ -27709,9 +27685,9 @@ window.startExamFullscreen = async function (
             );
 
         if (anotherExamOwnsGlobalLock) {
-            alert(
+            (await AppDialog.alert(
                 '🔒 Tài khoản này đang có một bài thi hoạt động ở tab khác. Hãy quay lại tab đang thi trước khi mở bài khác.'
-            );
+            ));
 
             closeExamWarning();
             return;
@@ -27724,9 +27700,9 @@ window.startExamFullscreen = async function (
             ) === 'submitted' &&
             !liveSubmission?.isRedoing
         ) {
-            alert(
+            (await AppDialog.alert(
                 '🔒 Phiên thi đã được đánh dấu hoàn tất trên Firebase.'
-            );
+            ));
 
             closeExamWarning();
             return;
@@ -27769,11 +27745,11 @@ window.startExamFullscreen = async function (
             otherTabOwnsSession ||
             otherTabFinalizing
         ) {
-            alert(
+            (await AppDialog.alert(
                 otherTabFinalizing
                     ? '⏳ Một tab khác đang nộp bài thi này. Tab hiện tại không được phép ghi đè.'
                     : '🔒 Bài thi này đang được mở ở một tab khác. Hãy quay lại tab đang thi.'
-            );
+            ));
 
             closeExamWarning();
             return;
@@ -27785,9 +27761,9 @@ window.startExamFullscreen = async function (
             error
         );
 
-        alert(
+        (await AppDialog.alert(
             '❌ Không thể xác minh trạng thái bài thi trên Firebase. Vì lý do bảo mật, hệ thống chưa cho phép bắt đầu/tiếp tục thi.'
-        );
+        ));
 
         closeExamWarning();
         return;
@@ -27810,11 +27786,11 @@ window.startExamFullscreen = async function (
                 watchedSeconds <
                 assignment.watchCondition
             ) {
-                alert(
+                (await AppDialog.alert(
                     `⚠️ Bạn chưa hoàn thành thời lượng xem video.\n\n` +
                     `Đã xem: ${formatSecondsToDHMS(watchedSeconds)}\n` +
                     `Yêu cầu: ${formatSecondsToDHMS(assignment.watchCondition)}`
-                );
+                ));
 
                 return;
             }
@@ -27824,10 +27800,10 @@ window.startExamFullscreen = async function (
                 error
             );
 
-            alert(
+            (await AppDialog.alert(
                 '❌ Không thể xác minh thời lượng xem video. ' +
                 'Bài thi chưa được bắt đầu.'
-            );
+            ));
 
             return;
         }
@@ -27857,10 +27833,10 @@ window.startExamFullscreen = async function (
                     window.currentActiveExamId =
                         null;
 
-                    alert(
+                    (await AppDialog.alert(
                         "⚠️ Chế độ toàn màn hình đã bị thoát. " +
                         "Bài thi chưa được bắt đầu."
-                    );
+                    ));
 
                     closeExamWarning();
                     return;
@@ -27902,9 +27878,9 @@ window.startExamFullscreen = async function (
                         }
                     } catch (_) {}
 
-                    alert(
+                    (await AppDialog.alert(
                         '🔒 Không thể chiếm quyền phiên thi. Có thể một tab khác đang thi/nộp bài hoặc phiên đã hoàn tất.'
-                    );
+                    ));
 
                     closeExamWarning();
                     return;
@@ -28122,9 +28098,9 @@ window.startExamFullscreen = async function (
         );
 
     } catch (err) {
-        alert(
+        (await AppDialog.alert(
             'Trình duyệt của bạn đang chặn chế độ toàn màn hình. Vui lòng cấp quyền để có thể làm bài!'
-        );
+        ));
 
         closeExamWarning();
     }
@@ -28498,7 +28474,7 @@ document.addEventListener(
 
             window.finishStudentExamMode(assignId);
 
-            alert(
+            AppDialog.notify(
                 "⚠️ VI PHẠM BẢO MẬT: Không được phép sử dụng " +
                 "Hình-trong-Hình (PiP) khi đang thi!"
             );
@@ -28937,7 +28913,7 @@ window.showSelectedDiscountInfo = function () {
         select.selectedIndex <= 0 ||
         select.value === '0'
     ) {
-        alert(
+        AppDialog.notify(
             'Vui lòng nhấp vào ô bên dưới để chọn một thẻ giảm giá trước khi xem thông tin nhé!'
         );
         return;
@@ -29534,9 +29510,9 @@ window.redeemSpecialBirthdayItem =
                 item
             )
         ) {
-            return alert(
+            return (await AppDialog.alert(
                 '❌ Vật phẩm này không được đổi bằng Xu Đặc Biệt.'
-            );
+            ));
         }
 
         const username =
@@ -29555,9 +29531,9 @@ window.redeemSpecialBirthdayItem =
                 )
             ).exists()
         ) {
-            return alert(
+            return (await AppDialog.alert(
                 '🎁 Bạn đã sở hữu vật phẩm này.'
-            );
+            ));
         }
 
         const grantsRef = db.ref(
@@ -29616,15 +29592,15 @@ window.redeemSpecialBirthdayItem =
                 });
 
         if (candidates.length === 0) {
-            return alert(
+            return (await AppDialog.alert(
                 '✨ Bạn không có Xu Đặc Biệt còn hạn.'
-            );
+            ));
         }
 
         if (
-            !confirm(
+            !(await AppDialog.confirm(
                 `Dùng 1 Xu Đặc Biệt để đổi “${item.name}”?`
-            )
+            ))
         ) {
             return;
         }
@@ -29752,9 +29728,9 @@ window.redeemSpecialBirthdayItem =
                     .renderStudentBag();
             }
 
-            alert(
+            (await AppDialog.alert(
                 `🎉 Đã đổi thành công “${item.name}” bằng 1 Xu Đặc Biệt!`
-            );
+            ));
         } catch (error) {
             console.error(
                 'Lỗi đổi Xu Đặc Biệt:',
@@ -29762,9 +29738,9 @@ window.redeemSpecialBirthdayItem =
             );
 
             if (committedGrantId) {
-                alert(
+                (await AppDialog.alert(
                     '⚠️ Xu đã được ghi nhận là đã dùng. Hệ thống sẽ tự phục hồi vật phẩm khi mạng ổn định.'
-                );
+                ));
             } else {
                 const errorText =
                     String(
@@ -29781,16 +29757,16 @@ window.redeemSpecialBirthdayItem =
                         'permission-denied'
                     )
                 ) {
-                    alert(
+                    (await AppDialog.alert(
                         '❌ Firebase từ chối giao dịch.\n' +
                         'Hãy kiểm tra danh mục vật phẩm ' +
                         'Xu Đặc Biệt và dữ liệu của xu.'
-                    );
+                    ));
                 } else {
-                    alert(
+                    (await AppDialog.alert(
                         '❌ Không còn Xu Đặc Biệt khả dụng ' +
                         'hoặc xu đã hết hạn.'
-                    );
+                    ));
                 }
             }
         } finally {
@@ -29820,7 +29796,7 @@ window.redeemBirthdayCoinFromBag =
             );
 
         if (items.length === 0) {
-            return alert(
+            return AppDialog.notify(
                 `🎂 Hiện chưa có vật phẩm ` +
                 `mang tag Sinh nhật ${year}.`
             );
@@ -30155,10 +30131,10 @@ window.redeemBirthdayItem =
             !item ||
             !isEligible
         ) {
-            return alert(
+            return (await AppDialog.alert(
                 `❌ Vật phẩm này không thuộc ` +
                 `tag Sinh nhật ${numericYear}.`
-            );
+            ));
         }
 
         const username =
@@ -30182,9 +30158,9 @@ window.redeemBirthdayItem =
             );
 
         if (existingItemSnap.exists()) {
-            return alert(
+            return (await AppDialog.alert(
                 '🎁 Bạn đã sở hữu vật phẩm này.'
-            );
+            ));
         }
 
         const walletSnap =
@@ -30207,10 +30183,10 @@ window.redeemBirthdayItem =
             if (
                 wallet.itemId !== itemId
             ) {
-                return alert(
+                return (await AppDialog.alert(
                     `🎂 Xu Sinh Nhật ${numericYear} ` +
                     'đã được dùng cho vật phẩm khác.'
-                );
+                ));
             }
 
             try {
@@ -30244,21 +30220,21 @@ window.redeemBirthdayItem =
                         .renderStudentBag();
                 }
 
-                return alert(
+                return (await AppDialog.alert(
                     `🎉 Đã phục hồi “${item.name}” ` +
                     'vào Túi đồ!'
-                );
+                ));
             } catch (error) {
                 console.error(
                     'Lỗi phục hồi vật phẩm:',
                     error
                 );
 
-                return alert(
+                return (await AppDialog.alert(
                     '❌ Giao dịch đã được ghi nhận ' +
                     'nhưng chưa thể thêm vật phẩm. ' +
                     'Hãy tải lại trang khi mạng ổn định.'
-                );
+                ));
             }
         }
 
@@ -30267,19 +30243,19 @@ window.redeemBirthdayItem =
                 wallet
             ) !== 1
         ) {
-            return alert(
+            return (await AppDialog.alert(
                 `🎂 Bạn không có Xu Sinh Nhật ` +
                 `${numericYear} khả dụng.`
-            );
+            ));
         }
 
         if (
-            !confirm(
+            !(await AppDialog.confirm(
                 `Dùng 1 Xu Sinh Nhật ${numericYear} ` +
                 `để đổi “${item.name}”?\n\n` +
                 `Xu của năm ${numericYear} ` +
                 'chỉ được dùng đúng 1 lần.'
-            )
+            ))
         ) {
             return;
         }
@@ -30422,10 +30398,10 @@ window.redeemBirthdayItem =
                     .renderStudentBag();
             }
 
-            alert(
+            (await AppDialog.alert(
                 `🎉 Đổi thành công “${item.name}” ` +
                 `bằng Xu Sinh Nhật ${numericYear}!`
-            );
+            ));
         } catch (error) {
             console.error(
                 'Lỗi đổi Xu Sinh Nhật:',
@@ -30436,26 +30412,26 @@ window.redeemBirthdayItem =
                 error.message ===
                 'BIRTHDAY_ALREADY_REDEEMED'
             ) {
-                alert(
+                (await AppDialog.alert(
                     `🎂 Xu Sinh Nhật ${numericYear} ` +
                     'đã được dùng hoặc đang được ' +
                     'xử lý ở tab khác.'
-                );
+                ));
             } else if (
                 walletConsumed ||
                 error.message ===
                 'BIRTHDAY_INVENTORY_PENDING'
             ) {
-                alert(
+                (await AppDialog.alert(
                     '⚠️ Xu đã được ghi nhận là đã dùng. ' +
                     'Hệ thống sẽ tự phục hồi vật phẩm ' +
                     'vào Túi đồ khi kết nối ổn định.'
-                );
+                ));
             } else {
-                alert(
+                (await AppDialog.alert(
                     '❌ Không thể đổi Xu Sinh Nhật. ' +
                     'Vui lòng kiểm tra mạng và thử lại.'
-                );
+                ));
             }
         } finally {
             window
@@ -30724,7 +30700,7 @@ window.openMidAutumnStoreFromBag = function () {
             return;
         }
 
-        alert(
+        AppDialog.notify(
             '🏮 Cửa hàng Sang trọng chưa sẵn sàng. ' +
             'Vui lòng mở mục Cửa hàng → Sang trọng.'
         );
@@ -30740,7 +30716,7 @@ window.openMidAutumnStoreFromBag = function () {
 window.sellDiscountCardFromPopup = async function (discountKey, _percent, _sellPrice) {
     const username = String(currentUser?.username || '');
     if (!username || !discountKey || typeof discountKey !== 'string' || /[.#$\[\]\/]/.test(discountKey)) return;
-    if (!navigator.onLine || window.isOffline) return alert('Mất kết nối. Hãy thử lại khi có mạng.');
+    if (!navigator.onLine || window.isOffline) return (await AppDialog.alert('Mất kết nối. Hãy thử lại khi có mạng.'));
     const busyKey = `sell-discount:${discountKey}`;
     if (window.__studentStoreEconomicBusy[busyKey]) return;
     window.__studentStoreEconomicBusy[busyKey] = true;
@@ -30748,15 +30724,15 @@ window.sellDiscountCardFromPopup = async function (discountKey, _percent, _sellP
     try {
         if (!await window.assertStudentStoreEconomicActionAllowed('bán thẻ giảm giá')) return;
         const existing = (await receiptRef.once('value')).val();
-        if (existing) return alert('Thẻ này đã được quy đổi. Không cộng Coin lần nữa.');
+        if (existing) return (await AppDialog.alert('Thẻ này đã được quy đổi. Không cộng Coin lần nữa.'));
         const coupon = (await db.ref(`student_discounts/${username}/${discountKey}`).once('value')).val();
         const percent = Number(coupon?.percent);
         if (!coupon || coupon.isUsed === true || !Number.isFinite(percent) || percent < 0 || percent > 100 ||
             !Number.isFinite(Number(coupon.expiry)) || Number(coupon.expiry) <= 0 || Number(coupon.expiry) >= Date.now()) {
-            return alert('Chỉ thanh lý được thẻ đã hết hạn và chưa sử dụng. Hãy mở lại túi đồ.');
+            return (await AppDialog.alert('Chỉ thanh lý được thẻ đã hết hạn và chưa sử dụng. Hãy mở lại túi đồ.'));
         }
         const amount = Math.max(1, Math.min(10, Math.floor(percent / 10)));
-        if (!confirm(`Thanh lý thẻ giảm giá ${percent}% đã hết hạn để nhận ${amount} Coin?`)) return;
+        if (!(await AppDialog.confirm(`Thanh lý thẻ giảm giá ${percent}% đã hết hạn để nhận ${amount} Coin?`))) return;
         const updates = {
             [`student_discounts/${username}/${discountKey}`]: null,
             [`student_coins/${username}`]: firebase.database.ServerValue.increment(amount),
@@ -30765,15 +30741,15 @@ window.sellDiscountCardFromPopup = async function (discountKey, _percent, _sellP
             }
         };
         await db.ref().update(updates);
-        alert(`Đã thanh lý thẻ, nhận ${amount} Coin.`);
+        (await AppDialog.alert(`Đã thanh lý thẻ, nhận ${amount} Coin.`));
         window.closeBagItemPopup?.();
         await window.renderStudentBag?.();
     } catch (error) {
         console.error('[Discount Sale]', error);
         // A lost acknowledgement must not encourage another unguarded credit.
         const receipt = await receiptRef.once('value').then(s => s.val()).catch(() => null);
-        alert(receipt ? 'Thẻ đã được quy đổi. Hãy mở lại túi đồ để đồng bộ.' :
-            'Chưa xác nhận được thanh lý. Hãy thử lại khi có mạng; nếu bị từ chối quyền, cần cập nhật Firebase Rules kèm bản sửa.');
+        (await AppDialog.alert(receipt ? 'Thẻ đã được quy đổi. Hãy mở lại túi đồ để đồng bộ.' :
+            'Chưa xác nhận được thanh lý. Hãy thử lại khi có mạng; nếu bị từ chối quyền, cần cập nhật Firebase Rules kèm bản sửa.'));
     } finally {
         delete window.__studentStoreEconomicBusy[busyKey];
     }
@@ -31511,37 +31487,37 @@ async function handleRequestCashSubmitCore() {
         const amount = Number(rawAmount);
 
         if (!rawAmount || !Number.isInteger(amount) || amount <= 0) {
-            alert('⚠️ Vui lòng nhập số tiền mặt muốn lấy là số nguyên dương hợp lệ!');
+            (await AppDialog.alert('⚠️ Vui lòng nhập số tiền mặt muốn lấy là số nguyên dương hợp lệ!'));
             return;
         }
 
         let state = await getCurrentRoadmapMoneyState();
 
         if (amount > state.totalMoney) {
-            alert(`⚠️ Số tiền yêu cầu (${amount.toLocaleString('vi-VN')} VNĐ) vượt quá Tổng tiền tích lũy lộ trình hiện tại (${state.totalMoney.toLocaleString('vi-VN')} VNĐ)!`);
+            (await AppDialog.alert(`⚠️ Số tiền yêu cầu (${amount.toLocaleString('vi-VN')} VNĐ) vượt quá Tổng tiền tích lũy lộ trình hiện tại (${state.totalMoney.toLocaleString('vi-VN')} VNĐ)!`));
             return;
         }
 
         if (amount > state.availableMoney) {
-            alert(
+            (await AppDialog.alert(
                 `⚠️ Bạn đang có ${state.reservedAmount.toLocaleString('vi-VN')} VNĐ ` +
                 `đang chờ/được xử lý. Số tiền còn có thể yêu cầu là ` +
                 `${state.availableMoney.toLocaleString('vi-VN')} VNĐ.`
-            );
+            ));
             return;
         }
 
-        if (!confirm(`Bạn có chắc chắn muốn gửi yêu cầu lấy ${amount.toLocaleString('vi-VN')} VNĐ về giáo viên không?`)) {
+        if (!(await AppDialog.confirm(`Bạn có chắc chắn muốn gửi yêu cầu lấy ${amount.toLocaleString('vi-VN')} VNĐ về giáo viên không?`))) {
             return;
         }
 
         // Đọc lại ngay trước khi tạo request để tránh dùng số dư cũ sau thời gian confirm.
         state = await getCurrentRoadmapMoneyState();
         if (amount > state.availableMoney) {
-            alert(
+            (await AppDialog.alert(
                 `⚠️ Số dư khả dụng vừa thay đổi. Hiện chỉ còn ` +
                 `${state.availableMoney.toLocaleString('vi-VN')} VNĐ có thể yêu cầu.`
-            );
+            ));
             await window.initCashWithdrawInterface();
             return;
         }
@@ -31557,7 +31533,7 @@ async function handleRequestCashSubmitCore() {
             timestamp: Date.now()
         });
 
-        alert('🎉 Gửi yêu cầu thành công! Vui lòng đợi giáo viên xét duyệt.');
+        (await AppDialog.alert('🎉 Gửi yêu cầu thành công! Vui lòng đợi giáo viên xét duyệt.'));
         inputEl.value = '';
 
         await window.initCashWithdrawInterface();
@@ -31573,9 +31549,9 @@ async function handleRequestCashSubmitCore() {
             errorMessage.includes('permission_denied') ||
             errorMessage.includes('permission denied')
         ) {
-            alert('❌ Firebase từ chối quyền tạo yêu cầu tiền mặt. Vui lòng kiểm tra Rules của cash_requests.');
+            (await AppDialog.alert('❌ Firebase từ chối quyền tạo yêu cầu tiền mặt. Vui lòng kiểm tra Rules của cash_requests.'));
         } else {
-            alert('❌ Không thể gửi yêu cầu tiền mặt. Vui lòng kiểm tra kết nối rồi thử lại.');
+            (await AppDialog.alert('❌ Không thể gửi yêu cầu tiền mặt. Vui lòng kiểm tra kết nối rồi thử lại.'));
         }
     } finally {
         window.cashRequestSubmitInFlight = false;
@@ -32586,7 +32562,7 @@ window.toggleVideoSummaryPanel =
                         .requiredSeconds
                 ) || 0;
 
-            alert(
+            AppDialog.notify(
                 required > 0
                     ? (
                         '🔒 Bạn cần xem video đạt ' +
@@ -32672,7 +32648,7 @@ window.toggleMobileVideoSummary =
                     button.dataset.requiredSeconds
                 ) || 0;
 
-            alert(
+            AppDialog.notify(
                 required > 0
                     ? (
                         '🔒 Bạn cần xem video đạt ' +
@@ -34400,7 +34376,7 @@ window.goToEventGame = function () {
 
 window.openHoiHoaChest = async function (chestKey) {
     if (window.__hhChestOpening) {
-        alert('Rương đang được xử lý, vui lòng chờ.');
+        (await AppDialog.alert('Rương đang được xử lý, vui lòng chờ.'));
         return;
     }
 
@@ -34408,7 +34384,7 @@ window.openHoiHoaChest = async function (chestKey) {
         !currentUser ||
         !currentUser.username
     ) {
-        alert('Không xác định được tài khoản học sinh.');
+        (await AppDialog.alert('Không xác định được tài khoản học sinh.'));
         return;
     }
 
@@ -34421,7 +34397,7 @@ window.openHoiHoaChest = async function (chestKey) {
         return;
     }
 
-    const accepted = confirm(
+    const accepted = (await AppDialog.confirm(
         'Bạn có muốn mở Rương Kho Báu Hội Họa không?\n\n' +
         '• Mỗi tài khoản chỉ mở tối đa 1 Rương Hội Họa trong 24 giờ.\n' +
         '• 1%: Vật phẩm Hội Họa\n' +
@@ -34429,7 +34405,7 @@ window.openHoiHoaChest = async function (chestKey) {
         '  Chỉ dùng cho vật phẩm bán bằng Coin dưới 700 Coin;\n' +
         '  không dùng cho vật phẩm sự kiện, Doraemon và Truyền thuyết,...\n' +
         '• 91%: 100–700 Coin'
-    );
+    ));
 
     if (!accepted) return;
 
@@ -34954,10 +34930,10 @@ window.openHoiHoaChest = async function (chestKey) {
          */
         await chestRef.remove();
 
-        alert(
+        (await AppDialog.alert(
             '🎉 Mở Rương Kho Báu thành công!\n\n' +
             `Bạn nhận được: ${rewardText}`
-        );
+        ));
 
         console.log(
             '[Hội Họa] Kết quả mở rương:',
@@ -35080,40 +35056,40 @@ window.openHoiHoaChest = async function (chestKey) {
                     0
                 );
 
-            alert(
+            (await AppDialog.alert(
                 '⏳ Mỗi tài khoản chỉ được mở 1 Rương Hội Họa trong 24 giờ.' +
                 (
                     waitHours > 0
                         ? ` Bạn có thể thử lại sau khoảng ${waitHours} giờ.`
                         : ''
                 )
-            );
+            ));
         } else if (
             message ===
             'HOIHOA_CHEST_OPENING_OTHER_TAB'
         ) {
-            alert(
+            (await AppDialog.alert(
                 '⏳ Rương Hội Họa đang được xử lý ở tab khác.'
-            );
+            ));
         } else if (
             message ===
             'HOIHOA_CHEST_NOT_AVAILABLE'
         ) {
-            alert(
+            (await AppDialog.alert(
                 '❌ Rương không tồn tại, đã được mở, hoặc đang được xử lý ở phiên khác.'
-            );
+            ));
         } else if (rewardApplied) {
-            alert(
+            (await AppDialog.alert(
                 'Phần thưởng đã được cộng. ' +
                 'Hệ thống vẫn giữ khóa 24 giờ để tránh nhận trùng.\n' +
                 'Nếu rương còn hiển thị, hãy tải lại trang và không mở lại.'
-            );
+            ));
         } else {
-            alert(
+            (await AppDialog.alert(
                 `Không mở được rương: ` +
                 `${error?.message ||
                 'lỗi không xác định'}`
-            );
+            ));
         }
     } finally {
         window.__hhChestOpening =
@@ -35348,6 +35324,7 @@ window.handleExamInterruption = async function (
          * Kết thúc trạng thái thi hiện tại,
          * nhưng bản nháp vẫn được giữ.
          */
+        window.MCWorkspace?.close?.(String(assignId));
         await window.finishStudentExamMode(
             assignId,
             {
@@ -35364,10 +35341,7 @@ window.handleExamInterruption = async function (
             countAsViolation &&
             interruptionCount >= 2
         ) {
-            alert(
-                '⚠️ Bài thi đã bị gián đoạn nhiều lần. ' +
-                'Hệ thống tự động thu bài.'
-            );
+            window.showToast?.('Bài thi gián đoạn lần hai. Đang tự động thu toàn bộ bài.', 'warning');
 
             await submitAssignment(
                 assignId,
@@ -35538,6 +35512,7 @@ window.handleExamInterruption = async function (
                 currentUser?.username ||
                 'student'
         ) {
+            if (assign?.randomExamConfig?.enabled && assign.randomExamConfig.engineVersion === 2) return window.RandomExamEngine.forStudent(assign, username);
             const sourceQuestions =
                 Array.isArray(
                     assign?.questions
@@ -35937,13 +35912,7 @@ window.downloadStudentRoadmapPDF = async function () {
         }
     };
 
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = htmlContent;
-
-    await html2pdf()
-        .set(opt)
-        .from(tempDiv)
-        .save();
+    await window.CampusPDF.exportHTML(htmlContent, opt);
 };
 // ============================================================
 // FLOATING ACTIONS v7 · RESPONSIVE FIXED VIEWPORT TOOLBAR

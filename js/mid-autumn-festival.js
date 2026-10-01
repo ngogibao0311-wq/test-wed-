@@ -228,7 +228,7 @@
         if (typeof window.showToast === 'function') {
             window.showToast(message, type);
         } else {
-            alert(message);
+            AppDialog.notify(message);
         }
     }
 
@@ -966,7 +966,7 @@
                 throw new Error('PURCHASE_LIMIT');
             }
 
-            if (!confirm(`Dùng ${CONFIG.extraTicketPrice} Coin để mua 1 Vé Đại Hội Trung Thu?\nMỗi năm chỉ mua tối đa ${CONFIG.maxExtraTickets} vé.`)) return;
+            if (!(await AppDialog.confirm(`Dùng ${CONFIG.extraTicketPrice} Coin để mua 1 Vé Đại Hội Trung Thu?\nMỗi năm chỉ mua tối đa ${CONFIG.maxExtraTickets} vé.`))) return;
 
             const coinRef = getDatabase().ref(`student_coins/${username()}`);
             const coinTx = await coinRef.transaction(current => {
@@ -1963,7 +1963,7 @@
 
     function showRewards() {
         const lines = CONFIG.milestones.map(m => `${m.score} điểm: ${m.label}`).join('\n');
-        alert(`🎑 ĐẠI HỘI TRUNG THU\n\n${lines}\n\n🎟️ Mỗi năm: 2 vé miễn phí + tối đa 4 vé mua thêm.\n🪙 Giá vé mua thêm: ${CONFIG.extraTicketPrice} Coin/vé.\n🎮 4 trò tối đa ${CONFIG.maxScorePerPlay} điểm/lượt; Bắt Bánh tối đa 20 điểm/lượt.\n⚠️ Vào một trò chơi rồi thoát giữa chừng vẫn mất 1 vé.`);
+        AppDialog.notify(`🎑 ĐẠI HỘI TRUNG THU\n\n${lines}\n\n🎟️ Mỗi năm: 2 vé miễn phí + tối đa 4 vé mua thêm.\n🪙 Giá vé mua thêm: ${CONFIG.extraTicketPrice} Coin/vé.\n🎮 4 trò tối đa ${CONFIG.maxScorePerPlay} điểm/lượt; Bắt Bánh tối đa 20 điểm/lượt.\n⚠️ Vào một trò chơi rồi thoát giữa chừng vẫn mất 1 vé.`);
     }
 
     async function init() {

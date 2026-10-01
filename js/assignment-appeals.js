@@ -103,7 +103,7 @@ window.getSubmissionEssayDisplay = function (submission, assignment) {
         if (!profile) throw new Error('Vui lòng đăng nhập lại.');
         const ref = db.ref('submission_appeals/' + key);
         let appeal = (await ref.once('value')).val();
-        if(appeal?.archived===true){alert('Kháng cáo đã hoàn tất và được dọn sau 7 ngày.');return;}
+        if(appeal?.archived===true){(await AppDialog.alert('Kháng cáo đã hoàn tất và được dọn sau 7 ngày.'));return;}
         if (profile.role === 'teacher' && appeal?.status === 'sent') {
             const tx = await transaction(ref, current => current?.status === 'sent' ? {...current,status:'reviewing',reviewerUid:firebase.auth().currentUser.uid,reviewedAt:firebase.database.ServerValue.TIMESTAMP} : undefined);
             appeal = tx.snapshot.val();
@@ -186,7 +186,7 @@ window.getSubmissionEssayDisplay = function (submission, assignment) {
             if(appeal.decisionBasis!=='false_positive' && (amounts.refundCoins||amounts.refundTickets))return text(panel,'Vi phạm nhẹ không được hoàn khoản phạt cũ.');
             if(reason.value.trim().length<10)return text(panel,'Ghi rõ căn cứ đối soát, ít nhất 10 ký tự.');
             const coinDelta=amounts.rewardCoins+amounts.refundCoins, ticketDelta=amounts.rewardTickets+amounts.refundTickets;
-            if(!confirm(`Xác nhận cộng ${coinDelta} Coin và ${ticketDelta} vé sau khi đã kiểm tra lịch sử? Quyết định đối soát này chỉ thực hiện một lần.`))return;
+            if(!(await AppDialog.confirm(`Xác nhận cộng ${coinDelta} Coin và ${ticketDelta} vé sau khi đã kiểm tra lịch sử? Quyết định đối soát này chỉ thực hiện một lần.`)))return;
             save.disabled=true;
             try {
                 const [coinSnap,ticketSnap,proof]=await Promise.all([db.ref('student_coins/'+username).once('value'),db.ref('student_bonus_tickets/'+username).once('value'),settlementRef.once('value')]);
@@ -203,8 +203,8 @@ window.getSubmissionEssayDisplay = function (submission, assignment) {
         };
     }
 
-    function showList(){const panel=modal('Danh sách kháng cáo');for(const [key,record] of Object.entries(records).filter(([,record])=>record.archived!==true).sort((a,b)=>b[1].createdAt-a[1].createdAt)){const button=document.createElement('button');button.textContent=record.studentUsername+' — '+labels[record.status];button.style.display='block';button.onclick=()=>{panel.close();open(key).catch(e=>alert(e.message));};panel.appendChild(button);}}
-    document.addEventListener('click',event=>{const button=event.target.closest('[data-appeal-key]');if(button)open(button.dataset.appealKey).catch(error=>alert(error.message));});
+    function showList(){const panel=modal('Danh sách kháng cáo');for(const [key,record] of Object.entries(records).filter(([,record])=>record.archived!==true).sort((a,b)=>b[1].createdAt-a[1].createdAt)){const button=document.createElement('button');button.textContent=record.studentUsername+' — '+labels[record.status];button.style.display='block';button.onclick=()=>{panel.close();open(key).catch(e=>AppDialog.notify(e.message));};panel.appendChild(button);}}
+    document.addEventListener('click',event=>{const button=event.target.closest('[data-appeal-key]');if(button)open(button.dataset.appealKey).catch(error=>AppDialog.notify(error.message));});
     document.addEventListener('click',async event=>{
         const button=event.target.closest('[data-repair-redo]');if(!button || profile?.role!=='teacher')return;
         button.disabled=true;
@@ -212,7 +212,7 @@ window.getSubmissionEssayDisplay = function (submission, assignment) {
             const ref=db.ref('submissions/'+button.dataset.repairRedo);
             await transaction(ref,current=>current?.isRedoing && current.violationAudit && typeof current.violationAudit==='object' ? {...current,violationAudit:JSON.stringify(current.violationAudit)} : undefined);
             text(button.parentElement,'Đã giữ nguyên lịch sử và khôi phục định dạng. Học sinh tải lại trang để nộp lại.');
-        }catch(error){alert(error.message);button.disabled=false;}
+        }catch(error){(await AppDialog.alert(error.message));button.disabled=false;}
     });
     window.AssignmentAppeals={card};
     firebase.auth().onAuthStateChanged(async user=>{

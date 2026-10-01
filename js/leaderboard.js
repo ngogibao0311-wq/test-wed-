@@ -2318,9 +2318,9 @@ window.claimPreviousLeaderboardReward =
                 !rewardState ||
                 !rewardState.rank
             ) {
-                alert(
+                (await AppDialog.alert(
                     '❌ Bạn không có phần thưởng BXH của mùa trước.'
-                );
+                ));
                 return;
             }
 
@@ -2334,9 +2334,9 @@ window.claimPreviousLeaderboardReward =
             } = rewardState;
 
             if (claim?.status === 'claimed') {
-                alert(
+                (await AppDialog.alert(
                     '✅ Phần thưởng mùa này đã được nhận trước đó.'
-                );
+                ));
                 return;
             }
 
@@ -2471,15 +2471,15 @@ window.claimPreviousLeaderboardReward =
                     current?.status ===
                         'claimed'
                 ) {
-                    alert(
+                    (await AppDialog.alert(
                         '✅ Phần thưởng đã được nhận.'
-                    );
+                    ));
                 } else {
-                    alert(
+                    (await AppDialog.alert(
                         '⏳ Phần thưởng đang được một tab khác xử lý. ' +
                         'Nếu lần xử lý đó bị gián đoạn, hệ thống sẽ ' +
                         'cho phép thử lại sau khoảng 90 giây.'
-                    );
+                    ));
                 }
                 return;
             }
@@ -2608,10 +2608,10 @@ window.claimPreviousLeaderboardReward =
                     }
                 });
 
-                alert(
+                (await AppDialog.alert(
                     `🥈 Chúc mừng! Bạn nhận được ` +
                     `Thẻ giảm giá ${percent}% cho ${display}.`
-                );
+                ));
             } else {
                 const configuredAmount =
                     rank === 3
@@ -2703,10 +2703,10 @@ window.claimPreviousLeaderboardReward =
                     }
                 });
 
-                alert(
+                (await AppDialog.alert(
                     `🏆 Chúc mừng! Hạng #${rank} ` +
                     `nhận ${amount} Coin cho ${display}.`
-                );
+                ));
             }
 
             await refreshPreviousLeaderboardRewardPanel();
@@ -2776,10 +2776,10 @@ window.claimPreviousLeaderboardReward =
                 }
             }
 
-            alert(
+            (await AppDialog.alert(
                 '❌ Không thể nhận thưởng BXH. ' +
                 'Vui lòng thử lại.'
-            );
+            ));
         } finally {
             buttons.forEach(button => {
                 button.disabled = false;
@@ -2978,9 +2978,9 @@ window.openLeaderboardModal = async function () {
                 '⚠️ Bảng xếp hạng tạm khóa khi đang làm bài thi!'
             );
         } else {
-            alert(
+            (await AppDialog.alert(
                 '⚠️ Bảng xếp hạng tạm khóa khi đang làm bài thi!'
-            );
+            ));
         }
 
         return;
@@ -3012,16 +3012,16 @@ window.openLeaderboardModal = async function () {
                 lbSettings.targetMonth &&
                 lbSettings.targetYear
             ) {
-                alert(
+                (await AppDialog.alert(
                     `🔒 Bảng xếp hạng đang đóng. ` +
                     `Mùa giải mới bắt đầu vào Tháng ` +
                     `${lbSettings.targetMonth}/` +
                     `${lbSettings.targetYear}.`
-                );
+                ));
             } else {
-                alert(
+                (await AppDialog.alert(
                     '🔒 Bảng xếp hạng đang bị giáo viên đóng.'
-                );
+                ));
             }
 
             return;
@@ -3095,10 +3095,10 @@ window.openLeaderboardModal = async function () {
     } catch (error) {
         console.error(error);
 
-        alert(
+        (await AppDialog.alert(
             '❌ Không thể mở bảng xếp hạng. ' +
             'Vui lòng kiểm tra kết nối và thử lại!'
-        );
+        ));
     }
 };
 
@@ -3769,9 +3769,9 @@ window.openTreasureChest = async function () {
             rewardState.claim?.status !==
                 'available_chest'
         ) {
-            alert(
+            (await AppDialog.alert(
                 '🔒 Bạn không có Rương Hạng 1 hợp lệ để mở.'
-            );
+            ));
             return;
         }
 
@@ -3811,9 +3811,9 @@ window.openTreasureChest = async function () {
             error
         );
 
-        alert(
+        (await AppDialog.alert(
             '❌ Không thể xác minh quyền mở Rương Hạng 1.'
-        );
+        ));
     }
 };
 
@@ -3915,9 +3915,9 @@ window.claimChestReward = async function (
             if (
                 currentChestStatus === 'claimed'
             ) {
-                alert(
+                (await AppDialog.alert(
                     '✅ Rương Hạng 1 này đã được nhận trước đó.'
-                );
+                ));
                 closeTreasureChestModal();
             } else if (
                 (
@@ -3931,11 +3931,11 @@ window.claimChestReward = async function (
                     currentChestClaim
                 )
             ) {
-                alert(
+                (await AppDialog.alert(
                     '⏳ Rương đang được một tab khác xử lý. ' +
                     'Nếu lần xử lý đó bị gián đoạn, hệ thống sẽ ' +
                     'tự mở khóa sau khoảng 90 giây.'
-                );
+                ));
             } else {
                 console.warn(
                     '[Leaderboard] Rương không ở trạng thái có thể nhận:',
@@ -3950,10 +3950,10 @@ window.claimChestReward = async function (
                 closeTreasureChestModal();
                 await refreshPreviousLeaderboardRewardPanel();
 
-                alert(
+                (await AppDialog.alert(
                     '🔒 Rương hiện không ở trạng thái có thể nhận. ' +
                     'BXH đã được đồng bộ tự động.'
-                );
+                ));
             }
             return;
         }
@@ -4152,9 +4152,9 @@ window.claimChestReward = async function (
             if (
                 latestStatus === 'claimed'
             ) {
-                alert(
+                (await AppDialog.alert(
                     '✅ Rương Hạng 1 này đã được nhận trước đó.'
-                );
+                ));
                 closeTreasureChestModal();
             } else if (
                 (
@@ -4168,11 +4168,11 @@ window.claimChestReward = async function (
                     latestClaim
                 )
             ) {
-                alert(
+                (await AppDialog.alert(
                     '⏳ Rương đang được một tab khác xử lý. ' +
                     'Nếu lần xử lý đó bị gián đoạn, bạn có thể ' +
                     'thử lại sau khoảng 90 giây.'
-                );
+                ));
             } else if (
                 isRecoverableChestClaim(
                     latestClaim
@@ -4182,18 +4182,18 @@ window.claimChestReward = async function (
                  * Không đóng modal và không bắt refresh thủ công.
                  * Người dùng có thể bấm lại ngay; finally sẽ bật nút.
                  */
-                alert(
+                (await AppDialog.alert(
                     'ℹ️ Rương vẫn đang sẵn sàng. ' +
                     'Bạn có thể chọn phần thưởng lại ngay.'
-                );
+                ));
             } else {
                 closeTreasureChestModal();
                 await refreshPreviousLeaderboardRewardPanel();
 
-                alert(
+                (await AppDialog.alert(
                     '⚠️ Trạng thái Rương không còn hợp lệ. ' +
                     'BXH đã được đồng bộ tự động.'
-                );
+                ));
             }
             return;
         }
@@ -4217,10 +4217,10 @@ window.claimChestReward = async function (
                 }
             );
 
-            alert(
+            (await AppDialog.alert(
                 '⏳ Không xác nhận được quyền sở hữu khóa Rương. ' +
                 'Vui lòng chọn phần thưởng lại.'
-            );
+            ));
             return;
         }
 
@@ -4854,10 +4854,10 @@ window.claimChestReward = async function (
             );
         }
 
-        alert(
+        (await AppDialog.alert(
             `🎉 Nhận thưởng thành công!\n` +
             `${rewardLabel}`
-        );
+        ));
 
         closeTreasureChestModal();
 
@@ -4945,13 +4945,13 @@ window.claimChestReward = async function (
             errorCode.includes('PERMISSION_DENIED') ||
             errorCode.includes('PERMISSION-DENIED');
 
-        alert(
+        (await AppDialog.alert(
             permissionDenied
                 ? '❌ Firebase từ chối ghi phần thưởng Rương. ' +
                     'Hãy cập nhật Firebase Rules bản mới rồi thử lại.'
                 : '❌ Có lỗi xảy ra khi nhận thưởng Rương. ' +
                     'Vui lòng thử lại!'
-        );
+        ));
     } finally {
         btnNodes.forEach(button => {
             button.disabled = false;
