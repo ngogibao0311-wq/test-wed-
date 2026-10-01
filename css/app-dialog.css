@@ -1,0 +1,27 @@
+/* Restore native dialog centering after the global * { margin:0 } reset. */
+html body dialog[open] {
+    position: fixed !important;
+    inset: 0 !important;
+    margin: auto !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+    height: fit-content;
+    max-width: calc(100vw - 32px) !important;
+    max-height: calc(100dvh - 32px) !important;
+    overflow: auto;
+    overscroll-behavior: contain;
+}
+html body dialog.app-progress-dialog {
+    width: 520px;
+    padding: 28px;
+    border: 1px solid #e2e6f2;
+    border-radius: 24px;
+    background: #fff !important;
+    color: #243553 !important;
+    box-shadow: 0 24px 90px #16244840;
+    overflow-wrap: anywhere;
+}
+html body dialog.app-progress-dialog::backdrop { background: #15223b70; backdrop-filter: blur(4px); }
+html body dialog.app-progress-dialog h3 { color:#202f58 !important; font-size:23px; margin:0 0 16px; }
+html body dialog.app-progress-dialog p { color:#435475 !important; line-height:1.65; margin:12px 0; white-space:pre-wrap; }
+html body dialog.app-progress-dialog button { display:block; width:100%; margin:24px 0 0; padding:13px 20px; border:0; border-radius:12px; color:#fff !important; background:#5865d8 !important; font:700 16px/1.4 'Nunito','Segoe UI',sans-serif; cursor:pointer; }

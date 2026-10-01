@@ -3,3 +3,84 @@
 .cr-teacher-card{margin-top:20px;padding:24px!important}html body button.cr-teacher-entry{display:flex!important;align-items:center;justify-content:space-between;gap:16px;width:100%!important;margin:0!important;padding:24px!important;border:1px solid #e2e8f0!important;border-radius:16px!important;background:#fff!important;color:#7040c6!important;text-align:left!important;font-size:20px!important;font-weight:700!important;box-shadow:0 5px 18px #24365008!important;cursor:pointer}html body button.cr-teacher-entry:hover{background:#f7f3ff!important}@media(max-width:600px){.cr-teacher-card{padding:14px!important}html body button.cr-teacher-entry{font-size:16px!important;padding:18px!important}}
 .cr-dialog{overflow:auto}.cr-body{min-width:0}.cr-help{padding:14px;background:#eaf0fa;border-radius:12px;margin-bottom:18px}.cr-help summary{cursor:pointer;font-weight:700}.cr-help p{line-height:1.6}.cr-connection{font-size:.9rem;color:#53647c}.cr-locked{background:#000!important}.cr-options{max-height:280px;overflow:auto;border:1px solid #dce3ed;border-radius:12px;padding:8px;margin:12px 0}.cr-dialog .cr-option{display:flex;align-items:center;gap:10px;padding:10px;cursor:pointer}.cr-dialog .cr-option input{width:20px;height:20px;flex:0 0 20px;margin:0}.cr-dialog .cr-option:hover{background:#edf3ff}.cr-dialog form>label{font-weight:600}.cr-dialog button:focus-visible,.cr-dialog summary:focus-visible{outline:3px solid #7765d5;outline-offset:3px}.cr-item button{margin-top:10px}.cr-set>details{margin-bottom:16px}.cr-set li{margin:8px 0;overflow-wrap:anywhere}.cr-notice[hidden]{display:none}.cr-art>img{display:block}@media(max-width:600px){.cr-dialog header{padding:14px}.cr-dialog h2{font-size:20px}.cr-body{padding:12px}.cr-grid{grid-template-columns:minmax(0,1fr)}}
 .cr-page{color:#243650;background:#f6f8fc;border:1px solid #dce3ed;border-radius:20px;overflow:hidden}.cr-page>header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px;background:#fff}.cr-page>header h2{margin:0}.cr-page button{width:auto;min-height:42px;padding:10px 15px;border-radius:10px;border:1px solid #cbd8ee;background:#edf3ff;color:#284b8a;cursor:pointer}.cr-page button:disabled{opacity:.5;cursor:wait}.cr-page button:focus-visible,.cr-page summary:focus-visible{outline:3px solid #7765d5;outline-offset:3px}.cr-page .cr-grid{align-items:start}.cr-page .cr-art{height:230px}.cr-page .cr-set{min-width:0}.cr-page:not(.active){display:none}@media(max-width:600px){.cr-page>header{padding:14px;flex-wrap:wrap}.cr-page>header h2{font-size:22px}}
+.cr-item.cr-selected{outline:3px solid #7350db;outline-offset:5px;border-radius:12px}.cr-page .cr-receive{background:#6842d9;color:#fff;border-color:#6842d9;font-weight:700;margin-top:12px}.cr-published-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid #dce3ed}.cr-published-row p{margin:0;overflow-wrap:anywhere}.cr-published-actions{display:flex;gap:8px;flex-shrink:0}.cr-dialog .cr-delete{background:#fff1f1;color:#a12a37;border-color:#efbec5}.cr-dialog form>button{margin:8px 8px 8px 0}@media(max-width:600px){.cr-published-row{align-items:flex-start;flex-direction:column;gap:10px}}
+.cr-tag.cr-tag-image{padding:0;background:transparent}.cr-tag-image img{display:block;max-width:180px;max-height:80px;object-fit:contain}
+
+/* The dashboard owns the single content-glass layer and its existing toggle. */
+#tab-collection-rewards.cr-page,
+#tab-collection-rewards.cr-page > header,
+#tab-collection-rewards .cr-set,
+#tab-collection-rewards .cr-help {
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+#tab-collection-rewards .cr-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 22px; align-items: stretch; margin-top: 18px; }
+#tab-collection-rewards .cr-set { display: contents; padding: 0; }
+#tab-collection-rewards .cr-help { padding: 0; }
+#tab-collection-rewards .cr-notice { background: rgba(255, 245, 219, .7); }
+#tab-collection-rewards .cr-reward-items {
+    display: contents;
+}
+#tab-collection-rewards .cr-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: none;
+    min-height: 360px;
+    margin: 0;
+    padding: 24px 20px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,.65);
+    border-radius: 26px;
+    background: linear-gradient(135deg, rgba(255,255,255,.76), rgba(255,255,255,.48));
+    box-shadow: 0 8px 24px rgba(31,42,68,.08);
+    text-align: center;
+}
+#tab-collection-rewards .cr-item .cr-art { height: 160px; flex: 0 0 160px; border-radius: 16px; }
+#tab-collection-rewards .cr-item h4 { margin: 22px 0 10px; font-size: 1.2rem; line-height: 1.4; }
+#tab-collection-rewards .cr-item-type { margin: 0 0 24px; font-size: .78rem; font-weight: 700; letter-spacing: .1em; color: #687e9a; }
+#tab-collection-rewards .cr-item button { width: 100%; margin-top: auto; min-height: 46px; border: 0; border-radius: 14px; background: linear-gradient(110deg,#554bea,#7936f3); color: white; font-weight: 700; }
+#tab-collection-rewards .cr-item button + button { margin-top: 12px; }
+#tab-collection-rewards .cr-ribbon { position: absolute; top: 23px; right: -41px; width: 170px; padding: 7px 0; transform: rotate(45deg); background: #657df0; color: white; font-size: .75rem; font-weight: 700; pointer-events: none; }
+#tab-collection-rewards .cr-tag-image img { max-width: 130px; max-height: 58px; }
+#tab-collection-rewards .cr-set-info { margin: 0 0 20px; text-align: left; line-height: 1.5; }
+#tab-collection-rewards .cr-set-info h3 { margin: 0 0 8px; font-size: 1.1rem; }
+#tab-collection-rewards .cr-set-info p { margin: 0 0 8px; }
+#tab-collection-rewards .cr-set-info summary { cursor: pointer; font-weight: 600; }
+#tab-collection-rewards .cr-set-info ul {
+    padding-left: 20px;
+    padding-right: 8px;
+    margin-bottom: 0;
+    max-height: min(240px, 40vh);
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior-y: contain;
+    scrollbar-width: thin;
+    scrollbar-gutter: stable;
+}
+#tab-collection-rewards .cr-help,
+#tab-collection-rewards .cr-help p { font-weight: 700; color: #17384b; }
+#tab-collection-rewards .cr-help summary { font-weight: 800; color: #17384b; }
+@media(max-width:600px) {
+    #tab-collection-rewards .cr-grid { grid-template-columns: minmax(0, 1fr); }
+}
+/* Reward cards retain their light surface even with a dark equipped theme. */
+#tab-collection-rewards .cr-item :is(h3, h4, p, summary, li) {
+    color: #243650 !important;
+    text-shadow: none !important;
+}
+#tab-collection-rewards .cr-item .cr-item-type { color: #687e9a !important; }
+html[class*="equipped"] #tab-collection-rewards .cr-help {
+    background: rgba(255,255,255,.9) !important;
+    padding: 12px;
+}
+html[class*="equipped"] #tab-collection-rewards .cr-help :is(summary, p) {
+    color: #17384b !important;
+    text-shadow: none !important;
+}

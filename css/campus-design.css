@@ -1,0 +1,138 @@
+/* Shared application palette. Cosmetic renderers own their artwork and colors. */
+:root {
+ --campus-primary:#5865d8;--campus-primary-hover:#4653bf;--campus-ink:#22314d;
+ --campus-muted:#64748b;--campus-canvas:#f4f6fb;--campus-surface:#fff;
+ --campus-line:#dee5f0;--campus-sidebar:#17233d;--campus-gold:#e8ac35;
+}
+
+html[data-campus-palette="default"]:is(#campus-palette,html) body{color:var(--campus-ink);--primary-color:var(--campus-primary);--secondary-color:var(--campus-primary);--text-color:var(--campus-ink);--bg-color:var(--campus-canvas)}
+html[data-campus-palette="default"]:is(#campus-palette,html) body:not(.store-background-equipped){background:var(--campus-canvas)!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body :is(#studentSidebar,#teacherSidebar){background:var(--campus-sidebar)!important;color:#e5eafa!important;border:1px solid #253450!important;border-radius:18px!important;box-shadow:0 8px 30px #17233d12!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body :is(#studentSidebar,#teacherSidebar)::before{display:none!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body :is(#studentSidebar,#teacherSidebar) :is(h3,.nav-item,.btn-logout,.sidebar-toggle){color:#e5eafa!important;text-shadow:none!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body :is(#studentSidebar,#teacherSidebar) .nav-item{background:transparent!important;border:1px solid transparent!important;box-shadow:none!important;border-radius:10px!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body :is(#studentSidebar,#teacherSidebar) .nav-item:hover{background:#ffffff10!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body :is(#studentSidebar,#teacherSidebar) .nav-item.active{background:var(--campus-primary)!important;border-color:#7681e3!important;color:#fff!important;box-shadow:none!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body :is(#studentSidebar,#teacherSidebar) :is(.sidebar-toggle,.btn-logout){background:#ffffff0b!important;border:1px solid #ffffff20!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body :is(#studentDashboard,#teacherDashboard)>.content :is(h1,h2,h3,h4,label,summary):where(:not(.ui-theme-immune):not(.ui-theme-immune *):not(.store-theme-locked):not(.store-theme-locked *):not(.store-item-card):not(.store-item-card *):not(.luxury-product-card):not(.luxury-product-card *):not([data-fxq-root]):not([data-fxq-root] *):not(.ql-toolbar *):not(.ql-editor *)){color:var(--campus-ink)!important;text-shadow:none!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body :is(#studentDashboard,#teacherDashboard)>.content :is(h1,h2):where(:not(.ui-theme-immune):not(.ui-theme-immune *):not(.store-theme-locked):not(.store-theme-locked *):not(.store-item-card):not(.store-item-card *):not(.luxury-product-card):not(.luxury-product-card *):not([data-fxq-root]):not([data-fxq-root] *):not(.ql-toolbar *):not(.ql-editor *)){letter-spacing:-.5px;line-height:1.3;font-weight:800}
+html[data-campus-palette="default"]:is(#campus-palette,html) body :is(#studentDashboard,#teacherDashboard)>.content :is(.card,.form-container,.accordion-card,.settings-card):where(:not(.ui-theme-immune):not(.ui-theme-immune *):not(.store-theme-locked):not(.store-theme-locked *):not(.store-item-card):not(.store-item-card *):not(.luxury-product-card):not(.luxury-product-card *):not([data-fxq-root]):not([data-fxq-root] *):not(.ql-toolbar *):not(.ql-editor *)){background:var(--campus-surface)!important;border:1px solid var(--campus-line)!important;border-radius:16px!important;box-shadow:0 5px 22px #17233d06!important;color:var(--campus-ink)!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body :is(#studentDashboard,#teacherDashboard)>.content :is(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),textarea,select):where(:not(.ui-theme-immune):not(.ui-theme-immune *):not(.store-theme-locked):not(.store-theme-locked *):not(.store-item-card):not(.store-item-card *):not(.luxury-product-card):not(.luxury-product-card *):not([data-fxq-root]):not([data-fxq-root] *):not(.ql-toolbar *):not(.ql-editor *)){background:#fff!important;border:1px solid var(--campus-line)!important;border-radius:10px!important;color:var(--campus-ink)!important;box-shadow:none!important;max-width:100%;font:inherit}
+html[data-campus-palette="default"]:is(#campus-palette,html) body :is(#studentDashboard,#teacherDashboard)>.content :is(input,textarea)::placeholder{color:#8290a6}
+html[data-campus-palette="default"]:is(#campus-palette,html) body :is(#studentDashboard,#teacherDashboard)>.content :is(button,.btn):where(:not(.ui-theme-immune):not(.ui-theme-immune *):not(.store-theme-locked):not(.store-theme-locked *):not(.store-item-card):not(.store-item-card *):not(.luxury-product-card):not(.luxury-product-card *):not([data-fxq-root]):not([data-fxq-root] *):not(.ql-toolbar *):not(.ql-editor *)){background:var(--campus-primary)!important;color:#fff!important;border:1px solid transparent!important;border-radius:10px!important;box-shadow:none!important;text-shadow:none!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body :is(#studentDashboard,#teacherDashboard)>.content :is(button,.btn):hover:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not(.store-theme-locked):not(.store-theme-locked *):not(.store-item-card):not(.store-item-card *):not(.luxury-product-card):not(.luxury-product-card *):not([data-fxq-root]):not([data-fxq-root] *):not(.ql-toolbar *):not(.ql-editor *)){background:var(--campus-primary-hover)!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body :is(#studentDashboard,#teacherDashboard)>.content :is(button,.btn):disabled:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not(.store-theme-locked):not(.store-theme-locked *):not(.store-item-card):not(.store-item-card *):not(.luxury-product-card):not(.luxury-product-card *):not([data-fxq-root]):not([data-fxq-root] *):not(.ql-toolbar *):not(.ql-editor *)){opacity:.5!important;cursor:not-allowed!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body :is(#studentDashboard,#teacherDashboard)>.content :is(.btn-secondary,.btn-cancel,.filter-btn:not(.active),.tab-btn:not(.active),.cr-cancel):where(:not(.ui-theme-immune):not(.ui-theme-immune *):not(.store-theme-locked):not(.store-theme-locked *):not(.store-item-card):not(.store-item-card *):not(.luxury-product-card):not(.luxury-product-card *):not([data-fxq-root]):not([data-fxq-root] *):not(.ql-toolbar *):not(.ql-editor *)){background:#eef1fb!important;color:var(--campus-primary)!important;border-color:var(--campus-line)!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body :is(#studentDashboard,#teacherDashboard)>.content :is(.btn-danger,.btn-delete,.cr-delete,[data-action="delete"]):where(:not(.ui-theme-immune):not(.ui-theme-immune *):not(.store-theme-locked):not(.store-theme-locked *):not(.store-item-card):not(.store-item-card *):not(.luxury-product-card):not(.luxury-product-card *):not([data-fxq-root]):not([data-fxq-root] *):not(.ql-toolbar *):not(.ql-editor *)){background:#fff0f2!important;color:#bb334b!important;border-color:#f2c9d1!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body :is(#studentDashboard,#teacherDashboard)>.content  table:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not(.store-theme-locked):not(.store-theme-locked *):not(.store-item-card):not(.store-item-card *):not(.luxury-product-card):not(.luxury-product-card *):not([data-fxq-root]):not([data-fxq-root] *):not(.ql-toolbar *):not(.ql-editor *)){background:#fff!important;border-radius:14px;color:var(--campus-ink)!important;border-collapse:separate;border-spacing:0}
+html[data-campus-palette="default"]:is(#campus-palette,html) body :is(#studentDashboard,#teacherDashboard)>.content  th:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not(.store-theme-locked):not(.store-theme-locked *):not(.store-item-card):not(.store-item-card *):not(.luxury-product-card):not(.luxury-product-card *):not([data-fxq-root]):not([data-fxq-root] *):not(.ql-toolbar *):not(.ql-editor *)){background:#eef1fa!important;color:#506080!important;text-shadow:none!important;border-bottom:1px solid var(--campus-line)!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body :is(#studentDashboard,#teacherDashboard)>.content  td:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not(.store-theme-locked):not(.store-theme-locked *):not(.store-item-card):not(.store-item-card *):not(.luxury-product-card):not(.luxury-product-card *):not([data-fxq-root]):not([data-fxq-root] *):not(.ql-toolbar *):not(.ql-editor *)){color:var(--campus-ink)!important;border-bottom:1px solid #edf0f7!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body :is(#studentDashboard,#teacherDashboard)>.content  tbody tr:hover:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not(.store-theme-locked):not(.store-theme-locked *):not(.store-item-card):not(.store-item-card *):not(.luxury-product-card):not(.luxury-product-card *):not([data-fxq-root]):not([data-fxq-root] *):not(.ql-toolbar *):not(.ql-editor *)){background:#f6f8ff!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body :is(#studentDashboard,#teacherDashboard)>.content  :is(button,input,textarea,select):focus-visible{outline:3px solid #a9b1f3!important;outline-offset:3px}
+html[data-campus-palette="default"]:is(#campus-palette,html) body #roadmapMoneyCard{background:#fff!important;border:1px solid var(--campus-line)!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body #roadmapMoneyCard *{color:var(--campus-ink)!important;text-shadow:none!important}
+/* Background art remains visible, with only one glass shell when requested. */
+html[data-campus-palette="default"]:is(#campus-palette,html) body:not(.store-background-equipped) :is(#studentDashboard,#teacherDashboard)>.content{background:transparent!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body.store-background-equipped :is(#studentDashboard,#teacherDashboard)>.content :is(.card,.form-container):where(:not(.ui-theme-immune):not(.ui-theme-immune *):not(.store-theme-locked):not(.store-theme-locked *):not(.store-item-card):not(.store-item-card *):not(.luxury-product-card):not(.luxury-product-card *):not([data-fxq-root]):not([data-fxq-root] *):not(.ql-toolbar *):not(.ql-editor *)){background:#ffffffd9!important;backdrop-filter:none!important}
+/* Header is layout, never supplied by a cosmetic item. */
+html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget{position:relative!important;inset:auto!important;transform:none!important;order:0!important;flex:0 1 auto!important;padding:6px 12px!important;margin:0 8px 0 0!important;min-width:0!important;max-width:180px!important;gap:8px!important;border:1px solid #e7cf9b!important;border-radius:12px!important;background:#fff8e8!important;box-shadow:none!important;backdrop-filter:none!important;cursor:default!important}
+html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget *{color:#765418!important;text-shadow:none!important}
+html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget>span{font-size:22px!important}
+html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget>div>div:first-child{font-size:9px!important;letter-spacing:.5px!important}
+html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget>div>div:last-child{font-size:18px!important;line-height:1.1!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body #studentTopActionsFlow>button:not(.avatar-frame-equipped){background:#fff!important;color:var(--campus-ink)!important;border:1px solid var(--campus-line)!important;box-shadow:0 3px 14px #17233d08!important;border-radius:12px!important}
+@media(min-width:769px){html:is(#campus-layout,html) body :is(#studentDashboard,#teacherDashboard)>.content{padding-top:20px!important}}
+@media(max-width:768px){html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget{max-width:104px!important;padding:4px 7px!important;margin-right:0!important;gap:4px!important}html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget>span{font-size:16px!important}html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget>div>div:first-child{display:none!important}html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget>div>div:last-child{font-size:13px!important}}
+/* Geometry guards apply to all themes without replacing their paint. */
+html:is(#campus-layout,html) body :is(#studentDashboard,#teacherDashboard)>.content>.tab-content{min-width:0!important;overflow-wrap:anywhere}
+html:is(#campus-layout,html) body :is(#studentDashboard,#teacherDashboard)>.content :is(.table-responsive,.table-container){max-width:100%;overflow-x:auto;overscroll-behavior-x:contain}
+html:is(#campus-layout,html) body :is(#studentDashboard,#teacherDashboard)>.content :is(input,select,textarea){box-sizing:border-box;max-width:100%}
+html:is(#campus-layout,html) body :is(#studentSidebar,#teacherSidebar) :is(.nav-item,.sidebar-toggle,.btn-logout){pointer-events:auto!important}
+html:is(#campus-layout,html) body :is(#studentSidebar,#teacherSidebar)::before,html:is(#campus-layout,html) body :is(#studentSidebar,#teacherSidebar)::after{pointer-events:none!important}
+/* Authentication uses the same controls and surfaces. */
+html:is(#campus-layout,html) body.login-page{background:var(--campus-canvas)!important;color:var(--campus-ink)!important}
+html:is(#campus-layout,html) body.login-page .login-container{background:#fff!important;border:1px solid var(--campus-line)!important;box-shadow:0 12px 60px #17233d0d!important}
+html:is(#campus-layout,html) body.login-page :is(h2,label,.login-kicker){color:var(--campus-ink)!important}
+html:is(#campus-layout,html) body.login-page .login-submit-btn{background:var(--campus-primary)!important;color:#fff!important;box-shadow:none!important}
+html:is(#campus-layout,html) body.login-page input{border-color:var(--campus-line)!important;color:var(--campus-ink)!important;background:#fff!important}
+/* Legacy shell decorations must not reintroduce pink/teal in the default skin. */
+html[data-campus-palette="default"]:is(#campus-palette,html) body:not(.store-background-equipped) :is(#studentDashboard,#teacherDashboard)>.content::before,
+html[data-campus-palette="default"]:is(#campus-palette,html) body:not(.store-background-equipped) :is(#studentDashboard,#teacherDashboard)>.content::after{display:none!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body :is(.modal-content,.student-modal-content):not(.store-theme-locked):not(.ui-theme-immune){background:#fff!important;color:#22314d!important;border:1px solid #dee5f0!important;border-radius:20px!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body :is(.modal-content,.student-modal-content) :is(h2,h3,label):where(:not(.ui-theme-immune *):not(.store-theme-locked *)){color:#22314d!important;text-shadow:none!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body :is(.modal-content,.student-modal-content) button:where(:not(.ui-theme-immune *):not(.store-theme-locked *):not(.store-item-card *):not(.luxury-product-card *)){background:#5865d8!important;color:#fff!important;box-shadow:none!important;border-radius:10px!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body :is(#studentDashboard,#teacherDashboard)>.content :is(button[onclick*="delete"],button[onclick*="Delete"],button[onclick*="reject"],button[onclick*="Reject"]):where(:not(.ui-theme-immune *):not(.store-theme-locked *):not(.store-item-card *):not(.luxury-product-card *)){background:#fff0f2!important;color:#bb334b!important;border:1px solid #f2c9d1!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body .store-item-card:not(.store-theme-locked):not(.ui-theme-immune) :is(.btn-buy,.btn-equip):not(.active):not(.event-only){background:#5865d8!important;color:#fff!important;box-shadow:none!important;border-radius:10px!important}
+html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget{pointer-events:auto!important}
+html:is(#campus-layout,html) body :is(#studentSidebar,#teacherSidebar) .campus-nav-icon{display:block!important;flex:0 0 21px!important;width:21px!important;height:21px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;filter:none!important;box-shadow:none!important}
+html:is(#campus-layout,html) body :is(#studentSidebar,#teacherSidebar) .btn-logout{display:flex!important;align-items:center!important;justify-content:center!important;gap:12px!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body::before,html[data-campus-palette="default"]:is(#campus-palette,html) body::after{display:none!important}
+/* Coin markup uses spans; override legacy mobile span rules explicitly. */
+html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget{height:44px!important;max-height:44px!important;overflow:visible!important;resize:none!important;white-space:nowrap!important}
+html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget>div{min-width:0!important;display:flex!important;flex-direction:column!important}
+html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget>div>span:first-child{font-size:9px!important;line-height:14px!important;margin:0!important;gap:4px!important}
+html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget>div>span:first-child>span:first-child{font-size:9px!important;white-space:nowrap!important}
+html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget #studentCoinBalance{font-size:17px!important;line-height:19px!important;font-weight:800!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body #teacherDashboard>.content .teacher-question-bank-entry{background:#eef1fb!important;border:1px solid #dee5f0!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body #teacherDashboard>.content .teacher-question-bank-entry-title{color:#22314d!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body #teacherDashboard>.content .teacher-question-bank-entry-description{color:#64748b!important}
+@media(max-width:768px){
+ html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget{height:34px!important;max-height:34px!important}
+ html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget>div{flex-direction:row!important;align-items:center!important;gap:4px!important}
+ html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget>div>span:first-child>span:first-child{display:none!important}
+ html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget #studentCoinBalance{font-size:12px!important;line-height:16px!important;order:-1}
+}
+html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget{min-height:0!important}
+html:is(#campus-layout,html) body #studentTopActionsFlow{background:transparent!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important}
+
+/* Built-in display choices stay independent from equipped cosmetics. */
+html[data-ui-theme="blue"]{--campus-primary:#2875be;--campus-primary-hover:#205e98;--campus-canvas:#f1f7fc;--campus-sidebar:#162c46}
+html[data-ui-theme="green"]{--campus-primary:#278366;--campus-primary-hover:#20694f;--campus-canvas:#f2f8f5;--campus-sidebar:#19382f}
+html[data-ui-theme="pink"]{--campus-primary:#b74c82;--campus-primary-hover:#953c69;--campus-canvas:#fcf4f8;--campus-sidebar:#382338}
+@media(min-width:769px){
+ html:is(#campus-layout,html) body :is(#studentSidebar,#teacherSidebar) .sidebar-top{display:flex!important;flex-direction:column!important;gap:0!important;justify-content:flex-start!important}
+ html:is(#campus-layout,html) body :is(#studentSidebar,#teacherSidebar) .nav-item{flex-shrink:0!important;text-align:left!important}
+ html:is(#campus-layout,html) body :is(#studentSidebar,#teacherSidebar) .btn-logout{height:44px!important;min-height:44px!important;width:100%!important;padding:10px!important;font-size:14px!important;margin:0!important}
+ html:is(#campus-layout,html) body :is(#studentSidebar,#teacherSidebar) .nav-text{min-width:0;flex:1}
+ html:is(#campus-layout,html) body .dashboard.collapsed :is(#studentSidebar,#teacherSidebar) .nav-item{width:48px!important;margin-inline:auto!important}
+ html:is(#campus-layout,html) body :is(#studentDashboard,#teacherDashboard) .campus-page-title{margin-top:0!important;padding-top:0!important}
+ html:is(#campus-layout,html) body #teacherDashboard .campus-page-title{padding-right:64px!important}
+ html:is(#campus-layout,html) body #studentDashboard .campus-page-title{padding-right:var(--campus-dock-width,360px)!important;min-height:48px}
+}
+@media(min-width:769px) and (max-width:1100px){
+ html:is(#campus-layout,html) body #studentDashboard>.content{padding-top:72px!important}
+ html:is(#campus-layout,html) body #studentDashboard .campus-page-title{padding-right:0!important}
+}
+/* One glass plane; using a pseudo-element avoids trapping fixed dialogs. */
+html[data-campus-glass]:is(#campus-palette,html):is(#campus-glass,html) body :is(#studentDashboard,#teacherDashboard)>.content{
+ position:relative!important;isolation:isolate;background:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+}
+html[data-campus-glass]:is(#campus-palette,html):is(#campus-glass,html) body :is(#studentDashboard,#teacherDashboard)>.content::after{display:none!important}
+html[data-campus-glass="on"]:is(#campus-palette,html):is(#campus-glass,html) body :is(#studentDashboard,#teacherDashboard)>.content::before{
+ content:""!important;display:block!important;position:absolute!important;inset:0!important;width:auto!important;height:auto!important;opacity:1!important;z-index:-1!important;pointer-events:none!important;
+ background:rgba(255,255,255,.52)!important;backdrop-filter:blur(24px) saturate(1.12)!important;-webkit-backdrop-filter:blur(24px) saturate(1.12)!important;
+ border:1px solid rgba(255,255,255,.65)!important;border-radius:20px!important;box-shadow:none!important;transform:none!important;animation:none!important;
+}
+html[data-campus-glass="off"]:is(#campus-palette,html):is(#campus-glass,html) body :is(#studentDashboard,#teacherDashboard)>.content::before{display:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+html:is(#campus-layout,html) body :is(#studentDashboard,#teacherDashboard) #tab-settings .campus-glass-control{
+ display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:10px!important;width:100%!important;min-height:48px!important;
+ margin:10px 0!important;padding:12px 14px!important;font:inherit!important;font-size:14px!important;font-weight:650!important;letter-spacing:0!important;
+ border-radius:12px!important;box-shadow:none!important;transform:none!important;
+}
+html:is(#campus-layout,html) body #tab-settings .campus-glass-control::before{display:none!important}
+
+/* Compact store navigation, separate from the item cards. */
+html:is(#campus-layout,html) body #studentDashboard #tab-store>.store-collection-title-row{align-items:center!important;gap:10px!important;margin-bottom:16px!important;box-sizing:border-box!important}
+html:is(#campus-layout,html) body #studentDashboard #tab-store>.store-collection-title-row>h2{padding-right:0!important;min-height:0!important}
+html:is(#campus-layout,html) body #studentDashboard #tab-store #storeCollectionArrow{width:30px!important;height:30px!important;min-height:30px!important;min-width:30px!important;padding:0!important;margin:0!important;border-radius:9px!important;flex:0 0 30px!important}
+html:is(#campus-layout,html) body #studentDashboard #storeCollectionDropdown{width:100%!important;max-width:100%!important}
+html:is(#campus-layout,html) body #studentDashboard #storeCollectionDropdown .store-collection-dropdown__clip{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px!important}
+html:is(#campus-layout,html) body #studentDashboard #storeCollectionDropdown .store-collection-dropdown__item{min-width:0!important;width:100%!important;min-height:54px!important;margin:0!important;padding:10px 12px!important;gap:9px!important;border-radius:12px!important;box-shadow:none!important;transform:none!important;backdrop-filter:none!important}
+html:is(#campus-layout,html) body #studentDashboard #storeCollectionDropdown .store-collection-dropdown__item-icon{width:30px!important;height:30px!important;flex:0 0 30px!important;font-size:19px!important;border-radius:8px!important}
+html:is(#campus-layout,html) body #studentDashboard #storeCollectionDropdown strong{font-size:14px!important;line-height:1.3!important}
+html:is(#campus-layout,html) body #studentDashboard #storeCollectionDropdown small{display:none!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body #studentDashboard #storeCollectionDropdown .store-collection-dropdown__item{background:#eef1fb!important;border:1px solid var(--campus-line)!important;color:var(--campus-ink)!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body #studentDashboard #storeCollectionDropdown .store-collection-dropdown__item strong{color:var(--campus-ink)!important}
+html[data-campus-palette="default"]:is(#campus-palette,html) body #studentDashboard #storeCollectionDropdown .store-collection-dropdown__item:hover{background:#e3e8fb!important}
+@media(min-width:1101px){html:is(#campus-layout,html) body #studentDashboard #tab-store>.store-collection-title-row{max-width:calc(100% - var(--campus-dock-width,360px))!important}}
+@media(max-width:650px){html:is(#campus-layout,html) body #studentDashboard #storeCollectionDropdown .store-collection-dropdown__clip{grid-template-columns:1fr!important;gap:6px!important}}

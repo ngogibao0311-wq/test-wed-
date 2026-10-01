@@ -1,0 +1,22 @@
+/* Assignment authoring and dedicated quiz editor. */
+html body #teacherDashboard #tab-create>.form-container{padding:24px!important;max-width:1100px!important;margin-inline:auto!important}
+html body #teacherDashboard #tab-create>.form-container>label{display:block;margin:18px 0 7px!important;font-size:14px!important}
+html body #teacherDashboard #tab-create>.form-container>label:first-child{margin-top:0!important}
+html body #teacherDashboard #tab-create .form-row{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px!important;margin:18px 0!important;align-items:start!important}
+html body #teacherDashboard #tab-create .form-group{min-width:0!important;margin:0!important}
+html body #teacherDashboard #tab-create :is(#tracNghiemFields,#tuLuanFields,#videoLinkGroup){border:1px solid var(--campus-line,#dee5f0)!important;border-radius:14px!important;padding:20px!important;margin-top:20px!important;background:#f8faff!important;color:#22314d!important}
+html body #teacherDashboard #tab-create :is(input:not([type=checkbox]):not([type=radio]),select,textarea){padding:11px 13px!important;margin-bottom:10px!important;font-size:14px!important}
+html body #teacherDashboard #tab-create #publishAssignmentButton{width:100%;min-height:48px;margin-top:24px!important}
+html body #editTracNghiemSection[hidden]{display:none!important}
+.assigned-quiz-actions{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:16px 0}
+.teacher-quiz-editor{width:min(1200px,96vw);max-width:96vw;height:92dvh;max-height:92dvh;margin:auto;padding:24px;border:1px solid #dce3f0;border-radius:18px;background:#f5f7fb;color:#22314d;box-sizing:border-box;overflow:auto}
+.teacher-quiz-editor::backdrop{background:#10203a99;backdrop-filter:blur(5px)}
+.teacher-quiz-editor header,.teacher-quiz-editor footer{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;background:#f5f7fb;padding:12px 0}
+.teacher-quiz-editor h2{margin:5px 0;font-size:24px}.teacher-quiz-editor p{color:#64748b;line-height:1.5}
+.teacher-quiz-editor button{border:0;border-radius:9px;background:#5865d8;color:white;padding:11px 16px;cursor:pointer;font:inherit}.teacher-quiz-editor button:disabled{opacity:.5}
+.tqe-layout{display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:24px}.tqe-layout aside{position:sticky;top:0;align-self:start;background:white;padding:18px;border-radius:12px}.tqe-nav{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0}
+.tqe-question{background:white;border:1px solid #dce3f0;border-radius:12px;padding:20px;margin-bottom:16px;scroll-margin-top:15px}.tqe-question h3{margin-top:0}.tqe-question textarea,.tqe-question input:not([type=radio]){box-sizing:border-box;width:100%;padding:12px;border:1px solid #dce3f0;border-radius:8px;background:white;color:#22314d;font:inherit}.tqe-question textarea{min-height:85px;margin-top:8px}.tqe-option{display:flex;align-items:center;gap:12px;margin-top:12px}.tqe-option label{display:flex;gap:8px;align-items:center}.tqe-question input[type=radio]{width:19px;height:19px;accent-color:#5865d8}
+.teacher-quiz-editor footer{position:sticky;bottom:-24px;border-top:1px solid #dce3f0}.teacher-quiz-editor [role=status]{max-width:75%;font-size:14px}
+@media(max-width:700px){html body #teacherDashboard #tab-create .form-row{grid-template-columns:1fr!important}.tqe-layout{grid-template-columns:1fr}.tqe-layout aside{position:static;grid-row:1}.teacher-quiz-editor{padding:16px}.teacher-quiz-editor footer{bottom:-16px}.tqe-question{padding:14px}}
+.authoring-section-title{display:flex;align-items:center;gap:12px;margin:24px 0 18px;padding-top:20px;border-top:1px solid #dce3f0}.authoring-section-title:first-child{margin-top:0;padding-top:0;border-top:0}.authoring-section-title>span{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#eef0ff;color:#5865d8;font-size:13px;font-weight:800;flex-shrink:0}.authoring-section-title h3{margin:0!important;font-size:17px!important}.authoring-section-title p{margin:4px 0 0;font-size:13px;color:#64748b}
+html body #teacherDashboard #tab-create .form-group:has(#condDay)>div{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px!important;padding:8px!important}html body #teacherDashboard #tab-create .form-group:has(#condDay)>div>span{display:none}html body #teacherDashboard #tab-create :is(#condDay,#condHour,#condMin,#condSec){width:100%!important;min-width:0;padding:10px 6px!important;margin:0!important}
