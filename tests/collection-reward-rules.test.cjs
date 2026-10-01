@@ -88,19 +88,35 @@ function fixture(count = 2) {
     return state;
 }
 function unlock(setId = 'winter', itemId = 'reward_bg_a') {
-    return {[`collection_unlocks/alice/${setId}`]: {setId, itemId, studentUid: 's1', createdAt: now},
+    return {[`collection_unlocks/alice/${setId}`]: {setId, itemId, setRevision: 0, studentUid: 's1', createdAt: now},
         [`student_inventory/alice/${itemId}`]: {id: itemId, type: 'background', source: 'collection_reward', collectionSetId: setId, purchaseTime: now, isEquipped: false}};
 }
 test('eligible students atomically receive a reward, including all 24 requirements', () => {
     assert.equal(accepted(fixture(), unlock()), true);
     assert.equal(accepted(fixture(24), unlock()), true);
 });
-test('missing item, trial, gift, missing or mismatched receipts cannot qualify', () => {
+test('missing items, trials and mismatched IDs cannot qualify', () => {
     for (const change of [s => delete s.student_inventory.alice.item1, s => s.student_inventory.alice.item0.isTrial = true,
-        s => s.student_inventory.alice.item0.source = 'teacher_gift', s => delete s.store_charge_receipts.alice.receipt0,
-        s => s.store_charge_receipts.alice.receipt0.itemId = 'different', s => s.store_charge_receipts.alice.receipt0.kind = 'trial']) {
+        s => s.student_inventory.alice.item0.source = 'store_trial', s => s.student_inventory.alice.item0.id = 'different',
+        s => s.student_inventory.alice.item0.isTrial = 'true']) {
         const state = fixture(); change(state); assert.equal(accepted(state, unlock()), false);
     }
+});
+test('permanent gifts, event rewards and legacy purchases count without receipts', () => {
+    const state = fixture(6);
+    state.student_inventory.alice.item0 = {id:'item0', source:'teacher_gift'};
+    state.student_inventory.alice.item1 = {id:'item1', source:'event_reward', isTrial:false};
+    state.student_inventory.alice.item2 = {id:'item2', source:'lucky_wheel'};
+    state.student_inventory.alice.item3 = {id:'item3', purchaseTime:1234};
+    state.student_inventory.alice.item4 = {id:'item4', source:'store_purchase'};
+    state.student_inventory.alice.item5 = {id:'item5', source:'legacy_purchase'};
+    delete state.store_charge_receipts;
+    assert.equal(accepted(state, unlock()), true);
+    assert.equal(accepted(state, unlock('winter','reward_bg_b')), true);
+});
+test('inserting a missing requirement together with a claim cannot fake existing ownership', () => {
+    const state = fixture(); delete state.student_inventory.alice.item0;
+    assert.equal(accepted(state, {...unlock(), 'student_inventory/alice/item0': {id:'item0',source:'teacher_gift'}}), false);
 });
 test('claims are immutable: duplicate, alternate, deletion, subfield rewrite', () => {
     const state = fixture(); for (const [path, value] of Object.entries(unlock())) put(state, path, value);
@@ -130,7 +146,7 @@ test('reused rewards do not overwrite existing equipped inventory', () => {
     assert.equal(accepted(state, unlock('second')), false);
 });
 test('only teachers publish bounded, contiguous, distinct requirement lists', () => {
-    const state = fixture(), set = state.collection_reward_sets.winter;
+    const state = fixture(), set = {...state.collection_reward_sets.winter, revision:1, updatedAt:now, mutationId:'test-operation'};
     const create = value => ({'collection_reward_sets/new': value});
     assert.equal(accepted(state, create(set), 't1'), true);
     assert.equal(accepted(state, create(set)), false);
@@ -144,3 +160,84 @@ test('reward IDs cannot enter purchase or trial operations even for teachers', (
         assert.equal(accepted(fixture(), {[path]: {id: 'reward_bg_a'}}, 't1'), false);
 });
 module.exports = {accepted, fixture, unlock};
+
+function purchaseFixture() {
+    const state=fixture();
+    for(const [path,value] of Object.entries(unlock())) put(state,path,value);
+    state.student_coins={alice:10000};
+    return state;
+}
+function purchase(itemId='reward_bg_b',revision=1) {
+    return {
+        ['collection_reward_purchases/alice/'+itemId]:{itemId,setId:'winter',setRevision:0,studentUid:'s1',amount:5000,createdAt:now,paymentRevision:revision},
+        'collection_reward_payments/alice':{itemId,revision},
+        'student_coins/alice':5000,
+        ['student_inventory/alice/'+itemId]:{id:itemId,type:'background',source:'collection_reward',rewardPurchase:true,collectionSetId:'winter',purchaseTime:now,isEquipped:false}
+    };
+}
+test('buy remaining choice atomically for exactly 5000; receipt immutable; equipment survives set deletion',()=>{
+    const state=purchaseFixture(),updates=purchase();
+    assert.equal(accepted(state,updates),true);
+    for(const [path,value] of Object.entries(updates)) put(state,path,value);
+    assert.equal(accepted(state,purchase()),false);
+    assert.equal(accepted(state,{'collection_reward_purchases/alice/reward_bg_b':null}),false);
+    state.collection_reward_sets.winter.deleted=true;
+    assert.equal(accepted(state,{'student_inventory/alice/reward_bg_b/isEquipped':true}),true);
+});
+test('purchase requires free choice already received, correct user, available choice and current version',()=>{
+    for(const change of [s=>delete s.collection_unlocks.alice.winter,
+        s=>s.collection_reward_sets.winter.deleted=true,
+        s=>s.collection_reward_sets.winter.revision=1,
+        s=>s.collection_reward_sets.winter.choices=['reward_bg_a'],
+        s=>s.users.s1.isLocked=true,
+        s=>s.student_coins.alice=4999]) {
+        const state=purchaseFixture();change(state);assert.equal(accepted(state,purchase()),false);
+    }
+    assert.equal(accepted(purchaseFixture(),purchase(),'s2'),false);
+    assert.equal(accepted(purchaseFixture(),purchase(),null),false);
+    assert.equal(accepted(purchaseFixture(),purchase('reward_bg_a')),false);
+});
+test('reject missing debit/receipt/inventory/payment, wrong price, forged ownership and multi-item single debit',()=>{
+    for(const path of Object.keys(purchase())) {
+        const updates=purchase();delete updates[path];assert.equal(accepted(purchaseFixture(),updates),false);
+    }
+    for(const coins of [10000,9999,0]) assert.equal(accepted(purchaseFixture(),{...purchase(),'student_coins/alice':coins}),false);
+    const forged=purchase();forged['collection_reward_purchases/alice/reward_bg_b'].amount=1;
+    assert.equal(accepted(purchaseFixture(),forged),false);
+    const state=purchaseFixture();state.collection_reward_sets.winter.choices.push('reward_bg_c');state.collection_reward_catalog.reward_bg_c={type:'background'};
+    assert.equal(accepted(state,{...purchase(),...purchase('reward_bg_c')}),false);
+    const newFree=fixture();newFree.student_coins={alice:10000};
+    assert.equal(accepted(newFree,{...unlock(),...purchase()}),false);
+});
+
+test('teacher edits and soft deletes use revisions; students and stale writes cannot change sets', () => {
+    const state = fixture();
+    const edited = {...state.collection_reward_sets.winter, tag:'Spring', revision:1, updatedAt:now, mutationId:'test-edit'};
+    const update = {'collection_reward_sets/winter':edited};
+    assert.equal(accepted(state, update, 't1'), true);
+    assert.equal(accepted(state, update), false);
+    state.collection_reward_sets.winter = edited;
+    assert.equal(accepted(state, update, 't1'), false);
+    assert.equal(accepted(state, {'collection_reward_sets/winter':null}, 't1'), false);
+    const deleted = {...edited, revision:2, deleted:true, mutationId:'test-delete'};
+    assert.equal(accepted(state, {'collection_reward_sets/winter':deleted}, 't1'), true);
+    state.collection_reward_sets.winter = deleted;
+    const receive = unlock(); receive['collection_unlocks/alice/winter'].setRevision = 2;
+    assert.equal(accepted(state, receive), false);
+    assert.equal(accepted(state, {'collection_reward_sets/winter':{...edited, revision:3}}, 't1'), false);
+});
+
+test('claims reject outdated configuration and remain immutable after edits/deletion', () => {
+    const state = fixture(); state.collection_reward_sets.winter.revision = 1;
+    const receive = unlock();
+    assert.equal(accepted(state, receive), false);
+    receive['collection_unlocks/alice/winter'].setRevision = 1;
+    assert.equal(accepted(state, receive), true);
+    for (const [path,value] of Object.entries(receive)) put(state,path,value);
+    state.collection_reward_sets.winter.choices = ['reward_bg_b'];
+    state.collection_reward_sets.winter.revision = 2;
+    const again = unlock('winter','reward_bg_b'); again['collection_unlocks/alice/winter'].setRevision = 2;
+    assert.equal(accepted(state, again), false);
+    state.collection_reward_sets.winter.deleted = true;
+    assert.equal(accepted(state, {'student_inventory/alice/reward_bg_a/isEquipped':true}), true);
+});
