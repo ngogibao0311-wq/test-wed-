@@ -3748,100 +3748,7 @@ async function deleteStudentSubmissionStorageFiles(
 }
 
 // ======================================================
-// CÀI ĐẶT RIÊNG: ẨN / HIỆN THANH SỐ DƯ COIN
-// Chỉ thay đổi giao diện, không sửa dữ liệu Coin.
-// ======================================================
 
-function getCoinWidgetVisibilityStorageKey() {
-    const username = String(
-        currentUser?.username || 'guest'
-    ).trim();
-
-    return `student_coin_widget_visible:${username}`;
-}
-
-function getSavedCoinWidgetVisibility() {
-    return true;
-}
-
-window.applyCoinBalanceWidgetVisibility = function (
-    isVisible,
-    shouldPersist = true
-) {
-    const visible = isVisible !== false;
-
-    const coinWidget = document.getElementById('coinWidget');
-
-    const toggle = document.getElementById(
-        'toggleCoinBalanceWidget'
-    );
-
-    if (coinWidget) {
-        /*
-         * Chỉ ẩn giao diện.
-         * Phần tử vẫn tồn tại nên listener Firebase và
-         * quá trình cập nhật số Coin không bị ảnh hưởng.
-         */
-        coinWidget.style.visibility = visible
-            ? 'visible'
-            : 'hidden';
-
-        coinWidget.style.opacity = visible ? '1' : '0';
-
-        coinWidget.style.pointerEvents = visible
-            ? 'auto'
-            : 'none';
-
-        coinWidget.setAttribute(
-            'aria-hidden',
-            String(!visible)
-        );
-    }
-
-    if (toggle && toggle.checked !== visible) {
-        toggle.checked = visible;
-    }
-
-    if (shouldPersist) {
-        localStorage.setItem(
-            getCoinWidgetVisibilityStorageKey(),
-            String(visible)
-        );
-    }
-};
-
-window.toggleCoinBalanceWidget = function (isVisible) {
-    window.applyCoinBalanceWidgetVisibility(
-        Boolean(isVisible),
-        true
-    );
-
-    if (typeof window.showToast === 'function') {
-        window.showToast(
-            isVisible
-                ? 'Đã hiện thanh số dư Coin.'
-                : 'Đã ẩn thanh số dư Coin.',
-            'success'
-        );
-    }
-};
-
-function initializeCoinBalanceWidgetSetting() {
-    window.applyCoinBalanceWidgetVisibility(
-        getSavedCoinWidgetVisibility(),
-        false
-    );
-}
-
-if (document.readyState === 'loading') {
-    document.addEventListener(
-        'DOMContentLoaded',
-        initializeCoinBalanceWidgetSetting,
-        { once: true }
-    );
-} else {
-    initializeCoinBalanceWidgetSetting();
-}
 
 // ======================================================
 // CÀI ĐẶT RIÊNG: BẬT / TẮT LỚP KÍNH MỜ NỘI DUNG
@@ -4085,10 +3992,7 @@ function hasStudentCurrentViolation(submission) {
     );
 }
 
-function hasStudentAnyViolation(submission) {
-    return hasStudentCurrentViolation(submission) ||
-        hasStudentHistoricalViolation(submission);
-}
+
 
 
 // ======================================================
@@ -4587,12 +4491,12 @@ function isDiscountEligibleForStoreItem(
         return false;
     }
 
-    // Thẻ giáo viên: món dưới 700 Coin.
+    // Thẻ giáo viên: món dưới 750 Coin.
     if (
         isTeacherGiftDiscount &&
         (
             !Number.isFinite(itemPrice) ||
-            itemPrice >= 700
+            itemPrice >= 750
         )
     ) {
         return false;
@@ -16373,10 +16277,9 @@ window.renderBuyTicketButton = async function () {
 
     let remainingBuys = 5 - purchaseData.count;
 
-    // Tăng margin-bottom từ 15px lên 30px để tạo khoảng cách thoáng hơn với vòng quay
     const activeStyle = `
         background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); 
-        color: white; 
+        color: #422d16; 
         border: none; 
         padding: 10px 25px; 
         border-radius: 25px; 
@@ -16385,7 +16288,7 @@ window.renderBuyTicketButton = async function () {
         box-shadow: 0 4px 15px rgba(246, 211, 101, 0.3); 
         font-size: 0.9em; 
         transition: transform 0.2s, box-shadow 0.2s;
-        margin-bottom: 30px; 
+        margin-bottom: 10px; 
         display: inline-block;
     `;
 
@@ -16396,7 +16299,7 @@ window.renderBuyTicketButton = async function () {
         padding: 10px 25px; 
         border-radius: 25px; 
         font-size: 0.9em; 
-        margin-bottom: 30px;
+        margin-bottom: 10px;
         cursor: not-allowed;
         display: inline-block;
     `;
@@ -19215,7 +19118,7 @@ window.openPaymentModal = function (item, basePrice, currentCoins, discounts, is
 
         const sourceInfo =
             discountSource === 'teacher_gift'
-                ? ' | GV tặng: chỉ món 1–699 Coin'
+                ? ' | GV tặng: chỉ món 1–749 Coin'
                 : discountSource === 'daily_login'
                     ? ' | Đăng nhập 7 ngày: tối đa 500 Coin'
                     : (
@@ -19302,6 +19205,11 @@ window.openPaymentModal = function (item, basePrice, currentCoins, discounts, is
 };
 
 // HÀM TÍNH TOÁN LẠI GIÁ TIỀN KHI CHỌN MÃ GIẢM GIÁ KHÁC NHAU
+// Dùng chung cho hiển thị và thanh toán: làm tròn xuống số Coin phải trả.
+function calculateStoreCheckoutPrice(basePrice, percent) {
+    return Math.max(0, Math.floor(Number(basePrice) * (1 - Number(percent) / 100)));
+}
+
 window.updateCheckoutPrice = function (basePrice) {
     const select = document.getElementById('checkoutDiscount');
     const warningText = document.getElementById('checkoutDiscountWarning');
@@ -19312,7 +19220,7 @@ window.updateCheckoutPrice = function (basePrice) {
         const isEligible = option.getAttribute('data-eligible') === 'true'; // Đọc cờ
 
         if (isEligible) {
-            percent = parseInt(option.getAttribute('data-percent')) || 0;
+            percent = Number(option.getAttribute('data-percent')) || 0;
             warningText.style.display = 'none'; // Đủ điều kiện -> Ẩn cảnh báo
         } else {
             percent = 0; // Không đủ điều kiện -> Ép mức giảm về 0%
@@ -19322,8 +19230,8 @@ window.updateCheckoutPrice = function (basePrice) {
         warningText.style.display = 'none'; // Ẩn cảnh báo nếu chọn "Không dùng mã"
     }
 
-    const discountAmount = Math.floor(basePrice * (percent / 100));
-    const finalPrice = Math.max(0, basePrice - discountAmount);
+    const finalPrice = calculateStoreCheckoutPrice(basePrice, percent);
+    const discountAmount = basePrice - finalPrice;
 
     document.getElementById('checkoutDiscountAmount').innerText = `- ${discountAmount} 🪙`;
     document.getElementById('checkoutFinalPrice').innerText = finalPrice + ' 🪙';
@@ -19614,17 +19522,7 @@ window.processPayment = async function (
 
         }
 
-        finalPrice =
-            Math.max(
-                0,
-                Math.floor(
-                    basePrice *
-                    (
-                        1 -
-                        percent / 100
-                    )
-                )
-            );
+        finalPrice = calculateStoreCheckoutPrice(basePrice, percent);
 
         if (finalPrice > 0) {
             gradeRewardClaimExposure =
@@ -22527,8 +22425,8 @@ window.renderStudentInbox = function () {
                                 font-weight: normal;
                             ">
                                 ⚠️ Chỉ dùng cho vật phẩm giá từ
-                                1 đến 699 Coin; không dùng cho món
-                                từ 700 Coin trở lên.
+                                1 đến 749 Coin; không dùng cho món
+                                từ 750 Coin trở lên.
                             </span>
                         `
                         : messageDiscountSource === 'daily_login'
@@ -24763,6 +24661,19 @@ window.getLiveStudentExamSubmission =
     };
 
 
+// Keep the exact record subscribed until the transaction finishes. A one-shot
+// read can release its cache before a subsequent transaction's first callback.
+async function transactStudentExamRecord(ref, update, onComplete, applyLocally = false) {
+    const keepRecord = () => {};
+    ref.on('value', keepRecord, () => {});
+    try {
+        await ref.once('value');
+        return await ref.transaction(update, onComplete, applyLocally);
+    } finally {
+        ref.off('value', keepRecord);
+    }
+}
+
 window.examRecoveryManager = {
     syncTimers: {},
     heartbeatTimers: {},
@@ -24813,10 +24724,9 @@ window.examRecoveryManager = {
                 this.globalLockPath()
             );
 
-        await ref.once('value');
 
         const tx =
-            await ref.transaction(
+            await transactStudentExamRecord(ref,
                 current => {
                     const existing =
                         current &&
@@ -24909,11 +24819,9 @@ window.examRecoveryManager = {
                 this.globalLockPath()
             );
 
-        // Prime Firebase's local cache; a first null is not an ownership conflict.
-        await ref.once('value');
 
         const tx =
-            await ref.transaction(
+            await transactStudentExamRecord(ref,
                 current => {
                     if (
                         !current ||
@@ -24971,7 +24879,7 @@ window.examRecoveryManager = {
             );
 
         const tx =
-            await ref.transaction(
+            await transactStudentExamRecord(ref,
                 current => {
                     if (!current) {
                         return;
@@ -25317,7 +25225,7 @@ window.examRecoveryManager = {
             );
 
         const tx =
-            await ref.transaction(
+            await transactStudentExamRecord(ref,
                 current => {
                     const existing =
                         current &&
@@ -25685,7 +25593,7 @@ window.examRecoveryManager = {
             db.ref(this.firebasePath(key));
 
         const tx =
-            await ref.transaction(
+            await transactStudentExamRecord(ref,
                 current => {
                     if (
                         !current ||
@@ -25856,12 +25764,9 @@ window.examRecoveryManager = {
         const ref =
             db.ref(this.firebasePath(key));
 
-        // Firebase may invoke a transaction with an uninitialized local null.
-        // Read first so missing cache is not mistaken for another tab's lock.
-        await ref.once('value');
 
         const tx =
-            await ref.transaction(
+            await transactStudentExamRecord(ref,
                 current => {
                     if (
                         !current ||
@@ -26008,11 +25913,9 @@ window.examRecoveryManager = {
         const ref =
             db.ref(this.firebasePath(key));
 
-        // Prime Firebase's local cache; a first null is not an ownership conflict.
-        await ref.once('value');
 
         const tx =
-            await ref.transaction(
+            await transactStudentExamRecord(ref,
                 current => {
                     if (
                         !current ||
@@ -26185,7 +26088,7 @@ window.examRecoveryManager = {
             db.ref(this.firebasePath(key));
 
         const tx =
-            await ref.transaction(
+            await transactStudentExamRecord(ref,
                 current => {
                     if (
                         !current ||
@@ -26300,7 +26203,7 @@ window.examRecoveryManager = {
                 db.ref(this.firebasePath(key));
 
             const tx =
-                await ref.transaction(
+                await transactStudentExamRecord(ref,
                     current => {
                         if (
                             !current ||
@@ -28965,7 +28868,7 @@ window.showSelectedDiscountInfo = function () {
 
     const conditionText =
         isTeacherGiftDiscount
-            ? 'Chỉ áp dụng cho vật phẩm mua bằng Coin có giá từ 1 đến 699 Coin. Không áp dụng cho vật phẩm có giá từ 700 Coin trở lên.'
+            ? 'Chỉ áp dụng cho vật phẩm mua bằng Coin có giá từ 1 đến 749 Coin. Không áp dụng cho vật phẩm có giá từ 750 Coin trở lên.'
             : isDailyLoginDiscount
                 ? 'Chỉ áp dụng cho vật phẩm thông thường có giá từ 1 đến 500 Coin; không áp dụng cho vật phẩm sự kiện, tag Doraemon và tag Truyền thuyết,...'
                 : isHoiHoaRunnerUpDiscount
@@ -31090,7 +30993,7 @@ window.renderStudentBag = async function () {
 
                 const conditionText =
                     isTeacherGiftDiscount
-                        ? 'Chỉ dùng cho vật phẩm mua bằng Coin có giá từ 1 đến 699 Coin. Không dùng cho món từ 700 Coin trở lên.'
+                        ? 'Chỉ dùng cho vật phẩm mua bằng Coin có giá từ 1 đến 749 Coin. Không dùng cho món từ 750 Coin trở lên.'
                         : isDailyLoginDiscount
                             ? 'Chỉ dùng cho vật phẩm thông thường có giá tối đa 500 Coin; không dùng cho vật phẩm sự kiện, Doraemon và Truyền thuyết,...'
                             : isHoiHoaRunnerUpDiscount

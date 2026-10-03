@@ -3808,22 +3808,8 @@ window.updateExamFields = function () {
 };
 
 window.updateEditExamFields = function () {
-    const mcWeight = parseFloat(document.getElementById('editMcWeight').value) || 0;
-    const essayWeight = parseFloat(document.getElementById('editEssayWeight').value) || 0;
-
-    const tuLuan = document.getElementById('editTuLuanSection');
-    const tracNghiem = document.getElementById('editTracNghiemSection');
-
-    if (mcWeight > 0 && essayWeight === 0) {
-        if (tracNghiem) tracNghiem.style.display = 'block';
-        if (tuLuan) tuLuan.style.display = 'none';
-    } else if (essayWeight > 0 && mcWeight === 0) {
-        if (tracNghiem) tracNghiem.style.display = 'none';
-        if (tuLuan) tuLuan.style.display = 'block';
-    } else {
-        if (tracNghiem) tracNghiem.style.display = 'block';
-        if (tuLuan) tuLuan.style.display = 'block';
-    }
+    const section = document.getElementById('editTuLuanSection');
+    if (section) section.style.display = Number(document.getElementById('editEssayWeight').value) > 0 ? 'block' : 'none';
 };
 
 window.toggleExamTimeLimitInput = function () {
@@ -7648,16 +7634,7 @@ function getTeacherGradeRewardV2Outcome(rawGrade, submission) {
     };
 }
 
-function isTeacherGradeRewardOutcomeSame(eventData, outcome) {
-    if (!eventData || !outcome) return false;
 
-    return (
-        Number(eventData.score) === Number(outcome.score) &&
-        Number(eventData.ticketDelta || 0) === Number(outcome.ticketDelta || 0) &&
-        Number(eventData.coinReward || 0) === Number(outcome.coinReward || 0) &&
-        Boolean(eventData.specialPenalty) === Boolean(outcome.specialPenalty)
-    );
-}
 
 function getTeacherGradeRewardSubmissionKey(submission) {
     return String(
@@ -13768,7 +13745,7 @@ window.pardonRoadmap = async function (subKey, mode) {
 
 // Biến toàn cục lưu trữ key của bài tập và số thứ tự câu hỏi khi sửa
 let currentEditingAssignmentKey = null;
-let editQuestionCount = 0;
+
 
 // MỞ POPUP SỬA BÀI
 window.openEditAssignmentModal = async function (fbKey) {
@@ -13835,7 +13812,6 @@ window.openEditAssignmentModal = async function (fbKey) {
 
         // Lấy các Section
         const tuLuanSec = document.getElementById('editTuLuanSection');
-        const tracNghiemSec = document.getElementById('editTracNghiemSection');
         const weightSec = document.getElementById('editScoreWeightFields');
         const editVideoGroup =
             document.getElementById('editVideoLinkGroup');
@@ -13845,7 +13821,6 @@ window.openEditAssignmentModal = async function (fbKey) {
 
         // Reset ẩn đi trước
         if (tuLuanSec) tuLuanSec.style.display = 'none';
-        if (tracNghiemSec) tracNghiemSec.style.display = 'none';
         if (weightSec) weightSec.style.display = 'none';
         // Tất cả loại hình đều được phép đính kèm video
         if (editVideoGroup) {
@@ -13895,24 +13870,6 @@ window.openEditAssignmentModal = async function (fbKey) {
             if (weightSec) weightSec.style.display = 'block';
             if (document.getElementById('editMcWeight')) document.getElementById('editMcWeight').value = assign.mcWeight || '';
             if (document.getElementById('editEssayWeight')) document.getElementById('editEssayWeight').value = assign.essayWeight || '';
-        }
-
-        // 4. Xử lý phần Trắc Nghiệm
-        const hasMC = assign.assessmentType === 'trac_nghiem' || assign.assessmentType === 'ket_hop' || (assign.assessmentType === 'thi' && assign.mcWeight > 0);
-        if (hasMC) {
-            if (tracNghiemSec) tracNghiemSec.style.display = 'block';
-            const qContainer = document.getElementById('editQuestionsContainer');
-            if (qContainer) {
-                qContainer.innerHTML = ''; // Xóa trắng dữ liệu cũ
-                editQuestionCount = 0;
-
-                if (assign.questions && assign.questions.length > 0) {
-                    assign.questions.forEach(q => addEditQuestionBlock(q));
-                }
-                window.applyRandomExamConfigToEditForm(
-                    assign.randomExamConfig || {}
-                );
-            }
         }
 
         if (assign.assessmentType === 'thi') window.updateEditExamFields();
@@ -13987,7 +13944,6 @@ window.openEditAssignmentModal = async function (fbKey) {
         }
 
         assignmentVideoDuration.update('editCond', editVideoInput?.value || '', { preserve: true });
-        document.getElementById('editTracNghiemSection').hidden = true;
         document.getElementById('editAssignmentModal').classList.add('active');
     } catch (err) {
         console.log("Lỗi tải popup:", err);
@@ -13995,83 +13951,10 @@ window.openEditAssignmentModal = async function (fbKey) {
     }
 };
 
-window.addEditQuestionBlock = function (qData = null) {
-    editQuestionCount++;
-    const container = document.getElementById('editQuestionsContainer');
-    if (!container) return;
 
-    const div = document.createElement('div');
-    div.className = 'edit-question-block';
-    div.style.cssText = 'background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid rgba(0,0,0,0.1); box-shadow: 0 4px 6px rgba(0,0,0,0.02);';
-
-    let qText = qData ? qData.qText.replace(/"/g, '&quot;') : '';
-    let optA = qData ? qData.A.replace(/"/g, '&quot;') : '';
-    let optB = qData ? qData.B.replace(/"/g, '&quot;') : '';
-    let optC = qData ? qData.C.replace(/"/g, '&quot;') : '';
-    let optD = qData ? qData.D.replace(/"/g, '&quot;') : '';
-    let correct = qData ? qData.correct : '';
-    let qId = Date.now() + Math.random();
-
-    div.dataset.questionId =
-        qData?.questionId ||
-        `q_${Date.now()}_${editQuestionCount}`;
-
-    div.dataset.bankQuestionId =
-        qData?.bankQuestionId || '';
-
-    div.dataset.subject =
-        qData?.subject || '';
-
-    div.dataset.grade =
-        qData?.grade || '';
-
-    div.dataset.lesson =
-        qData?.lesson || '';
-
-    div.dataset.difficulty =
-        qData?.difficulty || 'Nhận biết';
-
-    div.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
-            <strong style="color: #e11d48;">Câu ${editQuestionCount}:</strong>
-            <button type="button" style="background: rgba(225, 29, 72, 0.1); color: #e11d48; border: none; padding: 5px 10px; border-radius: 6px; font-weight: bold; width: auto; box-shadow: none; font-size: 0.85em;" onclick="removeEditQuestion(this)">🗑️ Xóa</button>
-        </div>
-        <input type="text" class="eq-text" value="${qText}" placeholder="Nhập nội dung câu hỏi..." style="margin-bottom: 10px; background: rgba(0,0,0,0.02);">
-        <p style="font-size: 0.85em; color: #d35400; margin-bottom: 8px; font-weight: bold;">(Tích chọn nút tròn bên cạnh để đánh dấu đáp án ĐÚNG)</p>
-        <div style="display:flex; gap:10px; margin-bottom: 10px;">
-            <div style="flex:1; display:flex; align-items:center; gap:8px; background:rgba(0,0,0,0.02); padding-left:12px; border-radius:12px; border:1px solid rgba(0,0,0,0.1);">
-                <input type="radio" name="eq_correct_${qId}" value="A" class="eq-correct-radio" style="width:18px; height:18px; margin:0; cursor:pointer;" ${correct === 'A' ? 'checked' : ''}>
-                <input type="text" class="eq-optA" value="${optA}" placeholder="A. Đáp án A" style="margin:0; border:none; box-shadow:none; background:transparent; width:100%; padding-left:5px; outline:none;">
-            </div>
-            <div style="flex:1; display:flex; align-items:center; gap:8px; background:rgba(0,0,0,0.02); padding-left:12px; border-radius:12px; border:1px solid rgba(0,0,0,0.1);">
-                <input type="radio" name="eq_correct_${qId}" value="B" class="eq-correct-radio" style="width:18px; height:18px; margin:0; cursor:pointer;" ${correct === 'B' ? 'checked' : ''}>
-                <input type="text" class="eq-optB" value="${optB}" placeholder="B. Đáp án B" style="margin:0; border:none; box-shadow:none; background:transparent; width:100%; padding-left:5px; outline:none;">
-            </div>
-        </div>
-        <div style="display:flex; gap:10px; margin-bottom: 10px;">
-            <div style="flex:1; display:flex; align-items:center; gap:8px; background:rgba(0,0,0,0.02); padding-left:12px; border-radius:12px; border:1px solid rgba(0,0,0,0.1);">
-                <input type="radio" name="eq_correct_${qId}" value="C" class="eq-correct-radio" style="width:18px; height:18px; margin:0; cursor:pointer;" ${correct === 'C' ? 'checked' : ''}>
-                <input type="text" class="eq-optC" value="${optC}" placeholder="C. Đáp án C" style="margin:0; border:none; box-shadow:none; background:transparent; width:100%; padding-left:5px; outline:none;">
-            </div>
-            <div style="flex:1; display:flex; align-items:center; gap:8px; background:rgba(0,0,0,0.02); padding-left:12px; border-radius:12px; border:1px solid rgba(0,0,0,0.1);">
-                <input type="radio" name="eq_correct_${qId}" value="D" class="eq-correct-radio" style="width:18px; height:18px; margin:0; cursor:pointer;" ${correct === 'D' ? 'checked' : ''}>
-                <input type="text" class="eq-optD" value="${optD}" placeholder="D. Đáp án D" style="margin:0; border:none; box-shadow:none; background:transparent; width:100%; padding-left:5px; outline:none;">
-            </div>
-        </div>
-    `;
-    container.appendChild(div);
-};
 
 // XÓA CÂU HỎI KHI SỬA
-window.removeEditQuestion = function (btnElement) {
-    btnElement.closest('.edit-question-block').remove();
-    const remaining = document.querySelectorAll('.edit-question-block');
-    editQuestionCount = remaining.length;
-    remaining.forEach((block, index) => {
-        const label = block.querySelector('strong');
-        if (label) label.innerText = `Câu ${index + 1}:`;
-    });
-};
+
 
 // ĐÓNG POPUP SỬA
 window.closeEditAssignmentModal = function () {
@@ -16812,11 +16695,11 @@ window.isGiftDiscountCoinItem = function (item) {
 
     const price = Number(item.price);
 
-    // Thẻ giáo viên chỉ áp dụng cho vật phẩm từ 1 đến 699 Coin
+    // Thẻ giáo viên chỉ áp dụng cho vật phẩm từ 1 đến 749 Coin
     return (
         Number.isFinite(price) &&
         price > 0 &&
-        price < 700
+        price < 750
     );
 };
 
@@ -17294,7 +17177,7 @@ window.updateGiftItemDropdown = async function () {
 
         allOption.value = 'all';
         allOption.textContent =
-            '✅ Tất cả vật phẩm đủ điều kiện (giá từ 1 đến 699 Coin)';
+            '✅ Tất cả vật phẩm đủ điều kiện (giá từ 1 đến 749 Coin)';
 
         allOption.selected =
             oldDiscountTargets.size === 0 ||
@@ -17328,8 +17211,8 @@ window.updateGiftItemDropdown = async function () {
                 option.disabled = true;
 
                 const disabledReason =
-                    Number.isFinite(price) && price >= 700
-                        ? 'KHÔNG ÁP DỤNG THẺ: GIÁ TỪ 700 COIN'
+                    Number.isFinite(price) && price >= 750
+                        ? 'KHÔNG ÁP DỤNG THẺ: GIÁ TỪ 750 COIN'
                         : 'KHÔNG BÁN BẰNG COIN';
 
                 option.textContent =
@@ -17461,7 +17344,7 @@ window.toggleGiftInput = function () {
 
         if (type === 'discount') {
             numInput.placeholder =
-                'Nhập % giảm giá (10 - 100)...';
+                'Nhập % giảm giá (1 - 100)...';
 
             if (expiryArea) {
                 expiryArea.style.display =
@@ -17583,9 +17466,9 @@ window.sendGiftMessage = async function () {
             }
 
             if (type === 'discount') {
-                if (value < 10 || value > 100) {
+                if (value < 1 || value > 100) {
                     (await AppDialog.alert(
-                        'Phần trăm giảm giá phải từ 10 đến 100!'
+                        'Phần trăm giảm giá phải từ 1 đến 100!'
                     ));
                     return;
                 }
@@ -22094,25 +21977,7 @@ window.changeTeacherPassword = async function () {
             }
         };
 
-    window.toggleEditRandomExamConfig =
-        function () {
-            const enabled =
-                document.getElementById(
-                    'editEnableRandomExam'
-                )?.checked === true;
-
-            const fields =
-                document.getElementById(
-                    'editRandomExamConfigFields'
-                );
-
-            if (fields) {
-                fields.style.display =
-                    enabled
-                        ? 'block'
-                        : 'none';
-            }
-        };
+    
 
     window.resetRandomExamConfigForm =
         function (isEdit = false) {
@@ -22171,61 +22036,13 @@ window.changeTeacherPassword = async function () {
             }
 
             if (isEdit) {
-                window.toggleEditRandomExamConfig();
+    
             } else {
                 window.toggleRandomExamConfig();
             }
         };
 
-    window.applyRandomExamConfigToEditForm =
-        function (config) {
-            const c = config || {};
-            const enabled =
-                c.enabled === true;
-
-            const map = {
-                editEnableRandomExam:
-                    enabled,
-
-                editRandomQuestionCount:
-                    enabled && c.questionCount
-                        ? c.questionCount
-                        : '',
-
-                editExamVersionCount:
-                    enabled && c.versionCount
-                        ? c.versionCount
-                        : 4,
-
-                editShuffleQuestionOrder:
-                    c.shuffleQuestions !== false,
-
-                editShuffleAnswerOrder:
-                    c.shuffleAnswers !== false
-            };
-
-            Object.entries(map)
-                .forEach(([id, value]) => {
-                    const element =
-                        document.getElementById(id);
-
-                    if (!element) {
-                        return;
-                    }
-
-                    if (
-                        element.type ===
-                        'checkbox'
-                    ) {
-                        element.checked =
-                            Boolean(value);
-                    } else {
-                        element.value = value;
-                    }
-                });
-
-            window.toggleEditRandomExamConfig();
-        };
+    
 
     function hashSeed(value) {
         let hash = 2166136261;
@@ -22276,37 +22093,7 @@ window.changeTeacherPassword = async function () {
         };
     }
 
-    function shuffle(items, seed) {
-        const result = items.slice();
-
-        const random =
-            randomFromSeed(
-                hashSeed(seed)
-            );
-
-        for (
-            let index =
-                result.length - 1;
-            index > 0;
-            index--
-        ) {
-            const randomIndex =
-                Math.floor(
-                    random() *
-                    (index + 1)
-                );
-
-            [
-                result[index],
-                result[randomIndex]
-            ] = [
-                    result[randomIndex],
-                    result[index]
-                ];
-        }
-
-        return result;
-    }
+    
 
     function versionLabel(index) {
         return index < 26

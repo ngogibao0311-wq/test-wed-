@@ -132,6 +132,10 @@ class EffectManager {
     }
 
     static clearEffects(removeSavedEffect = false) {
+        this.mienVuObserver?.disconnect();
+        this.mienVuObserver = null;
+        document.getElementById('tdtfx-mien-vu')?.remove();
+        document.documentElement.dataset.itemEffect = "false";
         this.stopIntervals();
 
         /*
@@ -308,11 +312,49 @@ class EffectManager {
         }
     }
 
+    // Hiệu ứng thường độc lập; CSS trong Shadow DOM không nhận skin giao diện.
+    static createMienVuEffect() {
+        document.getElementById('tdtfx-mien-vu')?.remove();
+        this.mienVuObserver?.disconnect();
+        const host = document.createElement('div');
+        host.id = 'tdtfx-mien-vu';
+        host.className = 'ui-theme-immune';
+        host.setAttribute('data-theme-immune', 'true');
+        host.setAttribute('aria-hidden', 'true');
+        host.style.cssText = 'all:initial!important;position:fixed!important;inset:0!important;z-index:900!important;pointer-events:none!important;overflow:hidden!important;contain:strict!important;';
+        const shadow = host.attachShadow({mode: 'open'});
+        const style = document.createElement('link');
+        style.rel = 'stylesheet';
+        style.href = new URL('css/that-dai-toi.css?v=20261003.mienvu2', document.baseURI).href;
+        shadow.appendChild(style);
+        const stage = document.createElement('div');
+        stage.className = 'tdtfx-mien-vu-stage';
+        stage.innerHTML = `
+            <div class="tdtfx-fold tdtfx-fold-left"></div>
+            <div class="tdtfx-fold tdtfx-fold-right"></div>
+            <div class="tdtfx-seal"><span>Ⅶ</span><small>MIÊN KHẾ</small></div>
+            <svg class="tdtfx-wave" viewBox="0 0 1200 240" preserveAspectRatio="none">
+                <path d="M-100 120 Q150 -30 400 120 T900 120 T1400 120"/>
+                <path d="M-100 145 Q150 0 400 145 T900 145 T1400 145"/>
+                <path d="M-100 170 Q150 30 400 170 T900 170 T1400 170"/>
+            </svg>
+            <div class="tdtfx-margin"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>`;
+        shadow.appendChild(stage);
+        const syncQuality = () => host.toggleAttribute('data-still', document.body.classList.contains('wfx-low-power') || document.body.classList.contains('wfx-paused'));
+        this.mienVuObserver = new MutationObserver(syncQuality);
+        this.mienVuObserver.observe(document.body, {attributes: true, attributeFilter: ['class']});
+        syncQuality();
+        document.body.appendChild(host);
+    }
+
     static applyEffect(effectId) {
         this.clearEffects();
         if (!this.container) return;
 
         switch (effectId) {
+            case 'effect_thatdaitoi_mien_vu_tinh_da':
+                this.createMienVuEffect();
+                break;
             case 'effect_snow':
                 this.createSnowEffect();
                 break;
@@ -435,6 +477,7 @@ class EffectManager {
                 this.createLinkClickEchoCorridorEffect();
                 break;
         }
+        document.documentElement.dataset.itemEffect = String(Boolean(effectId && effectId !== 'none'));
         localStorage.setItem('active_effect', effectId);
     }
 
@@ -6072,7 +6115,7 @@ class EffectManager {
         const link = document.createElement('link');
         link.id = 'autfx9-autumn-runtime-style';
         link.rel = 'stylesheet';
-        link.href = 'css/premium-mua-thu.css?v=20260927.autumn-four-effects-restored-v1';
+        link.href = 'css/premium-mua-thu.css?v=20261003.cleanup1';
         link.dataset.autfx9 = 'maple-luminous-tide';
 
         link.addEventListener('error', () => {

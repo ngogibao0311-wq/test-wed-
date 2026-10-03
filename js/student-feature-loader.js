@@ -58,13 +58,13 @@
     let storeCardCssPinned = false;
 
     const CSS = Object.freeze({
-        storeBase: 'css/store-items.css?v=20260917.frame-runtime-barrier-v1',
+        storeBase: 'css/store-items.css?v=20261003.fonts1',
         effectsBase: 'css/effects-pets.css?v=20260917.frame-runtime-barrier-v1',
 
         royalBall: 'css/royal-ball.css?v=3.8',
         dailyLogin: 'css/daily-login.css?v=3.8',
         leaderboard: 'css/leaderboard.css?v=20260905.redo-scope-v1',
-        painting: 'css/painting.css?v=3.8',
+        painting: 'css/painting.css?v=20261001.ui8',
         history: 'css/lich-su-hao-hung.css?v=20260831.1',
         bellum: 'css/bellum-event.css?v=20260912.4',
         midAutumnFestival: 'css/mid-autumn-festival.css?v=20260914.4-balanced-games',
@@ -72,35 +72,35 @@
         collections: 'css/store-collections.css?v=20261001.scroll1',
         luxury: 'css/luxury-store.css?v=20260926.hacmong-v1',
         camMong: 'css/cam-co-cam-mong.css?v=20260927.realms10',
-        midAutumnMoon: 'css/trung-thu-nguyet-cung.css?v=20260927.realms10',
+        midAutumnMoon: 'css/trung-thu-nguyet-cung.css?v=20261003.aclp3',
 
         lotm: 'css/lord-of-mysteries.css?v=3.3',
         lotmKlein: 'css/lord-of-mysteries-klein.css?v=20260927.realms10',
         legendary: 'css/legendery.css?v=20260917.frame-runtime-barrier-v1',
-        doraemon: 'css/doraemon.css?v=3.8',
+        doraemon: 'css/doraemon.css?v=20261003.cleanup1',
         paintingItems: 'css/hoi-hoa.css?v=3.8',
-        sevenSins: 'css/that-dai-toi.css?v=3.8',
+        sevenSins: 'css/that-dai-toi.css?v=20261003.aclp4',
         birthday: 'css/pet-sinh-nhat.css?v=3.8',
         weather: 'css/thoi-tiet.css?v=3.8',
         hacmong: 'css/premium-hac-mong.css?v=20260927.realms10',
-        autumn: 'css/premium-mua-thu.css?v=20260927.realms10',
-        seasons: 'css/premium-mua-xuan.css?v=20260927.summer-national14',
-        nationalDay: 'css/quoc-khanh-pet.css?v=20260927.summer-national14',
+        autumn: 'css/premium-mua-thu.css?v=20261003.cleanup1',
+        seasons: 'css/premium-mua-xuan.css?v=20261003.aclp3',
+        nationalDay: 'css/quoc-khanh-pet.css?v=20261003.aclp3',
         nyx: 'css/nyx-than-thoai.css?v=20260927.realms10',
         aether: 'css/aether-than-thoai.css?v=20260927.realms10',
-        tamon: 'css/tamon-b-side.css?v=20260927.realms10',
-        linkClickCheng: 'css/link-click-cheng-xiaoshi.css?v=20260927.realms10'
+        tamon: 'css/tamon-b-side.css?v=20261003.aclp3',
+        linkClickCheng: 'css/link-click-cheng-xiaoshi.css?v=20261003.aclp3'
     });
 
     const SCRIPT = Object.freeze({
-        themeItems: 'js/theme-items.js?v=20261001.design2',
-        effectItems: 'js/effect-items.js?v=20260927.autumn-four-effects-restored-v1',
+        themeItems: 'js/theme-items.js?v=20261003.mienvu1',
+        effectItems: 'js/effect-items.js?v=20261003.mienvu2',
         petItems: 'js/pet-items.js?v=20260926.autumn-sale-tag-v3',
         petInteractions: 'js/pet-interactions.js?v=20261001.dialog1',
         musicManager: 'js/music-manager.js?v=20261001.dialog1',
-        storeManager: 'js/store-manager.js?v=20261001.dialog1',
+        storeManager: 'js/store-manager.js?v=20261003.mienvu1',
 
-        luxuryStore: 'js/luxury-store.js?v=20261001.dialog1',
+        luxuryStore: 'js/luxury-store.js?v=20261003.aclp4',
         collections: 'js/store-collections.js?v=20261001.scroll1',
 
         royalBall: 'js/royal-ball.js?v=20261001.dialog1',
@@ -111,7 +111,7 @@
         midAutumnFestival: 'js/mid-autumn-festival.js?v=20261001.dialog1',
 
         dailyLogin: 'js/daily-login.js?v=20261001.dialog1',
-        guide: 'js/huong-dan-nguoi-moi.js?v=20261001.dialog1'
+        guide: 'js/huong-dan-nguoi-moi.js?v=20261003.guide10'
     });
 
     /*

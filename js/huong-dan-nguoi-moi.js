@@ -40,8 +40,6 @@
         resizeTimer: null,
         transitionLocked: false,
         activeFeatureTour: null,
-        coinWidgetTemporarilyRevealed: false,
-        coinWidgetInitialStoredVisibility: null,
         mandatoryMode: false,
         mandatoryScope: 'full',
         mandatoryTourCompleted: false,
@@ -736,8 +734,45 @@
         }
         target.append(sample);box.append(target);document.body.append(box);
     }
+    async function prepareStudentActionGuide(kind, step) {
+        removeRecentGuideDemo();
+        const host = document.getElementById(kind === 'appeals-new' ? 'gradesList' : 'tab-store');
+        if (!host) return;
+        const box=document.createElement('section');box.id='nug-recent-demo';box.className='card ui-theme-immune';box.dataset.nugSimulation='true';
+        box.style.cssText='padding:20px;margin:16px 0;border:2px solid #8196e8;background:#fff;color:#22314d;border-radius:14px';
+        box.innerHTML='<strong>THỰC HÀNH MẪU · Không gửi dữ liệu thật</strong>';
+        const note=document.createElement('p');box.append(note);
+        const mark=node=>{box.querySelectorAll('[data-nug-recent-target]').forEach(e=>e.removeAttribute('data-nug-recent-target'));node.dataset.nugRecentTarget='true';};
+        const button=(label,fn)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.style.cssText='width:auto;padding:10px 16px;margin:8px 8px 8px 0;background:#5865d8;color:white;border:0;border-radius:8px';b.onclick=()=>fn(b);box.append(b);return b;};
+        if(kind==='appeals-new'){
+            note.textContent='Bài tập mẫu: Truyền nhiệt · Đã chấm: 0 điểm · Vi phạm nộp trễ';
+            const open=button('⚖ Kháng cáo',b=>{b.hidden=true;form.hidden=false;mark(reason);reason.focus();});
+            const form=document.createElement('div');form.hidden=step===0;
+            const reason=document.createElement('textarea');reason.placeholder='Nhập lý do kháng cáo (10–2000 ký tự)';reason.setAttribute('aria-label','Lý do kháng cáo mẫu');reason.maxLength=2000;reason.style.cssText='width:100%;min-height:90px;box-sizing:border-box';
+            if(step===2)reason.value='Em đã nộp trước hạn, xin giáo viên kiểm tra thời điểm nộp.';
+            const status=document.createElement('p');status.setAttribute('role','status');
+            const send=button('Gửi kháng cáo (mẫu)',b=>{if(reason.value.trim().length<10){status.textContent='Hãy nhập ít nhất 10 ký tự để nêu rõ lý do.';mark(reason);return;}status.textContent='Đã gửi → Chờ giáo viên tiếp nhận. Khi có quyết định, đọc kết quả trong Hộp thư.';b.disabled=true;reason.readOnly=true;mark(status);});
+            form.append(reason,send,status);box.append(form);if(step>0)open.hidden=true;mark(step===0?open:step===1?reason:send);
+        }else{
+            note.textContent='Bộ mẫu: Mùa Xuân · Đã sở hữu 2/3 vật phẩm vĩnh viễn';
+            const details=document.createElement('details');const summary=document.createElement('summary');summary.textContent='Xem vật phẩm cần thu thập';details.innerHTML='<ul><li>✓ Bút màu</li><li>✓ Khung tranh</li><li>○ Nền mùa xuân</li></ul>';details.prepend(summary);box.append(details);
+            const collect=button('Thu thập món còn thiếu (mẫu)',b=>{note.textContent='Đã sở hữu 3/3 vật phẩm. Chọn một nền rồi bấm Nhận.';details.querySelector('li:last-child').textContent='✓ Nền mùa xuân';b.disabled=true;select.disabled=false;claim.disabled=false;mark(select);});
+            const select=document.createElement('select');select.setAttribute('aria-label','Chọn nền thưởng mẫu');select.innerHTML='<option>Nền A</option><option>Nền B</option>';box.append(select);
+            const claim=button('Nhận phần thưởng (mẫu)',b=>{note.textContent='Đã nhận '+select.value+' miễn phí. Nền còn lại có thể mua với giá 5.000 Coin.';b.disabled=true;select.disabled=true;equip.hidden=false;mark(equip);});
+            const equip=button('Sử dụng nền (mẫu)',b=>{const worn=b.dataset.worn!=='true';b.dataset.worn=String(worn);b.textContent=worn?'Tháo nền (mẫu)':'Sử dụng nền (mẫu)';note.textContent=worn?'Đang dùng nền mẫu. Khi dùng thật, hãy tháo nền đặc biệt trước khi mặc nền thường hoặc vật phẩm sang trọng.':'Đã tháo nền mẫu.';});equip.hidden=step<2;
+            select.disabled=claim.disabled=step===0;details.open=step===0;if(step>0){collect.hidden=true;note.textContent='Đủ 3/3 vật phẩm vĩnh viễn · Chọn một nền miễn phí.';}if(step===2){claim.hidden=true;select.hidden=true;note.textContent='Đã nhận nền A. Thử bấm Sử dụng rồi Tháo nền.';}
+            mark(step===0?summary:step===1?select:equip);
+        }
+        host.prepend(box);box.scrollIntoView({block:'center',behavior:'instant'});await waitForLayout();
+    }
+    function studentActionSteps(feature){
+        const appeal=feature.id==='appeals-new';
+        const descriptions=appeal?['Mở bài vi phạm đã chấm trong Kết quả học tập. Bấm Kháng cáo trên bài mẫu ngay tại đây.','Nhập lý do ít nhất 10 ký tự. Nêu rõ vấn đề và bằng chứng để giáo viên kiểm tra.','Bấm Gửi kháng cáo. Trạng thái Đã gửi nghĩa là đang chờ xử lý; kết quả sẽ được gửi vào Hộp thư.']:['Mở Xem vật phẩm cần thu thập rồi thử thu thập món còn thiếu. Đồ dùng thử không được tính.','Chọn một nền rồi bấm Nhận phần thưởng. Chỉ được nhận một nền miễn phí trong bộ.','Bấm Sử dụng nền rồi Tháo nền. Các nút mẫu không thay đổi kho, Coin hoặc giao diện thật.'];
+        const entry={featureId:feature.id,tabId:feature.tabId,selector:'[data-nug-recent-target="true"]',title:feature.title+' · Mở chức năng',description:feature.access+' Bấm nút đang được chỉ để mở chức năng; bước tiếp theo có mẫu thực hành an toàn.',access:feature.access,before:async()=>{removeRecentGuideDemo();const node=document.querySelector(appeal?'#gradesList [data-appeal-key]':'#storeCollectionArrow');if(node){await revealHiddenAccordion(node);node.scrollIntoView({block:'center',behavior:'instant'});await waitForLayout();if(isElementVisible(node)){node.dataset.nugRecentTarget='true';return;}}await prepareStudentActionGuide(feature.id,0);},after:removeRecentGuideDemo};
+        return [entry,...descriptions.map((description,i)=>({featureId:feature.id,tabId:feature.tabId,selector:'[data-nug-recent-target="true"]',title:feature.title+' · Bước '+(i+1),description,access:feature.access+' Bài thực hành mẫu được xóa khi kết thúc hướng dẫn.',before:()=>prepareStudentActionGuide(feature.id,i),after:removeRecentGuideDemo}))];
+    }
     function recentFeatureSteps(role) {
-        return recentFeatureGuides[role].flatMap(feature => feature.details.map((description,index) => ({
+        return recentFeatureGuides[role].flatMap(feature => role === 'student' && ['appeals-new','collection-rewards-new'].includes(feature.id) ? studentActionSteps(feature) : feature.details.map((description,index) => ({
             featureId:feature.id,tabId:feature.tabId,selector:'[data-nug-recent-target="true"]',
             title:feature.title+' · '+(index+1),description,
             access:'Mũi tên ➜ và khung sáng chỉ đúng vùng đang giải thích. '+feature.access,
@@ -4420,15 +4455,7 @@
         );
     }
 
-    function getGuideCoinVisibilityStorageKey() {
-        const username = String(
-            state.user?.username ||
-            state.user?._fbKey ||
-            'guest'
-        ).trim();
-
-        return `student_coin_widget_visible:${username}`;
-    }
+    
 
     function isCoinWidgetActuallyVisible() {
         const widget = document.getElementById('coinWidget');
@@ -4451,58 +4478,9 @@
         return !isCoinWidgetActuallyVisible();
     }
 
-    function temporarilyRevealCoinWidgetForGuide() {
-        const widget = document.getElementById('coinWidget');
-        if (!widget || isCoinWidgetActuallyVisible()) return true;
+    
 
-        if (state.coinWidgetInitialStoredVisibility === null) {
-            state.coinWidgetInitialStoredVisibility = localStorage.getItem(
-                getGuideCoinVisibilityStorageKey()
-            );
-        }
-
-        if (typeof window.applyCoinBalanceWidgetVisibility === 'function') {
-            window.applyCoinBalanceWidgetVisibility(true, false);
-        } else {
-            widget.style.visibility = 'visible';
-            widget.style.opacity = '1';
-            widget.style.pointerEvents = 'auto';
-            widget.setAttribute('aria-hidden', 'false');
-        }
-
-        state.coinWidgetTemporarilyRevealed = true;
-        return true;
-    }
-
-    function restoreCoinWidgetAfterGuide() {
-        if (!state.coinWidgetTemporarilyRevealed) return;
-
-        const storedNow = localStorage.getItem(
-            getGuideCoinVisibilityStorageKey()
-        );
-
-        /*
-         * Nếu học sinh tự bật công tắc trong lúc được hướng dẫn,
-         * student.js đã lưu "true" nên giữ thanh Coin đang hiện.
-         * Chỉ ẩn lại khi cài đặt vẫn là "false" như trước.
-         */
-        if (storedNow !== 'true') {
-            if (typeof window.applyCoinBalanceWidgetVisibility === 'function') {
-                window.applyCoinBalanceWidgetVisibility(false, false);
-            } else {
-                const widget = document.getElementById('coinWidget');
-                if (widget) {
-                    widget.style.visibility = 'hidden';
-                    widget.style.opacity = '0';
-                    widget.style.pointerEvents = 'none';
-                    widget.setAttribute('aria-hidden', 'true');
-                }
-            }
-        }
-
-        state.coinWidgetTemporarilyRevealed = false;
-        state.coinWidgetInitialStoredVisibility = null;
-    }
+    
 
     function canOpenCoinConversionForGuide() {
         return (
@@ -4525,7 +4503,6 @@
     }
 
     function safeEnsureCoinConversionModalOpen() {
-        temporarilyRevealCoinWidgetForGuide();
 
         const modal = document.getElementById('coinConversionModal');
         if (modal?.classList.contains('active')) return true;
@@ -5332,7 +5309,6 @@
             {
                 featureId: 'coin',
                 selector: '#coinWidget',
-                before: temporarilyRevealCoinWidgetForGuide,
                 skipIfMissing: true,
                 title: '1. Xem thanh số dư Coin',
                 description: 'Thanh nổi hiển thị số Coin dùng trong cửa hàng. Em có thể kéo thanh tới vị trí thuận tiện trên màn hình.',
@@ -5341,7 +5317,6 @@
             {
                 featureId: 'coin',
                 selector: '#coinWidget [onclick*="openCoinConversionModal"]',
-                before: temporarilyRevealCoinWidgetForGuide,
                 skipIfMissing: true,
                 title: '2. Nút mở Bảng quy đổi',
                 description: 'Bấm dấu ! cạnh chữ “Số dư Coin” để mở Bảng quy đổi Tiền và Coin.',
@@ -5447,7 +5422,6 @@
             coinGuideSteps.push({
                 featureId: 'coin',
                 selector: '#coinWidget [onclick*="openCoinConversionModal"]',
-                before: temporarilyRevealCoinWidgetForGuide,
                 skipIfMissing: true,
                 title: 'Bảng quy đổi hiện chưa mở được',
                 description: getCoinConversionUnavailableText(),
@@ -5764,9 +5738,6 @@
         safeCloseStudentInbox();
         safeCloseStudentProfileForGuide();
         safeCloseCoinConversionModalForGuide();
-        restoreCoinWidgetAfterGuide();
-        state.coinWidgetTemporarilyRevealed = false;
-        state.coinWidgetInitialStoredVisibility = null;
 
         const dashboard = document.querySelector('.dashboard');
         state.previousSidebarCollapsed = dashboard
@@ -6274,7 +6245,6 @@
         safeCloseStudentInbox();
         safeCloseStudentProfileForGuide();
         safeCloseCoinConversionModalForGuide();
-        restoreCoinWidgetAfterGuide();
         safeCloseCollectionPageForGuide();
 
         state.currentStep = -1;

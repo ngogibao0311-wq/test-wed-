@@ -792,6 +792,64 @@ const StoreConfig = {
             acediaIndex: 'VII·FAMILIAR'
         },
         {
+            id: 'pet_thatdaitoi_luoibieng_chibi_1',
+            name: 'Acedia · Linh Thú Lười Biếng Chibi',
+            type: 'pet',
+            price: 850,
+            isNonCoin: false,
+            tag: 'Thất Đại Tội',
+            tags: [
+                'Thất Đại Tội',
+                'Acedia',
+                'Lười Biếng',
+                'Thú cưng'
+            ],
+            value: 'assets/Premium/thất đại tội/lười biếng/luoi_bieng_chipi1.png',
+            isIcon: false,
+
+            /*
+             * PET CỬA HÀNG THƯỜNG · 850 COIN.
+             * Namespace acch1-* hoàn toàn riêng, không dùng seven-sins-sloth-magic
+             * của Acedia sự kiện và không dùng bất kỳ runtime Luxury nào.
+             */
+            petEffect: 'acedia-chibi-dream-magic',
+            disableClickEffect: true
+        },
+        {
+            id: 'effect_thatdaitoi_mien_vu_tinh_da',
+            name: 'Acedia · Miên Vũ Tĩnh Dạ',
+            type: 'effect',
+            price: 900,
+            isNonCoin: false,
+            tag: 'Thất Đại Tội',
+            tags: ['Thất Đại Tội', 'Acedia', 'Lười Biếng', 'Hiệu ứng'],
+            customIcon: '✦'
+        },
+        {
+            id: 'theme_thatdaitoi_mien_khe_tinh_gioi',
+            name: 'Acedia · Miên Khế Tĩnh Giới',
+            type: 'theme',
+            price: 800,
+            isNonCoin: false,
+            tag: 'Thất Đại Tội',
+            tags: [
+                'Thất Đại Tội',
+                'Acedia',
+                'Lười Biếng',
+                'Giao diện'
+            ],
+            value: 'theme-seven-sins-languor-codex',
+            customIcon: '⌁',
+
+            /*
+             * GIAO DIỆN CỬA HÀNG THƯỜNG · 800 COIN.
+             * Namespace tdtui2-* hoàn toàn riêng.
+             * Không dùng theme-seven-sins-acedia / acedia-palace-* của bộ sự kiện
+             * và không dùng bất kỳ runtime Luxury nào.
+             */
+            themeRuntime: 'tdtui2-languor-codex'
+        },
+        {
             id: 'theme_thatdaitoi_acedia_dream',
             name: 'Mộng Điện Trì Hoãn',
             type: 'theme',
@@ -1020,7 +1078,7 @@ const StoreConfig = {
             isIcon: false,
             petEffect: 'autreg5-maple-chibi-magic',
             disableClickEffect: true,
-            runtimeCss: 'css/premium-mua-thu.css?v=20260927.autumn-four-effects-restored-v1',
+            runtimeCss: 'css/premium-mua-thu.css?v=20261003.cleanup1',
 
             // ==========================================
             // MỞ BÁN GIỚI HẠN · MÙA THU
@@ -1059,7 +1117,7 @@ const StoreConfig = {
             tag: 'Mùa thu',
             value: 'theme-autumn-frosted-grove',
             customIcon: '🍁',
-            runtimeCss: 'css/premium-mua-thu.css?v=20260927.autumn-four-effects-restored-v1',
+            runtimeCss: 'css/premium-mua-thu.css?v=20261003.cleanup1',
 
             // MỞ BÁN GIỚI HẠN · 01–05 THÁNG 09, 10, 11
             annualSaleIcon: '🍁',
@@ -1080,7 +1138,7 @@ const StoreConfig = {
             tag: 'Mùa thu',
             value: 'effect_mua_thu_phong_diep_quang_trieu',
             customIcon: '🍂',
-            runtimeCss: 'css/premium-mua-thu.css?v=20260927.autumn-four-effects-restored-v1',
+            runtimeCss: 'css/premium-mua-thu.css?v=20261003.cleanup1',
 
             // MỞ BÁN GIỚI HẠN · 01–05 THÁNG 09, 10, 11
             annualSaleIcon: '🍁',
@@ -1102,7 +1160,7 @@ const StoreConfig = {
             value: 'assets/Premium/Bốn mùa/thu_khung3.png',
             isIcon: false,
             frameEffect: 'autf1-autumn-maple-ring',
-            runtimeCss: 'css/premium-mua-thu.css?v=20260927.autumn-four-effects-restored-v1',
+            runtimeCss: 'css/premium-mua-thu.css?v=20261003.cleanup1',
 
             // Chỉ mở bán ngày 01–05 tháng 09, 10 và 11 hằng năm
             annualSaleIcon: '🍁',
@@ -1143,7 +1201,7 @@ const StoreConfig = {
             backgroundPosition: 'center center',
             backgroundRepeat: 'no-repeat',
             backgroundAttachment: 'fixed',
-            runtimeCss: 'css/premium-mua-thu.css?v=20260927.autumn-four-effects-restored-v1',
+            runtimeCss: 'css/premium-mua-thu.css?v=20261003.cleanup1',
             premiumSuite: 'autbg1-autumn-maple-background-v1'
         },
         {
@@ -2904,7 +2962,7 @@ const FRAME_RUNTIME_CSS_BY_ITEM_ID = Object.freeze({
         'css/premium-mua-xuan.css?v=20260917.frame-runtime-barrier-v1'
     ]),
     frame_quoc_khanh_viet_dieu_quoc_an: Object.freeze([
-        'css/quoc-khanh-pet.css?v=20260917.frame-runtime-barrier-v1'
+        'css/quoc-khanh-pet.css?v=20261003.cleanup1'
     ]),
     frame_tamon_bside_signal_ring: Object.freeze([
         'css/tamon-b-side.css?v=20260917.bmask-frame-selfcontained-v1'
@@ -2923,10 +2981,10 @@ const FRAME_RUNTIME_CSS_BY_ITEM_ID = Object.freeze({
         'css/cam-co-cam-mong.css?v=20260917.frame-runtime-barrier-v1'
     ]),
     frame_trung_thu_chu_cuoi_que_anh_chi_hoan: Object.freeze([
-        'css/trung-thu-nguyet-cung.css?v=20260917.frame-runtime-barrier-v1'
+        'css/trung-thu-nguyet-cung.css?v=20261003.cleanup1'
     ]),
     frame_trung_thu_nguyet_que_hoa_hoan: Object.freeze([
-        'css/trung-thu-nguyet-cung.css?v=20260917.frame-runtime-barrier-v1'
+        'css/trung-thu-nguyet-cung.css?v=20261003.cleanup1'
     ]),
     frame_linkclick_cheng_xiaoshi_time_window: Object.freeze([
         'css/link-click-cheng-xiaoshi.css?v=20260917.frame-runtime-barrier-v1'
@@ -3907,6 +3965,16 @@ class StoreManager {
             'effect_thatdaitoi_acedia_domain'
         ]);
 
+        /*
+         * ACEDIA · CHIBI — pet 850 Coin ở CỬA HÀNG THƯỜNG.
+         * Card riêng hoàn toàn: không dùng skin/tag của bộ relic Acedia sự kiện.
+         */
+        const sevenSinsSlothChibiIds = new Set([
+            'pet_thatdaitoi_luoibieng_chibi_1',
+            'theme_thatdaitoi_mien_khe_tinh_gioi',
+                'effect_thatdaitoi_mien_vu_tinh_da'
+        ]);
+
         const birthday2026Ids = new Set([
             'pet_sinh_nhat_2026',
             'theme_sinh_nhat_tiec_ngot_2026',
@@ -4293,6 +4361,19 @@ class StoreManager {
             );
 
             specialCardGroup = 'seven-sins-sloth';
+            isThemeImmune = true;
+        }
+
+        /* Hai vật phẩm Acedia thường dùng chung thẻ Chibi và tag Thất Đại Tội. */
+        if (sevenSinsSlothChibiIds.has(item.id)) {
+            cardClasses.push(
+                'store-card-acedia-chibi-reverie',
+                'store-theme-locked',
+                'ui-theme-immune'
+            );
+
+            tagClass = 'tag-that-dai-toi';
+            specialCardGroup = 'seven-sins-acedia-chibi';
             isThemeImmune = true;
         }
 

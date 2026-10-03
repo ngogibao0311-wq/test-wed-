@@ -33,6 +33,7 @@
     // ========================================================
     // Muốn món nào xuất hiện thì ghi ID món đó vào đây.
     const LUXURY_ITEM_IDS = [
+        'pet_luxury_acedia_mien_gioi',
         'pet_luxury_mua_xuan',
         'pet_luxury_mua_ha',
         'pet_luxury_mua_thu',
@@ -61,6 +62,104 @@
     // - Vật phẩm Luxury 10/10.
     // ========================================================
     // MÙA THU · HỔ PHÁCH PHONG DIỆP — full suite owned only by this pet.
+    const ACEDIA_PREMIUM_PET = {
+        id: 'pet_luxury_acedia_mien_gioi', name: 'Acedia · Chủ Nhân Miên Giới',
+        type: 'pet', price: 12000, isNonCoin: false, luxuryOnly: true,
+        tag: 'Thất Đại Tội', tags: ['Thất Đại Tội', 'Acedia', 'Premium'],
+        value: 'assets/Premium/thất đại tội/lười biếng/luoi_bieng_nhan_vat1.png',
+        image: 'assets/Premium/thất đại tội/lười biếng/luoi_bieng_nhan_vat1.png',
+        luxuryTagImage: 'assets/Premium/thất đại tội/lười biếng/luoi_bieng_tag1.png',
+        isIcon: false, disableClickEffect: true,
+        petEffect: 'aclp-dream-sovereign',
+        premiumLayers: ['world-effect','interface','pet-realm','global-click','ultimate']
+    };
+    // Thánh đường miên giới: vector độc lập, không dùng ảnh nhân vật trong FX.
+    const LuxuryAcediaRuntime = {
+        scene(mode) {
+            const arches = Array.from({length: 7}, (_, i) => {
+                const x = 40 + i * 37, y = 22 + i * 14;
+                return `<path style="--n:${i}" d="M${x} 960 V290 Q${x} ${y} 800 ${y} Q${1600-x} ${y} ${1600-x} 290 V960"/>`;
+            }).join('');
+            const petals = Array.from({length: 16}, (_, i) => `<path transform="rotate(${i*22.5} 800 320)" d="M800 126 Q855 202 800 298 Q745 202 800 126Z"/>`).join('');
+            const columns = [84,190,1410,1516].map((x,i)=>`<g style="--n:${i}"><path d="M${x-18} 245 V840 H${x+18} V245 M${x-27} 255 H${x+27} M${x-27} 825 H${x+27}"/><path d="M${x} 280 V802"/><path d="M${x-32} 248 Q${x} 200 ${x+32} 248Z"/></g>`).join('');
+            const seals = Array.from({length:7},(_,i)=>{
+                const angle=(i/7*Math.PI*2)-Math.PI/2, x=800+Math.cos(angle)*242, y=320+Math.sin(angle)*242;
+                return `<g class="aclp-sigil" style="--n:${i}" transform="translate(${x} ${y})"><path d="M0 -23L17 -10L17 10L0 23L-17 10L-17 -10Z"/><text y="6">${['Ⅰ','Ⅱ','Ⅲ','Ⅳ','Ⅴ','Ⅵ','Ⅶ'][i]}</text></g>`;
+            }).join('');
+            const chains = [280,420,1180,1320].map((x,i)=>`<g class="aclp-pendulum" style="--n:${i};transform-origin:${x}px 0"><path d="M${x} 0 V${170+i%2*70}"/><path d="M${x} ${168+i%2*70}l15 25l-15 25l-15-25Z"/></g>`).join('');
+            const lancets = [112,225,1375,1488].map(x=>`<g class="aclp-lancet"><path d="M${x-24} 790V310Q${x-24} 275 ${x} 258Q${x+24} 275 ${x+24} 310V790Z"/><path d="M${x} 286V776M${x-17} 355H${x+17}M${x-17} 580H${x+17}"/></g>`).join('');
+            const floor = Array.from({length:13},(_,i)=>`<path d="M800 760L${i*150-100} 980"/>`).join('');
+            const fragments = Array.from({length:24},(_,i)=>{
+                const angle=i*Math.PI/12,x=800+Math.cos(angle)*290,y=320+Math.sin(angle)*290;
+                return `<path class="aclp-shard" style="--n:${i};transform-origin:${x}px ${y}px" transform="translate(${x} ${y}) rotate(${i*15})" d="M0 -16L5 -3L0 17L-5 3Z"/>`;
+            }).join('');
+            const drapes = [0,1].map(side=>`<g transform="${side?'translate(1600 0) scale(-1 1)':''}" class="aclp-drapery"><path d="M0 0H365Q250 140 178 390Q108 650 0 785Z"/><path d="M50 0Q320 130 138 480Q80 620 0 680M100 0Q350 150 180 390M180 0Q335 170 218 300"/><path d="M0 745Q120 680 178 390Q126 680 0 837Z"/></g>`).join('');
+            return `<svg class="aclp-architecture" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                <defs><radialGradient id="aclp-${mode}-glass"><stop stop-color="#c4b4e1" stop-opacity=".3"/><stop offset=".65" stop-color="#493353" stop-opacity=".6"/><stop offset="1" stop-color="#0c0a16"/></radialGradient></defs>
+                <g class="aclp-vault">${arches}</g>${drapes}<g class="aclp-columns">${columns}</g>${lancets}
+                <g class="aclp-window"><circle cx="800" cy="320" r="215" fill="url(#aclp-${mode}-glass)"/>
+                <g class="aclp-glass">${petals}</g><circle cx="800" cy="320" r="221"/><circle cx="800" cy="320" r="230" stroke-dasharray="2 9"/>
+                <circle class="aclp-eclipse" cx="800" cy="320" r="72"/><path class="aclp-lid" d="M735 320Q800 377 865 320"/>
+                <g class="aclp-seven">${seals}</g><g class="aclp-fragments">${fragments}</g></g><g class="aclp-chains">${chains}</g>
+                <g class="aclp-floor-lines">${floor}</g><g class="aclp-stairs"><path d="M350 900L500 810H1100L1250 900M410 868H1190M463 837H1137M500 810L580 755H1020L1100 810M550 779H1050"/></g>
+                <g class="aclp-throne"><path d="M694 760V584Q694 510 800 469Q906 510 906 584V760M714 738V591Q714 532 800 495Q886 532 886 591V738M716 698H884M694 760H906M682 670H719M881 670H918M682 670V760M918 670V760"/><path d="M773 565L800 534L827 565L800 596Z"/></g>
+            </svg>`;
+        },
+        clear() {
+            this.events?.abort(); this.observer?.disconnect(); this.motionQuery?.removeEventListener('change',this.syncQuality);
+            this.events = this.observer = null;
+            document.getElementById('aclp-world')?.remove();
+            document.querySelectorAll('.aclp-pet-realm').forEach(n=>n.remove());
+            document.body.classList.remove('aclp-equipped');
+            document.documentElement.classList.remove('aclp-premium-equipped');
+            document.documentElement.removeAttribute('data-aclp-pet');
+            const pet=this.pet;
+            if(pet){pet.classList.remove('aclp-pet');pet.title=this.previousTitle||'';
+                for(const [key,value] of Object.entries(this.previousAttrs||{})) value===null?pet.removeAttribute(key):pet.setAttribute(key,value);}
+            this.pet=null;this.host=null;this.lastUltimate=0;
+        },
+        burst(x,y) {
+            if(this.isStill() || this.shadow.querySelectorAll('.aclp-click').length>=6)return;
+            const n=document.createElement('div');n.className='aclp-click';n.style.cssText=`left:${x}px;top:${y}px`;
+            n.innerHTML='<i></i><i></i><i></i><span>Ⅶ</span>';
+            this.shadow.appendChild(n);n.addEventListener('animationend',e=>{if(e.target===n)n.remove();});
+        },
+        ultimate() {
+            if(this.isStill() || Date.now()-this.lastUltimate<12000)return;
+            this.lastUltimate=Date.now();
+            const n=document.createElement('div');n.className='aclp-ultimate';
+            n.innerHTML=`<div class="aclp-veil"></div>${this.scene('ritual')}<div class="aclp-ritual-circle"><i></i><i></i><i></i></div>
+                <div class="aclp-ritual-caption"><small>ACEDIA / THE SEVENTH SILENCE</small><strong>Ngai Vàng Của Giấc Ngủ</strong><span>Vạn vật lặng im · Miên giới giáng lâm</span></div>`;
+            this.shadow.appendChild(n);n.addEventListener('animationend',e=>{if(e.target===n)n.remove();});
+        },
+        mount() {
+            this.clear();const pet=document.getElementById('virtual-pet-img');if(!pet)return;
+            this.pet=pet;this.previousTitle=pet.title;
+            this.previousAttrs=Object.fromEntries(['tabindex','role','aria-label'].map(k=>[k,pet.getAttribute(k)]));
+            pet.classList.add('aclp-pet');pet.title='Nhấn để mở Ngai Vàng Của Giấc Ngủ · hồi chiêu 12 giây';
+            pet.setAttribute('tabindex','0');pet.setAttribute('role','button');pet.setAttribute('aria-label','Acedia: kích hoạt Ngai Vàng Của Giấc Ngủ');
+            let link=document.getElementById('aclp-styles');if(!link){link=document.createElement('link');link.id='aclp-styles';link.rel='stylesheet';document.head.appendChild(link);}link.href='css/that-dai-toi.css?v=20261003.aclp4';
+            document.body.classList.add('aclp-equipped');document.documentElement.classList.add('aclp-premium-equipped');document.documentElement.dataset.aclpPet='true';
+            const host=document.createElement('div');host.id='aclp-world';host.setAttribute('aria-hidden','true');
+            host.style.cssText='all:initial!important;position:fixed!important;inset:0!important;pointer-events:none!important;z-index:950!important;overflow:hidden!important;contain:strict!important;';
+            this.host=host;this.shadow=host.attachShadow({mode:'open'});
+            this.shadow.innerHTML=`<link rel="stylesheet" href="css/that-dai-toi.css?v=20261003.aclp4"><div class="aclp-world-scene">${this.scene('world')}<div class="aclp-mist"></div><div class="aclp-silver-rain"></div></div>`;
+            document.body.appendChild(host);
+            const realm=document.createElement('div');realm.className='aclp-pet-realm';realm.setAttribute('aria-hidden','true');realm.innerHTML='<i></i><i></i><span>Ⅶ</span>';
+            pet.parentElement.appendChild(realm);
+            this.events=new AbortController();const {signal}=this.events;
+            this.motionQuery=matchMedia('(prefers-reduced-motion: reduce)');
+            this.isStill=()=>this.motionQuery.matches||document.hidden||document.body.classList.contains('wfx-low-power')||document.documentElement.classList.contains('fxq-low')||document.body.classList.contains('wfx-paused');
+            this.syncQuality=()=>{if(!pet.isConnected){this.clear();return;}host.toggleAttribute('data-still',this.isStill());if(this.isStill())this.shadow.querySelectorAll('.aclp-ultimate,.aclp-click').forEach(n=>n.remove());};
+            this.motionQuery.addEventListener('change',this.syncQuality);
+            document.addEventListener('visibilitychange',this.syncQuality,{signal});
+            this.observer=new MutationObserver(this.syncQuality);this.observer.observe(document.body,{attributes:true,attributeFilter:['class'],childList:true,subtree:true});this.observer.observe(document.documentElement,{attributes:true,attributeFilter:['class']});this.syncQuality();
+            document.addEventListener('click',e=>{if(e.target.closest?.('input,textarea,select,[contenteditable="true"],#virtual-pet-container'))return;this.burst(e.clientX,e.clientY);},{signal});
+            pet.addEventListener('click',()=>this.ultimate(),{signal});
+            pet.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();this.ultimate();}},{signal});
+        }
+    };
+
     const AUTUMN_PREMIUM_PET = {
         id: 'pet_luxury_mua_thu', name: 'Thu Thần · Hổ Phách Phong Diệp',
         type: 'pet', price: 14000, isNonCoin: false, luxuryOnly: true, eventOnly: false,
@@ -80,7 +179,7 @@
         if (!link) {
             link = document.createElement('link');
             link.rel = 'stylesheet';
-            link.href = 'css/premium-mua-thu.css?v=20260927.realms10';
+            link.href = 'css/premium-mua-thu.css?v=20261003.cleanup1';
             document.head.appendChild(link);
         }
         link.id = 'autumn3-premium-style';
@@ -1345,7 +1444,7 @@
 
             if (ownScript?.src) {
                 try {
-                    href = new URL('../css/trung-thu-nguyet-cung.css?v=20260927.realms10', ownScript.src).href;
+                    href = new URL('../css/trung-thu-nguyet-cung.css?v=20261003.aclp3', ownScript.src).href;
                 } catch (_) {
                     href = '';
                 }
@@ -1353,7 +1452,7 @@
         }
 
         if (!href) {
-            href = new URL('css/trung-thu-nguyet-cung.css?v=20260927.realms10', document.baseURI).href;
+            href = new URL('css/trung-thu-nguyet-cung.css?v=20261003.aclp3', document.baseURI).href;
         }
 
         const link = document.createElement('link');
@@ -1734,7 +1833,7 @@
             if (ownScript?.src) {
                 try {
                     href = new URL(
-                        '../css/link-click-cheng-xiaoshi.css?v=20260927.realms10',
+                        '../css/link-click-cheng-xiaoshi.css?v=20261003.aclp3',
                         ownScript.src
                     ).href;
                 } catch (_) {
@@ -1745,7 +1844,7 @@
 
         if (!href) {
             href = new URL(
-                'css/link-click-cheng-xiaoshi.css?v=20260927.realms10',
+                'css/link-click-cheng-xiaoshi.css?v=20261003.aclp3',
                 document.baseURI
             ).href;
         }
@@ -3159,7 +3258,7 @@
 
             if (ownScript?.src) {
                 try {
-                    href = new URL('../css/tamon-b-side.css?v=20260927.realms10', ownScript.src).href;
+                    href = new URL('../css/tamon-b-side.css?v=20261003.aclp3', ownScript.src).href;
                 } catch (error) {
                     href = '';
                 }
@@ -3167,7 +3266,7 @@
         }
 
         if (!href) {
-            href = new URL('css/tamon-b-side.css?v=20260927.realms10', document.baseURI).href;
+            href = new URL('css/tamon-b-side.css?v=20261003.aclp3', document.baseURI).href;
         }
 
         const link = document.createElement('link');
@@ -6438,12 +6537,14 @@
                     );
                 }
 
+LuxuryAcediaRuntime.clear();
 // Render pet gốc trước.
                 originalSpawnPet(
                     petData
                 );
 
 
+                if (petData?.id === ACEDIA_PREMIUM_PET.id) { LuxuryAcediaRuntime.mount(); return; }
                 if (petData?.id === HAC_MONG_PREMIUM_PET.id) {
                     LuxuryHacMongRuntime.mount();
                     return;
@@ -6850,6 +6951,7 @@
 
         StoreManager.unapplyItem =
             async function (itemId) {
+                if (String(itemId) === ACEDIA_PREMIUM_PET.id) LuxuryAcediaRuntime.clear();
                 if (String(itemId) === HAC_MONG_PREMIUM_PET.id) LuxuryHacMongRuntime.clear();
                 if (String(itemId) === AUTUMN_PREMIUM_PET.id) LuxuryAutumnRuntime.clear();
 
@@ -7901,6 +8003,7 @@ if (isNationalDay) {
             SPRING_PREMIUM_PET,
             SUMMER_PREMIUM_PET,
             AUTUMN_PREMIUM_PET,
+            ACEDIA_PREMIUM_PET,
             HAC_MONG_PREMIUM_PET,
             NATIONAL_DAY_PREMIUM_PET,
             MYTHIC_NYX_PET,
@@ -8528,6 +8631,7 @@ if (isNationalDay) {
     // One full-art layout for the Luxury catalog. The original renderer remains
     // the source of purchase/equip/event controls, including seasonal currency.
     const LUXURY_CARD_PRESENTATION = Object.freeze({
+        'pet_luxury_acedia_mien_gioi': ['#292036','#d9bfec','Chủ nhân của giấc ngủ: miên giới, dấu khế và nghi thức ngưng thời gian.'],
         pet_hac_mong_2: ['#173e43', '#d2e9d8', 'Nương cánh hạc vượt tầng mây, nàng mang ngọc khí và ánh trăng về tiên cảnh. Mỗi bước chân đánh thức một khúc vân ca.'],
         pet_luxury_mua_xuan: ['#24402b', '#d9edb2', 'Nàng xuân đánh thức muôn hoa, mang sức sống dịu dàng và sắc xanh mơ mộng đến từng ngày học.'],
         pet_luxury_mua_ha: ['#49320e', '#ffe096', 'Hạ Thần gom nắng vào những dải lưu kim, mở ra một mùa hè rực rỡ giữa gió và hoa.'],
@@ -8604,7 +8708,7 @@ if (isNationalDay) {
         const image = escapeHTML(item.image || item.asset || item.value || '');
         const tagImage = escapeHTML(item.luxuryTagImage || '');
         const id = escapeHTML(item.id);
-        return `<article class="luxury-product-card luxury-unified-card store-theme-locked ui-theme-immune"
+        return `<article class="luxury-product-card luxury-unified-card store-theme-locked ui-theme-immune${item.id === ACEDIA_PREMIUM_PET.id ? ' aclp-card' : ''}"
             data-item-id="${id}" data-theme-immune="true" tabindex="0" aria-label="${name}"
             style="--luxury-card-shade:${shade};--luxury-card-accent:${accent}">
             <div class="luxury-unified-visual">
@@ -8690,6 +8794,20 @@ if (isNationalDay) {
 
         const isEquipped =
             isOwned && inventoryItem?.isEquipped === true;
+
+        if (item.id === ACEDIA_PREMIUM_PET.id) {
+            const price = Number(item.price).toLocaleString('vi-VN');
+            const action = !isOwned
+                ? `window.LuxuryStore.buyItemSafely('${id}')`
+                : isEquipped ? `StoreManager.unapplyItem('${id}')` : `StoreManager.applyItem('${id}')`;
+            const label = !isOwned ? `🪙 Mua · ${price} Coin`
+                : isEquipped ? '✕ Tháo trang bị' : '✦ Mặc ngay';
+            return `<article class="luxury-product-card">
+                <div class="luxury-product-price">🪙 ${price} Coin</div>
+                <button type="button" class="luxury-unified-action${isEquipped ? ' is-equipped' : ''}"
+                    onclick="${action}">${label}</button>
+            </article>`;
+        }
 
         // ====================================================
         // CARD RIÊNG QUỐC KHÁNH

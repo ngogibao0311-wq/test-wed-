@@ -1182,6 +1182,21 @@ class PetManager {
             )
             .forEach(node => node.remove());
 
+        // Dọn riêng Acedia Chibi 850 Coin. Namespace acch1-* không dùng với Acedia sự kiện/Luxury.
+        document
+            .querySelectorAll(
+                '.acch1-local-burst, .acch1-screen-ultimate'
+            )
+            .forEach(node => node.remove());
+
+        document.documentElement.classList.remove(
+            'acch1-screen-active'
+        );
+
+        if (this.container?.dataset) {
+            delete this.container.dataset.acch1SkillLocked;
+        }
+
         // Dọn toàn bộ tương tác và vòng lặp của thú cưng trước
         if (
             typeof PetInteractionManager !== 'undefined' &&
@@ -1201,6 +1216,9 @@ class PetManager {
             'pet-seven-sins-sloth-stage',
             'sloth-dream-release',
             'sloth-domain-casting',
+            'pet-acedia-chibi-stage',
+            'acch1-awakening',
+            'acch1-casting',
             'pet-birthday-serpent-2026-stage',
             'pet-saturn-cassini-stage',
             'pet-rainy-day-stage',
@@ -3994,6 +4012,104 @@ class PetManager {
         }
 
         // =========================================================
+        // ACEDIA · LINH THÚ LƯỜI BIẾNG CHIBI — 850 COIN
+        // Hiệu ứng chỉ quanh pet, namespace acch1-* hoàn toàn riêng.
+        // Không dùng dream realm của Acedia sự kiện và không gọi Luxury runtime.
+        // =========================================================
+        if (
+            petData.id === 'pet_thatdaitoi_luoibieng_chibi_1' ||
+            petData.petEffect === 'acedia-chibi-dream-magic'
+        ) {
+            petElement.setAttribute('draggable', 'false');
+
+            this.container.classList.add(
+                'pet-acedia-chibi-stage',
+                'acch1-awakening'
+            );
+
+            const localRealm = document.createElement('div');
+            localRealm.className = 'acch1-local-realm';
+            localRealm.setAttribute('aria-hidden', 'true');
+
+            localRealm.innerHTML = `
+                <span class="acch1-dream-haze haze-a"></span>
+                <span class="acch1-dream-haze haze-b"></span>
+
+                <span class="acch1-local-sigil">
+                    <i class="acch1-sigil-ring ring-a"></i>
+                    <i class="acch1-sigil-ring ring-b"></i>
+                    <i class="acch1-sigil-ring ring-c"></i>
+                    <b>Ⅶ</b>
+                </span>
+
+                <span class="acch1-moon-crown">☾</span>
+                <span class="acch1-sleep-cloud cloud-a"></span>
+                <span class="acch1-sleep-cloud cloud-b"></span>
+                <span class="acch1-orbit-field"></span>
+            `;
+
+            const orbitField = localRealm.querySelector(
+                '.acch1-orbit-field'
+            );
+
+            for (let index = 0; index < 7; index++) {
+                const rune = document.createElement('i');
+                const angle = index * (360 / 7);
+
+                rune.className = 'acch1-orbit-rune';
+                rune.textContent = index === 6 ? 'Ⅶ' : '✦';
+                rune.style.setProperty(
+                    '--acch1-angle',
+                    `${angle}deg`
+                );
+                rune.style.setProperty(
+                    '--acch1-angle-back',
+                    `${-angle}deg`
+                );
+                rune.style.setProperty(
+                    '--acch1-delay',
+                    `${-index * 0.36}s`
+                );
+
+                orbitField?.appendChild(rune);
+            }
+
+            for (let index = 0; index < 10; index++) {
+                const mote = document.createElement('span');
+
+                mote.className = 'acch1-dream-mote';
+                mote.textContent = index % 3 === 0 ? 'z' : '✧';
+                mote.setAttribute('aria-hidden', 'true');
+                mote.style.setProperty(
+                    '--acch1-x',
+                    `${10 + ((index * 23) % 80)}%`
+                );
+                mote.style.setProperty(
+                    '--acch1-delay',
+                    `${-index * 0.43}s`
+                );
+                mote.style.setProperty(
+                    '--acch1-duration',
+                    `${4.2 + (index % 4) * 0.55}s`
+                );
+                mote.style.setProperty(
+                    '--acch1-size',
+                    `${9 + (index % 4) * 2}px`
+                );
+
+                localRealm.appendChild(mote);
+            }
+
+            this.container.appendChild(localRealm);
+
+            requestAnimationFrame(() => {
+                this.container?.classList.remove(
+                    'acch1-awakening'
+                );
+            });
+        }
+
+        // =========================================================
         // BÉ RẮN PHÚC LỘC 2026
         // Trang trí riêng quanh thú cưng.
         // Hiệu ứng toàn màn hình được tạo sau khi pet đã xuất hiện.
@@ -5320,6 +5436,181 @@ class PetManager {
         // Khôi phục kéo-thả + lưu pet hiện tại như cơ chế cũ.
         this.makePetDraggable();
         localStorage.setItem('active_pet', petData.id);
+
+        // =========================================================
+        // ACEDIA · CHIBI — CLICK ULTIMATE TOÀN MÀN HÌNH
+        // "THẤT TRỌNG MIÊN GIỚI"
+        // Namespace acch1-* độc lập hoàn toàn với seven-sins-sloth-magic/Luxury.
+        // =========================================================
+        if (
+            petData.id === 'pet_thatdaitoi_luoibieng_chibi_1' ||
+            petData.petEffect === 'acedia-chibi-dream-magic'
+        ) {
+            let acch1SkillLocked = false;
+
+            petElement.addEventListener(
+                'click',
+                event => {
+                    if (acch1SkillLocked) return;
+
+                    if (
+                        typeof PetInteractionManager !== 'undefined' &&
+                        PetInteractionManager.isPetDragging
+                    ) {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    event.stopPropagation();
+                    event.stopImmediatePropagation?.();
+
+                    acch1SkillLocked = true;
+
+                    const acch1CastToken =
+                        `${Date.now()}-${Math.random()
+                            .toString(36)
+                            .slice(2, 9)}`;
+
+                    this.container.dataset.acch1SkillLocked =
+                        acch1CastToken;
+
+                    this.container.classList.add('acch1-casting');
+
+                    document
+                        .querySelectorAll(
+                            '.acch1-local-burst, .acch1-screen-ultimate'
+                        )
+                        .forEach(node => node.remove());
+
+                    const localBurst = document.createElement('div');
+                    localBurst.className = 'acch1-local-burst';
+                    localBurst.setAttribute('aria-hidden', 'true');
+
+                    for (let index = 0; index < 14; index++) {
+                        const shard = document.createElement('span');
+                        shard.style.setProperty(
+                            '--acch1-burst-angle',
+                            `${index * (360 / 14)}deg`
+                        );
+                        shard.style.setProperty(
+                            '--acch1-burst-distance',
+                            `${72 + (index % 4) * 18}px`
+                        );
+                        shard.style.setProperty(
+                            '--acch1-burst-delay',
+                            `${(index % 5) * 0.025}s`
+                        );
+                        localBurst.appendChild(shard);
+                    }
+
+                    this.container.appendChild(localBurst);
+
+                    const ultimate = document.createElement('div');
+                    ultimate.className = 'acch1-screen-ultimate';
+                    ultimate.setAttribute('aria-hidden', 'true');
+                    ultimate.innerHTML = `
+                        <div class="acch1-screen-veil"></div>
+                        <div class="acch1-screen-mist mist-a"></div>
+                        <div class="acch1-screen-mist mist-b"></div>
+                        <div class="acch1-screen-eclipse">
+                            <span class="acch1-eclipse-core">Ⅶ</span>
+                            <span class="acch1-eclipse-ring ring-a"></span>
+                            <span class="acch1-eclipse-ring ring-b"></span>
+                            <span class="acch1-eclipse-ring ring-c"></span>
+                        </div>
+                        <div class="acch1-screen-gate">
+                            <span class="acch1-gate-wing wing-left"></span>
+                            <span class="acch1-gate-wing wing-right"></span>
+                            <span class="acch1-gate-seal">☾</span>
+                        </div>
+                        <div class="acch1-seven-field"></div>
+                        <div class="acch1-screen-title">
+                            <small>ACEDIA · SOMNIA VII</small>
+                            <strong>THẤT TRỌNG MIÊN GIỚI</strong>
+                        </div>
+                    `;
+
+                    const sevenField = ultimate.querySelector(
+                        '.acch1-seven-field'
+                    );
+
+                    for (let index = 0; index < 21; index++) {
+                        const rune = document.createElement('span');
+                        rune.textContent =
+                            index % 7 === 6
+                                ? 'Ⅶ'
+                                : index % 3 === 0
+                                    ? '☾'
+                                    : '✦';
+                        const screenAngle =
+                            index * (360 / 21);
+
+                        rune.style.setProperty(
+                            '--acch1-screen-angle',
+                            `${screenAngle}deg`
+                        );
+                        rune.style.setProperty(
+                            '--acch1-screen-angle-back',
+                            `${-screenAngle}deg`
+                        );
+                        rune.style.setProperty(
+                            '--acch1-screen-radius',
+                            `${18 + (index % 7) * 7}vmin`
+                        );
+                        rune.style.setProperty(
+                            '--acch1-screen-delay',
+                            `${(index % 7) * 0.045}s`
+                        );
+                        sevenField?.appendChild(rune);
+                    }
+
+                    document.body.appendChild(ultimate);
+                    document.documentElement.classList.add(
+                        'acch1-screen-active'
+                    );
+
+                    requestAnimationFrame(() => {
+                        ultimate.classList.add('is-active');
+                    });
+
+                    window.setTimeout(() => {
+                        ultimate.classList.add('is-collapse');
+                    }, 2800);
+
+                    window.setTimeout(() => {
+                        ultimate.classList.add('is-ending');
+                    }, 4050);
+
+                    window.setTimeout(() => {
+                        localBurst.remove();
+                        ultimate.remove();
+
+                        const isCurrentCast =
+                            this.container?.dataset
+                                ?.acch1SkillLocked ===
+                            acch1CastToken;
+
+                        if (isCurrentCast) {
+                            document.documentElement.classList.remove(
+                                'acch1-screen-active'
+                            );
+
+                            this.container?.classList.remove(
+                                'acch1-casting'
+                            );
+
+                            delete this.container.dataset
+                                .acch1SkillLocked;
+
+                            acch1SkillLocked = false;
+                        }
+                    }, 5100);
+                },
+                {
+                    signal: this.interactionAbortController?.signal
+                }
+            );
+        }
 
         // =========================================================
         // AETHER · TIỂU THIÊN QUANG — CLICK ULTIMATE TOÀN MÀN HÌNH

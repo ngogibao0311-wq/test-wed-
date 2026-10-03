@@ -30,10 +30,10 @@
  function syncPalette(){
   const theme=root.dataset.activeThemeId;
   const premium=[...root.classList].some(c=>c.endsWith('-equipped'));
-  const custom=premium||(theme?theme!=='default':[...document.body.classList].some(c=>/^(theme-|theme_)/.test(c)&&!['theme-blue','theme-green','theme-pink'].includes(c)));
+  const custom=Boolean(root.dataset.cosmeticTheme)||premium||(theme?theme!=='default':[...document.body.classList].some(c=>/^(theme-|theme_)/.test(c)&&!['theme-blue','theme-green','theme-pink'].includes(c)));
   const value=custom?'custom':'default';
   if(root.dataset.campusPalette!==value)root.dataset.campusPalette=value;
-  const art=document.body.classList.contains('store-background-equipped');
+  const art=Boolean(root.dataset.cosmeticBackground)||document.body.classList.contains('store-background-equipped');
   if(root.dataset.campusArtwork!==String(art))root.dataset.campusArtwork=String(art);
   const glass=document.body.classList.contains('student-content-glass-disabled')||document.body.classList.contains('teacher-content-glass-disabled')?'off':'on';
   if(root.dataset.campusGlass!==glass)root.dataset.campusGlass=glass;
@@ -80,7 +80,7 @@
   displaySettings();
   document.querySelectorAll('.content>.tab-content').forEach(tab=>tab.querySelector('h2')?.classList.add('campus-page-title'));
   const observer=new MutationObserver(syncPalette);
-  observer.observe(root,{attributes:true,attributeFilter:['data-active-theme-id','class']});
+  observer.observe(root,{attributes:true,attributeFilter:['data-active-theme-id','data-cosmetic-theme','data-cosmetic-background','class']});
   observer.observe(document.body,{attributes:true,attributeFilter:['class']});
   const coin=document.getElementById('coinWidget'),dock=document.getElementById('studentTopActionsFlow');
   if(coin&&dock){coin.dataset.campusDocked='true';dock.prepend(coin);}

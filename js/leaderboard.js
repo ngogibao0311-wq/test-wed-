@@ -1387,19 +1387,7 @@ function getLeaderboardRedoViolationHistory(submission) {
     };
 }
 
-function hasLeaderboardHistoricalViolation(submission) {
-    const history =
-        getLeaderboardRedoViolationHistory(
-            submission
-        );
 
-    return !!(
-        history.essayMissing ||
-        history.late ||
-        history.autoSubmitted ||
-        history.cheat
-    );
-}
 
 
 function getLeaderboardViolationBreakdown(submission) {

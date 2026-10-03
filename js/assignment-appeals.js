@@ -203,7 +203,19 @@ window.getSubmissionEssayDisplay = function (submission, assignment) {
         };
     }
 
-    function showList(){const panel=modal('Danh sách kháng cáo');for(const [key,record] of Object.entries(records).filter(([,record])=>record.archived!==true).sort((a,b)=>b[1].createdAt-a[1].createdAt)){const button=document.createElement('button');button.textContent=record.studentUsername+' — '+labels[record.status];button.style.display='block';button.onclick=()=>{panel.close();open(key).catch(e=>AppDialog.notify(e.message));};panel.appendChild(button);}}
+    function showList(){
+        const panel=modal('Danh sách kháng cáo');
+        const entries=Object.entries(records).filter(([,record])=>record.archived!==true).sort((a,b)=>b[1].createdAt-a[1].createdAt);
+        if(!entries.length){text(panel,'Chưa có kháng cáo nào.');return;}
+        for(const [key,record] of entries){
+            const button=document.createElement('button');button.type='button';button.className='appeal-list-row';
+            const name=document.createElement('strong');name.textContent=record.studentUsername;
+            const status=document.createElement('span');status.className='appeal-list-status';status.dataset.status=record.status;status.textContent=labels[record.status]||'Đã gửi';
+            const arrow=document.createElement('span');arrow.textContent='›';arrow.setAttribute('aria-hidden','true');
+            button.append(name,status,arrow);
+            button.onclick=()=>{panel.close();open(key).catch(e=>AppDialog.notify(e.message));};panel.appendChild(button);
+        }
+    }
     document.addEventListener('click',event=>{const button=event.target.closest('[data-appeal-key]');if(button)open(button.dataset.appealKey).catch(error=>AppDialog.notify(error.message));});
     document.addEventListener('click',async event=>{
         const button=event.target.closest('[data-repair-redo]');if(!button || profile?.role!=='teacher')return;

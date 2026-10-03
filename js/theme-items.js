@@ -111,6 +111,18 @@ class ThemeManager {
             background: '#0b0712',
             className: 'theme-seven-sins-acedia'
         },
+
+        // =========================================================
+        // THẤT ĐẠI TỘI · ACEDIA · MIÊN KHẾ TĨNH GIỚI
+        // Theme cửa hàng thường 800 Coin, namespace tdtui2-* riêng hoàn toàn.
+        // Không dùng acedia-palace-* / theme-seven-sins-acedia của bộ sự kiện.
+        // =========================================================
+        'theme_thatdaitoi_mien_khe_tinh_gioi': {
+            primary: '#665378',
+            secondary: '#b6a7c4',
+            background: '#ece9ef',
+            className: 'theme-seven-sins-languor-codex'
+        },
         'theme_he_mat_troi_sinh_quyen': {
             primary: '#36d6c3',
             secondary: '#ffbd45',
@@ -286,7 +298,9 @@ class ThemeManager {
     // Những popup phải giữ giao diện riêng,
     // không nhận CSS từ vật phẩm giao diện.
     static themeImmunePopupSelectors = Object.freeze([
-        '[data-theme-immune="true"]'
+        '[data-theme-immune="true"]',
+        '.modal-overlay', '.student-modal-overlay', 'dialog',
+        '.ql-toolbar', '.ql-container', '.mcw2-overlay'
     ]);
 
     /* =========================================================
@@ -365,6 +379,20 @@ class ThemeManager {
 
             className:
                 'store-card-seven-sins-sloth'
+        }),
+
+        /*
+         * Acedia Chibi 850 Coin: cùng nhãn Thất Đại Tội nhưng card độc lập.
+         * Đăng ký tại ThemeManager để preserveSpecialStoreCards() luôn khôi phục
+         * class miễn nhiễm sau khi đổi giao diện.
+         */
+        'seven-sins-acedia-chibi': Object.freeze({
+            itemIds: Object.freeze([
+                'pet_thatdaitoi_luoibieng_chibi_1',
+                'theme_thatdaitoi_mien_khe_tinh_gioi',
+                'effect_thatdaitoi_mien_vu_tinh_da'
+            ]),
+            className: 'store-card-acedia-chibi-reverie'
         }),
 
         /* Bộ Thần Hệ Tinh Vân */
@@ -1048,6 +1076,41 @@ class ThemeManager {
         document.documentElement.classList.add(
             'acedia-palace-mounted'
         );
+
+        requestAnimationFrame(() => {
+            decor.classList.add('is-mounted');
+        });
+    }
+
+    // =========================================================
+    // THẤT ĐẠI TỘI · MIÊN KHẾ TĨNH GIỚI — DECOR RUNTIME RIÊNG
+    // Namespace tdtui2-*; không dùng acedia-palace-* của theme sự kiện.
+    // =========================================================
+    static clearSevenSinsLanguorCodexDecor() {
+        document
+            .getElementById('tdtui2-languor-codex')
+            ?.remove();
+
+        document.documentElement.classList.remove(
+            'tdtui2-mounted'
+        );
+    }
+
+    static createSevenSinsLanguorCodexDecor() {
+        this.clearSevenSinsLanguorCodexDecor();
+
+        if (!document.body) return;
+
+        const decor = document.createElement('div');
+        decor.id = 'tdtui2-languor-codex';
+        decor.className = 'tdtui2-languor-codex';
+        decor.setAttribute('aria-hidden', 'true');
+
+        // Một lớp ánh màu nhẹ, không sinh hạt hoặc thay bố cục nội dung.
+        decor.innerHTML = '<div class="tdtui2-dream-glow"></div>';
+
+        document.body.prepend(decor);
+        document.documentElement.classList.add('tdtui2-mounted');
 
         requestAnimationFrame(() => {
             decor.classList.add('is-mounted');
@@ -1983,6 +2046,7 @@ class ThemeManager {
     static applyTheme(themeId) {
         this.initThemePopupIsolation();
         this.clearAcediaPalaceDecor();
+        this.clearSevenSinsLanguorCodexDecor();
         this.clearTamonBsideBackstageDecor();
         this.clearCamMongThanhHuyenDecor();
         this.clearMidAutumnLanternFestivalDecor();
@@ -2042,6 +2106,13 @@ class ThemeManager {
             'theme_thatdaitoi_acedia_dream'
         ) {
             this.createAcediaPalaceDecor();
+        }
+
+        if (
+            themeId ===
+            'theme_thatdaitoi_mien_khe_tinh_gioi'
+        ) {
+            this.createSevenSinsLanguorCodexDecor();
         }
 
         if (
