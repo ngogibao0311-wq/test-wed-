@@ -1903,9 +1903,9 @@ body.theme-legendary-celestial {
        NÚT, Ô NHẬP, BẢNG
        ============================================================= */
 
-    body.theme-legendary-celestial button:not(.nav-item):not(.sidebar-toggle):not(.profile-trigger-btn):not(.bag-trigger-btn):not(.inbox-trigger-btn):not(.leaderboard-trigger-btn):not(#btnLeaderboard):not(.close-btn),
+    body.theme-legendary-celestial button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)):not(.nav-item):not(.sidebar-toggle):not(.profile-trigger-btn):not(.bag-trigger-btn):not(.inbox-trigger-btn):not(.leaderboard-trigger-btn):not(#btnLeaderboard):not(.close-btn),
     body.theme-legendary-celestial .btn,
-    body.theme-legendary-celestial .button {
+    body.theme-legendary-celestial .button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)) {
         color:
             #1d1025 !important;
 
@@ -1940,9 +1940,9 @@ body.theme-legendary-celestial {
             filter 0.22s ease !important;
     }
 
-    body.theme-legendary-celestial button:not(.nav-item):not(.sidebar-toggle):not(.profile-trigger-btn):not(.bag-trigger-btn):not(.inbox-trigger-btn):not(.leaderboard-trigger-btn):not(#btnLeaderboard):not(.close-btn):hover:not(:disabled),
+    body.theme-legendary-celestial button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)):not(.nav-item):not(.sidebar-toggle):not(.profile-trigger-btn):not(.bag-trigger-btn):not(.inbox-trigger-btn):not(.leaderboard-trigger-btn):not(#btnLeaderboard):not(.close-btn):hover:not(:disabled),
     body.theme-legendary-celestial .btn:hover:not(:disabled),
-    body.theme-legendary-celestial .button:hover:not(:disabled) {
+    body.theme-legendary-celestial .button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)):hover:not(:disabled) {
         transform:
             translateY(-3px);
 
@@ -1958,7 +1958,7 @@ body.theme-legendary-celestial {
             inset 0 1px 0 rgba(255, 255, 255, 0.65) !important;
     }
 
-    body.theme-legendary-celestial button:disabled,
+    body.theme-legendary-celestial button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)):disabled,
     body.theme-legendary-celestial .btn:disabled {
         filter:
             grayscale(0.34) brightness(0.72);

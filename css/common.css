@@ -4,7 +4,7 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Nunito', 'Segoe UI', sans-serif;
+    font-family: inherit;
 }
 
 body {
@@ -84,7 +84,7 @@ select:focus {
     box-shadow: 0 0 0 4px rgba(142, 197, 252, 0.3);
 }
 
-button {
+button:where(:not(.ql-toolbar *):not(#hoihoaStudentModal *):not(.appeal-dialog *)) {
     width: 100%;
     padding: 14px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -99,12 +99,12 @@ button {
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
 }
 
-button:hover {
+button:where(:not(.ql-toolbar *):not(#hoihoaStudentModal *):not(.appeal-dialog *)):hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
 }
 
-button:active {
+button:where(:not(.ql-toolbar *):not(#hoihoaStudentModal *):not(.appeal-dialog *)):active {
     transform: translateY(1px);
 }
 
@@ -1406,9 +1406,9 @@ textarea::placeholder,
 
 /* ---------- Nút bấm ---------- */
 
-button,
+button:where(:not(.ql-toolbar *):not(#hoihoaStudentModal *):not(.appeal-dialog *)),
 .btn,
-.button {
+.button:where(:not(.ql-toolbar *):not(#hoihoaStudentModal *):not(.appeal-dialog *)) {
     min-height: 44px;
     border-radius: 14px;
     font-family: var(--ui-font);
@@ -1420,13 +1420,13 @@ button,
         background var(--ui-transition);
 }
 
-button:not(.nav-item):not(.close-btn):not(.sidebar-toggle):not(.profile-trigger-btn),
+button:where(:not(.ql-toolbar *):not(#hoihoaStudentModal *):not(.appeal-dialog *)):not(.nav-item):not(.close-btn):not(.sidebar-toggle):not(.profile-trigger-btn),
 .btn-primary {
     background: linear-gradient(125deg, var(--ui-primary), var(--ui-secondary));
     box-shadow: 0 9px 22px rgba(79, 70, 229, 0.22);
 }
 
-button:not(.nav-item):not(.close-btn):not(.sidebar-toggle):not(.profile-trigger-btn):hover,
+button:where(:not(.ql-toolbar *):not(#hoihoaStudentModal *):not(.appeal-dialog *)):not(.nav-item):not(.close-btn):not(.sidebar-toggle):not(.profile-trigger-btn):hover,
 .btn-primary:hover {
     filter: brightness(1.04) saturate(1.05);
     transform: translateY(-2px);
@@ -2277,7 +2277,7 @@ body.login-page::after {
    ========================================================================== */
 
 /* Khung toolbar: gọn, cho phép xuống dòng trên màn hình hẹp. */
-html body .dashboard .ql-toolbar.ql-snow {
+html body .ql-toolbar.ql-snow {
     display: flex !important;
     flex-wrap: wrap !important;
     align-items: center !important;
@@ -2291,7 +2291,7 @@ html body .dashboard .ql-toolbar.ql-snow {
 }
 
 /* Mỗi nhóm công cụ trở lại đúng kích thước mặc định Quill. */
-html body .dashboard .ql-toolbar.ql-snow .ql-formats {
+html body .ql-toolbar.ql-snow .ql-formats {
     display: inline-flex !important;
     align-items: center !important;
     flex: 0 0 auto !important;
@@ -2304,11 +2304,11 @@ html body .dashboard .ql-toolbar.ql-snow .ql-formats {
 }
 
 /* Cô lập các nút Quill khỏi button toàn cục và CSS của theme vật phẩm. */
-html body .dashboard .ql-toolbar.ql-snow button[class],
-html body .dashboard .ql-toolbar.ql-snow button[class]:hover,
-html body .dashboard .ql-toolbar.ql-snow button[class]:focus,
-html body .dashboard .ql-toolbar.ql-snow button[class]:active,
-html body .dashboard .ql-toolbar.ql-snow button[class].ql-active {
+html body .ql-toolbar.ql-snow button[class],
+html body .ql-toolbar.ql-snow button[class]:hover,
+html body .ql-toolbar.ql-snow button[class]:focus,
+html body .ql-toolbar.ql-snow button[class]:active,
+html body .ql-toolbar.ql-snow button[class].ql-active {
     position: relative !important;
 
     width: 28px !important;
@@ -2351,8 +2351,8 @@ html body .dashboard .ql-toolbar.ql-snow button[class].ql-active {
 }
 
 /* Xóa tia sáng/pseudo-element mà theme chung thêm vào button. */
-html body .dashboard .ql-toolbar.ql-snow button[class]::before,
-html body .dashboard .ql-toolbar.ql-snow button[class]::after {
+html body .ql-toolbar.ql-snow button[class]::before,
+html body .ql-toolbar.ql-snow button[class]::after {
     content: none !important;
     display: none !important;
     position: static !important;
@@ -2365,7 +2365,7 @@ html body .dashboard .ql-toolbar.ql-snow button[class]::after {
 }
 
 /* Khóa kích thước SVG icon. */
-html body .dashboard .ql-toolbar.ql-snow button[class] svg {
+html body .ql-toolbar.ql-snow button[class] svg {
     width: 18px !important;
     height: 18px !important;
     min-width: 18px !important;
@@ -2384,33 +2384,33 @@ html body .dashboard .ql-toolbar.ql-snow button[class] svg {
 }
 
 /* Giữ màu trạng thái mặc định của Quill. */
-html body .dashboard .ql-snow .ql-stroke {
+html body .ql-snow .ql-stroke {
     stroke: #444 !important;
 }
 
-html body .dashboard .ql-snow .ql-fill,
-html body .dashboard .ql-snow .ql-stroke.ql-fill {
+html body .ql-snow .ql-fill,
+html body .ql-snow .ql-stroke.ql-fill {
     fill: #444 !important;
 }
 
-html body .dashboard .ql-snow button:hover .ql-stroke,
-html body .dashboard .ql-snow button:focus .ql-stroke,
-html body .dashboard .ql-snow button.ql-active .ql-stroke,
-html body .dashboard .ql-snow .ql-picker-label:hover .ql-stroke,
-html body .dashboard .ql-snow .ql-picker-label.ql-active .ql-stroke {
+html body .ql-snow button:hover .ql-stroke,
+html body .ql-snow button:focus .ql-stroke,
+html body .ql-snow button.ql-active .ql-stroke,
+html body .ql-snow .ql-picker-label:hover .ql-stroke,
+html body .ql-snow .ql-picker-label.ql-active .ql-stroke {
     stroke: var(--ui-primary, #4f46e5) !important;
 }
 
-html body .dashboard .ql-snow button:hover .ql-fill,
-html body .dashboard .ql-snow button:focus .ql-fill,
-html body .dashboard .ql-snow button.ql-active .ql-fill,
-html body .dashboard .ql-snow .ql-picker-label:hover .ql-fill,
-html body .dashboard .ql-snow .ql-picker-label.ql-active .ql-fill {
+html body .ql-snow button:hover .ql-fill,
+html body .ql-snow button:focus .ql-fill,
+html body .ql-snow button.ql-active .ql-fill,
+html body .ql-snow .ql-picker-label:hover .ql-fill,
+html body .ql-snow .ql-picker-label.ql-active .ql-fill {
     fill: var(--ui-primary, #4f46e5) !important;
 }
 
 /* Picker màu/nền không nhận style select/input chung. */
-html body .dashboard .ql-toolbar.ql-snow .ql-picker {
+html body .ql-toolbar.ql-snow .ql-picker {
     width: auto !important;
     min-width: 0 !important;
     min-height: 24px !important;
@@ -2432,7 +2432,7 @@ html body .dashboard .ql-toolbar.ql-snow .ql-picker {
     filter: none !important;
 }
 
-html body .dashboard .ql-toolbar.ql-snow .ql-picker-label {
+html body .ql-toolbar.ql-snow .ql-picker-label {
     height: 24px !important;
     min-height: 24px !important;
     padding: 0 2px !important;
@@ -2446,7 +2446,7 @@ html body .dashboard .ql-toolbar.ql-snow .ql-picker-label {
     line-height: 22px !important;
 }
 
-html body .dashboard .ql-toolbar.ql-snow .ql-picker-options {
+html body .ql-toolbar.ql-snow .ql-picker-options {
     z-index: 10020 !important;
 
     padding: 4px 8px !important;
@@ -2461,7 +2461,7 @@ html body .dashboard .ql-toolbar.ql-snow .ql-picker-options {
 }
 
 /* Khung nhập liệu Quill. */
-html body .dashboard .ql-container.ql-snow {
+html body .ql-container.ql-snow {
     width: 100% !important;
 
     color: #1f2937 !important;
@@ -2471,7 +2471,7 @@ html body .dashboard .ql-container.ql-snow {
     font-size: 15px !important;
 }
 
-html body .dashboard .ql-editor {
+html body .ql-editor {
     min-height: 145px !important;
     padding: 14px 16px !important;
 
@@ -2481,14 +2481,14 @@ html body .dashboard .ql-editor {
     line-height: 1.65 !important;
 }
 
-html body .dashboard .ql-editor::before {
+html body .ql-editor::before {
     left: 16px !important;
     right: 16px !important;
     color: #94a3b8 !important;
 }
 
 /* Tooltip chèn liên kết không nhận input/button toàn cục. */
-html body .dashboard .ql-snow .ql-tooltip {
+html body .ql-snow .ql-tooltip {
     z-index: 10030 !important;
 
     padding: 6px 10px !important;
@@ -2502,7 +2502,7 @@ html body .dashboard .ql-snow .ql-tooltip {
     box-shadow: 0 12px 30px rgba(15, 23, 42, 0.2) !important;
 }
 
-html body .dashboard .ql-snow .ql-tooltip input[type='text'] {
+html body .ql-snow .ql-tooltip input[type='text'] {
     width: 170px !important;
     min-width: 0 !important;
     min-height: 26px !important;
@@ -2548,16 +2548,16 @@ html body.theme-lotm-mysteries .dashboard .ql-toolbar.ql-snow .ql-picker-label {
 
 /* Màn hình nhỏ: toolbar tự xuống dòng nhưng icon không phình. */
 @media (max-width: 720px) {
-    html body .dashboard .ql-toolbar.ql-snow {
+    html body .ql-toolbar.ql-snow {
         padding: 7px 6px !important;
     }
 
-    html body .dashboard .ql-toolbar.ql-snow .ql-formats {
+    html body .ql-toolbar.ql-snow .ql-formats {
         margin-right: 8px !important;
         margin-bottom: 2px !important;
     }
 
-    html body .dashboard .ql-editor {
+    html body .ql-editor {
         min-height: 130px !important;
         padding: 12px !important;
     }
@@ -3493,7 +3493,7 @@ body.preview-modal-open {
     line-height: 1.6;
 }
 
-.login-layout-save-button {
+.login-layout-save-button:where(:not(.ql-toolbar *):not(#hoihoaStudentModal *):not(.appeal-dialog *)) {
     margin-top: 16px;
 
     color: #ffffff !important;

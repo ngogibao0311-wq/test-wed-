@@ -256,14 +256,7 @@
         padding: 10px !important;
     }
 
-    #luckyWheelModal .modal-content {
-        padding: 25px 15px 35px 15px !important;
-    }
-
-    #wheelContainer {
-        width: 270px !important;
-        height: 270px !important;
-    }
+    #luckyWheelModal .lucky-wheel-panel { padding:20px 14px; }
 
     .wheel-text {
         font-size: 0.85em !important;

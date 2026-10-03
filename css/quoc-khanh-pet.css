@@ -2,7 +2,7 @@
 .lux10-viet.lux10{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;height:100dvh!important;pointer-events:none!important;overflow:hidden!important;isolation:isolate;contain:layout paint;z-index:2;background:none!important;opacity:1;transform:none!important}
 .lux10-viet.lux10 *{pointer-events:none!important;box-sizing:border-box}
 .lux10-viet>svg{position:absolute!important;inset:0;width:100%!important;height:100%!important;fill:none;stroke:currentColor;stroke-width:1.2;overflow:hidden;filter:drop-shadow(0 0 5px color-mix(in srgb,var(--l10-color) 30%,transparent))}
-.lux10-viet.lux10-world{z-index:1;opacity:.23;mask-image:radial-gradient(ellipse at 50% 46%,transparent 10%,#000 85%)}
+.lux10-viet.lux10-world{z-index:920;opacity:.23;mask-image:radial-gradient(ellipse at 50% 46%,transparent 10%,#000 85%)}
 .lux10-viet.lux10-click{z-index:2147482990;animation:viet10-tap 2.3s ease-out both;transform-origin:var(--impact-x) var(--impact-y);mask-image:radial-gradient(ellipse at var(--impact-x) var(--impact-y),#000 15%,#0009 50%,transparent 95%)}
 .lux10-viet.lux10-ultimate{z-index:2147482995;background:radial-gradient(ellipse,transparent,var(--l10-bg) 85%)!important;animation:viet10-cinema 8.4s ease both}
 .lux10-viet.lux10-ultimate>svg{animation:viet10-arrive 8.4s cubic-bezier(.2,.7,.2,1) both}
@@ -3871,13 +3871,7 @@ body.theme-viet-dieu-hong-ky ::selection {
    HOTFIX · TĂNG KÍCH THƯỚC NHÂN VẬT TRÊN CARD QUỐC KHÁNH
    Chỉ áp dụng cho pet_quoc_khanh_1
    ================================================================ */
-.store-card-national-day-2-9[data-item-id="pet_quoc_khanh_1"] .item-icon-wrapper {
-    min-height: 126px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    overflow: visible !important;
-}
+
 
 .store-card-national-day-2-9[data-item-id="pet_quoc_khanh_1"] .item-icon,
 .store-card-national-day-2-9[data-item-id="pet_quoc_khanh_1"] img.item-icon {

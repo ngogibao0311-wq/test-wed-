@@ -2193,7 +2193,7 @@ body.theme-starry-night-painted-gallery::after {
 }
 
 body.theme-starry-night-painted-gallery,
-body.theme-starry-night-painted-gallery button,
+body.theme-starry-night-painted-gallery button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)),
 body.theme-starry-night-painted-gallery input,
 body.theme-starry-night-painted-gallery select,
 body.theme-starry-night-painted-gallery textarea {

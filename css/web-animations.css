@@ -1,13 +1,13 @@
 /* Motion belongs to the app shell. Cosmetic item keyframes are untouched. */
 #wfx-web-animation-layer{position:fixed;inset:0;z-index:0!important;pointer-events:none!important;overflow:hidden;contain:strict;opacity:1;mix-blend-mode:normal}
 #wfx-web-animation-layer[hidden]{display:none!important}
-#wfx-web-animation-layer .wfx-aurora{position:absolute;width:65vw;height:65vh;border-radius:50%;background:radial-gradient(ellipse,#5865d830,transparent 68%);animation:campusAmbient 24s ease-in-out infinite alternate;pointer-events:none}
+#wfx-web-animation-layer .wfx-aurora{position:absolute;width:85vw;height:85vh;border-radius:50%;background:radial-gradient(ellipse,color-mix(in srgb,var(--campus-primary,#5865d8) 30%,transparent),transparent 68%);animation:campusAmbient 14s ease-in-out infinite alternate;pointer-events:none}
 #wfx-web-animation-layer .wfx-aurora-a{left:-15%;top:-20%}
-#wfx-web-animation-layer .wfx-aurora-b{right:-15%;bottom:-25%;animation-delay:-8s}
-html[data-campus-palette="custom"] #wfx-web-animation-layer,html[data-campus-artwork="true"] #wfx-web-animation-layer{display:none!important}
+#wfx-web-animation-layer .wfx-aurora-b{right:-15%;bottom:-25%;animation-delay:-7s;background:radial-gradient(ellipse,#66c9d83d,transparent 68%)}
+html[data-cosmetic-effect]:not([data-cosmetic-effect=""]) #wfx-web-animation-layer,html[data-item-effect="true"] #wfx-web-animation-layer,html[data-campus-palette="custom"] #wfx-web-animation-layer,html[data-campus-artwork="true"] #wfx-web-animation-layer{display:none!important}
 body.wfx-paused #wfx-web-animation-layer *,body.wfx-low-power #wfx-web-animation-layer *{animation-play-state:paused!important}
 body.wfx-ready>.dashboard{position:relative}
-@keyframes campusAmbient{from{translate:0 0}to{translate:12vw 7vh}}
+@keyframes campusAmbient{from{translate:0 0}to{translate:22vw 14vh;scale:1.12}}
 @media(prefers-reduced-motion:reduce){#wfx-web-animation-layer{display:none!important}}
 html body :is(#studentSidebar,#teacherSidebar) .nav-item{transition:background-color 140ms ease,border-color 140ms ease!important}
 html body :is(#studentDashboard,#teacherDashboard){transition:grid-template-columns 200ms ease!important}

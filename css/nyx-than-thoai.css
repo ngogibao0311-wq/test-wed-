@@ -5224,7 +5224,7 @@ body.theme-nyx-moon-sanctum {
 }
 
 body.theme-nyx-moon-sanctum,
-body.theme-nyx-moon-sanctum button,
+body.theme-nyx-moon-sanctum button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)),
 body.theme-nyx-moon-sanctum input,
 body.theme-nyx-moon-sanctum select,
 body.theme-nyx-moon-sanctum textarea {
@@ -5320,7 +5320,7 @@ body.theme-nyx-moon-sanctum:is(input,
         inset 0 0 18px rgba(88, 173, 218, .1) !important;
 }
 
-body.theme-nyx-moon-sanctum button:not(.close-btn) {
+body.theme-nyx-moon-sanctum button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)):not(.close-btn) {
     color: #f2fbff !important;
 
     background:
@@ -5340,7 +5340,7 @@ body.theme-nyx-moon-sanctum button:not(.close-btn) {
         0 7px 17px rgba(0, 6, 15, .31) !important;
 }
 
-body.theme-nyx-moon-sanctum button:hover {
+body.theme-nyx-moon-sanctum button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)):hover {
     filter: brightness(1.15);
 
     box-shadow:

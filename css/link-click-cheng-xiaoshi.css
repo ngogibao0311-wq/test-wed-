@@ -3,7 +3,7 @@
 .lux10-cheng.lux10{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;height:100dvh!important;pointer-events:none!important;overflow:hidden!important;isolation:isolate;contain:layout paint;z-index:2;background:none!important;opacity:1;transform:none!important}
 .lux10-cheng.lux10 *{pointer-events:none!important;box-sizing:border-box}
 .lux10-cheng>svg{position:absolute!important;inset:0;width:100%!important;height:100%!important;fill:none;stroke:currentColor;stroke-width:1.2;overflow:hidden;filter:drop-shadow(0 0 5px color-mix(in srgb,var(--l10-color) 30%,transparent))}
-.lux10-cheng.lux10-world{z-index:1;opacity:.23;mask-image:radial-gradient(ellipse at 50% 46%,transparent 10%,#000 85%)}
+.lux10-cheng.lux10-world{z-index:920;opacity:.23;mask-image:radial-gradient(ellipse at 50% 46%,transparent 10%,#000 85%)}
 .lux10-cheng.lux10-click{z-index:2147482990;animation:cheng10-tap 2.3s ease-out both;transform-origin:var(--impact-x) var(--impact-y);mask-image:radial-gradient(ellipse at var(--impact-x) var(--impact-y),#000 15%,#0009 50%,transparent 95%)}
 .lux10-cheng.lux10-ultimate{z-index:2147482995;background:radial-gradient(ellipse,transparent,var(--l10-bg) 85%)!important;animation:cheng10-cinema 8.4s ease both}
 .lux10-cheng.lux10-ultimate>svg{animation:cheng10-arrive 8.4s cubic-bezier(.2,.7,.2,1) both}

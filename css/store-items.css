@@ -1,3 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Montserrat:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,400;0,600;0,800;1,400&display=swap');
+
 /* css/store-items.css - Giao diện Glassmorphism 3D */
 
 .store-item-card {
@@ -252,7 +259,7 @@
 }
 
 /* 7. Định dạng lại Nút bấm (Buttons) */
-.theme-fairy-tale button,
+.theme-fairy-tale button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)),
 .theme-fairy-tale .btn-approve {
     background: linear-gradient(45deg, #d4af37, #f1c40f) !important;
     color: #0f0f1a !important;
@@ -264,7 +271,7 @@
     text-transform: uppercase;
 }
 
-.theme-fairy-tale button:hover {
+.theme-fairy-tale button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)):hover {
     box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6) !important;
     transform: translateY(-2px);
 }
@@ -417,7 +424,7 @@
 }
 
 /* 6. Định dạng lại Nút bấm (Buttons) */
-.theme-magic-forest button,
+.theme-magic-forest button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)),
 .theme-magic-forest .btn-approve {
     background: linear-gradient(45deg, #1abc9c, #2ecc71) !important;
     color: #04120c !important;
@@ -429,7 +436,7 @@
     box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3) !important;
 }
 
-.theme-magic-forest button:hover {
+.theme-magic-forest button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)):hover {
     box-shadow: 0 6px 20px rgba(46, 204, 113, 0.6) !important;
     transform: translateY(-2px);
 }
@@ -602,8 +609,6 @@
 ========================================================= */
 
 /* 1. Import Phông chữ từ Google Fonts (Phông tròn trịa, dễ đọc) */
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap');
-
 .theme-lifestyle {
     font-family: 'Nunito', sans-serif;
     background-color: #fdfaf5;
@@ -660,7 +665,7 @@
 }
 
 /* 5. Nút bấm phong cách "Pill" (Viên thuốc) */
-.theme-lifestyle button:not(.btn-preview) {
+.theme-lifestyle button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)):not(.btn-preview) {
     background: #88ab75 !important;
     border-radius: 30px !important;
     color: white !important;
@@ -800,8 +805,6 @@
 ========================================================= */
 
 /* 1. Thay đổi Phông chữ hiện đại và Nền tổng thể không gian */
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap');
-
 .theme-night-sky {
     font-family: 'Quicksand', sans-serif;
     color: #e0f7fa;
@@ -868,7 +871,7 @@
 }
 
 /* 6. Định dạng lại Nút bấm (Buttons: Neon Gradient) */
-.theme-night-sky button:not(.btn-preview),
+.theme-night-sky button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)):not(.btn-preview),
 .theme-night-sky .btn-approve {
     background: linear-gradient(45deg, #3f51b5, #aa00ff) !important;
     color: #ffffff !important;
@@ -881,7 +884,7 @@
     letter-spacing: 1px;
 }
 
-.theme-night-sky button:not(.btn-preview):hover {
+.theme-night-sky button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)):not(.btn-preview):hover {
     box-shadow: 0 6px 20px rgba(170, 0, 255, 0.6) !important;
     transform: translateY(-2px);
 }
@@ -1088,8 +1091,6 @@
 ========================================================= */
 
 /* 1. Phông chữ Fredoka (Tròn xoe, thân thiện, vui tươi) và Nền bầu trời */
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap');
-
 .theme-daylight-sky {
     font-family: 'Fredoka', sans-serif;
     color: #023e8a;
@@ -1161,7 +1162,7 @@
 }
 
 /* 6. Nút Bấm (Bouncy Buttons - Màu cam vàng) */
-.theme-daylight-sky button:not(.btn-preview),
+.theme-daylight-sky button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)):not(.btn-preview),
 .theme-daylight-sky .btn-approve {
     background: linear-gradient(135deg, #ffaa00, #ffea00) !important;
     color: #d00000 !important;
@@ -1176,7 +1177,7 @@
     transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
 }
 
-.theme-daylight-sky button:not(.btn-preview):hover {
+.theme-daylight-sky button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)):not(.btn-preview):hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 20px rgba(255, 170, 0, 0.5) !important;
 }
@@ -1279,8 +1280,6 @@
 ========================================================= */
 
 /* 1. Import Phông chữ Thần thoại (Cinzel) và Nền bầu trời pha lê */
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Montserrat:wght@400;600&display=swap');
-
 .theme-crystal-palace {
     /* Tiêu đề dùng Cinzel, chữ thường dùng Montserrat dễ đọc */
     font-family: 'Montserrat', sans-serif;
@@ -1364,7 +1363,7 @@
 }
 
 /* 6. Nút Bấm (Ngọc Lưu Ly) */
-.theme-crystal-palace button:not(.btn-preview),
+.theme-crystal-palace button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)):not(.btn-preview),
 .theme-crystal-palace .btn-approve {
     background: linear-gradient(135deg, #6c5ce7, #00cec9) !important;
     color: #ffffff !important;
@@ -1379,7 +1378,7 @@
     transition: all 0.3s ease !important;
 }
 
-.theme-crystal-palace button:not(.btn-preview):hover {
+.theme-crystal-palace button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)):not(.btn-preview):hover {
     transform: translateY(-3px);
     box-shadow: 0 10px 25px rgba(162, 155, 254, 0.6) !important;
 }
@@ -1946,8 +1945,6 @@
    ========================================================================= */
 
 /* --- 1. PHÔNG CHỮ VIỄN TƯỞNG VÀ TỐI ƯU DỄ ĐỌC (Sci-fi Typography) --- */
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@400;500;600;700&display=swap');
-
 /* Font mặc định cho toàn trang: Rajdhani (Viễn tưởng nhưng sắc nét, nét thanh, cực dễ đọc) */
 .theme-cosmic-godhood,
 .theme_truyenthuyet_vutru,
@@ -1971,8 +1968,8 @@
 .theme_truyenthuyet_vutru h6,
 .theme-cosmic-godhood strong,
 .theme_truyenthuyet_vutru strong,
-.theme-cosmic-godhood button,
-.theme_truyenthuyet_vutru button,
+.theme-cosmic-godhood button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)),
+.theme_truyenthuyet_vutru button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)),
 .theme-cosmic-godhood .item-tag,
 .theme_truyenthuyet_vutru .item-tag {
     font-family: 'Orbitron', sans-serif !important;
@@ -2053,8 +2050,8 @@
     pointer-events: none;
 }
 
-.theme-cosmic-godhood .store-item button,
-.theme_truyenthuyet_vutru .store-item button,
+.theme-cosmic-godhood .store-item button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)),
+.theme_truyenthuyet_vutru .store-item button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)),
 .theme-cosmic-godhood .main-btn,
 .theme_truyenthuyet_vutru .main-btn {
     border-radius: 2px !important;
@@ -2162,8 +2159,8 @@
 }
 
 /* Giữ nguyên màu text cho nút bấm để không bị lỗi */
-.theme-cosmic-godhood button,
-.theme_truyenthuyet_vutru button {
+.theme-cosmic-godhood button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)),
+.theme_truyenthuyet_vutru button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)) {
     color: #ffffff !important;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5) !important;
 }
@@ -2232,8 +2229,6 @@
    ========================================================================= */
 
 /* 1. Phông chữ Viễn tưởng (Exo 2) & Nền không gian sâu */
-@import url('https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,400;0,600;0,800;1,400&display=swap');
-
 .theme-mercury-station {
     font-family: 'Exo 2', sans-serif !important;
     color: #e2e8f0;
@@ -2316,7 +2311,7 @@
 }
 
 /* 6. Nút Bấm (Năng lượng Lõi) */
-.theme-mercury-station button:not(.btn-preview),
+.theme-mercury-station button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)):not(.btn-preview),
 .theme-mercury-station .btn-approve {
     background: linear-gradient(90deg, #c5c6c7, #45f3ff) !important;
     color: #0b0c10 !important;
@@ -2331,7 +2326,7 @@
     transition: all 0.3s ease !important;
 }
 
-.theme-mercury-station button:not(.btn-preview):hover {
+.theme-mercury-station button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)):not(.btn-preview):hover {
     background: linear-gradient(90deg, #ffffff, #45f3ff) !important;
     transform: scale(1.05);
     box-shadow: 0 6px 25px rgba(69, 243, 255, 0.7) !important;
@@ -2532,7 +2527,7 @@ body.theme-cosmic-anomaly {
 }
 
 /* 5. CÁC NÚT BẤM (Buttons) TRONG GIAO DIỆN VŨ TRỤ */
-.theme-cosmic-anomaly button,
+.theme-cosmic-anomaly button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)),
 .theme-cosmic-anomaly .btn {
     background: linear-gradient(135deg, #06b6d4 0%, #4f46e5 100%) !important;
     border: none !important;
@@ -2544,7 +2539,7 @@ body.theme-cosmic-anomaly {
     transition: all 0.3s ease !important;
 }
 
-.theme-cosmic-anomaly button:hover,
+.theme-cosmic-anomaly button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)):hover,
 .theme-cosmic-anomaly .btn:hover {
     background: linear-gradient(135deg, #ec4899 0%, #d946ef 100%) !important;
     /* Đổi sang phổ hồng tím khi hover */
@@ -3335,7 +3330,7 @@ body.theme-solar-biosphere {
 .theme-solar-biosphere input,
 .theme-solar-biosphere select,
 .theme-solar-biosphere textarea,
-.theme-solar-biosphere button {
+.theme-solar-biosphere button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)) {
     font-family:
         "Segoe UI Variable",
         "Trebuchet MS",
@@ -5418,7 +5413,7 @@ body.theme-saturn-observatory {
 .theme-saturn-observatory input,
 .theme-saturn-observatory select,
 .theme-saturn-observatory textarea,
-.theme-saturn-observatory button {
+.theme-saturn-observatory button:where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.ql-toolbar *)) {
     font-family:
         "Aptos",
         "Century Gothic",

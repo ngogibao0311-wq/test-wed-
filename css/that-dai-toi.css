@@ -303,10 +303,7 @@
    HIỆU ỨNG THÚ CƯNG LƯỜI BIẾNG
    ========================================================= */
 
-#virtual-pet-container.pet-seven-sins-sloth-stage {
-    isolation: isolate !important;
-    overflow: visible !important;
-}
+
 
 
 /* Ảnh thú cưng */
@@ -6981,6 +6978,665 @@ html.sloth-dream-realm-equipped
 }
 
 /* =========================================================
+   ACEDIA · LINH THÚ LƯỜI BIẾNG CHIBI — CARD V2 / EFFECT V2
+   Concept mới: "Miên Phù Tàn Thư" — giấy chú, mực tím tro, dấu niêm VII.
+   - Thẻ dùng chung cho Chibi và Miên Khế; tag dùng chung với Mộng Điện.
+   - Giữ nguyên DOM card chuẩn; namespace card riêng + acch1-* runtime pet.
+   ========================================================= */
+
+.store-item-card.store-card-acedia-chibi-reverie.ui-theme-immune {
+    position: relative !important;
+    isolation: isolate !important;
+    overflow: hidden !important;
+    color: #2d2232 !important;
+    background:
+        linear-gradient(112deg, rgba(116, 87, 132, .08) 0 1px, transparent 1px 18px),
+        radial-gradient(circle at 78% 18%, rgba(119, 88, 144, .13), transparent 30%),
+        linear-gradient(150deg, #f0e8ee 0%, #ded2df 54%, #c7b8ca 100%) !important;
+    border: 1px solid rgba(78, 55, 92, .45) !important;
+    border-radius: 5px 22px 5px 22px !important;
+    box-shadow:
+        0 17px 34px rgba(38, 25, 44, .26),
+        7px 7px 0 rgba(83, 59, 96, .10),
+        inset 0 0 0 1px rgba(255, 255, 255, .38) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+.store-item-card.store-card-acedia-chibi-reverie.ui-theme-immune::before {
+    content: "" !important;
+    position: absolute !important;
+    z-index: 0 !important;
+    left: 14px !important;
+    right: 14px !important;
+    top: 62px !important;
+    height: 1px !important;
+    background: linear-gradient(90deg, transparent, rgba(79, 55, 94, .36), transparent) !important;
+    box-shadow: 0 8px 0 rgba(79, 55, 94, .07), 0 16px 0 rgba(79, 55, 94, .05) !important;
+    pointer-events: none !important;
+}
+
+.store-item-card.store-card-acedia-chibi-reverie.ui-theme-immune::after {
+    content: "Z" !important;
+    position: absolute !important;
+    z-index: 0 !important;
+    right: 16px !important;
+    bottom: 2px !important;
+    color: rgba(72, 49, 87, .08) !important;
+    font-family: Georgia, serif !important;
+    font-size: 96px !important;
+    font-style: italic !important;
+    font-weight: 900 !important;
+    line-height: .8 !important;
+    transform: rotate(-12deg) !important;
+    pointer-events: none !important;
+}
+
+.store-card-acedia-chibi-reverie .card-glow,
+.store-card-acedia-chibi-reverie .item-tag,
+.store-card-acedia-chibi-reverie .item-icon-wrapper,
+.store-card-acedia-chibi-reverie .item-info,
+.store-card-acedia-chibi-reverie .item-actions {
+    position: relative !important;
+    z-index: 4 !important;
+}
+
+.store-card-acedia-chibi-reverie .item-icon-wrapper {
+    isolation: isolate !important;
+    border: 1px solid rgba(76, 52, 90, .16) !important;
+    border-radius: 8px 24px 8px 24px !important;
+    background:
+        repeating-linear-gradient(0deg, rgba(73, 49, 86, .04) 0 1px, transparent 1px 11px),
+        rgba(255, 255, 255, .27) !important;
+    box-shadow: inset 0 0 20px rgba(75, 51, 89, .05) !important;
+}
+
+.store-card-acedia-chibi-reverie .item-icon-wrapper::after {
+    content: "" !important;
+    position: absolute !important;
+    z-index: -1 !important;
+    inset: 14% 10% !important;
+    border: 1px dashed rgba(82, 57, 97, .25) !important;
+    border-radius: 6px 20px 6px 20px !important;
+    transform: rotate(-2deg) !important;
+    box-shadow: none !important;
+    animation: acch1CardPaperPulse 5.8s ease-in-out infinite !important;
+    pointer-events: none !important;
+}
+
+.store-card-acedia-chibi-reverie .item-icon {
+    filter: drop-shadow(0 12px 9px rgba(43, 28, 49, .28)) !important;
+}
+
+.store-card-acedia-chibi-reverie .item-name {
+    color: #312239 !important;
+    font-family: Georgia, "Times New Roman", serif !important;
+    text-shadow: none !important;
+}
+
+.store-card-acedia-chibi-reverie .item-type-label {
+    color: rgba(62, 42, 73, .66) !important;
+    font-family: "Trebuchet MS", "Segoe UI", sans-serif !important;
+    letter-spacing: .14em !important;
+}
+
+.store-card-acedia-chibi-reverie .btn-buy,
+.store-card-acedia-chibi-reverie .btn-equip,
+.store-card-acedia-chibi-reverie .btn-preview {
+    border-radius: 3px 14px 3px 14px !important;
+}
+
+/* =========================================================
+   ACEDIA CHIBI EFFECT V2 — "TRƯỜNG TRÌ HOÃN / MIÊN PHÙ"
+   Runtime DOM vẫn acch1-* để không cần monkey-patch JS.
+   Hình học, palette và chuyển động được thay mới hoàn toàn.
+   ========================================================= */
+
+#virtual-pet-container.pet-acedia-chibi-stage {
+    isolation: isolate !important;
+    overflow: visible !important;
+}
+
+#virtual-pet-container.pet-acedia-chibi-stage .acedia-chibi-dream-magic {
+    position: relative !important;
+    z-index: 12 !important;
+    width: 150px !important;
+    max-width: none !important;
+    height: auto !important;
+    transform-origin: 50% 82% !important;
+    filter:
+        drop-shadow(0 11px 9px rgba(31, 22, 37, .46))
+        drop-shadow(0 0 8px rgba(134, 103, 151, .24)) !important;
+    animation: acch1PetPaperIdle 6.2s cubic-bezier(.4,0,.2,1) infinite !important;
+}
+
+#virtual-pet-container.pet-acedia-chibi-stage.acch1-casting .acedia-chibi-dream-magic {
+    animation: acch1PetSealCast .95s cubic-bezier(.18,.8,.22,1) both !important;
+}
+
+.acch1-local-realm {
+    position: absolute !important;
+    z-index: 3 !important;
+    left: 50% !important;
+    top: 55% !important;
+    width: 214px !important;
+    height: 176px !important;
+    transform: translate(-50%, -50%) !important;
+    pointer-events: none !important;
+}
+
+.acch1-dream-haze {
+    position: absolute !important;
+    left: 50% !important;
+    top: 64% !important;
+    width: 188px !important;
+    height: 34px !important;
+    border-radius: 3px 16px 3px 16px !important;
+    background: linear-gradient(90deg, transparent, rgba(103, 77, 119, .18), rgba(224, 211, 228, .30), transparent) !important;
+    filter: blur(4px) !important;
+    transform: translate(-50%, -50%) skewX(-14deg) !important;
+    animation: acch1SlowBand 7.4s ease-in-out infinite !important;
+}
+
+.acch1-dream-haze.haze-b {
+    top: 76% !important;
+    width: 142px !important;
+    opacity: .58 !important;
+    animation-delay: -3.3s !important;
+}
+
+.acch1-local-sigil {
+    position: absolute !important;
+    left: 50% !important;
+    top: 52% !important;
+    width: 128px !important;
+    height: 128px !important;
+    transform: translate(-50%, -50%) rotate(45deg) !important;
+    border: 1px solid rgba(103, 74, 119, .34) !important;
+    border-radius: 8px !important;
+    background: rgba(224, 214, 226, .03) !important;
+    box-shadow: inset 0 0 16px rgba(92, 64, 109, .08), 0 0 16px rgba(111, 82, 130, .08) !important;
+}
+
+.acch1-local-sigil > b {
+    position: absolute !important;
+    inset: 0 !important;
+    display: grid !important;
+    place-items: center !important;
+    transform: rotate(-45deg) !important;
+    color: rgba(238, 228, 240, .86) !important;
+    font-family: Georgia, serif !important;
+    font-size: 22px !important;
+    text-shadow: 0 0 8px rgba(134, 104, 151, .45) !important;
+    animation: acch1StampBreath 3.8s ease-in-out infinite !important;
+}
+
+.acch1-sigil-ring {
+    position: absolute !important;
+    inset: 10px !important;
+    border: 1px dashed rgba(132, 99, 151, .30) !important;
+    border-radius: 6px !important;
+    transform: rotate(0deg) !important;
+    animation: acch1SquareTurn 22s linear infinite !important;
+}
+
+.acch1-sigil-ring.ring-b {
+    inset: 23px !important;
+    border-style: solid !important;
+    opacity: .62 !important;
+    animation-duration: 15s !important;
+    animation-direction: reverse !important;
+}
+
+.acch1-sigil-ring.ring-c {
+    inset: 36px !important;
+    border-style: dotted !important;
+    opacity: .45 !important;
+    animation-duration: 10s !important;
+}
+
+.acch1-moon-crown {
+    position: absolute !important;
+    left: 66% !important;
+    top: 7% !important;
+    width: 34px !important;
+    height: 28px !important;
+    display: grid !important;
+    place-items: center !important;
+    overflow: visible !important;
+    color: transparent !important;
+    font-size: 0 !important;
+    transform: rotate(7deg) !important;
+    animation: acch1NoteFloat 4.8s ease-in-out infinite !important;
+}
+
+.acch1-moon-crown::before {
+    content: "Z" !important;
+    color: rgba(230, 218, 234, .88) !important;
+    font-family: Georgia, serif !important;
+    font-size: 24px !important;
+    font-style: italic !important;
+    font-weight: 900 !important;
+    text-shadow: 0 0 8px rgba(119, 88, 139, .50) !important;
+}
+
+.acch1-sleep-cloud {
+    position: absolute !important;
+    width: 68px !important;
+    height: 24px !important;
+    border: 1px solid rgba(128, 94, 145, .19) !important;
+    border-radius: 3px 14px 3px 14px !important;
+    background: rgba(225, 215, 229, .09) !important;
+    box-shadow: 5px 5px 0 rgba(64, 43, 76, .04) !important;
+    animation: acch1PaperSlip 6.4s ease-in-out infinite !important;
+}
+
+.acch1-sleep-cloud.cloud-a { left: 6% !important; top: 23% !important; transform: rotate(-8deg) !important; }
+.acch1-sleep-cloud.cloud-b { right: 4% !important; top: 36% !important; transform: rotate(11deg) !important; animation-delay: -3.1s !important; }
+
+.acch1-orbit-field {
+    position: absolute !important;
+    left: 50% !important;
+    top: 52% !important;
+    width: 0 !important;
+    height: 0 !important;
+    animation: acch1LedgerOrbit 24s linear infinite !important;
+}
+
+.acch1-orbit-rune {
+    position: absolute !important;
+    left: -10px !important;
+    top: -10px !important;
+    width: 20px !important;
+    height: 20px !important;
+    display: grid !important;
+    place-items: center !important;
+    border: 1px solid rgba(146, 111, 163, .30) !important;
+    border-radius: 3px 8px 3px 8px !important;
+    background: rgba(49, 34, 58, .62) !important;
+    color: rgba(242, 234, 244, .84) !important;
+    font-family: Georgia, serif !important;
+    font-size: 9px !important;
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, .12) !important;
+    transform:
+        rotate(var(--acch1-angle))
+        translateX(78px)
+        rotate(var(--acch1-angle-back)) !important;
+    animation: acch1RuneFade 3.4s ease-in-out var(--acch1-delay) infinite !important;
+}
+
+.acch1-dream-mote {
+    position: absolute !important;
+    left: var(--acch1-x) !important;
+    bottom: 18% !important;
+    width: 3px !important;
+    height: 3px !important;
+    border-radius: 1px !important;
+    background: rgba(230, 219, 233, .84) !important;
+    color: transparent !important;
+    font-size: 0 !important;
+    box-shadow: 0 0 6px rgba(127, 95, 145, .52) !important;
+    animation: acch1DustRise var(--acch1-duration) ease-in-out var(--acch1-delay) infinite !important;
+}
+
+.acch1-local-burst {
+    position: absolute !important;
+    z-index: 18 !important;
+    left: 50% !important;
+    top: 54% !important;
+    width: 1px !important;
+    height: 1px !important;
+    pointer-events: none !important;
+}
+
+.acch1-local-burst > span {
+    position: absolute !important;
+    left: -5px !important;
+    top: -3px !important;
+    width: 10px !important;
+    height: 6px !important;
+    border: 1px solid rgba(237, 226, 240, .72) !important;
+    border-radius: 1px 5px 1px 5px !important;
+    background: rgba(96, 68, 111, .32) !important;
+    opacity: 0 !important;
+    transform: rotate(var(--acch1-burst-angle)) translateX(10px) scale(.4) !important;
+    animation: acch1PaperBurst 1.25s ease-out var(--acch1-burst-delay) forwards !important;
+}
+
+/* Ultimate: không eclipse/cổng cung điện nữa; DOM cũ được tái tạo thành "niêm ấn trì hoãn". */
+.acch1-screen-ultimate {
+    position: fixed !important;
+    z-index: 2147482500 !important;
+    inset: 0 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+    background: rgba(28, 22, 31, .02) !important;
+    transition: opacity .28s ease !important;
+}
+
+.acch1-screen-ultimate.is-active { opacity: 1 !important; }
+.acch1-screen-ultimate.is-ending { opacity: 0 !important; transition-duration: .7s !important; }
+
+.acch1-screen-veil {
+    position: absolute !important;
+    inset: 0 !important;
+    background:
+        repeating-linear-gradient(0deg, rgba(239, 232, 241, .025) 0 1px, transparent 1px 18px),
+        linear-gradient(135deg, rgba(34, 25, 39, .90), rgba(61, 45, 69, .84) 52%, rgba(24, 18, 28, .92)) !important;
+    animation: acch1VeilSlide 7s linear infinite !important;
+}
+
+.acch1-screen-mist {
+    position: absolute !important;
+    left: -10% !important;
+    width: 120% !important;
+    height: 16vh !important;
+    border-radius: 6px 28px 6px 28px !important;
+    background: linear-gradient(90deg, transparent, rgba(198, 178, 207, .12), rgba(237, 227, 240, .18), transparent) !important;
+    filter: blur(13px) !important;
+    transform: skewX(-12deg) !important;
+    animation: acch1ScreenBand 7.6s ease-in-out infinite !important;
+}
+
+.acch1-screen-mist.mist-a { top: 24vh !important; }
+.acch1-screen-mist.mist-b { bottom: 17vh !important; animation-delay: -3.8s !important; }
+
+.acch1-screen-eclipse {
+    position: absolute !important;
+    left: 50% !important;
+    top: 47% !important;
+    width: min(58vw, 560px) !important;
+    height: min(58vw, 560px) !important;
+    border-radius: 24px 70px 24px 70px !important;
+    transform: translate(-50%, -50%) rotate(45deg) scale(.12) !important;
+    opacity: 0 !important;
+    border: 1px solid rgba(222, 207, 227, .38) !important;
+    background: rgba(42, 31, 48, .28) !important;
+    box-shadow: inset 0 0 70px rgba(183, 158, 194, .08), 0 0 50px rgba(0,0,0,.22) !important;
+    animation: acch1SealEnter 1.08s cubic-bezier(.18,.82,.2,1) .08s forwards !important;
+}
+
+.acch1-eclipse-core {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: 112px !important;
+    height: 112px !important;
+    display: grid !important;
+    place-items: center !important;
+    transform: translate(-50%, -50%) rotate(-45deg) !important;
+    border: 1px solid rgba(238, 229, 241, .58) !important;
+    border-radius: 7px 28px 7px 28px !important;
+    background: rgba(236, 225, 239, .08) !important;
+    color: rgba(244, 236, 246, .94) !important;
+    font-family: Georgia, serif !important;
+    font-size: 44px !important;
+    text-shadow: 0 0 17px rgba(197, 171, 208, .52) !important;
+}
+
+.acch1-eclipse-ring {
+    position: absolute !important;
+    inset: 9% !important;
+    border: 1px dashed rgba(223, 208, 228, .28) !important;
+    border-radius: 17px 52px 17px 52px !important;
+    animation: acch1SealFrame 13s linear infinite !important;
+}
+.acch1-eclipse-ring.ring-b { inset: 20% !important; border-style: solid !important; animation-direction: reverse !important; animation-duration: 9s !important; }
+.acch1-eclipse-ring.ring-c { inset: 31% !important; opacity: .45 !important; animation-duration: 6s !important; }
+
+.acch1-screen-gate {
+    position: absolute !important;
+    inset: 0 !important;
+    opacity: 0 !important;
+    animation: acch1ScreensEnter 1s ease-out .42s forwards !important;
+}
+
+.acch1-gate-wing {
+    position: absolute !important;
+    top: 8vh !important;
+    bottom: 8vh !important;
+    width: 17vw !important;
+    border: 1px solid rgba(220, 204, 225, .18) !important;
+    border-radius: 5px 28px 5px 28px !important;
+    background: repeating-linear-gradient(0deg, rgba(223, 209, 227, .07) 0 1px, transparent 1px 24px), rgba(54, 40, 60, .30) !important;
+}
+.acch1-gate-wing.wing-left { left: 5vw !important; transform: rotate(-2deg) !important; }
+.acch1-gate-wing.wing-right { right: 5vw !important; transform: rotate(2deg) !important; }
+
+.acch1-gate-seal {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: 52px !important;
+    height: 52px !important;
+    display: grid !important;
+    place-items: center !important;
+    transform: translate(-50%, -50%) rotate(-6deg) !important;
+    border: 1px solid rgba(238, 230, 241, .55) !important;
+    border-radius: 4px !important;
+    background: #5a4265 !important;
+    color: #f2e8f3 !important;
+    font-size: 0 !important;
+    box-shadow: 0 0 20px rgba(161, 128, 176, .27) !important;
+    animation: acch1SealStamp 2.4s ease-in-out infinite !important;
+}
+.acch1-gate-seal::before { content: "Z" !important; font: 900 italic 26px/1 Georgia, serif !important; }
+
+.acch1-seven-field {
+    position: absolute !important;
+    left: 50% !important;
+    top: 47% !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+.acch1-seven-field > span {
+    position: absolute !important;
+    left: -18px !important;
+    top: -13px !important;
+    width: 36px !important;
+    height: 26px !important;
+    display: grid !important;
+    place-items: center !important;
+    border: 1px solid rgba(225, 211, 230, .30) !important;
+    border-radius: 3px 10px 3px 10px !important;
+    background: rgba(48, 35, 54, .72) !important;
+    color: rgba(241, 232, 243, .83) !important;
+    font-family: Georgia, serif !important;
+    font-size: 10px !important;
+    opacity: 0 !important;
+    transform:
+        rotate(var(--acch1-screen-angle))
+        translateX(20px)
+        rotate(var(--acch1-screen-angle-back)) !important;
+    animation:
+        acch1SevenLedger 1.05s ease-out var(--acch1-screen-delay) forwards,
+        acch1SevenLedgerPulse 2.4s ease-in-out calc(1s + var(--acch1-screen-delay)) infinite !important;
+}
+
+.acch1-screen-title {
+    position: absolute !important;
+    left: 50% !important;
+    bottom: 8vh !important;
+    width: min(92vw, 720px) !important;
+    transform: translateX(-50%) translateY(18px) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 6px !important;
+    opacity: 0 !important;
+    color: #f3eaf4 !important;
+    text-align: center !important;
+    animation: acch1LedgerTitle .82s ease-out .95s forwards !important;
+}
+
+.acch1-screen-title small {
+    font-family: "Trebuchet MS", "Segoe UI", sans-serif !important;
+    font-size: 9px !important;
+    font-weight: 900 !important;
+    letter-spacing: .42em !important;
+    color: rgba(218, 200, 224, .70) !important;
+}
+
+.acch1-screen-title strong {
+    padding: 8px 19px !important;
+    border-top: 1px solid rgba(230, 216, 234, .24) !important;
+    border-bottom: 1px solid rgba(230, 216, 234, .24) !important;
+    font-family: Georgia, "Times New Roman", serif !important;
+    font-size: clamp(20px, 3vw, 38px) !important;
+    font-weight: 700 !important;
+    letter-spacing: .09em !important;
+    text-shadow: 0 5px 18px rgba(0,0,0,.50) !important;
+}
+
+.acch1-screen-ultimate.is-collapse .acch1-screen-eclipse {
+    animation: acch1SealCollapse 1.05s cubic-bezier(.4,0,.2,1) forwards !important;
+}
+.acch1-screen-ultimate.is-collapse .acch1-screen-gate {
+    animation: acch1ScreensCollapse .95s ease-in forwards !important;
+}
+
+@keyframes acch1CardPaperPulse { 0%,100%{opacity:.42;transform:rotate(-2deg) scale(.985)} 50%{opacity:.85;transform:rotate(1deg) scale(1.02)} }
+@keyframes acch1PetPaperIdle { 0%,100%{transform:translateY(2px) rotate(-1deg)} 47%{transform:translateY(-4px) rotate(.6deg)} 72%{transform:translateY(-2px) rotate(-.3deg)} }
+@keyframes acch1PetSealCast { 0%{transform:translateY(0) scale(1)} 30%{transform:translateY(5px) scale(.92,1.04)} 62%{transform:translateY(-8px) scale(1.05)} 100%{transform:translateY(0) scale(1)} }
+@keyframes acch1SlowBand { 0%,100%{opacity:.22;transform:translate(-50%,-50%) skewX(-14deg) scaleX(.84)} 50%{opacity:.70;transform:translate(-50%,-50%) skewX(-14deg) scaleX(1.08)} }
+@keyframes acch1StampBreath { 0%,100%{opacity:.46;filter:blur(.2px)} 50%{opacity:1;filter:blur(0)} }
+@keyframes acch1SquareTurn { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+@keyframes acch1NoteFloat { 0%,100%{transform:translateY(1px) rotate(7deg)} 50%{transform:translateY(-9px) rotate(-4deg)} }
+@keyframes acch1PaperSlip { 0%,100%{opacity:.28;filter:blur(.2px)} 50%{opacity:.74;filter:blur(0)} }
+@keyframes acch1LedgerOrbit { from{transform:rotate(0)} to{transform:rotate(-360deg)} }
+@keyframes acch1RuneFade { 0%,100%{opacity:.32} 50%{opacity:.92} }
+@keyframes acch1DustRise { 0%{opacity:0;transform:translateY(5px) translateX(0)} 20%{opacity:.75} 100%{opacity:0;transform:translateY(-72px) translateX(8px)} }
+@keyframes acch1PaperBurst { 0%{opacity:0;transform:rotate(var(--acch1-burst-angle)) translateX(10px) scale(.3)} 20%{opacity:1} 100%{opacity:0;transform:rotate(var(--acch1-burst-angle)) translateX(var(--acch1-burst-distance)) scale(.75)} }
+@keyframes acch1VeilSlide { 0%{background-position:0 0,0 0} 100%{background-position:0 36px,0 0} }
+@keyframes acch1ScreenBand { 0%,100%{opacity:.20;transform:translateX(-2%) skewX(-12deg)} 50%{opacity:.62;transform:translateX(2%) skewX(-12deg)} }
+@keyframes acch1SealEnter { 0%{opacity:0;transform:translate(-50%,-50%) rotate(45deg) scale(.12)} 100%{opacity:1;transform:translate(-50%,-50%) rotate(45deg) scale(1)} }
+@keyframes acch1SealFrame { from{transform:rotate(0)} to{transform:rotate(360deg)} }
+@keyframes acch1ScreensEnter { 0%{opacity:0;filter:blur(8px)} 100%{opacity:1;filter:blur(0)} }
+@keyframes acch1SealStamp { 0%,100%{transform:translate(-50%,-50%) rotate(-6deg) scale(.94)} 50%{transform:translate(-50%,-50%) rotate(2deg) scale(1.04)} }
+@keyframes acch1SevenLedger { 0%{opacity:0;transform:rotate(var(--acch1-screen-angle)) translateX(20px) rotate(var(--acch1-screen-angle-back)) scale(.5)} 100%{opacity:.9;transform:rotate(var(--acch1-screen-angle)) translateX(var(--acch1-screen-radius)) rotate(var(--acch1-screen-angle-back)) scale(1)} }
+@keyframes acch1SevenLedgerPulse { 0%,100%{filter:brightness(.8);opacity:.52} 50%{filter:brightness(1.18);opacity:1} }
+@keyframes acch1LedgerTitle { to{opacity:1;transform:translateX(-50%) translateY(0)} }
+@keyframes acch1SealCollapse { to{opacity:0;transform:translate(-50%,-50%) rotate(135deg) scale(.08)} }
+@keyframes acch1ScreensCollapse { to{opacity:0;filter:blur(10px)} }
+
+@media (max-width: 768px) {
+    #virtual-pet-container.pet-acedia-chibi-stage .acedia-chibi-dream-magic { width: 132px !important; }
+    .acch1-local-realm { width: 184px !important; height: 160px !important; }
+    .acch1-orbit-rune { transform: rotate(var(--acch1-angle)) translateX(66px) rotate(var(--acch1-angle-back)) !important; }
+    .acch1-screen-eclipse { width: 72vw !important; height: 72vw !important; max-width: 420px !important; max-height: 420px !important; }
+    .acch1-gate-wing { width: 22vw !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .store-card-acedia-chibi-reverie *,
+    #virtual-pet-container.pet-acedia-chibi-stage *,
+    .acch1-screen-ultimate * {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
+/* =========================================================
+   ACEDIA · MIÊN KHẾ TĨNH GIỚI — THEME 800 COIN
+   Concept: hồ sơ trì hoãn / văn khố tĩnh mộng, sáng xám tím — KHÔNG cung điện.
+   Namespace: theme-seven-sins-languor-codex + tdtui2-*.
+   ========================================================= */
+
+/* Miên Khế: giấy tím tro, góc gấp mềm và thanh điều hướng màu mực. */
+body.theme-seven-sins-languor-codex {
+    --primary-color: #73578d;
+    --secondary-color: #9576a5;
+    --text-color: #392e46;
+    --campus-primary: #73578d;
+    --campus-ink: #392e46;
+    --campus-line: #d6c8df;
+    background: linear-gradient(135deg, #f2edf7, #e8e3f0 55%, #e0eaf3) fixed !important;
+    color: #342d39;
+}
+.tdtui2-languor-codex {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    contain: strict;
+}
+.tdtui2-dream-glow {
+    position: absolute;
+    inset: -15%;
+    background: radial-gradient(ellipse at 25% 30%, #b99bd947, transparent 48%),
+                radial-gradient(ellipse at 75% 70%, #9bbddd40, transparent 45%);
+    animation: tdtui2DreamDrift 18s ease-in-out infinite alternate;
+}
+body.theme-seven-sins-languor-codex :is(#studentDashboard,#teacherDashboard) > .content {
+    font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    color: #392e46;
+}
+body.theme-seven-sins-languor-codex :is(h1,h2,h3,.page-title):where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.store-item-card):not(.store-item-card *):not(.ql-toolbar *)) {
+    font-family: Georgia, "Times New Roman", serif !important;
+    color: #4a355c !important;
+    letter-spacing: .015em;
+}
+body.theme-seven-sins-languor-codex :is(.card,.panel,.content-card,.settings-card,.form-section,.assignment-card,.setting-card,.settings-section,.table-container):where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.store-item-card):not(.store-item-card *):not(.ql-toolbar *)) {
+    background: linear-gradient(135deg, #fcf9fe, #eee7f4) !important;
+    border: 1px solid #d6c8df !important;
+    border-radius: 22px 8px 22px 8px !important;
+    box-shadow: 0 8px 24px #51436312 !important;
+}
+body.theme-seven-sins-languor-codex :is(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),select,textarea):where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.store-item-card):not(.store-item-card *):not(.ql-toolbar *)) {
+    background: #fcfaff !important;
+    color: #392e46 !important;
+    border-color: #cbbbd6 !important;
+    border-radius: 12px 5px 12px 5px !important;
+    font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+}
+body.theme-seven-sins-languor-codex :is(button,.btn):where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.store-item-card):not(.store-item-card *):not(.ql-toolbar *)) {
+    border-radius: 14px 6px 14px 6px !important;
+}
+body.theme-seven-sins-languor-codex :is(.btn-primary,.btn-submit,.btn-save):where(:not(.ui-theme-immune):not(.ui-theme-immune *):not([data-theme-immune="true"]):not([data-theme-immune="true"] *):not(.store-item-card):not(.store-item-card *):not(.ql-toolbar *)) {
+    background: linear-gradient(120deg,#73578d,#8d6da0) !important;
+    color: #fff !important;
+}
+body.theme-seven-sins-languor-codex :is(#studentSidebar,#teacherSidebar) {
+    background: linear-gradient(170deg,#302b40,#4c385b) !important;
+    border: 1px solid #b5a0c278 !important;
+    border-radius: 26px 10px 26px 10px !important;
+    box-shadow: 5px 10px 26px #38284424 !important;
+    font-family: "Trebuchet MS", "Segoe UI", sans-serif !important;
+}
+body.theme-seven-sins-languor-codex :is(#studentSidebar,#teacherSidebar)::before,
+body.theme-seven-sins-languor-codex :is(#studentSidebar,#teacherSidebar)::after { display: none !important; }
+body.theme-seven-sins-languor-codex :is(#studentSidebar,#teacherSidebar) :is(.nav-item,.sidebar-toggle,.btn-logout) {
+    color: #f3ebfa !important;
+    border-radius: 15px 6px 15px 6px !important;
+}
+body.theme-seven-sins-languor-codex :is(#studentSidebar,#teacherSidebar) .nav-item.active {
+    background: #bca4d333 !important;
+    border: 1px solid #ceb9df80 !important;
+    box-shadow: inset 3px 0 #dbc8ea !important;
+    color: #fff !important;
+}
+/* Chỉ đổi khung popup thông thường; nội dung công cụ và thẻ giữ kiểu riêng. */
+body.theme-seven-sins-languor-codex :is(.modal-content,.student-modal-content,.app-dialog-card):not(.lucky-wheel-panel):not(.store-theme-locked):not([data-theme-immune="true"]) {
+    border-radius: 26px 10px 26px 10px !important;
+    border: 1px solid #c8b4d7 !important;
+    box-shadow: 0 22px 65px #31213e33 !important;
+    background: linear-gradient(135deg,#fdfaff,#eee7f4) !important;
+    color: #392e46 !important;
+}
+@keyframes tdtui2DreamDrift {
+    from { transform: translate(-3%, -2%); opacity: .65; }
+    to { transform: translate(3%, 2%); opacity: 1; }
+}
+body.wfx-low-power .tdtui2-dream-glow,
+body.wfx-paused .tdtui2-dream-glow { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+    .tdtui2-dream-glow { animation: none; }
+}
+
+/* =========================================================
    MỘNG ĐIỆN TRÌ HOÃN
    ========================================================= */
 
@@ -9053,7 +9709,7 @@ body.theme-seven-sins-acedia
    TAG DUY NHẤT Ở ĐẦU CARD
    ========================================================= */
 
-.store-item-card.store-card-seven-sins-sloth.ui-theme-immune
+.store-item-card:is(.store-card-seven-sins-sloth, .store-card-acedia-chibi-reverie).ui-theme-immune
 .item-tag.tag-that-dai-toi {
     position: absolute !important;
     z-index: 30 !important;
@@ -9104,7 +9760,7 @@ body.theme-seven-sins-acedia
 }
 
 /* Huy hiệu VII duy nhất */
-.store-item-card.store-card-seven-sins-sloth.ui-theme-immune
+.store-item-card:is(.store-card-seven-sins-sloth, .store-card-acedia-chibi-reverie).ui-theme-immune
 .item-tag.tag-that-dai-toi::before {
     content: "Ⅶ" !important;
 
@@ -9154,13 +9810,13 @@ body.theme-seven-sins-acedia
 }
 
 /* Bỏ vệt sáng chạy trên tag */
-.store-item-card.store-card-seven-sins-sloth.ui-theme-immune
+.store-item-card:is(.store-card-seven-sins-sloth, .store-card-acedia-chibi-reverie).ui-theme-immune
 .item-tag.tag-that-dai-toi::after {
     content: none !important;
     display: none !important;
 }
 
-.store-item-card.store-card-seven-sins-sloth.ui-theme-immune
+.store-item-card:is(.store-card-seven-sins-sloth, .store-card-acedia-chibi-reverie).ui-theme-immune
 .item-tag.tag-that-dai-toi span {
     padding: 0 !important;
 
@@ -9653,3 +10309,115 @@ body.theme-seven-sins-acedia
 
     font-variant-ligatures: none !important;
 }
+/* Miên Vũ: chu kỳ khép trang → đóng dấu → sóng mộng. Chỉ trong shadow root. */
+.tdtfx-mien-vu-stage { position:absolute;inset:0;overflow:hidden;pointer-events:none; }
+.tdtfx-fold { position:absolute;top:0;bottom:0;width:64px;background:repeating-linear-gradient(100deg,#44305688 0 2px,#bea0dd50 3px 13px,#f1dfff66 14px 15px,transparent 16px 25px);clip-path:polygon(0 0,70% 0,100% 23%,58% 50%,100% 78%,70% 100%,0 100%);animation:tdtfxFold 14s ease-in-out infinite; }
+.tdtfx-fold-left {left:0;transform-origin:left;}
+.tdtfx-fold-right {right:0;scale:-1 1;transform-origin:left;}
+.tdtfx-seal { position:absolute;right:4%;top:18%;width:94px;height:114px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;border:2px solid #bc95df;background:linear-gradient(135deg,#392849d9,#684980c9);border-radius:40px 40px 9px 9px;box-shadow:inset 0 0 0 5px #362445,inset 0 0 0 6px #dec5ee,0 0 25px #9c72bc55;color:#f5e4ff;animation:tdtfxSeal 14s ease-in-out infinite; }
+.tdtfx-seal span{font:36px/1 Georgia,serif;}
+.tdtfx-seal small{font:8px/1.4 'Segoe UI',sans-serif;letter-spacing:2px;}
+.tdtfx-wave{position:absolute;left:-10%;top:35%;width:120%;height:26%;fill:none;stroke:#a975ca;stroke-width:1.5;filter:drop-shadow(0 0 3px #c29bdf);animation:tdtfxWave 14s ease-in-out infinite;}
+.tdtfx-wave path:nth-child(2){stroke:#d5b9ea;stroke-width:2;}
+.tdtfx-wave path:nth-child(3){stroke:#84619e;stroke-width:1;}
+.tdtfx-margin{position:absolute;bottom:18px;left:50%;display:flex;gap:14px;transform:translateX(-50%);}
+.tdtfx-margin i{display:block;width:9px;height:9px;rotate:45deg;border:1px solid #ad83c9;background:#e4caef88;box-shadow:0 0 8px #b78acb77;animation:tdtfxMark 14s ease-in-out infinite;}
+.tdtfx-margin i:nth-child(2n){animation-delay:-1s}.tdtfx-margin i:nth-child(3n){animation-delay:-2s}
+@keyframes tdtfxFold{0%,100%{transform:translateX(-65%);opacity:.3}25%,45%{transform:translateX(0);opacity:.8}70%{transform:translateX(-45%);opacity:.5}}
+@keyframes tdtfxSeal{0%,15%,75%,100%{opacity:0;transform:translateY(-12px) scale(.9)}28%,48%{opacity:.85;transform:translateY(0) scale(1)}60%{opacity:0;transform:translateY(12px) scale(1.1)}}
+@keyframes tdtfxWave{0%,42%,85%,100%{opacity:0;transform:translateY(-18vh) scaleY(.4)}50%{opacity:.55}76%{opacity:0;transform:translateY(35vh) scaleY(1.3)}}
+@keyframes tdtfxMark{0%,100%{opacity:.25;scale:.7}30%,55%{opacity:1;scale:1}}
+:host([data-still]) .tdtfx-mien-vu-stage *{animation:none!important;}
+:host([data-still]) :is(.tdtfx-seal,.tdtfx-wave){display:none;}
+:host([data-still]) .tdtfx-fold{opacity:.2;width:22px;}
+@media(max-width:600px){.tdtfx-fold{width:30px}.tdtfx-seal{width:58px;height:78px;right:12px;top:24%}.tdtfx-seal span{font-size:25px}.tdtfx-seal small{font-size:6px;letter-spacing:1px}}
+@media(prefers-reduced-motion:reduce){.tdtfx-mien-vu-stage *{animation:none!important}.tdtfx-seal,.tdtfx-wave{display:none}.tdtfx-fold{opacity:.2;width:22px}}
+
+/* Chủ Nhân Miên Giới · Thánh đường của giấc ngủ. Namespace độc lập aclp. */
+.aclp-card.ui-theme-immune{border-color:#9e8caf!important;background:#211a2b!important;box-shadow:0 14px 36px #110b2040,inset 0 0 0 3px #cfbddb22!important;}
+.aclp-card .luxury-unified-frame{border:1px solid #c6b4d7!important;border-radius:45% 45% 8px 8px!important;}
+.aclp-card .luxury-unified-visual{background:repeating-linear-gradient(90deg,#201926 0 22px,#312439 23px 44px)!important;}
+html[data-aclp-pet] body.aclp-equipped{background:radial-gradient(ellipse at 50% 0,#a69bb8,transparent 62%),linear-gradient(130deg,#2d263d,#51425e 50%,#262333) fixed!important;color:#372c43!important;--primary-color:#735786;--secondary-color:#9680ac;--campus-primary:#735786;--campus-ink:#372c43;--campus-line:#c3b7cc;}
+body.aclp-equipped :is(#studentDashboard,#teacherDashboard)>.content{font-family:Cambria,Georgia,serif!important;}
+body.aclp-equipped :is(h1,h2,h3,h4):not(:where(.ui-theme-immune,.ui-theme-immune *,[data-theme-immune], [data-theme-immune] *,.store-item-card *)){font-family:Cambria,Georgia,serif!important;letter-spacing:.025em;color:#473453!important;}
+body.aclp-equipped :is(label,input,select,textarea,button):not(:where(.ui-theme-immune,.ui-theme-immune *,[data-theme-immune], [data-theme-immune] *,.store-item-card *,.ql-toolbar *)){font-family:'Segoe UI',Arial,sans-serif!important;}
+body.aclp-equipped :is(.card,.panel,.assignment-card,.content-card,.settings-card,.form-section):not(:where(.ui-theme-immune,.ui-theme-immune *,[data-theme-immune], [data-theme-immune] *)){background:linear-gradient(135deg,#f7f2fa,#e0d8e9)!important;border:1px solid #baabc7!important;border-radius:24px 5px 24px 5px!important;box-shadow:inset 0 0 0 4px #faf5ff66,inset 0 0 0 5px #a38bb033,0 12px 30px #180d2426!important;}
+body.aclp-equipped :is(.modal-content,.student-modal-content):not(.lucky-wheel-panel):not([data-theme-immune]){background:linear-gradient(140deg,#f8f2fb,#ddd3e6)!important;border:1px solid #b79fc9!important;border-radius:30px 8px 30px 8px!important;box-shadow:0 30px 90px #160d2759,inset 0 0 0 5px #c2b2cf22!important;}
+body.aclp-equipped :is(#studentSidebar,#teacherSidebar){background:repeating-linear-gradient(90deg,transparent 0 20px,#a890bd0a 21px 22px),linear-gradient(170deg,#211a30,#493454)!important;border:1px solid #ae99bc!important;border-radius:34px 9px!important;box-shadow:inset 0 0 0 4px #a897bb14,0 15px 40px #170d2440!important;font-family:Cambria,Georgia,serif!important;}
+body.aclp-equipped :is(#studentSidebar,#teacherSidebar) .nav-item.active{background:linear-gradient(115deg,#a082b74d,#d1bfe024)!important;color:#fff!important;box-shadow:inset 3px 0 #e8d4f1!important;border:1px solid #cbb4dc66!important;border-radius:19px 5px!important;}
+body.aclp-equipped :is(input,select,textarea):not(:where(.ui-theme-immune *,[data-theme-immune] *)){border-radius:14px 4px!important;border-color:#bba8ca!important;color:#382b43!important;}
+#virtual-pet-img.aclp-pet{width:min(230px,42vw)!important;height:auto!important;max-width:calc(100vw - 32px)!important;max-height:50dvh!important;object-fit:contain;filter:drop-shadow(0 0 16px #b097cd)!important;animation:aclpFloat 6s ease-in-out infinite;}
+.aclp-pet-realm{position:absolute;inset:-25% -30% -5%;pointer-events:none!important;z-index:-1;color:#cfbbdf;}
+.aclp-pet-realm i{position:absolute;inset:12% 8%;border:1px solid #ceb8dd;border-radius:50% 50% 8% 8%;box-shadow:inset 0 0 20px #ae87cb44,0 0 15px #baa1d13d;animation:aclpFloat 7s ease-in-out infinite;}
+.aclp-pet-realm i+i{inset:4% 0%;border-style:dotted;animation-direction:reverse;}
+.aclp-pet-realm span{position:absolute;top:0;left:45%;font:20px Georgia,serif;color:#d6c5e1;text-shadow:0 0 8px #705687;}
+/* Full-screen architecture. Only the world is masked; the ritual reveals the complete hall. */
+.aclp-world-scene{position:absolute;inset:0;overflow:hidden;pointer-events:none;mask-image:linear-gradient(90deg,#000,transparent 27%,transparent 73%,#000),linear-gradient(0deg,#000,transparent 19%),linear-gradient(180deg,#000,transparent 24%);}
+.aclp-architecture{position:absolute;inset:0;width:100%;height:100%;overflow:visible;fill:none;stroke:#bca7d0;stroke-width:1.2;}
+.aclp-vault{stroke:#b2a1c9;stroke-width:1.4;}
+.aclp-vault path{animation:aclpArch 9s calc(var(--n)*-.7s) ease-in-out infinite;}
+.aclp-columns{stroke:#a894c0;stroke-width:2;fill:#2a1c3829;}
+.aclp-columns g{animation:aclpArch 8s calc(var(--n)*-1s) ease-in-out infinite;}
+.aclp-drapery{fill:#21142880;stroke:#9380a269;stroke-width:2;}
+.aclp-drapery path:nth-child(2){fill:none;stroke:#c1a8d34d;stroke-width:5;}
+.aclp-drapery path:nth-child(3){fill:#4b355969;stroke:#d7c2df5c;}
+.aclp-lancet{fill:#80678d38;stroke:#b39ac67d;stroke-width:1.3;}
+.aclp-floor-lines{stroke:#a990be24;stroke-width:1;}
+.aclp-fragments{fill:#b59ac86b;stroke:#ead7f1a6;stroke-width:.6;}
+.aclp-shard{animation:aclpArch 6s calc(var(--n)*-.22s) infinite;}
+.aclp-ultimate .aclp-drapery{fill:#1b1228e6;stroke:#a389b266;}
+.aclp-ultimate .aclp-drapery path:nth-child(2){stroke:#a389b252;}
+.aclp-ultimate .aclp-columns{stroke-width:3;}
+.aclp-ultimate .aclp-lancet{fill:#b69dc12e;filter:drop-shadow(0 0 8px #bea6d066);}
+.aclp-world-scene .aclp-window{transform:translate(630px,-130px) scale(.58);transform-origin:800px 320px;opacity:.7;}
+.aclp-glass{stroke:#d3c1e0;fill:#8c6da72e;stroke-width:.9;transform-origin:800px 320px;animation:aclpRose 85s linear infinite;}
+.aclp-eclipse{fill:#181220;stroke:#d7c4e7;stroke-width:2;filter:drop-shadow(0 0 12px #ba9cd3);}
+.aclp-lid{stroke:#bca4d2;stroke-width:2;}
+.aclp-seven{stroke:#e2cce9;fill:#24182b;}
+.aclp-sigil text{fill:#d6c3e6;stroke:none;text-anchor:middle;font:15px Georgia,serif;}
+.aclp-sigil{animation:aclpArch 7s calc(var(--n)*-.5s) ease-in-out infinite;}
+.aclp-pendulum{stroke:#b9a2cc;fill:#2e203d99;animation:aclpSway 8s calc(var(--n)*-1.3s) ease-in-out infinite alternate;}
+.aclp-world-scene .aclp-throne{display:none;}.aclp-world-scene .aclp-stairs{opacity:.22;}
+.aclp-mist{position:absolute;inset:60% -15% -18%;background:radial-gradient(ellipse at 20% 80%,#9d85bb40,transparent 45%),radial-gradient(ellipse at 80% 90%,#bca8c94d,transparent 46%);animation:aclpMist 16s ease-in-out infinite alternate;}
+.aclp-silver-rain{position:absolute;inset:0;background-image:radial-gradient(ellipse at 20% 30%,#d9c9e47d 0 1px,transparent 2px),radial-gradient(ellipse at 76% 60%,#c4aed85e 0 1px,transparent 2px);background-size:230px 280px,317px 370px;opacity:.55;animation:aclpRain 32s linear infinite;}
+/* Click: expanding contract seal, three concentric etched rings. */
+.aclp-click{position:absolute;width:100px;height:100px;margin:-50px;display:grid;place-items:center;animation:aclpClickLife 1.5s ease-out forwards;}
+.aclp-click i{position:absolute;inset:4px;border:1px solid #c9b1de;border-radius:50%;box-shadow:0 0 12px #9774b44d;animation:aclpClickRing 1.5s ease-out forwards;}
+.aclp-click i:nth-child(2){inset:15px;border-style:dashed;animation-direction:reverse;}.aclp-click i:nth-child(3){inset:26px;border-radius:4px;rotate:45deg;}
+.aclp-click span{font:28px Georgia,serif;color:#a985c2;text-shadow:0 0 5px #fff9;}
+/* Ultimate: the hall opens, the eclipse wakes, then its seven seals collapse. */
+.aclp-ultimate{position:absolute;inset:0;overflow:hidden;pointer-events:none;animation:aclpRitualLife 7.2s linear both;}
+.aclp-veil{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,#574265,#151020 76%);opacity:.94;}
+.aclp-ultimate .aclp-architecture{animation:aclpHallOpen 7.2s cubic-bezier(.2,.6,.2,1) both;}
+.aclp-ultimate .aclp-vault{stroke:#b4a0c5;stroke-width:2;}.aclp-ultimate .aclp-columns{fill:#170f2499;stroke:#b8a3c6;}
+.aclp-ultimate .aclp-window{filter:drop-shadow(0 0 18px #9470b55e);}
+.aclp-ultimate .aclp-glass{fill:#b08dcb44;stroke:#ddd0e9;}
+.aclp-ultimate .aclp-eclipse{animation:aclpEclipse 7.2s ease both;}
+.aclp-ultimate .aclp-throne{stroke:#cbb8dc;stroke-width:2;fill:#25192f80;filter:drop-shadow(0 0 8px #b69bc966);}
+.aclp-ultimate .aclp-stairs{stroke:#8e799e;fill:#2b1e3688;}
+.aclp-ritual-circle{position:absolute;left:50%;top:42%;width:min(76vw,660px);aspect-ratio:1;transform:translate(-50%,-50%);animation:aclpSealWake 7.2s ease both;}
+.aclp-ritual-circle i{position:absolute;inset:0;border:1px solid #d1b7df7d;border-radius:50%;box-shadow:0 0 28px #a98ec747;}
+.aclp-ritual-circle i:nth-child(2){inset:7%;border-style:dashed;animation:aclpRose 28s linear infinite reverse;}.aclp-ritual-circle i:nth-child(3){inset:16%;border-radius:12%;rotate:45deg;}
+.aclp-ritual-caption{position:absolute;bottom:8%;left:5%;right:5%;display:grid;gap:10px;text-align:center;color:#e8dced;text-shadow:0 2px 18px #130b1e;animation:aclpCaption 7.2s ease both;}
+.aclp-ritual-caption small{font:10px/1.5 'Segoe UI',sans-serif;letter-spacing:.4em;color:#ad95c1;}
+.aclp-ritual-caption strong{font:normal clamp(26px,4vw,48px)/1.2 Cambria,Georgia,serif;letter-spacing:.035em;}
+.aclp-ritual-caption span{font:14px/1.6 'Segoe UI',sans-serif;color:#bcaaca;letter-spacing:.15em;}
+@keyframes aclpArch{0%,100%{opacity:.35}50%{opacity:.9}}
+@keyframes aclpRose{to{rotate:360deg}}
+@keyframes aclpSway{from{rotate:-1.8deg}to{rotate:1.8deg}}
+@keyframes aclpFloat{50%{translate:0 -7px}}
+@keyframes aclpMist{to{translate:10% -5%;opacity:.6}}
+@keyframes aclpRain{to{background-position:0 280px,0 370px}}
+@keyframes aclpClickLife{0%{opacity:0;scale:.4}20%{opacity:1}100%{opacity:0;scale:1.3}}
+@keyframes aclpClickRing{to{rotate:100deg;scale:1.2}}
+@keyframes aclpRitualLife{0%,100%{opacity:0}12%,82%{opacity:1}}
+@keyframes aclpHallOpen{0%{transform:scale(1.35);filter:blur(7px)}24%,75%{transform:scale(1);filter:blur(0)}100%{transform:scale(.92);filter:blur(4px)}}
+@keyframes aclpEclipse{0%,20%{scale:.7;opacity:0}40%,75%{scale:1;opacity:1}100%{scale:1.25;opacity:0}}
+@keyframes aclpSealWake{0%,20%{opacity:0;scale:.6}45%,70%{opacity:.8;scale:1}100%{opacity:0;scale:1.5}}
+@keyframes aclpCaption{0%,30%,100%{opacity:0;translate:0 16px}45%,80%{opacity:1;translate:0 0}}
+:host([data-still]) .aclp-world-scene *{animation:none!important;}
+:host([data-still]) .aclp-world-scene{opacity:.35;}
+:host([data-still]) .aclp-silver-rain{display:none;}
+@media(max-width:600px){.aclp-world-scene .aclp-architecture{width:200%;left:-50%}.aclp-world-scene{opacity:.72;mask-image:linear-gradient(90deg,#000,transparent 20%,transparent 80%,#000),linear-gradient(180deg,#000,transparent 16%)}.aclp-ultimate .aclp-architecture{width:170%;left:-35%}.aclp-ritual-caption{bottom:12%}.aclp-ritual-caption span{font-size:11px;letter-spacing:.05em}.aclp-ritual-caption small{font-size:8px;letter-spacing:.18em}}
+@media(prefers-reduced-motion:reduce){.aclp-world-scene *,.aclp-pet-realm *,#virtual-pet-img.aclp-pet{animation:none!important}.aclp-ultimate,.aclp-click,.aclp-silver-rain{display:none}}
+body.wfx-low-power :is(#virtual-pet-img.aclp-pet,.aclp-pet-realm *){animation:none!important}

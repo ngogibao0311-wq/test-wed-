@@ -617,6 +617,10 @@
 
 #hoihoaStudentModal .hh-swatch {
     width: 22px;
+    min-width: 22px;
+    min-height: 22px;
+    flex: 0 0 22px;
+    box-shadow: none;
     height: 22px;
     padding: 0;
     border-radius: 7px;

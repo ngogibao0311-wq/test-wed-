@@ -221,10 +221,7 @@
    KHUNG THÚ CƯNG
    ========================================================= */
 
-#virtual-pet-container.pet-doraemon-shizuka-stage {
-    isolation: isolate;
-    overflow: visible;
-}
+
 
 
 /* Hào quang tròn phía sau ảnh */
