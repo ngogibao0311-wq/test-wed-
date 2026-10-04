@@ -1,37 +1,40 @@
 {
-  "version": "4.0.3",
-  "build": "2026.09.18.1-security-hotfix",
+  "version": "4.1.0",
+  "build": "2026.10.03.1",
   "channel": "stable",
-  "releasedAt": "2026-09-17T14:38:00+07:00",
-  "title": "Bản cập nhật hệ thống v4.0.3 · Giao diện nổi & trợ năng",
-  "summary": "Hoàn thiện cụm 4 nút hành động nổi của học sinh trên desktop/mobile, tối ưu giao diện khi cửa sổ hẹp và sửa lỗi focus/aria-hidden của Đại Hội Trung Thu. Đồng thời đồng bộ phiên bản ứng dụng với Service Worker để người dùng nhận đúng tài nguyên mới.",
+  "releasedAt": "2026-10-03T00:00:00+07:00",
+  "title": "Bản cập nhật v4.1.0 · Bài tập, thưởng phạt và bộ Acedia",
+  "summary": "Bổ sung khóa bài tập, khóa chỉnh sửa khi hết giờ, mức phạt Coin mới, hướng dẫn kháng cáo và phần thưởng bộ sưu tập; cập nhật giao diện và hiệu ứng Acedia.",
   "mandatory": false,
   "minSupportedVersion": "3.0.0",
   "changes": [
-    "Cụm BXH – Túi đồ – Hộp thư – Hồ sơ tiếp tục dùng floating dock bám viewport; cuộn trang không làm các nút bị kéo đi.",
-    "Tối ưu kích thước/khoảng cách cụm nút trên cửa sổ hẹp để giảm chồng lấn với nút mở menu và tiêu đề nội dung.",
-    "Sửa modal Đại Hội Trung Thu: quản lý focus đúng thứ tự, dùng inert trước khi aria-hidden để tương thích tốt hơn với công nghệ hỗ trợ.",
-    "Tăng cache-busting cho StudentFeatureLoader và Update Manager để trình duyệt lấy đúng hotfix mới.",
-    "Đồng bộ APP_VERSION/build giữa HTML, version.json và Service Worker; worker mới tự loại cache study-* của bản cũ khi activate."
+    "Giáo viên: thêm Khóa bài / Mở khóa sau nút Trạng thái. Khi nhận cập nhật khóa, học sinh rời phần trắc nghiệm và không thể mở hoặc nộp bài; bản nháp được giữ.",
+    "Khóa bài xóa hạn nộp cũ; mở khóa không khôi phục hạn đó. Thời gian phiên thi được tạm dừng trong lúc khóa. Thoát do giáo viên khóa không tính vi phạm.",
+    "Hết giờ khóa chỉnh sửa trước khi gửi lên cloud. Nếu gửi thất bại, giữ bản nháp và thử lại sau 5 giây. Hạn nộp vẫn có hiệu lực khi bài không đặt số phút làm bài.",
+    "Tự thu bài do hết giờ thi được tính là vi phạm và ảnh hưởng quyền nhận thưởng.",
+    "Phạt mới: 4–dưới 5 điểm trừ 1 Vé + 200 Coin; 2–dưới 4 trừ 2 Vé + 300 Coin; 0–dưới 2 trừ 3 Vé + 400 Coin; đúng 0 điểm kèm vi phạm trừ 4 Vé + 700 Coin. Không tự truy thu bài cũ.",
+    "Thưởng giữ nguyên: 5–dưới 7 điểm nhận 5 Vé + 20 Coin; 7–dưới 10 nhận 6 Vé + 50 Coin; 10 điểm nhận 7 Vé + 100 Coin, khi đủ điều kiện thưởng.",
+    "Cho làm lại hoặc chấm lại không tự hoàn khoản phạt cũ. Sửa điểm trực tiếp cũng đối soát thưởng; khoản phạt đã áp dụng vẫn giữ nguyên.",
+    "Kháng cáo: phạt nhầm cho phép hoàn Vé/Coin; vi phạm nhẹ chỉ xét bổ sung thưởng. Giáo viên cần xác nhận đối soát riêng sau khi đồng ý; Tha lỗi không tự hoàn số dư.",
+    "Trắc nghiệm: giữ thanh nộp bài khi chuyển câu, cập nhật đáp án ngay, cảnh báo trước khi nộp và thêm nút xem riêng tóm tắt video.",
+    "Hướng dẫn kháng cáo và phần thưởng chỉ trực tiếp thao tác; có dữ liệu mô phỏng khi chưa có bài hoặc bộ sưu tập phù hợp.",
+    "Thẻ giảm giá giáo viên tặng hỗ trợ 1–100%, cho món cửa hàng thường dưới 750 Coin thuộc phạm vi giáo viên chọn. Giá xem trước và giá thanh toán dùng cùng cách tính.",
+    "Bổ sung hiệu ứng Miên Vũ Tĩnh Dạ giá 900 Coin và thú cưng sang trọng Chủ Nhân Miên Giới giá 12.000 Coin; đồng bộ thẻ, tag Thất Đại Tội, nâng cấp hiệu ứng Acedia và tăng kích thước thú cưng.",
+    "Điều chỉnh phông chữ, hộp thoại, bảng màu Studio Hội họa, Vòng quay nhân phẩm và nền chuyển động mặc định; ưu tiên hiệu ứng của vật phẩm.",
+    "Xóa học sinh qua Worker bằng quyền quản trị Firebase, có tiến độ và tiếp tục tác vụ; không dùng mật khẩu học sinh để xóa tài khoản đăng nhập."
   ],
   "resolvedIssues": [
-    "🟠 Giao diện — 4 nút hành động học sinh không còn cuộn mất theo nội dung khi dùng cơ chế floating dock.",
-    "🟠 Responsive — giảm tình trạng cụm hành động chen vào nút ☰/tiêu đề khi cửa sổ desktop bị thu hẹp.",
-    "🟡 Accessibility — loại cảnh báo Chrome “Blocked aria-hidden ... descendant retained focus” khi đóng Đại Hội Trung Thu.",
-    "🟡 Cache — đổi build Service Worker để tách cache v4.0.3 khỏi cache v4.0.2.",
-    "🟡 Cập nhật — đồng bộ application-version và window.APP_VERSION trên các trang chính, trang trạng thái và trang đăng nhập."
+    "Sửa thứ tự khóa bài hết giờ để lỗi kết nối không cho phép tiếp tục chỉnh sửa.",
+    "Sửa phần trừ Coin theo điểm và thông báo hộp thư; kiểm thử hoàn tác khi giao dịch thất bại.",
+    "Khôi phục nút mua, mặc và tháo trên thẻ Acedia sang trọng; sửa lớp hiệu ứng toàn web bị nội dung che."
   ],
   "knownIssues": [
-    "🟠 Cao — CSS Tamon: đã phát hiện một khối CSS rất lớn bị lặp; cần xóa phần trùng sau khi đối chiếu chính xác file đang deploy để không đổi giao diện.",
-    "🟠 Cao — CSS thú cưng Hội họa: đã phát hiện một khối CSS/keyframe lặp; cần dọn bản lặp sau khi xác minh file production hiện tại.",
-    "🟡 Trung bình — Modal fallback: trường hợp không tìm thấy nút đóng vẫn có thể force-hide modal và bỏ qua cleanup riêng của module; cần lifecycle/close hook chung.",
-    "🟡 Trung bình — Giờ Vàng: cần tiếp tục kiểm tra cơ chế realtime + polling 15 giây để chỉ bật polling dự phòng khi realtime lỗi/mất kết nối."
+    "Cần triển khai Firebase Rules mới cùng mã web để khóa bài được bảo vệ phía máy chủ.",
+    "Worker xóa học sinh cần cấu hình quyền quản trị Firebase. Các kiểm thử tại máy không thay thế xác minh trên cloud thật.",
+    "Thiết bị ngoại tuyến chỉ nhận lệnh khóa của giáo viên khi kết nối lại.",
+    "Chấm lại không tự tính phần chênh lệch của khoản phạt đã áp dụng."
   ],
   "plannedImprovements": [
-    "Module Lifecycle Registry: chuẩn hóa init() / pause() / resume() / destroy() để dọn timer, MutationObserver, event listener và audio khi đóng modal hoặc đổi vật phẩm.",
-    "Error Boundary cho module phụ: lỗi Luxury/painting/music/effect không được làm loader chính hoặc Student/Teacher ngừng khởi động; lỗi chỉ được ghi vào Chẩn đoán.",
-    "Build Manifest tự động: một nguồn duy nhất chứa appVersion, build, cache version và version/hash từng JS/CSS để tránh lệch số phiên bản giữa HTML, Update Manager và Service Worker.",
-    "Firebase Read Monitor cho developer/teacher: đếm .once(), realtime listener và thời gian phản hồi theo node để xác định chính xác module tốn read trước khi tối ưu.",
-    "Tiếp tục mở rộng lazy-load: core nạp trước; Store/Studio/sự kiện/module đặc biệt chỉ nạp khi mở hoặc khi phát hiện vật phẩm đang trang bị, đồng thời preload CSS cần thiết trước khi bỏ loader."
+    "Tiếp tục kiểm tra luồng thi, khóa bài, nộp tệp và kháng cáo trên bản triển khai thực tế."
   ]
 }

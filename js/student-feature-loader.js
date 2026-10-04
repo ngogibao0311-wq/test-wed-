@@ -97,7 +97,7 @@
         effectItems: 'js/effect-items.js?v=20261003.mienvu2',
         petItems: 'js/pet-items.js?v=20260926.autumn-sale-tag-v3',
         petInteractions: 'js/pet-interactions.js?v=20261001.dialog1',
-        musicManager: 'js/music-manager.js?v=20261001.dialog1',
+        musicManager: 'js/music-manager.js?v=20261004.music1',
         storeManager: 'js/store-manager.js?v=20261003.mienvu1',
 
         luxuryStore: 'js/luxury-store.js?v=20261003.aclp4',
@@ -111,7 +111,7 @@
         midAutumnFestival: 'js/mid-autumn-festival.js?v=20261001.dialog1',
 
         dailyLogin: 'js/daily-login.js?v=20261001.dialog1',
-        guide: 'js/huong-dan-nguoi-moi.js?v=20261003.guide10'
+        guide: 'js/huong-dan-nguoi-moi.js?v=20261004.profile-practice1'
     });
 
     /*

@@ -6,7 +6,7 @@
     <script src="js/app-dialog.js?v=20261001.design2"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="application-version" content="4.0.3">
+    <meta name="application-version" content="4.1.0">
     <title>Trang Học Sinh</title>
     <!-- Kết nối sớm tới CDN lõi; không tải thêm tài nguyên và không đổi chức năng -->
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="css/update-manager.css?v=20261003.cleanup1">
     <link id="linkclick-cheng-premium-style" rel="stylesheet" href="css/link-click-cheng-xiaoshi.css?v=20261003.aclp3">
     <!-- Core-first loader: CSS/module đặc biệt chỉ tải khi cần -->
-    <script src="js/student-feature-loader.js?v=20261002.acedia-v3"></script>
+    <script src="js/student-feature-loader.js?v=20261004.profile-practice1"></script>
     <script>
         MathJax = {
             tex: {
@@ -236,8 +236,8 @@
             display: block !important;
         }
     </style>
-<link rel="stylesheet" href="css/student.css?v=20261003.cleanup1">
-<link rel="stylesheet" href="css/mc-workspace.css?v=20261003.guide10">
+<link rel="stylesheet" href="css/student.css?v=20261004.profile-compact2">
+<link rel="stylesheet" href="css/mc-workspace.css?v=20261004.profile-compact2">
 <link rel="stylesheet" href="css/assignment-appeals.css?v=20261003.cleanup1">
 <link rel="stylesheet" href="css/dashboard-refresh.css?v=20261003.cleanup1">
 </head>
@@ -681,6 +681,10 @@
                         chơi</span></button>
                 <button id="studentStoreNav" title="Cửa hàng" class="nav-item" onclick="switchTab('tab-store', this)">🛒 <span class="nav-text">Cửa
                         hàng</span></button>
+                <button type="button" id="studentHistoryNav" class="nav-item" title="Lịch sử — Sắp cập nhật" aria-label="Lịch sử — đang khóa, sắp cập nhật" onclick="AppDialog.alert('🔒 Sắp cập nhật')">
+                    <svg class="campus-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11a8 8 0 1 1 2 6 M3 4v7h7 M12 7v5l3 2" /></svg>
+                    <span class="nav-text">Lịch sử 🔒</span>
+                </button>
                 <button class="nav-item" title="Cài đặt" id="btnSettingsNav" onclick="switchTab('tab-settings', this)">⚙️ <span
                         class="nav-text">Cài đặt</span></button>
             </div>
@@ -1097,15 +1101,24 @@
                 </div>
             </div>
 
-            <div
-                style="text-align: left; background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px; margin-bottom: 15px;">
-                <strong style="color: #2c3e50;">🌟 Sở thích:</strong>
-                <p id="infoModalHobbies" style="margin-top: 5px; color: #444;">Chưa cập nhật</p>
-            </div>
-
-            <div style="text-align: left; background: rgba(255,255,255,0.5); padding: 15px; border-radius: 12px;">
-                <strong style="color: #2c3e50;">💬 Chân ngôn:</strong>
-                <p id="infoModalMotto" style="margin-top: 5px; font-style: italic; color: #444;">Chưa cập nhật</p>
+            <div id="studentProfileDetails" class="profile-details">
+                <div class="profile-details-heading">
+                    <span>Đôi nét về em</span>
+                    <button type="button" id="saveStudentProfileDetails" aria-expanded="false" aria-controls="profileDetailsFields" onclick="saveStudentProfileDetails()">Sửa</button>
+                </div>
+                <div id="profileDetailsFields">
+                    <div class="profile-detail-field">
+                        <label for="infoModalHobbies">🌟 Sở thích</label>
+                        <p id="infoModalHobbiesText">Chưa cập nhật</p>
+                        <textarea id="infoModalHobbies" rows="2" maxlength="500" placeholder="Nhập sở thích của em" hidden></textarea>
+                    </div>
+                    <div class="profile-detail-field">
+                        <label for="infoModalMotto">💬 Châm ngôn</label>
+                        <p id="infoModalMottoText">Chưa cập nhật</p>
+                        <textarea id="infoModalMotto" rows="2" maxlength="500" placeholder="Nhập châm ngôn của em" hidden></textarea>
+                    </div>
+                </div>
+                <p id="studentProfileDetailsStatus" role="status" aria-live="polite"></p>
             </div>
         </div>
     </div>
@@ -1555,7 +1568,7 @@
     <script>
         // Phiên bản thực sự của bộ HTML/JS đang chạy.
         // common.js cũ đọc appVersion từ localStorage, nên đồng bộ trước khi nạp common.js.
-        window.APP_VERSION = '4.0.3';
+        window.APP_VERSION = '4.1.0';
         try {
             localStorage.setItem('appVersion', window.APP_VERSION);
         } catch (_) { }
@@ -1565,7 +1578,7 @@
 <script src="js/campus-pdf.js?v=20261001.1"></script>
 <script src="js/common.js?v=20261001.revision4"></script>
     <script src="js/history-retention.js?v=1.0.0-2month-safe"></script>
-    <script src="js/update-manager.js?v=1.0.4-release-v4.0.3"></script>
+    <script src="js/update-manager.js?v=1.0.4-release-v4.1.0"></script>
     <script src="js/web-animations.js?v=20261003.cleanup2"></script>
     <!-- Tối ưu hiệu năng: mặc định tắt; dùng trạng thái đã lưu trong Cài đặt. Phát hiện mobile/thiết bị yếu chỉ áp dụng sau khi tính năng đã được bật. -->
     <script src="js/web-performance-optimizer.js?v=20260930.media-v2"></script>
@@ -1580,8 +1593,8 @@
 
     <!-- 5. Logic chính của trang học sinh luôn đặt cuối -->
     <script src="js/assignment-appeals.js?v=20261001.ui8"></script>
-    <script src="js/mc-workspace.js?v=20261003.guide10"></script>
-<script src="js/student.js?v=20261003.discount1"></script>
+    <script src="js/mc-workspace.js?v=20261004.profile-compact2"></script>
+<script src="js/student.js?v=20261004.profile-compact2"></script>
 
 
 <link rel="stylesheet" href="css/collection-rewards.css?v=20261003.cleanup1">

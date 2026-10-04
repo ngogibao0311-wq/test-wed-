@@ -4297,69 +4297,6 @@
             usernameValue.textContent = getStudentProfileUsernameForGuide();
         }
 
-        let avatarHint = document.getElementById('nugAvatarHelpText');
-
-        if (!avatarHint) {
-            avatarHint = createElement('small', {
-                id: 'nugAvatarHelpText',
-                text: 'Chạm ảnh hoặc biểu tượng ✏️ → chọn PNG/JPEG/GIF nhỏ hơn 1 MB → kiểm tra ảnh xem trước → bấm “Lưu ảnh mới”.'
-            });
-            avatarHint.style.cssText = `
-                display:block;
-                margin:-5px auto 15px;
-                padding:9px 12px;
-                max-width:390px;
-                border-radius:9px;
-                background:rgba(22,163,74,.08);
-                color:#166534;
-                font-size:.82rem;
-                font-weight:650;
-                line-height:1.45;
-                text-align:left;
-            `;
-
-            if (avatarSaveButton) {
-                avatarSaveButton.insertAdjacentElement('afterend', avatarHint);
-            } else {
-                const avatarContainer = content.querySelector(
-                    '.avatar-upload-container'
-                );
-                avatarContainer?.insertAdjacentElement('afterend', avatarHint);
-            }
-        }
-
-        let rules = document.getElementById('nugProfileChangeRules');
-
-        if (!rules) {
-            rules = createElement('div', {
-                id: 'nugProfileChangeRules'
-            });
-            rules.style.cssText = `
-                margin-top:15px;
-                padding:14px 15px;
-                border:1px solid rgba(245,158,11,.28);
-                border-radius:12px;
-                background:rgba(255,247,237,.92);
-                color:#44403c;
-                text-align:left;
-                line-height:1.55;
-                font-size:.88rem;
-            `;
-            rules.innerHTML = `
-                <strong style="display:block;color:#b45309;margin-bottom:7px;">
-                    🛡️ Thông tin nào em được tự thay đổi?
-                </strong>
-                <ul style="margin:0;padding-left:19px;">
-                    <li><b>Tự đổi ngay:</b> ảnh đại diện.</li>
-                    <li><b>Tự nhập đúng 1 lần:</b> ngày sinh, chỉ khi hồ sơ chưa có.</li>
-                    <li><b>Gửi yêu cầu trong Cài đặt:</b> tên hiển thị hoặc mật khẩu.</li>
-                    <li><b>Báo giáo viên chỉnh:</b> lớp, ngày sinh đã lưu, sở thích và châm ngôn.</li>
-                    <li><b>Tên tài khoản:</b> không có nút tự đổi; cần liên hệ giáo viên hoặc quản trị viên.</li>
-                </ul>
-            `;
-            content.appendChild(rules);
-        }
-
         return true;
     }
 
@@ -5256,7 +5193,7 @@
                 skipIfMissing: true,
                 title: 'Xem châm ngôn',
                 description: 'Đây là câu nói yêu thích được lưu trong hồ sơ học sinh.',
-                access: 'Báo giáo viên nếu muốn thay đổi nội dung này.'
+                access: 'Nhập sở thích hoặc châm ngôn rồi bấm Lưu thông tin. Giáo viên vẫn có thể xem và sửa.'
             },
             {
                 featureId: 'profile',

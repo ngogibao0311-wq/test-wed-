@@ -4960,6 +4960,44 @@ async function createAssignment() {
     (await AppDialog.alert("Giao bài tập thành công!"));
 }
 
+window.toggleAssignmentLock = async function(key) {
+    try {
+        const ref = db.ref('assignments/' + key);
+        const current = (await ref.once('value')).val();
+        if (!current) return;
+        const locked = current.isLocked !== true;
+        if (!await AppDialog.confirm(locked
+            ? 'Khóa bài này? Học sinh sẽ rời phần trắc nghiệm, không thể mở hoặc nộp bài. Hạn nộp hiện tại sẽ bị xóa; mở khóa không khôi phục hạn cũ.'
+            : 'Mở khóa bài này? Hạn nộp vẫn để trống; bạn có thể đặt hạn mới bằng Sửa bài.')) return;
+        const id = String(current.id ?? key);
+        const updates = {};
+        updates['assignments/' + key + '/isLocked'] = locked;
+        updates['assignments/' + key + '/endDate'] = '';
+        updates['assignment_locks/' + id] = locked;
+        // Pause existing exam clocks as part of the same lock update.
+        const sessions = (await db.ref('exam_sessions').once('value')).val() || {};
+        const now = Date.now();
+        for (const [username, exams] of Object.entries(sessions)) {
+            const session = exams?.[id];
+            if (!session || session.status === 'submitted') continue;
+            const base = 'exam_sessions/' + username + '/' + id + '/';
+            if (locked) {
+                const timedEnd = Number(session.startedAt || 0) + Number(current.examTimeLimitMinutes || 0) * 60000;
+                updates[base + 'teacherLockRemainingMs'] = Number(current.examTimeLimitMinutes) > 0 ? Math.max(0, timedEnd - now) : 0;
+                updates[base + 'deadlineAt'] = 0;
+            } else if (session.teacherLockRemainingMs !== undefined) {
+                updates[base + 'deadlineAt'] = Number(current.examTimeLimitMinutes) > 0 ? now + Number(session.teacherLockRemainingMs) : 0;
+                updates[base + 'teacherLockRemainingMs'] = null;
+                updates[base + 'ownerLeaseUntil'] = 0;
+            }
+        }
+        await db.ref().update(updates);
+        await loadAssignedList();
+    } catch (error) {
+        await AppDialog.alert('Không thể đổi trạng thái khóa bài: ' + error.message);
+    }
+};
+
 async function loadAssignedList(isLoadMore = false) {
     ensureTeacherAssignmentEssayStyles();
     const container = document.getElementById('assignedListContainer');
@@ -5330,6 +5368,7 @@ async function loadAssignedList(isLoadMore = false) {
             <div id="${uniqueId}" class="accordion-content">
                 <div style="text-align: right; margin-bottom: 15px; display: flex; gap: 10px; justify-content: flex-end;">
                     <button class="btn-approve" style="padding: 6px 15px; font-size: 0.9em; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;" onclick="openAssignmentStatusModal('${assign.id}')">📊 Trạng thái</button>
+                    <button class="btn-approve" style="padding:6px 15px;font-size:0.9em;" onclick="toggleAssignmentLock('${assign._fbKey}')">${assign.isLocked ? '🔓 Mở khóa' : '🔒 Khóa bài'}</button>
                     <button class="btn-approve" style="padding: 6px 15px; font-size: 0.9em; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white;" onclick="openEditAssignmentModal('${assign._fbKey}')">✏️ Sửa bài</button>
                     <button class="btn-reject" style="padding: 6px 15px; font-size: 0.9em;" onclick="deleteAssignment('${assign._fbKey}')">🗑 Xóa bài</button>
                 </div>
@@ -7521,7 +7560,7 @@ function getTeacherGradeRewardV2Outcome(rawGrade, submission) {
         return {
             kind: 'penalty',
             ticketDelta: -4,
-            coinReward: 0,
+            coinReward: -700,
             score,
             reason: violationReasons.join(', '),
             specialPenalty: true,
@@ -7596,7 +7635,7 @@ function getTeacherGradeRewardV2Outcome(rawGrade, submission) {
         return {
             kind: 'penalty',
             ticketDelta: -1,
-            coinReward: 0,
+            coinReward: -200,
             score,
             reason: 'Điểm từ 4 đến dưới 5',
             specialPenalty: false,
@@ -7612,7 +7651,7 @@ function getTeacherGradeRewardV2Outcome(rawGrade, submission) {
         return {
             kind: 'penalty',
             ticketDelta: -2,
-            coinReward: 0,
+            coinReward: -300,
             score,
             reason: 'Điểm từ 2 đến dưới 4',
             specialPenalty: false,
@@ -7627,7 +7666,7 @@ function getTeacherGradeRewardV2Outcome(rawGrade, submission) {
     return {
         kind: 'penalty',
         ticketDelta: -3,
-        coinReward: 0,
+        coinReward: -400,
         score,
         reason: 'Điểm từ 0 đến dưới 2',
         specialPenalty: false
@@ -8271,7 +8310,7 @@ async function rollbackTeacherGradeRewardV3(
             appliedTickets = Number(
                 lockedEvent.ticketDelta || 0
             ) || 0;
-            appliedCoins = 0;
+            appliedCoins = Math.min(0, Number(lockedEvent.coinReward || 0));
         } else if (
             previousStatus === 'claimed' ||
             String(submission?.gradeRewardV2Status || '') === 'claimed'
@@ -8684,7 +8723,7 @@ async function reconcileTeacherGradeRewardHistoryDebtV4(
                 Number(entry.rolledBackAt || 0) > 0 &&
                 Number(entry.rolledBackTickets || 0) === ticketDelta &&
                 Number(entry.rolledBackCoins || 0) ===
-                    (ticketDelta > 0 ? coinReward : 0)
+                    coinReward
             )
         );
 
@@ -8860,7 +8899,16 @@ async function reconcileTeacherGradeRewardHistoryDebtV4(
 
                 entry.rolledBackTickets =
                     ticketDelta;
-                entry.rolledBackCoins = 0;
+                if (coinReward < 0) {
+                    try {
+                        const tx = await coinRef.transaction(current => Number(current || 0) - coinReward);
+                        if (!tx.committed) throw new Error('GRADE_HISTORY_COIN_REFUND_ABORTED');
+                    } catch (error) {
+                        await ticketRef.transaction(current => Number(current || 0) + ticketDelta);
+                        throw error;
+                    }
+                }
+                entry.rolledBackCoins = Math.min(0, coinReward);
             }
 
             if (messageId) {
@@ -9202,7 +9250,7 @@ async function holdTeacherGradeRewardForRegradeV4(
         !penaltyAlreadyReversed
     ) {
         reversedTickets = Number(snapshot.ticketDelta) || 0;
-        reversedCoins = 0;
+        reversedCoins = Math.min(0, Number(snapshot.coinReward || 0));
 
         const ticketTx = await db
             .ref(`student_bonus_tickets/${username}`)
@@ -9214,6 +9262,16 @@ async function holdTeacherGradeRewardForRegradeV4(
             throw new Error(
                 'GRADE_PENALTY_ROLLBACK_ABORTED'
             );
+        }
+
+        if (reversedCoins < 0) {
+            try {
+                const tx = await db.ref(`student_coins/${username}`).transaction(current => Number(current || 0) - reversedCoins);
+                if (!tx.committed) throw new Error('GRADE_COIN_PENALTY_ROLLBACK_ABORTED');
+            } catch (error) {
+                await db.ref(`student_bonus_tickets/${username}`).transaction(current => Number(current || 0) + reversedTickets);
+                throw error;
+            }
         }
 
         await setTeacherGradeRewardRevisionStateV43(
@@ -10263,6 +10321,8 @@ async function issueTeacherGradeRewardV2(submission, rawGrade, gradedAt) {
         );
 
         let penaltyApplied = false;
+        let coinPenaltyApplied = false;
+        const penaltyCoinRef = db.ref(`student_coins/${username}`);
 
         try {
             const penaltyTx = await ticketRef.transaction(current => {
@@ -10275,6 +10335,11 @@ async function issueTeacherGradeRewardV2(submission, rawGrade, gradedAt) {
             }
 
             penaltyApplied = true;
+            if (outcome.coinReward < 0) {
+                const coinTx = await penaltyCoinRef.transaction(current => Number(current || 0) + outcome.coinReward);
+                if (!coinTx.committed) throw new Error('GRADE_COIN_PENALTY_TRANSACTION_ABORTED');
+                coinPenaltyApplied = true;
+            }
 
             const messageRef = db.ref(
                 `inbox_messages/${username}`
@@ -10286,13 +10351,14 @@ async function issueTeacherGradeRewardV2(submission, rawGrade, gradedAt) {
             await messageRef.set({
                 message:
                     `⚠️ Bài của bạn được chấm ${scoreLabel}/10. ` +
-                    `Hệ thống đã trừ ${absolutePenalty} Vé quay may mắn` +
+                    `Hệ thống đã trừ ${absolutePenalty} Vé quay may mắn và ${Math.abs(outcome.coinReward || 0)} Coin` +
                     (outcome.specialPenalty
                         ? ` do ${outcome.reason}.`
                         : ` theo mốc điểm hiện tại.`),
                 giftType: 'grade_penalty',
                 giftValue: outcome.ticketDelta,
                 gradePenaltyTickets: outcome.ticketDelta,
+                gradePenaltyCoins: outcome.coinReward,
                 gradeRewardScore: outcome.score,
                 gradeRewardRevision: revision,
                 gradePenaltyReason: outcome.reason,
@@ -10344,6 +10410,9 @@ async function issueTeacherGradeRewardV2(submission, rawGrade, gradedAt) {
                 ...outcome
             };
         } catch (penaltyError) {
+            if (coinPenaltyApplied) {
+                await penaltyCoinRef.transaction(current => Number(current || 0) - outcome.coinReward).catch(() => {});
+            }
             if (penaltyApplied) {
                 await ticketRef.transaction(current => {
                     const value = Number(current || 0);
@@ -10673,7 +10742,7 @@ async function gradeSubmissionCore(subId) {
         } else if (rewardResult?.status === 'penalty_applied') {
             (await AppDialog.alert(
                 `✅ Đã chấm điểm thành công! Hệ thống đã trừ ` +
-                `${Math.abs(Number(rewardResult.ticketDelta || 0))} vé và gửi thông báo vào Hộp thư.`
+                `${Math.abs(Number(rewardResult.ticketDelta || 0))} vé và ${Math.abs(Number(rewardResult.coinReward || 0))} Coin, đồng thời gửi thông báo vào Hộp thư.`
             ));
         } else if (rewardResult?.status === 'claimed') {
             (await AppDialog.alert(

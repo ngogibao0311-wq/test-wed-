@@ -204,6 +204,7 @@
 
                 return true;
             } catch (error) {
+                if (generation !== this.generation) return false;
                 console.error(
                     '[MusicManager] Không phát được nhạc:',
                     error
@@ -304,6 +305,7 @@
                         cleanup();
 
                         if (error) {
+                            if (script?.dataset.musicManagerInjected === '1') script.remove();
                             reject(error);
                         } else {
                             resolve(window.YT);
@@ -472,8 +474,17 @@
                         }
                     },
 
+                    onAutoplayBlocked: () => {
+                        if (generation !== this.generation) return;
+                        this.retryAfterUserClick();
+                        window.showToast?.('Nhấn vào trang để cho phép phát nhạc nền.', 'warning');
+                    },
                     onError: event => {
+                        if (generation !== this.generation) return;
                         this.youtubeIsPlaying = false;
+                        this.shouldPlay = false;
+                        this.clearRetryAfterUserClick();
+                        window.showToast?.('Không phát được nhạc YouTube (mã ' + event.data + '). Hãy thử lại hoặc chọn vật phẩm nhạc khác.', 'error');
                         console.error(
                             'Lỗi nhạc YouTube:',
                             event.data
@@ -723,7 +734,10 @@
 
             try {
                 if (this.audioElement) {
-                    await this.audioElement.play();
+                    const audio = this.audioElement;
+                    await audio.play();
+                    if (audio !== this.audioElement || !this.shouldPlay) return;
+                    this.clearRetryAfterUserClick();
                     this.startMediaSessionSuppression();
                 } else if (
                     this.youtubePlayer &&
@@ -763,6 +777,8 @@
                     return;
                 }
 
+                if (error?.name === 'AbortError') return;
+                window.showToast?.('Nguồn nhạc không tải được. Kiểm tra kết nối hoặc chọn nhạc khác.', 'error');
                 console.error(
                     '[MusicManager] Lỗi phát nhạc:',
                     error

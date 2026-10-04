@@ -652,6 +652,7 @@
 
     async function finalizeMultipleChoice(assignOrId) {
         const assignment = getAssignment(assignOrId);
+        if (assignment?.isLocked || window.isAssignmentTeacherLocked?.(assignment?.id)) return false;
         if (!assignment || !isMC(assignment)) return false;
         const assignId = text(assignment.id || assignment._fbKey);
         const examSet = getExamSet(assignment);
@@ -782,7 +783,7 @@
 
     async function markTeacherSubmitted(assignOrId, submissionKey) {
         const assignment = getAssignment(assignOrId);
-        if (!assignment || !isMC(assignment)) return;
+        if (!assignment || !isMC(assignment) || assignment.isLocked || window.isAssignmentTeacherLocked?.(assignment.id)) return;
         const assignId = text(assignment.id || assignment._fbKey);
         const now = Date.now();
 
@@ -1044,6 +1045,12 @@
 
             root.querySelectorAll('input[type="radio"][data-mcw2-index]').forEach(input => {
                 input.addEventListener('change', () => {
+                    const deadline = window.getExamTimeLimitDeadline?.(assignment);
+                    if (window.examTimeLimitExpiredPending?.[assignId] || (deadline && deadline <= Date.now())) {
+                        window.handleExamTimeLimitExpired?.(assignId);
+                        return;
+                    }
+                    if (window.isAssignmentTeacherLocked?.(assignId)) return;
                     const index = Number(input.dataset.mcw2Index);
                     input.closest('.mcw2-question')?.querySelectorAll('.mcw2-option').forEach(option => {
                         option.classList.toggle('is-selected', !!option.querySelector('input:checked'));
@@ -1209,6 +1216,22 @@
         document.body.appendChild(root);
         document.body.classList.add('mcw2-open');
         state.currentReviewKey = key;
+        if (typeof window.openPracticeRedoWarning === 'function') {
+            const practice = document.createElement('button');
+            practice.type = 'button'; practice.className = 'mcw2-practice-button';
+            practice.innerHTML = '<span aria-hidden="true">↻</span> Ôn lại trắc nghiệm';
+            practice.addEventListener('click', () => {
+                root.remove(); document.body.classList.remove('mcw2-open');
+                window.openPracticeRedoWarning({ ...assignment, questions: examSet.questions,
+                    __practiceExamSet: JSON.parse(JSON.stringify(examSet)) });
+            });
+            const practiceArea = document.createElement('div');
+            practiceArea.className = 'mcw2-practice-action';
+            const hint = document.createElement('p');
+            hint.textContent = 'Luyện tập lại, không thay đổi điểm đã nộp.';
+            practiceArea.append(practice, hint);
+            root.querySelector('.mcw2-sidebar')?.appendChild(practiceArea);
+        }
         installShellEvents(root, assignment, examSet, answers, true);
         // Close handler generated with assignment id would not find this review root, so bind directly.
         root.querySelector('[data-mcw2-close]')?.addEventListener('click', () => {

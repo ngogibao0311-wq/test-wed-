@@ -5413,6 +5413,7 @@ window.onload = async function () {
                     }
                 )
                 : []; // Lưu cache mảng object dữ liệu gốc
+            await window.applyTeacherAssignmentLocks();
             await loadAssignments();
             setTimeout(() => {
                 if (
@@ -8546,6 +8547,27 @@ function clearStudentAutoSubmitRetry(key) {
     if (state?.timer) clearTimeout(state.timer);
     studentAutoSubmitRetryState.delete(key);
 }
+window.isAssignmentTeacherLocked = function(id) {
+    return (window.cachedAssignments || []).some(a => String(a.id ?? a._fbKey) === String(id) && a.isLocked === true);
+};
+
+window.applyTeacherAssignmentLocks = async function() {
+    for (const assignment of window.cachedAssignments || []) {
+        if (!assignment.isLocked) continue;
+        const id = String(assignment.id ?? assignment._fbKey);
+        window.stopExamTimeLimitCountdown?.(id);
+        if (window.examTimeLimitExpiredPending) window.examTimeLimitExpiredPending[id] = false;
+        // Preserve drafts. Suppress fullscreen events before closing any exam UI.
+        if (String(window.currentActiveExamId || '') === id) {
+            window.currentActiveExamId = null;
+            window.examRecoveryManager?.stopHeartbeat?.(id);
+            window.MCWorkspace?.close?.(id);
+            await window.finishStudentExamMode?.(id);
+        } else window.MCWorkspace?.close?.(id);
+        if (String(window.pendingExamId || '') === id) window.closeExamWarning?.(true);
+    }
+};
+
 async function loadAssignments() {
     const assignmentSource =
         Array.isArray(
@@ -9201,6 +9223,19 @@ async function loadAssignments() {
         // [THÊM MỚI] Xử lý mảng đối tượng học sinh
         const targetArr = Array.isArray(assign.targetStudent) ? assign.targetStudent : [assign.targetStudent || 'all'];
         if (!targetArr.includes('all') && !targetArr.includes(currentUser.username)) return;
+
+        if (assign.isLocked === true) {
+            let card = list.querySelector(`.card[data-id="${assign.id}"]`);
+            if (!card) { card = document.createElement('div'); card.className = 'card submit-box'; list.appendChild(card); }
+            card.dataset.id = String(assign.id);
+            card.dataset.hash = 'teacher-locked';
+            card.replaceChildren();
+            const title = document.createElement('h4'); title.textContent = assign.title;
+            const notice = document.createElement('p');
+            notice.textContent = '🔒 Giáo viên đã khóa bài. Tạm thời không thể mở hoặc nộp. Hạn nộp đã được xóa; bản nháp vẫn được giữ.';
+            card.append(title, notice);
+            return;
+        }
 
         const mySub = getPreferredStudentSubmission(
             submissions,
@@ -11499,7 +11534,7 @@ window.openPracticeRedoModal = function (assign) {
     }
 
     // Chỉ giữ dữ liệu tạm trong RAM.
-    const practiceExamSet =
+    const practiceExamSet = assign.__practiceExamSet ||
         window.getStudentExamQuestions(assign);
 
     // Chỉ giữ dữ liệu tạm trong RAM.
@@ -12087,6 +12122,9 @@ async function saveStudentSubmissionAtomic(assignment, previous, payload) {
             ''
         );
 
+    const liveAssignment = (await db.ref('assignments/' + assignmentKey).once('value')).val();
+    if (!liveAssignment || liveAssignment.isLocked === true) throw new Error('ASSIGNMENT_TEACHER_LOCKED');
+
     const stableKey =
         `student_${authUser.uid.length}_${authUser.uid}_${assignmentKey}`;
 
@@ -12637,6 +12675,8 @@ async function submitAssignmentCore(assignId, isAuto = false, isCheat = false) {
             ).includes(normalizedAssignId)
     );
     if (!assign) return;
+    if (assign.isLocked || window.isAssignmentTeacherLocked(assignId)) throw new Error('ASSIGNMENT_TEACHER_LOCKED');
+
 
     const submissions = await getDB('submissions');
     const mySub = getPreferredStudentSubmission(
@@ -14603,19 +14643,64 @@ window.openStudentInfoModal = function () {
     }
 
     if (hobbiesElement) {
-        hobbiesElement.textContent =
-            currentUser.hobbies ||
-            "Chưa cập nhật";
+        hobbiesElement.value = currentUser.hobbies || '';
     }
 
     if (mottoElement) {
-        mottoElement.textContent =
-            currentUser.motto ||
-            "Chưa cập nhật";
+        mottoElement.value = currentUser.motto || '';
     }
 
+    window.setStudentProfileDetailsEditing(false);
     window.renderStudentBirthdayProfile();
     modal.classList.add("active");
+};
+
+window.setStudentProfileDetailsEditing = function (editing) {
+    const panel = document.getElementById('studentProfileDetails');
+    const button = document.getElementById('saveStudentProfileDetails');
+    panel.dataset.editing = String(editing);
+    button.textContent = editing ? 'Lưu' : 'Sửa';
+    button.setAttribute('aria-expanded', String(editing));
+    document.getElementById('studentProfileDetailsStatus').textContent = '';
+    for (const [id, field] of [['infoModalHobbies', 'hobbies'], ['infoModalMotto', 'motto']]) {
+        const input = document.getElementById(id);
+        const text = document.getElementById(id + 'Text');
+        input.value = currentUser[field] || '';
+        input.hidden = !editing;
+        text.hidden = editing;
+        text.textContent = currentUser[field] || 'Chưa cập nhật';
+    }
+    if (editing) document.getElementById('infoModalHobbies').focus();
+};
+
+window.saveStudentProfileDetails = async function () {
+    const button = document.getElementById('saveStudentProfileDetails');
+    const status = document.getElementById('studentProfileDetailsStatus');
+    if (button.disabled) return;
+    if (document.getElementById('studentProfileDetails').dataset.editing !== 'true') {
+        window.setStudentProfileDetailsEditing(true);
+        return;
+    }
+    const uid = firebase.auth().currentUser?.uid;
+    if (!uid) { status.textContent = 'Vui lòng đăng nhập lại.'; return; }
+    const inputs = [document.getElementById('infoModalHobbies'), document.getElementById('infoModalMotto')];
+    const [hobbies, motto] = inputs.map(input => input.value.trim());
+    if (hobbies.length > 500 || motto.length > 500) { status.textContent = 'Mỗi mục tối đa 500 ký tự.'; return; }
+    button.disabled = true;
+    inputs.forEach(input => { input.disabled = true; });
+    status.textContent = 'Đang lưu…';
+    try {
+        await db.ref('users/' + uid).update({ hobbies, motto });
+        Object.assign(currentUser, { hobbies, motto });
+        window.setStudentProfileDetailsEditing(false);
+        button.focus();
+    } catch (error) {
+        status.textContent = 'Chưa lưu được. Hãy kiểm tra kết nối rồi thử lại.';
+        console.error('Lưu thông tin cá nhân:', error);
+    } finally {
+        button.disabled = false;
+        inputs.forEach(input => { input.disabled = false; });
+    }
 };
 
 window.closeStudentInfoModal = function () {
@@ -22398,7 +22483,7 @@ window.renderStudentInbox = function () {
                 const penaltyScore = Number(msg.gradeRewardScore);
 
                 giftDisplay =
-                    `⚠️ Trừ ${penalty} Vé quay may mắn` +
+                    `⚠️ Trừ ${penalty} Vé quay may mắn${Number(msg.gradePenaltyCoins) < 0 ? ' và ' + Math.abs(Number(msg.gradePenaltyCoins)) + ' Coin' : ''}` +
                     `<br><span style="font-size:.82em;color:#b91c1c;font-weight:700;">` +
                     `Điểm ${Number.isFinite(penaltyScore) ? penaltyScore.toLocaleString('vi-VN') : '-'} / 10 · ` +
                     `Án phạt đã được áp dụng ngay và tổng vé có thể âm.` +
@@ -24198,7 +24283,8 @@ window.getExamTimeLimitDeadline = function (
         );
 
     if (!minutes) {
-        return null;
+        const due = new Date(String(assignment?.endDate || '').replace(' ', 'T')).getTime();
+        return Number.isFinite(due) ? due : null;
     }
 
     /*
@@ -24401,6 +24487,8 @@ window.stopExamTimeLimitCountdown = function (
 window.handleExamTimeLimitExpired =
     async function (assignId) {
         const key = String(assignId);
+        if (window.isAssignmentTeacherLocked?.(key)) return;
+
 
         if (
             window.examTimeLimitSubmitting[key]
@@ -24408,58 +24496,19 @@ window.handleExamTimeLimitExpired =
             return;
         }
 
-        /*
-         * C3/C7:
-         * Phải chiếm finalize lease trên Firebase TRƯỚC khi bật
-         * suppression cục bộ. Một tab khác sẽ không thể tự thu song song.
-         */
-        let finalizeLease = null;
-
-        try {
-            finalizeLease =
-                await window
-                    .examRecoveryManager
-                    ?.acquireFinalizeLease?.(
-                        key,
-                        'time-limit-auto-submit'
-                    );
-        } catch (error) {
-            console.warn(
-                '[Exam Guard] Không lấy được finalize lease khi hết giờ:',
-                error
-            );
-        }
-
-        if (!finalizeLease) {
-            /*
-             * Nếu tab khác đang finalize thì không chen vào.
-             * Tab chủ sở hữu sẽ hoàn tất submission.
-             */
-            return;
-        }
-
-        window.examTimeLimitSubmitting[key] =
-            true;
-
-        window.examTimeLimitExpiredPending[key] =
-            true;
-
-        window.isFinalizingExamSubmission =
-            true;
-
+        // Lock locally before any network request; a failed upload never extends the exam.
+        window.examTimeLimitSubmitting[key] = true;
+        window.examTimeLimitExpiredPending[key] = true;
+        window.isFinalizingExamSubmission = true;
         window.stopExamTimeLimitCountdown(key);
-
-        window.setInterruptedExamLock?.(
-            key,
-            true
-        );
+        window.setInterruptedExamLock?.(key, true);
 
         if (
             typeof window.showToast ===
             'function'
         ) {
             window.showToast(
-                '⏱️ Đã hết thời gian làm bài. Hệ thống đang tự động thu bài; đây không phải lỗi vi phạm.',
+                '⏱️ Đã hết thời gian làm bài. Hệ thống đang tự động thu bài; đây là vi phạm do hết giờ thi.',
                 'warning'
             );
         }
@@ -24493,7 +24542,7 @@ window.handleExamTimeLimitExpired =
                 'function'
             ) {
                 window.showToast(
-                    'Mất kết nối khi tự thu bài. Bản nháp vẫn được giữ và hệ thống sẽ thử lại.',
+                    'Mất kết nối khi tự thu bài. Bài đã khóa chỉnh sửa. Bản nháp vẫn được giữ và hệ thống sẽ thử lại.',
                     'error'
                 );
             }
@@ -24525,15 +24574,6 @@ window.startExamTimeLimitCountdown =
         const key = String(assignId);
 
         window.stopExamTimeLimitCountdown(key);
-
-        const minutes =
-            window.getExamTimeLimitMinutes(
-                assignment
-            );
-
-        if (!minutes) {
-            return;
-        }
 
         const session =
             window.examRecoveryManager
@@ -27121,35 +27161,33 @@ window.finishStudentExamMode = async function (
     }
 };
 
-window.setInterruptedExamLock = function (
-    assignId,
-    locked
-) {
-    const content = document.getElementById(
-        `exam-content-${assignId}`
-    );
-
-    if (!content) return;
-
-    if (locked) {
-        content.dataset.interruptedLocked = 'true';
-        content.style.pointerEvents = 'none';
-        content.style.userSelect = 'none';
-        content.style.opacity = '0.35';
-        content.style.filter = 'blur(2px)';
-    } else {
-        delete content.dataset.interruptedLocked;
-        content.style.pointerEvents = '';
-        content.style.userSelect = '';
-        content.style.opacity = '';
-        content.style.filter = '';
-    }
+window.setInterruptedExamLock = function (assignId, locked) {
+    const key = String(assignId);
+    // A pending expired submission must not be unlocked by a resume callback.
+    locked = !!locked || !!window.examTimeLimitExpiredPending?.[key];
+    const regions = [document.getElementById(`exam-content-${key}`),
+        document.getElementById(`mc-workspace-v2-${key}`)];
+    regions.forEach(content => {
+        if (!content) return;
+        content.inert = locked;
+        if (locked) {
+            content.dataset.interruptedLocked = 'true';
+            content.style.pointerEvents = 'none';
+            content.style.opacity = '0.65';
+            if (content.contains(document.activeElement)) document.activeElement.blur();
+        } else {
+            delete content.dataset.interruptedLocked;
+            content.style.pointerEvents = '';
+            content.style.opacity = '';
+        }
+    });
 };
 
 window.showExamWarning = function (
     assignId,
     isResume = false
 ) {
+    if (window.isAssignmentTeacherLocked(assignId)) return;
     window.pendingExamId = String(assignId);
     window.pendingExamIsResume = !!isResume;
 
@@ -27398,7 +27436,7 @@ window.showExamWarning = function (
                 Đồng hồ bắt đầu đếm ngay khi bạn
                 vào chế độ toàn màn hình.
                 Hết giờ, hệ thống sẽ tự động thu bài
-                và không tính là lỗi vi phạm.
+                và tính là vi phạm do hết giờ thi.
             </div>
         `;
     } else {
@@ -27485,7 +27523,7 @@ window.closeExamWarning = function (
 window.startExamFullscreen = async function (
     isResume = false
 ) {
-    if (!window.pendingExamId) return;
+    if (!window.pendingExamId || window.isAssignmentTeacherLocked(window.pendingExamId)) return;
 
     isResume =
         isResume ||
@@ -35167,6 +35205,7 @@ window.handleExamInterruption = async function (
     reason,
     options = {}
 ) {
+    if (window.isAssignmentTeacherLocked?.(window.currentActiveExamId)) return;
     if (
         window.isSelectingFile ||
         window.isExamFinalizeSuppressionAllowed?.() ||
