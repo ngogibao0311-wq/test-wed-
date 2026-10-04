@@ -31698,7 +31698,23 @@ window.onAssignmentVideoPlaybackRateChange =
         );
     };
 
+// Trình duyệt không cung cấp API phát hiện OS split-screen. Chỉ áp dụng
+// quy tắc kích thước cửa sổ cho máy tính có chuột, không suy từ innerWidth
+// vì zoom trang và bàn phím ảo có thể làm thay đổi vùng nội dung.
+function isAssignmentVideoWindowReduced() {
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return false;
+    if (navigator.userAgentData?.mobile || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) return false;
+    if (document.fullscreenElement || document.webkitFullscreenElement) return false;
+    const availableWidth = Number(window.screen?.availWidth);
+    const availableHeight = Number(window.screen?.availHeight);
+    const width = Number(window.outerWidth);
+    const height = Number(window.outerHeight);
+    if (availableWidth < 900 || availableHeight < 600 || width <= 0 || height <= 0) return false;
+    return width <= availableWidth * 0.75 || height <= availableHeight * 0.75;
+}
+
 function isAssignmentVideoPageActive() {
+    if (isAssignmentVideoWindowReduced()) return false;
     if (
         document.hidden ||
         document.visibilityState === 'hidden'
@@ -31784,7 +31800,11 @@ function pauseTrackedVideoBecausePageInactive(
     }
 
     videoPausedByPageExit[assignId] = reason;
+    const firstNotice = !videoPageExitNoticePending;
     videoPageExitNoticePending = true;
+    if (firstNotice && isAssignmentVideoWindowReduced() && typeof window.showToast === 'function') {
+        window.showToast('Video đã tạm dừng. Hãy mở rộng cửa sổ học tập, không chia màn hình, rồi nhấn phát lại.', 'warning');
+    }
 
     return true;
 }
@@ -31809,7 +31829,7 @@ function showVideoPageExitPauseNotice() {
 
     if (typeof window.showToast === 'function') {
         window.showToast(
-            'Video đã tạm dừng vì bạn rời trang học tập. ' +
+            'Video đã tạm dừng vì bạn rời trang hoặc thu nhỏ/chia cửa sổ học tập. ' +
             'Thời gian xem trên YouTube/tab khác không được tính. ' +
             'Hãy nhấn ▶️ để tiếp tục xem trên trang.',
             'warning'
@@ -31963,6 +31983,14 @@ function bindVideoProgressFlushEvents() {
     if (videoProgressFlushBound) return;
 
     videoProgressFlushBound = true;
+
+    window.addEventListener('resize', () => {
+        if (isAssignmentVideoWindowReduced()) {
+            pauseAllTrackedVideosBecausePageInactive('reduced-window');
+        } else {
+            showVideoPageExitPauseNotice();
+        }
+    });
 
     window.addEventListener(
         'pagehide',

@@ -127,8 +127,11 @@
                 return false;
             }
 
-            const sourceType =
-                this.getSourceType(musicUrl);
+            // file:// không cho fetch MP3; dùng HTMLAudio tại máy, giữ Web Audio
+            // trên HTTP(S). Không chuyển dự phòng khi lỗi mạng trên website.
+            const useWebAudio = item.musicEngine === 'web-audio' &&
+                window.location?.protocol !== 'file:';
+            const sourceType = useWebAudio ? 'web-audio' : this.getSourceType(musicUrl);
 
             const sameMusic =
                 this.currentItemId === item.id &&
@@ -167,7 +170,9 @@
             this.destroyPlayer();
 
             try {
-                if (sourceType === 'youtube') {
+                if (sourceType === 'web-audio') {
+                    await this.createWebAudioPlayer(musicUrl, generation);
+                } else if (sourceType === 'youtube') {
                     await this.createYouTubePlayer(
                         musicUrl,
                         generation
@@ -219,6 +224,32 @@
 
                 return false;
             }
+        }
+
+        // File nhạc riêng: không tạo HTMLMediaElement/iframe hay Media Session.
+        static async createWebAudioPlayer(url, generation) {
+            const Context = window.AudioContext || window.webkitAudioContext;
+            if (!Context) throw new Error('WEB_AUDIO_UNSUPPORTED');
+            const context = new Context();
+            const abort = new AbortController();
+            const player = { context, abort, source: null, started: false };
+            this.webAudioPlayer = player;
+            await context.suspend();
+            const response = await fetch(url, { signal: abort.signal });
+            if (!response.ok) throw new Error('AUDIO_HTTP_' + response.status);
+            const buffer = await context.decodeAudioData(await response.arrayBuffer());
+            if (generation !== this.generation || this.webAudioPlayer !== player) return;
+            const gain = context.createGain();
+            gain.gain.value = this.volume;
+            gain.connect(context.destination);
+            const source = context.createBufferSource();
+            source.buffer = buffer;
+            source.loop = this.loop;
+            source.connect(gain);
+            player.source = source;
+            source.onended = () => {
+                if (this.webAudioPlayer === player && !source.loop) this.shouldPlay = false;
+            };
         }
 
         static createAudioPlayer(url, generation) {
@@ -704,6 +735,7 @@
 
         static hasPlayer() {
             return Boolean(
+                this.webAudioPlayer?.source ||
                 this.audioElement ||
                 this.youtubePlayer ||
                 this.spotifyController
@@ -733,7 +765,24 @@
             }
 
             try {
-                if (this.audioElement) {
+                if (this.webAudioPlayer?.source) {
+                    const player = this.webAudioPlayer;
+                    await player.context.resume();
+                    if (player !== this.webAudioPlayer) return;
+                    if (!this.shouldPlay || this.videoTokens.size > 0) {
+                        await player.context.suspend();
+                        return;
+                    }
+                    if (player.context.state !== 'running') {
+                        this.retryAfterUserClick();
+                        return;
+                    }
+                    if (!player.started) {
+                        player.source.start();
+                        player.started = true;
+                    }
+                    this.clearRetryAfterUserClick();
+                } else if (this.audioElement) {
                     const audio = this.audioElement;
                     await audio.play();
                     if (audio !== this.audioElement || !this.shouldPlay) return;
@@ -787,6 +836,9 @@
         }
 
         static pauseCurrent() {
+            if (this.webAudioPlayer) {
+                this.webAudioPlayer.context.suspend().catch(() => {});
+            }
             if (this.audioElement) {
                 this.audioElement.pause();
             }
@@ -888,6 +940,16 @@
         }
 
         static destroyPlayer() {
+            if (this.webAudioPlayer) {
+                const player = this.webAudioPlayer;
+                this.webAudioPlayer = null;
+                player.abort.abort();
+                if (player.source) {
+                    player.source.onended = null;
+                    player.source.disconnect();
+                }
+                player.context.close().catch(() => {});
+            }
             this.stopMediaSessionSuppression(false);
 
             if (this.audioElement) {

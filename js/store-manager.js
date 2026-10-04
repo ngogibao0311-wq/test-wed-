@@ -536,7 +536,8 @@ const StoreConfig = {
             isNonCoin: false,
             tag: 'Âm nhạc',
             customIcon: '🎧',
-            musicUrl: 'https://youtu.be/TWX6Eq8v46M?si=xOz5ZQcJmbKI1Paa',
+            musicUrl: 'assets/music/hi-khuc.mp3',
+            musicEngine: 'web-audio',
             volume: 0.35,
             loop: true,
             hideFromMediaControls: true
@@ -824,6 +825,33 @@ const StoreConfig = {
             tag: 'Thất Đại Tội',
             tags: ['Thất Đại Tội', 'Acedia', 'Lười Biếng', 'Hiệu ứng'],
             customIcon: '✦'
+        },
+        {
+            id: 'background_thatdaitoi_mien_canh_tinh_da',
+            name: 'Acedia · Miên Cảnh Tĩnh Dạ',
+            type: 'background',
+            price: 150,
+            isNonCoin: false,
+            tag: 'Thất Đại Tội',
+            tags: ['Thất Đại Tội', 'Acedia', 'Lười Biếng', 'Nền'],
+            value: 'assets/Premium/thất đại tội/lười biếng/luoi_bieng_nen1.png',
+            isIcon: false,
+            backgroundFit: 'cover',
+            backgroundPosition: 'center center',
+            backgroundRepeat: 'no-repeat',
+            backgroundAttachment: 'fixed'
+        },
+        {
+            id: 'frame_thatdaitoi_mien_khe_chi_hoan',
+            name: 'Acedia · Miên Khế Chi Hoàn',
+            type: 'frame',
+            price: 250,
+            isNonCoin: false,
+            tag: 'Thất Đại Tội',
+            tags: ['Thất Đại Tội', 'Acedia', 'Lười Biếng', 'Khung viền'],
+            value: 'assets/Premium/thất đại tội/lười biếng/luoi_bieng_khung1.png',
+            isIcon: false,
+            frameEffect: 'acedia-slumber-ring'
         },
         {
             id: 'theme_thatdaitoi_mien_khe_tinh_gioi',
@@ -3972,7 +4000,9 @@ class StoreManager {
         const sevenSinsSlothChibiIds = new Set([
             'pet_thatdaitoi_luoibieng_chibi_1',
             'theme_thatdaitoi_mien_khe_tinh_gioi',
-                'effect_thatdaitoi_mien_vu_tinh_da'
+            'frame_thatdaitoi_mien_khe_chi_hoan',
+            'background_thatdaitoi_mien_canh_tinh_da',
+            'effect_thatdaitoi_mien_vu_tinh_da'
         ]);
 
         const birthday2026Ids = new Set([
