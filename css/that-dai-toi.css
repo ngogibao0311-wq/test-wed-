@@ -10421,3 +10421,31 @@ body.aclp-equipped :is(input,select,textarea):not(:where(.ui-theme-immune *,[dat
 @media(max-width:600px){.aclp-world-scene .aclp-architecture{width:200%;left:-50%}.aclp-world-scene{opacity:.72;mask-image:linear-gradient(90deg,#000,transparent 20%,transparent 80%,#000),linear-gradient(180deg,#000,transparent 16%)}.aclp-ultimate .aclp-architecture{width:170%;left:-35%}.aclp-ritual-caption{bottom:12%}.aclp-ritual-caption span{font-size:11px;letter-spacing:.05em}.aclp-ritual-caption small{font-size:8px;letter-spacing:.18em}}
 @media(prefers-reduced-motion:reduce){.aclp-world-scene *,.aclp-pet-realm *,#virtual-pet-img.aclp-pet{animation:none!important}.aclp-ultimate,.aclp-click,.aclp-silver-rain{display:none}}
 body.wfx-low-power :is(#virtual-pet-img.aclp-pet,.aclp-pet-realm *){animation:none!important}
+
+/* Acedia · Miên Khế Chi Hoàn — khung thường, dùng layer AvatarFrameManager.
+   Căn tâm như khung Premium; ảnh có phần trang trí rộng ngoài lỗ avatar. */
+.avatar-frame-equipped[data-avatar-frame-id="frame_thatdaitoi_mien_khe_chi_hoan"] {
+    position:relative !important; overflow:visible !important; isolation:isolate;
+}
+.avatar-frame-profile-host[data-avatar-frame-id="frame_thatdaitoi_mien_khe_chi_hoan"] { --acfr-avatar:40px; --acfr-frame:76px; }
+#studentInfoModal .avatar-frame-modal-host[data-avatar-frame-id="frame_thatdaitoi_mien_khe_chi_hoan"] { --acfr-avatar:80px; --acfr-frame:152px; }
+.avatar-frame-equipped[data-avatar-frame-id="frame_thatdaitoi_mien_khe_chi_hoan"] > img:not(.avatar-frame-decoration),
+#studentInfoModal .avatar-frame-modal-host[data-avatar-frame-id="frame_thatdaitoi_mien_khe_chi_hoan"] > #modalAvatarPreview {
+    position:absolute !important; left:50% !important; top:50% !important;
+    width:var(--acfr-avatar) !important; height:var(--acfr-avatar) !important;
+    margin:0 !important; transform:translate(-50%,-50%) !important;
+    border-radius:50% !important; object-fit:cover !important; border:0 !important;
+    filter:none !important; animation:none !important; z-index:3 !important;
+}
+.avatar-frame-equipped[data-avatar-frame-id="frame_thatdaitoi_mien_khe_chi_hoan"] > .avatar-frame-decoration,
+#studentInfoModal .avatar-frame-modal-host[data-avatar-frame-id="frame_thatdaitoi_mien_khe_chi_hoan"] > .avatar-frame-decoration {
+    position:absolute !important; left:50% !important; top:50% !important;
+    width:var(--acfr-frame) !important; height:var(--acfr-frame) !important;
+    max-width:none !important; max-height:none !important; margin:0 !important;
+    transform:translate(-50%,-50%) !important; object-fit:contain !important;
+    border:0 !important; border-radius:0 !important; background:transparent !important;
+    box-shadow:none !important; filter:drop-shadow(0 2px 3px #26132133) !important;
+    animation:none !important; opacity:1 !important; z-index:5 !important; pointer-events:none !important;
+}
+.avatar-frame-equipped[data-avatar-frame-id="frame_thatdaitoi_mien_khe_chi_hoan"] > .avatar-frame-aura,
+.avatar-frame-equipped[data-avatar-frame-id="frame_thatdaitoi_mien_khe_chi_hoan"] > .avatar-frame-spark { display:none !important; }
