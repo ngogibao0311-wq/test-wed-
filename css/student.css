@@ -2014,22 +2014,25 @@ body.theme-fairy-sea-dream :is(.sidebar,
     line-height: 1.4 !important;
 }
 
-/* Nội dung sở thích và châm ngôn */
-#studentInfoModal #infoModalHobbies,
-#studentInfoModal #infoModalMotto {
-    display: block !important;
-
-    width: 100% !important;
-
-    margin: 0 !important;
-
-    color: #475569 !important;
-    font-size: 15px !important;
-    line-height: 1.65 !important;
-
-    white-space: pre-wrap !important;
-    overflow-wrap: anywhere !important;
+/* Hồ sơ: chỉ mở ô nhập khi học sinh chọn Sửa. */
+#studentInfoModal .profile-details-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; font-size:13px; color:#64748b; }
+#studentInfoModal #saveStudentProfileDetails {
+    width:auto !important; min-width:54px !important; min-height:32px !important; margin:0 !important;
+    padding:5px 12px !important; border:1px solid #c7d2fe !important; border-radius:8px !important;
+    background:#eef2ff !important; color:#4338ca !important; box-shadow:none !important;
+    font:600 13px/1.4 "Segoe UI",sans-serif !important; cursor:pointer;
 }
+#studentInfoModal #saveStudentProfileDetails:hover { background:#e0e7ff !important; }
+#studentInfoModal #saveStudentProfileDetails:focus-visible { outline:2px solid #6366f1; outline-offset:3px; }
+#studentInfoModal #saveStudentProfileDetails:disabled { opacity:.6; cursor:wait; }
+#studentInfoModal .profile-detail-field + .profile-detail-field { margin-top:12px; padding-top:12px; border-top:1px solid #e2e8f0; }
+#studentInfoModal .profile-detail-field label { display:block; margin:0 0 4px; color:#334155; font-size:14px; font-weight:600; }
+#studentInfoModal .profile-detail-field p { margin:0; color:#475569; font-size:14px; line-height:1.5; white-space:pre-wrap; overflow-wrap:anywhere; }
+#studentInfoModal .profile-detail-field textarea { box-sizing:border-box; width:100%; min-height:64px; margin:4px 0 0; padding:9px 11px; border:1px solid #cbd5e1; border-radius:8px; background:#fff; color:#334155; font:14px/1.5 "Segoe UI",sans-serif; resize:vertical; }
+#studentInfoModal .profile-detail-field textarea:focus { outline:2px solid #c7d2fe; border-color:#818cf8; }
+#studentInfoModal #studentProfileDetails [hidden] { display:none !important; }
+#studentInfoModal #studentProfileDetailsStatus { margin:8px 0 0; color:#64748b; font-size:12px; line-height:1.5; }
+#studentInfoModal #studentProfileDetailsStatus:empty { display:none; }
 
 /* Điện thoại */
 @media (max-width: 600px) {

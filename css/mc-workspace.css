@@ -155,6 +155,18 @@ body.mcw2-open { overflow: hidden !important; }
 
 .mcw2-review-action-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:14px; }
 .mcw2-review-button { min-width:132px; }
+.mcw2-practice-action { margin:12px 14px 0; padding-top:12px; border-top:1px solid #e2e8f0; }
+.mcw2-sidebar .mcw2-practice-button {
+    display:flex; align-items:center; justify-content:center; gap:8px; box-sizing:border-box;
+    width:100% !important; min-height:40px; margin:0 !important; padding:9px 12px !important;
+    border:1px solid #c7d2fe !important; border-radius:10px !important;
+    background:#eef2ff !important; color:#4338ca !important; box-shadow:none !important;
+    font:600 14px/1.4 "Segoe UI",sans-serif !important; cursor:pointer;
+}
+.mcw2-sidebar .mcw2-practice-button:hover { background:#e0e7ff !important; border-color:#a5b4fc !important; }
+.mcw2-sidebar .mcw2-practice-button:focus-visible { outline:2px solid #6366f1; outline-offset:3px; }
+.mcw2-practice-button span { font-size:20px; line-height:1; }
+.mcw2-practice-action p { margin:7px 0 0; color:#64748b; font:12px/1.5 "Segoe UI",sans-serif; text-align:center; }
 .mcw2-score-badge { display:inline-flex; align-items:center; min-height:40px; padding:0 13px; border:1px solid #bbf7d0; border-radius:10px; background:#f0fdf4; color:#166534; font-size:.88rem; font-weight:900; }
 
 @media (max-width: 980px) {
