@@ -543,6 +543,20 @@ const StoreConfig = {
             hideFromMediaControls: true
         },
         {
+            id: 'music_quy_linh_01',
+            name: 'Nhạc',
+            type: 'music',
+            price: 350,
+            isNonCoin: false,
+            tag: 'Âm nhạc',
+            customIcon: '🎵',
+            musicUrl: 'assets/music/归零2.0 - Quy Linh (ver2.0) -- Hot Douyin -- Rứa official.mp3',
+            musicEngine: 'web-audio',
+            volume: 0.35,
+            loop: true,
+            hideFromMediaControls: true
+        },
+        {
             id: 'music_nga_01',
             name: 'Nhạc Nga',
             type: 'music',

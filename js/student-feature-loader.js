@@ -98,7 +98,7 @@
         petItems: 'js/pet-items.js?v=20260926.autumn-sale-tag-v3',
         petInteractions: 'js/pet-interactions.js?v=20261001.dialog1',
         musicManager: 'js/music-manager.js?v=20261004.web-audio2',
-        storeManager: 'js/store-manager.js?v=20261004.web-audio1',
+        storeManager: 'js/store-manager.js?v=20261004.quy-linh2',
 
         luxuryStore: 'js/luxury-store.js?v=20261003.aclp4',
         collections: 'js/store-collections.js?v=20261001.scroll1',
