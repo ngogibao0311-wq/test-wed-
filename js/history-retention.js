@@ -44,6 +44,8 @@
         'leaderboard_reward_claims',
         'hoihoa_reward_logs',
         'student_history_events',
+        'student_asset_history',
+        'teacher_money_operations',
         'student_daily_login',
         'royal_ball_limits',
         'spin_counts',

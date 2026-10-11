@@ -974,6 +974,7 @@
                         <div class="mcw2-question-list">${questionsMarkup}</div>
                     </main>
                     <aside class="mcw2-sidebar">
+                        <button type="button" class="mcw2-phone-nav-toggle" data-mcw2-phone-nav aria-expanded="false">Danh sách câu hỏi ⌃</button>
                         <div class="mcw2-sidebar-title">Danh sách câu hỏi</div>
                         <div class="mcw2-sidebar-section">
                             <em>Phần 1:</em>
@@ -993,7 +994,7 @@
 
     function scrollToQuestion(root, index) {
         const question = root?.querySelector(`[data-mcw2-question="${Number(index)}"]`);
-        const scroller = root?.querySelector(matchMedia('(max-width:760px)').matches ? '.mcw2-body' : '.mcw2-main');
+        const scroller = root?.querySelector('.mcw2-main');
         if (!question || !scroller) return;
         const top = scroller.scrollTop + question.getBoundingClientRect().top - scroller.getBoundingClientRect().top - 10;
         scroller.scrollTo({ top, behavior: 'smooth' });
@@ -1002,9 +1003,17 @@
     function installShellEvents(root, assignment, examSet, answers, reviewMode) {
         const assignId = text(assignment.id || assignment._fbKey);
         root.querySelector('[data-mcw2-close]')?.addEventListener('click', () => closeWorkspace(assignId));
+        const phoneNav=root.querySelector('[data-mcw2-phone-nav]');
+        phoneNav?.addEventListener('click',()=>{
+            const open=phoneNav.getAttribute('aria-expanded')!=='true';
+            phoneNav.setAttribute('aria-expanded',String(open));
+            phoneNav.textContent=open?'Thu gọn danh sách ⌄':'Danh sách câu hỏi ⌃';
+            root.querySelector('.mcw2-sidebar').classList.toggle('phone-nav-open',open);
+        });
         root.querySelectorAll('[data-mcw2-nav]').forEach(button => {
             button.addEventListener('click', () => {
                 const index = Number(button.dataset.mcw2Nav);
+                if(matchMedia('(max-width:768px), (max-width:1024px) and (pointer:coarse) and (max-height:600px)').matches && phoneNav?.getAttribute('aria-expanded')==='true')phoneNav.click();
                 scrollToQuestion(root, index);
             });
         });
@@ -1086,6 +1095,13 @@
         const count = questions.reduce((sum, _, index) => sum + (answers?.[index] || answers?.[text(index)] ? 1 : 0), 0);
         const progress = root.querySelector('[data-mcw2-progress]');
         if (progress) progress.textContent = `Đã trả lời ${count}/${questions.length} câu`;
+        const phoneNav=root.querySelector('[data-mcw2-phone-nav]');
+        phoneNav?.addEventListener('click',()=>{
+            const open=phoneNav.getAttribute('aria-expanded')!=='true';
+            phoneNav.setAttribute('aria-expanded',String(open));
+            phoneNav.textContent=open?'Thu gọn danh sách ⌄':'Danh sách câu hỏi ⌃';
+            root.querySelector('.mcw2-sidebar').classList.toggle('phone-nav-open',open);
+        });
         root.querySelectorAll('[data-mcw2-nav]').forEach(button => {
             const index = button.dataset.mcw2Nav;
             button.classList.toggle('is-answered', !!answers[index]);
@@ -1305,7 +1321,7 @@
     if (window.location?.protocol === 'file:') {
         console.warn(
             '[MC Workspace] Website đang chạy bằng file://. Chrome cô lập mỗi file thành unique origin; ' +
-            'Firebase/iframe có thể phát sinh lỗi origin. Hãy chạy project qua http://localhost.'
+            'đám mây/iframe có thể phát sinh lỗi origin. Hãy chạy project qua http://localhost.'
         );
     }
 

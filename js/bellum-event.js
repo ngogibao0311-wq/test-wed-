@@ -1233,7 +1233,7 @@
 
         if (!database || !username) {
             notifySchedule(
-                'Không xác định được tài khoản hoặc kết nối Firebase.',
+                'Không xác định được tài khoản hoặc kết nối đám mây.',
                 'error'
             );
             return false;

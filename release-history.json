@@ -1,0 +1,143 @@
+{
+  "releases": [
+    {
+      "version": "4.3.2",
+      "build": "2026.10.10.14",
+      "channel": "stable",
+      "releasedAt": "2026-10-10T00:00:00+07:00",
+      "title": "v4.3.2 · Mùa Đông và Vĩnh Đông Băng Chủ",
+      "summary": "Bổ sung bộ Mùa Đông với hệ thống băng giá nhiều lớp và năm vật phẩm thường độc lập.",
+      "mandatory": false,
+      "minSupportedVersion": "3.0.0",
+      "changes": [
+        "Đông Thần · Vĩnh Đông Băng Chủ giá 15.000 Coin: thẻ Mùa Đông riêng, giao diện băng lam, hiệu ứng quanh nhân vật, xung băng khi nhấn và ultimate điện băng.",
+        "Module eternal_winter có bão tuyết nhiều lớp, tinh thể sinh trưởng và vỡ, sương giá tan theo con trỏ, cực quang, pháp trận và bốn giai đoạn chuyển tiếp.",
+        "Thẻ có trạng thái phong ấn, đã sở hữu và đang trang bị từ kho vật phẩm; không có cửa sổ xem trước. Hoạt ảnh không thay đổi quyền sở hữu hoặc phát sinh giao dịch.",
+        "Bộ thường Mùa Đông gồm thú cưng 850 Coin, giao diện 800 Coin, hiệu ứng 900 Coin, khung viền 250 Coin, nền 150 Coin; tham gia sưu tầm Bốn mùa.",
+        "Bộ thường dùng bưu trạm tuyết, thư bay và quả cầu tuyết riêng; không dùng hiệu ứng sang trọng và không tạo hiệu ứng khi nhấn toàn trang.",
+        "Giới hạn hạt, tự điều chỉnh chất lượng, giảm chuyển động, dừng khi ngoài vùng nhìn thấy hoặc vào thi; giải phóng hiệu ứng khi tháo đồ.",
+        "Làm lại hào quang Vĩnh Đông: ba dải cực quang, pháp trận khắc ký tự, tinh thể sống nứt vỡ và mọc lại, sương giá trên cung tan theo con trỏ, bệ băng và lớp hạt trước–sau nhân vật.",
+        "Cupid · Hồng Tuyến Định Mệnh 15.000 Coin: đủ năm lớp Valentine, gồm không gian tim pha lê quanh nhân vật, chỉ nối điểm bấm và ultimate 8 giây dệt trái tim; bộ thường và sưu tầm chờ lượt tiếp theo.",
+        "Thêm chi tiết nền Valentine: chỉ thêu ở rìa, tim treo, ánh vàng nhỏ và cụm hoa hồng; giữ hiệu ứng nhấn hiện có.",
+        "Ultimate Valentine: chữ Hồng Tuyến Vĩnh Kết rõ nét, viền ren trái tim, sáu nụ hồng, chỉ quỹ đạo và ánh vàng chuyển động.",
+        "Lịch sử học sinh chỉ giữ 30 giao dịch mới nhất; Worker dọn bản ghi cũ sau khi ghi giao dịch hoặc mở lịch sử, không thay đổi số dư và dữ liệu đối soát. Cần triển khai Worker đi kèm.",
+        "Đổi tên dịch vụ hiển thị thành đám mây trong thông báo, hướng dẫn và bảng chẩn đoán; giữ nguyên kết nối, quyền và cơ chế dữ liệu.",
+        "Sửa bài: bỏ chọn từng học sinh, giữ các em còn lại. Khi xóa học sinh, xóa bài tập/lịch chỉ giao cho em đó; giữ mục dùng chung và loại em khỏi danh sách cụ thể. Cần cập nhật Worker."
+      ],
+      "resolvedIssues": [
+        "Các vật phẩm Mùa Đông đi qua cơ chế mua, trang bị và lịch sử tài sản hiện có; kiểm thử nhận và tiêu hao vật phẩm mới.",
+        "Lịch sử chờ lượt gửi nhật ký đang chạy trước khi tải và tự làm mới khi có bản ghi mới, tránh bỏ sót lần mua vé tiếp theo trên danh sách.",
+        "Chặn trái tim SVG phóng lớn chớp lên khi CSS của lớp hiệu ứng đang tải.",
+        "Sửa danh sách lịch sử dừng sau giao dịch đầu tiên do trả về giá trị trong vòng đọc dữ liệu. Hiển thị đủ tối đa 30 giao dịch đã lưu.",
+        "Thêm nút xóa riêng cho thư thưởng điểm số, kể cả thư cũ bị chặn nhận do vi phạm; xác nhận trước khi xóa và báo lỗi nếu không xóa được. Không thay đổi thưởng, phạt hoặc số dư.",
+        "Giáo viên mở web: tự đối soát bài có thư thưởng/phạt cũ đủ dữ liệu, chỉ áp dụng chênh lệch và thay thư cũ bằng thông báo kết quả. Khóa tránh nhận đồng thời, giữ nguyên trường hợp thiếu dữ liệu. Cần Publish Rules đi kèm.",
+        "Sửa duyệt tiền mặt báo nhầm số dư thay đổi do bộ nhớ giao dịch trống; giữ theo dõi dữ liệu trong khi duyệt, từ chối và hoàn tất, vẫn chặn thay đổi đồng thời thực sự.",
+        "Hủy yêu cầu tiền mặt không lấy khóa giao dịch; sửa giải phóng khóa sau xử lý để tránh báo nhầm giao dịch ở tab khác.",
+        "Tự rà soát vật phẩm đã thanh toán nhưng chưa cấp; giữ biên nhận và không trừ thêm. Đối soát thư thưởng bài tập cũ theo mức mới, lưu bản gốc trước khi thay; khoản không rõ dữ liệu được báo kiểm tra."
+      ],
+      "knownIssues": [
+        "Bộ Mùa Đông không yêu cầu rule mới riêng; chức năng lịch sử tài sản vẫn cần bộ rules của v4.3.1.",
+        "Kiểm thử thực hiện cục bộ với dữ liệu giả lập; chưa xác nhận giao dịch đám mây trực tiếp hoặc hiệu suất trên điện thoại thật."
+      ],
+      "plannedImprovements": []
+    },
+    {
+      "version": "4.3.1",
+      "build": "2026.10.09.2",
+      "channel": "stable",
+      "releasedAt": "2026-10-09T00:00:00+07:00",
+      "title": "v4.3.1 · Lịch sử tài sản học sinh",
+      "summary": "Mở sổ giao dịch học sinh với mã duy nhất, tài sản nhận/trừ, liên kết đối ứng và phân trang.",
+      "mandatory": false,
+      "minSupportedVersion": "3.0.0",
+      "changes": [
+        "Mở nút Lịch sử bên học sinh, bỏ thông báo sắp cập nhật.",
+        "Theo dõi Coin, vé quay, tiền lộ trình, xu sự kiện, vật phẩm và thẻ giảm giá từ các thao tác tài sản trên bản web mới. Không ghi mặc/tháo đồ thành mua/mất đồ.",
+        "Mã riêng cho từng bản ghi, mã nghiệp vụ nếu có; khoản đối ứng và chấm lại liên kết khoản gốc. Học sinh chỉ xem, giáo viên vẫn là người tạo đối ứng.",
+        "Bộ lọc tài sản, nhận/trừ, đối ứng; tìm kiếm trong phần đã tải; 30 giao dịch mỗi trang, chi tiết thích ứng điện thoại.",
+        "Thanh toán/đối soát qua cập nhật nhiều nhánh ghi lịch sử trong cùng lần ghi. Thao tác transaction cũ ghi sau xác nhận, giữ nhật ký chờ trên máy để gửi lại khi lỗi."
+      ],
+      "resolvedIssues": [
+        "Không ghi lại cùng khoản khi gửi lại nhật ký chờ. Không ghi lần transaction bị hủy hoặc từ chối.",
+        "Quyền lịch sử giới hạn theo tài khoản, không mở quyền xem toàn bộ nhật ký giáo viên."
+      ],
+      "knownIssues": [
+        "Phải Publish database.rules.patched.json mới và cập nhật mã cho cả giáo viên, học sinh.",
+        "Lịch sử mới không phục dựng các giao dịch quá khứ chưa được ghi; thao tác từ web cũ, bảng quản trị đám mây hoặc công cụ bên ngoài không tự được ghi bởi mã trình duyệt mới.",
+        "Nhật ký transaction ghi sau xác nhận có thể đang chờ đồng bộ; cần giữ dữ liệu trình duyệt để gửi lại.",
+        "Các thao tác đặt số dư trực tiếp không có biên nhận trước/sau hiển thị giá trị mới, không suy đoán số thay đổi."
+      ],
+      "plannedImprovements": []
+    },
+    {
+      "version": "4.3.0",
+      "build": "2026.10.09.1",
+      "channel": "stable",
+      "releasedAt": "2026-10-09T00:00:00+07:00",
+      "title": "v4.3.0 · Thi, đồng bộ và đối soát giao dịch",
+      "summary": "Kiểm tra đầu vào bài thi, trạng thái lưu nháp và nộp bài, xem trước thưởng–phạt, giao dịch có biên nhận và đối ứng, phân trang yêu cầu tiền, lịch sử phiên bản.",
+      "mandatory": false,
+      "minSupportedVersion": "3.0.0",
+      "changes": [
+        "Kiểm tra kết nối đám mây, phiên đăng nhập, bộ nhớ lưu nháp, trạng thái khóa và lịch bài trước khi vào thi.",
+        "Bảng đồng bộ tách trạng thái lưu trên máy, lưu đám mây và xác nhận nộp bài; không coi việc đang gửi là đã lưu.",
+        "Giáo viên xem trước thưởng gốc, Coin theo thời điểm, từng nhóm phạt và phần chênh lệch khi chấm lại.",
+        "Khoản trừ thủ công dùng mã cố định khi thử lại; số dư, biên nhận, nhật ký và thư cùng ghi trong một lần.",
+        "Tạo khoản đối ứng liên kết với khoản trừ mới, chỉ một lần, giữ nguyên lịch sử giao dịch gốc.",
+        "Yêu cầu tiền tải theo trạng thái, 30 bản ghi mỗi lần. Bài nộp và nhật ký giữ cơ chế phân trang hiện có.",
+        "Thêm trang lịch sử phiên bản từ thông tin phát hành đã lưu, kèm lưu ý triển khai."
+      ],
+      "resolvedIssues": [
+        "Chặn nhấn lặp nút phạt trong khi đang xác nhận hoặc xử lý.",
+        "Không còn chuỗi trừ tiền rồi ghi thư/nhật ký riêng có nguy cơ thất bại một phần."
+      ],
+      "knownIssues": [
+        "Phải Publish database.rules.patched.json mới trước khi dùng trừ tài sản/đối ứng.",
+        "Đối ứng tự động áp dụng cho khoản trừ thủ công được tạo từ bản này; khoản cũ không có biên nhận không được tự động hoàn.",
+        "Kiểm thử cục bộ không thay thế kiểm tra đám mây thực tế sau khi triển khai."
+      ],
+      "plannedImprovements": []
+    },
+    {
+      "version": "4.2.0",
+      "build": "2026.10.08.1",
+      "channel": "stable",
+      "releasedAt": "2026-10-08T00:00:00+07:00",
+      "title": "Bản cập nhật v4.2.0 · Tu Tiên, giao diện điện thoại và thưởng phạt",
+      "summary": "Bổ sung Kim Liên, Hạc Mộng cửa hàng thường và Kim Liên sang trọng; chuẩn hóa kích thước thú cưng, cập nhật giao diện điện thoại và đối soát thưởng/phạt theo điểm, thời điểm nộp bài.",
+      "mandatory": false,
+      "minSupportedVersion": "3.0.0",
+      "changes": [
+        "Bổ sung bộ Kim Liên thường: thú cưng 850 Coin, giao diện 800 Coin, hiệu ứng 900 Coin, khung viền 250 Coin và nền 150 Coin; tag và thẻ riêng, hiệu ứng độc lập với bản sang trọng.",
+        "Bổ sung bộ Hạc Mộng thường gồm 5 loại vật phẩm với giá tương ứng 850 / 800 / 900 / 250 / 150 Coin; hiệu ứng mây, lông vũ và ultimate hạc bay riêng.",
+        "Kim Liên sang trọng giá 15.000 Coin: sửa nút mua/mặc/tháo, cập nhật tag Kim Liên, nâng cấp hào quang, thiên cung, pháp trận và ultimate nhiều lớp.",
+        "Đưa các thẻ Kim Liên xuống cuối từng cửa hàng. Nhân vật sang trọng cao tối đa 300 px, thường 160 px; tự giới hạn theo màn hình và giữ tỉ lệ ảnh.",
+        "Đổi nhóm sưu tầm Cầm Mộng thành Tu Tiên, gồm Cầm Mộng, Hạc Mộng và Kim Liên cửa hàng thường; giữ mã bộ sưu tập để bảo toàn lịch sử nhận thưởng.",
+        "Trang bị sang trọng vẫn cho phép dùng nhạc và khung viền cửa hàng thường; không dùng đồng thời thú cưng, giao diện, hiệu ứng hoặc nền thường.",
+        "Cập nhật bố cục điện thoại cho giáo viên và học sinh, bảng lộ trình cuộn ngang và cơ chế mở thông tin thẻ sang trọng.",
+        "Trắc nghiệm mới nhập hoặc thêm được kiểm tra, chỉnh sửa trong cửa sổ riêng; khi phát hiện thiếu nội dung/đáp án, mở cửa sổ và chuyển đến câu cần xử lý.",
+        "Hồ sơ học sinh có nút sửa/lưu sở thích và châm ngôn; giáo viên vẫn xem và chỉnh được thông tin này.",
+        "Thưởng gốc: 5–dưới 7 điểm nhận 2 vé + 150 Coin; 7–dưới 10 nhận 3 vé + 350 Coin; 10 điểm nhận 4 vé + 700 Coin.",
+        "Thời điểm nộp chỉ giảm Coin thưởng theo các mức 100%, 92,2%, 83,5%, 75,6%; không giảm vé. Bài có hạn chia thời gian thành 4 phần; bài không hạn dùng mốc 1, 3, 7 ngày. Nếu có ngày bắt đầu thì tính từ thời điểm đó.",
+        "Phạt theo điểm: 4–dưới 5 trừ 1 vé + 50 Coin; 2–dưới 4 trừ 2 vé + 150 Coin; trên 0–dưới 2 trừ 3 vé + 300 Coin; đúng 0 trừ 4 vé + 500 Coin.",
+        "Phạt theo lỗi cộng dồn giữa các nhóm: quy chế thi 3 vé + 200 Coin; thiếu tự luận 3 vé + 150 Coin; nhóm nộp trễ/quá hạn/tự thu bài 4 vé + 300 Coin. Cùng một nhóm thời gian không bị tính hai lần.",
+        "Tổng thưởng trừ tổng phạt riêng cho Coin và vé. Còn dư thì cộng, thiếu thì trừ, cân bằng thì không đổi; hộp thư giải thích kết quả. Chấm lại hoặc sửa điểm chỉ điều chỉnh chênh lệch đã đối soát.",
+        "Rút thời hạn xóa thư xuống 3 ngày; bổ sung nút Lịch sử đang khóa với thông báo sắp cập nhật."
+      ],
+      "resolvedIssues": [
+        "Sửa nút mua Kim Liên sang trọng bị thiếu.",
+        "Cô lập hào quang Kim Liên và Hạc Mộng khỏi CSS giao diện khác; dọn hiệu ứng khi tháo hoặc tạm dừng khi thi.",
+        "Thay kích thước nhân vật riêng lẻ bằng quy tắc chung cho thú cưng đang trang bị.",
+        "Đồng bộ thông tin phiên bản và nội dung thưởng/phạt mới trong thông báo cập nhật."
+      ],
+      "knownIssues": [
+        "Cần triển khai quy tắc bảo mật đám mây phù hợp cùng mã web để giao dịch thưởng/phạt và các quyền ghi hoạt động đúng.",
+        "Worker xóa học sinh cần cấu hình quyền quản trị đám mây; kiểm thử cục bộ không thay thế kiểm tra cloud thật.",
+        "Thiết bị ngoại tuyến chỉ nhận lệnh khóa bài của giáo viên sau khi kết nối lại."
+      ],
+      "plannedImprovements": [
+        "Tiếp tục kiểm thử thi, nộp tệp, kháng cáo và đối soát thưởng/phạt trên bản triển khai thực tế."
+      ]
+    }
+  ]
+}

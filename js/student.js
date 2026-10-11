@@ -986,6 +986,15 @@ function installStudentEquipmentAccessGuards() {
 }
 
 window.clearStudentStoreEquipmentRuntime = function () {
+    window.KimLienRegularRuntime?.clear();
+    window.HacMongRegularRuntime?.clear();
+    window.ThanhLanhRegularRuntime?.clear();
+    window.TinhMongRegularRuntime?.clear();
+    window.EternalWinterRegularRuntime?.clear();
+    window.ThanhLanhPremiumRuntime?.clear();
+    window.TinhMongPremiumRuntime?.clear();
+    window.EternalWinterPremiumRuntime?.clear();
+    window.ValentinePremiumRuntime?.clear();
     // Một manager lỗi không được ngăn các manager còn lại dọn hiệu ứng.
     const safely = action => {
         try { action(); } catch (error) {
@@ -2144,7 +2153,7 @@ window.MidAutumnCoinManager = (() => {
                 t >= Number(localInfo.autoGrantStartAt) &&
                 t <= Number(localInfo.autoGrantEndAt);
 
-            if (canBootstrap) {
+            if (canBootstrap && window.ECONOMY_SERVER_ENABLED!==true) {
                 try {
                     const tx =
                         await calendarRef.transaction(
@@ -2217,14 +2226,14 @@ window.MidAutumnCoinManager = (() => {
                     }
                 } catch (bootstrapError) {
                     console.warn(
-                        '[Xu Trung Thu] Chưa thể tự đồng bộ lịch năm hiện tại lên Firebase:',
+                        '[Xu Trung Thu] Chưa thể tự đồng bộ lịch năm hiện tại lên đám mây:',
                         bootstrapError
                     );
                 }
             }
         } catch (error) {
             console.warn(
-                '[Xu Trung Thu] Không đọc được lịch Firebase, dùng lịch tính cục bộ:',
+                '[Xu Trung Thu] Không đọc được lịch đám mây, dùng lịch tính cục bộ:',
                 error
             );
         }
@@ -2321,6 +2330,12 @@ window.MidAutumnCoinManager = (() => {
     }
 
     async function autoGrantIfEligible() {
+        if(window.ECONOMY_SERVER_ENABLED===true) {
+            const now=getNow(),dates=await getCalendar(window.MidAutumnCalendar.getVietnamYear(now));
+            if(now<dates.autoGrantStartAt||now>dates.autoGrantEndAt)return;
+            await window.EconomyClient.execute('mid_autumn_auto',{}, {slot:'mid-autumn-auto'});
+            return;
+        }
         const walletRef =
             getWalletRef();
 
@@ -2684,6 +2699,11 @@ window.MidAutumnCoinManager = (() => {
     }
 
     async function redeem(itemId) {
+        if(window.ECONOMY_SERVER_ENABLED===true) {
+            if(!getRedeemConfig(itemId))return false;
+            await redeemStudentServerEventItem('mid_autumn_redeem',{itemId:String(itemId)});
+            return true;
+        }
         if (!window.isStudentStoreSystemOpen()) {
             window.showStudentStoreSystemLocked();
             return true;
@@ -2891,7 +2911,7 @@ window.MidAutumnCoinManager = (() => {
                 );
         } catch (walletError) {
             console.error(
-                '[Xu Trung Thu] Transaction bị Firebase từ chối:',
+                '[Xu Trung Thu] Transaction bị đám mây từ chối:',
                 walletError
             );
 
@@ -2909,7 +2929,7 @@ window.MidAutumnCoinManager = (() => {
             (await AppDialog.alert(
                 denied
                     ? (
-                        '❌ Firebase Rules đang chặn giao dịch Xu Trung Thu.\n' +
+                        '❌ quy tắc bảo mật đám mây đang chặn giao dịch Xu Trung Thu.\n' +
                         'Xu trong Túi đồ và Xu mua vật phẩm là CÙNG MỘT VÍ.\n' +
                         'Hãy cập nhật Rules V10 rồi thử lại.'
                     )
@@ -5144,7 +5164,7 @@ window.onload = async function () {
         ], {
             'core-runtime': 'Thư viện và module web',
             'service-worker': 'Service Worker / cache',
-            'cloud-connection': 'Kết nối Firebase',
+            'cloud-connection': 'Kết nối đám mây',
             'student-auth': 'Phiên đăng nhập học sinh',
             'student-user': 'Hồ sơ học sinh',
             'student-profile-requests': 'Yêu cầu cập nhật hồ sơ',
@@ -5387,6 +5407,7 @@ window.onload = async function () {
 
     // 2. GIỮ NGUYÊN ASSIGNMENTS (Bài tập chung toàn trường chỉ do GV sửa nên tần suất rất ít, không gây bão)
     listenFirebase(db.ref('assignments'), 'value', async (snapshot) => {
+        DBReadSingleFlight.invalidate('assignments');
         const val = snapshot.val();
         if (!isDeepEqual(val, cacheAssignmentsSt)) {
             cacheAssignmentsSt = val;
@@ -5444,6 +5465,7 @@ window.onload = async function () {
             const val = snapshot.val();
 
             if (!isDeepEqual(val, cacheSubmissionsSt)) {
+                DBReadSingleFlight.invalidate('submissions');
                 cacheSubmissionsSt = val;
 
                 window.cachedSubmissions = val
@@ -7048,7 +7070,7 @@ window.onload = async function () {
                 const msg = child.val();
 
                 // Chỉ render thư chưa hết hạn
-                if (!msg.expiry || now <= msg.expiry) {
+                if (!window.getInboxMessageExpiry(msg) || now < window.getInboxMessageExpiry(msg)) {
                     const fullMsg = {
                         ...msg,
                         _fbKey: child.key
@@ -7182,7 +7204,7 @@ window.onload = async function () {
             snapshot.forEach(child => {
                 const msg = child.val();
                 // Nếu thư đã quá hạn, gom key lại để chuẩn bị xóa
-                if (msg.expiry && now > msg.expiry) {
+                if (window.getInboxMessageExpiry(msg) && now >= window.getInboxMessageExpiry(msg)) {
                     updates[child.key] = null; // Gán null tương đương với lệnh remove()
                     hasExpired = true;
                 }
@@ -7343,6 +7365,7 @@ window.onload = async function () {
         if (startupLoader) startupLoader.markReady('student-cash-requests');
     });
 
+    void reconcileStudentPendingMechanisms();
     await LimitedEventAnnouncementManager.init();
     if (startupLoader) startupLoader.markReady('student-limited-event');
 
@@ -12106,6 +12129,18 @@ function studentSubmissionCanonical(value) {
         .map(k => JSON.stringify(k) + ':' + studentSubmissionCanonical(value[k])).join(',') + '}';
 }
 async function saveStudentSubmissionAtomic(assignment, previous, payload) {
+    const id = assignment.id || assignment._fbKey;
+    window.StudyReliability?.submitted(id, 'Đang gửi; chưa được xác nhận');
+    try {
+        const key = await saveStudentSubmissionAtomicCore(assignment, previous, payload);
+        window.StudyReliability?.submitted(id, 'Đã tiếp nhận · mã ' + key);
+        return key;
+    } catch (error) {
+        window.StudyReliability?.submitted(id, 'Chưa nộp thành công; giữ bản nháp và thử lại');
+        throw error;
+    }
+}
+async function saveStudentSubmissionAtomicCore(assignment, previous, payload) {
     const authUser = firebase.auth().currentUser;
 
     if (
@@ -12535,6 +12570,24 @@ async function saveStudentSubmissionAtomic(assignment, previous, payload) {
             patch.id = key;
         }
 
+        // Gia hạn ngay trước khi ghi: tải file/đọc phiên có thể kéo dài hơn
+        // lease lấy ở đầu luồng. Luôn dùng session vừa được máy chủ xác nhận.
+        if (liveAssignment.assessmentType === 'thi') {
+            const runtime = window.examRecoveryManager;
+            if (!runtime) throw new Error('EXAM_SESSION_MISSING');
+            const lease = await runtime.acquireFinalizeLease(String(assignment.id), 'submission-write');
+            const session = runtime.getAuthoritativeSession(String(assignment.id));
+            if (!lease || !session) throw new Error('EXAM_SESSION_MISSING');
+            patch.examSessionId = lease.sessionId;
+            patch.examOwnerTabId = String(window.__studentExamTabId || '');
+            patch.examFinalizeId = lease.finalizeId;
+            patch.examFinalizedAt = Date.now();
+            if (session.finalizeReason === 'deadline-recovery') {
+                patch.isAutoSubmitted = true;
+                window.setInterruptedExamLock?.(assignment.id, true);
+            }
+        }
+
         let result;
 
         try {
@@ -12590,7 +12643,7 @@ async function saveStudentSubmissionAtomic(assignment, previous, payload) {
                 )
             ) {
                 console.error(
-                    '[Submission Guard V6] Firebase Rules từ chối transaction:',
+                    '[Submission Guard V6] quy tắc bảo mật đám mây từ chối transaction:',
                     {
                         path:
                             `submissions/${key}`,
@@ -14175,6 +14228,7 @@ window.switchTab = async function (tabId, btnElement) {
 
     // 2. Kích hoạt tab mới
     nextTab.classList.add('active');
+    if (tabId === 'tab-history') void window.StudentAssetHistory?.open();
     btnElement?.classList.add('active');
 
     // 3. Xóa vị trí cuộn cũ, cuộn mượt mà lên vị trí cao nhất
@@ -15526,7 +15580,7 @@ async function refreshLuckyWheelGoldenHourFromServer(
         );
     } catch (error) {
         console.error(
-            '[Giờ Vàng] Không đọc được cấu hình mới nhất từ Firebase:',
+            '[Giờ Vàng] Không đọc được cấu hình mới nhất từ đám mây:',
             error
         );
 
@@ -16305,7 +16359,7 @@ window.calculateTotalTickets = async function () {
         computedLegacyTickets
     );
 
-    if (legacyBase > historicalGradeTickets) {
+    if (window.ECONOMY_SERVER_ENABLED !== true && legacyBase > historicalGradeTickets) {
         await historicalRef.set(legacyBase);
     }
 
@@ -16412,6 +16466,18 @@ window.buyLuckyTicket = async function () {
     }
 
     if (!(await AppDialog.confirm("Bạn có chắc chắn muốn dùng 4 Coin để mua 1 Vé quay may mắn không?"))) return;
+
+    if (window.ECONOMY_SERVER_ENABLED === true) {
+        try {
+            await window.EconomyClient.execute('ticket_buy');
+            await AppDialog.alert('Mua vé thành công! Đã trừ 4 Coin.');
+            await renderBuyTicketButton();
+            await window.openLuckyWheel();
+        } catch (error) {
+            await AppDialog.alert('Chưa nhận được xác nhận: ' + error.message);
+        }
+        return;
+    }
 
     const username = currentUser.username;
     const startOfWeek = getTicketStartOfWeek();
@@ -16542,7 +16608,40 @@ window.openLuckyWheel = async function () {
     startLuckyWheelGoldenHourUiTicker();
 };
 
+async function spinStudentServerWheel(count) {
+    if (isSpinning || window.__luckyWheelReservationPending) return;
+    const wheel=document.getElementById('wheelContainer'),resultText=document.getElementById('spinResultText');
+    if(!wheel||!resultText)return AppDialog.alert('Vòng quay chưa tải đầy đủ. Hãy đóng và mở lại.');
+    const username=String(currentUser.username);let confirmed=false;
+    isSpinning=true;
+    try {
+        resultText.style.opacity='1';resultText.innerText='Đang xác nhận lượt quay...';
+        const result=await window.EconomyClient.execute('wheel_spin',{count:String(count)},{slot:'lucky-wheel'});
+        confirmed=true;
+        if(String(currentUser?.username)!==username)return;
+        const reward=result.rewards[0],slice=reward?.slice??0;
+        wheel.style.transition='none';wheel.style.transform='rotate(0deg)';
+        await new Promise(resolve=>setTimeout(resolve,50));
+        wheel.style.transition='transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
+        wheel.style.transform=`rotate(${360*5+360-(slice*360/7+180/7)}deg)`;
+        resultText.innerText=count===1?'Đang quay... 🌀':`Đang mở kết quả ${count} lượt...`;
+        await new Promise(resolve=>setTimeout(resolve,4050));
+        if(String(currentUser?.username)!==username)return;
+        const describe=r=>r.itemId&&!r.duplicate?`Vật phẩm: ${r.itemName}`:r.coins>0?`${r.coins} Coin${r.duplicate?' (quà trùng)':''}${r.bonus?` — gồm ${r.bonus} Coin Giờ Vàng`:''}`:'Chúc may mắn lần sau';
+        resultText.innerText=count===1?`🎁 ${describe(reward)}`:`🎁 ${count} lượt: ${result.totalCoins} Coin\n${result.rewards.filter(r=>r.itemId&&!r.duplicate).map(describe).join('\n')}`;
+        resultText.style.color='#ffd700';
+        const title=document.querySelector('#luckyWheelModal h3');
+        if(title)title.innerHTML=`🎡 Vòng Quay Nhân Phẩm<br><span style="font-size:0.5em">🎫 Vé hiện có: ${result.remaining}</span>`;
+        const quick=document.getElementById('quickSpinBtn');if(quick)quick.style.display=result.remaining>1?'block':'none';
+    } catch(error) {
+        if(String(currentUser?.username)!==username)return;
+        resultText.innerText=confirmed?'Phần thưởng đã lưu. Hãy tải lại trang để đồng bộ số dư và kho đồ.':'Chưa xác nhận lượt quay: '+error.message+'. Hãy thử lại cùng số lượt để đối soát; không tự hoàn vé hoặc tạo thưởng lần nữa.';
+    } finally {
+        isSpinning=false;luckyWheelGoldenStatusLocked=null;renderLuckyWheelGoldenHourNotice();
+    }
+}
 window.spinWheel = async function () {
+    if(window.ECONOMY_SERVER_ENABLED===true)return spinStudentServerWheel(1);
     if (window.isGameEnabled === false) {
         (await AppDialog.alert("🔒 Trò chơi hiện đang bị Giáo viên tạm khóa!"));
         closeLuckyWheel();
@@ -16571,7 +16670,7 @@ window.spinWheel = async function () {
             (await AppDialog.alert('⚠️ Vé của bạn vừa thay đổi ở tab khác. Không đủ vé để quay.'));
         } else {
             console.error('[Lucky Wheel Guard] Không giữ được vé:', error);
-            (await AppDialog.alert('❌ Không thể giữ vé quay trên Firebase. Vui lòng thử lại.'));
+            (await AppDialog.alert('❌ Không thể giữ vé quay trên đám mây. Vui lòng thử lại.'));
         }
 
         return;
@@ -17010,6 +17109,7 @@ window.spinMultipleWheel = async function () {
         return;
     }
 
+    if(window.ECONOMY_SERVER_ENABLED===true)return spinStudentServerWheel(spinsToDo);
     window.__luckyWheelReservationPending = true;
 
     let reservation;
@@ -17033,7 +17133,7 @@ window.spinMultipleWheel = async function () {
                 '[Lucky Wheel Guard] Không giữ được vé quay nhanh:',
                 error
             );
-            (await AppDialog.alert('❌ Không thể giữ vé quay nhanh trên Firebase.'));
+            (await AppDialog.alert('❌ Không thể giữ vé quay nhanh trên đám mây.'));
         }
         return;
     } finally {
@@ -18483,21 +18583,52 @@ async function updateStudentStoreOperation(operation, patch) {
 
 // Debit and durable receipt share one Firebase multi-location update.
 // Never retry a monetary increment; only resume the idempotent item grant.
+async function runStudentPendingInventoryTransaction(ref, updater) {
+    let listener;
+    try {
+        await new Promise((resolve, reject) => {
+            listener = () => resolve();
+            ref.on('value', listener, reject);
+        });
+        return await ref.transaction(updater, undefined, false);
+    } finally { if (listener) ref.off('value', listener); }
+}
+
+async function reconcileStudentPendingMechanisms() {
+    const username = String(currentUser.username);
+    const uid = firebase.auth().currentUser?.uid;
+    const isCurrent = () => !!uid && firebase.auth().currentUser?.uid === uid && String(currentUser?.username || '') === username;
+    try {
+        const report = await window.PendingMechanismReconciliation.run({ db, username, uid, isCurrent,
+            recover: (kind, itemId) => kind === 'trial'
+                ? recoverStudentPaidTrial(itemId, username, true, isCurrent)
+                : recoverStudentPaidPurchase(itemId, username, true, isCurrent)
+        });
+        if (!isCurrent()) return;
+        window.pendingMechanismReport = report;
+        if (report.recovered.length || report.review.length) {
+            await AppDialog.alert('Đối soát vật phẩm: đã khôi phục ' + report.recovered.length +
+                ' giao dịch đã thanh toán, không trừ thêm Coin.' + (report.review.length
+                    ? ' Còn ' + report.review.length + ' giao dịch cần giáo viên kiểm tra; chưa thay đổi tài sản ở các giao dịch này.' : ''));
+        }
+        if (report.review.length) console.warn('Giao dịch cần kiểm tra:', report.review);
+    } catch (error) { console.warn('Chưa thể đối soát vật phẩm đang chờ. Sẽ thử lại khi mở web.', error); }
+}
+
 async function grantStudentPaidPurchase(username, itemId, operation) {
-    if (!operation?.atomicCharge || operation.status !== 'paid' ||
-        !operation.inventoryGrant || String(operation.inventoryGrant.id) !== String(itemId)) {
+    if (operation?.atomicCharge !== true || operation.status !== 'paid' ||
+        !operation.inventoryGrant || String(operation.inventoryGrant.id) !== String(itemId) || operation.inventoryGrant.purchaseOperationId !== operation.operationId) {
         throw new Error('PURCHASE_RECONCILIATION_REQUIRED');
     }
     const ref = db.ref(`student_inventory/${username}/${itemId}`);
-    await ref.once('value');
-    const result = await ref.transaction(current => {
+    const result = await runStudentPendingInventoryTransaction(ref, current => {
         // A no-op parent write is still forbidden by student inventory rules.
         if (current?.purchaseOperationId === operation.operationId && current.isTrial !== true) return;
         if (current && current.isTrial !== true) return;
         if (current && (!operation.isUpgrade ||
             String(current.trialOperationId || '') !== String(operation.upgradeTrialOperationId || ''))) return;
         return { ...(current || {}), ...operation.inventoryGrant };
-    }, undefined, false);
+    });
     const saved = result.snapshot.val();
     if (!result.committed && !(saved?.purchaseOperationId === operation.operationId && saved.isTrial !== true)) {
         throw new Error('PURCHASE_RECONCILIATION_REQUIRED');
@@ -18505,12 +18636,19 @@ async function grantStudentPaidPurchase(username, itemId, operation) {
     return result;
 }
 
-async function recoverStudentPaidPurchase(itemId, username = String(currentUser.username)) {
+async function recoverStudentPaidPurchase(itemId, username = String(currentUser.username), silent = false, isCurrent = () => String(currentUser?.username) === username) {
     const ref = db.ref(`store_purchase_ops/${username}/${itemId}`);
     const operation = (await ref.once('value')).val();
+    if (!isCurrent()) throw new Error('ACCOUNT_CHANGED');
+    if(window.ECONOMY_SERVER_ENABLED===true) {
+        if(!operation||['completed','failed_refunded'].includes(operation.status))return false;
+        const r=await window.EconomyClient.execute('legacy_store_recover',{kind:'purchase',itemId:String(itemId)},{slot:'store-recover:'+itemId});
+        if(!isCurrent())throw new Error('ACCOUNT_CHANGED');
+        if(r.recovered&&!silent)await AppDialog.alert('✅ Đã khôi phục giao dịch đã thanh toán, không trừ thêm Coin.');return r.recovered;
+    }
     if (operation?.protocolVersion === 2 && ['reserved','debit_pending'].includes(operation.status) &&
         Number(operation.startedAt) + 600000 <= Date.now()) {
-        await ref.transaction(current => {
+        await runStudentPendingInventoryTransaction(ref, current => {
             if (current?.operationId !== operation.operationId || current.protocolVersion !== 2 ||
                 !['reserved','debit_pending'].includes(current.status) || current.atomicCharge === true) return;
             return { ...current, status: 'failed_refunded', updatedAt: Date.now() };
@@ -18519,22 +18657,23 @@ async function recoverStudentPaidPurchase(itemId, username = String(currentUser.
     }
     if (operation?.status !== 'paid' || operation.atomicCharge !== true) return false;
     await grantStudentPaidPurchase(username, itemId, operation);
+    if (!isCurrent()) throw new Error('ACCOUNT_CHANGED');
     await updateStudentStoreOperation({ ref, operationId: operation.operationId }, {
         status: 'completed', itemGranted: true, completedAt: Date.now(), updatedAt: Date.now()
     });
-    (await AppDialog.alert('✅ Đã khôi phục vật phẩm từ giao dịch đã thanh toán. Không trừ thêm Coin.'));
+    if (!silent) await AppDialog.alert('✅ Đã khôi phục vật phẩm từ giao dịch đã thanh toán. Không trừ thêm Coin.');
     return true;
 }
 async function grantStudentPaidTrial(username, itemId, operation) {
-    if (!operation?.atomicCharge || operation.status !== 'debited' ||
-        !operation.inventoryGrant || String(operation.inventoryGrant.id) !== String(itemId) ||
-        Number(operation.expiresAt) <= Date.now()) throw new Error('TRIAL_RECONCILIATION_REQUIRED');
+    if (operation?.atomicCharge !== true || operation.status !== 'debited' ||
+        !operation.inventoryGrant || String(operation.inventoryGrant.id) !== String(itemId) || operation.inventoryGrant.trialOperationId !== operation.operationId ||
+        operation.inventoryGrant.isTrial !== true || Number(operation.inventoryGrant.trialExpiry) !== Number(operation.expiresAt) ||
+        !Number.isFinite(Number(operation.expiresAt)) || Number(operation.expiresAt) <= Date.now()) throw new Error('TRIAL_RECONCILIATION_REQUIRED');
     const ref = db.ref(`student_inventory/${username}/${itemId}`);
-    await ref.once('value');
-    const result = await ref.transaction(current => {
+    const result = await runStudentPendingInventoryTransaction(ref, current => {
         if (current) return;
         return operation.inventoryGrant;
-    }, undefined, false);
+    });
     const saved = result.snapshot.val();
     if (!result.committed && !(saved?.trialOperationId === operation.operationId && saved.isTrial === true)) {
         throw new Error('TRIAL_RECONCILIATION_REQUIRED');
@@ -18542,12 +18681,19 @@ async function grantStudentPaidTrial(username, itemId, operation) {
     return result;
 }
 
-async function recoverStudentPaidTrial(itemId, username = String(currentUser.username)) {
+async function recoverStudentPaidTrial(itemId, username = String(currentUser.username), silent = false, isCurrent = () => String(currentUser?.username) === username) {
     const ref = db.ref(`store_trial_claims/${username}/${itemId}`);
     const operation = (await ref.once('value')).val();
+    if (!isCurrent()) throw new Error('ACCOUNT_CHANGED');
+    if(window.ECONOMY_SERVER_ENABLED===true) {
+        if(!operation||['active','cancelled_refunded'].includes(operation.status))return false;
+        const r=await window.EconomyClient.execute('legacy_store_recover',{kind:'trial',itemId:String(itemId)},{slot:'trial-recover:'+itemId});
+        if(!isCurrent())throw new Error('ACCOUNT_CHANGED');
+        if(r.recovered&&!silent)await AppDialog.alert(r.expired?'Giao dịch dùng thử cũ đã được đối soát; thời hạn dùng thử đã hết.':'✅ Đã khôi phục vật phẩm dùng thử, không trừ thêm Coin.');return r.recovered;
+    }
     if (operation?.protocolVersion === 2 && ['reserved','debit_pending'].includes(operation.status) &&
         Number(operation.startedAt) + 600000 <= Date.now()) {
-        await ref.transaction(current => {
+        await runStudentPendingInventoryTransaction(ref, current => {
             if (current?.operationId !== operation.operationId || current.protocolVersion !== 2 ||
                 !['reserved','debit_pending'].includes(current.status) || current.atomicCharge === true) return;
             return { ...current, status: 'cancelled_refunded', updatedAt: Date.now() };
@@ -18556,10 +18702,11 @@ async function recoverStudentPaidTrial(itemId, username = String(currentUser.use
     }
     if (operation?.status !== 'debited' || operation.atomicCharge !== true) return false;
     await grantStudentPaidTrial(username, itemId, operation);
+    if (!isCurrent()) throw new Error('ACCOUNT_CHANGED');
     await updateStudentStoreOperation({ ref, operationId: operation.operationId }, {
         status: 'active', inventoryCreated: true, activatedAt: Date.now(), updatedAt: Date.now()
     });
-    (await AppDialog.alert('✅ Đã khôi phục vật phẩm dùng thử đã trả Coin. Không trừ thêm; thời hạn giữ theo lần kích hoạt ban đầu.'));
+    if (!silent) await AppDialog.alert('✅ Đã khôi phục vật phẩm dùng thử đã trả Coin. Không trừ thêm; thời hạn giữ theo lần kích hoạt ban đầu.');
     return true;
 }
 
@@ -18883,6 +19030,11 @@ window.trialItem = async function (itemId) {
                 'Đồng ý kích hoạt?'
             ))
         ) {
+            return;
+        }
+
+        if (window.ECONOMY_SERVER_ENABLED === true) {
+            await completeStudentServerStoreAction('store_trial', {itemId:String(itemId), maxAmount:String(trialPrice)}, operationUser.username);
             return;
         }
 
@@ -19332,6 +19484,27 @@ window.updateCheckoutPrice = function (basePrice) {
 };
 
 // HÀM XỬ LÝ THANH TOÁN CUỐI CÙNG LÊN FIREBASE
+async function completeStudentServerStoreAction(action, args, username) {
+    let confirmed = false;
+    try {
+        const result = await window.EconomyClient.execute(action, args, {slot:'store:' + args.itemId});
+        confirmed = true;
+        if (String(currentUser?.username) !== String(username)) return;
+        if (action === 'store_buy') document.getElementById('checkoutModal')?.remove();
+        await window.StudentFeatureLoader?.ensureForItem?.(args.itemId);
+        await StoreManager.applyItem(args.itemId);
+        await AppDialog.alert(`✅ ${action === 'store_trial' ? 'Đã kích hoạt dùng thử 24 giờ' : 'Vật phẩm đã vào kho'}. Đã thanh toán ${result.amount} Coin.`);
+    } catch (error) {
+        if (String(currentUser?.username) !== String(username)) return;
+        await AppDialog.alert(confirmed
+            ? '✅ Vật phẩm đã vào kho. Hãy tải lại trang để đồng bộ; không cần thanh toán lại.'
+            : error.message === 'STORE_PRICE_CHANGED'
+                ? 'Giá vật phẩm vừa thay đổi. Chưa trừ Coin; hãy đóng bảng mua và mở lại để xem giá mới.'
+                : error.message === 'STORE_BLOCKED_BY_REGRADE'
+                    ? 'Bài của bạn đang được chấm lại. Hãy đợi giáo viên xử lý xong trước khi mua hoặc dùng thử.'
+                    : 'Chưa nhận được xác nhận giao dịch: ' + error.message + '. Hãy thử lại cùng vật phẩm và thẻ giảm giá để đối soát, tránh thanh toán trùng.');
+    }
+}
 window.processPayment = async function (
     itemId,
     clientBasePrice,
@@ -19400,6 +19573,16 @@ window.processPayment = async function (
     const operationUser = { ...currentUser };
     try {
         paymentItem = StoreManager.getItemById(itemId);
+        if (window.ECONOMY_SERVER_ENABLED === true) {
+            const select = document.getElementById('checkoutDiscount');
+            const selected = select && select.selectedIndex > 0 && select.value !== '0';
+            const percent = selected ? Number(select.options[select.selectedIndex].getAttribute('data-percent')) || 0 : 0;
+            await completeStudentServerStoreAction('store_buy', {
+                itemId:String(itemId), discountKey:selected ? String(select.value) : 'none',
+                maxAmount:String(calculateStoreCheckoutPrice(clientBasePrice, percent))
+            }, operationUser.username);
+            return;
+        }
         if (await recoverStudentPaidPurchase(itemId, operationUser.username)) {
             document.getElementById('checkoutModal')?.remove();
             return;
@@ -19977,7 +20160,7 @@ function installStudentStoreManagerOverrides() {
                 id => StoreManager.getItemById(id), canFinishEquip);
         } catch (error) {
             console.error('[Equipment]', error);
-            window.showToast?.('Chưa lưu được trang bị. Hãy thử lại; kiểm tra Firebase Rules nếu lỗi quyền.', 'error');
+            window.showToast?.('Chưa lưu được trang bị. Hãy thử lại; kiểm tra quy tắc bảo mật đám mây nếu lỗi quyền.', 'error');
             return false;
         }
     };
@@ -20018,6 +20201,15 @@ window.suspendExamVisualItems = function () {
         EffectManager.clearEffects();
     }
 
+    window.KimLienRegularRuntime?.clear();
+    window.HacMongRegularRuntime?.clear();
+    window.ThanhLanhRegularRuntime?.clear();
+    window.TinhMongRegularRuntime?.clear();
+    window.EternalWinterRegularRuntime?.clear();
+    window.ThanhLanhPremiumRuntime?.clear();
+    window.TinhMongPremiumRuntime?.clear();
+    window.EternalWinterPremiumRuntime?.clear();
+    window.ValentinePremiumRuntime?.clear();
     const effectContainer =
         document.getElementById('global-effect-container');
 
@@ -20073,6 +20265,15 @@ window.restoreExamVisualItems = function () {
 
     window.isExamVisualItemsSuspended = false;
 
+    window.KimLienRegularRuntime?.clear();
+    window.HacMongRegularRuntime?.clear();
+    window.ThanhLanhRegularRuntime?.clear();
+    window.TinhMongRegularRuntime?.clear();
+    window.EternalWinterRegularRuntime?.clear();
+    window.ThanhLanhPremiumRuntime?.clear();
+    window.TinhMongPremiumRuntime?.clear();
+    window.EternalWinterPremiumRuntime?.clear();
+    window.ValentinePremiumRuntime?.clear();
     const effectContainer =
         document.getElementById('global-effect-container');
 
@@ -20111,6 +20312,15 @@ window.applyEquippedItems = function () {
 
     installStudentStoreManagerOverrides();
 
+    window.KimLienRegularRuntime?.clear();
+    window.HacMongRegularRuntime?.clear();
+    window.ThanhLanhRegularRuntime?.clear();
+    window.TinhMongRegularRuntime?.clear();
+    window.EternalWinterRegularRuntime?.clear();
+    window.ThanhLanhPremiumRuntime?.clear();
+    window.TinhMongPremiumRuntime?.clear();
+    window.EternalWinterPremiumRuntime?.clear();
+    window.ValentinePremiumRuntime?.clear();
     const effectContainer =
         document.getElementById('global-effect-container');
 
@@ -20199,6 +20409,11 @@ window.applyEquippedItems = function () {
         return;
     }
 
+    const kimLienRegular = {};
+    const hacMongRegular = {};
+    const thanhLanhRegular = {};
+    const tinhMongRegular = {};
+    const winterRegular = {};
     let equippedMusic = null;
     let equippedFrameId = '';
     let equippedBackgroundId = '';
@@ -20242,6 +20457,14 @@ window.applyEquippedItems = function () {
             return;
         }
 
+        if (itemDef.id.endsWith('_kim_lien_regular_3') &&
+            (!mustSuspendVisualItems || itemDef.type === 'theme')) {
+            kimLienRegular[itemDef.type] = true;
+        }
+        if (itemDef.id.endsWith('_eternal_winter_regular_4') && (!mustSuspendVisualItems || itemDef.type === 'theme')) winterRegular[itemDef.type]=true;
+        if (itemDef.id.endsWith('_tinh_mong_regular_2') && (!mustSuspendVisualItems || itemDef.type === 'theme')) tinhMongRegular[itemDef.type] = true;
+        if (itemDef.id.endsWith('_thanh_lanh_regular_4') && (!mustSuspendVisualItems || itemDef.type === 'theme')) thanhLanhRegular[itemDef.type] = true;
+        if (itemDef.id.endsWith('_hac_mong_regular_2') && (!mustSuspendVisualItems || itemDef.type === 'theme')) hacMongRegular[itemDef.type] = true;
         // Theme vẫn được sử dụng khi thi
         if (itemDef.type === 'theme') {
             ThemeManager.applyTheme(itemDef.id);
@@ -20297,6 +20520,12 @@ window.applyEquippedItems = function () {
             PetManager.spawnPet(itemDef);
         }
     });
+
+    window.KimLienRegularRuntime?.sync(kimLienRegular);
+    window.HacMongRegularRuntime?.sync(hacMongRegular);
+    window.ThanhLanhRegularRuntime?.sync(thanhLanhRegular);
+    window.TinhMongRegularRuntime?.sync(tinhMongRegular);
+    window.EternalWinterRegularRuntime?.sync(winterRegular);
 
     /*
      * Đồng bộ cache startup cho frame/background.
@@ -20516,7 +20745,7 @@ function getRoadmapSubmission(assign, submissions, username) {
         const failed = isRoadmapSubmissionFailed(sub);
 
         if (failed) return 10;
-        if (sub.forcePass) return 50;
+        if (sub.forcePass && !sub.isRegrading) return 50;
 
         if (
             !failed &&
@@ -20683,13 +20912,13 @@ async function renderStudentRoadmap() {
 async function renderStudentRoadmapCore() {
     const body = document.getElementById('studentRoadmapBody');
     if (!body) return;
-    body.innerHTML = '';
 
     const [assignments, submissions, offsetSnap] = await Promise.all([
         getDB('assignments'),
         getDB('submissions'),
         db.ref('student_money_offset/' + currentUser.username).once('value')
     ]);
+    body.innerHTML = '';
 
     // KIỂM TRA TRẠNG THÁI THAM GIA LỘ TRÌNH CỦA HỌC SINH
     const isParticipating = currentUser.isParticipatingRoadmap !== false;
@@ -21019,6 +21248,8 @@ async function ensureStudentConversionPeriodGuard(
             serverNow
         );
 
+    if(window.ECONOMY_SERVER_ENABLED===true)return descriptor;
+
     const guardRef =
         db.ref(
             getStudentConversionPeriodGuardPath(
@@ -21167,6 +21398,7 @@ async function reserveStudentConversionUsage(
     ].join('_');
 
     const baseReservation = {
+        protocolVersion: 3,
         used: true,
         status: 'reserved',
         direction: normalizedDirection,
@@ -21251,37 +21483,11 @@ async function reserveStudentConversionUsage(
     };
 }
 
-async function completeStudentConversionUsage(reservation) {
-    if (!reservation) return;
-
-    await db
-        .ref(reservation.usagePath)
-        .transaction(currentValue => {
-            if (
-                !currentValue ||
-                currentValue.status !== 'reserved' ||
-                currentValue.reservationId !==
-                    reservation.reservationId
-            ) {
-                return;
-            }
-
-            return {
-                ...currentValue,
-                status: 'completed',
-                completedAt:
-                    reservation.serverNow
-            };
-        });
-}
-
 async function releaseStudentConversionUsage(reservation) {
     if (!reservation) return;
 
     try {
-        await db
-            .ref(reservation.usagePath)
-            .transaction(currentValue => {
+        await runStudentPendingInventoryTransaction(db.ref(reservation.usagePath), currentValue => {
                 if (
                     !currentValue ||
                     currentValue.status !==
@@ -21383,7 +21589,7 @@ window.refreshStudentConversionLimitNotice =
             );
 
             limitText.innerText =
-                '* Không xác minh được thời gian/kỳ quy đổi từ Firebase. ' +
+                '* Không xác minh được thời gian/kỳ quy đổi từ đám mây. ' +
                 'Tạm khóa thao tác cho đến khi kết nối ổn định.';
         }
     };
@@ -21687,26 +21893,25 @@ async function acquireStudentConversionMutationLease() {
     };
 }
 
-async function releaseStudentConversionMutationLease(
-    lease
-) {
-    if (!lease?.lockRef || !lease.operationId) {
-        return;
-    }
-
-    await lease.lockRef
-        .transaction(currentValue => {
-            if (
-                !currentValue ||
-                currentValue.operationId !==
-                    lease.operationId
-            ) {
-                return;
-            }
-
+async function releaseStudentConversionMutationLease(lease) {
+    if (!lease?.lockRef || !lease.operationId) return;
+    const ref = lease.lockRef;
+    let listener;
+    try {
+        // Retain the live record: an empty SDK cache is not proof the lease is gone.
+        await new Promise((resolve, reject) => {
+            listener = () => resolve();
+            ref.on('value', listener, reject);
+        });
+        await ref.transaction(current => {
+            if (!current || current.operationId !== lease.operationId) return;
             return null;
-        })
-        .catch(() => {});
+        }, undefined, false);
+    } catch (error) {
+        console.warn('Chưa giải phóng được khóa giao dịch; khóa sẽ tự hết hạn.', error);
+    } finally {
+        if (listener) ref.off('value', listener);
+    }
 }
 
 async function runWithStudentMoneyMutationLock(task) {
@@ -21737,7 +21942,7 @@ async function runWithStudentMoneyMutationLock(task) {
                     'CONVERSION_SERVER_TIME_UNAVAILABLE'
                 ) {
                     (await AppDialog.alert(
-                        '❌ Không xác minh được thời gian Firebase. Quy đổi tạm khóa để tránh sai lượt/ngày.'
+                        '❌ Không xác minh được thời gian đám mây. Quy đổi tạm khóa để tránh sai lượt/ngày.'
                     ));
                     return;
                 }
@@ -21768,7 +21973,73 @@ async function runWithStudentMoneyMutationLock(task) {
 }
 
 // Thực hiện quy đổi nội bộ.
+// A protocol-3 reservation is also the immutable conversion receipt.
+function studentConversionPendingKey() {
+    const uid = firebase.auth().currentUser?.uid;
+    if (!uid) throw Error('ACCOUNT_CHANGED');
+    return 'pending_conversion_v3_' + uid;
+}
+async function recoverPendingStudentConversion() {
+    const storageKey = studentConversionPendingKey();
+    const pending = JSON.parse(localStorage.getItem(storageKey) || 'null');
+    if (!pending) return false;
+    const prefix = 'student_conversion_usage/' + currentUser.username + '/';
+    if (!pending.usagePath?.startsWith(prefix) || !pending.reservationId) throw Error('CONVERSION_PENDING_REVIEW');
+    if(window.ECONOMY_SERVER_ENABLED===true) {
+        const parts=pending.usagePath.slice(prefix.length).split('/');
+        if(parts.length<2||parts.length>3)throw Error('CONVERSION_PENDING_REVIEW');
+        const r=await window.EconomyClient.execute('legacy_conversion_recover',{direction:parts[0],periodKey:parts[1],slot:parts[2]||'base',reservationId:String(pending.reservationId)},{slot:'conversion-recover'});
+        if(studentConversionPendingKey()!==storageKey)throw Error('ACCOUNT_CHANGED');
+        if(JSON.parse(localStorage.getItem(storageKey)||'null')?.reservationId===pending.reservationId)localStorage.removeItem(storageKey);
+        if(r.completed)await AppDialog.alert('Giao dịch quy đổi trước đã hoàn tất. Không thực hiện thêm lần nữa.');return r.completed;
+    }
+    const ref = db.ref(pending.usagePath);
+    const result = await runStudentPendingInventoryTransaction(ref, current => {
+        if (current?.protocolVersion === 3 && current.reservationId === pending.reservationId && current.status === 'reserved' && !current.receipt) return null;
+    });
+    const saved = result.snapshot.val();
+    if (saved && (saved.reservationId !== pending.reservationId || !saved.receipt || saved.status !== 'completed')) throw Error('CONVERSION_PENDING_REVIEW');
+    if (studentConversionPendingKey() !== storageKey) throw Error('ACCOUNT_CHANGED');
+    if (JSON.parse(localStorage.getItem(storageKey) || 'null')?.reservationId === pending.reservationId) localStorage.removeItem(storageKey);
+    if (saved?.receipt) { await AppDialog.alert('Giao dịch quy đổi trước đã hoàn tất. Không thực hiện thêm lần nữa.'); return true; }
+    return false;
+}
+async function settleStudentConversionUsage(reservation, username, amount, baseMoney, reservedMoney) {
+    const storageKey = studentConversionPendingKey();
+    const assertSession = () => { if (studentConversionPendingKey() !== storageKey || currentUser.username !== username) throw Error('ACCOUNT_CHANGED'); };
+    // Persist before any money moves, so a reload can resolve this exact operation.
+    localStorage.setItem(storageKey, JSON.stringify(reservation));
+    const coinPath = 'student_coins/' + username, moneyPath = 'student_money_offset/' + username;
+    const [usageSnap, coinSnap, moneySnap] = await Promise.all([db.ref(reservation.usagePath).once('value'), db.ref(coinPath).once('value'), db.ref(moneyPath).once('value')]);
+    assertSession();
+    const usage = usageSnap.val();
+    if (!usage || usage.reservationId !== reservation.reservationId || usage.protocolVersion !== 3 || usage.amount !== amount) throw Error('CONVERSION_PENDING_REVIEW');
+    if (usage.status === 'completed' && usage.receipt) {
+        if (JSON.parse(localStorage.getItem(storageKey) || 'null')?.reservationId === reservation.reservationId) localStorage.removeItem(storageKey);
+        return usage;
+    }
+    if (usage.status !== 'reserved') throw Error('CONVERSION_PENDING_REVIEW');
+    const beforeCoin = Number(coinSnap.val() || 0), beforeMoney = Number(moneySnap.val() || 0);
+    if (![amount, beforeCoin, beforeMoney, baseMoney, reservedMoney].every(Number.isSafeInteger) || amount <= 0) throw Error('INVALID_CONVERSION_AMOUNT');
+    const delta = reservation.direction === 'M2C' ? amount : -amount;
+    if (delta > 0 && Math.max(0, baseMoney + beforeMoney - reservedMoney) < amount) throw Error('INSUFFICIENT_ROADMAP_MONEY');
+    if (delta < 0 && beforeCoin < amount) throw Error('INSUFFICIENT_BALANCE');
+    const receipt = {version:1, beforeCoin, afterCoin:beforeCoin+delta, beforeMoney, afterMoney:beforeMoney-delta,
+        baseMoney, reservedMoney, actorUid:firebase.auth().currentUser.uid, createdAt:firebase.database.ServerValue.TIMESTAMP};
+    const completed = {...usage, status:'completed', completedAt:firebase.database.ServerValue.TIMESTAMP, receipt};
+    try { await db.ref().update({[reservation.usagePath]:completed, [coinPath]:receipt.afterCoin, [moneyPath]:receipt.afterMoney}); }
+    catch(error) {
+        const saved = (await db.ref(reservation.usagePath).once('value')).val();
+        assertSession();
+        if (saved?.reservationId !== reservation.reservationId || saved.status !== 'completed' || !saved.receipt) throw error;
+    }
+    if (JSON.parse(localStorage.getItem(storageKey) || 'null')?.reservationId === reservation.reservationId) localStorage.removeItem(storageKey);
+    return completed;
+}
+
 async function executeConversionCore() {
+    try { if (await recoverPendingStudentConversion()) return; }
+    catch (error) { await AppDialog.alert('Chưa xác nhận giao dịch quy đổi trước. Hãy kiểm tra kết nối và thử lại; không tạo giao dịch mới.'); return; }
     const amountInput =
         document.getElementById('convertAmount');
 
@@ -21813,6 +22084,18 @@ async function executeConversionCore() {
 
     const offsetPath =
         `student_money_offset/${currentUser.username}`;
+
+    if (window.ECONOMY_SERVER_ENABLED === true) {
+        try {
+            const result = await window.EconomyClient.execute(direction === 'C2M' ? 'convert_coin_to_money' : 'convert_money_to_coin', {amount:String(amount)}, {slot:'conversion'});
+            await AppDialog.alert(direction === 'C2M' ? `Đã đổi ${result.amount} Coin thành tiền lộ trình. Đã dùng lượt quy đổi của tuần này.` : `Đã đổi ${result.amount} tiền lộ trình thành Coin.`);
+            closeCoinConversionModal();
+            await renderStudentRoadmap();
+        } catch (error) {
+            await AppDialog.alert('Chưa nhận được xác nhận: ' + error.message);
+        }
+        return;
+    }
 
     let reservation = null;
     let conversionSucceeded = false;
@@ -21894,123 +22177,13 @@ async function executeConversionCore() {
                 serverNow
             );
 
-        let auditCoinDelta = 0;
-        let auditOffsetDelta = 0;
-        let successMessage = '';
-
-        if (direction === 'M2C') {
-            // Trừ tiền lộ trình theo số mới nhất.
-            const offsetTransaction = await db
-                .ref(offsetPath)
-                .transaction(currentValue => {
-                    const latestOffset =
-                        Number(currentValue) || 0;
-
-                    const latestMoney = Math.max(
-                        0,
-                        baseRoadmapMoney +
-                        latestOffset -
-                        reservedCashAmount
-                    );
-
-                    if (amount > latestMoney) {
-                        return;
-                    }
-
-                    return latestOffset - amount;
-                });
-
-            if (!offsetTransaction.committed) {
-                throw new Error(
-                    'INSUFFICIENT_ROADMAP_MONEY'
-                );
-            }
-
-            try {
-                await incrementNumberTx(
-                    coinPath,
-                    amount
-                );
-            } catch (conversionError) {
-                try {
-                    // Cộng lại tiền nếu cộng Coin thất bại.
-                    await incrementNumberTx(
-                        offsetPath,
-                        amount
-                    );
-                } catch (rollbackError) {
-                    mayReleaseReservation = false;
-                    conversionError.rollbackError =
-                        rollbackError;
-                }
-
-                throw conversionError;
-            }
-
-            auditCoinDelta = amount;
-            auditOffsetDelta = -amount;
-
-            successMessage =
-                `✅ Quy đổi thành công!\n` +
-                `Bạn đã dùng ` +
-                `${amount.toLocaleString('vi-VN')}đ ` +
-                `để nhận ` +
-                `${amount.toLocaleString('vi-VN')} Coin 🪙.\n` +
-                `Tiền → Coin được phép tối đa 2 lượt mỗi ngày.`;
-        } else {
-            // Trừ Coin.
-            await decrementNumberTx(
-                coinPath,
-                amount
-            );
-
-            try {
-                // Cộng tiền lộ trình.
-                await incrementNumberTx(
-                    offsetPath,
-                    amount
-                );
-            } catch (conversionError) {
-                try {
-                    // Hoàn lại Coin nếu cộng tiền thất bại.
-                    await incrementNumberTx(
-                        coinPath,
-                        amount
-                    );
-                } catch (rollbackError) {
-                    mayReleaseReservation = false;
-                    conversionError.rollbackError =
-                        rollbackError;
-                }
-
-                throw conversionError;
-            }
-
-            auditCoinDelta = -amount;
-            auditOffsetDelta = amount;
-
-            successMessage =
-                `✅ Quy đổi thành công!\n` +
-                `Bạn đã dùng ` +
-                `${amount.toLocaleString('vi-VN')} Coin 🪙 ` +
-                `để nhận ` +
-                `${amount.toLocaleString('vi-VN')}đ.\n` +
-                `Lượt Coin → Tiền của tuần này đã được sử dụng.`;
-        }
-
+        await settleStudentConversionUsage(reservation, String(currentUser.username), amount, baseRoadmapMoney, reservedCashAmount);
         conversionSucceeded = true;
-
-        try {
-            await completeStudentConversionUsage(
-                reservation
-            );
-        } catch (usageError) {
-            // Bản ghi reserved vẫn chặn được lượt tiếp theo.
-            console.warn(
-                'Đã quy đổi nhưng chưa chuyển lượt sang completed:',
-                usageError
-            );
-        }
+        const auditCoinDelta = direction === 'M2C' ? amount : -amount;
+        const auditOffsetDelta = -auditCoinDelta;
+        const successMessage = direction === 'M2C'
+            ? '✅ Đã đổi ' + amount.toLocaleString('vi-VN') + 'đ thành Coin. Tiền → Coin tối đa 2 lượt/ngày.'
+            : '✅ Đã đổi ' + amount.toLocaleString('vi-VN') + ' Coin thành tiền lộ trình. Đã dùng lượt quy đổi của tuần này.';
 
         // Ghi nhật ký giao dịch nếu hệ thống có hỗ trợ.
         if (window.TransactionHistory) {
@@ -22124,7 +22297,7 @@ async function executeConversionCore() {
                 'INVALID_CONVERSION_SERVER_TIME'
         ) {
             (await AppDialog.alert(
-                '❌ Không xác minh được kỳ quy đổi theo thời gian Firebase. ' +
+                '❌ Không xác minh được kỳ quy đổi theo thời gian đám mây. ' +
                 'Giao dịch đã bị hủy để tránh reset lượt sai.'
             ));
         } else if (!mayReleaseReservation) {
@@ -22142,12 +22315,12 @@ async function executeConversionCore() {
             )
         ) {
             (await AppDialog.alert(
-                '❌ Firebase Rules chưa cho phép truy cập student_conversion_usage.'
+                '❌ quy tắc bảo mật đám mây chưa cho phép truy cập student_conversion_usage.'
             ));
         } else {
             (await AppDialog.alert(
-                '❌ Giao dịch bị hủy do lỗi kết nối hoặc lỗi Firebase. ' +
-                'Số dư đã được hoàn tác tốt nhất có thể.'
+                '❌ Giao dịch bị hủy do lỗi kết nối hoặc lỗi đám mây. ' +
+                'Hệ thống sẽ kiểm tra biên nhận khi bạn thử lại; không tự cộng/trừ bù.'
             ));
         }
 
@@ -22329,6 +22502,8 @@ window.renderStudentInbox = function () {
     const now = Date.now();
 
     window.myInboxMessages.forEach(msg => {
+        const expiresAt = window.getInboxMessageExpiry(msg);
+        if (expiresAt && now >= expiresAt) return;
         let giftHTML = '';
         let btnHTML = '';
 
@@ -22474,7 +22649,7 @@ window.renderStudentInbox = function () {
                     (
                         rewardOnHold
                             ? `⏸️ Giáo viên đang chấm lại · thư tạm khóa, chưa thể nhận.`
-                            : `Điểm ${Number.isFinite(rewardScore) ? rewardScore.toLocaleString('vi-VN') : '-'} / 10 · Nhấn nhận để cộng phần thưởng vào tài khoản.`
+                            : `Điểm ${Number.isFinite(rewardScore) ? rewardScore.toLocaleString('vi-VN') : '-'} / 10 · Số ghi trong thư cũ; chờ đối soát theo mức hiện tại.`
                     ) +
                     `</span>`;
             }
@@ -22601,8 +22776,7 @@ window.renderStudentInbox = function () {
             } else if (msg.giftType === 'grade_penalty') {
                 btnHTML = `<button onclick="deleteMessage(decodeURIComponent('${encodedMessageKey}'))" style="background:rgba(225,29,72,.10);color:#be123c;width:100%;padding:10px;border-radius:8px;font-weight:800;border:1px solid rgba(225,29,72,.35);cursor:pointer;">🗑️ Đã xem · Xóa thông báo phạt</button>`;
             } else if (
-                msg.giftType === 'grade_reward' &&
-                msg.gradeRewardOnHold === true
+                msg.giftType === 'grade_reward'
             ) {
                 btnHTML = `
                     <button
@@ -22620,7 +22794,7 @@ window.renderStudentInbox = function () {
                             opacity:.9;
                         "
                     >
-                        ⏸️ Đang chấm lại · Tạm khóa nhận thưởng
+                        ⏳ Thư cũ · Chờ giáo viên đối soát
                     </button>
                 `;
             } else {
@@ -22677,6 +22851,10 @@ window.renderStudentInbox = function () {
                     ? '🎂 Nhận Xu Sinh Nhật vào túi'
                     : '🧧 Mở quà & Nhận vào túi';
             btnHTML = `<button onclick="deleteMessage(decodeURIComponent('${encodedMessageKey}'))" style="background: rgba(0,0,0,0.05); color: #666; width: 100%; padding: 10px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer;">🗑️ Đã đọc & Xóa thư</button>`;
+        }
+
+        if (msg.giftType === 'grade_reward') {
+            btnHTML += `<button type="button" onclick="deleteMessage(decodeURIComponent('${encodedMessageKey}'), true)" style="margin-top:10px;width:100%;padding:10px;border-radius:8px;font-weight:700;border:1px solid #e11d48;background:rgba(225,29,72,.06);color:#be123c;cursor:pointer;">🗑️ Xóa thư thưởng</button>`;
         }
 
         html += `<div class="glass-alert" style="margin-bottom: 15px; border-left-color: #3b82f6; padding: 15px;">
@@ -22743,7 +22921,7 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
             await getStudentInboxServerNow();
 
         const messageExpiry =
-            Number(msgData.expiry || 0);
+            window.getInboxMessageExpiry(msgData);
 
         if (
             messageExpiry > 0 &&
@@ -22759,6 +22937,29 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
             (await AppDialog.alert(
                 '⌛ Thư này đã hết hạn và không thể nhận quà.'
             ));
+            return;
+        }
+
+        if(window.ECONOMY_SERVER_ENABLED===true&&['item','discount','birthday_coin','special_birthday_coin','mid_autumn_coin'].includes(giftType)) {
+            try {
+                const result=await window.EconomyClient.execute('inbox_claim',{messageId:String(msgKey)},{slot:'inbox:'+String(msgKey)});
+                await AppDialog.alert(result.recovered?'Quà đã được ghi nhận trước đó. Không nhận thêm lần nữa.':'✅ Quà đã được lưu vào túi đồ.');
+            } catch(error) {await AppDialog.alert('Chưa xác nhận nhận quà: '+error.message+'. Hãy thử lại cùng thư để đối soát.');}
+            return;
+        }
+        if (['coin', 'ticket', 'money'].includes(giftType)) {
+            try {
+                if (!window.InboxLedger) throw Error('Chưa tải bộ nhận quà. Hãy tải lại trang.');
+                const result = await window.InboxLedger.claim(String(currentUser.username), String(msgKey));
+                const unit = {coin: 'Coin', ticket: 'vé quay', money: 'đ Tiền lộ trình'}[result.giftType];
+                await AppDialog.alert(result.recovered
+                    ? 'Quà đã được ghi nhận trước đó. Không cộng thêm lần nữa.'
+                    : 'Đã nhận ' + result.amount.toLocaleString('vi-VN') + ' ' + unit + '.');
+                if (giftType === 'money' && typeof renderStudentRoadmap === 'function') renderStudentRoadmap();
+            } catch (error) {
+                console.error('Nhận quà chưa hoàn tất:', error);
+                await AppDialog.alert('Chưa xác nhận nhận quà. ' + String(error.message || '') + ' Hãy thử lại để kiểm tra đúng thư này.');
+            }
             return;
         }
 
@@ -22802,453 +23003,8 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
 
         // 4. TIẾN HÀNH TRAO QUÀ DỰA TRÊN DỮ LIỆU AN TOÀN
         if (giftType === 'grade_reward') {
-            const rewardTickets = Number(
-                msgData.gradeRewardTickets ?? giftValue
-            );
-            const rewardCoins = Number(
-                msgData.gradeRewardCoins || 0
-            );
-            const rewardScore = Number(
-                msgData.gradeRewardScore
-            );
-            const submissionKey = String(
-                msgData.submissionKey || ''
-            ).trim();
-            const rewardRevision = Number(
-                msgData.gradeRewardRevision || 1
-            );
-
-            if (!submissionKey) {
-                throw new Error('INVALID_GRADE_REWARD_SUBMISSION_KEY');
-            }
-
-            // Xác minh thư còn là revision hiện hành của bài.
-            // Nếu giáo viên đã chấm lại/xóa bài thì thư cũ không được nhận nữa.
-            const eventRef = db.ref(
-                `grade_reward_events/${currentUser.username}/${submissionKey}`
-            );
-            const eventSnap = await eventRef.once('value');
-            const eventData = eventSnap.val();
-
-            const eventStatus = String(
-                eventData?.status || ''
-            );
-
-            // V4.2 REDO GUARD:
-            // Không chỉ tin vào grade_reward_events. Nếu giáo viên đã cho
-            // làm lại, reward của lần chấm trước phải bị vô hiệu hóa ngay.
-            // redoStartedAt còn được giữ sau khi HS nộp lại, nhờ đó thư cũ
-            // vẫn bị chặn kể cả isRedoing đã trở về false.
-            const submissionRef = db.ref(
-                `submissions/${submissionKey}`
-            );
-            const submissionSnap = await submissionRef.once('value');
-            const liveSubmission = submissionSnap.val() || null;
-
-            if (liveSubmission.rewardForfeited === true || isRoadmapSubmissionFailed(liveSubmission)) {
-                (await AppDialog.alert('Bài này vẫn còn vi phạm chưa được giáo viên tha lỗi nên không thể nhận thưởng điểm số.'));
-                return;
-            }
-
-
-            /*
-             * F3: thư thưởng điểm số chỉ hợp lệ khi submission hiện tại
-             * thực sự đã có điểm. Không coi null/'' là 0.
-             */
-            const liveGradeRaw =
-                liveSubmission?.grade;
-
-            const liveGrade =
-                (
-                    liveGradeRaw === null ||
-                    liveGradeRaw === undefined ||
-                    liveGradeRaw === ''
-                )
-                    ? NaN
-                    : Number(liveGradeRaw);
-
-            const liveSubmissionHasGrade =
-                Number.isFinite(liveGrade);
-
-            if (
-                !liveSubmission ||
-                !liveSubmissionHasGrade ||
-                liveSubmission?.isRegrading === true
-            ) {
-                (await AppDialog.alert(
-                    '⏸️ Bài này chưa có điểm hợp lệ hoặc đang được chấm lại. ' +
-                    'Phần thưởng chưa thể nhận.'
-                ));
-                return;
-            }
-
-            const redoStartedAt = Number(
-                liveSubmission?.redoStartedAt || 0
-            );
-            const rewardEventTime = Number(
-                eventData?.gradedAt ||
-                eventData?.issuedAt ||
-                msgData.timestamp ||
-                0
-            );
-            const rewardPredatesLatestRedo = Boolean(
-                redoStartedAt > 0 &&
-                (
-                    rewardEventTime <= 0 ||
-                    rewardEventTime <= redoStartedAt
-                )
-            );
-            const submissionIsRedoing =
-                liveSubmission?.isRedoing === true;
-
-            if (submissionIsRedoing || rewardPredatesLatestRedo) {
-                await db
-                    .ref(`inbox_messages/${currentUser.username}/${msgKey}`)
-                    .remove()
-                    .catch(() => {});
-
-                (await AppDialog.alert(
-                    submissionIsRedoing
-                        ? '🔁 Giáo viên đã cho bạn làm lại bài này. Phần thưởng của lần chấm cũ đã bị hủy và không thể nhận.'
-                        : 'ℹ️ Đây là phần thưởng của lần chấm trước khi bạn được cho làm lại. Thư cũ đã bị hủy.'
-                ));
-
-                if (typeof renderStudentInbox === 'function') {
-                    renderStudentInbox();
-                }
-                return;
-            }
-
-            const sameRewardIdentity = Boolean(
-                eventData &&
-                String(eventData.messageId || '') === String(msgKey) &&
-                Number(eventData.revision || 1) === rewardRevision &&
-                Number(eventData.ticketDelta || 0) === rewardTickets &&
-                Number(eventData.coinReward || 0) === rewardCoins
-            );
-
-            // V4: giáo viên vừa bấm "Chấm lại".
-            // Thư cũ vẫn tồn tại nhưng bị khóa, KHÔNG được xóa vì nếu
-            // giáo viên lưu lại đúng cùng điểm thì thư này sẽ mở lại.
-            const rewardIsOnHold = Boolean(
-                sameRewardIdentity &&
-                (
-                    eventStatus === 'regrade_hold' ||
-                    eventStatus === 'regrading' ||
-                    eventStatus === 'mutating'
-                )
-            );
-
-            if (rewardIsOnHold) {
-                (await AppDialog.alert(
-                    '⏸️ Giáo viên đang chấm lại bài này. ' +
-                    'Phần thưởng cũ đang bị khóa tạm thời và chưa thể nhận. ' +
-                    'Nếu điểm mới giữ nguyên, thư sẽ tự mở lại.'
-                ));
-
-                if (typeof renderStudentInbox === 'function') {
-                    renderStudentInbox();
-                }
-                return;
-            }
-
-            const eventMatchesMessage = Boolean(
-                sameRewardIdentity &&
-                eventStatus === 'pending_claim'
-            );
-
-            if (!eventMatchesMessage) {
-                await db
-                    .ref(`inbox_messages/${currentUser.username}/${msgKey}`)
-                    .remove()
-                    .catch(() => {});
-
-                (await AppDialog.alert(
-                    'ℹ️ Phần thưởng này đã bị hủy hoặc thay thế do điểm số đã thay đổi.'
-                ));
-
-                if (typeof renderStudentInbox === 'function') {
-                    renderStudentInbox();
-                }
-                return;
-            }
-
-            if (
-                !Number.isInteger(rewardTickets) ||
-                rewardTickets < 1 ||
-                rewardTickets > 7 ||
-                !Number.isFinite(rewardCoins) ||
-                rewardCoins < 0 ||
-                rewardCoins > 100
-            ) {
-                throw new Error('INVALID_GRADE_REWARD_PAYLOAD');
-            }
-
-            const claimRef = db.ref(
-                `grade_reward_claims/${currentUser.username}/${msgKey}`
-            );
-
-            const claimStartedAt = Date.now();
-
-            const claimTx = await claimRef.transaction(current => {
-                if (current?.status === 'claimed') {
-                    return;
-                }
-
-                if (
-                    current?.status === 'processing' &&
-                    claimStartedAt -
-                        getStudentGradeRewardClaimActivityAt(current) <
-                        GRADE_REWARD_CLAIM_STALE_MS
-                ) {
-                    return;
-                }
-
-                return {
-                    version: Number(msgData.rewardVersion || 3),
-                    status: 'processing',
-                    username: String(currentUser.username),
-                    messageId: String(msgKey),
-                    submissionKey,
-                    rewardRevision,
-                    tickets: rewardTickets,
-                    coins: rewardCoins,
-                    grade: Number.isFinite(rewardScore)
-                        ? rewardScore
-                        : null,
-                    startedAt: claimStartedAt,
-                    heartbeatAt: claimStartedAt
-                };
-            });
-
-            if (!claimTx.committed) {
-                const existingClaim = claimTx.snapshot.val();
-
-                if (existingClaim?.status === 'claimed') {
-                    await db
-                        .ref(`inbox_messages/${currentUser.username}/${msgKey}`)
-                        .remove()
-                        .catch(() => {});
-
-                    (await AppDialog.alert('ℹ️ Phần thưởng điểm số này đã được nhận trước đó.'));
-                    if (typeof renderStudentInbox === 'function') {
-                        renderStudentInbox();
-                    }
-                    return;
-                }
-
-                (await AppDialog.alert('⏳ Phần thưởng này đang được xử lý. Vui lòng thử lại sau ít giây.'));
-                return;
-            }
-
-            let claimHeartbeatTimer = null;
-            const touchClaimHeartbeat = async () => {
-                try {
-                    await claimRef.update({
-                        heartbeatAt:
-                            firebase.database.ServerValue.TIMESTAMP
-                    });
-                } catch (_) {}
-            };
-
-            await touchClaimHeartbeat();
-
-            claimHeartbeatTimer = window.setInterval(
-                () => {
-                    touchClaimHeartbeat();
-                },
-                GRADE_REWARD_CLAIM_HEARTBEAT_MS
-            );
-
-            const ticketRef = db.ref(
-                'student_bonus_tickets/' + currentUser.username
-            );
-            const coinRef = db.ref(
-                'student_coins/' + currentUser.username
-            );
-
-            let ticketApplied = false;
-            let coinApplied = false;
-
-            try {
-                const ticketTx = await ticketRef.transaction(current =>
-                    Number(current || 0) + rewardTickets
-                );
-
-                if (!ticketTx.committed) {
-                    throw new Error('GRADE_REWARD_TICKET_ABORTED');
-                }
-
-                ticketApplied = true;
-                await touchClaimHeartbeat();
-
-                if (rewardCoins > 0) {
-                    const coinTx = await coinRef.transaction(current =>
-                        Number(current || 0) + rewardCoins
-                    );
-
-                    if (!coinTx.committed) {
-                        throw new Error('GRADE_REWARD_COIN_ABORTED');
-                    }
-
-                    coinApplied = true;
-                    await touchClaimHeartbeat();
-                }
-
-                // Kiểm tra lần cuối trước khi chốt claim. Giáo viên sẽ không thể
-                // rollback khi claim đang processing, nên revision phải còn nguyên.
-                const [latestEventSnap, latestSubmissionSnap] =
-                    await Promise.all([
-                        eventRef.once('value'),
-                        submissionRef.once('value')
-                    ]);
-                const latestEvent = latestEventSnap.val();
-                const latestSubmission =
-                    latestSubmissionSnap.val() || null;
-
-                const latestRedoStartedAt = Number(
-                    latestSubmission?.redoStartedAt || 0
-                );
-                const latestRewardEventTime = Number(
-                    latestEvent?.gradedAt ||
-                    latestEvent?.issuedAt ||
-                    msgData.timestamp ||
-                    0
-                );
-                const latestRewardPredatesRedo = Boolean(
-                    latestRedoStartedAt > 0 &&
-                    (
-                        latestRewardEventTime <= 0 ||
-                        latestRewardEventTime <= latestRedoStartedAt
-                    )
-                );
-
-                if (
-                    !latestEvent ||
-                    String(latestEvent.status || '') !== 'pending_claim' ||
-                    String(latestEvent.messageId || '') !== String(msgKey) ||
-                    Number(latestEvent.revision || 1) !== rewardRevision ||
-                    latestSubmission?.isRedoing === true ||
-                    latestSubmission?.isRegrading === true ||
-                    latestSubmission?.grade === null ||
-                    latestSubmission?.grade === undefined ||
-                    latestSubmission?.grade === '' ||
-                    !Number.isFinite(
-                        Number(latestSubmission?.grade)
-                    ) ||
-                    latestRewardPredatesRedo
-                ) {
-                    throw new Error('GRADE_REWARD_REVOKED_DURING_CLAIM');
-                }
-
-                await claimRef.update({
-                    status: 'claimed',
-                    claimedAt: firebase.database.ServerValue.TIMESTAMP,
-                    heartbeatAt:
-                        firebase.database.ServerValue.TIMESTAMP
-                });
-            } catch (rewardClaimError) {
-                // Hoàn tác tốt nhất có thể nếu một nửa gói thưởng bị lỗi.
-                if (coinApplied && rewardCoins > 0) {
-                    await coinRef.transaction(current =>
-                        Number(current || 0) - rewardCoins
-                    ).catch(() => {});
-                }
-
-                if (ticketApplied) {
-                    await ticketRef.transaction(current =>
-                        Number(current || 0) - rewardTickets
-                    ).catch(() => {});
-                }
-
-                await claimRef.update({
-                    status: 'retry',
-                    failedAt: firebase.database.ServerValue.TIMESTAMP,
-                    heartbeatAt:
-                        firebase.database.ServerValue.TIMESTAMP
-                }).catch(() => {});
-
-                if (claimHeartbeatTimer) {
-                    window.clearInterval(claimHeartbeatTimer);
-                    claimHeartbeatTimer = null;
-                }
-
-                throw rewardClaimError;
-            }
-
-            if (claimHeartbeatTimer) {
-                window.clearInterval(claimHeartbeatTimer);
-                claimHeartbeatTimer = null;
-            }
-
-            claimSucceeded = true;
-            claimedPath =
-                `student_bonus_tickets/${currentUser.username} + ` +
-                `student_coins/${currentUser.username}`;
-
-            claimedExtra = {
-                tickets: rewardTickets,
-                coins: rewardCoins,
-                grade: Number.isFinite(rewardScore)
-                    ? rewardScore
-                    : null,
-                rewardVersion: Number(msgData.rewardVersion || 3)
-            };
-
-            (await AppDialog.alert(
-                `🎓 Bạn đã nhận ${rewardTickets} Vé quay may mắn` +
-                (rewardCoins > 0
-                    ? ` và ${rewardCoins.toLocaleString('vi-VN')} Coin!`
-                    : '!')
-            ));
-
-        } else if (giftType === 'coin') {
-            const amount =
-                parseInt(giftValue, 10);
-
-            if (
-                !Number.isInteger(amount) ||
-                amount <= 0
-            ) {
-                throw new Error(
-                    'INVALID_INBOX_COIN_QUANTITY'
-                );
-            }
-
-            const coinRef =
-                db.ref(
-                    'student_coins/' +
-                    currentUser.username
-                );
-
-            const coinTx =
-                await coinRef.transaction(
-                    current =>
-                        Number(current || 0) +
-                        amount
-                );
-
-            if (!coinTx.committed) {
-                throw new Error(
-                    'INBOX_COIN_TRANSACTION_ABORTED'
-                );
-            }
-
-            if (inboxClaimGuard) {
-                inboxClaimGuard.effectApplied =
-                    true;
-            }
-
-            claimSucceeded = true;
-
-            claimedPath =
-                `student_coins/${currentUser.username}`;
-
-            (await AppDialog.alert(
-                `🎉 Bạn đã nhận được ` +
-                `${amount.toLocaleString('vi-VN')} Coin!`
-            ));
-
+            await AppDialog.alert('Thư điểm số này thuộc cơ chế cũ. Khi giáo viên mở web, hệ thống sẽ đối soát theo mức mới và gửi thông báo kết quả. Không nhận thêm theo mức cũ để tránh cộng trùng.');
+            return;
         } else if (
             giftType === 'mid_autumn_coin'
         ) {
@@ -23615,107 +23371,6 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
                     `Có thể đổi vật phẩm tag Sinh nhật không phân biệt năm.`
                 ));
             }
-        } else if (giftType === 'money') {
-            const amount =
-                parseInt(giftValue, 10);
-
-            if (
-                !Number.isInteger(amount) ||
-                amount <= 0
-            ) {
-                throw new Error(
-                    'INVALID_INBOX_MONEY_QUANTITY'
-                );
-            }
-
-            const offsetRef =
-                db.ref(
-                    'student_money_offset/' +
-                    currentUser.username
-                );
-
-            const offsetTx =
-                await offsetRef.transaction(
-                    current =>
-                        Number(current || 0) +
-                        amount
-                );
-
-            if (!offsetTx.committed) {
-                throw new Error(
-                    'INBOX_MONEY_TRANSACTION_ABORTED'
-                );
-            }
-
-            if (inboxClaimGuard) {
-                inboxClaimGuard.effectApplied =
-                    true;
-            }
-
-            claimSucceeded = true;
-
-            claimedPath =
-                `student_money_offset/${currentUser.username}`;
-
-            (await AppDialog.alert(
-                `🎉 Bạn đã nhận được ` +
-                `${amount.toLocaleString('vi-VN')} đ vào Tiền Lộ trình!`
-            ));
-
-            if (
-                typeof renderStudentRoadmap ===
-                'function'
-            ) {
-                renderStudentRoadmap();
-            }
-
-        } else if (giftType === 'ticket') {
-            const amount =
-                parseInt(giftValue, 10);
-
-            if (
-                !Number.isInteger(amount) ||
-                amount <= 0
-            ) {
-                throw new Error(
-                    'INVALID_INBOX_TICKET_QUANTITY'
-                );
-            }
-
-            const ticketRef =
-                db.ref(
-                    'student_bonus_tickets/' +
-                    currentUser.username
-                );
-
-            const ticketTx =
-                await ticketRef.transaction(
-                    current =>
-                        Number(current || 0) +
-                        amount
-                );
-
-            if (!ticketTx.committed) {
-                throw new Error(
-                    'INBOX_TICKET_TRANSACTION_ABORTED'
-                );
-            }
-
-            if (inboxClaimGuard) {
-                inboxClaimGuard.effectApplied =
-                    true;
-            }
-
-            claimSucceeded = true;
-
-            claimedPath =
-                `student_bonus_tickets/${currentUser.username}`;
-
-            (await AppDialog.alert(
-                `🎉 Bạn đã nhận được ` +
-                `${amount} Vé quay may mắn!`
-            ));
-
         } else if (giftType === 'item') {
             const giftItemPath =
                 `student_inventory/` +
@@ -24230,8 +23885,17 @@ window.claimGift = async function (msgKey, clientGiftType, clientGiftValue) {
     }
 };
 
-window.deleteMessage = async function (msgKey) {
-    await db.ref(`inbox_messages/${currentUser.username}/${msgKey}`).remove();
+window.deleteMessage = async function (msgKey, confirmRewardDeletion = false) {
+    if (confirmRewardDeletion && !(await AppDialog.confirm(
+        'Xóa thư thưởng này? Bạn sẽ không thể nhận phần thưởng chưa nhận từ thư này nữa. Thao tác chỉ xóa thư, không thay đổi Coin, vé, điểm hoặc án phạt đã ghi nhận.'
+    ))) return;
+
+    try {
+        await db.ref(`inbox_messages/${currentUser.username}/${msgKey}`).remove();
+    } catch (error) {
+        console.error('Không thể xóa thư:', error);
+        await AppDialog.alert('Không thể xóa thư. Vui lòng kiểm tra kết nối và thử lại. Nếu vẫn lỗi, hãy báo giáo viên kiểm tra quyền xóa thư trên đám mây.');
+    }
 };
 
 // =============================================================
@@ -24484,10 +24148,19 @@ window.stopExamTimeLimitCountdown = function (
 };
 
 
+window.isObsoleteExamExpiry = function (session, submission, expectedSessionId) {
+    return !session || ['submitted', 'redo_authorized'].includes(session.status) ||
+        (!!expectedSessionId && String(session.sessionId || '') !== expectedSessionId) ||
+        (!!submission && (submission.isRedoing !== true ||
+            Number(submission.redoStartedAt || 0) > Number(session.startedAt || 0)));
+};
+
 window.handleExamTimeLimitExpired =
-    async function (assignId) {
+    async function (assignId, expectedSessionId) {
         const key = String(assignId);
         if (window.isAssignmentTeacherLocked?.(key)) return;
+        const manager = window.examRecoveryManager;
+        const sessionId = expectedSessionId ?? String(manager?.getAuthoritativeSession?.(key)?.sessionId || '');
 
 
         if (
@@ -24503,6 +24176,17 @@ window.handleExamTimeLimitExpired =
         window.stopExamTimeLimitCountdown(key);
         window.setInterruptedExamLock?.(key, true);
 
+        try {
+            // Revalidate every retry: a teacher may have authorized a new attempt.
+            const liveSession = await manager.readAuthoritativeSession(key);
+            const liveSubmission = await window.getLiveStudentExamSubmission(key);
+            if (window.isObsoleteExamExpiry(liveSession, liveSubmission, sessionId)) {
+                window.examTimeLimitExpiredPending[key] = false;
+                manager.stopHeartbeat(key);
+                localStorage.removeItem(manager.markerKey(key));
+                window.setInterruptedExamLock?.(key, false);
+                return;
+            }
         if (
             typeof window.showToast ===
             'function'
@@ -24513,7 +24197,6 @@ window.handleExamTimeLimitExpired =
             );
         }
 
-        try {
             await submitAssignment(
                 key,
                 true,
@@ -24524,6 +24207,7 @@ window.handleExamTimeLimitExpired =
                 false;
 
         } catch (error) {
+            const permissionDenied = /permission[_ -]?denied/i.test(String(error?.code || '') + ' ' + String(error?.message || error));
             console.error(
                 'Không thể tự thu bài khi hết giới hạn thời gian:',
                 error
@@ -24542,14 +24226,16 @@ window.handleExamTimeLimitExpired =
                 'function'
             ) {
                 window.showToast(
-                    'Mất kết nối khi tự thu bài. Bài đã khóa chỉnh sửa. Bản nháp vẫn được giữ và hệ thống sẽ thử lại.',
+                    permissionDenied
+                        ? 'đám mây từ chối quyền tự thu bài. Bản nháp vẫn được giữ và bài vẫn khóa chỉnh sửa. Hãy báo giáo viên kiểm tra phiên thi và Rules.'
+                        : 'Mất kết nối khi tự thu bài. Bài đã khóa chỉnh sửa. Bản nháp vẫn được giữ và hệ thống sẽ thử lại.',
                     'error'
                 );
             }
 
-            setTimeout(() => {
+            if (!permissionDenied) setTimeout(() => {
                 window.handleExamTimeLimitExpired(
-                    key
+                    key, sessionId
                 );
             }, 5000);
 
@@ -25416,14 +25102,14 @@ window.examRecoveryManager = {
                             ),
                         deadlineAt:
                             Number(
-                                existing.deadlineAt ||
+                                existing.deadlineAt ??
                                 this.calculateDeadlineAt(
                                     Number(
                                         existing.startedAt ||
                                         now
                                     ),
                                     assignment
-                                ) ||
+                                ) ??
                                 0
                             ),
                         interruptionCount:
@@ -25624,6 +25310,17 @@ window.examRecoveryManager = {
     },
 
     async sync(assignId, patch = {}) {
+        const revision = window.StudyReliability?.begin(assignId);
+        try {
+            const session = await this.syncCore(assignId, patch);
+            window.StudyReliability?.finish(assignId, revision, !!session);
+            return session;
+        } catch (error) {
+            window.StudyReliability?.finish(assignId, revision, false);
+            throw error;
+        }
+    },
+    async syncCore(assignId, patch = {}) {
         const key = String(assignId || '');
         const draft = this.getDraft(key);
         const tabId =
@@ -26015,7 +25712,9 @@ window.examRecoveryManager = {
                             now +
                             EXAM_FINALIZE_LEASE_MS,
                         finalizeReason:
-                            String(reason || 'submit'),
+                            Number(current.deadlineAt || 0) > 0 && now > Number(current.deadlineAt)
+                                ? 'deadline-recovery'
+                                : String(reason || 'submit'),
                         heartbeatAt: now,
                         updatedAt: now
                     };
@@ -26385,7 +26084,7 @@ window.restoreInterruptedExam = async function () {
                 .once('value');
         } catch (error) {
             console.warn(
-                '[Exam Guard] Không thể xác minh phiên thi trên Firebase:',
+                '[Exam Guard] Không thể xác minh phiên thi trên đám mây:',
                 error
             );
 
@@ -26517,6 +26216,15 @@ window.restoreInterruptedExam = async function () {
                 !assignment ||
                 assignment.assessmentType !== 'thi'
             ) {
+                continue;
+            }
+
+            // A redo authorization retains old timing for audit, not for recovery.
+            if (session.status === 'redo_authorized') {
+                window.stopExamTimeLimitCountdown(assignId);
+                window.examTimeLimitExpiredPending[assignId] = false;
+                manager.stopHeartbeat(assignId);
+                localStorage.removeItem(manager.markerKey(assignId));
                 continue;
             }
 
@@ -26791,7 +26499,7 @@ window.restoreInterruptedExam = async function () {
             'function'
         ) {
             window.showToast(
-                `Phát hiện bài thi "${selected.title}" bị gián đoạn. Hệ thống đã xác minh phiên trên Firebase; hãy bấm Tiếp tục thi để vào lại toàn màn hình.`,
+                `Phát hiện bài thi "${selected.title}" bị gián đoạn. Hệ thống đã xác minh phiên trên đám mây; hãy bấm Tiếp tục thi để vào lại toàn màn hình.`,
                 'warning'
             );
         }
@@ -27035,7 +26743,7 @@ window.handleManualExamSubmissionError =
             window.showToast(
                 (() => {
                     const code=String(error?.code || error?.message || '');
-                    const detail=/permission.denied/i.test(code) ? 'Firebase từ chối quyền ghi phiên thi. Cần kiểm tra Rules của exam_active_locks và exam_sessions.'
+                    const detail=/permission.denied/i.test(code) ? 'đám mây từ chối quyền ghi phiên thi. Cần kiểm tra Rules của exam_active_locks và exam_sessions.'
                         : code==='EXAM_SESSION_MISSING' ? 'Không tìm thấy phiên thi trên máy chủ.'
                         : code==='EXAM_ALREADY_SUBMITTED' ? 'Phiên thi đã được ghi nhận nộp trên máy chủ. Hãy kiểm tra kết quả trước khi nộp lại.'
                         : /LOCK_CONFLICT|LEASE_CONFLICT/.test(code) ? 'Máy chủ chưa cấp quyền nộp cho tab này. Kiểm tra tab hoặc thiết bị khác đang mở bài.'
@@ -27520,7 +27228,14 @@ window.closeExamWarning = function (
     return true;
 };
 
-window.startExamFullscreen = async function (
+let studentExamStartInFlight = false;
+window.startExamFullscreen = async function (isResume = false) {
+    if (studentExamStartInFlight) return;
+    studentExamStartInFlight = true;
+    try { return await startExamFullscreenCore(isResume); }
+    finally { studentExamStartInFlight = false; }
+};
+async function startExamFullscreenCore(
     isResume = false
 ) {
     if (!window.pendingExamId || window.isAssignmentTeacherLocked(window.pendingExamId)) return;
@@ -27532,7 +27247,7 @@ window.startExamFullscreen = async function (
     const assignId =
         String(window.pendingExamId);
 
-    const assignment =
+    let assignment =
         Array.isArray(window.cachedAssignments)
             ? window.cachedAssignments.find(
                 a =>
@@ -27549,6 +27264,13 @@ window.startExamFullscreen = async function (
 
         closeExamWarning();
         return;
+    }
+
+    if (window.StudyReliability) {
+        const checked = await window.StudyReliability.preflight(assignment);
+        if (!checked) return;
+        assignment = checked;
+        if (String(window.pendingExamId) !== assignId) return;
     }
 
     /*
@@ -27583,8 +27305,8 @@ window.startExamFullscreen = async function (
 
             (await AppDialog.alert(
                 hasGrade
-                    ? '🔒 Bài thi này đã được chấm điểm trên Firebase nên không thể tiếp tục hoặc nộp đè.'
-                    : '🔒 Bài thi này đã có bài nộp hoàn tất trên Firebase nên không thể mở lại.'
+                    ? '🔒 Bài thi này đã được chấm điểm trên đám mây nên không thể tiếp tục hoặc nộp đè.'
+                    : '🔒 Bài thi này đã có bài nộp hoàn tất trên đám mây nên không thể mở lại.'
             ));
 
             closeExamWarning();
@@ -27642,7 +27364,7 @@ window.startExamFullscreen = async function (
             !liveSubmission?.isRedoing
         ) {
             (await AppDialog.alert(
-                '🔒 Phiên thi đã được đánh dấu hoàn tất trên Firebase.'
+                '🔒 Phiên thi đã được đánh dấu hoàn tất trên đám mây.'
             ));
 
             closeExamWarning();
@@ -27703,7 +27425,7 @@ window.startExamFullscreen = async function (
         );
 
         (await AppDialog.alert(
-            '❌ Không thể xác minh trạng thái bài thi trên Firebase. Vì lý do bảo mật, hệ thống chưa cho phép bắt đầu/tiếp tục thi.'
+            '❌ Không thể xác minh trạng thái bài thi trên đám mây. Vì lý do bảo mật, hệ thống chưa cho phép bắt đầu/tiếp tục thi.'
         ));
 
         closeExamWarning();
@@ -28265,7 +27987,14 @@ window.saveDraft = function (assignId, type, qIndex, value) {
     } else if (type === 'essay') {
         draft.essay = value;
     }
-    localStorage.setItem(draftKey, JSON.stringify(draft));
+    try {
+        localStorage.setItem(draftKey, JSON.stringify(draft));
+        window.StudyReliability?.local(assignId, true);
+    } catch (error) {
+        window.StudyReliability?.local(assignId, false);
+        console.warn('Không lưu được bản nháp trên máy', error);
+        return;
+    }
     if (
         window.examRecoveryManager &&
         String(window.currentActiveExamId) === String(assignId)
@@ -29278,6 +29007,11 @@ async function addSpecialBirthdayItemToInventory(
     grantId,
     redemptionId
 ) {
+    if(window.ECONOMY_SERVER_ENABLED===true) {
+        if(String(currentUser?.username)!==String(username))throw new Error('ACCOUNT_CHANGED');
+        if((await db.ref(`student_inventory/${username}/${item.id}`).once('value')).exists())return true;
+        await window.EconomyClient.execute('special_birthday_redeem',{itemId:String(item.id)},{slot:'event-redeem:'+item.id});return true;
+    }
     const inventoryRef = db.ref(
         `student_inventory/` +
         `${username}/` +
@@ -29431,8 +29165,25 @@ window
         }
     };
 
+async function redeemStudentServerEventItem(action,args) {
+    const item=StoreManager.getItemById(args.itemId),username=String(currentUser.username);
+    if(!item)return;
+    if(!await AppDialog.confirm(`Đổi Xu để nhận “${item.name}”?`))return;
+    let confirmed=false;
+    try {
+        const result=await window.EconomyClient.execute(action,args,{slot:'event-redeem:'+args.itemId});confirmed=true;
+        if(String(currentUser?.username)!==username)return;
+        window.closeBirthdayRedeemModal?.();window.closeBagItemPopup?.();
+        await window.loadStoreItems?.();await window.renderStudentBag?.();
+        await AppDialog.alert(result.recovered?'✅ Vật phẩm của giao dịch trước đã được phục hồi.':'✅ Vật phẩm đã vào túi đồ.');
+    } catch(error) {
+        if(String(currentUser?.username)!==username)return;
+        await AppDialog.alert(confirmed?'Vật phẩm đã lưu. Hãy tải lại trang để đồng bộ; không cần đổi lần nữa.':'Chưa xác nhận đổi vật phẩm: '+error.message+'. Hãy thử lại cùng vật phẩm để đối soát.');
+    }
+}
 window.redeemSpecialBirthdayItem =
     async function (itemId) {
+        if(window.ECONOMY_SERVER_ENABLED===true)return redeemStudentServerEventItem('special_birthday_redeem',{itemId:String(itemId)});
         if (
             window
                 .__specialBirthdayRedeemProcessing
@@ -29699,7 +29450,7 @@ window.redeemSpecialBirthdayItem =
                     )
                 ) {
                     (await AppDialog.alert(
-                        '❌ Firebase từ chối giao dịch.\n' +
+                        '❌ đám mây từ chối giao dịch.\n' +
                         'Hãy kiểm tra danh mục vật phẩm ' +
                         'Xu Đặc Biệt và dữ liệu của xu.'
                     ));
@@ -29878,6 +29629,11 @@ async function addBirthdayItemToInventory(
     item,
     numericYear
 ) {
+    if(window.ECONOMY_SERVER_ENABLED===true) {
+        if(String(currentUser?.username)!==String(username))throw new Error('ACCOUNT_CHANGED');
+        if((await db.ref(`student_inventory/${username}/${item.id}`).once('value')).exists())return true;
+        await window.EconomyClient.execute('birthday_redeem',{itemId:String(item.id),year:String(numericYear)},{slot:'event-redeem:'+item.id});return true;
+    }
     const inventoryRef = db.ref(
         `student_inventory/` +
         `${username}/` +
@@ -30042,6 +29798,7 @@ window.recoverBirthdayRedeemedItems =
 
 window.redeemBirthdayItem =
     async function (itemId, year) {
+        if(window.ECONOMY_SERVER_ENABLED===true)return redeemStudentServerEventItem('birthday_redeem',{itemId:String(itemId),year:String(year)});
         if (
             window
                 .__birthdayRedeemProcessing
@@ -30674,6 +30431,13 @@ window.sellDiscountCardFromPopup = async function (discountKey, _percent, _sellP
         }
         const amount = Math.max(1, Math.min(10, Math.floor(percent / 10)));
         if (!(await AppDialog.confirm(`Thanh lý thẻ giảm giá ${percent}% đã hết hạn để nhận ${amount} Coin?`))) return;
+        if (window.ECONOMY_SERVER_ENABLED === true) {
+            const result = await window.EconomyClient.execute('discount_sell', {discountKey}, {slot:'discount:'+discountKey});
+            await AppDialog.alert(`Đã thanh lý thẻ, nhận ${result.amount} Coin.`);
+            window.closeBagItemPopup?.();
+            await window.renderStudentBag?.();
+            return;
+        }
         const updates = {
             [`student_discounts/${username}/${discountKey}`]: null,
             [`student_coins/${username}`]: firebase.database.ServerValue.increment(amount),
@@ -30690,7 +30454,7 @@ window.sellDiscountCardFromPopup = async function (discountKey, _percent, _sellP
         // A lost acknowledgement must not encourage another unguarded credit.
         const receipt = await receiptRef.once('value').then(s => s.val()).catch(() => null);
         (await AppDialog.alert(receipt ? 'Thẻ đã được quy đổi. Hãy mở lại túi đồ để đồng bộ.' :
-            'Chưa xác nhận được thanh lý. Hãy thử lại khi có mạng; nếu bị từ chối quyền, cần cập nhật Firebase Rules kèm bản sửa.'));
+            'Chưa xác nhận được thanh lý. Hãy thử lại khi có mạng; nếu bị từ chối quyền, cần cập nhật quy tắc bảo mật đám mây kèm bản sửa.'));
     } finally {
         delete window.__studentStoreEconomicBusy[busyKey];
     }
@@ -31202,8 +30966,8 @@ function isCashRequestOwnedByCurrentStudent(req) {
     if (!req) return false;
 
     // Dữ liệu mới: luôn ưu tiên username vì tên hiển thị có thể trùng/đổi.
-    if (req.studentUsername) {
-        return String(req.studentUsername) === String(currentUser.username);
+    if (req.studentUsername || req.username) {
+        return String(req.studentUsername || req.username) === String(currentUser.username);
     }
 
     // Tương thích dữ liệu cũ chưa có studentUsername.
@@ -31216,11 +30980,8 @@ function getCashRequestAmount(req) {
 }
 
 // Tính phần tiền đang được giữ chỗ bởi yêu cầu tiền mặt nhưng chưa bị trừ khỏi offset.
-// processing có thể rơi vào cửa sổ phục hồi: nếu offset đã bằng processingOffsetAfter
-// thì tiền đã được trừ, không được giữ chỗ lần hai.
+// processing cũ thiếu biên nhận vẫn giữ chỗ; không suy đoán từ số dư hiện tại.
 function getReservedCashRequestAmount(allRequests, currentOffset) {
-    const normalizedOffset = Number(currentOffset) || 0;
-
     return (allRequests || [])
         .filter(isCashRequestOwnedByCurrentStudent)
         .reduce((sum, req) => {
@@ -31236,13 +30997,6 @@ function getReservedCashRequestAmount(allRequests, currentOffset) {
                     return sum;
                 }
 
-                const expectedAfter = Number(req.processingOffsetAfter);
-                if (
-                    Number.isFinite(expectedAfter) &&
-                    normalizedOffset === expectedAfter
-                ) {
-                    return sum;
-                }
 
                 return sum + amount;
             }
@@ -31432,6 +31186,12 @@ async function handleRequestCashSubmitCore() {
             return;
         }
 
+        const recovered = await window.CashLedger?.recoverPending(currentUser.username);
+        if (recovered) {
+            await AppDialog.alert('Đã tìm thấy yêu cầu gửi trước đó: ' + recovered.amount.toLocaleString('vi-VN') + ' VNĐ. Không gửi trùng.');
+            await window.initCashWithdrawInterface();
+            return;
+        }
         let state = await getCurrentRoadmapMoneyState();
 
         if (amount > state.totalMoney) {
@@ -31452,6 +31212,7 @@ async function handleRequestCashSubmitCore() {
             return;
         }
 
+        return await runWithStudentMoneyMutationLock(async () => {
         // Đọc lại ngay trước khi tạo request để tránh dùng số dư cũ sau thời gian confirm.
         state = await getCurrentRoadmapMoneyState();
         if (amount > state.availableMoney) {
@@ -31463,7 +31224,8 @@ async function handleRequestCashSubmitCore() {
             return;
         }
 
-        await pushDB('cash_requests', {
+        if (!window.CashLedger) throw new Error('Chưa tải bộ xử lý tiền mặt.');
+        const sent = await window.CashLedger.submit({
             // Tương thích cả Firebase Rules cũ và luồng duyệt tiền hiện tại.
             username: currentUser.username,
             studentUsername: currentUser.username,
@@ -31474,10 +31236,11 @@ async function handleRequestCashSubmitCore() {
             timestamp: Date.now()
         });
 
-        (await AppDialog.alert('🎉 Gửi yêu cầu thành công! Vui lòng đợi giáo viên xét duyệt.'));
+        await AppDialog.alert(sent.recovered ? 'Đã tìm thấy yêu cầu gửi trước đó: ' + sent.amount.toLocaleString('vi-VN') + ' VNĐ. Không tạo yêu cầu trùng.' : '🎉 Gửi yêu cầu thành công! Vui lòng đợi giáo viên xét duyệt.');
         inputEl.value = '';
 
         await window.initCashWithdrawInterface();
+        });
     } catch (error) {
         console.error('Lỗi gửi yêu cầu tiền mặt:', error);
 
@@ -31490,9 +31253,9 @@ async function handleRequestCashSubmitCore() {
             errorMessage.includes('permission_denied') ||
             errorMessage.includes('permission denied')
         ) {
-            (await AppDialog.alert('❌ Firebase từ chối quyền tạo yêu cầu tiền mặt. Vui lòng kiểm tra Rules của cash_requests.'));
+            (await AppDialog.alert('❌ đám mây từ chối quyền tạo yêu cầu tiền mặt. Vui lòng kiểm tra Rules của cash_requests.'));
         } else {
-            (await AppDialog.alert('❌ Không thể gửi yêu cầu tiền mặt. Vui lòng kiểm tra kết nối rồi thử lại.'));
+            (await AppDialog.alert('❌ Chưa xác nhận gửi yêu cầu. ' + String(error?.message || '') + ' Hãy thử lại cùng số tiền để hệ thống kiểm tra mã cũ, tránh tạo trùng.'));
         }
     } finally {
         window.cashRequestSubmitInFlight = false;
@@ -31500,7 +31263,7 @@ async function handleRequestCashSubmitCore() {
 }
 
 window.handleRequestCashSubmit = function () {
-    return runWithStudentMoneyMutationLock(handleRequestCashSubmitCore);
+    return handleRequestCashSubmitCore();
 };
 
 // ================= HỆ THỐNG THEO DÕI VIDEO YOUTUBE =================
@@ -31914,6 +31677,12 @@ function saveLocalVideoProgress(assignId, seconds) {
 }
 
 function saveVideoProgressToFirebase(assignId, seconds) {
+    if(window.ECONOMY_SERVER_ENABLED===true) {
+        return commitVerifiedVideoProgress(assignId,seconds).then(result=>result.snapshot.val()).catch(error=>{
+            console.error('Chưa xác nhận tiến độ xem video:',error);
+            return normalizeVideoProgressSeconds(lastSavedTime[assignId]);
+        });
+    }
     const safeSeconds = Math.max(
         normalizeVideoProgressSeconds(
             watchDurations[assignId]
@@ -31960,6 +31729,16 @@ function saveVideoProgressToFirebase(assignId, seconds) {
             lastSavedTime[assignId]
         );
     });
+}
+
+async function commitVerifiedVideoProgress(assignId,seconds) {
+    if(window.ECONOMY_SERVER_ENABLED!==true)return db.ref(`video_tracking/${assignId}/${currentUser.username}`).transaction(old=>Math.max(Number(old)||0,Number(seconds)||0));
+    const result=await window.EconomyClient.execute('video_tick',{assignmentId:String(assignId)},{slot:'video-progress:'+assignId});
+    const saved=normalizeVideoProgressSeconds(result.seconds);
+    lastSavedTime[assignId]=saved;watchDurations[assignId]=saved;
+    // Untrusted local progress is only a playback hint, never reward proof.
+    try{localStorage.setItem(getVideoProgressStorageKey(assignId),String(saved));}catch(_){}
+    return {committed:true,snapshot:{val:()=>saved}};
 }
 
 function flushAllVideoProgress() {
@@ -33555,14 +33334,7 @@ window.onPlayerStateChange = function (event, assignId) {
 
                         // Không dùng currentTime % 5 vì bộ đếm có thể nhảy qua đúng mốc.
                         if (currentTime - savedTime >= 5) {
-                            db.ref(
-                                `video_tracking/${assignId}/${currentUser.username}`
-                            ).transaction(oldValue => {
-                                const oldSeconds = Number(oldValue) || 0;
-
-                                // Chỉ cho phép tiến độ tăng, không bị tab cũ ghi tụt xuống.
-                                return Math.max(oldSeconds, currentTime);
-                            }).then(result => {
+                            commitVerifiedVideoProgress(assignId,currentTime).then(result => {
                                 if (result.committed) {
                                     lastSavedTime[assignId] =
                                         Number(result.snapshot.val()) || currentTime;
@@ -33601,16 +33373,15 @@ window.onPlayerStateChange = function (event, assignId) {
                                 );
 
                                 // Lưu mốc đạt yêu cầu trước rồi mở giao diện.
-                                progressRef.transaction(oldValue => {
-                                    const oldSeconds = Number(oldValue) || 0;
-                                    return Math.max(oldSeconds, currentTime);
-                                }).then(result => {
+                                commitVerifiedVideoProgress(assignId,currentTime).then(result => {
                                     if (!result.committed) {
                                         throw new Error("Không thể ghi tiến độ video");
                                     }
 
                                     const savedSeconds =
                                         Number(result.snapshot.val()) || currentTime;
+
+                                    if(window.ECONOMY_SERVER_ENABLED===true&&Number(result.snapshot.val())<Number(currentAssign.watchCondition))throw new Error('Thời lượng trên máy chủ chưa đủ; hãy tiếp tục xem video.');
 
                                     lastSavedTime[assignId] = Math.max(
                                         Number(lastSavedTime[assignId]) || 0,
@@ -34379,6 +34150,16 @@ window.openHoiHoaChest = async function (chestKey) {
     if (!accepted) return;
 
     window.__hhChestOpening = true;
+
+    if(window.ECONOMY_SERVER_ENABLED===true) {
+        try {
+            const reward=await window.EconomyClient.execute('art_chest',{chestKey:String(chestKey)},{slot:'art-chest'});
+            window.closeBagItemPopup?.();
+            await AppDialog.alert('🎁 '+reward.label);
+        }catch(error){await AppDialog.alert('Chưa xác nhận mở rương: '+error.message+'. Hãy thử lại để đối soát.');}
+        finally{window.__hhChestOpening=false;}
+        return;
+    }
 
     const username =
         String(currentUser.username);
@@ -35925,59 +35706,40 @@ window.downloadStudentRoadmapPDF = async function () {
         }
 
         bar.classList.add('student-floating-actions-dock');
-        bar.dataset.flowMode = 'floating';
-        bar.dataset.dockMode = 'viewport-fixed';
+        const phone = matchMedia('(max-width:768px), (max-width:1024px) and (pointer:coarse) and (max-height:600px)').matches;
+        bar.dataset.flowMode = phone ? 'normal' : 'floating';
+        bar.dataset.dockMode = phone ? 'phone-row' : 'viewport-fixed';
 
         /*
-         * BẮT BUỘC đặt dock trực tiếp dưới body.
+         * Máy tính ghim dock dưới body; điện thoại dùng hàng riêng trong nội dung.
          * Nếu fixed nằm trong một ancestor có transform/filter/perspective,
          * trình duyệt có thể lấy ancestor đó làm containing block và dock sẽ
          * cuộn theo .content. Đưa ra body loại bỏ lỗi này.
          */
-        const host = document.body || document.documentElement;
+        const host = phone ? (document.getElementById('mobileStudentHeader') || document.querySelector('#studentDashboard > .content')) : document.body;
         if (host && bar.parentElement !== host) {
-            host.appendChild(bar);
+            if (phone) host.prepend(bar); else host.appendChild(bar);
         }
 
         return bar;
     }
 
     function getTopActionSize() {
-        const width = Math.max(
-            0,
-            Number(window.innerWidth) ||
-            document.documentElement.clientWidth ||
-            0
-        );
-
-        if (width <= 360) return 32;
-        if (width <= 520) return 34;
-        if (width <= 768) return 38;
-        return 44;
+        return matchMedia('(max-width:768px), (max-width:1024px) and (pointer:coarse) and (max-height:600px)').matches ? (innerWidth < 360 ? 36 : 40) : 44;
     }
 
     function getTopActionGap() {
-        const width = Math.max(
-            0,
-            Number(window.innerWidth) ||
-            document.documentElement.clientWidth ||
-            0
-        );
-
-        if (width <= 360) return 3;
-        if (width <= 520) return 4;
-        if (width <= 768) return 6;
-        return 9;
+        return matchMedia('(max-width:768px), (max-width:1024px) and (pointer:coarse) and (max-height:600px)').matches ? 8 : 9;
     }
 
     function placeActionBarAtViewportRight(
         bar,
         isMobile
     ) {
-        if (!bar) return;
+        if (!bar || isMobile) return;
 
-        const topGap = isMobile ? 12 : 24;
-        const rightGap = isMobile ? 10 : 28;
+        const topGap = 24;
+        const rightGap = 28;
 
         bar.style.setProperty(
             'position',
@@ -36256,19 +36018,19 @@ window.downloadStudentRoadmapPDF = async function () {
 
         const isMobile =
             window.matchMedia(
-                '(max-width: 768px)'
+                '(max-width:768px), (max-width:1024px) and (pointer:coarse) and (max-height:600px)'
             ).matches;
 
         const actionSize = getTopActionSize();
         const actionGap = getTopActionGap();
 
         [
-            ['position', 'fixed'],
+            ['position', isMobile ? 'relative' : 'fixed'],
             ['top', isMobile
-                ? 'calc(12px + env(safe-area-inset-top, 0px))'
+                ? 'auto'
                 : '24px'],
             ['right', isMobile
-                ? 'calc(12px + env(safe-area-inset-right, 0px))'
+                ? 'auto'
                 : '28px'],
             ['bottom', 'auto'],
             ['left', 'auto'],
@@ -36277,19 +36039,19 @@ window.downloadStudentRoadmapPDF = async function () {
             ['align-items', 'center'],
             ['justify-content', 'flex-end'],
             ['gap', `${actionGap}px`],
-            ['width', 'max-content'],
+            ['width', isMobile ? '100%' : 'max-content'],
             ['max-width', isMobile
-                ? 'calc(100vw - 78px)'
+                ? '100%'
                 : 'calc(100vw - 56px)'],
             ['min-height', `${actionSize}px`],
             ['height', 'auto'],
             ['margin', '0'],
             ['padding', '0'],
             ['overflow', 'visible'],
-            ['pointer-events', 'none'],
+            ['pointer-events', isMobile ? 'auto' : 'none'],
             ['float', 'none'],
             ['transform', 'none'],
-            ['z-index', '9986']
+            ['z-index', isMobile ? '2' : '9986']
         ].forEach(([property, value]) => {
             bar.style.setProperty(
                 property,

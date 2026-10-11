@@ -70,10 +70,10 @@
     const previous=selected;selected=next;
     const dashboard=sidebar.closest('.dashboard');
     // Wait for successful navigation (including lazy-loaded tabs), not just a click.
-    if(previous&&matchMedia('(max-width:768px)').matches&&!dashboard.classList.contains('collapsed')){
+    if(previous&&(root.dataset.mobileUi==='phone'||matchMedia('(max-width:768px)').matches)&&!dashboard.classList.contains('collapsed')){
      if(sidebar.contains(document.activeElement))sidebar.querySelector('.sidebar-toggle')?.focus({preventScroll:true});
      dashboard.classList.add('collapsed');
-     try{localStorage.setItem('sidebarCollapsed','true');}catch{}
+     // Closing the phone menu must not overwrite the desktop sidebar preference.
     }
    }).observe(sidebar,{subtree:true,attributes:true,attributeFilter:['class']});
   }

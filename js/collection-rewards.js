@@ -26,6 +26,13 @@
         const path = 'collection_reward_purchases/' + username + '/' + itemId;
         purchaseBusy.add(itemId); render();
         try {
+            if (window.ECONOMY_SERVER_ENABLED === true) {
+                await window.EconomyClient.execute('collection_buy', {setId,itemId}, {slot:'collection-buy:'+itemId});
+                if (session !== epoch) return;
+                localStorage.removeItem(key);
+                notice('Đã mua nền với giá 5.000 Coin. Bạn có thể sử dụng nền.');
+                return;
+            }
             const receipt = (await db.ref(path).once('value')).val();
             if (session !== epoch) return;
             if (receipt) { localStorage.removeItem(key); notice('Nền này đã mua thành công. Không trừ Coin lần nữa.'); return; }
@@ -84,7 +91,7 @@
             if (session !== epoch) return;
             ref.off('value', onValue);
             readErrors.set(path, {code: error.code, retry: () => listen(path, callback)});
-            notice('Không đọc được dữ liệu Phần thưởng: ' + error.code + '. Nếu là PERMISSION_DENIED, quản trị viên cần kiểm tra bộ Rules đang Publish trên đúng Firebase của website.');
+            notice('Không đọc được dữ liệu Phần thưởng: ' + error.code + '. Nếu là PERMISSION_DENIED, quản trị viên cần kiểm tra bộ Rules đang Publish trên đúng đám mây của website.');
             refresh();
         });
         subscriptions.push(() => ref.off('value', onValue));
@@ -158,6 +165,12 @@
         const storageKey = pendingKey(setId), token = {itemId};
         busy.set(setId, token); failed.delete(setId); render();
         try {
+            if(window.ECONOMY_SERVER_ENABLED===true) {
+                localStorage.setItem(storageKey,itemId);
+                await window.EconomyClient.execute('collection_claim',{setId,itemId},{slot:'collection-claim:'+setId});
+                if(session!==epoch)return;
+                localStorage.removeItem(storageKey);notice('Đã xác nhận mở khóa nền thưởng. Bạn có thể sử dụng nền.');return;
+            }
             const existing = (await db.ref(path).once('value')).val();
             if (session !== epoch) return;
             if (existing) { claims[setId] = existing; localStorage.removeItem(storageKey); return; }
@@ -195,7 +208,7 @@
                 } catch (_) { /* Retain the intent until the server can be read. */ }
             }
             notice(/permission.denied/i.test(String(error.code || error.message))
-                ? 'Firebase từ chối cấp thưởng (PERMISSION_DENIED). Chưa nhận được nền. Giáo viên cần kiểm tra Rules và điều kiện bộ trên đúng Firebase của website; sau đó bấm Kiểm tra / thử lại. Không cần mua lại vật phẩm.'
+                ? 'đám mây từ chối cấp thưởng (PERMISSION_DENIED). Chưa nhận được nền. Giáo viên cần kiểm tra Rules và điều kiện bộ trên đúng đám mây của website; sau đó bấm Kiểm tra / thử lại. Không cần mua lại vật phẩm.'
                 : 'Chưa xác nhận nhận thưởng. Khi có mạng, bấm Kiểm tra / thử lại để đối soát cùng lựa chọn. ' + error.message);
         } finally {
             if (session === epoch && busy.get(setId) === token) { busy.delete(setId); refresh(); }

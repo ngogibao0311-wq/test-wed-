@@ -56,7 +56,7 @@
             }
 
             console.warn(
-                '[Roadmap Startup Fix] Firebase/loader chưa sẵn sàng sau thời gian chờ.'
+                '[Roadmap Startup Fix] đám mây/loader chưa sẵn sàng sau thời gian chờ.'
             );
             return;
         }

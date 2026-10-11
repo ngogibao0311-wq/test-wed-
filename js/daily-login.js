@@ -521,6 +521,18 @@ class DailyLoginManager {
 
         if (!btn || btn.disabled) return;
 
+        if (window.ECONOMY_SERVER_ENABLED === true) {
+            btn.disabled = true;
+            try {
+                await window.EconomyClient.execute('daily_claim');
+                document.getElementById('dl-student-modal')?.remove();
+                await AppDialog.alert('Đã nhận quà đăng nhập.');
+            } catch (error) {
+                await AppDialog.alert('Chưa nhận được xác nhận: ' + error.message);
+            } finally { btn.disabled = false; }
+            return;
+        }
+
         const originalButtonText = btn.innerHTML;
         btn.disabled = true;
         btn.innerHTML = '⏳ Đang xác minh...';
@@ -1193,13 +1205,13 @@ class DailyLoginManager {
 
             const errorMessages = {
                 AUTH_REQUIRED:
-                    'Phiên đăng nhập Firebase đã hết hạn. Vui lòng đăng nhập lại.',
+                    'Phiên đăng nhập đám mây đã hết hạn. Vui lòng đăng nhập lại.',
 
                 LOCAL_USER_MISMATCH:
                     'Thông tin tài khoản trên thiết bị không hợp lệ.',
 
                 DATABASE_USER_MISMATCH:
-                    'UID Firebase không khớp với tài khoản học sinh.',
+                    'UID đám mây không khớp với tài khoản học sinh.',
 
                 STALE_DAILY_LOGIN_POPUP:
                     'Thông báo điểm danh đã cũ hoặc ngày đã thay đổi. Hãy tải lại trang.',
@@ -1235,7 +1247,7 @@ class DailyLoginManager {
                     'Không thể cộng tiền vì vượt giới hạn hệ thống.',
 
                 PERMISSION_DENIED:
-                    'Firebase Rules không cho phép thực hiện thao tác này.'
+                    'quy tắc bảo mật đám mây không cho phép thực hiện thao tác này.'
             };
 
             const displayMessage =

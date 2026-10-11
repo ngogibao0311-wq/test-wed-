@@ -70,7 +70,7 @@
         midAutumnFestival: 'css/mid-autumn-festival.css?v=20260914.4-balanced-games',
 
         collections: 'css/store-collections.css?v=20261001.scroll1',
-        luxury: 'css/luxury-store.css?v=20260926.hacmong-v1',
+        luxury: 'css/luxury-store.css?v=20261007.card-reveal',
         camMong: 'css/cam-co-cam-mong.css?v=20260927.realms10',
         midAutumnMoon: 'css/trung-thu-nguyet-cung.css?v=20261003.aclp3',
 
@@ -79,10 +79,10 @@
         legendary: 'css/legendery.css?v=20260917.frame-runtime-barrier-v1',
         doraemon: 'css/doraemon.css?v=20261003.cleanup1',
         paintingItems: 'css/hoi-hoa.css?v=3.8',
-        sevenSins: 'css/that-dai-toi.css?v=20261004.web-audio1',
+        sevenSins: 'css/that-dai-toi.css?v=20261009.regular-art1',
         birthday: 'css/pet-sinh-nhat.css?v=3.8',
         weather: 'css/thoi-tiet.css?v=3.8',
-        hacmong: 'css/premium-hac-mong.css?v=20260927.realms10',
+        hacmong: 'css/premium-hac-mong.css?v=20261009.regular-art1',
         autumn: 'css/premium-mua-thu.css?v=20261003.cleanup1',
         seasons: 'css/premium-mua-xuan.css?v=20261003.aclp3',
         nationalDay: 'css/quoc-khanh-pet.css?v=20261003.aclp3',
@@ -93,25 +93,33 @@
     });
 
     const SCRIPT = Object.freeze({
-        themeItems: 'js/theme-items.js?v=20261003.mienvu1',
-        effectItems: 'js/effect-items.js?v=20261003.mienvu2',
-        petItems: 'js/pet-items.js?v=20260926.autumn-sale-tag-v3',
-        petInteractions: 'js/pet-interactions.js?v=20261001.dialog1',
+        valentine:'js/valentine.js?v=20261010.vlt4',
+        eternalWinter:'js/eternal-winter.js?v=20261010.winter-aura1',
+        tinhMong:'js/tinh-mong.js?v=20261009.regular-no-tap1',
+        themeItems: 'js/theme-items.js?v=20261010.winter-aura1',
+        effectItems: 'js/effect-items.js?v=20261009.regular-art1',
+        petItems: 'js/pet-items.js?v=20261009.regular-art1',
+        petInteractions: 'js/pet-interactions.js?v=20261010.cloud-labels',
         musicManager: 'js/music-manager.js?v=20261004.web-audio2',
-        storeManager: 'js/store-manager.js?v=20261004.quy-linh2',
+        storeManager: 'js/store-manager.js?v=20261010.winter-aura1',
 
-        luxuryStore: 'js/luxury-store.js?v=20261003.aclp4',
-        collections: 'js/store-collections.js?v=20261001.scroll1',
+        regularArt: 'js/regular-store-art.js?v=20261009.regular-no-tap1',
+        kimLien: 'js/premium-kim-lien.js?v=20261009.regular-no-tap1',
+        thanhLanh: 'js/thanh-lanh.js?v=20261009.regular-no-tap1',
+        hacMongRegular: 'js/hac-mong-regular.js?v=20261009.regular-no-tap1',
+        distinctScenes: 'js/luxury-distinct-scenes.js?v=20261008.world3',
+        luxuryStore: 'js/luxury-store.js?v=20261010.vlt4',
+        collections: 'js/store-collections.js?v=20261010.cloud-labels',
 
-        royalBall: 'js/royal-ball.js?v=20261001.dialog1',
-        leaderboard: 'js/leaderboard.js?v=20261001.dialog1',
-        painting: 'js/painting.js?v=20261001.dialog1',
-        history: 'js/lich-su-hao-hung.js?v=20261001.dialog1',
-        bellum: 'js/bellum-event.js?v=20261001.dialog1',
-        midAutumnFestival: 'js/mid-autumn-festival.js?v=20261001.dialog1',
+        royalBall: 'js/royal-ball.js?v=20261010.cloud-labels',
+        leaderboard: 'js/leaderboard.js?v=20261010.cloud-labels',
+        painting: 'js/painting.js?v=20261010.cloud-labels',
+        history: 'js/lich-su-hao-hung.js?v=20261010.cloud-labels',
+        bellum: 'js/bellum-event.js?v=20261010.cloud-labels',
+        midAutumnFestival: 'js/mid-autumn-festival.js?v=20261010.cloud-labels',
 
-        dailyLogin: 'js/daily-login.js?v=20261001.dialog1',
-        guide: 'js/huong-dan-nguoi-moi.js?v=20261004.profile-practice1'
+        dailyLogin: 'js/daily-login.js?v=20261010.cloud-labels',
+        guide: 'js/huong-dan-nguoi-moi.js?v=20261010.cloud-labels'
     });
 
     /*
@@ -886,8 +894,15 @@ html[data-app-role="student"] body .dashboard > .content > :is(
         async 'theme-runtime'() {
             await loadCss(CSS.storeBase);
             await loadScriptsSequentially([
+                SCRIPT.regularArt,
                 SCRIPT.themeItems,
-                SCRIPT.storeManager
+                SCRIPT.storeManager,
+                SCRIPT.kimLien,
+                SCRIPT.hacMongRegular,
+                SCRIPT.thanhLanh,
+                SCRIPT.tinhMong,
+                SCRIPT.eternalWinter,
+                SCRIPT.valentine
             ]);
         },
 
@@ -897,8 +912,15 @@ html[data-app-role="student"] body .dashboard > .content > :is(
                 loadCss(CSS.effectsBase)
             ]);
             await loadScriptsSequentially([
+                SCRIPT.regularArt,
                 SCRIPT.effectItems,
-                SCRIPT.storeManager
+                SCRIPT.storeManager,
+                SCRIPT.kimLien,
+                SCRIPT.hacMongRegular,
+                SCRIPT.thanhLanh,
+                SCRIPT.tinhMong,
+                SCRIPT.eternalWinter,
+                SCRIPT.valentine
             ]);
         },
 
@@ -908,9 +930,16 @@ html[data-app-role="student"] body .dashboard > .content > :is(
                 loadCss(CSS.effectsBase)
             ]);
             await loadScriptsSequentially([
+                SCRIPT.regularArt,
                 SCRIPT.petItems,
                 SCRIPT.petInteractions,
-                SCRIPT.storeManager
+                SCRIPT.storeManager,
+                SCRIPT.kimLien,
+                SCRIPT.hacMongRegular,
+                SCRIPT.thanhLanh,
+                SCRIPT.tinhMong,
+                SCRIPT.eternalWinter,
+                SCRIPT.valentine
             ]);
         },
 
@@ -923,6 +952,8 @@ html[data-app-role="student"] body .dashboard > .content > :is(
             /* Luxury hiện tại là pet runtime + bộ đăng ký/runtime riêng. */
             await ensure('pet-runtime');
             await loadCss(CSS.luxury);
+            await loadScript(SCRIPT.kimLien);
+            await loadScript(SCRIPT.distinctScenes);
             await loadScript(SCRIPT.luxuryStore);
         },
 
@@ -958,6 +989,8 @@ html[data-app-role="student"] body .dashboard > .content > :is(
 
             await loadScriptsSequentially([
                 SCRIPT.collections,
+                SCRIPT.kimLien,
+                SCRIPT.distinctScenes,
                 SCRIPT.luxuryStore
             ]);
         },
@@ -1093,6 +1126,8 @@ html[data-app-role="student"] body .dashboard > .content > :is(
     }
 
     const LUXURY_ITEM_IDS = new Set([
+        'pet_valentine_cupid_1',
+        'pet_eternal_winter_4',
         'pet_luxury_mua_xuan',
         'pet_luxury_mua_ha',
     'pet_luxury_mua_thu',

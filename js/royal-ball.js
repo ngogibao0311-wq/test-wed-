@@ -706,7 +706,7 @@ const RoyalBallEvent = {
             ).style.display = 'inline-flex';
 
         } catch (error) {
-            (await AppDialog.alert("❌ Lỗi kết nối Firebase khi tải cấu hình sự kiện: " + error.message));
+            (await AppDialog.alert("❌ Lỗi kết nối đám mây khi tải cấu hình sự kiện: " + error.message));
         }
     },
 
@@ -727,8 +727,42 @@ const RoyalBallEvent = {
         this.resetDanceUI();
     },
 
+    startServerDance: async function () {
+        const btn=document.getElementById('btnStartDance'),floor=document.getElementById('royalDanceFloor'),status=document.getElementById('royalDanceStatus'),modal=document.getElementById('royalBallModal');
+        if(!btn||!floor||!status||!document.getElementById('royalBallResult'))return AppDialog.alert('Giao diện Dạ hội chưa tải đầy đủ. Hãy mở lại sự kiện.');
+        const username=String(currentUser.username);
+        this.isDancing=true;btn.disabled=true;
+        let confirmed=false;
+        try {
+            const result=await window.EconomyClient.execute('royal_ball_play',{}, {slot:'royal-ball'});
+            confirmed=true;
+            if(String(currentUser?.username)!==username)return;
+            modal?.classList.add('royal-is-dancing');floor.classList.add('dancing');
+            btn.style.display='none';status.style.display='block';
+            for(let remaining=10;remaining>0;remaining--) {
+                if(String(currentUser?.username)!==username)return;
+                status.innerText='🎵 Điệu Waltz Hoàng gia đang hòa nhịp...';
+                this.setDanceProgress((10-remaining)*10,remaining,'Điệu Waltz Hoàng gia đang hòa nhịp...');
+                await new Promise(resolve=>setTimeout(resolve,1000));
+            }
+            if(String(currentUser?.username)!==username)return;
+            this.setDanceProgress(100,0,'Điệu Waltz hoàn tất — đang mở quà...');
+            await this.calculateReward(result);
+            status.style.display='none';modal?.classList.add('royal-reward-revealed');
+        } catch(error) {
+            if(String(currentUser?.username)===username)await AppDialog.alert(confirmed
+                ? 'Phần thưởng Dạ hội đã được lưu. Hãy tải lại trang để xem số dư và kho đồ; không cần trả phí lần nữa.'
+                : 'Chưa xác nhận lượt Dạ hội: '+error.message+'. Hãy bấm lại để đối soát lượt cũ; hệ thống không tự tạo lượt trùng.');
+            btn.style.display='inline-flex';
+        } finally {
+            floor.classList.remove('dancing');modal?.classList.remove('royal-is-dancing');
+            this.isDancing=false;btn.disabled=false;
+        }
+    },
+
     startDance: async function () {
         if (this.isDancing) return;
+        if (window.ECONOMY_SERVER_ENABLED === true) return this.startServerDance();
 
         // --- BẮT ĐẦU: LOGIC KIỂM TRA GIỚI HẠN 1 LẦN / NGÀY ---
         const serverOffsetSnap = await db
@@ -791,7 +825,7 @@ const RoyalBallEvent = {
                 error.code === 'permission_denied'
             ) {
                 (await AppDialog.alert(
-                    '❌ Firebase Rules chưa cấp quyền cho royal_ball_limits.'
+                    '❌ quy tắc bảo mật đám mây chưa cấp quyền cho royal_ball_limits.'
                 ));
             } else {
                 (await AppDialog.alert(
@@ -1039,7 +1073,8 @@ const RoyalBallEvent = {
         }, 10000);
     },
 
-    calculateReward: async function () {
+    calculateReward: async function (serverResult = null) {
+        if (window.ECONOMY_SERVER_ENABLED === true && !serverResult) throw Error('Cần nhận kết quả Dạ hội từ máy chủ.');
         const resultBox =
             document.getElementById('royalBallResult');
 
@@ -1130,6 +1165,16 @@ const RoyalBallEvent = {
         let wonCoins = 0;
         let actualRewardRecord = '';
 
+        if (serverResult) {
+            wonCoins=Number(serverResult.coins)||0;
+            const itemWon=serverResult.itemId&&!serverResult.duplicate;
+            rewardTheme=itemWon?'item':serverResult.duplicate?'duplicate':'coin';
+            rewardIcon=itemWon?'💎':serverResult.duplicate?'♻️':'🪙';
+            rewardLabel=itemWon?'Vật phẩm Truyền thuyết':serverResult.duplicate?'Quà trùng được quy đổi':'Kho báu Hoàng gia';
+            rewardTitle=itemWon?serverResult.itemName:serverResult.duplicate?'Bạn đã sở hữu vật phẩm này':'Coin Dạ Hội';
+            rewardValueText=itemWon?'TRUYỀN THUYẾT':`+${wonCoins.toLocaleString('vi-VN')} Coin`;
+            rewardDetail=itemWon?'Vật phẩm đã được đưa vào kho đồ của bạn.':serverResult.duplicate?`"${serverResult.itemName}" đã có trong kho. Hoàng gia đã đổi món quà thành Coin.`:'Phần thưởng đã được cộng vào số dư của bạn.';
+        } else {
         if (rewardType === 'item') {
             const legendaryItems =
                 typeof StoreConfig !== 'undefined' &&
@@ -1325,6 +1370,7 @@ const RoyalBallEvent = {
                     .ServerValue.TIMESTAMP,
             source: 'royal_ball'
         });
+        }
 
         const burstParticles =
             Array.from(
@@ -1508,7 +1554,7 @@ const RoyalBallEvent = {
             });
             (await AppDialog.alert(`🔒 Hệ thống phản hồi: Đã chuyển trạng thái sự kiện thành [${newEnabledState ? "MỞ TRUY CẬP" : "KHÓA TRUY CẬP"}] thành công!`));
         } catch (error) {
-            (await AppDialog.alert("❌ Lỗi kết nối Firebase: " + error.message));
+            (await AppDialog.alert("❌ Lỗi kết nối đám mây: " + error.message));
         }
     },
 
@@ -1578,7 +1624,7 @@ const RoyalBallEvent = {
             });
             (await AppDialog.alert('✅ Đã lưu cấu hình Dạ Hội Hoàng Gia thành công!'));
         } catch (error) {
-            (await AppDialog.alert('❌ Lỗi lưu Firebase: ' + error.message));
+            (await AppDialog.alert('❌ Lỗi lưu đám mây: ' + error.message));
         }
     }
 };

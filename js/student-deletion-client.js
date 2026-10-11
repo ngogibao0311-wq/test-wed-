@@ -23,7 +23,7 @@
             const resuming=pending().includes(uid)||student?.deletionPending===true;
             if(!student&&!resuming)throw Error('Không tìm thấy học sinh.');
             if(student&&student.role!=='student')throw Error('Chức năng này chỉ dùng cho học sinh.');
-            if(!resuming&&!(await AppDialog.confirm('Xóa vĩnh viễn học sinh ['+student.username+']?\n\nSẽ xóa tài khoản đăng nhập, dữ liệu riêng và tệp trên cloud. Tài liệu dùng chung của lớp được giữ. Không thể hoàn tác.')))return false;
+            if(!resuming&&!(await AppDialog.confirm('Xóa vĩnh viễn học sinh ['+student.username+']?\n\nSẽ xóa tài khoản đăng nhập, dữ liệu riêng và tệp cá nhân trên đám mây. Bài tập và lịch học chỉ giao cho học sinh này sẽ bị xóa. Mục giao cho nhiều học sinh được giữ và bỏ em này khỏi danh sách nhận; mục giao tất cả vẫn được giữ. Tài liệu dùng chung của lớp được giữ. Không thể hoàn tác.')))return false;
             if(!await options.reauthenticate('xóa toàn bộ dữ liệu học sinh'))return false;
             remember(uid);recovery();
             dialog=document.createElement('dialog');dialog.className='app-progress-dialog';dialog.setAttribute('aria-label','Xóa học sinh và dữ liệu cloud');

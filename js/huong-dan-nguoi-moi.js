@@ -3,7 +3,7 @@
  * Phiên bản: 2.17.1 — đào tạo bắt buộc 1 lần về nộp bài, cập nhật và hiệu năng
  *
  * Cách nạp khuyến nghị (đặt cuối <body>, sau teacher.js hoặc student.js):
- * <script src="js/huong-dan-nguoi-moi.js?v=2.17.1"></script>
+ * <script src="js/huong-dan-nguoi-moi.js?v=20261010.cloud-labels"></script>
  *
  * API có thể gọi từ nơi khác:
  *   NewUserGuide.open();          // Mở trung tâm hướng dẫn
@@ -186,7 +186,7 @@
                     access: 'Thanh bên → Bài tập cần làm. Hướng dẫn tạo bài giả ngay trên trang, không gửi dữ liệu.',
                     details: [
                         'Mỗi học sinh bắt buộc xem mô-đun này một lần; có thể mở lại thủ công bất cứ lúc nào.',
-                        'Bài giả và cảnh báo giả chỉ dùng để học thao tác, không ghi Firebase/R2 và không ảnh hưởng điểm.',
+                        'Bài giả và cảnh báo giả chỉ dùng để học thao tác, không ghi đám mây/R2 và không ảnh hưởng điểm.',
                         'Đọc yêu cầu, thời gian bắt đầu và hạn nộp trước khi làm.',
                         'Hoàn thành phần trắc nghiệm/tự luận đúng yêu cầu của giáo viên.',
                         'Tệp thường tối đa 7 MB mỗi tệp; tệp âm thanh tối đa 30 MB mỗi tệp.',
@@ -483,7 +483,7 @@
                 "Nền đã mở có nút Sử dụng nền; đang mặc thì nút đổi thành Tháo nền. Tag Mùa Xuân hiển thị bằng ảnh. Nhận thưởng không trừ Coin và không tự trang bị nền.",
                 "Khi bật nền đặc biệt, nền thường và các vật phẩm sang trọng đang mặc sẽ được tháo. Trong lúc dùng nền đặc biệt, không mặc được nền thường hoặc bất kỳ vật phẩm sang trọng nào. Vào Phần thưởng và bấm Tháo nền trước khi mặc lại; vật phẩm vẫn ở trong kho.",
                 "Mỗi bộ chỉ nhận một lần kể cả mở nhiều tab hoặc giáo viên sửa bộ. Nếu mất mạng, lựa chọn được giữ; khi có mạng bấm Kiểm tra / thử lại. Mở lại trang hoặc kết nối lại không tự gửi yêu cầu nhận. Nền đã nhận vẫn giữ nếu giáo viên xóa bộ.",
-                "Không cần biên nhận mua để tính đủ bộ. Vật phẩm vĩnh viễn từ cửa hàng thường và sang trọng đều được tính. Nếu Firebase từ chối cấp thưởng, giáo viên cần cập nhật Rules mới; không mua lại vật phẩm."
+                "Không cần biên nhận mua để tính đủ bộ. Vật phẩm vĩnh viễn từ cửa hàng thường và sang trọng đều được tính. Nếu đám mây từ chối cấp thưởng, giáo viên cần cập nhật Rules mới; không mua lại vật phẩm."
             ]
         },
         {
@@ -525,7 +525,7 @@
         details: ['Kiểm tra đúng học sinh rồi bấm Xóa, xác nhận và xác thực lại giáo viên. Xóa thật không hoàn tác; các nút trong hướng dẫn này chỉ là mô phỏng.',
             'Máy chủ khóa học sinh, dọn dữ liệu riêng, tệp cloud thuộc học sinh và tài khoản đăng nhập. Tài liệu lớp, tệp dùng chung và dữ liệu học sinh khác được giữ.',
             'Mất mạng hoặc đóng trang không có nghĩa là đã xóa xong. Dùng Kiểm tra / tiếp tục xóa để xem cùng tác vụ; không tạo tài khoản lại khi đang dọn.',
-            'Chỉ coi là hoàn tất khi máy chủ xác nhận. Nếu báo thiếu cấu hình Worker, quyền Firebase hoặc Rules, cần cấu hình theo tài liệu triển khai trước khi thử lại.']
+            'Chỉ coi là hoàn tất khi máy chủ xác nhận. Nếu báo thiếu cấu hình Worker, quyền đám mây hoặc Rules, cần cấu hình theo tài liệu triển khai trước khi thử lại.']
     });
     for (const role of ['teacher','student']) roleData[role].features.push(...recentFeatureGuides[role]);
     const recentGuideTargets = {
@@ -1139,7 +1139,7 @@
             };
         } catch (error) {
             console.warn(
-                'Không thể đọc trạng thái hướng dẫn từ Firebase:',
+                'Không thể đọc trạng thái hướng dẫn từ đám mây:',
                 error
             );
 
@@ -1311,7 +1311,7 @@
                 return true;
             } catch (error) {
                 console.warn(
-                    'Không thể lưu trạng thái hướng dẫn lên Firebase:',
+                    'Không thể lưu trạng thái hướng dẫn lên đám mây:',
                     error
                 );
                 return false;
@@ -1409,7 +1409,7 @@
             return true;
         } catch (error) {
             console.warn(
-                'Không thể lưu trạng thái đào tạo bắt buộc lên Firebase:',
+                'Không thể lưu trạng thái đào tạo bắt buộc lên đám mây:',
                 error
             );
             return false;
@@ -1504,7 +1504,7 @@
             }
         } catch (error) {
             console.warn(
-                'Không thể lưu tiến độ đào tạo bắt buộc lên Firebase:',
+                'Không thể lưu tiến độ đào tạo bắt buộc lên đám mây:',
                 error
             );
         }
@@ -1602,7 +1602,7 @@
             }
         } catch (error) {
             console.warn(
-                'Không thể lưu tiến độ hướng dẫn lên Firebase:',
+                'Không thể lưu tiến độ hướng dẫn lên đám mây:',
                 error
             );
         }
@@ -3851,7 +3851,7 @@
             { featureId: 'students', tabId: 'tab-manage-students', selector: '#requestsCard', title: 'Yêu cầu đổi thông tin', description: 'Các yêu cầu học sinh gửi sẽ xuất hiện tại đây để giáo viên duyệt hoặc từ chối.', access: 'Đọc nội dung thay đổi trước khi duyệt.' },
             { featureId: 'students', tabId: 'tab-manage-students', selector: '#studentsListContainer', title: 'Danh sách tài khoản', description: 'Tìm và kiểm tra tài khoản của lớp trong vùng này.', access: 'Các thao tác nhạy cảm cần kiểm tra đúng học sinh.' },
 
-            { featureId: 'transactions', tabId: 'tab-transactions', title: 'Mở Nhật ký giao dịch', description: 'Cộng hoặc trừ Coin có lưu lịch sử người thực hiện.', access: 'Không sửa trực tiếp Firebase khi có thể dùng mục này.' },
+            { featureId: 'transactions', tabId: 'tab-transactions', title: 'Mở Nhật ký giao dịch', description: 'Cộng hoặc trừ Coin có lưu lịch sử người thực hiện.', access: 'Không sửa trực tiếp đám mây khi có thể dùng mục này.' },
             { featureId: 'transactions', tabId: 'tab-transactions', selector: '#txCoinStudent', title: '1. Chọn học sinh', description: 'Chọn đúng tài khoản cần điều chỉnh Coin.', access: 'Kiểm tra tên trước khi xác nhận.' },
             { featureId: 'transactions', tabId: 'tab-transactions', selector: '#txCoinDelta', title: '2. Nhập số Coin', description: 'Số dương là cộng Coin; số âm là trừ Coin.', access: 'Ví dụ 50 để cộng, -20 để trừ.' },
             { featureId: 'transactions', tabId: 'tab-transactions', selector: '#txCoinReason', title: '3. Ghi lý do', description: 'Lý do sẽ được lưu trong nhật ký để kiểm tra về sau.', access: 'Ghi rõ thưởng, điều chỉnh lỗi hoặc hình thức xử lý.' },
@@ -3890,7 +3890,7 @@
             { featureId: 'settings', tabId: 'tab-settings', selector: '#themeSelector', title: 'Cài đặt tài khoản', description: 'Đổi giao diện, tên hiển thị hoặc mật khẩu rồi bấm Lưu thay đổi tài khoản.', access: 'Để trống mật khẩu nếu không muốn đổi.' },
             { featureId: 'settings', tabId: 'tab-settings', selector: '#toggleConversionTable', title: 'Bật bảng quy đổi', description: 'Quyết định học sinh có được mở bảng quy đổi Coin và tiền tích lũy hay không.', access: 'Tắt chức năng sẽ đóng bảng đang mở ở phía học sinh.' },
             { featureId: 'settings', tabId: 'tab-settings', selector: '#teacherCashRequestsSection', title: 'Yêu cầu lấy tiền mặt', description: 'Xem và xử lý các yêu cầu rút tiền do học sinh gửi.', access: 'Kiểm tra số tiền và trạng thái trước khi duyệt.' },
-            { featureId: 'settings', tabId: 'tab-settings', selector: 'button[onclick*="runSystemDiagnostics"]', title: 'System Health Center 2.1', description: 'Quét sức khỏe hệ thống ở chế độ chỉ đọc: Firebase, Service Worker/cache, R2/Cloudinary, module và tải runtime.', access: 'Công cụ không tự sửa dữ liệu; đọc bảng trạng thái để xác định hạng mục đang lỗi.' },
+            { featureId: 'settings', tabId: 'tab-settings', selector: 'button[onclick*="runSystemDiagnostics"]', title: 'System Health Center 2.1', description: 'Quét sức khỏe hệ thống ở chế độ chỉ đọc: đám mây, Service Worker/cache, R2/Cloudinary, module và tải runtime.', access: 'Công cụ không tự sửa dữ liệu; đọc bảng trạng thái để xác định hạng mục đang lỗi.' },
             { featureId: 'settings', tabId: 'tab-settings', selector: '#notificationToggle', title: 'Gửi thông báo toàn trường', description: 'Bật nhóm thông báo, nhập nội dung rồi bấm Gửi thông báo ngay.', access: 'Thông báo nên ngắn, rõ và có thời gian cụ thể.' },
             { featureId: 'settings', tabId: 'tab-settings', selector: '#surveyToggle', title: 'Tạo khảo sát', description: 'Bật khảo sát, nhập tiêu đề, thêm câu trắc nghiệm hoặc câu trả lời chữ rồi phát hành.', access: 'Kiểm tra toàn bộ câu trước khi gửi.' },
             { featureId: 'settings', tabId: 'tab-settings', selector: '#giftToggle', title: 'Gửi thư và quà', description: 'Chọn học sinh, nhập lời nhắn và loại quà. Có thể gửi Coin, vật phẩm hoặc thẻ giảm giá có phạm vi và hạn dùng.', access: 'Khi chọn thẻ giảm giá, kiểm tra phần trăm, vật phẩm áp dụng và ngày hết hạn.' }
@@ -5377,7 +5377,7 @@
                 selector: '#nug-submission-demo',
                 before: () => setSubmissionGuideDemoState('intro'),
                 title: '1. Nhận biết bài tập mô phỏng',
-                description: 'Hệ thống tạo một bài giả ngay trên trang để em học cách nộp bài. Bài này chỉ tồn tại trong hướng dẫn, không ghi Firebase/R2, không tạo điểm và không xuất hiện cho giáo viên.',
+                description: 'Hệ thống tạo một bài giả ngay trên trang để em học cách nộp bài. Bài này chỉ tồn tại trong hướng dẫn, không ghi đám mây/R2, không tạo điểm và không xuất hiện cho giáo viên.',
                 access: 'Nhìn nhãn “MÔ PHỎNG HƯỚNG DẪN · KHÔNG GỬI DỮ LIỆU” để phân biệt với bài thật.'
             },
             {
@@ -5462,7 +5462,7 @@
             { featureId: 'review-practice', tabId: 'tab-grades', selector: ['#gradesList button[onclick*="viewAssignmentQuestions"]', '#nug-demo-open-review'], before: prepareQuestionsReviewEntryForGuide, waitMs: 250, title: '1. Bấm Xem lại tất cả câu hỏi', description: 'Mở một bài đã nộp rồi bấm nút này để xem toàn bộ nội dung câu hỏi và các phương án lựa chọn.', access: 'Bài mẫu chỉ xuất hiện khi tài khoản chưa có bài trắc nghiệm phù hợp và sẽ tự xóa sau hướng dẫn.' },
             { featureId: 'review-practice', selector: ['#viewQuestionsModal > div', '#nug-demo-review-modal .nug-demo-review-card'], before: openQuestionsReviewForGuide, waitMs: 450, title: '2. Giao diện xem lại câu hỏi', description: 'Cửa sổ này hiển thị tiêu đề bài, mã đề nếu có, phần trắc nghiệm và phần yêu cầu tự luận nếu bài có.', access: 'Cuộn bên trong cửa sổ để xem hết nội dung.' },
             { featureId: 'review-practice', selector: ['#viewQuestionsModal h4 + div', '#nug-demo-review-question-list'], before: openQuestionsReviewForGuide, waitMs: 180, title: '3. Xem từng câu và các lựa chọn', description: 'Đọc lại câu hỏi cùng bốn lựa chọn A, B, C, D. Đây là bước ôn lại nội dung trước khi làm lại.', access: 'Đáp án đúng sẽ được phản hồi sau khi em nộp bài luyện tập.' },
-            { featureId: 'review-practice', selector: ['#btnPracticeRedoFromReview', '#nug-demo-start-practice'], before: openQuestionsReviewForGuide, title: '4. Bấm Làm lại trắc nghiệm', description: 'Nút này mở chế độ luyện lại chỉ dành cho phần trắc nghiệm.', access: 'Kết quả luyện lại không ghi vào Firebase, không thay đổi điểm và bị xóa khi đóng popup.' },
+            { featureId: 'review-practice', selector: ['#btnPracticeRedoFromReview', '#nug-demo-start-practice'], before: openQuestionsReviewForGuide, title: '4. Bấm Làm lại trắc nghiệm', description: 'Nút này mở chế độ luyện lại chỉ dành cho phần trắc nghiệm.', access: 'Kết quả luyện lại không ghi vào đám mây, không thay đổi điểm và bị xóa khi đóng popup.' },
             { featureId: 'review-practice', selector: '#practiceRedoWarningModal .practice-warning-box', before: openPracticeWarningForGuide, waitMs: 260, skipIfMissing: true, title: '5. Đọc cảnh báo luyện tập', description: 'Hệ thống nhắc rằng đây chỉ là ôn luyện, không lưu kết quả và không ảnh hưởng điểm chính thức.', access: 'Bấm Đã rõ để vào bài luyện; hướng dẫn sẽ tự mở ở bước tiếp theo.' },
             { featureId: 'review-practice', selector: '#btnConfirmPracticeRedo', before: openPracticeWarningForGuide, skipIfMissing: true, title: '6. Xác nhận Đã rõ', description: 'Bấm nút này để mở bài trắc nghiệm luyện lại.', access: 'Nút Hủy sẽ quay về mà không bắt đầu luyện.' },
             { featureId: 'review-practice', selector: '#practiceRedoModal .practice-redo-box', before: openPracticeModalForGuide, waitMs: 360, skipIfMissing: true, title: '7. Bài luyện lại trắc nghiệm', description: 'Popup luyện tập hiển thị các câu hỏi của bài. Đáp án và điểm chỉ tồn tại trong lần mở này.', access: 'Khi đóng popup, toàn bộ lựa chọn và kết quả luyện tập sẽ bị xóa.' },
@@ -6368,7 +6368,7 @@
                     await database.ref(path).remove();
                 } catch (error) {
                     console.warn(
-                        'Không thể xóa trạng thái hướng dẫn trên Firebase:',
+                        'Không thể xóa trạng thái hướng dẫn trên đám mây:',
                         error
                     );
                 }
@@ -6377,8 +6377,8 @@
 
         showToast(
             options.remote === true
-                ? 'Đã đặt lại cả trạng thái Firebase. Tải lại trang để kiểm tra chế độ bắt buộc.'
-                : 'Đã xóa cache hướng dẫn trên trình duyệt. Trạng thái Firebase vẫn được giữ.'
+                ? 'Đã đặt lại cả trạng thái đám mây. Tải lại trang để kiểm tra chế độ bắt buộc.'
+                : 'Đã xóa cache hướng dẫn trên trình duyệt. Trạng thái đám mây vẫn được giữ.'
         );
         return true;
     }

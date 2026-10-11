@@ -6,21 +6,19 @@
     <script src="js/app-dialog.js?v=20261001.design2"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="application-version" content="4.1.0">
+    <meta name="application-version" content="4.3.2">
     <title>Trang Học Sinh</title>
     <!-- Kết nối sớm tới CDN lõi; không tải thêm tài nguyên và không đổi chức năng -->
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="icon" type="image/png" href="assets/icon.png">
-    <link rel="stylesheet" href="css/common.css?v=20261003.mienvu1">
-    
-    <link rel="stylesheet" href="css/mobile.css?v=20261003.cleanup1">
+    <link rel="stylesheet" href="css/common.css?v=20261007.phone1">
     <link rel="stylesheet" href="css/web-animations.css?v=20261003.cleanup2">
     <link rel="stylesheet" href="css/update-manager.css?v=20261003.cleanup1">
     <link id="linkclick-cheng-premium-style" rel="stylesheet" href="css/link-click-cheng-xiaoshi.css?v=20261003.aclp3">
     <!-- Core-first loader: CSS/module đặc biệt chỉ tải khi cần -->
-    <script src="js/student-feature-loader.js?v=20261004.quy-linh2"></script>
+    <script src="js/student-feature-loader.js?v=20261010.vlt4"></script>
     <script>
         MathJax = {
             tex: {
@@ -236,10 +234,10 @@
             display: block !important;
         }
     </style>
-<link rel="stylesheet" href="css/student.css?v=20261004.profile-compact2">
-<link rel="stylesheet" href="css/mc-workspace.css?v=20261004.profile-compact2">
+<link rel="stylesheet" href="css/student.css?v=20261007.phone1">
+<link rel="stylesheet" href="css/mc-workspace.css?v=20261007.phone1">
 <link rel="stylesheet" href="css/assignment-appeals.css?v=20261003.cleanup1">
-<link rel="stylesheet" href="css/dashboard-refresh.css?v=20261003.cleanup1">
+<link rel="stylesheet" href="css/dashboard-refresh.css?v=20261007.phone1">
 </head>
 
 <body class="campus-modern">
@@ -472,7 +470,7 @@
 
                 async waitForCloudConnection(options) {
                     const timeoutMs = Math.max(3000, Number(options && options.timeoutMs) || 18000);
-                    api.setStatus('Đang kết nối Firebase Realtime Database...');
+                    api.setStatus('Đang kết nối cơ sở dữ liệu đám mây...');
 
                     if (!navigator.onLine) {
                         showError('Thiết bị đang ngoại tuyến.', 'Cần Internet để lấy dữ liệu mới nhất từ đám mây.', 'network');
@@ -482,7 +480,7 @@
                     const database = (typeof db !== 'undefined' ? db : window.db);
 
                     if (!database || typeof database.ref !== 'function') {
-                        showError('Firebase Database chưa được khởi tạo.', 'Không tìm thấy đối tượng db.ref().', 'runtime');
+                        showError('cơ sở dữ liệu đám mây chưa được khởi tạo.', 'Không tìm thấy đối tượng db.ref().', 'runtime');
                         return false;
                     }
 
@@ -497,7 +495,7 @@
                             try { ref.off('value', handler); } catch (_) { }
                             if (!ok) {
                                 showError(
-                                    'Không kết nối được máy chủ Firebase.',
+                                    'Không kết nối được máy chủ đám mây.',
                                     `Đã chờ ${Math.round(timeoutMs / 1000)} giây nhưng máy chủ chưa phản hồi. Dữ liệu đám mây chưa đủ nên giao diện chưa được mở.`,
                                     'network'
                                 );
@@ -511,7 +509,7 @@
 
                         const timer = setTimeout(() => finish(false), timeoutMs);
                         ref.on('value', handler, error => {
-                            showError('Firebase trả về lỗi kết nối.', error && error.message ? error.message : error, 'network');
+                            showError('đám mây trả về lỗi kết nối.', error && error.message ? error.message : error, 'network');
                             finish(false);
                         });
                     });
@@ -681,9 +679,9 @@
                         chơi</span></button>
                 <button id="studentStoreNav" title="Cửa hàng" class="nav-item" onclick="switchTab('tab-store', this)">🛒 <span class="nav-text">Cửa
                         hàng</span></button>
-                <button type="button" id="studentHistoryNav" class="nav-item" title="Lịch sử — Sắp cập nhật" aria-label="Lịch sử — đang khóa, sắp cập nhật" onclick="AppDialog.alert('🔒 Sắp cập nhật')">
+                <button type="button" id="studentHistoryNav" class="nav-item" title="Lịch sử giao dịch" aria-label="Lịch sử giao dịch" onclick="switchTab('tab-history', this)">
                     <svg class="campus-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11a8 8 0 1 1 2 6 M3 4v7h7 M12 7v5l3 2" /></svg>
-                    <span class="nav-text">Lịch sử 🔒</span>
+                    <span class="nav-text">Lịch sử</span>
                 </button>
                 <button class="nav-item" title="Cài đặt" id="btnSettingsNav" onclick="switchTab('tab-settings', this)">⚙️ <span
                         class="nav-text">Cài đặt</span></button>
@@ -759,7 +757,7 @@
                                 📄 Tải xuống PDF
                             </button>
                         </div>
-                        <div style="overflow-x: auto;">
+                        <div class="plan-table-scroll" style="overflow-x: auto;" tabindex="0" role="region" aria-label="Bảng thông tin, vuốt ngang để xem đầy đủ">
                             <table style="width:100%; border-collapse: collapse; text-align: left;">
                                 <thead>
                                     <tr
@@ -782,7 +780,7 @@
                 <div id="view-schedule" style="display: none;">
                     <div class="card">
                         <h3 style="margin-bottom: 15px; color: #2c3e50;">Thời khóa biểu lớp học</h3>
-                        <div style="overflow-x: auto;">
+                        <div class="plan-table-scroll" style="overflow-x: auto;" tabindex="0" role="region" aria-label="Bảng thông tin, vuốt ngang để xem đầy đủ">
                             <table style="width:100%; border-collapse: collapse; text-align: left;">
                                 <thead>
                                     <tr
@@ -992,7 +990,7 @@
                         <div class="glass-alert student-settings-health-card">
                             <div class="student-settings-health-copy">
                                 <h3>🩺 System Health Center 2.1</h3>
-                                <p>Bảng chẩn đoán chỉ đọc: kiểm tra Firebase Auth/RTDB, Service Worker và cache/build,
+                                <p>Bảng chẩn đoán chỉ đọc: kiểm tra đăng nhập và dữ liệu đám mây, Service Worker và cache/build,
                                     R2/Cloudinary, module runtime, listener/timer và mật độ hiệu ứng DOM.
                                     Không tự sửa dữ liệu.</p>
                             </div>
@@ -1011,6 +1009,7 @@
                     </section>
                 </div>
             </div>
+            <div id="tab-history" class="tab-content"><h2>Lịch sử giao dịch</h2><div id="studentAssetHistoryHost" class="ui-theme-immune"></div></div>
             <div id="tab-store" class="tab-content">
                 <h2>Cửa hàng Vật phẩm</h2>
                 <div id="storeLockedView" style="display: none;">
@@ -1371,7 +1370,7 @@
                 📬 Hộp thư đến
             </h3>
             <p style="font-size: 0.85em; color: #666; font-style: italic; margin-top: -10px; margin-bottom: 15px;">* Thư
-                sẽ tự động bị xóa sau 5 ngày nếu không nhận.</p>
+                có hạn sẽ tự động bị xóa sau 3 ngày nếu không nhận. Thư không có hạn được giữ nguyên.</p>
             <div id="studentInboxBody"
                 style="max-height: 60vh; overflow-y: auto; padding-right: 10px; margin-bottom: 10px;">
             </div>
@@ -1548,6 +1547,7 @@
 
     <!-- 2. Khởi tạo Firebase -->
     <script src="js/firebase-config.js?v=20260928.read-fix"></script>
+    <script src="js/asset-history.js?v=20261010.history30"></script>
     <script src="js/cloudinary-storage.js?v=20261001.dialog1"></script>
 
     <script>
@@ -1556,7 +1556,7 @@
         });
     </script>
 
-    <script src="js/cloudflare-r2-storage.js?v=20261001.dialog1"></script>
+    <script src="js/cloudflare-r2-storage.js?v=20261010.cloud-labels"></script>
 
     <!-- 3. Thư viện đọc file DOCX -->
     <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
@@ -1568,7 +1568,7 @@
     <script>
         // Phiên bản thực sự của bộ HTML/JS đang chạy.
         // common.js cũ đọc appVersion từ localStorage, nên đồng bộ trước khi nạp common.js.
-        window.APP_VERSION = '4.1.0';
+        window.APP_VERSION = '4.3.2';
         try {
             localStorage.setItem('appVersion', window.APP_VERSION);
         } catch (_) { }
@@ -1576,13 +1576,13 @@
     
     <script src="js/random-exam-engine.js?v=20261001.1"></script>
 <script src="js/campus-pdf.js?v=20261001.1"></script>
-<script src="js/common.js?v=20261001.revision4"></script>
-    <script src="js/history-retention.js?v=1.0.0-2month-safe"></script>
-    <script src="js/update-manager.js?v=1.0.4-release-v4.1.0"></script>
+<script src="js/common.js?v=20261010.cloud-labels"></script>
+    <script src="js/history-retention.js?v=20261009.history2"></script>
+    <script src="js/update-manager.js?v=1.0.4-release-v4.3.2"></script>
     <script src="js/web-animations.js?v=20261003.cleanup2"></script>
     <!-- Tối ưu hiệu năng: mặc định tắt; dùng trạng thái đã lưu trong Cài đặt. Phát hiện mobile/thiết bị yếu chỉ áp dụng sau khi tính năng đã được bật. -->
     <script src="js/web-performance-optimizer.js?v=20260930.media-v2"></script>
-    <script src="js/transaction-history.js?v=20261001.dialog1"></script>
+    <script src="js/transaction-history.js?v=20261009.reliability1"></script>
 
     <!-- 4. EffectQualityManager là core; các module tính năng khác do StudentFeatureLoader lazy-load -->
     <!-- Điều chỉnh riêng mức hiệu ứng vật phẩm + Web Animations; không đụng theme/logic -->
@@ -1592,17 +1592,25 @@
     <script src="https://www.youtube.com/iframe_api"></script>
 
     <!-- 5. Logic chính của trang học sinh luôn đặt cuối -->
-    <script src="js/assignment-appeals.js?v=20261001.ui8"></script>
-    <script src="js/mc-workspace.js?v=20261004.profile-compact2"></script>
-<script src="js/student.js?v=20261004.video-window1"></script>
+    <script src="js/assignment-appeals.js?v=20261008.grade-net1"></script>
+    <script src="js/mc-workspace.js?v=20261010.cloud-labels"></script>
+<script src="js/student-asset-history.js?v=20261010.history-iteration"></script>
+<script src="js/study-reliability.js?v=20261010.cloud-labels"></script>
+<script src="js/pending-mechanism-reconciliation.js?v=20261010.pending1"></script>
+<script src="js/cash-ledger.js?v=20261010.audit1"></script>
+<script src="js/inbox-ledger.js?v=20261010.audit1"></script>
+<script src="js/student.js?v=20261010.roadmap-grade-fix"></script>
 
 
 <link rel="stylesheet" href="css/collection-rewards.css?v=20261003.cleanup1">
 <script src="js/collection-reward-catalog.js?v=20260930.poster-pack3"></script>
-<script src="js/collection-rewards.js?v=20261001.dialog1"></script>
+<script src="js/collection-rewards.js?v=20261010.cloud-labels"></script>
 <script src="js/list-media-performance.js?v=20260930.media-v2"></script>
-<link rel="stylesheet" href="css/campus-design.css?v=20261003.cleanup2">
-<script src="js/campus-design.js?v=20261003.cleanup2"></script>
+<link rel="stylesheet" href="css/campus-design.css?v=20261007.phone1">
+<script src="js/campus-design.js?v=20261007.phone1"></script>
+<link rel="stylesheet" href="css/mobile.css?v=20261007.phone6">
+<script src="js/mobile-layout.js?v=20261007.phone4"></script>
+<script src="js/release-history.js?v=20261009.history2"></script>
 </body>
 
 </html>

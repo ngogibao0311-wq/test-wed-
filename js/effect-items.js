@@ -325,20 +325,11 @@ class EffectManager {
         const shadow = host.attachShadow({mode: 'open'});
         const style = document.createElement('link');
         style.rel = 'stylesheet';
-        style.href = new URL('css/that-dai-toi.css?v=20261003.mienvu2', document.baseURI).href;
+        style.href = new URL('css/that-dai-toi.css?v=20261009.regular-art1', document.baseURI).href;
         shadow.appendChild(style);
         const stage = document.createElement('div');
         stage.className = 'tdtfx-mien-vu-stage';
-        stage.innerHTML = `
-            <div class="tdtfx-fold tdtfx-fold-left"></div>
-            <div class="tdtfx-fold tdtfx-fold-right"></div>
-            <div class="tdtfx-seal"><span>Ⅶ</span><small>MIÊN KHẾ</small></div>
-            <svg class="tdtfx-wave" viewBox="0 0 1200 240" preserveAspectRatio="none">
-                <path d="M-100 120 Q150 -30 400 120 T900 120 T1400 120"/>
-                <path d="M-100 145 Q150 0 400 145 T900 145 T1400 145"/>
-                <path d="M-100 170 Q150 30 400 170 T900 170 T1400 170"/>
-            </svg>
-            <div class="tdtfx-margin"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>`;
+        stage.innerHTML = window.RegularStoreArt.acedia.world();
         shadow.appendChild(stage);
         const syncQuality = () => host.toggleAttribute('data-still', document.body.classList.contains('wfx-low-power') || document.body.classList.contains('wfx-paused'));
         this.mienVuObserver = new MutationObserver(syncQuality);
@@ -5975,7 +5966,7 @@ class EffectManager {
         link.id = 'sndfx1-starry-night-runtime-style';
         link.rel = 'stylesheet';
         link.href =
-            'css/dem-day-sao.css?v=20260921.starry-night-distinct-v2';
+            'css/dem-day-sao.css?v=20261009.shared-starry-tag1';
         link.dataset.sndfx1 = 'starry-night-effect';
 
         link.addEventListener('error', () => {

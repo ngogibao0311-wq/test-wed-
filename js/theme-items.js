@@ -2,6 +2,11 @@
 
 class ThemeManager {
     static themes = {
+        theme_eternal_winter_regular_4:{primary:'#527c87',secondary:'#af9368',background:'#edf2ee',className:'theme-eternal-winter-regular'},
+        theme_tinh_mong_regular_2: {primary:'#62628d',secondary:'#bda6d6',background:'#f1eff9',className:'theme-tinh-mong-regular'},
+        theme_hac_mong_regular_2: {primary:'#397d8a',secondary:'#adcdd0',background:'#eff5f7',className:'theme-hac-mong-regular'},
+        theme_thanh_lanh_regular_4: { primary:'#48738f',secondary:'#9abfcf',background:'#eaf2f8',className:'theme-thanh-lanh-regular' },
+        theme_kim_lien_regular_3: { primary:'#397567', secondary:'#b38a3c', background:'#edf4ef', className:'theme-kim-lien-regular' },
         'default': { primary: '#5865d8', secondary: '#5865d8', background: '#f4f6fb', className: '' },
         'theme_ocean': { primary: '#4facfe', secondary: '#00f2fe', background: '#e0f7fa', className: '' },
         'theme_cotich': {
@@ -2012,7 +2017,7 @@ class ThemeManager {
     static ensureStarryNightPaintedGalleryStylesheet() {
         if (typeof document === 'undefined' || !document.head) return null;
 
-        const targetHref = 'css/dem-day-sao.css?v=20260921.starry-night-distinct-v2';
+        const targetHref = 'css/dem-day-sao.css?v=20261009.shared-starry-tag1';
         const existing = Array.from(
             document.querySelectorAll('link[rel="stylesheet"][href]')
         ).find(link =>

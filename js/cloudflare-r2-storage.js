@@ -77,7 +77,7 @@
             typeof firebase.auth !== 'function'
         ) {
             throw new Error(
-                'Firebase Auth chưa được nạp.'
+                'xác thực đám mây chưa được nạp.'
             );
         }
 
@@ -99,7 +99,7 @@
 
                 reject(
                     new Error(
-                        'Phiên đăng nhập Firebase đã hết hạn. ' +
+                        'Phiên đăng nhập đám mây đã hết hạn. ' +
                         'Vui lòng đăng nhập lại.'
                     )
                 );
@@ -116,7 +116,7 @@
                     if (!user) {
                         reject(
                             new Error(
-                                'Bạn chưa đăng nhập Firebase Auth.'
+                                'Bạn chưa đăng nhập xác thực đám mây.'
                             )
                         );
 

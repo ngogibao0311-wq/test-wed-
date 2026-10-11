@@ -5,6 +5,8 @@
 
     const VERSION = '1.3.3-accessibility-focus-fix';
     const EVENT_ID = 'dai_hoi_trung_thu';
+    const serverMode = () => window.ECONOMY_SERVER_ENABLED === true && !state.testMode;
+    const serverAction = (action,args={}) => window.EconomyClient.execute(action,args,{slot:'festival:'+action});
 
     const CONFIG = Object.freeze({
         baseTickets: 2,
@@ -311,7 +313,7 @@
                     return state.calendar;
                 }
             } catch (error) {
-                console.warn('[Đại Hội Trung Thu] Không đọc được lịch Firebase:', error);
+                console.warn('[Đại Hội Trung Thu] Không đọc được lịch đám mây:', error);
             }
         }
 
@@ -321,7 +323,7 @@
          * Từ D-5 đến hết ngày Trung Thu, thử đồng bộ bản ghi năm hiện tại để
          * cả Đại Hội và cơ chế tự tặng Xu dùng chung một lịch server.
          */
-        if (database && localInfo) {
+        if (database && localInfo && !serverMode()) {
             const t = now();
             const canBootstrap =
                 t >= Number(localInfo.autoGrantStartAt) &&
@@ -376,7 +378,7 @@
             }
         }
 
-        state.calendar = localInfo ? { ...localInfo, remoteConfigured: false } : null;
+        state.calendar = localInfo ? { ...localInfo, remoteConfigured: serverMode() } : null;
         return state.calendar;
     }
 
@@ -506,6 +508,14 @@
 
     async function consumeAbandonedTicket(reason = 'exit', attempt = state.activeAttempt, options = {}) {
         if (!attempt || attempt.settled) return false;
+        if(serverMode()) {
+            if(state.serverPending)await state.serverPending;
+            if(attempt.serverSession) {
+                const r=await serverAction('festival_abandon',{sessionId:attempt.serverSession.sessionId,seq:String(attempt.serverSession.seq)});
+                state.annual=r.annual;
+            }
+            markAttemptCompleted();return true;
+        }
         if (attempt.settling) return attempt.settling;
 
         const silent = options.silent === true;
@@ -572,6 +582,7 @@
 
     async function reconcileAbandonedAttempt() {
         if (state.testMode) return;
+        if(serverMode()) {clearPendingAttemptStorage();return;}
         const pending = readPendingAttemptStorage();
         if (!pending || pending.settled) {
             clearPendingAttemptStorage();
@@ -588,6 +599,7 @@
 
     async function ensureAnnualState(status) {
         if (!status?.active) return null;
+        if(serverMode()) {const r=await serverAction('festival_open');state.annual=r.annual;state.serverResume=r.session;return state.annual;}
 
         if (state.testMode) {
             if (
@@ -842,7 +854,7 @@
         } else if (!status.calendar?.remoteConfigured) {
             locked.hidden = false;
             dashboard.classList.add('maf-is-preview');
-            locked.innerHTML = `<strong>⚠️ Chưa có lịch Trung Thu trên Firebase</strong><p>Ngày âm lịch đã tính được ở trình duyệt nhưng Firebase Rules cần bản ghi <code>mid_autumn_calendar/${status.year}</code> để xác thực giao dịch.</p>`;
+            locked.innerHTML = `<strong>⚠️ Chưa có lịch Trung Thu trên đám mây</strong><p>Ngày âm lịch đã tính được ở trình duyệt nhưng quy tắc bảo mật đám mây cần bản ghi <code>mid_autumn_calendar/${status.year}</code> để xác thực giao dịch.</p>`;
         } else {
             locked.hidden = true;
             dashboard.classList.remove('maf-is-preview');
@@ -893,7 +905,7 @@
                 card.dataset.eventState = 'active';
                 if (state.testMode) {
                     if (desc) desc.textContent = '🧪 CHẾ ĐỘ TEST: dữ liệu chỉ tồn tại trong RAM, F5 là về bình thường.';
-                    if (meta) meta.innerHTML = `<span>🧪 Test Mode</span><span>🎟️ 2 vé thử</span><span>✨ Không ghi Firebase</span>`;
+                    if (meta) meta.innerHTML = `<span>🧪 Test Mode</span><span>🎟️ 2 vé thử</span><span>✨ Không ghi đám mây</span>`;
                     if (btn) btn.textContent = 'Chơi thử ➡️';
                 } else {
                     if (desc) desc.textContent = 'Đêm hội đã mở! Chơi 5 minigame, tích điểm và chinh phục mốc 100.';
@@ -967,6 +979,11 @@
             }
 
             if (!(await AppDialog.confirm(`Dùng ${CONFIG.extraTicketPrice} Coin để mua 1 Vé Đại Hội Trung Thu?\nMỗi năm chỉ mua tối đa ${CONFIG.maxExtraTickets} vé.`))) return;
+
+            if(serverMode()) {
+                const result=await serverAction('festival_ticket');state.annual=result.annual;
+                showToast('🎟️ Mua vé thành công! Đã trừ 4 Coin.','success');renderDashboard(status);return;
+            }
 
             const coinRef = getDatabase().ref(`student_coins/${username()}`);
             const coinTx = await coinRef.transaction(current => {
@@ -1225,18 +1242,23 @@
         try {
             const status = await getEventStatus();
             if (!status.active) throw new Error('EVENT_CLOSED');
-            await reserveClaim(status.year, milestone);
-            await applyClaim(status.year, milestone);
+            if(serverMode()) {
+                const result=await serverAction('festival_claim',{milestone:String(milestone)});state.annual=result.annual;
+                showToast('🎁 Đã nhận thưởng mốc '+milestone+' điểm.','success');
+            }else {
+                await reserveClaim(status.year, milestone);
+                await applyClaim(status.year, milestone);
+            }
             await loadClaims(status.year);
             renderDashboard(status);
         } catch (error) {
             console.error('[Đại Hội Trung Thu] Nhận thưởng lỗi:', error);
             const map = {
                 EVENT_CLOSED: 'Sự kiện đã đóng, không thể nhận mốc lúc này.',
-                MID_AUTUMN_REMOTE_CALENDAR_REQUIRED: 'Firebase chưa có lịch Trung Thu năm nay.',
+                MID_AUTUMN_REMOTE_CALENDAR_REQUIRED: 'đám mây chưa có lịch Trung Thu năm nay.',
                 MID_AUTUMN_MANAGER_NOT_READY: 'Hệ Xu Trung Thu chưa sẵn sàng. Hãy tải lại trang rồi thử lại.',
                 BACKGROUND_REDEEM_INCOMPLETE: 'Chưa hoàn tất việc thêm nền Trung Thu. Mốc thưởng được giữ lại để bạn thử lại.',
-                WALLET_REWARD_FAILED: 'Firebase Rules chưa cho phép thưởng Xu Trung Thu từ Đại hội.'
+                WALLET_REWARD_FAILED: 'quy tắc bảo mật đám mây chưa cho phép thưởng Xu Trung Thu từ Đại hội.'
             };
             showToast(map[error.message] || `Chưa nhận được phần thưởng: ${error.message}`, 'error');
         } finally {
@@ -1245,6 +1267,7 @@
     }
 
     async function commitGameScore(gameId, rawScore) {
+        if(serverMode())throw new Error('SERVER_GAME_REQUIRED');
         const status = await getEventStatus();
         if (!status.active) throw new Error('EVENT_CLOSED');
         const score = Math.max(0, Math.min(CONFIG.maxScorePerPlay, Math.floor(Number(rawScore) || 0)));
@@ -1830,7 +1853,81 @@
         renderRound();
     }
 
+    async function startServerGame(gameId) {
+        if(state.busy||state.serverPending)return;
+        state.busy=true;
+        try {
+            const result=await serverAction('festival_start',{gameId});
+            clearActiveGame();state.annual=result.annual;
+            state.activeAttempt={id:result.sessionId,gameId,year:String(result.annual.year),settled:false,serverSession:result};
+            if(!state.open){await consumeAbandonedTicket('closed');return;}
+            renderServerGame(result,state.gameToken);
+        } finally {state.busy=false;}
+    }
+
+    function renderServerGame(view,token) {
+        if(token!==state.gameToken||!state.open)return;
+        const title=GAME_DEFS.find(g=>g.id===view.gameId)?.name||'Đại Hội Trung Thu';
+        if(view.status==='completed') {
+            state.annual=view.annual;markAttemptCompleted();
+            showToast(`✨ Hoàn thành! +${view.score} điểm`,'success');
+            backToLobby({skipPenalty:true}).then(()=>getEventStatus()).then(renderDashboard).catch(console.error);return;
+        }
+        const content=showStage(title,'');if(!content)return;
+        const receivedAt=Date.now(),serverTime=()=>view.serverNow+Date.now()-receivedAt;
+        const hud=document.createElement('p'),body=document.createElement('div'),message=document.createElement('p');
+        content.append(hud,body,message);let busy=false,timer;
+        const button=(label,move)=>{
+            const b=document.createElement('button');b.type='button';b.className='maf-btn';b.textContent=label;
+            b.onclick=()=>send(move);body.append(b);return b;
+        };
+        async function send(move) {
+            if(busy||token!==state.gameToken)return;busy=true;message.textContent='Đang lưu nước chơi…';
+            body.querySelectorAll('button').forEach(b=>b.disabled=true);
+            const request=serverAction('festival_move',{sessionId:view.sessionId,seq:String(view.seq),move});
+            state.serverPending=request;
+            try {
+                const next=await request;
+                if(state.activeAttempt?.id===next.sessionId)state.activeAttempt.serverSession=next;
+                state.annual=next.annual;clearInterval(timer);
+                if(token===state.gameToken)renderServerGame(next,token);
+            } catch(error) {
+                if(error.message==='FESTIVAL_STEP_CHANGED') {
+                    try {
+                        const latest=await serverAction('festival_open');state.annual=latest.annual;
+                        if(latest.session?.sessionId===view.sessionId){state.activeAttempt.serverSession=latest.session;clearInterval(timer);renderServerGame(latest.session,token);return;}
+                        markAttemptCompleted();await backToLobby({skipPenalty:true});renderDashboard(await getEventStatus());return;
+                    }catch(syncError){error=syncError;}
+                }
+                clearInterval(timer);message.textContent='Chưa xác nhận nước chơi: '+error.message+'. Bấm thử lại để đối soát.';
+                const retry=document.createElement('button');retry.type='button';retry.className='maf-btn';retry.textContent='Thử lại';
+                retry.onclick=()=>{retry.remove();send(move);};message.append(' ',retry);
+            } finally {busy=false;if(state.serverPending===request)state.serverPending=null;}
+        }
+        if(['baking','quiz'].includes(view.gameId)) {
+            const p=document.createElement('p');p.textContent=`Câu ${view.round+1}: ${view.prompt}`;body.append(p);
+            view.options.forEach((text,i)=>button(text,String(i)));
+        }else if(view.gameId==='lantern') {
+            body.style.cssText='display:grid;grid-template-columns:repeat(6,1fr);gap:6px';
+            view.cards.forEach((card,i)=>{const b=button(card||'🏮',String(i));b.disabled=(view.matched||[]).includes(i);});
+        }else if(view.gameId==='find') {
+            const target=document.createElement('p');target.textContent='Tìm: '+view.target;content.insertBefore(target,body);
+            body.style.cssText='display:grid;grid-template-columns:repeat(8,1fr);gap:4px';
+            view.board.forEach((symbol,i)=>{const b=button(symbol,String(i));b.dataset.cell=String(i);});
+        }else {
+            body.style.cssText='position:relative;height:300px;overflow:hidden';
+            const target=button('🥮','hit');target.style.cssText=`position:absolute;font-size:36px;left:${5+Math.random()*70}%;top:${5+Math.random()*60}%`;
+        }
+        function tick(){
+            const t=serverTime();hud.textContent=`${view.score} điểm · ${Math.max(0,Math.ceil((view.deadline-t)/1000))} giây`;
+            if(view.gameId==='find'&&!busy)body.querySelectorAll('button').forEach(b=>{b.disabled=t<view.readyAt||(view.wrong||[]).includes(Number(b.dataset.cell));b.style.visibility=t<view.readyAt?'hidden':'visible';});
+            if(!busy&&t>view.deadline+300)send('timeout');
+        }
+        tick();timer=setInterval(tick,200);state.activeGameCleanup=()=>clearInterval(timer);
+    }
+
     function startGame(gameId) {
+        if(serverMode()) {startServerGame(gameId).catch(e=>showToast('Chưa mở được lượt chơi: '+e.message,'error'));return;}
         if (!state.annual || ticketsRemaining() <= 0) {
             showToast('Bạn đã hết vé Đại Hội Trung Thu.', 'warning');
             return;
@@ -1897,6 +1994,11 @@
             document.body.classList.add('maf-modal-open');
             state.open = true;
             renderDashboard(status);
+            if(serverMode()&&state.serverResume) {
+                const v=state.serverResume;state.serverResume=null;clearActiveGame();
+                state.activeAttempt={id:v.sessionId,gameId:v.gameId,year:String(v.annual.year),settled:false,serverSession:v};
+                renderServerGame(v,state.gameToken);
+            }
 
             // Move focus into the dialog after it becomes visible.
             requestAnimationFrame(() => {
@@ -1917,7 +2019,7 @@
         } catch (error) {
             console.error('[Đại Hội Trung Thu] Không mở được:', error);
             if (error.message === 'MID_AUTUMN_REMOTE_CALENDAR_REQUIRED') {
-                showToast('Firebase chưa có lịch Trung Thu năm nay nên chưa thể cấp vé.', 'error');
+                showToast('đám mây chưa có lịch Trung Thu năm nay nên chưa thể cấp vé.', 'error');
             } else {
                 showToast(`Không mở được Đại Hội Trung Thu: ${error.message}`, 'error');
             }
@@ -1969,7 +2071,7 @@
     async function init() {
         const database = getDatabase();
         if (!database || !username()) {
-            console.warn('[Đại Hội Trung Thu] Thiếu Firebase hoặc currentUser.');
+            console.warn('[Đại Hội Trung Thu] Thiếu đám mây hoặc currentUser.');
             return;
         }
         await syncServerTime();

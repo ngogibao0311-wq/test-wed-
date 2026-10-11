@@ -1162,7 +1162,7 @@ function getLeaderboardBestSubmission(
     }
 
     const getPriority = submission => {
-        if (submission.forcePass) {
+        if (submission.forcePass && !submission.isRegrading) {
             return 50;
         }
 
@@ -2281,6 +2281,15 @@ async function recordLeaderboardRewardHistory(
 
 window.claimPreviousLeaderboardReward =
     async function () {
+        if(window.ECONOMY_SERVER_ENABLED===true) {
+            try {
+                const result=await window.EconomyClient.execute('leaderboard_claim',{}, {slot:'leaderboard-reward'});
+                await refreshPreviousLeaderboardRewardPanel();
+                if(result.chest)await window.openTreasureChest();
+                else await AppDialog.alert('✅ '+result.rewardLabel);
+            } catch(error) {await AppDialog.alert('Chưa xác nhận thưởng BXH: '+error.message+'. Hãy thử lại để đối soát.');}
+            return;
+        }
         const buttons =
             document.querySelectorAll(
                 '#lbSeasonRewardArea button'
@@ -3813,6 +3822,14 @@ window.openTreasureChest = async function () {
 window.claimChestReward = async function (
     choiceType
 ) {
+    if(window.ECONOMY_SERVER_ENABLED===true) {
+        try {
+            const result=await window.EconomyClient.execute('leaderboard_chest',{choice:String(choiceType)},{slot:'leaderboard-chest'});
+            closeTreasureChestModal();await refreshPreviousLeaderboardRewardPanel();
+            await AppDialog.alert('✅ '+result.rewardLabel);
+        } catch(error) {await AppDialog.alert('Chưa xác nhận mở rương: '+error.message+'. Hãy thử lại cùng lựa chọn để đối soát.');}
+        return;
+    }
     const btnNodes =
         document.querySelectorAll(
             '#treasureChestModal [data-chest-choice]'
@@ -4935,8 +4952,8 @@ window.claimChestReward = async function (
 
         (await AppDialog.alert(
             permissionDenied
-                ? '❌ Firebase từ chối ghi phần thưởng Rương. ' +
-                    'Hãy cập nhật Firebase Rules bản mới rồi thử lại.'
+                ? '❌ đám mây từ chối ghi phần thưởng Rương. ' +
+                    'Hãy cập nhật quy tắc bảo mật đám mây bản mới rồi thử lại.'
                 : '❌ Có lỗi xảy ra khi nhận thưởng Rương. ' +
                     'Vui lòng thử lại!'
         ));

@@ -1,0 +1,40 @@
+{
+  "version": "4.1.0",
+  "build": "2026.10.03.1",
+  "channel": "stable",
+  "releasedAt": "2026-10-03T00:00:00+07:00",
+  "title": "Bản cập nhật v4.1.0 · Bài tập, thưởng phạt và bộ Acedia",
+  "summary": "Bổ sung khóa bài tập, khóa chỉnh sửa khi hết giờ, mức phạt Coin mới, hướng dẫn kháng cáo và phần thưởng bộ sưu tập; cập nhật giao diện và hiệu ứng Acedia.",
+  "mandatory": false,
+  "minSupportedVersion": "3.0.0",
+  "changes": [
+    "Giáo viên: thêm Khóa bài / Mở khóa sau nút Trạng thái. Khi nhận cập nhật khóa, học sinh rời phần trắc nghiệm và không thể mở hoặc nộp bài; bản nháp được giữ.",
+    "Khóa bài xóa hạn nộp cũ; mở khóa không khôi phục hạn đó. Thời gian phiên thi được tạm dừng trong lúc khóa. Thoát do giáo viên khóa không tính vi phạm.",
+    "Hết giờ khóa chỉnh sửa trước khi gửi lên cloud. Nếu gửi thất bại, giữ bản nháp và thử lại sau 5 giây. Hạn nộp vẫn có hiệu lực khi bài không đặt số phút làm bài.",
+    "Tự thu bài do hết giờ thi được tính là vi phạm và ảnh hưởng quyền nhận thưởng.",
+    "Phạt mới: 4–dưới 5 điểm trừ 1 Vé + 200 Coin; 2–dưới 4 trừ 2 Vé + 300 Coin; 0–dưới 2 trừ 3 Vé + 400 Coin; đúng 0 điểm kèm vi phạm trừ 4 Vé + 700 Coin. Không tự truy thu bài cũ.",
+    "Thưởng giữ nguyên: 5–dưới 7 điểm nhận 5 Vé + 20 Coin; 7–dưới 10 nhận 6 Vé + 50 Coin; 10 điểm nhận 7 Vé + 100 Coin, khi đủ điều kiện thưởng.",
+    "Cho làm lại hoặc chấm lại không tự hoàn khoản phạt cũ. Sửa điểm trực tiếp cũng đối soát thưởng; khoản phạt đã áp dụng vẫn giữ nguyên.",
+    "Kháng cáo: phạt nhầm cho phép hoàn Vé/Coin; vi phạm nhẹ chỉ xét bổ sung thưởng. Giáo viên cần xác nhận đối soát riêng sau khi đồng ý; Tha lỗi không tự hoàn số dư.",
+    "Trắc nghiệm: giữ thanh nộp bài khi chuyển câu, cập nhật đáp án ngay, cảnh báo trước khi nộp và thêm nút xem riêng tóm tắt video.",
+    "Hướng dẫn kháng cáo và phần thưởng chỉ trực tiếp thao tác; có dữ liệu mô phỏng khi chưa có bài hoặc bộ sưu tập phù hợp.",
+    "Thẻ giảm giá giáo viên tặng hỗ trợ 1–100%, cho món cửa hàng thường dưới 750 Coin thuộc phạm vi giáo viên chọn. Giá xem trước và giá thanh toán dùng cùng cách tính.",
+    "Bổ sung hiệu ứng Miên Vũ Tĩnh Dạ giá 900 Coin và thú cưng sang trọng Chủ Nhân Miên Giới giá 12.000 Coin; đồng bộ thẻ, tag Thất Đại Tội, nâng cấp hiệu ứng Acedia và tăng kích thước thú cưng.",
+    "Điều chỉnh phông chữ, hộp thoại, bảng màu Studio Hội họa, Vòng quay nhân phẩm và nền chuyển động mặc định; ưu tiên hiệu ứng của vật phẩm.",
+    "Xóa học sinh qua Worker bằng quyền quản trị Firebase, có tiến độ và tiếp tục tác vụ; không dùng mật khẩu học sinh để xóa tài khoản đăng nhập."
+  ],
+  "resolvedIssues": [
+    "Sửa thứ tự khóa bài hết giờ để lỗi kết nối không cho phép tiếp tục chỉnh sửa.",
+    "Sửa phần trừ Coin theo điểm và thông báo hộp thư; kiểm thử hoàn tác khi giao dịch thất bại.",
+    "Khôi phục nút mua, mặc và tháo trên thẻ Acedia sang trọng; sửa lớp hiệu ứng toàn web bị nội dung che."
+  ],
+  "knownIssues": [
+    "Cần triển khai Firebase Rules mới cùng mã web để khóa bài được bảo vệ phía máy chủ.",
+    "Worker xóa học sinh cần cấu hình quyền quản trị Firebase. Các kiểm thử tại máy không thay thế xác minh trên cloud thật.",
+    "Thiết bị ngoại tuyến chỉ nhận lệnh khóa của giáo viên khi kết nối lại.",
+    "Chấm lại không tự tính phần chênh lệch của khoản phạt đã áp dụng."
+  ],
+  "plannedImprovements": [
+    "Tiếp tục kiểm tra luồng thi, khóa bài, nộp tệp và kháng cáo trên bản triển khai thực tế."
+  ]
+}

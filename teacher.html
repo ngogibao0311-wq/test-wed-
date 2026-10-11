@@ -5,23 +5,21 @@
     <link rel="stylesheet" href="css/app-dialog.css?v=20261003.cleanup1">
     <script src="js/app-dialog.js?v=20261001.design2"></script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="application-version" content="4.1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="application-version" content="4.3.2">
     <title>Trang Giáo Viên</title>
     <!-- Kết nối sớm tới CDN lõi; không tải thêm tài nguyên và không đổi chức năng -->
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="icon" type="image/png" href="assets/icon.png">
-    <link rel="stylesheet" href="css/common.css?v=20261003.mienvu1">
-
-    <link rel="stylesheet" href="css/mobile.css?v=20261003.cleanup1">
+    <link rel="stylesheet" href="css/common.css?v=20261007.phone1">
     <link rel="stylesheet" href="css/web-animations.css?v=20261003.cleanup2">
     <link rel="stylesheet" href="css/store-items.css?v=20261003.fonts1">
     <link rel="stylesheet" href="css/effects-pets.css?v=20261003.cleanup1">
     <link rel="stylesheet" href="css/daily-login.css?v=20261003.cleanup1">
     <link rel="stylesheet" href="css/painting.css?v=20261003.cleanup1">
-    <link rel="stylesheet" href="css/luxury-store.css?v=20261003.cleanup1">
+    <link rel="stylesheet" href="css/luxury-store.css?v=20261007.card-reveal">
     <link rel="stylesheet" href="css/update-manager.css?v=20261003.cleanup1">
     <style id="teacherSidebarToggleFinalGuard">
         /*
@@ -485,10 +483,10 @@
     </style>
 
     
-<link rel="stylesheet" href="css/teacher.css?v=20261003.cleanup1">
-<link rel="stylesheet" href="css/mc-workspace.css?v=20261003.guide10">
+<link rel="stylesheet" href="css/teacher.css?v=20261007.phone1">
+<link rel="stylesheet" href="css/mc-workspace.css?v=20261007.phone1">
 <link rel="stylesheet" href="css/assignment-appeals.css?v=20261003.cleanup1">
-<link rel="stylesheet" href="css/dashboard-refresh.css?v=20261003.cleanup1">
+<link rel="stylesheet" href="css/dashboard-refresh.css?v=20261007.phone1">
 </head>
 
 <body class="teacher-workspace-refresh campus-modern">
@@ -771,7 +769,7 @@
 
                 async waitForCloudConnection(options) {
                     const timeoutMs = Math.max(3000, Number(options && options.timeoutMs) || 18000);
-                    api.setStatus('Đang kết nối Firebase Realtime Database...');
+                    api.setStatus('Đang kết nối cơ sở dữ liệu đám mây...');
 
                     if (!navigator.onLine) {
                         showError('Thiết bị đang ngoại tuyến.', 'Cần Internet để lấy dữ liệu mới nhất từ đám mây.', 'network');
@@ -781,7 +779,7 @@
                     const database = (typeof db !== 'undefined' ? db : window.db);
 
                     if (!database || typeof database.ref !== 'function') {
-                        showError('Firebase Database chưa được khởi tạo.', 'Không tìm thấy đối tượng db.ref().', 'runtime');
+                        showError('cơ sở dữ liệu đám mây chưa được khởi tạo.', 'Không tìm thấy đối tượng db.ref().', 'runtime');
                         return false;
                     }
 
@@ -796,7 +794,7 @@
                             try { ref.off('value', handler); } catch (_) {}
                             if (!ok) {
                                 showError(
-                                    'Không kết nối được máy chủ Firebase.',
+                                    'Không kết nối được máy chủ đám mây.',
                                     `Đã chờ ${Math.round(timeoutMs / 1000)} giây nhưng máy chủ chưa phản hồi. Dữ liệu đám mây chưa đủ nên giao diện chưa được mở.`,
                                     'network'
                                 );
@@ -810,7 +808,7 @@
 
                         const timer = setTimeout(() => finish(false), timeoutMs);
                         ref.on('value', handler, error => {
-                            showError('Firebase trả về lỗi kết nối.', error && error.message ? error.message : error, 'network');
+                            showError('đám mây trả về lỗi kết nối.', error && error.message ? error.message : error, 'network');
                             finish(false);
                         });
                     });
@@ -1152,10 +1150,15 @@
                                 style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 10px; margin-top: 10px; font-size: 0.95em;">🔍
                                 Tự động bóc tách câu hỏi</button>
                         </div>
-                        <div id="questionsContainer"></div>
-                        <button type="button" onclick="addQuestion()"
+                        <!-- Nguồn dữ liệu cho đề đang soạn; chỉnh câu hỏi trong cửa sổ Kiểm tra. -->
+                        <div id="questionsContainer" hidden style="display:none"></div>
+                        <button type="button" onclick="addQuestion(); openTeacherDraftQuizCheck(document.querySelectorAll('#questionsContainer .question-block').length - 1)"
                             style="background: rgba(102, 126, 234, 0.1); color: #667eea; border: 2px dashed #667eea; box-shadow: none; margin-top: 10px; width: 100%;">+
                             Thêm câu hỏi trắc nghiệm</button>
+                        <div id="teacherQuizCheckPanel" hidden style="margin-top:14px;padding:16px;border:1px solid #c7d2fe;border-radius:12px;background:#eef2ff;">
+                            <p id="teacherQuizCheckCount" style="margin:0 0 10px;color:#334155;"></p>
+                            <button type="button" onclick="openTeacherDraftQuizCheck()" style="width:auto;margin:0;">Kiểm tra</button>
+                        </div>
                         <div id="randomExamConfigPanel"
                             style="margin-top:15px;padding:15px;border-radius:12px;background:rgba(102,126,234,.08);border:1px dashed rgba(102,126,234,.55);">
 
@@ -1611,7 +1614,7 @@
                                 📄 Tải xuống PDF
                             </button>
                         </div>
-                        <div style="overflow-x: auto;">
+                        <div class="plan-table-scroll" style="overflow-x: auto;" tabindex="0" role="region" aria-label="Bảng thông tin, vuốt ngang để xem đầy đủ">
                             <table style="width:100%; border-collapse: collapse; text-align: left;">
                                 <thead>
                                     <tr
@@ -1658,7 +1661,7 @@
                                 onclick="setStudentFilter('all', this, 'schedule')">Tất cả</button>
                         </div>
 
-                        <div style="overflow-x: auto;">
+                        <div class="plan-table-scroll" style="overflow-x: auto;" tabindex="0" role="region" aria-label="Bảng thông tin, vuốt ngang để xem đầy đủ">
                             <table style="width:100%; border-collapse: collapse; text-align: left;">
                                 <thead>
                                     <tr
@@ -2884,7 +2887,7 @@
                  </h3>
                  <p>
                   Tùy chọn này chỉ thay đổi cách trình bày trang đăng nhập.
-                                        Tài khoản, mật khẩu, Firebase và các chức năng khác
+                                        Tài khoản, mật khẩu, đám mây và các chức năng khác
                                         không bị thay đổi.
                  </p>
                 </div>
@@ -3003,7 +3006,7 @@
                  🩺 System Health Center 2.1
                 </h3>
                 <p style="font-size: 0.9em; color: #555; margin-bottom: 15px;">
-                 Bảng chẩn đoán chỉ đọc: kiểm tra Firebase Auth/RTDB, Service Worker và cache/build, R2/Cloudinary, module runtime, listener/timer và mật độ hiệu ứng DOM. Không tự sửa dữ liệu.
+                 Bảng chẩn đoán chỉ đọc: kiểm tra đăng nhập và dữ liệu đám mây, Service Worker và cache/build, R2/Cloudinary, module runtime, listener/timer và mật độ hiệu ứng DOM. Không tự sửa dữ liệu.
                 </p>
                 <button onclick="runSystemDiagnostics()" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);">
                  🩺
@@ -3592,7 +3595,7 @@
                                 </select>
                             </div>
                             <p style="margin: 5px 0 15px 0; font-size: 0.85em; color: #d35400;">💡
-                                <strong>Mẹo:</strong> Giữ phím <strong>Ctrl</strong> để chọn nhiều.
+                                <strong>Riêng tư với từng học sinh:</strong> Bỏ chọn em muốn ẩn bài, giữ chọn các em còn lại rồi lưu. Nếu không chọn ai, bài chỉ còn bên giáo viên. Bài nộp và Coin/vé cũ được giữ; tiền lộ trình từ bài này không còn tính cho em bị bỏ chọn.
                             </p>
                         </div>
 
@@ -3806,6 +3809,7 @@
 
     <!-- 2. Khởi tạo Firebase -->
     <script src="js/firebase-config.js?v=20260928.read-fix"></script>
+    <script src="js/asset-history.js?v=20261010.history30"></script>
     <script src="js/cloudinary-storage.js?v=20261001.dialog1"></script>
 
     <script>
@@ -3814,7 +3818,7 @@
         });
     </script>
 
-    <script src="js/cloudflare-r2-storage.js?v=20261001.dialog1"></script>
+    <script src="js/cloudflare-r2-storage.js?v=20261010.cloud-labels"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.7/dist/purify.min.js">
     </script>
@@ -3824,60 +3828,71 @@
     <script>
         // Phiên bản thực sự của bộ HTML/JS đang chạy.
         // common.js cũ đọc appVersion từ localStorage, nên đồng bộ trước khi nạp common.js.
-        window.APP_VERSION = '4.1.0';
+        window.APP_VERSION = '4.3.2';
         try {
             localStorage.setItem('appVersion', window.APP_VERSION);
         } catch (_) {}
     </script>
     <script src="js/random-exam-engine.js?v=20261001.1"></script>
 <script src="js/campus-pdf.js?v=20261001.1"></script>
-<script src="js/common.js?v=20261001.revision4"></script>
-    <script src="js/history-retention.js?v=1.0.0-2month-safe"></script>
-    <script src="js/update-manager.js?v=1.0.4-release-v4.1.0"></script>
+<script src="js/common.js?v=20261010.cloud-labels"></script>
+    <script src="js/history-retention.js?v=20261009.history2"></script>
+    <script src="js/update-manager.js?v=1.0.4-release-v4.3.2"></script>
     <script src="js/web-animations.js?v=20261003.cleanup2"></script>
     <!-- Tối ưu hiệu năng: mặc định tắt; dùng trạng thái đã lưu trong Cài đặt. Phát hiện mobile/thiết bị yếu chỉ áp dụng sau khi tính năng đã được bật. -->
     <script src="js/web-performance-optimizer.js?v=20260930.media-v2"></script>
-    <script src="js/transaction-history.js?v=20261001.dialog1"></script>
+    <script src="js/transaction-history.js?v=20261009.reliability1"></script>
     <script>
         // security.js nạp trước teacher.js: đánh dấu rõ đây là trang Giáo viên đang chờ xác thực.
         window.__APP_PAGE_ROLE__ = 'teacher';
         window.__teacherSecurityVerificationState =
             window.__teacherSecurityVerificationState || 'pending';
     </script>
-    <script src="js/security.js?v=4.2.0-devtools-guard"></script>
+    <script src="js/security.js?v=4.3.2-devtools-guard"></script>
 
     <!-- 4. Các module tính năng -->
-    <script src="js/daily-login.js?v=20261001.dialog1"></script>
-    <script src="js/theme-items.js?v=20261003.mienvu1"></script>
-    <script src="js/effect-items.js?v=20261003.mienvu2"></script>
-    <script src="js/pet-items.js?v=20260919.partial-fix1"></script>
+    <script src="js/daily-login.js?v=20261010.cloud-labels"></script>
+    <script src="js/theme-items.js?v=20261010.winter-aura1"></script>
+    <script src="js/regular-store-art.js?v=20261009.regular-no-tap1"></script>
+    <script src="js/effect-items.js?v=20261009.regular-art1"></script>
+    <script src="js/pet-items.js?v=20261009.regular-art1"></script>
     <!-- Điều chỉnh riêng mức hiệu ứng vật phẩm + Web Animations; không đụng theme/logic -->
     <script src="js/effect-quality-manager.js?v=20261001.design2"></script>
-    <script src="js/royal-ball.js?v=20261001.dialog1"></script>
+    <script src="js/royal-ball.js?v=20261010.cloud-labels"></script>
     <script src="js/music-manager.js?v=20261001.dialog1"></script>
-    <script src="js/store-manager.js?v=20261003.mienvu1"></script>
-    <script src="js/painting.js?v=20261001.dialog1"></script>
-    <script src="js/luxury-store.js?v=20261003.aclp4"></script>
+    <script src="js/store-manager.js?v=20261010.winter-aura1"></script>
+    <script src="js/painting.js?v=20261010.cloud-labels"></script>
+    <script src="js/luxury-distinct-scenes.js?v=20261008.world3"></script>
+    <script src="js/tinh-mong.js?v=20261009.regular-no-tap1"></script>
+    <script src="js/valentine.js?v=20261010.vlt4"></script>
+    <script src="js/eternal-winter.js?v=20261010.winter-aura1"></script>
+    <script src="js/luxury-store.js?v=20261010.vlt4"></script>
 
     <!-- 5. Logic chính của trang giáo viên luôn đặt cuối -->
     <!-- Hotfix: xác nhận cài đặt lộ trình trước khi teacher.js chờ loader -->
-    <script src="js/roadmap-startup-fix.js?v=1.0"></script>
+    <script src="js/roadmap-startup-fix.js?v=20261010.cloud-labels"></script>
 
-    <script src="js/assignment-appeals.js?v=20261001.ui8"></script>
-    <script src="js/mc-workspace.js?v=20261004.profile-practice1"></script>
+    <script src="js/assignment-appeals.js?v=20261008.grade-net1"></script>
+    <script src="js/mc-workspace.js?v=20261010.cloud-labels"></script>
 <script src="js/video-duration.js?v=20261001.1"></script>
-<script src="js/student-deletion-client.js?v=20261001.dialog1"></script>
-<script src="js/teacher.js?v=20261003.grade-penalty1"></script>
-    <script src="js/huong-dan-nguoi-moi.js?v=20261004.profile-practice1"></script>
+<script src="js/student-deletion-client.js?v=20261010.recipients"></script>
+<script src="js/cash-request-pages.js?v=20261009.history2"></script>
+<script src="js/teacher-ledger.js?v=20261009.history2"></script>
+<script src="js/cash-ledger.js?v=20261010.audit1"></script>
+<script src="js/teacher.js?v=20261010.roadmap-grade-fix"></script>
+    <script src="js/huong-dan-nguoi-moi.js?v=20261010.cloud-labels"></script>
 
 <link rel="stylesheet" href="css/collection-rewards.css?v=20261003.cleanup1">
 <script src="js/collection-reward-catalog.js?v=20260930.poster-pack3"></script>
-<script src="js/collection-rewards.js?v=20261001.dialog1"></script>
+<script src="js/collection-rewards.js?v=20261010.cloud-labels"></script>
 <script src="js/list-media-performance.js?v=20260930.media-v2"></script>
-<link rel="stylesheet" href="css/campus-design.css?v=20261003.cleanup2">
-<script src="js/campus-design.js?v=20261003.cleanup2"></script>
-<script src="js/teacher-quiz-editor.js?v=20261001.2"></script>
+<link rel="stylesheet" href="css/campus-design.css?v=20261007.phone1">
+<script src="js/campus-design.js?v=20261007.phone1"></script>
+<script src="js/teacher-quiz-editor.js?v=20261007.draft-check2"></script>
 <link rel="stylesheet" href="css/teacher-workspace-refresh.css?v=20261003.cleanup1">
+<link rel="stylesheet" href="css/mobile.css?v=20261007.phone6">
+<script src="js/mobile-layout.js?v=20261007.phone4"></script>
+<script src="js/release-history.js?v=20261009.history2"></script>
 </body>
 
 </html>

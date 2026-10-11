@@ -1350,6 +1350,9 @@
         teacher_penalty:
             'Trừng phạt học sinh',
 
+        teacher_counter:
+            'Đối ứng khoản trừ',
+
         gift_claimed:
             'Nhận quà qua thư',
 
@@ -1947,6 +1950,8 @@
                     }
             </div>
 
+            <div style="margin-top:8px;overflow-wrap:anywhere"><b>Mã giao dịch:</b> ${esc(log.id)}${log.details?.originalId ? `<br>Đối ứng cho: ${esc(log.details.originalId)}` : ''}</div>
+            ${log.type === 'teacher_penalty' && log.details?.operationId ? `<button type="button" onclick="TeacherLedger.counter('${esc(log.id)}')" style="margin-top:10px;padding:8px 13px">Tạo khoản đối ứng</button>` : ''}
             ${canUndo
                         ? `
                   <button

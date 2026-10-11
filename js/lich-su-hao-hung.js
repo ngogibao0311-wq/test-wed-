@@ -1237,7 +1237,7 @@
                         if (!w.isOpen) return renderLanding();
                         state.currentYear = w.year;
                         const ref = progressRef(w.year);
-                        if (!ref) throw new Error('Không tìm thấy Firebase hoặc tài khoản học sinh.');
+                        if (!ref) throw new Error('Không tìm thấy đám mây hoặc tài khoản học sinh.');
 
                         const ids = shuffle(QUESTIONS.map(q => q.id)).slice(0, CONFIG.questionCount);
                         const started = now();
@@ -1264,7 +1264,7 @@
                         else renderGame();
                 } catch (error) {
                         console.error('[Lịch sử hào hùng] Không thể bắt đầu:', error);
-                        notify('Không thể bắt đầu sự kiện. Kiểm tra Firebase Rules và kết nối mạng.', 'error');
+                        notify('Không thể bắt đầu sự kiện. Kiểm tra quy tắc bảo mật đám mây và kết nối mạng.', 'error');
                 } finally {
                         state.busy = false;
                 }
@@ -1442,7 +1442,7 @@
 
                 const ref = progressRef();
                 if (!ref) {
-                        notify('Không tìm thấy tiến trình Firebase của sự kiện. Hãy tải lại trang rồi thử lại.', 'error');
+                        notify('Không tìm thấy tiến trình đám mây của sự kiện. Hãy tải lại trang rồi thử lại.', 'error');
                         return;
                 }
 
@@ -1491,7 +1491,7 @@
                         }
 
                         console.warn(
-                                '[Lịch sử hào hùng] Firebase gửi đáp án phản hồi quá chậm. Tự phục hồi giao diện.'
+                                '[Lịch sử hào hùng] đám mây gửi đáp án phản hồi quá chậm. Tự phục hồi giao diện.'
                         );
 
                         // Vô hiệu hóa request hiện tại nếu nó phản hồi muộn.
@@ -1644,7 +1644,7 @@
                                 Number(state.progress.currentIndex) <= index
                         ) {
                                 throw new Error(
-                                        `Firebase đã phản hồi nhưng currentIndex không tăng (đang ở ${Number(state.progress.currentIndex) || 0}).`
+                                        `đám mây đã phản hồi nhưng currentIndex không tăng (đang ở ${Number(state.progress.currentIndex) || 0}).`
                                 );
                         }
 
@@ -1694,7 +1694,7 @@
 
                         notify(
                                 permissionDenied
-                                        ? 'Firebase Rules đang từ chối lưu đáp án của Lịch Sử Hào Hùng.'
+                                        ? 'quy tắc bảo mật đám mây đang từ chối lưu đáp án của Lịch Sử Hào Hùng.'
                                         : 'Không thể lưu đáp án. Hãy kiểm tra kết nối mạng rồi thử lại.',
                                 'error'
                         );

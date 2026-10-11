@@ -497,6 +497,14 @@ class PetInteractionManager {
     }
 
     static async saveHungerToDB() {
+        if(window.ECONOMY_SERVER_ENABLED===true) {
+            const petId=localStorage.getItem('active_pet');if(!petId)return;
+            try {
+                const result=await window.EconomyClient.execute('pet_status',{petId},{slot:'pet-status:'+petId});
+                if(localStorage.getItem('active_pet')===petId){this.hunger=result.energy;this.lastHungerUpdate=result.updatedAt;this.updateHungerUI();}
+            }catch(error){console.error('Chưa đồng bộ được trạng thái thú cưng:',error);}
+            return;
+        }
         const user = JSON.parse(
             localStorage.getItem('currentUser')
         );
@@ -1060,7 +1068,31 @@ class PetInteractionManager {
         modal.classList.add('active');
     }
 
+    static async buyServerFood(price, kind) {
+        if (this.purchaseInProgress) return;
+        const petId = localStorage.getItem('active_pet');
+        const expectedKind = petId === 'pet_premium_mua_xuan' ? 'spring' : petId === 'pet_truyenthuyet_1' ? 'stellar' : 'normal';
+        const prices = kind === 'normal' ? [10,20,40,100] : [15,30,60,100];
+        const foodId = prices.indexOf(Number(price));
+        if (!this.isSupported(petId) || expectedKind !== kind || foodId < 0) return;
+        if (!await AppDialog.confirm(`Dùng ${prices[foodId]} Coin để mua thức ăn?`)) return;
+        this.purchaseInProgress = true;
+        try {
+            const result = await window.EconomyClient.execute('pet_food', {petId,foodId:String(foodId)}, {slot:'pet-food'});
+            if (localStorage.getItem('active_pet') === petId) {
+                this.hunger = result.energy;
+                this.lastHungerUpdate = result.updatedAt;
+                this.updateHungerUI();
+                this.resetIdle();
+            }
+            await AppDialog.alert('Đã mua thức ăn và hồi phục năng lượng.');
+        } catch (error) {
+            await AppDialog.alert('Chưa nhận được xác nhận: ' + error.message);
+        } finally { this.purchaseInProgress = false; }
+    }
+
     static async buyFood(price, hungerGain) {
+        if (window.ECONOMY_SERVER_ENABLED === true) return this.buyServerFood(price, 'normal');
         const user = JSON.parse(localStorage.getItem('currentUser'));
         if (!user) return;
 
@@ -1174,6 +1206,7 @@ class PetInteractionManager {
         itemName,
         symbol
     ) {
+        if (window.ECONOMY_SERVER_ENABLED === true) return this.buyServerFood(price, 'stellar');
         const user =
             this.getCurrentUser();
 
@@ -2247,6 +2280,20 @@ class PetInteractionManager {
 
         if (!accepted) return;
 
+        if (window.ECONOMY_SERVER_ENABLED === true) {
+            this.purchaseInProgress = true;
+            try {
+                await window.EconomyClient.execute('pet_unlock', {petId}, {slot:'pet-unlock:'+petId});
+                this.unlockedInteractions = [...new Set([...this.unlockedInteractions, petId])];
+                this.savePetInteractionPreference(petId, true);
+                this.showInfo();
+                await AppDialog.alert('Đã mở khóa tương tác thú cưng.');
+            } catch (error) {
+                await AppDialog.alert('Chưa nhận được xác nhận: ' + error.message);
+            } finally { this.purchaseInProgress = false; }
+            return;
+        }
+
         this.purchaseInProgress = true;
 
         const coinRef = db.ref(
@@ -2388,7 +2435,7 @@ class PetInteractionManager {
                 )
             ) {
                 (await AppDialog.alert(
-                    '❌ Firebase Rules chưa cho phép ghi dữ liệu tương tác pet.'
+                    '❌ quy tắc bảo mật đám mây chưa cho phép ghi dữ liệu tương tác pet.'
                 ));
             } else {
                 (await AppDialog.alert(
@@ -3731,6 +3778,7 @@ class PetInteractionManager {
         itemName,
         symbol
     ) {
+        if (window.ECONOMY_SERVER_ENABLED === true) return this.buyServerFood(price, 'spring');
         const user =
             this.getCurrentUser();
 

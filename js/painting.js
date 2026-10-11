@@ -1254,6 +1254,9 @@ Truyền thuyết.
         async openStudentModal(
             mode = 'contest'
         ) {
+            if (this.studentModalOpening || this.activeStudentModal) return;
+            this.studentModalOpening = true;
+            try {
             const modal =
                 document.getElementById(
                     'hoihoaStudentModal'
@@ -1286,6 +1289,7 @@ Truyền thuyết.
 
             let practiceCoinRef = null;
             let practiceFeePaid = false;
+            let serverPracticeSession = null;
 
             if (nextMode === 'practice') {
                 if (
@@ -1300,6 +1304,17 @@ Truyền thuyết.
                     return;
                 }
 
+                if (window.ECONOMY_SERVER_ENABLED === true) {
+                    try {
+                        const username=String(this.user.username);
+                        serverPracticeSession=await window.EconomyClient.execute('painting_open',{}, {slot:'painting-open'});
+                        if(String(this.user?.username)!==username)return;
+                        this.serverPracticeSession={...serverPracticeSession,username};
+                    } catch(error) {
+                        this.toast('Chưa xác nhận phí Luyện tập: '+error.message+'. Hãy mở lại để đối soát phiên cũ.', 'error');
+                        return;
+                    }
+                } else {
                 practiceCoinRef = db.ref(
                     `student_coins/${this.user.username}`
                 );
@@ -1353,6 +1368,7 @@ Truyền thuyết.
 
                     return;
                 }
+                }
             }
 
             // Thu menu lựa chọn lại.
@@ -1396,11 +1412,12 @@ Truyền thuyết.
                     practiceCoinRef
                 ) {
                     try {
-                        await practiceCoinRef.transaction(
+                        const refund = await practiceCoinRef.transaction(
                             currentValue =>
                                 (Number(currentValue) || 0) +
                                 PRACTICE_ENTRY_FEE
                         );
+                        if (refund.committed) practiceFeePaid = false;
                     } catch (refundError) {
                         console.error(
                             'Không thể hoàn phí Luyện tập:',
@@ -1411,10 +1428,17 @@ Truyền thuyết.
 
                 this.toast(
                     nextMode === 'practice'
-                        ? 'Không thể mở Luyện tập. Đã hoàn lại 25 Coin.'
+                        ? serverPracticeSession
+                            ? 'Phiên Luyện tập đã được thanh toán. Hãy mở lại để tiếp tục phiên này; không cần trả thêm 25 Coin.'
+                            : practiceFeePaid
+                            ? 'Không thể mở Luyện tập. Chưa xác nhận hoàn 25 Coin; cần giáo viên đối soát trước khi thử lại.'
+                            : 'Không thể mở Luyện tập. Đã hoàn lại 25 Coin.'
                         : 'Không thể mở vòng Thi Hội họa.',
                     'error'
                 );
+            }
+            } finally {
+                this.studentModalOpening = false;
             }
         },
 
@@ -1681,12 +1705,26 @@ Truyền thuyết.
                     this.emptyStateHTML(
                         '⚠️',
                         'Không tải được phòng tranh',
-                        'Kiểm tra kết nối hoặc Firebase Rules.'
+                        'Kiểm tra kết nối hoặc quy tắc bảo mật đám mây.'
                     );
             }
         },
 
-        closeStudentModal() {
+        async closeStudentModal() {
+            if(this.studentModalClosing||this.studentModalOpening)return;
+            this.studentModalClosing=true;
+            try {
+            const session=this.serverPracticeSession;
+            if(window.ECONOMY_SERVER_ENABLED===true&&session) {
+                if(String(this.user?.username)!==session.username)return;
+                try {
+                    await window.EconomyClient.execute('painting_close',{sessionId:session.sessionId},{slot:'painting-close'});
+                    this.serverPracticeSession=null;
+                } catch(error) {
+                    this.toast('Chưa xác nhận kết thúc phiên: '+error.message+'. Hãy thử đóng lại; phiên đã trả phí vẫn được giữ.', 'error');
+                    return;
+                }
+            }
             const modal = document.getElementById('hoihoaStudentModal');
             if (modal) {
                 modal.classList.remove('active');
@@ -1696,6 +1734,7 @@ Truyền thuyết.
             this.stopRoundTimers();
             this.saveDraft(true);
             this.detachCanvasEvents();
+            } finally {this.studentModalClosing=false;}
         },
 
         openEventInfo() {
@@ -2327,7 +2366,7 @@ ${this.toolButton(
                         </footer>
                         <p class="hh-integrity-note">
     ${isPractice
-                    ? 'Chế độ luyện tập không gửi dữ liệu lên Firebase. Bản nháp chỉ lưu trong trình duyệt; hãy bấm “Lưu ảnh PNG về máy” để giữ tác phẩm.'
+                    ? 'Chế độ luyện tập không gửi dữ liệu lên đám mây. Bản nháp chỉ lưu trong trình duyệt; hãy bấm “Lưu ảnh PNG về máy” để giữ tác phẩm.'
                     : 'Tác phẩm được tạo trực tiếp trong studio. Mỗi vòng chỉ nộp một lần; bản đã nộp không bị ghi đè.'
                 }
 </p>
@@ -7501,7 +7540,7 @@ ${this.toolButton(
                     this.emptyStateHTML(
                         '⚠️',
                         'Không tải được dữ liệu',
-                        'Kiểm tra kết nối và Firebase Rules.'
+                        'Kiểm tra kết nối và quy tắc bảo mật đám mây.'
                     );
             }
         },
@@ -7690,7 +7729,7 @@ ${this.toolButton(
                     '⚠️',
                     'Không tải được bài nộp',
                     error.message ||
-                    'Kiểm tra kết nối và Firebase Rules.'
+                    'Kiểm tra kết nối và quy tắc bảo mật đám mây.'
                 );
             }
         },

@@ -33,7 +33,7 @@ function getTeacherManagedPasswordPolicyError(password, username = '') {
 async function reauthenticateTeacherForDangerousAction(actionLabel) {
     const authUser = firebase.auth().currentUser;
     if (!authUser) {
-        throw new Error('Không tìm thấy phiên Firebase Auth của Giáo viên.');
+        throw new Error('Không tìm thấy phiên xác thực đám mây của Giáo viên.');
     }
 
     const roleSnap = await db.ref(`users/${authUser.uid}/role`).once('value');
@@ -50,7 +50,7 @@ async function reauthenticateTeacherForDangerousAction(actionLabel) {
     if (!enteredPassword) throw new Error('Bạn chưa nhập mật khẩu Giáo viên.');
 
     const email = authUser.email || `${String(currentUser.username || '').trim()}@hethong.edu.vn`;
-    if (!email) throw new Error('Không xác định được email Firebase Auth của Giáo viên.');
+    if (!email) throw new Error('Không xác định được email xác thực đám mây của Giáo viên.');
 
     const credential = firebase.auth.EmailAuthProvider.credential(email, enteredPassword);
     await authUser.reauthenticateWithCredential(credential);
@@ -3153,6 +3153,11 @@ window.showTeacherQuestionError = function (
     missingItems,
     focusSelector = ''
 ) {
+    if (block?.closest('#questionsContainer') && typeof window.openTeacherDraftQuizCheck === 'function') {
+        const index = [...document.querySelectorAll('#questionsContainer .question-block')].indexOf(block);
+        window.openTeacherDraftQuizCheck(index, `Câu ${questionNumber} còn thiếu: ${missingItems.join(', ')}.`);
+        return;
+    }
     document
         .querySelectorAll(
             '.question-block, .edit-question-block'
@@ -3255,7 +3260,7 @@ window.onload = async function () {
         ], {
             'core-runtime': 'Thư viện và module web',
             'service-worker': 'Service Worker / cache',
-            'cloud-connection': 'Kết nối Firebase',
+            'cloud-connection': 'Kết nối đám mây',
             'teacher-auth': 'Phiên đăng nhập giáo viên',
             'teacher-users': 'Danh sách tài khoản',
             'teacher-birthday-rewards': 'Phần thưởng sinh nhật',
@@ -3432,7 +3437,7 @@ window.onload = async function () {
     if (!authUser) {
         window.setTeacherSecurityVerificationState(
             'denied',
-            'Không tìm thấy phiên Firebase Auth hợp lệ.'
+            'Không tìm thấy phiên xác thực đám mây hợp lệ.'
         );
         if (startupLoader) startupLoader.fail('Không tìm thấy phiên đăng nhập hợp lệ.', 'Hãy đăng nhập lại để tiếp tục.', 'auth');
         (await AppDialog.alert("⛔ Lỗi: Không tìm thấy phiên đăng nhập hợp lệ!"));
@@ -3452,20 +3457,20 @@ window.onload = async function () {
     } catch (error) {
         window.setTeacherSecurityVerificationState(
             'network-error',
-            error?.message || 'Firebase chưa trả dữ liệu users.'
+            error?.message || 'đám mây chưa trả dữ liệu users.'
         );
         console.error('Không thể đọc dữ liệu users để xác minh giáo viên:', error);
 
         if (startupLoader) {
             startupLoader.fail(
-                'Chưa thể xác minh quyền giáo viên vì Firebase chưa trả dữ liệu người dùng.',
-                'Kiểm tra Internet/Firebase rồi tải lại trang. Hệ thống chưa kết luận đây là can thiệp phân quyền.',
+                'Chưa thể xác minh quyền giáo viên vì đám mây chưa trả dữ liệu người dùng.',
+                'Kiểm tra Internet/đám mây rồi tải lại trang. Hệ thống chưa kết luận đây là can thiệp phân quyền.',
                 'network'
             );
         }
 
         (await AppDialog.alert(
-            '⚠️ Chưa thể xác minh quyền giáo viên do lỗi kết nối hoặc Firebase.\n' +
+            '⚠️ Chưa thể xác minh quyền giáo viên do lỗi kết nối hoặc đám mây.\n' +
             'Vui lòng kiểm tra mạng rồi tải lại trang. Tài khoản không bị đăng xuất vì lỗi này.'
         ));
 
@@ -3479,7 +3484,7 @@ window.onload = async function () {
     if (!realUser || realUser.role !== 'teacher' || realUser._fbKey !== authUser.uid) {
         window.setTeacherSecurityVerificationState(
             'denied',
-            'UID/role không khớp dữ liệu Giáo viên trên Firebase.'
+            'UID/role không khớp dữ liệu Giáo viên trên đám mây.'
         );
         (await AppDialog.alert("⛔ Phát hiện can thiệp dữ liệu phân quyền! Buộc đăng xuất."));
         firebase.auth().signOut();
@@ -3491,7 +3496,7 @@ window.onload = async function () {
     window.isVerifiedTeacher = true;
     window.setTeacherSecurityVerificationState(
         'verified',
-        'Firebase Auth + UID + role Giáo viên đã xác minh thành công.'
+        'xác thực đám mây + UID + role Giáo viên đã xác minh thành công.'
     );
 
     // Chạy dọn lịch sử ở nền sau khi quyền Giáo viên đã được Firebase xác minh.
@@ -3527,6 +3532,7 @@ window.onload = async function () {
         runTeacherStartupStage('teacher-spin-history', 'Lịch sử vòng quay', () => typeof loadSpinHistory === 'function' ? loadSpinHistory() : Promise.resolve()),
         runTeacherStartupStage('teacher-cash-requests', 'Yêu cầu rút tiền', () => typeof loadTeacherCashRequests === 'function' ? loadTeacherCashRequests() : Promise.resolve())
     ]);
+    void reconcileLegacyGradeRewards();
     await populateStudentDropdown();
     await populateRoadmapStudentDropdown();
     if (startupLoader) startupLoader.markReady('teacher-dropdowns');
@@ -3543,12 +3549,14 @@ window.onload = async function () {
     const renderSubmissions = debounce(async () => {
         // Không getDB('submissions') toàn bộ nữa; loadSubmissions tự phân trang 20 bài/lần.
         await loadSubmissions(false);
+        if (document.getElementById('teacherRoadmapBody')) renderTeacherRoadmap();
         if (document.getElementById('studentRoadmapBody')) renderStudentRoadmap();
     }, 1500);
 
     const renderAssignments = debounce(async () => {
         // Không getDB('assignments') toàn bộ nữa; loadAssignedList tự phân trang 20 bài/lần.
         await loadAssignedList(false);
+        if (document.getElementById('teacherRoadmapBody')) renderTeacherRoadmap();
         if (document.getElementById('studentRoadmapBody')) renderStudentRoadmap();
     }, 1500);
 
@@ -3563,6 +3571,7 @@ window.onload = async function () {
 
     // 1. Chỉ lắng nghe khi có một bài nộp nào đó bị chỉnh sửa (ví dụ: HS nộp lại hoặc GV vừa chấm điểm)
     listenFirebase(db.ref('submissions'), 'child_changed', async (snapshot) => {
+        DBReadSingleFlight.invalidate('submissions');
         window.invalidateTeacherListSearchCache?.('submissions');
         const updatedSub = { _fbKey: snapshot.key, ...snapshot.val() };
 
@@ -3582,23 +3591,42 @@ window.onload = async function () {
 
     // 2. Chỉ lắng nghe khi bài tập có sự thay đổi cấu hình
     listenFirebase(db.ref('assignments'), 'child_changed', async (snapshot) => {
+        DBReadSingleFlight.invalidate('assignments');
         window.invalidateTeacherListSearchCache?.('assignments');
         const updatedAssign = { _fbKey: snapshot.key, ...snapshot.val() };
         if (window.cachedAssignments) {
             const idx = window.cachedAssignments.findIndex(a => a._fbKey === updatedAssign._fbKey || a.id === updatedAssign.id);
             if (idx !== -1) window.cachedAssignments[idx] = updatedAssign;
         }
+        if (document.getElementById('teacherRoadmapBody')) renderTeacherRoadmap();
         if (document.getElementById('studentRoadmapBody')) renderStudentRoadmap();
     });
 
+    // New/deleted assignments do not emit child_changed. Debounce the initial
+    // child_added burst, and invalidate one-shot reads before rebuilding the table.
+    for (const eventType of ['child_added', 'child_removed']) {
+        listenFirebase(db.ref('assignments'), eventType, () => {
+            DBReadSingleFlight.invalidate('assignments');
+            window.invalidateTeacherListSearchCache?.('assignments');
+            renderAssignments();
+        });
+    }
+
     // 3. Khi có bài nộp hoàn toàn MỚI, ta không tải lại toàn bộ mà chỉ cần thông báo hoặc tải lại trang đầu
     listenFirebase(db.ref('submissions').limitToLast(1), 'child_added', (snapshot) => {
+        DBReadSingleFlight.invalidate('submissions');
         window.invalidateTeacherListSearchCache?.('submissions');
         // Chỉ xử lý nếu đây là bài nộp mới phát sinh sau khi trang đã tải xong
         if (window.cachedSubmissions && !window.cachedSubmissions.some(s => s._fbKey === snapshot.key)) {
             // Gọi load lại trang đầu tiên để cập nhật bài mới lên trên cùng
-            loadSubmissions(false);
+            renderSubmissions();
         }
+        if (document.getElementById('teacherRoadmapBody')) renderTeacherRoadmap();
+    });
+    listenFirebase(db.ref('submissions'), 'child_removed', () => {
+        DBReadSingleFlight.invalidate('submissions');
+        window.invalidateTeacherListSearchCache?.('submissions');
+        renderSubmissions();
     });
     listenFirebase(db.ref('users'), 'value', renderUsers);
     listenFirebase(db.ref('profile_requests'), 'value', debounce(loadProfileRequests, 1500));
@@ -3606,7 +3634,7 @@ window.onload = async function () {
     listenFirebase(db.ref('schedule'), 'value', debounce(loadScheduleTeacher, 1500));
     listenFirebase(db.ref('spin_history'), 'value', debounce(loadSpinHistory, 1500));
     listenFirebase(db.ref('student_coins'), 'value', debounce(loadStudentsList, 1500));
-    listenFirebase(db.ref('cash_requests'), 'value', debounce(loadTeacherCashRequests, 1500));
+    // Cash requests are loaded by status/cursor on demand; no full-root listener.
 
     // ==========================================
     // PHẦN 3: LẮNG NGHE SETTINGS (Dữ liệu nhỏ, giữ nguyên real-time)
@@ -4500,7 +4528,7 @@ async function createAssignment() {
             renderAssignmentDuplicateHint([], { error: true });
 
             return (await AppDialog.alert(
-                '⚠️ Chưa thể kiểm tra bài đã giao trên Firebase. ' +
+                '⚠️ Chưa thể kiểm tra bài đã giao trên đám mây. ' +
                 'Để tránh tạo bài trùng, hệ thống tạm dừng phát hành. ' +
                 'Vui lòng kiểm tra kết nối và thử lại.'
             ));
@@ -4854,6 +4882,7 @@ async function createAssignment() {
 
     await pushDB('assignments', {
         id: Date.now().toString(), title, desc,
+        createdAt: firebase.database.ServerValue.TIMESTAMP,
         startDate: startDate
             ? startDate.replace("T", " ")
             : '',
@@ -4982,8 +5011,8 @@ window.toggleAssignmentLock = async function(key) {
             if (!session || session.status === 'submitted') continue;
             const base = 'exam_sessions/' + username + '/' + id + '/';
             if (locked) {
-                const timedEnd = Number(session.startedAt || 0) + Number(current.examTimeLimitMinutes || 0) * 60000;
-                updates[base + 'teacherLockRemainingMs'] = Number(current.examTimeLimitMinutes) > 0 ? Math.max(0, timedEnd - now) : 0;
+                const timedEnd = Number(session.deadlineAt || 0);
+                updates[base + 'teacherLockRemainingMs'] = timedEnd > 0 ? Math.max(0, timedEnd - now) : 0;
                 updates[base + 'deadlineAt'] = 0;
             } else if (session.teacherLockRemainingMs !== undefined) {
                 updates[base + 'deadlineAt'] = Number(current.examTimeLimitMinutes) > 0 ? now + Number(session.teacherLockRemainingMs) : 0;
@@ -5360,13 +5389,13 @@ async function loadAssignedList(isLoadMore = false) {
 
         div.innerHTML = `<div class="accordion-header" onclick="toggleAccordion('${uniqueId}', this)">
             <div class="accordion-title">
-                <h4 style="display: flex; align-items: center; gap: 5px; margin: 0;">${assign.title} ${statusBadge}</h4>
+                <h4 style="display: flex; align-items: center; gap: 5px; margin: 0;"><span class="teacher-assignment-title-text">${assign.title}</span><span class="teacher-assignment-status">${statusBadge}</span></h4>
                 <span style="display: block; margin-top: 5px;">Loại: ${typeText}</span>
             </div>
             <div class="accordion-meta"><span>Hạn: <strong>${assign.endDate || 'Không giới hạn'}</strong></span><span class="toggle-icon">▼</span></div>
         </div>
             <div id="${uniqueId}" class="accordion-content">
-                <div style="text-align: right; margin-bottom: 15px; display: flex; gap: 10px; justify-content: flex-end;">
+                <div class="teacher-assignment-actions" style="text-align: right; margin-bottom: 15px; display: flex; gap: 10px; justify-content: flex-end;">
                     <button class="btn-approve" style="padding: 6px 15px; font-size: 0.9em; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;" onclick="openAssignmentStatusModal('${assign.id}')">📊 Trạng thái</button>
                     <button class="btn-approve" style="padding:6px 15px;font-size:0.9em;" onclick="toggleAssignmentLock('${assign._fbKey}')">${assign.isLocked ? '🔓 Mở khóa' : '🔒 Khóa bài'}</button>
                     <button class="btn-approve" style="padding: 6px 15px; font-size: 0.9em; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white;" onclick="openEditAssignmentModal('${assign._fbKey}')">✏️ Sửa bài</button>
@@ -7471,7 +7500,7 @@ function escapeHTMLForMath(value) {
 // - Coin đã nhận có thể bị thu hồi khi chấm lại/xóa; nếu học sinh đã tiêu hết,
 //   student_coins có thể âm để bảo toàn sổ cái và chặn việc lợi dụng chấm lại.
 // ==============================================================
-const GRADE_REWARD_V2_VERSION = 4;
+const GRADE_REWARD_V2_VERSION = 5;
 window.__GRADE_REWARD_GUARD_BUILD = '20260917.v4.4-redo-scope-resolution';
 console.info('[Grade Reward Guard]', window.__GRADE_REWARD_GUARD_BUILD);
 const GRADE_REWARD_MUTATION_LOCK_MS = 10 * 60 * 1000;
@@ -7526,154 +7555,94 @@ function getTeacherGradeRewardV2ViolationReasons(submission) {
     return [...new Set(reasons)];
 }
 
-function getTeacherGradeRewardV2Outcome(rawGrade, submission) {
-    const enteredScore = Number(rawGrade);
-
-    if (!Number.isFinite(enteredScore) || enteredScore < 0 || enteredScore > 10) {
-        throw new Error('INVALID_GRADE_REWARD_SCORE');
-    }
-
-    // B1 V4.4: Với redo một phần (essay/mc), sai khác <= 0.1 điểm được xem
-    // là sai số làm tròn cho MỤC ĐÍCH KINH TẾ. Điểm học tập vẫn lưu đúng số
-    // giáo viên nhập; chỉ mốc thưởng/phạt dùng redoBaseGrade để tránh nhảy mốc
-    // vì 6.9 -> 7.0 hoặc tương tự.
-    const redoScope = String(
-        submission?.lastRedoScope ||
-        submission?.redoScope ||
-        ''
-    ).toLowerCase();
-    const redoBaseGrade = Number(submission?.redoBaseGrade);
-    const isPartialRedo = redoScope === 'essay' || redoScope === 'mc';
-    const useRedoBaseForReward = Boolean(
-        isPartialRedo &&
-        Number.isFinite(redoBaseGrade) &&
-        Math.abs(enteredScore - redoBaseGrade) <= 0.1000001
-    );
-    const score = useRedoBaseForReward
-        ? redoBaseGrade
-        : enteredScore;
-
-    const violationReasons =
-        getTeacherGradeRewardV2ViolationReasons(submission);
-
-    if (score === 0 && violationReasons.length > 0) {
-        return {
-            kind: 'penalty',
-            ticketDelta: -4,
-            coinReward: -700,
-            score,
-            reason: violationReasons.join(', '),
-            specialPenalty: true,
-            enteredScore,
-            rewardScore: score,
-            redoScope: isPartialRedo ? redoScope : null,
-            redoBaseGrade: Number.isFinite(redoBaseGrade) ? redoBaseGrade : null,
-            redoEconomicallyNormalized: useRedoBaseForReward
-        };
-    }
-
-    if (score >= 5 && (violationReasons.length > 0 || submission?.rewardForfeited === true)) {
-        return {
-            kind: 'blocked', ticketDelta: 0, coinReward: 0, score,
-            reason: violationReasons.join(', ') || 'Thưởng của bài đã bị hủy do vi phạm', specialPenalty: false,
-            enteredScore, rewardScore: score,
-            redoScope: isPartialRedo ? redoScope : null,
-            redoBaseGrade: Number.isFinite(redoBaseGrade) ? redoBaseGrade : null,
-            redoEconomicallyNormalized: useRedoBaseForReward
-        };
-    }
-
-    if (score >= 10) {
-        return {
-            kind: 'reward',
-            ticketDelta: 7,
-            coinReward: 100,
-            score,
-            reason: 'Đạt 10 điểm',
-            specialPenalty: false,
-            enteredScore,
-            rewardScore: score,
-            redoScope: isPartialRedo ? redoScope : null,
-            redoBaseGrade: Number.isFinite(redoBaseGrade) ? redoBaseGrade : null,
-            redoEconomicallyNormalized: useRedoBaseForReward
-        };
-    }
-
-    if (score >= 7) {
-        return {
-            kind: 'reward',
-            ticketDelta: 6,
-            coinReward: 50,
-            score,
-            reason: 'Đạt từ 7 đến dưới 10 điểm',
-            specialPenalty: false,
-            enteredScore,
-            rewardScore: score,
-            redoScope: isPartialRedo ? redoScope : null,
-            redoBaseGrade: Number.isFinite(redoBaseGrade) ? redoBaseGrade : null,
-            redoEconomicallyNormalized: useRedoBaseForReward
-        };
-    }
-
-    if (score >= 5) {
-        return {
-            kind: 'reward',
-            ticketDelta: 5,
-            coinReward: 20,
-            score,
-            reason: 'Đạt từ 5 đến dưới 7 điểm',
-            specialPenalty: false,
-            enteredScore,
-            rewardScore: score,
-            redoScope: isPartialRedo ? redoScope : null,
-            redoBaseGrade: Number.isFinite(redoBaseGrade) ? redoBaseGrade : null,
-            redoEconomicallyNormalized: useRedoBaseForReward
-        };
-    }
-
-    if (score >= 4) {
-        return {
-            kind: 'penalty',
-            ticketDelta: -1,
-            coinReward: -200,
-            score,
-            reason: 'Điểm từ 4 đến dưới 5',
-            specialPenalty: false,
-            enteredScore,
-            rewardScore: score,
-            redoScope: isPartialRedo ? redoScope : null,
-            redoBaseGrade: Number.isFinite(redoBaseGrade) ? redoBaseGrade : null,
-            redoEconomicallyNormalized: useRedoBaseForReward
-        };
-    }
-
-    if (score >= 2) {
-        return {
-            kind: 'penalty',
-            ticketDelta: -2,
-            coinReward: -300,
-            score,
-            reason: 'Điểm từ 2 đến dưới 4',
-            specialPenalty: false,
-            enteredScore,
-            rewardScore: score,
-            redoScope: isPartialRedo ? redoScope : null,
-            redoBaseGrade: Number.isFinite(redoBaseGrade) ? redoBaseGrade : null,
-            redoEconomicallyNormalized: useRedoBaseForReward
-        };
-    }
-
-    return {
-        kind: 'penalty',
-        ticketDelta: -3,
-        coinReward: -400,
-        score,
-        reason: 'Điểm từ 0 đến dưới 2',
-        specialPenalty: false
-    };
+// Reward timing is frozen in the teacher-owned reward event, never at grading time.
+function getGradeRewardTime(value) {
+    const numeric = Number(value);
+    if (Number.isFinite(numeric) && numeric > 0) return numeric;
+    const text = String(value || '').trim();
+    // Assignment datetime-local fields use the school's Vietnam timezone.
+    if (/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}(:\d{2})?$/.test(text))
+        return Date.parse(text.replace(' ', 'T') + '+07:00') || 0;
+    const vn = text.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?[, ]+(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (vn) return Date.parse(`${vn[6]}-${vn[5].padStart(2,'0')}-${vn[4].padStart(2,'0')}T${vn[1].padStart(2,'0')}:${vn[2]}:${vn[3] || '00'}+07:00`) || 0;
+    return 0;
 }
 
+function calculateGradeRewardTiming(assignment, submission) {
+    const submittedAt = getGradeRewardTime(submission?.submittedAt) || getGradeRewardTime(submission?.submitTime);
+    const createdAt = getGradeRewardTime(assignment?.createdAt) || getGradeRewardTime(assignment?.id);
+    const startAt = Math.max(createdAt, getGradeRewardTime(assignment?.startDate));
+    const deadlineAt = getGradeRewardTime(assignment?.endDate);
+    const fallback = { version: 3, submittedAt, startAt, deadlineAt, percent: 100, basis: 'missing_dates' };
+    if (!submittedAt || !startAt || submittedAt < startAt) return fallback;
+    const elapsed = submittedAt - startAt;
+    let percent;
+    if (deadlineAt > startAt) {
+        const fraction = elapsed / (deadlineAt - startAt);
+        percent = fraction <= .25 ? 100 : fraction <= .5 ? 92.2 : fraction <= .75 ? 83.5 : 75.6;
+    } else {
+        percent = elapsed <= 86400000 ? 100 : elapsed <= 3 * 86400000 ? 92.2 : elapsed <= 7 * 86400000 ? 83.5 : 75.6;
+    }
+    return { version: 3, submittedAt, startAt, deadlineAt, percent, basis: deadlineAt > startAt ? 'deadline' : 'days_since_assignment' };
+}
 
+async function prepareTeacherGradeRewardTiming(submission) {
+    // Submission fields are student input. Never trust a persisted client cache
+    // of the reward percentage; only the teacher-written event freezes timing.
+    const username = getTeacherGradeRewardUsername(submission);
+    const key = getTeacherGradeRewardSubmissionKey(submission);
+    const event = (await db.ref(`grade_reward_events/${username}/${key}`).once('value')).val();
+    const submittedAt = getGradeRewardTime(submission.submittedAt) || getGradeRewardTime(submission.submitTime);
+    const previous = event?.timing;
+    if (previous?.version === 3 && previous.submittedAt === submittedAt && [75.6,83.5,92.2,100].includes(previous.percent)) {
+        submission.__gradeRewardTiming = previous;
+        return;
+    }
+    if (previous?.submittedAt === submittedAt && previous.startAt > 0) {
+        submission.__gradeRewardTiming = calculateGradeRewardTiming(
+            {createdAt:previous.startAt, endDate:previous.deadlineAt}, submission);
+        return;
+    }
+    const assignments = await getDB('assignments');
+    const assignment = assignments.find(a => String(a.id) === String(submission.assignmentId));
+    submission.__gradeRewardTiming = calculateGradeRewardTiming(assignment, submission);
+}
+
+function getTeacherGradeRewardV2Outcome(rawGrade, submission) {
+    if (rawGrade === null || rawGrade === undefined || String(rawGrade).trim() === '')
+        throw new Error('INVALID_GRADE_REWARD_SCORE');
+    const score = Number(rawGrade);
+    if (!Number.isFinite(score) || score < 0 || score > 10) throw new Error('INVALID_GRADE_REWARD_SCORE');
+    const history = typeof getTeacherActiveRedoViolationHistory === 'function'
+        ? getTeacherActiveRedoViolationHistory(submission) : {};
+    const penalties = [];
+    if (score === 0) penalties.push({ code:'score', label:'0 điểm', tickets:4, coins:500 });
+    else if (score < 2) penalties.push({ code:'score', label:'Trên 0 đến dưới 2 điểm', tickets:3, coins:300 });
+    else if (score < 4) penalties.push({ code:'score', label:'Từ 2 đến dưới 4 điểm', tickets:2, coins:150 });
+    else if (score < 5) penalties.push({ code:'score', label:'Từ 4 đến dưới 5 điểm', tickets:1, coins:50 });
+    if (submission?.isCheatFail || history.cheat)
+        penalties.push({ code:'exam', label:'Vi phạm quy chế thi', tickets:3, coins:200 });
+    if (submission?.isEssayMissing || history.essayMissing)
+        penalties.push({ code:'essay', label:'Thiếu tự luận', tickets:3, coins:150 });
+    // Older submissions also set isAutoSubmitted when collecting a cheating attempt.
+    // That alone is not evidence of a second, time-related violation.
+    if (submission?.isLateFail || history.late ||
+        (submission?.isAutoSubmitted && !submission?.isCheatFail) ||
+        (history.autoSubmitted && !history.cheat))
+        penalties.push({ code:'time', label:'Nộp trễ/quá hạn hoặc tự thu bài do hết giờ', tickets:4, coins:300 });
+    const baseTickets = score === 10 ? 4 : score >= 7 ? 3 : score >= 5 ? 2 : 0;
+    const baseCoins = score === 10 ? 700 : score >= 7 ? 350 : score >= 5 ? 150 : 0;
+    const timing = submission?.__gradeRewardTiming || null;
+    const percent = [100,92.2,83.5,75.6].includes(timing?.percent) ? timing.percent : 100;
+    // Integer tenths avoid floating-point truncation at exact whole-Coin results.
+    const earnedCoins = Math.floor(baseCoins * Math.round(percent * 10) / 1000);
+    const penaltyTickets = penalties.reduce((sum,p) => sum+p.tickets,0);
+    const penaltyCoins = penalties.reduce((sum,p) => sum+p.coins,0);
+    return { kind:'settlement', score, enteredScore:score, rewardScore:score,
+        baseTickets, baseCoins, earnedCoins, percent, penalties, penaltyTickets, penaltyCoins,
+        ticketDelta:baseTickets-penaltyTickets, coinReward:earnedCoins-penaltyCoins,
+        timing, reason:penalties.map(p=>p.label).join(', ') || 'Không vi phạm', specialPenalty:score===0 };
+}
 
 function getTeacherGradeRewardSubmissionKey(submission) {
     return String(
@@ -7771,6 +7740,7 @@ function getTeacherGradeRewardHistoryEntry(eventData) {
         coinReward: Number(source.coinReward || 0),
         specialPenalty: source.specialPenalty === true,
         reason: String(source.reason || ''),
+        timing: source.timing || null,
         messageId: String(source.messageId || ''),
         gradedAt: Number(source.gradedAt || 0),
         issuedAt: Number(source.issuedAt || 0),
@@ -7806,7 +7776,7 @@ async function archiveTeacherGradeRewardRevisionV43(
     }
 
     await archiveRef.set({
-        version: GRADE_REWARD_V2_VERSION,
+        version: Number(entry.version || 4),
         revision,
         username: String(username),
         submissionKey: String(submissionKey),
@@ -7818,6 +7788,7 @@ async function archiveTeacherGradeRewardRevisionV43(
         coinReward: Number(entry.coinReward || 0),
         specialPenalty: entry.specialPenalty === true,
         reason: String(entry.reason || ''),
+        timing: entry.timing || null,
         messageId: String(entry.messageId || ''),
         gradedAt: Number(entry.gradedAt || 0),
         issuedAt: Number(entry.issuedAt || 0),
@@ -8194,6 +8165,13 @@ async function rollbackTeacherGradeRewardV3(
         `grade_reward_events/${username}/${submissionKey}`
     );
 
+    const existing = (await eventRef.once('value')).val();
+    if (Number(existing?.version || 0) >= 5) {
+        const outcome = { ...existing, ticketDelta:0, coinReward:0,
+            baseTickets:0, baseCoins:0, earnedCoins:0, percent:100,
+            penalties:[], penaltyTickets:0, penaltyCoins:0, reason:reasonCode };
+        return settleTeacherGradeRewardV5(submission, outcome, Date.now(), 'deleted');
+    }
     const fallbackEvent = getTeacherGradeRewardFallbackEvent(submission);
     const now = Date.now();
     const mutationId =
@@ -8999,8 +8977,8 @@ async function holdTeacherGradeRewardForRegradeV4(
         };
     }
 
-    // Ordinary redo/regrade is not a successful appeal. Keep the applied debit.
-    if (source.status === 'penalty_applied' && Number(source.ticketDelta) < 0) {
+    // V5 retains the current settlement until a new grade computes the difference.
+    if (Number(source.version || 0) >= 5) {
         return { status: 'penalty_preserved', hadRewardEvent: false,
             reversedTickets: 0, reversedCoins: 0,
             refundedPenaltyTickets: 0, heldMessageId: null };
@@ -9337,7 +9315,7 @@ async function holdTeacherGradeRewardForRegradeV4(
         return {
         ...current,
         history: historyReconcile.history,
-        version: GRADE_REWARD_V2_VERSION,
+        version: 4,
         status: 'regrade_hold',
 
         holdOriginalStatus: previousStatus ||
@@ -9752,7 +9730,7 @@ async function resolveTeacherGradeRewardHoldV4(
         submission
     );
 
-    const exactSame =
+    const exactSame = Number(eventData.version || 0) >= 5 &&
         isTeacherGradeRewardV4ExactSame(
             oldSnapshot,
             newOutcome
@@ -10097,343 +10075,279 @@ async function resolveTeacherGradeRewardHoldV4(
     };
 }
 
-function getTeacherGradeRewardExistingResultV4(
-    eventData,
-    submission,
-    outcome
-) {
-    const source = eventData || {};
-
-    return {
-        status: String(source.status || 'already_issued'),
-        messageId: String(source.messageId || '') || null,
-        revision: Number(source.revision || 1),
-        ticketDelta: Number(
-            source.ticketDelta ?? outcome?.ticketDelta ?? 0
-        ),
-        coinReward: Number(
-            source.coinReward ?? outcome?.coinReward ?? 0
-        ),
-        score: Number(
-            source.score ?? outcome?.score ?? submission?.grade ?? 0
-        ),
-        reason: String(
-            source.reason ?? outcome?.reason ?? ''
-        ),
-        specialPenalty: Boolean(
-            source.specialPenalty ??
-            outcome?.specialPenalty
-        ),
-        reusedExistingReward: true
-    };
+function gradeSettlementSourceGuard(submission) {
+    const guard = {};
+    for (const field of ["isCheatFail","isEssayMissing","isLateFail","isAutoSubmitted","submittedAt","submitTime","redoStartedAt","redoViolationHistoryActive","redoViolationResolvedAt"]) guard[field] = submission[field] ?? null;
+    for (const field of ['cheat','late','essayMissing','autoSubmitted']) guard['history_' + field] = submission.redoViolationHistory?.[field] ?? null;
+    return guard;
 }
 
+function describeTeacherGradeRewardTiming(outcome, submission) {
+    const timing = submission.__gradeRewardTiming || {};
+    const format = value => new Date(value).toLocaleString('vi-VN', {timeZone:'Asia/Ho_Chi_Minh'});
+    const dates = timing.startAt && timing.submittedAt
+        ? `Bắt đầu tính: ${format(timing.startAt)}. Nộp bài: ${format(timing.submittedAt)}.` : 'Chưa đủ ngày giờ: giữ 100% Coin thưởng.';
+    const basis = timing.basis === 'deadline'
+        ? 'Chia khoảng từ lúc được làm đến hạn nộp thành 4 phần bằng nhau.'
+        : 'Bài không hạn: trong 1 ngày / trên 1–3 ngày / trên 3–7 ngày / sau 7 ngày.';
+    return `Thưởng theo điểm: ${outcome.baseTickets} vé + ${outcome.baseCoins} Coin.\n${dates}\n${basis}\n` +
+        `Tỷ lệ Coin: ${outcome.percent}%. Coin thưởng sau làm tròn xuống: ${outcome.earnedCoins} (giảm ${outcome.baseCoins-outcome.earnedCoins}). Vé không giảm theo thời gian. Thời điểm chấm không ảnh hưởng.\n` +
+        (outcome.penalties.length ? outcome.penalties.map(p=>`${p.label}: trừ ${p.tickets} vé + ${p.coins} Coin.`).join('\n') : 'Không có khoản phạt.') +
+        `\nTổng phạt: ${outcome.penaltyTickets} vé + ${outcome.penaltyCoins} Coin.\n` +
+        `Kết quả thưởng trừ phạt: ${outcome.ticketDelta} vé, ${outcome.coinReward} Coin.`;
+}
 
-async function issueTeacherGradeRewardV2(submission, rawGrade, gradedAt) {
+// A receipt, both balances, event and notification commit in ONE atomic update.
+// Rules make each revision create-only and compare the previous event revision.
+// Never retry an increment blindly after a lost response: reread the event first.
+async function settleTeacherGradeRewardV5(submission, outcome, gradedAt, status = 'settled', migration = null) {
     const username = getTeacherGradeRewardUsername(submission);
-    const submissionKey = getTeacherGradeRewardSubmissionKey(submission);
-
-    if (!username || !submissionKey) {
-        throw new Error('MISSING_GRADE_REWARD_TARGET');
+    const key = getTeacherGradeRewardSubmissionKey(submission);
+    if (!username || !key) throw new Error('MISSING_GRADE_REWARD_TARGET');
+    const eventPath = `grade_reward_events/${username}/${key}`;
+    const previous = (await db.ref(eventPath).once('value')).val();
+    if (migration && (previous?.version >= 5 || previous?.mutationId !== migration.id)) throw new Error('GRADE_REWARD_MUTATION_IN_PROGRESS');
+    if (!migration && previous && Number(previous.version || 0) < 5 && !['superseded','rolled_back','deleted','retry','violation_blocked'].includes(previous.status))
+        throw new Error('GRADE_REWARD_LEGACY_RECONCILIATION_REQUIRED');
+    const oldTickets = migration ? migration.tickets : previous?.version >= 5 ? Number(previous.ticketDelta || 0) : 0;
+    const oldCoins = migration ? migration.coins : previous?.version >= 5 ? Number(previous.coinReward || 0) : 0;
+    const deltaTickets = outcome.ticketDelta-oldTickets;
+    const deltaCoins = outcome.coinReward-oldCoins;
+    const ticketAdjustment = deltaTickets;
+    const coinAdjustment = deltaCoins;
+    if (previous?.version >= 5 && previous.status === status && !ticketAdjustment && !coinAdjustment &&
+        previous.score === outcome.score && previous.reason === outcome.reason &&
+        previous.timing?.submittedAt === outcome.timing?.submittedAt && previous.gradedAt === Number(gradedAt) && !['retry', 'processing'].includes(submission.gradeRewardV2Status)) return previous;
+    const revision = Number(previous?.revision || 0)+1;
+    const messageId = `grade_settlement_${key}_${revision}`;
+    const signed = (n,unit) => n>0 ? `cộng ${n} ${unit}` : n<0 ? `trừ ${-n} ${unit}` : `không cộng/trừ ${unit}`;
+    const message = `Bài được chấm ${outcome.score}/10.\n${describeTeacherGradeRewardTiming(outcome,submission)}\n` +
+        `Đã đối soát trước đó: ${oldTickets} vé, ${oldCoins} Coin.\n` +
+        `Lần này: ${signed(ticketAdjustment,'vé')}; ${signed(coinAdjustment,'Coin')}. ` +
+        (!ticketAdjustment && !coinAdjustment ? 'Không có phần chênh lệch để nhận hoặc trừ.' : 'Đã cập nhật trực tiếp vào số dư; không cần bấm nhận. Khoản thiếu được trừ vào số dư, có thể âm.');
+    const event = {...outcome, version:5, status, revision, username, submissionKey:key,
+        assignmentId:String(submission.assignmentId||''),
+        ticketAdjustment, coinAdjustment, messageId, gradedAt:Number(gradedAt||Date.now()),
+        appliedAt:firebase.database.ServerValue.TIMESTAMP};
+    const receiptPath = `grade_reward_settlements/${username}/${key}/${revision}`;
+    const updates = {
+        [eventPath]:event,
+        [receiptPath]:{previousRevision:Number(previous?.revision||0), revision,
+            ticketAdjustment, coinAdjustment, status, score:outcome.score,
+            outcome, sourceGuard: gradeSettlementSourceGuard(submission),
+            violationPardonedAt:Number(submission.violationPardonedAt || 0),
+            gradedAt:Number(gradedAt||Date.now()), createdAt:firebase.database.ServerValue.TIMESTAMP},
+        [`student_bonus_tickets/${username}`]:firebase.database.ServerValue.increment(ticketAdjustment),
+        [`student_coins/${username}`]:firebase.database.ServerValue.increment(coinAdjustment),
+        [`inbox_messages/${username}/${messageId}`]:{message,giftType:'none',giftValue:0,
+            source:'grade_settlement_v5',submissionKey:key,timestamp:firebase.database.ServerValue.TIMESTAMP,
+            expiry:null,skipInboxGiftAnimation:true}
+    };
+    if (status === 'settled') {
+        for (const [field, value] of Object.entries({ gradeRewardV2Version: 5, gradeRewardV2Status: 'settled',
+            gradeRewardV2MessageId: messageId, gradeRewardV2Revision: revision,
+            gradeRewardV2Tickets: outcome.ticketDelta, gradeRewardV2Coins: outcome.coinReward,
+            gradeRewardV2ProcessedAt: firebase.database.ServerValue.TIMESTAMP })) {
+            updates['submissions/' + key + '/' + field] = value;
+        }
     }
-
-    const outcome =
-        getTeacherGradeRewardV2Outcome(rawGrade, submission);
-
-    const eventRef = db.ref(
-        `grade_reward_events/${username}/${submissionKey}`
-    );
-
-    const startedAt = Date.now();
-
-    const reserveTx = await eventRef.transaction(current => {
-        const currentStatus = String(current?.status || '');
-
-        if (current) {
-            if (
-                ['pending_claim', 'penalty_applied', 'claimed']
-                    .includes(currentStatus)
-            ) {
-                return;
-            }
-
-            if (
-                currentStatus === 'processing' &&
-                startedAt - Number(current.startedAt || 0) <
-                    GRADE_REWARD_MUTATION_LOCK_MS
-            ) {
-                return;
-            }
-
-            if (
-                currentStatus === 'mutating' &&
-                startedAt - Number(current.mutationStartedAt || 0) <
-                    GRADE_REWARD_MUTATION_LOCK_MS
-            ) {
-                return;
-            }
+    if (migration) {
+        updates[receiptPath].legacyMigration = { id: migration.id, tickets: oldTickets, coins: oldCoins,
+            originalEvent: previous, originalMessages: migration.originalMessages || {} };
+        updates[eventPath].legacyMigratedAt = firebase.database.ServerValue.TIMESTAMP;
+        for (const messageId of migration.messageIds) {
+            if (messageId !== messageId.trim() || /[.#$\[\]\/]/.test(messageId)) throw new Error('INVALID_MESSAGE_KEY');
+            updates['inbox_messages/' + username + '/' + messageId] = null;
         }
-
-        const previousRevision = current
-            ? Number(current.revision || 1)
-            : 0;
-        const history = {
-            ...(current?.history && typeof current.history === 'object'
-                ? current.history
-                : {})
-        };
-
-        if (current && previousRevision > 0) {
-            history[String(previousRevision)] =
-                getTeacherGradeRewardHistoryEntry(current);
-        }
-
-        return {
-            version: GRADE_REWARD_V2_VERSION,
-            revision: previousRevision + 1,
-            status: 'processing',
-            username,
-            submissionKey,
-            assignmentId: String(submission?.assignmentId || ''),
-            score: outcome.score,
-            ticketDelta: outcome.ticketDelta,
-            coinReward: outcome.coinReward,
-            specialPenalty: outcome.specialPenalty === true,
-            reason: outcome.reason,
-            startedAt,
-            gradedAt: Number(gradedAt || startedAt),
-            history
-        };
-    });
-
-    if (!reserveTx.committed) {
-        const existing = reserveTx.snapshot.val() || null;
-
-        if (!existing) {
-            return {
-                status: 'already_issued',
-                ticketDelta: outcome.ticketDelta,
-                coinReward: outcome.coinReward,
-                score: outcome.score
-            };
-        }
-
-        const claim = await getTeacherGradeRewardClaimState(
-            username,
-            existing
-        );
-
-        return {
-            ...existing,
-            status:
-                claim?.status === 'claimed'
-                    ? 'claimed'
-                    : String(existing.status || 'already_issued'),
-            claimStatus: claim?.status || null
-        };
+        updates['submissions/' + key + '/gradeRewardV2Version'] = 5;
+        updates['submissions/' + key + '/gradeRewardV2Status'] = 'settled';
+        updates['submissions/' + key + '/gradeRewardV2MessageId'] = messageId;
+        updates['submissions/' + key + '/gradeRewardV2Revision'] = revision;
+        updates['submissions/' + key + '/gradeRewardV2Tickets'] = outcome.ticketDelta;
+        updates['submissions/' + key + '/gradeRewardV2Coins'] = outcome.coinReward;
     }
-
-    const reservedEvent = reserveTx.snapshot.val() || {};
-    const revision = Number(reservedEvent.revision || 1);
-    const scoreLabel = Number(outcome.score).toLocaleString('vi-VN', {
-        maximumFractionDigits: 2
-    });
-
-    try {
-        if (outcome.kind === 'blocked') {
-            // No balance mutation and no claimable gift for an unpardoned violation.
-            await eventRef.update({
-                status: 'violation_blocked', messageId: null,
-                issuedAt: firebase.database.ServerValue.TIMESTAMP
-            });
-            return { status: 'violation_blocked', messageId: null, revision, ...outcome };
-        }
-
-        if (outcome.kind === 'reward') {
-            const messageRef = db.ref(
-                `inbox_messages/${username}`
-            ).push();
-
-            const messageId = messageRef.key;
-
-            await messageRef.set({
-                message:
-                    `🎓 Bài của bạn đã được giáo viên chấm ${scoreLabel}/10. ` +
-                    `Bạn nhận thưởng ${outcome.ticketDelta} Vé quay may mắn` +
-                    (outcome.coinReward > 0
-                        ? ` và ${outcome.coinReward} Coin.`
-                        : '.'),
-                giftType: 'grade_reward',
-                giftValue: outcome.ticketDelta,
-                gradeRewardTickets: outcome.ticketDelta,
-                gradeRewardCoins: outcome.coinReward,
-                gradeRewardScore: outcome.score,
-                gradeRewardRevision: revision,
-                assignmentId: String(submission?.assignmentId || ''),
-                submissionKey,
-                rewardVersion: GRADE_REWARD_V2_VERSION,
-                source: 'grade_reward_v4',
-                expiry: null,
-                timestamp: firebase.database.ServerValue.TIMESTAMP,
-                timeString: new Date(startedAt).toLocaleString('vi-VN')
-            });
-
-            await eventRef.update({
-                status: 'pending_claim',
-                messageId,
-                issuedAt: firebase.database.ServerValue.TIMESTAMP
-            });
-
-            const archivedRewardEvent = {
-                ...reservedEvent,
-                status: 'pending_claim',
-                messageId,
-                issuedAt: Date.now()
-            };
-
-            await archiveTeacherGradeRewardRevisionV43(
-                username,
-                submissionKey,
-                archivedRewardEvent
-            ).catch(() => {});
-
-            await setTeacherGradeRewardRevisionStateV43(
-                username,
-                submissionKey,
-                revision,
-                {
-                    reversed: false,
-                    active: true,
-                    activatedAt: Date.now()
-                }
-            ).catch(() => {});
-
-            return {
-                status: 'pending_claim',
-                messageId,
-                revision,
-                ...outcome
-            };
-        }
-
-        const ticketRef = db.ref(
-            `student_bonus_tickets/${username}`
-        );
-
-        let penaltyApplied = false;
-        let coinPenaltyApplied = false;
-        const penaltyCoinRef = db.ref(`student_coins/${username}`);
-
-        try {
-            const penaltyTx = await ticketRef.transaction(current => {
-                const value = Number(current || 0);
-                return value + outcome.ticketDelta;
-            });
-
-            if (!penaltyTx.committed) {
-                throw new Error('GRADE_PENALTY_TRANSACTION_ABORTED');
-            }
-
-            penaltyApplied = true;
-            if (outcome.coinReward < 0) {
-                const coinTx = await penaltyCoinRef.transaction(current => Number(current || 0) + outcome.coinReward);
-                if (!coinTx.committed) throw new Error('GRADE_COIN_PENALTY_TRANSACTION_ABORTED');
-                coinPenaltyApplied = true;
-            }
-
-            const messageRef = db.ref(
-                `inbox_messages/${username}`
-            ).push();
-
-            const messageId = messageRef.key;
-            const absolutePenalty = Math.abs(outcome.ticketDelta);
-
-            await messageRef.set({
-                message:
-                    `⚠️ Bài của bạn được chấm ${scoreLabel}/10. ` +
-                    `Hệ thống đã trừ ${absolutePenalty} Vé quay may mắn và ${Math.abs(outcome.coinReward || 0)} Coin` +
-                    (outcome.specialPenalty
-                        ? ` do ${outcome.reason}.`
-                        : ` theo mốc điểm hiện tại.`),
-                giftType: 'grade_penalty',
-                giftValue: outcome.ticketDelta,
-                gradePenaltyTickets: outcome.ticketDelta,
-                gradePenaltyCoins: outcome.coinReward,
-                gradeRewardScore: outcome.score,
-                gradeRewardRevision: revision,
-                gradePenaltyReason: outcome.reason,
-                specialPenalty: outcome.specialPenalty === true,
-                penaltyApplied: true,
-                assignmentId: String(submission?.assignmentId || ''),
-                submissionKey,
-                rewardVersion: GRADE_REWARD_V2_VERSION,
-                source: 'grade_reward_v4',
-                expiry: null,
-                timestamp: firebase.database.ServerValue.TIMESTAMP,
-                timeString: new Date(startedAt).toLocaleString('vi-VN')
-            });
-
-            await eventRef.update({
-                status: 'penalty_applied',
-                messageId,
-                appliedAt: firebase.database.ServerValue.TIMESTAMP
-            });
-
-            const archivedPenaltyEvent = {
-                ...reservedEvent,
-                status: 'penalty_applied',
-                messageId,
-                appliedAt: Date.now()
-            };
-
-            await archiveTeacherGradeRewardRevisionV43(
-                username,
-                submissionKey,
-                archivedPenaltyEvent
-            ).catch(() => {});
-
-            await setTeacherGradeRewardRevisionStateV43(
-                username,
-                submissionKey,
-                revision,
-                {
-                    reversed: false,
-                    active: true,
-                    activatedAt: Date.now()
-                }
-            ).catch(() => {});
-
-            return {
-                status: 'penalty_applied',
-                messageId,
-                revision,
-                ...outcome
-            };
-        } catch (penaltyError) {
-            if (coinPenaltyApplied) {
-                await penaltyCoinRef.transaction(current => Number(current || 0) - outcome.coinReward).catch(() => {});
-            }
-            if (penaltyApplied) {
-                await ticketRef.transaction(current => {
-                    const value = Number(current || 0);
-                    return value - outcome.ticketDelta;
-                }).catch(() => {});
-            }
-
-            throw penaltyError;
-        }
-    } catch (error) {
-        await eventRef.update({
-            status: 'retry',
-            failedAt: firebase.database.ServerValue.TIMESTAMP,
-            error: String(error?.message || error).slice(0, 300)
-        }).catch(() => {});
-
+    try { await db.ref().update(updates); }
+    catch(error) {
+        const saved = (await db.ref(eventPath).once('value')).val();
+        if (saved?.version === 5 && saved.revision === revision && saved.messageId === messageId &&
+            saved.ticketDelta === outcome.ticketDelta && saved.coinReward === outcome.coinReward &&
+            saved.score === outcome.score && saved.reason === outcome.reason) return saved;
         throw error;
     }
+    return event;
 }
 
+async function issueTeacherGradeRewardV2(submission, rawGrade, gradedAt) {
+    await prepareTeacherGradeRewardTiming(submission);
+    return settleTeacherGradeRewardV5(submission, getTeacherGradeRewardV2Outcome(rawGrade,submission), gradedAt);
+}
+
+// Legacy conversion runs only with teacher permissions. The event lease blocks
+// new student claims; the receipt, balances and replacement mail commit together.
+function getLegacyGradeAppliedBalance(event, claim) {
+    const status = String(event.mutationPreviousStatus || event.status || '');
+    if (claim?.status === 'processing') throw new Error('GRADE_REWARD_CLAIM_IN_PROGRESS');
+    if (claim && !['claimed','reversed'].includes(claim.status)) throw new Error('LEGACY_PARTIAL_CLAIM_NEEDS_REVIEW');
+    if (event.history && Object.keys(event.history).length)
+        throw new Error('LEGACY_HISTORY_NEEDS_REVIEW');
+    const tickets = Number(event.holdTicketDelta ?? event.ticketDelta ?? 0);
+    const coins = Number(event.holdCoinReward ?? event.coinReward ?? 0);
+    if (![tickets, coins].every(Number.isSafeInteger)) throw new Error('LEGACY_AMOUNT_INVALID');
+    if (claim?.status === 'reversed' || event.holdClaimedRewardReversed === true || event.holdPenaltyReversed === true)
+        return { tickets: 0, coins: 0 };
+    if (claim?.status === 'claimed') {
+        const result = { tickets: Number(claim.tickets), coins: Number(claim.coins) };
+        if (!Object.values(result).every(Number.isSafeInteger)) throw new Error('LEGACY_AMOUNT_INVALID');
+        return result;
+    }
+    if (status === 'penalty_applied') return { tickets, coins };
+    if (['pending_claim', 'violation_blocked'].includes(status) && tickets >= 0 && coins >= 0)
+        return { tickets: 0, coins: 0 };
+    if (['superseded', 'rolled_back', 'regrade_hold'].includes(status) &&
+        event.holdWasClaimed === false && event.holdWasPenaltyApplied === false && tickets >= 0 && coins >= 0)
+        return { tickets: 0, coins: 0 };
+    throw new Error('LEGACY_STATE_NEEDS_REVIEW');
+}
+
+async function migrateLegacyGradeReward(submissionKey, { allowApplied = false } = {}) {
+    if (currentUser?.role !== 'teacher') return false;
+    const sub = (await db.ref('submissions/' + submissionKey).once('value')).val();
+    if (!sub || sub.isRedoing || sub.isRegrading || sub.grade === '' || sub.grade == null ||
+        !Number.isFinite(Number(sub.grade)) || !Number.isFinite(Number(sub.gradedAt)) || !Number(sub.gradedAt)) return false;
+    sub._fbKey = submissionKey;
+    const username = getTeacherGradeRewardUsername(sub);
+    if (!username) return false;
+    const ref = db.ref(`grade_reward_events/${username}/${submissionKey}`);
+    const existing = (await ref.once('value')).val();
+    let source = existing || getTeacherGradeRewardFallbackEvent(sub);
+    if (!source) {
+        // Some old mails predate submission metadata. Only an exact, unique
+        // submission link is eligible; names/text are never used as evidence.
+        const inbox = (await db.ref('inbox_messages/' + username).once('value')).val() || {};
+        const candidates = Object.entries(inbox).filter(([, message]) =>
+            message.giftType === 'grade_reward' && String(message.submissionKey || '') === submissionKey);
+        if (candidates.length > 1) throw new Error('LEGACY_MESSAGES_NEED_REVIEW');
+        if (candidates.length === 1) {
+            const [messageId, mail] = candidates[0];
+            const tickets = Number(mail.gradeRewardTickets ?? mail.giftValue), coins = Number(mail.gradeRewardCoins ?? 0);
+            if (![tickets, coins].every(Number.isSafeInteger) || tickets < 0 || coins < 0) throw new Error('LEGACY_AMOUNT_INVALID');
+            source = { version: 4, revision: Number(mail.gradeRewardRevision || 1), status: 'pending_claim',
+                messageId, ticketDelta: tickets, coinReward: coins, username, submissionKey, recoveredFromMail: true };
+        }
+    }
+    // A failed FIRST V5 settlement has no event or mail yet. Recover from the
+    // saved grade instead of leaving this submission permanently in retry.
+    if (!source && Number(sub.gradeRewardV2Version) === 5 &&
+        ['retry', 'processing'].includes(sub.gradeRewardV2Status)) {
+        await prepareTeacherGradeRewardTiming(sub);
+        await settleTeacherGradeRewardV5(sub, getTeacherGradeRewardV2Outcome(sub.grade, sub), sub.gradedAt);
+        return true;
+    }
+    if (!source || source.status === 'deleted') return false;
+    if (Number(source.version) >= 5) {
+        if (!['retry','processing'].includes(sub.gradeRewardV2Status)) return false;
+        await prepareTeacherGradeRewardTiming(sub);
+        await settleTeacherGradeRewardV5(sub, getTeacherGradeRewardV2Outcome(sub.grade, sub), sub.gradedAt);
+        return true;
+    }
+    if (!allowApplied && !['pending_claim','violation_blocked'].includes(source.mutationPreviousStatus || source.status)) return false;
+    if (Number(source.version) < 2 || !Number.isSafeInteger(Number(source.revision || 0)) || Number(source.revision || 0) < 1)
+        throw new Error('LEGACY_STATE_NEEDS_REVIEW');
+    if (source.status === 'mutating' && !String(source.mutationId || '').startsWith('legacy_'))
+        throw new Error('LEGACY_MUTATION_NEEDS_REVIEW');
+    await prepareTeacherGradeRewardTiming(sub);
+    // Missing historical dates must not silently award 100% during conversion.
+    if (sub.__gradeRewardTiming?.basis === 'missing_dates') throw new Error('LEGACY_DATES_NEED_REVIEW');
+    const id = 'legacy_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    let acquired = false;
+    try {
+        const lock = await runTeacherGradeRewardLiveTransactionV44(ref, current => {
+            const base = current || source;
+            if (Number(base.version) >= 5 || base.status === 'deleted' ||
+                (base.status === 'mutating' && Date.now() - Number(base.mutationStartedAt || 0) < GRADE_REWARD_MUTATION_LOCK_MS)) return;
+            return { ...base, status: 'mutating', mutationId: id, mutationStartedAt: Date.now(),
+                mutationPreviousStatus: base.mutationPreviousStatus || base.status };
+        });
+        if (!lock.committed) return false;
+        acquired = true;
+        const event = lock.snapshot.val();
+        const messageIds = [...new Set([event.messageId, event.holdMessageId, sub.gradeRewardV2MessageId].filter(Boolean))];
+        if (messageIds.length > 1) throw new Error('LEGACY_MESSAGES_NEED_REVIEW');
+        const originalMessages = {};
+        for (const messageId of messageIds) {
+            const mail = (await db.ref(`inbox_messages/${username}/${messageId}`).once('value')).val();
+            if (mail) {
+                if (mail.giftCredited === true || mail.claimed === true) {
+                    if (!allowApplied) return false;
+                    throw new Error('LEGACY_MAIL_STATE_NEEDS_REVIEW');
+                }
+                const expiry = Number(mail.expiry) > 0 ? Math.min(Number(mail.expiry), Number(mail.timestamp) > 0 ? Number(mail.timestamp) + 259200000 : Infinity) : 0;
+                if (expiry && expiry <= Date.now()) {
+                    if (!allowApplied) return false;
+                    throw new Error('LEGACY_MAIL_EXPIRED');
+                }
+                originalMessages[messageId] = mail;
+            }
+        }
+        const claim = messageIds.length ? (await db.ref(`grade_reward_claims/${username}/${messageIds[0]}`).once('value')).val() : null;
+        if (claim && ((claim.submissionKey && claim.submissionKey !== submissionKey) || (claim.messageId && claim.messageId !== messageIds[0]) || (claim.rewardRevision && Number(claim.rewardRevision) !== Number(event.holdRevision || event.revision)))) throw new Error('LEGACY_CLAIM_IDENTITY_MISMATCH');
+        if (!allowApplied && (['claimed','reversed'].includes(claim?.status) || !Object.keys(originalMessages).length)) return false;
+        const applied = getLegacyGradeAppliedBalance(event, claim);
+        // Archived old revisions may carry independent amounts; never guess them.
+        const archive = (await db.ref(`grade_reward_revision_archive/${username}/${submissionKey}`).once('value')).val();
+        if (archive && Object.keys(archive).some(k => Number(k) !== Number(event.revision))) throw new Error('LEGACY_HISTORY_NEEDS_REVIEW');
+        const outcome = getTeacherGradeRewardV2Outcome(sub.grade, sub);
+        await settleTeacherGradeRewardV5(sub, outcome, sub.gradedAt, 'settled', { id, ...applied, messageIds, originalMessages });
+        return true;
+    } finally {
+        // On failure restore claim availability; a committed V5 event is untouched.
+        if (acquired) await runTeacherGradeRewardLiveTransactionV44(ref, current => {
+            if (!current || current.mutationId !== id || Number(current.version) >= 5) return;
+            const restored = { ...current, status: current.mutationPreviousStatus };
+            delete restored.mutationId; delete restored.mutationStartedAt; delete restored.mutationPreviousStatus;
+            return restored;
+        }).catch(error => console.warn('Chưa giải phóng khóa đối soát cũ:', error));
+    }
+}
+
+let legacyGradeMigrationRunning = false;
+async function reconcileLegacyGradeRewards() {
+    if (legacyGradeMigrationRunning || currentUser?.role !== 'teacher') return;
+    legacyGradeMigrationRunning = true;
+    let cursor = null, converted = 0;
+    const failures = [];
+    try {
+        do {
+            const page = await getPaginatedDB('submissions', 20, cursor);
+            for (const sub of page.items) {
+                if (currentUser?.role !== 'teacher') return;
+                if (sub.grade == null || sub.grade === '' || sub.isRedoing || sub.isRegrading || (Number(sub.gradeRewardV2Version) >= 5 && sub.gradeRewardV2Status === 'settled')) continue;
+                try { if (await migrateLegacyGradeReward(sub._fbKey)) converted++; }
+                catch (error) { failures.push({ submissionKey: sub._fbKey, reason: error.message }); }
+            }
+            cursor = page.nextKey;
+        } while (cursor);
+    } catch (error) { failures.push({ reason: error.message }); }
+    finally { legacyGradeMigrationRunning = false; }
+    window.legacyGradeMigrationReport = { converted, failures };
+    if (failures.length) console.warn('Các bài cũ cần kiểm tra đối soát:', failures);
+    if (converted || failures.length) {
+        await AppDialog.alert(`Đã đối soát ${converted} bài cũ và thay thư bằng thông báo thưởng–phạt mới.` +
+            (failures.length ? ` Còn ${failures.length} bài chưa xử lý được (quyền ghi, đang nhận quà hoặc thiếu dữ liệu đối soát). Các bài này không bị tự xóa thư hay điều chỉnh số dư. Hệ thống sẽ thử lại khi giáo viên mở web lần sau.` : ''));
+    }
+}
+
+
 const teacherGradingInFlight = new Map();
+async function updateTeacherGradeMetadataIfCurrent(submissionKey, grade, gradedAt, patch) {
+    const result = await runTeacherGradeRewardLiveTransactionV44(db.ref('submissions/' + submissionKey), current => {
+        if (!current || Number(current.grade) !== Number(grade) || current.gradedAt !== gradedAt ||
+            current.isRedoing || current.isRegrading || current.gradeRewardV2Status === 'settled') return;
+        return { ...current, ...patch };
+    });
+    DBReadSingleFlight.invalidate('submissions/' + submissionKey);
+    return result;
+}
 function gradeSubmission(subId) {
     const key = String(subId);
     if (teacherGradingInFlight.has(key)) return teacherGradingInFlight.get(key);
@@ -10478,12 +10392,39 @@ async function gradeSubmissionCore(subId) {
             gradedAt: sub.gradedAt ?? null
         };
 
+        await prepareTeacherGradeRewardTiming(sub);
         const gradedAt = Date.now();
-        const nextOutcome = getTeacherGradeRewardV2Outcome(
-            grade,
-            sub
-        );
-
+        let rewardState = await inspectTeacherGradeRewardState(sub);
+        const preview = getTeacherGradeRewardV2Outcome(grade, sub);
+        const previousReward = rewardState.event;
+        const priorV5 = Number(previousReward?.version || 0) >= 5;
+        const previewDeltaCoin = preview.coinReward - (priorV5 ? Number(previousReward.coinReward || 0) : 0);
+        const previewDeltaTicket = preview.ticketDelta - (priorV5 ? Number(previousReward.ticketDelta || 0) : 0);
+        const signed = value => (value > 0 ? '+' : '') + Number(value).toLocaleString('vi-VN');
+        if (!await AppDialog.confirm(
+            'XEM TRƯỚC THƯỞNG – PHẠT\n\n' +
+            'Điểm: ' + grade + '\n' +
+            describeTeacherGradeRewardTiming(preview, sub) + '\n\n' +
+            (priorV5 ? 'Chênh lệch so với lần trước: ' + signed(previewDeltaTicket) + ' Vé, ' + signed(previewDeltaCoin) + ' Coin\n' : '') +
+            (previousReward && !priorV5 ? 'Bài dùng cơ chế cũ: hệ thống sẽ đối soát khoản đã nhận trước khi áp dụng.\n' : '') +
+            '\nXác nhận lưu điểm và đối soát?'
+        )) return;
+        const refreshedReward = await inspectTeacherGradeRewardState(sub);
+        const latestSubmission = (await db.ref('submissions/' + getTeacherGradeRewardSubmissionKey(sub)).once('value')).val();
+        const relevantKeys = ['grade','gradedAt','isRegrading','isRedoing','isCheatFail','isEssayMissing','isLateFail','isAutoSubmitted','submitTime','submittedAt'];
+        if (!latestSubmission || relevantKeys.some(key => JSON.stringify(latestSubmission[key] ?? null) !== JSON.stringify(sub[key] ?? null)) || JSON.stringify(refreshedReward.event) !== JSON.stringify(rewardState.event)) {
+            await AppDialog.alert('Bài nộp hoặc thưởng đã thay đổi trong lúc xem trước. Hãy tải lại danh sách và xem trước kết quả mới. Chưa lưu điểm.');
+            return;
+        }
+        if (rewardState.event && Number(rewardState.event.version || 0) < 5) {
+            const migrated = await migrateLegacyGradeReward(getTeacherGradeRewardSubmissionKey(sub), { allowApplied: true });
+            if (!migrated) throw new Error('Khoản thưởng cũ đang bận hoặc cần kiểm tra trước khi chấm lại. Chưa lưu điểm mới.');
+            rewardState = await inspectTeacherGradeRewardState(sub);
+        }
+        if (fileInput && fileInput.files.length > 0) {
+            fileDataArray = await readMultipleFiles(fileInput.files, { folder: 'teacher-feedback' });
+            if (!fileDataArray.length) return;
+        }
         if (
             sub.grade !== null &&
             sub.grade !== undefined &&
@@ -10496,7 +10437,6 @@ async function gradeSubmissionCore(subId) {
             );
         }
 
-        const rewardState = await inspectTeacherGradeRewardState(sub);
         let rewardResult = null;
         let shouldIssueNewReward = true;
 
@@ -10513,7 +10453,7 @@ async function gradeSubmissionCore(subId) {
             //    - cùng đúng điểm cũ + cùng outcome => mở lại thư cũ chưa nhận;
             //    - khác điểm => hủy thư cũ và chuẩn bị revision mới.
             if (
-                currentEvent &&
+                currentEvent && Number(currentEvent.version || 0) < 5 &&
                 (
                     currentStatus === 'regrade_hold' ||
                     currentStatus === 'regrading' ||
@@ -10549,7 +10489,7 @@ async function gradeSubmissionCore(subId) {
             // kết quả hiện hành. Đặc biệt sau "Cho làm lại", dù điểm mới
             // trùng điểm cũ vẫn phải phát revision mới.
             else if (
-                currentEvent &&
+                currentEvent && Number(currentEvent.version || 0) < 5 &&
                 ![
                     'superseded',
                     'deleted',
@@ -10557,44 +10497,8 @@ async function gradeSubmissionCore(subId) {
                     'retry'
                 ].includes(currentStatus)
             ) {
-                const exactSame =
-                    isTeacherGradeRewardV4ExactSame(
-                        getTeacherGradeRewardV4Snapshot(
-                            currentEvent,
-                            sub
-                        ),
-                        nextOutcome
-                    );
-
-                if (exactSame) {
-                    // Điểm thực sự không đổi -> giữ nguyên kết quả cũ.
-                    rewardResult =
-                        getTeacherGradeRewardExistingResultV4(
-                            currentEvent,
-                            sub,
-                            nextOutcome
-                        );
-
-                    if (
-                        rewardState.claim?.status === 'claimed'
-                    ) {
-                        rewardResult.status = 'claimed';
-                    }
-
-                    shouldIssueNewReward = false;
-                } else {
-                    // Điểm thay đổi -> HOLD/thu hồi kết quả cũ rồi hủy
-                    // thư chưa nhận; sau đó phát revision mới.
-                    await holdTeacherGradeRewardForRegradeV4(
-                        sub,
-                        'score_changed'
-                    );
-
-                    await resolveTeacherGradeRewardHoldV4(
-                        sub,
-                        grade
-                    );
-                }
+                await holdTeacherGradeRewardForRegradeV4(sub, 'score_changed');
+                await resolveTeacherGradeRewardHoldV4(sub, grade);
             }
         } catch (error) {
             if (
@@ -10644,9 +10548,12 @@ async function gradeSubmissionCore(subId) {
                 );
             }
 
-            await updateDB(
-                'submissions',
+            // V5 already wrote metadata atomically with balances and receipt.
+            // A second unguarded write could overwrite a newer teacher's grade.
+            if (Number(rewardResult?.version) !== 5) await updateTeacherGradeMetadataIfCurrent(
                 sub._fbKey,
+                grade,
+                gradedAt,
                 {
                     gradeRewardV2Version: GRADE_REWARD_V2_VERSION,
                     gradeRewardV2Status:
@@ -10665,13 +10572,14 @@ async function gradeSubmissionCore(subId) {
         } catch (error) {
             rewardError = error;
             console.error(
-                '[Grade Reward V4] Không xử lý được thưởng/phạt:',
+                '[Grade Reward V5] Không xử lý được thưởng/phạt:',
                 error
             );
 
-            await updateDB(
-                'submissions',
+            await updateTeacherGradeMetadataIfCurrent(
                 sub._fbKey,
+                grade,
+                gradedAt,
                 {
                     gradeRewardV2Version: GRADE_REWARD_V2_VERSION,
                     gradeRewardV2Status: 'retry',
@@ -10735,6 +10643,8 @@ async function gradeSubmissionCore(subId) {
                 '⚠️ Điểm đã được lưu, nhưng Hộp thư thưởng/phạt chưa xử lý xong. ' +
                 'Hãy bấm Lưu điểm lại để hệ thống thử lại.'
             ));
+        } else if (rewardResult?.status === 'settled') {
+            await AppDialog.alert('✅ Đã lưu điểm và đối soát thưởng trừ phạt. Học sinh nhận thư ghi rõ từng khoản; lưu lại cùng kết quả không cộng/trừ lần hai.');
         } else if (rewardResult?.status === 'pending_claim') {
             (await AppDialog.alert(
                 '✅ Đã chấm điểm thành công! Phần thưởng mới đã được gửi ngay vào Hộp thư học sinh.'
@@ -10775,17 +10685,7 @@ async function gradeSubmissionCore(subId) {
         }
     };
 
-    if (fileInput && fileInput.files.length > 0) {
-        const filesArray = await readMultipleFiles(
-            fileInput.files,
-            { folder: 'teacher-feedback' }
-        );
-
-        if (filesArray.length === 0) return;
-        await processGrading(filesArray);
-    } else {
-        await processGrading(null);
-    }
+    await processGrading(null);
 }
 
 window.requestRegrade = async function (subKey) {
@@ -11604,7 +11504,7 @@ async function createStudent() {
         } catch (databaseError) {
 
             console.error(
-                '❌ Ghi Database thất bại. Đang rollback Firebase Auth...',
+                '❌ Ghi Database thất bại. Đang rollback xác thực đám mây...',
                 databaseError
             );
 
@@ -12189,7 +12089,7 @@ async function updateProfile() {
             } catch (error) {
                 // Firebase có quy định nếu đăng nhập quá lâu sẽ không cho đổi pass trực tiếp
                 if (error.code === 'auth/requires-recent-login') {
-                    return (await AppDialog.alert("⚠️ Bảo mật Firebase yêu cầu: Bạn cần đăng xuất và đăng nhập lại trước khi đổi mật khẩu!"));
+                    return (await AppDialog.alert("⚠️ Bảo mật đám mây yêu cầu: Bạn cần đăng xuất và đăng nhập lại trước khi đổi mật khẩu!"));
                 }
                 return (await AppDialog.alert("❌ Lỗi cập nhật Auth: " + error.message));
             }
@@ -13482,6 +13382,11 @@ window.importQuestions = function () {
                 `Đã nhập ${result.questions.length} câu. Có ${incompleteCount} câu chưa đủ nội dung/lựa chọn/đáp án; các ô đó được giữ lại để giáo viên kiểm tra và bổ sung.`,
                 'warning'
             );
+            const invalidIndex = [...allBlocks].findIndex(block =>
+                !block.querySelector('.q-text')?.value.trim() ||
+                ['A','B','C','D'].some(k => !block.querySelector('.q-opt'+k)?.value.trim()) ||
+                !block.querySelector('input[type=radio]:checked'));
+            window.openTeacherDraftQuizCheck?.(invalidIndex, `Câu ${invalidIndex+1}: kiểm tra nội dung, lựa chọn và đáp án đúng.`);
         } else {
             setQuickImportStatus(`Đã bóc tách thành công ${result.questions.length} câu hỏi và đáp án.`, 'success');
         }
@@ -13588,12 +13493,13 @@ async function renderTeacherRoadmap() {
 async function renderTeacherRoadmapCore() {
     const body = document.getElementById('teacherRoadmapBody');
     if (!body) return;
-    body.innerHTML = '';
 
     const assignments = await getDB('assignments');
     const submissions = await getDB('submissions');
     const users = await getDB('users');
     const selectedStudent = document.getElementById('roadmapStudentSelect').value;
+    // Retain the last readable table if a network/permission read fails.
+    body.innerHTML = '';
 
     let isParticipating = true;
     if (selectedStudent && selectedStudent !== "") {
@@ -14342,7 +14248,7 @@ window.saveAssignmentEdit = async function () {
             );
 
             (await AppDialog.alert(
-                '⚠️ Bài đã lưu nhưng Firebase chưa xóa được tiến độ video cũ. ' +
+                '⚠️ Bài đã lưu nhưng đám mây chưa xóa được tiến độ video cũ. ' +
                 'Hãy kiểm tra quyền ghi/xóa video_tracking.'
             ));
         }
@@ -15202,7 +15108,7 @@ async function (enabled) {
         }
 
         (await AppDialog.alert(
-            '❌ Không thể cập nhật trạng thái Giờ Vàng lên Firebase.'
+            '❌ Không thể cập nhật trạng thái Giờ Vàng lên đám mây.'
         ));
     }
 };
@@ -15448,8 +15354,8 @@ window.updateStoreItem = async function () {
             loadStoreItemDetails();
             initTeacherStoreManagement();
         } catch (error) {
-            console.error("Lỗi đồng bộ Firebase:", error);
-            (await AppDialog.alert("❌ Đã xảy ra lỗi khi kết nối dữ liệu Firebase. Vui lòng kiểm tra lại mạng!"));
+            console.error("Lỗi đồng bộ đám mây:", error);
+            (await AppDialog.alert("❌ Đã xảy ra lỗi khi kết nối dữ liệu đám mây. Vui lòng kiểm tra lại mạng!"));
         }
     }
 };
@@ -15564,10 +15470,9 @@ window.buyStoreItem = async function (itemId, _clientPrice) {
     const inventoryRef = db.ref(`student_inventory/${username}/${itemId}`);
     let operation = null;
     const finishGrant = async paid => {
-        await inventoryRef.once('value');
-        const grant = await inventoryRef.transaction(current => current ? undefined : paid.inventoryGrant, undefined, false);
+        const grant = await runTeacherGradeRewardLiveTransactionV44(inventoryRef, current => current ? undefined : paid.inventoryGrant);
         if (grant.snapshot.val()?.purchaseOperationId !== paid.operationId) throw new Error('GRANT_CONFLICT');
-        await opRef.transaction(current => {
+        await runTeacherGradeRewardLiveTransactionV44(opRef, current => {
             if (current?.operationId !== paid.operationId || !['paid','completed'].includes(current.status)) return;
             return { ...current, status: 'completed', itemGranted: true, completedAt: Date.now(), updatedAt: Date.now() };
         }, undefined, false);
@@ -15576,7 +15481,7 @@ window.buyStoreItem = async function (itemId, _clientPrice) {
         const previous = (await opRef.once('value')).val();
         if (previous?.protocolVersion === 2 && ['reserved','debit_pending'].includes(previous.status) &&
             Number(previous.startedAt) + 600000 <= Date.now()) {
-            await opRef.transaction(current => {
+            await runTeacherGradeRewardLiveTransactionV44(opRef, current => {
                 if (current?.operationId !== previous.operationId || current.protocolVersion !== 2 ||
                     !['reserved','debit_pending'].includes(current.status) || current.atomicCharge === true) return;
                 return { ...current, status: 'failed_refunded', updatedAt: Date.now() };
@@ -15603,7 +15508,7 @@ window.buyStoreItem = async function (itemId, _clientPrice) {
         }, undefined, false);
         if (!reservation.committed) return (await AppDialog.alert('Vật phẩm đang có giao dịch ở máy khác. Hãy mở lại sau.'));
         operation = reservation.snapshot.val();
-        const pending = await opRef.transaction(current => {
+        const pending = await runTeacherGradeRewardLiveTransactionV44(opRef, current => {
             if (current?.operationId !== operationId || current.status !== 'reserved') return;
             return { ...current, status: 'debit_pending', updatedAt: Date.now() };
         }, undefined, false);
@@ -15622,12 +15527,12 @@ window.buyStoreItem = async function (itemId, _clientPrice) {
             return (await AppDialog.alert('Thanh toán đã được lưu. Mở lại vật phẩm để khôi phục, không thanh toán lại.'));
         }
         if (operation && latest?.operationId === operation.operationId && latest.status === 'debit_pending') {
-            await opRef.transaction(current => {
+            await runTeacherGradeRewardLiveTransactionV44(opRef, current => {
                 if (current?.operationId !== operation.operationId || current.status !== 'debit_pending' || current.atomicCharge) return;
                 return { ...current, status: 'failed_refunded', updatedAt: Date.now() };
             }, undefined, false).catch(() => {});
         }
-        (await AppDialog.alert('Chưa hoàn tất giao dịch. Kiểm tra số dư, kết nối và Firebase Rules rồi thử lại.'));
+        (await AppDialog.alert('Chưa hoàn tất giao dịch. Kiểm tra số dư, kết nối và quy tắc bảo mật đám mây rồi thử lại.'));
     }
 };
 
@@ -16739,7 +16644,7 @@ window.getStudentItemGiftStatus = async function (username) {
             if (
                 message.giftType === 'item' &&
                 message.giftValue &&
-                (!message.expiry || message.expiry >= now)
+                (!window.getInboxMessageExpiry(message) || window.getInboxMessageExpiry(message) > now)
             ) {
                 pendingItems.add(String(message.giftValue));
             }
@@ -17748,7 +17653,7 @@ window.sendGiftMessage = async function () {
                 )
                     ? null
                     : now +
-                    5 *
+                    3 *
                     24 *
                     60 *
                     60 *
@@ -18112,152 +18017,10 @@ window.togglePenaltyArea = function (isOpen) {
     }
 };
 
-async function applyTeacherPenaltyBalance(username, type, amount) {
-    const meta = TEACHER_PENALTY_TYPES[type];
-    if (!meta) {
-        throw new Error('Loại trừng phạt không hợp lệ.');
-    }
-
-    if (type === 'coin') {
-        const balancePath = `student_coins/${username}`;
-        const balanceRef = db.ref(balancePath);
-        let storageBefore = 0;
-        let storageAfter = 0;
-
-        const tx = await balanceRef.transaction(current => {
-            storageBefore = Number(current) || 0;
-            storageAfter = storageBefore - amount;
-
-            // Án phạt được phép làm Coin âm. Giữ đúng biên validate của Rules.
-            if (storageAfter < -9999999) return;
-            return storageAfter;
-        });
-
-        if (!tx.committed) {
-            throw new Error(
-                'Không thể trừ Coin: số dư đã chạm giới hạn âm của hệ thống.'
-            );
-        }
-
-        return {
-            ...meta,
-            balancePath,
-            storageBefore,
-            storageAfter,
-            before: storageBefore,
-            after: storageAfter
-        };
-    }
-
-    if (type === 'ticket') {
-        const beforeInfo = await getStudentTicketInfo(username);
-        const balancePath = `student_bonus_tickets/${username}`;
-        const balanceRef = db.ref(balancePath);
-        let storageBefore = Number(beforeInfo.bonus) || 0;
-        let storageAfter = storageBefore;
-
-        const tx = await balanceRef.transaction(current => {
-            storageBefore = Number(current) || 0;
-            storageAfter = storageBefore - amount;
-
-            // Rules hiện tại giới hạn bonus ticket thấp nhất -9999.
-            if (storageAfter < -9999) return;
-            return storageAfter;
-        });
-
-        if (!tx.committed) {
-            throw new Error(
-                'Không thể trừ Vé: số dư bù trừ đã chạm giới hạn hệ thống.'
-            );
-        }
-
-        let remainingAfter = Number(beforeInfo.remaining) - amount;
-        try {
-            const afterInfo = await getStudentTicketInfo(username);
-            remainingAfter = Number(afterInfo.remaining);
-        } catch (_) { }
-
-        return {
-            ...meta,
-            balancePath,
-            storageBefore,
-            storageAfter,
-            before: Number(beforeInfo.remaining) || 0,
-            after: Number.isFinite(remainingAfter)
-                ? remainingAfter
-                : (Number(beforeInfo.remaining) || 0) - amount,
-            ticketBonusBefore: Number(beforeInfo.bonus) || 0,
-            ticketBonusAfter: storageAfter,
-            ticketLegacyBase: Number(beforeInfo.legacyBase) || 0,
-            ticketUsedSpins: Number(beforeInfo.used) || 0
-        };
-    }
-
-    // type === 'money'
-    const [assignments, submissions, offsetSnap] = await Promise.all([
-        getDB('assignments'),
-        getDB('submissions'),
-        db.ref(`student_money_offset/${username}`).once('value')
-    ]);
-
-    const baseMoney = calculateTeacherCashBaseMoney(
-        assignments,
-        submissions,
-        username
-    );
-    const storageBefore = Number(offsetSnap.val()) || 0;
-    // Án phạt được phép đưa tổng Tiền lộ trình xuống âm.
-    const before = baseMoney + storageBefore;
-
-    const storageAfter = storageBefore - amount;
-    if (storageAfter < -9999999) {
-        throw new Error('Mức trừ vượt giới hạn Tiền lộ trình của hệ thống.');
-    }
-
-    const balancePath = `student_money_offset/${username}`;
-    const balanceRef = db.ref(balancePath);
-    const tx = await balanceRef.transaction(current => {
-        const normalized = Number(current) || 0;
-
-        // Compare-and-swap để không ghi đè một giao dịch tiền vừa phát sinh.
-        if (normalized !== storageBefore) return;
-        return storageAfter;
-    });
-
-    if (!tx.committed) {
-        throw new Error(
-            'Số dư Tiền lộ trình vừa thay đổi ở thao tác khác; không có tiền nào bị trừ.'
-        );
-    }
-
-    return {
-        ...meta,
-        balancePath,
-        storageBefore,
-        storageAfter,
-        baseMoney,
-        before,
-        after: baseMoney + storageAfter
-    };
-}
-
-async function rollbackTeacherPenaltyBalance(result) {
-    if (!result?.balancePath) return false;
-
-    const tx = await db
-        .ref(result.balancePath)
-        .transaction(current => {
-            const normalized = Number(current) || 0;
-
-            // Không ghi đè nếu sau án phạt đã có giao dịch khác.
-            if (normalized !== Number(result.storageAfter)) return;
-            return Number(result.storageBefore) || 0;
-        });
-
-    return tx.committed;
-}
-
+let teacherPenaltyInFlight = false;
 window.applyTeacherPenalty = async function () {
+    if (teacherPenaltyInFlight) return;
+    teacherPenaltyInFlight = true;
     const submitButton = document.getElementById('penaltySubmitButton');
     const originalButtonText = submitButton?.innerHTML || '';
 
@@ -18307,7 +18070,7 @@ window.applyTeacherPenalty = async function () {
         );
 
         const selectedTargets = window
-            .getMultiSelectValues('penaltyTargetStudent')
+            .getMultiSelectValues('penaltyTargetStudent', [])
             .map(String);
 
         const recipients = selectedTargets.includes('all')
@@ -18331,7 +18094,7 @@ window.applyTeacherPenalty = async function () {
             `Trừ: ${formattedAmount} ${meta.unit === 'đ' ? 'đ' : meta.label}\n` +
             `Lý do: ${reason}\n\n` +
             `Coin, Vé và Tiền lộ trình CÓ THỂ xuống số âm.\n` +
-            `Thao tác sẽ thay đổi số dư Firebase ngay lập tức và gửi THƯ PHẠT vào Hộp thư học sinh (không chạy animation thư bay).`
+            `Thao tác sẽ thay đổi số dư đám mây ngay lập tức và gửi THƯ PHẠT vào Hộp thư học sinh (không chạy animation thư bay).`
         ));
 
         if (!confirmed) return;
@@ -18349,150 +18112,18 @@ window.applyTeacherPenalty = async function () {
         const successes = [];
         const failures = [];
 
+        const signature = JSON.stringify({ type, amount, reason, recipients: [...recipients].sort() });
+        const batch = await window.TeacherLedger.batch(signature, recipients);
         for (const username of recipients) {
             const student = studentMap.get(username) || {};
-            const operationId = window.TransactionHistory.newId();
-            let balanceResult = null;
-            let messageRef = null;
-            let messageWritten = false;
-            let logRecorded = false;
-            let rollbackHandled = false;
-
             try {
-                balanceResult = await applyTeacherPenaltyBalance(
-                    username,
-                    type,
-                    amount
-                );
-
-                const appliedAt = Date.now();
-                messageRef = db.ref(`inbox_messages/${username}`).push();
-                const messageId = messageRef.key;
-                const messagePath = `inbox_messages/${username}/${messageId}`;
-
-                await messageRef.set({
-                    message:
-                        `⚠️ TRỪNG PHẠT: Giáo viên đã trừ ` +
-                        `${formattedAmount} ${meta.label} khỏi tài khoản của bạn.\n` +
-                        `Lý do: ${reason}`,
-                    giftType: 'none',
-                    giftValue: '',
-                    source: 'teacher_penalty',
-                    penaltyType: type,
-                    penaltyAmount: amount,
-                    penaltyReason: reason,
-                    penaltyApplied: true,
-                    penaltyOperationId: operationId,
-                    balanceBefore: balanceResult.before,
-                    balanceAfter: balanceResult.after,
-                    messageKind: 'penalty',
-                    penaltyNotice: true,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP,
-                    timeString: new Date(appliedAt).toLocaleString('vi-VN'),
-                    expiry: null,
-                    // Đây là thư phạt: chỉ tăng badge/hiện trong Hộp thư, KHÔNG chạy animation thư đóng/bay.
-                    skipInboxGiftAnimation: true,
-                    suppressInboxArrivalAnimation: true
-                });
-                messageWritten = true;
-
-                try {
-                    await window.TransactionHistory.recordWithId(
-                        operationId,
-                        {
-                            type: 'teacher_penalty',
-                            summary:
-                                `Trừ ${formattedAmount} ${meta.label}: ${reason}`,
-                            source: 'teacher_penalty',
-                            targetUsername: username,
-                            targetName: student.name || username,
-                            amount: -amount,
-                            unit: meta.unit,
-                            before: balanceResult.before,
-                            after: balanceResult.after,
-                            reversible: false,
-                            nonReversibleReason:
-                                'Trừng phạt thủ công yêu cầu xác thực Giáo viên; nếu cần sửa, dùng công cụ điều chỉnh tương ứng để tạo giao dịch đối ứng có nhật ký.',
-                            details: {
-                                penaltyType: type,
-                                penaltyAmount: amount,
-                                penaltyReason: reason,
-                                balancePath: balanceResult.balancePath,
-                                storageBefore: balanceResult.storageBefore,
-                                storageAfter: balanceResult.storageAfter,
-                                messageId,
-                                messagePath,
-                                appliedAtClient: appliedAt,
-                                ticketBonusBefore:
-                                    balanceResult.ticketBonusBefore ?? null,
-                                ticketBonusAfter:
-                                    balanceResult.ticketBonusAfter ?? null,
-                                ticketLegacyBase:
-                                    balanceResult.ticketLegacyBase ?? null,
-                                ticketUsedSpins:
-                                    balanceResult.ticketUsedSpins ?? null,
-                                baseMoney:
-                                    balanceResult.baseMoney ?? null
-                            }
-                        }
-                    );
-                    logRecorded = true;
-                } catch (logError) {
-                    if (messageWritten) {
-                        await messageRef.remove().catch(() => { });
-                    }
-                    const rolledBack = await rollbackTeacherPenaltyBalance(
-                        balanceResult
-                    ).catch(() => false);
-                    rollbackHandled = rolledBack;
-
-                    if (!rolledBack) {
-                        throw new Error(
-                            'Không ghi được nhật ký và không thể tự hoàn tác vì số dư đã phát sinh giao dịch khác. Cần kiểm tra thủ công ngay. '
-                            + (logError?.message || '')
-                        );
-                    }
-
-                    throw new Error(
-                        'Không ghi được nhật ký nên án phạt đã được tự động hoàn tác. '
-                        + (logError?.message || '')
-                    );
-                }
-
-                successes.push({
-                    username,
-                    name: student.name || username,
-                    before: balanceResult.before,
-                    after: balanceResult.after
-                });
+                const receipt = await window.TeacherLedger.commit({ id: batch.ids[username], username, type, delta: -amount, reason, name: student.name || username });
+                successes.push({ username, name: student.name || username, before: receipt.before, after: receipt.after });
             } catch (error) {
-                // Nếu lỗi xảy ra sau khi đã trừ nhưng trước khi log được chốt,
-                // dọn thông báo (nếu có) và hoàn tác bằng compare-and-swap.
-                if (balanceResult && !logRecorded && !rollbackHandled) {
-                    if (messageWritten && messageRef) {
-                        await messageRef.remove().catch(() => { });
-                    }
-
-                    const rolledBack = await rollbackTeacherPenaltyBalance(
-                        balanceResult
-                    ).catch(() => false);
-
-                    if (!rolledBack) {
-                        console.error(
-                            '[Teacher Penalty] Không thể tự hoàn tác sau lỗi:',
-                            username,
-                            balanceResult
-                        );
-                    }
-                }
-
-                failures.push({
-                    username,
-                    name: student.name || username,
-                    error: error?.message || String(error)
-                });
+                failures.push({ username, name: student.name || username, error: error.message || String(error) });
             }
         }
+        if (!failures.length) await batch.finish();
 
         await window.TransactionHistory
             .loadTeacherLogs()
@@ -18503,7 +18134,7 @@ window.applyTeacherPenalty = async function () {
             Promise.resolve(renderTeacherRoadmap()).catch(() => { });
         }
 
-        if (successes.length > 0) {
+        if (successes.length > 0 && failures.length === 0) {
             const amountInput = document.getElementById('penaltyAmount');
             const reasonInput = document.getElementById('penaltyReason');
             if (amountInput) amountInput.value = '';
@@ -18542,6 +18173,7 @@ window.applyTeacherPenalty = async function () {
             `${error?.message || error || 'Lỗi không xác định'}`
         ));
     } finally {
+        teacherPenaltyInFlight = false;
         if (submitButton) {
             submitButton.disabled = false;
             submitButton.innerHTML =
@@ -18755,8 +18387,8 @@ function calculateTeacherCashBaseMoney(assignments, submissions, username) {
 
 async function resolveCashRequestStudentUsername(reqData) {
     // Dữ liệu mới: dùng username đã lưu ngay lúc học sinh gửi yêu cầu.
-    if (reqData && reqData.studentUsername) {
-        return String(reqData.studentUsername);
+    if (reqData && (reqData.studentUsername || reqData.username)) {
+        return String(reqData.studentUsername || reqData.username);
     }
 
     // Tương thích dữ liệu cũ: chỉ khi request chưa có username mới dò theo tên.
@@ -18803,12 +18435,13 @@ async function resetCashRequestToPending(reqRef, reason) {
     }
 }
 
-window.loadTeacherCashRequests = async function () {
+window.loadTeacherCashRequests = async function (append = false) {
     const container = document.getElementById('teacherCashRequestsListContainer');
     if (!container) return;
 
     try {
-        let requests = await getDB('cash_requests');
+        let requests = await window.TeacherCashPages.load(container, append);
+        if (requests === null) return;
 
         // Chỉ ẩn/xóa bản ghi đã hoàn tất hoặc từ chối sau 2 tháng.
         // Pending/processing/transferring không bao giờ bị retention xóa.
@@ -18894,7 +18527,7 @@ window.loadTeacherCashRequests = async function () {
         container.innerHTML = html;
     } catch (error) {
         console.error('Lỗi hiển thị yêu cầu phía giáo viên:', error);
-        container.innerHTML = '<p style="color: #ef4444; font-size: 0.9em; text-align: center;">Không thể tải dữ liệu kiểm duyệt từ Firebase!</p>';
+        container.innerHTML = '<p style="color: #ef4444; font-size: 0.9em; text-align: center;">Không thể tải dữ liệu kiểm duyệt từ đám mây!</p>';
     }
 };
 
@@ -18926,158 +18559,21 @@ window.handleTeacherProcessCash = async function (reqFbKey, action) {
                 return;
             }
 
-            // BƯỚC 1: khóa request bằng transaction. Chỉ một lần duyệt có thể
-            // chuyển pending -> processing, nên double-click/tab khác không thể trừ lặp.
-            const claimResult = await reqRef.transaction(current => {
-                if (!current || current.status !== 'pending') return;
-
-                return {
-                    ...current,
-                    status: 'processing',
-                    processingAt: Date.now(),
-                    processingBy: currentUser?.username || currentUser?.name || 'teacher'
-                };
-            });
-
-            if (!claimResult.committed) {
-                (await AppDialog.alert('⚠️ Yêu cầu đã được xử lý ở nơi khác hoặc trạng thái vừa thay đổi.'));
-                return;
-            }
-
-            reqData = claimResult.snapshot.val();
-
-            try {
-                const studentUsername = await resolveCashRequestStudentUsername(reqData);
-                if (!studentUsername) {
-                    throw new Error('Không tìm thấy tài khoản học sinh tương ứng.');
-                }
-
-                const [assignments, submissions, offsetSnap] = await Promise.all([
-                    getDB('assignments'),
-                    getDB('submissions'),
-                    db.ref(`student_money_offset/${studentUsername}`).once('value')
-                ]);
-
-                // Cùng thuật toán chọn bài/điểm như student.js.
-                const baseMoney = calculateTeacherCashBaseMoney(
-                    assignments,
-                    submissions,
-                    studentUsername
-                );
-
-                const offsetBefore = Number(offsetSnap.val()) || 0;
-                const currentRouteMoney = Math.max(0, baseMoney + offsetBefore);
-
-                if (currentRouteMoney < amount) {
-                    await resetCashRequestToPending(reqRef, 'insufficient_balance');
-                    (await AppDialog.alert(`❌ KHÔNG THỂ DUYỆT! Số dư lộ trình hiện tại chỉ còn ${currentRouteMoney.toLocaleString('vi-VN')} VNĐ, không đủ để rút ${amount.toLocaleString('vi-VN')} VNĐ.`));
-                    return;
-                }
-
-                const offsetAfter = offsetBefore - amount;
-
-                // Lưu kế hoạch trừ tiền TRƯỚC khi transaction. Nếu mạng rớt ngay
-                // sau khi trừ, nút "Khôi phục trạng thái" có thể xác định kết quả.
-                await reqRef.update({
-                    studentUsername,
-                    processingOffsetBefore: offsetBefore,
-                    processingOffsetAfter: offsetAfter,
-                    processingBaseMoney: baseMoney,
-                    processingAmount: amount
-                });
-
-                const offsetRef = db.ref(`student_money_offset/${studentUsername}`);
-
-                // BƯỚC 2: transaction tiền. Chỉ trừ nếu offset vẫn đúng giá trị
-                // vừa kiểm tra; nếu có thay đổi đồng thời thì abort, không ghi đè.
-                const debitResult = await offsetRef.transaction(currentOffset => {
-                    const normalizedOffset = Number(currentOffset) || 0;
-                    if (normalizedOffset !== offsetBefore) return;
-                    return offsetAfter;
-                });
-
-                if (!debitResult.committed) {
-                    await resetCashRequestToPending(reqRef, 'offset_changed');
-                    (await AppDialog.alert('⚠️ Số dư vừa thay đổi bởi một thao tác khác. Không có tiền nào bị trừ; hãy duyệt lại yêu cầu.'));
-                    return;
-                }
-
-                // BƯỚC 3: đánh dấu đã trừ. Nếu bước này lỗi mạng, request vẫn
-                // giữ status=processing, vì vậy không thể bấm duyệt lần hai.
-                await reqRef.update({
-                    status: 'transferring',
-                    studentUsername,
-                    approvedAt: Date.now(),
-                    debitApplied: true,
-                    debitAmount: amount,
-                    debitOffsetBefore: offsetBefore,
-                    debitOffsetAfter: offsetAfter,
-                    processingError: null
-                });
-
-                (await AppDialog.alert('✅ Duyệt thành công! Tiền lộ trình đã được trừ bằng transaction và yêu cầu chuyển sang Đang chuyển.'));
-            } catch (approveError) {
-                // Không tự đưa về pending ở đây vì có thể transaction tiền đã
-                // commit nhưng phản hồi cuối bị mất. Giữ processing để tránh trừ lần hai.
-                console.error('Lỗi trong quá trình duyệt tiền mặt:', approveError);
-                try {
-                    await reqRef.update({
-                        processingError: String(approveError?.message || approveError),
-                        processingFailedAt: Date.now()
-                    });
-                } catch (_) { }
-
-                (await AppDialog.alert('❌ Quá trình duyệt bị gián đoạn. Yêu cầu đã được khóa ở trạng thái Đang xử lý để tránh trừ tiền lặp. Hãy dùng nút "Khôi phục trạng thái".'));
-                return;
-            }
-        }
-
-        else if (action === 'recover') {
-            if (reqData.status !== 'processing') {
-                (await AppDialog.alert('ℹ️ Yêu cầu này không cần khôi phục.'));
-                return;
-            }
-
             const studentUsername = await resolveCashRequestStudentUsername(reqData);
-            if (!studentUsername) {
-                (await AppDialog.alert('❌ Không xác định được username của học sinh. Không thể tự khôi phục an toàn.'));
-                return;
-            }
-
-            const before = Number(reqData.processingOffsetBefore);
-            const after = Number(reqData.processingOffsetAfter);
-
-            if (!Number.isFinite(before) || !Number.isFinite(after)) {
-                (await AppDialog.alert('⚠️ Yêu cầu không có đủ dữ liệu kiểm tra trước/sau. Cần kiểm tra thủ công, hệ thống sẽ không tự trừ thêm tiền.'));
-                return;
-            }
-
-            const offsetSnap = await db.ref(`student_money_offset/${studentUsername}`).once('value');
-            const currentOffset = Number(offsetSnap.val()) || 0;
-
-            if (currentOffset === after) {
-                // Tiền đã trừ nhưng bước cập nhật trạng thái bị gián đoạn.
-                await reqRef.update({
-                    status: 'transferring',
-                    studentUsername,
-                    approvedAt: reqData.approvedAt || Date.now(),
-                    debitApplied: true,
-                    debitAmount: teacherCashAmount(reqData.processingAmount || reqData.amount),
-                    debitOffsetBefore: before,
-                    debitOffsetAfter: after,
-                    recoveredAt: Date.now(),
-                    processingError: null
-                });
-                (await AppDialog.alert('✅ Khôi phục thành công: hệ thống xác nhận tiền ĐÃ được trừ trước đó và chỉ sửa trạng thái sang Đang chuyển.'));
-            } else if (currentOffset === before) {
-                // Tiền chưa trừ, trả lại pending. Không thực hiện debit tại recovery.
-                await resetCashRequestToPending(reqRef, 'recovered_not_debited');
-                (await AppDialog.alert('✅ Khôi phục thành công: tiền CHƯA bị trừ. Yêu cầu đã trở lại Chờ duyệt.'));
+            if (!studentUsername) throw new Error('Không xác định được học sinh; chưa trừ tiền.');
+            if (!window.CashLedger) throw new Error('Chưa tải bộ xử lý tiền mặt. Hãy tải lại trang.');
+            await window.CashLedger.approve(reqFbKey, studentUsername, async () => {
+                const [assignments, submissions] = await Promise.all([getDB('assignments'), getDB('submissions')]);
+                return calculateTeacherCashBaseMoney(assignments, submissions, studentUsername);
+            });
+            await AppDialog.alert('✅ Đã duyệt và ghi biên nhận trừ tiền. Yêu cầu đang chờ giáo viên giao/chuyển tiền.');
+        }
+        else if (action === 'recover') {
+            const latest = (await reqRef.once('value')).val();
+            if (latest?.debitReceipt) {
+                await AppDialog.alert('Đã có biên nhận trừ tiền cho yêu cầu này. Không trừ lại; hãy tải lại danh sách.');
             } else {
-                (await AppDialog.alert(
-                    '⚠️ Offset hiện tại đã khác cả giá trị trước và sau dự kiến. ' +
-                    'Có thể đã phát sinh giao dịch khác. Hệ thống không tự trừ hoặc hoàn tiền để tránh sai số; cần kiểm tra thủ công.'
-                ));
+                await AppDialog.alert('Yêu cầu cũ chưa có biên nhận xác định đã trừ tiền hay chưa. Không thể suy ra từ số dư hiện tại. Cần kiểm tra lịch sử trước khi xử lý; hệ thống giữ nguyên yêu cầu và số dư.');
             }
         }
 
@@ -19091,7 +18587,7 @@ window.handleTeacherProcessCash = async function (reqFbKey, action) {
                 return;
             }
 
-            const rejectResult = await reqRef.transaction(current => {
+            const rejectResult = await runTeacherGradeRewardLiveTransactionV44(reqRef, current => {
                 if (!current || current.status !== 'pending') return;
                 return {
                     ...current,
@@ -19118,7 +18614,7 @@ window.handleTeacherProcessCash = async function (reqFbKey, action) {
                 return;
             }
 
-            const completeResult = await reqRef.transaction(current => {
+            const completeResult = await runTeacherGradeRewardLiveTransactionV44(reqRef, current => {
                 if (!current || current.status !== 'transferring') return;
                 return {
                     ...current,
@@ -19139,7 +18635,7 @@ window.handleTeacherProcessCash = async function (reqFbKey, action) {
 
     } catch (error) {
         console.error('Lỗi khi xử lý phê duyệt tiền mặt:', error);
-        (await AppDialog.alert('❌ Lỗi thao tác Firebase. Không thực hiện thêm thay đổi để tránh sai số tiền.'));
+        (await AppDialog.alert('❌ Chưa xác nhận xử lý yêu cầu. ' + String(error?.message || '') + ' Nếu mất kết nối, tải lại danh sách rồi thử lại đúng yêu cầu này; không tạo yêu cầu thay thế.'));
     }
 };
 
@@ -19295,6 +18791,10 @@ function openCustomStudentSelect(selectId) {
     const allowPrivateEmpty =
         selectId === 'editTargetStudent';
 
+    // Expand "all" into individual checks while editing, so one student can be
+    // removed without accidentally hiding the assignment from everyone else.
+    const editingAllRecipients = allowPrivateEmpty && Array.from(selectEl.selectedOptions).some(opt => opt.value === 'all');
+
     // Kiểm tra xem có học sinh cụ thể nào đang được chọn không
     Array.from(selectEl.options).forEach(opt => {
         if (opt.value !== 'all' && opt.selected) hasCheckedOthers = true;
@@ -19305,6 +18805,7 @@ function openCustomStudentSelect(selectId) {
 
         // Logic chọn thông minh: Đã chọn cụ thể thì tắt "Tất cả"
         let isChecked = opt.selected;
+        if (editingAllRecipients) isChecked = !isAllOption;
         if (isAllOption && hasCheckedOthers) isChecked = false;
         if (
             isAllOption &&
@@ -19943,7 +19444,7 @@ function renderTeacherLeaderboardAdmin(settings = {}) {
     setTeacherLeaderboardText(
         'lbAdminHeroDescription',
         isOpen
-            ? `Mùa ${nowInfo.label} đang hiển thị cho học sinh. Thay đổi cấu hình thưởng sẽ áp dụng theo dữ liệu Firebase hiện tại.`
+            ? `Mùa ${nowInfo.label} đang hiển thị cho học sinh. Thay đổi cấu hình thưởng sẽ áp dụng theo dữ liệu đám mây hiện tại.`
             : hasSchedule
                 ? `Bảng xếp hạng đang đóng và đã hẹn tự mở vào ${scheduleLabel}.`
                 : 'Bảng xếp hạng đang đóng và chưa có lịch tự mở.'
@@ -20253,7 +19754,7 @@ window.changeTeacherPassword = async function () {
         }
     } catch (error) {
         if (error.code === 'auth/requires-recent-login') {
-            (await AppDialog.alert("⚠️ Bảo mật Firebase: Bạn cần đăng xuất và đăng nhập lại để xác thực quyền đổi mật khẩu!"));
+            (await AppDialog.alert("⚠️ Bảo mật đám mây: Bạn cần đăng xuất và đăng nhập lại để xác thực quyền đổi mật khẩu!"));
         } else {
             (await AppDialog.alert("❌ Lỗi: " + error.message));
         }
@@ -21570,7 +21071,7 @@ window.changeTeacherPassword = async function () {
             );
 
             document.getElementById(
-                'questionsContainer'
+                'teacherQuizCheckPanel'
             )?.scrollIntoView({
                 behavior: 'smooth',
                 block: 'end'

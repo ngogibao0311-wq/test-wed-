@@ -165,11 +165,52 @@ window.getSubmissionEssayDisplay = function (submission, assignment) {
     async function showSettlement(panel, key, appeal, submission) {
         const settlementRef = db.ref('submission_appeal_settlements/' + key);
         const existing = (await settlementRef.once('value')).val();
-        if (existing) { text(panel, `Đã đối soát: +${existing.coinDelta} Coin, +${existing.ticketDelta} vé. ${existing.reason}`); return; }
+        if (existing) { text(panel, existing.source === 'grade_settlement_v5'
+            ? `Đã đối soát qua sổ thưởng/phạt của bài. ${existing.reason}`
+            : `Đã đối soát: +${existing.coinDelta} Coin, +${existing.ticketDelta} vé. ${existing.reason}`); return; }
         if (profile.role !== 'teacher') { text(panel, 'Giáo viên đã đồng ý; đang chờ xác minh và đối soát quyền lợi.'); return; }
-        text(panel, 'Đối soát thủ công: chỉ nhập khoản phạt đã xác minh chưa hoàn và phần thưởng còn thiếu sau khi trừ phần đã phát. Không nhập lại toàn bộ thưởng đã nhận.');
         const username = appeal.studentUsername;
         const event = (await db.ref('grade_reward_events/' + username + '/' + key).once('value')).val();
+        if (Number(event?.version || 0) >= 5) {
+            text(panel, 'Bài dùng đối soát thưởng trừ phạt: khoản hoàn được tính bằng chênh lệch trong cùng sổ thưởng, không nhập và cộng thêm lần nữa.');
+            if (appeal.decisionBasis !== 'false_positive') {
+                text(panel, 'Vi phạm nhẹ vẫn giữ mức phạt đã áp dụng. Nếu điểm cần chỉnh, lưu điểm mới tại Danh sách bài đã nộp.');
+                return;
+            }
+            const reconcile = document.createElement('button');
+            reconcile.className = 'appeal-primary';
+            reconcile.textContent = 'Xóa lỗi ghi nhận nhầm và đối soát chênh lệch';
+            panel.appendChild(reconcile);
+            reconcile.onclick = async () => {
+                reconcile.disabled = true;
+                try {
+                    await pardonTeacherSubmissionWithAudit(key);
+                    const fresh = (await db.ref('submissions/' + key).once('value')).val();
+                    if (!fresh || fresh.grade === null || fresh.grade === undefined || fresh.grade === '')
+                        throw Error('Đã xóa lỗi; cần giáo viên chấm và lưu điểm để đối soát.');
+                    const sub = {...fresh, _fbKey:key};
+                    const result = await issueTeacherGradeRewardV2(sub, fresh.grade, fresh.gradedAt || Date.now());
+                    // The balance adjustment already committed in the grading ledger.
+                    // This zero-value appeal receipt records completion without crediting twice.
+                    const [coins,tickets] = await Promise.all([
+                        db.ref('student_coins/' + username).once('value'),
+                        db.ref('student_bonus_tickets/' + username).once('value')
+                    ]);
+                    await settlementRef.set({submissionKey:key,studentUsername:username,
+                        actorUid:firebase.auth().currentUser.uid,decisionBasis:appeal.decisionBasis,
+                        rewardCoins:0,rewardTickets:0,refundCoins:0,refundTickets:0,coinDelta:0,ticketDelta:0,
+                        previousCoins:coins.val() || 0,previousTickets:tickets.val() || 0,
+                        source:'grade_settlement_v5',rewardRevision:result.revision,
+                        reason:`Đã xóa lỗi ghi nhận nhầm và đối soát theo sổ thưởng/phạt, phiên bản ${result.revision}. Xem thư thông báo chi tiết.`,
+                        createdAt:firebase.database.ServerValue.TIMESTAMP});
+                    text(panel, `Đã đối soát theo điểm ${result.score}. Kết quả ròng của bài: ${result.ticketDelta} vé, ${result.coinReward} Coin. Hộp thư ghi rõ phần chênh lệch vừa xử lý.`);
+                } catch (error) {
+                    text(panel, 'Chưa xác nhận hoàn tất. Mở lại để kiểm tra và thử tiếp; sổ đối soát sẽ không cộng trùng. ' + error.message);
+                }
+            };
+            return;
+        }
+        text(panel, 'Đối soát thủ công: chỉ nhập khoản phạt đã xác minh chưa hoàn và phần thưởng còn thiếu sau khi trừ phần đã phát. Không nhập lại toàn bộ thưởng đã nhận.');
         text(panel, 'Bản ghi thưởng/phạt để kiểm tra: ' + JSON.stringify(event || {}, null, 2));
         const inputs = {};
         for (const [name,label] of [['rewardCoins','Coin thưởng còn thiếu'],['rewardTickets','Vé thưởng còn thiếu'],['refundCoins','Coin phạt nhầm cần hoàn'],['refundTickets','Vé phạt nhầm cần hoàn']]) {
