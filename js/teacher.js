@@ -3446,6 +3446,16 @@ window.onload = async function () {
         return;
     }
 
+    try {
+        startupLoader?.expect(['economy-ready'],{'economy-ready':'Kết nối giao dịch an toàn'});
+        await window.EconomyClient.initialize();
+        startupLoader?.markReady('economy-ready');
+    } catch(error) {
+        startupLoader?.fail('Chưa chuẩn bị được cơ chế giao dịch.',error.message,'economy');
+        if(!startupLoader)await AppDialog.alert(error.message);
+        return;
+    }
+
     let realUsers;
 
     try {
@@ -3517,16 +3527,19 @@ window.onload = async function () {
     // ==========================================
     // PHẦN 1: TẢI DỮ LIỆU NẶNG LẦN ĐẦU (Tải 1 lần để có giao diện ngay)
     // ==========================================
-    const runTeacherStartupStage = (key, label, task) =>
-        startupLoader
-            ? startupLoader.runStage(key, label, task)
+    const runTeacherStartupStage = (key, label, task) => {
+        const boundedTask = () => window.StartupDataCoordinator
+            ? window.StartupDataCoordinator.run(task)
             : task();
+        return startupLoader
+            ? startupLoader.runStage(key, label, boundedTask)
+            : boundedTask();
+    };
 
     await Promise.all([
         runTeacherStartupStage('teacher-profile-requests', 'Yêu cầu hồ sơ', () => loadProfileRequests()),
         runTeacherStartupStage('teacher-assignments', 'Bài tập', () => loadAssignedList()),
         runTeacherStartupStage('teacher-submissions', 'Bài nộp', () => loadSubmissions()),
-        runTeacherStartupStage('teacher-materials', 'Tài liệu', () => loadMaterialsListTeacher()),
         runTeacherStartupStage('teacher-students', 'Danh sách học sinh', () => loadStudentsList()),
         runTeacherStartupStage('teacher-schedule', 'Lịch học', () => typeof loadScheduleTeacher === 'function' ? loadScheduleTeacher() : Promise.resolve()),
         runTeacherStartupStage('teacher-spin-history', 'Lịch sử vòng quay', () => typeof loadSpinHistory === 'function' ? loadSpinHistory() : Promise.resolve()),
@@ -3630,7 +3643,7 @@ window.onload = async function () {
     });
     listenFirebase(db.ref('users'), 'value', renderUsers);
     listenFirebase(db.ref('profile_requests'), 'value', debounce(loadProfileRequests, 1500));
-    listenFirebase(db.ref('materials'), 'value', debounce(loadMaterialsListTeacher, 1500));
+    listenFirebase(db.ref('materials'), 'value', snapshot => loadMaterialsListTeacher(snapshot));
     listenFirebase(db.ref('schedule'), 'value', debounce(loadScheduleTeacher, 1500));
     listenFirebase(db.ref('spin_history'), 'value', debounce(loadSpinHistory, 1500));
     listenFirebase(db.ref('student_coins'), 'value', debounce(loadStudentsList, 1500));
@@ -5643,8 +5656,10 @@ async function createMaterial() {
     ));
 }
 
-async function loadMaterialsListTeacher() {
-    const materials = await getDB('materials');
+async function loadMaterialsListTeacher(snapshot) {
+    const materials = snapshot && typeof snapshot.val === 'function'
+        ? mapFirebaseCollectionSnapshot(snapshot)
+        : await getDB('materials');
     const container = document.getElementById('teacherMaterialsContainer');
     if (!container) return;
     container.innerHTML = '';
@@ -8160,6 +8175,15 @@ async function rollbackTeacherGradeRewardV3(
     if (!username || !submissionKey) {
         return { status: 'no_target' };
     }
+    if(window.ECONOMY_SERVER_ENABLED===true){
+        const slot='grade-revoke:'+submissionKey;
+        const pending=await window.EconomyClient.resume(slot);
+        if(pending)return pending.result;
+        const current=(await db.ref('submissions/'+submissionKey).once('value')).val();
+        const event=(await db.ref(`grade_reward_events/${username}/${submissionKey}`).once('value')).val();
+        if(!current)throw Error('Không tìm thấy bài nộp.');
+        return window.EconomyClient.execute('grade_revoke',{submissionKey,reason:reasonCode,expectedSource:teacherServerGradePreviewSource(current,event)},{slot});
+    }
 
     const eventRef = db.ref(
         `grade_reward_events/${username}/${submissionKey}`
@@ -10178,6 +10202,7 @@ async function settleTeacherGradeRewardV5(submission, outcome, gradedAt, status 
 }
 
 async function issueTeacherGradeRewardV2(submission, rawGrade, gradedAt) {
+    if(window.ECONOMY_SERVER_ENABLED===true)return runServerTeacherSubmission(getTeacherGradeRewardSubmissionKey(submission),'settle');
     await prepareTeacherGradeRewardTiming(submission);
     return settleTeacherGradeRewardV5(submission, getTeacherGradeRewardV2Outcome(rawGrade,submission), gradedAt);
 }
@@ -10312,6 +10337,8 @@ async function migrateLegacyGradeReward(submissionKey, { allowApplied = false } 
 
 let legacyGradeMigrationRunning = false;
 async function reconcileLegacyGradeRewards() {
+    // Server cutover must not automatically rewrite historical settlements.
+    if(window.ECONOMY_SERVER_ENABLED===true)return;
     if (legacyGradeMigrationRunning || currentUser?.role !== 'teacher') return;
     legacyGradeMigrationRunning = true;
     let cursor = null, converted = 0;
@@ -10358,6 +10385,18 @@ function gradeSubmission(subId) {
     teacherGradingInFlight.set(key, tracked);
     return tracked;
 }
+function teacherServerGradePreviewSource(sub,event){
+    return JSON.stringify({grade:sub.grade??null,gradedAt:sub.gradedAt??null,isRegrading:sub.isRegrading??false,isRedoing:sub.isRedoing??false,source:gradeSettlementSourceGuard(sub),revision:Number(event?.revision||0),eventVersion:Number(event?.version||0)});
+}
+async function runServerTeacherSubmission(submissionKey,mode,scope='both'){
+    const slot='teacher-submission:'+submissionKey+':'+mode;
+    const pending=await window.EconomyClient.resume(slot);if(pending)return pending.result;
+    const sub=(await db.ref('submissions/'+submissionKey).once('value')).val();
+    if(!sub)throw Error('SUBMISSION_NOT_FOUND');
+    const event=(await db.ref(`grade_reward_events/${getTeacherGradeRewardUsername(sub)}/${submissionKey}`).once('value')).val();
+    return window.EconomyClient.execute('teacher_submission',{submissionKey,mode,scope,expectedSource:teacherServerGradePreviewSource(sub,event)},{slot});
+}
+
 async function gradeSubmissionCore(subId) {
     const gradeInput = document.getElementById(`grade-${subId}`);
     const rawGrade = String(gradeInput?.value ?? '').trim();
@@ -10391,6 +10430,10 @@ async function gradeSubmissionCore(subId) {
             isRegrading: sub.isRegrading ?? false,
             gradedAt: sub.gradedAt ?? null
         };
+        if(window.ECONOMY_SERVER_ENABLED===true){
+            const pending=await window.EconomyClient.resume('grade:'+getTeacherGradeRewardSubmissionKey(sub));
+            if(pending){await loadSubmissions();await AppDialog.alert('Giao dịch chấm điểm trước đã được xác nhận. Danh sách đã cập nhật.');return;}
+        }
 
         await prepareTeacherGradeRewardTiming(sub);
         const gradedAt = Date.now();
@@ -10414,6 +10457,15 @@ async function gradeSubmissionCore(subId) {
         const relevantKeys = ['grade','gradedAt','isRegrading','isRedoing','isCheatFail','isEssayMissing','isLateFail','isAutoSubmitted','submitTime','submittedAt'];
         if (!latestSubmission || relevantKeys.some(key => JSON.stringify(latestSubmission[key] ?? null) !== JSON.stringify(sub[key] ?? null)) || JSON.stringify(refreshedReward.event) !== JSON.stringify(rewardState.event)) {
             await AppDialog.alert('Bài nộp hoặc thưởng đã thay đổi trong lúc xem trước. Hãy tải lại danh sách và xem trước kết quả mới. Chưa lưu điểm.');
+            return;
+        }
+        if(window.ECONOMY_SERVER_ENABLED===true){
+            const submissionKey=getTeacherGradeRewardSubmissionKey(sub);
+            if(fileInput?.files.length){fileDataArray=await readMultipleFiles(fileInput.files,{folder:'teacher-feedback'});if(!fileDataArray.length)return;}
+            await window.EconomyClient.execute('teacher_grade',{submissionKey,score:String(grade),comment:commentVal,files:JSON.stringify(fileDataArray??null),expectedSource:teacherServerGradePreviewSource(latestSubmission,refreshedReward.storedEvent)},{slot:'grade:'+submissionKey});
+            if(fileInput)fileInput.value='';
+            await loadSubmissions();
+            await AppDialog.alert('Đã lưu điểm và đối soát thưởng/phạt trên máy chủ.');
             return;
         }
         if (rewardState.event && Number(rewardState.event.version || 0) < 5) {
@@ -10691,6 +10743,7 @@ async function gradeSubmissionCore(subId) {
 window.requestRegrade = async function (subKey) {
     if (
         !(await AppDialog.confirm(
+            window.ECONOMY_SERVER_ENABLED===true ? 'Bạn có chắc chắn muốn chấm lại bài này?\n\nThưởng/phạt đã ghi nhận được giữ làm mốc. Khi lưu điểm mới, máy chủ chỉ cộng hoặc trừ phần chênh lệch.' :
             'Bạn có chắc chắn muốn tiến hành chấm lại bài này?\n\n' +
             '• Thư thưởng CHƯA NHẬN sẽ bị khóa tạm thời, học sinh chưa thể nhận.\n' +
             '• Nếu học sinh ĐÃ NHẬN, hệ thống thu hồi trực tiếp Vé + Coin cũ ngay.\n' +
@@ -10715,6 +10768,10 @@ window.requestRegrade = async function (subKey) {
             ...(subSnap.val() || {})
         };
 
+        if(window.ECONOMY_SERVER_ENABLED===true){
+            await runServerTeacherSubmission(subKey,'regrade');
+            await loadSubmissions();await AppDialog.alert('Đã mở chấm lại. Khi lưu điểm mới, máy chủ sẽ đối soát chênh lệch thưởng/phạt.');return;
+        }
         const holdResult =
             await holdTeacherGradeRewardForRegradeV4(
                 sub,
@@ -10924,6 +10981,19 @@ function getVietnamTodayParts() {
 
 async function issueTodayBirthdayRewardsByTeacher() {
     try {
+        if(window.ECONOMY_SERVER_ENABLED===true){
+            const rows=(await db.ref('users').once('value')).val()||{};
+            const day=getVietnamTodayParts();
+            for(const student of Object.values(rows)){
+                if(student?.role!=='student'||!student.username)continue;
+                const date=getStudentBirthDateValue(student);
+                if(!isValidStudentBirthDate(date))continue;
+                const [,month,birthDay]=date.split('-').map(Number);
+                if(month!==day.month||birthDay!==day.day)continue;
+                await window.EconomyClient.execute('birthday_issue',{studentUsername:student.username},{slot:'birthday:'+student.username+':'+day.year});
+            }
+            return;
+        }
         const today = getVietnamTodayParts();
         const birthdayCatalog = {};
 
@@ -12450,6 +12520,11 @@ function switchTab(tabId, btnElement) {
         btnElement.classList.add('active');
     }
 
+    window.StartupDataCoordinator?.ensureTab(tabId).catch(error => {
+        console.error('[Teacher tab data]', error);
+        void AppDialog.alert('Chưa tải được dữ liệu của mục này. Kiểm tra kết nối rồi thử lại.');
+    });
+
     if (tabId === 'tab-create') {
         updateTeacherAssignmentWorkspaceTabs(
             'create'
@@ -12746,6 +12821,10 @@ window.requestRedo = async function (subKey) {
         );
 
         if (!redoScope) return;
+        if(window.ECONOMY_SERVER_ENABLED===true){
+            await runServerTeacherSubmission(subKey,'redo',redoScope);
+            await loadSubmissions();await AppDialog.alert('Đã cho làm lại. Vi phạm cũ vẫn được giữ cho đến khi giáo viên tha lỗi.');return;
+        }
 
         const violationHistory =
             mergeTeacherRedoViolationHistory(
@@ -12914,6 +12993,7 @@ window.requestRedo = async function (subKey) {
 // ================= HÀM THA LỖI NỘP TRỄ / VI PHẠM =================
 // Preserve evidence and resolve the active projection in one transaction.
 async function pardonTeacherSubmissionWithAudit(subKey) {
+    if(window.ECONOMY_SERVER_ENABLED===true)return runServerTeacherSubmission(subKey,'pardon');
     const actorId = firebase.auth().currentUser?.uid;
     if (!actorId) throw new Error('AUTH_REQUIRED');
     const ref = db.ref('submissions/' + subKey);
@@ -12974,7 +13054,8 @@ window.pardonSubmission = async function (subKey) {
 
 window.forceSubmitRedo = async function (subKey) {
     if ((await AppDialog.confirm("Bạn muốn khóa bài ngay lập tức?..."))) {
-        await updateDB('submissions', subKey, {
+        if(window.ECONOMY_SERVER_ENABLED===true)await runServerTeacherSubmission(subKey,'end_redo');
+        else await updateDB('submissions', subKey, {
             isRedoing: false,
             redoScope: null
         });
@@ -13706,13 +13787,15 @@ window.pardonRoadmap = async function (subKey, mode) {
     }
     else if (mode === 'score') {
         if ((await AppDialog.confirm("Xác nhận tha lỗi điểm thấp cho học sinh?\n\nHệ thống sẽ ép trạng thái bài học này thành 'Đạt' để tính lộ trình cộng tiền bình thường."))) {
-            await updateDB('submissions', subKey, { forcePass: true });
+            if(window.ECONOMY_SERVER_ENABLED===true)await runServerTeacherSubmission(subKey,'force_pass');
+            else await updateDB('submissions', subKey, { forcePass: true });
             (await AppDialog.alert("✨ Đã tha lỗi điểm thấp thành công!"));
         }
     }
     else if (mode === 'unpardon') {
         if ((await AppDialog.confirm("Bạn muốn hủy trạng thái tha lỗi điểm thấp cho bài này?"))) {
-            await updateDB('submissions', subKey, { forcePass: false });
+            if(window.ECONOMY_SERVER_ENABLED===true)await runServerTeacherSubmission(subKey,'unforce_pass');
+            else await updateDB('submissions', subKey, { forcePass: false });
             (await AppDialog.alert("Đã hủy bỏ trạng thái tha lỗi."));
         }
     }
@@ -15466,6 +15549,11 @@ window.buyStoreItem = async function (itemId, _clientPrice) {
     if (!username || !item || item.isLocked === true || !Number.isFinite(price) || price < 0 || price > 999999 ||
         item.currency === 'mid_autumn_coin' || (item.isNonCoin && price <= 0)) return (await AppDialog.alert('Vật phẩm không thể mua bằng Coin.'));
     if (!navigator.onLine || window.isOffline) return (await AppDialog.alert('Mất kết nối. Vui lòng thử lại khi có mạng.'));
+    if(window.ECONOMY_SERVER_ENABLED===true){
+        if(!await AppDialog.confirm(`Xác nhận mua với giá ${price} Coin?`))return;
+        try{await window.EconomyClient.execute('store_buy',{itemId:String(itemId),discountKey:'none',maxAmount:String(price)},{slot:'store:'+itemId});await AppDialog.alert('Mua thành công! Vật phẩm đã vào kho.');}
+        catch(error){await AppDialog.alert('Chưa xác nhận giao dịch: '+error.message);}return;
+    }
     const opRef = db.ref(`store_purchase_ops/${username}/${itemId}`);
     const inventoryRef = db.ref(`student_inventory/${username}/${itemId}`);
     let operation = null;
@@ -17768,7 +17856,15 @@ window.sendGiftMessage = async function () {
                 'Xu Trung Thu'
         };
 
+        const serverGift=JSON.stringify({message:payload.message,giftType:payload.giftType,giftValue:payload.giftValue,discountExpiry:payload.discountExpiry||null,discountTargetItem:payload.discountTargetItem||null});
+        const giftBatch=window.ECONOMY_SERVER_ENABLED===true?await window.EconomyClient.batch('teacher-gift',serverGift,recipients):null;
         for (const username of recipients) {
+            if(window.ECONOMY_SERVER_ENABLED===true){
+                const slot='teacher-gift:'+username;
+                const pending=await window.EconomyClient.resume(slot);
+                if(!pending)await window.EconomyClient.execute('teacher_gift',{studentUsername:username,gift:serverGift,giftId:giftBatch.ids[username]},{slot});
+                continue;
+            }
             /*
              * Tạo trước mã thư để:
              * - Lưu đúng đường dẫn thư.
@@ -17935,6 +18031,7 @@ window.sendGiftMessage = async function () {
             }
         }
 
+        if(giftBatch)await giftBatch.finish();
         (await AppDialog.alert(
             `💌 Đã gửi thư thành công cho ` +
             `${recipients.length} học sinh!`
@@ -18587,7 +18684,9 @@ window.handleTeacherProcessCash = async function (reqFbKey, action) {
                 return;
             }
 
-            const rejectResult = await runTeacherGradeRewardLiveTransactionV44(reqRef, current => {
+            const rejectResult = window.ECONOMY_SERVER_ENABLED===true
+                ? (await window.EconomyClient.execute('cash_transition',{requestId:reqFbKey,status:'rejected'},{slot:'cash-transition:'+reqFbKey}),{committed:true})
+                : await runTeacherGradeRewardLiveTransactionV44(reqRef, current => {
                 if (!current || current.status !== 'pending') return;
                 return {
                     ...current,
@@ -18614,7 +18713,9 @@ window.handleTeacherProcessCash = async function (reqFbKey, action) {
                 return;
             }
 
-            const completeResult = await runTeacherGradeRewardLiveTransactionV44(reqRef, current => {
+            const completeResult = window.ECONOMY_SERVER_ENABLED===true
+                ? (await window.EconomyClient.execute('cash_transition',{requestId:reqFbKey,status:'completed'},{slot:'cash-transition:'+reqFbKey}),{committed:true})
+                : await runTeacherGradeRewardLiveTransactionV44(reqRef, current => {
                 if (!current || current.status !== 'transferring') return;
                 return {
                     ...current,
@@ -19249,7 +19350,8 @@ window.modifyStudentTickets = async function (action) {
     }
 
     try {
-        await db.ref('student_bonus_tickets/' + username).set(newBonus);
+        if(window.ECONOMY_SERVER_ENABLED===true)await window.EconomyClient.execute('teacher_tickets',{studentUsername:username,mode:action,amount:String(amount)},{slot:'teacher-tickets:'+username});
+        else await db.ref('student_bonus_tickets/' + username).set(newBonus);
         (await AppDialog.alert(`✅ Đã ${action === 'add' ? 'CỘNG' : 'TRỪ'} ${amount} vé thành công!`));
         document.getElementById('ticketModifyAmount').value = '';
         window.onTicketStudentChange();

@@ -15,6 +15,7 @@
         if (JSON.parse(localStorage.getItem(key) || 'null')?.id === id) localStorage.removeItem(key);
     }
     async function approve(id, username, getBaseMoney) {
+        if(window.ECONOMY_SERVER_ENABLED===true)return window.EconomyClient.execute('cash_approve',{requestId:String(id),studentUsername:String(username)},{slot:'cash-approve:'+id});
         if (inFlight.has(id)) return inFlight.get(id);
         const assertSession = session();
         const task = (async () => {

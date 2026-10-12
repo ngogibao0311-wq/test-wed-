@@ -6,6 +6,26 @@ window.__STORE_MANAGER_GUARD_BUILD = '20260918.v2-K2-K3-ownership';
 
 const StoreConfig = {
     items: [
+        {"id":"pet_nguu_lang_regular_1","name":"Ngưu Lang · Mục Đồng Sao","type":"pet","price":1,"isNonCoin":true,"currency":"that_tich_coin","tag":"Thất Tịch","tags":["Thất Tịch","Ngưu Lang"],"runtimeCss":"css/that-tich.css?v=20261012.thattich3","value":"assets/Premium/Thất tịch/nguu_lang_chibi1.png","asset":"assets/Premium/Thất tịch/nguu_lang_chibi1.png","isIcon":false,"disableClickEffect":true,"petEffect":"nguu_lang-regular"},
+        {"id":"theme_nguu_lang_regular_1","name":"Ngưu Lang · Bến Ngân Hà","type":"theme","price":1,"isNonCoin":true,"currency":"that_tich_coin","tag":"Thất Tịch","tags":["Thất Tịch","Ngưu Lang"],"runtimeCss":"css/that-tich.css?v=20261012.thattich3","value":"theme_nguu_lang_regular_1","customIcon":"♧"},
+        {"id":"effect_nguu_lang_regular_1","name":"Ngưu Lang · Đom Đóm Ngân Lam","type":"effect","price":1,"isNonCoin":true,"currency":"that_tich_coin","tag":"Thất Tịch","tags":["Thất Tịch","Ngưu Lang"],"runtimeCss":"css/that-tich.css?v=20261012.thattich3","value":"effect_nguu_lang_regular_1","customIcon":"♧"},
+        {"id":"frame_nguu_lang_regular_1","name":"Ngưu Lang · Thiên Ngưu Tinh Hoàn","type":"frame","price":1,"isNonCoin":true,"currency":"that_tich_coin","tag":"Thất Tịch","tags":["Thất Tịch","Ngưu Lang"],"runtimeCss":"css/that-tich.css?v=20261012.thattich3","value":"assets/Premium/Thất tịch/nguu_lang_khung1.png","asset":"assets/Premium/Thất tịch/nguu_lang_khung1.png","isIcon":false},
+        {"id":"background_nguu_lang_regular_1","name":"Ngưu Lang · Bờ Sao Đợi Người","type":"background","price":1,"isNonCoin":true,"currency":"that_tich_coin","tag":"Thất Tịch","tags":["Thất Tịch","Ngưu Lang"],"runtimeCss":"css/that-tich.css?v=20261012.thattich3","value":"assets/Premium/Thất tịch/nguu_lang_nen1.png","asset":"assets/Premium/Thất tịch/nguu_lang_nen1.png","isIcon":false,"backgroundFit":"cover","backgroundPosition":"center center","backgroundRepeat":"no-repeat","backgroundAttachment":"fixed"},
+        {"id":"pet_chuc_nu_regular_1","name":"Chức Nữ · Tiên Nữ Dệt Mây","type":"pet","price":1,"isNonCoin":true,"currency":"that_tich_coin","tag":"Thất Tịch","tags":["Thất Tịch","Chức Nữ"],"runtimeCss":"css/that-tich.css?v=20261012.thattich3","value":"assets/Premium/Thất tịch/chuc_nu_chibi1.png","asset":"assets/Premium/Thất tịch/chuc_nu_chibi1.png","isIcon":false,"disableClickEffect":true,"petEffect":"chuc_nu-regular"},
+        {"id":"theme_chuc_nu_regular_1","name":"Chức Nữ · Hiên Lụa Đào","type":"theme","price":1,"isNonCoin":true,"currency":"that_tich_coin","tag":"Thất Tịch","tags":["Thất Tịch","Chức Nữ"],"runtimeCss":"css/that-tich.css?v=20261012.thattich3","value":"theme_chuc_nu_regular_1","customIcon":"✿"},
+        {"id":"effect_chuc_nu_regular_1","name":"Chức Nữ · Cánh Hoa Tơ Hồng","type":"effect","price":1,"isNonCoin":true,"currency":"that_tich_coin","tag":"Thất Tịch","tags":["Thất Tịch","Chức Nữ"],"runtimeCss":"css/that-tich.css?v=20261012.thattich3","value":"effect_chuc_nu_regular_1","customIcon":"✿"},
+        {"id":"frame_chuc_nu_regular_1","name":"Chức Nữ · Vân Cẩm Hoa Hoàn","type":"frame","price":1,"isNonCoin":true,"currency":"that_tich_coin","tag":"Thất Tịch","tags":["Thất Tịch","Chức Nữ"],"runtimeCss":"css/that-tich.css?v=20261012.thattich3","value":"assets/Premium/Thất tịch/chuc_nu_khung1.png","asset":"assets/Premium/Thất tịch/chuc_nu_khung1.png","isIcon":false},
+        {"id":"background_chuc_nu_regular_1","name":"Chức Nữ · Vườn Mây Hẹn Ước","type":"background","price":1,"isNonCoin":true,"currency":"that_tich_coin","tag":"Thất Tịch","tags":["Thất Tịch","Chức Nữ"],"runtimeCss":"css/that-tich.css?v=20261012.thattich3","value":"assets/Premium/Thất tịch/chuc_nu_nen1.png","asset":"assets/Premium/Thất tịch/chuc_nu_nen1.png","isIcon":false,"backgroundFit":"cover","backgroundPosition":"center center","backgroundRepeat":"no-repeat","backgroundAttachment":"fixed"},
+        {"id":"pet_lu_guang_regular_2","name":"Lu Guang · Người Giữ Ảnh","type":"pet","price":850,"isNonCoin":false,"tag":"lick click","tags":["lick click","Lu Guang"],"runtimeCss":"css/lu-guang.css?v=20261012.luguang2","value":"assets/Premium/Lock/lu_guang_chibi2.png","asset":"assets/Premium/Lock/lu_guang_chibi2.png","isIcon":false,"disableClickEffect":true,"petEffect":"lu-guang-contact-print"},
+        {"id":"theme_lu_guang_regular_2","name":"Lu Guang · Phòng Lưu Ảnh","type":"theme","price":800,"isNonCoin":false,"tag":"lick click","tags":["lick click","Lu Guang"],"runtimeCss":"css/lu-guang.css?v=20261012.luguang2","value":"theme_lu_guang_regular_2","customIcon":"▧"},
+        {"id":"effect_lu_guang_regular_2","name":"Lu Guang · Vệt Mực Thanh Lam","type":"effect","price":900,"isNonCoin":false,"tag":"lick click","tags":["lick click","Lu Guang"],"runtimeCss":"css/lu-guang.css?v=20261012.luguang2","value":"effect_lu_guang_regular_2","customIcon":"⌁"},
+        {"id":"frame_lu_guang_regular_2","name":"Lu Guang · Viền Ảnh Ký Ức","type":"frame","price":250,"isNonCoin":false,"tag":"lick click","tags":["lick click","Lu Guang"],"runtimeCss":"css/lu-guang.css?v=20261012.luguang2","value":"assets/Premium/Lock/lu_guang_khung2.png","asset":"assets/Premium/Lock/lu_guang_khung2.png","isIcon":false},
+        {"id":"background_lu_guang_regular_2","name":"Lu Guang · Chiều Trong Ảnh","type":"background","price":150,"isNonCoin":false,"tag":"lick click","tags":["lick click","Lu Guang"],"runtimeCss":"css/lu-guang.css?v=20261012.luguang2","value":"assets/Premium/Lock/lu_guang_nen2.png","asset":"assets/Premium/Lock/lu_guang_nen2.png","isIcon":false,"backgroundFit":"cover","backgroundPosition":"center center","backgroundRepeat":"no-repeat","backgroundAttachment":"fixed"},
+        {"id":"pet_audrey_hall_regular_2","name":"Audrey Hall · Tiểu Thư Tâm Ngữ","type":"pet","price":850,"isNonCoin":false,"tag":"Lord of the Mysteries","tags":["Lord of the Mysteries","Audrey Hall"],"runtimeCss":"css/audrey-hall.css?v=20261012.audrey1","value":"assets/Premium/quỷ bí/Audrey Hall_chibi2.png","asset":"assets/Premium/quỷ bí/Audrey Hall_chibi2.png","isIcon":false,"disableClickEffect":true,"petEffect":"audrey-paper-pet"},
+        {"id":"theme_audrey_hall_regular_2","name":"Audrey Hall · Phòng Thư Ngọc Bích","type":"theme","price":800,"isNonCoin":false,"tag":"Lord of the Mysteries","tags":["Lord of the Mysteries","Audrey Hall"],"runtimeCss":"css/audrey-hall.css?v=20261012.audrey1","value":"theme_audrey_hall_regular_2","customIcon":"✉"},
+        {"id":"effect_audrey_hall_regular_2","name":"Audrey Hall · Điệp Thư Thì Thầm","type":"effect","price":900,"isNonCoin":false,"tag":"Lord of the Mysteries","tags":["Lord of the Mysteries","Audrey Hall"],"runtimeCss":"css/audrey-hall.css?v=20261012.audrey1","value":"effect_audrey_hall_regular_2","customIcon":"♧"},
+        {"id":"frame_audrey_hall_regular_2","name":"Audrey Hall · Ấn Ngọc Công Lý","type":"frame","price":250,"isNonCoin":false,"tag":"Lord of the Mysteries","tags":["Lord of the Mysteries","Audrey Hall"],"runtimeCss":"css/audrey-hall.css?v=20261012.audrey1","value":"assets/Premium/quỷ bí/Audrey Hall_khung2.png","asset":"assets/Premium/quỷ bí/Audrey Hall_khung2.png","isIcon":false},
+        {"id":"background_audrey_hall_regular_2","name":"Audrey Hall · Khu Vườn Tâm Trí","type":"background","price":150,"isNonCoin":false,"tag":"Lord of the Mysteries","tags":["Lord of the Mysteries","Audrey Hall"],"runtimeCss":"css/audrey-hall.css?v=20261012.audrey1","value":"assets/Premium/quỷ bí/Audrey Hall_nen2.png","asset":"assets/Premium/quỷ bí/Audrey Hall_nen2.png","isIcon":false,"backgroundFit":"cover","backgroundPosition":"center center","backgroundRepeat":"no-repeat","backgroundAttachment":"fixed"},
 
         { id: 'theme_ocean', name: 'Đại Dương Xanh', type: 'theme', price: 150, isNonCoin: false, tag: 'Giao diện' },
         { id: 'effect_snow', name: 'Tuyết Mùa Đông', type: 'effect', price: 200, isNonCoin: false, tag: 'Hiệu ứng' },
@@ -3157,13 +3177,29 @@ function ensureStarryNightChibiStylesheet() {
 }
 
 class StoreManager {
+    static normalizeEventCurrency(item) {
+        if (item && /^(pet|theme|effect|frame|background)_(nguu_lang|chuc_nu)_regular_1$|^pet_(nguu_lang|chuc_nu)_premium_1$/.test(item.id)) {
+            return {...item, price: item.id.includes('_premium_') ? 2 : 1, isNonCoin: true, currency: 'that_tich_coin'};
+        }
+        return item;
+    }
     static getItemsByType(type) {
-        return StoreConfig.items.filter(item => type === 'all' || item.type === type)
-            .sort((a, b) => (a.id.endsWith('_eternal_winter_regular_4') ? 4 : a.id.endsWith('_tinh_mong_regular_2') ? 3 : a.id.endsWith('_thanh_lanh_regular_4') ? 2 : Number(a.id.endsWith('_kim_lien_regular_3'))) - (b.id.endsWith('_eternal_winter_regular_4') ? 4 : b.id.endsWith('_tinh_mong_regular_2') ? 3 : b.id.endsWith('_thanh_lanh_regular_4') ? 2 : Number(b.id.endsWith('_kim_lien_regular_3'))));
+        const displayOrder = item => {
+            if (item.id.endsWith('_nguu_lang_regular_1')) return 7;
+            if (item.id.endsWith('_chuc_nu_regular_1')) return 8;
+            if (item.id.endsWith('_lu_guang_regular_2')) return 6;
+            if (item.id.endsWith('_audrey_hall_regular_2')) return 5;
+            if (item.id.endsWith('_eternal_winter_regular_4')) return 4;
+            if (item.id.endsWith('_tinh_mong_regular_2')) return 3;
+            if (item.id.endsWith('_thanh_lanh_regular_4')) return 2;
+            return Number(item.id.endsWith('_kim_lien_regular_3'));
+        };
+        return StoreConfig.items.map(item => this.normalizeEventCurrency(item)).filter(item => type === 'all' || item.type === type)
+            .sort((a, b) => displayOrder(a) - displayOrder(b));
     }
 
     static getItemById(id) {
-        return window.CollectionRewards?.getItem(id) || StoreConfig.items.find(item => item.id === id);
+        return this.normalizeEventCurrency(window.CollectionRewards?.getItem(id) || StoreConfig.items.find(item => item.id === id));
     }
 
     static getAnnualSaleState(item, now = new Date()) {
@@ -3501,6 +3537,7 @@ class StoreManager {
     }
 
     static renderStoreItem(item, isOwned = false, isEquipped = false, isTrial = false, isUpcoming = false) {
+        item = this.normalizeEventCurrency(item);
         const annualSaleState =
             this.getAnnualSaleState(item);
 
@@ -3647,7 +3684,9 @@ class StoreManager {
             } else if (isOwned) {
                 actionButton = `<button class="btn-equip" onclick="StoreManager.applyItem('${item.id}')">✨ Mặc ngay</button>`;
             } else {
-                if (isMidAutumnCoinItem) {
+                if (item.currency === 'that_tich_coin') {
+                    actionButton = `<button class="btn-buy" onclick="window.ThatTichWallet.redeem('${item.id}')">🌌 Đổi ${item.price} Xu Thất Tịch</button>`;
+                } else if (isMidAutumnCoinItem) {
                     actionButton = `
             <button
                 class="btn-buy midautumn-coin-buy"
@@ -3824,8 +3863,10 @@ class StoreManager {
                 }
             }
 
-            // Vật phẩm Xu Trung Thu không có cơ chế dùng thử bằng Coin.
-            if (isMidAutumnCoinItem) {
+            // Event items never start a new ordinary-Coin trial.
+            if (item.currency === 'that_tich_coin') {
+                trialButton = isTrial ? `<button class="btn-buy upgrade" onclick="window.ThatTichWallet.redeem('${item.id}')">🌌 Đổi vĩnh viễn: ${item.price} Xu Thất Tịch</button>` : '';
+            } else if (isMidAutumnCoinItem) {
                 trialButton = `
         <button
             class="btn-preview disabled"
@@ -4188,7 +4229,21 @@ class StoreManager {
         }
 
         let specialCardGroup = '';
-        let isThemeImmune = false;
+        if (item.id.endsWith('_audrey_hall_regular_2')) {
+            cardClasses.push('ahr-card', 'store-theme-locked', 'ui-theme-immune');
+            tagClass = 'tag-lotm audrey-paper-tag';
+            specialCardGroup = 'audrey-regular';
+        }
+        let isThemeImmune = item.id.endsWith('_audrey_hall_regular_2');
+        if (/_((nguu_lang)|(chuc_nu))_regular_1$/.test(item.id)) {
+            const weaver = item.id.includes('chuc_nu');
+            cardClasses.push('ttr-card', weaver ? 'ttr-weaver-card' : 'ttr-herder-card', 'store-theme-locked', 'ui-theme-immune');
+            tagClass = 'that-tich-knot-tag'; specialCardGroup = weaver ? 'chuc-nu-regular' : 'nguu-lang-regular'; isThemeImmune = true;
+        }
+        if (item.id.endsWith('_lu_guang_regular_2')) {
+            cardClasses.push('lgr-card', 'store-theme-locked', 'ui-theme-immune');
+            tagClass = 'lu-guang-contact-tag'; specialCardGroup = 'lu-guang-regular'; isThemeImmune = true;
+        }
         if (item.id.endsWith('_hac_mong_regular_2')) {
             cardClasses.push('hmr-card', 'store-theme-locked', 'ui-theme-immune');
             specialCardGroup = 'hac-mong-regular'; isThemeImmune = true;
@@ -7172,3 +7227,4 @@ window.StoreConcurrency = (() => {
     }
     return { charge, equipment };
 })();
+

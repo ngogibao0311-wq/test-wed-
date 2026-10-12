@@ -2,6 +2,10 @@
 
 class ThemeManager {
     static themes = {
+        theme_nguu_lang_regular_1:{primary:'#397a88',secondary:'#add5d9',background:'#e7f4f2',className:'theme-that-tich-meadow'},
+        theme_chuc_nu_regular_1:{primary:'#a16998',secondary:'#dec0db',background:'#faf0f7',className:'theme-that-tich-embroidery'},
+        theme_lu_guang_regular_2:{primary:'#537c9c',secondary:'#b3cbdc',background:'#eaf2f7',className:'theme-lu-guang-album'},
+        theme_audrey_hall_regular_2:{primary:'#53735c',secondary:'#a9b489',background:'#edf1e6',className:'theme-audrey-paper'},
         theme_eternal_winter_regular_4:{primary:'#527c87',secondary:'#af9368',background:'#edf2ee',className:'theme-eternal-winter-regular'},
         theme_tinh_mong_regular_2: {primary:'#62628d',secondary:'#bda6d6',background:'#f1eff9',className:'theme-tinh-mong-regular'},
         theme_hac_mong_regular_2: {primary:'#397d8a',secondary:'#adcdd0',background:'#eff5f7',className:'theme-hac-mong-regular'},
@@ -317,6 +321,14 @@ class ThemeManager {
    ========================================================= */
 
     static specialStoreCardGroups = Object.freeze({
+        'nguu-lang-premium': Object.freeze({itemIds:Object.freeze(['pet_nguu_lang_premium_1']),className:'tt-card'}),
+        'chuc-nu-premium': Object.freeze({itemIds:Object.freeze(['pet_chuc_nu_premium_1']),className:'tt-card'}),
+        'nguu-lang-regular': Object.freeze({itemIds:Object.freeze(["pet_nguu_lang_regular_1","theme_nguu_lang_regular_1","effect_nguu_lang_regular_1","frame_nguu_lang_regular_1","background_nguu_lang_regular_1"]),className:'ttr-card'}),
+        'chuc-nu-regular': Object.freeze({itemIds:Object.freeze(["pet_chuc_nu_regular_1","theme_chuc_nu_regular_1","effect_chuc_nu_regular_1","frame_chuc_nu_regular_1","background_chuc_nu_regular_1"]),className:'ttr-card'}),
+        'lu-guang-premium': Object.freeze({itemIds:Object.freeze(['pet_lu_guang_premium_2']),className:'lg-card'}),
+        'lu-guang-regular': Object.freeze({itemIds:Object.freeze(["pet_lu_guang_regular_2","theme_lu_guang_regular_2","effect_lu_guang_regular_2","frame_lu_guang_regular_2","background_lu_guang_regular_2"]),className:'lgr-card'}),
+        'audrey-premium': Object.freeze({itemIds:Object.freeze(['pet_audrey_hall_premium_2']),className:'ah-card'}),
+        'audrey-regular': Object.freeze({itemIds:Object.freeze(["pet_audrey_hall_regular_2","theme_audrey_hall_regular_2","effect_audrey_hall_regular_2","frame_audrey_hall_regular_2","background_audrey_hall_regular_2"]),className:'ahr-card'}),
         'hacmong2-premium': Object.freeze({ itemIds: Object.freeze(['pet_hac_mong_2']), className: 'hacmong2-card' }),
         'autumn3-premium': Object.freeze({
             itemIds: Object.freeze(['pet_luxury_mua_thu']),

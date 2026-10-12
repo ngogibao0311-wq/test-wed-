@@ -31,6 +31,10 @@
             @media(max-width:480px) { dialog { padding:22px; border-radius:18px; } h2{font-size:21px} .actions button { flex:1; } }
         </style><dialog aria-labelledby="title" aria-describedby="message"><div class="mark" aria-hidden="true"></div><h2 id="title"></h2><p id="message"></p><div class="actions"></div></dialog>`;
         const dialog = root.querySelector('dialog');
+        // Opt-in styling surfaces keep layout/focus behavior inside the dialog.
+        dialog.setAttribute('part', 'panel');
+        root.querySelector('h2').setAttribute('part', 'title');
+        root.querySelector('.mark').setAttribute('part', 'mark');
         const options = task.options;
         root.querySelector('h2').textContent = options.title || (task.kind === 'confirm' ? 'Xác nhận thao tác' : task.kind === 'prompt' ? 'Nhập thông tin' : 'Thông báo');
         root.querySelector('.mark').textContent = task.kind === 'confirm' ? '?' : options.type === 'error' ? '!' : options.type === 'success' ? '✓' : 'i';

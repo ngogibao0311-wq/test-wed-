@@ -25,6 +25,7 @@
     async function commit(options) {
         const { id, username, type, delta, reason, name = username, originalId = '' } = options;
         if (!id || !paths[type] || !Number.isSafeInteger(delta) || !delta || !reason.trim()) throw Error('Giao dịch không hợp lệ');
+        if(window.ECONOMY_SERVER_ENABLED===true)return window.EconomyClient.execute('teacher_adjust',{ledgerId:String(id),studentUsername:String(username),type:String(type),delta:String(delta),reason:String(reason),originalId:String(originalId||'none')},{slot:'teacher-ledger:'+id});
         if (inFlight.has(id)) return inFlight.get(id);
         const work = (async () => {
             const receiptPath = `teacher_money_operations/${id}`;

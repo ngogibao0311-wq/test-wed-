@@ -8253,6 +8253,10 @@ ${this.toolButton(
         },
 
         async rewardSeasonStudents(seasonId, finalRoundId, rankings) {
+            if(window.ECONOMY_SERVER_ENABLED===true) {
+                for(const student of rankings)await window.EconomyClient.execute('painting_season_reward',{seasonId:String(seasonId),finalRoundId:String(finalRoundId),studentUsername:String(student.studentUsername)},{slot:'painting-season:'+seasonId+':'+student.studentUsername});
+                return;
+            }
             for (let i = 0; i < rankings.length; i++) {
                 const student = rankings[i];
                 const rank = i + 1;

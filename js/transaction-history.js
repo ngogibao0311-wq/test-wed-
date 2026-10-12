@@ -1084,6 +1084,7 @@
     }
 
     async function undoGiftSent(log) {
+        if(window.ECONOMY_SERVER_ENABLED===true)return window.EconomyClient.execute('teacher_gift_revoke',{logId:String(log.id)},{slot:'revoke-gift:'+log.id});
         const details =
             log.details || {};
 

@@ -33,6 +33,7 @@
     // ========================================================
     // Muốn món nào xuất hiện thì ghi ID món đó vào đây.
     const LUXURY_ITEM_IDS = [
+        'pet_audrey_hall_premium_2',
         'pet_valentine_cupid_1',
         'pet_eternal_winter_4',
         'pet_tinh_mong_2',
@@ -53,7 +54,10 @@
         'pet_tamon_b_side_2',
         'pet_trung_thu_nguyet_cung_tien_tu',
         'pet_trung_thu_chu_cuoi_2',
-        'pet_linkclick_cheng_xiaoshi_1'
+        'pet_linkclick_cheng_xiaoshi_1',
+        'pet_lu_guang_premium_2',
+        'pet_nguu_lang_premium_1',
+        'pet_chuc_nu_premium_1'
     ];
 
     // ========================================================
@@ -536,6 +540,134 @@
 
 
     // HẠC MỘNG · VÂN TIÊU TIÊN VŨ — full suite owned only by this pet.
+    const NGUU_LANG_PREMIUM_PET = {
+    "id": "pet_nguu_lang_premium_1",
+    "name": "Ngưu Lang · Thiên Kiều Tinh Hà",
+    "type": "pet",
+    "price": 2,
+    "isNonCoin": true,
+    "currency": "that_tich_coin",
+    "luxuryOnly": true,
+    "eventOnly": false,
+    "tag": "Thất Tịch",
+    "tags": [
+        "Thất Tịch",
+        "Ngưu Lang",
+        "Premium"
+    ],
+    "image": "assets/Premium/Thất tịch/nguu_lang_nhan_vat1.png",
+    "asset": "assets/Premium/Thất tịch/nguu_lang_nhan_vat1.png",
+    "value": "assets/Premium/Thất tịch/nguu_lang_nhan_vat1.png",
+    "luxuryTagImage": "assets/Premium/Thất tịch/that_tich_tag1.png",
+    "runtimeCss": "css/that-tich.css?v=20261012.thattich3",
+    "isIcon": false,
+    "disableClickEffect": true,
+    "petEffect": "nguu_lang-celestial",
+    "premiumSuite": "that-tich-nguu_lang",
+    "premiumLayers": [
+        "world-effect",
+        "interface",
+        "pet-realm",
+        "global-click",
+        "ultimate"
+    ]
+};
+    const CHUC_NU_PREMIUM_PET = {
+    "id": "pet_chuc_nu_premium_1",
+    "name": "Chức Nữ · Vân Cẩm Thiên Cung",
+    "type": "pet",
+    "price": 2,
+    "isNonCoin": true,
+    "currency": "that_tich_coin",
+    "luxuryOnly": true,
+    "eventOnly": false,
+    "tag": "Thất Tịch",
+    "tags": [
+        "Thất Tịch",
+        "Chức Nữ",
+        "Premium"
+    ],
+    "image": "assets/Premium/Thất tịch/chuc_nu_nhan_vat1.png",
+    "asset": "assets/Premium/Thất tịch/chuc_nu_nhan_vat1.png",
+    "value": "assets/Premium/Thất tịch/chuc_nu_nhan_vat1.png",
+    "luxuryTagImage": "assets/Premium/Thất tịch/that_tich_tag1.png",
+    "runtimeCss": "css/that-tich.css?v=20261012.thattich3",
+    "isIcon": false,
+    "disableClickEffect": true,
+    "petEffect": "chuc_nu-celestial",
+    "premiumSuite": "that-tich-chuc_nu",
+    "premiumLayers": [
+        "world-effect",
+        "interface",
+        "pet-realm",
+        "global-click",
+        "ultimate"
+    ]
+};
+    const LU_GUANG_PREMIUM_PET = {
+    "id": "pet_lu_guang_premium_2",
+    "name": "Lu Guang · Thiên Văn Viện Ký Ức",
+    "type": "pet",
+    "price": 14000,
+    "isNonCoin": false,
+    "luxuryOnly": true,
+    "eventOnly": false,
+    "tag": "lick click",
+    "tags": [
+        "lick click",
+        "Lu Guang",
+        "Premium"
+    ],
+    "image": "assets/Premium/Lock/lu_guang_nhan_vat2.png",
+    "asset": "assets/Premium/Lock/lu_guang_nhan_vat2.png",
+    "value": "assets/Premium/Lock/lu_guang_nhan_vat2.png",
+    "luxuryTagImage": "assets/Premium/Lock/Lu_guang_tag2.png",
+    "runtimeCss": "css/lu-guang.css?v=20261012.luguang2",
+    "isIcon": false,
+    "disableClickEffect": true,
+    "petEffect": "lu-guang-memory-observatory",
+    "premiumSuite": "lu-guang-memory-observatory",
+    "premiumLayers": [
+        "world-effect",
+        "interface",
+        "pet-realm",
+        "global-click",
+        "ultimate"
+    ]
+};
+
+    const AUDREY_HALL_PREMIUM_PET = {
+    "id": "pet_audrey_hall_premium_2",
+    "name": "Audrey Hall · Thánh Đường Tâm Trí",
+    "type": "pet",
+    "price": 15000,
+    "isNonCoin": false,
+    "luxuryOnly": true,
+    "eventOnly": false,
+    "tag": "Audrey Hall",
+    "tags": [
+        "Audrey Hall",
+        "Lord of the Mysteries",
+        "Premium"
+    ],
+    "image": "assets/Premium/quỷ bí/Audrey Hall_nhan_vat2.png",
+    "asset": "assets/Premium/quỷ bí/Audrey Hall_nhan_vat2.png",
+    "value": "assets/Premium/quỷ bí/Audrey Hall_nhan_vat2.png",
+    "luxuryTagImage": "assets/Premium/quỷ bí/Audrey Hall_tag2.png",
+    "runtimeCss": "css/audrey-hall.css?v=20261012.audrey1",
+    "isIcon": false,
+    "disableClickEffect": true,
+    "petEffect": "audrey-cathedral-pet",
+    "premiumSuite": "audrey-mirror-cathedral",
+    "premiumLayers": [
+        "world-effect",
+        "interface",
+        "pet-realm",
+        "global-click",
+        "ultimate"
+    ]
+};
+
     const HAC_MONG_PREMIUM_PET = {
         id: 'pet_hac_mong_2', name: 'Hạc Mộng · Vân Tiêu Tiên Vũ',
         type: 'pet', price: 13000, isNonCoin: false, luxuryOnly: true, eventOnly: false,
@@ -6452,6 +6584,7 @@
                 if (window.isStudentStoreGameAccessEnabled?.() === false) return false;
                 LuxuryAutumnRuntime.clear();
                 LuxuryHacMongRuntime.clear();
+                window.AudreyHallRuntime?.clearPet();
 
                 /*
                  * Mỗi lần đổi pet dọn toàn bộ runtime Luxury đang hoạt động.
@@ -6585,6 +6718,10 @@ LuxuryAcediaRuntime.clear();
                 if (petData?.id === THANH_LANH_PREMIUM_PET.id) { window.ThanhLanhPremiumRuntime?.mount(); return; }
                 if (petData?.id === KIM_LIEN_PREMIUM_PET.id) { window.KimLienRuntime?.mount(); return; }
                 if (petData?.id === ACEDIA_PREMIUM_PET.id) { LuxuryAcediaRuntime.mount(); return; }
+                if (petData?.id === NGUU_LANG_PREMIUM_PET.id) { window.ThatTichRuntime?.mountPremium('nguu_lang'); return; }
+                if (petData?.id === CHUC_NU_PREMIUM_PET.id) { window.ThatTichRuntime?.mountPremium('chuc_nu'); return; }
+                if (petData?.id === LU_GUANG_PREMIUM_PET.id) { window.LuGuangRuntime?.mountPremium(); return; }
+                if (petData?.id === AUDREY_HALL_PREMIUM_PET.id) { window.AudreyHallRuntime?.mountPremium(); return; }
                 if (petData?.id === HAC_MONG_PREMIUM_PET.id) {
                     LuxuryHacMongRuntime.mount();
                     return;
@@ -6997,6 +7134,9 @@ LuxuryAcediaRuntime.clear();
                 if (String(itemId) === THANH_LANH_PREMIUM_PET.id) window.ThanhLanhPremiumRuntime?.clear();
                 if (String(itemId) === KIM_LIEN_PREMIUM_PET.id) window.KimLienRuntime?.clear();
                 if (String(itemId) === ACEDIA_PREMIUM_PET.id) LuxuryAcediaRuntime.clear();
+                if (['pet_nguu_lang_premium_1','pet_chuc_nu_premium_1'].includes(String(itemId))) window.ThatTichRuntime?.clearPet();
+                if (String(itemId) === LU_GUANG_PREMIUM_PET.id) window.LuGuangRuntime?.clearPet();
+                if (String(itemId) === AUDREY_HALL_PREMIUM_PET.id) window.AudreyHallRuntime?.clearPet();
                 if (String(itemId) === HAC_MONG_PREMIUM_PET.id) LuxuryHacMongRuntime.clear();
                 if (String(itemId) === AUTUMN_PREMIUM_PET.id) LuxuryAutumnRuntime.clear();
 
@@ -7572,6 +7712,7 @@ if (isNationalDay) {
     }
 
     function hardClearBoundaryPetRuntime() {
+        window.AudreyHallRuntime?.clearPet();
         /*
          * Dọn các runtime Luxury trước.
          * Các hàm này đều nằm trong cùng module luxury-store.js.
@@ -8061,6 +8202,10 @@ if (isNationalDay) {
             KIM_LIEN_PREMIUM_PET,
             ACEDIA_PREMIUM_PET,
             HAC_MONG_PREMIUM_PET,
+            AUDREY_HALL_PREMIUM_PET,
+            LU_GUANG_PREMIUM_PET,
+            NGUU_LANG_PREMIUM_PET,
+            CHUC_NU_PREMIUM_PET,
             NATIONAL_DAY_PREMIUM_PET,
             MYTHIC_NYX_PET,
             MYTHIC_AETHER_PET,
@@ -8094,7 +8239,7 @@ if (isNationalDay) {
                 itemDefinition.id ===
                 VALENTINE_PREMIUM_PET.id || itemDefinition.id === ETERNAL_WINTER_PET.id || itemDefinition.id === TINH_MONG_PREMIUM_PET.id || itemDefinition.id === THANH_LANH_PREMIUM_PET.id || itemDefinition.id === KIM_LIEN_PREMIUM_PET.id ||
                 itemDefinition.id ===
-                HAC_MONG_PREMIUM_PET.id ||
+                HAC_MONG_PREMIUM_PET.id || itemDefinition.id === AUDREY_HALL_PREMIUM_PET.id || itemDefinition.id === LU_GUANG_PREMIUM_PET.id || itemDefinition.id === NGUU_LANG_PREMIUM_PET.id || itemDefinition.id === CHUC_NU_PREMIUM_PET.id ||
                 itemDefinition.id ===
                 AUTUMN_PREMIUM_PET.id ||
                 itemDefinition.id ===
@@ -8695,6 +8840,10 @@ if (isNationalDay) {
     // One full-art layout for the Luxury catalog. The original renderer remains
     // the source of purchase/equip/event controls, including seasonal currency.
     const LUXURY_CARD_PRESENTATION = Object.freeze({
+        pet_nguu_lang_premium_1: ['#0e2940','#a9e5ec','Ngân Hà mở lối, đàn hỷ thước nối thành thiên kiều. Một ngọn đèn chờ người giữa biển sao.'],
+        pet_chuc_nu_premium_1: ['#30203f','#efbde5','Từng sợi tơ dệt nên cung trời, từng cánh hoa cất giữ lời hẹn. Đêm Thất Tịch nhuộm màu vân cẩm.'],
+        pet_lu_guang_premium_2: ['#111e3b', '#b6dfff', 'Mỗi bức ảnh là một tọa độ. Bước vào thiên văn viện ký ức, nơi ánh sáng lưu giữ những khoảnh khắc chưa phai.'],
+        pet_audrey_hall_premium_2: ['#173b2b', '#e0c788', 'Sau tấm gương lục bảo, một thánh đường lặng lẽ mở ra. Công Lý soi sáng những tâm tư chưa thành lời.'],
         pet_valentine_cupid_1:['#590d22','#ffb3c1','Sợi chỉ đỏ lướt qua cánh hồng, nối những nhịp tim giữa miền mộng dịu dàng.'],
         pet_eternal_winter_4:['#14243b','#bcf0f5','Vĩnh đông chuyển mình qua bốn nhịp thở: cực quang, pha lê sống và những cơn bão bảo hộ thiên thành băng.'],
         pet_tinh_mong_2: ['#171f3d','#efd4a0','Người dệt ánh sao lên thiên thư: từng sợi ngân hà mở ra một trang trời, lưu giữ những giấc mơ giữa đêm xanh.'],
@@ -8720,6 +8869,9 @@ if (isNationalDay) {
 
     // Native vector scenery: stays behind the character and needs no extra image assets.
     function renderLuxuryBackdrop(itemId) {
+        if (['pet_nguu_lang_premium_1','pet_chuc_nu_premium_1'].includes(itemId)) return '<div class="luxury-scene tt-card-scene" aria-hidden="true"><i class="tt-card-moon"></i><i class="tt-card-bridge"></i><i class="tt-card-silk"></i><span>七夕 · THẤT TỊCH</span></div>';
+        if (itemId === 'pet_lu_guang_premium_2') return '<div class="luxury-scene lg-card-scene" aria-hidden="true"><div class="lg-card-dial"></div><div class="lg-card-rails"></div><div class="lg-card-exposure"></div><span>EXPOSURE / 002</span></div>';
+        if (itemId === 'pet_audrey_hall_premium_2') return `<div class="luxury-scene ah-card-scene" aria-hidden="true"><svg viewBox="0 0 300 430" fill="none" stroke="currentColor"><path d="M16 430V148Q16 38 150 12Q284 38 284 148V430M29 430V150Q29 53 150 28Q271 53 271 150V430M150 28V430M29 153H271M29 318H271"/><path d="M150 55 213 152 150 247 87 152ZM150 268 211 338 150 414 89 338Z" fill="currentColor" fill-opacity=".12"/><path d="M38 0Q150 190 262 0M72 0Q150 133 228 0"/><path d="M67 104V146L73 155 67 168 61 155 67 146M233 104V146L239 155 233 168 227 155 233 146"/></svg></div>`;
         if(itemId === VALENTINE_PREMIUM_PET.id) return '<div class="vlt-card-art"><svg viewBox="0 0 300 430" fill="none"><path d="M-20 350C250 420 90 40 265 80S140 340 20 210S150 110 310 15" stroke="#ff4d6d" stroke-width="1.2"/><path d="M150 165C130 145 102 130 108 112C118 95 140 104 150 118C160 104 182 95 192 112C198 130 170 145 150 165Z" stroke="#f4c76b"/></svg></div>';
 
         if (itemId === ETERNAL_WINTER_PET.id) return '<div class="luxury-scene ew-card-scene" aria-hidden="true"></div>';
@@ -8761,6 +8913,7 @@ if (isNationalDay) {
     }
 
     function renderCard(item) {
+        if (/^pet_(nguu_lang|chuc_nu)_premium_1$/.test(item.id)) window.ThatTichRuntime?.ensureCSS();
         if(item.id === VALENTINE_PREMIUM_PET.id) window.ValentinePremiumRuntime?.ensureCSS();
         if(item.id === TINH_MONG_PREMIUM_PET.id && !document.getElementById('tinh-mong-css')) {
             const link=document.createElement('link');link.id='tinh-mong-css';link.rel='stylesheet';link.href='css/dem-day-sao.css?v=20261009.shared-starry-tag1';document.head.appendChild(link);
@@ -8792,7 +8945,7 @@ if (isNationalDay) {
         const image = escapeHTML(item.image || item.asset || item.value || '');
         const tagImage = escapeHTML(item.luxuryTagImage || '');
         const id = escapeHTML(item.id);
-        return `<article class="luxury-product-card luxury-unified-card store-theme-locked ui-theme-immune${item.id === VALENTINE_PREMIUM_PET.id ? ' vlt-card' : ''}${item.id === ACEDIA_PREMIUM_PET.id ? ' aclp-card' : ''}"
+        return `<article class="luxury-product-card luxury-unified-card store-theme-locked ui-theme-immune${item.id === 'pet_nguu_lang_premium_1' ? ' tt-card tt-herder-card' : item.id === 'pet_chuc_nu_premium_1' ? ' tt-card tt-weaver-card' : ''}${item.id === 'pet_lu_guang_premium_2' ? ' lg-card' : ''}${item.id === AUDREY_HALL_PREMIUM_PET.id ? ' ah-card' : ''}${item.id === VALENTINE_PREMIUM_PET.id ? ' vlt-card' : ''}${item.id === ACEDIA_PREMIUM_PET.id ? ' aclp-card' : ''}"
             data-item-id="${id}" data-theme-immune="true" tabindex="0" aria-label="${name}"
             style="--luxury-card-shade:${shade};--luxury-card-accent:${accent}">
             <div class="luxury-unified-visual">
@@ -9177,6 +9330,27 @@ if (isNationalDay) {
             </article>`;
         }
 
+        if (['pet_nguu_lang_premium_1','pet_chuc_nu_premium_1'].includes(item.id)) {
+            const price = Number(2).toLocaleString('vi-VN');
+            const action = !isOwned ? `window.ThatTichWallet.redeem('${id}')` : isEquipped ? `StoreManager.unapplyItem('${id}')` : `StoreManager.applyItem('${id}')`;
+            return `<article class="tt-card"><div class="tt-price">🌌 ${price} Xu Thất Tịch</div><button class="${isEquipped ? 'is-equipped' : ''}" onclick="${action}">${!isOwned ? 'Đổi '+price+' Xu Thất Tịch' : isEquipped ? '✕ Gỡ' : '✦ Sử dụng'}</button></article>`;
+        }
+        if (item.id === 'pet_lu_guang_premium_2') {
+            const price = Number(item.price).toLocaleString('vi-VN');
+            const action = !isOwned ? `window.LuxuryStore.buyItemSafely('${id}')` : isEquipped ? `StoreManager.unapplyItem('${id}')` : `StoreManager.applyItem('${id}')`;
+            return `<article class="lg-card"><div class="lg-price">🪙 ${price} Coin</div><button class="${isEquipped ? 'is-equipped' : ''}" onclick="${action}">${!isOwned ? 'Mua '+price+' Coin' : isEquipped ? '✕ Gỡ' : '✦ Sử dụng'}</button></article>`;
+        }
+        if (item.id === AUDREY_HALL_PREMIUM_PET.id) {
+            const price = Number(item.price).toLocaleString('vi-VN');
+            const action = !isOwned ? `window.LuxuryStore.buyItemSafely('${id}')`
+                : isEquipped ? `StoreManager.unapplyItem('${id}')` : `StoreManager.applyItem('${id}')`;
+            const label = !isOwned ? `🪙 Mua ${price} Coin` : isEquipped ? '✕ Gỡ' : '✦ Sử dụng';
+            return `<article class="luxury-product-card ah-card store-theme-locked ui-theme-immune" data-item-id="${id}" data-special-card="audrey-premium" data-theme-immune="true" tabindex="0" aria-label="${name}">
+                <div class="ah-card-visual"><div class="ah-card-lattice" aria-hidden="true"></div>
+                <img class="ah-card-character" src="${image}" alt="${name}" loading="lazy" draggable="false">
+                <img class="ah-card-tag" src="${escapeHTML(item.luxuryTagImage)}" alt="Audrey Hall" draggable="false">
+                <div class="ah-card-info"><small>LORD OF THE MYSTERIES · XI JUSTICE</small><h3>${name}</h3><div class="ah-card-price">🪙 ${price} Coin</div><button type="button" class="ah-card-action" onclick="${action}">${label}</button></div></div></article>`;
+        }
         if (item.id === HAC_MONG_PREMIUM_PET.id) {
             ensureHacMongStylesheet();
             const price = Number(item.price).toLocaleString('vi-VN');
@@ -11442,6 +11616,9 @@ if (isNationalDay) {
                     <p>
                         Các vật phẩm cao cấp
                         được tuyển chọn riêng.
+                    </p>
+                    <p class="ui-theme-immune" data-theme-immune="true" style="color:#795b83;background:#fbf3fc;border:1px solid #d9c3dd;border-radius:10px;padding:8px 12px;font:600 14px/1.5 Segoe UI,sans-serif">
+                        🌌 Xu Thất Tịch: <b data-that-tich-balance>${window.ThatTichWallet?.getBalance() ?? '…'}</b>
                     </p>
                 </div>
 

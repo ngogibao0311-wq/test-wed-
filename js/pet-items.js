@@ -1115,6 +1115,9 @@ class PetManager {
     }
 
     static spawnPet(petData) {
+        window.ThatTichRuntime?.clearPet();
+        window.LuGuangRuntime?.clearPet();
+        window.AudreyHallRuntime?.clearPet();
         this.container =
             document.getElementById('virtual-pet-container') ||
             this.container;
@@ -5294,6 +5297,10 @@ class PetManager {
         this.container.style.pointerEvents = 'auto';
         this.container.removeAttribute('hidden');
         this.container.setAttribute('aria-hidden', 'false');
+        if (petData.id === 'pet_nguu_lang_regular_1') window.ThatTichRuntime?.mountRegularPet('nguu_lang');
+        if (petData.id === 'pet_chuc_nu_regular_1') window.ThatTichRuntime?.mountRegularPet('chuc_nu');
+        if (petData.id === 'pet_lu_guang_regular_2') window.LuGuangRuntime?.mountRegularPet();
+        if (petData.id === 'pet_audrey_hall_regular_2') window.AudreyHallRuntime?.mountRegularPet();
 
         this.container.classList.add('pet-idle');
 

@@ -130,7 +130,10 @@
             if (equipped && catalog[equipped.id] && restoredBackground !== equipped.id &&
                 typeof StoreManager !== 'undefined' && typeof window.applyEquippedItems === 'function') {
                 restoredBackground = equipped.id;
-                window.applyEquippedItems();
+                Promise.resolve(window.applyEquippedItems()).catch(error => {
+                    restoredBackground = '';
+                    console.error('[Collection rewards] Không khôi phục được trang bị:', error);
+                });
             }
             if (!equipped) restoredBackground = '';
             // Realtime events must not destroy a teacher's unfinished form.

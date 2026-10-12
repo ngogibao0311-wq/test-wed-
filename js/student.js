@@ -443,6 +443,13 @@ async function runStudentDeferredDiscountMigration() {
     const discounts =
         window.__studentPendingDiscountMigration;
 
+    if(window.ECONOMY_SERVER_ENABLED===true) {
+        if(discounts)await window.EconomyClient.execute('discount_migrate',{}, {slot:'discount-migration'});
+        window.__studentDiscountMigrationDone=true;
+        window.__studentPendingDiscountMigration=null;
+        return true;
+    }
+
     if (!discounts) {
         window.__studentDiscountMigrationDone = true;
         return true;
@@ -574,58 +581,69 @@ window.syncStudentLazyStoreRuntime =
 
         window.__studentLazyRuntimeSyncPromise =
             (async () => {
-                if (
-                    !applyStudentCachedStoreSettingsToRuntime()
-                ) {
-                    return false;
-                }
+                let settingsSnapshot, inventorySnapshot;
+                do {
+                    settingsSnapshot = window.__studentLazyStoreSettings;
+                    inventorySnapshot = typeof myInventory !== 'undefined' ? myInventory : null;
+                    if (
+                        !applyStudentCachedStoreSettingsToRuntime()
+                    ) {
+                        return false;
+                    }
 
-                /*
-                 * StoreManager được lazy-load. Các override dành riêng cho
-                 * trang Học sinh chỉ được gắn SAU KHI runtime đã sẵn sàng.
-                 * Tránh ReferenceError làm dừng toàn bộ student.js ở startup.
-                 */
-                installStudentStoreManagerOverrides();
+                    /*
+                     * StoreManager được lazy-load. Các override dành riêng cho
+                     * trang Học sinh chỉ được gắn SAU KHI runtime đã sẵn sàng.
+                     * Tránh ReferenceError làm dừng toàn bộ student.js ở startup.
+                     */
+                    installStudentStoreManagerOverrides();
 
-                if (
-                    typeof loadStoreItems ===
-                    'function'
-                ) {
-                    await loadStoreItems();
-                }
-
-                if (
-                    typeof applyEquippedItems ===
-                    'function'
-                ) {
-                    await Promise.resolve(
-                        applyEquippedItems()
-                    );
-                }
-
-                if (
-                    window.StoreCollectionPage &&
-                    typeof window
-                        .StoreCollectionPage
-                        .refresh ===
+                    if (
+                        typeof loadStoreItems ===
                         'function'
-                ) {
-                    window
-                        .StoreCollectionPage
-                        .refresh();
-                }
+                    ) {
+                        await loadStoreItems();
+                    }
 
-                if (
-                    window.LuxuryStore &&
-                    typeof window.LuxuryStore
-                        .refresh ===
+                    if (
+                        typeof applyEquippedItems ===
                         'function'
-                ) {
-                    window.LuxuryStore
-                        .refresh();
-                }
+                    ) {
+                        await Promise.resolve(
+                            applyEquippedItems()
+                        );
+                    }
 
-                await runStudentDeferredDiscountMigration();
+                    if (
+                        window.StoreCollectionPage &&
+                        typeof window
+                            .StoreCollectionPage
+                            .refresh ===
+                            'function'
+                    ) {
+                        window
+                            .StoreCollectionPage
+                            .refresh();
+                    }
+
+                    if (
+                        window.LuxuryStore &&
+                        typeof window.LuxuryStore
+                            .refresh ===
+                            'function'
+                    ) {
+                        window.LuxuryStore
+                            .refresh();
+                    }
+
+                    await runStudentDeferredDiscountMigration();
+
+                    // A different Firebase listener can replace settings or inventory
+                    // while the lazy runtime is loading. Finish with the latest data.
+                } while (
+                    settingsSnapshot !== window.__studentLazyStoreSettings ||
+                    inventorySnapshot !== (typeof myInventory !== 'undefined' ? myInventory : null)
+                );
 
                 window.__studentLazyStoreItemsDirty =
                     false;
@@ -986,6 +1004,12 @@ function installStudentEquipmentAccessGuards() {
 }
 
 window.clearStudentStoreEquipmentRuntime = function () {
+    window.ThatTichRuntime?.clearPet();
+    window.LuGuangRuntime?.clearPet();
+    window.AudreyHallRuntime?.clearPet();
+    window.ThatTichRuntime?.clearEffect();
+    window.LuGuangRuntime?.clearEffect();
+    window.AudreyHallRuntime?.clearEffect();
     window.KimLienRegularRuntime?.clear();
     window.HacMongRegularRuntime?.clear();
     window.ThanhLanhRegularRuntime?.clear();
@@ -1947,6 +1971,7 @@ window.MidAutumnCalendar = window.MidAutumnCalendar || (() => {
     return {
         TZ,
         DAY_MS,
+        lunarToSolar,
         getFestivalInfo,
         getVietnamYear,
         getVietnamDateKey
@@ -3706,6 +3731,11 @@ function hasStudentSubmissionStorageValue(value) {
     return Boolean(String(value).trim());
 }
 
+function canCleanupReplacedSubmissionFiles(savedFile,uploadedFile,replacedFile) {
+    return studentSubmissionCanonical(savedFile)===studentSubmissionCanonical(uploadedFile) &&
+        studentSubmissionCanonical(savedFile)!==studentSubmissionCanonical(replacedFile);
+}
+
 async function deleteStudentSubmissionStorageFiles(
     values,
     label = 'file bài nộp'
@@ -4376,6 +4406,7 @@ function normalizeStoreItemId(value) {
  * giá phải là số và lớn hơn 0.
  */
 function isCoinPurchasableStoreItem(item) {
+    if (item?.currency === 'that_tich_coin' || /^(pet|theme|effect|frame|background)_(nguu_lang|chuc_nu)_regular_1$|^pet_(nguu_lang|chuc_nu)_premium_1$/.test(item?.id || '')) return false;
     if (!item) return false;
 
     if (
@@ -5261,6 +5292,16 @@ window.onload = async function () {
         return;
     }
 
+    try {
+        startupLoader?.expect(['economy-ready'],{'economy-ready':'Kết nối giao dịch an toàn'});
+        await window.EconomyClient.initialize();
+        startupLoader?.markReady('economy-ready');
+    } catch(error) {
+        startupLoader?.fail('Chưa chuẩn bị được cơ chế giao dịch.',error.message,'economy');
+        if(!startupLoader)await AppDialog.alert(error.message);
+        return;
+    }
+
     // Chỉ đọc đúng tài khoản thuộc UID đang đăng nhập.
     const realUserSnapshot = await db
         .ref(`users/${authUser.uid}`)
@@ -5295,6 +5336,7 @@ window.onload = async function () {
     }
 
     Object.assign(currentUser, realUser);
+    void window.ThatTichWallet?.initialize({...currentUser}).catch(error => console.warn("[Xu Thất Tịch]", error));
 
     window.applyStudentStoreGameAccessState(realUser.storeGameAccessEnabled);
 
@@ -12591,7 +12633,16 @@ async function saveStudentSubmissionAtomicCore(assignment, previous, payload) {
         let result;
 
         try {
-            result =
+            if(window.ECONOMY_SERVER_ENABLED===true){
+                const slot='submit:'+key+':'+String(livePrevious?.redoStartedAt||0);
+                const resumed=await window.EconomyClient.resume(slot);
+                const saved=resumed?.result||await window.EconomyClient.execute('submission_submit',{
+                    assignmentKey,submissionKey:key,redoStartedAt:String(livePrevious?.redoStartedAt||0),
+                    payload:JSON.stringify(Object.fromEntries(['rawEssay','file','mcAnswers','mcWorkspaceOwner','examSessionId','examOwnerTabId','examFinalizeId','isAutoSubmitted','isCheatFail'].filter(k=>patch[k]!==undefined).map(k=>[k,patch[k]])))
+                },{slot});
+                if(saved.submissionKey!==key)throw Error('SUBMISSION_RECEIPT_MISMATCH');
+                result={committed:true};
+            }else result =
                 await ref.transaction(
                     value => {
                         if (
@@ -13604,7 +13655,7 @@ async function submitAssignmentCore(assignId, isAuto = false, isCheat = false) {
                  * Xóa file mới để không tạo file rác.
                  * File cũ vẫn còn nguyên.
                  */
-                if (hasNewUploadedFiles) {
+                if (hasNewUploadedFiles && window.ECONOMY_SERVER_ENABLED!==true) {
                     try {
                         await deleteStudentSubmissionStorageFiles(
                             fileData,
@@ -13632,10 +13683,14 @@ async function submitAssignmentCore(assignId, isAuto = false, isCheat = false) {
                 )
             ) {
                 try {
-                    await deleteStudentSubmissionStorageFiles(
-                        replacedOldFiles,
-                        'file bài nộp cũ'
-                    );
+                    let cleanupConfirmed=true;
+                    if(window.ECONOMY_SERVER_ENABLED===true){
+                        const saved=(await db.ref('submissions/'+savedSubmissionKey).once('value')).val();
+                        cleanupConfirmed=!!saved&&canCleanupReplacedSubmissionFiles(saved.file,fileData,replacedOldFiles);
+                    }
+                    // A recovered receipt can point at the upload from the
+                    // previous attempt. Never delete that still-active file.
+                    if(cleanupConfirmed)await deleteStudentSubmissionStorageFiles(replacedOldFiles,'file bài nộp cũ');
                 } catch (cleanupError) {
                     /*
                      * Bài mới đã lưu thành công nên không được
@@ -14187,6 +14242,7 @@ window.switchTab = async function (tabId, btnElement) {
         !window.isStudentStoreSystemOpen();
 
     try {
+        await window.StartupDataCoordinator?.ensureTab(tabId);
         // Khi GV khóa Cửa hàng, không cần lazy-load Luxury/Sưu tầm/Store UI.
         // Học sinh vẫn được vào tab để nhìn thấy thông báo "đã khóa".
         if (
@@ -18278,11 +18334,11 @@ window.loadStoreItems = async function () {
                     );
 
                     if (itemDef) {
-                        if (itemDef.type === 'theme') {
+                        if (itemDef.type === 'theme' && typeof ThemeManager !== 'undefined') {
                             ThemeManager.applyTheme('default');
                         }
 
-                        if (itemDef.type === 'effect') {
+                        if (itemDef.type === 'effect' && typeof EffectManager !== 'undefined') {
                             EffectManager.clearEffects();
                         }
 
@@ -18937,7 +18993,7 @@ window.trialItem = async function (itemId) {
             );
 
         if (!item) return;
-        if (item.currency === 'mid_autumn_coin') return (await AppDialog.alert('Vật phẩm này không dùng thử bằng Coin thường.'));
+        if (['mid_autumn_coin','that_tich_coin'].includes(item.currency)) return (await AppDialog.alert('Vật phẩm này không dùng thử bằng Coin thường.'));
         const sale = StoreManager.getAnnualSaleState?.(item);
         if (sale?.hasAnnualSale && !sale.isOpen) return (await AppDialog.alert('Vật phẩm đang ngoài thời gian mở bán.'));
 
@@ -19229,6 +19285,7 @@ window.buyItem = async function (itemId, isUpgradingFromTrial = false) {
 
     const item = StoreManager.getItemById(itemId);
     if (!item) return;
+    if (item.currency === 'that_tich_coin') return window.ThatTichWallet.redeem(itemId);
     if (item.isLocked) return (await AppDialog.alert("🔒 Vật phẩm này hiện đang bị Giáo viên khóa!"));
 
     try {
@@ -19573,6 +19630,7 @@ window.processPayment = async function (
     const operationUser = { ...currentUser };
     try {
         paymentItem = StoreManager.getItemById(itemId);
+        if (paymentItem?.currency === "that_tich_coin") throw new Error("Vật phẩm này chỉ đổi bằng Xu Thất Tịch. Hãy đóng thanh toán Coin và chọn Đổi xu.");
         if (window.ECONOMY_SERVER_ENABLED === true) {
             const select = document.getElementById('checkoutDiscount');
             const selected = select && select.selectedIndex > 0 && select.value !== '0';
@@ -20191,6 +20249,9 @@ window.isExamVisualItemsSuspended = false;
 
 // Tạm tắt pet và hiệu ứng khi bắt đầu thi
 window.suspendExamVisualItems = function () {
+    window.ThatTichRuntime?.clearPet();
+    window.LuGuangRuntime?.clearPet();
+    window.AudreyHallRuntime?.clearPet();
     window.isExamVisualItemsSuspended = true;
 
     // Dừng toàn bộ hiệu ứng và các interval tạo hiệu ứng
@@ -20283,7 +20344,9 @@ window.restoreExamVisualItems = function () {
 
     // Đọc lại vật phẩm đang trang bị từ myInventory
     if (typeof window.applyEquippedItems === 'function') {
-        window.applyEquippedItems();
+        window.applyEquippedItems().catch(error => {
+            console.error('[Student equipment] Không khôi phục được trang bị:', error);
+        });
     }
 };
 
@@ -20300,13 +20363,30 @@ function getStudentRenderableEquippedInventory(inventory, now = Date.now()) {
     });
 }
 
-window.applyEquippedItems = function () {
+window.applyEquippedItems = async function () {
     installStudentEquipmentAccessGuards();
     if (!window.isStudentStoreGameAccessEnabled()) {
         window.clearStudentStoreEquipmentRuntime();
         return false;
     }
     if (!isStudentStoreRuntimeReady()) {
+        return false;
+    }
+
+    // Store catalog and inventory arrive independently. Every caller must wait
+    // for the equipped types, including catalog refreshes during startup.
+    if (window.StudentFeatureLoader) {
+        let inventorySnapshot;
+        do {
+            inventorySnapshot = myInventory;
+            await window.StudentFeatureLoader.ensureForEquippedItems(
+                getStudentRenderableEquippedInventory(inventorySnapshot)
+            );
+        } while (inventorySnapshot !== myInventory);
+    }
+    // Access can change while scripts are loading.
+    if (!window.isStudentStoreGameAccessEnabled()) {
+        window.clearStudentStoreEquipmentRuntime();
         return false;
     }
 
@@ -30351,6 +30431,9 @@ window.showBagItemPopup = function (item) {
                 </button>
             `;
     }
+    else if (item.type === 'that_tich_coin') {
+        actionButtonHtml = `<button onclick="window.openThatTichStoreFromBag()" style="margin-top:15px;width:100%;background:#795b83;border:0;padding:10px;border-radius:8px;color:white;font-weight:bold;cursor:pointer">🌌 Đổi vật phẩm Thất Tịch</button>`;
+    }
     else if (item.type === 'chest') {
         actionButtonHtml = `
             <button onclick="openHoiHoaChest('${item.firebaseKey}')" 
@@ -30367,7 +30450,7 @@ window.showBagItemPopup = function (item) {
             ${item.description}
             <p style="margin: 8px 0 0 0; font-weight: bold; color: #1e293b; border-top: 1px dashed #cbd5e1; padding-top: 6px; text-align: right;">
                 ${
-                    item.type === 'mid_autumn_coin'
+                    ['mid_autumn_coin', 'that_tich_coin'].includes(item.type)
                         ? `Số dư: ${Number(item.quantity || 0).toLocaleString('vi-VN')} Xu`
                         : `Xếp chồng: ${item.quantity}/50`
                 }
@@ -30380,6 +30463,12 @@ window.showBagItemPopup = function (item) {
 };
 
 // Mở Cửa hàng Sang trọng trực tiếp từ ô Xu Trung Thu trong Túi đồ.
+window.openThatTichStoreFromBag = function () {
+    if (!window.isStudentStoreSystemOpen()) return window.showStudentStoreSystemLocked();
+    window.closeBagItemPopup?.();
+    window.closeStudentBag?.();
+    void window.switchTab('tab-store', document.querySelector('.nav-item[onclick*="tab-store"]'));
+};
 window.openMidAutumnStoreFromBag = function () {
     if (!window.isStudentStoreSystemOpen()) {
         return window.showStudentStoreSystemLocked();
@@ -30463,7 +30552,10 @@ window.sellDiscountCardFromPopup = async function (discountKey, _percent, _sellP
 
 // Khởi chạy quy trình gom nhóm và kết xuất túi đồ dạng lưới ô
 window.renderStudentBag = async function () {
+    const renderId = window.__studentBagRenderId = (window.__studentBagRenderId || 0) + 1;
+    const bagUsername = currentUser.username;
     const container = document.getElementById('studentBagBody');
+    if (!container) return;
     container.innerHTML = '<div style="text-align:center; padding: 40px 10px; color: #888; font-style: italic;">⏳ Đang mở kho hành trang...</div>';
 
     try {
@@ -30474,7 +30566,8 @@ window.renderStudentBag = async function () {
             invSnap,
             birthdayCoinSnap,
             specialBirthdayCoinSnap,
-            midAutumnWalletSnap
+            midAutumnWalletSnap,
+            thatTichBalanceSnap
         ] = await Promise.all([
             window.calculateTotalTickets(),
 
@@ -30502,11 +30595,24 @@ window.renderStudentBag = async function () {
             db.ref(
                 'mid_autumn_wallets/' +
                 currentUser.username
-            ).once('value')
+            ).once('value'),
+            window.ECONOMY_SERVER_ENABLED === true
+                ? db.ref('that_tich_wallets/' + bagUsername + '/balance').once('value')
+                : Promise.resolve({val: () => 0})
         ]);
+
+        if (renderId !== window.__studentBagRenderId || currentUser.username !== bagUsername) return;
 
         let slotsData = [];
         const now = Date.now();
+
+        // Display the authoritative event wallet as a bag slot, not a second balance.
+        const thatTichBalance = Number(thatTichBalanceSnap.val() || 0);
+        if (Number.isSafeInteger(thatTichBalance) && thatTichBalance > 0) {
+            slotsData.push({type:'that_tich_coin',name:'Xu Thất Tịch',icon:'🌌',isImg:false,
+                quantity:thatTichBalance,isExpired:false,
+                description:'Dùng đổi vật phẩm Thất Tịch: <b>2 xu/món sang trọng</b> hoặc <b>1 xu/món thường</b>.'});
+        }
 
         // --- 1. XỬ LÝ GỘP Ô: VÉ QUAY MAY MẮN ---
         // Sử dụng ticketData.remaining thay vì chỉ đọc mỗi vé quà tặng
@@ -30569,8 +30675,8 @@ window.renderStudentBag = async function () {
                 description:
                     `🌕 <b>Xu Trung Thu</b><br>` +
                     `♾️ <b>Không hết hạn:</b> số Xu còn dư được giữ lại qua các năm.<br>` +
-                    `🏮 Chỉ dùng đổi vật phẩm Trung Thu vào <b>đúng ngày Trung Thu</b> của năm đó.<br>` +
-                    `🐇 <b>Nguyệt Cung Tiên Tử:</b> 2 Xu.<br>` +
+                    `🏮 Vật phẩm sang trọng: <b>2 Xu/món</b>, chỉ đổi vào <b>đúng ngày Trung Thu</b>.<br>` +
+                    `🎁 Vật phẩm thường: <b>1 Xu/món</b>, đổi quanh năm khi cửa hàng mở.<br>` +
                     `⚠️ Khi đổi vật phẩm, hệ thống sẽ <b>trừ đúng số Xu đã dùng</b>.`
             });
         }
@@ -30904,6 +31010,7 @@ window.renderStudentBag = async function () {
 
     } catch (error) {
         console.error("Lỗi kết xuất túi lưới đồ: ", error);
+        if (renderId !== window.__studentBagRenderId || currentUser.username !== bagUsername) return;
         container.innerHTML = '<p style="color: #e11d48; text-align: center; padding: 20px;">❌ Gặp sự cố nạp dữ liệu lưới đồ.</p>';
     }
 };

@@ -49,7 +49,8 @@
         student_coins: ['coin', 'Coin'], student_bonus_tickets: ['ticket', 'Vé quay'],
         student_money_offset: ['money', 'Tiền lộ trình'], historical_grade_tickets: ['ticket', 'Vé cơ sở'],
         spin_counts: ['ticket', 'Vé quay'], birthday_coins: ['event', 'Xu sinh nhật'],
-        student_special_birthday_coins: ['event', 'Xu sinh nhật đặc biệt'], mid_autumn_wallets: ['event', 'Xu Trung Thu']
+        student_special_birthday_coins: ['event', 'Xu sinh nhật đặc biệt'], mid_autumn_wallets: ['event', 'Xu Trung Thu'],
+        that_tich_wallets: ['event', 'Xu Thất Tịch']
     };
     const watched = new Set([...Object.keys(numeric), 'student_inventory', 'student_discounts']);
     const sourceNames = { store_purchase: 'Mua vật phẩm', teacher_gift: 'Nhận quà giáo viên', daily_login: 'Thưởng đăng nhập', collection_reward: 'Phần thưởng sưu tầm', special_birthday_coin: 'Đổi vật phẩm sinh nhật', birthday_coin: 'Đổi vật phẩm sinh nhật' };
@@ -187,6 +188,11 @@
     }
     function contextFrom(patch) {
         for (const [path, value] of Object.entries(patch || {})) {
+            if (path.startsWith('student_collection_rewards/') && value?.status === 'sent') {
+                const parts=path.split('/');
+                return {id:'collection_'+parts[2]+'_'+parts[3],operationId:path,source:'collection_milestone',
+                    summary:'Thưởng Sưu tầm · '+String(value.collectionLabel||parts[2])+' · Mốc '+Number(value.milestone||parts[3])+' món'};
+            }
             if (path.startsWith('student_conversion_usage/') && value?.receipt) return {id: 'convert_' + value.reservationId, operationId: path, source: 'student_conversion', summary: 'Quy đổi Coin và Tiền lộ trình'};
             if (path.startsWith('inbox_gift_claims/') && value?.version === 2) return {id: 'mail_' + path.split('/').at(-1), operationId: path, source: 'teacher_gift', summary: 'Nhận quà trong thư'};
             if (path.startsWith('cash_requests/') && value?.debitReceipt) return { id: 'cash_' + path.split('/')[1], operationId: path, source: 'cash_withdrawal', summary: 'Duyệt yêu cầu tiền mặt', }; 

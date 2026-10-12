@@ -1,5 +1,5 @@
 const APP_VERSION = '4.3.2';
-const APP_BUILD = '2026.10.10.14';
+const APP_BUILD = '2026.10.11.2';
 const CACHE_VERSION = `study-shell-v${APP_VERSION}-${APP_BUILD}`;
 const OFFLINE_CACHE = `${CACHE_VERSION}-offline`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;

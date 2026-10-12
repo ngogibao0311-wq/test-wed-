@@ -96,6 +96,18 @@
             tags: ['Hội họa', 'Đêm đầy sao']
         },
         {
+            id: 'that-tich',
+            label: 'Thất Tịch',
+            icon: '🌌',
+            tags: ['Thất Tịch']
+        },
+        {
+            id: 'lick-click',
+            label: 'lick click',
+            icon: '◷',
+            tags: ['lick click']
+        },
+        {
             id: 'link-click',
             label: 'Link Click',
             icon: '📸',
@@ -351,6 +363,13 @@
         collection,
         milestone
     ) {
+        // A module can load before startup has established the economy mode.
+        // Unknown mode must never silently start a legacy Firebase transaction.
+        if (typeof window.ECONOMY_SERVER_ENABLED !== 'boolean') {
+            if (!window.EconomyClient?.initialize) throw new Error('Chưa xác nhận được chế độ giao dịch. Vui lòng đăng nhập lại.');
+            await window.EconomyClient.initialize();
+            if (typeof window.ECONOMY_SERVER_ENABLED !== 'boolean') throw new Error('Chưa xác nhận được chế độ giao dịch.');
+        }
         if (window.ECONOMY_SERVER_ENABLED === true) {
             const result = await window.EconomyClient.execute('collection_milestone', {collectionId:collection.id,count:String(milestone.count)}, {slot:`collection:${collection.id}:${milestone.count}`});
             setLocalRewardClaim(collection.id, milestone.count, {status:'sent'});
@@ -525,7 +544,9 @@
                     ) {
                         rewardErrorNotified = true;
                         window.showToast(
-                            'Chưa thể cộng thưởng Sưu tầm. Hãy kiểm tra quy tắc bảo mật đám mây rồi tải lại trang.',
+                            window.ECONOMY_SERVER_ENABLED === false
+                                ? 'Chưa nhận được thưởng Sưu tầm. Bản nháp cần cập nhật Rules cho bộ sưu tập mới rồi mở lại trang; mốc chưa nhận sẽ được thử lại.'
+                                : 'Chưa xác nhận thưởng Sưu tầm từ máy chủ. Hãy thử lại khi kết nối ổn định; hệ thống sẽ không cộng trùng.',
                             'warning'
                         );
                     }
@@ -1419,7 +1440,9 @@
             theme: { label: 'Giao diện', icon: '🎨' },
             effect: { label: 'Hiệu ứng', icon: '✨' },
             pet: { label: 'Thú cưng', icon: '🐾' },
-            music: { label: 'Nhạc nền', icon: '🎵' }
+            music: { label: 'Nhạc nền', icon: '🎵' },
+            frame: { label: 'Khung viền', icon: '🖼️' },
+            background: { label: 'Nền', icon: '🌄' }
         };
 
         return typeMap[type] || { label: 'Vật phẩm', icon: '📦' };
