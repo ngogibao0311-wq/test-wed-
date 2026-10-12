@@ -4193,18 +4193,6 @@ html body #luxuryStoreGrid > .luxury-unified-card:focus-visible,
 html body #luxuryStoreGrid > .luxury-unified-card button:focus-visible { outline: 3px solid var(--luxury-card-accent) !important; outline-offset: -4px !important; }
 /* ThemeManager may insert a second image tag for the National Day group. */
 html body #luxuryStoreGrid > .luxury-unified-card > .special-card-tag-image { display: none !important; }
-@media(max-width:768px) {
-    html body #luxuryStoreGrid > article.luxury-unified-card[data-item-id] {
-        height: 305px !important; min-height: 305px !important; max-height: 305px !important;
-    }
-    html body #luxuryStoreGrid > .luxury-unified-card .luxury-unified-info { padding: 12px !important; gap: 7px !important; }
-    html body #luxuryStoreGrid > .luxury-unified-card h3 { font-size: 15px !important; }
-    html body #luxuryStoreGrid > .luxury-unified-card .luxury-unified-tag { height: 58px !important; }
-    html body #luxuryStoreGrid > .luxury-unified-card[data-item-id="pet_luxury_mua_thu"] .luxury-unified-tag { height: 66px !important; }
-}
-@media(hover:none), (pointer:coarse) {
-    html body #luxuryStoreGrid > .luxury-unified-card .luxury-unified-info { opacity: 1 !important; visibility: visible !important; transform: none !important; }
-}
 @media(prefers-reduced-motion:reduce) {
     html body #luxuryStoreGrid > .luxury-unified-card * { animation: none !important; transition: none !important; }
 }

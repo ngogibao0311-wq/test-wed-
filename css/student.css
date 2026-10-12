@@ -9614,33 +9614,7 @@ html[data-app-role="student"] body
     pointer-events: none !important;
 }
 
-@media (max-width: 768px) {
-    html[data-app-role="student"] body
-    #studentTopActionsFlow.student-top-actions-flow {
-        top: calc(12px + env(safe-area-inset-top, 0px)) !important;
-        right: calc(12px + env(safe-area-inset-right, 0px)) !important;
-        gap: 7px !important;
-        max-width: calc(100vw - 24px) !important;
-        min-height: 40px !important;
-    }
 
-    html[data-app-role="student"] body
-    #studentTopActionsFlow.student-top-actions-flow > :is(
-        .leaderboard-trigger-btn,
-        #btnLeaderboard,
-        .bag-trigger-btn,
-        .inbox-trigger-btn,
-        .profile-trigger-btn
-    ) {
-        width: 40px !important;
-        min-width: 40px !important;
-        max-width: 40px !important;
-        height: 40px !important;
-        min-height: 40px !important;
-        max-height: 40px !important;
-        flex-basis: 40px !important;
-    }
-}
 
 @media (prefers-reduced-motion: reduce) {
     html[data-app-role="student"] body
@@ -9812,49 +9786,7 @@ html[data-app-role="student"] body
     z-index: 4 !important;
 }
 
-@media (max-width: 768px) {
-    html[data-app-role="student"] body
-    .dashboard > .content > #studentTopActionsFlow.student-top-actions-flow {
-        position: absolute !important;
-        top: 15px !important;
-        right: 15px !important;
-        gap: 7px !important;
-        width: max-content !important;
-        max-width: calc(100% - 30px) !important;
-        height: 40px !important;
-        min-height: 40px !important;
-    }
 
-    html[data-app-role="student"] body
-    #studentTopActionsFlow.student-top-actions-flow > :is(
-        .leaderboard-trigger-btn,
-        #btnLeaderboard,
-        .bag-trigger-btn,
-        .inbox-trigger-btn,
-        .profile-trigger-btn
-    ) {
-        width: 40px !important;
-        min-width: 40px !important;
-        max-width: 40px !important;
-        height: 40px !important;
-        min-height: 40px !important;
-        max-height: 40px !important;
-        flex-basis: 40px !important;
-    }
-
-    html[data-app-role="student"] body
-    #studentTopActionsFlow.student-top-actions-flow
-    > .profile-trigger-btn:not(.avatar-frame-equipped):not([data-avatar-frame-id]):not([data-avatar-frame-effect])
-    > #avatarImage {
-        width: 38px !important;
-        height: 38px !important;
-        min-width: 38px !important;
-        min-height: 38px !important;
-        max-width: 38px !important;
-        max-height: 38px !important;
-        flex-basis: 38px !important;
-    }
-}
 
 
 /* ============================================================================
@@ -9886,16 +9818,7 @@ html[data-app-role="student"] body
     }
 }
 
-@media (max-width: 768px) {
-    html[data-app-role="student"] body
-    .dashboard > .content > #studentTopActionsFlow.student-top-actions-flow {
-        top: 15px !important;
-        right: auto !important;
-        left: calc(100% - 196px) !important;
-        width: max-content !important;
-        max-width: none !important;
-    }
-}
+
 
 /* ============================================================================
    COMPACT TOP AREA v4 · TẬN DỤNG KHOẢNG TRỐNG PHÍA TRÊN
@@ -9919,16 +9842,7 @@ html[data-app-role="student"] body
     }
 }
 
-@media (max-width: 768px) {
-    html[data-app-role="student"] body .dashboard > .content {
-        padding-top: 18px !important;
-    }
 
-    html[data-app-role="student"] body
-    .dashboard > .content > #studentTopActionsFlow.student-top-actions-flow {
-        top: 14px !important;
-    }
-}
 
 
 /* ============================================================================
@@ -9983,22 +9897,7 @@ html[data-app-role="student"] body
     pointer-events: auto !important;
 }
 
-@media (max-width: 768px) {
-    html[data-app-role="student"] body
-    #studentTopActionsFlow.student-top-actions-flow,
-    html[data-app-role="student"] body
-    > #studentTopActionsFlow.student-top-actions-flow {
-        position: fixed !important;
-        top: calc(12px + env(safe-area-inset-top, 0px)) !important;
-        right: calc(12px + env(safe-area-inset-right, 0px)) !important;
-        bottom: auto !important;
-        left: auto !important;
-        gap: 7px !important;
-        max-width: calc(100vw - 24px) !important;
-        min-height: 40px !important;
-        z-index: 9986 !important;
-    }
-}
+
 
 /* =========================================================
    STUDENT · BẬT/TẮT LỚP KÍNH MỜ NỘI DUNG

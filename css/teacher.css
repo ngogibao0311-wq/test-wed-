@@ -3389,14 +3389,7 @@ html[data-app-role="teacher"] body.teacher-workspace-refresh:is(:not([class*="th
 html[data-app-role="teacher"] body.teacher-workspace-refresh:is(:not([class*="theme-"]),.theme-blue) .sidebar .btn-logout{background:#ffffff09;color:#d3e0ed;border:1px solid #ffffff1a;font-size:13px;padding:12px;box-shadow:none}
 html[data-app-role="teacher"] body.teacher-workspace-refresh:is(:not([class*="theme-"]),.theme-blue) .sidebar-toggle{background:#24445f!important;color:#d4e6f5!important;box-shadow:none!important;border:1px solid #ffffff1c!important;border-radius:9px}
 }
-@media(max-width:768px){
-html[data-app-role="teacher"] .teacher-workspace-refresh .dashboard>.content{padding:78px 16px 24px!important;min-width:0}
-html[data-app-role="teacher"] .teacher-workspace-refresh .content h2{font-size:24px}
-html[data-app-role="teacher"] .teacher-workspace-refresh .content :is(.card,.form-container){padding:18px!important;border-radius:12px}
-html[data-app-role="teacher"] .teacher-workspace-refresh .teacher-question-bank-entry{padding:14px!important;gap:12px}
-html[data-app-role="teacher"] .teacher-workspace-refresh .content :is(th,td){padding:10px 12px}
-html[data-app-role="teacher"] .teacher-workspace-refresh .content table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
-}
+
 
 
 /* Teacher settings: compact sections and consistent form surfaces. */

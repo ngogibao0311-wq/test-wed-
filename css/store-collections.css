@@ -536,7 +536,8 @@
 
 #tab-store .store-collection-card__meta {
     display: flex;
-    align-items: flex-end;
+    flex-wrap: wrap;
+    align-items: center;
     justify-content: space-between;
     gap: 8px;
     margin-top: auto;
@@ -545,11 +546,20 @@
     font-weight: 800;
 }
 
+#tab-store .store-collection-card__meta > span:first-child {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
 #tab-store .store-collection-card__state {
+    max-width: 100%;
+    box-sizing: border-box;
     padding: 4px 7px;
     border-radius: 999px;
     text-align: right;
-    white-space: nowrap;
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: normal;
 }
 
 #tab-store .store-collection-card__state.is-visible {

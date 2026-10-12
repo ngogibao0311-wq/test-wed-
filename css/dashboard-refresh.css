@@ -78,11 +78,7 @@ html:is(#campus-layout,html) body #tab-collection-rewards .cr-item {flex:1 1 280
 html:is(#campus-layout,html) body #tab-collection-rewards .cr-body {padding:20px 0!important}
 html:is(#campus-layout,html) body #tab-collection-rewards>header {padding:12px 0 24px!important}
 html:is(#campus-layout,html) body #tab-collection-rewards .cr-art {height:auto!important;aspect-ratio:16/10;flex:0 0 auto!important}
-@media(max-width:768px) {
- html:is(#campus-layout,html) body :is(#studentDashboard,#teacherDashboard)>.content {width:100%!important;min-width:0!important;margin:0!important;padding:78px 16px 100px!important;box-sizing:border-box}
- html:is(#campus-layout,html) body :is(#studentDashboard,#teacherDashboard)>.content>.tab-content {max-width:100%!important;min-width:0}
- html:is(#campus-layout,html) body #tab-collection-rewards .cr-item {flex-basis:240px!important}
-}
+
 @media(prefers-reduced-motion:reduce) {
  html:is(#campus-layout,html) body :is(#studentDashboard,#teacherDashboard)>.sidebar,html:is(#campus-layout,html) body :is(#studentDashboard,#teacherDashboard)>.content {transition:none!important}
 }
@@ -90,8 +86,6 @@ html:is(#campus-layout,html) body #tab-collection-rewards .cr-art {height:auto!i
 @media(min-width:769px) {
  html:is(#campus-layout,html) body :is(#studentDashboard,#teacherDashboard)>:is(#studentSidebar,#teacherSidebar)>.sidebar-toggle .toggle-icon {color:#fff!important;text-shadow:0 1px 3px #0009!important;opacity:1!important}
 }
-@media(max-width:768px) {
- html:not([class*="equipped"]):not([data-campus-palette="custom"]) body.campus-modern:is(:not([class*="theme-"]),.theme-blue) :is(#studentDashboard,#teacherDashboard)>:is(#studentSidebar,#teacherSidebar)>.sidebar-toggle {background:#5262da!important;color:#fff!important;box-shadow:0 4px 16px #26375225!important}
-}
+
 html:is(#campus-layout,html) body #tab-collection-rewards>header button {background:#5262da!important;color:#fff!important;border:1px solid #5262da!important;box-shadow:none!important}
 html:is(#campus-layout,html) body #tab-collection-rewards .cr-art>img {width:100%!important;height:100%!important;max-height:none!important;object-fit:cover!important}

@@ -42,7 +42,7 @@ html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget>div>div:fir
 html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget>div>div:last-child{font-size:18px!important;line-height:1.1!important}
 html[data-campus-palette="default"]:is(#campus-palette,html) body #studentTopActionsFlow>button:not(.avatar-frame-equipped){background:#fff!important;color:var(--campus-ink)!important;border:1px solid var(--campus-line)!important;box-shadow:0 3px 14px #17233d08!important;border-radius:12px!important}
 @media(min-width:769px){html:is(#campus-layout,html) body :is(#studentDashboard,#teacherDashboard)>.content{padding-top:20px!important}}
-@media(max-width:768px){html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget{max-width:104px!important;padding:4px 7px!important;margin-right:0!important;gap:4px!important}html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget>span{font-size:16px!important}html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget>div>div:first-child{display:none!important}html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget>div>div:last-child{font-size:13px!important}}
+
 /* Geometry guards apply to all themes without replacing their paint. */
 html:is(#campus-layout,html) body :is(#studentDashboard,#teacherDashboard)>.content>.tab-content{min-width:0!important;overflow-wrap:anywhere}
 html:is(#campus-layout,html) body :is(#studentDashboard,#teacherDashboard)>.content :is(.table-responsive,.table-container){max-width:100%;overflow-x:auto;overscroll-behavior-x:contain}
@@ -76,12 +76,7 @@ html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget #studentCoi
 html[data-campus-palette="default"]:is(#campus-palette,html) body #teacherDashboard>.content .teacher-question-bank-entry{background:#eef1fb!important;border:1px solid #dee5f0!important}
 html[data-campus-palette="default"]:is(#campus-palette,html) body #teacherDashboard>.content .teacher-question-bank-entry-title{color:#22314d!important}
 html[data-campus-palette="default"]:is(#campus-palette,html) body #teacherDashboard>.content .teacher-question-bank-entry-description{color:#64748b!important}
-@media(max-width:768px){
- html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget{height:34px!important;max-height:34px!important}
- html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget>div{flex-direction:row!important;align-items:center!important;gap:4px!important}
- html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget>div>span:first-child>span:first-child{display:none!important}
- html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget #studentCoinBalance{font-size:12px!important;line-height:16px!important;order:-1}
-}
+
 html:is(#campus-layout,html) body #studentTopActionsFlow #coinWidget{min-height:0!important}
 html:is(#campus-layout,html) body #studentTopActionsFlow{background:transparent!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important}
 
@@ -135,4 +130,4 @@ html[data-campus-palette="default"]:is(#campus-palette,html) body #studentDashbo
 html[data-campus-palette="default"]:is(#campus-palette,html) body #studentDashboard #storeCollectionDropdown .store-collection-dropdown__item strong{color:var(--campus-ink)!important}
 html[data-campus-palette="default"]:is(#campus-palette,html) body #studentDashboard #storeCollectionDropdown .store-collection-dropdown__item:hover{background:#e3e8fb!important}
 @media(min-width:1101px){html:is(#campus-layout,html) body #studentDashboard #tab-store>.store-collection-title-row{max-width:calc(100% - var(--campus-dock-width,360px))!important}}
-@media(max-width:650px){html:is(#campus-layout,html) body #studentDashboard #storeCollectionDropdown .store-collection-dropdown__clip{grid-template-columns:1fr!important;gap:6px!important}}
+
