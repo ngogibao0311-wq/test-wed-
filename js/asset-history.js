@@ -8,6 +8,8 @@
     async function trim(username) {
         const actor = firebase.auth().currentUser;
         if (!actor || !username) return false;
+        const options=firebase.app?.().options;
+        if(options?.projectId==='web-chan-doan-test'&&String(options.databaseURL||'').replace(/\/$/,'')==='https://web-chan-doan-test-default-rtdb.asia-southeast1.firebasedatabase.app')return true;
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 8000);
         try {
@@ -50,10 +52,11 @@
         student_money_offset: ['money', 'Tiền lộ trình'], historical_grade_tickets: ['ticket', 'Vé cơ sở'],
         spin_counts: ['ticket', 'Vé quay'], birthday_coins: ['event', 'Xu sinh nhật'],
         student_special_birthday_coins: ['event', 'Xu sinh nhật đặc biệt'], mid_autumn_wallets: ['event', 'Xu Trung Thu'],
-        that_tich_wallets: ['event', 'Xu Thất Tịch']
+        that_tich_wallets: ['event', 'Xu Thất Tịch'],
+        love_coin_wallets: ['event', 'Xu tình yêu']
     };
     const watched = new Set([...Object.keys(numeric), 'student_inventory', 'student_discounts']);
-    const sourceNames = { store_purchase: 'Mua vật phẩm', teacher_gift: 'Nhận quà giáo viên', daily_login: 'Thưởng đăng nhập', collection_reward: 'Phần thưởng sưu tầm', special_birthday_coin: 'Đổi vật phẩm sinh nhật', birthday_coin: 'Đổi vật phẩm sinh nhật' };
+    const sourceNames = { test_catalog: 'Cấp vật phẩm kiểm thử (giáo viên)', love_coin: 'Đổi bằng Xu tình yêu', that_tich_coin: 'Đổi bằng Xu Thất Tịch', store_purchase: 'Mua vật phẩm', teacher_gift: 'Nhận quà giáo viên', daily_login: 'Thưởng đăng nhập', collection_reward: 'Phần thưởng sưu tầm', special_birthday_coin: 'Đổi vật phẩm sinh nhật', birthday_coin: 'Đổi vật phẩm sinh nhật' };
     const clone = x => x === undefined ? undefined : JSON.parse(JSON.stringify(x));
     const profile = () => { try { return JSON.parse(localStorage.getItem('currentUser') || '{}'); } catch (_) { return {}; } };
     const uid = () => firebase.auth().currentUser?.uid || '';
@@ -187,7 +190,13 @@
         }
     }
     function contextFrom(patch) {
+        const shoppingEntry=Object.entries(patch||{}).find(([path,value])=>path.startsWith('store_purchase_ops/')&&path.endsWith('/shoppingDraft')&&value===true);
+        if(shoppingEntry){
+            const prefix=shoppingEntry[0].slice(0,-'shoppingDraft'.length),grant=patch[prefix+'inventoryGrant'];
+            if(grant?.purchaseOperationId)return {id:'store_'+grant.purchaseOperationId,operationId:grant.purchaseOperationId,source:'shopping_buy',summary:`Ngày hội mua sắm · ${itemName(grant.id,{})} · giảm ${patch[prefix+'shoppingPercent']}% · ${grant.purchaseBasePrice} → ${grant.purchasePrice} Coin (bản test)`};
+        }
         for (const [path, value] of Object.entries(patch || {})) {
+            if (path.startsWith('student_event_rewards/') && path.includes('/bellum/') && value?.status === 'claimed') return {operationId:path,source:'bellum_completion_reward',summary:'THẤT ĐẠI TỘI: TU VIỆN BELLUM · Nhận '+String(value.itemName || value.itemId)};
             if (path.startsWith('student_collection_rewards/') && value?.status === 'sent') {
                 const parts=path.split('/');
                 return {id:'collection_'+parts[2]+'_'+parts[3],operationId:path,source:'collection_milestone',
@@ -290,7 +299,7 @@
                 try {
                     const source = after?.source || '';
                     const root = path.split('/')[0];
-                    const summary = sourceNames[source] || (root === 'spin_counts' ? 'Sử dụng / hoàn vé quay' : root === 'student_inventory' ? 'Nhận / thay đổi vật phẩm' : root === 'student_discounts' ? 'Nhận / sử dụng thẻ giảm giá' : 'Biến động ' + (numeric[root]?.[1] || 'tài sản'));
+                    const summary = after?.shoppingDraft===true&&root==='student_inventory'?`Ngày hội mua sắm · Nhận ${itemName(after.id,{})} · giảm ${after.shoppingPercent}% · ${after.purchasePrice} Coin (bản test)`:sourceNames[source] || (root === 'spin_counts' ? 'Sử dụng / hoàn vé quay' : root === 'student_inventory' ? 'Nhận / thay đổi vật phẩm' : root === 'student_discounts' ? 'Nhận / sử dụng thẻ giảm giá' : 'Biến động ' + (numeric[root]?.[1] || 'tài sản'));
                     safeEnqueue(makeRows(groups(path, before, after), { id: token, actorUid, actorRole,
                         operationId: after?.purchaseOperationId || after?.trialOperationId || '',
                         source: source || 'asset_change', summary }));

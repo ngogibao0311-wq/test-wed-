@@ -64,6 +64,24 @@ window.__PROFILE_REQUEST_GUARD_TEACHER_BUILD = '20260917.v1-serial-approval-auth
 console.info('[Profile Request Guard Teacher]', window.__PROFILE_REQUEST_GUARD_TEACHER_BUILD);
 
 // ======================================================
+// HTML ESCAPE HELPER (an toàn khi hiển thị dữ liệu người dùng)
+// ======================================================
+// Dùng cho mọi chỗ nội suy tên học sinh / tên đăng nhập / ghi chú vào HTML.
+// Không đổi giá trị lưu trong Firebase, chỉ đổi cách hiển thị.
+function escapeTeacherHtml(value) {
+    if (typeof window.escapeHTML === 'function') {
+        return window.escapeHTML(value);
+    }
+
+    return String(value === null || value === undefined ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+// ======================================================
 // SECURITY GUARD · TRẠNG THÁI XÁC THỰC GIÁO VIÊN
 // ======================================================
 // security.js được nạp trước teacher.js. Trạng thái này giúp security.js phân biệt
@@ -1999,6 +2017,7 @@ function buildTeacherAssignmentIndexMap(assignments) {
 }
 
 async function getTeacherFilteredAssignmentsPage(isLoadMore) {
+    const requestSequence = teacherAssignedLoadSeq;
     if (!isLoadMore) {
         teacherAssignedFilteredOffset = 0;
     }
@@ -2006,6 +2025,7 @@ async function getTeacherFilteredAssignmentsPage(isLoadMore) {
     const query = getTeacherAssignedSearchQuery();
     const allAssignments =
         await getTeacherAssignmentSearchIndex();
+    if (requestSequence !== teacherAssignedLoadSeq) return {items: [], end: false};
 
     const filtered = allAssignments.filter(assignment => {
         if (
@@ -2042,6 +2062,7 @@ async function getTeacherFilteredAssignmentsPage(isLoadMore) {
 }
 
 async function getTeacherFilteredSubmissionsPage(isLoadMore) {
+    const requestSequence = teacherSubmissionLoadSeq;
     if (!isLoadMore) {
         teacherSubmissionFilteredOffset = 0;
     }
@@ -2054,6 +2075,7 @@ async function getTeacherFilteredSubmissionsPage(isLoadMore) {
             getTeacherSubmissionSearchIndex(),
             getTeacherAssignmentSearchIndex()
         ]);
+    if (requestSequence !== teacherSubmissionLoadSeq) return {items: [], end: false};
 
     const assignmentMap =
         buildTeacherAssignmentIndexMap(
@@ -2400,29 +2422,23 @@ async function getSubmissionsByAssignmentIds(
             if (rowsByKey.size === 0) {
                 if (!fallbackSnapshotPromise) {
                     fallbackSnapshotPromise =
-                        db.ref('submissions').once('value');
+                        db.ref('submissions').once('value').then(snapshot => {
+                            const byAssignment = new Map();
+                            snapshot.forEach(child => {
+                                const submission = {_fbKey: child.key, ...(child.val() || {})};
+                                const id = getCompatSubmissionAssignmentId(submission);
+                                if (!byAssignment.has(id)) byAssignment.set(id, []);
+                                byAssignment.get(id).push({key: child.key, submission});
+                            });
+                            return byAssignment;
+                        });
                 }
 
-                const allSubmissionsSnapshot =
+                const legacyIndex =
                     await fallbackSnapshotPromise;
-
-                allSubmissionsSnapshot.forEach(child => {
-                    const submission = {
-                        _fbKey: child.key,
-                        ...(child.val() || {})
-                    };
-
-                    if (
-                        getCompatSubmissionAssignmentId(
-                            submission
-                        ) === compatText(assignmentId)
-                    ) {
-                        rowsByKey.set(
-                            child.key,
-                            submission
-                        );
-                    }
-                });
+                for (const entry of legacyIndex.get(compatText(assignmentId)) || []) {
+                    rowsByKey.set(entry.key, entry.submission);
+                }
             }
 
             result[assignmentId] = [
@@ -3809,20 +3825,26 @@ window.onload = async function () {
 };
 
 function getEmbedHTML(url) {
-    if (!url) return '';
+    if (!url || typeof url !== 'string') return '';
+    const cleanUrl = url.trim();
     let videoId = '';
-    if (url.includes('watch?v=')) { videoId = url.split('v=')[1].split('&')[0]; }
-    else if (url.includes('youtu.be/')) { videoId = url.split('youtu.be/')[1].split('?')[0]; }
-    else if (url.includes('youtube.com/shorts/')) { videoId = url.split('shorts/')[1].split('?')[0]; }
-    else if (url.includes('embed/')) { videoId = url.split('embed/')[1].split('?')[0]; }
+    if (cleanUrl.includes('watch?v=')) { videoId = cleanUrl.split('v=')[1]?.split('&')[0]; }
+    else if (cleanUrl.includes('youtu.be/')) { videoId = cleanUrl.split('youtu.be/')[1]?.split('?')[0]; }
+    else if (cleanUrl.includes('youtube.com/shorts/')) { videoId = cleanUrl.split('shorts/')[1]?.split('?')[0]; }
+    else if (cleanUrl.includes('embed/')) { videoId = cleanUrl.split('embed/')[1]?.split('?')[0]; }
 
     if (videoId) {
-        let embedUrl = `https://www.youtube.com/embed/${videoId}`;
-        // Thêm margin-bottom: 20px
-        return `<div class="video-wrapper" style="margin-bottom: 20px;"><iframe width="100%" height="315" src="${embedUrl}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy" data-startup-video="1"></iframe></div>`;
+        const safeId = videoId.replace(/[^a-zA-Z0-9_-]/g, '');
+        if (safeId) {
+            const embedUrl = `https://www.youtube.com/embed/${safeId}`;
+            // Thêm margin-bottom: 20px
+            return `<div class="video-wrapper" style="margin-bottom: 20px;"><iframe width="100%" height="315" src="${embedUrl}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy" data-startup-video="1"></iframe></div>`;
+        }
     }
+    if (!/^https?:\/\//i.test(cleanUrl)) return '';
+    const safeUrl = (typeof window.escapeHTML === 'function' ? window.escapeHTML(cleanUrl) : cleanUrl.replace(/"/g, '&quot;'));
     // Thêm margin-bottom: 20px
-    return `<div class="video-wrapper" style="margin-bottom: 20px;"><iframe width="100%" height="315" src="${url}" frameborder="0" allowfullscreen loading="lazy" data-startup-video="1"></iframe></div>`;
+    return `<div class="video-wrapper" style="margin-bottom: 20px;"><iframe width="100%" height="315" src="${safeUrl}" frameborder="0" allowfullscreen loading="lazy" data-startup-video="1"></iframe></div>`;
 }
 
 // Hàm tự động ẩn/hiện giao diện tạo câu hỏi khi nhập điểm Thi
@@ -4893,49 +4915,56 @@ async function createAssignment() {
         return (await AppDialog.alert(randomExamConfig.error));
     }
 
-    await pushDB('assignments', {
-        id: Date.now().toString(), title, desc,
-        createdAt: firebase.database.ServerValue.TIMESTAMP,
-        startDate: startDate
-            ? startDate.replace("T", " ")
-            : '',
-
-        endDate: endDate
-            ? endDate.replace("T", " ")
-            : '',
-        targetStudent, file: attachedFile, videoLink: videoLink,
-        assessmentType: type,
-        questions: questions,
-        randomExamConfig: randomExamConfig,
-        mcWeight: mcWeight, essayWeight: essayWeight,
-        hideEssayText: hideEssayText,
-
-        examTimeLimitEnabled:
-            examTimeLimitEnabled,
-
-        examTimeLimitMinutes:
-            examTimeLimitEnabled
-                ? examTimeLimitMinutes
-                : null,
-
-        videoSummaryEnabled:
-            videoSummaryEnabled,
-
-        videoSummary:
-            videoSummary,
-
-        /*
-         * Revision chỉ dùng để tách localStorage tiến độ giữa
-         * các lần đổi video/cấu hình, không đổi schema video_tracking.
-         */
-        videoTrackingRevision:
-            rawVideoLink
-                ? createVideoTrackingRevision()
+    try {
+        await pushDB('assignments', {
+            id: Date.now().toString(), title, desc,
+            createdAt: firebase.database.ServerValue.TIMESTAMP,
+            startDate: startDate
+                ? startDate.replace("T", " ")
                 : '',
-
-        watchCondition:
-            watchCondition // Đẩy lên Firebase dữ liệu cấu hình mới
-    });
+    
+            endDate: endDate
+                ? endDate.replace("T", " ")
+                : '',
+            targetStudent, file: attachedFile, videoLink: videoLink,
+            assessmentType: type,
+            questions: questions,
+            randomExamConfig: randomExamConfig,
+            mcWeight: mcWeight, essayWeight: essayWeight,
+            hideEssayText: hideEssayText,
+    
+            examTimeLimitEnabled:
+                examTimeLimitEnabled,
+    
+            examTimeLimitMinutes:
+                examTimeLimitEnabled
+                    ? examTimeLimitMinutes
+                    : null,
+    
+            videoSummaryEnabled:
+                videoSummaryEnabled,
+    
+            videoSummary:
+                videoSummary,
+    
+            /*
+             * Revision chỉ dùng để tách localStorage tiến độ giữa
+             * các lần đổi video/cấu hình, không đổi schema video_tracking.
+             */
+            videoTrackingRevision:
+                rawVideoLink
+                    ? createVideoTrackingRevision()
+                    : '',
+    
+            watchCondition:
+                watchCondition // Đẩy lên Firebase dữ liệu cấu hình mới
+        });
+    } catch (error) {
+        console.error('[Giao bài tập]', error);
+        const detail = window.EconomyClient?.explainError?.(error) || error.message || 'Không xác nhận được kết quả lưu.';
+        await AppDialog.alert('Chưa xác nhận giao bài thành công. Nội dung bạn nhập vẫn được giữ lại.\n\n' + detail);
+        return;
+    }
 
     document.getElementById('title').value = ''; document.getElementById('desc').value = '';
     document.getElementById('startDate').value = ''; document.getElementById('endDate').value = '';
@@ -5041,6 +5070,7 @@ window.toggleAssignmentLock = async function(key) {
 };
 
 async function loadAssignedList(isLoadMore = false) {
+    if (window.PageWork?.defer('teacher-assignments', 'assignedListContainer', () => loadAssignedList(false))) return;
     ensureTeacherAssignmentEssayStyles();
     const container = document.getElementById('assignedListContainer');
     if (!container) return;
@@ -5073,6 +5103,7 @@ async function loadAssignedList(isLoadMore = false) {
             await getTeacherFilteredAssignmentsPage(
                 isLoadMore
             );
+        if (loadSeq !== teacherAssignedLoadSeq) return;
 
         assignmentsPage =
             filteredPage.items;
@@ -5086,6 +5117,7 @@ async function loadAssignedList(isLoadMore = false) {
                 PAGE_LIMIT,
                 currentAssignKey
             );
+        if (loadSeq !== teacherAssignedLoadSeq) return;
 
         assignmentsPage = page.items;
         nextKey = page.nextKey;
@@ -6816,6 +6848,7 @@ window.deleteStudentSubmissionFile = async function (
 };
 
 async function loadSubmissions(isLoadMore = false) {
+    if (window.PageWork?.defer('teacher-submissions', 'submissionsList', () => loadSubmissions(false))) return;
     const list = document.getElementById('submissionsList');
     if (!list) return;
 
@@ -6850,6 +6883,7 @@ async function loadSubmissions(isLoadMore = false) {
             await getTeacherFilteredSubmissionsPage(
                 isLoadMore
             );
+        if (loadSeq !== teacherSubmissionLoadSeq) return;
 
         rawSubmissions =
             filteredPage.items;
@@ -6863,6 +6897,7 @@ async function loadSubmissions(isLoadMore = false) {
                 PAGE_LIMIT,
                 currentSubKey
             );
+        if (loadSeq !== teacherSubmissionLoadSeq) return;
 
         rawSubmissions =
             page.items;
@@ -10450,7 +10485,8 @@ async function gradeSubmissionCore(subId) {
             describeTeacherGradeRewardTiming(preview, sub) + '\n\n' +
             (priorV5 ? 'Chênh lệch so với lần trước: ' + signed(previewDeltaTicket) + ' Vé, ' + signed(previewDeltaCoin) + ' Coin\n' : '') +
             (previousReward && !priorV5 ? 'Bài dùng cơ chế cũ: hệ thống sẽ đối soát khoản đã nhận trước khi áp dụng.\n' : '') +
-            '\nXác nhận lưu điểm và đối soát?'
+            '\nXác nhận lưu điểm và đối soát?',
+            {title:'Xác nhận kết quả chấm điểm', layout:'grade', acceptText:'Lưu điểm', cancelText:'Quay lại'}
         )) return;
         const refreshedReward = await inspectTeacherGradeRewardState(sub);
         const latestSubmission = (await db.ref('submissions/' + getTeacherGradeRewardSubmissionKey(sub)).once('value')).val();
@@ -11185,6 +11221,12 @@ async function issueTodayBirthdayRewardsByTeacher() {
 }
 
 async function loadStudentsList() {
+    if (window.PageWork?.defer('teacher-students', 'studentsListContainer', loadStudentsList)) return;
+    if (window.PageWork) return window.PageWork.run('teacher-students', loadStudentsListCore);
+    return loadStudentsListCore();
+}
+
+async function loadStudentsListCore() {
     const users = await getDB('users');
     const container = document.getElementById('studentsListContainer');
     if (!container) return;
@@ -11208,7 +11250,6 @@ async function loadStudentsList() {
             <tr style="background:rgba(255,255,255,0.7); border-bottom:2px solid rgba(0,0,0,0.05);">
                 <th style="padding:15px;">Họ và Tên</th>
                 <th style="padding:15px;">Tên đăng nhập</th>
-                <th style="padding:15px;">Mật khẩu</th>
                 <th style="padding:15px; white-space:nowrap;">Ngày sinh</th>
                 <th style="padding:15px; text-align:center;">Số dư Coin</th>
                 <th style="padding:15px; text-align:center;">Thao tác</th>
@@ -11238,8 +11279,8 @@ async function loadStudentsList() {
 
         html += `<tr style="border-bottom: 1px solid rgba(0,0,0,0.05); ${st.isLocked ? 'background: rgba(225, 29, 72, 0.05);' : ''}">
             <td style="padding:12px;">
-                <strong>${st.name}</strong> <br>
-                <span style="font-size: 0.85em; color: #666;">Lớp: ${st.classInfo || '---'}</span>${statusText}
+                <strong>${escapeTeacherHtml(st.name)}</strong> <br>
+                <span style="font-size: 0.85em; color: #666;">Lớp: ${escapeTeacherHtml(st.classInfo || '---')}</span>${statusText}
                 <div class="student-account-preferences" style="display:flex !important; flex-direction:column !important; align-items:flex-start !important; gap:7px !important; width:auto !important; margin-top:9px !important;">
                     <label class="student-account-checkbox student-account-checkbox--roadmap" style="display:inline-flex !important; flex-direction:row !important; align-items:center !important; gap:7px !important; width:auto !important; margin:0 !important; color:#059669; font-size:.85em; font-weight:800; white-space:nowrap; cursor:pointer;">
                         <input type="checkbox" ${participateChecked} onchange="toggleParticipateRoadmap('${st._fbKey}', this.checked)" style="appearance:auto !important; -webkit-appearance:checkbox !important; display:inline-block !important; position:static !important; flex:0 0 17px !important; width:17px !important; min-width:17px !important; max-width:17px !important; height:17px !important; min-height:17px !important; max-height:17px !important; margin:0 !important; padding:0 !important; accent-color:#059669 !important; transform:none !important;">
@@ -11251,8 +11292,7 @@ async function loadStudentsList() {
                     </label>
                 </div>
             </td>
-            <td style="padding:12px;">${st.username}</td>
-            <td style="padding:12px;">${st.password}</td>
+            <td style="padding:12px;">${escapeTeacherHtml(st.username)}</td>
 
             <td style="
     padding:12px;
@@ -12171,7 +12211,9 @@ async function updateProfile() {
         await updateDB('users', userRecord._fbKey, updateData);
 
         currentUser.name = newName;
-        if (newPass) currentUser.password = newPass;
+        // Không lưu mật khẩu vào localStorage: tránh lộ khi có XSS hoặc máy dùng chung.
+        // Không nơi nào trong mã đọc currentUser.password nên việc xoá là an toàn.
+        delete currentUser.password;
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
         (await AppDialog.alert("✅ Cập nhật thông tin thành công!"));
@@ -13550,6 +13592,7 @@ let teacherRoadmapRenderPromise = null;
 let teacherRoadmapRenderQueued = false;
 
 async function renderTeacherRoadmap() {
+    if (window.PageWork?.defer('teacher-roadmap', 'teacherRoadmapBody', renderTeacherRoadmap)) return;
     if (teacherRoadmapRenderPromise) {
         // Có thay đổi mới trong lúc đang render: không chạy song song,
         // nhưng bảo đảm render lại ngay sau lượt hiện tại.
@@ -13575,10 +13618,17 @@ async function renderTeacherRoadmapCore() {
     const body = document.getElementById('teacherRoadmapBody');
     if (!body) return;
 
-    const assignments = await getDB('assignments');
-    const submissions = await getDB('submissions');
-    const users = await getDB('users');
     const selectedStudent = document.getElementById('roadmapStudentSelect').value;
+    const [assignments, submissions, users] = await Promise.all([
+        getDB('assignments'),
+        selectedStudent
+            ? db.ref('submissions').orderByChild('studentUsername').equalTo(selectedStudent)
+                .once('value').then(mapFirebaseCollectionSnapshot)
+            : [],
+        selectedStudent ? getDB('users') : []
+    ]);
+    if (selectedStudent !== document.getElementById('roadmapStudentSelect').value) return;
+    const submissionIndex = window.PageWork?.indexSubmissions(submissions);
     // Retain the last readable table if a network/permission read fails.
     body.innerHTML = '';
 
@@ -13602,7 +13652,8 @@ async function renderTeacherRoadmapCore() {
     }
 
     // Sắp xếp bài tập thông minh theo số đếm trong Tiêu đề (VD: Bài 1 -> Bài 2 -> Bài 10)
-    const sortedAssignments = [...assignments].sort((a, b) => (a.title || '').localeCompare(b.title || '', 'vi-VN', { numeric: true, sensitivity: 'base' }));
+    const titleOrder = new Intl.Collator('vi-VN', { numeric: true, sensitivity: 'base' });
+    const sortedAssignments = [...assignments].sort((a, b) => titleOrder.compare(a.title || '', b.title || ''));
 
     if (sortedAssignments.length === 0) {
         body.innerHTML = `<tr><td colspan="6" style="padding:15px; text-align:center; color:#666; font-style:italic;">Chưa có bài học nào được giao.</td></tr>`;
@@ -13638,7 +13689,7 @@ async function renderTeacherRoadmapCore() {
         if (selectedStudent) {
             const sub = getTeacherCashBestSubmission(
                 assign,
-                submissions,
+                submissionIndex ? submissionIndex.get(selectedStudent, assign.id) : submissions,
                 selectedStudent
             );
             if (sub) {
@@ -14722,8 +14773,14 @@ window.deleteSchedule = async function (fbKey) {
     }
 };
 
-window.loadScheduleTeacher = async function () {
-    const schedules = await getDB('schedule');
+window.loadScheduleTeacher = async function (snapshot) {
+    if (window.PageWork?.defer('teacher-schedule', 'teacherScheduleBody', () => window.loadScheduleTeacher(snapshot))) return;
+    if (window.PageWork) return window.PageWork.run('teacher-schedule', () => loadScheduleTeacherCore(snapshot));
+    return loadScheduleTeacherCore(snapshot);
+};
+
+async function loadScheduleTeacherCore(snapshot) {
+    const schedules = typeof snapshot?.val === 'function' ? mapFirebaseCollectionSnapshot(snapshot) : await getDB('schedule');
     const tbody = document.getElementById('teacherScheduleBody');
     if (!tbody) return;
     tbody.innerHTML = '';
@@ -15227,6 +15284,12 @@ window.saveLuckyWheelGoldenHourSettings = async function () {
 };
 
 window.loadSpinHistory = async function () {
+    if (window.PageWork?.defer('teacher-spin-history', 'spinHistoryBody', window.loadSpinHistory)) return;
+    if (window.PageWork) return window.PageWork.run('teacher-spin-history', loadSpinHistoryCore);
+    return loadSpinHistoryCore();
+};
+
+async function loadSpinHistoryCore() {
     let history = await getDB('spin_history');
     if (
         window.HistoryRetention &&
@@ -15246,7 +15309,7 @@ window.loadSpinHistory = async function () {
     // Sắp xếp mảng để kết quả mới nhất luôn nằm trên cùng (Dựa vào timestamp)
     const sortedHistory = [...history].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
-    sortedHistory.forEach((record, index) => {
+    const appendRecord = (record, index, target = tbody) => {
         const rewardText = String(record.reward ?? '');
         let isWin = rewardText.includes('Coin') || rewardText.includes('Quà');
         let rewardColor = isWin ? '#059669' : '#888';
@@ -15296,8 +15359,15 @@ window.loadSpinHistory = async function () {
         tr.appendChild(timeCell);
         tr.appendChild(rewardCell);
         tr.appendChild(actionCell);
-        tbody.appendChild(tr);
-    });
+        target.appendChild(tr);
+    };
+    sortedHistory.slice(0, 5).forEach((record, index) => appendRecord(record, index));
+    window.__appendHiddenSpinRows = () => {
+        const fragment = document.createDocumentFragment();
+        sortedHistory.slice(5).forEach((record, index) => appendRecord(record, index + 5, fragment));
+        tbody.insertBefore(fragment, document.getElementById('toggleSpinBtnRow'));
+        window.__appendHiddenSpinRows = null;
+    };
 
     // Nếu có nhiều hơn 5 dòng, in ra nút "Xem thêm"
     if (sortedHistory.length > 5) {
@@ -15316,6 +15386,7 @@ window.loadSpinHistory = async function () {
 
 // Hàm xử lý khi bấm nút Xem thêm / Thu gọn
 window.toggleSpinHistoryRows = function () {
+    window.__appendHiddenSpinRows?.();
     const hiddenRows = document.querySelectorAll('.hidden-spin-row');
     const btn = document.getElementById('toggleSpinBtn');
     if (hiddenRows.length === 0) return;
@@ -18460,6 +18531,7 @@ function getTeacherCashBestSubmission(assign, submissions, username) {
 }
 
 function calculateTeacherCashBaseMoney(assignments, submissions, username) {
+    const submissionIndex = window.PageWork?.indexSubmissions(submissions);
     return (assignments || []).reduce((total, assign) => {
         const targets = getTeacherCashTargetStudents(assign);
         const normalizedUsername = String(username ?? '').trim();
@@ -18468,7 +18540,8 @@ function calculateTeacherCashBaseMoney(assignments, submissions, username) {
             return total;
         }
 
-        const sub = getTeacherCashBestSubmission(assign, submissions, username);
+        const sub = getTeacherCashBestSubmission(assign,
+            submissionIndex ? submissionIndex.get(username, assign.id) : submissions, username);
         if (!sub) return total;
         if (sub.isRegrading || isTeacherCashSubmissionFailed(sub)) return total;
         if (sub.forcePass) return total + getTeacherCashRoadmapMoney(assign);
@@ -18532,9 +18605,22 @@ async function resetCashRequestToPending(reqRef, reason) {
     }
 }
 
+function bindTeacherCashActions(container) {
+    if (container.dataset.cashActionsBound === 'true') return;
+    container.dataset.cashActionsBound = 'true';
+    container.addEventListener('click', event => {
+        const button = event.target.closest('button[data-cash-action]');
+        if (!button || !container.contains(button)) return;
+        const { cashKey, cashAction } = button.dataset;
+        if (!cashKey || !['approve', 'reject', 'recover', 'complete'].includes(cashAction)) return;
+        window.handleTeacherProcessCash(cashKey, cashAction);
+    });
+}
+
 window.loadTeacherCashRequests = async function (append = false) {
     const container = document.getElementById('teacherCashRequestsListContainer');
     if (!container) return;
+    bindTeacherCashActions(container);
 
     try {
         let requests = await window.TeacherCashPages.load(container, append);
@@ -18569,25 +18655,25 @@ window.loadTeacherCashRequests = async function (append = false) {
                 if (req.status === 'pending') {
                     statusLabel = '<span style="color: #d97706; background: #fef3c7; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 0.85em;">⏳ Chờ duyệt</span>';
                     actionsHtml = `
-                        <button onclick="handleTeacherProcessCash('${req._fbKey}', 'approve')"
+                        <button type="button" data-cash-key="${escapeTeacherHtml(req._fbKey)}" data-cash-action="approve"
                                 style="background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85em;">
                             Chấp nhận
                         </button>
-                        <button onclick="handleTeacherProcessCash('${req._fbKey}', 'reject')"
+                        <button type="button" data-cash-key="${escapeTeacherHtml(req._fbKey)}" data-cash-action="reject"
                                 style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85em; margin-left: 5px;">
                             Từ chối
                         </button>`;
                 } else if (req.status === 'processing') {
                     statusLabel = '<span style="color: #7c3aed; background: #ede9fe; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 0.85em;">🔐 Đang xử lý an toàn</span>';
                     actionsHtml = `
-                        <button onclick="handleTeacherProcessCash('${req._fbKey}', 'recover')"
+                        <button type="button" data-cash-key="${escapeTeacherHtml(req._fbKey)}" data-cash-action="recover"
                                 style="background: #7c3aed; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85em;">
                             Khôi phục trạng thái
                         </button>`;
                 } else if (req.status === 'transferring') {
                     statusLabel = '<span style="color: #2563eb; background: #e0f2fe; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 0.85em;">🔄 Đang chuyển</span>';
                     actionsHtml = `
-                        <button onclick="handleTeacherProcessCash('${req._fbKey}', 'complete')"
+                        <button type="button" data-cash-key="${escapeTeacherHtml(req._fbKey)}" data-cash-action="complete"
                                 style="background: #3b82f6; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85em;">
                             Đã chuyển
                         </button>`;
@@ -18600,13 +18686,13 @@ window.loadTeacherCashRequests = async function (append = false) {
                 }
 
                 const usernameText = req.studentUsername
-                    ? `<div style="margin-top: 3px; color: #64748b; font-size: 0.78em;">@${req.studentUsername}</div>`
+                    ? `<div style="margin-top: 3px; color: #64748b; font-size: 0.78em;">@${escapeTeacherHtml(req.studentUsername)}</div>`
                     : '';
 
                 html += `
                     <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; display: flex; justify-content: space-between; align-items: center; gap: 15px; box-sizing: border-box;">
                         <div>
-                            <div style="font-weight: bold; color: #1e293b; font-size: 0.95em;">👤 Học sinh: ${req.studentName || req.studentUsername || 'Không rõ'}</div>
+                            <div style="font-weight: bold; color: #1e293b; font-size: 0.95em;">👤 Học sinh: ${escapeTeacherHtml(req.studentName || req.studentUsername || 'Không rõ')}</div>
                             ${usernameText}
                             <div style="margin-top: 4px; color: #475569; font-size: 0.9em;">
                                 Số tiền yêu cầu: <strong style="color: #ea580c;">${amount.toLocaleString('vi-VN')} VNĐ</strong>
@@ -19264,9 +19350,13 @@ async function getTeacherLegacyGradeTicketBase(username, submissions) {
     const historical = Number(historicalSnap.val()) || 0;
     const frozenBase = Math.max(historical, computedLegacy);
 
+    // Khi bật máy chủ, Worker tự tính và chốt mốc; giao diện chỉ đọc để hiển thị.
+    if (window.ECONOMY_SERVER_ENABLED === true) return frozenBase;
+
     // Chỉ tăng mốc cũ; không hạ để tránh mất vé đã có trước khi nâng cấp V2.
     if (frozenBase > historical) {
-        await historicalRef.set(frozenBase);
+        const result = await historicalRef.transaction(current => Math.max(Number(current) || 0, computedLegacy));
+        return Number(result.snapshot.val()) || frozenBase;
     }
 
     return frozenBase;
@@ -19327,37 +19417,30 @@ window.onTicketStudentChange = async function () {
     display.innerText = info.remaining;
 };
 
+const ticketModificationBusy = new Set();
 window.modifyStudentTickets = async function (action) {
     const username = document.getElementById('ticketStudentSelect').value;
     const amountStr = document.getElementById('ticketModifyAmount').value;
-    const amount = parseInt(amountStr);
+    const amount = Number(amountStr);
 
     if (!username) return (await AppDialog.alert("⚠️ Vui lòng chọn một học sinh trước!"));
-    if (isNaN(amount) || amount <= 0) return (await AppDialog.alert("⚠️ Vui lòng nhập số lượng vé hợp lệ (lớn hơn 0)!"));
-
-    const info = await getStudentTicketInfo(username);
-    let newBonus = info.bonus;
-
-    if (action === 'add') {
-        if (!(await AppDialog.confirm(`Bạn có chắc chắn muốn CỘNG THÊM ${amount} vé cho học sinh này?`))) return;
-        newBonus += amount;
-    } else if (action === 'sub') {
-        if (info.remaining < amount) {
-            return (await AppDialog.alert(`❌ Học sinh này hiện chỉ có ${info.remaining} vé, không đủ để trừ!`));
-        }
-        if (!(await AppDialog.confirm(`Bạn có chắc chắn muốn TRỪ ĐI ${amount} vé của học sinh này?`))) return;
-        newBonus -= amount;
-    }
-
+    if (!Number.isSafeInteger(amount) || amount <= 0 || amount > 9999) return (await AppDialog.alert("⚠️ Vui lòng nhập số vé nguyên từ 1 đến 9999!"));
+    if (!['add', 'sub'].includes(action) || ticketModificationBusy.has(username)) return;
+    ticketModificationBusy.add(username);
     try {
+        // Chốt mốc vé cũ trước; số vé đủ để trừ được kiểm tra tại lúc ghi nguyên tử.
+        await getStudentTicketInfo(username);
+        if (!(await AppDialog.confirm(`Bạn có chắc chắn muốn ${action === 'add' ? 'CỘNG THÊM' : 'TRỪ ĐI'} ${amount} vé ${action === 'add' ? 'cho' : 'của'} học sinh này?`))) return;
         if(window.ECONOMY_SERVER_ENABLED===true)await window.EconomyClient.execute('teacher_tickets',{studentUsername:username,mode:action,amount:String(amount)},{slot:'teacher-tickets:'+username});
-        else await db.ref('student_bonus_tickets/' + username).set(newBonus);
+        else await window.TeacherLedger.adjustTickets({username,mode:action,amount});
         (await AppDialog.alert(`✅ Đã ${action === 'add' ? 'CỘNG' : 'TRỪ'} ${amount} vé thành công!`));
         document.getElementById('ticketModifyAmount').value = '';
-        window.onTicketStudentChange();
+        await window.onTicketStudentChange();
     } catch (e) {
         console.error("Lỗi cập nhật vé:", e);
-        (await AppDialog.alert("❌ Đã xảy ra lỗi khi kết nối dữ liệu."));
+        (await AppDialog.alert(`❌ ${e.message || 'Đã xảy ra lỗi khi kết nối dữ liệu.'}`));
+    } finally {
+        ticketModificationBusy.delete(username);
     }
 };
 
@@ -19843,8 +19926,8 @@ window.changeTeacherPassword = async function () {
                 password: newPassword
             });
 
-            // 3. Cập nhật lại localStorage để tránh bị lỗi khi tải lại trang
-            currentUser.password = newPassword;
+            // 3. Cập nhật lại localStorage (không lưu mật khẩu) để tránh lộ khi tải lại trang
+            delete currentUser.password;
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
             (await AppDialog.alert("✅ Đổi mật khẩu thành công! Hãy nhớ mật khẩu mới của bạn."));
@@ -21590,7 +21673,7 @@ window.changeTeacherPassword = async function () {
 
             return {
                 enabled: true,
-                engineVersion: 2,
+                engineVersion: 3,
                 seed: "campus-exam-v2",
                 questionCount,
                 versionCount,

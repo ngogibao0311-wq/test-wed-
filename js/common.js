@@ -2126,6 +2126,7 @@ async function clearAllLockouts() {
 if (loginForm) {
     loginForm.addEventListener('submit', async function (e) {
         e.preventDefault();
+        if (loginForm.dataset.submitting === 'true') return;
         const usernameInput = document.getElementById('username');
         const passwordInput = document.getElementById('password');
         const errorMsg = document.getElementById('errorMsg');
@@ -2135,8 +2136,13 @@ if (loginForm) {
             return;
         }
 
-        const userVal = usernameInput.value.trim();
-        const passVal = passwordInput.value;
+        const submitBtn = loginForm.querySelector('button[type="submit"], input[type="submit"]');
+        loginForm.dataset.submitting = 'true';
+        if (submitBtn) submitBtn.disabled = true;
+
+        try {
+            const userVal = usernameInput.value.trim();
+            const passVal = passwordInput.value;
 
         // Dùng \s để chặn cả dấu cách, tab và xuống dòng.
         if (/\s/.test(userVal)) {
@@ -2365,6 +2371,10 @@ if (loginForm) {
                 `<b>${5 - currentFails}</b> lần thử.`;
 
             errorMsg.style.color = 'red';
+        }
+        } finally {
+            loginForm.dataset.submitting = 'false';
+            if (submitBtn) submitBtn.disabled = false;
         }
     });
 }
@@ -5587,3 +5597,393 @@ window.securityHotfix = Object.freeze({
     try { const url = new URL(String(value)); return ['https:', 'http:'].includes(url.protocol) && !url.username && !url.password ? url.href : ''; } catch { return ''; }
   }
 });
+
+// CONNECTION INFO — account-scoped device profiles and observed public IPs; not hardware authentication.
+(() => {
+    'use strict';
+    if (window.StudentConnectionInfo) return;
+    const ROW_ID = 'studentConnectionInfo';
+    const DEVICE_KEY = 'studyBrowserDeviceId:v1';
+    const DEVICE_ID_RE = /^DEV-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    let started = false, pending = null, controller = null, generation = 0;
+    let cached = null, cachedAt = 0;
+    let device = {id: null, persistent: false}, devicePending = null;
+    let authEpoch = 0, cloudProfile = null, recoveryBusy = false, recoveryCode = '';
+    const MAX_NETWORKS = 10;
+
+    function authUser() { try { return window.firebase?.auth?.().currentUser || null; } catch (_) { return null; } }
+    function projectId() { try { return window.firebase?.app?.().options.projectId || 'default'; } catch (_) { return 'default'; } }
+    function linkKey() { return `${DEVICE_KEY}:link:${projectId()}:${authUser()?.uid || ''}`; }
+    function cloudContext() { return {uid: authUser()?.uid, id: device.id, epoch: authEpoch, generation}; }
+    function isCurrent(ctx) { return ctx.uid && ctx.uid === authUser()?.uid && ctx.id === device.id && ctx.epoch === authEpoch && ctx.generation === generation; }
+    function profilesRef(uid) { return window.firebase.database().ref(`student_device_profiles/${uid}`); }
+    function cloudStatus(message) { const el = document.querySelector(`#${ROW_ID} [data-device-cloud-status]`); if (el) el.textContent = message; }
+    function errorMessage(error) {
+        const code = String(error?.code || error?.message || '');
+        if (/permission|denied/i.test(code)) return 'Chưa có quyền lưu thiết bị. Cần cập nhật Rules cho đúng dự án đang dùng.';
+        if (/OFFLINE/.test(code)) return 'Đang ngoại tuyến. Kết nối lại để lưu hoặc khôi phục thiết bị.';
+        if (/AUTH/.test(code)) return 'Đăng nhập để lưu và khôi phục thiết bị của tài khoản này.';
+        if (/RECOVERY_NOT_FOUND/.test(code)) return 'Mã không đúng hoặc không thuộc tài khoản đang đăng nhập.';
+        if (/RECOVERY_INVALID/.test(code)) return 'Mã khôi phục cần có dạng REC- và 32 ký tự phía sau.';
+        return 'Chưa xác nhận được thao tác. Kiểm tra kết nối rồi thử lại.';
+    }
+
+    function renderProfile(profile, network = cached) {
+        const list = document.querySelector(`#${ROW_ID} [data-device-networks]`);
+        const status = document.querySelector(`#${ROW_ID} [data-network-match]`);
+        if (!list || !status) return;
+        list.replaceChildren();
+        const rows = Object.values(profile?.networks || {}).filter(value=>value && typeof value.ip==='string').sort((a,b) => b.lastSeenAt - a.lastSeenAt);
+        for (const entry of rows) {
+            const item = document.createElement('li');
+            const time = new Date(entry.lastSeenAt).toLocaleString('vi-VN');
+            item.textContent = `${entry.ip} · ${[entry.city, entry.region, entry.country].filter(Boolean).join(', ') || 'Chưa rõ khu vực'} · ${time}`;
+            list.appendChild(item);
+        }
+        if (!rows.length) { const item=document.createElement('li');item.textContent='Chưa có IP đã lưu cho thiết bị này.';list.appendChild(item); }
+        status.textContent = network?.ip
+            ? rows.some(entry => entry.ip === network.ip) ? 'IP hiện tại đã có trong danh sách đã ghi nhận.' : 'IP hiện tại chưa có trong danh sách đã ghi nhận.'
+            : 'Chưa xác định IP hiện tại; danh sách dưới đây chỉ là thông tin đã lưu.';
+    }
+
+    async function syncDeviceProfile() {
+        await ensureDevice();
+        const ctx = cloudContext(), network = cached;
+        if (!ctx.uid || !ctx.id) { cloudStatus('Đăng nhập để lưu thiết bị và các IP đã ghi nhận.'); return null; }
+        if (navigator.onLine === false) { cloudStatus(errorMessage(Error('OFFLINE')));return null; }
+        try {
+            const timestamp = window.firebase.database.ServerValue.TIMESTAMP;
+            const result = await profilesRef(ctx.uid).child(ctx.id).transaction(current => {
+                if (!isCurrent(ctx)) return;
+                // Observations are self-reported, never used as proof of identity or to award/penalize.
+                const record = current || {id: ctx.id, createdAt: timestamp};
+                const rows = Object.entries(record.networks || {}).filter(([,value])=>value && typeof value.ip==='string');
+                const known = network?.ip && rows.find(([,value]) => value.ip === network.ip);
+                if (current && (!network?.ip || (known && record.latestIp === network.ip && Date.now() - Number(record.updatedAt) < 600000))) return;
+                const next = {...record, updatedAt: timestamp};
+                if (network?.ip) {
+                    let slot = known?.[0];
+                    if (slot == null) slot = Array.from({length:MAX_NETWORKS},(_,i)=>String(i)).find(key=>!record.networks?.[key]);
+                    if (slot == null) slot = rows.sort((a,b)=>a[1].lastSeenAt-b[1].lastSeenAt)[0][0];
+                    const clean = value => typeof value === 'string' ? value.slice(0,120) : '';
+                    next.networks = {...record.networks, [slot]: {
+                        ip: clean(network.ip), city: clean(network.city), region: clean(network.region), country: clean(network.country),
+                        firstSeenAt: known?.[1]?.firstSeenAt || timestamp, lastSeenAt: timestamp
+                    }};
+                    next.latestIp = network.ip;
+                }
+                return next;
+            }, undefined, false);
+            if (!isCurrent(ctx)) return null;
+            cloudProfile = result.snapshot.val();
+            renderProfile(cloudProfile, network);
+            cloudStatus(cloudProfile ? 'Đã lưu thiết bị trên Firebase của tài khoản này.' : 'Chưa xác nhận được bản ghi thiết bị.');
+            return cloudProfile;
+        } catch (error) { if (isCurrent(ctx)) cloudStatus(errorMessage(error)); return null; }
+    }
+
+    async function recoveryHash(code, uid) {
+        const normalized = String(code || '').toUpperCase().replace(/\s/g,'');
+        if (!/^REC-[0-9A-F]{32}$/.test(normalized)) throw Error('RECOVERY_INVALID');
+        const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`study-device:v1|${projectId()}|${uid}|${normalized}`));
+        return Array.from(new Uint8Array(bytes),byte=>byte.toString(16).padStart(2,'0')).join('');
+    }
+
+    function setRecoveryBusy(value) {
+        recoveryBusy = value;
+        document.querySelectorAll(`#${ROW_ID} [data-device-generate], #${ROW_ID} [data-device-restore]`).forEach(button=>{button.disabled=value;});
+    }
+
+    async function generateRecoveryCode() {
+        if (recoveryBusy) return;
+        setRecoveryBusy(true);
+        let ctx;
+        try {
+            await ensureDevice();ctx=cloudContext();
+            if (!ctx.uid || !ctx.id) throw Error('AUTH_REQUIRED');
+            if (navigator.onLine === false) throw Error('OFFLINE');
+            const random = newDeviceId();
+            if (!random) throw Error('NO_SECURE_RANDOM');
+            const code = 'REC-' + random.slice(4).replace(/-/g,'').toUpperCase();
+            const hash = await recoveryHash(code,ctx.uid);
+            if (!isCurrent(ctx)) return;
+            const timestamp=window.firebase.database.ServerValue.TIMESTAMP;
+            const result=await profilesRef(ctx.uid).child(ctx.id).transaction(current=>{
+                if (!isCurrent(ctx)) return;
+                return {...(current || {id:ctx.id,createdAt:timestamp}),updatedAt:timestamp,recoveryHash:hash};
+            },undefined,false);
+            if (!isCurrent(ctx) || !result.committed) return;
+            recoveryCode=code;
+            const output=document.querySelector(`#${ROW_ID} [data-device-recovery-code]`);
+            output.hidden=false;output.textContent=code;
+            cloudProfile=result.snapshot.val();renderProfile(cloudProfile);
+            cloudStatus('Đã tạo mã mới. Hãy chép và cất riêng; mã trước đó đã hết hiệu lực. Mã này chỉ hiện trong phiên này.');
+        } catch(error) { if (!ctx || isCurrent(ctx)) cloudStatus(errorMessage(error)); }
+        finally { setRecoveryBusy(false); }
+    }
+
+    async function restoreDevice() {
+        if (recoveryBusy) return;
+        setRecoveryBusy(true);
+        let ctx;
+        try {
+            await ensureDevice();ctx=cloudContext();
+            if (!ctx.uid) throw Error('AUTH_REQUIRED');
+            if (navigator.onLine === false) throw Error('OFFLINE');
+            const input=document.querySelector(`#${ROW_ID} [data-device-recovery-input]`);
+            const hash=await recoveryHash(input.value,ctx.uid);
+            const snapshot=await profilesRef(ctx.uid).orderByChild('recoveryHash').equalTo(hash).limitToFirst(2).once('value');
+            if (!isCurrent(ctx)) return;
+            const matches=Object.entries(snapshot.val() || {});
+            if (matches.length!==1 || !DEVICE_ID_RE.test(matches[0][0]) || matches[0][1].id!==matches[0][0]) throw Error('RECOVERY_NOT_FOUND');
+            const restored=matches[0][0];
+            // Save only this account's link. Other accounts on a shared browser keep their own IDs.
+            let persistent=false;
+            try { localStorage.setItem(linkKey(),restored);persistent=localStorage.getItem(linkKey())===restored; } catch (_) {}
+            device={id:restored,persistent};authEpoch+=1;
+            cloudProfile=matches[0][1];input.value='';recoveryCode='';
+            document.querySelector(`#${ROW_ID} [data-device-recovery-code]`).hidden=true;
+            document.querySelector(`#${ROW_ID} [data-device-recovery-code]`).textContent='';
+            renderDevice();renderProfile(cloudProfile);
+            // Keep the restored ID in memory as well when localStorage is unavailable.
+            restoredSession={uid:ctx.uid,id:restored};
+            cloudStatus(persistent ? 'Đã liên kết lại thiết bị đã lưu. Đang cập nhật kết nối hiện tại…' : 'Đã liên kết trong phiên này; trình duyệt chưa cho lưu liên kết lâu dài.');
+            void syncDeviceProfile();
+        } catch(error) { if (!ctx || isCurrent(ctx)) cloudStatus(errorMessage(error)); }
+        finally { setRecoveryBusy(false); }
+    }
+
+    let restoredSession = null;
+
+    function isStudentPage() {
+        return Boolean(document.getElementById('studentName')) && !document.getElementById('tab-manage-students');
+    }
+
+    function newDeviceId() {
+        try {
+            const id = `DEV-${window.crypto.randomUUID()}`;
+            if (DEVICE_ID_RE.test(id)) return id;
+        } catch (_) {}
+        try {
+            const bytes = window.crypto.getRandomValues(new Uint8Array(16));
+            bytes[6] = (bytes[6] & 15) | 64;
+            bytes[8] = (bytes[8] & 63) | 128;
+            const hex = Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
+            return `DEV-${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+        } catch (_) { return null; }
+    }
+
+    function readOrCreateDevice() {
+        try {
+            const saved = localStorage.getItem(DEVICE_KEY);
+            if (DEVICE_ID_RE.test(saved || '')) return {id: saved, persistent: true};
+        } catch (_) {}
+        // No hardware fingerprint, account name or IP participates in this ID.
+        const id = !device.persistent && device.id ? device.id : newDeviceId();
+        if (!id) return {id: null, persistent: false};
+        try {
+            localStorage.setItem(DEVICE_KEY, id);
+            const saved = localStorage.getItem(DEVICE_KEY);
+            if (DEVICE_ID_RE.test(saved || '')) return {id: saved, persistent: true};
+        } catch (_) {}
+        return {id, persistent: false};
+    }
+
+    function renderDevice() {
+        const row = document.getElementById(ROW_ID);
+        if (!row) return;
+        row.querySelector('[data-device-id]').textContent = device.id || 'Chưa tạo được mã';
+        row.querySelector('[data-device-status]').textContent = !device.id
+            ? 'Trình duyệt này chưa hỗ trợ tạo mã an toàn.'
+            : device.persistent ? 'Đã lưu mã trên trình duyệt này.'
+            : 'Mã tạm thời: trình duyệt không cho lưu dữ liệu, mã có thể đổi khi tải lại trang.';
+        row.querySelector('[data-device-copy]').disabled = !device.id;
+    }
+
+    function ensureDevice() {
+        if (devicePending) return devicePending;
+        devicePending = Promise.resolve().then(async () => {
+            try {
+                // Serialize first creation across tabs. The callback has no network or other waits.
+                device = navigator.locks?.request
+                    ? await navigator.locks.request(DEVICE_KEY, readOrCreateDevice)
+                    : readOrCreateDevice();
+            } catch (_) { device = readOrCreateDevice(); }
+            const uid=authUser()?.uid;
+            try {
+                const linked=uid && localStorage.getItem(linkKey());
+                if (DEVICE_ID_RE.test(linked || '')) device={id:linked,persistent:true};
+                else if (restoredSession?.uid===uid) device={id:restoredSession.id,persistent:false};
+            } catch (_) { if (uid && restoredSession?.uid===uid) device={id:restoredSession.id,persistent:false}; }
+            renderDevice();
+            return {...device};
+        }).finally(() => { devicePending = null; });
+        return devicePending;
+    }
+
+    async function copyDeviceId() {
+        const row = document.getElementById(ROW_ID);
+        if (!row || !device.id) return;
+        const status = row.querySelector('[data-device-status]');
+        try {
+            await navigator.clipboard.writeText(device.id);
+            status.textContent = 'Đã sao chép mã nhận dạng.';
+        } catch (_) {
+            const range = document.createRange();
+            range.selectNodeContents(row.querySelector('[data-device-id]'));
+            const selection = window.getSelection();
+            selection?.removeAllRanges();
+            selection?.addRange(range);
+            status.textContent = 'Hãy nhấn Ctrl+C hoặc nhấn giữ mã để sao chép.';
+        }
+    }
+
+    function render(data, message = '') {
+        const row = document.getElementById(ROW_ID);
+        if (!row) return;
+        const text = value => typeof value === 'string' ? value.slice(0, 120) : '';
+        row.querySelector('[data-network-ip]').textContent = text(data?.ip) || 'Chưa xác định';
+        let country = text(data?.country);
+        try {
+            if (/^[A-Z]{2}$/.test(country)) country = new Intl.DisplayNames(['vi'], {type: 'region'}).of(country);
+        } catch (_) {}
+        const region = [...new Set([text(data?.city), text(data?.region), country].filter(Boolean))];
+        row.querySelector('[data-network-region]').textContent = region.join(', ') || 'Chưa xác định';
+        row.querySelector('[data-network-status]').textContent = message || 'Đã tự phát hiện kết nối hiện tại.';
+    }
+
+    function clearConnection() {
+        generation += 1;
+        controller?.abort();
+        controller = null;
+        pending = null;
+        cached = null;
+        cachedAt = 0;
+        renderProfile(cloudProfile, null);
+    }
+
+    function refresh() {
+        if (!started || !isStudentPage()) return Promise.resolve(null);
+        if (pending) return pending;
+        if (cached && Date.now() - cachedAt < 60000) { void syncDeviceProfile(); return Promise.resolve(cached); }
+        if (navigator.onLine === false) {
+            render(null, 'Đang ngoại tuyến. Kết nối lại để tự phát hiện IP.');
+            return Promise.resolve(null);
+        }
+        const id = ++generation;
+        const abort = new AbortController();
+        controller = abort;
+        const button = document.querySelector(`#${ROW_ID} [data-network-refresh]`);
+        if (button) button.disabled = true;
+        render(null, 'Đang tự phát hiện IP và khu vực kết nối…');
+        const timer = setTimeout(() => abort.abort(), 8000);
+        const run = async () => {
+            try {
+                if (id !== generation || abort.signal.aborted) return null;
+                const base = String(window.CloudflareR2Storage?.config?.workerUrl || window.R2_WORKER_URL ||
+                    window.APP_STORAGE_CONFIG?.r2WorkerUrl || 'https://school-r2-files.ngogibao0311.workers.dev');
+                const url = new URL(base.replace(/\/+$/, '') + '/network-info');
+                if (url.protocol !== 'https:' && !(url.protocol === 'http:' && ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname))) {
+                    throw new Error('INVALID_NETWORK_ENDPOINT');
+                }
+                const response = await fetch(url.href, {
+                    method: 'GET', cache: 'no-store', credentials: 'omit',
+                    referrerPolicy: 'no-referrer', signal: abort.signal
+                });
+                if (!response.ok) throw new Error('NETWORK_INFO_UNAVAILABLE');
+                const data = await response.json();
+                if (data?.ok !== true || data?.source !== 'cloudflare') throw new Error('INVALID_NETWORK_INFO');
+                if (id !== generation) return null;
+                cached = data;
+                cachedAt = Date.now();
+                render(data, data.ip ? '' : 'Kết nối này chưa cung cấp thông tin IP.');
+                void syncDeviceProfile();
+                return data;
+            } catch (_) {
+                if (id === generation) render(null, navigator.onLine === false
+                    ? 'Đang ngoại tuyến. Kết nối lại để tự phát hiện IP.'
+                    : 'Chưa lấy được thông tin kết nối. Bạn có thể thử lại sau.');
+                return null;
+            } finally {
+                clearTimeout(timer);
+                if (id === generation) {
+                    pending = null;
+                    controller = null;
+                    if (button) button.disabled = false;
+                }
+            }
+        };
+        pending = Promise.resolve().then(run);
+        return pending;
+    }
+
+    function init() {
+        if (started || !isStudentPage()) return;
+        const container = document.querySelector('#tab-settings .form-container');
+        if (!container) return;
+        started = true;
+        const row = document.createElement('section');
+        row.id = ROW_ID;
+        row.className = 'student-connection-info';
+        row.setAttribute('aria-label', 'Thông tin kết nối và mã nhận dạng của bạn');
+        row.innerHTML = `<strong>🌐 Kết nối của bạn</strong>
+            <p>IP công khai và khu vực gần đúng của kết nối hiện tại. Khi đăng nhập, website lưu thiết bị và tối đa 10 IP gần đây vào tài khoản của bạn. Cùng IP chưa đủ để xác định cùng máy hoặc cùng Wi-Fi.</p>
+            <dl><div><dt>IP công khai</dt><dd data-network-ip>Đang phát hiện…</dd></div>
+            <div><dt>Khu vực gần đúng</dt><dd data-network-region>Đang phát hiện…</dd></div></dl>
+            <div class="student-connection-actions"><span data-network-status role="status" aria-live="polite"></span>
+            <button type="button" class="btn" data-network-refresh>Cập nhật lại</button></div>
+            <div class="student-device-info"><strong>Mã nhận dạng trên máy này</strong>
+            <p>Mã riêng của thiết bị đã đăng ký, không phải mã phần cứng. Sau khi đổi trình duyệt hoặc xóa dữ liệu, đăng nhập đúng tài khoản rồi nhập mã khôi phục để liên kết lại. Mã khôi phục không thay thế mật khẩu đăng nhập.</p>
+            <code data-device-id>Đang tạo mã…</code>
+            <div class="student-connection-actions"><span data-device-status role="status" aria-live="polite"></span>
+            <button type="button" class="btn" data-device-copy disabled>Sao chép mã</button></div>
+            <p data-device-cloud-status role="status">Đăng nhập để lưu và khôi phục thiết bị.</p>
+            <button type="button" class="btn" data-device-generate>Tạo mã khôi phục mới</button>
+            <p>Mỗi lần tạo mã mới sẽ vô hiệu hóa mã khôi phục cũ của thiết bị này. Hãy cất mã ở nơi riêng trước khi xóa dữ liệu trình duyệt.</p>
+            <code data-device-recovery-code hidden></code>
+            <label for="deviceRecoveryInput">Khôi phục thiết bị đã lưu</label>
+            <div class="student-device-recovery"><input id="deviceRecoveryInput" data-device-recovery-input type="password" autocomplete="off" spellcheck="false" maxlength="64" placeholder="REC-…">
+            <button type="button" class="btn" data-device-restore>Liên kết lại</button></div>
+            <strong>IP đã ghi nhận trên thiết bị này</strong><p data-network-match></p><ul data-device-networks></ul>
+            </div>`;
+        container.appendChild(row);
+        row.querySelector('[data-network-refresh]').addEventListener('click', () => { void refresh(); });
+        row.querySelector('[data-device-copy]').addEventListener('click', () => { void copyDeviceId(); });
+        row.querySelector('[data-device-generate]').addEventListener('click', () => { void generateRecoveryCode(); });
+        row.querySelector('[data-device-restore]').addEventListener('click', () => { void restoreDevice(); });
+        void ensureDevice();
+        window.addEventListener('storage', event => {
+            if (event.key === DEVICE_KEY || event.key === linkKey() || event.key === null) {
+                restoredSession=null;authEpoch+=1;cloudProfile=null;renderProfile(null);
+                void ensureDevice().then(()=>syncDeviceProfile());
+            }
+        });
+        const changed = () => {
+            clearConnection();
+            const button = row.querySelector('[data-network-refresh]');
+            if (button) button.disabled = false;
+            void refresh();
+        };
+        window.addEventListener('online', changed);
+        window.addEventListener('offline', changed);
+        navigator.connection?.addEventListener?.('change', changed);
+        window.addEventListener('pagehide', clearConnection);
+        window.addEventListener('pageshow', event => {
+            if (event.persisted) { void ensureDevice(); changed(); }
+        });
+        try {
+            window.firebase?.auth?.().onAuthStateChanged(() => {
+                authEpoch+=1;cloudProfile=null;restoredSession=null;recoveryCode='';
+                row.querySelector('[data-device-recovery-input]').value='';
+                row.querySelector('[data-device-recovery-code]').hidden=true;
+                row.querySelector('[data-device-recovery-code]').textContent='';
+                renderProfile(null);void syncDeviceProfile();
+            });
+        } catch (_) {}
+        void refresh();
+    }
+
+    window.StudentConnectionInfo = Object.freeze({refresh, getDeviceInfo: () => ({...device})});
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once: true});
+    else init();
+})();

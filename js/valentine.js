@@ -1,8 +1,91 @@
+/* Regular Cupid effect is independent of the premium pet's five layers. */
+(() => {
+    'use strict';
+    let host = null, observer = null, events = null;
+    function clearEffect() {
+        observer?.disconnect();
+        events?.abort();
+        host?.remove();
+        host = observer = events = null;
+    }
+    function mountEffect() {
+        clearEffect();
+        const parent = document.getElementById('global-effect-container');
+        if (!parent) return;
+        host = document.createElement('div');
+        host.id = 'cupid-regular-effect';
+        host.setAttribute('aria-hidden', 'true');
+        host.style.cssText = 'position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:900';
+        const shadow = host.attachShadow({ mode: 'open' });
+        const css = document.createElement('link');
+        css.rel = 'stylesheet'; css.href = 'css/valentine.css?v=20261015.regular-fix1';
+        shadow.append(css);
+        const stage = document.createElement('div');
+        stage.className = 'cupid-regular-weather';
+        const count = Math.max(6, Math.min(16, window.EffectQualityManager?.getRecommendedCount?.(16) ?? 16));
+        for (let i = 0; i < count; i++) {
+            const heart = document.createElement('span');
+            heart.style.setProperty('--x', `${(i * 37 + 5) % 100}%`);
+            heart.style.setProperty('--delay', `${-i * 1.7}s`);
+            heart.style.setProperty('--duration', `${12 + i % 5}s`);
+            heart.textContent = i % 3 ? '♡' : '❀';
+            stage.append(heart);
+        }
+        shadow.append(stage); parent.append(host);
+        const sync = () => {
+            if (!host) return;
+            host.hidden = document.hidden || !!window.currentActiveExamId ||
+                document.body.classList.contains('exam-active') || document.body.classList.contains('wfx-paused');
+            stage.classList.toggle('cupid-still', document.body.classList.contains('wfx-low-power'));
+        };
+        events = new AbortController();
+        document.addEventListener('visibilitychange', sync, { signal: events.signal });
+        observer = new MutationObserver(sync);
+        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+        sync();
+    }
+    const CSS='css/valentine.css?v=20261015.regular-fix1';
+    const paused=()=>document.hidden||!!window.currentActiveExamId||window.isExamVisualItemsSuspended===true||document.body.classList.contains('exam-active')||document.body.classList.contains('wfx-paused');
+    const still=()=>matchMedia('(prefers-reduced-motion: reduce)').matches||document.body.classList.contains('wfx-low-power');
+    function ensureCSS(){if(document.getElementById('valentine-regular-css'))return;const link=document.createElement('link');link.id='valentine-regular-css';link.rel='stylesheet';link.href=CSS;document.head.append(link);}
+    let pet=null,petAura=null,petEvents=null,petObserver=null,petSaved={},petTimer=null,burst=null,petReady=0;
+    function petLayer(cls,art,parent){
+        const node=document.createElement('div');node.className=cls;node.setAttribute('aria-hidden','true');node.style.setProperty('pointer-events','none','important');
+        const shadow=node.attachShadow({mode:'open'});shadow.innerHTML=`<link rel="stylesheet" href="${CSS}"><div class="cpr-stage" style="visibility:hidden">${art}</div>`;
+        const css=shadow.querySelector('link'),stage=shadow.querySelector('.cpr-stage');
+        const show=()=>{if(node.isConnected)stage.style.removeProperty('visibility');};css.addEventListener('load',show,{once:true});parent.append(node);if(css.sheet)show();return node;
+    }
+    function clearBurst(){clearTimeout(petTimer);petTimer=null;burst?.remove();burst=null;}
+    function clearPet(){
+        petEvents?.abort();petObserver?.disconnect();clearBurst();petAura?.remove();
+        if(pet){pet.classList.remove('cpr-character');for(const [key,value]of Object.entries(petSaved))value===null?pet.removeAttribute(key):pet.setAttribute(key,value);}
+        pet=petAura=petEvents=petObserver=null;petSaved={};petReady=0;
+    }
+    function petUltimate(){
+        if(!pet?.isConnected||paused()||still()||pet.parentElement?.hidden||pet.parentElement?.style.display==='none'||pet.parentElement?.dataset.petDragged==='1'||performance.now()<petReady)return false;
+        petReady=performance.now()+6500;clearBurst();
+        burst=petLayer('cpr-ultimate',`<div class="cpr-letter"><div class="cpr-letter-paper"><i>♡</i><span>MỘT LỜI HẸN NHỎ</span></div><div class="cpr-envelope"></div><div class="cpr-envelope-flap"></div></div>${Array.from({length:8},(_,i)=>`<i class="cpr-message-heart" style="--i:${i}">♡</i>`).join('')}`,document.body);
+        petTimer=setTimeout(clearBurst,3200);return true;
+    }
+    function mountPet(){
+        clearPet();ensureCSS();pet=document.getElementById('virtual-pet-img');if(!pet)return;
+        petSaved=Object.fromEntries(['title','role','tabindex'].map(key=>[key,pet.getAttribute(key)]));pet.classList.add('cpr-character');pet.title='Cupid · Chạm gửi Một Lời Hẹn Nhỏ';pet.setAttribute('role','button');pet.tabIndex=0;
+        petAura=petLayer('cpr-aura',`<div class="cpr-halo"></div><div class="cpr-wing cpr-wing-left"></div><div class="cpr-wing cpr-wing-right"></div>${Array.from({length:5},(_,i)=>`<i class="cpr-pet-heart" style="--i:${i}">♡</i>`).join('')}`,pet.parentElement);
+        const sync=()=>{if(!pet?.isConnected){clearPet();return;}const hidden=paused()||pet.parentElement?.hidden||pet.parentElement?.style.display==='none';if(petAura.hidden!==!!hidden)petAura.hidden=!!hidden;petAura.shadowRoot.querySelector('.cpr-stage').classList.toggle('cpr-still',still());if(hidden||still())clearBurst();};
+        petEvents=new AbortController();const options={signal:petEvents.signal};
+        pet.addEventListener('click',petUltimate,options);pet.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();petUltimate();}},options);
+        document.addEventListener('visibilitychange',sync,options);matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change',sync,options);
+        petObserver=new MutationObserver(sync);petObserver.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class','style','hidden']});sync();
+    }
+    window.ValentineRegularRuntime = { mountEffect, clearEffect, ensureCSS, mountPet, clearPet, petUltimate };
+
+})();
+
 /* Valentine, five-layer premium runtime. No asset/account writes. */
 (() => {
     'use strict';
     if (window.ValentinePremiumRuntime) return;
-    const CSS = 'css/valentine.css?v=20261010.vlt4';
+    const CSS = 'css/valentine.css?v=20261015.regular-fix1';
     const HEART = 'M12 21C9 18 1 13 1 7C1 1 9 -1 12 5C15 -1 23 1 23 7C23 13 15 18 12 21Z';
     const PETAL = 'M3 22C-4 9 3 -2 16 2C27 7 20 19 3 22Z';
     const svg = (body, box = '0 0 24 24') => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${box}" aria-hidden="true">${body}</svg>`;
@@ -204,4 +287,104 @@
         }
     };
     window.ValentinePremiumRuntime=runtime;
+})();
+/* Juliet · Verona theatre. Original stained-glass architecture; independent regular stationery/butterfly suite. */
+(() => {
+ 'use strict';
+ const CSS='css/valentine.css?v=20261015.regular-fix1';
+ const svg=(art,box='0 0 600 800')=>`<svg viewBox="${box}" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" aria-hidden="true">${art}</svg>`;
+ const many=(n,fn)=>Array.from({length:n},(_,i)=>fn(i)).join('');
+ const reduced=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const paused=()=>document.hidden||!!window.currentActiveExamId||window.isExamVisualItemsSuspended===true||document.body.classList.contains('exam-active')||document.body.classList.contains('wfx-paused');
+ const quiet=()=>reduced()||document.body.classList.contains('wfx-low-power');
+ const count=n=>Math.max(3,Math.min(n,window.EffectQualityManager?.getRecommendedCount?.(n)??n));
+ function ensureCSS(){if(document.getElementById('juliet-css'))return;const l=document.createElement('link');l.id='juliet-css';l.rel='stylesheet';l.href=CSS;document.head.append(l);}
+ function host(cls,art,parent=document.body){
+  const e=document.createElement('div');e.className=cls;e.setAttribute('aria-hidden','true');e.style.setProperty('pointer-events','none','important');
+  e.attachShadow({mode:'open'}).innerHTML=`<link rel="stylesheet" href="${CSS}"><div class="jlt-root" style="visibility:hidden">${art}</div>`;
+  const root=e.shadowRoot.querySelector('.jlt-root'),css=e.shadowRoot.querySelector('link');
+  const reveal=()=>{if(e.isConnected)root.style.removeProperty('visibility');};
+  css.addEventListener('load',reveal,{once:true});parent.append(e);if(css.sheet)reveal();return e;
+ }
+ // Radial lancet tracery, cut glass, carved stone; no borrowed Cupid geometry.
+ function rosette(){return svg(`<circle cx="150" cy="150" r="138"/><circle cx="150" cy="150" r="123"/>${many(12,i=>`<g transform="rotate(${i*30} 150 150)"><path d="M150 25Q183 78 150 126Q117 78 150 25Z" fill="${i%2?'#9e416a55':'#d5b57755'}"/><path d="M150 34V108M139 66H161"/><path d="M150 4 156 14 150 24 144 14Z" fill="#f3d8a2"/></g>`)}<circle cx="150" cy="150" r="23"/><path d="M150 128 172 150 150 172 128 150Z" fill="#eacb8c66"/>`,'0 0 300 300');}
+ function arch(){return svg(`<path class="jlt-glass" d="M50 790V270Q50 150 300 28Q550 150 550 270V790Z"/><path d="M25 790V265Q25 130 300 4Q575 130 575 265V790M50 790V270Q50 150 300 28Q550 150 550 270V790M80 790V280Q80 180 300 62Q520 180 520 280V790M300 62V790M80 345H520M80 540H520M190 190V790M410 190V790"/>${many(5,i=>`<path d="M80 ${390+i*75} 190 ${345+i*75} 300 ${390+i*75} 410 ${345+i*75} 520 ${390+i*75}"/>`)}${many(8,i=>`<path d="M${50+i*70} 760v-50q35-60 70 0v50"/>`)}<path d="M25 765H575V790H25Z" fill="#ac805333"/>`);}
+ function quill(){return svg('<path d="M20 160Q112 11 150 8Q168 55 38 148L20 160ZM48 130 149 10M72 101 106 98M91 75 124 71M111 49 136 43M58 118 53 91M77 89 77 64M99 61 102 37"/>','0 0 170 170');}
+ function butterfly(i){return `<span class="jlr-butterfly" style="--i:${i};--x:${(i*37+8)%96}%;--y:${(i*29+12)%90}%;--d:${10+i%5*2}s"><b></b><b></b><em></em></span>`;}
+ // Carved Verona roses: layered pointed petals, engraved leaves and pearl centres.
+ function veronaRose(){return `<g>${many(8,i=>`<path transform="rotate(${i*45})" d="M0-5C-32-18-29-47 0-55C29-47 32-18 0-5Z" fill="${i%2?'#9b3c62':'#c66e84'}" stroke="#efbc99"/>`)}${many(6,i=>`<path transform="rotate(${i*60+15})" d="M0-3C-17-8-21-28 0-35C21-28 17-8 0-3Z" fill="${i%2?'#e9a4ac':'#b85973'}" stroke="#f8d5b2"/>`)}<path d="M-9 5C-25-11 1-28 13-13C26 3 5 22-8 9C-18-3-1-12 6-4C12 5 0 11-3 4" stroke="#ffe5b8" fill="#914258"/><circle r="3" fill="#ffe9bc"/></g>`;}
+ function gardenCorner(){return svg(`<path d="M5 270V72Q5 5 72 5H270M15 270V78Q15 15 78 15H270M24 245V86Q24 24 86 24H245" stroke="#d6ac70"/><path d="M27 243C80 174 12 91 115 53S214 73 251 25M31 226C129 200 78 103 159 78M45 155C-5 71 93 26 168 37" stroke="#b28b61"/>${many(8,i=>`<g transform="translate(${36+i*25} ${180-i*20}) rotate(${-75+i*14})"><path d="M0 0C-33-4-31-25-41-36C-17-34 2-20 0 0Z" fill="${i%2?'#66887b':'#9bad8a'}" stroke="#d5c49a"/><path d="M0 0-35-30M-10-10-25-8M-20-18-24-29" stroke="#e5d6a9"/><path d="M1-2C5-33 31-35 38-45C42-17 24 0 1-2Z" fill="#798c7c" stroke="#e6d2a5"/></g>`)}<g transform="translate(64 64) scale(.85)">${veronaRose()}</g><g transform="translate(133 41) scale(.5) rotate(20)">${veronaRose()}</g><g transform="translate(42 137) scale(.48) rotate(-25)">${veronaRose()}</g>${many(11,i=>`<circle cx="${36+i*17}" cy="${44+(i%3)*14}" r="${i%3===0?2.8:1.5}" fill="#ffe7ba"/>`)}<path d="M9 170Q92 93 136 111Q91 131 103 173Q60 130 9 170Z" fill="#b9657855" stroke="#deb58a"/>`,'0 0 280 280');}
+ function pendant(i){return `<div class="jlt-pendant" style="--i:${i};--length:${74+(i%3)*28}px"><div class="jlt-pendant-chain"></div>${svg('<path d="M20 1 36 25 20 58 4 25Z" fill="#b05a7866" stroke="#f6d7a2"/><path d="M20 1V58M4 25H36M20 1 12 25 20 58 28 25Z" stroke="#f3c997"/><circle cx="20" cy="25" r="4" fill="#fff2cb"/>','0 0 40 60')}<i></i></div>`;}
+ function worldArt(){return `<div class="jlt-atmosphere"></div><div class="jlt-arch left">${arch()}</div><div class="jlt-arch right">${arch()}</div><div class="jlt-rose-window">${rosette()}</div><div class="jlt-canopy">${svg('<path d="M0 10Q150 84 300 10Q450 84 600 10M0 17Q150 91 300 17Q450 91 600 17M0 31Q150 106 300 31Q450 106 600 31" stroke="#d5aa73"/>'+many(19,i=>`<path d="M${i*33} 16v${18+(i%3)*9}m-3-3 3 5 3-5" stroke="#d9b889"/><circle cx="${i*33}" cy="${40+(i%3)*9}" r="2" fill="#ffe4ac"/>`),'0 0 600 100')}</div><div class="jlt-pendants">${many(7,pendant)}</div><div class="jlt-lights">${many(5,i=>`<i style="--i:${i}"></i>`)}</div><div class="jlt-chandelier">${svg('<path d="M300 0V80M170 0V46M430 0V46M170 46Q300 160 430 46M210 72V110M390 72V110M260 95V139M340 95V139M294 80 300 65 306 80 300 96ZM164 46 170 32 176 46 170 61ZM424 46 430 32 436 46 430 61Z"/>','0 0 600 160')}</div>${many(4,i=>`<div class="jlt-garden-corner jlt-garden-${i}">${gardenCorner()}</div>`)}<div class="jlt-balcony">${svg('<path d="M0 20H1200M0 28H1200M0 88H1200M0 94H1200"/>'+many(24,i=>`<g transform="translate(${i*50} 0)"><path d="M25 28V88M25 32C-5 36-5 69 25 77C55 69 55 36 25 32ZM25 48 32 57 25 66 18 57Z"/><circle cx="25" cy="20" r="4" fill="#d7b47e"/></g>`),'0 0 1200 100')}</div>${many(count(innerWidth<650?8:16),i=>`<div class="jlt-floating-petal" style="--i:${i};--x:${i%2===0?2+(i*7)%20:78+(i*7)%20}%;--d:${14+i%5*3}s;--delay:${-i*2.3}s"><i></i></div>`)}${many(count(innerWidth<650?12:24),i=>`<i class="jlt-prism" style="--x:${(i*41+3)%100}%;--y:${(i*31+9)%100}%;--i:${i}"></i>`)}<div class="jlt-velvet-edge"></div>`;}
+ function auraArt(){return `<div class="jlt-aura-window">${arch()}</div><div class="jlt-aura-rosette">${rosette()}</div><div class="jlt-aura-quill left">${quill()}</div><div class="jlt-aura-quill right">${quill()}</div><div class="jlt-pedestal"><i></i><i></i><i></i></div>${many(7,i=>`<i class="jlt-jewel" style="--i:${i}"></i>`)}`;}
+ function ultimateArt(){return `<div class="jlt-stage-night"></div><div class="jlt-stage-rays">${many(10,i=>`<i style="--i:${i}"></i>`)}</div><div class="jlt-curtain left"></div><div class="jlt-curtain right"></div><div class="jlt-stage-columns">${many(4,i=>`<div style="--i:${i}">${arch()}</div>`)}</div><div class="jlt-stage-rosette">${rosette()}</div><div class="jlt-stage-floor">${svg(many(16,i=>`<path d="M600 0 ${i*90-100} 350"/>`)+many(7,i=>`<path d="M0 ${i*i*8}H1200"/>`),'0 0 1200 350')}</div><div class="jlt-score">${svg(many(7,i=>`<path d="M0 ${80+i*22}Q350 ${i*22} 600 ${80+i*22}T1200 ${80+i*22}"/>`),'0 0 1200 300')}</div><div class="jlt-oath-book"><div></div><div></div><i>${quill()}</i></div><div class="jlt-title"><small>JULIET · THÀNH VERONA</small><strong>LỜI THỀ<br>BẤT DIỆT</strong><span>Một lời hẹn, vượt qua ngàn mùa hoa.</span></div><div class="jlt-crown">${svg('<path d="M15 90 0 20 60 55 100 0 140 55 200 20 185 90ZM15 90H185V108H15ZM40 83 45 70 50 83M150 83 155 70 160 83M92 78 100 60 108 78"/>','0 0 200 110')}</div>${many(count(36),i=>`<i class="jlt-stage-glint" style="--i:${i};--x:${(i*43+4)%100}%;--y:${(i*37+8)%100}%"></i>`)}<div class="jlt-stage-vignette"></div>`;}
+ let pet=null,mode='',world=null,aura=null,events=null,observer=null,ready=0,lastClick=-1000,markFrame=0;
+ let saved={},tagged=new Map(),transients=new Set(),timers=new Set();
+ function removeTransient(e){e?.remove();transients.delete(e);}
+ function transient(cls,art,ms){const e=host(cls,art);transients.add(e);const timer=setTimeout(()=>{removeTransient(e);timers.delete(timer);},ms);timers.add(timer);return e;}
+ function clearTransient(){transients.forEach(e=>e.remove());transients.clear();timers.forEach(clearTimeout);timers.clear();}
+ const immune='.ui-theme-immune,.store-theme-locked,[data-theme-immune="true"],.luxury-product-card,.store-item-card';
+ function markInterface(){
+  if(mode!=='premium')return;
+  for(const [selector,cls] of [
+   ['.sidebar,.sidebar-header,.sidebar-nav','jlt-navigation'],
+   ['.modal-content,.popup-content,.assignment-card,.stat-card,.dashboard-card,.card,.content-section','jlt-surface'],
+   ['h1,h2,h3,.modal-title,.section-title','jlt-heading'],
+   ['button,.btn,.nav-item','jlt-control'],
+   ['input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),select,textarea','jlt-field']]){
+   document.querySelectorAll(selector).forEach(el=>{if(el.closest(immune)||el.closest('#virtual-pet-container'))return;if(!el.classList.contains(cls)){el.classList.add(cls);if(!tagged.has(el))tagged.set(el,new Set());tagged.get(el).add(cls);}});
+  }
+ }
+ function sync(){
+  if(!pet?.isConnected){clearPet();return;}
+  const hidden=paused()||pet.parentElement?.hidden||pet.parentElement?.style.display==='none';
+  for(const h of [world,aura])if(h){if(h.hidden!==hidden)h.hidden=hidden;h.shadowRoot.querySelector('.jlt-root')?.classList.toggle('jlt-still',quiet());}
+  document.documentElement.classList.toggle('jlt-suspended',hidden);
+  if(hidden||quiet())clearTransient();
+ }
+ function clickAt(x,y){
+  if(mode!=='premium'||paused()||quiet()||!pet?.isConnected||performance.now()-lastClick<160)return false;
+  lastClick=performance.now();
+  const e=transient('jlt-click',`<div class="jlt-click-seal">${rosette()}</div>${many(6,i=>`<i class="jlt-click-chip" style="--i:${i}"></i>`)}`,1250);
+  e.style.left=x+'px';e.style.top=y+'px';return true;
+ }
+ function ultimate(){
+  if(!pet||paused()||quiet()||performance.now()<ready||pet.parentElement?.dataset.petDragged==='1')return false;
+  ready=performance.now()+(mode==='premium'?16000:6500);
+  if(mode==='premium'){
+   const e=transient('jlt-ultimate',ultimateArt(),8200);e.dataset.phase='curtain';
+   for(const [ms,phase]of [[1300,'glass'],[3000,'book'],[4400,'oath'],[6900,'farewell']]){const t=setTimeout(()=>{if(e.isConnected)e.dataset.phase=phase;timers.delete(t);},ms);timers.add(t);}
+  }else{
+   transient('jlr-ultimate',`<div class="jlr-music-box"><div class="jlr-lid"></div><div class="jlr-box-base"></div><div class="jlr-dancer">${butterfly(0)}</div><strong>KHÚC NHẠC HẸN ƯỚC</strong></div>${many(7,i=>`<span class="jlr-note" style="--i:${i}">${i%2?'♪':'♫'}</span>`)}`,3500);
+  }return true;
+ }
+ function clearPet(){
+  events?.abort();observer?.disconnect();cancelAnimationFrame(markFrame);markFrame=0;clearTransient();world?.remove();aura?.remove();
+  for(const [el,classes]of tagged)classes.forEach(c=>el.classList.remove(c));tagged.clear();
+  document.documentElement.classList.remove('jlt-equipped','jlt-suspended');
+  if(pet){pet.classList.remove('jlt-character','jlr-character');for(const [k,v]of Object.entries(saved))v===null?pet.removeAttribute(k):pet.setAttribute(k,v);}
+  pet=world=aura=events=observer=null;mode='';saved={};ready=0;lastClick=-1000;
+ }
+ function mountPet(premium){
+  clearPet();ensureCSS();pet=document.getElementById('virtual-pet-img');if(!pet)return;mode=premium?'premium':'regular';
+  saved=Object.fromEntries(['title','role','tabindex'].map(k=>[k,pet.getAttribute(k)]));pet.classList.add(premium?'jlt-character':'jlr-character');
+  pet.title=premium?'Juliet · Chạm mở Lời Thề Bất Diệt':'Juliet · Chạm mở Khúc Nhạc Hẹn Ước';pet.setAttribute('role','button');pet.tabIndex=0;
+  events=new AbortController();const opt={signal:events.signal};
+  aura=host(premium?'jlt-aura':'jlr-aura',premium?auraArt():`<div class="jlr-doily"></div><div class="jlr-ribbon"></div>${many(4,butterfly)}`,pet.parentElement);
+  if(premium){document.documentElement.classList.add('jlt-equipped');world=host('jlt-world',worldArt());markInterface();document.addEventListener('pointerdown',e=>{if(e.button===0&&!pet?.contains(e.target))clickAt(e.clientX,e.clientY);},opt);}
+  pet.addEventListener('click',ultimate,opt);pet.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();ultimate();}},opt);
+  document.addEventListener('visibilitychange',sync,opt);matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change',sync,opt);
+  observer=new MutationObserver(()=>{sync();if(mode==='premium'&&!markFrame)markFrame=requestAnimationFrame(()=>{markFrame=0;markInterface();});});
+  observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class','style','hidden']});sync();
+ }
+ let effect=null,effectEvents=null,effectObserver=null;
+ function clearEffect(){effectEvents?.abort();effectObserver?.disconnect();effect?.remove();effect=effectEvents=effectObserver=null;}
+ function mountEffect(){
+  clearEffect();ensureCSS();const parent=document.getElementById('global-effect-container');if(!parent)return;
+  effect=host('jlr-weather',`<div class="jlr-paper-light"></div>${many(count(18),butterfly)}<div class="jlr-pressed-flowers">${many(5,i=>`<i style="--i:${i}">✼</i>`)}</div>`,parent);
+  const update=()=>{if(effect){effect.hidden=paused();effect.shadowRoot.querySelector('.jlt-root').classList.toggle('jlt-still',quiet());}};
+  effectEvents=new AbortController();document.addEventListener('visibilitychange',update,{signal:effectEvents.signal});matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change',update,{signal:effectEvents.signal});
+  effectObserver=new MutationObserver(update);effectObserver.observe(document.body,{attributes:true,attributeFilter:['class']});update();
+ }
+ window.JulietRuntime={isPremiumActive:()=>mode==='premium',ensureCSS,mountPremium:()=>mountPet(true),mountRegularPet:()=>mountPet(false),clearPet,mountEffect,clearEffect,ultimate,clickAt,implementedLayers:['world-effect','interface','pet-realm','global-click','ultimate']};
 })();

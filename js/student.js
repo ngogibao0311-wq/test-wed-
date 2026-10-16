@@ -610,7 +610,7 @@ window.syncStudentLazyStoreRuntime =
                         'function'
                     ) {
                         await Promise.resolve(
-                            applyEquippedItems()
+                            applyEquippedItems({ skipUnchanged: true })
                         );
                     }
 
@@ -1004,6 +1004,7 @@ function installStudentEquipmentAccessGuards() {
 }
 
 window.clearStudentStoreEquipmentRuntime = function () {
+    window.__studentAppliedEquipmentSignature = null;
     window.ThatTichRuntime?.clearPet();
     window.LuGuangRuntime?.clearPet();
     window.AudreyHallRuntime?.clearPet();
@@ -1019,6 +1020,8 @@ window.clearStudentStoreEquipmentRuntime = function () {
     window.TinhMongPremiumRuntime?.clear();
     window.EternalWinterPremiumRuntime?.clear();
     window.ValentinePremiumRuntime?.clear();
+    window.JulietRuntime?.clearPet();
+    window.ValentineRegularRuntime?.clearPet();
     // Một manager lỗi không được ngăn các manager còn lại dọn hiệu ứng.
     const safely = action => {
         try { action(); } catch (error) {
@@ -4406,7 +4409,7 @@ function normalizeStoreItemId(value) {
  * giá phải là số và lớn hơn 0.
  */
 function isCoinPurchasableStoreItem(item) {
-    if (item?.currency === 'that_tich_coin' || /^(pet|theme|effect|frame|background)_(nguu_lang|chuc_nu)_regular_1$|^pet_(nguu_lang|chuc_nu)_premium_1$/.test(item?.id || '')) return false;
+    if (['that_tich_coin','love_coin'].includes(item?.currency) || /_valentine_(cupid|juliet)_/.test(item?.id || '') || [item?.tag, ...(Array.isArray(item?.tags) ? item.tags : [])].some(tag => ['Thất Tịch','Valentine'].includes(tag)) || /^(pet|theme|effect|frame|background)_(nguu_lang|chuc_nu)_regular_1$|^pet_(nguu_lang|chuc_nu)_premium_1$/.test(item?.id || '')) return false;
     if (!item) return false;
 
     if (
@@ -5336,7 +5339,7 @@ window.onload = async function () {
     }
 
     Object.assign(currentUser, realUser);
-    void window.ThatTichWallet?.initialize({...currentUser}).catch(error => console.warn("[Xu Thất Tịch]", error));
+    void window.ThatTichWallet?.initialize({...currentUser}).catch(error => console.warn("[Xu tình yêu]", error));
 
     window.applyStudentStoreGameAccessState(realUser.storeGameAccessEnabled);
 
@@ -5608,13 +5611,13 @@ window.onload = async function () {
     listenFirebase(
         db.ref('schedule'),
         'value',
-        async () => {
+        async snapshot => {
 
             if (
                 typeof loadScheduleStudent ===
                 'function'
             ) {
-                await loadScheduleStudent();
+                await loadScheduleStudent(snapshot);
             }
 
             if (startupLoader) {
@@ -5668,8 +5671,9 @@ window.onload = async function () {
         db.ref('.info/serverTimeOffset'),
         'value',
         snapshot => {
-            window.luckyWheelServerTimeOffset =
-                Number(snapshot.val()) || 0;
+            const offset = Number(snapshot.val()) || 0;
+            window.luckyWheelServerTimeOffset = offset;
+            window.__serverTimeOffset = offset;
 
             if (
                 typeof renderLuckyWheelGoldenHourNotice === 'function'
@@ -5678,6 +5682,49 @@ window.onload = async function () {
             }
         }
     );
+
+    function getStudentSyncedNow() {
+        const offset = Number(window.__serverTimeOffset ?? window.luckyWheelServerTimeOffset ?? 0);
+        return new Date(Date.now() + offset);
+    }
+    window.getStudentSyncedNow = getStudentSyncedNow;
+
+    async function getMySubmissionsDB({ fresh = false } = {}) {
+        const username = String(currentUser?.username || '').trim();
+        if (!username) return [];
+        const authUser = firebase.auth().currentUser;
+        if (!authUser) throw new Error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+        const token = fresh ? await authUser.getIdToken() : null;
+        // SDK once/get may reuse an active listener's local snapshot. Before
+        // saving, use authenticated scoped REST reads and never fall back to cache.
+        const rows = await Promise.all(
+            ['studentUsername', 'username', 'studentUser', 'studentId'].map(async field => {
+                if (!fresh) {
+                    const snapshot = await db.ref('submissions').orderByChild(field).equalTo(username).once('value');
+                    return snapshot.val();
+                }
+                const url = new URL(db.ref('submissions').toString().replace(/\/$/, '') + '.json');
+                url.searchParams.set('orderBy', JSON.stringify(field));
+                url.searchParams.set('equalTo', JSON.stringify(username));
+                url.searchParams.set('auth', token);
+                const response = await fetch(url.toString(), { cache: 'no-store' });
+                if (!response.ok) throw new Error('Không đọc được bài nộp mới nhất. Vui lòng thử lại trước khi nộp.');
+                return response.json();
+            })
+        );
+        if (String(currentUser?.username || '').trim() !== username || firebase.auth().currentUser?.uid !== authUser.uid) {
+            throw new Error('Tài khoản đã thay đổi. Vui lòng tải lại trang trước khi tiếp tục.');
+        }
+        const own = new Map();
+        rows.forEach(data => {
+            Object.entries(data || {}).forEach(([key, value]) => {
+                if (getStudentCompatSubmissionUsername(value) !== username) return;
+                own.set(key, { ...value, _fbKey: key, id: value.id || key });
+            });
+        });
+        return [...own.values()];
+    }
+    window.getMySubmissionsDB = getMySubmissionsDB;
 
     // Cấu hình Giờ Vàng: dùng listener Firebase trực tiếp để học sinh
     // nhận thay đổi của giáo viên ngay lập tức, không cần F5.
@@ -8634,6 +8681,12 @@ window.applyTeacherAssignmentLocks = async function() {
 };
 
 async function loadAssignments() {
+    // This also enforces deadlines/auto-submit, so it must run even offscreen.
+    if (window.PageWork) return window.PageWork.run('student-assignments', loadAssignmentsCore);
+    return loadAssignmentsCore();
+}
+
+async function loadAssignmentsCore() {
     const assignmentSource =
         Array.isArray(
             window.cachedAssignments
@@ -8655,7 +8708,7 @@ async function loadAssignments() {
             window.cachedSubmissions
         )
             ? window.cachedSubmissions
-            : await getDB('submissions');
+            : await getMySubmissionsDB();
     const list = document.getElementById('assignmentsList');
 
     // Tiến độ video sẽ chỉ tải cho các card thực sự cần render.
@@ -9284,7 +9337,7 @@ async function loadAssignments() {
             [...visibleAssignmentMap.values()]
         );
 
-    assignments.forEach(assign => {
+    assignments.forEach((assign, assignmentOrder) => {
         // [THÊM MỚI] Xử lý mảng đối tượng học sinh
         const targetArr = Array.isArray(assign.targetStudent) ? assign.targetStudent : [assign.targetStudent || 'all'];
         if (!targetArr.includes('all') && !targetArr.includes(currentUser.username)) return;
@@ -9308,7 +9361,7 @@ async function loadAssignments() {
             currentUser.username
         );
 
-        const now = new Date();
+        const now = typeof getStudentSyncedNow === 'function' ? getStudentSyncedNow() : new Date();
         const startTime = assign.startDate ? new Date(assign.startDate.replace(" ", "T")) : new Date(0);
         const endTime = assign.endDate ? new Date(assign.endDate.replace(" ", "T")) : new Date("2100-01-01");
         const isRedoing = mySub && mySub.isRedoing;
@@ -9361,10 +9414,12 @@ async function loadAssignments() {
             : {};
 
         let subState = mySub
-            ? `${mySub.submitTime}_${mySub.grade}_${mySub.isRedoing}_${mySub.isAutoSubmitted}_${mySub.isLateFail}_${mySub.isLateComplete}_${mySub.isEssayMissing}_${mySub.isCheatFail}_${mySub.redoScope || ''}_${redoHistoryForHash.essayMissing ? 'histEssay' : ''}_${redoHistoryForHash.late ? 'histLate' : ''}_${redoHistoryForHash.autoSubmitted ? 'histAuto' : ''}_${redoHistoryForHash.cheat ? 'histCheat' : ''}`
+            ? `${mySub.submitTime}_${mySub.grade}_${mySub.teacherComment || ''}_${mySub.isRedoing}_${mySub.isAutoSubmitted}_${mySub.isLateFail}_${mySub.isLateComplete}_${mySub.isEssayMissing}_${mySub.isCheatFail}_${mySub.redoScope || ''}_${redoHistoryForHash.essayMissing ? 'histEssay' : ''}_${redoHistoryForHash.late ? 'histLate' : ''}_${redoHistoryForHash.autoSubmitted ? 'histAuto' : ''}_${redoHistoryForHash.cheat ? 'histCheat' : ''}`
             : 'none';
         let cardHash =
             `${assign.id}_` +
+            `${assign.title || ''}_` +
+            `${assign.description || ''}_` +
             `${subState}_` +
             `${isGracePeriod}_` +
             `${assign.endDate}_` +
@@ -9403,7 +9458,7 @@ async function loadAssignments() {
 
         if (existingCard && existingCard.getAttribute('data-hash') === cardHash) {
             // NẾU HASH KHÔNG ĐỔI -> Trạng thái y nguyên -> Cập nhật vị trí rồi BỎ QUA vẽ lại DOM
-            existingCard.style.order = assignments.indexOf(assign);
+            existingCard.style.order = assignmentOrder;
             return; // Trả về ngay, bảo vệ con trỏ chuột và text đang gõ của học sinh
         }
 
@@ -9554,7 +9609,7 @@ async function loadAssignments() {
                 });
             }
 
-            let teacherCommentHTML = mySub.teacherComment ? `<div style="background: rgba(253, 203, 110, 0.15); border-left: 4px solid #fdcb6e; padding: 15px; border-radius: 12px; margin-top: 15px;"><p style="margin: 0; color: #d35400;"><strong>💬 Lời nhận xét của Giáo viên:</strong></p><p style="margin-top: 5px; color: #444; white-space: pre-wrap;">${mySub.teacherComment}</p></div>` : '';
+            let teacherCommentHTML = mySub.teacherComment ? `<div style="background: rgba(253, 203, 110, 0.15); border-left: 4px solid #fdcb6e; padding: 15px; border-radius: 12px; margin-top: 15px;"><p style="margin: 0; color: #d35400;"><strong>💬 Lời nhận xét của Giáo viên:</strong></p><p style="margin-top: 5px; color: #444; white-space: pre-wrap;">${window.escapeHTML(mySub.teacherComment)}</p></div>` : '';
 
             let gradeDisplay = 'Chưa chấm';
             if (mySub.isRegrading) {
@@ -9576,7 +9631,7 @@ async function loadAssignments() {
             div.style.position = 'relative'; // Bắt buộc để lớp phủ kính (glassmorphism) định vị chính xác
             div.style.marginBottom = '20px';
 
-            div.innerHTML = `${glassLockHTML}<div class="accordion-header" onclick="${clickHandler}"><div class="accordion-title"><h4>${assign.title}</h4><span>${statusText} ${lateSubmissionBadgeHTML} ${missingEssayBadgeHTML}</span></div><div class="accordion-meta"><span>Điểm: <strong style="${(mySub.grade !== null && mySub.grade !== undefined && mySub.grade !== '' && !mySub.isRegrading) ? 'color:#059669;' : 'color:#d35400;'}">${gradeDisplay}</strong></span><span class="toggle-icon">▼</span></div></div>
+            div.innerHTML = `${glassLockHTML}<div class="accordion-header" onclick="${clickHandler}"><div class="accordion-title"><h4>${window.escapeHTML(assign.title)}</h4><span>${statusText} ${lateSubmissionBadgeHTML} ${missingEssayBadgeHTML}</span></div><div class="accordion-meta"><span>Điểm: <strong style="${(mySub.grade !== null && mySub.grade !== undefined && mySub.grade !== '' && !mySub.isRegrading) ? 'color:#059669;' : 'color:#d35400;'}">${gradeDisplay}</strong></span><span class="toggle-icon">▼</span></div></div>
                 <div id="${uniqueId}" class="accordion-content">
                     <div class="assignment-meta"><p>🕒 <strong>Bạn đã nộp lúc:</strong> ${mySub.submitTime || 'Không rõ'}</p></div>
                     ${violationHTML}
@@ -9592,17 +9647,18 @@ ${window.getSubmissionEssayDisplay(mySub, assign).trim() ? `<div class="ql-edito
                     ${window.AssignmentAppeals?.card(mySub) || ''}
                     ${viewQuestionsBtnHTML}
                 </div>`;
-            div.setAttribute('data-id', assign.id); div.setAttribute('data-hash', cardHash); div.style.order = assignments.indexOf(assign);
+            div.setAttribute('data-id', assign.id); div.setAttribute('data-hash', cardHash); div.style.order = assignmentOrder;
             if (existingCard) { existingCard.replaceWith(div); } else { grades.appendChild(div); }
         }
         // NẾU CHƯA NỘP HOẶC ĐANG LÀM LẠI HOẶC ĐANG TRONG 5 PHÚT TRỄ
         else {
             if (now < startTime) {
                 const div = document.createElement('div'); div.className = 'card submit-box';
-                div.innerHTML = `<h4 style="font-size: 1.3em; color: #764ba2; font-weight: 800; opacity: 0.6;">${assign.title}</h4><div class="assignment-meta" style="opacity: 0.8;"><p>📅 <strong>Hạn làm bài:</strong> Từ <span class="time-highlight">${assign.startDate}</span> đến <span class="time-highlight">${assign.endDate}</span></p></div><div class="glass-alert" style="margin-top: 15px; border-left-color: #667eea; background: rgba(102, 126, 234, 0.1);"><h4 style="color: #444; margin-bottom: 5px;">⏳ Chưa đến thời gian làm bài</h4><p style="margin: 0; font-size: 0.95em;">Hệ thống sẽ tự động mở khóa sau: <strong id="cd-start-${assign.id}" style="color: #667eea; font-size: 1.1em;">...</strong></p></div>`;
-                div.setAttribute('data-id', assign.id); div.setAttribute('data-hash', cardHash); div.style.order = assignments.indexOf(assign);
+                div.innerHTML = `<h4 style="font-size: 1.3em; color: #764ba2; font-weight: 800; opacity: 0.6;">${window.escapeHTML(assign.title)}</h4><div class="assignment-meta" style="opacity: 0.8;"><p>📅 <strong>Hạn làm bài:</strong> Từ <span class="time-highlight">${assign.startDate}</span> đến <span class="time-highlight">${assign.endDate}</span></p></div><div class="glass-alert" style="margin-top: 15px; border-left-color: #667eea; background: rgba(102, 126, 234, 0.1);"><h4 style="color: #444; margin-bottom: 5px;">⏳ Chưa đến thời gian làm bài</h4><p style="margin: 0; font-size: 0.95em;">Hệ thống sẽ tự động mở khóa sau: <strong id="cd-start-${assign.id}" style="color: #667eea; font-size: 1.1em;">...</strong></p></div>`;
+                div.setAttribute('data-id', assign.id); div.setAttribute('data-hash', cardHash); div.style.order = assignmentOrder;
                 if (existingCard) { existingCard.replaceWith(div); } else { list.appendChild(div); }
-                const timer = setInterval(() => { const c = new Date(); if (c >= startTime) { clearInterval(window.assignTimersObj[assign.id]); delete window.assignTimersObj[assign.id]; loadAssignments(); } else { const el = document.getElementById(`cd-start-${assign.id}`); if (el) el.innerText = formatCountdown(startTime - c); } }, 1000); window.assignTimersObj[assign.id] = timer;
+                if (window.assignTimersObj[assign.id]) { clearInterval(window.assignTimersObj[assign.id]); delete window.assignTimersObj[assign.id]; }
+                const timer = setInterval(() => { const c = typeof getStudentSyncedNow === 'function' ? getStudentSyncedNow() : new Date(); if (c >= startTime) { clearInterval(window.assignTimersObj[assign.id]); delete window.assignTimersObj[assign.id]; loadAssignments(); } else { const el = document.getElementById(`cd-start-${assign.id}`); if (el) el.innerText = formatCountdown(startTime - c); } }, 1000); window.assignTimersObj[assign.id] = timer;
             }
             else if (isGracePeriod || (now > endTime && !isRedoing)) {
                 const autoFlagKey = `auto_sub_${assign.id}_${currentUser.username}`;
@@ -10099,17 +10155,21 @@ ${window.getSubmissionEssayDisplay(mySub, assign).trim() ? `<div class="ql-edito
 
                 if (isGracePeriod) {
                     const div = document.createElement('div'); div.className = 'card submit-box';
-                    div.innerHTML = `<h4 style="font-size: 1.3em; color: #764ba2; font-weight: 800; opacity: 0.6;">${assign.title}</h4>
+                    div.innerHTML = `<h4 style="font-size: 1.3em; color: #764ba2; font-weight: 800; opacity: 0.6;">${window.escapeHTML(assign.title)}</h4>
                     <div class="assignment-meta" style="opacity: 0.8;"><p>📅 <strong>Hạn nộp bài:</strong> <span class="time-highlight">${assign.endDate}</span></p></div>
                     <div class="glass-alert" style="margin-top: 15px; border-left-color: #e11d48; background: rgba(225, 29, 72, 0.1);">
                         <h4 style="color: #e11d48; margin-bottom: 5px;">⚠️ Đã quá hạn nộp bài (Trễ)</h4>
                         <p style="margin: 0; font-size: 0.95em;">Hệ thống đã khóa chức năng nộp bài. Bài tập sẽ tự động chuyển hoàn toàn vào kết quả sau: <strong id="cd-late-${assign.id}" style="color: #e11d48; font-size: 1.1em;">...</strong></p>
                     </div>`;
-                    div.setAttribute('data-id', assign.id); div.setAttribute('data-hash', cardHash); div.style.order = assignments.indexOf(assign);
+                    div.setAttribute('data-id', assign.id); div.setAttribute('data-hash', cardHash); div.style.order = assignmentOrder;
                     if (existingCard) { existingCard.replaceWith(div); } else { list.appendChild(div); }
 
+                    if (window.assignTimersObj[assign.id]) {
+                        clearInterval(window.assignTimersObj[assign.id]);
+                        delete window.assignTimersObj[assign.id];
+                    }
                     const timer = setInterval(() => {
-                        const c = new Date();
+                        const c = typeof getStudentSyncedNow === 'function' ? getStudentSyncedNow() : new Date();
                         if (c > gracePeriodEndTime) {
                             clearInterval(window.assignTimersObj[assign.id]);
                             delete window.assignTimersObj[assign.id];
@@ -10560,19 +10620,23 @@ ${window.getSubmissionEssayDisplay(mySub, assign).trim() ? `<div class="ql-edito
                         ? `<span>Giới hạn toàn bài: <strong style="color:#b91c1c;">${Number(assign.examTimeLimitMinutes)} phút</strong></span>`
                         : `<span>Hạn nộp: <strong style="color:#d35400;">${assign.endDate || 'Không giới hạn'}</strong></span>`;
 
-                div.innerHTML = `${glassLockHTML}<div class="accordion-header" onclick="${clickHandler}"><div class="accordion-title"><h4>${assign.title}</h4></div><div class="accordion-meta">${assignmentTimeMetaHTML}<span class="toggle-icon">▼</span></div></div>
+                div.innerHTML = `${glassLockHTML}<div class="accordion-header" onclick="${clickHandler}"><div class="accordion-title"><h4>${window.escapeHTML(assign.title)}</h4></div><div class="accordion-meta">${assignmentTimeMetaHTML}<span class="toggle-icon">▼</span></div></div>
                     <div id="${uniqueId}" class="accordion-content">
                         ${redoNotice}
                         <div class="assignment-meta"><p>📅 <strong>Từ:</strong> ${assign.startDate} <strong>đến</strong> ${assign.endDate}</p>${countdownHTML}</div>
                         ${assignmentContentRaw}
                     </div>`;
 
-                div.setAttribute('data-id', assign.id); div.setAttribute('data-hash', cardHash); div.style.order = assignments.indexOf(assign);
+                div.setAttribute('data-id', assign.id); div.setAttribute('data-hash', cardHash); div.style.order = assignmentOrder;
                 if (existingCard) { existingCard.replaceWith(div); } else { list.appendChild(div); }
 
                 if (!isRedoing || (isRedoing && now <= endTime)) {
+                    if (window.assignTimersObj[assign.id]) {
+                        clearInterval(window.assignTimersObj[assign.id]);
+                        delete window.assignTimersObj[assign.id];
+                    }
                     const timer = setInterval(() => {
-                        const c = new Date();
+                        const c = typeof getStudentSyncedNow === 'function' ? getStudentSyncedNow() : new Date();
                         const timeLeft = endTime - c;
 
                         // TUYỆT ĐỐI BỎ QUA KHÓA 15 GIÂY NẾU ĐANG LÀM LẠI
@@ -10639,7 +10703,8 @@ ${window.getSubmissionEssayDisplay(mySub, assign).trim() ? `<div class="ql-edito
         }
     }
 
-    setTimeout(() => {
+    clearTimeout(window.__studentAssignmentTrackingTimer);
+    window.__studentAssignmentTrackingTimer = setTimeout(() => {
         if (typeof initYouTubeTrackers === 'function') {
             initYouTubeTrackers(assignments);
         }
@@ -11093,7 +11158,7 @@ window.viewAssignmentQuestions = async function (assignId) {
     }
 
     const submissions =
-        await getDB('submissions');
+        await getMySubmissionsDB();
 
     const mySubmission =
         getPreferredStudentSubmission(
@@ -12782,7 +12847,7 @@ async function submitAssignmentCore(assignId, isAuto = false, isCheat = false) {
     if (assign.isLocked || window.isAssignmentTeacherLocked(assignId)) throw new Error('ASSIGNMENT_TEACHER_LOCKED');
 
 
-    const submissions = await getDB('submissions');
+    const submissions = await getMySubmissionsDB({ fresh: true });
     const mySub = getPreferredStudentSubmission(
         submissions,
         assign,
@@ -12790,7 +12855,7 @@ async function submitAssignmentCore(assignId, isAuto = false, isCheat = false) {
     );
     const isRedoing = mySub && mySub.isRedoing;
 
-    const now = new Date();
+    const now = typeof getStudentSyncedNow === 'function' ? getStudentSyncedNow() : new Date();
     const startTime = assign.startDate ? new Date(assign.startDate.replace(" ", "T")) : new Date(0);
     const endTime = assign.endDate ? new Date(assign.endDate.replace(" ", "T")) : new Date("2100-01-01");
 
@@ -13338,7 +13403,7 @@ async function submitAssignmentCore(assignId, isAuto = false, isCheat = false) {
             // Đọc lại dữ liệu mới nhất ngay trước khi lưu,
             // không phụ thuộc dữ liệu đã tải từ trước.
             const latestSubmissions =
-                await getDB('submissions');
+                await getMySubmissionsDB({ fresh: true });
 
             let latestSubmission =
                 getPreferredStudentSubmission(
@@ -15272,8 +15337,14 @@ window.toggleRoadmapView = function (view) {
     }
 };
 
-window.loadScheduleStudent = async function () {
-    const schedules = await getDB('schedule');
+window.loadScheduleStudent = async function (snapshot) {
+    if (window.PageWork?.defer('student-schedule', 'studentScheduleBody', () => window.loadScheduleStudent(snapshot))) return;
+    if (window.PageWork) return window.PageWork.run('student-schedule', () => loadScheduleStudentCore(snapshot));
+    return loadScheduleStudentCore(snapshot);
+};
+
+async function loadScheduleStudentCore(snapshot) {
+    const schedules = typeof snapshot?.val === 'function' ? mapFirebaseCollectionSnapshot(snapshot) : await getDB('schedule');
     const tbody = document.getElementById('studentScheduleBody');
     if (!tbody) return;
     tbody.innerHTML = '';
@@ -16384,7 +16455,7 @@ function getStudentLegacyGradeTicketValueV1(submission) {
 }
 
 window.calculateTotalTickets = async function () {
-    const submissions = await getDB('submissions');
+    const submissions = await getMySubmissionsDB();
 
     const myLegacySubs = submissions.filter(sub =>
         getStudentCompatSubmissionUsername(sub) ===
@@ -16410,13 +16481,14 @@ window.calculateTotalTickets = async function () {
         Number(historicalSnap.val()) || 0;
 
     // Giữ lại toàn bộ vé điểm cũ đã từng có trước V2.
-    const legacyBase = Math.max(
+    let legacyBase = Math.max(
         historicalGradeTickets,
         computedLegacyTickets
     );
 
     if (window.ECONOMY_SERVER_ENABLED !== true && legacyBase > historicalGradeTickets) {
-        await historicalRef.set(legacyBase);
+        const frozen = await historicalRef.transaction(current => Math.max(Number(current) || 0, computedLegacyTickets));
+        legacyBase = Number(frozen.snapshot.val()) || 0;
     }
 
     const bonusRef = db.ref(
@@ -18178,6 +18250,16 @@ function formatStoreCountdown(ms) {
 
 // 1. Hàm lọc và hiển thị vật phẩm ra màn hình (Có kiểm tra Ngày Mở Bán)
 window.filterStore = function (type) {
+    window.currentStoreFilterType = type;
+    if (window.StudentViewPerformance) {
+        window.StudentViewPerformance.schedule('store', () =>
+            renderStudentStoreNow(window.currentStoreFilterType));
+        return;
+    }
+    renderStudentStoreNow(type);
+};
+
+function renderStudentStoreNow(type) {
     if (!window.isStudentStoreSystemOpen()) {
         return window.showStudentStoreSystemLocked();
     }
@@ -18201,7 +18283,7 @@ window.filterStore = function (type) {
     // Đổi màu nút tab hiện tại
     const buttons = document.querySelectorAll('#tab-store .btn-approve');
     buttons.forEach(btn => {
-        if (btn.getAttribute('onclick').includes(`'${type}'`)) {
+        if ((btn.getAttribute('onclick') || '').includes(`'${type}'`)) {
             btn.style.background = '#667eea'; btn.style.color = 'white';
         } else {
             btn.style.background = 'rgba(255,255,255,0.5)'; btn.style.color = '#667eea';
@@ -18209,6 +18291,8 @@ window.filterStore = function (type) {
     });
 
     const items = StoreManager.getItemsByType(type);
+    const ownedIds = new Set(studentOwnedItems);
+    const trialIds = new Set(trialItemsList);
     let htmlContent = '';
     const now = new Date().getTime();
 
@@ -18232,9 +18316,9 @@ window.filterStore = function (type) {
             }
         }
 
-        const isOwned = studentOwnedItems.includes(item.id);
+        const isOwned = ownedIds.has(item.id);
         const isEquipped = studentEquippedItems[item.type] === item.id;
-        const isTrial = trialItemsList.includes(item.id);
+        const isTrial = trialIds.has(item.id);
 
         // Truyền tham số isUpcoming vào trong (Tham số thứ 5)
         htmlContent += StoreManager.renderStoreItem(item, isOwned, isEquipped, isTrial, isUpcoming);
@@ -18256,6 +18340,11 @@ window.filterStore = function (type) {
 
         // Thiết lập chạy ngầm đếm lùi mỗi 1 giây
         window.storeCountdownInterval = setInterval(() => {
+            if (window.StudentViewPerformance && !window.StudentViewPerformance.visible('store')) {
+                clearInterval(window.storeCountdownInterval);
+                window.filterStore(window.currentStoreFilterType);
+                return;
+            }
             const currentTime = new Date().getTime();
             let allStarted = true;
 
@@ -18656,6 +18745,11 @@ async function reconcileStudentPendingMechanisms() {
     const isCurrent = () => !!uid && firebase.auth().currentUser?.uid === uid && String(currentUser?.username || '') === username;
     try {
         const report = await window.PendingMechanismReconciliation.run({ db, username, uid, isCurrent,
+            cancelUnpaid: async (kind,itemId,operation) => {
+                const options=firebase.app?.().options;
+                if(kind!=='purchase'||options?.projectId!=='web-chan-doan-test'||String(options.databaseURL||'').replace(/\/$/,'')!=='https://web-chan-doan-test-default-rtdb.asia-southeast1.firebasedatabase.app')return false;
+                return cancelStudentUnpaidPurchase(username,itemId,operation.operationId,isCurrent);
+            },
             recover: (kind, itemId) => kind === 'trial'
                 ? recoverStudentPaidTrial(itemId, username, true, isCurrent)
                 : recoverStudentPaidPurchase(itemId, username, true, isCurrent)
@@ -18667,8 +18761,26 @@ async function reconcileStudentPendingMechanisms() {
                 ' giao dịch đã thanh toán, không trừ thêm Coin.' + (report.review.length
                     ? ' Còn ' + report.review.length + ' giao dịch cần giáo viên kiểm tra; chưa thay đổi tài sản ở các giao dịch này.' : ''));
         }
-        if (report.review.length) console.warn('Giao dịch cần kiểm tra:', report.review);
+        if (report.review.length) console.warn('Giao dịch cần kiểm tra:', JSON.stringify(report.review));
     } catch (error) { console.warn('Chưa thể đối soát vật phẩm đang chờ. Sẽ thử lại khi mở web.', error); }
+}
+
+// Only abandon a protocol-v2 reservation once its atomic charge is known not
+// to have happened. Never refund or remove inventory from an uncertain debit.
+async function cancelStudentUnpaidPurchase(username,itemId,operationId,isCurrent,denied=false) {
+    if(!isCurrent())throw Error('ACCOUNT_CHANGED');
+    const ref=db.ref(`store_purchase_ops/${username}/${itemId}`);
+    const [operation,receipt,inventory]=await Promise.all([
+        ref.once('value'),db.ref(`store_charge_receipts/${username}/${operationId}`).once('value'),db.ref(`student_inventory/${username}/${itemId}`).once('value')
+    ]).then(rows=>rows.map(row=>row.val()));
+    if(!isCurrent())throw Error('ACCOUNT_CHANGED');
+    if(operation?.operationId!==operationId||operation.protocolVersion!==2||operation.atomicCharge===true||receipt||inventory?.purchaseOperationId===operationId||!['reserved','debit_pending'].includes(operation.status))return false;
+    if(!denied&&!(Number(operation.startedAt)+600000<=Date.now()))return false;
+    const result=await runStudentPendingInventoryTransaction(ref,current=>{
+        if(!isCurrent()||current?.operationId!==operationId||current.protocolVersion!==2||current.atomicCharge===true||!['reserved','debit_pending'].includes(current.status))return;
+        return {...current,status:'failed_refunded',failureReason:'unpaid_reservation_released',updatedAt:Date.now()};
+    });
+    return result.committed;
 }
 
 async function grantStudentPaidPurchase(username, itemId, operation) {
@@ -18993,7 +19105,7 @@ window.trialItem = async function (itemId) {
             );
 
         if (!item) return;
-        if (['mid_autumn_coin','that_tich_coin'].includes(item.currency)) return (await AppDialog.alert('Vật phẩm này không dùng thử bằng Coin thường.'));
+        if (['mid_autumn_coin','that_tich_coin','love_coin'].includes(item.currency)) return (await AppDialog.alert('Vật phẩm này không dùng thử bằng Coin thường.'));
         const sale = StoreManager.getAnnualSaleState?.(item);
         if (sale?.hasAnnualSale && !sale.isOpen) return (await AppDialog.alert('Vật phẩm đang ngoài thời gian mở bán.'));
 
@@ -19005,7 +19117,7 @@ window.trialItem = async function (itemId) {
         }
 
         if (
-            item.isNonCoin &&
+            item.rewardSource === 'bellum_completion_reward' || item.isNonCoin &&
             (
                 !item.price ||
                 Number(item.price) <= 0
@@ -19285,7 +19397,7 @@ window.buyItem = async function (itemId, isUpgradingFromTrial = false) {
 
     const item = StoreManager.getItemById(itemId);
     if (!item) return;
-    if (item.currency === 'that_tich_coin') return window.ThatTichWallet.redeem(itemId);
+    if (['that_tich_coin','love_coin'].includes(item.currency)) return window.ThatTichWallet.redeem(itemId, item.currency);
     if (item.isLocked) return (await AppDialog.alert("🔒 Vật phẩm này hiện đang bị Giáo viên khóa!"));
 
     try {
@@ -19347,7 +19459,7 @@ window.buyItem = async function (itemId, isUpgradingFromTrial = false) {
             .redeem(itemId);
     }
 
-    if (item.isNonCoin && (!item.price || item.price <= 0)) return (await AppDialog.alert(`🎁 Vật phẩm sự kiện!`));
+    if (item.rewardSource === 'bellum_completion_reward' || item.isNonCoin && (!item.price || item.price <= 0)) return (await AppDialog.alert(`🎁 Vật phẩm sự kiện!`));
 
     const coinRef = db.ref('student_coins/' + currentUser.username);
     const snap = await coinRef.once('value');
@@ -19630,7 +19742,7 @@ window.processPayment = async function (
     const operationUser = { ...currentUser };
     try {
         paymentItem = StoreManager.getItemById(itemId);
-        if (paymentItem?.currency === "that_tich_coin") throw new Error("Vật phẩm này chỉ đổi bằng Xu Thất Tịch. Hãy đóng thanh toán Coin và chọn Đổi xu.");
+        if (['that_tich_coin','love_coin'].includes(paymentItem?.currency)) throw new Error("Vật phẩm này dùng xu sự kiện. Hãy đóng thanh toán Coin và chọn loại xu trên thẻ.");
         if (window.ECONOMY_SERVER_ENABLED === true) {
             const select = document.getElementById('checkoutDiscount');
             const selected = select && select.selectedIndex > 0 && select.value !== '0';
@@ -20271,6 +20383,8 @@ window.suspendExamVisualItems = function () {
     window.TinhMongPremiumRuntime?.clear();
     window.EternalWinterPremiumRuntime?.clear();
     window.ValentinePremiumRuntime?.clear();
+    window.JulietRuntime?.clearPet();
+    window.ValentineRegularRuntime?.clearPet();
     const effectContainer =
         document.getElementById('global-effect-container');
 
@@ -20335,6 +20449,8 @@ window.restoreExamVisualItems = function () {
     window.TinhMongPremiumRuntime?.clear();
     window.EternalWinterPremiumRuntime?.clear();
     window.ValentinePremiumRuntime?.clear();
+    window.JulietRuntime?.clearPet();
+    window.ValentineRegularRuntime?.clearPet();
     const effectContainer =
         document.getElementById('global-effect-container');
 
@@ -20363,7 +20479,7 @@ function getStudentRenderableEquippedInventory(inventory, now = Date.now()) {
     });
 }
 
-window.applyEquippedItems = async function () {
+window.applyEquippedItems = async function (options = {}) {
     installStudentEquipmentAccessGuards();
     if (!window.isStudentStoreGameAccessEnabled()) {
         window.clearStudentStoreEquipmentRuntime();
@@ -20392,6 +20508,19 @@ window.applyEquippedItems = async function () {
 
     installStudentStoreManagerOverrides();
 
+    const renderableInventory = getStudentRenderableEquippedInventory(myInventory);
+    const mustSuspendVisualItems = window.isExamVisualItemsSuspended === true || Boolean(window.currentActiveExamId);
+    const equipmentSignature = JSON.stringify([
+        typeof currentUser !== 'undefined' ? currentUser?.username : '',
+        mustSuspendVisualItems,
+        renderableInventory.map(item => [item.id, StoreManager.getItemById(item.id)])
+    ]);
+    // Background inventory/wallet synchronization must not tear down and spawn
+    // every pet/effect again. Explicit equip/restore calls still force a mount.
+    if (options.skipUnchanged === true &&
+        window.__studentAppliedEquipmentSignature === equipmentSignature) return true;
+    window.__studentAppliedEquipmentSignature = null;
+
     window.KimLienRegularRuntime?.clear();
     window.HacMongRegularRuntime?.clear();
     window.ThanhLanhRegularRuntime?.clear();
@@ -20401,6 +20530,8 @@ window.applyEquippedItems = async function () {
     window.TinhMongPremiumRuntime?.clear();
     window.EternalWinterPremiumRuntime?.clear();
     window.ValentinePremiumRuntime?.clear();
+    window.JulietRuntime?.clearPet();
+    window.ValentineRegularRuntime?.clearPet();
     const effectContainer =
         document.getElementById('global-effect-container');
 
@@ -20416,10 +20547,6 @@ window.applyEquippedItems = async function () {
 
     const petContainer =
         document.getElementById('virtual-pet-container');
-
-    const mustSuspendVisualItems =
-        window.isExamVisualItemsSuspended === true ||
-        Boolean(window.currentActiveExamId);
 
     // Xóa hiệu ứng cũ trước khi áp dụng lại
     if (
@@ -20500,9 +20627,6 @@ window.applyEquippedItems = async function () {
 
     // Chỉ dựng vật phẩm đang dùng được; không chờ lượt quét thu hồi 60 giây.
     // Đây là bộ lọc hiển thị, quyền sở hữu/thời hạn vẫn cần bảo vệ ở server.
-    const renderableInventory =
-        getStudentRenderableEquippedInventory(myInventory);
-
     const hasRenderableTheme = renderableInventory.some(invItem => {
         const itemDef = StoreConfig.items.find(item => item.id === invItem.id);
         return itemDef?.type === 'theme' && itemDef.isLocked !== true;
@@ -20645,6 +20769,8 @@ window.applyEquippedItems = async function () {
             MusicManager.stopMusic();
         }
     }
+    window.__studentAppliedEquipmentSignature = equipmentSignature;
+    return true;
 };
 
 window.renderStudentSurvey = function (surveyData) {
@@ -20934,6 +21060,7 @@ function calculateRoadmapBaseMoney(
     submissions,
     username
 ) {
+    const submissionIndex = window.PageWork?.indexSubmissions(submissions);
     return (assignments || []).reduce((total, assign) => {
         if (!isRoadmapAssignmentForStudent(assign, username)) {
             return total;
@@ -20941,7 +21068,7 @@ function calculateRoadmapBaseMoney(
 
         const sub = getRoadmapSubmission(
             assign,
-            submissions,
+            submissionIndex ? submissionIndex.get(username, assign.id) : submissions,
             username
         );
 
@@ -20959,6 +21086,7 @@ let studentRoadmapRenderPromise = null;
 let studentRoadmapRenderQueued = false;
 
 async function renderStudentRoadmap() {
+    if (window.PageWork?.defer('student-roadmap', 'studentRoadmapBody', renderStudentRoadmap)) return;
     // Ghi nhận có yêu cầu cập nhật mới
     studentRoadmapRenderQueued = true;
 
@@ -20993,11 +21121,16 @@ async function renderStudentRoadmapCore() {
     const body = document.getElementById('studentRoadmapBody');
     if (!body) return;
 
+    const roadmapUsername = currentUser.username;
     const [assignments, submissions, offsetSnap] = await Promise.all([
-        getDB('assignments'),
-        getDB('submissions'),
+        Array.isArray(window.cachedAssignments) ? window.cachedAssignments : getDB('assignments'),
+        Array.isArray(window.cachedSubmissions) ? window.cachedSubmissions
+            : db.ref('submissions').orderByChild('studentUsername').equalTo(roadmapUsername)
+                .once('value').then(mapFirebaseCollectionSnapshot),
         db.ref('student_money_offset/' + currentUser.username).once('value')
     ]);
+    if (currentUser.username !== roadmapUsername || studentRoadmapRenderQueued) return;
+    const submissionIndex = window.PageWork?.indexSubmissions(submissions);
     body.innerHTML = '';
 
     // KIỂM TRA TRẠNG THÁI THAM GIA LỘ TRÌNH CỦA HỌC SINH
@@ -21026,7 +21159,8 @@ async function renderStudentRoadmapCore() {
         isRoadmapAssignmentForStudent(assign, currentUser.username)
     );
     // Sắp xếp bài tập thông minh theo số đếm trong Tiêu đề (VD: Bài 1 -> Bài 2 -> Bài 10)
-    const sortedAssignments = [...myAssignments].sort((a, b) => (a.title || '').localeCompare(b.title || '', 'vi-VN', { numeric: true, sensitivity: 'base' }));
+    const titleOrder = new Intl.Collator('vi-VN', { numeric: true, sensitivity: 'base' });
+    const sortedAssignments = [...myAssignments].sort((a, b) => titleOrder.compare(a.title || '', b.title || ''));
 
     if (sortedAssignments.length === 0) {
         body.innerHTML = `<tr><td colspan="6" style="padding:15px; text-align:center; color:#666; font-style:italic;">Chưa có dữ liệu lộ trình học tập.</td></tr>`;
@@ -21050,7 +21184,7 @@ async function renderStudentRoadmapCore() {
 
         const sub = getRoadmapSubmission(
             assign,
-            submissions,
+            submissionIndex ? submissionIndex.get(currentUser.username, assign.id) : submissions,
             currentUser.username
         );
 
@@ -21127,7 +21261,7 @@ async function renderStudentRoadmapCore() {
         const tr = document.createElement('tr');
         tr.style.borderBottom = '1px solid rgba(0,0,0,0.05)';
         tr.innerHTML = `
-            <td style="padding:12px;"><strong>${assign.title}</strong></td>
+            <td style="padding:12px;"><strong>${window.escapeHTML(assign.title)}</strong></td>
             <td style="padding:12px; text-align: center;"><strong>${studentScore}</strong></td>
             <td style="padding:12px; text-align: center;"><span class="${statusClass}">${statusText}</span></td>
             ${moneyCellHtml}
@@ -22937,12 +23071,14 @@ window.renderStudentInbox = function () {
             btnHTML += `<button type="button" onclick="deleteMessage(decodeURIComponent('${encodedMessageKey}'), true)" style="margin-top:10px;width:100%;padding:10px;border-radius:8px;font-weight:700;border:1px solid #e11d48;background:rgba(225,29,72,.06);color:#be123c;cursor:pointer;">🗑️ Xóa thư thưởng</button>`;
         }
 
-        html += `<div class="glass-alert" style="margin-bottom: 15px; border-left-color: #3b82f6; padding: 15px;">
-            <p style="margin: 0 0 10px 0; font-size: 0.85em; color: #888;">🕒 Gửi lúc: ${safeTimeString}</p>
-            ${safeMessage ? `<p style="margin: 0 0 10px 0; font-weight: 600; color: #2c3e50; white-space: pre-wrap;">"${safeMessage}"</p>` : ''}
-            ${giftHTML}
-            ${btnHTML}
-        </div>`;
+        const isGradeLetter = msg.source === 'grade_settlement_v5' || msg.giftType === 'grade_reward';
+        const sentAt = safeTimeString || (Number.isFinite(Number(msg.timestamp)) && Number(msg.timestamp) > 0
+            ? escapeStudentInboxHtml(new Date(Number(msg.timestamp)).toLocaleString('vi-VN')) : '');
+        html += `<student-inbox-letter class="ui-theme-immune" subject="${isGradeLetter ? 'Kết quả chấm bài' : isPenaltyNotice ? 'Thông báo điều chỉnh' : 'Thư & phần quà'}" sent-at="${sentAt}">
+            ${isGradeLetter ? `<grade-result-summary slot="summary">${safeMessage}</grade-result-summary>` : `<p slot="message">${safeMessage}</p>`}
+            <div slot="gift">${giftHTML}</div>
+            <div slot="actions">${btnHTML}</div>
+        </student-inbox-letter>`;
     });
     container.innerHTML = html;
 };
@@ -30431,8 +30567,8 @@ window.showBagItemPopup = function (item) {
                 </button>
             `;
     }
-    else if (item.type === 'that_tich_coin') {
-        actionButtonHtml = `<button onclick="window.openThatTichStoreFromBag()" style="margin-top:15px;width:100%;background:#795b83;border:0;padding:10px;border-radius:8px;color:white;font-weight:bold;cursor:pointer">🌌 Đổi vật phẩm Thất Tịch</button>`;
+    else if (['that_tich_coin','love_coin'].includes(item.type)) {
+        actionButtonHtml = `<button onclick="window.openThatTichStoreFromBag()" style="margin-top:15px;width:100%;background:#795b83;border:0;padding:10px;border-radius:8px;color:white;font-weight:bold;cursor:pointer">💞 Đổi vật phẩm Tình yêu</button>`;
     }
     else if (item.type === 'chest') {
         actionButtonHtml = `
@@ -30450,7 +30586,7 @@ window.showBagItemPopup = function (item) {
             ${item.description}
             <p style="margin: 8px 0 0 0; font-weight: bold; color: #1e293b; border-top: 1px dashed #cbd5e1; padding-top: 6px; text-align: right;">
                 ${
-                    ['mid_autumn_coin', 'that_tich_coin'].includes(item.type)
+                    ['mid_autumn_coin', 'that_tich_coin', 'love_coin'].includes(item.type)
                         ? `Số dư: ${Number(item.quantity || 0).toLocaleString('vi-VN')} Xu`
                         : `Xếp chồng: ${item.quantity}/50`
                 }
@@ -30552,8 +30688,32 @@ window.sellDiscountCardFromPopup = async function (discountKey, _percent, _sellP
 
 // Khởi chạy quy trình gom nhóm và kết xuất túi đồ dạng lưới ô
 window.renderStudentBag = async function () {
-    const renderId = window.__studentBagRenderId = (window.__studentBagRenderId || 0) + 1;
     const bagUsername = currentUser.username;
+    window.__studentBagRenderId = (window.__studentBagRenderId || 0) + 1;
+    const running = window.__studentBagRenderQueue;
+    if (running?.username === bagUsername) {
+        running.requested = true;
+        return running.promise;
+    }
+    const state = {username: bagUsername, requested: true, promise: null};
+    window.__studentBagRenderQueue = state;
+    state.promise = Promise.resolve().then(async () => {
+        try {
+            while (state.requested && currentUser.username === bagUsername &&
+                window.__studentBagRenderQueue === state) {
+                state.requested = false;
+                await renderStudentBagNow(window.__studentBagRenderId, bagUsername);
+            }
+        } finally {
+            if (window.__studentBagRenderQueue === state) window.__studentBagRenderQueue = null;
+        }
+    });
+    return state.promise;
+};
+
+// One read bundle at a time per account. Notifications arriving during a read
+// invalidate its display and request one fresh pass, never reuse money snapshots.
+async function renderStudentBagNow(renderId, bagUsername) {
     const container = document.getElementById('studentBagBody');
     if (!container) return;
     container.innerHTML = '<div style="text-align:center; padding: 40px 10px; color: #888; font-style: italic;">⏳ Đang mở kho hành trang...</div>';
@@ -30567,37 +30727,41 @@ window.renderStudentBag = async function () {
             birthdayCoinSnap,
             specialBirthdayCoinSnap,
             midAutumnWalletSnap,
-            thatTichBalanceSnap
+            thatTichBalanceSnap,
+            loveCoinBalanceSnap
         ] = await Promise.all([
             window.calculateTotalTickets(),
 
             db.ref(
                 'student_discounts/' +
-                currentUser.username
+                bagUsername
             ).once('value'),
 
             db.ref(
                 'student_inventory/' +
-                currentUser.username
+                bagUsername
             ).once('value'),
 
             db.ref(
                 'birthday_coins/' +
-                currentUser.username
+                bagUsername
             ).once('value')
             ,
 
             db.ref(
                 'student_special_birthday_coins/' +
-                currentUser.username
+                bagUsername
             ).once('value'),
 
             db.ref(
                 'mid_autumn_wallets/' +
-                currentUser.username
+                bagUsername
             ).once('value'),
             window.ECONOMY_SERVER_ENABLED === true
                 ? db.ref('that_tich_wallets/' + bagUsername + '/balance').once('value')
+                : Promise.resolve({val: () => 0}),
+            window.ECONOMY_SERVER_ENABLED === true
+                ? db.ref('love_coin_wallets/' + bagUsername + '/balance').once('value')
                 : Promise.resolve({val: () => 0})
         ]);
 
@@ -30612,6 +30776,12 @@ window.renderStudentBag = async function () {
             slotsData.push({type:'that_tich_coin',name:'Xu Thất Tịch',icon:'🌌',isImg:false,
                 quantity:thatTichBalance,isExpired:false,
                 description:'Dùng đổi vật phẩm Thất Tịch: <b>2 xu/món sang trọng</b> hoặc <b>1 xu/món thường</b>.'});
+        }
+
+        const loveCoinBalance = Number(loveCoinBalanceSnap.val() || 0);
+        if (Number.isSafeInteger(loveCoinBalance) && loveCoinBalance > 0) {
+            slotsData.push({type:'love_coin',name:'Xu tình yêu',icon:'💞',isImg:false,quantity:loveCoinBalance,isExpired:false,
+                description:'Dùng đổi vật phẩm Thất Tịch và Valentine: <b>2 xu/món sang trọng</b> hoặc <b>1 xu/món thường</b>.'});
         }
 
         // --- 1. XỬ LÝ GỘP Ô: VÉ QUAY MAY MẮN ---
@@ -35370,7 +35540,7 @@ window.handleExamInterruption = async function (
                 currentUser?.username ||
                 'student'
         ) {
-            if (assign?.randomExamConfig?.enabled && assign.randomExamConfig.engineVersion === 2) return window.RandomExamEngine.forStudent(assign, username);
+            if (assign?.randomExamConfig?.enabled && [2, 3].includes(assign.randomExamConfig.engineVersion)) return window.RandomExamEngine.forStudent(assign, username);
             const sourceQuestions =
                 Array.isArray(
                     assign?.questions
@@ -36276,4 +36446,218 @@ window.downloadStudentRoadmapPDF = async function () {
 
     window.refreshStudentTopActionPositions =
         normalizeTopActionFlow;
+})();
+
+// Ngày hội mua sắm: date, draw and checkout are confirmed by the existing Worker.
+window.ShoppingDay = (() => {
+    const types={pet:'Thú cưng',theme:'Giao diện',effect:'Hiệu ứng',frame:'Khung viền',background:'Hình nền',music:'Âm nhạc'};
+    const icons={pet:'🐾',theme:'🎨',effect:'✨',frame:'🖼️',background:'🌄',music:'🎵'};
+    const errors={SHOPPING_CLOSED:'Ngày hội chỉ mở từ 00:00 đến hết ngày 3/11 hằng năm (giờ Việt Nam).',SHOPPING_SPIN_REQUIRED:'Hãy quay để nhận mức giảm giá trước khi mua.',STORE_CLOSED:'Cửa hàng đang tạm đóng.',GAME_CLOSED:'Trò chơi đang tạm đóng.',STORE_GAME_ACCESS_DISABLED:'Giáo viên đã tạm khóa quyền vào trò chơi và cửa hàng.',INSUFFICIENT_BALANCE:'Bạn chưa đủ Coin để mua vật phẩm này.',ITEM_ALREADY_OWNED:'Bạn đã sở hữu vật phẩm này.',ITEM_NOT_FOR_SALE:'Vật phẩm này không tham gia ngày hội hoặc đang bị khóa.',ITEM_SALE_CLOSED:'Vật phẩm đã hết thời gian mở bán.',STORE_PRICE_CHANGED:'Giá vừa thay đổi. Hãy đóng và mở lại ngày hội để xem giá mới.',STORE_BLOCKED_BY_REGRADE:'Hãy đợi giáo viên chấm lại xong trước khi mua.',UNKNOWN_ACTION:'Ngày hội đang chờ cập nhật máy chủ. Vui lòng thử lại sau.'};
+    let dialog, state=null, busy=false, timer, previousFocus, owner='', filter='all', query='', page=1;
+    const owned=new Set();
+    const money=n=>Number(n).toLocaleString('vi-VN');
+    const uid=()=>firebase.auth().currentUser?.uid||'';
+    const now=()=>state?state.serverNow+(performance.now()-state.receivedAt):Date.now();
+    const expired=()=>!state||now()>=state.endsAt;
+    function isDraft(){
+        const options=firebase.app?.().options;
+        return options?.projectId==='web-chan-doan-test'&&String(options.databaseURL||'').replace(/\/$/,'')==='https://web-chan-doan-test-default-rtdb.asia-southeast1.firebasedatabase.app';
+    }
+    function draftEligible(item){
+        return item&&Object.hasOwn(types,item.type)&&!item.isNonCoin&&(!item.currency||item.currency==='coin')&&!item.rewardSource&&!item.birthdayYear&&!item.specialBirthdayCoinEligible&&!item.midAutumnCoinCost&&Number.isSafeInteger(Number(item.price))&&Number(item.price)>=0;
+    }
+    async function draftContext(){
+        if(!isDraft()||!uid()||uid()!==owner)throw Error('Tài khoản vừa thay đổi.');
+        const account=(await db.ref('users/'+owner).once('value')).val();
+        if(account?.role!=='student'||account.isLocked||account.deletionPending)throw Error('Tài khoản học sinh không khả dụng.');
+        if(['false','0','off','closed','locked','disabled'].includes(String(account.storeGameAccessEnabled??'').toLowerCase()))throw Error('STORE_GAME_ACCESS_DISABLED');
+        const [settings,game,custom,offset]=await Promise.all(['store_settings','game_settings/isOpen','store_items','.info/serverTimeOffset'].map(path=>db.ref(path).once('value').then(s=>s.val())));
+        if(settings?.isOpen===false)throw Error('STORE_CLOSED');if(game===false)throw Error('GAME_CLOSED');
+        const serverNow=Date.now()+Number(offset||0),year=new Date(serverNow+25200000).getUTCFullYear();
+        // getItemsByType is filtered by luxury-store.js to serve the regular
+        // shop only. Include the separate luxury catalog before deduplicating.
+        const catalog=new Map([
+            ...StoreManager.getItemsByType('all'),
+            ...(window.LuxuryStore?.getItems?.()||[])
+        ].map(i=>[i.id,i]));
+        for(const item of Object.values(custom||{}))if(item?.id)catalog.set(item.id,item);
+        const offers=[...catalog.values()].filter(draftEligible).map(i=>({...i,...Object.fromEntries(['price','startDate','endDate','isLocked'].filter(k=>settings?.[i.id]?.[k]!==undefined).map(k=>[k,settings[i.id][k]]))})).filter(i=>draftEligible(i)&&![true,'true',1].includes(i.isLocked)).map(i=>({id:i.id,name:i.name||i.id,type:i.type,price:Number(i.price),luxury:!!i.luxuryOnly||!!window.LuxuryStore?.isLuxuryItem(i.id)}));
+        if(uid()!==owner||!isDraft())throw Error('Tài khoản vừa thay đổi.');
+        return {username:account.username,year,serverNow,endsAt:Date.UTC(year+1,0,1)-25200000,offers};
+    }
+    async function recordDraftSpin(context,draw){
+        const id='shopping_draw_'+context.year;
+        await db.ref(`student_asset_history/${context.username}/${id}`).transaction(old=>old?undefined:{id,token:id,version:1,username:context.username,actorUid:owner,actorRole:'student',createdAt:firebase.database.ServerValue.TIMESTAMP,occurredAt:draw.spunAt,source:'shopping_spin',summary:`Ngày hội mua sắm · Quay giảm ${draw.percent}% (bản test)`,operationId:id,originalId:'',changes:[{kind:'discount',asset:id,label:`Ưu đãi Ngày hội mua sắm ${draw.percent}%`,delta:1}]},undefined,false);
+        window.dispatchEvent(new CustomEvent('asset-history-committed'));
+    }
+    async function execute(action,args={},options={}){
+        if(!isDraft()){
+            if(!window.EconomyClient||window.ECONOMY_SERVER_ENABLED!==true)throw Error('Ngày hội đang chờ kết nối máy chủ giao dịch.');
+            return window.EconomyClient.execute(action,args,options);
+        }
+        await window.StudentFeatureLoader.ensure('store-ui');
+        const context=await draftContext();
+        // Reuse an existing writable per-student record on the isolated draft.
+        // It is already consumed and targets no store item: never a usable coupon.
+        const drawRef=db.ref(`student_discounts/${context.username}/shopping_draw_${context.year}`);
+        let draw=(await drawRef.once('value')).val();
+        if(action==='shopping_spin'){
+            const pick=crypto.getRandomValues(new Uint32Array(1))[0]/4294967296;
+            const percent=([30,54,72,84,92,97,100].findIndex(t=>pick*100<t)+1)*10;
+            const result=await drawRef.transaction(old=>old||{percent,source:'shopping_day_draft',isUsed:true,targetItem:['shopping_day_only'],spunAt:context.serverNow,year:context.year},undefined,false);
+            draw=result.snapshot.val();
+        }
+        if(draw){
+            if(draw.source!=='shopping_day_draft'||![10,20,30,40,50,60,70].includes(draw.percent))throw Error('Kết quả quay thử không hợp lệ.');
+            await recordDraftSpin(context,draw);
+        }
+        if(action!=='shopping_buy')return {...context,percent:draw?.percent||0,draft:true};
+        if(!draw)throw Error('SHOPPING_SPIN_REQUIRED');
+        const item=context.offers.find(i=>i.id===args.itemId);if(!item)throw Error('ITEM_NOT_FOR_SALE');
+        const username=context.username,inventoryRef=db.ref(`student_inventory/${username}/${item.id}`);
+        if(await recoverStudentPaidPurchase(item.id,username,true,()=>isDraft()&&uid()===owner)){
+            const saved=(await inventoryRef.once('value')).val();return {amount:saved.purchasePrice};
+        }
+        const previous=(await inventoryRef.once('value')).val();
+        if(previous&&previous.isTrial!==true)throw Error('ITEM_ALREADY_OWNED');
+        const amount=Math.floor(item.price*(100-draw.percent)/100);
+        if(amount>Number(args.maxAmount))throw Error('STORE_PRICE_CHANGED');
+        if(Number((await db.ref('student_coins/'+username).once('value')).val()||0)<amount)throw Error('INSUFFICIENT_BALANCE');
+        if(uid()!==owner||!isDraft())throw Error('Tài khoản vừa thay đổi.');
+        const operation=await reserveStudentStorePurchase(item.id,previous?.isTrial===true,{username});
+        let chargeAttempted=false;
+        try{
+            await updateStudentStoreOperation(operation,{status:'debit_pending',basePrice:item.price,finalPrice:amount,updatedAt:Date.now()});
+            // inventoryGrant has a strict existing Rules allowlist. Event
+            // metadata belongs on the purchase operation, outside that grant.
+            const grant={id:item.id,purchaseTime:previous?.purchaseTime||Date.now(),source:'store_purchase',purchaseCurrency:'coin',purchaseBasePrice:item.price,purchasePrice:amount,purchaseOperationId:operation.operationId,isTrial:null,trialExpiry:null,isEquipped:false,...(previous?.isTrial===true?{upgradedFromTrial:true,upgradedAt:Date.now()}:{})};
+            const paid={status:'paid',operationId:operation.operationId,atomicCharge:true,inventoryGrant:grant,shoppingDraft:true,shoppingPercent:draw.percent,shoppingYear:context.year,isUpgrade:previous?.isTrial===true,upgradeTrialOperationId:previous?.trialOperationId||'',coinDebited:amount>0,paidAt:Date.now(),updatedAt:Date.now()};
+            if(uid()!==owner||!isDraft())throw Error('Tài khoản vừa thay đổi.');
+            chargeAttempted=true;
+            await window.StoreConcurrency.charge(username,item.id,operation,'purchase',amount,paid);
+            await grantStudentPaidPurchase(username,item.id,paid);
+            await updateStudentStoreOperation(operation,{status:'completed',itemGranted:true,completedAt:Date.now(),updatedAt:Date.now()});
+            await window.AssetHistory?.flush?.();
+            window.dispatchEvent(new CustomEvent('asset-history-committed'));
+            return {amount};
+        }catch(error){
+            if(!chargeAttempted||/permission[_ -]?denied/i.test(String(error.code||error.message))){
+                const released=await cancelStudentUnpaidPurchase(username,item.id,operation.operationId,()=>isDraft()&&uid()===owner,true).catch(()=>false);
+                if(released)throw Error('Thanh toán bị từ chối. Đã xác nhận chưa trừ Coin và giải phóng lượt mua. Nếu vẫn lỗi sau khi tải lại, cần kiểm tra Rules của bản test.');
+            }
+            throw error;
+        }
+    }
+    function el(tag,content,className){const node=document.createElement(tag);if(content!==undefined)node.textContent=content;if(className)node.className=className;return node;}
+    function message(value){dialog.querySelector('[data-shopping-status]').textContent=value;}
+    function report(error){message(errors[error.message]||('Chưa xác nhận được giao dịch. Hãy thử lại để tiếp tục với cùng mã giao dịch. '+(window.EconomyClient?.explainError?.(error)||error.message)));}
+    function mount(){
+        if(dialog)return;
+        dialog=el('dialog',undefined,'shopping-dialog ui-theme-immune');
+        dialog.id='shoppingDayDialog';
+        dialog.setAttribute('aria-labelledby','shoppingDayTitle');
+        dialog.innerHTML=`<header class="shopping-header"><div><span class="shopping-eyebrow">MỘT NGÀY DUY NHẤT · 03/11</span><h2 id="shoppingDayTitle">Ngày hội mua sắm</h2><p>Cửa hàng thường &amp; sang trọng · Thanh toán bằng Coin</p></div><button type="button" data-shopping-close aria-label="Đóng ngày hội">✕</button></header>
+            <div class="shopping-body"><div class="shopping-intro"><div class="shopping-wheel-wrap"><span class="shopping-pointer" aria-hidden="true">▼</span><div class="shopping-wheel" aria-label="Vòng quay gồm các mức giảm từ 10% đến 70%">${[10,20,30,40,50,60,70].map((p,i)=>`<span style="--angle:${(i+.5)*360/7}deg">${p}%</span>`).join('')}</div><span class="shopping-wheel-hub" aria-hidden="true">🛍️</span></div>
+            <div class="shopping-intro-copy"><span class="shopping-eyebrow">MỨC GIẢM CỦA BẠN</span><strong data-shopping-percent>Chưa quay</strong><p>Một lượt quay miễn phí mỗi năm. Mức giảm áp dụng cho mọi vật phẩm hợp lệ và mọi lần mua trong ngày 3/11, không cộng dồn ưu đãi khác. Giá lẻ được làm tròn xuống Coin nguyên.</p><button type="button" data-shopping-spin disabled>Quay giảm giá</button></div></div>
+            <p data-shopping-status class="shopping-status" role="status" aria-live="polite"></p>
+            <div class="shopping-toolbar"><label>Tìm vật phẩm<input data-shopping-search type="search" placeholder="Nhập tên vật phẩm…"></label><label>Cửa hàng<select data-shopping-filter><option value="all">Tất cả</option><option value="regular">Thường</option><option value="luxury">Sang trọng</option></select></label><span data-shopping-count></span></div>
+            <div class="shopping-grid" data-shopping-grid></div><nav class="shopping-pagination" aria-label="Trang vật phẩm"><button type="button" data-shopping-prev>← Trước</button><span data-shopping-page></span><button type="button" data-shopping-next>Tiếp →</button></nav></div>`;
+        document.body.appendChild(dialog);
+        dialog.querySelector('[data-shopping-close]').onclick=()=>dialog.close();
+        dialog.addEventListener('close',()=>{clearInterval(timer);previousFocus?.focus();});
+        dialog.querySelector('[data-shopping-spin]').onclick=spin;
+        dialog.querySelector('[data-shopping-search]').oninput=e=>{query=e.target.value;page=1;renderItems();};
+        dialog.querySelector('[data-shopping-filter]').onchange=e=>{filter=e.target.value;page=1;renderItems();};
+        dialog.querySelector('[data-shopping-prev]').onclick=()=>{page--;renderItems();};
+        dialog.querySelector('[data-shopping-next]').onclick=()=>{page++;renderItems();};
+        window.addEventListener('asset-history-committed',()=>{if(dialog.open)renderItems();});
+    }
+    function renderItems(){
+        const grid=dialog.querySelector('[data-shopping-grid]');grid.replaceChildren();
+        const needle=query.trim().toLocaleLowerCase('vi');
+        const items=(state?.offers||[]).filter(i=>(filter==='all'||i.luxury===(filter==='luxury'))&&i.name.toLocaleLowerCase('vi').includes(needle));
+        const pages=Math.max(1,Math.ceil(items.length/24));page=Math.max(1,Math.min(page,pages));
+        dialog.querySelector('[data-shopping-count]').textContent=`${items.length} vật phẩm`;
+        dialog.querySelector('[data-shopping-page]').textContent=`${page} / ${pages}`;
+        dialog.querySelector('[data-shopping-prev]').disabled=page===1;
+        dialog.querySelector('[data-shopping-next]').disabled=page===pages;
+        for(const item of items.slice((page-1)*24,page*24)){
+            const card=el('article',undefined,'shopping-item'+(item.luxury?' shopping-item-luxury':''));
+            const art=el('div',icons[item.type]||'🎁','shopping-item-art');
+            const config=typeof StoreManager!=='undefined'?StoreManager.getItemById(item.id):null;
+            const src=config?.asset||config?.value;
+            if(typeof src==='string'&&/^assets\/.+\.(png|jpe?g|webp|gif)$/i.test(src)){
+                const img=el('img');img.src=src;img.alt='';img.loading='lazy';img.onerror=()=>{art.textContent=icons[item.type]||'🎁';};art.replaceChildren(img);
+            }
+            card.append(art,el('small',`${item.luxury?'Sang trọng':'Thường'} · ${types[item.type]||'Vật phẩm'}`),el('h3',item.name));
+            const price=el('div',undefined,'shopping-price');
+            if(state.percent)price.append(el('del',money(item.price)+' Coin'));
+            price.append(el('strong',money(Math.floor(item.price*(100-(state.percent||0))/100))+' Coin'));card.append(price);
+            const inventory=typeof myInventory!=='undefined'&&Array.isArray(myInventory)?myInventory:[];
+            const has=owned.has(item.id)||inventory.some(i=>i.id===item.id&&i.isTrial!==true);
+            const button=el('button',has?'Đã sở hữu':!state.percent?'Quay để mở giá ưu đãi':'Mua với giá giảm');button.type='button';
+            button.disabled=busy||expired()||!state.percent||has;button.onclick=()=>buy(item);card.append(button);grid.append(card);
+        }
+        if(!items.length)grid.append(el('p',state?'Không có vật phẩm phù hợp.':'Danh sách vật phẩm sẽ hiện khi ngày hội mở.','shopping-empty'));
+    }
+    function render(){
+        const percent=state?.percent||0;
+        dialog.querySelector('[data-shopping-percent]').textContent=percent?`Giảm ${percent}%`:'Chưa quay';
+        const button=dialog.querySelector('[data-shopping-spin]');button.disabled=busy||expired()||!!percent;
+        button.textContent=busy?'Đang xử lý…':percent?'Đã dùng lượt quay năm nay':'Quay miễn phí';
+        dialog.querySelector('.shopping-wheel').style.transform=`rotate(${percent?360*5-(percent/10-.5)*360/7:0}deg)`;
+        renderItems();
+    }
+    async function open(){
+        if(busy)return;
+        mount();previousFocus=document.activeElement;
+        if(!dialog.open)dialog.showModal();
+        clearInterval(timer);state=null;owned.clear();owner=uid();busy=true;render();message('Đang kiểm tra thời gian và danh sách vật phẩm…');
+        try{
+            const result=await execute('shopping_open',{}, {slot:'shopping:open'});
+            if(uid()!==owner)return;
+            state={...result,receivedAt:performance.now()};
+            message(state.draft?`Bản test · Mở thử ngoài ngày 3/11. ${state.percent?'Mức giảm đã lưu: '+state.percent+'%.':'Quay miễn phí để thử mua với giá giảm.'} Giao dịch chỉ dùng dữ liệu của bản test.`:state.percent?`Ưu đãi ${state.percent}% được giữ đến hết ngày 3/11/${state.year} (giờ Việt Nam).`:'Quay một lần để mở mức giá ưu đãi cho toàn bộ danh sách bên dưới.');
+            if(dialog.open)timer=setInterval(()=>{if(expired()||uid()!==owner){state=null;clearInterval(timer);dialog.dispatchEvent(new Event('shopping-expired'));render();message('Ngày hội đã kết thúc hoặc tài khoản đã thay đổi. Hãy đóng cửa sổ.');}},1000);
+        }catch(error){report(error);}finally{busy=false;render();}
+    }
+    async function spin(){
+        if(busy||expired()||state.percent||uid()!==owner)return;
+        busy=true;render();message('Vòng quay đang chọn ưu đãi của bạn…');
+        try{
+            const result=await execute('shopping_spin',{}, {slot:'shopping:spin'});
+            if(uid()!==owner||!state)return;
+            const receivedAt=performance.now();
+            const wheel=dialog.querySelector('.shopping-wheel'),angle=360*5-(result.percent/10-.5)*360/7;
+            if(dialog.open&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches&&wheel.animate){
+                const animation=wheel.animate([{transform:'rotate(0deg)'},{transform:`rotate(${angle}deg)`}],{duration:2200,easing:'cubic-bezier(.15,.7,.15,1)',fill:'forwards'});
+                await animation.finished;wheel.style.transform=`rotate(${angle}deg)`;animation.cancel();
+            }
+            if(uid()!==owner||!state)return;
+            state={...state,...result,receivedAt};
+            message(`Bạn nhận được mức giảm ${result.percent}%! Tất cả giá bên dưới đã được cập nhật. Kết quả đã lưu vào lịch sử.`);
+        }catch(error){report(error);}finally{busy=false;render();}
+    }
+    async function buy(item){
+        if(busy||expired()||!state.percent||uid()!==owner)return;
+        busy=true;render();
+        try{
+            const amount=Math.floor(item.price*(100-state.percent)/100);
+            // Native dialog is above app overlays, so use an in-dialog confirmation.
+            const status=dialog.querySelector('[data-shopping-status]');
+            message(`Mua “${item.name}” với ${money(amount)} Coin (giảm ${state.percent}%)?`);
+            const yes=el('button','Xác nhận mua'),no=el('button','Hủy');yes.type=no.type='button';status.append(yes,no);
+            const confirmed=await new Promise(resolve=>{
+                const finish=value=>{dialog.removeEventListener('close',cancel);dialog.removeEventListener('shopping-expired',cancel);yes.remove();no.remove();resolve(value);};
+                const cancel=()=>finish(false);yes.onclick=()=>finish(true);no.onclick=cancel;dialog.addEventListener('close',cancel,{once:true});dialog.addEventListener('shopping-expired',cancel,{once:true});yes.focus();
+            });
+            if(!confirmed){message('Đã hủy thao tác mua.');return;}
+            if(expired()||uid()!==owner)throw Error('SHOPPING_CLOSED');
+            message('Đang xác nhận thanh toán…');
+            const result=await execute('shopping_buy',{itemId:item.id,maxAmount:String(amount)},{slot:'store:'+item.id});
+            if(uid()!==owner)return;
+            owned.add(item.id);message(`Đã mua “${item.name}” với ${money(result.amount)} Coin. Vật phẩm đã vào kho và giao dịch đã được ghi vào lịch sử.`);
+        }catch(error){report(error);}finally{busy=false;render();}
+    }
+    return Object.freeze({open});
 })();

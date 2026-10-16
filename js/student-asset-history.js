@@ -51,11 +51,16 @@
         if (window.AssetHistory?.hasError()) { status.textContent = 'Có thao tác chưa ghi được nhật ký. Tài sản không bị cộng/trừ lại; hãy kiểm tra kết nối và bộ nhớ trình duyệt.'; status.className = 'error'; }
     }
     async function load() {
+        if (window.PageWork) return window.PageWork.run('student-history', loadNow);
+        return loadNow();
+    }
+    async function loadNow() {
         mount(); if (!ui || state.loading) return;
         const user = typeof currentUser !== 'undefined' ? currentUser : JSON.parse(localStorage.getItem('currentUser') || '{}');
         if (!firebase.auth().currentUser || !user.username) { status.textContent = 'Cần đăng nhập để xem lịch sử.'; return; }
-        state.username = user.username;
-        state.rows = [];
+        const username = user.username;
+        if (state.username !== username) { state.rows = []; list.replaceChildren(); }
+        state.username = username;
         const generation = ++state.generation; state.loading = true;
         status.className = ''; status.textContent = 'Đang tải lịch sử…';
         ui.querySelector('#refresh').disabled = true;
@@ -66,7 +71,8 @@
                 ? 'Đang hiển thị 30 giao dịch mới nhất. Chưa dọn được bản ghi cũ trên máy chủ; sẽ thử lại. Giáo viên cần cập nhật Worker nếu thông báo này kéo dài.'
                 : 'Chỉ giữ 30 giao dịch mới nhất. Giao dịch mới sẽ thay bản ghi cũ nhất; số dư, vật phẩm và dữ liệu chống nhận thưởng trùng không thay đổi.';
             const snap = await db.ref(`student_asset_history/${state.username}`).orderByChild('createdAt').limitToLast(30).once('value');
-            if (generation !== state.generation) return;
+            const activeUser = typeof currentUser !== 'undefined' ? currentUser : JSON.parse(localStorage.getItem('currentUser') || '{}');
+            if (generation !== state.generation || activeUser.username !== username) return;
             const rows = [];
             snap.forEach(child => {
                 rows.push({ ...child.val(), id: child.key });

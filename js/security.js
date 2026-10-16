@@ -153,6 +153,14 @@
             return false;
         }
 
+        // Chỉ cưỡng chế (xoá DOM + đẩy sang about:blank) khi thật sự đang bảo vệ trang Học sinh.
+        // Ở trang Đăng nhập / 404 / offline: vẫn chặn phím tắt và chuột phải như trước,
+        // nhưng KHÔNG xoá trang, tránh mất nội dung đang nhập do heuristic kích thước sai.
+        if (!shouldStrictlyProtectStudent()) {
+            console.warn('[SecurityGuard] Bỏ qua cưỡng chế ngoài trang Học sinh:', reason);
+            return false;
+        }
+
         state.lastReason = reason;
         clearPageAndExit();
         return true;

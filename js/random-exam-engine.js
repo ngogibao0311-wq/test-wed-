@@ -5,8 +5,11 @@
  function hash(text){let h=2166136261;for(const c of String(text)){h=Math.imul(h^c.charCodeAt(0),16777619);}return h>>>0;}
  function shuffle(items,seed){let n=hash(seed);const a=items.slice();for(let i=a.length-1;i>0;i--){n+=0x6D2B79F5;let t=n;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);const j=Math.floor(((t^(t>>>14))>>>0)/4294967296*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
  const label=i=>i<26?String.fromCharCode(65+i):'A'+(i+1);
+ const relOptionPattern=/^(cả\s+[abc\d]|cả\s+hai|cả\s+ba|cả\s+bốn|tất\s+cả|không\s+có\s+(đáp\s+án|phương\s+án|câu)|không\s+(đáp\s+án|phương\s+án|câu)\s+nào|both\s+[abc]|all\s+of\s+the\s+above|none\s+of\s+the\s+above)/i;
+ const relOptionRefPattern=/\b([ABCD]\s*(và|hoặc|,\s*[ABCD]))\b/i;
+ function hasRelativeOptions(q){for(const l of letters){const v=String(q[l]||'').trim();if(relOptionPattern.test(v)||relOptionRefPattern.test(v))return true;}return false;}
  function versions(questions,config){
-  const key=JSON.stringify([questions,config.versionCount,config.questionCount,config.shuffleQuestions,config.shuffleAnswers,config.seed]);
+  const key=JSON.stringify([questions,config.engineVersion,config.versionCount,config.questionCount,config.shuffleQuestions,config.shuffleAnswers,config.seed]);
   if(cache.has(key))return JSON.parse(cache.get(key));
   const count=Number(config.versionCount),take=Number(config.questionCount)||questions.length;
   if(!Number.isInteger(count)||count<1||count>50||!Number.isInteger(take)||take<1||take>questions.length)throw Error('Số câu hoặc số mã đề không hợp lệ.');
@@ -16,7 +19,8 @@
    const seed=String(config.seed||'campus-exam-v2')+'|'+attempt;
    let selected=take<source.length?shuffle(source,seed+'select').slice(0,take):source.slice();
    selected=config.shuffleQuestions?shuffle(selected,seed+'order'):selected.sort((a,b)=>a._sourceIndex-b._sourceIndex);
-   selected=selected.map((q,i)=>{const out={...q,_displayIndex:i};const order=config.shuffleAnswers?shuffle(letters,seed+'answer'+q.questionId):letters;order.forEach((old,j)=>{out[letters[j]]=q[old];if(old===q.correct)out.correct=letters[j];});return out;});
+   // Published v2 exams keep their exact ordering; new v3 exams protect relative choices.
+   selected=selected.map((q,i)=>{const out={...q,_displayIndex:i};const canShuffle=Boolean(config.shuffleAnswers)&&(config.engineVersion !== 3 || !hasRelativeOptions(q));const order=canShuffle?shuffle(letters,seed+'answer'+q.questionId):letters;order.forEach((old,j)=>{out[letters[j]]=q[old];if(old===q.correct)out.correct=letters[j];});return out;});
    // Compare what the learner actually sees, not hidden IDs or answer keys.
    const signature=JSON.stringify(selected.map(q=>[q.qText,q.A,q.B,q.C,q.D]));
    if(seen.has(signature))continue;seen.add(signature);result.push(selected);

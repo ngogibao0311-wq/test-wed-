@@ -1460,6 +1460,22 @@ function buildLeaderboardDataForPeriod({
 
     const rankedData = [];
 
+    // Normalize each submission once, rather than rescanning every submission
+    // for every (student, assignment). Keep original source order for ties.
+    const submissionsByUser = new Map();
+    (submissions || []).forEach((submission, order) => {
+        const username = getLeaderboardSubmissionUsername(submission);
+        const assignmentId = getLeaderboardSubmissionAssignmentId(submission);
+        if (!submissionsByUser.has(username)) submissionsByUser.set(username, new Map());
+        const byAssignment = submissionsByUser.get(username);
+        if (!byAssignment.has(assignmentId)) byAssignment.set(assignmentId, []);
+        byAssignment.get(assignmentId).push({submission, order});
+    });
+    const assignmentMetadata = new Map(allAssignments.map(assignment => [assignment, {
+        ids: getLeaderboardAssignmentIds(assignment),
+        targets: new Set(getLeaderboardTargets(assignment))
+    }]));
+
     students.forEach(student => {
         const username =
             leaderboardText(
@@ -1472,11 +1488,10 @@ function buildLeaderboardDataForPeriod({
 
         const assignedAssignments =
             allAssignments.filter(
-                assignment =>
-                    isLeaderboardAssignmentForStudent(
-                        assignment,
-                        username
-                    )
+                assignment => {
+                    const targets = assignmentMetadata.get(assignment).targets;
+                    return targets.has('all') || targets.has(username);
+                }
             );
 
         let totalScore = 0;
@@ -1488,10 +1503,15 @@ function buildLeaderboardDataForPeriod({
 
         assignedAssignments.forEach(
             assignment => {
+                const byAssignment = submissionsByUser.get(username);
+                const candidates = assignmentMetadata.get(assignment).ids
+                    .flatMap(id => byAssignment?.get(id) || [])
+                    .sort((a, b) => a.order - b.order)
+                    .map(entry => entry.submission);
                 const submission =
                     getLeaderboardBestSubmission(
                         assignment,
-                        submissions,
+                        candidates,
                         username
                     );
 
@@ -1941,7 +1961,16 @@ function getLeaderboardStudentsFromSubmissions(submissions) {
 }
 
 
+let leaderboardSourcePromise = null;
 async function getLeaderboardSourceData() {
+    // Share only an in-flight read, not a completed/stale ranking snapshot.
+    if (leaderboardSourcePromise) return leaderboardSourcePromise;
+    leaderboardSourcePromise = readLeaderboardSourceData();
+    try { return await leaderboardSourcePromise; }
+    finally { leaderboardSourcePromise = null; }
+}
+
+async function readLeaderboardSourceData() {
     /*
      * Không đọc getDB('users') ở phía học sinh.
      * Firebase Rules chỉ cho teacher đọc toàn bộ /users,
@@ -3120,6 +3149,8 @@ async function calculateAndRenderLeaderboard() {
 
     const requestId =
         ++leaderboardRenderRequestId;
+    await Promise.resolve();
+    if (requestId !== leaderboardRenderRequestId) return;
 
     const period =
         getLeaderboardViewPeriod();

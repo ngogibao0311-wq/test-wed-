@@ -83,6 +83,8 @@
         birthday: 'css/pet-sinh-nhat.css?v=3.8',
         weather: 'css/thoi-tiet.css?v=3.8',
         thatTich: 'css/that-tich.css?v=20261012.thattich3',
+        huyenMinh: 'css/huyen-minh.css?v=20261014.huyenminh3',
+        chronos: 'css/chronos.css?v=20261013.chronos2',
         luGuang: 'css/lu-guang.css?v=20261012.luguang2',
         audrey: 'css/audrey-hall.css?v=20261012.audrey1',
         hacmong: 'css/premium-hac-mong.css?v=20261009.regular-art1',
@@ -96,35 +98,37 @@
     });
 
     const SCRIPT = Object.freeze({
-        valentine:'js/valentine.js?v=20261011.economy-startup2',
+        valentine:'js/valentine.js?v=20261015.regular-fix1',
         eternalWinter:'js/eternal-winter.js?v=20261011.economy-startup2',
         tinhMong:'js/tinh-mong.js?v=20261011.economy-startup2',
-        themeItems: 'js/theme-items.js?v=20261012.thattich3',
-        effectItems: 'js/effect-items.js?v=20261012.thattich3',
-        petItems: 'js/pet-items.js?v=20261012.thattich3',
+        themeItems: 'js/theme-items.js?v=20261015.regular-fix1',
+        effectItems: 'js/effect-items.js?v=20261015.love3',
+        petItems: 'js/pet-items.js?v=20261015.regular-fix1',
         petInteractions: 'js/pet-interactions.js?v=20261011.economy-startup2',
         musicManager: 'js/music-manager.js?v=20261011.economy-startup2',
-        storeManager: 'js/store-manager.js?v=20261012.eventbag1',
+        storeManager: 'js/store-manager.js?v=20261015.regular-fix1',
 
         regularArt: 'js/regular-store-art.js?v=20261011.economy-startup2',
         kimLien: 'js/premium-kim-lien.js?v=20261011.economy-startup2',
         thanhLanh: 'js/thanh-lanh.js?v=20261011.economy-startup2',
         thatTich: 'js/that-tich.js?v=20261012.thattich3',
+        huyenMinh: 'js/huyen-minh.js?v=20261014.huyenminh3',
+        chronos: 'js/chronos.js?v=20261013.chronos2',
         luGuang: 'js/lu-guang.js?v=20261012.luguang2',
         audrey: 'js/audrey-hall.js?v=20261012.audrey1',
         hacMongRegular: 'js/hac-mong-regular.js?v=20261011.economy-startup2',
         distinctScenes: 'js/luxury-distinct-scenes.js?v=20261011.economy-startup2',
-        luxuryStore: 'js/luxury-store.js?v=20261012.eventbag1',
-        collections: 'js/store-collections.js?v=20261012.collection-fix1',
+        luxuryStore: 'js/luxury-store.js?v=20261015.regular-fix1',
+        collections: 'js/store-collections.js?v=20261015.love3',
 
-        royalBall: 'js/royal-ball.js?v=20261011.economy-startup2',
-        leaderboard: 'js/leaderboard.js?v=20261011.economy-startup2',
+        royalBall: 'js/royal-ball.js?v=20261015.royal-regular1',
+        leaderboard: 'js/leaderboard.js?v=20261013.performance2',
         painting: 'js/painting.js?v=20261011.economy-startup2',
         history: 'js/lich-su-hao-hung.js?v=20261011.economy-startup2',
-        bellum: 'js/bellum-event.js?v=20261011.economy-startup2',
+        bellum: 'js/bellum-event.js?v=20261014.bellum-rewards2',
         midAutumnFestival: 'js/mid-autumn-festival.js?v=20261011.economy-startup2',
 
-        dailyLogin: 'js/daily-login.js?v=20261011.economy-startup2',
+        dailyLogin: 'js/daily-login.js?v=20261014.event-rewards2',
         guide: 'js/huong-dan-nguoi-moi.js?v=20261011.economy-startup2'
     });
 
@@ -170,7 +174,10 @@
     const ALL_SPECIAL_STORE_CSS = Object.freeze([
         CSS.autumn,
         CSS.hacmong,
+        'css/valentine.css?v=20261015.regular-fix1',
         CSS.thatTich,
+        CSS.huyenMinh,
+        CSS.chronos,
         CSS.luGuang,
         CSS.audrey,
         CSS.camMong,
@@ -526,24 +533,33 @@ html[data-app-role="student"] body .dashboard > .content > :is(
         }
 
         const promise = new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = url;
-            script.async = false;
-            script.dataset.studentLazyScript = '1';
+            const attemptLoad = (attempt) => {
+                const script = document.createElement('script');
+                script.src = url;
+                script.async = false;
+                script.dataset.studentLazyScript = '1';
 
-            script.onload = () => resolve(key);
-            script.onerror = () => {
-                script.remove();
-                scriptPromises.delete(key);
-                reject(
-                    new Error(
-                        `Không tải được module: ${url}`
-                    )
-                );
+                script.onload = () => resolve(key);
+                script.onerror = () => {
+                    script.remove();
+                    // A transient 503 must not immediately break equipped items.
+                    // Retry only failed loads; never execute an already loaded module twice.
+                    if (attempt === 0) {
+                        setTimeout(() => attemptLoad(1), 1200);
+                        return;
+                    }
+                    scriptPromises.delete(key);
+                    reject(
+                        new Error(
+                            `Không tải được module: ${url}`
+                        )
+                    );
+                };
+
+                (document.body || document.head)
+                    .appendChild(script);
             };
-
-            (document.body || document.head)
-                .appendChild(script);
+            attemptLoad(0);
         });
 
         scriptPromises.set(key, promise);
@@ -675,6 +691,8 @@ html[data-app-role="student"] body .dashboard > .content > :is(
         }
 
         if (/nguu_lang|chuc_nu/.test(id)) result.add(CSS.thatTich);
+        if (id.includes('_huyen_minh_')) result.add(CSS.huyenMinh);
+        if (id.includes('_chronos_')) result.add(CSS.chronos);
         if (id.includes('lu_guang')) result.add(CSS.luGuang);
         if (id.includes('audrey_hall')) result.add(CSS.audrey);
         if (id === 'pet_hac_mong_2') result.add(CSS.hacmong);
@@ -905,6 +923,8 @@ html[data-app-role="student"] body .dashboard > .content > :is(
          */
         async 'theme-runtime'() {
             await loadScript(SCRIPT.thatTich);
+            await loadScript(SCRIPT.huyenMinh);
+            await loadScript(SCRIPT.chronos);
             await loadScript(SCRIPT.luGuang);
             await loadScript(SCRIPT.audrey);
             await loadCss(CSS.storeBase);
@@ -923,6 +943,8 @@ html[data-app-role="student"] body .dashboard > .content > :is(
 
         async 'effect-runtime'() {
             await loadScript(SCRIPT.thatTich);
+            await loadScript(SCRIPT.huyenMinh);
+            await loadScript(SCRIPT.chronos);
             await loadScript(SCRIPT.luGuang);
             await loadScript(SCRIPT.audrey);
             await Promise.all([
@@ -944,6 +966,8 @@ html[data-app-role="student"] body .dashboard > .content > :is(
 
         async 'pet-runtime'() {
             await loadScript(SCRIPT.thatTich);
+            await loadScript(SCRIPT.huyenMinh);
+            await loadScript(SCRIPT.chronos);
             await loadScript(SCRIPT.luGuang);
             await loadScript(SCRIPT.audrey);
             await Promise.all([
@@ -966,6 +990,8 @@ html[data-app-role="student"] body .dashboard > .content > :is(
 
         async 'frame-background-runtime'() {
             await loadScript(SCRIPT.thatTich);
+            await loadScript(SCRIPT.huyenMinh);
+            await loadScript(SCRIPT.chronos);
             await loadScript(SCRIPT.luGuang);
             await loadScript(SCRIPT.audrey);
             await loadCss(CSS.storeBase);
@@ -1152,9 +1178,12 @@ html[data-app-role="student"] body .dashboard > .content > :is(
     const LUXURY_ITEM_IDS = new Set([
         'pet_nguu_lang_premium_1',
         'pet_chuc_nu_premium_1',
+        'pet_huyen_minh_premium_1',
+        'pet_chronos_premium_3',
         'pet_lu_guang_premium_2',
         'pet_audrey_hall_premium_2',
         'pet_valentine_cupid_1',
+        'pet_valentine_juliet_2',
         'pet_eternal_winter_4',
         'pet_luxury_mua_xuan',
         'pet_luxury_mua_ha',

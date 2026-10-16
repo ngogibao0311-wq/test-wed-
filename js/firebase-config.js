@@ -298,7 +298,10 @@ async function getPaginatedDB(path, limit, lastKey = null) {
     try {
         let query = db.ref(path).orderByKey();
         if (cursor !== null) query = query.endAt(cursor);
-        const snapshot = await query.limitToLast(limit + 1).once('value');
+        // Cần thêm 1 bản ghi để biết còn trang sau hay không; khi có cursor thì cursor
+        // cũng chiếm 1 suất nên phải lấy dư 2 (cursor + limit + 1 bản ghi dò).
+        const fetchSize = cursor === null ? limit + 1 : limit + 2;
+        const snapshot = await query.limitToLast(fetchSize).once('value');
         const rows = [];
         // forEach preserves Firebase key order, including integer-like keys.
         snapshot.forEach(child => {
@@ -309,7 +312,8 @@ async function getPaginatedDB(path, limit, lastKey = null) {
                 : { value: item, _fbKey: child.key });
         });
         const items = rows.slice(-limit);
-        return { items, nextKey: items.length === limit ? items[0]._fbKey : null };
+        // Còn trang sau chỉ khi số bản ghi (đã loại cursor) nhiều hơn hẳn một trang.
+        return { items, nextKey: rows.length > limit ? items[0]._fbKey : null };
     } catch (error) {
         console.error('[getPaginatedDB]', path, error);
         throw error;

@@ -14,7 +14,7 @@
 
     if (window.EffectQualityManager) return;
 
-    const VERSION = '2.2.0-luxury';
+    const VERSION = '2.3.0-adaptive';
     const STORAGE_PREFIX = 'effectQualityManager:v1';
     const STYLE_ID = 'effect-quality-manager-style';
     const SETTINGS_ROW_ID = 'effectQualitySettingsRow';
@@ -46,6 +46,7 @@
         initialized: false,
         enabled: false,
         level: 'high',
+        appliedEffectiveLevel: 'high',
         observer: null,
         cardVisibilityObserver: null,
         observedCards: new Set(),
@@ -1370,8 +1371,17 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
         };
     }
 
+    function getAdaptiveLevel() {
+        const optimizer = window.WebPerformanceOptimizer;
+        if (resolveRole() !== 'student' || !optimizer?.isEnabled?.()) return 'high';
+        return normalizeLevel(optimizer.getAdaptiveLevel?.());
+    }
+
     function getEffectiveLevel() {
-        return state.enabled ? state.level : 'high';
+        // Manual preference is a ceiling, never overwritten or multiplied by auto quality.
+        const levels = ['low', 'medium', 'high'];
+        const manual = state.enabled ? state.level : 'high';
+        return levels[Math.min(levels.indexOf(manual), levels.indexOf(getAdaptiveLevel()))];
     }
 
     function getIntervalMultiplier() {
@@ -1385,7 +1395,7 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
         const multiplier = getIntervalMultiplier();
         if (multiplier <= 1) return numeric;
 
-        const minimum = state.level === 'low' ? 180 : 90;
+        const minimum = getEffectiveLevel() === 'low' ? 180 : 90;
         return Math.max(minimum, Math.round(numeric * multiplier));
     }
 
@@ -1649,12 +1659,13 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
         root.classList.remove('fxq-enabled', 'fxq-high', 'fxq-medium', 'fxq-low');
         root.removeAttribute('data-effect-quality');
         root.classList.remove('fxq-luxury-medium','fxq-luxury-low');
-        if(resolveRole()==='student'&&state.enabled&&state.level!=='high')root.classList.add('fxq-luxury-'+state.level);
+        const effective = getEffectiveLevel();
+        if(resolveRole()==='student'&&effective!=='high')root.classList.add('fxq-luxury-'+effective);
 
-        if (!state.enabled) return;
+        if (!state.enabled && effective === 'high') return;
 
-        root.classList.add('fxq-enabled', `fxq-${state.level}`);
-        root.setAttribute('data-effect-quality', state.level);
+        root.classList.add('fxq-enabled', `fxq-${effective}`);
+        root.setAttribute('data-effect-quality', effective);
     }
 
     function updateSettingsUI() {
@@ -1673,6 +1684,12 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
         });
 
         if (!status) return;
+
+        if (getAdaptiveLevel() !== 'high') {
+            const chosen = state.enabled ? LEVELS[state.level].label : 'hiệu ứng gốc';
+            status.textContent = `Đang hiển thị: ${LEVELS[getEffectiveLevel()].label} • Tối ưu tự động đang hỗ trợ. Lựa chọn của bạn vẫn là ${chosen}.`;
+            return;
+        }
 
         if (!state.enabled) {
             status.textContent = 'Đang tắt • Website giữ nguyên hiệu ứng gốc';
@@ -1695,6 +1712,7 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
                     enabled: state.enabled,
                     level: state.level,
                     effectiveLevel: getEffectiveLevel(),
+                    adaptiveLevel: getAdaptiveLevel(),
                     intervalMultiplier: getIntervalMultiplier(),
                     stats: getDetectionStats()
                 }
@@ -1703,6 +1721,7 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
     }
 
     function applyState(options = {}) {
+        state.appliedEffectiveLevel = getEffectiveLevel();
         applyRootClasses();
         updateSettingsUI();
         scanExistingEffects();
@@ -1757,6 +1776,7 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
                     <p>
                         Tự nhận diện hiệu ứng động của vật phẩm, thú cưng, Premium/Luxury, card Cửa hàng thường/Sang trọng và Web Animations.
                         Vật phẩm mới được quét theo runtime/lớp hiệu ứng, không cần khai báo từng ID. Không giảm theme và không thay đổi chức năng hay dữ liệu.
+                        Khi bật Tối ưu hiệu năng, mức hiển thị có thể tạm giảm theo máy và phục hồi tối đa tới mức bạn chọn.
                     </p>
                     <span id="${STATUS_ID}">Đang tắt • Website giữ nguyên hiệu ứng gốc</span>
                     <span id="${DETECTION_ID}">Đang quét các lớp hiệu ứng...</span>
@@ -1830,6 +1850,12 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
         installObserver();
         scanExistingEffects();
         applyState({ restartEffect: false });
+
+        window.addEventListener('web-performance-optimizer-change', () => {
+            const changed = state.appliedEffectiveLevel !== getEffectiveLevel();
+            if (changed) applyState({ restartEffect: true });
+            else updateSettingsUI();
+        });
 
         document.addEventListener(
             'visibilitychange',

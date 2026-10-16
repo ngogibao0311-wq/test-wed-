@@ -7,6 +7,10 @@
         node.className = cls;
         return node;
     };
+    const tagKey = value => String(value || '').normalize('NFC').trim().replace(/\s+/g, ' ').toLocaleLowerCase('vi');
+    const tagLabel = value => window.StoreTags?.label(value) || String(value || '').normalize('NFC').trim().replace(/\s+/g, ' ');
+    const uniqueTags = values => [...new Map(values.map(value => [tagKey(value), tagLabel(value)])).values()];
+    const groupLabel = value => uniqueTags(String(value || '').split(' / ')).join(' / ');
     const validId = value => typeof value === 'string' && /^[A-Za-z0-9_-]{1,100}$/.test(value);
     let user, profile, panel, epoch = 0, connected = false;
     let sets = {}, catalog = {}, inventory = {}, claims = {};
@@ -54,7 +58,9 @@
             await db.ref().update({
                 [path]: {itemId,setId,setRevision:revisionOf(set),studentUid:uid,amount:5000,createdAt:timestamp,paymentRevision:revision},
                 ['collection_reward_payments/' + username]: {itemId,revision},
-                ['student_coins/' + username]: coins - 5000,
+                // Dùng increment thay vì ghi đè (coins - 5000): tránh đọc-ghi không nguyên tử
+                // khiến 2 tab cùng mua chỉ trả tiền 1 lần. Rules vẫn kiểm tra số dư >= 0.
+                ['student_coins/' + username]: firebase.database.ServerValue.increment(-5000),
                 ['student_inventory/' + username + '/' + itemId]: {id:itemId,type:'background',source:'collection_reward',rewardPurchase:true,collectionSetId:setId,purchaseTime:timestamp,isEquipped:false}
             });
             if (session !== epoch) return;
@@ -254,7 +260,7 @@
             if (set.deleted === true) continue;
             const section = el('section', '', 'cr-set'), unlocked = claims[id], waiting = busy.has(id);
             const info = el('div', '', 'cr-set-info');
-            info.append(el('h3', set.tag));
+            info.append(el('h3', groupLabel(set.tag)));
             info.append(el('p', waiting ? 'Đang chờ máy chủ xác nhận…' : unlocked ? 'Đã nhận thưởng cho bộ này' :
                 `Đã sở hữu ${set.required.filter(collected).length}/${set.required.length} vật phẩm vĩnh viễn`));
             const requirements = el('details'); requirements.append(el('summary', 'Xem vật phẩm cần thu thập'));
@@ -271,14 +277,14 @@
             const rewardItems = el('div', '', 'cr-reward-items'); section.append(rewardItems);
             const cards = new Map();
             for (const itemId of displayedChoices) {
-                const item = catalog[itemId], card = rewardCard(itemId, set.tag);
+                const item = catalog[itemId], card = rewardCard(itemId, groupLabel(set.tag));
                 if (itemId === (unlocked?.itemId || displayedChoices[0])) {
                     card.insertBefore(info, card.querySelector('button'));
                 }
                 if (unlocked && unlocked.itemId !== itemId && (!ownsReward(itemId) || purchaseBusy.has(itemId))) {
                     const saleAvailable = set.choices.length > 1 && set.choices.includes(unlocked.itemId);
-                    card.append(el('h4', item?.name || set.tag), el('p', 'NỀN ĐẶC BIỆT · MỞ BÁN RIÊNG', 'cr-item-type'),
-                        el('p', saleAvailable ? 'Bạn đã nhận một nền trong bộ ' + set.tag + '. Có thể mua thêm nền này với giá 5.000 Coin.' : 'Bộ đã thay đổi. Nền này không mở bán theo lượt nhận trước của bạn.'));
+                    card.append(el('h4', item?.name || groupLabel(set.tag)), el('p', 'NỀN ĐẶC BIỆT · MỞ BÁN RIÊNG', 'cr-item-type'),
+                        el('p', saleAvailable ? 'Bạn đã nhận một nền trong bộ ' + groupLabel(set.tag) + '. Có thể mua thêm nền này với giá 5.000 Coin.' : 'Bộ đã thay đổi. Nền này không mở bán theo lượt nhận trước của bạn.'));
                     const buy = el('button', purchaseBusy.has(itemId) ? 'Đang xác nhận…' : pendingPurchase(itemId) ? 'Kiểm tra mua · 5.000 Coin' : 'Mua nền · 5.000 Coin', 'cr-buy');
                     buy.type = 'button'; buy.disabled = !connected || purchaseBusy.size > 0 || !item;
                     buy.onclick = () => buyRemaining(id, itemId);
@@ -355,11 +361,11 @@
         return card;
     }
     function teacherCatalog() {
-        return {...Object.fromEntries((window.CollectionRewardCatalog || []).map(item => [item.id, item])), ...catalog};
+        return Object.fromEntries(Object.entries({...Object.fromEntries((window.CollectionRewardCatalog || []).map(item => [item.id, item])), ...catalog}).map(([id,item]) => [id,{...item,tag:tagLabel(item.tag)}]));
     }
     function configuredRewardTag(id) {
         const configured = (window.CollectionRewardCatalog || []).find(item => item.id === id);
-        return String(configured?.tag || catalog[id]?.tag || '').trim();
+        return tagLabel(configured?.tag || catalog[id]?.tag);
     }
     function rewardUsedElsewhere(id, ownSetId) {
         return Object.entries(sets).some(([setId, set]) => setId !== ownSetId && !set.deleted && set.choices.includes(id));
@@ -393,17 +399,17 @@
         panel.append(el('p', 'Sửa bộ sẽ áp dụng điều kiện mới cho người chưa nhận. Xóa bộ sẽ ngừng nhận mới; nền đã nhận và lịch sử nhận vẫn được giữ. Mỗi bộ chỉ nhận một lần, kể cả sau khi sửa.'));
         if (pendingDraft) panel.append(el('p', 'Có thao tác đang chờ xác minh. Bấm Kiểm tra / thử lưu lại để kiểm tra đúng bộ và tránh tạo trùng.'));
         const form = el('form'), ownSetId = pendingDraft?.id || editingId;
-        if (original) form.append(el('h3', 'Đang sửa bộ: ' + original.tag));
-        const sourceItems = typeof StoreConfig !== 'undefined' ? StoreConfig.items.filter(item => validId(item.id) && !item.id.startsWith('reward_bg_')) : [];
+        if (original) form.append(el('h3', 'Đang sửa bộ: ' + groupLabel(original.tag)));
+        const sourceItems = typeof StoreConfig !== 'undefined' ? [...new Map(StoreConfig.items.filter(item => validId(item.id) && !item.id.startsWith('reward_bg_')).map(item => [item.id,{...item,tag:tagLabel(item.tag)}])).values()] : [];
         for (const id of initial?.required || []) if (!sourceItems.some(item => item.id === id)) sourceItems.push({id, name: id, tag: 'Vật phẩm cũ'});
         const filter = el('select'); filter.id = 'crTagFilter'; const all = el('option', 'Tất cả tag'); all.value = ''; filter.append(all);
-        for (const tag of [...new Set(sourceItems.map(item => item.tag).filter(Boolean))].sort()) { const option = el('option', tag); option.value = tag; filter.append(option); }
+        for (const tag of uniqueTags(sourceItems.map(item => item.tag).filter(Boolean)).sort()) { const option = el('option', tag); option.value = tag; filter.append(option); }
         const filterLabel = el('label', 'Lọc vật phẩm theo tag'); filterLabel.htmlFor = filter.id;
         form.append(filterLabel, filter, el('h3', 'Chọn vật phẩm cần sở hữu đủ (1–24)'));
         const required = el('div', '', 'cr-options'), selected = new Set(initial?.required || []), count = el('p', `Đã chọn ${initial?.required.length || 0}/24 vật phẩm`);
         function drawRequired() {
             required.replaceChildren();
-            for (const item of sourceItems.filter(item => !filter.value || item.tag === filter.value)) {
+            for (const item of sourceItems.filter(item => !filter.value || tagKey(item.tag) === tagKey(filter.value))) {
                 const label = el('label', '', 'cr-option'), input = el('input'); input.type = 'checkbox'; input.value = item.id; input.checked = selected.has(item.id);
                 input.onchange = () => { if (input.checked) selected.add(item.id); else selected.delete(item.id); count.textContent = `Đã chọn ${selected.size}/24 vật phẩm`; };
                 label.append(input, el('span', item.name + ' · ' + (item.tag || 'Không có tag'))); required.append(label);
@@ -443,7 +449,7 @@
             if (!connected) return notice('Cần kết nối mạng để lưu bộ thưởng.');
             drawChoices();
             if (!selected.size || selected.size > 24 || !picked.size || picked.size > 8) return notice('Chọn 1–24 vật phẩm và 1–8 nền thưởng chưa công bố.');
-            const tags = [...new Set([...picked].map(configuredRewardTag))];
+            const tags = uniqueTags([...picked].map(configuredRewardTag));
             const tag = tags.join(' / ');
             if (!pendingDraft && (tags.includes('') || tag.length > 100)) return notice('Tag của nền thưởng chưa hợp lệ. Vui lòng kiểm tra cấu hình tag.');
             const draft = pendingDraft?.value || {tag, required: [...selected], choices: [...picked]};
@@ -497,12 +503,12 @@
         for (const [id, set] of Object.entries(sets)) {
             if (set.deleted) continue;
             const row = el('section', '', 'cr-published-row'); row.dataset.setId = id;
-            row.append(el('p', `${set.tag}: ${set.required.length} vật phẩm → ${set.choices.length} nền thưởng`));
+            row.append(el('p', `${groupLabel(set.tag)}: ${set.required.length} vật phẩm → ${set.choices.length} nền thưởng`));
             const actions = el('div', '', 'cr-published-actions'), edit = el('button', 'Sửa'), remove = el('button', 'Xóa', 'cr-delete');
             edit.type = remove.type = 'button'; edit.disabled = remove.disabled = publishing || pending || !connected;
             edit.onclick = () => { if (publishing) return; editingId = id; render(); panel.querySelector('form')?.scrollIntoView({block:'start'}); };
             remove.onclick = async () => {
-                if (publishing || !connected || !(await AppDialog.confirm('Xóa bộ “' + set.tag + '”? Học sinh sẽ không nhận thêm từ bộ này; nền đã nhận vẫn được giữ.'))) return;
+                if (publishing || !connected || !(await AppDialog.confirm('Xóa bộ “' + groupLabel(set.tag) + '”? Học sinh sẽ không nhận thêm từ bộ này; nền đã nhận vẫn được giữ.'))) return;
                 saveTeacherOperation({id, mode:'delete', baseRevision:revisionOf(set), value:{...set, deleted:true}});
             };
             actions.append(edit, remove); row.append(actions); list.append(row);

@@ -1084,6 +1084,8 @@ class DailyLoginManager {
                                 firebase.database.ServerValue
                                     .TIMESTAMP,
                             source: 'daily_login',
+                            rewardWeekId: serverWeekId,
+                            rewardDayId: String(serverDayId),
                             isTrial: null,
                             trialExpiry: null,
                             isEquipped: false

@@ -1348,6 +1348,8 @@
         gift_sent:
             'Giáo viên gửi quà',
 
+        teacher_ticket_adjust: 'Cộng/trừ vé',
+
         teacher_penalty:
             'Trừng phạt học sinh',
 

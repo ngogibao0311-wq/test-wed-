@@ -3,7 +3,7 @@
     const terminal = new Set(['completed','active','failed_refunded','cancelled_refunded','refunded','rejected']);
     const running = new Map();
     async function scan(options) {
-        const report = { recovered: [], review: [], deferred: [], checked: 0 };
+        const report = { recovered: [], review: [], deferred: [], released: [], checked: 0 };
         for (const [root, kind] of [['store_purchase_ops','purchase'],['store_trial_claims','trial']]) {
             let cursor = null;
             do {
@@ -19,6 +19,11 @@
                     if (!operation || terminal.has(operation.status)) continue;
                     report.checked++;
                     const entry = { kind, itemId, operationId: operation.operationId || '', status: operation.status };
+                    if(operation.protocolVersion===2&&operation.atomicCharge!==true&&['reserved','debit_pending'].includes(operation.status)&&Number(operation.startedAt)+600000<=Date.now()&&options.cancelUnpaid){
+                        try {
+                            if(await options.cancelUnpaid(kind,itemId,operation)){report.released.push(entry);continue;}
+                        }catch(error){report.review.push({...entry,reason:String(error.message||error)});continue;}
+                    }
                     // A new payment or an uncertain old debit must never be resumed blindly.
                     if (operation.atomicCharge !== true || !operation.inventoryGrant ||
                         operation.status !== (kind === 'trial' ? 'debited' : 'paid')) {

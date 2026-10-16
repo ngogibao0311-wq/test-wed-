@@ -1180,6 +1180,8 @@ const RoyalBallEvent = {
                 typeof StoreConfig !== 'undefined' &&
                     Array.isArray(StoreConfig.items)
                     ? StoreConfig.items.filter(item =>
+                        !item.luxuryOnly &&
+                        !window.LuxuryStore?.isLuxuryItem?.(item.id) &&
                         item.tag &&
                         item.tag
                             .toLowerCase()
@@ -1251,17 +1253,14 @@ const RoyalBallEvent = {
                     /*
                      * Trao vật phẩm trước khi hiển thị thành công.
                      */
-                    await db.ref(
-                        `student_inventory/` +
-                        `${currentUser.username}/` +
-                        `${randomItem.id}`
-                    ).update({
-                        id: randomItem.id,
-                        purchaseTime:
-                            firebase.database
-                                .ServerValue.TIMESTAMP,
-                        isEquipped: false,
-                        source: 'royal_ball'
+                    const grantTime = firebase.database.ServerValue.TIMESTAMP;
+                    await db.ref().update({
+                        [`student_inventory/${currentUser.username}/${randomItem.id}`]: {
+                            id: randomItem.id, purchaseTime: grantTime,
+                            isEquipped: false, source: 'royal_ball'
+                        },
+                        [`royal_ball_limits/${currentUser.username}/rewardItemId`]: randomItem.id,
+                        [`royal_ball_limits/${currentUser.username}/rewardGrantedAt`]: grantTime
                     });
 
                     rewardTheme = 'item';

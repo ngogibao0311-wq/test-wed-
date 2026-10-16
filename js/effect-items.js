@@ -132,7 +132,11 @@ class EffectManager {
     }
 
     static clearEffects(removeSavedEffect = false) {
+        window.ValentineRegularRuntime?.clearEffect();
+        window.JulietRuntime?.clearEffect();
         window.ThatTichRuntime?.clearEffect();
+        window.HuyenMinhRuntime?.clearEffect();
+        window.ChronosRuntime?.clearEffect();
         window.LuGuangRuntime?.clearEffect();
         window.AudreyHallRuntime?.clearEffect();
         this.mienVuObserver?.disconnect();
@@ -346,8 +350,12 @@ class EffectManager {
         if (!this.container) return;
 
         switch (effectId) {
+            case 'effect_valentine_juliet_regular_2': window.JulietRuntime?.mountEffect(); break;
+            case 'effect_valentine_cupid_regular_1': window.ValentineRegularRuntime?.mountEffect(); break;
             case 'effect_nguu_lang_regular_1': window.ThatTichRuntime?.mountEffect('nguu_lang'); break;
             case 'effect_chuc_nu_regular_1': window.ThatTichRuntime?.mountEffect('chuc_nu'); break;
+            case 'effect_huyen_minh_regular_1': window.HuyenMinhRuntime?.mountEffect(); break;
+            case 'effect_chronos_regular_3': window.ChronosRuntime?.mountEffect(); break;
             case 'effect_lu_guang_regular_2': window.LuGuangRuntime?.mountEffect(); break;
             case 'effect_audrey_hall_regular_2': window.AudreyHallRuntime?.mountEffect(); break;
             case 'effect_thatdaitoi_mien_vu_tinh_da':

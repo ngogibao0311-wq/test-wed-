@@ -10,8 +10,7 @@
     const AUTO_DELAY = 4200;
 
     // PHẦN THƯỞNG HOÀN THÀNH BELLUM
-    // Chỉ lấy vật phẩm từ StoreConfig.items (cửa hàng thường),
-    // không đọc LuxuryStore / cửa hàng Sang trọng.
+    // Giữ phần thưởng thường và bổ sung các món được chỉ định nhận từ Bellum.
     const COMPLETION_REWARD_TAG = 'Thất Đại Tội';
     const COMPLETION_REWARD_ROOT = 'student_event_rewards';
 
@@ -925,7 +924,7 @@
     }
 
     async function ensureRegularStoreRuntime() {
-        if (hasRegularStoreRuntime()) {
+        if (hasRegularStoreRuntime() && window.LuxuryStore) {
             return true;
         }
 
@@ -935,7 +934,7 @@
         ) {
             try {
                 await window.StudentFeatureLoader.ensure(
-                    'visual-runtime'
+                    'store-ui'
                 );
             } catch (error) {
                 console.warn(
@@ -958,13 +957,11 @@
                 COMPLETION_REWARD_TAG
             );
 
-        /*
-         * CỐ Ý chỉ duyệt StoreConfig.items:
-         * đây là danh sách của CỬA HÀNG THƯỜNG.
-         * Không lấy dữ liệu từ LuxuryStore / cửa hàng Sang trọng.
-         */
-        return StoreConfig.items.filter(item => {
+        // Hợp nhất cửa hàng thường và phần thưởng Bellum trong cửa hàng sang trọng.
+        return [...new Map([...StoreConfig.items, ...(window.LuxuryStore?.getItems?.() || [])].map(item => [item.id, item])).values()].filter(item => {
             if (!item || !item.id) return false;
+            if (item.rewardSource === 'bellum_completion_reward') return true;
+            if (item.luxuryOnly === true || window.LuxuryStore?.isLuxuryItem?.(item.id)) return false;
 
             const tags = [];
 
@@ -1180,12 +1177,23 @@
         } catch (_) {}
     }
 
-    async function claimCompletionReward() {
-        const status =
+    async function claimCompletionReward({ test = false } = {}) {
+        if (test) {
+            const options = window.firebase?.app?.().options;
+            if (options?.projectId !== 'web-chan-doan-test' ||
+                String(options.databaseURL || '').replace(/\/$/, '') !== 'https://web-chan-doan-test-default-rtdb.asia-southeast1.firebasedatabase.app') {
+                throw new Error('Lệnh thử Bellum chỉ dùng trên web-chan-doan-test.');
+            }
+            if (!window.firebase.auth().currentUser) throw new Error('Hãy đăng nhập tài khoản học sinh bản test.');
+        }
+        const actualStatus =
             getEventStatus();
-
-        const save =
+        // Override only this claim's eligibility, never Date.now(), Firebase
+        // timestamps or the student's saved story progress.
+        const status = test ? { ...actualStatus, isOpen: true } : actualStatus;
+        const actualSave =
             readSave();
+        const save = test ? { ...actualSave, completed: true } : actualSave;
 
         if (!status.isOpen) {
             notifySchedule(
@@ -1208,7 +1216,7 @@
 
         if (!storeReady) {
             notifySchedule(
-                'Chưa tải được dữ liệu Cửa hàng thường. Hãy thử lại.',
+                'Chưa tải được danh sách phần thưởng Bellum. Hãy thử lại.',
                 'error'
             );
             return false;
@@ -1219,7 +1227,7 @@
 
         if (!allRewardItems.length) {
             notifySchedule(
-                'Cửa hàng thường hiện chưa có vật phẩm tag Thất Đại Tội.',
+                'Hiện chưa có vật phẩm phần thưởng Bellum.',
                 'warning'
             );
             return false;
@@ -1397,7 +1405,7 @@
                 );
 
                 notifySchedule(
-                    'Bạn đã sở hữu toàn bộ vật phẩm Thất Đại Tội hiện có trong Cửa hàng thường. Phần thưởng chưa bị tiêu hao.',
+                    'Bạn đã sở hữu toàn bộ phần thưởng Bellum hiện có. Phần thưởng chưa bị tiêu hao.',
                     'warning'
                 );
 
@@ -1443,7 +1451,7 @@
                 tag: COMPLETION_REWARD_TAG,
                 claimedAt,
                 seasonYear: status.year,
-                sourceStore: 'regular'
+                sourceStore: rewardItem.luxuryOnly === true || window.LuxuryStore?.isLuxuryItem?.(rewardItem.id) ? 'luxury' : 'regular'
             };
 
             await database
@@ -1452,6 +1460,7 @@
 
             writeSave({
                 rewardClaimed: true,
+                seasonYear: status.year,
                 rewardItemId:
                     String(rewardItem.id),
                 rewardItemName:
@@ -2658,6 +2667,7 @@
         next: nextFrame,
         getProgress: readSave,
         claimCompletionReward,
+        testClaimCompletionReward: () => claimCompletionReward({ test: true }),
         syncCompletionReward:
             syncCompletionRewardFromFirebase,
         getRegularRewardItems() {

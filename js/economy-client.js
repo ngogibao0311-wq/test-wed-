@@ -2,6 +2,58 @@
 (() => {
     'use strict';
     const active = new Map();
+    // Shared across tabs: an unavailable Worker must not be hammered by every
+    // video timer / wallet listener. Pending operation IDs remain untouched.
+    function retryKey(uid) { return 'economy_retry_v1:' + uid; }
+    function readRetry(uid) {
+        try { return JSON.parse(localStorage.getItem(retryKey(uid)) || 'null'); }
+        catch (_) { return null; }
+    }
+    function unavailableError(until) {
+        return Object.assign(Error('ECONOMY_UNCONFIRMED_RETRY_SAME_OPERATION'), {retryAt: until});
+    }
+    function deferRetry(uid, response) {
+        const previous = readRetry(uid);
+        const failures = Math.min(3, (Number(previous?.failures) || 0) + 1);
+        const header = response?.headers?.get('Retry-After');
+        const requested = header ? (Number.isFinite(Number(header)) ? Number(header) * 1000 : Date.parse(header) - Date.now()) : 0;
+        const delay = Math.min(120000, Math.max(15000 * 2 ** (failures - 1), requested || 0));
+        const until = Date.now() + delay;
+        localStorage.setItem(retryKey(uid), JSON.stringify({until, failures}));
+        return until;
+    }
+    function explainError(error) {
+        if (error?.message === 'ECONOMY_UNCONFIRMED_RETRY_SAME_OPERATION') {
+            const seconds = Math.max(0, Math.ceil(((error.retryAt || 0) - Date.now()) / 1000));
+            return 'Máy chủ giao dịch tạm thời chưa phản hồi. Giao dịch đang chờ được giữ nguyên để xác nhận lại.' +
+                (seconds ? ` Vui lòng thử lại sau ${seconds} giây.` : ' Vui lòng thử lại sau.');
+        }
+        if (error?.message !== 'ACCOUNT_NOT_ALLOWED') return error?.message || 'Không xác nhận được giao dịch.';
+        const reasons = {
+            PROFILE_MISSING: 'Không tìm thấy hồ sơ của tài khoản đang đăng nhập trong dữ liệu Firebase.',
+            USERNAME_INVALID: 'Tên đăng nhập trong hồ sơ bị thiếu hoặc chứa ký tự không dùng được làm khóa dữ liệu (. # $ [ ] /).',
+            ROLE_INVALID: 'Vai trò trong hồ sơ phải là teacher hoặc student.',
+            ACCOUNT_LOCKED: 'Hồ sơ tài khoản đang đánh dấu bị khóa (isLocked).',
+            ACCOUNT_DELETION_PENDING: 'Hồ sơ tài khoản đang đánh dấu chờ xóa (deletionPending).'
+        };
+        return (reasons[error.reason] || 'Máy chủ từ chối hồ sơ tài khoản đang đăng nhập.') +
+            '\nKiểm tra hồ sơ users trong Firebase chính; nếu trạng thái là chuỗi "false", hãy sửa thành giá trị boolean false. Không cần mở quyền ghi trong Rules.';
+    }
+    async function accountErrorReason(user) {
+        // Compatibility with an older Worker: read only the signed-in profile.
+        try {
+            const profile = (await db.ref('users/' + user.uid).once('value')).val();
+            if (firebase.auth().currentUser?.uid !== user.uid) return undefined;
+            if (!profile) return 'PROFILE_MISSING';
+            const name = profile.username;
+            if (typeof name !== 'string' || !name.length || name.length > 200 ||
+                ['__proto__', 'constructor', 'prototype'].includes(name) || /[.#$\[\]/\u0000-\u001f]/.test(name)) return 'USERNAME_INVALID';
+            if (!['student', 'teacher'].includes(profile.role)) return 'ROLE_INVALID';
+            if (profile.deletionPending) return 'ACCOUNT_DELETION_PENDING';
+            if (profile.isLocked) return 'ACCOUNT_LOCKED';
+        } catch (_) { /* Keep the original rejection when diagnostics cannot be read. */ }
+        return undefined;
+    }
     function isFirebaseDraft() {
         const options = firebase.app?.().options;
         return options?.projectId === 'web-chan-doan-test' &&
@@ -70,6 +122,8 @@
             try { saved = JSON.parse(localStorage.getItem(storageKey) || 'null'); }
             catch (_) { throw Error('Dữ liệu giao dịch đang chờ không đọc được; cần kiểm tra trước khi tiếp tục.'); }
             if (saved && saved.intent !== intent) throw Error('Có giao dịch chưa xác nhận. Hãy thử lại giao dịch trước.');
+            const retry = readRetry(user.uid);
+            if (retry?.until > Date.now()) throw unavailableError(retry.until);
             if (!saved) {
                 saved = {intent, body:{...args,action,operationId:crypto.randomUUID()}};
                 localStorage.setItem(storageKey,JSON.stringify(saved));
@@ -82,10 +136,20 @@
                 let response,data;
                 for(let attempt=0;attempt<3;attempt++){
                     if(firebase.auth().currentUser?.uid!==user.uid)throw Error('Tài khoản vừa thay đổi.');
-                    response=await fetch(endpoint+'/economy',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify(saved.body),signal:controller.signal});
-                    data=await response.json();
-                    if(data.settled!==true&&['ECONOMY_REQUEST_LIMIT_RETRY_SAME_OPERATION','ECONOMY_UNCONFIRMED_RETRY_SAME_OPERATION'].includes(data.error)&&attempt<2){
+                    try {
+                        response=await fetch(endpoint+'/economy',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify(saved.body),signal:controller.signal});
+                        data=await response.json();
+                        if (!data || typeof data !== 'object') throw Error('INVALID_ECONOMY_RESPONSE');
+                    } catch (_) {
+                        // Includes HTML error pages and a lost response after commit.
+                        throw unavailableError(deferRetry(user.uid, response));
+                    }
+                    if(data.settled!==true&&data.error==='ECONOMY_REQUEST_LIMIT_RETRY_SAME_OPERATION'&&attempt<2){
                         await new Promise(resolve=>setTimeout(resolve,250*(attempt+1)));continue;
+                    }
+                    if (data.settled !== true && (response.status >= 500 || response.status === 429 ||
+                        data.error === 'ECONOMY_UNCONFIRMED_RETRY_SAME_OPERATION')) {
+                        throw unavailableError(deferRetry(user.uid, response));
                     }
                     break;
                 }
@@ -94,8 +158,11 @@
                         localStorage.setItem(lastKey,JSON.stringify({operationId:saved.body.operationId,intent,error:data.error}));
                         if (localStorage.getItem(storageKey) === JSON.stringify(saved)) localStorage.removeItem(storageKey);
                     }
-                    throw Error(data.error || 'Chưa xác nhận giao dịch. Hãy thử lại với mã cũ.');
+                    const error = Error(data.error || 'Chưa xác nhận giao dịch. Hãy thử lại với mã cũ.');
+                    if (data.error === 'ACCOUNT_NOT_ALLOWED') error.reason = data.reason || await accountErrorReason(user);
+                    throw error;
                 }
+                localStorage.removeItem(retryKey(user.uid));
                 localStorage.setItem(lastKey,JSON.stringify({operationId:saved.body.operationId,intent,result:data.result}));
                 if (localStorage.getItem(storageKey) === JSON.stringify(saved)) localStorage.removeItem(storageKey);
                 if (firebase.auth().currentUser?.uid !== user.uid) throw Error('Tài khoản vừa thay đổi; giao dịch của tài khoản trước đã được lưu.');
@@ -127,5 +194,5 @@
             return {ids:saved.ids,finish:()=>navigator.locks.request(key,()=>{if(localStorage.getItem(key)===encoded)localStorage.removeItem(key);})};
         });
     }
-    window.EconomyClient = Object.freeze({execute,initialize,resume,batch});
+    window.EconomyClient = Object.freeze({execute,initialize,resume,batch,explainError});
 })();

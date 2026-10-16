@@ -15,7 +15,7 @@
 
     if (window.WebPerformanceOptimizer) return;
 
-    const VERSION = '1.4.0';
+    const VERSION = '1.5.0-adaptive';
     const STORAGE_KEY_BASE = 'webPerformanceOptimizerEnabled';
 
     function resolveRole() {
@@ -65,6 +65,8 @@
         fpsThreshold: 49,
         sampleDurationMs: 2200,
         sampleDelayMs: 1400,
+        sampleIntervalMs: 10000,
+        adaptiveCooldownMs: 30000,
         lowMemoryGb: 4,
         lowCoreCount: 4
     });
@@ -77,7 +79,15 @@
         lastFps: null,
         sampleRunning: false,
         observer: null,
-        sampleTimer: null
+        observerTimer: null,
+        sampleTimer: null,
+        sampleFrame: null,
+        sampleCancel: null,
+        adaptiveLevel: 'high',
+        slowFrameRatio: null,
+        poorSamples: 0,
+        goodSamples: 0,
+        lastAdaptiveChange: -Infinity
     };
 
     function safeGetStoredEnabled() {
@@ -148,10 +158,10 @@
         style.id = STYLE_ID;
         style.textContent = `
 /* =========================================================
-   BASELINE NHẸ — luôn hoạt động, kể cả khi công tắc tối ưu TẮT.
+   BASELINE NHẸ — bố cục ngoài vùng xem; học sinh dùng chung EffectQualityManager.
    Không thay logic; chỉ giảm layout/paint và animation ngoài màn hình.
    ========================================================= */
-body.perf-baseline #wfx-web-animation-layer .wfx-particle:nth-child(n + ${CONFIG.baselineParticleLimit + 1}) {
+body.perf-baseline:not(.perf-adaptive-managed) #wfx-web-animation-layer .wfx-particle:nth-child(n + ${CONFIG.baselineParticleLimit + 1}) {
     display: none !important;
 }
 
@@ -172,59 +182,59 @@ body.perf-baseline.perf-page-hidden #wfx-scroll-progress * {
     animation-play-state: paused !important;
 }
 
-/* Trình duyệt yếu / mobile: baseline nhẹ hơn một chút kể cả khi toggle OFF. */
+/* Giữ chính sách cũ cho giáo viên; không áp trần hiệu ứng thứ hai cho học sinh. */
 @media (max-width: 768px), (pointer: coarse) {
-    body.perf-baseline #wfx-web-animation-layer .wfx-particle:nth-child(n + 15) {
+    body.perf-baseline:not(.perf-adaptive-managed) #wfx-web-animation-layer .wfx-particle:nth-child(n + 15) {
         display: none !important;
     }
 }
 
-body.perf-balanced {
+body.perf-balanced:not(.perf-adaptive-managed) {
     background-attachment: scroll !important;
     animation-duration: 24s !important;
 }
 
-body.perf-balanced #wfx-web-animation-layer {
+body.perf-balanced:not(.perf-adaptive-managed) #wfx-web-animation-layer {
     --wfx-particle-opacity: 0.58;
     --wfx-scene-opacity: 0.88;
 }
 
-body.perf-balanced #wfx-web-animation-layer .wfx-particle:nth-child(n + ${CONFIG.baseParticleLimit + 1}) {
+body.perf-balanced:not(.perf-adaptive-managed) #wfx-web-animation-layer .wfx-particle:nth-child(n + ${CONFIG.baseParticleLimit + 1}) {
     display: none !important;
 }
 
-body.perf-balanced #wfx-web-animation-layer .wfx-grid {
+body.perf-balanced:not(.perf-adaptive-managed) #wfx-web-animation-layer .wfx-grid {
     opacity: 0.48 !important;
 }
 
-body.perf-assist #wfx-web-animation-layer {
+body.perf-assist:not(.perf-adaptive-managed) #wfx-web-animation-layer {
     --wfx-particle-opacity: 0.28;
     --wfx-scene-opacity: 0.72;
 }
 
-body.perf-assist #wfx-web-animation-layer .wfx-grid,
-body.perf-assist #wfx-web-animation-layer .wfx-aurora-c,
-body.perf-assist #wfx-web-animation-layer .wfx-cursor-glow {
+body.perf-assist:not(.perf-adaptive-managed) #wfx-web-animation-layer .wfx-grid,
+body.perf-assist:not(.perf-adaptive-managed) #wfx-web-animation-layer .wfx-aurora-c,
+body.perf-assist:not(.perf-adaptive-managed) #wfx-web-animation-layer .wfx-cursor-glow {
     display: none !important;
 }
 
-body.perf-assist #wfx-web-animation-layer .wfx-particle:nth-child(n + ${CONFIG.assistParticleLimit + 1}) {
+body.perf-assist:not(.perf-adaptive-managed) #wfx-web-animation-layer .wfx-particle:nth-child(n + ${CONFIG.assistParticleLimit + 1}) {
     display: none !important;
 }
 
-body.perf-assist #wfx-web-animation-layer .wfx-aurora {
+body.perf-assist:not(.perf-adaptive-managed) #wfx-web-animation-layer .wfx-aurora {
     filter: blur(32px) saturate(1.28) !important;
 }
 
-body.perf-assist .store-item-card {
+body.perf-assist:not(.perf-adaptive-managed) .store-item-card {
     backdrop-filter: blur(8px) !important;
     -webkit-backdrop-filter: blur(8px) !important;
 }
 
-body.perf-assist #leaderboardModal.modal-overlay,
-body.perf-assist #rulesModal.modal-overlay,
-body.perf-assist #treasureChestModal.modal-overlay,
-body.perf-assist #royalBallModal {
+body.perf-assist:not(.perf-adaptive-managed) #leaderboardModal.modal-overlay,
+body.perf-assist:not(.perf-adaptive-managed) #rulesModal.modal-overlay,
+body.perf-assist:not(.perf-adaptive-managed) #treasureChestModal.modal-overlay,
+body.perf-assist:not(.perf-adaptive-managed) #royalBallModal {
     backdrop-filter: blur(7px) !important;
     -webkit-backdrop-filter: blur(7px) !important;
 }
@@ -266,15 +276,15 @@ body.perf-assist #${STATUS_ID} {
 }
 
 @media (max-width: 768px), (pointer: coarse) {
-    body.perf-balanced #wfx-web-animation-layer .wfx-grid {
+    body.perf-balanced:not(.perf-adaptive-managed) #wfx-web-animation-layer .wfx-grid {
         display: none !important;
     }
 
-    body.perf-balanced #wfx-web-animation-layer .wfx-particle:nth-child(n + 11) {
+    body.perf-balanced:not(.perf-adaptive-managed) #wfx-web-animation-layer .wfx-particle:nth-child(n + 11) {
         display: none !important;
     }
 
-    body.perf-balanced #wfx-web-animation-layer {
+    body.perf-balanced:not(.perf-adaptive-managed) #wfx-web-animation-layer {
         --wfx-particle-opacity: 0.30;
         --wfx-scene-opacity: 0.76;
     }
@@ -327,7 +337,15 @@ body.perf-balanced .quill-student-editor[data-perf-quill-pending="1"] {
         if (!el) return;
 
         if (!state.enabled) {
-            el.textContent = 'Đang tắt • Tối ưu nền nhẹ vẫn hoạt động';
+            el.textContent = 'Đang tắt • Không tự điều chỉnh mức hiệu ứng';
+            return;
+        }
+
+        if (resolveRole() === 'student') {
+            const labels = { high: 'Cao', medium: 'Trung bình', low: 'Thấp' };
+            const level = window.EffectQualityManager?.getEffectiveLevel?.() || state.adaptiveLevel;
+            el.textContent = `Đang bật • Tự điều chỉnh theo máy • Mức hiển thị: ${labels[level]}` +
+                (state.lastFps == null ? ' • Đang theo dõi' : ` • Khoảng ${Math.round(state.lastFps)} FPS`);
             return;
         }
 
@@ -381,6 +399,8 @@ body.perf-balanced .quill-student-editor[data-perf-quill-pending="1"] {
                 <p>
                     Tải ảnh và video khi gần vùng xem; giảm tải danh sách bài tập, kết quả,
                     tài liệu, cửa hàng, lộ trình và lịch. Âm thanh tải khi bấm phát.
+                    Với học sinh: tự giảm hiệu ứng khi máy chậm kéo dài và phục hồi khi ổn định,
+                    tối đa bằng Mức hiệu ứng vật phẩm & web đã chọn. Tắt tùy chọn này để ngừng tự điều chỉnh.
                     Không thay đổi logic trò chơi, điểm, dữ liệu hay vật phẩm.
                 </p>
                 <span id="${STATUS_ID}">Đang tắt • Mặc định</span>
@@ -409,18 +429,58 @@ body.perf-balanced .quill-student-editor[data-perf-quill-pending="1"] {
     }
 
     function clearPerformanceWork() {
-        if (state.sampleTimer) {
+        if (state.sampleTimer !== null) {
             clearTimeout(state.sampleTimer);
             state.sampleTimer = null;
         }
 
         state.observer?.disconnect();
         state.observer = null;
+        clearTimeout(state.observerTimer);
+        state.observerTimer = null;
+        if (state.sampleFrame !== null) cancelAnimationFrame(state.sampleFrame);
+        state.sampleFrame = null;
+        state.sampleCancel?.();
+        state.sampleCancel = null;
         state.sampleRunning = false;
+        state.poorSamples = 0;
+        state.goodSamples = 0;
+    }
+
+    function setAdaptiveLevel(level) {
+        if (!state.enabled || resolveRole() !== 'student') return;
+        if (!['high', 'medium', 'low'].includes(level) || level === state.adaptiveLevel) return;
+        state.adaptiveLevel = level;
+        state.lastAdaptiveChange = performance.now();
+        state.poorSamples = 0;
+        state.goodSamples = 0;
+        state.assist = level !== 'high';
+        state.assistReason = state.assist ? 'sustained-frame-time' : '';
+        // EffectQualityManager owns all student visual caps. Never persist manual quality here.
+        announceStateChange();
+        updateStatusText();
+    }
+
+    function adaptToSample(fps, slowFrameRatio) {
+        if (!state.enabled || resolveRole() !== 'student' || document.hidden) return;
+        const poor = fps < 45 || slowFrameRatio > 0.20;
+        const good = fps >= 56 && slowFrameRatio < 0.08;
+        state.poorSamples = poor ? state.poorSamples + 1 : 0;
+        state.goodSamples = good ? state.goodSamples + 1 : 0;
+        if (performance.now() - state.lastAdaptiveChange < CONFIG.adaptiveCooldownMs) return;
+        const levels = ['low', 'medium', 'high'];
+        const index = levels.indexOf(state.adaptiveLevel);
+        if (state.poorSamples >= 2 && index > 0) setAdaptiveLevel(levels[index - 1]);
+        else if (state.goodSamples >= 4 && index < 2) setAdaptiveLevel(levels[index + 1]);
     }
 
     function setAssist(enabled, reason = '') {
         if (!state.enabled || !document.body) return;
+
+        if (resolveRole() === 'student') {
+            setAdaptiveLevel(enabled ? 'medium' : 'high');
+            return;
+        }
 
         state.assist = Boolean(enabled);
         state.assistReason = state.assist ? String(reason || 'manual') : '';
@@ -441,65 +501,81 @@ body.perf-balanced .quill-student-editor[data-perf-quill-pending="1"] {
         state.sampleRunning = true;
 
         return new Promise(resolve => {
-            const startedAt = performance.now();
-            let lastAt = startedAt;
+            let startedAt = null;
+            let lastAt = null;
             let frames = 0;
             let validElapsed = 0;
+            let slowFrames = 0;
+            const finish = value => {
+                state.sampleFrame = null;
+                state.sampleRunning = false;
+                state.sampleCancel = null;
+                resolve(value);
+            };
+            state.sampleCancel = () => finish(null);
 
             function frame(now) {
                 if (!state.enabled || document.hidden) {
-                    state.sampleRunning = false;
-                    resolve(null);
+                    finish(null);
                     return;
                 }
+
+                if (startedAt === null) startedAt = lastAt = now;
 
                 const delta = now - lastAt;
                 lastAt = now;
 
-                if (delta > 0 && delta < 250) {
+                // Include visible long stalls; dropping them would report a frozen page as fast.
+                if (delta > 0) {
                     frames += 1;
                     validElapsed += delta;
+                    if (delta > 34) slowFrames += 1;
                 }
 
                 if (now - startedAt < CONFIG.sampleDurationMs) {
-                    requestAnimationFrame(frame);
+                    state.sampleFrame = requestAnimationFrame(frame);
                     return;
                 }
-
-                state.sampleRunning = false;
 
                 const fps = validElapsed > 0
                     ? (frames * 1000) / validElapsed
                     : null;
 
                 state.lastFps = fps;
+                state.slowFrameRatio = frames ? slowFrames / frames : null;
 
-                if (fps != null && fps < CONFIG.fpsThreshold) {
+                if (fps != null && resolveRole() === 'student') {
+                    adaptToSample(fps, state.slowFrameRatio);
+                } else if (fps != null && fps < CONFIG.fpsThreshold) {
                     setAssist(true, 'fps-low');
                 }
 
                 updateStatusText();
-                resolve(fps);
+                finish(fps);
             }
 
-            requestAnimationFrame(frame);
+            state.sampleFrame = requestAnimationFrame(frame);
         });
     }
 
-    function scheduleFpsSample() {
-        if (!state.enabled) return;
+    function scheduleFpsSample(delay = CONFIG.sampleDelayMs) {
+        if (!state.enabled || document.hidden) return;
 
         if (state.sampleTimer) clearTimeout(state.sampleTimer);
 
         state.sampleTimer = setTimeout(() => {
             state.sampleTimer = null;
-            measureFps().catch(() => {});
-        }, CONFIG.sampleDelayMs);
+            measureFps().catch(() => {}).finally(() => {
+                if (state.enabled && resolveRole() === 'student' && !document.hidden) {
+                    scheduleFpsSample(CONFIG.sampleIntervalMs);
+                }
+            });
+        }, delay);
     }
 
     function initLongTaskObserver() {
         if (
-            !state.enabled ||
+            !state.enabled || resolveRole() === 'student' ||
             typeof PerformanceObserver !== 'function' ||
             !PerformanceObserver.supportedEntryTypes?.includes('longtask')
         ) {
@@ -523,9 +599,10 @@ body.perf-balanced .quill-student-editor[data-perf-quill-pending="1"] {
 
             state.observer.observe({ entryTypes: ['longtask'] });
 
-            setTimeout(() => {
+            state.observerTimer = setTimeout(() => {
                 state.observer?.disconnect();
                 state.observer = null;
+                state.observerTimer = null;
             }, 10000);
         } catch (_) {
             state.observer = null;
@@ -562,7 +639,8 @@ body.perf-balanced .quill-student-editor[data-perf-quill-pending="1"] {
                         detail: {
                             enabled: state.enabled,
                             role: resolveRole(),
-                            assist: state.assist
+                            assist: state.assist,
+                            adaptiveLevel: state.adaptiveLevel
                         }
                     }
                 )
@@ -576,6 +654,10 @@ body.perf-balanced .quill-student-editor[data-perf-quill-pending="1"] {
         if (persist) safeStoreEnabled(state.enabled);
 
         clearPerformanceWork();
+        state.adaptiveLevel = 'high';
+        state.lastAdaptiveChange = -Infinity;
+        state.lastFps = null;
+        state.slowFrameRatio = null;
 
         if (!document.body) {
             syncToggle();
@@ -595,7 +677,7 @@ body.perf-balanced .quill-student-editor[data-perf-quill-pending="1"] {
             return;
         }
 
-        if (detectWeakDevice()) {
+        if (resolveRole() !== 'student' && detectWeakDevice()) {
             setAssist(true, 'weak-device');
         } else {
             state.assist = false;
@@ -625,6 +707,7 @@ body.perf-balanced .quill-student-editor[data-perf-quill-pending="1"] {
             }
 
             document.body.classList.add('perf-baseline');
+            document.body.classList.toggle('perf-adaptive-managed', resolveRole() === 'student');
             state.enabled = safeGetStoredEnabled();
             injectSettingsToggle();
             setEnabled(state.enabled, false);
@@ -635,27 +718,23 @@ body.perf-balanced .quill-student-editor[data-perf-quill-pending="1"] {
                 { passive: true }
             );
 
-            let hiddenAt = 0;
-
             document.addEventListener(
                 'visibilitychange',
                 () => {
-                    if (document.hidden) {
-                        hiddenAt = Date.now();
-                        return;
-                    }
-
-                    if (
-                        state.enabled &&
-                        hiddenAt &&
-                        Date.now() - hiddenAt > 30000 &&
-                        !state.assist
-                    ) {
-                        scheduleFpsSample();
-                    }
+                    clearPerformanceWork();
+                    if (!document.hidden && state.enabled) scheduleFpsSample();
                 },
                 { passive: true }
             );
+
+            window.addEventListener('pagehide', clearPerformanceWork);
+            window.addEventListener('pageshow', () => {
+                if (state.enabled) scheduleFpsSample();
+            });
+            window.addEventListener('effect-quality-change', updateStatusText);
+            window.addEventListener('storage', event => {
+                if (event.key === getStorageKey()) setEnabled(safeGetStoredEnabled());
+            });
 
             finishLoaderStep();
 
@@ -676,6 +755,7 @@ body.perf-balanced .quill-student-editor[data-perf-quill-pending="1"] {
     window.WebPerformanceOptimizer = Object.freeze({
         version: VERSION,
         isEnabled: () => state.enabled,
+        getAdaptiveLevel: () => state.enabled && resolveRole() === 'student' ? state.adaptiveLevel : 'high',
         enable: () => setEnabled(true, true),
         disable: () => setEnabled(false, true),
         toggle: enabled => setEnabled(Boolean(enabled), true),
@@ -691,6 +771,11 @@ body.perf-balanced .quill-student-editor[data-perf-quill-pending="1"] {
             assist: state.assist,
             assistReason: state.assistReason,
             lastFps: state.lastFps,
+            adaptiveLevel: state.adaptiveLevel,
+            slowFrameRatio: state.slowFrameRatio,
+            sampleRunning: state.sampleRunning,
+            poorSamples: state.poorSamples,
+            goodSamples: state.goodSamples,
             weakDevice: detectWeakDevice(),
             role: resolveRole(),
             storageKey: getStorageKey()

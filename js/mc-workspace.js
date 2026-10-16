@@ -1095,13 +1095,9 @@
         const count = questions.reduce((sum, _, index) => sum + (answers?.[index] || answers?.[text(index)] ? 1 : 0), 0);
         const progress = root.querySelector('[data-mcw2-progress]');
         if (progress) progress.textContent = `Đã trả lời ${count}/${questions.length} câu`;
-        const phoneNav=root.querySelector('[data-mcw2-phone-nav]');
-        phoneNav?.addEventListener('click',()=>{
-            const open=phoneNav.getAttribute('aria-expanded')!=='true';
-            phoneNav.setAttribute('aria-expanded',String(open));
-            phoneNav.textContent=open?'Thu gọn danh sách ⌄':'Danh sách câu hỏi ⌃';
-            root.querySelector('.mcw2-sidebar').classList.toggle('phone-nav-open',open);
-        });
+        // Nút "Danh sách câu hỏi" đã được gắn sự kiện một lần trong installShellEvents().
+        // Gắn lại ở đây sẽ cộng dồn handler theo số câu đã trả lời, làm aria-expanded bị lật
+        // chẵn lần nên panel không mở được trên điện thoại.
         root.querySelectorAll('[data-mcw2-nav]').forEach(button => {
             const index = button.dataset.mcw2Nav;
             button.classList.toggle('is-answered', !!answers[index]);

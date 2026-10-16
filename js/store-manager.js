@@ -4,18 +4,63 @@
 window.__STORE_MANAGER_GUARD_BUILD = '20260918.v2-K2-K3-ownership';
 
 
+// Shared tag identity: preserve accents, ignore case/spacing, keep one display label.
+const StoreTags = (() => {
+    const key = value => String(value || '').normalize('NFC').trim().replace(/\s+/g, ' ').toLocaleLowerCase('vi');
+    const labels = new Map();
+    const label = value => {
+        const text = String(value || '').normalize('NFC').trim().replace(/\s+/g, ' '), id = key(text);
+        if (!id) return '';
+        if (!labels.has(id)) labels.set(id, text);
+        return labels.get(id);
+    };
+    ['Mùa Hạ','Mùa xuân','Mùa thu','Mùa đông','Đêm đầy sao','Trung thu','Thất Tịch','Valentine','Thất Đại Tội','Hội họa','Truyền thuyết','Tu tiên'].forEach(label);
+    const unique = values => [...new Map(values.filter(value => key(value)).map(value => [key(value), label(value)])).values()];
+    const of = item => unique([item?.tag, ...(Array.isArray(item?.tags) ? item.tags : [])]);
+    const has = (item, tag) => of(item).some(value => key(value) === key(tag));
+    const normalizeItem = item => {
+        if (!item) return item;
+        item.tag = label(item.tag);
+        if (Array.isArray(item.tags)) item.tags = of(item);
+        return item;
+    };
+    const groupLabel = value => unique(String(value || '').split(' / ')).join(' / ');
+    return {key,label,unique,of,has,normalizeItem,groupLabel};
+})();
+window.StoreTags = StoreTags;
+
 const StoreConfig = {
     items: [
-        {"id":"pet_nguu_lang_regular_1","name":"Ngưu Lang · Mục Đồng Sao","type":"pet","price":1,"isNonCoin":true,"currency":"that_tich_coin","tag":"Thất Tịch","tags":["Thất Tịch","Ngưu Lang"],"runtimeCss":"css/that-tich.css?v=20261012.thattich3","value":"assets/Premium/Thất tịch/nguu_lang_chibi1.png","asset":"assets/Premium/Thất tịch/nguu_lang_chibi1.png","isIcon":false,"disableClickEffect":true,"petEffect":"nguu_lang-regular"},
-        {"id":"theme_nguu_lang_regular_1","name":"Ngưu Lang · Bến Ngân Hà","type":"theme","price":1,"isNonCoin":true,"currency":"that_tich_coin","tag":"Thất Tịch","tags":["Thất Tịch","Ngưu Lang"],"runtimeCss":"css/that-tich.css?v=20261012.thattich3","value":"theme_nguu_lang_regular_1","customIcon":"♧"},
-        {"id":"effect_nguu_lang_regular_1","name":"Ngưu Lang · Đom Đóm Ngân Lam","type":"effect","price":1,"isNonCoin":true,"currency":"that_tich_coin","tag":"Thất Tịch","tags":["Thất Tịch","Ngưu Lang"],"runtimeCss":"css/that-tich.css?v=20261012.thattich3","value":"effect_nguu_lang_regular_1","customIcon":"♧"},
-        {"id":"frame_nguu_lang_regular_1","name":"Ngưu Lang · Thiên Ngưu Tinh Hoàn","type":"frame","price":1,"isNonCoin":true,"currency":"that_tich_coin","tag":"Thất Tịch","tags":["Thất Tịch","Ngưu Lang"],"runtimeCss":"css/that-tich.css?v=20261012.thattich3","value":"assets/Premium/Thất tịch/nguu_lang_khung1.png","asset":"assets/Premium/Thất tịch/nguu_lang_khung1.png","isIcon":false},
-        {"id":"background_nguu_lang_regular_1","name":"Ngưu Lang · Bờ Sao Đợi Người","type":"background","price":1,"isNonCoin":true,"currency":"that_tich_coin","tag":"Thất Tịch","tags":["Thất Tịch","Ngưu Lang"],"runtimeCss":"css/that-tich.css?v=20261012.thattich3","value":"assets/Premium/Thất tịch/nguu_lang_nen1.png","asset":"assets/Premium/Thất tịch/nguu_lang_nen1.png","isIcon":false,"backgroundFit":"cover","backgroundPosition":"center center","backgroundRepeat":"no-repeat","backgroundAttachment":"fixed"},
-        {"id":"pet_chuc_nu_regular_1","name":"Chức Nữ · Tiên Nữ Dệt Mây","type":"pet","price":1,"isNonCoin":true,"currency":"that_tich_coin","tag":"Thất Tịch","tags":["Thất Tịch","Chức Nữ"],"runtimeCss":"css/that-tich.css?v=20261012.thattich3","value":"assets/Premium/Thất tịch/chuc_nu_chibi1.png","asset":"assets/Premium/Thất tịch/chuc_nu_chibi1.png","isIcon":false,"disableClickEffect":true,"petEffect":"chuc_nu-regular"},
-        {"id":"theme_chuc_nu_regular_1","name":"Chức Nữ · Hiên Lụa Đào","type":"theme","price":1,"isNonCoin":true,"currency":"that_tich_coin","tag":"Thất Tịch","tags":["Thất Tịch","Chức Nữ"],"runtimeCss":"css/that-tich.css?v=20261012.thattich3","value":"theme_chuc_nu_regular_1","customIcon":"✿"},
-        {"id":"effect_chuc_nu_regular_1","name":"Chức Nữ · Cánh Hoa Tơ Hồng","type":"effect","price":1,"isNonCoin":true,"currency":"that_tich_coin","tag":"Thất Tịch","tags":["Thất Tịch","Chức Nữ"],"runtimeCss":"css/that-tich.css?v=20261012.thattich3","value":"effect_chuc_nu_regular_1","customIcon":"✿"},
-        {"id":"frame_chuc_nu_regular_1","name":"Chức Nữ · Vân Cẩm Hoa Hoàn","type":"frame","price":1,"isNonCoin":true,"currency":"that_tich_coin","tag":"Thất Tịch","tags":["Thất Tịch","Chức Nữ"],"runtimeCss":"css/that-tich.css?v=20261012.thattich3","value":"assets/Premium/Thất tịch/chuc_nu_khung1.png","asset":"assets/Premium/Thất tịch/chuc_nu_khung1.png","isIcon":false},
-        {"id":"background_chuc_nu_regular_1","name":"Chức Nữ · Vườn Mây Hẹn Ước","type":"background","price":1,"isNonCoin":true,"currency":"that_tich_coin","tag":"Thất Tịch","tags":["Thất Tịch","Chức Nữ"],"runtimeCss":"css/that-tich.css?v=20261012.thattich3","value":"assets/Premium/Thất tịch/chuc_nu_nen1.png","asset":"assets/Premium/Thất tịch/chuc_nu_nen1.png","isIcon":false,"backgroundFit":"cover","backgroundPosition":"center center","backgroundRepeat":"no-repeat","backgroundAttachment":"fixed"},
+        {"id":"pet_valentine_juliet_regular_2","name":"Juliet · Tiểu Thư Vườn Hồng","type":"pet","price":1,"isNonCoin":true,"currency":"love_coin","tag":"Valentine","tags":["Valentine","Juliet"],"runtimeCss":"css/valentine.css?v=20261015.regular-fix1","value":"assets/Premium/Valentine/juliet_chibi2.png","asset":"assets/Premium/Valentine/juliet_chibi2.png","isIcon":false,"disableClickEffect":true,"petEffect":"juliet-regular"},
+        {"id":"theme_valentine_juliet_regular_2","name":"Juliet · Phòng Trà Verona","type":"theme","price":1,"isNonCoin":true,"currency":"love_coin","tag":"Valentine","tags":["Valentine","Juliet"],"runtimeCss":"css/valentine.css?v=20261015.regular-fix1","value":"theme_valentine_juliet_regular_2","customIcon":"❦"},
+        {"id":"effect_valentine_juliet_regular_2","name":"Juliet · Điệu Vũ Cánh Bướm","type":"effect","price":1,"isNonCoin":true,"currency":"love_coin","tag":"Valentine","tags":["Valentine","Juliet"],"runtimeCss":"css/valentine.css?v=20261015.regular-fix1","value":"effect_valentine_juliet_regular_2","customIcon":"ʚɞ"},
+        {"id":"frame_valentine_juliet_regular_2","name":"Juliet · Ren Hồng Ước Hẹn","type":"frame","price":1,"isNonCoin":true,"currency":"love_coin","tag":"Valentine","tags":["Valentine","Juliet"],"runtimeCss":"css/valentine.css?v=20261015.regular-fix1","value":"assets/Premium/Valentine/juliet_khung2.png","asset":"assets/Premium/Valentine/juliet_khung2.png","isIcon":false},
+        {"id":"background_valentine_juliet_regular_2","name":"Juliet · Ban Công Tháng Hai","type":"background","price":1,"isNonCoin":true,"currency":"love_coin","tag":"Valentine","tags":["Valentine","Juliet"],"runtimeCss":"css/valentine.css?v=20261015.regular-fix1","value":"assets/Premium/Valentine/juliet_nen2.png","asset":"assets/Premium/Valentine/juliet_nen2.png","isIcon":false,"backgroundFit":"cover","backgroundPosition":"center center","backgroundRepeat":"no-repeat","backgroundAttachment":"fixed"},
+        {"id":"pet_valentine_cupid_regular_1","name":"Cupid · Tiểu Sứ Tơ Hồng","type":"pet","price":1,"isNonCoin":true,"tag":"Valentine","tags":["Valentine","Cupid"],"runtimeCss":"css/valentine.css?v=20261015.regular-fix1","value":"assets/Premium/Valentine/cupid_chibi1.png","asset":"assets/Premium/Valentine/cupid_chibi1.png","isIcon":false,"disableClickEffect":true,"currency":"love_coin"},
+        {"id":"theme_valentine_cupid_regular_1","name":"Cupid · Hiên Thư Tình","type":"theme","price":1,"isNonCoin":true,"tag":"Valentine","tags":["Valentine","Cupid"],"runtimeCss":"css/valentine.css?v=20261015.regular-fix1","value":"theme_valentine_cupid_regular_1","customIcon":"♡","currency":"love_coin"},
+        {"id":"effect_valentine_cupid_regular_1","name":"Cupid · Cánh Hồng Hẹn Ước","type":"effect","price":1,"isNonCoin":true,"tag":"Valentine","tags":["Valentine","Cupid"],"runtimeCss":"css/valentine.css?v=20261015.regular-fix1","value":"effect_valentine_cupid_regular_1","customIcon":"♡","currency":"love_coin"},
+        {"id":"frame_valentine_cupid_regular_1","name":"Cupid · Hoa Hoàn Tơ Đỏ","type":"frame","price":1,"isNonCoin":true,"tag":"Valentine","tags":["Valentine","Cupid"],"runtimeCss":"css/valentine.css?v=20261015.regular-fix1","value":"assets/Premium/Valentine/cupid_khung1.png","asset":"assets/Premium/Valentine/cupid_khung1.png","isIcon":false,"currency":"love_coin"},
+        {"id":"background_valentine_cupid_regular_1","name":"Cupid · Vườn Hồng Đợi Người","type":"background","price":1,"isNonCoin":true,"tag":"Valentine","tags":["Valentine","Cupid"],"runtimeCss":"css/valentine.css?v=20261015.regular-fix1","value":"assets/Premium/Valentine/cupid_nen1.png","asset":"assets/Premium/Valentine/cupid_nen1.png","isIcon":false,"backgroundFit":"cover","backgroundPosition":"center center","backgroundRepeat":"no-repeat","backgroundAttachment":"fixed","currency":"love_coin"},
+        {"id":"pet_huyen_minh_regular_1","name":"Huyền Minh · Tiểu Sứ Dẫn Hồn","type":"pet","price":870,"isNonCoin":false,"tag":"Kinh dị","tags":["Kinh dị","Huyền Minh"],"runtimeCss":"css/huyen-minh.css?v=20261014.huyenminh3","value":"assets/Premium/kinh dị/Tute_chibi1.png","asset":"assets/Premium/kinh dị/Tute_chibi1.png","isIcon":false,"disableClickEffect":true,"petEffect":"huyen-minh-paper-spirit"},
+        {"id":"theme_huyen_minh_regular_1","name":"Huyền Minh · Hiên Đèn U Ảnh","type":"theme","price":750,"isNonCoin":false,"tag":"Kinh dị","tags":["Kinh dị","Huyền Minh"],"runtimeCss":"css/huyen-minh.css?v=20261014.huyenminh3","value":"theme_huyen_minh_regular_1","customIcon":"⛩"},
+        {"id":"effect_huyen_minh_regular_1","name":"Huyền Minh · Linh Phù Dạ Hành","type":"effect","price":800,"isNonCoin":false,"tag":"Kinh dị","tags":["Kinh dị","Huyền Minh"],"runtimeCss":"css/huyen-minh.css?v=20261014.huyenminh3","value":"effect_huyen_minh_regular_1","customIcon":"符"},
+        {"id":"frame_huyen_minh_regular_1","name":"Huyền Minh · Xích Liên Hồn Hoàn","type":"frame","price":250,"isNonCoin":false,"tag":"Kinh dị","tags":["Kinh dị","Huyền Minh"],"runtimeCss":"css/huyen-minh.css?v=20261014.huyenminh3","value":"assets/Premium/kinh dị/Tute_khung1.png","asset":"assets/Premium/kinh dị/Tute_khung1.png","isIcon":false},
+        {"id":"background_huyen_minh_regular_1","name":"Huyền Minh · Bến Vong Xuyên","type":"background","price":150,"isNonCoin":false,"tag":"Kinh dị","tags":["Kinh dị","Huyền Minh"],"runtimeCss":"css/huyen-minh.css?v=20261014.huyenminh3","value":"assets/Premium/kinh dị/Tute_nen1.png","asset":"assets/Premium/kinh dị/Tute_nen1.png","isIcon":false,"backgroundFit":"cover","backgroundPosition":"center center","backgroundRepeat":"no-repeat","backgroundAttachment":"fixed"},
+        {"id":"pet_chronos_regular_3","name":"Chronos · Tiểu Thủ Thời","type":"pet","price":870,"isNonCoin":false,"tag":"Truyền thuyết","tags":["Truyền thuyết","Chronos"],"runtimeCss":"css/chronos.css?v=20261013.chronos2","value":"assets/Premium/Thần thoại/Chronos_chibi3.png","asset":"assets/Premium/Thần thoại/Chronos_chibi3.png","isIcon":false,"disableClickEffect":true,"petEffect":"chronos-watchmaker"},
+        {"id":"theme_chronos_regular_3","name":"Chronos · Xưởng Đồng Hồ Cổ","type":"theme","price":750,"isNonCoin":false,"tag":"Truyền thuyết","tags":["Truyền thuyết","Chronos"],"runtimeCss":"css/chronos.css?v=20261013.chronos2","value":"theme_chronos_regular_3","customIcon":"⌛"},
+        {"id":"effect_chronos_regular_3","name":"Chronos · Bản Nhạc Dây Cót","type":"effect","price":800,"isNonCoin":false,"tag":"Truyền thuyết","tags":["Truyền thuyết","Chronos"],"runtimeCss":"css/chronos.css?v=20261013.chronos2","value":"effect_chronos_regular_3","customIcon":"⚙"},
+        {"id":"frame_chronos_regular_3","name":"Chronos · Vòng Khắc Vĩnh Hằng","type":"frame","price":250,"isNonCoin":false,"tag":"Truyền thuyết","tags":["Truyền thuyết","Chronos"],"runtimeCss":"css/chronos.css?v=20261013.chronos2","value":"assets/Premium/Thần thoại/Chronos_khung3.png","asset":"assets/Premium/Thần thoại/Chronos_khung3.png","isIcon":false},
+        {"id":"background_chronos_regular_3","name":"Chronos · Miền Cát Vô Tận","type":"background","price":150,"isNonCoin":false,"tag":"Truyền thuyết","tags":["Truyền thuyết","Chronos"],"runtimeCss":"css/chronos.css?v=20261013.chronos2","value":"assets/Premium/Thần thoại/Chronos_nen3.png","asset":"assets/Premium/Thần thoại/Chronos_nen3.png","isIcon":false,"backgroundFit":"cover","backgroundPosition":"center center","backgroundRepeat":"no-repeat","backgroundAttachment":"fixed"},
+        {"id":"pet_nguu_lang_regular_1","name":"Ngưu Lang · Mục Đồng Sao","type":"pet","price":1,"isNonCoin":true,"currency":"love_coin","tag":"Thất Tịch","tags":["Thất Tịch","Ngưu Lang"],"runtimeCss":"css/that-tich.css?v=20261012.thattich3","value":"assets/Premium/Thất tịch/nguu_lang_chibi1.png","asset":"assets/Premium/Thất tịch/nguu_lang_chibi1.png","isIcon":false,"disableClickEffect":true,"petEffect":"nguu_lang-regular"},
+        {"id":"theme_nguu_lang_regular_1","name":"Ngưu Lang · Bến Ngân Hà","type":"theme","price":1,"isNonCoin":true,"currency":"love_coin","tag":"Thất Tịch","tags":["Thất Tịch","Ngưu Lang"],"runtimeCss":"css/that-tich.css?v=20261012.thattich3","value":"theme_nguu_lang_regular_1","customIcon":"♧"},
+        {"id":"effect_nguu_lang_regular_1","name":"Ngưu Lang · Đom Đóm Ngân Lam","type":"effect","price":1,"isNonCoin":true,"currency":"love_coin","tag":"Thất Tịch","tags":["Thất Tịch","Ngưu Lang"],"runtimeCss":"css/that-tich.css?v=20261012.thattich3","value":"effect_nguu_lang_regular_1","customIcon":"♧"},
+        {"id":"frame_nguu_lang_regular_1","name":"Ngưu Lang · Thiên Ngưu Tinh Hoàn","type":"frame","price":1,"isNonCoin":true,"currency":"love_coin","tag":"Thất Tịch","tags":["Thất Tịch","Ngưu Lang"],"runtimeCss":"css/that-tich.css?v=20261012.thattich3","value":"assets/Premium/Thất tịch/nguu_lang_khung1.png","asset":"assets/Premium/Thất tịch/nguu_lang_khung1.png","isIcon":false},
+        {"id":"background_nguu_lang_regular_1","name":"Ngưu Lang · Bờ Sao Đợi Người","type":"background","price":1,"isNonCoin":true,"currency":"love_coin","tag":"Thất Tịch","tags":["Thất Tịch","Ngưu Lang"],"runtimeCss":"css/that-tich.css?v=20261012.thattich3","value":"assets/Premium/Thất tịch/nguu_lang_nen1.png","asset":"assets/Premium/Thất tịch/nguu_lang_nen1.png","isIcon":false,"backgroundFit":"cover","backgroundPosition":"center center","backgroundRepeat":"no-repeat","backgroundAttachment":"fixed"},
+        {"id":"pet_chuc_nu_regular_1","name":"Chức Nữ · Tiên Nữ Dệt Mây","type":"pet","price":1,"isNonCoin":true,"currency":"love_coin","tag":"Thất Tịch","tags":["Thất Tịch","Chức Nữ"],"runtimeCss":"css/that-tich.css?v=20261012.thattich3","value":"assets/Premium/Thất tịch/chuc_nu_chibi1.png","asset":"assets/Premium/Thất tịch/chuc_nu_chibi1.png","isIcon":false,"disableClickEffect":true,"petEffect":"chuc_nu-regular"},
+        {"id":"theme_chuc_nu_regular_1","name":"Chức Nữ · Hiên Lụa Đào","type":"theme","price":1,"isNonCoin":true,"currency":"love_coin","tag":"Thất Tịch","tags":["Thất Tịch","Chức Nữ"],"runtimeCss":"css/that-tich.css?v=20261012.thattich3","value":"theme_chuc_nu_regular_1","customIcon":"✿"},
+        {"id":"effect_chuc_nu_regular_1","name":"Chức Nữ · Cánh Hoa Tơ Hồng","type":"effect","price":1,"isNonCoin":true,"currency":"love_coin","tag":"Thất Tịch","tags":["Thất Tịch","Chức Nữ"],"runtimeCss":"css/that-tich.css?v=20261012.thattich3","value":"effect_chuc_nu_regular_1","customIcon":"✿"},
+        {"id":"frame_chuc_nu_regular_1","name":"Chức Nữ · Vân Cẩm Hoa Hoàn","type":"frame","price":1,"isNonCoin":true,"currency":"love_coin","tag":"Thất Tịch","tags":["Thất Tịch","Chức Nữ"],"runtimeCss":"css/that-tich.css?v=20261012.thattich3","value":"assets/Premium/Thất tịch/chuc_nu_khung1.png","asset":"assets/Premium/Thất tịch/chuc_nu_khung1.png","isIcon":false},
+        {"id":"background_chuc_nu_regular_1","name":"Chức Nữ · Vườn Mây Hẹn Ước","type":"background","price":1,"isNonCoin":true,"currency":"love_coin","tag":"Thất Tịch","tags":["Thất Tịch","Chức Nữ"],"runtimeCss":"css/that-tich.css?v=20261012.thattich3","value":"assets/Premium/Thất tịch/chuc_nu_nen1.png","asset":"assets/Premium/Thất tịch/chuc_nu_nen1.png","isIcon":false,"backgroundFit":"cover","backgroundPosition":"center center","backgroundRepeat":"no-repeat","backgroundAttachment":"fixed"},
         {"id":"pet_lu_guang_regular_2","name":"Lu Guang · Người Giữ Ảnh","type":"pet","price":850,"isNonCoin":false,"tag":"lick click","tags":["lick click","Lu Guang"],"runtimeCss":"css/lu-guang.css?v=20261012.luguang2","value":"assets/Premium/Lock/lu_guang_chibi2.png","asset":"assets/Premium/Lock/lu_guang_chibi2.png","isIcon":false,"disableClickEffect":true,"petEffect":"lu-guang-contact-print"},
         {"id":"theme_lu_guang_regular_2","name":"Lu Guang · Phòng Lưu Ảnh","type":"theme","price":800,"isNonCoin":false,"tag":"lick click","tags":["lick click","Lu Guang"],"runtimeCss":"css/lu-guang.css?v=20261012.luguang2","value":"theme_lu_guang_regular_2","customIcon":"▧"},
         {"id":"effect_lu_guang_regular_2","name":"Lu Guang · Vệt Mực Thanh Lam","type":"effect","price":900,"isNonCoin":false,"tag":"lick click","tags":["lick click","Lu Guang"],"runtimeCss":"css/lu-guang.css?v=20261012.luguang2","value":"effect_lu_guang_regular_2","customIcon":"⌁"},
@@ -831,8 +876,8 @@ const StoreConfig = {
             id: 'pet_thatdaitoi_luoibieng_chibi_1',
             name: 'Acedia · Linh Thú Lười Biếng Chibi',
             type: 'pet',
-            price: 850,
-            isNonCoin: false,
+            price: 0,
+            isNonCoin: true, eventOnly: true, currency: 'bellum_reward', rewardSource: 'bellum_completion_reward', eventName: 'THẤT ĐẠI TỘI: TU VIỆN BELLUM',
             tag: 'Thất Đại Tội',
             tags: [
                 'Thất Đại Tội',
@@ -844,7 +889,7 @@ const StoreConfig = {
             isIcon: false,
 
             /*
-             * PET CỬA HÀNG THƯỜNG · 850 COIN.
+             * PHẦN THƯỞNG TU VIỆN BELLUM.
              * Namespace acch1-* hoàn toàn riêng, không dùng seven-sins-sloth-magic
              * của Acedia sự kiện và không dùng bất kỳ runtime Luxury nào.
              */
@@ -855,8 +900,8 @@ const StoreConfig = {
             id: 'effect_thatdaitoi_mien_vu_tinh_da',
             name: 'Acedia · Miên Vũ Tĩnh Dạ',
             type: 'effect',
-            price: 900,
-            isNonCoin: false,
+            price: 0,
+            isNonCoin: true, eventOnly: true, currency: 'bellum_reward', rewardSource: 'bellum_completion_reward', eventName: 'THẤT ĐẠI TỘI: TU VIỆN BELLUM',
             tag: 'Thất Đại Tội',
             tags: ['Thất Đại Tội', 'Acedia', 'Lười Biếng', 'Hiệu ứng'],
             customIcon: '✦'
@@ -865,8 +910,8 @@ const StoreConfig = {
             id: 'background_thatdaitoi_mien_canh_tinh_da',
             name: 'Acedia · Miên Cảnh Tĩnh Dạ',
             type: 'background',
-            price: 150,
-            isNonCoin: false,
+            price: 0,
+            isNonCoin: true, eventOnly: true, currency: 'bellum_reward', rewardSource: 'bellum_completion_reward', eventName: 'THẤT ĐẠI TỘI: TU VIỆN BELLUM',
             tag: 'Thất Đại Tội',
             tags: ['Thất Đại Tội', 'Acedia', 'Lười Biếng', 'Nền'],
             value: 'assets/Premium/thất đại tội/lười biếng/luoi_bieng_nen1.png',
@@ -880,8 +925,8 @@ const StoreConfig = {
             id: 'frame_thatdaitoi_mien_khe_chi_hoan',
             name: 'Acedia · Miên Khế Chi Hoàn',
             type: 'frame',
-            price: 250,
-            isNonCoin: false,
+            price: 0,
+            isNonCoin: true, eventOnly: true, currency: 'bellum_reward', rewardSource: 'bellum_completion_reward', eventName: 'THẤT ĐẠI TỘI: TU VIỆN BELLUM',
             tag: 'Thất Đại Tội',
             tags: ['Thất Đại Tội', 'Acedia', 'Lười Biếng', 'Khung viền'],
             value: 'assets/Premium/thất đại tội/lười biếng/luoi_bieng_khung1.png',
@@ -892,8 +937,8 @@ const StoreConfig = {
             id: 'theme_thatdaitoi_mien_khe_tinh_gioi',
             name: 'Acedia · Miên Khế Tĩnh Giới',
             type: 'theme',
-            price: 800,
-            isNonCoin: false,
+            price: 0,
+            isNonCoin: true, eventOnly: true, currency: 'bellum_reward', rewardSource: 'bellum_completion_reward', eventName: 'THẤT ĐẠI TỘI: TU VIỆN BELLUM',
             tag: 'Thất Đại Tội',
             tags: [
                 'Thất Đại Tội',
@@ -905,7 +950,7 @@ const StoreConfig = {
             customIcon: '⌁',
 
             /*
-             * GIAO DIỆN CỬA HÀNG THƯỜNG · 800 COIN.
+             * GIAO DIỆN PHẦN THƯỞNG TU VIỆN BELLUM.
              * Namespace tdtui2-* hoàn toàn riêng.
              * Không dùng theme-seven-sins-acedia / acedia-palace-* của bộ sự kiện
              * và không dùng bất kỳ runtime Luxury nào.
@@ -3031,6 +3076,8 @@ const StoreConfig = {
         {"id": "background_hac_mong_regular_2", "name": "Hạc Mộng · Vân Hải Tĩnh Cảnh", "type": "background", "price": 150, "isNonCoin": false, "tag": "Hạc Mộng", "tags": ["Hạc Mộng"], "runtimeCss": "css/premium-hac-mong.css?v=20261009.regular-art1", "value": "assets/Premium/Tu tiên/hac_mong_nen2.png", "asset": "assets/Premium/Tu tiên/hac_mong_nen2.png", "isIcon": false, "backgroundFit": "cover", "backgroundPosition": "center center", "backgroundRepeat": "no-repeat", "backgroundAttachment": "fixed"},
     ]
 };
+StoreConfig.items.forEach(StoreTags.normalizeItem);
+
 
 /*
  * FRAME RUNTIME CSS METADATA v1
@@ -3177,14 +3224,50 @@ function ensureStarryNightChibiStylesheet() {
 }
 
 class StoreManager {
+    // Teacher console utility, restricted to the isolated Firebase test project.
+    static async grantTestCatalog(username) {
+        const options = firebase.app().options;
+        if (options.projectId !== 'web-chan-doan-test' || String(options.databaseURL || '').replace(/\/$/, '') !== 'https://web-chan-doan-test-default-rtdb.asia-southeast1.firebasedatabase.app') throw Error('Lệnh này chỉ dùng trên web-chan-doan-test.');
+        const authUser = firebase.auth().currentUser;
+        if (!authUser) throw Error('Hãy đăng nhập giáo viên bản test.');
+        const profile = (await db.ref('users/' + authUser.uid).once('value')).val();
+        if (profile?.role !== 'teacher' || profile.isLocked || profile.deletionPending) throw Error('Hãy chạy lệnh từ tài khoản giáo viên bản test.');
+        username = String(username || '').trim();
+        if (!username || /[.#$\[\]\/]/.test(username)) throw Error('Nhập đúng tên đăng nhập học sinh cần cấp vật phẩm.');
+        const matches = (await db.ref('users').orderByChild('username').equalTo(username).once('value')).val() || {};
+        if (!Object.values(matches).some(p => p.role === 'student' && !p.isLocked && !p.deletionPending)) throw Error('Không tìm thấy học sinh đang hoạt động với tên đăng nhập này.');
+        const items = [...new Map(StoreConfig.items.filter(i => i.id && !i.id.startsWith('reward_bg_')).map(i => [i.id, i])).values()];
+        if (!items.some(i => i.id === 'pet_valentine_juliet_2')) throw Error('Hãy mở mục quản lý Cửa hàng Sang trọng rồi chạy lại để nạp đủ danh mục.');
+        let granted = 0;
+        for (const item of items) {
+            if (firebase.auth().currentUser?.uid !== authUser.uid) throw Error('Tài khoản đã thay đổi; dừng cấp vật phẩm.');
+            const result = await db.ref('student_inventory/' + username + '/' + item.id).transaction(old => {
+                if (old && old.isTrial !== true) return;
+                return {id:item.id,source:'test_catalog',purchaseTime:firebase.database.ServerValue.TIMESTAMP,isEquipped:false};
+            }, undefined, false);
+            if (result.committed) granted++;
+        }
+        console.info('Đã cấp ' + granted + ' vật phẩm cho ' + username + '. Tổng danh mục: ' + items.length + '. Vật phẩm vĩnh viễn đã có được giữ nguyên.');
+        return {username,granted,total:items.length};
+    }
     static normalizeEventCurrency(item) {
-        if (item && /^(pet|theme|effect|frame|background)_(nguu_lang|chuc_nu)_regular_1$|^pet_(nguu_lang|chuc_nu)_premium_1$/.test(item.id)) {
-            return {...item, price: item.id.includes('_premium_') ? 2 : 1, isNonCoin: true, currency: 'that_tich_coin'};
+        item = StoreTags.normalizeItem(item ? {...item} : item);
+        // Preserve item IDs; Love is primary and Thất Tịch items also accept the original event wallet.
+        if (item && (StoreTags.has(item, 'Thất Tịch') || StoreTags.has(item, 'Valentine') || /^(pet|theme|effect|frame|background)_(nguu_lang|chuc_nu)_regular_1$|^pet_(nguu_lang|chuc_nu)_premium_1$|_valentine_(cupid|juliet)_/.test(item.id))) {
+            return {...item, price: item.luxuryOnly || item.id.includes('_premium_') || ['pet_valentine_cupid_1','pet_valentine_juliet_2'].includes(item.id) ? 2 : 1, isNonCoin: true, currency: 'love_coin'};
         }
         return item;
     }
+    static eventCurrencyButtons(item, upgrade = false) {
+        const currencies = StoreTags.has(item, 'Thất Tịch') ? ['love_coin','that_tich_coin'] : ['love_coin'];
+        return currencies.map(currency => '<button class="btn-buy'+(upgrade?' upgrade':'')+'" onclick="window.ThatTichWallet.redeem(\''+item.id+'\',\''+currency+'\')">'+(currency==='love_coin'?'💞':'🌌')+' Đổi '+(upgrade?'vĩnh viễn: ':'')+item.price+' '+(currency==='love_coin'?'Xu tình yêu':'Xu Thất Tịch')+'</button>').join('');
+    }
     static getItemsByType(type) {
         const displayOrder = item => {
+            if (item.id.endsWith('_valentine_cupid_regular_1')) return 12;
+            if (item.id.endsWith('_valentine_juliet_regular_2')) return 11;
+            if (item.id.endsWith('_huyen_minh_regular_1')) return 10;
+            if (item.id.endsWith('_chronos_regular_3')) return 9;
             if (item.id.endsWith('_nguu_lang_regular_1')) return 7;
             if (item.id.endsWith('_chuc_nu_regular_1')) return 8;
             if (item.id.endsWith('_lu_guang_regular_2')) return 6;
@@ -3684,8 +3767,8 @@ class StoreManager {
             } else if (isOwned) {
                 actionButton = `<button class="btn-equip" onclick="StoreManager.applyItem('${item.id}')">✨ Mặc ngay</button>`;
             } else {
-                if (item.currency === 'that_tich_coin') {
-                    actionButton = `<button class="btn-buy" onclick="window.ThatTichWallet.redeem('${item.id}')">🌌 Đổi ${item.price} Xu Thất Tịch</button>`;
+                if (['that_tich_coin','love_coin'].includes(item.currency)) {
+                    actionButton = this.eventCurrencyButtons(item);
                 } else if (isMidAutumnCoinItem) {
                     actionButton = `
             <button
@@ -3827,7 +3910,7 @@ class StoreManager {
                 disabled
                 title="Vật phẩm này chỉ được trao từ sự kiện"
             >
-                🎁 Chỉ nhận từ sự kiện
+                🎁 ${item.rewardSource === 'bellum_completion_reward' ? 'THẤT ĐẠI TỘI: TU VIỆN BELLUM' : 'Chỉ nhận từ sự kiện'}
             </button>
         `;
                 } else if (item.isNonCoin) {
@@ -3864,8 +3947,8 @@ class StoreManager {
             }
 
             // Event items never start a new ordinary-Coin trial.
-            if (item.currency === 'that_tich_coin') {
-                trialButton = isTrial ? `<button class="btn-buy upgrade" onclick="window.ThatTichWallet.redeem('${item.id}')">🌌 Đổi vĩnh viễn: ${item.price} Xu Thất Tịch</button>` : '';
+            if (['that_tich_coin','love_coin'].includes(item.currency)) {
+                trialButton = isTrial ? this.eventCurrencyButtons(item, true) : '';
             } else if (isMidAutumnCoinItem) {
                 trialButton = `
         <button
@@ -4239,6 +4322,14 @@ class StoreManager {
             const weaver = item.id.includes('chuc_nu');
             cardClasses.push('ttr-card', weaver ? 'ttr-weaver-card' : 'ttr-herder-card', 'store-theme-locked', 'ui-theme-immune');
             tagClass = 'that-tich-knot-tag'; specialCardGroup = weaver ? 'chuc-nu-regular' : 'nguu-lang-regular'; isThemeImmune = true;
+        }
+        if (item.id.endsWith('_huyen_minh_regular_1')) {
+            cardClasses.push('hmr1-card', 'store-theme-locked', 'ui-theme-immune');
+            tagClass = 'tag-horror-talisman'; specialCardGroup = 'huyen-minh-regular'; isThemeImmune = true;
+        }
+        if (item.id.endsWith('_chronos_regular_3')) {
+            cardClasses.push('chr-card', 'store-theme-locked', 'ui-theme-immune');
+            tagClass = 'chronos-seal-tag'; specialCardGroup = 'chronos-regular'; isThemeImmune = true;
         }
         if (item.id.endsWith('_lu_guang_regular_2')) {
             cardClasses.push('lgr-card', 'store-theme-locked', 'ui-theme-immune');
@@ -4666,6 +4757,14 @@ class StoreManager {
             `;
         }
 
+        if (/_valentine_(cupid|juliet)_regular_/.test(item.id)) {
+            window.JulietRuntime?.ensureCSS();
+            const juliet = item.id.includes('_juliet_');
+            cardClasses.push('store-card-valentine', juliet ? 'store-card-juliet' : 'store-card-cupid', 'store-theme-locked', 'ui-theme-immune');
+            tagClass = 'tag-valentine-shared';
+            specialCardGroup = juliet ? 'juliet-regular' : 'cupid-regular';
+            isThemeImmune = true;
+        }
         const annualSaleBadge =
             annualSaleState.hasAnnualSale
                 ? `
@@ -4727,7 +4826,7 @@ class StoreManager {
         ${annualSaleBadge}
 
         <div class="item-tag ${tagClass}">
-            <span>${item.tag}</span>
+            ${tagClass === 'tag-valentine-shared' ? '<span class="valentine-tag-heart" aria-hidden="true">♡</span><span class="valentine-tag-name">Valentine</span><span class="valentine-tag-spark" aria-hidden="true">✧</span>' : `<span>${item.tag}</span>`}
         </div>
 
         <div class="item-icon-wrapper">
