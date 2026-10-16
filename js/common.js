@@ -5609,6 +5609,17 @@ window.securityHotfix = Object.freeze({
     const uid=()=>firebase.auth().currentUser?.uid;
     const messages={ACCESS_UNAVAILABLE:'Chưa kết nối được máy chủ tài khoản. Hãy thử lại sau.',ACCESS_NOT_ENABLED:'Chức năng chưa được bật trên máy chủ.',ACCESS_PROJECT_MISMATCH:'Máy chủ tài khoản chưa đúng dự án Firebase.',RECOVERY_INVALID:'Mã khôi phục không đúng. Kiểm tra mã rồi thử lại.',PASSWORD_LOGIN_REQUIRED:'Hãy nhập lại tài khoản và mật khẩu để tiếp tục.',DEVICE_VERIFICATION_REQUIRED:'Cần xác nhận mã thiết bị trước khi vào website.',APPROVAL_REQUIRED:'Yêu cầu chưa được giáo viên đồng ý hoặc đã hết hạn.',REQUEST_EXPIRED:'Yêu cầu đã hết hạn. Hãy gửi lại yêu cầu.',REQUEST_ALREADY_PENDING:'Đã có yêu cầu đang chờ. Hãy báo giáo viên kèm tên tài khoản của bạn.',REQUEST_ALREADY_REVIEWED:'Yêu cầu đã được xử lý ở phiên khác. Hãy cập nhật lại danh sách.',REQUEST_USED:'Yêu cầu này đã được dùng với thông tin khác.',ACCESS_CHANGED:'Thông tin xác thực đã thay đổi. Hãy đăng nhập lại.',ACCESS_RATE_LIMIT:'Đã thử quá nhiều lần. Vui lòng đợi rồi thử lại.',WEAK_PASSWORD:'Mật khẩu cần 8–128 ký tự, có chữ và số, khác tên đăng nhập.',ACCOUNT_NOT_ALLOWED:'Tài khoản không còn hoạt động hoặc đang bị khóa.'};
     messages.ACCESS_BUSY='Yêu cầu đang được xử lý. Chờ khoảng một phút rồi thử lại với cùng thông tin.';
+    Object.assign(messages,{
+        ACCESS_SECRET_MISSING:'Worker chưa có khóa FIREBASE_SERVICE_ACCOUNT. Cần thêm khóa của đúng dự án Firebase.',
+        ACCESS_SECRET_INVALID:'Khóa Firebase trên Worker không phải JSON hợp lệ hoặc thiếu thông tin. Cần nhập lại toàn bộ file khóa.',
+        ACCESS_SECRET_PROJECT:'Khóa trên Worker thuộc dự án Firebase khác. Bản test cần khóa của web-chan-doan-test.',
+        ACCESS_SECRET_KEY:'Khóa riêng Firebase trên Worker bị thiếu hoặc hỏng. Cần nhập lại file khóa đầy đủ.',
+        ACCESS_GOOGLE_CONNECTION:'Worker chưa kết nối được máy chủ xác thực Google. Hãy thử lại sau.',
+        ACCESS_GOOGLE_AUTH:'Google từ chối khóa Firebase của Worker. Cần kiểm tra khóa còn hiệu lực và đúng dự án.',
+        ACCESS_DATABASE_CONNECTION:'Worker chưa kết nối được Firebase Database. Cần kiểm tra địa chỉ Database và kết nối.',
+        ACCESS_DATABASE_PERMISSION:'Firebase từ chối quyền của Worker. Cần kiểm tra service account và Database đúng dự án.',
+        ACCESS_DATABASE_RESPONSE:'Firebase Database trả lỗi cho Worker. Cần kiểm tra cấu hình và nhật ký Worker.'
+    });
     const message=error=>messages[error?.message] || 'Chưa xác nhận được thao tác. Kiểm tra kết nối và thử lại.';
     function enabled() {
         if(!enabledPending)enabledPending=firebase.database().ref('account_access_config/enabled').once('value').then(s=>s.val()===true).catch(error=>{enabledPending=null;throw error;});
