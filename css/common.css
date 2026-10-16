@@ -3913,3 +3913,70 @@ img[data-site-image-protected="true"] {
     user-select: none !important;
     -webkit-touch-callout: none !important;
 }
+
+/* Private connection card and login recovery share the existing common stylesheet. */
+html body #studentConnectionInfo{display:block;min-width:0;margin:18px 0 0;padding:0;border:1px solid #dbe2f1;border-radius:22px;background:#fff;color:#263550;box-shadow:0 8px 28px #273d7310;overflow:hidden;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;text-align:left}
+#studentConnectionInfo *{box-sizing:border-box}
+#studentConnectionInfo .connection-heading{display:flex;align-items:center;gap:12px;padding:20px;background:linear-gradient(115deg,#f0f3ff,#f5fbff);border-bottom:1px solid #e3e9f5}
+#studentConnectionInfo .connection-symbol{flex:0 0 42px;width:42px;height:42px;display:grid;place-items:center;background:#e0e6ff;border:1px solid #cbd5ff;border-radius:13px;font-size:30px;color:#4f55b9}
+#studentConnectionInfo .connection-heading>div{min-width:0;flex:1}
+#studentConnectionInfo h4{margin:0;color:#263550;font:750 18px/1.4 system-ui,sans-serif;letter-spacing:0;text-transform:none;text-shadow:none}
+#studentConnectionInfo .connection-heading p{margin:3px 0 0;color:#61718b;font-size:12px;line-height:1.5}
+#studentConnectionInfo .connection-private{flex-shrink:0;padding:5px 9px;border:1px solid #bde3d2;border-radius:20px;background:#edf9f2;color:#287455;font-size:11px;font-weight:700}
+#studentConnectionInfo .connection-body{padding:20px}
+#studentConnectionInfo .connection-section-title,#studentConnectionInfo .student-connection-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#studentConnectionInfo strong{color:#33435d;font-size:14px;font-weight:700}
+#studentConnectionInfo dl{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;margin:16px 0;padding:16px;border:1px solid #e6ebf4;border-radius:13px;background:#f8faff}
+#studentConnectionInfo dt{color:#677790;font-size:11px;letter-spacing:.04em;text-transform:uppercase;margin-bottom:5px}
+#studentConnectionInfo dd{margin:0;font-size:14px;line-height:1.6;color:#233550;font-weight:650;overflow-wrap:anywhere}
+#studentConnectionInfo dd[data-network-ip]{font-family:ui-monospace,Consolas,monospace;font-size:18px;letter-spacing:.02em}
+#studentConnectionInfo p,#studentConnectionInfo .student-connection-actions{color:#65748b;font-size:12px;line-height:1.7;margin:8px 0;overflow-wrap:anywhere}
+#studentConnectionInfo .connection-status{font-size:11px}
+#studentConnectionInfo .student-device-info{border-top:1px solid #e6ebf4;margin-top:18px;padding-top:18px}
+#studentConnectionInfo code{display:block;max-width:100%;padding:12px;margin:12px 0;border:1px solid #dfe5f0;border-radius:10px;background:#f3f5fa;color:#34445d;font:12px/1.7 ui-monospace,Consolas,monospace;white-space:normal;overflow-wrap:anywhere;user-select:all}
+html body #studentConnectionInfo button{width:auto!important;min-width:0;min-height:36px;flex:0 0 auto;margin:0!important;padding:8px 12px!important;border:1px solid #d7dff2!important;border-radius:9px!important;background:#f5f7fd!important;color:#465ab0!important;font:650 12px/1.4 system-ui,sans-serif!important;letter-spacing:0;text-transform:none;box-shadow:none!important;transform:none!important;cursor:pointer}
+html body #studentConnectionInfo button::before,html body #studentConnectionInfo button::after{display:none!important;content:none!important}
+html body #studentConnectionInfo button:disabled{opacity:.5;cursor:wait}
+#studentConnectionInfo .connection-recovery{background:#f7f8fe;padding:14px;border:1px solid #e2e6f5;border-radius:13px;margin:16px 0}
+html body #studentConnectionInfo [data-device-generate]{background:#545bc6!important;color:#fff!important;border-color:#545bc6!important}
+#studentConnectionInfo [data-device-recovery-code]:not([hidden]){background:#fff8e9;color:#775010;border-color:#efdbad}
+#studentConnectionInfo [hidden]{display:none!important}
+#studentConnectionInfo .connection-history{border-top:1px solid #e6ebf4;padding-top:15px;margin-top:18px}
+#studentConnectionInfo summary{cursor:pointer;color:#33435d;font-size:13px;font-weight:650;line-height:1.7}
+#studentConnectionInfo [data-network-count]{display:inline-block;min-width:22px;margin-left:6px;padding:1px 6px;border-radius:8px;background:#edf0fa;color:#5262a6;text-align:center;font-size:11px}
+#studentConnectionInfo ul{list-style:none;margin:10px 0 0;padding:0;max-height:270px;overflow-y:auto}
+#studentConnectionInfo li{border-top:1px solid #edf0f7;padding:10px 0;overflow-wrap:anywhere;font-size:12px}
+#studentConnectionInfo li strong,#studentConnectionInfo li span{display:block}
+#studentConnectionInfo li strong{font-family:ui-monospace,Consolas,monospace;font-size:12px}
+#studentConnectionInfo li span{color:#6c7b90;font-size:11px;line-height:1.6;margin-top:4px}
+#studentConnectionInfo .connection-footnote{font-size:11px;margin-bottom:0;color:#7c899e}
+html body #studentConnectionInfo button:focus-visible,#studentConnectionInfo summary:focus-visible{outline:3px solid #969ff4;outline-offset:3px}
+.login-container [hidden],#studentAccessStep[hidden]{display:none!important}
+html body .login-forgot-password{width:auto;background:none;color:#565fc2;box-shadow:none;border:0;font-size:13px;padding:10px 0;margin:10px 0 0;cursor:pointer}
+html body #studentAccessStep{color:#263550;font-family:system-ui,sans-serif;text-align:left;min-width:0}
+#studentAccessStep .access-eyebrow{color:#727bb0;font-size:10px;letter-spacing:.16em;font-weight:750}
+#studentAccessStep h2{margin:8px 0 14px;font-size:26px;line-height:1.3;color:#253650;text-align:left}
+#studentAccessStep form{display:grid;gap:10px;margin:16px 0 8px}
+#studentAccessStep p{font-size:13px;line-height:1.75;color:#65748b}
+#studentAccessStep label{display:block;font-size:13px;font-weight:600;color:#354763;margin:16px 0 8px}
+#studentAccessStep input:not([type=checkbox]){box-sizing:border-box;width:100%;padding:14px;border:1px solid #d4dced;background:#f8faff;border-radius:12px;color:#273750;font:15px system-ui,sans-serif;margin:0 0 14px;min-width:0}
+#studentAccessStep code{display:block;padding:16px;margin:20px 0 12px;background:#f0f3ff;border:1px solid #d8e0f8;border-radius:12px;overflow-wrap:anywhere;user-select:all;font:14px/1.7 ui-monospace,Consolas,monospace;color:#394d93}
+html body #studentAccessStep button,html body #accountRecoveryRequests button{width:auto;max-width:100%;margin:8px 0 0;padding:12px 16px;border:1px solid #545bc6;border-radius:11px;background:#545bc6;color:#fff;font:650 13px/1.5 system-ui,sans-serif;box-shadow:none;cursor:pointer}
+html body #studentAccessStep .access-primary{width:100%}
+html body #studentAccessStep .access-secondary,html body #accountRecoveryRequests .access-secondary{background:#f3f5fd;color:#4b59a6;border-color:#d8e0f2}
+html body #studentAccessStep .access-link{background:transparent;color:#67738d;border:0;padding:12px 0;font-weight:500}
+#studentAccessStep .access-confirm{display:flex;align-items:flex-start;gap:10px;font-size:12px;font-weight:500}
+#studentAccessStep .access-confirm input{width:17px;height:17px;margin:2px 0;flex-shrink:0;accent-color:#545bc6}
+#studentAccessStep .access-status{min-height:22px;color:#805633}
+#studentAccessStep .access-reference{padding:12px;background:#f4f6fd;border-radius:10px;font-weight:650;color:#47598e}
+html body #studentAccessStep button:disabled,html body #accountRecoveryRequests button:disabled{opacity:.5;cursor:default}
+#studentAccessStep button:focus-visible,#studentAccessStep input:focus-visible,#accountRecoveryRequests button:focus-visible{outline:3px solid #b3baf3;outline-offset:3px}
+#accountRecoveryRequests{padding:22px;margin-bottom:24px;border:1px solid #dbe2f3;border-radius:18px;background:#fff;color:#263550}
+#accountRecoveryRequests header{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+#accountRecoveryRequests h3{margin:0;font-size:19px;color:#263550}
+#accountRecoveryRequests p{font-size:13px;line-height:1.7;color:#69788f;margin:6px 0}
+#accountRecoveryRequests .access-request{padding:17px;margin-top:14px;border:1px solid #e0e6f3;border-radius:13px;background:#f8faff}
+#accountRecoveryRequests .access-request-note{font-size:12px;color:#7a674c}
+#accountRecoveryRequests .access-request-actions{display:flex;flex-wrap:wrap;gap:10px}
+@media(max-width:480px){#studentConnectionInfo .connection-heading{padding:16px;gap:10px}#studentConnectionInfo .connection-body{padding:16px}#studentConnectionInfo .connection-private{display:none}#studentAccessStep h2{font-size:23px}#accountRecoveryRequests{padding:16px}}
+@media(max-width:768px){html body.login-page .login-shell:has(#studentAccessStep:not([hidden])){display:flex!important;flex-direction:column!important;min-height:0!important;width:100%!important;max-width:440px!important}html body.login-page .login-shell:has(#studentAccessStep:not([hidden])) .login-brand-panel{display:none!important}html body.login-page .login-shell:has(#studentAccessStep:not([hidden])) .login-container{width:100%!important;min-width:0!important;max-width:none!important;padding:28px 22px!important;box-sizing:border-box!important}}

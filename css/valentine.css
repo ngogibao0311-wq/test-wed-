@@ -61,3 +61,228 @@ html.vlt-equipped body{min-height:100dvh;box-sizing:border-box;background:linear
 @keyframes vlt-embroidery-flow{to{stroke-dashoffset:-354}}@keyframes vlt-pendant-sway{from{rotate:-5deg}to{rotate:5deg}}@keyframes vlt-star-whisper{0%,35%,100%{opacity:0;scale:.6}50%{opacity:.55;scale:1}65%{opacity:.1;scale:.7}}@keyframes vlt-rose-breath{from{opacity:.16;translate:0 4px}to{opacity:.32;translate:0 -3px}}
 @media(max-width:600px){.vlt-rose-bank{width:135px;height:130px;opacity:.2}.vlt-pendant{opacity:.23}.vlt-embroidered-sky{opacity:.13}}
 @media(prefers-reduced-motion:reduce){.vlt-embroidered-line,.vlt-pendant,.vlt-thread-star,.vlt-rose-bank{animation:none!important}.vlt-thread-star{opacity:.18}.vlt-rose-bank{opacity:.18}}
+
+/* Cupid regular store: light stationery theme and independent petal weather. */
+body.theme-cupid-letter { background: radial-gradient(ellipse at top left,#fff9ed,transparent 55%),linear-gradient(135deg,#fff1f5,#fce3ec); }
+.cupid-regular-weather { position:absolute;inset:0;overflow:hidden;pointer-events:none; }
+.cupid-regular-weather span { position:absolute;left:var(--x);top:-60px;color:#c86a87;font:32px Georgia,serif;text-shadow:0 2px 9px #ffe0e9;opacity:.65;animation:cupid-regular-fall var(--duration) linear var(--delay) infinite; }
+@keyframes cupid-regular-fall { from { transform:translate3d(-15px,-5vh,0) rotate(-15deg); } to { transform:translate3d(30px,110vh,0) rotate(120deg); } }
+.cupid-still span { animation:none;top:12%;opacity:.25; }
+@media (prefers-reduced-motion:reduce) { .cupid-regular-weather span { animation:none;top:12%;opacity:.25; } }
+/* Juliet — stained glass and velvet theatre, isolated from other item artwork. */
+.jlt-world,.jlt-ultimate,.jlr-ultimate,.jlr-weather {position:fixed!important;inset:0!important;pointer-events:none!important;overflow:hidden!important;contain:layout style paint}
+.jlt-world,.jlr-weather {z-index:940!important}
+.jlt-ultimate,.jlr-ultimate {z-index:99990!important}
+.jlt-aura,.jlr-aura {position:absolute!important;inset:-20% -32% -10%!important;pointer-events:none!important;z-index:0!important}
+.jlt-click {position:fixed!important;width:100px!important;height:100px!important;margin:-50px!important;z-index:99989!important;pointer-events:none!important}
+:host([hidden]){display:none!important}
+.jlt-root {position:absolute;inset:0;pointer-events:none;color:#dbb16e;font-family:Georgia,'Times New Roman',serif}
+.jlt-root *{box-sizing:border-box;pointer-events:none}
+.jlt-root svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.4}
+.jlt-arch{position:absolute;top:8%;height:80%;width:min(30vw,340px);opacity:.26;color:#a16d4f}
+.jlt-arch.left{left:-9%}.jlt-arch.right{right:-9%;transform:scaleX(-1)}
+.jlt-glass{fill:#be668215;stroke:#b68156}
+.jlt-rose-window{position:absolute;top:-175px;left:calc(50% - 175px);width:350px;height:350px;opacity:.17;animation:jlt-window-turn 100s linear infinite}
+.jlt-lights{position:absolute;inset:0;overflow:hidden;opacity:.15;mix-blend-mode:soft-light}
+.jlt-lights i{position:absolute;left:calc(20% + var(--i)*13%);top:-20%;width:7%;height:150%;background:linear-gradient(90deg,transparent,#e9b673 30%,#d68a9f 60%,transparent);transform:rotate(27deg);filter:blur(18px);animation:jlt-ray-breathe 9s ease-in-out infinite;animation-delay:calc(var(--i)*-1.4s)}
+.jlt-chandelier{position:absolute;top:-6px;left:15%;width:70%;height:130px;opacity:.42}
+.jlt-prism{position:absolute;left:var(--x);top:var(--y);height:7px;width:4px;background:#b58a61;clip-path:polygon(50% 0,100% 45%,50% 100%,0 45%);opacity:0;animation:jlt-prism 12s ease-in-out infinite;animation-delay:calc(var(--i)*-.8s)}
+.jlt-velvet-edge{position:absolute;inset:0;box-shadow:inset 0 0 70px #63354a13,inset 0 0 0 5px #f4d7af18;border:1px solid #c8a27e66}
+/* Verona garden at dusk: carved rose corners, pearl swags, suspended crystal
+   and balcony ironwork. Detail stays at the perimeter; the reading area stays clear. */
+.jlt-atmosphere{position:absolute;inset:0;background:radial-gradient(ellipse at 0 50%,#a24d6926,transparent 28%),radial-gradient(ellipse at 100% 45%,#886c9a21,transparent 30%),linear-gradient(0deg,#caa47819,transparent 16%,transparent 85%,#eac9ad21)}
+.jlt-garden-corner{position:absolute;width:clamp(155px,19vw,260px);height:auto;aspect-ratio:1;color:#bf9667;opacity:.74;filter:drop-shadow(0 3px 4px #68354820)}
+.jlt-garden-0{left:-27px;top:-28px}.jlt-garden-1{right:-27px;top:-28px;transform:scaleX(-1)}
+.jlt-garden-2{left:-24px;bottom:-30px;transform:scaleY(-1)}.jlt-garden-3{right:-24px;bottom:-30px;transform:rotate(180deg)}
+.jlt-canopy{position:absolute;left:16%;width:68%;height:105px;top:-17px;opacity:.5;mask-image:linear-gradient(#000 50%,transparent)}
+.jlt-pendants{position:absolute;top:-12px;left:20%;width:60%;height:150px;mask-image:linear-gradient(#000 65%,transparent)}
+.jlt-pendant{position:absolute;left:calc(var(--i)*16.2%);width:20px;height:var(--length);transform-origin:top;animation:jlt-pendant-sway calc(7s + var(--i)*.7s) ease-in-out infinite alternate;animation-delay:calc(var(--i)*-.9s);opacity:.58}
+.jlt-pendant-chain{position:absolute;left:50%;width:1px;top:0;bottom:30px;background:repeating-linear-gradient(#bb976c 0 3px,transparent 3px 6px);box-shadow:2px 0 #eacb9a66}
+.jlt-pendant svg{position:absolute;bottom:0;left:0;height:30px;width:20px;filter:drop-shadow(0 0 4px #f6d89766)}
+.jlt-pendant>i{position:absolute;left:7px;bottom:12px;width:6px;height:6px;background:#fff0be;clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);animation:jlt-crystal-glow 5s ease-in-out infinite;animation-delay:calc(var(--i)*-.8s)}
+.jlt-balcony{position:absolute;left:10%;bottom:-8px;width:80%;height:52px;opacity:.3;color:#ac7c57;mask-image:linear-gradient(90deg,transparent,#000 20%,#000 80%,transparent)}
+.jlt-floating-petal{position:absolute;left:var(--x);top:-35px;width:13px;height:20px;animation:jlt-petal-descent var(--d) linear infinite;animation-delay:var(--delay);opacity:0}
+.jlt-floating-petal>i{display:block;width:100%;height:100%;border-radius:90% 8% 80% 12%;background:linear-gradient(135deg,#f6d5bd,#bc6b85 55%,#8a405e);border-left:1px solid #f4c9ad;box-shadow:inset 1px 0 3px #fff0bf77;animation:jlt-petal-tumble 4s ease-in-out infinite alternate;animation-delay:var(--delay)}
+@keyframes jlt-pendant-sway{from{transform:rotate(-4deg)}to{transform:rotate(5deg)}}
+@keyframes jlt-crystal-glow{0%,100%{opacity:.2;scale:.65}50%{opacity:1;scale:1.4}}
+@keyframes jlt-petal-descent{0%{translate:0 -20px;opacity:0}8%{opacity:.5}50%{translate:18px 50vh;opacity:.4}92%{opacity:.45}100%{translate:-8px calc(100vh + 45px);opacity:0}}
+@keyframes jlt-petal-tumble{from{transform:rotate(-35deg) rotateY(10deg)}to{transform:rotate(80deg) rotateY(65deg)}}
+@media(max-width:650px){.jlt-garden-corner{width:125px;opacity:.56}.jlt-garden-0,.jlt-garden-1{top:-30px}.jlt-garden-2,.jlt-garden-3{bottom:-25px}.jlt-canopy{left:10%;width:80%;height:65px}.jlt-pendants{left:15%;width:70%;height:105px}.jlt-pendant{height:calc(var(--length)*.7)}.jlt-pendant:nth-child(even){display:none}.jlt-balcony{left:4%;width:92%;height:32px;opacity:.22}.jlt-floating-petal{width:9px;height:14px}}
+.jlt-aura-window{position:absolute;inset:0 8% 5%;opacity:.7;filter:drop-shadow(0 0 10px #ebcf87)}
+.jlt-aura-rosette{position:absolute;width:70%;height:auto;aspect-ratio:1;left:15%;top:-5%;animation:jlt-window-turn 70s linear infinite;opacity:.8}
+.jlt-aura-quill{position:absolute;width:35%;height:35%;bottom:10%;color:#f4d6ae;filter:drop-shadow(0 0 5px #902d3e);animation:jlt-quill 5s ease-in-out infinite}
+.jlt-aura-quill.left{left:-5%;transform:rotate(-30deg)}.jlt-aura-quill.right{right:-5%;transform:scaleX(-1) rotate(-30deg);animation-delay:-2s}
+.jlt-pedestal{position:absolute;bottom:1%;left:4%;width:92%;height:14%;perspective:500px}
+.jlt-pedestal i{display:block;position:absolute;inset:0;border:1px solid #f0cf8a;border-radius:50%;background:radial-gradient(ellipse,#efd0ad00,#b94d4e30);transform:rotateX(60deg);box-shadow:0 3px 0 #9e684d55,0 10px 20px #d4a14f22}
+.jlt-pedestal i:nth-child(2){inset:18% 10%;top:-20%}.jlt-pedestal i:nth-child(3){inset:34% 20%;top:-40%}
+.jlt-jewel{position:absolute;left:calc(12% + var(--i)*12%);bottom:calc(14% + mod(var(--i),3)*14%);width:6px;height:10px;background:#eccd93;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);animation:jlt-jewel 4s ease-in-out infinite;animation-delay:calc(var(--i)*-.6s)}
+#virtual-pet-img.jlt-character{position:relative;z-index:2;filter:drop-shadow(0 8px 9px #7d354946);animation:jlt-character 6s ease-in-out infinite}
+#virtual-pet-img.jlr-character{position:relative;z-index:2;filter:drop-shadow(0 5px 7px #a9784e44)}
+/* Mark only eligible elements. Store artwork and locked cards are excluded by the runtime. */
+html.jlt-equipped:not(.jlt-suspended) body{background:radial-gradient(ellipse at 80% 0,#edd6cf,transparent 50%),linear-gradient(135deg,#fff9ed,#f7e8df 50%,#f2e6e9)!important;color:#4f3032!important;font-family:Cambria,Georgia,serif!important}
+html.jlt-equipped:not(.jlt-suspended) .jlt-surface{background:linear-gradient(145deg,#fffdf7f5,#f8e9def5)!important;border:1px solid #c8a77b!important;border-radius:28px 5px 28px 5px!important;box-shadow:inset 0 0 0 4px #fff6e8,0 9px 25px #67334016!important;color:#583733!important}
+html.jlt-equipped:not(.jlt-suspended) .jlt-heading{font-family:Georgia,'Times New Roman',serif!important;letter-spacing:.025em!important;color:#793b46!important;text-shadow:0 1px #fff4dc!important}
+html.jlt-equipped:not(.jlt-suspended) .jlt-navigation{background:linear-gradient(160deg,#432535,#663440 70%,#855246)!important;color:#ffefd3!important;border-right:3px double #d6b581!important;border-radius:0 28px 28px 0!important;box-shadow:8px 0 30px #49263820!important;font-family:Georgia,serif!important}
+html.jlt-equipped:not(.jlt-suspended) .jlt-control{border-radius:13px 3px 13px 3px!important;font-family:Georgia,serif!important;letter-spacing:.02em!important;border:1px solid #b08a60!important;background:linear-gradient(140deg,#7c3949,#512b3d)!important;color:#fff3de!important;box-shadow:inset 0 0 0 2px #e5c68c22!important;text-shadow:none!important}
+html.jlt-equipped:not(.jlt-suspended) .jlt-control:hover{background:linear-gradient(140deg,#9a515d,#69364a)!important}
+html.jlt-equipped:not(.jlt-suspended) .jlt-control:disabled{opacity:.55!important;cursor:not-allowed!important}
+html.jlt-equipped:not(.jlt-suspended) .jlt-field{border-radius:14px 4px 14px 4px!important;background:#fffaf2!important;border:1px solid #c9ac87!important;color:#5a3536!important;font-family:Cambria,Georgia,serif!important;box-shadow:inset 0 2px 5px #8251390c!important}
+html.jlt-equipped:not(.jlt-suspended) .jlt-field:focus{outline:2px solid #ad6c7d!important;outline-offset:2px!important}
+html.jlt-equipped:not(.jlt-suspended) .jlt-navigation .jlt-heading{color:#f8dcad!important;text-shadow:none!important}
+/* Wax-seal click: radial engraving and six flying chips. */
+.jlt-click-seal{position:absolute;inset:5%;animation:jlt-seal 1.25s ease-out both;color:#bd7a55}
+.jlt-click-chip{position:absolute;left:50%;top:50%;width:5px;height:9px;background:#b57a53;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);transform:rotate(calc(var(--i)*60deg));animation:jlt-chip 1.1s ease-out both}
+/* Eight-second original theatre: curtains, glass rose, manuscript, engraved oath. */
+.jlt-stage-night{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 35%,#733944,#291d31 65%,#150f20);animation:jlt-stage-open 8.2s ease both}
+.jlt-curtain{position:absolute;top:0;bottom:0;width:52%;background:repeating-linear-gradient(90deg,#4a1429,#922f43 7%,#b1585a 9%,#6c2438 14%);box-shadow:0 0 35px #160b1c;z-index:8;animation:jlt-curtain 8.2s cubic-bezier(.28,.7,.2,1) both}
+.jlt-curtain.left{left:0;transform-origin:left}.jlt-curtain.right{right:0;transform-origin:right}
+.jlt-curtain:after{content:'';position:absolute;inset:0 9px;border:2px solid #deb37380;border-top:none;border-bottom:none}
+.jlt-stage-rays{position:absolute;inset:0;overflow:hidden}
+.jlt-stage-rays i{position:absolute;left:50%;top:-30%;width:12%;height:170%;background:linear-gradient(90deg,transparent,#e4ad5c16,transparent);transform-origin:top;transform:rotate(calc(var(--i)*12deg - 60deg));animation:jlt-ray-breathe 3s ease-in-out infinite;animation-delay:calc(var(--i)*-.3s)}
+.jlt-stage-columns{position:absolute;inset:2% 0 0;display:flex;justify-content:space-between;opacity:.6}
+.jlt-stage-columns>div{width:23%;height:100%;color:#d3aa72;animation:jlt-column 8.2s ease both;animation-delay:calc(var(--i)*.09s)}
+.jlt-stage-columns .jlt-glass{fill:#a24c6844}
+.jlt-stage-rosette{position:absolute;width:min(72vw,560px);aspect-ratio:1;left:50%;top:37%;transform:translate(-50%,-50%);color:#eccb91;animation:jlt-rose-reveal 8.2s ease both;filter:drop-shadow(0 0 22px #ecb97166)}
+.jlt-stage-floor{position:absolute;left:0;right:0;bottom:0;height:30%;opacity:.3;color:#b98b69;mask-image:linear-gradient(transparent,#000)}
+.jlt-score{position:absolute;inset:10% -8% 35%;color:#f2bb6e;opacity:.22;stroke-dasharray:1800;animation:jlt-score 8.2s ease both}
+.jlt-oath-book{position:absolute;left:50%;top:53%;width:min(58vw,390px);height:145px;perspective:800px;transform:translate(-50%,-50%);animation:jlt-book-show 8.2s ease both}
+.jlt-oath-book>div{position:absolute;top:0;bottom:0;width:50%;background:repeating-linear-gradient(transparent 0 19px,#b29a7544 20px,transparent 21px),linear-gradient(90deg,#e2c798,#fff0c9);border:2px solid #c09a60;box-shadow:0 4px 0 #b28a53,0 8px 0 #703646;transform:rotateY(15deg);border-radius:5px 0 0 20px;transform-origin:right}
+.jlt-oath-book>div:nth-child(2){right:0;transform:rotateY(-15deg);background:repeating-linear-gradient(transparent 0 19px,#b29a7544 20px,transparent 21px),linear-gradient(90deg,#fff0c9,#e2c798);border-radius:0 5px 20px 0;transform-origin:left}
+.jlt-oath-book>i{position:absolute;right:8%;top:-55%;width:50%;height:130%;color:#f6d296;animation:jlt-writing 3s ease-in-out infinite}
+.jlt-title{position:absolute;left:7%;right:7%;top:46%;text-align:center;animation:jlt-oath-show 8.2s ease both;filter:drop-shadow(0 3px 12px #1e0c1a)}
+.jlt-title small{display:block;font:12px Georgia;letter-spacing:.22em;color:#f7cc98;margin-bottom:18px}
+.jlt-title strong{display:block;font:clamp(28px,5.8vw,72px)/1.14 Georgia,serif;letter-spacing:.08em;color:#fff1ce;text-shadow:0 1px 0 #a8754a,0 0 35px #f4bd6977}
+.jlt-title span{display:block;font:italic clamp(12px,2vw,18px)/1.5 Georgia;color:#f0cdb5;margin-top:20px}
+.jlt-crown{position:absolute;width:120px;height:70px;left:calc(50% - 60px);top:24%;color:#edc785;animation:jlt-oath-show 8.2s ease both}
+.jlt-stage-glint{position:absolute;left:var(--x);top:var(--y);width:4px;height:4px;background:#ffe7bc;box-shadow:0 0 8px #ffe0a1;animation:jlt-stage-glint 3s ease-in-out infinite;animation-delay:calc(var(--i)*-.21s)}
+.jlt-stage-vignette{position:absolute;inset:0;box-shadow:inset 0 0 120px #130d1b88;animation:jlt-stage-open 8.2s ease both}
+.jlt-ultimate{animation:jlt-end 8.2s both}
+/* Regular Juliet: paper, small butterflies, tea-room geometry and a miniature music box. */
+body.theme-juliet-tearoom{background:linear-gradient(0deg,#fcf6eced,#fcf6eced),repeating-linear-gradient(90deg,#d4bc9c 0 1px,transparent 1px 46px)!important}
+body.theme-juliet-tearoom :is(.sidebar,.modal-content,.assignment-card,.stat-card):not(.ui-theme-immune):not(.store-theme-locked){border-radius:16px 16px 4px 4px;border:1px solid #cfb294;box-shadow:0 4px 0 #dfcbb650,0 10px 25px #8d62480d}
+body.theme-juliet-tearoom :is(h1,h2,h3):not(.ui-theme-immune *){font-family:Cambria,Georgia,serif;letter-spacing:.02em}
+.jlr-doily{position:absolute;bottom:1%;left:9%;width:82%;height:28%;border-radius:50%;border:5px dotted #c49572;outline:1px solid #dfc8a9;outline-offset:6px;background:radial-gradient(ellipse,#ffedd370,#ecc59a20 65%,transparent);transform:rotateX(53deg)}
+.jlr-ribbon{position:absolute;left:18%;right:18%;bottom:3%;height:18px;background:linear-gradient(90deg,#aa4a51,#d1887f,#aa4a51);clip-path:polygon(0 0,100% 0,94% 50%,100% 100%,0 100%,6% 50%)}
+.jlr-butterfly{position:absolute;left:var(--x);top:var(--y);width:22px;height:18px;animation:jlr-wander var(--d) ease-in-out infinite;animation-delay:calc(var(--i)*-1.4s)}
+.jlr-butterfly b{position:absolute;left:0;top:0;width:11px;height:15px;border-radius:80% 30% 70% 20%;background:linear-gradient(130deg,#f3d5a7,#b9606a);border:1px solid #a76f5d;transform-origin:right center;animation:jlr-wing .9s ease-in-out infinite alternate}
+.jlr-butterfly b:nth-child(2){left:11px;transform-origin:left center;border-radius:30% 80% 20% 70%;animation-delay:-.45s}
+.jlr-butterfly em{position:absolute;left:10px;top:4px;width:2px;height:12px;background:#98694f;border-radius:50%}
+.jlr-weather .jlr-butterfly{opacity:.55}.jlr-paper-light{position:absolute;inset:0;background:radial-gradient(ellipse at 0 100%,#edc9a015,transparent 35%)}
+.jlr-pressed-flowers{position:absolute;bottom:0;left:0;width:100%;height:28px;color:#bb816670;overflow:hidden}
+.jlr-pressed-flowers i{position:absolute;left:calc(var(--i)*24%);font:36px Georgia;transform:rotate(calc(var(--i)*21deg))}
+.jlr-music-box{position:absolute;width:min(290px,75vw);height:180px;left:50%;top:52%;transform:translate(-50%,-50%);animation:jlr-box-show 3.5s ease both;filter:drop-shadow(0 12px 16px #76413833)}
+.jlr-box-base{position:absolute;left:0;right:0;bottom:0;height:70px;border:2px solid #b98a62;border-radius:10px 10px 18px 18px;background:repeating-linear-gradient(90deg,transparent 0 22px,#bd87603b 23px,transparent 24px),linear-gradient(#ffedcf,#dfb286);box-shadow:inset 0 0 0 5px #f3d5b5}
+.jlr-lid{position:absolute;left:0;right:0;top:0;height:110px;border:4px double #bf956e;border-radius:60% 60% 5px 5px;background:radial-gradient(ellipse,#fffbec,#e7c8a5);transform:perspective(400px) rotateX(-15deg);transform-origin:bottom}
+.jlr-lid:after{content:'❦';position:absolute;inset:0;display:grid;place-items:center;font:55px Georgia;color:#a96566}
+.jlr-dancer{position:absolute;inset:35px 28% 40px;animation:jlr-dancer 3s ease-in-out both}
+.jlr-dancer .jlr-butterfly{left:50%;top:20%;transform:scale(2.7);animation:none}
+.jlr-music-box strong{position:absolute;left:5%;right:5%;bottom:25px;text-align:center;font:12px Georgia;letter-spacing:.06em;color:#713f37}
+.jlr-note{position:absolute;left:calc(25% + var(--i)*8%);top:58%;font:24px Georgia;color:#ae7959;animation:jlr-note 3.5s ease-out both;animation-delay:calc(var(--i)*.04s)}
+/* Matching structure for all ordinary cards; individual Juliet/Cupid surface artwork. */
+html body .store-item-card.store-card-valentine{background:linear-gradient(145deg,#fff9ed,#f8e3dd)!important;border:1px solid #c99b83!important;border-radius:18px!important;color:#733b42!important;box-shadow:inset 0 0 0 4px #fff4e4,0 8px 20px #75364d12!important;font-family:Georgia,serif!important;overflow:hidden!important}
+html body .store-item-card.store-card-juliet{background:repeating-linear-gradient(90deg,transparent 0 35px,#bc936016 36px,transparent 37px),linear-gradient(145deg,#fff9e9,#ecd5bb)!important;border-color:#bc956d!important}
+html body .store-item-card.store-card-valentine .card-glow{background:radial-gradient(circle at 50% 10%,#fff6d680,transparent 70%)!important}
+html body .store-item-card.store-card-valentine .tag-valentine-shared{position:relative!important;inset:auto!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:9px!important;width:fit-content!important;max-width:100%!important;min-height:34px!important;height:auto!important;padding:5px 14px!important;margin:0 auto 14px!important;background:linear-gradient(135deg,#fffaf1,#f4d8dd)!important;border:1px solid #b66b7d!important;border-radius:5px 16px!important;transform:none!important;box-shadow:inset 0 0 0 3px #fff7ed,0 3px 8px #77394a15!important;clip-path:none!important;color:#823c51!important;text-shadow:none!important;animation:none!important;overflow:visible!important;float:none!important}
+html body .store-item-card.store-card-valentine .tag-valentine-shared:before,html body .store-item-card.store-card-valentine .tag-valentine-shared:after{display:none!important}
+html body .store-item-card.store-card-valentine .tag-valentine-shared span{position:static!important;display:inline-block!important;transform:none!important;color:#823c51!important;-webkit-text-fill-color:#823c51!important;background:none!important;text-shadow:none!important;letter-spacing:0!important;font:700 13px/1.5 "Segoe UI",Arial,sans-serif!important;animation:none!important;opacity:1!important;padding:0!important;margin:0!important;white-space:nowrap!important}
+html body .store-item-card.store-card-valentine .tag-valentine-shared .valentine-tag-heart{font-size:22px!important;line-height:1!important;color:#ae4665!important;-webkit-text-fill-color:#ae4665!important}
+html body .store-item-card.store-card-valentine .tag-valentine-shared .valentine-tag-spark{color:#9c7449!important;-webkit-text-fill-color:#9c7449!important;font-size:17px!important}
+html body .store-item-card.store-card-valentine .item-icon-wrapper{background:radial-gradient(ellipse,#fffdfa,#f1cabe66)!important;border:1px solid #d4ac9060!important;border-radius:50%!important;color:#9a4b5d!important}
+html body .store-item-card.store-card-juliet .item-icon-wrapper{background:radial-gradient(ellipse,#fffaf1,#d9b58a55)!important;border:1px dashed #bc956d!important;border-radius:40% 40% 12% 12%!important}
+html body .store-item-card.store-card-valentine .item-name{color:#7a354b!important;font:600 16px/1.4 "Segoe UI",Arial,sans-serif!important;text-shadow:none!important;background:none!important;-webkit-text-fill-color:#7a354b!important}
+html body .store-item-card.store-card-valentine .item-type-label{color:#8c6c60!important;background:#fff9ee!important;font:12px/1.5 "Segoe UI",Arial,sans-serif!important;text-shadow:none!important}
+html body .store-item-card.store-card-valentine .item-actions button{background:linear-gradient(130deg,#8a3f55,#643246)!important;color:#fff0dc!important;border:1px solid #b48064!important;border-radius:9px!important;font:600 13px/1.4 "Segoe UI",Arial,sans-serif!important;box-shadow:inset 0 0 0 2px #efc69222!important;text-shadow:none!important}
+html body .store-item-card.store-card-juliet .item-actions button{background:linear-gradient(130deg,#915942,#664433)!important}
+html body .store-item-card.store-card-valentine .item-actions button:disabled{opacity:.6!important}
+html body #luxuryStoreGrid > .luxury-unified-card.jlt-card[data-item-id]{--luxury-card-shade:#361b29!important;--luxury-card-accent:#e7be85!important;background:#361b29!important;color:#f8e2bd!important;font-family:Georgia,serif!important}
+html body #luxuryStoreGrid > .luxury-unified-card.jlt-card[data-item-id] .luxury-unified-info{background:linear-gradient(135deg,#432538,#231a29)!important;color:#f8e2bd!important}
+html body #luxuryStoreGrid > .luxury-unified-card.jlt-card[data-item-id] .luxury-unified-info h3{color:#ffedc9!important;font-family:Georgia,serif!important;text-shadow:none!important}
+html body #luxuryStoreGrid > .luxury-unified-card.jlt-card[data-item-id] .luxury-unified-intro{color:#e3c1b1!important}
+html body #luxuryStoreGrid > .luxury-unified-card.jlt-card[data-item-id] .luxury-unified-action{background:linear-gradient(120deg,#e2bc83,#b98b62)!important;color:#392330!important;border:1px solid #f6d69f!important;font-family:Georgia,serif!important}
+.jlt-card-architecture{position:absolute;inset:0;overflow:hidden;background:radial-gradient(ellipse at 50% 25%,#ae6e5d66,transparent 65%),linear-gradient(#342337,#6b3e42);pointer-events:none}
+.jlt-card-architecture svg{position:absolute;inset:0;width:100%;height:100%;stroke:#e2bd83;stroke-width:1;opacity:.55}
+.jlt-card-architecture i{position:absolute;top:0;bottom:0;width:18%;background:repeating-linear-gradient(90deg,#702f41,#a45d61 30%,#542b40 60%);border-right:1px solid #d9b27c;opacity:.7}
+.jlt-card-architecture i:last-child{right:0;transform:scaleX(-1)}
+@keyframes jlt-window-turn{to{rotate:360deg}}
+@keyframes jlt-ray-breathe{50%{opacity:.4;filter:blur(26px)}}
+@keyframes jlt-prism{0%,100%{opacity:0;translate:0 18px}40%,65%{opacity:.4;translate:12px -25px}}
+@keyframes jlt-quill{50%{translate:0 -9px}}
+@keyframes jlt-jewel{50%{opacity:.2;translate:0 -18px}}
+@keyframes jlt-character{50%{translate:0 -5px}}
+@keyframes jlt-seal{0%{opacity:0;scale:.3;rotate:-35deg}25%{opacity:.8}100%{opacity:0;scale:1.4;rotate:20deg}}
+@keyframes jlt-chip{from{opacity:1;translate:0 0}to{opacity:0;transform:rotate(calc(var(--i)*60deg)) translateY(75px)}}
+@keyframes jlt-stage-open{0%,100%{opacity:0}8%,88%{opacity:1}}
+@keyframes jlt-curtain{0%,8%{scale:1 1}32%,88%{scale:.12 1}100%{scale:.05 1;opacity:0}}
+@keyframes jlt-column{0%,10%{opacity:0;translate:0 50px}34%,88%{opacity:1;translate:0 0}100%{opacity:0}}
+@keyframes jlt-rose-reveal{0%,8%{opacity:0;scale:.4;rotate:-24deg}28%,70%{opacity:.8;scale:1;rotate:0deg}90%{opacity:.4;scale:1.15;rotate:18deg}100%{opacity:0;scale:1.3}}
+@keyframes jlt-score{0%,15%{stroke-dashoffset:1800;opacity:0}50%,85%{stroke-dashoffset:0;opacity:.3}100%{opacity:0}}
+@keyframes jlt-book-show{0%,22%{opacity:0;translate:0 50px;scale:.7}38%,51%{opacity:1;translate:0 0;scale:1}66%,100%{opacity:0;translate:0 50px;scale:.85}}
+@keyframes jlt-writing{50%{translate:-18px 8px;rotate:-7deg}}
+@keyframes jlt-oath-show{0%,48%{opacity:0;translate:0 20px;filter:blur(6px)}61%,85%{opacity:1;translate:0 0;filter:blur(0)}100%{opacity:0;translate:0 -20px}}
+@keyframes jlt-stage-glint{0%,100%{opacity:0;scale:0}50%{opacity:.7;scale:1.5;translate:0 -15px}}
+@keyframes jlt-end{0%,91%{opacity:1}100%{opacity:0}}
+@keyframes jlr-wander{25%{translate:18px -24px;rotate:12deg}50%{translate:-13px -40px;rotate:-8deg}75%{translate:-25px -15px;rotate:-16deg}}
+@keyframes jlr-wing{to{transform:rotateY(65deg)}}
+@keyframes jlr-box-show{0%,100%{opacity:0;scale:.75}20%,85%{opacity:1;scale:1}}
+@keyframes jlr-dancer{0%{translate:0 30px;opacity:0}40%,90%{translate:0 -15px;opacity:1}100%{opacity:0}}
+@keyframes jlr-note{0%{opacity:0;translate:0 20px}25%{opacity:.8}100%{opacity:0;translate:20px -160px;rotate:20deg}}
+.jlt-still *{animation:none!important}
+@media(max-width:650px){.jlt-chandelier{height:80px;left:2%;width:96%}.jlt-arch{width:42vw;opacity:.12}.jlt-arch.left{left:-24%}.jlt-arch.right{right:-24%}.jlt-stage-columns>div:nth-child(2),.jlt-stage-columns>div:nth-child(3){display:none}.jlt-stage-columns>div{width:38%}.jlt-title{top:48%}.jlt-title small{font-size:9px;letter-spacing:.12em}.jlt-oath-book{height:115px}.jlt-stage-rosette{width:90vw;top:38%}.jlt-crown{top:28%;width:90px;left:calc(50% - 45px)}.jlt-aura,.jlr-aura{inset:-15% -20% -8%!important}.jlt-rose-window{width:220px;height:220px;top:-120px;left:calc(50% - 110px)}}
+@media(prefers-reduced-motion:reduce){.jlt-root *,.jlt-character{animation:none!important}.jlt-prism{opacity:.2}.jlr-butterfly{animation:none!important}.jlt-ultimate,.jlt-click,.jlr-ultimate{display:none!important}}
+html.jlt-equipped:not(.jlt-suspended) .app-dialog-host::part(panel){background:linear-gradient(145deg,#fffdf7,#f8e9de)!important;color:#583733!important;border:1px solid #c8a77b!important;border-radius:28px 5px 28px 5px!important;box-shadow:0 25px 90px #39213255,inset 0 0 0 4px #fff6e8!important;font-family:Cambria,Georgia,serif!important}
+html.jlt-equipped:not(.jlt-suspended) .app-dialog-host::part(title){font-family:Georgia,serif!important;color:#793b46!important}
+html.jlt-equipped:not(.jlt-suspended) .app-dialog-host::part(mark){background:#793b46!important;color:#ffefd3!important;border-radius:50% 50% 4px 4px!important}
+body.theme-juliet-tearoom .app-dialog-host::part(panel){background:#fff9ee;color:#694537;border-color:#c9a683;border-radius:18px 18px 5px 5px;font-family:Cambria,serif}
+
+/* Shared full-bleed luxury layout; anchor Juliet at the top so her face stays in view. */
+html body #luxuryStoreGrid > .luxury-unified-card.jlt-card[data-item-id] .luxury-unified-character{object-position:center top!important}
+
+
+/* Ordinary Valentine themes: dedicated stationery and tea-room palettes. */
+html body.theme-cupid-letter{--vl-ink:#64384c;--vl-muted:#81566b;--vl-accent:#a8476a;--vl-light:#fff4f6;--vl-line:#dab0c1;--vl-side:linear-gradient(165deg,#f9e3e9,#ebccda);--vl-panel:linear-gradient(150deg,#fffaf5,#fff0f4);--vl-shape:5px 22px 5px 22px;background:radial-gradient(ellipse at 10% 0,#fbe1de,transparent 65%),#fff3f6!important;color:var(--vl-ink)!important;font-family:"Segoe UI",Arial,sans-serif!important}
+html body.theme-juliet-tearoom{--vl-ink:#684536;--vl-muted:#846652;--vl-accent:#896146;--vl-light:#fff8ec;--vl-line:#d3b793;--vl-side:repeating-linear-gradient(90deg,transparent 0 36px,#b48d6010 37px),linear-gradient(#f0e4ce,#e3d0b4);--vl-panel:linear-gradient(150deg,#fffcf3,#f5eada);--vl-shape:20px 20px 5px 5px;background:repeating-linear-gradient(90deg,#bd9f6e0b 0 1px,transparent 1px 44px),#fcf6eb!important;color:var(--vl-ink)!important;font-family:"Segoe UI",Arial,sans-serif!important}
+html body:is(.theme-cupid-letter,.theme-juliet-tearoom) :is(#studentSidebar,#teacherSidebar,.sidebar){background:var(--vl-side)!important;border:1px solid var(--vl-line)!important;border-radius:var(--vl-shape)!important;color:var(--vl-ink)!important;box-shadow:inset 0 0 0 4px #fff9ee66,0 8px 22px #74425915!important}
+html body:is(.theme-cupid-letter,.theme-juliet-tearoom) :is(#studentSidebar,#teacherSidebar,.sidebar)::before{display:none!important}
+html body:is(.theme-cupid-letter,.theme-juliet-tearoom) :is(#studentSidebar,#teacherSidebar,.sidebar) :is(h3,.nav-item,.sidebar-toggle,.btn-logout){color:var(--vl-ink)!important;text-shadow:none!important;font-family:inherit!important}
+html body:is(.theme-cupid-letter,.theme-juliet-tearoom) :is(#studentSidebar,#teacherSidebar,.sidebar) .nav-item{background:transparent!important;border:1px solid transparent!important;border-radius:var(--vl-shape)!important;box-shadow:none!important}
+html body:is(.theme-cupid-letter,.theme-juliet-tearoom) :is(#studentSidebar,#teacherSidebar,.sidebar) .nav-item:hover{background:#fff8ef99!important;border-color:var(--vl-line)!important}
+html body:is(.theme-cupid-letter,.theme-juliet-tearoom) :is(#studentSidebar,#teacherSidebar,.sidebar) .nav-item.active{background:var(--vl-accent)!important;color:var(--vl-light)!important;border-color:var(--vl-accent)!important;box-shadow:inset 3px 0 #f3d59b!important}
+html body:is(.theme-cupid-letter,.theme-juliet-tearoom) :is(#studentSidebar,#teacherSidebar,.sidebar) :is(.sidebar-toggle,.btn-logout){background:var(--vl-light)!important;border:1px solid var(--vl-line)!important;box-shadow:none!important}
+html body:is(.theme-cupid-letter,.theme-juliet-tearoom) :is(#studentSidebar,#teacherSidebar,.sidebar) svg{stroke:currentColor!important}
+html body:is(.theme-cupid-letter,.theme-juliet-tearoom) :is(#studentDashboard,#teacherDashboard)>.content{background:color-mix(in srgb,var(--vl-light) 86%,transparent)!important;color:var(--vl-ink)!important;border-color:var(--vl-line)!important}
+html body:is(.theme-cupid-letter,.theme-juliet-tearoom) :is(.card,.assignment-card,.stat-card,.dashboard-card,.settings-card,.form-container,.modal-content,.popup-content):not(:where(.ui-theme-immune,.ui-theme-immune *,.store-theme-locked,.store-theme-locked *,.store-item-card,.store-item-card *,.luxury-product-card,.luxury-product-card *,#virtual-pet-container,#virtual-pet-container *,.ql-toolbar,.ql-toolbar *)){background:var(--vl-panel)!important;color:var(--vl-ink)!important;border:1px solid var(--vl-line)!important;border-radius:var(--vl-shape)!important;box-shadow:inset 0 0 0 3px #fffaf266,0 6px 18px #74425912!important}
+html body:is(.theme-cupid-letter,.theme-juliet-tearoom) :is(h1,h2,h3,h4,.section-title,.modal-title,label):not(:where(.ui-theme-immune,.ui-theme-immune *,.store-theme-locked,.store-theme-locked *,.store-item-card,.store-item-card *,.luxury-product-card,.luxury-product-card *,#virtual-pet-container,#virtual-pet-container *,.ql-toolbar,.ql-toolbar *)){color:var(--vl-ink)!important;font-family:"Segoe UI",Arial,sans-serif!important;letter-spacing:normal!important;text-shadow:none!important}
+html body:is(.theme-cupid-letter,.theme-juliet-tearoom) :is(button,.btn):not(.nav-item):not(.sidebar-toggle):not(.btn-logout):not(:where(.ui-theme-immune,.ui-theme-immune *,.store-theme-locked,.store-theme-locked *,.store-item-card,.store-item-card *,.luxury-product-card,.luxury-product-card *,#virtual-pet-container,#virtual-pet-container *,.ql-toolbar,.ql-toolbar *)){background:var(--vl-accent)!important;color:var(--vl-light)!important;border:1px solid var(--vl-line)!important;border-radius:var(--vl-shape)!important;box-shadow:inset 0 0 0 2px #fff5df18!important;text-shadow:none!important;font-family:inherit!important}
+html body:is(.theme-cupid-letter,.theme-juliet-tearoom) :is(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),textarea,select):not(:where(.ui-theme-immune,.ui-theme-immune *,.store-theme-locked,.store-theme-locked *,.store-item-card,.store-item-card *,.luxury-product-card,.luxury-product-card *,#virtual-pet-container,#virtual-pet-container *,.ql-toolbar,.ql-toolbar *)){background:#fffcf7!important;color:var(--vl-ink)!important;border:1px solid var(--vl-line)!important;border-radius:10px!important;box-shadow:none!important;font-family:inherit!important}
+html body:is(.theme-cupid-letter,.theme-juliet-tearoom) .app-dialog-host::part(panel){background:var(--vl-panel)!important;color:var(--vl-ink)!important;border:1px solid var(--vl-line)!important;border-radius:var(--vl-shape)!important;box-shadow:0 20px 70px #59382830,inset 0 0 0 4px #fff9ed!important;font-family:"Segoe UI",Arial,sans-serif!important}
+html body:is(.theme-cupid-letter,.theme-juliet-tearoom) .app-dialog-host::part(title){color:var(--vl-ink)!important;font-family:"Segoe UI",Arial,sans-serif!important}
+html body:is(.theme-cupid-letter,.theme-juliet-tearoom) .app-dialog-host::part(mark){background:var(--vl-accent)!important;color:var(--vl-light)!important}
+html body:is(.theme-cupid-letter,.theme-juliet-tearoom) ::-webkit-scrollbar-thumb{background:var(--vl-line);border-radius:10px;border:2px solid var(--vl-light)}
+/* Cupid ordinary pet: floating paper wings, a stitched halo and a small letter.
+   Independent of the premium Cupid runtime and of the purchased weather effect. */
+.cpr-aura{position:absolute!important;inset:-15% -24% -8%!important;pointer-events:none!important;z-index:0!important}
+.cpr-ultimate{position:fixed!important;inset:0!important;pointer-events:none!important;z-index:99989!important;overflow:hidden!important}
+.cpr-stage{position:absolute;inset:0;pointer-events:none;color:#b8597b;font-family:"Segoe UI",Arial,sans-serif}
+.cpr-stage *{box-sizing:border-box;pointer-events:none}
+.cpr-halo{position:absolute;left:12%;top:12%;width:76%;height:76%;border:1px dashed #cb8ba0;border-radius:50%;box-shadow:0 0 0 5px #ffe8dc44,inset 0 0 20px #e1a2ad22;transform:rotate(-18deg);animation:cpr-halo-turn 32s linear infinite}
+.cpr-wing{position:absolute;top:24%;width:42%;height:28%;border-radius:80% 10% 80% 15%;border:1px solid #e4b8b8;background:repeating-linear-gradient(25deg,transparent 0 8px,#c5809433 9px,transparent 10px),linear-gradient(150deg,#fff7e9cc,#f3c9d3aa);animation:cpr-wing-float 3s ease-in-out infinite alternate}
+.cpr-wing-left{left:0;rotate:-30deg;transform-origin:right bottom}.cpr-wing-right{right:0;scale:-1 1;rotate:30deg;transform-origin:right bottom;animation-delay:-1.5s}
+.cpr-pet-heart{position:absolute;left:calc(8% + var(--i)*20%);bottom:calc(4% + var(--i)*4%);font-style:normal;font-size:18px;color:#b45f7c;opacity:0;animation:cpr-pet-heart 4s ease-out infinite;animation-delay:calc(var(--i)*-.8s)}
+#virtual-pet-img.cpr-character{position:relative;z-index:2;filter:drop-shadow(0 4px 7px #ba7b8d44)}
+.cpr-letter{position:absolute;left:50%;top:50%;width:min(220px,65vw);height:140px;transform:translate(-50%,-50%);animation:cpr-letter-show 3.2s ease both;filter:drop-shadow(0 8px 20px #783d5133)}
+.cpr-envelope{position:absolute;inset:40px 0 0;background:linear-gradient(32deg,#f7d1d7 49%,transparent 50%),linear-gradient(-32deg,#eeb8c7 49%,#fff2e3 50%);border:1px solid #ca8799;border-radius:4px 4px 14px 14px}
+.cpr-envelope-flap{position:absolute;inset:40px 0 auto;height:65px;background:#f2c8d0;clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top;animation:cpr-open-flap 3.2s ease both}
+.cpr-letter-paper{position:absolute;inset:12px 14px 15px;background:repeating-linear-gradient(#fff9ed 0 18px,#dfb3bb44 19px,#fff9ed 20px);border:1px solid #dec4aa;text-align:center;animation:cpr-paper-rise 3.2s ease both}
+.cpr-letter-paper i{display:block;font-size:32px;line-height:48px;font-style:normal;color:#b85476}.cpr-letter-paper span{font-size:10px;letter-spacing:.08em;color:#8b4f62}
+.cpr-message-heart{position:absolute;left:50%;top:50%;font:24px "Segoe UI",sans-serif;color:#bd6a8a;opacity:0;--angle:calc(var(--i)*45deg);animation:cpr-heart-send 3.2s ease-out both;animation-delay:calc(var(--i)*.025s)}
+@keyframes cpr-halo-turn{to{transform:rotate(342deg)}}
+@keyframes cpr-wing-float{to{transform:rotate(10deg) translateY(-6px)}}
+@keyframes cpr-pet-heart{0%,100%{opacity:0;translate:0 0}30%{opacity:.65}90%{opacity:0;translate:8px -65px}}
+@keyframes cpr-letter-show{0%,100%{opacity:0;scale:.75}18%,85%{opacity:1;scale:1}}
+@keyframes cpr-open-flap{0%,12%{transform:rotateX(0)}30%,100%{transform:rotateX(180deg)}}
+@keyframes cpr-paper-rise{0%,22%{translate:0 20px}45%,85%{translate:0 -42px}100%{translate:0 -65px}}
+@keyframes cpr-heart-send{0%,24%{opacity:0;transform:rotate(var(--angle)) translateY(20px)}45%{opacity:.7}100%{opacity:0;transform:rotate(var(--angle)) translateY(-130px)}}
+.cpr-still *{animation:none!important}.cpr-still .cpr-pet-heart{opacity:.3}
+@media(prefers-reduced-motion:reduce){.cpr-stage *{animation:none!important}.cpr-pet-heart{opacity:.3}.cpr-ultimate{display:none!important}}
+
+html body:is(.theme-cupid-letter,.theme-juliet-tearoom) .content h2:not(:where(.ui-theme-immune *,.store-theme-locked *,.store-item-card *,.luxury-product-card *))::after{background:linear-gradient(90deg,var(--vl-accent),var(--vl-line))!important;box-shadow:none!important}

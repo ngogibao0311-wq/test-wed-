@@ -8850,11 +8850,15 @@ body.video-summary-resizing
 
     #tab-settings .student-settings-health-card {
         grid-template-columns: 1fr;
+        flex-direction: column;
+        align-items: stretch;
     }
 
     #tab-settings .student-settings-health-button {
         width: 100% !important;
         min-width: 0;
+        white-space: normal;
+        overflow-wrap: anywhere;
     }
 }
 
@@ -10048,3 +10052,41 @@ html[data-app-role="student"] body.student-content-glass-disabled .dashboard > .
 #luckyWheelModal .lucky-wheel-title span{display:inline-block;margin-top:8px}
 #luckyWheelModal .lucky-wheel-stage{position:relative;width:min(300px,100%);aspect-ratio:1;margin:26px auto 18px}
 #luckyWheelModal .close-btn{width:34px;min-height:34px;height:34px;padding:0;font-size:16px;line-height:1}
+
+/* Roomier inbox and bag; one scrolling body keeps headings reachable. */
+#studentInboxModal>.modal-content,#studentBagModal>.modal-content{width:calc(100vw - 48px)!important;max-width:1100px!important;height:88dvh;max-height:calc(100dvh - 48px)!important;display:flex;flex-direction:column;overflow:hidden;box-sizing:border-box;padding:26px!important}
+#studentBagModal>.modal-content{max-width:1200px!important}
+#studentInboxModal .close-btn,#studentBagModal .close-btn{flex-shrink:0}
+#studentInboxModal h3,#studentBagModal h3{padding-right:40px;flex-shrink:0}
+#studentInboxBody,#studentBagBody{max-height:none!important;min-height:0;overflow-y:auto!important;overscroll-behavior:contain;scrollbar-width:thin;flex:1 1 auto;padding:4px 10px 4px 4px!important}
+@media(max-width:600px){#studentInboxModal>.modal-content,#studentBagModal>.modal-content{width:calc(100vw - 20px)!important;max-height:calc(100dvh - 24px)!important;padding:18px 14px!important;border-radius:16px!important}#studentInboxBody,#studentBagBody{padding:2px!important}}
+
+/* Ngày hội mua sắm — dùng chung stylesheet học sinh. */
+.shopping-event-card{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;background:linear-gradient(115deg,#fff1e6,#ffe1dd);border:1px solid #edb99c;color:#61241a}
+.shopping-event-card h3{font-size:1.4rem;margin:8px 0}.shopping-event-card p{margin:8px 0;line-height:1.6}.shopping-event-card small{color:#805342}
+.shopping-eyebrow{font-size:11px;font-weight:800;letter-spacing:2px}
+/* Keep global form/button themes from stretching this native dialog. */
+html body dialog#shoppingDayDialog{min-width:0!important;width:min(1080px,calc(100vw - 28px))!important;max-width:calc(100vw - 28px)!important;overflow-x:hidden!important;color:#432c29!important;background:#fffaf4!important;font-family:system-ui,sans-serif!important}
+html body #shoppingDayDialog button{width:auto!important;min-width:0!important;max-width:100%!important;flex:0 0 auto!important;margin:0!important;background:#a52e2b!important;color:white!important;box-shadow:none!important;transform:none!important;letter-spacing:normal!important;text-transform:none!important}
+html body #shoppingDayDialog button::before,html body #shoppingDayDialog button::after{display:none!important;content:none!important}
+html body #shoppingDayDialog .shopping-header{display:flex!important;align-items:flex-start!important;gap:16px!important;min-width:0!important}
+html body #shoppingDayDialog .shopping-header>div{flex:1 1 0!important;min-width:0!important}
+html body #shoppingDayDialog .shopping-header>[data-shopping-close]{width:42px!important;height:42px!important;flex:0 0 42px!important;padding:0!important;line-height:1!important;background:#ffffff1c!important}
+html body #shoppingDayDialog .shopping-header h2{width:auto!important;max-width:none!important;word-break:normal!important;overflow-wrap:normal!important;color:#fff4e0!important}
+html body #shoppingDayDialog .shopping-intro-copy{min-width:0!important}
+html body #shoppingDayDialog .shopping-item button{width:100%!important}
+html body #shoppingDayDialog .shopping-status button{margin:8px 0 0 12px!important}
+html body #shoppingDayDialog .shopping-toolbar input,html body #shoppingDayDialog .shopping-toolbar select{box-sizing:border-box!important;max-width:100%!important;min-width:0!important;margin:0!important}
+html body #shoppingDayDialog .shopping-toolbar label{min-width:0;max-width:100%}
+.shopping-event-card button,.shopping-dialog button{background:#a52e2b;color:#fff;border:0;border-radius:10px;padding:12px 18px;font:inherit;font-weight:700;cursor:pointer}
+.shopping-dialog{box-sizing:border-box;width:min(1080px,calc(100vw - 28px));max-width:none;max-height:calc(100dvh - 32px);margin:auto;padding:0;border:1px solid #e4b9a2;border-radius:24px;background:#fffaf4;color:#432c29;box-shadow:0 30px 100px #1f0d0b66;overflow:auto}
+.shopping-dialog::backdrop{background:#21110fd9;backdrop-filter:blur(5px)}.shopping-dialog *{box-sizing:border-box}.shopping-dialog button:disabled{opacity:.48;cursor:default}.shopping-dialog button:focus-visible,.shopping-dialog input:focus-visible,.shopping-dialog select:focus-visible,.shopping-dialog summary:focus-visible{outline:3px solid #e19020;outline-offset:3px}
+.shopping-header{padding:28px 32px;display:flex;align-items:flex-start;justify-content:space-between;gap:15px;background:#7b2528;color:#fff4e0}.shopping-header h2{margin:10px 0;font-size:30px;color:inherit}.shopping-header p{margin:0;line-height:1.5;color:#ffddc6}.shopping-header button{background:#ffffff1c;flex-shrink:0;font-size:20px;padding:8px 14px}
+.shopping-body{padding:28px 32px}.shopping-intro{display:grid;grid-template-columns:300px 1fr;align-items:center;gap:40px}.shopping-intro-copy>strong{display:block;font-size:38px;line-height:1.2;margin:8px 0;color:#9f2a2a}.shopping-intro-copy p{line-height:1.7;font-size:14px}.shopping-intro-copy details{margin-top:15px;font-size:12px}.shopping-intro-copy summary{cursor:pointer}
+.shopping-wheel-wrap{position:relative;width:280px;height:280px;margin:14px auto}.shopping-wheel{position:absolute;inset:0;border:8px solid #eacb81;border-radius:50%;box-shadow:0 8px 24px #762b2428;background:conic-gradient(#a52e2b 0deg 51.4286deg,#f5d99a 51.4286deg 102.8571deg,#ce6347 102.8571deg 154.2857deg,#f9e9c5 154.2857deg 205.7143deg,#b34731 205.7143deg 257.1429deg,#e5ae65 257.1429deg 308.5714deg,#7b2528 308.5714deg 360deg)}
+.shopping-wheel>span{position:absolute;left:50%;top:50%;width:54px;height:24px;margin:-12px 0 0 -27px;text-align:center;font-size:17px;font-weight:900;color:#fff;transform:rotate(var(--angle)) translateY(-96px) rotate(calc(-1 * var(--angle)));text-shadow:0 1px 3px #61201b}.shopping-wheel>span:nth-child(even){color:#56271b;text-shadow:none}.shopping-pointer{position:absolute;top:-15px;left:calc(50% - 13px);z-index:2;font-size:28px;line-height:1;color:#432c29}.shopping-wheel-hub{position:absolute;top:calc(50% - 32px);left:calc(50% - 32px);width:64px;height:64px;display:grid;place-items:center;border-radius:50%;background:#fff5d6;border:5px solid #eacb81;font-size:26px;box-shadow:0 2px 8px #63271c44}
+.shopping-status{min-height:48px;padding:14px 18px;border-radius:12px;background:#f5e7d6;color:#613e30;line-height:1.6;font-size:14px}.shopping-status button{margin:8px 0 0 12px}.shopping-toolbar{display:flex;flex-wrap:wrap;align-items:end;gap:14px;margin:24px 0 16px}.shopping-toolbar label{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700}.shopping-toolbar label:first-child{flex:1;min-width:180px}.shopping-toolbar input,.shopping-toolbar select{border:1px solid #dbc6b7;padding:11px 12px;border-radius:10px;background:white;color:#432c29;font:inherit;font-size:14px;min-width:0}.shopping-toolbar>span{padding:12px 0;font-size:13px;color:#856457}
+.shopping-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.shopping-item{padding:16px;border:1px solid #e8d8c9;background:#fff;border-radius:16px;display:flex;flex-direction:column;gap:10px;min-width:0}.shopping-item-luxury{border-color:#c9a36b;background:linear-gradient(150deg,#fff,#fff3d9)}.shopping-item-art{height:90px;border-radius:10px;display:grid;place-items:center;font-size:38px;background:#f8efe5;overflow:hidden}.shopping-item-art img{max-width:100%;max-height:90px;object-fit:contain}.shopping-item small{color:#856457;font-size:10px}.shopping-item h3{font-size:14px;line-height:1.5;margin:0;overflow-wrap:anywhere;flex:1}.shopping-price{display:flex;flex-direction:column;gap:4px}.shopping-price del{color:#9a8277;font-size:12px}.shopping-price strong{color:#a52e2b;font-size:17px}.shopping-item button{width:100%;padding:10px 8px;font-size:12px}.shopping-empty{grid-column:1/-1;text-align:center;padding:30px;color:#856457}.shopping-pagination{display:flex;justify-content:center;align-items:center;gap:18px;margin:24px 0 0}.shopping-pagination span{font-size:13px}
+@media(max-width:760px){.shopping-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.shopping-intro{grid-template-columns:1fr;gap:16px}.shopping-intro-copy{text-align:center}.shopping-header,.shopping-body{padding:20px}.shopping-header h2{font-size:24px}.shopping-intro-copy>strong{font-size:32px}}
+@media(max-width:380px){.shopping-body{padding:14px}.shopping-grid{gap:8px}.shopping-item{padding:10px}.shopping-wheel-wrap{width:250px;height:250px}.shopping-wheel>span{transform:rotate(var(--angle)) translateY(-84px) rotate(calc(-1 * var(--angle)))}}
+
