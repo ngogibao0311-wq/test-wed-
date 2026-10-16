@@ -20,7 +20,8 @@
     "Ultimate Valentine: chữ Hồng Tuyến Vĩnh Kết rõ nét, viền ren trái tim, sáu nụ hồng, chỉ quỹ đạo và ánh vàng chuyển động.",
     "Lịch sử học sinh chỉ giữ 30 giao dịch mới nhất; Worker dọn bản ghi cũ sau khi ghi giao dịch hoặc mở lịch sử, không thay đổi số dư và dữ liệu đối soát. Cần triển khai Worker đi kèm.",
     "Đổi tên dịch vụ hiển thị thành đám mây trong thông báo, hướng dẫn và bảng chẩn đoán; giữ nguyên kết nối, quyền và cơ chế dữ liệu.",
-    "Sửa bài: bỏ chọn từng học sinh, giữ các em còn lại. Khi xóa học sinh, xóa bài tập/lịch chỉ giao cho em đó; giữ mục dùng chung và loại em khỏi danh sách cụ thể. Cần cập nhật Worker."
+    "Sửa bài: bỏ chọn từng học sinh, giữ các em còn lại. Khi xóa học sinh, xóa bài tập/lịch chỉ giao cho em đó; giữ mục dùng chung và loại em khỏi danh sách cụ thể. Cần cập nhật Worker.",
+    "Thêm Ngày hội mua sắm trong Trò chơi: chỉ mở ngày 3/11 hằng năm (giờ Việt Nam), mỗi học sinh quay miễn phí một lần/năm để giảm 10–70% cho vật phẩm Coin ở cả cửa hàng thường và sang trọng; không áp dụng vật phẩm hoặc xu sự kiện. Lưu kết quả quay và giá thanh toán vào lịch sử; cần triển khai Worker đi kèm."
   ],
   "resolvedIssues": [
     "Các vật phẩm Mùa Đông đi qua cơ chế mua, trang bị và lịch sử tài sản hiện có; kiểm thử nhận và tiêu hao vật phẩm mới.",
@@ -31,7 +32,9 @@
     "Giáo viên mở web: tự đối soát bài có thư thưởng/phạt cũ đủ dữ liệu, chỉ áp dụng chênh lệch và thay thư cũ bằng thông báo kết quả. Khóa tránh nhận đồng thời, giữ nguyên trường hợp thiếu dữ liệu. Cần Publish Rules đi kèm.",
     "Sửa duyệt tiền mặt báo nhầm số dư thay đổi do bộ nhớ giao dịch trống; giữ theo dõi dữ liệu trong khi duyệt, từ chối và hoàn tất, vẫn chặn thay đổi đồng thời thực sự.",
     "Hủy yêu cầu tiền mặt không lấy khóa giao dịch; sửa giải phóng khóa sau xử lý để tránh báo nhầm giao dịch ở tab khác.",
-    "Tự rà soát vật phẩm đã thanh toán nhưng chưa cấp; giữ biên nhận và không trừ thêm. Đối soát thư thưởng bài tập cũ theo mức mới, lưu bản gốc trước khi thay; khoản không rõ dữ liệu được báo kiểm tra."
+    "Tự rà soát vật phẩm đã thanh toán nhưng chưa cấp; giữ biên nhận và không trừ thêm. Đối soát thư thưởng bài tập cũ theo mức mới, lưu bản gốc trước khi thay; khoản không rõ dữ liệu được báo kiểm tra.",
+    "Sửa Ngày hội mua sắm trên bản test web-chan-doan-test: tải vật phẩm thường và sang trọng, mở thử ngoài ngày 3/11, quay và mua qua dữ liệu Firebase thử nghiệm; sửa nút đóng gây ép tiêu đề/tràn ngang và bỏ phần hiển thị tỉ lệ trúng. Bản chính vẫn dùng Worker và lịch 3/11.",
+    "Ngày hội mua sắm bản test: gộp danh sách riêng của cửa hàng sang trọng; chuyển thông tin ưu đãi ra khỏi inventoryGrant để phù hợp Rules hiện có. Giải phóng giao dịch v2 hết hạn chỉ sau khi xác nhận chưa có biên nhận thanh toán; giữ nguyên giao dịch đã trả tiền và lịch sử."
   ],
   "knownIssues": [
     "Bộ Mùa Đông không yêu cầu rule mới riêng; chức năng lịch sử tài sản vẫn cần bộ rules của v4.3.1.",

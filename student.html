@@ -3,7 +3,8 @@
 
 <head>
     <link rel="stylesheet" href="css/app-dialog.css?v=20261003.cleanup1">
-    <script src="js/app-dialog.js?v=20261001.design2"></script>
+    <script src="js/grade-presentation.js?v=20261013.layout1"></script>
+    <script src="js/app-dialog.js?v=20261013.layout1"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="application-version" content="4.3.2">
@@ -16,9 +17,10 @@
     <link rel="stylesheet" href="css/common.css?v=20261007.phone1">
     <link rel="stylesheet" href="css/web-animations.css?v=20261003.cleanup2">
     <link rel="stylesheet" href="css/update-manager.css?v=20261003.cleanup1">
+    <link rel="stylesheet" href="css/avatar-frame-base.css?v=20261014.frame1">
     <link id="linkclick-cheng-premium-style" rel="stylesheet" href="css/link-click-cheng-xiaoshi.css?v=20261003.aclp3">
     <!-- Core-first loader: CSS/module đặc biệt chỉ tải khi cần -->
-    <script src="js/student-feature-loader.js?v=20261010.vlt4"></script>
+    <script src="js/student-feature-loader.js?v=20261015.royal-regular1"></script>
     <script>
         MathJax = {
             tex: {
@@ -234,7 +236,7 @@
             display: block !important;
         }
     </style>
-<link rel="stylesheet" href="css/student.css?v=20261007.phone1">
+<link rel="stylesheet" href="css/student.css?v=20261016.device-recovery1">
 <link rel="stylesheet" href="css/mc-workspace.css?v=20261007.phone1">
 <link rel="stylesheet" href="css/assignment-appeals.css?v=20261003.cleanup1">
 <link rel="stylesheet" href="css/dashboard-refresh.css?v=20261007.phone1">
@@ -396,7 +398,7 @@
                     if (state.blocked && state.errorKind === 'timeout' && getMissing().length === 0) {
                         clearError();
                         api.setStatus('Kết nối đã phục hồi. Hoàn tất khởi động...');
-                        setTimeout(() => api.hide(), 250);
+                        // Resume the startup continuation before opening the page.
                     }
                 },
 
@@ -531,17 +533,18 @@
                 async waitForExpected(options) {
                     const timeoutMs = Math.max(5000, Number(options && options.timeoutMs) || 30000);
                     const started = Date.now();
-                    api.setStatus('Đang chờ các dữ liệu bắt buộc từ đám mây...');
+                    let slowReported = false;
+                    api.setStatus('Đang chuẩn bị dữ liệu cần thiết...');
 
                     while (getMissing().length) {
-                        if (Date.now() - started >= timeoutMs) {
+                        if (!slowReported && Date.now() - started >= timeoutMs) {
                             const missing = getMissing();
                             showError(
                                 'Một số dữ liệu bắt buộc chưa phản hồi.',
                                 'Còn thiếu: ' + missing.map(key => state.labels.get(key) || key).join(', '),
                                 'timeout'
                             );
-                            return false;
+                            slowReported = true;
                         }
                         await sleep(120);
                     }
@@ -609,6 +612,8 @@
 
                 diagnostics() {
                     return {
+                        hidden: state.hidden,
+                        blocked: state.blocked,
                         online: navigator.onLine,
                         expected: [...state.expected],
                         ready: [...state.ready],
@@ -834,6 +839,14 @@
                         <button onclick="openLuckyWheel()"
                             style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white; padding: 12px 25px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(246, 211, 101, 0.4);">Chơi
                             ngay ➡️</button>
+                    </div>
+                    <div class="card shopping-event-card ui-theme-immune">
+                        <div><span class="shopping-eyebrow">03 / 11 · HẰNG NĂM</span>
+                            <h3>🛍️ Ngày hội mua sắm</h3>
+                            <p>Quay miễn phí một lần, giảm đến 70% cho vật phẩm Coin ở cửa hàng thường và sang trọng.</p>
+                            <small>Chỉ mở ngày 3/11 theo giờ Việt Nam. Không áp dụng vật phẩm và xu sự kiện.</small>
+                        </div>
+                        <button type="button" onclick="ShoppingDay.open()">Khám phá ngày hội →</button>
                     </div>
                     <div id="royalEventCard" class="card royal-event-card ui-theme-immune" data-event-state="loading"
                         data-ribbon-text="ĐANG KIỂM TRA"
@@ -1546,9 +1559,9 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <!-- 2. Khởi tạo Firebase -->
-    <script src="js/firebase-config.js?v=20260928.read-fix"></script>
-    <script src="js/asset-history.js?v=20261010.history30"></script>
-    <script src="js/cloudinary-storage.js?v=20261001.dialog1"></script>
+    <script src="js/firebase-config.js?v=20261015.audit-fix1"></script>
+    <script src="js/asset-history.js?v=20261015.love3"></script>
+    <script src="js/cloudinary-storage.js?v=20261011.economy-startup2"></script>
 
     <script>
         window.APP_STORAGE_CONFIG = Object.freeze({
@@ -1556,7 +1569,7 @@
         });
     </script>
 
-    <script src="js/cloudflare-r2-storage.js?v=20261010.cloud-labels"></script>
+    <script src="js/cloudflare-r2-storage.js?v=20261011.economy-startup2"></script>
 
     <!-- 3. Thư viện đọc file DOCX -->
     <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
@@ -1569,48 +1582,55 @@
         // Phiên bản thực sự của bộ HTML/JS đang chạy.
         // common.js cũ đọc appVersion từ localStorage, nên đồng bộ trước khi nạp common.js.
         window.APP_VERSION = '4.3.2';
+        // Remove saved progress for the retired garden prototype on this origin.
+        try { localStorage.removeItem('cloud-garden-playtest-v1'); } catch (_) { }
         try {
             localStorage.setItem('appVersion', window.APP_VERSION);
         } catch (_) { }
     </script>
     
-    <script src="js/random-exam-engine.js?v=20261001.1"></script>
-<script src="js/campus-pdf.js?v=20261001.1"></script>
-<script src="js/common.js?v=20261010.cloud-labels"></script>
-    <script src="js/history-retention.js?v=20261009.history2"></script>
-    <script src="js/update-manager.js?v=1.0.4-release-v4.3.2"></script>
-    <script src="js/web-animations.js?v=20261003.cleanup2"></script>
+    <script src="js/random-exam-engine.js?v=20261015.audit-fix1"></script>
+<script src="js/campus-pdf.js?v=20261011.economy-startup2"></script>
+<script src="js/common.js?v=20261016.device-recovery1"></script>
+<script src="js/startup-data-coordinator.js?v=20261011.economy-startup2"></script>
+<script src="js/economy-client.js?v=20261015.network1"></script>
+<script src="js/that-tich-wallet.js?v=20261015.love3"></script>
+    <script src="js/history-retention.js?v=20261011.economy-startup2"></script>
+    <script src="js/update-manager.js?v=20261011.economy-startup2"></script>
+    <script src="js/web-animations.js?v=20261011.economy-startup2"></script>
     <!-- Tối ưu hiệu năng: mặc định tắt; dùng trạng thái đã lưu trong Cài đặt. Phát hiện mobile/thiết bị yếu chỉ áp dụng sau khi tính năng đã được bật. -->
-    <script src="js/web-performance-optimizer.js?v=20260930.media-v2"></script>
-    <script src="js/transaction-history.js?v=20261009.reliability1"></script>
+    <script src="js/web-performance-optimizer.js?v=20261016.adaptive-ip1"></script>
+    <script src="js/transaction-history.js?v=20261015.audit-fix1"></script>
 
     <!-- 4. EffectQualityManager là core; các module tính năng khác do StudentFeatureLoader lazy-load -->
     <!-- Điều chỉnh riêng mức hiệu ứng vật phẩm + Web Animations; không đụng theme/logic -->
-    <script src="js/effect-quality-manager.js?v=20261001.design2"></script>
+    <script src="js/effect-quality-manager.js?v=20261016.adaptive-ip1"></script>
 
     <!-- YouTube API không phụ thuộc Firebase -->
     <script src="https://www.youtube.com/iframe_api"></script>
 
     <!-- 5. Logic chính của trang học sinh luôn đặt cuối -->
-    <script src="js/assignment-appeals.js?v=20261008.grade-net1"></script>
-    <script src="js/mc-workspace.js?v=20261010.cloud-labels"></script>
-<script src="js/student-asset-history.js?v=20261010.history-iteration"></script>
-<script src="js/study-reliability.js?v=20261010.cloud-labels"></script>
-<script src="js/pending-mechanism-reconciliation.js?v=20261010.pending1"></script>
-<script src="js/cash-ledger.js?v=20261010.audit1"></script>
-<script src="js/inbox-ledger.js?v=20261010.audit1"></script>
-<script src="js/student.js?v=20261010.roadmap-grade-fix"></script>
+    <script src="js/assignment-appeals.js?v=20261011.authority3"></script>
+    <script src="js/mc-workspace.js?v=20261015.audit-fix1"></script>
+<script src="js/page-work-coordinator.js?v=20261013.performance2"></script>
+<script src="js/student-asset-history.js?v=20261015.love3"></script>
+<script src="js/study-reliability.js?v=20261011.economy-startup2"></script>
+<script src="js/pending-mechanism-reconciliation.js?v=20261014.shopping4"></script>
+<script src="js/cash-ledger.js?v=20261011.economy-startup2"></script>
+<script src="js/inbox-ledger.js?v=20261011.economy-startup2"></script>
+<script src="js/student-view-performance.js?v=20261013.performance1"></script>
+<script src="js/student.js?v=20261015.regular-fix1"></script>
 
 
 <link rel="stylesheet" href="css/collection-rewards.css?v=20261003.cleanup1">
-<script src="js/collection-reward-catalog.js?v=20260930.poster-pack3"></script>
-<script src="js/collection-rewards.js?v=20261010.cloud-labels"></script>
-<script src="js/list-media-performance.js?v=20260930.media-v2"></script>
+<script src="js/collection-reward-catalog.js?v=20261012.eventbag1"></script>
+<script src="js/collection-rewards.js?v=20261015.tags3"></script>
+<script src="js/list-media-performance.js?v=20261011.economy-startup2"></script>
 <link rel="stylesheet" href="css/campus-design.css?v=20261007.phone1">
-<script src="js/campus-design.js?v=20261007.phone1"></script>
+<script src="js/campus-design.js?v=20261011.economy-startup2"></script>
 <link rel="stylesheet" href="css/mobile.css?v=20261007.phone6">
-<script src="js/mobile-layout.js?v=20261007.phone4"></script>
-<script src="js/release-history.js?v=20261009.history2"></script>
+<script src="js/mobile-layout.js?v=20261011.economy-startup2"></script>
+<script src="js/release-history.js?v=20261011.economy-startup2"></script>
 </body>
 
 </html>
