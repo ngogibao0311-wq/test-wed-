@@ -11885,6 +11885,11 @@ async function changeStudentPasswordWithCurrentCredential(username, newPass) {
     let record = await getTeacherProfileUserRecord(username);
     if (!record) throw new Error('PROFILE_USER_NOT_FOUND');
 
+    if(window.StudentAccountAccess && await window.StudentAccountAccess.enabled()) {
+        await window.StudentAccountAccess.call('teacher_password',{uid:record._fbKey,password:newPass});
+        return {oldPassword:'',userRecord:record,serverManaged:true};
+    }
+
     const fakeEmail = `${username}@hethong.edu.vn`;
     let attemptedPassword = String(record.password || '');
 
@@ -12075,6 +12080,7 @@ async function handleRequest(reqKey, isApprove) {
 
         let authChanged = false;
         let authOldPassword = '';
+        let serverManagedPassword = false;
 
         if (newPass) {
             try {
@@ -12082,7 +12088,8 @@ async function handleRequest(reqKey, isApprove) {
                     username,
                     newPass
                 );
-                authChanged = true;
+                serverManagedPassword = authResult.serverManaged === true;
+                authChanged = !serverManagedPassword;
                 authOldPassword = authResult.oldPassword;
                 latestUser = authResult.userRecord;
             } catch (authError) {
@@ -12107,7 +12114,7 @@ async function handleRequest(reqKey, isApprove) {
 
         try {
             const updateData = { name: newName };
-            if (newPass) updateData.password = newPass;
+            if (newPass) updateData.password = serverManagedPassword ? null : newPass;
 
             await db.ref(`users/${latestUser._fbKey}`).update(updateData);
         } catch (dbError) {
@@ -14667,6 +14674,10 @@ window.saveStudentEdit = async function () {
             const st = users.find(u => u._fbKey === fbKey);
 
             if (st) {
+                if(window.StudentAccountAccess && await window.StudentAccountAccess.enabled()) {
+                    await window.StudentAccountAccess.call('teacher_password',{uid:fbKey,password});
+                    updateObj.password=null;
+                } else {
                 const fakeEmail = st.username + "@hethong.edu.vn";
                 const oldPass = st.password;
 
@@ -14676,6 +14687,7 @@ window.saveStudentEdit = async function () {
                 await secondaryApp.auth().signOut();
 
                 updateObj.password = password;
+                }
             }
         } catch (error) {
             console.error("Lỗi Auth phụ khi sửa HS:", error);

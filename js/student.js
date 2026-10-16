@@ -5296,6 +5296,7 @@ window.onload = async function () {
     }
 
     try {
+        if(!(await window.StudentAccountAccess.ensure()))return;
         startupLoader?.expect(['economy-ready'],{'economy-ready':'Kết nối giao dịch an toàn'});
         await window.EconomyClient.initialize();
         startupLoader?.markReady('economy-ready');

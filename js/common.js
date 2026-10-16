@@ -2207,6 +2207,8 @@ if (loginForm) {
             // Đăng nhập thành công -> Gỡ bỏ hoàn toàn mọi án phạt
             await clearAllLockouts();
 
+            if(user.role==='student' && !(await window.StudentAccountAccess.login(userCredential.user,user)))return;
+
             user._fbKey = uid;
             localStorage.setItem('currentUser', JSON.stringify(Object.fromEntries(Object.entries(user).filter(([key]) => !['password', 'newPass', 'oldPass'].includes(key)))));
 
@@ -2308,6 +2310,7 @@ if (loginForm) {
 
             const displayMessage =
                 messages[errorCode] ||
+                window.StudentAccountAccess?.message(error) ||
                 `Đăng nhập thất bại: ${errorCode}`;
 
             const credentialErrors = new Set([
@@ -5598,6 +5601,205 @@ window.securityHotfix = Object.freeze({
   }
 });
 
+// ACCOUNT ACCESS — password first; server grants access only after a saved code or teacher-approved replacement.
+(() => {
+    'use strict';
+    let enabledPending=null,loginEpoch=0,screenUser=null,screenProfile=null,requestTimer=null;
+    const project=()=>firebase.app().options.projectId;
+    const uid=()=>firebase.auth().currentUser?.uid;
+    const messages={ACCESS_UNAVAILABLE:'Chưa kết nối được máy chủ tài khoản. Hãy thử lại sau.',ACCESS_NOT_ENABLED:'Chức năng chưa được bật trên máy chủ.',ACCESS_PROJECT_MISMATCH:'Máy chủ tài khoản chưa đúng dự án Firebase.',RECOVERY_INVALID:'Mã khôi phục không đúng. Kiểm tra mã rồi thử lại.',PASSWORD_LOGIN_REQUIRED:'Hãy nhập lại tài khoản và mật khẩu để tiếp tục.',DEVICE_VERIFICATION_REQUIRED:'Cần xác nhận mã thiết bị trước khi vào website.',APPROVAL_REQUIRED:'Yêu cầu chưa được giáo viên đồng ý hoặc đã hết hạn.',REQUEST_EXPIRED:'Yêu cầu đã hết hạn. Hãy gửi lại yêu cầu.',REQUEST_ALREADY_PENDING:'Đã có yêu cầu đang chờ. Hãy báo giáo viên kèm tên tài khoản của bạn.',REQUEST_ALREADY_REVIEWED:'Yêu cầu đã được xử lý ở phiên khác. Hãy cập nhật lại danh sách.',REQUEST_USED:'Yêu cầu này đã được dùng với thông tin khác.',ACCESS_CHANGED:'Thông tin xác thực đã thay đổi. Hãy đăng nhập lại.',ACCESS_RATE_LIMIT:'Đã thử quá nhiều lần. Vui lòng đợi rồi thử lại.',WEAK_PASSWORD:'Mật khẩu cần 8–128 ký tự, có chữ và số, khác tên đăng nhập.',ACCOUNT_NOT_ALLOWED:'Tài khoản không còn hoạt động hoặc đang bị khóa.'};
+    messages.ACCESS_BUSY='Yêu cầu đang được xử lý. Chờ khoảng một phút rồi thử lại với cùng thông tin.';
+    const message=error=>messages[error?.message] || 'Chưa xác nhận được thao tác. Kiểm tra kết nối và thử lại.';
+    function enabled() {
+        if(!enabledPending)enabledPending=firebase.database().ref('account_access_config/enabled').once('value').then(s=>s.val()===true).catch(error=>{enabledPending=null;throw error;});
+        return enabledPending;
+    }
+    function endpoint() {
+        const configured=window.ACCOUNT_ACCESS_WORKERS?.[project()];
+        const known={ 'quan-ly-bai-tap-online':'https://school-r2-files.ngogibao0311.workers.dev', 'web-chan-doan-test':'https://school-account-access-test.ngogibao0311.workers.dev'};
+        const url=new URL(configured || known[project()] || 'https://invalid.local');
+        if(url.protocol!=='https:' || url.hostname==='invalid.local')throw Error('ACCESS_PROJECT_MISMATCH');
+        return url.href.replace(/\/$/,'')+'/account-access';
+    }
+    async function call(action,input={},anonymous=false) {
+        const current=firebase.auth().currentUser;
+        const headers={'Content-Type':'application/json'};
+        if(!anonymous && current)headers.Authorization='Bearer '+await current.getIdToken();
+        const response=await fetch(endpoint(),{method:'POST',headers,body:JSON.stringify({action,projectId:project(),...input}),cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer',signal:AbortSignal.timeout(20000)});
+        let value;try{value=await response.json();}catch(_){throw Error('ACCESS_UNAVAILABLE');}
+        if(!response.ok || !value.ok)throw Error(value.error || 'ACCESS_UNAVAILABLE');
+        if(!anonymous && uid()!==current?.uid)throw Error('ACCESS_CHANGED');
+        return value;
+    }
+    function secret() {return Array.from(crypto.getRandomValues(new Uint8Array(32)),n=>n.toString(16).padStart(2,'0')).join('');}
+    function code() {return 'REC-'+crypto.randomUUID().replace(/-/g,'').toUpperCase();}
+    function ticketKey(kind,username) {return `accountRecovery:v1:${project()}:${kind}:${username}`;}
+    function savedTicket(kind,username) {
+        const key=ticketKey(kind,username);let token;
+        try{token=sessionStorage.getItem(key);}catch(_){}
+        if(!/^[0-9a-f]{64}$/.test(token||'')){token=secret();try{sessionStorage.setItem(key,token);}catch(_){}}
+        return token;
+    }
+    function panel(title,description) {
+        clearTimeout(requestTimer);requestTimer=null;
+        const root=document.querySelector('.login-container');if(!root)throw Error('LOGIN_PAGE_REQUIRED');
+        root.querySelector('.login-heading').hidden=true;document.getElementById('loginForm').hidden=true;
+        document.getElementById('forgotPasswordButton').hidden=true;document.getElementById('errorMsg').textContent='';
+        let box=document.getElementById('studentAccessStep');if(!box){box=document.createElement('section');box.id='studentAccessStep';root.insertBefore(box,root.querySelector('.login-help-note'));}
+        box.replaceChildren();box.hidden=false;
+        const eyebrow=document.createElement('p');eyebrow.className='access-eyebrow';eyebrow.textContent='BẢO VỆ TÀI KHOẢN';
+        const h=document.createElement('h2');h.textContent=title;h.tabIndex=-1;
+        const p=document.createElement('p');p.textContent=description;
+        const body=document.createElement('div');body.className='access-step-body';
+        const status=document.createElement('p');status.className='access-status';status.setAttribute('role','status');status.setAttribute('aria-live','polite');
+        const back=document.createElement('button');back.type='button';back.className='access-link';back.textContent='← Quay lại đăng nhập';
+        back.addEventListener('click',()=>{void resetLogin();});box.append(eyebrow,h,p,body,status,back);h.focus();return {body,status};
+    }
+    function button(text,handler,secondary=false) {
+        const el=document.createElement('button');el.type='button';el.textContent=text;el.className=secondary?'access-secondary':'access-primary';el.addEventListener('click',handler);return el;
+    }
+    async function resetLogin() {
+        loginEpoch++;clearTimeout(requestTimer);requestTimer=null;screenUser=null;screenProfile=null;
+        await firebase.auth().signOut();
+        const box=document.getElementById('studentAccessStep');if(box)box.hidden=true;
+        document.querySelector('.login-heading').hidden=false;document.getElementById('loginForm').hidden=false;document.getElementById('forgotPasswordButton').hidden=false;
+        document.getElementById('password').value='';document.getElementById('username').focus();
+    }
+    async function accept(result,epoch) {
+        if(epoch!==loginEpoch || uid()!==screenUser?.uid)return;
+        if(!result.customToken || !result.deviceId)throw Error('ACCESS_UNAVAILABLE');
+        const expected=screenUser.uid;
+        const credential=await firebase.auth().signInWithCustomToken(result.customToken);
+        if(epoch!==loginEpoch || credential.user.uid!==expected){await firebase.auth().signOut();return;}
+        await window.StudentConnectionInfo.linkDevice(result.deviceId);
+        localStorage.setItem('currentUser',JSON.stringify(Object.fromEntries(Object.entries({...screenProfile,_fbKey:expected}).filter(([k])=>!['password','newPass','oldPass'].includes(k)))));
+        window.location.href='student.html';
+    }
+    async function showCreate(action,ticket) {
+        const epoch=loginEpoch;
+        const {body,status}=panel(action==='reset_device'?'Tạo mã khôi phục mới':'Lưu mã khôi phục của bạn',action==='reset_device'?'Giáo viên đã đồng ý. Mã cũ đã bị vô hiệu hóa. Hoàn tất bước này để vào website.':'Đây là mã dùng sau khi đăng nhập bằng tài khoản và mật khẩu. Hãy cất mã ở nơi riêng.');
+        const fresh=code(),device=(await window.StudentConnectionInfo.ensureDevice()).id;if(epoch!==loginEpoch)return;
+        const output=document.createElement('code');output.textContent=fresh;
+        const copy=button('Sao chép mã',async()=>{try{await navigator.clipboard.writeText(fresh);status.textContent='Đã sao chép. Hãy cất mã trước khi tiếp tục.';}catch(_){status.textContent='Hãy chọn mã và nhấn Ctrl+C hoặc nhấn giữ để sao chép.';}},true);
+        const label=document.createElement('label');label.className='access-confirm';const check=document.createElement('input');check.type='checkbox';label.append(check,document.createTextNode('Tôi đã cất mã khôi phục'));
+        const next=button('Lưu mã và vào website',async()=>{
+            next.disabled=true;status.textContent='Đang lưu mã…';
+            try{await accept(await call(action,{code:fresh,deviceId:device,secret:ticket}),epoch);}catch(error){if(epoch===loginEpoch){status.textContent=message(error);next.disabled=!check.checked;}}
+        });next.disabled=true;check.addEventListener('change',()=>next.disabled=!check.checked);
+        body.append(output,copy,label,next);
+    }
+    async function waitRequest(kind,username,token) {
+        const epoch=loginEpoch,{body,status}=panel(kind==='device'?'Chờ giáo viên duyệt':'Đã báo quên mật khẩu',kind==='device'?'Giáo viên cần đồng ý trước khi bạn tạo lại mã. Giữ trang này để nhận kết quả.':'Yêu cầu này chỉ báo cho giáo viên. Giáo viên sẽ đổi mật khẩu và gửi lại cho bạn qua kênh liên hệ đang dùng.');
+        const reference=document.createElement('p');reference.className='access-reference';body.append(reference);
+        let busy=false;
+        const check=button('Kiểm tra kết quả',()=>{void poll();},true);body.append(check);
+        async function poll(){
+            if(busy || epoch!==loginEpoch)return;busy=true;check.disabled=true;clearTimeout(requestTimer);
+            try{
+                const result=await call('request_status',{kind,username,secret:token},true);if(epoch!==loginEpoch)return;
+                reference.textContent=result.id?'Mã yêu cầu: '+result.id:'';
+                if(result.status==='approved' && kind==='device'){await showCreate('reset_device',token);return;}
+                if(['rejected','unavailable','consumed'].includes(result.status)){
+                    status.textContent=result.status==='rejected'?'Giáo viên đã từ chối yêu cầu. Bạn chưa được cấp quyền vào website.':result.status==='consumed'?(kind==='password'?'Giáo viên đã xử lý. Hãy nhận mật khẩu mới từ giáo viên rồi đăng nhập lại.':'Yêu cầu đã được dùng để tạo mã mới. Quay lại đăng nhập bằng mã đã lưu.'):'Yêu cầu không còn hiệu lực. Quay lại đăng nhập và gửi yêu cầu mới nếu cần.';
+                    try{sessionStorage.removeItem(ticketKey(kind,username));}catch(_){}
+                    return;
+                }
+                status.textContent='Đang chờ giáo viên xử lý…';
+                requestTimer=setTimeout(()=>{if(document.visibilityState==='visible')void poll();else requestTimer=setTimeout(()=>void poll(),12000);},12000);
+            }catch(error){if(epoch===loginEpoch)status.textContent=message(error);}
+            finally{busy=false;check.disabled=false;}
+        }
+        await poll();
+    }
+    async function login(authUser,profile) {
+        if(!(await enabled()))return true;
+        screenUser=authUser;screenProfile=profile;const epoch=++loginEpoch;
+        const state=await call('state');if(epoch!==loginEpoch)return false;
+        if(state.status==='enroll'){await showCreate('enroll');return false;}
+        const {body,status}=panel('Khôi phục thiết bị đã lưu','Tài khoản và mật khẩu đã đúng. Nhập mã khôi phục để tiếp tục vào website.');
+        const form=document.createElement('form'),label=document.createElement('label'),input=document.createElement('input');
+        label.htmlFor='loginRecoveryCode';label.textContent='Mã khôi phục';input.id='loginRecoveryCode';input.type='password';input.autocomplete='off';input.spellcheck=false;input.placeholder='REC-…';input.maxLength=64;input.required=true;
+        const next=button('Xác nhận và đăng nhập',()=>{});next.type='submit';
+        form.append(label,input,next);form.addEventListener('submit',async event=>{
+            event.preventDefault();if(next.disabled)return;next.disabled=true;status.textContent='Đang xác nhận mã…';
+            try{await accept(await call('verify',{code:input.value}),epoch);}catch(error){if(epoch===loginEpoch)status.textContent=message(error);}finally{next.disabled=false;}
+        });
+        const forgot=button('Quên mã khôi phục',async()=>{
+            forgot.disabled=true;const token=savedTicket('device',profile.username);
+            try{await call('request_device',{secret:token});if(epoch===loginEpoch)await waitRequest('device',profile.username,token);}catch(error){if(epoch===loginEpoch)status.textContent=message(error);}finally{forgot.disabled=false;}
+        },true);body.append(form,forgot);input.focus();return false;
+    }
+    async function forgotPassword() {
+        const username=document.getElementById('username').value.trim(),error=document.getElementById('errorMsg');
+        if(!username){error.textContent='Nhập tên tài khoản để báo giáo viên.';return;}
+        const trigger=document.getElementById('forgotPasswordButton');trigger.disabled=true;
+        try{
+            if(!(await enabled())){error.textContent='Hãy liên hệ giáo viên để được đổi mật khẩu.';return;}
+            const token=savedTicket('password',username);await call('request_password',{username,secret:token},true);
+            loginEpoch++;await waitRequest('password',username,token);
+        }catch(e){error.textContent=message(e);}finally{trigger.disabled=false;}
+    }
+    async function ensure() {
+        if(!(await enabled()))return true;
+        try{const result=await call('state');if(result.status==='verified'){await window.StudentConnectionInfo.linkDevice(result.deviceId);return true;}}catch(_){}
+        localStorage.removeItem('currentUser');window.location.replace('index.html');return false;
+    }
+    async function rotate(deviceId,fresh) {
+        const result=await call('rotate',{deviceId,code:fresh});
+        await firebase.auth().signInWithCustomToken(result.customToken);
+        await window.StudentConnectionInfo.linkDevice(result.deviceId);
+        return result;
+    }
+    window.StudentAccountAccess=Object.freeze({enabled,call,login,ensure,rotate,message});
+    function initTeacherRequests() {
+        const root=document.getElementById('accountRecoveryRequests');if(!root)return;
+        const list=root.querySelector('[data-access-requests]'),status=root.querySelector('[data-access-teacher-status]'),more=root.querySelector('[data-access-more]');
+        let cursor=null,busy=false,timer=null;
+        async function load(append=false) {
+            if(busy || !uid())return;busy=true;
+            try {
+                if(!(await enabled())){status.textContent='Chức năng hỗ trợ đăng nhập chưa được bật.';return;}
+                const result=await call('teacher_list',{cursor:append?cursor:null});
+                if(!append)list.replaceChildren();cursor=result.nextCursor;more.hidden=!cursor;
+                for(const row of result.rows) {
+                    const card=document.createElement('article');card.className='access-request';
+                    const title=document.createElement('strong');title.textContent=row.name+' ('+row.username+')';
+                    const info=document.createElement('p');info.textContent=(row.kind==='device'?'Quên mã khôi phục':'Báo quên mật khẩu')+' · '+new Date(row.createdAt).toLocaleString('vi-VN');
+                    const ref=document.createElement('p');ref.textContent='Mã yêu cầu: '+row.id+' · '+({pending:'Chờ xử lý',approved:'Đã duyệt, chờ tạo mã',processing:'Đang đổi mật khẩu'}[row.status]||row.status);
+                    const note=document.createElement('p');note.className='access-request-note';note.textContent=row.kind==='device'?'Xác nhận đúng học sinh trước khi duyệt. Đồng ý sẽ vô hiệu hóa mã cũ và cho phép tạo mã mới trong 15 phút.':'Yêu cầu này có thể gửi khi chưa đăng nhập. Xác nhận học sinh qua kênh liên hệ đã biết trước khi đổi và gửi mật khẩu mới.';
+                    const actions=document.createElement('div');actions.className='access-request-actions';
+                    const approve=button(row.kind==='device'?'Đồng ý tạo mã mới':'Đổi mật khẩu',()=>void decide(true));
+                    const reject=button('Từ chối',()=>void decide(false),true);
+                    approve.disabled=row.status==='approved';reject.disabled=row.status!=='pending';actions.append(approve,reject);
+                    card.append(title,info,ref,note,actions);list.appendChild(card);
+                    async function decide(yes) {
+                        let password;
+                        if(yes && row.kind==='password') {
+                            password=await window.AppDialog.prompt((row.status==='processing'?'Nhập lại đúng mật khẩu đã gửi ở lần trước để tiếp tục xử lý. ':'')+'Nhập mật khẩu mới (8–128 ký tự, có chữ và số). Sau khi đổi, gửi riêng cho đúng học sinh.','',{password:true,title:'Đổi mật khẩu cho '+row.username,inputLabel:'Mật khẩu mới'});
+                            if(password===null || password===undefined)return;
+                        } else if(yes && !(await window.AppDialog.confirm('Đồng ý cho '+row.username+' tạo mã mới? Mã khôi phục cũ sẽ hết hiệu lực.')))return;
+                        approve.disabled=true;reject.disabled=true;
+                        try {
+                            const result=await call('teacher_decide',{uid:row.uid,kind:row.kind,id:row.id,approve:yes,...(password?{password}:{})});
+                            status.textContent=result.status==='password_changed'?'Đã đổi mật khẩu. Hãy gửi mật khẩu mới cho học sinh qua kênh liên hệ đã xác nhận.':yes?'Đã duyệt. Học sinh có 15 phút để tạo mã mới.':'Đã từ chối yêu cầu.';
+                            card.remove();
+                        }catch(error){status.textContent=message(error);approve.disabled=false;reject.disabled=row.status!=='pending';}
+                        password=null;
+                    }
+                }
+                status.textContent=list.children.length?'Có '+list.children.length+' yêu cầu trong các trang đã tải.':'Không có yêu cầu chờ xử lý trong trang này.';
+            }catch(error){status.textContent=message(error);}finally{busy=false;}
+        }
+        root.querySelector('[data-access-refresh]').addEventListener('click',()=>void load());more.addEventListener('click',()=>void load(true));
+        try{firebase.auth().onAuthStateChanged(user=>{if(user)void load();else list.replaceChildren();});}catch(_){}
+        timer=setInterval(()=>{if(document.visibilityState==='visible' && root.closest('.tab-content')?.classList.contains('active') && !cursor)void load();},30000);
+        window.addEventListener('pagehide',()=>clearInterval(timer),{once:true});
+    }
+    const init=()=>{document.getElementById('forgotPasswordButton')?.addEventListener('click',()=>{void forgotPassword();});initTeacherRequests();};
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+    window.addEventListener('pagehide',()=>{loginEpoch++;clearTimeout(requestTimer);});
+})();
+
 // CONNECTION INFO — account-scoped device profiles and observed public IPs; not hardware authentication.
 (() => {
     'use strict';
@@ -5608,7 +5810,7 @@ window.securityHotfix = Object.freeze({
     let started = false, pending = null, controller = null, generation = 0;
     let cached = null, cachedAt = 0;
     let device = {id: null, persistent: false}, devicePending = null;
-    let authEpoch = 0, cloudProfile = null, recoveryBusy = false, recoveryCode = '';
+    let authEpoch = 0, cloudProfile = null, recoveryBusy = false, recoveryCode = '', pendingRecovery = null;
     const MAX_NETWORKS = 10;
 
     function authUser() { try { return window.firebase?.auth?.().currentUser || null; } catch (_) { return null; } }
@@ -5620,7 +5822,7 @@ window.securityHotfix = Object.freeze({
     function cloudStatus(message) { const el = document.querySelector(`#${ROW_ID} [data-device-cloud-status]`); if (el) el.textContent = message; }
     function errorMessage(error) {
         const code = String(error?.code || error?.message || '');
-        if (/permission|denied/i.test(code)) return 'Chưa có quyền lưu thiết bị. Cần cập nhật Rules cho đúng dự án đang dùng.';
+        if (/permission|denied/i.test(code)) return 'Chưa có quyền lưu thiết bị. Kiểm tra Rules và trạng thái đăng nhập của tài khoản.';
         if (/OFFLINE/.test(code)) return 'Đang ngoại tuyến. Kết nối lại để lưu hoặc khôi phục thiết bị.';
         if (/AUTH/.test(code)) return 'Đăng nhập để lưu và khôi phục thiết bị của tài khoản này.';
         if (/RECOVERY_NOT_FOUND/.test(code)) return 'Mã không đúng hoặc không thuộc tài khoản đang đăng nhập.';
@@ -5637,10 +5839,14 @@ window.securityHotfix = Object.freeze({
         for (const entry of rows) {
             const item = document.createElement('li');
             const time = new Date(entry.lastSeenAt).toLocaleString('vi-VN');
-            item.textContent = `${entry.ip} · ${[entry.city, entry.region, entry.country].filter(Boolean).join(', ') || 'Chưa rõ khu vực'} · ${time}`;
+            const address=document.createElement('strong'),detail=document.createElement('span');
+            address.textContent=entry.ip;
+            detail.textContent=`${[entry.city, entry.region, entry.country].filter(Boolean).join(', ') || 'Chưa rõ khu vực'} · ${time}`;
+            item.append(address,detail);
             list.appendChild(item);
         }
         if (!rows.length) { const item=document.createElement('li');item.textContent='Chưa có IP đã lưu cho thiết bị này.';list.appendChild(item); }
+        const count=document.querySelector(`#${ROW_ID} [data-network-count]`);if(count)count.textContent=String(rows.length);
         status.textContent = network?.ip
             ? rows.some(entry => entry.ip === network.ip) ? 'IP hiện tại đã có trong danh sách đã ghi nhận.' : 'IP hiện tại chưa có trong danh sách đã ghi nhận.'
             : 'Chưa xác định IP hiện tại; danh sách dưới đây chỉ là thông tin đã lưu.';
@@ -5691,7 +5897,7 @@ window.securityHotfix = Object.freeze({
 
     function setRecoveryBusy(value) {
         recoveryBusy = value;
-        document.querySelectorAll(`#${ROW_ID} [data-device-generate], #${ROW_ID} [data-device-restore]`).forEach(button=>{button.disabled=value;});
+        document.querySelectorAll(`#${ROW_ID} [data-device-generate]`).forEach(button=>{button.disabled=value;});
     }
 
     async function generateRecoveryCode() {
@@ -5704,7 +5910,17 @@ window.securityHotfix = Object.freeze({
             if (navigator.onLine === false) throw Error('OFFLINE');
             const random = newDeviceId();
             if (!random) throw Error('NO_SECURE_RANDOM');
-            const code = 'REC-' + random.slice(4).replace(/-/g,'').toUpperCase();
+            const code = pendingRecovery?.uid===ctx.uid && pendingRecovery.id===ctx.id ? pendingRecovery.code : 'REC-' + random.slice(4).replace(/-/g,'').toUpperCase();
+            if(window.StudentAccountAccess && await window.StudentAccountAccess.enabled()) {
+                pendingRecovery={uid:ctx.uid,id:ctx.id,code};
+                await window.StudentAccountAccess.rotate(ctx.id,code);
+                if(ctx.uid!==authUser()?.uid)return;
+                const output=document.querySelector(`#${ROW_ID} [data-device-recovery-code]`);
+                output.hidden=false;output.textContent=code;
+                pendingRecovery=null;
+                cloudStatus('Đã tạo mã mới. Hãy cất mã để dùng ở lần đăng nhập sau; mã cũ đã hết hiệu lực.');
+                return;
+            }
             const hash = await recoveryHash(code,ctx.uid);
             if (!isCurrent(ctx)) return;
             const timestamp=window.firebase.database.ServerValue.TIMESTAMP;
@@ -5718,38 +5934,7 @@ window.securityHotfix = Object.freeze({
             output.hidden=false;output.textContent=code;
             cloudProfile=result.snapshot.val();renderProfile(cloudProfile);
             cloudStatus('Đã tạo mã mới. Hãy chép và cất riêng; mã trước đó đã hết hiệu lực. Mã này chỉ hiện trong phiên này.');
-        } catch(error) { if (!ctx || isCurrent(ctx)) cloudStatus(errorMessage(error)); }
-        finally { setRecoveryBusy(false); }
-    }
-
-    async function restoreDevice() {
-        if (recoveryBusy) return;
-        setRecoveryBusy(true);
-        let ctx;
-        try {
-            await ensureDevice();ctx=cloudContext();
-            if (!ctx.uid) throw Error('AUTH_REQUIRED');
-            if (navigator.onLine === false) throw Error('OFFLINE');
-            const input=document.querySelector(`#${ROW_ID} [data-device-recovery-input]`);
-            const hash=await recoveryHash(input.value,ctx.uid);
-            const snapshot=await profilesRef(ctx.uid).orderByChild('recoveryHash').equalTo(hash).limitToFirst(2).once('value');
-            if (!isCurrent(ctx)) return;
-            const matches=Object.entries(snapshot.val() || {});
-            if (matches.length!==1 || !DEVICE_ID_RE.test(matches[0][0]) || matches[0][1].id!==matches[0][0]) throw Error('RECOVERY_NOT_FOUND');
-            const restored=matches[0][0];
-            // Save only this account's link. Other accounts on a shared browser keep their own IDs.
-            let persistent=false;
-            try { localStorage.setItem(linkKey(),restored);persistent=localStorage.getItem(linkKey())===restored; } catch (_) {}
-            device={id:restored,persistent};authEpoch+=1;
-            cloudProfile=matches[0][1];input.value='';recoveryCode='';
-            document.querySelector(`#${ROW_ID} [data-device-recovery-code]`).hidden=true;
-            document.querySelector(`#${ROW_ID} [data-device-recovery-code]`).textContent='';
-            renderDevice();renderProfile(cloudProfile);
-            // Keep the restored ID in memory as well when localStorage is unavailable.
-            restoredSession={uid:ctx.uid,id:restored};
-            cloudStatus(persistent ? 'Đã liên kết lại thiết bị đã lưu. Đang cập nhật kết nối hiện tại…' : 'Đã liên kết trong phiên này; trình duyệt chưa cho lưu liên kết lâu dài.');
-            void syncDeviceProfile();
-        } catch(error) { if (!ctx || isCurrent(ctx)) cloudStatus(errorMessage(error)); }
+        } catch(error) { if (!ctx || ctx.uid===authUser()?.uid) cloudStatus(window.StudentAccountAccess?.message(error) || errorMessage(error)); }
         finally { setRecoveryBusy(false); }
     }
 
@@ -5919,38 +6104,37 @@ window.securityHotfix = Object.freeze({
 
     function init() {
         if (started || !isStudentPage()) return;
-        const container = document.querySelector('#tab-settings .form-container');
+        const container = document.querySelector('#tab-settings .student-settings-section-account');
         if (!container) return;
         started = true;
         const row = document.createElement('section');
         row.id = ROW_ID;
         row.className = 'student-connection-info';
         row.setAttribute('aria-label', 'Thông tin kết nối và mã nhận dạng của bạn');
-        row.innerHTML = `<strong>🌐 Kết nối của bạn</strong>
-            <p>IP công khai và khu vực gần đúng của kết nối hiện tại. Khi đăng nhập, website lưu thiết bị và tối đa 10 IP gần đây vào tài khoản của bạn. Cùng IP chưa đủ để xác định cùng máy hoặc cùng Wi-Fi.</p>
+        row.innerHTML = `<header class="connection-heading"><span class="connection-symbol" aria-hidden="true">◎</span>
+            <div><h4>Kết nối của bạn</h4><p>Thiết bị &amp; mạng đang sử dụng</p></div><span class="connection-private">Cá nhân</span></header>
+            <div class="connection-body"><div class="connection-network"><div class="connection-section-title"><strong>Kết nối hiện tại</strong>
+            <button type="button" data-network-refresh>Cập nhật lại</button></div>
             <dl><div><dt>IP công khai</dt><dd data-network-ip>Đang phát hiện…</dd></div>
             <div><dt>Khu vực gần đúng</dt><dd data-network-region>Đang phát hiện…</dd></div></dl>
-            <div class="student-connection-actions"><span data-network-status role="status" aria-live="polite"></span>
-            <button type="button" class="btn" data-network-refresh>Cập nhật lại</button></div>
-            <div class="student-device-info"><strong>Mã nhận dạng trên máy này</strong>
-            <p>Mã riêng của thiết bị đã đăng ký, không phải mã phần cứng. Sau khi đổi trình duyệt hoặc xóa dữ liệu, đăng nhập đúng tài khoản rồi nhập mã khôi phục để liên kết lại. Mã khôi phục không thay thế mật khẩu đăng nhập.</p>
+            <p class="connection-status" data-network-status role="status" aria-live="polite"></p></div>
+            <div class="student-device-info"><strong>Mã thiết bị của bạn</strong>
             <code data-device-id>Đang tạo mã…</code>
             <div class="student-connection-actions"><span data-device-status role="status" aria-live="polite"></span>
-            <button type="button" class="btn" data-device-copy disabled>Sao chép mã</button></div>
-            <p data-device-cloud-status role="status">Đăng nhập để lưu và khôi phục thiết bị.</p>
-            <button type="button" class="btn" data-device-generate>Tạo mã khôi phục mới</button>
-            <p>Mỗi lần tạo mã mới sẽ vô hiệu hóa mã khôi phục cũ của thiết bị này. Hãy cất mã ở nơi riêng trước khi xóa dữ liệu trình duyệt.</p>
+            <button type="button" data-device-copy disabled>Sao chép</button></div>
+            <p class="connection-status" data-device-cloud-status role="status">Đăng nhập để lưu và khôi phục thiết bị.</p>
+            <div class="connection-recovery"><strong>Giữ lại thiết bị khi đổi trình duyệt</strong>
+            <p>Cất mã khôi phục ở nơi riêng để liên kết lại hồ sơ. Tạo mã mới sẽ vô hiệu hóa mã khôi phục cũ.</p>
+            <button type="button" data-device-generate>Tạo mã khôi phục mới</button>
             <code data-device-recovery-code hidden></code>
-            <label for="deviceRecoveryInput">Khôi phục thiết bị đã lưu</label>
-            <div class="student-device-recovery"><input id="deviceRecoveryInput" data-device-recovery-input type="password" autocomplete="off" spellcheck="false" maxlength="64" placeholder="REC-…">
-            <button type="button" class="btn" data-device-restore>Liên kết lại</button></div>
-            <strong>IP đã ghi nhận trên thiết bị này</strong><p data-network-match></p><ul data-device-networks></ul>
-            </div>`;
-        container.appendChild(row);
+            <p>Nhập mã khôi phục ở bước sau đăng nhập, kể cả khi đổi trình duyệt hoặc xóa dữ liệu.</p></div></div>
+            <details class="connection-history"><summary>IP đã ghi nhận <span data-network-count>0</span></summary>
+            <p data-network-match></p><ul data-device-networks></ul></details>
+            <p class="connection-footnote">Lưu tối đa 10 IP gần đây trong tài khoản. IP và khu vực chỉ là thông tin gần đúng; cùng IP không có nghĩa là cùng máy.</p></div>`;
+        container.insertBefore(row,container.querySelector('#toggleStudentContentGlassButton'));
         row.querySelector('[data-network-refresh]').addEventListener('click', () => { void refresh(); });
         row.querySelector('[data-device-copy]').addEventListener('click', () => { void copyDeviceId(); });
         row.querySelector('[data-device-generate]').addEventListener('click', () => { void generateRecoveryCode(); });
-        row.querySelector('[data-device-restore]').addEventListener('click', () => { void restoreDevice(); });
         void ensureDevice();
         window.addEventListener('storage', event => {
             if (event.key === DEVICE_KEY || event.key === linkKey() || event.key === null) {
@@ -5974,7 +6158,6 @@ window.securityHotfix = Object.freeze({
         try {
             window.firebase?.auth?.().onAuthStateChanged(() => {
                 authEpoch+=1;cloudProfile=null;restoredSession=null;recoveryCode='';
-                row.querySelector('[data-device-recovery-input]').value='';
                 row.querySelector('[data-device-recovery-code]').hidden=true;
                 row.querySelector('[data-device-recovery-code]').textContent='';
                 renderProfile(null);void syncDeviceProfile();
@@ -5983,7 +6166,13 @@ window.securityHotfix = Object.freeze({
         void refresh();
     }
 
-    window.StudentConnectionInfo = Object.freeze({refresh, getDeviceInfo: () => ({...device})});
+    async function linkDevice(id) {
+        if(!DEVICE_ID_RE.test(id || '') || !authUser()?.uid)throw Error('INVALID_DEVICE');
+        const uid=authUser().uid;
+        let persistent=false;try{localStorage.setItem(linkKey(),id);persistent=localStorage.getItem(linkKey())===id;}catch(_){}
+        authEpoch++;restoredSession={uid,id};device={id,persistent};cloudProfile=null;renderDevice();renderProfile(null);
+    }
+    window.StudentConnectionInfo = Object.freeze({refresh,ensureDevice,linkDevice,getDeviceInfo: () => ({...device})});
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once: true});
     else init();
 })();
