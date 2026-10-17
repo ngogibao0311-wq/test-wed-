@@ -1257,9 +1257,7 @@ input[type="range"]::-webkit-slider-thumb {
         isolate;
 }
 
-.store-item-card.store-card-birthday-2026[
-    data-item-id="theme_sinh_nhat_tiec_ngot_2026"
-]
+.store-item-card.store-card-birthday-2026[data-item-id="theme_sinh_nhat_tiec_ngot_2026"]
 .item-icon-wrapper {
     border-radius:
         28px 14px 28px 14px !important;
@@ -1273,9 +1271,7 @@ input[type="range"]::-webkit-slider-thumb {
         ) !important;
 }
 
-.store-item-card.store-card-birthday-2026[
-    data-item-id="theme_sinh_nhat_tiec_ngot_2026"
-]
+.store-item-card.store-card-birthday-2026[data-item-id="theme_sinh_nhat_tiec_ngot_2026"]
 .item-icon {
     display:
         grid !important;
@@ -1718,10 +1714,8 @@ input[type="range"]::-webkit-slider-thumb {
 
 /* Icon riêng của thẻ hiệu ứng */
 
-.store-item-card.store-card-birthday-2026[
-    data-item-id=
-    "effect_sinh_nhat_than_an_phuc_loc_2026"
-]
+.store-item-card.store-card-birthday-2026[data-item-id=
+    "effect_sinh_nhat_than_an_phuc_loc_2026"]
 .item-icon {
     display: grid !important;
     place-items: center !important;

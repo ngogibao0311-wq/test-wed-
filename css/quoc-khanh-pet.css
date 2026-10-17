@@ -1978,15 +1978,11 @@ html.national-day-luxury-equipped.lux10-viet-equipped.national-day-luxury-equipp
    ICON CARD HIỆU ỨNG
    ================================================================ */
 
-.store-card-national-day-2-9[ data-item-id="effect_quoc_khanh_viet_dieu_non_song"
-
-] .item-icon-wrapper {
+.store-card-national-day-2-9[data-item-id="effect_quoc_khanh_viet_dieu_non_song"] .item-icon-wrapper {
     overflow: hidden !important;
 }
 
-.store-card-national-day-2-9[ data-item-id="effect_quoc_khanh_viet_dieu_non_song"
-
-] .item-icon {
+.store-card-national-day-2-9[data-item-id="effect_quoc_khanh_viet_dieu_non_song"] .item-icon {
     width: 92px !important;
     height: 92px !important;
 
@@ -3252,9 +3248,7 @@ body.theme-viet-dieu-hong-ky ::selection {
    PREVIEW TRONG CỬA HÀNG
    ================================================================ */
 
-.store-card-national-day-2-9[ data-item-id="frame_quoc_khanh_viet_dieu_quoc_an"
-
-] .item-icon-wrapper {
+.store-card-national-day-2-9[data-item-id="frame_quoc_khanh_viet_dieu_quoc_an"] .item-icon-wrapper {
 
     min-height: 128px !important;
 
@@ -3266,9 +3260,7 @@ body.theme-viet-dieu-hong-ky ::selection {
 }
 
 
-.store-card-national-day-2-9[ data-item-id="frame_quoc_khanh_viet_dieu_quoc_an"
-
-] .item-icon {
+.store-card-national-day-2-9[data-item-id="frame_quoc_khanh_viet_dieu_quoc_an"] .item-icon {
 
     width: 122px !important;
     height: 122px !important;
@@ -3305,9 +3297,7 @@ body.theme-viet-dieu-hong-ky ::selection {
    HOST CHUNG
    ================================================================ */
 
-.avatar-frame-equipped[ data-avatar-frame-effect="national-day-viet-dieu-frame"
-
-] {
+.avatar-frame-equipped[data-avatar-frame-effect="national-day-viet-dieu-frame"] {
 
     overflow: visible !important;
     isolation: isolate !important;
@@ -3321,9 +3311,7 @@ body.theme-viet-dieu-hong-ky ::selection {
    Giữ đúng tâm đó.
    ================================================================ */
 
-.profile-trigger-btn.avatar-frame-profile-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
-
-] {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-effect="national-day-viet-dieu-frame"] {
 
     overflow: visible !important;
     isolation: isolate !important;
@@ -3332,9 +3320,7 @@ body.theme-viet-dieu-hong-ky ::selection {
 
 /* Avatar thật */
 
-.profile-trigger-btn.avatar-frame-profile-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
-
-]>#avatarImage {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-effect="national-day-viet-dieu-frame"]>#avatarImage {
 
     position: relative !important;
 
@@ -3357,9 +3343,7 @@ body.theme-viet-dieu-hong-ky ::selection {
 
 /* Nếu chưa có ảnh */
 
-.profile-trigger-btn.avatar-frame-profile-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
-
-]>#avatarPlaceholder {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-effect="national-day-viet-dieu-frame"]>#avatarPlaceholder {
 
     position: relative !important;
     z-index: 3 !important;
@@ -3368,9 +3352,7 @@ body.theme-viet-dieu-hong-ky ::selection {
 
 /* Ảnh khung */
 
-.profile-trigger-btn.avatar-frame-profile-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
-
-]>.avatar-frame-decoration {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-effect="national-day-viet-dieu-frame"]>.avatar-frame-decoration {
 
     position: absolute !important;
 
@@ -3413,9 +3395,7 @@ body.theme-viet-dieu-hong-ky ::selection {
    HÀO QUANG NHỎ
    ================================================================ */
 
-.profile-trigger-btn.avatar-frame-profile-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
-
-]>.avatar-frame-aura {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-effect="national-day-viet-dieu-frame"]>.avatar-frame-aura {
 
     position: absolute !important;
 
@@ -3456,9 +3436,7 @@ body.theme-viet-dieu-hong-ky ::selection {
    TINH QUANG PROFILE
    ================================================================ */
 
-.profile-trigger-btn.avatar-frame-profile-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
-
-]>.avatar-frame-spark {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-effect="national-day-viet-dieu-frame"]>.avatar-frame-spark {
 
     position: absolute !important;
 
@@ -3484,9 +3462,7 @@ body.theme-viet-dieu-hong-ky ::selection {
 }
 
 
-.profile-trigger-btn.avatar-frame-profile-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
-
-]>.avatar-frame-spark.spark-1 {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-effect="national-day-viet-dieu-frame"]>.avatar-frame-spark.spark-1 {
 
     left: -7px !important;
     top: -8px !important;
@@ -3495,9 +3471,7 @@ body.theme-viet-dieu-hong-ky ::selection {
 }
 
 
-.profile-trigger-btn.avatar-frame-profile-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
-
-]>.avatar-frame-spark.spark-2 {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-effect="national-day-viet-dieu-frame"]>.avatar-frame-spark.spark-2 {
 
     right: -7px !important;
     top: 3px !important;
@@ -3509,9 +3483,7 @@ body.theme-viet-dieu-hong-ky ::selection {
 }
 
 
-.profile-trigger-btn.avatar-frame-profile-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
-
-]>.avatar-frame-spark.spark-3 {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-effect="national-day-viet-dieu-frame"]>.avatar-frame-spark.spark-3 {
 
     left: 0 !important;
     bottom: -7px !important;
@@ -3523,9 +3495,7 @@ body.theme-viet-dieu-hong-ky ::selection {
 }
 
 
-.profile-trigger-btn.avatar-frame-profile-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
-
-]>.avatar-frame-spark.spark-4 {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-effect="national-day-viet-dieu-frame"]>.avatar-frame-spark.spark-4 {
 
     right: -2px !important;
     bottom: -6px !important;
@@ -3546,9 +3516,7 @@ body.theme-viet-dieu-hong-ky ::selection {
    frame ~145px
    ================================================================ */
 
-#studentInfoModal .avatar-upload-container.avatar-frame-modal-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
-
-] {
+#studentInfoModal .avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-effect="national-day-viet-dieu-frame"] {
 
     position: relative !important;
 
@@ -3568,9 +3536,7 @@ body.theme-viet-dieu-hong-ky ::selection {
 
 /* Avatar popup */
 
-#studentInfoModal .avatar-upload-container.avatar-frame-modal-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
-
-]>#modalAvatarPreview {
+#studentInfoModal .avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-effect="national-day-viet-dieu-frame"]>#modalAvatarPreview {
 
     position: relative !important;
 
@@ -3598,9 +3564,7 @@ body.theme-viet-dieu-hong-ky ::selection {
 
 /* Ảnh khung popup */
 
-#studentInfoModal .avatar-upload-container.avatar-frame-modal-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
-
-]>.avatar-frame-decoration {
+#studentInfoModal .avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-effect="national-day-viet-dieu-frame"]>.avatar-frame-decoration {
 
     position: absolute !important;
 
@@ -3632,9 +3596,7 @@ body.theme-viet-dieu-hong-ky ::selection {
 
 /* Hào quang popup */
 
-#studentInfoModal .avatar-upload-container.avatar-frame-modal-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
-
-]>.avatar-frame-aura {
+#studentInfoModal .avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-effect="national-day-viet-dieu-frame"]>.avatar-frame-aura {
 
     position: absolute !important;
 
@@ -3671,9 +3633,7 @@ body.theme-viet-dieu-hong-ky ::selection {
 
 /* Popup không cần 4 ngôi sao nhỏ vì bản thân frame đã rất nhiều chi tiết */
 
-#studentInfoModal .avatar-upload-container.avatar-frame-modal-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
-
-]>.avatar-frame-spark {
+#studentInfoModal .avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-effect="national-day-viet-dieu-frame"]>.avatar-frame-spark {
 
     display: none !important;
 }
@@ -3681,9 +3641,7 @@ body.theme-viet-dieu-hong-ky ::selection {
 
 /* Nút sửa avatar luôn trên khung */
 
-#studentInfoModal .avatar-upload-container.avatar-frame-modal-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
-
-]>span:not(.avatar-frame-aura) :not(.avatar-frame-spark) {
+#studentInfoModal .avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-effect="national-day-viet-dieu-frame"]>span:not(.avatar-frame-aura) :not(.avatar-frame-spark) {
 
     z-index: 10 !important;
 }
@@ -3757,27 +3715,21 @@ body.theme-viet-dieu-hong-ky ::selection {
 
 @media (max-width: 768px) {
 
-    .profile-trigger-btn.avatar-frame-profile-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
-
-    ]>.avatar-frame-decoration {
+    .profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-effect="national-day-viet-dieu-frame"]>.avatar-frame-decoration {
 
         width: 64px !important;
         height: 64px !important;
     }
 
 
-    #studentInfoModal .avatar-upload-container.avatar-frame-modal-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
-
-    ]>.avatar-frame-decoration {
+    #studentInfoModal .avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-effect="national-day-viet-dieu-frame"]>.avatar-frame-decoration {
 
         width: 138px !important;
         height: 138px !important;
     }
 
 
-    #studentInfoModal .avatar-upload-container.avatar-frame-modal-host[ data-avatar-frame-effect="national-day-viet-dieu-frame"
-
-    ]>.avatar-frame-aura {
+    #studentInfoModal .avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-effect="national-day-viet-dieu-frame"]>.avatar-frame-aura {
 
         width: 136px !important;
         height: 136px !important;
@@ -3803,9 +3755,7 @@ body.theme-viet-dieu-hong-ky ::selection {
    KHÔNG HIỆU ỨNG
    ================================================================ */
 
-.store-card-national-day-2-9[
-    data-item-id="background_quoc_khanh_son_ha_ruc_sang"
-]
+.store-card-national-day-2-9[data-item-id="background_quoc_khanh_son_ha_ruc_sang"]
 .item-icon-wrapper {
 
     min-height: 118px !important;
@@ -3820,9 +3770,7 @@ body.theme-viet-dieu-hong-ky ::selection {
 
 /* Thumbnail nền */
 
-.store-card-national-day-2-9[
-    data-item-id="background_quoc_khanh_son_ha_ruc_sang"
-]
+.store-card-national-day-2-9[data-item-id="background_quoc_khanh_son_ha_ruc_sang"]
 .item-icon {
 
     width: 142px !important;
@@ -3857,9 +3805,7 @@ body.theme-viet-dieu-hong-ky ::selection {
 
 /* Hover cũng đứng yên */
 
-.store-card-national-day-2-9[
-    data-item-id="background_quoc_khanh_son_ha_ruc_sang"
-]:hover
+.store-card-national-day-2-9[data-item-id="background_quoc_khanh_son_ha_ruc_sang"]:hover
 .item-icon {
 
     animation: none !important;
@@ -3904,9 +3850,7 @@ body.theme-viet-dieu-hong-ky ::selection {
    CHỈ ÁP DỤNG pet_quoc_khanh_1
    ========================================================= */
 
-.store-card-national-day-2-9[
-    data-item-id="pet_quoc_khanh_1"
-]
+.store-card-national-day-2-9[data-item-id="pet_quoc_khanh_1"]
 .item-icon-wrapper {
 
     min-height: 126px !important;
@@ -3920,9 +3864,7 @@ body.theme-viet-dieu-hong-ky ::selection {
 }
 
 
-.store-card-national-day-2-9[
-    data-item-id="pet_quoc_khanh_1"
-]
+.store-card-national-day-2-9[data-item-id="pet_quoc_khanh_1"]
 .item-icon {
 
     width: 106px !important;
@@ -3943,9 +3885,7 @@ body.theme-viet-dieu-hong-ky ::selection {
 
 /* Hover */
 
-.store-card-national-day-2-9[
-    data-item-id="pet_quoc_khanh_1"
-]:hover
+.store-card-national-day-2-9[data-item-id="pet_quoc_khanh_1"]:hover
 .item-icon {
 
     transform:

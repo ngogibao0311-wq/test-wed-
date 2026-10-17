@@ -3952,7 +3952,6 @@ html body #studentConnectionInfo [data-device-generate]{background:#545bc6!impor
 #studentConnectionInfo .connection-footnote{font-size:11px;margin-bottom:0;color:#7c899e}
 html body #studentConnectionInfo button:focus-visible,#studentConnectionInfo summary:focus-visible{outline:3px solid #969ff4;outline-offset:3px}
 .login-container [hidden],#studentAccessStep[hidden]{display:none!important}
-html body .login-forgot-password{width:auto;background:none;color:#565fc2;box-shadow:none;border:0;font-size:13px;padding:10px 0;margin:10px 0 0;cursor:pointer}
 html body #studentAccessStep{color:#263550;font-family:system-ui,sans-serif;text-align:left;min-width:0}
 #studentAccessStep .access-eyebrow{color:#727bb0;font-size:10px;letter-spacing:.16em;font-weight:750}
 #studentAccessStep h2{margin:8px 0 14px;font-size:26px;line-height:1.3;color:#253650;text-align:left}
@@ -3961,10 +3960,8 @@ html body #studentAccessStep{color:#263550;font-family:system-ui,sans-serif;text
 #studentAccessStep label{display:block;font-size:13px;font-weight:600;color:#354763;margin:16px 0 8px}
 #studentAccessStep input:not([type=checkbox]){box-sizing:border-box;width:100%;padding:14px;border:1px solid #d4dced;background:#f8faff;border-radius:12px;color:#273750;font:15px system-ui,sans-serif;margin:0 0 14px;min-width:0}
 #studentAccessStep code{display:block;padding:16px;margin:20px 0 12px;background:#f0f3ff;border:1px solid #d8e0f8;border-radius:12px;overflow-wrap:anywhere;user-select:all;font:14px/1.7 ui-monospace,Consolas,monospace;color:#394d93}
-html body #studentAccessStep button,html body #accountRecoveryRequests button{width:auto;max-width:100%;margin:8px 0 0;padding:12px 16px;border:1px solid #545bc6;border-radius:11px;background:#545bc6;color:#fff;font:650 13px/1.5 system-ui,sans-serif;box-shadow:none;cursor:pointer}
-html body #studentAccessStep .access-primary{width:100%}
-html body #studentAccessStep .access-secondary,html body #accountRecoveryRequests .access-secondary{background:#f3f5fd;color:#4b59a6;border-color:#d8e0f2}
-html body #studentAccessStep .access-link{background:transparent;color:#67738d;border:0;padding:12px 0;font-weight:500}
+html body #accountRecoveryRequests button{width:auto;max-width:100%;margin:8px 0 0;padding:12px 16px;border:1px solid #545bc6;border-radius:11px;background:#545bc6;color:#fff;font:650 13px/1.5 system-ui,sans-serif;box-shadow:none;cursor:pointer}
+html body #accountRecoveryRequests .access-secondary{background:#f3f5fd;color:#4b59a6;border-color:#d8e0f2}
 #studentAccessStep .access-confirm{display:flex;align-items:flex-start;gap:10px;font-size:12px;font-weight:500}
 #studentAccessStep .access-confirm input{width:17px;height:17px;margin:2px 0;flex-shrink:0;accent-color:#545bc6}
 #studentAccessStep .access-status{min-height:22px;color:#805633}
@@ -3980,3 +3977,74 @@ html body #studentAccessStep button:disabled,html body #accountRecoveryRequests 
 #accountRecoveryRequests .access-request-actions{display:flex;flex-wrap:wrap;gap:10px}
 @media(max-width:480px){#studentConnectionInfo .connection-heading{padding:16px;gap:10px}#studentConnectionInfo .connection-body{padding:16px}#studentConnectionInfo .connection-private{display:none}#studentAccessStep h2{font-size:23px}#accountRecoveryRequests{padding:16px}}
 @media(max-width:768px){html body.login-page .login-shell:has(#studentAccessStep:not([hidden])){display:flex!important;flex-direction:column!important;min-height:0!important;width:100%!important;max-width:440px!important}html body.login-page .login-shell:has(#studentAccessStep:not([hidden])) .login-brand-panel{display:none!important}html body.login-page .login-shell:has(#studentAccessStep:not([hidden])) .login-container{width:100%!important;min-width:0!important;max-width:none!important;padding:28px 22px!important;box-sizing:border-box!important}}
+
+/* Login and recovery actions: shared appearance across both environments. */
+html body.login-page .login-container :is(.login-submit-btn, .login-forgot-password, #studentAccessStep button) {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 100%;
+    min-height: 46px;
+    height: auto;
+    padding: 12px 16px;
+    border: 1px solid #555dcc;
+    border-radius: 12px;
+    margin: 12px 0 0;
+    background: #555dcc;
+    color: #fff;
+    font: 650 14px/1.5 system-ui, sans-serif;
+    letter-spacing: 0;
+    text-transform: none;
+    text-align: center;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    box-shadow: none;
+    transform: none;
+    transition: background-color .15s ease, border-color .15s ease;
+    cursor: pointer;
+}
+html body.login-page .login-container .login-submit-btn { justify-content: space-between; }
+html body.login-page .login-container :is(.login-forgot-password, #studentAccessStep .access-secondary) {
+    background: #f1f3ff;
+    color: #414a9e;
+    border-color: #d5daf4;
+}
+html body.login-page .login-container #studentAccessStep .access-link {
+    background: #fff;
+    color: #465673;
+    border-color: #d9e0ec;
+    margin-top: 16px;
+}
+html body.login-page .login-container :is(.login-submit-btn, #studentAccessStep .access-primary):hover:not(:disabled) { background: #444bb2; border-color: #444bb2; }
+html body.login-page .login-container :is(.login-forgot-password, #studentAccessStep .access-secondary, #studentAccessStep .access-link):hover:not(:disabled) { background: #e8ecfc; border-color: #aab5e5; }
+html body.login-page .login-container :is(.login-submit-btn, .login-forgot-password, #studentAccessStep button):focus-visible { outline: 3px solid #8996e8; outline-offset: 3px; }
+html body.login-page .login-container :is(.login-submit-btn, .login-forgot-password, #studentAccessStep button):disabled { opacity: .6; cursor: not-allowed; transform: none; }
+html body.login-page .login-container :is(.login-forgot-password, #studentAccessStep button)::before,
+html body.login-page .login-container :is(.login-forgot-password, #studentAccessStep button)::after { content: none; display: none; }
+html body.login-page #studentAccessStep form { gap: 10px; margin: 20px 0 0; }
+html body.login-page #studentAccessStep form label { margin: 0; }
+html body.login-page #studentAccessStep form input { margin: 0; }
+html body.login-page #studentAccessStep .access-status:empty,
+html body.login-page .login-container #errorMsg:empty { display: none; }
+html body.login-page #studentAccessStep .access-status:not(:empty) { margin: 14px 0 0; padding: 12px 14px; border: 1px solid #e8dfcf; border-radius: 10px; background: #fffaf0; color: #775127; }
+html body.login-page .login-container .login-help-note { margin-top: 24px; }
+
+/* Keep the support area compact when no request needs review. */
+#accountRecoveryRequests.access-empty { padding: 16px 20px; }
+#accountRecoveryRequests.access-empty header p { display: none; }
+#accountRecoveryRequests.access-empty [data-access-teacher-status] { margin: 8px 0 0; }
+#accountRecoveryRequests.access-empty h3 { font-size: 16px; }
+html body #accountRecoveryRequests.access-empty [data-access-refresh] { margin: 0; padding: 8px 12px; }
+
+/* Secondary login remains browsable; authenticated writes are checked by the server. */
+#studentSessionBanner { position: fixed; z-index: 2147483000; left: max(16px, env(safe-area-inset-left)); right: 16px; bottom: 16px; display: flex; align-items: center; gap: 16px; padding: 14px 18px; border: 1px solid #cbd5ec; border-radius: 14px; background: #f4f7ff; color: #263953; box-shadow: 0 6px 28px #13234926; font: 500 14px/1.6 system-ui, sans-serif; }
+#studentSessionBanner[hidden] { display: none !important; }
+#studentSessionBanner span { flex: 1; }
+html body #studentSessionBanner button { width: auto; flex-shrink: 0; margin: 0; padding: 10px 14px; border: 1px solid #c8d1e7; border-radius: 10px; background: white; color: #344b88; font: 650 14px/1.5 system-ui, sans-serif; box-shadow: none; }
+body.student-view-session { padding-bottom: 110px; }
+@media (max-width: 540px) { #studentSessionBanner { flex-direction: column; align-items: stretch; gap: 8px; font-size: 12px; } body.student-view-session { padding-bottom: 175px; } }
+
+body.student-view-session .student-session-locked { opacity: .65; cursor: not-allowed !important; }

@@ -5506,28 +5506,18 @@ html body.theme-linkclick-fragmented-memory ::selection {
 }
 
 /* ---------- Host chung: chỉ riêng khung Link Click ---------- */
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"
-],
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"],
 #studentInfoModal
-.avatar-upload-container.avatar-frame-modal-host[
-    data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"
-] {
+.avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"] {
     overflow: visible !important;
     isolation: isolate !important;
 }
 
 /* Avatar thật luôn nằm giữa và dưới ảnh khung */
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"
-] > #avatarImage,
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"
-] > #avatarPlaceholder,
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"] > #avatarImage,
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"] > #avatarPlaceholder,
 #studentInfoModal
-.avatar-upload-container.avatar-frame-modal-host[
-    data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"
-] > #modalAvatarPreview {
+.avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"] > #modalAvatarPreview {
     position: relative !important;
     z-index: 3 !important;
 }
@@ -5535,9 +5525,7 @@ html body.theme-linkclick-fragmented-memory ::selection {
 /* =========================================================
    PROFILE GÓC PHẢI — chuẩn Premium: 60 x 60
    ========================================================= */
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"
-] > .avatar-frame-decoration {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"] > .avatar-frame-decoration {
     position: absolute !important;
 
     left: 50% !important;
@@ -5583,9 +5571,7 @@ html body.theme-linkclick-fragmented-memory ::selection {
 }
 
 /* Aura profile: cùng tâm, nằm sau avatar */
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"
-] > .avatar-frame-aura {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"] > .avatar-frame-aura {
     position: absolute !important;
 
     left: 50% !important;
@@ -5629,9 +5615,7 @@ html body.theme-linkclick-fragmented-memory ::selection {
    POPUP HỒ SƠ — chuẩn Premium: 145 x 145
    ========================================================= */
 #studentInfoModal
-.avatar-upload-container.avatar-frame-modal-host[
-    data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"
-] {
+.avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"] {
     width: 88px !important;
     height: 88px !important;
 
@@ -5644,9 +5628,7 @@ html body.theme-linkclick-fragmented-memory ::selection {
 
 /* Avatar popup theo đúng chuẩn đang dùng */
 #studentInfoModal
-.avatar-upload-container.avatar-frame-modal-host[
-    data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"
-] > #modalAvatarPreview {
+.avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"] > #modalAvatarPreview {
     display: block !important;
 
     width: 74px !important;
@@ -5671,9 +5653,7 @@ html body.theme-linkclick-fragmented-memory ::selection {
 }
 
 #studentInfoModal
-.avatar-upload-container.avatar-frame-modal-host[
-    data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"
-] > .avatar-frame-decoration {
+.avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"] > .avatar-frame-decoration {
     position: absolute !important;
 
     left: 50% !important;
@@ -5719,9 +5699,7 @@ html body.theme-linkclick-fragmented-memory ::selection {
 }
 
 #studentInfoModal
-.avatar-upload-container.avatar-frame-modal-host[
-    data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"
-] > .avatar-frame-aura {
+.avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"] > .avatar-frame-aura {
     position: absolute !important;
 
     left: 50% !important;
@@ -5762,13 +5740,9 @@ html body.theme-linkclick-fragmented-memory ::selection {
 }
 
 /* ---------- Spark riêng, không đụng spark của khung khác ---------- */
-.profile-trigger-btn[
-    data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"
-] > .avatar-frame-spark,
+.profile-trigger-btn[data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"] > .avatar-frame-spark,
 #studentInfoModal
-.avatar-upload-container[
-    data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"
-] > .avatar-frame-spark {
+.avatar-upload-container[data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"] > .avatar-frame-spark {
     z-index: 8 !important;
     pointer-events: none !important;
 
@@ -5794,52 +5768,36 @@ html body.theme-linkclick-fragmented-memory ::selection {
         !important;
 }
 
-.profile-trigger-btn[
-    data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"
-] > .avatar-frame-spark.spark-1,
+.profile-trigger-btn[data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"] > .avatar-frame-spark.spark-1,
 #studentInfoModal
-.avatar-upload-container[
-    data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"
-] > .avatar-frame-spark.spark-1 {
+.avatar-upload-container[data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"] > .avatar-frame-spark.spark-1 {
     left: -13% !important;
     top: 4% !important;
     font-size: 10px !important;
     animation-delay: -.25s !important;
 }
 
-.profile-trigger-btn[
-    data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"
-] > .avatar-frame-spark.spark-2,
+.profile-trigger-btn[data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"] > .avatar-frame-spark.spark-2,
 #studentInfoModal
-.avatar-upload-container[
-    data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"
-] > .avatar-frame-spark.spark-2 {
+.avatar-upload-container[data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"] > .avatar-frame-spark.spark-2 {
     right: -14% !important;
     top: 23% !important;
     font-size: 9px !important;
     animation-delay: -.8s !important;
 }
 
-.profile-trigger-btn[
-    data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"
-] > .avatar-frame-spark.spark-3,
+.profile-trigger-btn[data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"] > .avatar-frame-spark.spark-3,
 #studentInfoModal
-.avatar-upload-container[
-    data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"
-] > .avatar-frame-spark.spark-3 {
+.avatar-upload-container[data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"] > .avatar-frame-spark.spark-3 {
     left: 8% !important;
     bottom: -17% !important;
     font-size: 8px !important;
     animation-delay: -1.15s !important;
 }
 
-.profile-trigger-btn[
-    data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"
-] > .avatar-frame-spark.spark-4,
+.profile-trigger-btn[data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"] > .avatar-frame-spark.spark-4,
 #studentInfoModal
-.avatar-upload-container[
-    data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"
-] > .avatar-frame-spark.spark-4 {
+.avatar-upload-container[data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"] > .avatar-frame-spark.spark-4 {
     right: 4% !important;
     bottom: -13% !important;
     font-size: 11px !important;
@@ -5851,14 +5809,10 @@ html body.theme-linkclick-fragmented-memory ::selection {
  * nhưng các lớp ảnh/aura/spark của khung này luôn giữ vị trí và mỹ thuật riêng.
  */
 html body[class*="theme-"]
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"
-] > .avatar-frame-decoration,
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"] > .avatar-frame-decoration,
 html body[class*="theme-"]
 #studentInfoModal
-.avatar-upload-container.avatar-frame-modal-host[
-    data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"
-] > .avatar-frame-decoration {
+.avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"] > .avatar-frame-decoration {
     left: 50% !important;
     top: 50% !important;
     object-fit: contain !important;
@@ -5924,9 +5878,7 @@ html body[class*="theme-"]
    ============================================================================ */
 
 /* Avatar góc phải: lớn hơn nhưng vẫn nằm đúng tâm khung 60x60 */
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"
-] > #avatarImage {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"] > #avatarImage {
     width: 48px !important;
     height: 48px !important;
 
@@ -5948,9 +5900,7 @@ html body[class*="theme-"]
 }
 
 /* Placeholder cũng cân lại theo avatar lớn */
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"
-] > #avatarPlaceholder {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"] > #avatarPlaceholder {
     position: relative !important;
     z-index: 3 !important;
 
@@ -5964,9 +5914,7 @@ html body[class*="theme-"]
  * Khung vẫn giữ nguyên 145x145.
  */
 #studentInfoModal
-.avatar-upload-container.avatar-frame-modal-host[
-    data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"
-] {
+.avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"] {
     width: 100px !important;
     height: 100px !important;
 
@@ -5980,9 +5928,7 @@ html body[class*="theme-"]
 
 /* Avatar popup tăng lên 92x92 và căn đúng tâm host 100x100 */
 #studentInfoModal
-.avatar-upload-container.avatar-frame-modal-host[
-    data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"
-] > #modalAvatarPreview {
+.avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"] > #modalAvatarPreview {
     width: 92px !important;
     height: 92px !important;
 
@@ -6020,9 +5966,7 @@ html body[class*="theme-"]
  * Kích thước ảnh khung vẫn 145x145 y như bản trước.
  */
 #studentInfoModal
-.avatar-upload-container.avatar-frame-modal-host[
-    data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"
-] > .avatar-frame-decoration {
+.avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"] > .avatar-frame-decoration {
     left: 50% !important;
     top: 50% !important;
 
@@ -6036,9 +5980,7 @@ html body[class*="theme-"]
 
 /* Aura cũng đi theo tâm host mới, không làm lệch khung */
 #studentInfoModal
-.avatar-upload-container.avatar-frame-modal-host[
-    data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"
-] > .avatar-frame-aura {
+.avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_linkclick_cheng_xiaoshi_time_window"] > .avatar-frame-aura {
     left: 50% !important;
     top: 50% !important;
 
@@ -6060,9 +6002,7 @@ html body[class*="theme-"]
    ============================================================================ */
 
 /* ---------- Preview card: ảnh ngang, không đổi bố cục card ---------- */
-.store-item-card.store-card-linkclick-chibi[
-    data-item-id="background_linkclick_cheng_xiaoshi_sunset_studio"
-] .item-icon-wrapper {
+.store-item-card.store-card-linkclick-chibi[data-item-id="background_linkclick_cheng_xiaoshi_sunset_studio"] .item-icon-wrapper {
     min-height: 166px !important;
     padding:
         28px 10px 4px !important;
@@ -6074,9 +6014,7 @@ html body[class*="theme-"]
     overflow: visible !important;
 }
 
-.store-item-card.store-card-linkclick-chibi[
-    data-item-id="background_linkclick_cheng_xiaoshi_sunset_studio"
-] .item-icon {
+.store-item-card.store-card-linkclick-chibi[data-item-id="background_linkclick_cheng_xiaoshi_sunset_studio"] .item-icon {
     width: 94% !important;
     max-width: 210px !important;
 
@@ -6113,9 +6051,7 @@ html body[class*="theme-"]
         !important;
 }
 
-.store-item-card.store-card-linkclick-chibi[
-    data-item-id="background_linkclick_cheng_xiaoshi_sunset_studio"
-]:hover .item-icon {
+.store-item-card.store-card-linkclick-chibi[data-item-id="background_linkclick_cheng_xiaoshi_sunset_studio"]:hover .item-icon {
     transform:
         translateY(-3px)
         scale(1.035)
@@ -6128,9 +6064,7 @@ html body[class*="theme-"]
 }
 
 /* ---------- Nền thật: khóa fit riêng cho item này ---------- */
-body.store-background-equipped[
-    data-store-background-id="background_linkclick_cheng_xiaoshi_sunset_studio"
-] {
+body.store-background-equipped[data-store-background-id="background_linkclick_cheng_xiaoshi_sunset_studio"] {
     background-image:
         url("../assets/Premium/Lock/Cheng Xiaoshi-nen1.png")
         !important;
@@ -6156,9 +6090,7 @@ body.store-background-equipped[
  * nhưng item nền này vẫn giữ ảnh và cách fit riêng nhờ selector ID nền
  * + !important. Không can thiệp các nền khác.
  */
-html body[class*="theme-"].store-background-equipped[
-    data-store-background-id="background_linkclick_cheng_xiaoshi_sunset_studio"
-] {
+html body[class*="theme-"].store-background-equipped[data-store-background-id="background_linkclick_cheng_xiaoshi_sunset_studio"] {
     background-image:
         url("../assets/Premium/Lock/Cheng Xiaoshi-nen1.png")
         !important;
@@ -6178,25 +6110,19 @@ html body[class*="theme-"].store-background-equipped[
 
 /* Màn hình dọc / tablet: vẫn ưu tiên phủ đầy và giữ vùng trung tâm */
 @media (max-aspect-ratio: 4 / 3) {
-    body.store-background-equipped[
-        data-store-background-id="background_linkclick_cheng_xiaoshi_sunset_studio"
-    ] {
+    body.store-background-equipped[data-store-background-id="background_linkclick_cheng_xiaoshi_sunset_studio"] {
         background-position:
             52% center !important;
     }
 }
 
 @media (max-width: 768px) {
-    .store-item-card.store-card-linkclick-chibi[
-        data-item-id="background_linkclick_cheng_xiaoshi_sunset_studio"
-    ] .item-icon-wrapper {
+    .store-item-card.store-card-linkclick-chibi[data-item-id="background_linkclick_cheng_xiaoshi_sunset_studio"] .item-icon-wrapper {
         min-height: 150px !important;
         padding-top: 26px !important;
     }
 
-    .store-item-card.store-card-linkclick-chibi[
-        data-item-id="background_linkclick_cheng_xiaoshi_sunset_studio"
-    ] .item-icon {
+    .store-item-card.store-card-linkclick-chibi[data-item-id="background_linkclick_cheng_xiaoshi_sunset_studio"] .item-icon {
         width: 96% !important;
         height: 104px !important;
         max-height: 104px !important;

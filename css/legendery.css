@@ -4363,17 +4363,12 @@ body .store-item-card.store-card-nyx-trinity>.item-tag.tag-truyen-thuyet,
 
 body .store-item-card.store-card-nyx-little-spirit>.item-tag.tag-truyen-thuyet,
 
-body .store-item-card[ data-item-id="theme_truyenthuyet_thanh_dien_nguyet_da"
-]>.item-tag.tag-truyen-thuyet,
+body .store-item-card[data-item-id="theme_truyenthuyet_thanh_dien_nguyet_da"]>.item-tag.tag-truyen-thuyet,
 
-body .store-item-card[ data-item-id="effect_truyenthuyet_da_trieu_tinh_nguyet"
-]>.item-tag.tag-truyen-thuyet,
+body .store-item-card[data-item-id="effect_truyenthuyet_da_trieu_tinh_nguyet"]>.item-tag.tag-truyen-thuyet,
 
-body .store-item-card[ data-item-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"
-]>.item-tag.tag-truyen-thuyet,
-body .store-item-card[ data-item-id="background_truyenthuyet_nyx_vinh_da_thien_mac"
-
-]>.item-tag.tag-truyen-thuyet {
+body .store-item-card[data-item-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"]>.item-tag.tag-truyen-thuyet,
+body .store-item-card[data-item-id="background_truyenthuyet_nyx_vinh_da_thien_mac"]>.item-tag.tag-truyen-thuyet {
 
     position: absolute !important;
     z-index: 25 !important;
@@ -4436,18 +4431,12 @@ body .store-item-card.store-card-nyx-trinity>.item-tag.tag-truyen-thuyet span,
 
 body .store-item-card.store-card-nyx-little-spirit>.item-tag.tag-truyen-thuyet span,
 
-body .store-item-card[ data-item-id="theme_truyenthuyet_thanh_dien_nguyet_da"
-]>.item-tag.tag-truyen-thuyet span,
+body .store-item-card[data-item-id="theme_truyenthuyet_thanh_dien_nguyet_da"]>.item-tag.tag-truyen-thuyet span,
 
-body .store-item-card[ data-item-id="effect_truyenthuyet_da_trieu_tinh_nguyet"
-]>.item-tag.tag-truyen-thuyet span,
+body .store-item-card[data-item-id="effect_truyenthuyet_da_trieu_tinh_nguyet"]>.item-tag.tag-truyen-thuyet span,
 
-body .store-item-card[ data-item-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"
-
-]>.item-tag.tag-truyen-thuyet span,
-body .store-item-card[ data-item-id="background_truyenthuyet_nyx_vinh_da_thien_mac"
-
-]>.item-tag.tag-truyen-thuyet span {
+body .store-item-card[data-item-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"]>.item-tag.tag-truyen-thuyet span,
+body .store-item-card[data-item-id="background_truyenthuyet_nyx_vinh_da_thien_mac"]>.item-tag.tag-truyen-thuyet span {
 
     position:
         relative !important;
@@ -4506,18 +4495,12 @@ body .store-item-card.store-card-nyx-trinity>.item-tag.tag-truyen-thuyet::before
 
 body .store-item-card.store-card-nyx-little-spirit>.item-tag.tag-truyen-thuyet::before,
 
-body .store-item-card[ data-item-id="theme_truyenthuyet_thanh_dien_nguyet_da"
-]>.item-tag.tag-truyen-thuyet::before,
+body .store-item-card[data-item-id="theme_truyenthuyet_thanh_dien_nguyet_da"]>.item-tag.tag-truyen-thuyet::before,
 
-body .store-item-card[ data-item-id="effect_truyenthuyet_da_trieu_tinh_nguyet"
-]>.item-tag.tag-truyen-thuyet::before,
+body .store-item-card[data-item-id="effect_truyenthuyet_da_trieu_tinh_nguyet"]>.item-tag.tag-truyen-thuyet::before,
 
-body .store-item-card[ data-item-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"
-
-]>.item-tag.tag-truyen-thuyet::before,
-body .store-item-card[ data-item-id="background_truyenthuyet_nyx_vinh_da_thien_mac"
-
-]>.item-tag.tag-truyen-thuyet::before {
+body .store-item-card[data-item-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"]>.item-tag.tag-truyen-thuyet::before,
+body .store-item-card[data-item-id="background_truyenthuyet_nyx_vinh_da_thien_mac"]>.item-tag.tag-truyen-thuyet::before {
 
     content:
         "☾" !important;
@@ -4561,18 +4544,12 @@ body .store-item-card.store-card-nyx-trinity>.item-tag.tag-truyen-thuyet::after,
 
 body .store-item-card.store-card-nyx-little-spirit>.item-tag.tag-truyen-thuyet::after,
 
-body .store-item-card[ data-item-id="theme_truyenthuyet_thanh_dien_nguyet_da"
-]>.item-tag.tag-truyen-thuyet::after,
+body .store-item-card[data-item-id="theme_truyenthuyet_thanh_dien_nguyet_da"]>.item-tag.tag-truyen-thuyet::after,
 
-body .store-item-card[ data-item-id="effect_truyenthuyet_da_trieu_tinh_nguyet"
-]>.item-tag.tag-truyen-thuyet::after,
+body .store-item-card[data-item-id="effect_truyenthuyet_da_trieu_tinh_nguyet"]>.item-tag.tag-truyen-thuyet::after,
 
-body .store-item-card[ data-item-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"
-
-]>.item-tag.tag-truyen-thuyet::after,
-body .store-item-card[ data-item-id="background_truyenthuyet_nyx_vinh_da_thien_mac"
-
-]>.item-tag.tag-truyen-thuyet::after {
+body .store-item-card[data-item-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"]>.item-tag.tag-truyen-thuyet::after,
+body .store-item-card[data-item-id="background_truyenthuyet_nyx_vinh_da_thien_mac"]>.item-tag.tag-truyen-thuyet::after {
 
     content:
         "" !important;

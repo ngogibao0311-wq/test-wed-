@@ -4690,25 +4690,17 @@ html body.theme-midautumn-lantern-festival ::selection {
 /* Popup avatar có thể dùng relative vì đây là container bên trong modal,
    không phải nút hồ sơ nổi ở góc màn hình. */
 #studentInfoModal
-.avatar-upload-container.avatar-frame-modal-host[
-    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
-] {
+.avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"] {
     position: relative !important;
     overflow: visible !important;
     isolation: isolate !important;
 }
 
 /* Avatar luôn nằm đúng tâm, phía dưới khung */
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
-] > #avatarImage,
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
-] > #avatarPlaceholder,
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"] > #avatarImage,
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"] > #avatarPlaceholder,
 #studentInfoModal
-.avatar-upload-container.avatar-frame-modal-host[
-    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
-] > #modalAvatarPreview {
+.avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"] > #modalAvatarPreview {
     position: relative !important;
     z-index: 3 !important;
 }
@@ -4717,9 +4709,7 @@ html body.theme-midautumn-lantern-festival ::selection {
    PROFILE NHỎ — chuẩn 60x60 từ Premium Mùa Xuân
    ========================================================= */
 
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
-] > .avatar-frame-decoration {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"] > .avatar-frame-decoration {
     position: absolute !important;
 
     left: 50% !important;
@@ -4768,9 +4758,7 @@ html body.theme-midautumn-lantern-festival ::selection {
 }
 
 /* Hào quang của profile */
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
-] > .avatar-frame-aura {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"] > .avatar-frame-aura {
     position: absolute !important;
 
     left: 50% !important;
@@ -4814,17 +4802,13 @@ html body.theme-midautumn-lantern-festival ::selection {
    ========================================================= */
 
 #studentInfoModal
-.avatar-upload-container.avatar-frame-modal-host[
-    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
-] {
+.avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"] {
     overflow: visible !important;
     isolation: isolate !important;
 }
 
 #studentInfoModal
-.avatar-upload-container.avatar-frame-modal-host[
-    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
-] > .avatar-frame-decoration {
+.avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"] > .avatar-frame-decoration {
     position: absolute !important;
 
     left: 50% !important;
@@ -4877,9 +4861,7 @@ html body.theme-midautumn-lantern-festival ::selection {
 
 /* Hào quang popup — ôm ngoài khung, không che avatar */
 #studentInfoModal
-.avatar-upload-container.avatar-frame-modal-host[
-    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
-] > .avatar-frame-aura {
+.avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"] > .avatar-frame-aura {
     position: absolute !important;
 
     left: 50% !important;
@@ -4954,32 +4936,24 @@ html body.theme-midautumn-lantern-festival ::selection {
         !important;
 }
 
-.profile-trigger-btn[
-    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
-] > .avatar-frame-spark.spark-1 {
+.profile-trigger-btn[data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"] > .avatar-frame-spark.spark-1 {
     left: -4px !important;
     top: 3px !important;
 }
 
-.profile-trigger-btn[
-    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
-] > .avatar-frame-spark.spark-2 {
+.profile-trigger-btn[data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"] > .avatar-frame-spark.spark-2 {
     right: -4px !important;
     top: 8px !important;
     animation-delay: -.7s !important;
 }
 
-.profile-trigger-btn[
-    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
-] > .avatar-frame-spark.spark-3 {
+.profile-trigger-btn[data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"] > .avatar-frame-spark.spark-3 {
     left: 4px !important;
     bottom: -3px !important;
     animation-delay: -1.3s !important;
 }
 
-.profile-trigger-btn[
-    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
-] > .avatar-frame-spark.spark-4 {
+.profile-trigger-btn[data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"] > .avatar-frame-spark.spark-4 {
     right: 2px !important;
     bottom: 0 !important;
     animation-delay: -2s !important;
@@ -4987,35 +4961,27 @@ html body.theme-midautumn-lantern-festival ::selection {
 
 /* Popup dùng khoảng cách lớn hơn */
 #studentInfoModal
-.avatar-upload-container[
-    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
-] > .avatar-frame-spark.spark-1 {
+.avatar-upload-container[data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"] > .avatar-frame-spark.spark-1 {
     left: -18px !important;
     top: -11px !important;
 }
 
 #studentInfoModal
-.avatar-upload-container[
-    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
-] > .avatar-frame-spark.spark-2 {
+.avatar-upload-container[data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"] > .avatar-frame-spark.spark-2 {
     right: -17px !important;
     top: -7px !important;
     animation-delay: -.7s !important;
 }
 
 #studentInfoModal
-.avatar-upload-container[
-    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
-] > .avatar-frame-spark.spark-3 {
+.avatar-upload-container[data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"] > .avatar-frame-spark.spark-3 {
     left: -10px !important;
     bottom: -17px !important;
     animation-delay: -1.3s !important;
 }
 
 #studentInfoModal
-.avatar-upload-container[
-    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
-] > .avatar-frame-spark.spark-4 {
+.avatar-upload-container[data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"] > .avatar-frame-spark.spark-4 {
     right: -12px !important;
     bottom: -15px !important;
     animation-delay: -2s !important;
@@ -5026,9 +4992,7 @@ html body.theme-midautumn-lantern-festival ::selection {
    chỉ tinh chỉnh ảnh preview của khung.
    ========================================================= */
 
-.store-item-card.store-card-midautumn-chibi[
-    data-item-id="frame_trung_thu_nguyet_que_hoa_hoan"
-] .item-icon {
+.store-item-card.store-card-midautumn-chibi[data-item-id="frame_trung_thu_nguyet_que_hoa_hoan"] .item-icon {
     width: 112px !important;
     height: 112px !important;
     max-width: 112px !important;
@@ -5051,9 +5015,7 @@ html body.theme-midautumn-lantern-festival ::selection {
         filter .28s ease !important;
 }
 
-.store-item-card.store-card-midautumn-chibi[
-    data-item-id="frame_trung_thu_nguyet_que_hoa_hoan"
-]:hover .item-icon {
+.store-item-card.store-card-midautumn-chibi[data-item-id="frame_trung_thu_nguyet_que_hoa_hoan"]:hover .item-icon {
     transform:
         translateY(-4px)
         scale(1.045) !important;
@@ -5138,32 +5100,24 @@ html body.theme-midautumn-lantern-festival ::selection {
 }
 
 @media (max-width: 768px) {
-    .profile-trigger-btn.avatar-frame-profile-host[
-        data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
-    ] > .avatar-frame-decoration {
+    .profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"] > .avatar-frame-decoration {
         width: 56px !important;
         height: 56px !important;
     }
 
-    .profile-trigger-btn.avatar-frame-profile-host[
-        data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
-    ] > .avatar-frame-aura {
+    .profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"] > .avatar-frame-aura {
         width: 60px !important;
         height: 60px !important;
     }
 
     #studentInfoModal
-    .avatar-upload-container.avatar-frame-modal-host[
-        data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
-    ] > .avatar-frame-decoration {
+    .avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"] > .avatar-frame-decoration {
         width: 126px !important;
         height: 126px !important;
     }
 
     #studentInfoModal
-    .avatar-upload-container.avatar-frame-modal-host[
-        data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
-    ] > .avatar-frame-aura {
+    .avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"] > .avatar-frame-aura {
         width: 132px !important;
         height: 132px !important;
     }
@@ -5188,17 +5142,13 @@ html body.theme-midautumn-lantern-festival ::selection {
    GIỮ NGUYÊN VỊ TRÍ NÚT HỒ SƠ
    ============================================================================ */
 
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
-] {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"] {
     overflow: visible !important;
     isolation: isolate !important;
 }
 
 /* Layer trang trí tuyệt đối bên trong nút, không tham gia layout */
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
-] > :is(
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"] > :is(
     .avatar-frame-decoration,
     .avatar-frame-aura,
     .avatar-frame-spark
@@ -5208,23 +5158,15 @@ html body.theme-midautumn-lantern-festival ::selection {
 }
 
 /* Avatar/placeholder vẫn hiển thị */
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
-] > #avatarImage,
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
-] > #avatarPlaceholder {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"] > #avatarImage,
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"] > #avatarPlaceholder {
     visibility: visible !important;
     opacity: 1 !important;
 }
 
 /* Không cho ảnh khung/aura làm thay đổi kích thước layout nút */
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
-] > .avatar-frame-decoration,
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"
-] > .avatar-frame-aura {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"] > .avatar-frame-decoration,
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_trung_thu_nguyet_que_hoa_hoan"] > .avatar-frame-aura {
     margin: 0 !important;
 }
 
@@ -5238,18 +5180,14 @@ html body.theme-midautumn-lantern-festival ::selection {
    Không sửa selector background toàn cục và không ảnh hưởng nền khác.
    ============================================================================ */
 
-.store-item-card.store-card-midautumn-chibi[
-    data-item-id="background_trung_thu_nguyet_cung_hoa_dang_da"
-] .item-icon-wrapper {
+.store-item-card.store-card-midautumn-chibi[data-item-id="background_trung_thu_nguyet_cung_hoa_dang_da"] .item-icon-wrapper {
     position: relative !important;
     overflow: hidden !important;
     border-radius: 18px !important;
     isolation: isolate !important;
 }
 
-.store-item-card.store-card-midautumn-chibi[
-    data-item-id="background_trung_thu_nguyet_cung_hoa_dang_da"
-] .item-icon {
+.store-item-card.store-card-midautumn-chibi[data-item-id="background_trung_thu_nguyet_cung_hoa_dang_da"] .item-icon {
     width: min(100%, 190px) !important;
     height: 112px !important;
     max-width: 190px !important;
@@ -5276,9 +5214,7 @@ html body.theme-midautumn-lantern-festival ::selection {
         filter .30s ease !important;
 }
 
-.store-item-card.store-card-midautumn-chibi[
-    data-item-id="background_trung_thu_nguyet_cung_hoa_dang_da"
-] .item-icon-wrapper::after {
+.store-item-card.store-card-midautumn-chibi[data-item-id="background_trung_thu_nguyet_cung_hoa_dang_da"] .item-icon-wrapper::after {
     content: "";
 
     position: absolute;
@@ -5302,9 +5238,7 @@ html body.theme-midautumn-lantern-festival ::selection {
         rgba(255, 222, 138, .18);
 }
 
-.store-item-card.store-card-midautumn-chibi[
-    data-item-id="background_trung_thu_nguyet_cung_hoa_dang_da"
-]:hover .item-icon {
+.store-item-card.store-card-midautumn-chibi[data-item-id="background_trung_thu_nguyet_cung_hoa_dang_da"]:hover .item-icon {
     transform:
         scale(1.045) !important;
 
@@ -5326,9 +5260,7 @@ html body.theme-midautumn-lantern-festival ::selection {
    chỉ thêm màu fallback bên dưới ảnh.
    Không đụng background-image/size/position/repeat/attachment vì
    WebBackgroundManager đã đặt inline !important theo item. */
-body.store-background-equipped[
-    data-store-background-id="background_trung_thu_nguyet_cung_hoa_dang_da"
-] {
+body.store-background-equipped[data-store-background-id="background_trung_thu_nguyet_cung_hoa_dang_da"] {
     background-color:
         #0b1730 !important;
 }
@@ -8222,40 +8154,28 @@ html body.theme-midautumn-osmanthus-jade ::selection {
    Namespace animation: maccf5-*
    ============================================================================ */
 
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
-] {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"] {
     overflow: visible !important;
     isolation: isolate !important;
 }
 
 #studentInfoModal
-.avatar-upload-container.avatar-frame-modal-host[
-    data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
-] {
+.avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"] {
     position: relative !important;
     overflow: visible !important;
     isolation: isolate !important;
 }
 
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
-] > #avatarImage,
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
-] > #avatarPlaceholder,
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"] > #avatarImage,
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"] > #avatarPlaceholder,
 #studentInfoModal
-.avatar-upload-container.avatar-frame-modal-host[
-    data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
-] > #modalAvatarPreview {
+.avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"] > #modalAvatarPreview {
     position: relative !important;
     z-index: 3 !important;
 }
 
 /* Profile nhỏ — cùng vị trí chuẩn khung Trung Thu hiện có */
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
-] > .avatar-frame-decoration {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"] > .avatar-frame-decoration {
     position: absolute !important;
     left: 50% !important;
     top: 50% !important;
@@ -8278,9 +8198,7 @@ html body.theme-midautumn-osmanthus-jade ::selection {
     animation: maccf5ProfileFloat 5.8s ease-in-out infinite !important;
 }
 
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
-] > .avatar-frame-aura {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"] > .avatar-frame-aura {
     position: absolute !important;
     left: 50% !important;
     top: 50% !important;
@@ -8305,9 +8223,7 @@ html body.theme-midautumn-osmanthus-jade ::selection {
 
 /* Popup hồ sơ — cùng 126x126 + offset chuẩn Premium */
 #studentInfoModal
-.avatar-upload-container.avatar-frame-modal-host[
-    data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
-] > .avatar-frame-decoration {
+.avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"] > .avatar-frame-decoration {
     position: absolute !important;
     left: 50% !important;
     top: 50% !important;
@@ -8331,9 +8247,7 @@ html body.theme-midautumn-osmanthus-jade ::selection {
 }
 
 #studentInfoModal
-.avatar-upload-container.avatar-frame-modal-host[
-    data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
-] > .avatar-frame-aura {
+.avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"] > .avatar-frame-aura {
     position: absolute !important;
     left: 50% !important;
     top: 50% !important;
@@ -8388,16 +8302,12 @@ html body.theme-midautumn-osmanthus-jade ::selection {
 > .avatar-frame-spark.spark-4 { right: -12px !important; bottom: -15px !important; animation-delay: -2s !important; }
 
 /* Card cửa hàng — dùng skin Tiểu Chú Cuội, giữ nguyên bố cục card chuẩn. */
-.store-item-card.store-card-midautumn-cuoi-chibi[
-    data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
-] .item-icon-wrapper {
+.store-item-card.store-card-midautumn-cuoi-chibi[data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"] .item-icon-wrapper {
     overflow: hidden !important;
     isolation: isolate !important;
 }
 
-.store-item-card.store-card-midautumn-cuoi-chibi[
-    data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
-] .item-icon {
+.store-item-card.store-card-midautumn-cuoi-chibi[data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"] .item-icon {
     width: 112px !important;
     height: 112px !important;
     max-width: 112px !important;
@@ -8411,9 +8321,7 @@ html body.theme-midautumn-osmanthus-jade ::selection {
     transition: transform .28s ease, filter .28s ease !important;
 }
 
-.store-item-card.store-card-midautumn-cuoi-chibi[
-    data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
-]:hover .item-icon {
+.store-item-card.store-card-midautumn-cuoi-chibi[data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"]:hover .item-icon {
     transform: translateY(-4px) scale(1.045) !important;
     filter:
         drop-shadow(0 10px 14px rgba(7, 25, 17, .35))
@@ -8465,22 +8373,14 @@ html body.theme-midautumn-osmanthus-jade ::selection {
    - Tách khỏi transform/overflow chung của card Tiểu Chú Cuội.
    ============================================================================ */
 
-html body .store-item-card.store-card-midautumn-cuoi-chibi[
-    data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
-] .item-icon-wrapper,
-html body .store-item-card[
-    data-special-card="midautumn-cuoi-chibi"
-][data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"] .item-icon-wrapper {
+html body .store-item-card.store-card-midautumn-cuoi-chibi[data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"] .item-icon-wrapper,
+html body .store-item-card[data-special-card="midautumn-cuoi-chibi"][data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"] .item-icon-wrapper {
     overflow: visible !important;
     isolation: isolate !important;
 }
 
-html body .store-item-card.store-card-midautumn-cuoi-chibi[
-    data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
-] .item-icon,
-html body .store-item-card[
-    data-special-card="midautumn-cuoi-chibi"
-][data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"] .item-icon {
+html body .store-item-card.store-card-midautumn-cuoi-chibi[data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"] .item-icon,
+html body .store-item-card[data-special-card="midautumn-cuoi-chibi"][data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"] .item-icon {
     width: 98px !important;
     height: 98px !important;
     max-width: 98px !important;
@@ -8500,12 +8400,8 @@ html body .store-item-card[
     transition: transform .28s ease, filter .28s ease !important;
 }
 
-html body .store-item-card.store-card-midautumn-cuoi-chibi[
-    data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
-]:hover .item-icon,
-html body .store-item-card[
-    data-special-card="midautumn-cuoi-chibi"
-][data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"]:hover .item-icon {
+html body .store-item-card.store-card-midautumn-cuoi-chibi[data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"]:hover .item-icon,
+html body .store-item-card[data-special-card="midautumn-cuoi-chibi"][data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"]:hover .item-icon {
     transform: translateY(8px) scale(1.00) !important;
     filter:
         drop-shadow(0 10px 14px rgba(7, 25, 17, .35))
@@ -8514,12 +8410,8 @@ html body .store-item-card[
 
 /* Mobile: vẫn giữ preview trong vùng icon, không chạm tag. */
 @media (max-width: 768px), (pointer: coarse) {
-    html body .store-item-card.store-card-midautumn-cuoi-chibi[
-        data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"
-    ] .item-icon,
-    html body .store-item-card[
-        data-special-card="midautumn-cuoi-chibi"
-    ][data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"] .item-icon {
+    html body .store-item-card.store-card-midautumn-cuoi-chibi[data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"] .item-icon,
+    html body .store-item-card[data-special-card="midautumn-cuoi-chibi"][data-item-id="frame_trung_thu_chu_cuoi_que_anh_chi_hoan"] .item-icon {
         width: 94px !important;
         height: 94px !important;
         max-width: 94px !important;
@@ -8540,9 +8432,7 @@ html body .store-item-card[
    cover + center center + no-repeat + fixed.
    ============================================================================ */
 
-html body .store-item-card.store-card-midautumn-cuoi-chibi[
-    data-item-id="background_trung_thu_chu_cuoi_que_lam_nguyet_da"
-] .item-icon-wrapper {
+html body .store-item-card.store-card-midautumn-cuoi-chibi[data-item-id="background_trung_thu_chu_cuoi_que_lam_nguyet_da"] .item-icon-wrapper {
     position: relative !important;
     overflow: hidden !important;
     isolation: isolate !important;
@@ -8553,9 +8443,7 @@ html body .store-item-card.store-card-midautumn-cuoi-chibi[
     border-color: rgba(218, 190, 101, .22) !important;
 }
 
-html body .store-item-card.store-card-midautumn-cuoi-chibi[
-    data-item-id="background_trung_thu_chu_cuoi_que_lam_nguyet_da"
-] .item-icon {
+html body .store-item-card.store-card-midautumn-cuoi-chibi[data-item-id="background_trung_thu_chu_cuoi_que_lam_nguyet_da"] .item-icon {
     width: min(100%, 190px) !important;
     height: 112px !important;
     max-width: 190px !important;
@@ -8575,9 +8463,7 @@ html body .store-item-card.store-card-midautumn-cuoi-chibi[
     transition: transform .30s ease, filter .30s ease !important;
 }
 
-html body .store-item-card.store-card-midautumn-cuoi-chibi[
-    data-item-id="background_trung_thu_chu_cuoi_que_lam_nguyet_da"
-] .item-icon-wrapper::after {
+html body .store-item-card.store-card-midautumn-cuoi-chibi[data-item-id="background_trung_thu_chu_cuoi_que_lam_nguyet_da"] .item-icon-wrapper::after {
     content: "" !important;
     position: absolute !important;
     inset: 0 !important;
@@ -8589,9 +8475,7 @@ html body .store-item-card.store-card-midautumn-cuoi-chibi[
     box-shadow: inset 0 0 0 1px rgba(241, 211, 119, .16) !important;
 }
 
-html body .store-item-card.store-card-midautumn-cuoi-chibi[
-    data-item-id="background_trung_thu_chu_cuoi_que_lam_nguyet_da"
-]:hover .item-icon {
+html body .store-item-card.store-card-midautumn-cuoi-chibi[data-item-id="background_trung_thu_chu_cuoi_que_lam_nguyet_da"]:hover .item-icon {
     transform: scale(1.035) !important;
     filter:
         saturate(1.14)
@@ -8602,16 +8486,12 @@ html body .store-item-card.store-card-midautumn-cuoi-chibi[
 }
 
 /* Fallback chỉ dành cho nền Chú Cuội; ảnh nền inline !important vẫn do manager quản lý. */
-body.store-background-equipped[
-    data-store-background-id="background_trung_thu_chu_cuoi_que_lam_nguyet_da"
-] {
+body.store-background-equipped[data-store-background-id="background_trung_thu_chu_cuoi_que_lam_nguyet_da"] {
     background-color: #0d241b !important;
 }
 
 @media (max-width: 768px) {
-    html body .store-item-card.store-card-midautumn-cuoi-chibi[
-        data-item-id="background_trung_thu_chu_cuoi_que_lam_nguyet_da"
-    ] .item-icon {
+    html body .store-item-card.store-card-midautumn-cuoi-chibi[data-item-id="background_trung_thu_chu_cuoi_que_lam_nguyet_da"] .item-icon {
         width: min(100%, 176px) !important;
         height: 104px !important;
         max-width: 176px !important;

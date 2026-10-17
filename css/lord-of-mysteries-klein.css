@@ -4927,16 +4927,12 @@ html.lotm-klein-equipped
    PROFILE — theo đúng vị trí chuẩn Premium Mùa Xuân:
    frame 60x60, center/center.
    ============================================================ */
-.profile-trigger-btn.lotmf1-frame-host[
-    data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"
-] {
+.profile-trigger-btn.lotmf1-frame-host[data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"] {
     overflow: visible !important;
     isolation: isolate !important;
 }
 
-.profile-trigger-btn.lotmf1-frame-host[
-    data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"
-] > #avatarImage {
+.profile-trigger-btn.lotmf1-frame-host[data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"] > #avatarImage {
     width: 42px !important;
     height: 42px !important;
     border-radius: 50% !important;
@@ -4945,18 +4941,14 @@ html.lotm-klein-equipped
     z-index: 3 !important;
 }
 
-.profile-trigger-btn.lotmf1-frame-host[
-    data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"
-] > #avatarPlaceholder {
+.profile-trigger-btn.lotmf1-frame-host[data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"] > #avatarPlaceholder {
     position: relative !important;
     z-index: 3 !important;
     font-size: 1.05rem !important;
     line-height: 1 !important;
 }
 
-.profile-trigger-btn.lotmf1-frame-host[
-    data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"
-] > .lotmf1-frame-decoration {
+.profile-trigger-btn.lotmf1-frame-host[data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"] > .lotmf1-frame-decoration {
     position: absolute !important;
     left: 50% !important;
     top: 50% !important;
@@ -4979,9 +4971,7 @@ html.lotm-klein-equipped
         6.4s ease-in-out infinite !important;
 }
 
-.profile-trigger-btn.lotmf1-frame-host[
-    data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"
-] > .lotmf1-frame-aura {
+.profile-trigger-btn.lotmf1-frame-host[data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"] > .lotmf1-frame-aura {
     position: absolute !important;
     left: 50% !important;
     top: 50% !important;
@@ -5007,9 +4997,7 @@ html.lotm-klein-equipped
         16s linear infinite !important;
 }
 
-.profile-trigger-btn.lotmf1-frame-host[
-    data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"
-] > .lotmf1-frame-rune {
+.profile-trigger-btn.lotmf1-frame-host[data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"] > .lotmf1-frame-rune {
     position: absolute !important;
     z-index: 7 !important;
     pointer-events: none !important;
@@ -5023,32 +5011,24 @@ html.lotm-klein-equipped
         2.8s ease-in-out infinite alternate !important;
 }
 
-.profile-trigger-btn.lotmf1-frame-host[
-    data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"
-] > .lotmf1-frame-rune.rune-1 {
+.profile-trigger-btn.lotmf1-frame-host[data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"] > .lotmf1-frame-rune.rune-1 {
     left: -6px !important;
     top: -5px !important;
 }
 
-.profile-trigger-btn.lotmf1-frame-host[
-    data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"
-] > .lotmf1-frame-rune.rune-2 {
+.profile-trigger-btn.lotmf1-frame-host[data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"] > .lotmf1-frame-rune.rune-2 {
     right: -7px !important;
     top: 5px !important;
     animation-delay: -.7s !important;
 }
 
-.profile-trigger-btn.lotmf1-frame-host[
-    data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"
-] > .lotmf1-frame-rune.rune-3 {
+.profile-trigger-btn.lotmf1-frame-host[data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"] > .lotmf1-frame-rune.rune-3 {
     left: 0 !important;
     bottom: -7px !important;
     animation-delay: -1.4s !important;
 }
 
-.profile-trigger-btn.lotmf1-frame-host[
-    data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"
-] > .lotmf1-frame-rune.rune-4 {
+.profile-trigger-btn.lotmf1-frame-host[data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"] > .lotmf1-frame-rune.rune-4 {
     right: -1px !important;
     bottom: -5px !important;
     animation-delay: -2.1s !important;
@@ -5060,9 +5040,7 @@ html.lotm-klein-equipped
    frame offset -2px / +2px.
    ============================================================ */
 #studentInfoModal
-.avatar-upload-container.lotmf1-frame-host[
-    data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"
-] {
+.avatar-upload-container.lotmf1-frame-host[data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"] {
     position: relative !important;
     width: 92px !important;
     height: 92px !important;
@@ -5073,9 +5051,7 @@ html.lotm-klein-equipped
 }
 
 #studentInfoModal
-.avatar-upload-container.lotmf1-frame-host[
-    data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"
-]::before {
+.avatar-upload-container.lotmf1-frame-host[data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"]::before {
     content: "";
     position: absolute;
     left: 50%;
@@ -5099,9 +5075,7 @@ html.lotm-klein-equipped
 }
 
 #studentInfoModal
-.avatar-upload-container.lotmf1-frame-host[
-    data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"
-] > #modalAvatarPreview {
+.avatar-upload-container.lotmf1-frame-host[data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"] > #modalAvatarPreview {
     position: absolute !important;
     left: 50% !important;
     top: 50% !important;
@@ -5121,9 +5095,7 @@ html.lotm-klein-equipped
 }
 
 #studentInfoModal
-.avatar-upload-container.lotmf1-frame-host[
-    data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"
-] > .lotmf1-frame-decoration {
+.avatar-upload-container.lotmf1-frame-host[data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"] > .lotmf1-frame-decoration {
     position: absolute !important;
     left: 50% !important;
     top: 50% !important;
@@ -5151,9 +5123,7 @@ html.lotm-klein-equipped
 }
 
 #studentInfoModal
-.avatar-upload-container.lotmf1-frame-host[
-    data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"
-] > .lotmf1-frame-aura {
+.avatar-upload-container.lotmf1-frame-host[data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"] > .lotmf1-frame-aura {
     position: absolute !important;
     left: 50% !important;
     top: 50% !important;
@@ -5182,9 +5152,7 @@ html.lotm-klein-equipped
 }
 
 #studentInfoModal
-.avatar-upload-container.lotmf1-frame-host[
-    data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"
-] > .lotmf1-frame-rune {
+.avatar-upload-container.lotmf1-frame-host[data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"] > .lotmf1-frame-rune {
     display: none !important;
 }
 
@@ -5193,9 +5161,7 @@ html.lotm-klein-equipped
  * Loại trừ toàn bộ layer lotmf1 của frame mới.
  */
 #studentInfoModal
-.avatar-upload-container.lotmf1-frame-host[
-    data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"
-] > span:not(.lotmf1-frame-aura):not(.lotmf1-frame-rune) {
+.avatar-upload-container.lotmf1-frame-host[data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"] > span:not(.lotmf1-frame-aura):not(.lotmf1-frame-rune) {
     position: absolute !important;
     right: -17px !important;
     bottom: 0 !important;
@@ -5269,16 +5235,12 @@ html.lotm-klein-equipped
 }
 
 @media (max-width: 768px) {
-    .profile-trigger-btn.lotmf1-frame-host[
-        data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"
-    ] > .lotmf1-frame-decoration {
+    .profile-trigger-btn.lotmf1-frame-host[data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"] > .lotmf1-frame-decoration {
         width: 56px !important;
         height: 56px !important;
     }
 
-    .profile-trigger-btn.lotmf1-frame-host[
-        data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"
-    ] > .lotmf1-frame-aura {
+    .profile-trigger-btn.lotmf1-frame-host[data-avatar-frame-id="frame_lotm_klein_gray_fog_ring_event"] > .lotmf1-frame-aura {
         width: 60px !important;
         height: 60px !important;
     }
@@ -5490,9 +5452,7 @@ html.lotm-klein-equipped
    Block này là safety fence scoped theo data-store-background-id;
    không thay đổi bất kỳ nền khác.
    ============================================================================ */
-body.store-background-equipped[
-    data-store-background-id="background_lotm_klein_gray_fog_world_event"
-] {
+body.store-background-equipped[data-store-background-id="background_lotm_klein_gray_fog_world_event"] {
     background-color: #070a0f !important;
 
     background-size:
@@ -5515,9 +5475,7 @@ body.store-background-equipped[
  * Chỉ áp dụng cho nền LOTM mới.
  */
 @media (max-aspect-ratio: 4 / 5) {
-    body.store-background-equipped[
-        data-store-background-id="background_lotm_klein_gray_fog_world_event"
-    ] {
+    body.store-background-equipped[data-store-background-id="background_lotm_klein_gray_fog_world_event"] {
         background-position:
             center 32% !important;
     }

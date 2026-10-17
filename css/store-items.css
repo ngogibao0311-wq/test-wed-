@@ -3856,9 +3856,7 @@ body.theme-solar-biosphere {
    CARD RIÊNG CỦA BỘ HỆ MẶT TRỜI
 ========================================================= */
 
-.store-item-card[ data-item-id="theme_he_mat_troi_sinh_quyen"
-
-] .card-glow {
+.store-item-card[data-item-id="theme_he_mat_troi_sinh_quyen"] .card-glow {
     width: 155px;
     height: 155px;
 
@@ -3869,9 +3867,7 @@ body.theme-solar-biosphere {
             rgba(11, 87, 117, 0) 74%);
 }
 
-.store-item-card[ data-item-id="theme_he_mat_troi_sinh_quyen"
-
-] .item-icon {
+.store-item-card[data-item-id="theme_he_mat_troi_sinh_quyen"] .item-icon {
     filter:
         drop-shadow(0 0 15px rgba(255, 189, 69, 0.42));
 }
@@ -4463,9 +4459,7 @@ body.theme-solar-biosphere .gaia-heliotide-light-front {
 
 /* Card riêng của Nhật Triều Gaia */
 
-.store-item-card[ data-item-id="effect_he_mat_troi_nhat_trieu_gaia"
-
-] .card-glow {
+.store-item-card[data-item-id="effect_he_mat_troi_nhat_trieu_gaia"] .card-glow {
     width: 165px;
     height: 165px;
 
@@ -4477,9 +4471,7 @@ body.theme-solar-biosphere .gaia-heliotide-light-front {
             transparent 76%);
 }
 
-.store-item-card[ data-item-id="effect_he_mat_troi_nhat_trieu_gaia"
-
-] .item-icon {
+.store-item-card[data-item-id="effect_he_mat_troi_nhat_trieu_gaia"] .item-icon {
     color: #ffc75a;
 
     text-shadow:

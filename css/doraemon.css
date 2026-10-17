@@ -1745,9 +1745,7 @@ body.theme-doraemon-childhood #virtual-pet-container .pet-close-btn {
 }
 
 /* Nốt nhạc */
-.effect-doraemon-childhood-doodle[
-    data-doodle-type="music"
-] {
+.effect-doraemon-childhood-doodle[data-doodle-type="music"] {
     border-radius:
         54% 46% 58% 42% /
         48% 57% 43% 52%;
@@ -1763,9 +1761,7 @@ body.theme-doraemon-childhood #virtual-pet-container .pet-close-btn {
 
 
 /* Hình học giống nét phấn */
-.effect-doraemon-childhood-doodle[
-    data-doodle-type="shape"
-] {
+.effect-doraemon-childhood-doodle[data-doodle-type="shape"] {
     opacity: 0;
 
     background: transparent;
@@ -1778,9 +1774,7 @@ body.theme-doraemon-childhood #virtual-pet-container .pet-close-btn {
 
 
 /* Bút chì */
-.effect-doraemon-childhood-doodle[
-    data-doodle-type="pencil"
-] {
+.effect-doraemon-childhood-doodle[data-doodle-type="pencil"] {
     transform-origin: center;
 
     background:

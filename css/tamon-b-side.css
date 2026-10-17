@@ -6413,9 +6413,7 @@ html body
  * Selector dưới đây chỉ thêm màu nền dự phòng trong lúc ảnh tải,
  * không ghi đè background-image/size/position và không ảnh hưởng nền khác.
  */
-html body.store-background-equipped[
-    data-store-background-id="background_tamon_bside_stage_signal"
-] {
+html body.store-background-equipped[data-store-background-id="background_tamon_bside_stage_signal"] {
     background-color: #0a0d1b !important;
 }
 
@@ -8085,9 +8083,7 @@ html body .store-item-card.store-card-tamon-bside-chibi2:focus-within .item-icon
 
 /* ---------- ICON TRÊN CARD TAMON 2 ---------- */
 html body
-.store-item-card.store-card-tamon-bside-chibi2[
-    data-item-id="effect_tamon_bside_black_cat_eclipse"
-]
+.store-item-card.store-card-tamon-bside-chibi2[data-item-id="effect_tamon_bside_black_cat_eclipse"]
 .item-icon {
     display: grid !important;
     place-items: center !important;
@@ -8782,9 +8778,7 @@ html body #global-effect-container
 
 @media (prefers-reduced-motion: reduce) {
     html body
-    .store-item-card.store-card-tamon-bside-chibi2[
-        data-item-id="effect_tamon_bside_black_cat_eclipse"
-    ]
+    .store-item-card.store-card-tamon-bside-chibi2[data-item-id="effect_tamon_bside_black_cat_eclipse"]
     .item-icon,
     .tbcatfx2-black-cat-eclipse *,
     .tbcatfx2-black-cat-eclipse {
@@ -8818,14 +8812,10 @@ html body #global-effect-container
 
 /* ---------- HOST RIÊNG ---------- */
 html[data-app-role="student"] body
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"
-],
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"],
 html[data-app-role="student"] body
 #studentInfoModal
-.avatar-upload-container.avatar-frame-modal-host[
-    data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"
-] {
+.avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"] {
     position: relative !important;
     overflow: visible !important;
     isolation: isolate !important;
@@ -8834,9 +8824,7 @@ html[data-app-role="student"] body
 
 /* ---------- PROFILE AVATAR: chuẩn Premium ---------- */
 html[data-app-role="student"] body
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"
-] > #avatarImage {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"] > #avatarImage {
     display: block !important;
     width: 42px !important;
     height: 42px !important;
@@ -8854,9 +8842,7 @@ html[data-app-role="student"] body
 }
 
 html[data-app-role="student"] body
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"
-] > #avatarPlaceholder {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"] > #avatarPlaceholder {
     position: relative !important;
     z-index: 3 !important;
     border-radius: 50% !important;
@@ -8867,9 +8853,7 @@ html[data-app-role="student"] body
 
 /* 60x60 = vị trí/kích thước chuẩn Premium Mùa Xuân. */
 html[data-app-role="student"] body
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"
-] > .avatar-frame-decoration {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"] > .avatar-frame-decoration {
     position: absolute !important;
     left: 50% !important;
     top: 50% !important;
@@ -8912,9 +8896,7 @@ html[data-app-role="student"] body
 
 /* Aura riêng, không mượn aura Premium / Tamon 1. */
 html[data-app-role="student"] body
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"
-] > .avatar-frame-aura {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"] > .avatar-frame-aura {
     position: absolute !important;
     left: 50% !important;
     top: 50% !important;
@@ -8959,9 +8941,7 @@ html[data-app-role="student"] body
 
 /* Spark riêng: khóa màu/kích thước để theme không ghi đè. */
 html[data-app-role="student"] body
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"
-] > .avatar-frame-spark {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"] > .avatar-frame-spark {
     position: absolute !important;
     z-index: 7 !important;
 
@@ -8998,35 +8978,27 @@ html[data-app-role="student"] body
 }
 
 html[data-app-role="student"] body
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"
-] > .avatar-frame-spark.spark-1 {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"] > .avatar-frame-spark.spark-1 {
     left: -5px !important;
     top: 1px !important;
 }
 
 html[data-app-role="student"] body
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"
-] > .avatar-frame-spark.spark-2 {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"] > .avatar-frame-spark.spark-2 {
     right: -5px !important;
     top: 7px !important;
     animation-delay: -.7s !important;
 }
 
 html[data-app-role="student"] body
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"
-] > .avatar-frame-spark.spark-3 {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"] > .avatar-frame-spark.spark-3 {
     left: 3px !important;
     bottom: -3px !important;
     animation-delay: -1.2s !important;
 }
 
 html[data-app-role="student"] body
-.profile-trigger-btn.avatar-frame-profile-host[
-    data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"
-] > .avatar-frame-spark.spark-4 {
+.profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"] > .avatar-frame-spark.spark-4 {
     right: 1px !important;
     bottom: -4px !important;
     animation-delay: -1.7s !important;
@@ -9035,9 +9007,7 @@ html[data-app-role="student"] body
 /* ---------- POPUP: FINAL PREMIUM GEOMETRY ---------- */
 html[data-app-role="student"] body
 #studentInfoModal
-.avatar-upload-container.avatar-frame-modal-host[
-    data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"
-] {
+.avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"] {
     width: 92px !important;
     height: 92px !important;
 
@@ -9054,9 +9024,7 @@ html[data-app-role="student"] body
 /* Avatar popup: 80x80, lệch +1/+1 theo final Premium fix. */
 html[data-app-role="student"] body
 #studentInfoModal
-.avatar-upload-container.avatar-frame-modal-host[
-    data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"
-] > #modalAvatarPreview {
+.avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"] > #modalAvatarPreview {
     position: absolute !important;
     left: 50% !important;
     top: 50% !important;
@@ -9091,9 +9059,7 @@ html[data-app-role="student"] body
 /* Khung popup 126x126, offset -2/+2 theo FINAL FIX Premium Mùa Xuân. */
 html[data-app-role="student"] body
 #studentInfoModal
-.avatar-upload-container.avatar-frame-modal-host[
-    data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"
-] > .avatar-frame-decoration {
+.avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"] > .avatar-frame-decoration {
     position: absolute !important;
     left: 50% !important;
     top: 50% !important;
@@ -9143,9 +9109,7 @@ html[data-app-role="student"] body
 /* Popup aura theo final Premium: 124x124 và lệch +2/+1. */
 html[data-app-role="student"] body
 #studentInfoModal
-.avatar-upload-container.avatar-frame-modal-host[
-    data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"
-] > .avatar-frame-aura {
+.avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"] > .avatar-frame-aura {
     position: absolute !important;
     left: 50% !important;
     top: 50% !important;
@@ -9195,9 +9159,7 @@ html[data-app-role="student"] body
 /* Popup giữ sạch, tránh spark chèn lên ảnh khung. */
 html[data-app-role="student"] body
 #studentInfoModal
-.avatar-upload-container.avatar-frame-modal-host[
-    data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"
-] > .avatar-frame-spark {
+.avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"] > .avatar-frame-spark {
     display: none !important;
 }
 
@@ -9207,9 +9169,7 @@ html[data-app-role="student"] body
  */
 html[data-app-role="student"] body
 #studentInfoModal
-.avatar-upload-container.avatar-frame-modal-host[
-    data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"
-] > span:not(.avatar-frame-aura):not(.avatar-frame-spark) {
+.avatar-upload-container.avatar-frame-modal-host[data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"] > span:not(.avatar-frame-aura):not(.avatar-frame-spark) {
     position: absolute !important;
     right: -17px !important;
     bottom: 0 !important;
@@ -9228,9 +9188,7 @@ html[data-app-role="student"] body
 /* ---------- MOBILE: profile dùng chuẩn Premium 56x56 ---------- */
 @media (max-width: 768px) {
     html[data-app-role="student"] body
-    .profile-trigger-btn.avatar-frame-profile-host[
-        data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"
-    ] > #avatarImage {
+    .profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"] > #avatarImage {
         width: 38px !important;
         height: 38px !important;
         min-width: 38px !important;
@@ -9240,17 +9198,13 @@ html[data-app-role="student"] body
     }
 
     html[data-app-role="student"] body
-    .profile-trigger-btn.avatar-frame-profile-host[
-        data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"
-    ] > .avatar-frame-decoration {
+    .profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"] > .avatar-frame-decoration {
         width: 56px !important;
         height: 56px !important;
     }
 
     html[data-app-role="student"] body
-    .profile-trigger-btn.avatar-frame-profile-host[
-        data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"
-    ] > .avatar-frame-aura {
+    .profile-trigger-btn.avatar-frame-profile-host[data-avatar-frame-id="frame_tamon_bside_black_cat_moon_ring"] > .avatar-frame-aura {
         width: 60px !important;
         height: 60px !important;
     }
@@ -9362,17 +9316,13 @@ html[data-app-role="student"] body
    ============================================================================ */
 
 html body
-.store-item-card.store-card-tamon-bside-chibi2[
-    data-item-id="background_tamon_bside_black_cat_nocturne"
-] .item-icon-wrapper {
+.store-item-card.store-card-tamon-bside-chibi2[data-item-id="background_tamon_bside_black_cat_nocturne"] .item-icon-wrapper {
     overflow: hidden !important;
     border-radius: 18px 6px 18px 6px !important;
 }
 
 html body
-.store-item-card.store-card-tamon-bside-chibi2[
-    data-item-id="background_tamon_bside_black_cat_nocturne"
-] .item-icon {
+.store-item-card.store-card-tamon-bside-chibi2[data-item-id="background_tamon_bside_black_cat_nocturne"] .item-icon {
     width: 108px !important;
     height: 74px !important;
     object-fit: cover !important;
@@ -9392,13 +9342,9 @@ html body
 }
 
 html body
-.store-item-card.store-card-tamon-bside-chibi2[
-    data-item-id="background_tamon_bside_black_cat_nocturne"
-]:hover .item-icon,
+.store-item-card.store-card-tamon-bside-chibi2[data-item-id="background_tamon_bside_black_cat_nocturne"]:hover .item-icon,
 html body
-.store-item-card.store-card-tamon-bside-chibi2[
-    data-item-id="background_tamon_bside_black_cat_nocturne"
-]:focus-within .item-icon {
+.store-item-card.store-card-tamon-bside-chibi2[data-item-id="background_tamon_bside_black_cat_nocturne"]:focus-within .item-icon {
     transform: translateY(-3px) scale(1.035) !important;
     filter:
         saturate(1.10)
@@ -9409,9 +9355,7 @@ html body
 }
 
 html body
-.store-item-card.store-card-tamon-bside-chibi2[
-    data-item-id="background_tamon_bside_black_cat_nocturne"
-] .item-icon-wrapper::before {
+.store-item-card.store-card-tamon-bside-chibi2[data-item-id="background_tamon_bside_black_cat_nocturne"] .item-icon-wrapper::before {
     width: 118px !important;
     height: 82px !important;
     border-radius: 22px 8px 22px 8px !important;
@@ -9419,9 +9363,7 @@ html body
 }
 
 html body
-.store-item-card.store-card-tamon-bside-chibi2[
-    data-item-id="background_tamon_bside_black_cat_nocturne"
-] .item-icon-wrapper::after {
+.store-item-card.store-card-tamon-bside-chibi2[data-item-id="background_tamon_bside_black_cat_nocturne"] .item-icon-wrapper::after {
     width: 112px !important;
     height: 68px !important;
     border-radius: 20px 7px 20px 7px !important;

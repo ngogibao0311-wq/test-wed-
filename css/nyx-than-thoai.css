@@ -5784,9 +5784,7 @@ body .store-item-card[data-item-id="theme_truyenthuyet_thanh_dien_nguyet_da"] .i
    1. ẢNH KHUNG
    ============================================================ */
 
-.avatar-frame-equipped[
-    data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"
-] > .avatar-frame-decoration {
+.avatar-frame-equipped[data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"] > .avatar-frame-decoration {
 
     filter:
         drop-shadow(
@@ -5816,9 +5814,7 @@ body .store-item-card[data-item-id="theme_truyenthuyet_thanh_dien_nguyet_da"] .i
    2. HÀO QUANG SAU KHUNG
    ============================================================ */
 
-.avatar-frame-equipped[
-    data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"
-] > .avatar-frame-aura {
+.avatar-frame-equipped[data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"] > .avatar-frame-aura {
 
     background:
         radial-gradient(
@@ -5859,9 +5855,7 @@ body .store-item-card[data-item-id="theme_truyenthuyet_thanh_dien_nguyet_da"] .i
    3. TINH QUANG
    ============================================================ */
 
-.avatar-frame-equipped[
-    data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"
-] > .avatar-frame-spark {
+.avatar-frame-equipped[data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"] > .avatar-frame-spark {
 
     color: #edf2ff !important;
 
@@ -5880,27 +5874,19 @@ body .store-item-card[data-item-id="theme_truyenthuyet_thanh_dien_nguyet_da"] .i
 
 /* Thay hai tinh quang thành ánh trăng */
 
-.avatar-frame-equipped[
-    data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"
-] > .avatar-frame-spark.spark-1 {
+.avatar-frame-equipped[data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"] > .avatar-frame-spark.spark-1 {
     color: #ffffff !important;
 }
 
-.avatar-frame-equipped[
-    data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"
-] > .avatar-frame-spark.spark-2 {
+.avatar-frame-equipped[data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"] > .avatar-frame-spark.spark-2 {
     color: #c8d7ff !important;
 }
 
-.avatar-frame-equipped[
-    data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"
-] > .avatar-frame-spark.spark-3 {
+.avatar-frame-equipped[data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"] > .avatar-frame-spark.spark-3 {
     color: #b8a0ef !important;
 }
 
-.avatar-frame-equipped[
-    data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"
-] > .avatar-frame-spark.spark-4 {
+.avatar-frame-equipped[data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"] > .avatar-frame-spark.spark-4 {
     color: #f6efff !important;
 }
 
@@ -5909,9 +5895,7 @@ body .store-item-card[data-item-id="theme_truyenthuyet_thanh_dien_nguyet_da"] .i
    4. KÍCH THƯỚC NÚT HỒ SƠ
    ============================================================ */
 
-.profile-trigger-btn[
-    data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"
-] > .avatar-frame-decoration {
+.profile-trigger-btn[data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"] > .avatar-frame-decoration {
 
     width: 62px !important;
     height: 62px !important;
@@ -5931,9 +5915,7 @@ body .store-item-card[data-item-id="theme_truyenthuyet_thanh_dien_nguyet_da"] .i
 
 /* Hào quang nút hồ sơ */
 
-.profile-trigger-btn[
-    data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"
-] > .avatar-frame-aura {
+.profile-trigger-btn[data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"] > .avatar-frame-aura {
 
     width: 66px !important;
     height: 66px !important;
@@ -5945,9 +5927,7 @@ body .store-item-card[data-item-id="theme_truyenthuyet_thanh_dien_nguyet_da"] .i
    ============================================================ */
 
 #studentInfoModal
-.avatar-upload-container[
-    data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"
-] > .avatar-frame-decoration {
+.avatar-upload-container[data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"] > .avatar-frame-decoration {
 
     width: 132px !important;
     height: 132px !important;
@@ -5966,9 +5946,7 @@ body .store-item-card[data-item-id="theme_truyenthuyet_thanh_dien_nguyet_da"] .i
 
 
 #studentInfoModal
-.avatar-upload-container[
-    data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"
-] > .avatar-frame-aura {
+.avatar-upload-container[data-avatar-frame-id="frame_truyenthuyet_nyx_hac_nguyet_chi_hoan"] > .avatar-frame-aura {
 
     width: 138px !important;
     height: 138px !important;
