@@ -2,9 +2,10 @@
 <html lang="vi" data-app-role="teacher">
 
 <head>
+    <script src="js/test-browser-storage.js?v=20261017.test-worker1"></script>
     <link rel="stylesheet" href="css/app-dialog.css?v=20261003.cleanup1">
-    <script src="js/grade-presentation.js?v=20261013.layout1"></script>
-    <script src="js/app-dialog.js?v=20261013.layout1"></script>
+    <script src="js/grade-presentation.js?v=20261017.test.split1"></script>
+    <script src="js/app-dialog.js?v=20261017.test.split1"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="application-version" content="4.3.2">
@@ -14,7 +15,7 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="icon" type="image/png" href="assets/icon.png">
-    <link rel="stylesheet" href="css/common.css?v=20261016.account-access1">
+    <link rel="stylesheet" href="css/common.css?v=20261017.session-authority1">
     <link rel="stylesheet" href="css/web-animations.css?v=20261003.cleanup2">
     <link rel="stylesheet" href="css/store-items.css?v=20261003.fonts1">
     <link rel="stylesheet" href="css/effects-pets.css?v=20261003.cleanup1">
@@ -93,7 +94,7 @@
         };
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js?v=20261017.test.split1"></script>
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 
@@ -603,7 +604,7 @@
             function resolvePath(path) {
                 const normalized = safeText(path).trim();
 
-                // db thường được khai báo bằng const trong firebase-config.js,
+                // db thường được khai báo bằng const trong firebase-config.js?v=20261017.test.split1,
                 // nên không nhất thiết nằm trên window.
                 if (normalized === 'db' || normalized.startsWith('db.')) {
                     const database = (typeof db !== 'undefined' ? db : window.db);
@@ -710,7 +711,7 @@
 
                         try {
                             /*
-                             * common.js là nơi duy nhất thực hiện registration.
+                             * common.js?v=20261017.test.split1 là nơi duy nhất thực hiện registration.
                              * Loader chỉ chờ kết quả để tránh đăng ký trùng.
                              */
                             if (
@@ -725,7 +726,7 @@
                             }
 
                             /*
-                             * Dự phòng nếu common.js chưa sẵn sàng.
+                             * Dự phòng nếu common.js?v=20261017.test.split1 chưa sẵn sàng.
                              * URL vẫn được tính theo document.baseURI,
                              * tương thích GitHub Pages project site.
                              */
@@ -3819,17 +3820,17 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <!-- 2. Khởi tạo Firebase -->
-    <script src="js/firebase-config.js?v=20261015.audit-fix1"></script>
-    <script src="js/asset-history.js?v=20261015.love3"></script>
-    <script src="js/cloudinary-storage.js?v=20261011.economy-startup2"></script>
+    <script src="js/firebase-config.js?v=20261017.test-worker1"></script>
+    <script src="js/asset-history.js?v=20261017.test-worker1"></script>
+    <script src="js/cloudinary-storage.js?v=20261017.test.split1"></script>
 
     <script>
         window.APP_STORAGE_CONFIG = Object.freeze({
-            r2WorkerUrl: 'https://school-r2-files.ngogibao0311.workers.dev'
+            r2WorkerUrl: 'https://school-account-access-test.ngogibao0311.workers.dev'
         });
     </script>
 
-    <script src="js/cloudflare-r2-storage.js?v=20261011.economy-startup2"></script>
+    <script src="js/cloudflare-r2-storage.js?v=20261017.test-worker1"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.7/dist/purify.min.js">
     </script>
@@ -3838,80 +3839,80 @@
     <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
     <script>
         // Phiên bản thực sự của bộ HTML/JS đang chạy.
-        // common.js cũ đọc appVersion từ localStorage, nên đồng bộ trước khi nạp common.js.
+        // common.js?v=20261017.test.split1 cũ đọc appVersion từ window.TestBrowserStorage.localStorage, nên đồng bộ trước khi nạp common.js?v=20261017.test.split1.
         window.APP_VERSION = '4.3.2';
         try {
-            localStorage.setItem('appVersion', window.APP_VERSION);
+            window.TestBrowserStorage.localStorage.setItem('appVersion', window.APP_VERSION);
         } catch (_) {}
     </script>
-    <script src="js/random-exam-engine.js?v=20261015.audit-fix1"></script>
-<script src="js/campus-pdf.js?v=20261011.economy-startup2"></script>
-<script src="js/common.js?v=20261016.account-access2"></script>
-<script src="js/startup-data-coordinator.js?v=20261011.economy-startup2"></script>
-<script src="js/economy-client.js?v=20261015.network1"></script>
-<script src="js/economy-source-bridge.js?v=20261011.authority3"></script>
-    <script src="js/history-retention.js?v=20261011.economy-startup2"></script>
-    <script src="js/update-manager.js?v=20261011.economy-startup2"></script>
-    <script src="js/web-animations.js?v=20261011.economy-startup2"></script>
+    <script src="js/random-exam-engine.js?v=20261017.test.split1"></script>
+<script src="js/campus-pdf.js?v=20261017.test.split1"></script>
+<script src="js/common.js?v=20261017.session-authority1"></script>
+<script src="js/startup-data-coordinator.js?v=20261017.test.split1"></script>
+<script src="js/economy-client.js?v=20261017.test-worker1"></script>
+<script src="js/economy-source-bridge.js?v=20261017.test.split1"></script>
+    <script src="js/history-retention.js?v=20261017.test.split1"></script>
+    <script src="js/update-manager.js?v=20261017.test.split1"></script>
+    <script src="js/web-animations.js?v=20261017.test.split1"></script>
     <!-- Tối ưu hiệu năng: mặc định tắt; dùng trạng thái đã lưu trong Cài đặt. Phát hiện mobile/thiết bị yếu chỉ áp dụng sau khi tính năng đã được bật. -->
-    <script src="js/web-performance-optimizer.js?v=20261016.adaptive-ip1"></script>
-    <script src="js/transaction-history.js?v=20261015.audit-fix1"></script>
+    <script src="js/web-performance-optimizer.js?v=20261017.test.split1"></script>
+    <script src="js/transaction-history.js?v=20261017.test.split1"></script>
     <script>
         // security.js nạp trước teacher.js: đánh dấu rõ đây là trang Giáo viên đang chờ xác thực.
         window.__APP_PAGE_ROLE__ = 'teacher';
         window.__teacherSecurityVerificationState =
             window.__teacherSecurityVerificationState || 'pending';
     </script>
-    <script src="js/security.js?v=20261015.audit-fix1"></script>
+    <script src="js/security.js?v=20261017.test.split1"></script>
 
     <!-- 4. Các module tính năng -->
-    <script src="js/daily-login.js?v=20261011.economy-startup2"></script>
-    <script src="js/theme-items.js?v=20261015.regular-fix1"></script>
-    <script src="js/regular-store-art.js?v=20261011.economy-startup2"></script>
-    <script src="js/effect-items.js?v=20261015.love3"></script>
-    <script src="js/that-tich.js?v=20261012.thattich3"></script>
+    <script src="js/daily-login.js?v=20261017.test.split1"></script>
+    <script src="js/theme-items.js?v=20261017.test.split1"></script>
+    <script src="js/regular-store-art.js?v=20261017.test.split1"></script>
+    <script src="js/effect-items.js?v=20261017.test.split1"></script>
+    <script src="js/that-tich.js?v=20261017.test.split1"></script>
     <link rel="stylesheet" href="css/that-tich.css?v=20261012.thattich3">
-    <script src="js/audrey-hall.js?v=20261012.audrey1"></script>
+    <script src="js/audrey-hall.js?v=20261017.test.split1"></script>
     <link rel="stylesheet" href="css/audrey-hall.css?v=20261012.audrey1">
-    <script src="js/pet-items.js?v=20261015.regular-fix1"></script>
+    <script src="js/pet-items.js?v=20261017.test.split1"></script>
     <!-- Điều chỉnh riêng mức hiệu ứng vật phẩm + Web Animations; không đụng theme/logic -->
-    <script src="js/effect-quality-manager.js?v=20261016.adaptive-ip1"></script>
-    <script src="js/royal-ball.js?v=20261015.royal-regular1"></script>
-    <script src="js/music-manager.js?v=20261011.economy-startup2"></script>
-    <script src="js/store-manager.js?v=20261015.regular-fix1"></script>
-    <script src="js/painting.js?v=20261011.economy-startup2"></script>
-    <script src="js/luxury-distinct-scenes.js?v=20261011.economy-startup2"></script>
-    <script src="js/tinh-mong.js?v=20261011.economy-startup2"></script>
-    <script src="js/valentine.js?v=20261015.regular-fix1"></script>
-    <script src="js/eternal-winter.js?v=20261011.economy-startup2"></script>
-    <script src="js/luxury-store.js?v=20261015.regular-fix1"></script>
+    <script src="js/effect-quality-manager.js?v=20261017.test.split1"></script>
+    <script src="js/royal-ball.js?v=20261017.test.split1"></script>
+    <script src="js/music-manager.js?v=20261017.test.split1"></script>
+    <script src="js/store-manager.js?v=20261017.test-worker1"></script>
+    <script src="js/painting.js?v=20261017.test-worker1"></script>
+    <script src="js/luxury-distinct-scenes.js?v=20261017.test.split1"></script>
+    <script src="js/tinh-mong.js?v=20261017.test.split1"></script>
+    <script src="js/valentine.js?v=20261017.test.split1"></script>
+    <script src="js/eternal-winter.js?v=20261017.test.split1"></script>
+    <script src="js/luxury-store.js?v=20261017.test.split1"></script>
 
     <!-- 5. Logic chính của trang giáo viên luôn đặt cuối -->
     <!-- Hotfix: xác nhận cài đặt lộ trình trước khi teacher.js chờ loader -->
-    <script src="js/roadmap-startup-fix.js?v=20261011.economy-startup2"></script>
+    <script src="js/roadmap-startup-fix.js?v=20261017.test.split1"></script>
 
-    <script src="js/assignment-appeals.js?v=20261011.authority3"></script>
-    <script src="js/mc-workspace.js?v=20261015.audit-fix1"></script>
-<script src="js/video-duration.js?v=20261011.economy-startup2"></script>
-<script src="js/student-deletion-client.js?v=20261011.economy-startup2"></script>
-<script src="js/cash-request-pages.js?v=20261011.economy-startup2"></script>
-<script src="js/teacher-ledger.js?v=20261015.audit-fix1"></script>
-<script src="js/cash-ledger.js?v=20261011.economy-startup2"></script>
-<script src="js/page-work-coordinator.js?v=20261013.performance2"></script>
-<script src="js/teacher.js?v=20261016.account-access1"></script>
-    <script src="js/huong-dan-nguoi-moi.js?v=20261011.economy-startup2"></script>
+    <script src="js/assignment-appeals.js?v=20261017.test.split1"></script>
+    <script src="js/mc-workspace.js?v=20261017.test.split1"></script>
+<script src="js/video-duration.js?v=20261017.test.split1"></script>
+<script src="js/student-deletion-client.js?v=20261017.test.split1"></script>
+<script src="js/cash-request-pages.js?v=20261017.test.split1"></script>
+<script src="js/teacher-ledger.js?v=20261017.test.split1"></script>
+<script src="js/cash-ledger.js?v=20261017.test.split1"></script>
+<script src="js/page-work-coordinator.js?v=20261017.test.split1"></script>
+<script src="js/teacher.js?v=20261017.test.split1"></script>
+    <script src="js/huong-dan-nguoi-moi.js?v=20261017.test.split1"></script>
 
 <link rel="stylesheet" href="css/collection-rewards.css?v=20261003.cleanup1">
-<script src="js/collection-reward-catalog.js?v=20261012.thattich3"></script>
-<script src="js/collection-rewards.js?v=20261015.tags3"></script>
-<script src="js/list-media-performance.js?v=20261011.economy-startup2"></script>
+<script src="js/collection-reward-catalog.js?v=20261017.test.split1"></script>
+<script src="js/collection-rewards.js?v=20261017.test.split1"></script>
+<script src="js/list-media-performance.js?v=20261017.test.split1"></script>
 <link rel="stylesheet" href="css/campus-design.css?v=20261007.phone1">
-<script src="js/campus-design.js?v=20261011.economy-startup2"></script>
-<script src="js/teacher-quiz-editor.js?v=20261011.economy-startup2"></script>
+<script src="js/campus-design.js?v=20261017.test.split1"></script>
+<script src="js/teacher-quiz-editor.js?v=20261017.test.split1"></script>
 <link rel="stylesheet" href="css/teacher-workspace-refresh.css?v=20261003.cleanup1">
 <link rel="stylesheet" href="css/mobile.css?v=20261007.phone6">
-<script src="js/mobile-layout.js?v=20261011.economy-startup2"></script>
-<script src="js/release-history.js?v=20261011.economy-startup2"></script>
+<script src="js/mobile-layout.js?v=20261017.test.split1"></script>
+<script src="js/release-history.js?v=20261017.test.split1"></script>
 </body>
 
 </html>

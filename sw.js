@@ -1,6 +1,6 @@
 const APP_VERSION = '4.3.2';
-const APP_BUILD = '2026.10.11.2';
-const CACHE_VERSION = `study-shell-v${APP_VERSION}-${APP_BUILD}`;
+const APP_BUILD = '2026.10.17.session-authority1';
+const CACHE_VERSION = `qlbt-test-shell-v${APP_VERSION}-${APP_BUILD}`;
 const OFFLINE_CACHE = `${CACHE_VERSION}-offline`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const OFFLINE_PAGE = './offline.html';
@@ -19,7 +19,7 @@ self.addEventListener('activate', event => {
         const names = await caches.keys();
         await Promise.all(
             names
-                .filter(name => name.startsWith('study-') && ![OFFLINE_CACHE, RUNTIME_CACHE].includes(name))
+                .filter(name => name.startsWith('qlbt-test-') && ![OFFLINE_CACHE, RUNTIME_CACHE].includes(name))
                 .map(name => caches.delete(name))
         );
         await self.clients.claim();
@@ -35,7 +35,7 @@ async function pruneRuntimeCache() {
 }
 
 async function buildFallbackResponse(mode, failedUrl, status) {
-    const cached = await caches.match(OFFLINE_PAGE, { ignoreSearch: true });
+    const cached = await (await caches.open(OFFLINE_CACHE)).match(OFFLINE_PAGE, { ignoreSearch: true });
     if (!cached) {
         return new Response(
             '<!doctype html><meta charset="utf-8"><title>Lỗi hệ thống</title><h1>Không thể tải trang</h1><p>Không có trang dự phòng trong cache.</p>',
@@ -68,7 +68,7 @@ async function networkFirstNavigation(request) {
             if (response && response.ok) return response;
         } catch (_) {}
 
-        const cachedOffline = await caches.match(
+        const cachedOffline = await (await caches.open(OFFLINE_CACHE)).match(
             OFFLINE_PAGE,
             { ignoreSearch: true }
         );

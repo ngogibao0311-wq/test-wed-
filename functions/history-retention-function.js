@@ -1,3 +1,6 @@
+// Environment boundary: reject deployment under a different Google project.
+const deploymentProject = process.env.GCLOUD_PROJECT || process.env.GOOGLE_CLOUD_PROJECT;
+if (deploymentProject && deploymentProject !== 'web-chan-doan-test') throw new Error('ENVIRONMENT_MISMATCH');
 'use strict';
 
 // Firebase Functions v2 - dọn lịch sử hiển thị quá 2 tháng.
