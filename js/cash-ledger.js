@@ -12,7 +12,7 @@
     };
     function clearPending(key, id) {
         // Another tab may already have stored a newer request.
-        if (JSON.parse(localStorage.getItem(key) || 'null')?.id === id) localStorage.removeItem(key);
+        if (JSON.parse(window.TestBrowserStorage.localStorage.getItem(key) || 'null')?.id === id) window.TestBrowserStorage.localStorage.removeItem(key);
     }
     async function approve(id, username, getBaseMoney) {
         if(window.ECONOMY_SERVER_ENABLED===true)return window.EconomyClient.execute('cash_approve',{requestId:String(id),studentUsername:String(username)},{slot:'cash-approve:'+id});
@@ -70,7 +70,7 @@
         if (!uid) return null;
         const assertSession = session();
         const key = 'pending_cash_request_v3_' + uid;
-        const pending = JSON.parse(localStorage.getItem(key) || 'null');
+        const pending = JSON.parse(window.TestBrowserStorage.localStorage.getItem(key) || 'null');
         if (!pending) return null;
         if (pending.payload?.studentUsername !== username || !pending.id) throw Error('Mã yêu cầu đang chờ không hợp lệ.');
         const existing = await read('cash_requests/' + pending.id);
@@ -85,7 +85,7 @@
         if (!uid || !safeAmount(payload.amount)) throw Error('Yêu cầu không hợp lệ.');
         const assertSession = session();
         const storageKey = 'pending_cash_request_v3_' + uid;
-        let pending = JSON.parse(localStorage.getItem(storageKey) || 'null');
+        let pending = JSON.parse(window.TestBrowserStorage.localStorage.getItem(storageKey) || 'null');
         if (window.ECONOMY_SERVER_ENABLED === true) {
             if (pending) {
                 const recovered = await recoverPending(payload.studentUsername);
@@ -113,7 +113,7 @@
         } else {
             pending = { id: db.ref('cash_requests').push().key, payload };
             // If durable storage fails, stop before sending; a retry must keep the same ID.
-            localStorage.setItem(storageKey, JSON.stringify(pending));
+            window.TestBrowserStorage.localStorage.setItem(storageKey, JSON.stringify(pending));
         }
         if (!Number.isFinite(Number(pending.payload.timestamp)) || Date.now() - Number(pending.payload.timestamp) > 86400000) throw Error('Yêu cầu chưa xác nhận đã quá 24 giờ; cần giáo viên kiểm tra trước khi gửi lại.');
         const path = 'cash_requests/' + pending.id;

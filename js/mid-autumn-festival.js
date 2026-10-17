@@ -216,7 +216,7 @@
             if (typeof currentUser !== 'undefined' && currentUser) return currentUser;
         } catch (_) { }
         try {
-            return JSON.parse(localStorage.getItem('currentUser') || 'null');
+            return JSON.parse(window.TestBrowserStorage.localStorage.getItem('currentUser') || 'null');
         } catch (_) {
             return null;
         }
@@ -457,7 +457,7 @@
         const key = pendingAttemptStorageKey();
         if (!key) return;
         try {
-            localStorage.setItem(key, JSON.stringify(attempt));
+            window.TestBrowserStorage.localStorage.setItem(key, JSON.stringify(attempt));
         } catch (_) { }
     }
 
@@ -465,7 +465,7 @@
         const key = pendingAttemptStorageKey();
         if (!key) return;
         try {
-            localStorage.removeItem(key);
+            window.TestBrowserStorage.localStorage.removeItem(key);
         } catch (_) { }
     }
 
@@ -473,7 +473,7 @@
         const key = pendingAttemptStorageKey();
         if (!key) return null;
         try {
-            const raw = localStorage.getItem(key);
+            const raw = window.TestBrowserStorage.localStorage.getItem(key);
             if (!raw) return null;
             const parsed = JSON.parse(raw);
             if (!parsed || typeof parsed !== 'object') return null;

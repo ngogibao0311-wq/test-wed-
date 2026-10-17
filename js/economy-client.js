@@ -6,7 +6,7 @@
     // video timer / wallet listener. Pending operation IDs remain untouched.
     function retryKey(uid) { return 'economy_retry_v1:' + uid; }
     function readRetry(uid) {
-        try { return JSON.parse(localStorage.getItem(retryKey(uid)) || 'null'); }
+        try { return JSON.parse(window.TestBrowserStorage.localStorage.getItem(retryKey(uid)) || 'null'); }
         catch (_) { return null; }
     }
     function unavailableError(until) {
@@ -19,7 +19,7 @@
         const requested = header ? (Number.isFinite(Number(header)) ? Number(header) * 1000 : Date.parse(header) - Date.now()) : 0;
         const delay = Math.min(120000, Math.max(15000 * 2 ** (failures - 1), requested || 0));
         const until = Date.now() + delay;
-        localStorage.setItem(retryKey(uid), JSON.stringify({until, failures}));
+        window.TestBrowserStorage.localStorage.setItem(retryKey(uid), JSON.stringify({until, failures}));
         return until;
     }
     function explainError(error) {
@@ -74,7 +74,8 @@
             window.ECONOMY_SERVER_ENABLED = false;
             return {ok:true, protocol:3, enabled:false, mode:'firebase-draft'};
         }
-        const endpoint=String(window.R2_CONFIG?.workerUrl||'https://school-r2-files.ngogibao0311.workers.dev').replace(/\/$/,'');
+        const endpoint=String(window.R2_CONFIG?.workerUrl||'https://school-account-access-test.ngogibao0311.workers.dev').replace(/\/$/,'');
+            if (endpoint.includes('YOUR-R2-WORKER')) throw Error('Chưa cấu hình Worker riêng cho bản test.');
         const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),20000);
         try {
             const response=await fetch(endpoint+'/economy/status',{headers:{Authorization:'Bearer '+await user.getIdToken()},cache:'no-store',signal:controller.signal});
@@ -83,9 +84,9 @@
             if(firebase.auth().currentUser?.uid!==user.uid)throw Error('Tài khoản vừa thay đổi.');
             window.__economyRole=(await db.ref('users/'+user.uid).once('value')).val()?.role;
             const key='economy_server_mode_v2:'+user.uid;
-            if(status.enabled){localStorage.setItem(key,'enabled');window.ECONOMY_SERVER_ENABLED=true;}
+            if(status.enabled){window.TestBrowserStorage.localStorage.setItem(key,'enabled');window.ECONOMY_SERVER_ENABLED=true;}
             else {
-                if(localStorage.getItem(key)==='enabled')throw Error('Máy chủ đang bảo trì giao dịch. Vui lòng thử lại sau.');
+                if(window.TestBrowserStorage.localStorage.getItem(key)==='enabled')throw Error('Máy chủ đang bảo trì giao dịch. Vui lòng thử lại sau.');
                 window.ECONOMY_SERVER_ENABLED=false;
             }
             return status;
@@ -102,12 +103,12 @@
             if (current.intent !== intent) throw Error('Giao dịch trước đang xử lý.');
             return current.task;
         }
-        if (!navigator.locks?.request) throw Error('Trình duyệt chưa hỗ trợ giao dịch an toàn. Hãy cập nhật trình duyệt.');
+        if (!window.TestBrowserStorage.locks?.request) throw Error('Trình duyệt chưa hỗ trợ giao dịch an toàn. Hãy cập nhật trình duyệt.');
         const lastKey = storageKey + ':last';
-        const observedLast = localStorage.getItem(lastKey);
-        const task = navigator.locks.request(storageKey, async () => {
+        const observedLast = window.TestBrowserStorage.localStorage.getItem(lastKey);
+        const task = window.TestBrowserStorage.locks.request(storageKey, async () => {
             if (firebase.auth().currentUser?.uid !== user.uid) throw Error('Tài khoản vừa thay đổi.');
-            const latest = localStorage.getItem(lastKey);
+            const latest = window.TestBrowserStorage.localStorage.getItem(lastKey);
             // A tab that waited for the same in-flight action joins its outcome.
             // A new click made after completion observes the new value and can
             // start a distinct purchase as usual.
@@ -119,18 +120,19 @@
                 }
             }
             let saved;
-            try { saved = JSON.parse(localStorage.getItem(storageKey) || 'null'); }
+            try { saved = JSON.parse(window.TestBrowserStorage.localStorage.getItem(storageKey) || 'null'); }
             catch (_) { throw Error('Dữ liệu giao dịch đang chờ không đọc được; cần kiểm tra trước khi tiếp tục.'); }
             if (saved && saved.intent !== intent) throw Error('Có giao dịch chưa xác nhận. Hãy thử lại giao dịch trước.');
             const retry = readRetry(user.uid);
             if (retry?.until > Date.now()) throw unavailableError(retry.until);
             if (!saved) {
                 saved = {intent, body:{...args,action,operationId:crypto.randomUUID()}};
-                localStorage.setItem(storageKey,JSON.stringify(saved));
+                window.TestBrowserStorage.localStorage.setItem(storageKey,JSON.stringify(saved));
             }
             const token = await user.getIdToken();
             if (firebase.auth().currentUser?.uid !== user.uid) throw Error('Tài khoản vừa thay đổi.');
-            const endpoint = String(window.R2_CONFIG?.workerUrl || 'https://school-r2-files.ngogibao0311.workers.dev').replace(/\/$/,'');
+            const endpoint = String(window.R2_CONFIG?.workerUrl || 'https://school-account-access-test.ngogibao0311.workers.dev').replace(/\/$/,'');
+            if (endpoint.includes('YOUR-R2-WORKER')) throw Error('Chưa cấu hình Worker riêng cho bản test.');
             const controller = new AbortController(), timer = setTimeout(()=>controller.abort(),30000);
             try {
                 let response,data;
@@ -155,16 +157,16 @@
                 }
                 if (!response.ok || !data.ok) {
                     if (data.settled === true) {
-                        localStorage.setItem(lastKey,JSON.stringify({operationId:saved.body.operationId,intent,error:data.error}));
-                        if (localStorage.getItem(storageKey) === JSON.stringify(saved)) localStorage.removeItem(storageKey);
+                        window.TestBrowserStorage.localStorage.setItem(lastKey,JSON.stringify({operationId:saved.body.operationId,intent,error:data.error}));
+                        if (window.TestBrowserStorage.localStorage.getItem(storageKey) === JSON.stringify(saved)) window.TestBrowserStorage.localStorage.removeItem(storageKey);
                     }
                     const error = Error(data.error || 'Chưa xác nhận giao dịch. Hãy thử lại với mã cũ.');
                     if (data.error === 'ACCOUNT_NOT_ALLOWED') error.reason = data.reason || await accountErrorReason(user);
                     throw error;
                 }
-                localStorage.removeItem(retryKey(user.uid));
-                localStorage.setItem(lastKey,JSON.stringify({operationId:saved.body.operationId,intent,result:data.result}));
-                if (localStorage.getItem(storageKey) === JSON.stringify(saved)) localStorage.removeItem(storageKey);
+                window.TestBrowserStorage.localStorage.removeItem(retryKey(user.uid));
+                window.TestBrowserStorage.localStorage.setItem(lastKey,JSON.stringify({operationId:saved.body.operationId,intent,result:data.result}));
+                if (window.TestBrowserStorage.localStorage.getItem(storageKey) === JSON.stringify(saved)) window.TestBrowserStorage.localStorage.removeItem(storageKey);
                 if (firebase.auth().currentUser?.uid !== user.uid) throw Error('Tài khoản vừa thay đổi; giao dịch của tài khoản trước đã được lưu.');
                 if(typeof window.dispatchEvent==='function'&&typeof CustomEvent==='function')window.dispatchEvent(new CustomEvent('asset-history-committed'));
                 if(data.result?.historyUsername&&window.AssetHistory?.trim)void window.AssetHistory.trim(data.result.historyUsername).catch(()=>{});
@@ -177,7 +179,7 @@
     async function resume(slot) {
         const uid=firebase.auth().currentUser?.uid;
         if(!uid)throw Error('Cần đăng nhập lại.');
-        const raw=localStorage.getItem(`economy_pending_v1:${uid}:${slot}`);
+        const raw=window.TestBrowserStorage.localStorage.getItem(`economy_pending_v1:${uid}:${slot}`);
         if(!raw)return null;
         const saved=JSON.parse(raw),{action,operationId,...args}=saved.body;
         return {result:await execute(action,args,{slot}),action,args};
@@ -185,13 +187,13 @@
     async function batch(scope,signature,recipients){
         const uid=firebase.auth().currentUser?.uid;if(!uid)throw Error('Cần đăng nhập lại.');
         const key=`economy_batch:${uid}:${scope}`;
-        return navigator.locks.request(key,async()=>{
-            let saved=JSON.parse(localStorage.getItem(key)||'null');
+        return window.TestBrowserStorage.locks.request(key,async()=>{
+            let saved=JSON.parse(window.TestBrowserStorage.localStorage.getItem(key)||'null');
             if(saved&&saved.signature!==signature)throw Error('Đợt gửi trước chưa hoàn tất. Hãy giữ nguyên nội dung quà để thử lại.');
             saved||={signature,ids:{}};
             for(const u of recipients)saved.ids[u]||=crypto.randomUUID();
-            const encoded=JSON.stringify(saved);localStorage.setItem(key,encoded);
-            return {ids:saved.ids,finish:()=>navigator.locks.request(key,()=>{if(localStorage.getItem(key)===encoded)localStorage.removeItem(key);})};
+            const encoded=JSON.stringify(saved);window.TestBrowserStorage.localStorage.setItem(key,encoded);
+            return {ids:saved.ids,finish:()=>window.TestBrowserStorage.locks.request(key,()=>{if(window.TestBrowserStorage.localStorage.getItem(key)===encoded)window.TestBrowserStorage.localStorage.removeItem(key);})};
         });
     }
     window.EconomyClient = Object.freeze({execute,initialize,resume,batch,explainError});

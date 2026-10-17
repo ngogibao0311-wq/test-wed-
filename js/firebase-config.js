@@ -1,15 +1,3 @@
-// 1. DÁN ĐOẠN CODE BẠN LẤY ĐƯỢC TỪ FIREBASE VÀO ĐÂY
-//const firebaseConfig = {
-//  apiKey: "AIzaSyAnxiZEjEFUNoXnPFZR2GJh9mJ9KKYsPqI",
-//  authDomain: "quan-ly-bai-tap-online.firebaseapp.com",
-//  databaseURL: "https://quan-ly-bai-tap-online-default-rtdb.asia-southeast1.firebasedatabase.app",
-//  projectId: "quan-ly-bai-tap-online",
-//  storageBucket: "quan-ly-bai-tap-online.firebasestorage.app",
-//  messagingSenderId: "1045476145868",
-//  appId: "1:1045476145868:web:3c14a594998101b8e1e069",
-//  measurementId: "G-7RGKF00TV0"
-//};
-// ---- DỰ ÁN NHÁP
 const firebaseConfig = {
   apiKey: "AIzaSyDb4pnn0E16MY-aJ1UXD8p59X5vXkcRT_w",
   authDomain: "web-chan-doan-test.firebaseapp.com",
@@ -19,6 +7,20 @@ const firebaseConfig = {
   messagingSenderId: "623035254774",
   appId: "1:623035254774:web:70ee10a059363d8cb429d7"
 };
+
+// Không kết nối mạng khi chưa cấu hình Firebase riêng cho bản test.
+const firebaseTestConfigured = true;
+if (!firebaseTestConfigured) {
+    const showSetupMessage = () => {
+        const notice = document.createElement('div');
+        notice.textContent = 'Bản test chưa cấu hình Firebase. Điền firebase.test.config.json và làm theo README trong gói test.';
+        notice.style.cssText = 'position:fixed;inset:0;z-index:2147483647;background:#fff;color:#111;padding:48px;font:20px/1.6 sans-serif';
+        document.body.appendChild(notice);
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', showSetupMessage, {once:true});
+    else showSetupMessage();
+    throw new Error('FIREBASE_TEST_NOT_CONFIGURED');
+}
 
 // 2. Khởi tạo kết nối
 firebase.initializeApp(firebaseConfig);

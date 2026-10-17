@@ -3,7 +3,7 @@
  * Phiên bản: 2.17.1 — đào tạo bắt buộc 1 lần về nộp bài, cập nhật và hiệu năng
  *
  * Cách nạp khuyến nghị (đặt cuối <body>, sau teacher.js hoặc student.js):
- * <script src="js/huong-dan-nguoi-moi.js?v=20261010.cloud-labels"></script>
+ * <script src="js/huong-dan-nguoi-moi.js?v=20261017.test.split1"></script>
  *
  * API có thể gọi từ nơi khác:
  *   NewUserGuide.open();          // Mở trung tâm hướng dẫn
@@ -782,7 +782,7 @@
 
     function readCurrentUser() {
         try {
-            return JSON.parse(localStorage.getItem('currentUser')) || {};
+            return JSON.parse(window.TestBrowserStorage.localStorage.getItem('currentUser')) || {};
         } catch (_) {
             return {};
         }
@@ -1029,18 +1029,18 @@
 
     function hasRequiredTrainingCompletedLocally() {
         return (
-            localStorage.getItem(
+            window.TestBrowserStorage.localStorage.getItem(
                 getTrainingCompletionStorageKey()
             ) === 'true'
         );
     }
 
     function cacheRequiredTrainingCompletionLocally() {
-        localStorage.setItem(
+        window.TestBrowserStorage.localStorage.setItem(
             getTrainingCompletionStorageKey(),
             'true'
         );
-        localStorage.removeItem(
+        window.TestBrowserStorage.localStorage.removeItem(
             getTrainingProgressStorageKey()
         );
     }
@@ -1063,9 +1063,9 @@
     }
 
     function cacheGuideCompletionLocally() {
-        localStorage.setItem(getStorageKey(), 'true');
-        localStorage.setItem(getCompletionStorageKey(), 'true');
-        localStorage.removeItem(getProgressStorageKey());
+        window.TestBrowserStorage.localStorage.setItem(getStorageKey(), 'true');
+        window.TestBrowserStorage.localStorage.setItem(getCompletionStorageKey(), 'true');
+        window.TestBrowserStorage.localStorage.removeItem(getProgressStorageKey());
     }
 
     async function readRemoteGuideCompletion() {
@@ -1286,7 +1286,7 @@
 
                 try {
                     const storedUser = readCurrentUser();
-                    localStorage.setItem(
+                    window.TestBrowserStorage.localStorage.setItem(
                         'currentUser',
                         JSON.stringify({
                             ...storedUser,
@@ -1392,7 +1392,7 @@
 
             try {
                 const storedUser = readCurrentUser();
-                localStorage.setItem(
+                window.TestBrowserStorage.localStorage.setItem(
                     'currentUser',
                     JSON.stringify({
                         ...storedUser,
@@ -1674,7 +1674,7 @@
 
         /*
          * Firebase là nguồn xác nhận chính. Không tin trực tiếp trường
-         * newUserGuide nằm trong currentUser/localStorage vì dữ liệu đó có
+         * newUserGuide nằm trong currentUser/window.TestBrowserStorage.localStorage vì dữ liệu đó có
          * thể cũ sau khi đăng xuất hoặc bị chỉnh trong trình duyệt.
          */
         const remote = await readRemoteGuideCompletion();
@@ -1753,7 +1753,7 @@
     }
 
     function getSavedLauncherVisibility() {
-        return localStorage.getItem(
+        return window.TestBrowserStorage.localStorage.getItem(
             getLauncherVisibilityStorageKey()
         ) !== 'false';
     }
@@ -1850,7 +1850,7 @@
         }
 
         if (shouldPersist && !locked) {
-            localStorage.setItem(
+            window.TestBrowserStorage.localStorage.setItem(
                 getLauncherVisibilityStorageKey(),
                 String(requestedVisible)
             );
@@ -1890,7 +1890,7 @@
          * không được dùng để bỏ qua tour bắt buộc sau khi đăng xuất.
          */
         return (
-            localStorage.getItem(getCompletionStorageKey()) === 'true'
+            window.TestBrowserStorage.localStorage.getItem(getCompletionStorageKey()) === 'true'
         );
     }
 
@@ -1907,7 +1907,7 @@
     }
 
     function markAsSeen() {
-        localStorage.setItem(getStorageKey(), 'true');
+        window.TestBrowserStorage.localStorage.setItem(getStorageKey(), 'true');
     }
 
     function markGuideAsCompleted() {
@@ -1962,7 +1962,7 @@
         );
 
         if (state.mandatoryScope === 'training') {
-            localStorage.setItem(
+            window.TestBrowserStorage.localStorage.setItem(
                 getTrainingProgressStorageKey(),
                 String(normalizedStep)
             );
@@ -1973,7 +1973,7 @@
             return;
         }
 
-        localStorage.setItem(
+        window.TestBrowserStorage.localStorage.setItem(
             getProgressStorageKey(),
             String(normalizedStep)
         );
@@ -1990,7 +1990,7 @@
             state.mandatoryScope === 'training';
 
         const localSaved = Number(
-            localStorage.getItem(
+            window.TestBrowserStorage.localStorage.getItem(
                 isTraining
                     ? getTrainingProgressStorageKey()
                     : getProgressStorageKey()
@@ -6330,8 +6330,8 @@
         const suffix = `:${state.role}:${getGuideUsername()}`;
         const keysToRemove = [];
 
-        for (let index = 0; index < localStorage.length; index += 1) {
-            const key = localStorage.key(index);
+        for (let index = 0; index < window.TestBrowserStorage.localStorage.length; index += 1) {
+            const key = window.TestBrowserStorage.localStorage.key(index);
 
             if (
                 key &&
@@ -6342,13 +6342,13 @@
             }
         }
 
-        keysToRemove.forEach(key => localStorage.removeItem(key));
-        localStorage.removeItem(getCompletionStorageKey());
-        localStorage.removeItem(getProgressStorageKey());
-        localStorage.removeItem(
+        keysToRemove.forEach(key => window.TestBrowserStorage.localStorage.removeItem(key));
+        window.TestBrowserStorage.localStorage.removeItem(getCompletionStorageKey());
+        window.TestBrowserStorage.localStorage.removeItem(getProgressStorageKey());
+        window.TestBrowserStorage.localStorage.removeItem(
             getTrainingCompletionStorageKey()
         );
-        localStorage.removeItem(
+        window.TestBrowserStorage.localStorage.removeItem(
             getTrainingProgressStorageKey()
         );
         state.remoteGuideCompleted = false;
@@ -6394,7 +6394,7 @@
 
             /*
              * Phải kiểm tra Firebase trước khi quyết định đây có phải học sinh
-             * mới hay không. Nhờ vậy xóa localStorage/cookie không làm tour
+             * mới hay không. Nhờ vậy xóa window.TestBrowserStorage.localStorage/cookie không làm tour
              * bắt buộc chạy lại với tài khoản đã hoàn thành.
              */
             const completionState =
@@ -6443,7 +6443,7 @@
             console.error('Khởi tạo hướng dẫn thất bại:', error);
 
             /*
-             * Chỉ dùng localStorage làm phương án dự phòng. Không tự ép tour
+             * Chỉ dùng window.TestBrowserStorage.localStorage làm phương án dự phòng. Không tự ép tour
              * khi chưa kiểm tra được Firebase, tránh bắt học sinh cũ xem lại
              * vì lỗi mạng tạm thời.
              */

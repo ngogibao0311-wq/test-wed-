@@ -1,7 +1,7 @@
 // Browser storage is only a UI cache; malformed/unavailable storage must not abort this script.
 const currentUser = (() => {
     try {
-        const cached = JSON.parse(localStorage.getItem('currentUser'));
+        const cached = JSON.parse(window.TestBrowserStorage.localStorage.getItem('currentUser'));
         return cached && typeof cached === 'object' && !Array.isArray(cached) ? cached : {};
     } catch (_) { return {}; }
 })();
@@ -3372,7 +3372,7 @@ window.onload = async function () {
 
     if (quickImportInput) {
         const savedQuickImport =
-            localStorage.getItem('draft_teacher_quick_import');
+            window.TestBrowserStorage.localStorage.getItem('draft_teacher_quick_import');
 
         if (savedQuickImport && !quickImportInput.value) {
             quickImportInput.value = savedQuickImport;
@@ -3385,13 +3385,13 @@ window.onload = async function () {
     }
 
     // Phục hồi và lưu nháp cho khung soạn thảo Quill (Phần Nội dung/Mô tả)
-    const savedDesc = localStorage.getItem('draft_teacher_desc');
+    const savedDesc = window.TestBrowserStorage.localStorage.getItem('draft_teacher_desc');
     if (savedDesc) window.quillDesc.root.innerHTML = savedDesc;
 
     let timeoutDesc = null;
 
     const saveTeacherDescriptionDraft = function () {
-        localStorage.setItem(
+        window.TestBrowserStorage.localStorage.setItem(
             'draft_teacher_desc',
             window.quillDesc.root.innerHTML
         );
@@ -3457,7 +3457,7 @@ window.onload = async function () {
         );
         if (startupLoader) startupLoader.fail('Không tìm thấy phiên đăng nhập hợp lệ.', 'Hãy đăng nhập lại để tiếp tục.', 'auth');
         (await AppDialog.alert("⛔ Lỗi: Không tìm thấy phiên đăng nhập hợp lệ!"));
-        localStorage.removeItem('currentUser');
+        window.TestBrowserStorage.localStorage.removeItem('currentUser');
         window.location.href = 'index.html';
         return;
     }
@@ -3514,7 +3514,7 @@ window.onload = async function () {
         );
         (await AppDialog.alert("⛔ Phát hiện can thiệp dữ liệu phân quyền! Buộc đăng xuất."));
         firebase.auth().signOut();
-        localStorage.removeItem('currentUser');
+        window.TestBrowserStorage.localStorage.removeItem('currentUser');
         window.location.href = 'index.html';
         return;
     }
@@ -4948,7 +4948,7 @@ async function createAssignment() {
                 videoSummary,
     
             /*
-             * Revision chỉ dùng để tách localStorage tiến độ giữa
+             * Revision chỉ dùng để tách window.TestBrowserStorage.localStorage tiến độ giữa
              * các lần đổi video/cấu hình, không đổi schema video_tracking.
              */
             videoTrackingRevision:
@@ -5016,8 +5016,8 @@ async function createAssignment() {
         .renderTeacherAssignmentPendingFiles();
 
     // Xóa bản nháp đi để lần sau mở form lên là form trống
-    localStorage.removeItem('draft_teacher_title');
-    localStorage.removeItem('draft_teacher_desc');
+    window.TestBrowserStorage.localStorage.removeItem('draft_teacher_title');
+    window.TestBrowserStorage.localStorage.removeItem('draft_teacher_desc');
 
     // Reset quyền bỏ qua trùng và cache để lần kiểm tra kế tiếp thấy bài vừa tạo.
     assignmentDuplicateOverrideKey = '';
@@ -12218,10 +12218,10 @@ async function updateProfile() {
         await updateDB('users', userRecord._fbKey, updateData);
 
         currentUser.name = newName;
-        // Không lưu mật khẩu vào localStorage: tránh lộ khi có XSS hoặc máy dùng chung.
+        // Không lưu mật khẩu vào window.TestBrowserStorage.localStorage: tránh lộ khi có XSS hoặc máy dùng chung.
         // Không nơi nào trong mã đọc currentUser.password nên việc xoá là an toàn.
         delete currentUser.password;
-        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        window.TestBrowserStorage.localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
         (await AppDialog.alert("✅ Cập nhật thông tin thành công!"));
         document.getElementById('settingPass').value = '';
@@ -12277,12 +12277,12 @@ window.setTeacherQuestionBankShortcutOpen = function (
 
     if (shouldPersist) {
         try {
-            localStorage.setItem(
+            window.TestBrowserStorage.localStorage.setItem(
                 getTeacherQuestionBankShortcutStorageKey(),
                 open ? '1' : '0'
             );
         } catch (error) {
-            // Trình duyệt chặn localStorage thì vẫn sử dụng bình thường.
+            // Trình duyệt chặn window.TestBrowserStorage.localStorage thì vẫn sử dụng bình thường.
         }
     }
 };
@@ -12305,7 +12305,7 @@ function initializeTeacherQuestionBankShortcut() {
     let isOpen = true;
 
     try {
-        const savedState = localStorage.getItem(
+        const savedState = window.TestBrowserStorage.localStorage.getItem(
             getTeacherQuestionBankShortcutStorageKey()
         );
 
@@ -12381,12 +12381,12 @@ window.setTeacherTransactionShortcutOpen = function (
 
     if (shouldPersist) {
         try {
-            localStorage.setItem(
+            window.TestBrowserStorage.localStorage.setItem(
                 getTeacherTransactionShortcutStorageKey(),
                 open ? '1' : '0'
             );
         } catch (error) {
-            // Trình duyệt chặn localStorage thì vẫn sử dụng bình thường.
+            // Trình duyệt chặn window.TestBrowserStorage.localStorage thì vẫn sử dụng bình thường.
         }
     }
 };
@@ -12409,7 +12409,7 @@ function initializeTeacherTransactionShortcut() {
     let isOpen = true;
 
     try {
-        const savedState = localStorage.getItem(
+        const savedState = window.TestBrowserStorage.localStorage.getItem(
             getTeacherTransactionShortcutStorageKey()
         );
 
@@ -12785,13 +12785,13 @@ window.saveLoginLayoutSetting = async function () {
 
         // Lưu dự phòng trên thiết bị hiện tại.
         try {
-            localStorage.setItem(
+            window.TestBrowserStorage.localStorage.setItem(
                 'loginPageLayout',
                 layout
             );
         } catch (storageError) {
             console.warn(
-                'Không thể lưu bố cục vào localStorage:',
+                'Không thể lưu bố cục vào window.TestBrowserStorage.localStorage:',
                 storageError
             );
         }
@@ -13501,7 +13501,7 @@ window.importQuestions = function () {
         });
 
         textarea.value = '';
-        localStorage.removeItem('draft_teacher_quick_import');
+        window.TestBrowserStorage.localStorage.removeItem('draft_teacher_quick_import');
 
         const incompleteCount = result.questions.filter(question =>
             !question.text || !question.correct || ['A', 'B', 'C', 'D'].some(letter => !question.options[letter])
@@ -14371,7 +14371,7 @@ window.saveAssignmentEdit = async function () {
     /*
      * Đổi video / mốc xem hoặc nâng cấp bài video cũ:
      * xóa toàn bộ tiến độ Firebase của assignment đó.
-     * videoTrackingRevision mới đồng thời làm localStorage cũ
+     * videoTrackingRevision mới đồng thời làm window.TestBrowserStorage.localStorage cũ
      * phía học sinh không còn được đọc lại.
      */
     if (
@@ -19938,9 +19938,9 @@ window.changeTeacherPassword = async function () {
                 password: newPassword
             });
 
-            // 3. Cập nhật lại localStorage (không lưu mật khẩu) để tránh lộ khi tải lại trang
+            // 3. Cập nhật lại window.TestBrowserStorage.localStorage (không lưu mật khẩu) để tránh lộ khi tải lại trang
             delete currentUser.password;
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            window.TestBrowserStorage.localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
             (await AppDialog.alert("✅ Đổi mật khẩu thành công! Hãy nhớ mật khẩu mới của bạn."));
             // Reset ô nhập
@@ -20240,7 +20240,7 @@ window.changeTeacherPassword = async function () {
         );
 
         if (saveState) {
-            localStorage.setItem(
+            window.TestBrowserStorage.localStorage.setItem(
                 'questionBankSaveCollapsed',
                 collapsed ? '1' : '0'
             );
@@ -20282,7 +20282,7 @@ window.changeTeacherPassword = async function () {
         );
 
         if (saveState) {
-            localStorage.setItem(
+            window.TestBrowserStorage.localStorage.setItem(
                 storageKey,
                 collapsed ? '1' : '0'
             );
@@ -20318,7 +20318,7 @@ window.changeTeacherPassword = async function () {
             'questionBankListContent',
             'questionBankListToggle',
             'questionBankListCollapsed',
-            localStorage.getItem(
+            window.TestBrowserStorage.localStorage.getItem(
                 'questionBankListCollapsed'
             ) !== '0',
             false
@@ -20328,7 +20328,7 @@ window.changeTeacherPassword = async function () {
             'questionBankStatsContent',
             'questionBankStatsToggle',
             'questionBankStatsCollapsed',
-            localStorage.getItem(
+            window.TestBrowserStorage.localStorage.getItem(
                 'questionBankStatsCollapsed'
             ) !== '0',
             false
@@ -20367,7 +20367,7 @@ window.changeTeacherPassword = async function () {
     // Chưa có trạng thái thì mặc định thu gọn.
     function initQuestionBankSaveCollapse() {
         const savedState =
-            localStorage.getItem(
+            window.TestBrowserStorage.localStorage.getItem(
                 'questionBankSaveCollapsed'
             );
 

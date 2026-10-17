@@ -98,38 +98,38 @@
     });
 
     const SCRIPT = Object.freeze({
-        valentine:'js/valentine.js?v=20261015.regular-fix1',
-        eternalWinter:'js/eternal-winter.js?v=20261011.economy-startup2',
-        tinhMong:'js/tinh-mong.js?v=20261011.economy-startup2',
-        themeItems: 'js/theme-items.js?v=20261015.regular-fix1',
-        effectItems: 'js/effect-items.js?v=20261015.love3',
-        petItems: 'js/pet-items.js?v=20261015.regular-fix1',
-        petInteractions: 'js/pet-interactions.js?v=20261011.economy-startup2',
-        musicManager: 'js/music-manager.js?v=20261011.economy-startup2',
-        storeManager: 'js/store-manager.js?v=20261015.regular-fix1',
+        valentine:'js/valentine.js?v=20261017.test.split1',
+        eternalWinter:'js/eternal-winter.js?v=20261017.test.split1',
+        tinhMong:'js/tinh-mong.js?v=20261017.test.split1',
+        themeItems: 'js/theme-items.js?v=20261017.test.split1',
+        effectItems: 'js/effect-items.js?v=20261017.test.split1',
+        petItems: 'js/pet-items.js?v=20261017.test.split1',
+        petInteractions: 'js/pet-interactions.js?v=20261017.test.split1',
+        musicManager: 'js/music-manager.js?v=20261017.test.split1',
+        storeManager: 'js/store-manager.js?v=20261017.test.split1',
 
-        regularArt: 'js/regular-store-art.js?v=20261011.economy-startup2',
-        kimLien: 'js/premium-kim-lien.js?v=20261011.economy-startup2',
-        thanhLanh: 'js/thanh-lanh.js?v=20261011.economy-startup2',
-        thatTich: 'js/that-tich.js?v=20261012.thattich3',
-        huyenMinh: 'js/huyen-minh.js?v=20261014.huyenminh3',
-        chronos: 'js/chronos.js?v=20261013.chronos2',
-        luGuang: 'js/lu-guang.js?v=20261012.luguang2',
-        audrey: 'js/audrey-hall.js?v=20261012.audrey1',
-        hacMongRegular: 'js/hac-mong-regular.js?v=20261011.economy-startup2',
-        distinctScenes: 'js/luxury-distinct-scenes.js?v=20261011.economy-startup2',
-        luxuryStore: 'js/luxury-store.js?v=20261015.regular-fix1',
-        collections: 'js/store-collections.js?v=20261015.love3',
+        regularArt: 'js/regular-store-art.js?v=20261017.test.split1',
+        kimLien: 'js/premium-kim-lien.js?v=20261017.test.split1',
+        thanhLanh: 'js/thanh-lanh.js?v=20261017.test.split1',
+        thatTich: 'js/that-tich.js?v=20261017.test.split1',
+        huyenMinh: 'js/huyen-minh.js?v=20261017.test.split1',
+        chronos: 'js/chronos.js?v=20261017.test.split1',
+        luGuang: 'js/lu-guang.js?v=20261017.test.split1',
+        audrey: 'js/audrey-hall.js?v=20261017.test.split1',
+        hacMongRegular: 'js/hac-mong-regular.js?v=20261017.test.split1',
+        distinctScenes: 'js/luxury-distinct-scenes.js?v=20261017.test.split1',
+        luxuryStore: 'js/luxury-store.js?v=20261017.test.split1',
+        collections: 'js/store-collections.js?v=20261017.test.split1',
 
-        royalBall: 'js/royal-ball.js?v=20261015.royal-regular1',
-        leaderboard: 'js/leaderboard.js?v=20261013.performance2',
-        painting: 'js/painting.js?v=20261011.economy-startup2',
-        history: 'js/lich-su-hao-hung.js?v=20261011.economy-startup2',
-        bellum: 'js/bellum-event.js?v=20261014.bellum-rewards2',
-        midAutumnFestival: 'js/mid-autumn-festival.js?v=20261011.economy-startup2',
+        royalBall: 'js/royal-ball.js?v=20261017.test.split1',
+        leaderboard: 'js/leaderboard.js?v=20261017.test.split1',
+        painting: 'js/painting.js?v=20261017.test.split1',
+        history: 'js/lich-su-hao-hung.js?v=20261017.test.split1',
+        bellum: 'js/bellum-event.js?v=20261017.test.split1',
+        midAutumnFestival: 'js/mid-autumn-festival.js?v=20261017.test.split1',
 
-        dailyLogin: 'js/daily-login.js?v=20261014.event-rewards2',
-        guide: 'js/huong-dan-nguoi-moi.js?v=20261011.economy-startup2'
+        dailyLogin: 'js/daily-login.js?v=20261017.test.split1',
+        guide: 'js/huong-dan-nguoi-moi.js?v=20261017.test.split1'
     });
 
     /*
@@ -884,7 +884,7 @@ html[data-app-role="student"] body .dashboard > .content > :is(
 
     function preloadFromLocalStorage() {
         /*
-         * K2: localStorage visual keys là dữ liệu do người dùng sửa được.
+         * K2: window.TestBrowserStorage.localStorage visual keys là dữ liệu do người dùng sửa được.
          * Không preload CSS/runtime từ chúng. Firebase inventory sau Auth mới quyết định
          * item nào thực sự cần ensureForEquippedItems()/preloadEquippedCss().
          */
@@ -896,7 +896,7 @@ html[data-app-role="student"] body .dashboard > .content > :is(
             'active_background'
         ].forEach(key => {
             try {
-                localStorage.removeItem(key);
+                window.TestBrowserStorage.localStorage.removeItem(key);
             } catch (_) {}
         });
 

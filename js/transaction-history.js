@@ -32,7 +32,7 @@
     const user = () => {
         try {
             return JSON.parse(
-                localStorage.getItem('currentUser')
+                window.TestBrowserStorage.localStorage.getItem('currentUser')
             ) || {};
         } catch (_) {
             return {};

@@ -1757,7 +1757,7 @@
 
         detectVariant() {
             const activePetId =
-                String(localStorage.getItem('active_pet') || '');
+                String(window.TestBrowserStorage.localStorage.getItem('active_pet') || '');
 
             const pet =
                 document.querySelector(
@@ -2029,7 +2029,7 @@
             ensureMidAutumnStylesheet();
 
             const activePetId =
-                String(localStorage.getItem('active_pet') || '');
+                String(window.TestBrowserStorage.localStorage.getItem('active_pet') || '');
             const pet =
                 document.querySelector('#virtual-pet-container #virtual-pet-img');
 
@@ -2341,7 +2341,7 @@
             ensureLinkClickChengStylesheet();
 
             const activePetId =
-                String(localStorage.getItem('active_pet') || '');
+                String(window.TestBrowserStorage.localStorage.getItem('active_pet') || '');
             const pet =
                 document.querySelector('#virtual-pet-container #virtual-pet-img');
 
@@ -2376,7 +2376,7 @@
     // ========================================================
     // LINK CLICK · CHENG XIAOSHI — AUTO MOUNT / SELF-HEAL V1.1
     // Bắt cả trường hợp pet được spawn trước khi luxury-store.js cài hook,
-    // hoặc reload trang mà active_pet chưa kịp đồng bộ vào localStorage.
+    // hoặc reload trang mà active_pet chưa kịp đồng bộ vào window.TestBrowserStorage.localStorage.
     // ========================================================
     let linkClickChengAutoObserver = null;
     let linkClickChengAutoRetryTimer = null;
@@ -3061,7 +3061,7 @@
             ensureLotmKleinStylesheet();
 
             const pet = this.getPet();
-            const activePetId = localStorage.getItem('active_pet');
+            const activePetId = window.TestBrowserStorage.localStorage.getItem('active_pet');
 
             if (
                 activePetId !== 'pet_lotm_klein_event_1' &&
@@ -3564,7 +3564,7 @@
     // TAMON'S B-SIDE · FULL PREMIUM RUNTIME V1
     // Namespace: tamon-bside-*
     // Không đụng active_theme / active_effect, vì vậy pet này không
-    // ghi đè dữ liệu giao diện hoặc hiệu ứng khác trong localStorage.
+    // ghi đè dữ liệu giao diện hoặc hiệu ứng khác trong window.TestBrowserStorage.localStorage.
     // ========================================================
     const LuxuryTamonBSideRuntime = {
         design10() { return LUX_CONFIG10["rose"]; },
@@ -4821,7 +4821,7 @@
                     return;
                 }
 
-                const activePetId = String(localStorage.getItem('active_pet') || '');
+                const activePetId = String(window.TestBrowserStorage.localStorage.getItem('active_pet') || '');
                 if (activePetId && activePetId !== STARRY_NIGHT_PREMIUM_PET.id) {
                     this.clear();
                     return;
@@ -4892,7 +4892,7 @@
         restore(attempt = 0) {
             ensureStarryNightStylesheet();
 
-            const activePetId = String(localStorage.getItem('active_pet') || '');
+            const activePetId = String(window.TestBrowserStorage.localStorage.getItem('active_pet') || '');
             const pet = document.querySelector('#virtual-pet-container #virtual-pet-img');
             const source = String(pet?.getAttribute('src') || '');
 
@@ -7753,7 +7753,7 @@ if (isNationalDay) {
     // - Nền và Khung viền vẫn giữ nguyên.
     // ========================================================
     function getBoundaryActiveItem(storageKey) {
-        const activeId = localStorage.getItem(storageKey);
+        const activeId = window.TestBrowserStorage.localStorage.getItem(storageKey);
 
         if (!activeId) {
             return null;
@@ -7906,7 +7906,7 @@ if (isNationalDay) {
             )
             .forEach(node => node.remove());
 
-        localStorage.removeItem('active_pet');
+        window.TestBrowserStorage.localStorage.removeItem('active_pet');
     }
 
     function clearOppositeStoreBrowserRuntime(
@@ -7915,7 +7915,7 @@ if (isNationalDay) {
         const background = getBoundaryActiveItem('active_background');
         if (isOppositeBoundaryItem(background, targetIsLuxury)) {
             window.WebBackgroundManager?.clearBackground?.();
-            localStorage.removeItem('active_background');
+            window.TestBrowserStorage.localStorage.removeItem('active_background');
         }
         /*
          * EFFECT
@@ -7937,7 +7937,7 @@ if (isNationalDay) {
             ) {
                 EffectManager.clearEffects(true);
             } else {
-                localStorage.removeItem('active_effect');
+                window.TestBrowserStorage.localStorage.removeItem('active_effect');
             }
         }
 
@@ -7962,7 +7962,7 @@ if (isNationalDay) {
                 ThemeManager.applyTheme('default');
             }
 
-            localStorage.removeItem('active_theme');
+            window.TestBrowserStorage.localStorage.removeItem('active_theme');
         }
 
         /* PET */
@@ -8002,7 +8002,7 @@ if (isNationalDay) {
         }
 
         let user;
-        try { user = JSON.parse(localStorage.getItem('currentUser') || 'null'); }
+        try { user = JSON.parse(window.TestBrowserStorage.localStorage.getItem('currentUser') || 'null'); }
         catch (_) { return false; }
 
         if (
@@ -8107,7 +8107,7 @@ if (isNationalDay) {
         );
 
         /*
-         * Ngoài Firebase, kiểm tra thêm runtime/localStorage.
+         * Ngoài Firebase, kiểm tra thêm runtime/window.TestBrowserStorage.localStorage.
          * Đây là lớp tự chữa cho các phiên bản cũ từng chỉ đổi
          * isEquipped=false nhưng không dọn giao diện thật.
          */
@@ -8508,7 +8508,7 @@ if (isNationalDay) {
 
     async function buyLuxuryItemChecked(itemId) {
         let user;
-        try { user = JSON.parse(localStorage.getItem('currentUser') || 'null'); }
+        try { user = JSON.parse(window.TestBrowserStorage.localStorage.getItem('currentUser') || 'null'); }
         catch (_) { user = null; }
         if (typeof db === 'undefined' || !user?.username) {
             (await AppDialog.alert('Chưa xác định được tài khoản. Vui lòng đăng nhập lại.'));
@@ -8612,7 +8612,7 @@ if (isNationalDay) {
     function installLuxuryInventoryListener() {
 
         let user;
-        try { user = JSON.parse(localStorage.getItem('currentUser') || 'null'); }
+        try { user = JSON.parse(window.TestBrowserStorage.localStorage.getItem('currentUser') || 'null'); }
         catch (_) { user = null; }
         const previous = window.__luxuryInventorySubscription;
         if (previous && previous.username !== String(user?.username || '')) {
@@ -8686,7 +8686,7 @@ if (isNationalDay) {
         const onInventory = snapshot => {
                 if (window.__luxuryInventorySubscription !== subscription) return;
                 let activeUser;
-                try { activeUser = JSON.parse(localStorage.getItem('currentUser') || 'null'); }
+                try { activeUser = JSON.parse(window.TestBrowserStorage.localStorage.getItem('currentUser') || 'null'); }
                 catch (_) { activeUser = null; }
                 if (String(activeUser?.username || '') !== username) {
                     installLuxuryInventoryListener();

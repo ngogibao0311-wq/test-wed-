@@ -44,16 +44,16 @@
   let button=document.getElementById('toggleStudentContentGlassButton');
   if(!button&&document.getElementById('teacherDashboard')){
    button=document.createElement('button');button.type='button';button.id='toggleTeacherContentGlassButton';
-   let user;try{user=JSON.parse(localStorage.getItem('currentUser')||'null');}catch{}
+   let user;try{user=JSON.parse(window.TestBrowserStorage.localStorage.getItem('currentUser')||'null');}catch{}
    const key='teacher_content_glass_enabled:'+(user?.username||'guest');
    const apply=(enabled,save=false)=>{
     document.body.classList.toggle('teacher-content-glass-disabled',!enabled);
     button.setAttribute('aria-pressed',String(enabled));
     button.textContent=enabled?'Tắt lớp kính mờ nội dung':'Bật lớp kính mờ nội dung';
-    if(save)try{localStorage.setItem(key,String(enabled));}catch{}
+    if(save)try{window.TestBrowserStorage.localStorage.setItem(key,String(enabled));}catch{}
     syncPalette();
    };
-   let enabled=true;try{enabled=localStorage.getItem(key)!=='false';}catch{}
+   let enabled=true;try{enabled=window.TestBrowserStorage.localStorage.getItem(key)!=='false';}catch{}
    apply(enabled);button.addEventListener('click',()=>apply(button.getAttribute('aria-pressed')!=='true',true));
   }
   if(button){button.classList.add('campus-glass-control');slot.before(button);}

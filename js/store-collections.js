@@ -264,7 +264,7 @@
 
     function getCurrentStudent() {
         try {
-            return JSON.parse(localStorage.getItem('currentUser')) || {};
+            return JSON.parse(window.TestBrowserStorage.localStorage.getItem('currentUser')) || {};
         } catch (_) {
             return {};
         }

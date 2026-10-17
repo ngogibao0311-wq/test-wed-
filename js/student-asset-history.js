@@ -56,7 +56,7 @@
     }
     async function loadNow() {
         mount(); if (!ui || state.loading) return;
-        const user = typeof currentUser !== 'undefined' ? currentUser : JSON.parse(localStorage.getItem('currentUser') || '{}');
+        const user = typeof currentUser !== 'undefined' ? currentUser : JSON.parse(window.TestBrowserStorage.localStorage.getItem('currentUser') || '{}');
         if (!firebase.auth().currentUser || !user.username) { status.textContent = 'Cần đăng nhập để xem lịch sử.'; return; }
         const username = user.username;
         if (state.username !== username) { state.rows = []; list.replaceChildren(); }
@@ -71,7 +71,7 @@
                 ? 'Đang hiển thị 30 giao dịch mới nhất. Chưa dọn được bản ghi cũ trên máy chủ; sẽ thử lại. Giáo viên cần cập nhật Worker nếu thông báo này kéo dài.'
                 : 'Chỉ giữ 30 giao dịch mới nhất. Giao dịch mới sẽ thay bản ghi cũ nhất; số dư, vật phẩm và dữ liệu chống nhận thưởng trùng không thay đổi.';
             const snap = await db.ref(`student_asset_history/${state.username}`).orderByChild('createdAt').limitToLast(30).once('value');
-            const activeUser = typeof currentUser !== 'undefined' ? currentUser : JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const activeUser = typeof currentUser !== 'undefined' ? currentUser : JSON.parse(window.TestBrowserStorage.localStorage.getItem('currentUser') || '{}');
             if (generation !== state.generation || activeUser.username !== username) return;
             const rows = [];
             snap.forEach(child => {

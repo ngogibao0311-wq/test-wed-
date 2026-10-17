@@ -5,20 +5,20 @@
     const units = { coin: 'Coin', ticket: 'Vé', money: 'đ' };
     const inFlight = new Map();
     const read = async path => (await db.ref(path).once('value')).val();
-    const batchLock = task => typeof navigator !== 'undefined' && navigator.locks
-        ? navigator.locks.request('teacher-penalty-batch', task) : Promise.resolve().then(task);
+    const batchLock = task => typeof navigator !== 'undefined' && window.TestBrowserStorage.locks
+        ? window.TestBrowserStorage.locks.request('teacher-penalty-batch', task) : Promise.resolve().then(task);
     async function batch(signature, recipients) {
         return batchLock(() => {
         const key = `teacher_penalty_pending_${firebase.auth().currentUser.uid}`;
-        let saved; try { saved = JSON.parse(localStorage.getItem(key)); } catch (_) { }
+        let saved; try { saved = JSON.parse(window.TestBrowserStorage.localStorage.getItem(key)); } catch (_) { }
         if (saved && saved.signature !== signature) throw Error('Có đợt trừ tài sản chưa đối soát. Hãy hoàn tất đợt cũ với cùng học sinh, loại, số lượng và lý do trước.');
         if (!saved) {
             saved = { signature, ids: Object.fromEntries(recipients.map(u => [u, db.ref('teacher_money_operations').push().key])) };
-            localStorage.setItem(key, JSON.stringify(saved));
+            window.TestBrowserStorage.localStorage.setItem(key, JSON.stringify(saved));
         }
         const expected = JSON.stringify(saved);
         return { ids: saved.ids, finish: () => batchLock(() => {
-            if (localStorage.getItem(key) === expected) localStorage.removeItem(key);
+            if (window.TestBrowserStorage.localStorage.getItem(key) === expected) window.TestBrowserStorage.localStorage.removeItem(key);
         }) };
         });
     }
@@ -60,7 +60,7 @@
                     error.code = 'LEDGER_BALANCE_LIMIT';
                     throw error;
                 }
-                const now = Date.now(), user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                const now = Date.now(), user = JSON.parse(window.TestBrowserStorage.localStorage.getItem('currentUser') || '{}');
                 const actor = { uid: firebase.auth().currentUser.uid, username: String(user.username || ''), name: String(user.name || user.username || 'Giáo viên'), role: 'teacher' };
                 const receipt = { id, username, type, delta, before, after, kind, originalId, reason, actorUid: actor.uid, createdAt: firebase.database.ServerValue.TIMESTAMP };
                 if (ticketAdjustment) Object.assign(receipt, { ticketBase, ticketUsed });
@@ -94,14 +94,14 @@
         const run = async () => {
             const signature = JSON.stringify({ username, mode, amount });
             let saved;
-            try { saved = JSON.parse(localStorage.getItem(key)); } catch (_) { }
+            try { saved = JSON.parse(window.TestBrowserStorage.localStorage.getItem(key)); } catch (_) { }
             if (saved && saved.signature !== signature) throw Error('Có lần điều chỉnh vé chưa được xác nhận. Hãy thử lại cùng học sinh, thao tác và số vé trước để đối soát.');
             if (!saved) {
                 saved = { signature, id: db.ref('teacher_money_operations').push().key };
-                localStorage.setItem(key, JSON.stringify(saved));
+                window.TestBrowserStorage.localStorage.setItem(key, JSON.stringify(saved));
             }
             const expected = JSON.stringify(saved);
-            const finish = () => { if (localStorage.getItem(key) === expected) localStorage.removeItem(key); };
+            const finish = () => { if (window.TestBrowserStorage.localStorage.getItem(key) === expected) window.TestBrowserStorage.localStorage.removeItem(key); };
             try {
                 const receipt = await commit({ id: saved.id, username, type: 'ticket', kind: 'ticket_adjust', delta: mode === 'add' ? amount : -amount, reason: mode === 'add' ? 'Giáo viên cộng vé thủ công' : 'Giáo viên trừ vé thủ công', name });
                 finish();
@@ -112,8 +112,8 @@
                 throw error;
             }
         };
-        const work = typeof navigator !== 'undefined' && navigator.locks
-            ? navigator.locks.request(key, run) : run();
+        const work = typeof navigator !== 'undefined' && window.TestBrowserStorage.locks
+            ? window.TestBrowserStorage.locks.request(key, run) : run();
         ticketActions.set(key, work);
         try { return await work; } finally { ticketActions.delete(key); }
     }
@@ -140,7 +140,7 @@
         button.style.cssText = 'margin:10px 0;padding:10px 14px';
         button.onclick = async () => {
             try {
-                const pending = JSON.parse(localStorage.getItem(`teacher_penalty_pending_${firebase.auth().currentUser.uid}`) || 'null');
+                const pending = JSON.parse(window.TestBrowserStorage.localStorage.getItem(`teacher_penalty_pending_${firebase.auth().currentUser.uid}`) || 'null');
                 if (!pending) { await AppDialog.alert('Không có đợt trừ đang chờ trên trình duyệt này.'); return; }
                 const value = JSON.parse(pending.signature);
                 document.getElementById('penaltyType').value = value.type;

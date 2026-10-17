@@ -83,7 +83,7 @@
         const check = async (label, task) => { const p = paragraph(`… ${label}`); try { await task(); p.textContent = `✓ ${label}`; } catch (e) { passed = false; p.textContent = `✕ ${label}: ${e.message}`; } };
         await check('Kết nối máy chủ', async () => { if (!navigator.onLine || (await timeout(db.ref('.info/connected').once('value'))).val() !== true) throw Error('Chưa kết nối đám mây'); });
         await check('Phiên đăng nhập', async () => { const user = firebase.auth().currentUser; if (!user) throw Error('Cần đăng nhập lại'); await timeout(user.getIdToken(true)); });
-        await check('Khả năng lưu nháp trên máy', async () => { const key = `exam_probe_${Date.now()}`; try { localStorage.setItem(key, 'ok'); if (localStorage.getItem(key) !== 'ok') throw Error('Không đọc được bản nháp'); } finally { localStorage.removeItem(key); } });
+        await check('Khả năng lưu nháp trên máy', async () => { const key = `exam_probe_${Date.now()}`; try { window.TestBrowserStorage.localStorage.setItem(key, 'ok'); if (window.TestBrowserStorage.localStorage.getItem(key) !== 'ok') throw Error('Không đọc được bản nháp'); } finally { window.TestBrowserStorage.localStorage.removeItem(key); } });
         await check('Trạng thái và lịch bài thi', async () => {
             live = (await timeout(db.ref(`assignments/${assignment._fbKey || assignment.id}`).once('value'))).val();
             if (!live) throw Error('Không tìm thấy bài');

@@ -154,7 +154,7 @@
 
     function getCurrentUsername() {
         try {
-            const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
+            const user = JSON.parse(window.TestBrowserStorage.localStorage.getItem('currentUser') || 'null');
             return String(user?.username || '').trim() || 'anonymous';
         } catch (_) {
             return 'anonymous';
@@ -173,7 +173,7 @@
 
     function loadStoredState() {
         try {
-            const raw = localStorage.getItem(getStorageKey());
+            const raw = window.TestBrowserStorage.localStorage.getItem(getStorageKey());
             if (!raw) {
                 return { enabled: false, level: 'high' };
             }
@@ -190,7 +190,7 @@
 
     function saveStoredState() {
         try {
-            localStorage.setItem(
+            window.TestBrowserStorage.localStorage.setItem(
                 getStorageKey(),
                 JSON.stringify({
                     enabled: state.enabled,
@@ -1621,7 +1621,7 @@ html.fxq-enabled.fxq-low [data-fxq-store-card="1"] [class*="shape"]::after {
         state.restartTimer = setTimeout(() => {
             const manager = getEffectManagerReference();
             const activeEffect = String(
-                localStorage.getItem('active_effect') || ''
+                window.TestBrowserStorage.localStorage.getItem('active_effect') || ''
             ).trim();
 
             if (!manager || !activeEffect || typeof manager.applyEffect !== 'function') {

@@ -114,7 +114,7 @@
         get user() {
             try {
                 return (typeof currentUser !== 'undefined' && currentUser) ||
-                    JSON.parse(localStorage.getItem('currentUser') || 'null');
+                    JSON.parse(window.TestBrowserStorage.localStorage.getItem('currentUser') || 'null');
             } catch (_) {
                 return null;
             }
@@ -973,10 +973,10 @@ Truyền thuyết.
                     .trim();
 
             /*
-             * Ảnh Cloudinary mới.
+             * Ảnh được lưu trong kho tệp riêng của bản test.
              */
             if (
-                /^https:\/\/res\.cloudinary\.com\/kexe2zqv\/.+/i
+                /^https:\/\/YOUR-R2-WORKER\.invalid\/files\/.+/i
                     .test(image)
             ) {
                 return image;
@@ -5231,7 +5231,7 @@ ${this.toolButton(
 
         async restoreDraft() {
             if (!this.canvas || !this.currentRound) return;
-            let raw = localStorage.getItem(this.getDraftKey());
+            let raw = window.TestBrowserStorage.localStorage.getItem(this.getDraftKey());
             let image = '';
             let savedAt = 0;
             try {
@@ -5261,7 +5261,7 @@ ${this.toolButton(
             }
 
             if (!image) {
-                const legacy = localStorage.getItem(this.getLegacyDraftKey());
+                const legacy = window.TestBrowserStorage.localStorage.getItem(this.getLegacyDraftKey());
                 if (legacy && legacy.startsWith('data:image/')) image = legacy;
             }
             if (!image) return;
@@ -5297,7 +5297,7 @@ ${this.toolButton(
                         fontFamily: this.currentFontFamily
                     }
                 };
-                localStorage.setItem(this.getDraftKey(), JSON.stringify(payload));
+                window.TestBrowserStorage.localStorage.setItem(this.getDraftKey(), JSON.stringify(payload));
                 this.isDirty = false;
                 const dot = document.getElementById('hh-save-dot');
                 const status = document.getElementById('hh-draft-status');
@@ -6512,11 +6512,11 @@ ${this.toolButton(
                     );
                 }
 
-                localStorage.removeItem(
+                window.TestBrowserStorage.localStorage.removeItem(
                     this.getDraftKey()
                 );
 
-                localStorage.removeItem(
+                window.TestBrowserStorage.localStorage.removeItem(
                     this.getLegacyDraftKey()
                 );
 

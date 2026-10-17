@@ -1,4 +1,4 @@
-// js/daily-login.js
+// js/daily-login.js?v=20261017.test.split1
 
 class DailyLoginManager {
     static daysOfWeek = [
@@ -38,7 +38,7 @@ class DailyLoginManager {
     }
 
     static async init() {
-        const user = JSON.parse(localStorage.getItem('currentUser'));
+        const user = JSON.parse(window.TestBrowserStorage.localStorage.getItem('currentUser'));
         if (!user) return;
 
         if (user.role === 'teacher') {
@@ -369,7 +369,7 @@ class DailyLoginManager {
         const today = this.getTodayInfo();
         const currentWeekId = this.getWeekId();
 
-        if (localStorage.getItem(`hide_dl_popup_${username}_${today.dateString}`)) {
+        if (window.TestBrowserStorage.localStorage.getItem(`hide_dl_popup_${username}_${today.dateString}`)) {
             return; // Đã tick thì thoát luôn, không tải dữ liệu và không hiện popup
         }
 
@@ -408,8 +408,8 @@ class DailyLoginManager {
         // 3. Logic hiển thị
         if (isUpcomingWeek) {
             // Nếu là tuần tương lai, chỉ hiện 1 lần duy nhất trong phiên đăng nhập để tránh spam khi học sinh F5
-            if (!sessionStorage.getItem(`seen_upcoming_${targetWeekId}`)) {
-                sessionStorage.setItem(`seen_upcoming_${targetWeekId}`, 'true');
+            if (!window.TestBrowserStorage.sessionStorage.getItem(`seen_upcoming_${targetWeekId}`)) {
+                window.TestBrowserStorage.sessionStorage.setItem(`seen_upcoming_${targetWeekId}`, 'true');
                 this.showStudentPopup(username, config, today, history, isUpcomingWeek);
             }
         } else if (config.isTestMode || history.lastClaimDate !== today.dateString) {
@@ -699,7 +699,7 @@ class DailyLoginManager {
             }
 
             const localUser = JSON.parse(
-                localStorage.getItem('currentUser') || 'null'
+                window.TestBrowserStorage.localStorage.getItem('currentUser') || 'null'
             );
 
             if (
@@ -1272,9 +1272,9 @@ class DailyLoginManager {
     static toggleHideToday(username, dateString, isChecked) {
         const storageKey = `hide_dl_popup_${username}_${dateString}`;
         if (isChecked) {
-            localStorage.setItem(storageKey, 'true');
+            window.TestBrowserStorage.localStorage.setItem(storageKey, 'true');
         } else {
-            localStorage.removeItem(storageKey);
+            window.TestBrowserStorage.localStorage.removeItem(storageKey);
         }
     }
 }

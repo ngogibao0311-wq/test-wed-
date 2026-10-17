@@ -47,7 +47,7 @@
    const account=firebase.auth().currentUser?.uid;if(!account)throw Error('Cần đăng nhập lại.');
    let args={itemId:String(itemId),currency};
    const slot='that-tich:'+itemId;
-   const saved=typeof localStorage==='undefined'?null:JSON.parse(localStorage.getItem('economy_pending_v1:'+account+':'+slot)||'null');
+   const saved=typeof window.TestBrowserStorage.localStorage==='undefined'?null:JSON.parse(window.TestBrowserStorage.localStorage.getItem('economy_pending_v1:'+account+':'+slot)||'null');
    if(saved?.body?.action==='that_tich_redeem'&&saved.body.itemId===String(itemId)&&saved.body.currency===undefined){
     const legacyCurrency=isThatTich?'that_tich_coin':'love_coin';
     if(currency!==legacyCurrency)throw Error('Giao dịch cũ chưa xác nhận. Hãy chọn '+currencyName(legacyCurrency)+' để kiểm tra lại trước.');

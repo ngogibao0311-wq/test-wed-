@@ -1,7 +1,7 @@
-// js/pet-interactions.js
+// js/pet-interactions.js?v=20261017.test.split1
 
 class PetInteractionManager {
-    static isEnabled = localStorage.getItem('petInteractionsEnabled') !== 'false';
+    static isEnabled = window.TestBrowserStorage.localStorage.getItem('petInteractionsEnabled') !== 'false';
     static unlockedInteractions = [];
 
     static serverOffset = 0;
@@ -95,7 +95,7 @@ class PetInteractionManager {
 
     static getPerPetInteractionPreferences() {
         try {
-            const raw = localStorage.getItem(
+            const raw = window.TestBrowserStorage.localStorage.getItem(
                 this.getPerPetInteractionStorageKey()
             );
 
@@ -136,7 +136,7 @@ class PetInteractionManager {
         preferences[petId] = Boolean(enabled);
 
         try {
-            localStorage.setItem(
+            window.TestBrowserStorage.localStorage.setItem(
                 this.getPerPetInteractionStorageKey(),
                 JSON.stringify(preferences)
             );
@@ -172,7 +172,7 @@ class PetInteractionManager {
     static getCurrentUser() {
         try {
             return JSON.parse(
-                localStorage.getItem('currentUser')
+                window.TestBrowserStorage.localStorage.getItem('currentUser')
             );
         } catch (error) {
             console.error(
@@ -250,7 +250,7 @@ class PetInteractionManager {
                 }
 
                 const activePetId =
-                    localStorage.getItem('active_pet');
+                    window.TestBrowserStorage.localStorage.getItem('active_pet');
 
                 if (
                     activePetId &&
@@ -312,7 +312,7 @@ class PetInteractionManager {
         if (!container) return;
 
         const activePetId =
-            localStorage.getItem('active_pet');
+            window.TestBrowserStorage.localStorage.getItem('active_pet');
 
         const isStellar =
             activePetId ===
@@ -498,15 +498,15 @@ class PetInteractionManager {
 
     static async saveHungerToDB() {
         if(window.ECONOMY_SERVER_ENABLED===true) {
-            const petId=localStorage.getItem('active_pet');if(!petId)return;
+            const petId=window.TestBrowserStorage.localStorage.getItem('active_pet');if(!petId)return;
             try {
                 const result=await window.EconomyClient.execute('pet_status',{petId},{slot:'pet-status:'+petId});
-                if(localStorage.getItem('active_pet')===petId){this.hunger=result.energy;this.lastHungerUpdate=result.updatedAt;this.updateHungerUI();}
+                if(window.TestBrowserStorage.localStorage.getItem('active_pet')===petId){this.hunger=result.energy;this.lastHungerUpdate=result.updatedAt;this.updateHungerUI();}
             }catch(error){console.error('Chưa đồng bộ được trạng thái thú cưng:',error);}
             return;
         }
         const user = JSON.parse(
-            localStorage.getItem('currentUser')
+            window.TestBrowserStorage.localStorage.getItem('currentUser')
         );
 
         if (
@@ -518,7 +518,7 @@ class PetInteractionManager {
 
         try {
             const activePetId =
-                localStorage.getItem(
+                window.TestBrowserStorage.localStorage.getItem(
                     'active_pet'
                 );
 
@@ -576,7 +576,7 @@ class PetInteractionManager {
         );
 
         const activePetId =
-            localStorage.getItem(
+            window.TestBrowserStorage.localStorage.getItem(
                 'active_pet'
             );
 
@@ -751,7 +751,7 @@ class PetInteractionManager {
 
         this.loopInterval = setInterval(() => {
             const activePetId =
-                localStorage.getItem('active_pet');
+                window.TestBrowserStorage.localStorage.getItem('active_pet');
 
             // Pet không thuộc hệ tương tác thì dừng hoàn toàn
             if (
@@ -819,7 +819,7 @@ class PetInteractionManager {
                 if (this.isSleeping) {
                     this.sleepTime++;
 
-                    const activePetId = localStorage.getItem('active_pet');
+                    const activePetId = window.TestBrowserStorage.localStorage.getItem('active_pet');
                     const maxSleepTime = (activePetId === 'pet_doisong_bandem') ? 15 : 5;
 
                     if (this.sleepTime >= maxSleepTime) {
@@ -852,7 +852,7 @@ class PetInteractionManager {
             container.style.right = 'auto';
         }
 
-        const activePetId = localStorage.getItem('active_pet');
+        const activePetId = window.TestBrowserStorage.localStorage.getItem('active_pet');
         const isCat = activePetId === 'pet_doisong_bandem';
 
         const rangeX = isCat ? 100 : 60;
@@ -902,7 +902,7 @@ class PetInteractionManager {
             );
 
         const activePetId =
-            localStorage.getItem(
+            window.TestBrowserStorage.localStorage.getItem(
                 'active_pet'
             );
 
@@ -1070,7 +1070,7 @@ class PetInteractionManager {
 
     static async buyServerFood(price, kind) {
         if (this.purchaseInProgress) return;
-        const petId = localStorage.getItem('active_pet');
+        const petId = window.TestBrowserStorage.localStorage.getItem('active_pet');
         const expectedKind = petId === 'pet_premium_mua_xuan' ? 'spring' : petId === 'pet_truyenthuyet_1' ? 'stellar' : 'normal';
         const prices = kind === 'normal' ? [10,20,40,100] : [15,30,60,100];
         const foodId = prices.indexOf(Number(price));
@@ -1079,7 +1079,7 @@ class PetInteractionManager {
         this.purchaseInProgress = true;
         try {
             const result = await window.EconomyClient.execute('pet_food', {petId,foodId:String(foodId)}, {slot:'pet-food'});
-            if (localStorage.getItem('active_pet') === petId) {
+            if (window.TestBrowserStorage.localStorage.getItem('active_pet') === petId) {
                 this.hunger = result.energy;
                 this.lastHungerUpdate = result.updatedAt;
                 this.updateHungerUI();
@@ -1093,7 +1093,7 @@ class PetInteractionManager {
 
     static async buyFood(price, hungerGain) {
         if (window.ECONOMY_SERVER_ENABLED === true) return this.buyServerFood(price, 'normal');
-        const user = JSON.parse(localStorage.getItem('currentUser'));
+        const user = JSON.parse(window.TestBrowserStorage.localStorage.getItem('currentUser'));
         if (!user) return;
 
         if (this.hunger >= 100) return (await AppDialog.alert("Thú cưng đang no căng bụng rồi! Không ăn thêm được đâu."));
@@ -1423,7 +1423,7 @@ class PetInteractionManager {
 
     static toggle(state) {
         this.isEnabled = state;
-        localStorage.setItem('petInteractionsEnabled', state);
+        window.TestBrowserStorage.localStorage.setItem('petInteractionsEnabled', state);
 
         const hungerBar = document.getElementById('pet-hunger-bar');
 
@@ -1449,7 +1449,7 @@ class PetInteractionManager {
             this.setSleepState(false);
 
         } else {
-            const activePetId = localStorage.getItem('active_pet');
+            const activePetId = window.TestBrowserStorage.localStorage.getItem('active_pet');
             // FIX LỖI: Chặn chặt bằng isSupported để các pet khác không ăn ké tính năng
             if (
                 activePetId &&
@@ -1460,7 +1460,7 @@ class PetInteractionManager {
                 if (hungerBar) {
                     hungerBar.style.display = 'flex';
                 } else {
-                    const user = JSON.parse(localStorage.getItem('currentUser'));
+                    const user = JSON.parse(window.TestBrowserStorage.localStorage.getItem('currentUser'));
                     if (user) this.initHungerSystem(user.username);
                 }
 
@@ -1625,7 +1625,7 @@ class PetInteractionManager {
         );
 
         const activePetId =
-            localStorage.getItem('active_pet');
+            window.TestBrowserStorage.localStorage.getItem('active_pet');
 
         if (activePetId === petId) {
             const petElement =
@@ -1766,7 +1766,7 @@ class PetInteractionManager {
         }
 
         const activePetId =
-            localStorage.getItem(
+            window.TestBrowserStorage.localStorage.getItem(
                 'active_pet'
             );
 
@@ -2373,7 +2373,7 @@ class PetInteractionManager {
             this.showInfo();
 
             const activePetId =
-                localStorage.getItem(
+                window.TestBrowserStorage.localStorage.getItem(
                     'active_pet'
                 );
 
@@ -3071,7 +3071,7 @@ class PetInteractionManager {
         if (
             !container ||
             !petElement ||
-            localStorage.getItem(
+            window.TestBrowserStorage.localStorage.getItem(
                 'active_pet'
             ) !==
             'pet_premium_mua_xuan' ||
@@ -3188,7 +3188,7 @@ class PetInteractionManager {
                     !this.canInteract(
                         'pet_premium_mua_xuan'
                     ) ||
-                    localStorage.getItem(
+                    window.TestBrowserStorage.localStorage.getItem(
                         'active_pet'
                     ) !==
                     'pet_premium_mua_xuan'
@@ -3295,7 +3295,7 @@ class PetInteractionManager {
         if (!dock) return;
 
         if (
-            localStorage.getItem(
+            window.TestBrowserStorage.localStorage.getItem(
                 'active_pet'
             ) !==
             'pet_premium_mua_xuan' ||
@@ -3360,7 +3360,7 @@ class PetInteractionManager {
             );
 
         if (
-            localStorage.getItem(
+            window.TestBrowserStorage.localStorage.getItem(
                 'active_pet'
             ) !==
             'pet_premium_mua_xuan' ||
@@ -3526,7 +3526,7 @@ class PetInteractionManager {
             !petElement ||
             this.isBusy ||
             this.isPetDragging ||
-            localStorage.getItem(
+            window.TestBrowserStorage.localStorage.getItem(
                 'active_pet'
             ) !==
             'pet_premium_mua_xuan'
@@ -3578,7 +3578,7 @@ class PetInteractionManager {
             !petElement ||
             this.isBusy ||
             this.isPetDragging ||
-            localStorage.getItem(
+            window.TestBrowserStorage.localStorage.getItem(
                 'active_pet'
             ) !==
             'pet_premium_mua_xuan'
@@ -3630,7 +3630,7 @@ class PetInteractionManager {
             !petElement ||
             this.isBusy ||
             this.isPetDragging ||
-            localStorage.getItem(
+            window.TestBrowserStorage.localStorage.getItem(
                 'active_pet'
             ) !==
             'pet_premium_mua_xuan'
@@ -3677,7 +3677,7 @@ class PetInteractionManager {
 
     static openSpringDreamFoodShop() {
         if (
-            localStorage.getItem(
+            window.TestBrowserStorage.localStorage.getItem(
                 'active_pet'
             ) !==
             'pet_premium_mua_xuan' ||
@@ -3785,7 +3785,7 @@ class PetInteractionManager {
         if (
             !user?.username ||
             typeof db === 'undefined' ||
-            localStorage.getItem(
+            window.TestBrowserStorage.localStorage.getItem(
                 'active_pet'
             ) !==
             'pet_premium_mua_xuan'
@@ -3912,7 +3912,7 @@ class PetInteractionManager {
         if (
             !container ||
             !petElement ||
-            localStorage.getItem(
+            window.TestBrowserStorage.localStorage.getItem(
                 'active_pet'
             ) !==
             'pet_premium_mua_xuan'
@@ -4046,7 +4046,7 @@ class PetInteractionManager {
             if (
                 document.hidden ||
                 !this.isEnabled ||
-                localStorage.getItem(
+                window.TestBrowserStorage.localStorage.getItem(
                     'active_pet'
                 ) !==
                 'pet_truyenthuyet_1'
@@ -5166,7 +5166,7 @@ document.addEventListener('visibilitychange', () => {
         }
     } else {
         if (PetInteractionManager.isEnabled) {
-            const activePetId = localStorage.getItem('active_pet');
+            const activePetId = window.TestBrowserStorage.localStorage.getItem('active_pet');
             // FIX LỖI: Khi người dùng mở lại Tab, hệ thống phải kiểm tra xem pet này có được hỗ trợ vòng lặp không
             if (
                 activePetId &&

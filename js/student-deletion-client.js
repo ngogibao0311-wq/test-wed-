@@ -2,9 +2,9 @@
     'use strict';
     let busy=false;
     const key=()=> 'studentDeletionPending:'+firebase.auth().currentUser.uid;
-    const pending=()=>{try{return JSON.parse(localStorage.getItem(key())||'[]').filter(id=>typeof id==='string');}catch(_){return [];}};
+    const pending=()=>{try{return JSON.parse(window.TestBrowserStorage.localStorage.getItem(key())||'[]').filter(id=>typeof id==='string');}catch(_){return [];}};
     function remember(uid,done=false) {
-        try {localStorage.setItem(key(),JSON.stringify(done?pending().filter(id=>id!==uid):[...new Set([...pending(),uid])]));}catch(_){/* server keeps authoritative progress */}
+        try {window.TestBrowserStorage.localStorage.setItem(key(),JSON.stringify(done?pending().filter(id=>id!==uid):[...new Set([...pending(),uid])]));}catch(_){/* server keeps authoritative progress */}
     }
     function recovery() {
         const container=document.getElementById('studentsListContainer');if(!container)return;

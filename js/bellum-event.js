@@ -725,7 +725,7 @@
 
     function persistSave(save) {
         try {
-            localStorage.setItem(
+            window.TestBrowserStorage.localStorage.setItem(
                 SAVE_KEY,
                 JSON.stringify(save)
             );
@@ -800,7 +800,7 @@
         try {
             const parsed =
                 JSON.parse(
-                    localStorage.getItem(SAVE_KEY) || '{}'
+                    window.TestBrowserStorage.localStorage.getItem(SAVE_KEY) || '{}'
                 );
 
             normalized = {
@@ -898,7 +898,7 @@
         if (!user) {
             try {
                 user = JSON.parse(
-                    localStorage.getItem('currentUser') || 'null'
+                    window.TestBrowserStorage.localStorage.getItem('currentUser') || 'null'
                 );
             } catch (_) {}
         }
@@ -2692,7 +2692,7 @@
         refreshSchedule: refreshEventCard,
         resetProgress() {
             try {
-                localStorage.removeItem(SAVE_KEY);
+                window.TestBrowserStorage.localStorage.removeItem(SAVE_KEY);
             } catch (_) {}
 
             if (getEventStatus().isOpen) {

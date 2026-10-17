@@ -20,7 +20,7 @@
     let equipmentBusy = new Map();
     let purchaseBusy = new Set();
     function purchaseKey(id) { return 'collectionRewardPurchase:' + user.uid + ':' + id; }
-    function pendingPurchase(id) { try { return JSON.parse(localStorage.getItem(purchaseKey(id)) || 'null'); } catch (_) { return null; } }
+    function pendingPurchase(id) { try { return JSON.parse(window.TestBrowserStorage.localStorage.getItem(purchaseKey(id)) || 'null'); } catch (_) { return null; } }
     async function buyRemaining(setId, itemId) {
         if (!user || profile?.role !== 'student' || purchaseBusy.size || !connected || !allReady()) return;
         const session = epoch, username = profile.username, uid = user.uid, key = purchaseKey(itemId);
@@ -33,13 +33,13 @@
             if (window.ECONOMY_SERVER_ENABLED === true) {
                 await window.EconomyClient.execute('collection_buy', {setId,itemId}, {slot:'collection-buy:'+itemId});
                 if (session !== epoch) return;
-                localStorage.removeItem(key);
+                window.TestBrowserStorage.localStorage.removeItem(key);
                 notice('Đã mua nền với giá 5.000 Coin. Bạn có thể sử dụng nền.');
                 return;
             }
             const receipt = (await db.ref(path).once('value')).val();
             if (session !== epoch) return;
-            if (receipt) { localStorage.removeItem(key); notice('Nền này đã mua thành công. Không trừ Coin lần nữa.'); return; }
+            if (receipt) { window.TestBrowserStorage.localStorage.removeItem(key); notice('Nền này đã mua thành công. Không trừ Coin lần nữa.'); return; }
             const set = sets[setId], unlocked = claims[setId];
             if (!set || set.deleted || !unlocked || set.choices.length < 2 || !set.choices.includes(itemId) || !set.choices.includes(unlocked.itemId) || unlocked.itemId === itemId)
                 throw Error('Bộ đã thay đổi hoặc bạn chưa nhận nền miễn phí trong bộ này.');
@@ -49,11 +49,11 @@
                 db.ref('collection_reward_payments/' + username).once('value')
             ]);
             if (session !== epoch) return;
-            if (owned.exists()) { localStorage.removeItem(key); notice('Bạn đã sở hữu nền này. Không cần mua lại.'); return; }
+            if (owned.exists()) { window.TestBrowserStorage.localStorage.removeItem(key); notice('Bạn đã sở hữu nền này. Không cần mua lại.'); return; }
             if (!connected) throw Error('Mất kết nối. Chưa gửi giao dịch.');
             const coins = balance.val(), revision = Number(payment.val()?.revision || 0) + 1;
             if (!Number.isFinite(coins) || coins < 5000) throw Error('Cần ít nhất 5.000 Coin để mua nền.');
-            localStorage.setItem(key, JSON.stringify({setId}));
+            window.TestBrowserStorage.localStorage.setItem(key, JSON.stringify({setId}));
             const timestamp = firebase.database.ServerValue.TIMESTAMP;
             await db.ref().update({
                 [path]: {itemId,setId,setRevision:revisionOf(set),studentUid:uid,amount:5000,createdAt:timestamp,paymentRevision:revision},
@@ -64,7 +64,7 @@
                 ['student_inventory/' + username + '/' + itemId]: {id:itemId,type:'background',source:'collection_reward',rewardPurchase:true,collectionSetId:setId,purchaseTime:timestamp,isEquipped:false}
             });
             if (session !== epoch) return;
-            localStorage.removeItem(key); notice('Đã mua nền với giá 5.000 Coin. Bạn có thể sử dụng nền.');
+            window.TestBrowserStorage.localStorage.removeItem(key); notice('Đã mua nền với giá 5.000 Coin. Bạn có thể sử dụng nền.');
         } catch (error) {
             if (session === epoch) notice('Chưa xác nhận mua nền. ' + error.message + ' Bấm Kiểm tra mua để đối soát nếu giao dịch đang chờ; không mua lại ở bộ khác.');
         } finally { if (session === epoch) { purchaseBusy.delete(itemId); refresh(); } }
@@ -163,7 +163,7 @@
     }
     function pendingKey(setId) { return 'collectionRewardPending:' + user.uid + ':' + setId; }
     function pendingChoice(setId) {
-        try { return localStorage.getItem(pendingKey(setId)); } catch (_) { return null; }
+        try { return window.TestBrowserStorage.localStorage.getItem(pendingKey(setId)); } catch (_) { return null; }
     }
     async function claim(setId, choice) {
         if (!user || profile?.role !== 'student' || busy.has(setId)) return;
@@ -175,22 +175,22 @@
         busy.set(setId, token); failed.delete(setId); render();
         try {
             if(window.ECONOMY_SERVER_ENABLED===true) {
-                localStorage.setItem(storageKey,itemId);
+                window.TestBrowserStorage.localStorage.setItem(storageKey,itemId);
                 await window.EconomyClient.execute('collection_claim',{setId,itemId},{slot:'collection-claim:'+setId});
                 if(session!==epoch)return;
-                localStorage.removeItem(storageKey);notice('Đã xác nhận mở khóa nền thưởng. Bạn có thể sử dụng nền.');return;
+                window.TestBrowserStorage.localStorage.removeItem(storageKey);notice('Đã xác nhận mở khóa nền thưởng. Bạn có thể sử dụng nền.');return;
             }
             const existing = (await db.ref(path).once('value')).val();
             if (session !== epoch) return;
-            if (existing) { claims[setId] = existing; localStorage.removeItem(storageKey); return; }
+            if (existing) { claims[setId] = existing; window.TestBrowserStorage.localStorage.removeItem(storageKey); return; }
             if (!connected) throw Error('Kết nối bị gián đoạn trước khi gửi.');
             const set = sets[setId];
             if (!set || set.deleted === true || !enough(set) || !set.choices.includes(itemId) || !catalog[itemId]) {
-                localStorage.removeItem(storageKey); selections.delete(setId);
+                window.TestBrowserStorage.localStorage.removeItem(storageKey); selections.delete(setId);
                 throw Error('Bộ đã thay đổi hoặc chưa đủ điều kiện. Kiểm tra lại danh sách và chọn phần thưởng.');
             }
             // Only an explicit Receive click may create or retry a claim.
-            localStorage.setItem(storageKey, itemId);
+            window.TestBrowserStorage.localStorage.setItem(storageKey, itemId);
             const record = {setId, itemId, setRevision: revisionOf(set), studentUid: account.uid, createdAt: firebase.database.ServerValue.TIMESTAMP};
             const updates = {[path]: record};
             // A background reused in another set must not overwrite existing equipment.
@@ -201,7 +201,7 @@
             // Rules check both paths and reject replacing an existing unlock.
             await db.ref().update(updates);
             if (session !== epoch) return;
-            localStorage.removeItem(storageKey);
+            window.TestBrowserStorage.localStorage.removeItem(storageKey);
             notice('Đã xác nhận mở khóa ' + catalog[itemId].name + '. Bạn có thể sử dụng nền.');
         } catch (error) {
             if (session !== epoch) return;
@@ -211,7 +211,7 @@
                     const saved = (await db.ref(path).once('value')).val();
                     if (session !== epoch) return;
                     if (saved) {
-                        claims[setId] = saved; localStorage.removeItem(storageKey);
+                        claims[setId] = saved; window.TestBrowserStorage.localStorage.removeItem(storageKey);
                         notice('Bộ này đã được nhận ở một phiên khác. Đã cập nhật kết quả.'); return;
                     }
                 } catch (_) { /* Retain the intent until the server can be read. */ }
@@ -392,7 +392,7 @@
         if (publishing) { panel.append(el('p', 'Đang chờ máy chủ xác nhận lưu. Không cần gửi lần nữa.')); return; }
         const draftKey = 'collectionRewardDraft:' + user.uid;
         let pendingDraft = null;
-        try { pendingDraft = JSON.parse(localStorage.getItem(draftKey) || 'null'); } catch (_) { /* Start a fresh form. */ }
+        try { pendingDraft = JSON.parse(window.TestBrowserStorage.localStorage.getItem(draftKey) || 'null'); } catch (_) { /* Start a fresh form. */ }
         if (!validId(pendingDraft?.id) || !Array.isArray(pendingDraft?.value?.required) || !Array.isArray(pendingDraft?.value?.choices)) pendingDraft = null;
         const original = editingId && sets[editingId];
         const initial = pendingDraft?.value || original;
@@ -467,7 +467,7 @@
         operation.mutationId ||= Date.now().toString(36) + '_' + Math.random().toString(36).slice(2);
         publishing = true; renderPublishedSets();
         try {
-            localStorage.setItem(draftKey, JSON.stringify(operation));
+            window.TestBrowserStorage.localStorage.setItem(draftKey, JSON.stringify(operation));
             await syncCatalog(operation.value.choices, session);
             const ref = db.ref('collection_reward_sets/' + operation.id);
             const before = (await ref.once('value')).val();
@@ -484,11 +484,11 @@
                 }, undefined, false);
                 if (session !== epoch) return;
                 if (!result.committed && result.snapshot.val()?.mutationId !== operation.mutationId) {
-                    localStorage.removeItem(draftKey); editingId = null;
+                    window.TestBrowserStorage.localStorage.removeItem(draftKey); editingId = null;
                     throw Error('Bộ đã được thay đổi ở phiên khác. Hãy mở Sửa lại trên dữ liệu mới nhất.');
                 }
             }
-            localStorage.removeItem(draftKey); editingId = null;
+            window.TestBrowserStorage.localStorage.removeItem(draftKey); editingId = null;
             notice(operation.mode === 'delete' ? 'Đã xóa bộ khỏi danh sách nhận thưởng. Nền đã nhận vẫn được giữ.' : operation.mode === 'edit' ? 'Đã lưu thay đổi bộ thưởng.' : 'Đã công bố bộ thưởng.');
         } catch (error) {
             if (session === epoch) notice('Chưa xác nhận lưu. ' + error.message + ' Nếu có bản chờ, bấm Kiểm tra / thử lưu lại để kiểm tra đúng thao tác.');
@@ -499,7 +499,7 @@
         const scroll = list.scrollTop;
         list.replaceChildren();
         let pending = false;
-        try { pending = !!localStorage.getItem('collectionRewardDraft:' + user.uid); } catch (_) { /* Saving will report storage failure. */ }
+        try { pending = !!window.TestBrowserStorage.localStorage.getItem('collectionRewardDraft:' + user.uid); } catch (_) { /* Saving will report storage failure. */ }
         for (const [id, set] of Object.entries(sets)) {
             if (set.deleted) continue;
             const row = el('section', '', 'cr-published-row'); row.dataset.setId = id;

@@ -877,7 +877,7 @@
                 } catch (_) { }
 
                 try {
-                        return JSON.parse(localStorage.getItem('currentUser') || 'null');
+                        return JSON.parse(window.TestBrowserStorage.localStorage.getItem('currentUser') || 'null');
                 } catch (_) {
                         return null;
                 }

@@ -51,7 +51,7 @@
 
         /*
          * Phiên bản nằm ngay trong HTML là nguồn chuẩn của bộ file
-         * đang thực sự chạy. Không để localStorage cũ ghi đè phiên bản
+         * đang thực sự chạy. Không để window.TestBrowserStorage.localStorage cũ ghi đè phiên bản
          * của trang rồi tạo vòng lặp "có bản cập nhật mới".
          */
         if (metaVersion && String(metaVersion).trim()) {
@@ -78,7 +78,7 @@
         }
 
         return (
-            localStorage.getItem(
+            window.TestBrowserStorage.localStorage.getItem(
                 STORAGE_KEYS.installed
             ) ||
             '1.0.0'
@@ -722,7 +722,7 @@
 
             state.latest = info;
             state.lastCheckAt = new Date();
-            localStorage.setItem(
+            window.TestBrowserStorage.localStorage.setItem(
                 STORAGE_KEYS.lastCheck,
                 state.lastCheckAt.toISOString()
             );
@@ -736,7 +736,7 @@
                 state.status = 'update-available';
 
                 const deferredVersion =
-                    localStorage.getItem(STORAGE_KEYS.deferred);
+                    window.TestBrowserStorage.localStorage.getItem(STORAGE_KEYS.deferred);
 
                 if (
                     isMandatory(info) ||
@@ -771,7 +771,7 @@
                 }
             } else {
                 state.status = 'up-to-date';
-                localStorage.removeItem(STORAGE_KEYS.deferred);
+                window.TestBrowserStorage.localStorage.removeItem(STORAGE_KEYS.deferred);
                 setNavUpdateBadge(false);
 
                 if (manual) {
@@ -917,7 +917,7 @@
         const names = await caches.keys();
 
         const results = await Promise.allSettled(
-            names.map(name => caches.delete(name))
+            names.filter(name => name.startsWith('qlbt-test-')).map(name => caches.delete(name))
         );
 
         return results.filter(
@@ -1007,11 +1007,11 @@
             );
 
             try {
-                sessionStorage.setItem(
+                window.TestBrowserStorage.sessionStorage.setItem(
                     STORAGE_KEYS.expected,
                     state.latest.version
                 );
-                localStorage.setItem(
+                window.TestBrowserStorage.localStorage.setItem(
                     STORAGE_KEYS.expected,
                     state.latest.version
                 );
@@ -1056,7 +1056,7 @@
             return;
         }
 
-        localStorage.setItem(
+        window.TestBrowserStorage.localStorage.setItem(
             STORAGE_KEYS.deferred,
             state.latest.version
         );
@@ -1071,8 +1071,8 @@
 
     function checkPostUpdateResult() {
         const expected =
-            sessionStorage.getItem(STORAGE_KEYS.expected) ||
-            localStorage.getItem(STORAGE_KEYS.expected);
+            window.TestBrowserStorage.sessionStorage.getItem(STORAGE_KEYS.expected) ||
+            window.TestBrowserStorage.localStorage.getItem(STORAGE_KEYS.expected);
 
         if (!expected) return;
 
@@ -1082,8 +1082,8 @@
                 expected
             ) >= 0
         ) {
-            sessionStorage.removeItem(STORAGE_KEYS.expected);
-            localStorage.removeItem(STORAGE_KEYS.expected);
+            window.TestBrowserStorage.sessionStorage.removeItem(STORAGE_KEYS.expected);
+            window.TestBrowserStorage.localStorage.removeItem(STORAGE_KEYS.expected);
 
             setTimeout(() => {
                 notify(
@@ -1122,14 +1122,14 @@
 
     function mount() {
         try {
-            localStorage.setItem(
+            window.TestBrowserStorage.localStorage.setItem(
                 STORAGE_KEYS.installed,
                 state.installedVersion
             );
         } catch (_) {}
 
         const lastCheck =
-            localStorage.getItem(STORAGE_KEYS.lastCheck);
+            window.TestBrowserStorage.localStorage.getItem(STORAGE_KEYS.lastCheck);
 
         if (lastCheck) {
             const date = new Date(lastCheck);

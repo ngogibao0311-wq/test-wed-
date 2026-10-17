@@ -5,7 +5,7 @@ window.showToast = window.AppDialog.toast;
 // Browser storage is only a UI cache; malformed/unavailable storage must not abort this script.
 const currentUser = (() => {
     try {
-        const cached = JSON.parse(localStorage.getItem('currentUser'));
+        const cached = JSON.parse(window.TestBrowserStorage.localStorage.getItem('currentUser'));
         return cached && typeof cached === 'object' && !Array.isArray(cached) ? cached : {};
     } catch (_) { return {}; }
 })();
@@ -16,11 +16,11 @@ const currentUser = (() => {
 window.__SECURITY_GUARD_BUILD = '20260918.v1-K1-K7';
 console.info('[Security Guard]', window.__SECURITY_GUARD_BUILD);
 
-// K1: currentUser chỉ là cache UI. Không giữ password plaintext ở localStorage Học sinh.
+// K1: currentUser chỉ là cache UI. Không giữ password plaintext ở window.TestBrowserStorage.localStorage Học sinh.
 if (currentUser && Object.prototype.hasOwnProperty.call(currentUser, 'password')) {
     try {
         delete currentUser.password;
-        localStorage.setItem('currentUser', JSON.stringify(Object.fromEntries(Object.entries(currentUser).filter(([key]) => !['password', 'newPass', 'oldPass'].includes(key)))));
+        window.TestBrowserStorage.localStorage.setItem('currentUser', JSON.stringify(Object.fromEntries(Object.entries(currentUser).filter(([key]) => !['password', 'newPass', 'oldPass'].includes(key)))));
     } catch (_) {}
 }
 
@@ -86,9 +86,9 @@ console.info('[Student Submission]', window.__STUDENT_SUBMISSION_BUILD);
 
 // ======================================================
 // EXAM GUARD V5 · FIREBASE AUTHORITY + MULTI-TAB LEASE
-// - localStorage chỉ còn là cache nháp/UI, không còn là nguồn sự thật
+// - window.TestBrowserStorage.localStorage chỉ còn là cache nháp/UI, không còn là nguồn sự thật
 //   cho startedAt/interruptionCount/status/resumeCount.
-// - Mỗi tab có tabId riêng trong sessionStorage.
+// - Mỗi tab có tabId riêng trong window.TestBrowserStorage.sessionStorage.
 // - Phiên thi trên Firebase giữ owner lease + finalization lease.
 // - BroadcastChannel chỉ dùng đồng bộ UX giữa tab; Firebase mới là authority.
 // ======================================================
@@ -116,11 +116,11 @@ function getStudentExamTabId() {
     const key = 'student_exam_guard_tab_id_v5';
 
     try {
-        let value = sessionStorage.getItem(key);
+        let value = window.TestBrowserStorage.sessionStorage.getItem(key);
 
         if (!value) {
             value = createStudentExamRandomId('tab');
-            sessionStorage.setItem(key, value);
+            window.TestBrowserStorage.sessionStorage.setItem(key, value);
         }
 
         return value;
@@ -146,7 +146,7 @@ window.__studentExamBroadcastChannel = null;
 try {
     if ('BroadcastChannel' in window) {
         window.__studentExamBroadcastChannel =
-            new BroadcastChannel(
+            new window.TestBrowserStorage.BroadcastChannel(
                 `student_exam_guard_${String(currentUser?.username || 'guest')}`
             );
 
@@ -1074,7 +1074,7 @@ window.clearStudentStoreEquipmentRuntime = function () {
         '.mafc-screen-ultimate, .mafc-local-click-burst, .macc2-local-click-burst, .macc2-screen-ultimate'
     ).forEach(node => node.remove()));
     ['active_theme', 'active_effect', 'active_pet', 'active_frame', 'active_background'].forEach(key => {
-        safely(() => localStorage.removeItem(key));
+        safely(() => window.TestBrowserStorage.localStorage.removeItem(key));
     });
 };
 
@@ -3817,7 +3817,7 @@ function getStudentContentGlassStorageKey() {
 }
 
 function getSavedStudentContentGlassEnabled() {
-    return localStorage.getItem(
+    return window.TestBrowserStorage.localStorage.getItem(
         getStudentContentGlassStorageKey()
     ) !== 'false';
 }
@@ -3863,7 +3863,7 @@ window.applyStudentContentGlass = function (
     }
 
     if (shouldPersist) {
-        localStorage.setItem(
+        window.TestBrowserStorage.localStorage.setItem(
             getStudentContentGlassStorageKey(),
             String(enabled)
         );
@@ -5290,7 +5290,7 @@ window.onload = async function () {
     if (!authUser) {
         if (startupLoader) startupLoader.fail('Không tìm thấy phiên đăng nhập hợp lệ.', 'Hãy đăng nhập lại để tiếp tục.', 'auth');
         (await AppDialog.alert("⛔ Lỗi: Không tìm thấy phiên đăng nhập hợp lệ!"));
-        localStorage.removeItem('currentUser');
+        window.TestBrowserStorage.localStorage.removeItem('currentUser');
         window.location.href = 'index.html';
         return;
     }
@@ -5321,7 +5321,7 @@ window.onload = async function () {
         : null;
 
     // UID được lấy trực tiếp từ Firebase Authentication.
-    // Đồng thời kiểm tra dữ liệu localStorage có bị sửa hay không.
+    // Đồng thời kiểm tra dữ liệu window.TestBrowserStorage.localStorage có bị sửa hay không.
     if (
         !realUser ||
         realUser.role !== 'student' ||
@@ -5334,7 +5334,7 @@ window.onload = async function () {
 
         await firebase.auth().signOut();
 
-        localStorage.removeItem('currentUser');
+        window.TestBrowserStorage.localStorage.removeItem('currentUser');
         window.location.replace('index.html');
         return;
     }
@@ -5349,7 +5349,7 @@ window.onload = async function () {
         delete currentUser.password;
     }
 
-    localStorage.setItem(
+    window.TestBrowserStorage.localStorage.setItem(
         'currentUser',
         JSON.stringify(Object.fromEntries(Object.entries(currentUser).filter(([key]) => !['password', 'newPass', 'oldPass'].includes(key))))
     );
@@ -5414,7 +5414,7 @@ window.onload = async function () {
 
             if (!val) {
                 await firebase.auth().signOut();
-                localStorage.removeItem('currentUser');
+                window.TestBrowserStorage.localStorage.removeItem('currentUser');
                 window.location.replace('index.html');
                 return;
             }
@@ -5898,23 +5898,23 @@ window.onload = async function () {
                     );
 
                 if (equippedFrame?.id) {
-                    localStorage.setItem(
+                    window.TestBrowserStorage.localStorage.setItem(
                         'active_frame',
                         String(equippedFrame.id)
                     );
                 } else {
-                    localStorage.removeItem(
+                    window.TestBrowserStorage.localStorage.removeItem(
                         'active_frame'
                     );
                 }
 
                 if (equippedBackground?.id) {
-                    localStorage.setItem(
+                    window.TestBrowserStorage.localStorage.setItem(
                         'active_background',
                         String(equippedBackground.id)
                     );
                 } else {
-                    localStorage.removeItem(
+                    window.TestBrowserStorage.localStorage.removeItem(
                         'active_background'
                     );
                 }
@@ -6396,7 +6396,7 @@ window.onload = async function () {
     function loadInboxGiftFxPlayedKeys() {
         try {
             const raw =
-                localStorage.getItem(
+                window.TestBrowserStorage.localStorage.getItem(
                     getInboxGiftFxPlayedStorageKey()
                 );
 
@@ -6450,7 +6450,7 @@ window.onload = async function () {
 
         /*
          * Chỉ giữ tối đa 500 thư gần nhất,
-         * tránh localStorage phình quá lớn.
+         * tránh window.TestBrowserStorage.localStorage phình quá lớn.
          */
         const values =
             Array.from(played);
@@ -6467,7 +6467,7 @@ window.onload = async function () {
         }
 
         try {
-            localStorage.setItem(
+            window.TestBrowserStorage.localStorage.setItem(
                 getInboxGiftFxPlayedStorageKey(),
                 JSON.stringify(
                     Array.from(played)
@@ -8816,7 +8816,7 @@ async function loadAssignmentsCore() {
             return true;
         }
 
-        const rawDraft = localStorage.getItem(
+        const rawDraft = window.TestBrowserStorage.localStorage.getItem(
             `draft_${currentUser.username}_${assignmentId}`
         );
 
@@ -9684,7 +9684,7 @@ ${window.getSubmissionEssayDisplay(mySub, assign).trim() ? `<div class="ql-edito
                         let draftKey = `draft_${currentUser.username}_${assign.id}`;
                         let draft;
                         try {
-                            draft = JSON.parse(localStorage.getItem(draftKey));
+                            draft = JSON.parse(window.TestBrowserStorage.localStorage.getItem(draftKey));
                             if (typeof draft !== 'object' || draft === null) draft = { mcAnswers: {}, essay: '' };
                         } catch (e) {
                             draft = { mcAnswers: {}, essay: '' };
@@ -10083,7 +10083,7 @@ ${window.getSubmissionEssayDisplay(mySub, assign).trim() ? `<div class="ql-edito
                                         autoSavedSubmissionKey
                                     );
                             } else {
-                                localStorage
+                                window.TestBrowserStorage.localStorage
                                     .removeItem(
                                         draftKey
                                     );
@@ -10115,7 +10115,7 @@ ${window.getSubmissionEssayDisplay(mySub, assign).trim() ? `<div class="ql-edito
                                     );
                             }
 
-                            localStorage
+                            window.TestBrowserStorage.localStorage
                                 .removeItem(
                                     autoFlagKey
                                 );
@@ -10346,7 +10346,7 @@ ${window.getSubmissionEssayDisplay(mySub, assign).trim() ? `<div class="ql-edito
                     let draftKey = `draft_${currentUser.username}_${assign.id}`;
                     let draft;
                     try {
-                        draft = JSON.parse(localStorage.getItem(draftKey));
+                        draft = JSON.parse(window.TestBrowserStorage.localStorage.getItem(draftKey));
                         if (typeof draft !== 'object' || draft === null) draft = { mcAnswers: {}, essay: '' };
                     } catch (e) {
                         draft = { mcAnswers: {}, essay: '' };
@@ -12219,6 +12219,7 @@ window.closePracticeRedo = function () {
 // Coalesce repeated manual clicks before upload. Auto-submit keeps its independent exam path.
 const studentSubmissionInFlight = new Map();
 function submitAssignment(assignId, isAuto = false, isCheat = false) {
+    if (!window.StudentAccountAccess.requireWrite()) return Promise.resolve(false);
     if (isAuto || isCheat) return submitAssignmentCore(assignId, isAuto, isCheat);
     const key = String(assignId);
     if (studentSubmissionInFlight.has(key)) return studentSubmissionInFlight.get(key);
@@ -13820,7 +13821,7 @@ async function submitAssignmentCore(assignId, isAuto = false, isCheat = false) {
                 savedSubmissionKey
             );
         } else {
-            localStorage.removeItem(
+            window.TestBrowserStorage.localStorage.removeItem(
                 `draft_${currentUser.username}_${assignId}`
             );
         }
@@ -13959,7 +13960,7 @@ async function syncUserData(
         userRecord.role !== 'student'
     ) {
         await firebase.auth().signOut();
-        localStorage.removeItem('currentUser');
+        window.TestBrowserStorage.localStorage.removeItem('currentUser');
         window.location.replace('index.html');
         return;
     }
@@ -13970,7 +13971,7 @@ async function syncUserData(
         ));
 
         await firebase.auth().signOut();
-        localStorage.removeItem('currentUser');
+        window.TestBrowserStorage.localStorage.removeItem('currentUser');
         window.location.replace('index.html');
         return;
     }
@@ -13991,7 +13992,7 @@ async function syncUserData(
         userRecord.storeGameAccessEnabled
     );
 
-    localStorage.setItem(
+    window.TestBrowserStorage.localStorage.setItem(
         'currentUser',
         JSON.stringify(Object.fromEntries(Object.entries(currentUser).filter(([key]) => !['password', 'newPass', 'oldPass'].includes(key))))
     );
@@ -14627,7 +14628,7 @@ window.saveStudentBirthDateOnce =
                     enteredAt: Date.now()
                 };
 
-            localStorage.setItem(
+            window.TestBrowserStorage.localStorage.setItem(
                 'currentUser',
                 JSON.stringify(Object.fromEntries(Object.entries(currentUser).filter(([key]) => !['password', 'newPass', 'oldPass'].includes(key))))
             );
@@ -15257,7 +15258,7 @@ window.saveNewAvatar = async function () {
         currentUser.avatarStorage =
             uploaded;
 
-        localStorage.setItem(
+        window.TestBrowserStorage.localStorage.setItem(
             'currentUser',
             JSON.stringify(
                 currentUser
@@ -16316,7 +16317,7 @@ const LUCKY_WHEEL_PENDING_HISTORY_KEY =
 function readLuckyWheelPendingHistoryQueue() {
     try {
         const parsed = JSON.parse(
-            localStorage.getItem(
+            window.TestBrowserStorage.localStorage.getItem(
                 LUCKY_WHEEL_PENDING_HISTORY_KEY
             ) || '{}'
         );
@@ -16331,7 +16332,7 @@ function readLuckyWheelPendingHistoryQueue() {
 
 function writeLuckyWheelPendingHistoryQueue(queue) {
     try {
-        localStorage.setItem(
+        window.TestBrowserStorage.localStorage.setItem(
             LUCKY_WHEEL_PENDING_HISTORY_KEY,
             JSON.stringify(queue || {})
         );
@@ -17668,7 +17669,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Khôi phục vị trí lưu trước đó (nếu có)
     let savedPos = null;
-    try { savedPos = JSON.parse(localStorage.getItem('coinWidgetPos')); } catch (_) {}
+    try { savedPos = JSON.parse(window.TestBrowserStorage.localStorage.getItem('coinWidgetPos')); } catch (_) {}
     if (savedPos && Number.isFinite(parseInt(savedPos.left)) && Number.isFinite(parseInt(savedPos.top))) {
         let savedLeft = parseInt(savedPos.left);
         let savedTop = parseInt(savedPos.top);
@@ -17773,7 +17774,7 @@ document.addEventListener('DOMContentLoaded', () => {
         coinWidget.style.transition = 'transform 0.1s';
 
         // Lưu lại tọa độ để lần sau tải trang nó vẫn nằm ở vị trí cũ
-        localStorage.setItem('coinWidgetPos', JSON.stringify({
+        window.TestBrowserStorage.localStorage.setItem('coinWidgetPos', JSON.stringify({
             left: coinWidget.style.left,
             top: coinWidget.style.top
         }));
@@ -18045,7 +18046,7 @@ window.AvatarFrameManager = {
          */
         try {
             if (this.activeItemId) {
-                localStorage.setItem(
+                window.TestBrowserStorage.localStorage.setItem(
                     'active_frame',
                     this.activeItemId
                 );
@@ -18214,7 +18215,7 @@ window.WebBackgroundManager = {
 
         try {
             if (this.activeItemId) {
-                localStorage.setItem(
+                window.TestBrowserStorage.localStorage.setItem(
                     'active_background',
                     this.activeItemId
                 );
@@ -18741,6 +18742,7 @@ async function runStudentPendingInventoryTransaction(ref, updater) {
 }
 
 async function reconcileStudentPendingMechanisms() {
+    if (!window.StudentAccountAccess.canWrite()) return;
     const username = String(currentUser.username);
     const uid = firebase.auth().currentUser?.uid;
     const isCurrent = () => !!uid && firebase.auth().currentUser?.uid === uid && String(currentUser?.username || '') === username;
@@ -20276,7 +20278,7 @@ function installStudentStoreManagerOverrides() {
             return false;
         }
 
-        // K2/K3: không tin itemId từ localStorage/DevTools. Kiểm tra quyền sở hữu trên Firebase.
+        // K2/K3: không tin itemId từ window.TestBrowserStorage.localStorage/DevTools. Kiểm tra quyền sở hữu trên Firebase.
         const ownedItemRef = db.ref(
             `student_inventory/${currentUser.username}/${itemId}`
         );
@@ -20607,7 +20609,7 @@ window.applyEquippedItems = async function (options = {}) {
      * PetManager.spawnPet() sẽ ghi lại nếu kho vẫn có pet được trang bị.
      */
     try {
-        localStorage.removeItem('active_pet');
+        window.TestBrowserStorage.localStorage.removeItem('active_pet');
     } catch (_) {}
 
     if (
@@ -20739,23 +20741,23 @@ window.applyEquippedItems = async function (options = {}) {
      */
     try {
         if (equippedFrameId) {
-            localStorage.setItem(
+            window.TestBrowserStorage.localStorage.setItem(
                 'active_frame',
                 equippedFrameId
             );
         } else {
-            localStorage.removeItem(
+            window.TestBrowserStorage.localStorage.removeItem(
                 'active_frame'
             );
         }
 
         if (equippedBackgroundId) {
-            localStorage.setItem(
+            window.TestBrowserStorage.localStorage.setItem(
                 'active_background',
                 equippedBackgroundId
             );
         } else {
-            localStorage.removeItem(
+            window.TestBrowserStorage.localStorage.removeItem(
                 'active_background'
             );
         }
@@ -22028,7 +22030,7 @@ window.updateConvertPreview = function () {
     resultInput.value = rawAmount;
 };
 
-// Khóa liên-tab bằng Firebase. navigator.locks chỉ còn là tối ưu cục bộ.
+// Khóa liên-tab bằng Firebase. window.TestBrowserStorage.locks chỉ còn là tối ưu cục bộ.
 const STUDENT_CONVERSION_MUTATION_LEASE_MS =
     3 * 60 * 1000;
 
@@ -22173,11 +22175,11 @@ async function runWithStudentMoneyMutationLock(task) {
         };
 
     if (
-        navigator.locks &&
-        typeof navigator.locks.request ===
+        window.TestBrowserStorage.locks &&
+        typeof window.TestBrowserStorage.locks.request ===
             'function'
     ) {
-        return navigator.locks.request(
+        return window.TestBrowserStorage.locks.request(
             `student-money:${currentUser.username}`,
             runWithFirebaseLease
         );
@@ -22196,7 +22198,7 @@ function studentConversionPendingKey() {
 }
 async function recoverPendingStudentConversion() {
     const storageKey = studentConversionPendingKey();
-    const pending = JSON.parse(localStorage.getItem(storageKey) || 'null');
+    const pending = JSON.parse(window.TestBrowserStorage.localStorage.getItem(storageKey) || 'null');
     if (!pending) return false;
     const prefix = 'student_conversion_usage/' + currentUser.username + '/';
     if (!pending.usagePath?.startsWith(prefix) || !pending.reservationId) throw Error('CONVERSION_PENDING_REVIEW');
@@ -22205,7 +22207,7 @@ async function recoverPendingStudentConversion() {
         if(parts.length<2||parts.length>3)throw Error('CONVERSION_PENDING_REVIEW');
         const r=await window.EconomyClient.execute('legacy_conversion_recover',{direction:parts[0],periodKey:parts[1],slot:parts[2]||'base',reservationId:String(pending.reservationId)},{slot:'conversion-recover'});
         if(studentConversionPendingKey()!==storageKey)throw Error('ACCOUNT_CHANGED');
-        if(JSON.parse(localStorage.getItem(storageKey)||'null')?.reservationId===pending.reservationId)localStorage.removeItem(storageKey);
+        if(JSON.parse(window.TestBrowserStorage.localStorage.getItem(storageKey)||'null')?.reservationId===pending.reservationId)window.TestBrowserStorage.localStorage.removeItem(storageKey);
         if(r.completed)await AppDialog.alert('Giao dịch quy đổi trước đã hoàn tất. Không thực hiện thêm lần nữa.');return r.completed;
     }
     const ref = db.ref(pending.usagePath);
@@ -22215,7 +22217,7 @@ async function recoverPendingStudentConversion() {
     const saved = result.snapshot.val();
     if (saved && (saved.reservationId !== pending.reservationId || !saved.receipt || saved.status !== 'completed')) throw Error('CONVERSION_PENDING_REVIEW');
     if (studentConversionPendingKey() !== storageKey) throw Error('ACCOUNT_CHANGED');
-    if (JSON.parse(localStorage.getItem(storageKey) || 'null')?.reservationId === pending.reservationId) localStorage.removeItem(storageKey);
+    if (JSON.parse(window.TestBrowserStorage.localStorage.getItem(storageKey) || 'null')?.reservationId === pending.reservationId) window.TestBrowserStorage.localStorage.removeItem(storageKey);
     if (saved?.receipt) { await AppDialog.alert('Giao dịch quy đổi trước đã hoàn tất. Không thực hiện thêm lần nữa.'); return true; }
     return false;
 }
@@ -22223,14 +22225,14 @@ async function settleStudentConversionUsage(reservation, username, amount, baseM
     const storageKey = studentConversionPendingKey();
     const assertSession = () => { if (studentConversionPendingKey() !== storageKey || currentUser.username !== username) throw Error('ACCOUNT_CHANGED'); };
     // Persist before any money moves, so a reload can resolve this exact operation.
-    localStorage.setItem(storageKey, JSON.stringify(reservation));
+    window.TestBrowserStorage.localStorage.setItem(storageKey, JSON.stringify(reservation));
     const coinPath = 'student_coins/' + username, moneyPath = 'student_money_offset/' + username;
     const [usageSnap, coinSnap, moneySnap] = await Promise.all([db.ref(reservation.usagePath).once('value'), db.ref(coinPath).once('value'), db.ref(moneyPath).once('value')]);
     assertSession();
     const usage = usageSnap.val();
     if (!usage || usage.reservationId !== reservation.reservationId || usage.protocolVersion !== 3 || usage.amount !== amount) throw Error('CONVERSION_PENDING_REVIEW');
     if (usage.status === 'completed' && usage.receipt) {
-        if (JSON.parse(localStorage.getItem(storageKey) || 'null')?.reservationId === reservation.reservationId) localStorage.removeItem(storageKey);
+        if (JSON.parse(window.TestBrowserStorage.localStorage.getItem(storageKey) || 'null')?.reservationId === reservation.reservationId) window.TestBrowserStorage.localStorage.removeItem(storageKey);
         return usage;
     }
     if (usage.status !== 'reserved') throw Error('CONVERSION_PENDING_REVIEW');
@@ -22248,7 +22250,7 @@ async function settleStudentConversionUsage(reservation, username, amount, baseM
         assertSession();
         if (saved?.reservationId !== reservation.reservationId || saved.status !== 'completed' || !saved.receipt) throw error;
     }
-    if (JSON.parse(localStorage.getItem(storageKey) || 'null')?.reservationId === reservation.reservationId) localStorage.removeItem(storageKey);
+    if (JSON.parse(window.TestBrowserStorage.localStorage.getItem(storageKey) || 'null')?.reservationId === reservation.reservationId) window.TestBrowserStorage.localStorage.removeItem(storageKey);
     return completed;
 }
 
@@ -24400,7 +24402,7 @@ window.handleExamTimeLimitExpired =
             if (window.isObsoleteExamExpiry(liveSession, liveSubmission, sessionId)) {
                 window.examTimeLimitExpiredPending[key] = false;
                 manager.stopHeartbeat(key);
-                localStorage.removeItem(manager.markerKey(key));
+                window.TestBrowserStorage.localStorage.removeItem(manager.markerKey(key));
                 window.setInterruptedExamLock?.(key, false);
                 return;
             }
@@ -24551,7 +24553,7 @@ window.startExamTimeLimitCountdown =
 // PHỤC HỒI BÀI THI KHI MẤT MẠNG / SẬP MÁY
 // EXAM GUARD V5:
 // - Firebase là nguồn sự thật cho trạng thái/timing/counter.
-// - localStorage chỉ giữ cache UI + draft.
+// - window.TestBrowserStorage.localStorage chỉ giữ cache UI + draft.
 // - owner lease ngăn 2 tab cùng sở hữu một bài thi.
 // - finalize lease ngăn 2 tab cùng nộp/tự thu một lúc.
 // =============================================================
@@ -24607,6 +24609,7 @@ window.getLiveStudentExamSubmission =
 // Keep the exact record subscribed until the transaction finishes. A one-shot
 // read can release its cache before a subsequent transaction's first callback.
 async function transactStudentExamRecord(ref, update, onComplete, applyLocally = false) {
+    if (!window.StudentAccountAccess.canWrite()) throw Object.assign(Error('Phiên chỉ xem không được sửa bài thi.'), {code: 'READ_ONLY_SESSION'});
     const keepRecord = () => {};
     ref.on('value', keepRecord, () => {});
     try {
@@ -24881,7 +24884,7 @@ window.examRecoveryManager = {
          */
         try {
             const marker = JSON.parse(
-                localStorage.getItem(
+                window.TestBrowserStorage.localStorage.getItem(
                     this.markerKey(assignId)
                 )
             ) || {};
@@ -24934,7 +24937,7 @@ window.examRecoveryManager = {
     getDraft(assignId) {
         try {
             return JSON.parse(
-                localStorage.getItem(
+                window.TestBrowserStorage.localStorage.getItem(
                     this.draftKey(assignId)
                 )
             ) || {
@@ -24953,7 +24956,7 @@ window.examRecoveryManager = {
         const oldMarker = (() => {
             try {
                 return JSON.parse(
-                    localStorage.getItem(
+                    window.TestBrowserStorage.localStorage.getItem(
                         this.markerKey(assignId)
                     )
                 ) || {};
@@ -25003,7 +25006,7 @@ window.examRecoveryManager = {
                 Number(authoritative.updatedAt || 0);
         }
 
-        localStorage.setItem(
+        window.TestBrowserStorage.localStorage.setItem(
             this.markerKey(assignId),
             JSON.stringify(marker)
         );
@@ -26236,11 +26239,11 @@ window.examRecoveryManager = {
             )
             .catch(() => {});
 
-        localStorage.removeItem(
+        window.TestBrowserStorage.localStorage.removeItem(
             this.markerKey(key)
         );
 
-        localStorage.removeItem(
+        window.TestBrowserStorage.localStorage.removeItem(
             this.draftKey(key)
         );
 
@@ -26266,6 +26269,7 @@ window.addEventListener('online', () => {
 // KHÔI PHỤC BÀI THI SAU KHI TẢI LẠI TRANG / SẬP MÁY
 // =============================================================
 window.restoreInterruptedExam = async function () {
+    if (!window.StudentAccountAccess.canWrite()) return;
     const manager = window.examRecoveryManager;
 
     if (
@@ -26289,7 +26293,7 @@ window.restoreInterruptedExam = async function () {
     try {
         /*
          * EXAM GUARD V5:
-         * Không còn dựng security state từ localStorage.
+         * Không còn dựng security state từ window.TestBrowserStorage.localStorage.
          * Nếu Firebase không đọc được thì fail-closed: giữ draft local
          * nhưng không cho phục hồi một phiên thi chỉ dựa trên dữ liệu local.
          */
@@ -26441,7 +26445,7 @@ window.restoreInterruptedExam = async function () {
                 window.stopExamTimeLimitCountdown(assignId);
                 window.examTimeLimitExpiredPending[assignId] = false;
                 manager.stopHeartbeat(assignId);
-                localStorage.removeItem(manager.markerKey(assignId));
+                window.TestBrowserStorage.localStorage.removeItem(manager.markerKey(assignId));
                 continue;
             }
 
@@ -26485,7 +26489,7 @@ window.restoreInterruptedExam = async function () {
                 String(session.status || '') ===
                     'submitted'
             ) {
-                localStorage.removeItem(
+                window.TestBrowserStorage.localStorage.removeItem(
                     manager.markerKey(assignId)
                 );
 
@@ -26570,7 +26574,7 @@ window.restoreInterruptedExam = async function () {
                     ''
             };
 
-            localStorage.setItem(
+            window.TestBrowserStorage.localStorage.setItem(
                 manager.draftKey(assignId),
                 JSON.stringify(mergedDraft)
             );
@@ -27112,6 +27116,7 @@ window.showExamWarning = function (
     assignId,
     isResume = false
 ) {
+    if (!window.StudentAccountAccess.requireWrite()) return;
     if (window.isAssignmentTeacherLocked(assignId)) return;
     window.pendingExamId = String(assignId);
     window.pendingExamIsResume = !!isResume;
@@ -27447,6 +27452,8 @@ window.closeExamWarning = function (
 
 let studentExamStartInFlight = false;
 window.startExamFullscreen = async function (isResume = false) {
+    await window.StudentAccountAccess.refreshSession();
+    if (!window.StudentAccountAccess.requireWrite()) return;
     if (studentExamStartInFlight) return;
     studentExamStartInFlight = true;
     try { return await startExamFullscreenCore(isResume); }
@@ -28194,7 +28201,7 @@ window.saveDraft = function (assignId, type, qIndex, value) {
     const draftKey = `draft_${currentUser.username}_${assignId}`;
     let draft;
     try {
-        draft = JSON.parse(localStorage.getItem(draftKey));
+        draft = JSON.parse(window.TestBrowserStorage.localStorage.getItem(draftKey));
         if (typeof draft !== 'object' || draft === null) draft = { mcAnswers: {}, essay: '' };
     } catch (e) {
         draft = { mcAnswers: {}, essay: '' };
@@ -28205,7 +28212,7 @@ window.saveDraft = function (assignId, type, qIndex, value) {
         draft.essay = value;
     }
     try {
-        localStorage.setItem(draftKey, JSON.stringify(draft));
+        window.TestBrowserStorage.localStorage.setItem(draftKey, JSON.stringify(draft));
         window.StudyReliability?.local(assignId, true);
     } catch (error) {
         window.StudyReliability?.local(assignId, false);
@@ -28240,7 +28247,7 @@ document.addEventListener(
         }
 
         const activeEffect =
-            localStorage.getItem('active_effect');
+            window.TestBrowserStorage.localStorage.getItem('active_effect');
 
         if (!activeEffect) {
             if (
@@ -31926,7 +31933,7 @@ function getVideoProgressStorageKey(assignId) {
 function getLocalVideoProgress(assignId) {
     try {
         return normalizeVideoProgressSeconds(
-            localStorage.getItem(
+            window.TestBrowserStorage.localStorage.getItem(
                 getVideoProgressStorageKey(assignId)
             )
         );
@@ -31944,7 +31951,7 @@ function saveLocalVideoProgress(assignId, seconds) {
             getLocalVideoProgress(assignId);
 
         if (nextSeconds > oldSeconds) {
-            localStorage.setItem(
+            window.TestBrowserStorage.localStorage.setItem(
                 getVideoProgressStorageKey(assignId),
                 String(nextSeconds)
             );
@@ -32015,7 +32022,7 @@ async function commitVerifiedVideoProgress(assignId,seconds) {
     const saved=normalizeVideoProgressSeconds(result.seconds);
     lastSavedTime[assignId]=saved;watchDurations[assignId]=saved;
     // Untrusted local progress is only a playback hint, never reward proof.
-    try{localStorage.setItem(getVideoProgressStorageKey(assignId),String(saved));}catch(_){}
+    try{window.TestBrowserStorage.localStorage.setItem(getVideoProgressStorageKey(assignId),String(saved));}catch(_){}
     return {committed:true,snapshot:{val:()=>saved}};
 }
 
@@ -36218,7 +36225,7 @@ window.downloadStudentRoadmapPDF = async function () {
             }
 
             try {
-                localStorage.removeItem(
+                window.TestBrowserStorage.localStorage.removeItem(
                     'active_frame'
                 );
             } catch (_) {}

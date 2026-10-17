@@ -1,4 +1,4 @@
-// js/royal-ball.js
+// js/royal-ball.js?v=20261017.test.split1
 
 const RoyalBallEvent = {
     isDancing: false,

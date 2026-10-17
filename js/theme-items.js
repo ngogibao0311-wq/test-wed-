@@ -1,4 +1,4 @@
-// js/theme-items.js
+// js/theme-items.js?v=20261017.test.split1
 
 class ThemeManager {
     static themes = {
@@ -2182,7 +2182,7 @@ class ThemeManager {
         }
 
         // Lưu lựa chọn vào bộ nhớ trình duyệt
-        localStorage.setItem('active_theme', resolvedThemeId);
+        window.TestBrowserStorage.localStorage.setItem('active_theme', resolvedThemeId);
         requestAnimationFrame(() => {
             this.preserveSpecialStoreCards(
                 document

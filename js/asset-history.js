@@ -13,7 +13,8 @@
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 8000);
         try {
-            const endpoint = (window.CloudflareR2Storage?.config?.workerUrl || 'https://school-r2-files.ngogibao0311.workers.dev').replace(/\/$/, '');
+            const endpoint = (window.CloudflareR2Storage?.config?.workerUrl || 'https://school-account-access-test.ngogibao0311.workers.dev').replace(/\/$/, '');
+            if (endpoint.includes('YOUR-R2-WORKER')) return false;
             const token = await actor.getIdToken();
             const response = await fetch(endpoint + '/asset-history/trim', {
                 method: 'POST', headers: {Authorization: 'Bearer ' + token, 'Content-Type': 'application/json'},
@@ -58,7 +59,7 @@
     const watched = new Set([...Object.keys(numeric), 'student_inventory', 'student_discounts']);
     const sourceNames = { test_catalog: 'Cấp vật phẩm kiểm thử (giáo viên)', love_coin: 'Đổi bằng Xu tình yêu', that_tich_coin: 'Đổi bằng Xu Thất Tịch', store_purchase: 'Mua vật phẩm', teacher_gift: 'Nhận quà giáo viên', daily_login: 'Thưởng đăng nhập', collection_reward: 'Phần thưởng sưu tầm', special_birthday_coin: 'Đổi vật phẩm sinh nhật', birthday_coin: 'Đổi vật phẩm sinh nhật' };
     const clone = x => x === undefined ? undefined : JSON.parse(JSON.stringify(x));
-    const profile = () => { try { return JSON.parse(localStorage.getItem('currentUser') || '{}'); } catch (_) { return {}; } };
+    const profile = () => { try { return JSON.parse(window.TestBrowserStorage.localStorage.getItem('currentUser') || '{}'); } catch (_) { return {}; } };
     const uid = () => firebase.auth().currentUser?.uid || '';
     const pathOf = ref => decodeURIComponent(new URL(ref.toString()).pathname).replace(/^\/+|\/+$/g, '');
     const valueAt = (value, parts) => parts.reduce((v, p) => v?.[p], value);
@@ -126,16 +127,16 @@
     let flushing = false, retryTimer, recordingError = false;
     const storageKey = () => 'asset_history_pending_' + uid() + ':';
     function saveQueue() {
-        try { for (const row of queue.values()) if (row.actorUid === uid()) localStorage.setItem(storageKey() + row.username + '/' + row.id, JSON.stringify(row)); }
+        try { for (const row of queue.values()) if (row.actorUid === uid()) window.TestBrowserStorage.localStorage.setItem(storageKey() + row.username + '/' + row.id, JSON.stringify(row)); }
         catch (_) { recordingError = true; window.dispatchEvent(new CustomEvent('asset-history-status', { detail: 'storage-error' })); }
     }
     function restore() {
         if (!uid()) return;
         try {
             const prefix = storageKey();
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i); if (!key?.startsWith(prefix)) continue;
-                const row = JSON.parse(localStorage.getItem(key));
+            for (let i = 0; i < window.TestBrowserStorage.localStorage.length; i++) {
+                const key = window.TestBrowserStorage.localStorage.key(i); if (!key?.startsWith(prefix)) continue;
+                const row = JSON.parse(window.TestBrowserStorage.localStorage.getItem(key));
                 if (row.actorUid === uid()) queue.set(row.username + '/' + row.id, row);
             }
         } catch (_) { }
@@ -157,7 +158,7 @@
                     const existing = (await ref.once('value')).val();
                     if (!existing) await ref.set(row);
                     else if (existing.token !== row.token) throw Error('HISTORY_ID_CONFLICT');
-                    queue.delete(key); scheduleTrim(row.username); window.dispatchEvent(new CustomEvent('asset-history-committed')); try { localStorage.removeItem(storageKey() + key); } catch (_) { }
+                    queue.delete(key); scheduleTrim(row.username); window.dispatchEvent(new CustomEvent('asset-history-committed')); try { window.TestBrowserStorage.localStorage.removeItem(storageKey() + key); } catch (_) { }
                 } catch (error) { console.warn('[Lịch sử tài sản] Chưa lưu nhật ký, giữ mã để thử lại:', row.id, error.code || error.message); break; }
             }
         } finally {

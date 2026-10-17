@@ -1,4 +1,4 @@
-// js/pet-items.js
+// js/pet-items.js?v=20261017.test.split1
 
 
 // =========================================================
@@ -5399,7 +5399,7 @@ class PetManager {
 
         // Khôi phục kéo-thả + lưu pet hiện tại như cơ chế cũ.
         this.makePetDraggable();
-        localStorage.setItem('active_pet', petData.id);
+        window.TestBrowserStorage.localStorage.setItem('active_pet', petData.id);
 
         // =========================================================
         // ACEDIA · CHIBI — CLICK ULTIMATE TOÀN MÀN HÌNH

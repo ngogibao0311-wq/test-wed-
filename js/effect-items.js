@@ -1,4 +1,4 @@
-// js/effect-items.js
+// js/effect-items.js?v=20261017.test.split1
 const IS_MOBILE_EFFECT = window.matchMedia(
     '(max-width: 768px), (pointer: coarse)'
 ).matches;
@@ -315,7 +315,7 @@ class EffectManager {
         }
 
         if (removeSavedEffect) {
-            localStorage.removeItem('active_effect');
+            window.TestBrowserStorage.localStorage.removeItem('active_effect');
         }
     }
 
@@ -484,7 +484,7 @@ class EffectManager {
                 break;
         }
         document.documentElement.dataset.itemEffect = String(Boolean(effectId && effectId !== 'none'));
-        localStorage.setItem('active_effect', effectId);
+        window.TestBrowserStorage.localStorage.setItem('active_effect', effectId);
     }
 
     static createSnowEffect() {
@@ -6293,7 +6293,7 @@ document.addEventListener('visibilitychange', () => {
      */
     requestAnimationFrame(() => {
         const activeEffect =
-            localStorage.getItem('active_effect');
+            window.TestBrowserStorage.localStorage.getItem('active_effect');
 
         if (activeEffect) {
             EffectManager.applyEffect(activeEffect);

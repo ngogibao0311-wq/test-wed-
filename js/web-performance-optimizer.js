@@ -92,7 +92,7 @@
 
     function safeGetStoredEnabled() {
         try {
-            return localStorage.getItem(getStorageKey()) === '1';
+            return window.TestBrowserStorage.localStorage.getItem(getStorageKey()) === '1';
         } catch (_) {
             return false;
         }
@@ -100,7 +100,7 @@
 
     function safeStoreEnabled(enabled) {
         try {
-            localStorage.setItem(getStorageKey(), enabled ? '1' : '0');
+            window.TestBrowserStorage.localStorage.setItem(getStorageKey(), enabled ? '1' : '0');
         } catch (_) {}
     }
 

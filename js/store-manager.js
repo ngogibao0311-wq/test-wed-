@@ -1,4 +1,4 @@
-// js/store-manager.js
+// js/store-manager.js?v=20261017.test.split1
 
 // STORE GUARD companion build (logic bảo vệ giao dịch nằm ở student.js + Firebase Rules)
 window.__STORE_MANAGER_GUARD_BUILD = '20260918.v2-K2-K3-ownership';

@@ -2,7 +2,7 @@
     'use strict';
 
     const DEFAULT_WORKER_URL =
-        'https://school-r2-files.ngogibao0311.workers.dev';
+        'https://school-account-access-test.ngogibao0311.workers.dev';
 
     const R2_CONFIG = Object.freeze({
         workerUrl: String(

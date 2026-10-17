@@ -55,7 +55,7 @@
 
     function getUser() {
         try {
-            const cached = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const cached = JSON.parse(window.TestBrowserStorage.localStorage.getItem('currentUser') || '{}');
             return cached && typeof cached === 'object' ? cached : {};
         } catch (_) {
             return {};
@@ -139,12 +139,12 @@
     function readLocalState(assignId) {
         let own = {};
         try {
-            own = JSON.parse(localStorage.getItem(localKey(assignId)) || '{}') || {};
+            own = JSON.parse(window.TestBrowserStorage.localStorage.getItem(localKey(assignId)) || '{}') || {};
         } catch (_) {}
 
         let legacy = {};
         try {
-            legacy = JSON.parse(localStorage.getItem(`draft_${getUsername()}_${text(assignId)}`) || '{}') || {};
+            legacy = JSON.parse(window.TestBrowserStorage.localStorage.getItem(`draft_${getUsername()}_${text(assignId)}`) || '{}') || {};
         } catch (_) {}
 
         return {
@@ -170,13 +170,13 @@
             updatedAt: Number(patch.updatedAt || Date.now())
         };
         try {
-            localStorage.setItem(localKey(assignId), JSON.stringify(next));
+            window.TestBrowserStorage.localStorage.setItem(localKey(assignId), JSON.stringify(next));
         } catch (_) {}
         return next;
     }
 
     function removeLocalState(assignId) {
-        try { localStorage.removeItem(localKey(assignId)); } catch (_) {}
+        try { window.TestBrowserStorage.localStorage.removeItem(localKey(assignId)); } catch (_) {}
     }
 
     function sessionPath(assignId, usernameOverride = '') {
@@ -402,10 +402,10 @@
 
         const key = `draft_${getUsername()}_${text(assignId)}`;
         let draft = { mcAnswers: {}, essay: '' };
-        try { draft = JSON.parse(localStorage.getItem(key) || '{}') || draft; } catch (_) {}
+        try { draft = JSON.parse(window.TestBrowserStorage.localStorage.getItem(key) || '{}') || draft; } catch (_) {}
         if (!draft.mcAnswers || typeof draft.mcAnswers !== 'object') draft.mcAnswers = {};
         draft.mcAnswers[text(index)] = text(value);
-        try { localStorage.setItem(key, JSON.stringify(draft)); } catch (_) {}
+        try { window.TestBrowserStorage.localStorage.setItem(key, JSON.stringify(draft)); } catch (_) {}
     }
 
     function cancelPendingRemoteSave(assignId) {
@@ -585,7 +585,7 @@
 
         const finalized = remote?.status === 'finalized' || remote?.status === 'submitted';
         // Once Firebase says finalized/submitted, server answers are authoritative.
-        // Never let a forged/stale localStorage draft overwrite the finalized snapshot.
+        // Never let a forged/stale window.TestBrowserStorage.localStorage draft overwrite the finalized snapshot.
         const answers = finalized
             ? normalizeAnswers(remote?.answers)
             : mergeAnswers(remote?.answers, local.answers, local.updatedAt, remote?.updatedAt);
