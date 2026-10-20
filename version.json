@@ -1,29 +1,24 @@
 {
-  "version": "4.3.2",
-  "build": "2026.10.10.14",
-  "channel": "stable",
-  "releasedAt": "2026-10-10T00:00:00+07:00",
-  "title": "v4.3.2 · Mùa Đông và Vĩnh Đông Băng Chủ",
-  "summary": "Bổ sung bộ Mùa Đông với hệ thống băng giá nhiều lớp và năm vật phẩm thường độc lập.",
+  "version": "4.4.0",
+  "build": "20261019.study1",
+  "channel": "test",
+  "releasedAt": "2026-10-19T00:00:00+07:00",
+  "title": "Bản test · Lưu nháp và xác nhận nộp bài",
+  "summary": "Lưu nháp theo phiên bản, tra lại biên nhận nộp bài và kiểm tra mã cần thiết trước khi mở chức năng.",
   "mandatory": false,
   "minSupportedVersion": "3.0.0",
   "changes": [
-    "Đông Thần · Vĩnh Đông Băng Chủ giá 15.000 Coin: thẻ Mùa Đông riêng, giao diện băng lam, hiệu ứng quanh nhân vật, xung băng khi nhấn và ultimate điện băng.",
-    "Module eternal_winter có bão tuyết nhiều lớp, tinh thể sinh trưởng và vỡ, sương giá tan theo con trỏ, cực quang, pháp trận và bốn giai đoạn chuyển tiếp.",
-    "Thẻ có trạng thái phong ấn, đã sở hữu và đang trang bị từ kho vật phẩm; không có cửa sổ xem trước. Hoạt ảnh không thay đổi quyền sở hữu hoặc phát sinh giao dịch.",
-    "Bộ thường Mùa Đông gồm thú cưng 850 Coin, giao diện 800 Coin, hiệu ứng 900 Coin, khung viền 250 Coin, nền 150 Coin; tham gia sưu tầm Bốn mùa.",
-    "Bộ thường dùng bưu trạm tuyết, thư bay và quả cầu tuyết riêng; không dùng hiệu ứng sang trọng và không tạo hiệu ứng khi nhấn toàn trang.",
-    "Giới hạn hạt, tự điều chỉnh chất lượng, giảm chuyển động, dừng khi ngoài vùng nhìn thấy hoặc vào thi; giải phóng hiệu ứng khi tháo đồ.",
-    "Làm lại hào quang Vĩnh Đông: ba dải cực quang, pháp trận khắc ký tự, tinh thể sống nứt vỡ và mọc lại, sương giá trên cung tan theo con trỏ, bệ băng và lớp hạt trước–sau nhân vật.",
-    "Cupid · Hồng Tuyến Định Mệnh 15.000 Coin: đủ năm lớp Valentine, gồm không gian tim pha lê quanh nhân vật, chỉ nối điểm bấm và ultimate 8 giây dệt trái tim; bộ thường và sưu tầm chờ lượt tiếp theo.",
-    "Thêm chi tiết nền Valentine: chỉ thêu ở rìa, tim treo, ánh vàng nhỏ và cụm hoa hồng; giữ hiệu ứng nhấn hiện có.",
-    "Ultimate Valentine: chữ Hồng Tuyến Vĩnh Kết rõ nét, viền ren trái tim, sáu nụ hồng, chỉ quỹ đạo và ánh vàng chuyển động.",
-    "Lịch sử học sinh chỉ giữ 30 giao dịch mới nhất; Worker dọn bản ghi cũ sau khi ghi giao dịch hoặc mở lịch sử, không thay đổi số dư và dữ liệu đối soát. Cần triển khai Worker đi kèm.",
-    "Đổi tên dịch vụ hiển thị thành đám mây trong thông báo, hướng dẫn và bảng chẩn đoán; giữ nguyên kết nối, quyền và cơ chế dữ liệu.",
-    "Sửa bài: bỏ chọn từng học sinh, giữ các em còn lại. Khi xóa học sinh, xóa bài tập/lịch chỉ giao cho em đó; giữ mục dùng chung và loại em khỏi danh sách cụ thể. Cần cập nhật Worker.",
-    "Thêm Ngày hội mua sắm trong Trò chơi: chỉ mở ngày 3/11 hằng năm (giờ Việt Nam), mỗi học sinh quay miễn phí một lần/năm để giảm 10–70% cho vật phẩm Coin ở cả cửa hàng thường và sang trọng; không áp dụng vật phẩm hoặc xu sự kiện. Lưu kết quả quay và giá thanh toán vào lịch sử; cần triển khai Worker đi kèm."
+    "Lưu nháp theo phiên bản: phát hiện bản cũ, giữ dữ liệu trên máy để đối chiếu và tách lượt làm lại.",
+    "Nộp bài có mã yêu cầu và biên nhận: khi mất phản hồi, kiểm tra lần gửi trước rồi mới thử lại với cùng mã.",
+    "Kiểm tra các module đã tải và khởi tạo trước khi kích hoạt riêng từng tài khoản; không tự tải lại khi đang làm bài hoặc chờ xác nhận.",
+    "Sửa đăng nhập lại sau khi giáo viên duyệt quên mã: khôi phục yêu cầu đã gửi, mở bước tạo mã mới và giữ yêu cầu khi đóng/mở lại tab trong cùng trình duyệt.",
+    "Hoạt ảnh chờ xác minh cho đăng nhập, mã thiết bị, giao dịch và yêu cầu đổi tiền; tự đóng khi có kết quả, có thể thu gọn khi phản hồi lâu.",
+    "Romeo Premium: 2 Xu tình yêu; 5 vật phẩm thường: 1 Xu tình yêu mỗi món.",
+    "Đối chiếu phiên bản JavaScript/CSS theo nhóm trước khi mở chức năng; không tự tải lại bài thi.",
+    "Mở file:// trên bản test sau khi cập nhật Worker/Rules test; ví sự kiện dùng giao dịch có đối soát."
   ],
   "resolvedIssues": [
+    "Phiên chỉ xem không gửi lặp giao dịch video/nhận thưởng; yêu cầu tiền mặt đối soát mã cũ trước kiểm tra số dư.",
     "Các vật phẩm Mùa Đông đi qua cơ chế mua, trang bị và lịch sử tài sản hiện có; kiểm thử nhận và tiêu hao vật phẩm mới.",
     "Lịch sử chờ lượt gửi nhật ký đang chạy trước khi tải và tự làm mới khi có bản ghi mới, tránh bỏ sót lần mua vé tiếp theo trên danh sách.",
     "Chặn trái tim SVG phóng lớn chớp lên khi CSS của lớp hiệu ứng đang tải.",
@@ -38,7 +33,8 @@
   ],
   "knownIssues": [
     "Bộ Mùa Đông không yêu cầu rule mới riêng; chức năng lịch sử tài sản vẫn cần bộ rules của v4.3.1.",
-    "Kiểm thử thực hiện cục bộ với dữ liệu giả lập; chưa xác nhận giao dịch đám mây trực tiếp hoặc hiệu suất trên điện thoại thật."
+    "Kiểm thử thực hiện cục bộ với dữ liệu giả lập; chưa xác nhận giao dịch đám mây trực tiếp hoặc hiệu suất trên điện thoại thật.",
+    "Cơ chế học tập mới cần Worker, Rules và study_protocol_config/version = 1 trên môi trường test. Chỉ tài khoản được Worker xác nhận mới kích hoạt; bản sửa này chưa triển khai online."
   ],
   "plannedImprovements": []
 }

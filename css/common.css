@@ -4040,11 +4040,14 @@ html body.login-page .login-container .login-help-note { margin-top: 24px; }
 html body #accountRecoveryRequests.access-empty [data-access-refresh] { margin: 0; padding: 8px 12px; }
 
 /* Secondary login remains browsable; authenticated writes are checked by the server. */
-#studentSessionBanner { position: fixed; z-index: 2147483000; left: max(16px, env(safe-area-inset-left)); right: 16px; bottom: 16px; display: flex; align-items: center; gap: 16px; padding: 14px 18px; border: 1px solid #cbd5ec; border-radius: 14px; background: #f4f7ff; color: #263953; box-shadow: 0 6px 28px #13234926; font: 500 14px/1.6 system-ui, sans-serif; }
+/* In-flow notice: no spacer outside the dashboard or overlay across the sidebar. */
+html body #studentSessionBanner { position: relative; inset: auto; z-index: auto; display: flex; align-items: center; gap: 16px; width: 100%; min-width: 0; max-width: 100%; margin: 56px 0 20px; padding: 14px 18px; border: 1px solid #cbd5ec; border-radius: 14px; background: #f4f7ff; color: #263953; box-shadow: none; font: 500 14px/1.6 system-ui, sans-serif; }
 #studentSessionBanner[hidden] { display: none !important; }
-#studentSessionBanner span { flex: 1; }
+#studentSessionBanner span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 html body #studentSessionBanner button { width: auto; flex-shrink: 0; margin: 0; padding: 10px 14px; border: 1px solid #c8d1e7; border-radius: 10px; background: white; color: #344b88; font: 650 14px/1.5 system-ui, sans-serif; box-shadow: none; }
-body.student-view-session { padding-bottom: 110px; }
-@media (max-width: 540px) { #studentSessionBanner { flex-direction: column; align-items: stretch; gap: 8px; font-size: 12px; } body.student-view-session { padding-bottom: 175px; } }
+html[data-mobile-ui="phone"] body #studentSessionBanner { margin-top: 0; }
+@media (max-width: 540px) { html body #studentSessionBanner { flex-direction: column; align-items: stretch; gap: 10px; padding: 12px 14px; font-size: 13px; } html body #studentSessionBanner button { align-self: flex-end; } }
 
 body.student-view-session .student-session-locked { opacity: .65; cursor: not-allowed !important; }
+
+:root { --asset-common: 20261018.romeo1; }

@@ -286,3 +286,103 @@ html body:is(.theme-cupid-letter,.theme-juliet-tearoom) ::-webkit-scrollbar-thum
 @media(prefers-reduced-motion:reduce){.cpr-stage *{animation:none!important}.cpr-pet-heart{opacity:.3}.cpr-ultimate{display:none!important}}
 
 html body:is(.theme-cupid-letter,.theme-juliet-tearoom) .content h2:not(:where(.ui-theme-immune *,.store-theme-locked *,.store-item-card *,.luxury-product-card *))::after{background:linear-gradient(90deg,var(--vl-accent),var(--vl-line))!important;box-shadow:none!important}
+/* ROMEO PREMIUM — celestial navigation in midnight teal / engraved brass. */
+.rmo-world,.rmo-ultimate,.rmr-ultimate{position:fixed!important;inset:0!important;pointer-events:none!important;overflow:hidden!important;z-index:99980!important}
+.rmo-world{z-index:9990!important}.rmo-aura,.rmr-aura{position:absolute!important;inset:-24% -35% -15%!important;pointer-events:none!important;z-index:0!important}
+.rmo-world[hidden],.rmo-aura[hidden],.rmr-aura[hidden],.rmr-weather[hidden]{display:none!important}
+.rmo-click{position:fixed!important;width:130px!important;height:130px!important;translate:-50% -50%!important;pointer-events:none!important;z-index:99990!important}
+.rmo-root{position:absolute;inset:0;pointer-events:none;color:#dbbe87;font-family:Georgia,'Times New Roman',serif;isolation:isolate}
+.rmo-root *{box-sizing:border-box;pointer-events:none}.rmo-root svg{display:block;width:100%;height:100%;stroke-width:1.2;overflow:visible}
+.rmo-sky-wash{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0,#5a9ca21c,transparent 52%),linear-gradient(90deg,#082d431a,transparent 20% 80%,#082d431a)}
+.rmo-celestial-dial{position:absolute;width:min(55vw,650px);height:min(55vw,650px);left:50%;top:-32vw;translate:-50% 0;opacity:.5}
+.rmo-turn{transform-origin:200px 200px;animation:rmo-turn 85s linear infinite}
+.rmo-star-map{position:absolute;top:12%;width:22%;height:22%;opacity:.5}.rmo-map-left{left:0;rotate:-20deg}.rmo-map-right{right:0;rotate:22deg;scale:-1 1}
+.rmo-colonnade>div{position:absolute;left:calc(var(--i)*32%);top:5%;height:92%;width:4%;opacity:.4}.rmo-colonnade>div:nth-child(2),.rmo-colonnade>div:nth-child(3){opacity:.12}
+.rmo-top-chain{position:absolute;inset:0 0 auto;height:130px;display:flex;justify-content:space-around}
+.rmo-top-chain>i{position:relative;width:1px;height:calc(35px + mod(var(--i),3)*24px);background:linear-gradient(#bea16d99,#d7ca9a33);transform-origin:top;animation:rmo-pendulum 7s ease-in-out infinite alternate;animation-delay:calc(var(--i)*-.7s)}
+.rmo-top-chain b{position:absolute;bottom:-8px;left:-5px;width:11px;height:20px;border:1px solid #d2bc83;background:#7ba6b355;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);box-shadow:0 0 12px #decd9b}
+.rmo-horizon{position:absolute;bottom:0;left:0;width:100%;height:80px;opacity:.35}
+.rmo-meridian{position:absolute;inset:12px;border:1px solid #cdb47a44;border-radius:32px 4px;box-shadow:inset 0 0 0 5px #b7a16c11;mask-image:linear-gradient(90deg,#000,transparent 20% 80%,#000)}
+.rmo-stardust{position:absolute;left:var(--x);top:var(--y);width:3px;height:3px;background:#eadcb3;border-radius:50%;box-shadow:0 0 7px #e3e9c8;animation:rmo-glimmer 5s ease-in-out infinite;animation-delay:calc(var(--i)*-.31s)}
+.rmo-pet-dial{position:absolute;inset:5% -4% 15%;opacity:.85;filter:drop-shadow(0 0 5px #68adba44)}
+.rmo-orbit{position:absolute;left:10%;top:25%;width:80%;height:45%;border:1px solid #e1c58c;border-radius:50%;rotate:-30deg;box-shadow:0 0 0 5px #75d3e414,inset 0 0 12px #74c3d333;animation:rmo-orbit 9s ease-in-out infinite alternate}
+.rmo-orbit-b{rotate:35deg;animation-delay:-4s;border-color:#7ab6ca}
+.rmo-platform{position:absolute;left:14%;bottom:4%;width:72%;height:12%;border:2px solid #e1c48f;border-radius:50%;background:repeating-radial-gradient(ellipse,#18465d99 0 8px,#d4b27777 9px,#18465d99 11px);box-shadow:0 12px 20px #0f344a33;transform:perspective(300px) rotateX(30deg)}
+.rmo-satellite{position:absolute;left:calc(8% + var(--i)*16%);top:calc(45% + sin(var(--i))*25%);height:8px;width:8px;border:1px solid #f0d598;rotate:45deg;background:#73aab288;animation:rmo-glimmer 4s ease-in-out infinite;animation-delay:calc(var(--i)*-.5s)}
+#virtual-pet-img.rmo-character,#virtual-pet-img.rmr-character{position:relative;z-index:2;filter:drop-shadow(0 5px 8px #0a304655)}
+.rmo-click-compass{position:absolute;inset:0;animation:rmo-seal 1.1s ease-out both;filter:drop-shadow(0 0 3px #43859c66)}
+.rmo-click-ray{position:absolute;left:50%;top:50%;width:2px;height:16px;background:linear-gradient(#e9d392,transparent);--a:calc(var(--i)*45deg);animation:rmo-ray 1.1s ease-out both}
+.rmo-night{position:absolute;inset:0;background:radial-gradient(ellipse,#123e54c9,#041829ed);animation:rmo-stage-fade 7.6s ease both}
+.rmo-stage-map{position:absolute;inset:12% 12% 30%;opacity:.65;animation:rmo-map-arrive 2s ease both}
+.rmo-stage-dial{position:absolute;left:50%;top:46%;width:min(70vh,75vw);aspect-ratio:1;translate:-50% -50%;opacity:.9;animation:rmo-dial-arrive 7.6s ease both;filter:drop-shadow(0 0 12px #75c3cf44)}
+.rmo-eclipse{position:absolute;left:50%;top:40%;width:min(26vh,35vw);aspect-ratio:1;translate:-50% -50%;border-radius:50%;background:#122a3b;box-shadow:0 0 0 2px #f5db9e,0 0 25px #f6c97099,0 0 90px #87bfca44;animation:rmo-eclipse 7.6s ease both}
+.rmo-stage-ribbons{position:absolute;inset:0;overflow:hidden}.rmo-stage-ribbons i{position:absolute;left:50%;top:42%;width:110vw;height:22vh;border-top:1px solid #deb97866;border-bottom:1px solid #8fc8d333;border-radius:50%;transform-origin:0 50%;rotate:calc(var(--i)*45deg);animation:rmo-ribbon 7.6s ease both;animation-delay:calc(var(--i)*.04s)}
+.rmo-stage-bridge{position:absolute;bottom:8%;left:15%;width:70%;height:22%;opacity:.7;animation:rmo-map-arrive 3s ease both}
+.rmo-stage-title{position:absolute;left:12%;right:12%;top:39%;text-align:center;color:#fff3ce;animation:rmo-title 7.6s ease both;text-shadow:0 3px 24px #001424}
+.rmo-stage-title small{display:block;font:600 clamp(9px,1.2vw,14px) system-ui;letter-spacing:.25em}.rmo-stage-title strong{display:block;font-size:clamp(32px,5.2vw,76px);font-weight:500;letter-spacing:.11em;line-height:1.2;margin:20px 0}.rmo-stage-title span{display:block;font-size:clamp(12px,1.5vw,19px);font-style:italic}
+.rmo-meteor{position:absolute;left:var(--x);top:var(--y);height:1px;width:70px;background:linear-gradient(90deg,transparent,#eed3a3);rotate:-35deg;opacity:0;animation:rmo-meteor 2.3s ease-out infinite;animation-delay:calc(2s + var(--i)*.09s)}
+:host([data-phase="dawn"]) .rmo-root{animation:rmo-dawn 1.5s ease both}
+/* Shapes and typography apply only to explicitly tagged, non-immune surfaces. */
+html:is(#romeo-palette,html):is(#romeo-art,html):is(#romeo-ui,html).rmo-equipped:not(.rmo-suspended) body .rmo-nav{background:linear-gradient(160deg,#0b2638,#214f5e)!important;border:1px solid #c5a776!important;border-radius:28px 7px 28px 7px!important;box-shadow:inset 4px 0 #dec38b33,0 12px 28px #09263533!important;color:#e6edf0!important}
+html:is(#romeo-palette,html):is(#romeo-art,html):is(#romeo-ui,html).rmo-equipped:not(.rmo-suspended) body .rmo-surface{background:linear-gradient(135deg,#f4f8f4,#e5eff0)!important;border:1px solid #b9a47c!important;border-radius:24px 5px 24px 5px!important;box-shadow:inset 0 0 0 5px #fff9e955,0 5px 20px #19384b12!important;color:#244653!important}
+html:is(#romeo-palette,html):is(#romeo-art,html):is(#romeo-ui,html).rmo-equipped:not(.rmo-suspended) body .rmo-heading{font-family:Georgia,'Times New Roman',serif!important;color:#234957!important;letter-spacing:.025em!important}
+html:is(#romeo-palette,html):is(#romeo-art,html):is(#romeo-ui,html).rmo-equipped:not(.rmo-suspended) body .rmo-nav .rmo-heading{color:#f3dfb7!important}
+html:is(#romeo-palette,html):is(#romeo-art,html):is(#romeo-ui,html).rmo-equipped:not(.rmo-suspended) body .rmo-control{font-family:Georgia,'Times New Roman',serif!important;background:linear-gradient(115deg,#163c50,#2c6270)!important;color:#fff1cd!important;border:1px solid #bda274!important;border-radius:13px 3px 13px 3px!important;box-shadow:inset 0 -3px #102d3b55!important}
+html:is(#romeo-palette,html):is(#romeo-art,html):is(#romeo-ui,html).rmo-equipped:not(.rmo-suspended) body .rmo-field{background:#f6faf7!important;color:#1f4959!important;border:1px solid #97b0b7!important;border-radius:12px 3px!important;font-family:Georgia,'Times New Roman',serif!important}
+html:is(#romeo-palette,html):is(#romeo-art,html):is(#romeo-ui,html).rmo-equipped:not(.rmo-suspended) body .rmo-nav .nav-item{color:#e6edf0!important}
+html:is(#romeo-palette,html):is(#romeo-art,html):is(#romeo-ui,html).rmo-equipped:not(.rmo-suspended) body .rmo-nav .nav-item.active{background:#bda274!important;color:#122f40!important}
+/* Card retains the shared Luxury geometry; only its painting differs. */
+html body #luxuryStoreGrid > .luxury-product-card.rmo-card .luxury-unified-visual{background:radial-gradient(ellipse at 50% 38%,#6c9ca2,#173e52 55%,#0c2639)!important}
+html body #luxuryStoreGrid > .luxury-product-card.rmo-card .luxury-unified-character{object-fit:cover!important;object-position:center!important}
+.rmo-card-compass{position:absolute;inset:6% -14% 16%;pointer-events:none;color:#dfc38b;overflow:hidden}
+.rmo-card-compass i{position:absolute;inset:12%;border:1px solid #ddc48c88;border-radius:50%;box-shadow:0 0 0 8px #dfc38b11,inset 0 0 0 6px #dfc38b11}
+.rmo-card-compass i:nth-child(2){inset:26% 4%;rotate:40deg}.rmo-card-compass i:nth-child(3){inset:26% 4%;rotate:-40deg}.rmo-card-compass b{position:absolute;left:48%;top:7%;font-size:22px}
+/* ROMEO REGULAR — paper vessels, pale mint harbor, soft brass accents. */
+html body .store-item-card.store-card-romeo{background:linear-gradient(145deg,#f4f9ed,#dbeceb)!important;border-color:#94b5ba!important;color:#2b5966!important;border-radius:22px 6px!important}
+html body .store-item-card.store-card-romeo :is(h3,.item-name){color:#285b68!important}
+html body .store-item-card.store-card-romeo button{background:#336778!important;color:#fff4db!important;border-color:#86a5a8!important}
+.rmr-weather{position:absolute!important;inset:0!important;pointer-events:none!important;overflow:hidden!important}
+.rmr-sea-glow{position:absolute;inset:0;background:linear-gradient(0deg,#6ba7b51a,transparent 32%)}
+.rmr-paper-vessel{position:absolute;left:var(--x);top:var(--y);width:46px;color:#638e99;opacity:.5;animation:rmr-sail 15s ease-in-out infinite;animation-delay:calc(var(--i)*-1.7s)}
+.rmr-stream{position:absolute;bottom:calc(3% + var(--i)*6%);left:-5%;width:110%;height:40px;border-top:1px dashed #6eabb655;border-radius:50%;animation:rmr-tide 9s ease-in-out infinite alternate;animation-delay:calc(var(--i)*-2s)}
+.rmr-pet-sea{position:absolute;left:5%;bottom:4%;width:90%;height:20%;border-radius:50%;background:repeating-radial-gradient(ellipse,#acd2ce33 0 9px,#d8e8df99 10px,#729c9f55 12px);animation:rmr-tide 5s ease-in-out infinite alternate}
+.rmr-pet-boat{position:absolute;left:0;bottom:5%;width:38%;color:#7e9eaa;animation:rmr-sail 6s ease-in-out infinite}.rmr-pet-beacon{position:absolute;right:0;bottom:10%;width:25%;color:#78959c}
+.rmr-harbor-light{position:absolute;inset:0;background:radial-gradient(ellipse at 65% 60%,#e8d8aa33,transparent 60%);animation:rmr-show 3.6s ease both}
+.rmr-journey{position:absolute;left:30%;top:52%;width:150px;color:#527e8e;animation:rmr-journey 3.6s ease both}.rmr-lighthouse{position:absolute;left:64%;top:40%;width:95px;color:#68858b;animation:rmr-show 3.6s ease both}
+.rmr-journey-title{position:absolute;left:15%;right:15%;top:34%;text-align:center;color:#386a79;font:600 clamp(15px,3vw,24px) Georgia,serif;letter-spacing:.12em;animation:rmr-show 3.6s ease both}
+.rmr-wave{position:absolute;left:20%;top:calc(66% + var(--i)*2%);width:60%;height:24px;border-top:1px solid #7ca4ab66;border-radius:50%;animation:rmr-show 3.6s ease both}
+html:is(#romeo-harbor,html):is(#romeo-paper,html):is(#romeo-boat,html) body.theme-romeo-harbor :is(.sidebar,.modal-content,.popup-content,.card,.assignment-card,.dashboard-card):not(:where(.ui-theme-immune,.ui-theme-immune *,.store-theme-locked,.store-theme-locked *)){background:linear-gradient(135deg,#f5f8e9,#dceeed)!important;border:1px solid #9dbbb8!important;border-radius:22px 22px 6px 6px!important;color:#2b5c6a!important;box-shadow:0 5px 14px #32657316!important}
+html:is(#romeo-harbor,html):is(#romeo-paper,html):is(#romeo-boat,html) body.theme-romeo-harbor :is(h1,h2,h3,label,button,input,textarea,select,.nav-item):not(:where(.ui-theme-immune,.ui-theme-immune *,.store-theme-locked,.store-theme-locked *)){font-family:'Trebuchet MS','Segoe UI',sans-serif!important}
+html:is(#romeo-harbor,html):is(#romeo-paper,html):is(#romeo-boat,html) body.theme-romeo-harbor :is(h1,h2,h3):not(:where(.ui-theme-immune *,.store-theme-locked *)){color:#2b5968!important}
+html:is(#romeo-harbor,html):is(#romeo-paper,html):is(#romeo-boat,html) body.theme-romeo-harbor :is(button,.nav-item.active):not(:where(.ui-theme-immune,.ui-theme-immune *,.store-theme-locked,.store-theme-locked *)){background:#356c7a!important;color:#fff5de!important;border:1px solid #8aabae!important;border-radius:15px 15px 5px 5px!important}
+html:is(#romeo-harbor,html):is(#romeo-paper,html):is(#romeo-boat,html) body.theme-romeo-harbor .sidebar .nav-item:not(.active){color:#2b5d6a!important}
+@keyframes rmo-turn{to{transform:rotate(360deg)}}
+@keyframes rmo-pendulum{from{rotate:-4deg}to{rotate:4deg}}
+@keyframes rmo-glimmer{0%,100%{opacity:.2;scale:.7}50%{opacity:.85;scale:1.25}}
+@keyframes rmo-orbit{to{transform:rotateX(55deg) rotateZ(18deg)}}
+@keyframes rmo-seal{0%{opacity:0;scale:.2;rotate:-60deg}18%{opacity:1}100%{opacity:0;scale:1.2;rotate:35deg}}
+@keyframes rmo-ray{0%{opacity:0;transform:rotate(var(--a)) translateY(-10px)}20%{opacity:.8}100%{opacity:0;transform:rotate(var(--a)) translateY(-75px)}}
+@keyframes rmo-stage-fade{0%,100%{opacity:0}12%,85%{opacity:1}}
+@keyframes rmo-map-arrive{from{opacity:0;scale:1.4}to{opacity:.7;scale:1}}
+@keyframes rmo-dial-arrive{0%{opacity:0;scale:.2;rotate:-80deg}20%{opacity:.85;scale:1;rotate:0deg}80%{opacity:.6;scale:1.25;rotate:35deg}100%{opacity:0;scale:1.5;rotate:50deg}}
+@keyframes rmo-eclipse{0%,15%{opacity:0;scale:.3}32%{opacity:1;scale:1}64%{opacity:.5;scale:.7}85%,100%{opacity:0;scale:1.8}}
+@keyframes rmo-ribbon{0%,15%{opacity:0;scale:.1}45%,80%{opacity:1;scale:1}100%{opacity:0;scale:1.4}}
+@keyframes rmo-title{0%,35%{opacity:0;translate:0 20px}48%,80%{opacity:1;translate:0 0}100%{opacity:0;translate:0 -18px}}
+@keyframes rmo-meteor{0%{opacity:0;translate:0 0}20%{opacity:.7}100%{opacity:0;translate:-130px 100px}}
+@keyframes rmo-dawn{to{opacity:0;filter:brightness(1.4)}}
+@keyframes rmr-sail{0%,100%{translate:0 0;rotate:-3deg}50%{translate:18px -6px;rotate:4deg}}
+@keyframes rmr-tide{to{scale:1.08;translate:0 -3px}}
+@keyframes rmr-show{0%,100%{opacity:0}20%,80%{opacity:1}}
+@keyframes rmr-journey{0%{opacity:0;translate:-90px 10px;rotate:-6deg}20%{opacity:1}80%{opacity:1}100%{opacity:0;translate:160px -5px;rotate:6deg}}
+.rmo-still *{animation:none!important}.rmo-still .rmo-stardust{opacity:.25}
+@media(prefers-reduced-motion:reduce){.rmo-root *{animation:none!important}.rmo-ultimate,.rmr-ultimate,.rmo-click{display:none!important}}
+@media(max-width:650px){.rmo-colonnade>div:nth-child(2),.rmo-colonnade>div:nth-child(3){display:none}.rmo-star-map{width:30%;opacity:.25}.rmr-journey{width:100px}.rmo-meridian{inset:6px}.rmr-lighthouse{width:60px}.rmo-stage-title{left:6%;right:6%}}
+
+:root { --asset-valentine: 20261018.romeo1; }
+
+html.rmo-equipped:not(.rmo-suspended) .app-dialog-host::part(panel){background:linear-gradient(135deg,#f6f8ef,#dcebee)!important;color:#244653!important;border:1px solid #b9a47c!important;border-radius:24px 5px!important;font-family:Georgia,serif!important}
+html.rmo-equipped:not(.rmo-suspended) .app-dialog-host::part(title){font-family:Georgia,serif!important;color:#244653!important}
+html body.theme-romeo-harbor .app-dialog-host::part(panel){background:#edf6ed!important;color:#2b5c6a!important;border:1px solid #9dbbb8!important;border-radius:22px 22px 6px 6px!important;font-family:'Trebuchet MS','Segoe UI',sans-serif!important}
+
+html.rmo-equipped:not(.rmo-suspended) body{--primary-color:#285765;--secondary-color:#bba16d;--text-color:#244653}
+html:is(#romeo-palette,html):is(#romeo-art,html):is(#romeo-ui,html).rmo-equipped:not(.rmo-suspended) .rmo-heading::after{background:linear-gradient(90deg,#c5aa76,#6c9b9d)!important;box-shadow:none!important}

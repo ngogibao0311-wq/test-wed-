@@ -1,5 +1,5 @@
-const APP_VERSION = '4.3.2';
-const APP_BUILD = '2026.10.17.session-authority1';
+const APP_VERSION = '4.4.0';
+const APP_BUILD = '20261019.study1';
 const CACHE_VERSION = `qlbt-test-shell-v${APP_VERSION}-${APP_BUILD}`;
 const OFFLINE_CACHE = `${CACHE_VERSION}-offline`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;

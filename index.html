@@ -2,15 +2,17 @@
 <html lang="vi">
 
 <head>
-    <script src="js/test-browser-storage.js?v=20261017.test-worker1"></script>
+    <meta name="asset-compat-version" content="20261018.romeo1">
+    <script src="js/test-browser-storage.js?v=20261018.romeo1"></script>
     <link rel="stylesheet" href="css/app-dialog.css?v=20261001.design2">
-    <script src="js/app-dialog.js?v=20261017.test.split1"></script>
+    <script src="js/app-dialog.js?v=20261019.loading1"></script>
+    <script src="js/server-activity.js?v=20261019.loading1"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="application-version" content="4.3.2">
+    <meta name="application-version" content="4.4.0">
     <meta name="theme-color" content="#4f46e5">
     <title>Đăng nhập Hệ thống</title>
-    <link rel="stylesheet" href="css/common.css?v=20261017.session-authority1">
+    <link rel="stylesheet" href="css/common.css?v=20261018.romeo1">
     <link rel="icon" type="image/png" href="assets/icon.png">
 </head>
 
@@ -73,11 +75,11 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <!-- 2. Khởi tạo Firebase -->
-    <script src="js/firebase-config.js?v=20261017.test-worker1"></script>
+    <script src="js/firebase-config.js?v=20261018.romeo1"></script>
 
     <!-- 3. Đồng bộ phiên bản ứng dụng trước khi nạp mã dùng chung -->
     <script>
-        window.APP_VERSION = '4.3.2';
+        window.APP_VERSION = '4.4.0';
         try {
             window.TestBrowserStorage.localStorage.setItem('appVersion', window.APP_VERSION);
         } catch (_) {}
@@ -86,7 +88,7 @@
     <script src="js/security.js?v=20261017.test.split1"></script>
 
     <!-- 4. Mã dùng chung -->
-    <script src="js/common.js?v=20261017.session-authority1"></script>
+    <script src="js/common.js?v=20261019.recovery1"></script>
 
     <!-- 5. Logic đăng nhập và bảo mật -->
 
