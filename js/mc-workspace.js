@@ -12,7 +12,7 @@
 (function () {
     'use strict';
 
-    const BUILD = '20261003.workspace-v8';
+    const BUILD = '20261019.study1';
     if (window.MCWorkspace?.__build === BUILD) return;
     const LEASE_MS = 90 * 1000;
     const LOCAL_PREFIX = 'mc_workspace_v2_local_';
@@ -148,13 +148,11 @@
         } catch (_) {}
 
         return {
-            answers: {
-                ...(legacy.mcAnswers && typeof legacy.mcAnswers === 'object' ? legacy.mcAnswers : {}),
-                ...(own.answers && typeof own.answers === 'object' ? own.answers : {})
-            },
+            answers: normalizeAnswers(own.answers ?? legacy.mcAnswers),
             updatedAt: Number(own.updatedAt || 0),
             finalized: own.finalized === true,
             finalizedAt: Number(own.finalizedAt || 0),
+            baseContent: own.baseContent || '',
             ownerId: text(own.ownerId || '')
         };
     }
@@ -246,6 +244,12 @@
         return { ...localAnswers, ...remoteAnswers };
     }
 
+    function compatibleAnswers(remote, local) {
+        if (!remote?.draftProtocol) return mergeAnswers(remote?.answers,local.answers,local.updatedAt,remote?.updatedAt);
+        if (local.baseContent === window.StudyProtocol.contentToken(remote)) return normalizeAnswers(local.answers);
+        return normalizeAnswers(remote.answers);
+    }
+
     function ensureDb() {
         let candidate = null;
         try {
@@ -260,15 +264,10 @@
         return candidate;
     }
 
-    async function transactSession(ref, update, onComplete, applyLocally = false) {
-        const keep = () => {};
-        ref.on?.('value', keep, () => {});
-        try {
-            await ref.once('value');
-            return await ref.transaction(update, onComplete, applyLocally);
-        } finally { ref.off?.('value', keep); }
+    async function transactSession(ref, update, onComplete, applyLocally = false, studyOptions = {}) {
+        if (!window.StudyProtocol) throw Error('STUDY_MODULES_MISSING');
+        return window.StudyProtocol.transaction(ref,update,{owner:getOwnerId(),onComplete,...studyOptions});
     }
-
     async function readSession(assignId) {
         const key = text(assignId);
         const snap = await ensureDb().ref(sessionPath(key)).once('value');
@@ -285,6 +284,7 @@
     }
 
     async function acquireOwner(assignOrId, options = {}) {
+        await window.StudyProtocol.require('exam');
         const assignment = getAssignment(assignOrId);
         if (!assignment || !isMC(assignment)) return null;
 
@@ -303,7 +303,7 @@
 
         const ref = ensureDb().ref(sessionPath(assignId));
         // Refresh the cached session before reacquiring after an interrupted exam.
-        await ref.once('value');
+        const beforeSession = (await ref.once('value')).val();
         const result = await transactSession(ref, current => {
             denial = '';
             const old = current && typeof current === 'object' ? current : null;
@@ -337,11 +337,11 @@
                 examVersionIndex: Number(old?.examVersionIndex ?? getExamSet(assignment).versionIndex ?? 0),
                 ...(preservingFinalized && old?.finalizedAt ? { finalizedAt: Number(old.finalizedAt) } : {})
             };
-        }, undefined, false);
+        }, undefined, false, {acquire:true});
 
         if (!result.committed) {
             const live = result.snapshot?.val?.();
-            if (live &&
+            if (live && live.ownerId === ownerId &&
                 ['active', 'finalized'].includes(text(live.status)) &&
                 Number(live.ownerLeaseUntil || 0) > serverTimestampNow()) {
                 state.sessions[assignId] = live;
@@ -363,6 +363,7 @@
         if (session?.username) state.sessionUsers[assignId] = text(session.username);
         writeLocalState(assignId, {
             ownerId,
+            ...(beforeSession?.status === 'submitted' && allowRedo ? {answers:{},baseContent:window.StudyProtocol.contentToken(session)} : {}),
             finalized: session?.status === 'finalized',
             finalizedAt: Number(session?.finalizedAt || 0)
         });
@@ -421,7 +422,7 @@
         const previousSave = state.remoteSaveChains[assignId] || Promise.resolve();
         const task = previousSave
             .catch(() => {})
-            .then(() => saveRemoteDraft(assignment, answers));
+            .then(() => saveRemoteDraft(assignment, readLocalState(assignId).answers));
 
         state.remoteSaveChains[assignId] = task;
         task.finally(() => {
@@ -480,7 +481,13 @@
             return state.sessions[assignId] || null;
         }
 
-        let prepared = await prepareDraftSession(assignment);
+        const expected = state.sessions[assignId] || await prepareDraftSession(assignment);
+        const local = readLocalState(assignId);
+        if (expected?.draftProtocol && local.baseContent !== window.StudyProtocol.contentToken(expected) &&
+            window.StudyProtocol.canonical(normalized) !== window.StudyProtocol.canonical(normalizeAnswers(expected.answers))) {
+            throw Object.assign(Error('Bản nháp đã thay đổi ở phiên khác. Giữ bản trên máy và mở lại bài để đối chiếu.'),{code:'DRAFT_CONFLICT'});
+        }
+        let prepared = expected;
         if (text(prepared?.status) === 'finalized' || text(prepared?.status) === 'submitted') {
             state.sessions[assignId] = prepared;
             setSaveStatus(assignId, 'saved', 'Phần Trắc nghiệm đã được chốt trên hệ thống');
@@ -519,11 +526,12 @@
                     heartbeatAt: now,
                     updatedAt: now
                 };
-            }, undefined, false);
+            }, undefined, false, {expected});
 
             if (result.committed) {
                 const saved = result.snapshot.val();
                 state.sessions[assignId] = saved;
+                writeLocalState(assignId,{baseContent:window.StudyProtocol.contentToken(saved)});
                 if (saved?.username) state.sessionUsers[assignId] = text(saved.username);
                 const status = text(saved?.status);
                 if (status === 'active') setSaveStatus(assignId, 'saved', 'Đã lưu');
@@ -567,7 +575,7 @@
         if (!remote && navigator.onLine !== false) {
             try { remote = await readSession(assignId); } catch (_) {}
         }
-        return mergeAnswers(remote?.answers, local.answers, local.updatedAt, remote?.updatedAt);
+        return compatibleAnswers(remote, local);
     }
 
     async function getFinalizedState(assignOrId, options = {}) {
@@ -588,7 +596,7 @@
         // Never let a forged/stale window.TestBrowserStorage.localStorage draft overwrite the finalized snapshot.
         const answers = finalized
             ? normalizeAnswers(remote?.answers)
-            : mergeAnswers(remote?.answers, local.answers, local.updatedAt, remote?.updatedAt);
+            : compatibleAnswers(remote, local);
         return { finalized, answers, session: remote, local };
     }
 
@@ -691,6 +699,11 @@
         let conflict = '';
 
         try {
+            await state.remoteSaveChains[assignId];
+            const expected = state.sessions[assignId];
+            if (expected?.draftProtocol && readLocalState(assignId).baseContent !== window.StudyProtocol.contentToken(expected)) {
+                throw Object.assign(Error('Bản nháp đã thay đổi; hãy mở lại bài để đối chiếu trước khi chốt.'),{code:'DRAFT_CONFLICT'});
+            }
             let prepared = await ensureFinalizeSession(assignment);
             if (text(prepared?.status) === 'submitted') {
                 throw new Error('MC_WORKSPACE_FINALIZE_CONFLICT_submitted');
@@ -724,7 +737,7 @@
                         heartbeatAt: now,
                         updatedAt: now
                     };
-                }, undefined, false);
+                }, undefined, false, {expected});
 
                 if (result.committed) {
                     const committedSession = result.snapshot.val() || null;
@@ -786,6 +799,17 @@
         if (!assignment || !isMC(assignment) || assignment.isLocked || window.isAssignmentTeacherLocked?.(assignment.id)) return;
         const assignId = text(assignment.id || assignment._fbKey);
         const now = Date.now();
+
+        if (window.StudyProtocol?.active()) {
+            const before = readLocalState(assignId);
+            const live = (await ensureDb().ref(sessionPath(assignId)).once('value')).val();
+            if (live?.status !== 'submitted' || text(live.submissionKey) !== text(submissionKey) ||
+                (state.sessions[assignId]?.startedAt && live.startedAt !== state.sessions[assignId].startedAt)) return;
+            state.sessions[assignId] = live;
+            if (JSON.stringify(readLocalState(assignId)) === JSON.stringify(before)) removeLocalState(assignId);
+            closeWorkspace(assignId);
+            return;
+        }
 
         try {
             const ref = ensureDb().ref(sessionPath(assignId));
@@ -1105,6 +1129,8 @@
     }
 
     async function openStudent(assignOrId) {
+        if (document.querySelector('meta[name="asset-compat-version"]') && !window.AssetCompatibility) throw Error('Bộ kiểm tra phiên bản chưa tải được. Hãy cập nhật đủ tệp website.');
+        await window.AssetCompatibility?.require('exam');
         const assignment = getAssignment(assignOrId);
         if (!assignment || !isMC(assignment)) return;
         const assignId = text(assignment.id || assignment._fbKey);
@@ -1135,7 +1161,14 @@
         if (assignment.assessmentType === 'thi' &&
             (!document.fullscreenElement || text(window.currentActiveExamId || '') !== assignId)) return;
         const examSet = getExamSet(assignment);
-        const answers = mergeAnswers(session?.answers, local.answers, local.updatedAt, session?.updatedAt);
+        let answers = compatibleAnswers(session, local);
+        const different = window.StudyProtocol.canonical(normalizeAnswers(local.answers)) !== window.StudyProtocol.canonical(normalizeAnswers(session?.answers));
+        if (different && Object.keys(local.answers).length && local.baseContent !== window.StudyProtocol.contentToken(session) && !['finalized','submitted'].includes(session?.status)) {
+            // Preserve the original before asking; never merge using the device clock.
+            window.TestBrowserStorage.localStorage.setItem('study_conflict:'+getUsername()+':'+assignId,JSON.stringify(local));
+            if (await AppDialog.confirm('Bản nháp trên máy khác bản đã lưu trên hệ thống. Dùng bản trên máy để tiếp tục? Chọn Hủy để dùng bản trên hệ thống. Bản trên máy vẫn được giữ trong dữ liệu phục hồi.')) answers = normalizeAnswers(local.answers);
+        }
+        writeLocalState(assignId,{answers,baseContent:window.StudyProtocol.contentToken(session)});
         const finalized = text(session?.status) === 'finalized';
         const user = getUser();
         const root = document.createElement('section');
@@ -1326,11 +1359,7 @@
         if (!state.currentAssignId) return;
         const assignment = getAssignment(state.currentAssignId);
         if (!assignment) return;
-        acquireOwner(assignment, { allowRedo: isRedoActive(state.currentAssignId) })
-            .then(() => {
-                const answers = getAnswersFromWorkspace(state.currentAssignId);
-                return saveRemoteDraft(assignment, answers);
-            })
+        enqueueRemoteSave(assignment, getAnswersFromWorkspace(state.currentAssignId))
             .catch(error => {
                 console.warn('[MC Workspace] Không thể đồng bộ lại phiên sau reconnect:', error);
                 const code = text(error?.code || error?.message || '');
@@ -1364,3 +1393,7 @@
     window.MCWorkspace = api;
     console.info('[MC Workspace V2]', BUILD);
 })();
+
+(window.AssetModuleVersions ||= {})['mc-workspace'] = '20261018.romeo1';
+
+(window.StudyModuleVersions ||= {})['mc-workspace'] = '20261019.study1';

@@ -38,6 +38,7 @@
         'pet_audrey_hall_premium_2',
         'pet_valentine_cupid_1',
         'pet_valentine_juliet_2',
+        'pet_valentine_romeo_2',
         'pet_eternal_winter_4',
         'pet_tinh_mong_2',
         'pet_thanh_lanh_4',
@@ -91,7 +92,7 @@
     "image": "assets/Premium/Valentine/cupid_nhan_vat1.png",
     "value": "assets/Premium/Valentine/cupid_nhan_vat1.png",
     "luxuryTagImage": "assets/Premium/Valentine/tag1.png",
-    "runtimeCss": "css/valentine.css?v=20261015.regular-fix1",
+    "runtimeCss": "css/valentine.css?v=20261021.visual9",
     "isIcon": false,
     "disableClickEffect": true,
     "petEffect": "valentine-red-thread",
@@ -103,6 +104,7 @@
         "ultimate"
     ]
 };
+    const ROMEO_PREMIUM_PET = {"id": "pet_valentine_romeo_2", "name": "Romeo · Tinh Ước Thành Verona", "type": "pet", "price": 2, "currency": "love_coin", "luxuryOnly": true, "isNonCoin": true, "eventOnly": false, "tag": "Valentine", "tags": ["Valentine", "Romeo", "Premium"], "image": "assets/Premium/Valentine/romeo_nhan_vat2.png", "value": "assets/Premium/Valentine/romeo_nhan_vat2.png", "luxuryTagImage": "assets/Premium/Valentine/tag1.png", "runtimeCss": "css/valentine.css?v=20261021.visual9", "isIcon": false, "disableClickEffect": true, "petEffect": "romeo-celestial-observatory", "premiumLayers": ["world-effect", "interface", "pet-realm", "global-click", "ultimate"]};
     const JULIET_PREMIUM_PET = {
     "id": "pet_valentine_juliet_2",
     "name": "Juliet · Lời Thề Thành Verona",
@@ -121,7 +123,7 @@
     "image": "assets/Premium/Valentine/juliet_nhan_Vat2.png",
     "value": "assets/Premium/Valentine/juliet_nhan_Vat2.png",
     "luxuryTagImage": "assets/Premium/Valentine/tag1.png",
-    "runtimeCss": "css/valentine.css?v=20261015.regular-fix1",
+    "runtimeCss": "css/valentine.css?v=20261021.visual9",
     "isIcon": false,
     "disableClickEffect": true,
     "petEffect": "juliet-verona-theatre",
@@ -6810,6 +6812,7 @@ LuxuryAcediaRuntime.clear();
                 );
 
 
+                if (petData?.id === ROMEO_PREMIUM_PET.id) { window.RomeoRuntime?.mountPremium(); return; }
                 if (petData?.id === JULIET_PREMIUM_PET.id) { window.JulietRuntime?.mountPremium(); return; }
                 if (petData?.id === VALENTINE_PREMIUM_PET.id) { window.ValentinePremiumRuntime?.mount({getLuxuryQualityCount}); return; }
                 if (petData?.id === ETERNAL_WINTER_PET.id) { window.EternalWinterPremiumRuntime?.mount(); return; }
@@ -7230,6 +7233,7 @@ LuxuryAcediaRuntime.clear();
         StoreManager.unapplyItem =
             async function (itemId) {
                 if (String(itemId) === ETERNAL_WINTER_PET.id) window.EternalWinterPremiumRuntime?.clear();
+                if (String(itemId) === ROMEO_PREMIUM_PET.id) window.RomeoRuntime?.clearPet();
                 if (String(itemId) === JULIET_PREMIUM_PET.id) window.JulietRuntime?.clearPet();
                 if (String(itemId) === VALENTINE_PREMIUM_PET.id) window.ValentinePremiumRuntime?.clear();
                 if (String(itemId) === TINH_MONG_PREMIUM_PET.id) window.TinhMongPremiumRuntime?.clear();
@@ -7818,6 +7822,7 @@ if (isNationalDay) {
     function hardClearBoundaryPetRuntime() {
         window.ValentineRegularRuntime?.clearPet();
         window.JulietRuntime?.clearPet();
+        window.RomeoRuntime?.clearPet();
         window.AudreyHallRuntime?.clearPet();
         /*
          * Dọn các runtime Luxury trước.
@@ -8303,6 +8308,7 @@ if (isNationalDay) {
             AUTUMN_PREMIUM_PET,
             VALENTINE_PREMIUM_PET,
             JULIET_PREMIUM_PET,
+            ROMEO_PREMIUM_PET,
             ETERNAL_WINTER_PET,
             TINH_MONG_PREMIUM_PET,
             THANH_LANH_PREMIUM_PET,
@@ -8347,7 +8353,7 @@ if (isNationalDay) {
              */
             if (
                 itemDefinition.id ===
-                VALENTINE_PREMIUM_PET.id || itemDefinition.id === JULIET_PREMIUM_PET.id || itemDefinition.id === ETERNAL_WINTER_PET.id || itemDefinition.id === TINH_MONG_PREMIUM_PET.id || itemDefinition.id === THANH_LANH_PREMIUM_PET.id || itemDefinition.id === KIM_LIEN_PREMIUM_PET.id ||
+                VALENTINE_PREMIUM_PET.id || itemDefinition.id === JULIET_PREMIUM_PET.id || itemDefinition.id === ROMEO_PREMIUM_PET.id || itemDefinition.id === ETERNAL_WINTER_PET.id || itemDefinition.id === TINH_MONG_PREMIUM_PET.id || itemDefinition.id === THANH_LANH_PREMIUM_PET.id || itemDefinition.id === KIM_LIEN_PREMIUM_PET.id ||
                 itemDefinition.id ===
                 HAC_MONG_PREMIUM_PET.id || itemDefinition.id === AUDREY_HALL_PREMIUM_PET.id || itemDefinition.id === HUYEN_MINH_PREMIUM_PET.id || itemDefinition.id === CHRONOS_PREMIUM_PET.id || itemDefinition.id === LU_GUANG_PREMIUM_PET.id || itemDefinition.id === NGUU_LANG_PREMIUM_PET.id || itemDefinition.id === CHUC_NU_PREMIUM_PET.id ||
                 itemDefinition.id ===
@@ -8605,15 +8611,16 @@ if (isNationalDay) {
         window.removeEventListener('storage', window.__luxuryInventoryStorageHandler);
     }
     window.__luxuryInventoryStorageHandler = event => {
-        if (event.key === 'currentUser' || event.key === null) installLuxuryInventoryListener();
+        if (window.TestBrowserStorage.eventKey(event) === 'currentUser' || event.key === null) void installLuxuryInventoryListener();
     };
     window.addEventListener('storage', window.__luxuryInventoryStorageHandler);
 
-    function installLuxuryInventoryListener() {
-
+    async function installLuxuryInventoryListener() {
+        if (await window.TestPageAuthReady === false || window.testPageAuthBlocked) return;
         let user;
         try { user = JSON.parse(window.TestBrowserStorage.localStorage.getItem('currentUser') || 'null'); }
         catch (_) { user = null; }
+        if (user?._fbKey && user._fbKey !== firebase.auth().currentUser?.uid) return;
         const previous = window.__luxuryInventorySubscription;
         if (previous && previous.username !== String(user?.username || '')) {
             previous.ref.off('value', previous.callback);
@@ -8709,6 +8716,7 @@ if (isNationalDay) {
 
                 if (!Object.values(luxuryInventoryState || {}).some(item => item?.id === THANH_LANH_PREMIUM_PET.id && item.isEquipped === true && (item.isTrial !== true || Number(item.trialExpiry) > Date.now()))) window.ThanhLanhPremiumRuntime?.clear();
                 if (!Object.values(luxuryInventoryState || {}).some(item => item?.id === ETERNAL_WINTER_PET.id && item.isEquipped === true && (item.isTrial !== true || Number(item.trialExpiry) > Date.now()))) window.EternalWinterPremiumRuntime?.clear();
+                if (window.RomeoRuntime?.isPremiumActive() && !Object.values(luxuryInventoryState || {}).some(item => item?.id === ROMEO_PREMIUM_PET.id && item.isEquipped === true && (item.isTrial !== true || Number(item.trialExpiry) > Date.now()))) window.RomeoRuntime.clearPet();
                 if (window.JulietRuntime?.isPremiumActive() && !Object.values(luxuryInventoryState || {}).some(item => item?.id === JULIET_PREMIUM_PET.id && item.isEquipped === true && (item.isTrial !== true || Number(item.trialExpiry) > Date.now()))) window.JulietRuntime.clearPet();
                 if (!Object.values(luxuryInventoryState || {}).some(item => item?.id === VALENTINE_PREMIUM_PET.id && item.isEquipped === true && (item.isTrial !== true || Number(item.trialExpiry) > Date.now()))) window.ValentinePremiumRuntime?.clear();
                 if (!Object.values(luxuryInventoryState || {}).some(item => item?.id === TINH_MONG_PREMIUM_PET.id && item.isEquipped === true && (item.isTrial !== true || Number(item.trialExpiry) > Date.now()))) window.TinhMongPremiumRuntime?.clear();
@@ -8903,6 +8911,7 @@ if (isNationalDay) {
                         .__luxuryInventoryListeningUser;
                 }
 
+                if (window.testPageAuthBlocked || /permission_denied/i.test(String(error.code || error.message))) return;
                 window.setTimeout(
                     installLuxuryInventoryListener,
                     700
@@ -8957,6 +8966,7 @@ if (isNationalDay) {
         pet_chuc_nu_premium_1: ['#30203f','#efbde5','Từng sợi tơ dệt nên cung trời, từng cánh hoa cất giữ lời hẹn. Đêm Thất Tịch nhuộm màu vân cẩm.'],
         pet_lu_guang_premium_2: ['#111e3b', '#b6dfff', 'Mỗi bức ảnh là một tọa độ. Bước vào thiên văn viện ký ức, nơi ánh sáng lưu giữ những khoảnh khắc chưa phai.'],
         pet_audrey_hall_premium_2: ['#173b2b', '#e0c788', 'Sau tấm gương lục bảo, một thánh đường lặng lẽ mở ra. Công Lý soi sáng những tâm tư chưa thành lời.'],
+        pet_valentine_romeo_2:['#102d40','#e7c88c','Đài Thiên Văn Lời Hẹn · Chòm sao dẫn đường về người thương.'],
         pet_valentine_juliet_2:['#361b29','#e7be85','Dưới trời Verona · Lời thề khắc vào ánh kính, ngân vang giữa ban công nhung đỏ.'],
         pet_valentine_cupid_1:['#590d22','#ffb3c1','Sợi chỉ đỏ lướt qua cánh hồng, nối những nhịp tim giữa miền mộng dịu dàng.'],
         pet_eternal_winter_4:['#14243b','#bcf0f5','Vĩnh đông chuyển mình qua bốn nhịp thở: cực quang, pha lê sống và những cơn bão bảo hộ thiên thành băng.'],
@@ -8988,6 +8998,7 @@ if (isNationalDay) {
         if (itemId === 'pet_chronos_premium_3') return '<div class="luxury-scene ch-card-scene" aria-hidden="true"><i></i><b></b><span>CHRONOS · AETERNITAS</span></div>';
         if (itemId === 'pet_lu_guang_premium_2') return '<div class="luxury-scene lg-card-scene" aria-hidden="true"><div class="lg-card-dial"></div><div class="lg-card-rails"></div><div class="lg-card-exposure"></div><span>EXPOSURE / 002</span></div>';
         if (itemId === 'pet_audrey_hall_premium_2') return `<div class="luxury-scene ah-card-scene" aria-hidden="true"><svg viewBox="0 0 300 430" fill="none" stroke="currentColor"><path d="M16 430V148Q16 38 150 12Q284 38 284 148V430M29 430V150Q29 53 150 28Q271 53 271 150V430M150 28V430M29 153H271M29 318H271"/><path d="M150 55 213 152 150 247 87 152ZM150 268 211 338 150 414 89 338Z" fill="currentColor" fill-opacity=".12"/><path d="M38 0Q150 190 262 0M72 0Q150 133 228 0"/><path d="M67 104V146L73 155 67 168 61 155 67 146M233 104V146L239 155 233 168 227 155 233 146"/></svg></div>`;
+        if(itemId === 'pet_valentine_romeo_2') return '<div class="rmo-card-compass" aria-hidden="true"><i></i><i></i><i></i><b>✦</b></div>';
         if(itemId === 'pet_valentine_juliet_2') return '<div class="jlt-card-architecture" aria-hidden="true"><svg viewBox="0 0 300 430" fill="none"><path d="M25 410V150Q150-80 275 150V410M42 410V153Q150-38 258 153V410M65 410V168Q150 10 235 168V410M150 52V375M43 200H258M25 370H275"/><circle cx="150" cy="124" r="40"/><path d="m150 84 28 40-28 40-28-40ZM25 390H275"/></svg><i></i><i></i></div>';
         if(itemId === VALENTINE_PREMIUM_PET.id) return '<div class="vlt-card-art"><svg viewBox="0 0 300 430" fill="none"><path d="M-20 350C250 420 90 40 265 80S140 340 20 210S150 110 310 15" stroke="#ff4d6d" stroke-width="1.2"/><path d="M150 165C130 145 102 130 108 112C118 95 140 104 150 118C160 104 182 95 192 112C198 130 170 145 150 165Z" stroke="#f4c76b"/></svg></div>';
 
@@ -9031,6 +9042,7 @@ if (isNationalDay) {
 
     function renderCard(item) {
         item = StoreManager.normalizeEventCurrency(item);
+        if(item.id === ROMEO_PREMIUM_PET.id) window.RomeoRuntime?.ensureCSS();
         if(item.id === JULIET_PREMIUM_PET.id) window.JulietRuntime?.ensureCSS();
         if (/^pet_(nguu_lang|chuc_nu)_premium_1$/.test(item.id)) window.ThatTichRuntime?.ensureCSS();
         if(item.id === VALENTINE_PREMIUM_PET.id) window.ValentinePremiumRuntime?.ensureCSS();
@@ -9064,7 +9076,7 @@ if (isNationalDay) {
         const image = escapeHTML(item.image || item.asset || item.value || '');
         const tagImage = escapeHTML(item.luxuryTagImage || '');
         const id = escapeHTML(item.id);
-        return `<article class="luxury-product-card luxury-unified-card store-theme-locked ui-theme-immune${item.id === 'pet_nguu_lang_premium_1' ? ' tt-card tt-herder-card' : item.id === 'pet_chuc_nu_premium_1' ? ' tt-card tt-weaver-card' : ''}${item.id === 'pet_huyen_minh_premium_1' ? ' hm-card' : ''}${item.id === 'pet_chronos_premium_3' ? ' ch-card' : ''}${item.id === 'pet_lu_guang_premium_2' ? ' lg-card' : ''}${item.id === AUDREY_HALL_PREMIUM_PET.id ? ' ah-card' : ''}${item.id === VALENTINE_PREMIUM_PET.id ? ' vlt-card' : ''}${item.id === JULIET_PREMIUM_PET.id ? ' jlt-card' : ''}${item.id === ACEDIA_PREMIUM_PET.id ? ' aclp-card' : ''}"
+        return `<article class="luxury-product-card luxury-unified-card store-theme-locked ui-theme-immune${item.id === 'pet_nguu_lang_premium_1' ? ' tt-card tt-herder-card' : item.id === 'pet_chuc_nu_premium_1' ? ' tt-card tt-weaver-card' : ''}${item.id === 'pet_huyen_minh_premium_1' ? ' hm-card' : ''}${item.id === 'pet_chronos_premium_3' ? ' ch-card' : ''}${item.id === 'pet_lu_guang_premium_2' ? ' lg-card' : ''}${item.id === AUDREY_HALL_PREMIUM_PET.id ? ' ah-card' : ''}${item.id === VALENTINE_PREMIUM_PET.id ? ' vlt-card' : ''}${item.id === JULIET_PREMIUM_PET.id ? ' jlt-card' : ''}${item.id === ROMEO_PREMIUM_PET.id ? ' rmo-card' : ''}${item.id === ACEDIA_PREMIUM_PET.id ? ' aclp-card' : ''}"
             data-item-id="${id}" data-theme-immune="true" tabindex="0" aria-label="${name}"
             style="--luxury-card-shade:${shade};--luxury-card-accent:${accent}">
             <div class="luxury-unified-visual">
@@ -12328,3 +12340,5 @@ if (isNationalDay) {
     }
 
 })();
+
+(window.AssetModuleVersions ||= {})['luxury-store'] = '20261018.romeo1';

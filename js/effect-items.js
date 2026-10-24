@@ -1,4 +1,4 @@
-// js/effect-items.js?v=20261017.test.split1
+// js/effect-items.js?v=20261018.romeo1
 const IS_MOBILE_EFFECT = window.matchMedia(
     '(max-width: 768px), (pointer: coarse)'
 ).matches;
@@ -134,6 +134,7 @@ class EffectManager {
     static clearEffects(removeSavedEffect = false) {
         window.ValentineRegularRuntime?.clearEffect();
         window.JulietRuntime?.clearEffect();
+        window.RomeoRuntime?.clearEffect();
         window.ThatTichRuntime?.clearEffect();
         window.HuyenMinhRuntime?.clearEffect();
         window.ChronosRuntime?.clearEffect();
@@ -350,6 +351,7 @@ class EffectManager {
         if (!this.container) return;
 
         switch (effectId) {
+            case 'effect_valentine_romeo_regular_2': window.RomeoRuntime?.mountEffect(); break;
             case 'effect_valentine_juliet_regular_2': window.JulietRuntime?.mountEffect(); break;
             case 'effect_valentine_cupid_regular_1': window.ValentineRegularRuntime?.mountEffect(); break;
             case 'effect_nguu_lang_regular_1': window.ThatTichRuntime?.mountEffect('nguu_lang'); break;
@@ -6300,3 +6302,5 @@ document.addEventListener('visibilitychange', () => {
         }
     });
 });
+
+(window.AssetModuleVersions ||= {})['effect-items'] = '20261018.romeo1';

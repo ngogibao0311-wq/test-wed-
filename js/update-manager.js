@@ -990,6 +990,7 @@
                 'Đang yêu cầu Service Worker lấy bản mới...'
             );
 
+            window.StudyProtocol?.assertCanReload();
             await refreshServiceWorker();
 
             setProgress(
@@ -1033,6 +1034,7 @@
                 setTimeout(resolve, 500)
             );
 
+            window.StudyProtocol?.assertCanReload();
             location.replace(buildRefreshUrl());
         } catch (error) {
             state.updating = false;

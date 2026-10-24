@@ -18,7 +18,7 @@
         host.style.cssText = 'position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:900';
         const shadow = host.attachShadow({ mode: 'open' });
         const css = document.createElement('link');
-        css.rel = 'stylesheet'; css.href = 'css/valentine.css?v=20261015.regular-fix1';
+        css.rel = 'stylesheet'; css.href = 'css/valentine.css?v=20261021.visual9';
         shadow.append(css);
         const stage = document.createElement('div');
         stage.className = 'cupid-regular-weather';
@@ -44,7 +44,7 @@
         observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
         sync();
     }
-    const CSS='css/valentine.css?v=20261015.regular-fix1';
+    const CSS='css/valentine.css?v=20261021.visual9';
     const paused=()=>document.hidden||!!window.currentActiveExamId||window.isExamVisualItemsSuspended===true||document.body.classList.contains('exam-active')||document.body.classList.contains('wfx-paused');
     const still=()=>matchMedia('(prefers-reduced-motion: reduce)').matches||document.body.classList.contains('wfx-low-power');
     function ensureCSS(){if(document.getElementById('valentine-regular-css'))return;const link=document.createElement('link');link.id='valentine-regular-css';link.rel='stylesheet';link.href=CSS;document.head.append(link);}
@@ -85,7 +85,7 @@
 (() => {
     'use strict';
     if (window.ValentinePremiumRuntime) return;
-    const CSS = 'css/valentine.css?v=20261015.regular-fix1';
+    const CSS = 'css/valentine.css?v=20261021.visual9';
     const HEART = 'M12 21C9 18 1 13 1 7C1 1 9 -1 12 5C15 -1 23 1 23 7C23 13 15 18 12 21Z';
     const PETAL = 'M3 22C-4 9 3 -2 16 2C27 7 20 19 3 22Z';
     const svg = (body, box = '0 0 24 24') => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${box}" aria-hidden="true">${body}</svg>`;
@@ -291,7 +291,7 @@
 /* Juliet · Verona theatre. Original stained-glass architecture; independent regular stationery/butterfly suite. */
 (() => {
  'use strict';
- const CSS='css/valentine.css?v=20261015.regular-fix1';
+ const CSS='css/valentine.css?v=20261021.visual9';
  const svg=(art,box='0 0 600 800')=>`<svg viewBox="${box}" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" aria-hidden="true">${art}</svg>`;
  const many=(n,fn)=>Array.from({length:n},(_,i)=>fn(i)).join('');
  const reduced=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -310,7 +310,10 @@
  function rosette(){return svg(`<circle cx="150" cy="150" r="138"/><circle cx="150" cy="150" r="123"/>${many(12,i=>`<g transform="rotate(${i*30} 150 150)"><path d="M150 25Q183 78 150 126Q117 78 150 25Z" fill="${i%2?'#9e416a55':'#d5b57755'}"/><path d="M150 34V108M139 66H161"/><path d="M150 4 156 14 150 24 144 14Z" fill="#f3d8a2"/></g>`)}<circle cx="150" cy="150" r="23"/><path d="M150 128 172 150 150 172 128 150Z" fill="#eacb8c66"/>`,'0 0 300 300');}
  function arch(){return svg(`<path class="jlt-glass" d="M50 790V270Q50 150 300 28Q550 150 550 270V790Z"/><path d="M25 790V265Q25 130 300 4Q575 130 575 265V790M50 790V270Q50 150 300 28Q550 150 550 270V790M80 790V280Q80 180 300 62Q520 180 520 280V790M300 62V790M80 345H520M80 540H520M190 190V790M410 190V790"/>${many(5,i=>`<path d="M80 ${390+i*75} 190 ${345+i*75} 300 ${390+i*75} 410 ${345+i*75} 520 ${390+i*75}"/>`)}${many(8,i=>`<path d="M${50+i*70} 760v-50q35-60 70 0v50"/>`)}<path d="M25 765H575V790H25Z" fill="#ac805333"/>`);}
  function quill(){return svg('<path d="M20 160Q112 11 150 8Q168 55 38 148L20 160ZM48 130 149 10M72 101 106 98M91 75 124 71M111 49 136 43M58 118 53 91M77 89 77 64M99 61 102 37"/>','0 0 170 170');}
- function butterfly(i){return `<span class="jlr-butterfly" style="--i:${i};--x:${(i*37+8)%96}%;--y:${(i*29+12)%90}%;--d:${10+i%5*2}s"><b></b><b></b><em></em></span>`;}
+ function butterfly(i){
+  const wing='<path d="M31 24C26 11 13 0 5 4C-2 11 7 25 25 28C10 26 8 37 15 42C24 46 30 34 31 26Z" fill="var(--jlr-wing-color,#d98b9d)" stroke="#87465b"/><path d="M29 24C22 13 12 7 7 8C5 14 14 24 29 26M29 29Q17 29 16 37Q24 39 29 29" fill="#ffe5bc" fill-opacity=".72" stroke="none"/><path d="M30 26 9 9M27 23 15 13M30 27 18 36M20 19 13 20M23 33 24 29" fill="none" stroke="#9d5268" stroke-width=".8"/><g fill="#fff6db" stroke="none"><circle cx="7" cy="10" r="1.3"/><circle cx="10" cy="17" r="1.2"/><circle cx="15" cy="22" r="1.1"/><circle cx="16" cy="37" r="1.1"/><circle cx="21" cy="39" r="1"/></g>';
+  return '<span class="jlr-butterfly" style="--i:'+i+';--x:'+((i*37+8)%92)+'%;--y:'+((i*29+12)%88)+'%;--d:'+(12+i%5*2)+'s;--size:'+(28+i%4*4)+'px;--flap:'+(1.1+i%3*.16)+'s;--jlr-wing-color:'+(['#d98b9d','#c69ed8','#e1b782'][i%3])+'"><svg viewBox="0 0 64 48" aria-hidden="true"><g class="jlr-wing-left">'+wing+'</g><g class="jlr-wing-right"><g transform="translate(64 0) scale(-1 1)">'+wing+'</g></g><path d="M31 20Q25 10 24 14M33 20Q39 10 40 14" fill="none" stroke="#754655" stroke-width="1.2" stroke-linecap="round"/><ellipse cx="32" cy="28" rx="1.7" ry="11" fill="#754655" stroke="#f5d8b0" stroke-width=".6"/><circle cx="32" cy="18" r="2" fill="#754655" stroke="none"/></svg></span>';
+ }
  // Carved Verona roses: layered pointed petals, engraved leaves and pearl centres.
  function veronaRose(){return `<g>${many(8,i=>`<path transform="rotate(${i*45})" d="M0-5C-32-18-29-47 0-55C29-47 32-18 0-5Z" fill="${i%2?'#9b3c62':'#c66e84'}" stroke="#efbc99"/>`)}${many(6,i=>`<path transform="rotate(${i*60+15})" d="M0-3C-17-8-21-28 0-35C21-28 17-8 0-3Z" fill="${i%2?'#e9a4ac':'#b85973'}" stroke="#f8d5b2"/>`)}<path d="M-9 5C-25-11 1-28 13-13C26 3 5 22-8 9C-18-3-1-12 6-4C12 5 0 11-3 4" stroke="#ffe5b8" fill="#914258"/><circle r="3" fill="#ffe9bc"/></g>`;}
  function gardenCorner(){return svg(`<path d="M5 270V72Q5 5 72 5H270M15 270V78Q15 15 78 15H270M24 245V86Q24 24 86 24H245" stroke="#d6ac70"/><path d="M27 243C80 174 12 91 115 53S214 73 251 25M31 226C129 200 78 103 159 78M45 155C-5 71 93 26 168 37" stroke="#b28b61"/>${many(8,i=>`<g transform="translate(${36+i*25} ${180-i*20}) rotate(${-75+i*14})"><path d="M0 0C-33-4-31-25-41-36C-17-34 2-20 0 0Z" fill="${i%2?'#66887b':'#9bad8a'}" stroke="#d5c49a"/><path d="M0 0-35-30M-10-10-25-8M-20-18-24-29" stroke="#e5d6a9"/><path d="M1-2C5-33 31-35 38-45C42-17 24 0 1-2Z" fill="#798c7c" stroke="#e6d2a5"/></g>`)}<g transform="translate(64 64) scale(.85)">${veronaRose()}</g><g transform="translate(133 41) scale(.5) rotate(20)">${veronaRose()}</g><g transform="translate(42 137) scale(.48) rotate(-25)">${veronaRose()}</g>${many(11,i=>`<circle cx="${36+i*17}" cy="${44+(i%3)*14}" r="${i%3===0?2.8:1.5}" fill="#ffe7ba"/>`)}<path d="M9 170Q92 93 136 111Q91 131 103 173Q60 130 9 170Z" fill="#b9657855" stroke="#deb58a"/>`,'0 0 280 280');}
@@ -381,10 +384,81 @@
  function clearEffect(){effectEvents?.abort();effectObserver?.disconnect();effect?.remove();effect=effectEvents=effectObserver=null;}
  function mountEffect(){
   clearEffect();ensureCSS();const parent=document.getElementById('global-effect-container');if(!parent)return;
-  effect=host('jlr-weather',`<div class="jlr-paper-light"></div>${many(count(18),butterfly)}<div class="jlr-pressed-flowers">${many(5,i=>`<i style="--i:${i}">✼</i>`)}</div>`,parent);
+  effect=host('jlr-weather',`<div class="jlr-paper-light"></div>${many(count(innerWidth < 650 ? 8 : 14),butterfly)}<div class="jlr-pressed-flowers">${many(5,i=>`<i style="--i:${i}">✼</i>`)}</div>`,parent);
   const update=()=>{if(effect){effect.hidden=paused();effect.shadowRoot.querySelector('.jlt-root').classList.toggle('jlt-still',quiet());}};
   effectEvents=new AbortController();document.addEventListener('visibilitychange',update,{signal:effectEvents.signal});matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change',update,{signal:effectEvents.signal});
   effectObserver=new MutationObserver(update);effectObserver.observe(document.body,{attributes:true,attributeFilter:['class']});update();
  }
  window.JulietRuntime={isPremiumActive:()=>mode==='premium',ensureCSS,mountPremium:()=>mountPet(true),mountRegularPet:()=>mountPet(false),clearPet,mountEffect,clearEffect,ultimate,clickAt,implementedLayers:['world-effect','interface','pet-realm','global-click','ultimate']};
 })();
+/* Romeo: brass astrolabe / star atlas. Regular: paper harbor, separate artwork. */
+(() => {
+ 'use strict';
+ const CSS='css/valentine.css?v=20261021.visual9';
+ const many=(n,f)=>Array.from({length:n},(_,i)=>f(i)).join('');
+ const svg=(art,box='0 0 400 400')=>`<svg viewBox="${box}" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" aria-hidden="true">${art}</svg>`;
+ const motion=matchMedia('(prefers-reduced-motion: reduce)');
+ const paused=()=>document.hidden||!!window.currentActiveExamId||window.isExamVisualItemsSuspended===true||document.body.classList.contains('exam-active');
+ const quiet=()=>motion.matches||window.EffectQualityManager?.getLuxuryPolicy?.().level==='low'||document.body.classList.contains('wfx-low-power');
+ const count=n=>Math.max(0,Math.min(n,window.EffectQualityManager?.getRecommendedCount?.(n)??n));
+ function ensureCSS(){let l=document.getElementById('romeo-css');if(!l){l=document.createElement('link');l.id='romeo-css';l.rel='stylesheet';l.href=CSS;document.head.append(l);}return l;}
+ // Elliptic navigation scales, engraved spokes and orbital nodes.
+ function astrolabe(){return svg(`<circle cx="200" cy="200" r="183"/><circle cx="200" cy="200" r="171"/>${many(60,i=>`<path transform="rotate(${i*6} 200 200)" d="M200 18V${i%5?25:36}" opacity="${i%5?.45:1}"/>`)}<g class="rmo-turn"><ellipse cx="200" cy="200" rx="154" ry="68" transform="rotate(35 200 200)"/><ellipse cx="200" cy="200" rx="154" ry="68" transform="rotate(-35 200 200)"/><circle cx="200" cy="200" r="118" stroke-dasharray="2 10"/>${many(8,i=>`<g transform="rotate(${i*45} 200 200)"><path d="M200 47 205 65 200 83 195 65Z" fill="#e8c88d"/><circle cx="200" cy="47" r="3"/></g>`)}</g><path d="M200 104 218 182 296 200 218 218 200 296 182 218 104 200 182 182Z" fill="#8bdedc15"/><circle cx="200" cy="200" r="26"/><path d="M200 180 220 200 200 220 180 200Z" fill="#fff0bd55"/>`);}
+ function constellation(){return svg('<path d="M25 135 77 92 132 119 195 39 240 95 302 65 372 125M77 92 94 28M195 39 208 148 302 65M132 119 150 178 208 148" stroke-dasharray="4 5"/>'+[[25,135],[77,92],[132,119],[195,39],[240,95],[302,65],[372,125],[94,28],[208,148],[150,178]].map(([x,y],i)=>`<circle cx="${x}" cy="${y}" r="${i%3+2}" fill="#e7d6a5"/><path d="M${x-7} ${y}H${x+7}M${x} ${y-7}V${y+7}" opacity=".5"/>`).join(''),'0 0 400 200');}
+ function brassColumn(){return svg('<path d="M27 12H73L65 32H35ZM35 32V338H65V32M26 340H74L85 365H15ZM44 45V325M56 45V325M15 365H85V385H15Z" fill="#d7b68112"/>'+many(8,i=>`<path d="M35 ${50+i*35}Q50 ${32+i*35} 65 ${50+i*35}"/>`),'0 0 100 400');}
+ function worldArt(){return `<div class="rmo-sky-wash"></div><div class="rmo-celestial-dial">${astrolabe()}</div><div class="rmo-star-map rmo-map-left">${constellation()}</div><div class="rmo-star-map rmo-map-right">${constellation()}</div><div class="rmo-colonnade">${many(4,i=>`<div style="--i:${i}">${brassColumn()}</div>`)}</div><div class="rmo-top-chain">${many(9,i=>`<i style="--i:${i}"><b></b></i>`)}</div><div class="rmo-horizon">${svg(many(5,i=>`<path d="M0 ${20+i*13}Q200 ${-15+i*13} 400 ${20+i*13}T800 ${20+i*13}T1200 ${20+i*13}"/>`),'0 0 1200 100')}</div>${many(count(26),i=>`<i class="rmo-stardust" style="--x:${(i*37+5)%100}%;--y:${(i*29+8)%100}%;--i:${i}"></i>`)}<div class="rmo-meridian"></div>`;}
+ function auraArt(){return `<div class="rmo-pet-dial">${astrolabe()}</div><div class="rmo-orbit rmo-orbit-a"></div><div class="rmo-orbit rmo-orbit-b"></div><div class="rmo-platform"></div>${many(6,i=>`<i class="rmo-satellite" style="--i:${i}"></i>`)}`;}
+ // Regular artwork deliberately has no astrolabe, pillars or celestial stage.
+ const boat=()=>svg('<path d="M15 55 125 55 99 80H40Z" fill="#b3d6d2"/><path d="M70 6 70 54H20ZM75 20 118 54H75Z" fill="#fff4da"/><path d="M70 6V82M10 88Q35 78 60 88T110 88T145 88"/>','0 0 150 100');
+ const beacon=()=>svg('<path d="M37 87 44 31H66L73 87ZM40 31V16H70V31ZM35 16 55 3 75 16ZM30 88H80" fill="#f8eed7"/><path d="M46 46H64M44 60H67M41 74H70M50 19V29M60 19V29"/>','0 0 110 100');
+ let pet=null,premium=false,world=null,aura=null,events=null,observer=null,flags=null,frame=0,cooldown=0,lastClick=0;
+ let saved={},tagged=new Map(),transients=new Set(),timers=new Set();
+ const immune='.ui-theme-immune,.store-theme-locked,.store-item-card,.luxury-product-card,[data-theme-immune="true"],#virtual-pet-container';
+ function host(cls,art,parent=document.body){
+  const e=document.createElement('div');e.className=cls;e.setAttribute('aria-hidden','true');e.style.setProperty('pointer-events','none','important');
+  const shadow=e.attachShadow({mode:'open'});shadow.innerHTML=`<link rel="stylesheet" href="${CSS}"><div class="rmo-root" style="visibility:hidden">${art}</div>`;
+  const link=shadow.querySelector('link'),root=shadow.querySelector('.rmo-root');link.onload=()=>{if(e.isConnected)root.style.visibility='visible';};parent.append(e);if(link.sheet)root.style.visibility='visible';return e;
+ }
+ function later(fn,ms){const t=setTimeout(()=>{timers.delete(t);fn();},ms);timers.add(t);return t;}
+ function transient(cls,art,ms){const e=host(cls,art);transients.add(e);later(()=>{e.remove();transients.delete(e);},ms);return e;}
+ function clearTransient(){transients.forEach(e=>e.remove());transients.clear();timers.forEach(clearTimeout);timers.clear();}
+ function markInterface(){if(!premium)return;for(const [selector,cls] of [['.sidebar','rmo-nav'],['.modal-content,.popup-content,.card,.assignment-card,.stat-card,.dashboard-card','rmo-surface'],['h1,h2,h3,.modal-title','rmo-heading'],['button,.btn,.nav-item','rmo-control'],['input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea','rmo-field']])document.querySelectorAll(selector).forEach(e=>{if(e.closest(immune)||e.classList.contains(cls))return;e.classList.add(cls);if(!tagged.has(e))tagged.set(e,new Set());tagged.get(e).add(cls);});}
+ function sync(){
+  if(!pet?.isConnected){clearPet();return;}
+  const hidden=paused()||pet.parentElement?.hidden||pet.parentElement?.style.display==='none';
+  for(const e of [world,aura])if(e){e.hidden=hidden;e.shadowRoot.querySelector('.rmo-root').classList.toggle('rmo-still',quiet());}
+  if(document.documentElement.classList.contains('rmo-suspended')!==hidden)document.documentElement.classList.toggle('rmo-suspended',hidden);
+  if(hidden||quiet())clearTransient();
+ }
+ function clickAt(x,y){if(!premium||paused()||quiet()||performance.now()-lastClick<180)return false;lastClick=performance.now();
+  const e=transient('rmo-click',`<div class="rmo-click-compass">${astrolabe()}</div>${many(8,i=>`<i class="rmo-click-ray" style="--i:${i}"></i>`)}`,1150);e.style.left=x+'px';e.style.top=y+'px';return true;
+ }
+ function ultimate(){if(!pet||paused()||quiet()||performance.now()<cooldown||pet.parentElement?.dataset.petDragged==='1')return false;cooldown=performance.now()+(premium?16000:6000);
+  if(premium){const e=transient('rmo-ultimate',`<div class="rmo-night"></div><div class="rmo-stage-map">${constellation()}</div><div class="rmo-stage-dial">${astrolabe()}</div><div class="rmo-eclipse"></div><div class="rmo-stage-ribbons">${many(8,i=>`<i style="--i:${i}"></i>`)}</div><div class="rmo-stage-bridge">${svg('<path d="M0 130Q300-80 600 130M0 144Q300-66 600 144"/>'+many(21,i=>`<path d="M${i*30} ${130-105*Math.sin(i/20*Math.PI)}v45"/>`),'0 0 600 190')}</div><div class="rmo-stage-title"><small>ROMEO · ĐÀI THIÊN VĂN LỜI HẸN</small><strong>TINH ƯỚC<br>VĨNH HẰNG</strong><span>Mọi vì sao đều dẫn lối về em.</span></div>${many(count(32),i=>`<i class="rmo-meteor" style="--i:${i};--x:${(i*31)%100}%;--y:${(i*23)%100}%"></i>`)}`,7600);e.dataset.phase='align';later(()=>e.dataset.phase='eclipse',1400);later(()=>e.dataset.phase='oath',3200);later(()=>e.dataset.phase='dawn',6100);
+  }else transient('rmr-ultimate',`<div class="rmr-harbor-light"></div><div class="rmr-journey">${boat()}</div><div class="rmr-lighthouse">${beacon()}</div><div class="rmr-journey-title">BẾN ĐỖ LỜI THƯ</div>${many(4,i=>`<div class="rmr-wave" style="--i:${i}"></div>`)}`,3600);
+  return true;
+ }
+ function clearPet(){events?.abort();observer?.disconnect();flags?.disconnect();cancelAnimationFrame(frame);frame=0;clearTransient();world?.remove();aura?.remove();
+  for(const [e,classes]of tagged)classes.forEach(c=>e.classList.remove(c));tagged.clear();document.documentElement.classList.remove('rmo-equipped','rmo-suspended');
+  if(pet){pet.classList.remove('rmo-character','rmr-character');for(const [k,v]of Object.entries(saved))v===null?pet.removeAttribute(k):pet.setAttribute(k,v);}
+  pet=world=aura=events=observer=flags=null;premium=false;saved={};cooldown=lastClick=0;
+ }
+ function mountPet(isPremium){clearPet();ensureCSS();pet=document.getElementById('virtual-pet-img');if(!pet)return;premium=isPremium;saved=Object.fromEntries(['title','role','tabindex'].map(k=>[k,pet.getAttribute(k)]));
+  pet.classList.add(premium?'rmo-character':'rmr-character');pet.title=premium?'Romeo · Tinh Ước Vĩnh Hằng':'Romeo · Bến Đỗ Lời Thư';pet.setAttribute('role','button');pet.tabIndex=0;
+  events=new AbortController();const opt={signal:events.signal};aura=host(premium?'rmo-aura':'rmr-aura',premium?auraArt():`<div class="rmr-pet-sea"></div><div class="rmr-pet-boat">${boat()}</div><div class="rmr-pet-beacon">${beacon()}</div>`,pet.parentElement);
+  if(premium){document.documentElement.classList.add('rmo-equipped');world=host('rmo-world',worldArt());markInterface();document.addEventListener('pointerdown',e=>{if(e.button===0&&!pet?.contains(e.target))clickAt(e.clientX,e.clientY);},opt);}
+  pet.addEventListener('click',ultimate,opt);pet.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();ultimate();}},opt);
+  window.addEventListener('effect-quality-change',sync,opt);document.addEventListener('visibilitychange',sync,opt);motion.addEventListener('change',sync,opt);
+  observer=new MutationObserver(()=>{if(!frame)frame=requestAnimationFrame(()=>{frame=0;sync();markInterface();});});observer.observe(document.body,{childList:true,subtree:true});
+  flags=new MutationObserver(sync);flags.observe(document.body,{attributes:true,attributeFilter:['class']});flags.observe(document.documentElement,{attributes:true,attributeFilter:['class']});flags.observe(pet.parentElement,{attributes:true,attributeFilter:['style','hidden']});sync();
+ }
+ let effect=null,fxEvents=null,fxObserver=null;
+ function clearEffect(){fxEvents?.abort();fxObserver?.disconnect();effect?.remove();effect=fxEvents=fxObserver=null;}
+ function mountEffect(){clearEffect();ensureCSS();const parent=document.getElementById('global-effect-container');if(!parent)return;
+  effect=host('rmr-weather',`<div class="rmr-sea-glow"></div>${many(count(9),i=>`<div class="rmr-paper-vessel" style="--i:${i};--x:${(i*37+5)%95}%;--y:${(i*23+12)%85}%">${boat()}</div>`)}${many(4,i=>`<div class="rmr-stream" style="--i:${i}"></div>`)}`,parent);
+  const update=()=>{if(effect){effect.hidden=paused();effect.shadowRoot.querySelector('.rmo-root').classList.toggle('rmo-still',quiet());}};fxEvents=new AbortController();const opt={signal:fxEvents.signal};window.addEventListener('effect-quality-change',update,opt);document.addEventListener('visibilitychange',update,opt);motion.addEventListener('change',update,opt);fxObserver=new MutationObserver(update);fxObserver.observe(document.body,{attributes:true,attributeFilter:['class']});fxObserver.observe(document.documentElement,{attributes:true,attributeFilter:['class']});update();
+ }
+ window.RomeoRuntime={ensureCSS,mountPremium:()=>mountPet(true),mountRegularPet:()=>mountPet(false),mountEffect,clearEffect,clearPet,ultimate,clickAt,isPremiumActive:()=>!!pet&&premium,implementedLayers:['world-effect','interface','pet-realm','global-click','ultimate']};
+})();
+
+(window.AssetModuleVersions ||= {})['valentine'] = '20261018.romeo1';

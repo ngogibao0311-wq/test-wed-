@@ -3,11 +3,12 @@
  'use strict';
  let user=null,timer=null,claimBusy=null,ready=false;
  const subscriptions=[],balances={that_tich_coin:null,love_coin:null};
+ window.addEventListener('student-session-mode',()=>{if(window.EconomyClient?.canMutate?.())void claim();});
  const currencyName=currency=>currency==='that_tich_coin'?'Xu Thất Tịch':'Xu tình yêu';
  const busy=new Set();
  const errors={INSUFFICIENT_THAT_TICH_COINS:'Bạn chưa đủ Xu Thất Tịch.',INSUFFICIENT_LOVE_COINS:'Bạn chưa đủ Xu tình yêu.',INVALID_EVENT_CURRENCY:'Loại xu này không dùng được cho vật phẩm đã chọn.',STORE_CLOSED:'Cửa hàng đang đóng.',ITEM_NOT_FOR_SALE:'Vật phẩm đang bị khóa.',ITEM_SALE_CLOSED:'Vật phẩm chưa trong thời gian mở bán.',STORE_GAME_ACCESS_DISABLED:'Giáo viên đã khóa quyền sử dụng cửa hàng.',INVALID_THAT_TICH_ITEM:'Danh mục máy chủ chưa có vật phẩm này. Cần cập nhật Worker.'};
  async function claim(){
-  if(!user||claimBusy===user||window.ECONOMY_SERVER_ENABLED!==true)return;
+  if(!user||claimBusy===user||window.EconomyClient?.canMutate?.()===false||(window.ECONOMY_SERVER_ENABLED!==true && window.ECONOMY_EVENT_WALLETS_ENABLED!==true))return;
   const account=user;claimBusy=account;
   try{
    let result=await window.EconomyClient.execute('that_tich_auto',{}, {slot:'that-tich-annual'});
@@ -19,13 +20,13 @@
    // Recheck at the next Vietnam midnight, using the server clock rather than the device clock.
    const next=Math.floor((result.serverNow+25200000)/86400000)*86400000+86400000-25200000;
    timer=setTimeout(()=>void claim(),Math.max(1000,Math.min(86400000,next-result.serverNow+1000)));
-  }catch(e){if(user===account){console.warn('[Xu Thất Tịch]',e.message);ready=false;clearTimeout(timer);timer=setTimeout(()=>void claim(),60000);}}
+  }catch(e){if(user===account){if(window.EconomyClient?.reportError)window.EconomyClient.reportError('[Xu Thất Tịch]',e);else console.warn('[Xu Thất Tịch]',e.message);ready=false;clearTimeout(timer);timer=setTimeout(()=>void claim(),Math.max(60000,(Number(e.retryAt)||0)-Date.now()));}}
   finally{if(claimBusy===account)claimBusy=null;}
  }
  function stop(){for(const {ref,handler} of subscriptions.splice(0))ref.off('value',handler);clearTimeout(timer);timer=null;user=null;ready=false;balances.that_tich_coin=balances.love_coin=null;}
  async function initialize(profile){
   stop();if(!profile?.username||profile.role!=='student')return;user=profile;
-  if(window.ECONOMY_SERVER_ENABLED!==true)return;
+  if((window.ECONOMY_SERVER_ENABLED!==true && window.ECONOMY_EVENT_WALLETS_ENABLED!==true))return;
   for(const [currency,root] of [['that_tich_coin','that_tich_wallets'],['love_coin','love_coin_wallets']]){
    const ref=db.ref(root+'/'+profile.username+'/balance'),handler=s=>{
     if(user!==profile)return;
@@ -40,7 +41,7 @@
  async function redeem(itemId,currency='love_coin'){
   if(busy.has(itemId))return;busy.add(itemId);let committed=false;
   try{
-   if(window.ECONOMY_SERVER_ENABLED!==true)throw Error('Đổi xu cần máy chủ giao dịch; bản test chưa hỗ trợ đổi xu.');
+   if((window.ECONOMY_SERVER_ENABLED!==true && window.ECONOMY_EVENT_WALLETS_ENABLED!==true))throw Error('Ví sự kiện chưa được bật trên Worker test.');
    const item=StoreManager.getItemById(itemId);if(!item||!['love_coin','that_tich_coin'].includes(item.currency))throw Error('Không tìm thấy vật phẩm Tình yêu.');
    const isThatTich=window.StoreTags?.has(item,'Thất Tịch')??[item.tag,...(Array.isArray(item.tags)?item.tags:[])].some(tag=>String(tag).normalize('NFC').trim().replace(/\s+/g,' ').toLocaleLowerCase('vi')==='thất tịch');
    if(!['love_coin','that_tich_coin'].includes(currency)||(currency==='that_tich_coin'&&!isThatTich))throw Error('INVALID_EVENT_CURRENCY');

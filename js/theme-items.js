@@ -1,7 +1,8 @@
-// js/theme-items.js?v=20261017.test.split1
+// js/theme-items.js?v=20261021.visual9
 
 class ThemeManager {
     static themes = {
+        theme_valentine_romeo_regular_2:{primary:'#285f72',secondary:'#d6ae73',background:'#edf6f4',className:'theme-romeo-harbor'},
         theme_valentine_juliet_regular_2:{primary:'#794330',secondary:'#c6a177',background:'#fcf6eb',className:'theme-juliet-tearoom'},
         theme_valentine_cupid_regular_1:{primary:'#b34b6b',secondary:'#e9a5b5',background:'#fff1f5',className:'theme-cupid-letter'},
         theme_huyen_minh_regular_1:{primary:'#855064',secondary:'#caa6b1',background:'#f2e8ea',className:'theme-huyen-minh-lantern'},
@@ -2069,10 +2070,10 @@ class ThemeManager {
     }
 
     static applyTheme(themeId) {
-        if (['theme_valentine_cupid_regular_1','theme_valentine_juliet_regular_2'].includes(themeId)) {
+        if (['theme_valentine_cupid_regular_1','theme_valentine_juliet_regular_2','theme_valentine_romeo_regular_2'].includes(themeId)) {
             if (!document.getElementById('valentine-regular-css')) {
                 const link=document.createElement('link');link.id='valentine-regular-css';link.rel='stylesheet';
-                link.href='css/valentine.css?v=20261015.regular-fix1';document.head.append(link);
+                link.href='css/valentine.css?v=20261021.visual9';document.head.append(link);
             }
         }
         this.initThemePopupIsolation();
@@ -2193,3 +2194,4 @@ class ThemeManager {
 
 // Bắt cả popup có sẵn và popup được tạo động.
 ThemeManager.initThemePopupIsolation();
+(window.AssetModuleVersions ||= {})['theme-items'] = '20261018.romeo1';

@@ -46,7 +46,7 @@
 
     if (window.StudentFeatureLoader) return;
 
-    const VERSION = '3.6.0-autumn-four-effects-restored-v1';
+    const VERSION = '20261019.study1';
 
     const cssPromises = new Map();
     const scriptPromises = new Map();
@@ -98,15 +98,15 @@
     });
 
     const SCRIPT = Object.freeze({
-        valentine:'js/valentine.js?v=20261017.test.split1',
+        valentine:'js/valentine.js?v=20261021.visual9',
         eternalWinter:'js/eternal-winter.js?v=20261017.test.split1',
         tinhMong:'js/tinh-mong.js?v=20261017.test.split1',
-        themeItems: 'js/theme-items.js?v=20261017.test.split1',
-        effectItems: 'js/effect-items.js?v=20261017.test.split1',
-        petItems: 'js/pet-items.js?v=20261017.test.split1',
+        themeItems: 'js/theme-items.js?v=20261021.visual9',
+        effectItems: 'js/effect-items.js?v=20261018.romeo1',
+        petItems: 'js/pet-items.js?v=20261018.romeo1',
         petInteractions: 'js/pet-interactions.js?v=20261017.test.split1',
         musicManager: 'js/music-manager.js?v=20261017.test.split1',
-        storeManager: 'js/store-manager.js?v=20261017.test.split1',
+        storeManager: 'js/store-manager.js?v=20261021.visual9',
 
         regularArt: 'js/regular-store-art.js?v=20261017.test.split1',
         kimLien: 'js/premium-kim-lien.js?v=20261017.test.split1',
@@ -118,8 +118,8 @@
         audrey: 'js/audrey-hall.js?v=20261017.test.split1',
         hacMongRegular: 'js/hac-mong-regular.js?v=20261017.test.split1',
         distinctScenes: 'js/luxury-distinct-scenes.js?v=20261017.test.split1',
-        luxuryStore: 'js/luxury-store.js?v=20261017.test.split1',
-        collections: 'js/store-collections.js?v=20261017.test.split1',
+        luxuryStore: 'js/luxury-store.js?v=20261021.visual9',
+        collections: 'js/store-collections.js?v=20261018.economy5031',
 
         royalBall: 'js/royal-ball.js?v=20261017.test.split1',
         leaderboard: 'js/leaderboard.js?v=20261017.test.split1',
@@ -174,7 +174,7 @@
     const ALL_SPECIAL_STORE_CSS = Object.freeze([
         CSS.autumn,
         CSS.hacmong,
-        'css/valentine.css?v=20261015.regular-fix1',
+        'css/valentine.css?v=20261021.visual9',
         CSS.thatTich,
         CSS.huyenMinh,
         CSS.chronos,
@@ -240,42 +240,26 @@
 
     function loadCss(url) {
         if (!url) return Promise.resolve();
-
-        // CSS cùng pathname chỉ được nạp một lần; ?v= chỉ dùng cache-busting.
-        const key = normalizeStylesheetIdentity(url);
-
-        // Thẻ đã có trong DOM vẫn có thể đang tải. Các caller phải cùng
-        // chờ Promise của lần nạp đầu tiên, kể cả khi khác query version.
-        if (cssPromises.has(key)) {
-            return cssPromises.get(key);
-        }
-
-        if (hasStylesheet(url)) {
-            return Promise.resolve(key);
-        }
-
+        const key = normalizeResourceUrl(url);
+        if (cssPromises.has(key)) return cssPromises.get(key);
+        const previous = [...document.querySelectorAll('link[rel="stylesheet"]')].filter(l => normalizeStylesheetIdentity(l.href) === normalizeStylesheetIdentity(url));
+        const existing = previous.find(l => normalizeResourceUrl(l.href) === key);
+        if (existing?.sheet) return Promise.resolve(key);
         const promise = new Promise((resolve, reject) => {
-            const link = document.createElement('link');
-            link.rel = 'stylesheet';
-            link.href = url;
-            link.dataset.studentLazyCss = '1';
-
-            link.onload = () => resolve(key);
-            link.onerror = () => {
-                link.remove();
-                cssPromises.delete(key);
-                reject(
-                    new Error(
-                        `Không tải được CSS: ${url}`
-                    )
-                );
-            };
-
-            document.head.appendChild(link);
+            const link = existing || document.createElement('link');
+            let settled = false;
+            const timer = setTimeout(() => finish(false), 15000);
+            function finish(ok) {
+                if (settled) return; settled = true; clearTimeout(timer);
+                link.removeEventListener('load', onLoad); link.removeEventListener('error', onError);
+                if (ok) { previous.filter(l => l !== link).forEach(l => { cssPromises.delete(normalizeResourceUrl(l.href)); l.remove(); }); resolve(key); }
+                else { link.remove(); cssPromises.delete(key); reject(Error('Không tải được CSS: ' + url)); }
+            }
+            const onLoad = () => finish(true), onError = () => finish(false);
+            link.addEventListener('load', onLoad); link.addEventListener('error', onError);
+            if (!existing) { link.rel='stylesheet'; link.href=url; link.dataset.studentLazyCss='1'; document.head.append(link); }
         });
-
-        cssPromises.set(key, promise);
-        return promise;
+        cssPromises.set(key, promise); return promise;
     }
 
 
@@ -525,10 +509,11 @@ html[data-app-role="student"] body .dashboard > .content > :is(
 
         // Không coi script đã append là script đã thực thi xong.
         if (scriptPromises.has(key)) {
-            return scriptPromises.get(key);
+            return scriptPromises.get(key).then(result => { window.AssetCompatibility?.assertScript(url); return result; });
         }
 
         if (hasScript(url)) {
+            window.AssetCompatibility?.assertScript(url);
             return Promise.resolve(key);
         }
 
@@ -539,7 +524,7 @@ html[data-app-role="student"] body .dashboard > .content > :is(
                 script.async = false;
                 script.dataset.studentLazyScript = '1';
 
-                script.onload = () => resolve(key);
+                script.onload = () => { try { window.AssetCompatibility?.assertScript(url); resolve(key); } catch(error) { reject(error); } };
                 script.onerror = () => {
                     script.remove();
                     // A transient 503 must not immediately break equipped items.
@@ -878,7 +863,7 @@ html[data-app-role="student"] body .dashboard > .content > :is(
                 const key = normalizeStylesheetIdentity(link.href);
                 if (!special.has(key) || keep.has(key)) return;
                 link.remove();
-                cssPromises.delete(key);
+                cssPromises.delete(normalizeResourceUrl(link.href));
             });
     }
 
@@ -1110,7 +1095,7 @@ html[data-app-role="student"] body .dashboard > .content > :is(
         if (!name) return;
 
         if (groupPromises.has(name)) {
-            return groupPromises.get(name);
+            return groupPromises.get(name).then(async result => { if(name === 'store-ui') { await window.AssetCompatibility?.require('store'); await window.StudyProtocol.ready('store'); } return result; });
         }
 
         const loader =
@@ -1124,6 +1109,7 @@ html[data-app-role="student"] body .dashboard > .content > :is(
 
         const promise = (async () => {
             await loader();
+            if (name === 'store-ui') { await window.AssetCompatibility?.require('store'); await window.StudyProtocol.ready('store'); }
 
             window.dispatchEvent(
                 new CustomEvent(
@@ -1184,6 +1170,7 @@ html[data-app-role="student"] body .dashboard > .content > :is(
         'pet_audrey_hall_premium_2',
         'pet_valentine_cupid_1',
         'pet_valentine_juliet_2',
+        'pet_valentine_romeo_2',
         'pet_eternal_winter_4',
         'pet_luxury_mua_xuan',
         'pet_luxury_mua_ha',
@@ -1370,6 +1357,7 @@ html[data-app-role="student"] body .dashboard > .content > :is(
             }
         }
 
+        if (equipped.some(item=>String(item?.id||'').includes('_valentine_'))) { await loadScript(SCRIPT.valentine); await window.AssetCompatibility?.require('valentine'); }
         return true;
     }
 
@@ -1528,3 +1516,10 @@ html[data-app-role="student"] body .dashboard > .content > :is(
 
     preloadFromLocalStorage();
 })();
+
+(window.AssetModuleVersions ||= {})['student-feature-loader'] = '20261018.romeo1';
+(window.StudyModuleVersions ||= {})['loader'] = '20261019.study1';
+// Written only after this module has executed successfully.
+(window.SessionPolicyModules ||= {}).loader = '20261024.session3';
+
+

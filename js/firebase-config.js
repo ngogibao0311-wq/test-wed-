@@ -26,6 +26,58 @@ if (!firebaseTestConfigured) {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
+// Firebase LOCAL persistence is shared by tabs on one origin. Never keep rendering
+// a teacher/student page with a different account or a different device session.
+window.TestPageAuthReady = (() => {
+    const role = /(?:^|\/)teacher\.html$/.test(location.pathname) ? 'teacher'
+        : /(?:^|\/)student\.html$/.test(location.pathname) ? 'student' : null;
+    if (!role) return Promise.resolve(true);
+    let expected;
+    try { expected = JSON.parse(window.TestBrowserStorage.localStorage.getItem('currentUser')); } catch (_) {}
+    let identity = null, blocked = false, epoch = 0, settle;
+    const ready = new Promise(resolve => { settle = resolve; });
+    const block = (reason = 'session_changed') => {
+        if (blocked) return;
+        blocked = true; window.testPageAuthBlocked = true; window.isVerifiedTeacher = false;
+        window.cleanupFirebaseListeners?.(); db.goOffline(); settle(false);
+        // Do not sign out or erase the account another tab has just signed into.
+        location.replace('index.html?reason=' + reason);
+    };
+    firebase.auth().onIdTokenChanged(async user => {
+        const version = ++epoch;
+        if (blocked) return;
+        if (!user || !expected || (expected._fbKey && expected._fbKey !== user.uid)) return block();
+        try {
+            const token = await user.getIdTokenResult();
+            const next = user.uid + ':' + String(token.claims.deviceSession || 'password');
+            if (version !== epoch || blocked) return;
+            if (identity && identity !== next) {
+                if (window.testDeviceRotationUid === user.uid) {
+                    window.testDeviceRotationUid = null; identity = next;
+                } else return block();
+            }
+            if (!identity) {
+                const profile = (await db.ref('users/' + user.uid).once('value')).val();
+                if (version !== epoch || blocked) return;
+                const requiredVersion = role === 'student'
+                    ? Number((await db.ref('account_access_accounts/' + user.uid + '/requiredClientVersion').once('value')).val()) || 0 : 0;
+                if (version !== epoch || blocked) return;
+                if (!profile || profile.role !== role || profile.username !== expected.username ||
+                    profile.isLocked === true || profile.deletionPending === true) return block();
+                if (role === 'student' && requiredVersion >= 2 &&
+                    (!token.claims.deviceSession || !(token.claims.sessionProtocol >= requiredVersion))) return block('update_required');
+                identity = next;
+            }
+            settle(true);
+        } catch (error) {
+            if (version !== epoch) return;
+            console.error('[Page authentication]', error.code || error.message);
+            block();
+        }
+    });
+    return ready;
+})();
+
 // =============================================================================
 // REQUEST SINGLE-FLIGHT v1.0.0
 // - Các getDB()/getDBStrict() cùng path trong cửa sổ 800ms dùng chung 1 Promise .once().
@@ -321,3 +373,9 @@ async function getPaginatedDB(path, limit, lastKey = null) {
         throw error;
     }
 }
+
+(window.AssetModuleVersions ||= {})['firebase-config'] = '20261018.romeo1';
+// Written only after this module has executed successfully.
+(window.SessionPolicyModules ||= {}).auth = '20261024.session3';
+
+

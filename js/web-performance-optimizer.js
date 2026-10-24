@@ -401,6 +401,7 @@ body.perf-balanced .quill-student-editor[data-perf-quill-pending="1"] {
                     tài liệu, cửa hàng, lộ trình và lịch. Âm thanh tải khi bấm phát.
                     Với học sinh: tự giảm hiệu ứng khi máy chậm kéo dài và phục hồi khi ổn định,
                     tối đa bằng Mức hiệu ứng vật phẩm & web đã chọn. Tắt tùy chọn này để ngừng tự điều chỉnh.
+                    Quản lý cả trang trí Noel và màn chào 31/12: giảm tuyết, giảm nhịp vẽ; mức thấp dùng cảnh tĩnh.
                     Không thay đổi logic trò chơi, điểm, dữ liệu hay vật phẩm.
                 </p>
                 <span id="${STATUS_ID}">Đang tắt • Mặc định</span>
@@ -752,7 +753,18 @@ body.perf-balanced .quill-student-editor[data-perf-quill-pending="1"] {
         }
     }
 
+    // Shared budget for decorative layers. Never changes equipment or account state.
+    function getDecorationPolicy() {
+        const rank = { low: 0, medium: 1, high: 2 };
+        const selected = window.EffectQualityManager?.getEffectiveLevel?.() || 'high';
+        const adaptive = state.enabled && resolveRole() === 'student' ? state.adaptiveLevel : 'high';
+        const index = Math.min(rank[selected] ?? 2, rank[adaptive] ?? 2);
+        return { level: ['low', 'medium', 'high'][index],
+            snowScale: [.24, .58, 1][index], fps: [30, 30, 60][index], animated: index > 0 };
+    }
+
     window.WebPerformanceOptimizer = Object.freeze({
+        getDecorationPolicy,
         version: VERSION,
         isEnabled: () => state.enabled,
         getAdaptiveLevel: () => state.enabled && resolveRole() === 'student' ? state.adaptiveLevel : 'high',

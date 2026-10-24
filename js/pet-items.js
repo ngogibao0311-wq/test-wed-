@@ -1,4 +1,4 @@
-// js/pet-items.js?v=20261017.test.split1
+// js/pet-items.js?v=20261018.romeo1
 
 
 // =========================================================
@@ -1116,6 +1116,7 @@ class PetManager {
 
     static spawnPet(petData) {
         window.JulietRuntime?.clearPet();
+        window.RomeoRuntime?.clearPet();
         window.ValentineRegularRuntime?.clearPet();
         window.ThatTichRuntime?.clearPet();
         window.HuyenMinhRuntime?.clearPet();
@@ -5302,6 +5303,7 @@ class PetManager {
         this.container.removeAttribute('hidden');
         this.container.setAttribute('aria-hidden', 'false');
         if (petData.id === 'pet_valentine_cupid_regular_1') window.ValentineRegularRuntime?.mountPet();
+        if (petData.id === 'pet_valentine_romeo_regular_2') window.RomeoRuntime?.mountRegularPet();
         if (petData.id === 'pet_valentine_juliet_regular_2') window.JulietRuntime?.mountRegularPet();
         if (petData.id === 'pet_nguu_lang_regular_1') window.ThatTichRuntime?.mountRegularPet('nguu_lang');
         if (petData.id === 'pet_chuc_nu_regular_1') window.ThatTichRuntime?.mountRegularPet('chuc_nu');
@@ -8356,3 +8358,5 @@ class PetManager {
         }, { signal });
     }
 }
+
+(window.AssetModuleVersions ||= {})['pet-items'] = '20261018.romeo1';

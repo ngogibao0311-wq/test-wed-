@@ -77,6 +77,7 @@
     }
     async function preflight(assignment) {
         if (busy) return null;
+        await window.AssetCompatibility?.require('exam');
         mount(); busy = true; view = 'preflight'; list.replaceChildren(); ui.querySelector('h2').textContent = 'Kiểm tra trước khi vào thi';
         const proceed = ui.querySelector('#continue'); proceed.hidden = true;
         panel.showModal(); let live = null, passed = true;

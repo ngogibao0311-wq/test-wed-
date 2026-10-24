@@ -9,6 +9,7 @@
     function next() {
         if (active || !queue.length || !document.body) return;
         const task = active = queue.shift();
+        const resumeActivity = task.options.transient ? null : window.ServerActivity?.suspend();
         const previous = document.activeElement;
         const host = document.createElement('div');
         host.className = 'app-dialog-host';
@@ -62,6 +63,7 @@
             if (input) input.value = '';
             host.remove();
             active = null;
+            resumeActivity?.();
             if (!options.transient && previous?.isConnected) previous.focus({preventScroll:true});
             task.resolve(value);
             queueMicrotask(next);
@@ -70,6 +72,13 @@
             const el = document.createElement('button');
             el.type = 'button'; el.textContent = text;
             if (secondary) el.className = 'secondary';
+            // Read-only sessions may dismiss a notice or cancel a decision,
+            // but must never accept a confirmation or submit a prompt.
+            if (secondary || task.kind === 'alert') el.dataset.sessionViewDismiss = '';
+            // This exception is for signing out only, never for business confirmations.
+            if (!secondary && task.kind === 'confirm' && options.sessionAction === 'logout') {
+                window.StudentAccountAccess?.registerSessionControl?.(el);
+            }
             el.onclick = () => finish(typeof value === 'function' ? value() : value);
             actions.append(el);
             return el;
@@ -127,6 +136,9 @@
         notify: (message, options) => { show('alert', message, options); },
         alert: (message, options) => show('alert', message, options),
         confirm: (message, options) => show('confirm', message, options),
+        confirmLogout: () => show('confirm', 'Bạn có chắc chắn muốn đăng xuất?', {
+            title: 'Đăng xuất', acceptText: 'Đăng xuất', sessionAction: 'logout'
+        }),
         prompt: (message, defaultValue = '', options = {}) => show('prompt', message, {...options, defaultValue}),
         toast: (message, type = 'info') => show('alert', message, {type, transient:true, duration:4500})
     };

@@ -1,4 +1,4 @@
-// js/store-manager.js?v=20261017.test.split1
+// js/store-manager.js?v=20261021.visual9
 
 // STORE GUARD companion build (logic bảo vệ giao dịch nằm ở student.js + Firebase Rules)
 window.__STORE_MANAGER_GUARD_BUILD = '20260918.v2-K2-K3-ownership';
@@ -31,16 +31,22 @@ window.StoreTags = StoreTags;
 
 const StoreConfig = {
     items: [
-        {"id":"pet_valentine_juliet_regular_2","name":"Juliet · Tiểu Thư Vườn Hồng","type":"pet","price":1,"isNonCoin":true,"currency":"love_coin","tag":"Valentine","tags":["Valentine","Juliet"],"runtimeCss":"css/valentine.css?v=20261015.regular-fix1","value":"assets/Premium/Valentine/juliet_chibi2.png","asset":"assets/Premium/Valentine/juliet_chibi2.png","isIcon":false,"disableClickEffect":true,"petEffect":"juliet-regular"},
-        {"id":"theme_valentine_juliet_regular_2","name":"Juliet · Phòng Trà Verona","type":"theme","price":1,"isNonCoin":true,"currency":"love_coin","tag":"Valentine","tags":["Valentine","Juliet"],"runtimeCss":"css/valentine.css?v=20261015.regular-fix1","value":"theme_valentine_juliet_regular_2","customIcon":"❦"},
-        {"id":"effect_valentine_juliet_regular_2","name":"Juliet · Điệu Vũ Cánh Bướm","type":"effect","price":1,"isNonCoin":true,"currency":"love_coin","tag":"Valentine","tags":["Valentine","Juliet"],"runtimeCss":"css/valentine.css?v=20261015.regular-fix1","value":"effect_valentine_juliet_regular_2","customIcon":"ʚɞ"},
-        {"id":"frame_valentine_juliet_regular_2","name":"Juliet · Ren Hồng Ước Hẹn","type":"frame","price":1,"isNonCoin":true,"currency":"love_coin","tag":"Valentine","tags":["Valentine","Juliet"],"runtimeCss":"css/valentine.css?v=20261015.regular-fix1","value":"assets/Premium/Valentine/juliet_khung2.png","asset":"assets/Premium/Valentine/juliet_khung2.png","isIcon":false},
-        {"id":"background_valentine_juliet_regular_2","name":"Juliet · Ban Công Tháng Hai","type":"background","price":1,"isNonCoin":true,"currency":"love_coin","tag":"Valentine","tags":["Valentine","Juliet"],"runtimeCss":"css/valentine.css?v=20261015.regular-fix1","value":"assets/Premium/Valentine/juliet_nen2.png","asset":"assets/Premium/Valentine/juliet_nen2.png","isIcon":false,"backgroundFit":"cover","backgroundPosition":"center center","backgroundRepeat":"no-repeat","backgroundAttachment":"fixed"},
-        {"id":"pet_valentine_cupid_regular_1","name":"Cupid · Tiểu Sứ Tơ Hồng","type":"pet","price":1,"isNonCoin":true,"tag":"Valentine","tags":["Valentine","Cupid"],"runtimeCss":"css/valentine.css?v=20261015.regular-fix1","value":"assets/Premium/Valentine/cupid_chibi1.png","asset":"assets/Premium/Valentine/cupid_chibi1.png","isIcon":false,"disableClickEffect":true,"currency":"love_coin"},
-        {"id":"theme_valentine_cupid_regular_1","name":"Cupid · Hiên Thư Tình","type":"theme","price":1,"isNonCoin":true,"tag":"Valentine","tags":["Valentine","Cupid"],"runtimeCss":"css/valentine.css?v=20261015.regular-fix1","value":"theme_valentine_cupid_regular_1","customIcon":"♡","currency":"love_coin"},
-        {"id":"effect_valentine_cupid_regular_1","name":"Cupid · Cánh Hồng Hẹn Ước","type":"effect","price":1,"isNonCoin":true,"tag":"Valentine","tags":["Valentine","Cupid"],"runtimeCss":"css/valentine.css?v=20261015.regular-fix1","value":"effect_valentine_cupid_regular_1","customIcon":"♡","currency":"love_coin"},
-        {"id":"frame_valentine_cupid_regular_1","name":"Cupid · Hoa Hoàn Tơ Đỏ","type":"frame","price":1,"isNonCoin":true,"tag":"Valentine","tags":["Valentine","Cupid"],"runtimeCss":"css/valentine.css?v=20261015.regular-fix1","value":"assets/Premium/Valentine/cupid_khung1.png","asset":"assets/Premium/Valentine/cupid_khung1.png","isIcon":false,"currency":"love_coin"},
-        {"id":"background_valentine_cupid_regular_1","name":"Cupid · Vườn Hồng Đợi Người","type":"background","price":1,"isNonCoin":true,"tag":"Valentine","tags":["Valentine","Cupid"],"runtimeCss":"css/valentine.css?v=20261015.regular-fix1","value":"assets/Premium/Valentine/cupid_nen1.png","asset":"assets/Premium/Valentine/cupid_nen1.png","isIcon":false,"backgroundFit":"cover","backgroundPosition":"center center","backgroundRepeat":"no-repeat","backgroundAttachment":"fixed","currency":"love_coin"},
+        {"id":"pet_valentine_romeo_regular_2","name":"Romeo · Tiểu Sứ Bến Sao","type":"pet","price":1,"isNonCoin":true,"currency":"love_coin","tag":"Valentine","tags":["Valentine","Romeo"],"runtimeCss":"css/valentine.css?v=20261021.visual9","value":"assets/Premium/Valentine/romeo_chibi2.png","asset":"assets/Premium/Valentine/romeo_chibi2.png","isIcon":false,"disableClickEffect":true,"petEffect":"romeo-paper-harbor"},
+        {"id":"theme_valentine_romeo_regular_2","name":"Romeo · Thư Phòng Hải Đăng","type":"theme","price":1,"isNonCoin":true,"currency":"love_coin","tag":"Valentine","tags":["Valentine","Romeo"],"runtimeCss":"css/valentine.css?v=20261021.visual9","value":"theme_valentine_romeo_regular_2","customIcon":"⚓"},
+        {"id":"effect_valentine_romeo_regular_2","name":"Romeo · Hải Lưu Thư Tình","type":"effect","price":1,"isNonCoin":true,"currency":"love_coin","tag":"Valentine","tags":["Valentine","Romeo"],"runtimeCss":"css/valentine.css?v=20261021.visual9","value":"effect_valentine_romeo_regular_2","customIcon":"⛵"},
+        {"id":"frame_valentine_romeo_regular_2","name":"Romeo · Hải Đăng Ước Hẹn","type":"frame","price":1,"isNonCoin":true,"currency":"love_coin","tag":"Valentine","tags":["Valentine","Romeo"],"runtimeCss":"css/valentine.css?v=20261021.visual9","value":"assets/Premium/Valentine/romeo_khung2.png","asset":"assets/Premium/Valentine/romeo_khung2.png","isIcon":false},
+        {"id":"background_valentine_romeo_regular_2","name":"Romeo · Bến Đỗ Đêm Lam","type":"background","price":1,"isNonCoin":true,"currency":"love_coin","tag":"Valentine","tags":["Valentine","Romeo"],"runtimeCss":"css/valentine.css?v=20261021.visual9","value":"assets/Premium/Valentine/romeo_nen2.png","asset":"assets/Premium/Valentine/romeo_nen2.png","isIcon":false,"backgroundFit":"cover","backgroundPosition":"center center","backgroundRepeat":"no-repeat","backgroundAttachment":"fixed"},
+
+        {"id":"pet_valentine_juliet_regular_2","name":"Juliet · Tiểu Thư Vườn Hồng","type":"pet","price":1,"isNonCoin":true,"currency":"love_coin","tag":"Valentine","tags":["Valentine","Juliet"],"runtimeCss":"css/valentine.css?v=20261021.visual9","value":"assets/Premium/Valentine/juliet_chibi2.png","asset":"assets/Premium/Valentine/juliet_chibi2.png","isIcon":false,"disableClickEffect":true,"petEffect":"juliet-regular"},
+        {"id":"theme_valentine_juliet_regular_2","name":"Juliet · Phòng Trà Verona","type":"theme","price":1,"isNonCoin":true,"currency":"love_coin","tag":"Valentine","tags":["Valentine","Juliet"],"runtimeCss":"css/valentine.css?v=20261021.visual9","value":"theme_valentine_juliet_regular_2","customIcon":"❦"},
+        {"id":"effect_valentine_juliet_regular_2","name":"Juliet · Điệu Vũ Cánh Bướm","type":"effect","price":1,"isNonCoin":true,"currency":"love_coin","tag":"Valentine","tags":["Valentine","Juliet"],"runtimeCss":"css/valentine.css?v=20261021.visual9","value":"effect_valentine_juliet_regular_2","customIcon":"ʚɞ"},
+        {"id":"frame_valentine_juliet_regular_2","name":"Juliet · Ren Hồng Ước Hẹn","type":"frame","price":1,"isNonCoin":true,"currency":"love_coin","tag":"Valentine","tags":["Valentine","Juliet"],"runtimeCss":"css/valentine.css?v=20261021.visual9","value":"assets/Premium/Valentine/juliet_khung2.png","asset":"assets/Premium/Valentine/juliet_khung2.png","isIcon":false},
+        {"id":"background_valentine_juliet_regular_2","name":"Juliet · Ban Công Tháng Hai","type":"background","price":1,"isNonCoin":true,"currency":"love_coin","tag":"Valentine","tags":["Valentine","Juliet"],"runtimeCss":"css/valentine.css?v=20261021.visual9","value":"assets/Premium/Valentine/juliet_nen2.png","asset":"assets/Premium/Valentine/juliet_nen2.png","isIcon":false,"backgroundFit":"cover","backgroundPosition":"center center","backgroundRepeat":"no-repeat","backgroundAttachment":"fixed"},
+        {"id":"pet_valentine_cupid_regular_1","name":"Cupid · Tiểu Sứ Tơ Hồng","type":"pet","price":1,"isNonCoin":true,"tag":"Valentine","tags":["Valentine","Cupid"],"runtimeCss":"css/valentine.css?v=20261021.visual9","value":"assets/Premium/Valentine/cupid_chibi1.png","asset":"assets/Premium/Valentine/cupid_chibi1.png","isIcon":false,"disableClickEffect":true,"currency":"love_coin"},
+        {"id":"theme_valentine_cupid_regular_1","name":"Cupid · Hiên Thư Tình","type":"theme","price":1,"isNonCoin":true,"tag":"Valentine","tags":["Valentine","Cupid"],"runtimeCss":"css/valentine.css?v=20261021.visual9","value":"theme_valentine_cupid_regular_1","customIcon":"♡","currency":"love_coin"},
+        {"id":"effect_valentine_cupid_regular_1","name":"Cupid · Cánh Hồng Hẹn Ước","type":"effect","price":1,"isNonCoin":true,"tag":"Valentine","tags":["Valentine","Cupid"],"runtimeCss":"css/valentine.css?v=20261021.visual9","value":"effect_valentine_cupid_regular_1","customIcon":"♡","currency":"love_coin"},
+        {"id":"frame_valentine_cupid_regular_1","name":"Cupid · Hoa Hoàn Tơ Đỏ","type":"frame","price":1,"isNonCoin":true,"tag":"Valentine","tags":["Valentine","Cupid"],"runtimeCss":"css/valentine.css?v=20261021.visual9","value":"assets/Premium/Valentine/cupid_khung1.png","asset":"assets/Premium/Valentine/cupid_khung1.png","isIcon":false,"currency":"love_coin"},
+        {"id":"background_valentine_cupid_regular_1","name":"Cupid · Vườn Hồng Đợi Người","type":"background","price":1,"isNonCoin":true,"tag":"Valentine","tags":["Valentine","Cupid"],"runtimeCss":"css/valentine.css?v=20261021.visual9","value":"assets/Premium/Valentine/cupid_nen1.png","asset":"assets/Premium/Valentine/cupid_nen1.png","isIcon":false,"backgroundFit":"cover","backgroundPosition":"center center","backgroundRepeat":"no-repeat","backgroundAttachment":"fixed","currency":"love_coin"},
         {"id":"pet_huyen_minh_regular_1","name":"Huyền Minh · Tiểu Sứ Dẫn Hồn","type":"pet","price":870,"isNonCoin":false,"tag":"Kinh dị","tags":["Kinh dị","Huyền Minh"],"runtimeCss":"css/huyen-minh.css?v=20261014.huyenminh3","value":"assets/Premium/kinh dị/Tute_chibi1.png","asset":"assets/Premium/kinh dị/Tute_chibi1.png","isIcon":false,"disableClickEffect":true,"petEffect":"huyen-minh-paper-spirit"},
         {"id":"theme_huyen_minh_regular_1","name":"Huyền Minh · Hiên Đèn U Ảnh","type":"theme","price":750,"isNonCoin":false,"tag":"Kinh dị","tags":["Kinh dị","Huyền Minh"],"runtimeCss":"css/huyen-minh.css?v=20261014.huyenminh3","value":"theme_huyen_minh_regular_1","customIcon":"⛩"},
         {"id":"effect_huyen_minh_regular_1","name":"Huyền Minh · Linh Phù Dạ Hành","type":"effect","price":800,"isNonCoin":false,"tag":"Kinh dị","tags":["Kinh dị","Huyền Minh"],"runtimeCss":"css/huyen-minh.css?v=20261014.huyenminh3","value":"effect_huyen_minh_regular_1","customIcon":"符"},
@@ -3253,8 +3259,8 @@ class StoreManager {
     static normalizeEventCurrency(item) {
         item = StoreTags.normalizeItem(item ? {...item} : item);
         // Preserve item IDs; Love is primary and Thất Tịch items also accept the original event wallet.
-        if (item && (StoreTags.has(item, 'Thất Tịch') || StoreTags.has(item, 'Valentine') || /^(pet|theme|effect|frame|background)_(nguu_lang|chuc_nu)_regular_1$|^pet_(nguu_lang|chuc_nu)_premium_1$|_valentine_(cupid|juliet)_/.test(item.id))) {
-            return {...item, price: item.luxuryOnly || item.id.includes('_premium_') || ['pet_valentine_cupid_1','pet_valentine_juliet_2'].includes(item.id) ? 2 : 1, isNonCoin: true, currency: 'love_coin'};
+        if (item && (StoreTags.has(item, 'Thất Tịch') || StoreTags.has(item, 'Valentine') || /^(pet|theme|effect|frame|background)_(nguu_lang|chuc_nu)_regular_1$|^pet_(nguu_lang|chuc_nu)_premium_1$|_valentine_(cupid|juliet|romeo)_/.test(item.id))) {
+            return {...item, price: item.luxuryOnly || item.id.includes('_premium_') || ['pet_valentine_cupid_1','pet_valentine_juliet_2','pet_valentine_romeo_2'].includes(item.id) ? 2 : 1, isNonCoin: true, currency: 'love_coin'};
         }
         return item;
     }
@@ -3265,6 +3271,7 @@ class StoreManager {
     static getItemsByType(type) {
         const displayOrder = item => {
             if (item.id.endsWith('_valentine_cupid_regular_1')) return 12;
+            if (item.id.endsWith('_valentine_romeo_regular_2')) return 10;
             if (item.id.endsWith('_valentine_juliet_regular_2')) return 11;
             if (item.id.endsWith('_huyen_minh_regular_1')) return 10;
             if (item.id.endsWith('_chronos_regular_3')) return 9;
@@ -4757,12 +4764,12 @@ class StoreManager {
             `;
         }
 
-        if (/_valentine_(cupid|juliet)_regular_/.test(item.id)) {
+        if (/_valentine_(cupid|juliet|romeo)_regular_/.test(item.id)) {
             window.JulietRuntime?.ensureCSS();
-            const juliet = item.id.includes('_juliet_');
-            cardClasses.push('store-card-valentine', juliet ? 'store-card-juliet' : 'store-card-cupid', 'store-theme-locked', 'ui-theme-immune');
+            const juliet = item.id.includes('_juliet_'), romeo = item.id.includes('_romeo_');
+            cardClasses.push('store-card-valentine', romeo ? 'store-card-romeo' : juliet ? 'store-card-juliet' : 'store-card-cupid', 'store-theme-locked', 'ui-theme-immune');
             tagClass = 'tag-valentine-shared';
-            specialCardGroup = juliet ? 'juliet-regular' : 'cupid-regular';
+            specialCardGroup = romeo ? 'romeo-regular' : juliet ? 'juliet-regular' : 'cupid-regular';
             isThemeImmune = true;
         }
         const annualSaleBadge =
@@ -7327,3 +7334,5 @@ window.StoreConcurrency = (() => {
     return { charge, equipment };
 })();
 
+
+(window.AssetModuleVersions ||= {})['store-manager'] = '20261018.romeo1';

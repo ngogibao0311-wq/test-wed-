@@ -285,7 +285,9 @@ window.getSubmissionEssayDisplay = function (submission, assignment) {
         if(listening&&listener)listening.off('value',listener);profile=null;records={};updateLabels();
         if(!user)return;
         try {
+            if (await window.TestPageAuthReady === false || window.testPageAuthBlocked) return;
             const value=(await db.ref('users/'+user.uid).once('value')).val();if(firebase.auth().currentUser?.uid!==user.uid)return;profile=value;
+            if (!profile || window.testPageAuthBlocked) return;
             listening=profile.role==='teacher'?db.ref('submission_appeals'):db.ref('submission_appeals').orderByChild('studentUid').equalTo(user.uid);
             listener=snapshot=>{records=snapshot.val()||{};updateLabels();cleanupCompletedAppeals();};listening.on('value',listener,error=>console.error('[Appeals]',error.code));
         }catch(error){console.error('[Appeals]',error.code);}

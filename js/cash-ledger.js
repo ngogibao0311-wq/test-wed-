@@ -69,6 +69,15 @@
         const uid = firebase.auth().currentUser?.uid;
         if (!uid) return null;
         const assertSession = session();
+        if (window.StudentAccountAccess && !window.StudentAccountAccess.canWrite()) return null;
+        if (window.ECONOMY_SERVER_ENABLED === true) {
+            const resumed = await window.EconomyClient.resume('cash-request');
+            assertSession();
+            if (resumed) {
+                if (resumed.action !== 'cash_request') throw Error('Mã yêu cầu tiền mặt không khớp.');
+                return {...resumed.result, recovered:true};
+            }
+        }
         const key = 'pending_cash_request_v3_' + uid;
         const pending = JSON.parse(window.TestBrowserStorage.localStorage.getItem(key) || 'null');
         if (!pending) return null;
@@ -81,6 +90,7 @@
         return { recovered: true, amount: existing.amount };
     }
     async function submit(payload) {
+        if (window.StudentAccountAccess && !window.StudentAccountAccess.canWrite()) throw Object.assign(Error('Phiên này chỉ được xem; không thể gửi yêu cầu đổi tiền.'), {code:'READ_ONLY_SESSION'});
         const uid = firebase.auth().currentUser?.uid;
         if (!uid || !safeAmount(payload.amount)) throw Error('Yêu cầu không hợp lệ.');
         const assertSession = session();
@@ -128,5 +138,10 @@
         clearPending(storageKey, pending.id);
         return { recovered: false, amount: pending.payload.amount };
     }
-    window.CashLedger = { approve, submit, recoverPending };
+    const feedback = (label, task) => window.ServerActivity ? window.ServerActivity.run(label, task) : task();
+    window.CashLedger = {
+        approve: (...args) => feedback('Đang xác nhận duyệt tiền…', () => approve(...args)),
+        submit: (...args) => feedback('Đang gửi yêu cầu đổi tiền…', () => submit(...args)),
+        recoverPending: (...args) => feedback('Đang đối soát yêu cầu trước…', () => recoverPending(...args))
+    };
 })();
