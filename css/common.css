@@ -4051,3 +4051,83 @@ html[data-mobile-ui="phone"] body #studentSessionBanner { margin-top: 0; }
 body.student-view-session .student-session-locked { opacity: .65; cursor: not-allowed !important; }
 
 :root { --asset-common: 20261018.romeo1; }
+
+/* Readable Vietnamese UI: item artwork never selects the font of application text.
+   Intentionally exclude authored rich text, code, math and icon glyphs. */
+html:not(#ui-type-opt-out):not(#ui-type-disabled) body,
+html:not(#ui-type-opt-out):not(#ui-type-disabled) body :is(.dashboard,.modal-content,.popup-content,.store-item-card,.luxury-product-card,.luxury-unified-card,.login-container) :is(h1,h2,h3,h4,h5,h6,p,label,button,input,select,textarea,small,summary,.nav-text,.item-name,.item-description,.item-type-label,.luxury-unified-kicker,.luxury-unified-price):not(:where(.ql-editor,.ql-editor *,.ql-toolbar,.ql-toolbar *,pre,pre *,code,code *,.katex,.katex *,.MathJax,.MathJax *,[class*="icon"],[class*="fa-"],.material-icons)),
+html:not(#ui-type-opt-out):not(#ui-type-disabled) body :is(.luxury-unified-info,.item-actions) :is(span,strong):not(:where([class*="icon"],[class*="fa-"],.material-icons)) {
+ font-family:"Segoe UI",Arial,Helvetica,sans-serif!important;
+}
+html:not(#ui-type-opt-out):not(#ui-type-disabled) body :is(.luxury-unified-info h3,.store-item-card .item-name){line-height:1.45!important;letter-spacing:normal!important;overflow-wrap:anywhere;word-break:normal}
+html:not(#ui-type-opt-out):not(#ui-type-disabled) .app-dialog-host::part(panel),
+html:not(#ui-type-opt-out):not(#ui-type-disabled) .app-dialog-host::part(title){font-family:"Segoe UI",Arial,Helvetica,sans-serif!important}
+
+/* Read-only sessions: scrolling and audited navigation remain available. */
+.student-session-view-note, .student-session-view-close { display: none; }
+body.student-view-session .student-session-view-note,
+body.student-view-session .student-session-view-close { display: block; }
+body.student-view-session .student-session-view-note { color: #92400e; background: #fffbeb; padding: 10px; border-radius: 8px; }
+body.student-view-session iframe,
+body.student-view-session video,
+body.student-view-session audio,
+body.student-view-session object,
+body.student-view-session embed { pointer-events: none !important; }
+
+/* Session management extends the existing light account settings surface. */
+.session-devices-open { margin: 12px 0; padding: 10px 14px; color: #153b66; background: #edf4fc; border: 1px solid #bacce0; border-radius: 8px; cursor: pointer; }
+.session-devices { margin: 8px 0 24px; padding: 20px; background: #fff; color: #20354b; border: 1px solid #c6d3e0; border-radius: 12px; }
+.session-devices[hidden] { display: none; }
+.session-devices h2 { font-size: 1.3rem; margin: 0 0 12px; }
+.session-devices h3 { font-size: 1.05rem; margin: 22px 0 8px; }
+.session-devices p { margin: 8px 0; line-height: 1.6; max-width: 72ch; }
+.session-device-list { margin: 16px 0; padding: 0; list-style: none; }
+.session-device-list li { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 0; border-bottom: 1px solid #d9e2ed; }
+.session-device-list p, .session-device-help { color: #455b73; font-size: .9rem; }
+.session-devices button { padding: 10px 14px; min-height: 44px; background: #edf4fc; color: #153b66; border: 1px solid #bacce0; border-radius: 8px; cursor: pointer; white-space: normal; }
+.session-devices button:hover, .session-devices-open:hover { background: #dceafb; }
+.session-devices button:focus-visible, .session-devices input:focus-visible, .session-devices-open:focus-visible { outline: 3px solid #2b65a4; outline-offset: 3px; }
+.session-devices[aria-busy="true"] button { pointer-events: none; opacity: .65; }
+.session-device-toolbar, .session-pending-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 16px; }
+.session-devices form { display: flex; flex-direction: column; gap: 8px; max-width: 36rem; }
+.session-devices input { min-height: 44px; padding: 10px; color: #20354b; background: #fff; border: 1px solid #8398af; border-radius: 8px; }
+.session-devices input::placeholder { color: #53677c; }
+.session-device-status { color: #214f7d; }
+.session-media-locked { background: #edf4fc; color: #153b66; padding: 12px; font-size: .9rem; line-height: 1.5; }
+@media (max-width: 600px) { .session-devices { padding: 16px; } .session-device-list li { align-items: flex-start; flex-direction: column; } }
+
+html body #studentSessionDevices button, html body #studentDashboard .session-devices-open { width:auto; min-width:0; color:#153b66; background:#edf4fc; background-image:none; box-shadow:none; transform:none; font-weight:650; letter-spacing:normal; text-transform:none; }
+html body #studentSessionDevices button:hover, html body #studentDashboard .session-devices-open:hover { background:#dceafb; box-shadow:none; transform:none; filter:none; }
+html body #studentSessionDevices button::before, html body #studentSessionDevices button::after, html body #studentDashboard .session-devices-open::before, html body #studentDashboard .session-devices-open::after, html body #studentSessionDevices h2::after { content:none; display:none; }
+html body #studentSessionDevices h2 { padding-bottom:0; }
+html body #studentSessionDevices input { width:100%; min-width:0; }
+
+/* Keep account actions together without squeezing either label. */
+html body #studentSessionBanner { flex-wrap: wrap; }
+html body #studentSessionBanner > [data-session-notice] { flex: 1 1 28rem; overflow-wrap: normal; }
+html body #studentSessionBanner .session-account-actions { display:flex; flex:0 1 auto; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:10px; max-width:100%; margin-left:auto; }
+html body #studentSessionBanner .session-account-actions button { flex:0 0 auto; width:auto; min-width:max-content; max-width:none; margin:0; white-space:nowrap; word-break:normal; overflow-wrap:normal; }
+@media (max-width:540px) {
+    html body #studentSessionBanner > [data-session-notice] { flex:0 1 auto; }
+    html body #studentSessionBanner .session-account-actions { width:100%; }
+}
+
+/* Compact device entry; all session details live in the native modal. */
+html body #studentSessionDevicesTrigger { display:grid!important; place-items:center; position:relative!important; inset:auto!important; width:44px!important; min-width:44px!important; max-width:44px!important; height:44px!important; flex:0 0 44px!important; padding:0!important; margin:0!important; order:-2!important; pointer-events:auto!important; color:#263953!important; background:#fff!important; border:1px solid #d9e2ef!important; border-radius:14px!important; box-shadow:none!important; }
+html body #studentSessionDevicesTrigger svg { width:24px; height:24px; pointer-events:none; }
+html body #studentSessionDevicesTrigger:hover { background:#edf4fc!important; }
+html body #studentSessionDevicesTrigger:focus-visible { outline:3px solid #2b65a4; outline-offset:3px; }
+html body dialog#studentSessionDevices { position:fixed; inset:0; margin:auto; width:min(680px,calc(100vw - 32px)); max-width:calc(100vw - 32px); max-height:calc(100dvh - 32px); padding:24px; overflow:auto; overscroll-behavior:contain; border:1px solid #c6d3e0; border-radius:16px; background:#fff; color:#20354b; font:16px/1.6 system-ui,sans-serif; box-sizing:border-box; }
+html body dialog#studentSessionDevices:not([open]) { display:none; }
+html body dialog#studentSessionDevices::backdrop { background:rgba(15,23,42,.48); }
+html body #studentSessionDevices .session-popup-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+html body #studentSessionDevices .session-popup-heading h2 { margin:0; }
+html body #studentSessionDevices .session-popup-close { flex:0 0 auto; }
+html body #studentSessionDevices #studentSessionBanner { width:auto; margin:18px 0; padding:12px 14px; font-size:14px; }
+html body #studentSessionDevices .session-device-toolbar { position:static; }
+@media(max-width:540px) { html body dialog#studentSessionDevices { padding:16px; } }
+
+html body #studentSessionDevices .session-popup-heading { position:sticky; top:-24px; z-index:2; margin:-24px -24px 0; padding:20px 24px 14px; background:#fff; border-bottom:1px solid #e2e8f0; }
+html body #studentSessionDevices .session-device-list li > div { min-width:0; flex:1; }
+html body #studentSessionDevices .session-device-list li > button { flex-shrink:0; white-space:nowrap; }
+@media(max-width:540px) { html body #studentSessionDevices .session-popup-heading { top:-16px; margin:-16px -16px 0; padding:16px; } }

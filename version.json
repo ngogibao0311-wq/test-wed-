@@ -1,40 +1,33 @@
 {
-  "version": "4.4.0",
-  "build": "20261019.study1",
+  "version": "4.4.1",
+  "build": "20261024.devices1",
   "channel": "test",
-  "releasedAt": "2026-10-19T00:00:00+07:00",
-  "title": "Bản test · Lưu nháp và xác nhận nộp bài",
-  "summary": "Lưu nháp theo phiên bản, tra lại biên nhận nộp bài và kiểm tra mã cần thiết trước khi mở chức năng.",
+  "releasedAt": "2026-10-24T00:00:00+07:00",
+  "title": "Phiên bản 4.4.1 · Bảo vệ tài khoản khi dùng nhiều thiết bị",
+  "summary": "Quản lý các thiết bị đang đăng nhập, làm rõ chế độ chỉ xem và chuyển quyền sử dụng có xác nhận.",
   "mandatory": false,
   "minSupportedVersion": "3.0.0",
   "changes": [
-    "Lưu nháp theo phiên bản: phát hiện bản cũ, giữ dữ liệu trên máy để đối chiếu và tách lượt làm lại.",
-    "Nộp bài có mã yêu cầu và biên nhận: khi mất phản hồi, kiểm tra lần gửi trước rồi mới thử lại với cùng mã.",
-    "Kiểm tra các module đã tải và khởi tạo trước khi kích hoạt riêng từng tài khoản; không tự tải lại khi đang làm bài hoặc chờ xác nhận.",
-    "Sửa đăng nhập lại sau khi giáo viên duyệt quên mã: khôi phục yêu cầu đã gửi, mở bước tạo mã mới và giữ yêu cầu khi đóng/mở lại tab trong cùng trình duyệt.",
-    "Hoạt ảnh chờ xác minh cho đăng nhập, mã thiết bị, giao dịch và yêu cầu đổi tiền; tự đóng khi có kết quả, có thể thu gọn khi phản hồi lâu.",
-    "Romeo Premium: 2 Xu tình yêu; 5 vật phẩm thường: 1 Xu tình yêu mỗi món.",
-    "Đối chiếu phiên bản JavaScript/CSS theo nhóm trước khi mở chức năng; không tự tải lại bài thi.",
-    "Mở file:// trên bản test sau khi cập nhật Worker/Rules test; ví sự kiện dùng giao dịch có đối soát."
+    "Thêm mục “Thiết bị đang đăng nhập” để xem các lần đăng nhập, nhận biết thiết bị đang được thao tác và đăng xuất thiết bị không còn sử dụng.",
+    "Thiết bị chỉ xem không được phát video, nhận quà, xác nhận thư, gửi câu trả lời hoặc sửa bài. Bạn vẫn có thể xem nội dung, chuyển mục và đăng xuất.",
+    "Khi muốn dùng thiết bị khác, bạn có thể gửi yêu cầu chuyển quyền và chờ thiết bị đang được thao tác đồng ý.",
+    "Nếu không còn dùng được thiết bị trước, bạn cần nhập lại mã khôi phục và chờ lần đăng nhập trước hết hạn để xin quyền thao tác.",
+    "Chưa cho chuyển quyền khi còn bài thi chưa kết thúc, giao dịch chưa rõ kết quả hoặc tệp đang được xử lý.",
+    "Chỉ tính thời gian xem video ở một cửa sổ tại một thời điểm. Khi đổi cửa sổ, tiếp tục từ thời lượng đã được xác nhận.",
+    "Khi quyền sử dụng thay đổi, các trang đang mở sẽ kiểm tra lại và khóa những thao tác không còn được phép."
   ],
   "resolvedIssues": [
-    "Phiên chỉ xem không gửi lặp giao dịch video/nhận thưởng; yêu cầu tiền mặt đối soát mã cũ trước kiểm tra số dư.",
-    "Các vật phẩm Mùa Đông đi qua cơ chế mua, trang bị và lịch sử tài sản hiện có; kiểm thử nhận và tiêu hao vật phẩm mới.",
-    "Lịch sử chờ lượt gửi nhật ký đang chạy trước khi tải và tự làm mới khi có bản ghi mới, tránh bỏ sót lần mua vé tiếp theo trên danh sách.",
-    "Chặn trái tim SVG phóng lớn chớp lên khi CSS của lớp hiệu ứng đang tải.",
-    "Sửa danh sách lịch sử dừng sau giao dịch đầu tiên do trả về giá trị trong vòng đọc dữ liệu. Hiển thị đủ tối đa 30 giao dịch đã lưu.",
-    "Thêm nút xóa riêng cho thư thưởng điểm số, kể cả thư cũ bị chặn nhận do vi phạm; xác nhận trước khi xóa và báo lỗi nếu không xóa được. Không thay đổi thưởng, phạt hoặc số dư.",
-    "Giáo viên mở web: tự đối soát bài có thư thưởng/phạt cũ đủ dữ liệu, chỉ áp dụng chênh lệch và thay thư cũ bằng thông báo kết quả. Khóa tránh nhận đồng thời, giữ nguyên trường hợp thiếu dữ liệu. Cần Publish Rules đi kèm.",
-    "Sửa duyệt tiền mặt báo nhầm số dư thay đổi do bộ nhớ giao dịch trống; giữ theo dõi dữ liệu trong khi duyệt, từ chối và hoàn tất, vẫn chặn thay đổi đồng thời thực sự.",
-    "Hủy yêu cầu tiền mặt không lấy khóa giao dịch; sửa giải phóng khóa sau xử lý để tránh báo nhầm giao dịch ở tab khác.",
-    "Tự rà soát vật phẩm đã thanh toán nhưng chưa cấp; giữ biên nhận và không trừ thêm. Đối soát thư thưởng bài tập cũ theo mức mới, lưu bản gốc trước khi thay; khoản không rõ dữ liệu được báo kiểm tra.",
-    "Sửa Ngày hội mua sắm trên bản test web-chan-doan-test: tải vật phẩm thường và sang trọng, mở thử ngoài ngày 3/11, quay và mua qua dữ liệu Firebase thử nghiệm; sửa nút đóng gây ép tiêu đề/tràn ngang và bỏ phần hiển thị tỉ lệ trúng. Bản chính vẫn dùng Worker và lịch 3/11.",
-    "Ngày hội mua sắm bản test: gộp danh sách riêng của cửa hàng sang trọng; chuyển thông tin ưu đãi ra khỏi inventoryGrant để phù hợp Rules hiện có. Giải phóng giao dịch v2 hết hạn chỉ sau khi xác nhận chưa có biên nhận thanh toán; giữ nguyên giao dịch đã trả tiền và lịch sử."
+    "Sửa lỗi thiết bị chỉ xem vẫn có thể phát video và làm đủ điều kiện mở bài.",
+    "Chặn nhận quà, xác nhận thư và gửi câu trả lời từ thiết bị chỉ xem, kể cả khi trang chưa kịp đổi trạng thái.",
+    "Sửa tình huống nhiều thiết bị cùng xin quyền thao tác; chỉ một lần đăng nhập được nhận quyền.",
+    "Giữ kết quả đã được xác nhận khi mất kết nối, tránh thực hiện lại cùng một giao dịch.",
+    "Hiển thị rõ thiết bị đang được thao tác, thiết bị chỉ xem và yêu cầu đang chờ đồng ý."
   ],
   "knownIssues": [
-    "Bộ Mùa Đông không yêu cầu rule mới riêng; chức năng lịch sử tài sản vẫn cần bộ rules của v4.3.1.",
-    "Kiểm thử thực hiện cục bộ với dữ liệu giả lập; chưa xác nhận giao dịch đám mây trực tiếp hoặc hiệu suất trên điện thoại thật.",
-    "Cơ chế học tập mới cần Worker, Rules và study_protocol_config/version = 1 trên môi trường test. Chỉ tài khoản được Worker xác nhận mới kích hoạt; bản sửa này chưa triển khai online."
+    "Các thay đổi về quản lý thiết bị chỉ có hiệu lực sau khi hệ thống được chuẩn bị đầy đủ và tài khoản nhận được xác nhận.",
+    "Nếu không còn thiết bị được thao tác nhưng vẫn có bài thi hoặc giao dịch đang chờ, hãy nhờ giáo viên kiểm tra trước khi chuyển quyền.",
+    "Thiết bị mất kết nối cần kết nối lại để nhận trạng thái quyền mới. Không tải lại trang khi đang làm bài hoặc chờ xác nhận giao dịch.",
+    "Đây là bản dùng thử. Một số thay đổi về quản lý thiết bị có thể chưa được bật."
   ],
   "plannedImprovements": []
 }

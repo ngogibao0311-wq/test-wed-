@@ -386,3 +386,12 @@ html body.theme-romeo-harbor .app-dialog-host::part(panel){background:#edf6ed!im
 
 html.rmo-equipped:not(.rmo-suspended) body{--primary-color:#285765;--secondary-color:#bba16d;--text-color:#244653}
 html:is(#romeo-palette,html):is(#romeo-art,html):is(#romeo-ui,html).rmo-equipped:not(.rmo-suspended) .rmo-heading::after{background:linear-gradient(90deg,#c5aa76,#6c9b9d)!important;box-shadow:none!important}
+
+/* Regular Juliet: four veined wings, two antennae, paired wingbeats. */
+.jlr-butterfly{width:var(--size,32px);height:calc(var(--size,32px)*.75);filter:drop-shadow(0 1px 1px #72405426)}
+.jlr-butterfly>svg{display:block;overflow:visible;stroke-width:1;pointer-events:none}
+.jlr-wing-left,.jlr-wing-right{transform-box:view-box;transform-origin:50% 50%;animation:jlr-paired-wing var(--flap,1.25s) ease-in-out infinite;animation-delay:calc(var(--i)*-.23s)}
+.jlr-weather .jlr-butterfly{opacity:.72}
+@keyframes jlr-paired-wing{0%,100%{transform:scaleX(1)}45%{transform:scaleX(.24)}65%{transform:scaleX(.8)}}
+@keyframes jlr-wander{0%,100%{translate:0 0;rotate:-8deg}25%{translate:24px -35px;rotate:12deg}50%{translate:8px -66px;rotate:-6deg}75%{translate:-22px -30px;rotate:-15deg}}
+@media(prefers-reduced-motion:reduce){.jlr-wing-left,.jlr-wing-right{animation:none!important}}
