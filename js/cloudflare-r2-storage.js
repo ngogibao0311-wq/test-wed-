@@ -939,6 +939,8 @@
         );
     }
 
+    // Learning, draft handoff and economy clients share the resolved environment.
+    window.R2_CONFIG = R2_CONFIG;
     window.CloudflareR2Storage =
         Object.freeze({
             config:

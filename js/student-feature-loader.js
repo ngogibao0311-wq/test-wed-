@@ -118,11 +118,11 @@
         audrey: 'js/audrey-hall.js?v=20261017.test.split1',
         hacMongRegular: 'js/hac-mong-regular.js?v=20261017.test.split1',
         distinctScenes: 'js/luxury-distinct-scenes.js?v=20261017.test.split1',
-        luxuryStore: 'js/luxury-store.js?v=20261021.visual9',
+        luxuryStore: 'js/luxury-store.js?v=20261024.audreytag1',
         collections: 'js/store-collections.js?v=20261018.economy5031',
 
         royalBall: 'js/royal-ball.js?v=20261017.test.split1',
-        leaderboard: 'js/leaderboard.js?v=20261017.test.split1',
+        leaderboard: 'js/leaderboard.js?v=20261025.studyread1',
         painting: 'js/painting.js?v=20261017.test.split1',
         history: 'js/lich-su-hao-hung.js?v=20261017.test.split1',
         bellum: 'js/bellum-event.js?v=20261017.test.split1',

@@ -744,7 +744,7 @@
     "isNonCoin": false,
     "luxuryOnly": true,
     "eventOnly": false,
-    "tag": "Audrey Hall",
+    "tag": "Lord of the Mysteries",
     "tags": [
         "Audrey Hall",
         "Lord of the Mysteries",

@@ -99,7 +99,14 @@
         const accept = button(options.acceptText || (task.kind === 'alert' ? 'Đã hiểu' : 'Xác nhận'), () => input ? input.value : true);
         dialog.addEventListener('cancel', event => { event.preventDefault(); finish(cancelled); });
         dialog.addEventListener('close', () => finish(cancelled));
-        document.body.append(host);
+        // Popovers outside a modal's subtree remain inert even in the top layer.
+        // Put transient notices inside the active modal so dismissal can receive
+        // mouse/touch/keyboard events without unlocking the underlying action.
+        let anchor = previous;
+        while (anchor?.shadowRoot?.activeElement) anchor = anchor.shadowRoot.activeElement;
+        let modal = anchor?.closest?.('dialog:modal');
+        if (!modal) modal = Array.from(document.querySelectorAll('dialog:modal')).at(-1);
+        (options.transient && modal ? modal : document.body).append(host);
         task.finish = finish;
         if (options.transient) {
             dialog.setAttribute('role', 'status');

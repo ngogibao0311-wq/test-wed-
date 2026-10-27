@@ -4,16 +4,17 @@
     let panel,body,status,button,busy=false,signalRef,lastSignal=null,channel,sequence=0,lastPrimaryMode=null;
     const api=()=>window.StudentAccountAccess;
     const label=code=>({
-        SESSION_PENDING_OPERATIONS:'Còn giao dịch chưa xác nhận. Hãy đối soát trên phiên chính trước khi chuyển quyền.',
+        SESSION_PENDING_OPERATIONS:'Còn yêu cầu chưa xác định được kết quả. Nếu phiên chính đã hết hạn, hãy báo giáo viên kiểm tra; đăng nhập lặp lại không giải quyết được yêu cầu này.',
         SESSION_OPERATION_UNCONFIRMED:'Máy chủ chưa xác nhận giao dịch này. Hãy giữ nguyên mã yêu cầu và thử lại.',
         SESSION_EXAM_ACTIVE:'Đang có bài thi chưa kết thúc. Hoàn tất hoặc đối soát bài thi trước khi chuyển quyền.',
         SESSION_PRIMARY_STILL_ACTIVE:'Phiên chính vẫn còn hiệu lực. Hãy nhờ phiên chính đồng ý chuyển quyền.',
         SESSION_TRANSITION_BUSY:'Đang xử lý chuyển quyền. Kiểm tra lại trạng thái trước khi gửi tiếp.',
         REQUEST_EXPIRED:'Yêu cầu đã hết hạn. Hãy gửi yêu cầu chuyển quyền mới.',
+        REQUEST_ALREADY_PENDING:'Đã có yêu cầu xin quyền đang chờ. Mở Thiết bị đang đăng nhập ở phiên chính để đồng ý.',
         SESSION_ALREADY_PRIMARY:'Thiết bị này đã có quyền thao tác.'
     }[code]);
     function node(tag,text,cls){const el=document.createElement(tag);if(text)el.textContent=text;if(cls)el.className=cls;return el;}
-    function safeButton(text,handler){const el=node('button',text);el.type='button';api().registerSessionControl(el);el.addEventListener('click',handler);return el;}
+    function safeButton(text,handler){const el=node('button',text);el.type='button';api().registerSessionControl(el);el.addEventListener('click',async event=>{try{await handler(event);}catch(error){status.textContent=label(error.message)||api().message(error);}});return el;}
     function key(suffix){return 'session-v3:'+firebase.app().options.projectId+':'+firebase.auth().currentUser.uid+':'+suffix;}
     function requestId(kind){const k=key(kind);let id=window.TestBrowserStorage.sessionStorage.getItem(k);if(!id){id=crypto.randomUUID();window.TestBrowserStorage.sessionStorage.setItem(k,id);}return id;}
     const time=value=>value?new Date(value).toLocaleString('vi-VN'):'Chưa có thông tin';
@@ -22,12 +23,14 @@
         try {
             const result=await api().call(action,details);
             if(result.status==='transferred'){window.TestBrowserStorage.sessionStorage.removeItem(key('transfer'));window.TestBrowserStorage.sessionStorage.removeItem(key('recover'));}
-            if(action==='session_request_transfer')status.textContent='Đã gửi yêu cầu. Chờ phiên chính đồng ý.';
+            if(result.status==='recovery_pending')status.textContent='Đã xác nhận một phần giao dịch cũ. Hãy nhập lại mã và bấm khôi phục để kiểm tra phần còn lại.';
+            else if(action==='session_request_transfer')status.textContent='Đã gửi yêu cầu. Chờ phiên chính đồng ý.';
             else if(action==='session_reconcile_operation'){
                 status.textContent=result.outcome==='completed'?'Giao dịch đã hoàn tất trên máy chủ.':'Yêu cầu chưa thực hiện đã được khóa và hủy an toàn.';
                 await api().call('session_ack_operation',{operationId:details.operationId});
             } else status.textContent='Đã xác nhận. Quyền sử dụng được cập nhật từ máy chủ.';
-            channel?.postMessage({type:'invalidate'});
+            // Local notifications are optional; they must never skip server refresh.
+            try{channel?.postMessage({type:'invalidate'});}catch(_){}
             api().invalidateSession();
             await api().refreshSession();await load();
         } catch(error) {status.textContent=label(error.message)||api().message(error);}
@@ -86,12 +89,18 @@
             }else body.append(node('p','Muốn chuyển quyền: mở mục Thiết bị đang đăng nhập trên thiết bị chỉ xem, bấm Xin quyền từ phiên chính, rồi quay lại đây để đồng ý.'));
         }else{
             body.append(node('p','Phiên này chỉ xem nội dung và trạng thái. Video, nhận quà, xác nhận thư và các thao tác học tập đều bị khóa.'));
-            body.append(safeButton('Xin quyền từ phiên chính',()=>void act('session_request_transfer',{requestId:requestId('transfer')})));
-            const form=node('form'),heading=node('h3','Không còn dùng được phiên chính?'),help=node('p','Chỉ khôi phục quyền khi phiên chính đã hết hạn và không còn bài thi hay giao dịch đang chờ.');
+            if(data.primarySessionId && data.sessions.some(s=>s.id===data.primarySessionId)) {
+                body.append(safeButton('Xin quyền từ phiên chính',()=>void act('session_request_transfer',{requestId:requestId('transfer')})));
+            } else {
+                body.append(node('p','Phiên chính đã hết hạn hoặc đã đăng xuất. Bạn có thể nhập mã bên dưới để lấy lại quyền. Lần đăng nhập mới bằng mật khẩu và mã khôi phục cũng sẽ kiểm tra để cấp lại quyền.'));
+                if(data.pendingCount || data.activeRequestCount)body.append(node('p','Khi khôi phục quyền, hệ thống sẽ đối chiếu các giao dịch đang chờ. Giao dịch đã có kết quả sẽ được xác nhận; yêu cầu chưa rõ kết quả vẫn được giữ để kiểm tra.'));
+            }
+            const form=node('form'),heading=node('h3','Không còn dùng được phiên chính?'),help=node('p','Chỉ khôi phục khi phiên chính đã hết hạn hoặc đăng xuất. Hệ thống kiểm tra bài thi và đối chiếu giao dịch trước khi cấp quyền.');
             const input=node('input');input.id='sessionTransferRecovery';input.type='password';input.autocomplete='off';input.maxLength=64;input.placeholder='REC-…';
             api().registerSessionControl(input);
             const text=node('label','Nhập lại mã khôi phục');text.htmlFor=input.id;api().registerSessionControl(text);
             const submit=safeButton('Xác nhận để khôi phục quyền',()=>{const code=input.value;input.value='';void act('session_recover_transfer',{requestId:requestId('recover'),code});});
+            input.addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.isComposing){event.preventDefault();submit.click();}});
             form.addEventListener('submit',event=>event.preventDefault());form.append(heading,help,text,input,submit);body.append(form);
         }
     }
@@ -112,10 +121,10 @@
         let banner=document.getElementById('studentSessionBanner');
         if(!banner){banner=node('aside',null,'ui-theme-immune');banner.id='studentSessionBanner';banner.setAttribute('role','status');const notice=node('span','Đang kiểm tra phiên đăng nhập.');notice.dataset.sessionNotice='';banner.append(notice);}
         banner.querySelectorAll('button,.session-account-actions').forEach(el=>el.remove());banner.hidden=false;
-        body=node('div');status=node('p',null,'session-device-status');status.setAttribute('role','status');
+        body=node('div');status=node('p',null,'session-device-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');heading.append(status);
         const toolbar=node('div',null,'session-device-toolbar');
         toolbar.append(safeButton('Cập nhật danh sách',()=>void api().refreshSession().then(load).then(()=>{status.textContent='';}).catch(e=>{status.textContent=label(e.message)||api().message(e);})),safeButton('Đăng xuất thiết bị này',()=>{closePanel();void window.logout();}),safeButton('Đóng danh sách',closePanel));
-        panel.append(heading,banner,status,body,toolbar);document.body.append(panel);
+        panel.append(heading,banner,body,toolbar);document.body.append(panel);
         panel.addEventListener('cancel',event=>{event.preventDefault();closePanel();});
         button=safeButton('',()=>{
             if(panel.open){closePanel();return;}
@@ -137,10 +146,10 @@
             if(lastSignal===null){lastSignal=api().signalRevision();}
             if(revision!==lastSignal){lastSignal=revision;api().invalidateSession(revision);void api().refreshSession().then(()=>{if(panel&&!panel.hidden)return load();}).catch(()=>{});}
         },()=>api().invalidateSession());
-        if(typeof BroadcastChannel==='function'){
+        try{if(typeof BroadcastChannel==='function'){
             channel=new BroadcastChannel(key('signals'));
-            channel.onmessage=()=>{api().invalidateSession();void api().refreshSession().catch(()=>{});};
-        }
+            channel.onmessage=()=>{api().invalidateSession();void api().refreshSession().then(()=>{if(panel?.open)return load();}).catch(()=>{});};
+        }}catch(_){channel=null;}
         window.addEventListener('pagehide',()=>{signalRef?.off();signalRef=null;channel?.close();channel=null;});
     }
     window.addEventListener('student-session-mode',()=>{

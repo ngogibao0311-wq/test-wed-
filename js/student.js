@@ -5455,7 +5455,7 @@ window.onload = async function () {
     );
 
     // 2. GIỮ NGUYÊN ASSIGNMENTS (Bài tập chung toàn trường chỉ do GV sửa nên tần suất rất ít, không gây bão)
-    listenFirebase(db.ref('assignments'), 'value', async (snapshot) => {
+    listenFirebase(window.StudentStudyData.assignmentsRef(), 'value', async (snapshot) => {
         DBReadSingleFlight.invalidate('assignments');
         const val = snapshot.val();
         if (!isDeepEqual(val, cacheAssignmentsSt)) {
@@ -5506,9 +5506,7 @@ window.onload = async function () {
 
     // 3. CHỈ LẮNG NGHE BÀI NỘP/BẢN NHÁP CỦA CHÍNH HỌC SINH NÀY
     listenFirebase(
-        db.ref('submissions')
-            .orderByChild('studentUsername')
-            .equalTo(currentUser.username),
+        window.StudentStudyData.submissionsRef(),
         'value',
         async (snapshot) => {
             const val = snapshot.val();
@@ -5586,7 +5584,7 @@ window.onload = async function () {
     );
 
     listenFirebase(
-        db.ref('materials'),
+        window.StudentStudyData.materialsRef(),
         'value',
         async (snapshot) => {
             const val = snapshot.val();
@@ -5613,7 +5611,7 @@ window.onload = async function () {
     });
 
     listenFirebase(
-        db.ref('schedule'),
+        window.StudentStudyData.ref('schedule'),
         'value',
         async snapshot => {
 
@@ -5698,24 +5696,8 @@ window.onload = async function () {
         if (!username) return [];
         const authUser = firebase.auth().currentUser;
         if (!authUser) throw new Error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
-        const token = fresh ? await authUser.getIdToken() : null;
-        // SDK once/get may reuse an active listener's local snapshot. Before
-        // saving, use authenticated scoped REST reads and never fall back to cache.
-        const rows = await Promise.all(
-            ['studentUsername', 'username', 'studentUser', 'studentId'].map(async field => {
-                if (!fresh) {
-                    const snapshot = await db.ref('submissions').orderByChild(field).equalTo(username).once('value');
-                    return snapshot.val();
-                }
-                const url = new URL(db.ref('submissions').toString().replace(/\/$/, '') + '.json');
-                url.searchParams.set('orderBy', JSON.stringify(field));
-                url.searchParams.set('equalTo', JSON.stringify(username));
-                url.searchParams.set('auth', token);
-                const response = await fetch(url.toString(), { cache: 'no-store' });
-                if (!response.ok) throw new Error('Không đọc được bài nộp mới nhất. Vui lòng thử lại trước khi nộp.');
-                return response.json();
-            })
-        );
+        // Always read server data; legacy owner aliases are resolved there.
+        const rows = [(await window.StudentStudyData.read('submissions')).val()];
         if (String(currentUser?.username || '').trim() !== username || firebase.auth().currentUser?.uid !== authUser.uid) {
             throw new Error('Tài khoản đã thay đổi. Vui lòng tải lại trang trước khi tiếp tục.');
         }
@@ -6175,7 +6157,7 @@ window.onload = async function () {
 
     // LẮNG NGHE THÔNG BÁO TOÀN TRƯỜNG
     let xmasNotificationSequence = 0;
-    listenFirebase(db.ref('global_notifications'), 'value', async (snapshot) => {
+    listenFirebase(window.StudentStudyData.ref('global_notifications'), 'value', async (snapshot) => {
         if (startupLoader) startupLoader.markReady('student-notifications');
         // Ready is marked BEFORE waiting, so startup cannot deadlock. Only process the newest snapshot.
         const welcomeSequence = ++xmasNotificationSequence;
@@ -6305,6 +6287,7 @@ window.onload = async function () {
                         btn.innerText = "⏳ Đang ghi nhận...";
                         try {
                             await db.ref(`global_notifications/${unreadNoti._fbKey}/receivers/${currentUser.username}`).set(true);
+                            window.StudentStudyData.refresh();
 
                             // Đã xác nhận thành công mới cho phép đóng
                             window.currentMandatoryNotification = null;
@@ -6329,7 +6312,7 @@ window.onload = async function () {
 
     // LẮNG NGHE KHẢO SÁT BẮT BUỘC (ĐÃ FIX LOGIC)
     let xmasSurveySequence = 0;
-    listenFirebase(db.ref('global_surveys'), 'value', async (snapshot) => {
+    listenFirebase(window.StudentStudyData.ref('global_surveys'), 'value', async (snapshot) => {
         if (startupLoader) startupLoader.markReady('student-surveys');
         // Ready is marked BEFORE waiting, so startup cannot deadlock. Only process the newest snapshot.
         const welcomeSequence = ++xmasSurveySequence;
@@ -9482,6 +9465,11 @@ async function loadAssignmentsCore() {
             existingCard.style.order = assignmentOrder;
             return; // Trả về ngay, bảo vệ con trỏ chuột và text đang gõ của học sinh
         }
+        // A changed personal deadline must not replace the editor or a selected file.
+        if (existingCard && window.AssignmentExtensions?.preserveCard(existingCard, assign, mySub, cardHash)) {
+            existingCard.style.order = assignmentOrder;
+            return;
+        }
 
         // Nếu trạng thái thay đổi -> Xóa Timer cũ chuẩn bị vẽ lại DOM mới
         if (window.assignTimersObj[assign.id]) {
@@ -10658,7 +10646,18 @@ ${window.getSubmissionEssayDisplay(mySub, assign).trim() ? `<div class="ql-edito
                     }
                     const timer = setInterval(() => {
                         const c = typeof getStudentSyncedNow === 'function' ? getStudentSyncedNow() : new Date();
-                        const timeLeft = endTime - c;
+                        const effectiveEnd = window.AssignmentExtensions?.currentDeadline(assign.id, endTime.getTime()) ?? endTime.getTime();
+                        const timeLeft = effectiveEnd - c;
+                        if (timeLeft > 15000) {
+                            const button = document.getElementById(`btn-submit-${assign.id}`);
+                            if (button?.dataset.extensionPreviousLabel) {
+                                button.innerText = button.dataset.extensionPreviousLabel;
+                                delete button.dataset.extensionPreviousLabel;
+                                button.disabled = !window.StudentAccountAccess.canWrite();
+                                const file = document.getElementById(`studentFile-${assign.id}`);
+                                if (file) file.disabled = button.disabled;
+                            }
+                        }
 
                         // TUYỆT ĐỐI BỎ QUA KHÓA 15 GIÂY NẾU ĐANG LÀM LẠI
                         const currentlyRedoing = mySub ? !!mySub.isRedoing : false;
@@ -10666,6 +10665,7 @@ ${window.getSubmissionEssayDisplay(mySub, assign).trim() ? `<div class="ql-edito
                         if (currentlyRedoing === false && timeLeft <= 15000 && timeLeft > 0) {
                             const btnSubmit = document.getElementById(`btn-submit-${assign.id}`);
                             if (btnSubmit && !btnSubmit.disabled) {
+                                btnSubmit.dataset.extensionPreviousLabel = btnSubmit.innerText;
                                 btnSubmit.disabled = true;
                                 btnSubmit.style.background = '#95a5a6';
                                 btnSubmit.style.cursor = 'not-allowed';
@@ -10680,7 +10680,7 @@ ${window.getSubmissionEssayDisplay(mySub, assign).trim() ? `<div class="ql-edito
                             }
                         }
 
-                        if (c > endTime) {
+                        if (c > effectiveEnd) {
                             clearInterval(window.assignTimersObj[assign.id]);
                             delete window.assignTimersObj[assign.id];
                             if (!isRedoing) loadAssignments();
@@ -10701,6 +10701,7 @@ ${window.getSubmissionEssayDisplay(mySub, assign).trim() ? `<div class="ql-edito
         grades
     );
 
+    window.AssignmentExtensions?.mountStudent(assignments, submissions);
     // Khởi tạo editor: lazy khi bật tối ưu, giữ nguyên hành vi cũ khi tắt.
     initStudentQuillEditors(document);
 
@@ -12262,6 +12263,7 @@ async function saveStudentSubmissionAtomic(assignment, previous, payload) {
     window.StudyReliability?.submitted(id, 'Đang gửi; chưa được xác nhận');
     try {
         const key = await saveStudentSubmissionAtomicCore(assignment, previous, payload);
+        window.StudentStudyData.refresh();
         window.StudyReliability?.submitted(id, 'Đã tiếp nhận · mã ' + key);
         return key;
     } catch (error) {
@@ -12286,7 +12288,7 @@ async function saveStudentSubmissionAtomicCore(assignment, previous, payload) {
             ''
         );
 
-    const liveAssignment = (await db.ref('assignments/' + assignmentKey).once('value')).val();
+    const liveAssignment = (await window.StudentStudyData.read('assignments/' + assignmentKey)).val();
     if (!liveAssignment || liveAssignment.isLocked === true) throw new Error('ASSIGNMENT_TEACHER_LOCKED');
 
     const stableKey =
@@ -12335,12 +12337,7 @@ async function saveStudentSubmissionAtomicCore(assignment, previous, payload) {
      * 4) nếu trạng thái caller/Firebase lệch nhau => dừng bằng conflict,
      *    không ghi mù.
      */
-    const liveSnapshot =
-        await db
-            .ref('submissions')
-            .orderByChild('studentUsername')
-            .equalTo(currentUser.username)
-            .once('value');
+    const liveSnapshot = await window.StudentStudyData.read('submissions');
 
     const liveRows =
         liveSnapshot.val() || {};
@@ -12350,7 +12347,7 @@ async function saveStudentSubmissionAtomicCore(assignment, previous, payload) {
             .filter(
                 ([, value]) =>
                     String(
-                        value?.assignmentId ||
+                        getStudentCompatSubmissionAssignmentId(value) ||
                         ''
                     ) ===
                     String(
@@ -12441,9 +12438,11 @@ async function saveStudentSubmissionAtomicCore(assignment, previous, payload) {
                 String(
                     livePrevious.submitTime ||
                     ''
-                ).trim() !== '';
+                ).trim() !== '' ||
+                (['number','string'].includes(typeof livePrevious.grade) &&
+                    String(livePrevious.grade).trim() !== '' && Number.isFinite(Number(livePrevious.grade)));
 
-            if (!looksCommitted) {
+            if (!looksCommitted || ['draft','active'].includes(livePrevious.status)) {
                 throw conflict(
                     'Bản ghi bài nộp hiện có chưa hoàn chỉnh. Hệ thống dừng để tránh ghi đè dữ liệu bất thường.'
                 );
@@ -18587,9 +18586,7 @@ async function hasStudentActiveRegradeForStore() {
         return false;
     }
 
-    const snapshot = await db
-        .ref('submissions')
-        .once('value');
+    const snapshot = await window.StudentStudyData.read('submissions');
 
     let blocked = false;
 
@@ -20882,39 +20879,42 @@ window.checkSurveyCompletion = function () {
 
 window.submitSurvey = async function () {
     if (!window.StudentAccountAccess?.requireWrite()) return;
-    if (!window.currentActiveSurvey) return;
-
+    const survey = window.currentActiveSurvey;
     const btn = document.getElementById('btnSubmitSurvey');
+    if (!survey || !btn || btn.disabled) return;
+    const username = currentUser.username;
+    const responses = {};
+    for (const q of survey.questions || []) {
+        const value = q.type === 'mc'
+            ? document.querySelector(`input[name="ans_${q.id}"]:checked`)?.value
+            : document.getElementById(`ans_${q.id}`)?.value.trim();
+        if (!value) { await AppDialog.alert('Vui lòng trả lời đủ các câu hỏi trước khi gửi.'); return; }
+        responses[q.id] = value;
+    }
     btn.disabled = true;
     btn.innerText = "⏳ Đang gửi dữ liệu cho Giáo viên...";
     btn.style.opacity = '0.7';
-
-    // Thu thập câu trả lời
-    let responses = {};
-    window.currentActiveSurvey.questions.forEach(q => {
-        if (q.type === 'mc') {
-            responses[q.id] = document.querySelector(`input[name="ans_${q.id}"]:checked`).value;
-        } else {
-            responses[q.id] = document.getElementById(`ans_${q.id}`).value.trim();
-        }
-    });
-
-    // Tạo hiệu ứng mất 1 lúc mới đóng (1.5 giây mô phỏng độ trễ truyền tải)
     setTimeout(async () => {
-        if (!window.StudentAccountAccess?.canWrite()) return;
-        // Đẩy lên Firebase
-        await db.ref(`global_surveys/${window.currentActiveSurvey._fbKey}/answers/${currentUser.username}`).set({
-            studentName: currentUser.name,
-            responses: responses,
-            timestamp: new Date().toLocaleString('vi-VN')
-        });
-
-        // Tắt Modal và reset trạng thái nút
-        document.getElementById('studentSurveyModal').classList.remove('active');
-        btn.disabled = false;
-        btn.innerText = "📤 Gửi câu trả lời & Thoát X";
-        btn.style.opacity = '1';
-        window.currentActiveSurvey = null; // Dọn dẹp
+        try {
+            if (!window.StudentAccountAccess?.canWrite() || currentUser.username !== username)
+                throw Error('Phiên đăng nhập không còn quyền gửi.');
+            await db.ref(`global_surveys/${survey._fbKey}/answers/${username}`).set({
+                studentName: currentUser.name, responses,
+                timestamp: new Date().toLocaleString('vi-VN')
+            });
+            if (window.currentActiveSurvey?._fbKey === survey._fbKey) {
+                document.getElementById('studentSurveyModal').classList.remove('active');
+                window.currentActiveSurvey = null;
+            }
+            window.StudentStudyData.refresh();
+        } catch (error) {
+            console.error('[Khảo sát]', error.code || error.message);
+            await AppDialog.alert('Chưa xác nhận được câu trả lời đã lưu. Nội dung của bạn vẫn được giữ; hãy kiểm tra kết nối và thử lại.');
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "📤 Gửi câu trả lời & Thoát X";
+            btn.style.opacity = '1';
+        }
     }, 1500);
 };
 
@@ -21170,8 +21170,7 @@ async function renderStudentRoadmapCore() {
     const [assignments, submissions, offsetSnap] = await Promise.all([
         Array.isArray(window.cachedAssignments) ? window.cachedAssignments : getDB('assignments'),
         Array.isArray(window.cachedSubmissions) ? window.cachedSubmissions
-            : db.ref('submissions').orderByChild('studentUsername').equalTo(roadmapUsername)
-                .once('value').then(mapFirebaseCollectionSnapshot),
+            : window.StudentStudyData.read('submissions').then(mapFirebaseCollectionSnapshot),
         db.ref('student_money_offset/' + currentUser.username).once('value')
     ]);
     if (currentUser.username !== roadmapUsername || studentRoadmapRenderQueued) return;
@@ -24610,11 +24609,7 @@ window.getLiveStudentExamSubmission =
 
         if (!key) return null;
 
-        const snapshot = await db
-            .ref('submissions')
-            .orderByChild('studentUsername')
-            .equalTo(String(currentUser.username))
-            .once('value');
+        const snapshot = await window.StudentStudyData.read('submissions');
 
         const matches = [];
 
@@ -24622,7 +24617,7 @@ window.getLiveStudentExamSubmission =
             const value = child.val() || {};
 
             if (
-                String(value.assignmentId || '') === key
+                getStudentCompatSubmissionAssignmentId(value) === key
             ) {
                 matches.push({
                     ...value,

@@ -1971,6 +1971,16 @@ async function getLeaderboardSourceData() {
 }
 
 async function readLeaderboardSourceData() {
+    if (/(?:^|\/)student\.html$/.test(location.pathname)) {
+        if (!window.StudentStudyData) throw Error('Chưa tải đủ phần học tập. Hãy tải lại trang khi đã lưu bài.');
+        const [data, tracking, settings] = await Promise.all([
+            window.StudentStudyData.leaderboard(), db.ref('video_tracking').once('value'), db.ref('leaderboard_settings').once('value')
+        ]);
+        const rows = records => Object.entries(records || {}).map(([key,row])=>({...row,_fbKey:key}));
+        const submissions = rows(data.submissions);
+        return {users:getLeaderboardStudentsFromSubmissions(submissions), assignments:rows(data.assignments), submissions,
+            trackingData:tracking.val() || {}, settings:settings.val() || {}};
+    }
     /*
      * Không đọc getDB('users') ở phía học sinh.
      * Firebase Rules chỉ cho teacher đọc toàn bộ /users,

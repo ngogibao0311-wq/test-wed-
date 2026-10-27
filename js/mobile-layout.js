@@ -4,7 +4,12 @@
  if(window.PhoneLayout)return;
  const media=matchMedia('(max-width:768px), (max-width:1024px) and (pointer:coarse) and (max-height:600px)'),root=document.documentElement;
  let dashboard,sidebar,header,nav,backdrop,desktopCollapsed,active=false,queued=false,observer;
- const links=[];
+ const links=[],viewControls=[];
+ // Only the controls created here are navigation exceptions. Forwarded tab
+ // clicks still pass through the original handler and its permission guards.
+ function registerViewControls(){
+  viewControls.forEach(control=>window.StudentAccountAccess?.registerSessionControl?.(control));
+ }
  function setMenu(open){
   if(!active||!dashboard)return;
   dashboard.classList.toggle('collapsed',!open);
@@ -14,6 +19,7 @@
  }
  function sync(){
   if(!active||!dashboard)return;
+  registerViewControls();
   const selected=sidebar.querySelector('.nav-item.active');
   links.forEach(({source,button})=>{
    button.disabled=source.disabled;
@@ -47,12 +53,14 @@
    const icon=source.querySelector('svg');if(icon)button.append(icon.cloneNode(true));
    const text=document.createElement('span');text.textContent=label;button.append(text);
    button.addEventListener('click',()=>{if(!source.disabled&&!source.hidden)source.click();});
-   links.push({source,button});nav.append(button);
+   viewControls.push(button);links.push({source,button});nav.append(button);
   }
   const menu=document.createElement('button');menu.type='button';menu.dataset.menu='';menu.setAttribute('aria-label','Tất cả chức năng');menu.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Menu</span>';nav.append(menu);
   const close=document.createElement('button');close.type='button';close.className='mobile-menu-close';close.textContent='Đóng menu ✕';close.onclick=()=>setMenu(false);sidebar.prepend(close);
   menu.onclick=()=>setMenu(dashboard.classList.contains('collapsed'));
   backdrop=document.createElement('div');backdrop.className='mobile-menu-backdrop';backdrop.hidden=true;backdrop.onclick=()=>setMenu(false);
+  backdrop.setAttribute('role','button');backdrop.tabIndex=-1;backdrop.setAttribute('aria-label','Đóng menu');
+  viewControls.push(menu,close,backdrop);registerViewControls();
   if(header)document.body.append(header);
   document.body.append(backdrop,nav);
   if(!teacher){const dock=document.getElementById('studentTopActionsFlow');if(dock)header.append(dock);}
@@ -81,6 +89,7 @@
   }
  }
  function init(){apply();media.addEventListener('change',apply);}
+ window.addEventListener('student-session-mode',registerViewControls);
  window.PhoneLayout={sync:schedule};
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();

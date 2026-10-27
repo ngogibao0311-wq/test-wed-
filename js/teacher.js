@@ -53,7 +53,21 @@ async function reauthenticateTeacherForDangerousAction(actionLabel) {
     if (!email) throw new Error('Không xác định được email xác thực đám mây của Giáo viên.');
 
     const credential = firebase.auth.EmailAuthProvider.credential(email, enteredPassword);
-    await authUser.reauthenticateWithCredential(credential);
+    try {
+        await authUser.reauthenticateWithCredential(credential);
+    } catch (error) {
+        // Older auth SDKs wrap invalid credentials in auth/internal-error.
+        let serverMessage = '';
+        try { serverMessage = JSON.parse(error?.message || '{}')?.error?.message || ''; } catch (_) {}
+        const invalidCredentials = ['auth/wrong-password', 'auth/invalid-credential', 'auth/invalid-login-credentials', 'auth/user-mismatch'].includes(error?.code) ||
+            (error?.code === 'auth/internal-error' && serverMessage === 'INVALID_LOGIN_CREDENTIALS');
+        if (invalidCredentials) {
+            const readable = new Error('Không xác thực được tài khoản giáo viên. Hãy nhập mật khẩu đăng nhập hiện tại của đúng tài khoản đang mở (kiểm tra Caps Lock và bộ gõ). Thao tác chưa được thực hiện.');
+            readable.code = 'auth/invalid-credential';
+            throw readable;
+        }
+        throw error;
+    }
     return true;
 }
 
@@ -5443,6 +5457,7 @@ async function loadAssignedList(isLoadMore = false) {
                 <div class="teacher-assignment-actions" style="text-align: right; margin-bottom: 15px; display: flex; gap: 10px; justify-content: flex-end;">
                     <button class="btn-approve" style="padding: 6px 15px; font-size: 0.9em; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;" onclick="openAssignmentStatusModal('${assign.id}')">📊 Trạng thái</button>
                     <button class="btn-approve" style="padding:6px 15px;font-size:0.9em;" onclick="toggleAssignmentLock('${assign._fbKey}')">${assign.isLocked ? '🔓 Mở khóa' : '🔒 Khóa bài'}</button>
+                    <button type="button" class="btn-approve" data-extension-seed="${window.escapeHTML(String(assign._fbKey))}" style="padding:6px 15px;font-size:0.9em;">Mốc gia hạn</button>
                     <button class="btn-approve" style="padding: 6px 15px; font-size: 0.9em; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white;" onclick="openEditAssignmentModal('${assign._fbKey}')">✏️ Sửa bài</button>
                     <button class="btn-reject" style="padding: 6px 15px; font-size: 0.9em;" onclick="deleteAssignment('${assign._fbKey}')">🗑 Xóa bài</button>
                 </div>
@@ -7461,7 +7476,7 @@ style="
     <div class="accordion-title"><h4>${window.escapeHTML(String(assign.title ?? ""))}</h4><span>HS: <strong>${window.escapeHTML(String(sub.studentName ?? ""))}</strong> ${lateSubmissionBadge} ${missingEssayBadge}</span></div>
     <div class="accordion-meta"><span>${gradeStatus}</span><span class="toggle-icon">▼</span></div>
 </div>
-            <div id="${window.escapeHTML(String(uniqueId))}" class="accordion-content">${violationHTML}<span style="color: #888; font-size: 0.85em; display: block; margin-bottom: 10px;">🕒 Lần nộp cuối: ${window.escapeHTML(String(sub.submitTime || 'Chưa rõ'))}</span>
+            <div id="${window.escapeHTML(String(uniqueId))}" class="accordion-content">${violationHTML}${window.AssignmentExtensions?.teacherInfo(sub) || ''}<span style="color: #888; font-size: 0.85em; display: block; margin-bottom: 10px;">🕒 Lần nộp cuối: ${window.escapeHTML(String(sub.submitTime || 'Chưa rõ'))}</span>
     ${watchStatusHTML}
     ${videoHTML}
                 <div style="
@@ -14553,12 +14568,12 @@ window.openAssignmentStatusModal = async function (assignId) {
         // Tạo dòng dữ liệu với hiệu ứng Hover
         html += `<tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
             <td style="padding:14px 16px;">
-                <span style="font-weight: 600; color: #1e293b; display: block;">${st.name}</span>
-                <span style="font-size: 0.8em; color: #64748b;">@${st.username}</span>
+                <span style="font-weight: 600; color: #1e293b; display: block;">${escapeTeacherHtml(st.name)}</span>
+                <span style="font-size: 0.8em; color: #64748b;">@${escapeTeacherHtml(st.username)}</span>
             </td>
             <td style="padding:14px 16px; text-align:center;">
                 <span style="color: ${statusColor}; background: ${statusBg}; padding: 6px 14px; border-radius: 50px; font-size: 0.85em; font-weight: 600; display: inline-block; border: 1px solid ${statusColor}25; white-space: nowrap;">
-                    ${statusText}
+                    ${escapeTeacherHtml(statusText)}
                 </span>
             </td>
         </tr>`;
@@ -16621,18 +16636,18 @@ window.viewSurveyResults = async function (fbKey) {
         Object.values(sv.answers).forEach(ans => {
             let answersHTML = '';
             sv.questions.forEach(q => {
-                const studentAns = ans.responses[q.id] || '(Bỏ trống)';
+                const studentAns = ans.responses?.[q.id] || '(Bỏ trống)';
                 answersHTML += `
                 <div style="margin-bottom: 10px; background: rgba(0,0,0,0.03); padding: 10px; border-radius: 8px;">
-                    <p style="margin: 0 0 5px 0; font-size: 0.9em; font-weight: bold; color: #444;">Hỏi: ${q.text}</p>
-                    <p style="margin: 0; color: #059669; font-weight: bold;">Đáp: ${studentAns}</p>
+                    <p style="margin: 0 0 5px 0; font-size: 0.9em; font-weight: bold; color: #444;">Hỏi: ${escapeTeacherHtml(q.text)}</p>
+                    <p style="margin: 0; color: #059669; font-weight: bold;">Đáp: ${escapeTeacherHtml(studentAns)}</p>
                 </div>`;
             });
 
             const div = document.createElement('div');
             div.style.cssText = 'background: rgba(255,255,255,0.6); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid rgba(0,0,0,0.05);';
             div.innerHTML = `
-                <h4 style="color: #764ba2; margin: 0 0 10px 0; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 5px;">👤 HS: ${ans.studentName} <span style="font-size:0.8em; color:#666;">(${ans.timestamp})</span></h4>
+                <h4 style="color: #764ba2; margin: 0 0 10px 0; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 5px;">👤 HS: ${escapeTeacherHtml(ans.studentName)} <span style="font-size:0.8em; color:#666;">(${escapeTeacherHtml(ans.timestamp)})</span></h4>
                 ${answersHTML}
             `;
             container.appendChild(div);
@@ -18840,32 +18855,23 @@ window.handleTeacherProcessCash = async function (reqFbKey, action) {
 
 // ================= HÀM TẠO NÚT LỌC HỌC SINH TỰ ĐỘNG =================
 function renderStudentFilterButtons(studentsArray) {
-    const assignedContainer = document.getElementById('assignedStudentFilterContainer');
-    const submittedContainer = document.getElementById('submittedStudentFilterContainer');
-    const materialsContainer = document.getElementById('materialsStudentFilterContainer');
-    const scheduleContainer = document.getElementById('scheduleStudentFilterContainer'); // THÊM DÒNG NÀY
-
-    let htmlAssigned = `<button class="btn-student-filter active" data-id="all" onclick="setStudentFilter('all', this, 'assigned')">Tất cả</button>`;
-    let htmlSubmitted = `<button class="btn-student-filter active" data-id="all" onclick="setStudentFilter('all', this, 'submitted')">Tất cả</button>`;
-    let htmlMaterials = `<button class="btn-student-filter active" data-id="all" onclick="setStudentFilter('all', this, 'materials')">Tất cả</button>`;
-    let htmlSchedule = `<button class="btn-student-filter active" data-id="all" onclick="setStudentFilter('all', this, 'schedule')">Tất cả</button>`; // THÊM DÒNG NÀY
-
-    studentsArray.forEach(student => {
-        let btnA = `<button class="btn-student-filter" data-id="${student.username}" onclick="setStudentFilter('${student.username}', this, 'assigned')">${student.name}</button>`;
-        let btnS = `<button class="btn-student-filter" data-id="${student.username}" onclick="setStudentFilter('${student.username}', this, 'submitted')">${student.name}</button>`;
-        let btnM = `<button class="btn-student-filter" data-id="${student.username}" onclick="setStudentFilter('${student.username}', this, 'materials')">${student.name}</button>`;
-        let btnSch = `<button class="btn-student-filter" data-id="${student.username}" onclick="setStudentFilter('${student.username}', this, 'schedule')">${student.name}</button>`; // THÊM DÒNG NÀY
-
-        htmlAssigned += btnA;
-        htmlSubmitted += btnS;
-        htmlMaterials += btnM;
-        htmlSchedule += btnSch; // THÊM DÒNG NÀY
-    });
-
-    if (assignedContainer) assignedContainer.innerHTML = htmlAssigned;
-    if (submittedContainer) submittedContainer.innerHTML = htmlSubmitted;
-    if (materialsContainer) materialsContainer.innerHTML = htmlMaterials;
-    if (scheduleContainer) scheduleContainer.innerHTML = htmlSchedule; // THÊM DÒNG NÀY
+    const containers = {assigned:'assignedStudentFilterContainer', submitted:'submittedStudentFilterContainer',
+        materials:'materialsStudentFilterContainer', schedule:'scheduleStudentFilterContainer'};
+    for (const [type, id] of Object.entries(containers)) {
+        const container = document.getElementById(id);
+        if (!container) continue;
+        const fragment = document.createDocumentFragment();
+        for (const [index, student] of [{username:'all',name:'Tất cả'}, ...(studentsArray || [])].entries()) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'btn-student-filter' + (index === 0 ? ' active' : '');
+            button.dataset.id = String(student.username ?? '');
+            button.textContent = String(student.name ?? student.username ?? '');
+            button.addEventListener('click', () => window.setStudentFilter(button.dataset.id, button, type));
+            fragment.appendChild(button);
+        }
+        container.replaceChildren(fragment);
+    }
 }
 
 // ================= HÀM LỌC BÀI TẬP VÀ BÀI NỘP THEO HỌC SINH =================

@@ -8,7 +8,7 @@
  const busy=new Set();
  const errors={INSUFFICIENT_THAT_TICH_COINS:'Bạn chưa đủ Xu Thất Tịch.',INSUFFICIENT_LOVE_COINS:'Bạn chưa đủ Xu tình yêu.',INVALID_EVENT_CURRENCY:'Loại xu này không dùng được cho vật phẩm đã chọn.',STORE_CLOSED:'Cửa hàng đang đóng.',ITEM_NOT_FOR_SALE:'Vật phẩm đang bị khóa.',ITEM_SALE_CLOSED:'Vật phẩm chưa trong thời gian mở bán.',STORE_GAME_ACCESS_DISABLED:'Giáo viên đã khóa quyền sử dụng cửa hàng.',INVALID_THAT_TICH_ITEM:'Danh mục máy chủ chưa có vật phẩm này. Cần cập nhật Worker.'};
  async function claim(){
-  if(!user||claimBusy===user||window.EconomyClient?.canMutate?.()===false||(window.ECONOMY_SERVER_ENABLED!==true && window.ECONOMY_EVENT_WALLETS_ENABLED!==true))return;
+  if(!user||ready||claimBusy===user||window.EconomyClient?.canMutate?.()===false||(window.ECONOMY_SERVER_ENABLED!==true && window.ECONOMY_EVENT_WALLETS_ENABLED!==true))return;
   const account=user;claimBusy=account;
   try{
    let result=await window.EconomyClient.execute('that_tich_auto',{}, {slot:'that-tich-annual'});
@@ -19,7 +19,7 @@
    clearTimeout(timer);
    // Recheck at the next Vietnam midnight, using the server clock rather than the device clock.
    const next=Math.floor((result.serverNow+25200000)/86400000)*86400000+86400000-25200000;
-   timer=setTimeout(()=>void claim(),Math.max(1000,Math.min(86400000,next-result.serverNow+1000)));
+   timer=setTimeout(()=>{ready=false;void claim();},Math.max(1000,Math.min(86400000,next-result.serverNow+1000)));
   }catch(e){if(user===account){if(window.EconomyClient?.reportError)window.EconomyClient.reportError('[Xu Thất Tịch]',e);else console.warn('[Xu Thất Tịch]',e.message);ready=false;clearTimeout(timer);timer=setTimeout(()=>void claim(),Math.max(60000,(Number(e.retryAt)||0)-Date.now()));}}
   finally{if(claimBusy===account)claimBusy=null;}
  }

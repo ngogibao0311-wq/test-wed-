@@ -11,6 +11,7 @@
         'birthday_issue', 'legacy_store_recover'
     ]);
     const labels = {
+        extension_buy: 'Đang xử lý gia hạn, vui lòng chờ…', extension_quote: 'Đang kiểm tra hạn và phí gia hạn…', extension_seed: 'Đang lưu mốc gia hạn…',
         cash_request: 'Đang gửi yêu cầu đổi tiền…', cash_approve: 'Đang xác nhận duyệt tiền…',
         cash_transition: 'Đang cập nhật giao dịch…', legacy_cash_recover: 'Đang đối soát yêu cầu trước…',
         convert_coin_to_money: 'Đang xác nhận đổi Coin…', convert_money_to_coin: 'Đang xác nhận đổi tiền…',

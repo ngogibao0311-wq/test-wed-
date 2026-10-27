@@ -86,7 +86,7 @@
         await check('Phiên đăng nhập', async () => { const user = firebase.auth().currentUser; if (!user) throw Error('Cần đăng nhập lại'); await timeout(user.getIdToken(true)); });
         await check('Khả năng lưu nháp trên máy', async () => { const key = `exam_probe_${Date.now()}`; try { window.TestBrowserStorage.localStorage.setItem(key, 'ok'); if (window.TestBrowserStorage.localStorage.getItem(key) !== 'ok') throw Error('Không đọc được bản nháp'); } finally { window.TestBrowserStorage.localStorage.removeItem(key); } });
         await check('Trạng thái và lịch bài thi', async () => {
-            live = (await timeout(db.ref(`assignments/${assignment._fbKey || assignment.id}`).once('value'))).val();
+            live = (await timeout(window.StudentStudyData.read(`assignments/${assignment._fbKey || assignment.id}`))).val();
             if (!live) throw Error('Không tìm thấy bài');
             if (live.isLocked === true || live.teacherLocked === true) throw Error('Giáo viên đã khóa bài');
             const now = Date.now();
