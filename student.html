@@ -9,24 +9,24 @@
     <script src="js/test-browser-storage.js?v=20261018.romeo1"></script>
     <link rel="stylesheet" href="css/app-dialog.css?v=20261003.cleanup1">
     <script src="js/grade-presentation.js?v=20261017.test.split1"></script>
-    <script src="js/app-dialog.js?v=20261024.controls1"></script>
-    <script src="js/server-activity.js?v=20261019.loading1"></script>
+    <script src="js/app-dialog.js?v=20261024.pendingdialog1"></script>
+    <script src="js/server-activity.js?v=20261027.test.extension1"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="application-version" content="4.4.1">
+    <meta name="application-version" content="4.4.2">
     <title>Trang Học Sinh</title>
     <!-- Kết nối sớm tới CDN lõi; không tải thêm tài nguyên và không đổi chức năng -->
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="icon" type="image/png" href="assets/icon.png">
-    <link rel="stylesheet" href="css/common.css?v=20261024.popup1">
+    <link rel="stylesheet" href="css/common.css?v=20261025.transfer1">
     <link rel="stylesheet" href="css/web-animations.css?v=20261003.cleanup2">
     <link rel="stylesheet" href="css/update-manager.css?v=20261003.cleanup1">
     <link rel="stylesheet" href="css/avatar-frame-base.css?v=20261014.frame1">
     <link id="linkclick-cheng-premium-style" rel="stylesheet" href="css/link-click-cheng-xiaoshi.css?v=20261003.aclp3">
     <!-- Core-first loader: CSS/module đặc biệt chỉ tải khi cần -->
-    <script src="js/student-feature-loader.js?v=20261024.session3"></script>
+    <script src="js/student-feature-loader.js?v=20261025.studyread1"></script>
     <script>
         MathJax = {
             tex: {
@@ -1394,7 +1394,7 @@
             <p style="font-size: 0.85em; color: #666; font-style: italic; margin-top: -10px; margin-bottom: 15px;">* Thư
                 có hạn sẽ tự động bị xóa sau 3 ngày nếu không nhận. Thư không có hạn được giữ nguyên.</p>
             <div id="studentInboxBody"
-                style="max-height: 60vh; overflow-y: auto; padding-right: 10px; margin-bottom: 10px;">
+                style="display:grid;grid-template-columns:minmax(0,1fr);gap:20px;align-content:start;max-height:60vh;overflow-y:auto;padding-right:10px;margin-bottom:10px;">
             </div>
         </div>
     </div>
@@ -1568,7 +1568,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <!-- 2. Khởi tạo Firebase -->
-    <script src="js/firebase-config.js?v=20261024.session3"></script>
+    <script src="js/firebase-config.js?v=20261025.studyread1"></script>
+<script src="js/student-study-data.js?v=20261025.studyread1"></script>
     <script src="js/asset-history.js?v=20261017.test-worker1"></script>
     <script src="js/cloudinary-storage.js?v=20261017.test.split1"></script>
 
@@ -1578,7 +1579,7 @@
         });
     </script>
 
-    <script src="js/cloudflare-r2-storage.js?v=20261017.test-worker1"></script>
+    <script src="js/cloudflare-r2-storage.js?v=20261025.storageconfig1"></script>
 
     <!-- 3. Thư viện đọc file DOCX -->
     <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
@@ -1590,7 +1591,7 @@
     <script>
         // Phiên bản thực sự của bộ HTML/JS đang chạy.
         // common.js?v=20261024.session3 cũ đọc appVersion từ window.TestBrowserStorage.localStorage, nên đồng bộ trước khi nạp common.js?v=20261024.session3
-        window.APP_VERSION = '4.4.1';
+        window.APP_VERSION = '4.4.2';
         // Remove saved progress for the retired garden prototype on this origin.
         try { window.TestBrowserStorage.localStorage.removeItem('cloud-garden-playtest-v1'); } catch (_) { }
         try {
@@ -1602,9 +1603,9 @@
 <script src="js/campus-pdf.js?v=20261017.test.split1"></script>
 <script src="js/common.js?v=20261024.popup1"></script>
 <script src="js/startup-data-coordinator.js?v=20261017.test.split1"></script>
-<script src="js/session-devices.js?v=20261024.popup1"></script>
+<script src="js/session-devices.js?v=20261025.transfer1"></script>
 <script src="js/economy-client.js?v=20261024.session3"></script>
-<script src="js/that-tich-wallet.js?v=20261018.romeo1"></script>
+<script src="js/that-tich-wallet.js?v=20261024.pendingdialog1"></script>
     <script src="js/history-retention.js?v=20261017.test.split1"></script>
     <script src="js/update-manager.js?v=20261019.study1"></script>
     <script src="js/web-animations.js?v=20261017.test.split1"></script>
@@ -1624,14 +1625,15 @@
     <script src="js/mc-workspace.js?v=20261019.study1"></script>
 <script src="js/page-work-coordinator.js?v=20261017.test.split1"></script>
 <script src="js/student-asset-history.js?v=20261017.test.split1"></script>
-<script src="js/study-reliability.js?v=20261018.romeo1"></script>
+<script src="js/study-reliability.js?v=20261025.studyread1"></script>
 <script src="js/pending-mechanism-reconciliation.js?v=20261017.test.split1"></script>
 <script src="js/cash-ledger.js?v=20261019.loading1"></script>
 <script src="js/inbox-ledger.js?v=20261017.test.split1"></script>
 <script src="js/student-view-performance.js?v=20261017.test.split1"></script>
 <script src="js/christmas-welcome.js?v=20261022.welcome-restored1"></script>
 <script src="js/year-review.js?v=20261022.review6"></script>
-<script src="js/student.js?v=20261024.popup1"></script>
+<script src="js/assignment-extensions.js?v=20261027.extension-layout2"></script>
+<script src="js/student.js?v=20261027.test.extension1"></script>
 
 
 <link rel="stylesheet" href="css/collection-rewards.css?v=20261003.cleanup1">
@@ -1641,8 +1643,8 @@
 <link rel="stylesheet" href="css/campus-design.css?v=20261007.phone1">
 <script src="js/campus-design.js?v=20261017.test.split1"></script>
 <link rel="stylesheet" href="css/mobile.css?v=20261007.phone6">
-<script src="js/mobile-layout.js?v=20261017.test.split1"></script>
-<script src="js/release-history.js?v=20261024.devices1"></script>
+<script src="js/mobile-layout.js?v=20261024.viewnav1"></script>
+<script src="js/release-history.js?v=20261027.test.extension1"></script>
 <script defer src="js/xmas-overlay.js?v=20261023.garland1"></script>
 </body>
 

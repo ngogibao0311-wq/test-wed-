@@ -1,33 +1,29 @@
 {
-  "version": "4.4.1",
-  "build": "20261024.devices1",
+  "version": "4.4.2",
+  "build": "20261027.test.extension1",
   "channel": "test",
-  "releasedAt": "2026-10-24T00:00:00+07:00",
-  "title": "Phiên bản 4.4.1 · Bảo vệ tài khoản khi dùng nhiều thiết bị",
-  "summary": "Quản lý các thiết bị đang đăng nhập, làm rõ chế độ chỉ xem và chuyển quyền sử dụng có xác nhận.",
+  "releasedAt": "2026-10-27T00:00:00+07:00",
+  "title": "Bản test 4.4.2 · Gia hạn nộp bài",
+  "summary": "Thử gia hạn bài, thanh toán coin, hoàn coin và theo dõi lịch sử riêng từng học sinh.",
   "mandatory": false,
   "minSupportedVersion": "3.0.0",
   "changes": [
-    "Thêm mục “Thiết bị đang đăng nhập” để xem các lần đăng nhập, nhận biết thiết bị đang được thao tác và đăng xuất thiết bị không còn sử dụng.",
-    "Thiết bị chỉ xem không được phát video, nhận quà, xác nhận thư, gửi câu trả lời hoặc sửa bài. Bạn vẫn có thể xem nội dung, chuyển mục và đăng xuất.",
-    "Khi muốn dùng thiết bị khác, bạn có thể gửi yêu cầu chuyển quyền và chờ thiết bị đang được thao tác đồng ý.",
-    "Nếu không còn dùng được thiết bị trước, bạn cần nhập lại mã khôi phục và chờ lần đăng nhập trước hết hạn để xin quyền thao tác.",
-    "Chưa cho chuyển quyền khi còn bài thi chưa kết thúc, giao dịch chưa rõ kết quả hoặc tệp đang được xử lý.",
-    "Chỉ tính thời gian xem video ở một cửa sổ tại một thời điểm. Khi đổi cửa sổ, tiếp tục từ thời lượng đã được xác nhận.",
-    "Khi quyền sử dụng thay đổi, các trang đang mở sẽ kiểm tra lại và khóa những thao tác không còn được phép."
+    "Thêm nút Gia hạn ở Bài tập cần làm, chọn ngày giờ và xem phí trước khi xác nhận.",
+    "Tối đa 2 lần cho mỗi bài; không quá 14 ngày từ giờ giao và không sang tháng kế tiếp.",
+    "Phí 100 coin/giờ, tính lẻ theo phút; chỉ thu thêm phần chưa trả và không thu lại thời gian giáo viên cho miễn phí.",
+    "Giáo viên xem Có gia hạn, hạn riêng và lịch sử thanh toán, hoàn coin.",
+    "Bài cũ thiếu mốc gốc có bước xác nhận của giáo viên trước khi cho gia hạn."
   ],
   "resolvedIssues": [
-    "Sửa lỗi thiết bị chỉ xem vẫn có thể phát video và làm đủ điều kiện mở bài.",
-    "Chặn nhận quà, xác nhận thư và gửi câu trả lời từ thiết bị chỉ xem, kể cả khi trang chưa kịp đổi trạng thái.",
-    "Sửa tình huống nhiều thiết bị cùng xin quyền thao tác; chỉ một lần đăng nhập được nhận quyền.",
-    "Giữ kết quả đã được xác nhận khi mất kết nối, tránh thực hiện lại cùng một giao dịch.",
-    "Hiển thị rõ thiết bị đang được thao tác, thiết bị chỉ xem và yêu cầu đang chờ đồng ý."
+    "Giữ cùng yêu cầu khi mất kết nối để không trừ coin hoặc hoàn coin trùng.",
+    "Trừ coin và lưu hạn riêng cùng nhau; hoàn coin cùng thay đổi của giáo viên.",
+    "Giữ nội dung và tệp đang chọn khi hạn nộp thay đổi.",
+    "Gia hạn không tăng đồng hồ làm bài, không mở bài đã nộp và không xóa lỗi quá hạn đã có."
   ],
   "knownIssues": [
-    "Các thay đổi về quản lý thiết bị chỉ có hiệu lực sau khi hệ thống được chuẩn bị đầy đủ và tài khoản nhận được xác nhận.",
-    "Nếu không còn thiết bị được thao tác nhưng vẫn có bài thi hoặc giao dịch đang chờ, hãy nhờ giáo viên kiểm tra trước khi chuyển quyền.",
-    "Thiết bị mất kết nối cần kết nối lại để nhận trạng thái quyền mới. Không tải lại trang khi đang làm bài hoặc chờ xác nhận giao dịch.",
-    "Đây là bản dùng thử. Một số thay đổi về quản lý thiết bị có thể chưa được bật."
+    "Bản test có chế độ mở gia hạn thử nhanh khi chưa đặt cờ bật; đặt cờ false vẫn tạm dừng.",
+    "Dùng dữ liệu test và giữ cơ chế tính phí, giới hạn ngày, chống trừ trùng. Kết quả thử không chứng minh bản chính đã chạy online.",
+    "Cần cập nhật Worker, Rules và toàn bộ website test. Bài cũ cần giáo viên xác nhận mốc gốc."
   ],
   "plannedImprovements": []
 }

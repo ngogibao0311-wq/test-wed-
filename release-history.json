@@ -1,6 +1,35 @@
 {
   "releases": [
     {
+      "version": "4.4.2",
+      "build": "20261027.test.extension1",
+      "channel": "test",
+      "releasedAt": "2026-10-27T00:00:00+07:00",
+      "title": "Bản test 4.4.2 · Gia hạn nộp bài",
+      "summary": "Thử gia hạn bài, thanh toán coin, hoàn coin và theo dõi lịch sử riêng từng học sinh.",
+      "mandatory": false,
+      "minSupportedVersion": "3.0.0",
+      "changes": [
+        "Thêm nút Gia hạn ở Bài tập cần làm, chọn ngày giờ và xem phí trước khi xác nhận.",
+        "Tối đa 2 lần cho mỗi bài; không quá 14 ngày từ giờ giao và không sang tháng kế tiếp.",
+        "Phí 100 coin/giờ, tính lẻ theo phút; chỉ thu thêm phần chưa trả và không thu lại thời gian giáo viên cho miễn phí.",
+        "Giáo viên xem Có gia hạn, hạn riêng và lịch sử thanh toán, hoàn coin.",
+        "Bài cũ thiếu mốc gốc có bước xác nhận của giáo viên trước khi cho gia hạn."
+      ],
+      "resolvedIssues": [
+        "Giữ cùng yêu cầu khi mất kết nối để không trừ coin hoặc hoàn coin trùng.",
+        "Trừ coin và lưu hạn riêng cùng nhau; hoàn coin cùng thay đổi của giáo viên.",
+        "Giữ nội dung và tệp đang chọn khi hạn nộp thay đổi.",
+        "Gia hạn không tăng đồng hồ làm bài, không mở bài đã nộp và không xóa lỗi quá hạn đã có."
+      ],
+      "knownIssues": [
+        "Bản test có chế độ mở gia hạn thử nhanh khi chưa đặt cờ bật; đặt cờ false vẫn tạm dừng.",
+        "Dùng dữ liệu test và giữ cơ chế tính phí, giới hạn ngày, chống trừ trùng. Kết quả thử không chứng minh bản chính đã chạy online.",
+        "Cần cập nhật Worker, Rules và toàn bộ website test. Bài cũ cần giáo viên xác nhận mốc gốc."
+      ],
+      "plannedImprovements": []
+    },
+    {
       "version": "4.4.1",
       "build": "20261024.devices1",
       "channel": "test",
